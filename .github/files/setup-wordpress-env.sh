@@ -51,9 +51,8 @@ export COMPOSER_MIRROR_PATH_REPOS=true
 
 BASE="$(pwd)"
 PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
-EXIT=0
-for PLUGIN in projects/plugins/*/composer.json; do
-	DIR="${PLUGIN%/composer.json}"
+_install_plugin() {
+	DIR="${1%/composer.json}"
 	NAME="$(basename "$DIR")"
 
 	echo "::group::Installing plugin $NAME into WordPress"
@@ -61,7 +60,7 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	if php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$DIR/composer.json" )"; then
 		echo "::endgroup::"
 		echo "Skipping install of plugin $NAME, requires PHP $( jq -r '.require.php // ""' "$DIR/composer.json" )"
-		continue
+		return 0
 	fi
 
 	if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$DIR/composer.json" > /dev/null; then
@@ -69,12 +68,11 @@ for PLUGIN in projects/plugins/*/composer.json; do
 		if [[ $CODE -eq 3 ]]; then
 			echo "::endgroup::"
 			echo "Skipping install of plugin $NAME due to skip-$TEST_SCRIPT script"
-			continue
+			return 0
 		elif [[ $CODE -ne 0 ]]; then
 			echo "::endgroup::"
 			echo "::error::Script skip-$TEST_SCRIPT for plugin $NAME failed to run! ($CODE)"
-			EXIT=1
-			continue
+			return 1
 		fi
 	fi
 
@@ -101,16 +99,12 @@ for PLUGIN in projects/plugins/*/composer.json; do
 			if ! composer update "${DEPS[@]}"; then
 				echo "::endgroup::"
 				echo "::error::plugins/$NAME: Platform reqs failed for PHP $(php -r 'echo PHP_VERSION;') and updating dev deps didn't help. The plugin is likely broken for that PHP version."
-				EXIT=1
-				cd "$BASE"
-				continue
+				return 1
 			fi
 		else
 			echo "::endgroup::"
 			echo "::error::plugins/$NAME: Platform reqs failed for PHP $(php -r 'echo PHP_VERSION;'). The plugin is likely broken for that PHP version."
-			EXIT=1
-			cd "$BASE"
-			continue
+			return 1
 		fi
 	fi
 	cd "$BASE"
@@ -140,6 +134,22 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	echo "define( 'JETPACK_AUTOLOAD_DEV', true );" >> "$WP_TEST_CONFIG"
 
 	echo "::endgroup::"
+}
+
+EXIT=0
+PIDS=()
+TMPFILES=()
+for PLUGIN in projects/plugins/*/composer.json; do
+	TMPOUT=$(mktemp)
+	TMPFILES+=("$TMPOUT")
+	_install_plugin "$PLUGIN" >"$TMPOUT" 2>&1 &
+	PIDS+=($!)
+done
+
+for i in "${!PIDS[@]}"; do
+	wait "${PIDS[$i]}" || EXIT=1
+	cat "${TMPFILES[$i]}"
+	rm "${TMPFILES[$i]}"
 done
 
 # Install WooCommerce plugin used for some Jetpack integration tests.
