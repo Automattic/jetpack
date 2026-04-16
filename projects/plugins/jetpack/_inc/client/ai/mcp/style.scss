@@ -17,6 +17,11 @@
 		&.components-button.is-tertiary {
 			box-shadow: none;
 		}
+
+		// Row decoration icons (Read / Write) — neutral gray to match Calypso
+		svg.jetpack-ai-mcp__row-icon {
+			fill: var(--color-neutral-70, #3c434a);
+		}
 	}
 
 	&__connect-row {

@@ -16,7 +16,7 @@ import {
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { seen, pencil, connection, chevronRight, check } from '@wordpress/icons';
+import { seen, pencil, connection, chevronRight, info, published, caution } from '@wordpress/icons';
 import { isWriteTool } from './categories';
 import {
 	getAccountMcpAbilities,
@@ -72,13 +72,15 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 		<Button className="jetpack-ai-mcp__summary-row" onClick={ onClick } variant="tertiary">
 			<HStack justify="space-between" alignment="center" style={ { width: '100%' } }>
 				<HStack spacing={ 2 } alignment="center" justify="flex-start">
-					<Icon icon={ icon } size={ 24 } />
+					<Icon className="jetpack-ai-mcp__row-icon" icon={ icon } size={ 24 } />
 					<Text>{ title }</Text>
 				</HStack>
 				<HStack spacing={ 2 } alignment="center" justify="flex-end">
 					{ badge && (
 						<span className={ `jetpack-ai-mcp__badge jetpack-ai-mcp__badge--${ intent }` }>
-							{ intent === 'success' && <Icon icon={ check } size={ 16 } /> }
+							{ intent === 'info' && <Icon icon={ info } size={ 16 } /> }
+							{ intent === 'success' && <Icon icon={ published } size={ 16 } /> }
+							{ intent === 'warning' && <Icon icon={ caution } size={ 16 } /> }
 							{ badge.text }
 						</span>
 					) }
