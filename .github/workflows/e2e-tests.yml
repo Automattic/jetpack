@@ -44,7 +44,21 @@ jobs:
       # Required for list-changed-projects.sh
       - name: Install monorepo
         run: |
-          pnpm install
+          pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Save node_modules cache for build-projects
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Create test plan
         id: evaluate
@@ -87,8 +101,19 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - name: Install monorepo
-        run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Build projects
         id: build-step
