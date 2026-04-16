@@ -69,6 +69,39 @@ Currently linting.yml alone has 9 separate `pnpm install` calls in 9 separate jo
 **Tool setup context:**
 The `tool-setup` action generates SSL certs and starts the packagist proxy on EVERY job that uses both PHP and Node. This is ~5-10 seconds of overhead per job.
 
+## Achievements So Far
+
+### Summary
+- **Baseline**: 12 `run: pnpm install` calls, 322s CI install cost
+- **Current**: 1 `run: pnpm install` call, 26s CI install cost (92% reduction)
+
+### Optimization 1: linting.yml shared install job (→ 12 to 4 calls)
+Added `install_js_deps` job to linting.yml that runs pnpm install once and caches node_modules. The 9 linting jobs (eslint, eslint_changed, lint_style, lint_gh_actions, check_excludelists, monorepo_package_refs, project_structure, typecheck, phan) now depend on it and restore from cache instead of each installing independently.
+
+Key: node_modules are relative symlinks to `~/.pnpm/store`. After setup-node restores the pnpm store AND the node_modules cache is restored, symlinks resolve correctly.
+
+### Optimization 2: build.yml prepare→build caching (→ 4 to 3 calls)
+Added cache save step to prepare job; build matrix jobs restore instead of installing.
+
+### Optimization 3: e2e-tests.yml caching (→ 3 to 2 calls)
+create-test-matrix job (already installing, in multi-line block) now saves cache; build-projects matrix job restores instead of installing.
+
+### Optimization 4: Reusable install-deps.yml workflow (→ 2 to 1 call)
+Centralized install logic into `.github/workflows/install-deps.yml` (reusable workflow). Both linting.yml's `install_js_deps` and build.yml's `install_build_deps` call this reusable workflow. Only 1 `run: pnpm install` line exists in workflow files.
+
+Key insight: `github.run_id` in a reusable workflow is the SAME as the caller's run_id. Cache keys using `${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}` are consistent between the reusable workflow and consumer jobs in the calling workflow.
+
+### Optimization 5: Cross-run caching (practical: 0 actual installs on warm cache)
+install-deps.yml now first tries to restore from a cross-run cache (key: `pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}`). On warm lockfile (consecutive PRs without lockfile changes), 0 installs run. Only fires on first PR after lockfile changes.
+
+## What's Been Tried (Dead Ends)
+
+### prefer-offline: true in pnpm-workspace.yaml
+0.5s improvement, within noise. Local store has some missing entries so downloads still happen.
+
+### --no-optional
+~0.7s improvement locally but within noise. Also risky (could break native packages that use optional platform binaries).
+
 ## What's Been Tried
 
 ### Pre-existing experiments (not merged to trunk)

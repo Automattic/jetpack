@@ -32,10 +32,14 @@ jobs:
           MATRIX="$(.github/files/generate-ci-matrix.php)"
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
+  install_test_deps:
+    name: Install JS dependencies (shared for tests)
+    uses: ./.github/workflows/install-deps.yml
+
   run-tests:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
-    needs: create-matrix
+    needs: [create-matrix, install_test_deps]
     services:
       database:
         image: mariadb:12.0
@@ -85,11 +89,19 @@ jobs:
           coverage: ${{ case( matrix.script == 'test-coverage', 'pcov', 'none' ) }}
           node: ${{ matrix.node }}
 
-      - name: Monorepo install
-        run: |
-          echo "::group::Pnpm"
-          pnpm install
-          echo "::endgroup::"
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Detect changed projects
         id: changed
@@ -360,6 +372,7 @@ jobs:
   storybook-test:
     name: Storybook tests
     runs-on: ubuntu-latest
+    needs: install_test_deps
     timeout-minutes: 20 # 2025-11-20: Takes about 4 minutes
     steps:
       - uses: actions/checkout@v6
@@ -375,11 +388,19 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - name: Monorepo install
-        run: |
-          echo "::group::Pnpm"
-          pnpm install
-          echo "::endgroup::"
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Detect changed projects
         id: changed
