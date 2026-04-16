@@ -5003,18 +5003,12 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../../packages/explat
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack
-      '@automattic/jetpack-newsletter':
-        specifier: workspace:*
-        version: link:../../packages/newsletter
       '@automattic/jetpack-partner-coupon':
         specifier: workspace:*
         version: link:../../js-packages/partner-coupon
@@ -5027,27 +5021,18 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
-      '@automattic/jetpack-subscribers-dashboard':
-        specifier: workspace:*
-        version: link:../../packages/subscribers-dashboard
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
       '@automattic/popup-monitor':
         specifier: 1.0.2
         version: 1.0.2
-      '@automattic/request-external-access':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/social-previews':
         specifier: workspace:*
         version: link:../../js-packages/social-previews
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
-      '@microsoft/fetch-event-source':
-        specifier: 2.0.1
-        version: 2.0.1
       '@react-spring/web':
         specifier: 9.7.5
         version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5126,9 +5111,6 @@ importers:
       '@wordpress/viewport':
         specifier: 6.44.0
         version: 6.44.0(react@18.3.1)
-      '@wordpress/widgets':
-        specifier: 4.44.0
-        version: 4.44.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
       '@wordpress/wordcount':
         specifier: 4.44.0
         version: 4.44.0
@@ -5361,9 +5343,6 @@ importers:
       postcss-loader:
         specifier: 8.2.0
         version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
-      regenerator-runtime:
-        specifier: 0.13.9
-        version: 0.13.9
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
@@ -15922,9 +15901,6 @@ packages:
 
   regenerate@1.4.2:
     resolution: {integrity: sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A==}
-
-  regenerator-runtime@0.13.9:
-    resolution: {integrity: sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==}
 
   regexp.prototype.flags@1.5.4:
     resolution: {integrity: sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA==}
@@ -31569,8 +31545,6 @@ snapshots:
       regenerate: 1.4.2
 
   regenerate@1.4.2: {}
-
-  regenerator-runtime@0.13.9: {}
 
   regexp.prototype.flags@1.5.4:
     dependencies:
