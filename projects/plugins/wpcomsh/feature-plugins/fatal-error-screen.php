@@ -35,22 +35,13 @@ function wpcomsh_filter_fatal_error_message( $message ) {
 		$troubleshooting_url = localized_wpcom_url( $troubleshooting_url );
 	}
 
-	if ( ! preg_match_all( '#<p>(.*?)</p>#', $message, $paragraph_matches ) || count( $paragraph_matches[1] ) < 2 ) {
+	if ( ! preg_match( '#<p><a\b[^>]*>(.*?)</a></p>$#', $message, $troubleshooting_match ) ) {
 		return $message;
 	}
 
-	$paragraphs                = $paragraph_matches[1];
-	$troubleshooting_paragraph = $paragraphs[ count( $paragraphs ) - 1 ];
-
-	if ( ! preg_match( '#^<a\b[^>]*>(.*?)</a>$#', $troubleshooting_paragraph, $troubleshooting_match ) ) {
-		return $message;
-	}
-
-	$troubleshooting_text = wpcomsh_get_fatal_error_link_text(
-		wp_strip_all_tags( $troubleshooting_match[1] ),
-		'Learn more about troubleshooting WordPress.',
-		'Learn more about troubleshooting WordPress.com.'
-	);
+	$troubleshooting_text = 'Learn more about troubleshooting WordPress.' === $troubleshooting_match[1]
+		? 'Learn more about troubleshooting WordPress.com.'
+		: $troubleshooting_match[1];
 
 	$message = preg_replace(
 		'#<p><a\b[^>]*>.*?</a></p>$#',
@@ -67,11 +58,9 @@ function wpcomsh_filter_fatal_error_message( $message ) {
 		return $message;
 	}
 
-	$support_forums_text = wpcomsh_get_fatal_error_link_text(
-		wp_strip_all_tags( $anchor_matches[1][0] ),
-		'support forums',
-		'WordPress.com support forums'
-	);
+	$support_forums_text = 'support forums' === $anchor_matches[1][0]
+		? 'WordPress.com support forums'
+		: $anchor_matches[1][0];
 
 	return preg_replace(
 		'#<a\b[^>]*>.*?</a>#',
@@ -85,22 +74,3 @@ function wpcomsh_filter_fatal_error_message( $message ) {
 	);
 }
 add_filter( 'wp_php_error_message', 'wpcomsh_filter_fatal_error_message' );
-
-/**
- * Rebrand the link text when WP core emitted the default English copy.
- *
- * Localized text is preserved so visitors still read the link in their own
- * language even when the destination changes.
- *
- * @param string $text                The current link text.
- * @param string $core_english_text   The English copy WP core emits.
- * @param string $wpcom_english_text  The WordPress.com-branded English copy.
- * @return string
- */
-function wpcomsh_get_fatal_error_link_text( $text, $core_english_text, $wpcom_english_text ) {
-	if ( $core_english_text === $text ) {
-		return $wpcom_english_text;
-	}
-
-	return $text;
-}
