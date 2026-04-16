@@ -236,40 +236,12 @@ jobs:
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
-  ### Shared JS dependency install job.
-  # Runs pnpm install once and caches node_modules so that all JS linting jobs
-  # can restore the cache instead of each running their own install.
-  # This avoids up to 9 redundant pnpm installs per PR (each ~1-5 minutes).
+  ### Shared JS dependency install job (reusable workflow).
+  # Calls the centralized install-deps.yml workflow which installs pnpm
+  # workspace dependencies once and caches node_modules so that all JS linting
+  # jobs can restore the cache instead of each running their own install.
   install_js_deps:
-    name: Install JS dependencies (shared)
-    runs-on: ubuntu-latest
-    needs: changed_files
-    timeout-minutes: 5  # 2026-04-16: Should take about 1-2 minutes.
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup tools (Node only)
-        uses: ./.github/actions/tool-setup
-        with:
-          php: false
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
-        timeout-minutes: 5
-
-      - name: Save node_modules cache
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            node_modules
-            projects/*/*/node_modules
-            projects/plugins/*/tests/e2e/node_modules
-            tools/cli/node_modules
-            tools/e2e-commons/node_modules
-            tools/js-tools/node_modules
-            tools/performance/node_modules
-            .github/files/coverage-munger/node_modules
-          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
+    uses: ./.github/workflows/install-deps.yml
 
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`

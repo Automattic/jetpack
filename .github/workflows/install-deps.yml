@@ -1,0 +1,50 @@
+name: Install JS Dependencies (Reusable)
+
+# This is a reusable workflow. Callers: linting.yml, build.yml.
+# It installs pnpm workspace dependencies once and saves them to a run-scoped
+# GitHub Actions cache. Consumer jobs in the calling workflow restore from that
+# cache instead of running their own pnpm install.
+#
+# Because GitHub Actions reusable workflows share the `github` context with the
+# calling workflow, `github.run_id` inside this workflow is the SAME as the
+# caller's run_id. This means the cache key is consistent across jobs in the
+# calling workflow.
+
+on:
+  workflow_call:
+
+permissions:
+  # actions/checkout
+  contents: read
+
+jobs:
+  install:
+    name: Install JS dependencies (shared)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2026-04-16: Should take about 1-2 minutes.
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup tools (Node only)
+        uses: ./.github/actions/tool-setup
+        with:
+          php: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+        timeout-minutes: 5
+
+      - name: Save node_modules cache for this run's consumer jobs
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}

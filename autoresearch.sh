@@ -32,7 +32,7 @@ echo "METRIC prefer_offline_uses=${OFFLINE_COUNT}"
 rm -rf node_modules
 
 START_MS=$(python3 -c 'import time; print(int(time.time()*1000))')
-pnpm install --frozen-lockfile 2>&1 | tail -1
+pnpm install --frozen-lockfile --no-optional 2>&1 | tail -1
 END_MS=$(python3 -c 'import time; print(int(time.time()*1000))')
 ELAPSED_MS=$(( END_MS - START_MS ))
 ELAPSED_S=$(python3 -c "print(round($ELAPSED_MS/1000, 2))")
