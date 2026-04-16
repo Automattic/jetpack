@@ -36,7 +36,26 @@ jobs:
         with:
           # Match PHP version on WP Cloud so the right vendor packages get installed.
           php: 8.3
-      - name: Monorepo install
+
+      - name: Restore cross-run node_modules cache
+        id: xr-cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-workspace-
+
+      - name: Monorepo install (only on cross-run cache miss)
+        if: steps.xr-cache-restore.outputs.cache-hit != 'true'
         run: |
           echo "::group::Pnpm"
           pnpm install --frozen-lockfile --prefer-offline

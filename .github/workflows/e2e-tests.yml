@@ -41,8 +41,27 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
+      # Use cross-run cache if available (same lockfile = identical node_modules).
+      - name: Restore cross-run node_modules cache
+        id: xr-cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-workspace-
+
       # Required for list-changed-projects.sh
-      - name: Install monorepo
+      - name: Install monorepo (only on cross-run cache miss)
+        if: steps.xr-cache-restore.outputs.cache-hit != 'true'
         run: |
           pnpm install --frozen-lockfile --prefer-offline
 
