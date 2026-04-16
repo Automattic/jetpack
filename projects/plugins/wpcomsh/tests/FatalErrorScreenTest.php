@@ -58,7 +58,7 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 	 * link is rebranded — both URL and anchor text — to the WordPress.com one.
 	 */
 	public function test_filter_rebrands_english_support_forums_link(): void {
-		$message = '<p>...<a href="https://wordpress.org/support/forums/">support forums</a>...</p>';
+		$message = '<p>There has been a critical error on this website. Please check your site admin email inbox for instructions. If you continue to have problems, please try the <a href="https://wordpress.org/support/forums/">support forums</a>.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>';
 
 		$filtered = wpcomsh_filter_fatal_error_message( $message );
 
@@ -84,14 +84,12 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * On a localized site the anchor text WP core emits has been translated,
-	 * so the full-anchor rewrite no longer matches. The URL-only fallback
-	 * should still redirect visitors to WordPress.com while preserving the
-	 * translated anchor text — they should read the link in their own language.
+	 * On a localized site WP core may translate both the anchor text and the
+	 * destination URL. The filter should still redirect visitors to
+	 * WordPress.com while preserving the translated copy they read.
 	 */
-	public function test_filter_preserves_translated_anchor_text_and_swaps_url(): void {
-		// Simulate Spanish localization: anchor text is translated, URL isn't.
-		$message = '<p>Ha ocurrido un error crítico en este sitio web. Si los problemas continúan, prueba en los <a href="https://wordpress.org/support/forums/">foros de soporte</a>.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Aprende más acerca de la depuración de WordPress.</a></p>';
+	public function test_filter_preserves_translated_anchor_text_when_core_also_translates_urls(): void {
+		$message = '<p>Ha ocurrido un error crítico en este sitio web. Si los problemas continúan, prueba en los <a href="https://es.wordpress.org/support/forums/">foros de soporte</a>.</p><p><a href="https://es.wordpress.org/documentation/article/faq-troubleshooting/">Aprende más acerca de la depuración de WordPress.</a></p>';
 
 		$filtered = wpcomsh_filter_fatal_error_message( $message );
 
@@ -101,6 +99,16 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( '>Aprende más acerca de la depuración de WordPress.</a>', $filtered );
 		$this->assertStringNotContainsString( 'wordpress.org/support/forums', $filtered );
 		$this->assertStringNotContainsString( 'wordpress.org/documentation/article/faq-troubleshooting', $filtered );
+	}
+
+	/**
+	 * Messages that do not match core's fatal-error paragraph structure should
+	 * pass through unchanged even if they contain anchors.
+	 */
+	public function test_filter_leaves_unrelated_link_markup_untouched(): void {
+		$message = '<p>Some other critical-error markup.</p><div><a href="https://example.com/help">Example help link</a></div>';
+
+		$this->assertSame( $message, wpcomsh_filter_fatal_error_message( $message ) );
 	}
 
 	/**
