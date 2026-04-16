@@ -7,6 +7,10 @@
  * default WordPress.org ones. The body sentence mirrors core's branching (recovery
  * mode, protected endpoint, multisite) so each context keeps its contextual message.
  *
+ * Sentences that are verbatim from WP core use the `default` text domain so they
+ * pick up core's existing translations, which are loaded early enough to survive a
+ * fatal that aborts bootstrap before wpcomsh's own text domain is registered.
+ *
  * @package wpcomsh
  */
 
@@ -30,16 +34,23 @@ add_filter( 'wp_php_error_message', 'wpcomsh_filter_fatal_error_message' );
  * Pick the fatal-error body sentence for the current context, mirroring the
  * branching in WP_Fatal_Error_Handler::display_default_error_template().
  *
+ * Core gates the "putting it in recovery mode" message on `$handled`, which isn't
+ * exposed to the `wp_php_error_message` filter. We approximate with
+ * `! is_multisite() && wp_is_recovery_mode()`, which matches the conditions that
+ * allow `$handled` to be truthy in the first place.
+ *
  * @return string The body sentence.
  */
 function wpcomsh_get_fatal_error_body() {
-	if ( wp_is_recovery_mode() ) {
-		return __( 'There has been a critical error on this website, putting it in recovery mode. Please check the Themes and Plugins screens for more details. If you just installed or updated a theme or plugin, check the relevant page for that first.', 'wpcomsh' );
+	if ( ! is_multisite() && wp_is_recovery_mode() ) {
+		// phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- Verbatim from WP core to reuse core's early-loaded translations.
+		return __( 'There has been a critical error on this website, putting it in recovery mode. Please check the Themes and Plugins screens for more details. If you just installed or updated a theme or plugin, check the relevant page for that first.', 'default' );
 	}
 
 	if ( is_protected_endpoint() && wp_recovery_mode()->is_initialized() ) {
 		if ( is_multisite() ) {
-			return __( 'There has been a critical error on this website. Please reach out to your site administrator, and inform them of this error for further assistance.', 'wpcomsh' );
+			// phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- Verbatim from WP core to reuse core's early-loaded translations.
+			return __( 'There has been a critical error on this website. Please reach out to your site administrator, and inform them of this error for further assistance.', 'default' );
 		}
 
 		$support_forums_link = sprintf(
@@ -55,5 +66,6 @@ function wpcomsh_get_fatal_error_body() {
 		);
 	}
 
-	return __( 'There has been a critical error on this website.', 'wpcomsh' );
+	// phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- Verbatim from WP core to reuse core's early-loaded translations.
+	return __( 'There has been a critical error on this website.', 'default' );
 }
