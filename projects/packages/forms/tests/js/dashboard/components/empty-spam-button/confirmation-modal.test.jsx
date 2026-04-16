@@ -16,8 +16,8 @@ const renderModal = () => {
 			isOpen
 			onCancel={ onCancel }
 			onConfirm={ onConfirm }
-			totalItemsSpam={ 3 }
-			selectedResponsesCount={ 0 }
+			scopeMode="all"
+			count={ 3 }
 		/>
 	);
 	return { onCancel, onConfirm };
@@ -27,7 +27,7 @@ describe( 'EmptySpamConfirmationModal', () => {
 	it( 'confirms without calling onCancel', async () => {
 		const { onCancel, onConfirm } = renderModal();
 
-		await userEvent.click( await screen.findByRole( 'button', { name: 'Delete' } ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Delete forever' } ) );
 
 		await waitFor( () => expect( onConfirm ).toHaveBeenCalledTimes( 1 ) );
 		expect( onCancel ).not.toHaveBeenCalled();
