@@ -228,9 +228,22 @@ jobs:
           echo "a65ceb838f1deb941f7ea9101ff54eaba04179135fd562456a59ea293479e113  cloudflared.deb" | sha256sum -c
           sudo dpkg -i cloudflared.deb
 
-      - name: Install monorepo
-        run: |
-          pnpm install
+      - name: Restore cross-run node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+            pnpm-workspace-
 
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
@@ -439,7 +452,7 @@ jobs:
         env:
           COMPOSER_ROOT_VERSION: dev-trunk
         run: |
-          pnpm install
+          pnpm install --frozen-lockfile --prefer-offline
           composer install
           composer build-development
         working-directory: ./projects/github-actions/test-results-to-slack
