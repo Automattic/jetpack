@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.7.1 - 2026-04-16
+### Bug fixes
+- My Jetpack: Fix Hybrid products not deactivating when activated via the Jetpack-module path. [#48091]
+- VideoPress: Fix block editor errors when used with Gutenberg 23.0.0+.
+
 ## 15.7 - 2026-04-08
 ### Major Enhancements
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
