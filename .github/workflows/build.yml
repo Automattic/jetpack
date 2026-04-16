@@ -53,7 +53,21 @@ jobs:
           php: false
 
       - name: Pnpm install
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Save node_modules cache for build jobs
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       # For trunk merges, we build everything but split into two jobs: 'wpcom' and 'non-wpcom'. The 'wpcom' job pushes certain plugins to mirrors.
       # For everything else, we do a single build job.
@@ -137,9 +151,20 @@ jobs:
         uses: ./.github/actions/tool-setup
         timeout-minutes: 3  # 2026-04-07: Successful runs seem to take ~30 seconds
 
-      - name: Pnpm install
-        timeout-minutes: 5  # 2025-11-20: The pnpm install may take a few minutes on cache miss.
-        run: pnpm install
+      - name: Restore node_modules cache
+        timeout-minutes: 2  # 2026-04-16: Cache restore should be very fast (symlinks only).
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       # We need the tree (but not the blob) for packages that will have -alpha version numbers so the timestamp appending works right.
       # We also need the tree for js-packages/social-logos/src/svg so the font build will work right.
