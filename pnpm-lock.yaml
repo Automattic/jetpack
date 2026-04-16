@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-Pzf3LTskBBhaUVLGp1XcevWWCvkOS5YwOLAhGz0XPU4=
+pnpmfileChecksum: sha256-iy5edvPOkOlq6emYtzInu5RnBLsFP3yvdFI7GQqGN9c=
 
 patchedDependencies:
   react-autosize-textarea:
