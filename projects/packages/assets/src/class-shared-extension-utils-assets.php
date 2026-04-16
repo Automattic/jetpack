@@ -36,6 +36,11 @@ class Shared_Extension_Utils_Assets {
 				'in_footer'  => true,
 				// phpcs:ignore Jetpack.Functions.I18n.TextDomainMismatch, WordPress.Utils.I18nTextDomainFixer -- Bundle contains shared-extension-utils code with its own textdomain.
 				'textdomain' => 'jetpack-shared-extension-utils',
+				// Skip CSS registration. This bundle is loaded as a script dependency,
+				// and WordPress does not auto-enqueue styles for dependencies. The small
+				// amount of CSS (block editor styles) will continue to be bundled by each
+				// consumer that imports the relevant component.
+				'css_path'   => null,
 			)
 		);
 	}
