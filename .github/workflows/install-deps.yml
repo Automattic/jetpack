@@ -31,11 +31,45 @@ jobs:
         with:
           php: false
 
-      - name: Install dependencies
+      # Cross-run cache: share node_modules across workflow runs with the same lockfile.
+      # When trunk is up to date and lockfile is unchanged, consecutive PRs hit this cache
+      # and skip the install entirely (0 actual installs on warm cache).
+      - name: Restore cross-run node_modules cache
+        id: xr-cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies (only on cross-run cache miss)
+        if: steps.xr-cache-restore.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile --prefer-offline
         timeout-minutes: 5
 
-      - name: Save node_modules cache for this run's consumer jobs
+      - name: Save cross-run cache (enables future workflow runs to skip install)
+        if: steps.xr-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Save within-run cache (for consumer jobs in this workflow run)
         uses: actions/cache/save@v4
         with:
           path: |
