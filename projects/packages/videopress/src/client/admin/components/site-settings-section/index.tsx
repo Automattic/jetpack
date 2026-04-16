@@ -39,7 +39,7 @@ const SiteSettingsSection: FC< SiteSettingsSectionProps > = ( {
 		: null;
 
 	return (
-		<Container horizontalSpacing={ 0 } horizontalGap={ 0 }>
+		<Container horizontalSpacing={ 6 } horizontalGap={ 0 }>
 			<Col>
 				<Text variant="headline-small" mb={ 1 }>
 					{ __( 'Settings', 'jetpack-videopress-pkg' ) }

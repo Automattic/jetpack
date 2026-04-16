@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress admin: fix checkbox→footer padding, full-width hero on medium screens, and remove empty pagination placeholder

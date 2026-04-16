@@ -162,9 +162,7 @@ export const ConnectPagination = ( props: { className: string; disabled?: boolea
 	};
 
 	const { page, itemsPerPage, total, isFetching } = useVideos();
-	return total <= itemsPerPage ? (
-		<div className={ clsx( props.className, styles[ 'pagination-placeholder' ] ) } />
-	) : (
+	return total <= itemsPerPage ? null : (
 		<Pagination
 			{ ...props }
 			perPage={ itemsPerPage }
@@ -179,9 +177,7 @@ export const ConnectPagination = ( props: { className: string; disabled?: boolea
 export const ConnectLocalPagination = ( props: { className?: string; disabled?: boolean } ) => {
 	const { setPage, page, itemsPerPage, total, isFetching } = useLocalVideos();
 
-	return total < itemsPerPage ? (
-		<div className={ clsx( props.className, styles[ 'pagination-placeholder' ] ) } />
-	) : (
+	return total < itemsPerPage ? null : (
 		<Pagination
 			{ ...props }
 			perPage={ itemsPerPage }
