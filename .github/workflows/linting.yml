@@ -78,6 +78,9 @@ jobs:
       # Whether any auto-updated Phan stub files were changed.
       phanstubs: ${{ steps.filter.outputs.phanstubs == 'true' }}
 
+      # Whether any project composer.json files were changed (for the mirror-repos check).
+      projectcomposerjsons: ${{ steps.filter.outputs.projectcomposerjsons == 'true' }}
+
     steps:
       - if: github.event_name == 'pull_request'
         uses: actions/checkout@v6
@@ -202,6 +205,8 @@ jobs:
             phanstubs:
               # If auto-generated Phan stub files are changed, we may want to post a warning to the PR.
               - '.phan/stubs/**'
+            projectcomposerjsons:
+              - 'projects/*/*/composer.json'
 
       - if: github.event_name == 'pull_request'
         id: filterPHP
@@ -746,3 +751,46 @@ jobs:
             echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
           fi
           exit 1
+
+  mirror_repos:
+    name: Mirror repo check
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: github.event_name == 'pull_request' && needs.changed_files.projectcomposerjsons == 'true'
+    timeout-minutes: 5  # 2026-04-16: Should just be a minute or two.
+    steps:
+      # We don't need full git history, but we do need everything up to the merge-base.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 10
+      - uses: ./.github/actions/deepen-to-merge-base
+      - name: Check mirrors
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          MBASE=$( git merge-base "$BASE" "$HEAD" )
+          EXIT=0
+          for f in $( git -c core.quotepath=off diff --name-only "$BASE...$HEAD" -- 'projects/*/*/composer.json' ); do
+            if [[ ! -f "$f" ]]; then
+              echo "$f: File was deleted, so it has no mirror"
+              continue
+            fi
+
+            OLDMIRROR=$( { git show "$MBASE:$f" 2>/dev/null || true; } | jq -r '.extra["mirror-repo"] // empty' )
+            NEWMIRROR=$( jq -r '.extra["mirror-repo"] // empty' "$f" )
+            echo "$f: old version has mirror $OLDMIRROR, new has mirror $NEWMIRROR"
+            if [[ -z "$NEWMIRROR" ]]; then
+              echo "$f: No mirror repo in current version"
+            elif [[ "$NEWMIRROR" = "$OLDMIRROR" ]]; then
+              echo "$f: Mirror repo $NEWMIRROR is unchanged"
+            else
+              echo "$f: Mirror changed from ${OLDMIRROR:-none} → $NEWMIRROR"
+              LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["extra","mirror-repo"] then input_line_number else empty end' "$f" | head -n 1)
+              if ! CIERRORLINE=" file=$f,line=$LINE" tools/audit-mirror-repos.sh "$NEWMIRROR"; then
+                EXIT=1
+              fi
+            fi
+          done
+          exit "$EXIT"
