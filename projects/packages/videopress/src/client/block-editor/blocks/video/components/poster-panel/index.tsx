@@ -232,7 +232,7 @@ type PosterFramePickerProps = {
  * @param {PosterFramePickerProps} props - Component properties
  * @return { ReactElement}          React component
  */
-function VideoFramePicker( {
+export function VideoFramePicker( {
 	guid,
 	isGeneratingPoster,
 	atTime = 0.1,
@@ -288,7 +288,7 @@ function VideoFramePicker( {
 				} ) }
 			>
 				{ ( ! playerIsReady || isGeneratingPoster ) && <Spinner /> }
-				<SandBox html={ html } scripts={ sandboxScripts } />
+				<SandBox html={ html } scripts={ sandboxScripts } allowSameOrigin />
 			</div>
 
 			{ isGeneratingPoster && (

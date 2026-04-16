@@ -85,6 +85,10 @@ add_action(
 				Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
 			}
 
+			if ( apply_filters( 'ai_correct_spelling_enabled', false ) ) {
+				Jetpack_Gutenberg::set_extension_available( 'ai-correct-spelling' );
+			}
+
 			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) ) {
 				Jetpack_Gutenberg::set_availability_for_plan( 'ai-seo-enhancer' );
 			}
