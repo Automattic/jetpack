@@ -83,15 +83,8 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.9 - 2026-04-10
+### 3.0 - 2026-04-16
 #### Changed
-- Dependencies: Update lock file to keep root requirements in sync.
-- Remove header border-bottom from the admin page for a cleaner unified header appearance.
-- Switch to Native TypeScript compiler based on Go.
-- Update dependencies.
-- Update design of the sidebar upsell.
+- Tested up to WordPress 7.0.
 - Update package dependencies.
-
-#### Fixed
-- Admin Page: Restore border on header component.
 
