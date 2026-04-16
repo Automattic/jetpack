@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  jetpack-ai:
+    build: .
+    container_name: jetpack-ai-sandbox
+    command: sleep infinity
+    volumes:
+      - ~/.claude:/home/dev/.claude
+      - ../../:/home/dev/jetpack
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.ssh/id_ed25519:/home/dev/.ssh/id_ed25519:ro
+      - ~/.ssh/known_hosts:/home/dev/.ssh/known_hosts:ro
+    working_dir: /home/dev/jetpack
+    stdin_open: true
+    tty: true
