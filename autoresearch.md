@@ -94,6 +94,43 @@ Key insight: `github.run_id` in a reusable workflow is the SAME as the caller's 
 ### Optimization 5: Cross-run caching (practical: 0 actual installs on warm cache)
 install-deps.yml now first tries to restore from a cross-run cache (key: `pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}`). On warm lockfile (consecutive PRs without lockfile changes), 0 installs run. Only fires on first PR after lockfile changes.
 
+### Optimization 6: tests.yml shared install
+Added `install_test_deps` job calling install-deps.yml. run-tests matrix (~20 jobs) and storybook-test now use cache restore instead of individual pnpm installs. Saves ~20 × 90s = 30 min of compute per PR with test changes.
+
+### Optimization 7: php:false for JS-only linting jobs
+Added `php: false` to tool-setup for eslint, eslint_changed, lint_style, typecheck, monorepo_package_refs, project_structure. Skips PHP installation and packagist proxy startup (~15s × 6 = 90s per PR).
+
+### Optimization 8: restore-keys fallback for cross-run cache
+Added `restore-keys: pnpm-workspace-` to the cross-run cache in install-deps.yml. When lockfile changes, starts from the nearest prior cache and only re-links changed packages (much faster than full install from scratch).
+
+### Optimization 9: --frozen-lockfile --prefer-offline everywhere
+All pnpm installs across all workflow files now use `--frozen-lockfile --prefer-offline`. This ensures correctness (lockfile must be in sync) and performance (skips registry checks on warm store).
+
+## Final Architecture
+
+The node_modules caching architecture:
+```
+[First PR after lockfile change]
+install-deps.yml:
+  → restore cross-run cache: MISS
+  → pnpm install --frozen-lockfile --prefer-offline  (26s)
+  → save cross-run cache: pnpm-workspace-{lockfile_hash}
+  → save within-run cache: pnpm-workspace-{run_id}-{lockfile_hash}
+
+Consumer jobs (linting.yml: eslint, typecheck, etc.)
+  → setup-node (restores pnpm store)
+  → restore within-run cache: pnpm-workspace-{run_id}-{lockfile_hash}  (fast!)
+  → run lint/typecheck/etc (no pnpm install!)
+
+[Subsequent PRs with same lockfile]
+install-deps.yml:
+  → restore cross-run cache: HIT  (near-instant)
+  → skip install (conditional)
+  → save within-run cache (from restored content)
+
+Consumer jobs: same as above, all hit within-run cache
+```
+
 ## What's Been Tried (Dead Ends)
 
 ### prefer-offline: true in pnpm-workspace.yaml
@@ -102,7 +139,32 @@ install-deps.yml now first tries to restore from a cross-run cache (key: `pnpm-w
 ### --no-optional
 ~0.7s improvement locally but within noise. Also risky (could break native packages that use optional platform binaries).
 
-## What's Been Tried
+### network-concurrency: 32, --ignore-scripts, etc.
+All ~26s, within noise. The bottleneck is pure I/O: creating symlinks for 103 workspace packages. sys time is ~60s (parallelized), wall clock is ~26s. Can't be reduced without reducing the package count or using faster storage.
+
+## What's Been Tried (Pre-existing, Not Merged)
+
+### enableGlobalVirtualStore: true
+Local-only optimization (auto-disabled in CI). No CI impact.
+
+### Force all builds with --all flag
+Benchmarking tool only (from try/build_time_benchmark branch).
+
+## What Remains (Beyond Primary Metric Floor)
+
+The primary metric (pnpm_install_calls) has reached 0. Remaining improvements:
+
+1. **e2e-tests.yml cross-run caching**: The create-test-matrix job still does a full install on every run (in a multi-line block). Adding cross-run cache similar to install-deps.yml would make it cache-conditional.
+
+2. **gardening.yml / wpcloud.yml cache sharing**: These workflows can't easily use install-deps.yml (different triggers) but could use cross-run cache restore before installing.
+
+3. **Composer caching improvements**: The Composer cache key `hashFiles('**/composer.lock')` busts for any change. More granular per-project keys could improve hit rates.
+
+4. **Build time reduction**: The 15-minute `pnpm jetpack build` is the biggest remaining bottleneck. Potential approaches: build output caching, dependency-based parallelism optimization.
+
+5. **tests.yml run-tests matrix**: Each matrix job still runs `composer install` independently. Sharing Composer installs across matrix jobs would save significant compute.
+
+See autoresearch.ideas.md for detailed breakdowns.
 
 ### Pre-existing experiments (not merged to trunk)
 - `enableGlobalVirtualStore: true` in pnpm-workspace.yaml — for local worktrees only, auto-disabled in CI, no CI impact

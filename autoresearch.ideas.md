@@ -1,36 +1,66 @@
-# Autoresearch Ideas
+# Autoresearch Ideas — Remaining After pnpm_install_calls = 0
 
-## High Impact (try first)
+## DONE (archived for reference)
 
-- **Add `--frozen-lockfile` to all workflow pnpm installs**: Skip resolution step. Safe for all CI jobs since lockfile should always be in sync. May save 10-30s per job × 15+ jobs.
+- ✅ linting.yml: 9 separate installs → shared install_js_deps + cache restore
+- ✅ build.yml: 2 installs → 1 install (prepare caches, build restores)
+- ✅ e2e-tests.yml: build-projects install → cache restore from create-test-matrix
+- ✅ Reusable install-deps.yml: single canonical install + caching logic
+- ✅ Cross-run caching: lockfile-hash key enables 0 installs on warm lockfile
+- ✅ restore-keys fallback: faster re-link after lockfile changes
+- ✅ tests.yml: install_test_deps reusable job, run-tests + storybook use cache restore
+- ✅ php:false for JS-only linting jobs (eslint, lint_style, typecheck, etc.)
+- ✅ --frozen-lockfile --prefer-offline everywhere
 
-- **Add `--prefer-offline` flag to workflow pnpm installs**: Avoid network metadata checks when cache is warm. May save 5-30s per job depending on how many packages pnpm is checking online.
+## High Value (Next Session)
 
-- **Cache node_modules between jobs in same workflow run**: Use GitHub Actions cache with `run_id` in the key. A "setup" job runs `pnpm install` once and caches `node_modules`. All subsequent jobs restore this cache and skip install entirely. Potential savings: 60-120s × (N-1) jobs.
+- **e2e-tests.yml cross-run caching**: The `create-test-matrix` job does pnpm install in a
+  multi-line block on every e2e run. Adding the cross-run cache pattern from install-deps.yml
+  would make it conditional. For e2e tests that run frequently on the same lockfile, this
+  saves the full install time.
 
-- **Consolidate linting jobs**: linting.yml has 9+ jobs each doing `pnpm install` independently. Running eslint, stylelint, and typecheck as steps in a single job would save 8 × 90s = ~12 minutes of install overhead.
+- **Composer caching improvement**: The current Composer cache key is 
+  `hashFiles('**/composer.lock')`. This busts for ANY change in any package's composer.lock.
+  More granular per-project keys would improve hit rates. However, the packagist proxy (304
+  caching) already mitigates this significantly.
 
-## Medium Impact
+- **gardening.yml / wpcloud.yml cross-run caching**: These workflows can't call install-deps.yml
+  easily (different triggers: repo_dispatch, push), but could still restore from the cross-run
+  cache (`pnpm-workspace-{lockfile_hash}`) before running their own install. On cache hit, 
+  they'd skip installation entirely.
 
-- **Skip pnpm install in tool-setup for PHP-only jobs**: Some jobs only need PHP + composer, not pnpm. Already partially done (prepare job has `php: false`), but some PHP-only jobs still do pnpm install.
+## Medium Value
 
-- **Add `node_modules-pattern` cache to restore_keys in tool-setup**: The current pnpm cache via setup-node only caches the global store. Adding the virtual store path to the cache could help.
+- **Build output caching**: Cache the compiled output of packages that rarely change (large,
+  stable packages like `@automattic/jetpack-components`). The `pnpm jetpack build` takes 15 min 
+  for a full build. Incremental builds based on file hashes could dramatically reduce this.
+  Requires investigation into how `jetpack build` determines what to rebuild.
 
-- **Use `pnpm fetch` before `pnpm install`**: `pnpm fetch` only populates the store (faster, parallelizable). Then `pnpm install --offline` completes the linking. Could allow fetching deps in background while doing other setup steps.
+- **tests.yml Composer sharing**: The run-tests matrix jobs each run `composer install` for their
+  own workspace packages. These could potentially use a shared Composer cache similar to our
+  pnpm approach. Complexity: Composer installs are per-project, not global like pnpm.
 
-- **Optimize Composer cache key granularity**: Currently `hashFiles('**/composer.lock')` - a single lock file change busts ALL composer caches. More granular keys per-project could improve hit rates.
+- **Parallel build within matrix**: The build matrix currently builds wpcom and non-wpcom
+  separately. Could we parallelize more within each build? The `pnpm jetpack build` already
+  runs in parallel internally; investigate if we can increase parallelism.
 
-## Low Impact / Risky
+- **`storybook-test` php:false**: Storybook tests don't need PHP. Adding `php: false` to
+  tool-setup in storybook-test would save ~15s (PHP setup + proxy startup).
 
-- **Remove `verifyDepsBeforeRun: install`**: This causes pnpm to verify deps before every `pnpm run ...`. Removing saves a verification step per command but reduces safety.
+## Low Value / Complex
 
-- **Reduce `strictPeerDependencies: true` to warning**: Could speed up install but may hide real dependency issues.
+- **pnpm_install_s optimization**: The ~26s install time is I/O bound (creating symlinks for
+  103 workspace packages, ~60s of system calls parallelized across cores). No practical
+  config-level optimization reduces this significantly without:
+  - Reducing number of workspace packages
+  - Using `node-linker: hoisted` (breaks isolation, risky)
+  - Faster underlying storage
 
-- **Merge `prepare` and `build` jobs in build.yml**: They currently run sequentially with separate installs. Could save one install, but the prepare job's output is needed for the build matrix.
+- **Pre-warm cache workflow**: A scheduled workflow that runs every 6 hours, installing and
+  saving the cross-run cache. Ensures fresh PRs always hit the cache. But adds workflow
+  infrastructure; the current approach (first PR after lockfile change installs) works too.
 
-- **Build artifact caching**: Cache the compiled output of packages that rarely change (e.g. large stable packages like `@automattic/jetpack-components`). Requires invalidation logic.
-
-## Already Tried / Not Applicable
-
-- `enableGlobalVirtualStore: true` — Local-only, auto-disabled in CI
-- Force all builds — Just for timing, not an optimization
+- **verifyDepsBeforeRun: install consideration**: This setting triggers a pnpm install before
+  every `pnpm run` command. On cached node_modules, this is a fast verification (1-2s).
+  Changing to `verifyDepsBeforeRun: warn` saves this overhead but reduces safety for
+  local developers who forget to run pnpm install.
