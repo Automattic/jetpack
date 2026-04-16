@@ -4,6 +4,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -176,6 +177,12 @@ export const ConnectPagination = ( props: { className: string; disabled?: boolea
 
 export const ConnectLocalPagination = ( props: { className?: string; disabled?: boolean } ) => {
 	const { setPage, page, itemsPerPage, total, isFetching } = useLocalVideos();
+
+	useEffect( () => {
+		if ( total <= itemsPerPage && page > 1 ) {
+			setPage( 1 );
+		}
+	}, [ total, itemsPerPage, page, setPage ] );
 
 	return total <= itemsPerPage ? null : (
 		<Pagination
