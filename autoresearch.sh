@@ -3,26 +3,34 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# ── Static metric: count pnpm install calls in workflow files ──────────────────
-PNPM_INSTALL_CALLS=$(grep -c 'run: pnpm install' .github/workflows/*.yml | awk -F: '{sum += $2} END {print sum}')
+# ── Static metric: count `run: pnpm install` calls across workflow files ───────
+# Each call ≈ 2-5 min CI install overhead per job.
+# Primary optimization target: reduce redundant installs.
+PNPM_INSTALL_CALLS=0
+while IFS=: read -r _file count; do
+  PNPM_INSTALL_CALLS=$(( PNPM_INSTALL_CALLS + count ))
+done < <(grep -c 'run: pnpm install' .github/workflows/*.yml)
 echo "METRIC pnpm_install_calls=${PNPM_INSTALL_CALLS}"
 
-# ── Dynamic metric: time pnpm install (frozen, simulates CI cache-hit scenario) ─
-# Measure median of 3 runs to smooth noise.
-TIMES=()
-for i in 1 2 3; do
-  START=$(date +%s%3N)
-  pnpm install --frozen-lockfile --prefer-offline 2>/dev/null
-  END=$(date +%s%3N)
-  ELAPSED_MS=$(( END - START ))
-  TIMES+=( "$ELAPSED_MS" )
-done
+# ── Secondary: count --frozen-lockfile uses (higher = better CI discipline) ────
+FROZEN_COUNT=0
+while IFS=: read -r _file count; do
+  FROZEN_COUNT=$(( FROZEN_COUNT + count ))
+done < <(grep -c '\-\-frozen-lockfile' .github/workflows/*.yml 2>/dev/null || true)
+echo "METRIC frozen_lockfile_uses=${FROZEN_COUNT}"
 
-# Sort and take median
-IFS=$'\n' SORTED=( $(sort -n <<<"${TIMES[*]}") ); unset IFS
-MEDIAN_MS="${SORTED[1]}"
-MEDIAN_S=$(echo "scale=2; $MEDIAN_MS / 1000" | bc)
+# ── Local install time: cold root install (simulates CI with warm pnpm store) ──
+# Remove root node_modules (only root-level packages: eslint, husky, etc.).
+# This simulates what every CI job does: restore global pnpm store from cache,
+# then re-link the workspace root.
+rm -rf node_modules
 
-echo "METRIC pnpm_install_s=${MEDIAN_S}"
-echo "  run times (ms): ${TIMES[*]}"
-echo "  median (ms):    ${MEDIAN_MS}"
+START_MS=$(python3 -c 'import time; print(int(time.time()*1000))')
+pnpm install --frozen-lockfile 2>&1 | tail -2
+END_MS=$(python3 -c 'import time; print(int(time.time()*1000))')
+
+ELAPSED_MS=$(( END_MS - START_MS ))
+ELAPSED_S=$(python3 -c "print(round($ELAPSED_MS/1000, 2))")
+
+echo "METRIC pnpm_install_s=${ELAPSED_S}"
+echo "  root install time: ${ELAPSED_MS}ms"
