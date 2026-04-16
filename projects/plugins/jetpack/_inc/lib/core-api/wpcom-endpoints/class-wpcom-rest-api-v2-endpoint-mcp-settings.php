@@ -123,11 +123,16 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 			return $response;
 		}
 
-		$http_status = wp_remote_retrieve_response_code( $response );
-		// 402 / 403 from WPCOM means the site does not have an MCP-capable plan.
-		// Return a clean "no access" payload so the client can show the upsell
-		// instead of a generic error notice.
-		if ( in_array( $http_status, array( 402, 403 ), true ) ) {
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// has_mcp_plan is set explicitly by the WPCOM endpoint using PaidPlanMiddleware.
+		// Fall back to 402/403 status handling for older WPCOM builds that predate the field.
+		$http_status  = wp_remote_retrieve_response_code( $response );
+		$has_mcp_plan = isset( $body['has_mcp_plan'] )
+			? (bool) $body['has_mcp_plan']
+			: ! in_array( $http_status, array( 402, 403 ), true );
+
+		if ( ! $has_mcp_plan ) {
 			return rest_ensure_response(
 				array(
 					'has_mcp_access' => false,
@@ -135,8 +140,6 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 				)
 			);
 		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// Transform [ {name, title, readonly, site_context, enabled, …}, … ] → { name: {…}, … }.
 		// readonly and site_context are now provided by the WPCOM endpoint (wpcom#205108).
