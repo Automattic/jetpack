@@ -48,6 +48,9 @@ jobs:
             tools/performance/node_modules
             .github/files/coverage-munger/node_modules
           key: pnpm-workspace-${{ hashFiles('pnpm-lock.yaml') }}
+          # Restore from nearest prior lockfile state so pnpm only re-links changed packages.
+          restore-keys: |
+            pnpm-workspace-
 
       - name: Install dependencies (only on cross-run cache miss)
         if: steps.xr-cache-restore.outputs.cache-hit != 'true'
