@@ -402,6 +402,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false  # JS-only job; skips PHP setup and packagist proxy (~15s savings)
 
       - name: Restore node_modules cache
         uses: actions/cache/restore@v4
@@ -441,6 +443,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false  # JS-only job; skips PHP setup and packagist proxy (~15s savings)
 
       - name: Restore node_modules cache
         uses: actions/cache/restore@v4
@@ -477,6 +481,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false  # JS/CSS-only job; skips PHP setup and packagist proxy (~15s savings)
 
       - name: Restore node_modules cache
         uses: actions/cache/restore@v4
@@ -651,6 +657,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false  # JS-only job; skips PHP setup and packagist proxy (~15s savings)
       - name: Restore node_modules cache
         uses: actions/cache/restore@v4
         with:
@@ -679,6 +687,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false  # JS-only job; skips PHP setup and packagist proxy (~15s savings)
 
       - name: Restore node_modules cache
         uses: actions/cache/restore@v4
@@ -741,6 +751,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false  # JS-only job; skips PHP setup and packagist proxy (~15s savings)
       - name: Restore node_modules cache
         uses: actions/cache/restore@v4
         with:
