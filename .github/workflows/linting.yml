@@ -134,6 +134,7 @@ jobs:
               - 'composer.lock'
               - 'package.json'
               - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
               - '**/composer.json'
               - '**/composer.lock'
               - '**/package.json'
@@ -165,6 +166,7 @@ jobs:
               - 'package.json'
               - 'tools/js-tools/package.json'
               - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
               - '.eslintignore'
               - '.eslintignore.root'
               - 'eslint.config.*'
@@ -177,6 +179,7 @@ jobs:
               - 'package.json'
               - 'tools/js-tools/package.json'
               - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
               - .stylelintignore
               - stylelint.config.mjs
               - '**/stylelint.config.{js,mjs,cjs}'

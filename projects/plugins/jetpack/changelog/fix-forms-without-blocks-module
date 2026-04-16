@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Fixed the Form block not being usable when the Blocks module is inactive.

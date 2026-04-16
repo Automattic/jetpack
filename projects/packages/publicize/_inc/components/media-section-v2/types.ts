@@ -135,6 +135,11 @@ export interface MediaSourceMenuProps {
 	featuredImageId?: number;
 
 	/**
+	 * Callback when "No media" is selected (removes media)
+	 */
+	onRemove?: () => void;
+
+	/**
 	 * Optional children render function that receives open function
 	 */
 	children?: ( { open }: { open: () => void } ) => React.ReactNode;
@@ -153,25 +158,4 @@ export interface MediaPreviewProps {
 	 * Whether the preview is in loading state
 	 */
 	isLoading?: boolean;
-
-	/**
-	 * Callback to replace the media
-	 */
-	onReplace?: () => void;
-
-	/**
-	 * Callback to remove the media
-	 */
-	onRemove?: () => void;
-
-	/**
-	 * Whether the actions are disabled
-	 */
-	disabled?: boolean;
-
-	/**
-	 * Whether to show the remove button. Defaults to true.
-	 * Set to false for auto-detected media like featured image fallback.
-	 */
-	showRemove?: boolean;
 }

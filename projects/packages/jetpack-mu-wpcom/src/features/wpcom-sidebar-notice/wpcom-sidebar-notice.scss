@@ -73,14 +73,17 @@
 	.upsell_banner__action {
 		text-align: center;
 		line-height: 2;
+		min-height: 0;
 	}
 
 	.upsell_banner__dismiss.button-link {
 		background-color: transparent;
+		border: 0;
 		color: inherit;
 		min-height: 0;
 		font-size: 12px;
 		line-height: 16px;
+		padding: 0;
 		text-align: center;
 		margin-top: -2px;
 

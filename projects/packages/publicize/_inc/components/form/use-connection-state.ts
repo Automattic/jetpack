@@ -1,3 +1,4 @@
+import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { useMemo } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
@@ -7,6 +8,7 @@ import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions/constants';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 
 export const useConnectionState = () => {
@@ -19,6 +21,16 @@ export const useConnectionState = () => {
 	const { validationErrors, isConvertible } = useMediaRestrictions(
 		connections,
 		useMediaDetails( mediaId )[ 0 ]
+	);
+
+	const xQuotaExceeded = useSelect( select => select( socialStore ).isXQuotaExceeded(), [] );
+
+	/**
+	 * Returns whether the connection is blocked by the X sharing quota.
+	 */
+	const isXQuotaBlocked = useCallback(
+		( connection: Connection ) => connection.service_name === 'x' && xQuotaExceeded,
+		[ xQuotaExceeded ]
 	);
 
 	/**
@@ -55,6 +67,7 @@ export const useConnectionState = () => {
 	 * - Publicize is disabled
 	 * - There are no more connections available
 	 * - The connection is not in good shape
+	 * - The connection is an X connection blocked by the sharing quota
 	 */
 	const shouldBeDisabled = useCallback(
 		( connection: Connection ) => {
@@ -62,10 +75,12 @@ export const useConnectionState = () => {
 				// Publicize is disabled
 				! isPublicizeEnabled ||
 				// or the connection is not in good shape
-				! isInGoodShape( connection )
+				! isInGoodShape( connection ) ||
+				// or X quota is exceeded for X connections
+				isXQuotaBlocked( connection )
 			);
 		},
-		[ isInGoodShape, isPublicizeEnabled ]
+		[ isInGoodShape, isPublicizeEnabled, isXQuotaBlocked ]
 	);
 
 	/**
@@ -75,6 +90,7 @@ export const useConnectionState = () => {
 	 * A connection can be enabled if:
 	 * - Publicize is not disabled due to the current site plan
 	 * - The connection is in good shape
+	 * - The connection is not an X connection blocked by the sharing quota
 	 */
 	const canBeTurnedOn = useCallback(
 		( connection: Connection ) => {
@@ -83,17 +99,30 @@ export const useConnectionState = () => {
 				// Publicize is not disabled due to the current site plan
 				! isPublicizeDisabledBySitePlan &&
 				// and the connection is in good shape
-				isInGoodShape( connection )
+				isInGoodShape( connection ) &&
+				// and X quota is not exceeded for X connections
+				! isXQuotaBlocked( connection )
 			);
 		},
-		[ isInGoodShape, isPublicizeDisabledBySitePlan ]
+		[ isInGoodShape, isPublicizeDisabledBySitePlan, isXQuotaBlocked ]
+	);
+
+	const getDisabledReason = useCallback(
+		( connection: Connection ) => {
+			if ( isXQuotaBlocked( connection ) ) {
+				return 'quota_exceeded';
+			}
+			return undefined;
+		},
+		[ isXQuotaBlocked ]
 	);
 
 	return useMemo(
 		() => ( {
 			shouldBeDisabled,
 			canBeTurnedOn,
+			getDisabledReason,
 		} ),
-		[ shouldBeDisabled, canBeTurnedOn ]
+		[ shouldBeDisabled, canBeTurnedOn, getDisabledReason ]
 	);
 };
