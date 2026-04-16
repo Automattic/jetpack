@@ -22,22 +22,13 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
-// Reuses AM_ASSET_BASE_PATH defined in class-jetpack-ai-sidebar.php.
+const READER_CHAT_JS_URL          = 'https://widgets.wp.com/agents-manager/reader-chat.min.js';
+const READER_CHAT_ASSET_TRANSIENT = 'jetpack_reader_chat_asset';
 
 /**
  * Handles loading the reader chat UI on the frontend.
  */
 class Jetpack_Reader_Chat {
-
-	/**
-	 * Transient key for the CDN asset manifest.
-	 */
-	const ASSET_TRANSIENT = 'jetpack_reader_chat_asset';
-
-	/**
-	 * CDN URL for the self-contained reader chat bundle.
-	 */
-	const JS_URL = 'https://' . AM_ASSET_BASE_PATH . 'reader-chat.min.js';
 
 	/**
 	 * Initialize hooks.
@@ -67,7 +58,22 @@ class Jetpack_Reader_Chat {
 	 * @return void
 	 */
 	public static function enqueue_scripts(): void {
-		if ( ! is_singular() || ! self::has_ai_features() ) {
+		if ( ! is_singular() ) {
+			return;
+		}
+
+		/**
+		 * Filter to override the AI features check.
+		 * Set to true to load reader chat regardless of Jetpack connection status.
+		 * Useful for testing on dev sites.
+		 *
+		 * @param bool|null $override null = use default check, true/false = override.
+		 */
+		$has_features = apply_filters( 'jetpack_reader_chat_has_ai_features', null );
+		if ( null === $has_features ) {
+			$has_features = self::has_ai_features();
+		}
+		if ( ! $has_features ) {
 			return;
 		}
 
@@ -76,10 +82,17 @@ class Jetpack_Reader_Chat {
 		// The reader-chat bundle is self-contained — no WP script dependencies.
 		wp_enqueue_script(
 			'jetpack-reader-chat',
-			self::JS_URL,
+			READER_CHAT_JS_URL,
 			array(),
 			$version,
 			true
+		);
+
+		wp_enqueue_style(
+			'jetpack-reader-chat',
+			'https://widgets.wp.com/agents-manager/reader-chat.css',
+			array(),
+			$version
 		);
 
 		// Inject config for the JS bundle (before the script tag).
@@ -141,13 +154,13 @@ class Jetpack_Reader_Chat {
 		$skip_cache = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 
 		if ( ! $skip_cache ) {
-			$cached = get_transient( self::ASSET_TRANSIENT );
+			$cached = get_transient( READER_CHAT_ASSET_TRANSIENT );
 			if ( false !== $cached ) {
 				return $cached['version'] ?? null;
 			}
 		}
 
-		$json_path = AM_ASSET_BASE_PATH . 'reader-chat.asset.json';
+		$json_path = 'widgets.wp.com/agents-manager/reader-chat.asset.json';
 
 		// Try local filesystem first (available on WordPress.com).
 		$data = self::read_local_asset_json( ABSPATH . $json_path );
@@ -166,7 +179,7 @@ class Jetpack_Reader_Chat {
 		}
 
 		if ( ! $skip_cache ) {
-			set_transient( self::ASSET_TRANSIENT, $data, HOUR_IN_SECONDS );
+			set_transient( READER_CHAT_ASSET_TRANSIENT, $data, HOUR_IN_SECONDS );
 		}
 
 		return $data['version'] ?? null;

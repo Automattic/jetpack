@@ -40,6 +40,8 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_
 require_once __DIR__ . '/ai-sidebar/class-jetpack-ai-sidebar.php';
 Jetpack_AI_Sidebar::init();
 
+// Reader chat is initialized independently in modules/blocks.php so it loads on the frontend.
+
 // Populate the available extensions with ai-assistant-plugin.
 add_filter(
 	'jetpack_set_available_extensions',

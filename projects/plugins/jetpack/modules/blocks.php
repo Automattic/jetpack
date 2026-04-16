@@ -37,6 +37,10 @@ Jetpack_Gutenberg::load_block_editor_extensions();
 Jetpack_Gutenberg::load_independent_blocks();
 Jetpack_Gutenberg::register_block_metadata_collection();
 
+// Load reader chat independently — not gated by should_load() so it runs on the frontend.
+require_once JETPACK__PLUGIN_DIR . 'extensions/plugins/ai-assistant-plugin/reader-chat/class-jetpack-reader-chat.php';
+\Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_Reader_Chat::init();
+
 /**
  * We've switched from enqueue_block_editor_assets to enqueue_block_assets in WP-Admin because the assets with the former are loaded on the main site-editor.php.
  *
