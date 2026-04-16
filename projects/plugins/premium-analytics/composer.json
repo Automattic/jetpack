@@ -40,8 +40,6 @@
 	"extra": {
 		"autotagger": false,
 		"autorelease": false,
-		"mirror-repo": "Automattic/jetpack-premium-analytics-plugin",
-		"release-branch-prefix": "premium-analytics",
 		"changelogger": {
 			"versioning": "semver"
 		},
