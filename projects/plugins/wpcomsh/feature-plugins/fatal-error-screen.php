@@ -20,9 +20,14 @@
  * @return string The replacement HTML error message.
  */
 function wpcomsh_filter_fatal_error_message() {
+	$troubleshooting_url = 'https://wordpress.com/support/plugins/troubleshooting/';
+	if ( function_exists( 'localized_wpcom_url' ) ) {
+		$troubleshooting_url = localized_wpcom_url( $troubleshooting_url );
+	}
+
 	$troubleshooting_link = sprintf(
 		'<a href="%s">%s</a>',
-		esc_url( localized_wpcom_url( 'https://wordpress.com/support/plugins/troubleshooting/' ) ),
+		esc_url( $troubleshooting_url ),
 		esc_html__( 'Learn more about troubleshooting WordPress.com.', 'wpcomsh' )
 	);
 
@@ -53,9 +58,14 @@ function wpcomsh_get_fatal_error_body() {
 			return __( 'There has been a critical error on this website. Please reach out to your site administrator, and inform them of this error for further assistance.', 'default' );
 		}
 
+		$support_forums_url = 'https://wordpress.com/forums/';
+		if ( function_exists( 'localized_wpcom_url' ) ) {
+			$support_forums_url = localized_wpcom_url( $support_forums_url );
+		}
+
 		$support_forums_link = sprintf(
 			'<a href="%s">%s</a>',
-			esc_url( localized_wpcom_url( 'https://wordpress.com/forums/' ) ),
+			esc_url( $support_forums_url ),
 			esc_html__( 'WordPress.com support forums', 'wpcomsh' )
 		);
 

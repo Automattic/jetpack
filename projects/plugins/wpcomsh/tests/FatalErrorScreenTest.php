@@ -16,7 +16,9 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 
 	/**
 	 * Reset the current screen to a non-admin context after each test so the
-	 * protected-endpoint branch does not leak into later cases.
+	 * protected-endpoint branch does not leak into later cases. The
+	 * wp_recovery_mode() singleton isn't reset here; recovery-mode tests rely
+	 * on running in a separate process for isolation.
 	 */
 	public function tear_down() {
 		set_current_screen( 'front' );
@@ -52,10 +54,10 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The filter output is wrapped in the same two-paragraph structure that WP
-	 * core uses, so downstream wp_die() rendering stays consistent.
+	 * Pin the two-paragraph structure WP_Fatal_Error_Handler emits so the output
+	 * stays consistent with what wp_die() expects downstream.
 	 */
-	public function test_filter_output_uses_core_paragraph_structure() {
+	public function test_filter_output_matches_core_paragraph_structure() {
 		$message = wpcomsh_filter_fatal_error_message();
 
 		$this->assertMatchesRegularExpression(
@@ -79,8 +81,8 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 	 * returns a body that includes the WordPress.com support forums link in
 	 * place of the default WordPress.org one.
 	 *
-	 * Runs in a separate process so `wp_recovery_mode()` singleton state does
-	 * not leak into other tests.
+	 * Runs in a separate process so the `wp_recovery_mode()` singleton state
+	 * does not leak into other tests.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -89,7 +91,7 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_protected_endpoint_body_links_to_wpcom_support_forums() {
 		if ( is_multisite() ) {
-			$this->markTestSkipped( 'Only relevant on single-site; see the multisite test.' );
+			$this->markTestSkipped( 'Single-site only; see the multisite test for the multisite branch.' );
 		}
 
 		set_current_screen( 'dashboard' );
@@ -113,7 +115,7 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_multisite_protected_endpoint_body_has_no_forum_link() {
 		if ( ! is_multisite() ) {
-			$this->markTestSkipped( 'Only relevant on multisite.' );
+			$this->markTestSkipped( 'Multisite only.' );
 		}
 
 		set_current_screen( 'dashboard' );
