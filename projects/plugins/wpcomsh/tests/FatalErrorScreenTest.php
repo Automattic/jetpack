@@ -5,8 +5,7 @@
  * @package wpcomsh
  */
 
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class FatalErrorScreenTest.
@@ -15,116 +14,101 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * Reset the current screen to a non-admin context after each test so the
-	 * protected-endpoint branch does not leak into later cases. The
-	 * wp_recovery_mode() singleton isn't reset here; recovery-mode tests rely
-	 * on running in a separate process for isolation.
+	 * Data provider returning verbatim English `$message` fragments WP core
+	 * emits from display_default_error_template().
 	 */
-	public function tear_down() {
-		set_current_screen( 'front' );
-		parent::tear_down();
+	public static function core_english_message_provider(): array {
+		return array(
+			'protected endpoint single-site' => array(
+				'<p>There has been a critical error on this website. Please check your site admin email inbox for instructions. If you continue to have problems, please try the <a href="https://wordpress.org/support/forums/">support forums</a>.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>',
+			),
+			'default short'                  => array(
+				'<p>There has been a critical error on this website.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>',
+			),
+			'recovery mode'                  => array(
+				'<p>There has been a critical error on this website, putting it in recovery mode. Please check the Themes and Plugins screens for more details. If you just installed or updated a theme or plugin, check the relevant page for that first.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>',
+			),
+			'multisite protected endpoint'   => array(
+				'<p>There has been a critical error on this website. Please reach out to your site administrator, and inform them of this error for further assistance.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>',
+			),
+		);
 	}
 
 	/**
-	 * The troubleshooting link is appended to every filter output, pointing
-	 * visitors at the WordPress.com troubleshooting documentation.
+	 * Every English message that leaves the filter must point at WordPress.com
+	 * URLs and must not retain any WordPress.org ones.
+	 *
+	 * @dataProvider core_english_message_provider
+	 * @param string $message The message as WP core would have built it.
 	 */
-	public function test_filter_output_contains_wpcom_troubleshooting_link() {
-		$message = wpcomsh_filter_fatal_error_message();
+	#[DataProvider( 'core_english_message_provider' )]
+	public function test_filter_replaces_wordpress_org_with_wordpress_com_urls( string $message ): void {
+		$filtered = wpcomsh_filter_fatal_error_message( $message );
 
+		$this->assertStringNotContainsString( 'wordpress.org/support/forums', $filtered );
+		$this->assertStringNotContainsString( 'wordpress.org/documentation/article/faq-troubleshooting', $filtered );
 		$this->assertStringContainsString(
 			'href="https://wordpress.com/support/plugins/troubleshooting/"',
-			$message
+			$filtered
 		);
+	}
+
+	/**
+	 * On the single-site protected-endpoint branch, the English support-forums
+	 * link is rebranded — both URL and anchor text — to the WordPress.com one.
+	 */
+	public function test_filter_rebrands_english_support_forums_link(): void {
+		$message = '<p>...<a href="https://wordpress.org/support/forums/">support forums</a>...</p>';
+
+		$filtered = wpcomsh_filter_fatal_error_message( $message );
+
 		$this->assertStringContainsString(
-			'Learn more about troubleshooting WordPress.com.',
-			$message
+			'<a href="https://wordpress.com/forums/">WordPress.com support forums</a>',
+			$filtered
 		);
 	}
 
 	/**
-	 * The filter output must never leak the default WordPress.org links
-	 * through, regardless of which body branch was taken.
+	 * The English troubleshooting link is rebranded — both URL and anchor text —
+	 * to the WordPress.com one.
 	 */
-	public function test_filter_output_contains_no_wordpress_org_links() {
-		$message = wpcomsh_filter_fatal_error_message();
+	public function test_filter_rebrands_english_troubleshooting_link(): void {
+		$message = '<p>...</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>';
 
-		$this->assertStringNotContainsString( 'wordpress.org/support/forums', $message );
-		$this->assertStringNotContainsString( 'wordpress.org/documentation/article/faq-troubleshooting', $message );
-	}
+		$filtered = wpcomsh_filter_fatal_error_message( $message );
 
-	/**
-	 * Pin the two-paragraph structure WP_Fatal_Error_Handler emits so the output
-	 * stays consistent with what wp_die() expects downstream.
-	 */
-	public function test_filter_output_matches_core_paragraph_structure() {
-		$message = wpcomsh_filter_fatal_error_message();
-
-		$this->assertMatchesRegularExpression(
-			'#^<p>.+</p><p><a href="https://wordpress\.com/support/plugins/troubleshooting/">[^<]+</a></p>$#',
-			$message
+		$this->assertStringContainsString(
+			'<a href="https://wordpress.com/support/plugins/troubleshooting/">Learn more about troubleshooting WordPress.com.</a>',
+			$filtered
 		);
 	}
 
 	/**
-	 * Outside admin and recovery mode, the body is the short generic sentence —
-	 * core's default branch.
+	 * On a localized site the anchor text WP core emits has been translated,
+	 * so the full-anchor rewrite no longer matches. The URL-only fallback
+	 * should still redirect visitors to WordPress.com while preserving the
+	 * translated anchor text — they should read the link in their own language.
 	 */
-	public function test_body_defaults_to_short_critical_error_sentence() {
-		$body = wpcomsh_get_fatal_error_body();
+	public function test_filter_preserves_translated_anchor_text_and_swaps_url(): void {
+		// Simulate Spanish localization: anchor text is translated, URL isn't.
+		$message = '<p>Ha ocurrido un error crítico en este sitio web. Si los problemas continúan, prueba en los <a href="https://wordpress.org/support/forums/">foros de soporte</a>.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Aprende más acerca de la depuración de WordPress.</a></p>';
 
-		$this->assertSame( 'There has been a critical error on this website.', $body );
+		$filtered = wpcomsh_filter_fatal_error_message( $message );
+
+		$this->assertStringContainsString( 'href="https://wordpress.com/forums/"', $filtered );
+		$this->assertStringContainsString( 'href="https://wordpress.com/support/plugins/troubleshooting/"', $filtered );
+		$this->assertStringContainsString( '>foros de soporte</a>', $filtered );
+		$this->assertStringContainsString( '>Aprende más acerca de la depuración de WordPress.</a>', $filtered );
+		$this->assertStringNotContainsString( 'wordpress.org/support/forums', $filtered );
+		$this->assertStringNotContainsString( 'wordpress.org/documentation/article/faq-troubleshooting', $filtered );
 	}
 
 	/**
-	 * On admin screens with recovery mode initialized, a single-site install
-	 * returns a body that includes the WordPress.com support forums link in
-	 * place of the default WordPress.org one.
-	 *
-	 * Runs in a separate process so the `wp_recovery_mode()` singleton state
-	 * does not leak into other tests.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * Messages without either WordPress.org link pass through unchanged.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_protected_endpoint_body_links_to_wpcom_support_forums() {
-		if ( is_multisite() ) {
-			$this->markTestSkipped( 'Single-site only; see the multisite test for the multisite branch.' );
-		}
+	public function test_filter_leaves_unrelated_content_untouched(): void {
+		$message = '<p>Some other critical-error markup that does not link anywhere.</p>';
 
-		set_current_screen( 'dashboard' );
-		wp_recovery_mode()->initialize();
-
-		$body = wpcomsh_get_fatal_error_body();
-
-		$this->assertStringContainsString( 'href="https://wordpress.com/forums/"', $body );
-		$this->assertStringContainsString( 'WordPress.com support forums', $body );
-		$this->assertStringNotContainsString( 'wordpress.org/support/forums', $body );
-	}
-
-	/**
-	 * Multisite shows the administrator-contact sentence in the protected
-	 * endpoint branch and does not include a support forums link.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_multisite_protected_endpoint_body_has_no_forum_link() {
-		if ( ! is_multisite() ) {
-			$this->markTestSkipped( 'Multisite only.' );
-		}
-
-		set_current_screen( 'dashboard' );
-		wp_recovery_mode()->initialize();
-
-		$body = wpcomsh_get_fatal_error_body();
-
-		$this->assertStringContainsString( 'your site administrator', $body );
-		$this->assertStringNotContainsString( 'wordpress.com/forums', $body );
-		$this->assertStringNotContainsString( 'wordpress.org/support/forums', $body );
+		$this->assertSame( $message, wpcomsh_filter_fatal_error_message( $message ) );
 	}
 }
