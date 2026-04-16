@@ -27,5 +27,7 @@ $should_load_wpcomsh = $should_load_wpcomsh
 	|| ( defined( 'ATOMIC_CLIENT_ID' ) && in_array( (int) ATOMIC_CLIENT_ID, $wpcloud_client_ids, true ) );
 
 if ( $should_load_wpcomsh ) {
+	require_once WPMU_PLUGIN_DIR . '/wpcomsh/php-error-dropin.php';
+	wpcomsh_maybe_install_php_error_dropin();
 	require_once WPMU_PLUGIN_DIR . '/wpcomsh/wpcomsh.php';
 }

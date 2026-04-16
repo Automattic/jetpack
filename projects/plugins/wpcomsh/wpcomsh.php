@@ -20,11 +20,14 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 }
 
 require_once __DIR__ . '/constants.php';
+require_once __DIR__ . '/php-error-dropin.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
+
+wpcomsh_maybe_install_php_error_dropin();
 
 require_once __DIR__ . '/plugin-hotfixes.php';
 
@@ -130,7 +133,6 @@ require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
-require_once __DIR__ . '/feature-plugins/fatal-error-screen.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';

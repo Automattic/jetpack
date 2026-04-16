@@ -5,8 +5,6 @@
  * @package wpcomsh
  */
 
-use PHPUnit\Framework\Attributes\DataProvider;
-
 /**
  * Class FatalErrorScreenTest.
  */
@@ -14,109 +12,121 @@ class FatalErrorScreenTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * Data provider returning verbatim English `$message` fragments WP core
-	 * emits from display_default_error_template().
+	 * Load the standalone fatal-error template helpers.
 	 */
-	public static function core_english_message_provider(): array {
-		return array(
-			'protected endpoint single-site' => array(
-				'<p>There has been a critical error on this website. Please check your site admin email inbox for instructions. If you continue to have problems, please try the <a href="https://wordpress.org/support/forums/">support forums</a>.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>',
-			),
-			'default short'                  => array(
-				'<p>There has been a critical error on this website.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>',
-			),
-			'recovery mode'                  => array(
-				'<p>There has been a critical error on this website, putting it in recovery mode. Please check the Themes and Plugins screens for more details. If you just installed or updated a theme or plugin, check the relevant page for that first.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>',
-			),
-			'multisite protected endpoint'   => array(
-				'<p>There has been a critical error on this website. Please reach out to your site administrator, and inform them of this error for further assistance.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>',
-			),
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		require_once dirname( __DIR__ ) . '/php-error.php';
+		require_once dirname( __DIR__ ) . '/php-error-dropin.php';
+	}
+
+	/**
+	 * Generic requests should show the default critical-error copy.
+	 */
+	public function test_screen_data_defaults_to_generic_message() {
+		$data = wpcomsh_get_php_error_screen_data( false, false, false, false );
+
+		$this->assertSame( 'There has been a critical error on this website.', $data['heading'] );
+		$this->assertSame( 'There has been a critical error on this website.', $data['body'] );
+		$this->assertFalse( $data['show_support_forums'] );
+	}
+
+	/**
+	 * Single-site protected endpoints should link to the support forums.
+	 */
+	public function test_screen_data_shows_support_forums_for_single_site_protected_endpoint() {
+		$data = wpcomsh_get_php_error_screen_data( false, true, false, false );
+
+		$this->assertSame(
+			'There has been a critical error on this website. Please check your site admin email inbox for instructions.',
+			$data['body']
 		);
+		$this->assertTrue( $data['show_support_forums'] );
 	}
 
 	/**
-	 * Every English message that leaves the filter must point at WordPress.com
-	 * URLs and must not retain any WordPress.org ones.
-	 *
-	 * @dataProvider core_english_message_provider
-	 * @param string $message The message as WP core would have built it.
+	 * Multisite protected endpoints keep the administrator-contact branch.
 	 */
-	#[DataProvider( 'core_english_message_provider' )]
-	public function test_filter_replaces_wordpress_org_with_wordpress_com_urls( string $message ): void {
-		$filtered = wpcomsh_filter_fatal_error_message( $message );
+	public function test_screen_data_keeps_multisite_branch_without_support_forums() {
+		$data = wpcomsh_get_php_error_screen_data( false, true, true, false );
 
-		$this->assertStringNotContainsString( 'wordpress.org/support/forums', $filtered );
-		$this->assertStringNotContainsString( 'wordpress.org/documentation/article/faq-troubleshooting', $filtered );
-		$this->assertStringContainsString(
-			'href="https://wordpress.com/support/plugins/troubleshooting/"',
-			$filtered
+		$this->assertStringContainsString( 'your site administrator', $data['body'] );
+		$this->assertFalse( $data['show_support_forums'] );
+	}
+
+	/**
+	 * The rendered template should always include the WordPress.com help link.
+	 */
+	public function test_rendered_template_contains_wpcom_troubleshooting_link() {
+		ob_start();
+		wpcomsh_render_php_error_template(
+			array(
+				'type'    => E_ERROR,
+				'message' => 'Boom',
+				'file'    => __FILE__,
+				'line'    => __LINE__,
+			),
+			false
 		);
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'https://wordpress.com/support/plugins/troubleshooting/', $html );
+		$this->assertStringContainsString( 'WordPress.com', $html );
 	}
 
 	/**
-	 * On the single-site protected-endpoint branch, the English support-forums
-	 * link is rebranded — both URL and anchor text — to the WordPress.com one.
+	 * Missing targets should be populated with the wpcom-managed drop-in.
 	 */
-	public function test_filter_rebrands_english_support_forums_link(): void {
-		$message = '<p>There has been a critical error on this website. Please check your site admin email inbox for instructions. If you continue to have problems, please try the <a href="https://wordpress.org/support/forums/">support forums</a>.</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>';
+	public function test_dropin_is_installed_when_missing() {
+		$source_dir = sys_get_temp_dir() . '/wpcomsh-fatal-error-source-' . wp_rand();
+		$target_dir = sys_get_temp_dir() . '/wpcomsh-fatal-error-target-' . wp_rand();
+		$this->assertTrue( wp_mkdir_p( $source_dir ) );
+		$this->assertTrue( wp_mkdir_p( $target_dir ) );
 
-		$filtered = wpcomsh_filter_fatal_error_message( $message );
+		$source = $source_dir . '/php-error.php';
+		$target = $target_dir . '/php-error.php';
 
-		$this->assertStringContainsString(
-			'<a href="https://wordpress.com/forums/">WordPress.com support forums</a>',
-			$filtered
+		file_put_contents( $source, "<?php\n/* " . WPCOMSH_PHP_ERROR_DROPIN_MARKER . " */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		wpcomsh_maybe_install_php_error_dropin( $source, $target );
+
+		$this->assertFileExists( $target );
+		$this->assertSame(
+			file_get_contents( $source ), // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $target ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		);
+
+		unlink( $source ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		unlink( $target ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		rmdir( $source_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		rmdir( $target_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 	}
 
 	/**
-	 * The English troubleshooting link is rebranded — both URL and anchor text —
-	 * to the WordPress.com one.
+	 * Third-party php-error.php files should not be overwritten by wpcomsh.
 	 */
-	public function test_filter_rebrands_english_troubleshooting_link(): void {
-		$message = '<p>...</p><p><a href="https://wordpress.org/documentation/article/faq-troubleshooting/">Learn more about troubleshooting WordPress.</a></p>';
+	public function test_dropin_does_not_overwrite_unmanaged_file() {
+		$source_dir = sys_get_temp_dir() . '/wpcomsh-fatal-error-source-' . wp_rand();
+		$target_dir = sys_get_temp_dir() . '/wpcomsh-fatal-error-target-' . wp_rand();
+		$this->assertTrue( wp_mkdir_p( $source_dir ) );
+		$this->assertTrue( wp_mkdir_p( $target_dir ) );
 
-		$filtered = wpcomsh_filter_fatal_error_message( $message );
+		$source = $source_dir . '/php-error.php';
+		$target = $target_dir . '/php-error.php';
 
-		$this->assertStringContainsString(
-			'<a href="https://wordpress.com/support/plugins/troubleshooting/">Learn more about troubleshooting WordPress.com.</a>',
-			$filtered
+		file_put_contents( $source, "<?php\n/* " . WPCOMSH_PHP_ERROR_DROPIN_MARKER . " */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $target, "<?php\n/* Someone else owns this file. */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		wpcomsh_maybe_install_php_error_dropin( $source, $target );
+
+		$this->assertSame(
+			"<?php\n/* Someone else owns this file. */\n",
+			file_get_contents( $target ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		);
-	}
 
-	/**
-	 * On a localized site WP core may translate both the anchor text and the
-	 * destination URL. The filter should still redirect visitors to
-	 * WordPress.com while preserving the translated copy they read.
-	 */
-	public function test_filter_preserves_translated_anchor_text_when_core_also_translates_urls(): void {
-		$message = '<p>Ha ocurrido un error crítico en este sitio web. Si los problemas continúan, prueba en los <a href="https://es.wordpress.org/support/forums/">foros de soporte</a>.</p><p><a href="https://es.wordpress.org/documentation/article/faq-troubleshooting/">Aprende más acerca de la depuración de WordPress.</a></p>';
-
-		$filtered = wpcomsh_filter_fatal_error_message( $message );
-
-		$this->assertStringContainsString( 'href="https://wordpress.com/forums/"', $filtered );
-		$this->assertStringContainsString( 'href="https://wordpress.com/support/plugins/troubleshooting/"', $filtered );
-		$this->assertStringContainsString( '>foros de soporte</a>', $filtered );
-		$this->assertStringContainsString( '>Aprende más acerca de la depuración de WordPress.</a>', $filtered );
-		$this->assertStringNotContainsString( 'wordpress.org/support/forums', $filtered );
-		$this->assertStringNotContainsString( 'wordpress.org/documentation/article/faq-troubleshooting', $filtered );
-	}
-
-	/**
-	 * Messages that do not match core's fatal-error paragraph structure should
-	 * pass through unchanged even if they contain anchors.
-	 */
-	public function test_filter_leaves_unrelated_link_markup_untouched(): void {
-		$message = '<p>Some other critical-error markup.</p><div><a href="https://example.com/help">Example help link</a></div>';
-
-		$this->assertSame( $message, wpcomsh_filter_fatal_error_message( $message ) );
-	}
-
-	/**
-	 * Messages without either WordPress.org link pass through unchanged.
-	 */
-	public function test_filter_leaves_unrelated_content_untouched(): void {
-		$message = '<p>Some other critical-error markup that does not link anywhere.</p>';
-
-		$this->assertSame( $message, wpcomsh_filter_fatal_error_message( $message ) );
+		unlink( $source ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		unlink( $target ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		rmdir( $source_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		rmdir( $target_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 	}
 }
