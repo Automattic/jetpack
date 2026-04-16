@@ -280,14 +280,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// Outdated dependency
-	if (
-		pkg.name === '@storybook/react-vite' &&
-		pkg.dependencies?.[ '@joshwooding/vite-plugin-react-docgen-typescript' ] === '^0.6.4'
-	) {
-		pkg.dependencies[ '@joshwooding/vite-plugin-react-docgen-typescript' ] = '^0.7.0';
-	}
-
 	return pkg;
 }
 
