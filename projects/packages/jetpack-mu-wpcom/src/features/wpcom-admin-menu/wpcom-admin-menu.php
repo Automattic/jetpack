@@ -442,6 +442,20 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
+	// Jetpack > AI
+	// On Atomic, JETPACK__PLUGIN_DIR is defined and the plugin's admin page class
+	// can be loaded directly. Simple sites need the React app in a package first
+	// and are not yet supported here.
+	$jetpack_ai_page_file = defined( 'JETPACK__PLUGIN_DIR' )
+		? JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php'
+		: '';
+	if ( $jetpack_ai_page_file && file_exists( $jetpack_ai_page_file ) ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
+		require_once $jetpack_ai_page_file;
+		$jetpack_ai = new Jetpack_AI_Page();
+		$jetpack_ai->add_actions();
+	}
+
 	wpcom_reorder_submenu(
 		'jetpack',
 		array(
@@ -449,6 +463,7 @@ function wpcom_add_jetpack_submenu() {
 			'stats',
 			'boost',
 			'social',
+			'jetpack-ai',
 			'akismet-key-config',
 			'activity-log',
 			'scan',
