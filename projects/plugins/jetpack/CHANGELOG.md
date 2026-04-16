@@ -5,7 +5,7 @@
 ## 15.7.1 - 2026-04-16
 ### Bug fixes
 - My Jetpack: Fix Hybrid products not deactivating when activated via the Jetpack-module path. [#48091]
-- VideoPress: Fix block editor errors when used with Gutenberg 23.0.0+.
+- VideoPress: Fix block editor errors when used with Gutenberg 23.0.0+. [#48117]
 
 ## 15.7 - 2026-04-08
 ### Major Enhancements

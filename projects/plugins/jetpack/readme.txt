@@ -326,6 +326,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
+### 15.7.1 - 2026-04-16
+#### Bug fixes
+- My Jetpack: Fix Hybrid products not deactivating when activated via the Jetpack-module path.
+- VideoPress: Fix block editor errors when used with Gutenberg 23.0.0+.
+
 ### 15.7 - 2026-04-08
 #### Major Enhancements
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation.
