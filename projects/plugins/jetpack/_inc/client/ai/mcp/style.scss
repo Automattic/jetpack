@@ -113,6 +113,57 @@
 	}
 }
 
+.jetpack-ai-mcp-upsell {
+
+	&__inner {
+		display: flex;
+		gap: 32px;
+		align-items: center;
+	}
+
+	&__content {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__icon {
+		display: block;
+		margin-bottom: 16px;
+		color: var(--color-neutral-40, #8c8f94);
+	}
+
+	&__title {
+		font-size: 18px;
+		font-weight: 600;
+		line-height: 1.4;
+		margin: 0 0 12px;
+		color: var(--color-neutral-100, #1e1e1e);
+	}
+
+	&__description {
+		font-size: 14px;
+		color: var(--color-neutral-70, #3c434a);
+		margin: 0 0 8px;
+		line-height: 1.5;
+	}
+
+	&__plan-text {
+		font-size: 13px;
+		color: var(--color-neutral-60, #50575e);
+		margin: 0 0 20px;
+	}
+
+	&__illustration {
+		flex-shrink: 0;
+		width: 220px;
+		height: 160px;
+
+		@media ( max-width: 600px ) {
+			display: none;
+		}
+	}
+}
+
 .jetpack-ai-mcp-setup {
 
 	&__steps {

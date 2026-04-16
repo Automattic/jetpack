@@ -21,6 +21,7 @@ export function useMcpSettings() {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ mcpAbilities, setMcpAbilities ] = useState( null );
+	const [ hasMcpAccess, setHasMcpAccess ] = useState( null );
 	const [ error, setError ] = useState( null );
 
 	useEffect( () => {
@@ -30,6 +31,12 @@ export function useMcpSettings() {
 			.then( data => {
 				if ( ! cancelled ) {
 					setMcpAbilities( data?.mcp_abilities ?? {} );
+					// has_mcp_access is explicitly set by the PHP proxy.
+					// Fall back to checking whether any account tools were returned.
+					setHasMcpAccess(
+						data?.has_mcp_access !== false &&
+							Object.keys( data?.mcp_abilities?.account ?? {} ).length > 0
+					);
 					setError( null );
 				}
 			} )
@@ -78,5 +85,5 @@ export function useMcpSettings() {
 		[ mcpAbilities ]
 	);
 
-	return { isLoading, isSaving, mcpAbilities, error, updateMcpAbilities };
+	return { isLoading, isSaving, mcpAbilities, hasMcpAccess, error, updateMcpAbilities };
 }

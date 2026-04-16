@@ -12,6 +12,7 @@ import { arrowLeft } from '@wordpress/icons';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
+import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
 
@@ -39,7 +40,8 @@ const VIEW_DESCRIPTIONS = {
 export default function App() {
 	const [ view, setView ] = useState( 'hub' );
 	const [ saveError, setSaveError ] = useState( null );
-	const { isLoading, isSaving, mcpAbilities, error, updateMcpAbilities } = useMcpSettings();
+	const { isLoading, isSaving, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
+		useMcpSettings();
 
 	const handleUpdate = useCallback(
 		update => {
@@ -102,7 +104,9 @@ export default function App() {
 					</Notice>
 				) }
 
-				{ ! isLoading && ! error && !! blogId && (
+				{ ! isLoading && ! error && !! blogId && ! hasMcpAccess && <McpUpsell /> }
+
+				{ ! isLoading && ! error && !! blogId && hasMcpAccess && (
 					<VStack spacing={ 4 }>
 						{ view === 'hub' && (
 							<McpHub

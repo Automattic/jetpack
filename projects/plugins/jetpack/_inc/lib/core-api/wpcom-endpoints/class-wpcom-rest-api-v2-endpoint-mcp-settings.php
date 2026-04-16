@@ -123,6 +123,19 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 			return $response;
 		}
 
+		$http_status = wp_remote_retrieve_response_code( $response );
+		// 402 / 403 from WPCOM means the site does not have an MCP-capable plan.
+		// Return a clean "no access" payload so the client can show the upsell
+		// instead of a generic error notice.
+		if ( in_array( $http_status, array( 402, 403 ), true ) ) {
+			return rest_ensure_response(
+				array(
+					'has_mcp_access' => false,
+					'mcp_abilities'  => array(),
+				)
+			);
+		}
+
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// Transform [ {name, title, readonly, site_context, enabled, …}, … ] → { name: {…}, … }.
@@ -184,7 +197,8 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 
 		return rest_ensure_response(
 			array(
-				'mcp_abilities' => array(
+				'has_mcp_access' => true,
+				'mcp_abilities'  => array(
 					'account'                    => $account_abilities,
 					'site'                       => $site_abilities,
 					'sites'                      => array(
@@ -214,7 +228,9 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function update_mcp_settings( $request ) {
-		$blog_id  = \Jetpack_Options::get_option( 'id' );
+		$blog_id  = defined( 'IS_WPCOM' ) && IS_WPCOM
+			? get_current_blog_id()
+			: \Jetpack_Options::get_option( 'id' );
 		$incoming = $request->get_param( 'mcp_abilities' );
 
 		if ( is_object( $incoming ) ) {
