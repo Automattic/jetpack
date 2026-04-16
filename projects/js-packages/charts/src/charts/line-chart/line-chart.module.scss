@@ -65,7 +65,12 @@
 		font-size: var(--wpds-font-size-md, 13px);
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 		position: fixed;
-		margin: 0.5rem;
+		// Without margin set, the popover has
+		// margin:auto which upsets the positioning
+		// relative to the trigger button. This
+		// creates a gap to the trigger button so
+		// the token is appropriate.
+		margin: var(--wpds-dimension-gap-sm, 8px);
 		visibility: hidden;
 
 		&--visible {
