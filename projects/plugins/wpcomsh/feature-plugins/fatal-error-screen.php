@@ -8,10 +8,12 @@
  * mode, protected endpoint, multisite) so each context keeps its contextual message.
  *
  * Sentences that are verbatim from WP core use the `default` text domain so they
- * pick up core's existing translations, which WP core loads early enough to
- * survive an early-bootstrap fatal. WP.com-specific strings stay in the
- * `wpcomsh` domain; the filter callback force-loads that domain on entry to
- * cover the window before `after_setup_theme` fires.
+ * pick up core's existing translations (WP core loads them early via
+ * `wp_load_translations_early()`). WP.com-specific strings stay in the `wpcomsh`
+ * domain — so for the rare fatal that aborts before `after_setup_theme` fires,
+ * the `wpcomsh` strings fall back to English on localized sites. We accept that
+ * gap rather than eagerly load the domain here, which would trigger the WP 6.7+
+ * `_doing_it_wrong()` warning for translation loading before `init`.
  *
  * @package wpcomsh
  */
@@ -22,13 +24,6 @@
  * @return string The replacement HTML error message.
  */
 function wpcomsh_filter_fatal_error_message() {
-	// Ensure wpcomsh translations are available even when the fatal aborts
-	// bootstrap before the `after_setup_theme` hook that normally loads them
-	// (see i18n.php). `default` is already loaded by wp_load_translations_early().
-	if ( defined( 'WP_LANG_DIR' ) && ! is_textdomain_loaded( 'wpcomsh' ) ) {
-		load_theme_textdomain( 'wpcomsh', WP_LANG_DIR . '/mu-plugins' );
-	}
-
 	$troubleshooting_url = 'https://wordpress.com/support/plugins/troubleshooting/';
 	if ( function_exists( 'localized_wpcom_url' ) ) {
 		$troubleshooting_url = localized_wpcom_url( $troubleshooting_url );
