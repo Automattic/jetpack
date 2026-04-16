@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Make Delete Spam button scope-aware: respects selected items, active filters (search, source, date, read/unread), or falls back to deleting all spam. The confirmation modal now shows the affected count.
