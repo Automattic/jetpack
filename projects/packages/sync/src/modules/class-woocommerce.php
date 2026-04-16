@@ -563,7 +563,6 @@ class WooCommerce extends Module {
 		'woocommerce_ppcp-ideal_settings',
 		'woocommerce_ppcp-blik_settings',
 		'woocommerce_ppcp-pwc_settings',
-		'woocommerce_ppcp-ppcp-smart-button_settings',
 		'woocommerce_ppcp-oxxo_settings',
 		'woocommerce_ppcp-trustly_settings',
 		'woocommerce_ppcp-pay-upon-invoice_settings',
