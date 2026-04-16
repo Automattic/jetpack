@@ -150,6 +150,7 @@ export function scheduleShares(
 						'jetpack-publicize-pkg'
 					),
 					{
+						type: 'snackbar',
 						id: SCHEDULE_SHARE_NOTICE_ID,
 					}
 				);
