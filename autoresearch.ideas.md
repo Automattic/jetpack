@@ -12,7 +12,30 @@
 - ✅ php:false for JS-only linting jobs (eslint, lint_style, typecheck, etc.)
 - ✅ --frozen-lockfile --prefer-offline everywhere
 
+## ⚠️ Key Insight: Compute vs Wall-Clock Trade-Off
+
+The shared-install approach primarily saves **compute-minutes** (billing), not wall-clock time:
+- **linting.yml**: wall-clock +1.5 min cold, ≈ 0 warm (critical path: phan at ~10 min)
+- **build.yml**: wall-clock +0.5 min cold, -1 min warm
+- **tests.yml**: wall-clock +1 min cold, ≈ 0 warm (critical path: 30+ min tests)
+- **e2e-tests.yml**: wall-clock **-1.5 min** (build-projects savings directly on critical path)
+
+The cold-cache penalty occurs because `install_js_deps` is a new serial gate.
+The warm-cache scenario (most PRs with same lockfile) is essentially neutral.
+
+**To eliminate the cold-cache wall-clock penalty**: run a pre-warming workflow on
+that triggers on push to trunk and saves the cross-run cache. All subsequent PR
+workflows would always hit the cross-run cache, making install_js_deps take ~1 min
+instead of ~2.5 min, and eliminating the +1.5 min wall-clock penalty.
+
 ## High Value (Next Session)
+
+- **Pre-warm cache on trunk push**: A workflow triggered by `push: branches: [trunk]` that
+  runs `pnpm install` and saves the cross-run cache (`pnpm-workspace-{lockfile_hash}`).
+  PRs branched from trunk always have the same lockfile, so they'd always hit this cache.
+  install_js_deps time drops from 2.5 min to 1 min, eliminating the cold-cache wall-clock
+  penalty for normal PRs. Only applies when trunk's lockfile matches the PR's lockfile
+  (i.e., the PR doesn't change dependencies).
 
 - **e2e-tests.yml cross-run caching**: The `create-test-matrix` job does pnpm install in a
   multi-line block on every e2e run. Adding the cross-run cache pattern from install-deps.yml
