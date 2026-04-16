@@ -276,14 +276,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_posts_by_status' ),
 				'permission_callback' => array( $this, 'delete_items_permissions_check' ),
-				'args'                => array(
-					'status' => array(
-						'type'     => 'string',
-						'enum'     => array( 'trash', 'spam' ),
-						'required' => false,
-						'default'  => 'trash',
-					),
-				),
+				'args'                => $this->get_bulk_scope_args( array( 'trash', 'spam' ), 'trash' ),
 			)
 		);
 
@@ -1200,12 +1193,168 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Handles emptying Jetpack Forms responses based on status.
+	 * Builds the REST args for the scope-aware `/trash` endpoint.
 	 *
-	 * By default, it empties the trash, meaning it will delete all feedbacks in the trash (status = trash).
-	 * Passing a status will delete all feedbacks in the status.
-	 * The operation is non reversible and thus restricted to statuses spam and trash,
-	 * enforced by endpoint query args enum[spam, trash] but also double checked by the endpoint.
+	 * Scope is either an explicit list of `post_ids`, or the set of filters the
+	 * inbox list view exposes (search / source / date range / read-unread).
+	 * When `post_ids` is present, filter params are ignored.
+	 *
+	 * @param string[] $allowed_statuses Statuses that may be operated on.
+	 * @param string   $default_status   Default status if none is provided.
+	 * @return array
+	 */
+	protected function get_bulk_scope_args( $allowed_statuses, $default_status ) {
+		return array(
+			'status'    => array(
+				'type'     => 'string',
+				'enum'     => $allowed_statuses,
+				'required' => false,
+				'default'  => $default_status,
+			),
+			'post_ids'  => array(
+				'type'              => 'array',
+				'items'             => array( 'type' => 'integer' ),
+				'required'          => false,
+				'default'           => array(),
+				'sanitize_callback' => function ( $param ) {
+					return array_values( array_filter( array_map( 'absint', (array) $param ) ) );
+				},
+			),
+			'search'    => array(
+				'type'     => 'string',
+				'required' => false,
+			),
+			'parent'    => array(
+				'type'              => 'integer',
+				'required'          => false,
+				'sanitize_callback' => 'absint',
+			),
+			'source'    => array(
+				'type'              => 'integer',
+				'required'          => false,
+				'sanitize_callback' => 'absint',
+			),
+			'before'    => array(
+				'type'              => 'string',
+				'format'            => 'date-time',
+				'required'          => false,
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'after'     => array(
+				'type'              => 'string',
+				'format'            => 'date-time',
+				'required'          => false,
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'is_unread' => array(
+				'type'              => 'boolean',
+				'required'          => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+		);
+	}
+
+	/**
+	 * Fetches a batch of feedback IDs within the requested status, honoring the
+	 * bulk-scope params (explicit IDs or filter query). Source filtering is
+	 * applied via the existing `posts_join` / `posts_where` hooks.
+	 *
+	 * @param WP_REST_Request $request    The request.
+	 * @param string          $status     Post status to scope to (`spam` or `trash`).
+	 * @param int             $batch_size Max IDs to return.
+	 * @return int[] Feedback post IDs.
+	 */
+	private function fetch_bulk_scope_batch( $request, $status, $batch_size ) {
+		$post_ids_param = (array) $request->get_param( 'post_ids' );
+		$has_explicit   = ! empty( $post_ids_param );
+
+		$query_args = array(
+			'post_type'      => 'feedback',
+			'post_status'    => $status,
+			'posts_per_page' => $batch_size, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+			'fields'         => 'ids',
+		);
+
+		if ( $has_explicit ) {
+			$query_args['post__in'] = $post_ids_param;
+			$query_args['orderby']  = 'post__in';
+		} else {
+			$search = $request->get_param( 'search' );
+			if ( is_string( $search ) && $search !== '' ) {
+				$query_args['s'] = $search;
+			}
+
+			$parent = $request->get_param( 'parent' );
+			if ( is_numeric( $parent ) && (int) $parent > 0 ) {
+				$query_args['post_parent'] = (int) $parent;
+			}
+
+			$before = $request->get_param( 'before' );
+			$after  = $request->get_param( 'after' );
+			if ( ! empty( $before ) || ! empty( $after ) ) {
+				$query_args['date_query'] = array_filter(
+					array(
+						'before' => $before,
+						'after'  => $after,
+					)
+				);
+			}
+
+			$is_unread = $request->get_param( 'is_unread' );
+			if ( null !== $is_unread ) {
+				$query_args['comment_status'] = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
+			}
+		}
+
+		$query = new \WP_Query( $query_args );
+		return array_map( 'intval', $query->get_posts() );
+	}
+
+	/**
+	 * Attaches source-filter hooks if the request includes a `source` param and
+	 * no explicit `post_ids`. Returns true if hooks were attached (caller must
+	 * call `remove_source_filter_hooks()` after the loop).
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return bool Whether hooks were attached.
+	 */
+	private function maybe_attach_source_filter_hooks( $request ) {
+		if ( ! empty( (array) $request->get_param( 'post_ids' ) ) ) {
+			return false;
+		}
+		$source = $request->get_param( 'source' );
+		$source = is_numeric( $source ) ? absint( $source ) : 0;
+		if ( $source <= 0 ) {
+			return false;
+		}
+		$this->temp_source_filter_id  = $source;
+		$this->temp_source_filter_sql = Feedback::get_source_filter_sql( $source );
+		add_filter( 'posts_join', array( $this, 'join_source_meta' ), 10, 2 );
+		add_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10, 2 );
+		return true;
+	}
+
+	/**
+	 * Removes source-filter hooks attached by `maybe_attach_source_filter_hooks`.
+	 */
+	private function remove_source_filter_hooks() {
+		remove_filter( 'posts_join', array( $this, 'join_source_meta' ), 10 );
+		remove_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10 );
+		$this->temp_source_filter_id  = null;
+		$this->temp_source_filter_sql = null;
+	}
+
+	/**
+	 * Handles permanently deleting Jetpack Forms responses by status.
+	 *
+	 * Scope resolution:
+	 *  - With `post_ids` → deletes those IDs (filtered to rows actually in `status`).
+	 *  - Else with any filter (search / source / before / after / is_unread) →
+	 *    deletes every response in `status` matching those filters.
+	 *  - Else → deletes every response in `status` (legacy behavior).
+	 *
+	 * The operation is non-reversible; restricted to statuses spam and trash via the
+	 * route args enum, and re-checked here for defense in depth.
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -1219,24 +1368,22 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		$status        = $from_status ?? 'trash';
-		$batch_size    = 1000; // Process in batches to avoid memory issues
+		$has_explicit  = ! empty( (array) $request->get_param( 'post_ids' ) );
+		$batch_size    = 1000;
 		$total_deleted = 0;
 		$has_more      = true;
+		$processed_ids = array();
+
+		$has_source_hooks = $this->maybe_attach_source_filter_hooks( $request );
 
 		while ( $has_more ) {
-			$query_args = array(
-				'post_type'      => 'feedback',
-				'post_status'    => $status,
-				'posts_per_page' => $batch_size, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-				'fields'         => 'ids', // Only get IDs to reduce memory usage
-			);
+			$post_ids = $this->fetch_bulk_scope_batch( $request, $status, $batch_size );
 
-			$query    = new \WP_Query( $query_args );
-			$post_ids = $query->get_posts();
+			if ( $has_explicit ) {
+				$post_ids = array_values( array_diff( $post_ids, $processed_ids ) );
+			}
 
 			if ( empty( $post_ids ) ) {
-				$has_more = false;
-
 				break;
 			}
 
@@ -1244,21 +1391,26 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				$feedback_deleted = wp_delete_post( $post_id, true );
 
 				if ( ! $feedback_deleted ) {
-					if ( $status === 'trash' ) {
-						return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+					if ( $has_source_hooks ) {
+						$this->remove_source_filter_hooks();
 					}
-
-					if ( $status === 'spam' ) {
-						return new WP_REST_Response( array( 'error' => __( 'Failed to empty spam.', 'jetpack-forms' ) ), 400 );
-					}
+					$error = $status === 'spam'
+						? __( 'Failed to empty spam.', 'jetpack-forms' )
+						: __( 'Failed to empty trash.', 'jetpack-forms' );
+					return new WP_REST_Response( array( 'error' => $error ), 400 );
 				}
 
+				$processed_ids[] = $post_id;
 				++$total_deleted;
 			}
 
 			if ( count( $post_ids ) < $batch_size ) {
 				$has_more = false;
 			}
+		}
+
+		if ( $has_source_hooks ) {
+			$this->remove_source_filter_hooks();
 		}
 
 		return new WP_REST_Response( array( 'deleted' => $total_deleted ), 200 );

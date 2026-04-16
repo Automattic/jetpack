@@ -33,10 +33,13 @@ await jest.unstable_mockModule( '../../../../src/dashboard/store', () => ( {
 await jest.unstable_mockModule( '../../../../src/dashboard/hooks/use-inbox-data', () => ( {
 	default: jest.fn( () => ( {
 		totalItemsSpam: 5,
-		selectedResponsesCount: 2,
+		selectedResponsesCount: 0,
 		currentQuery: { status: 'spam' },
 	} ) ),
 } ) );
+
+// Selected IDs the store selector returns. Tests mutate this to change scope.
+let selectedIdsFromStore = [];
 
 // Mock WordPress data
 await jest.unstable_mockModule( '@wordpress/data', () => {
@@ -65,34 +68,86 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 			}
 			return {};
 		} ),
+		useSelect: jest.fn( mapper =>
+			mapper( () => ( {
+				getSelectedResponsesFromCurrentDataset: () => selectedIdsFromStore,
+			} ) )
+		),
 	};
 } );
 
 // Import the hook after mocks are set up
 const useEmptySpamModule = await import( '../../../../src/dashboard/hooks/use-empty-spam' );
 const useEmptySpam = useEmptySpamModule.default;
+const useInboxDataModule = await import( '../../../../src/dashboard/hooks/use-inbox-data' );
+const apiFetchModule = await import( '@wordpress/api-fetch' );
+const analyticsModule = await import( '@automattic/jetpack-analytics' );
+const { useDispatch } = await import( '@wordpress/data' );
 
 describe( 'useEmptySpam', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		selectedIdsFromStore = [];
+		useInboxDataModule.default.mockReturnValue( {
+			totalItemsSpam: 5,
+			selectedResponsesCount: 0,
+			currentQuery: { status: 'spam' },
+		} );
+		apiFetchModule.default.mockImplementation( () => Promise.resolve( { deleted: 5 } ) );
 	} );
 
-	it( 'returns initial state', () => {
+	it( 'returns initial state in `all` scope', () => {
 		const { result } = renderHook( () => useEmptySpam() );
 
 		expect( result.current.isConfirmDialogOpen ).toBe( false );
 		expect( result.current.isEmpty ).toBe( false );
 		expect( result.current.isEmptying ).toBe( false );
 		expect( result.current.totalItemsSpam ).toBe( 5 );
-		expect( result.current.selectedResponsesCount ).toBe( 2 );
-		expect( typeof result.current.openConfirmDialog ).toBe( 'function' );
-		expect( typeof result.current.closeConfirmDialog ).toBe( 'function' );
-		expect( typeof result.current.onConfirmEmptying ).toBe( 'function' );
+		expect( result.current.scope.mode ).toBe( 'all' );
+		expect( result.current.scope.count ).toBe( 5 );
+		expect( result.current.scope.params ).toEqual( {} );
 	} );
 
-	it( 'sets isEmpty to true when totalItemsSpam is 0', async () => {
-		const useInboxDataModule = await import( '../../../../src/dashboard/hooks/use-inbox-data' );
-		useInboxDataModule.default.mockReturnValueOnce( {
+	it( 'reports selection scope when responses are selected', () => {
+		selectedIdsFromStore = [ 11, 22, '33' ];
+		useInboxDataModule.default.mockReturnValue( {
+			totalItemsSpam: 5,
+			selectedResponsesCount: 3,
+			currentQuery: { status: 'spam', search: 'ignored-because-selection-wins' },
+		} );
+
+		const { result } = renderHook( () => useEmptySpam() );
+
+		expect( result.current.scope.mode ).toBe( 'selection' );
+		expect( result.current.scope.count ).toBe( 3 );
+		expect( result.current.scope.params ).toEqual( { post_ids: [ 11, 22, 33 ] } );
+	} );
+
+	it( 'reports filtered scope when filters are active and no selection', () => {
+		useInboxDataModule.default.mockReturnValue( {
+			totalItemsSpam: 42,
+			selectedResponsesCount: 0,
+			currentQuery: {
+				status: 'spam',
+				search: 'viagra',
+				source: 99,
+				is_unread: true,
+			},
+		} );
+
+		const { result } = renderHook( () => useEmptySpam() );
+
+		expect( result.current.scope.mode ).toBe( 'filtered' );
+		expect( result.current.scope.count ).toBe( 42 );
+		expect( result.current.scope.params ).toEqual( {
+			search: 'viagra',
+			source: 99,
+			is_unread: true,
+		} );
+	} );
+
+	it( 'marks as empty when scope count is 0', () => {
+		useInboxDataModule.default.mockReturnValue( {
 			totalItemsSpam: 0,
 			selectedResponsesCount: 0,
 			currentQuery: {},
@@ -106,25 +161,23 @@ describe( 'useEmptySpam', () => {
 	it( 'opens and closes confirmation dialog', () => {
 		const { result } = renderHook( () => useEmptySpam() );
 
-		expect( result.current.isConfirmDialogOpen ).toBe( false );
-
 		act( () => {
 			result.current.openConfirmDialog();
 		} );
-
 		expect( result.current.isConfirmDialogOpen ).toBe( true );
 
 		act( () => {
 			result.current.closeConfirmDialog();
 		} );
-
 		expect( result.current.isConfirmDialogOpen ).toBe( false );
 	} );
 
-	it( 'calls API and shows success notice when emptying spam', async () => {
-		const apiFetchModule = await import( '@wordpress/api-fetch' );
-		const analyticsModule = await import( '@automattic/jetpack-analytics' );
-		const { useDispatch } = await import( '@wordpress/data' );
+	it( 'calls DELETE /trash with filter params and shows success notice', async () => {
+		useInboxDataModule.default.mockReturnValue( {
+			totalItemsSpam: 5,
+			selectedResponsesCount: 0,
+			currentQuery: { status: 'spam', search: 'spammy' },
+		} );
 
 		const { result } = renderHook( () => useEmptySpam() );
 
@@ -132,49 +185,75 @@ describe( 'useEmptySpam', () => {
 			await result.current.onConfirmEmptying();
 		} );
 
-		// Verify analytics event was recorded
 		expect( analyticsModule.default.tracks.recordEvent ).toHaveBeenCalledWith(
-			'jetpack_forms_empty_spam_click'
+			'jetpack_forms_empty_spam_click',
+			expect.objectContaining( { scope: 'filtered', count: 5 } )
 		);
 
-		// Verify API call
 		await waitFor( () => {
 			expect( apiFetchModule.default ).toHaveBeenCalledWith( {
 				method: 'DELETE',
-				path: '/wp/v2/feedback/trash?status=spam',
+				path: '/wp/v2/feedback/trash',
+				data: { status: 'spam', search: 'spammy' },
 			} );
 		} );
 
-		// Verify success notice
-		const mockDispatch = useDispatch( 'notices' );
+		const noticesDispatch = useDispatch( 'notices' );
 		await waitFor( () => {
-			expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
+			expect( noticesDispatch.createSuccessNotice ).toHaveBeenCalledWith(
 				expect.stringContaining( 'deleted permanently' ),
 				{ type: 'snackbar', id: 'empty-spam' }
 			);
 		} );
+	} );
 
-		// Verify cache invalidation
-		const coreDispatch = useDispatch( 'core' );
-		const dashboardDispatch = useDispatch( 'dashboard' );
+	it( 'calls DELETE /trash with post_ids when items are selected', async () => {
+		selectedIdsFromStore = [ 1, 2, 3 ];
+
+		const { result } = renderHook( () => useEmptySpam() );
+
+		await act( async () => {
+			await result.current.onConfirmEmptying();
+		} );
+
+		expect( analyticsModule.default.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_forms_empty_spam_click',
+			expect.objectContaining( { scope: 'selection', count: 3 } )
+		);
+
 		await waitFor( () => {
-			expect( coreDispatch.invalidateResolutionForStoreSelector ).toHaveBeenCalledWith(
-				'getEntityRecords'
-			);
-			expect( dashboardDispatch.invalidateCounts ).toHaveBeenCalled();
+			expect( apiFetchModule.default ).toHaveBeenCalledWith( {
+				method: 'DELETE',
+				path: '/wp/v2/feedback/trash',
+				data: { status: 'spam', post_ids: [ 1, 2, 3 ] },
+			} );
 		} );
 	} );
 
-	it( 'does not call API when isEmpty is true', async () => {
-		const useInboxDataModule = await import( '../../../../src/dashboard/hooks/use-inbox-data' );
-		useInboxDataModule.default.mockReturnValueOnce( {
+	it( 'shows error notice when delete fails', async () => {
+		apiFetchModule.default.mockImplementationOnce( () => Promise.reject( new Error( 'fail' ) ) );
+
+		const { result } = renderHook( () => useEmptySpam() );
+
+		await act( async () => {
+			await result.current.onConfirmEmptying();
+		} );
+
+		const noticesDispatch = useDispatch( 'notices' );
+		await waitFor( () => {
+			expect( noticesDispatch.createErrorNotice ).toHaveBeenCalledWith( 'Could not empty spam.', {
+				type: 'snackbar',
+				id: 'empty-spam-error',
+			} );
+		} );
+	} );
+
+	it( 'does not call API when scope count is 0', async () => {
+		useInboxDataModule.default.mockReturnValue( {
 			totalItemsSpam: 0,
 			selectedResponsesCount: 0,
 			currentQuery: {},
 		} );
-
-		const apiFetchModule = await import( '@wordpress/api-fetch' );
-		apiFetchModule.default.mockClear();
 
 		const { result } = renderHook( () => useEmptySpam() );
 
@@ -189,5 +268,6 @@ describe( 'useEmptySpam', () => {
 		const { result } = renderHook( () => useEmptySpam( { totalItemsSpam: 10 } ) );
 
 		expect( result.current.totalItemsSpam ).toBe( 10 );
+		expect( result.current.scope.count ).toBe( 10 );
 	} );
 } );

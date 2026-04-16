@@ -29,6 +29,9 @@ await jest.unstable_mockModule( '@wordpress/components', () => ( {
 				<button onClick={ onConfirm }>{ confirmButtonText }</button>
 			</div>
 		) : null,
+	__experimentalHeading: ( { children } ) => <h3>{ children }</h3>,
+	__experimentalText: ( { children } ) => <span>{ children }</span>,
+	__experimentalVStack: ( { children } ) => <div>{ children }</div>,
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/icons', () => ( {
@@ -85,6 +88,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 
 	const mockSelect = {
 		getSelectedResponsesCount: jest.fn().mockReturnValue( 0 ),
+		getSelectedResponsesFromCurrentDataset: jest.fn().mockReturnValue( [] ),
 		getCurrentStatus: jest.fn().mockReturnValue( 'trash' ),
 		getCurrentQuery: jest.fn().mockReturnValue( {} ),
 		getFilters: jest.fn().mockReturnValue( {} ),
@@ -182,7 +186,7 @@ describe( 'EmptySpamButton', () => {
 	it( 'renders correctly', () => {
 		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
-		const button = screen.getByText( 'Delete spam' );
+		const button = screen.getByText( /^Delete spam/ );
 		expect( button ).toBeInTheDocument();
 		expect( button ).toHaveAttribute( 'type', 'button' );
 		expect( button ).toBeEnabled();
@@ -191,7 +195,7 @@ describe( 'EmptySpamButton', () => {
 	it( 'shows disabled state when spam is empty', () => {
 		renderWithProvider( <EmptySpamButton totalItemsSpam={ 0 } /> );
 
-		const button = screen.getByText( 'Delete spam' );
+		const button = screen.getByText( /^Delete spam/ );
 		expect( button ).toBeDisabled();
 		expect( button ).toHaveAttribute( 'aria-label', 'Spam is already empty.' );
 	} );
@@ -199,7 +203,7 @@ describe( 'EmptySpamButton', () => {
 	it( 'shows confirmation dialog when clicked', async () => {
 		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
-		const button = screen.getByText( 'Delete spam' );
+		const button = screen.getByText( /^Delete spam/ );
 		await userEvent.click( button );
 
 		const dialog = screen.getByTestId( 'confirm-dialog' );
@@ -215,22 +219,23 @@ describe( 'EmptySpamButton', () => {
 		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
 		// Click empty spam button
-		const button = screen.getByText( 'Delete spam' );
+		const button = screen.getByText( /^Delete spam/ );
 		await userEvent.click( button );
 
 		// Click confirm button
-		const confirmButton = screen.getByText( 'Delete' );
+		const confirmButton = screen.getByText( 'Delete forever' );
 		await userEvent.click( confirmButton );
 
-		// Verify API call
+		// Verify API call — scope is `all` (no selection, no filter), so payload is just status.
 		expect( apiFetch ).toHaveBeenCalledWith( {
 			method: 'DELETE',
-			path: '/wp/v2/feedback/trash?status=spam',
+			path: '/wp/v2/feedback/trash',
+			data: { status: 'spam' },
 		} );
 
-		// Verify success notice
+		// Verify success notice (pluralized with formatNumber).
 		expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
-			'Response deleted permanently.',
+			expect.stringContaining( 'deleted permanently' ),
 			{ type: 'snackbar', id: 'empty-spam' }
 		);
 	} );
