@@ -236,6 +236,41 @@ jobs:
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
+  ### Shared JS dependency install job.
+  # Runs pnpm install once and caches node_modules so that all JS linting jobs
+  # can restore the cache instead of each running their own install.
+  # This avoids up to 9 redundant pnpm installs per PR (each ~1-5 minutes).
+  install_js_deps:
+    name: Install JS dependencies (shared)
+    runs-on: ubuntu-latest
+    needs: changed_files
+    timeout-minutes: 5  # 2026-04-16: Should take about 1-2 minutes.
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup tools (Node only)
+        uses: ./.github/actions/tool-setup
+        with:
+          php: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+        timeout-minutes: 5
+
+      - name: Save node_modules cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
+
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`
   # We can't use a job-level `if` because GH Actions doesn't expand matrix names for skipped jobs,
@@ -386,7 +421,7 @@ jobs:
   eslint:
     name: ESLint (non-excluded files only)
     runs-on: ubuntu-latest
-    needs: changed_files
+    needs: [changed_files, install_js_deps]
     if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
     timeout-minutes: 10  # 2025-11-06: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
 
@@ -396,8 +431,19 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - name: Monorepo pnpm install
-        run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm run lint-required
 
   ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
@@ -408,7 +454,7 @@ jobs:
   eslint_changed:
     name: ESLint (changes to excluded files only)
     runs-on: ubuntu-latest
-    needs: changed_files
+    needs: [changed_files, install_js_deps]
     if: github.event_name == 'pull_request' && needs.changed_files.outputs.js_excluded_files != '[]'
     continue-on-error: true
     timeout-minutes: 10  # 2025-11-06: Takes about a minute, but rarely runs.
@@ -424,8 +470,19 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - name: Monorepo pnpm install
-        run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Run eslint-changed
         env:
           SHA: ${{ github.event.pull_request.base.sha }}
@@ -439,7 +496,7 @@ jobs:
   lint_style:
     name: Stylelint
     runs-on: ubuntu-latest
-    needs: changed_files
+    needs: [changed_files, install_js_deps]
     if: github.event_name == 'push' || needs.changed_files.outputs.css == 'true' || needs.changed_files.outputs.misc_css == 'true'
     timeout-minutes: 5  # 2025-11-06: Takes a bit more than a minute, so give a little wiggle room.
 
@@ -449,8 +506,19 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - name: Monorepo pnpm install
-        run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Run lint-style
         run: pnpm lint-style --formatter=compact . && echo 'Everything checks out!'
 
@@ -461,7 +529,7 @@ jobs:
   lint_gh_actions:
     name: Lint GitHub Actions yaml files
     runs-on: ubuntu-latest
-    needs: changed_files
+    needs: [changed_files, install_js_deps]
     if: github.event_name == 'push' || needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
@@ -472,7 +540,19 @@ jobs:
         with:
           php: false
 
-      - run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Run lint
         run: ./tools/js-tools/lint-gh-actions.mjs -v '.github/workflows/*.{yml,yaml}' '.github/actions/*/action.{yml,yaml}' 'projects/github-actions/*/action.{yml,yaml}'
 
@@ -494,7 +574,7 @@ jobs:
   check_excludelists:
     name: Check linter exclude lists
     runs-on: ubuntu-latest
-    needs: changed_files
+    needs: [changed_files, install_js_deps]
     if: github.event_name == 'push' || needs.changed_files.outputs.excludelist == 'true'
     timeout-minutes: 10  # 2025-11-06: The check itself takes 2 minutes.
     steps:
@@ -504,8 +584,19 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - run: composer install
-      - name: Monorepo pnpm install
-        run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Cleanup excludelists
         run: tools/cleanup-excludelists.sh
@@ -581,14 +672,26 @@ jobs:
   monorepo_package_refs:
     name: Monorepo package version refs
     runs-on: ubuntu-latest
-    needs: changed_files
+    needs: [changed_files, install_js_deps]
     if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2025-11-06: Takes a minute or two.
     steps:
       - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-      - run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
       - run: tools/check-intra-monorepo-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh
 
@@ -597,6 +700,7 @@ jobs:
   project_structure:
     name: Project structure
     runs-on: ubuntu-latest
+    needs: install_js_deps
     timeout-minutes: 5  # 2025-11-06: Takes a minute or two.
     steps:
       - uses: actions/checkout@v6
@@ -604,7 +708,19 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
       - run: .github/files/lint-project-structure.sh
 
   ### Warn on manual updates to Phan auto-generated stubs
@@ -646,15 +762,26 @@ jobs:
   typecheck:
     name: Type checking
     runs-on: ubuntu-latest
-    needs: changed_files
+    needs: [changed_files, install_js_deps]
     if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
     timeout-minutes: 10 # 2025-11-20: Takes around 3 minutes.
     steps:
       - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-      - name: Pnpm install
-        run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Run type checking
         # Can't just `pnpm typecheck` here, GitHub won't match the output files correctly
         # and unfortunately https://github.com/microsoft/TypeScript/issues/36221 is still open.
@@ -671,15 +798,26 @@ jobs:
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
-    needs: changed_files
+    needs: [changed_files, install_js_deps]
     if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
       - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-      - name: Pnpm install
-        run: pnpm install
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            projects/*/*/node_modules
+            projects/plugins/*/tests/e2e/node_modules
+            tools/cli/node_modules
+            tools/e2e-commons/node_modules
+            tools/js-tools/node_modules
+            tools/performance/node_modules
+            .github/files/coverage-munger/node_modules
+          key: pnpm-workspace-${{ github.run_id }}-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Add back removed packages in case of a release branch.
         run: |
           echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
