@@ -27,12 +27,12 @@
  *    callback (is_super_admin()) runs against the mapped user. On
  *    success the site generates a random secret, stores it in the
  *    reprint_exporter_secret option, and returns it.
- * 
+ *
  *    That secret is later used to authenticate export requests via HMAC.
  *
  * 2. Export streaming — the client (now holding the shared secret)
  *    talks directly to the site at ?reprint-api using HMAC-signed requests.
- * 
+ *
  *    This exchange bypasses the public API entirely because:
  *       - public-api doesn't support streaming
  *       - more hops = more complexity, more latency, more request serving

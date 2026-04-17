@@ -20,14 +20,34 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	public function tear_down() {
 		delete_option( 'reprint_exporter_secret' );
 
-		// Drop any gate-override filters set by a test.
+		// Drop any gate/capability override filters set by a test.
 		remove_all_filters( 'wpcomsh_reprint_exporter_available' );
+		remove_all_filters( 'user_has_cap' );
 
 		// Reset the REST server so route registrations don't leak between tests.
 		global $wp_rest_server;
 		$wp_rest_server = null;
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Helper: make is_super_admin() return true for the current user.
+	 *
+	 * grant_super_admin() only works on multisite, and the WP Cloud test
+	 * site runs as single-site with administrator capabilities stripped —
+	 * so the usual "administrator role ⇒ is_super_admin" shortcut doesn't
+	 * apply. Grant the capability is_super_admin() actually checks on
+	 * single-site (delete_users) via the user_has_cap filter instead.
+	 */
+	private function force_super_admin() {
+		add_filter(
+			'user_has_cap',
+			function ( $allcaps ) {
+				$allcaps['delete_users'] = true;
+				return $allcaps;
+			}
+		);
 	}
 
 	/**
@@ -150,8 +170,8 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$server = $this->fresh_rest_server();
 
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		grant_super_admin( $user_id );
 		wp_set_current_user( $user_id );
+		$this->force_super_admin();
 
 		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
 		$response = $server->dispatch( $request );
@@ -172,8 +192,8 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$server = $this->fresh_rest_server();
 
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		grant_super_admin( $user_id );
 		wp_set_current_user( $user_id );
+		$this->force_super_admin();
 
 		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
 		$response = $server->dispatch( $request );
@@ -383,8 +403,8 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 */
 	public function test_permission_callback_allows_super_admin() {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		grant_super_admin( $user_id );
 		wp_set_current_user( $user_id );
+		$this->force_super_admin();
 
 		$this->assertTrue( $this->controller()->permission_check() );
 	}
