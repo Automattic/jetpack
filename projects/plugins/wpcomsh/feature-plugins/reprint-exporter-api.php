@@ -70,14 +70,9 @@ function wpcomsh_reprint_handle_request( $wp ) {
 		return;
 	}
 
-	// Homepage guard. WP's parse_request takes $_SERVER['REQUEST_URI'],
-	// strips the path component of home_url() (so a subdirectory install
-	// at /subdir/ behaves the same as a root install at /), normalizes
-	// the rest, and stores the result in $wp->request. An empty string
-	// therefore means "the request hit the site root", independent of
-	// host, port, or where WordPress lives. is_front_page() / is_home()
-	// would be the wrong tool here anyway — they read state from the
-	// main query, which parse_request runs before.
+	// $wp->request === '' is the homepage check. Core has already
+	// normalized REQUEST_URI against home_url() by this point, so it
+	// works for subdirectory installs too.
 	if ( '' !== $wp->request ) {
 		return;
 	}
@@ -152,24 +147,14 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 // -- Helpers ------------------------------------------------------------------
 
 /**
- * True when reprint_exporter_enabled holds a unix timestamp within the
- * last 60 minutes.
- *
- * @return bool
- */
-function _reprint_exporter_is_currently_activated(): bool {
-	$enabled_at = (int) get_option( 'reprint_exporter_enabled', 0 );
-	return $enabled_at > 0 && ( time() - $enabled_at ) <= HOUR_IN_SECONDS;
-}
-
-/**
- * Stricter gate for the ?reprint-api export handler: activation window
- * (above) AND a proxied-Automattician request.
+ * Gate for the ?reprint-api export handler: option timestamp within
+ * the last 60 minutes AND a proxied-Automattician request.
  *
  * @return bool
  */
 function _should_expose_reprint_exporter_on_this_site(): bool {
-	if ( ! _reprint_exporter_is_currently_activated() ) {
+	$enabled_at = (int) get_option( 'reprint_exporter_enabled', 0 );
+	if ( $enabled_at <= 0 || ( time() - $enabled_at ) > HOUR_IN_SECONDS ) {
 		return false;
 	}
 
