@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+SEO: absorb the Sitemaps, Site Verification, and Canonical URLs modules into SEO Tools. Their module entry files are removed from `modules/` so they no longer appear as standalone modules; the implementation code is still loaded from `modules/seo-tools.php` when SEO Tools is active, gated by per-option toggles surfaced on the new SEO Settings screen. The `Jetpack > SEO` menu item is now only shown when the SEO Tools module is active.
