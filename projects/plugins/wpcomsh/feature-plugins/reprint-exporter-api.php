@@ -4,13 +4,10 @@
  *
  * Exposes export endpoints at ?reprint-api.
  *
- * The entire feature is gated on `_should_expose_reprint_exporter_on_this_site()`.
- * It returns true when either the reprint_exporter_enabled site option
- * is on (the intended ops-controlled switch) or when the current request
- * is from an Automattician proxying through the a8c proxy (for internal
- * testing regardless of the option). Defaults off for customers; neither
- * the ?reprint-api handler nor the REST route exists until one of those
- * conditions holds.
+ * The entire feature is currently gated behind a site option AND a
+ * proxied-Automattician check so it cannot be reached by customers
+ * while the end-to-end Studio flow is still being built. Once that ships,
+ * the gate can be relaxed.
  *
  * Data flow has two phases that use different auth and network paths:
  *
@@ -146,22 +143,23 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 /**
  * Whether the reprint exporter endpoints are exposed on this site.
  *
- * True when EITHER of the following is true:
+ * BOTH of the following must be true:
  *
  * - The reprint_exporter_enabled site option is set to a truthy value.
- *   This is the intended switch for enabling the feature on a site —
- *   ops flips it with wp-cli (`wp option update reprint_exporter_enabled 1`).
+ *   This is the ops-controlled switch for turning the feature on for a
+ *   site — flipped via wp-cli (`wp option update reprint_exporter_enabled 1`).
  *   No admin UI exposes it, so customers never see it by default.
  *
  * - The current request is from an Automattician coming in through the
- *   a8c proxy. This keeps the feature usable for internal testing /
- *   debugging regardless of the option's state.
+ *   a8c proxy. While the Studio flow is still being built we also want
+ *   a runtime guarantee that only internal traffic reaches the feature,
+ *   even on sites where ops has already flipped the option on.
  *
  * @return bool
  */
 function _should_expose_reprint_exporter_on_this_site(): bool {
-	if ( get_option( 'reprint_exporter_enabled', false ) ) {
-		return true;
+	if ( ! get_option( 'reprint_exporter_enabled', false ) ) {
+		return false;
 	}
 
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash

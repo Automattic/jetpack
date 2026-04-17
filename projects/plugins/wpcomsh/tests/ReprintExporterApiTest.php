@@ -3,10 +3,29 @@
  * Reprint Exporter API Test file.
  *
  * Verifies the reprint-exporter API endpoints (?reprint-api,
- * rotate-export-secret REST route) and their proxied-Automattician gating.
+ * rotate-export-secret REST route) and their option + proxied-Automattician
+ * gating.
  *
  * @package wpcomsh
  */
+
+// Stub the Automattician check when running outside a WPCOM environment
+// so set_available() can fake a proxied-Automattician request. On WPCOM
+// the real function already exists and this stub is skipped.
+if ( ! function_exists( 'is_automattician' ) ) {
+	/**
+	 * Test stub for WPCOM's is_automattician().
+	 *
+	 * Returns true iff the test has flipped the $__reprint_test_is_automattician
+	 * global, which set_available() does alongside enabling the site option.
+	 *
+	 * @param int $user_id Ignored; accepted so the signature matches WPCOM's.
+	 * @return bool
+	 */
+	function is_automattician( $user_id = 0 ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound, Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		return ! empty( $GLOBALS['__reprint_test_is_automattician'] );
+	}
+}
 
 /**
  * Class ReprintExporterApiTest.
@@ -23,6 +42,10 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 
 		// Drop the per-test user_has_cap filter used by force_super_admin().
 		remove_all_filters( 'user_has_cap' );
+
+		// Reset the Automattician/proxy simulation set by set_available().
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		unset( $GLOBALS['__reprint_test_is_automattician'] );
 
 		// Reset the REST server so route registrations don't leak between tests.
 		global $wp_rest_server;
@@ -52,18 +75,43 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Helper: flip the reprint_exporter_enabled site option on or off.
+	 * Helper: satisfy (or not) the full availability gate.
 	 *
-	 * This is the same switch ops would use in production — no separate
-	 * test-only override.
+	 * The gate requires BOTH the reprint_exporter_enabled site option AND
+	 * a proxied-Automattician request. Flip the option directly, and
+	 * simulate the proxied-Automattician part via the $_SERVER header plus
+	 * the is_automattician() stub defined at the top of this file.
 	 *
 	 * @param bool $available Whether the endpoints should be available.
 	 */
 	private function set_available( bool $available ) {
 		if ( $available ) {
 			update_option( 'reprint_exporter_enabled', 1 );
+			$_SERVER['A8C_PROXIED_REQUEST']             = '1';
+			$GLOBALS['__reprint_test_is_automattician'] = true;
 		} else {
 			delete_option( 'reprint_exporter_enabled' );
+			unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+			unset( $GLOBALS['__reprint_test_is_automattician'] );
+		}
+	}
+
+	/**
+	 * Skip the current test when the Automattician check can't be faked.
+	 *
+	 * Our is_automattician() stub only loads when the real function is
+	 * absent. On WP Cloud (and any other WPCOM-flavored environment) the
+	 * real is_automattician() is defined and rejects factory-created
+	 * users, so there's no way to fake a proxied-Automattician request
+	 * from inside the test.
+	 */
+	private function skip_if_cannot_fake_automattician() {
+		$GLOBALS['__reprint_test_is_automattician'] = true;
+		$faked                                      = is_automattician( get_current_user_id() );
+		unset( $GLOBALS['__reprint_test_is_automattician'] );
+
+		if ( ! $faked ) {
+			$this->markTestSkipped( 'Cannot fake is_automattician() in this environment.' );
 		}
 	}
 
@@ -136,6 +184,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the REST route is registered when the gate is open.
 	 */
 	public function test_rest_route_registered_when_gate_open() {
+		$this->skip_if_cannot_fake_automattician();
 		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();
@@ -147,6 +196,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the rotate-secret endpoint requires super-admin permissions.
 	 */
 	public function test_rotate_secret_requires_super_admin() {
+		$this->skip_if_cannot_fake_automattician();
 		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();
