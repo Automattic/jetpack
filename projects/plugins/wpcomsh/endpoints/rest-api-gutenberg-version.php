@@ -35,6 +35,22 @@ function wpcomsh_rest_api_gutenberg_version_permission() {
 }
 
 /**
+ * Add no-cache headers to responses for this endpoint so the WoA edge cache
+ * doesn't serve stale 200/401 responses after the option is toggled.
+ *
+ * @param WP_REST_Response $response The REST response.
+ * @param WP_REST_Server   $server   The REST server instance.
+ * @param WP_REST_Request  $request  The REST request.
+ * @return WP_REST_Response
+ */
+function wpcomsh_rest_api_gutenberg_version_nocache( $response, $server, $request ) {
+	if ( $request instanceof WP_REST_Request && '/wpcomsh/v1/gutenberg-version' === $request->get_route() ) {
+		$response->header( 'Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0' );
+	}
+	return $response;
+}
+
+/**
  * Initialize API.
  */
 function wpcomsh_rest_api_gutenberg_version_init() {
@@ -49,4 +65,6 @@ function wpcomsh_rest_api_gutenberg_version_init() {
 			),
 		)
 	);
+
+	add_filter( 'rest_post_dispatch', 'wpcomsh_rest_api_gutenberg_version_nocache', 10, 3 );
 }

@@ -55,4 +55,28 @@ class GutenbergVersionEndpointTest extends WP_UnitTestCase {
 		// Cleanup.
 		delete_option( 'wpcomsh_expose_gutenberg_version' );
 	}
+
+	/**
+	 * Tests that responses for this endpoint get a Cache-Control: no-cache header.
+	 */
+	public function test_nocache_header_added_for_endpoint() {
+		$response = new WP_REST_Response();
+		$request  = new WP_REST_Request( 'GET', '/wpcomsh/v1/gutenberg-version' );
+
+		$result = wpcomsh_rest_api_gutenberg_version_nocache( $response, rest_get_server(), $request );
+
+		$this->assertStringContainsString( 'no-cache', $result->get_headers()['Cache-Control'] );
+	}
+
+	/**
+	 * Tests that responses for other endpoints are not touched.
+	 */
+	public function test_nocache_header_not_added_for_other_routes() {
+		$response = new WP_REST_Response();
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/posts' );
+
+		$result = wpcomsh_rest_api_gutenberg_version_nocache( $response, rest_get_server(), $request );
+
+		$this->assertArrayNotHasKey( 'Cache-Control', $result->get_headers() );
+	}
 }
