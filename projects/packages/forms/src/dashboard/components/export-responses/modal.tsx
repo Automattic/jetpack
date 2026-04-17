@@ -2,13 +2,13 @@
  * External dependencies
  */
 import {
-	Notice,
 	Modal,
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -70,18 +70,20 @@ const ExportResponsesModal = ( {
 		>
 			<VStack spacing={ 6 }>
 				{ selectedTestCount > 0 && (
-					<Notice status="info" isDismissible={ false }>
-						{ sprintf(
-							/* translators: %d: number of selected test responses. */
-							_n(
-								'Your selection includes %d test response from form preview. It will be included in the export.',
-								'Your selection includes %d test responses from form preview. They will be included in the export.',
-								selectedTestCount,
-								'jetpack-forms'
-							),
-							selectedTestCount
-						) }
-					</Notice>
+					<Notice.Root intent="info">
+						<Notice.Description>
+							{ sprintf(
+								/* translators: %d: number of selected test responses. */
+								_n(
+									'Your selection includes %d test response from form preview. It will be included in the export.',
+									'Your selection includes %d test responses from form preview. They will be included in the export.',
+									selectedTestCount,
+									'jetpack-forms'
+								),
+								selectedTestCount
+							) }
+						</Notice.Description>
+					</Notice.Root>
 				) }
 				<CSVExport onExport={ onExport } />
 				{ isGoogleDriveEnabled && (
