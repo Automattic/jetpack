@@ -254,20 +254,25 @@ const { state, actions } = store( 'jetpack-search', {
 
 #### Phase 1 Block List
 
-| Block | Description |
-|---|---|
-| `jetpack/search-input` | Text input, debounced, triggers `actions.search()` |
-| `jetpack/search-results` | Renders result list from `state.results`; generic (post title, excerpt, date) |
-| `jetpack/filter-category` | Checkbox list from `state.aggregations.category`; facet counts shown |
-| `jetpack/filter-tag` | Same pattern as category |
-| `jetpack/filter-post-type` | Radio or checkbox by post type |
-| `jetpack/filter-author` | Checkbox list by author |
-| `jetpack/filter-date` | Year/month picker |
-| `jetpack/active-filters` | Pills showing active filters with clear buttons |
-| `jetpack/sort-control` | Dropdown: relevance, date, etc. |
-| `jetpack/results-count` | "Showing 1–10 of 47 results" |
-| `jetpack/no-results` | Shown when `state.results.length === 0 && !state.isLoading` |
-| `jetpack/load-more` | Appends next page; `state.pageHandle` used for cursor pagination |
+| Block | Type | Description |
+|---|---|---|
+| `jetpack/search-input` | Block | Text input, debounced, triggers `actions.search()` |
+| `jetpack/search-results` | Block | Renders result list from `state.results`; generic (post title, excerpt, date) |
+| `jetpack/filter-checkbox` | Block | Checkbox filter — one block handles all checkbox-style filtering (see variations below) |
+| `jetpack/filter-checkbox` — Category | Variation | `filterType: taxonomy, taxonomy: category`; dynamic (terms agg) |
+| `jetpack/filter-checkbox` — Tag | Variation | `filterType: taxonomy, taxonomy: post_tag`; dynamic |
+| `jetpack/filter-checkbox` — Post Type | Variation | `filterType: post_type`; dynamic |
+| `jetpack/filter-checkbox` — Author | Variation | `filterType: author`; dynamic |
+| `jetpack/filter-checkbox` — Custom Taxonomy | Variation | `filterType: taxonomy, taxonomy: {slug}`; user sets taxonomy in inspector |
+| `jetpack/filter-checkbox` — Custom Field | Variation | `filterType: post_meta, metaKey: {key}, displayMode: curated`; user configures values |
+| `jetpack/filter-date` | Block | Year/month picker — separate block (different UI) |
+| `jetpack/active-filters` | Block | Pills showing active filters with clear buttons |
+| `jetpack/sort-control` | Block | Dropdown: relevance, date, etc. |
+| `jetpack/results-count` | Block | "Showing 1–10 of 47 results" |
+| `jetpack/no-results` | Block | Shown when `state.results.length === 0 && !state.isLoading` |
+| `jetpack/load-more` | Block | Appends next page; `state.pageHandle` used for cursor pagination |
+
+**`filterConfigs` pattern**: Each `filter-checkbox` block's `render.php` registers a `FilterConfig` into `state.filterConfigs` via `wp_interactivity_state()`. Shape: `{ filterKey, esField, aggType: 'terms'|'filters', curatedValues, showCount, maxItems }`. The JS store reads `filterConfigs` to build aggregation requests and ES filter clauses — PHP owns the field mapping, JS executes it. This is the extension point: adding a new filter type only requires knowing the ES field name.
 
 ---
 
@@ -279,13 +284,13 @@ const { state, actions } = store( 'jetpack-search', {
 
 #### Phase 2 Block List
 
-| Block | Description |
-|---|---|
-| `jetpack/filter-price` | Price range slider; maps to `wc.price` ES field |
-| `jetpack/filter-attribute` | Per-attribute checkbox filter (color, size, etc.); dynamic from `aggregations.product_attribute` |
-| `jetpack/filter-rating` | Star rating filter; maps to `meta._wc_average_rating` |
-| `jetpack/filter-stock-status` | In stock / out of stock / on backorder |
-| `jetpack/search-results-product` | WC product card: image, title, price, rating, add-to-cart button |
+| Block | Type | Description |
+|---|---|---|
+| `jetpack/filter-price` | Block | Price range slider; different UI → separate block. Maps to `wc.price` ES field |
+| `jetpack/filter-checkbox` — WC Attribute | Variation | `filterType: taxonomy, taxonomy: pa_{attribute}`; dynamic; adds WC attribute ES field mapping to `Filter_Checkbox::ES_FIELDS` |
+| `jetpack/filter-checkbox` — Stock Status | Variation | `filterType: post_meta, metaKey: _stock_status, displayMode: curated, curatedValues: [instock, outofstock, onbackorder]`; no new block needed |
+| `jetpack/filter-rating` | Block | Star rating filter; different UI (visual stars) → separate block. Maps to `meta._wc_average_rating` |
+| `jetpack/search-results-product` | Block | WC product card: image, title, price, rating, add-to-cart button |
 
 #### Block Patterns (Phase 2)
 

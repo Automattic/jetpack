@@ -38,18 +38,14 @@ projects/packages/search/
           render.php                   # pre-fetches initial results server-side
           view.js
           style.scss
-        filter-category/
-          block.json
-          render.php                   # renders facet list from aggregations
-          view.js
+        filter-checkbox/
+          block.json                   # attributes: filterType, taxonomy, metaKey, displayMode, curatedValues, label, showCount, maxItems
+          render.php                   # registers filterConfig into wp_interactivity_state(); renders checkbox list
+          view.js                      # generic checkbox handler; reads filterKey from context
+          variations.js                # editor-side: registerBlockVariation for Category, Tag, Author, Post Type, Custom
           style.scss
-        filter-tag/
-          block.json
-          render.php
-          view.js
-          style.scss
-        filter-post-type/
-          block.json
+        filter-date/
+          block.json                   # separate block — different UI (date range picker)
           render.php
           view.js
           style.scss
@@ -248,7 +244,26 @@ The store is the reactive heart of the system. All blocks read from and write to
 
 ```js
 // tests/js/search-blocks/api.test.js
-import { buildSearchUrl } from '../../../src/search-blocks/store/api';
+import { buildSearchUrl, buildAggregations, buildFilters } from '../../../src/search-blocks/store/api';
+
+// A minimal filterConfigs object as PHP would produce it.
+const CATEGORY_CONFIG = {
+	filterKey: 'category',
+	esField: 'category.slug',
+	aggType: 'terms',
+	showCount: true,
+	maxItems: 20,
+	curatedValues: [],
+};
+
+const CURATED_COLOR_CONFIG = {
+	filterKey: 'meta_color',
+	esField: 'meta.color.value',
+	aggType: 'filters',
+	showCount: true,
+	maxItems: 20,
+	curatedValues: [ 'red', 'blue', 'green' ],
+};
 
 describe( 'buildSearchUrl', () => {
 	it( 'builds public API URL for non-private sites', () => {
@@ -256,6 +271,7 @@ describe( 'buildSearchUrl', () => {
 			siteId: 12345,
 			searchQuery: 'cats',
 			activeFilters: {},
+			filterConfigs: {},
 			sortOrder: 'relevance',
 			pageHandle: null,
 			isPrivateSite: false,
@@ -271,6 +287,7 @@ describe( 'buildSearchUrl', () => {
 			siteId: 12345,
 			searchQuery: '',
 			activeFilters: {},
+			filterConfigs: {},
 			sortOrder: 'relevance',
 			pageHandle: null,
 			isPrivateSite: true,
@@ -286,6 +303,7 @@ describe( 'buildSearchUrl', () => {
 			siteId: 12345,
 			searchQuery: '',
 			activeFilters: {},
+			filterConfigs: {},
 			sortOrder: 'relevance',
 			pageHandle: null,
 			isPrivateSite: true,
@@ -294,19 +312,51 @@ describe( 'buildSearchUrl', () => {
 		} );
 		expect( url ).toContain( 'mysite.com/wp-json/jetpack/v4/search' );
 	} );
+} );
 
-	it( 'encodes category filter', () => {
-		const url = buildSearchUrl( {
-			siteId: 12345,
-			searchQuery: '',
-			activeFilters: { category: 'news' },
-			sortOrder: 'relevance',
-			pageHandle: null,
-			isPrivateSite: false,
-			isWpcom: false,
-			apiRoot: '',
+describe( 'buildAggregations', () => {
+	it( 'produces a terms aggregation for dynamic (terms) filters', () => {
+		const aggs = buildAggregations( { category: CATEGORY_CONFIG } );
+		expect( aggs.category ).toEqual( {
+			terms: { field: 'category.slug', size: 20 },
 		} );
-		expect( url ).toContain( 'filter' );
+	} );
+
+	it( 'produces a filters aggregation for curated filters', () => {
+		const aggs = buildAggregations( { meta_color: CURATED_COLOR_CONFIG } );
+		expect( aggs.meta_color.filters.filters.red ).toEqual( {
+			term: { 'meta.color.value': 'red' },
+		} );
+		expect( Object.keys( aggs.meta_color.filters.filters ) ).toEqual( [ 'red', 'blue', 'green' ] );
+	} );
+
+	it( 'skips filters with showCount=false', () => {
+		const aggs = buildAggregations( {
+			category: { ...CATEGORY_CONFIG, showCount: false },
+		} );
+		expect( aggs ).toEqual( {} );
+	} );
+} );
+
+describe( 'buildFilters', () => {
+	it( 'builds an ES terms filter from active selections', () => {
+		const filter = buildFilters(
+			{ category: [ 'news', 'tech' ] },
+			{ category: CATEGORY_CONFIG }
+		);
+		expect( filter ).toEqual( {
+			bool: { must: [ { terms: { 'category.slug': [ 'news', 'tech' ] } } ] },
+		} );
+	} );
+
+	it( 'returns undefined when no filters are active', () => {
+		const filter = buildFilters( {}, { category: CATEGORY_CONFIG } );
+		expect( filter ).toBeUndefined();
+	} );
+
+	it( 'skips unknown filter keys (no config)', () => {
+		const filter = buildFilters( { unknown_key: [ 'val' ] }, {} );
+		expect( filter ).toBeUndefined();
 	} );
 } );
 ```
@@ -365,8 +415,6 @@ Expected: FAIL — modules not found.
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 
-const AGGREGATION_SIZE = 20;
-
 /**
  * Build the full search API URL with query params.
  * Mirrors the 3-path routing in src/instant-search/lib/api.js.
@@ -374,12 +422,13 @@ const AGGREGATION_SIZE = 20;
  * @param {object} opts
  * @param {number} opts.siteId
  * @param {string} opts.searchQuery
- * @param {object} opts.activeFilters   { category: ['news'], tag: ['wordpress'], ... }
+ * @param {object} opts.activeFilters   { [filterKey]: string[] }
+ * @param {object} opts.filterConfigs   Map of filterKey → FilterConfig (set by block render.php via wp_interactivity_state)
  * @param {string} opts.sortOrder       'relevance' | 'date'
  * @param {string|null} opts.pageHandle Cursor for pagination
  * @param {boolean} opts.isPrivateSite
  * @param {boolean} opts.isWpcom
- * @param {string} opts.apiRoot         WordPress REST root URL, e.g. https://example.com/wp-json/
+ * @param {string} opts.apiRoot         WordPress REST root URL
  * @param {string} [opts.homeUrl]       Home URL, required for private WPcom sites
  * @return {string} Full URL to call
  */
@@ -387,6 +436,7 @@ export function buildSearchUrl( {
 	siteId,
 	searchQuery,
 	activeFilters,
+	filterConfigs,
 	sortOrder,
 	pageHandle,
 	isPrivateSite,
@@ -394,8 +444,8 @@ export function buildSearchUrl( {
 	apiRoot,
 	homeUrl = '',
 } ) {
-	const aggregations = buildAggregations( activeFilters );
-	const filter = buildFilters( activeFilters );
+	const aggregations = buildAggregations( filterConfigs );
+	const filter = buildFilters( activeFilters, filterConfigs );
 
 	const params = {
 		query: encodeURIComponent( searchQuery || '' ),
@@ -422,37 +472,64 @@ export function buildSearchUrl( {
 }
 
 /**
- * Build aggregation requests for the v1.3 API.
- * Always requests facet counts for standard taxonomy filters.
+ * Build aggregation requests driven by filterConfigs registered by each block's render.php.
  *
- * @param {object} activeFilters Current active filters (used to determine which aggs to request)
- * @return {object} Aggregations object
+ * Each FilterConfig has shape:
+ *   {
+ *     filterKey:     string,         // store key, e.g. 'category', 'meta_color'
+ *     esField:       string,         // ES index field, e.g. 'category.slug', 'meta.color.value'
+ *     aggType:       'terms'|'filters', // 'terms' = dynamic top-N; 'filters' = curated list with counts
+ *     curatedValues: string[],       // required when aggType = 'filters'
+ *     showCount:     boolean,
+ *   }
+ *
+ * PHP side sets esField and aggType — JS never hardcodes field names.
+ *
+ * @param {object} filterConfigs  { [filterKey]: FilterConfig }
+ * @return {object} Aggregations object for the v1.3 API
  */
-function buildAggregations( activeFilters ) {
-	return {
-		category: { terms: { field: 'category.slug', size: AGGREGATION_SIZE } },
-		post_tag: { terms: { field: 'tag.slug', size: AGGREGATION_SIZE } },
-		post_type: { terms: { field: 'post_type', size: AGGREGATION_SIZE } },
-	};
+export function buildAggregations( filterConfigs ) {
+	const aggregations = {};
+
+	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		if ( ! config.showCount ) continue;
+
+		if ( config.aggType === 'filters' && config.curatedValues?.length ) {
+			// Curated mode: ES "filters" aggregation returns a count for each specified value.
+			const filters = {};
+			config.curatedValues.forEach( value => {
+				filters[ value ] = { term: { [ config.esField ]: value } };
+			} );
+			aggregations[ filterKey ] = { filters: { filters } };
+		} else {
+			// Dynamic mode: ES "terms" aggregation returns top-N values + counts.
+			aggregations[ filterKey ] = {
+				terms: { field: config.esField, size: config.maxItems ?? 20 },
+			};
+		}
+	}
+
+	return aggregations;
 }
 
 /**
- * Convert activeFilters store shape to v1.3 API filter format.
+ * Build the ES filter clause from active filter selections.
+ * Uses filterConfigs to resolve each filterKey to its esField.
  *
- * @param {object} activeFilters  { category: ['news'], tag: ['wordpress'], ... }
- * @return {object|undefined} Filter object for the API, or undefined if no filters
+ * @param {object} activeFilters  { [filterKey]: string[] }
+ * @param {object} filterConfigs  { [filterKey]: FilterConfig }
+ * @return {object|undefined} ES bool.must filter, or undefined if nothing is active
  */
-function buildFilters( activeFilters ) {
+export function buildFilters( activeFilters, filterConfigs ) {
 	const must = [];
 
-	if ( activeFilters.category?.length ) {
-		must.push( { terms: { 'category.slug': activeFilters.category } } );
-	}
-	if ( activeFilters.post_tag?.length ) {
-		must.push( { terms: { 'tag.slug': activeFilters.post_tag } } );
-	}
-	if ( activeFilters.post_type?.length ) {
-		must.push( { terms: { post_type: activeFilters.post_type } } );
+	for ( const [ filterKey, values ] of Object.entries( activeFilters ?? {} ) ) {
+		if ( ! values?.length ) continue;
+
+		const config = filterConfigs?.[ filterKey ];
+		if ( ! config?.esField ) continue;  // unknown filter — skip
+
+		must.push( { terms: { [ config.esField ]: values } } );
 	}
 
 	return must.length ? { bool: { must } } : undefined;
@@ -564,6 +641,7 @@ const { state, actions } = store( NAMESPACE, {
 				siteId: state.siteId,
 				searchQuery: state.searchQuery,
 				activeFilters: state.activeFilters,
+				filterConfigs: state.filterConfigs,
 				sortOrder: state.sortOrder,
 				pageHandle: null,
 				isPrivateSite: state.isPrivateSite,
@@ -646,6 +724,7 @@ const { state, actions } = store( NAMESPACE, {
 				siteId: state.siteId,
 				searchQuery: state.searchQuery,
 				activeFilters: state.activeFilters,
+				filterConfigs: state.filterConfigs,
 				sortOrder: state.sortOrder,
 				pageHandle: state.pageHandle,
 				isPrivateSite: state.isPrivateSite,
@@ -922,6 +1001,12 @@ class Search_Blocks {
 			'searchQuery'   => get_search_query() ?? '',
 			'activeFilters' => array(),
 			'sortOrder'     => 'relevance',
+
+			// filterConfigs: each filter-checkbox block's render.php merges its own entry here.
+			// Shape: { [filterKey]: { filterKey, esField, aggType, curatedValues, showCount, maxItems } }
+			// JS reads this to build aggregation requests and ES filter clauses.
+			// Starts empty; filter blocks populate it during render.
+			'filterConfigs' => array(),
 
 			// Results (populated by search-results block render.php; defaults to empty).
 			'results'       => array(),
@@ -1328,68 +1413,282 @@ git commit -m "Search 3.0: add search-results block with SSR pre-fetch"
 
 ---
 
-## Task 6: Taxonomy Filter Blocks (category, tag, post-type)
+## Task 6: filter-checkbox Block (with Block Variations)
 
-All three follow the same pattern: render a facet list from `state.aggregations` with checkboxes. Category and tag are taxonomies; post-type filters by post type.
+One block handles all checkbox-style filtering: category, tag, author, post type, custom taxonomy, and post meta. It supports two display modes:
+- **`dynamic`**: items and counts come from the search response's `terms` aggregation (top-N by frequency)
+- **`curated`**: items are configured in block attributes; counts come from a `filters` aggregation (exact count for each specified value, optional)
+
+Each render.php call registers a `FilterConfig` into `state.filterConfigs` so JS knows the ES field mapping and aggregation shape without hardcoding anything.
+
+Named block variations ("Filter by Category", "Filter by Tag", etc.) appear as separate entries in the block inserter, each pre-configured with the right attributes.
 
 **Files:**
-- Create: `src/search-blocks/blocks/filter-category/{block.json,render.php,view.js,style.scss}`
-- Create: `src/search-blocks/blocks/filter-tag/{block.json,render.php,view.js,style.scss}`
-- Create: `src/search-blocks/blocks/filter-post-type/{block.json,render.php,view.js,style.scss}`
+- Create: `src/search-blocks/blocks/filter-checkbox/block.json`
+- Create: `src/search-blocks/blocks/filter-checkbox/render.php`
+- Create: `src/search-blocks/blocks/filter-checkbox/view.js`
+- Create: `src/search-blocks/blocks/filter-checkbox/variations.js`  ← editor-side only, enqueued as `editorScript`
+- Create: `src/search-blocks/blocks/filter-checkbox/style.scss`
 
-- [ ] **Step 6.1: Create `filter-category/block.json`**
+- [ ] **Step 6.1: Create `filter-checkbox/block.json`**
 
 ```json
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "jetpack/filter-category",
+	"name": "jetpack/filter-checkbox",
 	"version": "0.1.0",
-	"title": "Filter by Category",
+	"title": "Checkbox Filter",
 	"category": "jetpack-search",
-	"description": "Category filter with facet counts for Jetpack Search.",
+	"description": "Checkbox filter for Jetpack Search. Use a variation (Category, Tag, Post Type, Author, Custom Taxonomy) or configure manually.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
-	"viewScriptModule": "file:../../../../build/search-blocks/filter-category.js",
-	"style": "file:../../../../build/search-blocks/filter-category.css"
+	"attributes": {
+		"filterType": {
+			"type": "string",
+			"default": "taxonomy",
+			"enum": [ "taxonomy", "post_type", "author", "post_meta" ]
+		},
+		"taxonomy": {
+			"type": "string",
+			"default": "category",
+			"description": "Taxonomy slug when filterType=taxonomy"
+		},
+		"metaKey": {
+			"type": "string",
+			"default": "",
+			"description": "Post meta key when filterType=post_meta"
+		},
+		"displayMode": {
+			"type": "string",
+			"default": "dynamic",
+			"enum": [ "dynamic", "curated" ],
+			"description": "dynamic=terms agg (top-N); curated=filters agg (specific values)"
+		},
+		"curatedValues": {
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "object",
+				"properties": {
+					"value": { "type": "string" },
+					"label": { "type": "string" }
+				}
+			},
+			"description": "Used when displayMode=curated"
+		},
+		"label": { "type": "string", "default": "" },
+		"showCount": { "type": "boolean", "default": true },
+		"maxItems": { "type": "integer", "default": 10 }
+	},
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-checkbox.js",
+	"editorScript": "file:../../../../build/search-blocks/filter-checkbox-variations.js",
+	"style": "file:../../../../build/search-blocks/filter-checkbox.css"
 }
 ```
 
-- [ ] **Step 6.2: Create `filter-category/render.php`**
+- [ ] **Step 6.2: Create the PHP helper for filter key and ES field derivation**
 
-Server-renders the category list from the pre-fetched aggregations stored in `wp_interactivity_state()`. Since `seed_interactivity_state()` runs on `wp_enqueue_scripts` (before `the_content`), aggregations are available here if the search-results block was rendered first. For reliability, fall back to the taxonomy API if aggregations are empty.
+Add a `Filter_Checkbox` helper class at `src/search-blocks/blocks/filter-checkbox/class-filter-checkbox.php`:
 
 ```php
 <?php
 /**
- * Filter: Category block render.
+ * filter-checkbox block helpers.
  *
  * @package automattic/jetpack-search
- * @var array $attributes Block attributes.
  */
 
-// Get initial category list from WordPress taxonomy for server render.
-// Client-side, aggregations from the store provide counts.
-$categories = get_categories( array( 'hide_empty' => true, 'number' => 20 ) );
-$label      = $attributes['label'] ?? __( 'Filter by Category', 'jetpack-search-pkg' );
+namespace Automattic\Jetpack\Search;
+
+/**
+ * Helper methods for the jetpack/filter-checkbox block.
+ */
+class Filter_Checkbox {
+
+	/**
+	 * ES field names for well-known filter types.
+	 * These map to the actual Jetpack Search index fields.
+	 */
+	const ES_FIELDS = array(
+		'post_type'           => 'post_type',
+		'author'              => 'author_login',
+		'taxonomy_category'   => 'category.slug',
+		'taxonomy_post_tag'   => 'tag.slug',
+		// Custom taxonomies: taxonomy.{slug}.slug_slash_name
+	);
+
+	/**
+	 * Derive a stable, URL-safe filter key from block attributes.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string  e.g. 'category', 'post_type', 'author', 'taxonomy_genre', 'meta_color'
+	 */
+	public static function derive_filter_key( array $attributes ): string {
+		switch ( $attributes['filterType'] ) {
+			case 'taxonomy':
+				// Built-in taxonomies get short keys for URL cleanliness.
+				if ( 'category' === $attributes['taxonomy'] ) return 'category';
+				if ( 'post_tag'  === $attributes['taxonomy'] ) return 'post_tag';
+				return 'taxonomy_' . sanitize_key( $attributes['taxonomy'] );
+			case 'post_type':
+				return 'post_type';
+			case 'author':
+				return 'author';
+			case 'post_meta':
+				return 'meta_' . sanitize_key( $attributes['metaKey'] );
+		}
+		return 'filter_' . sanitize_key( $attributes['filterType'] );
+	}
+
+	/**
+	 * Derive the Elasticsearch field name for the filter key.
+	 *
+	 * @param array  $attributes Block attributes.
+	 * @param string $filter_key Result of derive_filter_key().
+	 * @return string ES field name, or empty string if unknown.
+	 */
+	public static function derive_es_field( array $attributes, string $filter_key ): string {
+		if ( isset( self::ES_FIELDS[ $filter_key ] ) ) {
+			return self::ES_FIELDS[ $filter_key ];
+		}
+		if ( 'taxonomy' === $attributes['filterType'] ) {
+			return 'taxonomy.' . $attributes['taxonomy'] . '.slug_slash_name';
+		}
+		if ( 'post_meta' === $attributes['filterType'] && $attributes['metaKey'] ) {
+			return 'meta.' . $attributes['metaKey'] . '.value';
+		}
+		return '';
+	}
+
+	/**
+	 * Get initial items for server-side rendering of the checkbox list.
+	 * In dynamic mode, fetch from WordPress (taxonomy terms, post types, authors).
+	 * In curated mode, use the configured curatedValues array directly.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_initial_items( array $attributes ): array {
+		if ( 'curated' === $attributes['displayMode'] ) {
+			return array_map( function( $item ) {
+				return array(
+					'value' => sanitize_text_field( $item['value'] ?? '' ),
+					'label' => sanitize_text_field( $item['label'] ?? $item['value'] ?? '' ),
+				);
+			}, $attributes['curatedValues'] ?? array() );
+		}
+
+		$max = intval( $attributes['maxItems'] ?? 10 );
+
+		switch ( $attributes['filterType'] ) {
+			case 'taxonomy':
+				$terms = get_terms( array(
+					'taxonomy'   => $attributes['taxonomy'],
+					'hide_empty' => true,
+					'number'     => $max,
+				) );
+				if ( is_wp_error( $terms ) ) return array();
+				return array_map( fn( $t ) => array( 'value' => $t->slug, 'label' => $t->name ), $terms );
+
+			case 'post_type':
+				$types = get_post_types( array( 'public' => true ), 'objects' );
+				return array_slice(
+					array_map( fn( $t ) => array( 'value' => $t->name, 'label' => $t->labels->name ), $types ),
+					0, $max
+				);
+
+			case 'author':
+				$authors = get_users( array(
+					'has_published_posts' => true,
+					'number'              => $max,
+					'fields'              => array( 'user_login', 'display_name' ),
+				) );
+				return array_map( fn( $u ) => array( 'value' => $u->user_login, 'label' => $u->display_name ), $authors );
+		}
+
+		return array();
+	}
+}
+```
+
+- [ ] **Step 6.3: Create `filter-checkbox/render.php`**
+
+```php
+<?php
+/**
+ * filter-checkbox block render.
+ *
+ * @package automattic/jetpack-search
+ * @var array    $attributes Block attributes.
+ * @var WP_Block $block
+ */
+
+use Automattic\Jetpack\Search\Filter_Checkbox;
+
+$filter_key   = Filter_Checkbox::derive_filter_key( $attributes );
+$es_field     = Filter_Checkbox::derive_es_field( $attributes, $filter_key );
+$display_mode = $attributes['displayMode'] ?? 'dynamic';
+$show_count   = $attributes['showCount']   ?? true;
+$max_items    = intval( $attributes['maxItems'] ?? 10 );
+$label        = $attributes['label'] ?: '';
+
+// Default labels for built-in variations when no custom label is set.
+if ( ! $label ) {
+	$default_labels = array(
+		'category'  => __( 'Category',  'jetpack-search-pkg' ),
+		'post_tag'  => __( 'Tag',       'jetpack-search-pkg' ),
+		'post_type' => __( 'Post Type', 'jetpack-search-pkg' ),
+		'author'    => __( 'Author',    'jetpack-search-pkg' ),
+	);
+	$label = $default_labels[ $filter_key ] ?? ucfirst( str_replace( '_', ' ', $filter_key ) );
+}
+
+// Register this filter's config into the shared store state.
+// JS reads filterConfigs to build aggregation requests and ES filter clauses.
+// wp_interactivity_state() merges, so each block adds its own key without clobbering others.
+$curated_values = ( 'curated' === $display_mode )
+	? array_column( $attributes['curatedValues'] ?? array(), 'value' )
+	: array();
+
+wp_interactivity_state( 'jetpack-search', array(
+	'filterConfigs' => array(
+		$filter_key => array(
+			'filterKey'     => $filter_key,
+			'esField'       => $es_field,
+			'aggType'       => 'curated' === $display_mode ? 'filters' : 'terms',
+			'curatedValues' => $curated_values,
+			'showCount'     => $show_count,
+			'maxItems'      => $max_items,
+		),
+	),
+) );
+
+// Server-render initial item list.
+$items = Filter_Checkbox::get_initial_items( $attributes );
 ?>
 <div
 	<?php echo get_block_wrapper_attributes(); ?>
 	data-wp-interactive="jetpack-search"
-	<?php echo wp_interactivity_data_wp_context( array( 'filterKey' => 'category' ) ); ?>
+	<?php echo wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ); ?>
 >
+	<?php if ( $label ) : ?>
 	<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
+	<?php endif; ?>
 	<ul class="jetpack-search-filter__list">
-		<?php foreach ( $categories as $cat ) : ?>
+		<?php foreach ( $items as $item ) : ?>
 		<li class="jetpack-search-filter__item">
 			<label>
 				<input
 					type="checkbox"
-					value="<?php echo esc_attr( $cat->slug ); ?>"
+					value="<?php echo esc_attr( $item['value'] ); ?>"
 					data-wp-on--change="actions.onFilterChange"
+					data-wp-bind--checked="context.isChecked"
 				/>
-				<?php echo esc_html( $cat->name ); ?>
-				<span class="jetpack-search-filter__count" data-wp-text="context.count"></span>
+				<span class="jetpack-search-filter__label"><?php echo esc_html( $item['label'] ); ?></span>
+				<?php if ( $show_count ) : ?>
+				<span class="jetpack-search-filter__count" data-wp-bind--hidden="!context.count" data-wp-text="context.count"></span>
+				<?php endif; ?>
 			</label>
 		</li>
 		<?php endforeach; ?>
@@ -1397,15 +1696,49 @@ $label      = $attributes['label'] ?? __( 'Filter by Category', 'jetpack-search-
 </div>
 ```
 
-- [ ] **Step 6.3: Create `filter-category/view.js`**
+- [ ] **Step 6.4: Create `filter-checkbox/view.js`**
 
 ```js
-// src/search-blocks/blocks/filter-category/view.js
-import { store, getContext } from '@wordpress/interactivity';
+// src/search-blocks/blocks/filter-checkbox/view.js
+import { store, getContext, getElement } from '@wordpress/interactivity';
 
 const NAMESPACE = 'jetpack-search';
 
 store( NAMESPACE, {
+	state: {
+		/**
+		 * Per-checkbox derived state: is this checkbox's value currently active?
+		 * Uses per-element context to get filterKey + value.
+		 */
+		get isChecked() {
+			const { state } = store( NAMESPACE );
+			const context = getContext();
+			const activeValues = state.activeFilters[ context.filterKey ] ?? [];
+			return activeValues.includes( context.itemValue );
+		},
+
+		/**
+		 * Per-checkbox derived state: count from aggregations for this item.
+		 */
+		get count() {
+			const { state } = store( NAMESPACE );
+			const context = getContext();
+			const agg = state.aggregations[ context.filterKey ];
+			if ( ! agg ) return null;
+
+			// terms aggregation shape: { buckets: [{ key, doc_count }] }
+			if ( agg.buckets ) {
+				const bucket = agg.buckets.find( b => b.key === context.itemValue );
+				return bucket?.doc_count ?? null;
+			}
+			// filters aggregation shape: { buckets: { [value]: { doc_count } } }
+			if ( agg.buckets?.[ context.itemValue ] !== undefined ) {
+				return agg.buckets[ context.itemValue ].doc_count ?? null;
+			}
+			return null;
+		},
+	},
+
 	actions: {
 		*onFilterChange( event ) {
 			const context = getContext();
@@ -1413,34 +1746,109 @@ store( NAMESPACE, {
 			yield actions.setFilter( context.filterKey, event.target.value );
 		},
 	},
-
-	callbacks: {
-		/**
-		 * Update checkbox checked state when store.activeFilters changes.
-		 * This is a two-way sync: user clicks → store updates → checkboxes reflect store.
-		 */
-		syncCheckboxState() {
-			const { state } = store( NAMESPACE );
-			const context = getContext();
-			const filterKey = context.filterKey;
-			const activeValues = state.activeFilters[ filterKey ] ?? [];
-
-			const container = document.querySelector( `[data-wp-context*="${ filterKey }"]` );
-			if ( ! container ) return;
-
-			container.querySelectorAll( 'input[type="checkbox"]' ).forEach( checkbox => {
-				checkbox.checked = activeValues.includes( checkbox.value );
-			} );
-		},
-	},
 } );
 ```
 
-- [ ] **Step 6.4: Create `filter-category/style.scss`**
+> **Note on per-item context:** Each `<li>` needs its own context containing `filterKey` and `itemValue` for the `isChecked` and `count` derived states to work. The render.php wraps each `<li>` with `wp_interactivity_data_wp_context( [ 'filterKey' => $filter_key, 'itemValue' => $item['value'] ] )`. The outer `<div>` context holds `filterKey` for `onFilterChange`. Update `render.php` Step 6.3 — each `<li>` should carry its own context:
+> ```php
+> <li <?php echo wp_interactivity_data_wp_context( [ 'filterKey' => $filter_key, 'itemValue' => $item['value'] ] ); ?> class="jetpack-search-filter__item">
+> ```
+
+- [ ] **Step 6.5: Create `filter-checkbox/variations.js`**
+
+This file is enqueued as `editorScript` (only in the block editor, not on the frontend). It registers the named variations that appear in the block inserter.
+
+```js
+// src/search-blocks/blocks/filter-checkbox/variations.js
+import { registerBlockVariation } from '@wordpress/blocks';
+
+const BLOCK = 'jetpack/filter-checkbox';
+
+registerBlockVariation( BLOCK, {
+	name: 'category',
+	title: 'Filter by Category',
+	description: 'Show category checkboxes with live result counts.',
+	attributes: { filterType: 'taxonomy', taxonomy: 'category', label: 'Category' },
+	isActive: attrs => attrs.filterType === 'taxonomy' && attrs.taxonomy === 'category',
+} );
+
+registerBlockVariation( BLOCK, {
+	name: 'post_tag',
+	title: 'Filter by Tag',
+	description: 'Show tag checkboxes with live result counts.',
+	attributes: { filterType: 'taxonomy', taxonomy: 'post_tag', label: 'Tag' },
+	isActive: attrs => attrs.filterType === 'taxonomy' && attrs.taxonomy === 'post_tag',
+} );
+
+registerBlockVariation( BLOCK, {
+	name: 'post_type',
+	title: 'Filter by Post Type',
+	description: 'Show post type checkboxes with live result counts.',
+	attributes: { filterType: 'post_type', label: 'Post Type' },
+	isActive: attrs => attrs.filterType === 'post_type',
+} );
+
+registerBlockVariation( BLOCK, {
+	name: 'author',
+	title: 'Filter by Author',
+	description: 'Show author checkboxes with live result counts.',
+	attributes: { filterType: 'author', label: 'Author' },
+	isActive: attrs => attrs.filterType === 'author',
+} );
+
+registerBlockVariation( BLOCK, {
+	name: 'custom_taxonomy',
+	title: 'Filter by Custom Taxonomy',
+	description: 'Show checkboxes for any registered taxonomy.',
+	attributes: { filterType: 'taxonomy', taxonomy: '', label: '' },
+	isActive: attrs =>
+		attrs.filterType === 'taxonomy' &&
+		attrs.taxonomy !== 'category' &&
+		attrs.taxonomy !== 'post_tag',
+} );
+
+registerBlockVariation( BLOCK, {
+	name: 'post_meta',
+	title: 'Filter by Custom Field',
+	description: 'Show checkboxes for a post meta key (curated values).',
+	attributes: { filterType: 'post_meta', metaKey: '', displayMode: 'curated', label: '' },
+	isActive: attrs => attrs.filterType === 'post_meta',
+} );
+```
+
+- [ ] **Step 6.6: Add `variations.js` to webpack entry**
+
+In `tools/webpack.blocks.config.js`, add to the `storeEntries` object:
+
+```js
+const storeEntries = {
+	'store/index': path.join( __dirname, '../src/search-blocks/store/index.js' ),
+	'filter-checkbox-variations': path.join(
+		__dirname,
+		'../src/search-blocks/blocks/filter-checkbox/variations.js'
+	),
+};
+```
+
+This builds `build/search-blocks/filter-checkbox-variations.js` as a separate non-ESM bundle (it uses `@wordpress/blocks` which is a standard WP dependency loaded in the editor). The `editorScript` in `block.json` points to this file.
+
+> **Note:** `variations.js` uses `@wordpress/blocks` (a CommonJS global in the editor context), not `@wordpress/interactivity`. It does NOT need `outputModule: true`. If the ESM config causes issues with editor scripts, add a separate entry with a non-ESM output. The simplest path: register variations server-side in PHP using `register_block_variation()` (available in WP 6.5+) in `class-search-blocks.php` instead of a JS file — this avoids the dual-build problem entirely. PHP approach:
+> ```php
+> register_block_variation( 'jetpack/filter-checkbox', array(
+>     'name'       => 'category',
+>     'title'      => __( 'Filter by Category', 'jetpack-search-pkg' ),
+>     'attributes' => array( 'filterType' => 'taxonomy', 'taxonomy' => 'category', 'label' => 'Category' ),
+>     'isActive'   => array( 'filterType', 'taxonomy' ),
+> ) );
+> // ... repeat for tag, post_type, author, custom_taxonomy, post_meta
+> ```
+> Use the PHP approach to avoid webpack complexity in Phase 1.
+
+- [ ] **Step 6.7: Create `filter-checkbox/style.scss`**
 
 ```scss
-// src/search-blocks/blocks/filter-category/style.scss
-.wp-block-jetpack-filter-category {
+// src/search-blocks/blocks/filter-checkbox/style.scss
+.wp-block-jetpack-filter-checkbox {
 	.jetpack-search-filter__title {
 		font-size: 0.85rem;
 		font-weight: 700;
@@ -1467,86 +1875,85 @@ store( NAMESPACE, {
 		}
 	}
 
+	.jetpack-search-filter__label {
+		flex: 1;
+	}
+
 	.jetpack-search-filter__count {
-		margin-left: auto;
 		font-size: 0.8rem;
 		color: #888;
 		background: #f0f0f0;
 		border-radius: 10px;
 		padding: 0 0.4rem;
 
-		&:empty { display: none; }
+		&[hidden] { display: none; }
 	}
 }
 ```
 
-- [ ] **Step 6.5: Create `filter-tag` (copy from filter-category, change taxonomy key)**
+- [ ] **Step 6.8: Add filter-checkbox PHP test**
 
-`filter-tag/block.json` — identical structure, change `name` to `jetpack/filter-tag`, `title` to `"Filter by Tag"`, viewScriptModule to `filter-tag.js`.
-
-`filter-tag/render.php` — use `get_tags()` instead of `get_categories()`, default label `__( 'Filter by Tag', 'jetpack-search-pkg' )`, context `filterKey => 'post_tag'`.
-
-`filter-tag/view.js` — identical to `filter-category/view.js` (the `filterKey` comes from context, so the code is literally the same JS; duplicate the file).
-
-`filter-tag/style.scss` — identical to filter-category, just change the block class to `.wp-block-jetpack-filter-tag`.
-
-- [ ] **Step 6.6: Create `filter-post-type`**
-
-`filter-post-type/block.json` — name `jetpack/filter-post-type`, title `"Filter by Post Type"`, viewScriptModule `filter-post-type.js`.
-
-`filter-post-type/render.php`:
+In `tests/php/Search_Blocks_Test.php`, add:
 
 ```php
-<?php
-/**
- * Filter: Post Type block render.
- *
- * @package automattic/jetpack-search
- * @var array $attributes
- */
+public function test_filter_checkbox_derive_filter_key() {
+	$this->assertSame( 'category', Filter_Checkbox::derive_filter_key( [
+		'filterType' => 'taxonomy', 'taxonomy' => 'category',
+	] ) );
+	$this->assertSame( 'post_tag', Filter_Checkbox::derive_filter_key( [
+		'filterType' => 'taxonomy', 'taxonomy' => 'post_tag',
+	] ) );
+	$this->assertSame( 'taxonomy_genre', Filter_Checkbox::derive_filter_key( [
+		'filterType' => 'taxonomy', 'taxonomy' => 'genre',
+	] ) );
+	$this->assertSame( 'post_type', Filter_Checkbox::derive_filter_key( [
+		'filterType' => 'post_type',
+	] ) );
+	$this->assertSame( 'meta_color', Filter_Checkbox::derive_filter_key( [
+		'filterType' => 'post_meta', 'metaKey' => 'color',
+	] ) );
+}
 
-$post_types = get_post_types( array( 'public' => true ), 'objects' );
-$label      = $attributes['label'] ?? __( 'Filter by Type', 'jetpack-search-pkg' );
-?>
-<div
-	<?php echo get_block_wrapper_attributes(); ?>
-	data-wp-interactive="jetpack-search"
-	<?php echo wp_interactivity_data_wp_context( array( 'filterKey' => 'post_type' ) ); ?>
->
-	<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
-	<ul class="jetpack-search-filter__list">
-		<?php foreach ( $post_types as $pt ) : ?>
-		<li class="jetpack-search-filter__item">
-			<label>
-				<input type="checkbox" value="<?php echo esc_attr( $pt->name ); ?>"
-					data-wp-on--change="actions.onFilterChange" />
-				<?php echo esc_html( $pt->labels->name ); ?>
-			</label>
-		</li>
-		<?php endforeach; ?>
-	</ul>
-</div>
+public function test_filter_checkbox_derive_es_field() {
+	$this->assertSame(
+		'category.slug',
+		Filter_Checkbox::derive_es_field( [ 'filterType' => 'taxonomy', 'taxonomy' => 'category' ], 'category' )
+	);
+	$this->assertSame(
+		'taxonomy.genre.slug_slash_name',
+		Filter_Checkbox::derive_es_field( [ 'filterType' => 'taxonomy', 'taxonomy' => 'genre' ], 'taxonomy_genre' )
+	);
+	$this->assertSame(
+		'meta.color.value',
+		Filter_Checkbox::derive_es_field( [ 'filterType' => 'post_meta', 'metaKey' => 'color' ], 'meta_color' )
+	);
+}
 ```
 
-`filter-post-type/view.js` — identical to `filter-category/view.js`.
+Also add `use Automattic\Jetpack\Search\Filter_Checkbox;` to the test file.
 
-`filter-post-type/style.scss` — same as filter-category, class `.wp-block-jetpack-filter-post-type`.
+- [ ] **Step 6.9: Run tests**
 
-- [ ] **Step 6.7: Build**
+```bash
+jetpack test php packages/search -- --filter=Search_Blocks_Test
+```
+
+Expected: PASS.
+
+- [ ] **Step 6.10: Build**
 
 ```bash
 pnpm build-blocks
 ```
 
-Expected: `build/search-blocks/filter-category.js`, `filter-tag.js`, `filter-post-type.js` all created.
+Expected: `build/search-blocks/filter-checkbox.js` and `filter-checkbox.css` created.
 
-- [ ] **Step 6.8: Commit**
+- [ ] **Step 6.11: Commit**
 
 ```bash
-git add projects/packages/search/src/search-blocks/blocks/filter-category/ \
-        projects/packages/search/src/search-blocks/blocks/filter-tag/ \
-        projects/packages/search/src/search-blocks/blocks/filter-post-type/
-git commit -m "Search 3.0: add filter-category, filter-tag, filter-post-type blocks"
+git add projects/packages/search/src/search-blocks/blocks/filter-checkbox/ \
+        projects/packages/search/tests/php/Search_Blocks_Test.php
+git commit -m "Search 3.0: add filter-checkbox block with variations (replaces per-type filter blocks)"
 ```
 
 ---
@@ -1944,9 +2351,9 @@ register_block_pattern(
 <div class="wp-block-column">
 <!-- wp:jetpack/search-input /-->
 <!-- wp:jetpack/active-filters /-->
-<!-- wp:jetpack/filter-category /-->
-<!-- wp:jetpack/filter-tag /-->
-<!-- wp:jetpack/filter-post-type /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category","label":"Category"} /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag","label":"Tag"} /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"post_type","label":"Post Type"} /-->
 </div>
 <!-- /wp:column -->
 
@@ -2065,24 +2472,28 @@ git commit -m "Search 3.0: add changelog entry for Phase 1 Interactivity API blo
 - ✅ Directory structure as specified
 - ✅ New webpack target (ESM, separate from instant-search)
 - ✅ Interactivity API store with all actions (`search`, `setFilter`, `clearFilters`, `loadMore`, `syncToUrl`)
-- ✅ All Phase 1 blocks listed in spec
+- ✅ All Phase 1 filter use cases: category, tag, post type, author, custom taxonomy, post meta
+- ✅ `filterConfigs` pattern: PHP registers ES field + agg type; JS executes, never hardcodes fields
+- ✅ Dynamic (terms agg) and curated (filters agg) display modes in one block
+- ✅ Named block variations appear separately in inserter; share one implementation
 - ✅ PHP block registration class
-- ✅ `build_initial_state()` merges into `wp_interactivity_state()`
+- ✅ `build_initial_state()` + per-block `wp_interactivity_state()` merges
 - ✅ API routing: 3-path logic (public API / wpcom-origin / Atomic)
 - ✅ URL state sync (push + read)
-- ✅ Blog Search Page block pattern
+- ✅ Blog Search Page block pattern (references filter-checkbox with variation attributes)
 - ✅ Hook into initializer
-- ✅ Tests (JS unit + PHP unit)
+- ✅ Tests (JS unit for buildAggregations/buildFilters/url-state + PHP unit for derive_filter_key/derive_es_field)
 - ✅ Local dev verification
 
 **Not in this plan (deferred to later phases):**
-- WooCommerce filter blocks (Phase 2)
+- WooCommerce filter blocks (Phase 2) — filter-checkbox covers attribute, rating, stock-status in Phase 2 with new ES field mappings
 - WP_Query ES bridge (Phase 3)
 - Overlay rewrite (Phase 4)
 - Developer platform / registration API (Phase 5)
-- `filter-author` and `filter-date` blocks — spec lists them but they are lower priority than the core set needed for the pattern; add in a follow-up task once the foundation is proven.
+- `filter-date` block — different UI (date range picker); separate block needed, add after core set is proven
 
 **Type consistency check:**
-- `state.activeFilters` is always `{ [key: string]: string[] }` — checked across store, api.js, url-state.js, and all filter blocks.
-- `state.aggregations` is `{ [key: string]: { buckets: { key: string, doc_count: number }[] } }` (v1.3 API shape) — used in filter blocks. The facet count display (the `<span>` in filter-category) requires a Phase 1.5 enhancement to wire up bucket counts from aggregations to individual filter items (currently shows blank — functional but counts not shown until that is wired up).
-- `buildSearchUrl()` signature is consistent between `api.js` and `store/index.js`.
+- `state.activeFilters` is `{ [filterKey: string]: string[] }` — consistent across store, api.js, url-state.js, filter-checkbox render.php, and view.js.
+- `state.filterConfigs` is `{ [filterKey: string]: FilterConfig }` where `FilterConfig = { filterKey, esField, aggType, curatedValues, showCount, maxItems }` — set by PHP, read by JS.
+- `state.aggregations` is `{ [filterKey: string]: { buckets: Array<{ key, doc_count }> } | { buckets: { [value]: { doc_count } } } }` — terms vs filters agg shapes differ; `view.js count` getter handles both.
+- `buildSearchUrl()`, `buildAggregations()`, `buildFilters()` all accept `filterConfigs` — consistent across api.js and store/index.js calls.
