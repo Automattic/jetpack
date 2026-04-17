@@ -111,12 +111,11 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the parse_request handler is registered.
+	 * Test that the template_redirect handler is registered.
 	 */
-	public function test_parse_request_handler_registered() {
-		$this->assertSame(
-			0,
-			has_action( 'parse_request', 'wpcomsh_reprint_handle_request' )
+	public function test_template_redirect_handler_registered() {
+		$this->assertNotFalse(
+			has_action( 'template_redirect', 'wpcomsh_reprint_handle_request' )
 		);
 	}
 
@@ -143,8 +142,33 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the request handler exits early when the gate is closed.
 	 */
 	public function test_handle_request_returns_early_when_gate_closed() {
+		$this->go_to( home_url( '/' ) );
 		$_GET['reprint-api'] = '1';
 		$this->set_available( false );
+
+		wpcomsh_reprint_handle_request();
+
+		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
+
+		unset( $_GET['reprint-api'] );
+	}
+
+	/**
+	 * Test that the request handler exits early when the request isn't on
+	 * the site's front page.
+	 */
+	public function test_handle_request_returns_early_when_not_front_page() {
+		$page_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Not the front page',
+			)
+		);
+		$this->go_to( get_permalink( $page_id ) );
+		$_GET['reprint-api'] = '1';
+		// Gate is irrelevant here — the is_front_page() branch bails
+		// before the gate is even checked.
 
 		wpcomsh_reprint_handle_request();
 

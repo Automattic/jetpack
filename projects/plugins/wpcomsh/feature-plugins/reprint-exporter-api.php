@@ -47,16 +47,26 @@
 /**
  * Handles the ?reprint-api request.
  *
- * Hooked on `parse_request` so it runs before WordPress resolves the
- * query and renders a template. If the query parameter is absent or
- * the feature isn't enabled for this site, the function returns
- * immediately and normal WordPress execution continues.
+ * Hooked on `template_redirect` so WordPress has already resolved the
+ * query (is_front_page() needs that) but no template output has been
+ * emitted yet. If the query parameter is absent, the request isn't on
+ * the site's front page, or the feature isn't enabled for this site,
+ * the function returns immediately and normal WordPress execution
+ * continues.
+ *
+ * The is_front_page() guard is an extra layer of defense: it limits
+ * where the endpoint can live on a site, so a stale/guessed URL on a
+ * subpage can never be used to reach it.
  *
  * @codeCoverageIgnore — calls exit().
  */
 function wpcomsh_reprint_handle_request() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ! isset( $_GET['reprint-api'] ) ) {
+		return;
+	}
+
+	if ( ! is_front_page() ) {
 		return;
 	}
 
@@ -118,7 +128,7 @@ function wpcomsh_reprint_handle_request() {
 	Site_Export_HTTP_Server::serve( array( 'default_directory' => ABSPATH ) );
 	exit;
 }
-add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
+add_action( 'template_redirect', 'wpcomsh_reprint_handle_request' );
 
 /**
  * Registers the reprint REST route.
