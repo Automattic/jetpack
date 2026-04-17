@@ -37,14 +37,6 @@
 
 // -- Constants ----------------------------------------------------------------
 
-if ( ! defined( 'REPRINT_EXPORTER_SECRET_FILE' ) ) {
-	// Default to a location under wp-content/ — the wpcomsh plugin
-	// directory is a symlink on WoA and not writable by site operators,
-	// so the plugin dir is not a viable default. A site operator can
-	// override this path in wp-config.php by defining the constant
-	// before wpcomsh loads.
-	define( 'REPRINT_EXPORTER_SECRET_FILE', WP_CONTENT_DIR . '/reprint-exporter-secret.php' );
-}
 if ( ! defined( 'REPRINT_EXPORTER_SECRET_OPTION' ) ) {
 	define( 'REPRINT_EXPORTER_SECRET_OPTION', 'reprint_exporter_secret' );
 }
@@ -150,37 +142,8 @@ function wpcomsh_reprint_handle_request() {
 	}
 
 	// -- Authenticate via HMAC ------------------------------------------------
-	// Resolve the shared secret. The secret.php file override takes
-	// precedence when present; otherwise the option-backed secret is used.
-	$has_secret_file = file_exists( REPRINT_EXPORTER_SECRET_FILE );
-	$secret          = null;
-
-	if ( $has_secret_file ) {
-		// A site operator can drop a PHP file that returns a string at
-		// REPRINT_EXPORTER_SECRET_FILE to hard-code the HMAC shared
-		// secret. The default path is under wp-content/; it can be
-		// overridden in wp-config.php. Useful on environments where the
-		// database option may not be available or where the secret must
-		// survive a database reset. When present, it takes precedence
-		// over the option-backed secret.
-		$file_secret = require REPRINT_EXPORTER_SECRET_FILE;
-		if ( is_string( $file_secret ) ) {
-			$secret = $file_secret;
-		}
-	} else {
-		$option_secret = get_option( REPRINT_EXPORTER_SECRET_OPTION, '' );
-		if ( is_string( $option_secret ) && '' !== $option_secret ) {
-			$secret = $option_secret;
-		}
-	}
-
-	if ( null === $secret ) {
-		// Distinguish "secret.php file exists but is empty/invalid" from
-		// "no secret configured at all" so the error message tells the
-		// admin what to fix.
-		if ( $has_secret_file ) {
-			_reprint_exporter_error( 503, 'Invalid secret file configuration. Please remove it or replace it with a valid shared secret.' );
-		}
+	$secret = get_option( REPRINT_EXPORTER_SECRET_OPTION, '' );
+	if ( ! is_string( $secret ) || '' === $secret ) {
 		_reprint_exporter_error( 503, 'Export not configured. Please rotate the shared secret via POST /wpcomsh/v1/reprint/rotate-export-secret.' );
 	}
 
