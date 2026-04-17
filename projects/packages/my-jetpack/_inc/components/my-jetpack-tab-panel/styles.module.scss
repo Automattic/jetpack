@@ -53,7 +53,8 @@
 	margin: 0;
 
 	:global(.components-tab-panel__tabs) {
-		// @TODO: remove this once we can keep tabs consistent looking with core colors.
+		// @TODO: remove this once we can keep tabs consistent looking with core
+		// colors.
 		--wp-admin-theme-color: var(--jp-black);
 		--wp-admin-theme-color-darker-10: var(--jp-black-80);
 		--wp-admin-theme-color-darker-20: var(--jp-black-80);
