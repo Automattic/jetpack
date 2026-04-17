@@ -78,43 +78,7 @@ declare global {
 					} >;
 				} >;
 			};
-			blocks: {
-				__unstableSerializeAndClean: ( blocks: object[] ) => object[];
-
-				createBlock: < Attributes >(
-					blockName: string,
-					attributes?: Partial< Attributes >
-				) => { clientId: string };
-				registerBlockStyle: (
-					blockName: string,
-					styleConfig: {
-						name: string;
-						label: string;
-						/* Discourage this from being used */
-						isDefault?: never;
-					}
-				) => void;
-				registerBlockType: ( blockName: object | string, settings: object ) => void;
-				getDefaultBlockName: () => string;
-
-				/**
-				 * Given a block type containing a save render implementation and attributes, returns the enhanced element to be saved or string when raw HTML expected.
-				 *
-				 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-blocks/#getsaveelement
-				 */
-				getSaveElement: (
-					/** Block type or name. */
-					blockTypeOrName: string | object,
-					/** Block attributes. */
-					attributes: object,
-					/** Nested blocks. */
-					innerBlocks?: Array< unknown >
-				) => React.JSX.Element | null;
-			};
-			compose: typeof import('@wordpress/compose');
-			coreData: {
-				store: Store;
-			};
+			blocks: typeof import('@wordpress/blocks');
 			data: {
 				dispatch: ( store: Store ) => any;
 				useDispatch: ( store: Store ) => any;
@@ -125,7 +89,6 @@ declare global {
 			};
 			i18n: typeof import('@wordpress/i18n');
 			keycodes: typeof import('@wordpress/keycodes');
-			keyboardShortcuts: typeof import('@wordpress/keyboard-shortcuts');
 			richText: typeof import('@wordpress/rich-text');
 		};
 	}
