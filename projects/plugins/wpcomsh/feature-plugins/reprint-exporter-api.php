@@ -54,12 +54,6 @@
  * isn't enabled for this site, the function returns immediately and
  * normal WordPress execution continues.
  *
- * Homepage check: WP normalizes the requested path into $wp->request
- * during parse_request (strips the home_url() path prefix, etc.), so
- * `$wp->request === ''` is the correct "URL is the site root" test at
- * this stage. is_front_page() / is_home() don't work here because the
- * main query hasn't run yet.
- *
  * @param WP $wp The WordPress environment instance.
  *
  * @codeCoverageIgnore — calls exit().
