@@ -34,11 +34,12 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	/**
 	 * Helper: make is_super_admin() return true for the current user.
 	 *
-	 * grant_super_admin() only works on multisite, and the WP Cloud test
-	 * site runs as single-site with administrator capabilities stripped —
-	 * so the usual "administrator role ⇒ is_super_admin" shortcut doesn't
-	 * apply. Grant the capability is_super_admin() actually checks on
-	 * single-site (delete_users) via the user_has_cap filter instead.
+	 * Note that grant_super_admin() only works on multisite, and the WP
+	 * Cloud test site runs as single-site with administrator capabilities
+	 * stripped — so the usual "administrator role ⇒ is_super_admin"
+	 * shortcut doesn't apply. Grant the capability is_super_admin()
+	 * actually checks on single-site (delete_users) via the user_has_cap
+	 * filter instead.
 	 */
 	private function force_super_admin() {
 		add_filter(
