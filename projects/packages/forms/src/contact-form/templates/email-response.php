@@ -333,6 +333,11 @@ $style = '<style media="all" type="text/css">
 			border-right-width: 0 !important;
 		}
 
+		.test-submission-banner {
+			width: calc(100% - 16px) !important;
+			margin: 0 8px 24px 8px !important;
+		}
+
 		.collapse {
 			display: none;
 		}

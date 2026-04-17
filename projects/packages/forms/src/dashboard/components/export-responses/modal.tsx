@@ -68,8 +68,8 @@ const ExportResponsesModal = ( {
 			onRequestClose={ onRequestClose }
 			size="large"
 		>
-			{ selectedTestCount > 0 && (
-				<div style={ { marginBottom: '24px' } }>
+			<VStack spacing={ 6 }>
+				{ selectedTestCount > 0 && (
 					<Notice status="info" isDismissible={ false }>
 						{ sprintf(
 							/* translators: %d: number of selected test responses. */
@@ -82,9 +82,7 @@ const ExportResponsesModal = ( {
 							selectedTestCount
 						) }
 					</Notice>
-				</div>
-			) }
-			<VStack spacing={ 6 }>
+				) }
 				<CSVExport onExport={ onExport } />
 				{ isGoogleDriveEnabled && (
 					<GoogleDriveExport onExport={ onExport } autoConnect={ autoConnectGdrive } />

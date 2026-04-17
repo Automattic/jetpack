@@ -314,22 +314,20 @@ class Feedback_Email_Renderer {
 	/**
 	 * Build the HTML banner inserted at the top of a test-submission email body.
 	 *
-	 * Uses inline styles only for email-client compatibility. Colors follow the
-	 * Jetpack "notice" palette (warm amber) so the banner is visibly distinct
-	 * from normal feedback emails.
+	 * Uses inline styles and a nested table layout for email-client compatibility.
+	 * Mirrors the @wordpress/ui Notice component (warning intent): warm amber fill,
+	 * 1px amber border with 8px radius, decorative info icon, 13px/20px body copy.
 	 *
 	 * @return string
 	 */
 	private static function build_test_submission_banner() {
 		return sprintf(
-			'<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%%" style="border-collapse: collapse; margin: 0 0 24px 0;">
+			'<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%%" class="test-submission-banner" style="border-collapse: collapse; margin: 0 0 24px 0;">
 				<tr>
-					<td style="padding: 16px 20px; background-color: #FCF9E8; border-left: 4px solid #DBA617; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-						<div style="font-size: 14px; font-weight: 600; color: #674600;">%s</div>
-					</td>
+					<td class="test-submission-banner-cell" style="padding: 12px; background-color: #fff7e0; border: 1px solid #d0b381; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; color: #2e1900; font-size: 13px; line-height: 20px;">%s</td>
 				</tr>
 			</table>',
-			esc_html__( 'Test response via form preview', 'jetpack-forms' )
+			esc_html__( 'Test response via form preview.', 'jetpack-forms' )
 		);
 	}
 
