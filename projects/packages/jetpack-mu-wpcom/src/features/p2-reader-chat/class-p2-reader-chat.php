@@ -69,12 +69,13 @@ class P2_Reader_Chat {
 			return;
 		}
 
+		// reader-chat.min.js is self-contained (webpack inlines all deps), so
+		// asset.json is optional — only needed for a stable version hash.
+		// Fall back to a date-based version if the fetch fails.
 		$asset_file = $this->get_asset_file();
-		if ( ! $asset_file ) {
-			return;
-		}
-
-		$version = self::is_dev_mode() ? (string) wp_rand() : $asset_file['version'];
+		$version    = self::is_dev_mode()
+			? (string) wp_rand()
+			: ( $asset_file['version'] ?? gmdate( 'Ymd' ) );
 
 		wp_enqueue_script(
 			'p2-reader-chat',
