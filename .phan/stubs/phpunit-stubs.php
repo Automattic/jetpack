@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.20
+ * Stubs automatically generated from PHPUnit 12.5.21
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -11044,32 +11044,9 @@ final readonly class ChildProcessResultProcessor
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
- */
-interface IsolatedTestRunner
-{
-    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void;
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class IsolatedTestRunnerRegistry
-{
-    public static function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
-    {
-    }
-    public static function set(\PHPUnit\Framework\IsolatedTestRunner $runner): void
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class SeparateProcessTestRunner implements \PHPUnit\Framework\IsolatedTestRunner
+final class SeparateProcessTestRunner
 {
     /**
      * @throws \PHPUnit\Runner\Exception
@@ -19501,6 +19478,9 @@ final readonly class ComparisonRequirement extends \PHPUnit\Metadata\Version\Req
     {
     }
     public function asString(): string
+    {
+    }
+    public function version(): string
     {
     }
 }

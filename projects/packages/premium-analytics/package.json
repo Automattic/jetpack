@@ -28,11 +28,11 @@
 		}
 	},
 	"dependencies": {
-		"@wordpress/boot": "0.10.0",
-		"@wordpress/data": "10.43.0",
+		"@wordpress/boot": "0.11.0",
+		"@wordpress/data": "10.44.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^12.0.0",
-		"@wordpress/route": "0.9.0",
+		"@wordpress/route": "0.10.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},

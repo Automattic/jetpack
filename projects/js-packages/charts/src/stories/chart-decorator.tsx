@@ -168,7 +168,7 @@ const StoryChartProvider = ( {
 			*/ }
 			<div
 				style={ {
-					fontFamily: 'var(--wpds-font-family-body, sans-serif)',
+					fontFamily: 'var(--wpds-typography-font-family-body, sans-serif)',
 				} }
 			>
 				<GlobalChartsProvider key={ providerKey } theme={ theme }>

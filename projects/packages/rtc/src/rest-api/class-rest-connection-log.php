@@ -45,7 +45,7 @@ class REST_Connection_Log extends WP_REST_Controller {
 						'event'      => array(
 							'required' => true,
 							'type'     => 'string',
-							'enum'     => array( 'connected', 'disconnected', 'jwt_fetch_error' ),
+							'enum'     => array( 'connected', 'disconnected', 'reconnecting', 'jwt_fetch_error' ),
 						),
 						'properties' => array(
 							'required' => false,

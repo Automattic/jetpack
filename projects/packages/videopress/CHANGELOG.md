@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.4] - 2026-04-16
+### Fixed
+- Fix block editor errors when used with Gutenberg 23.0.0+, where the SandBox component no longer defaults to same-origin. [#48117]
+
 ## [0.36.3] - 2026-04-15
 ### Security
 - Ensure only users who can upload media can request VideoPress upload tokens via AJAX. [#47683]
@@ -1910,6 +1914,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.3...v0.36.4
 [0.36.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.2...v0.36.3
 [0.36.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.1...v0.36.2
 [0.36.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.0...v0.36.1

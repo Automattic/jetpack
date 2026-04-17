@@ -16,7 +16,13 @@ jest.mock( '@wordpress/data', () => ( {
 	createRegistrySelector: () => () => mockUsageData,
 } ) );
 
-import { isXQuotaExceeded, canShareToX, getXQuotaRemaining, getXUsageFor } from '../x-usage';
+import {
+	isXQuotaExceeded,
+	canShareToX,
+	canScheduleXShareFor,
+	getXQuotaRemaining,
+	getXUsageFor,
+} from '../x-usage';
 
 describe( 'Social store selectors: x-usage enforcement', () => {
 	beforeEach( () => {
@@ -115,6 +121,56 @@ describe( 'Social store selectors: x-usage enforcement', () => {
 
 		it( 'should return true when data is missing (defaults to allowing)', () => {
 			expect( canShareToX( {} ) ).toBe( true );
+		} );
+	} );
+
+	describe( 'canScheduleXShareFor', () => {
+		describe( 'free plan', () => {
+			it( 'should return false when lifetime quota exhausted (no period)', () => {
+				mockUsageData = [ { period: 'free', used: 4, pending: 1, total: 5 } ];
+				expect( canScheduleXShareFor( {} ) ).toBe( false );
+			} );
+
+			it( 'should return true when under lifetime limit (no period)', () => {
+				mockUsageData = [ { period: 'free', used: 2, pending: 1, total: 3 } ];
+				expect( canScheduleXShareFor( {} ) ).toBe( true );
+			} );
+
+			it( 'should ignore the period argument and check lifetime quota', () => {
+				mockUsageData = [ { period: 'free', used: 4, pending: 1, total: 5 } ];
+				expect( canScheduleXShareFor( {}, '2026-04' ) ).toBe( false );
+			} );
+		} );
+
+		describe( 'paid plan', () => {
+			beforeEach( () => {
+				mockHasPaidFeatures = true;
+			} );
+
+			it( 'should return true when no period is specified (user can pick a future month)', () => {
+				mockUsageData = [ { period: '2026-03', used: 90, pending: 10, total: 100 } ];
+				expect( canScheduleXShareFor( {} ) ).toBe( true );
+			} );
+
+			it( 'should return true when period is null', () => {
+				mockUsageData = [ { period: '2026-03', used: 90, pending: 10, total: 100 } ];
+				expect( canScheduleXShareFor( {}, null ) ).toBe( true );
+			} );
+
+			it( 'should return false when the specific period is at its quota limit', () => {
+				mockUsageData = [ { period: '2026-04', used: 90, pending: 10, total: 100 } ];
+				expect( canScheduleXShareFor( {}, '2026-04' ) ).toBe( false );
+			} );
+
+			it( 'should return true when the specific period still has remaining quota', () => {
+				mockUsageData = [ { period: '2026-04', used: 40, pending: 10, total: 50 } ];
+				expect( canScheduleXShareFor( {}, '2026-04' ) ).toBe( true );
+			} );
+
+			it( 'should return true for a future period that has no usage data yet', () => {
+				mockUsageData = [ { period: '2026-03', used: 90, pending: 10, total: 100 } ];
+				expect( canScheduleXShareFor( {}, '2026-04' ) ).toBe( true );
+			} );
 		} );
 	} );
 
