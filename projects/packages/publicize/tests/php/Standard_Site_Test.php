@@ -179,11 +179,11 @@ class Standard_Site_Test extends TestCase {
 			),
 		);
 
-		Publicize_Setup::store_bluesky_document_uri( static::$post_id, $shares );
+		Standard_Site_Integration::store_document_uri( static::$post_id, $shares );
 
 		$this->assertEquals(
 			'at://did:plc:abc123/site.standard.document/tid123',
-			get_post_meta( static::$post_id, Share_Status::BLUESKY_DOCUMENT_URI_META_KEY, true )
+			get_post_meta( static::$post_id, Standard_Site_Integration::DOCUMENT_URI_META_KEY, true )
 		);
 	}
 
@@ -200,10 +200,10 @@ class Standard_Site_Test extends TestCase {
 			),
 		);
 
-		Publicize_Setup::store_bluesky_document_uri( static::$post_id, $shares );
+		Standard_Site_Integration::store_document_uri( static::$post_id, $shares );
 
 		$this->assertEmpty(
-			get_post_meta( static::$post_id, Share_Status::BLUESKY_DOCUMENT_URI_META_KEY, true )
+			get_post_meta( static::$post_id, Standard_Site_Integration::DOCUMENT_URI_META_KEY, true )
 		);
 	}
 
@@ -215,7 +215,7 @@ class Standard_Site_Test extends TestCase {
 	 */
 	public function test_inject_link_tag_with_document_uri() {
 		$uri = 'at://did:plc:abc123/site.standard.document/tid123';
-		update_post_meta( static::$post_id, Share_Status::BLUESKY_DOCUMENT_URI_META_KEY, $uri );
+		update_post_meta( static::$post_id, Standard_Site_Integration::DOCUMENT_URI_META_KEY, $uri );
 
 		// Simulate a singular post context.
 		$GLOBALS['wp_query']              = new \WP_Query();
@@ -225,7 +225,7 @@ class Standard_Site_Test extends TestCase {
 		$GLOBALS['post']                  = $GLOBALS['wp_query']->post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		ob_start();
-		Publicize_Setup::inject_standard_site_link_tag();
+		Standard_Site_Integration::inject_link_tag();
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<link rel="alternate" type="application/json"', $output );
@@ -244,7 +244,7 @@ class Standard_Site_Test extends TestCase {
 		$GLOBALS['post']                  = $GLOBALS['wp_query']->post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		ob_start();
-		Publicize_Setup::inject_standard_site_link_tag();
+		Standard_Site_Integration::inject_link_tag();
 		$output = ob_get_clean();
 
 		$this->assertEmpty( $output );
@@ -261,35 +261,35 @@ class Standard_Site_Test extends TestCase {
 	}
 
 	/**
-	 * Test that serve_standard_site_publication returns early when query var is not set.
+	 * Test that serve_publication returns early when query var is not set.
 	 */
 	public function test_serve_wellknown_returns_early_without_query_var() {
 		// No query var set — method should return without calling exit.
-		Publicize_Setup::serve_standard_site_publication();
+		Standard_Site_Integration::serve_publication();
 
 		// If we reach here, it returned early as expected.
 		$this->assertTrue( true );
 	}
 
 	/**
-	 * Test that inject_standard_site_link_tag returns early on non-singular pages.
+	 * Test that inject_link_tag returns early on non-singular pages.
 	 */
 	public function test_no_link_tag_on_non_singular() {
 		$uri = 'at://did:plc:abc123/site.standard.document/tid123';
-		update_post_meta( static::$post_id, Share_Status::BLUESKY_DOCUMENT_URI_META_KEY, $uri );
+		update_post_meta( static::$post_id, Standard_Site_Integration::DOCUMENT_URI_META_KEY, $uri );
 
 		// Default wp_query is not singular.
 		$GLOBALS['wp_query'] = new \WP_Query();
 
 		ob_start();
-		Publicize_Setup::inject_standard_site_link_tag();
+		Standard_Site_Integration::inject_link_tag();
 		$output = ob_get_clean();
 
 		$this->assertEmpty( $output );
 	}
 
 	/**
-	 * Test that store_bluesky_document_uri skips non-bluesky shares.
+	 * Test that store_document_uri skips non-bluesky shares.
 	 */
 	public function test_store_document_uri_skips_non_bluesky() {
 		$shares = array(
@@ -302,20 +302,20 @@ class Standard_Site_Test extends TestCase {
 			),
 		);
 
-		Publicize_Setup::store_bluesky_document_uri( static::$post_id, $shares );
+		Standard_Site_Integration::store_document_uri( static::$post_id, $shares );
 
 		$this->assertEmpty(
-			get_post_meta( static::$post_id, Share_Status::BLUESKY_DOCUMENT_URI_META_KEY, true )
+			get_post_meta( static::$post_id, Standard_Site_Integration::DOCUMENT_URI_META_KEY, true )
 		);
 	}
 
 	/**
-	 * Test that register_standard_site_rewrite registers the rewrite rule and tag.
+	 * Test that register_rewrite registers the rewrite rule and tag.
 	 */
 	public function test_register_standard_site_rewrite() {
 		global $wp_rewrite;
 
-		Publicize_Setup::register_standard_site_rewrite();
+		Standard_Site_Integration::register_rewrite();
 
 		$this->assertNotEmpty( $wp_rewrite->extra_rules_top );
 		$this->assertArrayHasKey( '^\.well-known/site\.standard\.publication$', $wp_rewrite->extra_rules_top );

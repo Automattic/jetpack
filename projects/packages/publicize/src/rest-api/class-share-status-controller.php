@@ -9,8 +9,8 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
-use Automattic\Jetpack\Publicize\Publicize_Setup;
 use Automattic\Jetpack\Publicize\Share_Status;
+use Automattic\Jetpack\Publicize\Standard_Site_Integration;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -259,7 +259,7 @@ class Share_Status_Controller extends Base_Controller {
 
 		update_post_meta( $post_id, Share_Status::SHARES_META_KEY, $shares );
 
-		Publicize_Setup::store_bluesky_document_uri( $post_id, $shares );
+		Standard_Site_Integration::store_document_uri( $post_id, $shares );
 
 		$urls = array();
 
