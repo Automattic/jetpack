@@ -75,18 +75,20 @@ The full design has two complementary paths that share the same Elasticsearch in
 New composable blocks powered by the WordPress Interactivity API. All blocks share a namespaced `jetpack-search` store. Any block can read or write state; state changes automatically propagate to all other blocks on the page.
 
 ```
-[Input blocks]       [Filter blocks]      [WC Filter blocks]
-Search Input         Category             Price Range
-Active Filters  -->  Tag            -->   Attribute
-Sort Control         Post Type            Rating
-Results Count        Author               Stock Status
-                     Date
+[Input blocks]       [Filter blocks]           [WC Filter blocks (Phase 2)]
+Search Input         filter-checkbox           Price Range
+Active Filters  -->    • category variation    Attribute variation
+Sort Control           • tag variation    -->  Rating
+Results Count          • post-type variation   Stock Status variation
+                       • author variation
+                       • custom variation
+                     filter-date (Phase 2)
                        |
                        v
               [jetpack-search store]
               wp_interactivity_state()
               state: query, filters, results,
-                     aggregations, sort, pagination
+                     aggregations, filterConfigs, sort, pagination
               actions: search(), setFilter(),
                        clearFilters(), loadMore()
                        |
@@ -229,6 +231,7 @@ wp_interactivity_state( 'jetpack-search', array(
     'nonce'         => wp_create_nonce( 'wp_rest' ),
     'searchQuery'   => get_search_query(),
     'activeFilters' => array(),
+    'filterConfigs' => array(),  // each filter block merges its own entry at render time
     'results'       => $initial_results,   // pre-fetched server-side
     'aggregations'  => $initial_aggs,
     'totalResults'  => $total,
@@ -253,8 +256,10 @@ const { state, actions } = store( 'jetpack-search', {
             state.isLoading = false;
             actions.syncToUrl();
         },
-        *setFilter( key, value ) {
-            state.activeFilters = { ...state.activeFilters, [ key ]: value };
+        *setFilter( filterKey, filterValue ) {
+            // activeFilters maps filterKey → array of selected values
+            const current = state.activeFilters[ filterKey ] ?? [];
+            state.activeFilters = { ...state.activeFilters, [ filterKey ]: [ ...current, filterValue ] };
             yield actions.search();
         },
         clearFilters() {
@@ -269,7 +274,7 @@ const { state, actions } = store( 'jetpack-search', {
 
 #### Block Patterns (Phase 1)
 
-- **Blog Search Page**: Search input + sort control + results count in header row; category filter + tag filter + post type filter in left sidebar; search results in main content; load more at bottom; no results fallback.
+- **Blog Search Page**: Search input + sort control + results count in header row; `filter-checkbox` (category variation) + `filter-checkbox` (tag variation) + `filter-checkbox` (post-type variation) in left sidebar; search results in main content; load more at bottom; no results fallback.
 
 #### Phase 1 Block List
 
@@ -390,7 +395,7 @@ Generated files:
 
 `src/search-blocks/AGENTS.md` documents the full developer workflow for AI coding assistants:
 
-- How to add a filter block (all files, PHP hook, `block.json` fields)
+- How to add a filter-checkbox variation (new `block.json` variation entry, PHP `filterConfigs` field mapping, optional new ES field registration)
 - How to add a result renderer (slot/fill pattern)
 - How the `jetpack-search` store works (state shape, all actions)
 - The two-step indexing process: register for sync + register for indexing
@@ -475,7 +480,7 @@ A triage pass against [open Search issues](https://github.com/Automattic/jetpack
 
 ## Testing Strategy
 
-- **Unit tests (Jest)**: Store actions and reducers (search, setFilter, clearFilters, loadMore, URL sync). Mock the fetch call.
+- **Unit tests (Jest)**: Store actions and derived state (search, setFilter, clearFilters, loadMore, URL sync). Mock the fetch call.
 - **PHP tests**: `render.php` output for each block; `wp_interactivity_state()` output; `jetpack_search_register_postmeta()` hook behaviour; `is_indexable()` extension.
 - **E2E**: Block editor: place blocks, configure via inspector; Frontend: search, filter, browse mode, URL state, back/forward navigation; WooCommerce: shop page filter → product grid updates; Overlay: modal open/close, URL param.
 - **Size limit**: New blocks target must not regress the existing instant search bundle size limit (defined in `package.json` → `size-limit`).
