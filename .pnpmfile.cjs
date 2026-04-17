@@ -280,6 +280,16 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
+	// `@base-ui/react` added a peer dependency on `date-fns`, but `@wordpress/ui` doesn't satisfy it.
+	// https://github.com/WordPress/gutenberg/issues/77395
+	if (
+		( pkg.name === '@wordpress/ui' || pkg.name === '@wordpress/dataviews' ) &&
+		( ! pkg.dependencies?.[ 'date-fns' ] || ! pkg.dependencies?.[ '@date-fns/tz' ] )
+	) {
+		pkg.dependencies[ 'date-fns' ] ??= '^4.0.0';
+		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
+	}
+
 	return pkg;
 }
 

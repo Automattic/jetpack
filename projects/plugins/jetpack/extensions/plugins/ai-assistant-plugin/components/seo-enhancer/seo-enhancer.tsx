@@ -23,7 +23,7 @@ import { SeoEnhancerTaskList } from './seo-enhancer-task-list';
 import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
-import type { BlockInstance } from '@wordpress/blocks';
+import type { Block as BlockInstance } from '@wordpress/blocks';
 import './style.scss';
 /**
  * Types

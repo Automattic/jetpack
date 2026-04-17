@@ -14,20 +14,20 @@
 	overflow: hidden;
 	color: #1e1e1e;
 	text-overflow: ellipsis;
-	font-size: var(--wpds-font-size-xl, 18px);
+	font-size: var(--wpds-typography-font-size-xl, 18px);
 	font-style: normal;
-	font-weight: var(--wpds-font-weight-medium, 499);
-	line-height: var(--wpds-font-line-height-sm, 20px);
+	font-weight: var(--wpds-typography-font-weight-medium, 499);
+	line-height: var(--wpds-typography-line-height-sm, 20px);
 	margin: 0;
 }
 
 .change-indicator {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	font-size: var(--wpds-font-size-md, 13px);
+	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: normal;
-	font-weight: var(--wpds-font-weight-medium, 499);
-	line-height: var(--wpds-font-line-height-sm, 20px);
+	font-weight: var(--wpds-typography-font-weight-medium, 499);
+	line-height: var(--wpds-typography-line-height-sm, 20px);
 	margin: 0;
 }
 
@@ -53,9 +53,9 @@
 
 .step-label {
 	color: #757575;
-	font-size: var(--wpds-font-size-sm, 12px);
-	font-weight: var(--wpds-font-weight-regular, 400);
-	line-height: var(--wpds-font-line-height-xs, 16px);
+	font-size: var(--wpds-typography-font-size-sm, 12px);
+	font-weight: var(--wpds-typography-font-weight-regular, 400);
+	line-height: var(--wpds-typography-line-height-xs, 16px);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -63,9 +63,9 @@
 
 .step-rate {
 	color: #1e1e1e;
-	font-size: var(--wpds-font-size-md, 13px);
-	font-weight: var(--wpds-font-weight-medium, 499);
-	line-height: var(--wpds-font-line-height-xs, 16px);
+	font-size: var(--wpds-typography-font-size-md, 13px);
+	font-weight: var(--wpds-typography-font-weight-medium, 499);
+	line-height: var(--wpds-typography-line-height-xs, 16px);
 }
 
 .bar-container {
@@ -108,22 +108,22 @@
 
 .tooltip-title {
 	color: #1e1e1e;
-	font-size: var(--wpds-font-size-sm, 12px);
+	font-size: var(--wpds-typography-font-size-sm, 12px);
 	font-style: normal;
-	font-weight: var(--wpds-font-weight-regular, 400);
-	line-height: var(--wpds-font-line-height-xs, 16px);
+	font-weight: var(--wpds-typography-font-weight-regular, 400);
+	line-height: var(--wpds-typography-line-height-xs, 16px);
 }
 
 .tooltip-content {
 	color: #1e1e1e;
-	font-size: var(--wpds-font-size-md, 13px);
+	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: normal;
-	font-weight: var(--wpds-font-weight-medium, 499);
-	line-height: var(--wpds-font-line-height-sm, 20px);
+	font-weight: var(--wpds-typography-font-weight-medium, 499);
+	line-height: var(--wpds-typography-line-height-sm, 20px);
 }
 
 .empty-state {
 	text-align: center;
 	color: #6b7280;
-	font-size: var(--wpds-font-size-lg, 16px);
+	font-size: var(--wpds-typography-font-size-lg, 16px);
 }
