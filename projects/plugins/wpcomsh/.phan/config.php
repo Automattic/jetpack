@@ -21,6 +21,9 @@ return make_phan_config(
 			// The reprint-importer vendor has its own WP stubs that clash
 			// with the WordPress stubs Phan already loads.
 			'vendor/wp-php-toolkit/reprint-importer/src/lib/wp-stubs.php',
+			// Runtime stub for is_automattician() used by ReprintExporterApiTest.
+			// The canonical declaration comes from the wpcom stub.
+			'tests/stubs/is-automattician.php',
 		),
 		'parse_file_list'       => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.

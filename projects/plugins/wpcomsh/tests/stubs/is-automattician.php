@@ -22,8 +22,6 @@ if ( function_exists( 'is_automattician' ) ) {
  *
  * @param int $user_id Ignored; accepted so the signature matches WPCOM's.
  * @return bool
- *
- * @phan-suppress-next-line PhanRedefineFunction
  */
 function is_automattician( $user_id = 0 ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 	unset( $user_id );
