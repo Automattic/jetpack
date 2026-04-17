@@ -496,3 +496,59 @@ if ( ! function_exists( 'jetpack_mastodon_get_instance_list' ) ) {
 		return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
 	}
 }
+
+if ( ! function_exists( 'jetpack_is_dev_mode' ) ) {
+	/**
+	 * Check if the site is in a development/testing environment.
+	 *
+	 * Returns true for localhost, Jurassic Ninja/Tube sandboxes, A8C proxied
+	 * requests, and known Atomic client IDs used for internal testing.
+	 *
+	 * Note: This intentionally duplicates the logic from
+	 * Agents_Manager::is_dev_mode() in jetpack-mu-wpcom rather than calling
+	 * it directly, because that package is only available on WordPress.com
+	 * hosted sites, while Jetpack also runs on self-hosted sites.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	function jetpack_is_dev_mode() {
+		// Known local environments.
+		$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		if (
+			$domain === 'localhost' ||
+			'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
+			'.jurassic.ninja' === stristr( $domain, '.jurassic.ninja' )
+		) {
+			return true;
+		}
+
+		// Proxied A8C request via function.
+		if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
+			return true;
+		}
+
+		// Proxied A8C request via server variable or constant.
+		if (
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
+			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
+			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
+		) {
+			return true;
+		}
+
+		if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
+			switch ( ATOMIC_CLIENT_ID ) {
+				case 1:
+				case 2:
+				case 3:
+				case 32:
+				case 118:
+					return true;
+			}
+		}
+
+		return false;
+	}
+}

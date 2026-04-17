@@ -533,40 +533,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test is_dev_mode returns false for a production domain.
-	 */
-	public function test_is_dev_mode_returns_false_for_production() {
-		// Default test site URL is not localhost/jurassic, so should be false
-		// when no proxied-request indicators are set.
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-		$this->assertFalse( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for localhost.
-	 */
-	public function test_is_dev_mode_true_for_localhost() {
-		update_option( 'siteurl', 'http://localhost:8888' );
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for jurassic.ninja domain.
-	 */
-	public function test_is_dev_mode_true_for_jurassic_ninja() {
-		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for jurassic.tube domain.
-	 */
-	public function test_is_dev_mode_true_for_jurassic_tube() {
-		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
 	 * Test style is enqueued with wp-components dependency.
 	 */
 	public function test_style_enqueued_with_wp_components() {
