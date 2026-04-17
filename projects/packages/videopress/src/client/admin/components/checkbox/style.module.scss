@@ -12,6 +12,7 @@
 
 		&[type="checkbox"] {
 			all: unset;
+			border: 1px solid var(--jp-green-40);
 			margin: 0 10px 0;
 			position: relative;
 			display: flex;
@@ -29,9 +30,19 @@
 				margin: 0; // This is to override the margin from WP default
 			}
 
+			&:checked::before {
+				background: var(--jp-green-40);
+			}
+
 			&:not(:checked) + .checkbox-checkmark {
 				display: none;
 			}
+
+			&:disabled {
+				border: 1px solid var(--jp-gray-10);
+			}
+
+
 		}
 	}
 
@@ -49,6 +60,7 @@
 			top: 2px;
 			width: 5px;
 			height: 11px;
+			border: solid var(--jp-white);
 			border-width: 0 1.5px 1.5px 0;
 			transform: rotate(37deg);
 			content: "";

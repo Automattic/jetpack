@@ -87,6 +87,9 @@
 }
 
 .custom-thumbnail {
+	// Change spinner color
+	--wp-admin-theme-color: var(--jp-green-50);
+
 	display: flex;
 	justify-content: center;
 	align-items: center;

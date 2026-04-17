@@ -1,12 +1,12 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Fragment, useCallback } from 'react';
+import Button from 'components/button';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
@@ -235,7 +235,6 @@ const InstantSearchButtons = ( {
 	return (
 		<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 			<Button
-				variant="secondary"
 				className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-3"
 				href={
 					! isInstantSearchCustomizeButtonDisabled
@@ -250,7 +249,6 @@ const InstantSearchButtons = ( {
 
 			<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
 			<Button
-				variant="secondary"
 				className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-3"
 				href={
 					! isWidgetsEditorButtonDisabled
