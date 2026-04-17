@@ -7,12 +7,11 @@ import {
 	wordpress as coreIcon,
 } from '@wordpress/icons';
 
-export const THREAT_STATUSES: { value: string; label: string; variant?: 'success' | 'warning' }[] =
-	[
-		{ value: 'current', label: __( 'Active', 'jetpack-scan' ), variant: 'warning' },
-		{ value: 'fixed', label: __( 'Fixed', 'jetpack-scan' ), variant: 'success' },
-		{ value: 'ignored', label: __( 'Ignored', 'jetpack-scan' ) },
-	];
+export const THREAT_STATUSES: { value: string; label: string; intent?: 'medium' | 'stable' }[] = [
+	{ value: 'current', label: __( 'Active', 'jetpack-scan' ), intent: 'medium' },
+	{ value: 'fixed', label: __( 'Fixed', 'jetpack-scan' ), intent: 'stable' },
+	{ value: 'ignored', label: __( 'Ignored', 'jetpack-scan' ) },
+];
 
 export const THREAT_TYPES = [
 	{ value: 'plugins', label: __( 'Plugin', 'jetpack-scan' ) },
