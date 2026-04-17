@@ -373,6 +373,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'sanitize_callback' => 'rest_sanitize_boolean',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
+					'is_test'   => array(
+						'description'       => 'Limit results to test responses or exclude them.',
+						'type'              => 'boolean',
+						'sanitize_callback' => 'rest_sanitize_boolean',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
 					'source'    => array(
 						'description'       => 'Limit results to feedback submitted from a specific source post ID.',
 						'type'              => 'integer',
@@ -477,6 +483,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$before    = $request->get_param( 'before' );
 		$after     = $request->get_param( 'after' );
 		$is_unread = $request->get_param( 'is_unread' );
+		$is_test   = $request->get_param( 'is_test' );
 
 		$join_clause      = '';
 		$where_conditions = array( $wpdb->prepare( "{$wpdb->posts}.post_type = %s", 'feedback' ) );
@@ -507,6 +514,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( null !== $is_unread ) {
 			$comment_status     = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
 			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.comment_status = %s", $comment_status );
+		}
+
+		if ( null !== $is_test ) {
+			$is_test_meta_key   = esc_sql( Feedback::IS_TEST_META_KEY );
+			$join_clause       .= " LEFT JOIN {$wpdb->postmeta} AS is_test_meta ON ({$wpdb->posts}.ID = is_test_meta.post_id AND is_test_meta.meta_key = '{$is_test_meta_key}')";
+			$where_conditions[] = $is_test ? "is_test_meta.meta_value = '1'" : 'is_test_meta.meta_id IS NULL';
 		}
 
 		$where_clause = implode( ' AND ', $where_conditions );
@@ -1137,6 +1150,25 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			add_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10, 2 );
 		}
 
+		// Filter by test/non-test responses via the _feedback_is_test meta.
+		$is_test = $request->get_param( 'is_test' );
+		if ( null !== $is_test ) {
+			$meta_query = isset( $args['meta_query'] ) && is_array( $args['meta_query'] ) ? $args['meta_query'] : array();
+			if ( $is_test ) {
+				$meta_query[] = array(
+					'key'     => Feedback::IS_TEST_META_KEY,
+					'value'   => '1',
+					'compare' => '=',
+				);
+			} else {
+				$meta_query[] = array(
+					'key'     => Feedback::IS_TEST_META_KEY,
+					'compare' => 'NOT EXISTS',
+				);
+			}
+			$args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+
 		return $args;
 	}
 
@@ -1202,6 +1234,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		);
 		$query_params['is_unread']      = array(
 			'description'       => __( 'Limit result set to read or unread feedback items.', 'jetpack-forms' ),
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$query_params['is_test']        = array(
+			'description'       => __( 'Limit result set to test responses (from form preview) or exclude them.', 'jetpack-forms' ),
 			'type'              => 'boolean',
 			'sanitize_callback' => 'rest_sanitize_boolean',
 			'validate_callback' => 'rest_validate_request_arg',

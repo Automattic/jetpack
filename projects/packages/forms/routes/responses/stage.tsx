@@ -59,6 +59,10 @@ type FeedbackFilters = {
 
 const EMPTY_ARRAY = [];
 
+// Sentinel value used in the Source filter to represent form-preview (test) responses.
+// Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
+const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
+
 const defaultLayouts = {
 	table: {},
 	list: {},
@@ -71,6 +75,7 @@ type QueryParams = {
 	orderby?: string;
 	order?: string;
 	is_unread?: boolean;
+	is_test?: boolean;
 	parent?: string;
 	source?: string;
 	before?: string;
@@ -309,7 +314,11 @@ function StageInner() {
 				queryArgs.is_unread = filter.value === 'unread';
 			}
 			if ( ! isSingleFormView && filter.field === 'source' ) {
-				queryArgs.source = filter.value;
+				if ( filter.value === FORM_PREVIEW_SOURCE_VALUE ) {
+					queryArgs.is_test = true;
+				} else {
+					queryArgs.source = filter.value;
+				}
 			}
 			if ( filter.field === 'date' ) {
 				const [ year, month ] = filter.value.split( '/' ).map( Number );
@@ -510,15 +519,19 @@ function StageInner() {
 					}
 					return styleUnreadValue( source, item.is_unread );
 				},
-				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-					source => ( {
+				elements: [
+					{
+						value: FORM_PREVIEW_SOURCE_VALUE,
+						label: __( 'Form preview', 'jetpack-forms' ),
+					},
+					...( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map( source => ( {
 						value: source.id.toString(),
 						label:
 							decodeEntities( source.title ) ||
 							getUrlPath( source.url ) ||
 							__( '(no title)', 'jetpack-forms' ),
-					} )
-				),
+					} ) ),
+				],
 				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},

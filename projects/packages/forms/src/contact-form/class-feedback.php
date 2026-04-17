@@ -43,6 +43,16 @@ class Feedback {
 	public const SOURCE_META_KEY = '_feedback_source_post_id';
 
 	/**
+	 * Post meta key flagging a feedback entry as a test submission (from a
+	 * form preview). Stored as `1` when `Feedback_Source::is_test()` is true
+	 * so collections can filter test responses at the database level without
+	 * parsing the serialized source.
+	 *
+	 * @var string
+	 */
+	public const IS_TEST_META_KEY = '_feedback_is_test';
+
+	/**
 	 * Cache key for the source post IDs list.
 	 *
 	 * @var string
@@ -1501,6 +1511,12 @@ class Feedback {
 		if ( is_numeric( $post_id ) && (int) $post_id > 0 && is_numeric( $source_id ) && (int) $source_id > 0 ) {
 			add_post_meta( $post_id, self::SOURCE_META_KEY, (int) $source_id, true );
 			wp_cache_delete( self::SOURCE_IDS_CACHE_KEY, self::CACHE_GROUP );
+		}
+
+		// Flag test submissions with a post meta so the REST collection can
+		// filter them via meta_query without unpacking the serialized source.
+		if ( is_numeric( $post_id ) && (int) $post_id > 0 && $this->source->is_test() ) {
+			add_post_meta( $post_id, self::IS_TEST_META_KEY, 1, true );
 		}
 
 		// If this feedback does not have a jetpack_form parent,

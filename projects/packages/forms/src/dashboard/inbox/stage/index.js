@@ -51,6 +51,10 @@ import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
 
+// Sentinel value used in the Source filter to represent form-preview (test) responses.
+// Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
+const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
+
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
 
@@ -173,7 +177,11 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				return accumulator;
 			}
 			if ( field === 'source' ) {
-				accumulator.source = value;
+				if ( value === FORM_PREVIEW_SOURCE_VALUE ) {
+					accumulator.is_test = true;
+				} else {
+					accumulator.source = value;
+				}
 			}
 			if ( field === 'date' ) {
 				const [ year, month ] = value.split( '/' ).map( Number );
@@ -373,10 +381,17 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 									</ExternalLink>
 								);
 							},
-							elements: ( filterOptions?.source || [] ).map( source => ( {
-								value: source.id,
-								label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
-							} ) ),
+							elements: [
+								{
+									value: FORM_PREVIEW_SOURCE_VALUE,
+									label: __( 'Form preview', 'jetpack-forms' ),
+								},
+								...( filterOptions?.source || [] ).map( source => ( {
+									value: source.id,
+									label:
+										decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
+								} ) ),
+							],
 							filterBy: { operators: [ 'is' ] },
 							enableSorting: false,
 						},
