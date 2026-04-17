@@ -134,12 +134,51 @@ class Jetpack_Reader_Chat {
 			$site_id = (int) Jetpack_Options::get_option( 'id' );
 		}
 
-		return array(
+		$config = array(
 			'siteId'    => $site_id,
 			'siteUrl'   => home_url(),
 			'siteName'  => get_bloginfo( 'name' ),
 			'isDevMode' => self::is_dev_mode(),
+			'agentId'   => 'reader-chat',
 		);
+
+		// Add current post context when on a singular page.
+		if ( is_singular() ) {
+			$post = get_post();
+			if ( $post ) {
+				$config['currentPost'] = array(
+					'id'      => $post->ID,
+					'title'   => get_the_title( $post ),
+					'url'     => get_permalink( $post ),
+					'excerpt' => wp_trim_words( wp_strip_all_tags( $post->post_content ), 120 ),
+					'author'  => get_the_author_meta( 'display_name', $post->post_author ),
+					'date'    => get_the_date( 'F j, Y', $post ),
+				);
+
+				// Get categories and tags for context.
+				$categories = get_the_category( $post->ID );
+				if ( $categories ) {
+					$config['currentPost']['categories'] = array_map(
+						function ( $cat ) {
+							return $cat->name;
+						},
+						$categories
+					);
+				}
+
+				$tags = get_the_tags( $post->ID );
+				if ( $tags ) {
+					$config['currentPost']['tags'] = array_map(
+						function ( $tag ) {
+							return $tag->name;
+						},
+						$tags
+					);
+				}
+			}
+		}
+
+		return $config;
 	}
 
 	/**
