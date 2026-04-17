@@ -123,8 +123,8 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	/**
 	 * Helper: build a WP instance with its ->request populated.
 	 *
-	 * parse_request is what normalizes the requested path into $wp->request
-	 * in production; in tests we just set it directly.
+	 * In production, parse_request normalizes the requested path into
+	 * $wp->request; in tests we just set it directly.
 	 *
 	 * @param string $request Normalized request path ('' for site root).
 	 * @return WP
