@@ -170,10 +170,7 @@ function wpcomsh_reprint_handle_request() {
 		if ( is_string( $file_secret ) ) {
 			$secret = $file_secret;
 		}
-	} elseif ( function_exists( 'get_option' ) ) {
-		// This file can be loaded before WordPress is fully bootstrapped
-		// (e.g., by the ?reprint-api handler on parse_request when
-		// mu-plugins are still initializing). Guard against that.
+	} else {
 		$option_secret = get_option( REPRINT_EXPORTER_SECRET_OPTION, '' );
 		if ( is_string( $option_secret ) && '' !== $option_secret ) {
 			$secret = $option_secret;

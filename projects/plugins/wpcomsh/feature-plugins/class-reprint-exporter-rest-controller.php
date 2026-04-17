@@ -62,10 +62,7 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 		// Acceptable for an admin-only endpoint that is called rarely.
 		// Does not affect the secret file override — that must be
 		// managed by the site operator directly on disk.
-		$updated = function_exists( 'update_option' )
-			&& (bool) update_option( REPRINT_EXPORTER_SECRET_OPTION, $secret, false );
-
-		if ( ! $updated ) {
+		if ( ! update_option( REPRINT_EXPORTER_SECRET_OPTION, $secret, false ) ) {
 			return new WP_REST_Response(
 				array( 'error' => 'Failed to persist the new secret. The database option update did not succeed.' ),
 				500
