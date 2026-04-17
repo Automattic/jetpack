@@ -515,7 +515,7 @@ if ( ! function_exists( 'jetpack_is_dev_mode' ) ) {
 	 */
 	function jetpack_is_dev_mode() {
 		// Known local environments.
-		$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$domain = (string) wp_parse_url( get_site_url(), PHP_URL_HOST );
 		if (
 			$domain === 'localhost' ||
 			'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
