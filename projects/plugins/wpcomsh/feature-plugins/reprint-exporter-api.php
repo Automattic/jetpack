@@ -119,6 +119,12 @@ function wpcomsh_reprint_handle_request() {
 		_reprint_exporter_error( 403, $auth_error );
 	}
 
+	// Sliding activation window — the reprint_exporter_enabled option
+	// only keeps the feature open for 60 minutes since the last accepted
+	// request, so an idle site auto-closes the gate. Bump the timestamp
+	// now that we know this request is legit.
+	update_option( 'reprint_exporter_enabled', time() );
+
 	// -- Dispatch -------------------------------------------------------------
 	// WordPress is already loaded at this point — DB credentials,
 	// $table_prefix, and the database layer (including the SQLite db.php
@@ -155,14 +161,19 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
  *
  * Currently it's gated to:
  *
- * * sites with the reprint_exporter_enabled option set to a truthy value...
+ * * sites where the reprint_exporter_enabled option holds a unix
+ *   timestamp no more than 60 minutes old (ops flips it with
+ *   `wp option update reprint_exporter_enabled $(date +%s)`; the
+ *   ?reprint-api handler bumps it on every accepted request, so an
+ *   idle site auto-closes the gate).
  * * ...visited by Automatticians...
  * * ...coming in through the a8c proxy
  *
  * @return bool
  */
 function _should_expose_reprint_exporter_on_this_site(): bool {
-	if ( ! get_option( 'reprint_exporter_enabled', false ) ) {
+	$enabled_at = (int) get_option( 'reprint_exporter_enabled', 0 );
+	if ( $enabled_at <= 0 || ( time() - $enabled_at ) > HOUR_IN_SECONDS ) {
 		return false;
 	}
 

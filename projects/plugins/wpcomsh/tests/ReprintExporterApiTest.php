@@ -70,7 +70,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 */
 	private function set_available( bool $available ) {
 		if ( $available ) {
-			update_option( 'reprint_exporter_enabled', 1 );
+			update_option( 'reprint_exporter_enabled', time() );
 			$_SERVER['A8C_PROXIED_REQUEST']             = '1';
 			$GLOBALS['__reprint_test_is_automattician'] = true;
 		} else {
@@ -166,6 +166,21 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
 		$this->assertArrayHasKey( '/wpcomsh/v1/reprint/rotate-export-secret', $routes );
+	}
+
+	/**
+	 * Test that the REST route isn't registered once the 60-minute window
+	 * has elapsed since the last bump.
+	 */
+	public function test_rest_route_not_registered_when_window_elapsed() {
+		$this->skip_if_cannot_fake_automattician();
+		$this->set_available( true );
+		// Backdate the enable timestamp past the 60-minute window.
+		update_option( 'reprint_exporter_enabled', time() - HOUR_IN_SECONDS - 1 );
+
+		$server = $this->fresh_rest_server();
+		$routes = $server->get_routes();
+		$this->assertArrayNotHasKey( '/wpcomsh/v1/reprint/rotate-export-secret', $routes );
 	}
 
 	/**
