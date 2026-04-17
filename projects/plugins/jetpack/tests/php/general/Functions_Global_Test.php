@@ -8,11 +8,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * @covers ::jetpack_get_future_removed_version
  * @covers ::jetpack_get_vary_headers
- * @covers ::jetpack_is_dev_mode
+ * @covers ::jetpack_is_internal_testing_environment
  */
 #[CoversFunction( 'jetpack_get_future_removed_version' )]
 #[CoversFunction( 'jetpack_get_vary_headers' )]
-#[CoversFunction( 'jetpack_is_dev_mode' )]
+#[CoversFunction( 'jetpack_is_internal_testing_environment' )]
 class Functions_Global_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -98,33 +98,33 @@ class Functions_Global_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test jetpack_is_dev_mode returns false for a production domain.
+	 * Test jetpack_is_internal_testing_environment returns false for a production domain.
 	 */
-	public function test_jetpack_is_dev_mode_returns_false_for_production() {
-		$this->assertFalse( jetpack_is_dev_mode() );
+	public function test_jetpack_is_internal_testing_environment_returns_false_for_production() {
+		$this->assertFalse( jetpack_is_internal_testing_environment() );
 	}
 
 	/**
-	 * Test jetpack_is_dev_mode returns true for localhost.
+	 * Test jetpack_is_internal_testing_environment returns true for localhost.
 	 */
-	public function test_jetpack_is_dev_mode_true_for_localhost() {
+	public function test_jetpack_is_internal_testing_environment_true_for_localhost() {
 		update_option( 'siteurl', 'http://localhost:8888' );
-		$this->assertTrue( jetpack_is_dev_mode() );
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
 	}
 
 	/**
-	 * Test jetpack_is_dev_mode returns true for jurassic.ninja domain.
+	 * Test jetpack_is_internal_testing_environment returns true for jurassic.ninja domain.
 	 */
-	public function test_jetpack_is_dev_mode_true_for_jurassic_ninja() {
+	public function test_jetpack_is_internal_testing_environment_true_for_jurassic_ninja() {
 		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
-		$this->assertTrue( jetpack_is_dev_mode() );
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
 	}
 
 	/**
-	 * Test jetpack_is_dev_mode returns true for jurassic.tube domain.
+	 * Test jetpack_is_internal_testing_environment returns true for jurassic.tube domain.
 	 */
-	public function test_jetpack_is_dev_mode_true_for_jurassic_tube() {
+	public function test_jetpack_is_internal_testing_environment_true_for_jurassic_tube() {
 		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
-		$this->assertTrue( jetpack_is_dev_mode() );
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
 	}
 }

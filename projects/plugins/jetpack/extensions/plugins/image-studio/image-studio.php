@@ -296,7 +296,7 @@ function do_enqueue_assets() {
 	$image_studio_data = array(
 		'enabled'   => true,
 		'version'   => '1.0',
-		'isDevMode' => jetpack_is_dev_mode(),
+		'isDevMode' => jetpack_is_internal_testing_environment(),
 	);
 
 	wp_add_inline_script(

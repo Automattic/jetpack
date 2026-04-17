@@ -497,12 +497,18 @@ if ( ! function_exists( 'jetpack_mastodon_get_instance_list' ) ) {
 	}
 }
 
-if ( ! function_exists( 'jetpack_is_dev_mode' ) ) {
+if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
 	/**
-	 * Check if the site is in a development/testing environment.
+	 * Check if the site is an A8C-internal testing environment.
 	 *
 	 * Returns true for localhost, Jurassic Ninja/Tube sandboxes, A8C proxied
-	 * requests, and known Atomic client IDs used for internal testing.
+	 * requests, and known Atomic client IDs used for internal testing. Useful
+	 * for tagging analytics events as test traffic so they can be filtered out
+	 * of production reporting.
+	 *
+	 * Not to be confused with Jetpack's legacy "Development Mode", which is now
+	 * Status::is_offline_mode() and controls whether Jetpack connects to
+	 * WordPress.com.
 	 *
 	 * Note: This intentionally duplicates the logic from
 	 * Agents_Manager::is_dev_mode() in jetpack-mu-wpcom rather than calling
@@ -513,7 +519,7 @@ if ( ! function_exists( 'jetpack_is_dev_mode' ) ) {
 	 *
 	 * @return bool
 	 */
-	function jetpack_is_dev_mode() {
+	function jetpack_is_internal_testing_environment() {
 		// Known local environments.
 		$domain = (string) wp_parse_url( get_site_url(), PHP_URL_HOST );
 		if (
