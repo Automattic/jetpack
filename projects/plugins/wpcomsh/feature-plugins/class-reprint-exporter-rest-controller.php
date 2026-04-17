@@ -2,9 +2,9 @@
 /**
  * REST controller for the reprint exporter secret-rotation endpoint.
  *
- * Exposes POST /wpcomsh/v1/reprint/rotate-export-secret. Registration is
- * gated on _should_expose_reprint_exporter_on_this_site() by the caller — this class
- * only defines the route itself and the permission/response callbacks.
+ * Exposes POST /wpcomsh/v1/reprint/rotate-export-secret. The permission
+ * callback only accepts requests signed by WPCOM's Jetpack connection,
+ * i.e. calls that came through the public API proxy.
  *
  * @package wpcomsh
  */
@@ -71,22 +71,14 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback: allow super admins only.
+	 * Permission callback: only requests signed by WPCOM's Jetpack
+	 * connection (i.e. coming through the public API proxy) may call
+	 * this. Direct hits from wp-admin or elsewhere get 403.
 	 *
-	 * The proxied-Automattician gate is already applied at route-registration
-	 * time; this is the second line of defense for direct/forged requests.
-	 *
-	 * @return bool|WP_Error
+	 * @return bool
 	 */
 	public function permission_check() {
-		if ( is_super_admin() ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'rest_forbidden',
-			__( 'Sorry, you are not allowed to access this endpoint.', 'wpcomsh' ),
-			array( 'status' => 403 )
-		);
+		return method_exists( 'Automattic\Jetpack\Connection\Manager', 'verify_xml_rpc_signature' )
+			&& ( new Automattic\Jetpack\Connection\Manager() )->verify_xml_rpc_signature();
 	}
 }

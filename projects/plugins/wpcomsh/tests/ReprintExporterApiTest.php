@@ -24,9 +24,6 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		delete_option( 'reprint_exporter_secret' );
 		delete_option( 'reprint_exporter_enabled' );
 
-		// Drop the per-test user_has_cap filter used by force_super_admin().
-		remove_all_filters( 'user_has_cap' );
-
 		// Reset the Automattician/proxy simulation set by set_available().
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		unset( $GLOBALS['__reprint_test_is_automattician'] );
@@ -36,26 +33,6 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$wp_rest_server = null;
 
 		parent::tear_down();
-	}
-
-	/**
-	 * Helper: make is_super_admin() return true for the current user.
-	 *
-	 * Note that grant_super_admin() only works on multisite, and the WP
-	 * Cloud test site runs as single-site with administrator capabilities
-	 * stripped — so the usual "administrator role ⇒ is_super_admin"
-	 * shortcut doesn't apply. Grant the capability is_super_admin()
-	 * actually checks on single-site (delete_users) via the user_has_cap
-	 * filter instead.
-	 */
-	private function force_super_admin() {
-		add_filter(
-			'user_has_cap',
-			function ( $allcaps ) {
-				$allcaps['delete_users'] = true;
-				return $allcaps;
-			}
-		);
 	}
 
 	/**
@@ -195,30 +172,19 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the rotate-secret endpoint requires super-admin permissions.
+	 * Test that the rotate-secret endpoint rejects unsigned requests.
 	 */
-	public function test_rotate_secret_requires_super_admin() {
-		$this->set_available( true );
-
-		$server = $this->fresh_rest_server();
-
-		// Non-admin user.
-		$user_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		wp_set_current_user( $user_id );
-
+	public function test_rotate_secret_rejects_unsigned_requests() {
+		$server   = $this->fresh_rest_server();
 		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
 		$response = $server->dispatch( $request );
 
-		$this->assertSame( 403, $response->get_status() );
+		// Jetpack's signature verification fails on an unsigned dispatch;
+		// either the permission callback returns false (401) or the
+		// environment's rest_authentication_errors filter returns a 403
+		// first. Either way the caller doesn't get a 200.
+		$this->assertContains( $response->get_status(), array( 401, 403 ) );
 	}
-
-	// The success path for the rotate-secret endpoint is covered by the
-	// direct controller tests (test_permission_callback_allows_super_admin,
-	// test_rotate_secret_callback_generates_valid_secret,
-	// test_rotate_secret_callback_persists_secret). A full REST dispatch
-	// test isn't added here because the WP Cloud test environment injects
-	// a rest_authentication_errors filter that rejects non-proxied
-	// requests with a 403, which can't be bypassed from test setUp.
 
 	// -- HMAC verification tests (Site_Export_HMAC_Server) --------------------
 
@@ -404,25 +370,12 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the permission callback denies non-super-admin users.
+	 * Test that the permission callback denies requests that aren't
+	 * Jetpack-signed. Signing a request requires real site + WPCOM
+	 * credentials, so the negative path is what's unit-testable here.
 	 */
-	public function test_permission_callback_denies_non_admin() {
-		$user_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		wp_set_current_user( $user_id );
-
-		$result = $this->controller()->permission_check();
-		$this->assertInstanceOf( 'WP_Error', $result );
-	}
-
-	/**
-	 * Test that the permission callback allows super admins.
-	 */
-	public function test_permission_callback_allows_super_admin() {
-		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
-		$this->force_super_admin();
-
-		$this->assertTrue( $this->controller()->permission_check() );
+	public function test_permission_callback_denies_unsigned_request() {
+		$this->assertFalse( $this->controller()->permission_check() );
 	}
 
 	/**

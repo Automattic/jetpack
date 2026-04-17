@@ -6,8 +6,9 @@
  *
  * Gating:
  *
- * * rotate-secret REST route is always registered; auth is the public
- *   API + is_super_admin().
+ * * rotate-secret REST route is always registered; its permission
+ *   callback only accepts Jetpack-signed requests, so it can only be
+ *   invoked through the WPCOM public API proxy.
  * * ?reprint-api export requires the reprint_exporter_enabled site
  *   option to be a unix timestamp within the last 60 minutes AND the
  *   request to be a proxied Automattician. Each accepted request bumps
@@ -138,9 +139,9 @@ function wpcomsh_reprint_handle_request( $wp ) {
 add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 
 /**
- * Registers the reprint REST route. Always on — the route is meant to be
- * callable through the public API, so local gating would just lock
- * Studio out. Auth is the public API + is_super_admin().
+ * Registers the reprint REST route. Always on — auth is enforced in the
+ * controller's permission callback, which only accepts Jetpack-signed
+ * requests (i.e. calls coming through the public API).
  */
 function wpcomsh_reprint_rest_init() {
 	require_once __DIR__ . '/class-reprint-exporter-rest-controller.php';
