@@ -4,19 +4,14 @@
  *
  * Exposes export endpoints at ?reprint-api.
  *
- * Two-tier gating, both tied to the reprint_exporter_enabled site
- * option (a unix timestamp, fresh within 60 minutes; bumped on every
- * accepted ?reprint-api request so an active session keeps sliding):
+ * Two-tier gate, both tied to the reprint_exporter_enabled site option
+ * (unix timestamp, fresh within 60 minutes; ?reprint-api bumps it on
+ * every accepted request):
  *
- * * The rotate-secret REST route is registered when the option is
- *   fresh — auth is the public API's token check plus the route's own
- *   is_super_admin() permission callback. This is the path Studio
- *   hits through the public API proxy.
- * * The ?reprint-api export handler additionally requires the current
- *   request to be from an Automattician coming in through the a8c
- *   proxy, so the streaming endpoint itself stays reachable only to
- *   internal traffic while the end-to-end Studio flow is still being
- *   built. Once that ships, the Automattician condition can come off.
+ * * rotate-secret REST route needs only the fresh option; auth is the
+ *   public API + is_super_admin().
+ * * ?reprint-api export additionally requires a proxied Automattician,
+ *   so the streaming endpoint stays internal-only until Studio ships.
  *
  * Data flow has two phases that use different auth and network paths:
  *
@@ -142,14 +137,11 @@ function wpcomsh_reprint_handle_request( $wp ) {
 add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 
 /**
- * Registers the reprint REST route.
+ * Registers the reprint REST route when the activation option is fresh.
  *
- * Only registers when the site option is set and fresh — the route is
- * reachable through the WPCOM public API proxy, so gating on the
- * proxied-Automattician state (which isn't set on public-api-proxied
- * requests) would permanently block Studio. Authentication for the
- * route is handled by the public API's token check plus the controller's
- * own is_super_admin() permission callback.
+ * The proxied-Automattician check doesn't apply here — public-api-proxied
+ * requests don't carry A8C_PROXIED_REQUEST, and gating on it would lock
+ * Studio out. Auth on the route is the public API + is_super_admin().
  */
 function wpcomsh_reprint_rest_init() {
 	if ( ! _reprint_exporter_is_currently_activated() ) {
@@ -164,15 +156,8 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 // -- Helpers ------------------------------------------------------------------
 
 /**
- * Whether the reprint exporter is currently activated on this site.
- *
- * Returns true when the reprint_exporter_enabled option holds a unix
- * timestamp no more than 60 minutes old. This is the lighter of the two
- * gates — it's all the rotate-secret REST route needs, because that
- * route is meant to be reachable through the WPCOM public API proxy and
- * already has is_super_admin() as its permission callback. The route
- * registration uses this so a reachable endpoint only exists when ops
- * has deliberately flipped the option.
+ * True when reprint_exporter_enabled holds a unix timestamp within the
+ * last 60 minutes. Gate for the rotate-secret REST route.
  *
  * @return bool
  */
@@ -182,13 +167,8 @@ function _reprint_exporter_is_currently_activated(): bool {
 }
 
 /**
- * Whether the ?reprint-api export endpoint is exposed on this site.
- *
- * Stricter than _reprint_exporter_is_currently_activated(): in addition
- * to the activation window, it requires the current request to be from
- * an Automattician coming in through the a8c proxy. This keeps the
- * actual export streaming endpoint reachable only to internal traffic
- * while the end-to-end Studio flow is still being built.
+ * Stricter gate for the ?reprint-api export handler: activation window
+ * (above) AND a proxied-Automattician request.
  *
  * @return bool
  */
