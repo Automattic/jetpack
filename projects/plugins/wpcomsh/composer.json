@@ -17,7 +17,9 @@
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-mu-wpcom": "@dev",
 		"tubalmartin/cssmin": "^4.1",
-		"automattic/jetpack-explat": "@dev"
+		"automattic/jetpack-explat": "@dev",
+		"wp-php-toolkit/reprint-exporter": "^0.1.44",
+		"wp-php-toolkit/reprint-importer": "^0.1.44"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
