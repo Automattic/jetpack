@@ -53,6 +53,7 @@ BASE="$(pwd)"
 PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
 
 function _install_plugin {
+	local CODE DBNAME DEPS DIR JSON NAME TMP WP_TEST_CONFIG
 	DIR="${1%/composer.json}"
 	NAME="$(basename "$DIR")"
 
