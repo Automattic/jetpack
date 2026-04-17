@@ -194,11 +194,16 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the REST route is registered when the gate is open.
+	 * Test that the REST route is registered when the activation option is
+	 * fresh, even without a proxied-Automattician request.
+	 *
+	 * The rotate-secret endpoint is meant to be reachable through the
+	 * WPCOM public API proxy (which doesn't set A8C_PROXIED_REQUEST), so
+	 * it must register on the option alone — auth is the public API +
+	 * is_super_admin() in the permission callback.
 	 */
-	public function test_rest_route_registered_when_gate_open() {
-		$this->skip_if_cannot_fake_automattician();
-		$this->set_available( true );
+	public function test_rest_route_registered_when_option_is_fresh() {
+		update_option( 'reprint_exporter_enabled', time() );
 
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
@@ -210,8 +215,6 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * has elapsed since the last bump.
 	 */
 	public function test_rest_route_not_registered_when_window_elapsed() {
-		$this->skip_if_cannot_fake_automattician();
-		$this->set_available( true );
 		// Backdate the enable timestamp past the 60-minute window.
 		update_option( 'reprint_exporter_enabled', time() - HOUR_IN_SECONDS - 1 );
 
@@ -224,7 +227,6 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the rotate-secret endpoint requires super-admin permissions.
 	 */
 	public function test_rotate_secret_requires_super_admin() {
-		$this->skip_if_cannot_fake_automattician();
 		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();

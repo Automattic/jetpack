@@ -4,10 +4,19 @@
  *
  * Exposes export endpoints at ?reprint-api.
  *
- * The entire feature is currently gated behind a sliding time window
- * site option AND a proxied-Automattician check so it cannot be reached
- * by customers while the end-to-end Studio flow is still being built
- * Once it ships, the gate can be relaxed.
+ * Two-tier gating, both tied to the reprint_exporter_enabled site
+ * option (a unix timestamp, fresh within 60 minutes; bumped on every
+ * accepted ?reprint-api request so an active session keeps sliding):
+ *
+ * * The rotate-secret REST route is registered when the option is
+ *   fresh — auth is the public API's token check plus the route's own
+ *   is_super_admin() permission callback. This is the path Studio
+ *   hits through the public API proxy.
+ * * The ?reprint-api export handler additionally requires the current
+ *   request to be from an Automattician coming in through the a8c
+ *   proxy, so the streaming endpoint itself stays reachable only to
+ *   internal traffic while the end-to-end Studio flow is still being
+ *   built. Once that ships, the Automattician condition can come off.
  *
  * Data flow has two phases that use different auth and network paths:
  *
@@ -135,13 +144,15 @@ add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 /**
  * Registers the reprint REST route.
  *
- * Only registers when the feature is enabled on this site. The route
- * itself lives in Reprint_Exporter_Rest_Controller; this function just
- * instantiates it behind the availability gate so customers never see
- * the route in the REST index.
+ * Only registers when the site option is set and fresh — the route is
+ * reachable through the WPCOM public API proxy, so gating on the
+ * proxied-Automattician state (which isn't set on public-api-proxied
+ * requests) would permanently block Studio. Authentication for the
+ * route is handled by the public API's token check plus the controller's
+ * own is_super_admin() permission callback.
  */
 function wpcomsh_reprint_rest_init() {
-	if ( ! _should_expose_reprint_exporter_on_this_site() ) {
+	if ( ! _reprint_exporter_is_currently_activated() ) {
 		return;
 	}
 
@@ -153,20 +164,36 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 // -- Helpers ------------------------------------------------------------------
 
 /**
- * Whether the reprint exporter endpoints are exposed on this site.
+ * Whether the reprint exporter is currently activated on this site.
  *
- * Currently it's gated to:
+ * Returns true when the reprint_exporter_enabled option holds a unix
+ * timestamp no more than 60 minutes old. This is the lighter of the two
+ * gates — it's all the rotate-secret REST route needs, because that
+ * route is meant to be reachable through the WPCOM public API proxy and
+ * already has is_super_admin() as its permission callback. The route
+ * registration uses this so a reachable endpoint only exists when ops
+ * has deliberately flipped the option.
  *
- * * sites where the reprint_exporter_enabled option holds a unix
- *   timestamp no more than 60 minutes old...
- * * ...visited by Automatticians...
- * * ...coming in through the a8c proxy
+ * @return bool
+ */
+function _reprint_exporter_is_currently_activated(): bool {
+	$enabled_at = (int) get_option( 'reprint_exporter_enabled', 0 );
+	return $enabled_at > 0 && ( time() - $enabled_at ) <= HOUR_IN_SECONDS;
+}
+
+/**
+ * Whether the ?reprint-api export endpoint is exposed on this site.
+ *
+ * Stricter than _reprint_exporter_is_currently_activated(): in addition
+ * to the activation window, it requires the current request to be from
+ * an Automattician coming in through the a8c proxy. This keeps the
+ * actual export streaming endpoint reachable only to internal traffic
+ * while the end-to-end Studio flow is still being built.
  *
  * @return bool
  */
 function _should_expose_reprint_exporter_on_this_site(): bool {
-	$enabled_at = (int) get_option( 'reprint_exporter_enabled', 0 );
-	if ( $enabled_at <= 0 || ( time() - $enabled_at ) > HOUR_IN_SECONDS ) {
+	if ( ! _reprint_exporter_is_currently_activated() ) {
 		return false;
 	}
 
