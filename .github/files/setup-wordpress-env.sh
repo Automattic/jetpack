@@ -143,7 +143,7 @@ TMPFILES=()
 for PLUGIN in projects/plugins/*/composer.json; do
 	TMPOUT=$(mktemp)
 	TMPFILES+=("$TMPOUT")
-	_install_plugin "$PLUGIN" >"$TMPOUT" 2>&1 &
+	_install_plugin "$PLUGIN" &>"$TMPOUT" &
 	PIDS+=($!)
 done
 
