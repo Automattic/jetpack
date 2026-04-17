@@ -386,6 +386,14 @@ class Connections {
 	 * When a Bluesky connection includes a standard_site_publication_uri, store it
 	 * as a site option for the well-known endpoint. Clean up when disconnected.
 	 *
+	 * Multiple Bluesky connections: the standard.site well-known endpoint is a
+	 * site-wide singleton (one publication record per site), but Publicize allows
+	 * N Bluesky connections per site. First-found-with-URI wins — we take the URI
+	 * from the first Bluesky connection in the API response that carries one. The
+	 * stored URI is only cleared when all Bluesky connections are gone, so if the
+	 * connection that contributed the URI is removed while others remain, the
+	 * option keeps its (now stale) value until the next refresh picks a new one.
+	 *
 	 * @param array $connections The connections data from the API.
 	 */
 	public static function maybe_store_bluesky_publication_uri_from( $connections ) {
