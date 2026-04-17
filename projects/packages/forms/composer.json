@@ -36,7 +36,7 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+			"phpunit-select-config phpunit.#.xml.dist --colors=always --do-not-fail-on-deprecation --display-deprecations"
 		],
 		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
 		"test-php": [

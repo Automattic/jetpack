@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Testing: stop PHPUnit from failing CI on PHP 8.5 deprecations.
