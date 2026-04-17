@@ -119,30 +119,25 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that neither REST route is registered when the gate is closed.
+	 * Test that the REST route is not registered when the gate is closed.
 	 */
 	public function test_rest_route_not_registered_when_gate_closed() {
 		$this->set_available( false );
 
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
-		$this->assertArrayNotHasKey( '/wp/v2/reprint/rotate-export-secret', $routes );
-		$this->assertArrayNotHasKey( '/wp/v2/streaming-export/rotate-secret', $routes );
+		$this->assertArrayNotHasKey( '/wpcomsh/v1/reprint/rotate-export-secret', $routes );
 	}
 
 	/**
-	 * Test that both REST routes are registered when the gate is open.
-	 *
-	 * The canonical route is /wp/v2/reprint/rotate-export-secret; the legacy
-	 * /wp/v2/streaming-export/rotate-secret remains as a back-compat alias.
+	 * Test that the REST route is registered when the gate is open.
 	 */
 	public function test_rest_route_registered_when_gate_open() {
 		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
-		$this->assertArrayHasKey( '/wp/v2/reprint/rotate-export-secret', $routes );
-		$this->assertArrayHasKey( '/wp/v2/streaming-export/rotate-secret', $routes );
+		$this->assertArrayHasKey( '/wpcomsh/v1/reprint/rotate-export-secret', $routes );
 	}
 
 	/**
@@ -157,7 +152,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $user_id );
 
-		$request  = new WP_REST_Request( 'POST', '/wp/v2/reprint/rotate-export-secret' );
+		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
 		$response = $server->dispatch( $request );
 
 		$this->assertSame( 403, $response->get_status() );
@@ -175,7 +170,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		grant_super_admin( $user_id );
 		wp_set_current_user( $user_id );
 
-		$request  = new WP_REST_Request( 'POST', '/wp/v2/reprint/rotate-export-secret' );
+		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
 		$response = $server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -183,28 +178,6 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$data = $response->get_data();
 		$this->assertArrayHasKey( 'secret', $data );
 		$this->assertSame( 64, strlen( $data['secret'] ), 'Secret should be 64 hex characters' );
-	}
-
-	/**
-	 * Test that the legacy REST route also works for super admins.
-	 */
-	public function test_rotate_secret_legacy_route_still_works() {
-		$this->set_available( true );
-
-		$server = $this->fresh_rest_server();
-
-		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		grant_super_admin( $user_id );
-		wp_set_current_user( $user_id );
-
-		$request  = new WP_REST_Request( 'POST', '/wp/v2/streaming-export/rotate-secret' );
-		$response = $server->dispatch( $request );
-
-		$this->assertSame( 200, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertArrayHasKey( 'secret', $data );
-		$this->assertSame( 64, strlen( $data['secret'] ) );
 	}
 
 	/**
@@ -219,7 +192,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		grant_super_admin( $user_id );
 		wp_set_current_user( $user_id );
 
-		$request  = new WP_REST_Request( 'POST', '/wp/v2/reprint/rotate-export-secret' );
+		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
 		$response = $server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -399,7 +372,17 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Content hash mismatch', $result );
 	}
 
-	// -- Permission callback tests -------------------------------------------
+	// -- Controller tests ----------------------------------------------------
+
+	/**
+	 * Helper: get a Reprint_Exporter_Rest_Controller instance.
+	 *
+	 * @return Reprint_Exporter_Rest_Controller
+	 */
+	private function controller(): Reprint_Exporter_Rest_Controller {
+		require_once REPRINT_EXPORTER_PLUGIN_DIR . 'class-reprint-exporter-rest-controller.php';
+		return new Reprint_Exporter_Rest_Controller();
+	}
 
 	/**
 	 * Test that the permission callback denies non-super-admin users.
@@ -408,7 +391,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $user_id );
 
-		$result = wpcomsh_reprint_permission_callback();
+		$result = $this->controller()->permission_check();
 		$this->assertInstanceOf( 'WP_Error', $result );
 	}
 
@@ -420,14 +403,14 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		grant_super_admin( $user_id );
 		wp_set_current_user( $user_id );
 
-		$this->assertTrue( wpcomsh_reprint_permission_callback() );
+		$this->assertTrue( $this->controller()->permission_check() );
 	}
 
 	/**
 	 * Test that the rotate-secret callback generates a 64-character hex secret.
 	 */
 	public function test_rotate_secret_callback_generates_valid_secret() {
-		$response = wpcomsh_reprint_rotate_secret_callback();
+		$response = $this->controller()->rotate_secret();
 
 		$this->assertInstanceOf( 'WP_REST_Response', $response );
 		$this->assertSame( 200, $response->get_status() );
@@ -442,7 +425,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the rotate-secret callback stores the secret in the option.
 	 */
 	public function test_rotate_secret_callback_persists_secret() {
-		$response = wpcomsh_reprint_rotate_secret_callback();
+		$response = $this->controller()->rotate_secret();
 		$data     = $response->get_data();
 
 		$this->assertSame( $data['secret'], get_option( REPRINT_EXPORTER_SECRET_OPTION ) );

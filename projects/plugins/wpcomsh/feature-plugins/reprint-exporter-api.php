@@ -13,13 +13,11 @@
  * Data flow has two phases that use different auth and network paths:
  *
  * 1. Secret provisioning — Studio (or another client) calls the site's
- *    POST /wp/v2/reprint/rotate-export-secret REST route through the
- *    generic Jetpack REST API proxy, authenticating with its regular
- *    WPCOM auth token. The proxy verifies the token; the route's
- *    permission callback checks the caller is a super-admin. The site
- *    generates a shared secret and returns it.
- *    (The old /wp/v2/streaming-export/rotate-secret path is still
- *    registered as a backward-compatible alias.)
+ *    POST /wpcomsh/v1/reprint/rotate-export-secret REST route through
+ *    the generic Jetpack REST API proxy, authenticating with its
+ *    regular WPCOM auth token. The proxy verifies the token; the
+ *    route's permission callback checks the caller is a super-admin.
+ *    The site generates a shared secret and returns it.
  *
  * 2. Export streaming — the client talks directly to the site at
  *    ?reprint-api, bypassing the public API entirely. Each request is
@@ -44,7 +42,12 @@ if ( ! defined( 'REPRINT_EXPORTER_PLUGIN_DIR' ) ) {
 	define( 'REPRINT_EXPORTER_PLUGIN_DIR', __DIR__ . '/' );
 }
 if ( ! defined( 'REPRINT_EXPORTER_SECRET_FILE' ) ) {
-	define( 'REPRINT_EXPORTER_SECRET_FILE', REPRINT_EXPORTER_PLUGIN_DIR . 'secret.php' );
+	// Default to a location under wp-content/ — the wpcomsh plugin
+	// directory is a symlink on WoA and not writable by site operators,
+	// so the plugin dir is not a viable default. A site operator can
+	// override this path in wp-config.php by defining the constant
+	// before wpcomsh loads.
+	define( 'REPRINT_EXPORTER_SECRET_FILE', WP_CONTENT_DIR . '/reprint-exporter-secret.php' );
 }
 if ( ! defined( 'REPRINT_EXPORTER_SECRET_OPTION' ) ) {
 	define( 'REPRINT_EXPORTER_SECRET_OPTION', 'reprint_exporter_secret' );
@@ -160,12 +163,13 @@ function wpcomsh_reprint_handle_request() {
 	$secret          = null;
 
 	if ( $has_secret_file ) {
-		// A site operator can drop a secret.php file that returns a string
-		// into the feature-plugins directory to hard-code the HMAC shared
-		// secret. This is useful on environments where the database option
-		// may not be available or where the secret must survive a database
-		// reset. When present, it takes precedence over the option-backed
-		// secret.
+		// A site operator can drop a PHP file that returns a string at
+		// REPRINT_EXPORTER_SECRET_FILE to hard-code the HMAC shared
+		// secret. The default path is under wp-content/; it can be
+		// overridden in wp-config.php. Useful on environments where the
+		// database option may not be available or where the secret must
+		// survive a database reset. When present, it takes precedence
+		// over the option-backed secret.
 		$file_secret = require REPRINT_EXPORTER_SECRET_FILE;
 		if ( is_string( $file_secret ) ) {
 			$secret = $file_secret;
@@ -185,9 +189,9 @@ function wpcomsh_reprint_handle_request() {
 		// "no secret configured at all" so the error message tells the
 		// admin what to fix.
 		if ( $has_secret_file ) {
-			_reprint_exporter_error( 503, 'Invalid secret.php configuration. Please remove it or replace it with a valid shared secret.' );
+			_reprint_exporter_error( 503, 'Invalid secret file configuration. Please remove it or replace it with a valid shared secret.' );
 		}
-		_reprint_exporter_error( 503, 'Export not configured. Please rotate the shared secret via POST /wp/v2/reprint/rotate-export-secret.' );
+		_reprint_exporter_error( 503, 'Export not configured. Please rotate the shared secret via POST /wpcomsh/v1/reprint/rotate-export-secret.' );
 	}
 
 	// Verify the request's HMAC signature using Site_Export_HMAC_Server
@@ -210,80 +214,22 @@ function wpcomsh_reprint_handle_request() {
 add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 
 /**
- * Registers the reprint REST routes.
+ * Registers the reprint REST route.
  *
- * Only registers when the caller is a proxied Automattician. Both the
- * canonical /wp/v2/reprint/rotate-export-secret and the legacy
- * /wp/v2/streaming-export/rotate-secret paths are registered so existing
- * clients continue to work.
+ * Only registers when the caller is a proxied Automattician. The route
+ * itself lives in Reprint_Exporter_Rest_Controller; this function just
+ * instantiates it behind the availability gate so customers never see
+ * the route in the REST index.
  */
 function wpcomsh_reprint_rest_init() {
 	if ( ! _reprint_exporter_is_available() ) {
 		return;
 	}
 
-	$route_args = array(
-		array(
-			'methods'             => 'POST',
-			'callback'            => 'wpcomsh_reprint_rotate_secret_callback',
-			'permission_callback' => 'wpcomsh_reprint_permission_callback',
-		),
-	);
-
-	register_rest_route( 'wp/v2', '/reprint/rotate-export-secret', $route_args );
-
-	// Back-compat alias — keep the old URL working for existing clients.
-	register_rest_route( 'wp/v2', '/streaming-export/rotate-secret', $route_args );
+	require_once __DIR__ . '/class-reprint-exporter-rest-controller.php';
+	( new Reprint_Exporter_Rest_Controller() )->register_routes();
 }
 add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
-
-/**
- * Rotates the reprint shared secret.
- *
- * Generates a cryptographically random 64-character hex secret, stores it
- * in a WordPress option, and returns it. The caller can then use this
- * secret to authenticate export requests via HMAC without going through
- * the WPCOM REST API proxy.
- *
- * @return WP_REST_Response The new secret on success, or a 500 error.
- */
-function wpcomsh_reprint_rotate_secret_callback() {
-	$secret = bin2hex( random_bytes( 32 ) );
-
-	// Not atomic: two concurrent rotate calls will both succeed, but
-	// the first caller's secret will be overwritten by the second.
-	// Acceptable for an admin-only endpoint that is called rarely.
-	// Does not affect the secret.php file override — that must be
-	// managed by the site operator directly on disk.
-	$updated = function_exists( 'update_option' )
-		&& (bool) update_option( REPRINT_EXPORTER_SECRET_OPTION, $secret, false );
-
-	if ( ! $updated ) {
-		return new WP_REST_Response(
-			array( 'error' => 'Failed to persist the new secret. The database option update did not succeed.' ),
-			500
-		);
-	}
-
-	return new WP_REST_Response( array( 'secret' => $secret ), 200 );
-}
-
-/**
- * Permission callback for REST routes (rotate-secret).
- *
- * @return bool|WP_Error
- */
-function wpcomsh_reprint_permission_callback() {
-	if ( is_super_admin() ) {
-		return true;
-	}
-
-	return new WP_Error(
-		'rest_forbidden',
-		__( 'Sorry, you are not allowed to access this endpoint.', 'wpcomsh' ),
-		array( 'status' => 403 )
-	);
-}
 
 // -- Helpers ------------------------------------------------------------------
 
