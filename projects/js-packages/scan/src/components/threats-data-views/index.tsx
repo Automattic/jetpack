@@ -6,7 +6,6 @@ import {
 	type FieldTypeName,
 	type Filter,
 	type SortDirection,
-	type SupportedLayouts,
 	type View,
 	DataViews,
 	filterSortAndPaginate,
@@ -96,7 +95,7 @@ export default function ThreatsDataViews( {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
 	 */
-	const defaultLayouts: SupportedLayouts = {
+	const defaultLayouts = {
 		table: {
 			...baseView,
 			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
