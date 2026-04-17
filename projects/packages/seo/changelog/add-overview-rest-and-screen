@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the `jetpack-seo/v1/overview` REST endpoint and the Overview screen that aggregates site visibility, content SEO health, AI discoverability, and site-verification status into a single home-base view.

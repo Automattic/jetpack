@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Discoverability screen with llms.txt generation (parse_request-served /llms.txt with enable toggle, post-type picker, max-items, and manual override) and an AI crawler block grid (GPTBot, ClaudeBot, Google-Extended, PerplexityBot, CCBot, anthropic-ai) that writes to robots.txt. Both features are free for all plans.

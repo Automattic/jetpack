@@ -128,6 +128,100 @@ class Jetpack_SEO_Utils {
 	}
 
 	/**
+	 * Canonical list of 3rd-party SEO plugins that conflict with Jetpack SEO.
+	 *
+	 * Exposed so the admin surfaces and the post-list table columns can
+	 * consume the same source of truth. Mirrors the inline list used at
+	 * runtime in modules/seo-tools.php.
+	 *
+	 * @return array<array{name:string, slug:string}>
+	 */
+	public static function get_conflicting_seo_plugins() {
+		return array(
+			array(
+				'name' => 'Yoast SEO',
+				'slug' => 'wordpress-seo/wp-seo.php',
+			),
+			array(
+				'name' => 'Yoast SEO Premium',
+				'slug' => 'wordpress-seo-premium/wp-seo-premium.php',
+			),
+			array(
+				'name' => 'All In One SEO Pack',
+				'slug' => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+			),
+			array(
+				'name' => 'All in One SEO Pack Pro',
+				'slug' => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+			),
+			array(
+				'name' => 'SEOPress',
+				'slug' => 'wp-seopress/seopress.php',
+			),
+			array(
+				'name' => 'SEOPress Pro',
+				'slug' => 'wp-seopress-pro/seopress-pro.php',
+			),
+			array(
+				'name' => 'Rank Math',
+				'slug' => 'seo-by-rank-math/rank-math.php',
+			),
+			array(
+				'name' => 'SEOKEY',
+				'slug' => 'seo-key/seo-key.php',
+			),
+			array(
+				'name' => 'SEOKEY Pro',
+				'slug' => 'seo-key-pro/seo-key.php',
+			),
+			array(
+				'name' => 'Slim SEO',
+				'slug' => 'slim-seo/slim-seo.php',
+			),
+			array(
+				'name' => 'The SEO Framework',
+				'slug' => 'autodescription/autodescription.php',
+			),
+		);
+	}
+
+	/**
+	 * Currently-active conflicting SEO plugins on this site.
+	 *
+	 * @return array<array{name:string, slug:string}>
+	 */
+	public static function get_active_conflicting_plugins() {
+		$active = array();
+		foreach ( self::get_conflicting_seo_plugins() as $plugin ) {
+			if ( class_exists( 'Jetpack' ) && \Jetpack::is_plugin_active( $plugin['slug'] ) ) {
+				$active[] = $plugin;
+			}
+		}
+		return $active;
+	}
+
+	/**
+	 * On plugin activation, auto-deactivate the Jetpack `seo-tools` module
+	 * if the activated plugin conflicts with it (JETH-10045). Shows a
+	 * dismissible admin notice so the user knows what happened.
+	 *
+	 * @param string $plugin             The plugin slug that was activated.
+	 * @param bool   $network_activation Whether it was network-activated.
+	 * @return void
+	 */
+	public static function auto_disable_on_conflict( $plugin, $network_activation ) {
+		unset( $network_activation );
+		$slugs = wp_list_pluck( self::get_conflicting_seo_plugins(), 'slug' );
+		if ( ! in_array( $plugin, $slugs, true ) ) {
+			return;
+		}
+		if ( class_exists( 'Jetpack' ) ) {
+			\Jetpack::deactivate_module( 'seo-tools' );
+		}
+		set_transient( 'jetpack_seo_conflict_notice', $plugin, 30 * DAY_IN_SECONDS );
+	}
+
+	/**
 	 * Remove content within wp:query blocks.
 	 *
 	 * @uses jetpack_og_remove_query_blocks

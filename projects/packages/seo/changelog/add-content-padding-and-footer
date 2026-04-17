@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Overview and Settings: add 24px padding around the content area so the page breathes between the tab bar and the first card, and include the unified `JetpackFooter`. Content keeps a full-bleed layout for the DataViews.

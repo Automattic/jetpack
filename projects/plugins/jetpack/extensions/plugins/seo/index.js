@@ -34,6 +34,7 @@ import { SeoSkeletonLoader } from './components/skeleton-loader';
 import UpsellNotice from './components/upsell';
 import SeoDescriptionPanel from './description-panel';
 import SeoNoindexPanel from './noindex-panel';
+import SeoSchemaPanel from './schema-panel';
 import { showSeoSection } from './show-seo-section';
 import SeoTitlePanel from './title-panel';
 import './editor.scss';
@@ -190,6 +191,11 @@ const Seo = () => {
 					<PanelRow
 						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
 					>
+						<SeoSchemaPanel />
+					</PanelRow>
+					<PanelRow
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+					>
 						<SeoNoindexPanel />
 					</PanelRow>
 				</PanelBody>
@@ -214,6 +220,9 @@ const Seo = () => {
 					<LinkPreviewModalWithTrigger />
 				</PanelRow>
 				<PanelRow>
+					<SeoSchemaPanel />
+				</PanelRow>
+				<PanelRow>
 					<SeoNoindexPanel />
 				</PanelRow>
 			</PluginDocumentSettingPanel>
@@ -234,6 +243,9 @@ const Seo = () => {
 					</PanelRow>
 					<PanelRow>
 						<LinkPreviewModalWithTrigger />
+					</PanelRow>
+					<PanelRow>
+						<SeoSchemaPanel />
 					</PanelRow>
 					<PanelRow>
 						<SeoNoindexPanel />

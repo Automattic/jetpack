@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Replace the `@wordpress/ui` Select in the Maximum Items picker with `SelectControl` from `@wordpress/components`. `@wordpress/ui`'s Select.Popup uses the private ThemeProvider API from `@wordpress/theme`, which core's private-APIs allow-list rejects for modules outside the 24 whitelisted core packages — so it throws on load and blanks the entire admin page.

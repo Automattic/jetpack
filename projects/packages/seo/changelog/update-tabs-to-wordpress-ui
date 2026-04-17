@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Switch the tab bar to `Tabs.Root` / `Tabs.List` / `Tabs.Tab` from `@wordpress/ui` with `variant="minimal"` — the same component Forms uses for its Responses/Forms tabs. Tab state is route-driven via react-router.

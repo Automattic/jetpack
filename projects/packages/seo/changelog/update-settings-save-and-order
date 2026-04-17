@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: hoist the Save button into the AdminPage header via a new HeaderActionsContext slot, labelled simply "Save" and disabled until the form is dirty. Reorder cards by user intent — Title structure → Front-page description → Sitemap → llms.txt → AI crawlers → Site verification.

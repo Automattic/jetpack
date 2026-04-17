@@ -19,34 +19,45 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-// Suppress SEO Tools output if any of the following plugins is active.
-$jetpack_seo_conflicting_plugins = array(
-	'wordpress-seo/wp-seo.php',
-	'wordpress-seo-premium/wp-seo-premium.php',
-	'all-in-one-seo-pack/all_in_one_seo_pack.php',
-	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
-	'seo-by-rank-math/rank-math.php',
-	'autodescription/autodescription.php',
-	'slim-seo/slim-seo.php',
-	'wp-seopress/seopress.php',
-	'wp-seopress-pro/seopress-pro.php',
-	'seo-key/seo-key.php',
-	'seo-key-pro/seo-key.php',
-);
+require_once __DIR__ . '/seo-tools/class-jetpack-seo-utils.php';
 
-foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
-	if ( Jetpack::is_plugin_active( $seo_plugin ) ) {
-		// Disable all custom meta tags that SEO tools manages.
-		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
-
-		// Also disable default meta tags.
-		add_filter( 'jetpack_seo_meta_tags_enabled', '__return_false' );
-		break;
-	}
+// Suppress SEO Tools output at runtime when a conflicting plugin is active.
+if ( ! empty( Jetpack_SEO_Utils::get_active_conflicting_plugins() ) ) {
+	add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+	add_filter( 'jetpack_seo_meta_tags_enabled', '__return_false' );
 }
+
+// JETH-10045: when a conflicting plugin is activated, deactivate the
+// seo-tools module and surface a one-time admin notice.
+add_action( 'activated_plugin', array( 'Jetpack_SEO_Utils', 'auto_disable_on_conflict' ), 10, 2 );
+
+add_action(
+	'admin_notices',
+	static function () {
+		$slug = get_transient( 'jetpack_seo_conflict_notice' );
+		if ( ! $slug || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		$plugins = wp_list_pluck( Jetpack_SEO_Utils::get_conflicting_seo_plugins(), 'name', 'slug' );
+		$name    = $plugins[ $slug ] ?? $slug;
+		printf(
+			'<div class="notice notice-info is-dismissible"><p>%s</p></div>',
+			esc_html(
+				sprintf(
+					/* translators: %s: name of the SEO plugin that was activated */
+					__( 'Jetpack SEO was deactivated automatically because %s was activated.', 'jetpack' ),
+					$name
+				)
+			)
+		);
+		delete_transient( 'jetpack_seo_conflict_notice' );
+	}
+);
 
 /** This filter is documented in modules/seo-tools/class-jetpack-seo-utils.php */
 if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 	require_once __DIR__ . '/seo-tools/class-jetpack-seo.php';
+	require_once __DIR__ . '/seo-tools/class-jetpack-seo-admin-columns.php';
 	new Jetpack_SEO();
+	Jetpack_SEO_Admin_Columns::init();
 }

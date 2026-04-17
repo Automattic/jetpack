@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Switch every card across the admin screens from the legacy `Card`/`CardHeader`/`CardBody` in `@wordpress/components` to the compound `Card.Root`/`Card.Header`/`Card.Title`/`Card.Content` primitive from `@wordpress/ui`.

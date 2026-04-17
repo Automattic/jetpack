@@ -1,0 +1,95 @@
+/* eslint-disable jsdoc/require-returns */
+
+/* eslint-disable react/jsx-no-bind */
+
+import { Notice, Spinner, ToggleControl } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { useAiCrawlers, useUpdateAiCrawlers } from '../../data/use-discoverability';
+import styles from './style.module.scss';
+import type { FC } from 'react';
+
+const LABELS: Record< string, string > = {
+	GPTBot: 'OpenAI (GPTBot)',
+	ClaudeBot: 'Anthropic (ClaudeBot)',
+	'Google-Extended': 'Google (Google-Extended)',
+	PerplexityBot: 'Perplexity (PerplexityBot)',
+	CCBot: 'Common Crawl (CCBot)',
+	'anthropic-ai': 'Anthropic (anthropic-ai)',
+};
+
+/**
+ * AI crawler toggle grid — free for all plans per the PRD. Writes to a
+ * single option which the PHP `AI_Crawlers::filter_robots_txt()` filter
+ * reads when generating /robots.txt.
+ */
+const AiCrawlersCard: FC = () => {
+	const { data, isLoading, isError, error } = useAiCrawlers();
+	const mutation = useUpdateAiCrawlers();
+
+	if ( isLoading || ! data ) {
+		return <Spinner />;
+	}
+	if ( isError ) {
+		return (
+			<Notice status="error" isDismissible={ false }>
+				{ error?.message ?? __( 'Unable to load AI crawler settings.', 'jetpack-seo' ) }
+			</Notice>
+		);
+	}
+
+	const setCrawler = ( bot: string, block: boolean ) => {
+		const crawlers = { ...data.crawlers, [ bot ]: block ? 'block' : 'allow' } as Record<
+			string,
+			'allow' | 'block'
+		>;
+		mutation.mutate( { crawlers } );
+	};
+
+	const blockedCount = data.known.filter( bot => data.crawlers[ bot ] === 'block' ).length;
+	const totalCount = data.known.length;
+
+	return (
+		<CollapsibleCard.Root defaultOpen={ false }>
+			<CollapsibleCard.Header>
+				<Stack direction="row" justify="space-between" align="center" gap="sm">
+					<Card.Title>{ __( 'AI crawlers', 'jetpack-seo' ) }</Card.Title>
+					<Badge intent={ blockedCount > 0 ? 'informational' : 'draft' }>
+						{ blockedCount > 0
+							? sprintf(
+									/* translators: 1: number of blocked AI crawlers, 2: total number of known AI crawlers */
+									__( '%1$d of %2$d blocked', 'jetpack-seo' ),
+									blockedCount,
+									totalCount
+							  )
+							: __( 'All allowed', 'jetpack-seo' ) }
+					</Badge>
+				</Stack>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<p>
+					{ __(
+						'Block AI crawlers from indexing your content. Rules are applied via robots.txt.',
+						'jetpack-seo'
+					) }
+				</p>
+				<div className={ styles.crawlerGrid }>
+					{ data.known.map( bot => (
+						<div key={ bot } className={ styles.crawlerCell }>
+							<span>{ LABELS[ bot ] ?? bot }</span>
+							<ToggleControl
+								label={ __( 'Block', 'jetpack-seo' ) }
+								checked={ data.crawlers[ bot ] === 'block' }
+								onChange={ checked => setCrawler( bot, checked ) }
+								disabled={ mutation.isPending }
+								__nextHasNoMarginBottom
+							/>
+						</div>
+					) ) }
+				</div>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
+	);
+};
+
+export default AiCrawlersCard;

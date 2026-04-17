@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+SEO: scaffold the new jetpack-seo package and mount its visibility command center at admin.php?page=jetpack-seo, reachable across every site type.

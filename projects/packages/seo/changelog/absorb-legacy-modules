@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Absorb the Sitemaps, Site Verification, and Canonical URLs modules into SEO Tools. The standalone module entry files are removed — their implementation code is still loaded when the SEO Tools module is active, gated by three per-option toggles (`jetpack_seo_sitemap_enabled`, `jetpack_seo_canonical_urls_enabled`, plus the existing `verification_services_codes`). The SEO admin page and menu item are now only registered when the SEO Tools module itself is active. Adds a Canonical URLs toggle to the Settings screen.

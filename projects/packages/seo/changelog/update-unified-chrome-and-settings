@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Adopt the unified `AdminPage` header from `@automattic/jetpack-components` (shared with Boost, Social, Protect, Backup). Collapse the Sitemap and Discoverability tabs into a single Settings tab constrained to 660px. Import the `@wordpress/dataviews` stylesheet so the Content post list renders correctly.

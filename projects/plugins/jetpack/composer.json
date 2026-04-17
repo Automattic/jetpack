@@ -49,6 +49,7 @@
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-search": "@dev",
+		"automattic/jetpack-seo": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",

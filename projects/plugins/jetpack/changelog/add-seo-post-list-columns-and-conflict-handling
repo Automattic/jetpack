@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+SEO: add traffic-light status, Schema type, and Preview columns to every public post list table; auto-deactivate the seo-tools module when a competing SEO plugin is activated; register a `jetpack_seo_schema_type` post meta and a Schema SelectControl in the block-editor sidebar.

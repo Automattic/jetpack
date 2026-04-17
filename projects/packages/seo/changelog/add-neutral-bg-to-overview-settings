@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Apply the admin-ui neutral surface token (`--wpds-color-bg-surface-neutral`, #fcfcfc) as the page background on the Overview and Settings tabs. Content keeps the default white so DataViews table surfaces read correctly.

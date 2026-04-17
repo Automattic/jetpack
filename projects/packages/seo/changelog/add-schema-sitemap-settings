@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Schema Builder emits JSON-LD for Article, Organization, FAQPage, HowTo, and LocalBusiness. Registers a new `jetpack_seo_schema_type` post meta, adds a Schema SelectControl to the block-editor sidebar, and ships the Sitemap + Settings admin screens with a FormTokenField title-structure editor and site-verification fields.

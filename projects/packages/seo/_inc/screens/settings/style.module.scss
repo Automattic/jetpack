@@ -1,0 +1,21 @@
+.page {
+	max-width: 660px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.preview {
+	margin-top: 12px;
+	padding: 12px;
+	background: #f6f7f7;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.verificationGrid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Wrap the tab bar in a container styled with the header's white surface and 24px horizontal padding so the tabs line up with the page title and visually continue the header, instead of sitting on the neutral page background.

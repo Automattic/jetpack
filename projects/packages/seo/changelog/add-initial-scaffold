@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initial package scaffold. Introduces the Jetpack SEO visibility command center admin screen reachable at admin.php?page=jetpack-seo on every site type.

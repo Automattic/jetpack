@@ -32,6 +32,7 @@ use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -866,6 +867,7 @@ class Jetpack {
 	public function late_initialization() {
 		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
+		Jetpack_SEO_Initializer::init();
 
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-dashboard' );

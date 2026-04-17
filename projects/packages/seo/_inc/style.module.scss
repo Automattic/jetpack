@@ -1,0 +1,45 @@
+.placeholder {
+	padding: 48px;
+	text-align: center;
+	color: #757575;
+}
+
+// Override AdminPage's default `--jp-white` background with the admin-ui
+// neutral-surface token (#fcfcfc). Same approach as
+// `_inc/client/components/settings-nav-tabs/style.scss` — double-class the
+// selector for specificity over AdminPage's own `.background` rule.
+.neutralBg.neutralBg {
+	&:global( .background ),
+	:global( .admin-ui-page ),
+	:global( .admin-ui-page__content ) {
+		background-color: var( --wpds-color-bg-surface-neutral, #fcfcfc );
+	}
+}
+
+// Padding around the routed content on Overview and Settings. The admin-ui
+// Page renders children unwrapped (no `.admin-ui-page__content` exists unless
+// `hasPadding` is passed, which jetpack-components' AdminPage doesn't do), so
+// Shell wraps the Outlet in this container and we pad it here.
+.paddedContent {
+	padding: var( --wpds-dimension-padding-2xl, 24px );
+}
+
+// Content tab hosts a full-height DataViews. No extra padding so it can fill
+// the region edge-to-edge.
+.fullBleed {
+	padding: 0;
+}
+
+// The admin-ui `Page` component renders the tabs prop between the header and
+// the content container (not inside the header like Forms' own Page does).
+// Wrap them so they visually continue the header: same white background, same
+// horizontal padding (matching admin-ui's `--wpds-dimension-padding-2xl` = 24px
+// on `.admin-ui-page__header`), and a soft divider at the bottom. This keeps
+// the tabs visually anchored to the header and makes their starting edge line
+// up with the page title.
+.tabsBar {
+	background: var( --wpds-color-bg-surface-neutral-strong, #ffffff );
+	padding-inline: var( --wpds-dimension-padding-2xl, 24px );
+	border-bottom: var( --wpds-border-width-xs, 1px ) solid
+		var( --wpds-color-stroke-surface-neutral-weak, #e4e4e4 );
+}

@@ -15,11 +15,18 @@ class Jetpack_SEO_Posts {
 	const DESCRIPTION_META_KEY = 'advanced_seo_description';
 	const HTML_TITLE_META_KEY  = 'jetpack_seo_html_title';
 	const NOINDEX_META_KEY     = 'jetpack_seo_noindex';
+	const SCHEMA_TYPE_META_KEY = 'jetpack_seo_schema_type';
 	const POST_META_KEYS_ARRAY = array(
 		self::DESCRIPTION_META_KEY,
 		self::HTML_TITLE_META_KEY,
 		self::NOINDEX_META_KEY,
+		self::SCHEMA_TYPE_META_KEY,
 	);
+
+	/**
+	 * Allowed Schema.org types that can be stored in the post meta.
+	 */
+	const ALLOWED_SCHEMA_TYPES = array( '', 'article', 'faq', 'howto', 'localbusiness', 'organization' );
 
 	/**
 	 * Build meta description for post SEO.
@@ -175,8 +182,46 @@ class Jetpack_SEO_Posts {
 			),
 		);
 
+		$schema_type_args = array(
+			'type'              => 'string',
+			'description'       => __( 'Schema.org type to emit as JSON-LD for this post.', 'jetpack' ),
+			'single'            => true,
+			'default'           => '',
+			'sanitize_callback' => array( __CLASS__, 'sanitize_schema_type' ),
+			'show_in_rest'      => array(
+				'name' => self::SCHEMA_TYPE_META_KEY,
+			),
+		);
+
 		register_meta( 'post', self::DESCRIPTION_META_KEY, $description_args );
 		register_meta( 'post', self::HTML_TITLE_META_KEY, $html_title_args );
 		register_meta( 'post', self::NOINDEX_META_KEY, $noindex_args );
+		register_meta( 'post', self::SCHEMA_TYPE_META_KEY, $schema_type_args );
+	}
+
+	/**
+	 * Sanitize a schema type value to the allowed list.
+	 *
+	 * @param string $value The submitted value.
+	 * @return string
+	 */
+	public static function sanitize_schema_type( $value ) {
+		$value = is_string( $value ) ? sanitize_key( $value ) : '';
+		return in_array( $value, self::ALLOWED_SCHEMA_TYPES, true ) ? $value : '';
+	}
+
+	/**
+	 * Get the schema type override for a post, if any.
+	 *
+	 * @param WP_Post|int|null $post Post or post ID.
+	 * @return string
+	 */
+	public static function get_post_schema_type( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
+			return '';
+		}
+		$value = (string) get_post_meta( $post->ID, self::SCHEMA_TYPE_META_KEY, true );
+		return self::sanitize_schema_type( $value );
 	}
 }

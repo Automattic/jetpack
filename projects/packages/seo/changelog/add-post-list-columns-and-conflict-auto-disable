@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add SEO columns (traffic-light status, Schema type, Preview button) to every wp-admin post list table. Auto-deactivate the seo-tools module when a competing SEO plugin (Rank Math, Yoast, SEOPress, etc.) is activated and surface a dismissible admin notice. Legacy `?page=jetpack&tab=seo|traffic` URLs now 301 to the new unified SEO screen.

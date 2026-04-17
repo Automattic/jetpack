@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Content screen ships a @wordpress/dataviews post list with server-computed traffic-light status, an Edit SEO modal, and a multi-surface SERP preview modal (Google + Facebook + X + LinkedIn + Threads). New REST endpoints: GET /jetpack-seo/v1/posts and POST /jetpack-seo/v1/posts/{id}/seo.

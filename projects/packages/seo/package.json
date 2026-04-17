@@ -1,0 +1,73 @@
+{
+	"name": "@automattic/jetpack-seo",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "Jetpack SEO — the visibility command center for WordPress sites in the agentic web.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/seo/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] SEO"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/seo"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"exports": {
+		"./serp-preview-modal": "./_inc/screens/shared/serp-preview-modal.tsx"
+	},
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "pnpm webpack --config webpack.config.js",
+		"clean": "rm -rf build/",
+		"test": "jest --config=tests/jest.config.js",
+		"typecheck": "tsgo --noEmit",
+		"watch": "pnpm run build && pnpm webpack watch"
+	},
+	"dependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/social-previews": "workspace:*",
+		"@tanstack/react-query": "5.90.8",
+		"@wordpress/api-fetch": "7.44.0",
+		"@wordpress/components": "32.6.0",
+		"@wordpress/compose": "7.44.0",
+		"@wordpress/data": "10.44.0",
+		"@wordpress/dataviews": "14.0.0",
+		"@wordpress/element": "6.44.0",
+		"@wordpress/i18n": "6.17.0",
+		"@wordpress/icons": "12.1.0",
+		"@wordpress/ui": "0.10.0",
+		"@wordpress/url": "4.44.0",
+		"clsx": "2.1.1",
+		"react-router": "7.12.0"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.0",
+		"@babel/preset-env": "7.29.2",
+		"@testing-library/dom": "10.4.1",
+		"@testing-library/jest-dom": "6.9.1",
+		"@testing-library/react": "16.3.2",
+		"@types/jest": "30.0.0",
+		"@types/node": "^24.12.0",
+		"@types/react": "18.3.28",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"jest": "30.3.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"typescript": "5.9.3",
+		"webpack": "5.105.2",
+		"webpack-cli": "6.0.1"
+	}
+}
