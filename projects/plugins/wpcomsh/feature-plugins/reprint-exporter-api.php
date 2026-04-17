@@ -4,10 +4,10 @@
  *
  * Exposes export endpoints at ?reprint-api.
  *
- * The entire feature is currently gated behind a site option AND a
- * proxied-Automattician check so it cannot be reached by customers
- * while the end-to-end Studio flow is still being built. Once that ships,
- * the gate can be relaxed.
+ * The entire feature is currently gated behind a sliding time window
+ * site option AND a proxied-Automattician check so it cannot be reached
+ * by customers while the end-to-end Studio flow is still being built
+ * Once it ships, the gate can be relaxed.
  *
  * Data flow has two phases that use different auth and network paths:
  *
@@ -107,18 +107,12 @@ function wpcomsh_reprint_handle_request( $wp ) {
 	}
 
 	// -- Authenticate via HMAC ------------------------------------------------
-	// Site_Export_* classes come from the wp-php-toolkit/reprint-exporter
-	// Composer package and are registered in the Jetpack autoloader's
-	// classmap, which wpcomsh.php bootstraps before any hooks fire.
 	$secret = get_option( 'reprint_exporter_secret', '' );
 	if ( ! is_string( $secret ) || '' === $secret ) {
 		_reprint_exporter_error( 503, 'Export not configured. Please rotate the shared secret via POST /wpcomsh/v1/reprint/rotate-export-secret.' );
 	}
 
-	// Verify the request's HMAC signature using Site_Export_HMAC_Server
-	// from the reprint-exporter package.
-	// 300s tolerance on the request timestamp — rejects anything older
-	// to limit the replay window for captured requests.
+	// HMAC signatures tolerate up to 5 minutes of clock skew.
 	$hmac_server = new Site_Export_HMAC_Server( $secret, 300 );
 	$auth_error  = $hmac_server->verify_globals();
 	if ( null !== $auth_error ) {
@@ -131,12 +125,8 @@ function wpcomsh_reprint_handle_request( $wp ) {
 	// now that we know this request is legit.
 	update_option( 'reprint_exporter_enabled', time() );
 
-	// -- Dispatch -------------------------------------------------------------
-	// WordPress is already loaded at this point — DB credentials,
-	// $table_prefix, and the database layer (including the SQLite db.php
-	// drop-in when present) are all available. Delegate config parsing,
-	// cursor decoding, budget creation, and endpoint dispatch to the
-	// package's HTTP server.
+	// WordPress is already loaded at this point.
+	// Let's run Reprint!
 	Site_Export_HTTP_Server::serve( array( 'default_directory' => ABSPATH ) );
 	exit;
 }
@@ -168,10 +158,7 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
  * Currently it's gated to:
  *
  * * sites where the reprint_exporter_enabled option holds a unix
- *   timestamp no more than 60 minutes old (ops flips it with
- *   `wp option update reprint_exporter_enabled $(date +%s)`; the
- *   ?reprint-api handler bumps it on every accepted request, so an
- *   idle site auto-closes the gate).
+ *   timestamp no more than 60 minutes old...
  * * ...visited by Automatticians...
  * * ...coming in through the a8c proxy
  *
