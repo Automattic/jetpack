@@ -1,0 +1,620 @@
+Bridge to upstream Gutenberg PR https://github.com/WordPress/gutenberg/pull/77226.
+Adds `wpPlugin.packageSources` to @wordpress/build for cross-directory package discovery.
+
+When the upstream PR merges and Jetpack bumps @wordpress/build,
+delete this file and remove its entry from pnpm-workspace.yaml.
+
+To regenerate after upstream changes (requires Gutenberg checkout with the feature branch):
+
+  PATCH=.pnpm-patches/@wordpress__build@0.11.0.patch
+  {
+    sed '/^diff --git/,$d' "$PATCH"
+    git -C ~/lab/gutenberg diff --full-index \
+      @wordpress/build@0.11.0..add/wp-build-sources-config -- \
+      packages/wp-build/lib/build.mjs \
+      packages/wp-build/lib/package-utils.mjs \
+      packages/wp-build/lib/wordpress-externals-plugin.mjs \
+    | sed -e 's|a/packages/wp-build/|a/|g' -e 's|b/packages/wp-build/|b/|g'
+  } > "$PATCH.new" && mv "$PATCH.new" "$PATCH"
+
+diff --git a/lib/build.mjs b/lib/build.mjs
+index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420383a0d96 100755
+--- a/lib/build.mjs
++++ b/lib/build.mjs
+@@ -4,6 +4,7 @@
+  * External dependencies
+  */
+ import { readFile, writeFile, copyFile, mkdir, unlink } from 'fs/promises';
++import { existsSync } from 'fs';
+ import path from 'path';
+ import { createHash } from 'node:crypto';
+ import { parseArgs } from 'node:util';
+@@ -90,29 +91,171 @@ const TEST_FILE_PATTERNS = [
+ ];
+ 
+ /**
+- * Get all package names from the packages directory.
++ * A discovered package in the registry.
+  *
+- * @return {string[]} Array of package names.
++ * @typedef {Object} PackageEntry
++ * @property {string}                                    dir              Absolute path to the package directory.
++ * @property {import('./package-utils.mjs').PackageJson} packageJson      Parsed package.json contents.
++ * @property {boolean}                                   [externalSource] True when the entry comes from a named
++ *                                                                        package source (e.g. `@scope/name`).
++ *                                                                        These packages preserve their own npm
++ *                                                                        identity for script-module IDs instead
++ *                                                                        of being scoped under `packageNamespace`.
+  */
+-function getAllPackages() {
+-	return glob
+-		.sync( normalizePath( path.join( PACKAGES_DIR, '*', 'package.json' ) ) )
+-		.map( ( packageJsonPath ) =>
+-			path.basename( path.dirname( packageJsonPath ) )
+-		);
+-}
+ 
+-const PACKAGES = getAllPackages();
+ const ROOT_PACKAGE_JSON = getPackageInfoFromFile(
+ 	path.join( ROOT_DIR, 'package.json' )
+ );
+ const WP_PLUGIN_CONFIG = ROOT_PACKAGE_JSON.wpPlugin || {};
++
++/**
++ * Check whether a sources entry is a npm package name rather than a
++ * relative/absolute directory path.
++ *
++ * Package names follow the npm naming rules:
++ *  - Scoped: `@scope/name`
++ *  - Bare:   `my-package` (starts with a letter or digit, no path separators)
++ *
++ * Directory paths start with `.`, `/`, or a drive letter on Windows (`C:\`).
++ *
++ * @param {string} source A single entry from `wpPlugin.packageSources`.
++ * @return {boolean} True when the entry looks like a package name.
++ */
++function isPackageName( source ) {
++	if ( source.startsWith( '@' ) ) {
++		return true;
++	}
++	// Relative or absolute paths.
++	if ( source.startsWith( '.' ) || path.isAbsolute( source ) ) {
++		return false;
++	}
++	// Bare package name (no slashes → not a path).
++	return ! source.includes( '/' );
++}
++
++/**
++ * Resolve a npm package name to its directory and parsed package.json.
++ * Uses Node's module resolution from the project root context so that
++ * workspace symlinks (pnpm, yarn, npm) are followed automatically.
++ *
++ * @param {string} npmName Full package name (e.g. `@acme/shared-ui`).
++ * @return {{ dir: string, packageJson: import('./package-utils.mjs').PackageJson }|null}
++ *   Resolved entry or null when the package is not resolvable.
++ */
++function resolveNamedSource( npmName ) {
++	// Read directly from node_modules instead of require.resolve() to
++	// avoid ERR_PACKAGE_PATH_NOT_EXPORTED when the package's `exports`
++	// field does not include `./package.json`.
++	const pkgJsonPath = path.join(
++		ROOT_DIR,
++		'node_modules',
++		npmName,
++		'package.json'
++	);
++
++	if ( ! existsSync( pkgJsonPath ) ) {
++		console.warn(
++			`⚠️  Source "${ npmName }" could not be resolved. ` +
++				'Make sure it is listed in dependencies and installed.'
++		);
++		return null;
++	}
++
++	return {
++		dir: path.dirname( pkgJsonPath ),
++		packageJson: getPackageInfoFromFile( pkgJsonPath ),
++	};
++}
++
++/**
++ * Directories to scan for packages. Always starts with `./packages/`.
++ * Additional directory-type entries from `wpPlugin.packageSources` are
++ * appended.  Package-name entries are handled separately in
++ * `getAllPackages()`.
++ *
++ * @type {string[]}
++ */
++const PACKAGE_SOURCES = WP_PLUGIN_CONFIG.packageSources || [];
++const PACKAGE_DIRS = [
++	PACKAGES_DIR,
++	...PACKAGE_SOURCES.filter( ( s ) => ! isPackageName( s ) ).map( ( s ) =>
++		path.resolve( ROOT_DIR, s )
++	),
++];
++const NAMED_SOURCES = PACKAGE_SOURCES.filter( isPackageName );
++
++/**
++ * Get all packages by scanning every directory in PACKAGE_DIRS and
++ * resolving every named source in NAMED_SOURCES.
++ *
++ * Local packages (`./packages/`) are scanned first, so they take priority.
++ * Named sources are resolved last — they preserve their npm identity
++ * (e.g. `@acme/shared-ui` stays `@acme/shared-ui` in script-module
++ * IDs instead of being rewritten to `@<packageNamespace>/shared-ui`).
++ *
++ * @return {Map<string, PackageEntry>} Map of package names to their entry data.
++ */
++function getAllPackages() {
++	const registry = new Map();
++
++	// 1. Directory-based discovery (local packages first, then source dirs).
++	for ( const dir of PACKAGE_DIRS ) {
++		const pkgJsonPaths = glob.sync(
++			normalizePath( path.join( dir, '*', 'package.json' ) )
++		);
++
++		for ( const pkgJsonPath of pkgJsonPaths ) {
++			const name = path.basename( path.dirname( pkgJsonPath ) );
++			// First match wins — local packages take priority over
++			// sources-discovered packages.
++			if ( ! registry.has( name ) ) {
++				registry.set( name, {
++					dir: path.dirname( pkgJsonPath ),
++					packageJson: getPackageInfoFromFile( pkgJsonPath ),
++				} );
++			}
++		}
++	}
++
++	// 2. Named sources — resolve via require.resolve() and preserve
++	//    the full npm name as the registry key.
++	for ( const npmName of NAMED_SOURCES ) {
++		if ( registry.has( npmName ) ) {
++			continue;
++		}
++
++		const entry = resolveNamedSource( npmName );
++		if ( entry ) {
++			if ( ! entry.packageJson.wpScriptModuleExports ) {
++				console.warn(
++					`⚠️  Source "${ npmName }" does not declare wpScriptModuleExports. ` +
++						'Imports will be bundled inline instead of externalized.'
++				);
++			}
++
++			registry.set( npmName, {
++				...entry,
++				externalSource: true,
++			} );
++		}
++	}
++
++	return registry;
++}
++
++const PACKAGES = getAllPackages();
+ const SCRIPT_GLOBAL = WP_PLUGIN_CONFIG.scriptGlobal;
+ const PACKAGE_NAMESPACE = WP_PLUGIN_CONFIG.packageNamespace;
+ const HANDLE_PREFIX = WP_PLUGIN_CONFIG.handlePrefix || PACKAGE_NAMESPACE;
+-const EXTERNAL_NAMESPACES = WP_PLUGIN_CONFIG.externalNamespaces || {};
+ const PAGES = WP_PLUGIN_CONFIG.pages || [];
+ 
++const EXTERNAL_NAMESPACES = WP_PLUGIN_CONFIG.externalNamespaces || {};
++
++// Individual packages from named sources to externalize.  Unlike
++// EXTERNAL_NAMESPACES (which externalizes an entire `@scope/*`), this
++// targets only the exact packages listed in `packageSources`.
++const EXTERNAL_PACKAGES = new Set( NAMED_SOURCES );
++
+ /**
+  * Interprets a configuration value as a boolean, where `"true"` and `"1"`
+  * are considered true while all other values are false.
+@@ -153,7 +296,8 @@ const wordpressExternalsPlugin = createWordpressExternalsPlugin(
+ 	PACKAGE_NAMESPACE,
+ 	SCRIPT_GLOBAL,
+ 	EXTERNAL_NAMESPACES,
+-	HANDLE_PREFIX
++	HANDLE_PREFIX,
++	EXTERNAL_PACKAGES
+ );
+ 
+ /**
+@@ -480,7 +624,6 @@ function resolveEntryPoint( packageDir, packageJson ) {
+  */
+ async function bundlePackage( packageName, options = {} ) {
+ 	const {
+-		sourceDir = PACKAGES_DIR,
+ 		handlePrefix = HANDLE_PREFIX,
+ 		scriptGlobal = SCRIPT_GLOBAL,
+ 		packageNamespace = PACKAGE_NAMESPACE,
+@@ -489,10 +632,10 @@ async function bundlePackage( packageName, options = {} ) {
+ 	const builtModules = [];
+ 	const builtScripts = [];
+ 	const builtStyles = [];
+-	const packageDir = path.join( sourceDir, packageName );
+-	const packageJson = getPackageInfoFromFile(
+-		path.join( sourceDir, packageName, 'package.json' )
+-	);
++	const packageEntry = PACKAGES.get( packageName );
++	const packageDir = packageEntry.dir;
++	const packageJson = packageEntry.packageJson;
++	const isExternalSource = !! packageEntry.externalSource;
+ 
+ 	const builds = [];
+ 
+@@ -653,10 +796,21 @@ async function bundlePackage( packageName, options = {} ) {
+ 				);
+ 			}
+ 
+-			const scriptModuleId =
+-				exportName === '.'
+-					? `@${ packageNamespace }/${ packageName }`
+-					: `@${ packageNamespace }/${ packageName }/${ fileName }`;
++			// External sources preserve their npm identity as the
++			// script-module ID (e.g. `@acme/shared-ui`).  Local
++			// packages are scoped under the plugin's namespace.
++			let scriptModuleId;
++			if ( isExternalSource ) {
++				scriptModuleId =
++					exportName === '.'
++						? packageName
++						: `${ packageName }/${ fileName }`;
++			} else {
++				scriptModuleId =
++					exportName === '.'
++						? `@${ packageNamespace }/${ packageName }`
++						: `@${ packageNamespace }/${ packageName }/${ fileName }`;
++			}
+ 
+ 			builtModules.push( {
+ 				id: scriptModuleId,
+@@ -862,7 +1016,7 @@ async function inferStyleDependencies( scriptDependencies, packageName ) {
+ 
+ 	const styleDeps = [];
+ 	// Get the resolve directory for context-aware package resolution
+-	const resolveDir = path.join( PACKAGES_DIR, packageName );
++	const resolveDir = PACKAGES.get( packageName ).dir;
+ 
+ 	for ( const scriptHandle of scriptDependencies ) {
+ 		// Skip non-package dependencies (like 'react', 'lodash', etc.)
+@@ -1215,34 +1369,21 @@ async function generatePagesPhp( pageData, replacements ) {
+  */
+ async function transpilePackage( packageName ) {
+ 	const startTime = Date.now();
+-	const packageDir = path.join( PACKAGES_DIR, packageName );
+-	const packageJson = getPackageInfoFromFile(
+-		path.join( PACKAGES_DIR, packageName, 'package.json' )
+-	);
+-
+-	if ( ! packageJson ) {
+-		throw new Error(
+-			`Could not find package.json for package: ${ packageName }`
+-		);
+-	}
+-
+-	const srcFiles = await glob(
+-		normalizePath(
+-			path.join( packageDir, `src/**/*.${ SOURCE_EXTENSIONS }` )
+-		),
+-		{
+-			ignore: IGNORE_PATTERNS,
+-		}
+-	);
++	const packageEntry = PACKAGES.get( packageName );
++	const packageDir = packageEntry.dir;
++	const packageJson = packageEntry.packageJson;
++
++	const srcFiles = await glob( `src/**/*.${ SOURCE_EXTENSIONS }`, {
++		cwd: packageDir,
++		ignore: IGNORE_PATTERNS,
++		absolute: true,
++	} );
+ 
+-	const assetFiles = await glob(
+-		normalizePath(
+-			path.join( packageDir, `src/**/*.${ ASSET_EXTENSIONS }` )
+-		),
+-		{
+-			ignore: IGNORE_PATTERNS,
+-		}
+-	);
++	const assetFiles = await glob( `src/**/*.${ ASSET_EXTENSIONS }`, {
++		cwd: packageDir,
++		ignore: IGNORE_PATTERNS,
++		absolute: true,
++	} );
+ 
+ 	const buildDir = path.join( packageDir, 'build' );
+ 	const buildModuleDir = path.join( packageDir, 'build-module' );
+@@ -1438,10 +1579,9 @@ async function transpilePackage( packageName ) {
+  * @return {Promise<number|null>} Build time in milliseconds, or null if no styles.
+  */
+ async function compileStyles( packageName ) {
+-	const packageDir = path.join( PACKAGES_DIR, packageName );
+-	const packageJson = getPackageInfoFromFile(
+-		path.join( PACKAGES_DIR, packageName, 'package.json' )
+-	);
++	const packageEntry = PACKAGES.get( packageName );
++	const packageDir = packageEntry.dir;
++	const packageJson = packageEntry.packageJson;
+ 
+ 	// Get SCSS entry point patterns from package.json, default to root-level only
+ 	const scssEntryPointPatterns = packageJson.wpStyleEntryPoints || [
+@@ -1549,12 +1689,15 @@ function isPackageSourceFile( filename ) {
+ 		return false;
+ 	}
+ 
+-	return PACKAGES.some( ( packageName ) => {
++	for ( const entry of PACKAGES.values() ) {
+ 		const packagePath = normalizePath(
+-			path.join( 'packages', packageName )
++			path.relative( ROOT_DIR, entry.dir )
+ 		);
+-		return relativePath.startsWith( packagePath + '/' );
+-	} );
++		if ( relativePath.startsWith( packagePath + '/' ) ) {
++			return true;
++		}
++	}
++	return false;
+ }
+ 
+ /**
+@@ -1568,9 +1711,9 @@ function getPackageName( filename ) {
+ 		path.relative( process.cwd(), filename )
+ 	);
+ 
+-	for ( const packageName of PACKAGES ) {
++	for ( const [ packageName, entry ] of PACKAGES ) {
+ 		const packagePath = normalizePath(
+-			path.join( 'packages', packageName )
++			path.relative( ROOT_DIR, entry.dir )
+ 		);
+ 		if ( relativePath.startsWith( packagePath + '/' ) ) {
+ 			return packageName;
+@@ -1733,17 +1876,14 @@ async function buildAll( baseUrlExpression ) {
+ 
+ 	const startTime = Date.now();
+ 
+-	// Build maps: short name ↔ full name ↔ package.json from package.json files
++	// Build maps: short name ↔ full name ↔ package.json from the registry
+ 	const shortToFull = new Map();
+ 	const fullToShort = new Map();
+ 	const fullToPackageJson = new Map();
+-	for ( const pkg of PACKAGES ) {
+-		const packageJson = getPackageInfoFromFile(
+-			path.join( PACKAGES_DIR, pkg, 'package.json' )
+-		);
+-		shortToFull.set( pkg, packageJson.name );
+-		fullToShort.set( packageJson.name, pkg );
+-		fullToPackageJson.set( packageJson.name, packageJson );
++	for ( const [ pkg, entry ] of PACKAGES ) {
++		shortToFull.set( pkg, entry.packageJson.name );
++		fullToShort.set( entry.packageJson.name, pkg );
++		fullToPackageJson.set( entry.packageJson.name, entry.packageJson );
+ 	}
+ 
+ 	const levels = groupByDepth( fullToPackageJson );
+@@ -1754,6 +1894,13 @@ async function buildAll( baseUrlExpression ) {
+ 		await Promise.all(
+ 			level.map( async ( fullName ) => {
+ 				const packageName = fullToShort.get( fullName );
++				const entry = PACKAGES.get( packageName );
++
++				// External sources are pre-built — only bundle, skip transpilation.
++				if ( entry.externalSource ) {
++					return;
++				}
++
+ 				const buildTime = await transpilePackage( packageName );
+ 				console.log(
+ 					`   ✔ Transpiled ${ packageName } (${ buildTime }ms)`
+@@ -1767,7 +1914,7 @@ async function buildAll( baseUrlExpression ) {
+ 	const scripts = [];
+ 	const styles = [];
+ 	await Promise.all(
+-		PACKAGES.map( async ( packageName ) => {
++		Array.from( PACKAGES.keys() ).map( async ( packageName ) => {
+ 			const startBundleTime = Date.now();
+ 			const ret = await bundlePackage( packageName );
+ 			const buildTime = Date.now() - startBundleTime;
+@@ -1900,17 +2047,14 @@ async function watchMode() {
+ 	let isRebuilding = false;
+ 	const needsRebuild = new Set();
+ 
+-	// Build maps: short name ↔ full name ↔ package.json from package.json files (once)
++	// Build maps: short name ↔ full name ↔ package.json from the registry (once)
+ 	const shortToFull = new Map();
+ 	const fullToShort = new Map();
+ 	const fullToPackageJson = new Map();
+-	for ( const pkg of PACKAGES ) {
+-		const packageJson = getPackageInfoFromFile(
+-			path.join( PACKAGES_DIR, pkg, 'package.json' )
+-		);
+-		shortToFull.set( pkg, packageJson.name );
+-		fullToShort.set( packageJson.name, pkg );
+-		fullToPackageJson.set( packageJson.name, packageJson );
++	for ( const [ pkg, entry ] of PACKAGES ) {
++		shortToFull.set( pkg, entry.packageJson.name );
++		fullToShort.set( entry.packageJson.name, pkg );
++		fullToPackageJson.set( entry.packageJson.name, entry.packageJson );
+ 	}
+ 
+ 	// Get all routes for dependency tracking
+@@ -1924,8 +2068,13 @@ async function watchMode() {
+ 	async function rebuildPackage( packageName ) {
+ 		try {
+ 			const startTime = Date.now();
++			const entry = PACKAGES.get( packageName );
++
++			// External sources are pre-built — only rebundle.
++			if ( ! entry.externalSource ) {
++				await transpilePackage( packageName );
++			}
+ 
+-			await transpilePackage( packageName );
+ 			await bundlePackage( packageName );
+ 
+ 			const buildTime = Date.now() - startTime;
+@@ -2021,8 +2170,8 @@ async function watchMode() {
+ 		await processNextRebuild();
+ 	}
+ 
+-	const watchPaths = PACKAGES.map( ( packageName ) =>
+-		path.join( PACKAGES_DIR, packageName, 'src' )
++	const watchPaths = Array.from( PACKAGES.values() ).map( ( entry ) =>
++		path.join( entry.dir, 'src' )
+ 	);
+ 
+ 	const watcher = chokidar.watch( watchPaths, {
+diff --git a/lib/package-utils.mjs b/lib/package-utils.mjs
+index 15b7dd04c5781a2f9bae022be83702a0a21ea29d..1a66afe14f6a7921fe0c87609bd1c2ca288f3551 100644
+--- a/lib/package-utils.mjs
++++ b/lib/package-utils.mjs
+@@ -84,10 +84,39 @@ export function getPackageInfo( fullPackageName, resolveDir = null ) {
+ 		return packageJsonCache.get( cacheKey );
+ 	}
+ 
+-	// Resolve from the package root context to get correct versions
+ 	const contextPath = path.join( packageRoot, 'package.json' );
+-	const require = createRequire( contextPath );
+-	const resolved = require.resolve( `${ fullPackageName }/package.json` );
++	const localRequire = createRequire( contextPath );
++
++	let resolved;
++	try {
++		// Preferred: resolve the package.json subpath directly.
++		resolved = localRequire.resolve( `${ fullPackageName }/package.json` );
++	} catch {
++		// Fallback for packages whose `exports` field does not expose
++		// `./package.json`.  Walk up the directory tree checking each
++		// `node_modules/` — mirrors Node's resolution algorithm without
++		// the exports restriction.
++		let searchDir = packageRoot;
++		const fsRoot = path.parse( searchDir ).root;
++		while ( searchDir !== fsRoot ) {
++			const directPath = path.join(
++				searchDir,
++				'node_modules',
++				fullPackageName,
++				'package.json'
++			);
++			if ( existsSync( directPath ) ) {
++				resolved = directPath;
++				break;
++			}
++			searchDir = path.dirname( searchDir );
++		}
++
++		if ( ! resolved ) {
++			return null;
++		}
++	}
++
+ 	const result = getPackageInfoFromFile( resolved );
+ 	packageJsonCache.set( cacheKey, result );
+ 
+diff --git a/lib/wordpress-externals-plugin.mjs b/lib/wordpress-externals-plugin.mjs
+index 281749e185b3ec188c4fb93920081869751aab9a..7722b565b42a2ef3cb528949383422a6044206ff 100644
+--- a/lib/wordpress-externals-plugin.mjs
++++ b/lib/wordpress-externals-plugin.mjs
+@@ -50,13 +50,15 @@ async function generateContentHash(
+  * @param {string|false} scriptGlobal       Global variable name (e.g., 'wp', 'myPlugin') or false to disable globals.
+  * @param {Object}       externalNamespaces Additional namespaces to externalize (e.g., { 'woo': { global: 'woo', handlePrefix: 'woocommerce' } }).
+  * @param {string}       handlePrefix       Handle prefix for main package (e.g., 'wp', 'mp'). Defaults to packageNamespace.
++ * @param {Set<string>}  [externalPackages] Individual package names to externalize by exact match (e.g., `@acme/shared-ui`). Used for named `packageSources` entries.
+  * @return {Function} Function that creates the esbuild plugin instance.
+  */
+ export function createWordpressExternalsPlugin(
+ 	packageNamespace,
+ 	scriptGlobal,
+ 	externalNamespaces = {},
+-	handlePrefix
++	handlePrefix,
++	externalPackages = new Set()
+ ) {
+ 	/**
+ 	 * WordPress externals plugin for esbuild.
+@@ -125,6 +127,10 @@ export function createWordpressExternalsPlugin(
+ 				const vendorExternals = {
+ 					react: { global: 'React', handle: 'react' },
+ 					'react-dom': { global: 'ReactDOM', handle: 'react-dom' },
++					'react-dom/client': {
++						global: 'ReactDOM',
++						handle: 'react-dom',
++					},
+ 					'react/jsx-runtime': {
+ 						global: 'ReactJSXRuntime',
+ 						handle: 'react-jsx-runtime',
+@@ -277,6 +283,68 @@ export function createWordpressExternalsPlugin(
+ 					);
+ 				}
+ 
++				// Handle individual package externals from packageSources.
++				// These match exact package names rather than whole scopes,
++				// avoiding over-broad externalization.
++				for ( const extPkg of externalPackages ) {
++					const escaped = extPkg.replace(
++						/[.*+?^${}()|[\]\\]/g,
++						'\\$&'
++					);
++					build.onResolve(
++						{ filter: new RegExp( `^${ escaped }(/|$)` ) },
++						/** @param {import('esbuild').OnResolveArgs} args */
++						( args ) => {
++							const subpath =
++								args.path.length > extPkg.length
++									? args.path.slice( extPkg.length + 1 )
++									: null;
++
++							const packageJson = getPackageInfo(
++								extPkg,
++								args.resolveDir
++							);
++							if ( ! packageJson ) {
++								return undefined;
++							}
++
++							const isScriptModule = isScriptModuleImport(
++								packageJson,
++								subpath
++							);
++							if ( isScriptModule ) {
++								const kind =
++									args.kind === 'dynamic-import'
++										? 'dynamic'
++										: 'static';
++								if ( kind === 'static' ) {
++									moduleDependencies.set(
++										args.path,
++										'static'
++									);
++								} else if (
++									! moduleDependencies.has( args.path )
++								) {
++									moduleDependencies.set(
++										args.path,
++										'dynamic'
++									);
++								}
++
++								return {
++									path: args.path,
++									external: true,
++									sideEffects: !! packageJson.sideEffects,
++								};
++							}
++
++							// Not a script module — let esbuild
++							// bundle it inline.
++							return undefined;
++						}
++					);
++				}
++
+ 				build.onLoad(
+ 					{ filter: /.*/, namespace: 'vendor-external' },
+ 					/** @param {import('esbuild').OnLoadArgs} args */

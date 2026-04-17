@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Patch significance.
+
+Add wpScriptModuleExports field for wp-build script module support
