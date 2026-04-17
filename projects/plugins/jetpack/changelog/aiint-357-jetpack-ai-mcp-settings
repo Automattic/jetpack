@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove erroneous Jetpack_AI_Page registration from class.jetpack-admin.php; the AI admin page is wpcom-only and is registered exclusively via jetpack-mu-wpcom.
