@@ -70,6 +70,14 @@ function wpcomsh_reprint_handle_request( $wp ) {
 		return;
 	}
 
+	// Homepage guard. WP's parse_request takes $_SERVER['REQUEST_URI'],
+	// strips the path component of home_url() (so a subdirectory install
+	// at /subdir/ behaves the same as a root install at /), normalizes
+	// the rest, and stores the result in $wp->request. An empty string
+	// therefore means "the request hit the site root", independent of
+	// host, port, or where WordPress lives. is_front_page() / is_home()
+	// would be the wrong tool here anyway — they read state from the
+	// main query, which parse_request runs before.
 	if ( '' !== $wp->request ) {
 		return;
 	}
