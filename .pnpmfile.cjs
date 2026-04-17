@@ -280,14 +280,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// Outdated dependency
-	if (
-		pkg.name === '@storybook/react-vite' &&
-		pkg.dependencies?.[ '@joshwooding/vite-plugin-react-docgen-typescript' ] === '^0.6.4'
-	) {
-		pkg.dependencies[ '@joshwooding/vite-plugin-react-docgen-typescript' ] = '^0.7.0';
-	}
-
 	// `@base-ui/react` added a peer dependency on `date-fns`, but `@wordpress/ui` doesn't satisfy it.
 	// https://github.com/WordPress/gutenberg/issues/77395
 	if (

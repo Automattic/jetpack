@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add hooks for external storage provider registration: `jetpack_external_storage_init` fires before the first storage read, and `jetpack_external_storage_provider_registered` fires after a provider is registered (invalidating cached connection status).

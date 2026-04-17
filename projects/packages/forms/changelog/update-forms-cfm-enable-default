@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Enable Central Forms Management (wp-build dashboard and synced forms) by default for all sites, including self-hosted Jetpack installations.

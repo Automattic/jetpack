@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Make the sidebar X-connection toggle date-aware and block scheduling when the target month's quota is exceeded.

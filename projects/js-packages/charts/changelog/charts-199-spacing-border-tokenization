@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: Replace hardcoded spacing and border values in module SCSS with WPDS dimension and border design tokens.

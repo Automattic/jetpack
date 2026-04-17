@@ -120,6 +120,31 @@ class Feedback {
 	}
 
 	/**
+	 * Returns the JOIN and WHERE SQL fragments for filtering feedback posts by source post ID.
+	 *
+	 * Matches feedback with the _feedback_source_post_id meta set, or falls back
+	 * to post_parent for old feedback that doesn't have the meta yet.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $source_id The source post ID to filter by.
+	 * @return array{join: string, where: string} SQL fragments.
+	 */
+	public static function get_source_filter_sql( $source_id ) {
+		global $wpdb;
+		$meta_key  = esc_sql( self::SOURCE_META_KEY );
+		$source_id = (int) $source_id;
+		return array(
+			'join'  => " LEFT JOIN {$wpdb->postmeta} AS source_meta ON ({$wpdb->posts}.ID = source_meta.post_id AND source_meta.meta_key = '{$meta_key}')",
+			'where' => $wpdb->prepare(
+				"(source_meta.meta_value = %s OR (source_meta.meta_id IS NULL AND {$wpdb->posts}.post_parent = %d))",
+				(string) $source_id,
+				$source_id
+			),
+		);
+	}
+
+	/**
 	 * Invalidates the source post IDs cache when a feedback post is deleted.
 	 *
 	 * @param int      $post_id The deleted post ID.

@@ -1346,17 +1346,11 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	}
 
 	/**
-	 * Test that the source filter adds the correct SQL JOIN and WHERE clauses.
+	 * Test that the shared Feedback::get_source_filter_sql helper returns
+	 * the correct SQL JOIN and WHERE fragments.
 	 */
-	public function test_source_filter_modifies_query() {
-		$endpoint = new Contact_Form_Endpoint( 'feedback' );
-
-		// Use reflection to call private get_source_filter_sql method.
-		$method = new \ReflectionMethod( $endpoint, 'get_source_filter_sql' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-		$sql = $method->invoke( $endpoint, 42 );
+	public function test_source_filter_sql_helper_returns_expected_fragments() {
+		$sql = Feedback::get_source_filter_sql( 42 );
 
 		$this->assertArrayHasKey( 'join', $sql );
 		$this->assertArrayHasKey( 'where', $sql );
