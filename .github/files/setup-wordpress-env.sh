@@ -149,7 +149,7 @@ for PLUGIN in projects/plugins/*/composer.json; do
 done
 
 for i in "${!PIDS[@]}"; do
-	wait "${PIDS[$i]}" || EXIT=1
+	wait -f "${PIDS[$i]}" || EXIT=1
 	cat "${TMPFILES[$i]}"
 	rm "${TMPFILES[$i]}"
 done
