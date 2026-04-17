@@ -90,50 +90,10 @@ function wpcomsh_reprint_handle_request() {
 		exit;
 	}
 
-	// -- Load exporter runtime ------------------------------------------------
-	// Looks for the reprint-exporter's export.php in wpcomsh's own vendor
-	// directory (the normal Composer layout), falling back to the
-	// wpcomsh-dev SFTP overlay when the production build doesn't include
-	// the package yet.
-	$wpcomsh_root       = dirname( __DIR__ );
-	$runtime_candidates = array(
-		array(
-			'autoload' => $wpcomsh_root . '/vendor/autoload.php',
-			'export'   => $wpcomsh_root . '/vendor/wp-php-toolkit/reprint-exporter/src/export.php',
-		),
-	);
-
-	// Staging / development fallback. wpcomsh is deployed to Atomic sites
-	// by WP Cloud infrastructure, so the vendor directory above may not
-	// contain the reprint-exporter package until a release ships it.
-	// During development a developer can SFTP a full wpcomsh build
-	// (with vendor/) into wp-content/mu-plugins/wpcomsh-dev/ and the
-	// exporter will load from there instead.
-	if ( defined( 'WPMU_PLUGIN_DIR' ) ) {
-		$dev_root             = WPMU_PLUGIN_DIR . '/wpcomsh-dev';
-		$runtime_candidates[] = array(
-			'autoload' => $dev_root . '/vendor/autoload.php',
-			'export'   => $dev_root . '/vendor/wp-php-toolkit/reprint-exporter/src/export.php',
-		);
-	}
-
-	$runtime_found = false;
-	foreach ( $runtime_candidates as $candidate ) {
-		if ( file_exists( $candidate['autoload'] ) && file_exists( $candidate['export'] ) ) {
-			require_once $candidate['autoload'];
-			$runtime_found = true;
-			break;
-		}
-	}
-
-	if ( ! $runtime_found ) {
-		_reprint_exporter_error(
-			500,
-			'Reprint Exporter runtime is incomplete. The wp-php-toolkit/reprint-exporter package may not be installed.'
-		);
-	}
-
 	// -- Authenticate via HMAC ------------------------------------------------
+	// Site_Export_* classes come from the wp-php-toolkit/reprint-exporter
+	// Composer package and are registered in the Jetpack autoloader's
+	// classmap, which wpcomsh.php bootstraps before any hooks fire.
 	$secret = get_option( 'reprint_exporter_secret', '' );
 	if ( ! is_string( $secret ) || '' === $secret ) {
 		_reprint_exporter_error( 503, 'Export not configured. Please rotate the shared secret via POST /wpcomsh/v1/reprint/rotate-export-secret.' );
