@@ -51,7 +51,8 @@ export COMPOSER_MIRROR_PATH_REPOS=true
 
 BASE="$(pwd)"
 PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
-_install_plugin() {
+
+function _install_plugin {
 	DIR="${1%/composer.json}"
 	NAME="$(basename "$DIR")"
 
