@@ -353,55 +353,134 @@ Fork `alleyinteractive/es-wp-query` into `projects/packages/search/src/wp-query-
 
 ### Phase 5 — Developer Platform
 
-**Goal**: Make Jetpack Search a platform that other plugins and teams can build on top of with minimal friction.
+**Goal**: Let site owners (and plugins) extend search with custom post meta fields, and provide a stable platform for other plugins and teams to build on.
 
-#### Indexing Registration API
+#### Why a Registration API Can't Work
 
-Currently, adding a new postmeta key or taxonomy to the search index requires a PR to `packages/sync/src/modules/class-search.php`. The static allowlists `$postmeta_to_sync` and `$taxonomies_to_sync` control both what gets synced and what `is_indexable()` returns.
+WPCOM's indexer maintains its own independent allowlist of what gets indexed into Elasticsearch. Adding a field to the sync whitelist on the plugin side makes it available in WPCOM's replicastore, but it will not appear in the search index unless WPCOM's indexer also includes it — and site owners cannot deploy to the WPCOM codebase. A dynamic registration API (`jetpack_search_register_postmeta()`) therefore cannot work for site owners or third-party plugins.
 
-**Escape hatches (available now)**: `jetpack-search-meta0` through `jetpack-search-meta9` and `jetpack-search-tag0` through `jetpack-search-tag9` are reserved generic slots plugins can map custom fields into without a core PR.
+#### Generic Slot System (already deployed on both sides)
 
-**New registration API**:
+`jetpack-search-meta0` through `jetpack-search-meta9` are reserved generic postmeta keys that are already in the Jetpack sync allowlist *and* already indexed by the WPCOM search indexer. No coordination is needed to use them.
+
+The ES index maps these via dynamic templates that create typed subfields from whatever PHP type is synced:
+
+| PHP type synced | ES subfield | Used for |
+|---|---|---|
+| string | `meta.<key>.value` (text) + `.value.raw` (keyword) | full-text search, exact match |
+| integer | `meta.<key>.long` | numeric range, sort |
+| float | `meta.<key>.float` | price, decimal range |
+| boolean | `meta.<key>.boolean` | on/off flags |
+| date string | `meta.<key>.date` | date range filters |
+
+The plugin only needs to write the correctly-typed PHP value to the slot; the indexer creates the right subfield automatically.
+
+There are also `jetpack-search-tag0` through `jetpack-search-tag9` generic *taxonomy* slots (see Taxonomy Mapping below).
+
+#### Custom Field Mapping
+
+Site owners configure which of their custom postmeta fields should be mirrored into which generic slot. The plugin maintains that mirror automatically at write time.
+
+**Option**: `jetpack_search_field_mapping` (site option; does not need to be synced to WPCOM since it is only used locally):
+
+```json
+{
+  "meta": {
+    "0": { "source": "my_custom_color", "type": "text" },
+    "3": { "source": "sale_price",      "type": "float" }
+  }
+}
+```
+
+`type` controls which ES subfield `filterConfigs` will use (text → `meta.jetpack-search-meta0.value.raw`, float → `meta.jetpack-search-meta3.float`, etc.).
+
+**`Field_Mapping` class** (`src/class-field-mapping.php`):
+
+Registers hooks and provides the query-time lookup:
 
 ```php
-// Plugin registers a custom field for indexing
-jetpack_search_register_postmeta( 'my_plugin_color', array(
-    'type'    => 'text',  // or 'long', 'double', 'boolean'
-    'index'   => array(),
-) );
+// Write-time mirroring: when a mapped source field changes, update the slot.
+// The slot is a real wp_postmeta row — existing Jetpack sync picks it up via
+// its normal updated_post_meta hook. No sync module changes are needed.
+add_action( 'updated_post_meta', array( $this, 'mirror_postmeta_change' ), 10, 4 );
+add_action( 'added_post_meta',   array( $this, 'mirror_postmeta_change' ), 10, 4 );
+add_action( 'deleted_post_meta', array( $this, 'mirror_postmeta_delete' ), 10, 4 );
 
-jetpack_search_register_taxonomy( 'my_plugin_collection' );
+// Returns the full ES field path for a source field, or null if not mapped.
+// e.g. 'my_custom_color' (type=text) → 'meta.jetpack-search-meta0.value.raw'
+//      'sale_price'       (type=float) → 'meta.jetpack-search-meta3.float'
+public function get_es_field( string $source_key ): ?string { ... }
 ```
 
-`jetpack_search_register_postmeta()` hooks into both `jetpack_sync_post_meta_whitelist` (so the field is synced) and dynamically extends `is_indexable()` (so the WPCOM indexer includes it). A re-index is required for existing posts to appear — the registration API emits an admin notice warning and links to the re-index process.
+**Code-based registration** (for plugins shipping predefined mappings):
 
-#### Block Scaffolding
-
-A `@wordpress/create-block` template (`create-jetpack-search-block`) scaffolds a new filter block or result block:
-
-```bash
-pnpm create @wordpress/block --template @automattic/jetpack-search-block
+```php
+// In plugin bootstrap — same effect as a DB entry, but not user-editable.
+// Shown read-only in the settings UI: "Registered by plugin."
+add_action( 'jetpack_search_register_field_mappings', function( $mapping ) {
+    $mapping->register( 'my_plugin_color', 'meta', 0, 'text' );
+    $mapping->register( 'vendor_id',       'meta', 1, 'long' );
+} );
 ```
 
-Generated files:
-- `block.json` with `viewScriptModule` and `supports.interactivity: true`
-- `render.php` that calls `wp_interactivity_state()` and reads aggregations
-- `view.js` that imports the `jetpack-search` store and registers `wp-interactive` directives
-- Registration call to `jetpack_search_register_postmeta()` or `jetpack_search_register_taxonomy()`
-- Basic Jest test
-- `CHANGELOG.md` entry placeholder
+Code-registered slots cannot be overridden by the DB mapping. The action fires before DB mappings are applied, and any slot claimed by code is shown as unavailable in the settings UI.
+
+**Bulk sync after any mapping change**:
+
+When the mapping is saved (or a mapping is removed), a WP-Cron event iterates all posts in batches of 100, writes the source field's current value to the mapped slot (or deletes the slot value on unmap), and records progress in a transient. Jetpack incremental sync picks up every `update_post_meta` call naturally.
+
+```php
+// Scheduled via wp_schedule_single_event() after mapping save.
+public function bulk_sync_mapped_fields(): void {
+    $mapping = $this->get_merged_mapping(); // code-registered + DB entries
+    $offset  = 0;
+    do {
+        $posts = get_posts( [ 'numberposts' => 100, 'offset' => $offset, 'post_status' => 'any' ] );
+        foreach ( $posts as $post ) {
+            foreach ( $mapping['meta'] as $slot_num => $entry ) {
+                $value = get_post_meta( $post->ID, $entry['source'], true );
+                if ( $value !== '' ) {
+                    update_post_meta( $post->ID, "jetpack-search-meta{$slot_num}", $value );
+                } else {
+                    delete_post_meta( $post->ID, "jetpack-search-meta{$slot_num}" );
+                }
+            }
+        }
+        set_transient( 'jetpack_search_field_sync_progress', $offset, HOUR_IN_SECONDS );
+        $offset += 100;
+    } while ( count( $posts ) === 100 );
+    delete_transient( 'jetpack_search_field_sync_progress' );
+}
+```
+
+**REST API** (additions to `src/class-rest-controller.php`):
+
+- `GET  /jetpack/v4/search/field-mapping` — returns merged mapping (code + DB) and slot availability
+- `PUT  /jetpack/v4/search/field-mapping` — validates, saves DB mapping, schedules bulk sync
+- `GET  /jetpack/v4/search/field-mapping/sync-status` — polls bulk sync progress from transient
+
+**Settings dashboard** (new "Custom Fields" panel):
+
+Lists the 10 meta slots. For each slot: current source field name and type (if mapped, shown read-only if code-registered), or empty inputs to configure one. A "Save & Sync" button saves the mapping and schedules the bulk sync. A status indicator polls `/sync-status` and shows a completion notice. A warning note explains that removing a mapping also clears the slot from all posts and triggers a full re-sync.
+
+**filter-checkbox block integration**:
+
+PHP `render.php` calls `Field_Mapping::get_es_field($attributes['sourceField'])` at render time to produce the correct typed ES field path in `filterConfigs`. If the source field has no mapping configured, the block renders an editor notice linking to the settings page.
+
+#### Taxonomy Slot Mapping (Phase 6)
+
+`jetpack-search-tag0` through `jetpack-search-tag9` are registered WordPress *taxonomies*, not postmeta. Mirroring them requires `wp_set_object_terms()` on every post save, clearing old term assignments when the mapping changes. The same UI and bulk-sync pattern applies but the implementation is distinct enough to defer to Phase 6.
 
 #### AGENTS.md
 
 `src/search-blocks/AGENTS.md` documents the full developer workflow for AI coding assistants:
 
-- How to add a filter-checkbox variation (new `block.json` variation entry, PHP `filterConfigs` field mapping, optional new ES field registration)
+- How to add a filter-checkbox variation (new `block.json` variation entry, PHP `filterConfigs` field mapping using `Field_Mapping::get_es_field()`)
 - How to add a result renderer (slot/fill pattern)
 - How the `jetpack-search` store works (state shape, all actions)
-- The two-step indexing process: register for sync + register for indexing
-- The re-index requirement when adding new fields
+- The generic slot system: `jetpack-search-meta0` through `meta9` are the only extension points; new named fields cannot be added without a WPCOM PR
+- The write-time mirroring pattern and when to use code-based vs. DB-based mapping registration
 - How to run local tests (Docker + Jurassic Ninja)
-- Link to the block scaffolding tool
 
 #### Store Extensibility
 
