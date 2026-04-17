@@ -4,14 +4,15 @@
  *
  * Exposes export endpoints at ?reprint-api.
  *
- * Two-tier gate, both tied to the reprint_exporter_enabled site option
- * (unix timestamp, fresh within 60 minutes; ?reprint-api bumps it on
- * every accepted request):
+ * Gating:
  *
- * * rotate-secret REST route needs only the fresh option; auth is the
- *   public API + is_super_admin().
- * * ?reprint-api export additionally requires a proxied Automattician,
- *   so the streaming endpoint stays internal-only until Studio ships.
+ * * rotate-secret REST route is always registered; auth is the public
+ *   API + is_super_admin().
+ * * ?reprint-api export requires the reprint_exporter_enabled site
+ *   option to be a unix timestamp within the last 60 minutes AND the
+ *   request to be a proxied Automattician. Each accepted request bumps
+ *   the timestamp; the streaming endpoint stays internal-only until
+ *   Studio ships.
  *
  * Data flow has two phases that use different auth and network paths:
  *
@@ -137,17 +138,11 @@ function wpcomsh_reprint_handle_request( $wp ) {
 add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 
 /**
- * Registers the reprint REST route when the activation option is fresh.
- *
- * The proxied-Automattician check doesn't apply here — public-api-proxied
- * requests don't carry A8C_PROXIED_REQUEST, and gating on it would lock
- * Studio out. Auth on the route is the public API + is_super_admin().
+ * Registers the reprint REST route. Always on — the route is meant to be
+ * callable through the public API, so local gating would just lock
+ * Studio out. Auth is the public API + is_super_admin().
  */
 function wpcomsh_reprint_rest_init() {
-	if ( ! _reprint_exporter_is_currently_activated() ) {
-		return;
-	}
-
 	require_once __DIR__ . '/class-reprint-exporter-rest-controller.php';
 	( new Reprint_Exporter_Rest_Controller() )->register_routes();
 }
@@ -157,7 +152,7 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 
 /**
  * True when reprint_exporter_enabled holds a unix timestamp within the
- * last 60 minutes. Gate for the rotate-secret REST route.
+ * last 60 minutes.
  *
  * @return bool
  */
