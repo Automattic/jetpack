@@ -162,48 +162,13 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$this->assertSame( 403, $response->get_status() );
 	}
 
-	/**
-	 * Test that the rotate-secret endpoint works for super admins.
-	 */
-	public function test_rotate_secret_works_for_super_admin() {
-		$this->set_available( true );
-
-		$server = $this->fresh_rest_server();
-
-		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
-		$this->force_super_admin();
-
-		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
-		$response = $server->dispatch( $request );
-
-		$this->assertSame( 200, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertArrayHasKey( 'secret', $data );
-		$this->assertSame( 64, strlen( $data['secret'] ), 'Secret should be 64 hex characters' );
-	}
-
-	/**
-	 * Test that rotating the secret stores it in the site option.
-	 */
-	public function test_rotate_secret_stores_in_option() {
-		$this->set_available( true );
-
-		$server = $this->fresh_rest_server();
-
-		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
-		$this->force_super_admin();
-
-		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
-		$response = $server->dispatch( $request );
-		$data     = $response->get_data();
-
-		$this->assertArrayHasKey( 'secret', $data );
-		$stored = get_option( 'reprint_exporter_secret' );
-		$this->assertSame( $data['secret'], $stored );
-	}
+	// The success path for the rotate-secret endpoint is covered by the
+	// direct controller tests (test_permission_callback_allows_super_admin,
+	// test_rotate_secret_callback_generates_valid_secret,
+	// test_rotate_secret_callback_persists_secret). A full REST dispatch
+	// test isn't added here because the WP Cloud test environment injects
+	// a rest_authentication_errors filter that rejects non-proxied
+	// requests with a 403, which can't be bypassed from test setUp.
 
 	// -- HMAC verification tests (Site_Export_HMAC_Server) --------------------
 
