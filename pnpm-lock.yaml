@@ -181,8 +181,8 @@ importers:
         specifier: 18.3.28
         version: 18.3.28
       '@types/wordpress__block-editor':
-        specifier: 15.0.5
-        version: 15.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.0.6
+        version: 15.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.43.0
         version: 7.43.0
@@ -5275,8 +5275,8 @@ importers:
         specifier: 18.3.28
         version: 18.3.28
       '@types/wordpress__block-editor':
-        specifier: 15.0.5
-        version: 15.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.0.6
+        version: 15.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -9801,11 +9801,8 @@ packages:
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
-  '@types/wordpress__block-editor@15.0.5':
-    resolution: {integrity: sha512-nQNBDiVISlJWelHG+V7ikSaDFHWeKx60IyCQIG2qiePaeqjHuOaWWVJl0H1QWyOMUnmDuro2Y+GNsaNvjufuXA==}
-
-  '@types/wordpress__blocks@15.10.2':
-    resolution: {integrity: sha512-d8+XJZ/QszWyCp7k9lbqDoJePl7/SLUueMxzAA9J2buRsvd4KXK5C5Y8BAU8WuLMG2Av1dRhTvr+izfLA9jynA==}
+  '@types/wordpress__block-editor@15.0.6':
+    resolution: {integrity: sha512-XDc596rkiNLOg0SZRONHojDRd7oE/+96nCBTQq51fJpAfgtHCPXQUs5hYJNaImxqWeuNrqYGpBgU5fFS7ZqRHw==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -22438,29 +22435,16 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
-  '@types/wordpress__block-editor@15.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@types/wordpress__block-editor@15.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@types/react': 18.3.28
-      '@types/wordpress__blocks': 15.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/blocks': 15.16.0(react@18.3.1)
       '@wordpress/components': 32.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.43.0(react@18.3.1)
       '@wordpress/element': 6.43.0
       '@wordpress/global-styles-engine': 1.10.0(react@18.3.1)
       '@wordpress/keycodes': 4.43.0
       react-autosize-textarea: 7.1.0(patch_hash=5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - react
-      - react-dom
-      - supports-color
-
-  '@types/wordpress__blocks@15.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@types/react': 18.3.28
-      '@wordpress/components': 32.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data': 10.43.0(react@18.3.1)
-      '@wordpress/element': 6.43.0
-      '@wordpress/shortcode': 4.43.0
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - react
