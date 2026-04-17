@@ -102,14 +102,21 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 					key={ gravatarEmail }
 				/>
 				<VStack spacing="0" className="jp-forms__inbox-response-meta-from">
-					<Text
-						className="jp-forms__inbox-response-meta-from-name"
-						lineHeight="20px"
-						size="15px"
-						weight="600"
-					>
-						{ displayName }
-					</Text>
+					<HStack alignment="center" justify="start" spacing="2">
+						<Text
+							className="jp-forms__inbox-response-meta-from-name"
+							lineHeight="20px"
+							size="15px"
+							weight="600"
+						>
+							{ displayName }
+						</Text>
+						{ response.is_test && (
+							<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
+								{ __( 'Test', 'jetpack-forms' ) }
+							</Badge>
+						) }
+					</HStack>
 					{ response.author_email && displayName !== response.author_email && (
 						<HStack
 							alignment="center"
@@ -131,13 +138,6 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 						</HStack>
 					) }
 				</VStack>
-				{ response.is_test && (
-					<span style={ { marginLeft: 'auto', alignSelf: 'center' } }>
-						<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
-							{ __( 'Test', 'jetpack-forms' ) }
-						</Badge>
-					</span>
-				) }
 			</HStack>
 			<table className="jp-forms__inbox-response-meta-table">
 				<tbody>

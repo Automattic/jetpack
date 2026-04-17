@@ -441,9 +441,16 @@ function StageInner() {
 							/>
 							{ styleUnreadValue(
 								<Stack direction="column" gap="2xs">
-									<Text ellipsizeMode="tail" limit={ 50 } truncate>
-										{ displayName }
-									</Text>
+									<Stack direction="row" align="center" gap="xs">
+										<Text ellipsizeMode="tail" limit={ 50 } truncate>
+											{ displayName }
+										</Text>
+										{ item.is_test && (
+											<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
+												{ __( 'Test', 'jetpack-forms' ) }
+											</Badge>
+										) }
+									</Stack>
 									{ showEmail && (
 										<Text variant="muted" size={ 12 } ellipsizeMode="tail" limit={ 50 } truncate>
 											{ item.author_email }
@@ -451,13 +458,6 @@ function StageInner() {
 									) }
 								</Stack>,
 								item.is_unread
-							) }
-							{ item.is_test && (
-								<span style={ { marginLeft: 'auto' } }>
-									<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
-										{ __( 'Test', 'jetpack-forms' ) }
-									</Badge>
-								</span>
 							) }
 						</Stack>
 					);
