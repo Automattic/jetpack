@@ -1,6 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { acceptBlockSuggestion } from '../lib/dom';
+import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
 
@@ -54,6 +55,7 @@ export default function BlockSuggestionActions( { blockName } ) {
 	}, [ suggestion, blockLoading ] );
 
 	const handleAccept = useCallback( () => {
+		recordGuidelinesEvent( 'accept', { type: 'block', slug: blockName } );
 		acceptBlockSuggestion( blockName, suggestion, clearSuggestion );
 	}, [ blockName, suggestion, clearSuggestion ] );
 
