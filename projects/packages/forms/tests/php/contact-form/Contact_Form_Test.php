@@ -2714,7 +2714,10 @@ class Contact_Form_Test extends BaseTestCase {
 		// preview context in the serialized source.
 		$reflection   = new \ReflectionClass( Form_Preview::class );
 		$preview_flag = $reflection->getProperty( 'is_preview_mode' );
-		$preview_flag->setAccessible( true );
+		// PHP 8.1+ makes this a no-op and 8.5+ emits a deprecation notice.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$preview_flag->setAccessible( true );
+		}
 		$previous_value = $preview_flag->getValue();
 		$preview_flag->setValue( null, true );
 
