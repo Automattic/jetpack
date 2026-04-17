@@ -3,6 +3,7 @@ import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-c
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Button as UiButton } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import styles from './styles.module.scss';
 
@@ -36,9 +37,9 @@ const Header = () => {
 					<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-publicize-pkg' ) }</H3>
 					<div className={ styles.actions }>
 						{ isModuleEnabled && ! hasConnections && (
-							<Button onClick={ openConnectionsModal }>
+							<UiButton onClick={ openConnectionsModal }>
 								{ __( 'Connect accounts', 'jetpack-publicize-pkg' ) }
-							</Button>
+							</UiButton>
 						) }
 						<Button
 							href={ getAdminUrl( 'post-new.php' ) }
