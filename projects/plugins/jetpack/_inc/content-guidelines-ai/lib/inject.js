@@ -253,10 +253,19 @@ function runAll() {
 
 /**
  * Start observing DOM and inject all components.
- * The observer never disconnects because Gutenberg's Navigator can
- * remove and re-add the main screen (e.g. revision history navigation).
- * Callbacks are debounced via requestAnimationFrame to avoid running
- * on every individual DOM mutation.
+ *
+ * We observe document.body (not a narrower container) for two reasons:
+ * 1. WordPress Modal portals render directly on document.body — the block
+ *    guideline modal lives outside any Gutenberg container, so a narrower
+ *    root would miss it appearing.
+ * 2. Gutenberg's Navigator can remove and re-add the main screen DOM
+ *    (e.g. revision history navigation), so we can't rely on a specific
+ *    container staying connected.
+ *
+ * The observer never disconnects for the same reasons. Callbacks are
+ * debounced via requestAnimationFrame so runAll() fires at most once
+ * per frame, and each inject() call is a no-op when its container is
+ * still connected.
  */
 export function startInjection() {
 	runAll();
