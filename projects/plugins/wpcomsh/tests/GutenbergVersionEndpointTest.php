@@ -36,23 +36,23 @@ class GutenbergVersionEndpointTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the permission callback denies access when the sticker is not applied.
+	 * Tests that the permission callback denies access when the option is not set.
 	 */
-	public function test_permission_denied_without_sticker() {
-		Atomic_Persistent_Data::delete( 'site_sticker_gutenberg-version-endpoint' );
+	public function test_permission_denied_without_option() {
+		delete_option( 'wpcomsh_expose_gutenberg_version' );
 
 		$this->assertFalse( wpcomsh_rest_api_gutenberg_version_permission() );
 	}
 
 	/**
-	 * Tests that the permission callback grants access when the sticker is applied.
+	 * Tests that the permission callback grants access when the option is enabled.
 	 */
-	public function test_permission_granted_with_sticker() {
-		Atomic_Persistent_Data::set( 'site_sticker_gutenberg-version-endpoint', true );
+	public function test_permission_granted_with_option() {
+		update_option( 'wpcomsh_expose_gutenberg_version', 1 );
 
 		$this->assertTrue( wpcomsh_rest_api_gutenberg_version_permission() );
 
 		// Cleanup.
-		Atomic_Persistent_Data::delete( 'site_sticker_gutenberg-version-endpoint' );
+		delete_option( 'wpcomsh_expose_gutenberg_version' );
 	}
 }

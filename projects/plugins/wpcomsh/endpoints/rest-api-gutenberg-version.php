@@ -26,12 +26,12 @@ function wpcomsh_rest_api_gutenberg_version() {
 }
 
 /**
- * Permission callback: only allow sites carrying the `gutenberg-version-endpoint` sticker.
+ * Permission callback: only allow sites where the `wpcomsh_expose_gutenberg_version` option is enabled.
  *
  * @return bool
  */
 function wpcomsh_rest_api_gutenberg_version_permission() {
-	return wpcomsh_is_site_sticker_active( 'gutenberg-version-endpoint' );
+	return (bool) get_option( 'wpcomsh_expose_gutenberg_version', false );
 }
 
 /**

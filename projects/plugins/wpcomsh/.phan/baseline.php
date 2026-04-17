@@ -44,7 +44,6 @@ return [
         'tests/ActivityPubTest.php' => ['PhanUndeclaredClassMethod'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
-        'tests/GutenbergVersionEndpointTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
         'tests/feature-manager/FeatureHookTest.php' => ['PhanUndeclaredStaticMethod'],
