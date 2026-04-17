@@ -59,7 +59,7 @@ function wpcomsh_reprint_handle_request() {
 		return;
 	}
 
-	if ( ! _reprint_exporter_is_available() ) {
+	if ( ! _should_expose_reprint_exporter_on_this_site() ) {
 		return;
 	}
 
@@ -129,7 +129,7 @@ add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
  * the route in the REST index.
  */
 function wpcomsh_reprint_rest_init() {
-	if ( ! _reprint_exporter_is_available() ) {
+	if ( ! _should_expose_reprint_exporter_on_this_site() ) {
 		return;
 	}
 
@@ -151,7 +151,7 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
  *
  * @return bool
  */
-function _reprint_exporter_is_available(): bool {
+function _should_expose_reprint_exporter_on_this_site(): bool {
 	$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 		? (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
 		: ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );

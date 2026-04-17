@@ -3,7 +3,7 @@
  * REST controller for the reprint exporter secret-rotation endpoint.
  *
  * Exposes POST /wpcomsh/v1/reprint/rotate-export-secret. Registration is
- * gated on _reprint_exporter_is_available() by the caller — this class
+ * gated on _should_expose_reprint_exporter_on_this_site() by the caller — this class
  * only defines the route itself and the permission/response callbacks.
  *
  * @package wpcomsh
