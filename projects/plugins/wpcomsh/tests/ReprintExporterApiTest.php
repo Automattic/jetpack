@@ -81,7 +81,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the request handler exits early when both query params are absent.
 	 */
 	public function test_handle_request_returns_early_without_query_param() {
-		unset( $_GET['reprint-api'], $_GET['site-export-api'] );
+		unset( $_GET['reprint-api'] );
 		wpcomsh_reprint_handle_request();
 
 		$this->assertFalse( get_option( REPRINT_EXPORTER_SECRET_OPTION, false ) );
@@ -99,23 +99,6 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$this->assertFalse( get_option( REPRINT_EXPORTER_SECRET_OPTION, false ) );
 
 		unset( $_GET['reprint-api'] );
-	}
-
-	/**
-	 * Test that the legacy ?site-export-api query parameter is still accepted.
-	 */
-	public function test_handle_request_accepts_legacy_query_param() {
-		$_GET['site-export-api'] = '1';
-		$this->set_available( false );
-
-		// Gate is closed, so the handler must bail silently. The point of this
-		// test is that it reaches the gate branch rather than the earlier
-		// "no query param" branch — i.e. the legacy name is honored.
-		wpcomsh_reprint_handle_request();
-
-		$this->assertFalse( get_option( REPRINT_EXPORTER_SECRET_OPTION, false ) );
-
-		unset( $_GET['site-export-api'] );
 	}
 
 	/**

@@ -3,8 +3,7 @@
  * Reprint Exporter API — wpcomsh integration for the reprint-exporter package.
  *
  * Exposes export endpoints at ?reprint-api for Automatticians proxying
- * in through the a8c proxy. The legacy ?site-export-api query parameter
- * is still accepted for backward compatibility with existing clients.
+ * in through the a8c proxy.
  *
  * The entire feature is currently gated behind a proxied-Automattician
  * check so it cannot be reached by customers while the end-to-end Studio
@@ -71,14 +70,11 @@ if ( ! defined( 'REPRINT_EXPORTER_TIMESTAMP_TOLERANCE' ) ) {
  * the caller is not a proxied Automattician, the function returns
  * immediately and normal WordPress execution continues.
  *
- * Accepts both ?reprint-api (canonical) and ?site-export-api (legacy)
- * so existing clients keep working while new ones migrate.
- *
  * @codeCoverageIgnore — calls exit().
  */
 function wpcomsh_reprint_handle_request() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ! isset( $_GET['reprint-api'] ) && ! isset( $_GET['site-export-api'] ) ) {
+	if ( ! isset( $_GET['reprint-api'] ) ) {
 		return;
 	}
 
