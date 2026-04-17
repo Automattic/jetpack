@@ -1,6 +1,6 @@
 <?php
 /**
- * WordPress.com connector card for the WP core Connectors screen.
+ * Jetpack connector card for the WP core Connectors screen.
  *
  * Registers a connector in the WP 7.0+ Connectors registry and enqueues
  * a script module that provides a custom render function with connection
@@ -15,11 +15,11 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * WordPress.com connector card handler.
+ * Jetpack connector card handler.
  *
  * @since 8.2.0
  */
-class Wpcom_Connector {
+class Jetpack_Connector {
 
 	/**
 	 * Whether the connector has been initialized.
@@ -64,7 +64,7 @@ class Wpcom_Connector {
 	}
 
 	/**
-	 * Register WordPress.com as a connector in the WP core Connectors screen.
+	 * Register Jetpack as a connector in the WP core Connectors screen.
 	 *
 	 * The wp_connectors_init action is available in WordPress 7.0+.
 	 * On older versions this action never fires, so the hook is safely a no-op.
@@ -78,10 +78,10 @@ class Wpcom_Connector {
 		$registry->register( // @phan-suppress-current-line PhanUndeclaredClassMethod -- WP 7.0+ class.
 			'wordpress_com',
 			array(
-				'name'           => 'WordPress.com',
-				'description'    => __( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' ),
+				'name'           => 'Jetpack Connection',
+				'description'    => __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' ),
 				'type'           => 'cloud_service',
-				'logo_url'       => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
+				'logo_url'       => plugins_url( 'images/jetpack-connect.svg', __FILE__ ),
 				'authentication' => array(
 					'method' => 'none',
 				),
@@ -107,7 +107,7 @@ class Wpcom_Connector {
 
 		$css_path = __DIR__ . '/css/connectors-card.css';
 		wp_enqueue_style(
-			'wpcom-connector-card',
+			'jetpack-connector-card',
 			plugins_url( 'css/connectors-card.css', __FILE__ ),
 			array(),
 			(string) @filemtime( $css_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
@@ -149,9 +149,9 @@ class Wpcom_Connector {
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
-		$data['connectorName']        = 'WordPress.com';
+		$data['connectorName']        = 'Jetpack Connect';
 		$data['connectorDescription'] = __( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' );
-		$data['connectorLogoUrl']     = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
+		$data['connectorLogoUrl']     = plugins_url( 'images/jetpack-connect.svg', __FILE__ );
 
 		if ( $is_registered ) {
 			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
@@ -346,7 +346,7 @@ class Wpcom_Connector {
 			$user_id = get_current_user_id();
 			if ( $user_id ) {
 				set_transient(
-					'wpcom_connector_auth_error_' . $user_id,
+					'jetpack_connector_auth_error_' . $user_id,
 					$error->get_error_message(),
 					60
 				);
@@ -365,7 +365,7 @@ class Wpcom_Connector {
 			return false;
 		}
 
-		$key   = 'wpcom_connector_auth_error_' . $user_id;
+		$key   = 'jetpack_connector_auth_error_' . $user_id;
 		$error = get_transient( $key );
 		if ( false !== $error ) {
 			delete_transient( $key );
