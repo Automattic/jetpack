@@ -142,18 +142,12 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 
 /**
  * Whether the reprint exporter endpoints are exposed on this site.
- *
- * BOTH of the following must be true:
- *
- * - The reprint_exporter_enabled site option is set to a truthy value.
- *   This is the ops-controlled switch for turning the feature on for a
- *   site — flipped via wp-cli (`wp option update reprint_exporter_enabled 1`).
- *   No admin UI exposes it, so customers never see it by default.
- *
- * - The current request is from an Automattician coming in through the
- *   a8c proxy. While the Studio flow is still being built we also want
- *   a runtime guarantee that only internal traffic reaches the feature,
- *   even on sites where ops has already flipped the option on.
+ * 
+ * Currently it's gated to:
+ * 
+ * * sites with the reprint_exporter_enabled option set to a truthy value...
+ * * ...visited by Automatticians...
+ * * ...coming in through the a8c proxy
  *
  * @return bool
  */
