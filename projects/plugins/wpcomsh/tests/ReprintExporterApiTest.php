@@ -19,9 +19,9 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_option( 'reprint_exporter_secret' );
+		delete_option( 'reprint_exporter_enabled' );
 
-		// Drop any gate/capability override filters set by a test.
-		remove_all_filters( 'wpcomsh_reprint_exporter_available' );
+		// Drop the per-test user_has_cap filter used by force_super_admin().
 		remove_all_filters( 'user_has_cap' );
 
 		// Reset the REST server so route registrations don't leak between tests.
@@ -52,20 +52,19 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Helper: force the availability gate on or off.
+	 * Helper: flip the reprint_exporter_enabled site option on or off.
 	 *
-	 * In production the gate returns true only for Automatticians proxying
-	 * through the a8c proxy. Tests can't set that up, so we override the
-	 * filter that the helper exposes.
+	 * This is the same switch ops would use in production — no separate
+	 * test-only override.
 	 *
 	 * @param bool $available Whether the endpoints should be available.
 	 */
 	private function set_available( bool $available ) {
-		remove_all_filters( 'wpcomsh_reprint_exporter_available' );
-		add_filter(
-			'wpcomsh_reprint_exporter_available',
-			$available ? '__return_true' : '__return_false'
-		);
+		if ( $available ) {
+			update_option( 'reprint_exporter_enabled', 1 );
+		} else {
+			delete_option( 'reprint_exporter_enabled' );
+		}
 	}
 
 	/**

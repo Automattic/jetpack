@@ -4,9 +4,11 @@
  *
  * Exposes export endpoints at ?reprint-api.
  *
- * The entire feature is currently gated behind a proxied-Automattician
- * check so it cannot be reached by customers while the end-to-end Studio
- * flow is still being built. Once that ships, the gate can be relaxed.
+ * The entire feature is gated on the reprint_exporter_enabled site
+ * option, which defaults to off. No admin UI exposes the option, so
+ * customers never see the feature unless ops flips it on (e.g. via
+ * wp-cli). When the option is off, neither the ?reprint-api handler
+ * nor the REST route is reachable.
  *
  * Data flow has two phases that use different auth and network paths:
  *
@@ -48,7 +50,7 @@
  *
  * Hooked on `parse_request` so it runs before WordPress resolves the
  * query and renders a template. If the query parameter is absent or
- * the caller is not a proxied Automattician, the function returns
+ * the feature isn't enabled for this site, the function returns
  * immediately and normal WordPress execution continues.
  *
  * @codeCoverageIgnore — calls exit().
@@ -122,7 +124,7 @@ add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 /**
  * Registers the reprint REST route.
  *
- * Only registers when the caller is a proxied Automattician. The route
+ * Only registers when the feature is enabled on this site. The route
  * itself lives in Reprint_Exporter_Rest_Controller; this function just
  * instantiates it behind the availability gate so customers never see
  * the route in the REST index.
@@ -140,35 +142,17 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 // -- Helpers ------------------------------------------------------------------
 
 /**
- * Whether the reprint exporter endpoints are available to the current request.
+ * Whether the reprint exporter endpoints are exposed on this site.
  *
- * Available only for Automatticians proxying in through the a8c proxy.
- * This keeps the feature completely dark to customers while the end-to-end
- * Studio flow is still being built. The check is filterable so site
- * operators (and tests) can override it — e.g. enable it permanently on a
- * dedicated internal site by returning true from the filter.
+ * Controlled by the reprint_exporter_enabled site option. Defaults to
+ * disabled — flip the option to 1 (e.g. via wp-cli) to enable the
+ * feature on a specific site. No admin UI exposes this option, so it
+ * stays off for customers unless ops turns it on deliberately.
  *
  * @return bool
  */
 function _should_expose_reprint_exporter_on_this_site(): bool {
-	$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
-		? (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
-		: ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );
-
-	$is_proxied_automattician = $is_proxied
-		&& function_exists( '\is_automattician' )
-		&& \is_automattician( get_current_user_id() );
-
-	/**
-	 * Filters whether the reprint exporter endpoints are available.
-	 *
-	 * Defaults to true only for Automatticians proxying through a8c while
-	 * the feature is still being rolled out. Override in site-specific code
-	 * or in tests to enable/disable without the proxy header.
-	 *
-	 * @param bool $available Whether the endpoints are available.
-	 */
-	return (bool) apply_filters( 'wpcomsh_reprint_exporter_available', $is_proxied_automattician );
+	return (bool) get_option( 'reprint_exporter_enabled', false );
 }
 
 /**
