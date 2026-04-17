@@ -52,16 +52,6 @@
  * @package wpcomsh
  */
 
-// -- Constants ----------------------------------------------------------------
-
-/**
- * Maximum age of a request timestamp in seconds.
- * Requests older than this are rejected to prevent replay attacks.
- */
-if ( ! defined( 'REPRINT_EXPORTER_TIMESTAMP_TOLERANCE' ) ) {
-	define( 'REPRINT_EXPORTER_TIMESTAMP_TOLERANCE', 300 );
-}
-
 // -- WordPress hooks ----------------------------------------------------------
 
 /**
@@ -162,7 +152,9 @@ function wpcomsh_reprint_handle_request() {
 
 	// Verify the request's HMAC signature using Site_Export_HMAC_Server
 	// from the reprint-exporter package.
-	$hmac_server = new Site_Export_HMAC_Server( $secret, REPRINT_EXPORTER_TIMESTAMP_TOLERANCE );
+	// 300s tolerance on the request timestamp — rejects anything older
+	// to limit the replay window for captured requests.
+	$hmac_server = new Site_Export_HMAC_Server( $secret, 300 );
 	$auth_error  = $hmac_server->verify_globals();
 	if ( null !== $auth_error ) {
 		_reprint_exporter_error( 403, $auth_error );
