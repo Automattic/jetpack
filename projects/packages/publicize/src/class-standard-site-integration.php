@@ -1,6 +1,6 @@
 <?php
 /**
- * standard.site protocol integration for Bluesky.
+ * Integration for the standard.site protocol (used by Bluesky).
  *
  * @package automattic/jetpack-publicize
  */
