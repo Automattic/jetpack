@@ -1,8 +1,8 @@
-import { Button } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
@@ -73,10 +73,7 @@ const ConnectionManagement = ( { className = null, disabled = false } ) => {
 				</>
 			) : null }
 			<ManageConnectionsModal />
-			<Button
-				variant={ connections.length ? 'secondary' : 'primary' }
-				onClick={ openConnectionsModal }
-			>
+			<Button variant={ connections.length ? 'outline' : 'solid' } onClick={ openConnectionsModal }>
 				{ __( 'Connect an account', 'jetpack-publicize-pkg' ) }
 			</Button>
 		</div>
