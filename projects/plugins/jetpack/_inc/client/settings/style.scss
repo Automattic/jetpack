@@ -112,15 +112,6 @@
 
 	.jp-settings__empty-search-results {
 		margin-block: rem.convert(64px);
-
-		// @wordpress/ui zeros margins on EmptyState.Title/Description inside
-		// @layer wp-ui-components, but unlayered admin styles (core + Jetpack)
-		// take precedence and reintroduce h2/p margins. Reset them here so the
-		// component renders with its intended tight spacing.
-		h2,
-		p {
-			margin: 0;
-		}
 	}
 
 	@include breakpoints.breakpoint( "<480px" ) {
