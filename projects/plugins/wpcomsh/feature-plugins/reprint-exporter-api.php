@@ -142,9 +142,9 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 
 /**
  * Whether the reprint exporter endpoints are exposed on this site.
- * 
+ *
  * Currently it's gated to:
- * 
+ *
  * * sites with the reprint_exporter_enabled option set to a truthy value...
  * * ...visited by Automatticians...
  * * ...coming in through the a8c proxy

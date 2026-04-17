@@ -9,23 +9,7 @@
  * @package wpcomsh
  */
 
-// Stub the Automattician check when running outside a WPCOM environment
-// so set_available() can fake a proxied-Automattician request. On WPCOM
-// the real function already exists and this stub is skipped.
-if ( ! function_exists( 'is_automattician' ) ) {
-	/**
-	 * Test stub for WPCOM's is_automattician().
-	 *
-	 * Returns true iff the test has flipped the $__reprint_test_is_automattician
-	 * global, which set_available() does alongside enabling the site option.
-	 *
-	 * @param int $user_id Ignored; accepted so the signature matches WPCOM's.
-	 * @return bool
-	 */
-	function is_automattician( $user_id = 0 ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound, Generic.CodeAnalysis.UnusedFunctionParameter.Found
-		return ! empty( $GLOBALS['__reprint_test_is_automattician'] );
-	}
-}
+require_once __DIR__ . '/stubs/is-automattician.php';
 
 /**
  * Class ReprintExporterApiTest.
