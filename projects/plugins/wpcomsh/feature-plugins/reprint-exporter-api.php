@@ -2,18 +2,22 @@
 /**
  * Reprint Exporter API — wpcomsh integration for the reprint-exporter package.
  *
- * Exposes export endpoints at ?reprint-api when the "reprint"
- * Jetpack module is enabled. The legacy ?site-export-api query parameter
+ * Exposes export endpoints at ?reprint-api for Automatticians proxying
+ * in through the a8c proxy. The legacy ?site-export-api query parameter
  * is still accepted for backward compatibility with existing clients.
+ *
+ * The entire feature is currently gated behind a proxied-Automattician
+ * check so it cannot be reached by customers while the end-to-end Studio
+ * flow is still being built. Once that ships, the gate can be relaxed.
  *
  * Data flow has two phases that use different auth and network paths:
  *
- * 1. Secret provisioning — Studio (or another client) calls the WPCOM
- *    public API at /wpcom/v2/sites/{id}/reprint/rotate-export-secret,
- *    authenticating with its regular WPCOM auth token. The proxy verifies
- *    the token, checks the caller is a super-admin, and forwards the
- *    request to the site's POST /wp/v2/reprint/rotate-export-secret
- *    REST route. The site generates a shared secret and returns it.
+ * 1. Secret provisioning — Studio (or another client) calls the site's
+ *    POST /wp/v2/reprint/rotate-export-secret REST route through the
+ *    generic Jetpack REST API proxy, authenticating with its regular
+ *    WPCOM auth token. The proxy verifies the token; the route's
+ *    permission callback checks the caller is a super-admin. The site
+ *    generates a shared secret and returns it.
  *    (The old /wp/v2/streaming-export/rotate-secret path is still
  *    registered as a backward-compatible alias.)
  *
@@ -28,8 +32,8 @@
  * wp-php-toolkit/reprint-exporter package. The actual export logic
  * (SQL dumps, file streaming, multipart responses) lives entirely
  * in the package — this file only handles wpcomsh-specific concerns:
- * CORS, HMAC secret management, Jetpack module gating, and the
- * REST route for secret rotation.
+ * CORS, HMAC secret management, the proxied-Automattician gate, and
+ * the REST route for secret rotation.
  *
  * @package wpcomsh
  */
@@ -61,8 +65,8 @@ if ( ! defined( 'REPRINT_EXPORTER_TIMESTAMP_TOLERANCE' ) ) {
  *
  * Hooked on `parse_request` so it runs before WordPress resolves the
  * query and renders a template. If the query parameter is absent or
- * the Jetpack module is inactive, the function returns immediately
- * and normal WordPress execution continues.
+ * the caller is not a proxied Automattician, the function returns
+ * immediately and normal WordPress execution continues.
  *
  * Accepts both ?reprint-api (canonical) and ?site-export-api (legacy)
  * so existing clients keep working while new ones migrate.
@@ -75,7 +79,7 @@ function wpcomsh_reprint_handle_request() {
 		return;
 	}
 
-	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'reprint' ) ) {
+	if ( ! _reprint_exporter_is_available() ) {
 		return;
 	}
 
@@ -208,13 +212,13 @@ add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 /**
  * Registers the reprint REST routes.
  *
- * Only registers when the "reprint" Jetpack module is active.
- * Both the canonical /wp/v2/reprint/rotate-export-secret and the legacy
+ * Only registers when the caller is a proxied Automattician. Both the
+ * canonical /wp/v2/reprint/rotate-export-secret and the legacy
  * /wp/v2/streaming-export/rotate-secret paths are registered so existing
  * clients continue to work.
  */
 function wpcomsh_reprint_rest_init() {
-	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'reprint' ) ) {
+	if ( ! _reprint_exporter_is_available() ) {
 		return;
 	}
 
@@ -232,26 +236,6 @@ function wpcomsh_reprint_rest_init() {
 	register_rest_route( 'wp/v2', '/streaming-export/rotate-secret', $route_args );
 }
 add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
-
-/**
- * Hide the reprint Jetpack module from non-Automatticians.
- *
- * Temporary gate — until the full Studio / wpcom proxy flow is live,
- * the module should not be visible or activatable by customers. Remove
- * this filter once the end-to-end flow ships.
- *
- * @param array $modules slug => introduced-version map.
- * @return array
- */
-function wpcomsh_reprint_hide_module_for_non_automatticians( $modules ) {
-	if ( function_exists( '\is_automattician' ) && \is_automattician( get_current_user_id() ) ) {
-		return $modules;
-	}
-
-	unset( $modules['reprint'] );
-	return $modules;
-}
-add_filter( 'jetpack_get_available_modules', 'wpcomsh_reprint_hide_module_for_non_automatticians' );
 
 /**
  * Rotates the reprint shared secret.
@@ -302,6 +286,38 @@ function wpcomsh_reprint_permission_callback() {
 }
 
 // -- Helpers ------------------------------------------------------------------
+
+/**
+ * Whether the reprint exporter endpoints are available to the current request.
+ *
+ * Available only for Automatticians proxying in through the a8c proxy.
+ * This keeps the feature completely dark to customers while the end-to-end
+ * Studio flow is still being built. The check is filterable so site
+ * operators (and tests) can override it — e.g. enable it permanently on a
+ * dedicated internal site by returning true from the filter.
+ *
+ * @return bool
+ */
+function _reprint_exporter_is_available(): bool {
+	$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+		? (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
+		: ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );
+
+	$is_proxied_automattician = $is_proxied
+		&& function_exists( '\is_automattician' )
+		&& \is_automattician( get_current_user_id() );
+
+	/**
+	 * Filters whether the reprint exporter endpoints are available.
+	 *
+	 * Defaults to true only for Automatticians proxying through a8c while
+	 * the feature is still being rolled out. Override in site-specific code
+	 * or in tests to enable/disable without the proxy header.
+	 *
+	 * @param bool $available Whether the endpoints are available.
+	 */
+	return (bool) apply_filters( 'wpcomsh_reprint_exporter_available', $is_proxied_automattician );
+}
 
 /**
  * Sends a JSON error response and terminates.

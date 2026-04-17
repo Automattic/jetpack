@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Add reprint module to allow toggling the reprint exporter API endpoints.

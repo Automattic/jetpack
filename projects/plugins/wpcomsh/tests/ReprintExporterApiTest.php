@@ -3,7 +3,7 @@
  * Reprint Exporter API Test file.
  *
  * Verifies the reprint-exporter API endpoints (?reprint-api,
- * rotate-export-secret REST route) and their Jetpack module gating.
+ * rotate-export-secret REST route) and their proxied-Automattician gating.
  *
  * @package wpcomsh
  */
@@ -18,8 +18,10 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
-		delete_option( 'jetpack_active_modules' );
 		delete_option( REPRINT_EXPORTER_SECRET_OPTION );
+
+		// Drop any gate-override filters set by a test.
+		remove_all_filters( 'wpcomsh_reprint_exporter_available' );
 
 		// Reset the REST server so route registrations don't leak between tests.
 		global $wp_rest_server;
@@ -29,16 +31,20 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Helper: skip test when Jetpack class is not loaded.
+	 * Helper: force the availability gate on or off.
 	 *
-	 * On WP Cloud the Jetpack megaclass may not be present, which means
-	 * wpcomsh_reprint_rest_init() will bail before registering routes.
-	 * These tests require the Jetpack class to be loaded.
+	 * In production the gate returns true only for Automatticians proxying
+	 * through the a8c proxy. Tests can't set that up, so we override the
+	 * filter that the helper exposes.
+	 *
+	 * @param bool $available Whether the endpoints should be available.
 	 */
-	private function skip_without_jetpack() {
-		if ( ! class_exists( 'Jetpack' ) ) {
-			$this->markTestSkipped( 'Jetpack class is not loaded in this environment.' );
-		}
+	private function set_available( bool $available ) {
+		remove_all_filters( 'wpcomsh_reprint_exporter_available' );
+		add_filter(
+			'wpcomsh_reprint_exporter_available',
+			$available ? '__return_true' : '__return_false'
+		);
 	}
 
 	/**
@@ -82,13 +88,11 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the request handler exits early when the module is inactive.
+	 * Test that the request handler exits early when the gate is closed.
 	 */
-	public function test_handle_request_returns_early_when_module_inactive() {
-		$this->skip_without_jetpack();
-
+	public function test_handle_request_returns_early_when_gate_closed() {
 		$_GET['reprint-api'] = '1';
-		update_option( 'jetpack_active_modules', array() );
+		$this->set_available( false );
 
 		wpcomsh_reprint_handle_request();
 
@@ -101,14 +105,12 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the legacy ?site-export-api query parameter is still accepted.
 	 */
 	public function test_handle_request_accepts_legacy_query_param() {
-		$this->skip_without_jetpack();
-
 		$_GET['site-export-api'] = '1';
-		update_option( 'jetpack_active_modules', array() );
+		$this->set_available( false );
 
-		// Module is off, so the handler must bail silently. The point of this
-		// test is that it reaches the module-gating branch rather than the
-		// earlier "no query param" branch — i.e. the legacy name is honored.
+		// Gate is closed, so the handler must bail silently. The point of this
+		// test is that it reaches the gate branch rather than the earlier
+		// "no query param" branch — i.e. the legacy name is honored.
 		wpcomsh_reprint_handle_request();
 
 		$this->assertFalse( get_option( REPRINT_EXPORTER_SECRET_OPTION, false ) );
@@ -117,12 +119,10 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that neither REST route is registered when the module is inactive.
+	 * Test that neither REST route is registered when the gate is closed.
 	 */
-	public function test_rest_route_not_registered_when_module_inactive() {
-		$this->skip_without_jetpack();
-
-		update_option( 'jetpack_active_modules', array() );
+	public function test_rest_route_not_registered_when_gate_closed() {
+		$this->set_available( false );
 
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
@@ -131,15 +131,13 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that both REST routes are registered when the module is active.
+	 * Test that both REST routes are registered when the gate is open.
 	 *
 	 * The canonical route is /wp/v2/reprint/rotate-export-secret; the legacy
 	 * /wp/v2/streaming-export/rotate-secret remains as a back-compat alias.
 	 */
-	public function test_rest_route_registered_when_module_active() {
-		$this->skip_without_jetpack();
-
-		update_option( 'jetpack_active_modules', array( 'reprint' ) );
+	public function test_rest_route_registered_when_gate_open() {
+		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
@@ -151,9 +149,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the rotate-secret endpoint requires super-admin permissions.
 	 */
 	public function test_rotate_secret_requires_super_admin() {
-		$this->skip_without_jetpack();
-
-		update_option( 'jetpack_active_modules', array( 'reprint' ) );
+		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();
 
@@ -171,9 +167,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the rotate-secret endpoint works for super admins.
 	 */
 	public function test_rotate_secret_works_for_super_admin() {
-		$this->skip_without_jetpack();
-
-		update_option( 'jetpack_active_modules', array( 'reprint' ) );
+		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();
 
@@ -195,9 +189,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the legacy REST route also works for super admins.
 	 */
 	public function test_rotate_secret_legacy_route_still_works() {
-		$this->skip_without_jetpack();
-
-		update_option( 'jetpack_active_modules', array( 'reprint' ) );
+		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();
 
@@ -219,9 +211,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that rotating the secret stores it in the site option.
 	 */
 	public function test_rotate_secret_stores_in_option() {
-		$this->skip_without_jetpack();
-
-		update_option( 'jetpack_active_modules', array( 'reprint' ) );
+		$this->set_available( true );
 
 		$server = $this->fresh_rest_server();
 
