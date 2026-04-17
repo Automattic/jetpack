@@ -143,11 +143,10 @@ The existing Preact/Redux overlay (`src/instant-search/`) is not touched in Phas
 ```
 projects/packages/search/src/
   search-blocks/
-    block.json               # shared block registration config
-    index.php                # block registration entry point
+    class-search-blocks.php  # block registration + wp_interactivity_state() seeding
     store/
       index.js               # Interactivity API store (jetpack-search namespace)
-      api.js                 # search API calls (v1.3 endpoint)
+      api.js                 # v1.3 API client; buildAggregations/buildFilters read filterConfigs
       url-state.js           # URL ↔ store sync
     blocks/
       search-input/
@@ -157,26 +156,46 @@ projects/packages/search/src/
         style.scss
       search-results/
         block.json
-        render.php
+        render.php           # pre-fetches initial results server-side
         view.js
         style.scss
-      filter-category/
+      filter-checkbox/       # one block handles all checkbox-style filtering
+        block.json           # attributes: filterType, taxonomy, metaKey, displayMode, curatedValues, label, showCount, maxItems
+        class-filter-checkbox.php  # derive_filter_key(), derive_es_field(), get_initial_items()
+        render.php           # registers FilterConfig into wp_interactivity_state(); renders checkbox list
+        view.js              # isChecked + count derived state; reads filterKey/itemValue from per-item context
+        variations.js        # editor-side: registerBlockVariation for Category, Tag, Post Type, Author, Custom Taxonomy, Custom Field
+        style.scss
+      filter-date/           # separate block — different UI (date range picker)
         block.json
         render.php
         view.js
         style.scss
-      filter-tag/            # same structure
-      filter-post-type/
-      filter-author/
-      filter-date/
       active-filters/
+        block.json
+        render.php
+        view.js
+        style.scss
       sort-control/
+        block.json
+        render.php
+        view.js
+        style.scss
       results-count/
+        block.json
+        render.php           # display only, no view.js
+        style.scss
       no-results/
+        block.json
+        render.php           # display only, no view.js
       load-more/
+        block.json
+        render.php
+        view.js
+        style.scss
     patterns/
       blog-search.php        # "Blog Search Page" pattern
-    AGENTS.md                # developer guide for adding blocks
+    AGENTS.md                # developer guide for adding blocks and filter variations
 ```
 
 #### Build Pipeline
