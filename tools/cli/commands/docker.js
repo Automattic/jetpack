@@ -30,6 +30,18 @@ const defaultOpts = yargs =>
 			alias: 'p',
 			describe: 'WP port',
 		} )
+		.option( 'port-phpmy', {
+			describe: 'phpMyAdmin port',
+		} )
+		.option( 'port-inbox', {
+			describe: 'Mailpit web UI port',
+		} )
+		.option( 'port-smtp', {
+			describe: 'Mailpit SMTP port',
+		} )
+		.option( 'port-sftp', {
+			describe: 'SFTP port',
+		} )
 		.option( 'ngrok', {
 			type: 'boolean',
 			describe: 'Flag to launch ngrok process',
@@ -41,10 +53,10 @@ const defaultOpts = yargs =>
  * @param {object} argv - Yargs
  * @return {string} Project name
  */
-const getProjectName = argv => {
-	let project = 'dev';
-	if ( argv.type === 'e2e' ) {
-		project = argv.name ? argv.name : 'e2e';
+export const getProjectName = argv => {
+	let project = argv.type === 'e2e' ? 'e2e' : 'dev';
+	if ( argv.name ) {
+		project = argv.name;
 	}
 
 	return 'jetpack_' + project;
@@ -56,10 +68,25 @@ const getProjectName = argv => {
  * @param {object} argv - Yargs
  * @return {object} key-value pairs of ENV variables
  */
-const buildEnv = argv => {
+export const buildEnv = argv => {
 	const envOpts = {};
-	if ( argv.type === 'e2e' ) {
-		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
+	if ( argv.port ) {
+		envOpts.PORT_WORDPRESS = argv.port;
+	} else if ( argv.type === 'e2e' ) {
+		envOpts.PORT_WORDPRESS = 8889;
+	}
+
+	if ( argv.portPhpmy ) {
+		envOpts.PORT_PHPMY = argv.portPhpmy;
+	}
+	if ( argv.portInbox ) {
+		envOpts.PORT_INBOX = argv.portInbox;
+	}
+	if ( argv.portSmtp ) {
+		envOpts.PORT_SMTP = argv.portSmtp;
+	}
+	if ( argv.portSftp ) {
+		envOpts.PORT_SFTP = argv.portSftp;
 	}
 
 	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
@@ -109,7 +136,7 @@ const printPostCmdMsg = argv => {
 		return;
 	}
 	if ( argv._[ 1 ] === 'up' ) {
-		const port = argv.port ? argv.port : '';
+		const port = argv.port ? `:${ argv.port }` : '';
 		const msg = chalk.green( `Open http://localhost${ port }/ to see your site!` );
 		console.log( msg );
 	}
