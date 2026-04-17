@@ -119,14 +119,10 @@ const defaultRequestMap = {
 		external: 'JetpackSharedExtensionUtils',
 		handle: 'jetpack-shared-extension-utils',
 	},
-	// These subpath imports should continue to be bundled.
+	// These side-effect-free subpath imports should continue to be bundled.
 	'@automattic/jetpack-shared-extension-utils/components': { external: false },
 	'@automattic/jetpack-shared-extension-utils/icons': { external: false },
 	'@automattic/jetpack-shared-extension-utils/site-type-utils': { external: false },
-	// Note: store/wordpress-com is not side-effect free — importing it
-	// registers the store at module scope.
-	'@automattic/jetpack-shared-extension-utils/store/wordpress-com': { external: false },
-	'@automattic/jetpack-shared-extension-utils/store/wordpress-com/types': { external: false },
 	// Bundle admin-ui CSS with our assets. The JS side is already handled by the
 	// DependencyExtractionPlugin's BUNDLED_PACKAGES list, but the CSS subpath import
 	// doesn't match that exact-match check and would be incorrectly externalized.

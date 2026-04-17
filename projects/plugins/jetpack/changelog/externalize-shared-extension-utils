@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Update block asset allowlist after shared-extension-utils externalization.
+Editor: Load shared-extension-utils through a shared dependency to avoid duplicate store registration warnings.

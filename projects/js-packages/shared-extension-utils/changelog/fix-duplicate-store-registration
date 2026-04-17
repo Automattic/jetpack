@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Add guard against duplicate store registration when multiple bundles include this package.
+Load the WordPress.com plans store through the shared package root to avoid duplicate store registration warnings.
