@@ -40,15 +40,13 @@ projects/packages/search/
           style.scss
         filter-checkbox/
           block.json                   # attributes: filterType, taxonomy, metaKey, displayMode, curatedValues, label, showCount, maxItems
-          render.php                   # registers filterConfig into wp_interactivity_state(); renders checkbox list
-          view.js                      # generic checkbox handler; reads filterKey from context
-          variations.js                # editor-side: registerBlockVariation for Category, Tag, Author, Post Type, Custom
+          class-filter-checkbox.php    # derive_filter_key(), derive_es_field(), get_initial_items()
+          render.php                   # registers FilterConfig into wp_interactivity_state(); renders checkbox list
+          view.js                      # generic checkbox handler; isChecked + count derived state; reads filterKey from context
+          variations.js                # editor-side: registerBlockVariation for Category, Tag, Author, Post Type, Custom Field
           style.scss
-        filter-date/
-          block.json                   # separate block — different UI (date range picker)
-          render.php
-          view.js
-          style.scss
+        filter-date/                     # NOT in Phase 1 — placeholder directory only
+          block.json                   # separate block — different UI (date range picker); implemented in follow-up
         active-filters/
           block.json
           render.php
