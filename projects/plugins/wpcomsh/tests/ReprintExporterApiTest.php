@@ -363,7 +363,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * @return Reprint_Exporter_Rest_Controller
 	 */
 	private function controller(): Reprint_Exporter_Rest_Controller {
-		require_once REPRINT_EXPORTER_PLUGIN_DIR . 'class-reprint-exporter-rest-controller.php';
+		require_once dirname( __DIR__ ) . '/feature-plugins/class-reprint-exporter-rest-controller.php';
 		return new Reprint_Exporter_Rest_Controller();
 	}
 

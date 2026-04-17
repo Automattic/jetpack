@@ -37,9 +37,6 @@
 
 // -- Constants ----------------------------------------------------------------
 
-if ( ! defined( 'REPRINT_EXPORTER_PLUGIN_DIR' ) ) {
-	define( 'REPRINT_EXPORTER_PLUGIN_DIR', __DIR__ . '/' );
-}
 if ( ! defined( 'REPRINT_EXPORTER_SECRET_FILE' ) ) {
 	// Default to a location under wp-content/ — the wpcomsh plugin
 	// directory is a symlink on WoA and not writable by site operators,
@@ -114,7 +111,7 @@ function wpcomsh_reprint_handle_request() {
 	// directory (the normal Composer layout), falling back to the
 	// wpcomsh-dev SFTP overlay when the production build doesn't include
 	// the package yet.
-	$wpcomsh_root       = dirname( REPRINT_EXPORTER_PLUGIN_DIR );
+	$wpcomsh_root       = dirname( __DIR__ );
 	$runtime_candidates = array(
 		array(
 			'autoload' => $wpcomsh_root . '/vendor/autoload.php',
