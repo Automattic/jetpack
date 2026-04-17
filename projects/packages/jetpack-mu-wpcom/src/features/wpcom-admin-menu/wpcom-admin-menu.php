@@ -452,8 +452,8 @@ function wpcom_add_jetpack_submenu() {
 	if ( $jetpack_ai_page_file && file_exists( $jetpack_ai_page_file ) ) {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
 		require_once $jetpack_ai_page_file;
-		$jetpack_ai = new Jetpack_AI_Page();
-		$jetpack_ai->add_actions();
+		$jetpack_ai = new Jetpack_AI_Page(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- class loaded via runtime require_once above.
+		$jetpack_ai->add_actions(); // @phan-suppress-current-line PhanUndeclaredClassMethod
 	}
 
 	wpcom_reorder_submenu(
