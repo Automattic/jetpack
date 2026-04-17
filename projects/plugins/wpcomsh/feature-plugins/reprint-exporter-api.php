@@ -84,8 +84,8 @@ function wpcomsh_reprint_handle_request() {
 	header( 'Access-Control-Allow-Origin: *' );
 	header( 'Access-Control-Allow-Methods: GET, POST, OPTIONS' );
 	header( 'Access-Control-Allow-Headers: *' );
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( $_SERVER['REQUEST_METHOD'] ) : '';
 	if ( 'OPTIONS' === $request_method ) {
 		header( 'Allow: GET, POST, OPTIONS' );
 		exit;
