@@ -54,10 +54,6 @@
 
 // -- Constants ----------------------------------------------------------------
 
-if ( ! defined( 'REPRINT_EXPORTER_SECRET_OPTION' ) ) {
-	define( 'REPRINT_EXPORTER_SECRET_OPTION', 'reprint_exporter_secret' );
-}
-
 /**
  * Maximum age of a request timestamp in seconds.
  * Requests older than this are rejected to prevent replay attacks.
@@ -159,7 +155,7 @@ function wpcomsh_reprint_handle_request() {
 	}
 
 	// -- Authenticate via HMAC ------------------------------------------------
-	$secret = get_option( REPRINT_EXPORTER_SECRET_OPTION, '' );
+	$secret = get_option( 'reprint_exporter_secret', '' );
 	if ( ! is_string( $secret ) || '' === $secret ) {
 		_reprint_exporter_error( 503, 'Export not configured. Please rotate the shared secret via POST /wpcomsh/v1/reprint/rotate-export-secret.' );
 	}

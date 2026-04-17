@@ -60,7 +60,7 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 		// Not atomic: two concurrent rotate calls will both succeed, but
 		// the first caller's secret will be overwritten by the second.
 		// Acceptable for an admin-only endpoint that is called rarely.
-		if ( ! update_option( REPRINT_EXPORTER_SECRET_OPTION, $secret, false ) ) {
+		if ( ! update_option( 'reprint_exporter_secret', $secret, false ) ) {
 			return new WP_REST_Response(
 				array( 'error' => 'Failed to persist the new secret. The database option update did not succeed.' ),
 				500

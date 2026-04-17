@@ -18,7 +18,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
-		delete_option( REPRINT_EXPORTER_SECRET_OPTION );
+		delete_option( 'reprint_exporter_secret' );
 
 		// Drop any gate-override filters set by a test.
 		remove_all_filters( 'wpcomsh_reprint_exporter_available' );
@@ -84,7 +84,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		unset( $_GET['reprint-api'] );
 		wpcomsh_reprint_handle_request();
 
-		$this->assertFalse( get_option( REPRINT_EXPORTER_SECRET_OPTION, false ) );
+		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
 	}
 
 	/**
@@ -96,7 +96,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 
 		wpcomsh_reprint_handle_request();
 
-		$this->assertFalse( get_option( REPRINT_EXPORTER_SECRET_OPTION, false ) );
+		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
 
 		unset( $_GET['reprint-api'] );
 	}
@@ -180,7 +180,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$data     = $response->get_data();
 
 		$this->assertArrayHasKey( 'secret', $data );
-		$stored = get_option( REPRINT_EXPORTER_SECRET_OPTION );
+		$stored = get_option( 'reprint_exporter_secret' );
 		$this->assertSame( $data['secret'], $stored );
 	}
 
@@ -411,6 +411,6 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$response = $this->controller()->rotate_secret();
 		$data     = $response->get_data();
 
-		$this->assertSame( $data['secret'], get_option( REPRINT_EXPORTER_SECRET_OPTION ) );
+		$this->assertSame( $data['secret'], get_option( 'reprint_exporter_secret' ) );
 	}
 }
