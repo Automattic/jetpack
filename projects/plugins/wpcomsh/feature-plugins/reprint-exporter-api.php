@@ -4,11 +4,13 @@
  *
  * Exposes export endpoints at ?reprint-api.
  *
- * The entire feature is gated on the reprint_exporter_enabled site
- * option, which defaults to off. No admin UI exposes the option, so
- * customers never see the feature unless ops flips it on (e.g. via
- * wp-cli). When the option is off, neither the ?reprint-api handler
- * nor the REST route is reachable.
+ * The entire feature is gated on `_should_expose_reprint_exporter_on_this_site()`.
+ * It returns true when either the reprint_exporter_enabled site option
+ * is on (the intended ops-controlled switch) or when the current request
+ * is from an Automattician proxying through the a8c proxy (for internal
+ * testing regardless of the option). Defaults off for customers; neither
+ * the ?reprint-api handler nor the REST route exists until one of those
+ * conditions holds.
  *
  * Data flow has two phases that use different auth and network paths:
  *
@@ -144,15 +146,32 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 /**
  * Whether the reprint exporter endpoints are exposed on this site.
  *
- * Controlled by the reprint_exporter_enabled site option. Defaults to
- * disabled — flip the option to 1 (e.g. via wp-cli) to enable the
- * feature on a specific site. No admin UI exposes this option, so it
- * stays off for customers unless ops turns it on deliberately.
+ * True when EITHER of the following is true:
+ *
+ * - The reprint_exporter_enabled site option is set to a truthy value.
+ *   This is the intended switch for enabling the feature on a site —
+ *   ops flips it with wp-cli (`wp option update reprint_exporter_enabled 1`).
+ *   No admin UI exposes it, so customers never see it by default.
+ *
+ * - The current request is from an Automattician coming in through the
+ *   a8c proxy. This keeps the feature usable for internal testing /
+ *   debugging regardless of the option's state.
  *
  * @return bool
  */
 function _should_expose_reprint_exporter_on_this_site(): bool {
-	return (bool) get_option( 'reprint_exporter_enabled', false );
+	if ( get_option( 'reprint_exporter_enabled', false ) ) {
+		return true;
+	}
+
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+		? (bool) $_SERVER['A8C_PROXIED_REQUEST']
+		: ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );
+
+	return $is_proxied
+		&& function_exists( '\is_automattician' )
+		&& \is_automattician( get_current_user_id() );
 }
 
 /**
