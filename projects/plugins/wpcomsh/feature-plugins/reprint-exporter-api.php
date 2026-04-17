@@ -11,19 +11,36 @@
  *
  * Data flow has two phases that use different auth and network paths:
  *
- * 1. Secret provisioning — Studio (or another client) calls the site's
- *    POST /wpcomsh/v1/reprint/rotate-export-secret REST route through
- *    the generic Jetpack REST API proxy, authenticating with its
- *    regular WPCOM auth token. The proxy verifies the token; the
- *    route's permission callback checks the caller is a super-admin.
- *    The site generates a shared secret and returns it.
+ * 1. Secret provisioning via the generic Jetpack REST proxy. There is
+ *    no dedicated /wpcom/v2/sites/{id}/reprint/... public-api endpoint.
+ *    Studio uses the pass-through proxy that ships with Jetpack, which
+ *    takes a `path` in the POST body and forwards it to the site as a
+ *    REST call. The actual request Studio makes:
  *
- * 2. Export streaming — the client talks directly to the site at
- *    ?reprint-api, bypassing the public API entirely. Each request is
- *    signed with HMAC using the shared secret from step 1 (X-Auth-
- *    Signature, X-Auth-Nonce, X-Auth-Timestamp, X-Auth-Content-Hash).
- *    The direct connection avoids the public API's request size and
- *    timeout limits, which matter for large exports.
+ *        POST https://public-api.wordpress.com/rest/v1.1/jetpack-blogs/{site_id}/rest-api?http_envelope=1
+ *        Authorization: Bearer <WPCOM OAuth token>
+ *        Content-Type: application/json
+ *
+ *        { "path": "/wpcomsh/v1/reprint/rotate-export-secret" }
+ *
+ *    WPCOM verifies the OAuth token, maps the caller to a user on the
+ *    target site, and re-issues the request internally against
+ *    /wpcomsh/v1/reprint/rotate-export-secret. The route's permission
+ *    callback (is_super_admin()) runs against the mapped user. On
+ *    success the site generates a 64-byte hex secret via random_bytes(32),
+ *    stores it in the reprint_exporter_secret option, and returns it.
+ *
+ *    http_envelope=1 makes the proxy wrap non-2xx site responses in a
+ *    200 envelope, which is what Studio's schema expects.
+ *
+ * 2. Export streaming — the client (now holding the shared secret)
+ *    talks directly to the site at ?reprint-api, bypassing the public
+ *    API entirely. Each request is signed with HMAC using the shared
+ *    secret from step 1 — the X-Auth-Signature, X-Auth-Nonce,
+ *    X-Auth-Timestamp, and X-Auth-Content-Hash headers are verified by
+ *    Site_Export_HMAC_Server from the reprint-exporter package. This
+ *    direct connection avoids the public API's request size and timeout
+ *    limits, which matter for large exports.
  *
  * HMAC verification is handled by Site_Export_HMAC_Server from the
  * wp-php-toolkit/reprint-exporter package. The actual export logic
