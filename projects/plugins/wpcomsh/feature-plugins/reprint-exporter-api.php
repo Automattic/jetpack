@@ -2,7 +2,7 @@
 /**
  * Reprint Exporter API — wpcomsh integration for the reprint-exporter package.
  *
- * Exposes export endpoints at ?reprint-api when the "streaming-export"
+ * Exposes export endpoints at ?reprint-api when the "reprint"
  * Jetpack module is enabled. The legacy ?site-export-api query parameter
  * is still accepted for backward compatibility with existing clients.
  *
@@ -75,7 +75,7 @@ function wpcomsh_reprint_handle_request() {
 		return;
 	}
 
-	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'streaming-export' ) ) {
+	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'reprint' ) ) {
 		return;
 	}
 
@@ -208,13 +208,13 @@ add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 /**
  * Registers the reprint REST routes.
  *
- * Only registers when the "streaming-export" Jetpack module is active.
+ * Only registers when the "reprint" Jetpack module is active.
  * Both the canonical /wp/v2/reprint/rotate-export-secret and the legacy
  * /wp/v2/streaming-export/rotate-secret paths are registered so existing
  * clients continue to work.
  */
 function wpcomsh_reprint_rest_init() {
-	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'streaming-export' ) ) {
+	if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'reprint' ) ) {
 		return;
 	}
 
@@ -234,7 +234,7 @@ function wpcomsh_reprint_rest_init() {
 add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 
 /**
- * Hide the streaming-export Jetpack module from non-Automatticians.
+ * Hide the reprint Jetpack module from non-Automatticians.
  *
  * Temporary gate — until the full Studio / wpcom proxy flow is live,
  * the module should not be visible or activatable by customers. Remove
@@ -248,7 +248,7 @@ function wpcomsh_reprint_hide_module_for_non_automatticians( $modules ) {
 		return $modules;
 	}
 
-	unset( $modules['streaming-export'] );
+	unset( $modules['reprint'] );
 	return $modules;
 }
 add_filter( 'jetpack_get_available_modules', 'wpcomsh_reprint_hide_module_for_non_automatticians' );

@@ -139,7 +139,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	public function test_rest_route_registered_when_module_active() {
 		$this->skip_without_jetpack();
 
-		update_option( 'jetpack_active_modules', array( 'streaming-export' ) );
+		update_option( 'jetpack_active_modules', array( 'reprint' ) );
 
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
@@ -153,7 +153,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	public function test_rotate_secret_requires_super_admin() {
 		$this->skip_without_jetpack();
 
-		update_option( 'jetpack_active_modules', array( 'streaming-export' ) );
+		update_option( 'jetpack_active_modules', array( 'reprint' ) );
 
 		$server = $this->fresh_rest_server();
 
@@ -173,7 +173,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	public function test_rotate_secret_works_for_super_admin() {
 		$this->skip_without_jetpack();
 
-		update_option( 'jetpack_active_modules', array( 'streaming-export' ) );
+		update_option( 'jetpack_active_modules', array( 'reprint' ) );
 
 		$server = $this->fresh_rest_server();
 
@@ -197,7 +197,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	public function test_rotate_secret_legacy_route_still_works() {
 		$this->skip_without_jetpack();
 
-		update_option( 'jetpack_active_modules', array( 'streaming-export' ) );
+		update_option( 'jetpack_active_modules', array( 'reprint' ) );
 
 		$server = $this->fresh_rest_server();
 
@@ -221,7 +221,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	public function test_rotate_secret_stores_in_option() {
 		$this->skip_without_jetpack();
 
-		update_option( 'jetpack_active_modules', array( 'streaming-export' ) );
+		update_option( 'jetpack_active_modules', array( 'reprint' ) );
 
 		$server = $this->fresh_rest_server();
 
