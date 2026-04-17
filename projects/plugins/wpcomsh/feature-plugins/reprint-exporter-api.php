@@ -47,26 +47,30 @@
 /**
  * Handles the ?reprint-api request.
  *
- * Hooked on `template_redirect` so WordPress has already resolved the
- * query (is_front_page() needs that) but no template output has been
- * emitted yet. If the query parameter is absent, the request isn't on
- * the site's front page, or the feature isn't enabled for this site,
- * the function returns immediately and normal WordPress execution
- * continues.
+ * Hooked on `parse_request` so we run before WordPress resolves the
+ * query and long before any template output (important on Private
+ * Sites, whose template_redirect hooks redirect + exit). If the query
+ * parameter is absent, the URL isn't the site root, or the feature
+ * isn't enabled for this site, the function returns immediately and
+ * normal WordPress execution continues.
  *
- * The is_front_page() guard is an extra layer of defense: it limits
- * where the endpoint can live on a site, so a stale/guessed URL on a
- * subpage can never be used to reach it.
+ * Homepage check: WP normalizes the requested path into $wp->request
+ * during parse_request (strips the home_url() path prefix, etc.), so
+ * `$wp->request === ''` is the correct "URL is the site root" test at
+ * this stage. is_front_page() / is_home() don't work here because the
+ * main query hasn't run yet.
+ *
+ * @param WP $wp The WordPress environment instance.
  *
  * @codeCoverageIgnore — calls exit().
  */
-function wpcomsh_reprint_handle_request() {
+function wpcomsh_reprint_handle_request( $wp ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ! isset( $_GET['reprint-api'] ) ) {
 		return;
 	}
 
-	if ( ! is_front_page() ) {
+	if ( '' !== $wp->request ) {
 		return;
 	}
 
@@ -134,7 +138,7 @@ function wpcomsh_reprint_handle_request() {
 	Site_Export_HTTP_Server::serve( array( 'default_directory' => ABSPATH ) );
 	exit;
 }
-add_action( 'template_redirect', 'wpcomsh_reprint_handle_request' );
+add_action( 'parse_request', 'wpcomsh_reprint_handle_request', 0 );
 
 /**
  * Registers the reprint REST route.

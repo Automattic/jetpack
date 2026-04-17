@@ -111,12 +111,28 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the template_redirect handler is registered.
+	 * Test that the parse_request handler is registered.
 	 */
-	public function test_template_redirect_handler_registered() {
-		$this->assertNotFalse(
-			has_action( 'template_redirect', 'wpcomsh_reprint_handle_request' )
+	public function test_parse_request_handler_registered() {
+		$this->assertSame(
+			0,
+			has_action( 'parse_request', 'wpcomsh_reprint_handle_request' )
 		);
+	}
+
+	/**
+	 * Helper: build a WP instance with its ->request populated.
+	 *
+	 * parse_request is what normalizes the requested path into $wp->request
+	 * in production; in tests we just set it directly.
+	 *
+	 * @param string $request Normalized request path ('' for site root).
+	 * @return WP
+	 */
+	private function wp_with_request( string $request ): WP {
+		$wp          = new WP();
+		$wp->request = $request;
+		return $wp;
 	}
 
 	/**
@@ -129,21 +145,42 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the request handler exits early when both query params are absent.
+	 * Test that the request handler exits early when the query param is absent.
 	 */
 	public function test_handle_request_returns_early_without_query_param() {
 		unset( $_GET['reprint-api'] );
-		wpcomsh_reprint_handle_request();
+		wpcomsh_reprint_handle_request( $this->wp_with_request( '' ) );
 
 		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
 	}
 
-	// The other handler-early-return branches (is_front_page() false,
-	// availability gate closed) aren't unit-tested directly: reaching them
-	// requires go_to(), and the WP Cloud test site is a Private Site whose
-	// template_redirect hooks call exit(), which crashes the PHPUnit
-	// process. The guards are simple if-return checks; CI covers their
-	// effects via the "route not registered when gate closed" test.
+	/**
+	 * Test that the request handler exits early when the URL isn't the
+	 * site root (non-empty $wp->request).
+	 */
+	public function test_handle_request_returns_early_when_not_home_url() {
+		$_GET['reprint-api'] = '1';
+
+		wpcomsh_reprint_handle_request( $this->wp_with_request( 'some/post' ) );
+
+		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
+
+		unset( $_GET['reprint-api'] );
+	}
+
+	/**
+	 * Test that the request handler exits early when the gate is closed.
+	 */
+	public function test_handle_request_returns_early_when_gate_closed() {
+		$_GET['reprint-api'] = '1';
+		$this->set_available( false );
+
+		wpcomsh_reprint_handle_request( $this->wp_with_request( '' ) );
+
+		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
+
+		unset( $_GET['reprint-api'] );
+	}
 
 	/**
 	 * Test that the REST route is not registered when the gate is closed.
