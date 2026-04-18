@@ -2,13 +2,68 @@ import { __ } from '@wordpress/i18n';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import styles from './cache-debug-log.module.scss';
 import clsx from 'clsx';
-import { CopyToClipboard, JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import {
+	Button,
+	CheckmarkIcon,
+	ClipboardIcon,
+	JetpackFooter,
+	JetpackLogo,
+} from '@automattic/jetpack-components';
+import { useCopyToClipboard } from '@wordpress/compose';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { useDebugLog } from '$features/page-cache/lib/stores';
 import { useNavigate } from 'react-router';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+
+/**
+ * Button that copies the given text to the clipboard and briefly swaps its icon to a checkmark.
+ *
+ * @param {object} props      - Component props.
+ * @param {string} props.text - Text to copy.
+ * @return {JSX.Element} Rendered button.
+ */
+const CopyDebugLogButton = ( { text }: { text: string } ) => {
+	const [ hasCopied, setHasCopied ] = useState( false );
+	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >( undefined );
+
+	const copyRef = useCopyToClipboard< HTMLElement >( text, () => {
+		if ( copyTimer.current ) {
+			clearTimeout( copyTimer.current );
+		}
+		setHasCopied( true );
+		copyTimer.current = setTimeout( () => {
+			setHasCopied( false );
+			copyTimer.current = undefined;
+		}, 3000 );
+	} );
+
+	useEffect(
+		() => () => {
+			if ( copyTimer.current ) {
+				clearTimeout( copyTimer.current );
+			}
+		},
+		[]
+	);
+
+	const copyLabel = __( 'Copy to clipboard', 'jetpack-boost' );
+
+	return (
+		<Button
+			ref={ copyRef }
+			aria-label={ copyLabel }
+			icon={ hasCopied ? <CheckmarkIcon /> : <ClipboardIcon /> }
+			className={ styles[ 'copy-button' ] }
+			variant="link"
+			weight="regular"
+		>
+			{ copyLabel }
+		</Button>
+	);
+};
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDebugLog();
@@ -55,15 +110,7 @@ const CacheDebugLog = () => {
 						<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
 						<header className={ styles.header }>
 							<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>
-							<CopyToClipboard
-								buttonStyle="icon-text"
-								className={ styles[ 'copy-button' ] }
-								textToCopy={ debugLog || '' }
-								variant="link"
-								weight="regular"
-							>
-								{ __( 'Copy to clipboard', 'jetpack-boost' ) }
-							</CopyToClipboard>
+							<CopyDebugLogButton text={ debugLog || '' } />
 						</header>
 
 						<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>

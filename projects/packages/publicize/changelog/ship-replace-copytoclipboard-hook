@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Share buttons: Use useCopyToClipboard hook directly instead of CopyToClipboard wrapper.

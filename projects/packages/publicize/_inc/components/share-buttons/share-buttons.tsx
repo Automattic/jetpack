@@ -1,6 +1,13 @@
-import { SocialServiceIcon, Button, Text, CopyToClipboard } from '@automattic/jetpack-components';
+import {
+	SocialServiceIcon,
+	Button,
+	Text,
+	ClipboardIcon,
+	CheckmarkIcon,
+} from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useCallback } from '@wordpress/element';
+import { useCopyToClipboard } from '@wordpress/compose';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { availableNetworks } from './available-networks';
@@ -101,20 +108,80 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 				);
 			} ) }
 			<div className={ styles.container }>
-				<CopyToClipboard
+				<ShareCopyButton
 					buttonStyle={ buttonStyle }
+					buttonVariant={ buttonVariant }
 					onCopy={ onCopy }
 					textToCopy={ textToCopy }
-					className={ 'icon' === buttonStyle ? styles.clipboard : ' has-text' }
-					variant={ buttonVariant }
-				>
-					{ 'icon' === buttonStyle ? null : (
-						<Text className={ styles.label } component="span">
-							{ __( 'Copy to clipboard', 'jetpack-publicize-pkg' ) }
-						</Text>
-					) }
-				</CopyToClipboard>
+				/>
 			</div>
 		</div>
+	);
+}
+
+type ShareCopyButtonProps = {
+	buttonStyle: NonNullable< ShareButtonsProps[ 'buttonStyle' ] >;
+	buttonVariant: ShareButtonsProps[ 'buttonVariant' ];
+	onCopy: () => void;
+	textToCopy: () => string;
+};
+
+/**
+ * Copy-to-clipboard share button with a checkmark/clipboard icon swap.
+ *
+ * @param {ShareCopyButtonProps} props - Component props.
+ * @return {JSX.Element} Rendered copy button.
+ */
+function ShareCopyButton( {
+	buttonStyle,
+	buttonVariant,
+	onCopy,
+	textToCopy,
+}: ShareCopyButtonProps ) {
+	const [ hasCopied, setHasCopied ] = useState( false );
+	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >( undefined );
+
+	const copyRef = useCopyToClipboard< HTMLElement >( textToCopy, () => {
+		if ( copyTimer.current ) {
+			clearTimeout( copyTimer.current );
+		}
+		setHasCopied( true );
+		onCopy();
+		copyTimer.current = setTimeout( () => {
+			setHasCopied( false );
+			copyTimer.current = undefined;
+		}, 3000 );
+	} );
+
+	useEffect(
+		() => () => {
+			if ( copyTimer.current ) {
+				clearTimeout( copyTimer.current );
+			}
+		},
+		[]
+	);
+
+	const label = __( 'Copy to clipboard', 'jetpack-publicize-pkg' );
+
+	let icon: JSX.Element | null = null;
+	if ( 'text' !== buttonStyle ) {
+		icon = hasCopied ? <CheckmarkIcon /> : <ClipboardIcon />;
+	}
+
+	return (
+		<Button
+			ref={ copyRef }
+			aria-label={ label }
+			icon={ icon }
+			variant={ buttonVariant }
+			className={ 'icon' === buttonStyle ? styles.clipboard : ' has-text' }
+		>
+			{ 'icon' === buttonStyle ? null : (
+				<Text className={ styles.label } component="span">
+					{ label }
+				</Text>
+			) }
+		</Button>
 	);
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Clipboard input: Use useCopyToClipboard hook directly instead of CopyToClipboard wrapper.
