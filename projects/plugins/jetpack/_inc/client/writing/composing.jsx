@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import CompactCard from 'components/card/compact';
@@ -207,11 +207,13 @@ export class Composing extends Component {
 			),
 			aiAssistantLink = (
 				<CompactCard className="jp-settings-card__configure-link">
-					<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
-						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
-					</a>
-					{ /* TODO: remove this Badge once it's no longer "new" */ }
-					<Badge intent="stable">{ __( 'New', 'jetpack' ) }</Badge>
+					<Stack align="center" gap="sm">
+						<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
+							{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
+						</a>
+						{ /* TODO: remove this Badge once it's no longer "new" */ }
+						<Badge intent="stable">{ __( 'New', 'jetpack' ) }</Badge>
+					</Stack>
 				</CompactCard>
 			);
 
