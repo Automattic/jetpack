@@ -1,5 +1,4 @@
 import {
-	CheckmarkIcon,
 	getIconBySlug,
 	StarIcon,
 	Text,
@@ -437,7 +436,7 @@ const ProductDetailCard = ( {
 
 				{ isBundleUpsell && hasPaidPlanForProduct && (
 					<div className={ styles[ 'product-has-required-plan' ] }>
-						<CheckmarkIcon size={ 36 } />
+						<Icon icon={ check } size={ 36 } />
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
 					</div>
 				) }
