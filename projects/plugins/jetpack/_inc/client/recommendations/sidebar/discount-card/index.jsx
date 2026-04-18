@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';
@@ -81,7 +81,6 @@ const DiscountCard = ( {
 						{ ! isLoading && (
 							<Button
 								className="jp-recommendations-discount-card__button"
-								rna
 								href={ '#/recommendations/product-suggestions' }
 								onClick={ onCtaClick }
 							>

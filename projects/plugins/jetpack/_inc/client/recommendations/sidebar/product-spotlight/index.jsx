@@ -58,7 +58,7 @@ const ProductSpotlightComponent = props => {
 						) }
 						<ExternalLink
 							type="button"
-							className="dops-button is-rna jp-recommendations-discount-card__button"
+							className="dops-button jp-recommendations-discount-card__button"
 							href={ productCardCtaLink }
 							onClick={ onProductCtaClick }
 						>

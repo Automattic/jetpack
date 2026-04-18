@@ -1,10 +1,12 @@
+// NOTE: ProgressBar is a Jetpack composite (branded styling + Redux). Kept as
+// domain helper.
 import { ProgressBar } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { Fragment, useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 import {
@@ -161,14 +163,19 @@ const ResourcePromptComponent = props => {
 							{ ctaLinkIsExternal ? (
 								<ExternalLink
 									type="button"
-									className="dops-button is-rna is-primary"
+									className="dops-button is-primary"
 									href={ ctaLink }
 									onClick={ onResourceLinkClick }
 								>
 									{ ctaText }
 								</ExternalLink>
 							) : (
-								<Button rna primary href={ ctaLink } onClick={ onResourceLinkClick } va>
+								<Button
+									variant="solid"
+									tone="brand"
+									href={ ctaLink }
+									onClick={ onResourceLinkClick }
+								>
 									{ ctaText }
 								</Button>
 							) }
@@ -187,7 +194,7 @@ const ResourcePromptComponent = props => {
 							</div>
 						</>
 					) : (
-						<Button primary rna href={ nextRoute }>
+						<Button variant="solid" tone="brand" href={ nextRoute }>
 							{ ctaText }
 						</Button>
 					) }

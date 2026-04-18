@@ -1,8 +1,10 @@
+// NOTE: ProgressBar is a Jetpack composite (branded styling + Redux). Kept as
+// domain helper.
 import { ProgressBar } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { getSiteTitle } from 'state/initial-state';
 import {
@@ -75,7 +77,7 @@ const SiteTypeQuestionComponent = props => {
 					) }
 				/>
 			</div>
-			<Button primary rna href={ nextRoute } onClick={ onContinueClick }>
+			<Button variant="solid" tone="brand" href={ nextRoute } onClick={ onContinueClick }>
 				{ __( 'Continue', 'jetpack' ) }
 			</Button>
 			<div className="jp-recommendations-site-type-question__continue-description">

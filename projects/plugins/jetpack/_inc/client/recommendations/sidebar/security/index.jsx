@@ -1,9 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Icon, external } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getSiteRawUrl } from 'state/initial-state';
@@ -41,14 +41,13 @@ const SecurityComponent = props => {
 					) }
 				</p>
 				<Button
-					rna
 					href={ getRedirectUrl( 'jetpack-backup', { site: siteRawUrl } ) }
 					target="_blank"
 					rel="noopener noreferrer"
 					onClick={ onCtaClick }
 				>
 					{ __( 'Manage security on Jetpack.com', 'jetpack' ) }
-					<Gridicon icon="external" />
+					<Icon icon={ external } />
 				</Button>
 			</div>
 		</SidebarCard>

@@ -4,6 +4,9 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
+// NOTE: AppsBadge renders store-specific App Store / Google Play badge images
+// with legal assets and device detection — a Jetpack composite, not a UI
+// primitive. Keep.
 import AppsBadge from 'components/apps-badge';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';

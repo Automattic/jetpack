@@ -1,3 +1,5 @@
+// NOTE: ProgressBar is a Jetpack composite (branded styling + Redux). Kept as
+// domain helper — no @wordpress/ui progress primitive is available.
 import { ProgressBar } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import './style.scss';

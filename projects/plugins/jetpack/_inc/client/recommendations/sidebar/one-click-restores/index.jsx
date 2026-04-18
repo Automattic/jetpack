@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getSiteRawUrl } from 'state/initial-state';
@@ -61,7 +61,6 @@ const OneClickRestoresComponent = props => {
 					</p>
 					<div className="jp-recommendations-one-click-restores__cta">
 						<Button
-							rna
 							href={ getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ) }
 							onClick={ onCtaClick }
 						>

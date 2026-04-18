@@ -3,6 +3,8 @@ import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Route, Routes, Navigate } from 'react-router';
+// NOTE: Query* components are Jetpack's Redux data-fetch pattern (mount-time dispatch
+// + state derivation). They are not UI primitives; preserve all references.
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
@@ -12,6 +14,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySiteDiscount from 'components/data/query-site-discount';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+// NOTE: JetpackLoadingIcon is a Jetpack-branded loading indicator, not a UI primitive.
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { getNewRecommendations } from 'state/initial-state';
 import {

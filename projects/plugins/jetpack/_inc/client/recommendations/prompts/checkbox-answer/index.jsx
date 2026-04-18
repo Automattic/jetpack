@@ -2,6 +2,9 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
+// NOTE: InfoPopover is a Jetpack composite with bespoke popover anchoring and
+// accessibility behavior. @wordpress/components Popover has a different anchor API
+// and @wordpress/ui has no equivalent. Keep.
 import InfoPopover from 'components/info-popover';
 import analytics from 'lib/analytics';
 import { getDataByKey, updateRecommendationsData } from 'state/recommendations';

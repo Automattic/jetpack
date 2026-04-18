@@ -1,9 +1,13 @@
+// NOTE: ProgressBar is a Jetpack composite (uses jetpack-specific styling + Redux).
+// Treat as domain helper.
 import { ProgressBar } from '@automattic/jetpack-components';
+import { Icon, check } from '@wordpress/icons';
 import { __, _x } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
+// NOTE: JetpackLoadingIcon is a Jetpack-branded loading indicator, not a UI primitive.
+// Keep — no @wordpress/ui equivalent.
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import analytics from 'lib/analytics';
 import {
@@ -78,12 +82,17 @@ const ProductPurchasedComponent = props => {
 				{ suggestion &&
 					suggestion.features.map( ( feature, key ) => (
 						<li className="jp-recommendations-product-purchased__feature" key={ key }>
-							<Gridicon icon="checkmark" />
+							<Icon icon={ check } />
 							{ feature }
 						</li>
 					) ) }
 			</ul>
-			<Button primary rna className="jp-recommendations-product-purchased__next" href={ nextRoute }>
+			<Button
+				variant="solid"
+				tone="brand"
+				className="jp-recommendations-product-purchased__next"
+				href={ nextRoute }
+			>
 				{ _x( 'Configure your site', 'Recommendations Product Purchased', 'jetpack' ) }
 			</Button>
 		</div>

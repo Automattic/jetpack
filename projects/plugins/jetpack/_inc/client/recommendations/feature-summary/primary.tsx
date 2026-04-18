@@ -1,7 +1,7 @@
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { stepToRoute } from 'state/recommendations';
 import { getSummaryPrimaryProps } from '../feature-utils';
@@ -64,7 +64,7 @@ const PrimarySummaryComponent = ( {
 					href={ stepRoute }
 					onClick={ onStepNameClick }
 					className="jp-recommendations-feature-summary__display-name"
-					borderless
+					variant="ghost"
 				>
 					<span className="jp-recommendations-feature-summary__display-name-text">
 						{ displayName }

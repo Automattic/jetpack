@@ -1,11 +1,13 @@
+// NOTE: ProgressBar is a Jetpack composite (branded styling + Redux). Kept as
+// domain helper.
 import { ProgressBar } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
+import { Icon, check } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { Fragment, useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
@@ -194,7 +196,7 @@ const FeaturePromptComponent = props => {
 						<>
 							<div className="jp-recommendations-question__feature-enabled">
 								<div className="jp-recommendations-question__checkmark">
-									<Gridicon icon="checkmark-circle" size={ 24 } />
+									<Icon icon={ check } size={ 24 } />
 								</div>
 								<span>{ __( 'Feature Enabled', 'jetpack' ) }</span>
 							</div>
@@ -202,21 +204,21 @@ const FeaturePromptComponent = props => {
 								{ configLinkIsExternal ? (
 									<ExternalLink
 										type="button"
-										className="dops-button is-rna"
+										className="dops-button"
 										href={ configLink }
 										onClick={ onConfigureClick }
 									>
 										{ configureButtonLabel }
 									</ExternalLink>
 								) : (
-									<Button rna href={ configLink } onClick={ onConfigureClick }>
+									<Button href={ configLink } onClick={ onConfigureClick }>
 										{ configureButtonLabel }
 									</Button>
 								) }
 							</div>
 						</>
 					) : (
-						<Button primary rna href={ nextRoute } onClick={ onInstallClick }>
+						<Button variant="solid" tone="brand" href={ nextRoute } onClick={ onInstallClick }>
 							{ ctaText }
 						</Button>
 					) }

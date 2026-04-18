@@ -2,6 +2,9 @@ import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { connect } from 'react-redux';
 import { Navigate } from 'react-router';
+// NOTE: JetpackLoadingIcon and MoneyBackGuarantee are Jetpack-branded composites
+// (loading spinner with altText convention / marketing assurance callout) with
+// no @wordpress/ui or @wordpress/components equivalent. Keep.
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import {

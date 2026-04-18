@@ -1,11 +1,11 @@
 import { isFirstMonthTrial } from '@automattic/jetpack-components';
 import { getCurrencyObject } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import { getIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
 import DiscountBadge from '../discount-badge';
@@ -135,8 +135,8 @@ const ProductCardUpsellComponent = ( {
 			) }
 			<Button
 				className="jp-recommendations-product-card-upsell__cta-button"
-				primary={ ! isRecommended }
-				rna
+				variant="solid"
+				tone={ ! isRecommended ? 'brand' : 'neutral' }
 				href={ checkoutUrl.toString() }
 				onClick={ onClick }
 				target="_blank"

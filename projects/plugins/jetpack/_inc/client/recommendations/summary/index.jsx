@@ -3,6 +3,8 @@ import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
+// NOTE: JetpackLoadingIcon is a Jetpack-branded loading indicator, not a UI
+// primitive. Keep.
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { getSiteTitle } from 'state/initial-state';
 import {

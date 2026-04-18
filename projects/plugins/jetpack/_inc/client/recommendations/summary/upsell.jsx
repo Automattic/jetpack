@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
+// NOTE: MoneyBackGuarantee is a Jetpack marketing component (fixed assurance copy
+// + icon) — not a UI primitive. Keep.
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
 import { getUpsell } from 'state/recommendations';

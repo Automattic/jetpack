@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Icon, external } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
 import RecommendedHeader from '../recommended-header';
 import { SidebarCard } from '../sidebar-card';
@@ -42,14 +42,13 @@ const ProductCardUpsellNoPrice = () => {
 					) }
 				</p>
 				<Button
-					rna
 					href={ getRedirectUrl( 'jetpack-plans' ) }
 					onClick={ onLearnMoreClick }
 					target="blank"
 					rel="noopener noreferrer"
 				>
 					{ __( 'Learn more', 'jetpack' ) }
-					<Gridicon icon="external" />
+					<Icon icon={ external } />
 				</Button>
 			</div>
 		</SidebarCard>

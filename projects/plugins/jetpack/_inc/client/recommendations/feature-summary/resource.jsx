@@ -1,8 +1,8 @@
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { stepToRoute } from 'state/recommendations';
 import { getSummaryResourceProps } from '../feature-utils';
@@ -25,7 +25,7 @@ const ResourceSummaryComponent = props => {
 	return (
 		<div className="jp-recommendations-feature-summary">
 			<Button
-				borderless
+				variant="ghost"
 				href={ stepRoute }
 				onClick={ onStepNameClick }
 				className="jp-recommendations-feature-summary__display-name"
@@ -42,7 +42,7 @@ const ResourceSummaryComponent = props => {
 				<div className="jp-recommendations-feature-summary__cta">
 					<ExternalLink
 						type="button"
-						className="dops-button is-rna"
+						className="dops-button"
 						href={ ctaLink }
 						onClick={ onLearnMoreClick }
 					>

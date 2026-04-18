@@ -1,10 +1,12 @@
 import { ExternalLink } from '@wordpress/components';
+import { Icon, check } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
+// NOTE: InstallButton is a Jetpack composite wrapping Button + module install
+// lifecycle analytics — not a pure UI primitive. Keep.
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';
 import {
@@ -65,20 +67,20 @@ const FeatureSummaryComponent = props => {
 					{ configLinkIsExternal ? (
 						<ExternalLink
 							type="button"
-							className="dops-button is-rna"
+							className="dops-button"
 							href={ configLink }
 							onClick={ onConfigureClick }
 						>
 							{ configureButtonLabel }
 						</ExternalLink>
 					) : (
-						<Button rna href={ configLink } onClick={ onConfigureClick }>
+						<Button href={ configLink } onClick={ onConfigureClick }>
 							{ configureButtonLabel }
 						</Button>
 					) }
 				</>
 			) : (
-				<InstallButton primary rna isInstalling={ isInstalling } onClick={ onInstallClick }>
+				<InstallButton primary isInstalling={ isInstalling } onClick={ onInstallClick }>
 					{ summaryActivateButtonLabel }
 				</InstallButton>
 			) }
@@ -93,11 +95,11 @@ const FeatureSummaryComponent = props => {
 		>
 			{ props.isFeatureActive && (
 				<div className="jp-recommendations-feature-summary__checkmark">
-					<Gridicon icon="checkmark-circle" size={ 24 } />
+					<Icon icon={ check } size={ 24 } />
 				</div>
 			) }
 			<Button
-				borderless
+				variant="ghost"
 				href={ stepRoute }
 				onClick={ onStepNameClick }
 				className="jp-recommendations-feature-summary__display-name"
