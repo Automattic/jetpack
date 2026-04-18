@@ -1,7 +1,7 @@
-import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { store } from '../../social-store';
 import { KeyringResult } from '../../social-store/types';
@@ -94,7 +94,7 @@ export function ConnectForm( {
 			<div className={ styles[ 'fields-wrapper' ] }>
 				<div className={ styles[ 'fields-item' ] }>
 					<Button
-						variant={ hasConnections ? 'secondary' : 'primary' }
+						variant={ hasConnections ? 'outline' : 'solid' }
 						type="submit"
 						className={ styles[ 'connect-button' ] }
 						disabled={ isFetchingServicesList }
