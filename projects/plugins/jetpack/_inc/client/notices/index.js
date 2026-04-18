@@ -1,3 +1,12 @@
+/**
+ * NOTE: Preserved as-is. This is a pure data/event module (Calypso-style
+ *       notice emitter + store) — no UI primitives to swap to `@wordpress/ui`.
+ *       The rendering layer lives in `components/global-notices/index.jsx` and
+ *       deliberately continues to use `SimpleNotice` + `NoticeAction` together
+ *       (dismiss + action buttons), which is the `SimpleNotice`/`NoticeAction`
+ *       pairing the migration plan marks as preserved.
+ */
+
 import debugFactory from 'debug';
 import Emitter from 'mixins/emitter';
 
