@@ -1,8 +1,9 @@
-import { Button, Col, Container, H3 } from '@automattic/jetpack-components';
+import { Col, Container, H3 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import styles from './styles.module.scss';
 
@@ -42,7 +43,7 @@ const Header = () => {
 						) }
 						<Button
 							href={ getAdminUrl( 'post-new.php' ) }
-							variant={ hasConnections ? 'primary' : 'secondary' }
+							variant={ hasConnections ? 'solid' : 'outline' }
 						>
 							{ __( 'Write a post', 'jetpack-publicize-pkg' ) }
 						</Button>
