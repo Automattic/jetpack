@@ -1,10 +1,21 @@
 import { __ } from '@wordpress/i18n';
+import { Button, Card } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Banner from 'components/banner';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// module-override gating, connection flow, and shared settings layout
+// that must not be duplicated inline.
+// NOTE: ConnectUserBar renders the user-connection prompt and wraps
+// analytics + connectUser action dispatch; preserve as-is.
 import ConnectUserBar from 'components/connect-user-bar';
+// NOTE: withModuleSettingsFormHelpers injects getOptionValue / updateOptions
+// and the rest of the settings-form API; preserve as-is.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: SettingsCard wraps module-header layout, module-override banner,
+// and the save-button footer; preserve as-is.
 import SettingsCard from 'components/settings-card';
+// NOTE: SettingsGroup wraps offline/site-connection gating and support
+// link rendering around grouped settings content; preserve as-is.
 import SettingsGroup from 'components/settings-group';
 import {
 	isOfflineMode,
@@ -17,22 +28,6 @@ import { isModuleFound } from 'state/search';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
-		componentDidMount() {
-			document.addEventListener( 'click', this.handleAnchorClick );
-		}
-
-		componentWillUnmount() {
-			document.removeEventListener( 'click', this.handleAnchorClick );
-		}
-
-		handleAnchorClick = event => {
-			const anchor = event.target.closest( '.jp-searchable-banner a.dops-button[href="#"]' );
-
-			if ( anchor ) {
-				event.preventDefault();
-			}
-		};
-
 		handleBannerClick = module => {
 			return () => this.props.updateOptions( { [ module ]: true } );
 		};
@@ -79,16 +74,28 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 						results.push( <ActiveCard key={ slug } moduleData={ moduleData } /> );
 					} else {
 						results.push(
-							<Banner
-								className="jp-searchable-banner"
-								key={ slug }
-								callToAction={ __( 'Activate', 'jetpack' ) }
-								description={ moduleData.description }
-								href="#"
-								icon="cog"
-								onClick={ this.handleBannerClick( moduleData.module ) }
-								title={ moduleData.name }
-							/>
+							<Card.Root key={ slug } className="jp-searchable-banner">
+								<Card.Content>
+									<div className="jp-searchable-banner__content">
+										<div className="jp-searchable-banner__info">
+											<div className="jp-searchable-banner__title">{ moduleData.name }</div>
+											<div className="jp-searchable-banner__description">
+												{ moduleData.description }
+											</div>
+										</div>
+										<div className="jp-searchable-banner__action">
+											<Button
+												variant="solid"
+												tone="brand"
+												size="compact"
+												onClick={ this.handleBannerClick( moduleData.module ) }
+											>
+												{ __( 'Activate', 'jetpack' ) }
+											</Button>
+										</div>
+									</div>
+								</Card.Content>
+							</Card.Root>
 						);
 					}
 				}
