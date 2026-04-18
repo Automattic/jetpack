@@ -54,7 +54,7 @@
 		"@wordpress/editor": "14.44.0",
 		"@wordpress/element": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
-		"@wordpress/icons": "12.1.0",
+		"@wordpress/icons": "12.2.0",
 		"@wordpress/primitives": "4.44.0",
 		"@wordpress/url": "4.44.0",
 		"clsx": "2.1.1",
