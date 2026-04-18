@@ -1,17 +1,16 @@
 import {
-	Button,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
 	getRedirectUrl,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useProductInfo from '../../../hooks/use-product-info';
 import { store as socialStore } from '../../../social-store';
@@ -29,8 +28,6 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 	const siteSuffix = getScriptData().site.suffix;
 
 	const { setShowPricingPage, updateSocialModuleSettings } = useDispatch( socialStore );
-
-	const [ isLarge ] = useBreakpointMatch( 'lg' );
 
 	const isEnablingSocial = useSelect(
 		select => select( socialStore ).isSavingSocialModuleSettings(),
@@ -122,7 +119,7 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 							site: blogID ? blogID.toString() : siteSuffix,
 							query: getRefreshPlanQuery(),
 						} ) }
-						fullWidth
+						className={ styles[ 'cta-button' ] }
 					>
 						{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
 					</Button>
@@ -146,10 +143,9 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 						hidePriceFraction
 					/>
 					<Button
-						fullWidth
-						variant="secondary"
+						variant="outline"
 						onClick={ startForFree }
-						className={ isLarge && styles.button }
+						className={ styles[ 'cta-button' ] }
 						disabled={ isEnablingSocial }
 					>
 						{ isEnablingSocial
