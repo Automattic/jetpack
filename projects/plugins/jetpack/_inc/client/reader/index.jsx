@@ -1,10 +1,19 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import Card from 'components/card';
+// NOTE: The following imports are shared Jetpack helpers, NOT UI primitives,
+// and are intentionally preserved:
+// - QuerySite / components/data: data-fetching component (Redux-driven).
+// - withModuleSettingsFormHelpers: HOC that wires module save/load actions.
+// - SettingsCard / SettingsGroup: orchestrate save buttons, upgrade upsells,
+//   module override handling, and feature gating.
+// - ModuleToggle: wraps ToggleControl with analytics and override reasons.
+// - SimpleNotice: Jetpack status banner — kept intentionally; @wordpress/ui
+//   Notice has no status="is-info"/showDismiss parity yet.
 import QuerySite from 'components/data/query-site';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -125,16 +134,18 @@ function Reader( props ) {
 		blogID ? { origin_site_id: blogID } : {}
 	);
 	const visitReaderLink = (
-		<Card
-			compact
-			className="jp-settings-card__configure-link"
-			onClick={ trackReaderClick }
-			href={ readerUrl }
-			target="_blank"
-			rel="noopener noreferrer"
-		>
-			{ __( 'Visit the Reader', 'jetpack' ) }
-		</Card>
+		<Card.Root className="jp-settings-card__configure-link">
+			<Card.Content>
+				<a
+					href={ readerUrl }
+					target="_blank"
+					rel="noopener noreferrer"
+					onClick={ trackReaderClick }
+				>
+					{ __( 'Visit the Reader', 'jetpack' ) }
+				</a>
+			</Card.Content>
+		</Card.Root>
 	);
 
 	return (
