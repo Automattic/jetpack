@@ -6,7 +6,7 @@ description: >
   "jurassic ninja screenshot", "JN screenshot", "real-screen before/after",
   or says "/jetpack-screenshot". Depends on the chrome-devtools MCP for
   navigation/capture and on jetpack-test-jurassic-ninja for syncing plugin state.
-allowed-tools: Bash(git rev-parse:*), Bash(git remote:*), Bash(git hash-object:*), Bash(git mktree:*), Bash(git commit-tree:*), Bash(git update-ref:*), Bash(git push:*), Bash(git rev-list:*), Bash(git show-ref:*), Bash(mktemp:*), Bash(sips:*), Bash(file:*), Bash(ls:*), Read
+allowed-tools: Bash(git rev-parse:*), Bash(git remote:*), Bash(git hash-object:*), Bash(git mktree:*), Bash(git commit-tree:*), Bash(git update-ref:*), Bash(git push:*), Bash(git rev-list:*), Bash(git show-ref:*), Bash(git diff:*), Bash(mktemp:*), Bash(ls:*), Bash(command -v:*), Bash(magick:*), Read
 ---
 
 # Jetpack Screenshot — Before/After on Jurassic Ninja
@@ -87,10 +87,9 @@ Repeat the capture from step 2, saving each as `after-<slug>.png` in the same te
 
 ### 5. (Optional) Side-by-side composite
 
-If the user wants one image per path instead of two, stitch with `sips` (macOS, always available):
+If the user wants one image per path instead of two, stitch with ImageMagick when available:
 
 ```bash
-# Horizontal concat via ImageMagick if installed; otherwise skip and push both files.
 if command -v magick >/dev/null; then
     for slug in $(ls "$OUT"/before-*.png | sed 's#.*/before-\(.*\)\.png#\1#'); do
         magick "$OUT/before-$slug.png" "$OUT/after-$slug.png" +append "$OUT/before-after-$slug.png"
