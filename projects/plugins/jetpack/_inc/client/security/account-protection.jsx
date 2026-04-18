@@ -1,14 +1,19 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Notice } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// NOTE: withModuleSettingsFormHelpers is Jetpack's module-form HOC (Redux state glue),
+// not a UI primitive — keep it. Replacing would require touching state logic.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: ModuleToggle encapsulates module-override state + analytics on top of
+// ToggleControl; it is a Redux-connected helper, not a raw UI primitive. Keep.
 import { ModuleToggle } from 'components/module-toggle';
+// NOTE: SettingsCard / SettingsGroup are Jetpack's settings-save containers, tightly
+// coupled to the module form Redux state — not pure UI primitives. Keep.
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { isModuleFound } from 'state/search';
-import SimpleNotice from '../components/notice';
-import NoticeAction from '../components/notice/notice-action';
 
 const MODULE_NAME = 'account-protection';
 
@@ -25,39 +30,36 @@ const AccountProtectionComponent = class extends Component {
 				hideButton={ true }
 			>
 				{ ! isSupported && (
-					<SimpleNotice
-						status={ 'is-info' }
-						showDismiss={ false }
-						text={ __(
+					<Notice status="info" isDismissible={ false }>
+						{ __(
 							'This feature has been disabled by your site administrator or hosting provider.',
 							'jetpack'
-						) }
-						children={
-							<NoticeAction
-								external
-								href={ getRedirectUrl( 'jetpack-account-protection', {
-									anchor: 'unsupported-environments',
-								} ) }
-							>
-								{ __( 'Learn more', 'jetpack' ) }
-							</NoticeAction>
-						}
-					/>
+						) }{ ' ' }
+						<a
+							href={ getRedirectUrl( 'jetpack-account-protection', {
+								anchor: 'unsupported-environments',
+							} ) }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'Learn more', 'jetpack' ) }
+						</a>
+					</Notice>
 				) }
 				{ isSupported && ! isActive && (
-					<SimpleNotice
-						showDismiss={ false }
-						status={ 'is-info' }
-						text={ __(
+					<Notice status="info" isDismissible={ false }>
+						{ __(
 							'Jetpack recommends enabling this feature to enhance account security.',
 							'jetpack'
-						) }
-						children={
-							<NoticeAction external href={ getRedirectUrl( 'jetpack-account-protection-risks' ) }>
-								{ __( 'Learn about the risks', 'jetpack' ) }
-							</NoticeAction>
-						}
-					/>
+						) }{ ' ' }
+						<a
+							href={ getRedirectUrl( 'jetpack-account-protection-risks' ) }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'Learn about the risks', 'jetpack' ) }
+						</a>
+					</Notice>
 				) }
 				<SettingsGroup
 					hasChild

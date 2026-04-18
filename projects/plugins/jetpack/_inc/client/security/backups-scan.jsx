@@ -1,15 +1,21 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
+import { Card, CardBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// NOTE: Banner is a Jetpack-specific upsell/status component (plan + analytics aware),
+// with no @wordpress/ui or @wordpress/components equivalent. Keep and flag.
 import Banner from 'components/banner';
-import Card from 'components/card';
 import QueryRewindStatus from 'components/data/query-rewind-status';
+// NOTE: withModuleSettingsFormHelpers is Jetpack's module-form HOC — state glue,
+// not a UI primitive. Keep.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: SettingsCard / SettingsGroup are Jetpack's settings-save containers,
+// tightly coupled to the module form Redux state. Keep.
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -245,14 +251,17 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 						{ this.getCardText() }
 					</SettingsGroup>
 					{ ! this.props.isUnavailableInOfflineMode( 'backups' ) && scanEnabled && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							target="_blank"
-							href={ getRedirectUrl( 'vaultpress-dashboard' ) }
-						>
-							{ __( 'Configure your Security Scans', 'jetpack' ) }
+						<Card size="small" className="jp-settings-card__configure-link">
+							<CardBody>
+								<a
+									href={ getRedirectUrl( 'vaultpress-dashboard' ) }
+									target="_blank"
+									rel="noopener noreferrer"
+									onClick={ this.trackConfigureClick }
+								>
+									{ __( 'Configure your Security Scans', 'jetpack' ) }
+								</a>
+							</CardBody>
 						</Card>
 					) }
 				</SettingsCard>

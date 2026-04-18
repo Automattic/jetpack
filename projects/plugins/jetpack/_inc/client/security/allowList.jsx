@@ -1,15 +1,14 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { BaseControl, Button, TextareaControl, ToggleControl } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+// NOTE: withModuleSettingsFormHelpers wires module form state via Redux — keep.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: SettingsCard / SettingsGroup are Jetpack-specific settings containers — keep.
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
-import Textarea from '../components/textarea';
 import { updateWafSettings } from '../state/waf/actions';
 import { getWafSettings, isFetchingWafSettings, isUpdatingWafSettings } from '../state/waf/reducer';
 
@@ -90,10 +89,10 @@ const AllowList = class extends Component {
 	/**
 	 * Handle IP allow list change.
 	 *
-	 * @param {Event} event - = The event object.
+	 * @param {string} value - The new textarea value.
 	 */
-	handleIpAllowListChange = event => {
-		this.setState( { ...this.state, ipAllowList: event?.target?.value } );
+	handleIpAllowListChange = value => {
+		this.setState( { ...this.state, ipAllowList: value } );
 	};
 
 	currentIpIsSafelisted = () => {
@@ -141,14 +140,11 @@ const AllowList = class extends Component {
 						link: this.props.getModule( 'waf' ).learn_more_button,
 					} }
 				>
-					<FormFieldset>
+					<BaseControl __nextHasNoMarginBottom>
 						<div className="waf__settings__toggle-setting">
 							<ToggleControl
-								checked={ this.props.settings?.ipAllowListEnabled }
-								toggling={
-									this.props.isUpdatingWafSettings &&
-									this.state.ipAllowListEnabled !== this.props.settings?.ipAllowListEnabled
-								}
+								__nextHasNoMarginBottom
+								checked={ !! this.props.settings?.ipAllowListEnabled }
 								disabled={ baseInputDisabledCase }
 								onChange={ this.toggleIpAllowList }
 								label={
@@ -161,7 +157,8 @@ const AllowList = class extends Component {
 								}
 							/>
 							{ ( this.state.ipAllowListEnabled || !! this.state.ipAllowList ) && (
-								<Textarea
+								<TextareaControl
+									__nextHasNoMarginBottom
 									className="waf__settings__ips"
 									disabled={
 										baseInputDisabledCase ||
@@ -170,7 +167,7 @@ const AllowList = class extends Component {
 									}
 									name="ipAllowList"
 									placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
-									value={ this.state.ipAllowList }
+									value={ this.state.ipAllowList || '' }
 									onChange={ this.handleIpAllowListChange }
 								/>
 							) }
@@ -185,27 +182,24 @@ const AllowList = class extends Component {
 													this.props.currentIp
 												) }
 											</div>
-											{
-												<Button
-													rna
-													compact
-													disabled={
-														this.props.isUpdatingWafSettings ||
-														! this.props.settings?.ipAllowListEnabled ||
-														this.currentIpIsSafelisted() ||
-														this.props.isSavingAnyOption( [ 'jetpack_waf_ip_allow_list' ] )
-													}
-													onClick={ this.addToSafelist }
-												>
-													{ __( 'Add to Allow List', 'jetpack' ) }
-												</Button>
-											}
+											<Button
+												variant="secondary"
+												size="compact"
+												disabled={
+													this.props.isUpdatingWafSettings ||
+													! this.props.settings?.ipAllowListEnabled ||
+													this.currentIpIsSafelisted() ||
+													this.props.isSavingAnyOption( [ 'jetpack_waf_ip_allow_list' ] )
+												}
+												onClick={ this.addToSafelist }
+											>
+												{ __( 'Add to Allow List', 'jetpack' ) }
+											</Button>
 										</div>
 									) }
 									<Button
-										primary
-										rna
-										compact
+										variant="primary"
+										size="compact"
 										type="button"
 										className="waf__settings__ips__save-button"
 										disabled={
@@ -220,7 +214,7 @@ const AllowList = class extends Component {
 								</div>
 							) }
 						</div>
-					</FormFieldset>
+					</BaseControl>
 				</SettingsGroup>
 			</SettingsCard>
 		);

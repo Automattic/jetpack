@@ -1,15 +1,27 @@
-import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	BaseControl,
+	Button,
+	Card,
+	CardBody,
+	ExternalLink,
+	TextareaControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
+// NOTE: FoldableCard has no direct @wordpress/ui equivalent; @wordpress/components
+// `Panel` differs in header/open API. Keep and flag.
 import FoldableCard from 'components/foldable-card';
-import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+// NOTE: JetpackBanner is a Jetpack-specific upsell/plan banner with analytics — no
+// primitive equivalent exists. Keep and flag.
 import JetpackBanner from 'components/jetpack-banner';
+// NOTE: withModuleSettingsFormHelpers is Jetpack's module form state HOC — keep.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: SettingsCard / SettingsGroup are Jetpack settings-save containers — keep.
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
@@ -19,12 +31,15 @@ import {
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getSitePlan, siteHasFeature } from 'state/site';
-import Card from '../components/card';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
+// NOTE: InfoPopover is a Jetpack-styled popover; @wordpress/components Popover has a
+// different anchoring API. Keep and flag.
 import InfoPopover from '../components/info-popover';
+// NOTE: ModuleToggle wraps a ToggleControl with module-override Redux state +
+// analytics — not a pure UI primitive. Keep.
 import { ModuleToggle } from '../components/module-toggle';
+// NOTE: PlanIcon is a Jetpack-specific plan-badge component — no primitive equivalent.
 import PlanIcon from '../components/plans/plan-icon';
-import Textarea from '../components/textarea';
 import { getSiteAdminUrl } from '../state/initial-state';
 import { isPluginActive } from '../state/site/plugins';
 import { updateWafSettings } from '../state/waf/actions';
@@ -154,10 +169,12 @@ export const Waf = class extends Component {
 	/**
 	 * Handle IP block list change.
 	 *
-	 * @param {Event} event - The event object.
+	 * TextareaControl passes the value directly (not an event).
+	 *
+	 * @param {string} value - The new textarea value.
 	 */
-	handleIpBlockListChange = event => {
-		this.setState( { ...this.state, ipBlockList: event?.target?.value } );
+	handleIpBlockListChange = value => {
+		this.setState( { ...this.state, ipBlockList: value } );
 	};
 
 	/**
@@ -205,11 +222,12 @@ export const Waf = class extends Component {
 			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
 				{ this.props.settings?.standaloneMode && (
-					<Status
-						className="waf__standalone__mode"
-						status="active"
-						label={ __( 'Standalone mode', 'jetpack' ) }
-					/>
+					<span
+						className="waf__standalone__mode jp-status jp-status--active"
+						aria-label={ __( 'Standalone mode', 'jetpack' ) }
+					>
+						{ __( 'Standalone mode', 'jetpack' ) }
+					</span>
 				) }
 			</div>
 		);
@@ -217,14 +235,11 @@ export const Waf = class extends Component {
 		const automaticRulesSettings = (
 			<div className="waf__settings__toggle-setting">
 				<ToggleControl
+					__nextHasNoMarginBottom
 					checked={
-						this.props.hasScan || this.props.settings?.automaticRulesAvailable
+						!! ( this.props.hasScan || this.props.settings?.automaticRulesAvailable
 							? this.props.settings?.automaticRulesEnabled
-							: false
-					}
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.automaticRulesEnabled !== this.props.settings?.automaticRulesEnabled
+							: false )
 					}
 					disabled={
 						baseInputDisabledCase ||
@@ -246,12 +261,9 @@ export const Waf = class extends Component {
 		const shareDataSettings = (
 			<div className="waf__settings__toggle-setting">
 				<ToggleControl
-					checked={ this.props.settings?.shareData }
+					__nextHasNoMarginBottom
+					checked={ !! this.props.settings?.shareData }
 					disabled={ baseInputDisabledCase }
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.shareData !== this.props.settings?.shareData
-					}
 					onChange={ this.toggleShareData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
@@ -287,12 +299,9 @@ export const Waf = class extends Component {
 		const shareDebugDataSettings = (
 			<div className="waf__settings__toggle-setting">
 				<ToggleControl
-					checked={ this.props.settings?.shareDebugData }
+					__nextHasNoMarginBottom
+					checked={ !! this.props.settings?.shareDebugData }
 					disabled={ baseInputDisabledCase }
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.shareDebugData !== this.props.settings?.shareDebugData
-					}
 					onChange={ this.toggleShareDebugData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
@@ -406,11 +415,8 @@ export const Waf = class extends Component {
 		const ipBlockListSettings = (
 			<div className="waf__settings__toggle-setting">
 				<ToggleControl
-					checked={ this.props.settings?.ipBlockListEnabled }
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.ipBlockListEnabled !== this.props.settings?.ipBlockListEnabled
-					}
+					__nextHasNoMarginBottom
+					checked={ !! this.props.settings?.ipBlockListEnabled }
 					disabled={ baseInputDisabledCase }
 					onChange={ this.toggleIpBlockList }
 					label={
@@ -424,7 +430,8 @@ export const Waf = class extends Component {
 				/>
 				{ ( this.state.ipBlockListEnabled || !! this.state.ipBlockList ) && (
 					<div className="waf__settings__ips">
-						<Textarea
+						<TextareaControl
+							__nextHasNoMarginBottom
 							disabled={
 								baseInputDisabledCase ||
 								this.props.isUpdatingWafSettings ||
@@ -436,14 +443,13 @@ export const Waf = class extends Component {
 								__( 'Example: %s', 'jetpack' ),
 								'\n12.12.12.1\n12.12.12.2'
 							) }
-							value={ this.state.ipBlockList }
+							value={ this.state.ipBlockList || '' }
 							onChange={ this.handleIpBlockListChange }
 						/>
 						{ this.state.ipBlockListEnabled && (
 							<Button
-								primary
-								rna
-								compact
+								variant="primary"
+								size="compact"
 								type="button"
 								className="waf__settings__ips__save-button"
 								disabled={
@@ -467,24 +473,30 @@ export const Waf = class extends Component {
 			return (
 				<SettingsCard { ...this.props } header={ moduleHeader } module="waf" hideButton={ true }>
 					<Card className="dops-banner has-call-to-action">
-						<div className="dops-banner__icon-plan">
-							<PlanIcon plan={ PLAN_JETPACK_SCAN } />
-						</div>
-						<div className="dops-banner__content">
-							<div className="dops-banner__info">
-								<div className="dops-banner__title">
-									{ __(
-										'Firewall settings have been moved to the Jetpack Protect plugin.',
-										'jetpack'
-									) }
+						<CardBody>
+							<div className="dops-banner__icon-plan">
+								<PlanIcon plan={ PLAN_JETPACK_SCAN } />
+							</div>
+							<div className="dops-banner__content">
+								<div className="dops-banner__info">
+									<div className="dops-banner__title">
+										{ __(
+											'Firewall settings have been moved to the Jetpack Protect plugin.',
+											'jetpack'
+										) }
+									</div>
+								</div>
+								<div className="dops-banner__action">
+									<Button
+										variant="primary"
+										size="compact"
+										href={ this.props.protectAdminUrl }
+									>
+										{ __( 'View Firewall Settings', 'jetpack' ) }
+									</Button>
 								</div>
 							</div>
-							<div className="dops-banner__action">
-								<Button rna={ true } compact href={ this.props.protectAdminUrl } primary>
-									{ __( 'View Firewall Settings', 'jetpack' ) }
-								</Button>
-							</div>
-						</div>
+						</CardBody>
 					</Card>
 				</SettingsCard>
 			);
@@ -519,12 +531,12 @@ export const Waf = class extends Component {
 						</span>
 					</ModuleToggle>
 					{ isWafActive && ! this.props.isFetchingWafSettings && (
-						<FormFieldset className="waf__settings">
+						<BaseControl __nextHasNoMarginBottom className="waf__settings">
 							{ automaticRulesSettings }
 							{ ipBlockListSettings }
 							{ shareDataSettings }
 							{ shareDebugDataSettings }
-						</FormFieldset>
+						</BaseControl>
 					) }
 				</SettingsGroup>
 				{ isWafActive && this.props.bootstrapPath && bootstrapInstructions }

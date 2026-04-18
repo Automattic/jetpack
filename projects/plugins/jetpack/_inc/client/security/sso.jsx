@@ -1,14 +1,17 @@
-import { getRedirectUrl, ToggleControl, Gridicon } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button, ExternalLink } from '@wordpress/components';
+import { BaseControl, Button, ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
+import { Icon, closeSmall } from '@wordpress/icons';
 import { __, _x } from '@wordpress/i18n';
 import * as cookie from 'cookie';
 import { useState, Component } from 'react';
 import ReactDOM from 'react-dom';
-import { FormFieldset } from 'components/forms';
+// NOTE: withModuleSettingsFormHelpers is Jetpack's module form state HOC — keep.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: ModuleToggle encapsulates module-override state + analytics — keep (Redux glue).
 import { ModuleToggle } from 'components/module-toggle';
+// NOTE: SettingsCard / SettingsGroup are Jetpack-specific settings containers — keep.
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_SSO } from '../lib/plans/constants';
@@ -48,7 +51,7 @@ const SSOSurveyNotice = () => {
 					</div>
 					{ /* eslint-disable-next-line react/jsx-no-bind */ }
 					<Button onClick={ onClose } className="modal-survey-notice__popup-head-close">
-						<Gridicon icon="cross" size={ 16 } />
+						<Icon icon={ closeSmall } size={ 16 } />
 					</Button>
 				</div>
 				<div className="modal-survey-notice__popup-content">
@@ -178,8 +181,9 @@ export const SSO = withModuleSettingsFormHelpers(
 									{ this.props.getModule( 'sso' ).description }
 								</span>
 							</ModuleToggle>
-							<FormFieldset>
+							<BaseControl __nextHasNoMarginBottom>
 								<ToggleControl
+									__nextHasNoMarginBottom
 									checked={
 										isSSOActive &&
 										this.props.getOptionValue( 'jetpack_sso_match_by_email', 'sso', false )
@@ -189,7 +193,6 @@ export const SSO = withModuleSettingsFormHelpers(
 										unavailableInOfflineMode ||
 										this.props.isSavingAnyOption( [ 'sso' ] )
 									}
-									toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_match_by_email' ] ) }
 									onChange={ this.handleMatchByEmailToggleChange }
 									label={
 										<span className="jp-form-toggle-explanation">
@@ -198,6 +201,7 @@ export const SSO = withModuleSettingsFormHelpers(
 									}
 								/>
 								<ToggleControl
+									__nextHasNoMarginBottom
 									checked={
 										( isSSOActive &&
 											this.props.getOptionValue( 'jetpack_sso_require_two_step', 'sso', false ) ) ||
@@ -209,7 +213,6 @@ export const SSO = withModuleSettingsFormHelpers(
 										isTwoStepEnforced ||
 										this.props.isSavingAnyOption( [ 'sso' ] )
 									}
-									toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_require_two_step' ] ) }
 									onChange={ this.handleTwoStepToggleChange }
 									label={
 										<span className="jp-form-toggle-explanation">
@@ -238,7 +241,7 @@ export const SSO = withModuleSettingsFormHelpers(
 											: null
 									}
 								/>
-							</FormFieldset>
+							</BaseControl>
 						</SettingsGroup>
 					</SettingsCard>
 					{ this.state.showSSODisableModal &&

@@ -1,16 +1,19 @@
+import { BaseControl, Notice, TextControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
+import { Icon, update as updateIcon } from '@wordpress/icons';
 import { __, _x } from '@wordpress/i18n';
 import { debounce, isEmpty } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// NOTE: FoldableCard has no direct @wordpress/ui equivalent; @wordpress/components
+// offers Panel/PanelBody but the header/open-callback API differs enough that
+// replacing it here would change props and analytics semantics. Keep and flag.
 import FoldableCard from 'components/foldable-card';
-import FormInputValidation from 'components/form-input-validation';
-import { FormFieldset, FormLabel } from 'components/forms';
-import Gridicon from 'components/gridicon';
+// NOTE: withModuleSettingsFormHelpers is Jetpack's module form state HOC — keep.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: SettingsCard / SettingsGroup are Jetpack-specific settings containers — keep.
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
@@ -37,16 +40,21 @@ export const Antispam = withModuleSettingsFormHelpers(
 			} );
 		};
 
-		updateText = event => {
-			const currentEvent = Object.assign( {}, event );
-			currentEvent.currentTarget.value = String( currentEvent.currentTarget.value ).trim();
+		// TextControl onChange gives us the value directly; we synthesize a minimal
+		// event-like object for downstream handlers that still expect `currentTarget.value`.
+		updateText = value => {
+			const trimmed = String( value ).trim();
+			const syntheticEvent = {
+				target: { name: 'wordpress_api_key', value: trimmed },
+				currentTarget: { name: 'wordpress_api_key', value: trimmed },
+			};
 			this.setState(
 				{
-					apiKey: currentEvent.currentTarget.value,
+					apiKey: trimmed,
 					delayKeyCheck: true,
-					currentEvent: currentEvent,
+					currentEvent: syntheticEvent,
 				},
-				this.debouncedCheckApiKeyTyped( currentEvent )
+				this.debouncedCheckApiKeyTyped( syntheticEvent )
 			);
 		};
 
@@ -98,12 +106,13 @@ export const Antispam = withModuleSettingsFormHelpers(
 				this.props.isAkismetKeyValid
 			) {
 				textProps.value = __( "A valid key has been set in your site's configuration.", 'jetpack' );
-				textProps.isValid = true;
 				textProps.disabled = true;
 				foldableHeader = __( 'Your site is protected from spam.', 'jetpack' );
 				explanation = __( 'It looks like your API key has been set globally.', 'jetpack' );
 				akismetStatus = (
-					<FormInputValidation text={ __( 'Your Anti-spam key is valid.', 'jetpack' ) } />
+					<Notice status="success" isDismissible={ false } className="form-input-validation">
+						{ __( 'Your Anti-spam key is valid.', 'jetpack' ) }
+					</Notice>
 				);
 			} else if ( '' === this.state.apiKey ) {
 				textProps.value = '';
@@ -111,9 +120,8 @@ export const Antispam = withModuleSettingsFormHelpers(
 			} else if ( ! this.state.delayKeyCheck && ! this.props.isCheckingAkismetKey ) {
 				if ( false === this.props.isAkismetKeyValid ) {
 					akismetStatus = (
-						<FormInputValidation
-							isError
-							text={ createInterpolateElement(
+						<Notice status="error" isDismissible={ false } className="form-input-validation">
+							{ createInterpolateElement(
 								__(
 									"There's a problem with your Anti-spam API key. <a>Learn more</a>.",
 									'jetpack'
@@ -122,26 +130,26 @@ export const Antispam = withModuleSettingsFormHelpers(
 									a: <a href={ 'https://docs.akismet.com/getting-started/api-key/' } />,
 								}
 							) }
-						/>
+						</Notice>
 					);
-					textProps.isError = true;
 					foldableHeader = __( 'Your site is not protected from spam.', 'jetpack' );
 				} else {
 					akismetStatus = (
-						<FormInputValidation text={ __( 'Your Anti-spam key is valid.', 'jetpack' ) } />
+						<Notice status="success" isDismissible={ false } className="form-input-validation">
+							{ __( 'Your Anti-spam key is valid.', 'jetpack' ) }
+						</Notice>
 					);
-					textProps.isValid = true;
 					foldableHeader = __( 'Your site is protected from spam.', 'jetpack' );
 					explanation = false;
 				}
 			} else if ( this.props.isCheckingAkismetKey ) {
 				akismetStatus = (
-					<div className="form-input-validation is-warning">
+					<Notice status="warning" isDismissible={ false } className="form-input-validation">
 						<span>
-							<Gridicon size={ 24 } icon="sync" />
+							<Icon icon={ updateIcon } size={ 24 } />
 							{ __( 'Checking key…', 'jetpack' ) }
 						</span>
-					</div>
+					</Notice>
 				);
 				explanation = false;
 			}
@@ -161,14 +169,17 @@ export const Antispam = withModuleSettingsFormHelpers(
 								privacyLink: 'https://akismet.com/privacy/',
 							} }
 						>
-							<FormFieldset>
-								<FormLabel>
-									<span className="jp-form-label-wide">{ __( 'Your API key', 'jetpack' ) }</span>
-									<TextInput { ...textProps } />
-									{ akismetStatus }
-								</FormLabel>
-								{ explanation && <p className="jp-form-setting-explanation">{ explanation }</p> }
-							</FormFieldset>
+							<BaseControl
+								__nextHasNoMarginBottom
+								label={ __( 'Your API key', 'jetpack' ) }
+							>
+								<TextControl
+									__nextHasNoMarginBottom
+									{ ...textProps }
+								/>
+								{ akismetStatus }
+							</BaseControl>
+							{ explanation && <p className="jp-form-setting-explanation">{ explanation }</p> }
 						</SettingsGroup>
 					</FoldableCard>
 				</SettingsCard>
