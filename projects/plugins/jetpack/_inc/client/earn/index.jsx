@@ -1,9 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card, Stack } from '@wordpress/ui';
 import { connect } from 'react-redux';
-import Card from 'components/card';
+// NOTE: QuerySite + components/data/* are preserved helpers (Redux data fetch wiring).
 import QuerySite from 'components/data/query-site';
+// NOTE: SettingsCard and SettingsGroup are preserved Jetpack settings wrappers (feature gating, upsell, support links).
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -20,6 +22,10 @@ import { Ads } from './ads';
 
 /**
  * Earn Feature description card.
+ *
+ * Uses @wordpress/ui Card primitives as the inner "configure link" surface,
+ * replacing the legacy CompactCard-with-href pattern. The anchor now lives
+ * inside Card.Content so keyboard/semantics are preserved.
  *
  * @param {object} props - Component props.
  * @return {import('react').Component} Feature description and CTA.
@@ -59,15 +65,18 @@ function EarnFeatureButton( props ) {
 			>
 				{ infoDescription }
 			</SettingsGroup>
-			<Card
-				compact
-				className="jp-settings-card__configure-link"
-				onClick={ trackButtonClick }
-				href={ infoLink }
-				target="_blank"
-			>
-				{ buttonText }
-			</Card>
+			<Card.Root className="jp-settings-card__configure-link">
+				<Card.Content>
+					<a
+						href={ infoLink }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ trackButtonClick }
+					>
+						{ buttonText }
+					</a>
+				</Card.Content>
+			</Card.Root>
 		</SettingsCard>
 	);
 }
@@ -94,8 +103,8 @@ function Earn( props ) {
 		return null;
 	}
 
-	const foundAds = isModuleFound( 'wordads' ),
-		foundEarnBlocks = isModuleFound( 'earn' );
+	const foundAds = isModuleFound( 'wordads' );
+	const foundEarnBlocks = isModuleFound( 'earn' );
 
 	if ( ! foundAds && ! foundEarnBlocks ) {
 		return null;
@@ -124,7 +133,7 @@ function Earn( props ) {
 		}
 
 		return (
-			<>
+			<Stack spacing={ 4 }>
 				<EarnFeatureButton
 					{ ...props }
 					featureName="payments"
@@ -166,7 +175,7 @@ function Earn( props ) {
 					buttonText={ __( 'Learn how to get started', 'jetpack' ) }
 					featureConstant={ FEATURE_SIMPLE_PAYMENTS_JETPACK }
 				/>
-			</>
+			</Stack>
 		);
 	};
 

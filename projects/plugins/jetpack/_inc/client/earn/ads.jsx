@@ -1,17 +1,19 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Card, Field, Fieldset, Input, Link, Stack, Textarea } from '@wordpress/ui';
 import { Component } from 'react';
-import Card from 'components/card';
-import { FormFieldset, FormLegend } from 'components/forms';
+// NOTE: withModuleSettingsFormHelpers is a preserved Jetpack HOC (handles updateFormStateOptionValue,
+// getOptionValue, onOptionChange, isSavingAnyOption, toggleModuleNow wiring to Redux).
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: ModuleToggle is a preserved Jetpack primitive (module-level activation + Redux wiring).
 import { ModuleToggle } from 'components/module-toggle';
+// NOTE: SettingsCard and SettingsGroup are preserved Jetpack settings wrappers
+// (feature gating, upsell, support link rendering, offline/site-connection gating).
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import TextInput from 'components/text-input';
-import Textarea from 'components/textarea';
 import analytics from 'lib/analytics';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 
@@ -38,6 +40,19 @@ export const Ads = withModuleSettingsFormHelpers(
 			return () => this.updateOptions( setting );
 		};
 
+		/**
+		 * Adapter: @wordpress/ui Input/Textarea emit native change events, but the
+		 * existing Redux helper `updateFormStateOptionValue` takes ( name, value ).
+		 * We keep the DOM-event-based onOptionChange path intact for inputs that
+		 * emit native events, so the wiring stays identical to the previous impl.
+		 *
+		 * @param {string} name - option name to update.
+		 * @return {Function} change handler.
+		 */
+		handleInputChange = name => event => {
+			this.props.updateFormStateOptionValue( name, event.target.value );
+		};
+
 		renderAdsTxtSection() {
 			const { getOptionValue, isUnavailableInOfflineMode } = this.props;
 			const wordads_custom_adstxt_enabled = getOptionValue(
@@ -60,18 +75,18 @@ export const Ads = withModuleSettingsFormHelpers(
 					} }
 				>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						checked={ wordads_custom_adstxt_enabled }
 						disabled={
 							! isAdsActive ||
 							unavailableInOfflineMode ||
 							this.props.isSavingAnyOption( [ 'wordads' ] )
 						}
-						toggling={ this.props.isSavingAnyOption( [ 'wordads_custom_adstxt_enabled' ] ) }
 						onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
 						label={ __( 'Customize your ads.txt file', 'jetpack' ) }
 					/>
 					{ wordads_custom_adstxt_enabled && (
-						<FormFieldset>
+						<Fieldset.Root>
 							<br />
 							<p>
 								{ isAdsActive &&
@@ -108,9 +123,9 @@ export const Ads = withModuleSettingsFormHelpers(
 									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
 								}
-								onChange={ this.props.onOptionChange }
+								onChange={ this.handleInputChange( 'wordads_custom_adstxt' ) }
 							/>
-						</FormFieldset>
+						</Fieldset.Root>
 					) }
 				</SettingsGroup>
 			);
@@ -148,6 +163,10 @@ export const Ads = withModuleSettingsFormHelpers(
 			const wordads_cmp_enabled = this.props.getOptionValue( 'wordads_cmp_enabled', 'wordads' );
 
 			const isSubDirSite = this.props.siteRawUrl.indexOf( '::' ) !== -1;
+
+			const savingWordads = this.props.isSavingAnyOption( [ 'wordads' ] );
+			const disableToggle = ! isAdsActive || unavailableInOfflineMode || savingWordads;
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -181,10 +200,9 @@ export const Ads = withModuleSettingsFormHelpers(
 									),
 									{
 										link: (
-											<ExternalLink
+											<Link
 												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
-												target="_blank"
-												rel="noopener noreferrer"
+												openInNewTab
 												onClick={ this.trackConfigureWidgetClick }
 											/>
 										),
@@ -204,90 +222,73 @@ export const Ads = withModuleSettingsFormHelpers(
 								{ __( 'Enable ads and display an ad below each post', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
-						<FormFieldset>
-							<FormLegend>{ __( 'Display ads below posts on', 'jetpack' ) }</FormLegend>
-							<ToggleControl
-								checked={ wordads_display_front_page }
-								disabled={
-									! isAdsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_front_page' ] ) }
-								onChange={ this.handleChange( 'wordads_display_front_page' ) }
-								label={ __( 'Front page', 'jetpack' ) }
-							/>
-							<ToggleControl
-								checked={ wordads_display_post }
-								disabled={
-									! isAdsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_post' ] ) }
-								onChange={ this.handleChange( 'wordads_display_post' ) }
-								label={ __( 'Posts', 'jetpack' ) }
-							/>
-							<ToggleControl
-								checked={ wordads_display_page }
-								disabled={
-									! isAdsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_page' ] ) }
-								onChange={ this.handleChange( 'wordads_display_page' ) }
-								label={ __( 'Pages', 'jetpack' ) }
-							/>
-							<ToggleControl
-								checked={ wordads_display_archive }
-								disabled={
-									! isAdsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_archive' ] ) }
-								onChange={ this.handleChange( 'wordads_display_archive' ) }
-								label={ __( 'Archives', 'jetpack' ) }
-							/>
-						</FormFieldset>
-						<FormFieldset>
-							<FormLegend>{ __( 'Additional ad placements', 'jetpack' ) }</FormLegend>
-							<ToggleControl
-								checked={ enable_header_ad }
-								disabled={
-									! isAdsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'enable_header_ad' ] ) }
-								onChange={ this.handleChange( 'enable_header_ad' ) }
-								label={ __( 'Top of each page', 'jetpack' ) }
-							/>
-							<ToggleControl
-								checked={ wordads_second_belowpost }
-								disabled={
-									! isAdsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_second_belowpost' ] ) }
-								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
-								label={ __( 'Second ad below post', 'jetpack' ) }
-							/>
-							<ToggleControl
-								checked={ wordads_inline_enabled }
-								disabled={
-									! isAdsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'wordads_inline_enabled' ] ) }
-								onChange={ this.handleChange( 'wordads_inline_enabled' ) }
-								label={ __( 'Inline within post content', 'jetpack' ) }
-							/>
-						</FormFieldset>
+
+						<Fieldset.Root>
+							<Fieldset.Legend>
+								{ __( 'Display ads below posts on', 'jetpack' ) }
+							</Fieldset.Legend>
+							<Stack spacing={ 2 }>
+								<ToggleControl
+									__nextHasNoMarginBottom
+									checked={ wordads_display_front_page }
+									disabled={ disableToggle }
+									onChange={ this.handleChange( 'wordads_display_front_page' ) }
+									label={ __( 'Front page', 'jetpack' ) }
+								/>
+								<ToggleControl
+									__nextHasNoMarginBottom
+									checked={ wordads_display_post }
+									disabled={ disableToggle }
+									onChange={ this.handleChange( 'wordads_display_post' ) }
+									label={ __( 'Posts', 'jetpack' ) }
+								/>
+								<ToggleControl
+									__nextHasNoMarginBottom
+									checked={ wordads_display_page }
+									disabled={ disableToggle }
+									onChange={ this.handleChange( 'wordads_display_page' ) }
+									label={ __( 'Pages', 'jetpack' ) }
+								/>
+								<ToggleControl
+									__nextHasNoMarginBottom
+									checked={ wordads_display_archive }
+									disabled={ disableToggle }
+									onChange={ this.handleChange( 'wordads_display_archive' ) }
+									label={ __( 'Archives', 'jetpack' ) }
+								/>
+							</Stack>
+						</Fieldset.Root>
+
+						<Fieldset.Root>
+							<Fieldset.Legend>
+								{ __( 'Additional ad placements', 'jetpack' ) }
+							</Fieldset.Legend>
+							<Stack spacing={ 2 }>
+								<ToggleControl
+									__nextHasNoMarginBottom
+									checked={ enable_header_ad }
+									disabled={ disableToggle }
+									onChange={ this.handleChange( 'enable_header_ad' ) }
+									label={ __( 'Top of each page', 'jetpack' ) }
+								/>
+								<ToggleControl
+									__nextHasNoMarginBottom
+									checked={ wordads_second_belowpost }
+									disabled={ disableToggle }
+									onChange={ this.handleChange( 'wordads_second_belowpost' ) }
+									label={ __( 'Second ad below post', 'jetpack' ) }
+								/>
+								<ToggleControl
+									__nextHasNoMarginBottom
+									checked={ wordads_inline_enabled }
+									disabled={ disableToggle }
+									onChange={ this.handleChange( 'wordads_inline_enabled' ) }
+									label={ __( 'Inline within post content', 'jetpack' ) }
+								/>
+							</Stack>
+						</Fieldset.Root>
 					</SettingsGroup>
+
 					<SettingsGroup
 						hasChild
 						support={ {
@@ -301,13 +302,9 @@ export const Ads = withModuleSettingsFormHelpers(
 						} }
 					>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							checked={ wordads_ccpa_enabled }
-							disabled={
-								! isAdsActive ||
-								unavailableInOfflineMode ||
-								this.props.isSavingAnyOption( [ 'wordads' ] )
-							}
-							toggling={ this.props.isSavingAnyOption( [ 'wordads_ccpa_enabled' ] ) }
+							disabled={ disableToggle }
 							onChange={ this.handleChange( 'wordads_ccpa_enabled' ) }
 							label={ __(
 								'Enable targeted advertising to site visitors in all US states.',
@@ -315,7 +312,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							) }
 						/>
 						{ wordads_ccpa_enabled && (
-							<FormFieldset>
+							<Fieldset.Root>
 								<p>
 									<small className="jp-form-setting-explanation">
 										{ __(
@@ -325,7 +322,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									</small>
 								</p>
 								<p>
-									<FormLegend>{ __( 'Do Not Sell Link', 'jetpack' ) }</FormLegend>
+									<Fieldset.Legend>{ __( 'Do Not Sell Link', 'jetpack' ) }</Fieldset.Legend>
 									{ createInterpolateElement(
 										__(
 											'If you enable targeted advertising in all US states, you are required to place a "Do Not Sell or Share My Personal Information" link on every page of your site where targeted advertising will appear. You can use the <widgetLink>Do Not Sell Link Widget</widgetLink>, or the <code>[privacy-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
@@ -348,14 +345,14 @@ export const Ads = withModuleSettingsFormHelpers(
 										) }
 									</span>
 								</p>
-							</FormFieldset>
+							</Fieldset.Root>
 						) }
 						{ wordads_ccpa_enabled && (
-							<FormFieldset>
-								<FormLegend>{ __( 'Privacy Policy URL', 'jetpack' ) }</FormLegend>
-								<TextInput
-									name={ 'wordads_ccpa_privacy_policy_url' }
-									placeholder={ 'https://' }
+							<Field.Root>
+								<Field.Label>{ __( 'Privacy Policy URL', 'jetpack' ) }</Field.Label>
+								<Input
+									name="wordads_ccpa_privacy_policy_url"
+									placeholder="https://"
 									value={ wordads_ccpa_privacy_policy_url }
 									disabled={
 										! isAdsActive ||
@@ -371,9 +368,10 @@ export const Ads = withModuleSettingsFormHelpers(
 										'jetpack'
 									) }
 								</span>
-							</FormFieldset>
+							</Field.Root>
 						) }
 					</SettingsGroup>
+
 					<SettingsGroup
 						support={ {
 							text: __(
@@ -384,27 +382,26 @@ export const Ads = withModuleSettingsFormHelpers(
 						} }
 					>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							checked={ wordads_cmp_enabled }
-							disabled={
-								! isAdsActive ||
-								unavailableInOfflineMode ||
-								this.props.isSavingAnyOption( [ 'wordads' ] )
-							}
-							toggling={ this.props.isSavingAnyOption( [ 'wordads_cmp_enabled' ] ) }
+							disabled={ disableToggle }
 							onChange={ this.handleChange( 'wordads_cmp_enabled' ) }
 							label={ __( 'Enable GDPR Consent Banner', 'jetpack' ) }
 						/>
 					</SettingsGroup>
 					{ ! isSubDirSite && this.renderAdsTxtSection() }
 					{ ! unavailableInOfflineMode && isAdsActive && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							href={ this.props.configureUrl }
-						>
-							{ __( 'View your earnings', 'jetpack' ) }
-						</Card>
+						<Card.Root className="jp-settings-card__configure-link">
+							<Card.Content>
+								<a
+									href={ this.props.configureUrl }
+									onClick={ this.trackConfigureClick }
+									rel="noopener noreferrer"
+								>
+									{ __( 'View your earnings', 'jetpack' ) }
+								</a>
+							</Card.Content>
+						</Card.Root>
 					) }
 				</SettingsCard>
 			);
