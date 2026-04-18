@@ -1,6 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// QuerySite is a Redux-connected data-fetching helper (renders null and dispatches
+// site/features/plans/purchases fetches). It is not a UI primitive, so per the
+// refactor exception it is left in place.
 import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,

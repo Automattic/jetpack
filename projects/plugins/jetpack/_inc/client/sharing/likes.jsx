@@ -1,9 +1,15 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
+// The following imports are Redux-connected / state-aware composed helpers shared across
+// Jetpack settings (form helpers HOC, module toggle with analytics + override logic,
+// settings card with plan/upsell wiring, settings group with offline/site-connection
+// fades, and the block-theme suggestion notice). They are not simple UI primitives and
+// have no 1:1 equivalents in @wordpress/ui or @wordpress/components, so per the
+// refactor exception they are left in place.
 import BlockThemeNotice from 'components/block-theme-notice';
-import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -38,14 +44,15 @@ export const Likes = withModuleSettingsFormHelpers(
 			 */
 			const configCard = () => {
 				return (
-					<Card
-						compact
+					<Link
 						className="jp-settings-card__configure-link"
 						href={ `${ siteAdminUrl }site-editor.php?path=%2Fwp_template` }
 						onClick={ this.trackClickConfigure }
+						tone="neutral"
+						variant="default"
 					>
 						{ __( 'Configure your Like buttons', 'jetpack' ) }
-					</Card>
+					</Link>
 				);
 			};
 

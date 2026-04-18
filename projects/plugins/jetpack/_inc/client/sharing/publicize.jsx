@@ -1,8 +1,14 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
-import Card from 'components/card';
+// The following imports are Redux-connected / state-aware composed helpers shared across
+// Jetpack settings (form helpers HOC, module toggle with analytics + override logic,
+// settings card with plan/upsell wiring, settings group with offline/site-connection
+// fades). They are not simple UI primitives and have no 1:1 equivalents in
+// @wordpress/ui or @wordpress/components, so per the refactor exception they are left
+// in place.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -75,13 +81,14 @@ export const Publicize = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 					</SettingsGroup>
 					{ isActive && (
-						<Card
-							compact
+						<Link
 							onClick={ this.trackClickConfigure }
 							href={ getAdminUrl( 'admin.php?page=jetpack-social' ) }
+							tone="neutral"
+							variant="default"
 						>
 							{ __( 'Connect accounts and configure Social sharing', 'jetpack' ) }
-						</Card>
+						</Link>
 					) }
 				</SettingsCard>
 			);
