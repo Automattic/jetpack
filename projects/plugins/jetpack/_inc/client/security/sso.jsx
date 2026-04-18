@@ -1,8 +1,9 @@
-import { getRedirectUrl, ToggleControl, Gridicon } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Icon, close } from '@wordpress/icons';
 import * as cookie from 'cookie';
 import { useState, Component } from 'react';
 import ReactDOM from 'react-dom';
@@ -48,7 +49,7 @@ const SSOSurveyNotice = () => {
 					</div>
 					{ /* eslint-disable-next-line react/jsx-no-bind */ }
 					<Button onClick={ onClose } className="modal-survey-notice__popup-head-close">
-						<Gridicon icon="cross" size={ 16 } />
+						<Icon icon={ close } size={ 16 } />
 					</Button>
 				</div>
 				<div className="modal-survey-notice__popup-content">
