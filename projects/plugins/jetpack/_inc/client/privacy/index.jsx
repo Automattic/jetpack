@@ -1,12 +1,26 @@
+// NOTE: `getRedirectUrl` is Jetpack's centralized outbound-URL helper (maps a
+// short slug onto the correct WordPress.com redirect with source attribution).
+// It is not a UI primitive and has no equivalent in `@wordpress/ui` /
+// `@wordpress/components`, so per the refactor exception it is kept.
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+// NOTE: `ExternalLink` is imported from `@wordpress/components` because
+// `@wordpress/ui`'s `Link` does not currently expose the accessible
+// "opens in a new tab" affordance (target/rel + screen-reader text) that
+// `ExternalLink` provides. Priority-2 fallback per the refactor policy.
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+// NOTE: `withModuleSettingsFormHelpers` is Jetpack's Redux-connected HOC that
+// wires module form state (getOptionValue, isSavingAnyOption, …). It is not a
+// UI primitive and is preserved per the refactor exception.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+// NOTE: `SettingsCard` / `SettingsGroup` are Jetpack-specific settings
+// containers (plan/upsell wiring, offline/site-connection fades, support
+// link rendering). They have no 1:1 equivalent in `@wordpress/ui` or
+// `@wordpress/components`, so per the refactor exception they are kept.
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -103,33 +117,34 @@ class Privacy extends Component {
 					>
 						<SettingsGroup hasChild>
 							<p>{ __( 'We are committed to your privacy and security.', 'jetpack' ) }</p>
-							<p>
-								<CompactFormToggle
-									compact
-									checked={ ! this.props.trackingSettings.tracks_opt_out }
-									disabled={
-										this.props.isFetchingTrackingSettings || this.props.isUpdatingTrackingSettings
-									}
-									onChange={ this.togglePrivacy }
-									id="privacy-settings"
-								>
-									{ createInterpolateElement(
-										__(
-											'Share information with our analytics tool about your use of services while logged in to your WordPress.com account. <cookiePolicyLink>Learn more</cookiePolicyLink>.',
-											'jetpack'
-										),
-										{
-											cookiePolicyLink: (
-												<ExternalLink
-													href={ getRedirectUrl( 'a8c-cookies' ) }
-													onClick={ trackCookiePolicyView }
-													rel="noopener noreferrer"
-												/>
+							<ToggleControl
+								__nextHasNoMarginBottom
+								id="privacy-settings"
+								checked={ ! this.props.trackingSettings.tracks_opt_out }
+								disabled={
+									this.props.isFetchingTrackingSettings || this.props.isUpdatingTrackingSettings
+								}
+								onChange={ this.togglePrivacy }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ createInterpolateElement(
+											__(
+												'Share information with our analytics tool about your use of services while logged in to your WordPress.com account. <cookiePolicyLink>Learn more</cookiePolicyLink>.',
+												'jetpack'
 											),
-										}
-									) }
-								</CompactFormToggle>
-							</p>
+											{
+												cookiePolicyLink: (
+													<ExternalLink
+														href={ getRedirectUrl( 'a8c-cookies' ) }
+														onClick={ trackCookiePolicyView }
+														rel="noopener noreferrer"
+													/>
+												),
+											}
+										) }
+									</span>
+								}
+							/>
 							<p>
 								{ createInterpolateElement(
 									__(
