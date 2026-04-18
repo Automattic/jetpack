@@ -211,7 +211,7 @@ export class Composing extends Component {
 						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
 					</a>
 					{ /* TODO: remove this Badge once it's no longer "new" */ }
-					<Badge intent="success">{ __( 'New', 'jetpack' ) }</Badge>
+					<Badge intent="stable">{ __( 'New', 'jetpack' ) }</Badge>
 				</CompactCard>
 			);
 
