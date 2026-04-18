@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection Error Notice: Replace Spinner from `@automattic/jetpack-components` with the one from `@wordpress/components`.

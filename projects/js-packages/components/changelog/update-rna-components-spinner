@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Spinner: Remove Spinner component in favor of the one from `@wordpress/components`.
