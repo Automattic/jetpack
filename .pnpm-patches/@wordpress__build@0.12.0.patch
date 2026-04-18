@@ -1,24 +1,33 @@
 Bridge to upstream Gutenberg PR https://github.com/WordPress/gutenberg/pull/77226.
 Adds `wpPlugin.packageSources` to @wordpress/build for cross-directory package discovery.
 
-When the upstream PR merges and Jetpack bumps @wordpress/build,
-delete this file and remove its entry from pnpm-workspace.yaml.
+When the upstream PR merges and Jetpack bumps @wordpress/build to a version that
+includes it, delete this file and remove its entry from pnpm-workspace.yaml.
 
-To regenerate after upstream changes (requires Gutenberg checkout with the feature branch):
+To rebase this patch to a new @wordpress/build version, without a Gutenberg checkout:
 
-  PATCH=.pnpm-patches/@wordpress__build@0.11.0.patch
-  {
-    sed '/^diff --git/,$d' "$PATCH"
-    git -C ~/lab/gutenberg diff --full-index \
-      @wordpress/build@0.11.0..add/wp-build-sources-config -- \
-      packages/wp-build/lib/build.mjs \
-      packages/wp-build/lib/package-utils.mjs \
-      packages/wp-build/lib/wordpress-externals-plugin.mjs \
-    | sed -e 's|a/packages/wp-build/|a/|g' -e 's|b/packages/wp-build/|b/|g'
-  } > "$PATCH.new" && mv "$PATCH.new" "$PATCH"
+  VERSION=0.13.0
+  WORK=$(mktemp -d) && cd "$WORK"
+  curl -sL "https://registry.npmjs.org/@wordpress/build/-/build-$VERSION.tgz" | tar xz
+  mv package pristine && cp -R pristine patched
+  curl -sL https://patch-diff.githubusercontent.com/raw/WordPress/gutenberg/pull/77226.diff \
+    | awk '/^diff --git/{f=($4 ~ /^b\/packages\/wp-build\/lib\//)} f' \
+    | sed 's|/packages/wp-build/|/|g' \
+    | (cd patched && patch -p1)
+  find patched -name '*.orig' -delete
+  git diff --no-index --no-color pristine patched \
+    | sed -E -e 's|^diff --git a/pristine/|diff --git a/|' \
+             -e 's| b/patched/| b/|' \
+             -e 's|^--- a/pristine/|--- a/|' \
+             -e 's|^\+\+\+ b/patched/|+++ b/|' \
+    > "$OLDPWD/.pnpm-patches/@wordpress__build@$VERSION.patch"
+
+Then prepend this header, update pnpm-workspace.yaml, delete the old patch file,
+and run `pnpm install` + `pnpm --filter @automattic/jetpack-premium-analytics build`
+to validate.
 
 diff --git a/lib/build.mjs b/lib/build.mjs
-index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420383a0d96 100755
+index 628cf02..d0bf9a8 100755
 --- a/lib/build.mjs
 +++ b/lib/build.mjs
 @@ -4,6 +4,7 @@
@@ -280,7 +289,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  
  	for ( const scriptHandle of scriptDependencies ) {
  		// Skip non-package dependencies (like 'react', 'lodash', etc.)
-@@ -1215,34 +1369,21 @@ async function generatePagesPhp( pageData, replacements ) {
+@@ -1215,16 +1369,9 @@ async function generatePagesPhp( pageData, replacements ) {
   */
  async function transpilePackage( packageName ) {
  	const startTime = Date.now();
@@ -294,42 +303,13 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
 -			`Could not find package.json for package: ${ packageName }`
 -		);
 -	}
--
--	const srcFiles = await glob(
--		normalizePath(
--			path.join( packageDir, `src/**/*.${ SOURCE_EXTENSIONS }` )
--		),
--		{
--			ignore: IGNORE_PATTERNS,
--		}
--	);
 +	const packageEntry = PACKAGES.get( packageName );
 +	const packageDir = packageEntry.dir;
 +	const packageJson = packageEntry.packageJson;
-+
-+	const srcFiles = await glob( `src/**/*.${ SOURCE_EXTENSIONS }`, {
-+		cwd: packageDir,
-+		ignore: IGNORE_PATTERNS,
-+		absolute: true,
-+	} );
  
--	const assetFiles = await glob(
--		normalizePath(
--			path.join( packageDir, `src/**/*.${ ASSET_EXTENSIONS }` )
--		),
--		{
--			ignore: IGNORE_PATTERNS,
--		}
--	);
-+	const assetFiles = await glob( `src/**/*.${ ASSET_EXTENSIONS }`, {
-+		cwd: packageDir,
-+		ignore: IGNORE_PATTERNS,
-+		absolute: true,
-+	} );
- 
- 	const buildDir = path.join( packageDir, 'build' );
- 	const buildModuleDir = path.join( packageDir, 'build-module' );
-@@ -1438,10 +1579,9 @@ async function transpilePackage( packageName ) {
+ 	const srcFiles = await glob( `src/**/*.${ SOURCE_EXTENSIONS }`, {
+ 		cwd: packageDir,
+@@ -1432,10 +1579,9 @@ async function transpilePackage( packageName ) {
   * @return {Promise<number|null>} Build time in milliseconds, or null if no styles.
   */
  async function compileStyles( packageName ) {
@@ -343,7 +323,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  
  	// Get SCSS entry point patterns from package.json, default to root-level only
  	const scssEntryPointPatterns = packageJson.wpStyleEntryPoints || [
-@@ -1549,12 +1689,15 @@ function isPackageSourceFile( filename ) {
+@@ -1543,12 +1689,15 @@ function isPackageSourceFile( filename ) {
  		return false;
  	}
  
@@ -363,7 +343,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  }
  
  /**
-@@ -1568,9 +1711,9 @@ function getPackageName( filename ) {
+@@ -1562,9 +1711,9 @@ function getPackageName( filename ) {
  		path.relative( process.cwd(), filename )
  	);
  
@@ -375,7 +355,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  		);
  		if ( relativePath.startsWith( packagePath + '/' ) ) {
  			return packageName;
-@@ -1733,17 +1876,14 @@ async function buildAll( baseUrlExpression ) {
+@@ -1727,17 +1876,14 @@ async function buildAll( baseUrlExpression ) {
  
  	const startTime = Date.now();
  
@@ -398,7 +378,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  	}
  
  	const levels = groupByDepth( fullToPackageJson );
-@@ -1754,6 +1894,13 @@ async function buildAll( baseUrlExpression ) {
+@@ -1748,6 +1894,13 @@ async function buildAll( baseUrlExpression ) {
  		await Promise.all(
  			level.map( async ( fullName ) => {
  				const packageName = fullToShort.get( fullName );
@@ -412,7 +392,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  				const buildTime = await transpilePackage( packageName );
  				console.log(
  					`   ✔ Transpiled ${ packageName } (${ buildTime }ms)`
-@@ -1767,7 +1914,7 @@ async function buildAll( baseUrlExpression ) {
+@@ -1761,7 +1914,7 @@ async function buildAll( baseUrlExpression ) {
  	const scripts = [];
  	const styles = [];
  	await Promise.all(
@@ -421,7 +401,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  			const startBundleTime = Date.now();
  			const ret = await bundlePackage( packageName );
  			const buildTime = Date.now() - startBundleTime;
-@@ -1900,17 +2047,14 @@ async function watchMode() {
+@@ -1894,17 +2047,14 @@ async function watchMode() {
  	let isRebuilding = false;
  	const needsRebuild = new Set();
  
@@ -444,7 +424,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  	}
  
  	// Get all routes for dependency tracking
-@@ -1924,8 +2068,13 @@ async function watchMode() {
+@@ -1918,8 +2068,13 @@ async function watchMode() {
  	async function rebuildPackage( packageName ) {
  		try {
  			const startTime = Date.now();
@@ -459,7 +439,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  			await bundlePackage( packageName );
  
  			const buildTime = Date.now() - startTime;
-@@ -2021,8 +2170,8 @@ async function watchMode() {
+@@ -2015,8 +2170,8 @@ async function watchMode() {
  		await processNextRebuild();
  	}
  
@@ -471,7 +451,7 @@ index 5fa8d66b5e6481af02fa03dd3c8587fcc533a6a5..d0bf9a897c1afed10a5673c225b7d420
  
  	const watcher = chokidar.watch( watchPaths, {
 diff --git a/lib/package-utils.mjs b/lib/package-utils.mjs
-index 15b7dd04c5781a2f9bae022be83702a0a21ea29d..1a66afe14f6a7921fe0c87609bd1c2ca288f3551 100644
+index 15b7dd0..1a66afe 100644
 --- a/lib/package-utils.mjs
 +++ b/lib/package-utils.mjs
 @@ -84,10 +84,39 @@ export function getPackageInfo( fullPackageName, resolveDir = null ) {
@@ -518,7 +498,7 @@ index 15b7dd04c5781a2f9bae022be83702a0a21ea29d..1a66afe14f6a7921fe0c87609bd1c2ca
  	packageJsonCache.set( cacheKey, result );
  
 diff --git a/lib/wordpress-externals-plugin.mjs b/lib/wordpress-externals-plugin.mjs
-index 281749e185b3ec188c4fb93920081869751aab9a..7722b565b42a2ef3cb528949383422a6044206ff 100644
+index 281749e..04bdc63 100644
 --- a/lib/wordpress-externals-plugin.mjs
 +++ b/lib/wordpress-externals-plugin.mjs
 @@ -50,13 +50,15 @@ async function generateContentHash(
@@ -538,18 +518,7 @@ index 281749e185b3ec188c4fb93920081869751aab9a..7722b565b42a2ef3cb528949383422a6
  ) {
  	/**
  	 * WordPress externals plugin for esbuild.
-@@ -125,6 +127,10 @@ export function createWordpressExternalsPlugin(
- 				const vendorExternals = {
- 					react: { global: 'React', handle: 'react' },
- 					'react-dom': { global: 'ReactDOM', handle: 'react-dom' },
-+					'react-dom/client': {
-+						global: 'ReactDOM',
-+						handle: 'react-dom',
-+					},
- 					'react/jsx-runtime': {
- 						global: 'ReactJSXRuntime',
- 						handle: 'react-jsx-runtime',
-@@ -277,6 +283,68 @@ export function createWordpressExternalsPlugin(
+@@ -277,6 +279,68 @@ export function createWordpressExternalsPlugin(
  					);
  				}
  
