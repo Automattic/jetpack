@@ -10,6 +10,49 @@ import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 let dockerComposeCmd = null;
 
 /**
+ * Normalize and validate a short project name to match Docker Compose rules.
+ *
+ * Compose requires project names to consist of lowercase alphanumeric characters, hyphens,
+ * and underscores, starting with a letter or digit. Uppercase input is auto-lowercased so
+ * `--name Feature` "just works"; anything else throws a clear error early, before compose.
+ *
+ * @param {string} name - User-supplied short name (e.g. from --name or --clone-from).
+ * @return {string} Normalized (lowercased) short name.
+ */
+export const normalizeProjectShortName = name => {
+	const original = String( name );
+	const normalized = original.toLowerCase();
+	if ( ! /^[a-z0-9][a-z0-9_-]*$/.test( normalized ) ) {
+		throw new Error(
+			`Invalid project name '${ original }'. Use only lowercase letters, digits, '-' and '_' (must start with a letter or digit).`
+		);
+	}
+	return normalized;
+};
+
+/**
+ * Build a yargs `coerce` handler that normalizes a project short-name option and prints
+ * a friendly note when it had to lowercase the input.
+ *
+ * @param {string} flag - The user-facing flag label (e.g. '--name').
+ * @return {Function} yargs coerce function.
+ */
+const coerceProjectShortName = flag => value => {
+	if ( value === undefined || value === null || value === '' ) {
+		return value;
+	}
+	const normalized = normalizeProjectShortName( value );
+	if ( normalized !== String( value ) ) {
+		console.warn(
+			chalk.yellow(
+				`Note: ${ flag } '${ value }' was normalized to '${ normalized }' (compose project names must be lowercase).`
+			)
+		);
+	}
+	return normalized;
+};
+
+/**
  * Sets default options that are common for most of the commands
  *
  * @param {object} yargs - Yargs
@@ -25,6 +68,7 @@ const defaultOpts = yargs =>
 		.option( 'name', {
 			alias: 'n',
 			describe: 'Project name',
+			coerce: coerceProjectShortName( '--name' ),
 		} )
 		.option( 'port', {
 			alias: 'p',
@@ -46,6 +90,7 @@ const defaultOpts = yargs =>
 			type: 'string',
 			describe:
 				'Clone the database from an existing running instance (short name, e.g. --clone-from dev). When omitted but --name is set, the default jetpack_dev instance is used automatically if running.',
+			coerce: coerceProjectShortName( '--clone-from' ),
 		} )
 		.option( 'clone', {
 			type: 'boolean',

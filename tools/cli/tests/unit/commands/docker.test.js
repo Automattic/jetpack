@@ -13,7 +13,7 @@ jest.unstable_mockModule( 'fs', () => ( {
 	...fsStub,
 } ) );
 
-const { getProjectName, buildEnv, resolveCloneSource } = await import(
+const { getProjectName, buildEnv, resolveCloneSource, normalizeProjectShortName } = await import(
 	'../../../commands/docker.js'
 );
 
@@ -121,5 +121,32 @@ describe( 'resolveCloneSource', () => {
 
 	test( 'returns null when target would be the same as source (--name dev)', () => {
 		expect( resolveCloneSource( { type: 'dev', name: 'dev', clone: true } ) ).toBeNull();
+	} );
+} );
+
+describe( 'normalizeProjectShortName', () => {
+	test( 'lowercases mixed-case input', () => {
+		expect( normalizeProjectShortName( 'Feature' ) ).toBe( 'feature' );
+		expect( normalizeProjectShortName( 'MyTask' ) ).toBe( 'mytask' );
+		expect( normalizeProjectShortName( 'cloneTest' ) ).toBe( 'clonetest' );
+	} );
+
+	test( 'passes through already-valid names', () => {
+		expect( normalizeProjectShortName( 'feature' ) ).toBe( 'feature' );
+		expect( normalizeProjectShortName( 'my-task_2' ) ).toBe( 'my-task_2' );
+		expect( normalizeProjectShortName( '42-branch' ) ).toBe( '42-branch' );
+	} );
+
+	test( 'throws on invalid characters', () => {
+		expect( () => normalizeProjectShortName( 'my feature' ) ).toThrow( /Invalid project name/ );
+		expect( () => normalizeProjectShortName( 'foo/bar' ) ).toThrow( /Invalid project name/ );
+		expect( () => normalizeProjectShortName( 'dots.in.name' ) ).toThrow( /Invalid project name/ );
+	} );
+
+	test( 'throws when name starts with a non-alphanumeric character', () => {
+		expect( () => normalizeProjectShortName( '-leading-dash' ) ).toThrow( /Invalid project name/ );
+		expect( () => normalizeProjectShortName( '_leading-underscore' ) ).toThrow(
+			/Invalid project name/
+		);
 	} );
 } );
