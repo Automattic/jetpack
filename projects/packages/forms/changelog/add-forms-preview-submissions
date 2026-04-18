@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Form preview now lets you submit the form to test the full submission flow end to end. Responses created from preview are stored as test responses, clearly flagged in the notification email, and excluded from the default CSV export.
