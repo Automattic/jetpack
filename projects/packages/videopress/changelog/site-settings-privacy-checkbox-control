@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Swap the site-settings Video Privacy toggle to WordPress CheckboxControl for native rendering and accessibility.
