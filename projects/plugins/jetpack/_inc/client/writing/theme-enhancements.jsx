@@ -1,8 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Fieldset } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { FormLabel, FormLegend } from 'components/forms';
+// NOTE: ModuleOverriddenBanner renders Jetpack-specific override messaging with
+// links and analytics; SettingsCard / SettingsGroup / withModuleSettingsFormHelpers
+// are business-logic composites. They remain imported from _inc/client/components
+// per the refactor rules.
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -132,55 +136,62 @@ class ThemeEnhancements extends Component {
 							link: getRedirectUrl( 'jetpack-support-infinite-scroll' ),
 						} }
 					>
-						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
-						<p>
-							{ __(
-								'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.',
-								'jetpack'
+						<Fieldset.Root>
+							<Fieldset.Legend className="jp-form-legend jp-form-label-wide">
+								{ infScr.name }
+							</Fieldset.Legend>
+							<p>
+								{ __(
+									'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.',
+									'jetpack'
+								) }
+							</p>
+							{ this.props.isInfiniteScrollSupported ? (
+								[
+									{
+										key: 'infinite_default',
+										label: __( 'Load more posts using the default theme behavior', 'jetpack' ),
+									},
+									{
+										key: 'infinite_button',
+										label: __( 'Load more posts in page with a button', 'jetpack' ),
+									},
+									{
+										key: 'infinite_scroll',
+										label: __( 'Load more posts as the reader scrolls down', 'jetpack' ),
+									},
+								].map( radio => (
+									<label
+										key={ `${ infScr.module }_${ radio.key }` }
+										className="jp-form-label"
+									>
+										<input
+											type="radio"
+											name="infinite_mode"
+											value={ radio.key }
+											checked={ radio.key === this.state.infinite_mode }
+											disabled={ this.props.isSavingAnyOption( [ infScr.module, radio.key ] ) }
+											onChange={ this.handleInfiniteScrollModeChange( radio.key ) }
+										/>
+										<span className="jp-form-toggle-explanation">{ radio.label }</span>
+									</label>
+									) )
+							) : (
+								<span>
+									{ __( 'Theme support required.', 'jetpack' ) + ' ' }
+									<a
+										onClick={ this.trackLearnMoreIS }
+										href={ infScr.learn_more_button + '#theme' }
+										title={ __(
+											'Learn more about adding support for Infinite Scroll to your theme.',
+											'jetpack'
+										) }
+									>
+										{ __( 'Learn more', 'jetpack' ) }
+									</a>
+								</span>
 							) }
-						</p>
-						{ this.props.isInfiniteScrollSupported ? (
-							[
-								{
-									key: 'infinite_default',
-									label: __( 'Load more posts using the default theme behavior', 'jetpack' ),
-								},
-								{
-									key: 'infinite_button',
-									label: __( 'Load more posts in page with a button', 'jetpack' ),
-								},
-								{
-									key: 'infinite_scroll',
-									label: __( 'Load more posts as the reader scrolls down', 'jetpack' ),
-								},
-							].map( radio => (
-								<FormLabel key={ `${ infScr.module }_${ radio.key }` }>
-									<input
-										type="radio"
-										name="infinite_mode"
-										value={ radio.key }
-										checked={ radio.key === this.state.infinite_mode }
-										disabled={ this.props.isSavingAnyOption( [ infScr.module, radio.key ] ) }
-										onChange={ this.handleInfiniteScrollModeChange( radio.key ) }
-									/>
-									<span className="jp-form-toggle-explanation">{ radio.label }</span>
-								</FormLabel>
-							) )
-						) : (
-							<span>
-								{ __( 'Theme support required.', 'jetpack' ) + ' ' }
-								<a
-									onClick={ this.trackLearnMoreIS }
-									href={ infScr.learn_more_button + '#theme' }
-									title={ __(
-										'Learn more about adding support for Infinite Scroll to your theme.',
-										'jetpack'
-									) }
-								>
-									{ __( 'Learn more', 'jetpack' ) }
-								</a>
-							</span>
-						) }
+						</Fieldset.Root>
 					</SettingsGroup>
 				) }
 			</SettingsCard>

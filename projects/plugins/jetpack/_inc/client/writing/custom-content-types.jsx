@@ -1,9 +1,13 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import CompactCard from 'components/card/compact';
+// NOTE: SettingsCard / SettingsGroup and withModuleSettingsFormHelpers are Jetpack
+// business-logic composites (save buttons, upgrade upsells, form state wiring) —
+// not UI primitives — so they remain imported from _inc/client/components.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -139,35 +143,45 @@ export class CustomContentTypes extends Component {
 					>
 						<p> { testimonialText } </p>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							checked={
 								this.props.getOptionValue( 'jetpack_testimonial' )
 									? this.props.getOptionValue( 'jetpack_testimonial' )
 									: false
 							}
-							disabled={ disabledByOverride || woa_theme_supports_jetpack_testimonial }
-							toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
+							disabled={
+								disabledByOverride ||
+								woa_theme_supports_jetpack_testimonial ||
+								this.props.isSavingAnyOption( 'jetpack_testimonial' )
+							}
 							onChange={ this.handleTestimonialToggleChange }
-							disabledReason={ testimonialDisabledReason }
 							label={
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Testimonials', 'jetpack' ) }
 								</span>
 							}
 							help={
-								<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
-									{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
-								</span>
+								testimonialDisabledReason ? (
+									testimonialDisabledReason
+								) : (
+									<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
+										{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
+									</span>
+								)
 							}
 						/>
 					</SettingsGroup>
 				) }
 				{ this.props.getOptionValue( 'jetpack_testimonial' ) && (
-					<CompactCard
-						className="jp-settings-card__configure-link"
-						href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-testimonial` }
-					>
-						{ __( 'Add a testimonial', 'jetpack' ) }
-					</CompactCard>
+					<Card.Root className="jp-settings-card__configure-link">
+						<Card.Content>
+							<a
+								href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-testimonial` }
+							>
+								{ __( 'Add a testimonial', 'jetpack' ) }
+							</a>
+						</Card.Content>
+					</Card.Root>
 				) }
 				{ siteShouldDisplayPortfolios && (
 					<SettingsGroup
@@ -179,35 +193,45 @@ export class CustomContentTypes extends Component {
 					>
 						<p>{ portfolioText }</p>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							checked={
 								this.props.getOptionValue( 'jetpack_portfolio' )
 									? this.props.getOptionValue( 'jetpack_portfolio' )
 									: false
 							}
-							disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio }
-							toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
+							disabled={
+								disabledByOverride ||
+								woa_theme_supports_jetpack_portfolio ||
+								this.props.isSavingAnyOption( 'jetpack_portfolio' )
+							}
 							onChange={ this.handlePortfolioToggleChange }
-							disabledReason={ portfolioDisabledReason }
 							label={
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Portfolios', 'jetpack' ) }
 								</span>
 							}
 							help={
-								<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
-									{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
-								</span>
+								portfolioDisabledReason ? (
+									portfolioDisabledReason
+								) : (
+									<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
+										{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
+									</span>
+								)
 							}
 						/>
 					</SettingsGroup>
 				) }
 				{ this.props.getOptionValue( 'jetpack_portfolio' ) && (
-					<CompactCard
-						className="jp-settings-card__configure-link"
-						href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-portfolio` }
-					>
-						{ __( 'Add a portfolio item', 'jetpack' ) }
-					</CompactCard>
+					<Card.Root className="jp-settings-card__configure-link">
+						<Card.Content>
+							<a
+								href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-portfolio` }
+							>
+								{ __( 'Add a portfolio item', 'jetpack' ) }
+							</a>
+						</Card.Content>
+					</Card.Root>
 				) }
 			</SettingsCard>
 		);

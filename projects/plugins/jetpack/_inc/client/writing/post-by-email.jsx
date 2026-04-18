@@ -1,10 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import { Button, Fieldset } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
+// NOTE: ClipboardButtonInput is a compound behavior (text input + clipboard copy
+// with confirmation state). @wordpress/ui has no direct equivalent, and rewriting
+// it here would duplicate shared logic. Keep the Jetpack helper import per the
+// refactor rules ("don't rewrite shared helpers").
 import ClipboardButtonInput from 'components/clipboard-button-input';
-import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
+// NOTE: withModuleSettingsFormHelpers, SettingsCard, SettingsGroup, and ModuleToggle
+// are Jetpack business-logic composites (save buttons, upgrade upsells, analytics,
+// override handling) — not UI primitives — so they remain imported here.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -87,11 +93,11 @@ class PostByEmail extends Component {
 							{ this.props.module( 'post-by-email' ).description }
 						</span>
 					) }
-					<FormFieldset>
-						<FormLabel>
-							<FormLegend>
+					<Fieldset.Root className="jp-form-fieldset">
+						<label className="jp-form-label">
+							<Fieldset.Legend className="jp-form-legend">
 								{ __( 'Send your new posts to this email address:', 'jetpack' ) }
-							</FormLegend>
+							</Fieldset.Legend>
 							<ClipboardButtonInput
 								value={ emailAddress }
 								disabled={ ! isPbeActive || disabledControls }
@@ -103,10 +109,10 @@ class PostByEmail extends Component {
 								) }
 								rna
 							/>
-						</FormLabel>
+						</label>
 						<Button
-							rna
-							compact
+							variant="outline"
+							size="compact"
 							disabled={ ! isPbeActive || disabledControls }
 							onClick={ this.regeneratePostByEmailAddress }
 						>
@@ -114,7 +120,7 @@ class PostByEmail extends Component {
 								? __( 'Regenerate address', 'jetpack' )
 								: __( 'Create address', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 						</Button>
-					</FormFieldset>
+					</Fieldset.Root>
 				</SettingsGroup>
 			</SettingsCard>
 		);

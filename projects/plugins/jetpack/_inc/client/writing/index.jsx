@@ -1,7 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Card from 'components/card';
+// NOTE: QuerySite is a Redux-driven data-fetch helper (not a UI primitive),
+// so it remains imported from the Jetpack internal components directory.
 import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,
@@ -147,12 +149,14 @@ export class Writing extends Component {
 					/>
 				) }
 				{ ! showComposing && ! showPostByEmail && (
-					<Card>
-						{ __(
-							'Writing tools available to you will be shown here when an administrator enables them.',
-							'jetpack'
-						) }
-					</Card>
+					<Card.Root>
+						<Card.Content>
+							{ __(
+								'Writing tools available to you will be shown here when an administrator enables them.',
+								'jetpack'
+							) }
+						</Card.Content>
+					</Card.Root>
 				) }
 			</div>
 		);

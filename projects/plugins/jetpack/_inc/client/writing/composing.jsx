@@ -1,9 +1,14 @@
-import { Chip, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import { Badge, Card } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import CompactCard from 'components/card/compact';
-import { FormFieldset } from 'components/forms';
+// NOTE: The following imports are shared Jetpack helpers, NOT UI primitives:
+// - withModuleSettingsFormHelpers: HOC that wires module save/load actions.
+// - SettingsCard / SettingsGroup: orchestrate save buttons, upgrade upsells,
+//   module override handling, and feature-gating.
+// - ModuleToggle: wraps ToggleControl with analytics and override reasons.
+// They stay imported from the Jetpack internal components directory.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -75,7 +80,7 @@ export class Composing extends Component {
 						link: getRedirectUrl( 'jetpack-support-copy-post' ),
 					} }
 				>
-					<FormFieldset>
+					<fieldset className="jp-form-fieldset">
 						<ModuleToggle
 							slug="copy-post"
 							activated={ !! this.props.getOptionValue( 'copy-post' ) }
@@ -84,7 +89,7 @@ export class Composing extends Component {
 						>
 							<span className="jp-form-toggle-explanation">{ copyPost.description }</span>
 						</ModuleToggle>
-					</FormFieldset>
+					</fieldset>
 				</SettingsGroup>
 			),
 			markdownSettings = (
@@ -98,7 +103,7 @@ export class Composing extends Component {
 						link: getRedirectUrl( 'jetpack-support-markdown' ),
 					} }
 				>
-					<FormFieldset>
+					<fieldset className="jp-form-fieldset">
 						<ModuleToggle
 							slug="markdown"
 							activated={
@@ -112,7 +117,7 @@ export class Composing extends Component {
 						>
 							<span className="jp-form-toggle-explanation">{ markdown.description }</span>
 						</ModuleToggle>
-					</FormFieldset>
+					</fieldset>
 				</SettingsGroup>
 			),
 			latexSettings = (
@@ -126,7 +131,7 @@ export class Composing extends Component {
 						link: getRedirectUrl( 'jetpack-support-beautiful-math-with-latex' ),
 					} }
 				>
-					<FormFieldset>
+					<fieldset className="jp-form-fieldset">
 						<ModuleToggle
 							slug="latex"
 							activated={ !! this.props.getOptionValue( 'latex' ) }
@@ -135,7 +140,7 @@ export class Composing extends Component {
 						>
 							<span className="jp-form-toggle-explanation">{ latex.description }</span>
 						</ModuleToggle>
-					</FormFieldset>
+					</fieldset>
 				</SettingsGroup>
 			),
 			shortcodeSettings = (
@@ -146,7 +151,7 @@ export class Composing extends Component {
 						link: getRedirectUrl( 'jetpack-support-shortcode-embeds' ),
 					} }
 				>
-					<FormFieldset>
+					<fieldset className="jp-form-fieldset">
 						<ModuleToggle
 							slug="shortcodes"
 							activated={ !! this.props.getOptionValue( 'shortcodes' ) }
@@ -157,7 +162,7 @@ export class Composing extends Component {
 								{ __( 'Compose using shortcodes to embed media from popular sites', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
-					</FormFieldset>
+					</fieldset>
 				</SettingsGroup>
 			),
 			blocksSettings = (
@@ -172,7 +177,7 @@ export class Composing extends Component {
 							link: getRedirectUrl( 'jetpack-support-blocks' ),
 						} }
 					>
-						<FormFieldset>
+						<fieldset className="jp-form-fieldset">
 							<ModuleToggle
 								slug="blocks"
 								activated={ !! this.props.getOptionValue( 'blocks' ) }
@@ -194,24 +199,27 @@ export class Composing extends Component {
 									</span>
 								) }
 							</ModuleToggle>
-						</FormFieldset>
+						</fieldset>
 					</SettingsGroup>
-					<CompactCard
-						className="jp-settings-card__configure-link"
-						href={ `${ this.props.siteAdminUrl }post-new.php` }
-					>
-						{ __( 'Discover Jetpack tools in the block editor', 'jetpack' ) }
-					</CompactCard>
+					<Card.Root className="jp-settings-card__configure-link">
+						<Card.Content>
+							<a href={ `${ this.props.siteAdminUrl }post-new.php` }>
+								{ __( 'Discover Jetpack tools in the block editor', 'jetpack' ) }
+							</a>
+						</Card.Content>
+					</Card.Root>
 				</>
 			),
 			aiAssistantLink = (
-				<CompactCard className="jp-settings-card__configure-link">
-					<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
-						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
-					</a>
-					{ /* TODO: remove this Chip once it's not longer "new" */ }
-					<Chip type="new" text={ __( 'New', 'jetpack' ) } />
-				</CompactCard>
+				<Card.Root className="jp-settings-card__configure-link">
+					<Card.Content>
+						<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
+							{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
+						</a>
+						{ /* TODO: remove this Badge once it's no longer "new" */ }
+						<Badge intent="informational">{ __( 'New', 'jetpack' ) }</Badge>
+					</Card.Content>
+				</Card.Root>
 			);
 
 		return (

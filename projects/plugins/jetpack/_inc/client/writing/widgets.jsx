@@ -2,6 +2,10 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// NOTE: withModuleSettingsFormHelpers, ModuleToggle, SettingsCard, and
+// SettingsGroup are Jetpack business-logic composites (save/load wiring,
+// override reasons, analytics) — not UI primitives — so they remain imported
+// from _inc/client/components per the refactor rules.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
