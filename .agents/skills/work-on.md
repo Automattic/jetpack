@@ -139,7 +139,7 @@ WordPress image pulls can take several minutes on a cold cache — if `jp docker
 jp docker install --name <slug> --port "$(echo "$PORTS" | jq -r .wp)"
 ```
 
-Use `--clone-from <name>` to seed from a different running source instance (default source is `dev` when the flag is passed without a value).
+Use `--clone-from <name>` to seed from a specific running source instance. When the flag is omitted, the CLI auto-clones from `jetpack_dev` if it's running; pass `--no-clone` to opt out and get a fresh-install flow instead.
 
 Write the full session record to `$WORKTREE/.work-on/env.json` using the schema below. Mode 3 (implement-only resume) reads this file — fields are mandatory.
 
