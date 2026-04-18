@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// NOTE: QuerySite is a data-fetching component (components/data/*) — not a UI
+// primitive — and is preserved per the refactor rules.
 import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,
