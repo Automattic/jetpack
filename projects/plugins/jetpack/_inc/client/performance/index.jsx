@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// NOTE: Jetpack composite — QuerySite + `components/data/*` wrap Redux data
+// fetching for the settings page; preserved as-is.
 import QuerySite from 'components/data/query-site';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';

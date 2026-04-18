@@ -1,8 +1,12 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Fieldset } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { FormFieldset } from 'components/forms';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -174,57 +178,6 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				( foundPhoton || foundAssetCdn ) &&
 				( 'inactive' !== photonStatus || 'inactive' !== assetCdnStatus );
 
-			// Monitor any changes that should cause our main toggle to appear toggling.
-			let togglingSiteAccelerator;
-			// First Photon activating.
-			if ( ! this.props.getOptionValue( 'photon' ) && this.props.isSavingAnyOption( 'photon' ) ) {
-				if ( this.props.getOptionValue( 'photon-cdn' ) ) {
-					togglingSiteAccelerator = false;
-				} else {
-					togglingSiteAccelerator = true;
-				}
-				// Then Asset CDN activating.
-			} else if (
-				! this.props.getOptionValue( 'photon-cdn' ) &&
-				this.props.isSavingAnyOption( 'photon-cdn' )
-			) {
-				if ( this.props.getOptionValue( 'photon' ) ) {
-					togglingSiteAccelerator = false;
-				} else {
-					togglingSiteAccelerator = true;
-				}
-				// Then Photon deactivating.
-			} else if (
-				this.props.getOptionValue( 'photon' ) &&
-				this.props.isSavingAnyOption( 'photon' )
-			) {
-				if ( this.props.getOptionValue( 'photon-cdn' ) ) {
-					togglingSiteAccelerator = false;
-				} else {
-					togglingSiteAccelerator = true;
-				}
-
-				// Is the Asset CDN being disabled as well?
-				if (
-					this.props.getOptionValue( 'photon-cdn' ) &&
-					this.props.isSavingAnyOption( 'photon-cdn' )
-				) {
-					togglingSiteAccelerator = true;
-				}
-				// Then Asset CDN deactivating.
-			} else if (
-				this.props.getOptionValue( 'photon-cdn' ) &&
-				this.props.isSavingAnyOption( 'photon-cdn' )
-			) {
-				if ( this.props.getOptionValue( 'photon' ) ) {
-					togglingSiteAccelerator = false;
-				} else {
-					togglingSiteAccelerator = true;
-				}
-			} else {
-				togglingSiteAccelerator = false;
-			}
-
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -249,7 +202,6 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								{ canAppearInSearch && (
 									<ToggleControl
 										checked={ siteAcceleratorStatus }
-										toggling={ togglingSiteAccelerator }
 										onChange={ this.handleSiteAcceleratorChange }
 										disabled={ ! canDisplaySiteAcceleratorSettings }
 										label={
@@ -259,7 +211,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 										}
 									/>
 								) }
-								<FormFieldset>
+								<Fieldset.Root>
 									{ foundPhoton && (
 										<ModuleToggle
 											slug="photon"
@@ -285,7 +237,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 											</span>
 										</ModuleToggle>
 									) }
-								</FormFieldset>
+								</Fieldset.Root>
 							</SettingsGroup>
 						</>
 					) }

@@ -1,9 +1,17 @@
-import { ProgressBar, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Fieldset } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { FormLegend, FormFieldset } from 'components/forms';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
+// NOTE: JetpackBanner is a marketing/upgrade card with bespoke layout (icon
+// slot, title, CTA, feature tracking). There is no @wordpress/ui primitive
+// equivalent (Notice is a system-message component with different visual
+// treatment), so the composite is preserved.
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -76,58 +84,65 @@ class Media extends Component {
 					link: getRedirectUrl( 'jetpack-support-videopress' ),
 				} }
 			>
-				<FormLegend className="jp-form-label-wide">{ __( 'VideoPress', 'jetpack' ) }</FormLegend>
-				<p>
-					{ ' ' }
-					{ __(
-						'Engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. With Jetpack VideoPress, you can customize your video player to deliver your message without the distraction.',
-						'jetpack'
-					) }{ ' ' }
-				</p>
-				{ shouldDisplayStorage && (
-					<div className="media__videopress-storage">
-						<ProgressBar progress={ videoPressStorageUsed / 1000000 } />
-						<span>
-							{ createInterpolateElement(
-								sprintf(
-									/* translators: %d is a number (disk space used) */
-									__( 'Using <strong>%dGB</strong> of 1TB', 'jetpack' ),
-									Math.round( videoPressStorageUsed / 1024 )
-								),
-								{ strong: <strong /> }
-							) }
-						</span>
-					</div>
-				) }
-				{ hasConnectedOwner && (
-					<>
-						<ModuleToggle
-							slug="videopress"
-							disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
-							activated={ this.props.getOptionValue( 'videopress' ) }
-							toggling={ this.props.isSavingAnyOption( 'videopress' ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Enable VideoPress', 'jetpack' ) }
-							</span>
-						</ModuleToggle>
-						<FormFieldset>
-							<ToggleControl
-								id="videopress-site-privacy"
-								disabled={ ! this.props.getOptionValue( 'videopress' ) }
-								toggling={ this.props.isSavingAnyOption( 'videopress_private_enabled_for_site' ) }
-								checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
-								onChange={ this.togglePrivacySetting }
-								label={
-									<span className="jp-form-toggle-explanation">
-										{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
-									</span>
-								}
+				<Fieldset.Root>
+					<Fieldset.Legend className="jp-form-label-wide">
+						{ __( 'VideoPress', 'jetpack' ) }
+					</Fieldset.Legend>
+					<p>
+						{ ' ' }
+						{ __(
+							'Engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. With Jetpack VideoPress, you can customize your video player to deliver your message without the distraction.',
+							'jetpack'
+						) }{ ' ' }
+					</p>
+					{ shouldDisplayStorage && (
+						<div className="media__videopress-storage">
+							<progress
+								className="jp-videopress-storage__progress"
+								max="100"
+								value={ Math.min( 100, videoPressStorageUsed / 1000000 ) }
 							/>
-						</FormFieldset>
-					</>
-				) }
+							<span>
+								{ createInterpolateElement(
+									sprintf(
+										/* translators: %d is a number (disk space used) */
+										__( 'Using <strong>%dGB</strong> of 1TB', 'jetpack' ),
+										Math.round( videoPressStorageUsed / 1024 )
+									),
+									{ strong: <strong /> }
+								) }
+							</span>
+						</div>
+					) }
+					{ hasConnectedOwner && (
+						<>
+							<ModuleToggle
+								slug="videopress"
+								disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
+								activated={ this.props.getOptionValue( 'videopress' ) }
+								toggling={ this.props.isSavingAnyOption( 'videopress' ) }
+								toggleModule={ this.props.toggleModuleNow }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Enable VideoPress', 'jetpack' ) }
+								</span>
+							</ModuleToggle>
+							<Fieldset.Root>
+								<ToggleControl
+									id="videopress-site-privacy"
+									disabled={ ! this.props.getOptionValue( 'videopress' ) }
+									checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
+									onChange={ this.togglePrivacySetting }
+									label={
+										<span className="jp-form-toggle-explanation">
+											{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+										</span>
+									}
+								/>
+							</Fieldset.Root>
+						</>
+					) }
+				</Fieldset.Root>
 			</SettingsGroup>
 		);
 
@@ -153,7 +168,6 @@ class Media extends Component {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 						feature="jetpack_videopress"
 						href={ upgradeUrl }
-						rna
 					/>
 				) }
 			</SettingsCard>

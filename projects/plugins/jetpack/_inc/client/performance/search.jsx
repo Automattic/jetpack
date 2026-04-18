@@ -1,9 +1,12 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Card, Fieldset } from '@wordpress/ui';
 import { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import Card from 'components/card';
-import { FormFieldset } from 'components/forms';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -58,7 +61,6 @@ function Search( props ) {
 	}, [ failedToEnableSearch, hasInstantSearch, updateOptions, toggleSearchModule ] );
 
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
-	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	return (
 		<SettingsCard { ...props } module="search" feature={ FEATURE_SEARCH_JETPACK } hideButton>
 			<SettingsGroup
@@ -90,11 +92,10 @@ function Search( props ) {
 							</span>
 						</ModuleToggle>
 
-						<FormFieldset>
+						<Fieldset.Root>
 							<ToggleControl
 								checked={ isModuleEnabled && isInstantSearchEnabled }
 								disabled={ togglingModule || ! props.hasInstantSearch }
-								toggling={ togglingInstantSearch }
 								onChange={ toggleInstantSearch }
 								label={
 									<span className="jp-form-toggle-explanation">
@@ -110,7 +111,7 @@ function Search( props ) {
 									</span>
 								}
 							/>
-						</FormFieldset>
+						</Fieldset.Root>
 					</Fragment>
 				) }
 			</SettingsGroup>
@@ -119,22 +120,20 @@ function Search( props ) {
 				( props.hasClassicSearch || props.hasInstantSearch ) &&
 				isModuleEnabled &&
 				! isInstantSearchEnabled && (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						href="customize.php?autofocus[panel]=widgets"
-					>
-						{ __( 'Add Jetpack Search Widget', 'jetpack' ) }
-					</Card>
+					<Card.Root className="jp-settings-card__configure-link" size="compact">
+						<Card.Content>
+							<a href="customize.php?autofocus[panel]=widgets">
+								{ __( 'Add Jetpack Search Widget', 'jetpack' ) }
+							</a>
+						</Card.Content>
+					</Card.Root>
 				) }
 			{ props.hasInstantSearch && isModuleEnabled && isInstantSearchEnabled && (
-				<Card
-					className="jp-settings-card__configure-link"
-					compact
-					href="admin.php?page=jetpack-search-configure"
-				>
-					{ SEARCH_CUSTOMIZE_CTA }
-				</Card>
+				<Card.Root className="jp-settings-card__configure-link" size="compact">
+					<Card.Content>
+						<a href="admin.php?page=jetpack-search-configure">{ SEARCH_CUSTOMIZE_CTA }</a>
+					</Card.Content>
+				</Card.Root>
 			) }
 		</SettingsCard>
 	);
