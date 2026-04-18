@@ -1,4 +1,5 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
@@ -157,6 +158,7 @@ function Newsletter( props ) {
 				} }
 			>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					checked={ isSubscriptionsActive && !! newsletterSendDefault }
 					disabled={
 						! isSubscriptionsActive ||
@@ -164,7 +166,6 @@ function Newsletter( props ) {
 						unavailableInOfflineMode ||
 						isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME, NEWSLETTER_SEND_DEFAULT_OPTION ] )
 					}
-					toggling={ isSavingAnyOption( [ NEWSLETTER_SEND_DEFAULT_OPTION ] ) }
 					onChange={ handleEmailPostToSubsDefaultToggle }
 					label={
 						<span className="jp-form-toggle-explanation">

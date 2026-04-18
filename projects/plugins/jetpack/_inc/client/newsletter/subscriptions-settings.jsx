@@ -1,5 +1,4 @@
-import { ToggleControl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
@@ -33,7 +32,6 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 function SubscriptionsSettings( props ) {
 	const {
 		unavailableInOfflineMode,
-		isSavingAnyOption,
 		isStbEnabled,
 		isStcEnabled,
 		isSmEnabled,
@@ -164,9 +162,9 @@ function SubscriptionsSettings( props ) {
 				<FormFieldset>
 					<FormLegend>{ __( 'Homepage and posts', 'jetpack' ) }</FormLegend>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
 						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'jetpack_subscriptions_subscribe_post_end_enabled' ] ) }
 						onChange={ handleSubscribePostEndToggleChange }
 						label={
 							<span className="jp-form-toggle-explanation">
@@ -184,9 +182,9 @@ function SubscriptionsSettings( props ) {
 						}
 					/>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						checked={ isSubscriptionsActive && isSmEnabled }
 						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
 						onChange={ handleSubscribeModalToggleChange }
 						label={
 							<span className="jp-form-toggle-explanation">
@@ -203,9 +201,9 @@ function SubscriptionsSettings( props ) {
 						}
 					/>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						checked={ isSubscriptionsActive && isSubscribeOverlayEnabled }
 						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'jetpack_subscribe_overlay_enabled' ] ) }
 						onChange={ handleSubscribeOverlayToggleChange }
 						label={
 							<span className="jp-form-toggle-explanation">
@@ -222,9 +220,9 @@ function SubscriptionsSettings( props ) {
 						}
 					/>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						checked={ isSubscriptionsActive && isSubscribeFloatingEnabled }
 						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'jetpack_subscribe_floating_button_enabled' ] ) }
 						onChange={ handleSubscribeFloatingToggleChange }
 						label={
 							<span className="jp-form-toggle-explanation">
@@ -245,11 +243,9 @@ function SubscriptionsSettings( props ) {
 					<FormFieldset>
 						<FormLegend>{ __( 'Navigation', 'jetpack' ) }</FormLegend>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							checked={ isSubscriptionsActive && isSubscribeNavigationEnabled }
 							disabled={ isDisabled }
-							toggling={ isSavingAnyOption( [
-								'jetpack_subscriptions_subscribe_navigation_enabled',
-							] ) }
 							onChange={ handleSubscribeNavigationToggleChange }
 							label={
 								<span className="jp-form-toggle-explanation">
@@ -266,9 +262,9 @@ function SubscriptionsSettings( props ) {
 							}
 						/>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							checked={ isSubscriptionsActive && isLoginNavigationEnabled }
 							disabled={ isDisabled }
-							toggling={ isSavingAnyOption( [ 'jetpack_subscriptions_login_navigation_enabled' ] ) }
 							onChange={ handleLoginNavigationToggleChange }
 							label={
 								<span className="jp-form-toggle-explanation">
@@ -289,9 +285,9 @@ function SubscriptionsSettings( props ) {
 				<FormFieldset>
 					<FormLegend>{ __( 'Comments', 'jetpack' ) }</FormLegend>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						checked={ isSubscriptionsActive && isStbEnabled }
 						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
 						onChange={ handleSubscribeToBlogToggleChange }
 						label={
 							<span className="jp-form-toggle-explanation">
@@ -300,9 +296,9 @@ function SubscriptionsSettings( props ) {
 						}
 					/>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						checked={ isSubscriptionsActive && isStcEnabled }
 						disabled={ isDisabled }
-						toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
 						onChange={ handleSubscribeToCommentToggleChange }
 						label={
 							<span className="jp-form-toggle-explanation">

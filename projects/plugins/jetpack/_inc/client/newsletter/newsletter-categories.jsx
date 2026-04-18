@@ -1,5 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -157,6 +157,7 @@ function NewsletterCategories( props ) {
 				</p>
 				<div className="newsletter-categories-toggle-wrapper">
 					<ToggleControl
+						__nextHasNoMarginBottom
 						disabled={ disabled }
 						checked={ isNewsletterCategoriesEnabled && isSubscriptionsActive }
 						onChange={ handleEnableNewsletterCategoriesToggleChange }

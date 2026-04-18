@@ -1,13 +1,12 @@
 import {
 	RadioControl,
-	ToggleControl,
 	getRedirectUrl,
 	Container,
 	Col,
 	Chip,
 	Button as JetpackButton,
 } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
@@ -211,11 +210,11 @@ const EmailSettings = props => {
 				} }
 			>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					disabled={ featuredImageInputDisabled }
 					checked={
 						isFeaturedImageInEmailEnabled && isSubscriptionsActive && ! featuredImageInputDisabled
 					}
-					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
 					label={ <span className="jp-form-toggle-explanation">{ featuredImageInfo }</span> }
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
 					className="email-settings__featured-image-toggle"
@@ -286,9 +285,9 @@ const EmailSettings = props => {
 				/>
 				<div className="email-settings__gravatar">
 					<ToggleControl
+						__nextHasNoMarginBottom
 						disabled={ gravatarInputDisabled }
 						checked={ isGravatarEnabled && isSubscriptionsActive }
-						toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
 						label={
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Show author avatar on your emails', 'jetpack' ) }
@@ -332,9 +331,9 @@ const EmailSettings = props => {
 					/>
 				</div>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					disabled={ authorInputDisabled }
 					checked={ isAuthorEnabled && isSubscriptionsActive }
-					toogling={ isSavingAnyOption( [ AUTHOR_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
 							{ __( 'Show author display name', 'jetpack' ) }
@@ -344,9 +343,9 @@ const EmailSettings = props => {
 				/>
 
 				<ToggleControl
+					__nextHasNoMarginBottom
 					disabled={ postDateInputDisabled }
 					checked={ isPostDateEnabled && isSubscriptionsActive }
-					toogling={ isSavingAnyOption( [ POST_DATE_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
 							{ __( 'Add the post date', 'jetpack' ) }
