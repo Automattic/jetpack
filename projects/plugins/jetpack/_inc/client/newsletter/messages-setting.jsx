@@ -1,13 +1,16 @@
 import { __ } from '@wordpress/i18n';
+import { Textarea } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
+// NOTE: withModuleSettingsFormHelpers, SettingsCard, and SettingsGroup are
+// Jetpack business-logic composites — not UI primitives — so they remain
+// imported from _inc/client/components per the refactor rules.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule } from 'state/modules';
-import Textarea from '../components/textarea';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const SUBSCRIPTION_OPTIONS = 'subscription_options';

@@ -1,7 +1,10 @@
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
+// NOTE: withModuleSettingsFormHelpers, SettingsCard, and SettingsGroup are
+// Jetpack business-logic composites — not UI primitives — so they remain
+// imported from _inc/client/components per the refactor rules.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -63,8 +66,8 @@ function PaidNewsletter( props ) {
 					href={ ! setupPaymentPlansButtonDisabled ? setupPaymentPlansUrl : undefined }
 					onClick={ trackSetupPaymentPlansButtonClick }
 					disabled={ ! siteHasConnectedUser || setupPaymentPlansButtonDisabled }
-					primary
-					rna
+					variant="solid"
+					tone="brand"
 				>
 					{ plansBtnText }
 				</Button>

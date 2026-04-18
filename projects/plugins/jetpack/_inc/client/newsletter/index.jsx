@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
+import { Button, Card } from '@wordpress/ui';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
+// NOTE: QuerySite + components/data/* are Redux data-fetching helpers, not UI
+// primitives — they stay per the refactor rules.
 import QuerySite from 'components/data/query-site';
 import {
 	getSiteAdminUrl,
@@ -53,17 +54,19 @@ function Subscriptions( props ) {
 			<div>
 				<h1 className="screen-reader-text">{ __( 'Jetpack Newsletter Settings', 'jetpack' ) }</h1>
 				<h2 className="jp-settings__section-title">{ __( 'Newsletter', 'jetpack' ) }</h2>
-				<Card>
-					<p>
-						{ __(
-							'Newsletter Settings have moved to a new location. Access it via Jetpack → Newsletter.',
-							'jetpack'
-						) }
-					</p>
-					<Button href={ newsletterSettingsUrl } primary rna>
-						{ __( 'Go to Newsletter Settings', 'jetpack' ) }
-					</Button>
-				</Card>
+				<Card.Root>
+					<Card.Content>
+						<p>
+							{ __(
+								'Newsletter Settings have moved to a new location. Access it via Jetpack → Newsletter.',
+								'jetpack'
+							) }
+						</p>
+						<Button href={ newsletterSettingsUrl } variant="solid" tone="brand">
+							{ __( 'Go to Newsletter Settings', 'jetpack' ) }
+						</Button>
+					</Card.Content>
+				</Card.Root>
 			</div>
 		);
 	}

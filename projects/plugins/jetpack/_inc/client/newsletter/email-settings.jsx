@@ -1,23 +1,20 @@
-import {
-	ToggleControl,
-	getRedirectUrl,
-	Container,
-	Col,
-	Chip,
-	Button as JetpackButton,
-} from '@automattic/jetpack-components';
-import { ExternalLink, RadioControl } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+// NOTE: @wordpress/ui has no ToggleControl or RadioControl primitives yet;
+// falling back to @wordpress/components per the priority list.
+import { ExternalLink, RadioControl, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Badge, Button, Fieldset, Input } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import { FormLegend } from 'components/forms';
+// NOTE: withModuleSettingsFormHelpers, SettingsCard, SettingsGroup, and
+// SupportInfo are Jetpack business-logic composites (save buttons, upgrade
+// upsells, help popovers with analytics) — not UI primitives — so they remain
+// imported from _inc/client/components per the refactor rules.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import SupportInfo from 'components/support-info';
-import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
@@ -210,11 +207,11 @@ const EmailSettings = props => {
 				} }
 			>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					disabled={ featuredImageInputDisabled }
 					checked={
 						isFeaturedImageInEmailEnabled && isSubscriptionsActive && ! featuredImageInputDisabled
 					}
-					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
 					label={ <span className="jp-form-toggle-explanation">{ featuredImageInfo }</span> }
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
 					className="email-settings__featured-image-toggle"
@@ -233,30 +230,32 @@ const EmailSettings = props => {
 					),
 				} }
 			>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'For each new post email, include', 'jetpack' ) }
-				</FormLegend>
+				<Fieldset.Root>
+					<Fieldset.Legend className="jp-form-legend jp-form-label-wide">
+						{ __( 'For each new post email, include', 'jetpack' ) }
+					</Fieldset.Legend>
 
-				<RadioControl
-					className="jp-form-radio-gap"
-					selected={ subscriptionEmailsUseExcerpt ? 'excerpt' : 'full' }
-					disabled={ excerptInputDisabled }
-					options={ [
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">{ __( 'Full text', 'jetpack' ) }</span>
-							),
-							value: 'full',
-						},
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">{ __( 'Excerpt', 'jetpack' ) }</span>
-							),
-							value: 'excerpt',
-						},
-					] }
-					onChange={ handleSubscriptionEmailsUseExcerptChange }
-				/>
+					<RadioControl
+						className="jp-form-radio-gap"
+						selected={ subscriptionEmailsUseExcerpt ? 'excerpt' : 'full' }
+						disabled={ excerptInputDisabled }
+						options={ [
+							{
+								label: (
+									<span className="jp-form-toggle-explanation">{ __( 'Full text', 'jetpack' ) }</span>
+								),
+								value: 'full',
+							},
+							{
+								label: (
+									<span className="jp-form-toggle-explanation">{ __( 'Excerpt', 'jetpack' ) }</span>
+								),
+								value: 'excerpt',
+							},
+						] }
+						onChange={ handleSubscriptionEmailsUseExcerptChange }
+					/>
+				</Fieldset.Root>
 			</SettingsGroup>
 			<SettingsGroup
 				hasChild
@@ -265,107 +264,110 @@ const EmailSettings = props => {
 				module={ subscriptionsModule }
 				className="newsletter-group"
 			>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'Email byline', 'jetpack' ) }
-					<Chip type="new" text={ __( 'New', 'jetpack' ) } />
-				</FormLegend>
-				<p>
-					{ __(
-						'Customize the information you want to display below your post title in emails.',
-						'jetpack'
-					) }
-				</p>
-				<BylinePreview
-					isGravatarEnabled={ bylineState.isGravatarEnabled }
-					isAuthorEnabled={ bylineState.isAuthorEnabled }
-					isPostDateEnabled={ bylineState.isPostDateEnabled }
-					gravatar={ gravatar }
-					displayName={ displayName }
-					dateExample={ dateExample }
-				/>
-				<div className="email-settings__gravatar">
-					<ToggleControl
-						disabled={ gravatarInputDisabled }
-						checked={ isGravatarEnabled && isSubscriptionsActive }
-						toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
-						label={
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Show author avatar on your emails', 'jetpack' ) }
-							</span>
-						}
-						onChange={ handleEnableGravatarToggleChange }
+				<Fieldset.Root>
+					<Fieldset.Legend className="jp-form-legend jp-form-label-wide">
+						{ __( 'Email byline', 'jetpack' ) }
+						<Badge intent="informational">{ __( 'New', 'jetpack' ) }</Badge>
+					</Fieldset.Legend>
+					<p>
+						{ __(
+							'Customize the information you want to display below your post title in emails.',
+							'jetpack'
+						) }
+					</p>
+					<BylinePreview
+						isGravatarEnabled={ bylineState.isGravatarEnabled }
+						isAuthorEnabled={ bylineState.isAuthorEnabled }
+						isPostDateEnabled={ bylineState.isPostDateEnabled }
+						gravatar={ gravatar }
+						displayName={ displayName }
+						dateExample={ dateExample }
 					/>
-					{ bylineState.isGravatarEnabled && (
-						<div className="email-settings__help-info">
-							<div className="email-settings__gravatar-help-info">
-								<img src={ gravatar } className="email-settings__gravatar-image" alt="" />
-								<div>
-									<div className="email-settings__gravatar-help-text">
-										{ __(
-											'We use Gravatar, a service that associates an avatar image with your primary email address.',
-											'jetpack'
-										) }
+					<div className="email-settings__gravatar">
+						<ToggleControl
+							__nextHasNoMarginBottom
+							disabled={ gravatarInputDisabled }
+							checked={ isGravatarEnabled && isSubscriptionsActive }
+							label={
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Show author avatar on your emails', 'jetpack' ) }
+								</span>
+							}
+							onChange={ handleEnableGravatarToggleChange }
+						/>
+						{ bylineState.isGravatarEnabled && (
+							<div className="email-settings__help-info">
+								<div className="email-settings__gravatar-help-info">
+									<img src={ gravatar } className="email-settings__gravatar-image" alt="" />
+									<div>
+										<div className="email-settings__gravatar-help-text">
+											{ __(
+												'We use Gravatar, a service that associates an avatar image with your primary email address.',
+												'jetpack'
+											) }
+										</div>
+										<Button
+											href="https://gravatar.com/profile/avatars"
+											target="_blank"
+											rel="noopener noreferrer"
+											variant="outline"
+											size="compact"
+										>
+											{ __( 'Update your Gravatar', 'jetpack' ) }
+										</Button>
 									</div>
-									<JetpackButton
-										isExternalLink={ true }
-										href="https://gravatar.com/profile/avatars"
-										variant="secondary"
-										size="small"
-									>
-										{ __( 'Update your Gravatar', 'jetpack' ) }
-									</JetpackButton>
 								</div>
 							</div>
+						) }
+						<SupportInfo
+							text={ sprintf(
+								// translators: %s is the user's email address
+								__(
+									"The avatar comes from Gravatar, a universal avatar service. Your image may also appear on other sites using Gravatar when you're logged in with %s.",
+									'jetpack'
+								),
+								email
+							) }
+							privacyLink="https://support.gravatar.com/account/data-privacy/"
+						/>
+					</div>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						disabled={ authorInputDisabled }
+						checked={ isAuthorEnabled && isSubscriptionsActive }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Show author display name', 'jetpack' ) }
+							</span>
+						}
+						onChange={ handleEnableAuthorToggleChange }
+					/>
+
+					<ToggleControl
+						__nextHasNoMarginBottom
+						disabled={ postDateInputDisabled }
+						checked={ isPostDateEnabled && isSubscriptionsActive }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Add the post date', 'jetpack' ) }
+							</span>
+						}
+						onChange={ handleEnablePostDateToggleChange }
+					/>
+					{ bylineState.isPostDateEnabled && (
+						<div className="email-settings__help-info">
+							{ createInterpolateElement(
+								__(
+									'You can customize the date format in your site’s <settingsLink>general settings</settingsLink>',
+									'jetpack'
+								),
+								{
+									settingsLink: <ExternalLink href={ adminUrl + 'options-general.php' } />,
+								}
+							) }
 						</div>
 					) }
-					<SupportInfo
-						text={ sprintf(
-							// translators: %s is the user's email address
-							__(
-								"The avatar comes from Gravatar, a universal avatar service. Your image may also appear on other sites using Gravatar when you're logged in with %s.",
-								'jetpack'
-							),
-							email
-						) }
-						privacyLink="https://support.gravatar.com/account/data-privacy/"
-					/>
-				</div>
-				<ToggleControl
-					disabled={ authorInputDisabled }
-					checked={ isAuthorEnabled && isSubscriptionsActive }
-					toogling={ isSavingAnyOption( [ AUTHOR_OPTION ] ) }
-					label={
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Show author display name', 'jetpack' ) }
-						</span>
-					}
-					onChange={ handleEnableAuthorToggleChange }
-				/>
-
-				<ToggleControl
-					disabled={ postDateInputDisabled }
-					checked={ isPostDateEnabled && isSubscriptionsActive }
-					toogling={ isSavingAnyOption( [ POST_DATE_OPTION ] ) }
-					label={
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Add the post date', 'jetpack' ) }
-						</span>
-					}
-					onChange={ handleEnablePostDateToggleChange }
-				/>
-				{ bylineState.isPostDateEnabled && (
-					<div className="email-settings__help-info">
-						{ createInterpolateElement(
-							__(
-								'You can customize the date format in your site’s <settingsLink>general settings</settingsLink>',
-								'jetpack'
-							),
-							{
-								settingsLink: <ExternalLink href={ adminUrl + 'options-general.php' } />,
-							}
-						) }
-					</div>
-				) }
+				</Fieldset.Root>
 			</SettingsGroup>
 			<SettingsGroup
 				hasChild
@@ -383,41 +385,41 @@ const EmailSettings = props => {
 					),
 				} }
 			>
-				<FormLegend className="jp-form-label-wide">{ __( 'Sender name', 'jetpack' ) }</FormLegend>
-				<Container horizontalGap={ 0 } fluid className="sender-name">
-					<Col sm={ 3 } md={ 4 } lg={ 4 }>
-						<TextInput
+				<Fieldset.Root>
+					<Fieldset.Legend className="jp-form-legend jp-form-label-wide">
+						{ __( 'Sender name', 'jetpack' ) }
+					</Fieldset.Legend>
+					<div className="sender-name">
+						<Input
 							value={ fromNameState.value }
 							disabled={ fromNameInputDisabled }
 							onChange={ handleSubscriptionFromNameChange }
 							placeholder={ siteName || __( 'Enter sender name', 'jetpack' ) }
 						/>
-					</Col>
-					<Col sm={ 1 } md={ 1 } lg={ 1 }>
 						<Button
-							primary
-							rna
+							variant="solid"
+							tone="brand"
 							onClick={ handleSubscriptionFromNameChangeClick }
 							disabled={ fromNameInputDisabled || ! fromNameState.hasChanged }
 						>
 							{ __( 'Save', 'jetpack' ) }
 						</Button>
-					</Col>
-					<Col className="sender-name-example">
-						{ sprintf(
-							/* translators: 1. Site name or user entered replacement value 2. is the example email */
-							__( 'Preview: %1$s <%2$s>', 'jetpack' ),
-							fromNameState.value || siteName,
-							getExampleEmail( subscriptionReplyTo )
+						<span className="sender-name-example">
+							{ sprintf(
+								/* translators: 1. Site name or user entered replacement value 2. is the example email */
+								__( 'Preview: %1$s <%2$s>', 'jetpack' ),
+								fromNameState.value || siteName,
+								getExampleEmail( subscriptionReplyTo )
+							) }
+						</span>
+					</div>
+					<p className="jp-form-setting-explanation">
+						{ __(
+							"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
+							'jetpack'
 						) }
-					</Col>
-				</Container>
-				<p className="jp-form-setting-explanation">
-					{ __(
-						"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
-						'jetpack'
-					) }
-				</p>
+					</p>
+				</Fieldset.Root>
 			</SettingsGroup>
 			<SettingsGroup
 				hasChild
@@ -435,53 +437,55 @@ const EmailSettings = props => {
 					),
 				} }
 			>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'Reply-to settings', 'jetpack' ) }
-				</FormLegend>
-				<RadioControl
-					className="jp-form-radio-gap"
-					selected={ subscriptionReplyTo || 'comment' }
-					disabled={ replyToInputDisabled }
-					options={ [
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Replies will be a public comment on the post', 'jetpack' ) }
-								</span>
-							),
-							value: 'comment',
-						},
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">
-									{ __( "Replies will be sent to the post author's email", 'jetpack' ) }
-								</span>
-							),
-							value: 'author',
-						},
-						{
-							label: (
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Replies are not allowed', 'jetpack' ) }
-								</span>
-							),
-							value: 'no-reply',
-						},
-					] }
-					onChange={ handleSubscriptionReplyToChange }
-				/>
-				<p className="reply-to jp-form-setting-explanation">
-					{ __(
-						'Choose who receives emails when subscribers reply to your newsletter.',
-						'jetpack'
-					) }
-					{ subscriptionReplyTo === 'author' &&
-						' ' +
-							__(
-								'The author’s account must be connected to WordPress.com to use their email as the reply-to address.',
-								'jetpack'
-							) }
-				</p>
+				<Fieldset.Root>
+					<Fieldset.Legend className="jp-form-legend jp-form-label-wide">
+						{ __( 'Reply-to settings', 'jetpack' ) }
+					</Fieldset.Legend>
+					<RadioControl
+						className="jp-form-radio-gap"
+						selected={ subscriptionReplyTo || 'comment' }
+						disabled={ replyToInputDisabled }
+						options={ [
+							{
+								label: (
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Replies will be a public comment on the post', 'jetpack' ) }
+									</span>
+								),
+								value: 'comment',
+							},
+							{
+								label: (
+									<span className="jp-form-toggle-explanation">
+										{ __( "Replies will be sent to the post author's email", 'jetpack' ) }
+									</span>
+								),
+								value: 'author',
+							},
+							{
+								label: (
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Replies are not allowed', 'jetpack' ) }
+									</span>
+								),
+								value: 'no-reply',
+							},
+						] }
+						onChange={ handleSubscriptionReplyToChange }
+					/>
+					<p className="reply-to jp-form-setting-explanation">
+						{ __(
+							'Choose who receives emails when subscribers reply to your newsletter.',
+							'jetpack'
+						) }
+						{ subscriptionReplyTo === 'author' &&
+							' ' +
+								__(
+									'The author’s account must be connected to WordPress.com to use their email as the reply-to address.',
+									'jetpack'
+								) }
+					</p>
+				</Fieldset.Root>
 			</SettingsGroup>
 		</SettingsCard>
 	);

@@ -1,8 +1,15 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+// NOTE: @wordpress/ui has no ToggleControl primitive yet; falling back to
+// @wordpress/components per the priority list.
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
-import Card from 'components/card';
+// NOTE: withModuleSettingsFormHelpers, SettingsCard, SettingsGroup, and
+// ModuleToggle are Jetpack business-logic composites (save buttons, upgrade
+// upsells, analytics, override handling) — not UI primitives — so they remain
+// imported from _inc/client/components per the refactor rules.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -55,23 +62,25 @@ function Newsletter( props ) {
 			return '';
 		}
 
+		const manageSubscribersHref = wpAdminSubscriberManagementEnabled
+			? siteAdminUrl + 'admin.php?page=subscribers'
+			: getRedirectUrl( 'jetpack-settings-jetpack-manage-subscribers', {
+					site: blogID ?? siteRawUrl,
+			  } );
+
 		return (
-			<Card
-				compact
-				className="jp-settings-card__configure-link"
-				onClick={ trackViewSubsClick }
-				href={
-					wpAdminSubscriberManagementEnabled
-						? siteAdminUrl + 'admin.php?page=subscribers'
-						: getRedirectUrl( 'jetpack-settings-jetpack-manage-subscribers', {
-								site: blogID ?? siteRawUrl,
-						  } )
-				}
-				target="_blank"
-				rel="noopener noreferrer"
-			>
-				{ __( 'Manage all subscribers', 'jetpack' ) }
-			</Card>
+			<Card.Root className="jp-settings-card__configure-link">
+				<Card.Content>
+					<a
+						onClick={ trackViewSubsClick }
+						href={ manageSubscribersHref }
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{ __( 'Manage all subscribers', 'jetpack' ) }
+					</a>
+				</Card.Content>
+			</Card.Root>
 		);
 	};
 
@@ -157,6 +166,7 @@ function Newsletter( props ) {
 				} }
 			>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					checked={ isSubscriptionsActive && !! newsletterSendDefault }
 					disabled={
 						! isSubscriptionsActive ||
@@ -164,7 +174,6 @@ function Newsletter( props ) {
 						unavailableInOfflineMode ||
 						isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME, NEWSLETTER_SEND_DEFAULT_OPTION ] )
 					}
-					toggling={ isSavingAnyOption( [ NEWSLETTER_SEND_DEFAULT_OPTION ] ) }
 					onChange={ handleEmailPostToSubsDefaultToggle }
 					label={
 						<span className="jp-form-toggle-explanation">

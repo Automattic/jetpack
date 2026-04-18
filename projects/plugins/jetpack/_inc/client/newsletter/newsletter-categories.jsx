@@ -1,11 +1,18 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+// NOTE: @wordpress/ui has no ToggleControl primitive yet; falling back to
+// @wordpress/components per the priority list.
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { createNotice } from 'components/global-notices/state/notices/actions';
+// NOTE: withModuleSettingsFormHelpers, SettingsCard, and SettingsGroup are
+// Jetpack business-logic composites — not UI primitives — so they remain
+// imported from _inc/client/components per the refactor rules.
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_NEWSLETTER_JETPACK } from 'lib/plans/constants';
@@ -15,8 +22,9 @@ import {
 	hasConnectedOwner,
 } from 'state/connection';
 import { getModule } from 'state/modules';
-import Card from '../components/card';
-import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
+// NOTE: TreeDropdown is a compound Jetpack-specific control (hierarchical
+// taxonomy picker). @wordpress/ui has no direct equivalent and rewriting it
+// here would duplicate shared logic — keep it per the refactor rules.
 import TreeDropdown from '../components/tree-dropdown';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
@@ -157,6 +165,7 @@ function NewsletterCategories( props ) {
 				</p>
 				<div className="newsletter-categories-toggle-wrapper">
 					<ToggleControl
+						__nextHasNoMarginBottom
 						disabled={ disabled }
 						checked={ isNewsletterCategoriesEnabled && isSubscriptionsActive }
 						onChange={ handleEnableNewsletterCategoriesToggleChange }
@@ -191,14 +200,17 @@ function NewsletterCategories( props ) {
 					hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 				} ) }
 			>
-				<Card
-					compact
-					className="jp-settings-card__configure-link"
-					href="/wp-admin/edit-tags.php?taxonomy=category&referer=newsletter-categories"
-					target="_blank"
-				>
-					{ __( 'Add New Category', 'jetpack' ) }
-				</Card>
+				<Card.Root className="jp-settings-card__configure-link">
+					<Card.Content>
+						<a
+							href="/wp-admin/edit-tags.php?taxonomy=category&referer=newsletter-categories"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'Add New Category', 'jetpack' ) }
+						</a>
+					</Card.Content>
+				</Card.Root>
 			</div>
 		</SettingsCard>
 	);
