@@ -177,7 +177,7 @@ This gives you `jetpack_feature-*` containers running in parallel with `jetpack_
 | `--port-inbox <n>` | all | `1080` | Host port for the MailPit web UI. |
 | `--port-smtp <n>` | all | `25` | Host port for the MailPit SMTP server. |
 | `--port-sftp <n>` | all | `1022` | Host port for the SFTP container. |
-| `--clone-from <name>` | `dev` + `up` | — | Clone the DB from an existing running instance (e.g. `--clone-from dev`). The target site ends up with an installed WordPress populated from the source. |
+| `--clone-from <name>` | `dev` + `up` | — | Clone the DB from an existing running instance (e.g. `--clone-from feature`). The target site ends up with an installed WordPress populated from the source. |
 | `--no-clone` | `dev` + `up` | (auto-clone on) | Opt out of auto-cloning and get the default fresh-install flow instead. |
 
 #### Auto-clone behavior
