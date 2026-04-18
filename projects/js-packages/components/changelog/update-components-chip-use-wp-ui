@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Componentry: Remove Chip component in favor of Badge from @wordpress/ui.

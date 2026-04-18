@@ -1,5 +1,6 @@
-import { Chip, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import CompactCard from 'components/card/compact';
@@ -209,8 +210,8 @@ export class Composing extends Component {
 					<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
 						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
 					</a>
-					{ /* TODO: remove this Chip once it's not longer "new" */ }
-					<Chip type="new" text={ __( 'New', 'jetpack' ) } />
+					{ /* TODO: remove this Badge once it's no longer "new" */ }
+					<Badge intent="success">{ __( 'New', 'jetpack' ) }</Badge>
 				</CompactCard>
 			);
 
