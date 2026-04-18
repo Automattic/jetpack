@@ -13,7 +13,9 @@ jest.unstable_mockModule( 'fs', () => ( {
 	...fsStub,
 } ) );
 
-const { getProjectName, buildEnv } = await import( '../../../commands/docker.js' );
+const { getProjectName, buildEnv, resolveCloneSource } = await import(
+	'../../../commands/docker.js'
+);
 
 describe( 'getProjectName', () => {
 	test( 'defaults to jetpack_dev for dev type with no name', () => {
@@ -79,5 +81,45 @@ describe( 'buildEnv', () => {
 		expect( env.PORT_INBOX ).toBeUndefined();
 		expect( env.PORT_SMTP ).toBeUndefined();
 		expect( env.PORT_SFTP ).toBeUndefined();
+	} );
+} );
+
+describe( 'resolveCloneSource', () => {
+	test( 'returns null when --name is not set (primary dev instance path)', () => {
+		expect( resolveCloneSource( { type: 'dev', clone: true } ) ).toBeNull();
+	} );
+
+	test( 'auto-picks jetpack_dev when --name is set', () => {
+		expect( resolveCloneSource( { type: 'dev', name: 'feature', clone: true } ) ).toEqual( {
+			source: 'jetpack_dev',
+			explicit: false,
+		} );
+	} );
+
+	test( '--no-clone (clone=false) short-circuits auto-clone', () => {
+		expect( resolveCloneSource( { type: 'dev', name: 'feature', clone: false } ) ).toBeNull();
+	} );
+
+	test( '--clone-from wins over --no-clone', () => {
+		expect(
+			resolveCloneSource( { type: 'dev', name: 'feature', clone: false, cloneFrom: 'other' } )
+		).toEqual( { source: 'jetpack_other', explicit: true } );
+	} );
+
+	test( '--clone-from works without --name (explicit wins over auto gating)', () => {
+		expect( resolveCloneSource( { type: 'dev', clone: true, cloneFrom: 'other' } ) ).toEqual( {
+			source: 'jetpack_other',
+			explicit: true,
+		} );
+	} );
+
+	test( '--clone-from normalizes short name to full project name', () => {
+		expect(
+			resolveCloneSource( { type: 'dev', name: 'feature', clone: true, cloneFrom: 'scratch' } )
+		).toEqual( { source: 'jetpack_scratch', explicit: true } );
+	} );
+
+	test( 'returns null when target would be the same as source (--name dev)', () => {
+		expect( resolveCloneSource( { type: 'dev', name: 'dev', clone: true } ) ).toBeNull();
 	} );
 } );
