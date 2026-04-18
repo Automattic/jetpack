@@ -1,9 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
+// NOTE: PluginDashItem preserved — Jetpack compound widget (plugin install flow + Redux).
 import PluginDashItem from 'components/plugin-dash-item';
 import { FEATURE_JETPACK_CRM } from 'lib/plans/constants';
 
@@ -33,7 +34,9 @@ class DashCRM extends Component {
 						'jetpack'
 					),
 					{
-						ExternalLink: <ExternalLink href={ getRedirectUrl( 'stats-nudges-crm-learn' ) } />,
+						ExternalLink: (
+							<Link href={ getRedirectUrl( 'stats-nudges-crm-learn' ) } openInNewTab />
+						),
 						br: <br />,
 					}
 				) }

@@ -4,9 +4,12 @@ import { __, sprintf, _x } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// NOTE: ConnectButton preserved — compound widget tied to Redux + connection flow.
 import ConnectButton from 'components/connect-button';
+// NOTE: DashItem preserved — Jetpack compound widget (see activity.jsx).
 import DashItem from 'components/dash-item';
 import QueryUserConnectionData from 'components/data/query-user-connection';
+// NOTE: Gridicon preserved — brand icon set, not a UI primitive replacement.
 import Gridicon from 'components/gridicon';
 import {
 	getSiteConnectionStatus,

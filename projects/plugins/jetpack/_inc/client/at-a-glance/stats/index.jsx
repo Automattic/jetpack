@@ -1,18 +1,21 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
-import { ExternalLink, Spinner } from '@wordpress/components';
+// NOTE: Spinner fallback — @wordpress/ui does not ship a Spinner primitive yet.
+import { Spinner } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button, Card, Link } from '@wordpress/ui';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
+// NOTE: Chart preserved — compound viz component (d3), not a UI primitive.
 import Chart from 'components/chart';
+// NOTE: DashSectionHeader preserved — compound section header with settings link.
 import DashSectionHeader from 'components/dash-section-header';
 import QueryStatsData from 'components/data/query-stats-data';
+// NOTE: ModuleOverriddenBanner preserved — Redux-backed banner for overrides.
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import analytics from 'lib/analytics';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
@@ -168,22 +171,22 @@ export class DashStats extends Component {
 
 	renderEmptyStatsCard() {
 		return (
-			<Card className="jp-at-a-glance__stats-empty-container">
-				<div className="jp-at-a-glance__stats-empty">
-					<JetpackLogo height={ 64 } showText={ false } />
-					<p>
-						{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
-						<br />
-						{ __(
-							'Just give us a little time to collect data so we can display it for you here.',
-							'jetpack'
-						) }
-					</p>
-					<Button onClick={ this.dismissCard } primary>
-						{ __( 'Okay, got it!', 'jetpack' ) }
-					</Button>
-				</div>
-			</Card>
+			<Card.Root className="jp-at-a-glance__stats-empty-container">
+				<Card.Content>
+					<div className="jp-at-a-glance__stats-empty">
+						<JetpackLogo height={ 64 } showText={ false } />
+						<p>
+							{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
+							<br />
+							{ __(
+								'Just give us a little time to collect data so we can display it for you here.',
+								'jetpack'
+							) }
+						</p>
+						<Button onClick={ this.dismissCard }>{ __( 'Okay, got it!', 'jetpack' ) }</Button>
+					</div>
+				</Card.Content>
+			</Card.Root>
 		);
 	}
 
@@ -258,10 +261,9 @@ export class DashStats extends Component {
 								),
 								{
 									a1: (
-										<ExternalLink
+										<Link
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
-											target="_blank"
-											rel="noopener noreferrer"
+											openInNewTab
 										/>
 									),
 								}
@@ -271,7 +273,7 @@ export class DashStats extends Component {
 				</div>
 				{ ! this.props.isOfflineMode && (
 					<div className="jp-at-a-glance__stats-inactive-button">
-						<Button onClick={ this.activateStats } primary>
+						<Button onClick={ this.activateStats }>
 							{ __( 'Activate Stats', 'jetpack' ) }
 						</Button>
 					</div>
@@ -376,13 +378,13 @@ export class DashStats extends Component {
 					>
 						{ this.maybeShowStatsTabs() }
 					</DashSectionHeader>
-					<Card
+					<Card.Root
 						className={
 							'jp-at-a-glance__stats-card ' + ( this.props.isOfflineMode ? 'is-inactive' : '' )
 						}
 					>
-						{ this.renderStatsArea() }
-					</Card>
+						<Card.Content>{ this.renderStatsArea() }</Card.Content>
+					</Card.Root>
 				</div>
 			)
 		);

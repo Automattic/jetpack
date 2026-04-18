@@ -2,10 +2,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
+// NOTE: DashItem preserved — Jetpack compound widget.
 import DashItem from 'components/dash-item';
 import QueryProtectCount from 'components/data/query-dash-protect';
 import { getProtectCount } from 'state/at-a-glance';
@@ -94,7 +95,13 @@ class DashProtect extends Component {
 								'jetpack'
 							),
 							{
-								Button: <Button className="jp-link-button" onClick={ this.activateProtect } />,
+								Button: (
+									<Button
+										className="jp-link-button"
+										variant="unstyled"
+										onClick={ this.activateProtect }
+									/>
+								),
 							}
 						) }
 				</p>

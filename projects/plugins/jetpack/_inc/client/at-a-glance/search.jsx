@@ -1,12 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Button, Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
+// NOTE: DashItem preserved — Jetpack compound widget.
 import DashItem from 'components/dash-item';
+// NOTE: JetpackBanner preserved — plan-aware upsell with analytics.
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import { getJetpackProductUpsellByFeature, FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
@@ -159,34 +160,37 @@ class DashSearch extends Component {
 						</p>
 					</DashItem>
 					{ this.props.hasInstantSearch && (
-						<Card
-							compact
-							className="jp-search-config-aag"
-							href="admin.php?page=jetpack-search-configure"
-							onClick={ this.trackConfigureSearchLink }
-						>
-							{ SEARCH_CUSTOMIZE_CTA }
-						</Card>
+						<Card.Root className="jp-search-config-aag is-compact is-card-link">
+							<Card.Content>
+								<a
+									href="admin.php?page=jetpack-search-configure"
+									onClick={ this.trackConfigureSearchLink }
+								>
+									{ SEARCH_CUSTOMIZE_CTA }
+								</a>
+							</Card.Content>
+						</Card.Root>
 					) }
 					{ ! this.props.hasInstantSearch && ! this.props.isBlockThemeActive && (
-						<Card
-							compact
-							className="jp-search-config-aag"
-							href="customize.php?autofocus[panel]=widgets"
-							onClick={ this.trackAddSearchWidgetLink }
-						>
-							{ __( 'Add Search (Jetpack) Widget', 'jetpack' ) }
-						</Card>
+						<Card.Root className="jp-search-config-aag is-compact is-card-link">
+							<Card.Content>
+								<a
+									href="customize.php?autofocus[panel]=widgets"
+									onClick={ this.trackAddSearchWidgetLink }
+								>
+									{ __( 'Add Search (Jetpack) Widget', 'jetpack' ) }
+								</a>
+							</Card.Content>
+						</Card.Root>
 					) }
 					{ ! this.props.hasInstantSearch && this.props.isBlockThemeActive && (
-						<Card
-							compact
-							className="jp-search-config-aag"
-							href="site-editor.php"
-							onClick={ this.trackAddSearchBlockLink }
-						>
-							{ __( 'Add a Search Block', 'jetpack' ) }
-						</Card>
+						<Card.Root className="jp-search-config-aag is-compact is-card-link">
+							<Card.Content>
+								<a href="site-editor.php" onClick={ this.trackAddSearchBlockLink }>
+									{ __( 'Add a Search Block', 'jetpack' ) }
+								</a>
+							</Card.Content>
+						</Card.Root>
 					) }
 				</div>
 			);
@@ -201,7 +205,13 @@ class DashSearch extends Component {
 					'jetpack'
 				),
 				{
-					Button: <Button className="jp-link-button" onClick={ this.activateSearch } />,
+					Button: (
+						<Button
+							className="jp-link-button"
+							variant="unstyled"
+							onClick={ this.activateSearch }
+						/>
+					),
 				}
 			),
 		} );

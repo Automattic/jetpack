@@ -5,15 +5,18 @@ import {
 	calculateDaysSince,
 } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+// NOTE: InfoPopover preserved — Jetpack-styled popover with different anchor API vs @wordpress/components Popover.
 import InfoPopover from 'components/info-popover';
+// NOTE: PluginInstallSection preserved — compound install/activate flow with Redux.
 import PluginInstallSection from 'components/plugin-install-section';
+// NOTE: SectionHeader preserved — compound Jetpack header widget.
 import SectionHeader from 'components/section-header';
 import analytics from 'lib/analytics';
 import { FEATURE_JETPACK_BOOST, getJetpackProductUpsellByFeature } from 'lib/plans/constants';
@@ -485,14 +488,13 @@ const ConversionLossPopover = () => {
 			>
 				<p className="boost-conversion-loss-info__source">
 					{ __( 'Source:', 'jetpack' ) }{ ' ' }
-					<ExternalLink
+					<Link
 						href="https://web.dev/why-speed-matters/"
-						target="_blank"
-						rel="noopener noreferrer"
+						openInNewTab
 						onClick={ trackSourceClick }
 					>
 						web.dev
-					</ExternalLink>
+					</Link>
 				</p>
 			</InfoPopover>
 		</div>
@@ -533,11 +535,10 @@ const CriticalCssInfoPopover = () => {
 						),
 						{
 							ExternalLink: (
-								<ExternalLink
+								<Link
 									onClick={ trackCriticalCSSLinkClick }
 									href={ criticalCssUrl }
-									target="_blank"
-									rel="noopener noreferrer"
+									openInNewTab
 								/>
 							),
 						}

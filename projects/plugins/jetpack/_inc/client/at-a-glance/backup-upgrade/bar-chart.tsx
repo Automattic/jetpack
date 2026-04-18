@@ -1,7 +1,7 @@
 import { RecordMeterBar } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import { useEffect, useMemo, useRef } from 'react';
-import Card from 'components/card';
 import analytics from 'lib/analytics';
 import { Popup } from './popup';
 import { BarChartProps } from './types';
@@ -40,9 +40,11 @@ export const BarChart: FC< BarChartProps > = ( { comments, plugins, posts, onClo
 	}, [ comments, plugins, posts ] );
 
 	return (
-		<Card className="jp-dash-upgrade-backup">
-			<Popup posts={ posts } comments={ comments } onClosePopup={ onClosePopup } />
-			<RecordMeterBar items={ items } />
-		</Card>
+		<Card.Root className="jp-dash-upgrade-backup">
+			<Card.Content>
+				<Popup posts={ posts } comments={ comments } onClosePopup={ onClosePopup } />
+				<RecordMeterBar items={ items } />
+			</Card.Content>
+		</Card.Root>
 	);
 };

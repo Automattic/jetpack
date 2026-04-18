@@ -3,14 +3,16 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Button, Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
+// NOTE: DashItem preserved — Jetpack compound widget (ModuleToggle + ProStatus
+// + SectionHeader + SupportInfo + Redux). Replacing inline is out of scope.
 import DashItem from 'components/dash-item';
 import QueryAkismetData from 'components/data/query-akismet-data';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+// NOTE: JetpackBanner preserved — plan-aware upsell banner with analytics.
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
@@ -107,7 +109,13 @@ class DashAkismet extends Component {
 				description = createInterpolateElement(
 					__( 'Already have an API key? <Button>Activate Akismet Anti-spam</Button>.', 'jetpack' ),
 					{
-						Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
+						Button: (
+							<Button
+								className="jp-link-button"
+								variant="unstyled"
+								onClick={ this.onActivateClick }
+							/>
+						),
 					}
 				);
 			} else if ( 'invalid_key' === akismetData ) {
@@ -223,15 +231,19 @@ class DashAkismet extends Component {
 				{ getAkismetCounter( akismetData ) }
 			</DashItem>,
 			! this.props.isOfflineMode && (
-				<Card
+				<Card.Root
 					key="moderate-comments"
-					className="jp-dash-item__manage-in-wpcom"
-					compact
-					href={ `${ this.props.siteAdminUrl }edit-comments.php` }
-					onClick={ this.onModerateClick }
+					className="jp-dash-item__manage-in-wpcom is-compact is-card-link"
 				>
-					{ __( 'Moderate comments', 'jetpack' ) }
-				</Card>
+					<Card.Content>
+						<a
+							href={ `${ this.props.siteAdminUrl }edit-comments.php` }
+							onClick={ this.onModerateClick }
+						>
+							{ __( 'Moderate comments', 'jetpack' ) }
+						</a>
+					</Card.Content>
+				</Card.Root>
 			),
 		];
 	}

@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import Button from 'components/button';
+import { Button } from '@wordpress/ui';
 import { imagePath } from 'constants/urls';
 import { PopupProps } from './types';
 import type { FC, ReactElement } from 'react';
@@ -15,8 +15,9 @@ export const Popup: FC< PopupProps > = ( { posts, comments, onClosePopup } ) => 
 			<Button
 				onClick={ onClosePopup }
 				className="jp-dash-upgrade-backup__popup-close-icon"
-				compact
-				borderless
+				size="compact"
+				variant="minimal"
+				tone="neutral"
 			>
 				<img src={ imagePath + '/close.svg' } alt={ __( 'Close', 'jetpack' ) } />
 			</Button>

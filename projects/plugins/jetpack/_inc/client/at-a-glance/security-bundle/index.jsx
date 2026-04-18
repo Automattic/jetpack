@@ -1,16 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Button, Card } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
 import analytics from 'lib/analytics';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import {
 	isFetchingSitePurchases as getIsFetchingSitePurchases,
 	hasActiveSecurityPurchase as getHasActiveSecurityPurchase,
 } from 'state/site';
+// NOTE: Gridicon preserved — brand icon set, not a UI primitive.
 import Gridicon from '../../components/gridicon';
 import bundleImageUrl from './shield-with-check.svg';
 
@@ -33,54 +33,65 @@ class DashSecurityBundle extends Component {
 		}
 
 		return (
-			<Card className="dash-security-bundle">
-				<div className="dash-security-bundle--icon">
-					<img
-						src={ bundleImageUrl }
-						alt={ __(
-							'A shield and check mark representing the Jetpack Security Bundle',
-							'jetpack'
-						) }
-					/>
-				</div>
-				<div className="dash-security-bundle--content">
-					<div className="dash-security-bundle--content-info">
-						<h3>{ __( 'Comprehensive Site Security', 'jetpack' ) }</h3>
-
-						<p>
-							{ createInterpolateElement(
-								__(
-									'Total protection for your site, including<br /> VaultPress Backup, Scan, and Akismet Anti-spam.',
-									'jetpack'
-								),
-								{
-									br: <br />,
-								}
+			<Card.Root className="dash-security-bundle">
+				<Card.Content>
+					<div className="dash-security-bundle--icon">
+						<img
+							src={ bundleImageUrl }
+							alt={ __(
+								'A shield and check mark representing the Jetpack Security Bundle',
+								'jetpack'
 							) }
-						</p>
+						/>
 					</div>
-					<div className="dash-security-bundle--content-cta">
-						<Button
-							className="dash-security-bundle--content-cta-button"
-							href={ this.props.productDescriptionUrl }
-							onClick={ this.trackUpgradeClick }
-							primary
-						>
-							{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
-						</Button>
+					<div className="dash-security-bundle--content">
+						<div className="dash-security-bundle--content-info">
+							<h3>{ __( 'Comprehensive Site Security', 'jetpack' ) }</h3>
 
-						<Button
-							className="dash-security-bundle--content-cta-button"
-							href={ getRedirectUrl( 'jetpack-features-security' ) }
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							{ _x( 'Learn more', 'Learn more about the new plan', 'jetpack' ) }
-							<Gridicon className="dops-card__link-indicator" icon="external" />
-						</Button>
+							<p>
+								{ createInterpolateElement(
+									__(
+										'Total protection for your site, including<br /> VaultPress Backup, Scan, and Akismet Anti-spam.',
+										'jetpack'
+									),
+									{
+										br: <br />,
+									}
+								) }
+							</p>
+						</div>
+						<div className="dash-security-bundle--content-cta">
+							<Button
+								className="dash-security-bundle--content-cta-button"
+								render={
+									<a
+										href={ this.props.productDescriptionUrl }
+										onClick={ this.trackUpgradeClick }
+									/>
+								}
+							>
+								{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
+							</Button>
+
+							<Button
+								className="dash-security-bundle--content-cta-button"
+								tone="neutral"
+								variant="outline"
+								render={
+									<a
+										href={ getRedirectUrl( 'jetpack-features-security' ) }
+										rel="noopener noreferrer"
+										target="_blank"
+									/>
+								}
+							>
+								{ _x( 'Learn more', 'Learn more about the new plan', 'jetpack' ) }
+								<Gridicon className="dops-card__link-indicator" icon="external" />
+							</Button>
+						</div>
 					</div>
-				</div>
-			</Card>
+				</Card.Content>
+			</Card.Root>
 		);
 	}
 }

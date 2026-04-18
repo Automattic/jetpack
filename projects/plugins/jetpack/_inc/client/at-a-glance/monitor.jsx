@@ -1,11 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
+// NOTE: DashItem preserved — Jetpack compound widget.
 import DashItem from 'components/dash-item';
+// NOTE: JetpackBanner preserved — plan-aware upsell with analytics.
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
@@ -64,7 +66,13 @@ class DashMonitor extends Component {
 						'jetpack'
 					),
 					{
-						Button: <Button className="jp-link-button" onClick={ this.activateAndTrack } />,
+						Button: (
+							<Button
+								className="jp-link-button"
+								variant="unstyled"
+								onClick={ this.activateAndTrack }
+							/>
+						),
 					}
 			  )
 			: __(

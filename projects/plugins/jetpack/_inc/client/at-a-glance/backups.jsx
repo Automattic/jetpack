@@ -1,18 +1,19 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, backup } from '@wordpress/icons';
+import { Button, Card, Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
+// NOTE: DashItem preserved — Jetpack compound widget (ModuleToggle + ProStatus
+// + SectionHeader + SupportInfo + Redux). Out of scope for this primitive refactor.
 import DashItem from 'components/dash-item';
 import QueryBackupUndoEvent from 'components/data/query-backup-undo-event';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
+// NOTE: JetpackBanner preserved — plan-aware upsell banner with analytics.
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import {
@@ -254,54 +255,58 @@ class DashBackups extends Component {
 	renderManageBackupsLinks() {
 		const { siteRawUrl } = this.props;
 		return (
-			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
-				<div className="jp-dash-item__action-links">
-					<ExternalLink
-						href={
-							isWoASite()
-								? getRedirectUrl( 'calypso-backups', {
-										site: siteRawUrl,
-								  } )
-								: getRedirectUrl( 'my-jetpack-manage-backup', {
-										site: siteRawUrl,
-								  } )
-						}
-						target="_blank"
-						rel="noopener noreferrer"
-						onClick={ this.trackBackupsClick( 'backups-link' ) }
-					>
-						{ __( "View your site's backups", 'jetpack' ) }
-					</ExternalLink>
-					<ExternalLink
-						href={ getRedirectUrl( 'calypso-activity-log', {
-							site: siteRawUrl,
-							query: 'group=rewind',
-						} ) }
-						target="_blank"
-						rel="noopener noreferrer"
-						onClick={ this.trackBackupsClick( 'restore-points-link' ) }
-					>
-						{ __( 'View your most recent restore points', 'jetpack' ) }
-					</ExternalLink>
-				</div>
-			</Card>
+			<Card.Root key="manage-backups" className="jp-dash-item__manage-in-wpcom is-compact">
+				<Card.Content>
+					<div className="jp-dash-item__action-links">
+						<Link
+							href={
+								isWoASite()
+									? getRedirectUrl( 'calypso-backups', {
+											site: siteRawUrl,
+									  } )
+									: getRedirectUrl( 'my-jetpack-manage-backup', {
+											site: siteRawUrl,
+									  } )
+							}
+							openInNewTab
+							onClick={ this.trackBackupsClick( 'backups-link' ) }
+						>
+							{ __( "View your site's backups", 'jetpack' ) }
+						</Link>
+						<Link
+							href={ getRedirectUrl( 'calypso-activity-log', {
+								site: siteRawUrl,
+								query: 'group=rewind',
+							} ) }
+							openInNewTab
+							onClick={ this.trackBackupsClick( 'restore-points-link' ) }
+						>
+							{ __( 'View your most recent restore points', 'jetpack' ) }
+						</Link>
+					</div>
+				</Card.Content>
+			</Card.Root>
 		);
 	}
 
 	getRewindContent() {
 		const { hasRealTimeBackups, rewindStatus, siteRawUrl, backupUndoEventLoaded } = this.props;
 		const buildAction = ( url, message, trackingName ) => (
-			<Card
-				compact
+			<Card.Root
 				key="manage-backups"
-				className="jp-dash-item__manage-in-wpcom"
-				href={ url }
-				target="_blank"
-				rel="noopener noreferrer"
-				onClick={ this.trackBackupsClick( trackingName ) }
+				className="jp-dash-item__manage-in-wpcom is-compact is-card-link"
 			>
-				{ message }
-			</Card>
+				<Card.Content>
+					<a
+						href={ url }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ this.trackBackupsClick( trackingName ) }
+					>
+						{ message }
+					</a>
+				</Card.Content>
+			</Card.Root>
 		);
 		const buildCard = message =>
 			renderCard( {
@@ -349,12 +354,11 @@ class DashBackups extends Component {
 						),
 						{
 							ExternalLink: (
-								<ExternalLink
+								<Link
 									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-									target="_blank"
-									rel="noopener noreferrer"
+									openInNewTab
 									onClick={ this.trackBackupsClick( 'realtime-learn-more-link' ) }
-								></ExternalLink>
+								/>
 							),
 						}
 					);
@@ -457,9 +461,15 @@ class DashBackups extends Component {
 					{ createInterpolateElement( __( '<button><icon /> Undo</button>', 'jetpack' ), {
 						button: (
 							<Button
-								href={ getRedirectUrl( 'jetpack-backup-undo-cta', { path: undoBackupId } ) }
-								primary
-								target="_blank"
+								render={
+									<a
+										href={ getRedirectUrl( 'jetpack-backup-undo-cta', {
+											path: undoBackupId,
+										} ) }
+										target="_blank"
+										rel="noreferrer"
+									/>
+								}
 								onClick={ this.trackUndoButtonClick }
 							/>
 						),

@@ -4,13 +4,14 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
+import { Button, Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
+// NOTE: DashItem preserved — Jetpack compound widget.
 import DashItem from 'components/dash-item';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+// NOTE: JetpackBanner preserved — plan-aware upsell with analytics.
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import {
@@ -215,7 +216,11 @@ class DashScan extends Component {
 							),
 							{
 								Button: (
-									<Button className="jp-link-button" onClick={ this.onActivateVaultPressClick } />
+									<Button
+										className="jp-link-button"
+										variant="unstyled"
+										onClick={ this.onActivateVaultPressClick }
+									/>
 								),
 							}
 						) }
@@ -292,17 +297,21 @@ class DashScan extends Component {
 		}
 
 		return (
-			<Card
-				compact
+			<Card.Root
 				key="manage-scan"
-				className="jp-dash-item__manage-in-wpcom"
-				href={ url }
-				target="_blank"
-				rel="noopener noreferrer"
-				onClick={ this.trackScansClick }
+				className="jp-dash-item__manage-in-wpcom is-compact is-card-link"
 			>
-				{ message }
-			</Card>
+				<Card.Content>
+					<a
+						href={ url }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ this.trackScansClick }
+					>
+						{ message }
+					</a>
+				</Card.Content>
+			</Card.Root>
 		);
 	}
 

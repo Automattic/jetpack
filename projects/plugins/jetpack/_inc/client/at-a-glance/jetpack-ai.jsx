@@ -2,14 +2,16 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { connect } from 'react-redux';
+// NOTE: DashItem preserved — Jetpack compound widget.
 import DashItem from 'components/dash-item';
+// NOTE: JetpackBanner preserved — plan-aware upsell with analytics.
 import JetpackBanner from 'components/jetpack-banner';
 import { getJetpackProductUpsellByFeature, FEATURE_JETPACK_AI } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
@@ -40,7 +42,7 @@ function DashJetpackAi( props ) {
 	const learnMoreLink = createInterpolateElement(
 		__( '<ExternalLink>Learn more</ExternalLink>', 'jetpack' ),
 		{
-			ExternalLink: <ExternalLink href={ getRedirectUrl( 'org-ai' ) } />,
+			ExternalLink: <Link href={ getRedirectUrl( 'org-ai' ) } openInNewTab />,
 		}
 	);
 

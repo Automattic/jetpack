@@ -1,14 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { Button, Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { isOdysseyStatsEnabled } from 'state/initial-state';
 
@@ -101,9 +100,10 @@ class DashStatsBottom extends Component {
 							createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
 								button: (
 									<Button
-										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+										render={
+											<a href={ this.props.siteAdminUrl + 'admin.php?page=stats' } />
+										}
 										onClick={ this.trackViewDetailedStats }
-										primary
 									/>
 								),
 							} )
@@ -114,13 +114,12 @@ class DashStatsBottom extends Component {
 								__( '<ExternalLink>View on WordPress.com</ExternalLink>', 'jetpack' ),
 								{
 									ExternalLink: (
-										<ExternalLink
+										<Link
 											onClick={ this.trackViewWpcomStats }
 											href={ getRedirectUrl( 'calypso-stats-insights', {
 												site: this.props.siteRawUrl,
 											} ) }
-											rel="noopener noreferrer"
-											target="_blank"
+											openInNewTab
 											className={ clsx(
 												'jp-at-a-glance__stats-ctas-wpcom-stats',
 												this.props.className

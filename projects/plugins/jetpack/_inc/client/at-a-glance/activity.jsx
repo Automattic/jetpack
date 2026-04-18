@@ -1,10 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Card from 'components/card';
+// NOTE: DashItem is preserved — compound Jetpack-specific widget that bundles
+// ModuleToggle, ProStatus, SectionHeader, SupportInfo, and Redux plumbing.
+// Re-implementing inline is out of scope for this UI-primitive refactor.
 import DashItem from 'components/dash-item';
 import analytics from 'lib/analytics';
 import { isOfflineMode } from 'state/connection';
@@ -51,17 +54,21 @@ class DashActivity extends Component {
 							: activityLogOnlyText }
 					</p>
 				</DashItem>
-				<Card
+				<Card.Root
 					key="view-activity"
-					className="jp-dash-item__manage-in-wpcom"
-					compact
-					href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
-					target="_blank"
-					rel="noopener noreferrer"
-					onClick={ this.trackActivityClick }
+					className="jp-dash-item__manage-in-wpcom is-compact is-card-link"
 				>
-					{ __( 'View site activity', 'jetpack' ) }
-				</Card>
+					<Card.Content>
+						<a
+							href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={ this.trackActivityClick }
+						>
+							{ __( 'View site activity', 'jetpack' ) }
+						</a>
+					</Card.Content>
+				</Card.Root>
 			</div>
 		);
 	}
