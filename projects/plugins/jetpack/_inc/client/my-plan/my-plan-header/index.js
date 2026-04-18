@@ -1,14 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { Button, Card, Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
 import { ProductActivated } from 'components/product-activated';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
@@ -30,6 +28,11 @@ import {
 import { getDetachedLicensesCount } from 'state/licensing';
 import MyPlanCard from '../my-plan-card';
 import License from './license';
+
+// NOTE: preserving `ProductActivated`, `ProductExpiration`, `UpgradeLink` — plan-specific composites
+// defined under `_inc/client/components`. They encode product-slug/expiry logic specific to
+// Jetpack plans and are treated as domain components, not primitive UI swaps.
+// NOTE: `MyPlanCard` preserved as a plan-aware domain composite (uses `PlanIcon`).
 
 const TIER_0_BACKUP_STORAGE_GB = 1;
 const TIER_1_BACKUP_STORAGE_GB = 10;
@@ -507,13 +510,15 @@ class MyPlanHeader extends Component {
 		}
 
 		return (
-			<Card compact>
-				{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
-				<MyPlanCard
-					{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
-					isPlan
-				/>
-			</Card>
+			<Card.Root>
+				<Card.Content>
+					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
+					<MyPlanCard
+						{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
+						isPlan
+					/>
+				</Card.Content>
+			</Card.Root>
 		);
 	}
 
@@ -522,12 +527,14 @@ class MyPlanHeader extends Component {
 			return null;
 		}
 		return (
-			<Card compact>
-				{ this.renderHeader( __( 'My Products', 'jetpack' ) ) }
-				{ this.props.activeProducts.map( ( { ID, product_slug } ) => (
-					<MyPlanCard key={ 'product-card-' + ID } { ...this.getProductProps( product_slug ) } />
-				) ) }
-			</Card>
+			<Card.Root>
+				<Card.Content>
+					{ this.renderHeader( __( 'My Products', 'jetpack' ) ) }
+					{ this.props.activeProducts.map( ( { ID, product_slug } ) => (
+						<MyPlanCard key={ 'product-card-' + ID } { ...this.getProductProps( product_slug ) } />
+					) ) }
+				</Card.Content>
+			</Card.Root>
 		);
 	}
 
@@ -556,56 +563,68 @@ class MyPlanHeader extends Component {
 		const showPurchasesLink = !! purchases?.length && 'header' === position;
 
 		return (
-			<Card compact>
-				<div className="jp-landing__licensing-actions">
-					{ 'header' === position && (
-						<span>
-							{ createInterpolateElement(
-								/* translators: %s is the link to the License management page. */
-								__( 'Got a license key? <a>Activate it here.</a>', 'jetpack' ),
-								{
-									a: (
-										<a
-											href={
-												! window.Initial_State?.useMyJetpackLicensingUI
-													? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
-													: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
-											}
-											onClick={ this.trackLicenseActivationClick }
-											className="jp-landing__licensing-actions-link"
-										/>
-									),
-								}
-							) }
-						</span>
-					) }
-					<div
-						className={ clsx( 'jp-landing__licensing-actions-item', {
-							'no-licenses': ! hasDetachedUserLicenses,
-							'no-purchases': ! showPurchasesLink,
-						} ) }
-					>
-						{ showPurchasesLink && (
-							<Button onClick={ this.trackAllPurchasesClick } compact rna>
-								<ExternalLink href={ getRedirectUrl( 'calypso-purchases' ) }>
+			<Card.Root>
+				<Card.Content>
+					<div className="jp-landing__licensing-actions">
+						{ 'header' === position && (
+							<span>
+								{ createInterpolateElement(
+									/* translators: %s is the link to the License management page. */
+									__( 'Got a license key? <a>Activate it here.</a>', 'jetpack' ),
+									{
+										a: (
+											<Link
+												href={
+													! window.Initial_State?.useMyJetpackLicensingUI
+														? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
+														: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
+												}
+												onClick={ this.trackLicenseActivationClick }
+												className="jp-landing__licensing-actions-link"
+											/>
+										),
+									}
+								) }
+							</span>
+						) }
+						<div
+							className={ clsx( 'jp-landing__licensing-actions-item', {
+								'no-licenses': ! hasDetachedUserLicenses,
+								'no-purchases': ! showPurchasesLink,
+							} ) }
+						>
+							{ showPurchasesLink && (
+								<Button
+									size="compact"
+									variant="outline"
+									tone="neutral"
+									onClick={ this.trackAllPurchasesClick }
+									render={
+										<Link href={ getRedirectUrl( 'calypso-purchases' ) } openInNewTab />
+									}
+								>
 									{ __( 'View all purchases', 'jetpack' ) }
-								</ExternalLink>
-							</Button>
-						) }
+								</Button>
+							) }
 
-						{ 'footer' === position && (
-							<Button
-								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
-								onClick={ this.trackRecommendationsClick }
-								primary
-								rna
-							>
-								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
-							</Button>
-						) }
+							{ 'footer' === position && (
+								<Button
+									variant="solid"
+									tone="brand"
+									onClick={ this.trackRecommendationsClick }
+									render={
+										<a
+											href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
+										/>
+									}
+								>
+									{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
+								</Button>
+							) }
+						</div>
 					</div>
-				</div>
-			</Card>
+				</Card.Content>
+			</Card.Root>
 		);
 	};
 
@@ -645,9 +664,11 @@ class MyPlanHeader extends Component {
 				{ this.renderProducts() }
 				{ this.renderFooter() }
 				{ this.props.showLicensingUi && (
-					<Card compact>
-						<License />
-					</Card>
+					<Card.Root>
+						<Card.Content>
+							<License />
+						</Card.Content>
+					</Card.Root>
 				) }
 			</div>
 		);

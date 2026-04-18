@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Fragment } from 'react';
 import { connect } from 'react-redux';
+// NOTE: QuerySite + QueryRecommendationsData preserved — Redux data-fetching helpers, not UI primitives.
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';

@@ -1,11 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button, Card, Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
@@ -26,6 +25,8 @@ import {
 	isPluginActive,
 	isPluginInstalled,
 } from 'state/site/plugins';
+
+// NOTE: `components/data/query-site-plugins` preserved — Redux data-fetching helper, not a UI primitive.
 
 class MyPlanBody extends Component {
 	static propTypes = {
@@ -88,32 +89,46 @@ class MyPlanBody extends Component {
 				! this.props.showBackups ||
 				( ! rewindActive && 'unavailable' !== this.props.rewindStatus?.state );
 
+		// Renders an external-link button using @wordpress/ui Button + Link.
+		// `rna` prop has been dropped as instructed.
+		const externalLinkButton = ( { href, onClick, children } ) => (
+			<Button
+				size="compact"
+				variant="outline"
+				tone="neutral"
+				onClick={ onClick }
+				render={ <Link href={ href } openInNewTab /> }
+			>
+				{ children }
+			</Button>
+		);
+
 		const getJetpackBackupCard = args => {
 			const { title, description } = args;
 
 			return (
-				<div className="jp-landing__plan-features-card">
-					<div className="jp-landing__plan-features-img">
-						<img
-							src={ imagePath + 'products/product-jetpack-backup.svg' }
-							className="jp-landing__plan-features-icon"
-							alt={ __( 'A Jetpack Site securely backed up with Jetpack Backup', 'jetpack' ) }
-						/>
-					</div>
-					<div className="jp-landing__plan-features-text">
-						<h3 className="jp-landing__plan-features-title">{ title }</h3>
-						<p>{ description }</p>
-						<Button onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) } compact rna>
-							<ExternalLink
-								href={ getRedirectUrl( 'calypso-activity-log', {
+				<Card.Root className="jp-landing__plan-features-card">
+					<Card.Content>
+						<div className="jp-landing__plan-features-img">
+							<img
+								src={ imagePath + 'products/product-jetpack-backup.svg' }
+								className="jp-landing__plan-features-icon"
+								alt={ __( 'A Jetpack Site securely backed up with Jetpack Backup', 'jetpack' ) }
+							/>
+						</div>
+						<div className="jp-landing__plan-features-text">
+							<h3 className="jp-landing__plan-features-title">{ title }</h3>
+							<p>{ description }</p>
+							{ externalLinkButton( {
+								href: getRedirectUrl( 'calypso-activity-log', {
 									site: this.props.blogID ?? this.props.siteRawUrl,
-								} ) }
-							>
-								{ __( 'View your backups', 'jetpack' ) }
-							</ExternalLink>
-						</Button>
-					</div>
-				</div>
+								} ),
+								onClick: this.handleButtonClickForTracking( 'view_backup_dash' ),
+								children: __( 'View your backups', 'jetpack' ),
+							} ) }
+						</div>
+					</Card.Content>
+				</Card.Root>
 			);
 		};
 
@@ -124,39 +139,35 @@ class MyPlanBody extends Component {
 
 			if ( rewindActive ) {
 				return (
-					<div className="jp-landing__plan-features-card">
-						<div className="jp-landing__plan-features-img">
-							<img
-								src={ imagePath + 'products/product-jetpack-backup.svg' }
-								className="jp-landing__plan-features-icon"
-								alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
-							/>
-						</div>
-						<div className="jp-landing__plan-features-text">
-							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Site backups', 'jetpack' ) }
-							</h3>
-							<p>
-								{ __(
-									'Real-time backup of all your site data with unlimited space, one-click restores, and automated security scanning.',
-									'jetpack'
-								) }
-							</p>
-							<Button
-								onClick={ this.handleButtonClickForTracking( 'view_security_dash_rewind' ) }
-								compact
-								rna
-							>
-								<ExternalLink
-									href={ getRedirectUrl( 'calypso-activity-log', {
+					<Card.Root className="jp-landing__plan-features-card">
+						<Card.Content>
+							<div className="jp-landing__plan-features-img">
+								<img
+									src={ imagePath + 'products/product-jetpack-backup.svg' }
+									className="jp-landing__plan-features-icon"
+									alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
+								/>
+							</div>
+							<div className="jp-landing__plan-features-text">
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Site backups', 'jetpack' ) }
+								</h3>
+								<p>
+									{ __(
+										'Real-time backup of all your site data with unlimited space, one-click restores, and automated security scanning.',
+										'jetpack'
+									) }
+								</p>
+								{ externalLinkButton( {
+									href: getRedirectUrl( 'calypso-activity-log', {
 										site: this.props.blogID ?? this.props.siteRawUrl,
-									} ) }
-								>
-									{ __( 'View your security activity', 'jetpack' ) }
-								</ExternalLink>
-							</Button>
-						</div>
-					</div>
+									} ),
+									onClick: this.handleButtonClickForTracking( 'view_security_dash_rewind' ),
+									children: __( 'View your security activity', 'jetpack' ),
+								} ) }
+							</div>
+						</Card.Content>
+					</Card.Root>
 				);
 			}
 
@@ -186,48 +197,38 @@ class MyPlanBody extends Component {
 			}
 
 			return (
-				<div className="jp-landing__plan-features-card">
-					<div className="jp-landing__plan-features-img">
-						<img
-							src={ imagePath + 'products/product-jetpack-protect.svg' }
-							className="jp-landing__plan-features-icon"
-							alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
-						/>
-					</div>
-					<div className="jp-landing__plan-features-text">
-						<h3 className="jp-landing__plan-features-title">
-							{ __( 'Site security', 'jetpack' ) }
-						</h3>
-						<p>{ description + ' ' + __( '(powered by VaultPress).', 'jetpack' ) }</p>
-						{ this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) &&
-						this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-							<Button
-								onClick={ this.handleButtonClickForTracking( 'view_security_dash' ) }
-								compact
-								rna
-							>
-								<ExternalLink href={ getRedirectUrl( 'vaultpress-dashboard' ) }>
-									{ __( 'View your security dashboard', 'jetpack' ) }
-								</ExternalLink>
-							</Button>
-						) : (
-							<Button
-								onClick={ this.handleButtonClickForTracking( 'configure_vault' ) }
-								compact
-								rna
-							>
-								<ExternalLink
-									href={ getRedirectUrl( 'calypso-plugins-setup', {
-										site: this.props.blogID ?? this.props.siteRawUrl,
-										query: 'only=vaultpress',
-									} ) }
-								>
-									{ __( 'View settings', 'jetpack' ) }
-								</ExternalLink>
-							</Button>
-						) }
-					</div>
-				</div>
+				<Card.Root className="jp-landing__plan-features-card">
+					<Card.Content>
+						<div className="jp-landing__plan-features-img">
+							<img
+								src={ imagePath + 'products/product-jetpack-protect.svg' }
+								className="jp-landing__plan-features-icon"
+								alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
+							/>
+						</div>
+						<div className="jp-landing__plan-features-text">
+							<h3 className="jp-landing__plan-features-title">
+								{ __( 'Site security', 'jetpack' ) }
+							</h3>
+							<p>{ description + ' ' + __( '(powered by VaultPress).', 'jetpack' ) }</p>
+							{ this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) &&
+							this.props.isPluginActive( 'vaultpress/vaultpress.php' )
+								? externalLinkButton( {
+										href: getRedirectUrl( 'vaultpress-dashboard' ),
+										onClick: this.handleButtonClickForTracking( 'view_security_dash' ),
+										children: __( 'View your security dashboard', 'jetpack' ),
+								  } )
+								: externalLinkButton( {
+										href: getRedirectUrl( 'calypso-plugins-setup', {
+											site: this.props.blogID ?? this.props.siteRawUrl,
+											query: 'only=vaultpress',
+										} ),
+										onClick: this.handleButtonClickForTracking( 'configure_vault' ),
+										children: __( 'View settings', 'jetpack' ),
+								  } ) }
+						</div>
+					</Card.Content>
+				</Card.Root>
 			);
 		};
 
@@ -267,34 +268,43 @@ class MyPlanBody extends Component {
 
 		const getSearchCard = () => {
 			return (
-				<div className="jp-landing__plan-features-card">
-					<div className="jp-landing__plan-features-img">
-						<img
-							src={ imagePath + 'products/product-jetpack-search.svg' }
-							className="jp-landing__plan-features-icon"
-							alt={ __( 'A Jetpack Site with the power of Jetpack Search', 'jetpack' ) }
-						/>
-					</div>
-					<div className="jp-landing__plan-features-text">
-						<h3 className="jp-landing__plan-features-title">
-							{ __( 'Instant search and filtering', 'jetpack' ) }
-						</h3>
-						<p>
-							{ __(
-								'Relevant search results and filtering tightly integrated with your theme.',
-								'jetpack'
-							) }
-						</p>
-						<Button
-							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
-							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-search-configure' }
-							compact
-							rna
-						>
-							{ __( 'Customize Search', 'jetpack' ) }
-						</Button>
-					</div>
-				</div>
+				<Card.Root className="jp-landing__plan-features-card">
+					<Card.Content>
+						<div className="jp-landing__plan-features-img">
+							<img
+								src={ imagePath + 'products/product-jetpack-search.svg' }
+								className="jp-landing__plan-features-icon"
+								alt={ __( 'A Jetpack Site with the power of Jetpack Search', 'jetpack' ) }
+							/>
+						</div>
+						<div className="jp-landing__plan-features-text">
+							<h3 className="jp-landing__plan-features-title">
+								{ __( 'Instant search and filtering', 'jetpack' ) }
+							</h3>
+							<p>
+								{ __(
+									'Relevant search results and filtering tightly integrated with your theme.',
+									'jetpack'
+								) }
+							</p>
+							<Button
+								size="compact"
+								variant="outline"
+								tone="neutral"
+								onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
+								render={
+									<a
+										href={
+											this.props.siteAdminUrl + 'admin.php?page=jetpack-search-configure'
+										}
+									/>
+								}
+							>
+								{ __( 'Customize Search', 'jetpack' ) }
+							</Button>
+						</div>
+					</Card.Content>
+				</Card.Root>
 			);
 		};
 
@@ -319,292 +329,294 @@ class MyPlanBody extends Component {
 						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
 						{ this.props.hasInstantSearch && getSearchCard() }
 						{ 'is-jetpack-starter-plan' === planClass && jetpackBackupCard }
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'products/product-jetpack-boost.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __( 'A fast and performant website', 'jetpack' ) }
-								/>
-							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Optimized performance', 'jetpack' ) }
-								</h3>
-								<p>
-									{ __(
-										'Load pages faster by serving your images from our global network of servers.',
-										'jetpack'
-									) }
-								</p>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'paid_performance' ) }
-									href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance' }
-									compact
-									rna
-								>
-									{ __( 'Make your site faster', 'jetpack' ) }
-								</Button>
-							</div>
-						</div>
-
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'products/product-jetpack-anti-spam.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __( 'A folder holding real comments', 'jetpack' ) }
-								/>
-							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Anti-spam', 'jetpack' ) }
-								</h3>
-								<p>{ __( 'Spam is automatically blocked from your comments.', 'jetpack' ) }</p>
-								{ this.props.isPluginInstalled( 'akismet/akismet.php' ) &&
-								this.props.isPluginActive( 'akismet/akismet.php' ) ? (
-									<Button
-										onClick={ this.handleButtonClickForTracking( 'view_spam_stats' ) }
-										href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config&view=stats` }
-										compact
-										rna
-									>
-										{ __( 'View your spam stats', 'jetpack' ) }
-									</Button>
-								) : (
-									<Button
-										onClick={ this.handleButtonClickForTracking( 'configure_akismet' ) }
-										compact
-										rna
-									>
-										<ExternalLink
-											href={ getRedirectUrl( 'calypso-plugins-setup', {
-												site: this.props.blogID ?? this.props.siteRawUrl,
-												query: 'only=akismet',
-											} ) }
-										>
-											{ __( 'View settings', 'jetpack' ) }
-										</ExternalLink>
-									</Button>
-								) }
-							</div>
-						</div>
-
-						{ isPlanPremiumOrBetter &&
-							'inactive' !== this.props.getModuleOverride( 'videopress' ) && (
-								<div className="jp-landing__plan-features-card">
-									<div className="jp-landing__plan-features-img">
-										<img
-											src={ imagePath + 'products/product-jetpack-videopress.svg' }
-											className="jp-landing__plan-features-icon"
-											alt={ __(
-												'A cloud with multiple types of content floating around it',
-												'jetpack'
-											) }
-										/>
-									</div>
-									<div className="jp-landing__plan-features-text">
-										<h3 className="jp-landing__plan-features-title">
-											{ __( 'VideoPress', 'jetpack' ) }
-										</h3>
-										<p>
-											{ __(
-												'High-speed, high-definition video hosting with no third-party ads.',
-												'jetpack'
-											) }
-										</p>
-										{ this.props.getFeatureState( 'videopress' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'upload_videos' ) }
-												href={ this.props.siteAdminUrl + 'upload.php' }
-												compact
-												rna
-											>
-												{ __( 'Upload videos', 'jetpack' ) }
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activateVideoPress }
-												disabled={ this.props.isActivatingFeature( 'videopress' ) }
-												compact
-												rna
-											>
-												{ __( 'Activate VideoPress', 'jetpack' ) }
-											</Button>
-										) }
-									</div>
-								</div>
-							) }
-
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'plans/jetpack.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __(
-										'Interface showing a chronological list of changes and updates in a site',
-										'jetpack'
-									) }
-								/>
-							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Site activity', 'jetpack' ) }
-								</h3>
-								<p>
-									{ __(
-										'View a chronological list of all the changes and updates to your site in an organized, readable way.',
-										'jetpack'
-									) }
-								</p>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
-									compact
-									rna
-								>
-									<ExternalLink
-										href={ getRedirectUrl( 'calypso-activity-log', {
-											site: this.props.blogID ?? this.props.siteRawUrl,
-										} ) }
-									>
-										{ __( 'View your site activity', 'jetpack' ) }
-									</ExternalLink>
-								</Button>
-							</div>
-						</div>
-
-						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'wordads' ) && (
-							<div className="jp-landing__plan-features-card">
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
 								<div className="jp-landing__plan-features-img">
 									<img
-										src={ imagePath + 'plans/jetpack.svg' }
+										src={ imagePath + 'products/product-jetpack-boost.svg' }
 										className="jp-landing__plan-features-icon"
-										alt={ __( 'A chart showing an healthy increase in earnings', 'jetpack' ) }
+										alt={ __( 'A fast and performant website', 'jetpack' ) }
 									/>
 								</div>
 								<div className="jp-landing__plan-features-text">
 									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Monetize your site with ads', 'jetpack' ) }
+										{ __( 'Optimized performance', 'jetpack' ) }
 									</h3>
 									<p>
 										{ __(
-											'WordAds lets you earn money by displaying promotional content. Start earning today.',
+											'Load pages faster by serving your images from our global network of servers.',
 											'jetpack'
 										) }
 									</p>
-									{ this.props.isModuleActivated( 'wordads' ) ? (
+									<Button
+										size="compact"
+										variant="outline"
+										tone="neutral"
+										onClick={ this.handleButtonClickForTracking( 'paid_performance' ) }
+										render={
+											<a
+												href={
+													this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance'
+												}
+											/>
+										}
+									>
+										{ __( 'Make your site faster', 'jetpack' ) }
+									</Button>
+								</div>
+							</Card.Content>
+						</Card.Root>
+
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + 'products/product-jetpack-anti-spam.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __( 'A folder holding real comments', 'jetpack' ) }
+									/>
+								</div>
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Anti-spam', 'jetpack' ) }
+									</h3>
+									<p>{ __( 'Spam is automatically blocked from your comments.', 'jetpack' ) }</p>
+									{ this.props.isPluginInstalled( 'akismet/akismet.php' ) &&
+									this.props.isPluginActive( 'akismet/akismet.php' ) ? (
 										<Button
-											onClick={ this.handleButtonClickForTracking( 'view_earnings' ) }
-											compact
-											rna
+											size="compact"
+											variant="outline"
+											tone="neutral"
+											onClick={ this.handleButtonClickForTracking( 'view_spam_stats' ) }
+											render={
+												<a
+													href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config&view=stats` }
+												/>
+											}
 										>
-											<ExternalLink
-												href={ getRedirectUrl( 'wpcom-ads-earnings', {
-													site: this.props.blogID ?? this.props.siteRawUrl,
-												} ) }
-											>
-												{ __( 'View your earnings', 'jetpack' ) }
-											</ExternalLink>
+											{ __( 'View your spam stats', 'jetpack' ) }
 										</Button>
 									) : (
-										<Button
-											onClick={ this.activateAds }
-											disabled={ this.props.isActivatingModule( 'wordads' ) }
-											compact
-											rna
-										>
-											{ __( 'Start earning', 'jetpack' ) }
-										</Button>
+										externalLinkButton( {
+											href: getRedirectUrl( 'calypso-plugins-setup', {
+												site: this.props.blogID ?? this.props.siteRawUrl,
+												query: 'only=akismet',
+											} ),
+											onClick: this.handleButtonClickForTracking( 'configure_akismet' ),
+											children: __( 'View settings', 'jetpack' ),
+										} )
 									) }
 								</div>
-							</div>
-						) }
+							</Card.Content>
+						</Card.Root>
 
-						{ isPlanPremiumOrBetter && isWoASite() && (
-							<div className="jp-landing__plan-features-card">
+						{ isPlanPremiumOrBetter &&
+							'inactive' !== this.props.getModuleOverride( 'videopress' ) && (
+								<Card.Root className="jp-landing__plan-features-card">
+									<Card.Content>
+										<div className="jp-landing__plan-features-img">
+											<img
+												src={ imagePath + 'products/product-jetpack-videopress.svg' }
+												className="jp-landing__plan-features-icon"
+												alt={ __(
+													'A cloud with multiple types of content floating around it',
+													'jetpack'
+												) }
+											/>
+										</div>
+										<div className="jp-landing__plan-features-text">
+											<h3 className="jp-landing__plan-features-title">
+												{ __( 'VideoPress', 'jetpack' ) }
+											</h3>
+											<p>
+												{ __(
+													'High-speed, high-definition video hosting with no third-party ads.',
+													'jetpack'
+												) }
+											</p>
+											{ this.props.getFeatureState( 'videopress' ) ? (
+												<Button
+													size="compact"
+													variant="outline"
+													tone="neutral"
+													onClick={ this.handleButtonClickForTracking( 'upload_videos' ) }
+													render={
+														<a href={ this.props.siteAdminUrl + 'upload.php' } />
+													}
+												>
+													{ __( 'Upload videos', 'jetpack' ) }
+												</Button>
+											) : (
+												<Button
+													size="compact"
+													variant="outline"
+													tone="neutral"
+													onClick={ this.activateVideoPress }
+													disabled={ this.props.isActivatingFeature( 'videopress' ) }
+												>
+													{ __( 'Activate VideoPress', 'jetpack' ) }
+												</Button>
+											) }
+										</div>
+									</Card.Content>
+								</Card.Root>
+							) }
+
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
 								<div className="jp-landing__plan-features-img">
 									<img
 										src={ imagePath + 'plans/jetpack.svg' }
 										className="jp-landing__plan-features-icon"
 										alt={ __(
-											'Charts depicting an evolution in traffic and engagement',
+											'Interface showing a chronological list of changes and updates in a site',
 											'jetpack'
 										) }
 									/>
 								</div>
 								<div className="jp-landing__plan-features-text">
 									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Google Analytics', 'jetpack' ) }
+										{ __( 'Site activity', 'jetpack' ) }
 									</h3>
 									<p>
 										{ __(
-											'Complement WordPress.com’s stats with Google’s in-depth look at your visitors and traffic patterns.',
+											'View a chronological list of all the changes and updates to your site in an organized, readable way.',
 											'jetpack'
 										) }
 									</p>
-									<Button
-										onClick={ this.handleButtonClickForTracking( 'configure_ga' ) }
-										compact
-										rna
-									>
-										<ExternalLink
-											href={ getRedirectUrl( 'calypso-marketing-traffic', {
-												site: this.props.blogID ?? this.props.siteRawUrl,
-											} ) }
-										>
-											{ __( 'Configure Google Analytics', 'jetpack' ) }
-										</ExternalLink>
-									</Button>
+									{ externalLinkButton( {
+										href: getRedirectUrl( 'calypso-activity-log', {
+											site: this.props.blogID ?? this.props.siteRawUrl,
+										} ),
+										onClick: this.handleButtonClickForTracking( 'view_site_activity' ),
+										children: __( 'View your site activity', 'jetpack' ),
+									} ) }
 								</div>
-							</div>
-						) }
+							</Card.Content>
+						</Card.Root>
 
-						{ isPlanPremiumOrBetter &&
-							'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
-								<div className="jp-landing__plan-features-card">
+						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'wordads' ) && (
+							<Card.Root className="jp-landing__plan-features-card">
+								<Card.Content>
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + 'products/product-jetpack-social.svg' }
+											src={ imagePath + 'plans/jetpack.svg' }
 											className="jp-landing__plan-features-icon"
-											alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
+											alt={ __( 'A chart showing an healthy increase in earnings', 'jetpack' ) }
 										/>
 									</div>
 									<div className="jp-landing__plan-features-text">
 										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Marketing automation', 'jetpack' ) }
+											{ __( 'Monetize your site with ads', 'jetpack' ) }
 										</h3>
 										<p>
 											{ __(
-												'Schedule unlimited tweets, Facebook posts, and other social posts in advance.',
+												'WordAds lets you earn money by displaying promotional content. Start earning today.',
 												'jetpack'
 											) }
 										</p>
-										{ this.props.isModuleActivated( 'publicize' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
-												compact
-												rna
-											>
-												<ExternalLink
-													href={ getRedirectUrl( 'calypso-edit-posts', {
+										{ this.props.isModuleActivated( 'wordads' )
+											? externalLinkButton( {
+													href: getRedirectUrl( 'wpcom-ads-earnings', {
 														site: this.props.blogID ?? this.props.siteRawUrl,
-													} ) }
+													} ),
+													onClick: this.handleButtonClickForTracking( 'view_earnings' ),
+													children: __( 'View your earnings', 'jetpack' ),
+											  } )
+											: (
+												<Button
+													size="compact"
+													variant="outline"
+													tone="neutral"
+													onClick={ this.activateAds }
+													disabled={ this.props.isActivatingModule( 'wordads' ) }
 												>
-													{ __( 'Schedule posts', 'jetpack' ) }
-												</ExternalLink>
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activatePublicize }
-												disabled={ this.props.isActivatingModule( 'publicize' ) }
-												compact
-												rna
-											>
-												{ __( 'Activate Jetpack Social', 'jetpack' ) }
-											</Button>
-										) }
+													{ __( 'Start earning', 'jetpack' ) }
+												</Button>
+											) }
 									</div>
-								</div>
+								</Card.Content>
+							</Card.Root>
+						) }
+
+						{ isPlanPremiumOrBetter && isWoASite() && (
+							<Card.Root className="jp-landing__plan-features-card">
+								<Card.Content>
+									<div className="jp-landing__plan-features-img">
+										<img
+											src={ imagePath + 'plans/jetpack.svg' }
+											className="jp-landing__plan-features-icon"
+											alt={ __(
+												'Charts depicting an evolution in traffic and engagement',
+												'jetpack'
+											) }
+										/>
+									</div>
+									<div className="jp-landing__plan-features-text">
+										<h3 className="jp-landing__plan-features-title">
+											{ __( 'Google Analytics', 'jetpack' ) }
+										</h3>
+										<p>
+											{ __(
+												'Complement WordPress.com’s stats with Google’s in-depth look at your visitors and traffic patterns.',
+												'jetpack'
+											) }
+										</p>
+										{ externalLinkButton( {
+											href: getRedirectUrl( 'calypso-marketing-traffic', {
+												site: this.props.blogID ?? this.props.siteRawUrl,
+											} ),
+											onClick: this.handleButtonClickForTracking( 'configure_ga' ),
+											children: __( 'Configure Google Analytics', 'jetpack' ),
+										} ) }
+									</div>
+								</Card.Content>
+							</Card.Root>
+						) }
+
+						{ isPlanPremiumOrBetter &&
+							'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
+								<Card.Root className="jp-landing__plan-features-card">
+									<Card.Content>
+										<div className="jp-landing__plan-features-img">
+											<img
+												src={ imagePath + 'products/product-jetpack-social.svg' }
+												className="jp-landing__plan-features-icon"
+												alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
+											/>
+										</div>
+										<div className="jp-landing__plan-features-text">
+											<h3 className="jp-landing__plan-features-title">
+												{ __( 'Marketing automation', 'jetpack' ) }
+											</h3>
+											<p>
+												{ __(
+													'Schedule unlimited tweets, Facebook posts, and other social posts in advance.',
+													'jetpack'
+												) }
+											</p>
+											{ this.props.isModuleActivated( 'publicize' )
+												? externalLinkButton( {
+														href: getRedirectUrl( 'calypso-edit-posts', {
+															site: this.props.blogID ?? this.props.siteRawUrl,
+														} ),
+														onClick: this.handleButtonClickForTracking( 'schedule_posts' ),
+														children: __( 'Schedule posts', 'jetpack' ),
+												  } )
+												: (
+													<Button
+														size="compact"
+														variant="outline"
+														tone="neutral"
+														onClick={ this.activatePublicize }
+														disabled={ this.props.isActivatingModule( 'publicize' ) }
+													>
+														{ __( 'Activate Jetpack Social', 'jetpack' ) }
+													</Button>
+												) }
+										</div>
+									</Card.Content>
+								</Card.Root>
 							) }
 					</div>
 				);
@@ -628,215 +640,211 @@ class MyPlanBody extends Component {
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }
 						{ this.props.hasInstantSearch && getSearchCard() }
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'products/product-jetpack-protect.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
-								/>
-							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Always-on security', 'jetpack' ) }
-								</h3>
-								<p>
-									{ __(
-										'Prevent login attacks, and get instant notifications when there’s an issue with your site.',
-										'jetpack'
-									) }
-								</p>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'free_security' ) }
-									compact
-									rna
-								>
-									<ExternalLink
-										href={ getRedirectUrl( 'calypso-settings-security', {
-											site: this.props.blogID ?? this.props.siteRawUrl,
-										} ) }
-									>
-										{ __( 'Set up your site security', 'jetpack' ) }
-									</ExternalLink>
-								</Button>
-							</div>
-						</div>
-
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'products/product-jetpack-boost.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __( 'A fast and performant website', 'jetpack' ) }
-								/>
-							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Optimized performance', 'jetpack' ) }
-								</h3>
-								<p>
-									{ __(
-										'Load pages faster by serving your images from our global network of servers.',
-										'jetpack'
-									) }
-								</p>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'free_performance' ) }
-									href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance' }
-									compact
-									rna
-								>
-									{ __( 'Make your site faster', 'jetpack' ) }
-								</Button>
-							</div>
-						</div>
-
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'plans/jetpack.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __( 'A wide variety of themes and tools to customize a site', 'jetpack' ) }
-								/>
-							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Design the perfect website', 'jetpack' ) }
-								</h3>
-								<p>
-									{ __(
-										'Get access to professionally crafted themes offered on WordPress.com, & customize your site exactly how you like it.',
-										'jetpack'
-									) }
-								</p>
-								<Button onClick={ this.handleButtonClickForTracking( 'free_themes' ) } compact rna>
-									<ExternalLink
-										href={ getRedirectUrl( 'calypso-themes', {
-											site: this.props.blogID ?? this.props.siteRawUrl,
-										} ) }
-									>
-										{ __( 'Explore themes', 'jetpack' ) }
-									</ExternalLink>
-								</Button>
-							</div>
-						</div>
-
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'products/product-jetpack-social.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __(
-										'Jetpack Stats showing an evolution in traffic and engagement',
-										'jetpack'
-									) }
-								/>
-							</div>
-							{ 'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + 'products/product-jetpack-protect.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
+									/>
+								</div>
 								<div className="jp-landing__plan-features-text">
 									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Increase traffic to your site', 'jetpack' ) }
+										{ __( 'Always-on security', 'jetpack' ) }
 									</h3>
 									<p>
 										{ __(
-											'Reach a wider audience by automatically sharing your posts on social media.',
+											'Prevent login attacks, and get instant notifications when there’s an issue with your site.',
 											'jetpack'
 										) }
 									</p>
-									{ this.props.isModuleActivated( 'publicize' ) ? (
-										<Button
-											onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
-											compact
-											rna
-										>
-											<ExternalLink
-												href={ getRedirectUrl( 'calypso-marketing-connections', {
-													site: this.props.blogID ?? this.props.siteRawUrl,
-												} ) }
-											>
-												{ __( 'Start sharing', 'jetpack' ) }
-											</ExternalLink>
-										</Button>
-									) : (
-										<Button
-											onClick={ this.activatePublicize }
-											disabled={ this.props.isActivatingModule( 'publicize' ) }
-											compact
-											rna
-										>
-											{ __( 'Activate Jetpack Social', 'jetpack' ) }
-										</Button>
-									) }
-								</div>
-							) }
-						</div>
-
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'plans/jetpack.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __(
-										'Interface showing a chronological list of changes and updates in a site',
-										'jetpack'
-									) }
-								/>
-							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Site activity', 'jetpack' ) }
-								</h3>
-								<p>
-									{ __(
-										'View a chronological list of all the changes and updates to your site in an organized, readable way.',
-										'jetpack'
-									) }
-								</p>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
-									compact
-									rna
-								>
-									<ExternalLink
-										href={ getRedirectUrl( 'calypso-activity-log', {
+									{ externalLinkButton( {
+										href: getRedirectUrl( 'calypso-settings-security', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
-										} ) }
-									>
-										{ __( 'View your site activity', 'jetpack' ) }
-									</ExternalLink>
-								</Button>
-							</div>
-						</div>
+										} ),
+										onClick: this.handleButtonClickForTracking( 'free_security' ),
+										children: __( 'Set up your site security', 'jetpack' ),
+									} ) }
+								</div>
+							</Card.Content>
+						</Card.Root>
 
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-img">
-								<img
-									src={ imagePath + 'plans/jetpack.svg' }
-									className="jp-landing__plan-features-icon"
-									alt={ __( 'Chat bubbles representing getting in touch with support', 'jetpack' ) }
-								/>
-							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Support documentation', 'jetpack' ) }
-								</h3>
-								<p>
-									{ __(
-										'Need help? Learn about getting started, customizing your site, using advanced code snippets, and more.',
-										'jetpack'
-									) }
-								</p>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
-									compact
-									rna
-								>
-									<ExternalLink href={ getRedirectUrl( 'jetpack-support' ) }>
-										{ __( 'Search support docs', 'jetpack' ) }
-									</ExternalLink>
-								</Button>
-							</div>
-						</div>
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + 'products/product-jetpack-boost.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __( 'A fast and performant website', 'jetpack' ) }
+									/>
+								</div>
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Optimized performance', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'Load pages faster by serving your images from our global network of servers.',
+											'jetpack'
+										) }
+									</p>
+									<Button
+										size="compact"
+										variant="outline"
+										tone="neutral"
+										onClick={ this.handleButtonClickForTracking( 'free_performance' ) }
+										render={
+											<a
+												href={
+													this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance'
+												}
+											/>
+										}
+									>
+										{ __( 'Make your site faster', 'jetpack' ) }
+									</Button>
+								</div>
+							</Card.Content>
+						</Card.Root>
+
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + 'plans/jetpack.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __( 'A wide variety of themes and tools to customize a site', 'jetpack' ) }
+									/>
+								</div>
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Design the perfect website', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'Get access to professionally crafted themes offered on WordPress.com, & customize your site exactly how you like it.',
+											'jetpack'
+										) }
+									</p>
+									{ externalLinkButton( {
+										href: getRedirectUrl( 'calypso-themes', {
+											site: this.props.blogID ?? this.props.siteRawUrl,
+										} ),
+										onClick: this.handleButtonClickForTracking( 'free_themes' ),
+										children: __( 'Explore themes', 'jetpack' ),
+									} ) }
+								</div>
+							</Card.Content>
+						</Card.Root>
+
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + 'products/product-jetpack-social.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __(
+											'Jetpack Stats showing an evolution in traffic and engagement',
+											'jetpack'
+										) }
+									/>
+								</div>
+								{ 'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
+									<div className="jp-landing__plan-features-text">
+										<h3 className="jp-landing__plan-features-title">
+											{ __( 'Increase traffic to your site', 'jetpack' ) }
+										</h3>
+										<p>
+											{ __(
+												'Reach a wider audience by automatically sharing your posts on social media.',
+												'jetpack'
+											) }
+										</p>
+										{ this.props.isModuleActivated( 'publicize' )
+											? externalLinkButton( {
+													href: getRedirectUrl( 'calypso-marketing-connections', {
+														site: this.props.blogID ?? this.props.siteRawUrl,
+													} ),
+													onClick: this.handleButtonClickForTracking( 'free_sharing' ),
+													children: __( 'Start sharing', 'jetpack' ),
+											  } )
+											: (
+												<Button
+													size="compact"
+													variant="outline"
+													tone="neutral"
+													onClick={ this.activatePublicize }
+													disabled={ this.props.isActivatingModule( 'publicize' ) }
+												>
+													{ __( 'Activate Jetpack Social', 'jetpack' ) }
+												</Button>
+											) }
+									</div>
+								) }
+							</Card.Content>
+						</Card.Root>
+
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + 'plans/jetpack.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __(
+											'Interface showing a chronological list of changes and updates in a site',
+											'jetpack'
+										) }
+									/>
+								</div>
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Site activity', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'View a chronological list of all the changes and updates to your site in an organized, readable way.',
+											'jetpack'
+										) }
+									</p>
+									{ externalLinkButton( {
+										href: getRedirectUrl( 'calypso-activity-log', {
+											site: this.props.blogID ?? this.props.siteRawUrl,
+										} ),
+										onClick: this.handleButtonClickForTracking( 'view_site_activity' ),
+										children: __( 'View your site activity', 'jetpack' ),
+									} ) }
+								</div>
+							</Card.Content>
+						</Card.Root>
+
+						<Card.Root className="jp-landing__plan-features-card">
+							<Card.Content>
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + 'plans/jetpack.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __( 'Chat bubbles representing getting in touch with support', 'jetpack' ) }
+									/>
+								</div>
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Support documentation', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'Need help? Learn about getting started, customizing your site, using advanced code snippets, and more.',
+											'jetpack'
+										) }
+									</p>
+									{ externalLinkButton( {
+										href: getRedirectUrl( 'jetpack-support' ),
+										onClick: this.handleButtonClickForTracking( 'free_support_documentation' ),
+										children: __( 'Search support docs', 'jetpack' ),
+									} ) }
+								</div>
+							</Card.Content>
+						</Card.Root>
 					</div>
 				);
 				break;

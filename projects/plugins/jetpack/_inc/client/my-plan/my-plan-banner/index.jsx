@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { cloneElement, useCallback, useEffect } from 'react';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
+// NOTE: MyPlanCard preserved — plan-aware domain composite (wraps PlanIcon).
 import MyPlanCard from '../my-plan-card';
 
 /**

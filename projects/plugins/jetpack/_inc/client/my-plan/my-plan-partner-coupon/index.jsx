@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import { getPartnerCoupon } from 'state/initial-state';
 import MyPlanBanner from '../my-plan-banner';
 
@@ -13,12 +13,17 @@ const MyPlanPartnerCoupon = ( { partnerCoupon, siteRawUrl } ) => {
 
 	const redeemButton = (
 		<Button
-			primary
-			href={ getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
-				path: partnerCoupon.product.slug,
-				site: siteRawUrl,
-				query: `coupon=${ partnerCoupon.coupon_code }`,
-			} ) }
+			variant="solid"
+			tone="brand"
+			render={
+				<a
+					href={ getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+						path: partnerCoupon.product.slug,
+						site: siteRawUrl,
+						query: `coupon=${ partnerCoupon.coupon_code }`,
+					} ) }
+				/>
+			}
 		>
 			{ __( 'Redeem', 'jetpack' ) }
 		</Button>

@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
+// NOTE: PlanIcon preserved — plan-specific domain component (maps plan slug to icon). Not a UI primitive.
 import PlanIcon from 'components/plans/plan-icon/index';
 
 import './style.scss';

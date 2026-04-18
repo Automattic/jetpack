@@ -1,21 +1,21 @@
 import restApi from '@automattic/jetpack-api';
+import { TextControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import {
 	successNotice as successNoticeAction,
 	errorNotice as errorNoticeAction,
 } from 'components/global-notices/state/notices/actions';
-import TextInput from 'components/text-input';
 import { updateUserLicensesCounts as updateUserLicensesCountsAction } from 'state/licensing';
 
 const License = ( { errorNotice, successNotice, updateUserLicensesCounts } ) => {
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ licenseKeyText, setLicenseKeyText ] = useState( '' );
 
-	const handleInputChange = useCallback( event => {
-		setLicenseKeyText( event.target.value );
+	const handleInputChange = useCallback( value => {
+		setLicenseKeyText( value );
 	}, [] );
 
 	const saveJetpackLicense = useCallback( () => {
@@ -54,15 +54,23 @@ const License = ( { errorNotice, successNotice, updateUserLicensesCounts } ) => 
 					'jetpack'
 				) }
 			</p>
-			<TextInput
+			{ /* NOTE: @wordpress/components TextControl used as fallback; @wordpress/ui exposes Input only via Field.Root composite. Simple labeled input keeps layout compatible. */ }
+			<TextControl
 				name="jetpack_license_key"
 				className="code"
 				value={ licenseKeyText }
 				placeholder={ __( 'Jetpack licence key', 'jetpack' ) }
 				disabled={ isSaving }
 				onChange={ handleInputChange }
+				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
-			<Button primary compact onClick={ saveJetpackLicense }>
+			<Button
+				variant="solid"
+				tone="brand"
+				size="compact"
+				onClick={ saveJetpackLicense }
+			>
 				{ isSaving
 					? _x( 'Applying…', 'Button caption', 'jetpack' )
 					: _x(
