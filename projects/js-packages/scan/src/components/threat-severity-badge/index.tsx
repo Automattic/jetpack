@@ -19,7 +19,7 @@ const ThreatSeverityBadge = ( { severity } ) => {
 	}
 
 	return (
-		<Badge intent="low">
+		<Badge intent="draft">
 			{ _x( 'Low', 'Severity label for issues rated below 3.', 'jetpack-scan' ) }
 		</Badge>
 	);
