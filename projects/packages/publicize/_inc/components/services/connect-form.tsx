@@ -92,28 +92,25 @@ export function ConnectForm( {
 			) : null }
 
 			<div className={ styles[ 'fields-wrapper' ] }>
-				<div className={ styles[ 'fields-item' ] }>
-					<Button
-						variant={ hasConnections ? 'outline' : 'solid' }
-						type="submit"
-						className={ styles[ 'connect-button' ] }
-						disabled={ isFetchingServicesList }
-					>
-						{ ( label => {
-							if ( label ) {
-								return label;
-							}
+				<Button
+					variant={ hasConnections ? 'outline' : 'solid' }
+					type="submit"
+					disabled={ isFetchingServicesList }
+				>
+					{ ( label => {
+						if ( label ) {
+							return label;
+						}
 
-							if ( isFetchingServicesList && isConnecting ) {
-								return __( 'Connecting…', 'jetpack-publicize-pkg' );
-							}
+						if ( isFetchingServicesList && isConnecting ) {
+							return __( 'Connecting…', 'jetpack-publicize-pkg' );
+						}
 
-							return hasConnections
-								? _x( 'Connect more', '', 'jetpack-publicize-pkg' )
-								: __( 'Connect', 'jetpack-publicize-pkg' );
-						} )( buttonLabel ) }
-					</Button>
-				</div>
+						return hasConnections
+							? _x( 'Connect more', '', 'jetpack-publicize-pkg' )
+							: __( 'Connect', 'jetpack-publicize-pkg' );
+					} )( buttonLabel ) }
+				</Button>
 			</div>
 		</form>
 	);
