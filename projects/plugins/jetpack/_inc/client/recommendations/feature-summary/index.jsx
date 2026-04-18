@@ -1,5 +1,6 @@
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
@@ -107,7 +108,7 @@ const FeatureSummaryComponent = props => {
 				</span>
 				{ isNew && (
 					/* translators: 'New' is shown as a badge to indicate that this content has not been viewed before. */
-					<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
+					<Badge intent="stable">{ __( 'New', 'jetpack' ) }</Badge>
 				) }
 			</Button>
 			<div className="jp-recommendations-feature-summary__actions">{ ctaButton }</div>
