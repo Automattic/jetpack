@@ -1,4 +1,3 @@
-import { Badge } from '@wordpress/ui';
 import {
 	Card,
 	CardBody,
@@ -8,6 +7,7 @@ import {
 	FlexBlock,
 	FlexItem,
 } from '@wordpress/components';
+import { Badge } from '@wordpress/ui';
 import { ProductCamelCase } from '../../../data/types';
 import { MyJetpackModule } from '../../../types';
 import { PRODUCT_ICONS } from './mappings';

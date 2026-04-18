@@ -1,7 +1,7 @@
-import { Badge } from '@wordpress/ui';
 import { Flex } from '@wordpress/components';
 import { DataViews, Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import { useId, useMemo } from 'react';
 import { MyJetpackModule } from '../../types';
 import { ModuleStatus } from '../module-status';

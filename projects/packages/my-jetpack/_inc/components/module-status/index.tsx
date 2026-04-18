@@ -1,5 +1,5 @@
-import { Badge } from '@wordpress/ui';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import { MyJetpackModule } from '../../types';
 
 export type ModuleStatusProps = {
