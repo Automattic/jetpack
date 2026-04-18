@@ -195,7 +195,7 @@ const InstantSearchToggle = ( {
 				/>
 			</div>
 			<div className="jp-search-dashboard-row">
-				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
 					{ supportsInstantSearch && (
 						<Fragment>
 							<p className="jp-form-search-settings-group__toggle-explanation">
@@ -228,7 +228,7 @@ const InstantSearchButtons = ( {
 		<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 			<Button
 				variant="secondary"
-				className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-3"
+				className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-4"
 				href={
 					! isInstantSearchCustomizeButtonDisabled
 						? sprintf( SEARCH_CUSTOMIZE_URL, encodeURIComponent( returnUrl ) )
@@ -243,7 +243,7 @@ const InstantSearchButtons = ( {
 			<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
 			<Button
 				variant="secondary"
-				className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-3"
+				className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-4"
 				href={
 					! isWidgetsEditorButtonDisabled
 						? sprintf( WIDGETS_EDITOR_URL, encodeURIComponent( returnUrl ) )
@@ -285,7 +285,7 @@ const SearchToggle = ( {
 				</div>
 			) }
 			<div className="jp-search-dashboard-row">
-				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
 					<p className="jp-form-search-settings-group__toggle-explanation">
 						{ SEARCH_DESCRIPTION }
 					</p>
