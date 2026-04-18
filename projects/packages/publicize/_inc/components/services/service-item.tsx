@@ -76,13 +76,6 @@ export function ServiceItem( {
 				<div className={ styles[ 'service-basics' ] }>
 					<div className={ styles.heading }>
 						<span className={ styles.title }>{ service.label }</span>
-						{ service.badges?.length ? (
-							<div className={ styles.badges }>
-								{ service.badges.map( ( badge, index ) => (
-									<span key={ index }>{ badge }</span>
-								) ) }
-							</div>
-						) : null }
 					</div>
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
