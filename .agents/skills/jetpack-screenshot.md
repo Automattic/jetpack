@@ -4,8 +4,9 @@ description: >
   and publish them to a screenshots ref on origin so they render in the PR body.
   Use when the user wants before/after screenshots for a Jetpack PR, mentions
   "jurassic ninja screenshot", "JN screenshot", "real-screen before/after",
-  or says "/jetpack-screenshot". Depends on the chrome-devtools MCP for
-  navigation/capture and on jetpack-test-jurassic-ninja for syncing plugin state.
+  or says "/jetpack-screenshot". Works with any browser automation tool available
+  to the agent (chrome-devtools MCP, Playwright MCP, cmux browser, or similar)
+  and leans on jetpack-test-jurassic-ninja for syncing plugin state.
 allowed-tools: Bash(git rev-parse:*), Bash(git remote:*), Bash(git hash-object:*), Bash(git mktree:*), Bash(git commit-tree:*), Bash(git update-ref:*), Bash(git push:*), Bash(git rev-list:*), Bash(git show-ref:*), Bash(git diff:*), Bash(mktemp:*), Bash(ls:*), Bash(command -v:*), Bash(magick:*), Read
 ---
 
@@ -15,7 +16,13 @@ Capture real-screen before/after screenshots on a Jurassic Ninja site for a Jetp
 
 Two pieces must exist in the environment — verify both before starting:
 
-1. The **chrome-devtools MCP** (tools prefixed `mcp__chrome-devtools__*`). Used to navigate, resize, and capture.
+1. **A browser automation tool** capable of: navigating to a URL, setting viewport size, waiting for load/idle, and capturing a PNG screenshot. Any of these is fine — pick whichever is connected, in this order of preference:
+   - **chrome-devtools MCP** (tools prefixed `mcp__chrome-devtools__*`) — preferred when both the main and `isolated` profile are available.
+   - **Playwright MCP** (tools prefixed `mcp__playwright__*` or similar).
+   - **cmux browser** (`cmux browser open|navigate|wait|screenshot …`, if the cmux socket is present at `/tmp/cmux.sock`).
+   - A locally installable headless option (`npx playwright screenshot …`, `puppeteer`, etc.) as a last resort.
+
+   The rest of this skill refers to these as "the browser tool" — map each step to the equivalent call in whatever tool is available.
 2. A reachable **Jurassic Ninja site** with admin auto-login. Use the `jetpack-test-jurassic-ninja` skill for syncing plugin state to it.
 
 ## Pre-flight Checks
@@ -36,11 +43,13 @@ git remote get-url origin
 
 Expect `github.com:Automattic/jetpack` (SSH or HTTPS form). If not, stop and ask the user which remote to push screenshots to.
 
-### 3. chrome-devtools MCP available
+### 3. A browser automation tool is available
 
-If `mcp__chrome-devtools__take_screenshot` is not in the tool list, tell the user:
+Inventory what's connected in the current agent session, in preference order (chrome-devtools MCP → Playwright MCP → cmux browser → local Playwright/Puppeteer CLI). Pick the first one that can do all four of: navigate, resize, wait for load, and capture a PNG to disk.
 
-> The chrome-devtools MCP is not connected. Run `claude mcp list` to confirm, then reconnect it before continuing.
+If none are available, tell the user:
+
+> No browser automation tool is connected. Options: start the chrome-devtools MCP (`claude mcp list` to verify), connect a Playwright MCP, or run under cmux so `cmux browser` is reachable. Any of those is enough.
 
 ### 4. A ready JN site
 
@@ -63,19 +72,25 @@ Do not ask anything else — pick reasonable defaults for everything below.
 
 Ensure the baseline is in place on the JN site (no-op if baseline is "wp.org and Jetpack is already installed"; otherwise invoke `jetpack-test-jurassic-ninja` synced to `trunk`).
 
-For each admin path:
+Allocate a temp dir once for all shots:
 
-1. `mcp__chrome-devtools__new_page` → `https://{domain}/?auto_login` (first path only; reuse page after)
-2. Wait for dashboard to load, then `navigate_page` to the admin path.
-3. `mcp__chrome-devtools__resize_page` to the chosen viewport.
-4. `mcp__chrome-devtools__wait_for` on a stable selector, or a short `evaluate_script` (`document.readyState === 'complete'`).
-5. `mcp__chrome-devtools__take_screenshot` with `fullPage: false` (viewport shot). Save as `before-<slug>.png` in a temp dir:
+```bash
+OUT=$(mktemp -d -t jp-ss.XXXXXX)
+```
 
-   ```bash
-   OUT=$(mktemp -d -t jp-ss.XXXXXX)
-   ```
+Then, for each admin path, use the browser tool to:
 
-   Use one `<slug>` per admin path, derived from the last path segment or a short hash.
+1. **Open** `https://{domain}/?auto_login` (first path only; reuse the same page/surface for subsequent paths).
+2. **Wait** for the dashboard to finish loading, then **navigate** to the admin path.
+3. **Resize** the viewport to the chosen size (default `1440×900`).
+4. **Wait** until the page is idle — a stable selector, `networkidle`, or `document.readyState === 'complete'`, whichever the browser tool supports.
+5. **Capture** a viewport (not full-page) PNG and save it as `$OUT/before-<slug>.png`. Derive `<slug>` from the last path segment or a short hash — one `<slug>` per admin path.
+
+Tool-specific hints:
+- **chrome-devtools MCP**: `new_page` → `navigate_page` → `resize_page` → `wait_for` or `evaluate_script` → `take_screenshot` with `fullPage: false`.
+- **Playwright MCP**: `browser_navigate` → `browser_resize` → `browser_wait_for` → `browser_take_screenshot` with `fullPage: false`.
+- **cmux browser**: `cmux browser open` → `cmux browser $SURF navigate` → `cmux browser $SURF wait --load-state complete` → `cmux browser $SURF screenshot --out "$OUT/before-<slug>.png"`.
+- **Local Playwright CLI**: `npx playwright screenshot --viewport-size=1440,900 --wait-for-timeout=2000 "$URL" "$OUT/before-<slug>.png"`.
 
 ### 3. Apply the PR branch (`after` state)
 
@@ -83,7 +98,7 @@ Invoke the `jetpack-test-jurassic-ninja` skill to rsync the plugin(s) modified b
 
 ### 4. Capture after
 
-Repeat the capture from step 2, saving each as `after-<slug>.png` in the same temp dir. Reuse the existing page — just `navigate_page` to the admin path and re-capture.
+Repeat the capture from step 2, saving each as `after-<slug>.png` in the same temp dir. Reuse the existing page/surface — navigate to the admin path and re-capture. Do not open a fresh page unless the previous one was closed.
 
 ### 5. (Optional) Side-by-side composite
 
