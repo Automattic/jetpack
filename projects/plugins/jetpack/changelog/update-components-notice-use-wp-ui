@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Internal: migrate the connection banner Notice to @wordpress/ui.

@@ -4,14 +4,13 @@ import {
 	Text,
 	ToggleControl,
 	AdminSectionHero,
-	Notice,
-	Button,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
+import { Notice } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
 import useToggleAccountProtectionMutation from '../../data/account-protection/use-toggle-account-protection-module-mutation';
@@ -61,58 +60,46 @@ const SettingsPage = () => {
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
 				{ ! accountProtection.isSupported && (
-					<Notice
-						level="warning"
-						hideCloseButton={ true }
-						className={ styles[ 'toggle-section__alert' ] }
-						title={
-							<Text>
-								{ __(
-									'This feature has been disabled by your site administrator or hosting provider.',
-									'jetpack-protect'
-								) }
-							</Text>
-						}
-						actions={ [
-							<Button
-								variant="link"
-								isExternalLink
+					<Notice.Root intent="warning" className={ styles[ 'toggle-section__alert' ] }>
+						<Notice.Title>
+							{ __(
+								'This feature has been disabled by your site administrator or hosting provider.',
+								'jetpack-protect'
+							) }
+						</Notice.Title>
+						<Notice.Actions>
+							<Notice.ActionLink
 								href={ getRedirectUrl( 'jetpack-account-protection', {
 									anchor: 'unsupported-environments',
 								} ) }
-								key="learn-more"
+								target="_blank"
+								rel="noreferrer"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
-							</Button>,
-						] }
-					/>
+							</Notice.ActionLink>
+						</Notice.Actions>
+					</Notice.Root>
 				) }
 				{ accountProtection.isSupported && accountProtection.hasUnsupportedJetpackVersion && (
-					<Notice
-						level="warning"
-						hideCloseButton={ true }
-						className={ styles[ 'toggle-section__alert' ] }
-						title={
-							<Text>
-								{ __(
-									'This feature has been disabled because the Jetpack Protect plugin is installed with an unsupported version of the Jetpack plugin. Please update the Jetpack plugin to version 14.5 or later to enable this feature.',
-									'jetpack-protect'
-								) }
-							</Text>
-						}
-						actions={ [
-							<Button
-								variant="link"
-								isExternalLink
+					<Notice.Root intent="warning" className={ styles[ 'toggle-section__alert' ] }>
+						<Notice.Title>
+							{ __(
+								'This feature has been disabled because the Jetpack Protect plugin is installed with an unsupported version of the Jetpack plugin. Please update the Jetpack plugin to version 14.5 or later to enable this feature.',
+								'jetpack-protect'
+							) }
+						</Notice.Title>
+						<Notice.Actions>
+							<Notice.ActionLink
 								href={ getRedirectUrl( 'jetpack-account-protection', {
 									anchor: 'requirements',
 								} ) }
-								key="learn-more"
+								target="_blank"
+								rel="noreferrer"
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
-							</Button>,
-						] }
-					/>
+							</Notice.ActionLink>
+						</Notice.Actions>
+					</Notice.Root>
 				) }
 				<Text className={ styles[ 'toggle-section__description' ] }>
 					{ createInterpolateElement(
