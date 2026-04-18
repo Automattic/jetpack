@@ -1208,7 +1208,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			}
 		);
 
-		$this->assertSame( $expected_code, ImageStudio\determine_iso_639_locale() );
+		$this->assertSame( $expected_code, \Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale() );
 	}
 
 	/**

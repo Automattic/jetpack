@@ -110,13 +110,16 @@
 		width: 100%;
 	}
 
-	.jp-no-results {
-		display: none;
-		font-size: rem.convert(14px);
-		line-height: 1.5;
+	.jp-settings__empty-search-results {
+		margin-block: rem.convert(64px);
 
-		&:last-of-type {
-			display: inherit;
+		// @wordpress/ui zeros margins on EmptyState.Title/Description inside
+		// @layer wp-ui-components, but unlayered admin styles (core + Jetpack)
+		// take precedence and reintroduce h2/p margins. Reset them here so the
+		// component renders with its intended tight spacing.
+		h2,
+		p {
+			margin: 0;
 		}
 	}
 
