@@ -7,7 +7,7 @@ description: >
   or says "/jetpack-screenshot". Works with any browser automation tool available
   to the agent (chrome-devtools MCP, Playwright MCP, cmux browser, or similar)
   and leans on jetpack-test-jurassic-ninja for syncing plugin state.
-allowed-tools: Bash(git rev-parse:*), Bash(git remote:*), Bash(git hash-object:*), Bash(git mktree:*), Bash(git commit-tree:*), Bash(git update-ref:*), Bash(git push:*), Bash(git rev-list:*), Bash(git show-ref:*), Bash(git diff:*), Bash(mktemp:*), Bash(ls:*), Bash(command -v:*), Bash(magick:*), Read
+allowed-tools: Bash(git rev-parse:*), Bash(git remote:*), Bash(git hash-object:*), Bash(git mktree:*), Bash(git commit-tree:*), Bash(git update-ref:*), Bash(git push:*), Bash(git rev-list:*), Bash(git show-ref:*), Bash(git diff:*), Bash(mktemp:*), Bash(command -v:*), Bash(magick:*)
 ---
 
 # Jetpack Screenshot — Before/After on Jurassic Ninja
@@ -17,8 +17,8 @@ Capture real-screen before/after screenshots on a Jurassic Ninja site for a Jetp
 Two pieces must exist in the environment — verify both before starting:
 
 1. **A browser automation tool** capable of: navigating to a URL, setting viewport size, waiting for load/idle, and capturing a PNG screenshot. Any of these is fine — pick whichever is connected, in this order of preference:
-   - **chrome-devtools MCP** (tools prefixed `mcp__chrome-devtools__*`) — preferred when both the main and `isolated` profile are available.
-   - **Playwright MCP** (tools prefixed `mcp__playwright__*` or similar).
+   - **chrome-devtools MCP** — look for tools like `navigate_page` / `take_screenshot`. Prefix varies by install (`mcp__chrome-devtools__*`, `mcp__plugin_<pkg>_chrome-devtools__*`, etc.).
+   - **Playwright MCP** — look for `browser_navigate` / `browser_take_screenshot`.
    - **cmux browser** (`cmux browser open|navigate|wait|screenshot …`, if the cmux socket is present at `/tmp/cmux.sock`).
    - A locally installable headless option (`npx playwright screenshot …`, `puppeteer`, etc.) as a last resort.
 
@@ -53,7 +53,7 @@ If none are available, tell the user:
 
 ### 4. A ready JN site
 
-Use the `jetpack-test-jurassic-ninja` skill's discovery step (load provider → list-sites) to find a target. If none exist, delegate the fix to that skill's guidance (create at https://jurassic.ninja/create).
+Run `jetpack-test-jurassic-ninja`'s pre-flight to ensure a target site is reachable. Let that skill own site discovery, SSH/password handling, and creation guidance — don't restate it here.
 
 ## Workflow
 
@@ -78,13 +78,13 @@ Allocate a temp dir once for all shots:
 OUT=$(mktemp -d -t jp-ss.XXXXXX)
 ```
 
+Open `https://{domain}/?auto_login` once, wait for the dashboard, and resize the viewport to the chosen size (default `1440×900`). Reuse the same page/surface for every path below — don't re-open or re-resize.
+
 Then, for each admin path, use the browser tool to:
 
-1. **Open** `https://{domain}/?auto_login` (first path only; reuse the same page/surface for subsequent paths).
-2. **Wait** for the dashboard to finish loading, then **navigate** to the admin path.
-3. **Resize** the viewport to the chosen size (default `1440×900`).
-4. **Wait** until the page is idle — a stable selector, `networkidle`, or `document.readyState === 'complete'`, whichever the browser tool supports.
-5. **Capture** a viewport (not full-page) PNG and save it as `$OUT/before-<slug>.png`. Derive `<slug>` from the last path segment or a short hash — one `<slug>` per admin path.
+1. **Navigate** to the admin path.
+2. **Wait** until the page is idle — a stable selector, `networkidle`, or `document.readyState === 'complete'`, whichever the browser tool supports.
+3. **Capture** a viewport (not full-page) PNG and save it as `$OUT/before-<slug>.png`. Derive `<slug>` from the last path segment or a short hash — one `<slug>` per admin path.
 
 Tool-specific hints:
 - **chrome-devtools MCP**: `new_page` → `navigate_page` → `resize_page` → `wait_for` or `evaluate_script` → `take_screenshot` with `fullPage: false`.
@@ -106,7 +106,8 @@ If the user wants one image per path instead of two, stitch with ImageMagick whe
 
 ```bash
 if command -v magick >/dev/null; then
-    for slug in $(ls "$OUT"/before-*.png | sed 's#.*/before-\(.*\)\.png#\1#'); do
+    for f in "$OUT"/before-*.png; do
+        slug="${f##*/before-}"; slug="${slug%.png}"
         magick "$OUT/before-$slug.png" "$OUT/after-$slug.png" +append "$OUT/before-after-$slug.png"
     done
 fi
@@ -116,26 +117,23 @@ Don't fail the skill if the composite step fails — just fall back to pushing t
 
 ### 6. Publish via git plumbing
 
-Build a tree with only the PNGs and push to `refs/heads/screenshots/<branch>` on `origin` (force-update). This uses plumbing commands so the working tree is never touched:
+Build a tree with only the PNGs and push to `refs/heads/screenshots/<branch>` on `origin` (force-update). This uses plumbing commands so the working tree is never touched. Pipe the loop directly into `git mktree` — accumulating entries via `$(printf '…\n')` strips trailing newlines and breaks multi-PNG runs.
 
 ```bash
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 REF="refs/heads/screenshots/${BRANCH}"
 
-TREE_ENTRIES=""
-for png in "$OUT"/*.png; do
-    BLOB="$(git hash-object -w "$png")"
-    NAME="$(basename "$png")"
-    TREE_ENTRIES+="$(printf '100644 blob %s\t%s\n' "$BLOB" "$NAME")"
-done
-
-TREE="$(echo "$TREE_ENTRIES" | git mktree)"
+TREE="$(
+    for png in "$OUT"/*.png; do
+        printf '100644 blob %s\t%s\n' "$(git hash-object -w "$png")" "$(basename "$png")"
+    done | git mktree
+)"
 COMMIT="$(git commit-tree "$TREE" -m "Screenshots for ${BRANCH}")"
 git update-ref "$REF" "$COMMIT"
 git push --force origin "$REF"
 ```
 
-If a screenshots ref already exists for this branch and the user has taken additional shots, prefer replacing (force-push) over appending — the ref is cheap, short-lived, and never merged.
+The ref is cheap, short-lived, and never merged — force-pushing on re-runs is the intended behavior.
 
 ### 7. Emit paste-ready markdown
 
@@ -155,7 +153,5 @@ If a side-by-side composite was produced, offer that markdown variant instead.
 
 ## Notes
 
-- The screenshots ref is separate from the PR branch — it never gets merged and doesn't show up in the PR diff.
-- GitHub serves the images from `raw/`, so privacy matches the repo: Jetpack is public; anything captured will be public. Don't capture pages that could contain private data (site-owner emails, tokens). Prefer a brand-new JN site for captures.
-- Screenshots render in the PR body without requiring the user to drag-and-drop into the GitHub web UI.
-- If rsync or capture fails partway through, the local temp dir still contains whatever was captured — report the path so the user can retry step 6 manually.
+- **Privacy:** Jetpack is a public repo and the screenshots ref is served from `raw.githubusercontent.com`. Anything captured becomes public. Don't point captures at pages that could expose private data (site-owner emails, tokens). Prefer a brand-new JN site.
+- **Recovery:** if rsync or capture fails partway through, the local temp dir still contains whatever was captured — report the path so the user can retry step 6 manually.
