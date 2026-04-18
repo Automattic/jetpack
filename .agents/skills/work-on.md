@@ -37,7 +37,7 @@ The skill would:
 2. **Plan** the change (inspect the block's label CSS, identify breakpoint rule), show the plan, wait for approval.
 3. **Allocate ports** via `work-on/scripts/alloc-ports.sh fix-forms-label-wrap` → deterministic band 1 → WP 8080, phpMy 8281, Mailpit 1180/2525, SFTP 1122.
 4. **Bootstrap** via `work-on/scripts/bootstrap-worktree.sh fix-forms-label-wrap` → creates `../jetpack-fix-forms-label-wrap` on branch `change/fix-forms-label-wrap` off trunk, runs pnpm install, seeds `.work-on/`.
-5. `jp docker up -d --name fix-forms-label-wrap --port 8080 --port-phpmy 8281 --port-inbox 1180 --port-smtp 2525 --port-sftp 1122` → `jp docker install --name fix-forms-label-wrap --port 8080`.
+5. `jp docker up -d --name fix-forms-label-wrap --port 8080 --port-phpmy 8281 --port-inbox 1180 --port-smtp 2525 --port-sftp 1122 --clone-from dev` → `jp docker install --name fix-forms-label-wrap --port 8080` (usually a no-op after clone).
 6. **Baseline screenshot** of the affected block at `http://localhost:8080/...` → `.work-on/screenshots/fix-forms-label-wrap-before.png`.
 7. **Implement** the CSS fix.
 8. `jp build packages/forms` → `jp test js packages/forms` → `jp phan packages/forms`.
@@ -129,7 +129,8 @@ jp docker up -d \
   --port-phpmy "$(echo "$PORTS" | jq -r .phpmy)" \
   --port-inbox "$(echo "$PORTS" | jq -r .inbox)" \
   --port-smtp  "$(echo "$PORTS" | jq -r .smtp)" \
-  --port-sftp  "$(echo "$PORTS" | jq -r .sftp)"
+  --port-sftp  "$(echo "$PORTS" | jq -r .sftp)" \
+  --clone-from dev
 ```
 
 WordPress image pulls can take several minutes on a cold cache — if `jp docker install` fails with "WordPress install is incomplete! Perhaps it is still downloading?", wait ~30s and retry once before escalating. Then:
@@ -137,6 +138,8 @@ WordPress image pulls can take several minutes on a cold cache — if `jp docker
 ```bash
 jp docker install --name <slug> --port "$(echo "$PORTS" | jq -r .wp)"
 ```
+
+Use `--clone-from <name>` to seed from a different running source instance (default source is `dev` when the flag is passed without a value).
 
 Write the full session record to `$WORKTREE/.work-on/env.json` using the schema below. Mode 3 (implement-only resume) reads this file — fields are mandatory.
 
