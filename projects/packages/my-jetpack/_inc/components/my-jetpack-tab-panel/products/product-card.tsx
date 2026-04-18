@@ -1,4 +1,4 @@
-import { Badge } from '@automattic/ui';
+import { Badge } from '@wordpress/ui';
 import {
 	Card,
 	CardBody,
@@ -61,7 +61,7 @@ export function ProductCard( { product, headingLevel = 3, module: $module }: Pro
 			</CardBody>
 			{ ! isAvailable ? (
 				<CardFooter>
-					<Badge intent="warning">{ reason }</Badge>
+					<Badge intent="medium">{ reason }</Badge>
 				</CardFooter>
 			) : null }
 		</Card>

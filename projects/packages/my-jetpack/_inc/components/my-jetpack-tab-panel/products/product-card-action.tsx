@@ -1,4 +1,4 @@
-import { Badge } from '@automattic/ui';
+import { Badge } from '@wordpress/ui';
 import { Button, Flex, FormToggle } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -79,7 +79,7 @@ function ActivationToggle( {
 
 	return (
 		<Flex gap={ 4 }>
-			{ active ? <Badge intent="success">{ __( 'Active', 'jetpack-my-jetpack' ) }</Badge> : null }
+			{ active ? <Badge intent="stable">{ __( 'Active', 'jetpack-my-jetpack' ) }</Badge> : null }
 			<FormToggle
 				disabled={ disabled || isDeactivating || isActivating || isLoading || isRefetching }
 				checked={ active }

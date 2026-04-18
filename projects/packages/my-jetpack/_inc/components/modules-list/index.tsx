@@ -1,4 +1,4 @@
-import { Badge } from '@automattic/ui';
+import { Badge } from '@wordpress/ui';
 import { Flex } from '@wordpress/components';
 import { DataViews, Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
@@ -58,7 +58,7 @@ export function ModulesList( { modules }: ModulesListProps ) {
 					const { isAvailable, reason } = getModuleStatus( item );
 
 					return ! isAvailable ? (
-						<Badge intent="warning">{ reason }</Badge>
+						<Badge intent="medium">{ reason }</Badge>
 					) : (
 						<Flex gap={ 4 } className={ styles[ 'toggle-wrap' ] }>
 							<ModuleStatus module={ item } />
