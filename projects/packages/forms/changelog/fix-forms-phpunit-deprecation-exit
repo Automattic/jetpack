@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Testing: guard ReflectionProperty::setAccessible() call on PHP 8.1+ to avoid the 8.5 deprecation tripping PHPUnit.
