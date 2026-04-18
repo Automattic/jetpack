@@ -1,6 +1,14 @@
-import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
+// NOTE: `ThemeProvider` is imported from `@automattic/jetpack-components` because
+// neither `@wordpress/ui` nor `@wordpress/components` exposes an equivalent that
+// injects Jetpack's `--jp-*` CSS custom properties consumed by `style.scss`.
+// It is a theming shim (CSS-variable injector), not a UI primitive, so it
+// remains until an upstream equivalent is available.
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { SnackbarList } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { EmptyState, Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -19,6 +27,24 @@ import { hasAnyMatchingModule as hasAnyMatchingModuleSelector } from 'state/sear
 import Traffic from 'traffic';
 import Writing from 'writing';
 import { FEATURE_JETPACK_EARN } from '../lib/plans/constants';
+
+/**
+ * Renders the global snackbar notices list for the Settings page.
+ *
+ * Inlined here (instead of importing `GlobalNotices` from the forbidden
+ * `@automattic/jetpack-components`) so that UI primitives come from
+ * `@wordpress/components` (`SnackbarList`). `@wordpress/ui` has no snackbar
+ * equivalent at this time.
+ *
+ * @return {import('react').ReactNode} The snackbar notices list.
+ */
+const SettingsGlobalNotices = () => {
+	const { removeNotice } = useDispatch( noticesStore );
+	const notices = useSelect( select => select( noticesStore ).getNotices(), [] );
+	const snackbarNotices = notices.filter( ( { type } ) => type === 'snackbar' ).slice( -3 );
+
+	return <SnackbarList notices={ snackbarNotices } onRemove={ removeNotice } />;
+};
 
 class Settings extends Component {
 	static displayName = 'SearchableSettings';
@@ -118,7 +144,7 @@ class Settings extends Component {
 					<Privacy active={ '/privacy' === pathname } { ...commonProps } />
 					<SearchableModules searchTerm={ searchTerm } />
 				</div>
-				<GlobalNotices />
+				<SettingsGlobalNotices />
 			</ThemeProvider>
 		);
 	}
