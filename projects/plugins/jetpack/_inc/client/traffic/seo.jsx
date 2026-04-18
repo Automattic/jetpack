@@ -1,20 +1,22 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	FacebookLinkPreview,
 	TwitterLinkPreview,
 	GoogleSearchPreview,
 } from '@automattic/social-previews';
+import { ToggleControl } from '@wordpress/components';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { Button, Field, Fieldset, Notice, Textarea } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { SocialLogo } from 'social-logos';
-import Button from 'components/button';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import FoldableCard from 'components/foldable-card';
-import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
-import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -139,7 +141,13 @@ export const SEO = withModuleSettingsFormHelpers(
 		saveButton = props => {
 			const isSaving = this.props.isSavingAnyOption( this.constants.moduleOptionsArray );
 			return (
-				<Button primary rna compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+				<Button
+					variant="solid"
+					tone="brand"
+					size="compact"
+					type="submit"
+					disabled={ isSaving || ! props.isDirty() }
+				>
 					{ isSaving
 						? _x( 'Saving…', 'Button caption', 'jetpack' )
 						: _x(
@@ -213,13 +221,15 @@ export const SEO = withModuleSettingsFormHelpers(
 							} }
 						>
 							{ hasConflictingSeoPlugin && (
-								<SimpleNotice showDismiss={ false }>
-									{ sprintf(
-										/* translators: %s is the name of conflicting SEO plugin */
-										__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
-										conflictingSeoPlugins[ 0 ].name
-									) }
-								</SimpleNotice>
+								<Notice.Root intent="info">
+									<Notice.Description>
+										{ sprintf(
+											/* translators: %s is the name of conflicting SEO plugin */
+											__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
+											conflictingSeoPlugins[ 0 ].name
+										) }
+									</Notice.Description>
+								</Notice.Root>
 							) }
 							<p>
 								{ __(
@@ -242,13 +252,13 @@ export const SEO = withModuleSettingsFormHelpers(
 								</span>
 							</ModuleToggle>
 							{ this.props.seoEnhancerAvailable && this.props.hasSeoEnhancer && (
-								<FormFieldset>
+								<Fieldset.Root className="jp-form-fieldset">
 									<ToggleControl
+										__nextHasNoMarginBottom
 										id="seo-enhancer"
 										disabled={
 											! this.props.getOptionValue( 'seo-tools' ) || ! this.props.hasSeoEnhancer
 										}
-										toggling={ this.props.isSavingAnyOption( 'ai_seo_enhancer_enabled' ) }
 										checked={
 											this.props.hasSeoEnhancer &&
 											this.props.getOptionValue( 'ai_seo_enhancer_enabled' )
@@ -263,7 +273,7 @@ export const SEO = withModuleSettingsFormHelpers(
 											</span>
 										}
 									/>
-								</FormFieldset>
+								</Fieldset.Root>
 							) }
 						</SettingsGroup>
 					) }
@@ -341,36 +351,39 @@ export const SEO = withModuleSettingsFormHelpers(
 												'jetpack'
 											) }
 										</p>
-										<FormLabel htmlFor="jp-seo-front-page-description">
-											<span className="jp-form-label-wide">
+										<Field.Root>
+											<Field.Label
+												className="jp-form-label jp-form-label-wide"
+												htmlFor="jp-seo-front-page-description"
+											>
 												{ __( 'Front Page Meta Description', 'jetpack' ) }
-											</span>
-										</FormLabel>
-										<div className="jp-seo-front-page-description-container">
-											<FormTextarea
-												name="advanced_seo_front_page_description"
-												id="jp-seo-front-page-description"
-												className="jp-form-textarea-wide"
-												maxLength={ this.constants.frontPageMetaMaxLength }
-												value={ frontPageMetaDescription }
-												onChange={ this.props.onOptionChange }
-											/>
-											<div className={ frontPageMetaCharCountClasses }>
-												{ sprintf(
-													/* translators: %d: the number of characters */
-													_n(
-														'%d character',
-														'%d characters',
-														frontPageMetaDescription.length,
-														'jetpack'
-													),
-													frontPageMetaDescription.length
-												) }
-												{ frontPageMetaDescription.length >=
-													this.constants.frontPageMetaMaxLength &&
-													' - ' + __( 'Maximum characters reached.', 'jetpack' ) }
+											</Field.Label>
+											<div className="jp-seo-front-page-description-container">
+												<Textarea
+													name="advanced_seo_front_page_description"
+													id="jp-seo-front-page-description"
+													className="jp-form-textarea jp-form-textarea-wide"
+													maxLength={ this.constants.frontPageMetaMaxLength }
+													value={ frontPageMetaDescription }
+													onChange={ this.props.onOptionChange }
+												/>
+												<div className={ frontPageMetaCharCountClasses }>
+													{ sprintf(
+														/* translators: %d: the number of characters */
+														_n(
+															'%d character',
+															'%d characters',
+															frontPageMetaDescription.length,
+															'jetpack'
+														),
+														frontPageMetaDescription.length
+													) }
+													{ frontPageMetaDescription.length >=
+														this.constants.frontPageMetaMaxLength &&
+														' - ' + __( 'Maximum characters reached.', 'jetpack' ) }
+												</div>
 											</div>
-										</div>
+										</Field.Root>
 										{
 											<div className={ 'jp-seo-front-page-description-save-button' }>
 												{ this.saveButton( this.props ) }

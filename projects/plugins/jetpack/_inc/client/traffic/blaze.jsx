@@ -1,8 +1,12 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
+import { ToggleControl } from '@wordpress/components';
+import { Card } from '@wordpress/ui';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
-import Card from 'components/card';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -45,20 +49,24 @@ function Blaze( props ) {
 	const unavailableInOfflineMode = isUnavailableInOfflineMode( 'blaze' );
 
 	const blazeDashboardLink = () => {
+		const href = blazeDashboardEnabled
+			? siteAdminUrl + 'tools.php?page=advertising'
+			: getRedirectUrl( 'jetpack-blaze' );
+		const externalAttrs = ! blazeDashboardEnabled
+			? { target: '_blank', rel: 'noopener noreferrer' }
+			: {};
+
 		return (
-			<Card
-				compact
-				className="jp-settings-card__configure-link"
-				href={
-					blazeDashboardEnabled
-						? siteAdminUrl + 'tools.php?page=advertising'
-						: getRedirectUrl( 'jetpack-blaze' )
-				}
-				onClick={ trackDashboardClick }
-				{ ...( ! blazeDashboardEnabled ? { target: '_blank', rel: 'noopener noreferrer' } : {} ) }
-			>
-				{ __( 'Manage your campaigns and view your earnings in the Blaze dashboard', 'jetpack' ) }
-			</Card>
+			<Card.Root className="jp-settings-card__configure-link">
+				<Card.Content>
+					<a href={ href } onClick={ trackDashboardClick } { ...externalAttrs }>
+						{ __(
+							'Manage your campaigns and view your earnings in the Blaze dashboard',
+							'jetpack'
+						) }
+					</a>
+				</Card.Content>
+			</Card.Root>
 		);
 	};
 
@@ -66,7 +74,10 @@ function Blaze( props ) {
 		if ( ! canInit && reason === 'user_not_connected' ) {
 			return (
 				<ToggleControl
+					__nextHasNoMarginBottom
+					checked={ false }
 					disabled={ true }
+					onChange={ () => {} }
 					label={ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
 				/>
 			);
@@ -75,7 +86,10 @@ function Blaze( props ) {
 		if ( ! canInit ) {
 			return (
 				<ToggleControl
+					__nextHasNoMarginBottom
+					checked={ false }
 					disabled={ true }
+					onChange={ () => {} }
 					label={ __( 'Blaze is not available on your site.', 'jetpack' ) }
 				/>
 			);

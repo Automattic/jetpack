@@ -1,8 +1,6 @@
 import { sprintf, __ } from '@wordpress/i18n';
+import { Button, Field, Input } from '@wordpress/ui';
 import { createRef, useState, useCallback } from 'react';
-import Button from 'components/button';
-import { FormLabel } from 'components/forms';
-import TextInput from 'components/text-input';
 
 // For context on the seo-tools module's custom SEO title formats, refer to:
 // projects/plugins/jetpack/modules/seo-tools/jetpack-seo-titles.php
@@ -133,13 +131,17 @@ const SEOTokenButton = ( {
 	token,
 } ) => {
 	const handleTokenButtonClick = useCallback( () => {
-		const inputRef = customSeoTitleInputRef.current;
-		inputRef.focus();
+		const inputEl = customSeoTitleInputRef.current;
+		if ( ! inputEl ) {
+			return;
+		}
+		inputEl.focus();
 
 		const textToInsert = `[${ token }]`;
-		const cursorPos = inputRef.textFieldRef.current.selectionStart;
-		const strBeforeCursor = inputRef.props.value.substring( 0, cursorPos );
-		const strAfterCursor = inputRef.props.value.substring( cursorPos, inputRef.props.value.length );
+		const cursorPos = typeof inputEl.selectionStart === 'number' ? inputEl.selectionStart : 0;
+		const currentValue = inputEl.value || '';
+		const strBeforeCursor = currentValue.substring( 0, cursorPos );
+		const strAfterCursor = currentValue.substring( cursorPos, currentValue.length );
 		const newString = strBeforeCursor + textToInsert + strAfterCursor;
 
 		handleCustomSeoTitleInput( pageType, newString );
@@ -147,9 +149,9 @@ const SEOTokenButton = ( {
 
 	return (
 		<Button
-			rna
+			variant="outline"
+			size="compact"
 			className="jp-seo-custom-titles-input-button"
-			compact
 			onClick={ handleTokenButtonClick }
 		>
 			{ customSeoTitleFormats.insertableTokens[ token ] }
@@ -186,27 +188,27 @@ const CustomSeoTitleInput = ( {
 } ) => {
 	return (
 		<div className={ `jp-seo-custom-titles-input-container-${ pageType.name }` }>
-			<div className={ `jp-seo-custom-titles-input-controls` }>
-				<FormLabel
-					className={ `jp-seo-custom-titles-input-label` }
+			<Field.Root className={ `jp-seo-custom-titles-input-controls` }>
+				<Field.Label
+					className={ `jp-form-label jp-seo-custom-titles-input-label` }
 					htmlFor={ `jp-seo-custom-titles-input-${ pageType.name }` }
 				>
 					<span className="jp-form-label">{ pageType.label }</span>
-				</FormLabel>
+				</Field.Label>
 				<div>
 					{ SEOTokenButtonList( pageType, customSeoTitleInputRef, handleCustomSeoTitleInput ) }
 				</div>
-			</div>
-			<TextInput
-				id={ `jp-seo-custom-titles-input-${ pageType.name }` }
-				className="jp-seo-custom-titles-input"
-				value={ value }
-				onChange={ useCallback(
-					event => handleCustomSeoTitleInput( pageType, event.target.value ),
-					[ handleCustomSeoTitleInput, pageType ]
-				) }
-				ref={ customSeoTitleInputRef }
-			/>
+				<Input
+					id={ `jp-seo-custom-titles-input-${ pageType.name }` }
+					className="jp-seo-custom-titles-input"
+					value={ value }
+					ref={ customSeoTitleInputRef }
+					onChange={ useCallback(
+						event => handleCustomSeoTitleInput( pageType, event.target.value ),
+						[ handleCustomSeoTitleInput, pageType ]
+					) }
+				/>
+			</Field.Root>
 			<div className={ 'jp-seo-custom-titles-input-preview' }>
 				{ getCustomSeoTitleInputPreview( pageType, value, siteData ) }
 			</div>

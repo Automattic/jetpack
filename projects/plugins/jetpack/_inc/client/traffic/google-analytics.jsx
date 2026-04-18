@@ -1,13 +1,15 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Field, Fieldset, Input, Link } from '@wordpress/ui';
 import { Component } from 'react';
-import { FormFieldset, FormLabel } from 'components/forms';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
 
@@ -107,6 +109,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 					{ ! this.props.isUnavailableInOfflineMode( 'google-analytics' ) && (
 						<SettingsGroup hasChild>
 							<ToggleControl
+								__nextHasNoMarginBottom
 								checked={ this.isActive() }
 								disabled={ this.isSaving() }
 								onChange={ this.toggleActive }
@@ -119,35 +122,43 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 
 							{ this.showForm() && (
 								<>
-									<FormFieldset>
-										<FormLabel className="jp-form-label-wide" htmlFor="code">
-											{ __( 'Google Analytics Measurement ID', 'jetpack' ) }
-										</FormLabel>
-										<TextInput
-											id="code"
-											pattern="(UA-\d+-\d+)|(G-[A-Z0-9]+)"
-											placeholder="G-XXXXXXX"
-											value={ this.getOptionValue( 'code' ) }
-											onChange={ this.onOptionChange( 'code' ) }
-											disabled={ this.isSaving() }
-										/>
+									<Fieldset.Root className="jp-form-fieldset">
+										<Field.Root>
+											<Field.Label
+												className="jp-form-label jp-form-label-wide"
+												htmlFor="code"
+											>
+												{ __( 'Google Analytics Measurement ID', 'jetpack' ) }
+											</Field.Label>
+											<Input
+												id="code"
+												pattern="(UA-\d+-\d+)|(G-[A-Z0-9]+)"
+												placeholder="G-XXXXXXX"
+												value={ this.getOptionValue( 'code' ) }
+												onChange={ this.onOptionChange( 'code' ) }
+												disabled={ this.isSaving() }
+											/>
+										</Field.Root>
 										<span className="jp-form-setting-explanation">
 											{ createInterpolateElement(
 												__( '<link>Learn more</link> to find your Measurement ID.', 'jetpack' ),
 												{
 													link: (
-														<ExternalLink
+														<Link
 															href={ getRedirectUrl( 'wpcom-support-google-analytics', {
 																anchor: 'step-2-get-your-measurement-id',
 															} ) }
+															target="_blank"
+															rel="noopener noreferrer"
 														/>
 													),
 												}
 											) }
 										</span>
-									</FormFieldset>
-									<FormFieldset>
+									</Fieldset.Root>
+									<Fieldset.Root className="jp-form-fieldset">
 										<ToggleControl
+											__nextHasNoMarginBottom
 											checked={ this.getOptionValue( 'anonymize_ip' ) }
 											onChange={ this.onToggleChange( 'anonymize_ip' ) }
 											disabled={ this.isSaving() }
@@ -165,10 +176,12 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 														),
 														{
 															link: (
-																<ExternalLink
+																<Link
 																	href={ getRedirectUrl(
 																		'wpcom-support-google-analytics-anonymize-ip'
 																	) }
+																	target="_blank"
+																	rel="noopener noreferrer"
 																/>
 															),
 														}
@@ -176,7 +189,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 												</span>
 											}
 										/>
-									</FormFieldset>
+									</Fieldset.Root>
 								</>
 							) }
 						</SettingsGroup>

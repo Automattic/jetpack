@@ -2,6 +2,9 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';

@@ -1,14 +1,14 @@
-import { ExternalLink } from '@wordpress/components';
+import { Icon, check } from '@wordpress/icons';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button, Field, Input, Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import { FormLabel } from 'components/forms';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import Gridicon from 'components/gridicon';
-import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import requestExternalAccess from 'lib/sharing';
 import { userCanManageOptions } from 'state/initial-state';
@@ -179,9 +179,14 @@ class GoogleVerificationServiceComponent extends Component {
 		if ( this.state.inputVisible || isForbidden || ! this.props.isCurrentUserLinked ) {
 			return (
 				<div>
-					<FormLabel className="jp-form-input-with-prefix" key="verification_service_google">
-						<span>{ __( 'Google', 'jetpack' ) }</span>
-						<TextInput
+					<Field.Root
+						className="jp-form-input-with-prefix"
+						key="verification_service_google"
+					>
+						<Field.Label className="jp-form-label">
+							<span>{ __( 'Google', 'jetpack' ) }</span>
+						</Field.Label>
+						<Input
 							name="google"
 							value={ this.props.value }
 							placeholder={ this.props.placeholder }
@@ -193,8 +198,8 @@ class GoogleVerificationServiceComponent extends Component {
 						{ this.state.inputVisible && (
 							<div className="jp-form-site-verification-buttons">
 								<Button
-									primary
-									rna
+									variant="solid"
+									tone="brand"
 									type="button"
 									className="jp-form-site-verification-edit-button"
 									disabled={ this.props.disabled }
@@ -203,7 +208,7 @@ class GoogleVerificationServiceComponent extends Component {
 									{ __( 'Save', 'jetpack' ) }
 								</Button>
 								<Button
-									rna
+									variant="outline"
 									type="button"
 									className="jp-form-site-verification-edit-button"
 									disabled={ this.props.disabled }
@@ -213,7 +218,7 @@ class GoogleVerificationServiceComponent extends Component {
 								</Button>
 							</div>
 						) }
-					</FormLabel>
+					</Field.Root>
 				</div>
 			);
 		}
@@ -224,11 +229,11 @@ class GoogleVerificationServiceComponent extends Component {
 					<div className="jp-form-input-with-prefix" key="verification_service_google">
 						<span>{ __( 'Google', 'jetpack' ) }</span>
 						<div className="jp-form-site-verification-verified">
-							<Gridicon icon="checkmark-circle" size={ 20 } />{ ' ' }
+							<Icon icon={ check } size={ 20 } />{ ' ' }
 							<span>{ __( 'Your site is verified with Google', 'jetpack' ) }</span>
 						</div>
 						<Button
-							rna
+							variant="outline"
 							type="button"
 							className="jp-form-site-verification-edit-button"
 							onClick={ this.handleClickEdit }
@@ -248,7 +253,8 @@ class GoogleVerificationServiceComponent extends Component {
 										),
 										{
 											a: (
-												<ExternalLink
+												<Link
+													target="_blank"
 													rel="noopener noreferrer"
 													href={ this.props.googleSearchConsoleUrl }
 												/>
@@ -263,13 +269,15 @@ class GoogleVerificationServiceComponent extends Component {
 										),
 										{
 											a1: (
-												<ExternalLink
+												<Link
+													target="_blank"
 													rel="noopener noreferrer"
 													href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
 												/>
 											),
 											a2: (
-												<ExternalLink
+												<Link
+													target="_blank"
 													rel="noopener noreferrer"
 													href={
 														'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html'
@@ -307,8 +315,8 @@ class GoogleVerificationServiceComponent extends Component {
 						{
 							button1: (
 								<Button
-									primary
-									rna
+									variant="solid"
+									tone="brand"
 									type="button"
 									disabled={ disabled }
 									onClick={ this.handleClickAutoVerify }
@@ -317,7 +325,7 @@ class GoogleVerificationServiceComponent extends Component {
 							span: <span className="jp-form-google-separator" />,
 							button2: (
 								<Button
-									rna
+									variant="outline"
 									type="button"
 									disabled={ disabled }
 									onClick={ this.handleClickSetManually }

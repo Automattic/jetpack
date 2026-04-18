@@ -1,13 +1,15 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Button, Card, Fieldset } from '@wordpress/ui';
 import clsx from 'clsx';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import FoldableCard from 'components/foldable-card';
-import { FormFieldset, FormLegend } from 'components/forms';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -153,49 +155,55 @@ class SiteStatsComponent extends Component {
 
 		if ( ! isStatsActive ) {
 			return (
-				<Card
+				<Card.Root
 					className={
 						'jp-at-a-glance__stats-card ' + ( this.props.isOfflineMode ? 'is-inactive' : '' )
 					}
 				>
-					<div className="jp-at-a-glance__stats-inactive">
-						<div className="jp-at-a-glance__stats-inactive-icon">
-							<img
-								src={ imagePath + 'stats.svg' }
-								width="60"
-								height="60"
-								alt={ __( 'Line chart overlaid on a bar chart', 'jetpack' ) }
-								className="jp-at-a-glance__stats-icon"
-							/>
-						</div>
-						<div className="jp-at-a-glance__stats-inactive-text">
-							{ this.props.isOfflineMode
-								? __( 'Unavailable in Offline Mode', 'jetpack' )
-								: createInterpolateElement(
-										__(
-											'Activate Jetpack Stats to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
-											'jetpack'
-										),
-										{
-											a: (
-												<a
-													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
-													target="_blank"
-													rel="noopener noreferrer"
-												/>
-											),
-										}
-								  ) }
-						</div>
-						{ ! this.props.isOfflineMode && (
-							<div className="jp-at-a-glance__stats-inactive-button">
-								<Button rna onClick={ this.activateStats } primary={ true }>
-									{ __( 'Activate Jetpack Stats', 'jetpack' ) }
-								</Button>
+					<Card.Content>
+						<div className="jp-at-a-glance__stats-inactive">
+							<div className="jp-at-a-glance__stats-inactive-icon">
+								<img
+									src={ imagePath + 'stats.svg' }
+									width="60"
+									height="60"
+									alt={ __( 'Line chart overlaid on a bar chart', 'jetpack' ) }
+									className="jp-at-a-glance__stats-icon"
+								/>
 							</div>
-						) }
-					</div>
-				</Card>
+							<div className="jp-at-a-glance__stats-inactive-text">
+								{ this.props.isOfflineMode
+									? __( 'Unavailable in Offline Mode', 'jetpack' )
+									: createInterpolateElement(
+											__(
+												'Activate Jetpack Stats to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
+												'jetpack'
+											),
+											{
+												a: (
+													<a
+														href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
+														target="_blank"
+														rel="noopener noreferrer"
+													/>
+												),
+											}
+									  ) }
+							</div>
+							{ ! this.props.isOfflineMode && (
+								<div className="jp-at-a-glance__stats-inactive-button">
+									<Button
+										variant="solid"
+										tone="brand"
+										onClick={ this.activateStats }
+									>
+										{ __( 'Activate Jetpack Stats', 'jetpack' ) }
+									</Button>
+								</div>
+							) }
+						</div>
+					</Card.Content>
+				</Card.Root>
 			);
 		}
 
@@ -228,73 +236,81 @@ class SiteStatsComponent extends Component {
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
-						<FormFieldset className="jp-stats-form-fieldset">
+						<Fieldset.Root className="jp-form-fieldset jp-stats-form-fieldset">
 							<ToggleControl
+								__nextHasNoMarginBottom
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
 								disabled={
 									! isStatsActive ||
 									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'stats' ] )
 								}
-								toggling={ this.props.isSavingAnyOption( [ 'admin_bar' ] ) }
 								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
 								label={ __(
 									'Include a small chart in your admin bar with a 48-hour traffic snapshot',
 									'jetpack'
 								) }
 							/>
-						</FormFieldset>
-						<FormFieldset className="jp-stats-form-fieldset">
-							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
+						</Fieldset.Root>
+						<Fieldset.Root className="jp-form-fieldset jp-stats-form-fieldset">
+							<Fieldset.Legend className="jp-form-legend">
+								{ __( 'Count logged in page views from', 'jetpack' ) }
+							</Fieldset.Legend>
 							{ Object.keys( siteRoles ).map( key => (
 								<ToggleControl
+									__nextHasNoMarginBottom
 									checked={ this.state[ `count_roles_${ key }` ] }
 									disabled={
 										! isStatsActive ||
 										unavailableInOfflineMode ||
 										this.props.isSavingAnyOption( [ 'stats' ] )
 									}
-									toggling={ this.props.isSavingAnyOption( [ `count_roles_${ key }` ] ) }
 									onChange={ this.handleRoleToggleChange( key, 'count_roles' ) }
 									key={ `count_roles-${ key }` }
 									label={ siteRoles[ key ].name }
 								/>
 							) ) }
-						</FormFieldset>
-						<FormFieldset className="jp-stats-form-fieldset">
-							<FormLegend>{ __( 'Allow Jetpack Stats to be viewed by', 'jetpack' ) }</FormLegend>
+						</Fieldset.Root>
+						<Fieldset.Root className="jp-form-fieldset jp-stats-form-fieldset">
+							<Fieldset.Legend className="jp-form-legend">
+								{ __( 'Allow Jetpack Stats to be viewed by', 'jetpack' ) }
+							</Fieldset.Legend>
 							<ToggleControl
+								__nextHasNoMarginBottom
 								checked={ true }
 								disabled={ true }
+								onChange={ () => {} }
 								label={ siteRoles.administrator.name }
 							/>
 							{ Object.keys( siteRoles ).map( key =>
 								'administrator' !== key ? (
 									<ToggleControl
+										__nextHasNoMarginBottom
 										checked={ this.state[ `roles_${ key }` ] }
 										disabled={
 											! isStatsActive ||
 											unavailableInOfflineMode ||
 											this.props.isSavingAnyOption( [ 'stats' ] )
 										}
-										toggling={ this.props.isSavingAnyOption( [ `roles_${ key }` ] ) }
 										onChange={ this.handleRoleToggleChange( key, 'roles' ) }
 										key={ `roles-${ key }` }
 										label={ siteRoles[ key ].name }
 									/>
 								) : null
 							) }
-						</FormFieldset>
-						<FormFieldset className="jp-stats-form-fieldset">
-							<FormLegend>{ __( 'WordPress.com Reader', 'jetpack' ) }</FormLegend>
+						</Fieldset.Root>
+						<Fieldset.Root className="jp-form-fieldset jp-stats-form-fieldset">
+							<Fieldset.Legend className="jp-form-legend">
+								{ __( 'WordPress.com Reader', 'jetpack' ) }
+							</Fieldset.Legend>
 							<ToggleControl
+								__nextHasNoMarginBottom
 								checked={ this.state.wpcom_reader_views_enabled }
 								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								toggling={ this.props.isSavingAnyOption( [ 'wpcom_reader_views_enabled' ] ) }
 								onChange={ this.handleOptionToggle( 'wpcom_reader_views_enabled' ) }
 								label={ __( 'Show post views for this site.', 'jetpack' ) }
 							/>
-						</FormFieldset>
+						</Fieldset.Root>
 					</SettingsGroup>
 				</FoldableCard>
 			</SettingsCard>

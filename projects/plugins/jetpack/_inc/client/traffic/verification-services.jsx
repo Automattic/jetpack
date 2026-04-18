@@ -1,15 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Field, Fieldset, Input, Link } from '@wordpress/ui';
 import { Component } from 'react';
-import { FormFieldset, FormLabel } from 'components/forms';
+// Jetpack composite helpers — kept as-is because they wrap Redux state,
+// analytics, module-override gating, and shared form infrastructure that
+// must not be duplicated inline.
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import TextInput from 'components/text-input';
 import GoogleVerificationService from './verification-services/google';
 
 class VerificationServicesComponent extends Component {
@@ -114,28 +115,36 @@ class VerificationServicesComponent extends Component {
 								b: <strong />,
 								support: <a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />,
 								google: (
-									<ExternalLink
+									<Link
+										target="_blank"
 										rel="noopener noreferrer"
 										href="https://www.google.com/webmasters/tools/"
 									/>
 								),
 								bing: (
-									<ExternalLink rel="noopener noreferrer" href="https://www.bing.com/webmaster/" />
+									<Link
+										target="_blank"
+										rel="noopener noreferrer"
+										href="https://www.bing.com/webmaster/"
+									/>
 								),
 								pinterest: (
-									<ExternalLink
+									<Link
+										target="_blank"
 										rel="noopener noreferrer"
 										href="https://pinterest.com/website/verify/"
 									/>
 								),
 								yandex: (
-									<ExternalLink
+									<Link
+										target="_blank"
 										rel="noopener noreferrer"
 										href="https://webmaster.yandex.com/sites/"
 									/>
 								),
 								facebook: (
-									<ExternalLink
+									<Link
+										target="_blank"
 										rel="noopener noreferrer"
 										href="https://business.facebook.com/settings/"
 									/>
@@ -143,16 +152,21 @@ class VerificationServicesComponent extends Component {
 							}
 						) }
 					</p>
-					<FormFieldset>
+					<Fieldset.Root className="jp-form-fieldset">
 						<GoogleVerificationService
 							value={ this.getSiteVerificationValue( 'google' ) }
 							placeholder={ this.getMetaTag( 'google', '1234' ) }
 							{ ...this.props }
 							disabled={ this.props.isUpdating( 'google' ) || ! isVerificationActive }
 						/>
-						<FormLabel className="jp-form-input-with-prefix" key="verification_service_bing">
-							<span>{ __( 'Bing:', 'jetpack' ) }</span>
-							<TextInput
+						<Field.Root
+							className="jp-form-input-with-prefix"
+							key="verification_service_bing"
+						>
+							<Field.Label className="jp-form-label">
+								<span>{ __( 'Bing:', 'jetpack' ) }</span>
+							</Field.Label>
+							<Input
 								name="bing"
 								value={ this.getSiteVerificationValue( 'bing' ) }
 								placeholder={ this.getMetaTag( 'bing', '1234' ) }
@@ -160,10 +174,15 @@ class VerificationServicesComponent extends Component {
 								disabled={ this.props.isUpdating( 'bing' ) || ! isVerificationActive }
 								onChange={ this.props.onOptionChange }
 							/>
-						</FormLabel>
-						<FormLabel className="jp-form-input-with-prefix" key="verification_service_pinterest">
-							<span>{ __( 'Pinterest:', 'jetpack' ) }</span>
-							<TextInput
+						</Field.Root>
+						<Field.Root
+							className="jp-form-input-with-prefix"
+							key="verification_service_pinterest"
+						>
+							<Field.Label className="jp-form-label">
+								<span>{ __( 'Pinterest:', 'jetpack' ) }</span>
+							</Field.Label>
+							<Input
 								name="pinterest"
 								value={ this.getSiteVerificationValue( 'pinterest' ) }
 								placeholder={ this.getMetaTag( 'pinterest', '1234' ) }
@@ -171,10 +190,15 @@ class VerificationServicesComponent extends Component {
 								disabled={ this.props.isUpdating( 'pinterest' ) || ! isVerificationActive }
 								onChange={ this.props.onOptionChange }
 							/>
-						</FormLabel>
-						<FormLabel className="jp-form-input-with-prefix" key="verification_service_yandex">
-							<span>{ __( 'Yandex:', 'jetpack' ) }</span>
-							<TextInput
+						</Field.Root>
+						<Field.Root
+							className="jp-form-input-with-prefix"
+							key="verification_service_yandex"
+						>
+							<Field.Label className="jp-form-label">
+								<span>{ __( 'Yandex:', 'jetpack' ) }</span>
+							</Field.Label>
+							<Input
 								name="yandex"
 								value={ this.getSiteVerificationValue( 'yandex' ) }
 								placeholder={ this.getMetaTag( 'yandex', '1234' ) }
@@ -182,10 +206,15 @@ class VerificationServicesComponent extends Component {
 								disabled={ this.props.isUpdating( 'yandex' ) || ! isVerificationActive }
 								onChange={ this.props.onOptionChange }
 							/>
-						</FormLabel>
-						<FormLabel className="jp-form-input-with-prefix" key="verification_service_facebook">
-							<span>{ __( 'Facebook:', 'jetpack' ) }</span>
-							<TextInput
+						</Field.Root>
+						<Field.Root
+							className="jp-form-input-with-prefix"
+							key="verification_service_facebook"
+						>
+							<Field.Label className="jp-form-label">
+								<span>{ __( 'Facebook:', 'jetpack' ) }</span>
+							</Field.Label>
+							<Input
 								name="facebook"
 								value={ this.getSiteVerificationValue( 'facebook' ) }
 								placeholder={ this.getMetaTag( 'facebook', '1234' ) }
@@ -193,8 +222,8 @@ class VerificationServicesComponent extends Component {
 								disabled={ this.props.isUpdating( 'facebook' ) || ! isVerificationActive }
 								onChange={ this.props.onOptionChange }
 							/>
-						</FormLabel>
-					</FormFieldset>
+						</Field.Root>
+					</Fieldset.Root>
 				</SettingsGroup>
 			</SettingsCard>
 		);

@@ -1,6 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
+// Jetpack composite Banner is a marketing/upgrade card with bespoke layout
+// (icon slot, title, CTA). There is no @wordpress/ui primitive equivalent —
+// @wordpress/ui `Notice` is a system-message component with a different
+// visual treatment. Keeping the composite preserves shared styling and
+// avoids duplicating layout logic.
 import { Banner } from 'components/banner';
 import { getSiteRawUrl } from 'state/initial-state/reducer';
 import { isPluginActive } from 'state/site/plugins';
