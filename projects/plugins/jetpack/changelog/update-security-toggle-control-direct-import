@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Security settings: Import ToggleControl directly from @wordpress/components.

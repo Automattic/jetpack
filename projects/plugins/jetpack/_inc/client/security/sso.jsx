@@ -1,6 +1,6 @@
-import { getRedirectUrl, ToggleControl, Gridicon } from '@automattic/jetpack-components';
+import { getRedirectUrl, Gridicon } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import * as cookie from 'cookie';
@@ -180,6 +180,7 @@ export const SSO = withModuleSettingsFormHelpers(
 							</ModuleToggle>
 							<FormFieldset>
 								<ToggleControl
+									__nextHasNoMarginBottom={ true }
 									checked={
 										isSSOActive &&
 										this.props.getOptionValue( 'jetpack_sso_match_by_email', 'sso', false )
@@ -189,7 +190,6 @@ export const SSO = withModuleSettingsFormHelpers(
 										unavailableInOfflineMode ||
 										this.props.isSavingAnyOption( [ 'sso' ] )
 									}
-									toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_match_by_email' ] ) }
 									onChange={ this.handleMatchByEmailToggleChange }
 									label={
 										<span className="jp-form-toggle-explanation">
@@ -198,6 +198,7 @@ export const SSO = withModuleSettingsFormHelpers(
 									}
 								/>
 								<ToggleControl
+									__nextHasNoMarginBottom={ true }
 									checked={
 										( isSSOActive &&
 											this.props.getOptionValue( 'jetpack_sso_require_two_step', 'sso', false ) ) ||
@@ -209,7 +210,6 @@ export const SSO = withModuleSettingsFormHelpers(
 										isTwoStepEnforced ||
 										this.props.isSavingAnyOption( [ 'sso' ] )
 									}
-									toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_require_two_step' ] ) }
 									onChange={ this.handleTwoStepToggleChange }
 									label={
 										<span className="jp-form-toggle-explanation">
