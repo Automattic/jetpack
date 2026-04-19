@@ -35,6 +35,7 @@
 		"@wordpress/element": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/icons": "12.2.0",
+		"@wordpress/theme": "~0.11.0",
 		"@wordpress/ui": "0.11.0",
 		"clsx": "2.1.1",
 		"prop-types": "15.8.1"
