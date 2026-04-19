@@ -81,6 +81,7 @@ export function ShareButtons( { buttonStyle = 'icon' }: ShareButtonsProps ) {
 							<Button
 								render={ <a /> }
 								nativeButton={ false }
+								role="link"
 								aria-label={ text }
 								className={ clsx( styles[ 'icon-button' ], styles[ networkName ] ) }
 								{ ...linkProps }
@@ -91,6 +92,7 @@ export function ShareButtons( { buttonStyle = 'icon' }: ShareButtonsProps ) {
 							<Button
 								render={ <a /> }
 								nativeButton={ false }
+								role="link"
 								aria-label={ text }
 								className="has-text"
 								{ ...linkProps }

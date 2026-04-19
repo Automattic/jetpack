@@ -106,6 +106,7 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 			<Button
 				render={ <a /> }
 				nativeButton={ false }
+				role="link"
 				className={ styles.button }
 				variant="outline"
 				disabled={ isUpdating || ! isEnabled }
