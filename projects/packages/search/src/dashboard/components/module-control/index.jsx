@@ -1,14 +1,13 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Fragment, useCallback } from 'react';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form-toggle/compact';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import { STORE_ID } from 'store';
 
@@ -180,30 +179,23 @@ const InstantSearchToggle = ( {
 	return (
 		<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
-				<CompactFormToggle
+				<ToggleControl
 					checked={ isInstantSearchToggleChecked }
-					disabled={ isInstantSearchToggleDisabled }
+					disabled={ isInstantSearchToggleDisabled || isTogglingInstantSearch }
 					onChange={ toggleInstantSearch }
-					toggling={ isTogglingInstantSearch }
-					className="is-search-admin"
-					switchClassNames="jp-search-dashboard-toggle lg-col-span-1 md-col-span-1 sm-col-span-1"
-					labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
-					aria-label={ __(
-						'Enable instant search experience (recommended)',
-						'jetpack-search-pkg'
-					) }
-				>
-					{ createInterpolateElement(
+					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+					label={ createInterpolateElement(
 						__(
 							'Enable instant search experience <span>(recommended)</span>',
 							'jetpack-search-pkg'
 						),
 						{ span: <span /> }
 					) }
-				</CompactFormToggle>
+					__nextHasNoMarginBottom={ true }
+				/>
 			</div>
 			<div className="jp-search-dashboard-row">
-				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
 					{ supportsInstantSearch && (
 						<Fragment>
 							<p className="jp-form-search-settings-group__toggle-explanation">
@@ -236,7 +228,7 @@ const InstantSearchButtons = ( {
 		<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 			<Button
 				variant="secondary"
-				className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-3"
+				className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-4"
 				href={
 					! isInstantSearchCustomizeButtonDisabled
 						? sprintf( SEARCH_CUSTOMIZE_URL, encodeURIComponent( returnUrl ) )
@@ -251,7 +243,7 @@ const InstantSearchButtons = ( {
 			<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
 			<Button
 				variant="secondary"
-				className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-3"
+				className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-4"
 				href={
 					! isWidgetsEditorButtonDisabled
 						? sprintf( WIDGETS_EDITOR_URL, encodeURIComponent( returnUrl ) )
@@ -282,22 +274,18 @@ const SearchToggle = ( {
 		<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
 			{ ! isWpcom && (
 				<div className="jp-search-dashboard-row">
-					<CompactFormToggle
+					<ToggleControl
 						checked={ isSearchToggleChecked }
-						disabled={ isSearchToggleDisabled }
+						disabled={ isSearchToggleDisabled || isTogglingModule }
 						onChange={ toggleSearchModule }
-						toggling={ isTogglingModule }
-						className="is-search-admin"
-						switchClassNames="jp-search-dashboard-toggle lg-col-span-1 md-col-span-1 sm-col-span-1"
-						labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
-						aria-label={ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
-					>
-						{ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
-					</CompactFormToggle>
+						className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+						label={ __( 'Enable Jetpack Search', 'jetpack-search-pkg' ) }
+						__nextHasNoMarginBottom={ true }
+					/>
 				</div>
 			) }
 			<div className="jp-search-dashboard-row">
-				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
+				<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-4">
 					<p className="jp-form-search-settings-group__toggle-explanation">
 						{ SEARCH_DESCRIPTION }
 					</p>
