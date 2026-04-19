@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Align Search dashboard toggle to its label baseline so wrapped labels on mobile no longer push the toggle into the middle of the row.
