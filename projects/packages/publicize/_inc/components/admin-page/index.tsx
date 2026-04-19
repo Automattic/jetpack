@@ -29,7 +29,6 @@ import Header from './header';
 import InfoSection from './info-section';
 import PricingPage from './pricing-page';
 import styles from './styles.module.scss';
-import SupportSection from './support-section';
 import SocialImageGeneratorToggle from './toggles/social-image-generator-toggle';
 import SocialModuleToggle from './toggles/social-module-toggle';
 import SocialNotesToggle from './toggles/social-notes-toggle';
@@ -137,9 +136,6 @@ export const SocialAdminPage = () => {
 					<AdminSectionHero>
 						<InfoSection />
 					</AdminSectionHero>
-					<AdminSection>
-						<SupportSection />
-					</AdminSection>
 				</>
 			) }
 		</AdminPage>
