@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Discussion Settings: Import ToggleControl directly from @wordpress/components.
