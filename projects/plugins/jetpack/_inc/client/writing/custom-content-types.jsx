@@ -53,18 +53,11 @@ export class CustomContentTypes extends Component {
 		}
 
 		const disabledByOverride = this.props.customContentTypeIsOverridden;
-		const disabledReason =
-			disabledByOverride &&
-			__( 'This feature has been disabled by a site administrator.', 'jetpack' );
 
 		const woa_theme_supports_jetpack_portfolio =
 			typeof jetpack_portfolio_theme_supports !== 'undefined'
 				? jetpack_portfolio_theme_supports // eslint-disable-line no-undef
 				: false;
-		const portfolioDisabledReason =
-			! disabledReason && woa_theme_supports_jetpack_portfolio
-				? __( 'This feature is already supported by your theme.', 'jetpack' )
-				: '';
 		const portfolioText = woa_theme_supports_jetpack_portfolio
 			? createInterpolateElement(
 					__(
@@ -99,10 +92,6 @@ export class CustomContentTypes extends Component {
 			typeof jetpack_testimonial_theme_supports !== 'undefined'
 				? jetpack_testimonial_theme_supports // eslint-disable-line no-undef
 				: false;
-		const testimonialDisabledReason =
-			! disabledReason && woa_theme_supports_jetpack_testimonial
-				? __( 'This feature is already supported by your theme.', 'jetpack' )
-				: '';
 		const testimonialText = woa_theme_supports_jetpack_testimonial
 			? createInterpolateElement(
 					__(
@@ -148,7 +137,6 @@ export class CustomContentTypes extends Component {
 							}
 							disabled={ disabledByOverride || woa_theme_supports_jetpack_testimonial }
 							onChange={ this.handleTestimonialToggleChange }
-							disabledReason={ testimonialDisabledReason }
 							label={
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Testimonials', 'jetpack' ) }
@@ -188,7 +176,6 @@ export class CustomContentTypes extends Component {
 							}
 							disabled={ disabledByOverride || woa_theme_supports_jetpack_portfolio }
 							onChange={ this.handlePortfolioToggleChange }
-							disabledReason={ portfolioDisabledReason }
 							label={
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Portfolios', 'jetpack' ) }
