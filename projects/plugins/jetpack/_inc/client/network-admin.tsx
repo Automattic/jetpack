@@ -8,6 +8,7 @@ import {
 import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useRef } from 'react';
+import './network-admin.scss';
 
 type PageType = 'sites' | 'settings';
 

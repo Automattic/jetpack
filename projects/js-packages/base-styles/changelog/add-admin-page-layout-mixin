@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added admin-page-layout mixin: a shared SCSS mixin that standardizes Jetpack wp-admin pages with a viewport-pinned content column (pinned header, scrolling middle, pinned footer). Consumed as `@use "@automattic/jetpack-base-styles/admin-page-layout"`.

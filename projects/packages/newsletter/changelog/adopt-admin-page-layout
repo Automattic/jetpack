@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Adopt the shared Jetpack admin-page-layout mixin on the Newsletter admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. Adds @automattic/jetpack-base-styles as a workspace dependency.
