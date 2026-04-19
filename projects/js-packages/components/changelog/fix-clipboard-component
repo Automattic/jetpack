@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Modernize CopyToClipboard to use `@wordpress/components` Button/Tooltip and `@wordpress/icons`; adds copyMessage/copiedMessage props and tooltip feedback for icon mode.

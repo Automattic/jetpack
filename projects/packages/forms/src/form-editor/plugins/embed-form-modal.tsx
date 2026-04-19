@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { CopyToClipboard } from '@automattic/jetpack-components';
 import {
 	ComboboxControl,
 	Modal,
@@ -22,7 +23,6 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
-import CopyClipboardButton from '../../dashboard/components/copy-clipboard-button';
 import './embed-form-modal.scss';
 
 type EmbedFormModalProps = {
@@ -342,8 +342,8 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 								className="jetpack-form-embed-form__code-input"
 								suffix={
 									<InputLayout.Slot padding="minimal">
-										<CopyClipboardButton
-											text={ embedCode }
+										<CopyToClipboard
+											textToCopy={ embedCode }
 											copyMessage={ __( 'Copy embed code', 'jetpack-forms' ) }
 											copiedMessage={ __( 'Embed code copied!', 'jetpack-forms' ) }
 										/>
@@ -356,8 +356,8 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 								className="jetpack-form-embed-form__code-input"
 								suffix={
 									<InputLayout.Slot padding="minimal">
-										<CopyClipboardButton
-											text={ shortcode }
+										<CopyToClipboard
+											textToCopy={ shortcode }
 											copyMessage={ __( 'Copy shortcode', 'jetpack-forms' ) }
 											copiedMessage={ __( 'Shortcode copied!', 'jetpack-forms' ) }
 										/>

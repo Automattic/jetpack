@@ -1,7 +1,7 @@
+import { CopyToClipboard } from '@automattic/jetpack-components';
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import CopyClipboardButton from '../../../copy-clipboard-button';
 import './style.scss';
 
 const FieldEmail = ( { email } ) => {
@@ -18,7 +18,7 @@ const FieldEmail = ( { email } ) => {
 				{ emailParts[ 0 ] }
 				<wbr />@{ emailParts[ 1 ] }
 			</a>
-			<CopyClipboardButton text={ email } />
+			<CopyToClipboard textToCopy={ email } />
 		</HStack>
 	);
 };

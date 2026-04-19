@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { CopyToClipboard } from '@automattic/jetpack-components';
 import {
 	ExternalLink,
 	Tooltip,
@@ -15,7 +16,6 @@ import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import CopyClipboardButton from '../../../components/copy-clipboard-button/index.tsx';
 import Gravatar from '../../../components/gravatar/index.tsx';
 import { getPath } from '../../../inbox/utils.js';
 import TextWithFlag from '../../text-with-flag/index.tsx';
@@ -133,7 +133,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 								{ responseAuthorEmailParts[ 0 ] }
 								<wbr />@{ responseAuthorEmailParts[ 1 ] }
 							</Text>
-							<CopyClipboardButton text={ response.author_email } />
+							<CopyToClipboard textToCopy={ response.author_email } />
 						</HStack>
 					) }
 				</VStack>

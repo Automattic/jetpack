@@ -1,7 +1,14 @@
-import { ButtonProps } from '../button/types.ts';
+import type { Button } from '@wordpress/components';
+import type { ComponentProps, ReactNode } from 'react';
 
-export type CopyToClipboardProps = ButtonProps & {
-	buttonStyle?: 'icon' | 'text' | 'icon-text';
+export type CopyToClipboardProps = Omit<
+	ComponentProps< typeof Button >,
+	'children' | 'icon' | 'text'
+> & {
 	textToCopy: string | ( () => string );
-	onCopy?: VoidFunction;
+	onCopy?: () => void;
+	buttonStyle?: 'icon' | 'text' | 'icon-text';
+	copyMessage?: string;
+	copiedMessage?: string;
+	children?: ReactNode;
 };

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use CopyToClipboard from @automattic/jetpack-components instead of the local clipboard button.

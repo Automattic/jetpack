@@ -25,3 +25,11 @@ OnlyText.args = {
 	buttonStyle: 'text',
 	textToCopy: 'Some text to copy',
 };
+
+export const CustomMessages = Template.bind( {} );
+CustomMessages.args = {
+	buttonStyle: 'icon',
+	textToCopy: 'Some text to copy',
+	copyMessage: 'Copy embed code',
+	copiedMessage: 'Embed code copied!',
+};
