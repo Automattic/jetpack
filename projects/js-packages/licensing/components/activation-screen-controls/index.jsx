@@ -179,12 +179,12 @@ const ActivationScreenControls = props => {
 			justify="space-between"
 			className="jp-license-activation-screen-controls"
 		>
-			<div className="jp-license-activation-screen-controls--content">
+			<Stack align="start" direction="column" gap="md">
 				<JetpackLogo showText={ false } height={ 48 } />
 				<Text variant="heading-xl" render={ <h1 /> }>
 					{ __( 'Add a license key', 'jetpack-licensing' ) }
 				</Text>
-				<Text variant="body-md" render={ <p /> }>
+				<Text variant="body-md">
 					{ createInterpolateElement(
 						__(
 							'<strong>Purchased a plan?</strong><br />Check your email for your license key and paste it below.',
@@ -215,17 +215,10 @@ const ActivationScreenControls = props => {
 				{ licenseError && (
 					<ActivationScreenError licenseError={ licenseError } errorType={ errorType } />
 				) }
-			</div>
-			<div>
-				<Button
-					variant="unstyled"
-					className="jp-license-activation-screen-controls--button"
-					onClick={ activateLicense }
-					disabled={ ! license }
-				>
-					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack-licensing' ) }
-				</Button>
-			</div>
+			</Stack>
+			<Button onClick={ activateLicense } disabled={ ! license }>
+				{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack-licensing' ) }
+			</Button>
 		</Stack>
 	);
 };
