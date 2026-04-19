@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Componentry: Introduce NewBadge and BetaBadge components backed by an auto-expiring registry, removing the need for stale TODO comments around feature-launch flags.
