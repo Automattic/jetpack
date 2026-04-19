@@ -442,20 +442,6 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > AI
-	// On Atomic, JETPACK__PLUGIN_DIR is defined and the plugin's admin page class
-	// can be loaded directly. Simple sites need the React app in a package first
-	// and are not yet supported here.
-	$jetpack_ai_page_file = defined( 'JETPACK__PLUGIN_DIR' )
-		? JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php'
-		: '';
-	if ( $jetpack_ai_page_file && file_exists( $jetpack_ai_page_file ) ) {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
-		require_once $jetpack_ai_page_file;
-		$jetpack_ai = new Jetpack_AI_Page(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- class loaded via runtime require_once above.
-		$jetpack_ai->add_actions(); // @phan-suppress-current-line PhanUndeclaredClassMethod
-	}
-
 	wpcom_reorder_submenu(
 		'jetpack',
 		array(
@@ -780,6 +766,28 @@ function wpcom_add_settings_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_settings_menu', 999999 );
+
+/**
+ * Add the Jetpack AI submenu item.
+ *
+ * @return void
+ */
+function wpcom_add_jetpack_ai_submenu() {
+	// Jetpack > AI
+	// On Atomic, JETPACK__PLUGIN_DIR is defined and the plugin's admin page class
+	// can be loaded directly. Simple sites need the React app in a package first
+	// and are not yet supported here.
+	$jetpack_ai_page_file = defined( 'JETPACK__PLUGIN_DIR' )
+		? JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php'
+		: '';
+	if ( $jetpack_ai_page_file && file_exists( $jetpack_ai_page_file ) ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
+		require_once $jetpack_ai_page_file;
+		$jetpack_ai = new Jetpack_AI_Page(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- class loaded via runtime require_once above.
+		$jetpack_ai->add_actions(); // @phan-suppress-current-line PhanUndeclaredClassMethod
+	}
+}
+add_action( 'admin_menu', 'wpcom_add_jetpack_ai_submenu' );
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once __DIR__ . '/p2-admin-menu.php';

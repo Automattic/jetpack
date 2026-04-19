@@ -14,6 +14,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -103,12 +104,10 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_mcp_settings() {
-		$blog_id = defined( 'IS_WPCOM' ) && IS_WPCOM
-			? get_current_blog_id()
-			: \Jetpack_Options::get_option( 'id' );
+		$blog_id = Manager::get_site_id();
 
-		if ( ! $blog_id ) {
-			return rest_ensure_response( array( 'mcp_abilities' => new stdClass() ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return rest_ensure_response( $blog_id );
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
@@ -231,9 +230,12 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function update_mcp_settings( $request ) {
-		$blog_id  = defined( 'IS_WPCOM' ) && IS_WPCOM
-			? get_current_blog_id()
-			: \Jetpack_Options::get_option( 'id' );
+		$blog_id = Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return rest_ensure_response( $blog_id );
+		}
+
 		$incoming = $request->get_param( 'mcp_abilities' );
 
 		if ( is_object( $incoming ) ) {
