@@ -67,6 +67,19 @@ $jp-breakpoint-mobile: 782px;
 		display: none;
 	}
 
+	// `#screen-meta-links` (the "Screen Options" / "Help" tabs container) is
+	// always emitted by core's admin header, even when empty. Core CSS gives
+	// it `margin: 0 10px 20px 0`, and on WP.com (`is-nav-unification`) the
+	// wpcom toolbar adds extra buttons + margins. With `#wpbody-content`
+	// flipped to `position: fixed` flex, that bottom margin reserves a 20px
+	// slot at the top of the column and pushes `.jp-admin-page` down. None of
+	// our React admin pages register screen-options or help tabs, so hide it.
+	// (`#screen-meta` itself stays alone — core defaults it to `display:none`
+	// and toggles it on click; we never trigger that here.)
+	#screen-meta-links {
+		display: none;
+	}
+
 	// ── Viewport-pinned content column ────────────────────────────────
 	// `position: fixed` pins the content column to the viewport. The
 	// sidebar (`#adminmenumain`) is left untouched — it can grow past
