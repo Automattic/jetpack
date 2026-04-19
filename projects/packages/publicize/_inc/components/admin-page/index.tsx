@@ -92,7 +92,6 @@ export const SocialAdminPage = () => {
 			title={ 'Social' /** "Social" is a product name, do not translate. */ }
 			subTitle={ subTitle }
 			actions={ licenseAction }
-			showFooter={ isJetpackSite }
 		>
 			<GlobalNotices />
 			{ isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage && ! pricingPageDismissed ? (
