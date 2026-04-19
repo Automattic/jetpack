@@ -37,8 +37,9 @@
 // runtime and there's no need to pay the custom-property indirection.
 
 // wp-admin chrome constants (see wp-admin.css).
-$jp-sidebar-width-expanded: 160px;     // default sidebar
-$jp-sidebar-width-folded: 36px;        // .folded preference OR .auto-fold class
+$jp-sidebar-width-expanded: 160px;             // default sidebar
+$jp-sidebar-width-folded: 36px;                // .folded preference OR .auto-fold class
+$jp-sidebar-width-nav-unification: 272px;      // body.is-nav-unification (WP.com wp-admin)
 $jp-admin-bar-height-desktop: 32px;
 $jp-admin-bar-height-mobile: 46px;
 
@@ -48,6 +49,9 @@ $jp-admin-bar-height-mobile: 46px;
 // We mirror these breakpoints because WP's body-class state is not always
 // in sync with the rendered viewport (the `auto-fold` class can stay stale
 // after a narrow → wide window resize).
+// WP.com's "nav-unification" (body.is-nav-unification) keeps the sidebar at
+// 272px above the auto-fold breakpoint; below 960px it narrows to 36px like
+// vanilla wp-admin, and below 782px it goes off-canvas.
 $jp-breakpoint-auto-fold: 960px;
 $jp-breakpoint-mobile: 782px;
 
@@ -109,6 +113,21 @@ $jp-breakpoint-mobile: 782px;
 
 		&.auto-fold #wpbody-content {
 			left: $jp-sidebar-width-folded;
+		}
+	}
+
+	// WP.com's wp-admin sets `body.is-nav-unification` and renders a 272px
+	// sidebar (instead of wp-admin's default 160px) at expanded widths.
+	// Below the auto-fold breakpoint the sidebar narrows to 36px like
+	// vanilla wp-admin (core's `.auto-fold` rule wins by higher specificity),
+	// and `.folded` (user preference) always narrows to 36px — both of those
+	// cases are already covered above. The only state that needs adjusting
+	// is the expanded default at ≥ 961px. The `:not(.folded)` guard lets
+	// the `.folded` rule keep winning at wide widths on nav-unification too.
+	@media (min-width: #{$jp-breakpoint-auto-fold + 1px}) {
+
+		&.is-nav-unification:not(.folded) #wpbody-content {
+			left: $jp-sidebar-width-nav-unification;
 		}
 	}
 
