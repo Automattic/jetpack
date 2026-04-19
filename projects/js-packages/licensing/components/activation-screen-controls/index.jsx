@@ -3,7 +3,7 @@ import { JetpackLogo } from '@automattic/jetpack-components';
 import { SelectControl, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Button, InputControl } from '@wordpress/ui';
+import { Button, InputControl, Stack, Text } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
@@ -174,11 +174,17 @@ const ActivationScreenControls = props => {
 	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
 	return (
-		<div className="jp-license-activation-screen-controls">
+		<Stack
+			direction="column"
+			justify="space-between"
+			className="jp-license-activation-screen-controls"
+		>
 			<div className="jp-license-activation-screen-controls--content">
 				<JetpackLogo showText={ false } height={ 48 } />
-				<h1>{ __( 'Add a license key', 'jetpack-licensing' ) }</h1>
-				<p>
+				<Text variant="heading-xl" render={ <h1 /> }>
+					{ __( 'Add a license key', 'jetpack-licensing' ) }
+				</Text>
+				<Text variant="body-md" render={ <p /> }>
 					{ createInterpolateElement(
 						__(
 							'<strong>Purchased a plan?</strong><br />Check your email for your license key and paste it below.',
@@ -189,7 +195,7 @@ const ActivationScreenControls = props => {
 							br: <br />,
 						}
 					) }
-				</p>
+				</Text>
 				{ fetchingAvailableLicenses || hasAvailableLicenseKey ? (
 					<SelectableLicenseKeyInput
 						className={ className }
@@ -220,7 +226,7 @@ const ActivationScreenControls = props => {
 					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack-licensing' ) }
 				</Button>
 			</div>
-		</div>
+		</Stack>
 	);
 };
 
