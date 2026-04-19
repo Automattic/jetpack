@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: PoC branch, not intended to merge.
+
+Reimplement the legacy Jetpack settings SPA (_inc/client/) using @wordpress/ui primitives, with @wordpress/components as fallback.
