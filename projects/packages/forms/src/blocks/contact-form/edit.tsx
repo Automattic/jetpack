@@ -146,7 +146,7 @@ type JetpackContactFormAttributes = {
 	ref?: number;
 	to: string;
 	subject: string;
-	// Legacy support for the customThankyou attribute
+	// Legacy attribute kept for one-shot migration in edit.tsx; see useEffect below.
 	customThankyou: CustomThankyouType;
 	customThankyouHeading: string;
 	customThankyouMessage: string;
@@ -225,20 +225,18 @@ function JetpackContactFormEdit( {
 		errorType: syncedFormErrorType,
 	} = useSyncedForm( ref );
 
-	// Backward compatibility for the deprecated customThankyou attribute.
-	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
-	// and not a disableSummary attribute, so we need to set it here.
+	// One-shot migration for the deprecated customThankyou attribute. The
+	// setAttributes call dirties the post so the cleaned attributes get
+	// persisted on the next save. The legacy attribute is cleared to '' in
+	// the same update so the effect cannot re-fire when the user toggles
+	// disableSummary or confirmationType afterward.
 	useEffect( () => {
-		// Migrate redirect setting from deprecated customThankyou attribute
-		if ( customThankyou === 'redirect' && confirmationType !== 'redirect' ) {
-			setAttributes( { confirmationType: 'redirect' } );
+		if ( customThankyou === 'redirect' ) {
+			setAttributes( { customThankyou: '', confirmationType: 'redirect' } );
+		} else if ( customThankyou === 'noSummary' || customThankyou === 'message' ) {
+			setAttributes( { customThankyou: '', disableSummary: true } );
 		}
-
-		// Migrate disableSummary from deprecated customThankyou attribute
-		if ( [ 'noSummary', 'message' ].includes( customThankyou ) && ! disableSummary ) {
-			setAttributes( { disableSummary: true } );
-		}
-	}, [ confirmationType, customThankyou, disableSummary, setAttributes ] );
+	}, [ customThankyou, setAttributes ] );
 
 	const steps = useFormSteps( clientId );
 

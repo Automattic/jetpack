@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix Show summary toggle being reverted on forms with legacy customThankyou="noSummary".
