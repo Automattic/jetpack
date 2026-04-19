@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Show an empty state when search returns no matching settings.

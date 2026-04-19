@@ -1,6 +1,5 @@
 import {
 	AdminPage,
-	JetpackFooter,
 	Button,
 	Container,
 	Col,
@@ -125,7 +124,6 @@ export default function DashboardPage( { isLoading = false } ) {
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
-				showFooter={ false }
 			>
 				<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 					{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
@@ -186,7 +184,6 @@ export default function DashboardPage( { isLoading = false } ) {
 								isTogglingInstantSearch={ isTogglingInstantSearch }
 							/>
 						</div>
-						<JetpackFooter />
 						<NoticesList
 							notices={ notices }
 							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }

@@ -19,12 +19,13 @@
 		"build-production-js": "echo 'Not implemented.'"
 	},
 	"exports": {
+		"./admin-page-layout": "./admin-page-layout.scss",
 		"./gutenberg-base-styles": "./gutenberg-base-styles.scss",
 		"./package.json": "./package.json",
 		"./root-variables": "./root-variables.scss",
 		"./style": "./style.scss"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "6.19.0"
+		"@wordpress/base-styles": "6.20.0"
 	}
 }

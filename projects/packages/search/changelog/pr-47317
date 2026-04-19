@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove custom toggle color overrides to use native WordPress admin theme colors.

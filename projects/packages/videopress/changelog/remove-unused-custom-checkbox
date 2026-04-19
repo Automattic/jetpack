@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove unused custom Checkbox component and the hidden per-row selection UI that relied on it.

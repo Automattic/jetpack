@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Swap the custom FormToggle on the Search admin dashboard for WordPress ToggleControl, restoring native rendering of the Enable Jetpack Search and Enable instant search toggles.

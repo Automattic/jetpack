@@ -2,8 +2,8 @@
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 6.8
-Tested up to: 6.9
-Stable tag: 2.9
+Tested up to: 7.0
+Stable tag: 3.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,15 +83,8 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.9 - 2026-04-10
+### 3.0 - 2026-04-16
 #### Changed
-- Dependencies: Update lock file to keep root requirements in sync.
-- Remove header border-bottom from the admin page for a cleaner unified header appearance.
-- Switch to Native TypeScript compiler based on Go.
-- Update dependencies.
-- Update design of the sidebar upsell.
+- Tested up to WordPress 7.0.
 - Update package dependencies.
-
-#### Fixed
-- Admin Page: Restore border on header component.
 

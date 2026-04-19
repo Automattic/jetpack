@@ -1,5 +1,4 @@
 import {
-	RadioControl,
 	ToggleControl,
 	getRedirectUrl,
 	Container,
@@ -7,7 +6,7 @@ import {
 	Chip,
 	Button as JetpackButton,
 } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, RadioControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
