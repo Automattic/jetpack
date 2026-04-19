@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Dashboard: remove dead .jp-forms-filters-bar SCSS left behind after the move to native DataViews filters in #46732
