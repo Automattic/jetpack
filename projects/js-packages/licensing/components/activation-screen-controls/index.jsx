@@ -1,8 +1,9 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { Button, TextControl, SelectControl, Spinner } from '@wordpress/components';
+import { SelectControl, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Button, InputControl } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
@@ -22,14 +23,14 @@ import './style.scss';
 const ManualLicenseKeyInput = props => {
 	const { className, disabled, onChange, value } = props;
 
+	const handleChange = useCallback( e => onChange( e.target.value ), [ onChange ] );
+
 	return (
-		<TextControl
-			__nextHasNoMarginBottom={ true }
-			__next40pxDefaultSize
+		<InputControl
 			className={ className }
 			label={ __( 'License key', 'jetpack-licensing' ) }
 			value={ value }
-			onChange={ onChange }
+			onChange={ handleChange }
 			disabled={ disabled }
 		/>
 	);
@@ -50,6 +51,8 @@ const SelectableLicenseKeyInput = props => {
 	const { className, availableLicenses, disabled, onChange, value } = props;
 	const [ selectedOption, setSelectedOption ] = useState( '' );
 	const isFetching = availableLicenses === null;
+
+	const handleChange = useCallback( e => onChange( e.target.value ), [ onChange ] );
 
 	const options = useMemo( () => {
 		if ( isFetching ) {
@@ -110,13 +113,11 @@ const SelectableLicenseKeyInput = props => {
 			/>
 
 			{ ! isFetching && ! selectedOption && (
-				<TextControl
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize
+				<InputControl
 					className={ className }
 					label={ __( 'Input a license key', 'jetpack-licensing' ) }
 					value={ value }
-					onChange={ onChange }
+					onChange={ handleChange }
 					disabled={ disabled }
 				/>
 			) }
@@ -211,6 +212,7 @@ const ActivationScreenControls = props => {
 			</div>
 			<div>
 				<Button
+					variant="unstyled"
 					className="jp-license-activation-screen-controls--button"
 					onClick={ activateLicense }
 					disabled={ ! license }

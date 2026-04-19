@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace `Button`, `TextControl`, and `ExternalLink` from `@wordpress/components` with equivalents from `@wordpress/ui`, and replace `Spinner` from `@automattic/jetpack-components` with `Spinner` from `@wordpress/components`.

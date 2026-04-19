@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import useActivePlugins from '../../../hooks/use-active-plugins';
 import { getProductGroup } from '../../activation-screen/utils';
@@ -23,7 +24,7 @@ const PrimaryLink = props => {
 
 	if ( isFetching ) {
 		return (
-			<Button className="jp-license-activation-screen-success-info--button">
+			<Button variant="unstyled" className="jp-license-activation-screen-success-info--button">
 				<Spinner />
 			</Button>
 		);
@@ -32,6 +33,7 @@ const PrimaryLink = props => {
 	if ( isJetpackSocialProduct && ( isJetpackActive || isJetpackSocialActive ) ) {
 		return (
 			<Button
+				variant="unstyled"
 				className="jp-license-activation-screen-success-info--button"
 				href={
 					siteAdminUrl +
@@ -53,7 +55,11 @@ const PrimaryLink = props => {
 			? siteAdminUrl + 'admin.php?page=jetpack-protect'
 			: getRedirectUrl( 'jetpack-license-activation-success-scan', { site: siteRawUrl } );
 		return (
-			<Button className="jp-license-activation-screen-success-info--button" href={ redirectSource }>
+			<Button
+				variant="unstyled"
+				className="jp-license-activation-screen-success-info--button"
+				href={ redirectSource }
+			>
 				{ __( 'View scan results', 'jetpack-licensing' ) }
 			</Button>
 		);
@@ -63,6 +69,7 @@ const PrimaryLink = props => {
 	if ( currentRecommendationsStep === 'not-started' ) {
 		return (
 			<Button
+				variant="unstyled"
 				className="jp-license-activation-screen-success-info--button"
 				href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 			>
@@ -73,6 +80,7 @@ const PrimaryLink = props => {
 
 	return (
 		<Button
+			variant="unstyled"
 			className="jp-license-activation-screen-success-info--button"
 			href={ getRedirectUrl( 'license-activation-view-my-plans', { site: siteRawUrl } ) }
 		>
