@@ -42,6 +42,8 @@ const Header = () => {
 							</Button>
 						) }
 						<Button
+							render={ <a /> }
+							nativeButton={ false }
 							href={ getAdminUrl( 'post-new.php' ) }
 							variant={ hasConnections ? 'solid' : 'outline' }
 						>

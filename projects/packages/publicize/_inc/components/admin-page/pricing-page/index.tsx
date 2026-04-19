@@ -115,6 +115,8 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 						<Spinner className={ styles.spinner } />
 					) }
 					<Button
+						render={ <a /> }
+						nativeButton={ false }
 						href={ getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
 							site: blogID ? blogID.toString() : siteSuffix,
 							query: getRefreshPlanQuery(),
