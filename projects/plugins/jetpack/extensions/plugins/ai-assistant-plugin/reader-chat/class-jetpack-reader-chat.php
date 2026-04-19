@@ -53,12 +53,17 @@ class Jetpack_Reader_Chat {
 	}
 
 	/**
-	 * Enqueue the reader chat script on singular posts.
+	 * Enqueue the reader chat script on the frontend.
+	 *
+	 * Loads on every public-facing page (home, archives, pages, singular
+	 * posts). Skips admin, feeds, and AJAX to keep the bundle off contexts
+	 * where the chat UI doesn't belong. currentPost in the config is only
+	 * populated on singular views — stream views get general suggestions.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_scripts(): void {
-		if ( ! is_singular() ) {
+		if ( is_admin() || is_feed() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
 			return;
 		}
 
