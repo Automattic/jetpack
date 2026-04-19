@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -248,10 +249,10 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								</p>
 								{ canAppearInSearch && (
 									<ToggleControl
+										__nextHasNoMarginBottom
 										checked={ siteAcceleratorStatus }
-										toggling={ togglingSiteAccelerator }
 										onChange={ this.handleSiteAcceleratorChange }
-										disabled={ ! canDisplaySiteAcceleratorSettings }
+										disabled={ ! canDisplaySiteAcceleratorSettings || togglingSiteAccelerator }
 										label={
 											<span className="jp-form-toggle-explanation">
 												{ __( 'Enable site accelerator', 'jetpack' ) }

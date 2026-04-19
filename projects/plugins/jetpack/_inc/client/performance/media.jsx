@@ -1,4 +1,5 @@
-import { ProgressBar, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ProgressBar, getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
@@ -114,9 +115,12 @@ class Media extends Component {
 						</ModuleToggle>
 						<FormFieldset>
 							<ToggleControl
+								__nextHasNoMarginBottom
 								id="videopress-site-privacy"
-								disabled={ ! this.props.getOptionValue( 'videopress' ) }
-								toggling={ this.props.isSavingAnyOption( 'videopress_private_enabled_for_site' ) }
+								disabled={
+									! this.props.getOptionValue( 'videopress' ) ||
+									this.props.isSavingAnyOption( 'videopress_private_enabled_for_site' )
+								}
 								checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
 								onChange={ this.togglePrivacySetting }
 								label={
