@@ -36,6 +36,13 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 
 	const { is_publicize_enabled: isSocialEnabled } = getSocialScriptData();
 
+	const onGetSocialClick = useCallback( () => {
+		window.location.href = getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
+			site: blogID ? blogID.toString() : siteSuffix,
+			query: getRefreshPlanQuery(),
+		} );
+	}, [ blogID, siteSuffix ] );
+
 	const startForFree = useCallback( async () => {
 		// First let us activate the Social module, if it is not already enabled
 		// Because saving the settings won't work if the module is not enabled
@@ -114,16 +121,7 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 					) : (
 						<Spinner className={ styles.spinner } />
 					) }
-					<Button
-						render={ <a /> }
-						nativeButton={ false }
-						role="link"
-						href={ getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
-							site: blogID ? blogID.toString() : siteSuffix,
-							query: getRefreshPlanQuery(),
-						} ) }
-						className={ styles[ 'cta-button' ] }
-					>
+					<Button onClick={ onGetSocialClick } className={ styles[ 'cta-button' ] }>
 						{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
 					</Button>
 				</PricingTableHeader>

@@ -79,9 +79,6 @@ export function ShareButtons( { buttonStyle = 'icon' }: ShareButtonsProps ) {
 					<div className={ styles.container } key={ networkName }>
 						{ 'icon' === buttonStyle ? (
 							<Button
-								render={ <a /> }
-								nativeButton={ false }
-								role="link"
 								aria-label={ text }
 								className={ clsx( styles[ 'icon-button' ], styles[ networkName ] ) }
 								{ ...linkProps }
@@ -89,14 +86,7 @@ export function ShareButtons( { buttonStyle = 'icon' }: ShareButtonsProps ) {
 								<SocialServiceIcon serviceName={ networkName } />
 							</Button>
 						) : (
-							<Button
-								render={ <a /> }
-								nativeButton={ false }
-								role="link"
-								aria-label={ text }
-								className="has-text"
-								{ ...linkProps }
-							>
+							<Button aria-label={ text } className="has-text" { ...linkProps }>
 								{ 'icon-text' === buttonStyle && (
 									<SocialServiceIcon
 										className={ styles[ networkName ] }

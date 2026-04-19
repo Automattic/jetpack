@@ -58,6 +58,10 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 		handleStateUpdating( () => toggleSocialNotes( ! isEnabled ) );
 	}, [ isEnabled, toggleSocialNotes ] );
 
+	const onCreateNoteClick = useCallback( () => {
+		window.location.href = newNoteUrl;
+	}, [ newNoteUrl ] );
+
 	const onToggleAppendLink = useCallback(
 		( append_link: boolean ) => {
 			handleStateUpdating(
@@ -104,13 +108,10 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 			</Text>
 
 			<Button
-				render={ <a /> }
-				nativeButton={ false }
-				role="link"
 				className={ styles.button }
 				variant="outline"
 				disabled={ isUpdating || ! isEnabled }
-				href={ newNoteUrl }
+				onClick={ onCreateNoteClick }
 			>
 				{ __( 'Create a note', 'jetpack-publicize-pkg' ) }
 			</Button>
