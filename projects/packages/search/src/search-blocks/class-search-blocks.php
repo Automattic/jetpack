@@ -19,7 +19,28 @@ class Search_Blocks {
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
+		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
+	}
+
+	/**
+	 * Add a "Jetpack Search" block category so our blocks appear under that
+	 * heading in the inserter instead of "Uncategorized".
+	 *
+	 * @param array $categories Existing block categories.
+	 * @return array
+	 */
+	public static function register_block_category( $categories ) {
+		foreach ( $categories as $category ) {
+			if ( 'jetpack-search' === ( $category['slug'] ?? '' ) ) {
+				return $categories;
+			}
+		}
+		$categories[] = array(
+			'slug'  => 'jetpack-search',
+			'title' => __( 'Jetpack Search', 'jetpack-search-pkg' ),
+		);
+		return $categories;
 	}
 
 	/**
