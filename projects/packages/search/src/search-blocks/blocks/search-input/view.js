@@ -1,4 +1,5 @@
 import { store } from '@wordpress/interactivity';
+import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
 let debounceTimer = null;
