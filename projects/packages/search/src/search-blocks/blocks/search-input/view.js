@@ -1,4 +1,5 @@
 import { store } from '@wordpress/interactivity';
+import '../../store';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';

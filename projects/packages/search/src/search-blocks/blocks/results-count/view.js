@@ -1,4 +1,5 @@
-// Display-only block. View module pulls in the style + ensures the runtime
-// is enqueued so shared state.resultsCountText updates re-render the node.
-import './style.scss';
+// Display-only block. View module pulls in the style + shared store so
+// state.resultsCountText is defined and updates re-render the node.
 import '@wordpress/interactivity';
+import '../../store';
+import './style.scss';

@@ -1,4 +1,5 @@
 import { store, getContext } from '@wordpress/interactivity';
+import '../../store';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';

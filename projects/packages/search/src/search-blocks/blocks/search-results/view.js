@@ -1,4 +1,5 @@
 // Intentionally empty: this block is fully declarative.
-// Importing the runtime + style ensures both are enqueued on pages with this block.
+// Importing the store registers the shared actions/state on pages with this block.
 import '@wordpress/interactivity';
+import '../../store';
 import './style.scss';
