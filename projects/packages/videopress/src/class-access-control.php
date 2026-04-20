@@ -284,7 +284,11 @@ class Access_Control {
 			return true;
 		}
 
-		return $this->post_content_has_videopress_shortcode( $post->post_content, $guid );
+		if ( $this->post_content_has_videopress_shortcode( $post->post_content, $guid ) ) {
+			return true;
+		}
+
+		return $this->post_content_has_videopress_url( $post->post_content, $guid );
 	}
 
 	/**
@@ -364,6 +368,24 @@ class Access_Control {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Detect a canonical VideoPress URL referencing the given guid. Covers oEmbed
+	 * inserts, core/embed blocks, core/video blocks, and core [video] shortcodes
+	 * whose src/mp4 attributes resolve to a VideoPress URL.
+	 *
+	 * @param string $post_content The post content to scan.
+	 * @param string $guid         The video guid to match.
+	 *
+	 * @return bool
+	 */
+	private function post_content_has_videopress_url( $post_content, $guid ) {
+		$g = preg_quote( $guid, '#' );
+		// phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- regex matches literal hostnames.
+		$pattern = '#(?:videos\.(?:videopress\.com|files\.wordpress\.com)/' . $g . '/|(?:videopress\.com/(?:v|embed)|v\.wordpress\.com)/' . $g . '(?![a-z0-9]))#i';
+
+		return 1 === preg_match( $pattern, $post_content );
 	}
 
 	/**
