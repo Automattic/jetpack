@@ -243,6 +243,12 @@ class RTC {
 		if ( ! self::is_allowed() ) {
 			return '0';
 		}
+
+		// Temporarily disable RTC while an issue with CRDT documents is investigated/fixed.
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			return '0';
+		}
+
 		// RTC allowed and option is not stored yet
 		if ( $option === self::OPTION_NEW ) {
 			// If the old option is set, use that.
