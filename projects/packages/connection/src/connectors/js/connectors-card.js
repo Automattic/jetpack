@@ -211,11 +211,11 @@ function StatusBadge( { label, modifier = 'connected' } ) {
 /**
  * A labelled user row with avatar, display name, and login.
  *
- * @param {object}      props            - Component props.
- * @param {string}      props.title      - Section heading (uppercase label).
- * @param {object|null} props.user       - User data object with displayName, login, avatar.
- * @param {string|null} props.subtitle   - Override for the default login/email line.
- * @param {object|null} props.actionSlot - Optional element rendered at the end of the user row.
+ * @param {object}            props            - Component props.
+ * @param {string}            props.title      - Section heading (uppercase label).
+ * @param {object|null}       props.user       - User data object with displayName, login, avatar.
+ * @param {string|false|null} props.subtitle   - Override for the default login/email line. Pass false to hide entirely.
+ * @param {object|null}       props.actionSlot - Optional element rendered at the end of the user row.
  * @return {object|null} React element or null.
  */
 function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
@@ -224,6 +224,7 @@ function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
 	}
 
 	const defaultSubtitle = user.email ? user.login + ' (' + user.email + ')' : user.login;
+	const showSubtitle = subtitle !== false;
 
 	return createElement(
 		VStack,
@@ -266,7 +267,9 @@ function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
 								createElement( Text, { weight: 600, size: 13 }, user.displayName )
 						  )
 						: createElement( Text, { weight: 600, size: 13 }, user.displayName ),
-					createElement( Text, { variant: 'muted', size: 12 }, subtitle || defaultSubtitle )
+					showSubtitle
+						? createElement( Text, { variant: 'muted', size: 12 }, subtitle || defaultSubtitle )
+						: null
 				)
 			),
 			actionSlot
@@ -575,7 +578,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						'jetpack-connection'
 				  )
 				: __(
-						'Are you sure you want to disconnect your WordPress.com account? Your site will remain connected for essential services like likes and stats.',
+						'Are you sure you want to disconnect your WordPress.com account?',
 						'jetpack-connection'
 				  );
 
@@ -630,6 +633,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 			? createElement( UserSection, {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,
+					subtitle: false,
 			  } )
 			: null,
 

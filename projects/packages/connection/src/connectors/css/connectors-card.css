@@ -50,12 +50,8 @@
 }
 
 .jetpack-connector__user-link {
-	text-decoration: none;
-	color: inherit;
-}
-
-.jetpack-connector__user-link:hover {
 	text-decoration: underline;
+	color: inherit;
 }
 
 .jetpack-connector__plugin-icon {
