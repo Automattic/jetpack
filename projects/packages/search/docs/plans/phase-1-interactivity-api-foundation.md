@@ -1411,7 +1411,15 @@ if ( $site_id && ! $is_private && ( $search_query || ! empty( $active_filters ) 
 		}
 	}
 	$api_url = "https://public-api.wordpress.com/rest/v1.3/sites/{$site_id}/search?" . http_build_query( $query_args );
-	$response = wp_remote_get( esc_url_raw( $api_url ) );
+	// Explicit short timeout: this call is on the SSR critical path and blocks
+	// the response. Without it we inherit WP's 5s default, meaning a slow or
+	// hanging upstream stalls every search page render and degrades TTFB under
+	// load. 2s is enough for the typical p95 and fails fast into the client-side
+	// fetch path on a cold upstream.
+	$response = wp_remote_get(
+		esc_url_raw( $api_url ),
+		array( 'timeout' => 2 )
+	);
 	if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 		$body            = json_decode( wp_remote_retrieve_body( $response ), true );
 		$initial_results = $body['results'] ?? array();
