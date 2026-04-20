@@ -13,6 +13,7 @@ import {
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
+	SET_SHOULD_SHOW_SINGLE_X_NOTICE,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
@@ -227,6 +228,19 @@ export function syncConnectionsToPostMeta() {
 }
 
 /**
+ * Sets whether the sidebar single-X info notice should surface.
+ *
+ * @param show - Whether the notice should be visible.
+ * @return An action object.
+ */
+export function setShouldShowSingleXNotice( show: boolean ) {
+	return {
+		type: SET_SHOULD_SHOW_SINGLE_X_NOTICE,
+		show,
+	};
+}
+
+/**
  * Toggles the connection enable-status.
  *
  * @param connectionId - Connection ID to switch.
@@ -240,6 +254,7 @@ export function toggleConnectionById( connectionId: string ) {
 		// X account. When the user turns ON an X connection, turn OFF any other
 		// X connection that is currently enabled so only one remains selected.
 		if ( target && target.service_name === 'x' && ! target.enabled ) {
+			let autoDisabledAny = false;
 			for ( const connection of select.getConnections() ) {
 				if (
 					connection.service_name === 'x' &&
@@ -247,7 +262,11 @@ export function toggleConnectionById( connectionId: string ) {
 					connection.connection_id !== connectionId
 				) {
 					dispatch( toggleConnection( connection.connection_id ) );
+					autoDisabledAny = true;
 				}
+			}
+			if ( autoDisabledAny ) {
+				dispatch( setShouldShowSingleXNotice( true ) );
 			}
 		}
 
