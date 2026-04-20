@@ -21,6 +21,37 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
+		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+	}
+
+	/**
+	 * Enqueue the client-side block registration bundle in the block editor.
+	 *
+	 * WordPress bootstraps server-side block metadata into the editor, but a
+	 * client-side registerBlockType() call is still needed for each block so
+	 * the editor knows how to render a preview. This script registers all
+	 * Jetpack Search blocks with ServerSideRender for the editor preview.
+	 */
+	public static function enqueue_editor_assets() {
+		$base_path  = Package::get_installed_path() . 'build/search-blocks-editor/';
+		$asset_file = $base_path . 'register-blocks.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+		$asset = require $asset_file;
+
+		// Convert the filesystem path to a URL. plugins_url() resolves against
+		// the nearest plugin directory, which handles the jetpack_vendor
+		// location that Composer installs the package into.
+		$url = plugins_url( 'register-blocks.js', $base_path . 'register-blocks.js' );
+
+		wp_enqueue_script(
+			'jetpack-search-blocks-register',
+			$url,
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? false,
+			true
+		);
 	}
 
 	/**
