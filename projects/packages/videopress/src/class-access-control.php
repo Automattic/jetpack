@@ -256,6 +256,107 @@ class Access_Control {
 	}
 
 	/**
+	 * Determines whether a given post actually embeds a given VideoPress GUID.
+	 *
+	 * Used to prevent the embedded post id — which arrives from request input — from being
+	 * treated as an authorization context when it has no relationship to the requested video.
+	 * Matching the attachment id itself is not treated as proof of embedding: attachment ids
+	 * are enumerable via the media REST route and would otherwise provide a second path around
+	 * this check whenever the attachment has no parent and falls back to the `read` capability.
+	 *
+	 * @param int    $embedded_post_id The post id claimed as the embedding context.
+	 * @param string $guid             The video guid.
+	 *
+	 * @return bool
+	 */
+	private function post_embeds_videopress_guid( $embedded_post_id, $guid ) {
+		$post = get_post( $embedded_post_id );
+		if ( ! $post instanceof WP_Post || empty( $post->post_content ) ) {
+			return false;
+		}
+
+		if ( $this->post_content_has_videopress_block( $post->post_content, $guid ) ) {
+			return true;
+		}
+
+		return $this->post_content_has_videopress_shortcode( $post->post_content, $guid );
+	}
+
+	/**
+	 * Walk parsed blocks (including inner blocks) looking for a videopress/video block
+	 * whose guid attribute matches.
+	 *
+	 * @param string $post_content The post content to scan.
+	 * @param string $guid         The video guid to match.
+	 *
+	 * @return bool
+	 */
+	private function post_content_has_videopress_block( $post_content, $guid ) {
+		if ( false === strpos( $post_content, 'wp:videopress/video' ) ) {
+			return false;
+		}
+
+		$blocks = parse_blocks( $post_content );
+		if ( empty( $blocks ) ) {
+			return false;
+		}
+
+		$stack = $blocks;
+		while ( ! empty( $stack ) ) {
+			$block = array_pop( $stack );
+
+			if ( isset( $block['blockName'] ) && 'videopress/video' === $block['blockName'] ) {
+				if ( isset( $block['attrs']['guid'] ) && $block['attrs']['guid'] === $guid ) {
+					return true;
+				}
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				foreach ( $block['innerBlocks'] as $inner ) {
+					$stack[] = $inner;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Detect a [videopress GUID] or [wpvideo GUID] shortcode whose first positional
+	 * argument matches the given guid.
+	 *
+	 * @param string $post_content The post content to scan.
+	 * @param string $guid         The video guid to match.
+	 *
+	 * @return bool
+	 */
+	private function post_content_has_videopress_shortcode( $post_content, $guid ) {
+		if ( false === stripos( $post_content, '[videopress' ) && false === stripos( $post_content, '[wpvideo' ) ) {
+			return false;
+		}
+
+		$pattern = get_shortcode_regex( array( 'videopress', 'wpvideo' ) );
+		$count   = preg_match_all( '/' . $pattern . '/', $post_content, $matches, PREG_SET_ORDER );
+		if ( false === $count || 0 === $count ) {
+			return false;
+		}
+
+		foreach ( $matches as $match ) {
+			$atts = shortcode_parse_atts( $match[3] );
+			if ( ! is_array( $atts ) ) {
+				continue;
+			}
+
+			// Only the positional argument identifies the video; named attributes must not satisfy the binding check.
+			if ( isset( $atts[0] ) && is_string( $atts[0] ) && $atts[0] === $guid ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Determines if the current user can view the provided video. Only ever gets fired if site-wide private videos are enabled.
 	 *
 	 * Filterable for 3rd party plugins.
@@ -286,6 +387,11 @@ class Access_Control {
 		$video_info = video_get_info_by_blogpostid( get_current_blog_id(), $attachment->ID );
 		if ( null === $video_info->guid ) {
 			return false;
+		}
+
+		$embedded_post_id = (int) $embedded_post_id;
+		if ( $embedded_post_id && ! $this->post_embeds_videopress_guid( $embedded_post_id, $guid ) ) {
+			$embedded_post_id = 0;
 		}
 
 		$is_user_authed = false;
