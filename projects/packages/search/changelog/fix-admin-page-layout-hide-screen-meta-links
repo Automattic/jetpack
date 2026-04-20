@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Drop the local `#screen-meta` / `#screen-meta-links` hide rule now that the shared admin-page-layout mixin handles it.

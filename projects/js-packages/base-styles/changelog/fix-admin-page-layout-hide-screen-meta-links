@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide #screen-meta-links inside the jetpack-admin-page-layout mixin so the wp-admin Screen Options/Help wrapper stops reserving a 20px slot at the top of the content column.
