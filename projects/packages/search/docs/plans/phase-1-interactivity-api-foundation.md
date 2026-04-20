@@ -1411,14 +1411,24 @@ if ( $site_id && ! $is_private && ( $search_query || ! empty( $active_filters ) 
 		}
 	}
 	$api_url = "https://public-api.wordpress.com/rest/v1.3/sites/{$site_id}/search?" . http_build_query( $query_args );
-	// Explicit short timeout: this call is on the SSR critical path and blocks
-	// the response. Without it we inherit WP's 5s default, meaning a slow or
-	// hanging upstream stalls every search page render and degrades TTFB under
-	// load. 2s is enough for the typical p95 and fails fast into the client-side
-	// fetch path on a cold upstream.
+	/**
+	 * Filter the SSR pre-fetch timeout (seconds).
+	 *
+	 * This call is on the SSR critical path and blocks the response. WP's
+	 * 5s default is a general-purpose "don't hang forever" ceiling tuned
+	 * for contexts like cron jobs and update checks — not for synchronous
+	 * page-render fetches, where a slow upstream pushes LCP past Google's
+	 * 2.5s "good" threshold and piles up PHP-FPM workers under load. 3s
+	 * leaves headroom for a legitimately slow-but-alive upstream (cold
+	 * caches, distant regions) before falling back to the client-side
+	 * fetch path. Hosts with their own telemetry can tune via this filter.
+	 *
+	 * @param int $timeout Timeout in seconds. Default 3.
+	 */
+	$timeout = (int) apply_filters( 'jetpack_search_ssr_timeout', 3 );
 	$response = wp_remote_get(
 		esc_url_raw( $api_url ),
-		array( 'timeout' => 2 )
+		array( 'timeout' => $timeout )
 	);
 	if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 		$body            = json_decode( wp_remote_retrieve_body( $response ), true );
