@@ -627,7 +627,36 @@ import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 
+/**
+ * Allow http(s) links only. Anything else — javascript:, data:, vbscript:, etc. —
+ * is a potential DOM-XSS vector when written to an <a href> via data-wp-bind--href.
+ * The v1.3 Jetpack Search API is trusted, but defense in depth: the trust boundary
+ * for rendering untyped URL strings belongs in our code, not in the API.
+ */
+const SAFE_URL_PATTERN = /^https?:\/\//i;
+function sanitizePermalink( url ) {
+	return typeof url === 'string' && SAFE_URL_PATTERN.test( url ) ? url : '#';
+}
+
 const { state, actions } = store( NAMESPACE, {
+	state: {
+		/**
+		 * Search results with permalinks scheme-validated for safe use in
+		 * data-wp-bind--href. Templates must bind to state.safeResults, not
+		 * state.results, so a compromised or buggy API response cannot inject
+		 * a javascript:/data: URL into an href.
+		 */
+		get safeResults() {
+			return ( state.results ?? [] ).map( result => ( {
+				...result,
+				fields: {
+					...( result.fields ?? {} ),
+					permalink: sanitizePermalink( result.fields?.permalink ),
+				},
+			} ) );
+		},
+	},
+
 	actions: {
 		/**
 		 * Run a search and update state with results + aggregations.
@@ -1413,7 +1442,7 @@ wp_interactivity_state( 'jetpack-search', array(
 	<ul
 		class="jetpack-search-results__list"
 		data-wp-bind--hidden="state.isLoading"
-		data-wp-each--result="state.results"
+		data-wp-each--result="state.safeResults"
 		data-wp-each-key="context.result.id"
 		aria-live="polite"
 	>
@@ -1430,7 +1459,7 @@ wp_interactivity_state( 'jetpack-search', array(
 </div>
 ```
 
-> **Note on reactive result rendering:** `data-wp-each--result` iterates `state.results` and renders one `<li>` per item; `context.result` exposes each item to the `<template>` subtree. WordPress's server-side Interactivity API directive processor expands the `<template>` into real `<li>` elements during block rendering using the state seeded by `wp_interactivity_state()`, so the page ships with SSR-rendered results. On the client, the runtime re-renders the list reactively whenever `state.results` changes (new queries, filter changes, load-more). No manual DOM manipulation is required. `data-wp-each-key` must resolve to a unique string per item — the Jetpack Search v1.3 API returns an `id` field on each result; if that proves unreliable, fall back to `context.result.fields.permalink`.
+> **Note on reactive result rendering:** `data-wp-each--result` iterates `state.safeResults` (a derived getter that scheme-validates each result's `permalink` — see Task 2.5) and renders one `<li>` per item; `context.result` exposes each item to the `<template>` subtree. WordPress's server-side Interactivity API directive processor expands the `<template>` into real `<li>` elements during block rendering using the state seeded by `wp_interactivity_state()`, so the page ships with SSR-rendered results. On the client, the runtime re-renders the list reactively whenever `state.results` changes (new queries, filter changes, load-more). No manual DOM manipulation is required. `data-wp-each-key` must resolve to a unique string per item — the Jetpack Search v1.3 API returns an `id` field on each result; if that proves unreliable, fall back to `context.result.fields.permalink`.
 
 - [ ] **Step 5.3: Create `view.js`**
 
