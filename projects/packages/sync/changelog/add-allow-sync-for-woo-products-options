@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add options from the Products WooCommerce settings pages to sync whitelist, as part of activity log improvements.
