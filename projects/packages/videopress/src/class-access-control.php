@@ -301,25 +301,30 @@ class Access_Control {
 			return false;
 		}
 
-		$blocks = parse_blocks( $post_content );
-		if ( empty( $blocks ) ) {
-			return false;
-		}
+		return $this->blocks_contain_videopress_guid( parse_blocks( $post_content ), $guid );
+	}
 
-		$stack = $blocks;
-		while ( ! empty( $stack ) ) {
-			$block = array_pop( $stack );
-
-			if ( isset( $block['blockName'] ) && 'videopress/video' === $block['blockName'] ) {
-				if ( isset( $block['attrs']['guid'] ) && $block['attrs']['guid'] === $guid ) {
-					return true;
-				}
+	/**
+	 * Recursively scans a parsed block tree for a videopress/video block whose guid attribute matches.
+	 *
+	 * @param array  $blocks Parsed blocks (as returned by parse_blocks() or an innerBlocks array).
+	 * @param string $guid   The video guid to match.
+	 *
+	 * @return bool
+	 */
+	private function blocks_contain_videopress_guid( $blocks, $guid ) {
+		foreach ( $blocks as $block ) {
+			if (
+				isset( $block['blockName'] ) && 'videopress/video' === $block['blockName']
+				&& isset( $block['attrs']['guid'] ) && $block['attrs']['guid'] === $guid
+			) {
+				return true;
 			}
 
-			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
-				foreach ( $block['innerBlocks'] as $inner ) {
-					$stack[] = $inner;
-				}
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] )
+				&& $this->blocks_contain_videopress_guid( $block['innerBlocks'], $guid )
+			) {
+				return true;
 			}
 		}
 
