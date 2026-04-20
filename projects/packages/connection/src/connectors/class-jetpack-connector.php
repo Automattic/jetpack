@@ -81,7 +81,7 @@ class Jetpack_Connector {
 				'name'           => 'Jetpack Connection',
 				'description'    => __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' ),
 				'type'           => 'cloud_service',
-				'logo_url'       => plugins_url( 'images/jetpack-connect.svg', __FILE__ ),
+				'logo_url'       => static::get_connector_logo_url(),
 				'authentication' => array(
 					'method' => 'none',
 				),
@@ -151,7 +151,7 @@ class Jetpack_Connector {
 		$data['redirectUri']          = static::get_connectors_page_path();
 		$data['connectorName']        = 'Jetpack Connect';
 		$data['connectorDescription'] = __( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' );
-		$data['connectorLogoUrl']     = plugins_url( 'images/jetpack-connect.svg', __FILE__ );
+		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
 		if ( $is_registered ) {
 			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
@@ -406,6 +406,51 @@ class Jetpack_Connector {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Determine the connector card logo based on which plugin families are connected.
+	 *
+	 * Priority:
+	 * 1. Both Woo-family and A4A plugins → jetpack-connect-all.svg
+	 * 2. Woo-family only                 → jetpack-connect-woo.svg
+	 * 3. A4A only                        → jetpack-connect-a8c.svg
+	 * 4. Default (Jetpack only or other) → jetpack-connect.svg
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string Logo URL.
+	 */
+	private static function get_connector_logo_url() {
+		$plugins = Plugin_Storage::get_all();
+
+		$has_woo = false;
+		$has_a4a = false;
+
+		if ( is_array( $plugins ) ) {
+			foreach ( array_keys( $plugins ) as $slug ) {
+				if ( str_starts_with( $slug, 'woocommerce' ) || str_starts_with( $slug, 'woo' ) ) {
+					$has_woo = true;
+				}
+				if ( str_starts_with( $slug, 'automattic' ) ) {
+					$has_a4a = true;
+				}
+			}
+		}
+
+		if ( $has_woo && $has_a4a ) {
+			return plugins_url( 'images/jetpack-connect-all.svg', __FILE__ );
+		}
+
+		if ( $has_woo ) {
+			return plugins_url( 'images/jetpack-connect-woo.svg', __FILE__ );
+		}
+
+		if ( $has_a4a ) {
+			return plugins_url( 'images/jetpack-connect-a8c.svg', __FILE__ );
+		}
+
+		return plugins_url( 'images/jetpack-connect.svg', __FILE__ );
 	}
 
 	/**

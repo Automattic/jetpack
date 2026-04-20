@@ -304,6 +304,80 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertNull( $this->call_get_plugin_logo_url( 'some-other-plugin' ) );
 	}
 
+	/* ── get_connector_logo_url() ─────────────────────────────── */
+
+	/**
+	 * Test that the default connector logo is jetpack-connect.svg when no plugins are connected.
+	 */
+	public function test_connector_logo_default() {
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect.svg', $url );
+		$this->assertStringNotContainsString( 'jetpack-connect-woo', $url );
+		$this->assertStringNotContainsString( 'jetpack-connect-a8c', $url );
+		$this->assertStringNotContainsString( 'jetpack-connect-all', $url );
+	}
+
+	/**
+	 * Test that the connector logo is jetpack-connect.svg when only Jetpack-family plugins are connected.
+	 */
+	public function test_connector_logo_jetpack_only() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'jetpack-boost', array( 'name' => 'Jetpack Boost' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect.svg', $url );
+		$this->assertStringNotContainsString( 'jetpack-connect-woo', $url );
+	}
+
+	/**
+	 * Test that the connector logo is jetpack-connect-woo.svg when a Woo-family plugin is connected.
+	 */
+	public function test_connector_logo_woo() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect-woo.svg', $url );
+	}
+
+	/**
+	 * Test that woo-prefixed slugs also trigger the Woo logo.
+	 */
+	public function test_connector_logo_woo_prefix() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'woo-subscriptions', array( 'name' => 'Woo Subscriptions' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect-woo.svg', $url );
+	}
+
+	/**
+	 * Test that the connector logo is jetpack-connect-a8c.svg when only A4A is connected.
+	 */
+	public function test_connector_logo_a4a() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect-a8c.svg', $url );
+	}
+
+	/**
+	 * Test that the connector logo is jetpack-connect-all.svg when both Woo and A4A are connected.
+	 */
+	public function test_connector_logo_woo_and_a4a() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect-all.svg', $url );
+	}
+
 	/* ── resolve_user_fields() ─────────────────────────────────── */
 
 	/**
@@ -684,6 +758,20 @@ class Jetpack_Connector_Test extends TestCase {
 		}
 
 		return $method->invoke( null, $slug );
+	}
+
+	/**
+	 * Call the private get_connector_logo_url() method via reflection.
+	 *
+	 * @return string Logo URL.
+	 */
+	private function call_get_connector_logo_url() {
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connector_logo_url' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null );
 	}
 
 	/**
