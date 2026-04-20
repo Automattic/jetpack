@@ -126,16 +126,16 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-			requestMap: {
-				// Bundle @wordpress/theme inline — it's a transitive dep of @wordpress/ui
-				// but isn't registered as a script handle in WP core, so externalizing it
-				// breaks enqueue. Leave @wordpress/private-apis externalized: that package
-				// uses a module-scoped consent map, and duplicate copies in the page
-				// desync unlock() calls that other externalized packages (e.g.
-				// @wordpress/dataviews) make against it.
-				'@wordpress/theme': { external: false },
-			},
-		} ),
+				requestMap: {
+					// Bundle @wordpress/theme inline — it's a transitive dep of @wordpress/ui
+					// but isn't registered as a script handle in WP core, so externalizing it
+					// breaks enqueue. Leave @wordpress/private-apis externalized: that package
+					// uses a module-scoped consent map, and duplicate copies in the page
+					// desync unlock() calls that other externalized packages (e.g.
+					// @wordpress/dataviews) make against it.
+					'@wordpress/theme': { external: false },
+				},
+			} ),
 		],
 		output: {
 			...sharedWebpackConfig.output,
@@ -151,16 +151,16 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-			requestMap: {
-				// Bundle @wordpress/theme inline — it's a transitive dep of @wordpress/ui
-				// but isn't registered as a script handle in WP core, so externalizing it
-				// breaks enqueue. Leave @wordpress/private-apis externalized: that package
-				// uses a module-scoped consent map, and duplicate copies in the page
-				// desync unlock() calls that other externalized packages (e.g.
-				// @wordpress/dataviews) make against it.
-				'@wordpress/theme': { external: false },
-			},
-		} ),
+				requestMap: {
+					// Bundle @wordpress/theme inline — it's a transitive dep of @wordpress/ui
+					// but isn't registered as a script handle in WP core, so externalizing it
+					// breaks enqueue. Leave @wordpress/private-apis externalized: that package
+					// uses a module-scoped consent map, and duplicate copies in the page
+					// desync unlock() calls that other externalized packages (e.g.
+					// @wordpress/dataviews) make against it.
+					'@wordpress/theme': { external: false },
+				},
+			} ),
 		],
 	},
 	// Build admin page JS.
@@ -182,16 +182,16 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-			requestMap: {
-				// Bundle @wordpress/theme inline — it's a transitive dep of @wordpress/ui
-				// but isn't registered as a script handle in WP core, so externalizing it
-				// breaks enqueue. Leave @wordpress/private-apis externalized: that package
-				// uses a module-scoped consent map, and duplicate copies in the page
-				// desync unlock() calls that other externalized packages (e.g.
-				// @wordpress/dataviews) make against it.
-				'@wordpress/theme': { external: false },
-			},
-		} ),
+				requestMap: {
+					// Bundle @wordpress/theme inline — it's a transitive dep of @wordpress/ui
+					// but isn't registered as a script handle in WP core, so externalizing it
+					// breaks enqueue. Leave @wordpress/private-apis externalized: that package
+					// uses a module-scoped consent map, and duplicate copies in the page
+					// desync unlock() calls that other externalized packages (e.g.
+					// @wordpress/dataviews) make against it.
+					'@wordpress/theme': { external: false },
+				},
+			} ),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,
