@@ -1298,7 +1298,6 @@ wp_interactivity_state( 'jetpack-search', array(
 <div
 	<?php echo get_block_wrapper_attributes(); ?>
 	data-wp-interactive="jetpack-search"
-	data-wp-init="callbacks.onMount"
 >
 	<div
 		class="jetpack-search-results__loading"
@@ -1311,48 +1310,35 @@ wp_interactivity_state( 'jetpack-search', array(
 	<ul
 		class="jetpack-search-results__list"
 		data-wp-bind--hidden="state.isLoading"
+		data-wp-each--result="state.results"
+		data-wp-each-key="context.result.id"
 		aria-live="polite"
 	>
-		<?php foreach ( $initial_results as $result ) : ?>
-		<li class="jetpack-search-results__item">
-			<a href="<?php echo esc_url( $result['fields']['permalink'] ?? '' ); ?>">
-				<?php echo esc_html( $result['fields']['title'] ?? '' ); ?>
-			</a>
-			<p><?php echo esc_html( $result['fields']['excerpt'] ?? '' ); ?></p>
-		</li>
-		<?php endforeach; ?>
+		<template data-wp-each-child>
+			<li class="jetpack-search-results__item">
+				<a
+					data-wp-bind--href="context.result.fields.permalink"
+					data-wp-text="context.result.fields.title"
+				></a>
+				<p data-wp-text="context.result.fields.excerpt"></p>
+			</li>
+		</template>
 	</ul>
 </div>
 ```
 
+> **Note on reactive result rendering:** `data-wp-each--result` iterates `state.results` and renders one `<li>` per item; `context.result` exposes each item to the `<template>` subtree. WordPress's server-side Interactivity API directive processor expands the `<template>` into real `<li>` elements during block rendering using the state seeded by `wp_interactivity_state()`, so the page ships with SSR-rendered results. On the client, the runtime re-renders the list reactively whenever `state.results` changes (new queries, filter changes, load-more). No manual DOM manipulation is required. `data-wp-each-key` must resolve to a unique string per item — the Jetpack Search v1.3 API returns an `id` field on each result; if that proves unreliable, fall back to `context.result.fields.permalink`.
+
 - [ ] **Step 5.3: Create `view.js`**
 
-The client-side script renders results reactively when store state changes.
+`search-results` is driven entirely by directives (`data-wp-each`, `data-wp-bind`, `data-wp-text`) declared in the server-rendered HTML plus the shared store actions in `store/index.js`. No block-specific view code is required, but `block.json` still needs a `viewScriptModule` entry so the IAPI runtime is loaded on pages containing this block. A one-line stub is enough:
 
 ```js
 // src/search-blocks/blocks/search-results/view.js
-import { store, getElement } from '@wordpress/interactivity';
-
-const NAMESPACE = 'jetpack-search';
-
-store( NAMESPACE, {
-	callbacks: {
-		/**
-		 * Re-render the result list whenever state.results changes.
-		 * The Interactivity API's reactive system handles this automatically
-		 * when HTML uses data-wp-* directives. This callback is the mount hook.
-		 */
-		onMount() {
-			// Results are already rendered server-side. The store's reactive
-			// directives in the HTML (data-wp-bind, data-wp-each) handle client updates.
-			// Nothing extra needed here — the directives on the rendered HTML
-			// are the update mechanism.
-		},
-	},
-} );
+// Intentionally empty: this block is fully declarative.
+// Importing the runtime ensures it is enqueued on pages containing this block.
+import '@wordpress/interactivity';
 ```
-
-> **Note:** The full client-side result rendering (replacing `<li>` items reactively) requires `data-wp-each` directives which need the block HTML to use template elements. For Phase 1, server-rendered HTML is sufficient for the initial page load; subsequent searches update the DOM via `innerHTML` replacement in a later iteration. The block is functional end-to-end for the initial load as-is.
 
 - [ ] **Step 5.4: Create `style.scss`**
 
@@ -1983,8 +1969,18 @@ The remaining utility blocks. `results-count` and `no-results` are display-only 
 	data-wp-bind--hidden="!state.hasActiveFilters"
 >
 	<span><?php esc_html_e( 'Active filters:', 'jetpack-search-pkg' ); ?></span>
-	<div class="jetpack-search-active-filters__pills">
-		<!-- Populated client-side from state.activeFilters -->
+	<div
+		class="jetpack-search-active-filters__pills"
+		data-wp-each--pill="state.activePills"
+		data-wp-each-key="context.pill.id"
+	>
+		<template data-wp-each-child>
+			<button
+				class="jetpack-search-active-filters__pill"
+				data-wp-on--click="actions.onRemovePill"
+				data-wp-text="context.pill.label"
+			></button>
+		</template>
 	</div>
 	<button
 		class="jetpack-search-active-filters__clear-all"
@@ -1998,40 +1994,51 @@ The remaining utility blocks. `results-count` and `no-results` are display-only 
 `view.js`:
 ```js
 // src/search-blocks/blocks/active-filters/view.js
-import { store, getElement } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 
 const NAMESPACE = 'jetpack-search';
 
 store( NAMESPACE, {
 	state: {
+		/**
+		 * Truthy when any filter has selected values — drives data-wp-bind--hidden on the container.
+		 */
 		get hasActiveFilters() {
 			const { state } = store( NAMESPACE );
-			return Object.keys( state.activeFilters ).some(
-				k => state.activeFilters[ k ]?.length > 0
-			);
+			return Object.values( state.activeFilters ).some( v => v?.length > 0 );
+		},
+
+		/**
+		 * Flattens activeFilters into a list of pill descriptors consumed by data-wp-each.
+		 * Each pill carries { id, filterKey, value, label } where `id` is a stable key
+		 * for data-wp-each-key and `label` is what the button renders.
+		 */
+		get activePills() {
+			const { state } = store( NAMESPACE );
+			const pills = [];
+			for ( const [ filterKey, values ] of Object.entries( state.activeFilters ) ) {
+				( values ?? [] ).forEach( value => {
+					pills.push( {
+						id: `${ filterKey }:${ value }`,
+						filterKey,
+						value,
+						label: `${ filterKey }: ${ value } ✕`,
+					} );
+				} );
+			}
+			return pills;
 		},
 	},
 
-	callbacks: {
-		renderPills() {
-			const { state, actions } = store( NAMESPACE );
-			const { ref } = getElement();
-			if ( ! ref ) return;
-
-			const pillsContainer = ref.querySelector( '.jetpack-search-active-filters__pills' );
-			if ( ! pillsContainer ) return;
-
-			pillsContainer.innerHTML = '';
-
-			for ( const [ key, values ] of Object.entries( state.activeFilters ) ) {
-				( values ?? [] ).forEach( value => {
-					const pill = document.createElement( 'button' );
-					pill.className = 'jetpack-search-active-filters__pill';
-					pill.textContent = `${ key }: ${ value } ✕`;
-					pill.addEventListener( 'click', () => actions.setFilter( key, value ) );
-					pillsContainer.appendChild( pill );
-				} );
-			}
+	actions: {
+		/**
+		 * Remove the pill whose context is currently in scope.
+		 * `setFilter` toggles, so calling it with an already-active value clears it.
+		 */
+		*onRemovePill() {
+			const { actions } = store( NAMESPACE );
+			const { pill } = getContext();
+			yield actions.setFilter( pill.filterKey, pill.value );
 		},
 	},
 } );
