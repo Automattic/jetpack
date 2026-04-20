@@ -899,6 +899,37 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Filters in the URL must seed activeFilters so SSR pre-fetches the right set.
+	 *
+	 * Landing on /?s=boots&filter[category][]=shoes&filter[category][]=boots
+	 * should yield activeFilters = [ 'category' => [ 'shoes', 'boots' ] ] — not
+	 * an empty array, which would cause a second-fetch flash after hydration.
+	 */
+	public function test_build_initial_state_seeds_filters_from_url() {
+		$original_get = $_GET;
+		$_GET         = array(
+			'filter' => array(
+				'category' => array( 'shoes', 'boots' ),
+				'post_tag' => array( 'sale' ),
+				// Invalid key / empty value entries are dropped.
+				''         => array( 'ignored' ),
+				'bad'      => array( '' ),
+			),
+			'orderby' => 'date',
+		);
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array( 'shoes', 'boots' ), $state['activeFilters']['category'] );
+			$this->assertSame( array( 'sale' ),           $state['activeFilters']['post_tag'] );
+			$this->assertArrayNotHasKey( '',    $state['activeFilters'] );
+			$this->assertArrayNotHasKey( 'bad', $state['activeFilters'] );
+			$this->assertSame( 'date', $state['sortOrder'] );
+		} finally {
+			$_GET = $original_get;
+		}
+	}
+
+	/**
 	 * Pins WP core's wp_interactivity_state() merge behavior.
 	 *
 	 * The filterConfigs pattern requires that multiple wp_interactivity_state() calls
@@ -1027,10 +1058,13 @@ class Search_Blocks {
 			'isWpcom'       => $is_wpcom,
 			'homeUrl'       => home_url(),
 
-			// Search state (populated by search-results render.php on initial load).
+			// Search state — seeded from the URL so that landing on a deep link
+			// (?s=boots&filter[category][]=shoes&orderby=date) renders the correct
+			// filter selection and SSR results on the first paint, without a
+			// client-side second-fetch flash.
 			'searchQuery'   => get_search_query() ?? '',
-			'activeFilters' => array(),
-			'sortOrder'     => 'relevance',
+			'activeFilters' => static::parse_url_filters(),
+			'sortOrder'     => static::parse_url_sort(),
 
 			// filterConfigs: each filter-checkbox block's render.php merges its own entry here.
 			// Shape: { [filterKey]: { filterKey, esField, aggType, curatedValues, showCount, maxItems } }
@@ -1049,6 +1083,51 @@ class Search_Blocks {
 			'isLoadingMore' => false,
 			'hasError'      => false,
 		);
+	}
+
+	/**
+	 * Parse filter selections from the current request URL.
+	 *
+	 * Accepts `filter[<filterKey>][]=<value>` query params — the same shape that
+	 * store/url-state.js writes — and returns an { [filterKey]: string[] } map.
+	 * Unexpected values are sanitized and empty entries dropped so downstream
+	 * code can safely feed this into the ES request.
+	 *
+	 * @return array<string, string[]>
+	 */
+	protected static function parse_url_filters(): array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
+		$raw = isset( $_GET['filter'] ) ? wp_unslash( $_GET['filter'] ) : array();
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $raw as $key => $values ) {
+			$filter_key = sanitize_key( (string) $key );
+			if ( '' === $filter_key ) {
+				continue;
+			}
+			$clean = array_values( array_filter(
+				array_map( 'sanitize_text_field', (array) $values ),
+				static fn( $v ) => '' !== $v
+			) );
+			if ( $clean ) {
+				$out[ $filter_key ] = $clean;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Parse the sort order from the URL, defaulting to 'relevance'.
+	 *
+	 * @return string
+	 */
+	protected static function parse_url_sort(): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
+		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : '';
+		return in_array( $orderby, array( 'date' ), true ) ? $orderby : 'relevance';
 	}
 }
 ```
@@ -1295,6 +1374,7 @@ This is the only block that makes a server-side API call to pre-fetch results. T
  */
 
 use Automattic\Jetpack\Search\Helper;
+use Automattic\Jetpack\Search\Search_Blocks;
 use Automattic\Jetpack\Status;
 
 $search_query   = get_search_query() ?? '';
@@ -1305,18 +1385,36 @@ $initial_results = array();
 $initial_aggs    = array();
 $total           = 0;
 
+// Read filter selections seeded from the URL by Search_Blocks::build_initial_state()
+// so the SSR API call applies them on first paint. Without this, landing on
+// /?s=boots&filter[category][]=shoes would render unfiltered results and then
+// flash to the filtered set once the client hydrates and re-queries.
+$initial_state   = Search_Blocks::build_initial_state();
+$active_filters  = $initial_state['activeFilters'] ?? array();
+
 // Pre-fetch results server-side so the page renders without a client round-trip.
-if ( $site_id && $search_query ) {
-	$api_url = "https://public-api.wordpress.com/rest/v1.3/sites/{$site_id}/search?query=" . urlencode( $search_query ) . '&size=10';
-	// Private sites handled client-side (needs auth headers). Skip SSR for them.
-	if ( ! $is_private ) {
-		$response = wp_remote_get( esc_url_raw( $api_url ) );
-		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
-			$body            = json_decode( wp_remote_retrieve_body( $response ), true );
-			$initial_results = $body['results'] ?? array();
-			$initial_aggs    = $body['aggregations'] ?? array();
-			$total           = $body['total'] ?? 0;
+// Private sites skip SSR because the public endpoint requires auth they don't have;
+// those render a loading state and fetch client-side with a nonce header.
+if ( $site_id && ! $is_private && ( $search_query || ! empty( $active_filters ) ) ) {
+	$query_args = array(
+		'query' => $search_query,
+		'size'  => 10,
+	);
+	// Serialize active filters as filter[<key>][]=<value>. urlencode() + bracket
+	// notation keeps the wire format identical to the JS client (store/url-state.js)
+	// so the server-side and client-side requests are interchangeable.
+	foreach ( $active_filters as $filter_key => $values ) {
+		foreach ( (array) $values as $value ) {
+			$query_args[ "filter[{$filter_key}][]" ] = $value;
 		}
+	}
+	$api_url = "https://public-api.wordpress.com/rest/v1.3/sites/{$site_id}/search?" . http_build_query( $query_args );
+	$response = wp_remote_get( esc_url_raw( $api_url ) );
+	if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+		$body            = json_decode( wp_remote_retrieve_body( $response ), true );
+		$initial_results = $body['results'] ?? array();
+		$initial_aggs    = $body['aggregations'] ?? array();
+		$total           = $body['total'] ?? 0;
 	}
 }
 
