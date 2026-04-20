@@ -35,6 +35,34 @@ function videopress_is_valid_guid( $guid ) {
 }
 
 /**
+ * Extract a VideoPress guid from a URL. Recognises the canonical hosts that the
+ * package's oEmbed providers and core [video] override accept.
+ *
+ * @param string $url The URL to inspect.
+ * @return string|null The 8-character guid, or null if the URL is not a recognised VideoPress URL.
+ */
+function videopress_extract_guid_from_url( $url ) {
+	if ( ! is_string( $url ) || '' === $url ) {
+		return null;
+	}
+
+	// phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- regex matches literal hostnames.
+	$patterns = array(
+		'@videos\.(?:videopress\.com|files\.wordpress\.com)/([a-z0-9]{8})/@i',
+		'@(?:videopress\.com/(?:v|embed)|video\.wordpress\.com/v)/([a-z0-9]{8})@i',
+		'|^https?://v\.wordpress\.com/([a-z0-9]{8})(?:[/?#].*)?$|i',
+	);
+
+	foreach ( $patterns as $pattern ) {
+		if ( preg_match( $pattern, $url, $matches ) ) {
+			return $matches[1];
+		}
+	}
+
+	return null;
+}
+
+/**
  * Validates user-supplied video preload setting.
  *
  * @param mixed $value the preload value to validate.

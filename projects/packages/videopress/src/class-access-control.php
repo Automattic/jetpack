@@ -381,11 +381,17 @@ class Access_Control {
 	 * @return bool
 	 */
 	private function post_content_has_videopress_url( $post_content, $guid ) {
-		$g = preg_quote( $guid, '#' );
-		// phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- regex matches literal hostnames.
-		$pattern = '#(?:videos\.(?:videopress\.com|files\.wordpress\.com)/' . $g . '/|(?:videopress\.com/(?:v|embed)|v\.wordpress\.com)/' . $g . '(?![a-z0-9]))#i';
+		if ( ! preg_match_all( '#https?://[^\s"\'<>)]+#i', $post_content, $matches ) ) {
+			return false;
+		}
 
-		return 1 === preg_match( $pattern, $post_content );
+		foreach ( $matches[0] as $url ) {
+			if ( $guid === videopress_extract_guid_from_url( $url ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
