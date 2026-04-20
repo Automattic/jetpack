@@ -1,0 +1,42 @@
+.wp-block-jetpack-search-results {
+
+	.jetpack-search-results__loading {
+		padding: 1rem;
+		text-align: center;
+		color: #666;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__item {
+		padding: 0.75rem 0;
+		border-bottom: 1px solid #eee;
+
+		a {
+			font-weight: 600;
+			text-decoration: none;
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+
+		p {
+			margin: 0.25rem 0 0;
+			color: #555;
+			font-size: 0.9rem;
+		}
+	}
+}
