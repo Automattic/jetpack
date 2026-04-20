@@ -80,14 +80,14 @@ class Utils {
 	/**
 	 * Extract the VideoPress guid from a recognised VideoPress URL.
 	 *
-	 * @param string $url The URL to inspect.
+	 * @param mixed $url The URL to inspect. Non-strings return null.
 	 * @return string|null The 8-character guid, or null if the URL is not a recognised VideoPress URL.
 	 */
 	public static function extract_videopress_guid_from_url( $url ) {
 		if ( ! is_string( $url ) ) {
 			return null;
 		}
-		$pattern = '/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com)\/([a-z\d]{8})(\/|\b)/i'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		$pattern = '/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com|videos\.(?:videopress\.com|files\.wordpress\.com))\/([a-z\d]{8})(\/|\b)/i'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		if ( preg_match( $pattern, $url, $matches ) ) {
 			return $matches[1];
 		}

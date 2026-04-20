@@ -78,6 +78,24 @@ class Video_Authorization_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A file-host VideoPress URL (as produced by the core [video] shortcode override) is a legitimate embedding context.
+	 */
+	public function test_subscriber_with_file_host_videopress_url_embed_post_id_is_authorized_for_private_video() {
+		$guid = 'fIleUrl1';
+		$this->create_private_videopress_attachment( $guid );
+		$embedding = wp_insert_post(
+			array(
+				'post_title'   => 'File-host VideoPress URL',
+				'post_content' => '<figure><div>https://videos.videopress.com/' . $guid . '/original.mp4</div></figure>',
+				'post_status'  => 'publish',
+			)
+		);
+		$this->set_current_user_role( 'subscriber' );
+
+		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
 	 * A guid that appears only as a substring of an unrelated URL must not be accepted as proof.
 	 */
 	public function test_subscriber_is_denied_when_guid_appears_only_in_unrelated_url() {

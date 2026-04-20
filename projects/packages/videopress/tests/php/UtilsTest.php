@@ -188,6 +188,8 @@ class UtilsTest extends BaseTestCase {
 			'https://v.wordpress.com/xyrdcYF4'           => 'xyrdcYF4',
 			'https://videopress.com/v/xyrdcYF4?foo=bar'  => 'xyrdcYF4',
 			'https://videopress.com/v/xyrdcYF4/'         => 'xyrdcYF4',
+			'https://videos.videopress.com/xyrdcYF4/original.mp4' => 'xyrdcYF4',
+			'https://videos.files.wordpress.com/xyrdcYF4/file.mp4' => 'xyrdcYF4',
 		);
 		foreach ( $cases as $url => $expected_guid ) {
 			$this->assertSame( $expected_guid, Utils::extract_videopress_guid_from_url( $url ), "Failed extracting guid from $url" );
