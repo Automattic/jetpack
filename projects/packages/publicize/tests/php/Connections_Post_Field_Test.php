@@ -594,12 +594,12 @@ class Connections_Post_Field_Test extends TestCase {
 
 		$connections = $this->publicize->get_filtered_connection_data( $this->draft_id );
 
-		$enabled_x = array_values(
-			array_filter(
-				$connections,
-				static fn ( $c ) => 'x' === $c['service_name'] && ! empty( $c['enabled'] )
-			)
-		);
+		$enabled_x = array();
+		foreach ( $connections as $connection ) {
+			if ( 'x' === $connection['service_name'] && ! empty( $connection['enabled'] ) ) {
+				$enabled_x[] = $connection;
+			}
+		}
 
 		$this->assertCount( 1, $enabled_x, 'Only one X connection should be enabled by default.' );
 
