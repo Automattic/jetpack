@@ -2,6 +2,9 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
+	// Pin to the right edge of its flex-row parent (e.g. the Blog Search Page
+	// pattern) regardless of sibling widths.
+	margin-inline-start: auto;
 
 	label {
 		font-size: 0.9rem;
