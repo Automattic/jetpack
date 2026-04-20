@@ -2,7 +2,7 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
 module.exports = {
 	...baseConfig,
-	roots: [ '<rootDir>/src' ],
+	roots: [ '<rootDir>/src', '<rootDir>/tests/js' ],
 
 	transform: {
 		...baseConfig.transform,
