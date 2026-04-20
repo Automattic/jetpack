@@ -1,0 +1,31 @@
+.wp-block-jetpack-search-input {
+	position: relative;
+	display: flex;
+	align-items: center;
+
+	.jetpack-search-input__field {
+		width: 100%;
+		padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		font-size: 1rem;
+
+		&:focus {
+			outline: 2px solid #0073aa;
+			outline-offset: 1px;
+		}
+	}
+
+	.jetpack-search-input__clear {
+		position: absolute;
+		right: 0.5rem;
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #666;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+}
