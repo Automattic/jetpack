@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 use Automattic\Jetpack\RTC;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Tests for the RTC package.
@@ -501,6 +503,24 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_default_rtc_option_returns_0_when_not_allowed() {
 		$this->assertSame( '0', RTC::default_rtc_option() );
+	}
+
+	/**
+	 * Tests that default_rtc_option returns '0' on Atomic even when RTC is allowed.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_default_rtc_option_returns_0_on_atomic() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+
+		if ( ! defined( 'IS_ATOMIC' ) ) {
+			define( 'IS_ATOMIC', true );
+		}
+
+		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
 	}
 
 	/**
