@@ -1668,11 +1668,17 @@ class Filter_Checkbox {
 		if ( isset( self::ES_FIELDS[ $filter_key ] ) ) {
 			return self::ES_FIELDS[ $filter_key ];
 		}
+		// Block attributes are author-controlled (edit_posts), so the blast radius
+		// is small — but sanitize_key() here keeps the derived ES field well-formed
+		// even if a crafted REST save stored unusual characters, and matches the
+		// sanitisation already applied in derive_filter_key().
 		if ( 'taxonomy' === $attributes['filterType'] ) {
-			return 'taxonomy.' . $attributes['taxonomy'] . '.slug_slash_name';
+			$taxonomy = sanitize_key( $attributes['taxonomy'] );
+			return $taxonomy ? 'taxonomy.' . $taxonomy . '.slug_slash_name' : '';
 		}
 		if ( 'post_meta' === $attributes['filterType'] && $attributes['metaKey'] ) {
-			return 'meta.' . $attributes['metaKey'] . '.value';
+			$meta_key = sanitize_key( $attributes['metaKey'] );
+			return $meta_key ? 'meta.' . $meta_key . '.value' : '';
 		}
 		return '';
 	}
