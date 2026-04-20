@@ -18,8 +18,6 @@ import ServerSideRender from '@wordpress/server-side-render';
 const BLOCK_NAMES = [
 	'jetpack/search-input',
 	'jetpack/search-results',
-	'jetpack/filter-checkbox',
-	'jetpack/active-filters',
 	'jetpack/sort-control',
 	'jetpack/results-count',
 	'jetpack/no-results',

@@ -1,13 +1,12 @@
 /**
  * Serialize store state to URLSearchParams.
  *
- * @param {object} state               - Store state slice.
- * @param {string} state.searchQuery   - Current search query.
- * @param {object} state.activeFilters - Map of filterKey → string[].
- * @param {string} state.sortOrder     - Current sort order.
+ * @param {object} state             - Store state slice.
+ * @param {string} state.searchQuery - Current search query.
+ * @param {string} state.sortOrder   - Current sort order.
  * @return {URLSearchParams} URL-ready params.
  */
-export function stateToUrlParams( { searchQuery, activeFilters, sortOrder } ) {
+export function stateToUrlParams( { searchQuery, sortOrder } ) {
 	const params = new URLSearchParams();
 
 	if ( searchQuery ) {
@@ -18,12 +17,6 @@ export function stateToUrlParams( { searchQuery, activeFilters, sortOrder } ) {
 		params.set( 'orderby', sortOrder );
 	}
 
-	for ( const [ key, values ] of Object.entries( activeFilters ?? {} ) ) {
-		if ( Array.isArray( values ) ) {
-			values.forEach( v => params.append( `filter[${ key }][]`, v ) );
-		}
-	}
-
 	return params;
 }
 
@@ -31,25 +24,13 @@ export function stateToUrlParams( { searchQuery, activeFilters, sortOrder } ) {
  * Parse URLSearchParams back into partial store state.
  *
  * @param {URLSearchParams} params - URL search params.
- * @return {{ searchQuery: string, activeFilters: object, sortOrder: string }} Partial state.
+ * @return {{ searchQuery: string, sortOrder: string }} Partial state.
  */
 export function urlParamsToState( params ) {
-	const searchQuery = params.get( 's' ) ?? '';
-	const sortOrder = params.get( 'orderby' ) ?? 'relevance';
-	const activeFilters = {};
-
-	for ( const [ key, value ] of params.entries() ) {
-		const match = key.match( /^filter\[(.+)\]\[\]$/ );
-		if ( match ) {
-			const filterKey = match[ 1 ];
-			if ( ! activeFilters[ filterKey ] ) {
-				activeFilters[ filterKey ] = [];
-			}
-			activeFilters[ filterKey ].push( value );
-		}
-	}
-
-	return { searchQuery, activeFilters, sortOrder };
+	return {
+		searchQuery: params.get( 's' ) ?? '',
+		sortOrder: params.get( 'orderby' ) ?? 'relevance',
+	};
 }
 
 /**
@@ -66,7 +47,7 @@ export function pushStateToUrl( state ) {
 /**
  * Read initial state from the current URL.
  *
- * @return {{ searchQuery: string, activeFilters: object, sortOrder: string }} Partial state.
+ * @return {{ searchQuery: string, sortOrder: string }} Partial state.
  */
 export function readStateFromUrl() {
 	return urlParamsToState( new URLSearchParams( window.location.search ) );

@@ -60,7 +60,7 @@ const { state, actions } = store( NAMESPACE, {
 
 	actions: {
 		/**
-		 * Run a search and update state with results + aggregations.
+		 * Run a search and update state with results.
 		 *
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
@@ -70,8 +70,6 @@ const { state, actions } = store( NAMESPACE, {
 			const url = buildSearchUrl( {
 				siteId: state.siteId,
 				searchQuery: state.searchQuery,
-				activeFilters: state.activeFilters,
-				filterConfigs: state.filterConfigs,
 				sortOrder: state.sortOrder,
 				pageHandle: null,
 				isPrivateSite: state.isPrivateSite,
@@ -90,7 +88,6 @@ const { state, actions } = store( NAMESPACE, {
 				const data = yield response.json();
 
 				state.results = data.results ?? [];
-				state.aggregations = data.aggregations ?? {};
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
 				actions.syncToUrl();
@@ -99,45 +96,6 @@ const { state, actions } = store( NAMESPACE, {
 			} finally {
 				state.isLoading = false;
 			}
-		},
-
-		/**
-		 * Toggle a filter value, then re-run the search.
-		 *
-		 * @param {string} filterKey   - e.g. 'category'.
-		 * @param {string} filterValue - e.g. 'news'.
-		 * @yield {Promise} search action.
-		 */
-		*setFilter( filterKey, filterValue ) {
-			const current = state.activeFilters[ filterKey ] ?? [];
-			const index = current.indexOf( filterValue );
-
-			if ( index === -1 ) {
-				state.activeFilters = {
-					...state.activeFilters,
-					[ filterKey ]: [ ...current, filterValue ],
-				};
-			} else {
-				const next = current.filter( v => v !== filterValue );
-				if ( next.length === 0 ) {
-					const { [ filterKey ]: _removed, ...rest } = state.activeFilters;
-					state.activeFilters = rest;
-				} else {
-					state.activeFilters = { ...state.activeFilters, [ filterKey ]: next };
-				}
-			}
-
-			yield actions.search();
-		},
-
-		/**
-		 * Clear all active filters and re-run search.
-		 *
-		 * @yield {Promise} search action.
-		 */
-		*clearFilters() {
-			state.activeFilters = {};
-			yield actions.search();
 		},
 
 		/**
@@ -155,8 +113,6 @@ const { state, actions } = store( NAMESPACE, {
 			const url = buildSearchUrl( {
 				siteId: state.siteId,
 				searchQuery: state.searchQuery,
-				activeFilters: state.activeFilters,
-				filterConfigs: state.filterConfigs,
 				sortOrder: state.sortOrder,
 				pageHandle: state.pageHandle,
 				isPrivateSite: state.isPrivateSite,
@@ -187,7 +143,6 @@ const { state, actions } = store( NAMESPACE, {
 		syncToUrl() {
 			pushStateToUrl( {
 				searchQuery: state.searchQuery,
-				activeFilters: state.activeFilters,
 				sortOrder: state.sortOrder,
 			} );
 		},
@@ -198,9 +153,8 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, activeFilters, sortOrder } = readStateFromUrl();
+			const { searchQuery, sortOrder } = readStateFromUrl();
 			state.searchQuery = searchQuery;
-			state.activeFilters = activeFilters;
 			state.sortOrder = sortOrder;
 			yield actions.search();
 		},

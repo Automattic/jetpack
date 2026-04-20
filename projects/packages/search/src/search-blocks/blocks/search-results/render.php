@@ -11,40 +11,23 @@
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 use Automattic\Jetpack\Search\Helper;
-use Automattic\Jetpack\Search\Search_Blocks;
 use Automattic\Jetpack\Status;
 
 $search_query    = (string) get_search_query();
 $is_private      = ( new Status() )->is_private_site();
 $site_id         = Helper::get_wpcom_site_id();
 $initial_results = array();
-$initial_aggs    = array();
 $total           = 0;
-
-// Read filter selections seeded from the URL by Search_Blocks::build_initial_state()
-// so the SSR API call applies them on first paint. Without this, landing on
-// /?s=boots&filter[category][]=shoes would render unfiltered results and then
-// flash to the filtered set once the client hydrates and re-queries.
-$initial_state  = Search_Blocks::build_initial_state();
-$active_filters = $initial_state['activeFilters'] ?? array();
 
 // Pre-fetch results server-side so the page renders without a client round-trip.
 // Private sites skip SSR because the public endpoint requires auth they don't have;
 // those render a loading state and fetch client-side with a nonce header.
-if ( $site_id && ! $is_private && ( '' !== $search_query || ! empty( $active_filters ) ) ) {
+if ( $site_id && ! $is_private && '' !== $search_query ) {
 	$query_args = array(
 		'query' => $search_query,
 		'size'  => 10,
 	);
-	// Serialize active filters as filter[<key>][]=<value>. http_build_query() +
-	// bracket notation keeps the wire format identical to the JS client
-	// (store/url-state.js) so the server and client requests are interchangeable.
-	foreach ( $active_filters as $filter_key => $values ) {
-		foreach ( (array) $values as $value ) {
-			$query_args[ "filter[{$filter_key}][]" ] = $value;
-		}
-	}
-	$api_url = "https://public-api.wordpress.com/rest/v1.3/sites/{$site_id}/search?" . http_build_query( $query_args );
+	$api_url    = "https://public-api.wordpress.com/rest/v1.3/sites/{$site_id}/search?" . http_build_query( $query_args );
 	/**
 	 * Filter the SSR pre-fetch timeout (seconds).
 	 *
@@ -67,7 +50,6 @@ if ( $site_id && ! $is_private && ( '' !== $search_query || ! empty( $active_fil
 	if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 		$body            = json_decode( wp_remote_retrieve_body( $response ), true );
 		$initial_results = $body['results'] ?? array();
-		$initial_aggs    = $body['aggregations'] ?? array();
 		$total           = $body['total'] ?? 0;
 	}
 }
@@ -77,7 +59,6 @@ wp_interactivity_state(
 	'jetpack-search',
 	array(
 		'results'      => $initial_results,
-		'aggregations' => $initial_aggs,
 		'totalResults' => $total,
 	)
 );
