@@ -248,10 +248,7 @@ const Admin = () => {
 								</Text>
 
 								{ hasVideoPressPurchase && (
-									<ConnectVideoStorageMeter
-										className={ styles[ 'storage-meter' ] }
-										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
-									/>
+									<ConnectVideoStorageMeter className={ styles[ 'storage-meter' ] } />
 								) }
 
 								{ hasVideos ? (
