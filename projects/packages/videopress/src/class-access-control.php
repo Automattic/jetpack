@@ -275,6 +275,11 @@ class Access_Control {
 			return false;
 		}
 
+		// If the guid is nowhere in the content, neither the block nor the shortcode scan can match.
+		if ( false === strpos( $post->post_content, $guid ) ) {
+			return false;
+		}
+
 		if ( $this->post_content_has_videopress_block( $post->post_content, $guid ) ) {
 			return true;
 		}
