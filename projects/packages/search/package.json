@@ -17,7 +17,8 @@
 		"test": "tests"
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard && pnpm run build-inline",
+		"build": "pnpm run clean && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard && pnpm run build-inline && pnpm run build-blocks",
+		"build-blocks": "webpack --config ./tools/webpack.blocks.config.js",
 		"build-customberg": "webpack --config ./tools/webpack.customberg.config.js",
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
@@ -31,7 +32,7 @@
 		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && size-limit",
 		"test-url-tests": "jest --config=jest.url-tests.config.js --passWithNoTests",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
-		"watch": "concurrently 'pnpm:build-instant --watch' 'pnpm:build-customberg --watch' 'pnpm:build-dashboard --watch' 'pnpm:build-inline --watch'"
+		"watch": "concurrently 'pnpm:build-instant --watch' 'pnpm:build-customberg --watch' 'pnpm:build-dashboard --watch' 'pnpm:build-inline --watch' 'pnpm:build-blocks --watch'"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -54,6 +55,7 @@
 		"@wordpress/element": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/icons": "12.2.0",
+		"@wordpress/interactivity": "6.44.0",
 		"@wordpress/url": "4.44.0",
 		"@wordpress/viewport": "6.44.0",
 		"clsx": "2.1.1",
