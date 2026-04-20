@@ -73,4 +73,87 @@ class Search_Blocks_Test extends TestCase {
 			$_GET = $original_get;
 		}
 	}
+
+	/**
+	 * Derive_filter_key must map built-in taxonomies to short keys and custom
+	 * taxonomies + meta to namespaced keys.
+	 */
+	public function test_filter_checkbox_derive_filter_key() {
+		$this->assertSame(
+			'category',
+			Filter_Checkbox::derive_filter_key(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'category',
+				)
+			)
+		);
+		$this->assertSame(
+			'post_tag',
+			Filter_Checkbox::derive_filter_key(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'post_tag',
+				)
+			)
+		);
+		$this->assertSame(
+			'taxonomy_genre',
+			Filter_Checkbox::derive_filter_key(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'genre',
+				)
+			)
+		);
+		$this->assertSame(
+			'post_type',
+			Filter_Checkbox::derive_filter_key( array( 'filterType' => 'post_type' ) )
+		);
+		$this->assertSame(
+			'meta_color',
+			Filter_Checkbox::derive_filter_key(
+				array(
+					'filterType' => 'post_meta',
+					'metaKey'    => 'color',
+				)
+			)
+		);
+	}
+
+	/**
+	 * Derive_es_field must map filter keys to the correct ES index fields.
+	 */
+	public function test_filter_checkbox_derive_es_field() {
+		$this->assertSame(
+			'category.slug',
+			Filter_Checkbox::derive_es_field(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'category',
+				),
+				'category'
+			)
+		);
+		$this->assertSame(
+			'taxonomy.genre.slug_slash_name',
+			Filter_Checkbox::derive_es_field(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'genre',
+				),
+				'taxonomy_genre'
+			)
+		);
+		$this->assertSame(
+			'meta.color.value',
+			Filter_Checkbox::derive_es_field(
+				array(
+					'filterType' => 'post_meta',
+					'metaKey'    => 'color',
+				),
+				'meta_color'
+			)
+		);
+	}
 }
