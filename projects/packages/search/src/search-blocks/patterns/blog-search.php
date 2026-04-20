@@ -15,7 +15,7 @@ register_block_pattern(
 <div class="wp-block-columns">
 
 <!-- wp:column {"width":"260px"} -->
-<div class="wp-block-column">
+<div class="wp-block-column" style="flex-basis:260px">
 <!-- wp:jetpack/search-input /-->
 <!-- wp:jetpack/active-filters /-->
 <!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category","label":"Category"} /-->
