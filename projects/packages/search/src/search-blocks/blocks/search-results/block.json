@@ -11,6 +11,7 @@
 		"interactivity": true
 	},
 	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/search-results.js",
 	"style": "file:../../../../build/search-blocks/search-results.css"
 }

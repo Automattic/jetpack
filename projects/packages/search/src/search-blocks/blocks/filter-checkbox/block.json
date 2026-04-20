@@ -45,6 +45,7 @@
 		"showCount": { "type": "boolean", "default": true },
 		"maxItems": { "type": "integer", "default": 10 }
 	},
+	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/filter-checkbox.js",
 	"style": "file:../../../../build/search-blocks/filter-checkbox.css"
 }

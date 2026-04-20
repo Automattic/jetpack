@@ -8,6 +8,7 @@
 	"description": "Message shown when Jetpack Search returns no results.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
 	"attributes": {
 		"message": { "type": "string", "default": "" }
 	}

@@ -8,6 +8,7 @@
 	"description": "Pills showing the currently selected Jetpack Search filters.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/active-filters.js",
 	"style": "file:../../../../build/search-blocks/active-filters.css"
 }
