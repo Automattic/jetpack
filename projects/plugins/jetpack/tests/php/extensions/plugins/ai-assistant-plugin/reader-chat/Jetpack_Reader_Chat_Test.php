@@ -35,6 +35,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		\Automattic\Jetpack\Status\Cache::clear();
 		delete_transient( AiAssistantPlugin\READER_CHAT_ASSET_TRANSIENT );
 		$this->saved_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
 		$this->saved_wp_styles  = $GLOBALS['wp_styles'] ?? null;
@@ -62,6 +63,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		$GLOBALS['wp_scripts'] = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']  = $this->saved_wp_styles;
+		\Automattic\Jetpack\Status\Cache::clear();
 		parent::tear_down();
 	}
 
@@ -136,7 +138,11 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 */
 	private function call_private_static( string $method_name, array $args = array() ) {
 		$method = new ReflectionMethod( Jetpack_Reader_Chat::class, $method_name );
-		$method->setAccessible( true );
+		// setAccessible() is required on PHP < 8.1, a no-op on 8.1-8.4,
+		// and deprecated on 8.5+. Only call it where it's actually needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invoke( null, ...$args );
 	}
 
@@ -321,10 +327,11 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$registered = $GLOBALS['wp_scripts']->registered['jetpack-reader-chat'] ?? null;
 		$this->assertNotNull( $registered, 'jetpack-reader-chat script should be registered.' );
 
-		$inline_scripts = $GLOBALS['wp_scripts']->get_data( 'jetpack-reader-chat', 'data' );
+		$inline_data = $GLOBALS['wp_scripts']->get_data( 'jetpack-reader-chat', 'before' );
+		$inline      = is_array( $inline_data ) ? implode( "\n", $inline_data ) : (string) $inline_data;
 		$this->assertStringContainsString(
 			'window.JetpackReaderChatConfig',
-			(string) $inline_scripts,
+			$inline,
 			'Inline config should set window.JetpackReaderChatConfig.'
 		);
 	}
@@ -344,7 +351,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		Jetpack_Reader_Chat::enqueue_scripts();
 
 		// The inline data is stored as raw JS; extract the JSON portion.
-		$inline = (string) $GLOBALS['wp_scripts']->get_data( 'jetpack-reader-chat', 'data' );
+		$inline_data = $GLOBALS['wp_scripts']->get_data( 'jetpack-reader-chat', 'before' );
+		$inline      = is_array( $inline_data ) ? implode( "\n", $inline_data ) : (string) $inline_data;
 		// The value is: `window.JetpackReaderChatConfig = {...};`
 		preg_match( '/window\.JetpackReaderChatConfig\s*=\s*(.+);$/', $inline, $matches );
 		$this->assertNotEmpty( $matches[1], 'Could not extract JSON from inline script.' );
