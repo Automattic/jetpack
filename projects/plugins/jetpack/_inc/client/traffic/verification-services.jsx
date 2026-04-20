@@ -95,7 +95,6 @@ class VerificationServicesComponent extends Component {
 					<ModuleToggle
 						slug={ verification.module }
 						activated={ isVerificationActive }
-						toggling={ this.props.isSavingAnyOption( [ verification.module ] ) }
 						disabled={ this.props.isSavingAnyOption( [ verification.module ] ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
