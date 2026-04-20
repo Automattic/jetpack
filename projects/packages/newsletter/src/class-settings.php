@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.8.3';
+	const PACKAGE_VERSION = '0.8.4';
 	/**
 	 * Whether the class has been initialized
 	 *

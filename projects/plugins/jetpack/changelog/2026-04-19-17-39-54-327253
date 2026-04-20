@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-VideoPress storage meters: replace custom Jetpack ProgressBar with @wordpress/components ProgressBar.

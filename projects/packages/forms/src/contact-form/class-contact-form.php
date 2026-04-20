@@ -2843,7 +2843,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 *
 			 * @module contact-form
 			 *
-			 * @since $$next-version$$
+			 * @since 7.19.0
 			 *
 			 * @param string $prefix Default subject prefix for test submissions.
 			 */
@@ -3009,7 +3009,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 *
 			 * @module contact-form
 			 *
-			 * @since $$next-version$$
+			 * @since 7.19.0
 			 *
 			 * @param bool     $send     Whether to send the test submission email. Default true.
 			 * @param int      $post_id  The feedback post ID.

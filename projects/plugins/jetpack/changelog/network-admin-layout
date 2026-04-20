@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Adopt the shared Jetpack admin-page-layout on the JP Network admin pages (Sites and Settings): pinned header, scrolling middle, pinned footer, no window-level scroll.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Storage meter: migrate ProgressBar to @wordpress/components; preserve color-by-usage-level styling via scoped CSS.

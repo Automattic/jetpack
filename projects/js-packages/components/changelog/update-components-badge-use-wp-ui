@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Removed internal Badge component in favor of @wordpress/ui.
