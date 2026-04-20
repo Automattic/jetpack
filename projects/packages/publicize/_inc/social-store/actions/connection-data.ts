@@ -233,7 +233,24 @@ export function syncConnectionsToPostMeta() {
  * @return A thunk to switch connection enable-status.
  */
 export function toggleConnectionById( connectionId: string ) {
-	return function ( { registry, dispatch } ) {
+	return function ( { registry, dispatch, select } ) {
+		const target = select.getConnectionById( connectionId );
+
+		// X Developer Policy forbids posting the same content to more than one
+		// X account. When the user turns ON an X connection, turn OFF any other
+		// X connection that is currently enabled so only one remains selected.
+		if ( target && target.service_name === 'x' && ! target.enabled ) {
+			for ( const connection of select.getConnections() ) {
+				if (
+					connection.service_name === 'x' &&
+					connection.enabled &&
+					connection.connection_id !== connectionId
+				) {
+					dispatch( toggleConnection( connection.connection_id ) );
+				}
+			}
+		}
+
 		dispatch( toggleConnection( connectionId ) );
 
 		const customizingPerNetwork = Boolean(
