@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social admin page: render the JetpackFooter unconditionally for parity with every other Jetpack admin page (Newsletter, Search, Backup, Protect, VideoPress, Boost, Network Admin).

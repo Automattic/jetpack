@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the jetpack_wp_admin_newsletter_settings_enabled filter; the wp-admin newsletter settings page is now always enabled.

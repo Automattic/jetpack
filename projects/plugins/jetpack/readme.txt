@@ -326,15 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.8-a.3 - 2026-04-15
+### 15.8-a.5 - 2026-04-20
 #### Enhancements
-- Forms: Support granular date filter in inbox.
-- Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator.
+- Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings).
+- AI Assistant: Add Jetpack AI sidebar that loads Agents Manager from the widgets.wp.com CDN (gated by the `jetpack_ai_sidebar_enabled` filter that defaults to false).
+- Remove the unused Title_Optimization_Ability stub.
+- Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection.
+
+#### Improved compatibility
+- Componentry: Use WordPress admin theme color variable instead of hardcoded color for text input focus state.
+- Tested up to WordPress 7.0.
 
 #### Bug fixes
-- Fix taxonomies endpoint returning error when number parameter exceeds 1000.
-- Forms: Fix the Form block not being usable when the Blocks module is inactive.
-- Sync: Increase lock time tolerance in tests.
+- Settings: Show an empty state when search returns no matching settings.
 
 --------
 

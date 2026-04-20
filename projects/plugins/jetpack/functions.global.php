@@ -515,7 +515,7 @@ if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
 	 * it directly, because that package is only available on WordPress.com
 	 * hosted sites, while Jetpack also runs on self-hosted sites.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.8
 	 *
 	 * @return bool
 	 */
