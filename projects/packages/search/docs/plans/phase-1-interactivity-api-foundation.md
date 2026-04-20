@@ -870,7 +870,7 @@ class Search_Blocks_Test extends TestCase {
 		$required_keys = [
 			'siteId',
 			'apiRoot',
-			'apiNonce',
+			'nonce',
 			'isPrivateSite',
 			'isWpcom',
 			'homeUrl',
@@ -990,7 +990,7 @@ class Search_Blocks {
 			// Connection / routing config.
 			'siteId'        => $site_id,
 			'apiRoot'       => esc_url_raw( rest_url() ),
-			'apiNonce'      => wp_create_nonce( 'wp_rest' ),
+			'nonce'         => wp_create_nonce( 'wp_rest' ),
 			'isPrivateSite' => $is_private,
 			'isWpcom'       => $is_wpcom,
 			'homeUrl'       => home_url(),
