@@ -69,16 +69,15 @@ class Jetpack_Reader_Chat {
 
 		/**
 		 * Filter to override the AI features check.
-		 * Set to true to load reader chat regardless of Jetpack connection status.
-		 * Useful for testing on dev sites.
+		 *
+		 * Set to true to load reader chat regardless of Jetpack connection
+		 * status, or false to force-disable. Defaults to null, meaning use
+		 * the built-in check. Useful for testing on dev sites.
 		 *
 		 * @param bool|null $override null = use default check, true/false = override.
 		 */
 		$has_features = apply_filters( 'jetpack_reader_chat_has_ai_features', null );
-		if ( null === $has_features ) {
-			$has_features = self::has_ai_features();
-		}
-		if ( ! $has_features ) {
+		if ( ! ( $has_features ?? self::has_ai_features() ) ) {
 			return;
 		}
 
@@ -147,43 +146,51 @@ class Jetpack_Reader_Chat {
 			'agentId'   => 'reader-chat',
 		);
 
-		// Add current post context when on a singular page.
-		if ( is_singular() ) {
-			$post = get_post();
-			if ( $post ) {
-				$config['currentPost'] = array(
-					'id'      => $post->ID,
-					'title'   => get_the_title( $post ),
-					'url'     => get_permalink( $post ),
-					'excerpt' => wp_trim_words( wp_strip_all_tags( $post->post_content ), 120 ),
-					'author'  => get_the_author_meta( 'display_name', $post->post_author ),
-					'date'    => get_the_date( 'F j, Y', $post ),
-				);
-
-				// Get categories and tags for context.
-				$categories = get_the_category( $post->ID );
-				if ( $categories ) {
-					$config['currentPost']['categories'] = array_map(
-						function ( $cat ) {
-							return $cat->name;
-						},
-						$categories
-					);
-				}
-
-				$tags = get_the_tags( $post->ID );
-				if ( $tags ) {
-					$config['currentPost']['tags'] = array_map(
-						function ( $tag ) {
-							return $tag->name;
-						},
-						$tags
-					);
-				}
-			}
+		$current_post = self::get_current_post_context();
+		if ( null !== $current_post ) {
+			$config['currentPost'] = $current_post;
 		}
 
 		return $config;
+	}
+
+	/**
+	 * Build the current post context for the reader chat config.
+	 *
+	 * Returns null on non-singular views or when no post is available.
+	 *
+	 * @return array|null Post context, or null when not on a singular view.
+	 */
+	private static function get_current_post_context(): ?array {
+		if ( ! is_singular() ) {
+			return null;
+		}
+
+		$post = get_post();
+		if ( ! $post ) {
+			return null;
+		}
+
+		$context = array(
+			'id'      => $post->ID,
+			'title'   => get_the_title( $post ),
+			'url'     => get_permalink( $post ),
+			'excerpt' => wp_trim_words( wp_strip_all_tags( $post->post_content ), 120 ),
+			'author'  => get_the_author_meta( 'display_name', $post->post_author ),
+			'date'    => get_the_date( 'F j, Y', $post ),
+		);
+
+		$categories = get_the_category( $post->ID );
+		if ( $categories ) {
+			$context['categories'] = wp_list_pluck( $categories, 'name' );
+		}
+
+		$tags = get_the_tags( $post->ID );
+		if ( $tags ) {
+			$context['tags'] = wp_list_pluck( $tags, 'name' );
+		}
+
+		return $context;
 	}
 
 	/**
@@ -246,12 +253,7 @@ class Jetpack_Reader_Chat {
 			return false;
 		}
 
-		$data = json_decode( $contents, true );
-		if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $data ) ) {
-			return false;
-		}
-
-		return $data;
+		return self::decode_asset_json( $contents );
 	}
 
 	/**
@@ -266,11 +268,20 @@ class Jetpack_Reader_Chat {
 			return false;
 		}
 
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $data ) ) {
+		return self::decode_asset_json( wp_remote_retrieve_body( $response ) );
+	}
+
+	/**
+	 * Decode a JSON asset manifest string and validate the result is an array.
+	 *
+	 * @param string $contents Raw JSON string.
+	 * @return array|false Decoded array or false on decode failure / non-array.
+	 */
+	private static function decode_asset_json( string $contents ) {
+		$data = json_decode( $contents, true );
+		if ( JSON_ERROR_NONE !== json_last_error() || ! is_array( $data ) ) {
 			return false;
 		}
-
 		return $data;
 	}
 
