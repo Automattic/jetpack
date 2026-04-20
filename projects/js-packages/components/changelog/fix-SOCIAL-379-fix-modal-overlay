@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Navigator modal: allow overlay closing when users click it.
