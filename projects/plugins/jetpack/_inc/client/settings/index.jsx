@@ -75,12 +75,6 @@ class Settings extends Component {
 						active={ '/discussion' === pathname }
 						{ ...commonProps }
 					/>
-					<Subscriptions
-						siteRawUrl={ siteRawUrl }
-						blogID={ blogID }
-						active={ '/newsletter' === pathname }
-						{ ...commonProps }
-					/>
 					<Reader active={ '/reader' === pathname } blogID={ blogID } { ...commonProps } />
 					<Earn
 						siteRawUrl={ siteRawUrl }
@@ -116,6 +110,7 @@ class Settings extends Component {
 						{ ...commonProps }
 					/>
 					<Privacy active={ '/privacy' === pathname } { ...commonProps } />
+					<Subscriptions siteAdminUrl={ siteAdminUrl } searchTerm={ searchTerm } />
 					<SearchableModules searchTerm={ searchTerm } />
 				</div>
 				<GlobalNotices />
