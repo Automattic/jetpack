@@ -136,6 +136,9 @@ class Initializer {
 			add_action( 'widgets_init', array( static::class, 'jetpack_search_widget_init' ) );
 		}
 
+		// Register Interactivity API search blocks (independent of instant/classic mode).
+		Search_Blocks::init();
+
 		return $success;
 	}
 
