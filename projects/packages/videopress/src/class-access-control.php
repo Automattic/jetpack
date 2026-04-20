@@ -395,7 +395,11 @@ class Access_Control {
 		}
 
 		$embedded_post_id = (int) $embedded_post_id;
-		if ( $embedded_post_id && ! $this->post_embeds_videopress_guid( $embedded_post_id, $guid ) ) {
+		if (
+			$embedded_post_id
+			&& VIDEOPRESS_PRIVACY::IS_PUBLIC !== $video_info->privacy_setting
+			&& ! $this->post_embeds_videopress_guid( $embedded_post_id, $guid )
+		) {
 			$embedded_post_id = 0;
 		}
 
