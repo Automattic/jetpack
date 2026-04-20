@@ -3,6 +3,7 @@ import { CheckboxControl, ExternalLink, Notice, Button } from '@wordpress/compon
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Notice as UiNotice } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -69,6 +70,10 @@ export function ConfirmationForm( {
 	const service = supportedServices.find(
 		supportedService => supportedService.id === keyringResult.service
 	);
+	const hasExistingXConnection =
+		service?.id === 'x' &&
+		existingConnections.some( connection => connection.service_name === 'x' );
+
 	const isAlreadyConnected = useCallback(
 		( externalID: string ) => {
 			return existingConnections.some(
@@ -215,6 +220,19 @@ export function ConfirmationForm( {
 								</ExternalLink>
 							</p>
 						</Notice>
+					) }
+					{ hasExistingXConnection && (
+						<UiNotice.Root intent="info" className={ styles[ 'x-policy-notice' ] }>
+							<UiNotice.Title>
+								{ __( 'Only one X account can be shared to per post', 'jetpack-publicize-pkg' ) }
+							</UiNotice.Title>
+							<UiNotice.Description>
+								{ __(
+									"Per X's developer policy, Jetpack Social will only share each post to one X account, even if you connect multiple. You can pick which X account to share to in the editor.",
+									'jetpack-publicize-pkg'
+								) }
+							</UiNotice.Description>
+						</UiNotice.Root>
 					) }
 					<form className={ styles.form } onSubmit={ onConfirm } id="connection-confirmation-form">
 						{
