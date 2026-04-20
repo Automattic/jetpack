@@ -843,6 +843,10 @@ git commit -m "Search 3.0: add Interactivity API store, API client, and URL stat
 
 Register all blocks and seed initial server-side state.
 
+> **Load-bearing assumption — `wp_interactivity_state()` deep-merges.** The `filterConfigs` pattern depends on *each* `filter-checkbox` block's `render.php` adding its own entry (keyed by `filterKey`) under `filterConfigs` and having them all coexist. WP core's implementation uses `array_replace_recursive` (`WP_Interactivity_API::state()` in `wp-includes/interactivity-api/class-wp-interactivity-api.php`), which does deep-merge for associative arrays — so `wp_interactivity_state( 'ns', [ 'filterConfigs' => [ 'category' => … ] ] )` followed by `wp_interactivity_state( 'ns', [ 'filterConfigs' => [ 'post_tag' => … ] ] )` yields both keys. Step 3.1 includes an explicit regression test (`test_filter_configs_deep_merge`) to pin this behavior; if WP ever changes the merge strategy, the test fails loudly.
+>
+> Gotcha for implementers: `array_replace_recursive` replaces elements by numeric index for list-like arrays. `filterConfigs` is associative (keyed by `filterKey` string), so this is fine. Do **not** introduce list-shaped values at the merge site without re-checking this behavior.
+
 **Files:**
 - Create: `src/search-blocks/class-search-blocks.php`
 - Modify: `src/initializers/class-initializer.php`
@@ -892,6 +896,34 @@ class Search_Blocks_Test extends TestCase {
 		foreach ( $required_keys as $key ) {
 			$this->assertArrayHasKey( $key, $state, "Missing key: $key" );
 		}
+	}
+
+	/**
+	 * Pins WP core's wp_interactivity_state() merge behavior.
+	 *
+	 * The filterConfigs pattern requires that multiple wp_interactivity_state() calls
+	 * with different sub-keys under 'filterConfigs' all survive the merge. WP core
+	 * uses array_replace_recursive which deep-merges associative arrays. If that
+	 * ever changes, only the last filter block on a page would register a config
+	 * and the search would silently drop all other filters.
+	 */
+	public function test_filter_configs_deep_merge() {
+		if ( ! function_exists( 'wp_interactivity_state' ) ) {
+			$this->markTestSkipped( 'wp_interactivity_state() not available in this bootstrap.' );
+		}
+
+		wp_interactivity_state( 'jetpack-search-merge-test', array(
+			'filterConfigs' => array( 'category' => array( 'esField' => 'category.slug' ) ),
+		) );
+		wp_interactivity_state( 'jetpack-search-merge-test', array(
+			'filterConfigs' => array( 'post_tag' => array( 'esField' => 'tag.slug' ) ),
+		) );
+
+		$merged = wp_interactivity_state( 'jetpack-search-merge-test' );
+		$this->assertArrayHasKey( 'category', $merged['filterConfigs'] );
+		$this->assertArrayHasKey( 'post_tag', $merged['filterConfigs'] );
+		$this->assertSame( 'category.slug', $merged['filterConfigs']['category']['esField'] );
+		$this->assertSame( 'tag.slug',      $merged['filterConfigs']['post_tag']['esField'] );
 	}
 }
 ```
