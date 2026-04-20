@@ -591,7 +591,6 @@ class WooCommerce extends Module {
 		'woocommerce_visa_acceptance_solutions_unified_checkout_settings',
 		'woocommerce_bacs_settings', // This relates to offline payments.
 		'woocommerce_cheque_settings', // This relates to offline payments.
-		'woocommerce_cod_setting', // This relates to offline payments.
 	);
 
 	/**
