@@ -107,7 +107,24 @@ class Initializer {
 		// connection/plan/module state so the blocks appear in the editor on
 		// any site that has the package loaded; runtime queries still require
 		// a connected site with a Search plan.
-		Search_Blocks::init();
+		//
+		// Gated behind the `jetpack_search_blocks_enabled` filter, which
+		// defaults to false. This is the feature flag for Phase 1 of Search
+		// 3.0: the blocks, pattern, and shared Interactivity API store only
+		// register when a site has explicitly opted in.
+		/**
+		 * Filter whether the Jetpack Search 3.0 Interactivity API blocks are enabled.
+		 *
+		 * Returning true registers the blocks, the "Jetpack Search" block +
+		 * pattern categories, the "Blog Search Page" pattern, and seeds the
+		 * Interactivity API store on the front end. Default is false until
+		 * Search 3.0 ships.
+		 *
+		 * @param bool $enabled Default false.
+		 */
+		if ( apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
+			Search_Blocks::init();
+		}
 	}
 
 	/**

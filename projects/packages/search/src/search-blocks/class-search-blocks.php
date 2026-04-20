@@ -17,26 +17,10 @@ class Search_Blocks {
 	/**
 	 * Register block types and hook into WordPress.
 	 *
-	 * Gated behind the `jetpack_search_blocks_enabled` filter, which defaults
-	 * to false. This is a feature flag for Phase 1 of Search 3.0: the blocks,
-	 * pattern, and shared Interactivity API store only register when a site
-	 * has explicitly opted in.
+	 * The caller (Initializer) is responsible for gating this behind the
+	 * `jetpack_search_blocks_enabled` feature flag.
 	 */
 	public static function init() {
-		/**
-		 * Filter whether the Jetpack Search 3.0 Interactivity API blocks are enabled.
-		 *
-		 * Returning true registers the blocks, the "Jetpack Search" block +
-		 * pattern categories, the "Blog Search Page" pattern, and seeds the
-		 * Interactivity API store on the front end. Default is false until
-		 * Search 3.0 ships.
-		 *
-		 * @param bool $enabled Default false.
-		 */
-		if ( ! apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
-			return;
-		}
-
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
