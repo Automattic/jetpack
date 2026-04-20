@@ -386,7 +386,7 @@ class Access_Control {
 		}
 
 		foreach ( $matches[0] as $url ) {
-			if ( $guid === videopress_extract_guid_from_url( $url ) ) {
+			if ( $guid === Utils::extract_videopress_guid_from_url( $url ) ) {
 				return true;
 			}
 		}
