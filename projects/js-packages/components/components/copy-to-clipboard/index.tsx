@@ -57,16 +57,16 @@ export const CopyToClipboard: FC< CopyToClipboardProps > = ( {
 	}
 
 	// Cast works around WP Button's discriminated-union type, which can't be
-	// satisfied when forwarding pass-through props.
+	// satisfied when forwarding pass-through props. `ref` stays a JSX prop so
+	// React wires it up instead of treating it as a regular DOM attribute.
 	const wpButtonProps = {
+		...buttonProps,
 		'aria-label': copyLabel,
 		icon,
-		ref: copyRef,
-		...buttonProps,
 		children: label,
 	} as ComponentProps< typeof Button >;
 
-	const button = <Button { ...wpButtonProps } />;
+	const button = <Button { ...wpButtonProps } ref={ copyRef } />;
 
 	if ( buttonStyle === 'icon' ) {
 		return (
