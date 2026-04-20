@@ -40,6 +40,9 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->saved_wp_styles  = $GLOBALS['wp_styles'] ?? null;
 		$GLOBALS['wp_scripts']  = new WP_Scripts();
 		$GLOBALS['wp_styles']   = new WP_Styles();
+		// Prevent DOING_AJAX constant (once defined as true) from leaking into
+		// tests that don't intend to simulate an AJAX request.
+		add_filter( 'wp_doing_ajax', '__return_false' );
 		$this->simulate_connected_owner();
 	}
 
@@ -52,6 +55,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reader_chat_has_ai_features' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'wp_doing_ajax' );
 		// Remove any wp_enqueue_scripts / wp_footer hooks the class may have added.
 		remove_all_actions( 'wp_enqueue_scripts' );
 		remove_all_actions( 'wp_footer' );
@@ -230,12 +234,15 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->override_ai_features( true );
 		$this->cache_asset_data();
 
-		// Force is_feed() to return true for the duration of this test.
-		add_filter( 'is_feed', '__return_true' );
+		// WP_Query::is_feed() reads the property directly without applying the
+		// 'is_feed' filter, so we set the property on the global query object.
+		global $wp_query;
+		$saved_is_feed     = $wp_query->is_feed;
+		$wp_query->is_feed = true;
 
 		Jetpack_Reader_Chat::enqueue_scripts();
 
-		remove_filter( 'is_feed', '__return_true' );
+		$wp_query->is_feed = $saved_is_feed;
 
 		$this->assertFalse(
 			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
@@ -250,14 +257,10 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->override_ai_features( true );
 		$this->cache_asset_data();
 
-		if ( ! defined( 'DOING_AJAX' ) ) {
-			define( 'DOING_AJAX', true );
-		}
-
-		// Only run if we can actually simulate AJAX (constant may already be defined).
-		if ( ! DOING_AJAX ) {
-			$this->markTestSkipped( 'Cannot redefine DOING_AJAX to true in this environment.' );
-		}
+		// Use the filterable wp_doing_ajax() instead of the DOING_AJAX constant
+		// so that defining the constant in one test doesn't poison later tests.
+		// Priority 20 overrides the setUp()'s '__return_false' at priority 10.
+		add_filter( 'wp_doing_ajax', '__return_true', 20 );
 
 		Jetpack_Reader_Chat::enqueue_scripts();
 

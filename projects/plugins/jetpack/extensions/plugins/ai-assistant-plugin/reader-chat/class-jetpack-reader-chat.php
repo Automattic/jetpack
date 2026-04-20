@@ -63,7 +63,7 @@ class Jetpack_Reader_Chat {
 	 * @return void
 	 */
 	public static function enqueue_scripts(): void {
-		if ( is_admin() || is_feed() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+		if ( is_admin() || is_feed() || wp_doing_ajax() ) {
 			return;
 		}
 
@@ -176,7 +176,7 @@ class Jetpack_Reader_Chat {
 			'title'   => get_the_title( $post ),
 			'url'     => get_permalink( $post ),
 			'excerpt' => wp_trim_words( wp_strip_all_tags( $post->post_content ), 120 ),
-			'author'  => get_the_author_meta( 'display_name', $post->post_author ),
+			'author'  => get_the_author_meta( 'display_name', (int) $post->post_author ),
 			'date'    => get_the_date( 'F j, Y', $post ),
 		);
 
