@@ -2,6 +2,23 @@ import { flatten } from 'q-flat';
 import { encode } from 'qss';
 
 /**
+ * Fields to request from the v1.3 Jetpack Search API. Without an explicit
+ * `fields[]` list the API only returns `date` / `post_id`, so result cards
+ * render blank. Keep this in sync with Search_Blocks::SEARCH_FIELDS in PHP.
+ */
+export const SEARCH_FIELDS = [
+	'date',
+	'permalink.url.raw',
+	'post_type',
+	'title.default',
+	'has.image',
+	'image.url.raw',
+	'image.alt_text',
+];
+
+export const HIGHLIGHT_FIELDS = [ 'title', 'content' ];
+
+/**
  * Build the full search API URL with query params.
  * Mirrors the 3-path routing in src/instant-search/lib/api.js.
  *
@@ -30,6 +47,8 @@ export function buildSearchUrl( {
 		query: encodeURIComponent( searchQuery || '' ),
 		sort: sortOrder === 'date' ? 'date_desc' : 'score_default',
 		size: 10,
+		fields: SEARCH_FIELDS,
+		highlight_fields: HIGHLIGHT_FIELDS,
 	};
 
 	if ( pageHandle ) {

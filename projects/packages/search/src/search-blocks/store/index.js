@@ -3,44 +3,111 @@ import { buildSearchUrl } from './api';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
+const SAFE_URL_PATTERN = /^https?:\/\//i;
 
 /**
- * Allow http(s) links only. Anything else — javascript:, data:, vbscript:, etc. —
- * is a potential DOM-XSS vector when written to an <a href> via data-wp-bind--href.
- * The v1.3 Jetpack Search API is trusted, but defense in depth: the trust boundary
- * for rendering untyped URL strings belongs in our code, not in the API.
- */
-const SAFE_URL_PATTERN = /^https?:\/\//i;
-/**
- * Return the URL if it is an http(s) URL, otherwise '#'.
+ * Ensure a URL starts with http(s)://. The v1.3 API returns hostless URLs
+ * (e.g. `example.com/foo/`), which we promote to https. Anything that still
+ * isn't http(s) after promotion is rejected so a compromised API response
+ * can't inject a javascript:/data: URL into an href.
  *
- * @param {string} url - URL to check.
- * @return {string} Safe URL.
+ * @param {string} raw - Raw URL from the API.
+ * @return {string} Safe http(s) URL or ''.
  */
-function sanitizePermalink( url ) {
-	return typeof url === 'string' && SAFE_URL_PATTERN.test( url ) ? url : '#';
+function toSafeUrl( raw ) {
+	if ( typeof raw !== 'string' || raw === '' ) {
+		return '';
+	}
+	const withScheme = SAFE_URL_PATTERN.test( raw ) ? raw : `https://${ raw.replace( /^\/+/, '' ) }`;
+	return SAFE_URL_PATTERN.test( withScheme ) ? withScheme : '';
+}
+
+/**
+ * Format an ISO date string as "Mon D, YYYY" using the page locale.
+ *
+ * @param {string} iso - ISO-ish date string.
+ * @return {string} Formatted date or ''.
+ */
+function formatDate( iso ) {
+	if ( ! iso ) {
+		return '';
+	}
+	const fixed = String( iso ).replace( /\.\d+/, '' ).replace( ' ', 'T' );
+	const d = new Date( fixed );
+	if ( isNaN( d.getTime() ) ) {
+		return '';
+	}
+	const locale = ( typeof document !== 'undefined' && document.documentElement.lang ) || 'en-US';
+	return d.toLocaleDateString( locale, {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+	} );
+}
+
+/**
+ * Derive a breadcrumb-style path from a permalink ("2023 › 01 › 13 › slug").
+ *
+ * @param {string} permalink - Full URL.
+ * @return {string} Breadcrumb string or ''.
+ */
+function formatPath( permalink ) {
+	if ( ! permalink ) {
+		return '';
+	}
+	try {
+		const url = new URL( permalink );
+		const parts = url.pathname.split( '/' ).filter( Boolean ).map( decodeURIComponent );
+		return parts.join( ' › ' );
+	} catch {
+		return '';
+	}
+}
+
+/**
+ * Pull a plain-text string out of a v1.3 `highlight` field, which arrives as
+ * an array of snippets with `<mark>` tags. We render via data-wp-text, so HTML
+ * would show as literal tags — strip them here.
+ *
+ * @param {*} highlight - Highlight value (array of strings or string).
+ * @return {string} Plain text.
+ */
+function stripHighlightTags( highlight ) {
+	const raw = Array.isArray( highlight ) ? highlight.join( ' ' ) : highlight;
+	if ( typeof raw !== 'string' ) {
+		return '';
+	}
+	return raw.replace( /<\/?mark[^>]*>/gi, '' );
+}
+
+/**
+ * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
+ * Interactivity API templates. Mirrors Search_Blocks::normalize_result() in PHP.
+ *
+ * @param {object} raw - Raw result from the API.
+ * @return {object} Flat result.
+ */
+function normalizeResult( raw ) {
+	const fields = raw?.fields ?? {};
+	const highlight = raw?.highlight ?? {};
+	const permalink = toSafeUrl( fields[ 'permalink.url.raw' ] );
+	const rawImage = fields[ 'image.url.raw' ];
+	const imageSrc = Array.isArray( rawImage ) ? rawImage[ 0 ] : rawImage;
+	const imageUrl = toSafeUrl( imageSrc );
+	const title =
+		stripHighlightTags( highlight.title ) || fields[ 'title.default' ] || fields.title || '';
+	return {
+		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
+		title,
+		permalink,
+		path: formatPath( permalink ),
+		dateLabel: formatDate( fields.date ),
+		imageUrl,
+	};
 }
 
 const { state, actions } = store( NAMESPACE, {
 	state: {
-		/**
-		 * Search results with permalinks scheme-validated for safe use in
-		 * data-wp-bind--href. Templates must bind to state.safeResults, not
-		 * state.results, so a compromised or buggy API response cannot inject
-		 * a javascript:/data: URL into an href.
-		 *
-		 * @return {Array<object>} Results with sanitized permalinks.
-		 */
-		get safeResults() {
-			return ( state.results ?? [] ).map( result => ( {
-				...result,
-				fields: {
-					...( result.fields ?? {} ),
-					permalink: sanitizePermalink( result.fields?.permalink ),
-				},
-			} ) );
-		},
-
 		/**
 		 * Short human-readable results count for display blocks.
 		 *
@@ -87,7 +154,7 @@ const { state, actions } = store( NAMESPACE, {
 				} );
 				const data = yield response.json();
 
-				state.results = data.results ?? [];
+				state.results = ( data.results ?? [] ).map( normalizeResult );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
 				actions.syncToUrl();
@@ -130,7 +197,7 @@ const { state, actions } = store( NAMESPACE, {
 				} );
 				const data = yield response.json();
 
-				state.results = [ ...state.results, ...( data.results ?? [] ) ];
+				state.results = [ ...state.results, ...( data.results ?? [] ).map( normalizeResult ) ];
 				state.pageHandle = data.page_handle ?? null;
 			} finally {
 				state.isLoadingMore = false;
