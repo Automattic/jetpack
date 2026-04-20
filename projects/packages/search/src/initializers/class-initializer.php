@@ -102,6 +102,12 @@ class Initializer {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		// The dashboard has to be initialized before connection.
 		( new Dashboard() )->init_hooks();
+		// Register the Interactivity API search blocks. These register
+		// server-side (block types, patterns, variations) regardless of
+		// connection/plan/module state so the blocks appear in the editor on
+		// any site that has the package loaded; runtime queries still require
+		// a connected site with a Search plan.
+		Search_Blocks::init();
 	}
 
 	/**
@@ -135,9 +141,6 @@ class Initializer {
 			// registers Jetpack Search widget.
 			add_action( 'widgets_init', array( static::class, 'jetpack_search_widget_init' ) );
 		}
-
-		// Register Interactivity API search blocks (independent of instant/classic mode).
-		Search_Blocks::init();
 
 		return $success;
 	}
