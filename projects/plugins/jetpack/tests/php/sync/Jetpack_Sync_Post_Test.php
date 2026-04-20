@@ -1775,4 +1775,24 @@ That was a cool video.';
 		$this->assertEquals( $filtered_posts, array( $post_1 ) );
 		$this->assertEquals( $filtered_metadata, $post_metadata_1 );
 	}
+
+	public function test_guideline_meta_keys_in_post_meta_whitelist() {
+		require_once ABSPATH . 'wp-content/plugins/wpcomsh/feature-plugins/gutenberg-mods.php';
+
+		$whitelist = Defaults::get_post_meta_whitelist();
+
+		$this->assertContains( '_guideline_copy', $whitelist, 'Static key _guideline_copy must be in post_meta_whitelist.' );
+		$this->assertContains( '_guideline_images', $whitelist, 'Static key _guideline_images must be in post_meta_whitelist.' );
+		$this->assertContains( '_guideline_site', $whitelist, 'Static key _guideline_site must be in post_meta_whitelist.' );
+		$this->assertContains( '_guideline_additional', $whitelist, 'Static key _guideline_additional must be in post_meta_whitelist.' );
+
+		$has_dynamic_key = false;
+		foreach ( $whitelist as $key ) {
+			if ( str_starts_with( $key, '_guideline_block_' ) ) {
+				$has_dynamic_key = true;
+				break;
+			}
+		}
+		$this->assertTrue( $has_dynamic_key, 'At least one _guideline_block_* dynamic key must be in post_meta_whitelist.' );
+	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Whitelist Guidelines CPT post meta for Jetpack sync, so WPCOM-hosted agents can read guidelines on Atomic sites.
