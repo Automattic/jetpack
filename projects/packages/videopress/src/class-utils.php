@@ -70,7 +70,7 @@ class Utils {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param string $url The URL to check.
+	 * @param mixed $url The URL to check. Non-strings return false.
 	 * @return bool True if the URL is a VideoPress URL, false otherwise.
 	 */
 	public static function is_videopress_url( $url ) {
