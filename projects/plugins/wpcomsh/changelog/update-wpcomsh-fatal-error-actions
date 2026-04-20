@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Redesign the fatal error screen with action buttons (contact support, open dashboard, reload) and clearer copy.
