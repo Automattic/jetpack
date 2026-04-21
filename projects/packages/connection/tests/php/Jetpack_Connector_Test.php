@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for the Wpcom_Connector class.
+ * Unit tests for the Jetpack_Connector class.
  *
  * @package automattic/jetpack-connection
  */
@@ -13,12 +13,12 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 
 /**
- * Tests for the WordPress.com connector card handler.
+ * Tests for the Jetpack connector card handler.
  *
- * @covers \Automattic\Jetpack\Connection\Wpcom_Connector
+ * @covers \Automattic\Jetpack\Connection\Jetpack_Connector
  */
-#[CoversClass( Wpcom_Connector::class )]
-class Wpcom_Connector_Test extends TestCase {
+#[CoversClass( Jetpack_Connector::class )]
+class Jetpack_Connector_Test extends TestCase {
 
 	/**
 	 * Admin user ID created for the test.
@@ -34,7 +34,7 @@ class Wpcom_Connector_Test extends TestCase {
 		parent::setUp();
 
 		// Reset the static $initialized flag so init() can be called in each test.
-		$ref  = new \ReflectionClass( Wpcom_Connector::class );
+		$ref  = new \ReflectionClass( Jetpack_Connector::class );
 		$prop = $ref->getProperty( 'initialized' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -67,7 +67,7 @@ class Wpcom_Connector_Test extends TestCase {
 		remove_all_actions( 'jetpack_client_authorize_error' );
 
 		// Clean up any auth error transients left by tests.
-		delete_transient( 'wpcom_connector_auth_error_' . $this->admin_id );
+		delete_transient( 'jetpack_connector_auth_error_' . $this->admin_id );
 
 		$reflection_class = new \ReflectionClass( '\Automattic\Jetpack\Connection\Plugin_Storage' );
 		try {
@@ -103,26 +103,26 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that init() registers the expected hooks.
 	 */
 	public function test_init_registers_hooks() {
-		Wpcom_Connector::init();
+		Jetpack_Connector::init();
 
-		$this->assertIsInt( has_action( 'wp_connectors_init', array( Wpcom_Connector::class, 'register_connector' ) ) );
-		$this->assertIsInt( has_action( 'admin_enqueue_scripts', array( Wpcom_Connector::class, 'enqueue_script_module' ) ) );
-		$this->assertIsInt( has_action( 'jetpack_client_authorize_error', array( Wpcom_Connector::class, 'store_auth_error' ) ) );
+		$this->assertIsInt( has_action( 'wp_connectors_init', array( Jetpack_Connector::class, 'register_connector' ) ) );
+		$this->assertIsInt( has_action( 'admin_enqueue_scripts', array( Jetpack_Connector::class, 'enqueue_script_module' ) ) );
+		$this->assertIsInt( has_action( 'jetpack_client_authorize_error', array( Jetpack_Connector::class, 'store_auth_error' ) ) );
 	}
 
 	/**
 	 * Test that init() only runs once.
 	 */
 	public function test_init_runs_only_once() {
-		Wpcom_Connector::init();
+		Jetpack_Connector::init();
 		// Remove hooks to detect if init registers them again.
 		remove_all_actions( 'wp_connectors_init' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 
-		Wpcom_Connector::init();
+		Jetpack_Connector::init();
 
-		$this->assertFalse( has_action( 'wp_connectors_init', array( Wpcom_Connector::class, 'register_connector' ) ) );
-		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Wpcom_Connector::class, 'enqueue_script_module' ) ) );
+		$this->assertFalse( has_action( 'wp_connectors_init', array( Jetpack_Connector::class, 'register_connector' ) ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Jetpack_Connector::class, 'enqueue_script_module' ) ) );
 	}
 
 	/* ── register_connector() ──────────────────────────────────── */
@@ -146,12 +146,12 @@ class Wpcom_Connector_Test extends TestCase {
 			}
 		};
 
-		Wpcom_Connector::register_connector( $registry ); // @phan-suppress-current-line PhanTypeMismatchArgument -- anonymous stub satisfies the runtime interface.
+		Jetpack_Connector::register_connector( $registry ); // @phan-suppress-current-line PhanTypeMismatchArgument -- anonymous stub satisfies the runtime interface.
 
 		$this->assertSame( 'wordpress_com', $registry->captured[0] );
 		$this->assertIsArray( $registry->captured[1] );
 		$this->assertSame( 'cloud_service', $registry->captured[1]['type'] );
-		$this->assertStringContainsString( 'wpcom-logo.svg', $registry->captured[1]['logo_url'] );
+		$this->assertStringContainsString( 'jetpack-connect.svg', $registry->captured[1]['logo_url'] );
 		$this->assertArrayHasKey( 'name', $registry->captured[1] );
 		$this->assertArrayHasKey( 'description', $registry->captured[1] );
 	}
@@ -163,7 +163,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 */
 	public function test_get_connector_data_when_disconnected() {
 		// Site is not registered (no blog token).
-		$data = Wpcom_Connector::get_connector_data( array() );
+		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertFalse( $data['isConnected'] );
 		$this->assertFalse( $data['isRegistered'] );
@@ -181,7 +181,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that pre-existing data array keys are preserved.
 	 */
 	public function test_get_connector_data_preserves_existing_keys() {
-		$data = Wpcom_Connector::get_connector_data( array( 'customKey' => 'customValue' ) );
+		$data = Jetpack_Connector::get_connector_data( array( 'customKey' => 'customValue' ) );
 
 		$this->assertSame( 'customValue', $data['customKey'] );
 		$this->assertArrayHasKey( 'isConnected', $data );
@@ -196,7 +196,7 @@ class Wpcom_Connector_Test extends TestCase {
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
 		\Jetpack_Options::update_option( 'id', 12345 );
 
-		$data = Wpcom_Connector::get_connector_data( array() );
+		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
 	}
@@ -211,7 +211,7 @@ class Wpcom_Connector_Test extends TestCase {
 		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
 		\Jetpack_Options::update_option( 'active_modules', array() );
 
-		$data = Wpcom_Connector::get_connector_data( array() );
+		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertFalse( $data['ssoStatus'] );
 	}
@@ -226,7 +226,7 @@ class Wpcom_Connector_Test extends TestCase {
 		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
 		\Jetpack_Options::update_option( 'active_modules', array( 'sso' ) );
 
-		$data = Wpcom_Connector::get_connector_data( array() );
+		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertTrue( $data['ssoStatus'] );
 	}
@@ -282,10 +282,10 @@ class Wpcom_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Test that woo-prefixed slugs get the Woo logo.
+	 * Test that woocommerce-prefixed slugs get the Woo logo.
 	 */
 	public function test_logo_url_woo_prefix() {
-		$url = $this->call_get_plugin_logo_url( 'woo-subscriptions' );
+		$url = $this->call_get_plugin_logo_url( 'woocommerce-subscriptions' );
 		$this->assertStringContainsString( 'woo-icon.svg', $url );
 	}
 
@@ -302,6 +302,80 @@ class Wpcom_Connector_Test extends TestCase {
 	 */
 	public function test_logo_url_unknown_returns_null() {
 		$this->assertNull( $this->call_get_plugin_logo_url( 'some-other-plugin' ) );
+	}
+
+	/* ── get_connector_logo_url() ─────────────────────────────── */
+
+	/**
+	 * Test that the default connector logo is jetpack-connect.svg when no plugins are connected.
+	 */
+	public function test_connector_logo_default() {
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect.svg', $url );
+		$this->assertStringNotContainsString( 'jetpack-connect-woo', $url );
+		$this->assertStringNotContainsString( 'jetpack-connect-a8c', $url );
+		$this->assertStringNotContainsString( 'jetpack-connect-all', $url );
+	}
+
+	/**
+	 * Test that the connector logo is jetpack-connect.svg when only Jetpack-family plugins are connected.
+	 */
+	public function test_connector_logo_jetpack_only() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'jetpack-boost', array( 'name' => 'Jetpack Boost' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect.svg', $url );
+		$this->assertStringNotContainsString( 'jetpack-connect-woo', $url );
+	}
+
+	/**
+	 * Test that the connector logo is jetpack-connect-woo.svg when a Woo-family plugin is connected.
+	 */
+	public function test_connector_logo_woo() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect-woo.svg', $url );
+	}
+
+	/**
+	 * Test that woocommerce-prefixed slugs also trigger the Woo logo.
+	 */
+	public function test_connector_logo_woo_prefix() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'woocommerce-subscriptions', array( 'name' => 'WooCommerce Subscriptions' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect-woo.svg', $url );
+	}
+
+	/**
+	 * Test that the connector logo is jetpack-connect-a8c.svg when only A4A is connected.
+	 */
+	public function test_connector_logo_a4a() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect-a8c.svg', $url );
+	}
+
+	/**
+	 * Test that the connector logo is jetpack-connect-all.svg when both Woo and A4A are connected.
+	 */
+	public function test_connector_logo_woo_and_a4a() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+
+		$url = $this->call_get_connector_logo_url();
+		$this->assertStringContainsString( 'jetpack-connect-all.svg', $url );
 	}
 
 	/* ── resolve_user_fields() ─────────────────────────────────── */
@@ -375,7 +449,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that connection owner data includes localLogin.
 	 */
 	public function test_connection_owner_data_includes_local_login() {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connection_owner_data' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connection_owner_data' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -399,7 +473,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that get_connection_owner_data returns null when there is no owner.
 	 */
 	public function test_connection_owner_data_returns_null_when_no_owner() {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connection_owner_data' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connection_owner_data' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -416,7 +490,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that plugin data is assembled correctly with logo URLs.
 	 */
 	public function test_connected_plugins_data_with_logos() {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connected_plugins_data' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connected_plugins_data' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -457,7 +531,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that a WP_Error from get_connected_plugins returns an empty array.
 	 */
 	public function test_connected_plugins_data_handles_wp_error() {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connected_plugins_data' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connected_plugins_data' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -472,7 +546,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that a missing name key falls back to the slug.
 	 */
 	public function test_connected_plugins_data_falls_back_to_slug() {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connected_plugins_data' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connected_plugins_data' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -496,7 +570,7 @@ class Wpcom_Connector_Test extends TestCase {
 	public function test_connectors_page_path_core() {
 		$_SERVER['SCRIPT_NAME'] = '/wp-admin/options-connectors.php';
 
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connectors_page_path' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connectors_page_path' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -516,10 +590,10 @@ class Wpcom_Connector_Test extends TestCase {
 		$_SERVER['SCRIPT_NAME'] = '/wp-admin/options-general.php';
 
 		$screen                    = new \stdClass();
-		$screen->id                = Wpcom_Connector::GUTENBERG_CONNECTORS_SCREEN_ID;
+		$screen->id                = Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID;
 		$GLOBALS['current_screen'] = $screen;
 
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connectors_page_path' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connectors_page_path' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -528,7 +602,7 @@ class Wpcom_Connector_Test extends TestCase {
 
 		unset( $GLOBALS['current_screen'], $_SERVER['SCRIPT_NAME'] );
 
-		$this->assertSame( 'options-general.php?page=' . Wpcom_Connector::GUTENBERG_CONNECTORS_PAGE_SLUG, $result );
+		$this->assertSame( 'options-general.php?page=' . Jetpack_Connector::GUTENBERG_CONNECTORS_PAGE_SLUG, $result );
 	}
 
 	/* ── store_auth_error() / consume_auth_error() ───────────── */
@@ -539,9 +613,9 @@ class Wpcom_Connector_Test extends TestCase {
 	public function test_store_auth_error_saves_transient() {
 		$error = new \WP_Error( 'auth_denied', 'Authorization was denied.' );
 
-		Wpcom_Connector::store_auth_error( $error );
+		Jetpack_Connector::store_auth_error( $error );
 
-		$stored = get_transient( 'wpcom_connector_auth_error_' . $this->admin_id );
+		$stored = get_transient( 'jetpack_connector_auth_error_' . $this->admin_id );
 		$this->assertSame( 'Authorization was denied.', $stored );
 	}
 
@@ -549,9 +623,9 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that store_auth_error ignores non-WP_Error values.
 	 */
 	public function test_store_auth_error_ignores_non_wp_error() {
-		Wpcom_Connector::store_auth_error( 'not an error' ); // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- intentionally passing wrong type to test the guard.
+		Jetpack_Connector::store_auth_error( 'not an error' ); // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- intentionally passing wrong type to test the guard.
 
-		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
+		$this->assertFalse( get_transient( 'jetpack_connector_auth_error_' . $this->admin_id ) );
 	}
 
 	/**
@@ -560,18 +634,18 @@ class Wpcom_Connector_Test extends TestCase {
 	public function test_store_auth_error_no_user() {
 		wp_set_current_user( 0 );
 
-		Wpcom_Connector::store_auth_error( new \WP_Error( 'fail', 'Failure.' ) );
+		Jetpack_Connector::store_auth_error( new \WP_Error( 'fail', 'Failure.' ) );
 
-		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_0' ) );
+		$this->assertFalse( get_transient( 'jetpack_connector_auth_error_0' ) );
 	}
 
 	/**
 	 * Test that consume_auth_error reads and deletes the transient.
 	 */
 	public function test_consume_auth_error_reads_and_deletes() {
-		set_transient( 'wpcom_connector_auth_error_' . $this->admin_id, 'Token expired.', 60 );
+		set_transient( 'jetpack_connector_auth_error_' . $this->admin_id, 'Token expired.', 60 );
 
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'consume_auth_error' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'consume_auth_error' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -580,16 +654,16 @@ class Wpcom_Connector_Test extends TestCase {
 		$this->assertSame( 'Token expired.', $result );
 
 		// Transient should be deleted after consumption.
-		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
+		$this->assertFalse( get_transient( 'jetpack_connector_auth_error_' . $this->admin_id ) );
 	}
 
 	/**
 	 * Test that consume_auth_error deletes the transient even when value is an empty string.
 	 */
 	public function test_consume_auth_error_deletes_empty_string_transient() {
-		set_transient( 'wpcom_connector_auth_error_' . $this->admin_id, '', 60 );
+		set_transient( 'jetpack_connector_auth_error_' . $this->admin_id, '', 60 );
 
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'consume_auth_error' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'consume_auth_error' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -598,14 +672,14 @@ class Wpcom_Connector_Test extends TestCase {
 		$this->assertSame( '', $result );
 
 		// Transient must be deleted even though the value was falsy.
-		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
+		$this->assertFalse( get_transient( 'jetpack_connector_auth_error_' . $this->admin_id ) );
 	}
 
 	/**
 	 * Test that consume_auth_error returns false when no transient exists.
 	 */
 	public function test_consume_auth_error_returns_false_when_empty() {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'consume_auth_error' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'consume_auth_error' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -619,7 +693,7 @@ class Wpcom_Connector_Test extends TestCase {
 	public function test_consume_auth_error_returns_false_no_user() {
 		wp_set_current_user( 0 );
 
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'consume_auth_error' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'consume_auth_error' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -631,22 +705,22 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that get_connector_data includes authError when transient is set.
 	 */
 	public function test_get_connector_data_includes_auth_error() {
-		set_transient( 'wpcom_connector_auth_error_' . $this->admin_id, 'Auth failed.', 60 );
+		set_transient( 'jetpack_connector_auth_error_' . $this->admin_id, 'Auth failed.', 60 );
 
-		$data = Wpcom_Connector::get_connector_data( array() );
+		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertArrayHasKey( 'authError', $data );
 		$this->assertSame( 'Auth failed.', $data['authError'] );
 
 		// Transient should be consumed (deleted).
-		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
+		$this->assertFalse( get_transient( 'jetpack_connector_auth_error_' . $this->admin_id ) );
 	}
 
 	/**
 	 * Test that get_connector_data omits authError when no transient exists.
 	 */
 	public function test_get_connector_data_omits_auth_error_when_none() {
-		$data = Wpcom_Connector::get_connector_data( array() );
+		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertArrayNotHasKey( 'authError', $data );
 	}
@@ -660,7 +734,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * @return bool
 	 */
 	private function call_is_connectors_screen( $screen_id ) {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'is_connectors_screen' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'is_connectors_screen' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -678,12 +752,26 @@ class Wpcom_Connector_Test extends TestCase {
 	 * @return string|null
 	 */
 	private function call_get_plugin_logo_url( $slug ) {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_plugin_logo_url' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_plugin_logo_url' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
 		return $method->invoke( null, $slug );
+	}
+
+	/**
+	 * Call the private get_connector_logo_url() method via reflection.
+	 *
+	 * @return string Logo URL.
+	 */
+	private function call_get_connector_logo_url() {
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connector_logo_url' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null );
 	}
 
 	/**
@@ -694,7 +782,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * @return array
 	 */
 	private function call_resolve_user_fields( $wp_user, $wpcom_user_data ) {
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'resolve_user_fields' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'resolve_user_fields' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
