@@ -6,6 +6,7 @@
 		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
+		"@automattic/charts": "^1.1.1",
 		"@wordpress/i18n": "^6.9.0"
 	}
 }
