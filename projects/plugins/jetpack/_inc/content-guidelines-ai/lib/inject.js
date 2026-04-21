@@ -267,7 +267,14 @@ function runAll() {
  * per frame, and each inject() call is a no-op when its container is
  * still connected.
  */
+let injectionStarted = false;
+
 export function startInjection() {
+	if ( injectionStarted ) {
+		return;
+	}
+	injectionStarted = true;
+
 	runAll();
 
 	let scheduled = false;
