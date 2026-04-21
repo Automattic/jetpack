@@ -8,10 +8,10 @@
  * @package automattic/jetpack-search
  */
 
+namespace Automattic\Jetpack\Search;
+
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-use Automattic\Jetpack\Search\Helper;
-use Automattic\Jetpack\Search\Search_Blocks;
 use Automattic\Jetpack\Status;
 
 $search_query    = (string) get_search_query();

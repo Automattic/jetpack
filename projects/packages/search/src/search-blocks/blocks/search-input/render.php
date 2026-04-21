@@ -8,6 +8,8 @@
  * @package automattic/jetpack-search
  */
 
+namespace Automattic\Jetpack\Search;
+
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 $placeholder   = $attributes['placeholder'] ?? __( 'Search…', 'jetpack-search-pkg' );

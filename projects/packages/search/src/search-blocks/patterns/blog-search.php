@@ -5,6 +5,8 @@
  * @package automattic/jetpack-search
  */
 
+namespace Automattic\Jetpack\Search;
+
 register_block_pattern(
 	'jetpack-search/blog-search-page',
 	array(

@@ -5,6 +5,8 @@
  * @package automattic/jetpack-search
  */
 
+namespace Automattic\Jetpack\Search;
+
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 $message = ( $attributes['message'] ?? '' )
