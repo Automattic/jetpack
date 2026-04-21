@@ -10,7 +10,7 @@ import { acceptBlockSuggestion } from '../lib/dom';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
-export default function BlockSuggestionButtons( { blockName } ) {
+export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion, clearSuggestion } =
 		useDispatch( AI_STORE_NAME );
@@ -35,8 +35,7 @@ export default function BlockSuggestionButtons( { blockName } ) {
 		const action = saved ? 'improve' : 'generate';
 		recordGuidelinesEvent( 'generate', { type: 'block', slug: blockName, action } );
 
-		const modal = document.querySelector( '.block-guideline-modal' );
-		const textarea = modal?.querySelector( '.components-textarea-control__input' );
+		const textarea = blockModal?.querySelector( '.components-textarea-control__input' );
 		const currentText = textarea?.value || '';
 
 		startSectionLoading( blockName );
@@ -55,6 +54,7 @@ export default function BlockSuggestionButtons( { blockName } ) {
 			stopSectionLoading( blockName );
 		}
 	}, [
+		blockModal,
 		blockName,
 		saved,
 		startSectionLoading,
@@ -65,8 +65,8 @@ export default function BlockSuggestionButtons( { blockName } ) {
 
 	const handleAccept = useCallback( () => {
 		recordGuidelinesEvent( 'accept', { type: 'block', slug: blockName } );
-		acceptBlockSuggestion( blockName, suggestion, clearSuggestion );
-	}, [ blockName, suggestion, clearSuggestion ] );
+		acceptBlockSuggestion( blockModal, blockName, suggestion, clearSuggestion );
+	}, [ blockModal, blockName, suggestion, clearSuggestion ] );
 
 	const handleDismiss = useCallback( () => {
 		recordGuidelinesEvent( 'dismiss', { type: 'block', slug: blockName } );

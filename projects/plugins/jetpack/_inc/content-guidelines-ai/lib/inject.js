@@ -228,7 +228,7 @@ function runAll() {
 					: null;
 			},
 			BlockSuggestionActions,
-			{ blockName }
+			{ blockName, blockModal }
 		);
 
 		// Improve/Accept/Dismiss buttons — row above the action bar.
@@ -246,7 +246,7 @@ function runAll() {
 					: null;
 			},
 			BlockSuggestionButtons,
-			{ blockName }
+			{ blockName, blockModal }
 		);
 	}
 }
