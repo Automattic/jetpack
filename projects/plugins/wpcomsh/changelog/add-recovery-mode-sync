@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Signal recovery-mode state to WPcom (via /sites/{blog_id}/recovery-mode-status) so the dashboard can surface "needs recovery" and related states for sites that have hit a fatal error.
