@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add /wpcomsh/v1/reprint/activate-export endpoint and drop the is_automattician() gate.

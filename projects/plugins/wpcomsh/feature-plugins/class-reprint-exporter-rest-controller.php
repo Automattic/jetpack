@@ -1,10 +1,8 @@
 <?php
 /**
- * REST controller for the reprint exporter secret-rotation endpoint.
+ * REST controller for the reprint exporter endpoints.
  *
- * Exposes POST /wpcomsh/v1/reprint/rotate-export-secret. The permission
- * callback only accepts requests signed by WPCOM's Jetpack connection,
- * i.e. calls that came through the public API proxy.
+ * All routes require a Jetpack-signed request (public API proxy only).
  *
  * @package wpcomsh
  */
@@ -29,7 +27,7 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	protected $rest_base = 'reprint';
 
 	/**
-	 * Registers the rotate-export-secret route.
+	 * Registers routes.
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -39,6 +37,18 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'rotate_secret' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/activate-export',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'activate_export' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 				),
 			)
@@ -68,6 +78,17 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 		}
 
 		return new WP_REST_Response( array( 'secret' => $secret ), 200 );
+	}
+
+	/**
+	 * Sets the reprint_exporter_enabled option to the current timestamp,
+	 * opening the 60-minute activation window for ?reprint-api.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function activate_export() {
+		update_option( 'reprint_exporter_enabled', time() );
+		return new WP_REST_Response( array( 'activated_until' => time() + HOUR_IN_SECONDS ), 200 );
 	}
 
 	/**

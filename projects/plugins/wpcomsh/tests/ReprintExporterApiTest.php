@@ -2,14 +2,8 @@
 /**
  * Reprint Exporter API Test file.
  *
- * Verifies the reprint-exporter API endpoints (?reprint-api,
- * rotate-export-secret REST route) and their option + proxied-Automattician
- * gating.
- *
  * @package wpcomsh
  */
-
-require_once __DIR__ . '/stubs/is-automattician.php';
 
 /**
  * Class ReprintExporterApiTest.
@@ -23,12 +17,8 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	public function tear_down() {
 		delete_option( 'reprint_exporter_secret' );
 		delete_option( 'reprint_exporter_enabled' );
-
-		// Reset the Automattician/proxy simulation set by set_available().
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-		unset( $GLOBALS['__reprint_test_is_automattician'] );
 
-		// Reset the REST server so route registrations don't leak between tests.
 		global $wp_rest_server;
 		$wp_rest_server = null;
 
@@ -36,43 +26,17 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Helper: satisfy (or not) the full availability gate.
+	 * Helper: open or close the ?reprint-api gate.
 	 *
-	 * The gate requires BOTH the reprint_exporter_enabled site option AND
-	 * a proxied-Automattician request. Flip the option directly, and
-	 * simulate the proxied-Automattician part via the $_SERVER header plus
-	 * the is_automattician() stub defined at the top of this file.
-	 *
-	 * @param bool $available Whether the endpoints should be available.
+	 * @param bool $available Whether the export endpoint should be reachable.
 	 */
 	private function set_available( bool $available ) {
 		if ( $available ) {
 			update_option( 'reprint_exporter_enabled', time() );
-			$_SERVER['A8C_PROXIED_REQUEST']             = '1';
-			$GLOBALS['__reprint_test_is_automattician'] = true;
+			$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		} else {
 			delete_option( 'reprint_exporter_enabled' );
 			unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-			unset( $GLOBALS['__reprint_test_is_automattician'] );
-		}
-	}
-
-	/**
-	 * Skip the current test when the Automattician check can't be faked.
-	 *
-	 * Our is_automattician() stub only loads when the real function is
-	 * absent. On WP Cloud (and any other WPCOM-flavored environment) the
-	 * real is_automattician() is defined and rejects factory-created
-	 * users, so there's no way to fake a proxied-Automattician request
-	 * from inside the test.
-	 */
-	private function skip_if_cannot_fake_automattician() {
-		$GLOBALS['__reprint_test_is_automattician'] = true;
-		$faked                                      = is_automattician( get_current_user_id() );
-		unset( $GLOBALS['__reprint_test_is_automattician'] );
-
-		if ( ! $faked ) {
-			$this->markTestSkipped( 'Cannot fake is_automattician() in this environment.' );
 		}
 	}
 
@@ -160,15 +124,15 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the REST route is always registered, regardless of the
-	 * activation option — auth is the public API + is_super_admin().
+	 * Test that REST routes are always registered.
 	 */
-	public function test_rest_route_always_registered() {
+	public function test_rest_routes_always_registered() {
 		delete_option( 'reprint_exporter_enabled' );
 
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
 		$this->assertArrayHasKey( '/wpcomsh/v1/reprint/rotate-export-secret', $routes );
+		$this->assertArrayHasKey( '/wpcomsh/v1/reprint/activate-export', $routes );
 	}
 
 	/**
@@ -179,10 +143,17 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/rotate-export-secret' );
 		$response = $server->dispatch( $request );
 
-		// Jetpack's signature verification fails on an unsigned dispatch;
-		// either the permission callback returns false (401) or the
-		// environment's rest_authentication_errors filter returns a 403
-		// first. Either way the caller doesn't get a 200.
+		$this->assertContains( $response->get_status(), array( 401, 403 ) );
+	}
+
+	/**
+	 * Test that the activate-export endpoint rejects unsigned requests.
+	 */
+	public function test_activate_export_rejects_unsigned_requests() {
+		$server   = $this->fresh_rest_server();
+		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/activate-export' );
+		$response = $server->dispatch( $request );
+
 		$this->assertContains( $response->get_status(), array( 401, 403 ) );
 	}
 
@@ -370,9 +341,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the permission callback denies requests that aren't
-	 * Jetpack-signed. Signing a request requires real site + WPCOM
-	 * credentials, so the negative path is what's unit-testable here.
+	 * Test that the permission callback denies unsigned requests.
 	 */
 	public function test_permission_callback_denies_unsigned_request() {
 		$this->assertFalse( $this->controller()->permission_check() );
@@ -401,5 +370,22 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$data     = $response->get_data();
 
 		$this->assertSame( $data['secret'], get_option( 'reprint_exporter_secret' ) );
+	}
+
+	/**
+	 * Test that the activate-export callback sets the option and returns
+	 * the expiry timestamp.
+	 */
+	public function test_activate_export_sets_option() {
+		$before   = time();
+		$response = $this->controller()->activate_export();
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'activated_until', $data );
+		$this->assertGreaterThanOrEqual( $before + HOUR_IN_SECONDS, $data['activated_until'] );
+
+		$stored = (int) get_option( 'reprint_exporter_enabled' );
+		$this->assertGreaterThanOrEqual( $before, $stored );
 	}
 }
