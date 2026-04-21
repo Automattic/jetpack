@@ -146,9 +146,27 @@ function wpcomsh_reprint_rest_init() {
 add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 
 /**
- * Allow reprint_exporter_enabled to be set via the WPCOM site settings
- * endpoint (POST /rest/v1.1/sites/{id}/settings). The value is cast to
- * int so callers can pass a unix timestamp.
+ * Inject reprint_exporter_enabled into the site settings update if
+ * the caller sent it. The settings endpoint's $this->input() strips
+ * keys that aren't in request_format, so by the time the foreach
+ * loop runs our key is gone. This filter re-adds it from the raw
+ * (unfiltered) input.
+ *
+ * @param array $input            Whitelisted/cast settings.
+ * @param array $unfiltered_input Raw input from the request.
+ * @return array
+ */
+function wpcomsh_reprint_inject_enabled_setting( $input, $unfiltered_input ) {
+	if ( isset( $unfiltered_input['reprint_exporter_enabled'] ) ) {
+		$input['reprint_exporter_enabled'] = (int) $unfiltered_input['reprint_exporter_enabled'];
+	}
+	return $input;
+}
+add_filter( 'rest_api_update_site_settings', 'wpcomsh_reprint_inject_enabled_setting', 10, 2 );
+
+/**
+ * Handle the actual update_option call for reprint_exporter_enabled
+ * when the settings endpoint processes it in its default switch case.
  *
  * @param mixed $value The value from the request.
  * @return int

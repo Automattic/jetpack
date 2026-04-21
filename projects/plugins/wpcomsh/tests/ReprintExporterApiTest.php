@@ -144,21 +144,38 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the site_settings_endpoint_update filter is hooked so
-	 * reprint_exporter_enabled is settable via the WPCOM settings API.
+	 * Test that both site-settings filters are hooked.
 	 */
-	public function test_settings_filter_is_registered() {
+	public function test_settings_filters_are_registered() {
+		$this->assertNotFalse(
+			has_filter( 'rest_api_update_site_settings', 'wpcomsh_reprint_inject_enabled_setting' )
+		);
 		$this->assertNotFalse(
 			has_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_reprint_sanitize_enabled_setting' )
 		);
 	}
 
 	/**
-	 * Test that the settings sanitizer casts to int.
+	 * Test that the inject filter copies the key from unfiltered input.
 	 */
-	public function test_settings_sanitizer_casts_to_int() {
-		$this->assertSame( 1745000000, wpcomsh_reprint_sanitize_enabled_setting( '1745000000' ) );
-		$this->assertSame( 0, wpcomsh_reprint_sanitize_enabled_setting( '' ) );
+	public function test_settings_inject_adds_key_from_unfiltered() {
+		$input    = array( 'blogname' => 'Test' );
+		$raw      = array( 'blogname' => 'Test', 'reprint_exporter_enabled' => '1745000000' );
+		$result   = wpcomsh_reprint_inject_enabled_setting( $input, $raw );
+
+		$this->assertSame( 1745000000, $result['reprint_exporter_enabled'] );
+		$this->assertSame( 'Test', $result['blogname'] );
+	}
+
+	/**
+	 * Test that the inject filter is a no-op when the key is absent.
+	 */
+	public function test_settings_inject_noop_when_absent() {
+		$input  = array( 'blogname' => 'Test' );
+		$raw    = array( 'blogname' => 'Test' );
+		$result = wpcomsh_reprint_inject_enabled_setting( $input, $raw );
+
+		$this->assertArrayNotHasKey( 'reprint_exporter_enabled', $result );
 	}
 
 	// -- HMAC verification tests (Site_Export_HMAC_Server) --------------------
