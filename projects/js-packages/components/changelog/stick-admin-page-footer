@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AdminPage: pin `JetpackFooter` to the bottom of the viewport when content is short, so every product using `AdminPage` gets a consistent sticky-footer layout.
