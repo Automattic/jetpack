@@ -33,6 +33,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin \
     --filename=composer
 
-RUN useradd -ms /bin/bash dev
+RUN useradd -ms /bin/bash dev && \
+    mkdir -p /home/dev/jetpack/node_modules && \
+    chown -R dev:dev /home/dev/jetpack
+
 USER dev
 WORKDIR /home/dev/jetpack
