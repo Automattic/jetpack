@@ -211,44 +211,48 @@ function runAll() {
 	const blockModal = document.querySelector( '.block-guideline-modal' );
 	const blockName = blockModal ? getBlockNameFromModal( blockModal ) : null;
 
-	if ( blockName ) {
-		// Suggestion actions (diff + accept/dismiss) inside textarea wrapper,
-		// after the label but before the <textarea> input.
-		inject(
-			'block-actions',
-			() => {
-				const textareaInput = blockModal.querySelector( '.components-textarea-control__input' );
-				const field = textareaInput?.parentElement;
-				return field
-					? {
-							parent: field,
-							before: textareaInput,
-							className: 'jetpack-content-guidelines-ai__block-actions-container',
-					  }
-					: null;
-			},
-			BlockSuggestionActions,
-			{ blockName, blockModal }
-		);
+	// Always invoke inject so previously mounted roots get unmounted when
+	// the modal closes — findParent() returns null for "no place to inject"
+	// and inject()'s cleanup path handles the disconnected container.
+	inject(
+		'block-actions',
+		() => {
+			if ( ! blockName || ! blockModal ) {
+				return null;
+			}
+			const textareaInput = blockModal.querySelector( '.components-textarea-control__input' );
+			const field = textareaInput?.parentElement;
+			return field
+				? {
+						parent: field,
+						before: textareaInput,
+						className: 'jetpack-content-guidelines-ai__block-actions-container',
+				  }
+				: null;
+		},
+		BlockSuggestionActions,
+		{ blockName, blockModal }
+	);
 
-		// Improve/Accept/Dismiss buttons — row above the action bar.
-		inject(
-			'block-suggestion-buttons',
-			() => {
-				const actionsBar = blockModal.querySelector( '.block-guideline-modal__actions' );
-				const vStack = actionsBar?.parentElement;
-				return vStack
-					? {
-							parent: vStack,
-							before: actionsBar,
-							className: 'jetpack-content-guidelines-ai__block-suggestion-buttons-container',
-					  }
-					: null;
-			},
-			BlockSuggestionButtons,
-			{ blockName, blockModal }
-		);
-	}
+	inject(
+		'block-suggestion-buttons',
+		() => {
+			if ( ! blockName || ! blockModal ) {
+				return null;
+			}
+			const actionsBar = blockModal.querySelector( '.block-guideline-modal__actions' );
+			const vStack = actionsBar?.parentElement;
+			return vStack
+				? {
+						parent: vStack,
+						before: actionsBar,
+						className: 'jetpack-content-guidelines-ai__block-suggestion-buttons-container',
+				  }
+				: null;
+		},
+		BlockSuggestionButtons,
+		{ blockName, blockModal }
+	);
 }
 
 /**
