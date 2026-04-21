@@ -86,41 +86,25 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the request handler exits early when the query param is absent.
+	 * Test that the request handler exits early for non-matching paths.
 	 */
-	public function test_handle_request_returns_early_without_query_param() {
-		unset( $_GET['reprint-api'] );
+	public function test_handle_request_returns_early_for_other_paths() {
 		wpcomsh_reprint_handle_request( $this->wp_with_request( '' ) );
-
 		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
-	}
-
-	/**
-	 * Test that the request handler exits early when the URL isn't the
-	 * site root (non-empty $wp->request).
-	 */
-	public function test_handle_request_returns_early_when_not_home_url() {
-		$_GET['reprint-api'] = '1';
 
 		wpcomsh_reprint_handle_request( $this->wp_with_request( 'some/post' ) );
-
 		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
-
-		unset( $_GET['reprint-api'] );
 	}
 
 	/**
 	 * Test that the request handler exits early when the gate is closed.
 	 */
 	public function test_handle_request_returns_early_when_gate_closed() {
-		$_GET['reprint-api'] = '1';
 		$this->set_available( false );
 
-		wpcomsh_reprint_handle_request( $this->wp_with_request( '' ) );
+		wpcomsh_reprint_handle_request( $this->wp_with_request( 'reprint-api' ) );
 
 		$this->assertFalse( get_option( 'reprint_exporter_secret', false ) );
-
-		unset( $_GET['reprint-api'] );
 	}
 
 	/**
