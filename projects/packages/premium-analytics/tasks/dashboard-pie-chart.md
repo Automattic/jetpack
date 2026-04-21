@@ -63,10 +63,9 @@ measures its parent container and the parent has no fixed height.
 
 ## Submitting
 
-1. Create a new branch from `trunk`:
+1. Create a new branch from the current branch:
    ```bash
-   git fetch origin trunk
-   git checkout -b add/premium-analytics-dashboard-pie-chart origin/trunk
+   git checkout -b add/premium-analytics-dashboard-pie-chart
    ```
 2. Add a changelog entry:
    ```bash
