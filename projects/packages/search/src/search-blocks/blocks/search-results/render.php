@@ -16,11 +16,11 @@ namespace Automattic\Jetpack\Search;
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-init="callbacks.initialize"
+	data-wp-bind--aria-busy="state.isLoading"
 >
 	<div
 		class="jetpack-search-results__loading"
 		data-wp-bind--hidden="!state.isLoading"
-		aria-live="polite"
 	>
 		<?php esc_html_e( 'Loading…', 'jetpack-search-pkg' ); ?>
 	</div>
