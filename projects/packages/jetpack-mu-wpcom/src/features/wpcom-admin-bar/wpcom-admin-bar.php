@@ -10,7 +10,6 @@
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-use Automattic\Jetpack\Newsletter\Reader_Link;
 use Automattic\Jetpack\Status;
 
 // The $icon-color variable for admin color schemes.
@@ -276,7 +275,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_shopping_cart', 11 );
 
 // Add the reader icon to the admin bar before the help center icon.
-Reader_Link::init();
+add_action( 'wp_loaded', array( 'Automattic\Jetpack\Newsletter\Reader_Link', 'init' ) );
 
 /**
  * Points the "Edit Profile" and "Howdy,..." to /me if the user is not member of the blog.
