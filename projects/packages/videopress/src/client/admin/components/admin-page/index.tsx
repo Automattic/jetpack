@@ -17,7 +17,6 @@ import {
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -194,7 +193,6 @@ const Admin = () => {
 		<AdminPage
 			title={ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
 			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
-			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {
@@ -244,16 +242,13 @@ const Admin = () => {
 								</Col>
 							) }
 
-							<Col sm={ 4 } md={ 4 } lg={ 8 }>
+							<Col sm={ 4 } md={ 8 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
 
 								{ hasVideoPressPurchase && (
-									<ConnectVideoStorageMeter
-										className={ styles[ 'storage-meter' ] }
-										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
-									/>
+									<ConnectVideoStorageMeter className={ styles[ 'storage-meter' ] } />
 								) }
 
 								{ hasVideos ? (

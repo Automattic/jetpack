@@ -8,10 +8,6 @@ type VideoRowBaseProps = {
 	 */
 	className?: string;
 	/**
-	 * Mark row as checked or not
-	 */
-	checked?: boolean;
-	/**
 	 * Show action button
 	 */
 	showActionButton?: boolean;
@@ -19,10 +15,6 @@ type VideoRowBaseProps = {
 	 * Show quick actions section.
 	 */
 	showQuickActions?: boolean;
-	/**
-	 * Show checkbox.
-	 */
-	showCheckbox?: boolean;
 	/**
 	 * Loading mode.
 	 */
@@ -35,10 +27,6 @@ type VideoRowBaseProps = {
 	 * The video upload progress from 0 to 1.
 	 */
 	uploadProgress?: number;
-	/**
-	 * Callback to be invoked when clicking on the row.
-	 */
-	onSelect?: ( check: boolean ) => void;
 	/**
 	 * Callback to be invoked when clicking on action button.
 	 */

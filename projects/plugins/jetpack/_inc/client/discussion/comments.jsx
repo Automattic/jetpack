@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
@@ -167,15 +168,13 @@ class CommentsComponent extends Component {
 											this.props.isSavingAnyOption( [ 'markdown' ] ) ||
 											'inactive' === this.props.getModuleOverride( 'markdown' )
 										}
-										toggling={ this.props.isSavingAnyOption( [
-											'wpcom_publish_comments_with_markdown',
-										] ) }
 										onChange={ this.handleMarkdownCommentsToggle }
 										label={
 											<span className="jp-form-toggle-explanation">
 												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
 											</span>
 										}
+										__nextHasNoMarginBottom={ true }
 									/>
 								</FormFieldset>
 								<SupportInfo

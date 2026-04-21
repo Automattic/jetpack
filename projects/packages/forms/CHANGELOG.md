@@ -5,6 +5,85 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.19.0] - 2026-04-20
+### Added
+- Form preview now lets you submit the form to test the full submission flow end to end. Responses created from preview are stored as test responses, clearly flagged in the notification email, and excluded from the default CSV export. [#48057]
+
+### Changed
+- Update package dependencies. [#48106] [#48141] [#48142]
+
+### Removed
+- Dashboard: remove dead .jp-forms-filters-bar SCSS left behind after the move to native DataViews filters in #46732 [#48184]
+
+### Fixed
+- Forms: make response exports respect the Source filter so the downloaded CSV matches the filtered inbox view. [#48111]
+
+## [7.18.0] - 2026-04-15
+### Added
+- Support granular date filter in inbox. [#46760]
+
+### Changed
+- Enable Central Forms Management (wp-build dashboard and synced forms) by default for all sites, including self-hosted Jetpack installations. [#47826]
+- Forms responses dashboard: Request field values as a keyed collection from the API. [#48076]
+- Update package dependencies. [#47907]
+
+### Fixed
+- Ensure central-form-management feature flag is registered at bootstrap so early callers (including the dashboard default-tab redirect) see the correct value. [#48080]
+- Fix the Form block when the Blocks module is inactive by registering it directly from the Forms package and providing the required editor initial state. [#48037]
+- Rename 'preview_nonce' query var to 'jetpack_form_preview_nonce' to avoid collision with WordPress core preview URLs, which caused static front page previews to show the blog index on WordPress.com sites. [#48079]
+- Show loading state instead of stale data when navigating between form response listings. [#48053]
+
+## [7.17.0] - 2026-04-13
+### Added
+- Add source filter parameter to feedback REST API for filtering responses by source post ID, with fallback to post_parent for legacy data. [#48027]
+
+### Changed
+- Change header actions to be consistent with other pages. [#48036]
+- Update package dependencies. [#47890] [#47998]
+
+### Fixed
+- Bundle admin-ui base CSS in wp-build output so host applications don't need to load it separately. [#47784]
+- Enable mobile navigation sidebar toggle on all Forms dashboard pages. [#48013]
+- Fix 'Don't show this again' checkbox in the help modal so it only dismisses permanently when clicking 'Got it', not when closing via the X button or Escape key. [#47943]
+- Handle non-string values in the phone field rendering pipeline. [#47970]
+- Handle non-string values in the rating field rendering pipeline. [#47971]
+- Validate the field type before resolving the block icon path. [#47965]
+- Load build.php unconditionally when alpha is enabled, so host applications can integrate Forms routes without manual file loading. [#47997]
+- Prevent fatal error when a non-checkbox field's render value or POST-submitted value is an array. [#48032]
+
+## [7.16.0] - 2026-04-06
+### Changed
+- Clean up old About page images. [#47897]
+- Forms: Allow browsers to lazy-load avatars in responses. [#47900]
+- Update package dependencies. [#47889] [#47892] [#47899]
+
+### Fixed
+- Fix missing margin prop in SelectControl component. [#47904]
+
+## [7.15.0] - 2026-03-30
+### Security
+- Gravatar: Do not include email or IP address in Gravatar image URL. [#47779]
+- Improve form submission validation. [#47795]
+
+### Added
+- Add WordPress Playground blueprint for Forms development. [#47758]
+- Dashboard: Add tracking events for form-level actions (preview, copy embed, copy shortcode, duplicate, trash, restore, delete, rename, publish/unpublish, edit, view responses). [#47646]
+
+### Changed
+- Exclude blueprints directory from production builds. [#47821]
+- Gravatar: Show initials derived from email prefix instead of mystery person avatar when no name is provided. [#47807]
+- Remove reduntant de-registration of Jetpack collection in forms editor. [#47614]
+- Update DataViews dependency. [#46973]
+- Update legacy Node calls. [#47770]
+- Update package dependencies. [#47686] [#47799] [#47818]
+
+### Fixed
+- Ensure form rename modal does not close when save fails, so users can retry without losing their input. [#47796]
+- Fix phone field initialization failure when script module loads after DOMContentLoaded. [#47657]
+- Fix undo restoring wrong form status for non-standard statuses in dashboard header actions. [#47798]
+- Prevent Forms dashboard black screen when The Events Calendar is active by replacing fragile import() in inline script with a proper script module. [#47823]
+- Set ref attribute instead of clearing it during synced form conversion. [#47794]
+
 ## [7.14.0] - 2026-03-23
 ### Added
 - Add logged-in user display name and ID to form submission emails and response sidebar. [#47652]
@@ -2372,6 +2451,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.19.0]: https://github.com/automattic/jetpack-forms/compare/v7.18.0...v7.19.0
+[7.18.0]: https://github.com/automattic/jetpack-forms/compare/v7.17.0...v7.18.0
+[7.17.0]: https://github.com/automattic/jetpack-forms/compare/v7.16.0...v7.17.0
+[7.16.0]: https://github.com/automattic/jetpack-forms/compare/v7.15.0...v7.16.0
+[7.15.0]: https://github.com/automattic/jetpack-forms/compare/v7.14.0...v7.15.0
 [7.14.0]: https://github.com/automattic/jetpack-forms/compare/v7.13.0...v7.14.0
 [7.13.0]: https://github.com/automattic/jetpack-forms/compare/v7.12.0...v7.13.0
 [7.12.0]: https://github.com/automattic/jetpack-forms/compare/v7.11.0...v7.12.0

@@ -26,14 +26,7 @@ import StatsIcon from './icons/stats';
 import VideopressIcon from './icons/videopress';
 import type { ProductsTableViewProps, ProductData } from './types';
 import type { ProductCamelCase } from '../../data/types';
-import type {
-	ViewList,
-	SupportedLayouts,
-	SortDirection,
-	View,
-	Operator,
-	Option,
-} from '@wordpress/dataviews';
+import type { ViewList, SortDirection, View, Operator, Option } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
 import './style.scss';
@@ -121,7 +114,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		perPage: 10,
 	};
 
-	const defaultLayouts: SupportedLayouts = {
+	const defaultLayouts = {
 		list: {
 			...baseView,
 			fields: [ PRODUCT_TABLE_DESCRIPTION, PRODUCT_TABLE_STATUS ],

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Reader Link: Add compatibility check for Urls::maybe_add_origin_site_id() to prevent fatal errors with older connection package versions.

@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.5] - 2026-04-20
+### Changed
+- Admin dashboard: Migrate video storage meter and video thumbnail upload progress to @wordpress/components ProgressBar; drop unused progressBarClassName prop. [#48191]
+- Adopt the shared Jetpack admin-page-layout mixin on the VideoPress admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Swap the site-settings Video Privacy toggle to WordPress CheckboxControl for native rendering and accessibility. [#48175]
+- Update package dependencies. [#48106] [#48126] [#48141]
+- Video Thumbnail: Remove Jetpack color override on loading spinner. [#47317]
+
+### Removed
+- Remove unused custom Checkbox component and the hidden per-row selection UI that relied on it. [#48175]
+
+### Fixed
+- VideoPress Admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library. [#48131]
+
+## [0.36.4] - 2026-04-16
+### Fixed
+- Fix block editor errors when used with Gutenberg 23.0.0+, where the SandBox component no longer defaults to same-origin. [#48117]
+
+## [0.36.3] - 2026-04-15
+### Security
+- Ensure only users who can upload media can request VideoPress upload tokens via AJAX. [#47683]
+
+### Changed
+- Clean up postMessage bridge code: use specific targetOrigin values, add origin checks to message listeners, remove unused legacy token bridge, and add unit tests. [#47436]
+- Update package dependencies. [#47907]
+
+### Fixed
+- Fix poster image not saving when selected during video upload. [#47725]
+- Fix stuck loading state on video card after deleting a video. [#48107]
+
+## [0.36.2] - 2026-04-10
+### Changed
+- Update package dependencies. [#47890]
+
+## [0.36.1] - 2026-04-06
+### Changed
+- Update admin page footer design. [#47840]
+- Update package dependencies. [#47870]
+
+## [0.36.0] - 2026-03-30
+### Changed
+- Unify admin dashboard page header with admin-ui components. [#47641]
+- Update package dependencies. [#47799]
+
 ## [0.35.6] - 2026-03-23
 ### Changed
 - Update package dependencies. [#47684] [#47719]
@@ -1884,6 +1928,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.4...v0.36.5
+[0.36.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.3...v0.36.4
+[0.36.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.2...v0.36.3
+[0.36.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.1...v0.36.2
+[0.36.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.0...v0.36.1
+[0.36.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.6...v0.36.0
 [0.35.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.5...v0.35.6
 [0.35.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.4...v0.35.5
 [0.35.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.3...v0.35.4

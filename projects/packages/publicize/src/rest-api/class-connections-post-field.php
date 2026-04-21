@@ -403,6 +403,10 @@ class Connections_Post_Field {
 			$available_connections_by_connection_id[ $id ]['enabled'] = $enabled;
 		}
 
+		foreach ( Publicize_Base::get_x_connection_ids_to_skip( $available_connections_by_connection_id ) as $skip_id ) {
+			$available_connections_by_connection_id[ $skip_id ]['enabled'] = false;
+		}
+
 		$meta_to_update = array();
 		// For all connections, ensure correct post_meta.
 		foreach ( $available_connections_by_connection_id as $connection_id => $available_connection ) {

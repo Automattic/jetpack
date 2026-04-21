@@ -15,7 +15,7 @@ export default defineConfig( {
 		projects: [
 			{
 				plugins: [
-					storybookTest( {
+					await storybookTest( {
 						configDir: `${ __dirname }/storybook`,
 						tags: {
 							skip: [ 'no-vitest' ],

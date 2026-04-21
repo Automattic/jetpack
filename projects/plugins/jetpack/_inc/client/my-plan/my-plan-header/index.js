@@ -68,7 +68,7 @@ class MyPlanHeader extends Component {
 					purchaseID={ purchase.ID }
 				/>
 			);
-			if ( purchase.active === '1' ) {
+			if ( 'active' === purchase.subscription_status ) {
 				// Purchases might not have an expiration date, so we need to check
 				// for their existence (e.g.: lifetime plan like Golden Token).
 				if ( purchase.expiry_status === 'expired' && purchase.expiry_date !== null ) {

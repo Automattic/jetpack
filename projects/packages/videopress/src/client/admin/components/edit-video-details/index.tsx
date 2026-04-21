@@ -7,7 +7,6 @@ import {
 	JetpackLogo,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Button,
 	SelectControl,
@@ -266,7 +265,6 @@ const EditVideoDetails = () => {
 				breadcrumbs={ breadcrumbs }
 				subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
 				actions={ headerActions }
-				useInternalLinks={ shouldUseInternalLinks() }
 			>
 				<Container horizontalSpacing={ 0 }>
 					<Col>

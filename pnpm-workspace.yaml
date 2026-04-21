@@ -30,37 +30,22 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # CVE-2026-33750
-  - brace-expansion@1.1.13 || 2.0.3
-  # CVE-2026-33916
-  - handlebars@4.7.9
+  # Renovate security update: dompurify@3.4.0
+  - dompurify@3.4.0
+  # Need to unblock @wordpress/* package updates
+  - '@types/wordpress__block-editor@15.0.6'
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
 
-  # Don't know why 5.1.0 had provenance but 5.1.1 doesn't. But both are over a year old and there's nothing suspicious in the diff. 🤷
+  # https://github.com/reduxjs/reselect/issues/752
   - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
-  - '@octokit/endpoint@9.0.6'
-  - '@octokit/plugin-paginate-rest@9.2.2'
-  - '@oxc-parser/binding-darwin-arm64@0.78.0'
-  - '@oxc-parser/binding-darwin-x64@0.78.0'
-  - '@oxc-parser/binding-linux-arm64-gnu@0.78.0'
-  - '@oxc-parser/binding-linux-arm64-musl@0.78.0'
-  - '@oxc-parser/binding-linux-arm-gnueabihf@0.78.0'
-  - '@oxc-parser/binding-linux-x64-gnu@0.78.0'
-  - '@oxc-parser/binding-linux-x64-musl@0.78.0'
-  - '@oxc-parser/binding-wasm32-wasi@0.78.0'
-  - '@oxc-parser/binding-win32-arm64-msvc@0.78.0'
-  - '@oxc-parser/binding-win32-x64-msvc@0.78.0'
   - rollup@3.30.0
   - rxjs@7.8.2
   - semver@6.3.1
-  - svelte@4.2.19
-  - undici@5.29.0
-  - undici-types@6.21.0
 
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
@@ -84,8 +69,10 @@ blockExoticSubdeps: true
 
 # Some optional dependencies we don't actually need.
 ignoredOptionalDependencies:
-  - sass-embedded-all-unknown
-  - sass-embedded-unknown-all
+  - '@oxc-parser/binding-wasm32-wasi' # https://github.com/oxc-project/oxc/issues/21038
+  - '@rolldown/binding-wasm32-wasi' # https://github.com/rolldown/rolldown/issues/8974
+  - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
+  - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
 
 # Dependencies needing patching.
 patchedDependencies:

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Build: Adjust CSS output to be compliant with Stylelint rules.

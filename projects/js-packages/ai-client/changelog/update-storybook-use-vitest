@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Set "no-vitest" flag on `use-media-recording` story. Headless Chromium lacks a microphone, so the test fails.
-
-
