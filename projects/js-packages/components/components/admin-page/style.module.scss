@@ -1,5 +1,12 @@
 .admin-page {
 	margin-left: -20px; // to neutralize the padding of #wpcontent.
+	// Fill wp-admin's content area so the JetpackFooter can sit at the
+	// bottom of the viewport when content is short. The admin-ui `Page`
+	// (`.admin-ui-page`) becomes a flex column that flex-grows inside the
+	// root, and the footer claims any leftover space via `margin-top: auto`.
+	display: flex;
+	flex-direction: column;
+	min-height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
 
 	@media (max-width: 782px) {
 		margin-left: -10px; // to neutralize the padding of #wpcontent.
@@ -7,6 +14,21 @@
 
 	&.background {
 		background-color: var(--jp-white);
+	}
+
+	// Normalize admin headers: implementation of admin-ui needs to
+	// comprehend old wp-admin floating containers, such as Hello Dolly
+	// (`clear: both`). Also make the Page a flex column that fills the
+	// wp-admin content area so `JetpackFooter` can stick to the bottom.
+	:global(.admin-ui-page) {
+		clear: both;
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	:global(.jetpack-footer) {
+		margin-top: auto;
 	}
 
 	// Remove the admin-ui header border when tabs are present,
@@ -22,12 +44,6 @@
 	:global(.admin-ui-page__header) {
 		position: relative;
 		z-index: 1;
-	}
-
-	// Normalize admin headers: implementation of admin-ui needs to
-	// comprehend old wp-admin floating containers, such as Hello Dolly.
-	:global(.admin-ui-page) {
-		clear: both;
 	}
 
 	.admin-page-header {
