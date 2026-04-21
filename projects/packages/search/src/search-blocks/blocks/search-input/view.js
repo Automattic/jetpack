@@ -3,24 +3,51 @@ import '../../store';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
-let debounceTimer = null;
 const DEBOUNCE_MS = 300;
+
+// Per-input debounce state. Keyed by the input element itself so two
+// search-input blocks on the same page (e.g. header + sidebar) don't
+// reset each other's typing timer. WeakMap lets GC reclaim entries
+// when an input is removed from the DOM.
+const debounceTimers = new WeakMap();
+
+/**
+ * Start (or restart) the debounced search for a single input.
+ *
+ * @param {HTMLInputElement} input - The input whose timer should be reset.
+ */
+function scheduleSearch( input ) {
+	clearTimeout( debounceTimers.get( input ) );
+	const timer = setTimeout( () => {
+		debounceTimers.delete( input );
+		const { actions } = store( NAMESPACE );
+		actions.search();
+	}, DEBOUNCE_MS );
+	debounceTimers.set( input, timer );
+}
+
+/**
+ * Cancel any in-flight debounce for a single input — used when a keystroke
+ * should fire a search immediately (e.g. Enter).
+ *
+ * @param {HTMLInputElement} input - The input whose timer should be cleared.
+ */
+function cancelPendingSearch( input ) {
+	clearTimeout( debounceTimers.get( input ) );
+	debounceTimers.delete( input );
+}
 
 store( NAMESPACE, {
 	actions: {
 		onSearchInput( event ) {
-			const { actions, state } = store( NAMESPACE );
+			const { state } = store( NAMESPACE );
 			state.searchQuery = event.target.value;
-
-			clearTimeout( debounceTimer );
-			debounceTimer = setTimeout( () => {
-				actions.search();
-			}, DEBOUNCE_MS );
+			scheduleSearch( event.target );
 		},
 
 		onSearchKeydown( event ) {
 			if ( event.key === 'Enter' ) {
-				clearTimeout( debounceTimer );
+				cancelPendingSearch( event.target );
 				const { actions } = store( NAMESPACE );
 				actions.search();
 			}
