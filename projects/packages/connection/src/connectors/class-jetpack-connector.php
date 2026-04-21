@@ -458,8 +458,12 @@ class Jetpack_Connector {
 	 *
 	 * Jetpack-family plugins get the Jetpack mark, WooCommerce-family
 	 * plugins get the Woo mark, and Automattic for Agencies gets the
-	 * Automattic mark. Unknown slugs return null (the JS falls back
-	 * to a generic dashicon).
+	 * Automattic mark. Unknown slugs fall through to the
+	 * `jetpack_connection_plugin_logo_url` filter so that third-party
+	 * plugins can register their own logo. Only SVG URLs are accepted
+	 * to keep the icons sharp at every display density.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $slug Plugin slug.
 	 * @return string|null Logo URL or null.
@@ -469,12 +473,31 @@ class Jetpack_Connector {
 			return plugins_url( 'images/jetpack-icon.svg', __FILE__ ); // str_starts_with() is polyfilled by WP since 5.9; this code only runs on WP 7.0+.
 		}
 
-		if ( str_starts_with( $slug, 'woocommerce' ) || str_starts_with( $slug, 'woo' ) ) {
+		if ( str_starts_with( $slug, 'woocommerce' ) ) {
 			return plugins_url( 'images/woo-icon.svg', __FILE__ );
 		}
 
 		if ( str_starts_with( $slug, 'automattic' ) ) {
 			return plugins_url( 'images/automattic-icon.svg', __FILE__ );
+		}
+
+		/**
+		 * Filters the logo URL for a connected plugin displayed on the
+		 * Settings → Connectors card.
+		 *
+		 * Return an absolute URL to an SVG image (`.svg` extension required).
+		 * Non-SVG URLs are silently rejected and the generic fallback icon is
+		 * used instead. The URL is sanitized with `esc_url()` before output.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string|null $logo_url Logo URL (null by default).
+		 * @param string      $slug     Plugin slug.
+		 */
+		$filtered = apply_filters( 'jetpack_connection_plugin_logo_url', null, $slug );
+
+		if ( is_string( $filtered ) && str_ends_with( strtolower( $filtered ), '.svg' ) ) {
+			return esc_url( $filtered );
 		}
 
 		return null;

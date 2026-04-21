@@ -282,10 +282,10 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Test that woo-prefixed slugs get the Woo logo.
+	 * Test that woocommerce-prefixed slugs get the Woo logo.
 	 */
 	public function test_logo_url_woo_prefix() {
-		$url = $this->call_get_plugin_logo_url( 'woo-subscriptions' );
+		$url = $this->call_get_plugin_logo_url( 'woocommerce-subscriptions' );
 		$this->assertStringContainsString( 'woo-icon.svg', $url );
 	}
 
@@ -343,11 +343,11 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Test that woo-prefixed slugs also trigger the Woo logo.
+	 * Test that woocommerce-prefixed slugs also trigger the Woo logo.
 	 */
 	public function test_connector_logo_woo_prefix() {
 		Plugin_Storage::configure();
-		Plugin_Storage::upsert( 'woo-subscriptions', array( 'name' => 'Woo Subscriptions' ) );
+		Plugin_Storage::upsert( 'woocommerce-subscriptions', array( 'name' => 'WooCommerce Subscriptions' ) );
 
 		$url = $this->call_get_connector_logo_url();
 		$this->assertStringContainsString( 'jetpack-connect-woo.svg', $url );
