@@ -42,14 +42,14 @@ class WPCOMSH_Recovery_Mode_Sync {
 	private static $payload = null;
 
 	/**
-	 * Whether the PHP shutdown callback has been registered this request.
+	 * Register option-change listeners and the PHP shutdown callback.
 	 *
-	 * @var bool
-	 */
-	private static $shutdown_registered = false;
-
-	/**
-	 * Register option-change listeners.
+	 * The shutdown function is registered up front (not lazily) because the
+	 * option writes that trigger a capture often happen from *within* WP's
+	 * own fatal-handler shutdown callback — and `register_shutdown_function`
+	 * called from inside a shutdown callback isn't reliably executed.
+	 * Registering during `init()` guarantees our callback is queued before
+	 * WP's fatal handler runs and so fires after it.
 	 */
 	public static function init() {
 		add_action( 'add_option_' . self::EMAIL_LAST_SENT_OPTION, array( __CLASS__, 'capture_email_last_sent' ) );
@@ -62,6 +62,8 @@ class WPCOMSH_Recovery_Mode_Sync {
 		// other type; treating that as a new entry would clobber entered_at.
 		add_action( 'added_option', array( __CLASS__, 'capture_session_start' ), 10, 1 );
 		add_action( 'deleted_option', array( __CLASS__, 'capture_session_end' ), 10, 1 );
+
+		register_shutdown_function( array( __CLASS__, 'send' ) );
 	}
 
 	/**
@@ -74,7 +76,6 @@ class WPCOMSH_Recovery_Mode_Sync {
 			'captured email_last_sent',
 			array( 'value' => self::$payload['recovery_mode_email_last_sent'] )
 		);
-		self::register_shutdown();
 	}
 
 	/**
@@ -97,7 +98,6 @@ class WPCOMSH_Recovery_Mode_Sync {
 				'entered_at' => $now,
 			)
 		);
-		self::register_shutdown();
 	}
 
 	/**
@@ -120,7 +120,6 @@ class WPCOMSH_Recovery_Mode_Sync {
 				'exited_at' => $now,
 			)
 		);
-		self::register_shutdown();
 	}
 
 	/**
@@ -200,17 +199,6 @@ class WPCOMSH_Recovery_Mode_Sync {
 			'recovery_session_entered_at'   => (int) get_option( self::ENTERED_AT_OPTION, 0 ),
 			'recovery_session_exited_at'    => (int) get_option( self::EXITED_AT_OPTION, 0 ),
 		);
-	}
-
-	/**
-	 * Register the PHP-level shutdown callback once per request.
-	 */
-	private static function register_shutdown() {
-		if ( self::$shutdown_registered ) {
-			return;
-		}
-		self::$shutdown_registered = true;
-		register_shutdown_function( array( __CLASS__, 'send' ) );
 	}
 
 	/**
