@@ -8,9 +8,9 @@
  * @package automattic/jetpack-search
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+namespace Automattic\Jetpack\Search;
 
-use Automattic\Jetpack\Search\Filter_Checkbox;
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 $filter_key = Filter_Checkbox::derive_filter_key( (array) $attributes );
 if ( '' === $filter_key ) {

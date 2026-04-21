@@ -203,7 +203,9 @@ class Filter_Checkbox {
 				continue;
 			}
 			$terms  = array_map(
-				static fn( $v ) => array( 'term' => array( $filter_field => (string) $v ) ),
+				static function ( $v ) use ( $filter_field ) {
+					return array( 'term' => array( $filter_field => (string) $v ) );
+				},
 				array_values( $values )
 			);
 			$must[] = count( $terms ) === 1 ? $terms[0] : array( 'bool' => array( 'should' => $terms ) );

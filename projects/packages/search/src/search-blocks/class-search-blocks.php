@@ -182,6 +182,7 @@ class Search_Blocks {
 		);
 
 		foreach ( $variations as $variation ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above; stub missing from wordpress-stubs.
 			register_block_variation( 'jetpack/filter-checkbox', $variation );
 		}
 	}
@@ -381,7 +382,9 @@ class Search_Blocks {
 			$clean = array_values(
 				array_filter(
 					array_map( 'sanitize_text_field', $values ),
-					static fn( $v ) => '' !== $v
+					static function ( $v ) {
+						return '' !== $v;
+					}
 				)
 			);
 			if ( $clean ) {
