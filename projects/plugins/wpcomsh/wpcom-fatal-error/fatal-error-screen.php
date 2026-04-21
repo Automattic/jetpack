@@ -58,7 +58,7 @@ function wpcomsh_fatal_load_textdomain() {
  *
  * @param array $error Error details from WP_Fatal_Error_Handler.
  * @return array Associative array with keys: is_admin (bool),
- *     plugin (array|null), error_line (string), deactivate_url (string),
+ *     plugin (array|null), error_message (string), deactivate_url (string),
  *     recovery_url (string), support_url (string).
  */
 function wpcomsh_fatal_build_render_context( $error ) {
@@ -68,7 +68,7 @@ function wpcomsh_fatal_build_render_context( $error ) {
 	return array(
 		'is_admin'       => $is_admin,
 		'plugin'         => $plugin,
-		'error_line'     => $is_admin ? wpcomsh_fatal_format_error( $error ) : '',
+		'error_message'  => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
 		'deactivate_url' => ( $is_admin && $plugin && 'plugins' === $plugin['kind'] && ! empty( $plugin['basename'] ) )
 			? wpcomsh_fatal_build_deactivate_url( $plugin['basename'] )
 			: '',
@@ -141,10 +141,10 @@ function wpcomsh_fatal_render_admin_view( $ctx ) {
 	<h3 class="wpcomsh-fatal-subhead"><?php esc_html_e( 'What you can try next', 'wpcomsh' ); ?></h3>
 	<?php wpcomsh_fatal_render_next_steps( $ctx['recovery_url'], $ctx['support_url'] ); ?>
 
-	<?php if ( '' !== $ctx['error_line'] ) : ?>
+	<?php if ( '' !== $ctx['error_message'] ) : ?>
 		<details class="wpcomsh-fatal-details">
 			<summary><?php esc_html_e( 'Error details', 'wpcomsh' ); ?></summary>
-			<pre><?php echo esc_html( $ctx['error_line'] ); ?></pre>
+			<pre><?php echo esc_html( $ctx['error_message'] ); ?></pre>
 		</details>
 		<?php
 	endif;
