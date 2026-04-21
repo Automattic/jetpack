@@ -55,8 +55,12 @@ class WPCOMSH_Recovery_Mode_Sync {
 		add_action( 'add_option_' . self::EMAIL_LAST_SENT_OPTION, array( __CLASS__, 'capture_email_last_sent' ) );
 		add_action( 'update_option_' . self::EMAIL_LAST_SENT_OPTION, array( __CLASS__, 'capture_email_last_sent' ) );
 
+		// Only `added_option` signals a new recovery session. `updated_option`
+		// fires for in-session extension additions and — crucially — during
+		// exit unwinding when `WP_Paused_Extensions_Storage::delete_all()` of
+		// one type rewrites the session option with remaining entries of the
+		// other type; treating that as a new entry would clobber entered_at.
 		add_action( 'added_option', array( __CLASS__, 'capture_session_start' ), 10, 1 );
-		add_action( 'updated_option', array( __CLASS__, 'capture_session_start' ), 10, 1 );
 		add_action( 'deleted_option', array( __CLASS__, 'capture_session_end' ), 10, 1 );
 	}
 
