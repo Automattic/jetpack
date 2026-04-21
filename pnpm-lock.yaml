@@ -3829,6 +3829,9 @@ importers:
       '@wordpress/block-editor':
         specifier: 15.17.0
         version: 15.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
+      '@wordpress/blocks':
+        specifier: 15.17.0
+        version: 15.17.0(react@18.3.1)
       '@wordpress/components':
         specifier: 32.6.0
         version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3847,6 +3850,12 @@ importers:
       '@wordpress/icons':
         specifier: 12.2.0
         version: 12.2.0(react@18.3.1)
+      '@wordpress/interactivity':
+        specifier: 6.44.0
+        version: 6.44.0
+      '@wordpress/server-side-render':
+        specifier: 6.20.0
+        version: 6.20.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0

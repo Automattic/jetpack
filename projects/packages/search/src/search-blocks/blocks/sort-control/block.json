@@ -1,0 +1,14 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/sort-control",
+	"version": "0.1.0",
+	"title": "Sort Control",
+	"category": "jetpack-search",
+	"description": "Controls the order of Jetpack Search results.",
+	"supports": { "html": false, "interactivity": true },
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/sort-control.js",
+	"style": "file:../../../../build/search-blocks/sort-control.css"
+}
