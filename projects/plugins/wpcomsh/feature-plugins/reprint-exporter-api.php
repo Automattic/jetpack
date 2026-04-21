@@ -165,16 +165,20 @@ function wpcomsh_reprint_inject_enabled_setting( $input, $unfiltered_input ) {
 add_filter( 'rest_api_update_site_settings', 'wpcomsh_reprint_inject_enabled_setting', 10, 2 );
 
 /**
- * Handle the actual update_option call for reprint_exporter_enabled
- * when the settings endpoint processes it in its default switch case.
+ * Persist reprint_exporter_enabled when the settings endpoint processes
+ * it. The default case in update_settings() does NOT call update_option
+ * when a per-key filter is registered — the filter is expected to
+ * handle persistence itself.
  *
  * @param mixed $value The value from the request.
- * @return int
+ * @return int The persisted value (returned for the response body).
  */
-function wpcomsh_reprint_sanitize_enabled_setting( $value ) {
-	return (int) $value;
+function wpcomsh_reprint_update_enabled_setting( $value ) {
+	$value = (int) $value;
+	update_option( 'reprint_exporter_enabled', $value );
+	return $value;
 }
-add_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_reprint_sanitize_enabled_setting' );
+add_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_reprint_update_enabled_setting' );
 
 // -- Helpers ------------------------------------------------------------------
 

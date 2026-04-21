@@ -151,7 +151,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 			has_filter( 'rest_api_update_site_settings', 'wpcomsh_reprint_inject_enabled_setting' )
 		);
 		$this->assertNotFalse(
-			has_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_reprint_sanitize_enabled_setting' )
+			has_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_reprint_update_enabled_setting' )
 		);
 	}
 
