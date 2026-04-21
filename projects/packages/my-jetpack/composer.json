@@ -22,7 +22,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/jetpack-search": "@dev",
 		"automattic/jetpack-videopress": "@dev",

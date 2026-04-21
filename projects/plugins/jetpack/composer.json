@@ -60,7 +60,6 @@
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0"

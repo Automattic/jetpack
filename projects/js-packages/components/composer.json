@@ -3,9 +3,6 @@
 	"description": "Jetpack Components Package.",
 	"license": "GPL-2.0-or-later",
 	"require": {},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"scripts": {
 		"build-production": [
 			"pnpm run build"
