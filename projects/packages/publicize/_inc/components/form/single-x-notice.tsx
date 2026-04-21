@@ -31,7 +31,7 @@ export function SingleXNotice() {
 	return (
 		<Notice className={ styles[ 'single-x-notice' ] } status="info" onRemove={ handleDismiss }>
 			{ __(
-				"Per X's developer policy, Jetpack Social will only share each post to one X account, even when multiple are connected.",
+				"As per X's developer policy, you can share a unique post to only one X account.",
 				'jetpack-publicize-pkg'
 			) }
 		</Notice>

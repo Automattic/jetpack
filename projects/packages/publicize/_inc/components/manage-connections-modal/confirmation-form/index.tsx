@@ -228,7 +228,7 @@ export function ConfirmationForm( {
 							</UiNotice.Title>
 							<UiNotice.Description>
 								{ __(
-									"Per X's developer policy, Jetpack Social will only share each post to one X account, even if you connect multiple. You can pick which X account to share to in the editor.",
+									"As per X's developer policy, you can share a unique post to only one X account. You can pick which X account to share to in the editor.",
 									'jetpack-publicize-pkg'
 								) }
 							</UiNotice.Description>

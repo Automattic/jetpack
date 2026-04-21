@@ -13,7 +13,7 @@ import {
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
-	SET_SHOULD_SHOW_SINGLE_X_NOTICE,
+	SET_SHOW_SINGLE_X_NOTICE,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
@@ -235,7 +235,7 @@ export function syncConnectionsToPostMeta() {
  */
 export function setShouldShowSingleXNotice( show: boolean ) {
 	return {
-		type: SET_SHOULD_SHOW_SINGLE_X_NOTICE,
+		type: SET_SHOW_SINGLE_X_NOTICE,
 		show,
 	};
 }
