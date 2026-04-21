@@ -31,7 +31,6 @@ path to deactivate the offending plugin.
 | `fatal-error-helpers.php` | Pure helpers: viewer detection, plugin identification, URL builders, error formatter. Testable in isolation. |
 | `fatal-error-screen.css` | Styles, inlined into the page at render time. |
 | `fatal-plugin-deactivator.php` | Early-running endpoint that validates the signed deactivation URL and short-circuits the broken plugin. |
-| `mu-plugin-stub.php` | Top-level mu-plugin stub that re-includes `fatal-plugin-deactivator.php` before any regular plugin loads. |
 
 ## Architecture notes
 
@@ -55,15 +54,18 @@ because the fatal may itself be DB-related.
 ### Deactivation security model
 
 The deactivation URL is HMAC-signed (using `AUTH_SALT` and the current
-logged-in cookie) and expires after 10 minutes. Nonces aren't used because
+logged-in cookie) and expires after 5 minutes. Nonces aren't used because
 the endpoint runs before `pluggable.php` is loaded.
 
-### Why the mu-plugin stub is required
+### Load order
 
-The deactivation endpoint must run **before** any plugin that might fatal.
-If we only load the endpoint from `wpcomsh.php`, the broken plugin can
-fatal alphabetically before wpcomsh is reached. Deploying
-`mu-plugin-stub.php` into `wp-content/mu-plugins/` guarantees early load.
+The deactivation endpoint must run **before** any plugin that might
+fatal. On WordPress.com Atomic, wpcomsh is loaded by the platform's
+top-level mu-plugin loader, so `wpcomsh.php` → `wpcom-fatal-error/load.php`
+→ `fatal-plugin-deactivator.php` all run during the mu-plugin phase,
+before the regular plugin loop. The endpoint therefore gets a chance to
+intercept the request and filter `option_active_plugins` before a
+broken plugin is ever loaded.
 
 ## Testing
 

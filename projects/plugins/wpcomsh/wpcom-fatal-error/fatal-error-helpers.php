@@ -25,7 +25,7 @@
  *
  * @return bool
  */
-function wpcomsh_fatal_viewer_is_admin() {
+function wpcomsh_fatal_is_admin() {
 	if ( ! defined( 'ABSPATH' ) ) {
 		return false;
 	}
@@ -36,12 +36,13 @@ function wpcomsh_fatal_viewer_is_admin() {
 				wp_cookie_constants();
 			}
 		}
-		foreach ( array(
+		$core_files = array(
 			'wp-includes/class-wp-user.php',
 			'wp-includes/user.php',
 			'wp-includes/capabilities.php',
 			'wp-includes/pluggable.php',
-		) as $file ) {
+		);
+		foreach ( $core_files as $file ) {
 			$path = ABSPATH . $file;
 			if ( is_readable( $path ) ) {
 				require_once $path;
@@ -152,7 +153,7 @@ function wpcomsh_fatal_build_deactivate_url( $plugin_basename ) {
 	// never output, so sanitization is irrelevant here — we need its exact
 	// byte-for-byte value to match at verification time.
 	$cookie_value = (string) wp_unslash( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$exp          = time() + 10 * MINUTE_IN_SECONDS;
+	$exp          = time() + 5 * MINUTE_IN_SECONDS;
 	$sig          = hash_hmac(
 		'sha256',
 		$plugin_basename . '|' . $exp . '|' . $cookie_value,
@@ -184,12 +185,13 @@ function wpcomsh_fatal_build_recovery_url() {
 	if ( function_exists( 'is_multisite' ) && is_multisite() ) {
 		return '';
 	}
+	$recovery_files = array(
+		'wp-includes/class-wp-recovery-mode-cookie-service.php',
+		'wp-includes/class-wp-recovery-mode-key-service.php',
+		'wp-includes/class-wp-recovery-mode-link-service.php',
+	);
 	try {
-		foreach ( array(
-			'wp-includes/class-wp-recovery-mode-cookie-service.php',
-			'wp-includes/class-wp-recovery-mode-key-service.php',
-			'wp-includes/class-wp-recovery-mode-link-service.php',
-		) as $file ) {
+		foreach ( $recovery_files as $file ) {
 			$path = ABSPATH . $file;
 			if ( is_readable( $path ) ) {
 				require_once $path;

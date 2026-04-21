@@ -62,7 +62,7 @@ function wpcomsh_fatal_load_textdomain() {
  *     recovery_url (string), support_url (string).
  */
 function wpcomsh_fatal_build_render_context( $error ) {
-	$is_admin = wpcomsh_fatal_viewer_is_admin();
+	$is_admin = wpcomsh_fatal_is_admin();
 	$plugin   = $is_admin ? wpcomsh_fatal_identify_plugin( $error ) : null;
 
 	return array(

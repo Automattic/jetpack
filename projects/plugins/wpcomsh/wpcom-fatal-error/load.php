@@ -12,10 +12,6 @@
  *   fatal-plugin-deactivator.php  Early-running endpoint that honors the
  *                                 signed deactivation URL the screen renders.
  *
- * Production deployments also need an mu-plugin stub under
- * wp-content/mu-plugins/ that re-includes fatal-plugin-deactivator.php
- * before any regular plugin loads — see mu-plugin-stub.php.
- *
  * @package wpcomsh
  */
 
