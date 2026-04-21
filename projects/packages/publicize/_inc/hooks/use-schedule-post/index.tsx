@@ -21,7 +21,7 @@ type SchedulePostOptions = {
 export function useSchedulePost() {
 	const { scheduleShares, openUnifiedModal } = useDispatch( socialStore );
 	const { message } = useSocialMediaMessage();
-	const { enabledConnections } = useSocialMediaConnections();
+	const { connectionsReadyToShare } = useSocialMediaConnections();
 	const navigator = useNavigator();
 
 	const openSharingActivity = useCallback( () => {
@@ -37,18 +37,16 @@ export function useSchedulePost() {
 
 	return useCallback(
 		async ( { timestamp }: SchedulePostOptions ) => {
-			const connectionIds = enabledConnections.map( connection =>
+			const connectionIds = connectionsReadyToShare.map( connection =>
 				Number( connection.connection_id )
 			);
 
-			const actions = siteHasFeature( features.UNIFIED_UI_V1 )
-				? [
-						{
-							label: __( 'View', 'jetpack-publicize-pkg' ),
-							onClick: openSharingActivity,
-						},
-				  ]
-				: [];
+			const actions = [
+				{
+					label: __( 'View', 'jetpack-publicize-pkg' ),
+					onClick: openSharingActivity,
+				},
+			];
 
 			/**
 			 * The share endpoint only gets the custom message as a parameter, the attached media and
@@ -61,6 +59,6 @@ export function useSchedulePost() {
 
 			return await scheduleShares( { connectionIds, message, timestamp }, { savePost, actions } );
 		},
-		[ enabledConnections, message, openSharingActivity, scheduleShares ]
+		[ connectionsReadyToShare, message, openSharingActivity, scheduleShares ]
 	);
 }

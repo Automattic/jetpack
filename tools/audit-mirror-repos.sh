@@ -83,7 +83,6 @@ DESC_RE2=' This repository is a mirror([,;] f|\. F)or issue tracking and develop
 
 cd "$BASE"
 for repo in $( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json | sort -u ); do
-	[[ "$repo" == "Automattic/wp-super-cache" ]] && continue # pbFulr-1bL-p2#comment-543
 
 	info ""
 	info "$repo:"

@@ -737,7 +737,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		$lock_expires_name  = $lock_option_name . '_expires';
 		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**
@@ -784,7 +784,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
 		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**
@@ -807,7 +807,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
 		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**

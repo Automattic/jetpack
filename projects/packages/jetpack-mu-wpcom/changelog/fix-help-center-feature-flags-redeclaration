@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix helpCenterFeatureFlags and helpCenterData redeclaration error in CIAB admin.

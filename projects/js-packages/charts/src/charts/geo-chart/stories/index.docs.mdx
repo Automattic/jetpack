@@ -122,9 +122,9 @@ For rich tooltip content with HTML formatting, add `p: { html: true }` to the to
 	/>` }
 />
 
-#### Security Considerations
+#### Security
 
-When using HTML tooltips via `p: { html: true }`, any HTML in the tooltip content will be rendered by the browser. If tooltip strings come from user-generated input or external data sources, you **must** sanitize them first to prevent cross-site scripting (XSS) attacks.
+HTML tooltip content is automatically sanitized to prevent cross-site scripting (XSS) attacks. Dangerous elements (e.g., `<script>`, `<iframe>`) and event-handler attributes (e.g., `onclick`) are stripped before rendering.
 
 ### Formatted Values
 

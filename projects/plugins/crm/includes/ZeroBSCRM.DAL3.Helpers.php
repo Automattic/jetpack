@@ -193,14 +193,24 @@ function zbsCRM_addUpdateCustomerCompany( $customerID = -1, $companyID = -1 ) {
 	return false;
 }
 
-#} Retrieves wp id for a customer
+/**
+ * Returns a WP ID for a given contact ID, or false if no match.
+ *
+ * @param int $cID Contact ID.
+ * @return int|false
+ */
 function zeroBS_getCustomerWPID( $cID = -1 ) {
 
 	global $zbs;
 	return $zbs->DAL->contacts->getContactWPID( $cID );
 }
 
-#} Retrieves wp id for a customer
+/**
+ * Returns a contact ID for a given WP ID, or false if no match.
+ *
+ * @param int $wpID WordPress ID.
+ * @return int|false
+ */
 function zeroBS_getCustomerIDFromWPID( $wpID = -1 ) {
 
 	global $zbs;

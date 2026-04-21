@@ -1,8 +1,10 @@
-import { Button, Col, Container, H3 } from '@automattic/jetpack-components';
+import { Col, Container, H3 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import styles from './styles.module.scss';
 
@@ -18,6 +20,10 @@ const Header = () => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const { openConnectionsModal } = useDispatch( socialStore );
+
+	const onWritePostClick = useCallback( () => {
+		window.location.href = getAdminUrl( 'post-new.php' );
+	}, [] );
 
 	return (
 		<>
@@ -40,10 +46,7 @@ const Header = () => {
 								{ __( 'Connect accounts', 'jetpack-publicize-pkg' ) }
 							</Button>
 						) }
-						<Button
-							href={ getAdminUrl( 'post-new.php' ) }
-							variant={ hasConnections ? 'primary' : 'secondary' }
-						>
+						<Button onClick={ onWritePostClick } variant={ hasConnections ? 'solid' : 'outline' }>
 							{ __( 'Write a post', 'jetpack-publicize-pkg' ) }
 						</Button>
 					</div>

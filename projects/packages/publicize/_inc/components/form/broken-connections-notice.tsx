@@ -1,10 +1,9 @@
-import { Button } from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { _n } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
-import styles from './styles.module.scss';
 import type { FC } from 'react';
 
 export const BrokenConnectionsNotice: FC = () => {
@@ -18,13 +17,15 @@ export const BrokenConnectionsNotice: FC = () => {
 
 	const { openConnectionsModal } = useDispatch( socialStore );
 
-	const fixLink = (
-		<Button
-			variant="link"
-			onClick={ openConnectionsModal }
-			className={ styles[ 'broken-connection-btn' ] }
-		/>
+	const onFixClick = useCallback(
+		( event: React.MouseEvent ) => {
+			event.preventDefault();
+			openConnectionsModal();
+		},
+		[ openConnectionsModal ]
 	);
+
+	const fixLink = <Link variant="default" href="#" onClick={ onFixClick } />;
 
 	const problemConnections = [ ...brokenConnections, ...reauthConnections ];
 

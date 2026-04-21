@@ -1,5 +1,4 @@
 import SpeedScore from '$features/speed-score/speed-score';
-import Footer from '$layout/footer/footer';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import Support from './support/support';
 import Tips from './tips/tips';
@@ -38,7 +37,6 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 
 						{ hasPrioritySupport && <Support /> }
 
-						<Footer />
 						<NoticeManager />
 					</div>
 				</BoostAdminPage>

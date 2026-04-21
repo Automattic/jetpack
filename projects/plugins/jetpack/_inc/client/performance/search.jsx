@@ -1,4 +1,5 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
@@ -92,9 +93,9 @@ function Search( props ) {
 
 						<FormFieldset>
 							<ToggleControl
+								__nextHasNoMarginBottom
 								checked={ isModuleEnabled && isInstantSearchEnabled }
-								disabled={ togglingModule || ! props.hasInstantSearch }
-								toggling={ togglingInstantSearch }
+								disabled={ togglingModule || ! props.hasInstantSearch || togglingInstantSearch }
 								onChange={ toggleInstantSearch }
 								label={
 									<span className="jp-form-toggle-explanation">

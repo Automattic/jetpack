@@ -848,6 +848,32 @@ class Defaults {
 	}
 
 	/**
+	 * Comment types whitelist.
+	 *
+	 * @var array Comment types that are synced.
+	 */
+	public static $comment_types_whitelist = array( '', 'comment', 'trackback', 'pingback', 'review', 'note' );
+
+	/**
+	 * Get the comment types whitelist.
+	 *
+	 * @return array
+	 */
+	public static function get_comment_types_whitelist() {
+		/**
+		 * Comment types present in this list will be synced to WordPress.com.
+		 *
+		 * @module sync
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 7.6.0
+		 *
+		 * @param array A list of comment types.
+		 */
+		return apply_filters( 'jetpack_sync_whitelisted_comment_types', self::$comment_types_whitelist );
+	}
+
+	/**
 	 * Default theme support whitelist.
 	 *
 	 * @todo move this to server? - these are theme support values
