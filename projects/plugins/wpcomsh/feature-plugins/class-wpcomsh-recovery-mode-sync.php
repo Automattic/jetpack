@@ -137,6 +137,18 @@ class WPCOMSH_Recovery_Mode_Sync {
 			return;
 		}
 
+		// The Connection Client signs requests with wp_rand() / wp_generate_password(),
+		// both defined in pluggable.php. That file is loaded late in WP's bootstrap and
+		// is often not yet available when we're called from inside WP's fatal-handler
+		// shutdown path (the exact case this feature exists to handle). Load it here.
+		if ( ! function_exists( 'wp_rand' ) && defined( 'ABSPATH' ) ) {
+			require_once ABSPATH . 'wp-includes/pluggable.php';
+		}
+		if ( ! function_exists( 'wp_rand' ) ) {
+			self::trace( 'send() aborting: wp_rand() unavailable' );
+			return;
+		}
+
 		try {
 			$wpcom_blog_id = _wpcom_get_current_blog_id();
 			if ( ! $wpcom_blog_id ) {
