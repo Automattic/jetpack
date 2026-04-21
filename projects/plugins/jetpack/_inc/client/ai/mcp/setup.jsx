@@ -7,7 +7,6 @@
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
-	Button,
 	Card,
 	CardBody,
 	SelectControl,
@@ -17,7 +16,7 @@ import {
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
-import { Link, Stack } from '@wordpress/ui';
+import { Button, Link, Stack } from '@wordpress/ui';
 
 const MCP_SERVER_NAME = 'wpcom-mcp';
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
@@ -219,11 +218,15 @@ export default function McpSetup() {
 										) }
 									</Text>
 									<Button
-										variant="primary"
-										href="cursor://anysphere.cursor-deeplink/mcp/install?name=WordPress.com&config=eyJjb21tYW5kIjoibnB4IC15IG1jcC1yZW1vdGUgaHR0cHM6Ly9wdWJsaWMtYXBpLndvcmRwcmVzcy5jb20vd3Bjb20vdjIvbWNwL3YxIn0%3D"
-										target="_blank"
-										rel="noreferrer"
+										variant="solid"
 										className="jetpack-ai-mcp-setup__action-button"
+										render={
+											<a
+												href="cursor://anysphere.cursor-deeplink/mcp/install?name=WordPress.com&config=eyJjb21tYW5kIjoibnB4IC15IG1jcC1yZW1vdGUgaHR0cHM6Ly9wdWJsaWMtYXBpLndvcmRwcmVzcy5jb20vd3Bjb20vdjIvbWNwL3YxIn0%3D"
+												target="_blank"
+												rel="noreferrer"
+											/>
+										}
 									>
 										{ __( 'Install in Cursor', 'jetpack' ) }
 									</Button>
@@ -242,12 +245,14 @@ export default function McpSetup() {
 								{ __( 'Manual setup', 'jetpack' ) }
 							</Text>
 							<Button
-								icon={ copyStatus === 'success' ? check : copy }
-								variant="tertiary"
-								iconSize={ 20 }
+								variant="minimal"
+								tone="neutral"
+								size="compact"
 								onClick={ copyToClipboard }
 								aria-label={ __( 'Copy configuration to clipboard', 'jetpack' ) }
-							/>
+							>
+								<Button.Icon icon={ copyStatus === 'success' ? check : copy } />
+							</Button>
 						</Stack>
 						<Text as="p" variant="muted">
 							{ __( 'Copy this configuration into your client\u2019s MCP settings.', 'jetpack' ) }

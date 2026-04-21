@@ -4,7 +4,6 @@
  */
 
 import {
-	Button,
 	Card,
 	CardBody,
 	CardDivider,
@@ -15,7 +14,7 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { seen, pencil, connection, chevronRight } from '@wordpress/icons';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge, Button, Stack } from '@wordpress/ui';
 import { isWriteTool } from './categories';
 import {
 	getAccountMcpAbilities,
@@ -75,7 +74,12 @@ const BADGE_INTENT_MAP = {
  */
 function SummaryRow( { icon, title, badge, onClick } ) {
 	return (
-		<Button className="jetpack-ai-mcp__summary-row" onClick={ onClick } variant="tertiary">
+		<Button
+			className="jetpack-ai-mcp__summary-row"
+			onClick={ onClick }
+			variant="minimal"
+			tone="neutral"
+		>
 			<Stack direction="row" justify="space-between" align="center" style={ { width: '100%' } }>
 				<Stack direction="row" gap="sm" align="center" justify="flex-start">
 					<Icon className="jetpack-ai-mcp__row-icon" icon={ icon } size={ 24 } />
