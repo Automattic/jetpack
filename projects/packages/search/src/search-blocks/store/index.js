@@ -6,6 +6,11 @@ const NAMESPACE = 'jetpack-search';
 const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
 const ANY_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
 let initialized = false;
+// Monotonic token used to drop stale `search()` responses. Incremented on
+// every new search; in-flight responses compare their token against the
+// latest before touching store state, so a slow request for an older query
+// can't overwrite fresh results when the user changes query or sort mid-fetch.
+let searchToken = 0;
 
 /**
  * Ensure a URL is a browser-safe http(s)/protocol-relative reference. The v1.3
@@ -281,10 +286,17 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
 		*search( { syncUrl = true } = {} ) {
+			const myToken = ++searchToken;
 			state.isLoading = true;
 			state.hasError = false;
 			try {
 				const data = yield* fetchResults( null );
+				// A newer `search()` started while this one was in-flight — its
+				// response will own the state write. Dropping here keeps us
+				// from clobbering fresh results with a slow, stale response.
+				if ( myToken !== searchToken ) {
+					return;
+				}
 				state.results = ( data.results ?? [] ).map( normalizeResult );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
@@ -292,9 +304,13 @@ const { state, actions } = store( NAMESPACE, {
 					actions.syncToUrl();
 				}
 			} catch {
-				state.hasError = true;
+				if ( myToken === searchToken ) {
+					state.hasError = true;
+				}
 			} finally {
-				state.isLoading = false;
+				if ( myToken === searchToken ) {
+					state.isLoading = false;
+				}
 			}
 		},
 
