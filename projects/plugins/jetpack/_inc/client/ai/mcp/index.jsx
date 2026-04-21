@@ -10,14 +10,12 @@ import {
 	CardDivider,
 	Icon,
 	ToggleControl,
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { seen, pencil, connection, chevronRight } from '@wordpress/icons';
-import { Badge } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import { isWriteTool } from './categories';
 import {
 	getAccountMcpAbilities,
@@ -78,20 +76,20 @@ const BADGE_INTENT_MAP = {
 function SummaryRow( { icon, title, badge, onClick } ) {
 	return (
 		<Button className="jetpack-ai-mcp__summary-row" onClick={ onClick } variant="tertiary">
-			<HStack justify="space-between" alignment="center" style={ { width: '100%' } }>
-				<HStack spacing={ 2 } alignment="center" justify="flex-start">
+			<Stack direction="row" justify="space-between" align="center" style={ { width: '100%' } }>
+				<Stack direction="row" gap="sm" align="center" justify="flex-start">
 					<Icon className="jetpack-ai-mcp__row-icon" icon={ icon } size={ 24 } />
 					<Text>{ title }</Text>
-				</HStack>
-				<HStack spacing={ 2 } alignment="center" justify="flex-end">
+				</Stack>
+				<Stack direction="row" gap="sm" align="center" justify="flex-end">
 					{ badge && (
 						<Badge intent={ BADGE_INTENT_MAP[ badge.intent ?? 'neutral' ] ?? 'draft' }>
 							{ badge.text }
 						</Badge>
 					) }
 					<Icon icon={ chevronRight } size={ 20 } />
-				</HStack>
-			</HStack>
+				</Stack>
+			</Stack>
 		</Button>
 	);
 }
@@ -191,15 +189,15 @@ export default function McpHub( { mcpAbilities, blogId, isSaving, onNavigate, on
 		<>
 			<Card className="jetpack-ai-mcp__access-card">
 				<CardBody>
-					<VStack spacing={ 4 }>
-						<VStack spacing={ 1 }>
+					<Stack direction="column" gap="md">
+						<Stack direction="column" gap="xs">
 							<Text as="h3" weight={ 600 }>
 								{ __( 'External AI agent access', 'jetpack' ) }
 							</Text>
 							<Text variant="muted">
 								{ __( 'Allow external AI agents to access this site via MCP.', 'jetpack' ) }
 							</Text>
-						</VStack>
+						</Stack>
 						<ToggleControl
 							__nextHasNoMarginBottom
 							checked={ isMcpEnabled }
@@ -207,7 +205,7 @@ export default function McpHub( { mcpAbilities, blogId, isSaving, onNavigate, on
 							label={ __( 'Enable MCP access', 'jetpack' ) }
 							onChange={ handleMcpToggle }
 						/>
-					</VStack>
+					</Stack>
 				</CardBody>
 
 				{ isMcpEnabled && (
