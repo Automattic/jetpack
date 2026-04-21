@@ -16,7 +16,8 @@ import {
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { seen, pencil, connection, chevronRight, info, published, caution } from '@wordpress/icons';
+import { seen, pencil, connection, chevronRight } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
 import { isWriteTool } from './categories';
 import {
 	getAccountMcpAbilities,
@@ -55,6 +56,14 @@ function computeBadge( tools, defaultEnabled ) {
 	};
 }
 
+/** Map our semantic intents to @wordpress/ui Badge intents. */
+const BADGE_INTENT_MAP = {
+	success: 'stable',
+	info: 'informational',
+	warning: 'medium',
+	neutral: 'draft',
+};
+
 /**
  * A tappable row that navigates to a sub-view, visually similar to calypso's
  * RouterLinkSummaryButton.
@@ -67,7 +76,6 @@ function computeBadge( tools, defaultEnabled ) {
  * @return {object} Component markup.
  */
 function SummaryRow( { icon, title, badge, onClick } ) {
-	const intent = badge?.intent ?? 'neutral';
 	return (
 		<Button className="jetpack-ai-mcp__summary-row" onClick={ onClick } variant="tertiary">
 			<HStack justify="space-between" alignment="center" style={ { width: '100%' } }>
@@ -77,12 +85,7 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 				</HStack>
 				<HStack spacing={ 2 } alignment="center" justify="flex-end">
 					{ badge && (
-						<span className={ `jetpack-ai-mcp__badge jetpack-ai-mcp__badge--${ intent }` }>
-							{ intent === 'info' && <Icon icon={ info } size={ 16 } /> }
-							{ intent === 'success' && <Icon icon={ published } size={ 16 } /> }
-							{ intent === 'warning' && <Icon icon={ caution } size={ 16 } /> }
-							{ badge.text }
-						</span>
+						<Badge intent={ BADGE_INTENT_MAP[ intent ] ?? 'draft' }>{ badge.text }</Badge>
 					) }
 					<Icon icon={ chevronRight } size={ 20 } />
 				</HStack>

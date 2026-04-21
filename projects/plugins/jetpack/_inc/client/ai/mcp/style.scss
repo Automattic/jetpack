@@ -72,38 +72,6 @@
 		color: var(--color-neutral-60, #50575e);
 	}
 
-	&__badge {
-		display: inline-flex;
-		align-items: center;
-		gap: 2px;
-		padding: 2px 8px;
-		border-radius: 2px;
-		font-size: 12px;
-		font-weight: 400;
-		line-height: 16px;
-
-		&--success {
-			background: #eff8f0;
-			color: #345b37;
-			padding-left: 4px;
-		}
-
-		&--info {
-			background: var(--color-accent-10, #dce9ff);
-			color: var(--color-accent-60, #0045d2);
-		}
-
-		&--neutral {
-			background: var(--color-neutral-5, #f0f0f1);
-			color: var(--color-neutral-100, #1e1e1e);
-		}
-
-		&--warning {
-			background: var(--color-warning-10, #fff3cd);
-			color: var(--color-warning-60, #7a4f00);
-		}
-	}
-
 	&__tool-group-divider {
 		margin: 0;
 	}

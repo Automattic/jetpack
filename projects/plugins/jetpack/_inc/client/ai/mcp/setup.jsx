@@ -5,11 +5,11 @@
  * Ported from client/dashboard/me/mcp/setup/index.tsx in wp-calypso.
  */
 
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	Button,
 	Card,
 	CardBody,
-	ExternalLink,
 	SelectControl,
 	TextareaControl,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -19,6 +19,7 @@ import {
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 
 const MCP_SERVER_NAME = 'wpcom-mcp';
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
@@ -33,12 +34,12 @@ const CLIENT_OPTIONS = [
 ];
 
 const CLIENT_DOCS = {
-	claude: 'https://docs.claude.com/en/docs/mcp',
-	'claude-code': 'https://code.claude.com/docs/en/mcp',
-	vscode: 'https://code.visualstudio.com/docs/copilot/customization/mcp-servers',
-	cursor: 'https://docs.cursor.com/en/context/mcp',
-	continue: 'https://docs.continue.dev/customize/deep-dives/mcp',
-	default: 'https://modelcontextprotocol.io/docs/develop/connect-local-servers',
+	claude: getRedirectUrl( 'https://docs.claude.com/en/docs/mcp' ),
+	'claude-code': getRedirectUrl( 'https://code.claude.com/docs/en/mcp' ),
+	vscode: getRedirectUrl( 'https://code.visualstudio.com/docs/copilot/customization/mcp-servers' ),
+	cursor: getRedirectUrl( 'https://docs.cursor.com/en/context/mcp' ),
+	continue: getRedirectUrl( 'https://docs.continue.dev/customize/deep-dives/mcp' ),
+	default: getRedirectUrl( 'https://modelcontextprotocol.io/docs/develop/connect-local-servers' ),
 };
 
 const CLIENT_DOCS_LABELS = {
@@ -132,9 +133,12 @@ export default function McpSetup() {
 										<Text as="p" variant="muted">
 											{ createInterpolateElement( __( 'Open <ClaudeSettings/>.', 'jetpack' ), {
 												ClaudeSettings: (
-													<ExternalLink href="https://claude.ai/settings/connectors">
+													<Link
+														href={ getRedirectUrl( 'https://claude.ai/settings/connectors' ) }
+														openInNewTab
+													>
 														{ __( 'Claude settings', 'jetpack' ) }
-													</ExternalLink>
+													</Link>
 												),
 											} ) }
 										</Text>
@@ -258,9 +262,9 @@ export default function McpSetup() {
 							readOnly
 						/>
 						{ CLIENT_DOCS[ selectedClient ] && (
-							<ExternalLink href={ CLIENT_DOCS[ selectedClient ] }>
+							<Link href={ CLIENT_DOCS[ selectedClient ] } openInNewTab>
 								{ CLIENT_DOCS_LABELS[ selectedClient ] }
-							</ExternalLink>
+							</Link>
 						) }
 					</VStack>
 				</CardBody>
