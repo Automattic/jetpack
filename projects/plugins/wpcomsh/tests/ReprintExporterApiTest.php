@@ -159,7 +159,10 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 */
 	public function test_settings_inject_adds_key_from_unfiltered() {
 		$input    = array( 'blogname' => 'Test' );
-		$raw      = array( 'blogname' => 'Test', 'reprint_exporter_enabled' => '1745000000' );
+		$raw      = array(
+			'blogname'                 => 'Test',
+			'reprint_exporter_enabled' => '1745000000',
+		);
 		$result   = wpcomsh_reprint_inject_enabled_setting( $input, $raw );
 
 		$this->assertSame( 1745000000, $result['reprint_exporter_enabled'] );
@@ -391,5 +394,4 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 
 		$this->assertSame( $data['secret'], get_option( 'reprint_exporter_secret' ) );
 	}
-
 }
