@@ -173,28 +173,37 @@ When `false`:
 
 ## Admin UI
 
-A new **"AI Answers"** section appears in the Jetpack Search settings page (`Settings > Jetpack Search > AI Answers`) when the feature flag is enabled.
+The Jetpack Search admin page gains a tab bar at the top, matching the style used by the Stats page (plain text tabs, blue underline on the active tab, horizontal rule below). Tabs are rendered as `<NavLink>` or equivalent router links so the active tab survives a page reload.
+
+Initial tabs:
+
+```
+Overview  |  Behavior  |  Topics
+```
+
+Future: an **Analytics** tab will be added and will become the default. The current **Overview** content (billing/usage) will remain but yield the default position to Analytics.
+
+### Overview Tab (existing page content)
+
+The current Jetpack Search dashboard — usage meters, search preview, record/request counts. No changes to existing content; it is moved inside the tab container.
 
 ### Behavior Tab
 
 Block editor view of the single `jetpack_search_behavior` post. Descriptive text above the editor:
 
-> "Describe how the AI should respond to visitor questions. These instructions are sent to the AI along with every search query."
-> Example: "Focus on product-related questions only. Always recommend contacting support if the visitor seems frustrated."
+> "Describe how the AI should respond to visitor questions. List the topics your site covers so the AI can classify queries. Example: 'Focus on product-related questions. Topics: Shipping, Returns, Account Access, Billing.'"
 
-Saving auto-publishes (or updates) the behavior post. The admin UI ensures only one behavior post exists.
+Saving auto-publishes (or updates) the single behavior post. The admin UI prevents creating a second behavior post.
+
+AI request usage meter sits at the bottom of this tab: current-month count vs. the 500-request monthly limit (pulled from the wpcom quota API). When usage approaches or exceeds the limit a callout is shown with an upgrade link.
 
 ### Topics Tab
 
 Standard WP list table showing all `jetpack_search_topic` posts with columns: Topic Name, Keywords, Last Modified. Row actions: Edit (opens post editor), Delete.
 
-"Add Topic" button opens the block editor for a new `jetpack_search_topic` post. The editor sidebar panel exposes the `_jstopic_keywords` and `_jstopic_url` fields. A template hint in the editor body guides site owners through the expected structure (description, example questions, guidelines, optional pre-written content).
+"Add Topic" button opens the block editor for a new `jetpack_search_topic` post. The editor sidebar panel exposes the `_jstopic_keywords` and `_jstopic_url` fields. A template hint in the editor body guides the author through the expected structure (description, example questions, guidelines, optional pre-written content).
 
-**Suggested Topics sub-tab**: Shows top search queries with high volume and low click-through rate drawn from the wpcom search analytics API. Each suggestion shows the query string and query count, with a "Create Topic" button that pre-populates the topic editor with the query as an example question. Multiple related suggestions can be selected to seed a single topic at once.
-
-### Status Bar
-
-Displays current-month AI request count versus the 500-request monthly limit, pulled from the wpcom quota API. When usage approaches or exceeds the limit, a callout is shown with an upgrade link.
+Below the list table, a **Suggested Topics** section shows top search queries with high volume and low click-through rate (from the wpcom search analytics API). Each suggestion shows the query string and count, with a "Create Topic" button that pre-populates the topic editor with the query as an example question. Multiple suggestions can be selected to seed a single topic at once.
 
 ## Future: Interactivity API Block
 
