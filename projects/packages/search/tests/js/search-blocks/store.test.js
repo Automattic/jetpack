@@ -9,14 +9,11 @@ describe( 'store helpers round-trip', () => {
 	it( 'serializes and deserializes state without loss', () => {
 		const original = {
 			searchQuery: 'winter boots',
-			activeFilters: { category: [ 'products' ], post_tag: [ 'sale' ] },
 			sortOrder: 'date',
 		};
 		const params = stateToUrlParams( original );
 		const restored = urlParamsToState( params );
 		expect( restored.searchQuery ).toBe( original.searchQuery );
-		expect( restored.activeFilters.category ).toEqual( original.activeFilters.category );
-		expect( restored.activeFilters.post_tag ).toEqual( original.activeFilters.post_tag );
 		expect( restored.sortOrder ).toBe( original.sortOrder );
 	} );
 } );

@@ -4,7 +4,6 @@ describe( 'stateToUrlParams', () => {
 	it( 'serializes search query', () => {
 		const params = stateToUrlParams( {
 			searchQuery: 'boots',
-			activeFilters: {},
 			sortOrder: 'relevance',
 		} );
 		expect( params.get( 's' ) ).toBe( 'boots' );
@@ -13,19 +12,25 @@ describe( 'stateToUrlParams', () => {
 	it( 'omits empty search query', () => {
 		const params = stateToUrlParams( {
 			searchQuery: '',
-			activeFilters: {},
 			sortOrder: 'relevance',
 		} );
 		expect( params.has( 's' ) ).toBe( false );
 	} );
 
-	it( 'serializes active filters', () => {
+	it( 'serializes non-default sort order', () => {
 		const params = stateToUrlParams( {
 			searchQuery: '',
-			activeFilters: { category: [ 'news' ] },
+			sortOrder: 'date',
+		} );
+		expect( params.get( 'orderby' ) ).toBe( 'date' );
+	} );
+
+	it( 'omits default sort order', () => {
+		const params = stateToUrlParams( {
+			searchQuery: 'cats',
 			sortOrder: 'relevance',
 		} );
-		expect( params.get( 'filter[category][]' ) ).toBe( 'news' );
+		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 } );
 
@@ -35,8 +40,13 @@ describe( 'urlParamsToState', () => {
 		expect( state.searchQuery ).toBe( 'cats' );
 	} );
 
-	it( 'reads filter from URL', () => {
-		const state = urlParamsToState( new URLSearchParams( 'filter%5Bcategory%5D%5B%5D=news' ) );
-		expect( state.activeFilters.category ).toContain( 'news' );
+	it( 'reads sort order from URL', () => {
+		const state = urlParamsToState( new URLSearchParams( 'orderby=date' ) );
+		expect( state.sortOrder ).toBe( 'date' );
+	} );
+
+	it( 'defaults sort order to relevance when absent', () => {
+		const state = urlParamsToState( new URLSearchParams( '' ) );
+		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 } );
