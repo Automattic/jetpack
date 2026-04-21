@@ -149,9 +149,12 @@ class Search_Blocks {
 			'isWpcom'       => $is_wpcom,
 			'homeUrl'       => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
-			// client. Converts WP's `en_US` underscore form.
-			'locale'        => function_exists( 'get_user_locale' )
-				? str_replace( '_', '-', get_user_locale() )
+			// client. Converts WP's `en_US` underscore form. Uses the blog
+			// locale (site setting) rather than the viewer's user-profile
+			// locale so formatting is consistent for logged-out visitors
+			// hitting a search page.
+			'locale'        => function_exists( 'get_locale' )
+				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
