@@ -149,8 +149,8 @@ class Jetpack_Connector {
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
-		$data['connectorName']        = 'Jetpack Connect';
-		$data['connectorDescription'] = __( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' );
+		$data['connectorName']        = 'Jetpack Connection';
+		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
 		if ( $is_registered ) {
@@ -429,7 +429,7 @@ class Jetpack_Connector {
 
 		if ( is_array( $plugins ) ) {
 			foreach ( array_keys( $plugins ) as $slug ) {
-				if ( str_starts_with( $slug, 'woocommerce' ) || str_starts_with( $slug, 'woo' ) ) {
+				if ( str_starts_with( $slug, 'woocommerce' ) ) {
 					$has_woo = true;
 				}
 				if ( str_starts_with( $slug, 'automattic' ) ) {
