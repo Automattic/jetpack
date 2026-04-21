@@ -7,7 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { useAiCrawlers, useUpdateAiCrawlers } from '../../data/use-discoverability';
 import styles from './style.module.scss';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 
 const LABELS: Record< string, string > = {
 	GPTBot: 'OpenAI (GPTBot)',
@@ -35,18 +35,8 @@ const AiCrawlersCard: FC< Props > = ( { id, defaultOpen = false } ) => {
 	const { data, isLoading, isError, error } = useAiCrawlers();
 	const mutation = useUpdateAiCrawlers();
 
-	if ( isLoading || ! data ) {
-		return <Spinner />;
-	}
-	if ( isError ) {
-		return (
-			<Notice status="error" isDismissible={ false }>
-				{ error?.message ?? __( 'Unable to load AI crawler settings.', 'jetpack-seo' ) }
-			</Notice>
-		);
-	}
-
 	const setCrawler = ( bot: string, block: boolean ) => {
+		if ( ! data ) return;
 		const crawlers = { ...data.crawlers, [ bot ]: block ? 'block' : 'allow' } as Record<
 			string,
 			'allow' | 'block'
@@ -54,27 +44,23 @@ const AiCrawlersCard: FC< Props > = ( { id, defaultOpen = false } ) => {
 		mutation.mutate( { crawlers } );
 	};
 
-	const blockedCount = data.known.filter( bot => data.crawlers[ bot ] === 'block' ).length;
-	const totalCount = data.known.length;
+	const blockedCount = data
+		? data.known.filter( bot => data.crawlers[ bot ] === 'block' ).length
+		: 0;
+	const totalCount = data ? data.known.length : 0;
 
-	return (
-		<CollapsibleCard.Root id={ id } defaultOpen={ defaultOpen }>
-			<CollapsibleCard.Header>
-				<Stack direction="row" justify="space-between" align="center" gap="sm">
-					<Card.Title>{ __( 'AI crawlers', 'jetpack-seo' ) }</Card.Title>
-					<Badge intent={ blockedCount > 0 ? 'informational' : 'draft' }>
-						{ blockedCount > 0
-							? sprintf(
-									/* translators: 1: number of blocked AI crawlers, 2: total number of known AI crawlers */
-									__( '%1$d of %2$d blocked', 'jetpack-seo' ),
-									blockedCount,
-									totalCount
-							  )
-							: __( 'All allowed', 'jetpack-seo' ) }
-					</Badge>
-				</Stack>
-			</CollapsibleCard.Header>
-			<CollapsibleCard.Content>
+	let body: ReactNode;
+	if ( isLoading || ! data ) {
+		body = <Spinner />;
+	} else if ( isError ) {
+		body = (
+			<Notice status="error" isDismissible={ false }>
+				{ error?.message ?? __( 'Unable to load AI crawler settings.', 'jetpack-seo' ) }
+			</Notice>
+		);
+	} else {
+		body = (
+			<>
 				<p>
 					{ __(
 						'Block AI crawlers from indexing your content. Rules are applied via robots.txt.',
@@ -95,7 +81,30 @@ const AiCrawlersCard: FC< Props > = ( { id, defaultOpen = false } ) => {
 						</div>
 					) ) }
 				</div>
-			</CollapsibleCard.Content>
+			</>
+		);
+	}
+
+	return (
+		<CollapsibleCard.Root id={ id } defaultOpen={ defaultOpen }>
+			<CollapsibleCard.Header>
+				<Stack direction="row" justify="space-between" align="center" gap="sm">
+					<Card.Title>{ __( 'AI crawlers', 'jetpack-seo' ) }</Card.Title>
+					{ data && (
+						<Badge intent={ blockedCount > 0 ? 'informational' : 'draft' }>
+							{ blockedCount > 0
+								? sprintf(
+										/* translators: 1: number of blocked AI crawlers, 2: total number of known AI crawlers */
+										__( '%1$d of %2$d blocked', 'jetpack-seo' ),
+										blockedCount,
+										totalCount
+								  )
+								: __( 'All allowed', 'jetpack-seo' ) }
+						</Badge>
+					) }
+				</Stack>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>{ body }</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);
 };

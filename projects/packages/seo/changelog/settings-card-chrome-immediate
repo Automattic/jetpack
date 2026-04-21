@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+SEO: The Settings cards (Sitemap, AI content map, AI crawlers) render their chrome and title immediately on page load; the spinner is scoped to the card body instead of replacing the entire card while data fetches.

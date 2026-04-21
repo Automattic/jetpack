@@ -4,7 +4,7 @@ import { Button, ExternalLink, Notice, Spinner, ToggleControl } from '@wordpress
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { useSitemap, useUpdateSitemap } from '../../data/use-sitemap';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 
 interface Props {
 	id?: string;
@@ -15,34 +15,24 @@ const SitemapCard: FC< Props > = ( { id, defaultOpen = false } ) => {
 	const { data, isLoading, isError, error } = useSitemap();
 	const mutation = useUpdateSitemap();
 
-	if ( isLoading || ! data ) {
-		return <Spinner />;
-	}
-	if ( isError ) {
-		return (
-			<Notice status="error" isDismissible={ false }>
-				{ error?.message ?? __( 'Unable to load sitemap settings.', 'jetpack-seo' ) }
-			</Notice>
-		);
-	}
-
 	const copy = ( url: string ) => {
 		if ( typeof navigator !== 'undefined' && navigator.clipboard ) {
 			navigator.clipboard.writeText( url );
 		}
 	};
 
-	return (
-		<CollapsibleCard.Root id={ id } defaultOpen={ defaultOpen }>
-			<CollapsibleCard.Header>
-				<Stack direction="row" justify="space-between" align="center" gap="sm">
-					<Card.Title>{ __( 'Sitemap', 'jetpack-seo' ) }</Card.Title>
-					<Badge intent={ data.enabled ? 'stable' : 'draft' }>
-						{ data.enabled ? __( 'Active', 'jetpack-seo' ) : __( 'Inactive', 'jetpack-seo' ) }
-					</Badge>
-				</Stack>
-			</CollapsibleCard.Header>
-			<CollapsibleCard.Content>
+	let body: ReactNode;
+	if ( isLoading || ! data ) {
+		body = <Spinner />;
+	} else if ( isError ) {
+		body = (
+			<Notice status="error" isDismissible={ false }>
+				{ error?.message ?? __( 'Unable to load sitemap settings.', 'jetpack-seo' ) }
+			</Notice>
+		);
+	} else {
+		body = (
+			<>
 				<ToggleControl
 					label={ __( 'Generate XML sitemap', 'jetpack-seo' ) }
 					help={ __(
@@ -73,7 +63,23 @@ const SitemapCard: FC< Props > = ( { id, defaultOpen = false } ) => {
 						</li>
 					</ul>
 				) }
-			</CollapsibleCard.Content>
+			</>
+		);
+	}
+
+	return (
+		<CollapsibleCard.Root id={ id } defaultOpen={ defaultOpen }>
+			<CollapsibleCard.Header>
+				<Stack direction="row" justify="space-between" align="center" gap="sm">
+					<Card.Title>{ __( 'Sitemap', 'jetpack-seo' ) }</Card.Title>
+					{ data && (
+						<Badge intent={ data.enabled ? 'stable' : 'draft' }>
+							{ data.enabled ? __( 'Active', 'jetpack-seo' ) : __( 'Inactive', 'jetpack-seo' ) }
+						</Badge>
+					) }
+				</Stack>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>{ body }</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);
 };
