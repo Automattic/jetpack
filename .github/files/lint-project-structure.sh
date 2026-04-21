@@ -267,12 +267,12 @@ for PROJECT in projects/*/*; do
 		echo "::error file=$PROJECT/composer.json::$PROJECT/composer.json should have a \`repositories\` entry pointing to \`../../packages/*\`."
 	fi
 
-	# - composer.json must require-dev (or just require) changelogger.
+	# - composer.json must declare changelogger config via .extra.changelogger (may be empty).
 	# - Changelogger's changes-dir must have a .gitkeep.
 	# - Changelogger's changes-dir must be production-excluded.
-	if [[ "$SLUG" != "packages/changelogger" ]] && ! jq -e '.require["automattic/changelogger"] // .["require-dev"]["automattic/jetpack-changelogger"]' "$PROJECT/composer.json" >/dev/null; then
+	if [[ "$SLUG" != "packages/changelogger" ]] && ! jq -e '.extra.changelogger' "$PROJECT/composer.json" >/dev/null; then
 		EXIT=1
-		echo "::error file=$PROJECT/composer.json::Project $SLUG should include automattic/jetpack-changelogger in \`require-dev\`."
+		echo "::error file=$PROJECT/composer.json::Project $SLUG should include \`.extra.changelogger\` (may be \`{}\`) in composer.json."
 	else
 		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
 		if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
