@@ -12,14 +12,12 @@ import {
 	CardBody,
 	SelectControl,
 	TextareaControl,
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link, Stack } from '@wordpress/ui';
 
 const MCP_SERVER_NAME = 'wpcom-mcp';
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
@@ -105,7 +103,7 @@ export default function McpSetup() {
 	const showQuickSetup = quickSetupClients.includes( selectedClient );
 
 	return (
-		<VStack spacing={ 4 }>
+		<Stack direction="column" gap="md">
 			<Card>
 				<CardBody>
 					<SelectControl
@@ -122,7 +120,7 @@ export default function McpSetup() {
 			{ showQuickSetup && (
 				<Card>
 					<CardBody>
-						<VStack spacing={ 4 }>
+						<Stack direction="column" gap="md">
 							<Text as="h3" weight={ 600 }>
 								{ __( 'Quick setup', 'jetpack' ) }
 							</Text>
@@ -157,7 +155,7 @@ export default function McpSetup() {
 							) }
 
 							{ selectedClient === 'claude-code' && (
-								<VStack spacing={ 4 }>
+								<Stack direction="column" gap="md">
 									<Text as="p" variant="muted">
 										{ __(
 											'Claude Code uses a different config format with type: "http". Use the CLI or copy the configuration below.',
@@ -209,11 +207,11 @@ export default function McpSetup() {
 											</Text>
 										</li>
 									</ol>
-								</VStack>
+								</Stack>
 							) }
 
 							{ selectedClient === 'cursor' && (
-								<VStack spacing={ 4 }>
+								<Stack direction="column" gap="md">
 									<Text as="p" variant="muted">
 										{ __(
 											'For Cursor users, use the one-click install to add the WordPress.com MCP app.',
@@ -229,17 +227,17 @@ export default function McpSetup() {
 									>
 										{ __( 'Install in Cursor', 'jetpack' ) }
 									</Button>
-								</VStack>
+								</Stack>
 							) }
-						</VStack>
+						</Stack>
 					</CardBody>
 				</Card>
 			) }
 
 			<Card>
 				<CardBody>
-					<VStack spacing={ 2 }>
-						<HStack justify="space-between" alignment="center">
+					<Stack direction="column" gap="sm">
+						<Stack direction="row" justify="space-between" align="center">
 							<Text as="h3" weight={ 600 }>
 								{ __( 'Manual setup', 'jetpack' ) }
 							</Text>
@@ -250,7 +248,7 @@ export default function McpSetup() {
 								onClick={ copyToClipboard }
 								aria-label={ __( 'Copy configuration to clipboard', 'jetpack' ) }
 							/>
-						</HStack>
+						</Stack>
 						<Text as="p" variant="muted">
 							{ __( 'Copy this configuration into your client\u2019s MCP settings.', 'jetpack' ) }
 						</Text>
@@ -266,9 +264,9 @@ export default function McpSetup() {
 								{ CLIENT_DOCS_LABELS[ selectedClient ] }
 							</Link>
 						) }
-					</VStack>
+					</Stack>
 				</CardBody>
 			</Card>
-		</VStack>
+		</Stack>
 	);
 }

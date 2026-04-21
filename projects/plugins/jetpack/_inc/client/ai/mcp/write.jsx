@@ -11,12 +11,11 @@ import {
 	CardDivider,
 	CardHeader,
 	ToggleControl,
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import {
 	CATEGORY_ORDER,
 	SUB_CATEGORY_ORDER,
@@ -75,7 +74,7 @@ function CategoryHeader( { categoryName, allEnabled, isSaving, categoryTools, on
 	);
 	return (
 		<CardHeader>
-			<HStack justify="space-between" alignment="center">
+			<Stack direction="row" justify="space-between" align="center">
 				<Text as="h3" weight={ 600 } size={ 14 }>
 					{ categoryName }
 				</Text>
@@ -86,7 +85,7 @@ function CategoryHeader( { categoryName, allEnabled, isSaving, categoryTools, on
 					label={ __( 'Enable all', 'jetpack' ) }
 					onChange={ handleChange }
 				/>
-			</HStack>
+			</Stack>
 		</CardHeader>
 	);
 }
@@ -192,7 +191,9 @@ export default function McpWrite( { mcpAbilities, blogId, isSaving, onUpdate } )
 			<Fragment key={ subName }>
 				{ index > 0 && <CardDivider className="jetpack-ai-mcp__tool-group-divider" /> }
 				<CardBody>
-					<VStack spacing={ 4 }>{ renderToolToggles( sortTools( subGrouped[ subName ] ) ) }</VStack>
+					<Stack direction="column" gap="md">
+						{ renderToolToggles( sortTools( subGrouped[ subName ] ) ) }
+					</Stack>
 				</CardBody>
 			</Fragment>
 		) );
@@ -211,7 +212,7 @@ export default function McpWrite( { mcpAbilities, blogId, isSaving, onUpdate } )
 	}
 
 	return (
-		<VStack spacing={ 4 }>
+		<Stack direction="column" gap="md">
 			{ CATEGORY_ORDER.map( categoryName => {
 				const categoryTools = grouped[ categoryName ];
 				if ( ! categoryTools?.length ) {
@@ -234,12 +235,14 @@ export default function McpWrite( { mcpAbilities, blogId, isSaving, onUpdate } )
 							renderSubGroupedTools( categoryTools, categoryName )
 						) : (
 							<CardBody>
-								<VStack spacing={ 4 }>{ renderToolToggles( categoryTools ) }</VStack>
+								<Stack direction="column" gap="md">
+									{ renderToolToggles( categoryTools ) }
+								</Stack>
 							</CardBody>
 						) }
 					</Card>
 				);
 			} ) }
-		</VStack>
+		</Stack>
 	);
 }
