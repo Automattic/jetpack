@@ -27,15 +27,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-Assets::add_resource_hint(
-	array(
-		'//widgets.wp.com',
-		'//s0.wp.com',
-		'//0.gravatar.com',
-		'//1.gravatar.com',
-		'//2.gravatar.com',
-	),
-	'dns-prefetch'
+add_filter(
+	'wp_resource_hints',
+	function ( $hints, $relation_type ) {
+		if ( 'dns-prefetch' !== $relation_type ) {
+			return $hints;
+		}
+
+		// Only hint on pages where Likes can render.
+		if ( ! is_singular() && ! is_home() && ! is_front_page() && ! is_archive() && ! is_search() ) {
+			return $hints;
+		}
+
+		return array_merge(
+			$hints,
+			array(
+				'//widgets.wp.com',
+				'//s0.wp.com',
+				'//0.gravatar.com',
+				'//1.gravatar.com',
+				'//2.gravatar.com',
+			)
+		);
+	},
+	10,
+	2
 );
 
 require_once __DIR__ . '/likes/jetpack-likes-master-iframe.php';
