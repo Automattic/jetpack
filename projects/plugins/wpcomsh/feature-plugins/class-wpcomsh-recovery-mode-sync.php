@@ -1,8 +1,8 @@
 <?php
 /**
- * Signal WordPress recovery-mode state to WPcom via a dedicated endpoint so the
- * WordPress.com dashboard can surface "needs recovery" / "in recovery" states
- * to site admins.
+ * Report WordPress recovery-mode state to wpcom via a dedicated endpoint so
+ * wpcom-side consumers can surface "needs recovery" / "in recovery" states
+ * for the site.
  *
  * Three timestamps are POSTed to `/sites/{blog_id}/recovery-mode-status`:
  *
@@ -14,7 +14,7 @@
  *   - `recovery_session_exited_at`     — wpcomsh-managed; updated on deletion
  *     of `{session_id}_paused_extensions`, i.e. when the admin exits recovery.
  *
- * The POST runs from a PHP shutdown function so the signal reaches WPcom even
+ * The POST runs from a PHP shutdown function so the signal reaches wpcom even
  * on fatal-error requests, matching the pattern used by migrate-guru-canary.
  *
  * @package wpcomsh
@@ -23,7 +23,7 @@
 use Automattic\Jetpack\Connection\Client as Jetpack_Connection_Client;
 
 /**
- * Captures recovery-mode option writes and forwards a state snapshot to WPcom
+ * Captures recovery-mode option writes and forwards a state snapshot to wpcom
  * on PHP shutdown.
  */
 class WPCOMSH_Recovery_Mode_Sync {
@@ -106,8 +106,8 @@ class WPCOMSH_Recovery_Mode_Sync {
 	}
 
 	/**
-	 * PHP-shutdown callback: POST the current state snapshot to WPcom so the
-	 * signal reaches the dashboard even when this request is dying from a fatal.
+	 * PHP-shutdown callback: POST the current state snapshot to wpcom so the
+	 * signal reaches wpcom even when this request is dying from a fatal.
 	 */
 	public static function send() {
 		if ( self::$payload === null ) {
