@@ -65,13 +65,19 @@
 	margin: 0;
 }
 
-.wpcom-connector__details-link:focus:not(:active) {
+.wpcom-connector__details-link:focus:not(:focus-visible) {
 	box-shadow: none;
 	outline: none;
 }
 
 .wpcom-connector__disconnect-site {
 	margin-inline-start: auto;
+}
+
+.wpcom-connector__modal .components-button:focus:not(:focus-visible),
+.wpcom-connector__confirm-modal .components-button:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: none;
 }
 
 .wpcom-connector__modal.components-modal__frame,

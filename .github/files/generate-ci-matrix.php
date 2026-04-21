@@ -92,9 +92,9 @@ $matrix[] = array(
 
 // Add wpcomsh tests.
 $matrix[] = array(
-	'name'         => 'PHP tests: PHP 8.1 WP latest with wpcomsh',
+	'name'         => 'PHP tests: PHP 8.3 WP latest with wpcomsh',
 	'script'       => 'test-php',
-	'php'          => '8.1',
+	'php'          => '8.3',
 	'wp'           => 'latest',
 	'timeout'      => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	'with-wpcomsh' => true,

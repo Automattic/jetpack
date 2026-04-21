@@ -2,14 +2,65 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.7 - 2026-04-07
+## 15.8-a.5 - 2026-04-20
+### Enhancements
+- Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings). [#48109]
+- AI Assistant: Add Jetpack AI sidebar that loads Agents Manager from the widgets.wp.com CDN (gated by the `jetpack_ai_sidebar_enabled` filter that defaults to false). [#47730]
+- Remove the unused Title_Optimization_Ability stub. [#47730]
+- Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection. [#48084]
+
+### Improved compatibility
+- Componentry: Use WordPress admin theme color variable instead of hardcoded color for text input focus state. [#47317]
+- Tested up to WordPress 7.0. [#48114]
+
+### Bug fixes
+- Settings: Show an empty state when search returns no matching settings. [#48102]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Disable the "Correct spelling and grammar" toolbar option by default. It can be re-enabled via the `ai_correct_spelling_enabled` filter. [#47916]
+- Discussion Settings: Import ToggleControl directly from @wordpress/components. [#48190]
+- Newsletter: Remove the old Jetpack Settings newsletter UI and redirect old route to the new Jetpack > Newsletter settings page. [#48092]
+- Settings: Import RadioControl and ToggleControl directly from @wordpress/components. [#48170] [#48177] [#48179] [#48186] [#48189]
+- Update dependencies. [#48138]
+- Update package dependencies. [#48106] [#48141]
+- VideoPress storage meters: Replace custom Jetpack ProgressBar with @wordpress/components ProgressBar. [#48191]
+
+## 15.8-a.3 - 2026-04-15
+### Enhancements
+- Forms: Support granular date filter in inbox. [#46760]
+- Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator. [#47940]
+
+### Bug fixes
+- Fix taxonomies endpoint returning error when number parameter exceeds 1000. [#48070]
+- Forms: Fix the Form block not being usable when the Blocks module is inactive. [#48037]
+- Sync: Increase lock time tolerance in tests. [#48078]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- oEmbed: Prevent PHP warnings when a registered provider is malformed. [#48077]
+- Subscriptions: Prevent warning when $post global is malformed. [#48074]
+- Update Forms e2e test to use explicit inner blocks for compatibility with Central Forms Management. [#47826]
+- Update package dependencies. [#47907] [#48064]
+- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+- WordAds: Prevent PHP warning when headers are already sent. [#48073]
+
+## 15.8-a.1 - 2026-04-13
+### Bug fixes
+- AI Site Logo extension: Fix static import of @wordpress/edit-post that caused the no-post-editor bundle to list wp-edit-post as a dependency, breaking the P2 frontend block inserter. [#47987]
+- Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg. [#48002]
+- PayPal Payments Button: Fix escaping issue for stacked payments buttons. [#47761]
+- Subscriptions: Avoid conflicts in the block editor when editing custom post types. [#47876]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add an "Update on Write Brief (Beta)" link in the sidebar when Write Brief is disabled. [#47947]
+- Update package dependencies. [#47890] [#47998]
+
+## 15.7 - 2026-04-08
 ### Major Enhancements
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
 
 ### Enhancements
 - Admin Menu: Add Upgrade Jetpack menu item for free users. [#47418]
 - Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47417]
-- Block Notes: Add Block Notes as a standalone Jetpack extension plugin. [#47296]
 - Forms: Add logged-in user display name and ID to form submission emails and response sidebar. [#47652]
 - Network Admin: Update UI. [#47912]
 - Newsletter: Add "Send newsletter by default" setting. [#47564] [#47565]
@@ -51,10 +102,11 @@
 - API: Allow `is_garden` and `garden_name` fields to be returned by /me/sites requests by non-member users. [#47211]
 - Application Passwords: Allow authenticating VideoPress AJAX actions via application passwords. [#45220]
 - Backup: Use core components for storage popover. [#47448]
+- Block Notes: Add Block Notes as a standalone Jetpack extension plugin. [#47296]
+- Block Notes: Temporarily disable feature to prevent expensive API calls on every Gutenberg page load. [#47976]
 - Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan. [#47810]
 - Brute Force Protection: Update error when module can't be activated. [#47660]
 - Build: Sync Social Logos font from @automattic/social-logos. [#47753]
-- Comment: Add Tracking to Jetpack upsell link. [#47937]
 - Display MCP client actor on backup undo card and backup card attribution. [#47429]
 - Donations: Use the core WordPress spinner component. [#47467]
 - Editor: Fix plan upgrade notice for Simple sites. [#47543]

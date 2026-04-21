@@ -62,14 +62,14 @@ class Jetpack_Core_API_Site_Endpoint {
 	}
 
 	/**
-	 * Returns the result of `/sites/%s/purchases` endpoint call.
+	 * Returns the result of `/upgrades` endpoint call.
 	 *
 	 * @return array of site purchases.
 	 */
 	public static function get_purchases() {
 		// Make the API request.
-		$request  = sprintf( '/sites/%d/purchases', Jetpack_Options::get_option( 'id' ) );
-		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+		$request  = sprintf( '/upgrades?site=%d', Jetpack_Options::get_option( 'id' ) );
+		$response = Client::wpcom_json_api_request_as_blog( $request, '1.2' );
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {

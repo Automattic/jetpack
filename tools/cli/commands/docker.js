@@ -609,6 +609,7 @@ export function dockerDefine( yargs ) {
 		description: 'Docker stuff',
 		builder: yarg => {
 			yarg
+				.strict( false )
 				// Compose commands
 				.command( {
 					command: 'up',

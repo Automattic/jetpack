@@ -1,5 +1,6 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import Card from 'components/card';
@@ -66,6 +67,7 @@ function Blaze( props ) {
 		if ( ! canInit && reason === 'user_not_connected' ) {
 			return (
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					disabled={ true }
 					label={ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
 				/>
@@ -75,6 +77,7 @@ function Blaze( props ) {
 		if ( ! canInit ) {
 			return (
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					disabled={ true }
 					label={ __( 'Blaze is not available on your site.', 'jetpack' ) }
 				/>

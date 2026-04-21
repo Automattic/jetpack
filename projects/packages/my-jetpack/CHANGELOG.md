@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.34.4] - 2026-04-20
+### Changed
+- Remove Jetpack color overrides on core WordPress components. [#47317]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+### Removed
+- Newsletter: remove jetpack_wp_admin_newsletter_settings_enabled filter check; the manage URL always points to the wp-admin newsletter settings page. [#48092]
+
+## [5.34.3] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+
+### Fixed
+- My Jetpack: Fix Hybrid products not deactivating when activated via the Jetpack-module path. [#48091]
+
+## [5.34.2] - 2026-04-10
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
 ## [5.34.1] - 2026-04-06
 ### Changed
 - AI product page: Remove Write Brief (Breve) video showcase section. [#47914]
@@ -2597,6 +2617,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.34.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.3...5.34.4
+[5.34.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.2...5.34.3
+[5.34.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.1...5.34.2
 [5.34.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.0...5.34.1
 [5.34.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.33.0...5.34.0
 [5.33.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.32.0...5.33.0

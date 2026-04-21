@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.4] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Newsletter admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. Adds @automattic/jetpack-base-styles as a workspace dependency. [#48109]
+- Update package dependencies. [#48106] [#48141]
+
+### Removed
+- Remove the jetpack_wp_admin_newsletter_settings_enabled filter; the wp-admin newsletter settings page is now always enabled. [#48092]
+
+## [0.8.3] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+## [0.8.2] - 2026-04-10
+### Changed
+- Update dependencies. [#48049]
+
+## [0.8.1] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+### Fixed
+- Defer is_connected() check from init to admin_menu callback to avoid caching a false result before External Storage providers are registered. [#48005]
+
 ## [0.8.0] - 2026-04-06
 ### Added
 - Newsletter settings: Disable settings and show a connection notice when the site has no connected owner. [#47927]
@@ -144,6 +167,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.8.4]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.3...v0.8.4
+[0.8.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.2...v0.8.3
+[0.8.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.6.2...v0.7.0
 [0.6.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.6.1...v0.6.2
