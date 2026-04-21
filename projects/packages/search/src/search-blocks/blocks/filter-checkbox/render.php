@@ -12,10 +12,16 @@ namespace Automattic\Jetpack\Search;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
+// Phan flags `(array) $attributes` as an undeclared global even under a
+// namespace; subscripted access (e.g. `$attributes['key']`) isn't flagged.
+// WordPress always passes an array for the block's $attributes argument, so
+// the suppressions are safe.
+// @phan-suppress-next-line PhanUndeclaredGlobalVariable
 $filter_key = Filter_Checkbox::derive_filter_key( (array) $attributes );
 if ( '' === $filter_key ) {
 	return;
 }
+// @phan-suppress-next-line PhanUndeclaredGlobalVariable
 $config = Filter_Checkbox::build_config( (array) $attributes, $filter_key );
 
 // Register this filter's config into the shared store state. JS reads
