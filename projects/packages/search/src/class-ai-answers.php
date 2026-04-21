@@ -12,8 +12,8 @@ namespace Automattic\Jetpack\Search;
  * and exposes the jetpack_search_ai_answers_enabled filter.
  */
 class AI_Answers {
-	const BEHAVIOR_CPT = 'jps_behavior';
-	const TOPIC_CPT    = 'jps_topic';
+	const BEHAVIOR_CPT = 'jp_search_behavior';
+	const TOPIC_CPT    = 'jetpack_search_topic';
 
 	/**
 	 * Hook up CPT registration.

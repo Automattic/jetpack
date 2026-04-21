@@ -38,7 +38,7 @@ Jetpack_Search_Answers_Agent  (extends Agent)
     │    Returns up to 2 best-matching topic posts (full content)
     │
     └─ Prompt construction
-         Reads jetpack_search_behavior CPT from synced shadow replicastore
+         Reads jp_search_behavior CPT from synced shadow replicastore
          Reads wp_content_guidelines CPT if present on wpcom for this site
          System prompt: behavior instructions (incl. topic list) + content guidelines
          User prompt: query + matched topics (prepended) + search results
@@ -127,7 +127,7 @@ Answer the user's question concisely, citing only information from the provided 
 Do not invent information not present in the context.
 If the context does not answer the question, say so and suggest the user browse the site.
 
-{jetpack_search_behavior post content, if set}
+{jp_search_behavior post content, if set}
 {wp_content_guidelines post content, if present for this site on wpcom}
 ```
 
@@ -147,9 +147,9 @@ Search Results:
 
 ## Content Guidelines Integration
 
-At request time the agent reads the `wp_content_guidelines` CPT (already live on wpcom, polyfilling Gutenberg [#77230](https://github.com/WordPress/gutenberg/pull/77230)) for the site if it exists. Its content is appended to the system prompt after `jetpack_search_behavior` instructions. No per-request client transmission is needed — the agent reads from wpcom storage directly.
+At request time the agent reads the `wp_content_guidelines` CPT (already live on wpcom, polyfilling Gutenberg [#77230](https://github.com/WordPress/gutenberg/pull/77230)) for the site if it exists. Its content is appended to the system prompt after `jp_search_behavior` instructions. No per-request client transmission is needed — the agent reads from wpcom storage directly.
 
-When WP 7.1 ships and Content Guidelines becomes a core feature, the `jetpack_search_behavior` CPT on the plugin side will be migrated into `wp_content_guidelines` and the separate CPT will be retired. The agent will then read only from `wp_content_guidelines`.
+When WP 7.1 ships and Content Guidelines becomes a core feature, the `jp_search_behavior` CPT on the plugin side will be migrated into `wp_content_guidelines` and the separate CPT will be retired. The agent will then read only from `wp_content_guidelines`.
 
 ## Model and Infrastructure
 

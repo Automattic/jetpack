@@ -4,7 +4,7 @@
 
 **Goal:** Implement the WP plugin side of Jetpack Search AI Answers: two CPTs, sync, an HMAC auth token, a tabbed admin UI, and an AI answers panel in the instant-search overlay.
 
-**Architecture:** Two private CPTs (`jetpack_search_behavior`, `jetpack_search_topic`) synced to wpcom via the Search sync module. An HMAC token embedded in `JetpackInstantSearchOptions` authenticates anonymous overlay visitors to the wpcom AI agent endpoint. The Search dashboard gains Stats-style top-level tabs (Overview / Behavior / Topics). The instant-search overlay gains an `AnswersPanel` component that streams tokens from the wpcom agent endpoint via `fetchEventSource`.
+**Architecture:** Two private CPTs (`jp_search_behavior`, `jetpack_search_topic`) synced to wpcom via the Search sync module. An HMAC token embedded in `JetpackInstantSearchOptions` authenticates anonymous overlay visitors to the wpcom AI agent endpoint. The Search dashboard gains Stats-style top-level tabs (Overview / Behavior / Topics). The instant-search overlay gains an `AnswersPanel` component that streams tokens from the wpcom agent endpoint via `fetchEventSource`.
 
 **Tech Stack:** PHP 7.4+, PHPUnit, WordPress REST API (`wp_apiFetch`), React 18, `@wordpress/data`, `@microsoft/fetch-event-source` (new dep), Jest.
 
@@ -21,7 +21,7 @@
 | `src/class-ai-answers.php` | CPT registration, postmeta registration, `jetpack_search_ai_answers_enabled` filter hook |
 | `src/dashboard/components/tabs/index.jsx` | Stats-style tab bar component |
 | `src/dashboard/components/tabs/index.scss` | Tab bar styles |
-| `src/dashboard/components/behavior-tab/index.jsx` | Behavior tab — reads/writes `jetpack_search_behavior` post via REST |
+| `src/dashboard/components/behavior-tab/index.jsx` | Behavior tab — reads/writes `jp_search_behavior` post via REST |
 | `src/dashboard/components/topics-tab/index.jsx` | Topics tab — lists `jetpack_search_topic` posts, links to WP post editor |
 | `src/instant-search/components/answers-panel.jsx` | Overlay AI answers panel (idle / loading / streaming / done / error states) |
 | `src/instant-search/components/answers-panel.scss` | Panel styles |
@@ -65,7 +65,7 @@ class AI_Answers_Test extends Search_TestCase {
     }
 
     public function test_behavior_cpt_registered() {
-        $this->assertTrue( post_type_exists( 'jetpack_search_behavior' ) );
+        $this->assertTrue( post_type_exists( 'jp_search_behavior' ) );
     }
 
     public function test_topic_cpt_registered() {
@@ -73,14 +73,14 @@ class AI_Answers_Test extends Search_TestCase {
     }
 
     public function test_cpts_are_private() {
-        $behavior = get_post_type_object( 'jetpack_search_behavior' );
+        $behavior = get_post_type_object( 'jp_search_behavior' );
         $topic    = get_post_type_object( 'jetpack_search_topic' );
         $this->assertFalse( $behavior->public );
         $this->assertFalse( $topic->public );
     }
 
     public function test_cpts_show_in_rest() {
-        $behavior = get_post_type_object( 'jetpack_search_behavior' );
+        $behavior = get_post_type_object( 'jp_search_behavior' );
         $topic    = get_post_type_object( 'jetpack_search_topic' );
         $this->assertTrue( $behavior->show_in_rest );
         $this->assertTrue( $topic->show_in_rest );
@@ -115,11 +115,11 @@ Expected: FAIL — class `AI_Answers` not found.
 namespace Automattic\Jetpack\Search;
 
 /**
- * Registers the jetpack_search_behavior and jetpack_search_topic CPTs
+ * Registers the jp_search_behavior and jetpack_search_topic CPTs
  * and exposes the jetpack_search_ai_answers_enabled filter.
  */
 class AI_Answers {
-    const BEHAVIOR_CPT = 'jetpack_search_behavior';
+    const BEHAVIOR_CPT = 'jp_search_behavior';
     const TOPIC_CPT    = 'jetpack_search_topic';
 
     /**
@@ -244,7 +244,7 @@ Expected: All 5 tests PASS.
 
 ```bash
 git add src/class-ai-answers.php src/initializers/class-initializer.php tests/php/AI_Answers_Test.php
-git commit -m "Search: register jetpack_search_behavior and jetpack_search_topic CPTs"
+git commit -m "Search: register jp_search_behavior and jetpack_search_topic CPTs"
 ```
 
 ---
@@ -269,7 +269,7 @@ Add to `projects/packages/sync/tests/php/modules/Module_Test.php` (or create a n
 public function test_ai_cpts_not_in_whitelist_when_search_disabled() {
     // Ensure filter returns false (default).
     $list = apply_filters( 'jetpack_sync_post_types_whitelist', array() );
-    $this->assertNotContains( 'jetpack_search_behavior', $list );
+    $this->assertNotContains( 'jp_search_behavior', $list );
     $this->assertNotContains( 'jetpack_search_topic', $list );
 }
 
@@ -277,7 +277,7 @@ public function test_ai_cpts_in_whitelist_when_search_enabled() {
     add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
     $list = apply_filters( 'jetpack_sync_post_types_whitelist', array() );
     remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
-    $this->assertContains( 'jetpack_search_behavior', $list );
+    $this->assertContains( 'jp_search_behavior', $list );
     $this->assertContains( 'jetpack_search_topic', $list );
 }
 
@@ -328,7 +328,7 @@ public function add_ai_answer_post_types( $list ) {
     if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', false ) ) {
         return $list;
     }
-    $list[] = 'jetpack_search_behavior';
+    $list[] = 'jp_search_behavior';
     $list[] = 'jetpack_search_topic';
     return $list;
 }
@@ -369,7 +369,7 @@ Expected: All tests PASS.
 
 ```bash
 git add projects/packages/sync/src/modules/class-search.php projects/packages/sync/tests/php/modules/Module_Test.php
-git commit -m "Sync: add jetpack_search_behavior and jetpack_search_topic CPTs to Search sync module"
+git commit -m "Sync: add jp_search_behavior and jetpack_search_topic CPTs to Search sync module"
 ```
 
 ---
@@ -636,7 +636,7 @@ git commit -m "Search: add Stats-style tab bar to Search dashboard (Overview / B
 **Files:**
 - Create: `src/dashboard/components/behavior-tab/index.jsx`
 
-Reads and writes the single `jetpack_search_behavior` post via the WP REST API. No full Gutenberg editor — a plain `<textarea>` is sufficient for instructions text.
+Reads and writes the single `jp_search_behavior` post via the WP REST API. No full Gutenberg editor — a plain `<textarea>` is sufficient for instructions text.
 
 - [ ] **Step 1: Create `src/dashboard/components/behavior-tab/index.jsx`**
 
@@ -1350,7 +1350,7 @@ jp changelog add packages/search -s minor -t added -e "Search: AI Answers — to
 - [ ] **Step 2: Add changelog for sync package**
 
 ```bash
-jp changelog add packages/sync -s patch -t added -e "Sync: sync jetpack_search_behavior and jetpack_search_topic CPTs when Jetpack Search AI Answers is enabled."
+jp changelog add packages/sync -s patch -t added -e "Sync: sync jp_search_behavior and jetpack_search_topic CPTs when Jetpack Search AI Answers is enabled."
 ```
 
 - [ ] **Step 3: Commit changelogs**

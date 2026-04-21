@@ -11,7 +11,7 @@ The companion spec for the wpcom API side is `2026-04-21-search-ai-answers-api-d
 
 ## Custom Post Types
 
-### `jetpack_search_behavior`
+### `jp_search_behavior`
 
 Stores plain-language instructions for how the AI should behave when answering questions on this site. One post per site (enforced by the admin UI).
 
@@ -85,7 +85,7 @@ if ( $this->is_search_enabled() ) {
 }
 
 public function add_ai_answer_cpts( $post_types ) {
-    $post_types[] = 'jetpack_search_behavior';
+    $post_types[] = 'jp_search_behavior';
     $post_types[] = 'jetpack_search_topic';
     return $post_types;
 }
@@ -189,7 +189,7 @@ The current Jetpack Search dashboard — usage meters, search preview, record/re
 
 ### Behavior Tab
 
-Block editor view of the single `jetpack_search_behavior` post. Descriptive text above the editor:
+Block editor view of the single `jp_search_behavior` post. Descriptive text above the editor:
 
 > "Describe how the AI should respond to visitor questions. List the topics your site covers so the AI can classify queries. Example: 'Focus on product-related questions. Topics: Shipping, Returns, Account Access, Billing.'"
 
