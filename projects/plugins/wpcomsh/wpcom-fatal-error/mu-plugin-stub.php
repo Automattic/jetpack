@@ -6,15 +6,8 @@
  * @package wpcomsh
  */
 
-$wpcomsh_fatal_candidates = array(
-	WP_CONTENT_DIR . '/plugins/wpcomsh/wpcom-fatal-error/fatal-plugin-deactivator.php',
-	WP_CONTENT_DIR . '/mu-plugins/wpcomsh-dev/wpcom-fatal-error/fatal-plugin-deactivator.php',
-);
-
-foreach ( $wpcomsh_fatal_candidates as $wpcomsh_fatal_path ) {
-	if ( is_readable( $wpcomsh_fatal_path ) ) {
-		require_once $wpcomsh_fatal_path;
-		break;
-	}
+$wpcomsh_fatal_deactivator = WP_PLUGIN_DIR . '/wpcomsh/wpcom-fatal-error/fatal-plugin-deactivator.php';
+if ( is_readable( $wpcomsh_fatal_deactivator ) ) {
+	require_once $wpcomsh_fatal_deactivator;
 }
-unset( $wpcomsh_fatal_candidates, $wpcomsh_fatal_path );
+unset( $wpcomsh_fatal_deactivator );
