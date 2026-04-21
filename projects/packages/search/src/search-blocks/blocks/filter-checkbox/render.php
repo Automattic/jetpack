@@ -49,6 +49,26 @@ $seeded_buckets      = $seeded_filter_agg['buckets'] ?? null;
 $has_buckets         = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
 $initial_hidden_attr = $has_buckets ? '' : ' hidden';
 
+// First-paint "all selected" flag: mirrors the `allBucketsSelected` state
+// getter so the list and the fallback message come out pre-hidden correctly
+// and there's no flicker during hydration.
+$seeded_selected       = (array) ( ( (array) ( $seeded_state['activeFilters'] ?? array() ) )[ $filter_key ] ?? array() );
+$all_selected_on_paint = false;
+if ( $has_buckets && ! empty( $seeded_selected ) ) {
+	$all_selected_on_paint = true;
+	foreach ( $seeded_buckets as $bucket ) {
+		$raw_key   = (string) ( $bucket['key'] ?? '' );
+		$slash_idx = strpos( $raw_key, '/' );
+		$value     = false === $slash_idx ? $raw_key : substr( $raw_key, 0, $slash_idx );
+		if ( ! in_array( $value, $seeded_selected, true ) ) {
+			$all_selected_on_paint = false;
+			break;
+		}
+	}
+}
+$list_hidden_attr        = $all_selected_on_paint ? ' hidden' : '';
+$all_selected_hidden_att = $all_selected_on_paint ? '' : ' hidden';
+
 $label = $config['label'];
 ?>
 <div
@@ -61,7 +81,11 @@ $label = $config['label'];
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
-	<ul class="jetpack-search-filter__list">
+	<ul
+		class="jetpack-search-filter__list"
+		data-wp-bind--hidden="state.allBucketsSelected"
+		<?php echo esc_attr( $list_hidden_attr ); ?>
+	>
 		<template
 			data-wp-each--item="state.filterItems"
 			data-wp-each-key="context.item.value"
@@ -88,4 +112,11 @@ $label = $config['label'];
 			</li>
 		</template>
 	</ul>
+	<p
+		class="jetpack-search-filter__all-selected"
+		data-wp-bind--hidden="!state.allBucketsSelected"
+		<?php echo esc_attr( $all_selected_hidden_att ); ?>
+	>
+		<?php esc_html_e( 'All filters applied', 'jetpack-search-pkg' ); ?>
+	</p>
 </div>

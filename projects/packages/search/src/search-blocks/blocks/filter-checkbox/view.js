@@ -41,6 +41,32 @@ store( NAMESPACE, {
 		},
 
 		/**
+		 * True when every available bucket is already in activeFilters — the
+		 * checkbox list would render empty and the block should show the
+		 * "All options selected" message instead. Also covers the case where
+		 * selected includes slugs that no longer appear in the aggregation
+		 * (stale URL params), since filterItems would still be empty.
+		 *
+		 * @return {boolean} True when the list has nothing left to offer.
+		 */
+		get allBucketsSelected() {
+			const { state } = store( NAMESPACE );
+			const { filterKey } = getContext();
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const selected = state.activeFilters?.[ filterKey ] ?? [];
+			if ( selected.length === 0 ) {
+				return false;
+			}
+			return buckets.every( bucket => {
+				const { value } = parseBucketKey( bucket.key );
+				return selected.includes( value );
+			} );
+		},
+
+		/**
 		 * Derived list of `{ value, label, showCount, countLabel }` items for
 		 * the block's filterKey. Selected buckets are omitted — active
 		 * filters appear in the active-filters block instead, so the
