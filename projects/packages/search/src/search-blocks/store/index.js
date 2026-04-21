@@ -80,7 +80,12 @@ function formatPath( permalink ) {
 		return '';
 	}
 	try {
-		const url = new URL( permalink );
+		// `toSafeUrl` promotes hostless API URLs to protocol-relative form
+		// (`//example.com/…`), but `new URL()` requires an explicit scheme and
+		// would throw otherwise. Pin a scheme for parsing only — it never
+		// reaches the DOM.
+		const resolved = permalink.startsWith( '//' ) ? `https:${ permalink }` : permalink;
+		const url = new URL( resolved );
 		const parts = url.pathname.split( '/' ).filter( Boolean ).map( decodeURIComponent );
 		return parts.join( ' › ' );
 	} catch {
