@@ -595,11 +595,11 @@ async function buildProject( t ) {
 	);
 
 	// Update the changelog, if applicable.
-	if ( t.argv.forMirrors && composerJson.extra?.changelogger ) {
+	if ( t.argv.forMirrors ) {
 		const changelogger = npath.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 		const changesDir = npath.resolve(
 			t.cwd,
-			composerJson.extra.changelogger[ 'changes-dir' ] || 'changelog'
+			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'
 		);
 		t.output( '\n=== Updating changelog ===\n\n' );
 		if (
@@ -688,11 +688,7 @@ async function buildProject( t ) {
 	}
 
 	// We don't need to `composer install` if it's a CI build of a non-plugin with no build script. Except for changelogger.
-	const skipInstall =
-		t.argv.forMirrors &&
-		script === null &&
-		! t.project.startsWith( 'plugins/' ) &&
-		t.project !== 'packages/changelogger';
+	const skipInstall = t.argv.forMirrors && script === null && ! t.project.startsWith( 'plugins/' );
 
 	if ( t.argv.forMirrors && ! skipInstall ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..

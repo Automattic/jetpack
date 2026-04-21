@@ -144,10 +144,7 @@ if ( $maybe_merge ) {
 // Find projects that use changelogger, and read the relevant config.
 $changelogger_projects = array();
 foreach ( glob( 'projects/*/*/composer.json' ) as $file ) {
-	$data = json_decode( file_get_contents( $file ), true );
-	if ( ! isset( $data['extra']['changelogger'] ) ) {
-		continue;
-	}
+	$data  = json_decode( file_get_contents( $file ), true );
 	$data  = $data['extra']['changelogger'] ?? array();
 	$data += array(
 		'changelog'   => 'CHANGELOG.md',
