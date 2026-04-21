@@ -158,12 +158,12 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Test that the inject filter copies the key from unfiltered input.
 	 */
 	public function test_settings_inject_adds_key_from_unfiltered() {
-		$input    = array( 'blogname' => 'Test' );
-		$raw      = array(
+		$input  = array( 'blogname' => 'Test' );
+		$raw    = array(
 			'blogname'                 => 'Test',
 			'reprint_exporter_enabled' => '1745000000',
 		);
-		$result   = wpcomsh_reprint_inject_enabled_setting( $input, $raw );
+		$result = wpcomsh_reprint_inject_enabled_setting( $input, $raw );
 
 		$this->assertSame( 1745000000, $result['reprint_exporter_enabled'] );
 		$this->assertSame( 'Test', $result['blogname'] );
