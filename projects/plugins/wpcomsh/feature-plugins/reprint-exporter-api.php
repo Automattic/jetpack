@@ -11,7 +11,8 @@
  *   invoked through the WPCOM public API proxy.
  * * ?reprint-api export requires the reprint_exporter_enabled site
  *   option to be a unix timestamp within the last 60 minutes AND the
- *   request to be a proxied Automattician. Each accepted request bumps
+ *   request to carry A8C_PROXIED_REQUEST (set by a8c infrastructure
+ *   for Automattician proxy sessions). Each accepted request bumps
  *   the timestamp; the streaming endpoint stays internal-only until
  *   Studio ships.
  *
@@ -55,10 +56,7 @@
  *
  * Hooked on `parse_request` so we run before WordPress resolves the
  * query and long before any template output (important on Private
- * Sites, whose template_redirect hooks redirect + exit). If the query
- * parameter is absent, the URL isn't the site root, or the feature
- * isn't enabled for this site, the function returns immediately and
- * normal WordPress execution continues.
+ * Sites, whose template_redirect hooks redirect + exit).
  *
  * @param WP $wp The WordPress environment instance.
  *
@@ -70,9 +68,6 @@ function wpcomsh_reprint_handle_request( $wp ) {
 		return;
 	}
 
-	// $wp->request === '' is the homepage check. Core has already
-	// normalized REQUEST_URI against home_url() by this point, so it
-	// works for subdirectory installs too.
 	if ( '' !== $wp->request ) {
 		return;
 	}
@@ -144,6 +139,42 @@ function wpcomsh_reprint_rest_init() {
 }
 add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 
+/**
+ * Inject reprint_exporter_enabled into the site settings update if
+ * the caller sent it.
+ *
+ * This lives in wpcomsh, not in the Jetpack site-settings-endpoint.php,
+ * because setting this option doesn't make sense in Jetpack context. It
+ * is only meaningful in context of wpcomsh's reprint integration.
+ *
+ * @param array $input            Whitelisted/cast settings.
+ * @param array $unfiltered_input Raw input from the request.
+ * @return array
+ */
+function wpcomsh_reprint_inject_enabled_setting( $input, $unfiltered_input ) {
+	if ( isset( $unfiltered_input['reprint_exporter_enabled'] ) ) {
+		$input['reprint_exporter_enabled'] = (int) $unfiltered_input['reprint_exporter_enabled'];
+	}
+	return $input;
+}
+add_filter( 'rest_api_update_site_settings', 'wpcomsh_reprint_inject_enabled_setting', 10, 2 );
+
+/**
+ * Persist reprint_exporter_enabled when the settings endpoint processes
+ * it. The default case in update_settings() does NOT call update_option
+ * when a per-key filter is registered — the filter is expected to
+ * handle persistence itself.
+ *
+ * @param mixed $value The value from the request.
+ * @return int The persisted value (returned for the response body).
+ */
+function wpcomsh_reprint_update_enabled_setting( $value ) {
+	$value = (int) $value;
+	update_option( 'reprint_exporter_enabled', $value );
+	return $value;
+}
+add_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_reprint_update_enabled_setting' );
+
 // -- Helpers ------------------------------------------------------------------
 
 /**
@@ -158,14 +189,10 @@ function _should_expose_reprint_exporter_on_this_site(): bool {
 		return false;
 	}
 
+	// A8C_PROXIED_REQUEST is set by the a8c infrastructure layer (nginx)
+	// for Automattician proxy sessions — not forgeable by clients.
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
-		? (bool) $_SERVER['A8C_PROXIED_REQUEST']
-		: ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );
-
-	return $is_proxied
-		&& function_exists( '\is_automattician' )
-		&& \is_automattician( get_current_user_id() );
+	return ! empty( $_SERVER['A8C_PROXIED_REQUEST'] );
 }
 
 /**

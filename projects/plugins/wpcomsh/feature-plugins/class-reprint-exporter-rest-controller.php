@@ -2,9 +2,7 @@
 /**
  * REST controller for the reprint exporter secret-rotation endpoint.
  *
- * Exposes POST /wpcomsh/v1/reprint/rotate-export-secret. The permission
- * callback only accepts requests signed by WPCOM's Jetpack connection,
- * i.e. calls that came through the public API proxy.
+ * Requires a Jetpack-signed request (public API proxy only).
  *
  * @package wpcomsh
  */
@@ -57,12 +55,9 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	public function rotate_secret() {
 		$secret = bin2hex( random_bytes( 32 ) );
 
-		// Not atomic: two concurrent rotate calls will both succeed, but
-		// the first caller's secret will be overwritten by the second.
-		// Acceptable for an admin-only endpoint that is called rarely.
 		if ( ! update_option( 'reprint_exporter_secret', $secret, false ) ) {
 			return new WP_REST_Response(
-				array( 'error' => 'Failed to persist the new secret. The database option update did not succeed.' ),
+				array( 'error' => 'Failed to persist the new secret.' ),
 				500
 			);
 		}
@@ -71,9 +66,7 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback: only requests signed by WPCOM's Jetpack
-	 * connection (i.e. coming through the public API proxy) may call
-	 * this. Direct hits from wp-admin or elsewhere get 403.
+	 * Permission callback: only Jetpack-signed requests (public API proxy).
 	 *
 	 * @return bool
 	 */
