@@ -230,8 +230,12 @@ class WPCOMSH_Recovery_Mode_Sync {
 		if ( ! apply_filters( 'wpcomsh_recovery_mode_sync_logging_enabled', false ) ) {
 			return;
 		}
+		static $request_id = null;
+		if ( $request_id === null ) {
+			$request_id = substr( md5( uniqid( '', true ) ), 0, 8 );
+		}
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( 'wpcomsh_recovery_mode_sync: ' . $message . ' ' . wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ) );
+		error_log( 'wpcomsh_recovery_mode_sync[' . $request_id . ']: ' . $message . ' ' . wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ) );
 	}
 }
 
