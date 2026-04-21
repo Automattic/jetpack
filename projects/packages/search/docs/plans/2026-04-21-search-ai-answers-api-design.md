@@ -32,16 +32,16 @@ Jetpack_Search_Answers_Agent  (extends Agent)
     │    Falls back to OR query if AND returns zero results
     │    Returns top 5 results as context (title, excerpt, URL)
     │
-    ├─ Ability: jetpack/faq-lookup
-    │    Queries synced jetpack_search_faq CPT rows in shadow replicastore
-    │    Full-text match on question title + _jsfaq_keywords postmeta
-    │    Returns up to 3 matching FAQ entries (question + answer)
+    ├─ Ability: jetpack/topic-lookup
+    │    Queries synced jetpack_search_topic CPT rows in shadow replicastore
+    │    Full-text match on topic title + example questions + _jstopic_keywords
+    │    Returns up to 2 best-matching topic posts (full content)
     │
     └─ Prompt construction
          Reads jetpack_search_behavior CPT from synced shadow replicastore
          Reads wp_content_guidelines CPT if present on wpcom for this site
-         System prompt: behavior instructions + content guidelines
-         User prompt: query + FAQ matches (prepended) + search results
+         System prompt: behavior instructions (incl. topic list) + content guidelines
+         User prompt: query + matched topics (prepended) + search results
          Streams LLM response tokens → StreamDelta → browser
 ```
 
@@ -105,13 +105,17 @@ The `filters` object from the original request is forwarded to both search calls
 
 For private sites and private networks of sites, the ability uses the site's stored credentials to make an authenticated v1.3 search request.
 
-## FAQ Lookup Ability
+## Topic Lookup Ability
 
-The `jetpack/faq-lookup` ability queries `jetpack_search_faq` CPT rows in the wpcom shadow replicastore for the site. It performs a full-text match on the post title (the question) and the `_jsfaq_keywords` postmeta field. Up to 3 matching FAQ entries are returned.
+The `jetpack/topic-lookup` ability queries `jetpack_search_topic` CPT rows in the wpcom shadow replicastore for the site. Each topic post contains a description, example questions, answer guidelines, and optionally pre-written answer content — all as free-form text in the post body. Matching runs against the topic title, the full post content (which includes the example questions), and the `_jstopic_keywords` postmeta field. Up to 2 best-matching topic posts are returned in full.
 
-Matched FAQ entries are prepended to the LLM context, before search results. The system prompt instructs the agent to prefer an FAQ entry when it directly answers the query, rather than synthesizing from search results.
+Matched topic posts are prepended to the LLM context, before search results. The system prompt instructs the agent to:
 
-When no FAQ entries match, the ability returns empty and the agent proceeds with search results only.
+- Prefer any pre-written content in the topic post over synthesizing from search results
+- Follow any guidelines in the topic post when framing the answer
+- Use example questions in the topic to calibrate whether the query falls under this topic
+
+When no topic posts match, the ability returns empty and the agent proceeds with search results only.
 
 ## Agent Prompt
 
@@ -132,8 +136,8 @@ If the context does not answer the question, say so and suggest the user browse 
 ```
 Question: {query}
 
-FAQ Matches:
-{faq entries, if any — each as "Q: … / A: …"}
+Matched Topics:
+{topic posts, if any — full post content, titled by topic name}
 
 Search Results:
 1. {title} — {url}
@@ -154,7 +158,7 @@ When WP 7.1 ships and Content Guidelines becomes a core feature, the `jetpack_se
 | Model | Default wpcom agent model (Claude 3.5 Haiku for speed; overridable via `$model`) |
 | Streaming | `$supports_token_streaming = true`; uses `AI_Streaming_Service` cURL streaming |
 | Timeout | 75 seconds |
-| Estimated context tokens | ~1,000 (5 search results × ~200 tokens) + ~500 (FAQ) + ~500 (system prompt) |
+| Estimated context tokens | ~1,000 (5 search results × ~200 tokens) + ~800 (up to 2 topic posts × ~400 tokens) + ~500 (system prompt) |
 
 ## Quota and Billing
 

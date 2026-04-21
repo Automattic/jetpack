@@ -5,7 +5,7 @@
 
 ## Overview
 
-The WordPress plugin side of Jetpack Search AI Answers adds two custom post types for site-owner customization, syncs them to wpcom, embeds the auth token for anonymous visitors in the search overlay options, connects the overlay to the wpcom streaming endpoint, and provides an admin UI for managing search behavior and FAQs.
+The WordPress plugin side of Jetpack Search AI Answers adds two custom post types for site-owner customization, syncs them to wpcom, embeds the auth token for anonymous visitors in the search overlay options, connects the overlay to the wpcom streaming endpoint, and provides an admin UI for managing search behavior and topics.
 
 The companion spec for the wpcom API side is `2026-04-21-search-ai-answers-api-design.md`.
 
@@ -25,21 +25,51 @@ Stores plain-language instructions for how the AI should behave when answering q
 | Sync | Yes — synced to wpcom via Search sync module |
 | Future migration | Will migrate to `wp_content_guidelines` CPT when WP 7.1 ships |
 
-Example content: "Focus on product-related questions only. Always recommend contacting support if the visitor seems frustrated."
+Example content:
 
-### `jetpack_search_faq`
+```
+Focus on product-related questions only. Always recommend contacting support if the visitor seems frustrated.
 
-Stores FAQ entries. Each post represents one question–answer pair.
+Topics: Shipping & Returns, Account Access, Product Setup, Billing
+```
+
+The behavior post should list the available topic names. The agent reads this at request time to understand the topic landscape before classifying a query.
+
+
+### `jetpack_search_topic`
+
+Stores topic entries. Each post represents one subject area the AI may be asked about. A topic groups together related example questions, answer guidelines, and optionally pre-written answer content — giving the agent richer, broader context than a single Q&A pair.
 
 | Property | Value |
 |----------|-------|
-| Post title | The question (e.g., "How do I reset my password?") |
-| Post content | The answer (block editor; may include links and formatting) |
-| `_jsfaq_keywords` | CSV of extra match keywords shown in the editor sidebar |
-| `_jsfaq_url` | Canonical URL for this FAQ entry shown in the editor sidebar |
+| Post title | Topic name (e.g., "Shipping & Returns") |
+| Post content | Free-form block editor content — see structure below |
+| `_jstopic_keywords` | CSV of extra match phrases shown in the editor sidebar |
+| `_jstopic_url` | Canonical URL for this topic shown in the editor sidebar |
 | Visibility | Private — not publicly queryable |
 | Instances | Multiple per site |
 | Sync | Yes — synced to wpcom via Search sync module |
+
+**Post content structure** (free-form; no rigid block schema required — the AI reads the text naturally):
+
+```
+A short description of what this topic covers.
+
+Example questions:
+- How do I reset my password?
+- I forgot my login email — what should I do?
+- My account is locked, how do I get back in?
+
+Guidelines:
+Always direct users to the account recovery page at /my-account/recover.
+Do not speculate about account lockout durations — recommend contacting support instead.
+
+Pre-written content (optional):
+To reset your password, visit /my-account/recover and enter your email address.
+You will receive a reset link within a few minutes. Check your spam folder if it doesn't arrive.
+```
+
+The agent uses matched topic posts to guide framing, tone, and what to emphasize. When pre-written content is present, the system prompt instructs the agent to prefer it; when only guidelines are present, the agent synthesizes an answer from search results within those constraints.
 
 No custom taxonomy on either CPT.
 
@@ -56,13 +86,13 @@ if ( $this->is_search_enabled() ) {
 
 public function add_ai_answer_cpts( $post_types ) {
     $post_types[] = 'jetpack_search_behavior';
-    $post_types[] = 'jetpack_search_faq';
+    $post_types[] = 'jetpack_search_topic';
     return $post_types;
 }
 
 public function add_ai_answer_meta( $meta_keys ) {
-    $meta_keys[] = '_jsfaq_keywords';
-    $meta_keys[] = '_jsfaq_url';
+    $meta_keys[] = '_jstopic_keywords';
+    $meta_keys[] = '_jstopic_url';
     return $meta_keys;
 }
 ```
@@ -154,13 +184,13 @@ Block editor view of the single `jetpack_search_behavior` post. Descriptive text
 
 Saving auto-publishes (or updates) the behavior post. The admin UI ensures only one behavior post exists.
 
-### FAQ Tab
+### Topics Tab
 
-Standard WP list table showing all `jetpack_search_faq` posts with columns: Question, Keywords, Last Modified. Row actions: Edit (opens post editor), Delete.
+Standard WP list table showing all `jetpack_search_topic` posts with columns: Topic Name, Keywords, Last Modified. Row actions: Edit (opens post editor), Delete.
 
-"Add FAQ" button opens the block editor for a new `jetpack_search_faq` post. The editor sidebar panel exposes the `_jsfaq_keywords` and `_jsfaq_url` fields.
+"Add Topic" button opens the block editor for a new `jetpack_search_topic` post. The editor sidebar panel exposes the `_jstopic_keywords` and `_jstopic_url` fields. A template hint in the editor body guides site owners through the expected structure (description, example questions, guidelines, optional pre-written content).
 
-**Suggested FAQs sub-tab**: Shows top search queries with high volume and low click-through rate drawn from search analytics (via wpcom search analytics API). Each suggestion shows the query string and query count, with a "Create FAQ" button that pre-populates the FAQ editor with the query as the post title.
+**Suggested Topics sub-tab**: Shows top search queries with high volume and low click-through rate drawn from the wpcom search analytics API. Each suggestion shows the query string and query count, with a "Create Topic" button that pre-populates the topic editor with the query as an example question. Multiple related suggestions can be selected to seed a single topic at once.
 
 ### Status Bar
 
