@@ -31,6 +31,15 @@ jobs:
         with:
           checkout: false
 
+      # For push events, list-changed-projects.sh needs the 'before' commit available locally.
+      - name: Deepen for push
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          head: ${{ github.event.after }}
+          branch: ${{ github.event.before }}
+          checkout: false
+
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
