@@ -26,31 +26,15 @@
  * @return bool
  */
 function wpcomsh_fatal_is_admin() {
-	if ( ! defined( 'ABSPATH' ) ) {
-		return false;
-	}
 	try {
-		if ( ! defined( 'LOGGED_IN_COOKIE' ) && is_readable( ABSPATH . 'wp-includes/default-constants.php' ) ) {
+		if ( ! defined( 'LOGGED_IN_COOKIE' ) ) {
 			require_once ABSPATH . 'wp-includes/default-constants.php';
-			if ( function_exists( 'wp_cookie_constants' ) ) {
-				wp_cookie_constants();
-			}
+			wp_cookie_constants();
 		}
-		$core_files = array(
-			'wp-includes/class-wp-user.php',
-			'wp-includes/user.php',
-			'wp-includes/capabilities.php',
-			'wp-includes/pluggable.php',
-		);
-		foreach ( $core_files as $file ) {
-			$path = ABSPATH . $file;
-			if ( is_readable( $path ) ) {
-				require_once $path;
-			}
-		}
-		if ( ! function_exists( 'wp_validate_auth_cookie' ) || ! function_exists( 'user_can' ) ) {
-			return false;
-		}
+		require_once ABSPATH . 'wp-includes/class-wp-user.php';
+		require_once ABSPATH . 'wp-includes/user.php';
+		require_once ABSPATH . 'wp-includes/capabilities.php';
+		require_once ABSPATH . 'wp-includes/pluggable.php';
 		$user_id = wp_validate_auth_cookie( '', 'logged_in' );
 		return $user_id && user_can( $user_id, 'manage_options' );
 	} catch ( \Throwable $e ) {
@@ -78,11 +62,8 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 	}
 
 	try {
-		if ( ! function_exists( 'get_plugin_data' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
 		if ( ! function_exists( 'get_plugin_data' ) ) {
-			return null;
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 		$candidates = glob( $base_dir . '/' . $slug . '/*.php' );
 		if ( ! is_array( $candidates ) ) {
@@ -114,14 +95,14 @@ function wpcomsh_fatal_identify_plugin( $error ) {
  * @return array{0:string,1:string,2:string}
  */
 function wpcomsh_fatal_classify_plugin_path( $abs_file ) {
-	if ( defined( 'WP_PLUGIN_DIR' ) && 0 === strpos( $abs_file, WP_PLUGIN_DIR . '/' ) ) {
+	if ( 0 === strpos( $abs_file, WP_PLUGIN_DIR . '/' ) ) {
 		return array(
 			strtok( substr( $abs_file, strlen( WP_PLUGIN_DIR ) + 1 ), '/' ),
 			WP_PLUGIN_DIR,
 			'plugins',
 		);
 	}
-	if ( defined( 'WPMU_PLUGIN_DIR' ) && 0 === strpos( $abs_file, WPMU_PLUGIN_DIR . '/' ) ) {
+	if ( 0 === strpos( $abs_file, WPMU_PLUGIN_DIR . '/' ) ) {
 		return array(
 			strtok( substr( $abs_file, strlen( WPMU_PLUGIN_DIR ) + 1 ), '/' ),
 			WPMU_PLUGIN_DIR,
@@ -179,39 +160,21 @@ function wpcomsh_fatal_build_deactivate_url( $plugin_basename ) {
  * @return string URL, or '' when unavailable.
  */
 function wpcomsh_fatal_build_recovery_url() {
-	if ( ! defined( 'ABSPATH' ) ) {
+	if ( is_multisite() ) {
 		return '';
 	}
-	if ( function_exists( 'is_multisite' ) && is_multisite() ) {
-		return '';
-	}
-	$recovery_files = array(
-		'wp-includes/class-wp-recovery-mode-cookie-service.php',
-		'wp-includes/class-wp-recovery-mode-key-service.php',
-		'wp-includes/class-wp-recovery-mode-link-service.php',
-	);
 	try {
-		foreach ( $recovery_files as $file ) {
-			$path = ABSPATH . $file;
-			if ( is_readable( $path ) ) {
-				require_once $path;
-			}
-		}
-		if (
-			class_exists( 'WP_Recovery_Mode_Link_Service' )
-			&& class_exists( 'WP_Recovery_Mode_Cookie_Service' )
-			&& class_exists( 'WP_Recovery_Mode_Key_Service' )
-		) {
-			$service = new WP_Recovery_Mode_Link_Service(
-				new WP_Recovery_Mode_Cookie_Service(),
-				new WP_Recovery_Mode_Key_Service()
-			);
-			return (string) $service->generate_url();
-		}
+		require_once ABSPATH . 'wp-includes/class-wp-recovery-mode-cookie-service.php';
+		require_once ABSPATH . 'wp-includes/class-wp-recovery-mode-key-service.php';
+		require_once ABSPATH . 'wp-includes/class-wp-recovery-mode-link-service.php';
+		$service = new WP_Recovery_Mode_Link_Service(
+			new WP_Recovery_Mode_Cookie_Service(),
+			new WP_Recovery_Mode_Key_Service()
+		);
+		return (string) $service->generate_url();
 	} catch ( \Throwable $e ) {
 		return '';
 	}
-	return '';
 }
 
 /**
@@ -259,14 +222,9 @@ function wpcomsh_fatal_format_error( $error ) {
  * @return string
  */
 function wpcomsh_fatal_strip_server_path( $abs_file ) {
-	if ( defined( 'ABSPATH' ) ) {
-		$stripped = str_replace( ABSPATH, '', $abs_file );
-		if ( $stripped !== $abs_file ) {
-			return $stripped;
-		}
+	$stripped = str_replace( ABSPATH, '', $abs_file );
+	if ( $stripped !== $abs_file ) {
+		return $stripped;
 	}
-	if ( defined( 'WP_CONTENT_DIR' ) ) {
-		return str_replace( dirname( WP_CONTENT_DIR ) . '/', '', $abs_file );
-	}
-	return $abs_file;
+	return str_replace( dirname( WP_CONTENT_DIR ) . '/', '', $abs_file );
 }
