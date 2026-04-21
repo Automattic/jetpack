@@ -479,7 +479,7 @@ class Feedback_Email_Renderer {
 
 		$safe_label = Contact_Form::escape_and_sanitize_field_label( $label );
 		$icon_name  = self::get_field_icon_name( $type );
-		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
+		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.webp';
 
 		// Value is already rendered as HTML by Feedback_Field::get_render_email_html_value().
 		$rendered_value = $value;

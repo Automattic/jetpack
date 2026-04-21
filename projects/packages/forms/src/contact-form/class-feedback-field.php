@@ -694,7 +694,7 @@ class Feedback_Field {
 		// Download icon (rasterized from @wordpress/icons 'download').
 		$download_icon = '';
 		if ( ! empty( $file_url ) ) {
-			$download_icon_url = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/download@2x.png';
+			$download_icon_url = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/download@2x.webp';
 			$download_icon     = sprintf(
 				'<a href="%1$s" target="_blank" style="text-decoration: none;"><img src="%2$s" width="20" height="20" alt="%3$s" style="display: block; width: 20px; height: 20px; -webkit-user-select: none; user-select: none;" /></a>',
 				esc_url( $file_url ),
@@ -744,7 +744,7 @@ class Feedback_Field {
 	 */
 	private function get_file_thumbnail_html( $file_name = '', $file_type = '' ) {
 		$icon_name = self::get_file_icon_name( $file_name, $file_type );
-		$icon_url  = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/' . $icon_name . '@2x.png';
+		$icon_url  = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/' . $icon_name . '@2x.webp';
 
 		return sprintf(
 			'<img src="%1$s" width="24" height="24" alt=""
@@ -831,7 +831,7 @@ class Feedback_Field {
 					$label !== '' ? $label : $letter
 				);
 			} else {
-				$placeholder_icon = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/field-image-select@2x.png';
+				$placeholder_icon = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/field-image-select@2x.webp';
 				$image_html       = sprintf(
 					'<div style="padding: 8px 8px 0 8px;"><div style="width: 138px; height: 144px; background-color: #f0f0f0; text-align: center; line-height: 144px;"><img src="%s" alt="" width="24" height="24" style="vertical-align: middle;" /></div></div>',
 					esc_url( $placeholder_icon )

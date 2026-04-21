@@ -318,7 +318,7 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Your Name', $result );
 		$this->assertStringContainsString( '#757575', $result );
 		$this->assertStringContainsString( 'John Doe', $result );
-		$this->assertStringContainsString( 'field-text@2x.png', $result );
+		$this->assertStringContainsString( 'field-text@2x.webp', $result );
 	}
 
 	/**
@@ -336,7 +336,7 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 
 		$this->assertStringNotContainsString( '#757575', $result );
 		$this->assertStringContainsString( 'Some value', $result );
-		$this->assertStringContainsString( 'field-text@2x.png', $result );
+		$this->assertStringContainsString( 'field-text@2x.webp', $result );
 	}
 
 	/**
@@ -351,7 +351,7 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertStringContainsString( 'field-text@2x.png', $result );
+		$this->assertStringContainsString( 'field-text@2x.webp', $result );
 	}
 
 	/**
@@ -574,8 +574,8 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 		$field  = new Feedback_Field( 'k', 'File upload', $value, 'file' );
 		$result = $field->get_render_value( 'email_html' );
 
-		// Should use the pdf icon PNG from file-icons directory.
-		$this->assertStringContainsString( 'file-icons/pdf@2x.png', $result );
+		// Should use the pdf icon from the file-icons directory.
+		$this->assertStringContainsString( 'file-icons/pdf@2x.webp', $result );
 	}
 
 	/**
