@@ -56,7 +56,7 @@ function computeBadge( tools, defaultEnabled ) {
 	};
 }
 
-/** Map our semantic intents to @wordpress/ui Badge intents. */
+/* Map our semantic intents to the Badge intents provided by @wordpress/ui. */
 const BADGE_INTENT_MAP = {
 	success: 'stable',
 	info: 'informational',
@@ -85,7 +85,9 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 				</HStack>
 				<HStack spacing={ 2 } alignment="center" justify="flex-end">
 					{ badge && (
-						<Badge intent={ BADGE_INTENT_MAP[ intent ] ?? 'draft' }>{ badge.text }</Badge>
+						<Badge intent={ BADGE_INTENT_MAP[ badge.intent ?? 'neutral' ] ?? 'draft' }>
+							{ badge.text }
+						</Badge>
 					) }
 					<Icon icon={ chevronRight } size={ 20 } />
 				</HStack>
