@@ -1,17 +1,15 @@
-import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection, KeyringResult } from '../../social-store/types';
 import { SupportedService } from '../services/types';
 import { useRequestAccess } from '../services/use-request-access';
-import type { ComponentProps } from 'react';
 
 export type ReconnectProps = {
 	service: SupportedService;
 	connection: Connection;
-	variant?: ComponentProps< typeof Button >[ 'variant' ];
 };
 
 /**
@@ -21,7 +19,7 @@ export type ReconnectProps = {
  *
  * @return {import('react').ReactNode} - React element
  */
-export function Reconnect( { connection, service, variant = 'link' }: ReconnectProps ) {
+export function Reconnect( { connection, service }: ReconnectProps ) {
 	const { deleteConnectionById, setKeyringResult, openConnectionsModal, setReconnectingAccount } =
 		useDispatch( socialStore );
 
@@ -82,20 +80,30 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 		setReconnectingAccount,
 	] );
 
+	const onClick = useCallback(
+		( event: React.MouseEvent ) => {
+			event.preventDefault();
+			if ( ! isDisconnecting ) {
+				onClickReconnect();
+			}
+		},
+		[ isDisconnecting, onClickReconnect ]
+	);
+
 	if ( ! canManageConnection ) {
 		return null;
 	}
 
 	return (
-		<Button
-			size="small"
-			onClick={ onClickReconnect }
-			disabled={ isDisconnecting }
-			variant={ variant }
+		<Link
+			variant="default"
+			href="#"
+			aria-disabled={ isDisconnecting || undefined }
+			onClick={ onClick }
 		>
 			{ isDisconnecting
 				? __( 'Disconnecting…', 'jetpack-publicize-pkg' )
 				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack-publicize-pkg' ) }
-		</Button>
+		</Link>
 	);
 }

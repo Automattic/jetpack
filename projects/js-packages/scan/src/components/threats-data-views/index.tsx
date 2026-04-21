@@ -1,4 +1,3 @@
-import { Badge } from '@automattic/jetpack-components';
 import {
 	type Action,
 	type ActionButton,
@@ -6,7 +5,6 @@ import {
 	type FieldTypeName,
 	type Filter,
 	type SortDirection,
-	type SupportedLayouts,
 	type View,
 	DataViews,
 	filterSortAndPaginate,
@@ -14,6 +12,7 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../threat-fixer-button/index.tsx';
@@ -96,7 +95,7 @@ export default function ThreatsDataViews( {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
 	 */
-	const defaultLayouts: SupportedLayouts = {
+	const defaultLayouts = {
 		table: {
 			...baseView,
 			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
@@ -253,10 +252,10 @@ export default function ThreatsDataViews( {
 					if ( item.status ) {
 						const status = THREAT_STATUSES.find( ( { value } ) => value === item.status );
 						if ( status ) {
-							return <Badge variant={ status?.variant }>{ status.label }</Badge>;
+							return <Badge intent={ status.intent }>{ status.label }</Badge>;
 						}
 					}
-					return <Badge variant="warning">{ __( 'Active', 'jetpack-scan' ) }</Badge>;
+					return <Badge intent="medium">{ __( 'Active', 'jetpack-scan' ) }</Badge>;
 				},
 			},
 			{

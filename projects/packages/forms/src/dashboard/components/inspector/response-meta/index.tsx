@@ -11,6 +11,7 @@ import {
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -24,6 +25,37 @@ import './style.scss';
 const getDisplayName = ( response: FormResponse ) => {
 	const { author_name, author_email, author_url, ip } = response;
 	return decodeEntities( author_name || author_email || author_url || ip );
+};
+
+/**
+ * Render the contents of the Source cell for a feedback response.
+ *
+ * Test responses (submitted from form preview) link to the preview URL when
+ * one is available; otherwise they fall through to a plain "Form Preview"
+ * label. Real responses link to the page that hosted the form.
+ *
+ * @param props          - Component props.
+ * @param props.response - The feedback response.
+ * @return Source cell content.
+ */
+const SourceCell = ( { response }: { response: FormResponse } ) => {
+	if ( response.is_test ) {
+		const label = __( 'Form preview', 'jetpack-forms' );
+		if ( response.preview_url ) {
+			return <ExternalLink href={ response.preview_url }>{ label }</ExternalLink>;
+		}
+		return <>{ label }</>;
+	}
+
+	if ( response.entry_permalink ) {
+		return (
+			<ExternalLink href={ response.entry_permalink }>
+				{ decodeEntities( response.entry_title ) || getPath( response ) }
+			</ExternalLink>
+		);
+	}
+
+	return <>{ decodeEntities( response.entry_title ) }</>;
 };
 
 export type ResponseMetaProps = {
@@ -69,14 +101,21 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 					key={ gravatarEmail }
 				/>
 				<VStack spacing="0" className="jp-forms__inbox-response-meta-from">
-					<Text
-						className="jp-forms__inbox-response-meta-from-name"
-						lineHeight="20px"
-						size="15px"
-						weight="600"
-					>
-						{ displayName }
-					</Text>
+					<HStack alignment="center" justify="start" spacing="2">
+						<Text
+							className="jp-forms__inbox-response-meta-from-name"
+							lineHeight="20px"
+							size="15px"
+							weight="600"
+						>
+							{ displayName }
+						</Text>
+						{ response.is_test && (
+							<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
+								{ __( 'Test', 'jetpack-forms' ) }
+							</Badge>
+						) }
+					</HStack>
 					{ response.author_email && displayName !== response.author_email && (
 						<HStack
 							alignment="center"
@@ -108,12 +147,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 					<tr>
 						<th>{ __( 'Source:', 'jetpack-forms' ) }</th>
 						<td>
-							{ response.entry_permalink && (
-								<ExternalLink href={ response.entry_permalink }>
-									{ decodeEntities( response.entry_title ) || getPath( response ) }
-								</ExternalLink>
-							) }
-							{ ! response.entry_permalink && decodeEntities( response.entry_title ) }
+							<SourceCell response={ response } />
 						</td>
 					</tr>
 					<tr>

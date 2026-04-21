@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.19
+ * Stubs automatically generated from PHPUnit 12.5.23
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -11037,30 +11037,10 @@ final readonly class ChildProcessResultProcessor
     public function __construct(\PHPUnit\Event\Facade $eventFacade, \PHPUnit\Event\Emitter $emitter, \PHPUnit\TestRunner\TestResult\PassedTests $passedTests, \PHPUnit\Runner\CodeCoverage $codeCoverage)
     {
     }
-    public function process(\PHPUnit\Framework\Test $test, string $serializedProcessResult, string $stderr): void
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
- */
-interface IsolatedTestRunner
-{
-    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void;
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class IsolatedTestRunnerRegistry
-{
-    public static function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
-    {
-    }
-    public static function set(\PHPUnit\Framework\IsolatedTestRunner $runner): void
+    /**
+     * @param ?non-empty-string $processResultNonce
+     */
+    public function process(\PHPUnit\Framework\Test $test, string $serializedProcessResult, string $stderr, ?string $processResultNonce = null): void
     {
     }
 }
@@ -11069,7 +11049,7 @@ final class IsolatedTestRunnerRegistry
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class SeparateProcessTestRunner implements \PHPUnit\Framework\IsolatedTestRunner
+final class SeparateProcessTestRunner
 {
     /**
      * @throws \PHPUnit\Runner\Exception
@@ -19503,6 +19483,9 @@ final readonly class ComparisonRequirement extends \PHPUnit\Metadata\Version\Req
     public function asString(): string
     {
     }
+    public function version(): string
+    {
+    }
 }
 /**
  * @immutable
@@ -27078,7 +27061,7 @@ final readonly class PHPUnit
      * @param ?non-empty-string                         $extensionsDirectory
      * @param non-negative-int                          $shortenArraysForExportThreshold
      */
-    public function __construct(?string $cacheDirectory, bool $cacheResult, int|string $columns, string $colors, bool $stderr, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, ?string $bootstrap, array $bootstrapForTestSuite, bool $processIsolation, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, ?string $extensionsDirectory, bool $beStrictAboutChangesToGlobalState, bool $beStrictAboutOutputDuringTests, bool $beStrictAboutTestsThatDoNotTestAnything, bool $beStrictAboutCoverageMetadata, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, ?string $defaultTestSuite, int $executionOrder, bool $resolveDependencies, bool $defectsFirst, bool $backupGlobals, bool $backupStaticProperties, bool $testdoxPrinter, bool $testdoxPrinterSummary, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, int $shortenArraysForExportThreshold)
+    public function __construct(?string $cacheDirectory, bool $cacheResult, int|string $columns, string $colors, bool $stderr, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, ?string $bootstrap, array $bootstrapForTestSuite, bool $processIsolation, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnPhpunitWarning, bool $failOnEmptyTestSuite, bool $hasFailOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, ?string $extensionsDirectory, bool $beStrictAboutChangesToGlobalState, bool $beStrictAboutOutputDuringTests, bool $beStrictAboutTestsThatDoNotTestAnything, bool $beStrictAboutCoverageMetadata, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, ?string $defaultTestSuite, int $executionOrder, bool $resolveDependencies, bool $defectsFirst, bool $backupGlobals, bool $backupStaticProperties, bool $testdoxPrinter, bool $testdoxPrinterSummary, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, int $shortenArraysForExportThreshold)
     {
     }
     /**
@@ -27175,6 +27158,9 @@ final readonly class PHPUnit
     {
     }
     public function failOnEmptyTestSuite(): bool
+    {
+    }
+    public function hasFailOnEmptyTestSuite(): bool
     {
     }
     public function failOnIncomplete(): bool
@@ -28261,20 +28247,6 @@ final class PhpProcessException extends \RuntimeException implements \PHPUnit\Ut
 {
 }
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class DefaultJobRunner extends \PHPUnit\Util\PHP\JobRunner
-{
-    /**
-     * @throws PhpProcessException
-     */
-    public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result
-    {
-    }
-}
-/**
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -28355,18 +28327,24 @@ final readonly class Job
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-abstract readonly class JobRunner
+final readonly class JobRunner
 {
     public function __construct(\PHPUnit\Framework\ChildProcessResultProcessor $processor)
     {
     }
     /**
-     * @param non-empty-string $processResultFile
+     * @param non-empty-string  $processResultFile
+     * @param ?non-empty-string $processResultNonce
      */
-    final public function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test): void
+    public function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test, ?string $processResultNonce = null): void
     {
     }
-    abstract public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result;
+    /**
+     * @throws PhpProcessException
+     */
+    public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -28379,9 +28357,10 @@ final class JobRunnerRegistry
     {
     }
     /**
-     * @param non-empty-string $processResultFile
+     * @param non-empty-string  $processResultFile
+     * @param ?non-empty-string $processResultNonce
      */
-    public static function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test): void
+    public static function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test, ?string $processResultNonce = null): void
     {
     }
     public static function set(\PHPUnit\Util\PHP\JobRunner $runner): void
@@ -32423,6 +32402,20 @@ final class Runtime
      * @return array<string, string>
      */
     public function getCurrentSettings(array $values): array
+    {
+    }
+    /**
+     * Returns INI settings that cannot be changed via ini_set()
+     * (PHP_INI_SYSTEM and PHP_INI_PERDIR) and whose current value
+     * differs from the value configured in INI files.
+     *
+     * These settings can only have been changed via CLI -d flags
+     * and must be forwarded as -d flags to child processes because
+     * ini_set() cannot change them at runtime.
+     *
+     * @return array<string, string>
+     */
+    public function getSettingsNotChangeableAtRuntime(): array
     {
     }
     public function isOpcacheActive(): bool

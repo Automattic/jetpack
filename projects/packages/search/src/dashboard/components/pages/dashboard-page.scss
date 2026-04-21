@@ -1,11 +1,6 @@
 @use "scss/variables";
 @use "scss/rna-styles";
 
-#screen-meta,
-#screen-meta-links {
-	display: none;
-}
-
 #jp-search-dashboard {
 	color: variables.$black;
 	font-size: 16px;

@@ -1,6 +1,13 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 // Import dataviews styles for DataForm component
 @import "@wordpress/theme/design-tokens.css";
 @import "@wordpress/dataviews/build-style/style.css";
+
+body.jetpack_page_jetpack-newsletter {
+
+	@include jetpack-admin-page-layout;
+}
 
 #newsletter-settings-root * {
 	box-sizing: border-box;

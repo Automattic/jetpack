@@ -11,7 +11,6 @@ import { BaseControl, Button, ExternalLink } from '@wordpress/components';
 import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -395,38 +394,37 @@ export default function MediaSectionV2( {
 						render={ renderMediaUpload }
 					/>
 
-					{ /* Show dropdown + preview when there's media */ }
+					{ /* Show preview + dropdown when there's media */ }
 					{ previewData && (
 						<>
-							<MediaSourceMenu
-								currentSource={ currentSource }
-								onSelect={ handleSourceSelect }
-								onMediaLibraryClick={ handleMediaLibraryClick }
-								onAiImageClick={ handleAiImageClick }
-								disabled={ disabled }
-								featuredImageId={ featuredImageId }
-							>
-								{ ( { open } ) => (
-									<MediaPreview
-										media={ previewData }
-										isLoading={ currentSource === 'sig' && sigIsLoading }
-										onReplace={ open }
-										onRemove={ handleRemove }
-										disabled={ disabled }
-										showRemove={ currentSource === 'media-library' || currentSource === 'sig' }
-									/>
-								) }
-							</MediaSourceMenu>
-							{ currentSource === 'sig' && (
-								<Button
-									className={ clsx( styles.selectButton, styles.editTemplateButton ) }
-									variant="secondary"
-									onClick={ onEditTemplate }
+							<MediaPreview
+								media={ previewData }
+								isLoading={ currentSource === 'sig' && sigIsLoading }
+							/>
+							<div className={ styles.actions }>
+								<MediaSourceMenu
+									currentSource={ currentSource }
+									onSelect={ handleSourceSelect }
+									onMediaLibraryClick={ handleMediaLibraryClick }
+									onAiImageClick={ handleAiImageClick }
 									disabled={ disabled }
-								>
-									{ __( 'Edit template', 'jetpack-publicize-pkg' ) }
-								</Button>
-							) }
+									featuredImageId={ featuredImageId }
+									onRemove={ handleRemove }
+								/>
+								{ currentSource === 'sig' && (
+									<div className={ styles.action }>
+										<Button
+											__next40pxDefaultSize
+											className={ styles.selectButton }
+											variant="primary"
+											onClick={ onEditTemplate }
+											disabled={ disabled }
+										>
+											{ __( 'Edit', 'jetpack-publicize-pkg' ) }
+										</Button>
+									</div>
+								) }
+							</div>
 							<CustomMediaToggle
 								source={ effectiveSource }
 								checked={ isShareAsAttachment }
@@ -445,6 +443,7 @@ export default function MediaSectionV2( {
 							onAiImageClick={ handleAiImageClick }
 							disabled={ disabled }
 							featuredImageId={ featuredImageId }
+							onRemove={ handleRemove }
 						/>
 					) }
 					{ currentSource === 'media-library' && (

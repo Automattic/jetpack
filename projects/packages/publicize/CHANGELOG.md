@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.78.1] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Social admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Make the sidebar X-connection toggle date-aware and block scheduling when the target month's quota is exceeded. [#48108]
+- Remove Jetpack color overrides on core toggle components. [#47317]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+### Removed
+- Admin page: Remove support section. [#48187]
+
+### Fixed
+- Social admin page: Render the JetpackFooter unconditionally for parity with every other Jetpack admin page (Newsletter, Search, Backup, Protect, VideoPress, Boost, Network Admin). [#48183]
+
+## [0.78.0] - 2026-04-15
+### Changed
+- Social: Move media section buttons below preview to be more apparent. [#47995]
+- Update package dependencies. [#47907]
+
 ## [0.77.0] - 2026-04-13
 ### Changed
 - Include platform name in social preview toggle labels and tab titles for clearer identification. [#47895]
@@ -1381,6 +1399,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.78.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.0...v0.78.1
+[0.78.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.77.0...v0.78.0
 [0.77.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.76.1...v0.77.0
 [0.76.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.76.0...v0.76.1
 [0.76.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.75.0...v0.76.0

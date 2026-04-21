@@ -114,7 +114,6 @@
 			additionalReviewers: [
 				'team:triforce', // Monorepo overall, Publicize, My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
-				'team:bastion', // Scan
 				'team:zap', // Forms, much of the recent componentry work.
 			],
 		},

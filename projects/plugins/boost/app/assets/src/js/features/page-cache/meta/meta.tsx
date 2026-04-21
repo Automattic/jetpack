@@ -1,4 +1,5 @@
-import { Button, IconTooltip, Notice, getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, IconTooltip, getRedirectUrl } from '@automattic/jetpack-components';
+import { Notice } from '@wordpress/ui';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import Lightning from '$svg/lightning';
@@ -243,13 +244,16 @@ const BypassPatterns = ( {
 				) }
 			</div>
 			{ showNotice && (
-				<Notice
-					level="error"
-					title={ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }
-					onClose={ () => setShowNotice( false ) }
-				>
-					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
-				</Notice>
+				<Notice.Root intent="error">
+					<Notice.Title>{ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>
+						{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
+					</Notice.Description>
+					<Notice.CloseIcon
+						onClick={ () => setShowNotice( false ) }
+						label={ __( 'Dismiss', 'jetpack-boost' ) }
+					/>
+				</Notice.Root>
 			) }
 			<Button
 				disabled={ patterns === inputValue || inputInvalid }

@@ -138,6 +138,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $has_verified_jwt = false;
 
 	/**
+	 * Whether the current submission originated from an authenticated form preview.
+	 *
+	 * When true, the resulting feedback is marked as a test submission — Akismet
+	 * is skipped, the notification email is annotated, and the response is
+	 * excluded from the default CSV export.
+	 *
+	 * @var bool
+	 */
+	private $is_preview_submission = false;
+
+	/**
 	 * The source of the feedback entry.
 	 *
 	 * @var Feedback_Source
@@ -617,6 +628,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public function set_source( $source ) {
 		$this->source = $source;
+	}
+
+	/**
+	 * Flag whether the current submission originated from an authenticated form preview.
+	 *
+	 * @param bool $is_preview_submission Whether the submission came from form preview.
+	 * @return void
+	 */
+	public function set_is_preview_submission( $is_preview_submission ) {
+		$this->is_preview_submission = (bool) $is_preview_submission;
+	}
+
+	/**
+	 * Whether the current submission is a test submission coming from form preview.
+	 *
+	 * @return bool
+	 */
+	public function is_preview_submission() {
+		return $this->is_preview_submission;
 	}
 
 	/**
@@ -1249,7 +1279,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
-				'preview_mode'       => __( 'Form submissions are disabled in preview mode.', 'jetpack-forms' ),
 			),
 			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
 		);
@@ -2602,6 +2631,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$response = Feedback::from_submission( $_POST, $this ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
 		$response->set_source( $this->get_source() );
+
+		// If the submission came from an authenticated form preview, flag the
+		// feedback as a test submission. The rest of the pipeline reads the
+		// flag from the feedback (which also travels into the serialized
+		// post_content via Feedback_Source).
+		if ( $this->is_preview_submission ) {
+			$response->mark_as_test();
+		}
+		$is_test_submission = $response->is_test();
+
 		$plugin = Contact_Form_Plugin::init();
 
 		$id                  = $this->get_attribute( 'id' );
@@ -2692,9 +2731,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$spam           = '';
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
-		// Is it spam?
-		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
-		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
+		// Is it spam? Test submissions (from form preview) skip Akismet entirely —
+		// the form owner is explicitly running a test and we don't want Akismet
+		// to learn from synthetic data or bounce the submission.
+		if ( $is_test_submission ) {
+			$is_spam = false;
+		} else {
+			/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+			$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
+		}
 		if ( is_wp_error( $is_spam ) ) { // WP_Error to abort
 			return $is_spam; // abort
 		} elseif ( $is_spam === true ) {  // TRUE to flag a spam
@@ -2789,6 +2834,22 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
 		$entry_values = $response->get_entry_values();
+
+		// Prefix the subject with [TEST] for test submissions so the form owner
+		// can immediately tell this email came from a preview-mode submission.
+		if ( $is_test_submission ) {
+			/**
+			 * Filter the subject prefix applied to test (preview) feedback emails.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 7.19.0
+			 *
+			 * @param string $prefix Default subject prefix for test submissions.
+			 */
+			$test_prefix          = apply_filters( 'jetpack_forms_test_subject_prefix', '[TEST] ' );
+			$contact_form_subject = $test_prefix . $contact_form_subject;
+		}
 
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
@@ -2901,6 +2962,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'comment_author_email' => $comment_author_email,
 			'comment_author_ip'    => $comment_author_ip,
 			'is_spam'              => $is_spam,
+			'is_test'              => $is_test_submission,
 			'feedback_status'      => $feedback_status,
 		);
 		$email        = Feedback_Email_Renderer::build_email_content( $post_id, $this, $response, $context_data );
@@ -2935,6 +2997,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			// Filter is null (default), use emailNotifications attribute
 			$send_email = ( $this->get_attribute( 'emailNotifications' ) !== 'no' );
+		}
+
+		// Test submissions always send the notification email (so the form
+		// owner can verify their email flow end-to-end) regardless of the
+		// emailNotifications attribute. Site admins who want to opt out can
+		// return false from the filter below.
+		if ( $is_test_submission ) {
+			/**
+			 * Filter whether test (preview) submissions should trigger the notification email.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 7.19.0
+			 *
+			 * @param bool     $send     Whether to send the test submission email. Default true.
+			 * @param int      $post_id  The feedback post ID.
+			 * @param Feedback $response The feedback response object.
+			 */
+			$send_email = apply_filters( 'jetpack_forms_send_test_feedback_email', true, $post_id, $response );
 		}
 
 		/**

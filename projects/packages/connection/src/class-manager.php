@@ -191,7 +191,7 @@ class Manager {
 		Partner::init();
 
 		// WP 7.0+ Connectors screen card.
-		Wpcom_Connector::init();
+		Jetpack_Connector::init();
 	}
 
 	/**

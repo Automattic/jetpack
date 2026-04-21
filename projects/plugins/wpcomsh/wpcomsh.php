@@ -11,6 +11,9 @@
 
 define( 'WPCOMSH_VERSION', '9.0.0' );
 
+// Loaded first so the filter is registered before any other bootstrap that might fatal.
+require_once __DIR__ . '/fatal-error-screen.php';
+
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
@@ -150,6 +153,7 @@ require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
+require_once __DIR__ . '/feature-plugins/reprint-exporter-api.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**
