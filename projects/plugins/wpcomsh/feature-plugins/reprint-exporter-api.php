@@ -146,6 +146,11 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
  * loop runs our key is gone. This filter re-adds it from the raw
  * (unfiltered) input.
  *
+ * Workaround: the proper fix is adding reprint_exporter_enabled to
+ * the request_format whitelist in the Jetpack plugin's
+ * class.wpcom-json-api-site-settings-endpoint.php. That lives in a
+ * different package and would need a separate Jetpack PR.
+ *
  * @param array $input            Whitelisted/cast settings.
  * @param array $unfiltered_input Raw input from the request.
  * @return array
