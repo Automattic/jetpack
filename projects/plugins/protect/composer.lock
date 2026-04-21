@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "340f93cc2f9ee403bb0d974a7d62a5ea",
+    "content-hash": "acf4bf4f963d8f0b65e00c8bd18ac443",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -2013,7 +2013,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "9e44d830cefeebc6c9b5a108cfab1ac3c1e3fd98"
+                "reference": "d487609756d8f05a8357abf20f3c337b6c53e591"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -2037,6 +2037,11 @@
                     "link-template": "https://github.com/Automattic/phpunit-select-config/compare/v${old}...v${new}"
                 },
                 "mirror-repo": "Automattic/phpunit-select-config"
+            },
+            "autoload": {
+                "files": [
+                    "src/php_polyfills.php"
+                ]
             },
             "scripts": {
                 "phpunit": [

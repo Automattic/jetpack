@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0d1c317195756162e9caccc41474c5a",
+    "content-hash": "b35c8f741ab239d96006476386767f79",
     "packages": [
         {
             "name": "automattic/jetpack-admin-ui",
