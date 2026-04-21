@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+SEO: The Content screen accepts a `?status=good|fair|poor` query arg that pre-filters the DataViews table to the matching SEO tier, and the `/posts` REST endpoint now accepts a `seo_status` arg to filter results by the same computed tier.

@@ -49,27 +49,35 @@ class REST_Controller {
 				'callback'            => array( __CLASS__, 'get_posts' ),
 				'permission_callback' => array( __CLASS__, 'permissions_check' ),
 				'args'                => array(
-					'post_type' => array(
+					'post_type'  => array(
 						'type'    => 'string',
 						'default' => 'post',
 					),
-					'status'    => array(
+					'status'     => array(
 						'type'    => 'string',
 						'default' => 'publish,draft',
 					),
-					'per_page'  => array(
+					'per_page'   => array(
 						'type'    => 'integer',
 						'default' => 20,
 						'minimum' => 1,
 						'maximum' => 100,
 					),
-					'page'      => array(
+					'page'       => array(
 						'type'    => 'integer',
 						'default' => 1,
 						'minimum' => 1,
 					),
-					'search'    => array(
+					'search'     => array(
 						'type' => 'string',
+					),
+					// Comma-separated list of computed-status tiers to keep —
+					// e.g. `good,fair` or `poor`. Matches the filter values on
+					// the Content DataViews screen and the Overview's Content
+					// SEO health card.
+					'seo_status' => array(
+						'type'    => 'string',
+						'default' => '',
 					),
 				),
 			)
@@ -230,11 +238,64 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function get_posts( WP_REST_Request $request ) {
-		$post_type = (string) $request->get_param( 'post_type' );
-		$status    = array_filter( array_map( 'trim', explode( ',', (string) $request->get_param( 'status' ) ) ) );
-		$per_page  = max( 1, min( 100, (int) $request->get_param( 'per_page' ) ) );
-		$page      = max( 1, (int) $request->get_param( 'page' ) );
-		$search    = (string) $request->get_param( 'search' );
+		$post_type    = (string) $request->get_param( 'post_type' );
+		$status       = array_filter( array_map( 'trim', explode( ',', (string) $request->get_param( 'status' ) ) ) );
+		$per_page     = max( 1, min( 100, (int) $request->get_param( 'per_page' ) ) );
+		$page         = max( 1, (int) $request->get_param( 'page' ) );
+		$search       = (string) $request->get_param( 'search' );
+		$status_param = (string) $request->get_param( 'seo_status' );
+		$seo_filter   = array_values(
+			array_filter(
+				array_map( 'trim', explode( ',', $status_param ) ),
+				static function ( $tier ) {
+					return in_array( $tier, array( 'good', 'fair', 'poor' ), true );
+				}
+			)
+		);
+
+		// `seo_status` is computed per-post (title/description length plus
+		// noindex), so it cannot be pushed down into WP_Query. When a filter
+		// is supplied we fetch a bounded page of candidates, compute each
+		// status, then paginate the filtered slice in PHP.
+		if ( count( $seo_filter ) > 0 ) {
+			$candidate_args = array(
+				'post_type'      => $post_type,
+				'post_status'    => $status,
+				// Matches the cap used by the Overview content-stats
+				// counter — high enough for nearly every real site, low
+				// enough to keep the dashboard snappy.
+				'posts_per_page' => 500, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Bounded cap, documented above.
+				'no_found_rows'  => false,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			);
+			if ( '' !== $search ) {
+				$candidate_args['s'] = $search;
+			}
+
+			$candidate_query = new \WP_Query( $candidate_args );
+			$matching        = array();
+			foreach ( $candidate_query->posts as $post ) {
+				$item = self::map_post_to_item( $post );
+				if ( in_array( $item['seo_status'], $seo_filter, true ) ) {
+					$matching[] = $item;
+				}
+			}
+
+			$total    = count( $matching );
+			$max_page = max( 1, (int) ceil( $total / $per_page ) );
+			$offset   = ( $page - 1 ) * $per_page;
+			$window   = array_slice( $matching, $offset, $per_page );
+
+			return new WP_REST_Response(
+				array(
+					'items' => $window,
+					'total' => $total,
+					'pages' => $max_page,
+					'page'  => $page,
+				)
+			);
+		}
 
 		$query_args = array(
 			'post_type'      => $post_type,
