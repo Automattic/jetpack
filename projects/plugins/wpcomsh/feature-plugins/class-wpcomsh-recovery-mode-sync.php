@@ -142,7 +142,10 @@ class WPCOMSH_Recovery_Mode_Sync {
 		// is often not yet available when we're called from inside WP's fatal-handler
 		// shutdown path (the exact case this feature exists to handle). Load it here.
 		if ( ! function_exists( 'wp_rand' ) && defined( 'ABSPATH' ) ) {
-			require_once ABSPATH . 'wp-includes/pluggable.php';
+			$pluggable_path = ABSPATH . 'wp-includes/pluggable.php';
+			if ( file_exists( $pluggable_path ) ) {
+				require_once $pluggable_path;
+			}
 		}
 		if ( ! function_exists( 'wp_rand' ) ) {
 			self::trace( 'send() aborting: wp_rand() unavailable' );
