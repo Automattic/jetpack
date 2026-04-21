@@ -48,6 +48,15 @@
 		&:focus-visible {
 			text-decoration: underline;
 		}
+
+		span[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__highlight {
+		background: rgba(255, 230, 0, 0.35);
+		font-weight: 700;
 	}
 
 	.jetpack-search-results__path {

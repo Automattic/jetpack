@@ -40,8 +40,21 @@ namespace Automattic\Jetpack\Search;
 						<a
 							class="jetpack-search-results__title-link"
 							data-wp-bind--href="context.result.permalink"
-							data-wp-text="context.result.title"
-						></a>
+						>
+							<span
+								data-wp-bind--hidden="context.result.hasTitleHighlight"
+								data-wp-text="context.result.title"
+							></span>
+							<template
+								data-wp-each--piece="context.result.titlePieces"
+								data-wp-key="context.piece.index"
+							>
+								<span
+									data-wp-text="context.piece.text"
+									data-wp-class--jetpack-search-results__highlight="context.piece.isHighlight"
+								></span>
+							</template>
+						</a>
 					</h3>
 					<div
 						class="jetpack-search-results__path"

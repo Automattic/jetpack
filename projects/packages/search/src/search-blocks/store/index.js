@@ -8,13 +8,16 @@ const ANY_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
 let initialized = false;
 
 /**
- * Ensure a URL starts with http(s)://. The v1.3 API returns hostless URLs
- * (e.g. `example.com/foo/`), which we promote to https. URLs with any other
- * scheme (javascript:, data:, ftp:, …) are rejected so a compromised API
- * response can't smuggle a non-http URL into an href.
+ * Ensure a URL is a browser-safe http(s)/protocol-relative reference. The v1.3
+ * API returns hostless URLs (e.g. `example.com/foo/`) which we promote to a
+ * protocol-relative form (`//example.com/foo/`) so links inherit the page's
+ * scheme — matches the page protocol on http sites and avoids mixed-content
+ * downgrades on https sites. URLs with any other scheme (javascript:, data:,
+ * ftp:, …) are rejected so a compromised API response can't smuggle a non-http
+ * URL into an href.
  *
  * @param {string} raw - Raw URL from the API.
- * @return {string} Safe http(s) URL or ''.
+ * @return {string} Safe URL or ''.
  */
 function toSafeUrl( raw ) {
 	if ( typeof raw !== 'string' || raw === '' ) {
@@ -26,11 +29,19 @@ function toSafeUrl( raw ) {
 	if ( ANY_SCHEME_PATTERN.test( raw ) ) {
 		return '';
 	}
-	return `https://${ raw.replace( /^\/+/, '' ) }`;
+	return `//${ raw.replace( /^\/+/, '' ) }`;
 }
 
 /**
- * Format an ISO date string as "Mon D, YYYY" using the page locale.
+ * Format an ISO date string for display on a search result card.
+ *
+ * Uses the WP-seeded locale (via `state.locale`, BCP47) so formatting
+ * follows the site's language preference rather than the browser default.
+ *
+ * NOTE: falls back to a fixed `{ year, month, day }` style rather than
+ * reading WP's `date_format` option. Matching the site's configured date
+ * format requires parsing WP's PHP date-format tokens in JS. Deferred to
+ * follow-up — see PR #48198.
  *
  * @param {string} iso - ISO-ish date string.
  * @return {string} Formatted date or ''.
@@ -44,8 +55,7 @@ function formatDate( iso ) {
 	if ( isNaN( d.getTime() ) ) {
 		return '';
 	}
-	const locale = ( typeof document !== 'undefined' && document.documentElement.lang ) || 'en-US';
-	return d.toLocaleDateString( locale, {
+	return d.toLocaleDateString( state.locale || 'en-US', {
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric',
@@ -71,20 +81,72 @@ function formatPath( permalink ) {
 	}
 }
 
+const MARK_SEGMENT_PATTERN = /<mark[^>]*>([\s\S]*?)<\/mark>/gi;
+const STRIP_TAGS_PATTERN = /<[^>]*>/g;
+
 /**
- * Pull a plain-text string out of a v1.3 `highlight` field, which arrives as
- * an array of snippets with `<mark>` tags. We render via data-wp-text, so HTML
- * would show as literal tags — strip them here.
+ * Strip HTML tags from a string. Runs the regex repeatedly until the output
+ * is stable so nested tag constructions (e.g. `<<script>script>`, which a
+ * single pass would leave as `<script>`) can't smuggle a tag through.
  *
- * @param {*} highlight - Highlight value (array of strings or string).
- * @return {string} Plain text.
+ * @param {string} s - Input string.
+ * @return {string} Input with all `<...>` tags removed.
  */
-function stripHighlightTags( highlight ) {
+function stripTags( s ) {
+	let prev;
+	let out = s;
+	do {
+		prev = out;
+		out = out.replace( STRIP_TAGS_PATTERN, '' );
+	} while ( out !== prev );
+	return out;
+}
+
+/**
+ * Tokenize a v1.3 `highlight` field into an array of pieces suitable for
+ * rendering with Interactivity `data-wp-each` / `data-wp-text`. Each piece
+ * is `{ text, isHighlight }`; the template wraps highlighted pieces in a
+ * styled element so the match still stands out visually. Splitting into
+ * text pieces (vs. binding innerHTML) keeps the XSS surface at zero — we
+ * never render API-supplied HTML, only textContent.
+ *
+ * Returns an empty array when the highlight field is missing/invalid so
+ * the template falls back to the plain `title` field.
+ *
+ * @param {*} highlight - Highlight value (array of snippet strings or a single string).
+ * @return {Array<{index: number, text: string, isHighlight: boolean}>} Pieces to render.
+ */
+function tokenizeHighlight( highlight ) {
 	const raw = Array.isArray( highlight ) ? highlight.join( ' ' ) : highlight;
-	if ( typeof raw !== 'string' ) {
-		return '';
+	if ( typeof raw !== 'string' || raw === '' ) {
+		return [];
 	}
-	return raw.replace( /<\/?mark[^>]*>/gi, '' );
+	const pieces = [];
+	let lastIndex = 0;
+	let match;
+
+	while ( ( match = MARK_SEGMENT_PATTERN.exec( raw ) ) !== null ) {
+		if ( match.index > lastIndex ) {
+			pieces.push( {
+				text: stripTags( raw.slice( lastIndex, match.index ) ),
+				isHighlight: false,
+			} );
+		}
+		pieces.push( {
+			text: stripTags( match[ 1 ] ),
+			isHighlight: true,
+		} );
+		lastIndex = MARK_SEGMENT_PATTERN.lastIndex;
+	}
+	if ( lastIndex < raw.length ) {
+		pieces.push( {
+			text: stripTags( raw.slice( lastIndex ) ),
+			isHighlight: false,
+		} );
+	}
+	// data-wp-each needs a stable key per piece — index works because the
+	// pieces array is recomputed whenever the parent result changes.
+	return pieces.filter( p => p.text !== '' ).map( ( p, index ) => ( { ...p, index } ) );
 }
 
 /**
@@ -128,11 +190,15 @@ function normalizeResult( raw ) {
 	const rawImage = fields[ 'image.url.raw' ];
 	const imageSrc = Array.isArray( rawImage ) ? rawImage[ 0 ] : rawImage;
 	const imageUrl = toSafeUrl( imageSrc );
-	const title =
-		stripHighlightTags( highlight.title ) || fields[ 'title.default' ] || fields.title || '';
+	const plainTitle = String( fields[ 'title.default' ] ?? fields.title ?? '' );
+	const titlePieces = tokenizeHighlight( highlight.title );
 	return {
 		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
-		title,
+		title: plainTitle,
+		// Rendered when the API returns a highlighted title; template
+		// falls back to `title` when this is empty.
+		titlePieces,
+		hasTitleHighlight: titlePieces.length > 0,
 		permalink,
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date ),

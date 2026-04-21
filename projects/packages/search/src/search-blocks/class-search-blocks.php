@@ -148,6 +148,11 @@ class Search_Blocks {
 			'isPrivateSite' => $is_private,
 			'isWpcom'       => $is_wpcom,
 			'homeUrl'       => function_exists( 'home_url' ) ? home_url() : '',
+			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
+			// client. Converts WP's `en_US` underscore form.
+			'locale'        => function_exists( 'get_user_locale' )
+				? str_replace( '_', '-', get_user_locale() )
+				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=date renders correctly on first paint.
