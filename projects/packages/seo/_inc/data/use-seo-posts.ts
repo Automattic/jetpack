@@ -7,6 +7,11 @@ import type { SeoPostsResponse, SeoPostUpdatePayload } from './content-types';
 interface UseSeoPostsArgs {
 	postType?: string;
 	status?: string;
+	/**
+	 * Filter by computed SEO tier — any combination of 'good', 'fair',
+	 * 'poor'. Passed as a comma-separated `seo_status` query arg.
+	 */
+	seoStatus?: string[];
 	page?: number;
 	perPage?: number;
 	search?: string;
@@ -19,6 +24,9 @@ export const useSeoPosts = ( args: UseSeoPostsArgs ) => {
 		page: String( args.page ?? 1 ),
 		per_page: String( args.perPage ?? 20 ),
 		...( args.search ? { search: args.search } : {} ),
+		...( args.seoStatus && args.seoStatus.length > 0
+			? { seo_status: args.seoStatus.join( ',' ) }
+			: {} ),
 	};
 	const path = addQueryArgs( `/${ REST_NAMESPACE }/posts`, query );
 	return useSimpleQuery< SeoPostsResponse >( {

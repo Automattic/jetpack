@@ -2,9 +2,10 @@
 
 import { Notice, Spinner } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
-import { useMemo, useState } from '@wordpress/element';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { useSearchParams } from 'react-router';
 import { useSeoPosts } from '../../data/use-seo-posts';
 import SerpPreviewModal, { type SerpPreviewPayload } from '../shared/serp-preview-modal';
 import EditSeoModal from './edit-seo-modal';
@@ -37,15 +38,61 @@ const DEFAULT_VIEW: View = {
 	titleField: 'title',
 };
 
+const isSeoStatus = ( value: string | null ): value is SeoStatus =>
+	value === 'good' || value === 'fair' || value === 'poor';
+
 const ContentScreen: FC = () => {
-	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
+	const [ searchParams ] = useSearchParams();
+	// Seed the initial view from a `?status=good|fair|poor` query param so
+	// the Overview's Content SEO health card can deep-link to a pre-filtered
+	// list. Captured at mount only — users can clear the filter afterwards.
+	const [ view, setView ] = useState< View >( () => {
+		const initialStatus = searchParams.get( 'status' );
+		if ( ! isSeoStatus( initialStatus ) ) {
+			return DEFAULT_VIEW;
+		}
+		return {
+			...DEFAULT_VIEW,
+			filters: [ { field: 'seo_status', operator: 'isAny', value: [ initialStatus ] } ],
+		};
+	} );
 	const [ editItem, setEditItem ] = useState< SeoPostItem | null >( null );
 	const [ previewItem, setPreviewItem ] = useState< SeoPostItem | null >( null );
+
+	// Pull the user's current `seo_status` filter out of the DataViews
+	// view so we can forward it to the REST endpoint. The endpoint post-
+	// filters on the computed tier — DataViews alone would just hide rows
+	// from the client page without re-fetching.
+	const seoStatusFilter = view.filters?.find( filter => filter.field === 'seo_status' )?.value as
+		| string[]
+		| undefined;
+
+	// DataViews keeps the filter bar visibility in private internal state
+	// (only auto-opens for `isPrimary` filters, which also locks the
+	// toggle). When we arrive pre-filtered via `/content?status=…` we
+	// still want the chip visible on first paint, so we simulate a click
+	// on DataViews' own visibility toggle once. The toggle stays live
+	// after, so the user can collapse the bar normally.
+	const screenRef = useRef< HTMLDivElement >( null );
+	const hasOpenedFiltersRef = useRef( false );
+	useEffect( () => {
+		if ( hasOpenedFiltersRef.current || ! seoStatusFilter?.length ) {
+			return;
+		}
+		const toggle = screenRef.current?.querySelector< HTMLButtonElement >(
+			'.dataviews-filters__visibility-toggle'
+		);
+		if ( toggle && toggle.getAttribute( 'aria-pressed' ) !== 'true' ) {
+			toggle.click();
+			hasOpenedFiltersRef.current = true;
+		}
+	}, [ seoStatusFilter ] );
 
 	const { data, isLoading, isError, error } = useSeoPosts( {
 		page: view.page ?? 1,
 		perPage: view.perPage ?? 20,
 		search: view.search,
+		seoStatus: seoStatusFilter,
 	} );
 
 	const fields: Field< SeoPostItem >[] = useMemo(
@@ -172,7 +219,7 @@ const ContentScreen: FC = () => {
 	return (
 		<>
 			{ isLoading && ! data && <Spinner /> }
-			<div className={ styles.dataviewsWrapper }>
+			<div className={ styles.dataviewsWrapper } ref={ screenRef }>
 				<DataViews< SeoPostItem >
 					data={ items }
 					fields={ fields }

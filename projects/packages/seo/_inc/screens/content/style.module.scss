@@ -14,16 +14,19 @@
 	border-radius: 50%;
 }
 
+// WPDS decorative-icon tokens — same rail as the Overview's SeverityDot
+// and the Content SEO health card bullets, so Good/Fair/Poor read the
+// same colour everywhere.
 .trafficGood {
-	background: #4ab866;
+	background: var(--wpds-color-fg-content-success-weak, #007f30);
 }
 
 .trafficFair {
-	background: #dba617;
+	background: var(--wpds-color-fg-content-warning-weak, #926300);
 }
 
 .trafficPoor {
-	background: #cc1818;
+	background: var(--wpds-color-fg-content-error-weak, #cc1818);
 }
 
 .field {
@@ -55,11 +58,11 @@
 .dataviewsWrapper {
 	display: flex;
 	flex-direction: column;
-	height: calc( 100vh - 200px );
+	height: calc(100vh - 200px);
 	min-height: 480px;
 
 	// DataViews uses an internal flex layout; give it room to breathe.
-	:global( .dataviews-wrapper ) {
+	:global(.dataviews-wrapper) {
 		flex: 1;
 		min-height: 0;
 	}
