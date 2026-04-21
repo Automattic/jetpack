@@ -24,7 +24,7 @@ class Jetpack_SEO_Admin_Columns {
 	 */
 	public static function init() {
 		add_action( 'admin_init', array( __CLASS__, 'register_columns_for_post_types' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'admin_print_styles-edit.php', array( __CLASS__, 'print_column_styles' ) );
 	}
 
 	/**
@@ -155,26 +155,22 @@ class Jetpack_SEO_Admin_Columns {
 	}
 
 	/**
-	 * Enqueue the column styles on edit.php only.
+	 * Print the column styles. Hooked to `admin_print_styles-edit.php`, so
+	 * it only runs on the post list table.
 	 *
-	 * @param string $hook_suffix Current admin hook suffix.
 	 * @return void
 	 */
-	public static function enqueue_assets( $hook_suffix ) {
-		if ( 'edit.php' !== $hook_suffix ) {
-			return;
-		}
-		wp_register_style( 'jetpack-seo-admin-columns', false, array(), JETPACK__VERSION );
-		wp_add_inline_style(
-			'jetpack-seo-admin-columns',
-			'.column-jetpack_seo_status{width:48px;text-align:center}' .
-			'.jetpack-seo-status{display:inline-block;width:10px;height:10px;border-radius:50%;background:#cc1818}' .
-			'.jetpack-seo-status--good{background:#4ab866}' .
-			'.jetpack-seo-status--fair{background:#dba617}' .
-			'.jetpack-seo-status--poor{background:#cc1818}' .
-			'.column-jetpack_seo_schema{width:120px}' .
-			'.column-jetpack_seo_preview{width:96px}'
-		);
-		wp_enqueue_style( 'jetpack-seo-admin-columns' );
+	public static function print_column_styles() {
+		?>
+		<style>
+			.column-jetpack_seo_status { width: 48px; text-align: center; }
+			.column-jetpack_seo_schema { width: 120px; }
+			.column-jetpack_seo_preview { width: 96px; }
+			.jetpack-seo-status { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #cc1818; }
+			.jetpack-seo-status--good { background: #4ab866; }
+			.jetpack-seo-status--fair { background: #dba617; }
+			.jetpack-seo-status--poor { background: #cc1818; }
+		</style>
+		<?php
 	}
 }

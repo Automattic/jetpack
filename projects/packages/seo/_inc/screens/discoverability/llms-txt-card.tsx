@@ -95,7 +95,7 @@ const LlmsTxtCard: FC = () => {
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<div className={ styles.section }>
+				<Stack direction="column" gap="lg">
 					<ToggleControl
 						label={ __( 'Generate llms.txt', 'jetpack-seo' ) }
 						help={ __(
@@ -149,7 +149,7 @@ const LlmsTxtCard: FC = () => {
 								__nextHasNoMarginBottom
 							/>
 							{ localOverride !== null && localOverride !== data.config.override && (
-								<div className={ styles.row }>
+								<Stack direction="row" justify="space-between" align="center" gap="md">
 									<Button
 										variant="tertiary"
 										onClick={ () => setLocalOverride( null ) }
@@ -165,7 +165,7 @@ const LlmsTxtCard: FC = () => {
 									>
 										{ __( 'Save override', 'jetpack-seo' ) }
 									</Button>
-								</div>
+								</Stack>
 							) }
 
 							<div>
@@ -174,7 +174,7 @@ const LlmsTxtCard: FC = () => {
 							</div>
 						</>
 					) }
-				</div>
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);

@@ -1,12 +1,12 @@
 .grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( 360px, 1fr ) );
+	grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
 	gap: 16px;
 }
 
 .crawlerGrid {
 	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( 200px, 1fr ) );
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	gap: 12px;
 }
 
@@ -27,16 +27,10 @@
 	border-radius: 4px;
 	max-height: 320px;
 	overflow: auto;
-	font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 	font-size: 12px;
 	white-space: pre-wrap;
-	word-break: break-word;
-}
-
-.section {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
+	overflow-wrap: anywhere;
 }
 
 // Checkbox group inside llms.txt — gives the child CheckboxControls a bit of
@@ -56,12 +50,5 @@
 	font-weight: 500;
 	line-height: 1.4;
 	text-transform: uppercase;
-	color: var( --wpds-color-fg-content-neutral, #1e1e1e );
-}
-
-.row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 12px;
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 }
