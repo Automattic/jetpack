@@ -4,7 +4,12 @@ import { encode } from 'qss';
 /**
  * Fields to request from the v1.3 Jetpack Search API. Without an explicit
  * `fields[]` list the API only returns `date` / `post_id`, so result cards
- * render blank. Keep this in sync with Search_Blocks::SEARCH_FIELDS in PHP.
+ * render blank.
+ *
+ * Image alt text is intentionally omitted — the result card's `<img>` is
+ * decorative (the surrounding anchor is `aria-hidden` with the title link as
+ * the accessible target), so `alt=""` is correct and requesting alt text
+ * would only add response bytes.
  */
 export const SEARCH_FIELDS = [
 	'date',
@@ -13,7 +18,6 @@ export const SEARCH_FIELDS = [
 	'title.default',
 	'has.image',
 	'image.url.raw',
-	'image.alt_text',
 ];
 
 export const HIGHLIGHT_FIELDS = [ 'title', 'content' ];
