@@ -88,6 +88,33 @@ function stripHighlightTags( highlight ) {
 }
 
 /**
+ * Request a page of results. Shared between the initial search and
+ * subsequent load-more calls; the caller owns the loading flag and
+ * decides how to merge the response into state.
+ *
+ * @param {string|null} pageHandle - Cursor, or null for the first page.
+ * @yield {Promise} fetch + response.json() promises.
+ * @return {object} Parsed API response body.
+ */
+function* fetchResults( pageHandle ) {
+	const url = buildSearchUrl( {
+		siteId: state.siteId,
+		searchQuery: state.searchQuery,
+		sortOrder: state.sortOrder,
+		pageHandle,
+		isPrivateSite: state.isPrivateSite,
+		isWpcom: state.isWpcom,
+		apiRoot: state.apiRoot,
+		homeUrl: state.homeUrl,
+	} );
+	const response = yield fetch( url, {
+		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
+		credentials: state.isPrivateSite ? 'include' : 'same-origin',
+	} );
+	return yield response.json();
+}
+
+/**
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
  * Interactivity API templates. Mirrors Search_Blocks::normalize_result() in PHP.
  *
@@ -138,33 +165,14 @@ const { state, actions } = store( NAMESPACE, {
 
 	actions: {
 		/**
-		 * Run a search and update state with results.
+		 * Run a search and replace the result list.
 		 *
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
 		*search() {
 			state.isLoading = true;
-
-			const url = buildSearchUrl( {
-				siteId: state.siteId,
-				searchQuery: state.searchQuery,
-				sortOrder: state.sortOrder,
-				pageHandle: null,
-				isPrivateSite: state.isPrivateSite,
-				isWpcom: state.isWpcom,
-				apiRoot: state.apiRoot,
-				homeUrl: state.homeUrl,
-			} );
-
-			const headers = state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {};
-
 			try {
-				const response = yield fetch( url, {
-					headers,
-					credentials: state.isPrivateSite ? 'include' : 'same-origin',
-				} );
-				const data = yield response.json();
-
+				const data = yield* fetchResults( null );
 				state.results = ( data.results ?? [] ).map( normalizeResult );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
@@ -177,7 +185,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Load next page of results (appends to existing results).
+		 * Load the next page of results and append to the existing list.
 		 *
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
@@ -185,31 +193,13 @@ const { state, actions } = store( NAMESPACE, {
 			if ( ! state.pageHandle || state.isLoading ) {
 				return;
 			}
-
 			state.isLoadingMore = true;
-
-			const url = buildSearchUrl( {
-				siteId: state.siteId,
-				searchQuery: state.searchQuery,
-				sortOrder: state.sortOrder,
-				pageHandle: state.pageHandle,
-				isPrivateSite: state.isPrivateSite,
-				isWpcom: state.isWpcom,
-				apiRoot: state.apiRoot,
-				homeUrl: state.homeUrl,
-			} );
-
-			const headers = state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {};
-
 			try {
-				const response = yield fetch( url, {
-					headers,
-					credentials: state.isPrivateSite ? 'include' : 'same-origin',
-				} );
-				const data = yield response.json();
-
+				const data = yield* fetchResults( state.pageHandle );
 				state.results = [ ...state.results, ...( data.results ?? [] ).map( normalizeResult ) ];
 				state.pageHandle = data.page_handle ?? null;
+			} catch {
+				state.hasError = true;
 			} finally {
 				state.isLoadingMore = false;
 			}
