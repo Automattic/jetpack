@@ -41,11 +41,12 @@ store( NAMESPACE, {
 		},
 
 		/**
-		 * Derived list of `{ value, label, isChecked, showCount, countLabel }`
-		 * items for the block's filterKey. Bound to `data-wp-each` so the
-		 * template iterates once and updates on every new aggregation.
+		 * Derived list of `{ value, label, showCount, countLabel }` items for
+		 * the block's filterKey. Selected buckets are omitted — active
+		 * filters appear in the active-filters block instead, so the
+		 * checkbox list only offers values the user hasn't chosen yet.
 		 *
-		 * @return {Array<object>} Item descriptors for each bucket.
+		 * @return {Array<object>} Item descriptors for each unselected bucket.
 		 */
 		get filterItems() {
 			const { state } = store( NAMESPACE );
@@ -56,16 +57,19 @@ store( NAMESPACE, {
 			}
 			const selected = state.activeFilters?.[ filterKey ] ?? [];
 			const showCount = state.filterConfigs?.[ filterKey ]?.showCount !== false;
-			return buckets.map( bucket => {
+			return buckets.reduce( ( items, bucket ) => {
 				const { value, label } = parseBucketKey( bucket.key );
-				return {
+				if ( selected.includes( value ) ) {
+					return items;
+				}
+				items.push( {
 					value,
 					label,
-					isChecked: selected.includes( value ),
 					showCount,
 					countLabel: String( bucket.doc_count ?? 0 ),
-				};
-			} );
+				} );
+				return items;
+			}, [] );
 		},
 	},
 
