@@ -11,7 +11,8 @@
  *   invoked through the WPCOM public API proxy.
  * * ?reprint-api export requires the reprint_exporter_enabled site
  *   option to be a unix timestamp within the last 60 minutes AND the
- *   request to be a proxied Automattician. Each accepted request bumps
+ *   request to carry A8C_PROXIED_REQUEST (set by a8c infrastructure
+ *   for Automattician proxy sessions). Each accepted request bumps
  *   the timestamp; the streaming endpoint stays internal-only until
  *   Studio ships.
  *
@@ -148,7 +149,7 @@ add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 
 /**
  * Gate for the ?reprint-api export handler: option timestamp within
- * the last 60 minutes AND a proxied-Automattician request.
+ * the last 60 minutes AND an a8c-proxied request (= Automattician).
  *
  * @return bool
  */
@@ -158,14 +159,10 @@ function _should_expose_reprint_exporter_on_this_site(): bool {
 		return false;
 	}
 
+	// A8C_PROXIED_REQUEST is set by the a8c infrastructure layer (nginx)
+	// for Automattician proxy sessions — not forgeable by clients.
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
-		? (bool) $_SERVER['A8C_PROXIED_REQUEST']
-		: ( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST );
-
-	return $is_proxied
-		&& function_exists( '\is_automattician' )
-		&& \is_automattician( get_current_user_id() );
+	return ! empty( $_SERVER['A8C_PROXIED_REQUEST'] );
 }
 
 /**
