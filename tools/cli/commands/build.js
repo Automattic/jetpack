@@ -171,6 +171,31 @@ export async function handler( argv ) {
 		);
 	}
 
+	// Add `changelogger install` task, so the "centralized" binary is available before any project build.
+	if ( argv.forMirrors ) {
+		for ( const [ k, v ] of dependencies ) {
+			// Skip self and pnpm.
+			if ( k !== 'changelogger install' && k !== 'pnpm install' ) {
+				v.add( 'changelogger install' );
+			}
+		}
+		dependencies.set( 'changelogger install', new Set() );
+		listr.add(
+			createBuildTask( 'changelogger install', argv, `Install changelogger`, async t => {
+				await t.setStatus( 'installing' );
+				await t.execa(
+					'composer',
+					await getInstallArgs( 'packages/changelogger', 'composer', argv ),
+					{
+						cwd: projectDir( 'packages/changelogger' ),
+						stdio: [ 'ignore', 'inherit', 'inherit' ],
+						buffer: false,
+					}
+				);
+			} )
+		);
+	}
+
 	// Add build tasks.
 	for ( const project of buildOrder ) {
 		listr.add( createBuildTask( project, argv, `Build ${ project }`, buildProject ) );
@@ -608,15 +633,6 @@ async function buildProject( t ) {
 				() => false
 			)
 		) {
-			// If we're building changelogger itself, we need to install before we can run it.
-			if ( t.project === 'packages/changelogger' ) {
-				await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-					cwd: t.cwd,
-					stdio: [ 'ignore', 'inherit', 'inherit' ],
-					buffer: false,
-				} );
-			}
-
 			let prerelease = 'alpha';
 			if ( composerJson.extra?.[ 'dev-releases' ] ) {
 				const m = (
