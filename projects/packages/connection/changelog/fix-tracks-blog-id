@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Inject blog_id into JS context for Tracks events via jpTracksContext global.
+Populate blog_id in JetpackScriptData and jpTracksContext so JS Tracks events include blog_id.

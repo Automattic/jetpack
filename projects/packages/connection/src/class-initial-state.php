@@ -48,6 +48,10 @@ class Initial_State {
 
 		$data['connection'] = self::get_data();
 
+		if ( empty( $data['site']['wpcom']['blog_id'] ) ) {
+			$data['site']['wpcom']['blog_id'] = absint( \Jetpack_Options::get_option( 'id', 0 ) );
+		}
+
 		return $data;
 	}
 
