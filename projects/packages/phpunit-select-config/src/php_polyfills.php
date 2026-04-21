@@ -4,11 +4,11 @@
  *
  * A selection from `wp-includes/compat.php`, as some tests don't bootstrap WordPress core.
  *
- * @todo: Remove this file once PHP 7.x support is dropped across the monorepo.
- *
  * @package automattic/phpunit-select-config
  */
 
+// @todo: Remove this file once PHP 7.x support is dropped across the monorepo.
+// @phan-file-suppress PhanRedefineFunctionInternal -- These are guarded polyfills.
 if ( PHP_VERSION_ID >= 80000 ) {
 	return;
 }
