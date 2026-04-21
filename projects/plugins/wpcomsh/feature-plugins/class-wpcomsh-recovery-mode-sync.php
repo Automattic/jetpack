@@ -42,14 +42,7 @@ class WPCOMSH_Recovery_Mode_Sync {
 	private static $payload = null;
 
 	/**
-	 * Register option-change listeners and the PHP shutdown callback.
-	 *
-	 * The shutdown function is registered up front (not lazily) because the
-	 * option writes that trigger a capture often happen from *within* WP's
-	 * own fatal-handler shutdown callback — and `register_shutdown_function`
-	 * called from inside a shutdown callback isn't reliably executed.
-	 * Registering during `init()` guarantees our callback is queued before
-	 * WP's fatal handler runs and so fires after it.
+	 * Register option-change listeners.
 	 */
 	public static function init() {
 		add_action( 'add_option_' . self::EMAIL_LAST_SENT_OPTION, array( __CLASS__, 'capture_email_last_sent' ) );
@@ -62,8 +55,6 @@ class WPCOMSH_Recovery_Mode_Sync {
 		// other type; treating that as a new entry would clobber entered_at.
 		add_action( 'added_option', array( __CLASS__, 'capture_session_start' ), 10, 1 );
 		add_action( 'deleted_option', array( __CLASS__, 'capture_session_end' ), 10, 1 );
-
-		register_shutdown_function( array( __CLASS__, 'send' ) );
 	}
 
 	/**
@@ -76,6 +67,7 @@ class WPCOMSH_Recovery_Mode_Sync {
 			'captured email_last_sent',
 			array( 'value' => self::$payload['recovery_mode_email_last_sent'] )
 		);
+		self::send();
 	}
 
 	/**
@@ -98,6 +90,7 @@ class WPCOMSH_Recovery_Mode_Sync {
 				'entered_at' => $now,
 			)
 		);
+		self::send();
 	}
 
 	/**
@@ -120,17 +113,19 @@ class WPCOMSH_Recovery_Mode_Sync {
 				'exited_at' => $now,
 			)
 		);
+		self::send();
 	}
 
 	/**
-	 * PHP-shutdown callback: POST the current state snapshot to wpcom so the
-	 * signal reaches wpcom even when this request is dying from a fatal.
+	 * POST the current state snapshot to wpcom. Called synchronously from each
+	 * capture listener — we deliberately do *not* defer to a PHP shutdown
+	 * function because option writes that trigger a capture often happen from
+	 * inside WP's own fatal-handler shutdown callback, and shutdown callbacks
+	 * registered at that point (or even earlier) are not reliably invoked on
+	 * the dying request.
 	 */
 	public static function send() {
-		self::trace( 'send() entered' );
-
 		if ( self::$payload === null ) {
-			self::trace( 'send() aborting: null payload' );
 			return;
 		}
 		if ( ! class_exists( Jetpack_Connection_Client::class ) ) {
@@ -166,22 +161,22 @@ class WPCOMSH_Recovery_Mode_Sync {
 			);
 
 			if ( is_wp_error( $response ) ) {
-				WPCOMSH_Log::unsafe_direct_log(
-					'recovery-mode-sync: post returned WP_Error',
+				self::trace(
+					'post returned WP_Error',
 					array( 'error' => $response->get_error_message() )
 				);
 			} else {
 				$code = (int) wp_remote_retrieve_response_code( $response );
 				if ( $code < 200 || $code >= 300 ) {
-					WPCOMSH_Log::unsafe_direct_log(
-						'recovery-mode-sync: post returned non-2xx',
+					self::trace(
+						'post returned non-2xx',
 						array( 'code' => $code )
 					);
 				}
 			}
 		} catch ( \Throwable $e ) {
-			WPCOMSH_Log::unsafe_direct_log(
-				'recovery-mode-sync: post threw',
+			self::trace(
+				'post threw',
 				array( 'exception' => $e->getMessage() )
 			);
 		}
