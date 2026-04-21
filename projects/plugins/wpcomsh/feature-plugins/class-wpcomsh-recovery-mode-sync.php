@@ -128,19 +128,25 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 * signal reaches wpcom even when this request is dying from a fatal.
 	 */
 	public static function send() {
+		self::trace( 'send() entered' );
+
 		if ( self::$payload === null ) {
+			self::trace( 'send() aborting: null payload' );
 			return;
 		}
 		if ( ! class_exists( Jetpack_Connection_Client::class ) ) {
+			self::trace( 'send() aborting: Jetpack Connection Client class missing' );
 			return;
 		}
 		if ( ! function_exists( '_wpcom_get_current_blog_id' ) ) {
+			self::trace( 'send() aborting: _wpcom_get_current_blog_id() not defined' );
 			return;
 		}
 
 		try {
 			$wpcom_blog_id = _wpcom_get_current_blog_id();
 			if ( ! $wpcom_blog_id ) {
+				self::trace( 'send() aborting: blog_id is falsy', array( 'value' => $wpcom_blog_id ) );
 				return;
 			}
 
