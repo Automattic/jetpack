@@ -1575,6 +1575,7 @@ class Contact_Form_Plugin {
 							$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
 						}
 					}
+				}
 			}
 			return;
 		}
