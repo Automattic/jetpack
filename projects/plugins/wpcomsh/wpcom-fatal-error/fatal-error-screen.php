@@ -182,7 +182,7 @@ function wpcomsh_fatal_render_cause_notice( $plugin, $deactivate_url ) {
 			<?php if ( $deactivate_url ) : ?>
 				<a class="wpcomsh-fatal-btn wpcomsh-fatal-btn-destructive"
 					href="<?php echo esc_url( $deactivate_url ); ?>"
-					onclick="return confirm(<?php echo esc_attr( wp_json_encode( __( 'Deactivate this plugin? Your site should load again immediately.', 'wpcomsh' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ); ?>);">
+					onclick="return confirm('<?php echo esc_js( __( 'Deactivate this plugin? Your site should load again immediately.', 'wpcomsh' ) ); // phpcs:ignore Jetpack.Functions.EscJs.Found -- esc_attr(json_encode(...)) would double-escape quotes inside onclick="..." and break the string. ?>');">
 					<?php esc_html_e( 'Deactivate', 'wpcomsh' ); ?>
 				</a>
 			<?php endif; ?>
