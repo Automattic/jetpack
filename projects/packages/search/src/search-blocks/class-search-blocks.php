@@ -110,18 +110,24 @@ class Search_Blocks {
 	 */
 	protected static function register_patterns() {
 		$patterns_dir = __DIR__ . '/patterns';
-		if ( is_dir( $patterns_dir ) ) {
-			foreach ( glob( $patterns_dir . '/*.php' ) as $pattern_file ) {
-				require_once $pattern_file;
-			}
+		if ( ! is_dir( $patterns_dir ) ) {
+			return;
+		}
+		$pattern_files = glob( $patterns_dir . '/*.php' );
+		if ( ! $pattern_files ) {
+			return;
+		}
+		foreach ( $pattern_files as $pattern_file ) {
+			require_once $pattern_file;
 		}
 	}
 
 	/**
 	 * Seed the Interactivity API store with initial state.
 	 *
-	 * The search-results render.php deep-merges its pre-fetched results into
-	 * the same `jetpack-search` store via wp_interactivity_state().
+	 * Populates connection config, locale, and the query / sort parsed out of
+	 * the URL so blocks render correctly on first paint. Results themselves
+	 * are fetched by the JS store on hydration — there is no PHP pre-fetch.
 	 */
 	public static function seed_interactivity_state() {
 		if ( ! function_exists( 'wp_interactivity_state' ) ) {
@@ -136,9 +142,10 @@ class Search_Blocks {
 	 * @return array<string, mixed>
 	 */
 	public static function build_initial_state() {
-		$is_private = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
-		$is_wpcom   = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
-		$site_id    = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
+		$is_private   = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
+		$is_wpcom     = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
+		$site_id      = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
+		$search_query = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
 
 		return array(
 			// Connection / routing config.
@@ -159,7 +166,7 @@ class Search_Blocks {
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=date renders correctly on first paint.
-			'searchQuery'   => function_exists( 'get_search_query' ) ? (string) get_search_query() : '',
+			'searchQuery'   => $search_query,
 			'sortOrder'     => static::parse_url_sort(),
 
 			// Results (populated by search-results block render.php).
@@ -167,8 +174,11 @@ class Search_Blocks {
 			'totalResults'  => 0,
 			'pageHandle'    => null,
 
-			// UI state.
-			'isLoading'     => false,
+			// UI state. `isLoading` is seeded true when the URL carries a
+			// search query so the no-results block stays hidden between
+			// first paint and JS hydrating the initial fetch — otherwise a
+			// "No results found" flash appears on deep links like `?s=boots`.
+			'isLoading'     => '' !== $search_query,
 			'isLoadingMore' => false,
 			'hasError'      => false,
 		);

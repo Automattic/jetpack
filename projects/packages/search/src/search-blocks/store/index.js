@@ -35,18 +35,20 @@ function toSafeUrl( raw ) {
 /**
  * Format an ISO date string for display on a search result card.
  *
- * Uses the WP-seeded locale (via `state.locale`, BCP47) so formatting
- * follows the site's language preference rather than the browser default.
+ * Takes the BCP47 locale explicitly so the dependency on store state is
+ * visible at the call site — callers pass `state.locale` (seeded by PHP
+ * from the site's blog locale).
  *
  * NOTE: falls back to a fixed `{ year, month, day }` style rather than
  * reading WP's `date_format` option. Matching the site's configured date
  * format requires parsing WP's PHP date-format tokens in JS. Deferred to
  * follow-up — see PR #48198.
  *
- * @param {string} iso - ISO-ish date string.
+ * @param {string} iso      - ISO-ish date string.
+ * @param {string} [locale] - BCP47 locale (e.g. `en-US`).
  * @return {string} Formatted date or ''.
  */
-function formatDate( iso ) {
+function formatDate( iso, locale = 'en-US' ) {
 	if ( ! iso ) {
 		return '';
 	}
@@ -55,7 +57,7 @@ function formatDate( iso ) {
 	if ( isNaN( d.getTime() ) ) {
 		return '';
 	}
-	return d.toLocaleDateString( state.locale || 'en-US', {
+	return d.toLocaleDateString( locale || 'en-US', {
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric',
@@ -81,7 +83,6 @@ function formatPath( permalink ) {
 	}
 }
 
-const MARK_SEGMENT_PATTERN = /<mark[^>]*>([\s\S]*?)<\/mark>/gi;
 const STRIP_TAGS_PATTERN = /<[^>]*>/g;
 
 /**
@@ -121,11 +122,14 @@ function tokenizeHighlight( highlight ) {
 	if ( typeof raw !== 'string' || raw === '' ) {
 		return [];
 	}
+	// Kept local so `exec()`'s stateful `lastIndex` cursor can't leak between
+	// calls — the regex is cheap to construct.
+	const markPattern = /<mark[^>]*>([\s\S]*?)<\/mark>/gi;
 	const pieces = [];
 	let lastIndex = 0;
 	let match;
 
-	while ( ( match = MARK_SEGMENT_PATTERN.exec( raw ) ) !== null ) {
+	while ( ( match = markPattern.exec( raw ) ) !== null ) {
 		if ( match.index > lastIndex ) {
 			pieces.push( {
 				text: stripTags( raw.slice( lastIndex, match.index ) ),
@@ -136,7 +140,7 @@ function tokenizeHighlight( highlight ) {
 			text: stripTags( match[ 1 ] ),
 			isHighlight: true,
 		} );
-		lastIndex = MARK_SEGMENT_PATTERN.lastIndex;
+		lastIndex = markPattern.lastIndex;
 	}
 	if ( lastIndex < raw.length ) {
 		pieces.push( {
@@ -201,7 +205,7 @@ function normalizeResult( raw ) {
 		hasTitleHighlight: titlePieces.length > 0,
 		permalink,
 		path: formatPath( permalink ),
-		dateLabel: formatDate( fields.date ),
+		dateLabel: formatDate( fields.date, state.locale ),
 		imageUrl,
 	};
 }
@@ -231,22 +235,57 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			return `${ total } result${ total === 1 ? '' : 's' }`;
 		},
+
+		/**
+		 * `data-wp-bind` only evaluates simple property paths (with an
+		 * optional leading `!`) — expressions like `a.length > 0 || b`
+		 * parse as literal path segments and silently return `undefined`.
+		 * Templates therefore must bind to a single getter, so derived
+		 * visibility flags live here.
+		 *
+		 * @return {boolean} True when the no-results message should show.
+		 */
+		get showNoResults() {
+			return ! state.isLoading && state.results.length === 0;
+		},
+
+		/**
+		 * Derived load-more visibility — see `showNoResults` for why this
+		 * isn't inlined into the template.
+		 *
+		 * @return {boolean} True when the load-more control should show.
+		 */
+		get showLoadMore() {
+			return !! state.pageHandle && ! state.isLoadingMore;
+		},
 	},
 
 	actions: {
 		/**
 		 * Run a search and replace the result list.
 		 *
+		 * @param {object}  [options]         - Options.
+		 * @param {boolean} [options.syncUrl] - Push new state to the URL after a
+		 *                                    successful fetch. Default `true`;
+		 *                                    pass `false` when the search was
+		 *                                    itself triggered by a URL change
+		 *                                    (e.g. `popstate`) so we don't
+		 *                                    bounce a new history entry back
+		 *                                    on top of the one the browser
+		 *                                    just navigated to.
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
-		*search() {
+		*search( { syncUrl = true } = {} ) {
 			state.isLoading = true;
+			state.hasError = false;
 			try {
 				const data = yield* fetchResults( null );
 				state.results = ( data.results ?? [] ).map( normalizeResult );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
-				actions.syncToUrl();
+				if ( syncUrl ) {
+					actions.syncToUrl();
+				}
 			} catch {
 				state.hasError = true;
 			} finally {
@@ -294,7 +333,7 @@ const { state, actions } = store( NAMESPACE, {
 			const { searchQuery, sortOrder } = readStateFromUrl();
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;
-			yield actions.search();
+			yield actions.search( { syncUrl: false } );
 		},
 	},
 
@@ -312,7 +351,9 @@ const { state, actions } = store( NAMESPACE, {
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
 			if ( state.searchQuery ) {
-				actions.search();
+				// The URL already carries this query — don't push a duplicate
+				// history entry on top of the browser's current one.
+				actions.search( { syncUrl: false } );
 			}
 		},
 	},

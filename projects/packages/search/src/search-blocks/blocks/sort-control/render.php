@@ -8,16 +8,18 @@
 namespace Automattic\Jetpack\Search;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+$select_id = wp_unique_id( 'jetpack-search-sort-' );
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
 >
-	<label for="jetpack-search-sort">
+	<label for="<?php echo esc_attr( $select_id ); ?>">
 		<?php esc_html_e( 'Sort by', 'jetpack-search-pkg' ); ?>
 	</label>
 	<select
-		id="jetpack-search-sort"
+		id="<?php echo esc_attr( $select_id ); ?>"
 		data-wp-bind--value="state.sortOrder"
 		data-wp-on--change="actions.onSortChange"
 	>

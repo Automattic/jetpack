@@ -25,6 +25,7 @@ class Search_Blocks_Test extends TestCase {
 			'isPrivateSite',
 			'isWpcom',
 			'homeUrl',
+			'locale',
 			'searchQuery',
 			'sortOrder',
 			'results',

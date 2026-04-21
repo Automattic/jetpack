@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Search;
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	data-wp-bind--hidden="!state.pageHandle || state.isLoadingMore"
+	data-wp-bind--hidden="!state.showLoadMore"
 >
 	<button
 		class="jetpack-search-load-more__button"
