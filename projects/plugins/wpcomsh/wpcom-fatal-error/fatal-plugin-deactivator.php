@@ -76,7 +76,7 @@ function wpcomsh_fatal_maybe_deactivate_plugin() {
 		return;
 	}
 
-	$expected = hash_hmac( 'sha256', $plugin . '|' . $exp . '|' . $cookie_value, AUTH_SALT );
+	$expected = hash_hmac( 'sha256', $plugin . '|' . $exp . '|' . $cookie_value, (string) AUTH_SALT );
 	if ( ! hash_equals( $expected, $sig ) ) {
 		return;
 	}
@@ -96,6 +96,11 @@ function wpcomsh_fatal_maybe_deactivate_plugin() {
 	// option in its original (broken) state for future requests.
 	add_action(
 		'plugins_loaded',
+		/**
+		 * Persist the deactivation and redirect.
+		 *
+		 * @return never
+		 */
 		function () use ( $plugin, $filter_callback ) {
 			remove_filter( 'option_active_plugins', $filter_callback );
 			$active = get_option( 'active_plugins', array() );

@@ -51,7 +51,7 @@ function wpcomsh_fatal_viewer_is_admin() {
 			return false;
 		}
 		$user_id = wp_validate_auth_cookie( '', 'logged_in' );
-		return (bool) ( $user_id && user_can( $user_id, 'manage_options' ) );
+		return $user_id && user_can( $user_id, 'manage_options' );
 	} catch ( \Throwable $e ) {
 		return false;
 	}
@@ -156,7 +156,7 @@ function wpcomsh_fatal_build_deactivate_url( $plugin_basename ) {
 	$sig          = hash_hmac(
 		'sha256',
 		$plugin_basename . '|' . $exp . '|' . $cookie_value,
-		AUTH_SALT
+		(string) AUTH_SALT
 	);
 	return add_query_arg(
 		array(
@@ -235,7 +235,7 @@ function wpcomsh_fatal_format_error( $error ) {
 		E_RECOVERABLE_ERROR => 'Recoverable error',
 	);
 	$type   = isset( $error['type'] ) ? (int) $error['type'] : 0;
-	$label  = isset( $labels[ $type ] ) ? $labels[ $type ] : 'Error';
+	$label  = $labels[ $type ] ?? 'Error';
 
 	$location = '';
 	if ( ! empty( $error['file'] ) ) {

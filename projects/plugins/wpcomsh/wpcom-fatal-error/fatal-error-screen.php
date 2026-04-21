@@ -57,14 +57,9 @@ function wpcomsh_fatal_load_textdomain() {
  * template only has to check truthiness.
  *
  * @param array $error Error details from WP_Fatal_Error_Handler.
- * @return array{
- *     is_admin: bool,
- *     plugin: array|null,
- *     error_line: string,
- *     deactivate_url: string,
- *     recovery_url: string,
- *     support_url: string,
- * }
+ * @return array Associative array with keys: is_admin (bool),
+ *     plugin (array|null), error_line (string), deactivate_url (string),
+ *     recovery_url (string), support_url (string).
  */
 function wpcomsh_fatal_build_render_context( $error ) {
 	$is_admin = wpcomsh_fatal_viewer_is_admin();
