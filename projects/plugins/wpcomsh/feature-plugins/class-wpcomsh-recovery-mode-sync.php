@@ -70,6 +70,10 @@ class WPCOMSH_Recovery_Mode_Sync {
 	public static function capture_email_last_sent() {
 		self::snapshot();
 		self::$payload['recovery_mode_email_last_sent'] = (int) get_option( self::EMAIL_LAST_SENT_OPTION, 0 );
+		self::trace(
+			'captured email_last_sent',
+			array( 'value' => self::$payload['recovery_mode_email_last_sent'] )
+		);
 		self::register_shutdown();
 	}
 
@@ -86,6 +90,13 @@ class WPCOMSH_Recovery_Mode_Sync {
 		update_option( self::ENTERED_AT_OPTION, $now, false );
 		self::snapshot();
 		self::$payload['recovery_session_entered_at'] = $now;
+		self::trace(
+			'captured session_start',
+			array(
+				'option'     => $option,
+				'entered_at' => $now,
+			)
+		);
 		self::register_shutdown();
 	}
 
@@ -102,6 +113,13 @@ class WPCOMSH_Recovery_Mode_Sync {
 		update_option( self::EXITED_AT_OPTION, $now, false );
 		self::snapshot();
 		self::$payload['recovery_session_exited_at'] = $now;
+		self::trace(
+			'captured session_end',
+			array(
+				'option'    => $option,
+				'exited_at' => $now,
+			)
+		);
 		self::register_shutdown();
 	}
 
@@ -126,16 +144,41 @@ class WPCOMSH_Recovery_Mode_Sync {
 				return;
 			}
 
-			Jetpack_Connection_Client::wpcom_json_api_request_as_blog(
+			self::trace(
+				'posting state',
+				array(
+					'blog_id' => $wpcom_blog_id,
+					'payload' => self::$payload,
+				)
+			);
+
+			$response = Jetpack_Connection_Client::wpcom_json_api_request_as_blog(
 				sprintf( '/sites/%s/recovery-mode-status', $wpcom_blog_id ),
 				'v2',
 				array( 'method' => 'POST' ),
 				self::$payload,
 				'wpcom'
 			);
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			// Mid-shutdown there is nothing actionable; the next observable
-			// state change will trigger another send.
+
+			if ( is_wp_error( $response ) ) {
+				WPCOMSH_Log::unsafe_direct_log(
+					'recovery-mode-sync: post returned WP_Error',
+					array( 'error' => $response->get_error_message() )
+				);
+			} else {
+				$code = (int) wp_remote_retrieve_response_code( $response );
+				if ( $code < 200 || $code >= 300 ) {
+					WPCOMSH_Log::unsafe_direct_log(
+						'recovery-mode-sync: post returned non-2xx',
+						array( 'code' => $code )
+					);
+				}
+			}
+		} catch ( \Throwable $e ) {
+			WPCOMSH_Log::unsafe_direct_log(
+				'recovery-mode-sync: post threw',
+				array( 'exception' => $e->getMessage() )
+			);
 		}
 	}
 
@@ -173,6 +216,28 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 */
 	private static function is_paused_extensions_option( $option ) {
 		return is_string( $option ) && str_ends_with( $option, self::PAUSED_EXTENSIONS_OPTION_SUFFIX );
+	}
+
+	/**
+	 * Emit a trace log to error_log when opted in via filter. Default is off.
+	 *
+	 * Enable on a specific site with:
+	 *   add_filter( 'wpcomsh_recovery_mode_sync_logging_enabled', '__return_true' );
+	 *
+	 * @param string $message Trace message.
+	 * @param array  $extra   Optional structured context.
+	 */
+	private static function trace( $message, $extra = array() ) {
+		/**
+		 * Whether to emit recovery-mode-sync trace logs to error_log.
+		 *
+		 * @param bool $enabled Defaults to false.
+		 */
+		if ( ! apply_filters( 'wpcomsh_recovery_mode_sync_logging_enabled', false ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( 'wpcomsh_recovery_mode_sync: ' . $message . ' ' . wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ) );
 	}
 }
 
