@@ -9,7 +9,7 @@ describe( 'store helpers round-trip', () => {
 	it( 'serializes and deserializes state without loss', () => {
 		const original = {
 			searchQuery: 'winter boots',
-			sortOrder: 'date',
+			sortOrder: 'newest',
 		};
 		const params = stateToUrlParams( original );
 		const restored = urlParamsToState( params );

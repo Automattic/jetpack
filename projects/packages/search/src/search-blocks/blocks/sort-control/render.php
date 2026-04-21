@@ -20,6 +20,7 @@
 		data-wp-on--change="actions.onSortChange"
 	>
 		<option value="relevance"><?php esc_html_e( 'Relevance', 'jetpack-search-pkg' ); ?></option>
-		<option value="date"><?php esc_html_e( 'Date (newest)', 'jetpack-search-pkg' ); ?></option>
+		<option value="newest"><?php esc_html_e( 'Newest', 'jetpack-search-pkg' ); ?></option>
+		<option value="oldest"><?php esc_html_e( 'Oldest', 'jetpack-search-pkg' ); ?></option>
 	</select>
 </div>

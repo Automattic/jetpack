@@ -43,15 +43,16 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `orderby=date` in the URL must seed sortOrder so SSR pre-fetches the
-	 * correct ordering.
+	 * A known `orderby` in the URL must seed sortOrder so SSR pre-fetches
+	 * the correct ordering. Values must stay aligned with the UI keys in
+	 * src/instant-search/lib/constants.js SORT_OPTIONS.
 	 */
 	public function test_build_initial_state_seeds_sort_order_from_url() {
 		$original_get = $_GET;
-		$_GET         = array( 'orderby' => 'date' );
+		$_GET         = array( 'orderby' => 'newest' );
 		try {
 			$state = Search_Blocks::build_initial_state();
-			$this->assertSame( 'date', $state['sortOrder'] );
+			$this->assertSame( 'newest', $state['sortOrder'] );
 		} finally {
 			$_GET = $original_get;
 		}

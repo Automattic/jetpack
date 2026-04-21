@@ -167,14 +167,16 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Parse the sort order from the URL, defaulting to 'relevance'.
+	 * Parse the sort order from the URL, defaulting to 'relevance'. Valid
+	 * values mirror the UI keys in src/instant-search/lib/constants.js
+	 * SORT_OPTIONS so deep links work across both surfaces.
 	 *
 	 * @return string
 	 */
 	protected static function parse_url_sort(): string {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : '';
-		return in_array( $orderby, array( 'date' ), true ) ? $orderby : 'relevance';
+		return in_array( $orderby, array( 'newest', 'oldest' ), true ) ? $orderby : 'relevance';
 	}
 
 	/**

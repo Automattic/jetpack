@@ -42,11 +42,11 @@ describe( 'buildSearchUrl', () => {
 		expect( url ).toContain( 'mysite.com/wp-json/jetpack/v4/search' );
 	} );
 
-	it( 'maps sortOrder=date to date_desc and passes through pageHandle', () => {
+	it( 'maps sortOrder=newest to date_desc and passes through pageHandle', () => {
 		const url = buildSearchUrl( {
 			siteId: 12345,
 			searchQuery: 'boots',
-			sortOrder: 'date',
+			sortOrder: 'newest',
 			pageHandle: 'abc123',
 			isPrivateSite: false,
 			isWpcom: false,
@@ -54,5 +54,31 @@ describe( 'buildSearchUrl', () => {
 		} );
 		expect( url ).toContain( 'sort=date_desc' );
 		expect( url ).toContain( 'page_handle=abc123' );
+	} );
+
+	it( 'maps sortOrder=oldest to date_asc', () => {
+		const url = buildSearchUrl( {
+			siteId: 12345,
+			searchQuery: 'boots',
+			sortOrder: 'oldest',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+		} );
+		expect( url ).toContain( 'sort=date_asc' );
+	} );
+
+	it( 'falls back to score_default for unknown sort values', () => {
+		const url = buildSearchUrl( {
+			siteId: 12345,
+			searchQuery: 'boots',
+			sortOrder: 'bogus',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+		} );
+		expect( url ).toContain( 'sort=score_default' );
 	} );
 } );

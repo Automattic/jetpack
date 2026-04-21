@@ -20,9 +20,9 @@ describe( 'stateToUrlParams', () => {
 	it( 'serializes non-default sort order', () => {
 		const params = stateToUrlParams( {
 			searchQuery: '',
-			sortOrder: 'date',
+			sortOrder: 'newest',
 		} );
-		expect( params.get( 'orderby' ) ).toBe( 'date' );
+		expect( params.get( 'orderby' ) ).toBe( 'newest' );
 	} );
 
 	it( 'omits default sort order', () => {
@@ -41,8 +41,8 @@ describe( 'urlParamsToState', () => {
 	} );
 
 	it( 'reads sort order from URL', () => {
-		const state = urlParamsToState( new URLSearchParams( 'orderby=date' ) );
-		expect( state.sortOrder ).toBe( 'date' );
+		const state = urlParamsToState( new URLSearchParams( 'orderby=newest' ) );
+		expect( state.sortOrder ).toBe( 'newest' );
 	} );
 
 	it( 'defaults sort order to relevance when absent', () => {

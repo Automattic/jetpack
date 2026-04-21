@@ -19,6 +19,17 @@ export const SEARCH_FIELDS = [
 export const HIGHLIGHT_FIELDS = [ 'title', 'content' ];
 
 /**
+ * Maps Search 3.0 sort UI values to the v1.3 API `sort` parameter. Keep the
+ * UI keys aligned with src/instant-search/lib/constants.js SORT_OPTIONS so
+ * the two surfaces stay interoperable.
+ */
+const SORT_QUERY_MAP = {
+	newest: 'date_desc',
+	oldest: 'date_asc',
+	relevance: 'score_default',
+};
+
+/**
  * Build the full search API URL with query params.
  * Mirrors the 3-path routing in src/instant-search/lib/api.js.
  *
@@ -45,7 +56,7 @@ export function buildSearchUrl( {
 } ) {
 	const params = {
 		query: encodeURIComponent( searchQuery || '' ),
-		sort: sortOrder === 'date' ? 'date_desc' : 'score_default',
+		sort: SORT_QUERY_MAP[ sortOrder ] ?? 'score_default',
 		size: 10,
 		fields: SEARCH_FIELDS,
 		highlight_fields: HIGHLIGHT_FIELDS,
