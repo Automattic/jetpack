@@ -11,6 +11,7 @@ import { ConnectionsToggleList } from '../connections-toggle-list';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { MediaValidationNotices } from './media-validation-notices';
 import { SettingsButton } from './settings-button';
+import { SingleXNotice } from './single-x-notice';
 import styles from './styles.module.scss';
 
 export const ConnectionsList: React.FC = () => {
@@ -50,6 +51,7 @@ export const ConnectionsList: React.FC = () => {
 					<Spacer marginTop="1rem" />
 					<MediaValidationNotices />
 					<BrokenConnectionsNotice />
+					<SingleXNotice />
 				</>
 			) : null }
 

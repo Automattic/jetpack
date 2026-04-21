@@ -252,6 +252,20 @@ export function isConnectionsModalOpen( state: SocialStoreState ) {
 }
 
 /**
+ * Whether the single-X-per-post info notice should be shown in the sidebar.
+ *
+ * Set to true by `toggleConnectionById` when the user turns on an X
+ * connection and the thunk auto-disables another enabled X connection.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the single-X notice should be shown.
+ */
+export function shouldShowSingleXNotice( state: SocialStoreState ) {
+	return state.connectionData?.shouldShowSingleXNotice ?? false;
+}
+
+/**
  * Whether the current user can manage the connection.
  */
 export const canUserManageConnection = createRegistrySelector(
