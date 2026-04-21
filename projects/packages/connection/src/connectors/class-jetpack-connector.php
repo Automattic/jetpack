@@ -482,22 +482,28 @@ class Jetpack_Connector {
 		}
 
 		/**
-		 * Filters the logo URL for a connected plugin displayed on the
+		 * Filters a map of plugin slugs to custom logo URLs for the
 		 * Settings → Connectors card.
 		 *
-		 * Return an absolute URL to an SVG image (`.svg` extension required).
-		 * Non-SVG URLs are silently rejected and the generic fallback icon is
-		 * used instead. The URL is sanitized with `esc_url()` before output.
+		 * Add entries as `$slug => $url` pairs. URLs must point to an
+		 * SVG file (`.svg` extension required); non-SVG values are
+		 * silently ignored and the generic fallback icon is shown.
+		 *
+		 * Example:
+		 *
+		 *     add_filter( 'jetpack_connection_plugin_logos', function ( $logos ) {
+		 *         $logos['my-plugin'] = plugins_url( 'assets/logo.svg', __FILE__ );
+		 *         return $logos;
+		 *     } );
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string|null $logo_url Logo URL (null by default).
-		 * @param string      $slug     Plugin slug.
+		 * @param array<string,string> $logos Map of plugin slug to SVG URL.
 		 */
-		$filtered = apply_filters( 'jetpack_connection_plugin_logo_url', null, $slug );
+		$logos = apply_filters( 'jetpack_connection_plugin_logos', array() );
 
-		if ( is_string( $filtered ) && str_ends_with( strtolower( $filtered ), '.svg' ) ) {
-			return esc_url( $filtered );
+		if ( isset( $logos[ $slug ] ) && is_string( $logos[ $slug ] ) && str_ends_with( strtolower( $logos[ $slug ] ), '.svg' ) ) {
+			return esc_url( $logos[ $slug ] );
 		}
 
 		return null;
