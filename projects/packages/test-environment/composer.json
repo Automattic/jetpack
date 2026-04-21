@@ -41,7 +41,6 @@
 		"branch-alias": {
 			"dev-trunk": "0.2.x-dev"
 		},
-		"changelogger": {},
 		"textdomain": "jetpack-test-environment",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-test-environment.php"

@@ -15,8 +15,5 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"extra": {
-		"changelogger": {}
-	}
+	"prefer-stable": true
 }

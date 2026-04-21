@@ -43,7 +43,6 @@
 		"autorelease": true,
 		"autotagger": true,
 		"beta-plugin-slug": "jetpack-mu-wpcom-plugin",
-		"changelogger": {},
 		"mirror-repo": "Automattic/jetpack-mu-wpcom-plugin",
 		"release-branch-prefix": "mu-wpcom"
 	},

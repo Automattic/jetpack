@@ -14,7 +14,6 @@
 		}
 	],
 	"extra": {
-		"changelogger": {},
 		"textdomain": "jetpack-idc"
 	}
 }

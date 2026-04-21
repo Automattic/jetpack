@@ -28,7 +28,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"changelogger": {},
 		"textdomain": "jetpack-partner-coupon"
 	}
 }

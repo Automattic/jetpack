@@ -55,7 +55,6 @@
 	"extra": {
 		"branch-alias": {
 			"dev-trunk": "4.0.x-dev"
-		},
-		"changelogger": {}
+		}
 	}
 }

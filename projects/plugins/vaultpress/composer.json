@@ -48,7 +48,6 @@
 		"autotagger": {
 			"v": false
 		},
-		"changelogger": {},
 		"mirror-repo": "Automattic/vaultpress",
 		"release-branch-prefix": "vaultpress",
 		"version-constants": {
