@@ -145,6 +145,19 @@ function wpcomsh_reprint_rest_init() {
 }
 add_action( 'rest_api_init', 'wpcomsh_reprint_rest_init' );
 
+/**
+ * Allow reprint_exporter_enabled to be set via the WPCOM site settings
+ * endpoint (POST /rest/v1.1/sites/{id}/settings). The value is cast to
+ * int so callers can pass a unix timestamp.
+ *
+ * @param mixed $value The value from the request.
+ * @return int
+ */
+function wpcomsh_reprint_sanitize_enabled_setting( $value ) {
+	return (int) $value;
+}
+add_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_reprint_sanitize_enabled_setting' );
+
 // -- Helpers ------------------------------------------------------------------
 
 /**

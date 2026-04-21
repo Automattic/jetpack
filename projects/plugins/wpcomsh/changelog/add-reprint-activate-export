@@ -1,4 +1,4 @@
 Significance: patch
-Type: added
+Type: changed
 
-Add /wpcomsh/v1/reprint/activate-export endpoint and drop the is_automattician() gate.
+Drop is_automattician() from the export gate and expose reprint_exporter_enabled via the site settings API.

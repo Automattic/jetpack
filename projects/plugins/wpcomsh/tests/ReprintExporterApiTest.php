@@ -124,15 +124,12 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that REST routes are always registered.
+	 * Test that the rotate-secret route is always registered.
 	 */
-	public function test_rest_routes_always_registered() {
-		delete_option( 'reprint_exporter_enabled' );
-
+	public function test_rest_route_always_registered() {
 		$server = $this->fresh_rest_server();
 		$routes = $server->get_routes();
 		$this->assertArrayHasKey( '/wpcomsh/v1/reprint/rotate-export-secret', $routes );
-		$this->assertArrayHasKey( '/wpcomsh/v1/reprint/activate-export', $routes );
 	}
 
 	/**
@@ -147,14 +144,21 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the activate-export endpoint rejects unsigned requests.
+	 * Test that the site_settings_endpoint_update filter is hooked so
+	 * reprint_exporter_enabled is settable via the WPCOM settings API.
 	 */
-	public function test_activate_export_rejects_unsigned_requests() {
-		$server   = $this->fresh_rest_server();
-		$request  = new WP_REST_Request( 'POST', '/wpcomsh/v1/reprint/activate-export' );
-		$response = $server->dispatch( $request );
+	public function test_settings_filter_is_registered() {
+		$this->assertNotFalse(
+			has_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_reprint_sanitize_enabled_setting' )
+		);
+	}
 
-		$this->assertContains( $response->get_status(), array( 401, 403 ) );
+	/**
+	 * Test that the settings sanitizer casts to int.
+	 */
+	public function test_settings_sanitizer_casts_to_int() {
+		$this->assertSame( 1745000000, wpcomsh_reprint_sanitize_enabled_setting( '1745000000' ) );
+		$this->assertSame( 0, wpcomsh_reprint_sanitize_enabled_setting( '' ) );
 	}
 
 	// -- HMAC verification tests (Site_Export_HMAC_Server) --------------------
@@ -372,20 +376,4 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 		$this->assertSame( $data['secret'], get_option( 'reprint_exporter_secret' ) );
 	}
 
-	/**
-	 * Test that the activate-export callback sets the option and returns
-	 * the expiry timestamp.
-	 */
-	public function test_activate_export_sets_option() {
-		$before   = time();
-		$response = $this->controller()->activate_export();
-		$data     = $response->get_data();
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertArrayHasKey( 'activated_until', $data );
-		$this->assertGreaterThanOrEqual( $before + HOUR_IN_SECONDS, $data['activated_until'] );
-
-		$stored = (int) get_option( 'reprint_exporter_enabled' );
-		$this->assertGreaterThanOrEqual( $before, $stored );
-	}
 }

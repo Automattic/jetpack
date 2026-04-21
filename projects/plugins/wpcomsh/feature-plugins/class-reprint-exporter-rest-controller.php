@@ -1,8 +1,8 @@
 <?php
 /**
- * REST controller for the reprint exporter endpoints.
+ * REST controller for the reprint exporter secret-rotation endpoint.
  *
- * All routes require a Jetpack-signed request (public API proxy only).
+ * Requires a Jetpack-signed request (public API proxy only).
  *
  * @package wpcomsh
  */
@@ -27,7 +27,7 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	protected $rest_base = 'reprint';
 
 	/**
-	 * Registers routes.
+	 * Registers the rotate-export-secret route.
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -37,18 +37,6 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'rotate_secret' ),
-					'permission_callback' => array( $this, 'permission_check' ),
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/activate-export',
-			array(
-				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'activate_export' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 				),
 			)
@@ -67,12 +55,9 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	public function rotate_secret() {
 		$secret = bin2hex( random_bytes( 32 ) );
 
-		// Not atomic: two concurrent rotate calls will both succeed, but
-		// the first caller's secret will be overwritten by the second.
-		// Acceptable for an admin-only endpoint that is called rarely.
 		if ( ! update_option( 'reprint_exporter_secret', $secret, false ) ) {
 			return new WP_REST_Response(
-				array( 'error' => 'Failed to persist the new secret. The database option update did not succeed.' ),
+				array( 'error' => 'Failed to persist the new secret.' ),
 				500
 			);
 		}
@@ -81,20 +66,7 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Sets the reprint_exporter_enabled option to the current timestamp,
-	 * opening the 60-minute activation window for ?reprint-api.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function activate_export() {
-		update_option( 'reprint_exporter_enabled', time() );
-		return new WP_REST_Response( array( 'activated_until' => time() + HOUR_IN_SECONDS ), 200 );
-	}
-
-	/**
-	 * Permission callback: only requests signed by WPCOM's Jetpack
-	 * connection (i.e. coming through the public API proxy) may call
-	 * this. Direct hits from wp-admin or elsewhere get 403.
+	 * Permission callback: only Jetpack-signed requests (public API proxy).
 	 *
 	 * @return bool
 	 */
