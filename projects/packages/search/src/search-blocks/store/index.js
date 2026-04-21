@@ -1,4 +1,3 @@
-import { _n, sprintf } from '@wordpress/i18n';
 import { store } from '@wordpress/interactivity';
 import { buildSearchUrl } from './api';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
@@ -146,6 +145,14 @@ const { state, actions } = store( NAMESPACE, {
 		/**
 		 * Short human-readable results count for display blocks.
 		 *
+		 * NOTE: not localized. `@wordpress/i18n` isn't available as an
+		 * Interactivity API script module (WP only registers
+		 * `@wordpress/interactivity`), and the dependency-extraction
+		 * plugin throws when any other `@wordpress/*` is imported into
+		 * an ESM view bundle. Revisit when WP registers wp-i18n as a
+		 * module, or switch to seeding translated plural forms from PHP
+		 * via `wp_interactivity_state()`. See PR #48198.
+		 *
 		 * @return {string} Text such as "42 results".
 		 */
 		get resultsCountText() {
@@ -156,11 +163,7 @@ const { state, actions } = store( NAMESPACE, {
 			if ( total === 0 ) {
 				return '';
 			}
-			return sprintf(
-				/* translators: %d is the number of search results. */
-				_n( '%d result', '%d results', total, 'jetpack-search-pkg' ),
-				total
-			);
+			return `${ total } result${ total === 1 ? '' : 's' }`;
 		},
 	},
 
