@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan.

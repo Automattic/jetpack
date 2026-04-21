@@ -7,16 +7,22 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Tracking;
+use Jetpack_Options;
+use Jetpack_Tracks_Client;
+
 /**
  * This class offers a wrapper to add_submenu_page and makes sure stand-alone plugin's menu items are always added under the Jetpack top level menu.
  * If the Jetpack top level was not previously registered by other plugin, it will be registered here.
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.8.1';
 
 	/**
-	 * Redirect source slug used as the upgrade URL identifier and CSS class.
+	 * Slug used for the upgrade menu item and redirect URL.
+	 *
+	 * Keep the slug in sync with `$upgrade-menu-slug` at admin-ui-upgrade-menu.scss
 	 *
 	 * @var string
 	 */
@@ -44,6 +50,13 @@ class Admin_Menu {
 	private static $menu_items = array();
 
 	/**
+	 * Optional connection manager dependency.
+	 *
+	 * @var object|null
+	 */
+	private static $connection_manager = null;
+
+	/**
 	 * Initialize the class and set up the main hook
 	 *
 	 * @return void
@@ -54,7 +67,7 @@ class Admin_Menu {
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
-			add_action( 'admin_head', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
 		}
 	}
 
@@ -252,6 +265,7 @@ class Admin_Menu {
 	 * @return bool True if the upgrade menu should be shown.
 	 */
 	private static function should_show_upgrade_menu() {
+
 		// Only show to administrators.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
@@ -265,8 +279,55 @@ class Admin_Menu {
 			}
 		}
 
+		// Don't show upsells in offline/development mode.
+		if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
+			$status = new \Automattic\Jetpack\Status();
+			if ( $status->is_offline_mode() ) {
+				return false;
+			}
+		}
+
+		// Only show after the site and current user are connected.
+		if ( ! self::is_site_and_user_connected() ) {
+			return false;
+		}
+
 		// Only show to free-plan sites.
 		return self::is_free_plan();
+	}
+
+	/**
+	 * Checks whether the site and current user are connected to WordPress.com.
+	 *
+	 * @return bool True if site and current user are connected.
+	 */
+	private static function is_site_and_user_connected() {
+		$connection_manager = self::$connection_manager;
+		if ( ! $connection_manager && class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+			$connection_manager       = new \Automattic\Jetpack\Connection\Manager();
+			self::$connection_manager = $connection_manager;
+		}
+
+		if (
+			$connection_manager
+			&& is_callable( array( $connection_manager, 'is_connected' ) )
+			&& is_callable( array( $connection_manager, 'is_user_connected' ) )
+		) {
+			return (bool) $connection_manager->is_connected()
+				&& (bool) $connection_manager->is_user_connected( get_current_user_id() );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Sets the connection manager dependency; used by tests.
+	 *
+	 * @param object|null $connection_manager Connection manager object.
+	 * @return void
+	 */
+	public static function set_connection_manager( $connection_manager ) {
+		self::$connection_manager = $connection_manager;
 	}
 
 	/**
@@ -318,12 +379,11 @@ class Admin_Menu {
 			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_MENU_SLUG )
 			: self::UPGRADE_MENU_FALLBACK_URL;
 
-		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' )
-			. ' <span aria-hidden="true">↗</span>';
+		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' );
 
 		add_submenu_page(
 			'jetpack',
-			__( 'Upgrade Jetpack', 'jetpack-admin-ui' ),
+			$menu_title,
 			$menu_title,
 			'manage_options',
 			esc_url( $upgrade_url ),
@@ -345,10 +405,10 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Outputs inline CSS to style the "Upgrade Jetpack" menu item in Jetpack green.
+	 * Enqueues admin styles for the "Upgrade Jetpack" menu item.
 	 *
-	 * The sidebar menu is visible on every admin page, so styles must load globally.
-	 * Only outputs for free-plan sites on self-hosted installs.
+	 * The sidebar menu is visible on every admin page, so styles load globally.
+	 * Only enqueues for free-plan sites on self-hosted installs.
 	 *
 	 * @return void
 	 */
@@ -356,14 +416,58 @@ class Admin_Menu {
 		if ( ! self::should_show_upgrade_menu() ) {
 			return;
 		}
-		?>
-		<style>
-			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a,
-			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a:hover {
-				color: #069e08 !important;
-				font-weight: 600;
-			}
-		</style>
-		<?php
+
+		$asset_file = dirname( __DIR__ ) . '/build/admin-ui-upgrade-menu.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+
+		wp_enqueue_style(
+			'jetpack-admin-ui-upgrade-menu',
+			plugins_url( '../build/admin-ui-upgrade-menu.css', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION
+		);
+
+		self::enqueue_upgrade_menu_tracks_script( $asset );
+	}
+
+	/**
+	 * Enqueues Tracks for the upgrade submenu item.
+	 *
+	 * @param array $asset Parsed contents of admin-ui-upgrade-menu.asset.php.
+	 * @return void
+	 */
+	private static function enqueue_upgrade_menu_tracks_script( $asset ) {
+		if ( ! class_exists( '\Automattic\Jetpack\Tracking' ) ) {
+			return;
+		}
+
+		Tracking::register_tracks_functions_scripts( true );
+
+		wp_enqueue_script(
+			'jetpack-admin-ui-upgrade-menu-tracking',
+			plugins_url( '../build/admin-ui-upgrade-menu-tracking.js', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION,
+			true
+		);
+
+		$current_screen   = get_current_screen();
+		$is_admin         = current_user_can( 'jetpack_disconnect' );
+		$site_id          = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option( 'id' ) : null;
+		$tracks_user_data = class_exists( 'Jetpack_Tracks_Client' ) ? Jetpack_Tracks_Client::get_connected_user_tracks_identity() : null;
+
+		wp_localize_script(
+			'jetpack-admin-ui-upgrade-menu-tracking',
+			'jetpackAdminUiUpgradeMenu',
+			array(
+				'menuItemClass'   => self::UPGRADE_MENU_SLUG,
+				'tracksUserData'  => $tracks_user_data,
+				'tracksEventData' => array(
+					'is_admin'       => $is_admin,
+					'current_screen' => $current_screen ? $current_screen->id : false,
+					'blog_id'        => $site_id,
+				),
+			)
+		);
 	}
 }

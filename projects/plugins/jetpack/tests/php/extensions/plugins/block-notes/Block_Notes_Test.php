@@ -40,6 +40,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$this->reset_availability();
 		$this->simulate_connected_owner();
 		$this->simulate_paid_ai_plan();
+		// Re-enable Block Notes for tests (production is temporarily disabled via the
+		// jetpack_block_notes_enabled filter defaulting to false).
+		add_filter( 'jetpack_block_notes_enabled', '__return_true' );
 		// Ensure Big Sky is disabled by default so tests aren't affected by the
 		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
 		update_option( 'big_sky_enable', '0' );
@@ -51,6 +54,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( BlockNotes\ASSET_TRANSIENT );
+		remove_all_filters( 'jetpack_block_notes_enabled' );
 		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );

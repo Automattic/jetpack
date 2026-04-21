@@ -76,7 +76,6 @@ async function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
-	// https://github.com/WordPress/gutenberg/issues/74394
 	if (
 		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
@@ -165,6 +164,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// @wordpress/stylelint-config is still CJS, which caps how high we can upgrade.
+	// https://github.com/WordPress/gutenberg/issues/75047
 	if ( pkg.name === '@wordpress/stylelint-config' ) {
 		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
 			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
@@ -212,10 +212,12 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// https://github.com/istanbuljs/babel-plugin-istanbul/issues/300
 	// https://github.com/jestjs/jest/issues/15236
-	if ( pkg.name === 'babel-plugin-istanbul' && pkg.dependencies[ 'test-exclude' ] === '^6.0.0' ) {
-		pkg.dependencies[ 'test-exclude' ] = '^7.0.0';
+	if (
+		( pkg.name === 'babel-jest' || pkg.name === '@jest/transform' ) &&
+		pkg.dependencies[ 'babel-plugin-istanbul' ] === '^7.0.1'
+	) {
+		pkg.dependencies[ 'babel-plugin-istanbul' ] = '^8.0.0';
 	}
 
 	// Outdated dependency.
@@ -278,21 +280,14 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// CVE-2026-22036
-	// https://github.com/actions/toolkit/issues/2242
+	// `@base-ui/react` added a peer dependency on `date-fns`, but `@wordpress/ui` doesn't satisfy it.
+	// https://github.com/WordPress/gutenberg/issues/77395
 	if (
-		( pkg.name === '@actions/http-client' || pkg.name === '@actions/github' ) &&
-		pkg.dependencies?.undici?.startsWith( '^5.' )
+		( pkg.name === '@wordpress/ui' || pkg.name === '@wordpress/dataviews' ) &&
+		( ! pkg.dependencies?.[ 'date-fns' ] || ! pkg.dependencies?.[ '@date-fns/tz' ] )
 	) {
-		pkg.dependencies.undici = '^6.23.0';
-	}
-
-	// Outdated dependency
-	if (
-		pkg.name === '@storybook/react-vite' &&
-		pkg.dependencies?.[ '@joshwooding/vite-plugin-react-docgen-typescript' ] === '^0.6.4'
-	) {
-		pkg.dependencies[ '@joshwooding/vite-plugin-react-docgen-typescript' ] = '^0.7.0';
+		pkg.dependencies[ 'date-fns' ] ??= '^4.0.0';
+		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
 	}
 
 	return pkg;
@@ -375,6 +370,7 @@ function fixPeerDeps( pkg ) {
 
 	// These packages went ESM-only in their latest versions, which breaks `@wordpress/stylelint-config`.
 	// So we need to keep older CJS versions for now, while bumping their stylelint peer deps.
+	// https://github.com/WordPress/gutenberg/issues/75047
 	if (
 		( pkg.name === 'stylelint-config-recommended' ||
 			pkg.name === 'stylelint-config-recommended-scss' ||

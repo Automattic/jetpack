@@ -1,5 +1,5 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
@@ -107,6 +107,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 					{ ! this.props.isUnavailableInOfflineMode( 'google-analytics' ) && (
 						<SettingsGroup hasChild>
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ this.isActive() }
 								disabled={ this.isSaving() }
 								onChange={ this.toggleActive }
@@ -148,6 +149,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 									</FormFieldset>
 									<FormFieldset>
 										<ToggleControl
+											__nextHasNoMarginBottom={ true }
 											checked={ this.getOptionValue( 'anonymize_ip' ) }
 											onChange={ this.onToggleChange( 'anonymize_ip' ) }
 											disabled={ this.isSaving() }

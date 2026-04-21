@@ -64,8 +64,8 @@ class REST_Purchases {
 	 */
 	public static function get_site_current_purchases() {
 		$site_id           = \Jetpack_Options::get_option( 'id' );
-		$wpcom_endpoint    = sprintf( '/sites/%1$d/purchases?locale=%2$s', $site_id, get_user_locale() );
-		$wpcom_api_version = '1.1';
+		$wpcom_endpoint    = sprintf( '/upgrades?site=%1$d&locale=%2$s', $site_id, get_user_locale() );
+		$wpcom_api_version = '1.2';
 		$response          = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $wpcom_api_version );
 		$response_code     = wp_remote_retrieve_response_code( $response );
 		$body              = json_decode( wp_remote_retrieve_body( $response ) );

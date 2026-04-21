@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-04-20
+### Added
+- Add admin-page-layout mixin, a shared SCSS mixin that standardizes Jetpack wp-admin pages with a viewport-pinned content column (pinned header, scrolling middle, pinned footer). Consumed as `@use "@automattic/jetpack-base-styles/admin-page-layout"`. [#48109]
+
+### Changed
+- Remove unused `--jp-highlight` CSS variable. [#47317]
+- Update package dependencies. [#48106]
+
+### Fixed
+- admin-page-layout: honor WP.com nav-unification's 272px sidebar width at expanded viewports so the content column aligns with the visible sidebar instead of leaving a 112px gap. [#48182]
+- Hide #screen-meta-links inside the jetpack-admin-page-layout mixin so the wp-admin Screen Options/Help wrapper stops reserving a 20px slot at the top of the content column. [#48195]
+
+## [1.0.21] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
 ## [1.0.20] - 2026-03-23
 ### Changed
 - Update package dependencies. [#47684]
@@ -485,6 +501,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.1.0]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.21...1.1.0
+[1.0.21]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.20...1.0.21
 [1.0.20]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.19...1.0.20
 [1.0.19]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.18...1.0.19
 [1.0.18]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.17...1.0.18

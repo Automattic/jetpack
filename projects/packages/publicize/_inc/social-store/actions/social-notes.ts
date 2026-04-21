@@ -1,6 +1,8 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { SOCIAL_NOTES_CONFIG_KEY, SOCIAL_NOTES_ENABLED_KEY } from '../constants';
 import { SocialNotesConfig } from '../types';
+import type { store } from '../index';
+import type { ThunkArgs } from '@wordpress/data';
 
 /**
  * Sets the Social Notes enabled status.
@@ -25,9 +27,11 @@ export function toggleSocialNotes( isEnabled: boolean ) {
  * @return {Function} A thunk.
  */
 export function updateSocialNotesConfig( data: Partial< SocialNotesConfig > ) {
-	return async function ( { registry } ) {
+	return async function ( { registry, select }: ThunkArgs< typeof store > ) {
+		const prevConfig = select.getSocialSettings().socialNotes.config;
+
 		const { saveSite } = registry.dispatch( coreStore );
 
-		await saveSite( { [ SOCIAL_NOTES_CONFIG_KEY ]: data } );
+		await saveSite( { [ SOCIAL_NOTES_CONFIG_KEY ]: { ...prevConfig, ...data } } );
 	};
 }

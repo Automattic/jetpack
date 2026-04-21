@@ -200,7 +200,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	} ).format( unitQuantityRaw );
 
 	return (
-		<Container horizontalSpacing={ 8 }>
+		<Container horizontalSpacing={ 8 } className="jp-search-upsell-container">
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
 					<ConnectionError />

@@ -326,7 +326,7 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
     needs: [e2e-tests]
 
     steps:
@@ -361,7 +361,7 @@ jobs:
           client-payload: ${{ steps.report-context.outputs.client_payload }}
 
       - name: Display link to test report in Action Summary
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await core.summary
@@ -382,7 +382,7 @@ jobs:
       actions: read
       # actions/checkout, actions/download-artifact
       contents: read
-    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
     needs: [e2e-tests]
 
     steps:

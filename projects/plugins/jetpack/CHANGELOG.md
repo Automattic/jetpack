@@ -2,99 +2,143 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.7-a.7 - 2026-03-30
+## 15.8-a.5 - 2026-04-20
 ### Enhancements
-- Add 'note' to the default whitelisted comment types for Sync. [#47746]
+- Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings). [#48109]
+- AI Assistant: Add Jetpack AI sidebar that loads Agents Manager from the widgets.wp.com CDN (gated by the `jetpack_ai_sidebar_enabled` filter that defaults to false). [#47730]
+- Remove the unused Title_Optimization_Ability stub. [#47730]
+- Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection. [#48084]
+
+### Improved compatibility
+- Componentry: Use WordPress admin theme color variable instead of hardcoded color for text input focus state. [#47317]
+- Tested up to WordPress 7.0. [#48114]
 
 ### Bug fixes
-- Forms: Only show form blocks under the "Forms" category of the block inserter. [#47614]
-- Newsletter Email Status: Add per-post access control to the newsletter email sent status endpoint. [#47778]
+- Settings: Show an empty state when search returns no matching settings. [#48102]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Brute Force Protection: Update error when module can't be activated. [#47660]
-- Build: Sync Social Logos font from @automattic/social-logos. [#47753]
-- Newsletter: Default the jetpack_wp_admin_newsletter_settings_enabled filter to true and hide the old settings tab when the new settings page is active. [#47750]
-- SEO Tools: Prevent PHP warnings when handling malformed data. [#47804]
-- Sharing: Prevent warning when handling malformed data. [#47805]
-- Update package dependencies. [#47799] [#47818] [#47825]
+- AI Assistant: Disable the "Correct spelling and grammar" toolbar option by default. It can be re-enabled via the `ai_correct_spelling_enabled` filter. [#47916]
+- Discussion Settings: Import ToggleControl directly from @wordpress/components. [#48190]
+- Newsletter: Remove the old Jetpack Settings newsletter UI and redirect old route to the new Jetpack > Newsletter settings page. [#48092]
+- Settings: Import RadioControl and ToggleControl directly from @wordpress/components. [#48170] [#48177] [#48179] [#48186] [#48189]
+- Update dependencies. [#48138]
+- Update package dependencies. [#48106] [#48141]
+- VideoPress storage meters: Replace custom Jetpack ProgressBar with @wordpress/components ProgressBar. [#48191]
 
-## 15.7-a.5 - 2026-03-23
+## 15.8-a.3 - 2026-04-15
 ### Enhancements
+- Forms: Support granular date filter in inbox. [#46760]
+- Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator. [#47940]
+
+### Bug fixes
+- Fix taxonomies endpoint returning error when number parameter exceeds 1000. [#48070]
+- Forms: Fix the Form block not being usable when the Blocks module is inactive. [#48037]
+- Sync: Increase lock time tolerance in tests. [#48078]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- oEmbed: Prevent PHP warnings when a registered provider is malformed. [#48077]
+- Subscriptions: Prevent warning when $post global is malformed. [#48074]
+- Update Forms e2e test to use explicit inner blocks for compatibility with Central Forms Management. [#47826]
+- Update package dependencies. [#47907] [#48064]
+- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+- WordAds: Prevent PHP warning when headers are already sent. [#48073]
+
+## 15.8-a.1 - 2026-04-13
+### Bug fixes
+- AI Site Logo extension: Fix static import of @wordpress/edit-post that caused the no-post-editor bundle to list wp-edit-post as a dependency, breaking the P2 frontend block inserter. [#47987]
+- Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg. [#48002]
+- PayPal Payments Button: Fix escaping issue for stacked payments buttons. [#47761]
+- Subscriptions: Avoid conflicts in the block editor when editing custom post types. [#47876]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add an "Update on Write Brief (Beta)" link in the sidebar when Write Brief is disabled. [#47947]
+- Update package dependencies. [#47890] [#47998]
+
+## 15.7 - 2026-04-08
+### Major Enhancements
+- Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
+
+### Enhancements
+- Admin Menu: Add Upgrade Jetpack menu item for free users. [#47418]
+- Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47417]
 - Forms: Add logged-in user display name and ID to form submission emails and response sidebar. [#47652]
-- Newsletter: Add "Send newsletter by default" toggle to settings. [#47565]
-- Settings: Modernize page UI. [#47490] [#47656]
+- Network Admin: Update UI. [#47912]
+- Newsletter: Add "Send newsletter by default" setting. [#47564] [#47565]
+- Newsletter: Hide settings tab and redirect to new settings page when WP Admin newsletter settings are enabled. [#47347]
+- QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area. [#47433]
+- SEO: Add Canonical URLs toggle to the Traffic settings page. [#47364]
+- Settings: Modernize page UI. [#47490] [#47942] [#47656]
 - Sync: Improve checksum performance for meta tables. [#47579]
+- Update admin page footer with Products and Help navigation links. [#47840]
+
+### Improved compatibility
+- Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead. [#47695]
+- External Media: Ensure that the new WordPress "Embed video from URL" option appears in the Cover block options alongside Jetpack's External Media options. [#47819]
 
 ### Bug fixes
 - AI Assistant: Prevent modal shaking from when content streams in. [#47616]
-- Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead. [#47695]
+- Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk. [#47384]
+- Forms: Ensure number field min and max values display in the UI after page reload. [#47511]
+- Forms: Only show form blocks under the "Forms" category of the block inserter. [#47614]
 - Google Search Preview: Ensure site icon is shown on all sites. [#47551]
 - Image Compare Block: Fix disappearing link toolbar when highlighting caption text to add a hyperlink. [#47197]
 - Map block: Fix markers displaying as bullet points on Simple sites. [#47586]
 - Newsletter: Fix "email sent" confirmation to show "all subscribers" when post had paywall block and was emailed to everyone. [#47629]
+- Newsletter Email Status: Add per-post access control to the newsletter email sent status endpoint. [#47778]
+- SEO: Prevent PHP warnings when handling malformed data. [#47804]
+- SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings. [#47318]
+- Settings: Add bottom border to the masthead header. [#47425]
+- Sharing: Prevent warning when handling malformed data. [#47805]
+- Social: Fix slow page loads due to Social Image generation. [#45863]
 - Sync: Prevent incremental sync for posts with unregistered post types. [#47580]
+- Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`. [#47438]
 - WAF: Fix issue that potentially allowed bypassing WAF rules. [#47692]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add memberships_gift_is_sandboxed to the Jetpack sync post meta whitelist so gifting works on self-hosted Jetpack sites. [#47715]
+- Add missing newsletter post metas to sync whitelist. [#47560]
+- Admin Page: Restore border on header component. [#47425]
+- AI Assistant: Disable the Write Brief (Breve) proofreading feature by default. It can be re-enabled via the 'breve_enabled' filter. [#47914]
 - API: Allow `is_garden` and `garden_name` fields to be returned by /me/sites requests by non-member users. [#47211]
 - Application Passwords: Allow authenticating VideoPress AJAX actions via application passwords. [#45220]
-- Display MCP client actor on backup undo card and backup card attribution. [#47429]
-- Enable Image Studio for Big Sky and CIAB sites regardless of Jetpack AI enabled status. [#47572]
-- Improve disabled newsletter notice copy for private sites not set for coming soon. [#47583]
-- Improve string output handling. [#47636]
-- REST API: Add big_sky_enabled field to the site endpoint response. [#47690]
-- Social: Remove post publish review prompt. [#47650]
-- Sync: Add unit test. [#47634]
-- Update package dependencies. [#47684]
-- Update subscribers affirmation copies for newsletters "will send to" message to better include access and categories both, and remove misrepresentative numbers. [#47605]
-- Update sync user test assertion to expect 0 instead of false for reassigned user ID, matching the $reassign hook parameter now used directly. [#47658]
-
-## 15.7-a.3 - 2026-03-16
-### Enhancements
-- Newsletter: Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default. [#47564]
-- SEO: Add Canonical URLs toggle to the Traffic settings page. [#47364]
-
-### Bug fixes
-- Forms: Ensure number field min and max values display in the UI after page reload. [#47511]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add missing newsletter post metas to sync whitelist. [#47560]
-- Editor: Fix plan upgrade notice for Simple sites. [#47543]
-- Image Studio: Enable if BigSky is enabled. [#47533]
-- Newsletter editor panel: Update to reflect previous email sends and update copies. [#47301]
-- Update dependencies. [#47472]
-- Update package dependencies. [#47505]
-
-## 15.7-a.1 - 2026-03-09
-### Enhancements
-- Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47417]
 - Backup: Use core components for storage popover. [#47448]
 - Block Notes: Add Block Notes as a standalone Jetpack extension plugin. [#47296]
+- Block Notes: Temporarily disable feature to prevent expensive API calls on every Gutenberg page load. [#47976]
+- Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan. [#47810]
+- Brute Force Protection: Update error when module can't be activated. [#47660]
+- Build: Sync Social Logos font from @automattic/social-logos. [#47753]
+- Display MCP client actor on backup undo card and backup card attribution. [#47429]
 - Donations: Use the core WordPress spinner component. [#47467]
-- Forms: Use title header on top-level dashboard pages. [#47446]
-- Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled. [#47347]
-- QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area. [#47433]
-
-### Bug fixes
-- Admin Page: Restore border on header component. [#47425]
-- Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk. [#47384]
-- SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings. [#47318]
-- Settings: Add bottom border to the masthead header. [#47425]
-- Social: Fix slow page loads due to Social Image generation. [#45863]
-- Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`. [#47438]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Editor: Fix plan upgrade notice for Simple sites. [#47543]
+- Enable Image Studio for Big Sky and CIAB sites regardless of Jetpack AI enabled status. [#47572]
 - Extract the Onboarding E2E utility for re-usability. [#47407]
 - Fix flakiness in tests. [#47410]
 - Fix PHPDoc type for deprecated `videopress_prepare_attachment_for_js` wrapper. [#47358]
 - Fix TypeScript errors detected by `tsgo`. [#47426] [#47423]
+- Fix upgrade menu item color on problematic admin color schemes. [#47903]
 - Forms: Fix admin page header CSS specificity to prevent style conflicts. [#47313]
+- Forms: Use title header on top-level dashboard pages. [#47446]
+- Image Studio: Enable if BigSky is enabled. [#47533]
+- Improve disabled newsletter notice copy for private sites not set for coming soon. [#47583]
+- Improve string output handling. [#47636]
 - Mark all methods in the `Jetpack_PostImages` class as deprecated in favor of the Post_Media package's `Images` class. [#47376]
 - Migrate Settings page header to unified header pattern and left-align navigation tabs. [#47313]
+- Module list: Ensure capitalization is consistent. [#47843]
+- Newsletter: Default the jetpack_wp_admin_newsletter_settings_enabled filter to true and hide the old settings tab when the new settings page is active. [#47750]
+- Newsletter editor panel: Update to reflect previous email sends and update copies. [#47301]
 - Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Remove memberships_gift CPT, replaced by COMPS on WordPress.com. [#47859]
+- REST API: Add big_sky_enabled field to the site endpoint response. [#47690]
+- Social: Remove post publish review prompt. [#47650]
+- Subscriptions: Update panel name to include Jetpack branding. [#47857]
 - Switch to Native TypeScript compiler based on Go. [#47375]
-- Update package dependencies. [#47496] [#47499]
+- Sync: Add unit test. [#47634]
+- Sync: Add 'note' to the default whitelisted comment types. [#47746]
+- Update dependencies. [#47472]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47496] [#47499] [#47505] [#47684] [#47799] [#47818] [#47825] [#47899]
+- Update subscribers affirmation copies for newsletters "will send to" message to better include access and categories both, and remove misrepresentative numbers. [#47605]
+- Update sync user test assertion to expect 0 instead of false for reassigned user ID, matching the $reassign hook parameter now used directly. [#47658]
 
 ## 15.6 - 2026-03-03
 ### Enhancements

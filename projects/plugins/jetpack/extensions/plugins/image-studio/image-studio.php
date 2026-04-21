@@ -10,10 +10,13 @@ namespace Automattic\Jetpack\Extensions\ImageStudio;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
+
+require_once __DIR__ . '/../../shared/cdn-locale.php';
 
 const FEATURE_NAME           = 'image-studio';
 const ASSET_BASE_PATH        = 'widgets.wp.com/agents-manager/';
@@ -232,28 +235,6 @@ function get_asset_data_from_remote() {
 }
 
 /**
- * Determine the ISO 639 locale code for the current user.
- *
- * @return string The ISO 639 language code, defaulting to 'en'.
- */
-function determine_iso_639_locale() {
-	$language = get_user_locale();
-	$language = strtolower( $language );
-
-	if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
-		$language = str_replace( '_', '-', $language );
-	} else {
-		$language = preg_replace( '/([-_].*)$/i', '', $language );
-	}
-
-	if ( empty( $language ) ) {
-		return 'en';
-	}
-
-	return $language;
-}
-
-/**
  * Enqueue Image Studio script and style assets.
  *
  * @return void
@@ -294,8 +275,9 @@ function do_enqueue_assets() {
 	);
 
 	$image_studio_data = array(
-		'enabled' => true,
-		'version' => '1.0',
+		'enabled'   => true,
+		'version'   => '1.0',
+		'isDevMode' => jetpack_is_internal_testing_environment(),
 	);
 
 	wp_add_inline_script(

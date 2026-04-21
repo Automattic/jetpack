@@ -499,7 +499,7 @@ class Simple_Payments {
 				'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack-paypal-payments' ),
 				'object_subtype'    => self::$post_type_product,
 				'sanitize_callback' => 'sanitize_email',
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'single'            => true,
 				'type'              => 'string',
 			)
