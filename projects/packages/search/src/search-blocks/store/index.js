@@ -253,13 +253,17 @@ const { state, actions } = store( NAMESPACE, {
 		 * Templates therefore must bind to a single getter, so derived
 		 * visibility flags live here.
 		 *
-		 * Also requires `searchQuery` so the message doesn't flash on a
-		 * bare `/search/` page where the user hasn't typed anything yet.
+		 * Gated on `searchQuery` (so the message doesn't flash on a bare
+		 * `/search/` page where the user hasn't typed) and on `!hasError`
+		 * (so "No results found" doesn't display when the fetch actually
+		 * failed — there is no dedicated error block yet).
 		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
 		get showNoResults() {
-			return !! state.searchQuery && ! state.isLoading && state.results.length === 0;
+			return (
+				!! state.searchQuery && ! state.isLoading && ! state.hasError && state.results.length === 0
+			);
 		},
 
 		/**
