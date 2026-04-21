@@ -1,3 +1,4 @@
+import { _n, sprintf } from '@wordpress/i18n';
 import { store } from '@wordpress/interactivity';
 import { buildSearchUrl } from './api';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
@@ -127,7 +128,11 @@ const { state, actions } = store( NAMESPACE, {
 			if ( total === 0 ) {
 				return '';
 			}
-			return `${ total } result${ total === 1 ? '' : 's' }`;
+			return sprintf(
+				/* translators: %d is the number of search results. */
+				_n( '%d result', '%d results', total, 'jetpack-search-pkg' ),
+				total
+			);
 		},
 	},
 
