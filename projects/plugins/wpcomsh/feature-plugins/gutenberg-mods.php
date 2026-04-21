@@ -64,35 +64,6 @@ function wpcomsh_remove_gutenberg_experimental_menu() {
 }
 
 /**
- * Whitelist Guidelines CPT post meta keys for Jetpack sync.
- *
- * The Guidelines CPT (`wp_guideline`) stores user-configured guidelines as post
- * meta. Jetpack sync uses a whitelist for meta keys, so the meta must be explicitly
- * listed here for WPCOM-hosted agents to read them on Atomic sites.
- *
- * Block-specific meta keys are added dynamically based on registered blocks.
- *
- * @param array $whitelist The default post meta whitelist.
- * @return array The filtered whitelist.
- */
-function wpcomsh_filter_guidelines_sync_post_meta_whitelist( $whitelist ) {
-	$categories = array( 'copy', 'images', 'site', 'additional' );
-	foreach ( $categories as $category ) {
-		$whitelist[] = '_guideline_' . $category;
-	}
-
-	if ( class_exists( 'WP_Block_Type_Registry' ) ) {
-		$registered_blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
-		foreach ( $registered_blocks as $block_type ) {
-			$whitelist[] = '_guideline_block_' . str_replace( '/', '_', $block_type->name );
-		}
-	}
-
-	return $whitelist;
-}
-add_filter( 'jetpack_sync_post_meta_whitelist', 'wpcomsh_filter_guidelines_sync_post_meta_whitelist' );
-
-/**
  * Hotfix a Gutenberg bug that inadvertently loads wp-reset-editor-syles stylesheet in the
  * iframed site editor.
  *

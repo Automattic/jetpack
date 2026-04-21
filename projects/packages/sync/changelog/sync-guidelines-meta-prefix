@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add _guideline_ prefix to post meta sync allowlist via prefix matching.

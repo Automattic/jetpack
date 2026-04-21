@@ -552,8 +552,9 @@ class Posts extends Module {
 		if ( ! is_string( $meta_key ) ) {
 			return false;
 		}
-		// The '_wpas_skip_' meta key prefix is used by Publicize to mark posts that should be skipped.
-		return str_starts_with( $meta_key, '_wpas_skip_' ) || in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true );
+		return str_starts_with( $meta_key, '_wpas_skip_' )
+			|| str_starts_with( $meta_key, '_guideline_' )
+			|| in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true );
 	}
 
 	/**

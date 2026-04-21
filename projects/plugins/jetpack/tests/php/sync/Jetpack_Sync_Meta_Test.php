@@ -268,6 +268,16 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$this->assertOptionIsSynced( '_wpas_skip_1234', '1', 'post', $this->post_id );
 	}
 
+	public function test_syncs_guideline_meta() {
+		$this->setSyncClientDefaults();
+		add_post_meta( $this->post_id, '_guideline_copy', 'test value' );
+		add_post_meta( $this->post_id, '_guideline_block_core_paragraph', 'block value' );
+		$this->sender->do_sync();
+
+		$this->assertOptionIsSynced( '_guideline_copy', 'test value', 'post', $this->post_id );
+		$this->assertOptionIsSynced( '_guideline_block_core_paragraph', 'block value', 'post', $this->post_id );
+	}
+
 	public function test_sync_daily_akismet_meta_cleanup() {
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
