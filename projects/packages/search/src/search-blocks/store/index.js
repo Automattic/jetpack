@@ -3,13 +3,14 @@ import { buildSearchUrl } from './api';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
-const SAFE_URL_PATTERN = /^https?:\/\//i;
+const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
+const ANY_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
 
 /**
  * Ensure a URL starts with http(s)://. The v1.3 API returns hostless URLs
- * (e.g. `example.com/foo/`), which we promote to https. Anything that still
- * isn't http(s) after promotion is rejected so a compromised API response
- * can't inject a javascript:/data: URL into an href.
+ * (e.g. `example.com/foo/`), which we promote to https. URLs with any other
+ * scheme (javascript:, data:, ftp:, …) are rejected so a compromised API
+ * response can't smuggle a non-http URL into an href.
  *
  * @param {string} raw - Raw URL from the API.
  * @return {string} Safe http(s) URL or ''.
@@ -18,8 +19,13 @@ function toSafeUrl( raw ) {
 	if ( typeof raw !== 'string' || raw === '' ) {
 		return '';
 	}
-	const withScheme = SAFE_URL_PATTERN.test( raw ) ? raw : `https://${ raw.replace( /^\/+/, '' ) }`;
-	return SAFE_URL_PATTERN.test( withScheme ) ? withScheme : '';
+	if ( HTTP_SCHEME_PATTERN.test( raw ) ) {
+		return raw;
+	}
+	if ( ANY_SCHEME_PATTERN.test( raw ) ) {
+		return '';
+	}
+	return `https://${ raw.replace( /^\/+/, '' ) }`;
 }
 
 /**

@@ -251,10 +251,17 @@ class Search_Blocks {
 		if ( '' === $url ) {
 			return '';
 		}
-		if ( ! preg_match( '~^https?://~i', $url ) ) {
-			$url = 'https://' . ltrim( $url, '/' );
+		// Already http(s): pass through the scheme-restricted sanitizer.
+		if ( preg_match( '~^https?://~i', $url ) ) {
+			$url = esc_url_raw( $url, array( 'http', 'https' ) );
+			return $url ? $url : '';
 		}
-		$url = esc_url_raw( $url, array( 'http', 'https' ) );
+		// Any other scheme (`javascript:`, `data:`, `ftp:`, …) — reject.
+		if ( preg_match( '~^[a-z][a-z0-9+.\-]*:~i', $url ) ) {
+			return '';
+		}
+		// Hostless (e.g. `example.com/path/`): promote to https.
+		$url = esc_url_raw( 'https://' . ltrim( $url, '/' ), array( 'http', 'https' ) );
 		return $url ? $url : '';
 	}
 }
