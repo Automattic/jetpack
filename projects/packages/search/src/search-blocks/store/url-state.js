@@ -43,14 +43,18 @@ export function urlParamsToState( params ) {
 }
 
 /**
- * Push current store state to browser URL without triggering a page reload.
+ * Sync current store state into the browser URL without triggering a page
+ * reload. Uses `replaceState` so a debounced search doesn't leave a history
+ * entry for every keystroke-group — pressing back goes to the page before
+ * search, which matches how most live-search UIs behave. Bookmarking or
+ * sharing the URL still captures the current query.
  *
  * @param {object} state - Relevant state slice.
  */
 export function pushStateToUrl( state ) {
 	const params = stateToUrlParams( state );
 	const newUrl = window.location.pathname + ( params.toString() ? `?${ params.toString() }` : '' );
-	window.history.pushState( {}, '', newUrl );
+	window.history.replaceState( {}, '', newUrl );
 }
 
 /**
