@@ -449,7 +449,7 @@ function wpcom_add_jetpack_submenu() {
 			'stats',
 			'boost',
 			'social',
-			'jetpack-ai',
+			'ai',
 			'akismet-key-config',
 			'activity-log',
 			'scan',

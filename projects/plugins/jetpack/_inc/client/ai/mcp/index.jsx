@@ -1,5 +1,5 @@
 /**
- * MCP Settings hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
+ * MCP Settings hub — main view shown at wp-admin/admin.php?page=ai.
  * Shows the enable/disable toggle and navigation to Read, Write, and Setup sub-views.
  */
 
