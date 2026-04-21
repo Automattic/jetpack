@@ -120,7 +120,7 @@ EXIT=0
 if [[ -e "$DIR/composer.lock" ]]; then
 	TMP="$(composer info --locked --format=json --working-dir="$DIR" | jq -r --argjson packages "$PACKAGES" '.locked?[] | select( $packages[.name] ) | [ .name, .version, $packages[.name] ] | @tsv')"
 	while IFS=$'\t' read -r PKG LOCKVER EXPECTVER; do
-		if ! pnpm semver -c --range ">=$EXPECTVER" "$LOCKVER" >/dev/null; then
+		if [[ -n "$PKG" ]] && ! pnpm semver -c --range ">=$EXPECTVER" "$LOCKVER" >/dev/null; then
 			EXIT=1
 			error "$PKG was not upgraded ($LOCKVER < $EXPECTVER)"
 		fi
