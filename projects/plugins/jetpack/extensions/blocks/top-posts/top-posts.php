@@ -111,12 +111,7 @@ function load_assets( $attributes ) {
 			$output .= '</a>';
 		}
 
-		/**
-		 * Adds the ability to modify the titles of posts in the block output.
-		 */
-		$title = apply_filters( 'jetpack_blocks_top_posts_title', $item['title'], $item );
-
-		$output .= '<span class="jetpack-top-posts-title"><a href="' . esc_url( $item['href'] ) . '">' . esc_html( $title ) . '</a></span>';
+		$output .= '<span class="jetpack-top-posts-title"><a href="' . esc_url( $item['href'] ) . '">' . esc_html( $item['title'] ) . '</a></span>';
 
 		if ( $attributes['displayDate'] ) {
 			$output .= '<span class="jetpack-top-posts-date has-small-font-size">' . esc_html( $item['date'] ) . '</span>';
