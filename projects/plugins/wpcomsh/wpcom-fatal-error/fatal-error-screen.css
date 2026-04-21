@@ -151,6 +151,6 @@
 	border-radius: 4px;
 	font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace;
 	white-space: pre-wrap;
-	word-break: break-word;
+	overflow-wrap: anywhere;
 	color: #2c3338;
 }
