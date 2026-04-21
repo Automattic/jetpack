@@ -595,16 +595,11 @@ async function buildProject( t ) {
 	);
 
 	// Update the changelog, if applicable.
-	if (
-		t.argv.forMirrors &&
-		( t.project === 'packages/changelogger' ||
-			composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
-			composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ] )
-	) {
+	if ( t.argv.forMirrors && composerJson.extra?.changelogger ) {
 		const changelogger = npath.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 		const changesDir = npath.resolve(
 			t.cwd,
-			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'
+			composerJson.extra.changelogger[ 'changes-dir' ] || 'changelog'
 		);
 		t.output( '\n=== Updating changelog ===\n\n' );
 		if (

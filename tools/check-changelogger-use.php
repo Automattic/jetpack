@@ -145,10 +145,7 @@ if ( $maybe_merge ) {
 $changelogger_projects = array();
 foreach ( glob( 'projects/*/*/composer.json' ) as $file ) {
 	$data = json_decode( file_get_contents( $file ), true );
-	if ( 'projects/packages/changelogger/composer.json' !== $file &&
-		! isset( $data['require']['automattic/jetpack-changelogger'] ) &&
-		! isset( $data['require-dev']['automattic/jetpack-changelogger'] )
-	) {
+	if ( ! isset( $data['extra']['changelogger'] ) ) {
 		continue;
 	}
 	$data  = $data['extra']['changelogger'] ?? array();
