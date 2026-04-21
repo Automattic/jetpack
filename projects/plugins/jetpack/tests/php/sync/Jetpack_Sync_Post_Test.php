@@ -1777,7 +1777,13 @@ That was a cool video.';
 	}
 
 	public function test_guideline_meta_keys_in_post_meta_whitelist() {
-		require_once ABSPATH . 'wp-content/plugins/wpcomsh/feature-plugins/gutenberg-mods.php';
+		$file = ABSPATH . 'wp-content/plugins/wpcomsh/feature-plugins/gutenberg-mods.php';
+		if ( ! function_exists( 'wpcomsh_filter_guidelines_sync_post_meta_whitelist' ) ) {
+			if ( ! file_exists( $file ) ) {
+				$this->markTestSkipped( 'wpcomsh gutenberg-mods.php not available in this environment.' );
+			}
+			require_once $file;
+		}
 
 		$whitelist = Defaults::get_post_meta_whitelist();
 
