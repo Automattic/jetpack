@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+SEO: Redesign the Overview screen around a prioritized recommendations bar, a severity-tiered content health card with a healthy-% gauge, an AI discoverability card with crawler distribution, a setup checklist, and inline quick actions for sitemap and llms.txt.

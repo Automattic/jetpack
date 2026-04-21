@@ -1,4 +1,4 @@
-/* eslint-disable jsdoc/require-returns */
+/* eslint-disable jsdoc/require-returns, jsdoc/require-param-description */
 
 /* eslint-disable react/jsx-no-bind */
 
@@ -18,12 +18,20 @@ const LABELS: Record< string, string > = {
 	'anthropic-ai': 'Anthropic (anthropic-ai)',
 };
 
+interface Props {
+	id?: string;
+	defaultOpen?: boolean;
+}
+
 /**
  * AI crawler toggle grid — free for all plans per the PRD. Writes to a
  * single option which the PHP `AI_Crawlers::filter_robots_txt()` filter
  * reads when generating /robots.txt.
+ * @param root0
+ * @param root0.id
+ * @param root0.defaultOpen
  */
-const AiCrawlersCard: FC = () => {
+const AiCrawlersCard: FC< Props > = ( { id, defaultOpen = false } ) => {
 	const { data, isLoading, isError, error } = useAiCrawlers();
 	const mutation = useUpdateAiCrawlers();
 
@@ -50,7 +58,7 @@ const AiCrawlersCard: FC = () => {
 	const totalCount = data.known.length;
 
 	return (
-		<CollapsibleCard.Root defaultOpen={ false }>
+		<CollapsibleCard.Root id={ id } defaultOpen={ defaultOpen }>
 			<CollapsibleCard.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>{ __( 'AI crawlers', 'jetpack-seo' ) }</Card.Title>

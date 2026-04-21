@@ -7,7 +7,8 @@ import { Button, Notice, Spinner, TextareaControl, ToggleControl } from '@wordpr
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
-import { useBlocker } from 'react-router';
+import { useBlocker, useLocation } from 'react-router';
+import { JetpackSeoSections } from '../../constants';
 import { useSeoSettings, useUpdateSeoSettings } from '../../data/use-settings';
 import { useSetHeaderActions } from '../../header-actions-context';
 import AiCrawlersCard from '../discoverability/ai-crawlers-card';
@@ -36,6 +37,12 @@ const SettingsScreen: FC = () => {
 	const mutation = useUpdateSeoSettings();
 	const [ local, setLocal ] = useState< SettingsResponse | null >( null );
 	const setHeaderActions = useSetHeaderActions();
+
+	// Deep-link target: `/settings#<section>` from Overview cards. Captured at
+	// mount so the cards open on arrival; subsequent hash changes within the
+	// same mount don't retrigger expansion (users can collapse freely).
+	const { hash } = useLocation();
+	const [ initialSection ] = useState( () => hash.replace( /^#/, '' ) );
 
 	useEffect( () => {
 		if ( data ) {
@@ -111,6 +118,17 @@ const SettingsScreen: FC = () => {
 			blocker.reset();
 		}
 	}, [ blocker ] );
+
+	// Scroll the deep-link target into view once the page has rendered.
+	// Waits for data so the matching card exists in the DOM; otherwise the
+	// `getElementById` call would no-op silently.
+	useEffect( () => {
+		if ( ! initialSection || ! data ) {
+			return;
+		}
+		const target = document.getElementById( initialSection );
+		target?.scrollIntoView( { block: 'start', behavior: 'smooth' } );
+	}, [ initialSection, data ] );
 
 	// Guard full-page exit (tab close, back button, link outside the SPA).
 	// The browser renders its own standard confirmation when
@@ -205,7 +223,10 @@ const SettingsScreen: FC = () => {
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
 
-			<SitemapCard />
+			<SitemapCard
+				id={ JetpackSeoSections.Visibility }
+				defaultOpen={ initialSection === JetpackSeoSections.Visibility }
+			/>
 
 			<CollapsibleCard.Root defaultOpen={ false }>
 				<CollapsibleCard.Header>
@@ -233,13 +254,18 @@ const SettingsScreen: FC = () => {
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
 
-			<LlmsTxtCard />
-			<AiCrawlersCard />
+			<LlmsTxtCard
+				id={ JetpackSeoSections.Discoverability }
+				defaultOpen={ initialSection === JetpackSeoSections.Discoverability }
+			/>
+			<AiCrawlersCard defaultOpen={ initialSection === JetpackSeoSections.Discoverability } />
 
 			<VerificationCard
 				value={ local.verification }
 				onChange={ setVerification }
 				disabled={ mutation.isPending }
+				id={ JetpackSeoSections.Verification }
+				defaultOpen={ initialSection === JetpackSeoSections.Verification }
 			/>
 		</BoundedLayout>
 	);

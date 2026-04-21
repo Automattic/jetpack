@@ -6,7 +6,12 @@ import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { useSitemap, useUpdateSitemap } from '../../data/use-sitemap';
 import type { FC } from 'react';
 
-const SitemapCard: FC = () => {
+interface Props {
+	id?: string;
+	defaultOpen?: boolean;
+}
+
+const SitemapCard: FC< Props > = ( { id, defaultOpen = false } ) => {
 	const { data, isLoading, isError, error } = useSitemap();
 	const mutation = useUpdateSitemap();
 
@@ -28,7 +33,7 @@ const SitemapCard: FC = () => {
 	};
 
 	return (
-		<CollapsibleCard.Root defaultOpen={ false }>
+		<CollapsibleCard.Root id={ id } defaultOpen={ defaultOpen }>
 			<CollapsibleCard.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>{ __( 'Sitemap', 'jetpack-seo' ) }</Card.Title>
