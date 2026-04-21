@@ -1,4 +1,4 @@
-/* eslint-disable jsdoc/require-returns */
+/* eslint-disable jsdoc/require-returns, jsdoc/require-param-description */
 
 /* eslint-disable react/jsx-no-bind */
 
@@ -36,14 +36,22 @@ const MAX_ITEMS_PRESETS = [
 	{ value: '200', label: '200' },
 ];
 
+interface Props {
+	id?: string;
+	defaultOpen?: boolean;
+}
+
 /**
  * llms.txt control card.
  *
  * Free for all plans — the strategic acquisition feature per the PRD.
  * Renders an enable toggle, post-type + max-items controls, a manual
  * override textarea, and a live preview pane.
+ * @param root0
+ * @param root0.id
+ * @param root0.defaultOpen
  */
-const LlmsTxtCard: FC = () => {
+const LlmsTxtCard: FC< Props > = ( { id, defaultOpen = false } ) => {
 	const { data, isLoading, isError, error } = useLlmsTxt();
 	const mutation = useUpdateLlmsTxt();
 	const [ localOverride, setLocalOverride ] = useState< string | null >( null );
@@ -85,7 +93,7 @@ const LlmsTxtCard: FC = () => {
 	};
 
 	return (
-		<CollapsibleCard.Root defaultOpen={ false }>
+		<CollapsibleCard.Root id={ id } defaultOpen={ defaultOpen }>
 			<CollapsibleCard.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>{ __( 'AI content map', 'jetpack-seo' ) }</Card.Title>

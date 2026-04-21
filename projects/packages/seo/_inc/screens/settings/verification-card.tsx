@@ -11,6 +11,8 @@ interface Props {
 	value: SettingsResponse[ 'verification' ];
 	onChange: ( key: VerificationKey, value: string ) => void;
 	disabled?: boolean;
+	id?: string;
+	defaultOpen?: boolean;
 }
 
 const services: Array< { key: VerificationKey; label: string; hint: string } > = [
@@ -32,11 +34,17 @@ const services: Array< { key: VerificationKey; label: string; hint: string } > =
 	},
 ];
 
-const VerificationCard: FC< Props > = ( { value, onChange, disabled } ) => {
+const VerificationCard: FC< Props > = ( {
+	value,
+	onChange,
+	disabled,
+	id,
+	defaultOpen = false,
+} ) => {
 	const verifiedCount = services.filter( ( { key } ) => !! value[ key ] ).length;
 
 	return (
-		<CollapsibleCard.Root defaultOpen={ false }>
+		<CollapsibleCard.Root id={ id } defaultOpen={ defaultOpen }>
 			<CollapsibleCard.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>{ __( 'Site verification', 'jetpack-seo' ) }</Card.Title>

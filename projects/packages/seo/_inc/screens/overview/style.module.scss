@@ -1,76 +1,16 @@
-.grid {
+/**
+ * Layout-only CSS for the Overview screen. Every visual style on this
+ * screen comes from @wordpress/ui and @wordpress/components primitives
+ * (Card, Notice, Stack, Text, ProgressBar, Button). This file only
+ * provides the three-column main row, which `Stack` cannot express on
+ * its own because it needs distinct breakpoint behaviour.
+ */
+.mainRow {
 	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( 320px, 1fr ) );
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 16px;
-	align-items: stretch;
-}
 
-// Make each Overview card a flex column so its body stretches and its footer
-// (the card's action button) can be pinned to the bottom of the card via
-// `margin-top: auto`. Combined with the grid's default stretch alignment,
-// every card ends up the same height and every button sits on the same row.
-// We target the last child of each Card.Root (which is Card.Content) since
-// @wordpress/ui uses hashed CSS-module class names that aren't stable.
-.grid > * {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-}
-
-.grid > * > *:last-child {
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 auto;
-}
-
-.statRow {
-	display: flex;
-	justify-content: space-between;
-	padding: 4px 0;
-
-	& + & {
-		border-top: 1px solid #f0f0f0;
+	@media ( max-width: 700px ) {
+		grid-template-columns: 1fr;
 	}
-}
-
-.statValue {
-	font-variant-numeric: tabular-nums;
-	font-weight: 600;
-}
-
-.statusDot {
-	display: inline-block;
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
-	margin-right: 8px;
-	vertical-align: middle;
-}
-
-.statusOk {
-	background: #4ab866;
-}
-
-.statusWarn {
-	background: #dba617;
-}
-
-.statusErr {
-	background: #cc1818;
-}
-
-// `margin-top: auto` pushes the footer row to the bottom of its flex column
-// parent — the Card.Content. Every Overview card ends up with its button
-// aligned horizontally across the row.
-.cardFooter {
-	display: flex;
-	justify-content: flex-end;
-	gap: 8px;
-	margin-top: auto;
-	padding-top: 16px;
-}
-
-.loading {
-	padding: 16px 0;
-	color: #757575;
 }

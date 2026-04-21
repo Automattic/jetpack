@@ -9,9 +9,16 @@ export interface OverviewResponse {
 	content_seo: {
 		total_published: number;
 		sample_size: number;
-		missing_title: number;
-		missing_desc: number;
-		noindexed: number;
+		sitewide: boolean;
+		/**
+		 * Per-tier post counts, sourced from `compute_seo_status` so the
+		 * buckets match the Good / Fair / Poor filter on the Content page.
+		 */
+		by_status: {
+			good: number;
+			fair: number;
+			poor: number;
+		};
 	};
 	ai_discoverability: {
 		llms_txt_enabled: boolean;

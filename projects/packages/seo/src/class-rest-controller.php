@@ -593,9 +593,9 @@ class REST_Controller {
 		unset( $post_types['attachment'] );
 
 		$total           = 0;
-		$missing_title   = 0;
-		$missing_desc    = 0;
-		$noindexed       = 0;
+		$good            = 0;
+		$fair            = 0;
+		$poor            = 0;
 		$description_key = Jetpack_SEO_Posts::DESCRIPTION_META_KEY;
 		$html_title_key  = Jetpack_SEO_Posts::HTML_TITLE_META_KEY;
 		$noindex_key     = Jetpack_SEO_Posts::NOINDEX_META_KEY;
@@ -611,29 +611,42 @@ class REST_Controller {
 			array(
 				'post_type'      => array_values( $post_types ),
 				'post_status'    => 'publish',
-				'posts_per_page' => 500,
+				'posts_per_page' => 500, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Bounded cap, documented above.
 				'fields'         => 'ids',
 			)
 		);
 
 		foreach ( $sample as $post_id ) {
-			if ( '' === (string) get_post_meta( $post_id, $html_title_key, true ) ) {
-				++$missing_title;
-			}
-			if ( '' === (string) get_post_meta( $post_id, $description_key, true ) ) {
-				++$missing_desc;
-			}
-			if ( get_post_meta( $post_id, $noindex_key, true ) ) {
-				++$noindexed;
+			$title       = (string) get_post_meta( $post_id, $html_title_key, true );
+			$description = (string) get_post_meta( $post_id, $description_key, true );
+			$noindex     = (bool) get_post_meta( $post_id, $noindex_key, true );
+
+			// Authoritative categorisation — reuses the same function that
+			// powers the Content DataViews traffic light so the Overview
+			// buckets and the Content filters agree.
+			$status = self::compute_seo_status( $title, $description, $noindex );
+			if ( 'good' === $status ) {
+				++$good;
+			} elseif ( 'fair' === $status ) {
+				++$fair;
+			} else {
+				++$poor;
 			}
 		}
 
+		$sample_size = count( $sample );
+
 		return array(
 			'total_published' => $total,
-			'sample_size'     => count( $sample ),
-			'missing_title'   => $missing_title,
-			'missing_desc'    => $missing_desc,
-			'noindexed'       => $noindexed,
+			'sample_size'     => $sample_size,
+			// `sitewide` is true when the bounded look-up covered every
+			// published post, so the dashboard can drop the "sample" caveat.
+			'sitewide'        => $sample_size >= $total,
+			'by_status'       => array(
+				'good' => $good,
+				'fair' => $fair,
+				'poor' => $poor,
+			),
 		);
 	}
 
