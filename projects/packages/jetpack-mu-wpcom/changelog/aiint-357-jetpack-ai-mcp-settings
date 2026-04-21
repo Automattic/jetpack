@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add Jetpack AI MCP settings admin page and REST endpoint for wpcom
+Register Jetpack AI MCP settings admin page in the wpcom admin menu.
