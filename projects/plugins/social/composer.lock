@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "33100e1dbd29e8b2dc35b9c1c45f3477",
+    "content-hash": "654b89c6ccb8f184415abbf868231609",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2085,7 +2085,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/test-environment",
-                "reference": "5c6621b457658315eca5b8227ddf602d55209ebf"
+                "reference": "58edc60c1bba1989292acfc96878ca2b3e6165a2"
             },
             "require": {
                 "php": ">=7.2"
@@ -2102,7 +2102,6 @@
                 "branch-alias": {
                     "dev-trunk": "0.2.x-dev"
                 },
-                "changelogger": [],
                 "textdomain": "jetpack-test-environment",
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-test-environment.php"

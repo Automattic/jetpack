@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84c81018a607e5eb7d1e250575ccf24a",
+    "content-hash": "b75cc6cc6217dbca51f8bee7af4e35e7",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -472,7 +472,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/compat",
-                "reference": "b3e3330796c6d1ccd1bb7c72cbd55e5d8303d35b"
+                "reference": "cca3c26e1aa14e6cfe16ed55099dd1fc39362778"
             },
             "require": {
                 "php": ">=7.2"
@@ -1817,7 +1817,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "aed7834a130721bb1e2c8229f8a2270fc4972b83"
+                "reference": "c886544c38d3fd36c7120099a9c0b85d9776f416"
             },
             "require": {
                 "automattic/jetpack-blaze": "@dev",
@@ -1840,7 +1840,6 @@
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
-                "changelogger": [],
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
                     "dev-trunk": "0.31.x-dev"
@@ -1950,7 +1949,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/subscribers-dashboard",
-                "reference": "b0943f3bd9f88f1ec6a05e479faa7f4165a66266"
+                "reference": "66832602601278e0202880bef8da1a396d34fa45"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1972,7 +1971,6 @@
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
-                "changelogger": [],
                 "mirror-repo": "Automattic/jetpack-subscribers-dashboard",
                 "branch-alias": {
                     "dev-trunk": "0.5.x-dev"
