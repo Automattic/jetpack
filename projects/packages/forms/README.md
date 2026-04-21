@@ -25,7 +25,7 @@ See the individual subdirectories for more information.
 Block field icons are defined as React components (`src/blocks/field-*/icon.{js,jsx,tsx}`) but need to be available as standalone files for email templates. Two scripts handle this:
 
 1. **`extract-icons`** — Renders each React icon component to static SVG markup and writes `icon.svg` files.
-2. **`rasterize-icons`** — Converts each `icon.svg` to a 48x48 retina PNG (`field-*@2x.png`) with transparent background, optimized for minimal file size.
+2. **`rasterize-icons`** — Converts each `icon.svg` to a 48x48 retina WebP (`field-*@2x.webp`) with transparent background, optimized for minimal file size.
 
 Run the full pipeline:
 
@@ -37,7 +37,7 @@ Or run each step individually:
 
 ```bash
 pnpm extract-icons     # React components → icon.svg
-pnpm rasterize-icons   # icon.svg → icon@2x.png
+pnpm rasterize-icons   # icon.svg → icon@2x.webp
 ```
 
 Run these after adding or modifying any icon component in a `field-*` block directory.
