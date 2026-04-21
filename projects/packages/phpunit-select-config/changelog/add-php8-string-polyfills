@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Load polyfills for `str_contains`, `str_starts_with`, and `str_ends_with` via the composer autoloader on PHP < 8.0.
