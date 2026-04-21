@@ -80,27 +80,28 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Test that a script with data-jetpack-boost="ignore" (double quotes) is excluded from count.
+	 * Test that an unclosed ignored script (double quotes) returns true — the
+	 * buffer must hold content until the closing tag arrives.
 	 */
-	public function test_ignored_script_double_quotes_excluded() {
+	public function test_unclosed_ignored_script_double_quotes_returns_true() {
 		$buffer = '<script data-jetpack-boost="ignore" type="text/javascript">console.log("hello");';
-		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
+		$this->assertTrue( $this->instance->is_opened_script( $buffer ) );
 	}
 
 	/**
-	 * Test that a script with data-jetpack-boost='ignore' (single quotes) is excluded from count.
+	 * Test that an unclosed ignored script (single quotes) returns true.
 	 */
-	public function test_ignored_script_single_quotes_excluded() {
+	public function test_unclosed_ignored_script_single_quotes_returns_true() {
 		$buffer = "<script data-jetpack-boost='ignore' type=\"text/javascript\">console.log('hello');";
-		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
+		$this->assertTrue( $this->instance->is_opened_script( $buffer ) );
 	}
 
 	/**
-	 * Test that a script with data-jetpack-boost=ignore (no quotes) is excluded from count.
+	 * Test that an unclosed ignored script (no quotes) returns true.
 	 */
-	public function test_ignored_script_no_quotes_excluded() {
+	public function test_unclosed_ignored_script_no_quotes_returns_true() {
 		$buffer = '<script data-jetpack-boost=ignore type="text/javascript">console.log("hello");';
-		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
+		$this->assertTrue( $this->instance->is_opened_script( $buffer ) );
 	}
 
 	/**
@@ -113,13 +114,8 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Test mix of ignored and non-ignored scripts, with more non-ignored
-	 * opening tags than total closing tags, returns true.
-	 *
-	 * Note: The closing tag regex counts ALL </script> tags regardless of
-	 * the ignore attribute, so a single unclosed non-ignored script next to
-	 * a closed ignored script will balance out. We need the non-ignored
-	 * opening count to exceed the total closing count.
+	 * Test mix of ignored and non-ignored scripts, with unclosed non-ignored
+	 * scripts, returns true.
 	 */
 	public function test_mixed_ignored_and_normal_unclosed_returns_true() {
 		$buffer  = '<script data-jetpack-boost="ignore">ignored();</script>';
@@ -130,14 +126,14 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Test that an unclosed non-ignored script balanced by a closed ignored
-	 * script returns false — the closing tag counter is not filtered.
+	 * Test that an unclosed non-ignored script following a closed ignored
+	 * script returns true. The closed ignored pair is stripped before counting,
+	 * so the unclosed normal script is correctly detected.
 	 */
-	public function test_single_unclosed_normal_balanced_by_ignored_closed_returns_false() {
+	public function test_unclosed_normal_after_closed_ignored_returns_true() {
 		$buffer  = '<script data-jetpack-boost="ignore">ignored();</script>';
 		$buffer .= '<script type="text/javascript">normal();';
-		// opening non-ignored: 1, closing total: 1 → 1 > 1 is false.
-		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
+		$this->assertTrue( $this->instance->is_opened_script( $buffer ) );
 	}
 
 	/**
@@ -154,5 +150,54 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	public function test_bare_ignore_attribute_without_value_is_not_excluded() {
 		$buffer = '<script data-jetpack-boost type="text/javascript">console.log("hello");';
 		$this->assertTrue( $this->instance->is_opened_script( $buffer ) );
+	}
+
+	/**
+	 * Test that a closed ignored script with double-quoted attribute returns false.
+	 */
+	public function test_closed_ignored_script_double_quotes_returns_false() {
+		$buffer = '<script data-jetpack-boost="ignore">ignored();</script>';
+		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
+	}
+
+	/**
+	 * Test that a closed ignored script with single-quoted attribute returns false.
+	 */
+	public function test_closed_ignored_script_single_quotes_returns_false() {
+		$buffer = "<script data-jetpack-boost='ignore'>ignored();</script>";
+		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
+	}
+
+	/**
+	 * Test that a closed ignored script with no-quote attribute returns false.
+	 */
+	public function test_closed_ignored_script_no_quotes_returns_false() {
+		$buffer = '<script data-jetpack-boost=ignore>ignored();</script>';
+		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
+	}
+
+	/**
+	 * Test that a </script> inside an HTML comment does not mask a truly
+	 * unclosed script tag.
+	 */
+	public function test_commented_out_closing_tag_does_not_mask_unclosed_script() {
+		$buffer = '<script>unclosed();<!-- </script> -->';
+		$this->assertTrue( $this->instance->is_opened_script( $buffer ) );
+	}
+
+	/**
+	 * Known regex limitation: a literal "</script>" inside a JavaScript string
+	 * inside an ignored pair prematurely terminates the lazy match, matching
+	 * the existing behavior of get_script_tags(). Document the outcome so a
+	 * future change here is an intentional decision.
+	 */
+	public function test_ignored_pair_with_literal_closing_in_string() {
+		$buffer  = '<script data-jetpack-boost="ignore">var s = "</script>";</script>';
+		$buffer .= '<script>unclosed();';
+		// Lazy ignored-pair regex consumes up to the first </script> (inside the
+		// string), leaving `";</script><script>unclosed();`. After counting,
+		// opens=1, closes=1 → false. A genuinely unclosed normal script goes
+		// unreported — same trade-off as get_script_tags().
+		$this->assertFalse( $this->instance->is_opened_script( $buffer ) );
 	}
 }
