@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Overview and Settings adopt the shared `BoundedLayout` widths — 1344px for Overview (matches MSD) and 660px for Settings — so the SEO product lines up with other Jetpack admin surfaces.

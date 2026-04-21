@@ -2,6 +2,7 @@
 
 /* eslint-disable react/jsx-no-bind */
 
+import { BoundedLayout } from '@automattic/jetpack-components';
 import { Button, Notice, Spinner, TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -128,18 +129,18 @@ const SettingsScreen: FC = () => {
 
 	if ( isLoading || ! data || ! local ) {
 		return (
-			<div className={ styles.page }>
+			<BoundedLayout width="compact" className={ styles.page }>
 				<Spinner />
-			</div>
+			</BoundedLayout>
 		);
 	}
 	if ( isError ) {
 		return (
-			<div className={ styles.page }>
+			<BoundedLayout width="compact" className={ styles.page }>
 				<Notice status="error" isDismissible={ false }>
 					{ error?.message ?? __( 'Unable to load settings.', 'jetpack-seo' ) }
 				</Notice>
-			</div>
+			</BoundedLayout>
 		);
 	}
 
@@ -175,7 +176,7 @@ const SettingsScreen: FC = () => {
 	//   6. AI crawlers            — block/allow LLM crawlers
 	//   7. Site verification      — connect to search consoles last
 	return (
-		<div className={ styles.page }>
+		<BoundedLayout width="compact" className={ styles.page }>
 			<TitleStructureField
 				tokens={ postsTokens }
 				onChange={ setTitleTokens }
@@ -240,7 +241,7 @@ const SettingsScreen: FC = () => {
 				onChange={ setVerification }
 				disabled={ mutation.isPending }
 			/>
-		</div>
+		</BoundedLayout>
 	);
 };
 

@@ -1,0 +1,19 @@
+// Standardized content-area widths shared across Jetpack products. Mirrors
+// MSD (Multi-site Dashboard) layout tokens so admin surfaces stay aligned.
+// `compact` is for focused forms and settings; `wide` is for dashboards.
+.bounds {
+	--jp-bounded-layout-width: 1344px;
+
+	box-sizing: border-box;
+	width: 100%;
+	max-width: var(--jp-bounded-layout-width);
+	margin-inline: auto;
+}
+
+.compact {
+	--jp-bounded-layout-width: 660px;
+}
+
+.wide {
+	--jp-bounded-layout-width: 1344px;
+}

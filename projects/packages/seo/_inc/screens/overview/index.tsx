@@ -1,5 +1,6 @@
 /* eslint-disable jsdoc/require-returns */
 
+import { BoundedLayout } from '@automattic/jetpack-components';
 import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import useOverview from '../../data/use-overview';
@@ -19,23 +20,27 @@ const OverviewScreen: FC = () => {
 
 	if ( isLoading ) {
 		return (
-			<div className={ styles.loading }>
-				<Spinner />
-				<span>{ __( 'Loading site visibility…', 'jetpack-seo' ) }</span>
-			</div>
+			<BoundedLayout width="wide">
+				<div className={ styles.loading }>
+					<Spinner />
+					<span>{ __( 'Loading site visibility…', 'jetpack-seo' ) }</span>
+				</div>
+			</BoundedLayout>
 		);
 	}
 
 	if ( isError || ! data ) {
 		return (
-			<Notice status="error" isDismissible={ false }>
-				{ error?.message ?? __( 'Unable to load overview.', 'jetpack-seo' ) }
-			</Notice>
+			<BoundedLayout width="wide">
+				<Notice status="error" isDismissible={ false }>
+					{ error?.message ?? __( 'Unable to load overview.', 'jetpack-seo' ) }
+				</Notice>
+			</BoundedLayout>
 		);
 	}
 
 	return (
-		<>
+		<BoundedLayout width="wide">
 			{ ! data.plan.seo_enabled_for_site && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
@@ -50,7 +55,7 @@ const OverviewScreen: FC = () => {
 				<AiDiscoverabilityCard data={ data.ai_discoverability } />
 				<SiteVerificationCard data={ data.site_verification } />
 			</div>
-		</>
+		</BoundedLayout>
 	);
 };
 
