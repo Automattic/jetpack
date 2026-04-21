@@ -26,9 +26,8 @@ const createLocalizedDescriptionWithLearnMore = (
 	} );
 
 	// When the description is used as a string (e.g. inserter search), fall back to the original text.
-	element.toString = () => String( description );
-
-	return element;
+	// React elements are frozen in dev mode, so we spread into a new object.
+	return { ...element, toString: () => String( description ) };
 };
 
 /**
