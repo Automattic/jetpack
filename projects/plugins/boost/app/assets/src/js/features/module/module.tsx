@@ -1,4 +1,5 @@
-import { getRedirectUrl, Notice, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { Notice } from '@wordpress/ui';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
@@ -61,14 +62,16 @@ const Module = ( {
 
 	const showOfflineMessage = ! site.online && ! worksOffline;
 	const offlineMessage = (
-		<Notice level="warning" hideCloseButton={ true }>
-			<div className={ styles.offlineMessage }>
-				{ __(
-					'This module will not work while your website is not publicly available.',
-					'jetpack-boost'
-				) }
-			</div>
-		</Notice>
+		<Notice.Root intent="warning">
+			<Notice.Description>
+				<div className={ styles.offlineMessage }>
+					{ __(
+						'This module will not work while your website is not publicly available.',
+						'jetpack-boost'
+					) }
+				</div>
+			</Notice.Description>
+		</Notice.Root>
 	);
 
 	const handleToggle = () => {
@@ -139,28 +142,27 @@ export default ( props: ModuleProps ) => {
 						<h3>{ props.title }</h3>
 
 						<div className={ styles[ 'failed-module-notice' ] }>
-							<Notice
-								level="error"
-								hideCloseButton={ true }
-								title={ __( 'Failed to load module', 'jetpack-boost' ) }
-							>
-								<p>
-									{ createInterpolateElement(
-										__(
-											'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
-											'jetpack-boost'
-										),
-										{
-											link: (
-												<ExternalLink
-													href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
-												/>
+							<Notice.Root intent="error">
+								<Notice.Title>{ __( 'Failed to load module', 'jetpack-boost' ) }</Notice.Title>
+								<Notice.Description>
+									<p>
+										{ createInterpolateElement(
+											__(
+												'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
+												'jetpack-boost'
 											),
-										}
-									) }
-								</p>
-								<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
-							</Notice>
+											{
+												link: (
+													<ExternalLink
+														href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
+													/>
+												),
+											}
+										) }
+									</p>
+									<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
+								</Notice.Description>
+							</Notice.Root>
 						</div>
 					</div>
 				</div>

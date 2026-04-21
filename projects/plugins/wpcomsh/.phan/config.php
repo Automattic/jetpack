@@ -18,6 +18,9 @@ return make_phan_config(
 			__DIR__ . '/../../../packages/classic-theme-helper/_inc/lib/class.color.php',
 			// We have a stub for this because the real file has duplicate trait definitions.
 			'tests/WP_UnitTestCase_Fix.php',
+			// The reprint-importer vendor has its own WP stubs that clash
+			// with the WordPress stubs Phan already loads.
+			'vendor/wp-php-toolkit/reprint-importer/src/lib/wp-stubs.php',
 		),
 		'parse_file_list'       => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
