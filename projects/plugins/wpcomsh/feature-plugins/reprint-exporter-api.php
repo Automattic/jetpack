@@ -2,14 +2,14 @@
 /**
  * Reprint Exporter API — wpcomsh integration for the reprint-exporter package.
  *
- * Exposes export endpoints at /reprint-api/.
+ * Exposes export endpoints at ?reprint-api.
  *
  * Gating:
  *
  * * rotate-secret REST route is always registered; its permission
  *   callback only accepts Jetpack-signed requests, so it can only be
  *   invoked through the WPCOM public API proxy.
- * * /reprint-api/ export requires the reprint_exporter_enabled site
+ * * ?reprint-api export requires the reprint_exporter_enabled site
  *   option to be a unix timestamp within the last 60 minutes AND the
  *   request to carry A8C_PROXIED_REQUEST (set by a8c infrastructure
  *   for Automattician proxy sessions). Each accepted request bumps
@@ -39,7 +39,7 @@
  *    That secret is later used to authenticate export requests via HMAC.
  *
  * 2. Export streaming — the client (now holding the shared secret)
- *    talks directly to the site at /reprint-api/ using HMAC-signed requests.
+ *    talks directly to the site at ?reprint-api using HMAC-signed requests.
  *
  *    This exchange bypasses the public API entirely because:
  *       - public-api doesn't support streaming
@@ -52,22 +52,23 @@
 // -- WordPress hooks ----------------------------------------------------------
 
 /**
- * Handles the /reprint-api/ request.
+ * Handles the ?reprint-api request.
  *
  * Hooked on `parse_request` so we run before WordPress resolves the
  * query and long before any template output (important on Private
  * Sites, whose template_redirect hooks redirect + exit).
- *
- * Uses the /reprint-api/ path (not a query param) because the WoA
- * CDN caches the homepage and ignores unknown query parameters —
- * /reprint-api/ would be served from cache without hitting PHP.
  *
  * @param WP $wp The WordPress environment instance.
  *
  * @codeCoverageIgnore — calls exit().
  */
 function wpcomsh_reprint_handle_request( $wp ) {
-	if ( 'reprint-api' !== $wp->request ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! isset( $_GET['reprint-api'] ) ) {
+		return;
+	}
+
+	if ( '' !== $wp->request ) {
 		return;
 	}
 
@@ -176,7 +177,7 @@ add_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_r
 // -- Helpers ------------------------------------------------------------------
 
 /**
- * Gate for the /reprint-api/ export handler: option timestamp within
+ * Gate for the ?reprint-api export handler: option timestamp within
  * the last 60 minutes AND a proxied-Automattician request.
  *
  * @return bool
