@@ -13,6 +13,7 @@ class GuidelineSyncTest extends WP_UnitTestCase {
 
 	public function test_guideline_prefix_is_whitelisted() {
 		$posts_module = \Automattic\Jetpack\Sync\Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $posts_module';
 		if ( ! $posts_module || ! method_exists( $posts_module, 'is_whitelisted_post_meta' ) ) {
 			$this->markTestSkipped( 'Sync Posts module not available.' );
 		}
