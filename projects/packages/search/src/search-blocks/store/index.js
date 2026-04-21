@@ -182,7 +182,7 @@ function* fetchResults( pageHandle ) {
 
 /**
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
- * Interactivity API templates. Mirrors Search_Blocks::normalize_result() in PHP.
+ * Interactivity API templates.
  *
  * @param {object} raw - Raw result from the API.
  * @return {object} Flat result.
@@ -243,20 +243,25 @@ const { state, actions } = store( NAMESPACE, {
 		 * Templates therefore must bind to a single getter, so derived
 		 * visibility flags live here.
 		 *
+		 * Also requires `searchQuery` so the message doesn't flash on a
+		 * bare `/search/` page where the user hasn't typed anything yet.
+		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
 		get showNoResults() {
-			return ! state.isLoading && state.results.length === 0;
+			return !! state.searchQuery && ! state.isLoading && state.results.length === 0;
 		},
 
 		/**
-		 * Derived load-more visibility — see `showNoResults` for why this
-		 * isn't inlined into the template.
+		 * Derived load-more wrapper visibility. Only checks `pageHandle`
+		 * (whether another page is available) — the button and spinner
+		 * inside handle their own loading-state visibility, which lets
+		 * the spinner remain visible while `isLoadingMore` is true.
 		 *
-		 * @return {boolean} True when the load-more control should show.
+		 * @return {boolean} True when the load-more wrapper should show.
 		 */
 		get showLoadMore() {
-			return !! state.pageHandle && ! state.isLoadingMore;
+			return !! state.pageHandle;
 		},
 	},
 
@@ -299,10 +304,11 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} fetch + response.json() promises.
 		 */
 		*loadMore() {
-			if ( ! state.pageHandle || state.isLoading ) {
+			if ( ! state.pageHandle || state.isLoading || state.isLoadingMore ) {
 				return;
 			}
 			state.isLoadingMore = true;
+			state.hasError = false;
 			try {
 				const data = yield* fetchResults( state.pageHandle );
 				state.results = [ ...state.results, ...( data.results ?? [] ).map( normalizeResult ) ];

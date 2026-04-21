@@ -165,11 +165,11 @@ class Search_Blocks {
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
-			// /?s=boots&orderby=date renders correctly on first paint.
+			// /?s=boots&orderby=newest renders correctly on first paint.
 			'searchQuery'   => $search_query,
 			'sortOrder'     => static::parse_url_sort(),
 
-			// Results (populated by search-results block render.php).
+			// Results — always start empty; the JS store fetches on hydration.
 			'results'       => array(),
 			'totalResults'  => 0,
 			'pageHandle'    => null,

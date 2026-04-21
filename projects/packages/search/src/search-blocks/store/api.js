@@ -36,7 +36,7 @@ const SORT_QUERY_MAP = {
  * @param {object}      opts               - Options.
  * @param {number}      opts.siteId        - Site ID.
  * @param {string}      opts.searchQuery   - Search query string.
- * @param {string}      opts.sortOrder     - 'relevance' | 'date'.
+ * @param {string}      opts.sortOrder     - 'relevance' | 'newest' | 'oldest'.
  * @param {string|null} opts.pageHandle    - Cursor for pagination.
  * @param {boolean}     opts.isPrivateSite - Whether the site is private.
  * @param {boolean}     opts.isWpcom       - Whether the site runs on WordPress.com.

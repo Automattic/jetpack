@@ -9,6 +9,7 @@
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/no-results.js",
 	"attributes": {
 		"message": { "type": "string", "default": "" }
 	}
