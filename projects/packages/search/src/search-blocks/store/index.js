@@ -6,6 +6,7 @@ import { pushStateToUrl, readStateFromUrl } from './url-state';
 const NAMESPACE = 'jetpack-search';
 const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
 const ANY_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
+let initialized = false;
 
 /**
  * Ensure a URL starts with http(s)://. The v1.3 API returns hostless URLs
@@ -230,10 +231,20 @@ const { state, actions } = store( NAMESPACE, {
 
 	callbacks: {
 		/**
-		 * Register popstate listener once when any block mounts.
+		 * Fires when the search-results block mounts. Runs the initial
+		 * search if the URL seeded a query and registers the popstate
+		 * listener. Guarded so multiple blocks on the same page share a
+		 * single listener and a single initial fetch.
 		 */
-		onMount() {
+		initialize() {
+			if ( initialized ) {
+				return;
+			}
+			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
+			if ( state.searchQuery ) {
+				actions.search();
+			}
 		},
 	},
 } );
