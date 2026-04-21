@@ -110,8 +110,12 @@ function ConnectRow( { title, description, onClick } ) {
 				<Icon icon={ connection } size={ 24 } />
 			</span>
 			<span className="jetpack-ai-mcp__connect-row-text">
-				<p className="jetpack-ai-mcp__connect-row-title">{ title }</p>
-				<p className="jetpack-ai-mcp__connect-row-description">{ description }</p>
+				<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
+					{ title }
+				</Text>
+				<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
+					{ description }
+				</Text>
 			</span>
 			<span className="jetpack-ai-mcp__connect-row-chevron">
 				<Icon icon={ chevronRight } size={ 24 } />
