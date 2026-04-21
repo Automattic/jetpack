@@ -178,7 +178,14 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+			...jetpackWebpackConfig.DependencyExtractionPlugin( {
+				// Match Boost: @wordpress/ui pulls these in; they are not reliable as WP script
+				// handles in all contexts, so bundle them instead of externalizing.
+				requestMap: {
+					'@wordpress/theme': { external: false },
+					'@wordpress/private-apis': { external: false },
+				},
+			} ),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,
