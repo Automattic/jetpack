@@ -20,7 +20,6 @@ class AI_Answers {
 	 */
 	public function init() {
 		add_action( 'init', array( $this, 'register_post_types' ) );
-		add_filter( 'jetpack_search_ai_answers_enabled', array( $this, 'is_feature_enabled' ) );
 	}
 
 	/**
@@ -91,20 +90,12 @@ class AI_Answers {
 	}
 
 	/**
-	 * Return true if AI Answers feature is enabled.
-	 * Reads the jetpack_search_ai_answers_enabled option; defaults to false.
-	 *
-	 * @param bool $enabled Current enabled state.
-	 * @return bool
-	 */
-	public function is_feature_enabled( $enabled ) {
-		return $enabled || (bool) get_option( 'jetpack_search_ai_answers_enabled', false );
-	}
-
-	/**
 	 * Whether AI Answers is enabled for the current site.
 	 */
 	public static function is_enabled() {
-		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', false );
+		return (bool) apply_filters(
+			'jetpack_search_ai_answers_enabled',
+			(bool) get_option( 'jetpack_search_ai_answers_enabled', false )
+		);
 	}
 }
