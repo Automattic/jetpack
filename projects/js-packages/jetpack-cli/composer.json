@@ -19,6 +19,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"changelogger": {},
 		"mirror-repo": "Automattic/jetpack-cli",
 		"npmjs-autopublish": true,
 		"autotagger": true

@@ -70,6 +70,7 @@
 		"autotagger": {
 			"v": false
 		},
+		"changelogger": {},
 		"mirror-repo": "Automattic/jetpack-social-plugin",
 		"release-branch-prefix": [
 			"social",

@@ -63,6 +63,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"changelogger": {},
 		"mirror-repo": "Automattic/jetpack-protect-plugin",
 		"autorelease": true,
 		"autotagger": {

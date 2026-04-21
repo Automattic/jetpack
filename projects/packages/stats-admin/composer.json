@@ -53,6 +53,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
+		"changelogger": {},
 		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
 			"dev-trunk": "0.31.x-dev"

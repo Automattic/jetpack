@@ -55,6 +55,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"changelogger": {},
 		"mirror-repo": "Automattic/paypal-payment-buttons",
 		"release-branch-prefix": "paypal-payment-buttons",
 		"autorelease": true,

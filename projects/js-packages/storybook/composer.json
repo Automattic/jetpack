@@ -23,6 +23,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"changelogger": {},
 		"mirror-repo": "Automattic/jetpack-storybook"
 	}
 }

@@ -46,6 +46,7 @@
 		"autorelease": {
 			"titlefmt": "Jetpack Beta %s"
 		},
+		"changelogger": {},
 		"mirror-repo": "Automattic/jetpack-beta",
 		"release-branch-prefix": "jetpack-beta",
 		"version-constants": {
