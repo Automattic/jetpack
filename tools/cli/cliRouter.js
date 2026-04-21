@@ -59,6 +59,7 @@ export async function cli() {
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
 	argv
+		.strict()
 		.showHelpOnFail( true )
 		.demandCommand()
 		.recommendCommands()

@@ -28,25 +28,25 @@ describe( 'Reconnect', () => {
 		jest.clearAllMocks();
 	} );
 
-	test( 'renders the Reconnect button with correct label', () => {
+	test( 'renders the Reconnect link with correct label', () => {
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
-		expect( screen.getByRole( 'button' ) ).toHaveTextContent( 'Reconnect' );
+		expect( screen.getByRole( 'link' ) ).toHaveTextContent( 'Reconnect' );
 	} );
 
-	test( 'disables the button when isDisconnecting is true', () => {
+	test( 'disables the link when isDisconnecting is true', () => {
 		setup( { getDeletingConnections: [ mockConnection.connection_id ] } );
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
-		const button = screen.getByRole( 'button' );
-		expect( button ).toBeDisabled();
-		expect( button ).toHaveTextContent( 'Disconnecting…' );
+		const link = screen.getByRole( 'link' );
+		expect( link ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( link ).toHaveTextContent( 'Disconnecting…' );
 	} );
 
-	test( 'calls deleteConnectionById and requestAccess on button click', async () => {
+	test( 'calls deleteConnectionById and requestAccess on link click', async () => {
 		const { stubDeleteConnectionById } = setup();
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
-		await userEvent.click( screen.getByRole( 'button' ) );
+		await userEvent.click( screen.getByRole( 'link' ) );
 
 		expect( stubDeleteConnectionById ).toHaveBeenCalledWith( {
 			connectionId: mockConnection.connection_id,
@@ -56,10 +56,10 @@ describe( 'Reconnect', () => {
 		expect( useRequestAccess ).toHaveBeenCalled();
 	} );
 
-	test( 'does not render the button if connection cannot be disconnected', () => {
+	test( 'does not render the link if connection cannot be disconnected', () => {
 		setup( { canUserManageConnection: false } );
 		render( <Reconnect connection={ mockConnection } service={ mockService } /> );
 
-		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 } );

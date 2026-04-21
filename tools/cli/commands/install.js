@@ -39,6 +39,7 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Installs everything',
 		} )
+		.option( 'pnpm-install', { type: 'boolean', hidden: true } )
 		.option( 'no-pnpm-install', {
 			type: 'boolean',
 			description: 'Skip execution of `pnpm install`.',

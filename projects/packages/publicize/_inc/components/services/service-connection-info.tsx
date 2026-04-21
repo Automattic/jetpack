@@ -85,12 +85,7 @@ export const ServiceConnectionInfo = ( {
 				} )( connection ) }
 			</div>
 			<div className={ styles[ 'connection-actions' ] }>
-				<Disconnect
-					connection={ connection }
-					isDestructive={ false }
-					variant="tertiary"
-					buttonClassName={ styles.disconnect }
-				/>
+				<Disconnect connection={ connection } variant="minimal" />
 			</div>
 		</div>
 	);

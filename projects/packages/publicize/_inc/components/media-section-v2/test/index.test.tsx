@@ -87,10 +87,14 @@ jest.mock( '../../../utils', () => ( {
 	} ) ),
 } ) );
 
-jest.mock( '@automattic/jetpack-ai-client', () => ( {
-	GeneralPurposeImage: () => <div data-testid="ai-image-modal">AI Image Modal</div>,
-	AiSVG: 'svg',
-} ) );
+jest.mock(
+	'@automattic/jetpack-ai-client',
+	() => ( {
+		GeneralPurposeImage: () => <div data-testid="ai-image-modal">AI Image Modal</div>,
+		AiSVG: 'svg',
+	} ),
+	{ virtual: true }
+);
 
 jest.mock( '@wordpress/hooks', () => ( {
 	applyFilters: ( ...args: unknown[] ) => mockApplyFilters( ...args ),
@@ -259,10 +263,10 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 /> );
 
 			// Open dropdown
-			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Use template' } ) );
+			await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'sig',
@@ -283,10 +287,10 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 /> );
 
 			// Open dropdown
-			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select Use featured image
-			await user.click( screen.getByRole( 'menuitem', { name: 'Use featured image' } ) );
+			await user.click( screen.getByRole( 'menuitem', { name: 'Featured image' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'featured-image',
@@ -307,10 +311,10 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 analyticsData={ { test: 'data' } } /> );
 
 			// Open dropdown
-			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Use template' } ) );
+			await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {
 				test: 'data',
@@ -319,18 +323,20 @@ describe( 'MediaSectionV2', () => {
 		} );
 	} );
 
-	describe( 'Remove media', () => {
+	describe( 'Remove media via No media option', () => {
 		beforeEach( () => {
-			// Set up explicit media selection to show Remove button
+			// Set up state with no featured image so "No media" option appears
+			( useFeaturedImage as jest.Mock ).mockReturnValue( null );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
-				attachedMedia: [ { id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' } ],
-				imageGeneratorSettings: { enabled: false },
-				mediaSource: 'media-library',
+				attachedMedia: [],
+				imageGeneratorSettings: { enabled: true },
+				mediaSource: 'sig',
 				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
 			} );
 		} );
 
 		afterEach( () => {
+			( useFeaturedImage as jest.Mock ).mockReturnValue( 123 );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: false },
@@ -339,12 +345,16 @@ describe( 'MediaSectionV2', () => {
 			} );
 		} );
 
-		it( 'should clear media and record event when Remove is clicked', async () => {
+		it( 'should clear media and record event when No media is selected', async () => {
 			const user = userEvent.setup();
 
 			render( <MediaSectionV2 analyticsData={ { test: 'data' } } /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'Remove' } ) );
+			// Open dropdown
+			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
+
+			// Click No media
+			await user.click( screen.getByRole( 'menuitem', { name: 'No media' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: undefined,
@@ -353,31 +363,13 @@ describe( 'MediaSectionV2', () => {
 			} );
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_removed', {
 				test: 'data',
-				source: 'media-library',
+				source: 'sig',
 			} );
-		} );
-
-		it( 'should not show Remove button for featured image fallback', () => {
-			// Reset to featured image fallback state
-			( usePostMeta as jest.Mock ).mockReturnValue( {
-				attachedMedia: [],
-				imageGeneratorSettings: { enabled: false },
-				mediaSource: undefined,
-				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
-			} );
-
-			render( <MediaSectionV2 /> );
-
-			// Featured image preview should be shown
-			expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
-			// But Remove button should not be shown
-			expect( screen.queryByRole( 'button', { name: 'Remove' } ) ).not.toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'Disabled state', () => {
 		beforeEach( () => {
-			// Set up explicit media selection to show Remove button
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [ { id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' } ],
 				imageGeneratorSettings: { enabled: false },
@@ -395,11 +387,10 @@ describe( 'MediaSectionV2', () => {
 			} );
 		} );
 
-		it( 'should disable buttons when disabled prop is true', () => {
+		it( 'should disable Select button when disabled prop is true', () => {
 			render( <MediaSectionV2 disabled={ true } /> );
 
-			expect( screen.getByRole( 'button', { name: 'Replace' } ) ).toBeDisabled();
-			expect( screen.getByRole( 'button', { name: 'Remove' } ) ).toBeDisabled();
+			expect( screen.getByRole( 'button', { name: 'Select' } ) ).toBeDisabled();
 		} );
 	} );
 
@@ -429,7 +420,7 @@ describe( 'MediaSectionV2', () => {
 			expect( screen.queryByTestId( 'ai-image-modal' ) ).not.toBeInTheDocument();
 
 			// Open dropdown
-			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Generate image option
 			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
@@ -446,7 +437,7 @@ describe( 'MediaSectionV2', () => {
 			render( <MediaSectionV2 /> );
 
 			// Open dropdown
-			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Generate image option
 			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );

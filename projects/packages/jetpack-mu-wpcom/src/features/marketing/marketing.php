@@ -187,7 +187,6 @@ function wpcom_display_marketing_tools_page() {
 				<p><?php esc_html_e( "We've added premium plugins to boost your site's capabilities. From bookings and subscriptions to email marketing and SEO tools, we have you covered.", 'jetpack-mu-wpcom' ); ?></p>
 				<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $domain . '?ref=wpcom-marketing-tools' ); ?>" class="button button-primary">
 					<?php esc_html_e( 'Get started', 'jetpack-mu-wpcom' ); ?>
-					<span class="dashicons dashicons-arrow-right-alt"></span>
 				</a>
 			</div>
 			<div class="wpcom-marketing-tools-premium-plugins__image">

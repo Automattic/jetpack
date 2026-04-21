@@ -53,6 +53,10 @@ type FeedbackFilters = {
 
 const EMPTY_ARRAY = [];
 
+// Sentinel value used in the Source filter to represent form-preview (test) responses.
+// Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
+const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
+
 const defaultLayouts = {
 	table: {},
 	list: {},
@@ -65,6 +69,7 @@ type QueryParams = {
 	orderby?: string;
 	order?: string;
 	is_unread?: boolean;
+	is_test?: boolean;
 	parent?: string;
 	source?: string;
 	before?: string;
@@ -303,7 +308,11 @@ function StageInner() {
 				queryArgs.is_unread = filter.value === 'unread';
 			}
 			if ( ! isSingleFormView && filter.field === 'source' ) {
-				queryArgs.source = filter.value;
+				if ( filter.value === FORM_PREVIEW_SOURCE_VALUE ) {
+					queryArgs.is_test = true;
+				} else {
+					queryArgs.source = filter.value;
+				}
 			}
 			if ( filter.field === 'date' ) {
 				const filterValue: unknown = filter.value;
@@ -485,9 +494,16 @@ function StageInner() {
 							/>
 							{ styleUnreadValue(
 								<Stack direction="column" gap="2xs">
-									<Text ellipsizeMode="tail" limit={ 50 } truncate>
-										{ displayName }
-									</Text>
+									<Stack direction="row" align="center" gap="xs">
+										<Text ellipsizeMode="tail" limit={ 50 } truncate>
+											{ displayName }
+										</Text>
+										{ item.is_test && (
+											<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
+												{ __( 'Test', 'jetpack-forms' ) }
+											</Badge>
+										) }
+									</Stack>
 									{ showEmail && (
 										<Text variant="muted" size={ 12 } ellipsizeMode="tail" limit={ 50 } truncate>
 											{ item.author_email }
@@ -526,6 +542,18 @@ function StageInner() {
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
+					// Test responses point at the regenerated preview URL instead of
+					// the hosting page, and always surface as "Form preview".
+					if ( item.is_test ) {
+						const previewLabel = __( 'Form preview', 'jetpack-forms' );
+						if ( item.preview_url ) {
+							return styleUnreadValue(
+								<ExternalLink href={ item.preview_url }>{ previewLabel }</ExternalLink>,
+								item.is_unread
+							);
+						}
+						return styleUnreadValue( previewLabel, item.is_unread );
+					}
 					const source =
 						item.entry_title ||
 						getUrlPath( item.entry_permalink ) ||
@@ -538,15 +566,19 @@ function StageInner() {
 					}
 					return styleUnreadValue( source, item.is_unread );
 				},
-				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-					source => ( {
+				elements: [
+					{
+						value: FORM_PREVIEW_SOURCE_VALUE,
+						label: __( 'Form preview', 'jetpack-forms' ),
+					},
+					...( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map( source => ( {
 						value: source.id.toString(),
 						label:
 							decodeEntities( source.title ) ||
 							getUrlPath( source.url ) ||
 							__( '(no title)', 'jetpack-forms' ),
-					} )
-				),
+					} ) ),
+				],
 				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},

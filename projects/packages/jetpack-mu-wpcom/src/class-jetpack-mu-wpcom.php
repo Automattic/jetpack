@@ -374,9 +374,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
-		// Enable newsletter settings for sites with the newsletter-package-202603 sticker.
-		add_filter( 'jetpack_wp_admin_newsletter_settings_enabled', 'wpcom_maybe_enable_newsletter_settings' );
-
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
 		\Automattic\Jetpack\Newsletter\Settings::init();

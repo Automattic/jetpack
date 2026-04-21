@@ -242,16 +242,13 @@ const Admin = () => {
 								</Col>
 							) }
 
-							<Col sm={ 4 } md={ 4 } lg={ 8 }>
+							<Col sm={ 4 } md={ 8 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
 
 								{ hasVideoPressPurchase && (
-									<ConnectVideoStorageMeter
-										className={ styles[ 'storage-meter' ] }
-										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
-									/>
+									<ConnectVideoStorageMeter className={ styles[ 'storage-meter' ] } />
 								) }
 
 								{ hasVideos ? (

@@ -72,7 +72,6 @@ import {
 	isWooCommerceActive,
 	userIsSubscriber,
 	getJetpackManageInfo,
-	isWpAdminNewsletterSettingsEnabled,
 } from 'state/initial-state';
 import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
@@ -145,7 +144,6 @@ const settingsRoutes = [
 	'/sharing',
 	'/discussion',
 	'/earn',
-	'/newsletter',
 	'/reader',
 	'/traffic',
 	'/privacy',
@@ -332,7 +330,6 @@ class Main extends Component {
 			case '/sharing':
 			case '/discussion':
 			case '/earn':
-			case '/newsletter':
 			case '/reader':
 			case '/traffic':
 			case '/privacy':
@@ -540,20 +537,7 @@ class Main extends Component {
 				window.location.href = getRedirectUrl( 'jetpack-plans', { site: this.props.siteRawUrl } );
 				break;
 			case '/newsletter':
-				if ( this.props.isWpAdminNewsletterSettingsEnabled ) {
-					window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
-					break;
-				}
-				pageComponent = (
-					<SearchableSettings
-						siteAdminUrl={ this.props.siteAdminUrl }
-						siteRawUrl={ this.props.siteRawUrl }
-						blogID={ this.props.blogID }
-						searchTerm={ this.props.searchTerm }
-						rewindStatus={ this.props.rewindStatus }
-						userCanManageModules={ this.props.userCanManageModules }
-					/>
-				);
+				window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
 				break;
 			case '/settings':
 			case '/security':
@@ -957,7 +941,6 @@ export default connect(
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
 			isSubscriber: userIsSubscriber( state ),
 			jetpackManage: getJetpackManageInfo( state ),
-			isWpAdminNewsletterSettingsEnabled: isWpAdminNewsletterSettingsEnabled( state ),
 		};
 	},
 	dispatch => ( {
