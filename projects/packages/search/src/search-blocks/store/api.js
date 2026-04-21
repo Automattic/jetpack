@@ -54,8 +54,13 @@ export function buildSearchUrl( {
 	apiRoot,
 	homeUrl = '',
 } ) {
+	// `qss.encode()` runs `encodeURIComponent` on every value, so we pass the
+	// raw query here. The instant-search code double-encodes (pre-encodes
+	// before handing to qss), which works today only because the v1.3 API
+	// silently tolerates it — queries with `&`, `+`, or non-ASCII characters
+	// would otherwise search for the wrong string.
 	const params = {
-		query: encodeURIComponent( searchQuery || '' ),
+		query: searchQuery || '',
 		sort: SORT_QUERY_MAP[ sortOrder ] ?? 'score_default',
 		size: 10,
 		fields: SEARCH_FIELDS,

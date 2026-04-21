@@ -69,6 +69,25 @@ describe( 'buildSearchUrl', () => {
 		expect( url ).toContain( 'sort=date_asc' );
 	} );
 
+	it( 'single-encodes special characters in the search query', () => {
+		// `qss.encode` already runs encodeURIComponent, so the string we pass
+		// in must be raw. Double-encoding would turn `&` into `%2526` and
+		// send the API a search for the literal `%26` instead of a space-
+		// separated query.
+		const url = buildSearchUrl( {
+			siteId: 12345,
+			searchQuery: 'cats & dogs',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+		} );
+		expect( url ).toContain( 'query=cats%20%26%20dogs' );
+		expect( url ).not.toContain( '%2520' );
+		expect( url ).not.toContain( '%2526' );
+	} );
+
 	it( 'falls back to score_default for unknown sort values', () => {
 		const url = buildSearchUrl( {
 			siteId: 12345,
