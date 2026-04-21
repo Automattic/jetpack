@@ -34,12 +34,12 @@ class WPCOMSH_Recovery_Mode_Sync {
 	private const PAUSED_EXTENSIONS_OPTION_SUFFIX = '_paused_extensions';
 
 	/**
-	 * Pending state snapshot. Null until the first observed change this
-	 * request — its non-null-ness doubles as the "send needed" flag.
+	 * Pending state snapshot. Empty until the first capture this request —
+	 * its non-emptiness doubles as the "send needed" flag.
 	 *
-	 * @var array<string,int>|null
+	 * @var array<string,int>
 	 */
-	private static $payload = null;
+	private static $payload = array();
 
 	/**
 	 * Register option-change listeners.
@@ -125,7 +125,7 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 * the dying request.
 	 */
 	public static function send() {
-		if ( self::$payload === null ) {
+		if ( empty( self::$payload ) ) {
 			return;
 		}
 		if ( ! class_exists( Jetpack_Connection_Client::class ) ) {
@@ -201,7 +201,7 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 * Populate the in-memory state snapshot once per request.
 	 */
 	private static function snapshot() {
-		if ( self::$payload !== null ) {
+		if ( ! empty( self::$payload ) ) {
 			return;
 		}
 		self::$payload = array(
