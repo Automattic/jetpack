@@ -41,7 +41,7 @@ const VIEW_DESCRIPTIONS = {
 export default function App() {
 	const [ view, setView ] = useState( 'hub' );
 	const [ saveError, setSaveError ] = useState( null );
-	const { isLoading, isSaving, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
+	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings();
 
 	const handleUpdate = useCallback(
@@ -117,7 +117,7 @@ export default function App() {
 							<McpHub
 								mcpAbilities={ mcpAbilities }
 								blogId={ blogId }
-								isSaving={ isSaving }
+								savingToolIds={ savingToolIds }
 								onNavigate={ setView }
 								onUpdate={ handleUpdate }
 							/>
@@ -126,7 +126,7 @@ export default function App() {
 							<McpRead
 								mcpAbilities={ mcpAbilities }
 								blogId={ blogId }
-								isSaving={ isSaving }
+								savingToolIds={ savingToolIds }
 								onUpdate={ handleUpdate }
 							/>
 						) }
@@ -134,7 +134,7 @@ export default function App() {
 							<McpWrite
 								mcpAbilities={ mcpAbilities }
 								blogId={ blogId }
-								isSaving={ isSaving }
+								savingToolIds={ savingToolIds }
 								onUpdate={ handleUpdate }
 							/>
 						) }

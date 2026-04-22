@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { seen, pencil, connection, chevronRight } from '@wordpress/icons';
+import { seen, pencil, connection, chevronRight, info, published, caution } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import { isWriteTool } from './categories';
 import {
@@ -62,6 +62,31 @@ const BADGE_INTENT_MAP = {
 };
 
 /**
+ * Badge with an optional intent icon (info / checkmark / caution).
+ *
+ * @param {object}                            props       - Component props.
+ * @param {{ text: string, intent?: string }} props.badge - Badge descriptor.
+ * @return {object} Component markup.
+ */
+function BadgeWithIcon( { badge } ) {
+	const intent = badge.intent ?? 'neutral';
+	const iconMap = { success: published, info, warning: caution };
+	const badgeIcon = iconMap[ intent ];
+	return (
+		<Badge intent={ BADGE_INTENT_MAP[ intent ] ?? 'draft' }>
+			{ badgeIcon ? (
+				<span className="jetpack-ai-mcp__badge-content">
+					<Icon icon={ badgeIcon } size={ 14 } />
+					{ badge.text }
+				</span>
+			) : (
+				badge.text
+			) }
+		</Badge>
+	);
+}
+
+/**
  * A tappable row that navigates to a sub-view, visually similar to calypso's
  * RouterLinkSummaryButton.
  *
@@ -86,11 +111,7 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 					<Text>{ title }</Text>
 				</Stack>
 				<Stack direction="row" gap="sm" align="center" justify="flex-end">
-					{ badge && (
-						<Badge intent={ BADGE_INTENT_MAP[ badge.intent ?? 'neutral' ] ?? 'draft' }>
-							{ badge.text }
-						</Badge>
-					) }
+					{ badge && <BadgeWithIcon badge={ badge } /> }
 					<Icon icon={ chevronRight } size={ 20 } />
 				</Stack>
 			</Stack>
@@ -131,15 +152,15 @@ function ConnectRow( { title, description, onClick } ) {
 /**
  * MCP hub component.
  *
- * @param {object}   props              - Component props.
- * @param {object}   props.mcpAbilities - Full mcp_abilities object from API.
- * @param {number}   props.blogId       - Current site's blog ID.
- * @param {boolean}  props.isSaving     - Whether a save is in progress.
- * @param {Function} props.onNavigate   - Called with 'read' | 'write' | 'setup'.
- * @param {Function} props.onUpdate     - Called with partial mcp_abilities update.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.mcpAbilities  - Full mcp_abilities object from API.
+ * @param {number}   props.blogId        - Current site's blog ID.
+ * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
+ * @param {Function} props.onNavigate    - Called with 'read' | 'write' | 'setup'.
+ * @param {Function} props.onUpdate      - Called with partial mcp_abilities update.
  * @return {object} Component markup.
  */
-export default function McpHub( { mcpAbilities, blogId, isSaving, onNavigate, onUpdate } ) {
+export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigate, onUpdate } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
 	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
@@ -209,7 +230,7 @@ export default function McpHub( { mcpAbilities, blogId, isSaving, onNavigate, on
 						<ToggleControl
 							__nextHasNoMarginBottom
 							checked={ isMcpEnabled }
-							disabled={ isSaving }
+							disabled={ savingToolIds.has( '__site_level__' ) }
 							label={ __( 'Enable MCP access', 'jetpack' ) }
 							onChange={ handleMcpToggle }
 						/>

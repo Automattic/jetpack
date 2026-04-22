@@ -9,6 +9,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	Card,
 	CardBody,
+	Icon,
 	SelectControl,
 	TextareaControl,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -251,7 +252,7 @@ export default function McpSetup() {
 								onClick={ copyToClipboard }
 								aria-label={ __( 'Copy configuration to clipboard', 'jetpack' ) }
 							>
-								<Button.Icon icon={ copyStatus === 'success' ? check : copy } />
+								<Icon icon={ copyStatus === 'success' ? check : copy } size={ 18 } />
 							</Button>
 						</Stack>
 						<Text as="p" variant="muted">

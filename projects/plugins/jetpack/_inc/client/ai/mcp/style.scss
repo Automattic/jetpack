@@ -65,6 +65,20 @@
 		color: var(--color-neutral-60, #50575e);
 	}
 
+	&__badge-content {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	&__category-header-row {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+
 	&__tool-group-divider {
 		margin: 0;
 	}
@@ -103,5 +117,14 @@
 
 	&__action-button {
 		align-self: flex-start;
+
+		// When the button renders as an <a> tag, WP admin link styles can override
+		// the button's foreground color — force white text to match variant="solid".
+		&,
+		&:visited,
+		&:hover,
+		&:active {
+			color: var(--wp-ui-button-foreground-color, #fff);
+		}
 	}
 }

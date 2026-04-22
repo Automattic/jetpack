@@ -19,7 +19,7 @@ const ENDPOINT = '/wpcom/v2/jetpack-ai/mcp-settings';
  */
 export function useMcpSettings() {
 	const [ isLoading, setIsLoading ] = useState( true );
-	const [ isSaving, setIsSaving ] = useState( false );
+	const [ savingToolIds, setSavingToolIds ] = useState( () => new Set() );
 	const [ mcpAbilities, setMcpAbilities ] = useState( null );
 	const [ hasMcpAccess, setHasMcpAccess ] = useState( null );
 	const [ error, setError ] = useState( null );
@@ -64,7 +64,20 @@ export function useMcpSettings() {
 	 */
 	const updateMcpAbilities = useCallback(
 		update => {
-			setIsSaving( true );
+			// Collect the toolIds this request touches so only those toggles are disabled.
+			const siteEntry = update.sites?.[ 0 ] ?? {};
+			const toolIds = Object.keys( siteEntry.abilities ?? {} );
+			// Use a sentinel for site_level_enabled so the main toggle is also targeted.
+			if ( siteEntry.site_level_enabled !== undefined ) {
+				toolIds.push( '__site_level__' );
+			}
+
+			setSavingToolIds( prev => {
+				const next = new Set( prev );
+				toolIds.forEach( id => next.add( id ) );
+				return next;
+			} );
+
 			return apiFetch( {
 				path: ENDPOINT,
 				method: 'POST',
@@ -79,11 +92,15 @@ export function useMcpSettings() {
 					throw err;
 				} )
 				.finally( () => {
-					setIsSaving( false );
+					setSavingToolIds( prev => {
+						const next = new Set( prev );
+						toolIds.forEach( id => next.delete( id ) );
+						return next;
+					} );
 				} );
 		},
 		[ mcpAbilities ]
 	);
 
-	return { isLoading, isSaving, mcpAbilities, hasMcpAccess, error, updateMcpAbilities };
+	return { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities };
 }

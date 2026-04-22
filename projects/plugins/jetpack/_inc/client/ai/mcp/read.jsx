@@ -34,20 +34,20 @@ import {
 /**
  * A single tool toggle row.
  *
- * @param {object}   props          - Component props.
- * @param {string}   props.toolId   - Tool identifier.
- * @param {object}   props.tool     - Tool descriptor from the API.
- * @param {boolean}  props.isSaving - Whether a save is pending.
- * @param {Function} props.onToggle - Called with (toolId, enabled).
+ * @param {object}   props               - Component props.
+ * @param {string}   props.toolId        - Tool identifier.
+ * @param {object}   props.tool          - Tool descriptor from the API.
+ * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
+ * @param {Function} props.onToggle      - Called with (toolId, enabled).
  * @return {object} Component markup.
  */
-function ToolToggle( { toolId, tool, isSaving, onToggle } ) {
+function ToolToggle( { toolId, tool, savingToolIds, onToggle } ) {
 	const handleChange = useCallback( checked => onToggle( toolId, checked ), [ toolId, onToggle ] );
 	return (
 		<ToggleControl
 			__nextHasNoMarginBottom
 			checked={ tool.enabled }
-			disabled={ isSaving }
+			disabled={ savingToolIds.has( toolId ) }
 			label={ tool.title }
 			help={ tool.description }
 			onChange={ handleChange }
@@ -61,30 +61,30 @@ function ToolToggle( { toolId, tool, isSaving, onToggle } ) {
  * @param {object}   props               - Component props.
  * @param {string}   props.categoryName  - Display name of the category.
  * @param {boolean}  props.allEnabled    - Whether all tools in the category are enabled.
- * @param {boolean}  props.isSaving      - Whether a save is pending.
+ * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
  * @param {Array}    props.categoryTools - Tools in the category.
  * @param {Function} props.onEnableAll   - Called with (categoryTools, enabled).
  * @return {object} Component markup.
  */
-function CategoryHeader( { categoryName, allEnabled, isSaving, categoryTools, onEnableAll } ) {
+function CategoryHeader( { categoryName, allEnabled, savingToolIds, categoryTools, onEnableAll } ) {
 	const handleChange = useCallback(
 		checked => onEnableAll( categoryTools, checked ),
 		[ categoryTools, onEnableAll ]
 	);
 	return (
 		<CardHeader>
-			<Stack direction="row" justify="space-between" align="center">
+			<div className="jetpack-ai-mcp__category-header-row">
 				<Text as="h3" weight={ 600 } size={ 14 }>
 					{ categoryName }
 				</Text>
 				<ToggleControl
 					__nextHasNoMarginBottom
 					checked={ allEnabled }
-					disabled={ isSaving }
+					disabled={ categoryTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
 					label={ __( 'Enable all', 'jetpack' ) }
 					onChange={ handleChange }
 				/>
-			</Stack>
+			</div>
 		</CardHeader>
 	);
 }
@@ -92,14 +92,14 @@ function CategoryHeader( { categoryName, allEnabled, isSaving, categoryTools, on
 /**
  * MCP Read tools view.
  *
- * @param {object}   props              - Component props.
- * @param {object}   props.mcpAbilities - Full mcp_abilities object from the API.
- * @param {number}   props.blogId       - Current site's blog ID.
- * @param {boolean}  props.isSaving     - Whether a save is in progress.
- * @param {Function} props.onUpdate     - Called with partial mcp_abilities update.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.mcpAbilities  - Full mcp_abilities object from the API.
+ * @param {number}   props.blogId        - Current site's blog ID.
+ * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
+ * @param {Function} props.onUpdate      - Called with partial mcp_abilities update.
  * @return {object} Component markup.
  */
-export default function McpRead( { mcpAbilities, blogId, isSaving, onUpdate } ) {
+export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
 	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
@@ -168,7 +168,7 @@ export default function McpRead( { mcpAbilities, blogId, isSaving, onUpdate } ) 
 				key={ toolId }
 				toolId={ toolId }
 				tool={ tool }
-				isSaving={ isSaving }
+				savingToolIds={ savingToolIds }
 				onToggle={ handleToolChange }
 			/>
 		) );
@@ -224,7 +224,7 @@ export default function McpRead( { mcpAbilities, blogId, isSaving, onUpdate } ) 
 						<CategoryHeader
 							categoryName={ categoryName }
 							allEnabled={ allEnabled }
-							isSaving={ isSaving }
+							savingToolIds={ savingToolIds }
 							categoryTools={ categoryTools }
 							onEnableAll={ handleEnableAll }
 						/>
