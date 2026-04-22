@@ -249,6 +249,7 @@ class RegistrarTest extends TestCase {
 		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->twice();
 
 		TestFixtureRegistrar::init();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Deliberate: asserts repeat init() calls are safe.
 		TestFixtureRegistrar::init();
 	}
 

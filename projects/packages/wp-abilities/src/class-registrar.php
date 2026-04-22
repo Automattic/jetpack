@@ -6,7 +6,8 @@
  * @package automattic/jetpack-wp-abilities
  */
 
-// @phan-file-suppress PhanUndeclaredFunction -- Abilities API added in WP 6.9. We guard with function_exists() checks so the package is safe on older WP. @todo Remove this line when the minimum supported WordPress version is 6.9.
+// @phan-file-suppress PhanUndeclaredFunction @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9. We guard with function_exists() checks so the package is safe on older WP. @todo Remove this line when the minimum supported WordPress version is 6.9.
+// @phan-file-suppress PhanAbstractStaticMethodCallInStatic -- static:: dispatches to the concrete subclass for the three abstract getters; callers must not instantiate Registrar itself.
 
 namespace Automattic\Jetpack\WP_Abilities;
 
