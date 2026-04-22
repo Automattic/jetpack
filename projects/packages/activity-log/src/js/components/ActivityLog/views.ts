@@ -14,7 +14,10 @@ export const DEFAULT_VIEW: View = {
 			published: { minWidth: '240px' },
 			published_utc: { minWidth: '240px' },
 			actor: { minWidth: '100px' },
-			event: { minWidth: '580px' },
+			// `width: 100%` makes Event the flex column: it consumes whatever the
+			// date and user columns don't use, while still refusing to drop below
+			// its minWidth on narrow viewports.
+			event: { width: '100%', minWidth: '580px' },
 		},
 	},
 	showLevels: false,
