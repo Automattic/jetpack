@@ -19,7 +19,9 @@ use function admin_url;
 use function esc_url;
 use function esc_url_raw;
 use function get_bloginfo;
+use function get_option;
 use function get_site_url;
+use function get_user_locale;
 use function plugins_url;
 use function rest_url;
 use function wp_create_nonce;
@@ -46,9 +48,12 @@ class Initial_State {
 			),
 			'connectedPlugins' => Connection_Plugin_Storage::get_all(),
 			'siteData'         => array(
-				'id'       => Jetpack_Options::get_option( 'id' ),
-				'title'    => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
-				'adminUrl' => esc_url( admin_url() ),
+				'id'             => Jetpack_Options::get_option( 'id' ),
+				'title'          => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
+				'adminUrl'       => esc_url( admin_url() ),
+				'gmtOffset'      => (float) get_option( 'gmt_offset', 0 ),
+				'timezoneString' => (string) get_option( 'timezone_string', '' ),
+				'locale'         => get_user_locale(),
 			),
 			'assets'           => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),

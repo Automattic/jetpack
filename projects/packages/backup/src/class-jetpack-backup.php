@@ -175,6 +175,13 @@ class Jetpack_Backup {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+
+		// The Backup overview is a focused, full-screen product surface.
+		// Suppress JITMs and other core/plugin admin notices so they don't
+		// reflow on top of the dual-pane layout. Mirrors how Jetpack Forms
+		// handles its dashboard page (`plugins/forms/src/dashboard/class-dashboard.php`).
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
 	}
 
 	/**
@@ -398,6 +405,38 @@ class Jetpack_Backup {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => __CLASS__ . '::enqueue_backup',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
+		// Get the rewindable activity log entries for the Backups overview list.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/activity-log',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_activity_log',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+				'args'                => array(
+					'number'    => array(
+						'type'              => 'integer',
+						'default'           => 100,
+						'minimum'           => 1,
+						'maximum'           => 1000,
+						'sanitize_callback' => 'absint',
+					),
+					'aggregate' => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+					'after'     => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'before'    => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
 			)
 		);
 	}
@@ -818,6 +857,62 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			json_decode( $response['body'], true )
 		);
+	}
+
+	/**
+	 * Proxy the rewindable activity log for the site.
+	 *
+	 * Powers the Backups overview list. Each entry carries the rewind_id,
+	 * timestamp, summary, and `object.backup_stats` used to render the
+	 * "13 plugins, 3 themes, 7 uploads…" metadata row.
+	 *
+	 * @param WP_REST_Request $request The REST request. Accepts `number`,
+	 *                                 `aggregate`, `after`, `before`.
+	 * @return WP_REST_Response|WP_Error The decoded WPCOM response, or
+	 *                                   WP_Error on failure.
+	 */
+	public static function get_site_backup_activity_log( $request ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$query = array_filter(
+			array(
+				'number'    => $request->get_param( 'number' ),
+				'aggregate' => $request->get_param( 'aggregate' ) ? 'true' : null,
+				'after'     => $request->get_param( 'after' ),
+				'before'    => $request->get_param( 'before' ),
+			),
+			static function ( $value ) {
+				return null !== $value && '' !== $value;
+			}
+		);
+
+		$endpoint = sprintf( '/sites/%d/activity/rewindable', $blog_id );
+		if ( ! empty( $query ) ) {
+			$endpoint .= '?' . http_build_query( $query );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$endpoint,
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $status_code ) {
+			return new WP_Error(
+				'backup_activity_log_fetch_failed',
+				__( 'Could not fetch the site activity log.', 'jetpack-backup-pkg' ),
+				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+			);
+		}
+
+		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
 	}
 
 	/**
