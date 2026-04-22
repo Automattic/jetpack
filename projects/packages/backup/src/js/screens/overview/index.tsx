@@ -1,4 +1,3 @@
-import { BoundedLayout } from '@automattic/jetpack-components';
 import { Card, CardBody } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
@@ -90,25 +89,27 @@ const OverviewScreen: FC = () => {
 	}, [ setHeaderActions, headerActions ] );
 
 	return (
-		<BoundedLayout width="wide" className={ styles.overview }>
-			<BackupNotices backupState={ backupState } />
-			<div className={ styles.grid }>
-				<BackupsList
-					activityLog={ activityLog }
-					isLoadingActivityLog={ isLoadingActivityLog }
-					selectedBackup={ selectedBackup }
-					onSelectBackup={ handleSelectBackup }
-					dateRange={ dateRange }
-				/>
-				{ selectedBackup ? (
-					<BackupDetails backup={ selectedBackup } />
-				) : (
-					<Card>
-						<CardBody className={ styles.detailsPlaceholder }>{ null }</CardBody>
-					</Card>
-				) }
+		<div className={ styles.overviewOuter }>
+			<div className={ styles.overview }>
+				<BackupNotices backupState={ backupState } />
+				<div className={ styles.grid }>
+					<BackupsList
+						activityLog={ activityLog }
+						isLoadingActivityLog={ isLoadingActivityLog }
+						selectedBackup={ selectedBackup }
+						onSelectBackup={ handleSelectBackup }
+						dateRange={ dateRange }
+					/>
+					{ selectedBackup ? (
+						<BackupDetails backup={ selectedBackup } />
+					) : (
+						<Card>
+							<CardBody className={ styles.detailsPlaceholder }>{ null }</CardBody>
+						</Card>
+					) }
+				</div>
 			</div>
-		</BoundedLayout>
+		</div>
 	);
 };
 
