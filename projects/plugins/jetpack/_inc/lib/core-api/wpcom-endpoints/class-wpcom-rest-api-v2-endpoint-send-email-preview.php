@@ -170,6 +170,28 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	}
 
 	/**
+	 * Ask Akismet whether a post being previewed looks like spam.
+	 *
+	 * Fail-open: any ambiguity (Akismet absent, malformed response) returns false
+	 * so the author's workflow isn't blocked on service hiccups.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_Post $post Post being previewed.
+	 * @return bool True when Akismet classifies the content as spam; false otherwise.
+	 */
+	protected function check_post_for_spam( WP_Post $post ): bool {
+		if ( ! $this->is_akismet_available() ) {
+			return false;
+		}
+
+		$form     = $this->prepare_post_for_akismet( $post );
+		$response = $this->akismet_http_post( http_build_query( $form ) );
+
+		return isset( $response[1] ) && 'true' === trim( $response[1] );
+	}
+
+	/**
 	 * Sends an email preview of a post to the current user.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.

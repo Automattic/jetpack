@@ -190,4 +190,19 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test extends Jetpack_REST_Te
 		$this->assertTrue( $called, 'Filter should have fired.' );
 		$this->assertSame( 'injected', $payload['custom'] );
 	}
+
+	/**
+	 * Test that check_post_for_spam() returns false when Akismet isn't available.
+	 */
+	public function test_check_post_for_spam_fails_open_when_akismet_unavailable() {
+		$post_id = self::factory()->post->create(
+			array( 'post_author' => (string) static::$user_id_editor )
+		);
+
+		$controller                         = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$controller->mock_akismet_available = false;
+		$controller->mock_akismet_response  = array( array(), 'true' ); // would be spam, but unavailable wins
+
+		$this->assertFalse( $controller->check_post_for_spam_public( get_post( $post_id ) ) );
+	}
 }
