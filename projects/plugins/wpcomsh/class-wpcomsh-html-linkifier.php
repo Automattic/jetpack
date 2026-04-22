@@ -60,11 +60,10 @@ class Wpcomsh_HTML_Linkifier extends WP_HTML_Tag_Processor {
 				continue;
 			}
 
-			if ( ! $scanner->set_bookmark( 'here' ) ) {
+			$here = $scanner->current_token_span();
+			if ( null === $here ) {
 				continue;
 			}
-			$here = $scanner->bookmarks['here'];
-			$scanner->release_bookmark( 'here' );
 
 			$raw_text    = substr( $html, $here->start, $here->length );
 			$transformed = $updater( $raw_text );
@@ -81,5 +80,23 @@ class Wpcomsh_HTML_Linkifier extends WP_HTML_Tag_Processor {
 		$applier                  = new self( $html );
 		$applier->lexical_updates = $replacements;
 		return $applier->get_updated_html();
+	}
+
+	/**
+	 * Byte span of the current token, or null if a bookmark cannot be set.
+	 *
+	 * The underlying token offsets (`token_starts_at`, `token_length`) are
+	 * private in WP_HTML_Tag_Processor; the bookmark API is the documented
+	 * way to read them from a subclass.
+	 *
+	 * @return WP_HTML_Span|null
+	 */
+	private function current_token_span(): ?WP_HTML_Span {
+		if ( ! $this->set_bookmark( 'here' ) ) {
+			return null;
+		}
+		$span = $this->bookmarks['here'];
+		$this->release_bookmark( 'here' );
+		return $span;
 	}
 }

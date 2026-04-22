@@ -443,7 +443,6 @@ function wpcomsh_make_content_clickable( $content ) {
 		return $content;
 	}
 
-	// next_token() on WP_HTML_Tag_Processor was added in WordPress 6.5.
 	if ( ! method_exists( 'WP_HTML_Tag_Processor', 'next_token' ) ) {
 		return $content;
 	}
