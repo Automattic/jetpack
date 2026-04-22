@@ -63,17 +63,17 @@ class Jetpack_Reader_Chat {
 	 * Register the blog_talks_back option so it is readable and writable
 	 * via the /wp/v2/settings REST endpoint. Requires manage_options.
 	 *
-	 * Gated to proxied Automattic / dev contexts during the rollout so
-	 * regular site owners do not see an unfinished toggle. The admin UI
-	 * in the Jetpack Search dashboard also checks for the setting's
-	 * presence before rendering.
+	 * Gated to proxied Automattic requests during the rollout so regular
+	 * site owners (and even non-proxied staff on JN / localhost) do not
+	 * see an unfinished toggle. The admin UI in the Jetpack Search
+	 * dashboard also checks for the setting's presence before rendering.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
 	public static function register_settings(): void {
-		if ( ! self::is_dev_mode() ) {
+		if ( ! self::is_proxied_request() ) {
 			return;
 		}
 
@@ -88,6 +88,46 @@ class Jetpack_Reader_Chat {
 				'default'           => false,
 			)
 		);
+	}
+
+	/**
+	 * Check whether the current request is coming from a proxied
+	 * Automattic context (a12 staff on a sandbox / proxy).
+	 *
+	 * This is a strict subset of is_dev_mode(): it excludes the
+	 * hostname-based matches (localhost, jurassic.ninja, jurassic.tube)
+	 * because a non-staff dev on JN should not see the rollout toggle.
+	 *
+	 * IMPORTANT: Only use for feature gating, not for authorization.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_proxied_request(): bool {
+		if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
+			return true;
+		}
+
+		if (
+			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
+			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
+		) {
+			return true;
+		}
+
+		if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
+			switch ( ATOMIC_CLIENT_ID ) {
+				case 1:
+				case 2:
+				case 3: // Pressable
+				case 32:
+				case 118: // Commerce garden client (ciab)
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
