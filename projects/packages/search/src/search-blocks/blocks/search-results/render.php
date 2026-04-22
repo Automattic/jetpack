@@ -29,7 +29,6 @@ namespace Automattic\Jetpack\Search;
 
 	<ul
 		class="jetpack-search-results__list"
-		data-wp-bind--hidden="state.isLoading"
 		aria-live="polite"
 	>
 		<template
