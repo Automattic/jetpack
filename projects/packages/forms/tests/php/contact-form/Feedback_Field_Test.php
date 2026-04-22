@@ -916,7 +916,7 @@ class Feedback_Field_Test extends BaseTestCase {
 
 		// Placeholder should render with gray background and icon.
 		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
-		$this->assertStringContainsString( 'field-image-select@2x.webp', $result );
+		$this->assertStringContainsString( 'field-image-select@2x.png', $result );
 		// Letter code and label should still render.
 		$this->assertStringContainsString( '>B</span>', $result );
 		$this->assertStringContainsString( 'Option', $result );

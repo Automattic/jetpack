@@ -2,15 +2,14 @@
 /* eslint-disable no-console */
 
 /**
- * Rasterize SVG icons into WebP images for use in email templates.
+ * Rasterize SVG icons into PNG images for use in email templates.
  *
  * Processes two sets of icons:
- * 1. Block field icons: src/blocks/field-* /icon.svg → field-icons/{name}@2x.webp
- * 2. File-type icons:   src/contact-form/images/file-icons/*.svg → file-icons/{name}@2x.webp
+ * 1. Block field icons: src/blocks/field-* /icon.svg → field-icons/{name}@2x.png
+ * 2. File-type icons:   src/contact-form/images/file-icons/*.svg → file-icons/{name}@2x.png
  *
- * All WebPs are 48x48 (2x retina for 24x24 display) with a transparent background.
- * The SVG is first rendered to a 16-colour palette PNG buffer, then re-encoded
- * as lossless WebP, saving ~30% vs. direct SVG → WebP for simple icons.
+ * All PNGs are 48x48 (2x retina for 24x24 display) with transparent background,
+ * palette mode, and max compression for minimal file size.
  *
  * Usage: node tools/rasterize-icons.mjs
  */
@@ -21,6 +20,33 @@ import { basename, dirname, join, relative } from 'path';
 import { glob } from 'glob';
 import sharp from 'sharp';
 import { iconPipelineConfig } from './webpack.config.extract-icons.js';
+
+/**
+ * Strip the pHYs chunk from a PNG buffer.
+ *
+ * Sharp writes a pHYs chunk derived from the input density, which adds 21 bytes
+ * per file. WP.com Simple's image optimization cron strips this by running
+ * `optipng -strip all`, so let's match that effect.
+ *
+ * See also: https://www.w3.org/TR/PNG-Structure.html
+ *
+ * @param {Buffer} b - PNG buffer to strip.
+ * @return {Buffer} Buffer with the pHYs chunk removed.
+ */
+function stripPhysChunk( b ) {
+	const parts = [ b.subarray( 0, 8 ) ];
+	let i = 8;
+	while ( i < b.length ) {
+		const len = b.readUInt32BE( i );
+		const type = b.toString( 'ascii', i + 4, i + 8 );
+		const end = i + 8 + len + 4;
+		if ( type !== 'pHYs' ) {
+			parts.push( b.subarray( i, end ) );
+		}
+		i = end;
+	}
+	return Buffer.concat( parts );
+}
 
 const {
 	formsRoot,
@@ -33,10 +59,10 @@ const {
 } = iconPipelineConfig;
 
 /**
- * Rasterize a single SVG file to WebP.
+ * Rasterize a single SVG file to PNG.
  *
  * @param {string} svgFile    - Absolute path to the SVG source.
- * @param {string} outputFile - Absolute path for the WebP output.
+ * @param {string} outputFile - Absolute path for the PNG output.
  * @return {boolean} True on success, false on failure.
  */
 async function rasterize( svgFile, outputFile ) {
@@ -48,12 +74,14 @@ async function rasterize( svgFile, outputFile ) {
 		// Density 144 renders the 24×24 viewBox natively at 48px (24 × 144/72),
 		// avoiding the blur from rasterizing at a smaller size and upscaling.
 		const pngBuffer = await sharp( svgBuffer, { density: 144 } )
-			.png( { palette: true, colors: 16 } )
+			.png( {
+				compressionLevel: 9,
+				palette: true,
+				colors: 16,
+			} )
 			.toBuffer();
 
-		const webpBuffer = await sharp( pngBuffer ).webp( { lossless: true, effort: 6 } ).toBuffer();
-
-		await writeFile( outputFile, webpBuffer );
+		await writeFile( outputFile, stripPhysChunk( pngBuffer ) );
 
 		console.log( `  ✓ ${ relativePath }` );
 		return true;
@@ -76,7 +104,7 @@ if ( blockSvgFiles.length > 0 ) {
 
 	for ( const svgFile of blockSvgFiles ) {
 		const blockName = basename( dirname( svgFile ) );
-		const outputFile = join( outputDir, `${ blockName }${ rasterSuffix }.webp` );
+		const outputFile = join( outputDir, `${ blockName }${ rasterSuffix }.png` );
 		const ok = await rasterize( svgFile, outputFile );
 		totalProcessed++;
 		if ( ! ok ) {
@@ -95,7 +123,7 @@ if ( fileIconSvgs.length > 0 ) {
 
 	for ( const svgFile of fileIconSvgs ) {
 		const name = basename( svgFile, '.svg' );
-		const outputFile = join( fileIconsDir, `${ name }${ rasterSuffix }.webp` );
+		const outputFile = join( fileIconsDir, `${ name }${ rasterSuffix }.png` );
 		const ok = await rasterize( svgFile, outputFile );
 		totalProcessed++;
 		if ( ! ok ) {

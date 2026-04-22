@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Switch rasterized icons from PNG to WebP to reduce size.
+Tools: Update rasterization script to strip pHYs chunk from PNGs.
