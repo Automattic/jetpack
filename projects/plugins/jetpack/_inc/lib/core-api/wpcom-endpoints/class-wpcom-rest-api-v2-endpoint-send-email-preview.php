@@ -215,6 +215,14 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 			return $post;
 		}
 
+		if ( ! $post instanceof WP_Post ) {
+			return new WP_Error(
+				'rest_post_invalid_id',
+				__( 'Invalid post ID.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		// Check if the user's email is verified
 		if ( Email_Verification::is_email_unverified() ) {
 			return new WP_Error( 'unverified', __( 'Your email address must be verified.', 'jetpack' ), array( 'status' => rest_authorization_required_code() ) );
