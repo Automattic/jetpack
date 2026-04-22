@@ -20,15 +20,34 @@ use PHPUnit\Framework\TestCase;
 class Load_More_Render_Test extends TestCase {
 
 	/**
-	 * Register the load-more block once per test class so `do_blocks()` can
-	 * resolve it. WordPress is bootstrapped by Test_Environment in
-	 * bootstrap.php; the registry persists across tests in the same process,
-	 * but `unregister_block_type()` is called in teardown to avoid leaking
-	 * state into other test classes.
+	 * Register the load-more block inline (rather than from its block.json
+	 * directory) so `do_blocks()` can resolve it without depending on the
+	 * `build/` artifacts referenced by block.json's `viewScriptModule` and
+	 * `style` entries — those aren't present in a fresh checkout, and our
+	 * PHPUnit config has `failOnNotice` set, so any missing-asset notice
+	 * during metadata resolution would fail the suite. The render callback
+	 * just delegates to render.php, which is the file under test.
 	 */
 	public static function setUpBeforeClass(): void {
 		\register_block_type(
-			__DIR__ . '/../../src/search-blocks/blocks/load-more'
+			'jetpack/load-more',
+			array(
+				'attributes'      => array(
+					'buttonLabel' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+				),
+				// $attributes is consumed by the included render.php via the
+				// closure's local scope — phpcs can't see that, hence the disable.
+				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				'render_callback' => static function ( $attributes ) {
+					ob_start();
+					include __DIR__ . '/../../src/search-blocks/blocks/load-more/render.php';
+					return (string) ob_get_clean();
+				},
+				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			)
 		);
 	}
 
@@ -79,6 +98,17 @@ class Load_More_Render_Test extends TestCase {
 		$markup = $this->render( array( 'buttonLabel' => 'Show more posts' ) );
 		$this->assertStringContainsString( 'Show more posts', $markup );
 		$this->assertStringNotContainsString( 'Load more results', $markup );
+	}
+
+	/**
+	 * A whitespace-only label (e.g. user typed spaces and stopped) must
+	 * fall back to the default — the editor inspector promises "Leave
+	 * empty to use the default", and a blank-looking value should behave
+	 * like empty rather than render a visually empty button.
+	 */
+	public function test_whitespace_only_button_label_falls_back_to_default() {
+		$markup = $this->render( array( 'buttonLabel' => '   ' ) );
+		$this->assertStringContainsString( 'Load more results', $markup );
 	}
 
 	/**

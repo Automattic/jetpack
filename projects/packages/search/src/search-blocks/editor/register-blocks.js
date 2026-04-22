@@ -318,7 +318,10 @@ function NoResultsEdit( { attributes } ) {
 function LoadMoreEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	const defaultLabel = __( 'Load more results', 'jetpack-search-pkg' );
-	const buttonLabel = attributes?.buttonLabel || defaultLabel;
+	// Match render.php: a whitespace-only label falls back to the default
+	// in the preview so the editor mirrors the front-end behaviour the
+	// "Leave empty…" help text describes. The raw input is still stored.
+	const buttonLabel = ( attributes?.buttonLabel || '' ).trim() || defaultLabel;
 	return h(
 		Fragment,
 		null,
