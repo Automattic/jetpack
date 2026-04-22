@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Components: Add `BoundedLayout` wrapper with `compact` (660px) and `wide` (1344px) presets.
