@@ -1769,13 +1769,10 @@ abstract class SAL_Site {
 	/**
 	 * Get Jetpack recovery mode status.
 	 *
-	 * @return array
+	 * @return array|null
 	 */
 	public function get_jetpack_recovery_mode_status() {
 		$status = get_option( 'jetpack_recovery_mode_status' );
-		if ( is_array( $status ) ) {
-			return $status;
-		}
-		return array();
+		return is_array( $status ) ? $status : null;
 	}
 }
