@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Subscriptions: check email preview content with Akismet before sending, to protect the mailer pipeline.
+Subscriptions: Check email preview content with Akismet before sending, to protect the mailer pipeline.

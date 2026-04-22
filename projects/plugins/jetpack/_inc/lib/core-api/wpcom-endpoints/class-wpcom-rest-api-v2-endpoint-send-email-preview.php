@@ -134,7 +134,9 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		 * @param array   $payload The values being sent to Akismet.
 		 * @param WP_Post $post    The post being previewed.
 		 */
-		return apply_filters( 'jetpack_send_email_preview_akismet_values', $payload, $post );
+		$filtered_payload = apply_filters( 'jetpack_send_email_preview_akismet_values', $payload, $post );
+
+		return is_array( $filtered_payload ) ? $filtered_payload : $payload;
 	}
 
 	/**
@@ -147,7 +149,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	 * @return bool
 	 */
 	protected function is_akismet_available(): bool {
-		return function_exists( 'akismet_http_post' ) || defined( 'AKISMET_VERSION' );
+		return function_exists( 'akismet_http_post' ) || ( class_exists( 'Akismet' ) && method_exists( 'Akismet', 'http_post' ) );
 	}
 
 	/**

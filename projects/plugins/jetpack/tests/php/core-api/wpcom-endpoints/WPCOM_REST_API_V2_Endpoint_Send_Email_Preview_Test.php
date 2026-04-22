@@ -192,6 +192,48 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test extends Jetpack_REST_Te
 	}
 
 	/**
+	 * Test that send_email_preview() returns a 404 error when the post id resolves to null.
+	 *
+	 * Called directly on the endpoint rather than via REST dispatch because the route
+	 * only wires send_email_preview() as the callback on wpcom_simple hosts; in the
+	 * test environment the callback is proxy_request_to_wpcom_as_user.
+	 */
+	public function test_send_email_preview_returns_404_for_invalid_post_id() {
+		$controller = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+
+		$request = new WP_REST_Request( Requests::POST, static::$path );
+		$request->set_param( 'id', 999999 );
+
+		$response = $controller->send_email_preview( $request );
+
+		$this->assertTrue( is_wp_error( $response ) );
+		$this->assertSame( 'rest_post_invalid_id', $response->get_error_code() );
+		$this->assertSame( 404, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that a filter returning a non-array value falls back to the unfiltered payload.
+	 */
+	public function test_prepare_post_for_akismet_ignores_non_array_filter_return() {
+		$post_id = self::factory()->post->create(
+			array( 'post_author' => (string) static::$user_id_editor )
+		);
+
+		$filter = static function () {
+			return 'not-an-array';
+		};
+		add_filter( 'jetpack_send_email_preview_akismet_values', $filter );
+
+		$controller = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$payload    = $controller->prepare_post_for_akismet_public( get_post( $post_id ) );
+
+		remove_filter( 'jetpack_send_email_preview_akismet_values', $filter );
+
+		$this->assertIsArray( $payload );
+		$this->assertArrayHasKey( 'comment_type', $payload );
+	}
+
+	/**
 	 * Test that check_post_for_spam() returns false when Akismet isn't available.
 	 */
 	public function test_check_post_for_spam_fails_open_when_akismet_unavailable() {
