@@ -299,7 +299,7 @@ class Search_Blocks {
 		register_block_template(
 			self::TEMPLATE_NAMESPACE . '//' . self::SEARCH_TEMPLATE_SLUG,
 			array(
-				'title'       => __( 'Jetpack Search', 'jetpack-search-pkg' ),
+				'title'       => __( 'Jetpack Search Results', 'jetpack-search-pkg' ),
 				'description' => __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
 				'content'     => static::get_search_template_content(),
 			)
