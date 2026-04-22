@@ -5,6 +5,7 @@
 	"version": "0.1.0",
 	"title": "Active Filters",
 	"category": "jetpack-search",
+	"icon": "tag",
 	"description": "Pills showing the currently selected Jetpack Search filters.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",

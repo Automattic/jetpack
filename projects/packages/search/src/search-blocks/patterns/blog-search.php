@@ -13,6 +13,12 @@ register_block_pattern(
 		'title'       => __( 'Blog Search Page', 'jetpack-search-pkg' ),
 		'description' => __( 'A full-page search layout with sidebar filters and a result list powered by Jetpack Search.', 'jetpack-search-pkg' ),
 		'categories'  => array( 'jetpack-search' ),
+		'keywords'    => array(
+			__( 'search', 'jetpack-search-pkg' ),
+			__( 'blog', 'jetpack-search-pkg' ),
+			__( 'results', 'jetpack-search-pkg' ),
+			__( 'jetpack search', 'jetpack-search-pkg' ),
+		),
 		'content'     => '<!-- wp:group {"style":{"spacing":{"blockGap":"1.5rem"}}} -->
 <div class="wp-block-group">
 <!-- wp:jetpack/search-input /-->

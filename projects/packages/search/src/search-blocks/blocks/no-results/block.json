@@ -5,6 +5,7 @@
 	"version": "0.1.0",
 	"title": "No Results",
 	"category": "jetpack-search",
+	"icon": "no-alt",
 	"description": "Message shown when Jetpack Search returns no results.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",

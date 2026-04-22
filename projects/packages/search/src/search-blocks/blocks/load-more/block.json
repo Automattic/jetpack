@@ -5,6 +5,7 @@
 	"version": "0.1.0",
 	"title": "Load More",
 	"category": "jetpack-search",
+	"icon": "plus-alt2",
 	"description": "Loads the next page of Jetpack Search results.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
