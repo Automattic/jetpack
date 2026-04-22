@@ -247,4 +247,46 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test extends Jetpack_REST_Te
 
 		$this->assertFalse( $controller->check_post_for_spam_public( get_post( $post_id ) ) );
 	}
+
+	/**
+	 * Test that discard pro-tip + akismet_strictness=1 is treated as spam.
+	 */
+	public function test_check_post_for_spam_returns_true_on_strict_discard() {
+		$post_id = self::factory()->post->create(
+			array( 'post_author' => (string) static::$user_id_editor )
+		);
+
+		update_option( 'akismet_strictness', '1' );
+
+		$controller                        = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$controller->mock_akismet_response = array(
+			array( 'x-akismet-pro-tip' => 'discard' ),
+			'false', // body says not spam, but strict-discard wins
+		);
+
+		$result = $controller->check_post_for_spam_public( get_post( $post_id ) );
+
+		delete_option( 'akismet_strictness' );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test that discard pro-tip without strictness falls back to body evaluation.
+	 */
+	public function test_check_post_for_spam_ignores_discard_without_strictness() {
+		$post_id = self::factory()->post->create(
+			array( 'post_author' => (string) static::$user_id_editor )
+		);
+
+		delete_option( 'akismet_strictness' );
+
+		$controller                        = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$controller->mock_akismet_response = array(
+			array( 'x-akismet-pro-tip' => 'discard' ),
+			'false',
+		);
+
+		$this->assertFalse( $controller->check_post_for_spam_public( get_post( $post_id ) ) );
+	}
 }

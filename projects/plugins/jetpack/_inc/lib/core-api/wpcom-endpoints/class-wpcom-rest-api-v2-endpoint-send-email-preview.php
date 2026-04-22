@@ -188,6 +188,14 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		$form     = $this->prepare_post_for_akismet( $post );
 		$response = $this->akismet_http_post( http_build_query( $form ) );
 
+		if (
+			isset( $response[0]['x-akismet-pro-tip'] ) &&
+			'discard' === trim( $response[0]['x-akismet-pro-tip'] ) &&
+			'1' === get_option( 'akismet_strictness' )
+		) {
+			return true;
+		}
+
 		return isset( $response[1] ) && 'true' === trim( $response[1] );
 	}
 
