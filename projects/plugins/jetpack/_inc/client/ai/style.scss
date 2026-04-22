@@ -20,17 +20,43 @@
 	&__content {
 		box-sizing: border-box;
 		width: 100%;
-		max-width: 960px;
+		max-width: 660px;
 		margin: 0 auto;
 		padding: 24px;
 	}
 
-	&__back {
-		margin-bottom: 8px;
+	&__breadcrumbs {
+		// Override admin-ui's default min-height on the list.
+		min-height: auto;
 
-		.components-button.is-tertiary {
-			padding-left: 0;
+		li {
+			display: flex;
+			align-items: center;
+			margin-bottom: 0;
 		}
+	}
+
+	&__breadcrumb-link {
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		color: inherit;
+		font-size: inherit;
+		font-weight: inherit;
+		line-height: inherit;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	&__breadcrumb-current {
+		font-size: inherit;
+		font-weight: inherit;
+		line-height: inherit;
+		margin: 0;
 	}
 
 	&__loading {

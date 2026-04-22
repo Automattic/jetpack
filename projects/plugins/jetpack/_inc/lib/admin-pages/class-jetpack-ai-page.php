@@ -23,11 +23,12 @@ require_once __DIR__ . '/class.jetpack-admin-page.php';
 class Jetpack_AI_Page extends Jetpack_Admin_Page {
 
 	/**
-	 * Show the page even when Jetpack is not fully active (offline mode).
+	 * Hide the "AI" sidebar entry when Jetpack is not yet connected.
+	 * Other Jetpack products follow the same convention.
 	 *
 	 * @var bool
 	 */
-	protected $dont_show_if_not_active = false;
+	protected $dont_show_if_not_active = true;
 
 	/**
 	 * Register the "AI" submenu under the Jetpack top-level menu.

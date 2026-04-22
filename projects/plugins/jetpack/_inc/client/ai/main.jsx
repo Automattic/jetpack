@@ -8,8 +8,7 @@ import { AdminPage } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowLeft } from '@wordpress/icons';
-import { Button, Notice, Stack } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
@@ -32,6 +31,36 @@ const VIEW_DESCRIPTIONS = {
 	write: __( 'Create, update, and manage content on your site.', 'jetpack' ),
 	setup: __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
 };
+
+/**
+ * Breadcrumb nav shown on sub-views: "AI / Read", "AI / Write", etc.
+ * Replaces both the page title and the ← Back button.
+ *
+ * @param {object}   props            - Component props.
+ * @param {string}   props.view       - Current sub-view key.
+ * @param {Function} props.onNavigate - Called with no args to go back to hub.
+ * @return {object} Component markup.
+ */
+function Breadcrumbs( { view, onNavigate } ) {
+	return (
+		<nav aria-label={ __( 'Breadcrumbs', 'jetpack' ) }>
+			<ul className="admin-ui-breadcrumbs__list jetpack-ai-admin__breadcrumbs">
+				<li>
+					<button
+						type="button"
+						className="jetpack-ai-admin__breadcrumb-link"
+						onClick={ onNavigate }
+					>
+						{ __( 'AI', 'jetpack' ) }
+					</button>
+				</li>
+				<li>
+					<span className="jetpack-ai-admin__breadcrumb-current">{ VIEW_TITLES[ view ] }</span>
+				</li>
+			</ul>
+		</nav>
+	);
+}
 
 /**
  * Root App component for the Jetpack AI admin page.
@@ -61,24 +90,15 @@ export default function App() {
 
 	return (
 		<AdminPage
-			title={ VIEW_TITLES[ view ] }
+			title={ isSubView ? undefined : VIEW_TITLES.hub }
 			subTitle={ VIEW_DESCRIPTIONS[ view ] }
+			breadcrumbs={
+				isSubView ? <Breadcrumbs view={ view } onNavigate={ navigateBack } /> : undefined
+			}
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 		>
 			<div className="jetpack-ai-admin__content">
-				{ isSubView && (
-					<Button
-						className="jetpack-ai-admin__back"
-						variant="minimal"
-						tone="neutral"
-						onClick={ navigateBack }
-					>
-						<Button.Icon icon={ arrowLeft } />
-						{ __( 'Back', 'jetpack' ) }
-					</Button>
-				) }
-
 				{ isLoading && (
 					<div className="jetpack-ai-admin__loading">
 						<Spinner />
