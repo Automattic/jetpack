@@ -144,7 +144,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_build_seed_state_keeps_is_loading_for_registered_filter() {
 		$original_get        = $_GET;
-		$original_query      = isset( $GLOBALS['wp_query'] ) ? $GLOBALS['wp_query'] : null;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
 		$_GET                = array( 'category' => array( 'news' ) );
 		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => '' ) );
 		try {
