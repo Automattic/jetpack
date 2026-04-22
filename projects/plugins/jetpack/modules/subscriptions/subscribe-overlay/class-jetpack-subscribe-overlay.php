@@ -186,6 +186,11 @@ HTML;
 			return false;
 		}
 
+		// The overlay only appears on the blog home and front page.
+		if ( ! is_home() && ! is_front_page() ) {
+			return false;
+		}
+
 		// Needed because Elementor editor makes is_admin() return false
 		// See https://coreysalzano.com/wordpress/why-elementor-disobeys-is_admin/
 		// Ignore nonce warning as just checking if is set
@@ -214,7 +219,7 @@ HTML;
 			return false;
 		}
 
-		return is_home() || is_front_page();
+		return true;
 	}
 }
 
