@@ -46,7 +46,6 @@ class Content_Research {
 		require_once __DIR__ . '/interface-content-research-source.php';
 		require_once __DIR__ . '/class-source-reddit.php';
 		require_once __DIR__ . '/class-source-hackernews.php';
-		require_once __DIR__ . '/class-source-polymarket.php';
 		require_once __DIR__ . '/class-source-reader.php';
 		require_once __DIR__ . '/class-source-googlenews.php';
 

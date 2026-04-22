@@ -7,15 +7,28 @@
 
 namespace A8C\FSE;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Content_Research_Summarize.
  *
  * Handles the /wpcom/v2/content-research/summarize endpoint.
- * Sends research results to wp-orchestrator for AI synthesis.
+ * Fetches article content, converts to markdown, and summarizes via AIServices.
  */
 class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
+
+	/**
+	 * Maximum characters per article after HTML-to-markdown conversion.
+	 */
+	private const MAX_ARTICLE_LENGTH = 5000;
+
+	/**
+	 * Maximum combined characters before switching to chunk-then-condense.
+	 */
+	private const MAX_COMBINED_LENGTH = 30000;
+
+	/**
+	 * Maximum number of articles to fetch and summarize.
+	 */
+	private const MAX_ARTICLES = 5;
 
 	/**
 	 * WP_REST_Content_Research_Summarize constructor.
@@ -35,7 +48,7 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'summarize' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_permission' ),
 				'args'                => array(
 					'topic'   => array(
 						'type'              => 'string',
@@ -55,47 +68,32 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Build the prompt for the AI summarization.
+	 * Check if the current user has permission to use the summarize endpoint.
 	 *
-	 * @param string $topic   The research topic.
-	 * @param array  $results The research results.
-	 * @return string The formatted prompt.
+	 * @return bool|\WP_Error
 	 */
-	private function build_prompt( string $topic, array $results ): string {
-		$formatted_results = '';
-		foreach ( $results as $result ) {
-			$source = strtoupper( $result['source'] ?? 'unknown' );
-			$title  = $result['title'] ?? '';
-			$url    = $result['url'] ?? '';
-
-			$formatted_results .= "[$source] $title ($url)\n";
-
-			if ( ! empty( $result['excerpt'] ) ) {
-				$formatted_results .= '  ' . $result['excerpt'] . "\n";
-			}
-			if ( ! empty( $result['engagement'] ) ) {
-				$upvotes            = $result['engagement']['upvotes'] ?? 0;
-				$comments           = $result['engagement']['comments'] ?? 0;
-				$formatted_results .= "  Engagement: {$upvotes} upvotes, {$comments} comments\n";
-			}
-			if ( ! empty( $result['odds'] ) ) {
-				$formatted_results .= "  Odds: {$result['odds']}\n";
-			}
-			$formatted_results .= "\n";
+	public function check_permission() {
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'You must be logged in to use this endpoint.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 401 )
+			);
 		}
 
-		return "You are a research assistant helping a blogger write a post about: \"$topic\"\n\n"
-			. "Here are recent results from across the web:\n\n"
-			. $formatted_results
-			. "Please provide:\n"
-			. "1. A concise summary of the current discourse around this topic (2-3 paragraphs)\n"
-			. "2. Key findings (3-5 bullet points)\n"
-			. "3. Suggested angles for a blog post (2-3 ideas)\n\n"
-			. 'Respond in JSON format with keys: summary, key_findings (array of strings), suggested_angles (array of strings).';
+		if ( function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( \WPCOM_Features::AI_ASSISTANT ) ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'Your site requires an AI add-on to use this feature.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
-	 * Summarize research results via wp-orchestrator.
+	 * Summarize research results by fetching article content and using AIServices.
 	 *
 	 * @param \WP_REST_Request $request The incoming request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -104,54 +102,422 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 		$topic   = $request->get_param( 'topic' );
 		$results = $request->get_param( 'results' );
 
-		$prompt = $this->build_prompt( $topic, $results );
-
-		$response = Client::wpcom_json_api_request_as_user(
-			'/odie/chat/content-research',
-			'v2',
-			array( 'method' => 'POST' ),
+		l( '========================================' );
+		l( '========================================' );
+		l( '========================================' );
+		l(
+			'Content Research Summarize: starting',
 			array(
-				'message' => $prompt,
+				'topic'        => $topic,
+				'result_count' => count( $results ),
 			)
 		);
 
+		$articles = $this->fetch_articles( $results );
+
+		// Check if any articles have fetched content.
+		$has_content   = false;
+		$fetched_count = 0;
+		foreach ( $articles as $article ) {
+			if ( ! empty( $article['content'] ) ) {
+				$has_content = true;
+				++$fetched_count;
+			}
+		}
+
+		l(
+			'Content Research Summarize: fetched articles',
+			array(
+				'fetched' => $fetched_count,
+				'total'   => count( $articles ),
+			)
+		);
+
+		// If no content was fetched, fall back to excerpts only.
+		if ( ! $has_content ) {
+			l( 'Content Research Summarize: no content fetched, falling back to excerpts' );
+			foreach ( $articles as &$article ) {
+				$article['content'] = $article['excerpt'] ?? '';
+			}
+			unset( $article );
+		}
+
+		$combined_length = 0;
+		foreach ( $articles as $article ) {
+			$combined_length += strlen( $article['content'] );
+		}
+
+		l( 'Content Research Summarize: combined content length', $combined_length );
+
+		if ( $combined_length > self::MAX_COMBINED_LENGTH ) {
+			l( 'Content Research Summarize: using chunk-and-condense path' );
+			$result = $this->chunk_and_condense( $topic, $articles );
+		} else {
+			l( 'Content Research Summarize: using single-call path' );
+			$prompt = $this->build_prompt( $topic, $articles );
+			$result = $this->summarize_with_llm( $prompt );
+		}
+
+		if ( is_wp_error( $result ) ) {
+			l(
+				'Content Research Summarize: final error',
+				array(
+					'code'    => $result->get_error_code(),
+					'message' => $result->get_error_message(),
+					'data'    => $result->get_error_data(),
+				)
+			);
+			return $result;
+		}
+
+		l( 'Content Research Summarize: success' );
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Fetch and process article content for each result.
+	 *
+	 * @param array $results The search results.
+	 * @return array Articles with fetched content.
+	 */
+	private function fetch_articles( array $results ): array {
+		$articles = array();
+
+		foreach ( array_slice( $results, 0, self::MAX_ARTICLES ) as $result ) {
+			$url    = $result['url'] ?? '';
+			$title  = $result['title'] ?? '';
+			$source = $result['source'] ?? 'unknown';
+
+			$article = array(
+				'url'        => $url,
+				'title'      => $title,
+				'source'     => $source,
+				'excerpt'    => $result['excerpt'] ?? '',
+				'engagement' => $result['engagement'] ?? null,
+				'content'    => '',
+			);
+
+			if ( ! empty( $url ) ) {
+				$content = $this->fetch_article_content( $url );
+				if ( ! empty( $content ) ) {
+					$article['content'] = $content;
+				}
+			}
+
+			$articles[] = $article;
+		}
+
+		return $articles;
+	}
+
+	/**
+	 * Fetch a single article's content, extract main content, and convert to markdown.
+	 *
+	 * @param string $url The article URL.
+	 * @return string The markdown content, or empty string on failure.
+	 */
+	private function fetch_article_content( string $url ): string {
+		// Skip Google News wrapper URLs — they use JS redirects and encrypted URL encoding,
+		// so we can't extract content server-side. Excerpts will be used instead.
+		if ( strpos( $url, 'news.google.com/' ) !== false ) {
+			l( 'Content Research Summarize: skipping Google News wrapper URL', $url );
+			return '';
+		}
+
+		l( '========================================' );
+		l( 'Content Research Summarize: fetching article', $url );
+
+		$response = wp_safe_remote_get( $url, array( 'timeout' => 10 ) );
+
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			l(
+				'Content Research Summarize: fetch error',
+				array(
+					'url'   => $url,
+					'error' => $response->get_error_message(),
+				)
+			);
+			return '';
 		}
 
 		$code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $code ) {
-			return new \WP_Error(
-				'summarize_failed',
-				'Failed to generate summary.',
-				array( 'status' => $code )
-			);
-		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		// Try to extract structured data from the AI response.
-		$ai_message = $body['messages'][0]['content'] ?? $body['message'] ?? '';
-
-		// Attempt to parse JSON from the AI response.
-		$parsed = json_decode( $ai_message, true );
-		if ( json_last_error() === JSON_ERROR_NONE && is_array( $parsed ) ) {
-			return rest_ensure_response(
+			l(
+				'Content Research Summarize: fetch non-200',
 				array(
-					'summary'          => $parsed['summary'] ?? $ai_message,
-					'key_findings'     => $parsed['key_findings'] ?? array(),
-					'suggested_angles' => $parsed['suggested_angles'] ?? array(),
+					'url'    => $url,
+					'status' => $code,
 				)
 			);
+			return '';
 		}
 
-		// Fallback: return the raw message as summary.
-		return rest_ensure_response(
+		$html = wp_remote_retrieve_body( $response );
+		if ( empty( $html ) ) {
+			l( 'Content Research Summarize: empty body', $url );
+			return '';
+		}
+
+		$main_html = $this->extract_main_content( $html );
+		if ( empty( $main_html ) ) {
+			l( 'Content Research Summarize: no main content extracted' );
+			return '';
+		}
+
+		require_lib( 'vectorize' );
+		$converter = new \A8C\Vectorize\Html_To_Markdown();
+		$markdown  = $converter->convert( $main_html );
+
+		// Truncate to max article length.
+		if ( strlen( $markdown ) > self::MAX_ARTICLE_LENGTH ) {
+			$markdown = substr( $markdown, 0, self::MAX_ARTICLE_LENGTH ) . '...';
+		}
+
+		l( 'Content Research Summarize: fetched article content', strlen( $markdown ) );
+		return $markdown;
+	}
+
+	/**
+	 * Extract the main content from an HTML document.
+	 *
+	 * Looks for <article>, falls back to <main>, then <body>.
+	 *
+	 * @param string $html The full HTML document.
+	 * @return string The inner HTML of the main content element.
+	 */
+	private function extract_main_content( string $html ): string {
+		l(
+			'Content Research Summarize: extracting main content',
 			array(
-				'summary'          => $ai_message,
-				'key_findings'     => array(),
-				'suggested_angles' => array(),
+				'html_length' => strlen( $html ),
+				'html_start'  => substr( $html, 0, 500 ),
 			)
 		);
+
+		$doc = new \DOMDocument();
+
+		// Suppress warnings from malformed HTML.
+		libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_clear_errors();
+
+		// Try <article> first, then <main>, then <body>.
+		$tags = array( 'article', 'main', 'body' );
+		foreach ( $tags as $tag ) {
+			$elements = $doc->getElementsByTagName( $tag );
+			if ( $elements->length > 0 ) {
+				$element    = $elements->item( 0 );
+				$inner_html = '';
+				foreach ( $element->childNodes as $child ) {
+					$inner_html .= $doc->saveHTML( $child );
+				}
+				l( 'Content Research Summarize: extracted via <' . $tag . '>', strlen( $inner_html ) );
+				return $inner_html;
+			}
+		}
+
+		l( 'Content Research Summarize: no article/main/body tags found' );
+		return '';
+	}
+
+	/**
+	 * Build the prompt for the AI summarization.
+	 *
+	 * @param string $topic    The research topic.
+	 * @param array  $articles The articles with fetched content.
+	 * @return string The formatted prompt.
+	 */
+	private function build_prompt( string $topic, array $articles ): string {
+		$formatted_articles = '';
+		foreach ( $articles as $article ) {
+			$source = strtoupper( $article['source'] );
+			$title  = $article['title'];
+			$url    = $article['url'];
+
+			$formatted_articles .= "[$source] $title ($url)\n";
+
+			if ( ! empty( $article['engagement'] ) ) {
+				$upvotes             = $article['engagement']['upvotes'] ?? 0;
+				$comments            = $article['engagement']['comments'] ?? 0;
+				$formatted_articles .= "  Engagement: {$upvotes} upvotes, {$comments} comments\n";
+			}
+
+			if ( ! empty( $article['content'] ) ) {
+				$formatted_articles .= "--- Article Content ---\n" . $article['content'] . "\n--- End Content ---\n";
+			}
+
+			$formatted_articles .= "\n";
+		}
+
+		return "You are a research assistant helping a blogger write a post about: \"$topic\"\n\n"
+			. "Here are recent articles from across the web with their full content:\n\n"
+			. $formatted_articles
+			. "Write a research brief in markdown using exactly this structure:\n\n"
+			. "## Summary\n\n"
+			. "2-3 paragraphs summarizing the current discourse around this topic.\n\n"
+			. "## Key Findings\n\n"
+			. "- 3-5 bullet points (use - for each)\n\n"
+			. "## Suggested Angles\n\n"
+			. "- 2-3 blog post angle ideas (use - for each)\n\n"
+			. 'Write in plain markdown only. No code fences, no JSON.';
+	}
+
+	/**
+	 * Call AIServices to summarize content.
+	 *
+	 * @param string $prompt The prompt to send to the LLM.
+	 * @return array|\WP_Error Parsed summary data or error.
+	 */
+	private function summarize_with_llm( string $prompt ) {
+		l( 'Content Research Summarize: calling AIServices::call_llm()', array( 'prompt_length' => strlen( $prompt ) ) );
+
+		require_lib( 'ai-services' );
+		$ai = new \AIServices( 'content-research' );
+
+		$response = $ai->call_llm( $prompt );
+
+		if ( is_wp_error( $response ) ) {
+			l(
+				'Content Research Summarize: AIServices error',
+				array(
+					'code'    => $response->get_error_code(),
+					'message' => $response->get_error_message(),
+					'data'    => $response->get_error_data(),
+				)
+			);
+			return $response;
+		}
+
+		l( 'Content Research Summarize: AIServices response', array( 'length' => strlen( $response ) ) );
+
+		return $this->parse_markdown_response( $response );
+	}
+
+	/**
+	 * Parse the markdown response from the LLM into structured sections.
+	 *
+	 * @param string $response The raw markdown response.
+	 * @return array Parsed summary data with summary, key_findings, and suggested_angles.
+	 */
+	private function parse_markdown_response( string $response ): array {
+		$summary          = '';
+		$key_findings     = array();
+		$suggested_angles = array();
+
+		// Split by ## headings.
+		$sections = preg_split( '/^##\s+/m', $response );
+
+		foreach ( $sections as $section ) {
+			$section = trim( $section );
+			if ( empty( $section ) ) {
+				continue;
+			}
+
+			// Extract the heading (first line) and body (rest).
+			$lines   = explode( "\n", $section, 2 );
+			$heading = strtolower( trim( $lines[0] ) );
+			$body    = trim( $lines[1] ?? '' );
+
+			if ( strpos( $heading, 'summary' ) !== false ) {
+				$summary = $body;
+			} elseif ( strpos( $heading, 'key finding' ) !== false ) {
+				$key_findings = $this->parse_bullet_list( $body );
+			} elseif ( strpos( $heading, 'suggested angle' ) !== false ) {
+				$suggested_angles = $this->parse_bullet_list( $body );
+			}
+		}
+
+		// Fallback: if no sections were parsed, return the whole response as summary.
+		if ( empty( $summary ) && empty( $key_findings ) ) {
+			$summary = $response;
+		}
+
+		return array(
+			'summary'          => $summary,
+			'key_findings'     => $key_findings,
+			'suggested_angles' => $suggested_angles,
+		);
+	}
+
+	/**
+	 * Parse a markdown bullet list into an array of strings.
+	 *
+	 * @param string $text The bullet list text.
+	 * @return array Array of bullet point strings.
+	 */
+	private function parse_bullet_list( string $text ): array {
+		$items = array();
+		$lines = explode( "\n", $text );
+
+		foreach ( $lines as $line ) {
+			$line = trim( $line );
+			// Match lines starting with -, *, or numbered lists.
+			if ( preg_match( '/^[-*]\s+(.+)$/', $line, $matches ) ) {
+				$items[] = $matches[1];
+			} elseif ( preg_match( '/^\d+[.)]\s+(.+)$/', $line, $matches ) ) {
+				$items[] = $matches[1];
+			}
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Chunk-then-condense: summarize each article individually, then produce a final summary.
+	 *
+	 * Used when combined article content exceeds MAX_COMBINED_LENGTH.
+	 *
+	 * @param string $topic    The research topic.
+	 * @param array  $articles The articles with fetched content.
+	 * @return array|\WP_Error Parsed summary data or error.
+	 */
+	private function chunk_and_condense( string $topic, array $articles ) {
+		require_lib( 'ai-services' );
+		$ai = new \AIServices( 'content-research' );
+
+		$per_article_summaries = array();
+
+		foreach ( $articles as $article ) {
+			$source = strtoupper( $article['source'] );
+			$title  = $article['title'];
+
+			$chunk_prompt = "Summarize the following article in 2-3 sentences.\n\n"
+				. "Title: $title (Source: $source)\n\n"
+				. $article['content'];
+
+			$summary = $ai->call_llm( $chunk_prompt );
+
+			if ( is_wp_error( $summary ) ) {
+				// Skip failed individual summaries.
+				continue;
+			}
+
+			$per_article_summaries[] = "[$source] $title: $summary";
+		}
+
+		if ( empty( $per_article_summaries ) ) {
+			return new \WP_Error(
+				'summarize_failed',
+				'Failed to generate any article summaries.',
+				array( 'status' => 500 )
+			);
+		}
+
+		// Condense the per-article summaries into the final output.
+		$condensed_input = implode( "\n\n", $per_article_summaries );
+
+		$final_prompt = "You are a research assistant helping a blogger write a post about: \"$topic\"\n\n"
+			. "Here are summaries of recent articles on this topic:\n\n"
+			. $condensed_input . "\n\n"
+			. "Write a research brief in markdown using exactly this structure:\n\n"
+			. "## Summary\n\n"
+			. "2-3 paragraphs summarizing the current discourse around this topic.\n\n"
+			. "## Key Findings\n\n"
+			. "- 3-5 bullet points (use - for each)\n\n"
+			. "## Suggested Angles\n\n"
+			. "- 2-3 blog post angle ideas (use - for each)\n\n"
+			. 'Write in plain markdown only. No code fences, no JSON.';
+
+		return $this->summarize_with_llm( $final_prompt );
 	}
 }

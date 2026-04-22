@@ -77,7 +77,7 @@ class Source_GoogleNews implements Content_Research_Source {
 
 			$title       = (string) $item->title;
 			$link        = (string) $item->link;
-			$pub_date    = (string) $item->pubDate;
+			$pub_date    = (string) $item->{'pubDate'}; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$source_name = '';
 
 			// Google News titles are formatted as "Headline - Source Name".

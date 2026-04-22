@@ -43,7 +43,7 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 					),
 					'sources' => array(
 						'type'    => 'array',
-						'default' => array( 'hn', 'polymarket', 'reader', 'googlenews' ),
+						'default' => array( 'hn', 'reader', 'googlenews' ),
 						'items'   => array(
 							'type' => 'string',
 						),
@@ -66,7 +66,6 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 		return array(
 			'reddit'     => new Source_Reddit(),
 			'hn'         => new Source_HackerNews(),
-			'polymarket' => new Source_Polymarket(),
 			'reader'     => new Source_Reader(),
 			'googlenews' => new Source_GoogleNews(),
 		);
@@ -91,17 +90,6 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 				return max( 0, 1.0 - ( $age_hours / 168 ) );
 			}
 			return 0.5;
-		}
-
-		// Polymarket results scored by volume.
-		if ( 'polymarket' === $result['source'] ) {
-			$volume_str = $result['volume'] ?? '$0';
-			// Parse "$66K" → 66000, "$500" → 500.
-			$volume_str = str_replace( array( '$', ',' ), '', $volume_str );
-			if ( stripos( $volume_str, 'K' ) !== false ) {
-				return (float) str_replace( 'K', '', $volume_str ) * 1000;
-			}
-			return (float) $volume_str;
 		}
 
 		return $upvotes * 1.0 + $comments * 0.5;
@@ -129,6 +117,42 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 			$max = $max_by_source[ $result['source'] ] ?? 1;
 			if ( $max > 0 ) {
 				$result['_score'] = $result['_score'] / $max;
+			}
+		}
+		unset( $result );
+
+		return $results;
+	}
+
+	/**
+	 * Apply a recency boost so items from the last 30 days are more prominent.
+	 *
+	 * Items < 1 day old get a 2x multiplier, linearly decaying to 1x at 30 days.
+	 * Items older than 30 days get a 0.5x penalty.
+	 *
+	 * @param array $results Results with normalized scores.
+	 * @return array Results with recency-boosted scores.
+	 */
+	private function apply_recency_boost( array $results ): array {
+		$now         = time();
+		$thirty_days = 30 * DAY_IN_SECONDS;
+
+		foreach ( $results as &$result ) {
+			$timestamp = $result['timestamp'] ?? '';
+			if ( ! $timestamp ) {
+				// No timestamp — keep the score as-is.
+				continue;
+			}
+
+			$age_seconds = $now - strtotime( $timestamp );
+
+			if ( $age_seconds <= $thirty_days ) {
+				// 0-30 days: boost from 2x (brand new) to 1x (30 days old).
+				$freshness         = 1.0 - ( $age_seconds / $thirty_days );
+				$result['_score'] *= 1.0 + $freshness;
+			} else {
+				// Older than 30 days: penalize.
+				$result['_score'] *= 0.5;
 			}
 		}
 		unset( $result );
@@ -166,8 +190,9 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 			$all_results = array_merge( $all_results, $source_results );
 		}
 
-		// Normalize and sort by engagement score.
+		// Normalize, apply recency boost, and sort.
 		$all_results = $this->normalize_scores( $all_results );
+		$all_results = $this->apply_recency_boost( $all_results );
 		usort(
 			$all_results,
 			function ( $a, $b ) {
