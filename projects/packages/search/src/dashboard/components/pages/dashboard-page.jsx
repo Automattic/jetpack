@@ -13,6 +13,7 @@ import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
+import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
@@ -195,6 +196,7 @@ export default function DashboardPage( { isLoading = false } ) {
 									isTogglingInstantSearch={ isTogglingInstantSearch }
 								/>
 							) }
+							<ReaderChatControl />
 						</div>
 						<NoticesList
 							notices={ notices }
