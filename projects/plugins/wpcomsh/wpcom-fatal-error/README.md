@@ -9,7 +9,7 @@ path to deactivate the offending plugin.
 **Anonymous visitor**
 
 > This site is temporarily unavailable.
-> We're aware of the issue and the site owner has been notified. Please check back soon.
+> We are aware of the issue and the site owner has been notified. Please check back soon.
 
 **Logged-in admin**
 
@@ -20,7 +20,7 @@ path to deactivate the offending plugin.
   one click.
 - **What you can try next** — recovery mode entry (when available), contact
   support link.
-- **Error details** — collapsible panel with `Type: message in file:line`.
+- **Error details** — collapsible panel with the raw PHP error message.
 
 ## File layout
 
@@ -28,9 +28,9 @@ path to deactivate the offending plugin.
 | --- | --- |
 | `load.php` | Entry point; `require`s the three pieces below. |
 | `fatal-error-screen.php` | Filter on `wp_php_error_message` + render functions. Template only — no business logic. |
-| `fatal-error-helpers.php` | Pure helpers: viewer detection, plugin identification, URL builders, error formatter. Testable in isolation. |
+| `fatal-error-helpers.php` | Pure helpers: viewer detection, plugin identification, signed-form/recovery URL builders. Testable in isolation. |
 | `fatal-error-screen.css` | Styles, inlined into the page at render time. |
-| `fatal-plugin-deactivator.php` | Early-running endpoint that validates the signed deactivation URL and short-circuits the broken plugin. |
+| `fatal-plugin-deactivator.php` | Early-running endpoint that validates the signed deactivation POST, persists the change, and redirects. |
 
 ## Architecture notes
 
@@ -53,9 +53,12 @@ because the fatal may itself be DB-related.
 
 ### Deactivation security model
 
-The deactivation URL is HMAC-signed (using `AUTH_SALT` and the current
-logged-in cookie) and expires after 5 minutes. Nonces aren't used because
-the endpoint runs before `pluggable.php` is loaded.
+The Deactivate button is a POST form whose hidden fields are HMAC-signed
+(using `AUTH_SALT` and the current logged-in cookie) and expire after 5
+minutes. Nonces aren't used because the endpoint runs before
+`pluggable.php` is loaded. After verifying the signature the endpoint also
+re-checks `current_user_can( 'deactivate_plugin', $plugin )` for the
+target plugin.
 
 ### Load order
 
@@ -63,9 +66,11 @@ The deactivation endpoint must run **before** any plugin that might
 fatal. On WordPress.com Atomic, wpcomsh is loaded by the platform's
 top-level mu-plugin loader, so `wpcomsh.php` → `wpcom-fatal-error/load.php`
 → `fatal-plugin-deactivator.php` all run during the mu-plugin phase,
-before the regular plugin loop. The endpoint therefore gets a chance to
-intercept the request and filter `option_active_plugins` before a
-broken plugin is ever loaded.
+before the regular plugin loop. After validating the request the endpoint
+updates `active_plugins` and redirects inline, exiting before the regular
+plugin-include pass — so a *second* broken plugin can't fatal between
+persistence and the redirect (which would otherwise leave the option
+unchanged and the admin looping on the same fatal screen).
 
 ## Testing
 
