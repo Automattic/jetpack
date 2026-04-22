@@ -16,16 +16,20 @@
  */
 
 /**
- * Determine whether the fatal-screen viewer is a logged-in admin.
+ * Resolve the current request's logged-in user id, bootstrapping just enough
+ * of WordPress for capability checks to work from the fatal handler.
  *
  * The fatal handler can fire before pluggable.php loads and before cookie
  * constants are defined. We manually bootstrap `wp_cookie_constants()` and
- * the user/capability files; if anything fails we return false so details
- * never leak to anonymous viewers.
+ * the user/capability files; if anything fails we return 0 so details never
+ * leak to anonymous viewers.
  *
- * @return bool
+ * Returns the user id so callers can apply granular capability checks
+ * (`manage_options`, `deactivate_plugin`, `resume_plugins`) via `user_can()`.
+ *
+ * @return int User id, or 0 when no authenticated user could be resolved.
  */
-function wpcomsh_fatal_is_admin() {
+function wpcomsh_fatal_current_user_id() {
 	try {
 		if ( ! defined( 'LOGGED_IN_COOKIE' ) ) {
 			require_once ABSPATH . 'wp-includes/default-constants.php';
@@ -35,10 +39,9 @@ function wpcomsh_fatal_is_admin() {
 		require_once ABSPATH . 'wp-includes/user.php';
 		require_once ABSPATH . 'wp-includes/capabilities.php';
 		require_once ABSPATH . 'wp-includes/pluggable.php';
-		$user_id = wp_validate_auth_cookie( '', 'logged_in' );
-		return $user_id && user_can( $user_id, 'manage_options' );
+		return (int) wp_validate_auth_cookie( '', 'logged_in' );
 	} catch ( \Throwable $e ) {
-		return false;
+		return 0;
 	}
 }
 
@@ -113,22 +116,25 @@ function wpcomsh_fatal_classify_plugin_path( $abs_file ) {
 }
 
 /**
- * Build a signed URL that the fatal-plugin-deactivator endpoint can validate
- * without relying on pluggable functions or WP nonces.
+ * Build the form action + signed fields the fatal-plugin-deactivator endpoint
+ * validates, without relying on pluggable functions or WP nonces.
  *
  * Signature: HMAC over (plugin, expiry, logged_in cookie) using AUTH_SALT.
- * Binding to the cookie ensures the link can't be replayed by another user
- * or after the admin logs out, and can't be forged without AUTH_SALT.
+ * Binding to the cookie ensures the request can't be replayed by another
+ * user or after the admin logs out, and can't be forged without AUTH_SALT.
+ *
+ * Returned as form fields (rather than a signed URL) so the screen can submit
+ * via POST — destructive actions should not live in a GET-able link.
  *
  * @param string $plugin_basename Plugin file relative to WP_PLUGIN_DIR (e.g. "akismet/akismet.php").
- * @return string Signed URL, or '' when prerequisites are missing.
+ * @return array{action:string,fields:array<string,string>}|null Form data, or null when prerequisites are missing.
  */
-function wpcomsh_fatal_build_deactivate_url( $plugin_basename ) {
+function wpcomsh_fatal_build_deactivate_form( $plugin_basename ) {
 	if ( ! defined( 'AUTH_SALT' ) || ! defined( 'LOGGED_IN_COOKIE' ) ) {
-		return '';
+		return null;
 	}
 	if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-		return '';
+		return null;
 	}
 	// The cookie is used only as a per-session secret inside an HMAC we
 	// never output, so sanitization is irrelevant here — we need its exact
@@ -140,13 +146,13 @@ function wpcomsh_fatal_build_deactivate_url( $plugin_basename ) {
 		$plugin_basename . '|' . $exp . '|' . $cookie_value,
 		(string) AUTH_SALT
 	);
-	return add_query_arg(
-		array(
-			'wpcomsh_deactivate' => rawurlencode( $plugin_basename ),
-			'wpcomsh_exp'        => $exp,
+	return array(
+		'action' => home_url( '/' ),
+		'fields' => array(
+			'wpcomsh_deactivate' => $plugin_basename,
+			'wpcomsh_exp'        => (string) $exp,
 			'wpcomsh_sig'        => $sig,
 		),
-		home_url( '/' )
 	);
 }
 

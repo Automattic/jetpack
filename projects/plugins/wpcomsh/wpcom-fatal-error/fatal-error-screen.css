@@ -1,6 +1,7 @@
 .wpcomsh-fatal {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 	text-align: left;
+	text-wrap-style: pretty;
 }
 
 .wpcomsh-fatal h2 {
@@ -57,7 +58,7 @@
 }
 
 .wpcomsh-fatal-notice-ver {
-	margin-left: 4px;
+	margin-inline-start: 4px;
 	font-size: 12px;
 	color: #646970;
 }
@@ -75,7 +76,8 @@
 
 .wpcomsh-fatal-steps {
 	margin: 0;
-	padding: 0 0 0 20px;
+	padding: 0;
+	padding-inline-start: 20px;
 	font-size: 14px;
 	line-height: 1.55;
 	color: #3c434a;
@@ -129,6 +131,16 @@
 .wpcomsh-fatal-btn.wpcomsh-fatal-btn-destructive:hover {
 	background: #b32d2e;
 	border-color: #b32d2e;
+}
+
+.wpcomsh-fatal-btn-destructive:focus,
+.wpcomsh-fatal-btn-destructive:focus-visible,
+.wpcomsh-fatal-btn.wpcomsh-fatal-btn-destructive:focus,
+.wpcomsh-fatal-btn.wpcomsh-fatal-btn-destructive:focus-visible {
+	border-color: #b32d2e;
+	outline: 2px solid #b32d2e;
+	outline-offset: 2px;
+	box-shadow: none;
 }
 
 .wpcomsh-fatal-details {

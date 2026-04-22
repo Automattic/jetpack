@@ -33,8 +33,8 @@ function wpcomsh_fatal_maybe_deactivate_plugin() {
 	// Nonces aren't usable in this endpoint (pluggable.php hasn't loaded yet);
 	// we validate an HMAC signature below instead. The early-return check only
 	// reads the parameter *presence* — actual values are validated after.
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( empty( $_GET['wpcomsh_deactivate'] ) || empty( $_GET['wpcomsh_sig'] ) || empty( $_GET['wpcomsh_exp'] ) ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing
+	if ( empty( $_POST['wpcomsh_deactivate'] ) || empty( $_POST['wpcomsh_sig'] ) || empty( $_POST['wpcomsh_exp'] ) ) {
 		return;
 	}
 	if ( ! defined( 'AUTH_SALT' ) ) {
@@ -53,11 +53,11 @@ function wpcomsh_fatal_maybe_deactivate_plugin() {
 	// Nonces aren't usable here because pluggable.php hasn't loaded yet — we
 	// validate an HMAC signature below instead. Inputs are constrained by
 	// regex / cast to int before being trusted.
-	// phpcs:disable WordPress.Security.NonceVerification.Recommended
-	$plugin = isset( $_GET['wpcomsh_deactivate'] ) ? sanitize_text_field( wp_unslash( $_GET['wpcomsh_deactivate'] ) ) : '';
-	$sig    = isset( $_GET['wpcomsh_sig'] ) ? sanitize_text_field( wp_unslash( $_GET['wpcomsh_sig'] ) ) : '';
-	$exp    = isset( $_GET['wpcomsh_exp'] ) ? (int) $_GET['wpcomsh_exp'] : 0;
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	// phpcs:disable WordPress.Security.NonceVerification.Missing
+	$plugin = isset( $_POST['wpcomsh_deactivate'] ) ? sanitize_text_field( wp_unslash( $_POST['wpcomsh_deactivate'] ) ) : '';
+	$sig    = isset( $_POST['wpcomsh_sig'] ) ? sanitize_text_field( wp_unslash( $_POST['wpcomsh_sig'] ) ) : '';
+	$exp    = isset( $_POST['wpcomsh_exp'] ) ? (int) $_POST['wpcomsh_exp'] : 0;
+	// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 	// Reject expired or malformed plugin paths (no traversal; slug/file.php only).
 	if ( $exp < time() ) {
@@ -78,6 +78,15 @@ function wpcomsh_fatal_maybe_deactivate_plugin() {
 
 	$expected = hash_hmac( 'sha256', $plugin . '|' . $exp . '|' . $cookie_value, (string) AUTH_SALT );
 	if ( ! hash_equals( $expected, $sig ) ) {
+		return;
+	}
+
+	// HMAC proves the request originated from a screen we rendered to the same
+	// authenticated session, but we still want core's per-plugin capability
+	// gate (matches wp-admin/plugins.php). user_can() needs the user/cap stack
+	// loaded, which the helper bootstraps for us.
+	$user_id = wpcomsh_fatal_current_user_id();
+	if ( ! $user_id || ! user_can( $user_id, 'deactivate_plugin', $plugin ) ) {
 		return;
 	}
 

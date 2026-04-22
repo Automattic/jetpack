@@ -58,22 +58,29 @@ function wpcomsh_fatal_load_textdomain() {
  *
  * @param array $error Error details from WP_Fatal_Error_Handler.
  * @return array Associative array with keys: is_admin (bool),
- *     plugin (array|null), error_message (string), deactivate_url (string),
+ *     plugin (array|null), error_message (string), deactivate_form (array|null),
  *     recovery_url (string), support_url (string).
  */
 function wpcomsh_fatal_build_render_context( $error ) {
-	$is_admin = wpcomsh_fatal_is_admin();
+	$user_id  = wpcomsh_fatal_current_user_id();
+	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
 	$plugin   = $is_admin ? wpcomsh_fatal_identify_plugin( $error ) : null;
 
+	$can_deactivate = $user_id
+		&& $plugin
+		&& 'plugins' === $plugin['kind']
+		&& ! empty( $plugin['basename'] )
+		&& user_can( $user_id, 'deactivate_plugin', $plugin['basename'] );
+
+	$can_recover = $user_id && user_can( $user_id, 'resume_plugins' );
+
 	return array(
-		'is_admin'       => $is_admin,
-		'plugin'         => $plugin,
-		'error_message'  => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
-		'deactivate_url' => ( $is_admin && $plugin && 'plugins' === $plugin['kind'] && ! empty( $plugin['basename'] ) )
-			? wpcomsh_fatal_build_deactivate_url( $plugin['basename'] )
-			: '',
-		'recovery_url'   => $is_admin ? wpcomsh_fatal_build_recovery_url() : '',
-		'support_url'    => 'https://wordpress.com/help/contact',
+		'is_admin'        => $is_admin,
+		'plugin'          => $plugin,
+		'error_message'   => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
+		'deactivate_form' => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
+		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_url() : '',
+		'support_url'     => 'https://wordpress.com/help/contact',
 	);
 }
 
@@ -118,7 +125,7 @@ function wpcomsh_fatal_render_styles() {
 function wpcomsh_fatal_render_public_view() {
 	?>
 	<h2><?php esc_html_e( 'This site is temporarily unavailable.', 'wpcomsh' ); ?></h2>
-	<p><?php esc_html_e( "We're aware of the issue and the site owner has been notified. Please check back soon.", 'wpcomsh' ); ?></p>
+	<p><?php esc_html_e( 'We are aware of the issue and the site owner has been notified. Please check back soon.', 'wpcomsh' ); ?></p>
 	<?php
 }
 
@@ -130,12 +137,12 @@ function wpcomsh_fatal_render_public_view() {
  */
 function wpcomsh_fatal_render_admin_view( $ctx ) {
 	?>
-	<h2><?php esc_html_e( 'Your site hit a critical error.', 'wpcomsh' ); ?></h2>
-	<p><?php esc_html_e( "We've replaced your site with this page so visitors don't see a broken page. Here's what we know and what you can do next.", 'wpcomsh' ); ?></p>
+	<h2><?php esc_html_e( 'Your site hit a critical error', 'wpcomsh' ); ?></h2>
+	<p><?php esc_html_e( 'There has been a critical error on this website. Here is what we know and what you can do next.', 'wpcomsh' ); ?></p>
 
 	<?php if ( $ctx['plugin'] ) : ?>
 		<h3 class="wpcomsh-fatal-subhead"><?php esc_html_e( 'Likely cause', 'wpcomsh' ); ?></h3>
-		<?php wpcomsh_fatal_render_cause_notice( $ctx['plugin'], $ctx['deactivate_url'] ); ?>
+		<?php wpcomsh_fatal_render_cause_notice( $ctx['plugin'], $ctx['deactivate_form'] ); ?>
 	<?php endif; ?>
 
 	<h3 class="wpcomsh-fatal-subhead"><?php esc_html_e( 'What you can try next', 'wpcomsh' ); ?></h3>
@@ -152,13 +159,13 @@ function wpcomsh_fatal_render_admin_view( $ctx ) {
 
 /**
  * Render the red "likely cause" notice card: plugin name, description,
- * and the Deactivate action when a signed URL is available.
+ * and the Deactivate action when a signed form is available.
  *
- * @param array  $plugin         Plugin info from wpcomsh_fatal_identify_plugin().
- * @param string $deactivate_url Signed deactivation URL, or '' to hide the action.
+ * @param array      $plugin          Plugin info from wpcomsh_fatal_identify_plugin().
+ * @param array|null $deactivate_form Signed form data from wpcomsh_fatal_build_deactivate_form(), or null to hide the action.
  * @return void
  */
-function wpcomsh_fatal_render_cause_notice( $plugin, $deactivate_url ) {
+function wpcomsh_fatal_render_cause_notice( $plugin, $deactivate_form ) {
 	?>
 	<div class="wpcomsh-fatal-notice wpcomsh-fatal-notice-error">
 		<div class="wpcomsh-fatal-notice-icon" aria-hidden="true">
@@ -174,12 +181,17 @@ function wpcomsh_fatal_render_cause_notice( $plugin, $deactivate_url ) {
 			<?php if ( ! empty( $plugin['description'] ) ) : ?>
 				<div class="wpcomsh-fatal-notice-desc"><?php echo esc_html( $plugin['description'] ); ?></div>
 			<?php endif; ?>
-			<?php if ( $deactivate_url ) : ?>
-				<a class="wpcomsh-fatal-btn wpcomsh-fatal-btn-destructive"
-					href="<?php echo esc_url( $deactivate_url ); ?>"
-					onclick="return confirm('<?php echo esc_js( __( 'Deactivate this plugin? Your site should load again immediately.', 'wpcomsh' ) ); // phpcs:ignore Jetpack.Functions.EscJs.Found -- esc_attr(json_encode(...)) would double-escape quotes inside onclick="..." and break the string. ?>');">
-					<?php esc_html_e( 'Deactivate', 'wpcomsh' ); ?>
-				</a>
+			<?php if ( $deactivate_form ) : ?>
+				<form method="post"
+					action="<?php echo esc_url( $deactivate_form['action'] ); ?>"
+					onsubmit="return confirm('<?php echo esc_js( __( 'Deactivate this plugin? Your site should load again immediately.', 'wpcomsh' ) ); // phpcs:ignore Jetpack.Functions.EscJs.Found -- esc_attr(json_encode(...)) would double-escape quotes inside onsubmit="..." and break the string. ?>');">
+					<?php foreach ( $deactivate_form['fields'] as $field_name => $field_value ) : ?>
+						<input type="hidden" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $field_value ); ?>" />
+					<?php endforeach; ?>
+					<button type="submit" class="wpcomsh-fatal-btn wpcomsh-fatal-btn-destructive">
+						<?php esc_html_e( 'Deactivate', 'wpcomsh' ); ?>
+					</button>
+				</form>
 			<?php endif; ?>
 		</div>
 	</div>
@@ -213,7 +225,7 @@ function wpcomsh_fatal_render_next_steps( $recovery_url, $support_url ) {
 			<?php
 			printf(
 				/* translators: 1: open <a> tag linking to WordPress.com support, 2: close </a> tag. */
-				esc_html__( 'Still stuck? %1$sContact WordPress.com support%2$s and we\'ll help you get back online.', 'wpcomsh' ),
+				esc_html__( 'Still stuck? %1$sContact WordPress.com support%2$s and we will help you get back online.', 'wpcomsh' ),
 				'<a href="' . esc_url( $support_url ) . '">',
 				'</a>'
 			);
