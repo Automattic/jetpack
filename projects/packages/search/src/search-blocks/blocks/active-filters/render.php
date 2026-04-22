@@ -7,6 +7,8 @@
  * @package automattic/jetpack-search
  */
 
+namespace Automattic\Jetpack\Search;
+
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 // Render `hidden` on first paint when no filters are active. JS unhides once
