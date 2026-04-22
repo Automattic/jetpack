@@ -101,6 +101,43 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	}
 
 	/**
+	 * Build an Akismet payload describing the post content being previewed.
+	 *
+	 * Uses the post author as the identity signal (not the caller), because
+	 * the author is what Akismet should evaluate the content against.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_Post $post Post being previewed.
+	 * @return array Associative payload suitable for http_build_query().
+	 */
+	protected function prepare_post_for_akismet( WP_Post $post ): array {
+		$author = get_userdata( (int) $post->post_author );
+
+		$payload = array(
+			'comment_type'         => 'blog-post-preview',
+			'comment_content'      => $post->post_title . "\n\n" . $post->post_content,
+			'comment_author'       => $author ? $author->display_name : '',
+			'comment_author_email' => $author ? $author->user_email : '',
+			'comment_author_url'   => $author ? $author->user_url : '',
+			'permalink'            => (string) get_permalink( $post ),
+			'blog'                 => (string) get_option( 'home' ),
+			'blog_lang'            => (string) get_bloginfo( 'language' ),
+			'comment_date_gmt'     => gmdate( DATE_ATOM, time() ),
+		);
+
+		/**
+		 * Filter the values sent to Akismet when checking an email preview.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array   $payload The values being sent to Akismet.
+		 * @param WP_Post $post    The post being previewed.
+		 */
+		return apply_filters( 'jetpack_send_email_preview_akismet_values', $payload, $post );
+	}
+
+	/**
 	 * Sends an email preview of a post to the current user.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.

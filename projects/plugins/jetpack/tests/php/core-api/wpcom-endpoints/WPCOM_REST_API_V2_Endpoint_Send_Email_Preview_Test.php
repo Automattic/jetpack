@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
+require_once __DIR__ . '/class-wpcom-rest-api-v2-endpoint-send-email-preview-test-stub.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test
@@ -124,5 +125,69 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test extends Jetpack_REST_Te
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden_context', $response, 403 );
+	}
+
+	/**
+	 * Test that prepare_post_for_akismet() builds the expected payload from the post author.
+	 */
+	public function test_prepare_post_for_akismet_builds_expected_payload() {
+		$author_id = self::factory()->user->create(
+			array(
+				'role'         => 'editor',
+				'display_name' => 'Ada Example',
+				'user_email'   => 'ada@example.test',
+				'user_url'     => 'https://ada.example.test',
+			)
+		);
+		$post_id   = self::factory()->post->create(
+			array(
+				'post_title'   => 'Hello world',
+				'post_content' => 'Some draft content.',
+				'post_author'  => (string) $author_id,
+				'post_status'  => 'draft',
+			)
+		);
+
+		$controller = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$payload    = $controller->prepare_post_for_akismet_public( get_post( $post_id ) );
+
+		$this->assertSame( 'blog-post-preview', $payload['comment_type'] );
+		$this->assertSame( "Hello world\n\nSome draft content.", $payload['comment_content'] );
+		$this->assertSame( 'Ada Example', $payload['comment_author'] );
+		$this->assertSame( 'ada@example.test', $payload['comment_author_email'] );
+		$this->assertSame( 'https://ada.example.test', $payload['comment_author_url'] );
+		$this->assertSame( get_permalink( $post_id ), $payload['permalink'] );
+		$this->assertSame( get_option( 'home' ), $payload['blog'] );
+		$this->assertSame( get_bloginfo( 'language' ), $payload['blog_lang'] );
+		$this->assertArrayHasKey( 'comment_date_gmt', $payload );
+	}
+
+	/**
+	 * Test that the jetpack_send_email_preview_akismet_values filter runs.
+	 */
+	public function test_prepare_post_for_akismet_applies_filter() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'  => 'x',
+				'post_author' => (string) static::$user_id_editor,
+			)
+		);
+
+		$called = false;
+		$filter = function ( $payload, $post ) use ( &$called, $post_id ) {
+			$called            = true;
+			$payload['custom'] = 'injected';
+			$this->assertSame( $post_id, $post->ID );
+			return $payload;
+		};
+		add_filter( 'jetpack_send_email_preview_akismet_values', $filter, 10, 2 );
+
+		$controller = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$payload    = $controller->prepare_post_for_akismet_public( get_post( $post_id ) );
+
+		remove_filter( 'jetpack_send_email_preview_akismet_values', $filter, 10 );
+
+		$this->assertTrue( $called, 'Filter should have fired.' );
+		$this->assertSame( 'injected', $payload['custom'] );
 	}
 }
