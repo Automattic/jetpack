@@ -3920,6 +3920,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@wordpress/api-fetch':
+        specifier: 7.44.0
+        version: 7.44.0
       '@wordpress/base-styles':
         specifier: 6.20.0
         version: 6.20.0
