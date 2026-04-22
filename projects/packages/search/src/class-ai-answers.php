@@ -66,10 +66,11 @@ class AI_Answers {
 			self::TOPIC_CPT,
 			'_jstopic_keywords',
 			array(
-				'single'        => true,
-				'type'          => 'string',
-				'show_in_rest'  => true,
-				'auth_callback' => function () {
+				'single'            => true,
+				'type'              => 'string',
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			)
@@ -79,10 +80,11 @@ class AI_Answers {
 			self::TOPIC_CPT,
 			'_jstopic_url',
 			array(
-				'single'        => true,
-				'type'          => 'string',
-				'show_in_rest'  => true,
-				'auth_callback' => function () {
+				'single'            => true,
+				'type'              => 'string',
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'esc_url_raw',
+				'auth_callback'     => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			)

@@ -1818,7 +1818,7 @@ class Search extends Module {
 	 * @return array Updated whitelist.
 	 */
 	public function add_ai_answer_post_types( $list ) {
-		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) ) ) {
 			return $list;
 		}
 		$list[] = 'jp_search_behavior';
@@ -1833,7 +1833,7 @@ class Search extends Module {
 	 * @return array Updated whitelist.
 	 */
 	public function add_ai_answer_post_meta( $list ) {
-		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) ) ) {
 			return $list;
 		}
 		$list[] = '_jstopic_keywords';

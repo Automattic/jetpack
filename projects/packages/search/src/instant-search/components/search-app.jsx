@@ -266,6 +266,7 @@ class SearchApp extends Component {
 			this.aiController.abort();
 		}
 		this.aiController = new AbortController();
+		const controller = this.aiController; // local capture to avoid race in .catch()
 
 		this.setState( { aiStatus: 'loading', aiText: '', aiCitations: [] } );
 
@@ -282,7 +283,7 @@ class SearchApp extends Component {
 				filters: this.props.filters,
 				locale: options.locale || 'en',
 			} ),
-			signal: this.aiController.signal,
+			signal: controller.signal,
 			onopen: async response => {
 				if ( ! response.ok ) {
 					throw new Error( `HTTP ${ response.status }` );
@@ -310,7 +311,7 @@ class SearchApp extends Component {
 				throw new Error( 'SSE error' );
 			},
 		} ).catch( () => {
-			if ( ! this.aiController?.signal?.aborted ) {
+			if ( ! controller.signal.aborted ) {
 				this.setState( { aiStatus: 'error' } );
 			}
 		} );

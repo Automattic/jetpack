@@ -72,4 +72,15 @@ class Search_Module_Test extends BaseTestCase {
 		$this->assertContains( '_jstopic_keywords', $list );
 		$this->assertContains( '_jstopic_url', $list );
 	}
+
+	/**
+	 * AI Answer CPTs should be in the whitelist when enabled via WP option only (no filter).
+	 */
+	public function test_ai_cpts_in_whitelist_when_option_set() {
+		update_option( 'jetpack_search_ai_answers_enabled', 1 );
+		$list = apply_filters( 'jetpack_sync_post_types_whitelist', array() );
+		delete_option( 'jetpack_search_ai_answers_enabled' );
+		$this->assertContains( 'jp_search_behavior', $list );
+		$this->assertContains( 'jetpack_search_topic', $list );
+	}
 }
