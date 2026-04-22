@@ -20,7 +20,7 @@ if ( '' === $button_label ) {
 	data-wp-bind--hidden="!state.showLoadMore"
 >
 	<button
-		class="jetpack-search-load-more__button"
+		class="wp-element-button jetpack-search-load-more__button"
 		data-wp-on--click="actions.loadMore"
 		data-wp-bind--hidden="state.isLoadingMore"
 	>

@@ -346,7 +346,7 @@ function LoadMoreEdit( { attributes, setAttributes } ) {
 				'button',
 				{
 					type: 'button',
-					className: 'jetpack-search-load-more__button',
+					className: 'wp-element-button jetpack-search-load-more__button',
 					disabled: true,
 				},
 				buttonLabel
