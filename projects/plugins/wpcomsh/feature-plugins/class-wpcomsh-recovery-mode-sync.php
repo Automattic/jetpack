@@ -62,7 +62,6 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 */
 	public static function capture_email_last_sent() {
 		self::snapshot();
-		self::$payload['recovery_mode_email_last_sent'] = (int) get_option( self::EMAIL_LAST_SENT_OPTION, 0 );
 		self::trace(
 			'captured email_last_sent',
 			array( 'value' => self::$payload['recovery_mode_email_last_sent'] )
@@ -82,7 +81,6 @@ class WPCOMSH_Recovery_Mode_Sync {
 		$now = time();
 		update_option( self::ENTERED_AT_OPTION, $now, false );
 		self::snapshot();
-		self::$payload['recovery_session_entered_at'] = $now;
 		self::trace(
 			'captured session_start',
 			array(
@@ -105,7 +103,6 @@ class WPCOMSH_Recovery_Mode_Sync {
 		$now = time();
 		update_option( self::EXITED_AT_OPTION, $now, false );
 		self::snapshot();
-		self::$payload['recovery_session_exited_at'] = $now;
 		self::trace(
 			'captured session_end',
 			array(
