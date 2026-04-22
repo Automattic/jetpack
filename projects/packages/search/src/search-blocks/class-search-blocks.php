@@ -224,7 +224,35 @@ class Search_Blocks {
 		}
 		$initial                  = static::build_initial_state();
 		$initial['filterConfigs'] = static::collect_filter_configs_from_post();
+		$initial['activeFilters'] = static::gate_active_filters(
+			$initial['activeFilters'] ?? array(),
+			$initial['filterConfigs']
+		);
 		wp_interactivity_state( 'jetpack-search', $initial );
+	}
+
+	/**
+	 * Drop active-filter keys that aren't registered by any filter-checkbox
+	 * block on the current post. parse_url_filters() accepts any array-shaped
+	 * top-level URL param, so without this gate a stray `?foo[]=bar` seeded
+	 * by another plugin would get merged into `activeFilters` and then
+	 * re-serialized back into subsequent search URLs. Mirrors the same gating
+	 * that store/url-state.js applies on the client side.
+	 *
+	 * Skipped when `$filter_configs` is empty — no filter blocks means we
+	 * don't know what's valid, and we don't want to silently drop filters
+	 * a filter block placed inside a template part would accept after hydration.
+	 *
+	 * @param array<string, string[]>             $active_filters Parsed active filters.
+	 * @param array<string, array<string, mixed>> $filter_configs Known filter configs keyed by filterKey.
+	 * @return array<string, string[]>
+	 */
+	public static function gate_active_filters( array $active_filters, array $filter_configs ): array {
+		if ( empty( $filter_configs ) ) {
+			return $active_filters;
+		}
+		$allowed = array_fill_keys( array_keys( $filter_configs ), true );
+		return array_intersect_key( $active_filters, $allowed );
 	}
 
 	/**

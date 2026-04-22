@@ -73,4 +73,41 @@ class Search_Blocks_Test extends TestCase {
 			$_GET = $original_get;
 		}
 	}
+
+	/**
+	 * Only filter keys registered by a filter-checkbox block on the current
+	 * post may survive into the seeded state. An unrelated `?foo[]=bar`
+	 * param (e.g. from another plugin) must be dropped so it doesn't get
+	 * echoed back into subsequent search URLs.
+	 */
+	public function test_gate_active_filters_keeps_only_registered_keys() {
+		$gated = Search_Blocks::gate_active_filters(
+			array(
+				'category'   => array( 'news' ),
+				'post_types' => array( 'post' ),
+				'foo'        => array( 'bar' ),
+			),
+			array(
+				'category'   => array( 'filterKey' => 'category' ),
+				'post_types' => array( 'filterKey' => 'post_types' ),
+			)
+		);
+		$this->assertSame(
+			array(
+				'category'   => array( 'news' ),
+				'post_types' => array( 'post' ),
+			),
+			$gated
+		);
+	}
+
+	/**
+	 * When no filter-checkbox blocks contribute a filterConfig (e.g. the
+	 * post uses a template part instead of the bundled pattern), leave
+	 * activeFilters alone — hydration may still register them client-side.
+	 */
+	public function test_gate_active_filters_passthrough_when_configs_empty() {
+		$input = array( 'category' => array( 'news' ) );
+		$this->assertSame( $input, Search_Blocks::gate_active_filters( $input, array() ) );
+	}
 }
