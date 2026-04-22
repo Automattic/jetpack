@@ -659,7 +659,7 @@ function zeroBSCRM_mailTemplatesEnqueue() {
 		'code-editor',
 		sprintf(
 			'jQuery( function() { wp.codeEditor.initialize( "zbstemplatehtml", %s ); } );',
-			wp_json_encode( $settings )
+			wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 		)
 	);
 }

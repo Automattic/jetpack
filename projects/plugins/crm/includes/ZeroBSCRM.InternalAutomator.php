@@ -50,8 +50,7 @@ function zeroBSCRM_FireInternalAutomator( $actionStr = '', $obj = array() ) {
 	if ( in_array( $actionStr, $zeroBSCRM_IA_Dupeblocks ) ) {
 
 		if ( gettype( $obj ) != 'string' && gettype( $obj ) != 'String' ) {
-			#$objStr = implode('.',$obj);
-			$objStr     = json_encode( $obj );
+			$objStr     = wp_json_encode( $obj, JSON_UNESCAPED_SLASHES );
 			$objStr     = md5( $objStr );
 			$actionHash = $actionStr . $objStr;
 		} else {

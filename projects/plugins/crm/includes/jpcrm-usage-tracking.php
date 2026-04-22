@@ -73,7 +73,7 @@ class jpcrm_usage_tracking {
 
 		}
 
-		wp_send_json( $res );
+		wp_send_json( $res, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
