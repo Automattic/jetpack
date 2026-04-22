@@ -30,21 +30,6 @@
 	gap: 8px;
 }
 
-// Override the `variant="secondary"` Button so the date-range toggle
-// uses a neutral gray outline instead of the wp-admin theme color.
-// The "Back up now" button next to it keeps the theme color so it
-// reads as the primary action, and the date picker recedes visually.
-.dateRangeToggle.dateRangeToggle {
-	box-shadow: inset 0 0 0 1px #949494;
-	color: #1e1e1e;
-
-	&:hover:not(:disabled),
-	&:focus:not(:disabled) {
-		box-shadow: inset 0 0 0 1px #757575;
-		color: #1e1e1e;
-	}
-}
-
 .detailsHeader {
 	display: flex;
 	align-items: center;
