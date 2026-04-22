@@ -63,11 +63,20 @@ class Jetpack_Reader_Chat {
 	 * Register the blog_talks_back option so it is readable and writable
 	 * via the /wp/v2/settings REST endpoint. Requires manage_options.
 	 *
+	 * Gated to proxied Automattic / dev contexts during the rollout so
+	 * regular site owners do not see an unfinished toggle. The admin UI
+	 * in the Jetpack Search dashboard also checks for the setting's
+	 * presence before rendering.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
 	public static function register_settings(): void {
+		if ( ! self::is_dev_mode() ) {
+			return;
+		}
+
 		register_setting(
 			'general',
 			'blog_talks_back',
@@ -197,6 +206,14 @@ class Jetpack_Reader_Chat {
 
 		$post = get_post();
 		if ( ! $post ) {
+			return null;
+		}
+
+		// Respect password-protected posts: do not leak body content to
+		// visitors who have not entered the password. Omit the whole
+		// currentPost envelope so the chat doesn't imply it "knows" the
+		// post's content either.
+		if ( post_password_required( $post ) ) {
 			return null;
 		}
 
