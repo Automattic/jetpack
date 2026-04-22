@@ -193,7 +193,6 @@ export default function DashboardPage( { isLoading = false } ) {
 										isTogglingInstantSearch={ isTogglingInstantSearch }
 									/>
 								</div>
-								<JetpackFooter />
 								<NoticesList
 									notices={ notices }
 									handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
