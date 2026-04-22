@@ -79,6 +79,11 @@
 // backup overview 1:1.
 .listCard {
 
+	// Clip children to the card's rounded corners so the inner
+	// view-actions row / first list divider doesn't show white
+	// corners peeking through the border-radius.
+	overflow: hidden;
+
 	// Drop the default `CardBody` padding so list rows, filter panel, and
 	// pagination can run edge-to-edge (dividers extend full card width).
 	// We re-add padding on the search/view-actions row below so the
@@ -129,5 +134,13 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		min-inline-size: 0;
+	}
+
+	// Vertically center the pagination pieces (PAGE label, page-size
+	// dropdown, OF N label, prev/next icon buttons). Their individual
+	// heights differ slightly so the default `align-items: stretch`
+	// leaves the label text looking off-baseline.
+	:global(.dataviews-pagination) {
+		align-items: center;
 	}
 }
