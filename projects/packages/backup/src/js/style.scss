@@ -4,4 +4,17 @@
 // placeholder — without this import the Overview list renders
 // completely unstyled.
 @use "sass:meta";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Opt the Backup admin page into the shared `jetpack-admin-page-layout`
+// pattern: wp-admin content column is pinned to the viewport with a
+// fixed Jetpack header at top, a scrollable middle, and a pinned
+// JetpackFooter at the bottom. Matches how Protect, Social,
+// VideoPress, Newsletter, Search, Boost, and the Network Admin render
+// their pages (see #48109). WordPress assigns `body.jetpack_page_
+// jetpack-backup` automatically for the plugin's top-level menu.
+body.jetpack_page_jetpack-backup {
+
+	@include jetpack-admin-page-layout;
+}
