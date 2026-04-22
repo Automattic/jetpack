@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tools: Update rasterization script to strip pHYs chunk from PNGs.
