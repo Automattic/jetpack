@@ -9,6 +9,8 @@ Accept: text/event-stream
 Content-Type: application/json
 ```
 
+Note: no `sites/{site_id}` in the path — the site is identified via `selectedSiteId` in the request body.
+
 ## Authentication
 
 Two auth paths:
@@ -25,13 +27,14 @@ Rotates hourly; wpcom accepts both the current and previous hour's token to hand
 
 ## Request Format
 
-JSON-RPC 2.0 with `message/stream` method. The search query goes in the `text` part; site context (site ID, active filters, locale) goes in the `data` part:
+JSON-RPC 2.0 with `message/stream` method. The search query goes in the `text` part; site context (site ID, site URL, active filters, locale) goes in the `data` part. `constructor_arguments` may be used for versioning:
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": "req-1",
   "method": "message/stream",
+  "constructor_arguments": {},
   "params": {
     "message": {
       "role": "user",
@@ -42,6 +45,7 @@ JSON-RPC 2.0 with `message/stream` method. The search query goes in the `text` p
           "data": {
             "clientContext": {
               "selectedSiteId": 12345,
+              "site_url": "https://example.com",
               "filters": { "post_type": ["post", "page"], "category": [] },
               "locale": "en"
             }
@@ -67,4 +71,4 @@ JSON-RPC 2.0 with `message/stream` method. The search query goes in the `text` p
 
 ## Quota
 
-500 requests per calendar month per site (all plans). Returns `error` with `code: quota_exceeded` when exceeded; overlay falls back to standard search results.
+500 requests per calendar month per site (all plans, subject to change — see `search-ai-answers-roadmap.md`). Returns `error` with `code: quota_exceeded` when exceeded; overlay falls back to standard search results.

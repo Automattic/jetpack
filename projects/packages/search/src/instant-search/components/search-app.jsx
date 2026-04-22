@@ -270,7 +270,7 @@ class SearchApp extends Component {
 
 		this.setState( { aiStatus: 'loading', aiText: '', aiCitations: [] } );
 
-		const url = `https://public-api.wordpress.com/wpcom/v2/sites/${ siteId }/ai/agent/jetpack-search-answers`;
+		const url = 'https://public-api.wordpress.com/wpcom/v2/ai/agent/jetpack-search-answers';
 
 		fetchEventSource( url, {
 			method: 'POST',
@@ -279,9 +279,33 @@ class SearchApp extends Component {
 				Authorization: `Bearer ${ token }`,
 			},
 			body: JSON.stringify( {
-				query,
-				filters: this.props.filters,
-				locale: options.locale || 'en',
+				jsonrpc: '2.0',
+				id: `req-${ Date.now() }`,
+				method: 'message/stream',
+				constructor_arguments: {},
+				params: {
+					message: {
+						role: 'user',
+						parts: [
+							{ type: 'text', text: query },
+							{
+								type: 'data',
+								data: {
+									clientContext: {
+										selectedSiteId: siteId,
+										site_url: options.homeUrl || '',
+										filters: this.props.filters,
+										locale: options.locale || 'en',
+									},
+								},
+								metadata: {},
+							},
+						],
+						kind: 'message',
+						messageId: `msg-${ Date.now() }`,
+					},
+				},
+				tokenStreaming: true,
 			} ),
 			signal: controller.signal,
 			onopen: async response => {
