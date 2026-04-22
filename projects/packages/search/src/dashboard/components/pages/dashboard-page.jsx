@@ -8,11 +8,15 @@ import {
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useState } from 'react';
+import BehaviorTab from 'components/behavior-tab';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
+import DashboardTabs from 'components/tabs';
+import TopicsTab from 'components/topics-tab';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
@@ -27,6 +31,8 @@ import './dashboard-page.scss';
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
+	const [ activeTab, setActiveTab ] = useState( 'overview' );
+
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
@@ -125,71 +131,79 @@ export default function DashboardPage( { isLoading = false } ) {
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
 			>
-				<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
-					{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
-					<div className="jp-search-dashboard-row">
-						<div
-							id="jp-admin-notices"
-							className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
-						/>
-					</div>
-					{ isPageLoading && <Loading /> }
-					{ ! isPageLoading && (
-						<MockedSearchContent
-							supportsInstantSearch={ supportsInstantSearch }
-							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-						/>
-					) }
-				</div>
-				{ ! isPageLoading && (
+				<DashboardTabs activeTab={ activeTab } onTabChange={ setActiveTab } />
+				{ activeTab === 'overview' && (
 					<>
-						{ hasConnectionError && (
-							<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-								<Col lg={ 12 } md={ 12 } sm={ 12 }>
-									<ConnectionError />
-								</Col>
-							</Container>
-						) }
-						{ isNewPricing && supportsInstantSearch && (
-							<PlanInfo
-								hasIndex={ postCount !== 0 }
-								recordMeterInfo={ recordMeterInfo }
-								isFreePlan={ isFreePlan }
-								sendPaidPlanToCart={ sendPaidPlanToCart }
-							/>
-						) }
-						{ ! isNewPricing && supportsInstantSearch && (
-							<RecordMeter
-								postCount={ postCount }
-								postTypeBreakdown={ postTypeBreakdown }
-								tierMaximumRecords={ tierMaximumRecords }
-								lastIndexedDate={ lastIndexedDate }
-								postTypes={ postTypes }
-							/>
-						) }
-						<div className="jp-search-dashboard-bottom">
-							<ModuleControl
-								siteAdminUrl={ siteAdminUrl }
-								updateOptions={ updateOptions }
-								domain={ domain }
-								isDisabledFromOverLimit={ isOverLimit }
-								isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-								supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-								supportsSearch={ supportsSearch }
-								supportsInstantSearch={ supportsInstantSearch }
-								isModuleEnabled={ isModuleEnabled }
-								isInstantSearchEnabled={ isInstantSearchEnabled }
-								isSavingEitherOption={ isSavingEitherOption }
-								isTogglingModule={ isTogglingModule }
-								isTogglingInstantSearch={ isTogglingInstantSearch }
-							/>
+						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
+							<div className="jp-search-dashboard-row">
+								<div
+									id="jp-admin-notices"
+									className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
+								/>
+							</div>
+							{ isPageLoading && <Loading /> }
+							{ ! isPageLoading && (
+								<MockedSearchContent
+									supportsInstantSearch={ supportsInstantSearch }
+									supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+								/>
+							) }
 						</div>
-						<NoticesList
-							notices={ notices }
-							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-						/>
+						{ ! isPageLoading && (
+							<>
+								{ hasConnectionError && (
+									<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
+										<Col lg={ 12 } md={ 12 } sm={ 12 }>
+											<ConnectionError />
+										</Col>
+									</Container>
+								) }
+								{ isNewPricing && supportsInstantSearch && (
+									<PlanInfo
+										hasIndex={ postCount !== 0 }
+										recordMeterInfo={ recordMeterInfo }
+										isFreePlan={ isFreePlan }
+										sendPaidPlanToCart={ sendPaidPlanToCart }
+									/>
+								) }
+								{ ! isNewPricing && supportsInstantSearch && (
+									<RecordMeter
+										postCount={ postCount }
+										postTypeBreakdown={ postTypeBreakdown }
+										tierMaximumRecords={ tierMaximumRecords }
+										lastIndexedDate={ lastIndexedDate }
+										postTypes={ postTypes }
+									/>
+								) }
+								<div className="jp-search-dashboard-bottom">
+									<ModuleControl
+										siteAdminUrl={ siteAdminUrl }
+										updateOptions={ updateOptions }
+										domain={ domain }
+										isDisabledFromOverLimit={ isOverLimit }
+										isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+										supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+										supportsSearch={ supportsSearch }
+										supportsInstantSearch={ supportsInstantSearch }
+										isModuleEnabled={ isModuleEnabled }
+										isInstantSearchEnabled={ isInstantSearchEnabled }
+										isSavingEitherOption={ isSavingEitherOption }
+										isTogglingModule={ isTogglingModule }
+										isTogglingInstantSearch={ isTogglingInstantSearch }
+									/>
+								</div>
+								<JetpackFooter />
+								<NoticesList
+									notices={ notices }
+									handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+								/>
+							</>
+						) }
 					</>
 				) }
+				{ activeTab === 'behavior' && <BehaviorTab /> }
+				{ activeTab === 'topics' && <TopicsTab /> }
 			</AdminPage>
 		</div>
 	);

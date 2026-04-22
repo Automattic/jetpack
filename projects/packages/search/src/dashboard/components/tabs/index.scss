@@ -1,0 +1,29 @@
+.jp-search-dashboard-tabs {
+	display: flex;
+	gap: 0;
+	border-bottom: 1px solid #dcdcde;
+	margin-bottom: 24px;
+}
+
+.jp-search-dashboard-tabs__tab {
+	background: none;
+	border: none;
+	border-bottom: 3px solid transparent;
+	color: #3c434a;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 400;
+	margin-bottom: -1px;
+	padding: 12px 16px;
+	text-decoration: none;
+
+	&:hover {
+		color: #1d2327;
+	}
+
+	&--active {
+		border-bottom-color: #3858e9;
+		color: #1d2327;
+		font-weight: 600;
+	}
+}
