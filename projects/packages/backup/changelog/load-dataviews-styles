@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Load `@wordpress/dataviews` styles so the Overview list renders with the proper row, icon, and checkbox styling.

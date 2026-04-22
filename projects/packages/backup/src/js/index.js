@@ -1,6 +1,7 @@
 import { createReduxStore, register } from '@wordpress/data';
 import * as WPElement from '@wordpress/element';
 import App from './admin';
+import './style.scss';
 import { STORE_ID, storeConfig } from './store';
 
 const store = createReduxStore( STORE_ID, storeConfig );

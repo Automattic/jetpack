@@ -1,0 +1,7 @@
+// Plain-CSS imports that need to land in the global scope (not scoped
+// by a CSS module). DataViews ships its own styles for the list/grid
+// layouts, selection checkbox, row separators, pagination, and media
+// placeholder — without this import the Overview list renders
+// completely unstyled.
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
