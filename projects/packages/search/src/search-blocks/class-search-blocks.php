@@ -337,10 +337,22 @@ class Search_Blocks {
 	 * Site Editor customizations (stored in the DB keyed by this slug) still
 	 * take precedence over the plugin-registered default.
 	 *
+	 * Existing occurrences of the slug are stripped first so the hierarchy
+	 * can't accumulate duplicates from a second init pass or another filter
+	 * on the same hook.
+	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
 	 */
 	public static function prepend_search_template( $templates ) {
+		$templates = array_values(
+			array_filter(
+				(array) $templates,
+				static function ( $slug ) {
+					return self::SEARCH_TEMPLATE_SLUG !== $slug;
+				}
+			)
+		);
 		array_unshift( $templates, self::SEARCH_TEMPLATE_SLUG );
 		return $templates;
 	}

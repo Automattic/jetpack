@@ -170,6 +170,18 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * If the slug is already in the hierarchy (e.g. a second init pass or
+	 * another filter already prepended it), the result must not contain
+	 * duplicate `jetpack-search` entries — core would otherwise do two
+	 * identical registry lookups per search request.
+	 */
+	public function test_prepend_search_template_dedupes_existing_slug() {
+		$result = Search_Blocks::prepend_search_template( array( 'jetpack-search', 'search', 'index' ) );
+		$this->assertSame( array( 'jetpack-search', 'search', 'index' ), $result );
+		$this->assertCount( 1, array_keys( $result, 'jetpack-search', true ) );
+	}
+
+	/**
 	 * `register_search_template()` must push the template into
 	 * WP_Block_Templates_Registry (so it shows up in the Site Editor's
 	 * Templates list) and the stored content must reference the Jetpack
@@ -212,8 +224,9 @@ class Search_Blocks_Test extends TestCase {
 	 * If the bundled template file can't be read, registration must be a
 	 * no-op — otherwise the slug we prepended to `search_template_hierarchy`
 	 * would resolve to an empty plugin template and take over `/?s=...`
-	 * with a blank page. Simulate the missing-file case by swapping in a
-	 * no-op content filter (the actual file is always present in the repo).
+	 * with a blank page. Simulate the missing-file case with an anonymous
+	 * subclass that overrides `get_search_template_content()` to return ''
+	 * (the actual file is always present in the repo).
 	 */
 	public function test_register_search_template_skips_when_content_empty() {
 		if ( ! function_exists( 'register_block_template' ) ) {
