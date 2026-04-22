@@ -103,4 +103,33 @@
 	:global(.dataviews__view-actions) {
 		padding-block: 12px;
 	}
+
+	// Center the gridicon inside the 52×52 media placeholder. The Icon
+	// element has no intrinsic positioning, so it would otherwise sit in
+	// the top-left of the box. Mirrors Calypso's
+	// `.dashboard-backups__list-icon` absolute-center trick with a
+	// simpler flexbox approach.
+	:global(.dataviews-view-list__media-wrapper) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #757575;
+	}
+
+	// Keep the date + content-text metadata on a single line with a
+	// neutral gap, then truncate overflow so long backup stats don't
+	// push below the title. Without this DataViews' default
+	// `flex-wrap: wrap` pushes each field to its own line at the list
+	// pane's width.
+	:global(.dataviews-view-list__fields) {
+		flex-wrap: nowrap;
+		overflow: hidden;
+	}
+
+	:global(.dataviews-view-list__field-value) {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		min-inline-size: 0;
+	}
 }
