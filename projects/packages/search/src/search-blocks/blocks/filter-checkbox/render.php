@@ -41,12 +41,10 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 }
 
 // Render `hidden` on first paint when no aggregation buckets are available
-// for this filter. The sidebar column lives *after* search-results in the
-// default pattern, so search-results' SSR pre-fetch has already populated
-// `state.aggregations` by the time this block renders. When SSR skipped
-// (no query + no active filters), the state stays empty and we hide the
-// block so its title doesn't occupy the top of the sidebar and misalign
-// with the adjacent results column.
+// for this filter. Seeded `state.aggregations` is empty before the first JS
+// fetch, so on the server we default to hidden — otherwise an empty filter
+// title would occupy the top of the sidebar during the load and misalign
+// with the adjacent results column. JS unhides once buckets arrive.
 $seeded_state = function_exists( 'wp_interactivity_state' )
 	? wp_interactivity_state( 'jetpack-search' )
 	: array();

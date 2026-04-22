@@ -207,16 +207,16 @@ class Search_Blocks {
 	/**
 	 * Seed the Interactivity API store with initial state.
 	 *
-	 * Individual block render.php files call wp_interactivity_state() too —
-	 * core deep-merges the arrays, so the search-results render.php adds the
-	 * pre-fetched results and each filter-checkbox adds its config.
+	 * Individual block render.php files may also call wp_interactivity_state()
+	 * — core deep-merges each call, so each block can contribute its own
+	 * entries (e.g. filter-checkbox writes its filterConfig).
 	 *
-	 * Also pre-populates `filterConfigs` by scanning the current post content
-	 * for jetpack/filter-checkbox blocks, so the search-results SSR fetch can
-	 * build aggregation + filter payloads regardless of where the filter
-	 * blocks sit relative to it in the block tree. Without this, a pattern
-	 * that placed search-results before its filter blocks would ship an
-	 * initial paint with no filter buckets until hydration re-fetched.
+	 * Pre-populates `filterConfigs` by scanning the current post content for
+	 * jetpack/filter-checkbox blocks so the seeded state always carries the
+	 * known filter schema regardless of block order in the tree. That in turn
+	 * lets `gate_active_filters()` drop URL-derived `activeFilters` keys that
+	 * aren't registered anywhere on the post, preventing unrelated array
+	 * params from round-tripping into subsequent search URLs.
 	 */
 	public static function seed_interactivity_state() {
 		if ( ! function_exists( 'wp_interactivity_state' ) ) {
