@@ -6,23 +6,23 @@ A checklist to verify your local environment can run tests and test the AI Answe
 
 ## 1. Prerequisites
 
-- [ ] Docker Desktop is installed and running (`docker info` returns no error)
-- [ ] `jetpack` CLI is installed and on PATH:
+- [x ] Docker Desktop is installed and running (`docker info` returns no error)
+- [x ] `jetpack` CLI is installed and on PATH:
   ```bash
   jetpack --version
   # If missing: npm install -g @automattic/jetpack-cli  (or pnpm add -g)
   ```
-- [ ] Node and pnpm are available:
+- [x ] Node and pnpm are available:
   ```bash
   node --version   # 20+
   pnpm --version   # 9+
   ```
-- [ ] PHP and Composer are available:
+- [x ] PHP and Composer are available:
   ```bash
   php --version    # 8.0+
   composer --version
   ```
-- [ ] You're on the right branch:
+- [x ] You're on the right branch:
   ```bash
   git branch       # should be jps3-answers-plan
   ```
@@ -31,7 +31,7 @@ A checklist to verify your local environment can run tests and test the AI Answe
 
 ## 2. Install Monorepo Dependencies
 
-- [ ] Install all JS and PHP dependencies from the monorepo root:
+- [x ] Install all JS and PHP dependencies from the monorepo root:
   ```bash
   pnpm install
   composer install
@@ -44,19 +44,19 @@ A checklist to verify your local environment can run tests and test the AI Answe
 
 The PHP unit tests for the Search and Sync packages use WorDBless (no WordPress needed) and run locally without Docker.
 
-- [ ] Run Search package PHP tests:
+- [x ] Run Search package PHP tests:
   ```bash
   jetpack test php packages/search -v
   ```
   Expected: all tests pass (including `AI_Answers_Test` once Task 1 is implemented).
 
-- [ ] Run Sync package PHP tests:
+- [x ] Run Sync package PHP tests:
   ```bash
   jetpack test php packages/sync -v
   ```
   Expected: all tests pass (including the CPT sync tests once Task 2 is implemented).
 
-- [ ] Run Search package JS tests:
+- [x ] Run Search package JS tests:
   ```bash
   cd projects/packages/search
   pnpm test-scripts
@@ -69,7 +69,7 @@ The PHP unit tests for the Search and Sync packages use WorDBless (no WordPress 
 
 Build is required before the Docker site can serve the updated JS bundle.
 
-- [ ] Build all Search JS bundles:
+- [x ] Build all Search JS bundles:
   ```bash
   cd projects/packages/search
   pnpm build
@@ -86,7 +86,7 @@ Build is required before the Docker site can serve the updated JS bundle.
 
 ## 5. Start Docker WordPress Environment
 
-- [ ] Start containers (first time or after `jetpack docker clean`):
+- [x ] Start containers (first time or after `jetpack docker clean`):
   ```bash
   jetpack docker up -d
   jetpack docker install
@@ -94,18 +94,18 @@ Build is required before the Docker site can serve the updated JS bundle.
   WordPress is now at [http://localhost](http://localhost).  
   Default credentials: `jp_docker_acct` / `jp_docker_pass`
 
-- [ ] If containers were already installed previously, just start them:
+- [x ] If containers were already installed previously, just start them:
   ```bash
   jetpack docker up -d
   ```
 
-- [ ] Verify WordPress is reachable:
+- [x ] Verify WordPress is reachable:
   ```bash
   open http://localhost/wp-admin
   ```
   You should see the WP login page.
 
-- [ ] Verify Jetpack plugin is active (it's auto-linked from the monorepo):
+- [x ] Verify Jetpack plugin is active (it's auto-linked from the monorepo):
   ```bash
   jetpack docker wp plugin list | grep jetpack
   ```

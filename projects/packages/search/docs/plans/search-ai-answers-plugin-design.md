@@ -7,7 +7,7 @@
 
 The WordPress plugin side of Jetpack Search AI Answers adds two custom post types for site-owner customization, syncs them to wpcom, embeds the auth token for anonymous visitors in the search overlay options, connects the overlay to the wpcom streaming endpoint, and provides an admin UI for managing search behavior and topics.
 
-The companion spec for the wpcom API side is `2026-04-21-search-ai-answers-api-design.md`.
+The companion spec for the wpcom API side is `search-ai-answers-api-design.md`.
 
 ## Custom Post Types
 
