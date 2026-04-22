@@ -224,16 +224,29 @@ class Search_Blocks {
 	 * footer template parts so the plugin-registered template renders the
 	 * same page users get from inserting the pattern directly. Markup lives
 	 * in `templates/jetpack-search.html` — the canonical block-theme format
-	 * for block templates — with a single `%s` placeholder for the filter
-	 * sidebar heading so that string still goes through `esc_html__()`.
+	 * for block templates — with a `{{FILTER_HEADING}}` placeholder for the
+	 * filter-sidebar heading so that string still goes through `esc_html__()`.
+	 *
+	 * Memoized: `register_search_template()` runs on every `init`, and the
+	 * template markup is identical every request, so read the file and run
+	 * the translation substitution once per process.
 	 *
 	 * @return string Block markup for a complete page template.
 	 */
-	protected static function get_search_template_content() {
+	protected static function get_search_template_content(): string {
+		static $content = null;
+		if ( null !== $content ) {
+			return $content;
+		}
 		$template_path = __DIR__ . '/templates/jetpack-search.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$template = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		return sprintf( $template, esc_html__( 'Filter options', 'jetpack-search-pkg' ) );
+		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		$content = str_replace(
+			'{{FILTER_HEADING}}',
+			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
+			$raw
+		);
+		return $content;
 	}
 
 	/**
@@ -281,22 +294,27 @@ class Search_Blocks {
 	 * @return string
 	 */
 	protected static function get_parent_plugin_slug(): string {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			if ( ! defined( 'ABSPATH' ) ) {
-				return 'jetpack-search';
-			}
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		$fallback = 'jetpack-search';
+		if ( ! function_exists( 'get_option' ) ) {
+			return $fallback;
+		}
+		// Read the same option `is_plugin_active()` reads, then union in
+		// network-activated plugins when on multisite. Avoids pulling
+		// wp-admin/includes/plugin.php into front-end requests.
+		$active = (array) get_option( 'active_plugins', array() );
+		if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'get_site_option' ) ) {
+			$active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
 		}
 		$preferred = array(
 			'jetpack-search' => 'jetpack-search/jetpack-search.php',
 			'jetpack'        => 'jetpack/jetpack.php',
 		);
 		foreach ( $preferred as $slug => $plugin_file ) {
-			if ( is_plugin_active( $plugin_file ) ) {
+			if ( in_array( $plugin_file, $active, true ) ) {
 				return $slug;
 			}
 		}
-		return 'jetpack-search';
+		return $fallback;
 	}
 
 	/**

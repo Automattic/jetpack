@@ -158,4 +158,114 @@ class Search_Blocks_Test extends TestCase {
 			$GLOBALS['wp_query'] = $original_query;
 		}
 	}
+
+	/**
+	 * The takeover hinges on `search` being replaced by `jetpack-search` at
+	 * the front of the hierarchy: that's what makes core resolve our plugin
+	 * template instead of the theme's `search.html`.
+	 */
+	public function test_prepend_search_template_puts_unique_slug_first() {
+		$result = Search_Blocks::prepend_search_template( array( 'search', 'index' ) );
+		$this->assertSame( array( 'jetpack-search', 'search', 'index' ), $result );
+	}
+
+	/**
+	 * `register_search_template()` must push the template into
+	 * WP_Block_Templates_Registry (so it shows up in the Site Editor's
+	 * Templates list) and the stored content must reference the Jetpack
+	 * Search blocks that make the page useful.
+	 */
+	public function test_register_search_template_registers_via_block_template_api() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			$this->markTestSkipped( 'register_block_template() unavailable in this test environment.' );
+		}
+		// Isolate from any prior registration — the registry is a singleton
+		// across tests, and register_block_template() errors on duplicates.
+		$registry = \WP_Block_Templates_Registry::get_instance();
+		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+
+		Search_Blocks::register_search_template();
+
+		$namespace = $this->invoke_protected( 'get_parent_plugin_slug' );
+		$expected  = $namespace . '//jetpack-search';
+		$this->assertTrue( $registry->is_registered( $expected ), "Template $expected should be registered." );
+
+		$registered = $registry->get_registered( $expected );
+		$this->assertSame( 'Jetpack Search Results', $registered->title );
+		// Core blocks that make up the layout — guards against an accidental
+		// empty-file read or a placeholder substitution that blows away the body.
+		$this->assertStringContainsString( '<!-- wp:jetpack/search-results /-->', $registered->content );
+		$this->assertStringContainsString( '<!-- wp:jetpack/filter-checkbox', $registered->content );
+		// The `{{FILTER_HEADING}}` placeholder must have been substituted —
+		// if it leaks into the registry, the heading renders as `{{FILTER_HEADING}}`
+		// on the front end.
+		$this->assertStringNotContainsString( '{{FILTER_HEADING}}', $registered->content );
+
+		$registry->unregister( $expected );
+	}
+
+	/**
+	 * When both the Jetpack monolith and the standalone Jetpack Search plugin
+	 * are active, the more-specific "Jetpack Search" label must win so the
+	 * Site Editor shows the template under Search rather than the umbrella
+	 * Jetpack plugin.
+	 */
+	public function test_get_parent_plugin_slug_prefers_jetpack_search_over_jetpack() {
+		$original = get_option( 'active_plugins', array() );
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php', 'jetpack-search/jetpack-search.php' ) );
+		try {
+			$this->assertSame( 'jetpack-search', $this->invoke_protected( 'get_parent_plugin_slug' ) );
+		} finally {
+			update_option( 'active_plugins', $original );
+		}
+	}
+
+	/**
+	 * With only the Jetpack monolith active, the label should fall to
+	 * "Jetpack" — that's the only plugin WP can resolve to a name.
+	 */
+	public function test_get_parent_plugin_slug_uses_jetpack_when_only_jetpack_active() {
+		$original = get_option( 'active_plugins', array() );
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		try {
+			$this->assertSame( 'jetpack', $this->invoke_protected( 'get_parent_plugin_slug' ) );
+		} finally {
+			update_option( 'active_plugins', $original );
+		}
+	}
+
+	/**
+	 * Neither preferred plugin active (shouldn't happen — the package is only
+	 * loaded by one of them — but test the safe fallback so a misconfigured
+	 * site doesn't break template registration with an invalid namespace).
+	 */
+	public function test_get_parent_plugin_slug_falls_back_when_neither_active() {
+		$original = get_option( 'active_plugins', array() );
+		update_option( 'active_plugins', array( 'some-other-plugin/some-other-plugin.php' ) );
+		try {
+			$this->assertSame( 'jetpack-search', $this->invoke_protected( 'get_parent_plugin_slug' ) );
+		} finally {
+			update_option( 'active_plugins', $original );
+		}
+	}
+
+	/**
+	 * Invoke a protected static on Search_Blocks from test code. Reflection
+	 * is the cheapest way to cover this logic without leaking visibility
+	 * just for testability.
+	 *
+	 * @param string $method Method name.
+	 * @param mixed  ...$args Positional args.
+	 * @return mixed
+	 */
+	private function invoke_protected( string $method, ...$args ) {
+		// setAccessible() is a no-op since PHP 8.1 and deprecated in 8.5,
+		// so just invoke directly — ReflectionMethod::invoke() already
+		// bypasses visibility.
+		return ( new \ReflectionMethod( Search_Blocks::class, $method ) )->invoke( null, ...$args );
+	}
 }
