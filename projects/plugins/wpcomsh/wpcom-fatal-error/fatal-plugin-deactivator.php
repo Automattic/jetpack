@@ -100,11 +100,13 @@ function wpcomsh_fatal_maybe_deactivate_plugin() {
 		update_option( 'active_plugins', array_values( array_diff( $active, array( $plugin ) ) ) );
 	}
 
-	// pluggable.php (and therefore wp_safe_redirect) isn't loaded yet at
-	// mu-plugin time. We're redirecting to a known same-origin admin URL, so
-	// a plain Location header is sufficient — no host whitelist needed.
-	header(
-		'Location: ' . admin_url( 'plugins.php?wpcomsh_deactivated=' . rawurlencode( $plugin ) )
+	// pluggable.php was loaded by wpcomsh_fatal_current_user_id() above, so
+	// wp_safe_redirect is available even though we're still in mu-plugin time.
+	wp_safe_redirect(
+		add_query_arg(
+			array( 'wpcomsh_deactivated' => rawurlencode( $plugin ) ),
+			admin_url( 'plugins.php' )
+		)
 	);
 	exit;
 }
