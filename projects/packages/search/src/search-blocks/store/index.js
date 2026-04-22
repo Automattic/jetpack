@@ -184,9 +184,11 @@ const { state, actions } = store( NAMESPACE, {
 		/**
 		 * Toggle a filter value on or off, then re-run the search.
 		 *
-		 * Matches the instant-search semantics: multiple values within a
-		 * single filter key OR together (e.g. category=news OR sports),
-		 * while different keys AND together.
+		 * Multiple selected values under the same filter key are kept in an
+		 * array on `activeFilters`; different filter keys stay separate. How
+		 * the ES clause combines them (OR within a key, AND across keys) is
+		 * the responsibility of `buildFilterClause` — this action is just
+		 * bookkeeping on the selection set.
 		 *
 		 * @param {string} filterKey   - e.g. `category`, `post_types`.
 		 * @param {string} filterValue - e.g. `news`, `post`.

@@ -113,8 +113,13 @@ export function buildAggregations( filterConfigs ) {
  * Build the ES filter clause from active selections.
  *
  * Each selected value becomes a `term` clause against the configured
- * filterField. Multiple selections inside a single filter OR together; across
- * filters they AND together — same semantics as the instant-search overlay.
+ * filterField. Within a single filter key, multiple values OR together
+ * (selecting two categories broadens the result set) — across different
+ * keys, clauses AND together. Note this diverges from the instant-search
+ * overlay in `src/instant-search/lib/api.js`, which ANDs multi-value
+ * selections into `bool.must` directly; here we wrap them in a
+ * `bool.should` so the facet UX matches what users expect from modern
+ * faceted search (click-to-broaden within a facet).
  *
  * @param {object} activeFilters - { [filterKey]: string[] } selections.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
