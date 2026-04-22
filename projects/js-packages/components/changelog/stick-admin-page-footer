@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AdminPage: Stick `JetpackFooter` to the bottom of the viewport.
