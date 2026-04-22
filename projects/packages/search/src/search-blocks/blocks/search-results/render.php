@@ -20,13 +20,6 @@ namespace Automattic\Jetpack\Search;
 	data-wp-init="callbacks.initialize"
 	data-wp-bind--aria-busy="state.isLoading"
 >
-	<div
-		class="jetpack-search-results__loading"
-		data-wp-bind--hidden="!state.isLoading"
-	>
-		<?php esc_html_e( 'Loading…', 'jetpack-search-pkg' ); ?>
-	</div>
-
 	<ul
 		class="jetpack-search-results__list"
 		aria-live="polite"

@@ -43,7 +43,14 @@ function* fetchResults( pageHandle ) {
 const { state, actions } = store( NAMESPACE, {
 	state: {
 		/**
-		 * Short human-readable results count for display blocks.
+		 * Short human-readable results count for display blocks. Doubles
+		 * as the loading indicator: returning "Searching…" in-place
+		 * keeps the results-count element populated across the transition
+		 * from one query to the next, so the flex row containing it
+		 * doesn't collapse and re-expand on every keystroke-triggered
+		 * search. There is no separate spinner/skeleton — this text is
+		 * the loading state, and the search-results wrapper carries
+		 * `aria-busy` for assistive tech.
 		 *
 		 * NOTE: not localized. `@wordpress/i18n` isn't available as an
 		 * Interactivity API script module (WP only registers
@@ -53,17 +60,20 @@ const { state, actions } = store( NAMESPACE, {
 		 * module, or switch to seeding translated plural forms from PHP
 		 * via `wp_interactivity_state()`. See PR #48198.
 		 *
-		 * @return {string} Text such as "42 results".
+		 * @return {string} "Searching…" while a search is in flight,
+		 * "Found 42 results" once a query resolves with hits, or an
+		 * empty string in every other case — pre-search, error, or
+		 * zero hits. The no-results block owns the empty-state copy.
 		 */
 		get resultsCountText() {
 			if ( state.isLoading ) {
-				return '';
+				return 'Searching…';
 			}
 			const total = state.totalResults;
 			if ( total === 0 ) {
 				return '';
 			}
-			return `${ total } result${ total === 1 ? '' : 's' }`;
+			return `Found ${ total } result${ total === 1 ? '' : 's' }`;
 		},
 
 		/**

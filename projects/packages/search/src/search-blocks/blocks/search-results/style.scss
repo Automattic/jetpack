@@ -1,16 +1,5 @@
 .wp-block-jetpack-search-results {
 
-	.jetpack-search-results__loading {
-		padding: 1rem;
-		text-align: center;
-		color: inherit;
-		opacity: 0.6;
-
-		&[hidden] {
-			display: none;
-		}
-	}
-
 	.jetpack-search-results__list {
 		list-style: none;
 		margin: 0;
