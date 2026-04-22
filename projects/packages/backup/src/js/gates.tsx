@@ -11,6 +11,7 @@ import {
 import NoBackupCapabilities from './components/Admin/no-backup-capabilities';
 import { BackupConnectionScreen } from './components/backup-connection-screen';
 import { BackupSecondaryAdminConnectionScreen } from './components/backup-connection-screen/secondary-admin';
+import { isMockMode } from './data/mock';
 import useCapabilities from './hooks/useCapabilities';
 import useConnection from './hooks/useConnection';
 import type { FC, ReactNode } from 'react';
@@ -36,6 +37,13 @@ const Gates: FC< { children: ReactNode } > = ( { children } ) => {
 			capabilitiesLoaded: boolean;
 			hasBackupPlan: boolean;
 		};
+
+	// `?jpb-mock=1` short-circuits every gate so the Overview renders
+	// immediately, even on sites without a Jetpack connection or a
+	// backup plan. Useful for local design iteration on JT/Docker.
+	if ( isMockMode() ) {
+		return <>{ children }</>;
+	}
 
 	const connectionLoaded = Object.keys( connectionStatus ).length > 0;
 

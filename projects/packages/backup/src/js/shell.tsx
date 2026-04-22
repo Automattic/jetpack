@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Outlet } from 'react-router';
 import Gates from './gates';
 import { HeaderActionsProvider, useHeaderActions } from './header-actions-context';
+import MockBanner from './mock-banner';
 import type { FC } from 'react';
 
 const ShellChrome: FC = () => {
@@ -18,6 +19,7 @@ const ShellChrome: FC = () => {
 			) }
 			actions={ headerActions }
 		>
+			<MockBanner />
 			<Gates>
 				<Outlet />
 			</Gates>

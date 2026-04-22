@@ -2,6 +2,7 @@
 
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { isMockMode, mockActivityLogResponse, mockBackups, mockPolicies, mockSize } from './mock';
 import type {
 	ActivityLogResponse,
 	BackupEntry,
@@ -12,11 +13,18 @@ import type {
 // All fetchers target local `/jetpack/v4/…` endpoints that proxy to
 // WPCOM using the site's Jetpack connection. `siteId` is resolved
 // server-side, so it is not part of any path or argument here.
+//
+// When `isMockMode()` is true (via the `?jpb-mock=1` URL param) the
+// fetchers short-circuit to fixtures from `./mock` so the Overview can
+// be designed and QAed without a real backup plan on the site.
 
 /**
  *
  */
 export async function fetchBackups(): Promise< BackupEntry[] > {
+	if ( isMockMode() ) {
+		return mockBackups;
+	}
 	return apiFetch< BackupEntry[] >( { path: '/jetpack/v4/backups' } );
 }
 
@@ -39,6 +47,9 @@ export async function fetchActivityLog( {
 	after?: string;
 	before?: string;
 } = {} ): Promise< ActivityLogResponse > {
+	if ( isMockMode() ) {
+		return mockActivityLogResponse;
+	}
 	const path = addQueryArgs( '/jetpack/v4/site/backup/activity-log', {
 		number,
 		aggregate,
@@ -52,6 +63,9 @@ export async function fetchActivityLog( {
  *
  */
 export async function fetchBackupPolicies(): Promise< SiteRewindPoliciesResponse > {
+	if ( isMockMode() ) {
+		return mockPolicies;
+	}
 	return apiFetch< SiteRewindPoliciesResponse >( { path: '/jetpack/v4/site/backup/policies' } );
 }
 
@@ -59,6 +73,9 @@ export async function fetchBackupPolicies(): Promise< SiteRewindPoliciesResponse
  *
  */
 export async function fetchBackupSize(): Promise< SiteRewindSizeResponse > {
+	if ( isMockMode() ) {
+		return mockSize;
+	}
 	return apiFetch< SiteRewindSizeResponse >( { path: '/jetpack/v4/site/backup/size' } );
 }
 
@@ -66,6 +83,9 @@ export async function fetchBackupSize(): Promise< SiteRewindSizeResponse > {
  *
  */
 export async function enqueueBackup(): Promise< void > {
+	if ( isMockMode() ) {
+		return;
+	}
 	await apiFetch( {
 		path: '/jetpack/v4/site/backup/enqueue',
 		method: 'POST',
