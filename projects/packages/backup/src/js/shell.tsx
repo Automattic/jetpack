@@ -12,7 +12,7 @@ const ShellChrome: FC = () => {
 	return (
 		<AdminPage
 			showFooter
-			title={ 'Backup' /* "Backup" is a product name, do not translate. */ }
+			title={ 'VaultPress Backup' /* "VaultPress Backup" is a product name, do not translate. */ }
 			subTitle={ __(
 				'Save changes and restore quickly with one-click recovery.',
 				'jetpack-backup-pkg'

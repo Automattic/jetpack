@@ -157,8 +157,8 @@ class Jetpack_Backup {
 	 */
 	public static function add_wp_admin_submenu() {
 		$page_suffix = Admin_Menu::add_menu(
-			'Jetpack Backup',
-			'Backup', // Product name, do not translate.
+			'Jetpack VaultPress Backup',
+			'VaultPress Backup', // Product name, do not translate.
 			'manage_options',
 			'jetpack-backup',
 			array( __CLASS__, 'plugin_settings_page' ),
