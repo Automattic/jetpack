@@ -15,6 +15,12 @@ use Automattic\Jetpack\Status;
 class Search_Blocks {
 
 	/**
+	 * Reserved query params that must not be parsed as filter keys. Mirrors
+	 * `RESERVED_PARAMS` in store/url-state.js.
+	 */
+	const RESERVED_QUERY_PARAMS = array( 's', 'orderby' );
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * The caller (Initializer) is responsible for gating this behind the
@@ -102,7 +108,83 @@ class Search_Blocks {
 			}
 		}
 
+		static::register_variations();
 		static::register_patterns();
+	}
+
+	/**
+	 * Register named block variations for the filter-checkbox block.
+	 *
+	 * PHP-side registration keeps the editor-only JS bundle out of the ESM
+	 * pipeline. Variation names and default `taxonomy` / `filterType`
+	 * attributes intentionally mirror the filter types exposed by the
+	 * instant-search overlay so the two surfaces describe the same filters.
+	 */
+	protected static function register_variations() {
+		if ( ! function_exists( 'register_block_variation' ) ) {
+			return;
+		}
+
+		$variations = array(
+			array(
+				'name'        => 'category',
+				'title'       => __( 'Filter by Category', 'jetpack-search-pkg' ),
+				'description' => __( 'Show category checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'category',
+					'label'      => __( 'Category', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			),
+			array(
+				'name'        => 'post_tag',
+				'title'       => __( 'Filter by Tag', 'jetpack-search-pkg' ),
+				'description' => __( 'Show tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'post_tag',
+					'label'      => __( 'Tag', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			),
+			array(
+				'name'        => 'post_type',
+				'title'       => __( 'Filter by Post Type', 'jetpack-search-pkg' ),
+				'description' => __( 'Show post type checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'filterType' => 'post_type',
+					'label'      => __( 'Post Type', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType' ),
+			),
+			array(
+				'name'        => 'author',
+				'title'       => __( 'Filter by Author', 'jetpack-search-pkg' ),
+				'description' => __( 'Show author checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'filterType' => 'author',
+					'label'      => __( 'Author', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType' ),
+			),
+			array(
+				'name'        => 'custom_taxonomy',
+				'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
+				'description' => __( 'Show checkboxes for any registered taxonomy.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => '',
+					'label'      => '',
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			),
+		);
+
+		foreach ( $variations as $variation ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above; stub missing from wordpress-stubs.
+			register_block_variation( 'jetpack/filter-checkbox', $variation );
+		}
 	}
 
 	/**
@@ -125,15 +207,128 @@ class Search_Blocks {
 	/**
 	 * Seed the Interactivity API store with initial state.
 	 *
-	 * Populates connection config, locale, and the query / sort parsed out of
-	 * the URL so blocks render correctly on first paint. Results themselves
-	 * are fetched by the JS store on hydration — there is no PHP pre-fetch.
+	 * Individual block render.php files may also call wp_interactivity_state()
+	 * — core deep-merges each call, so each block can contribute its own
+	 * entries (e.g. filter-checkbox writes its filterConfig).
+	 *
+	 * Pre-populates `filterConfigs` by scanning the current post content for
+	 * jetpack/filter-checkbox blocks so the seeded state always carries the
+	 * known filter schema regardless of block order in the tree. That in turn
+	 * lets `gate_active_filters()` drop URL-derived `activeFilters` keys that
+	 * aren't registered anywhere on the post, preventing unrelated array
+	 * params from round-tripping into subsequent search URLs.
 	 */
 	public static function seed_interactivity_state() {
 		if ( ! function_exists( 'wp_interactivity_state' ) ) {
 			return;
 		}
-		wp_interactivity_state( 'jetpack-search', static::build_initial_state() );
+		wp_interactivity_state(
+			'jetpack-search',
+			static::build_seed_state( static::collect_filter_configs_from_post() )
+		);
+	}
+
+	/**
+	 * Compose the final seeded state for `wp_interactivity_state()`. Takes
+	 * $filter_configs as an argument so tests can exercise the full gating +
+	 * isLoading recomputation path without a WP post lookup.
+	 *
+	 * @param array<string, array<string, mixed>> $filter_configs Map of filter
+	 *   configs collected from the current post (or injected by tests).
+	 * @return array<string, mixed>
+	 */
+	public static function build_seed_state( array $filter_configs ): array {
+		$state                  = static::build_initial_state();
+		$state['filterConfigs'] = $filter_configs;
+		$state['activeFilters'] = static::gate_active_filters(
+			$state['activeFilters'] ?? array(),
+			$filter_configs
+		);
+		// Recompute isLoading from the *post-gating* state. build_initial_state()
+		// derives it from the raw URL params, so a URL that carried only
+		// unregistered `?foo[]=bar` params (e.g. from another plugin) would
+		// leave isLoading=true after gating emptied activeFilters — and since
+		// the JS `initialize()` only fires a search when `searchQuery` or
+		// `hasActiveFilters` is truthy, neither would fire, the spinner would
+		// never clear.
+		$state['isLoading'] = '' !== $state['searchQuery'] || ! empty( $state['activeFilters'] );
+		return $state;
+	}
+
+	/**
+	 * Drop active-filter keys that aren't registered by any filter-checkbox
+	 * block on the current post. parse_url_filters() accepts any array-shaped
+	 * top-level URL param, so without this gate a stray `?foo[]=bar` seeded
+	 * by another plugin would get merged into `activeFilters` and then
+	 * re-serialized back into subsequent search URLs. Mirrors the same gating
+	 * that store/url-state.js applies on the client side.
+	 *
+	 * Skipped when `$filter_configs` is empty — no filter blocks means we
+	 * don't know what's valid, and we don't want to silently drop filters
+	 * a filter block placed inside a template part would accept after hydration.
+	 *
+	 * @param array<string, string[]>             $active_filters Parsed active filters.
+	 * @param array<string, array<string, mixed>> $filter_configs Known filter configs keyed by filterKey.
+	 * @return array<string, string[]>
+	 */
+	public static function gate_active_filters( array $active_filters, array $filter_configs ): array {
+		if ( empty( $filter_configs ) ) {
+			return $active_filters;
+		}
+		$allowed = array_fill_keys( array_keys( $filter_configs ), true );
+		return array_intersect_key( $active_filters, $allowed );
+	}
+
+	/**
+	 * Walk the current post's block tree for jetpack/filter-checkbox blocks
+	 * and build the matching filterConfigs map.
+	 *
+	 * Covers the common case where a page uses the Blog Search Page pattern
+	 * (or blocks inserted directly into $post->post_content). Template-part
+	 * / block-theme scans are not performed here — a filter block placed
+	 * inside a template part will still work, but its config won't be
+	 * available to the search-results SSR until hydration.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	protected static function collect_filter_configs_from_post(): array {
+		if ( ! function_exists( 'get_post' ) || ! function_exists( 'parse_blocks' ) || ! class_exists( Filter_Checkbox::class ) ) {
+			return array();
+		}
+		$post = get_post();
+		if ( ! $post || empty( $post->post_content ) ) {
+			return array();
+		}
+		$configs = array();
+		static::walk_blocks_for_filter_configs( parse_blocks( $post->post_content ), $configs );
+		return $configs;
+	}
+
+	/**
+	 * Recursively walk a parsed block tree and push filter-checkbox configs
+	 * into `$configs`. Passing `$configs` by reference keeps the recursion
+	 * flat — callers don't need to merge children's maps back into parents'.
+	 *
+	 * @param array $blocks  Parsed block tree from parse_blocks().
+	 * @param array $configs Accumulator map keyed by filterKey.
+	 * @return void
+	 */
+	protected static function walk_blocks_for_filter_configs( array $blocks, array &$configs ): void {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( 'jetpack/filter-checkbox' === ( $block['blockName'] ?? '' ) ) {
+				$attrs = (array) ( $block['attrs'] ?? array() );
+				$key   = Filter_Checkbox::derive_filter_key( $attrs );
+				if ( '' !== $key ) {
+					$configs[ $key ] = Filter_Checkbox::build_config( $attrs, $key );
+				}
+			}
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				static::walk_blocks_for_filter_configs( $block['innerBlocks'], $configs );
+			}
+		}
 	}
 
 	/**
@@ -142,10 +337,11 @@ class Search_Blocks {
 	 * @return array<string, mixed>
 	 */
 	public static function build_initial_state() {
-		$is_private   = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
-		$is_wpcom     = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
-		$site_id      = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
-		$search_query = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		$is_private     = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
+		$is_wpcom       = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
+		$site_id        = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
+		$search_query   = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		$active_filters = static::parse_url_filters();
 
 		return array(
 			// Connection / routing config.
@@ -165,20 +361,30 @@ class Search_Blocks {
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
-			// /?s=boots&orderby=newest renders correctly on first paint.
+			// /?s=boots&orderby=newest&category[]=news renders correctly on
+			// first paint.
 			'searchQuery'   => $search_query,
 			'sortOrder'     => static::parse_url_sort(),
+			'activeFilters' => $active_filters,
 
-			// Results — always start empty; the JS store fetches on hydration.
+			// filterConfigs: each filter-checkbox block's render.php merges its
+			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
+			// taxonomy, label, showCount, maxItems } }.
+			'filterConfigs' => array(),
+
+			// Results + aggregations are populated by the JS store on hydration —
+			// seed empty defaults so template bindings always have a shape to read.
+			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
 			'results'       => array(),
+			'aggregations'  => (object) array(),
 			'totalResults'  => 0,
 			'pageHandle'    => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
-			// search query so the no-results block stays hidden between
-			// first paint and JS hydrating the initial fetch — otherwise a
-			// "No results found" flash appears on deep links like `?s=boots`.
-			'isLoading'     => '' !== $search_query,
+			// search query or filter selection so the no-results block stays
+			// hidden between first paint and JS hydrating the initial fetch —
+			// otherwise a "No results found" flash appears on deep links.
+			'isLoading'     => '' !== $search_query || ! empty( $active_filters ),
 			'isLoadingMore' => false,
 			'hasError'      => false,
 		);
@@ -195,5 +401,49 @@ class Search_Blocks {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : '';
 		return in_array( $orderby, array( 'newest', 'oldest' ), true ) ? $orderby : 'relevance';
+	}
+
+	/**
+	 * Parse flat filter selections from the current request URL.
+	 *
+	 * Accepts any top-level array-shaped `?<filterKey>[]=<value>` param
+	 * (the same shape store/url-state.js writes) and returns an
+	 * { [filterKey]: string[] } map. The JS layer drops filters whose keys
+	 * are not registered in `filterConfigs`; doing the same here would
+	 * require access to block attributes at state-seed time (before blocks
+	 * render), which we don't have. Values are sanitized so any garbage
+	 * round-tripped through the URL never reaches ES.
+	 *
+	 * @return array<string, string[]>
+	 */
+	protected static function parse_url_filters(): array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only URL state; sanitized per-value below.
+		$raw = wp_unslash( $_GET );
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $raw as $key => $values ) {
+			$filter_key = sanitize_key( (string) $key );
+			if ( '' === $filter_key || in_array( $filter_key, self::RESERVED_QUERY_PARAMS, true ) ) {
+				continue;
+			}
+			if ( ! is_array( $values ) ) {
+				continue;
+			}
+			$clean = array_values(
+				array_filter(
+					array_map( 'sanitize_text_field', $values ),
+					static function ( $v ) {
+						return '' !== $v;
+					}
+				)
+			);
+			if ( $clean ) {
+				$out[ $filter_key ] = $clean;
+			}
+		}
+		return $out;
 	}
 }

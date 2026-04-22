@@ -2,15 +2,17 @@
 /**
  * Search Results block render.
  *
- * WordPress passes $attributes, $content, $block at runtime; VariableAnalysis
- * can't see that, so the sniff is disabled here.
+ * Pure template — no PHP pre-fetch. Search_Blocks::seed_interactivity_state()
+ * already seeds empty `results` / `aggregations` / `totalResults` plus an
+ * `isLoading` flag that's true whenever the URL carries a search query or
+ * filter selection, so the JS store fetches on hydration without flashing
+ * the no-results block first.
  *
  * @package automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>

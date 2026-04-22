@@ -30,6 +30,8 @@ function* fetchResults( pageHandle ) {
 		isWpcom: state.isWpcom,
 		apiRoot: state.apiRoot,
 		homeUrl: state.homeUrl,
+		activeFilters: state.activeFilters,
+		filterConfigs: state.filterConfigs,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -97,6 +99,18 @@ const { state, actions } = store( NAMESPACE, {
 		get showLoadMore() {
 			return !! state.pageHandle && ! state.isLoading;
 		},
+
+		/**
+		 * True when any filter has at least one selected value. Used by
+		 * active-filters to decide whether to render the pills wrapper.
+		 *
+		 * @return {boolean} Whether any filter is active.
+		 */
+		get hasActiveFilters() {
+			return Object.values( state.activeFilters ?? {} ).some(
+				v => Array.isArray( v ) && v.length > 0
+			);
+		},
 	},
 
 	actions: {
@@ -129,6 +143,7 @@ const { state, actions } = store( NAMESPACE, {
 				state.results = ( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) );
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
+				state.aggregations = data.aggregations ?? {};
 				if ( syncUrl ) {
 					actions.syncToUrl();
 				}
@@ -169,12 +184,59 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Toggle a filter value on or off, then re-run the search.
+		 *
+		 * Multiple selected values under the same filter key are kept in an
+		 * array on `activeFilters`; different filter keys stay separate. How
+		 * the ES clause combines them (OR within a key, AND across keys) is
+		 * the responsibility of `buildFilterClause` — this action is just
+		 * bookkeeping on the selection set.
+		 *
+		 * @param {string} filterKey   - e.g. `category`, `post_types`.
+		 * @param {string} filterValue - e.g. `news`, `post`.
+		 * @yield {Promise} search action.
+		 */
+		*setFilter( filterKey, filterValue ) {
+			const current = state.activeFilters[ filterKey ] ?? [];
+			const index = current.indexOf( filterValue );
+			if ( index === -1 ) {
+				state.activeFilters = {
+					...state.activeFilters,
+					[ filterKey ]: [ ...current, filterValue ],
+				};
+			} else {
+				const next = current.filter( v => v !== filterValue );
+				if ( next.length === 0 ) {
+					const { [ filterKey ]: _removed, ...rest } = state.activeFilters;
+					state.activeFilters = rest;
+				} else {
+					state.activeFilters = { ...state.activeFilters, [ filterKey ]: next };
+				}
+			}
+			yield actions.search();
+		},
+
+		/**
+		 * Clear all active filters and re-run the search.
+		 *
+		 * @yield {Promise} search action.
+		 */
+		*clearFilters() {
+			if ( Object.keys( state.activeFilters ?? {} ).length === 0 ) {
+				return;
+			}
+			state.activeFilters = {};
+			yield actions.search();
+		},
+
+		/**
 		 * Push current state to browser URL.
 		 */
 		syncToUrl() {
 			pushStateToUrl( {
 				searchQuery: state.searchQuery,
 				sortOrder: state.sortOrder,
+				activeFilters: state.activeFilters,
 			} );
 		},
 
@@ -184,9 +246,10 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, sortOrder } = readStateFromUrl();
+			const { searchQuery, sortOrder, activeFilters } = readStateFromUrl( state.filterConfigs );
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;
+			state.activeFilters = activeFilters;
 			yield actions.search( { syncUrl: false } );
 		},
 	},
@@ -204,7 +267,7 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
-			if ( state.searchQuery ) {
+			if ( state.searchQuery || state.hasActiveFilters ) {
 				// The URL already carries this query — don't push a duplicate
 				// history entry on top of the browser's current one.
 				actions.search( { syncUrl: false } );
