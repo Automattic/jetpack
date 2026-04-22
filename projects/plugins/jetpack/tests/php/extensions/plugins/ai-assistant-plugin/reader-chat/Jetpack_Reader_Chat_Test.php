@@ -83,9 +83,14 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 
 	/**
 	 * Enable the reader-chat feature via the primary enable filter.
+	 *
+	 * Also force-passes the rollout enqueue gate (which is otherwise
+	 * Automattician-only) so the test environment doesn't need a
+	 * proxied or staff-identified user.
 	 */
 	private function enable_reader_chat() {
 		add_filter( 'jetpack_reader_chat_enabled', '__return_true' );
+		add_filter( 'jetpack_reader_chat_enqueue_enabled', '__return_true' );
 	}
 
 	/**
