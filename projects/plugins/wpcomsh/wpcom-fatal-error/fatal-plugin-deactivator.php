@@ -4,12 +4,12 @@
  *
  * The admin-facing fatal screen can offer a "Deactivate this plugin" button;
  * clicking it lands here. We run as early as possible in the request (at file
- * load time, before other plugins load) so we can:
+ * load time, before the regular plugin-include pass) so we can:
  *
- *   1) Filter option_active_plugins for the current request — the broken
- *      plugin never runs, so we don't re-fatal before reaching the redirect.
- *   2) Persist the removal in the active_plugins option.
- *   3) Redirect the admin to wp-admin/plugins.php.
+ *   1) Persist the removal in the active_plugins option.
+ *   2) Redirect the admin to wp-admin/plugins.php and exit immediately —
+ *      no further plugins are included in this request, so a *second* broken
+ *      plugin in active_plugins can't fatal before we save and redirect.
  *
  * Security model:
  *
@@ -24,8 +24,8 @@
  */
 
 /**
- * Validate the request and, if trusted, short-circuit the offending plugin
- * and persist its removal before the regular plugin-load pass runs.
+ * Validate the request and, if trusted, persist the deactivation and redirect
+ * to wp-admin/plugins.php before the regular plugin-load pass runs.
  *
  * @return void
  */
@@ -90,42 +90,23 @@ function wpcomsh_fatal_maybe_deactivate_plugin() {
 		return;
 	}
 
-	// Drop the plugin from active_plugins for THIS request before core reads it.
-	$filter_callback = function ( $active ) use ( $plugin ) {
-		if ( is_array( $active ) ) {
-			return array_values( array_diff( $active, array( $plugin ) ) );
-		}
-		return $active;
-	};
-	add_filter( 'option_active_plugins', $filter_callback );
+	// Persist + redirect immediately at mu-plugin load, before core enters the
+	// regular plugin-include pass. Deferring this to plugins_loaded would mean
+	// any *other* broken plugin in active_plugins fatals before our callback
+	// runs — the option update never lands and the user is stuck looping on
+	// the same fatal screen with no persisted state.
+	$active = get_option( 'active_plugins', array() );
+	if ( is_array( $active ) && in_array( $plugin, $active, true ) ) {
+		update_option( 'active_plugins', array_values( array_diff( $active, array( $plugin ) ) ) );
+	}
 
-	// Persist the removal and redirect as soon as the option layer is usable.
-	// Remove our own filter first — otherwise get_option() returns the
-	// already-stripped list and the in_array() check below fails, leaving the
-	// option in its original (broken) state for future requests.
-	add_action(
-		'plugins_loaded',
-		/**
-		 * Persist the deactivation and redirect.
-		 *
-		 * @return never
-		 */
-		function () use ( $plugin, $filter_callback ) {
-			remove_filter( 'option_active_plugins', $filter_callback );
-			$active = get_option( 'active_plugins', array() );
-			if ( is_array( $active ) && in_array( $plugin, $active, true ) ) {
-				update_option( 'active_plugins', array_values( array_diff( $active, array( $plugin ) ) ) );
-			}
-			wp_safe_redirect(
-				add_query_arg(
-					array( 'wpcomsh_deactivated' => rawurlencode( $plugin ) ),
-					admin_url( 'plugins.php' )
-				)
-			);
-			exit;
-		},
-		1
+	// pluggable.php (and therefore wp_safe_redirect) isn't loaded yet at
+	// mu-plugin time. We're redirecting to a known same-origin admin URL, so
+	// a plain Location header is sufficient — no host whitelist needed.
+	header(
+		'Location: ' . admin_url( 'plugins.php?wpcomsh_deactivated=' . rawurlencode( $plugin ) )
 	);
+	exit;
 }
 
 wpcomsh_fatal_maybe_deactivate_plugin();
