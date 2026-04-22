@@ -75,21 +75,23 @@
 	min-block-size: 300px;
 }
 
-// DataViews in a `Card` needs its own composition rules: drop the
-// `Card > CardBody > Card > CardBody` collision when there's no custom
-// view-action header, hide the selection checkbox (we use background
-// highlight for the selected row instead, matching Calypso's backup
-// overview), and give the search/filters bar enough breathing room.
+// DataViews in a `Card` gets a few local overrides to match Calypso's
+// backup overview 1:1.
 .listCard {
 
-	:global(.components-card__body):has(> :global(.dataviews-wrapper)):not(
-		:has(:global(.dataviews__view-actions))
-	) {
-		padding-block-start: 0;
+	// Drop the default `CardBody` padding so list rows, filter panel, and
+	// pagination can run edge-to-edge (dividers extend full card width).
+	// We re-add padding on the search/view-actions row below so the
+	// search input still has breathing room against the card edge.
+	:global(.components-card__body) {
+		padding: 0;
+	}
 
-		:global(.dataviews-view-list) div[role="row"]:first-child {
-			border-top: none;
-		}
+	// Breathing room around the search + layout-switcher + view-config
+	// row only. Matches Calypso where the search bar sits a bit inset
+	// from the card edge while the list below is flush.
+	:global(.dataviews__view-actions) {
+		padding: 12px 16px;
 	}
 
 	// WP DataViews renders a `role="checkbox"` selection indicator in the
@@ -98,10 +100,6 @@
 	// by the default DataViews row state, so the checkbox is redundant.
 	:global(.dataviews-selection-checkbox) {
 		display: none;
-	}
-
-	:global(.dataviews__view-actions) {
-		padding-block: 12px;
 	}
 
 	// Center the gridicon inside the 52×52 media placeholder. The Icon
