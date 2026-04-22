@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+REST proxies now sign requests as the current user (not the blog) so WPCOM can verify the admin's identity. Permission callback also requires a user-level WPCOM connection.

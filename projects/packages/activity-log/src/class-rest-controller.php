@@ -16,6 +16,8 @@
 namespace Automattic\Jetpack\Activity_Log\V0001;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -162,12 +164,28 @@ class REST_Controller {
 
 	/**
 	 * Permission callback. Mirrors the menu gating — any admin on a
-	 * non-multisite install with a user connection can read the log.
+	 * non-multisite install with a user-level WPCOM connection can read
+	 * the log. A user-level connection is required because the upstream
+	 * WPCOM endpoint is user-gated (it needs to identify *which* admin
+	 * is asking); signing as the blog gets rejected with "Only
+	 * Administrators can query information about the current site."
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function permissions_callback() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return new WP_Error(
+				'activity_log_user_not_connected',
+				esc_html__( 'Your WordPress.com account is not connected to this site. Connect it to use the Activity Log.', 'jetpack-activity-log' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -222,10 +240,18 @@ class REST_Controller {
 			$path .= '?' . http_build_query( $params );
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog(
+		// Sign as the current user, not the blog: the upstream /sites/{id}/activity
+		// endpoint checks that a specific admin is asking. Forward the visitor IP
+		// so WPCOM logs match the existing /jetpack/v4/site/activity proxy.
+		$response = Client::wpcom_json_api_request_as_user(
 			$path,
-			'v2',
-			array(),
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			),
 			null,
 			'wpcom'
 		);
