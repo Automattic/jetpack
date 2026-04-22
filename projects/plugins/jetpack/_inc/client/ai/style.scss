@@ -26,8 +26,13 @@
 	}
 
 	&__breadcrumbs {
-		// Override admin-ui's default min-height on the list.
+		// admin-ui sets list-style:none but no flex layout — add it here.
+		display: flex;
+		flex-direction: row;
+		align-items: center;
 		min-height: auto;
+		padding: 0;
+		margin: 0;
 
 		li {
 			display: flex;
@@ -37,6 +42,9 @@
 	}
 
 	&__breadcrumb-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
 		background: none;
 		border: none;
 		padding: 0;
