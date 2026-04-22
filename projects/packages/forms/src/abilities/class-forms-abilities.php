@@ -13,6 +13,7 @@
 namespace Automattic\Jetpack\Forms\Abilities;
 
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 
 /**
  * Class Forms_Abilities
@@ -83,6 +84,7 @@ class Forms_Abilities {
 		self::register_get_responses_ability();
 		self::register_update_response_ability();
 		self::register_get_status_counts_ability();
+		self::register_list_forms_ability();
 	}
 
 	/**
@@ -263,6 +265,38 @@ class Forms_Abilities {
 	}
 
 	/**
+	 * Register ability to list forms.
+	 *
+	 * @return void
+	 */
+	private static function register_list_forms_ability() {
+		wp_register_ability(
+			'jetpack-forms/list-forms',
+			array(
+				'label'               => __( 'List forms', 'jetpack-forms' ),
+				'description'         => __( 'List the posts and pages on the site that contain a Jetpack contact form and have received at least one response. Returns each parent post with its ID, title, URL, and type. Useful for discovering which forms exist before calling get-responses with a parent filter.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'default'              => array(),
+					'properties'           => array(),
+					'additionalProperties' => false,
+				),
+				'execute_callback'    => array( __CLASS__, 'list_forms' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
+			)
+		);
+	}
+
+	/**
 	 * Check if user can edit pages.
 	 *
 	 * @return bool
@@ -383,5 +417,44 @@ class Forms_Abilities {
 		}
 
 		return (array) $response->get_data();
+	}
+
+	/**
+	 * List forms callback.
+	 *
+	 * Returns the distinct parent posts that own feedback entries — i.e. the
+	 * pages and posts on the site that host a Jetpack contact form and have
+	 * received at least one submission. An agent can pair these IDs with the
+	 * `parent` filter on jetpack-forms/get-responses to scope response queries.
+	 *
+	 * @param array $args Unused. Accepted for ability callback signature parity.
+	 * @return array List of forms with id, title, url, and post type.
+	 */
+	public static function list_forms( $args = array() ) {
+		unset( $args );
+
+		$parent_ids = Contact_Form_Plugin::get_all_parent_post_ids();
+		$forms      = array();
+
+		foreach ( $parent_ids as $parent_id ) {
+			$parent_id = (int) $parent_id;
+			if ( $parent_id <= 0 ) {
+				continue;
+			}
+
+			$post = get_post( $parent_id );
+			if ( ! $post ) {
+				continue;
+			}
+
+			$forms[] = array(
+				'id'        => $parent_id,
+				'title'     => get_the_title( $post ),
+				'url'       => get_permalink( $post ),
+				'post_type' => $post->post_type,
+			);
+		}
+
+		return array( 'forms' => $forms );
 	}
 }

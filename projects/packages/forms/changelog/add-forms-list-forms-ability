@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register the jetpack-forms/list-forms ability to list pages that host a contact form and have received at least one response.

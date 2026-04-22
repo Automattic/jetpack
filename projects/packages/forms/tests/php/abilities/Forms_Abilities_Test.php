@@ -138,6 +138,7 @@ class Forms_Abilities_Test extends BaseTestCase {
 			'jetpack-forms/get-responses',
 			'jetpack-forms/update-response',
 			'jetpack-forms/get-status-counts',
+			'jetpack-forms/list-forms',
 		);
 
 		foreach ( $expected_abilities as $ability_name ) {
@@ -310,5 +311,45 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'inbox', $result );
 		$this->assertArrayHasKey( 'spam', $result );
 		$this->assertArrayHasKey( 'trash', $result );
+	}
+
+	/**
+	 * Test list_forms callback returns the expected array shape when there are no forms.
+	 */
+	public function test_list_forms_callback_empty() {
+		wp_set_current_user( self::$user_id );
+
+		$result = Forms_Abilities::list_forms();
+
+		$this->assertIsArray( $result, 'list_forms should return an array' );
+		$this->assertArrayHasKey( 'forms', $result );
+		$this->assertSame( array(), $result['forms'], 'forms should be empty without feedback' );
+	}
+
+	/**
+	 * Test list_forms ability execution through the Abilities API.
+	 */
+	public function test_list_forms_ability() {
+		if ( ! function_exists( 'wp_get_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API functions not available' );
+			return;
+		}
+
+		$this->simulate_doing_wp_abilities_categories_init_action();
+		Forms_Abilities::register_category();
+
+		$this->simulate_doing_wp_abilities_init_action();
+		Forms_Abilities::register_abilities();
+
+		wp_set_current_user( self::$user_id );
+
+		$ability = wp_get_ability( 'jetpack-forms/list-forms' );
+		$this->assertNotNull( $ability, 'list-forms ability should exist' );
+
+		$result = $ability->execute( array() );
+
+		$this->assertNotInstanceOf( \WP_Error::class, $result, 'list-forms should not return WP_Error' );
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'forms', $result );
 	}
 }
