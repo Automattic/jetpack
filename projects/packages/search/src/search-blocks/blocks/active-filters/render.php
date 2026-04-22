@@ -48,6 +48,7 @@ $initial_hidden_attr = $has_active_on_paint ? '' : ' hidden';
 					type="button"
 					class="jetpack-search-active-filters__pill"
 					data-wp-on--click="actions.onRemovePill"
+					data-wp-bind--aria-label="context.pill.ariaLabel"
 				>
 					<span
 						class="jetpack-search-active-filters__pill-label"

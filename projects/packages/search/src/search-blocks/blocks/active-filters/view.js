@@ -42,7 +42,14 @@ store( NAMESPACE, {
 		 * remove handler can toggle the correct selection without looking
 		 * it up from the event target.
 		 *
-		 * @return {Array<object>} Array of pill descriptors with id, filterKey, value, label.
+		 * `ariaLabel` is what screen readers announce — the visible "×" is
+		 * aria-hidden, and the visible label alone ("Category: news") reads
+		 * as a plain noun phrase with no hint that activating the button
+		 * removes the filter. The "Remove " prefix is locked to English
+		 * for the same reason noted in store/index.js' resultsCountText:
+		 * `@wordpress/i18n` isn't available in Interactivity view bundles.
+		 *
+		 * @return {Array<object>} Array of pill descriptors with id, filterKey, value, label, ariaLabel.
 		 */
 		get activePills() {
 			const { state } = store( NAMESPACE );
@@ -54,11 +61,13 @@ store( NAMESPACE, {
 				const groupLabel = state.filterConfigs?.[ filterKey ]?.label ?? filterKey;
 				for ( const value of values ) {
 					const valueLabel = resolveValueLabel( state, filterKey, value );
+					const label = `${ groupLabel }: ${ valueLabel }`;
 					pills.push( {
 						id: `${ filterKey }:${ value }`,
 						filterKey,
 						value,
-						label: `${ groupLabel }: ${ valueLabel }`,
+						label,
+						ariaLabel: `Remove ${ label }`,
 					} );
 				}
 			}
