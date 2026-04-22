@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import './index.scss';
+import './style.scss';
 
 const TABS = [
 	{ id: 'overview', label: __( 'Overview', 'jetpack-search-pkg' ) },

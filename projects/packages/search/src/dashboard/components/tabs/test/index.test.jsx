@@ -15,6 +15,8 @@ describe( 'DashboardTabs', () => {
 		const activeTab = screen.getByRole( 'tab', { name: 'Behavior' } );
 		expect( activeTab ).toHaveAttribute( 'aria-selected', 'true' );
 		expect( activeTab ).toHaveClass( 'jp-search-dashboard-tabs__tab--active' );
+		const inactiveTab = screen.getByRole( 'tab', { name: 'Overview' } );
+		expect( inactiveTab ).toHaveAttribute( 'aria-selected', 'false' );
 	} );
 
 	it( 'calls onTabChange when a tab is clicked', async () => {
