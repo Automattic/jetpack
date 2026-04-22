@@ -235,8 +235,8 @@ class Search_Blocks {
 <!-- wp:group {"tagName":"main","style":{"spacing":{"margin":{"top":"var:preset|spacing|60"}}},"layout":{"type":"constrained"}} -->
 <main class="wp-block-group" style="margin-top:var(--wp--preset--spacing--60)">
 
-<!-- wp:group {"style":{"spacing":{"blockGap":"1.5rem"}}} -->
-<div class="wp-block-group">
+<!-- wp:group {"align":"wide","style":{"spacing":{"blockGap":"1.5rem"}}} -->
+<div class="wp-block-group alignwide">
 <!-- wp:jetpack/search-input /-->
 
 <!-- wp:columns {"style":{"spacing":{"blockGap":"2rem"}}} -->
