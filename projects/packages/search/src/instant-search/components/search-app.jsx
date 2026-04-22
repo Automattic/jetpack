@@ -1,3 +1,4 @@
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 import debounce from 'debounce';
 import stringify from 'fast-json-stable-stringify';
 import * as React from 'react';
@@ -40,6 +41,7 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
+import AnswersPanel from './answers-panel';
 import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
@@ -59,9 +61,15 @@ class SearchApp extends Component {
 			// TODO: Migrate visibility state to Redux.
 			isVisible: !! this.props.initialIsVisible, // initialIsVisible can be undefined
 			overlayOptionsCustomizerOverride: {},
+			// AI Answers state
+			aiStatus: 'idle', // 'idle' | 'loading' | 'streaming' | 'done' | 'error'
+			aiText: '',
+			aiCitations: [],
 		};
 
 		this.getResults = debounce( this.getResults, 200 );
+		this.aiController = null;
+		this.getAiAnswer = debounce( this.getAiAnswer, 400 );
 		this.props.enableAnalytics ? this.initializeAnalytics() : disableAnalytics();
 
 		if ( this.props.shouldIntegrateWithDom ) {
@@ -105,6 +113,10 @@ class SearchApp extends Component {
 			this.onChangeQueryString( this.props.isHistoryNavigation );
 		}
 
+		if ( prevProps.searchQuery !== this.props.searchQuery ) {
+			this.getAiAnswer();
+		}
+
 		// These conditions can only occur in the Gutenberg preview context.
 		if ( prevState.overlayOptions.defaultSort !== this.state.overlayOptions.defaultSort ) {
 			this.props.setSort( this.state.overlayOptions.defaultSort );
@@ -115,6 +127,13 @@ class SearchApp extends Component {
 		) {
 			this.getResults();
 		}
+	}
+
+	componentWillUnmount() {
+		if ( this.aiController ) {
+			this.aiController.abort();
+		}
+		this.getAiAnswer.clear();
 	}
 
 	initializeAnalytics() {
@@ -232,6 +251,71 @@ class SearchApp extends Component {
 		} );
 	};
 
+	getAiAnswer = () => {
+		const query = this.props.searchQuery;
+		const options = window[ SERVER_OBJECT_NAME ] || {};
+		const token = options.aiAnswersToken;
+		const siteId = options.aiAnswersSiteId || options.siteId;
+
+		if ( ! token || ! query || query.length < 3 ) {
+			this.setState( { aiStatus: 'idle', aiText: '', aiCitations: [] } );
+			return;
+		}
+
+		if ( this.aiController ) {
+			this.aiController.abort();
+		}
+		this.aiController = new AbortController();
+
+		this.setState( { aiStatus: 'loading', aiText: '', aiCitations: [] } );
+
+		const url = `https://public-api.wordpress.com/wpcom/v2/sites/${ siteId }/ai/agent/jetpack-search-answers`;
+
+		fetchEventSource( url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${ token }`,
+			},
+			body: JSON.stringify( {
+				query,
+				filters: this.props.filters,
+				locale: options.locale || 'en',
+			} ),
+			signal: this.aiController.signal,
+			onopen( response ) {
+				if ( ! response.ok ) {
+					throw new Error( `HTTP ${ response.status }` );
+				}
+			},
+			onmessage: event => {
+				try {
+					const data = JSON.parse( event.data );
+					if ( data.type === 'chunk' ) {
+						this.setState( state => ( {
+							aiStatus: 'streaming',
+							aiText: state.aiText + data.text,
+						} ) );
+					} else if ( data.type === 'done' ) {
+						this.setState( { aiStatus: 'done', aiCitations: data.citations || [] } );
+					} else if ( data.type === 'error' ) {
+						this.setState( { aiStatus: 'error' } );
+					}
+				} catch {
+					// Ignore unparseable events.
+				}
+			},
+			onerror: () => {
+				this.setState( { aiStatus: 'error' } );
+				throw new Error( 'SSE error' );
+			},
+		} ).catch( () => {
+			if ( ! this.aiController?.signal?.aborted ) {
+				this.setState( { aiStatus: 'error' } );
+			}
+		} );
+	};
+
 	updateOverlayOptions = ( newOverlayOptions, callback ) => {
 		this.setState(
 			state => ( {
@@ -278,6 +362,11 @@ class SearchApp extends Component {
 						hasOverlayWidgets={ this.props.hasOverlayWidgets }
 						isVisible={ this.state.isVisible }
 					>
+						<AnswersPanel
+							status={ this.state.aiStatus }
+							text={ this.state.aiText }
+							citations={ this.state.aiCitations }
+						/>
 						<SearchResults
 							closeOverlay={ this.hideResults }
 							enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
