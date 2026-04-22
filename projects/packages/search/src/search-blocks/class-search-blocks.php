@@ -303,15 +303,11 @@ class Search_Blocks {
 	 * @return string
 	 */
 	protected static function get_parent_plugin_slug(): string {
-		$fallback = 'jetpack-search';
-		if ( ! function_exists( 'get_option' ) ) {
-			return $fallback;
-		}
 		// Read the same option `is_plugin_active()` reads, then union in
 		// network-activated plugins when on multisite. Avoids pulling
 		// wp-admin/includes/plugin.php into front-end requests.
 		$active = (array) get_option( 'active_plugins', array() );
-		if ( function_exists( 'is_multisite' ) && is_multisite() && function_exists( 'get_site_option' ) ) {
+		if ( is_multisite() ) {
 			$active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
 		}
 		$preferred = array(
@@ -323,7 +319,7 @@ class Search_Blocks {
 				return $slug;
 			}
 		}
-		return $fallback;
+		return 'jetpack-search';
 	}
 
 	/**
