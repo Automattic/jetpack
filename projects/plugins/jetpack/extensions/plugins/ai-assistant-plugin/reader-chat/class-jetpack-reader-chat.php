@@ -36,20 +36,49 @@ class Jetpack_Reader_Chat {
 	 * @return void
 	 */
 	public static function init(): void {
+		// Register the setting unconditionally so the REST API can flip it even
+		// when the feature is currently disabled.
+		add_action( 'init', array( __CLASS__, 'register_settings' ) );
+
 		/**
 		 * Filter to enable or disable the Jetpack Reader Chat feature.
 		 *
-		 * Defaults to false (opt-in). Enable with:
+		 * Defaults to the value of the blog_talks_back site option (false when
+		 * unset). Override programmatically with:
 		 *   add_filter( 'jetpack_reader_chat_enabled', '__return_true' );
+		 *
+		 * @since $$next-version$$
 		 *
 		 * @param bool $enabled Whether the reader chat is enabled.
 		 */
-		if ( ! apply_filters( 'jetpack_reader_chat_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_reader_chat_enabled', (bool) get_option( 'blog_talks_back', false ) ) ) {
 			return;
 		}
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render_mount_div' ) );
+	}
+
+	/**
+	 * Register the blog_talks_back option so it is readable and writable
+	 * via the /wp/v2/settings REST endpoint. Requires manage_options.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_settings(): void {
+		register_setting(
+			'general',
+			'blog_talks_back',
+			array(
+				'type'              => 'boolean',
+				'description'       => __( 'Whether Reader Chat is enabled on this site.', 'jetpack' ),
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'show_in_rest'      => true,
+				'default'           => false,
+			)
+		);
 	}
 
 	/**
