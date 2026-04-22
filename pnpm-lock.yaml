@@ -1831,6 +1831,82 @@ importers:
 
   projects/packages/account-protection: {}
 
+  projects/packages/activity-log:
+    dependencies:
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../../js-packages/connection
+      '@tanstack/react-query':
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
+      '@wordpress/api-fetch':
+        specifier: 7.44.0
+        version: 7.44.0
+      '@wordpress/components':
+        specifier: 32.6.0
+        version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.44.0
+        version: 5.44.0
+      '@wordpress/element':
+        specifier: 6.44.0
+        version: 6.44.0
+      '@wordpress/i18n':
+        specifier: 6.17.0
+        version: 6.17.0
+      '@wordpress/icons':
+        specifier: 12.2.0
+        version: 12.2.0(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@babel/preset-env':
+        specifier: 7.29.2
+        version: 7.29.2(@babel/core@7.29.0)
+      '@babel/runtime':
+        specifier: 7.29.2
+        version: 7.29.2
+      '@types/react':
+        specifier: 18.3.28
+        version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
+      '@wordpress/browserslist-config':
+        specifier: 6.44.0
+        version: 6.44.0
+      concurrently:
+        specifier: 9.2.1
+        version: 9.2.1
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
+      webpack:
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.105.2)
+
   projects/packages/admin-ui:
     devDependencies:
       '@automattic/jetpack-base-styles':
