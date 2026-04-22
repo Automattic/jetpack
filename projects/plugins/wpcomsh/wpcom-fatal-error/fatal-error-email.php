@@ -44,7 +44,7 @@ function wpcomsh_fatal_customize_recovery_email( $email, $url = '', $extension =
 	$action_link      = wpcomsh_fatal_build_action_link( $plugin );
 	$email['subject'] = wpcomsh_fatal_build_email_subject( $site_name, $plugin );
 	$email['message'] = wpcomsh_fatal_build_email_message( $site_name, $site_url, (string) $url, $action_link, $plugin, $error_info, $environment );
-	$email['headers'] = wpcomsh_fatal_merge_html_content_type( isset( $email['headers'] ) ? $email['headers'] : '' );
+	$email['headers'] = wpcomsh_fatal_merge_html_content_type( $email['headers'] ?? '' );
 
 	return $email;
 }
