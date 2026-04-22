@@ -22,8 +22,13 @@ class Search_Blocks {
 
 	/**
 	 * Template slug used for the Jetpack Search page template.
+	 *
+	 * Intentionally distinct from WordPress's `search` slug so the plugin
+	 * template never collides with (and gets deduplicated against) a block
+	 * theme's own `search.html`. `search_template_hierarchy` prepends this
+	 * slug so it still wins on `/?s=...` requests.
 	 */
-	const SEARCH_TEMPLATE_SLUG = 'search';
+	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
 
 	/**
 	 * Plugin namespace used in the template ID.
@@ -38,8 +43,8 @@ class Search_Blocks {
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
+		add_action( 'init', array( static::class, 'register_search_template' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
-		add_filter( 'get_block_templates', array( static::class, 'inject_search_template' ), 10, 3 );
 		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
@@ -275,69 +280,42 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Build a WP_Block_Template object for the search template.
+	 * Register the Jetpack Search page template with the block-template
+	 * registry so it surfaces in the Site Editor's Templates list and can be
+	 * resolved via the template hierarchy.
 	 *
-	 * @return \WP_Block_Template
+	 * Uses `register_block_template()` (WP 6.7+). Jetpack requires WP 6.8+,
+	 * so the function is always present at runtime — the function_exists
+	 * guard is defensive for phpstan/phan and edge environments.
+	 *
+	 * DB-stored customizations continue to take precedence: if a site owner
+	 * edits this template in the Site Editor, the `custom` source wins during
+	 * resolution automatically.
 	 */
-	protected static function build_search_block_template() {
-		$template                 = new \WP_Block_Template();
-		$template->id             = self::TEMPLATE_NAMESPACE . '//' . self::SEARCH_TEMPLATE_SLUG;
-		$template->theme          = self::TEMPLATE_NAMESPACE;
-		$template->slug           = self::SEARCH_TEMPLATE_SLUG;
-		$template->title          = __( 'Search', 'jetpack-search-pkg' );
-		$template->description    = __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' );
-		$template->content        = static::get_search_template_content();
-		$template->type           = 'wp_template';
-		$template->source         = 'plugin';
-		$template->origin         = 'plugin';
-		$template->status         = 'publish';
-		$template->has_theme_file = false;
-		$template->is_custom      = false;
-
-		return $template;
+	public static function register_search_template() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			return;
+		}
+		register_block_template(
+			self::TEMPLATE_NAMESPACE . '//' . self::SEARCH_TEMPLATE_SLUG,
+			array(
+				'title'       => __( 'Jetpack Search', 'jetpack-search-pkg' ),
+				'description' => __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
+				'content'     => static::get_search_template_content(),
+			)
+		);
 	}
 
 	/**
-	 * Inject the Jetpack Search template into the block template list.
+	 * Prepend the Jetpack Search template slug to the search template hierarchy
+	 * so `/?s=…` requests resolve to our plugin-registered template instead of
+	 * the theme's `search.html`.
 	 *
-	 * Uses the `get_block_templates` filter (available since WP 5.9) so this
-	 * works on all WordPress versions that support block themes. Users can
-	 * customize the template in the Site Editor — the database version takes
-	 * priority automatically.
-	 *
-	 * @param \WP_Block_Template[] $query_result Templates returned by the query.
-	 * @param array                $query        Template query arguments.
-	 * @param string               $template_type 'wp_template' or 'wp_template_part'.
-	 * @return \WP_Block_Template[]
-	 */
-	public static function inject_search_template( $query_result, $query, $template_type ) {
-		if ( 'wp_template' !== $template_type || ! wp_is_block_theme() ) {
-			return $query_result;
-		}
-
-		// If a specific slug set is requested and ours isn't in it, bail.
-		if ( ! empty( $query['slug__in'] ) && ! in_array( self::SEARCH_TEMPLATE_SLUG, $query['slug__in'], true ) ) {
-			return $query_result;
-		}
-
-		// Don't inject if the user already has a customized version (stored in DB).
-		foreach ( $query_result as $existing ) {
-			if ( self::SEARCH_TEMPLATE_SLUG === $existing->slug && 'custom' === $existing->source ) {
-				return $query_result;
-			}
-		}
-
-		$query_result[] = static::build_search_block_template();
-		return $query_result;
-	}
-
-	/**
-	 * Prepend the Jetpack Search template slug to the search template hierarchy.
-	 *
-	 * WordPress checks slugs in order — the first match wins. By prepending our
-	 * plugin-registered template slug, it takes priority over the theme's
-	 * search.html. If a user customizes the template in the Site Editor, the
-	 * database version takes priority over both.
+	 * Core resolves each slug in order, stopping at the first template it
+	 * finds. Because our slug is unique (`jetpack-search`, not `search`), the
+	 * theme's `search.html` is never consulted when this prepend is in effect.
+	 * Site Editor customizations (stored in the DB keyed by this slug) still
+	 * take precedence over the plugin-registered default.
 	 *
 	 * @param string[] $templates Template hierarchy slugs.
 	 * @return string[]
