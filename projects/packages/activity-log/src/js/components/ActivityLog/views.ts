@@ -11,10 +11,10 @@ export const DEFAULT_VIEW: View = {
 	layout: {
 		density: 'balanced',
 		styles: {
-			published: { minWidth: '200px' },
-			published_utc: { minWidth: '200px' },
+			published: { minWidth: '240px' },
+			published_utc: { minWidth: '240px' },
 			actor: { minWidth: '100px' },
-			event: { minWidth: '520px' },
+			event: { minWidth: '580px' },
 		},
 	},
 	showLevels: false,
