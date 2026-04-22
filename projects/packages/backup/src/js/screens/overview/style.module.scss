@@ -1,0 +1,76 @@
+.overview {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 40% 1fr;
+	gap: 16px;
+
+	@media (max-width: 782px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.headerActions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.detailsHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	inline-size: 100%;
+}
+
+.detailsHeaderTitle {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-inline-size: 0;
+}
+
+.detailsHeaderActions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.detailsBody {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.detailsMeta {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--wp-admin-theme-color-darker-10, #757575);
+}
+
+.detailsPlaceholder {
+	min-block-size: 300px;
+}
+
+// DataViews renders its own search + options bar flush to the container
+// edge. Inside a @wordpress/components `Card` that looks cramped, so we
+// pad the toolbar row without touching the list rows below.
+.listCard {
+
+	:global(.dataviews-wrapper) {
+		padding-block-start: 8px;
+	}
+
+	:global(.dataviews-filters__view-actions),
+	:global(.dataviews-view-config),
+	:global(.dataviews-search),
+	:global(.dataviews-pagination) {
+		padding-inline: 16px;
+	}
+}
