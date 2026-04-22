@@ -27,6 +27,23 @@ Until then, both CPTs coexist: `jp_search_behavior` takes precedence if set, wit
 
 ---
 
+## Plan Eligibility
+
+Currently the feature is gated only by the `jetpack_search_ai_answers_enabled` option with a flat 500-request/month quota for all plans. Before general availability, we need to decide:
+
+- **Which plans get access?** Likely Search paid plans only (not free tier). The wpcom quota API already tracks usage per site; enforcement would happen there before any LLM call is made.
+- **Quota tiers by plan?** Free Search could get a lower limit (or none), paid Search gets a higher limit, with the option to upgrade for more.
+- **How does the plugin know the site's plan?** Options: read from the existing `jetpack_search_subscription_plan` option (or equivalent) already synced to the plugin; or gate entirely on the wpcom side and have the agent return `error` with `code: plan_not_eligible` so the overlay can show an upgrade prompt rather than silently hiding.
+- **UI treatment for ineligible sites?** The Behavior and Topics tabs may still be useful to show (so site owners can configure in advance), but the overlay panel should be hidden and replaced with an upsell if the plan doesn't include AI Answers.
+
+Open questions to resolve before GA:
+- [ ] Confirm which plan tiers include AI Answers
+- [ ] Define quota limits per tier
+- [ ] Decide whether plan gating lives on the wpcom side only (simpler) or also in the plugin (faster UI feedback)
+- [ ] Design the upgrade/upsell flow for ineligible sites
+
+---
+
 ## Analytics Tab
 
 A future **Analytics** tab will be added to the Search dashboard tab bar and will become the default tab. The current Overview content (billing/usage) will remain but yield the default position to Analytics.
