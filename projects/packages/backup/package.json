@@ -36,6 +36,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
 		"@wordpress/api-fetch": "7.44.0",
+		"@wordpress/base-styles": "6.20.0",
 		"@wordpress/components": "32.6.0",
 		"@wordpress/data": "10.44.0",
 		"@wordpress/dataviews": "14.0.0",
