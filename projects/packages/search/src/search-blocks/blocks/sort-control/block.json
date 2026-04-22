@@ -5,6 +5,7 @@
 	"version": "0.1.0",
 	"title": "Sort Control",
 	"category": "jetpack-search",
+	"icon": "sort",
 	"description": "Controls the order of Jetpack Search results.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",

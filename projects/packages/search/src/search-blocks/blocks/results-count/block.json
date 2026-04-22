@@ -5,6 +5,7 @@
 	"version": "0.1.0",
 	"title": "Results Count",
 	"category": "jetpack-search",
+	"icon": "info-outline",
 	"description": "Displays the Jetpack Search results count.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
