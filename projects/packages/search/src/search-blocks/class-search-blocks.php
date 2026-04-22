@@ -21,6 +21,16 @@ class Search_Blocks {
 	const RESERVED_QUERY_PARAMS = array( 's', 'orderby' );
 
 	/**
+	 * Template slug used for the Jetpack Search page template.
+	 */
+	const SEARCH_TEMPLATE_SLUG = 'search';
+
+	/**
+	 * Plugin namespace used in the template ID.
+	 */
+	const TEMPLATE_NAMESPACE = 'jetpack-search';
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * The caller (Initializer) is responsible for gating this behind the
@@ -29,6 +39,8 @@ class Search_Blocks {
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
+		add_filter( 'get_block_templates', array( static::class, 'inject_search_template' ), 10, 3 );
+		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 	}
@@ -202,6 +214,137 @@ class Search_Blocks {
 		foreach ( $pattern_files as $pattern_file ) {
 			require_once $pattern_file;
 		}
+	}
+
+	/**
+	 * Return the block markup for the search layout (filters sidebar + results).
+	 *
+	 * Shared by the "Blog Search Page" pattern and the search template.
+	 *
+	 * @return string Block markup.
+	 */
+	public static function get_search_layout_content() {
+		return '<!-- wp:columns {"style":{"spacing":{"blockGap":"2rem"}}} -->
+<div class="wp-block-columns">
+
+<!-- wp:column {"width":"260px"} -->
+<div class="wp-block-column" style="flex-basis:260px">
+<!-- wp:jetpack/search-input /-->
+<!-- wp:jetpack/active-filters /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category","label":"Category"} /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag","label":"Tag"} /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"post_type","label":"Post Type"} /-->
+</div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column">
+<!-- wp:jetpack/sort-control /-->
+<!-- wp:jetpack/results-count /-->
+<!-- wp:jetpack/search-results /-->
+<!-- wp:jetpack/no-results /-->
+<!-- wp:jetpack/load-more /-->
+</div>
+<!-- /wp:column -->
+
+</div>
+<!-- /wp:columns -->';
+	}
+
+	/**
+	 * Build the full search page template content.
+	 *
+	 * Wraps the shared search layout in header/main/footer template parts.
+	 *
+	 * @return string Block markup for a complete page template.
+	 */
+	protected static function get_search_template_content() {
+		$layout = static::get_search_layout_content();
+
+		return '<!-- wp:template-part {"slug":"header"} /-->
+
+<!-- wp:group {"tagName":"main","style":{"spacing":{"margin":{"top":"var:preset|spacing|60"}}},"layout":{"type":"constrained"}} -->
+<main class="wp-block-group" style="margin-top:var(--wp--preset--spacing--60)">
+
+' . $layout . '
+
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer"} /-->';
+	}
+
+	/**
+	 * Build a WP_Block_Template object for the search template.
+	 *
+	 * @return \WP_Block_Template
+	 */
+	protected static function build_search_block_template() {
+		$template                 = new \WP_Block_Template();
+		$template->id             = self::TEMPLATE_NAMESPACE . '//' . self::SEARCH_TEMPLATE_SLUG;
+		$template->theme          = self::TEMPLATE_NAMESPACE;
+		$template->slug           = self::SEARCH_TEMPLATE_SLUG;
+		$template->title          = __( 'Search', 'jetpack-search-pkg' );
+		$template->description    = __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' );
+		$template->content        = static::get_search_template_content();
+		$template->type           = 'wp_template';
+		$template->source         = 'plugin';
+		$template->origin         = 'plugin';
+		$template->status         = 'publish';
+		$template->has_theme_file = false;
+		$template->is_custom      = false;
+
+		return $template;
+	}
+
+	/**
+	 * Inject the Jetpack Search template into the block template list.
+	 *
+	 * Uses the `get_block_templates` filter (available since WP 5.9) so this
+	 * works on all WordPress versions that support block themes. Users can
+	 * customize the template in the Site Editor — the database version takes
+	 * priority automatically.
+	 *
+	 * @param \WP_Block_Template[] $query_result Templates returned by the query.
+	 * @param array                $query        Template query arguments.
+	 * @param string               $template_type 'wp_template' or 'wp_template_part'.
+	 * @return \WP_Block_Template[]
+	 */
+	public static function inject_search_template( $query_result, $query, $template_type ) {
+		if ( 'wp_template' !== $template_type || ! wp_is_block_theme() ) {
+			return $query_result;
+		}
+
+		// If a specific slug set is requested and ours isn't in it, bail.
+		if ( ! empty( $query['slug__in'] ) && ! in_array( self::SEARCH_TEMPLATE_SLUG, $query['slug__in'], true ) ) {
+			return $query_result;
+		}
+
+		// Don't inject if the user already has a customized version (stored in DB).
+		foreach ( $query_result as $existing ) {
+			if ( self::SEARCH_TEMPLATE_SLUG === $existing->slug && 'custom' === $existing->source ) {
+				return $query_result;
+			}
+		}
+
+		$query_result[] = static::build_search_block_template();
+		return $query_result;
+	}
+
+	/**
+	 * Prepend the Jetpack Search template slug to the search template hierarchy.
+	 *
+	 * WordPress checks slugs in order — the first match wins. By prepending our
+	 * plugin-registered template slug, it takes priority over the theme's
+	 * search.html. If a user customizes the template in the Site Editor, the
+	 * database version takes priority over both.
+	 *
+	 * @param string[] $templates Template hierarchy slugs.
+	 * @return string[]
+	 */
+	public static function prepend_search_template( $templates ) {
+		array_unshift( $templates, self::SEARCH_TEMPLATE_SLUG );
+		return $templates;
 	}
 
 	/**
