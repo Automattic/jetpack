@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Sites endpoint: expose jetpack_recovery_mode_status option so callers can read recovery-mode state from wpcom.
