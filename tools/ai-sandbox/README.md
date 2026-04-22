@@ -76,6 +76,20 @@ tmux attach -t my-agent
 
 ---
 
+## Pre-push Gates
+
+The container enforces two checks on every `git push` via `core.hooksPath`:
+
+**Scope gate** — rejects pushes that touch files outside:
+- `projects/packages/premium-analytics/**`
+- `pnpm-lock.yaml`
+
+**Build gate** — runs `pnpm build` for `premium-analytics` if its files changed. Push is blocked on build failure.
+
+These gates are active inside the container only. The host uses standard husky hooks.
+
+---
+
 ## Validation
 
 ```bash
@@ -84,7 +98,7 @@ git diff --stat
 git diff
 ```
 
-Ensure changes stay within `projects/plugins/premium-analytics/`.
+Ensure changes stay within `projects/packages/premium-analytics/`.
 
 ---
 
