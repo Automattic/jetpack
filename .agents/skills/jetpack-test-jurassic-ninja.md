@@ -17,11 +17,21 @@ automated — no user interaction required after pre-flight checks pass. Can als
 provision a brand-new JN site and connect Jetpack to it when the user asks for a
 fresh environment or has no existing sites.
 
-## Pre-flight Checks (run all before starting)
+## Step 0: Classify the request (do this first)
 
-Run these checks in order. Stop at the first failure and help the user fix it.
+Decide up front which shape the task is — it controls which checks and credentials you need. Don't fetch passwords or test SSH for flows that never touch SFTP.
 
-### Check 1: rsync installed
+- **`rsync`** — the user wants code from this monorepo pushed to a JN site (phrases like "sync", "rsync", "deploy", "push this branch", "test these changes on JN"). Needs rsync, build artifacts, and SFTP access.
+- **`provision-only`** — the user only wants a site created/connected/inspected (phrases like "create a new JN site", "spin up a JN site", "connect Jetpack on a new site", "give me a fresh JN site to test in the browser"). No rsync, no SFTP, no password needed.
+- **`mixed`** — default when ambiguous, or when the user says things like "spin up a new site and push my branch to it". Treat as `rsync` because SFTP is required.
+
+The flow below is gated on this classification: checks that exist only to support rsync are skipped for `provision-only`. **Never fetch or display site passwords** unless the flow is `rsync` *and* SSH key auth has failed.
+
+## Pre-flight Checks
+
+Run these in order; stop at the first failure and help the user fix it. Some checks only apply to the `rsync` flow — skip them for `provision-only`, they're marked *(rsync only)*.
+
+### Check 1: rsync installed *(rsync only)*
 
 ```bash
 rsync --version
@@ -30,7 +40,7 @@ rsync --version
 - If the command fails: tell user to `brew install rsync`
 - If output contains `openrsync` on macOS: warn that `brew install rsync` is recommended for proper symlink handling
 
-### Check 2: jetpack CLI available
+### Check 2: jetpack CLI available *(rsync only)*
 
 ```bash
 pnpm jetpack --help
@@ -38,7 +48,7 @@ pnpm jetpack --help
 
 If missing: tell user to run `pnpm install` in the monorepo root.
 
-### Check 3: Dependencies installed
+### Check 3: Dependencies installed *(rsync only)*
 
 ```bash
 ls node_modules/.package-lock.json
@@ -60,33 +70,35 @@ If it fails, tell the user:
 
 ### Check 5: Pick or create a Jurassic Ninja site
 
+Call `list-sites` **without** `include_passwords` unless the flow is `rsync` and you already know SSH key auth is unavailable. Omitting it keeps credentials out of the agent transcript for flows that never need them.
+
 ```
-execute-tool: jurassic-ninja / list-sites (include_passwords: true)
+execute-tool: jurassic-ninja / list-sites (include_config: false)
 ```
 
-Branch based on the result and on what the user asked for:
+(Use `include_config: false` for the initial lookup — domain/status is all we need to pick a site. Fetch the full config later only if required.)
 
-- **User asked for a new/fresh/brand-new site** (phrases like "create a new JN site", "spin up a new one", "fresh site", "new jurassic ninja site"): skip straight to **Site creation** below, regardless of whether existing sites are present.
-- **User did not ask for a new site, and the sites list is non-empty**: pick the first site (most recently created) and proceed to Check 6.
-- **User did not ask for a new site, but the sites list is empty**: fall through to **Site creation** — don't stop and ask. The skill's job is to deliver a working site.
+Branch based on the result and what the user asked for:
+
+- **User asked for a new/fresh/brand-new site**: skip to **Site creation** below regardless of existing sites.
+- **Sites list is non-empty and user didn't ask for new**: pick the first site (most recently created) and proceed to Check 6 (if `rsync`) or jump to the workflow (if `provision-only`).
+- **Sites list is empty and user didn't ask for new**: fall through to **Site creation** — don't stop and ask. The skill's job is to deliver a working site.
 
 #### Site creation
 
-Provision a site with Jetpack already enabled as a feature:
+Provision a site with Jetpack already enabled:
 
 ```
 execute-tool: jurassic-ninja / provision-site (features: {"jetpack": "true"})
 ```
 
-The provisioning response returns `domain`, `admin_login_url`, `ssh_command`, and `atomic_site_id`. Configuration runs asynchronously, so poll until the site is ready:
+The response returns `domain`, `admin_login_url`, `ssh_command`, and `atomic_site_id`. Configuration runs asynchronously, so poll until the site is ready:
 
 ```
 execute-tool: jurassic-ninja / list-sites (domain: <returned domain>, include_config: false)
 ```
 
 Poll every ~10 seconds until the site's `status` reaches `2` (ready). Cap the wait at ~3 minutes; if still not ready, report the domain and `admin_login_url` and tell the user the site is still provisioning — they can retry the sync shortly.
-
-Once the site is ready, re-run `list-sites` with `include_passwords: true` and `domain: <returned domain>` to fetch the full config (admin password, SFTP password) for later steps.
 
 #### Connect Jetpack (optional but default when we just provisioned)
 
@@ -96,9 +108,11 @@ If the site was just provisioned, call:
 execute-tool: jurassic-ninja / connect-jetpack (domain: <site domain>)
 ```
 
-This remotely links the site to Jetpack using the creator's WP.com account. The tool is idempotent — it returns `already_connected` when Jetpack is already linked and `connected` on first success. Skip this step if the user explicitly said "don't connect Jetpack".
+This remotely links the site to Jetpack using the creator's WP.com account. Idempotent — returns `already_connected` when already linked and `connected` on first success. Skip if the user explicitly said "don't connect Jetpack".
 
-### Check 6: SSH access to Jurassic Ninja
+### Check 6: SSH access to Jurassic Ninja *(rsync only)*
+
+Skip this entire check for `provision-only` flows — we aren't using SFTP.
 
 Test whether the user has SSH key-based access configured for the JN SFTP host:
 
@@ -108,9 +122,9 @@ ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no {domain}@ss
 
 Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`).
 
-**If the command succeeds (exit code 0):** SSH keys are configured — skip password entirely. Set `SSH_OK=true`.
+**If the command succeeds (exit code 0):** SSH keys are configured. Set `SSH_OK=true`. **Do not fetch the site password** — it isn't needed and pulling it into the transcript is an avoidable credential leak.
 
-**If the command fails:** SSH key auth is not configured. Tell the user:
+**If the command fails:** SSH key auth isn't configured. Tell the user:
 
 > SSH key authentication to `ssh.atomicsites.net` is not configured. If you are an Automattician, you can fix this by adding the following to your `~/.ssh/config`:
 >
@@ -123,25 +137,28 @@ Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`).
 >
 > For now, I'll use the site password instead.
 
-Then set `SSH_OK=false` and retrieve the password from the site data to use as a fallback.
+Then set `SSH_OK=false` and **only now** fetch the site password:
+
+```
+execute-tool: jurassic-ninja / list-sites (domain: <site domain>, include_passwords: true)
+```
+
+Pull the SFTP password out of the returned config and use it for the rsync step only. Don't print it back to the user.
 
 ## Workflow
 
 ### 1. Determine which plugin to sync
 
-Default: `jetpack`. Use a different plugin only if the user specifies one. If the
-user's request is "create a new JN site and connect it" (no code to sync),
-skip directly to step 5 and report the site URL — there's nothing to rsync yet.
+`rsync` flow: default to `jetpack`; use a different plugin only if the user specifies one.
+`provision-only` flow: skip this step and jump to step 5 — there's nothing to sync.
 
 ### 2. Pick the target site
 
-Use the site resolved by Check 5:
-- The freshly-provisioned site, if one was just created.
-- Otherwise the first site from the existing list (most recently created), unless the user specifies a different one.
+Use the site resolved by Check 5 — freshly-provisioned if one was just created, otherwise the most recently created existing site (unless the user specified another).
 
-### 3. Build the plugin (only if needed)
+### 3. Build the plugin (only if needed) *(rsync only)*
 
-Check whether the plugin's build output already exists. Most plugins use `build/` as the output directory, but Jetpack uses `_inc/build/`.
+Check whether the plugin's build output already exists. Most plugins use `build/`, but Jetpack uses `_inc/build/`.
 
 ```bash
 # For plugins/jetpack:
@@ -150,43 +167,45 @@ ls projects/plugins/jetpack/_inc/build/ 2>/dev/null
 ls projects/plugins/{plugin}/build/ 2>/dev/null
 ```
 
-**If build output exists:** Skip the build — it's already been done. Tell the user you're skipping the build since output exists.
+**If build output exists:** skip the build and tell the user you're doing so.
 
-**If build output is missing:** Build the plugin. Use `--deps` to also build any monorepo dependencies the plugin needs (e.g. packages it depends on). Without `--deps`, builds can fail if dependency packages haven't been built yet.
+**If missing:** build with `--deps` so monorepo dependency packages are built first:
 
 ```bash
 pnpm jetpack build --deps plugins/{plugin}
 ```
 
-Note: `--deps` can take a while for plugins with many dependencies (like Jetpack). If the build is slow and the user wants to iterate quickly, they can pre-build once with `--deps` and then subsequent syncs will skip the build entirely.
+Note: `--deps` can be slow for Jetpack. Pre-build once and subsequent syncs skip the build.
 
-If the build fails, stop and report the error to the user — do not proceed to rsync.
+If the build fails, stop and report the error — don't proceed to rsync.
 
-### 4. Run the rsync
+### 4. Run the rsync *(rsync only)*
 
 The SSH host is always `ssh.atomicsites.net`.
 
-**If SSH_OK is true** (key-based auth works):
+**If `SSH_OK=true`** (key-based auth works):
 
 ```bash
 pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive
 ```
 
-No `--password` flag needed — SSH keys handle authentication.
+No `--password` flag — SSH keys handle auth.
 
-**If SSH_OK is false** (falling back to password):
+**If `SSH_OK=false`** (falling back to the password fetched in Check 6):
 
 ```bash
 pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
 ```
 
-The `--password` flag passes the SSH password automatically via `SSH_ASKPASS`.
+`--password` passes the SSH password automatically via `SSH_ASKPASS`.
 
 ### 5. Report results
 
-After sync (or after site creation if no sync was needed), show:
-- The admin login URL: `https://{domain}/?auto_login` (or the `admin_login_url` returned by `provision-site`)
-- Whether Jetpack is connected (from `connect-jetpack` output, if called)
-- Reminder: if rsyncing Jetpack plugin code, set `define('JETPACK_AUTOLOAD_DEV', true);` in a mu-plugin on the remote site
-- If SSH_OK was false: remind the user to set up SSH keys for a smoother experience next time
-- For brand-new sites: note the site expires after 7 days of inactivity
+After sync (or after site creation for `provision-only`), show:
+- The admin login URL: `https://{domain}/?auto_login` (or the `admin_login_url` returned by `provision-site`).
+- Whether Jetpack is connected (from `connect-jetpack` output, if called).
+- For `rsync` Jetpack-plugin flows: remind the user to set `define('JETPACK_AUTOLOAD_DEV', true);` in a mu-plugin on the remote site.
+- If `SSH_OK` was false: remind the user to set up SSH keys for a smoother experience next time.
+- For brand-new sites: note the site expires after 7 days of inactivity.
+
+Do not echo back any site password in the final report, even if one was used for rsync.
