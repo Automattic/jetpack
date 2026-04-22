@@ -41,9 +41,9 @@ register_block_pattern(
 <h2 class="wp-block-heading" style="font-size:1.25rem">' . esc_html__( 'Filter options', 'jetpack-search-pkg' ) . '</h2>
 <!-- /wp:heading -->
 <!-- wp:jetpack/active-filters /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category","label":"Category"} /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag","label":"Tag"} /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"post_type","label":"Post Type"} /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
+<!-- wp:jetpack/filter-checkbox {"filterType":"post_type"} /-->
 </div>
 <!-- /wp:column -->
 
