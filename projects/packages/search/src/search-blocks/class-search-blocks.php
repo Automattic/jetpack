@@ -31,11 +31,6 @@ class Search_Blocks {
 	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
 
 	/**
-	 * Plugin namespace used in the template ID.
-	 */
-	const TEMPLATE_NAMESPACE = 'jetpack-search';
-
-	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * The caller (Initializer) is responsible for gating this behind the
@@ -297,13 +292,36 @@ class Search_Blocks {
 			return;
 		}
 		register_block_template(
-			self::TEMPLATE_NAMESPACE . '//' . self::SEARCH_TEMPLATE_SLUG,
+			static::get_parent_plugin_slug() . '//' . self::SEARCH_TEMPLATE_SLUG,
 			array(
 				'title'       => __( 'Jetpack Search Results', 'jetpack-search-pkg' ),
 				'description' => __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
 				'content'     => static::get_search_template_content(),
 			)
 		);
+	}
+
+	/**
+	 * Directory slug of the plugin that loaded this package.
+	 *
+	 * The Site Editor labels plugin-registered templates by looking up an
+	 * active plugin whose directory slug matches the namespace portion of
+	 * the registered template name. Hardcoding a namespace here would only
+	 * resolve to a plugin name under one of the hosts — the package is
+	 * shipped by both the standalone Jetpack Search plugin (`jetpack-search`)
+	 * and the Jetpack monolith (`jetpack`). Deriving the slug from the
+	 * package's installed path lets both hosts get the correct label
+	 * ("Jetpack Search" vs. "Jetpack") without duplicating configuration.
+	 *
+	 * @return string
+	 */
+	protected static function get_parent_plugin_slug(): string {
+		if ( ! class_exists( Package::class ) || ! function_exists( 'plugin_basename' ) ) {
+			return 'jetpack-search';
+		}
+		$relative = plugin_basename( rtrim( Package::get_installed_path(), '/\\' ) );
+		$slug     = strtok( $relative, '/' );
+		return false === $slug ? 'jetpack-search' : $slug;
 	}
 
 	/**
