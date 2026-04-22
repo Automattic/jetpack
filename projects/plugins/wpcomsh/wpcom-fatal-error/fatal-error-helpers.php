@@ -182,3 +182,39 @@ function wpcomsh_fatal_build_recovery_url() {
 		return '';
 	}
 }
+
+/**
+ * Collect environment details (WordPress / PHP / active theme / server)
+ * shown in the fatal-error screen's Environment section and reused by the
+ * recovery-mode email. Helps support triage without making the recipient
+ * hunt for them.
+ *
+ * Each entry is a ready-to-print "Label: value" line; the template renders
+ * them inside a <pre>, so line-for-line layout matters.
+ *
+ * @return string[]
+ */
+function wpcomsh_fatal_get_environment_lines() {
+	global $wp_version;
+
+	$lines = array();
+
+	$lines[] = sprintf( 'WordPress: %s', isset( $wp_version ) ? (string) $wp_version : 'unknown' );
+	$lines[] = sprintf( 'PHP: %s', PHP_VERSION );
+
+	try {
+		$theme = wp_get_theme();
+		if ( $theme && $theme->exists() ) {
+			$lines[] = sprintf( 'Theme: %s %s', (string) $theme->get( 'Name' ), (string) $theme->get( 'Version' ) );
+		}
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit theme on failure.
+		// Fall through.
+	}
+
+	$server = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( (string) wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
+	if ( '' !== $server ) {
+		$lines[] = sprintf( 'Server: %s', $server );
+	}
+
+	return $lines;
+}

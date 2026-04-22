@@ -59,7 +59,7 @@ function wpcomsh_fatal_load_textdomain() {
  * @param array $error Error details from WP_Fatal_Error_Handler.
  * @return array Associative array with keys: is_admin (bool),
  *     plugin (array|null), error_message (string), deactivate_form (array|null),
- *     recovery_url (string), support_url (string).
+ *     recovery_url (string), support_url (string), environment (string[]).
  */
 function wpcomsh_fatal_build_render_context( $error ) {
 	$user_id  = wpcomsh_fatal_current_user_id();
@@ -81,6 +81,7 @@ function wpcomsh_fatal_build_render_context( $error ) {
 		'deactivate_form' => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
 		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_url() : '',
 		'support_url'     => 'https://wordpress.com/help/contact',
+		'environment'     => $is_admin ? wpcomsh_fatal_get_environment_lines() : array(),
 	);
 }
 
@@ -141,7 +142,7 @@ function wpcomsh_fatal_render_admin_view( $ctx ) {
 	<p><?php esc_html_e( 'There has been a critical error on this website. Here is what we know and what you can do next.', 'wpcomsh' ); ?></p>
 
 	<?php if ( $ctx['plugin'] ) : ?>
-		<h3 class="wpcomsh-fatal-subhead"><?php esc_html_e( 'Likely cause', 'wpcomsh' ); ?></h3>
+		<h3 class="wpcomsh-fatal-subhead"><?php esc_html_e( 'Suspected plugin', 'wpcomsh' ); ?></h3>
 		<?php wpcomsh_fatal_render_cause_notice( $ctx['plugin'], $ctx['deactivate_form'] ); ?>
 	<?php endif; ?>
 
@@ -152,6 +153,13 @@ function wpcomsh_fatal_render_admin_view( $ctx ) {
 		<details class="wpcomsh-fatal-details">
 			<summary><?php esc_html_e( 'Error details', 'wpcomsh' ); ?></summary>
 			<pre><?php echo esc_html( $ctx['error_message'] ); ?></pre>
+		</details>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $ctx['environment'] ) ) : ?>
+		<details class="wpcomsh-fatal-details">
+			<summary><?php esc_html_e( 'Environment', 'wpcomsh' ); ?></summary>
+			<pre><?php echo esc_html( implode( "\n", $ctx['environment'] ) ); ?></pre>
 		</details>
 		<?php
 	endif;
