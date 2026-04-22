@@ -205,4 +205,46 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test extends Jetpack_REST_Te
 
 		$this->assertFalse( $controller->check_post_for_spam_public( get_post( $post_id ) ) );
 	}
+
+	/**
+	 * Test that a 'false' body from Akismet means not spam.
+	 */
+	public function test_check_post_for_spam_returns_false_on_ham() {
+		$post_id = self::factory()->post->create(
+			array( 'post_author' => (string) static::$user_id_editor )
+		);
+
+		$controller                        = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$controller->mock_akismet_response = array( array(), 'false' );
+
+		$this->assertFalse( $controller->check_post_for_spam_public( get_post( $post_id ) ) );
+	}
+
+	/**
+	 * Test that a 'true' body from Akismet means spam.
+	 */
+	public function test_check_post_for_spam_returns_true_on_spam() {
+		$post_id = self::factory()->post->create(
+			array( 'post_author' => (string) static::$user_id_editor )
+		);
+
+		$controller                        = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$controller->mock_akismet_response = array( array(), 'true' );
+
+		$this->assertTrue( $controller->check_post_for_spam_public( get_post( $post_id ) ) );
+	}
+
+	/**
+	 * Test that a malformed or empty Akismet response leaves the send unblocked.
+	 */
+	public function test_check_post_for_spam_returns_false_on_malformed_response() {
+		$post_id = self::factory()->post->create(
+			array( 'post_author' => (string) static::$user_id_editor )
+		);
+
+		$controller                        = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test_Stub();
+		$controller->mock_akismet_response = array( array(), '' ); // empty body — nothing to parse
+
+		$this->assertFalse( $controller->check_post_for_spam_public( get_post( $post_id ) ) );
+	}
 }
