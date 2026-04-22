@@ -110,4 +110,52 @@ class Search_Blocks_Test extends TestCase {
 		$input = array( 'category' => array( 'news' ) );
 		$this->assertSame( $input, Search_Blocks::gate_active_filters( $input, array() ) );
 	}
+
+	/**
+	 * When the URL carries only unregistered array params (e.g. from another
+	 * plugin) and no search query, gating drops them — and build_seed_state
+	 * must recompute isLoading so the JS store doesn't leave the loading
+	 * spinner stuck forever (JS initialize() only fires a search when
+	 * searchQuery or hasActiveFilters is truthy).
+	 */
+	public function test_build_seed_state_recomputes_is_loading_after_gating() {
+		$original_get   = $_GET;
+		$original_query = isset( $GLOBALS['wp_query'] ) ? $GLOBALS['wp_query'] : null;
+		$_GET           = array( 'foo' => array( 'bar' ) );
+		// Reset the WP_Query global so `get_search_query()` can't leak an `s`
+		// value from an earlier test and make isLoading look stuck on its own.
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => '' ) );
+		try {
+			$state = Search_Blocks::build_seed_state(
+				array( 'category' => array( 'filterKey' => 'category' ) )
+			);
+			$this->assertSame( '', $state['searchQuery'] );
+			$this->assertSame( array(), $state['activeFilters'] );
+			$this->assertFalse( $state['isLoading'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * A URL carrying a registered filter must leave isLoading=true so the
+	 * JS store shows the spinner until the first fetch resolves.
+	 */
+	public function test_build_seed_state_keeps_is_loading_for_registered_filter() {
+		$original_get        = $_GET;
+		$original_query      = isset( $GLOBALS['wp_query'] ) ? $GLOBALS['wp_query'] : null;
+		$_GET                = array( 'category' => array( 'news' ) );
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => '' ) );
+		try {
+			$state = Search_Blocks::build_seed_state(
+				array( 'category' => array( 'filterKey' => 'category' ) )
+			);
+			$this->assertSame( array( 'category' => array( 'news' ) ), $state['activeFilters'] );
+			$this->assertTrue( $state['isLoading'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
 }

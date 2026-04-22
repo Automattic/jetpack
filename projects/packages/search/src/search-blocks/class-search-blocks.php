@@ -222,13 +222,37 @@ class Search_Blocks {
 		if ( ! function_exists( 'wp_interactivity_state' ) ) {
 			return;
 		}
-		$initial                  = static::build_initial_state();
-		$initial['filterConfigs'] = static::collect_filter_configs_from_post();
-		$initial['activeFilters'] = static::gate_active_filters(
-			$initial['activeFilters'] ?? array(),
-			$initial['filterConfigs']
+		wp_interactivity_state(
+			'jetpack-search',
+			static::build_seed_state( static::collect_filter_configs_from_post() )
 		);
-		wp_interactivity_state( 'jetpack-search', $initial );
+	}
+
+	/**
+	 * Compose the final seeded state for `wp_interactivity_state()`. Takes
+	 * $filter_configs as an argument so tests can exercise the full gating +
+	 * isLoading recomputation path without a WP post lookup.
+	 *
+	 * @param array<string, array<string, mixed>> $filter_configs Map of filter
+	 *   configs collected from the current post (or injected by tests).
+	 * @return array<string, mixed>
+	 */
+	public static function build_seed_state( array $filter_configs ): array {
+		$state                  = static::build_initial_state();
+		$state['filterConfigs'] = $filter_configs;
+		$state['activeFilters'] = static::gate_active_filters(
+			$state['activeFilters'] ?? array(),
+			$filter_configs
+		);
+		// Recompute isLoading from the *post-gating* state. build_initial_state()
+		// derives it from the raw URL params, so a URL that carried only
+		// unregistered `?foo[]=bar` params (e.g. from another plugin) would
+		// leave isLoading=true after gating emptied activeFilters — and since
+		// the JS `initialize()` only fires a search when `searchQuery` or
+		// `hasActiveFilters` is truthy, neither would fire, the spinner would
+		// never clear.
+		$state['isLoading'] = '' !== $state['searchQuery'] || ! empty( $state['activeFilters'] );
+		return $state;
 	}
 
 	/**
