@@ -85,15 +85,17 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Derived load-more wrapper visibility. Only checks `pageHandle`
-		 * (whether another page is available) — the button and spinner
-		 * inside handle their own loading-state visibility, which lets
-		 * the spinner remain visible while `isLoadingMore` is true.
+		 * Derived load-more wrapper visibility. Hidden while the first-page
+		 * fetch is in flight so a stale `pageHandle` from the previous query
+		 * doesn't flash a "Load more" button against results that no longer
+		 * match. `isLoadingMore` (paginating the current query) stays
+		 * orthogonal — the wrapper stays visible and its children swap the
+		 * button for a spinner via their own bindings.
 		 *
 		 * @return {boolean} True when the load-more wrapper should show.
 		 */
 		get showLoadMore() {
-			return !! state.pageHandle;
+			return !! state.pageHandle && ! state.isLoading;
 		},
 	},
 
