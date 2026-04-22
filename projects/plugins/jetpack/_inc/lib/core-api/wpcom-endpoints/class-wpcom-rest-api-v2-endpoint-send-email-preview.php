@@ -220,6 +220,14 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 			return new WP_Error( 'unverified', __( 'Your email address must be verified.', 'jetpack' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
+		if ( $this->check_post_for_spam( $post ) ) {
+			return new WP_Error(
+				'email_preview_not_sent',
+				__( 'Email preview could not be sent.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
 		$current_user = wp_get_current_user();
 		$email        = $current_user->user_email;
 
