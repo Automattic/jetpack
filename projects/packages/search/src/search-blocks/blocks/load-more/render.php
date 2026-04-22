@@ -17,7 +17,7 @@ namespace Automattic\Jetpack\Search;
 	<button
 		class="jetpack-search-load-more__button"
 		data-wp-on--click="actions.loadMore"
-		data-wp-bind--disabled="state.isLoadingMore"
+		data-wp-bind--hidden="state.isLoadingMore"
 	>
 		<?php esc_html_e( 'Load more results', 'jetpack-search-pkg' ); ?>
 	</button>
