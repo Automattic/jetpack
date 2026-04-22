@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
@@ -974,7 +975,7 @@ class Helper {
 
 		// AI Answers: embed site-level hourly HMAC token for anonymous visitors.
 		if ( AI_Answers::is_enabled() ) {
-			$blog_token = ( new \Automattic\Jetpack\Connection\Tokens() )->get_access_token();
+			$blog_token = ( new Tokens() )->get_access_token();
 			if ( $blog_token && ! empty( $blog_token->secret ) ) {
 				$site_id                    = \Jetpack_Options::get_option( 'id', 0 );
 				$options['aiAnswersToken']  = hash_hmac(

@@ -73,6 +73,7 @@ class AI_Answers_Test extends Search_TestCase {
 		// Feature disabled by default.
 		$state = Helper::generate_initial_javascript_state();
 		$this->assertArrayNotHasKey( 'aiAnswersToken', $state );
+		$this->assertArrayNotHasKey( 'aiAnswersSiteId', $state );
 	}
 
 	public function test_hmac_token_in_state_when_enabled() {
