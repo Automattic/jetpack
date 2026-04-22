@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: load-more block now exposes a buttonLabel attribute with an editor inspector text input; render.php falls back to the translated default when empty.
