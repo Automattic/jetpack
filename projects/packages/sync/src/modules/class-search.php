@@ -51,6 +51,9 @@ class Search extends Module {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_search_post_meta_whitelist' ), 10 );
 		// Add options
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_search_options_whitelist' ), 10 );
+		// AI Answers CPTs and post meta (gated by feature flag).
+		add_filter( 'jetpack_sync_post_types_whitelist', array( $this, 'add_ai_answer_post_types' ), 10 );
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_ai_answer_post_meta' ), 10 );
 	}
 
 	/**
@@ -1806,6 +1809,36 @@ class Search extends Module {
 	 */
 	public function add_search_options_whitelist( $list ) {
 		return array_merge( $list, static::get_all_option_keys() );
+	}
+
+	/**
+	 * Add AI Answer CPTs to the post types sync whitelist when AI Answers is enabled.
+	 *
+	 * @param array $list Existing post types whitelist.
+	 * @return array Updated whitelist.
+	 */
+	public function add_ai_answer_post_types( $list ) {
+		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', false ) ) {
+			return $list;
+		}
+		$list[] = 'jp_search_behavior';
+		$list[] = 'jetpack_search_topic';
+		return $list;
+	}
+
+	/**
+	 * Add AI topic postmeta keys to the sync whitelist when AI Answers is enabled.
+	 *
+	 * @param array $list Existing postmeta whitelist.
+	 * @return array Updated whitelist.
+	 */
+	public function add_ai_answer_post_meta( $list ) {
+		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', false ) ) {
+			return $list;
+		}
+		$list[] = '_jstopic_keywords';
+		$list[] = '_jstopic_url';
+		return $list;
 	}
 
 	//
