@@ -437,79 +437,27 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
  * @since 20121125
  */
 function wpcomsh_make_content_clickable( $content ) {
-	// Require WP_HTML_Tag_Processor with next_token() support (WordPress 6.5+).
-	if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+	// Fast path: no URL-shaped substring, no work to do. Avoids loading the
+	// linkifier and walking the tokenizer for the common case.
+	if ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) {
+		return $content;
+	}
+
+	// next_token() on WP_HTML_Tag_Processor was added in WordPress 6.5.
+	if ( ! method_exists( 'WP_HTML_Tag_Processor', 'next_token' ) ) {
 		return $content;
 	}
 
 	require_once __DIR__ . '/class-wpcomsh-html-linkifier.php';
 
-	$processor       = new Wpcomsh_HTML_Linkifier( $content );
-	$output          = '';
-	$last_offset     = 0;
-	$protected_depth = 0; // Tracks nesting inside tags where URLs should remain as plain text (e.g., <a>, <pre>, <code>). When > 0, text nodes are copied as-is.
-	$skip_div_depth  = 0; // Tracks div nesting inside skip-make-clickable contexts. When > 0, text nodes are copied as-is.
-
-	// SCRIPT, STYLE, and TEXTAREA are raw text elements — the tokenizer bundles them
-	// as single #tag tokens (opening + content + closing), so their content is never
-	// exposed as #text nodes and they don't need protection here.
-	$protected_tags = array( 'A', 'PRE', 'CODE' );
-
-	while ( $processor->next_token() ) {
-		$token_type = $processor->get_token_type();
-		$position   = $processor->get_token_position();
-
-		if ( null === $position ) {
-			return $content;
+	return Wpcomsh_HTML_Linkifier::modify_raw_text_nodes(
+		$content,
+		static function ( $raw_text ) {
+			return 1 === preg_match( '~https?://|www\.~', $raw_text )
+				? make_clickable( $raw_text )
+				: $raw_text;
 		}
-
-		list( $start, $length ) = $position;
-
-		// Copy any content between the previous token and this one.
-		if ( $start > $last_offset ) {
-			$output .= substr( $content, $last_offset, $start - $last_offset );
-		}
-
-		if ( '#tag' === $token_type ) {
-			$tag_name  = $processor->get_tag();
-			$is_closer = $processor->is_tag_closer();
-
-			if ( ! $is_closer ) {
-				if ( in_array( $tag_name, $protected_tags, true ) ) {
-					++$protected_depth;
-				} elseif ( 'DIV' === $tag_name ) {
-					if ( $processor->has_class( 'skip-make-clickable' ) || $skip_div_depth > 0 ) {
-						++$skip_div_depth;
-					}
-				}
-			} elseif ( $protected_depth > 0 && in_array( $tag_name, $protected_tags, true ) ) {
-				--$protected_depth;
-			} elseif ( $skip_div_depth > 0 && 'DIV' === $tag_name ) {
-				--$skip_div_depth;
-			}
-
-			// Copy tag HTML as-is.
-			$output .= substr( $content, $start, $length );
-		} elseif ( '#text' === $token_type && 0 === $protected_depth && 0 === $skip_div_depth ) {
-			// Unprotected text node - linkify URLs if present.
-			$raw_text = substr( $content, $start, $length );
-
-			if ( false !== strpos( $raw_text, 'http://' ) ||
-				false !== strpos( $raw_text, 'https://' ) ||
-				false !== strpos( $raw_text, 'www.' ) ) {
-				$output .= make_clickable( $raw_text );
-			} else {
-				$output .= $raw_text;
-			}
-		} else {
-			// Protected text, comments, doctypes, etc. - copy as-is.
-			$output .= substr( $content, $start, $length );
-		}
-
-		$last_offset = $start + $length;
-	}
-
-	return $output;
+	);
 }
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );

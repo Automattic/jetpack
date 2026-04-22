@@ -1,42 +1,85 @@
 <?php
 /**
- * Wpcomsh HTML Linkifier
- *
- * Extends WP_HTML_Tag_Processor to expose token byte positions via bookmarks.
+ * Wpcomsh HTML Linkifier.
  *
  * @package wpcomsh
  */
 
 /**
- * Extends WP_HTML_Tag_Processor to expose current token byte positions.
+ * Walks an HTML document and applies a caller-provided transformation to each
+ * unprotected text node, returning the document with those updates applied.
  *
- * The token position fields (token_starts_at, token_length) are private in
- * WP_HTML_Tag_Processor. This subclass uses the protected bookmarks property
- * to expose the current token's start offset and length.
+ * Subclassing WP_HTML_Tag_Processor gives access to the protected `bookmarks`
+ * and `lexical_updates` properties, which lets the HTML-crawling logic live in
+ * one place and lets replacements be enqueued as byte-precise edits instead of
+ * copying the entire document into PHP strings as it's walked.
+ *
+ * SCRIPT, STYLE, and TEXTAREA are raw text elements that the tokenizer bundles
+ * as single `#tag` tokens, so their contents never surface as `#text` nodes and
+ * don't need depth tracking here. A, PRE, and CODE are tracked explicitly, and
+ * DIV.skip-make-clickable subtrees are skipped by depth.
  */
 class Wpcomsh_HTML_Linkifier extends WP_HTML_Tag_Processor {
 
-	/**
-	 * Get the byte offset and length of the current token in the HTML string.
-	 *
-	 * Uses set_bookmark() to capture the position, reads it from the protected
-	 * bookmarks array, then releases the bookmark.
-	 *
-	 * @return array{0: int, 1: int}|null Array of [start, length] or null on failure.
-	 */
-	public function get_token_position() {
-		$bookmark_name = '_wpcomsh_pos';
+	private const PROTECTED_TAGS = array( 'A', 'PRE', 'CODE' );
 
-		if ( ! $this->set_bookmark( $bookmark_name ) ) {
-			return null;
+	/**
+	 * Applies $updater to every unprotected `#text` node in $html.
+	 *
+	 * @param string   $html    HTML document to walk.
+	 * @param callable $updater Receives the raw text of an unprotected text
+	 *                          node and returns its replacement.
+	 * @return string Updated HTML.
+	 */
+	public static function modify_raw_text_nodes( string $html, callable $updater ): string {
+		$scanner         = new self( $html );
+		$replacements    = array();
+		$protected_depth = 0;
+		$skip_div_depth  = 0;
+
+		while ( $scanner->next_token() ) {
+			$token_type = $scanner->get_token_type();
+
+			if ( '#tag' === $token_type ) {
+				$tag_name = $scanner->get_tag();
+				if ( $scanner->is_tag_closer() ) {
+					if ( $protected_depth > 0 && in_array( $tag_name, self::PROTECTED_TAGS, true ) ) {
+						--$protected_depth;
+					} elseif ( $skip_div_depth > 0 && 'DIV' === $tag_name ) {
+						--$skip_div_depth;
+					}
+				} elseif ( in_array( $tag_name, self::PROTECTED_TAGS, true ) ) {
+					++$protected_depth;
+				} elseif ( 'DIV' === $tag_name && ( $skip_div_depth > 0 || $scanner->has_class( 'skip-make-clickable' ) ) ) {
+					++$skip_div_depth;
+				}
+				continue;
+			}
+
+			if ( '#text' !== $token_type || $protected_depth > 0 || $skip_div_depth > 0 ) {
+				continue;
+			}
+
+			if ( ! $scanner->set_bookmark( 'here' ) ) {
+				continue;
+			}
+			$here = $scanner->bookmarks['here'];
+			$scanner->release_bookmark( 'here' );
+
+			$raw_text    = substr( $html, $here->start, $here->length );
+			$transformed = $updater( $raw_text );
+
+			if ( $transformed !== $raw_text ) {
+				$replacements[] = new WP_HTML_Text_Replacement( $here->start, $here->length, $transformed );
+			}
 		}
 
-		$bookmark = $this->bookmarks[ $bookmark_name ];
-		$position = array( $bookmark->start, $bookmark->length );
+		if ( empty( $replacements ) ) {
+			return $html;
+		}
 
-		// Release to stay under MAX_BOOKMARKS limit defined in WP_HTML_Tag_Processor.
-		$this->release_bookmark( $bookmark_name );
-
-		return $position;
+		$applier                  = new self( $html );
+		$applier->lexical_updates = $replacements;
+		return $applier->get_updated_html();
 	}
 }
