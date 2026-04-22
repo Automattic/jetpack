@@ -630,42 +630,25 @@ class Help_Center {
 			return;
 		}
 
-		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
-		if ( ! is_user_logged_in() ) {
-			if ( ! $this->is_support_site ) {
-				return;
-			}
-
-			$experiment_variation = null;
-			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
-				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v3' );
-			} else {
-				log2logstash(
-					array(
-						'feature' => 'help-center',
-						'message' => 'ExPlat\assign_maybe_anon_user function is unavailable',
-					)
-				);
-			}
-			if ( $experiment_variation !== 'treatment' ) {
-				return;
-			}
+		// Do not load Help Center for logged-out users if we are not on support sites.
+		if ( ! is_user_logged_in() && ! $this->is_support_site ) {
+			return;
 		}
 
+		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
+
 		if ( $is_next_admin ) {
-			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			$variant = 'ciab-admin' . $suffix;
 		} elseif ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
 				$variant = 'logged-out';
 			} else {
-				$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+				$variant = ( $this->is_block_editor() ? 'gutenberg' : 'wp-admin' ) . $suffix;
 			}
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() ) {
-			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
-			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			$variant = ( $this->is_block_editor() ? 'gutenberg' : 'wp-admin' ) . $suffix;
 		}
 
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';

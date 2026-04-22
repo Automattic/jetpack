@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix HTML entities not being decoded in form title on pre-publish panel

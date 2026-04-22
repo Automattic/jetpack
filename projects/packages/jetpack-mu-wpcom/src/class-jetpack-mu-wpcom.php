@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.9.0';
+	const PACKAGE_VERSION = '6.10.1';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -37,6 +37,9 @@ class Jetpack_Mu_Wpcom {
 		// Load features that only apply to WordPress.com-connected users.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ) );
+
+		// Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_sites_features' ) );
 
 		// Load ETK features flag to turn off the features in the ETK plugin.
 		// It needs higher priority than the ETK plugin.
@@ -83,6 +86,9 @@ class Jetpack_Mu_Wpcom {
 
 		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via P2.
 		add_filter( 'jetpack_public_js_script_data', array( __CLASS__, 'add_jetpack_script_data_for_p2' ), 10, 1 );
+
+		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -282,6 +288,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
+		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
@@ -324,7 +331,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load features that only apply to WordPress.com users.
+	 * Load features that only apply to WordPress.com-connected users.
 	 */
 	public static function load_wpcom_user_features() {
 		// To avoid potential collisions with ETK.
@@ -342,6 +349,7 @@ class Jetpack_Mu_Wpcom {
 		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
+		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -350,6 +358,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
+		require_once __DIR__ . '/features/wpcom-colourlovers-deprecate/wpcom-colourlovers-deprecate.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -365,9 +374,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
-		// Enable newsletter settings for sites with the newsletter-package-202603 sticker.
-		add_filter( 'jetpack_wp_admin_newsletter_settings_enabled', 'wpcom_maybe_enable_newsletter_settings' );
-
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
 		\Automattic\Jetpack\Newsletter\Settings::init();
@@ -377,6 +383,18 @@ class Jetpack_Mu_Wpcom {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
 		}
+	}
+
+	/**
+	 * Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+	 */
+	public static function load_wpcom_sites_features() {
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
+		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
 	}
 
 	/**
@@ -434,7 +452,6 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
-		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
 		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';
@@ -720,6 +737,20 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
+	}
+
+	/**
+	 * Populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function set_wpcom_blog_id_script_data( $data ) {
+		$blog_id = get_wpcom_blog_id();
+		if ( $blog_id ) {
+			$data['site']['wpcom']['blog_id'] = $blog_id;
+		}
+		return $data;
 	}
 
 	/**

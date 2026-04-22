@@ -25,6 +25,7 @@ The ConversionFunnelChart component provides a specialized visualization for tra
 <Source
 	language="tsx"
 	code={ `import { ConversionFunnelChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 
 	const funnelData = [
 		{ id: 'sessions', label: 'Sessions', rate: 100, count: 10000 },
@@ -244,18 +245,6 @@ Use the `style` prop or `className` prop to customize the chart container:
 			borderRadius: '8px'
 		}}
 	/>` }
-/>
-
-### CSS Custom Properties
-
-The component exposes CSS custom properties for font customization:
-
-<Source
-	language="css"
-	code={ `.my-custom-funnel {
-		--funnel-font-family: "Inter", sans-serif;
-		--step-font-family: "Inter", sans-serif;
-	}` }
 />
 
 ## Theming Integration

@@ -4,8 +4,6 @@ import {
 	javascriptFiles,
 	typescriptFiles,
 } from 'jetpack-js-tools/eslintrc/base.mjs';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 
 export default defineConfig(
 	makeBaseConfig( import.meta.url ),
@@ -13,7 +11,7 @@ export default defineConfig(
 		files: typescriptFiles,
 		languageOptions: {
 			parserOptions: {
-				tsconfigRootDir: path.dirname( fileURLToPath( import.meta.url ) ),
+				tsconfigRootDir: import.meta.dirname,
 				project: [ './tsconfig.json', './tsconfig.eslint.json' ],
 			},
 		},

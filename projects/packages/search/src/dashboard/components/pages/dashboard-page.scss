@@ -1,13 +1,7 @@
 @use "scss/variables";
 @use "scss/rna-styles";
 
-#screen-meta,
-#screen-meta-links {
-	display: none;
-}
-
 #jp-search-dashboard {
-	background-color: variables.$white;
 	color: variables.$black;
 	font-size: 16px;
 	// 32px = wpadminbar height
@@ -19,6 +13,7 @@
 	}
 
 	.jp-search-dashboard-page {
+		background-color: variables.$white;
 		width: 100%;
 	}
 
@@ -53,12 +48,7 @@
 
 	.jp-search-dashboard-bottom {
 		background-color: variables.$white;
-	}
-
-	.jp-search-dashboard-footer {
-		padding: 2.5em 0;
-
-		background-color: variables.$white;
+		padding-bottom: 2.5em;
 	}
 }
 

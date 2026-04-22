@@ -11,6 +11,7 @@ import {
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -26,6 +27,37 @@ const getDisplayName = ( response: FormResponse ) => {
 	return decodeEntities( author_name || author_email || author_url || ip );
 };
 
+/**
+ * Render the contents of the Source cell for a feedback response.
+ *
+ * Test responses (submitted from form preview) link to the preview URL when
+ * one is available; otherwise they fall through to a plain "Form Preview"
+ * label. Real responses link to the page that hosted the form.
+ *
+ * @param props          - Component props.
+ * @param props.response - The feedback response.
+ * @return Source cell content.
+ */
+const SourceCell = ( { response }: { response: FormResponse } ) => {
+	if ( response.is_test ) {
+		const label = __( 'Form preview', 'jetpack-forms' );
+		if ( response.preview_url ) {
+			return <ExternalLink href={ response.preview_url }>{ label }</ExternalLink>;
+		}
+		return <>{ label }</>;
+	}
+
+	if ( response.entry_permalink ) {
+		return (
+			<ExternalLink href={ response.entry_permalink }>
+				{ decodeEntities( response.entry_title ) || getPath( response ) }
+			</ExternalLink>
+		);
+	}
+
+	return <>{ decodeEntities( response.entry_title ) }</>;
+};
+
 export type ResponseMetaProps = {
 	response: FormResponse;
 };
@@ -38,14 +70,26 @@ export type ResponseMetaProps = {
  * @return {import('react').JSX.Element} The response meta component.
  */
 const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.Element => {
+	const dateSettings = getDateSettings();
 	const displayName = getDisplayName( response );
 	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
 	const gravatarEmail = response.author_email || response.ip;
-	const defaultImage = response.author_name || response.author_email ? 'initials' : 'mp';
+	const gravatarDisplayName = response.author_name
+		? decodeEntities( response.author_name )
+		: response.author_email?.split( '@' )[ 0 ];
+	const defaultImage = gravatarDisplayName ? 'initials' : 'mp';
 
 	const responseAuthorEmailParts = response.author_email?.split( '@' ) ?? [];
 
-	const dateSettings = getDateSettings();
+	// Logged-in user row content: either shows display name and ID, username and ID, or just the ID.
+	const loggedInUser = response?.logged_in_user?.id ? response.logged_in_user : null;
+	const loggedInUserName = loggedInUser?.display_name || loggedInUser?.username || null;
+	let loggedInUserDisplay = null;
+	if ( loggedInUser ) {
+		loggedInUserDisplay = loggedInUserName
+			? `${ loggedInUserName } (#${ loggedInUser.id })`
+			: `#${ loggedInUser.id }`;
+	}
 
 	return (
 		<div className="jp-forms__inbox-response-meta">
@@ -53,18 +97,25 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 				<Gravatar
 					email={ gravatarEmail }
 					defaultImage={ defaultImage }
-					displayName={ displayName }
+					displayName={ gravatarDisplayName }
 					key={ gravatarEmail }
 				/>
 				<VStack spacing="0" className="jp-forms__inbox-response-meta-from">
-					<Text
-						className="jp-forms__inbox-response-meta-from-name"
-						lineHeight="20px"
-						size="15px"
-						weight="600"
-					>
-						{ displayName }
-					</Text>
+					<HStack alignment="center" justify="start" spacing="2">
+						<Text
+							className="jp-forms__inbox-response-meta-from-name"
+							lineHeight="20px"
+							size="15px"
+							weight="600"
+						>
+							{ displayName }
+						</Text>
+						{ response.is_test && (
+							<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
+								{ __( 'Test', 'jetpack-forms' ) }
+							</Badge>
+						) }
+					</HStack>
 					{ response.author_email && displayName !== response.author_email && (
 						<HStack
 							alignment="center"
@@ -96,12 +147,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 					<tr>
 						<th>{ __( 'Source:', 'jetpack-forms' ) }</th>
 						<td>
-							{ response.entry_permalink && (
-								<ExternalLink href={ response.entry_permalink }>
-									{ decodeEntities( response.entry_title ) || getPath( response ) }
-								</ExternalLink>
-							) }
-							{ ! response.entry_permalink && decodeEntities( response.entry_title ) }
+							<SourceCell response={ response } />
 						</td>
 					</tr>
 					<tr>
@@ -124,6 +170,12 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 						<tr>
 							<th>{ __( 'Browser:', 'jetpack-forms' ) }&nbsp;</th>
 							<td>{ response.browser }</td>
+						</tr>
+					) }
+					{ loggedInUserDisplay && (
+						<tr>
+							<th>{ __( 'Logged-in user:', 'jetpack-forms' ) }&nbsp;</th>
+							<td>{ loggedInUserDisplay }</td>
 						</tr>
 					) }
 				</tbody>

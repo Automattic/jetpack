@@ -209,13 +209,14 @@ class Verbum_Comments {
 		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
 		$hovercard_i18n = array(
-			'Edit your profile →'    => __( 'Edit your profile →', 'jetpack-mu-wpcom' ),
-			'View profile →'         => __( 'View profile →', 'jetpack-mu-wpcom' ),
-			'Contact'                => __( 'Contact', 'jetpack-mu-wpcom' ),
-			'Send money'             => __( 'Send money', 'jetpack-mu-wpcom' ),
-			'Profile not found.'     => __( 'Profile not found.', 'jetpack-mu-wpcom' ),
-			'Too Many Requests.'     => __( 'Too Many Requests.', 'jetpack-mu-wpcom' ),
-			'Internal Server Error.' => __( 'Internal Server Error.', 'jetpack-mu-wpcom' ),
+			'Edit your profile →'      => __( 'Edit your profile →', 'jetpack-mu-wpcom' ),
+			'View profile →'           => __( 'View profile →', 'jetpack-mu-wpcom' ),
+			'Contact'                  => __( 'Contact', 'jetpack-mu-wpcom' ),
+			'Send money'               => __( 'Send money', 'jetpack-mu-wpcom' ),
+			'Gravatar not found.'      => __( 'Gravatar not found.', 'jetpack-mu-wpcom' ),
+			'This profile is private.' => __( 'This profile is private.', 'jetpack-mu-wpcom' ),
+			'Too Many Requests.'       => __( 'Too Many Requests.', 'jetpack-mu-wpcom' ),
+			'Internal Server Error.'   => __( 'Internal Server Error.', 'jetpack-mu-wpcom' ),
 			'Sorry, we are unable to load this Gravatar profile.' => __( 'Sorry, we are unable to load this Gravatar profile.', 'jetpack-mu-wpcom' ),
 		);
 

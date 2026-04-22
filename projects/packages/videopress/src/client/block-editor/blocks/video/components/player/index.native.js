@@ -138,7 +138,7 @@ export default function Player( { isSelected, attributes } ) {
 	const loadingOverlay = (
 		<View style={ style[ 'videopress-player__overlay' ] }>
 			<View style={ loadingViewStyle }>
-				<Icon icon={ VideoPressIcon } size={ iconStyle?.size } style={ iconStyle } />
+				<Icon icon={ VideoPressIcon } size={ 100 } style={ iconStyle } />
 				<Text style={ style[ 'videopress-player__loading-text' ] }>
 					{ __( 'Loading', 'jetpack-videopress-pkg' ) }
 				</Text>

@@ -22,6 +22,7 @@ interface UseSyncedFormResult {
 	syncedAttributes: Record< string, unknown > | null;
 	syncedInnerBlocks: ParsedBlock[] | null;
 	syncedForm: JetpackForm | null;
+	errorType: 'permission_denied' | 'not_found' | null;
 }
 
 const EMPTY_FORM = { syncedAttributes: null, syncedInnerBlocks: null };
@@ -42,6 +43,24 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 		{
 			enabled: !! ref,
 		}
+	);
+
+	// Check for resolution errors to distinguish permission denied from not found
+	const resolutionError = useSelect(
+		select => {
+			if ( ! ref ) {
+				return null;
+			}
+			const store = select( coreStore ) as Record< string, ( ...args: unknown[] ) => unknown >;
+			if ( typeof store.getResolutionError !== 'function' ) {
+				return null;
+			}
+			return store.getResolutionError( 'getEntityRecord', [ 'postType', FORM_POST_TYPE, ref ] ) as {
+				status?: number;
+				data?: { status?: number };
+			} | null;
+		},
+		[ ref ]
 	);
 
 	// Get the actual pending edits object to see exactly what's being changed
@@ -134,12 +153,26 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 		};
 	}, [ pendingBlocks, record, ref ] );
 
+	// Derive error type from resolution error
+	let errorType: UseSyncedFormResult[ 'errorType' ] = null;
+	if ( ref && ! record && ! isResolving && status !== 'IDLE' ) {
+		const httpStatus =
+			( resolutionError as { status?: number } )?.status ??
+			( resolutionError as { data?: { status?: number } } )?.data?.status;
+		if ( httpStatus === 403 ) {
+			errorType = 'permission_denied';
+		} else {
+			errorType = 'not_found';
+		}
+	}
+
 	if ( ! ref ) {
 		return {
 			isLoading: false,
 			syncedAttributes: null,
 			syncedInnerBlocks: null,
 			syncedForm: null,
+			errorType: null,
 		};
 	}
 
@@ -150,6 +183,7 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 			syncedAttributes,
 			syncedInnerBlocks,
 			syncedForm: record,
+			errorType,
 		};
 	}
 
@@ -158,5 +192,6 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 		syncedAttributes,
 		syncedInnerBlocks,
 		syncedForm: record,
+		errorType,
 	};
 }

@@ -62,8 +62,16 @@ export const fixes: Fixes = {
 			return content;
 		}
 
-		// Fix encoding of <br /> tags
-		return content.replaceAll( /\s*&lt;br \/&gt;\s*/g, '<br />' );
+		// Fix encoding of <br /> tags and trim surrounding whitespace.
+		// Uses split/join instead of regex to avoid polynomial ReDoS on long whitespace runs.
+		return content
+			.split( '&lt;br /&gt;' )
+			.map( ( s, i, arr ) => {
+				if ( i < arr.length - 1 ) s = s.trimEnd();
+				if ( i > 0 ) s = s.trimStart();
+				return s;
+			} )
+			.join( '<br />' );
 	},
 	table: ( content: string, extension = false, { hasFixedLayout = false } ) => {
 		if ( ! extension ) {

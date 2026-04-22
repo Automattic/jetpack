@@ -10,7 +10,6 @@
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-use Automattic\Jetpack\Newsletter\Reader_Link;
 use Automattic\Jetpack\Status;
 
 // The $icon-color variable for admin color schemes.
@@ -31,13 +30,13 @@ const WPCOM_ADMIN_ICON_COLORS = array(
 /**
  * Adds the origin_site_id query parameter to a URL.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id instead.
+ * @deprecated 6.10.0 Use Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id instead.
  *
  * @param string $url The URL to add the query param to.
  * @return string The URL with the origin_site_id query parameter maybe added.
  */
 function maybe_add_origin_site_id_to_url( $url ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$', 'Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id' );
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-6.10.0', 'Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id' );
 	return Urls::maybe_add_origin_site_id( $url );
 }
 
@@ -276,7 +275,7 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_shopping_cart', 11 );
 
 // Add the reader icon to the admin bar before the help center icon.
-Reader_Link::init();
+add_action( 'wp_loaded', array( 'Automattic\Jetpack\Newsletter\Reader_Link', 'init' ) );
 
 /**
  * Points the "Edit Profile" and "Howdy,..." to /me if the user is not member of the blog.

@@ -1,4 +1,5 @@
 import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
@@ -65,7 +66,7 @@ const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoa
 	}, [ criticalThreatCount, fixThreatsLearnMoreUrl, fixableThreatIds, recordEvent, threatCount ] );
 
 	useEffect( () => {
-		if ( ! redBubbleAlerts?.protect_has_threats ) {
+		if ( ! redBubbleAlerts?.protect_has_threats || getScriptData().site.is_multisite ) {
 			return;
 		}
 

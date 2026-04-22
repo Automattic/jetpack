@@ -3,7 +3,7 @@
  * Jetpack Forms Email Response Template
  *
  * The template contains several placeholders:
- * %1$s is the hero text to display above the response (e.g., "Hey, a new form response just came in!")
+ * %1$s is the hero text to display above the response (can be empty or filtered)
  * %2$s is the response itself (form fields HTML).
  * %3$s was a link to the response page in wp-admin (left empty for backwards compatibility)
  * %4$s was a link to the embedded form to allow the site owner to edit it to change their email address (left empty for backwards compatibility)
@@ -14,6 +14,7 @@
  * %9$s is powered by email logo.
  * %10$s is the respondent info section (avatar, name, email).
  * %11$s is the metadata section (Date, Source, Device, IP).
+ * %12$s is an optional banner rendered at the very top of the email (e.g. test-submission notice).
  *
  * @package automattic/jetpack
  */
@@ -60,11 +61,15 @@ $template = '
 			<td class="container">
 				<div class="content">
 					<span class="preheader">%1$s</span>
+
+					<!-- Top-of-email banner (e.g. test-submission notice) -->
+					%12$s
+
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
 						<tr>
 							<td class="wrapper">
-								<!-- Header -->
-								<h1 class="email-header">%1$s</h1>
+								<!-- Header title -->
+								%1$s
 
 								<!-- Respondent Info -->
 								%10$s
@@ -326,6 +331,11 @@ $style = '<style media="all" type="text/css">
 			border-left-width: 0 !important;
 			border-radius: 0 !important;
 			border-right-width: 0 !important;
+		}
+
+		.test-submission-banner {
+			width: calc(100% - 16px) !important;
+			margin: 0 8px 24px 8px !important;
 		}
 
 		.collapse {

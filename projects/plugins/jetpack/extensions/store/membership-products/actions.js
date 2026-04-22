@@ -120,12 +120,6 @@ export const setNewsletterCategories = newsletterCategories => ( {
 	newsletterCategories,
 } );
 
-export const setNewsletterCategoriesSubscriptionsCount =
-	newsletterCategoriesSubscriptionsCount => ( {
-		type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
-		newsletterCategoriesSubscriptionsCount,
-	} );
-
 export const setPostEmailSentState = ( postId, { email_sent_at, stats_on_send } ) => ( {
 	type: 'SET_POST_EMAIL_SENT_STATE',
 	postId,

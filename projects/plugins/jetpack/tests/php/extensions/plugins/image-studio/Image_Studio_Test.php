@@ -50,6 +50,13 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	private $saved_wp_styles;
 
 	/**
+	 * Saved siteurl option for restoration in tear_down.
+	 *
+	 * @var string
+	 */
+	private $saved_siteurl;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -64,7 +71,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		// Ensure Big Sky is disabled by default so tests aren't affected by the
 		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
 		update_option( 'big_sky_enable', '0' );
-		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
+		$this->saved_screen  = $GLOBALS['current_screen'] ?? null;
+		$this->saved_siteurl = get_option( 'siteurl' );
 	}
 
 	/**
@@ -78,6 +86,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'big_sky_enable' );
+		update_option( 'siteurl', $this->saved_siteurl );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
@@ -95,7 +104,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Simulate a connected Jetpack owner so has_ai_features() returns true.
+	 * Simulate a connected Jetpack owner so has_jetpack_ai_features() returns true.
 	 *
 	 * Called in set_up() so every test starts with AI features available.
 	 * Tests that need AI features off should use disable_ai_features() instead.
@@ -247,22 +256,22 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// has_ai_features() tests
+	// has_jetpack_ai_features() tests
 	// -------------------------------------------------------------------------
 
 	/**
 	 * AI features available by default in the test environment.
 	 */
-	public function test_has_ai_features_true_by_default() {
-		$this->assertTrue( ImageStudio\has_ai_features() );
+	public function test_has_jetpack_ai_features_true_by_default() {
+		$this->assertTrue( ImageStudio\has_jetpack_ai_features() );
 	}
 
 	/**
 	 * AI features disabled via jetpack_ai_enabled kill switch.
 	 */
-	public function test_has_ai_features_false_when_ai_disabled() {
+	public function test_has_jetpack_ai_features_false_when_ai_disabled() {
 		$this->disable_ai_features();
-		$this->assertFalse( ImageStudio\has_ai_features() );
+		$this->assertFalse( ImageStudio\has_jetpack_ai_features() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -270,35 +279,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Not enabled when AI features exist but neither dev mode nor Big Sky.
-	 */
-	public function test_is_not_enabled_with_ai_features_but_no_gate() {
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled when AI features available and Big Sky is active.
-	 */
-	public function test_is_enabled_via_big_sky() {
-		$this->enable_big_sky();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Not enabled when AI features are disabled, even with Big Sky active.
+	 * Not enabled when AI features are disabled and no Big Sky/CIAB override.
 	 */
 	public function test_is_not_enabled_when_ai_features_disabled() {
-		$this->enable_big_sky();
 		$this->disable_ai_features();
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Not enabled via Big Sky when Big_Sky class exists but option is disabled.
-	 */
-	public function test_is_not_enabled_via_big_sky_when_option_disabled() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '' );
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
@@ -397,42 +381,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// should_load_on_current_screen() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test should_load_on_current_screen returns true on Media Library.
-	 */
-	public function test_should_load_on_media_library() {
-		$this->set_media_library_screen();
-		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns true on block editor.
-	 */
-	public function test_should_load_on_block_editor() {
-		$this->set_block_editor_screen();
-		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false on dashboard.
-	 */
-	public function test_should_not_load_on_dashboard() {
-		set_current_screen( 'dashboard' );
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false when no screen.
-	 */
-	public function test_should_not_load_when_no_screen() {
-		$GLOBALS['current_screen'] = null;
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
-	}
-
-	// -------------------------------------------------------------------------
 	// register_plugin() tests
 	// -------------------------------------------------------------------------
 
@@ -450,14 +398,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_register_plugin_not_available_when_disabled() {
 		$this->disable_ai_features();
-		ImageStudio\register_plugin();
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
-	}
-
-	/**
-	 * Test that register_plugin does not set extension available when no gate is active.
-	 */
-	public function test_register_plugin_not_available_when_no_gate() {
 		ImageStudio\register_plugin();
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
@@ -574,6 +514,25 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test inline script includes isDevMode property.
+	 */
+	public function test_inline_script_includes_is_dev_mode() {
+		$this->enable_and_enqueue_block_editor();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$this->assertIsArray( $inline );
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"isDevMode":', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
 	 * Test style is enqueued with wp-components dependency.
 	 */
 	public function test_style_enqueued_with_wp_components() {
@@ -622,7 +581,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when AI features are disabled.
 	 */
 	public function test_nothing_enqueued_when_ai_features_disabled() {
-		$this->enable_big_sky();
 		$this->disable_ai_features();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
@@ -744,7 +702,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued on Media Library when AI features are disabled.
 	 */
 	public function test_media_library_nothing_enqueued_when_disabled() {
-		$this->enable_big_sky();
 		$this->disable_ai_features();
 		$this->set_media_library_screen();
 		ImageStudio\register_plugin();
@@ -940,7 +897,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI image extensions are NOT disabled when Image Studio is not available.
 	 */
 	public function test_ai_extensions_not_disabled_when_not_available() {
-		$this->enable_big_sky();
 		$this->disable_ai_features();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
@@ -1280,7 +1236,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			}
 		);
 
-		$this->assertSame( $expected_code, ImageStudio\determine_iso_639_locale() );
+		$this->assertSame( $expected_code, \Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale() );
 	}
 
 	/**
@@ -1542,60 +1498,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( $original_actions, $actions );
 		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
-	}
-
-	// -------------------------------------------------------------------------
-	// is_dev_mode() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test is_dev_mode returns true for localhost.
-	 */
-	public function test_is_dev_mode_returns_true_for_localhost() {
-		update_option( 'siteurl', 'http://localhost' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for jurassic.tube domains.
-	 */
-	public function test_is_dev_mode_returns_true_for_jurassic_tube() {
-		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for jurassic.ninja domains.
-	 */
-	public function test_is_dev_mode_returns_true_for_jurassic_ninja() {
-		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true when proxied via server variable.
-	 */
-	public function test_is_dev_mode_returns_true_when_proxied_via_server_var() {
-		update_option( 'siteurl', 'https://example.com' );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		$result = ImageStudio\is_dev_mode();
-
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test is_dev_mode returns false for regular production sites.
-	 */
-	public function test_is_dev_mode_returns_false_for_production_sites() {
-		update_option( 'siteurl', 'https://myproductionsite.com' );
-
-		$this->assertFalse( ImageStudio\is_dev_mode() );
 	}
 
 	// -------------------------------------------------------------------------

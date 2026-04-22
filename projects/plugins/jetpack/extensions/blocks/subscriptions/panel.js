@@ -108,11 +108,30 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	);
 }
 
-const NewsletterDisabledNotice = () => (
-	<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-		{ __( 'You will be able to send newsletters once the site is published', 'jetpack' ) }
-	</Notice>
-);
+// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
+// nor on sites that have not been launched yet.
+const getNewsletterDisabledMessage = () => {
+	if ( isComingSoon() ) {
+		return __( 'You will be able to send newsletters once the site is published', 'jetpack' );
+	}
+	if ( isPrivateSite() ) {
+		return __( 'Emails will not be sent to subscribers while your site is private', 'jetpack' );
+	}
+	return null;
+};
+
+const NewsletterDisabledNotice = () => {
+	const message = getNewsletterDisabledMessage();
+	if ( ! message ) {
+		return null;
+	}
+
+	return (
+		<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+			{ message }
+		</Notice>
+	);
+};
 
 const NewsletterDisabledPanels = () => (
 	<>
@@ -256,9 +275,7 @@ export default function SubscribePanels() {
 		return null;
 	}
 
-	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
-	// nor on sites that have not been launched yet.
-	if ( isPrivateSite() || isComingSoon() ) {
+	if ( getNewsletterDisabledMessage() ) {
 		return <NewsletterDisabledPanels />;
 	}
 
@@ -279,4 +296,4 @@ export default function SubscribePanels() {
 	);
 }
 
-export { NewsletterRepublishTracker };
+export { NewsletterRepublishTracker, getNewsletterDisabledMessage };

@@ -6,16 +6,14 @@ import reducer from './reducer';
 import resolvers from './resolvers';
 import selectors from './selectors';
 
-export const SOCIAL_STORE_ID = 'jetpack-social-plugin';
-export const SOCIAL_STORE_CONFIG = {
+export const store = createReduxStore( 'jetpack-social-plugin', {
 	reducer,
 	actions,
 	selectors,
 	resolvers,
 	initialState: getSocialScriptData()?.store_initial_state,
-};
+} );
 
-export const store = createReduxStore( SOCIAL_STORE_ID, SOCIAL_STORE_CONFIG );
 register( store );
 
 hydrateStores();

@@ -33,6 +33,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 	/**
+	 * Temporary storage for the source filter ID used in query modifications.
+	 *
+	 * @var int|null
+	 */
+	private $temp_source_filter_id;
+
+	/**
+	 * Cached SQL fragments for source filtering, to avoid recomputing per filter hook.
+	 *
+	 * @var array{join: string, where: string}|null
+	 */
+	private $temp_source_filter_sql;
+
+	/**
 	 * Get filtered list of supported integrations
 	 *
 	 * @return array Filtered list of supported integrations
@@ -307,6 +321,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			)
 		);
 
+		// Dismiss the classic forms notice.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/dismiss-classic-forms-notice',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'dismiss_classic_forms_notice' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+			)
+		);
+
 		// Get optimized status counts.
 		register_rest_route(
 			$this->namespace,
@@ -346,6 +371,18 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'description'       => 'Limit results to read or unread feedback items.',
 						'type'              => 'boolean',
 						'sanitize_callback' => 'rest_sanitize_boolean',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'is_test'   => array(
+						'description'       => 'Limit results to test responses or exclude them.',
+						'type'              => 'boolean',
+						'sanitize_callback' => 'rest_sanitize_boolean',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'source'    => array(
+						'description'       => 'Limit results to feedback submitted from a specific source post ID.',
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
@@ -403,8 +440,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response Response object on success.
 	 */
 	public function get_filters() {
-		// TODO: investigate how we can do this better regarding usage of $wpdb
-		// performance by querying all the entities, etc..
 		global $wpdb;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$months = $wpdb->get_results(
@@ -413,10 +448,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			WHERE post_type = 'feedback'
 			ORDER BY post_date DESC"
 		);
+
+		$source_ids = Feedback::get_all_source_post_ids();
 		// phpcs:enable
-		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
-			array_diff_key( array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) ), array( 'post_parent' => '' ) )
-		);
 
 		return rest_ensure_response(
 			array(
@@ -445,32 +479,47 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$search    = $request->get_param( 'search' );
 		$parent    = $request->get_param( 'parent' );
+		$source    = $request->get_param( 'source' );
 		$before    = $request->get_param( 'before' );
 		$after     = $request->get_param( 'after' );
 		$is_unread = $request->get_param( 'is_unread' );
+		$is_test   = $request->get_param( 'is_test' );
 
-		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
+		$join_clause      = '';
+		$where_conditions = array( $wpdb->prepare( "{$wpdb->posts}.post_type = %s", 'feedback' ) );
 
 		if ( ! empty( $search ) ) {
 			$search_like        = '%' . $wpdb->esc_like( $search ) . '%';
-			$where_conditions[] = $wpdb->prepare( '(post_title LIKE %s OR post_content LIKE %s)', $search_like, $search_like );
+			$where_conditions[] = $wpdb->prepare( "({$wpdb->posts}.post_title LIKE %s OR {$wpdb->posts}.post_content LIKE %s)", $search_like, $search_like );
 		}
 
 		if ( ! empty( $parent ) ) {
-			$where_conditions[] = $wpdb->prepare( 'post_parent = %d', $parent );
+			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_parent = %d", $parent );
+		}
+
+		if ( ! empty( $source ) ) {
+			$source_sql         = Feedback::get_source_filter_sql( absint( $source ) );
+			$join_clause       .= $source_sql['join'];
+			$where_conditions[] = $source_sql['where'];
 		}
 
 		if ( ! empty( $before ) ) {
-			$where_conditions[] = $wpdb->prepare( 'post_date <= %s', $before );
+			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_date <= %s", $before );
 		}
 
 		if ( ! empty( $after ) ) {
-			$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
+			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_date >= %s", $after );
 		}
 
 		if ( null !== $is_unread ) {
 			$comment_status     = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
-			$where_conditions[] = $wpdb->prepare( 'comment_status = %s', $comment_status );
+			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.comment_status = %s", $comment_status );
+		}
+
+		if ( null !== $is_test ) {
+			$is_test_meta_key   = esc_sql( Feedback::IS_TEST_META_KEY );
+			$join_clause       .= " LEFT JOIN {$wpdb->postmeta} AS is_test_meta ON ({$wpdb->posts}.ID = is_test_meta.post_id AND is_test_meta.meta_key = '{$is_test_meta_key}')";
+			$where_conditions[] = $is_test ? "is_test_meta.meta_value = '1'" : 'is_test_meta.meta_id IS NULL';
 		}
 
 		$where_clause = implode( ' AND ', $where_conditions );
@@ -479,11 +528,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$counts = $wpdb->get_row(
 			"SELECT
-			SUM(CASE WHEN post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
-			SUM(CASE WHEN post_status = 'spam' THEN 1 ELSE 0 END) as spam,
-			SUM(CASE WHEN post_status = 'trash' THEN 1 ELSE 0 END) as trash
-			FROM $wpdb->posts
-			WHERE $where_clause",
+			SUM(CASE WHEN {$wpdb->posts}.post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
+			SUM(CASE WHEN {$wpdb->posts}.post_status = 'spam' THEN 1 ELSE 0 END) as spam,
+			SUM(CASE WHEN {$wpdb->posts}.post_status = 'trash' THEN 1 ELSE 0 END) as trash
+			FROM {$wpdb->posts}
+			{$join_clause}
+			WHERE {$where_clause}",
 			ARRAY_A
 		);
 		// phpcs:enable
@@ -619,6 +669,36 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['logged_in_user'] = array(
+			'description' => __( 'The logged-in user who submitted the form, if any.', 'jetpack-forms' ),
+			'type'        => array( 'object', 'null' ),
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'properties'  => array(
+				'display_name' => array(
+					'type'        => 'string',
+					'description' => __( 'The display name of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+				'username'     => array(
+					'type'        => 'string',
+					'description' => __( 'The username of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+				'id'           => array(
+					'type'        => 'integer',
+					'description' => __( 'The ID of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'absint',
+					),
+				),
+			),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['entry_title'] = array(
 			'description' => __( 'The title of the page or post where the form was submitted.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -740,6 +820,26 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['is_test'] = array(
+			'description' => __( 'Whether the form response was submitted from a form preview (test response).', 'jetpack-forms' ),
+			'type'        => 'boolean',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'readonly'    => true,
+		);
+
+		$schema['properties']['preview_url'] = array(
+			'description' => __( 'URL to the form preview that produced this response, when the response is a test submission.', 'jetpack-forms' ),
+			'type'        => array( 'string', 'null' ),
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'esc_url_raw',
+			),
+			'readonly'    => true,
+		);
+
 		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $this->schema );
@@ -844,6 +944,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return rest_ensure_response( $data );
 		}
 
+		// Lazily backfill source meta for old feedback that doesn't have it yet.
+		Feedback::maybe_backfill_source_meta( $item->ID, $feedback_response );
+
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {
 			$data['uid'] = $feedback_response->get_feedback_id();
@@ -885,6 +988,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['browser'] = $feedback_response->get_browser();
 		}
 
+		if ( rest_is_field_included( 'logged_in_user', $fields ) ) {
+			$data['logged_in_user'] = $feedback_response->get_logged_in_user();
+		}
+
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
 			$data['entry_title'] = $feedback_response->get_entry_title();
 		}
@@ -912,6 +1019,21 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'is_unread', $fields ) ) {
 			$data['is_unread'] = $feedback_response->is_unread();
+		}
+
+		if ( rest_is_field_included( 'is_test', $fields ) ) {
+			$data['is_test'] = $feedback_response->is_test();
+		}
+
+		if ( rest_is_field_included( 'preview_url', $fields ) ) {
+			$preview_url = null;
+			if ( $feedback_response->is_test() ) {
+				$form_id = $feedback_response->get_form_id();
+				if ( $form_id ) {
+					$preview_url = Form_Preview::generate_preview_url( (int) $form_id );
+				}
+			}
+			$data['preview_url'] = $preview_url;
 		}
 
 		$response->set_data( $data );
@@ -942,6 +1064,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( ! empty( $invalid_ids ) ) {
 			remove_filter( 'posts_where', array( $this, 'modify_query_for_invalid_ids' ), 10 );
 			unset( $this->temp_invalid_ids );
+		}
+		if ( ! empty( $this->temp_source_filter_id ) ) {
+			remove_filter( 'posts_join', array( $this, 'join_source_meta' ), 10 );
+			remove_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10 );
+			$this->temp_source_filter_id  = null;
+			$this->temp_source_filter_sql = null;
 		}
 
 		return $response;
@@ -991,7 +1119,63 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$args['comment_status'] = $request['is_unread'] ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
 		}
 
+		// Filter by source post ID using meta (with fallback to post_parent for old data).
+		$source = $request->get_param( 'source' );
+		if ( ! empty( $source ) ) {
+			$this->temp_source_filter_id  = absint( $source );
+			$this->temp_source_filter_sql = Feedback::get_source_filter_sql( $this->temp_source_filter_id );
+			add_filter( 'posts_join', array( $this, 'join_source_meta' ), 10, 2 );
+			add_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10, 2 );
+		}
+
+		// Filter by test/non-test responses via the _feedback_is_test meta.
+		$is_test = $request->get_param( 'is_test' );
+		if ( null !== $is_test ) {
+			$meta_query = isset( $args['meta_query'] ) && is_array( $args['meta_query'] ) ? $args['meta_query'] : array();
+			if ( $is_test ) {
+				$meta_query[] = array(
+					'key'     => Feedback::IS_TEST_META_KEY,
+					'value'   => '1',
+					'compare' => '=',
+				);
+			} else {
+				$meta_query[] = array(
+					'key'     => Feedback::IS_TEST_META_KEY,
+					'compare' => 'NOT EXISTS',
+				);
+			}
+			$args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+
 		return $args;
+	}
+
+	/**
+	 * Joins the postmeta table for source filtering.
+	 *
+	 * @param string   $join  The JOIN clause.
+	 * @param WP_Query $query The WP_Query instance.
+	 * @return string Modified JOIN clause.
+	 */
+	public function join_source_meta( $join, $query ) {
+		if ( empty( $this->temp_source_filter_sql ) || Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
+			return $join;
+		}
+		return $join . $this->temp_source_filter_sql['join'];
+	}
+
+	/**
+	 * Filters feedback by source post ID, using meta with fallback to post_parent for old data.
+	 *
+	 * @param string   $where The WHERE clause.
+	 * @param WP_Query $query The WP_Query instance.
+	 * @return string Modified WHERE clause.
+	 */
+	public function filter_by_source_id( $where, $query ) {
+		if ( empty( $this->temp_source_filter_sql ) || Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
+			return $where;
+		}
+		return $where . ' AND ' . $this->temp_source_filter_sql['where'];
 	}
 
 	/**
@@ -1020,8 +1204,20 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			),
 			'default'     => array(),
 		);
+		$query_params['source']         = array(
+			'description'       => __( 'Limit result set to feedback submitted from a particular source post ID.', 'jetpack-forms' ),
+			'type'              => 'integer',
+			'sanitize_callback' => 'absint',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
 		$query_params['is_unread']      = array(
 			'description'       => __( 'Limit result set to read or unread feedback items.', 'jetpack-forms' ),
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$query_params['is_test']        = array(
+			'description'       => __( 'Limit result set to test responses (from form preview) or exclude them.', 'jetpack-forms' ),
 			'type'              => 'boolean',
 			'sanitize_callback' => 'rest_sanitize_boolean',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -1540,6 +1736,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Dismiss the classic forms notice by updating the option to 'dismissed'.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function dismiss_classic_forms_notice() {
+		update_option( Forms_Dashboard::CLASSIC_FORMS_OPTION, Forms_Dashboard::CLASSIC_FORMS_STATE_DISMISSED, false );
+
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
 	 * Return consolidated Forms config payload.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -1560,6 +1767,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'fileIconsUrl'                   => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
 			'siteURL'                        => ( new Status() )->get_site_suffix(),
 			'hasFeedback'                    => ( new Forms_Dashboard() )->has_feedback(),
+			'hasClassicForms'                => ( new Forms_Dashboard() )->get_classic_forms_state() === Forms_Dashboard::CLASSIC_FORMS_STATE_CLASSIC,
 			'isNotesEnabled'                 => Forms_Dashboard::is_notes_enabled(),
 			'isIntegrationsEnabled'          => Jetpack_Forms::is_integrations_enabled(),
 			'isWebhooksEnabled'              => Jetpack_Forms::is_webhooks_enabled(),

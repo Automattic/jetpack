@@ -6,9 +6,9 @@ import { PieChartUnresponsive as PieChart } from '../index';
 
 describe( 'PieChart Composition API', () => {
 	const mockData = [
-		{ label: 'A', value: 30, percentage: 30 },
-		{ label: 'B', value: 40, percentage: 40 },
-		{ label: 'C', value: 30, percentage: 30 },
+		{ label: 'A', value: 30 },
+		{ label: 'B', value: 40 },
+		{ label: 'C', value: 30 },
 	];
 
 	const renderWithChildren = ( props = {}, children = undefined ) => {

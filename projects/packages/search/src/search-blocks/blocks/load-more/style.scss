@@ -1,0 +1,37 @@
+.wp-block-jetpack-load-more {
+	text-align: center;
+	padding: 1rem 0;
+
+	&[hidden] {
+		display: none;
+	}
+
+	.jetpack-search-load-more__button {
+		background: #0073aa;
+		color: #fff;
+		border: none;
+		border-radius: 4px;
+		padding: 0.6rem 1.5rem;
+		font-size: 1rem;
+		cursor: pointer;
+
+		&:hover {
+			background: #005d8c;
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+
+	.jetpack-search-load-more__spinner {
+		display: block;
+		margin: 0.5rem auto;
+		color: #666;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+}

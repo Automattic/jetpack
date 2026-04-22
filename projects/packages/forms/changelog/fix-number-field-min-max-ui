@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix number field min and max values not displaying in the UI after page reload.

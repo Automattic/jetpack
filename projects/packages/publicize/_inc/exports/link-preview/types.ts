@@ -15,6 +15,11 @@ export type LinkPreviewData = {
 	siteTitle?: string;
 
 	/**
+	 * The URL of the site icon to use in the Google Search preview.
+	 */
+	siteIcon?: string;
+
+	/**
 	 * The description of the resource to preview.
 	 */
 	description?: string;

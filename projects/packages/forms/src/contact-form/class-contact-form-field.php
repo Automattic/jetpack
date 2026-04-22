@@ -3375,7 +3375,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		\wp_enqueue_script_module(
 			'jetpack-form-phone-field',
 			plugins_url( '../../dist/modules/field-phone/view.js', __FILE__ ),
-			array( '@wordpress/interactivity' ),
+			array( '@wordpress/interactivity', 'jp-forms-view' ),
 			$version
 		);
 	}

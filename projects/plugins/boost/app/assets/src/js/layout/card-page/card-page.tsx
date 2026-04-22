@@ -1,4 +1,3 @@
-import Footer from '$layout/footer/footer';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import BackButton from '$features/ui/back-button/back-button';
 import JetpackLogo from '$svg/jetpack-green';
@@ -37,10 +36,6 @@ const CardPage = ( {
 						</div>
 						{ footerNote && <footer className={ styles[ 'footer-note' ] }>{ footerNote }</footer> }
 					</div>
-				</div>
-
-				<div className={ styles.footer }>
-					<Footer />
 				</div>
 			</div>
 		</BoostAdminPage>

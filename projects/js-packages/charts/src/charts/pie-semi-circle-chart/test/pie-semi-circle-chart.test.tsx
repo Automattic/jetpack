@@ -18,13 +18,11 @@ const mockData = [
 		label: 'Category A',
 		value: 30,
 		valueDisplay: '30%',
-		percentage: 30,
 	},
 	{
 		label: 'Category B',
 		value: 70,
 		valueDisplay: '70%',
-		percentage: 70,
 	},
 ];
 
@@ -64,9 +62,9 @@ describe( 'PieSemiCircleChart', () => {
 	it( 'shows tooltip on segment hover when withTooltips is true', async () => {
 		const user = userEvent.setup();
 		const testData = [
-			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 5 },
-			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 1 },
-			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K' },
 		];
 
 		renderPieChart( { data: testData, withTooltips: true, width: 400 } );
@@ -86,9 +84,9 @@ describe( 'PieSemiCircleChart', () => {
 	it( 'hides tooltip on mouse leave', async () => {
 		const user = userEvent.setup();
 		const testData = [
-			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 5 },
-			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 1 },
-			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K' },
 		];
 
 		renderPieChart( { data: testData, withTooltips: true, width: 400 } );
@@ -113,9 +111,9 @@ describe( 'PieSemiCircleChart', () => {
 	it( 'renders custom tooltip when renderTooltip prop is provided', async () => {
 		const user = userEvent.setup();
 		const testData = [
-			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 5 },
-			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 1 },
-			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 2 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+			{ label: 'Windows', value: 80000, valueDisplay: '80K' },
 		];
 
 		const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
@@ -148,10 +146,12 @@ describe( 'PieSemiCircleChart', () => {
 				tooltipData: expect.objectContaining( {
 					label: 'MacOS',
 					value: 30000,
-					percentage: 5,
 				} ),
 			} )
 		);
+		// Verify percentage is calculated (approximately 22.73%)
+		const callArgs = customTooltipRenderer.mock.calls[ 0 ][ 0 ];
+		expect( callArgs.tooltipData.percentage ).toBeCloseTo( 22.73, 1 );
 	} );
 
 	it( 'applies custom className', () => {
@@ -193,21 +193,21 @@ describe( 'PieSemiCircleChart', () => {
 			expect( screen.getByText( 'No data available' ) ).toBeInTheDocument();
 		} );
 
-		test( 'handles zero total percentage', () => {
+		test( 'handles zero total value', () => {
 			renderPieChart( {
 				data: [
-					{ label: 'A', value: 0, percentage: 0 },
-					{ label: 'B', value: 0, percentage: 0 },
+					{ label: 'A', value: 0 },
+					{ label: 'B', value: 0 },
 				],
 			} );
 			expect(
-				screen.getByText( 'Invalid percentage total: Must be greater than 0' )
+				screen.getByText( 'Invalid data: Total value must be greater than 0' )
 			).toBeInTheDocument();
 		} );
 
 		test( 'handles single data point', () => {
 			renderPieChart( {
-				data: [ { label: 'Single', value: 100, percentage: 50 } ],
+				data: [ { label: 'Single', value: 100 } ],
 			} );
 			expect( screen.getByTestId( 'pie-segment' ) ).toBeInTheDocument();
 		} );
@@ -215,8 +215,8 @@ describe( 'PieSemiCircleChart', () => {
 		test( 'handles negative values', () => {
 			renderPieChart( {
 				data: [
-					{ label: 'A', value: -30, percentage: -30 },
-					{ label: 'B', value: 130, percentage: 130 },
+					{ label: 'A', value: -30 },
+					{ label: 'B', value: 130 },
 				],
 			} );
 			expect(
@@ -288,8 +288,8 @@ describe( 'PieSemiCircleChart', () => {
 		test( 'filters segments when interactive legend is enabled and segment is toggled', async () => {
 			const user = userEvent.setup();
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderPieChart( {
@@ -320,8 +320,8 @@ describe( 'PieSemiCircleChart', () => {
 		test( 'shows empty state when all segments are hidden', async () => {
 			const user = userEvent.setup();
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderPieChart( {
@@ -347,8 +347,8 @@ describe( 'PieSemiCircleChart', () => {
 
 		test( 'does not filter segments when legendInteractive is false', () => {
 			const testData = [
-				{ label: 'Segment A', value: 50, percentage: 50 },
-				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment A', value: 50 },
+				{ label: 'Segment B', value: 50 },
 			];
 
 			renderPieChart( {

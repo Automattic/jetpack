@@ -49,8 +49,8 @@ export function PaidNewsletterSection( {
 	}
 
 	// Button text based on whether they have an active plan
-	const addPlansText = __( 'Add Plans', 'jetpack-newsletter' );
-	const managePlansText = __( 'Manage Plans', 'jetpack-newsletter' );
+	const addPlansText = __( 'Add plans', 'jetpack-newsletter' );
+	const managePlansText = __( 'Manage plans', 'jetpack-newsletter' );
 	const buttonText = hasActivePlan ? managePlansText : addPlansText;
 
 	return (

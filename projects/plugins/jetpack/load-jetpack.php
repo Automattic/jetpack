@@ -56,6 +56,9 @@ Jetpack_XMLRPC_Methods::init();
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-status.php';
 Jetpack_Connection_Status::init();
 
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-application-password-extras.php';
+Jetpack_Application_Password_Extras::init();
+
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 
 if ( is_admin() ) {

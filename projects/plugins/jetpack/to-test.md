@@ -1,4 +1,4 @@
-## Jetpack 15.7
+## Jetpack 15.8
 
 ### Before you start:
 

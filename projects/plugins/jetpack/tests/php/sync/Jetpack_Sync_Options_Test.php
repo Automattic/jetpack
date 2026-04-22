@@ -258,6 +258,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_post_date_in_email'                   => false,
 			'wpcom_newsletter_categories'                  => array(),
 			'wpcom_newsletter_categories_enabled'          => false,
+			'wpcom_newsletter_send_default'                => true,
 			'wpcom_gifting_subscription'                   => true,
 			'launch-status'                                => 'unlaunched',
 			'wpcom_subscription_emails_use_excerpt'        => false,

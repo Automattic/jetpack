@@ -77,16 +77,16 @@ test.describe( 'Common tests', () => {
 				'SELECT ID FROM wp_posts WHERE post_type LIKE "%jb_store_%"',
 				[ '--skip-column-names' ]
 			);
-			expect( posts.length, 'No jb_store_ posts DB records are found' ).toBe( 0 );
+			expect( posts, 'No jb_store_ posts DB records are found' ).toHaveLength( 0 );
 
 			const options = await executeWpDbQuery(
 				'SELECT option_id FROM wp_options WHERE option_name = "jb-critical-css-dismissed-recommendations"',
 				[ '--skip-column-names' ]
 			);
 			expect(
-				options.length,
+				options,
 				'jb-critical-css-dismissed-recommendations option is not found in DB'
-			).toBe( 0 );
+			).toHaveLength( 0 );
 		} );
 	} );
 } );

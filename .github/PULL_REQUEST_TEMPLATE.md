@@ -4,10 +4,6 @@ Fixes #
 <!--- Explain what functional changes your PR includes -->
 * 
 
-### Other information
-<!-- Check the box below to generate a changelog entry. -->
-- [ ] Generate changelog entries for this PR (using AI).
-
 ## Related product discussion/links
 <!-- If you're an Automattician, include a shortlink to the P2, Slack, and/or Linear discussions here. -->
 * 

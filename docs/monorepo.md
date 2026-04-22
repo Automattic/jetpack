@@ -151,7 +151,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.wp-svn-autopublish`: Set truthy to enable automatic publishing of tagged versions to WordPress.org. See [Mirror repositories > WordPress.org SVN Auto-publisher](#wordpressorg-svn-auto-publisher) for details.
 
 There are a few things in `package.json` as well:
-* `.scripts.typecheck`: If the package contains TypeScript code, this should run tsc to check types without building. See [TypeScript type checking](#typescript-type-checking) for details.
+* `.scripts.typecheck`: If the package contains TypeScript code, this should run tsgo to check types without building. See [TypeScript type checking](#typescript-type-checking) for details.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
@@ -296,11 +296,11 @@ JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testin
 
 ### TypeScript type checking
 
-If a project contains TypeScript code, it should define `.scripts.typecheck` in `package.json` to run `tsc` in a manner that will check types without building. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.typecheck`.
+If a project contains TypeScript code, it should define `.scripts.typecheck` in `package.json` to run `tsgo` in a manner that will check types without building. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.typecheck`.
 
-Note the ideal configuration for a TypeScript project using `tsc` to build will have two tsconfig files:
+Note the ideal configuration for a TypeScript project using `tsgo` to build will have two tsconfig files:
 * `tsconfig.json` will be used for linting and type checking all code in the project. It will set `include` to reference all TS files and TS-containing subdirs
-* `tsconfig.build.json` will be used for the build (by passing `--project tsconfig.build.json` to `tsc`). This will extend `tsconfig.json` to override `include` to specify only the entry point files.
+* `tsconfig.build.json` will be used for the build (by passing `--project tsconfig.build.json` to `tsgo`). This will extend `tsconfig.json` to override `include` to specify only the entry point files.
 
 ### E2E tests
 
@@ -372,16 +372,24 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
 1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
-   1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
-   2. The default branch should be `trunk`, matching the monorepo.
-      * Note that you can't set the default branch until at least one branch is created in the repo.
-   3. In the repo's settings, turn off wikis, PRs, issues, projects, discussions, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
-   5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
-   6. Set up any secrets and configuration needed (e.g. for [Autotagger](#autotagger) or [Autopublisher](#wordpressorg-svn-auto-publisher)). See PCYsg-xsv-p2#mirror-repo-secrets for details.
-2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
-   1. Be sure that `automattic` is added as a maintainer.
-   2. If creating the package with your own account, make sure to link your GitHub account to Packagist so that you can sync the new package.
+	1. Set the repo description:
+		* Begin with `[READ ONLY]`.
+		* Include a description of the project.
+		* End with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
+	2. In the repo settings, turn off wikis, PRs, issues, projects, discussions, and so on.
+	3. If the mirror repo is not under the Automattic organization, make sure that [matticbot](https://github.com/matticbot) can push to the repo.
+	4. Configure Actions settings:
+		* Set "Allow all actions and reusable workflows". The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
+		* Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors".
+		* Set "Workflow permissions" to "Read repository contents and packages permissions".
+		* Disable "Allow GitHub Actions to create and approve pull requests", as PRs are created in the monorepo.
+	5. Set up any secrets and configuration needed (e.g. for [Autotagger](#autotagger) or [Autopublisher](#wordpressorg-svn-auto-publisher)). See PCYsg-xsv-p2#mirror-repo-secrets for details.
+	6. The default branch should be `trunk`, matching the monorepo. Note that you can't set the default branch until at least one branch is created in the repo.
+2. If this is a PHP package that will be published on Packagist, do the following:
+	* Copy the new package's `composer.json` from the PR that introduced it into the new repo and commit/push it to `trunk`.
+	* Create the package in Packagist.
+	* Be sure that `automattic` is added as a maintainer.
+	* Configure a GitHub webhook to allow for auto-updates (see [Packagist docs](https://packagist.org/about#how-to-update-packages)).
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".

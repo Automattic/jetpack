@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-standalone-expect */
 import { test as setup, expect } from '../fixtures/base-test';
 import { getCIProjectNameTestTag } from '../utils/formatting';
 

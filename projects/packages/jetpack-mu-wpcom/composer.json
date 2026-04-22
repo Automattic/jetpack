@@ -18,6 +18,7 @@
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-newsletter": "@dev",
 		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-rtc": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-subscribers-dashboard": "@dev",
@@ -76,7 +77,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "6.9.x-dev"
+			"dev-trunk": "6.10.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

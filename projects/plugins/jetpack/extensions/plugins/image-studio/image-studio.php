@@ -10,10 +10,13 @@ namespace Automattic\Jetpack\Extensions\ImageStudio;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
+
+require_once __DIR__ . '/../../shared/cdn-locale.php';
 
 const FEATURE_NAME           = 'image-studio';
 const ASSET_BASE_PATH        = 'widgets.wp.com/agents-manager/';
@@ -34,11 +37,15 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
  * @return bool
  */
 function is_image_studio_enabled() {
-	if ( ! has_ai_features() ) {
+	if ( is_ciab_environment() || is_big_sky_enabled() ) {
+		return true;
+	}
+
+	if ( ! has_jetpack_ai_features() ) {
 		return false;
 	}
-	return is_dev_mode()
-		|| is_big_sky_enabled();
+
+	return true;
 }
 
 /**
@@ -48,6 +55,17 @@ function is_image_studio_enabled() {
  */
 function is_big_sky_enabled() {
 	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
+}
+
+/**
+ * Check if current environment is CIAB (Commerce in a Box) / Next Admin.
+ *
+ * Uses the same detection method as Help Center and Agents Manager
+ *
+ * @return bool True if CIAB/Next Admin environment.
+ */
+function is_ciab_environment() {
+	return (bool) did_action( 'next_admin_init' );
 }
 
 /**
@@ -70,13 +88,12 @@ add_action( 'init', __NAMESPACE__ . '\signal_image_studio_active' );
  * Check whether AI features are available.
  *
  * - wpcom simple: always available.
- * - Atomic: requires Big Sky or AI Assistant feature flags.
- * - Self-hosted: requires a connected owner with AI not disabled
+ * - Otherwise requires a connected owner with AI not disabled
  *   (same conditions the AI Assistant plugin uses to register).
  *
  * @return bool
  */
-function has_ai_features() {
+function has_jetpack_ai_features() {
 	$host = new Host();
 
 	if ( $host->is_wpcom_simple() ) {
@@ -86,57 +103,6 @@ function has_ai_features() {
 	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 		&& ! ( new Status() )->is_offline_mode()
 		&& apply_filters( 'jetpack_ai_enabled', true );
-}
-
-/**
- * Check if the current request is from a development environment.
- *
- * Matches the same checks as Agents_Manager::is_dev_mode():
- * - Known local environments (localhost, jurassic.tube, jurassic.ninja)
- * - Proxied A8C requests
- * - Allowed Atomic client IDs
- *
- * IMPORTANT: Only use for feature gating, not authorization.
- *
- * @return bool
- */
-function is_dev_mode() {
-	// Known local environments.
-	$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
-	if (
-		$domain === 'localhost' ||
-		'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
-		'.jurassic.ninja' === stristr( $domain, '.jurassic.ninja' )
-	) {
-		return true;
-	}
-
-	// Proxied A8C request via function.
-	if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
-		return true;
-	}
-
-	// Proxied A8C request via server variable or constant.
-	if (
-		( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-		( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
-	) {
-		return true;
-	}
-
-	// Allowed Atomic client IDs.
-	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
-		switch ( ATOMIC_CLIENT_ID ) {
-			case 1:
-			case 2:
-			case 3: // Pressable
-			case 32:
-			case 118: // Commerce garden client (ciab)
-				return true;
-		}
-	}
-
-	return false;
 }
 
 /**
@@ -165,19 +131,6 @@ function is_media_library() {
 
 	$screen = get_current_screen();
 	return $screen && 'upload' === $screen->base;
-}
-
-/**
- * Determine if Image Studio should load on the current screen.
- *
- * - Media Library: load if either filter is true.
- * - Block editors (Post/Site Editor): load if either filter is true.
- * - Other screens: don't load.
- *
- * @return bool
- */
-function should_load_on_current_screen() {
-	return is_media_library() || is_block_editor();
 }
 
 /**
@@ -282,28 +235,6 @@ function get_asset_data_from_remote() {
 }
 
 /**
- * Determine the ISO 639 locale code for the current user.
- *
- * @return string The ISO 639 language code, defaulting to 'en'.
- */
-function determine_iso_639_locale() {
-	$language = get_user_locale();
-	$language = strtolower( $language );
-
-	if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
-		$language = str_replace( '_', '-', $language );
-	} else {
-		$language = preg_replace( '/([-_].*)$/i', '', $language );
-	}
-
-	if ( empty( $language ) ) {
-		return 'en';
-	}
-
-	return $language;
-}
-
-/**
  * Enqueue Image Studio script and style assets.
  *
  * @return void
@@ -343,9 +274,15 @@ function do_enqueue_assets() {
 		true
 	);
 
+	$image_studio_data = array(
+		'enabled'   => true,
+		'version'   => '1.0',
+		'isDevMode' => jetpack_is_internal_testing_environment(),
+	);
+
 	wp_add_inline_script(
 		FEATURE_NAME,
-		'if ( typeof window.imageStudioData === "undefined" ) { window.imageStudioData = ' . wp_json_encode( array( 'enabled' => true ), JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
+		'if ( typeof window.imageStudioData === "undefined" ) { window.imageStudioData = ' . wp_json_encode( $image_studio_data, JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
 		'before'
 	);
 

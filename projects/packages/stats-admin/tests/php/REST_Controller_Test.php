@@ -21,6 +21,7 @@ class REST_Controller_Test extends Stats_TestCase {
 		'/jetpack/v4/stats-app/sites/999/stats/country-views',
 		'/jetpack/v4/stats-app/sites/999/stats/clicks',
 		'/jetpack/v4/stats-app/sites/999/stats/referrers',
+		'/jetpack/v4/stats-app/sites/999/stats/referrers/spam',
 		'/jetpack/v4/stats-app/sites/999/stats/top-authors',
 		'/jetpack/v4/stats-app/sites/999/stats/video-plays',
 		'/jetpack/v4/stats-app/sites/999/posts',

@@ -1,9 +1,10 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	FacebookLinkPreview,
 	TwitterLinkPreview,
 	GoogleSearchPreview,
 } from '@automattic/social-previews';
+import { ToggleControl } from '@wordpress/components';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Component } from 'react';
@@ -19,7 +20,11 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { FEATURE_ADVANCED_SEO } from 'lib/plans/constants';
-import { isSeoEnhancerAvailable, getSiteRepresentativeImage } from 'state/initial-state';
+import {
+	getSiteIcon,
+	isSeoEnhancerAvailable,
+	getSiteRepresentativeImage,
+} from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
@@ -100,6 +105,7 @@ export const SEO = withModuleSettingsFormHelpers(
 
 		SocialPreviewGoogle = siteData => (
 			<GoogleSearchPreview
+				siteIcon={ siteData.siteIcon }
 				siteTitle={ siteData.title }
 				title={ siteData.title }
 				url={ siteData.url }
@@ -160,6 +166,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				title: this.props.siteData.name || '',
 				tagline: this.props.siteData.description || '',
 				url: this.props.siteData.URL || '',
+				siteIcon: this.props.siteIcon || '',
 				frontPageMetaDescription: frontPageMetaDescription
 					? frontPageMetaDescription
 					: this.props.siteData.description || '',
@@ -238,11 +245,11 @@ export const SEO = withModuleSettingsFormHelpers(
 							{ this.props.seoEnhancerAvailable && this.props.hasSeoEnhancer && (
 								<FormFieldset>
 									<ToggleControl
+										__nextHasNoMarginBottom={ true }
 										id="seo-enhancer"
 										disabled={
 											! this.props.getOptionValue( 'seo-tools' ) || ! this.props.hasSeoEnhancer
 										}
-										toggling={ this.props.isSavingAnyOption( 'ai_seo_enhancer_enabled' ) }
 										checked={
 											this.props.hasSeoEnhancer &&
 											this.props.getOptionValue( 'ai_seo_enhancer_enabled' )
@@ -415,6 +422,7 @@ export const SEO = withModuleSettingsFormHelpers(
 export default connect( state => {
 	return {
 		siteData: state.jetpack.siteData.data,
+		siteIcon: getSiteIcon( state ),
 		siteRepresentativeImage: getSiteRepresentativeImage( state ),
 		seoEnhancerAvailable: isSeoEnhancerAvailable( state ),
 		state,

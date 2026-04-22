@@ -1,9 +1,40 @@
-import { render } from '@testing-library/react';
+import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { render, screen } from '@testing-library/react';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../../shared/memberships/constants';
+import { isNewsletterFeatureEnabled } from '../../../shared/memberships/edit';
 import { store as membershipProductsStore } from '../../../store/membership-products';
-import { NewsletterRepublishTracker } from '../panel';
+import {
+	NewsletterRepublishTracker,
+	getNewsletterDisabledMessage,
+	default as SubscribePanels,
+} from '../panel';
+
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
+	isComingSoon: jest.fn( () => false ),
+	isPrivateSite: jest.fn( () => false ),
+	useAnalytics: jest.fn( () => ( { tracks: { recordEvent: jest.fn() } } ) ),
+} ) );
+
+jest.mock( '../../../shared/memberships/edit', () => ( {
+	useAccessLevel: jest.fn( () => 'everybody' ),
+	isNewsletterFeatureEnabled: jest.fn( () => true ),
+} ) );
+
+jest.mock( '@wordpress/editor', () => ( {
+	...jest.requireActual( '@wordpress/editor' ),
+	PluginDocumentSettingPanel: ( { children } ) => (
+		<div data-testid="document-panel">{ children }</div>
+	),
+	PluginPrePublishPanel: ( { children } ) => (
+		<div data-testid="pre-publish-panel">{ children }</div>
+	),
+	PluginPostPublishPanel: ( { children } ) => (
+		<div data-testid="post-publish-panel">{ children }</div>
+	),
+} ) );
 
 const mockSetPublishedWithEmailEnabledInSession = jest.fn();
 const mockSetAlreadySentPostModifiedInSession = jest.fn();
@@ -166,5 +197,123 @@ describe( 'NewsletterRepublishTracker', () => {
 		render( <NewsletterRepublishTracker /> );
 		expect( mockSetPublishedWithEmailEnabledInSession ).not.toHaveBeenCalled();
 		expect( mockSetAlreadySentPostModifiedInSession ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'getNewsletterDisabledMessage', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		isComingSoon.mockReturnValue( false );
+		isPrivateSite.mockReturnValue( false );
+	} );
+
+	test( 'returns coming soon message when site is coming soon', () => {
+		isComingSoon.mockReturnValue( true );
+		isPrivateSite.mockReturnValue( false );
+
+		const message = getNewsletterDisabledMessage();
+
+		expect( message ).toBe( 'You will be able to send newsletters once the site is published' );
+	} );
+
+	test( 'returns private site message when site is private', () => {
+		isComingSoon.mockReturnValue( false );
+		isPrivateSite.mockReturnValue( true );
+
+		const message = getNewsletterDisabledMessage();
+
+		expect( message ).toBe( 'Emails will not be sent to subscribers while your site is private' );
+	} );
+
+	test( 'returns null when site is neither coming soon nor private', () => {
+		isComingSoon.mockReturnValue( false );
+		isPrivateSite.mockReturnValue( false );
+
+		const message = getNewsletterDisabledMessage();
+
+		expect( message ).toBeNull();
+	} );
+
+	test( 'prioritizes coming soon over private when both are true', () => {
+		isComingSoon.mockReturnValue( true );
+		isPrivateSite.mockReturnValue( true );
+
+		const message = getNewsletterDisabledMessage();
+
+		expect( message ).toBe( 'You will be able to send newsletters once the site is published' );
+	} );
+} );
+
+describe( 'SubscribePanels', () => {
+	let useSelectSpy;
+	let useDispatchSpy;
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		isComingSoon.mockReturnValue( false );
+		isPrivateSite.mockReturnValue( false );
+		isNewsletterFeatureEnabled.mockReturnValue( true );
+		useSelectSpy = jest.spyOn( wpData, 'useSelect' );
+		useDispatchSpy = jest.spyOn( wpData, 'useDispatch' );
+		useDispatchSpy.mockReturnValue( {} );
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	const createSubscribePanelsMockSelect = ( { postType = 'post' } = {} ) => {
+		const editorSelect = {
+			getCurrentPostType: () => postType,
+		};
+		return store => {
+			if ( store === editorStore || store === 'core/editor' ) return editorSelect;
+			return {};
+		};
+	};
+
+	test( 'returns null when postType is not post', () => {
+		useSelectSpy.mockImplementation( selector =>
+			selector( createSubscribePanelsMockSelect( { postType: 'page' } ) )
+		);
+
+		const { container } = render( <SubscribePanels /> );
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	test( 'returns null when newsletter feature is not enabled', () => {
+		isNewsletterFeatureEnabled.mockReturnValue( false );
+		useSelectSpy.mockImplementation( selector => selector( createSubscribePanelsMockSelect() ) );
+
+		const { container } = render( <SubscribePanels /> );
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	test( 'renders NewsletterDisabledPanels with coming soon message when site is coming soon', () => {
+		isComingSoon.mockReturnValue( true );
+		isPrivateSite.mockReturnValue( false );
+		useSelectSpy.mockImplementation( selector => selector( createSubscribePanelsMockSelect() ) );
+
+		render( <SubscribePanels /> );
+
+		expect(
+			screen.getAllByText( 'You will be able to send newsletters once the site is published' )
+				.length
+		).toBeGreaterThanOrEqual( 3 );
+	} );
+
+	test( 'renders NewsletterDisabledPanels with private site message when site is private', () => {
+		isComingSoon.mockReturnValue( false );
+		isPrivateSite.mockReturnValue( true );
+		useSelectSpy.mockImplementation( selector => selector( createSubscribePanelsMockSelect() ) );
+
+		render( <SubscribePanels /> );
+
+		expect(
+			screen.getAllByText( 'Emails will not be sent to subscribers while your site is private' )
+				.length
+		).toBeGreaterThanOrEqual( 3 );
 	} );
 } );

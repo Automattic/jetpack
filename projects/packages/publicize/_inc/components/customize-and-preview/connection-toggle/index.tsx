@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { Connection } from '../../../social-store/types';
 import { useConnectionState } from '../../form/use-connection-state';
+import { useServiceLabel } from '../../services/use-service-label';
 import styles from './styles.module.scss';
 
 export type ConnectionToggleProps = {
@@ -20,7 +21,8 @@ export type ConnectionToggleProps = {
 export function ConnectionToggle( { connection }: ConnectionToggleProps ) {
 	const { toggleById } = useSocialMediaConnections();
 	const { recordEvent } = useAnalytics();
-	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
+	const { canBeTurnedOn, shouldBeDisabled, getWarningReason } = useConnectionState();
+	const getServiceLabel = useServiceLabel();
 
 	const onClickConnectionToggle = useCallback( () => {
 		toggleById( connection.connection_id );
@@ -40,19 +42,31 @@ export function ConnectionToggle( { connection }: ConnectionToggleProps ) {
 
 	const isEnabled = Boolean( canBeTurnedOn( connection ) && connection.enabled );
 	const isDisabled = shouldBeDisabled( connection );
+	const hasScheduleHint = getWarningReason( connection ) === 'quota_exceeded_schedule_hint';
 
 	return (
-		<ToggleControl
-			__nextHasNoMarginBottom
-			label={ sprintf(
-				/* translators: %s: social media account title */
-				__( 'Share to %s', 'jetpack-publicize-pkg' ),
-				connection.display_name
+		<div>
+			<ToggleControl
+				__nextHasNoMarginBottom
+				label={ sprintf(
+					/* translators: %1$s: social media account name, %2$s: social media platform name (e.g. Facebook, LinkedIn) */
+					__( 'Share to %1$s on %2$s', 'jetpack-publicize-pkg' ),
+					connection.display_name,
+					getServiceLabel( connection.service_name )
+				) }
+				className={ styles[ 'connection-toggle' ] }
+				checked={ isEnabled }
+				onChange={ onClickConnectionToggle }
+				disabled={ isDisabled }
+			/>
+			{ hasScheduleHint && (
+				<p className={ styles.description }>
+					{ __(
+						'Current month limit reached. Schedule for a future month.',
+						'jetpack-publicize-pkg'
+					) }
+				</p>
 			) }
-			className={ styles[ 'connection-toggle' ] }
-			checked={ isEnabled }
-			onChange={ onClickConnectionToggle }
-			disabled={ isDisabled }
-		/>
+		</div>
 	);
 }

@@ -127,12 +127,11 @@ export function FormNameModal( {
 
 		try {
 			await onSave( finalName );
+			onClose();
 		} catch {
-			// Error handling is left to the caller via onSave
-			// Modal stays open on error
+			// onSave threw — keep the modal open so the user can retry.
 		} finally {
 			setIsSaving( false );
-			onClose();
 		}
 	}, [ name, fallbackName, isSaving, onSave, onClose ] );
 

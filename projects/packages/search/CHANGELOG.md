@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.10] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Search admin page. Drops the inline JetpackFooter render and `showFooter={false}` override so AdminPage's built-in footer lives inside the flex column that the mixin pins. [#48109]
+- Align Search dashboard toggle to its label baseline so wrapped labels on mobile no longer push the toggle into the middle of the row. [#48178]
+- Drop the local `#screen-meta`/`#screen-meta-links` hide rule now that the shared admin-page-layout mixin handles it. [#48195]
+- Remove custom toggle color overrides to use native WordPress admin theme colors. [#47317]
+- Swap the custom FormToggle on the Search admin dashboard for WordPress ToggleControl, restoring native rendering of the Enable Jetpack Search and Enable instant search toggles. [#48178]
+- Update package dependencies. [#48106] [#48141]
+
+### Removed
+- Remove the unused custom FormToggle component; all call sites now use WordPress ToggleControl. [#48178]
+
+### Fixed
+- Fix mobile overflow on the upsell/pricing page so cards no longer get clipped. [#48194]
+
+## [0.56.9] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+### Fixed
+- Dashboard: Avoid forcing a white background in the upsell pricing grid view. [#48088]
+
+## [0.56.8] - 2026-04-10
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## [0.56.7] - 2026-04-06
+### Changed
+- Update admin page footer design. [#47840]
+
+## [0.56.6] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [0.56.5] - 2026-03-23
+### Changed
+- Move admin notices and JITMs below the page header instead of rendering inside it. [#47558]
+- Search: Update header action buttons to use compact size for consistent UI. [#47679]
+- Update package dependencies. [#47684]
+
+## [0.56.4] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
 ## [0.56.3] - 2026-03-09
 ### Changed
 - Dashboard: Remove global CSS overrides and move admin notices inside the main container. [#47313]
@@ -1468,6 +1512,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.56.10]: https://github.com/Automattic/jetpack-search/compare/v0.56.9...v0.56.10
+[0.56.9]: https://github.com/Automattic/jetpack-search/compare/v0.56.8...v0.56.9
+[0.56.8]: https://github.com/Automattic/jetpack-search/compare/v0.56.7...v0.56.8
+[0.56.7]: https://github.com/Automattic/jetpack-search/compare/v0.56.6...v0.56.7
+[0.56.6]: https://github.com/Automattic/jetpack-search/compare/v0.56.5...v0.56.6
+[0.56.5]: https://github.com/Automattic/jetpack-search/compare/v0.56.4...v0.56.5
+[0.56.4]: https://github.com/Automattic/jetpack-search/compare/v0.56.3...v0.56.4
 [0.56.3]: https://github.com/Automattic/jetpack-search/compare/v0.56.2...v0.56.3
 [0.56.2]: https://github.com/Automattic/jetpack-search/compare/v0.56.1...v0.56.2
 [0.56.1]: https://github.com/Automattic/jetpack-search/compare/v0.56.0...v0.56.1

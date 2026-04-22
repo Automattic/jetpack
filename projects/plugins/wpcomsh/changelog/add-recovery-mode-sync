@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Report recovery-mode state to wpcom (via /sites/{blog_id}/recovery-mode-status) so wpcom-side consumers can surface "needs recovery" and related states for sites that have hit a fatal error.

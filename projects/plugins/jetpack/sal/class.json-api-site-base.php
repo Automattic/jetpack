@@ -1756,4 +1756,13 @@ abstract class SAL_Site {
 		}
 		return false;
 	}
+
+	/**
+	 * Detect whether Big Sky AI assistant is enabled for this site.
+	 *
+	 * @return bool
+	 */
+	public function is_big_sky_enabled() {
+		return false;
+	}
 }

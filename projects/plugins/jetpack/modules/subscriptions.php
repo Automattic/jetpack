@@ -138,6 +138,7 @@ class Jetpack_Subscriptions {
 		// Set "social_notifications_subscribe" option during the first-time activation.
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_social_notifications_subscribe' ) );
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_featured_image_in_email_default' ) );
+		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_newsletter_send_default' ) );
 
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
@@ -948,6 +949,15 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * Set the email post to subscribers default option to `1` when the Subscriptions module is activated for the first time.
+	 *
+	 * @return void
+	 */
+	public function set_newsletter_send_default() {
+		add_option( 'wpcom_newsletter_send_default', 1 );
+	}
+
+	/**
 	 * Save a flag when a post was ever published.
 	 *
 	 * It saves the post meta when the post was published and becomes a draft.
@@ -958,6 +968,11 @@ class Jetpack_Subscriptions {
 	 * @param object $post obj The post object.
 	 */
 	public function maybe_set_first_published_status( $new_status, $old_status, $post ) {
+		// Subscriptions are only available for posts so far.
+		if ( ! $post instanceof \WP_Post || 'post' !== $post->post_type ) {
+			return;
+		}
+
 		$was_post_ever_published = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
 		if ( ! $was_post_ever_published && 'publish' === $old_status && 'draft' === $new_status ) {
 			update_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
@@ -991,14 +1006,15 @@ class Jetpack_Subscriptions {
 	 */
 	public function register_post_meta() {
 		$jetpack_post_was_ever_published = array(
-			'type'          => 'boolean',
-			'description'   => __( 'Whether the post was ever published.', 'jetpack' ),
-			'single'        => true,
-			'default'       => false,
-			'show_in_rest'  => array(
+			'type'           => 'boolean',
+			'description'    => __( 'Whether the post was ever published.', 'jetpack' ),
+			'single'         => true,
+			'default'        => false,
+			'show_in_rest'   => array(
 				'name' => 'jetpack_post_was_ever_published',
 			),
-			'auth_callback' => array( $this, 'first_published_status_meta_auth_callback' ),
+			'auth_callback'  => array( $this, 'first_published_status_meta_auth_callback' ),
+			'object_subtype' => 'post', // Subscriptions are only for the post post type so far, so we can limit this meta to posts only.
 		);
 
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );

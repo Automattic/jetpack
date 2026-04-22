@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, TextControl } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -20,6 +20,41 @@ import { PlaceholderWrapper } from '../../edit';
 import UploadingEditor from './uploader-editor.js';
 
 const debug = debugFactory( 'videopress:block:uploader' );
+
+/**
+ * Captures the current frame from a video element as a JPEG blob.
+ *
+ * @param {HTMLVideoElement} video - The video element to capture from.
+ * @return {Promise<Blob>} A promise that resolves with the JPEG blob.
+ */
+const captureVideoFrame = video => {
+	return new Promise( ( resolve, reject ) => {
+		const canvas = document.createElement( 'canvas' );
+		canvas.width = video.videoWidth;
+		canvas.height = video.videoHeight;
+
+		const context = canvas.getContext( '2d' );
+		if ( ! context ) {
+			reject( new Error( 'Could not get 2D context for canvas' ) );
+			return;
+		}
+
+		try {
+			context.drawImage( video, 0, 0 );
+		} catch ( error ) {
+			reject(
+				error instanceof Error ? error : new Error( 'Failed to draw video frame to canvas' )
+			);
+			return;
+		}
+
+		canvas.toBlob(
+			blob => ( blob ? resolve( blob ) : reject( new Error( 'toBlob failed' ) ) ),
+			'image/jpeg',
+			0.95
+		);
+	} );
+};
 
 const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
@@ -49,22 +84,36 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		} );
 	};
 
-	const updatePoster = ( { data: result } ) => {
-		if ( result?.generating ) {
-			setTimeout( () => {
-				getPosterImage().then( response => updatePoster( response ) );
-			}, 2000 );
-		} else if ( result?.poster ) {
-			setAttributes( { poster: result?.poster } );
-		}
+	const updatePoster = ( { data: result }, remainingRetries = 10 ) => {
+		return new Promise( resolve => {
+			// Check for a poster URL first — the API can return both
+			// `poster` and `generating: true` simultaneously.
+			if ( result?.poster ) {
+				setAttributes( { poster: result.poster } );
+				resolve( result.poster );
+			} else if ( result?.generating && remainingRetries > 0 ) {
+				setTimeout( () => {
+					getPosterImage()
+						.then( response => updatePoster( response, remainingRetries - 1 ).then( resolve ) )
+						.catch( error => {
+							debug( 'Poster polling failed: %o', error );
+							resolve( null );
+						} );
+				}, 2000 );
+			} else {
+				if ( result?.generating ) {
+					debug( 'Poster generation polling timed out' );
+				}
+				resolve( null );
+			}
+		} );
 	};
 
 	const sendUpdatePoster = data => {
 		return new Promise( ( resolve, reject ) => {
 			videoPressUploadPoster( data )
 				.then( result => {
-					updatePoster( result );
-					resolve();
+					updatePoster( result ).then( resolve );
 				} )
 				.catch( () => {
 					apiFetch( {
@@ -74,8 +123,8 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 						global: true,
 						data: data,
 					} )
-						.then( () => {
-							resolve();
+						.then( result => {
+							updatePoster( { data: result } ).then( resolve );
 						} )
 						.catch( e => {
 							reject( e );
@@ -84,8 +133,11 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		} );
 	};
 
-	const debouncedSsendUpdatePoster = useDebounce( posterData => {
-		sendUpdatePoster( posterData );
+	const posterPromiseRef = useRef( null );
+	const videoRef = useRef( null );
+
+	const debouncedSendUpdatePoster = useDebounce( posterData => {
+		posterPromiseRef.current = sendUpdatePoster( posterData );
 	}, 1000 );
 
 	const sendUpdateTitleRequest = () => {
@@ -103,37 +155,83 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	const handleVideoFrameSelected = ms => {
 		setVideoFrameMs( ms );
 		setVideoPosterImageData( null );
+		posterPromiseRef.current = null;
 	};
 
 	const handleDoneUpload = () => {
-		setIsFinishingUpdate( true );
-
-		const updates = [];
-
-		if ( title ) {
-			updates.push( sendUpdateTitleRequest() );
-		}
-
-		Promise.allSettled( updates ).then( () => {
-			setIsFinishingUpdate( false );
-			onDone( videoData );
-		} );
-	};
-
-	useEffect( () => {
 		if ( ! guid ) {
 			return;
 		}
 
-		if ( videoPosterImageData ) {
-			return debouncedSsendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
+		setIsFinishingUpdate( true );
+		debouncedSendUpdatePoster.cancel?.();
+
+		if ( title ) {
+			sendUpdateTitleRequest().catch( error => {
+				debug( 'Failed to update video title: %o', error );
+			} );
 		}
 
-		// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
-		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
-			debouncedSsendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
+		// Image selection: we have the URL client-side, fire the server
+		// update in the background and proceed immediately.
+		if ( videoPosterImageData ) {
+			sendUpdatePoster( {
+				poster_attachment_id: videoPosterImageData?.id,
+			} ).catch( error => {
+				debug( 'Failed to update poster in background: %o', error );
+			} );
+			onDone( {
+				...videoData,
+				poster: videoPosterImageData.url,
+			} );
+			return;
 		}
-	}, [ videoPosterImageData, videoFrameMs, guid ] );
+
+		// Frame selection: capture the frame client-side from the video
+		// element and upload it to the WP Media Library as an attachment.
+		// The attachment URL is used directly as the poster, bypassing
+		// the VideoPress poster API. This avoids depending on server-side
+		// frame extraction which requires the video to be fully transcoded.
+		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs && videoRef.current ) {
+			captureVideoFrame( videoRef.current )
+				.then( blob => {
+					const formData = new FormData();
+					formData.append( 'file', blob, 'poster.jpg' );
+
+					return apiFetch( {
+						path: '/wp/v2/media',
+						method: 'POST',
+						body: formData,
+					} );
+				} )
+				.then( attachment => {
+					onDone( {
+						...videoData,
+						poster: attachment.source_url,
+					} );
+				} )
+				.catch( error => {
+					debug( 'Failed to capture/upload frame poster: %o', error );
+					onDone( videoData );
+				} );
+			return;
+		}
+
+		// No poster edits.
+		onDone( videoData );
+	};
+
+	useEffect( () => {
+		if ( ! guid || isFinishingUpdate ) {
+			return;
+		}
+
+		if ( videoPosterImageData ) {
+			debouncedSendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
+		}
+	}, [ videoPosterImageData, guid, isFinishingUpdate ] );
+
+	const hasPosterEdits = videoPosterImageData !== null || videoFrameMs !== null;
 
 	return [
 		handleVideoFrameSelected,
@@ -142,6 +240,8 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
+		hasPosterEdits,
+		videoRef,
 	];
 };
 
@@ -165,30 +265,28 @@ const UploaderProgress = ( {
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
+		hasPosterEdits,
+		videoRef,
 	] = usePosterAndTitleUpdate( {
 		setAttributes,
 		videoData: { ...uploadedVideoData, title: attributes.title },
 		onDone,
 	} );
 
-	/**
-	 * Flag to control the processing state
-	 */
-	const [ isProcessing, setIsProcessing ] = useState( true );
+	const hasUserEdits = !! attributes.title || hasPosterEdits;
+	const hasAutoCompleted = useRef( false );
 
 	/**
-	 * When the upload and the metadata update is ready,
-	 * wait for some time and then release the "Done" button.
+	 * Auto-complete the upload when the user hasn't made edits.
+	 * If the user edited the title or poster, show the "Done" button instead.
 	 */
 	useEffect( () => {
-		if ( uploadedVideoData && ! isFinishingUpdate && isProcessing ) {
-			debug( 'Waiting for some time before enabling the DONE button...' );
-			setTimeout( () => {
-				debug( 'Done, enabling the DONE button now...' );
-				setIsProcessing( false );
-			}, 2500 );
+		if ( uploadedVideoData && ! hasUserEdits && ! hasAutoCompleted.current ) {
+			hasAutoCompleted.current = true;
+			debug( 'Auto-completing upload (no user edits detected)...' );
+			handleDoneUpload();
 		}
-	}, [ uploadedVideoData, isFinishingUpdate ] );
+	}, [ uploadedVideoData, hasUserEdits, handleDoneUpload ] );
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
@@ -219,6 +317,7 @@ const UploaderProgress = ( {
 				onRemovePoster={ handleRemovePoster }
 				onVideoFrameSelected={ handleVideoFrameSelected }
 				videoPosterImageData={ videoPosterImageData }
+				videoRef={ videoRef }
 			/>
 
 			<div className="videopress-uploader-progress">
@@ -258,19 +357,21 @@ const UploaderProgress = ( {
 					</>
 				) : (
 					<>
-						{ ! isProcessing ? (
-							<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
+						{ hasUserEdits && uploadedVideoData ? (
+							<>
+								<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
+								<Button
+									variant="primary"
+									onClick={ handleDoneUpload }
+									disabled={ isFinishingUpdate }
+									isBusy={ isFinishingUpdate }
+								>
+									{ __( 'Done', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</>
 						) : (
 							<span>{ __( 'Finishing up …', 'jetpack-videopress-pkg' ) } 🎬</span>
 						) }
-						<Button
-							variant="primary"
-							onClick={ handleDoneUpload }
-							disabled={ isProcessing }
-							isBusy={ isProcessing }
-						>
-							{ __( 'Done', 'jetpack-videopress-pkg' ) }
-						</Button>
 					</>
 				) }
 			</div>
@@ -279,3 +380,4 @@ const UploaderProgress = ( {
 };
 
 export default UploaderProgress;
+export { usePosterAndTitleUpdate };

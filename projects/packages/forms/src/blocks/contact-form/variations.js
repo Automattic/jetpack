@@ -157,6 +157,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'rsvp-form',
 			subject: __( 'A new RSVP from your website', 'jetpack-forms' ),
 			layout: VERTICAL_LAYOUT,
 		},
@@ -311,6 +312,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'registration-form',
 			subject: __( 'A new registration from your website', 'jetpack-forms' ),
 			layout: VERTICAL_LAYOUT,
 		},
@@ -501,6 +503,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'appointment-form',
 			subject: __( 'A new appointment booked from your website', 'jetpack-forms' ),
 			layout: VERTICAL_LAYOUT,
 		},
@@ -648,6 +651,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'feedback-form',
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
 			layout: VERTICAL_LAYOUT,
 		},
@@ -970,6 +974,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'lead-capture-form',
 			layout: VERTICAL_LAYOUT,
 		},
 		example: {

@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use WP_Block;
-
 /**
  * Initialized the VideoPress package
  */
@@ -189,11 +187,13 @@ class Initializer {
 	/**
 	 * VideoPress video block render method
 	 *
-	 * @param array    $block_attributes - Block attributes.
-	 * @param string   $content          - Current block markup.
-	 * @param WP_Block $block            - Current block.
+	 * @global \WP_Embed $wp_embed WordPress embed handler.
 	 *
-	 * @return string                    Block markup.
+	 * @param array     $block_attributes Block attributes.
+	 * @param string    $content          Current block markup.
+	 * @param \WP_Block $block            Current block.
+	 *
+	 * @return string Block markup.
 	 */
 	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
@@ -306,13 +306,62 @@ class Initializer {
 
 		if ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
-			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
-			$video_wrapper  = sprintf(
+
+			/*
+			 * Provide a fallback iframe for when the oEmbed endpoint fails, e.g.
+			 * when the VideoPress backend isn't ready for a freshly uploaded video.
+			 * This prevents the published page from showing a bare link.
+			 */
+			$fallback = function ( $output, $url ) use ( $videopress_url ) {
+				if ( $url !== html_entity_decode( $videopress_url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) ) {
+					return $output;
+				}
+
+				return sprintf(
+					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write"></iframe>',
+					esc_attr__( 'VideoPress Video Player', 'jetpack-videopress-pkg' ),
+					esc_url( preg_replace( '#/v/#', '/embed/', $url, 1 ) )
+				);
+			};
+
+			add_filter( 'embed_maybe_make_link', $fallback, 10, 2 );
+			$oembed_html = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
+			remove_filter( 'embed_maybe_make_link', $fallback );
+
+			$video_wrapper = sprintf(
 				'<div class="%s">%s %s</div>',
 				$video_wrapper_classes,
 				$preview_on_hover,
 				$oembed_html
 			);
+
+			/*
+			 * Self-heal failed oEmbed cache for VideoPress URLs.
+			 *
+			 * When the VideoPress backend isn't ready for a freshly uploaded video,
+			 * WordPress caches '{{unknown}}' in post meta with a TTL that is too long
+			 * for this use case. Clear recent failures so the next page render retries
+			 * oEmbed discovery, keeping the fallback iframe above temporary.
+			 */
+			$post_id = $block->context['postId'] ?? get_the_ID();
+
+			if ( $post_id ) {
+				$key_suffix   = md5( $videopress_url . serialize( wp_embed_defaults( $videopress_url ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Matching WP_Embed cache key format.
+				$oembed_value = get_post_meta( $post_id, '_oembed_' . $key_suffix, true );
+				$oembed_time  = (int) get_post_meta( $post_id, '_oembed_time_' . $key_suffix, true );
+
+				/*
+				 * Only clear the '{{unknown}}' cache entry when it is recent, to avoid
+				 * disabling WordPress's oEmbed backoff for persistent provider failures.
+				 */
+				if (
+					'{{unknown}}' === $oembed_value
+					&& ( ! $oembed_time || ( time() - $oembed_time ) < MINUTE_IN_SECONDS )
+				) {
+					delete_post_meta( $post_id, '_oembed_' . $key_suffix );
+					delete_post_meta( $post_id, '_oembed_time_' . $key_suffix );
+				}
+			}
 		}
 
 		// Get premium content from block context.

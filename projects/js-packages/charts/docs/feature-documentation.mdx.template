@@ -128,38 +128,18 @@ Charts are fully keyboard accessible:
 
 [Only include this section if the chart supports legends. Remove this section entirely if the chart has no legend capabilities.]
 
-### Basic Legend
+[Brief description of the legend for this chart type]:
 
-[Description of how to display a legend with automatic color matching]:
-
-<Source
-	language="tsx"
-	code={ `<[Component]
-		data={ data }
-		showLegend={ true }
-		legendOrientation="horizontal"
-		legendAlignment="center"
-		legendPosition="bottom"
-	/>` }
-/>
-
-### Interactive Legends
-
-[If supported, show how to enable interactive legends that toggle series visibility]:
+<Canvas of={ [FeatureName]Stories.WithCompositionLegend } />
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, [Component] } from '@automattic/charts';
-
-	<GlobalChartsProvider>
-		<[Component]
-			data={ data }
-			chartId="[unique-chart-id]"
-			showLegend={ true }
-			legendInteractive={ true }
-		/>
-	</GlobalChartsProvider>` }
+	code={ `<[Component] data={ data }>
+		<[Component].Legend />
+	</[Component]>` }
 />
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ## Styling and Customization
 

@@ -28,18 +28,26 @@ class MapBoxBlock {
 		this.window = currentWindow;
 		this.onError = onError;
 
+		// Read payload from JS global (set by PHP inline script), fall back to data attributes.
+		const mapId = this.root.getAttribute( 'data-map-id' );
+		const data = window.JetpackMapBlockData && mapId ? window.JetpackMapBlockData[ mapId ] : null;
+
 		// Block attributes.
-		this.mapStyle = this.root.getAttribute( 'data-map-style' ) || 'default';
-		this.mapDetails = this.root.getAttribute( 'data-map-details' ) === 'true';
+		this.mapStyle = data?.mapStyle || this.root.getAttribute( 'data-map-style' ) || 'default';
+		this.mapDetails = data?.mapDetails ?? this.root.getAttribute( 'data-map-details' ) === 'true';
 		this.apiKey = this.root.getAttribute( 'data-api-key' ) || null;
-		this.scrollToZoom = this.root.getAttribute( 'data-scroll-to-zoom' ) === 'true';
-		this.showFullscreenButton = this.root.getAttribute( 'data-show-fullscreen-button' ) === 'true';
-		this.points = JSON.parse( this.root.getAttribute( 'data-points' ) || '[]' );
-		this.mapCenter = JSON.parse( this.root.getAttribute( 'data-map-center' ) || '{}' );
-		this.mapHeight = this.root.getAttribute( 'data-map-height' ) || null;
-		this.markerColor = this.root.getAttribute( 'data-marker-color' ) || 'red';
-		const zoom = this.root.getAttribute( 'data-zoom' );
-		this.zoom = zoom && zoom.length ? parseInt( this.root.getAttribute( 'data-zoom' ), 10 ) : 13;
+		this.scrollToZoom =
+			data?.scrollToZoom ?? this.root.getAttribute( 'data-scroll-to-zoom' ) === 'true';
+		this.showFullscreenButton =
+			data?.showFullscreenButton ??
+			this.root.getAttribute( 'data-show-fullscreen-button' ) === 'true';
+		this.points = data?.points || JSON.parse( this.root.getAttribute( 'data-points' ) || '[]' );
+		this.mapCenter =
+			data?.mapCenter || JSON.parse( this.root.getAttribute( 'data-map-center' ) || '{}' );
+		this.mapHeight = data?.mapHeight || this.root.getAttribute( 'data-map-height' ) || null;
+		this.markerColor = data?.markerColor || this.root.getAttribute( 'data-marker-color' ) || 'red';
+		const zoom = data?.zoom ?? this.root.getAttribute( 'data-zoom' );
+		this.zoom = zoom != null ? parseInt( zoom, 10 ) : 13;
 
 		this.activeMarker = null;
 

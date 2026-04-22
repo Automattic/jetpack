@@ -14,11 +14,9 @@
 import { unlinkSync, writeFileSync } from 'fs';
 import { createRequire } from 'module';
 import { basename, dirname, join, relative } from 'path';
-import { fileURLToPath } from 'url';
 import { glob } from 'glob';
 import { iconPipelineConfig } from './webpack.config.extract-icons.js';
 
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
 const { formsRoot, blocksDir, blockDirPattern, iconFilenames } = iconPipelineConfig;
 
 // ---------------------------------------------------------------------------
@@ -143,7 +141,7 @@ for ( const [ blockDir, iconModule ] of ICONS ) {
 export default result;
 `;
 
-const runnerPath = join( __dirname, '.extract-icons-runner.js' );
+const runnerPath = join( import.meta.dirname, '.extract-icons-runner.js' );
 writeFileSync( runnerPath, runnerSource );
 
 // ---------------------------------------------------------------------------

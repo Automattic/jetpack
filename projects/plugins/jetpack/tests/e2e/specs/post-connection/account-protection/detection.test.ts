@@ -25,13 +25,13 @@ test.beforeAll( async ( { testUtils } ) => {
 	await insertTestUsers();
 } );
 
-test.afterAll( async () => {
-	await deleteTestUsers();
-} );
-
 test.beforeEach( async ( { page } ) => {
 	await page.context().clearCookies();
 	await page.goto( '/wp-login.php' );
+} );
+
+test.afterAll( async () => {
+	await deleteTestUsers();
 } );
 
 test.describe.parallel( 'Compromised Password Detection', () => {

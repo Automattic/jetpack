@@ -70,7 +70,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	/*
 	 * A8C override for internal P2s
 	 */
-	if ( $feature === WPCOM_Features::AI_ASSISTANT && wpcom_is_automattic_p2_site( $blog_id ) ) {
+	if ( $feature === WPCOM_Features::AI_ASSISTANT && ( function_exists( 'wpcom_is_automattic_p2_site' ) && wpcom_is_automattic_p2_site( $blog_id ) ) ) {
 		return true;
 	}
 

@@ -51,6 +51,10 @@ import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
 
+// Sentinel value used in the Source filter to represent form-preview (test) responses.
+// Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
+const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
+
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
 
@@ -173,7 +177,11 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				return accumulator;
 			}
 			if ( field === 'source' ) {
-				accumulator.parent = value;
+				if ( value === FORM_PREVIEW_SOURCE_VALUE ) {
+					accumulator.is_test = true;
+				} else {
+					accumulator.source = value;
+				}
 			}
 			if ( field === 'date' ) {
 				const [ year, month ] = value.split( '/' ).map( Number );
@@ -350,6 +358,17 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							id: 'source',
 							label: __( 'Source', 'jetpack-forms' ),
 							render: ( { item } ) => {
+								if ( item.is_test ) {
+									const previewLabel = __( 'Form preview', 'jetpack-forms' );
+									if ( item.preview_url ) {
+										return (
+											<ExternalLink href={ item.preview_url }>
+												{ wrapperUnread( item.is_unread, previewLabel ) }
+											</ExternalLink>
+										);
+									}
+									return wrapperUnread( item.is_unread, previewLabel );
+								}
 								if ( ! item.entry_permalink ) {
 									return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
 								}
@@ -362,10 +381,17 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 									</ExternalLink>
 								);
 							},
-							elements: ( filterOptions?.source || [] ).map( source => ( {
-								value: source.id,
-								label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
-							} ) ),
+							elements: [
+								{
+									value: FORM_PREVIEW_SOURCE_VALUE,
+									label: __( 'Form preview', 'jetpack-forms' ),
+								},
+								...( filterOptions?.source || [] ).map( source => ( {
+									value: source.id,
+									label:
+										decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
+								} ) ),
+							],
 							filterBy: { operators: [ 'is' ] },
 							enableSorting: false,
 						},
@@ -378,7 +404,10 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 					const authorInfo = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
-					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const gravatarName = item.author_name
+						? decodeEntities( item.author_name )
+						: item.author_email?.split( '@' )[ 0 ];
+					const defaultImage = gravatarName ? 'initials' : 'mp';
 					const secondaryInfo =
 						item.author_email && authorInfo !== decodeEntities( item.author_email ) ? (
 							<span className="jp-forms__inbox__author-field__email">
@@ -412,7 +441,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ authorInfo }
+								displayName={ gravatarName }
 								key={ item.id }
 								size={ 32 }
 								useHovercard={ false }
@@ -438,7 +467,10 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					return wrapperUnread( item.is_unread, dateI18n( dateSettings.formats.date, item.date ) );
+					return wrapperUnread(
+						item.is_unread,
+						dateI18n( dateSettings.formats.datetime, item.date )
+					);
 				},
 				elements: ( filterOptions?.date || [] ).map( _filter => {
 					const date = new Date();
@@ -492,7 +524,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			filterOptions?.source,
 			isMobileViewport,
 			openResponseModal,
-			dateSettings.formats.date,
+			dateSettings.formats.datetime,
 			isInboxStatusToggleView,
 			isSingleFormView,
 		]

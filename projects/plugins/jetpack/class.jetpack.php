@@ -520,6 +520,11 @@ class Jetpack {
 					} // Should we have some type of fallback if something fails here?
 				}
 
+				// Set the newsletter send default option for existing sites.
+				if ( false === get_option( 'wpcom_newsletter_send_default' ) ) {
+					add_option( 'wpcom_newsletter_send_default', 1 );
+				}
+
 				if ( did_action( 'wp_loaded' ) ) {
 					self::upgrade_on_load();
 				} else {

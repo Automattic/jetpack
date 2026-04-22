@@ -1,13 +1,22 @@
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
+	CheckboxControl,
 	Modal,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { CONFIG_STORE } from '../../../../store/config/index.ts';
 
 type Props = {
 	isOpen: boolean;
@@ -25,12 +34,34 @@ type Props = {
  * @return The modal element, or null when closed.
  */
 export default function FormsHelpModal( { isOpen, onClose }: Props ) {
+	const [ dontShowAgain, setDontShowAgain ] = useState( false );
+	const { receiveConfigValue } = useDispatch( CONFIG_STORE );
+
+	const handleClose = useCallback( () => {
+		setDontShowAgain( false );
+		onClose();
+	}, [ onClose ] );
+
+	const handleSubmit = useCallback( () => {
+		if ( dontShowAgain ) {
+			receiveConfigValue( 'hasClassicForms', false );
+			apiFetch( {
+				path: '/wp/v2/feedback/dismiss-classic-forms-notice',
+				method: 'POST',
+			} );
+		}
+		handleClose();
+	}, [ dontShowAgain, handleClose, receiveConfigValue ] );
+
 	if ( ! isOpen ) {
 		return null;
 	}
 
 	return (
-		<Modal title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) } onRequestClose={ onClose }>
+		<Modal
+			title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+			onRequestClose={ handleClose }
+		>
 			<VStack spacing="4">
 				<Text>
 					{ __( 'The Forms list shows reusable forms, not simple form blocks.', 'jetpack-forms' ) }
@@ -45,16 +76,22 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 						</li>
 						<li>{ __( 'Select the form block.', 'jetpack-forms' ) }</li>
 						<li>
-							{ __( 'Click “Edit Form” in the block toolbar to convert it.', 'jetpack-forms' ) }
+							{ __( 'Click "Edit Form" in the block toolbar to convert it.', 'jetpack-forms' ) }
 						</li>
 						<li>{ __( 'Save the page or post.', 'jetpack-forms' ) }</li>
 					</ol>
 				</div>
-				<div>
-					<Button variant="primary" onClick={ onClose }>
+				<HStack justify="space-between" alignment="center">
+					<CheckboxControl
+						__nextHasNoMarginBottom
+						label={ __( "Don't show this again", 'jetpack-forms' ) }
+						checked={ dontShowAgain }
+						onChange={ setDontShowAgain }
+					/>
+					<Button variant="primary" onClick={ handleSubmit }>
 						{ __( 'Got it', 'jetpack-forms' ) }
 					</Button>
-				</div>
+				</HStack>
 			</VStack>
 		</Modal>
 	);

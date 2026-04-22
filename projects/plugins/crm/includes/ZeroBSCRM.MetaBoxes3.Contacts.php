@@ -739,21 +739,9 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox {
 				<div class="item zbs-contact-action" id="zbs-contact-action-<?php echo esc_attr( $actKey ); ?>"
 						<?php
 						// if url isset, pass that data-action, otherwise leave for js to attach to
-						if ( isset( $action['url'] ) && ! empty( $action['url'] ) ) {
+						if ( ! empty( $action['url'] ) ) {
 							?>
-						data-action="
-							<?php
-							if ( isset( $action['url'] ) ) {
-								echo 'url';
-							}
-							?>
-							" data-url="
-							<?php
-							if ( isset( $action['url'] ) ) {
-								echo esc_attr( $action['url'] );
-							}
-							?>
-								"
+							data-action="url" data-url="<?php echo esc_attr( $action['url'] ); ?>"
 							<?php
 						}
 
@@ -1862,7 +1850,7 @@ class zeroBS__Metabox_ContactSocial extends zeroBS__Metabox {
 				?>
 			<div class="zbs-social-acc <?php echo esc_attr( $socialAccType['slug'] ); ?>" title="<?php echo esc_attr( $socialAccType['name'] ); ?>">
 				<?php
-				if ( is_array( $zbsSocials ) && isset( $zbsSocials[ $socialKey ] ) && ! empty( $zbsSocials[ $socialKey ] ) ) {
+				if ( ! empty( $zbsSocials[ $socialKey ] ) ) {
 
 					// got acc? link to it
 					$socialLink = zeroBSCRM_getSocialLink( $socialKey, $zbsSocials );
@@ -1872,12 +1860,15 @@ class zeroBS__Metabox_ContactSocial extends zeroBS__Metabox {
 				<?php } else { ?>
 					<i class="fa <?php echo esc_attr( $socialAccType['fa'] ); ?>" aria-hidden="true"></i>
 				<?php } ?>
-				<input type="text" class="zbs-social-acc-input zbs-dc" title="<?php echo esc_attr( $socialAccType['name'] ); ?>" name="zbs-social-<?php echo esc_attr( $socialAccType['slug'] ); ?>" id="zbs-social-<?php echo esc_attr( $socialAccType['slug'] ); ?>" value="
-				<?php
-				if ( is_array( $zbsSocials ) && isset( $zbsSocials[ $socialKey ] ) && ! empty( $zbsSocials[ $socialKey ] ) ) {
-					echo esc_attr( $zbsSocials[ $socialKey ] );}
-				?>
-				" placeholder="<?php echo esc_attr( $socialAccType['placeholder'] ); ?>" />
+				<input
+					type="text"
+					class="zbs-social-acc-input zbs-dc"
+					title="<?php echo esc_attr( $socialAccType['name'] ); ?>"
+					name="zbs-social-<?php echo esc_attr( $socialAccType['slug'] ); ?>"
+					id="zbs-social-<?php echo esc_attr( $socialAccType['slug'] ); ?>"
+					value="<?php echo ! empty( $zbsSocials[ $socialKey ] ) ? esc_attr( $zbsSocials[ $socialKey ] ) : ''; ?>"
+					placeholder="<?php echo esc_attr( $socialAccType['placeholder'] ); ?>"
+				/>
 			</div>
 							<?php
 

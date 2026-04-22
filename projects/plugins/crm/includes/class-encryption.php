@@ -43,6 +43,7 @@ class Encryption {
 			$this->ready_to_encrypt = false;
 
 			// error loading encryption
+			/* translators: %s: Encryption cipher method name. */
 			echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Unable to load encryption method', 'zero-bs-crm' ), sprintf( __( 'CRM was unable to load the required encryption method (%s). Until this is method is available to your PHP your sensitive data may not be encrypted properly.', 'zero-bs-crm' ), $this->cipher ) );
 
 			return;
@@ -82,6 +83,7 @@ class Encryption {
 				$zbs->settings->update( 'enc_fallback_blocked', 1 );
 
 				// error loading encryption
+				/* translators: %s: Encryption cipher method name. */
 				echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'Unable to load encryption method', 'zero-bs-crm' ), sprintf( __( 'CRM was unable to load the required encryption method (%s). Until this is method is available to your PHP your sensitive data may not be encrypted properly.', 'zero-bs-crm' ), $this->cipher ) );
 
 			}
