@@ -1,0 +1,35 @@
+.jp-search-answers-panel {
+	border-bottom: 1px solid #dcdcde;
+	margin-bottom: 16px;
+	padding-bottom: 16px;
+}
+
+.jp-search-answers-panel__loading {
+	align-items: center;
+	color: #787c82;
+	display: flex;
+	font-size: 13px;
+	gap: 8px;
+}
+
+.jp-search-answers-panel__text {
+	font-size: 14px;
+	line-height: 1.6;
+	white-space: pre-wrap;
+}
+
+.jp-search-answers-panel__citations {
+	list-style: none;
+	margin: 12px 0 0;
+	padding: 0;
+}
+
+.jp-search-answers-panel__citations li {
+	font-size: 12px;
+	margin-bottom: 4px;
+}
+
+.jp-search-answers-panel__citations a {
+	color: #2271b1;
+	text-decoration: underline;
+}
