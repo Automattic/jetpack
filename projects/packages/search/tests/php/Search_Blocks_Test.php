@@ -120,7 +120,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_build_seed_state_recomputes_is_loading_after_gating() {
 		$original_get   = $_GET;
-		$original_query = isset( $GLOBALS['wp_query'] ) ? $GLOBALS['wp_query'] : null;
+		$original_query = $GLOBALS['wp_query'] ?? null;
 		$_GET           = array( 'foo' => array( 'bar' ) );
 		// Reset the WP_Query global so `get_search_query()` can't leak an `s`
 		// value from an earlier test and make isLoading look stuck on its own.

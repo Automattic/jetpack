@@ -112,4 +112,32 @@ describe( 'urlParamsToState', () => {
 		const state = urlParamsToState( params );
 		expect( state.activeFilters ).toEqual( {} );
 	} );
+
+	it( 'drops empty and whitespace-only filter values', () => {
+		// A bare `?category[]=` (or a stray trailing space) would otherwise
+		// produce a term filter with an empty value and zero out the result
+		// set. The mix here keeps the valid value so the key still surfaces.
+		const params = new URLSearchParams();
+		params.append( 'category[]', '' );
+		params.append( 'category[]', '   ' );
+		params.append( 'category[]', 'news' );
+		const state = urlParamsToState( params );
+		expect( state.activeFilters ).toEqual( { category: [ 'news' ] } );
+	} );
+
+	it( 'omits a filter key entirely when every value is empty', () => {
+		const params = new URLSearchParams();
+		params.append( 'category[]', '' );
+		const state = urlParamsToState( params );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'de-duplicates repeated values within a single filter key', () => {
+		const params = new URLSearchParams();
+		params.append( 'category[]', 'news' );
+		params.append( 'category[]', 'news' );
+		params.append( 'category[]', 'sports' );
+		const state = urlParamsToState( params );
+		expect( state.activeFilters ).toEqual( { category: [ 'news', 'sports' ] } );
+	} );
 } );

@@ -76,10 +76,22 @@ export function urlParamsToState( params, filterConfigs = {} ) {
 		) {
 			continue;
 		}
+		const normalized = String( value ?? '' ).trim();
+		if ( ! normalized ) {
+			// A bare `?category[]=` round-trips as an empty string and would
+			// otherwise produce a term filter with an empty value, effectively
+			// zeroing the result set. Drop it before it reaches the store.
+			continue;
+		}
 		if ( ! activeFilters[ filterKey ] ) {
 			activeFilters[ filterKey ] = [];
 		}
-		activeFilters[ filterKey ].push( value );
+		if ( activeFilters[ filterKey ].includes( normalized ) ) {
+			// De-dup within a filter key so `?category[]=news&category[]=news`
+			// doesn't double-OR into the ES clause.
+			continue;
+		}
+		activeFilters[ filterKey ].push( normalized );
 	}
 
 	return {
