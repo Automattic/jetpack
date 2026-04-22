@@ -302,26 +302,39 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Directory slug of the plugin that loaded this package.
+	 * Directory slug of the plugin that should own the template in the
+	 * Site Editor UI.
 	 *
-	 * The Site Editor labels plugin-registered templates by looking up an
+	 * The Templates list labels plugin-registered templates by looking up an
 	 * active plugin whose directory slug matches the namespace portion of
-	 * the registered template name. Hardcoding a namespace here would only
-	 * resolve to a plugin name under one of the hosts — the package is
-	 * shipped by both the standalone Jetpack Search plugin (`jetpack-search`)
-	 * and the Jetpack monolith (`jetpack`). Deriving the slug from the
-	 * package's installed path lets both hosts get the correct label
-	 * ("Jetpack Search" vs. "Jetpack") without duplicating configuration.
+	 * the registered template name. We pick the slug by preference rather
+	 * than by install path so that on sites running both the Jetpack
+	 * monolith and the standalone Jetpack Search plugin, the more-specific
+	 * "Jetpack Search" label always wins:
+	 *
+	 * - Jetpack Search plugin active → `jetpack-search` → "Jetpack Search"
+	 * - Otherwise Jetpack plugin active → `jetpack` → "Jetpack"
+	 * - Neither active (unexpected) → `jetpack-search` fallback
 	 *
 	 * @return string
 	 */
 	protected static function get_parent_plugin_slug(): string {
-		if ( ! class_exists( Package::class ) || ! function_exists( 'plugin_basename' ) ) {
-			return 'jetpack-search';
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			if ( ! defined( 'ABSPATH' ) ) {
+				return 'jetpack-search';
+			}
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-		$relative = plugin_basename( rtrim( Package::get_installed_path(), '/\\' ) );
-		$slug     = strtok( $relative, '/' );
-		return false === $slug ? 'jetpack-search' : $slug;
+		$preferred = array(
+			'jetpack-search' => 'jetpack-search/jetpack-search.php',
+			'jetpack'        => 'jetpack/jetpack.php',
+		);
+		foreach ( $preferred as $slug => $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				return $slug;
+			}
+		}
+		return 'jetpack-search';
 	}
 
 	/**
