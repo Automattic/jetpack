@@ -28,7 +28,16 @@ class Filter_Checkbox {
 		$filter_type = (string) ( $attributes['filterType'] ?? '' );
 		switch ( $filter_type ) {
 			case 'taxonomy':
-				return sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) );
+				$key = sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) );
+				// A custom taxonomy whose slug collides with a reserved URL param
+				// (e.g. `s`, `orderby`) would be dropped by parse_url_filters()
+				// and by store/url-state.js on serialize, so selections could
+				// never round-trip. Reject the filter entirely so the block
+				// renders nothing rather than silently no-oping.
+				if ( '' === $key || in_array( $key, Search_Blocks::RESERVED_QUERY_PARAMS, true ) ) {
+					return '';
+				}
+				return $key;
 			case 'post_type':
 				return 'post_types';
 			case 'author':
