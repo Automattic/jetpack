@@ -1607,11 +1607,6 @@ class Contact_Form_Plugin {
 	 * Conditionally attached to `template_redirect`
 	 */
 	public function process_form_submission() {
-		// Block submissions in preview mode.
-		if ( Form_Preview::is_preview_mode() ) {
-			return;
-		}
-
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
@@ -1721,6 +1716,14 @@ class Contact_Form_Plugin {
 			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 				Form_Webhooks::init();
 			}
+
+			// The decoded JWT carries a serialized Feedback_Source; when the
+			// form was rendered in preview mode that source has is_test=true.
+			// Flag the submission accordingly so the response is stored as a
+			// test response. JWTs issued before this feature shipped simply
+			// omit the flag and behave as regular submissions.
+			$form->set_is_preview_submission( $form->get_source()->is_test() );
+
 			// Process the form
 			return $form->process_submission();
 		}
@@ -2906,11 +2909,14 @@ class Contact_Form_Plugin {
 	/**
 	 * Returns an array of feedback data for export.
 	 *
-	 * @param array $feedback_ids Array of feedback IDs to fetch the data for.
+	 * @param array $feedback_ids           Array of feedback IDs to fetch the data for.
+	 * @param bool  $include_test_responses Whether to include feedback that was submitted
+	 *                                      from form preview. Defaults to false, meaning
+	 *                                      preview/test responses are excluded from the export.
 	 *
 	 * @return array
 	 */
-	public function get_export_feedback_data( $feedback_ids ) {
+	public function get_export_feedback_data( $feedback_ids, $include_test_responses = false ) {
 		$feedback_data   = array();
 		$all_field_names = array();
 
@@ -2919,6 +2925,11 @@ class Contact_Form_Plugin {
 			$response = Feedback::get( $feedback_id );
 			if ( ! $response instanceof Feedback ) {
 				continue; // Skip if the feedback is not an instance of Feedback.
+			}
+
+			// Skip test responses from form preview unless explicitly requested.
+			if ( ! $include_test_responses && $response->is_test() ) {
+				continue;
 			}
 
 			// Get fields with automatic duplicate handling (label-value shape includes counts)
@@ -3078,7 +3089,8 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		if ( ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] ) ) {
+		$has_explicit_selection = ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] );
+		if ( $has_explicit_selection ) {
 			$args['include'] = array_filter(
 				array_map(
 					function ( $selected ) {
@@ -3125,7 +3137,11 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		return $this->get_export_feedback_data( $feedbacks );
+		// Test responses from form preview are excluded from bulk exports by
+		// default. When the user has explicitly picked specific rows (via the
+		// dashboard selection UI), we trust their selection and include any
+		// test responses that landed in it.
+		return $this->get_export_feedback_data( $feedbacks, $has_explicit_selection );
 	}
 
 	/**

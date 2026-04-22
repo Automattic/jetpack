@@ -11,6 +11,28 @@ jest.mock( '@wordpress/data', () => {
 	} );
 } );
 
+jest.mock( '@wordpress/date', () => ( {
+	...jest.requireActual( '@wordpress/date' ),
+	date: ( format: string, input?: string ) => {
+		if ( format !== 'Y-m' ) {
+			return '';
+		}
+		const source = input ? new Date( input ) : new Date();
+		return `${ source.getUTCFullYear() }-${ String( source.getUTCMonth() + 1 ).padStart(
+			2,
+			'0'
+		) }`;
+	},
+} ) );
+
+jest.mock( '../../../utils/script-data', () => {
+	const actual = jest.requireActual( '../../../utils/script-data' );
+	return {
+		...actual,
+		hasSocialPaidFeatures: jest.fn(),
+	};
+} );
+
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import useAttachedMedia from '../../../hooks/use-attached-media';
@@ -19,6 +41,7 @@ import useMediaDetails from '../../../hooks/use-media-details';
 import useMediaRestrictions from '../../../hooks/use-media-restrictions';
 import usePublicizeConfig from '../../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
+import { hasSocialPaidFeatures } from '../../../utils/script-data';
 import { useConnectionState } from '../use-connection-state';
 import type { Connection } from '../../../social-store/types';
 
@@ -34,6 +57,7 @@ jest.mock( '../../../hooks/use-media-details', () => jest.fn() );
 jest.mock( '../../../hooks/use-media-restrictions', () => jest.fn() );
 
 const mockUseSelect = useSelect as jest.Mock;
+const mockHasSocialPaidFeatures = hasSocialPaidFeatures as jest.Mock;
 
 const mockXConnection: Connection = {
 	connection_id: 'x-1',
@@ -66,10 +90,17 @@ const mockTumblrConnection: Connection = {
 };
 
 describe( 'useConnectionState', () => {
+	// State controlled per-test.
 	let xQuotaExceeded = false;
+	let canScheduleForPost = true;
+	let postDate: string | undefined;
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		xQuotaExceeded = false;
+		canScheduleForPost = true;
+		postDate = undefined;
+		mockHasSocialPaidFeatures.mockReturnValue( false );
 
 		( useSocialMediaConnections as jest.Mock ).mockReturnValue( {
 			connections: [ mockXConnection, mockTumblrConnection ],
@@ -90,38 +121,107 @@ describe( 'useConnectionState', () => {
 
 		mockUseSelect.mockImplementation( selector => {
 			return selector( () => ( {
+				// Social store
 				isXQuotaExceeded: () => xQuotaExceeded,
+				canShareToX: () => ! xQuotaExceeded,
+				canScheduleXShareFor: () => canScheduleForPost,
+				// Editor store
+				getEditedPostAttribute: ( attr: string ) => ( attr === 'date' ? postDate : undefined ),
 			} ) );
 		} );
 	} );
 
-	it( 'blocks X connections when quota is exceeded', () => {
-		xQuotaExceeded = true;
+	describe( 'shouldBeDisabled / canBeTurnedOn', () => {
+		it( 'blocks X connections when quota for the target period is exhausted', () => {
+			xQuotaExceeded = true;
+			canScheduleForPost = false;
 
-		const { result } = renderHook( () => useConnectionState() );
+			const { result } = renderHook( () => useConnectionState() );
 
-		expect( result.current.shouldBeDisabled( mockXConnection ) ).toBe( true );
-		expect( result.current.canBeTurnedOn( mockXConnection ) ).toBe( false );
-		expect( result.current.getDisabledReason( mockXConnection ) ).toBe( 'quota_exceeded' );
+			expect( result.current.shouldBeDisabled( mockXConnection ) ).toBe( true );
+			expect( result.current.canBeTurnedOn( mockXConnection ) ).toBe( false );
+			expect( result.current.getDisabledReason( mockXConnection ) ).toBe( 'quota_exceeded' );
+		} );
+
+		it( 'does not block non-X connections when X quota is exceeded', () => {
+			xQuotaExceeded = true;
+			canScheduleForPost = false;
+
+			const { result } = renderHook( () => useConnectionState() );
+
+			expect( result.current.shouldBeDisabled( mockTumblrConnection ) ).toBe( false );
+			expect( result.current.canBeTurnedOn( mockTumblrConnection ) ).toBe( true );
+			expect( result.current.getDisabledReason( mockTumblrConnection ) ).toBeUndefined();
+		} );
+
+		it( 'does not block X connections when the target period has quota', () => {
+			xQuotaExceeded = false;
+			canScheduleForPost = true;
+
+			const { result } = renderHook( () => useConnectionState() );
+
+			expect( result.current.shouldBeDisabled( mockXConnection ) ).toBe( false );
+			expect( result.current.canBeTurnedOn( mockXConnection ) ).toBe( true );
+			expect( result.current.getDisabledReason( mockXConnection ) ).toBeUndefined();
+		} );
+
+		it( 'does not block X when current month is exceeded but the post targets a future month with quota', () => {
+			// Current month quota exhausted, but post is scheduled for a future month that still has quota.
+			xQuotaExceeded = true;
+			canScheduleForPost = true;
+			postDate = '2099-12-01T00:00:00Z';
+			mockHasSocialPaidFeatures.mockReturnValue( true );
+
+			const { result } = renderHook( () => useConnectionState() );
+
+			expect( result.current.shouldBeDisabled( mockXConnection ) ).toBe( false );
+			expect( result.current.canBeTurnedOn( mockXConnection ) ).toBe( true );
+		} );
 	} );
 
-	it( 'does not block non-X connections when X quota is exceeded', () => {
-		xQuotaExceeded = true;
+	describe( 'getWarningReason', () => {
+		it( 'returns the schedule hint when paid, current-month quota is exceeded, and no post date is set', () => {
+			mockHasSocialPaidFeatures.mockReturnValue( true );
+			xQuotaExceeded = true;
+			canScheduleForPost = true;
+			postDate = undefined;
 
-		const { result } = renderHook( () => useConnectionState() );
+			const { result } = renderHook( () => useConnectionState() );
 
-		expect( result.current.shouldBeDisabled( mockTumblrConnection ) ).toBe( false );
-		expect( result.current.canBeTurnedOn( mockTumblrConnection ) ).toBe( true );
-		expect( result.current.getDisabledReason( mockTumblrConnection ) ).toBeUndefined();
-	} );
+			expect( result.current.getWarningReason( mockXConnection ) ).toBe(
+				'quota_exceeded_schedule_hint'
+			);
+		} );
 
-	it( 'does not block X connections when quota is available', () => {
-		xQuotaExceeded = false;
+		it( 'returns undefined on free plans even when the quota is exhausted', () => {
+			mockHasSocialPaidFeatures.mockReturnValue( false );
+			xQuotaExceeded = true;
+			canScheduleForPost = false;
+			postDate = undefined;
 
-		const { result } = renderHook( () => useConnectionState() );
+			const { result } = renderHook( () => useConnectionState() );
 
-		expect( result.current.shouldBeDisabled( mockXConnection ) ).toBe( false );
-		expect( result.current.canBeTurnedOn( mockXConnection ) ).toBe( true );
-		expect( result.current.getDisabledReason( mockXConnection ) ).toBeUndefined();
+			expect( result.current.getWarningReason( mockXConnection ) ).toBeUndefined();
+		} );
+
+		it( 'returns undefined when the post already has a scheduled date', () => {
+			mockHasSocialPaidFeatures.mockReturnValue( true );
+			xQuotaExceeded = true;
+			canScheduleForPost = true;
+			postDate = '2099-12-01T00:00:00Z';
+
+			const { result } = renderHook( () => useConnectionState() );
+
+			expect( result.current.getWarningReason( mockXConnection ) ).toBeUndefined();
+		} );
+
+		it( 'returns undefined for non-X connections', () => {
+			mockHasSocialPaidFeatures.mockReturnValue( true );
+			xQuotaExceeded = true;
+
+			const { result } = renderHook( () => useConnectionState() );
+
+			expect( result.current.getWarningReason( mockTumblrConnection ) ).toBeUndefined();
+		} );
 	} );
 } );

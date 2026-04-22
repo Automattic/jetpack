@@ -2,8 +2,16 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from '../../../constants';
 import { ProductCamelCase } from '../../../data/types';
-import { MyJetpackModule } from '../../../types';
+import { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 import { ProductFilter, ProductSection } from './types';
+
+/**
+ * Legacy modules that should only appear in the module list when they are already active.
+ * New users will not see these modules; existing users keep the ability to deactivate them.
+ */
+const LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE: readonly string[] = [
+	'google-fonts' satisfies JetpackModuleSlug,
+];
 
 /**
  * Get the choices for the products filter.
@@ -119,7 +127,9 @@ export function filterSections(
 export function filterAndSortModules(
 	modules: Array< MyJetpackModule >
 ): Array< MyJetpackModule > {
-	const $modules = [ ...modules ].filter( Boolean );
+	const $modules = [ ...modules ]
+		.filter( Boolean )
+		.filter( m => ! LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE.includes( m.module ) || m.activated );
 
 	$modules.sort( ( a, b ) => a.name.localeCompare( b.name ) );
 

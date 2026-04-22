@@ -494,6 +494,7 @@ export class PingHubBridge {
 			logConnectionEvent( 'connected', {
 				time_to_connect_ms: elapsed,
 				active_rooms: this.registeredRooms.size,
+				channel: `editor/${ window.jetpackRTC?.currentPostType }/${ window.jetpackRTC?.currentPostId }`,
 			} );
 			this.connectingWaiters.splice( 0 ).forEach( ( { resolve } ) => resolve() );
 			for ( const room of this.registeredRooms ) {
@@ -508,8 +509,10 @@ export class PingHubBridge {
 			logConnectionEvent( 'disconnected', {
 				close_code: event.code,
 				close_reason: event.reason,
+				was_clean: event.wasClean,
 				connection_lifetime_ms: elapsed,
 				active_rooms: this.registeredRooms.size,
+				jwt_age_ms: this.cachedJwtTimestamp > 0 ? Date.now() - this.cachedJwtTimestamp : -1,
 			} );
 			const wasConnecting = this.wsState === 'connecting';
 			this.ws = null;

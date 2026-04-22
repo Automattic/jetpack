@@ -11,6 +11,12 @@
 
 define( 'WPCOMSH_VERSION', '9.0.0' );
 
+// Loaded first: fatal-error screen filter + one-shot plugin-deactivation endpoint.
+// The deactivator also needs to load before any regular plugin, so in production
+// a stub in wp-content/mu-plugins/ should re-include fatal-plugin-deactivator.php
+// directly (see wpcom-fatal-error/mu-plugin-stub.php).
+require_once __DIR__ . '/wpcom-fatal-error/load.php';
+
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
@@ -143,6 +149,7 @@ require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/migrate-guru-canary.php';
 require_once __DIR__ . '/feature-plugins/nav-redesign.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
+require_once __DIR__ . '/feature-plugins/class-wpcomsh-recovery-mode-sync.php';
 require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
 require_once __DIR__ . '/feature-plugins/smtp-email-priority.php';
 require_once __DIR__ . '/feature-plugins/staging-sites.php';
@@ -150,6 +157,7 @@ require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
+require_once __DIR__ . '/feature-plugins/reprint-exporter-api.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**

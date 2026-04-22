@@ -720,11 +720,15 @@ function JetpackContactFormEdit( {
 				},
 				button
 					? [
-							createBlock( ...PREVIOUS_BUTTON_TEMPLATE ),
-							createBlock( ...NEXT_BUTTON_TEMPLATE ),
+							createBlock(
+								...( PREVIOUS_BUTTON_TEMPLATE as [ string, Record< string, unknown > ] )
+							),
+							createBlock( ...( NEXT_BUTTON_TEMPLATE as [ string, Record< string, unknown > ] ) ),
 							button,
 					  ]
-					: NAVIGATION_TEMPLATE.map( template => createBlock( ...template ) )
+					: NAVIGATION_TEMPLATE.map( template =>
+							createBlock( ...( template as [ string, Record< string, unknown > ] ) )
+					  )
 			);
 		};
 

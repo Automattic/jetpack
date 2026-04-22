@@ -1,9 +1,10 @@
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useState } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import ToggleSection from '../toggle-section';
@@ -51,13 +52,15 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 	const [ isAppendLinkToggleUpdating, setIsAppendLinkToggleUpdating ] = useState( false );
 	const [ isLinkFormatUpdating, setIsLinkFormatUpdating ] = useState( false );
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
-
 	const { toggleSocialNotes, updateSocialNotesConfig } = useDispatch( socialStore );
 
 	const toggleStatus = useCallback( async () => {
 		handleStateUpdating( () => toggleSocialNotes( ! isEnabled ) );
 	}, [ isEnabled, toggleSocialNotes ] );
+
+	const onCreateNoteClick = useCallback( () => {
+		window.location.href = newNoteUrl;
+	}, [ newNoteUrl ] );
 
 	const onToggleAppendLink = useCallback(
 		( append_link: boolean ) => {
@@ -106,10 +109,9 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 
 			<Button
 				className={ styles.button }
-				fullWidth={ isSmall }
-				variant="secondary"
+				variant="outline"
 				disabled={ isUpdating || ! isEnabled }
-				href={ newNoteUrl }
+				onClick={ onCreateNoteClick }
 			>
 				{ __( 'Create a note', 'jetpack-publicize-pkg' ) }
 			</Button>

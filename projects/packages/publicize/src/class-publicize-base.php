@@ -992,7 +992,53 @@ abstract class Publicize_Base {
 			}
 		}
 
+		$x_skip_ids = array_flip( self::get_x_connection_ids_to_skip( $connection_list ) );
+		foreach ( $connection_list as $index => $connection ) {
+			if ( isset( $x_skip_ids[ $connection['connection_id'] ?? '' ] ) ) {
+				$connection_list[ $index ]['enabled'] = false;
+			}
+		}
+
 		return $connection_list;
+	}
+
+	/**
+	 * Return the connection IDs that must be forced to skip to comply with X
+	 * Developer Policy, which forbids posting the same content from multiple
+	 * X accounts.
+	 *
+	 * Keeps the first enabled X connection and returns the IDs of any
+	 * subsequent enabled X connections. Already-done connections are
+	 * historical and are neither disabled nor counted toward the limit.
+	 *
+	 * @param array $connections List of connection arrays. Each entry must have
+	 *                           `service_name`, `connection_id`, and `enabled`;
+	 *                           may optionally include `done`.
+	 *
+	 * @return string[] Connection IDs that should be forced to skip.
+	 */
+	public static function get_x_connection_ids_to_skip( array $connections ): array {
+		$kept     = false;
+		$skip_ids = array();
+
+		foreach ( $connections as $connection ) {
+			if ( 'x' !== ( $connection['service_name'] ?? '' ) ) {
+				continue;
+			}
+			if ( empty( $connection['enabled'] ) ) {
+				continue;
+			}
+			if ( ! empty( $connection['done'] ) ) {
+				continue;
+			}
+			if ( ! $kept ) {
+				$kept = true;
+				continue;
+			}
+			$skip_ids[] = $connection['connection_id'];
+		}
+
+		return $skip_ids;
 	}
 
 	/**
@@ -1379,6 +1425,22 @@ abstract class Publicize_Base {
 		 * it will Publicize to everything *except* those marked for skipping.
 		 */
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
+			// Pre-compute the set of connection IDs that must be forced to skip
+			// under X Developer Policy (only one X connection per post).
+			$force_skip_ids = array();
+			if ( $from_web && 'x' === $service_name ) {
+				$x_snapshot = array();
+				foreach ( $connections as $connection ) {
+					$cid          = $this->get_connection_id( $connection );
+					$x_snapshot[] = array(
+						'service_name'  => 'x',
+						'connection_id' => $cid,
+						'enabled'       => ! empty( $admin_page['submit'][ $cid ] ) || ! empty( $admin_page['submit'][ $service_name ] ),
+					);
+				}
+				$force_skip_ids = array_flip( self::get_x_connection_ids_to_skip( $x_snapshot ) );
+			}
+
 			foreach ( $connections as $connection ) {
 				$connection_data = '';
 				if ( is_object( $connection ) && method_exists( $connection, 'get_meta' ) ) {
@@ -1400,8 +1462,11 @@ abstract class Publicize_Base {
 					// Delete stray service-based post meta.
 					delete_post_meta( $post_id, $this->POST_SKIP . $service_name );
 
-					// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition.
-					if ( empty( $admin_page['submit'][ $connection_id ] ) ) {
+					if ( isset( $force_skip_ids[ $connection_id ] ) ) {
+						// Force-skip under the X single-connection rule.
+						update_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id, 1 );
+					} elseif ( empty( $admin_page['submit'][ $connection_id ] ) ) {
+						// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition.
 						// Also make sure that the service-specific input isn't there.
 						// If the user connected to a new service 'in-page' then a hidden field with the service
 						// name is added, so we just assume they wanted to Publicize to that service.

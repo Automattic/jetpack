@@ -1,9 +1,10 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	FacebookLinkPreview,
 	TwitterLinkPreview,
 	GoogleSearchPreview,
 } from '@automattic/social-previews';
+import { ToggleControl } from '@wordpress/components';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Component } from 'react';
@@ -244,11 +245,11 @@ export const SEO = withModuleSettingsFormHelpers(
 							{ this.props.seoEnhancerAvailable && this.props.hasSeoEnhancer && (
 								<FormFieldset>
 									<ToggleControl
+										__nextHasNoMarginBottom={ true }
 										id="seo-enhancer"
 										disabled={
 											! this.props.getOptionValue( 'seo-tools' ) || ! this.props.hasSeoEnhancer
 										}
-										toggling={ this.props.isSavingAnyOption( 'ai_seo_enhancer_enabled' ) }
 										checked={
 											this.props.hasSeoEnhancer &&
 											this.props.getOptionValue( 'ai_seo_enhancer_enabled' )
