@@ -5,6 +5,7 @@
  * range picker, no URL-persistent view state, no analytics, no tier
  * gating, no upsell callout.
  */
+import { AdminPage } from '@automattic/jetpack-components';
 import { useQuery } from '@tanstack/react-query';
 import { DataViews } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
@@ -142,25 +143,35 @@ export default function ActivityLog() {
 	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
 
 	return (
-		<DataViews< Activity >
-			data={ logData }
-			isLoading={ isFetching || isLoadingList }
-			paginationInfo={ paginationInfo }
-			fields={ fields as Field< Activity >[] }
-			view={ view }
-			actions={ actions }
-			getItemId={ getItemId }
-			search
-			defaultLayouts={ { table: {} } }
-			onChangeView={ onChangeView }
-			onResetView={ resetView }
-			empty={
-				<p>
-					{ view.search
-						? __( 'No activity found', 'jetpack-activity-log' )
-						: __( 'No activities', 'jetpack-activity-log' ) }
-				</p>
-			}
-		/>
+		<AdminPage
+			title={ __( 'Activity Log', 'jetpack-activity-log' ) }
+			subTitle={ __(
+				'Every change made to your site, in one searchable timeline.',
+				'jetpack-activity-log'
+			) }
+		>
+			<div className="jp-activity-log__dataviews-wrapper">
+				<DataViews< Activity >
+					data={ logData }
+					isLoading={ isFetching || isLoadingList }
+					paginationInfo={ paginationInfo }
+					fields={ fields as Field< Activity >[] }
+					view={ view }
+					actions={ actions }
+					getItemId={ getItemId }
+					search
+					defaultLayouts={ { table: {} } }
+					onChangeView={ onChangeView }
+					onResetView={ resetView }
+					empty={
+						<p>
+							{ view.search
+								? __( 'No activity found', 'jetpack-activity-log' )
+								: __( 'No activities', 'jetpack-activity-log' ) }
+						</p>
+					}
+				/>
+			</div>
+		</AdminPage>
 	);
 }

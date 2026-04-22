@@ -12,14 +12,18 @@ body.jetpack_page_jetpack-activity-log {
 	@include jetpack-admin-page-layout;
 }
 
-#jetpack-activity-log-root {
-	padding: 24px;
-	font-size: var(--font-body, 13px);
-	line-height: 1.5;
+// AdminPage provides the Jetpack header + footer + viewport-pinned
+// scroll column; let the DataViews table live full-bleed inside it with
+// no extra inset.
+.jp-activity-log__dataviews-wrapper {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	flex: 1 1 auto;
+	padding: 0;
 
-	// Keep the DataViews table's internal surface from fighting wp-admin's
-	// own max-widths. The mixin above already pins the viewport column.
-	.dataviews-wrapper {
-		background: #fff;
+	// DataViews renders its own surface; don't double-pad it.
+	> .dataviews-wrapper {
+		margin: 0;
 	}
 }

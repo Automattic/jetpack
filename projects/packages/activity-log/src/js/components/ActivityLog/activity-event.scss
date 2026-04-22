@@ -1,8 +1,15 @@
+// Event row icon — fixed 32×32 tile so the layout is stable regardless of
+// surrounding cascade. The inner SVG renders at 24×24 (via the Icon size
+// prop) and the 4px padding completes the 32×32 tile.
 .site-activity-logs__event-icon {
+	box-sizing: border-box;
+	width: 32px;
+	height: 32px;
+	min-width: 32px;
+	padding: 4px;
+	border-radius: 2px;
 	fill: #50575e;
 	background-color: #f0f0f1;
-	border-radius: 2px;
-	padding: 4px;
 }
 
 .site-activity-logs__event {
