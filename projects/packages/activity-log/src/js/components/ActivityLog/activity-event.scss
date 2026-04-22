@@ -1,0 +1,23 @@
+.site-activity-logs__event-icon {
+	fill: #50575e;
+	background-color: #f0f0f1;
+	border-radius: 2px;
+	padding: 4px;
+}
+
+.site-activity-logs__event {
+	color: #1e1e1e;
+}
+
+.site-activity-logs__event-content {
+	flex: 1 0 0;
+	flex-wrap: wrap;
+
+	> span {
+		color: #50575e;
+	}
+}
+
+.site-activity-logs__event-title {
+	font-weight: 500;
+}

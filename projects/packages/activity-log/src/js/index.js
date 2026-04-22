@@ -1,7 +1,8 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as WPElement from '@wordpress/element';
-import Admin from './components/Admin';
+import ActivityLog from './components/ActivityLog';
+import './style.scss';
 
 const queryClient = new QueryClient( {
 	defaultOptions: {
@@ -24,7 +25,7 @@ function render() {
 	const component = (
 		<QueryClientProvider client={ queryClient }>
 			<ThemeProvider>
-				<Admin />
+				<ActivityLog />
 			</ThemeProvider>
 		</QueryClientProvider>
 	);

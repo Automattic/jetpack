@@ -1,0 +1,25 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "sass:meta";
+
+// DataViews is a bundled (not externalized) @wordpress package in
+// jetpack-webpack-config, so its stylesheet must be brought in alongside
+// the JS. See projects/packages/forms/routes/shared.scss for the same pattern.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+body.toplevel_page_jetpack-activity-log,
+body.jetpack_page_jetpack-activity-log {
+
+	@include jetpack-admin-page-layout;
+}
+
+#jetpack-activity-log-root {
+	padding: 24px;
+	font-size: var(--font-body, 13px);
+	line-height: 1.5;
+
+	// Keep the DataViews table's internal surface from fighting wp-admin's
+	// own max-widths. The mixin above already pins the viewport column.
+	.dataviews-wrapper {
+		background: #fff;
+	}
+}

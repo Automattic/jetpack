@@ -1,0 +1,21 @@
+.site-activity-logs__actor {
+
+	> [class^="site-activity-logs__actor-icon-"] {
+		border-radius: 50%;
+		height: 24px;
+		width: 24px;
+	}
+
+	.site-activity-logs__actor-icon-server,
+	.site-activity-logs__actor-icon-default {
+		background-color: #dcdcde;
+		fill: #50575e;
+	}
+
+	.site-activity-logs__actor-mcp {
+		display: block;
+		font-size: 0.75rem;
+		color: #757575;
+		margin-block-start: 2px;
+	}
+}
