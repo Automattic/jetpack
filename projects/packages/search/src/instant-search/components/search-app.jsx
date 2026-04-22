@@ -283,7 +283,7 @@ class SearchApp extends Component {
 				locale: options.locale || 'en',
 			} ),
 			signal: this.aiController.signal,
-			onopen( response ) {
+			onopen: async response => {
 				if ( ! response.ok ) {
 					throw new Error( `HTTP ${ response.status }` );
 				}
@@ -294,7 +294,7 @@ class SearchApp extends Component {
 					if ( data.type === 'chunk' ) {
 						this.setState( state => ( {
 							aiStatus: 'streaming',
-							aiText: state.aiText + data.text,
+							aiText: state.aiText + ( data.text ?? '' ),
 						} ) );
 					} else if ( data.type === 'done' ) {
 						this.setState( { aiStatus: 'done', aiCitations: data.citations || [] } );
