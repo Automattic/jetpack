@@ -79,7 +79,7 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 			</CardHeader>
 			<CardBody>
 				<div className={ styles.detailsBody }>
-					{ contentText && <strong>{ contentText }</strong> }
+					{ contentText && <span className={ styles.detailsSummary }>{ contentText }</span> }
 					<div className={ styles.detailsMeta }>
 						<span>{ formattedTime }</span>
 						{ actorName && (

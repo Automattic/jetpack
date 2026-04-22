@@ -1,7 +1,17 @@
+// Outer page breathing room. `BoundedLayout` caps the content at 1344px
+// and centers it; this adds the surrounding padding that matches the MSD
+// dashboard spacing tokens (24px block, 32px inline at ≥ medium).
 .overview {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+	padding-block: 24px 32px;
+	padding-inline: 32px;
+
+	@media (max-width: 782px) {
+		padding-block: 16px;
+		padding-inline: 16px;
+	}
 }
 
 .grid {
@@ -47,30 +57,50 @@
 	gap: 8px;
 }
 
+.detailsSummary {
+	font-size: 14px;
+	font-weight: 500;
+	color: #1e1e1e;
+}
+
 .detailsMeta {
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	color: var(--wp-admin-theme-color-darker-10, #757575);
+	color: #757575;
+	font-size: 13px;
 }
 
 .detailsPlaceholder {
 	min-block-size: 300px;
 }
 
-// DataViews renders its own search + options bar flush to the container
-// edge. Inside a @wordpress/components `Card` that looks cramped, so we
-// pad the toolbar row without touching the list rows below.
+// DataViews in a `Card` needs its own composition rules: drop the
+// `Card > CardBody > Card > CardBody` collision when there's no custom
+// view-action header, hide the selection checkbox (we use background
+// highlight for the selected row instead, matching Calypso's backup
+// overview), and give the search/filters bar enough breathing room.
 .listCard {
 
-	:global(.dataviews-wrapper) {
-		padding-block-start: 8px;
+	:global(.components-card__body):has(> :global(.dataviews-wrapper)):not(
+		:has(:global(.dataviews__view-actions))
+	) {
+		padding-block-start: 0;
+
+		:global(.dataviews-view-list) div[role="row"]:first-child {
+			border-top: none;
+		}
 	}
 
-	:global(.dataviews-filters__view-actions),
-	:global(.dataviews-view-config),
-	:global(.dataviews-search),
-	:global(.dataviews-pagination) {
-		padding-inline: 16px;
+	// WP DataViews renders a `role="checkbox"` selection indicator in the
+	// list layout whenever `selection` is driven externally. The backup
+	// list uses click-to-select with the selected row visually highlighted
+	// by the default DataViews row state, so the checkbox is redundant.
+	:global(.dataviews-selection-checkbox) {
+		display: none;
+	}
+
+	:global(.dataviews__view-actions) {
+		padding-block: 12px;
 	}
 }

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Card, Icon } from '@wordpress/components';
+import { Card, CardBody, Icon } from '@wordpress/components';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
@@ -95,32 +95,34 @@ const BackupsList: FC< BackupsListProps > = ( {
 
 	return (
 		<Card className={ styles.listCard }>
-			<DataViews< ActivityLogEntry >
-				getItemId={ item => item.activity_id }
-				data={ filteredData }
-				fields={ fields }
-				view={ view }
-				onChangeView={ setView }
-				isLoading={ isLoadingActivityLog }
-				defaultLayouts={ { list: {} } }
-				paginationInfo={ paginationInfo }
-				searchLabel={ __( 'Search backups', 'jetpack-backup-pkg' ) }
-				onChangeSelection={ selection => {
-					const match =
-						selection.length > 0
-							? activityLog.find( item => item.activity_id === selection[ 0 ] ) ?? null
-							: null;
-					onSelectBackup( match );
-				} }
-				selection={ selectedBackup ? [ selectedBackup.activity_id ] : [] }
-				empty={
-					<p>
-						{ view.search
-							? __( 'No results for this search term.', 'jetpack-backup-pkg' )
-							: __( 'No results for this period.', 'jetpack-backup-pkg' ) }
-					</p>
-				}
-			/>
+			<CardBody>
+				<DataViews< ActivityLogEntry >
+					getItemId={ item => item.activity_id }
+					data={ filteredData }
+					fields={ fields }
+					view={ view }
+					onChangeView={ setView }
+					isLoading={ isLoadingActivityLog }
+					defaultLayouts={ { list: {} } }
+					paginationInfo={ paginationInfo }
+					searchLabel={ __( 'Search backups', 'jetpack-backup-pkg' ) }
+					onChangeSelection={ selection => {
+						const match =
+							selection.length > 0
+								? activityLog.find( item => item.activity_id === selection[ 0 ] ) ?? null
+								: null;
+						onSelectBackup( match );
+					} }
+					selection={ selectedBackup ? [ selectedBackup.activity_id ] : [] }
+					empty={
+						<p>
+							{ view.search
+								? __( 'No results for this search term.', 'jetpack-backup-pkg' )
+								: __( 'No results for this period.', 'jetpack-backup-pkg' ) }
+						</p>
+					}
+				/>
+			</CardBody>
 		</Card>
 	);
 };
