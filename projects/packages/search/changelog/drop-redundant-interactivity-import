@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove redundant @wordpress/interactivity import from no-results block view.
