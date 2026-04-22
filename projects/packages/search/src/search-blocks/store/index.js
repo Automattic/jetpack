@@ -265,10 +265,7 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
-			const hasActiveFilters = Object.values( state.activeFilters ?? {} ).some(
-				v => Array.isArray( v ) && v.length > 0
-			);
-			if ( state.searchQuery || hasActiveFilters ) {
+			if ( state.searchQuery || state.hasActiveFilters ) {
 				// The URL already carries this query — don't push a duplicate
 				// history entry on top of the browser's current one.
 				actions.search( { syncUrl: false } );

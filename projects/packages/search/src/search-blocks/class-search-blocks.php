@@ -372,8 +372,9 @@ class Search_Blocks {
 			// taxonomy, label, showCount, maxItems } }.
 			'filterConfigs' => array(),
 
-			// Results + aggregations — populated by search-results block render.php
-			// on SSR, or by the JS store on hydration.
+			// Results + aggregations are populated by the JS store on hydration —
+			// seed empty defaults so template bindings always have a shape to read.
+			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
 			'results'       => array(),
 			'aggregations'  => (object) array(),
 			'totalResults'  => 0,
