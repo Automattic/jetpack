@@ -50,11 +50,10 @@ $seeded_state = function_exists( 'wp_interactivity_state' )
 	: array();
 // aggregations is seeded as stdClass when empty (so JS sees `{}` not `[]`);
 // cast here so the nested subscript works in either shape.
-$seeded_aggs         = (array) ( $seeded_state['aggregations'] ?? array() );
-$seeded_filter_agg   = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
-$seeded_buckets      = $seeded_filter_agg['buckets'] ?? null;
-$has_buckets         = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
-$initial_hidden_attr = $has_buckets ? '' : ' hidden';
+$seeded_aggs       = (array) ( $seeded_state['aggregations'] ?? array() );
+$seeded_filter_agg = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
+$seeded_buckets    = $seeded_filter_agg['buckets'] ?? null;
+$has_buckets       = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
 
 // First-paint "all selected" flag: mirrors the `allBucketsSelected` state
 // getter so the list and the fallback message come out pre-hidden correctly
@@ -73,8 +72,6 @@ if ( $has_buckets && ! empty( $seeded_selected ) ) {
 		}
 	}
 }
-$list_hidden_attr        = $all_selected_on_paint ? ' hidden' : '';
-$all_selected_hidden_att = $all_selected_on_paint ? '' : ' hidden';
 
 $label = $config['label'];
 ?>
@@ -83,7 +80,7 @@ $label = $config['label'];
 	data-wp-interactive="jetpack-search"
 	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
 	data-wp-bind--hidden="!state.hasFilterBuckets"
-	<?php echo esc_attr( $initial_hidden_attr ); ?>
+	<?php echo $has_buckets ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
@@ -91,7 +88,7 @@ $label = $config['label'];
 	<ul
 		class="jetpack-search-filter__list"
 		data-wp-bind--hidden="state.allBucketsSelected"
-		<?php echo esc_attr( $list_hidden_attr ); ?>
+		<?php echo $all_selected_on_paint ? 'hidden' : ''; ?>
 	>
 		<template
 			data-wp-each--item="state.filterItems"
@@ -122,7 +119,7 @@ $label = $config['label'];
 	<p
 		class="jetpack-search-filter__all-selected"
 		data-wp-bind--hidden="!state.allBucketsSelected"
-		<?php echo esc_attr( $all_selected_hidden_att ); ?>
+		<?php echo $all_selected_on_paint ? '' : 'hidden'; ?>
 	>
 		<?php esc_html_e( 'All filters applied', 'jetpack-search-pkg' ); ?>
 	</p>

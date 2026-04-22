@@ -27,13 +27,12 @@ foreach ( (array) $seeded_active as $values ) {
 		break;
 	}
 }
-$initial_hidden_attr = $has_active_on_paint ? '' : ' hidden';
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-bind--hidden="!state.hasActiveFilters"
-	<?php echo esc_attr( $initial_hidden_attr ); ?>
+	<?php echo $has_active_on_paint ? '' : 'hidden'; ?>
 >
 	<span class="jetpack-search-active-filters__heading">
 		<?php esc_html_e( 'Active filters:', 'jetpack-search-pkg' ); ?>
