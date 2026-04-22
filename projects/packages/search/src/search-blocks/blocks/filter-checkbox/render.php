@@ -18,7 +18,11 @@ namespace Automattic\Jetpack\Search;
 // the suppressions are safe.
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
 $filter_key = Filter_Checkbox::derive_filter_key( (array) $attributes );
-if ( '' === $filter_key ) {
+// Short-circuit when the block has no valid filter key OR when the
+// Interactivity API isn't available. Both wp_interactivity_state() (below)
+// and wp_interactivity_data_wp_context() (in the template) were introduced
+// in WP 6.5; calling either without the function would fatal.
+if ( '' === $filter_key || ! function_exists( 'wp_interactivity_state' ) ) {
 	return;
 }
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
@@ -27,27 +31,23 @@ $config = Filter_Checkbox::build_config( (array) $attributes, $filter_key );
 // Register this filter's config into the shared store state. JS reads
 // filterConfigs to build aggregation requests, ES filter clauses, and the
 // active-filters pill list. wp_interactivity_state() deep-merges so each
-// block adds its own key without clobbering others. Guarded for WP versions
-// that don't yet ship the Interactivity API.
-if ( function_exists( 'wp_interactivity_state' ) ) {
-	wp_interactivity_state(
-		'jetpack-search',
-		array(
-			'filterConfigs' => array(
-				$filter_key => $config,
-			),
-		)
-	);
-}
+// block adds its own key without clobbering others. Availability guarded
+// by the early return at the top of the file.
+wp_interactivity_state(
+	'jetpack-search',
+	array(
+		'filterConfigs' => array(
+			$filter_key => $config,
+		),
+	)
+);
 
 // Render `hidden` on first paint when no aggregation buckets are available
 // for this filter. Seeded `state.aggregations` is empty before the first JS
 // fetch, so on the server we default to hidden — otherwise an empty filter
 // title would occupy the top of the sidebar during the load and misalign
 // with the adjacent results column. JS unhides once buckets arrive.
-$seeded_state = function_exists( 'wp_interactivity_state' )
-	? wp_interactivity_state( 'jetpack-search' )
-	: array();
+$seeded_state = wp_interactivity_state( 'jetpack-search' );
 // aggregations is seeded as stdClass when empty (so JS sees `{}` not `[]`);
 // cast here so the nested subscript works in either shape.
 $seeded_aggs       = (array) ( $seeded_state['aggregations'] ?? array() );
