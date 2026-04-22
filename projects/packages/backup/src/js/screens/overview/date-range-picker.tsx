@@ -5,6 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
 import { useMemo } from 'react';
 import { useFormattedTime } from '../../data/use-formatted-time';
+import styles from './style.module.scss';
 import type { DateRange } from '../../data/use-date-range';
 import type { FC } from 'react';
 
@@ -69,7 +70,13 @@ const DateRangePicker: FC< DateRangePickerProps > = ( { dateRange, onChange } ) 
 			className="jp-backup-date-range-picker"
 			popoverProps={ { placement: 'bottom-end' } }
 			renderToggle={ ( { isOpen, onToggle } ) => (
-				<Button variant="secondary" icon={ calendar } onClick={ onToggle } aria-expanded={ isOpen }>
+				<Button
+					className={ styles.dateRangeToggle }
+					variant="secondary"
+					icon={ calendar }
+					onClick={ onToggle }
+					aria-expanded={ isOpen }
+				>
 					<RangeLabel dateRange={ dateRange } />
 				</Button>
 			) }

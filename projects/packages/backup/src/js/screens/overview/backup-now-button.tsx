@@ -44,7 +44,7 @@ const BackupNowButton: FC< BackupNowButtonProps > = ( { backupState } ) => {
 
 	return (
 		<Button
-			variant="primary"
+			variant="secondary"
 			onClick={ handleClick }
 			disabled={ isDisabled }
 			accessibleWhenDisabled
