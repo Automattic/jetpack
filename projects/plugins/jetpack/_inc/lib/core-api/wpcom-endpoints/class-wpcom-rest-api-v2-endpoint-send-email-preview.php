@@ -129,6 +129,8 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		/**
 		 * Filter the values sent to Akismet when checking an email preview.
 		 *
+		 * @module subscriptions
+		 *
 		 * @since $$next-version$$
 		 *
 		 * @param array   $payload The values being sent to Akismet.
