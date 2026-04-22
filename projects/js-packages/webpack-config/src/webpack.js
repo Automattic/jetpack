@@ -121,6 +121,14 @@ const defaultRequestMap = {
 	'@wordpress/admin-ui/build-style/style.css': {
 		external: false,
 	},
+	// `@wordpress/theme` (design-system color ramps + context provider used
+	// by `@wordpress/ui` primitives) has no corresponding `wp-theme` script
+	// registered in WordPress core. When it gets externalized the enqueue
+	// silently fails and every page that imports it renders blank. Bundle
+	// it into the consumer's JS until core ships a registered handle.
+	'@wordpress/theme': {
+		external: false,
+	},
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {

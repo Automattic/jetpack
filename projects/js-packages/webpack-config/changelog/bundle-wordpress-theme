@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bundle `@wordpress/theme` instead of externalizing it; WordPress core doesn't register a `wp-theme` script handle and consumers using `@wordpress/ui` primitives would render blank.
