@@ -43,7 +43,7 @@ store( NAMESPACE, {
 		/**
 		 * True when every available bucket is already in activeFilters — the
 		 * checkbox list would render empty and the block should show the
-		 * "All options selected" message instead. Also covers the case where
+		 * "All filters applied" message instead. Also covers the case where
 		 * selected includes slugs that no longer appear in the aggregation
 		 * (stale URL params), since filterItems would still be empty.
 		 *
