@@ -55,6 +55,16 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
+		// Rollout gate: only serve the widget to Automatticians for now.
+		// The opt-in + orchestrator agents are still being validated
+		// end-to-end; showing the widget to arbitrary visitors would
+		// produce a 403 from the (also staff-only) reader-chat agent.
+		// Falls back to the proxied-request check when is_automattician
+		// isn't available (non-wpcom hosts). Filterable for dev overrides.
+		if ( ! apply_filters( 'jetpack_reader_chat_enqueue_enabled', self::current_user_is_staff() ) ) {
+			return;
+		}
+
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render_mount_div' ) );
 	}
@@ -88,6 +98,29 @@ class Jetpack_Reader_Chat {
 				'default'           => false,
 			)
 		);
+	}
+
+	/**
+	 * Check whether the current request is from an Automattician.
+	 *
+	 * Uses the wpcom is_automattician() helper when available (wpcom
+	 * Simple / Atomic). Falls back to the proxied-request heuristic
+	 * on self-hosted Jetpack sites where is_automattician() does not
+	 * exist. Returns false for logged-out visitors on wpcom (since
+	 * get_current_user_id() is 0 and is_automattician( 0 ) is false).
+	 *
+	 * IMPORTANT: Only use for feature gating, not for authorization.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function current_user_is_staff(): bool {
+		if ( function_exists( 'is_automattician' ) ) {
+			return is_automattician( get_current_user_id() );
+		}
+
+		return self::is_proxied_request();
 	}
 
 	/**
