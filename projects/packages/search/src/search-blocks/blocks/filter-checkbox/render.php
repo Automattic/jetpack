@@ -27,15 +27,18 @@ $config = Filter_Checkbox::build_config( (array) $attributes, $filter_key );
 // Register this filter's config into the shared store state. JS reads
 // filterConfigs to build aggregation requests, ES filter clauses, and the
 // active-filters pill list. wp_interactivity_state() deep-merges so each
-// block adds its own key without clobbering others.
-wp_interactivity_state(
-	'jetpack-search',
-	array(
-		'filterConfigs' => array(
-			$filter_key => $config,
-		),
-	)
-);
+// block adds its own key without clobbering others. Guarded for WP versions
+// that don't yet ship the Interactivity API.
+if ( function_exists( 'wp_interactivity_state' ) ) {
+	wp_interactivity_state(
+		'jetpack-search',
+		array(
+			'filterConfigs' => array(
+				$filter_key => $config,
+			),
+		)
+	);
+}
 
 // Render `hidden` on first paint when no aggregation buckets are available
 // for this filter. The sidebar column lives *after* search-results in the

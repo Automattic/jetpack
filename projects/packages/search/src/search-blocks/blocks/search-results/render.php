@@ -87,14 +87,16 @@ if ( $site_id && ! $is_private && ( '' !== $search_query || ! empty( $active_fil
 	}
 }
 
-wp_interactivity_state(
-	'jetpack-search',
-	array(
-		'results'      => $initial_results,
-		'aggregations' => $initial_aggs,
-		'totalResults' => $total,
-	)
-);
+if ( function_exists( 'wp_interactivity_state' ) ) {
+	wp_interactivity_state(
+		'jetpack-search',
+		array(
+			'results'      => $initial_results,
+			'aggregations' => $initial_aggs,
+			'totalResults' => $total,
+		)
+	);
+}
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
