@@ -42,3 +42,4 @@ RUN useradd -ms /bin/bash dev && \
 
 USER dev
 WORKDIR /home/dev/jetpack
+RUN git config --global core.hooksPath /home/dev/jetpack/tools/ai-sandbox/hooks

@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+# Run standard monorepo pre-push checks
+.husky/pre-push "$@"
+
+# Determine base ref: upstream tracking branch, or origin/trunk for new branches
+BASE=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "origin/trunk")
+CHANGED=$(git diff --name-only "$BASE..HEAD")
+
+# Scope gate: only projects/packages/premium-analytics/** and pnpm-lock.yaml are allowed
+VIOLATIONS=$(echo "$CHANGED" | grep -v '^projects/packages/premium-analytics/' | grep -v '^pnpm-lock\.yaml$' | grep -v '^$' || true)
+if [ -n "$VIOLATIONS" ]; then
+	echo "Sandbox: scope violation — files outside allowed scope:"
+	echo "$VIOLATIONS" | sed 's/^/  /'
+	echo "Only projects/packages/premium-analytics/** and pnpm-lock.yaml are allowed."
+	exit 1
+fi
+
+# Build gate: run build if premium-analytics files changed
+if echo "$CHANGED" | grep -q '^projects/packages/premium-analytics/'; then
+	echo "Sandbox: building premium-analytics..."
+	pnpm --filter @automattic/jetpack-premium-analytics build
+	echo "Build passed."
+fi
