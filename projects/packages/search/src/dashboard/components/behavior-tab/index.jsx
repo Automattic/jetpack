@@ -33,6 +33,7 @@ export default function BehaviorTab() {
 	const save = () => {
 		setIsSaving( true );
 		setSaved( false );
+		setError( null );
 		const path = postId ? `${ REST_BASE }/${ postId }` : REST_BASE;
 		apiFetch( {
 			path,

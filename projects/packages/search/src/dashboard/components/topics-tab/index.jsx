@@ -20,6 +20,7 @@ export default function TopicsTab() {
 
 	const loadTopics = () => {
 		setIsLoading( true );
+		setError( null );
 		apiFetch( { path: REST_BASE + '?per_page=100&status=any' } )
 			.then( setTopics )
 			.catch( err => setError( err.message ) )
