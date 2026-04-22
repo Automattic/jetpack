@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Backup: Switch overview banners to the new Notice component from `@wordpress/ui`.
+Backup: Switch overview banners to the design-system Notice from `@wordpress/ui`.

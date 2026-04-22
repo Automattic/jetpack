@@ -1,6 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { closeSmall } from '@wordpress/icons';
 import { Notice } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useFormattedTime } from '../../data/use-formatted-time';
@@ -10,6 +12,14 @@ import type { FC } from 'react';
 interface BackupNoticesProps {
 	backupState: BackupState;
 }
+
+// We use the design-system Notice from `@wordpress/ui`, but we avoid
+// `Notice.CloseIcon` specifically. That subcomponent wraps an
+// `IconButton`, which pulls in `Tooltip`, which pulls in
+// `@wordpress/theme` — and `@wordpress/theme` is guarded by
+// `__dangerousOptInToUnstableAPIsOnlyForCoreModules`, so it throws in
+// plugin land. Using `@wordpress/components` `Button` for the dismiss
+// affordance keeps the rest of the new Notice without that dependency.
 
 const BackupNotices: FC< BackupNoticesProps > = ( { backupState } ) => {
 	const { status, backup } = backupState;
@@ -28,6 +38,16 @@ const BackupNotices: FC< BackupNoticesProps > = ( { backupState } ) => {
 	}, [ status ] );
 
 	const dismiss = useCallback( () => setIsDismissed( true ), [] );
+
+	const closeButton = (
+		<Button
+			size="small"
+			variant="tertiary"
+			icon={ closeSmall }
+			label={ __( 'Dismiss this notice', 'jetpack-backup-pkg' ) }
+			onClick={ dismiss }
+		/>
+	);
 
 	if ( status === 'enqueued' ) {
 		return (
@@ -74,12 +94,7 @@ const BackupNotices: FC< BackupNoticesProps > = ( { backupState } ) => {
 						'jetpack-backup-pkg'
 					) }
 				</Notice.Description>
-				<Notice.Actions>
-					<Notice.CloseIcon
-						label={ __( 'Dismiss this notice', 'jetpack-backup-pkg' ) }
-						onClick={ dismiss }
-					/>
-				</Notice.Actions>
+				<Notice.Actions>{ closeButton }</Notice.Actions>
 			</Notice.Root>
 		);
 	}
@@ -118,10 +133,7 @@ const BackupNotices: FC< BackupNoticesProps > = ( { backupState } ) => {
 					>
 						{ __( 'Contact support', 'jetpack-backup-pkg' ) }
 					</Notice.ActionButton>
-					<Notice.CloseIcon
-						label={ __( 'Dismiss this notice', 'jetpack-backup-pkg' ) }
-						onClick={ dismiss }
-					/>
+					{ closeButton }
 				</Notice.Actions>
 			</Notice.Root>
 		);
