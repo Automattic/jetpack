@@ -149,6 +149,7 @@ export default function ActivityLog() {
 				'Every change made to your site, in one searchable timeline.',
 				'jetpack-activity-log'
 			) }
+			showFooter={ false }
 		>
 			<div className="jp-activity-log__dataviews-wrapper">
 				<DataViews< Activity >
