@@ -303,13 +303,12 @@ class Search_Blocks {
 	 * @return string
 	 */
 	protected static function get_parent_plugin_slug(): string {
-		// Read the same option `is_plugin_active()` reads, then union in
-		// network-activated plugins when on multisite. Avoids pulling
-		// wp-admin/includes/plugin.php into front-end requests.
-		$active = (array) get_option( 'active_plugins', array() );
-		if ( is_multisite() ) {
-			$active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
-		}
+		// Helper::get_active_plugins() already centralizes single-site +
+		// multisite active-plugin discovery (reads `active_plugins`, unions
+		// network-activated plugins from `active_sitewide_plugins`, dedupes).
+		// Reuse it so multisite/activation behavior stays consistent across
+		// the package if it ever evolves.
+		$active    = Helper::get_active_plugins();
 		$preferred = array(
 			'jetpack-search' => 'jetpack-search/jetpack-search.php',
 			'jetpack'        => 'jetpack/jetpack.php',
