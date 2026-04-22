@@ -222,62 +222,18 @@ class Search_Blocks {
 	 * Mirrors the "Blog Search Page" pattern's layout (see
 	 * `src/search-blocks/patterns/blog-search.php`) wrapped in header/main/
 	 * footer template parts so the plugin-registered template renders the
-	 * same page users get from inserting the pattern directly. The two
-	 * strings are intentionally kept independent — the pattern is the
-	 * canonical layout on trunk and we mirror it here rather than extracting
-	 * a shared helper, so the pattern file stays unchanged.
+	 * same page users get from inserting the pattern directly. Markup lives
+	 * in `templates/jetpack-search.html` — the canonical block-theme format
+	 * for block templates — with a single `%s` placeholder for the filter
+	 * sidebar heading so that string still goes through `esc_html__()`.
 	 *
 	 * @return string Block markup for a complete page template.
 	 */
 	protected static function get_search_template_content() {
-		return '<!-- wp:template-part {"slug":"header"} /-->
-
-<!-- wp:group {"tagName":"main","style":{"spacing":{"margin":{"top":"var:preset|spacing|60"}}},"layout":{"type":"constrained"}} -->
-<main class="wp-block-group" style="margin-top:var(--wp--preset--spacing--60)">
-
-<!-- wp:group {"align":"wide","style":{"spacing":{"blockGap":"1.5rem"}}} -->
-<div class="wp-block-group alignwide">
-<!-- wp:jetpack/search-input /-->
-
-<!-- wp:columns {"style":{"spacing":{"blockGap":"2rem"}}} -->
-<div class="wp-block-columns">
-
-<!-- wp:column -->
-<div class="wp-block-column">
-<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
-<div class="wp-block-group">
-<!-- wp:jetpack/results-count /-->
-<!-- wp:jetpack/sort-control /-->
-</div>
-<!-- /wp:group -->
-
-<!-- wp:jetpack/search-results /-->
-<!-- wp:jetpack/no-results /-->
-<!-- wp:jetpack/load-more /-->
-</div>
-<!-- /wp:column -->
-
-<!-- wp:column {"width":"260px","style":{"border":{"left":{"color":"#e0e0e0","width":"1px"}},"spacing":{"padding":{"left":"2rem"}}}} -->
-<div class="wp-block-column" style="border-left-color:#e0e0e0;border-left-width:1px;padding-left:2rem;flex-basis:260px">
-<!-- wp:heading {"level":2,"style":{"typography":{"fontSize":"1.25rem"}}} -->
-<h2 class="wp-block-heading" style="font-size:1.25rem">' . esc_html__( 'Filter options', 'jetpack-search-pkg' ) . '</h2>
-<!-- /wp:heading -->
-<!-- wp:jetpack/active-filters /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"post_type"} /-->
-</div>
-<!-- /wp:column -->
-
-</div>
-<!-- /wp:columns -->
-</div>
-<!-- /wp:group -->
-
-</main>
-<!-- /wp:group -->
-
-<!-- wp:template-part {"slug":"footer"} /-->';
+		$template_path = __DIR__ . '/templates/jetpack-search.html';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
+		$template = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		return sprintf( $template, esc_html__( 'Filter options', 'jetpack-search-pkg' ) );
 	}
 
 	/**
