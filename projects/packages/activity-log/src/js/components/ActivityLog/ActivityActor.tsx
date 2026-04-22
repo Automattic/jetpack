@@ -1,3 +1,4 @@
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { __experimentalHStack as HStack, Icon } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __, sprintf } from '@wordpress/i18n';
 import { commentAuthorAvatar, globe, wordpress } from '@wordpress/icons';
@@ -62,10 +63,10 @@ function getActorPresentation( actor?: ActivityActorDetails ): { icon: ReactNode
 			if ( name === 'Jetpack' || name === 'Jetpack Boost' ) {
 				return {
 					icon: (
-						<Icon
+						<JetpackLogo
 							className="site-activity-logs__actor-icon-jetpack"
-							icon={ wordpress }
-							size={ ICON_SIZE }
+							showText={ false }
+							height={ ICON_SIZE }
 						/>
 					),
 					label: name,
@@ -89,10 +90,10 @@ function getActorPresentation( actor?: ActivityActorDetails ): { icon: ReactNode
 		case 'Happiness Engineer':
 			return {
 				icon: (
-					<Icon
+					<JetpackLogo
 						className="site-activity-logs__actor-icon-jetpack"
-						icon={ wordpress }
-						size={ ICON_SIZE }
+						showText={ false }
+						height={ ICON_SIZE }
 					/>
 				),
 				label: __( 'Happiness Engineer', 'jetpack-activity-log' ),
