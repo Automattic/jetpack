@@ -209,6 +209,39 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * If the bundled template file can't be read, registration must be a
+	 * no-op — otherwise the slug we prepended to `search_template_hierarchy`
+	 * would resolve to an empty plugin template and take over `/?s=...`
+	 * with a blank page. Simulate the missing-file case by swapping in a
+	 * no-op content filter (the actual file is always present in the repo).
+	 */
+	public function test_register_search_template_skips_when_content_empty() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			$this->markTestSkipped( 'register_block_template() unavailable in this test environment.' );
+		}
+		$registry = \WP_Block_Templates_Registry::get_instance();
+		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+
+		// Stub empty content by temporarily overriding the method's output
+		// via a mock subclass. Simplest: run register_search_template on a
+		// subclass that returns '' from get_search_template_content().
+		$anon = new class() extends Search_Blocks {
+			protected static function get_search_template_content(): string {
+				return '';
+			}
+		};
+		$anon::register_search_template();
+
+		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+			$this->assertFalse( $registry->is_registered( $name ), "Template $name should NOT be registered when content is empty." );
+		}
+	}
+
+	/**
 	 * When both the Jetpack monolith and the standalone Jetpack Search plugin
 	 * are active, the more-specific "Jetpack Search" label must win so the
 	 * Site Editor shows the template under Search rather than the umbrella
@@ -263,9 +296,13 @@ class Search_Blocks_Test extends TestCase {
 	 * @return mixed
 	 */
 	private function invoke_protected( string $method, ...$args ) {
-		// setAccessible() is a no-op since PHP 8.1 and deprecated in 8.5,
-		// so just invoke directly — ReflectionMethod::invoke() already
-		// bypasses visibility.
-		return ( new \ReflectionMethod( Search_Blocks::class, $method ) )->invoke( null, ...$args );
+		$ref = new \ReflectionMethod( Search_Blocks::class, $method );
+		// setAccessible() became a no-op in 8.1 and was deprecated in 8.5,
+		// but the package supports PHP 7.2+ where the call is still required
+		// for ReflectionMethod::invoke() to reach a protected method.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+		return $ref->invoke( null, ...$args );
 	}
 }

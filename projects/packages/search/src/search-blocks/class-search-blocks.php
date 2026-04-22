@@ -266,12 +266,21 @@ class Search_Blocks {
 		if ( ! function_exists( 'register_block_template' ) ) {
 			return;
 		}
+		$content = static::get_search_template_content();
+		// Skip registration if the bundled template file is missing or
+		// unreadable. Since this template's slug is prepended to the
+		// search hierarchy, registering with empty content would take
+		// over `/?s=...` and render a blank page; bailing here lets core
+		// fall through to the theme's `search.html` instead.
+		if ( '' === $content ) {
+			return;
+		}
 		register_block_template(
 			static::get_parent_plugin_slug() . '//' . self::SEARCH_TEMPLATE_SLUG,
 			array(
 				'title'       => __( 'Jetpack Search Results', 'jetpack-search-pkg' ),
 				'description' => __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
-				'content'     => static::get_search_template_content(),
+				'content'     => $content,
 			)
 		);
 	}
