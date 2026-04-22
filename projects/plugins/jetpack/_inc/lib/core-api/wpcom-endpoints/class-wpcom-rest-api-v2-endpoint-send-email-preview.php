@@ -138,6 +138,38 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	}
 
 	/**
+	 * Whether the Akismet plugin is loaded and usable in this request.
+	 *
+	 * Extracted into a method so tests can override it via a subclass.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	protected function is_akismet_available(): bool {
+		return function_exists( 'akismet_http_post' ) || defined( 'AKISMET_VERSION' );
+	}
+
+	/**
+	 * POST a comment-check payload to the Akismet service.
+	 *
+	 * Extracted into a method so tests can override it via a subclass.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $query_string URL-encoded payload.
+	 * @return array Two-element array as returned by Akismet: [ headers_array, body_string ].
+	 */
+	protected function akismet_http_post( string $query_string ): array {
+		if ( method_exists( 'Akismet', 'http_post' ) ) {
+			return \Akismet::http_post( $query_string, 'comment-check' );
+		}
+
+		global $akismet_api_host, $akismet_api_port;
+		return akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
+	}
+
+	/**
 	 * Sends an email preview of a post to the current user.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
