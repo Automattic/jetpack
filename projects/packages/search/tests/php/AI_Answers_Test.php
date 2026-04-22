@@ -19,6 +19,12 @@ class AI_Answers_Test extends Search_TestCase {
 		do_action( 'init' );
 	}
 
+	public static function tearDownAfterClass(): void {
+		unregister_post_type( AI_Answers::BEHAVIOR_CPT );
+		unregister_post_type( AI_Answers::TOPIC_CPT );
+		parent::tearDownAfterClass();
+	}
+
 	public function test_behavior_cpt_registered() {
 		$this->assertTrue( post_type_exists( AI_Answers::BEHAVIOR_CPT ) );
 	}
@@ -45,5 +51,21 @@ class AI_Answers_Test extends Search_TestCase {
 		$registered = get_registered_meta_keys( 'post', AI_Answers::TOPIC_CPT );
 		$this->assertArrayHasKey( '_jstopic_keywords', $registered );
 		$this->assertArrayHasKey( '_jstopic_url', $registered );
+	}
+
+	public function test_is_enabled_defaults_to_false() {
+		$this->assertFalse( AI_Answers::is_enabled() );
+	}
+
+	public function test_is_enabled_reads_option() {
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->assertTrue( AI_Answers::is_enabled() );
+		delete_option( 'jetpack_search_ai_answers_enabled' );
+	}
+
+	public function test_is_enabled_filter_overrides_option() {
+		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+		$this->assertTrue( AI_Answers::is_enabled() );
+		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
 	}
 }

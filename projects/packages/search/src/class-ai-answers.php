@@ -1,6 +1,6 @@
 <?php
 /**
- * AI Answers feature — CPT registration and token helpers.
+ * AI Answers feature — CPT and postmeta registration.
  *
  * @package automattic/jetpack-search
  */
