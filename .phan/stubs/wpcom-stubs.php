@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit b7440f2dced65e4646dafbd77b637472677a4de3.
+ * Stubs automatically generated from WordPress.com commit 83149c4fcf5d8d001fa05035e33dc9646b3fa0f8.
  */
 
 namespace {
@@ -125,7 +125,8 @@ namespace {
      * @param string $message
      * @param string|null $docker_image_tag
      * @param string|null $guid
-     * @param array|null $job
+     * @param string|null $format
+     * @param object|null $job
      * @param array $additional_params
      */
     function videopress_log($feature, $message, $docker_image_tag, $guid, $format, $job = \null, $additional_params = array())
