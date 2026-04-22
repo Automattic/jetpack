@@ -46,9 +46,14 @@ function wpcomsh_fatal_current_user_id() {
 }
 
 /**
- * Identify the plugin associated with a fatal, using the error's absolute
- * file path. Looks up the plugin header (Name, Version, Description) so the
- * screen can name the likely cause.
+ * Identify the extension (plugin, mu-plugin, or theme) associated with a
+ * fatal, using the error's absolute file path. Looks up the Name / Version
+ * / Description headers so the screen can name the likely cause.
+ *
+ * `basename` is the plugin basename (e.g. "akismet/akismet.php") for
+ * plugins and mu-plugins, and the theme stylesheet slug for themes — the
+ * screen uses it to build the appropriate action (signed deactivation
+ * form for plugins, themes.php link for themes).
  *
  * @param array $error Error details from WP_Fatal_Error_Handler.
  * @return array{name:string, version:string, description:string, basename:string, kind:string}|null
@@ -65,6 +70,20 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 	}
 
 	try {
+		if ( 'themes' === $kind ) {
+			$theme = wp_get_theme( $slug );
+			if ( $theme->exists() ) {
+				return array(
+					'name'        => (string) $theme->get( 'Name' ),
+					'version'     => (string) $theme->get( 'Version' ),
+					'description' => wp_strip_all_tags( (string) $theme->get( 'Description' ) ),
+					'basename'    => $slug,
+					'kind'        => $kind,
+				);
+			}
+			return null;
+		}
+
 		if ( ! function_exists( 'get_plugin_data' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -91,8 +110,12 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 }
 
 /**
- * Map an absolute file path to a plugin slug + base dir + kind
- * ("plugins" or "mu-plugins"). Returned as a list: [ slug, base_dir, kind ].
+ * Map an absolute file path to an extension slug + base dir + kind
+ * ("plugins", "mu-plugins", or "themes"). Returned as a list:
+ * [ slug, base_dir, kind ].
+ *
+ * The theme root is resolved via `get_theme_root()` so symlinked or
+ * relocated theme directories still match.
  *
  * @param string $abs_file Absolute path reported by the fatal handler.
  * @return array{0:string,1:string,2:string}
@@ -111,6 +134,16 @@ function wpcomsh_fatal_classify_plugin_path( $abs_file ) {
 			WPMU_PLUGIN_DIR,
 			'mu-plugins',
 		);
+	}
+	if ( function_exists( 'get_theme_root' ) ) {
+		$theme_root = (string) get_theme_root();
+		if ( '' !== $theme_root && 0 === strpos( $abs_file, $theme_root . '/' ) ) {
+			return array(
+				strtok( substr( $abs_file, strlen( $theme_root ) + 1 ), '/' ),
+				$theme_root,
+				'themes',
+			);
+		}
 	}
 	return array( '', '', '' );
 }

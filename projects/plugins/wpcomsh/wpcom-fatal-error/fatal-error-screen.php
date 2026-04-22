@@ -59,7 +59,8 @@ function wpcomsh_fatal_load_textdomain() {
  * @param array $error Error details from WP_Fatal_Error_Handler.
  * @return array Associative array with keys: is_admin (bool),
  *     plugin (array|null), error_message (string), deactivate_form (array|null),
- *     recovery_url (string), support_url (string), environment (string[]).
+ *     switch_theme_url (string), recovery_url (string), support_url (string),
+ *     environment (string[]).
  */
 function wpcomsh_fatal_build_render_context( $error ) {
 	$user_id  = wpcomsh_fatal_current_user_id();
@@ -72,16 +73,22 @@ function wpcomsh_fatal_build_render_context( $error ) {
 		&& ! empty( $plugin['basename'] )
 		&& user_can( $user_id, 'deactivate_plugin', $plugin['basename'] );
 
+	$can_switch_theme = $user_id
+		&& $plugin
+		&& 'themes' === $plugin['kind']
+		&& user_can( $user_id, 'switch_themes' );
+
 	$can_recover = $user_id && user_can( $user_id, 'resume_plugins' );
 
 	return array(
-		'is_admin'        => $is_admin,
-		'plugin'          => $plugin,
-		'error_message'   => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
-		'deactivate_form' => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
-		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_url() : '',
-		'support_url'     => 'https://wordpress.com/help/contact',
-		'environment'     => $is_admin ? wpcomsh_fatal_get_environment_lines() : array(),
+		'is_admin'         => $is_admin,
+		'plugin'           => $plugin,
+		'error_message'    => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
+		'deactivate_form'  => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
+		'switch_theme_url' => $can_switch_theme ? admin_url( 'themes.php' ) : '',
+		'recovery_url'     => $can_recover ? wpcomsh_fatal_build_recovery_url() : '',
+		'support_url'      => 'https://wordpress.com/help/contact',
+		'environment'      => $is_admin ? wpcomsh_fatal_get_environment_lines() : array(),
 	);
 }
 
@@ -142,8 +149,16 @@ function wpcomsh_fatal_render_admin_view( $ctx ) {
 	<p><?php esc_html_e( 'There has been a critical error on this website. Here is what we know and what you can do next.', 'wpcomsh' ); ?></p>
 
 	<?php if ( $ctx['plugin'] ) : ?>
-		<h3 class="wpcomsh-fatal-subhead"><?php esc_html_e( 'Suspected plugin', 'wpcomsh' ); ?></h3>
-		<?php wpcomsh_fatal_render_cause_notice( $ctx['plugin'], $ctx['deactivate_form'] ); ?>
+		<h3 class="wpcomsh-fatal-subhead">
+			<?php
+			if ( 'themes' === $ctx['plugin']['kind'] ) {
+				esc_html_e( 'Suspected theme', 'wpcomsh' );
+			} else {
+				esc_html_e( 'Suspected plugin', 'wpcomsh' );
+			}
+			?>
+		</h3>
+		<?php wpcomsh_fatal_render_cause_notice( $ctx['plugin'], $ctx['deactivate_form'], $ctx['switch_theme_url'] ); ?>
 	<?php endif; ?>
 
 	<h3 class="wpcomsh-fatal-subhead"><?php esc_html_e( 'What you can try next', 'wpcomsh' ); ?></h3>
@@ -166,14 +181,22 @@ function wpcomsh_fatal_render_admin_view( $ctx ) {
 }
 
 /**
- * Render the red "likely cause" notice card: plugin name, description,
- * and the Deactivate action when a signed form is available.
+ * Render the red "suspected extension" notice card: name + version +
+ * description, plus an action when the viewer can remedy the problem.
  *
- * @param array      $plugin          Plugin info from wpcomsh_fatal_identify_plugin().
- * @param array|null $deactivate_form Signed form data from wpcomsh_fatal_build_deactivate_form(), or null to hide the action.
+ * The action branches by kind:
+ *   - Plugins / mu-plugins: signed POST form that deactivates the plugin
+ *     (only rendered when `$deactivate_form` is provided; mu-plugins can't
+ *     be deactivated through WordPress and get no action).
+ *   - Themes: plain link to the Themes admin page, where the user can
+ *     switch to a different theme.
+ *
+ * @param array      $plugin            Extension info from wpcomsh_fatal_identify_plugin().
+ * @param array|null $deactivate_form   Signed form data from wpcomsh_fatal_build_deactivate_form(), or null.
+ * @param string     $switch_theme_url  URL of the Themes admin page, or '' when unavailable.
  * @return void
  */
-function wpcomsh_fatal_render_cause_notice( $plugin, $deactivate_form ) {
+function wpcomsh_fatal_render_cause_notice( $plugin, $deactivate_form, $switch_theme_url = '' ) {
 	?>
 	<div class="wpcomsh-fatal-notice wpcomsh-fatal-notice-error">
 		<div class="wpcomsh-fatal-notice-icon" aria-hidden="true">
@@ -189,7 +212,11 @@ function wpcomsh_fatal_render_cause_notice( $plugin, $deactivate_form ) {
 			<?php if ( ! empty( $plugin['description'] ) ) : ?>
 				<div class="wpcomsh-fatal-notice-desc"><?php echo esc_html( $plugin['description'] ); ?></div>
 			<?php endif; ?>
-			<?php if ( $deactivate_form ) : ?>
+			<?php if ( 'themes' === $plugin['kind'] && '' !== $switch_theme_url ) : ?>
+				<a class="wpcomsh-fatal-btn" href="<?php echo esc_url( $switch_theme_url ); ?>">
+					<?php esc_html_e( 'Switch theme', 'wpcomsh' ); ?>
+				</a>
+			<?php elseif ( $deactivate_form ) : ?>
 				<form method="post"
 					action="<?php echo esc_url( $deactivate_form['action'] ); ?>"
 					onsubmit="return confirm('<?php echo esc_js( __( 'Deactivate this plugin? Your site should load again immediately.', 'wpcomsh' ) ); // phpcs:ignore Jetpack.Functions.EscJs.Found -- esc_attr(json_encode(...)) would double-escape quotes inside onsubmit="..." and break the string. ?>');">

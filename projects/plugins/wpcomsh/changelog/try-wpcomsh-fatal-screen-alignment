@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: changed
 
-wpcom-fatal-error: rename the admin screen's 'Likely cause' heading to 'Suspected plugin' and add an Environment section (WordPress / PHP / theme / server), aligning with the recovery-mode email copy.
+wpcom-fatal-error: rename the fatal-error screen's "Likely cause" heading to "Suspected plugin" / "Suspected theme", identify theme-origin fatals and show the same card with a Switch theme link, and add a collapsible Environment section (WordPress / PHP / theme / server).
