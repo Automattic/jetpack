@@ -98,6 +98,19 @@ build/                         generated — never edit manually
 
 ---
 
+## PR review workflow
+
+When asked to address PR feedback, fetch unresolved comments directly — do not wait for the user to paste them:
+
+```bash
+gh api repos/Automattic/jetpack/pulls/<PR>/comments
+gh api repos/Automattic/jetpack/pulls/<PR>/reviews
+```
+
+Address all open comments, commit, and push. Then leave a summary comment on the PR listing what was changed.
+
+---
+
 ## Stop and ask a human when
 
 - Unsure whether a change affects boot sequence, route discovery, or admin page registration
