@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     xz-utils \
     ca-certificates \
     tmux \
+    gosu \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list \
     && apt-get update && apt-get install -y gh \
@@ -44,6 +45,12 @@ RUN useradd -ms /bin/bash dev && \
     mkdir -p /home/dev/jetpack/node_modules && \
     chown -R dev:dev /home/dev/jetpack
 
+COPY entrypoint.sh /entrypoint.sh
+
 USER dev
 WORKDIR /home/dev/jetpack
 RUN git config --global core.hooksPath /home/dev/jetpack/tools/ai-sandbox/hooks
+
+USER root
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["sleep", "infinity"]
