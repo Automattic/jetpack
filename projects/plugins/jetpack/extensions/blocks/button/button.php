@@ -232,6 +232,11 @@ function get_button_classes( $attributes ) {
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
 	$has_font_size               = array_key_exists( 'fontSize', $attributes );
 	$has_named_border_color      = array_key_exists( 'borderColor', $attributes );
+	$has_named_font_family       = array_key_exists( 'fontFamily', $attributes );
+
+	if ( $has_named_font_family ) {
+		$classes[] = sprintf( 'has-%s-font-family', $attributes['fontFamily'] );
+	}
 
 	if ( $has_font_size ) {
 		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
@@ -292,10 +297,10 @@ function get_button_styles( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
-	$has_font_family             = array_key_exists( 'fontFamily', $attributes );
 	$has_typography_styles       = array_key_exists( 'style', $attributes ) && array_key_exists( 'typography', $attributes['style'] );
 	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
 	$has_custom_text_transform   = $has_typography_styles && array_key_exists( 'textTransform', $attributes['style']['typography'] );
+	$has_custom_font_family      = $has_typography_styles && array_key_exists( 'fontFamily', $attributes['style']['typography'] );
 	$border_styles               = array();
 	$border_attribute            = $attributes['style']['border'] ?? null;
 	$is_border_style_array       = is_array( $border_attribute );
@@ -310,8 +315,8 @@ function get_button_styles( $attributes ) {
 		isset( $border_attribute['left'] )
 	);
 
-	if ( $has_font_family ) {
-		$styles[] = sprintf( 'font-family: %s;', $attributes['fontFamily'] );
+	if ( $has_custom_font_family ) {
+		$styles[] = sprintf( 'font-family: %s;', $attributes['style']['typography']['fontFamily'] );
 	}
 
 	if ( $has_custom_font_size ) {
