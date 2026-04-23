@@ -4,19 +4,46 @@ Welcome to the Jetpack Monorepo! This document will give you some idea of the la
 
 ## Table of contents
 
-- [Layout](#layout)
-- [Compatibility](#compatibility)
-- [First Time](#first-time)
-- [Jetpack Generate Wizard](#jetpack-generate-wizard)
-- [Project Structure](#project-structure)
-- [Testing](#testing)
-- [Mirror Repositories](#mirror-repositories)
-- [Plugin Release Tooling](#plugin-release-tooling)
-- [Jetpack Changelogger](#jetpack-changelogger)
-	- [Using the Jetpack Changelogger](#using-the-jetpack-changelogger)
-- [New Projects](#new-projects)
-	- [Creating a new Composer Package](#creating-a-new-composer-package)
-	- [Creating a new plugin](#creating-a-new-plugin)
+- [Jetpack Monorepo Overview](#jetpack-monorepo-overview)
+  - [Table of contents](#table-of-contents)
+  - [Layout](#layout)
+  - [Compatibility](#compatibility)
+  - [First Time](#first-time)
+  - [Jetpack Generate Wizard](#jetpack-generate-wizard)
+    - [Accepted Arguments](#accepted-arguments)
+    - [What's Included](#whats-included)
+      - [All Projects:](#all-projects)
+      - [Packages](#packages)
+      - [Plugins](#plugins)
+      - [GitHub Actions](#github-actions)
+    - [Next Steps](#next-steps)
+  - [Project structure](#project-structure)
+  - [Building](#building)
+  - [Testing](#testing)
+    - [Linting](#linting)
+    - [Static Analysis](#static-analysis)
+    - [PHP tests](#php-tests)
+      - [PHP tests for non-plugins](#php-tests-for-non-plugins)
+      - [PHP tests for plugins](#php-tests-for-plugins)
+    - [JavaScript tests](#javascript-tests)
+    - [TypeScript type checking](#typescript-type-checking)
+    - [E2E tests](#e2e-tests)
+    - [Code coverage](#code-coverage)
+  - [Mirror repositories](#mirror-repositories)
+    - [Autotagger](#autotagger)
+    - [Auto-release](#auto-release)
+    - [Npmjs Auto-publisher](#npmjs-auto-publisher)
+    - [WordPress.org SVN Auto-publisher](#wordpressorg-svn-auto-publisher)
+  - [Plugin release tooling](#plugin-release-tooling)
+  - [Jetpack Changelogger](#jetpack-changelogger)
+    - [Using the Jetpack Changelogger](#using-the-jetpack-changelogger)
+  - [New Projects](#new-projects)
+    - [Creating a new Composer Package](#creating-a-new-composer-package)
+    - [Creating a new plugin](#creating-a-new-plugin)
+    - [Importing an existing repo](#importing-an-existing-repo)
+  - [External Automattic npm packages](#external-automattic-npm-packages)
+    - [`@automattic/social-previews`](#automatticsocial-previews)
+      - [Development process](#development-process)
 
 ## Layout
 
@@ -73,7 +100,7 @@ Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin fi
 
 ### What's Included
 
-The Jetpack Generate Wizard includes the following for each project: 
+The Jetpack Generate Wizard includes the following for each project:
 #### All Projects:
 
 - composer.json
@@ -380,7 +407,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 	3. If the mirror repo is not under the Automattic organization, make sure that [matticbot](https://github.com/matticbot) can push to the repo.
 	4. Configure Actions settings:
 		* Set "Allow all actions and reusable workflows". The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
-		* Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors".
+		* Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors", click "Save" button.
 		* Set "Workflow permissions" to "Read repository contents and packages permissions".
 		* Disable "Allow GitHub Actions to create and approve pull requests", as PRs are created in the monorepo.
 	5. Set up any secrets and configuration needed (e.g. for [Autotagger](#autotagger) or [Autopublisher](#wordpressorg-svn-auto-publisher)). See PCYsg-xsv-p2#mirror-repo-secrets for details.
