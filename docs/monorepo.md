@@ -406,11 +406,12 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 	2. In the repo settings, turn off wikis, PRs, issues, projects, discussions, and so on.
 	3. If the mirror repo is not under the Automattic organization, make sure that [matticbot](https://github.com/matticbot) can push to the repo.
 	4. Configure Actions settings:
-		* Set "Allow all actions and reusable workflows". The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
+		* Set "Allow all actions and reusable workflows", click "Save" button. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
 		* Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors", click "Save" button.
 		* Set "Workflow permissions" to "Read repository contents and packages permissions".
-		* Disable "Allow GitHub Actions to create and approve pull requests", as PRs are created in the monorepo.
-	5. Set up any secrets and configuration needed (e.g. for [Autotagger](#autotagger) or [Autopublisher](#wordpressorg-svn-auto-publisher)). See PCYsg-xsv-p2#mirror-repo-secrets for details.
+		* Disable "Allow GitHub Actions to create and approve pull requests", as PRs are created in the monorepo, click "Save" button.
+		* Double check all the setting above. Since if you only clicked save once. The options might not have been saved correctly.
+	5. Set up any secrets and configuration needed (e.g. for [Autotagger](#autotagger) or [Autopublisher](#wordpressorg-svn-auto-publisher)). You can see if the Autotagger is needed by checking the composer.json file and search for `"autotagger": true,`. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 	6. The default branch should be `trunk`, matching the monorepo. Note that you can't set the default branch until at least one branch is created in the repo.
 2. If this is a PHP package that will be published on Packagist, do the following:
 	* Copy the new package's `composer.json` from the PR that introduced it into the new repo and commit/push it to `trunk`.
