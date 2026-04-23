@@ -90,12 +90,26 @@ class Filter_Checkbox {
 		}
 
 		return array(
-			'filterKey'  => $filter_key,
-			'filterType' => (string) ( $attributes['filterType'] ?? '' ),
-			'taxonomy'   => sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) ),
-			'label'      => $label,
-			'showCount'  => (bool) ( $attributes['showCount'] ?? true ),
-			'maxItems'   => max( 1, (int) ( $attributes['maxItems'] ?? 10 ) ),
+			'filterKey'       => $filter_key,
+			'filterType'      => (string) ( $attributes['filterType'] ?? '' ),
+			'taxonomy'        => sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) ),
+			'label'           => $label,
+			'showCount'       => (bool) ( $attributes['showCount'] ?? true ),
+			'maxItems'        => max( 1, (int) ( $attributes['maxItems'] ?? 10 ) ),
+			'bucketSortOrder' => static::normalize_bucket_sort_order( $attributes['bucketSortOrder'] ?? null ),
 		);
+	}
+
+	/**
+	 * Normalize the bucketSortOrder attribute. Unknown values fall back to
+	 * `count` so aggregation requests always carry a valid ES `order` key and
+	 * the rendered bucket order matches the instant-search overlay default
+	 * (count, descending).
+	 *
+	 * @param mixed $value Raw attribute value.
+	 * @return string Either 'count' or 'alpha'.
+	 */
+	public static function normalize_bucket_sort_order( $value ): string {
+		return 'alpha' === $value ? 'alpha' : 'count';
 	}
 }
