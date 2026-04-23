@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Search Blocks: no-results gains an inspector control for the message attribute and a showSearchAgainPrompt toggle.
+Search Blocks: Add Inspector panel to the no-results block with a customizable message input and a "show search again prompt" toggle.

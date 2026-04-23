@@ -21,9 +21,9 @@ import { __ } from '@wordpress/i18n';
  */
 export default function NoResultsEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	const defaultMessage = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
-	const message = attributes?.message || defaultMessage;
-	const showSearchAgainPrompt = !! attributes?.showSearchAgainPrompt;
+	const defaultMessage = __( 'No results found.', 'jetpack-search-pkg' );
+	const message = attributes.message || defaultMessage;
+	const showSearchAgainPrompt = attributes.showSearchAgainPrompt ?? false;
 	return h(
 		Fragment,
 		null,
@@ -37,7 +37,7 @@ export default function NoResultsEdit( { attributes, setAttributes } ) {
 					__next40pxDefaultSize: true,
 					__nextHasNoMarginBottom: true,
 					label: __( 'Message', 'jetpack-search-pkg' ),
-					value: attributes?.message || '',
+					value: attributes.message || '',
 					placeholder: defaultMessage,
 					onChange: value => setAttributes( { message: value } ),
 					help: __( 'Leave empty to use the default translated message.', 'jetpack-search-pkg' ),
@@ -46,7 +46,7 @@ export default function NoResultsEdit( { attributes, setAttributes } ) {
 					__nextHasNoMarginBottom: true,
 					label: __( 'Show "search again" prompt', 'jetpack-search-pkg' ),
 					checked: showSearchAgainPrompt,
-					onChange: value => setAttributes( { showSearchAgainPrompt: !! value } ),
+					onChange: value => setAttributes( { showSearchAgainPrompt: value } ),
 					help: __(
 						'Add a small hint below the message suggesting a different search.',
 						'jetpack-search-pkg'

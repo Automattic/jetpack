@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Search;
 
 $message = (string) ( $attributes['message'] ?? '' );
 if ( '' === $message ) {
-	$message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	$message = __( 'No results found.', 'jetpack-search-pkg' );
 }
 
 $show_search_again_prompt = ! empty( $attributes['showSearchAgainPrompt'] );
