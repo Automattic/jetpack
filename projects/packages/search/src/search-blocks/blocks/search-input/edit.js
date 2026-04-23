@@ -88,7 +88,7 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 					checked: submitOnly,
 					onChange: value => setAttributes( { submitOnly: value } ),
 					help: __(
-						'When enabled, queries fire on Enter instead of on every keystroke.',
+						'When enabled, queries fire on Enter or when clearing the field, instead of on every keystroke.',
 						'jetpack-search-pkg'
 					),
 				} )
@@ -126,7 +126,7 @@ export default function SearchInputEdit( { attributes, setAttributes } ) {
 						disabled: true,
 						'aria-label': __( 'Clear search', 'jetpack-search-pkg' ),
 					},
-					'×'
+					'✕'
 				)
 			)
 		)

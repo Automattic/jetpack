@@ -19,7 +19,7 @@ $placeholder = trim( (string) ( $attributes['placeholder'] ?? '' ) );
 if ( '' === $placeholder ) {
 	$placeholder = __( 'Search…', 'jetpack-search-pkg' );
 }
-$show_icon     = ! isset( $attributes['showIcon'] ) || (bool) $attributes['showIcon'];
+$show_icon     = (bool) ( $attributes['showIcon'] ?? true );
 $submit_only   = ! empty( $attributes['submitOnly'] );
 $initial_query = (string) get_search_query();
 $input_id      = wp_unique_id( 'jetpack-search-input-' );

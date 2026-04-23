@@ -111,8 +111,9 @@ class Search_Input_Render_Test extends TestCase {
 	 * copy.
 	 */
 	public function test_empty_placeholder_falls_back_to_default() {
-		$markup = $this->render( array( 'placeholder' => '' ) );
-		$this->assertStringContainsString( 'placeholder="Search…"', $markup );
+		$markup   = $this->render( array( 'placeholder' => '' ) );
+		$expected = 'placeholder="' . esc_attr( __( 'Search…', 'jetpack-search-pkg' ) ) . '"';
+		$this->assertStringContainsString( $expected, $markup );
 	}
 
 	/**
