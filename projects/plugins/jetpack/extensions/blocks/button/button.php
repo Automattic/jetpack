@@ -238,6 +238,11 @@ function get_button_classes( $attributes ) {
 		$classes[] = 'has-custom-font-size';
 	}
 
+	$has_font_family = array_key_exists( 'fontFamily', $attributes );
+	if ( $has_font_family ) {
+		$classes[] = 'has-' . $attributes['fontFamily'] . '-font-family';
+	}
+
 	if ( $has_class_name ) {
 		$classes[] = $attributes['className'];
 	}
@@ -292,8 +297,8 @@ function get_button_styles( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
-	$has_font_family             = array_key_exists( 'fontFamily', $attributes );
 	$has_typography_styles       = array_key_exists( 'style', $attributes ) && array_key_exists( 'typography', $attributes['style'] );
+	$has_custom_font_family      = $has_typography_styles && array_key_exists( 'fontFamily', $attributes['style']['typography'] );
 	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
 	$has_custom_text_transform   = $has_typography_styles && array_key_exists( 'textTransform', $attributes['style']['typography'] );
 	$border_styles               = array();
@@ -310,8 +315,11 @@ function get_button_styles( $attributes ) {
 		isset( $border_attribute['left'] )
 	);
 
-	if ( $has_font_family ) {
-		$styles[] = sprintf( 'font-family: %s;', $attributes['fontFamily'] );
+	// Named font family presets are handled via the has-{slug}-font-family CSS class
+	// (added in get_button_classes). Only apply an inline style for custom font-family values
+	// stored in style.typography.fontFamily.
+	if ( $has_custom_font_family ) {
+		$styles[] = sprintf( 'font-family: %s;', $attributes['style']['typography']['fontFamily'] );
 	}
 
 	if ( $has_custom_font_size ) {
