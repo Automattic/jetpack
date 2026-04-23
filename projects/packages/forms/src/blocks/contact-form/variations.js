@@ -31,7 +31,10 @@ const variations = [
 	{
 		name: 'contact-form',
 		title: __( 'Contact Form', 'jetpack-forms' ),
-		description: __( 'Add a contact form to your page.', 'jetpack-forms' ),
+		description: __(
+			'Let visitors reach out with questions, comments, or inquiries.',
+			'jetpack-forms'
+		),
 		icon: {
 			src: renderMaterialIcon(
 				<>
@@ -84,7 +87,7 @@ const variations = [
 	{
 		name: 'rsvp-form',
 		title: __( 'RSVP Form', 'jetpack-forms' ),
-		description: __( 'Add an RSVP form to your page', 'jetpack-forms' ),
+		description: __( 'Collect event responses and attendance details easily.', 'jetpack-forms' ),
 		icon: {
 			src: renderMaterialIcon(
 				<>
@@ -230,7 +233,7 @@ const variations = [
 	{
 		name: 'registration-form',
 		title: __( 'Registration Form', 'jetpack-forms' ),
-		description: __( 'Add a Registration form to your page', 'jetpack-forms' ),
+		description: __( 'Sign users up for events, memberships, or classes.', 'jetpack-forms' ),
 		icon: {
 			src: renderMaterialIcon(
 				<>
@@ -414,7 +417,7 @@ const variations = [
 	{
 		name: 'appointment-form',
 		title: __( 'Appointment Form', 'jetpack-forms' ),
-		description: __( 'Add an Appointment booking form to your page', 'jetpack-forms' ),
+		description: __( 'Let people book time slots or schedule services with you.', 'jetpack-forms' ),
 		icon: {
 			src: renderMaterialIcon(
 				<>
@@ -589,7 +592,7 @@ const variations = [
 	{
 		name: 'feedback-form',
 		title: __( 'Feedback Form', 'jetpack-forms' ),
-		description: __( 'Add a feedback form to your page', 'jetpack-forms' ),
+		description: __( 'Gather thoughts, suggestions, or ratings from users.', 'jetpack-forms' ),
 		icon: {
 			src: renderMaterialIcon(
 				<>
@@ -707,7 +710,7 @@ const variations = [
 	hasFeatureFlag( 'multistep-form' ) && {
 		name: 'multistep-form',
 		title: __( 'Multistep Form', 'jetpack-forms' ),
-		description: __( 'Create a form that spans multiple steps.', 'jetpack-forms' ),
+		description: __( 'Break longer forms into manageable, user-friendly steps.', 'jetpack-forms' ),
 		icon: {
 			src: renderMaterialIcon(
 				<>
@@ -939,7 +942,7 @@ const variations = [
 	! isWpcomPlatformSite() && {
 		name: 'lead-capture-form',
 		title: __( 'Lead capture', 'jetpack-forms' ),
-		description: __( 'A simple way to collect leads using forms on your site.', 'jetpack-forms' ),
+		description: __( 'Turn visitors into contacts with a quick sign-up form.', 'jetpack-forms' ),
 		keywords: [
 			_x( 'subscribe', 'block search term', 'jetpack-forms' ),
 			_x( 'email', 'block search term', 'jetpack-forms' ),
