@@ -6,12 +6,8 @@
  * CSS hook.
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import { createElement as h } from '@wordpress/element';
+import { createElement as h, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-// The editor only renders one instance of each block at a time, so a stable
-// static id is enough to wire up the label/input pair.
-const SEARCH_INPUT_PREVIEW_ID = 'jetpack-search-input-preview';
 
 /**
  * Render the magnifying-glass glyph used by the search input, matching the
@@ -44,6 +40,9 @@ function SearchGlyph() {
  */
 export default function SearchInputEdit() {
 	const blockProps = useBlockProps();
+	// Per-instance id keeps the label→input association valid when the editor
+	// renders more than one Search Input on the same canvas.
+	const inputId = useId();
 	return h(
 		'div',
 		blockProps,
@@ -51,7 +50,7 @@ export default function SearchInputEdit() {
 			'label',
 			{
 				className: 'jetpack-search-input__label screen-reader-text',
-				htmlFor: SEARCH_INPUT_PREVIEW_ID,
+				htmlFor: inputId,
 			},
 			__( 'Search', 'jetpack-search-pkg' )
 		),
@@ -60,7 +59,7 @@ export default function SearchInputEdit() {
 			{ className: 'jetpack-search-input__inside-wrapper' },
 			h( SearchGlyph, null ),
 			h( 'input', {
-				id: SEARCH_INPUT_PREVIEW_ID,
+				id: inputId,
 				type: 'search',
 				className: 'jetpack-search-input__field',
 				placeholder: __( 'Search…', 'jetpack-search-pkg' ),
