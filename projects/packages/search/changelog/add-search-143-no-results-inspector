@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search Blocks: no-results gains an inspector control for the message attribute and a showSearchAgainPrompt toggle.
