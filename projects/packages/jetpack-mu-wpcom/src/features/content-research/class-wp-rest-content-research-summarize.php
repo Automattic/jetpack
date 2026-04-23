@@ -31,6 +31,16 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 	private const MAX_ARTICLES = 5;
 
 	/**
+	 * Maximum response body size in bytes when fetching an article (2 MB).
+	 */
+	private const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
+
+	/**
+	 * Maximum number of redirects to follow when fetching an article.
+	 */
+	private const MAX_REDIRECTS = 3;
+
+	/**
 	 * WP_REST_Content_Research_Summarize constructor.
 	 */
 	public function __construct() {
@@ -175,13 +185,24 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 	 * @return string The markdown content, or empty string on failure.
 	 */
 	private function fetch_article_content( string $url ): string {
+		if ( ! $this->is_safe_url( $url ) ) {
+			return '';
+		}
+
 		// Skip Google News wrapper URLs — they use JS redirects and encrypted URL encoding,
 		// so we can't extract content server-side. Excerpts will be used instead.
 		if ( strpos( $url, 'news.google.com/' ) !== false ) {
 			return '';
 		}
 
-		$response = wp_safe_remote_get( $url, array( 'timeout' => 10 ) );
+		$response = wp_safe_remote_get(
+			$url,
+			array(
+				'timeout'             => 10,
+				'redirection'         => self::MAX_REDIRECTS,
+				'limit_response_size' => self::MAX_RESPONSE_BYTES,
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
 			return '';
@@ -213,6 +234,33 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 		}
 
 		return $markdown;
+	}
+
+	/**
+	 * Validate that a URL is safe to fetch server-side.
+	 *
+	 * Restricts to http/https schemes and defers to wp_http_validate_url(), which blocks
+	 * private/loopback IPs and other unsafe hosts.
+	 *
+	 * @param string $url The URL to validate.
+	 * @return bool True if the URL is safe to fetch.
+	 */
+	private function is_safe_url( string $url ): bool {
+		if ( empty( $url ) ) {
+			return false;
+		}
+
+		$parts = wp_parse_url( $url );
+		if ( empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
+			return false;
+		}
+
+		$scheme = strtolower( $parts['scheme'] );
+		if ( 'http' !== $scheme && 'https' !== $scheme ) {
+			return false;
+		}
+
+		return (bool) wp_http_validate_url( $url );
 	}
 
 	/**
