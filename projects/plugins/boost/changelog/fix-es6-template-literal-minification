@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS: Fix JS minifier corrupting ES6+ scripts with template literals by skipping re-minification for files that contain backtick strings.

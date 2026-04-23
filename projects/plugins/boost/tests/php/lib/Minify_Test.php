@@ -19,4 +19,13 @@ var three = "three";';
 
 		$this->assertEquals( $minified_js, Minify::js( $expanded_js ) );
 	}
+
+	public function test_js_skips_minification_for_template_literals() {
+		$es6_js = 'const greet = ( name ) => {
+	return `Hello, ${ name }!`;
+};';
+
+		// MatthiasMullie corrupts ES6 template literals; the original must be returned unchanged.
+		$this->assertEquals( $es6_js, Minify::js( $es6_js ) );
+	}
 }

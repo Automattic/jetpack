@@ -25,6 +25,13 @@ class Minify {
 	 * @return string String with whitespace stripped.
 	 */
 	public static function js( $js ) {
+		// MatthiasMullie is an ES5 minifier. It silently corrupts ES6+ template
+		// literals (backtick strings), truncating output by up to 85% of the file.
+		// Skip minification for any script that contains template literals.
+		if ( str_contains( $js, '`' ) ) {
+			return $js;
+		}
+
 		try {
 			$minifier    = new JSMinifier( $js );
 			$minified_js = $minifier->minify();
