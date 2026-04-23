@@ -89,7 +89,17 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 		const next = checked
 			? ALL_SORT_KEYS.filter( key => key === sortKey || storedAvailable.includes( key ) )
 			: storedAvailable.filter( key => key !== sortKey );
-		setAttributes( { availableSortOptions: next } );
+		// If the author just unchecked the current `defaultSort`, move the
+		// attribute onto the first still-available key in the same setAttributes
+		// call. Without this, `defaultSort` would keep the stale value on disk
+		// — the render callback falls back gracefully, but the editor's inspector
+		// would re-bind to `available[0]` visually while the saved attribute
+		// still held the unchecked key, which is confusing to reason about.
+		const update = { availableSortOptions: next };
+		if ( ! checked && sortKey === defaultSort && next.length > 0 ) {
+			update.defaultSort = next[ 0 ];
+		}
+		setAttributes( update );
 	};
 
 	const inspector = h(
