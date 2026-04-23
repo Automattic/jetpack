@@ -69,7 +69,7 @@ measures its parent container and the parent has no fixed height.
    ```
 2. Add a changelog entry:
    ```bash
-   pnpm jetpack changelogger add packages/premium-analytics --significance=patch --type=added --entry="Analytics: Add pie chart with mock data to dashboard route"
+   pnpm jetpack changelogger add packages/premium-analytics --significance=patch --type=added --entry="Analytics: Add pie chart with mock data to dashboard route."
    ```
 3. Commit all changes including the changelog entry.
 4. Push the branch and open a **draft PR** against `trunk`.

@@ -33,8 +33,7 @@ Each route package.json MUST include:
 
 * "private": true
 * "name": "<unique-route-package-name>"
-* "route.path": "<path>"
-* "route.page": "jetpack-premium-analytics"
+* "route": { "path": "<path>", "page": "jetpack-premium-analytics" }
 
 Example:
 

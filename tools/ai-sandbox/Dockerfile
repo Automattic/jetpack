@@ -30,7 +30,7 @@ RUN ARCH="$(dpkg --print-architecture)" && \
 
 ENV PATH="/usr/local/lib/nodejs/bin:${PATH}"
 
-RUN npm install -g pnpm@10.28.2 @anthropic-ai/claude-code
+RUN npm install -g pnpm@10.28.2 @anthropic-ai/claude-code@2.1.118
 
 # Install Composer 2.9.2
 RUN curl -fsSL https://getcomposer.org/installer -o composer-setup.php && \
