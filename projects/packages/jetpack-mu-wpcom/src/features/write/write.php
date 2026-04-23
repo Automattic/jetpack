@@ -192,7 +192,7 @@ function wpcom_write_render_admin_page() {
 			'videoUrl'         => '',
 			'imageAlt'         => '',
 			'setAsFeatured'    => false,
-			'featuredMediaId'  => $edit_featured_id ?? 0,
+			'featuredMediaId'  => $edit_featured_id,
 			'isUploading'      => false,
 			'categories'       => $categories_data,
 			'showCatPicker'    => false,
