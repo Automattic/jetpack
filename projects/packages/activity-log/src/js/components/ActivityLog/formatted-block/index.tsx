@@ -1,15 +1,17 @@
 /**
  * Renders the structured tokens produced by the parser.
  *
- * Ported (simplified) from Calypso's logs-activity-formatted-block. In the
- * wp-admin context we can't resolve Calypso routes like /reader/blogs/…,
- * /people/edit/…, or /plugins/… — those renderers fall through to their
- * children (plain strong text). Direct URL ranges (release notes, docs) still
- * render as external links, which covers the common case visible in the
- * screenshot (e.g. "Gutenberg 23.0.0 ↗").
+ * Ported (simplified) from Calypso's logs-activity-formatted-block. Calypso
+ * links entities into its own routes (/reader/blogs/…, /people/edit/…,
+ * /plugins/…); in wp-admin we link into the equivalent core screens
+ * (post.php, user-edit.php, plugins.php, themes.php, comment.php) via
+ * `buildAdminLink`. Entities without a wp-admin equivalent (site, backup)
+ * fall through to plain strong text. Direct URL ranges (release notes,
+ * docs) still render as external links.
  */
 import { ExternalLink } from '@wordpress/components';
 import { Fragment, type MouseEvent, type ReactNode } from 'react';
+import { buildAdminLink } from '../admin-links';
 import type { ActivityBlockContent, ActivityBlockMeta, ActivityBlockNode } from './types';
 
 type BlockClickHandler = ( event: MouseEvent< HTMLAnchorElement > ) => void;
@@ -56,11 +58,23 @@ const Link: BlockRenderer = ( { content, children, onClick, meta } ) => {
 	);
 };
 
-// Entity renderers (post/comment/person/plugin/theme/backup) render children
-// only — the in-admin equivalents would need the plugin itself (e.g. Backup)
-// to expose a known route, which we don't have a generic hook for yet.
+// Resolve a token's wp-admin destination (if any). Entities without a
+// target (site, backup, or a malformed payload missing an id/slug) fall
+// through to plain strong text. Wrapping the label in <strong> keeps the
+// entity visually emphasized whether or not it resolved to a link.
+const EntityLink: BlockRenderer = ( { content, children } ) => {
+	const href = buildAdminLink( content );
+	if ( ! href ) {
+		return <strong>{ children }</strong>;
+	}
+	return (
+		<a href={ href }>
+			<strong>{ children }</strong>
+		</a>
+	);
+};
+
 const EntityAsStrong: BlockRenderer = ( { children } ) => <strong>{ children }</strong>;
-const EntityAsFragment: BlockRenderer = ( { children } ) => <Fragment>{ children }</Fragment>;
 
 const blockTypeMapping: Record< string, BlockRenderer > = {
 	b: ( { children } ) => <Strong>{ children }</Strong>,
@@ -71,12 +85,15 @@ const blockTypeMapping: Record< string, BlockRenderer > = {
 	a: Link,
 	link: Link,
 	filepath: ( { children } ) => <FilePath>{ children }</FilePath>,
-	post: EntityAsFragment,
-	comment: EntityAsFragment,
-	person: EntityAsStrong,
-	plugin: EntityAsFragment,
-	theme: EntityAsFragment,
-	backup: EntityAsFragment,
+	post: EntityLink,
+	comment: EntityLink,
+	person: EntityLink,
+	plugin: EntityLink,
+	theme: EntityLink,
+	// site (we're already on it) and backup (needs the Backup plugin's own
+	// route) have no generic wp-admin target — render as plain strong text.
+	site: EntityAsStrong,
+	backup: EntityAsStrong,
 };
 
 export const createFormattedBlock = ( mapping: Record< string, BlockRenderer > ) => {

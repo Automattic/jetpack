@@ -10,6 +10,7 @@ export interface ActivityBlockNode {
 	postId?: number | string;
 	isTrashed?: boolean;
 	commentId?: number | string;
+	userId?: number | string;
 	name?: string;
 	siteSlug?: string;
 	pluginSlug?: string;
