@@ -1869,6 +1869,9 @@ importers:
       '@wordpress/icons':
         specifier: 12.2.0
         version: 12.2.0(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.44.0
+        version: 4.44.0
       fast-deep-equal:
         specifier: 3.1.3
         version: 3.1.3

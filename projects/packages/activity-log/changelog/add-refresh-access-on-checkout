@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Activity Log: clear the cached paid-plan signal on return from a successful checkout so the upsell callout disappears immediately after upgrade instead of lingering for the 5-minute transient window. Mirrors Jetpack Social's refresh_plan_data pattern with a nonce-protected redirect query arg.

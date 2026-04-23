@@ -25,7 +25,10 @@ use function current_user_can;
 use function did_action;
 use function do_action;
 use function is_multisite;
+use function sanitize_text_field;
 use function wp_add_inline_script;
+use function wp_unslash;
+use function wp_verify_nonce;
 
 /**
  * Class Jetpack_Activity_Log
@@ -48,6 +51,16 @@ class Jetpack_Activity_Log {
 	 * @var string
 	 */
 	const SCRIPT_HANDLE = 'jetpack-activity-log';
+
+	/**
+	 * Nonce action for refreshing the access flag after a checkout
+	 * return. Used by `admin_init()` below and exposed to the client via
+	 * Initial_State so the upsell CTA can embed a valid nonce in its
+	 * `redirect_to`. Same shape as `Social_Admin_Page::REFRESH_PLAN_NONCE_ACTION`.
+	 *
+	 * @var string
+	 */
+	const REFRESH_ACCESS_NONCE_ACTION = 'jetpack_activity_log_refresh_access';
 
 	/**
 	 * Entry point. Idempotent: safe to call from multiple bootstraps.
@@ -117,8 +130,25 @@ class Jetpack_Activity_Log {
 
 	/**
 	 * Fires when the admin page is loaded.
+	 *
+	 * When the user is returning from a successful checkout, the upsell
+	 * CTA appends `?refresh_access=1&_wpnonce=…` to the `redirect_to`
+	 * value it hands off to WordPress.com. Detect that here, verify the
+	 * nonce, and drop the cached paid-plan signal so
+	 * `Initial_State::get_data()` (which runs later in the same request,
+	 * when the bundle is enqueued) rehydrates from WPCOM instead of
+	 * re-serving the pre-checkout value. Mirrors the pattern in
+	 * `Automattic\Jetpack\Publicize\Social_Admin_Page::admin_init()`.
 	 */
 	public static function admin_init() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified with wp_verify_nonce below.
+		if ( isset( $_GET['refresh_access'] ) && isset( $_GET['_wpnonce'] ) ) {
+			$nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+			if ( wp_verify_nonce( $nonce, self::REFRESH_ACCESS_NONCE_ACTION ) ) {
+				REST_Controller::clear_access_cache();
+			}
+		}
+
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 	}
 

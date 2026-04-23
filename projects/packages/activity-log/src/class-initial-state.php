@@ -61,6 +61,12 @@ class Initial_State {
 				// REST_Controller::get_activity_log().
 				'hasActivityLogsAccess' => REST_Controller::has_activity_logs_access(),
 			),
+			'nonces'        => array(
+				// Consumed by `UpsellCallout` to build a `redirect_to`
+				// URL that invalidates the access cache on return from
+				// checkout. See `Jetpack_Activity_Log::admin_init()`.
+				'refreshAccess' => wp_create_nonce( Jetpack_Activity_Log::REFRESH_ACCESS_NONCE_ACTION ),
+			),
 			'assets'        => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),

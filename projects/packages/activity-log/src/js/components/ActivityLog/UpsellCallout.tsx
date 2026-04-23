@@ -13,11 +13,41 @@
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { Button, __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import illustrationUrl from './activity-logs-callout-illustration.svg';
 import './upsell-callout.scss';
 
 const PRODUCT_SLUG = 'jetpack_security_t1_yearly';
 const UPSELL_SOURCE = 'activity-log-page-purchase';
+
+interface InitialStateWithNonce {
+	nonces?: { refreshAccess?: string };
+}
+
+declare const JPACTIVITYLOG_INITIAL_STATE: InitialStateWithNonce | undefined;
+
+/**
+ * Compute the URL we want WordPress.com to send the user back to after
+ * checkout. We stay on the Activity Log page but append
+ * `refresh_access=1&_wpnonce=…`, which `Jetpack_Activity_Log::admin_init()`
+ * detects to drop the paid-plan access cache — eliminating the 5-minute
+ * "still showing the upsell after upgrade" window.
+ *
+ * @return Absolute URL to pass as `redirectUrl`.
+ */
+const buildPostCheckoutReturnUrl = (): string => {
+	if ( typeof window === 'undefined' ) {
+		return '';
+	}
+	const nonce =
+		typeof JPACTIVITYLOG_INITIAL_STATE !== 'undefined'
+			? JPACTIVITYLOG_INITIAL_STATE?.nonces?.refreshAccess
+			: undefined;
+	if ( ! nonce ) {
+		return window.location.href;
+	}
+	return addQueryArgs( window.location.href, { refresh_access: '1', _wpnonce: nonce } );
+};
 
 /**
  * DataViews-adjacent upsell banner. Rendered as a sibling to the table
@@ -27,10 +57,9 @@ const UPSELL_SOURCE = 'activity-log-page-purchase';
  * @return The callout element.
  */
 export function UpsellCallout() {
-	const redirectUrl = typeof window !== 'undefined' ? window.location.href : '';
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: PRODUCT_SLUG,
-		redirectUrl,
+		redirectUrl: buildPostCheckoutReturnUrl(),
 		from: UPSELL_SOURCE,
 	} );
 
