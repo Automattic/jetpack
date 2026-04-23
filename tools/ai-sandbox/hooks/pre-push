@@ -12,6 +12,11 @@ while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
 	[ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
 	if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
 		BASE=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "origin/trunk")
+		if ! git rev-parse --verify --quiet "$BASE" > /dev/null 2>&1; then
+			echo "Sandbox: cannot determine base ref — '$BASE' not found locally."
+			echo "Run 'git fetch origin' and retry, or set an upstream with 'git branch --set-upstream-to'."
+			exit 1
+		fi
 	else
 		BASE="$remote_sha"
 	fi
