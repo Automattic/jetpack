@@ -617,10 +617,17 @@ const defaultDockerCmdHandler = async argv => {
 	}
 
 	// Auto-clone DB from a running source instance when spinning up a parallel one.
-	if ( argv.type === 'dev' && argv._[ 1 ] === 'up' && argv.detached ) {
+	// Gate on the target actually being up rather than on `--detached`: in foreground
+	// mode `composeExecutor` blocks until the user exits compose, at which point the
+	// target is stopped and there's nothing to clone into. Skipping silently in that
+	// case is friendlier than hard-requiring `-d`.
+	if ( argv.type === 'dev' && argv._[ 1 ] === 'up' ) {
 		const cloneReq = resolveCloneSource( argv );
 		if ( cloneReq ) {
-			if ( ! isProjectRunning( cloneReq.source ) ) {
+			const target = getProjectName( argv );
+			if ( ! isProjectRunning( target ) ) {
+				// Target never came up, or compose was foregrounded and already exited.
+			} else if ( ! isProjectRunning( cloneReq.source ) ) {
 				if ( cloneReq.explicit ) {
 					console.error(
 						chalk.red(
@@ -631,7 +638,7 @@ const defaultDockerCmdHandler = async argv => {
 				}
 				// Auto-clone: silent skip — user gets the normal fresh-install flow.
 			} else {
-				await cloneDatabase( argv, cloneReq.source, getProjectName( argv ), envOpts );
+				await cloneDatabase( argv, cloneReq.source, target, envOpts );
 			}
 		}
 	}

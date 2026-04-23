@@ -7,7 +7,7 @@
 #
 # Usage:   alloc-ports.sh <slug>
 # Output:  JSON on stdout: {"band":N,"wp":N,"phpmy":N,"inbox":N,"smtp":N,"sftp":N}
-# Exit:    0 ok, 1 bad args, 2 no free band.
+# Exit:    0 ok, 1 bad args, 2 no free band, 3 lsof missing.
 
 set -euo pipefail
 
@@ -26,13 +26,18 @@ bands=(
 	"4 8110 8581 1480 2828 1422"
 )
 
-busy=$(docker ps --format '{{.Ports}}' 2>/dev/null \
-	| grep -oE '[0-9]+->' | cut -d'-' -f1 | sort -un || true)
+# Check real host port availability rather than just docker-forwarded ports:
+# docker ps misses anything bound by other processes (common on a12s' machines,
+# e.g. dev servers on 8080). lsof covers both docker-forwarded and host-bound
+# listeners in one call, and is available by default on macOS and Linux dev envs.
+if ! command -v lsof >/dev/null 2>&1; then
+	echo "alloc-ports.sh: lsof not found — cannot reliably check port availability." >&2
+	exit 3
+fi
 
 is_busy() {
 	local port="$1"
-	[[ -z "$busy" ]] && return 1
-	grep -qxF "$port" <<< "$busy"
+	lsof -iTCP:"$port" -sTCP:LISTEN -nP -t >/dev/null 2>&1
 }
 
 # Deterministic starting band from slug hash.
@@ -50,5 +55,5 @@ for (( i = 0; i < ${#bands[@]}; i++ )); do
 	fi
 done
 
-echo "No free port band. Busy ports: ${busy:-none}" >&2
+echo "No free port band — all candidate ports across bands are in use." >&2
 exit 2
