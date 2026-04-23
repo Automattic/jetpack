@@ -38,10 +38,25 @@ const FilePath = ( { children }: { children: ReactNode } ) => (
 	</div>
 );
 
+// The extra trailing slash prevents hostnames like
+// `wordpress.com.malicious.example` from matching. Same guard Calypso's
+// formatted-block uses.
+const isWordPressDotComUrl = ( url?: string | null ): boolean =>
+	!! url && url.startsWith( 'https://wordpress.com/' );
+
 const Link: BlockRenderer = ( { content, children, onClick, meta } ) => {
 	const { url, activity, section, intent } = content;
 
 	if ( ! url ) {
+		return <Fragment>{ children }</Fragment>;
+	}
+
+	// The WPCOM activity-log API frequently wraps a typed entity range
+	// (post/person/…) in an outer anchor pointing at the WordPress.com
+	// equivalent. In wp-admin those destinations aren't useful — drop the
+	// URL and render only the children, so the nested entity renderer
+	// (EntityLink) can emit the local wp-admin link instead.
+	if ( isWordPressDotComUrl( url ) ) {
 		return <Fragment>{ children }</Fragment>;
 	}
 
@@ -60,21 +75,14 @@ const Link: BlockRenderer = ( { content, children, onClick, meta } ) => {
 
 // Resolve a token's wp-admin destination (if any). Entities without a
 // target (site, backup, or a malformed payload missing an id/slug) fall
-// through to plain strong text. Wrapping the label in <strong> keeps the
-// entity visually emphasized whether or not it resolved to a link.
+// through to plain text.
 const EntityLink: BlockRenderer = ( { content, children } ) => {
 	const href = buildAdminLink( content );
 	if ( ! href ) {
-		return <strong>{ children }</strong>;
+		return <Fragment>{ children }</Fragment>;
 	}
-	return (
-		<a href={ href }>
-			<strong>{ children }</strong>
-		</a>
-	);
+	return <a href={ href }>{ children }</a>;
 };
-
-const EntityAsStrong: BlockRenderer = ( { children } ) => <strong>{ children }</strong>;
 
 const blockTypeMapping: Record< string, BlockRenderer > = {
 	b: ( { children } ) => <Strong>{ children }</Strong>,
@@ -91,9 +99,9 @@ const blockTypeMapping: Record< string, BlockRenderer > = {
 	plugin: EntityLink,
 	theme: EntityLink,
 	// site (we're already on it) and backup (needs the Backup plugin's own
-	// route) have no generic wp-admin target — render as plain strong text.
-	site: EntityAsStrong,
-	backup: EntityAsStrong,
+	// route) have no generic wp-admin target — render as plain text.
+	site: ( { children } ) => <Fragment>{ children }</Fragment>,
+	backup: ( { children } ) => <Fragment>{ children }</Fragment>,
 };
 
 export const createFormattedBlock = ( mapping: Record< string, BlockRenderer > ) => {
