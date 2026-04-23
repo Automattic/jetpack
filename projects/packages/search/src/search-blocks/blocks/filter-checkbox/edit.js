@@ -31,6 +31,11 @@ const SAMPLE_FILTER_ITEMS = [
  * fallback label for the inspector placeholder. Returns '' for custom
  * taxonomies (caller should then fall back to the generic "Filter").
  *
+ * Keep in sync with Filter_Checkbox::default_label() in
+ * src/search-blocks/blocks/filter-checkbox/class-filter-checkbox.php — both
+ * must recognize the same (filterType, taxonomy) pairs or the empty-label
+ * preview heading will disagree with the server-rendered front end.
+ *
  * @param {object} attributes - Block attributes.
  * @return {string} Variation default label, or '' when not a built-in variation.
  */
@@ -93,7 +98,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 					placeholder: placeholderLabel,
 					onChange: value => setAttributes( { label: value } ),
 					help: __(
-						'Leave empty to use the variation’s default label (e.g. Category, Tag).',
+						"Leave empty to use the variation's default label (e.g. Category, Tag).",
 						'jetpack-search-pkg'
 					),
 				} ),
