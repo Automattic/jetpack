@@ -27,6 +27,34 @@ const SAMPLE_FILTER_ITEMS = [
 ];
 
 /**
+ * Mirror of Filter_Checkbox::default_label(): resolve the variation-specific
+ * fallback label for the inspector placeholder. Returns '' for custom
+ * taxonomies (caller should then fall back to the generic "Filter").
+ *
+ * @param {object} attributes - Block attributes.
+ * @return {string} Variation default label, or '' when not a built-in variation.
+ */
+function variationDefaultLabel( attributes ) {
+	const filterType = attributes?.filterType || '';
+	if ( filterType === 'post_type' ) {
+		return __( 'Post Type', 'jetpack-search-pkg' );
+	}
+	if ( filterType === 'author' ) {
+		return __( 'Author', 'jetpack-search-pkg' );
+	}
+	if ( filterType === 'taxonomy' ) {
+		const taxonomy = attributes?.taxonomy || '';
+		if ( taxonomy === 'category' ) {
+			return __( 'Category', 'jetpack-search-pkg' );
+		}
+		if ( taxonomy === 'post_tag' ) {
+			return __( 'Tag', 'jetpack-search-pkg' );
+		}
+	}
+	return '';
+}
+
+/**
  * Edit component for the filter-checkbox block.
  *
  * @param {object}   props               - Block props.
@@ -37,7 +65,9 @@ const SAMPLE_FILTER_ITEMS = [
 export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	const rawLabel = attributes?.label || '';
-	const previewLabel = rawLabel || __( 'Filter', 'jetpack-search-pkg' );
+	const variationLabel = variationDefaultLabel( attributes );
+	const placeholderLabel = variationLabel || __( 'Filter', 'jetpack-search-pkg' );
+	const previewLabel = rawLabel || placeholderLabel;
 	const showCount = attributes?.showCount !== false;
 	const maxItems = Math.max(
 		1,
@@ -60,7 +90,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 					__nextHasNoMarginBottom: true,
 					label: __( 'Label', 'jetpack-search-pkg' ),
 					value: rawLabel,
-					placeholder: __( 'Filter', 'jetpack-search-pkg' ),
+					placeholder: placeholderLabel,
 					onChange: value => setAttributes( { label: value } ),
 					help: __(
 						'Leave empty to use the variation’s default label (e.g. Category, Tag).',

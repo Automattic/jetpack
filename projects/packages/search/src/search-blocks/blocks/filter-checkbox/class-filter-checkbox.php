@@ -84,7 +84,7 @@ class Filter_Checkbox {
 	 * @return array<string, mixed>
 	 */
 	public static function build_config( array $attributes, string $filter_key ): array {
-		$label = (string) ( $attributes['label'] ?? '' );
+		$label = sanitize_text_field( (string) ( $attributes['label'] ?? '' ) );
 		if ( '' === $label ) {
 			$label = static::default_label( $attributes );
 		}

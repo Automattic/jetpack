@@ -190,6 +190,23 @@ class Filter_Checkbox_Test extends TestCase {
 	}
 
 	/**
+	 * The label passes through sanitize_text_field() before it reaches the
+	 * Interactivity state so stored block attributes with stray HTML, tabs, or
+	 * newlines can never leak into aggregation-layer metadata or the rendered
+	 * heading. Output is still esc_html()'d separately in render.php.
+	 */
+	public function test_build_config_sanitizes_label() {
+		$config = Filter_Checkbox::build_config(
+			array(
+				'filterType' => 'post_type',
+				'label'      => "  <b>Topic</b>\nextra  ",
+			),
+			'post_types'
+		);
+		$this->assertSame( 'Topic extra', $config['label'] );
+	}
+
+	/**
 	 * An invalid bucketSortOrder in the stored attributes must never reach
 	 * the config map — the JS `buildAggregations()` path maps anything
 	 * non-'alpha' to the count-desc order, but normalizing up front keeps
