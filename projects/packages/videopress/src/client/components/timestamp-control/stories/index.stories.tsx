@@ -33,38 +33,38 @@ _default.args = {
 
 _default.storyName = 'Timestamp Control';
 
-export const decimalPlaces = Template.bind( {} );
-decimalPlaces.args = {
+export const DecimalPlaces = Template.bind( {} );
+DecimalPlaces.args = {
 	value: 3500, // 3.5 seconds
 	max: 1000 * 5, // five seconds
 	decimalPlaces: 2,
 };
 
 // disabled story
-export const disabled = Template.bind( {} );
-disabled.args = {
+export const Disabled = Template.bind( {} );
+Disabled.args = {
 	max: 3600 * 1000 * 2, // 2 hours
 	value: 3600 * 1000 + 15 * 60 * 1000 + 43 * 1000, // 1.5 hours
 	disabled: true,
 };
 
-export const withMarks = Template.bind( {} );
-withMarks.args = {
+export const WithMarks = Template.bind( {} );
+WithMarks.args = {
 	value: 3500, // 3.5 seconds
 	max: 1000 * 10, // ten seconds
 	marksEvery: 1000, // a mark every second
 	fineAdjustment: 200,
 };
 
-export const showTooltip = Template.bind( {} );
-showTooltip.args = {
+export const ShowTooltip = Template.bind( {} );
+ShowTooltip.args = {
 	value: 80000, // 1 minute 20 seconds
 	max: 1000 * 100, // 100 seconds
 	renderTooltip: true,
 };
 
-export const customTooltip = Template.bind( {} );
-customTooltip.args = {
+export const CustomTooltip = Template.bind( {} );
+CustomTooltip.args = {
 	value: 1000 * 50, // 3.5 seconds
 	max: 1000 * 80, // ten seconds
 	fineAdjustment: 200,
@@ -99,8 +99,8 @@ const ChangingValueTemplate: StoryFn< typeof TimestampControl > = args => {
 	);
 };
 
-export const changingValueExternally = ChangingValueTemplate.bind( {} );
-changingValueExternally.args = {
+export const ChangingValueExternally = ChangingValueTemplate.bind( {} );
+ChangingValueExternally.args = {
 	value: 3500, // 3.5 seconds
 	max: 1000 * 5, // five seconds
 	decimalPlaces: 2,

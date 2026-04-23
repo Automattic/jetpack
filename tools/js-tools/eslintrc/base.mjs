@@ -34,6 +34,7 @@ import eslintPluginN from 'eslint-plugin-n';
 import eslintPluginPackageJson from 'eslint-plugin-package-json';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginStorybook from 'eslint-plugin-storybook';
 import eslintPluginYouDontNeedLodashUnderscore from 'eslint-plugin-you-dont-need-lodash-underscore';
 import { glob } from 'glob';
 import globals from 'globals';
@@ -141,6 +142,11 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	} );
 
+	const storybookMainJs = path.relative(
+		basedir,
+		path.join( rootdir, 'projects/js-packages/storybook/storybook/main.js' )
+	);
+
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
 
@@ -149,6 +155,41 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			files: javascriptFiles,
 			extends: [
 				eslintJs.configs.recommended,
+
+				eslintPluginStorybook.configs[ 'flat/recommended' ].map( v => {
+					// We don't have a `.storybook/` dir at the repo root like the config expects.
+					if ( Array.isArray( v.files ) ) {
+						v.files = v.files.map( s =>
+							s.startsWith( '.storybook/main.' ) ? storybookMainJs : s
+						);
+					}
+					return v;
+				} ),
+				{
+					name: 'Storybook overrides',
+					files: [ '**/*.stories.@(ts|tsx|js|jsx|mjs|cjs)' ],
+					rules: {
+						'storybook/csf-component': 'warn',
+
+						// Our Storybook uses vite while our builds use webpack. Easier to stick with the generic package.
+						'storybook/no-renderer-packages': 'off',
+					},
+				},
+				{
+					name: 'Storybook config overrides',
+					files: [ storybookMainJs ],
+					rules: {
+						'storybook/no-uninstalled-addons': [
+							'error',
+							{
+								packageJsonLocation: path.join(
+									rootdir,
+									'projects/js-packages/storybook/package.json'
+								),
+							},
+						],
+					},
+				},
 
 				// Can't just `wordpressEslintPlugin.configs["recommended-with-formatting"]` because that includes React too and we only want that with opts.react.
 				wordpressEslintPlugin.configs[ 'jsx-a11y' ],
