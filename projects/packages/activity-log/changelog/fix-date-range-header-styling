@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activity Log: move the date-range picker into the AdminPage header (via the admin-ui actions slot) and bundle @automattic/ui's stylesheet so the calendar cells render with Calypso-style clean numbers instead of wp-admin default button boxes.

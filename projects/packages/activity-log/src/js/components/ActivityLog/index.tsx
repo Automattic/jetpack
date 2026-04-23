@@ -225,6 +225,20 @@ export default function ActivityLog() {
 
 	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
 
+	// Mounting the picker as an admin-ui `actions` slot places it in the
+	// AdminPage header alongside the title/subtitle — matches MSD's
+	// layout for the logs pages.
+	const headerActions = hasActivityLogsAccess ? (
+		<DateRangePicker
+			start={ dateRange.start }
+			end={ dateRange.end }
+			onChange={ onChangeDateRange }
+			timezoneString={ timezoneString }
+			gmtOffset={ gmtOffset }
+			locale={ locale }
+		/>
+	) : undefined;
+
 	return (
 		<AdminPage
 			title={ __( 'Activity Log', 'jetpack-activity-log' ) }
@@ -232,21 +246,10 @@ export default function ActivityLog() {
 				'Every change made to your site, in one searchable timeline.',
 				'jetpack-activity-log'
 			) }
+			actions={ headerActions }
 			showFooter={ false }
 		>
 			<div className="jp-activity-log__dataviews-wrapper">
-				{ hasActivityLogsAccess && (
-					<div className="jp-activity-log__date-range-row">
-						<DateRangePicker
-							start={ dateRange.start }
-							end={ dateRange.end }
-							onChange={ onChangeDateRange }
-							timezoneString={ timezoneString }
-							gmtOffset={ gmtOffset }
-							locale={ locale }
-						/>
-					</div>
-				) }
 				<DataViews< Activity >
 					data={ logData }
 					isLoading={ isFetching || isLoadingList }

@@ -20,6 +20,12 @@ import { formatLabel } from './utils';
 import type { PresetId } from './utils';
 import './style.scss';
 
+// `@automattic/ui`'s `DateRangeCalendar` styling lives in its own
+// stylesheet — the JS bundle doesn't carry it. Import it here so the
+// calendar renders with the Calypso-style clean day numbers instead
+// of wp-admin's default button boxes.
+import '@automattic/ui/style.css';
+
 type DateRangePickerProps = {
 	start: Date;
 	end: Date;

@@ -6,6 +6,7 @@
 // the JS. See projects/packages/forms/routes/shared.scss for the same pattern.
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
+
 body.toplevel_page_jetpack-activity-log,
 body.jetpack_page_jetpack-activity-log {
 
@@ -28,13 +29,3 @@ body.jetpack_page_jetpack-activity-log {
 	}
 }
 
-// DateRangePicker sits above the DataViews table, right-aligned so it
-// visually aligns with the settings cog on the toolbar below. Matches
-// the layout in Calypso's logs page: the picker is a sibling above,
-// not an overlay on the toolbar.
-.jp-activity-log__date-range-row {
-	display: flex;
-	justify-content: flex-end;
-	padding: 12px 16px 0;
-	flex-shrink: 0;
-}
