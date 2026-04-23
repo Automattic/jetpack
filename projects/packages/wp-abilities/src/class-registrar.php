@@ -149,7 +149,7 @@ abstract class Registrar {
 			if ( ! self::should_register( 'ability', $slug ) ) {
 				continue;
 			}
-			if ( ! isset( $spec['category'] ) ) {
+			if ( ! array_key_exists( 'category', $spec ) ) {
 				$spec['category'] = $category_slug;
 			}
 			wp_register_ability( $slug, $spec );
