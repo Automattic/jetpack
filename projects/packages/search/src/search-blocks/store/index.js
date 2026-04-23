@@ -66,14 +66,16 @@ const { state, actions } = store( NAMESPACE, {
 		 */
 		get resultsCountText() {
 			if ( state.isLoading ) {
-				return state.strings.searching;
+				return state.strings?.searching ?? 'Searching…';
 			}
 			const total = state.totalResults;
 			if ( total === 0 ) {
 				return '';
 			}
 			const template =
-				total === 1 ? state.strings.resultsCountSingle : state.strings.resultsCountPlural;
+				total === 1
+					? state.strings?.resultsCountSingle ?? 'Found %d result'
+					: state.strings?.resultsCountPlural ?? 'Found %d results';
 			return template.replace( '%d', total );
 		},
 
