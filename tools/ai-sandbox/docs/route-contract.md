@@ -40,9 +40,9 @@ Example:
 
 {
 "private": true,
-"name": "_@jetpack-premium-analytics/example-route",
+"name": "_@jetpack-premium-analytics/dashboard-route",
 "route": {
-"path": "/example",
+"path": "/dashboard",
 "page": "jetpack-premium-analytics"
 }
 }
