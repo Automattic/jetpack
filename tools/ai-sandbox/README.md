@@ -36,14 +36,22 @@ Expected: Node 24.x, pnpm 10.x, PHP 8.4.x, Composer 2.9.2
 
 ## Start Claude
 
+**First time only** — complete the OAuth login before starting a remote session:
+
 ```bash
 cd ~/jetpack
+claude
+```
+
+Follow the login prompt (use **claude.ai**, not API key), then exit with `/exit`.
+
+**Start remote session:**
+
+```bash
 IS_SANDBOX=1 claude --dangerously-skip-permissions --remote-control "my-agent-jetpack"
 ```
 
 `--dangerously-skip-permissions` removes interactive permission prompts inside the container. The pre-push scope gate enforces what can be pushed — the flag removes friction for the agent, while the gate enforces code scope at push time.
-
-On first run, follow the login prompt (use **claude.ai**, not API key).
 
 Then open:  
 https://claude.ai/code
