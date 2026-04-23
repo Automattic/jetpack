@@ -30,8 +30,8 @@ fi
 # Run standard monorepo pre-push checks (only if scope is clean)
 echo "$PUSH_REFS" | "$REPO_ROOT/.husky/pre-push" "$@"
 
-# Build gate: run build if premium-analytics files changed
-if echo "$CHANGED" | grep -q '^projects/packages/premium-analytics/'; then
+# Build gate: run build if premium-analytics files or pnpm-lock.yaml changed
+if echo "$CHANGED" | grep -qE '^projects/packages/premium-analytics/|^pnpm-lock\.yaml$'; then
 	echo "Sandbox: building premium-analytics..."
 	pnpm --filter @automattic/jetpack-premium-analytics build
 	echo "Build passed."
