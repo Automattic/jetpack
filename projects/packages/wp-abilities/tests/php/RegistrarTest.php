@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\WP_Abilities;
 
 use Brain\Monkey;
 use Brain\Monkey\Actions;
+use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -251,6 +252,50 @@ class RegistrarTest extends TestCase {
 		TestFixtureRegistrar::init();
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Deliberate: asserts repeat init() calls are safe.
 		TestFixtureRegistrar::init();
+	}
+
+	/**
+	 * Returning false from the should-register filter blocks category registration.
+	 */
+	public function test_filter_blocks_category_registration(): void {
+		Filters\expectApplied( 'jetpack_wp_abilities_should_register' )
+			->once()
+			->with( true, 'category', 'fixture/slug' )
+			->andReturn( false );
+
+		Functions\expect( 'wp_register_ability_category' )->never();
+
+		TestFixtureRegistrar::register_category();
+	}
+
+	/**
+	 * Returning false from the should-register filter blocks ability registration.
+	 */
+	public function test_filter_blocks_all_abilities_when_returning_false(): void {
+		Filters\expectApplied( 'jetpack_wp_abilities_should_register' )
+			->andReturn( false );
+
+		Functions\expect( 'wp_register_ability' )->never();
+
+		TestFixtureRegistrar::register_abilities();
+	}
+
+	/**
+	 * The filter fires per ability slug, so consumers can allow-list individually.
+	 */
+	public function test_filter_allows_per_ability_allow_list(): void {
+		Filters\expectApplied( 'jetpack_wp_abilities_should_register' )
+			->andReturnUsing(
+				static function ( $enabled, $type, $slug ) {
+					return 'ability' === $type && 'fixture/alpha' === $slug;
+				}
+			);
+
+		Functions\expect( 'wp_register_ability' )
+			->once()
+			->with( 'fixture/alpha', \Mockery::type( 'array' ) );
+
+		TestFixtureRegistrar::register_abilities();
 	}
 
 	/**

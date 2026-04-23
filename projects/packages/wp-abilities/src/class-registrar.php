@@ -88,7 +88,9 @@ abstract class Registrar {
 	/**
 	 * Register the category with the WordPress Abilities API.
 	 *
-	 * Safe to call directly or as a hook callback.
+	 * Safe to call directly or as a hook callback. Passes the category slug
+	 * through the `jetpack_wp_abilities_should_register` filter so consumers
+	 * can gate registration per-site, per-user, or per-feature-flag.
 	 *
 	 * @return void
 	 */
@@ -97,13 +99,21 @@ abstract class Registrar {
 			return;
 		}
 
-		wp_register_ability_category( static::get_category_slug(), static::get_category_definition() );
+		$slug = static::get_category_slug();
+		if ( ! self::should_register( 'category', $slug ) ) {
+			return;
+		}
+
+		wp_register_ability_category( $slug, static::get_category_definition() );
 	}
 
 	/**
 	 * Register every ability returned by `get_abilities()`.
 	 *
-	 * Safe to call directly or as a hook callback.
+	 * Safe to call directly or as a hook callback. Each ability slug is
+	 * passed through the `jetpack_wp_abilities_should_register` filter
+	 * individually, so consumers can enable a subset of abilities on a
+	 * subset of sites or users.
 	 *
 	 * @return void
 	 */
@@ -115,10 +125,39 @@ abstract class Registrar {
 		$category_slug = static::get_category_slug();
 
 		foreach ( static::get_abilities() as $slug => $spec ) {
+			if ( ! self::should_register( 'ability', $slug ) ) {
+				continue;
+			}
 			if ( ! isset( $spec['category'] ) ) {
 				$spec['category'] = $category_slug;
 			}
 			wp_register_ability( $slug, $spec );
 		}
+	}
+
+	/**
+	 * Apply the shared registration filter.
+	 *
+	 * @param string $type One of 'category' or 'ability'.
+	 * @param string $slug The slug being registered.
+	 * @return bool True when registration should proceed, false to skip.
+	 */
+	private static function should_register( string $type, string $slug ): bool {
+		/**
+		 * Filters whether an Abilities API category or ability should be registered.
+		 *
+		 * Returning false from any filter callback skips the registration,
+		 * which is how consumers gate rollout per-site, per-user, or per
+		 * feature flag. The filter fires once per category and once per
+		 * individual ability, so callbacks can allow-list or deny-list by
+		 * `$slug`.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool   $enabled Whether to register. Default true.
+		 * @param string $type    Either 'category' or 'ability'.
+		 * @param string $slug    The category or ability slug being registered.
+		 */
+		return (bool) apply_filters( 'jetpack_wp_abilities_should_register', true, $type, $slug );
 	}
 }

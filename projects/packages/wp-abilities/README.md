@@ -63,6 +63,27 @@ My_Plugin_Abilities::init();
 
 If an ability spec omits `category`, the registrar auto-injects `get_category_slug()`. If the spec sets `category` explicitly (for cross-registrar shared abilities), the explicit value is preserved.
 
+## Gating registration for gradual rollout
+
+Every registration passes through the `jetpack_wp_abilities_should_register` filter. Returning `false` skips that registration — this is how you roll out a category or an ability gradually (per user, per site, per feature flag).
+
+```php
+// Roll out My Plugin abilities only on sites that have opted in.
+add_filter(
+	'jetpack_wp_abilities_should_register',
+	static function ( bool $enabled, string $type, string $slug ): bool {
+		if ( ! str_starts_with( $slug, 'my-plugin' ) ) {
+			return $enabled;
+		}
+		return (bool) get_option( 'my_plugin_abilities_enabled', false );
+	},
+	10,
+	3
+);
+```
+
+The filter fires once per category and once per individual ability, so callbacks can switch on `$type` (`'category'` or `'ability'`) and/or `$slug` for granular control.
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we recommend using [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader for maximum interoperability with other plugins that use this package.
