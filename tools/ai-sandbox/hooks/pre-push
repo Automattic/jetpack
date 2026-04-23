@@ -6,9 +6,6 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 # Save stdin — pre-push receives pushed refs on stdin; pass to both hooks
 PUSH_REFS=$(cat)
 
-# Run standard monorepo pre-push checks
-echo "$PUSH_REFS" | "$REPO_ROOT/.husky/pre-push" "$@"
-
 # Collect changed files from actual pushed refs
 CHANGED=""
 while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
@@ -21,7 +18,7 @@ while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
 	CHANGED="$CHANGED$(git diff --name-only "$BASE..$local_sha")"$'\n'
 done <<< "$PUSH_REFS"
 
-# Scope gate: only projects/packages/premium-analytics/** and pnpm-lock.yaml are allowed
+# Scope gate first: fast-fail before running the potentially slow monorepo hook
 VIOLATIONS=$(echo "$CHANGED" | grep -v '^projects/packages/premium-analytics/' | grep -v '^pnpm-lock\.yaml$' | grep -v '^$' || true)
 if [ -n "$VIOLATIONS" ]; then
 	echo "Sandbox: scope violation — files outside allowed scope:"
@@ -29,6 +26,9 @@ if [ -n "$VIOLATIONS" ]; then
 	echo "Only projects/packages/premium-analytics/** and pnpm-lock.yaml are allowed."
 	exit 1
 fi
+
+# Run standard monorepo pre-push checks (only if scope is clean)
+echo "$PUSH_REFS" | "$REPO_ROOT/.husky/pre-push" "$@"
 
 # Build gate: run build if premium-analytics files changed
 if echo "$CHANGED" | grep -q '^projects/packages/premium-analytics/'; then
