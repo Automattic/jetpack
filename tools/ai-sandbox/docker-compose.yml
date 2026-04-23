@@ -8,9 +8,6 @@ services:
     volumes:
       - ~/.claude:/home/dev/.claude
       - ../../:/home/dev/jetpack
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ~/.ssh/id_ed25519:/home/dev/.ssh/id_ed25519:ro
-      - ~/.ssh/known_hosts:/home/dev/.ssh/known_hosts:ro
       - jetpack_node_modules:/home/dev/jetpack/node_modules
     working_dir: /home/dev/jetpack
     stdin_open: true
