@@ -769,7 +769,7 @@ jobs:
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
         run: |
           MBASE=$( git merge-base "$BASE" "$HEAD" )
           EXIT=0
