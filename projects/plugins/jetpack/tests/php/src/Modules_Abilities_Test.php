@@ -207,7 +207,9 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$this->fire_abilities_lifecycle();
 
 		$registered_slugs = array_map(
-			static fn ( $a ) => $a->get_name(),
+			static function ( $a ) {
+				return $a->get_name();
+			},
 			wp_get_abilities()
 		);
 		foreach ( array_keys( Modules_Abilities::get_abilities() ) as $slug ) {
