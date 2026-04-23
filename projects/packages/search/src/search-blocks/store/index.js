@@ -1,4 +1,5 @@
 import { store } from '@wordpress/interactivity';
+import { formatResultsCountText } from '../blocks/results-count/format';
 import { buildSearchUrl } from './api';
 import { normalizeResult } from './result-utils';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
@@ -55,14 +56,20 @@ const { state, actions } = store( NAMESPACE, {
 		 * Strings are seeded from PHP via `wp_interactivity_state()`
 		 * (see `Search_Blocks::build_initial_strings()`) because the
 		 * view bundle can't import `@wordpress/i18n` — WP only registers
-		 * `@wordpress/interactivity` as a script module. Languages with
-		 * more than two plural forms degrade to "plural for all count
-		 * > 1" since the count is dynamic on the client.
+		 * `@wordpress/interactivity` as a script module. When
+		 * `resultsCountTemplate` is present (default: translated
+		 * `Showing %1$d–%2$d of %3$d results`, overridable by the
+		 * results-count block's `template` attribute), the template
+		 * formatter runs so authors can customise copy and surface the
+		 * current query. Languages with more than two plural forms
+		 * degrade to "plural for all count > 1" since the count is
+		 * dynamic on the client.
 		 *
 		 * @return {string} Translated "Searching…" while a search is in
-		 * flight, "Found 42 results" once a query resolves with hits,
-		 * or an empty string in every other case — pre-search, error,
-		 * or zero hits. The no-results block owns the empty-state copy.
+		 * flight, the formatted template (or "Found N results" when no
+		 * template is seeded) once a query resolves with hits, or an
+		 * empty string in every other case — pre-search, error, or zero
+		 * hits. The no-results block owns the empty-state copy.
 		 */
 		get resultsCountText() {
 			if ( state.isLoading ) {
@@ -72,11 +79,28 @@ const { state, actions } = store( NAMESPACE, {
 			if ( total === 0 ) {
 				return '';
 			}
-			const template =
+			const template = state.strings?.resultsCountTemplate;
+			if ( template ) {
+				const last = Array.isArray( state.results ) ? state.results.length : 0;
+				// `first` is always 1 when any result exists because load-more
+				// is append-only: each page's hits are concatenated onto the
+				// same `state.results` array, so the visible window always
+				// starts at the first result. The placeholder is still
+				// exposed for authors whose custom templates want to spell
+				// out "1" explicitly, and to leave room for a future
+				// offset-pagination variant without a template break.
+				return formatResultsCountText( template, {
+					first: last > 0 ? 1 : 0,
+					last,
+					total,
+					query: state.searchQuery ?? '',
+				} );
+			}
+			const fallback =
 				total === 1
 					? state.strings?.resultsCountSingle ?? 'Found %d result'
 					: state.strings?.resultsCountPlural ?? 'Found %d results';
-			return template.replace( '%d', total );
+			return fallback.replace( '%d', total );
 		},
 
 		/**

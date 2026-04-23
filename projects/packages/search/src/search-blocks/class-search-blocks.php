@@ -555,20 +555,23 @@ class Search_Blocks {
 	protected static function build_initial_strings(): array {
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
-				'searching'          => 'Searching…',
-				'resultsCountSingle' => 'Found %d result',
-				'resultsCountPlural' => 'Found %d results',
-				'removeFilter'       => 'Remove %s',
+				'searching'            => 'Searching…',
+				'resultsCountSingle'   => 'Found %d result',
+				'resultsCountPlural'   => 'Found %d results',
+				'resultsCountTemplate' => 'Showing %1$d–%2$d of %3$d results',
+				'removeFilter'         => 'Remove %s',
 			);
 		}
 		return array(
-			'searching'          => __( 'Searching…', 'jetpack-search-pkg' ),
+			'searching'            => __( 'Searching…', 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountSingle' => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
+			'resultsCountSingle'   => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountPlural' => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
+			'resultsCountPlural'   => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
+			/* translators: Default format for the results-count block. %1$d: first shown result (1-based), %2$d: last shown result, %3$d: total result count. Authors can override this per block instance via the block's Template inspector control; the %4$s placeholder (current search query) is recognised by the view-bundle formatter but omitted from the default so the string reads cleanly with no query echo. */
+			'resultsCountTemplate' => __( 'Showing %1$d–%2$d of %3$d results', 'jetpack-search-pkg' ),
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
-			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
+			'removeFilter'         => __( 'Remove %s', 'jetpack-search-pkg' ),
 		);
 	}
 
