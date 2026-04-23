@@ -41,18 +41,19 @@ const BLOCKS = [
 	[ 'jetpack/load-more', LoadMoreEdit ],
 ];
 
-// Attach the Jetpack logo to the "Jetpack Search" block category so the
-// inserter heading matches the Forms / Monetize / Grow headings. The
-// category itself is registered server-side via the `block_categories_all`
-// filter (see Search_Blocks::register_block_category); core strips SVG
-// `icon` values at that PHP boundary, so the icon has to be applied
-// client-side with setCategories().
+// Shape the "Jetpack Search" block category to match the Forms / Monetize /
+// Grow headings in the inserter: the Jetpack logo next to a single-word
+// label (the logo carries the branding, so the label drops the "Jetpack"
+// prefix). The category itself is registered server-side via the
+// `block_categories_all` filter (see Search_Blocks::register_block_category);
+// core strips SVG `icon` values at that PHP boundary, so the icon has to be
+// applied client-side with setCategories().
 setCategories(
 	getCategories().map( category =>
 		category.slug === 'jetpack-search'
 			? {
 					...category,
-					title: __( 'Jetpack Search', 'jetpack-search-pkg' ),
+					title: __( 'Search', 'jetpack-search-pkg' ),
 					icon: <JetpackLogo showText={ false } height={ 24 } />,
 			  }
 			: category
