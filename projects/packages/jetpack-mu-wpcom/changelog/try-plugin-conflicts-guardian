@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Plugin Conflicts Guardian: new pre-flight plugin-compatibility check (WP.org metadata vs site WP/PHP versions) behind the pcg_enable filter; adds a Tools admin page and wp plugin-compat WP-CLI command when enabled.
+Plugin Conflicts Guardian: new pre-flight check that blocks a plugin activation (via plugins.php or update.php) when a short-lived HTTP probe captures a fatal during load or the init cycle; gated behind the pcg_enable filter.

@@ -78,6 +78,15 @@ function pcg_maybe_handle_probe() {
 		);
 	}
 
+	// Tell WP's own fatal-error handler to stand down for this request.
+	// `WP_SANDBOX_SCRAPING` is the core-blessed opt-out: the built-in
+	// shutdown handler returns early when it sees this constant, which
+	// leaves our shutdown handler free to emit a JSON verdict (instead
+	// of WP running wp_die() first and exit()ing before we get a turn).
+	if ( ! defined( 'WP_SANDBOX_SCRAPING' ) ) {
+		define( 'WP_SANDBOX_SCRAPING', true );
+	}
+
 	// Swallow any output the plugin emits during load / hooks so the
 	// JSON response isn't corrupted; the shutdown handler flushes and
 	// discards it.

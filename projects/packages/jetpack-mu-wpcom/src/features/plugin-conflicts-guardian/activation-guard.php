@@ -1,11 +1,11 @@
 <?php
 /**
- * Activation guard — blocks plugin activations that fail the
- * pre-flight probe so a bad activate click can't fatal the site.
+ * Activation guard — blocks plugin activations that fail a pre-flight
+ * load probe, so a bad Activate click can't fatal the site.
  *
  * Hooked on `load-plugins.php` and `load-update.php` at priority 0,
  * which fire before wp-admin's inline handlers decide what to do
- * with the request. We cover both entry points:
+ * with the request. We cover every WordPress activation entry point:
  *
  *   - `plugins.php?action=activate` (single) and `...=activate-selected` (bulk)
  *     — the normal Activate link on the plugins list.
@@ -13,14 +13,11 @@
  *     after an Add New → Upload Plugin install completes.
  *
  * When the probe returns a fatal / throwable for at least one
- * plugin, we redirect back to the plugins list with a notice
+ * plugin, we redirect back to the plugins list with an error notice
  * instead of letting core call `activate_plugin()`.
  *
- * Checks are skipped when:
- *   - The nonce is missing or invalid (core will handle that error).
- *   - The plugin file is not locally installed (an uninstalled plugin
- *     can't be activated anyway).
- *   - The guard filter is flipped off via `pcg_guard_activation`.
+ * The `pcg_guard_activation` filter (default true) is the single
+ * on/off knob for the feature.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -30,9 +27,9 @@ add_action( 'load-update.php', 'pcg_guard_maybe_block_activation', 0 );
 add_action( 'admin_notices', 'pcg_guard_render_block_notice' );
 
 /**
- * Entry point on `load-plugins.php`. Inspects the request, runs the
- * probe on each plugin being activated, and redirects with a notice
- * when at least one would fatal.
+ * Entry point on `load-plugins.php` / `load-update.php`. Inspects
+ * the request, runs the probe on each plugin being activated, and
+ * redirects with a notice when at least one would fatal.
  */
 function pcg_guard_maybe_block_activation() {
 	if ( ! apply_filters( 'pcg_guard_activation', true ) ) {
@@ -93,9 +90,7 @@ function pcg_guard_maybe_block_activation() {
 		MINUTE_IN_SECONDS
 	);
 
-	wp_safe_redirect(
-		self_admin_url( 'plugins.php?pcg_blocked=1' )
-	);
+	wp_safe_redirect( self_admin_url( 'plugins.php?pcg_blocked=1' ) );
 	exit;
 }
 
@@ -119,15 +114,69 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 		$result = $tester->test( $path );
 		$status = isset( $result['status'] ) ? (string) $result['status'] : '';
 		if ( 'fatal' === $status || 'throwable' === $status ) {
-			$blocked[ $plugin ] = sprintf(
-				'%s fatals during load: %s',
-				$plugin,
-				isset( $result['message'] ) ? (string) $result['message'] : 'unknown error'
-			);
+			$blocked[ $plugin ] = pcg_guard_format_block_reason( $result );
 		}
 	}
 
 	return $blocked;
+}
+
+/**
+ * Format a human-readable reason from the probe's result payload.
+ *
+ * Includes file + line when present, and a severity label derived
+ * from the `errno` (for fatals) or the exception class (for
+ * throwables). The plugin name is omitted because it's already
+ * rendered on its own line in the notice list.
+ *
+ * @param array $result Probe result from PCG_Load_Tester::test().
+ * @return string
+ */
+function pcg_guard_format_block_reason( $result ) {
+	$message = isset( $result['message'] ) ? trim( (string) $result['message'] ) : '';
+	if ( '' === $message ) {
+		$message = 'unknown error';
+	}
+
+	$label = '';
+	if ( 'throwable' === ( $result['status'] ?? '' ) && ! empty( $result['class'] ) ) {
+		$label = (string) $result['class'];
+	} elseif ( 'fatal' === ( $result['status'] ?? '' ) && isset( $result['errno'] ) ) {
+		$label = pcg_guard_errno_name( (int) $result['errno'] );
+	}
+
+	$location = '';
+	if ( ! empty( $result['file'] ) ) {
+		$file     = basename( (string) $result['file'] );
+		$line     = isset( $result['line'] ) ? (int) $result['line'] : 0;
+		$location = $line > 0
+			? sprintf( ' (%s, line %d)', $file, $line )
+			: sprintf( ' (%s)', $file );
+	}
+
+	return '' !== $label
+		? sprintf( '%s: %s%s', $label, $message, $location )
+		: $message . $location;
+}
+
+/**
+ * Convert a PHP error constant value to its symbolic name
+ * (E_ERROR, E_USER_ERROR, …) for display. Falls back to the raw
+ * int when the value isn't one we recognize.
+ *
+ * @param int $errno PHP error-constant value.
+ * @return string
+ */
+function pcg_guard_errno_name( $errno ) {
+	$names = array(
+		E_ERROR             => 'E_ERROR',
+		E_PARSE             => 'E_PARSE',
+		E_CORE_ERROR        => 'E_CORE_ERROR',
+		E_COMPILE_ERROR     => 'E_COMPILE_ERROR',
+		E_USER_ERROR        => 'E_USER_ERROR',
+		E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+	);
+	return $names[ $errno ] ?? sprintf( 'error %d', $errno );
 }
 
 /**
@@ -148,7 +197,7 @@ function pcg_guard_render_block_notice() {
 	}
 	?>
 	<div class="notice notice-error">
-		<p><strong>Plugin Conflicts Guardian blocked activation because the pre-flight load probe detected a fatal:</strong></p>
+		<p><strong>WordPress.com blocked activation because the pre-flight check detected a fatal:</strong></p>
 		<ul style="list-style:disc;padding-left:24px;">
 			<?php foreach ( $messages as $plugin => $reason ) : ?>
 				<li><code><?php echo esc_html( $plugin ); ?></code> — <?php echo esc_html( $reason ); ?></li>
