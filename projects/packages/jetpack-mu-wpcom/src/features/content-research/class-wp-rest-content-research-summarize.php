@@ -203,8 +203,9 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 		}
 
 		require_lib( 'vectorize' );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Loaded dynamically via require_lib.
 		$converter = new \A8C\Vectorize\Html_To_Markdown();
-		$markdown  = $converter->convert( $main_html );
+		$markdown  = $converter->convert( $main_html ); // @phan-suppress-current-line PhanUndeclaredClassMethod
 
 		// Truncate to max article length.
 		if ( strlen( $markdown ) > self::MAX_ARTICLE_LENGTH ) {

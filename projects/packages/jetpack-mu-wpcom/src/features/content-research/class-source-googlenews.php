@@ -30,9 +30,12 @@ class Source_GoogleNews implements Content_Research_Source {
 			return $cached;
 		}
 
+		// Wrap in quotes to enforce exact matching (e.g. "Automattic" vs "Automatic").
+		$exact_query = '"' . $query . '"';
+
 		$url = 'https://news.google.com/rss/search?' . http_build_query(
 			array(
-				'q'    => $query,
+				'q'    => $exact_query,
 				'hl'   => 'en',
 				'gl'   => 'US',
 				'ceid' => 'US:en',

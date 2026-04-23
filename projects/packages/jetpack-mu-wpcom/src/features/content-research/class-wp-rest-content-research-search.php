@@ -115,7 +115,7 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 		foreach ( $results as &$result ) {
 			$max = $max_by_source[ $result['source'] ] ?? 1;
 			if ( $max > 0 ) {
-				$result['_score'] = $result['_score'] / $max;
+				$result['_score'] /= $max;
 			}
 		}
 		unset( $result );

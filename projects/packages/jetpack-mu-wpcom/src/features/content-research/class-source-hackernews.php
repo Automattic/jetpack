@@ -30,9 +30,12 @@ class Source_HackerNews implements Content_Research_Source {
 
 		$thirty_days_ago = time() - ( 30 * DAY_IN_SECONDS );
 
+		// Wrap in quotes to enforce exact matching (e.g. "Automattic" vs "Automatic").
+		$exact_query = '"' . $query . '"';
+
 		$url = add_query_arg(
 			array(
-				'query'          => $query,
+				'query'          => $exact_query,
 				'tags'           => 'story',
 				'numericFilters' => 'created_at_i>' . $thirty_days_ago,
 				'hitsPerPage'    => $count,
