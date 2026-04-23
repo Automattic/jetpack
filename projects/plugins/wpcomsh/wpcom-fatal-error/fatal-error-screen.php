@@ -72,7 +72,13 @@ function wpcomsh_fatal_build_render_context( $error ) {
 		&& ! empty( $plugin['basename'] )
 		&& user_can( $user_id, 'deactivate_plugin', $plugin['basename'] );
 
-	$can_recover = $user_id && user_can( $user_id, 'resume_plugins' );
+	// Recovery-mode capability depends on the kind of extension that
+	// fataled: a theme-origin fatal needs `resume_themes`, everything
+	// else (plugins, mu-plugins, unknown) needs `resume_plugins`.
+	$recover_cap = ( $plugin && 'themes' === $plugin['kind'] )
+		? 'resume_themes'
+		: 'resume_plugins';
+	$can_recover = $user_id && user_can( $user_id, $recover_cap );
 
 	return array(
 		'is_admin'        => $is_admin,
