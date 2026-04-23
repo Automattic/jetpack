@@ -124,8 +124,8 @@ function wpcomsh_fatal_get_last_error() {
 	}
 	return array(
 		'message' => (string) $error['message'],
-		'file'    => isset( $error['file'] ) ? (string) $error['file'] : '',
-		'line'    => isset( $error['line'] ) ? (int) $error['line'] : 0,
+		'file'    => (string) ( $error['file'] ?? '' ),
+		'line'    => (int) ( $error['line'] ?? 0 ),
 	);
 }
 
@@ -144,7 +144,7 @@ function wpcomsh_fatal_get_environment_lines() {
 
 	$lines = array();
 
-	$lines[] = sprintf( 'WordPress: %s', isset( $wp_version ) ? (string) $wp_version : 'unknown' );
+	$lines[] = sprintf( 'WordPress: %s', (string) ( $wp_version ?? 'unknown' ) );
 	$lines[] = sprintf( 'PHP: %s', PHP_VERSION );
 
 	try {
@@ -156,7 +156,7 @@ function wpcomsh_fatal_get_environment_lines() {
 		// Fall through.
 	}
 
-	$server = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( (string) wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
+	$server = sanitize_text_field( (string) wp_unslash( $_SERVER['SERVER_SOFTWARE'] ?? '' ) );
 	if ( '' !== $server ) {
 		$lines[] = sprintf( 'Server: %s', $server );
 	}
@@ -176,8 +176,8 @@ function wpcomsh_fatal_get_environment_lines() {
  * @return array{name:string,version:string,description:string,slug:string,type:string}|null
  */
 function wpcomsh_fatal_resolve_extension( $extension ) {
-	$slug = isset( $extension['slug'] ) ? (string) $extension['slug'] : '';
-	$type = isset( $extension['type'] ) ? (string) $extension['type'] : '';
+	$slug = (string) ( $extension['slug'] ?? '' );
+	$type = (string) ( $extension['type'] ?? '' );
 	if ( '' === $slug ) {
 		return null;
 	}
@@ -197,8 +197,8 @@ function wpcomsh_fatal_resolve_extension( $extension ) {
 				if ( 0 === strpos( $basename, $slug . '/' ) && ! empty( $data['Name'] ) ) {
 					return array(
 						'name'        => (string) $data['Name'],
-						'version'     => isset( $data['Version'] ) ? (string) $data['Version'] : '',
-						'description' => isset( $data['Description'] ) ? wp_strip_all_tags( (string) $data['Description'] ) : '',
+						'version'     => (string) ( $data['Version'] ?? '' ),
+						'description' => wp_strip_all_tags( (string) ( $data['Description'] ?? '' ) ),
 						'slug'        => $slug,
 						'type'        => $type,
 					);
