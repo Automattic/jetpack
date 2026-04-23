@@ -33,6 +33,22 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
+	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
+		'serializes product-format sort order %s',
+		sortOrder => {
+			// Guards against VALID_SORT_ORDERS drifting from
+			// Sort_Control::get_all_option_keys() — a missing key here would
+			// silently drop the param and reset shared links to relevance.
+			const params = stateToUrlParams( { searchQuery: '', sortOrder } );
+			expect( params.get( 'orderby' ) ).toBe( sortOrder );
+		}
+	);
+
+	it( 'omits unknown sort orders', () => {
+		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'bogus' } );
+		expect( params.has( 'orderby' ) ).toBe( false );
+	} );
+
 	it( 'serializes active filters as flat top-level array params', () => {
 		const params = stateToUrlParams( {
 			searchQuery: '',
@@ -67,6 +83,19 @@ describe( 'urlParamsToState', () => {
 
 	it( 'defaults sort order to relevance when absent', () => {
 		const state = urlParamsToState( new URLSearchParams( '' ) );
+		expect( state.sortOrder ).toBe( 'relevance' );
+	} );
+
+	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
+		'accepts product-format sort order %s from URL',
+		sortOrder => {
+			const state = urlParamsToState( new URLSearchParams( `orderby=${ sortOrder }` ) );
+			expect( state.sortOrder ).toBe( sortOrder );
+		}
+	);
+
+	it( 'collapses unknown sort order to relevance', () => {
+		const state = urlParamsToState( new URLSearchParams( 'orderby=bogus' ) );
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 
