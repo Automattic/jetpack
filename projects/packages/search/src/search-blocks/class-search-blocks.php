@@ -535,6 +535,40 @@ class Search_Blocks {
 			'isLoading'     => '' !== $search_query || ! empty( $active_filters ),
 			'isLoadingMore' => false,
 			'hasError'      => false,
+
+			// Translated view-bundle strings. The Interactivity API view bundle
+			// can't import @wordpress/i18n (only @wordpress/interactivity is
+			// registered as a script module), so any JS-produced text is seeded
+			// here and read via state.strings.* on the client. Both _n() forms
+			// are seeded so the client can pick based on the live totalResults
+			// without a round trip; languages with more than two plural forms
+			// degrade to "plural for all count > 1" as an accepted tradeoff.
+			'strings'       => static::build_initial_strings(),
+		);
+	}
+
+	/**
+	 * Seed translated view-bundle strings for the Interactivity API store.
+	 *
+	 * @return array<string, string>
+	 */
+	protected static function build_initial_strings(): array {
+		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
+			return array(
+				'searching'          => 'Searching…',
+				'resultsCountSingle' => 'Found %d result',
+				'resultsCountPlural' => 'Found %d results',
+				'removeFilter'       => 'Remove %s',
+			);
+		}
+		return array(
+			'searching'          => __( 'Searching…', 'jetpack-search-pkg' ),
+			/* translators: %d: number of results. */
+			'resultsCountSingle' => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
+			/* translators: %d: number of results. */
+			'resultsCountPlural' => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
+			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
+			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
 		);
 	}
 

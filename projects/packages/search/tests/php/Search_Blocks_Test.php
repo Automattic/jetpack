@@ -34,6 +34,7 @@ class Search_Blocks_Test extends TestCase {
 			'isLoading',
 			'isLoadingMore',
 			'hasError',
+			'strings',
 		);
 
 		$this->assertTrue( class_exists( Search_Blocks::class ) );
@@ -41,6 +42,26 @@ class Search_Blocks_Test extends TestCase {
 		foreach ( $required_keys as $key ) {
 			$this->assertArrayHasKey( $key, $state, "Missing key: $key" );
 		}
+	}
+
+	/**
+	 * View-bundle strings seeded here are the sole i18n channel for the
+	 * Interactivity API bundle — it can't import @wordpress/i18n. Both
+	 * plural forms must be seeded so the client can pick based on the
+	 * live totalResults, and the format string must carry a `%d` token.
+	 */
+	public function test_build_initial_state_seeds_translated_strings() {
+		$state = Search_Blocks::build_initial_state();
+		$this->assertArrayHasKey( 'strings', $state );
+		$strings = $state['strings'];
+		$this->assertArrayHasKey( 'searching', $strings );
+		$this->assertArrayHasKey( 'resultsCountSingle', $strings );
+		$this->assertArrayHasKey( 'resultsCountPlural', $strings );
+		$this->assertArrayHasKey( 'removeFilter', $strings );
+		$this->assertNotSame( '', $strings['searching'] );
+		$this->assertStringContainsString( '%d', $strings['resultsCountSingle'] );
+		$this->assertStringContainsString( '%d', $strings['resultsCountPlural'] );
+		$this->assertStringContainsString( '%s', $strings['removeFilter'] );
 	}
 
 	/**

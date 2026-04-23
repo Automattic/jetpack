@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search 3.0: localize Interactivity API view-bundle strings (results count, loading indicator, and active-filter pill aria labels) via wp_interactivity_state.
