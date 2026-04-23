@@ -18,7 +18,10 @@
 		"availableSortOptions": {
 			"type": "array",
 			"default": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ],
-			"items": { "type": "string" }
+			"items": {
+				"type": "string",
+				"enum": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ]
+			}
 		},
 		"label": { "type": "string", "default": "" },
 		"displayAs": {

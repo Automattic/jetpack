@@ -111,8 +111,18 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 				__next40pxDefaultSize: true,
 				__nextHasNoMarginBottom: true,
 				label: __( 'Default sort', 'jetpack-search-pkg' ),
-				value: defaultSort,
-				options: ALL_SORT_KEYS.map( key => ( { value: key, label: labels[ key ] } ) ),
+				// Use the `defaultSort` attribute when it's still in `available`
+				// so the <select> stays bound to its persisted value. When the
+				// author has just unchecked the current default from the list,
+				// fall back to the first available option so the control binds
+				// to something visible instead of rendering a blank selection.
+				value: available.includes( defaultSort ) ? defaultSort : available[ 0 ],
+				// Only offer keys the author has actually enabled. Showing the
+				// full list here would let the author pick a default that
+				// `availableSortOptions` excludes — the render callback already
+				// falls back gracefully, but the editor would misleadingly show
+				// a "saved default" the front end never honors.
+				options: available.map( key => ( { value: key, label: labels[ key ] } ) ),
 				onChange: value => setAttributes( { defaultSort: value } ),
 				help: __(
 					'Applied on first load when the URL carries no sort parameter.',
