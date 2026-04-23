@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+ConnectScreen: add `connectionBrandName` prop so non-Jetpack consumers can reference "WordPress.com" instead of "Jetpack" in connection error messages.

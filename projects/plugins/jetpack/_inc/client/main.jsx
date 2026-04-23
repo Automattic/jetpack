@@ -464,6 +464,13 @@ class Main extends Component {
 
 		if ( this.isMainConnectScreen() ) {
 			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
+			const from = searchParams && searchParams.get( 'from' );
+			// When the connection is initiated by a non-Jetpack product (e.g. WooCommerce Payments
+			// onboarding redirects merchants here to establish the WPCOM connection), reference
+			// "WordPress.com" rather than "Jetpack" in connection error messages — merchants of
+			// those products don't encounter "Jetpack" elsewhere in their setup flow.
+			const connectionBrandName =
+				from && ! from.startsWith( 'jetpack' ) ? 'WordPress.com' : undefined;
 
 			return (
 				<ConnectScreen
@@ -474,7 +481,8 @@ class Main extends Component {
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
 					redirectUri="admin.php?page=jetpack"
-					from={ searchParams && searchParams.get( 'from' ) }
+					from={ from }
+					connectionBrandName={ connectionBrandName }
 				>
 					<p>
 						{ __(

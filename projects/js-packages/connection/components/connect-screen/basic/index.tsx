@@ -36,6 +36,9 @@ export type Props = {
 	footer?: ReactNode;
 	// The logo to display at the top of the component
 	logo?: ReactNode;
+	// Brand name to reference in connection error messages. Defaults to "Jetpack";
+	// non-Jetpack consumers (e.g. WooCommerce Payments onboarding) can pass "WordPress.com".
+	connectionBrandName?: string;
 };
 
 /*
@@ -58,6 +61,7 @@ const ConnectScreen: FC< Props > = ( {
 	skipUserConnection,
 	skipPricingPage,
 	logo,
+	connectionBrandName,
 } ) => {
 	const {
 		handleRegisterSite,
@@ -97,6 +101,7 @@ const ConnectScreen: FC< Props > = ( {
 			footer={ footer }
 			isOfflineMode={ isOfflineMode }
 			logo={ logo }
+			connectionBrandName={ connectionBrandName }
 		>
 			{ children }
 		</ConnectScreenVisual>
