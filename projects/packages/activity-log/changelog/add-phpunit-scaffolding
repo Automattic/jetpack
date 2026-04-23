@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Activity Log: add phpunit scaffolding + port the multisite / editor / admin gating cases from the deleted my-jetpack Activitylog_Test to Jetpack_Activity_Log::is_available() / add_wp_admin_submenu(), plus a not-connected branch.
