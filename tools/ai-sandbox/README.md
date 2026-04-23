@@ -41,7 +41,7 @@ cd ~/jetpack
 IS_SANDBOX=1 claude --dangerously-skip-permissions --remote-control "my-agent-jetpack"
 ```
 
-`--dangerously-skip-permissions` allows Claude to run without interactive permission prompts inside the container. This is safe here because the container is isolated and the pre-push scope gate enforces boundaries at push time — the flag removes friction, not safety.
+`--dangerously-skip-permissions` removes interactive permission prompts inside the container. The pre-push scope gate enforces what can be pushed — the flag removes friction for the agent, while the gate enforces code scope at push time.
 
 On first run, follow the login prompt (use **claude.ai**, not API key).
 

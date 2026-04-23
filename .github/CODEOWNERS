@@ -45,6 +45,7 @@
 /projects/plugins/starter-plugin/changelog # No owner - to go with the above
 /stylelint.config.mjs @Automattic/jetpack-monorepo
 /tools @Automattic/jetpack-monorepo
+/tools/ai-sandbox/ @dognose24
 /tools/e2e-commons # No owner assigned
 
 # Actions

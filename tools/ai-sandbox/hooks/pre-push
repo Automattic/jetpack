@@ -1,12 +1,25 @@
 #!/bin/bash
 set -e
 
-# Run standard monorepo pre-push checks
-.husky/pre-push "$@"
+REPO_ROOT=$(git rev-parse --show-toplevel)
 
-# Determine base ref: upstream tracking branch, or origin/trunk for new branches
-BASE=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "origin/trunk")
-CHANGED=$(git diff --name-only "$BASE..HEAD")
+# Save stdin — pre-push receives pushed refs on stdin; pass to both hooks
+PUSH_REFS=$(cat)
+
+# Run standard monorepo pre-push checks
+echo "$PUSH_REFS" | "$REPO_ROOT/.husky/pre-push" "$@"
+
+# Collect changed files from actual pushed refs
+CHANGED=""
+while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
+	[ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
+	if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+		BASE=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "origin/trunk")
+	else
+		BASE="$remote_sha"
+	fi
+	CHANGED="$CHANGED$(git diff --name-only "$BASE..$local_sha")"$'\n'
+done <<< "$PUSH_REFS"
 
 # Scope gate: only projects/packages/premium-analytics/** and pnpm-lock.yaml are allowed
 VIOLATIONS=$(echo "$CHANGED" | grep -v '^projects/packages/premium-analytics/' | grep -v '^pnpm-lock\.yaml$' | grep -v '^$' || true)

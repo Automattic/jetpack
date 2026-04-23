@@ -22,19 +22,23 @@ RUN ARCH="$(dpkg --print-architecture)" && \
       *) echo "Unsupported arch: $ARCH" && exit 1 ;; \
     esac && \
     curl -fsSLO "https://nodejs.org/download/release/v24.14.1/node-v24.14.1-linux-${NODE_ARCH}.tar.gz" && \
+    curl -fsSLO "https://nodejs.org/download/release/v24.14.1/SHASUMS256.txt" && \
+    grep "node-v24.14.1-linux-${NODE_ARCH}.tar.gz" SHASUMS256.txt | sha256sum -c - && \
     mkdir -p /usr/local/lib/nodejs && \
     tar -xzf "node-v24.14.1-linux-${NODE_ARCH}.tar.gz" -C /usr/local/lib/nodejs --strip-components=1 && \
-    rm "node-v24.14.1-linux-${NODE_ARCH}.tar.gz"
+    rm "node-v24.14.1-linux-${NODE_ARCH}.tar.gz" SHASUMS256.txt
 
 ENV PATH="/usr/local/lib/nodejs/bin:${PATH}"
 
 RUN npm install -g pnpm@10.28.2 @anthropic-ai/claude-code
 
 # Install Composer 2.9.2
-RUN curl -sS https://getcomposer.org/installer | php -- \
-    --version=2.9.2 \
-    --install-dir=/usr/local/bin \
-    --filename=composer
+RUN curl -fsSL https://getcomposer.org/installer -o composer-setup.php && \
+    EXPECTED=$(curl -fsSL https://composer.github.io/installer.sig) && \
+    ACTUAL=$(php -r "echo hash_file('sha384', 'composer-setup.php');") && \
+    if [ "$EXPECTED" != "$ACTUAL" ]; then echo "Composer installer checksum mismatch" && rm composer-setup.php && exit 1; fi && \
+    php composer-setup.php --version=2.9.2 --install-dir=/usr/local/bin --filename=composer && \
+    rm composer-setup.php
 
 RUN useradd -ms /bin/bash dev && \
     mkdir -p /home/dev/jetpack/node_modules && \
