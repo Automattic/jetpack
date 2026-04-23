@@ -8,14 +8,14 @@
 
 	.site-activity-logs__actor-icon-server,
 	.site-activity-logs__actor-icon-default {
-		background-color: #dcdcde;
-		fill: #50575e;
+		background-color: var(--wpds-color-bg-surface-neutral-weak, #dcdcde);
+		fill: var(--wpds-color-fg-content-neutral-weak, #50575e);
 	}
 
 	.site-activity-logs__actor-mcp {
 		display: block;
 		font-size: 0.75rem;
-		color: #757575;
+		color: var(--wpds-color-fg-content-neutral-weak, #757575);
 		margin-block-start: 2px;
 	}
 }

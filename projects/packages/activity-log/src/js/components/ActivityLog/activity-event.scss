@@ -8,12 +8,12 @@
 	min-width: 32px;
 	padding: 4px;
 	border-radius: 2px;
-	fill: #757575;
-	background-color: #f0f0f1;
+	fill: var(--wpds-color-fg-content-neutral-weak, #757575);
+	background-color: var(--wpds-color-bg-surface-neutral-weak, #f0f0f1);
 }
 
 .site-activity-logs__event {
-	color: #1e1e1e;
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 }
 
 .site-activity-logs__event-content {
@@ -21,7 +21,7 @@
 	flex-wrap: wrap;
 
 	> span {
-		color: #50575e;
+		color: var(--wpds-color-fg-content-neutral-weak, #50575e);
 	}
 }
 

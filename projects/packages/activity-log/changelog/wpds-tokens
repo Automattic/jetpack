@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Activity Log: swap hard-coded SCSS colors for WordPress Design System --wpds-* tokens (with hex fallbacks).
