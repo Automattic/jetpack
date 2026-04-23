@@ -248,7 +248,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</header>
 
 	<!-- Writing area -->
-	<main class="bw-main" data-wp-on--click="actions.enterFocus">
+	<main class="bw-main">
 		<div class="bw-editor">
 			<textarea
 				class="bw-title"
@@ -265,7 +265,6 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--mouseup="actions.checkFormatting"
 				data-wp-on--keyup="actions.checkFormatting"
 				data-wp-on--keydown="actions.handleKeyDown"
-				data-wp-on--click="actions.enterFocus"
 				data-placeholder="Tell your story..."
 			><?php echo $edit_content ? wp_kses_post( $edit_content ) : '<p><br></p>'; ?></div>
 		</div>

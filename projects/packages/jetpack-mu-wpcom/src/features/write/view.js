@@ -455,7 +455,6 @@ const { state } = store( 'wpcom-write', {
 				const content = document.querySelector( '.bw-content' );
 				if ( content ) {
 					content.focus();
-					document.body.classList.add( 'bw-focused' );
 					// Ensure the cursor starts inside a paragraph.
 					if ( ! content.querySelector( 'p' ) ) {
 						document.execCommand( 'formatBlock', false, 'p' );
@@ -486,10 +485,6 @@ const { state } = store( 'wpcom-write', {
 
 		cancelLeave() {
 			state.showLeaveConfirm = false;
-		},
-
-		enterFocus() {
-			document.body.classList.add( 'bw-focused' );
 		},
 
 		checkFormatting() {
