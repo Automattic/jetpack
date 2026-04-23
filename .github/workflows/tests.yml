@@ -146,6 +146,7 @@ jobs:
 
           echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
           for SLUG in $( jq -r 'keys[]' <<<"$CHANGED" ); do
+            [[ "$SLUG" == "monorepo" ]] && continue
             PKGS=()
             readarray -t PKGS < <( jq -r '.extra["non-mirrored-require-dev"] // empty | .[] | . += "=@dev"' "projects/$SLUG/composer.json" )
             if [[ ${#PKGS[@]} -gt 0 ]]; then
