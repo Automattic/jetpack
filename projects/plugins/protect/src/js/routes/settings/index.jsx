@@ -13,7 +13,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import { useCallback } from 'react';
-import AdminPage from '../../components/admin-page';
 import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
 import useToggleAccountProtectionMutation from '../../data/account-protection/use-toggle-account-protection-module-mutation';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -156,15 +155,13 @@ const SettingsPage = () => {
 	 * Render
 	 */
 	return (
-		<AdminPage>
-			<AdminSectionHero>
-				<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
-					<Col>
-						<div className={ styles[ 'toggle-wrapper' ] }>{ accountProtectionSettings }</div>
-					</Col>
-				</Container>
-			</AdminSectionHero>
-		</AdminPage>
+		<AdminSectionHero>
+			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
+				<Col>
+					<div className={ styles[ 'toggle-wrapper' ] }>{ accountProtectionSettings }</div>
+				</Col>
+			</Container>
+		</AdminSectionHero>
 	);
 };
 

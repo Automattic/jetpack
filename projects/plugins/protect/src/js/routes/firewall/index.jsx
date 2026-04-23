@@ -14,7 +14,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import AdminPage from '../../components/admin-page';
 import Textarea from '../../components/textarea';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafUpgradeSeenMutation from '../../data/waf/use-waf-upgrade-seen-mutation';
@@ -544,7 +543,7 @@ const FirewallPage = () => {
 	 * Render
 	 */
 	return (
-		<AdminPage>
+		<>
 			<FirewallAdminSectionHero />
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 				{ wafSupported && ! isWafModuleEnabled && <Col>{ moduleDisabledNotice } </Col> }
@@ -563,7 +562,7 @@ const FirewallPage = () => {
 				</Col>
 			</Container>
 			{ wafSupported ? <FirewallFooter /> : <ScanFooter /> }
-		</AdminPage>
+		</>
 	);
 };
 
