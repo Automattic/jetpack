@@ -756,7 +756,7 @@ jobs:
     name: Mirror repo check
     runs-on: ubuntu-latest
     needs: changed_files
-    if: github.event_name == 'pull_request' && needs.changed_files.projectcomposerjsons == 'true'
+    if: github.event_name == 'pull_request' && needs.changed_files.outputs.projectcomposerjsons == 'true'
     timeout-minutes: 5  # 2026-04-16: Should just be a minute or two.
     steps:
       # We don't need full git history, but we do need everything up to the merge-base.
