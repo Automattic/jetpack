@@ -44,7 +44,7 @@ export function UpsellCallout() {
 			/>
 			<div className="jp-activity-log__upsell-callout-content">
 				<h2 className="jp-activity-log__upsell-callout-title">
-					{ __( 'Track every action with Jetpack Activity', 'jetpack-activity-log' ) }
+					{ __( 'Track every action with Jetpack Activity Log', 'jetpack-activity-log' ) }
 				</h2>
 				<Text as="p" variant="muted">
 					{ __(
@@ -59,7 +59,7 @@ export function UpsellCallout() {
 					) }
 				</Text>
 				<Text as="p" variant="muted">
-					{ __( 'Available on WordPress.com paid plans.', 'jetpack-activity-log' ) }
+					{ __( 'Available on the Jetpack Security and Complete plans.', 'jetpack-activity-log' ) }
 				</Text>
 				<Button
 					variant="primary"
