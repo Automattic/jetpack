@@ -65,13 +65,34 @@ abstract class Registrar {
 	/**
 	 * Wire up the Abilities API registrations.
 	 *
-	 * For each of the two Abilities API lifecycle actions we either hook our
-	 * registration method or — if the action has already fired — dispatch
-	 * immediately, so late-loading plugins still register on time.
+	 * Gated behind the `jetpack_wp_abilities_enabled` filter, which defaults
+	 * to `false`. Consumers opt in explicitly — per site, per user, or via
+	 * feature flag — so abilities roll out gradually rather than flipping on
+	 * for every site the moment the package loads.
+	 *
+	 * When the filter returns `true`, each of the two Abilities API lifecycle
+	 * actions either gets a registration callback hooked, or — if the action
+	 * has already fired — dispatches immediately so late-loading plugins
+	 * still register on time.
 	 *
 	 * @return void
 	 */
 	public static function init() {
+		/**
+		 * Filters whether Jetpack Abilities API registration should run.
+		 *
+		 * Default `false`. Return `true` to enable registration for this
+		 * request, typically gated on a site option, user capability, or
+		 * feature flag to support staged rollout.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether to register abilities. Default false.
+		 */
+		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
+			return;
+		}
+
 		if ( did_action( self::CATEGORIES_INIT_ACTION ) ) {
 			static::register_category();
 		} else {

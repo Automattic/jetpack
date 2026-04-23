@@ -45,9 +45,36 @@ class RegistrarTest extends TestCase {
 	}
 
 	/**
+	 * Enable the top-level gate filter for tests that exercise init().
+	 */
+	private function enable_abilities(): void {
+		Filters\expectApplied( 'jetpack_wp_abilities_enabled' )->andReturn( true );
+	}
+
+	/**
+	 * The gate filter defaults to false: init() must register nothing.
+	 */
+	public function test_init_is_disabled_by_default(): void {
+		Filters\expectApplied( 'jetpack_wp_abilities_enabled' )
+			->once()
+			->with( false )
+			->andReturn( false );
+
+		Functions\expect( 'did_action' )->never();
+		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->never();
+		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->never();
+		Functions\expect( 'wp_register_ability_category' )->never();
+		Functions\expect( 'wp_register_ability' )->never();
+
+		TestFixtureRegistrar::init();
+	}
+
+	/**
 	 * Neither lifecycle action has fired: init() hooks both, calls neither registrar.
 	 */
 	public function test_init_adds_hooks_when_neither_action_fired(): void {
+		$this->enable_abilities();
+
 		Functions\when( 'did_action' )->justReturn( 0 );
 
 		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )
@@ -67,6 +94,8 @@ class RegistrarTest extends TestCase {
 	 * Categories-init already fired: register category directly, still hook abilities.
 	 */
 	public function test_init_registers_category_directly_when_categories_action_already_fired(): void {
+		$this->enable_abilities();
+
 		Functions\when( 'did_action' )->alias(
 			static function ( $action ) {
 				return Registrar::CATEGORIES_INIT_ACTION === $action ? 1 : 0;
@@ -93,6 +122,8 @@ class RegistrarTest extends TestCase {
 	 * Abilities-init already fired: register abilities directly, still hook category.
 	 */
 	public function test_init_registers_abilities_directly_when_abilities_action_already_fired(): void {
+		$this->enable_abilities();
+
 		Functions\when( 'did_action' )->alias(
 			static function ( $action ) {
 				return Registrar::ABILITIES_INIT_ACTION === $action ? 1 : 0;
@@ -111,6 +142,8 @@ class RegistrarTest extends TestCase {
 	 * Both actions already fired: everything runs directly, nothing is hooked.
 	 */
 	public function test_init_registers_both_directly_when_both_actions_already_fired(): void {
+		$this->enable_abilities();
+
 		Functions\when( 'did_action' )->justReturn( 1 );
 
 		Functions\expect( 'wp_register_ability_category' )->once();
@@ -244,6 +277,8 @@ class RegistrarTest extends TestCase {
 	 * Repeated init() calls are safe: the library does not dedupe, WordPress does.
 	 */
 	public function test_init_is_safe_to_call_repeatedly(): void {
+		$this->enable_abilities();
+
 		Functions\when( 'did_action' )->justReturn( 0 );
 
 		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->twice();

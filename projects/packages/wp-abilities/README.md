@@ -65,17 +65,33 @@ If an ability spec omits `category`, the registrar auto-injects `get_category_sl
 
 ## Gating registration for gradual rollout
 
-Every registration passes through the `jetpack_wp_abilities_should_register` filter. Returning `false` skips that registration — this is how you roll out a category or an ability gradually (per user, per site, per feature flag).
+Registration is **opt-in**. `init()` checks the `jetpack_wp_abilities_enabled` filter, which defaults to `false`. Return `true` to turn registration on for this request, typically gated on a site option, user capability, or feature flag.
 
 ```php
-// Roll out My Plugin abilities only on sites that have opted in.
+// Enable Jetpack abilities registration on sites that have opted in.
+add_filter(
+	'jetpack_wp_abilities_enabled',
+	static function ( bool $enabled ): bool {
+		return (bool) get_option( 'my_abilities_rollout_enabled', false );
+	}
+);
+```
+
+Because the default is `false`, a plugin that extends `Registrar` and calls `MyRegistrar::init()` registers nothing until a site explicitly flips the flag.
+
+### Per-registration gate
+
+For finer-grained control, every category and every ability also passes through the `jetpack_wp_abilities_should_register` filter (only reached when `jetpack_wp_abilities_enabled` has already returned `true`). Returning `false` skips a single registration.
+
+```php
+// Globally enabled, but hold back a single ability until it's GA.
 add_filter(
 	'jetpack_wp_abilities_should_register',
 	static function ( bool $enabled, string $type, string $slug ): bool {
-		if ( ! str_starts_with( $slug, 'my-plugin' ) ) {
-			return $enabled;
+		if ( 'ability' === $type && 'my-plugin/experimental-write' === $slug ) {
+			return current_user_can( 'manage_options' );
 		}
-		return (bool) get_option( 'my_plugin_abilities_enabled', false );
+		return $enabled;
 	},
 	10,
 	3
