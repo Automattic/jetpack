@@ -14,6 +14,8 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { Button, __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { useCallback } from 'react';
+import { useAnalytics } from '../../hooks/use-analytics';
 import illustrationUrl from './activity-logs-callout-illustration.svg';
 import './upsell-callout.scss';
 
@@ -57,11 +59,19 @@ const buildPostCheckoutReturnUrl = (): string => {
  * @return The callout element.
  */
 export function UpsellCallout() {
+	const { tracks } = useAnalytics();
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: PRODUCT_SLUG,
 		redirectUrl: buildPostCheckoutReturnUrl(),
 		from: UPSELL_SOURCE,
 	} );
+
+	const onClickUpgrade = useCallback( () => {
+		tracks.recordEvent( 'jetpack_activity_log_upsell_cta_click', {
+			source: 'free_tier_callout',
+		} );
+		run();
+	}, [ run, tracks ] );
 
 	return (
 		<div className="jp-activity-log__upsell-callout">
@@ -92,7 +102,7 @@ export function UpsellCallout() {
 				</Text>
 				<Button
 					variant="primary"
-					onClick={ run }
+					onClick={ onClickUpgrade }
 					isBusy={ hasCheckoutStarted }
 					disabled={ hasCheckoutStarted }
 				>

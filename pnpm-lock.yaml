@@ -1833,6 +1833,9 @@ importers:
 
   projects/packages/activity-log:
     dependencies:
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components

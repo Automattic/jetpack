@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Activity Log: track view-config, filter, search, pagination, date-range, reset-view, and upsell CTA interactions as jetpack_activity_log_* events via @automattic/jetpack-analytics. Mirrors Calypso's per_page / filter / search / page_changed breakdown, plus Jetpack-specific events for the date-range picker, Reset view, and the paid-tier upgrade click.

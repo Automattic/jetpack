@@ -1,9 +1,10 @@
 /**
  * Top-level Activity Log admin page. Ported from Calypso's
  * `client/dashboard/sites/logs-activity/dataviews/index.tsx`. Scope
- * simplifications vs. the source are tracked in the PR (#48244): no
- * date range picker, no URL-persistent view state (localStorage
- * only), no analytics events.
+ * simplifications vs. the source are tracked in the PR (#48244): view
+ * state persists to localStorage rather than URL params, the actor
+ * column isn't linked, and the "Manage backup" row action is stubbed
+ * until #48236 lands.
  */
 import { AdminPage } from '@automattic/jetpack-components';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useMemo, useState } from 'react';
 import { activityLogQuery, activityLogGroupCountsQuery } from '../../hooks/use-activity-log';
+import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
 import { DateRangePicker } from '../DateRangePicker';
 import { formatYmd, parseYmdLocal } from '../DateRangePicker/datetime';
@@ -88,6 +90,7 @@ export default function ActivityLog() {
 	const { gmtOffset, timezoneString, locale } = readSiteTimeContext();
 	const hasActivityLogsAccess = readHasActivityLogsAccess();
 	const { view, setView, resetView, isViewModified } = usePersistentView( DEFAULT_VIEW );
+	const { tracks } = useAnalytics();
 
 	// Date-range defaults to "Last 7 days" anchored at the site's calendar
 	// today (not the browser's) — matches Calypso's `getDefaultDateRange`.
@@ -202,24 +205,71 @@ export default function ActivityLog() {
 
 			const datasetChanged = perPageChanged || sortChanged || filtersChanged || searchChanged;
 
+			// Tracking — same breakdown Calypso records (per_page /
+			// filter / search / page_changed), namespaced under
+			// `jetpack_activity_log_*`.
+			if ( perPageChanged ) {
+				tracks.recordEvent( 'jetpack_activity_log_per_page_changed', {
+					per_page: next.perPage,
+				} );
+			}
+			if ( filtersChanged ) {
+				const activityTypes = extractActivityLogTypeValues(
+					( next.filters as Filter[] | undefined ) ?? []
+				);
+				const eventProps: Record< string, boolean | number > = {
+					num_groups_selected: activityTypes.length,
+				};
+				let totalActivitiesSelected = 0;
+				Object.entries( groupCountsData?.groups ?? {} ).forEach( ( [ groupKey, { count } ] ) => {
+					const isSelected = activityTypes.includes( groupKey );
+					eventProps[ `group_${ groupKey }` ] = isSelected;
+					if ( isSelected ) {
+						totalActivitiesSelected += count ?? 0;
+					}
+				} );
+				eventProps.num_total_activities_selected = totalActivitiesSelected;
+				tracks.recordEvent( 'jetpack_activity_log_filter_changed', eventProps );
+			}
+			if ( searchChanged ) {
+				tracks.recordEvent( 'jetpack_activity_log_search', {
+					has_query: nextSearch.length > 0,
+				} );
+			}
+			if ( ! datasetChanged && requestedPage !== currentPage ) {
+				tracks.recordEvent( 'jetpack_activity_log_page_changed', {
+					page: requestedPage,
+				} );
+			}
+
 			setView( {
 				...next,
 				page: datasetChanged ? 1 : requestedPage,
 			} );
 		},
-		[ setView, view, searchTerm ]
+		[ setView, view, searchTerm, tracks, groupCountsData ]
 	);
 
 	const onChangeDateRange = useCallback(
 		( next: { start: Date; end: Date } ) => {
+			const daysInRange =
+				Math.round( ( next.end.getTime() - next.start.getTime() ) / 86_400_000 ) + 1;
+			tracks.recordEvent( 'jetpack_activity_log_date_range_changed', {
+				days_in_range: daysInRange,
+			} );
 			// A new range is its own dataset boundary — snap back to
 			// page 1, matching how `onChangeView` handles other dataset
 			// changes (perPage, sort, filters, search).
 			setDateRange( next );
 			setView( { ...view, page: 1 } );
 		},
-		[ setView, view ]
+		[ setView, view, tracks ]
 	);
+
+	const onResetView = useCallback( () => {
+		tracks.recordEvent( 'jetpack_activity_log_reset_view_click', {} );
+		resetView();
+	}, [ resetView, tracks ] );
 
 	const getItemId = useCallback( ( item: Activity ) => item.activityId.toString(), [] );
 
@@ -261,7 +311,7 @@ export default function ActivityLog() {
 					search
 					defaultLayouts={ { table: {} } }
 					onChangeView={ onChangeView }
-					onReset={ isViewModified ? resetView : false }
+					onReset={ isViewModified ? onResetView : false }
 					// On the free tier, lock the perPage selector to the
 					// capped size and hide search/filters/sort/view-config
 					// by replacing the default UI with just the table (same
