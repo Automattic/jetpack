@@ -77,7 +77,7 @@ class No_Results_Render_Test extends TestCase {
 	 */
 	public function test_empty_message_falls_back_to_default() {
 		$markup = $this->render( array( 'message' => '' ) );
-		$this->assertStringContainsString( 'No results found.', $markup );
+		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class No_Results_Render_Test extends TestCase {
 	 */
 	public function test_missing_message_falls_back_to_default() {
 		$markup = $this->render();
-		$this->assertStringContainsString( 'No results found.', $markup );
+		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
 	}
 
 	/**
@@ -96,7 +96,7 @@ class No_Results_Render_Test extends TestCase {
 	public function test_custom_message_renders() {
 		$markup = $this->render( array( 'message' => 'Nothing here, sorry.' ) );
 		$this->assertStringContainsString( 'Nothing here, sorry.', $markup );
-		$this->assertStringNotContainsString( 'No results found.', $markup );
+		$this->assertStringNotContainsString( 'No results found. Try a different search.', $markup );
 	}
 
 	/**
@@ -134,7 +134,7 @@ class No_Results_Render_Test extends TestCase {
 	public function test_search_again_prompt_shown_when_true() {
 		$markup = $this->render( array( 'showSearchAgainPrompt' => true ) );
 		$this->assertStringContainsString( '<p class="jetpack-search-no-results__search-again">', $markup );
-		$this->assertStringContainsString( 'Try a different search.', $markup );
+		$this->assertStringContainsString( 'Please try again.', $markup );
 	}
 
 	/**
@@ -153,13 +153,14 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * With the default message and the prompt enabled, the "Try a different
-	 * search." copy must appear exactly once — it's the prompt line, not a
-	 * trailing sentence in the message. Guards against the default message
-	 * regaining the phrase and producing duplicate copy on the front end.
+	 * With the default message and the prompt enabled, neither the message
+	 * nor the prompt copy may appear twice — the prompt phrase was chosen
+	 * specifically to avoid repeating the default message's trailing
+	 * sentence. Guards against future copy edits reintroducing duplication.
 	 */
 	public function test_default_message_with_prompt_does_not_duplicate_copy() {
 		$markup = $this->render( array( 'showSearchAgainPrompt' => true ) );
 		$this->assertSame( 1, substr_count( $markup, 'Try a different search.' ) );
+		$this->assertSame( 1, substr_count( $markup, 'Please try again.' ) );
 	}
 }

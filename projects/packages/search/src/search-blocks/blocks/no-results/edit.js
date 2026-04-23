@@ -21,7 +21,7 @@ import { __ } from '@wordpress/i18n';
  */
 export default function NoResultsEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	const defaultMessage = __( 'No results found.', 'jetpack-search-pkg' );
+	const defaultMessage = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
 	const message = attributes.message || defaultMessage;
 	const showSearchAgainPrompt = attributes.showSearchAgainPrompt ?? false;
 	return h(
@@ -62,7 +62,7 @@ export default function NoResultsEdit( { attributes, setAttributes } ) {
 				? h(
 						'p',
 						{ className: 'jetpack-search-no-results__search-again' },
-						__( 'Try a different search.', 'jetpack-search-pkg' )
+						__( 'Please try again.', 'jetpack-search-pkg' )
 				  )
 				: null
 		)
