@@ -43,7 +43,7 @@ class Jetpack_Reader_Chat {
 		/**
 		 * Filter to enable or disable the Jetpack Reader Chat feature.
 		 *
-		 * Defaults to the value of the blog_talks_back site option (false when
+		 * Defaults to the value of the reader_chat site option (false when
 		 * unset). Override programmatically with:
 		 *   add_filter( 'jetpack_reader_chat_enabled', '__return_true' );
 		 *
@@ -51,7 +51,7 @@ class Jetpack_Reader_Chat {
 		 *
 		 * @param bool $enabled Whether the reader chat is enabled.
 		 */
-		if ( ! apply_filters( 'jetpack_reader_chat_enabled', (bool) get_option( 'blog_talks_back', false ) ) ) {
+		if ( ! apply_filters( 'jetpack_reader_chat_enabled', (bool) get_option( 'reader_chat', false ) ) ) {
 			return;
 		}
 
@@ -70,7 +70,7 @@ class Jetpack_Reader_Chat {
 	}
 
 	/**
-	 * Register the blog_talks_back option so it is readable and writable
+	 * Register the reader_chat option so it is readable and writable
 	 * via the /wp/v2/settings REST endpoint. Requires manage_options.
 	 *
 	 * Gated to proxied Automattic requests during the rollout so regular
@@ -89,7 +89,7 @@ class Jetpack_Reader_Chat {
 
 		register_setting(
 			'general',
-			'blog_talks_back',
+			'reader_chat',
 			array(
 				'type'              => 'boolean',
 				'description'       => __( 'Whether Reader Chat is enabled on this site.', 'jetpack' ),

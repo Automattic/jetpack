@@ -63,7 +63,7 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'renders the toggle reflecting the current stored value (true)', async () => {
-		apiFetch.mockResolvedValueOnce( { blog_talks_back: true } );
+		apiFetch.mockResolvedValueOnce( { reader_chat: true } );
 
 		render( <ReaderChatControl /> );
 
@@ -74,7 +74,7 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'renders the toggle as off when the stored value is false', async () => {
-		apiFetch.mockResolvedValueOnce( { blog_talks_back: false } );
+		apiFetch.mockResolvedValueOnce( { reader_chat: false } );
 
 		render( <ReaderChatControl /> );
 
@@ -86,8 +86,8 @@ describe( 'ReaderChatControl', () => {
 
 	test( 'posts the new value and dispatches success notice when toggled', async () => {
 		apiFetch
-			.mockResolvedValueOnce( { blog_talks_back: false } )
-			.mockResolvedValueOnce( { blog_talks_back: true } );
+			.mockResolvedValueOnce( { reader_chat: false } )
+			.mockResolvedValueOnce( { reader_chat: true } );
 
 		render( <ReaderChatControl /> );
 
@@ -100,7 +100,7 @@ describe( 'ReaderChatControl', () => {
 			expect( apiFetch ).toHaveBeenCalledWith( {
 				path: '/wp/v2/settings',
 				method: 'POST',
-				data: { blog_talks_back: true },
+				data: { reader_chat: true },
 			} );
 		} );
 
@@ -112,7 +112,7 @@ describe( 'ReaderChatControl', () => {
 
 	test( 'dispatches error notice when the save fails', async () => {
 		apiFetch
-			.mockResolvedValueOnce( { blog_talks_back: false } )
+			.mockResolvedValueOnce( { reader_chat: false } )
 			.mockRejectedValueOnce( new Error( 'save failed' ) );
 
 		render( <ReaderChatControl /> );

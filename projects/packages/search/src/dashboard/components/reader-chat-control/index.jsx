@@ -12,7 +12,7 @@ const READER_CHAT_DESCRIPTION = __(
 );
 
 /**
- * Reader Chat opt-in control. Reads and writes the blog_talks_back option
+ * Reader Chat opt-in control. Reads and writes the reader_chat option
  * via the /wp/v2/settings REST endpoint.
  *
  * Styled to match the "Enable Jetpack Search" toggle pattern in
@@ -24,7 +24,7 @@ export default function ReaderChatControl() {
 	const [ isEnabled, setIsEnabled ] = useState( false );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isSaving, setIsSaving ] = useState( false );
-	// `isAvailable` tracks whether the site has the `blog_talks_back`
+	// `isAvailable` tracks whether the site has the `reader_chat`
 	// setting registered via REST. The PHP registration is dev-mode
 	// gated, so on non-proxied sites the key is absent from
 	// /wp/v2/settings and the card hides itself.
@@ -34,8 +34,8 @@ export default function ReaderChatControl() {
 	useEffect( () => {
 		apiFetch( { path: '/wp/v2/settings' } )
 			.then( settings => {
-				if ( settings && Object.prototype.hasOwnProperty.call( settings, 'blog_talks_back' ) ) {
-					setIsEnabled( Boolean( settings.blog_talks_back ) );
+				if ( settings && Object.prototype.hasOwnProperty.call( settings, 'reader_chat' ) ) {
+					setIsEnabled( Boolean( settings.reader_chat ) );
 					setIsAvailable( true );
 				} else {
 					setIsAvailable( false );
@@ -58,10 +58,10 @@ export default function ReaderChatControl() {
 			apiFetch( {
 				path: '/wp/v2/settings',
 				method: 'POST',
-				data: { blog_talks_back: next },
+				data: { reader_chat: next },
 			} )
 				.then( settings => {
-					setIsEnabled( Boolean( settings?.blog_talks_back ) );
+					setIsEnabled( Boolean( settings?.reader_chat ) );
 					storeDispatch.removeUpdatingNotice();
 					storeDispatch.successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 				} )
