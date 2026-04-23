@@ -3,11 +3,18 @@
  * Activation guard — blocks plugin activations that fail the
  * pre-flight probe so a bad activate click can't fatal the site.
  *
- * Hooked on `load-plugins.php` at priority 0, which fires before the
- * wp-admin/plugins.php inline handler decides what to do with the
- * request. When the request is an `activate` (single or bulk) and
- * the probe returns a fatal / throwable / block, we redirect back
- * with a notice instead of letting core call `activate_plugin()`.
+ * Hooked on `load-plugins.php` and `load-update.php` at priority 0,
+ * which fire before wp-admin's inline handlers decide what to do
+ * with the request. We cover both entry points:
+ *
+ *   - `plugins.php?action=activate` (single) and `...=activate-selected` (bulk)
+ *     — the normal Activate link on the plugins list.
+ *   - `update.php?action=activate-plugin` — the link WordPress shows
+ *     after an Add New → Upload Plugin install completes.
+ *
+ * When the probe returns a fatal / throwable for at least one
+ * plugin, we redirect back to the plugins list with a notice
+ * instead of letting core call `activate_plugin()`.
  *
  * Checks are skipped when:
  *   - The nonce is missing or invalid (core will handle that error).
@@ -19,6 +26,7 @@
  */
 
 add_action( 'load-plugins.php', 'pcg_guard_maybe_block_activation', 0 );
+add_action( 'load-update.php', 'pcg_guard_maybe_block_activation', 0 );
 add_action( 'admin_notices', 'pcg_guard_render_block_notice' );
 
 /**
@@ -38,7 +46,10 @@ function pcg_guard_maybe_block_activation() {
 	$plugins_to_check = array();
 	$nonce_action     = '';
 
-	if ( 'activate' === $action ) {
+	// `activate` is emitted by plugins.php; `activate-plugin` by
+	// update.php after an upload-plugin install. Both carry a single
+	// `plugin` query arg and the same activate-plugin_{file} nonce.
+	if ( 'activate' === $action || 'activate-plugin' === $action ) {
 		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified below.
 		if ( '' === $plugin ) {
 			return;
