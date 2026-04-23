@@ -21,6 +21,16 @@ class Search_Blocks {
 	const RESERVED_QUERY_PARAMS = array( 's', 'orderby' );
 
 	/**
+	 * Template slug used for the Jetpack Search page template.
+	 *
+	 * Intentionally distinct from WordPress's `search` slug so the plugin
+	 * template never collides with (and gets deduplicated against) a block
+	 * theme's own `search.html`. `search_template_hierarchy` prepends this
+	 * slug so it still wins on `/?s=...` requests.
+	 */
+	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * The caller (Initializer) is responsible for gating this behind the
@@ -28,7 +38,9 @@ class Search_Blocks {
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
+		add_action( 'init', array( static::class, 'register_search_template' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
+		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 	}
@@ -202,6 +214,142 @@ class Search_Blocks {
 		foreach ( $pattern_files as $pattern_file ) {
 			require_once $pattern_file;
 		}
+	}
+
+	/**
+	 * Build the full search page template content.
+	 *
+	 * Mirrors the "Blog Search Page" pattern's layout (see
+	 * `src/search-blocks/patterns/blog-search.php`) wrapped in header/main/
+	 * footer template parts so the plugin-registered template renders the
+	 * same page users get from inserting the pattern directly. Markup lives
+	 * in `templates/jetpack-search.html` — the canonical block-theme format
+	 * for block templates — with a `{{FILTER_HEADING}}` placeholder for the
+	 * filter-sidebar heading so that string still goes through `esc_html__()`.
+	 *
+	 * Memoized: `register_search_template()` runs on every `init`, and the
+	 * template markup is identical every request, so read the file and run
+	 * the translation substitution once per process.
+	 *
+	 * @return string Block markup for a complete page template.
+	 */
+	protected static function get_search_template_content(): string {
+		static $content = null;
+		if ( null !== $content ) {
+			return $content;
+		}
+		$template_path = __DIR__ . '/templates/jetpack-search.html';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
+		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		$content = str_replace(
+			'{{FILTER_HEADING}}',
+			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
+			$raw
+		);
+		return $content;
+	}
+
+	/**
+	 * Register the Jetpack Search page template with the block-template
+	 * registry so it surfaces in the Site Editor's Templates list and can be
+	 * resolved via the template hierarchy.
+	 *
+	 * Uses `register_block_template()` (WP 6.7+). Jetpack requires WP 6.8+,
+	 * so the function is always present at runtime — the function_exists
+	 * guard is defensive for phpstan/phan and edge environments.
+	 *
+	 * DB-stored customizations continue to take precedence: if a site owner
+	 * edits this template in the Site Editor, the `custom` source wins during
+	 * resolution automatically.
+	 */
+	public static function register_search_template() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			return;
+		}
+		$content = static::get_search_template_content();
+		// Skip registration if the bundled template file is missing or
+		// unreadable. Since this template's slug is prepended to the
+		// search hierarchy, registering with empty content would take
+		// over `/?s=...` and render a blank page; bailing here lets core
+		// fall through to the theme's `search.html` instead.
+		if ( '' === $content ) {
+			return;
+		}
+		register_block_template(
+			static::get_parent_plugin_slug() . '//' . self::SEARCH_TEMPLATE_SLUG,
+			array(
+				'title'       => __( 'Jetpack Search Results', 'jetpack-search-pkg' ),
+				'description' => __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
+				'content'     => $content,
+			)
+		);
+	}
+
+	/**
+	 * Directory slug of the plugin that should own the template in the
+	 * Site Editor UI.
+	 *
+	 * The Templates list labels plugin-registered templates by looking up an
+	 * active plugin whose directory slug matches the namespace portion of
+	 * the registered template name. We pick the slug by preference rather
+	 * than by install path so that on sites running both the Jetpack
+	 * monolith and the standalone Jetpack Search plugin, the more-specific
+	 * "Jetpack Search" label always wins:
+	 *
+	 * - Jetpack Search plugin active → `jetpack-search` → "Jetpack Search"
+	 * - Otherwise Jetpack plugin active → `jetpack` → "Jetpack"
+	 * - Neither active (unexpected) → `jetpack-search` fallback
+	 *
+	 * @return string
+	 */
+	protected static function get_parent_plugin_slug(): string {
+		// Helper::get_active_plugins() already centralizes single-site +
+		// multisite active-plugin discovery (reads `active_plugins`, unions
+		// network-activated plugins from `active_sitewide_plugins`, dedupes).
+		// Reuse it so multisite/activation behavior stays consistent across
+		// the package if it ever evolves.
+		$active    = Helper::get_active_plugins();
+		$preferred = array(
+			'jetpack-search' => 'jetpack-search/jetpack-search.php',
+			'jetpack'        => 'jetpack/jetpack.php',
+		);
+		foreach ( $preferred as $slug => $plugin_file ) {
+			if ( in_array( $plugin_file, $active, true ) ) {
+				return $slug;
+			}
+		}
+		return 'jetpack-search';
+	}
+
+	/**
+	 * Prepend the Jetpack Search template slug to the search template hierarchy
+	 * so `/?s=…` requests resolve to our plugin-registered template instead of
+	 * the theme's `search.html`.
+	 *
+	 * Core resolves each slug in order, stopping at the first template it
+	 * finds. Because our slug is unique (`jetpack-search`, not `search`), the
+	 * theme's `search.html` is never consulted when this prepend is in effect.
+	 * Site Editor customizations (stored in the DB keyed by this slug) still
+	 * take precedence over the plugin-registered default.
+	 *
+	 * Existing occurrences of the slug are stripped first so the hierarchy
+	 * can't accumulate duplicates from a second init pass or another filter
+	 * on the same hook.
+	 *
+	 * @param string[] $templates Template hierarchy slugs.
+	 * @return string[]
+	 */
+	public static function prepend_search_template( $templates ) {
+		$templates = array_values(
+			array_filter(
+				(array) $templates,
+				static function ( $slug ) {
+					return self::SEARCH_TEMPLATE_SLUG !== $slug;
+				}
+			)
+		);
+		array_unshift( $templates, self::SEARCH_TEMPLATE_SLUG );
+		return $templates;
 	}
 
 	/**
