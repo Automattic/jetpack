@@ -210,7 +210,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @author scotchfield
 	 * @since 3.2
 	 */
-	public function test_shortcodes_archives_limit_zero_is_all() {
+	public function test_shortcodes_archives_limit_zero_uses_default() {
 		self::factory()->post->create( array() );
 		self::factory()->post->create( array() );
 		$attr = array(
@@ -220,6 +220,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 		$archives = archives_shortcode( $attr );
 
+		// limit=0 is invalid, so the default limit of 100 is applied; with only 2 posts all are returned.
 		$this->assertEquals( 2, substr_count( $archives, '<li>' ) );
 	}
 

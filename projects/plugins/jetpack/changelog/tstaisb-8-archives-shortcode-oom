@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Archives shortcode: Add default limit of 100 to prevent out-of-memory errors on sites with a large number of published posts.

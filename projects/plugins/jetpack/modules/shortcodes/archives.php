@@ -47,9 +47,9 @@ function archives_shortcode( $atts ) {
 	}
 
 	$limit = (int) $attr['limit'];
-	// A Limit of 0 makes no sense so revert back to the default.
+	// A limit of 0 makes no sense, so use a safe default to prevent OOM on large sites.
 	if ( empty( $limit ) ) {
-		$limit = '';
+		$limit = 100;
 	}
 
 	$showcount = ( false !== $attr['showcount'] && 'false' !== $attr['showcount'] ) ? true : false;
