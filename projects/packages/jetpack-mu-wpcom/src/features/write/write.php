@@ -226,7 +226,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	<header class="bw-topbar">
 		<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-back" title="Back to dashboard" data-wp-on--click="actions.handleBack">&larr;</a>
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="Shortcuts">?</button>
-		<div class="bw-help-popover" data-wp-bind--hidden="!state.showHelp">
+		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
 			<div class="bw-help-title">Tips</div>
 			<div class="bw-help-row"><kbd>/</kbd><span>Insert a heading, image, video, quote or divider</span></div>
 			<div class="bw-help-row"><kbd>Select text</kbd><span>Formatting toolbar appears</span></div>
@@ -273,6 +273,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	<!-- Floating formatting toolbar -->
 	<div
 		class="bw-toolbar"
+		hidden
 		data-wp-bind--hidden="!state.showToolbar"
 		data-wp-on--mousedown="actions.preventToolbarBlur"
 	>
@@ -288,7 +289,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</div>
 
 	<!-- Link input popover -->
-	<div class="bw-link-popover" data-wp-bind--hidden="!state.showLinkInput">
+	<div class="bw-link-popover" hidden data-wp-bind--hidden="!state.showLinkInput">
 		<input
 			type="url"
 			class="bw-link-input"
@@ -344,7 +345,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</div>
 
 	<!-- Slash command menu -->
-	<div class="bw-slash-menu" data-wp-bind--hidden="!state.showSlashMenu">
+	<div class="bw-slash-menu" hidden data-wp-bind--hidden="!state.showSlashMenu">
 		<div class="bw-slash-item" data-wp-on--click="actions.insertHeading" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon">H</span>
 			<div><strong>Heading</strong><span class="bw-slash-desc">Large section heading</span></div>
@@ -386,7 +387,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	<div class="bw-cat-fab" data-wp-on--click="actions.toggleCatPicker">
 		<span class="bw-cat-fab-icon dashicons dashicons-admin-generic"></span>
 	</div>
-	<div class="bw-cat-popover" data-wp-bind--hidden="!state.showCatPicker">
+	<div class="bw-cat-popover" hidden data-wp-bind--hidden="!state.showCatPicker">
 		<div class="bw-cat-popover-header">Categories</div>
 		<div class="bw-cat-popover-list">
 			<?php
