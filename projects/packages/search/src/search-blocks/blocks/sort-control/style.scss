@@ -8,13 +8,20 @@
 
 	label {
 		font-size: 0.9rem;
-		color: #555;
+		// Inherit the theme's text color so the label adapts to dark themes
+		// and the site palette.
+		color: inherit;
+		opacity: 0.8;
 	}
 
 	select {
-		border: 1px solid #ccc;
+		// Use currentColor for the border and inherit the theme's text/
+		// background colors so the control matches the surrounding palette.
+		border: 1px solid currentColor;
 		border-radius: 4px;
 		padding: 0.3rem 0.5rem;
 		font-size: 0.9rem;
+		color: inherit;
+		background: transparent;
 	}
 }

@@ -33,7 +33,7 @@ export default function ActiveFiltersEdit() {
 					'button',
 					{
 						type: 'button',
-						className: 'jetpack-search-active-filters__pill',
+						className: 'wp-element-button jetpack-search-active-filters__pill',
 						disabled: true,
 					},
 					h(
@@ -53,7 +53,7 @@ export default function ActiveFiltersEdit() {
 			'button',
 			{
 				type: 'button',
-				className: 'jetpack-search-active-filters__clear-all',
+				className: 'wp-element-button jetpack-search-active-filters__clear-all',
 				disabled: true,
 			},
 			__( 'Clear all', 'jetpack-search-pkg' )
