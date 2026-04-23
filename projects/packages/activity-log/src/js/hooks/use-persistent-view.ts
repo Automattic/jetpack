@@ -57,6 +57,22 @@ const stripTransient = ( v: View ): View => {
 	return next;
 };
 
+// Narrow whitelist of the fields the user can actually edit from the
+// settings cog (sort, order, properties, density, items-per-page, plus
+// filters). Comparing the full view object instead can flip the
+// "modified" bit when DataViews normalizes an unrelated internal field
+// on mount; comparing only the signature avoids that false positive.
+const viewSignature = ( v: View ) => ( {
+	fields: v.fields,
+	sort: v.sort,
+	perPage: v.perPage,
+	density: v.layout?.density,
+	filters: v.filters?.length ? v.filters : undefined,
+} );
+
+const isMeaningfullyModified = ( current: View, base: View ): boolean =>
+	! fastDeepEqual( viewSignature( current ), viewSignature( base ) );
+
 /**
  * Hook that tracks a DataViews view and persists the non-transient
  * parts to localStorage.
@@ -77,6 +93,14 @@ export function usePersistentView( defaultView: View ): {
 } {
 	const [ view, setViewState ] = useState< View >( () => {
 		const persisted = readPersistedView();
+		// Self-heal: if a previous session wrote a "not really modified"
+		// view (e.g. because DataViews touched a layout subfield on mount
+		// before we added the viewSignature whitelist), drop it now and
+		// boot with the default so Reset view stays disabled on load.
+		if ( persisted && ! isMeaningfullyModified( persisted, defaultView ) ) {
+			writePersistedView( null );
+			return defaultView;
+		}
 		return persisted ?? defaultView;
 	} );
 
@@ -84,14 +108,14 @@ export function usePersistentView( defaultView: View ): {
 		( next: View ) => {
 			setViewState( next );
 
-			// Persist only if the stripped view differs from the stripped
-			// default — otherwise clear the entry so a "back to default"
-			// session doesn't leave a redundant row in localStorage.
-			const stripped = stripTransient( next );
-			if ( fastDeepEqual( stripped, stripTransient( defaultView ) ) ) {
-				writePersistedView( null );
+			// Persist only when the signature differs. We still write the
+			// full stripped view (not just the signature) so future fields
+			// restore correctly — the signature just gates whether we
+			// persist at all.
+			if ( isMeaningfullyModified( next, defaultView ) ) {
+				writePersistedView( stripTransient( next ) );
 			} else {
-				writePersistedView( stripped );
+				writePersistedView( null );
 			}
 		},
 		[ defaultView ]
@@ -103,7 +127,7 @@ export function usePersistentView( defaultView: View ): {
 	}, [ defaultView ] );
 
 	const isViewModified = useMemo(
-		() => ! fastDeepEqual( stripTransient( view ), stripTransient( defaultView ) ),
+		() => isMeaningfullyModified( view, defaultView ),
 		[ view, defaultView ]
 	);
 
