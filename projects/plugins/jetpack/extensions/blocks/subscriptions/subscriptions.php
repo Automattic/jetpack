@@ -820,7 +820,7 @@ function render_for_website( $data, $classes, $styles ) {
 							>
 								<?php echo esc_html( $data['subscribe_placeholder'] ); ?>
 							</label>
-							<?php
+							<?php													
 							printf(
 								'<input
 									required="required"
@@ -833,6 +833,7 @@ function render_for_website( $data, $classes, $styles ) {
 									value="%4$s"
 									id="%5$s"
 									%6$s
+									aria-label="%7$s"
 								/>',
 								( ! empty( $classes['email_field'] )
 									? 'class="' . esc_attr( $classes['email_field'] ) . '"'
@@ -840,8 +841,31 @@ function render_for_website( $data, $classes, $styles ) {
 								),
 								( ! empty( $styles['email_field'] )
 									? esc_attr( $styles['email_field'] )
-									: 'width: 95%; padding: 1px 10px'
+									: 'width: 95%; padding: 1px 10px; opacity: 1; color: #333; background-color: #f9f9f9; border: 1px solid #ccc;'
 								),
+								
+								( ! empty( $data['subscribe_email'] ) ? '' : esc_attr( $data['subscribe_placeholder'] ) ),
+								esc_attr( $data['subscribe_email'] ),
+								esc_attr( $subscribe_field_id ),
+								( ! empty( $data['subscribe_email'] )
+									? 'disabled title="' . esc_attr__( "You're logged in with this email", 'jetpack' ) . '"'
+									: 'title="' . esc_attr__( 'Please fill in this field.', 'jetpack' ) . '"'
+								),
+								
+								( ! empty( $data['subscribe_email'] )
+									? sprintf( esc_attr__( 'Subscribe with %s', 'jetpack' ), esc_attr( $data['subscribe_email'] ) )
+									: ''
+								)
+							);
+								/>',
+								( ! empty( $classes['email_field'] )
+									? 'class="' . esc_attr( $classes['email_field'] ) . '"'
+									: ''
+								),
+								( ! empty( $styles['email_field'] )
+    ? esc_attr( $styles['email_field'] )
+    : 'width: 95%; padding: 1px 10px; opacity: 1; color: #333; background-color: #f9f9f9; border: 1px solid #ccc;'
+),
 								esc_attr( $data['subscribe_placeholder'] ),
 								esc_attr( $data['subscribe_email'] ),
 								esc_attr( $subscribe_field_id ),
