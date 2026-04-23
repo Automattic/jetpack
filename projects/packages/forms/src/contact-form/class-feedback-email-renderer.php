@@ -168,7 +168,9 @@ class Feedback_Email_Renderer {
 		$mark_as_spam_url        = '';
 		$footer_mark_as_spam_url = '';
 
-		if ( $feedback_status !== 'jp-temp-feedback' ) {
+		// Check if email action buttons are enabled.
+$show_email_actions = get_option( 'jetpack_forms_email_show_actions', true );
+		if ( $feedback_status !== 'jp-temp-feedback' && $show_email_actions ) {
 			$dashboard_url = Forms_Dashboard::get_forms_admin_url( $status, $post_id );
 			// Test responses don't get a Mark-as-spam link in the email — marking
 			// a test entry as spam from email is confusing and the form owner can
