@@ -15,6 +15,9 @@
  *                              requires the plugin, captures any fatal.
  *   activation-guard.php       Hooks `load-plugins.php` / `load-update.php`
  *                              and blocks activations that fail the probe.
+ *   update-guard.php           Hooks `upgrader_source_selection` to refuse
+ *                              installs / updates whose extracted package
+ *                              has PHP parse errors.
  *
  * Gated behind `apply_filters( 'pcg_enable', false )` so the feature
  * ships dark on WP.com until a site opts in. When enabled, the
@@ -35,5 +38,6 @@ if ( apply_filters( 'pcg_enable', false ) ) {
 
 	if ( is_admin() ) {
 		require_once __DIR__ . '/activation-guard.php';
+		require_once __DIR__ . '/update-guard.php';
 	}
 }
