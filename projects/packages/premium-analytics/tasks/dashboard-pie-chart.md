@@ -71,9 +71,9 @@ measures its parent container and the parent has no fixed height.
    ```bash
    pnpm jetpack changelogger add packages/premium-analytics --significance=patch --type=added --entry="Analytics: Add pie chart with mock data to dashboard route"
    ```
-2. Commit all changes including the changelog entry.
-3. Push the branch and open a **draft PR** against `trunk`.
-4. PR description must include the Session Report below.
+3. Commit all changes including the changelog entry.
+4. Push the branch and open a **draft PR** against `trunk`.
+5. PR description must include the Session Report below.
 
 ## Session Report
 
