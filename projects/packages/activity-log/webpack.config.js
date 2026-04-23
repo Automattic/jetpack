@@ -36,6 +36,25 @@ module.exports = [
 				// Workarounds for non-extracted `@wordpress/*` packages.
 				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
+				// `@automattic/ui` ships `__("Date calendar")` / etc.
+				// inside `DateRangeCalendar` without a text-domain arg
+				// — Jetpack's production i18n check plugin flags those
+				// as errors in the bundle. Run the textdomain-replace
+				// babel plugin over it, same recipe as the `@wordpress/*`
+				// bundled packages above.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/ui/' ],
+					babelOpts: {
+						configFile: false,
+						plugins: [
+							[
+								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+								{ textdomain: 'jetpack-activity-log' },
+							],
+						],
+					},
+				} ),
+
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],

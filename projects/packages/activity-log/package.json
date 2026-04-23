@@ -46,6 +46,7 @@
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.0",
