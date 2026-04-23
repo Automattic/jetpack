@@ -51,11 +51,23 @@ const Link: BlockRenderer = ( { content, children, onClick, meta } ) => {
 		return <Fragment>{ children }</Fragment>;
 	}
 
-	// The WPCOM activity-log API frequently wraps a typed entity range
-	// (post/person/…) in an outer anchor pointing at the WordPress.com
-	// equivalent. In wp-admin those destinations aren't useful — drop the
-	// URL and render only the children, so the nested entity renderer
-	// (EntityLink) can emit the local wp-admin link instead.
+	// Anchor ranges frequently carry section + id hints (e.g.
+	// section: 'user', id: 42) pointing at a WordPress.com URL. Prefer
+	// the local wp-admin equivalent when we can derive one, regardless
+	// of the outer URL.
+	const adminHref = buildAdminLink( content );
+	if ( adminHref ) {
+		return (
+			<a href={ adminHref } onClick={ onClick }>
+				{ children }
+			</a>
+		);
+	}
+
+	// No local equivalent. If the URL itself is a wordpress.com URL,
+	// drop it — those destinations aren't useful from wp-admin and any
+	// nested entity renderer (EntityLink) can still emit its own link
+	// from the children tree.
 	if ( isWordPressDotComUrl( url ) ) {
 		return <Fragment>{ children }</Fragment>;
 	}

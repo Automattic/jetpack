@@ -70,11 +70,17 @@ const commentNode = ( {
 	siteId,
 } );
 
-const linkNode = ( { url, intent, section }: RangeWithChildren ) => ( {
+const linkNode = ( { url, intent, section, id, site_id: siteId }: RangeWithChildren ) => ( {
 	type: 'link',
 	url,
 	intent,
 	section,
+	// `id` + `site_id` let the renderer build a local wp-admin link for
+	// anchors that carry section hints (e.g. section: 'user', id: 42 →
+	// `user-edit.php?user_id=42`), even when the `url` itself points at
+	// wordpress.com.
+	id,
+	siteId,
 } );
 
 const postNode = ( { id: postId, site_id: siteId, published }: RangeWithChildren ) => ( {

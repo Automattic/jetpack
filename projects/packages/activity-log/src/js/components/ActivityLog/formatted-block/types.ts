@@ -6,6 +6,10 @@ export interface ActivityBlockNode {
 	activity?: string;
 	section?: string;
 	intent?: string;
+	// `id` arrives on anchor ranges that carry a `section` hint (e.g. the
+	// local WP user id on a user anchor). Typed entity ranges put their
+	// identifier into a dedicated field (postId/userId/…) instead.
+	id?: number | string;
 	siteId?: number | string;
 	postId?: number | string;
 	isTrashed?: boolean;

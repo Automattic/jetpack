@@ -31,6 +31,7 @@ export interface Activity {
 	activityId: string;
 	activityMedia: ActivityMediaDetails;
 	activityName: string;
+	activityObject?: ActivityLogObject;
 	activityStatus: string;
 	activityTitle: string;
 	activityTs: number;
@@ -84,6 +85,15 @@ export interface ActivityLogEntryImage {
 	url?: string;
 }
 
+export interface ActivityLogObject {
+	type?: string;
+	name?: string;
+	object_id?: number | string;
+	external_user_id?: number | string;
+	wpcom_user_id?: number | string;
+	[ key: string ]: unknown;
+}
+
 export interface ActivityLogEntry {
 	activity_id: string;
 	actor?: ActivityLogActor;
@@ -92,6 +102,7 @@ export interface ActivityLogEntry {
 	image?: ActivityLogEntryImage | null;
 	name: string;
 	is_rewindable?: boolean;
+	object?: ActivityLogObject;
 	published?: string;
 	rewind_id?: string;
 	status?: 'error' | 'info' | 'success' | 'warning' | null;

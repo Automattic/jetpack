@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activity Log: link user names in login descriptions (via section-tagged anchors) and link entire descriptions for entries whose subject only surfaces through the entry-level object (e.g. post__published).
