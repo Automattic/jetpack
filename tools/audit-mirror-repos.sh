@@ -81,7 +81,7 @@ if ! gh auth status --hostname github.com &> /dev/null; then
 fi
 
 DESC_RE1='^\[READ ONLY\] '
-DESC_RE2=' This repository is a mirror([,;] f|\. F)or issue tracking and development,? (go|head) (to:?|here:) https://github\.com/[Aa]utomattic/[Jj]etpack/?\.?$'
+DESC_RE2=' This repository is a mirror([,;] f|\. F)or issue tracking and development,? (go|head) (to:?|here:) https://github\.com/[Aa]utomattic/[Jj]etpack/?\.?\s*$'
 
 if [[ -n "$1" ]]; then
 	REPOS="$1"
