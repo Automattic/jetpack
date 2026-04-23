@@ -383,7 +383,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 		* Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors", click "Save" button.
 		* Set "Workflow permissions" to "Read repository contents and packages permissions".
 		* Disable "Allow GitHub Actions to create and approve pull requests", as PRs are created in the monorepo, click "Save" button.
-		* Double check all the setting above. Since if you only clicked save once. The options might not have been saved correctly.
+		* Double check all the setting above. If you only clicked save once, the options might not have been saved correctly.
 	5. Set up any secrets and configuration for [Autotagger](#autotagger) and [Autopublisher](#wordpressorg-svn-auto-publisher)) (if needed). See PCYsg-xsv-p2#mirror-repo-secrets the secret details.
 	6. The default branch should be `trunk`, matching the monorepo. Note that you can't set the default branch until at least one branch is created in the repo.
 2. If this is a PHP package that will be published on Packagist, do the following:
