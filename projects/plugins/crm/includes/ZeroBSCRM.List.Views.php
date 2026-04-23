@@ -29,7 +29,7 @@ function zeroBSCRM_render_customerslist_page() { // phpcs:ignore WordPress.Namin
 	// extra_js:
 	$status_array = $zbs->settings->get( 'customisedfields' )['customers']['status'];
 	$statuses     = is_array( $status_array ) && isset( $status_array[1] ) ? explode( ',', $status_array[1] ) : array();
-	$extra_js     = 'var zbsStatusesForBulkActions = ' . wp_json_encode( $statuses ) . ';';
+	$extra_js     = 'var zbsStatusesForBulkActions = ' . wp_json_encode( $statuses, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 
 	// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 	// Messages:
@@ -304,7 +304,7 @@ function zeroBSCRM_render_formslist_page() { // phpcs:ignore WordPress.NamingCon
 		##WLREMOVE
 		// first build upsell box html
 		$upsell_box_html  = '<!-- Forms PRO box --><div class="">';
-		$upsell_box_html .= '<h4>' . esc_html__( 'Need More Complex Forms?', 'zero-bs-crm' ) . '</h4>';
+		$upsell_box_html .= '<h4 style="padding: 0 8px;">' . esc_html__( 'Need More Complex Forms?', 'zero-bs-crm' ) . '</h4>';
 
 		$up_title  = esc_html__( 'Fully Flexible Forms', 'zero-bs-crm' );
 		$up_desc   = esc_html__( 'Jetpack CRM forms cover simple use contact and subscription forms, but if you need more we suggest using a form plugin like Contact Form 7 or Gravity Forms:', 'zero-bs-crm' );
@@ -372,7 +372,7 @@ function zeroBSCRM_render_segmentslist_page() { // phpcs:ignore WordPress.Naming
 
 		// first build upsell box html
 		$upsell_box_html  = '<div class="">';
-		$upsell_box_html .= '<h4>' . esc_html__( 'Using Segments?', 'zero-bs-crm' ) . '</h4>';
+		$upsell_box_html .= '<h4 style="padding: 0 8px;">' . esc_html__( 'Using Segments?', 'zero-bs-crm' ) . '</h4>';
 
 		$up_title  = esc_html__( 'Segment like a PRO', 'zero-bs-crm' );
 		$up_desc   = esc_html__( 'Did you know that we\'ve made segments more advanced?', 'zero-bs-crm' );

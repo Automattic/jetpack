@@ -1,3 +1,8 @@
+let mockCanShareToX = true;
+jest.mock( '../x-usage', () => ( {
+	canShareToX: () => mockCanShareToX,
+} ) );
+
 import {
 	getConnections,
 	hasConnections,
@@ -5,6 +10,7 @@ import {
 	getMustReauthConnections,
 	getEnabledConnections,
 	getDisabledConnections,
+	getConnectionsReadyToShare,
 } from '../connection-data';
 
 const state = {
@@ -115,6 +121,90 @@ describe( 'Social store selectors: connectionData', () => {
 			expect( disabledConnections ).toEqual( [
 				state.connectionData.connections[ 0 ],
 				state.connectionData.connections[ 2 ],
+			] );
+		} );
+	} );
+
+	describe( 'getConnectionsReadyToShare', () => {
+		const readyState = {
+			connectionData: {
+				connections: [
+					{
+						service_name: 'x',
+						display_name: 'X account',
+						profile_picture: '',
+						external_handle: 'handle',
+						enabled: true,
+						connection_id: 'x-1',
+						status: 'ok',
+					},
+					{
+						service_name: 'tumblr',
+						display_name: 'Tumblr account',
+						profile_picture: '',
+						external_handle: 'handle',
+						enabled: true,
+						connection_id: 'tumblr-1',
+						status: 'ok',
+					},
+					{
+						service_name: 'mastodon',
+						display_name: 'Mastodon account',
+						profile_picture: '',
+						external_handle: '@handle@mastodon.social',
+						enabled: false,
+						connection_id: 'mastodon-1',
+						status: 'ok',
+					},
+				],
+			},
+		};
+
+		afterEach( () => {
+			mockCanShareToX = true;
+		} );
+
+		it( 'should return empty array if no connections', () => {
+			expect( getConnectionsReadyToShare( {} ) ).toEqual( [] );
+		} );
+
+		it( 'should return all enabled connections when X quota is available', () => {
+			mockCanShareToX = true;
+			const ready = getConnectionsReadyToShare( readyState );
+			expect( ready ).toEqual( [
+				readyState.connectionData.connections[ 0 ],
+				readyState.connectionData.connections[ 1 ],
+			] );
+		} );
+
+		it( 'should exclude X connections when X quota is exceeded', () => {
+			mockCanShareToX = false;
+			const ready = getConnectionsReadyToShare( readyState );
+			expect( ready ).toEqual( [ readyState.connectionData.connections[ 1 ] ] );
+		} );
+
+		it( 'should return an empty array when only X is enabled and quota is exceeded', () => {
+			mockCanShareToX = false;
+			const onlyXState = {
+				connectionData: {
+					connections: [ readyState.connectionData.connections[ 0 ] ],
+				},
+			};
+			expect( getConnectionsReadyToShare( onlyXState ) ).toEqual( [] );
+		} );
+
+		it( 'should not affect non-X connections when X quota is exceeded', () => {
+			mockCanShareToX = false;
+			const noXState = {
+				connectionData: {
+					connections: [
+						readyState.connectionData.connections[ 1 ],
+						readyState.connectionData.connections[ 2 ],
+					],
+				},
+			};
+			expect( getConnectionsReadyToShare( noXState ) ).toEqual( [
+				readyState.connectionData.connections[ 1 ],
 			] );
 		} );
 	} );

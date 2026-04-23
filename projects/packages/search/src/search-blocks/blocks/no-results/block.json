@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/no-results",
+	"version": "0.1.0",
+	"title": "No Results",
+	"category": "jetpack-search",
+	"icon": "no-alt",
+	"description": "Message shown when Jetpack Search returns no results.",
+	"supports": { "html": false, "interactivity": true },
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/no-results.js",
+	"attributes": {
+		"message": { "type": "string", "default": "" }
+	}
+}

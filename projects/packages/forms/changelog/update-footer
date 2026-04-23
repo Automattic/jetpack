@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Use new `BundledWpPkgsTranspileRules` from webpack-config to centralize the hacks needed for non-extracted `@wordpress/*` packages.
-
-

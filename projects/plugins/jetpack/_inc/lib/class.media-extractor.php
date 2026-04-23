@@ -349,7 +349,11 @@ class Jetpack_Media_Meta_Extractor {
 
 					// Check whether this "link" is really an embed.
 					foreach ( $oembed->providers as $matchmask => $data ) {
-						list( $providerurl, $regex ) = $data; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+						// Guard against malformed oEmbed providers.
+						if ( ! isset( $data[0] ) ) {
+							continue;
+						}
+						$regex = $data[1] ?? false;
 
 						// Turn the asterisk-type provider URLs into regex.
 						if ( ! $regex ) {

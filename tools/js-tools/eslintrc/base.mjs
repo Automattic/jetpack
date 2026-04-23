@@ -13,11 +13,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
-import { FlatCompat } from '@eslint/eslintrc';
+import { fixupPluginRules } from '@eslint/compat';
 import eslintJs from '@eslint/js';
 import eslintJson from '@eslint/json';
 import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
+import wordpressEslintPlugin from '@wordpress/eslint-plugin';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import {
@@ -73,11 +73,6 @@ const restrictedPaths = [
  */
 export function makeBaseConfig( configurl, opts = {} ) {
 	const basedir = path.dirname( fileURLToPath( configurl ) );
-
-	const compat = new FlatCompat( {
-		baseDirectory: basedir,
-		resolvePluginsRelativeTo: import.meta.filename,
-	} );
 
 	let m;
 	if (
@@ -160,6 +155,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			files: javascriptFiles,
 			extends: [
 				eslintJs.configs.recommended,
+
 				eslintPluginStorybook.configs[ 'flat/recommended' ].map( v => {
 					// We don't have a `.storybook/` dir at the repo root like the config expects.
 					if ( Array.isArray( v.files ) ) {
@@ -195,15 +191,12 @@ export function makeBaseConfig( configurl, opts = {} ) {
 					},
 				},
 
-				// Can't just `@wordpress/recommended-with-formatting` because that includes React too and we only want that with opts.react.
-				fixupConfigRules(
-					compat.extends(
-						'plugin:@wordpress/jsx-a11y',
-						'plugin:@wordpress/custom',
-						'plugin:@wordpress/esnext',
-						'plugin:@wordpress/i18n'
-					)
-				),
+				// Can't just `wordpressEslintPlugin.configs["recommended-with-formatting"]` because that includes React too and we only want that with opts.react.
+				wordpressEslintPlugin.configs[ 'jsx-a11y' ],
+				wordpressEslintPlugin.configs.custom,
+				wordpressEslintPlugin.configs.esnext,
+				wordpressEslintPlugin.configs.i18n,
+
 				{
 					plugins: {
 						'you-dont-need-lodash-underscore': fixupPluginRules(

@@ -3,6 +3,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector, createSelector } from '@wordpress/data';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
 import { EMPTY_ARRAY } from '../constants';
+import { canShareToX } from './x-usage';
 import type { Connection, ConnectionData, SocialStoreState } from '../types';
 
 /**
@@ -117,6 +118,28 @@ export const getEnabledConnections = createSelector(
 );
 
 /**
+ * Returns the connections that are both enabled and allowed to be shared to.
+ *
+ * This excludes connections that the user has toggled on but cannot actually
+ * be used for sharing — currently, X connections when the sharing quota is
+ * exceeded. Use this for "will be shared" UI surfaces; use
+ * `getEnabledConnections` for user-intent state (e.g. post meta sync).
+ *
+ * @param state - State object.
+ *
+ * @return List of connections ready to share.
+ */
+export function getConnectionsReadyToShare( state: SocialStoreState ): Array< Connection > {
+	const enabled = getEnabledConnections( state );
+
+	if ( canShareToX( state ) ) {
+		return enabled;
+	}
+
+	return enabled.filter( connection => connection.service_name !== 'x' );
+}
+
+/**
  * Returns the Publicize connections that are disabled.
  *
  * @param state - State object.
@@ -226,6 +249,20 @@ export function getKeyringResult( state: SocialStoreState ) {
  */
 export function isConnectionsModalOpen( state: SocialStoreState ) {
 	return state.connectionData?.isConnectionsModalOpen ?? false;
+}
+
+/**
+ * Whether the single-X-per-post info notice should be shown in the sidebar.
+ *
+ * Set to true by `toggleConnectionById` when the user turns on an X
+ * connection and the thunk auto-disables another enabled X connection.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the single-X notice should be shown.
+ */
+export function shouldShowSingleXNotice( state: SocialStoreState ) {
+	return state.connectionData?.shouldShowSingleXNotice ?? false;
 }
 
 /**

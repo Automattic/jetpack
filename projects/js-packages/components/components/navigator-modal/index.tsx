@@ -1,6 +1,6 @@
 import { Modal, Navigator } from '@wordpress/components';
 import clsx from 'clsx';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import { NavigatorModalContext } from './context.ts';
 import { Screen } from './screen.tsx';
 import './styles.scss';
@@ -24,16 +24,36 @@ function InternalNavigatorModal( {
 	...props
 }: Omit< ModalProps, 'onRequestClose' > ) {
 	const { onClose, initialPath } = useContext( NavigatorModalContext );
+	const overlayRef = useRef< HTMLDivElement >( null );
+	const isUserInteracting = useRef( false );
+
+	// Track pointer interaction on the overlay so we can distinguish
+	// user-initiated overlay clicks from the WP Modal dismisser mechanism,
+	// which also calls onRequestClose() without an event argument.
+	useEffect( () => {
+		const overlay = overlayRef.current;
+		if ( ! overlay ) {
+			return;
+		}
+		const handler = () => {
+			isUserInteracting.current = true;
+		};
+		overlay.addEventListener( 'pointerdown', handler );
+		return () => overlay.removeEventListener( 'pointerdown', handler );
+	}, [] );
 
 	// WordPress Modal's dismisser mechanism (ModalContext) calls onRequestClose()
 	// without arguments when another non-nested Modal mounts. We guard against
 	// this so that external modals (e.g. Image Studio) don't destroy this one.
 	// User-initiated closes (Escape, close button) always pass an event.
+	// Overlay clicks don't pass an event but are identified by the
+	// isUserInteracting flag set via the pointerdown listener above.
 	// The NavigatorModal's own Header/Footer close buttons call context.onClose
 	// directly and are unaffected by this guard.
 	const onRequestClose = useCallback(
 		( event?: React.SyntheticEvent ) => {
-			if ( event ) {
+			if ( event || isUserInteracting.current ) {
+				isUserInteracting.current = false;
 				onClose?.();
 			}
 		},
@@ -42,6 +62,7 @@ function InternalNavigatorModal( {
 
 	return (
 		<Modal
+			ref={ overlayRef }
 			__experimentalHideHeader
 			onRequestClose={ onRequestClose }
 			className={ clsx( 'jp-navigator-modal', className ) }

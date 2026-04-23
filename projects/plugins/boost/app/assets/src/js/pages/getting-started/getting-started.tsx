@@ -3,7 +3,6 @@ import { Snackbar } from '@wordpress/components';
 import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
-import Footer from '$layout/footer/footer';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
@@ -101,7 +100,6 @@ const GettingStarted: FC = () => {
 						</div>
 					</div>
 				</div>
-				<Footer />
 			</div>
 		</BoostAdminPage>
 	);

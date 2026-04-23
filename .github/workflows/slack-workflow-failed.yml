@@ -156,7 +156,7 @@ jobs:
           gh_set_output message_releases "$( jq -c --arg C "$SLACK_RELEASES_CHANNEL" '.channel |= $C' <<<"$MSG" )"
 
       - name: Send message to alerts channel
-        uses: slackapi/slack-github-action@v2.1.0
+        uses: slackapi/slack-github-action@v3.0.1
         if: steps.message.outputs.branch == 'trunk'
         with:
           token: ${{ secrets.SLACK_TOKEN }}
@@ -164,7 +164,7 @@ jobs:
           payload: ${{ steps.message.outputs.message_alerts }}
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v2.1.0
+        uses: slackapi/slack-github-action@v3.0.1
         if: contains( steps.message.outputs.branch, '/branch-' ) || steps.message.outputs.branch == 'prerelease'
         with:
           token: ${{ secrets.SLACK_TOKEN }}

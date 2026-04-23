@@ -1,0 +1,20 @@
+.wp-block-jetpack-sort-control {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	// Pin to the right edge of its flex-row parent (e.g. the Blog Search Page
+	// pattern) regardless of sibling widths.
+	margin-inline-start: auto;
+
+	label {
+		font-size: 0.9rem;
+		color: #555;
+	}
+
+	select {
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		padding: 0.3rem 0.5rem;
+		font-size: 0.9rem;
+	}
+}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Adapt WordPress.com CFM flags to explicitly disable for excluded sites now that CFM is enabled by default in the Forms package.

@@ -21,10 +21,7 @@ async function toggle( page: Page, toggleLocator: Locator ): Promise< void > {
 	);
 	await toggleLocator.click();
 	await responsePromise;
-	await expect(
-		page.locator( 'span.form-toggle__switch:not([disabled])' ).first(),
-		'Toggle element should not be disabled'
-	).toBeVisible();
+	await expect( toggleLocator, 'Toggle element should not be disabled' ).toBeEnabled();
 }
 
 test.describe( 'Search Dashboard', () => {

@@ -20,6 +20,11 @@ use Automattic\Jetpack\Status\Host;
 class Social_Admin_Page {
 
 	/**
+	 * Nonce action used when refreshing plan data.
+	 */
+	public const REFRESH_PLAN_NONCE_ACTION = 'jetpack_social_refresh_plan_data';
+
+	/**
 	 * The instance of the class.
 	 *
 	 * @var Social_Admin_Page
@@ -90,9 +95,11 @@ class Social_Admin_Page {
 	public function admin_init() {
 		// Refresh data if coming from purchase to ensure it is up to date
 		// without making API calls on every admin page load.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['refresh_plan_data'] ) ) {
-			Current_Plan::refresh_from_wpcom();
+			check_admin_referer( self::REFRESH_PLAN_NONCE_ACTION );
+			if ( apply_filters( 'jetpack_social_should_refresh_plan_data', true ) ) {
+				Current_Plan::refresh_from_wpcom();
+			}
 		}
 
 		/**

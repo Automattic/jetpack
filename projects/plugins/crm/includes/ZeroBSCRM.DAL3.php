@@ -2479,7 +2479,7 @@ class zbsDAL {
 			// WH note: it was necessary to add JSON_UNESCAPED_SLASHES to properly save down without issue
 			// combined with a more complex zeroBSCRM_stripSlashes recurrsive
 			// https://stackoverflow.com/questions/7282755/how-to-remove-backslash-on-json-encode-function
-			$data['val'] = json_encode( $data['val'], JSON_UNESCAPED_SLASHES );
+			$data['val'] = wp_json_encode( $data['val'], JSON_UNESCAPED_SLASHES ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 		}
 
@@ -3162,7 +3162,7 @@ class zbsDAL {
 		#} Var up any val (json_encode)
 		if ( in_array( gettype( $data['val'] ), array( 'object', 'array' ) ) ) {
 
-			$data['val'] = json_encode( $data['val'] );
+			$data['val'] = wp_json_encode( $data['val'], JSON_UNESCAPED_SLASHES ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 		}
 

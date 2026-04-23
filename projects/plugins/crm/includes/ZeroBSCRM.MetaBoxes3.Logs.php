@@ -496,14 +496,15 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 				var zbsLogPerms = 
 				<?php
-				echo json_encode(
+				echo wp_json_encode(
 					array(
 						'addedit' => zeroBSCRM_permsLogsAddEdit(),
 						'delete'  => zeroBSCRM_permsLogsDelete(),
-					)
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				);
 				?>
-									;
+;
 
 				var zbsLogAgainstID = <?php echo esc_html( $objid ); ?>; var zbsLogProcessingBlocker = false;
 
@@ -527,7 +528,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 						}
 					}
 				}
-				echo 'var zbsLogsLocked = ' . json_encode( $lockedLogs ) . ';';
+				echo 'var zbsLogsLocked = ' . wp_json_encode( $lockedLogs, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 
 				/*
 				var zbsLogsLocked = {
@@ -541,7 +542,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 				if ( isset( $zeroBSCRM_logTypes[ $this->postType ] ) && count( $zeroBSCRM_logTypes[ $this->postType ] ) > 0 ) {
 
-					echo 'var zbsLogTypes = ' . json_encode( $zeroBSCRM_logTypes[ $this->postType ] ) . ';';
+					echo 'var zbsLogTypes = ' . wp_json_encode( $zeroBSCRM_logTypes[ $this->postType ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 
 				}
 				?>
@@ -564,9 +565,9 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 					}
 
-					echo json_encode( $zbsLogsExpose );
+					echo wp_json_encode( $zbsLogsExpose, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 				} else {
-					echo json_encode( array() );
+					echo wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 				}
 				?>
 				;

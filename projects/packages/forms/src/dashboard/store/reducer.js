@@ -66,7 +66,7 @@ const normalizeValue = value => {
  * @return {string} A stable key for caching.
  */
 export const getCacheKey = ( queryParams = {} ) => {
-	const keys = [ 'search', 'parent', 'before', 'after', 'is_unread' ];
+	const keys = [ 'search', 'parent', 'source', 'before', 'after', 'is_unread' ];
 	const parts = keys
 		.filter( key => queryParams[ key ] !== undefined )
 		.map( key => `${ key }:${ normalizeValue( queryParams[ key ] ) }` );

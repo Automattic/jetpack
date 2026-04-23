@@ -32,6 +32,11 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
+	// Don't show if AI assistant is already enabled.
+	if ( class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' ) ) {
+		return false;
+	}
+
 	if ( function_exists( 'get_user_attribute' ) ) {
 		$user_id = get_current_user_id();
 

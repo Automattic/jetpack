@@ -128,12 +128,6 @@ async function getFileDerivedLabels(
 			keywords.add( '[Feature] Theme Tools' );
 		}
 
-		// The WooCommerce Analytics feature now lives in both a package and a Jetpack module.
-		const wooCommerceAnalytics = file.match( /^projects\/packages\/woocommerce-analytics\// );
-		if ( wooCommerceAnalytics !== null ) {
-			keywords.add( '[Feature] WooCommerce Analytics' );
-		}
-
 		// The Masterbar feature now lives in both a package and a Jetpack module.
 		const masterbar = file.match( /^projects\/packages\/masterbar\// );
 		if ( masterbar !== null ) {
