@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Activity Log: surface the DataViews Reset view button and persist view options (column order, density, sort, per-page) across page refresh via localStorage.

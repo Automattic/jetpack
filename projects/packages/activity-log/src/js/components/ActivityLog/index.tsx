@@ -10,8 +10,9 @@ import { useQuery } from '@tanstack/react-query';
 import { DataViews } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import fastDeepEqual from 'fast-deep-equal/es6';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { activityLogQuery, activityLogGroupCountsQuery } from '../../hooks/use-activity-log';
+import { usePersistentView } from '../../hooks/use-persistent-view';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { useActivityFields } from './fields';
@@ -57,7 +58,7 @@ const readSiteTimeContext = (): { gmtOffset: number; timezoneString?: string } =
  */
 export default function ActivityLog() {
 	const { gmtOffset, timezoneString } = readSiteTimeContext();
-	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
+	const { view, setView, resetView, isViewModified } = usePersistentView( DEFAULT_VIEW );
 
 	const activityLogTypeValues = useMemo( () => {
 		const filters = ( view.filters as Filter[] | undefined ) ?? [];
@@ -133,10 +134,8 @@ export default function ActivityLog() {
 				page: datasetChanged ? 1 : requestedPage,
 			} );
 		},
-		[ view, searchTerm ]
+		[ setView, view, searchTerm ]
 	);
-
-	const resetView = useCallback( () => setView( DEFAULT_VIEW ), [] );
 
 	const getItemId = useCallback( ( item: Activity ) => item.activityId.toString(), [] );
 
@@ -163,7 +162,7 @@ export default function ActivityLog() {
 					search
 					defaultLayouts={ { table: {} } }
 					onChangeView={ onChangeView }
-					onResetView={ resetView }
+					onReset={ isViewModified ? resetView : false }
 					empty={
 						<p>
 							{ view.search
