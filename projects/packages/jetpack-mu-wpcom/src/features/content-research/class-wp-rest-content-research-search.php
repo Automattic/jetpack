@@ -64,7 +64,6 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 	 */
 	private function get_sources(): array {
 		return array(
-			'reddit'     => new Source_Reddit(),
 			'hn'         => new Source_HackerNews(),
 			'reader'     => new Source_Reader(),
 			'googlenews' => new Source_GoogleNews(),

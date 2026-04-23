@@ -44,7 +44,6 @@ class Content_Research {
 	 */
 	public function register_rest_api() {
 		require_once __DIR__ . '/interface-content-research-source.php';
-		require_once __DIR__ . '/class-source-reddit.php';
 		require_once __DIR__ . '/class-source-hackernews.php';
 		require_once __DIR__ . '/class-source-reader.php';
 		require_once __DIR__ . '/class-source-googlenews.php';
@@ -129,7 +128,8 @@ class Content_Research {
 			'window.contentResearchData = ' . wp_json_encode(
 				array(
 					'enabled' => true,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
 			'before'
 		);
