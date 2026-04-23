@@ -81,14 +81,6 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 			);
 		}
 
-		if ( function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( \WPCOM_Features::AI_ASSISTANT ) ) {
-			return new \WP_Error(
-				'rest_forbidden',
-				__( 'Your site requires an AI add-on to use this feature.', 'jetpack-mu-wpcom' ),
-				array( 'status' => 403 )
-			);
-		}
-
 		return true;
 	}
 
@@ -102,40 +94,19 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 		$topic   = $request->get_param( 'topic' );
 		$results = $request->get_param( 'results' );
 
-		l( '========================================' );
-		l( '========================================' );
-		l( '========================================' );
-		l(
-			'Content Research Summarize: starting',
-			array(
-				'topic'        => $topic,
-				'result_count' => count( $results ),
-			)
-		);
-
 		$articles = $this->fetch_articles( $results );
 
 		// Check if any articles have fetched content.
-		$has_content   = false;
-		$fetched_count = 0;
+		$has_content = false;
 		foreach ( $articles as $article ) {
 			if ( ! empty( $article['content'] ) ) {
 				$has_content = true;
-				++$fetched_count;
+				break;
 			}
 		}
 
-		l(
-			'Content Research Summarize: fetched articles',
-			array(
-				'fetched' => $fetched_count,
-				'total'   => count( $articles ),
-			)
-		);
-
 		// If no content was fetched, fall back to excerpts only.
 		if ( ! $has_content ) {
-			l( 'Content Research Summarize: no content fetched, falling back to excerpts' );
 			foreach ( $articles as &$article ) {
 				$article['content'] = $article['excerpt'] ?? '';
 			}
@@ -147,30 +118,17 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 			$combined_length += strlen( $article['content'] );
 		}
 
-		l( 'Content Research Summarize: combined content length', $combined_length );
-
 		if ( $combined_length > self::MAX_COMBINED_LENGTH ) {
-			l( 'Content Research Summarize: using chunk-and-condense path' );
 			$result = $this->chunk_and_condense( $topic, $articles );
 		} else {
-			l( 'Content Research Summarize: using single-call path' );
 			$prompt = $this->build_prompt( $topic, $articles );
 			$result = $this->summarize_with_llm( $prompt );
 		}
 
 		if ( is_wp_error( $result ) ) {
-			l(
-				'Content Research Summarize: final error',
-				array(
-					'code'    => $result->get_error_code(),
-					'message' => $result->get_error_message(),
-					'data'    => $result->get_error_data(),
-				)
-			);
 			return $result;
 		}
 
-		l( 'Content Research Summarize: success' );
 		return rest_ensure_response( $result );
 	}
 
@@ -220,47 +178,27 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 		// Skip Google News wrapper URLs — they use JS redirects and encrypted URL encoding,
 		// so we can't extract content server-side. Excerpts will be used instead.
 		if ( strpos( $url, 'news.google.com/' ) !== false ) {
-			l( 'Content Research Summarize: skipping Google News wrapper URL', $url );
 			return '';
 		}
-
-		l( '========================================' );
-		l( 'Content Research Summarize: fetching article', $url );
 
 		$response = wp_safe_remote_get( $url, array( 'timeout' => 10 ) );
 
 		if ( is_wp_error( $response ) ) {
-			l(
-				'Content Research Summarize: fetch error',
-				array(
-					'url'   => $url,
-					'error' => $response->get_error_message(),
-				)
-			);
 			return '';
 		}
 
 		$code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $code ) {
-			l(
-				'Content Research Summarize: fetch non-200',
-				array(
-					'url'    => $url,
-					'status' => $code,
-				)
-			);
 			return '';
 		}
 
 		$html = wp_remote_retrieve_body( $response );
 		if ( empty( $html ) ) {
-			l( 'Content Research Summarize: empty body', $url );
 			return '';
 		}
 
 		$main_html = $this->extract_main_content( $html );
 		if ( empty( $main_html ) ) {
-			l( 'Content Research Summarize: no main content extracted' );
 			return '';
 		}
 
@@ -273,7 +211,6 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 			$markdown = substr( $markdown, 0, self::MAX_ARTICLE_LENGTH ) . '...';
 		}
 
-		l( 'Content Research Summarize: fetched article content', strlen( $markdown ) );
 		return $markdown;
 	}
 
@@ -286,14 +223,6 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 	 * @return string The inner HTML of the main content element.
 	 */
 	private function extract_main_content( string $html ): string {
-		l(
-			'Content Research Summarize: extracting main content',
-			array(
-				'html_length' => strlen( $html ),
-				'html_start'  => substr( $html, 0, 500 ),
-			)
-		);
-
 		$doc = new \DOMDocument();
 
 		// Suppress warnings from malformed HTML.
@@ -308,15 +237,13 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 			if ( $elements->length > 0 ) {
 				$element    = $elements->item( 0 );
 				$inner_html = '';
-				foreach ( $element->childNodes as $child ) {
+				foreach ( $element->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$inner_html .= $doc->saveHTML( $child );
 				}
-				l( 'Content Research Summarize: extracted via <' . $tag . '>', strlen( $inner_html ) );
 				return $inner_html;
 			}
 		}
 
-		l( 'Content Research Summarize: no article/main/body tags found' );
 		return '';
 	}
 
@@ -369,26 +296,14 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 	 * @return array|\WP_Error Parsed summary data or error.
 	 */
 	private function summarize_with_llm( string $prompt ) {
-		l( 'Content Research Summarize: calling AIServices::call_llm()', array( 'prompt_length' => strlen( $prompt ) ) );
-
 		require_lib( 'ai-services' );
 		$ai = new \AIServices( 'content-research' );
 
 		$response = $ai->call_llm( $prompt );
 
 		if ( is_wp_error( $response ) ) {
-			l(
-				'Content Research Summarize: AIServices error',
-				array(
-					'code'    => $response->get_error_code(),
-					'message' => $response->get_error_message(),
-					'data'    => $response->get_error_data(),
-				)
-			);
 			return $response;
 		}
-
-		l( 'Content Research Summarize: AIServices response', array( 'length' => strlen( $response ) ) );
 
 		return $this->parse_markdown_response( $response );
 	}
