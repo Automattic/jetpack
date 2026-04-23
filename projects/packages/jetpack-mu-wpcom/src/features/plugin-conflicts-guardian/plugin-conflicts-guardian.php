@@ -47,6 +47,7 @@ if ( apply_filters( 'pcg_enable', false ) ) {
 	if ( is_admin() ) {
 		require_once __DIR__ . '/class-pcg-upload-handler.php';
 		require_once __DIR__ . '/admin-page.php';
+		require_once __DIR__ . '/activation-guard.php';
 	}
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		require_once __DIR__ . '/class-pcg-cli-command.php';
