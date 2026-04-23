@@ -10,9 +10,11 @@ import { useQuery } from '@tanstack/react-query';
 import { DataViews } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import fastDeepEqual from 'fast-deep-equal/es6';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { activityLogQuery, activityLogGroupCountsQuery } from '../../hooks/use-activity-log';
 import { usePersistentView } from '../../hooks/use-persistent-view';
+import { DateRangePicker } from '../DateRangePicker';
+import { formatYmd, parseYmdLocal } from '../DateRangePicker/datetime';
 import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
@@ -29,6 +31,7 @@ interface InitialState {
 		gmtOffset?: number;
 		timezoneString?: string;
 		hasActivityLogsAccess?: boolean;
+		locale?: string;
 	};
 }
 
@@ -43,12 +46,21 @@ declare global {
  *
  * @return The resolved site time context.
  */
-const readSiteTimeContext = (): { gmtOffset: number; timezoneString?: string } => {
+const readSiteTimeContext = (): {
+	gmtOffset: number;
+	timezoneString?: string;
+	locale: string;
+} => {
 	const state =
 		typeof JPACTIVITYLOG_INITIAL_STATE !== 'undefined' ? JPACTIVITYLOG_INITIAL_STATE : undefined;
 	return {
 		gmtOffset: state?.siteData?.gmtOffset ?? 0,
 		timezoneString: state?.siteData?.timezoneString || undefined,
+		// Fall back to the browser's navigator locale if Initial_State
+		// didn't seed one — the picker's date labels only care about
+		// number/weekday formatting.
+		locale:
+			state?.siteData?.locale || ( typeof navigator !== 'undefined' ? navigator.language : 'en' ),
 	};
 };
 
@@ -73,9 +85,23 @@ const readHasActivityLogsAccess = (): boolean => {
  * @return The admin page.
  */
 export default function ActivityLog() {
-	const { gmtOffset, timezoneString } = readSiteTimeContext();
+	const { gmtOffset, timezoneString, locale } = readSiteTimeContext();
 	const hasActivityLogsAccess = readHasActivityLogsAccess();
 	const { view, setView, resetView, isViewModified } = usePersistentView( DEFAULT_VIEW );
+
+	// Date-range defaults to "Last 7 days" anchored at the site's calendar
+	// today (not the browser's) — matches Calypso's `getDefaultDateRange`.
+	// The range is client-only state: refreshes reset to the default
+	// instead of persisting, so users don't return to a stale narrow
+	// window.
+	const [ dateRange, setDateRange ] = useState( () => {
+		const siteToday =
+			parseYmdLocal( formatYmd( new Date(), timezoneString, gmtOffset ) ) ?? new Date();
+		return {
+			start: new Date( siteToday.getFullYear(), siteToday.getMonth(), siteToday.getDate() - 6 ),
+			end: siteToday,
+		};
+	} );
 
 	const activityLogTypeValues = useMemo( () => {
 		const filters = ( view.filters as Filter[] | undefined ) ?? [];
@@ -84,11 +110,24 @@ export default function ActivityLog() {
 
 	const searchTerm = view.search?.trim() ?? '';
 
+	// The picker hands us start-of-day / end-of-day Dates at local-midnight
+	// (see the `dateRange` initializer below). For the WPCOM query, stretch
+	// `end` to the end of its calendar day so single-day ranges like "Today"
+	// aren't empty (UTC midnight → UTC midnight would match no events).
+	const afterIso = useMemo( () => dateRange.start.toISOString(), [ dateRange.start ] );
+	const beforeIso = useMemo( () => {
+		const endOfDay = new Date( dateRange.end );
+		endOfDay.setHours( 23, 59, 59, 999 );
+		return endOfDay.toISOString();
+	}, [ dateRange.end ] );
+
 	const listParams: ActivityLogParams = useMemo( () => {
 		const params: ActivityLogParams = {
 			sort_order: view.sort?.direction,
 			number: view.perPage || ACTIVITY_LOGS_DEFAULT_PAGE_SIZE,
 			page: view.page,
+			after: afterIso,
+			before: beforeIso,
 		};
 		if ( searchTerm ) {
 			params.text_search = searchTerm;
@@ -97,7 +136,15 @@ export default function ActivityLog() {
 			params.group = activityLogTypeValues;
 		}
 		return params;
-	}, [ view.sort?.direction, view.perPage, view.page, searchTerm, activityLogTypeValues ] );
+	}, [
+		view.sort?.direction,
+		view.perPage,
+		view.page,
+		searchTerm,
+		activityLogTypeValues,
+		afterIso,
+		beforeIso,
+	] );
 
 	const {
 		data: activityLogData,
@@ -111,11 +158,16 @@ export default function ActivityLog() {
 		} ),
 	} );
 
-	// Counts query excludes `text_search` intentionally: keeping the filter
-	// dropdown stable as users type (matches Calypso's behavior at
-	// logs-activity/dataviews/index.tsx:100-102).
+	// Counts query scopes to the same date window as the list (so
+	// filter counts match what's displayed), but excludes `text_search`
+	// so the filter dropdown stays stable as users type (matches
+	// Calypso's behavior at logs-activity/dataviews/index.tsx:100-102).
 	const { data: groupCountsData, isFetching: isFetchingFilters } = useQuery(
-		activityLogGroupCountsQuery( { number: 1000 } )
+		activityLogGroupCountsQuery( {
+			number: 1000,
+			after: afterIso,
+			before: beforeIso,
+		} )
 	);
 
 	const isFetching = isFetchingData || isFetchingFilters;
@@ -158,6 +210,17 @@ export default function ActivityLog() {
 		[ setView, view, searchTerm ]
 	);
 
+	const onChangeDateRange = useCallback(
+		( next: { start: Date; end: Date } ) => {
+			// A new range is its own dataset boundary — snap back to
+			// page 1, matching how `onChangeView` handles other dataset
+			// changes (perPage, sort, filters, search).
+			setDateRange( next );
+			setView( { ...view, page: 1 } );
+		},
+		[ setView, view ]
+	);
+
 	const getItemId = useCallback( ( item: Activity ) => item.activityId.toString(), [] );
 
 	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
@@ -172,6 +235,18 @@ export default function ActivityLog() {
 			showFooter={ false }
 		>
 			<div className="jp-activity-log__dataviews-wrapper">
+				{ hasActivityLogsAccess && (
+					<div className="jp-activity-log__date-range-row">
+						<DateRangePicker
+							start={ dateRange.start }
+							end={ dateRange.end }
+							onChange={ onChangeDateRange }
+							timezoneString={ timezoneString }
+							gmtOffset={ gmtOffset }
+							locale={ locale }
+						/>
+					</div>
+				) }
 				<DataViews< Activity >
 					data={ logData }
 					isLoading={ isFetching || isLoadingList }

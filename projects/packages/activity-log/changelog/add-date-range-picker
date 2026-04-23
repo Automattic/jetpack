@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Activity Log: add a date-range picker above the table on paid tier. Ports Calypso's DateRangePicker 1:1 — preset sidebar (Today, Yesterday, Last 7/30 days, Month/Year to date, Last 12 months, Last 3 years, Custom), dual-month calendar (single on mobile), start/end inputs — and threads the range through the REST list + group-counts queries as after/before.
