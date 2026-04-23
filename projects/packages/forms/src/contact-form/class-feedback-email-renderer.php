@@ -171,7 +171,7 @@ class Feedback_Email_Renderer {
 		/**
 		 * Filters whether to show action buttons in notification emails.
 		 *
-		 * @since 0.40.0
+		 * @since $$next-version$$
 		 *
 		 * @param bool $show Whether to show the action buttons. Default true.
 		 */
