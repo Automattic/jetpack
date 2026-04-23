@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Activity Log: gate full log access behind a paid Backup-enabled plan. Free tier sees the 20 most recent events with search, filters, sort and pagination disabled, plus an upsell callout. Server-side clamp in the REST proxy prevents bypass.

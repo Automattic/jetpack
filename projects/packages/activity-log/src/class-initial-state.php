@@ -49,13 +49,17 @@ class Initial_State {
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
 			'siteData'      => array(
-				'id'             => Jetpack_Options::get_option( 'id' ),
-				'title'          => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
-				'adminUrl'       => esc_url( admin_url() ),
-				'slug'           => is_string( $home_host ) ? $home_host : '',
-				'gmtOffset'      => is_numeric( $gmt_offset ) ? (float) $gmt_offset : 0.0,
-				'timezoneString' => is_string( $timezone_string ) ? $timezone_string : '',
-				'locale'         => str_replace( '_', '-', (string) get_locale() ),
+				'id'                    => Jetpack_Options::get_option( 'id' ),
+				'title'                 => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
+				'adminUrl'              => esc_url( admin_url() ),
+				'slug'                  => is_string( $home_host ) ? $home_host : '',
+				'gmtOffset'             => is_numeric( $gmt_offset ) ? (float) $gmt_offset : 0.0,
+				'timezoneString'        => is_string( $timezone_string ) ? $timezone_string : '',
+				'locale'                => str_replace( '_', '-', (string) get_locale() ),
+				// The paid-plan capability check. Drives the free-tier
+				// upsell callout and matches the server-side clamp in
+				// REST_Controller::get_activity_log().
+				'hasActivityLogsAccess' => REST_Controller::has_activity_logs_access(),
 			),
 			'assets'        => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),

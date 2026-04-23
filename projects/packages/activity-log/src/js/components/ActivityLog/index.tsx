@@ -1,9 +1,9 @@
 /**
  * Top-level Activity Log admin page. Ported from Calypso's
  * `client/dashboard/sites/logs-activity/dataviews/index.tsx`. Scope
- * simplifications vs. the source are tracked in the Phase 3 PR: no date
- * range picker, no URL-persistent view state, no analytics, no tier
- * gating, no upsell callout.
+ * simplifications vs. the source are tracked in the PR (#48244): no
+ * date range picker, no URL-persistent view state (localStorage
+ * only), no analytics events.
  */
 import { AdminPage } from '@automattic/jetpack-components';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useMemo } from 'react';
 import { activityLogQuery, activityLogGroupCountsQuery } from '../../hooks/use-activity-log';
 import { usePersistentView } from '../../hooks/use-persistent-view';
+import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { useActivityFields } from './fields';
@@ -27,6 +28,7 @@ interface InitialState {
 	siteData?: {
 		gmtOffset?: number;
 		timezoneString?: string;
+		hasActivityLogsAccess?: boolean;
 	};
 }
 
@@ -51,6 +53,20 @@ const readSiteTimeContext = (): { gmtOffset: number; timezoneString?: string } =
 };
 
 /**
+ * Read the paid-plan capability flag seeded by Initial_State. Defaults
+ * to `true` when the global isn't present (storybook/tests) so the
+ * free-tier gating path only activates from a real backend signal.
+ *
+ * @return Whether the site has full Activity Log access.
+ */
+const readHasActivityLogsAccess = (): boolean => {
+	if ( typeof JPACTIVITYLOG_INITIAL_STATE === 'undefined' ) {
+		return true;
+	}
+	return JPACTIVITYLOG_INITIAL_STATE?.siteData?.hasActivityLogsAccess !== false;
+};
+
+/**
  * The Activity Log admin page. Renders the DataViews table and drives
  * its dataset/filter/counts queries against /jetpack/v4/activity-log.
  *
@@ -58,6 +74,7 @@ const readSiteTimeContext = (): { gmtOffset: number; timezoneString?: string } =
  */
 export default function ActivityLog() {
 	const { gmtOffset, timezoneString } = readSiteTimeContext();
+	const hasActivityLogsAccess = readHasActivityLogsAccess();
 	const { view, setView, resetView, isViewModified } = usePersistentView( DEFAULT_VIEW );
 
 	const activityLogTypeValues = useMemo( () => {
@@ -105,7 +122,11 @@ export default function ActivityLog() {
 
 	const paginationInfo = {
 		totalItems: activityLogData?.totalItems ?? 0,
-		totalPages: activityLogData?.totalPages ?? 0,
+		// Zero `totalPages` on the free tier to hide DataViews' pagination
+		// controls. The server-side clamp in REST_Controller already caps
+		// the returned set at FREE_TIER_ITEM_CAP; this just keeps the UI
+		// honest.
+		totalPages: hasActivityLogsAccess ? activityLogData?.totalPages ?? 0 : 0,
 	};
 
 	const fields = useActivityFields( {
@@ -163,6 +184,16 @@ export default function ActivityLog() {
 					defaultLayouts={ { table: {} } }
 					onChangeView={ onChangeView }
 					onReset={ isViewModified ? resetView : false }
+					// On the free tier, lock the perPage selector to the
+					// capped size and hide search/filters/sort/view-config
+					// by replacing the default UI with just the table (same
+					// switches Calypso uses at logs-activity/dataviews/
+					// index.tsx:201-208).
+					config={
+						hasActivityLogsAccess
+							? undefined
+							: { perPageSizes: [ ACTIVITY_LOGS_DEFAULT_PAGE_SIZE ] }
+					}
 					empty={
 						<p>
 							{ view.search
@@ -170,7 +201,10 @@ export default function ActivityLog() {
 								: __( 'No activities', 'jetpack-activity-log' ) }
 						</p>
 					}
-				/>
+				>
+					{ hasActivityLogsAccess ? undefined : <DataViews.Layout /> }
+				</DataViews>
+				{ ! hasActivityLogsAccess && ! isFetching && logData.length > 0 && <UpsellCallout /> }
 			</div>
 		</AdminPage>
 	);

@@ -23,12 +23,15 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 use function current_user_can;
+use function delete_site_transient;
 use function esc_html__;
+use function get_site_transient;
 use function http_build_query;
 use function is_wp_error;
 use function json_decode;
 use function register_rest_route;
 use function rest_ensure_response;
+use function set_site_transient;
 use function wp_remote_retrieve_body;
 use function wp_remote_retrieve_response_code;
 
@@ -43,6 +46,28 @@ class REST_Controller {
 	 * @var string
 	 */
 	const REST_NAMESPACE = 'jetpack/v4';
+
+	/**
+	 * Max items returned per request on the free tier. Matches the "20 most
+	 * recent events" copy used by Calypso's upsell callout.
+	 *
+	 * @var int
+	 */
+	const FREE_TIER_ITEM_CAP = 20;
+
+	/**
+	 * Site-transient TTL for the has-access capability check.
+	 *
+	 * @var int
+	 */
+	const CAPABILITY_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Transient key prefix for the per-blog access cache.
+	 *
+	 * @var string
+	 */
+	const CAPABILITY_CACHE_KEY = 'jetpack_activity_log_has_access_';
 
 	/**
 	 * Query params accepted by the list endpoint. Shape matches Calypso's
@@ -189,12 +214,85 @@ class REST_Controller {
 	}
 
 	/**
+	 * Whether the site's current plan unlocks the full activity log.
+	 *
+	 * Reads the WPCOM `/sites/{id}/rewind` state endpoint (same signal
+	 * `Jetpack_Backup::has_backup_plan()` uses) and caches the boolean for
+	 * {@see self::CAPABILITY_CACHE_TTL} seconds in a site transient so the
+	 * list endpoint doesn't pay the round-trip on every pagination page.
+	 * The cache is per-blog (fine for multisite) and keyed on `blog_id`.
+	 *
+	 * @return bool True when the site has a paid Backup-enabled plan.
+	 */
+	public static function has_activity_logs_access() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return false;
+		}
+
+		$cache_key = self::CAPABILITY_CACHE_KEY . $blog_id;
+		$cached    = get_site_transient( $cache_key );
+		if ( false !== $cached ) {
+			return 'yes' === $cached;
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/rewind?force=wpcom', $blog_id ),
+			'2',
+			array( 'timeout' => 2 ),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			// Fail closed: assume no access if we can't reach WPCOM. Cache for
+			// a short window to avoid hammering the endpoint on every call.
+			set_site_transient( $cache_key, 'no', MINUTE_IN_SECONDS );
+			return false;
+		}
+
+		$body   = json_decode( wp_remote_retrieve_body( $response ) );
+		$state  = is_object( $body ) && isset( $body->state ) ? (string) $body->state : '';
+		$has_it = $state !== '' && $state !== 'unavailable';
+		set_site_transient( $cache_key, $has_it ? 'yes' : 'no', self::CAPABILITY_CACHE_TTL );
+		return $has_it;
+	}
+
+	/**
+	 * Clear the cached has-access flag. Exposed so front-end flows that
+	 * know the plan just changed (e.g. a successful checkout redirect) can
+	 * force a refresh on the next request.
+	 *
+	 * @return void
+	 */
+	public static function clear_access_cache() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( $blog_id ) {
+			delete_site_transient( self::CAPABILITY_CACHE_KEY . $blog_id );
+		}
+	}
+
+	/**
 	 * Proxy the paginated activity list.
+	 *
+	 * Enforces the free-tier cap server-side — when the site doesn't have
+	 * access, `number` is clamped to {@see self::FREE_TIER_ITEM_CAP} and
+	 * `page` is forced to 1, regardless of what the caller sent. That way
+	 * a client-side bypass (DevTools, direct `wp.apiFetch`) can't page
+	 * past the free-tier boundary.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return mixed
 	 */
 	public static function get_activity_log( WP_REST_Request $request ) {
+		if ( ! self::has_activity_logs_access() ) {
+			$requested = (int) $request->get_param( 'number' );
+			$request->set_param(
+				'number',
+				$requested > 0 ? min( $requested, self::FREE_TIER_ITEM_CAP ) : self::FREE_TIER_ITEM_CAP
+			);
+			$request->set_param( 'page', 1 );
+		}
 		return self::proxy_get( '/activity', $request, array_keys( self::list_args() ) );
 	}
 
