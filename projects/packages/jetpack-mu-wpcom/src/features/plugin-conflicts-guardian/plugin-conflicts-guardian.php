@@ -12,7 +12,7 @@
  *   class-pcg-site-state.php      Reads WP + PHP versions.
  *   class-pcg-wporg-source.php    Fetches api.wordpress.org plugin metadata.
  *   class-pcg-compat-checker.php  Orchestrator: runs the verdict rules.
- *   cli.php                       `wp plugin-compat check <slug>`.
+ *   class-pcg-cli-command.php     `wp plugin-compat check <slug>`.
  *   admin-page.php                Tools → Plugin Compat Check.
  *
  * @package automattic/jetpack-mu-wpcom
@@ -22,6 +22,9 @@
 require_once __DIR__ . '/class-pcg-verdict.php';
 require_once __DIR__ . '/class-pcg-site-state.php';
 require_once __DIR__ . '/class-pcg-wporg-source.php';
+require_once __DIR__ . '/class-pcg-local-source.php';
+require_once __DIR__ . '/class-pcg-syntax-checker.php';
+require_once __DIR__ . '/class-pcg-load-tester.php';
 require_once __DIR__ . '/class-pcg-compat-checker.php';
 
 /**
@@ -36,10 +39,16 @@ require_once __DIR__ . '/class-pcg-compat-checker.php';
  * @param bool $enabled
  */
 if ( apply_filters( 'pcg_enable', false ) ) {
+	// The probe endpoint must be reachable on front-end requests
+	// (wp_remote_get targets home_url), so it's registered here
+	// rather than inside the is_admin() branch.
+	require_once __DIR__ . '/probe-endpoint.php';
+
 	if ( is_admin() ) {
+		require_once __DIR__ . '/class-pcg-upload-handler.php';
 		require_once __DIR__ . '/admin-page.php';
 	}
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		require_once __DIR__ . '/cli.php';
+		require_once __DIR__ . '/class-pcg-cli-command.php';
 	}
 }
