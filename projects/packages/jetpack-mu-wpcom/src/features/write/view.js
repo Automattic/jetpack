@@ -97,6 +97,10 @@ function convertToBlocks( html ) {
 			blocks.push(
 				`<!-- wp:quote -->\n<blockquote class="wp-block-quote">${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
 			);
+		} else if ( tag === 'hr' ) {
+			blocks.push(
+				'<!-- wp:separator -->\n<hr class="wp-block-separator has-alpha-channel-opacity"/>\n<!-- /wp:separator -->'
+			);
 		} else {
 			// Fallback: wrap in paragraph.
 			blocks.push( `<!-- wp:paragraph -->\n<p>${ inner }</p>\n<!-- /wp:paragraph -->` );

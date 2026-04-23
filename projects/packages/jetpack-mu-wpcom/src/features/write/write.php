@@ -138,10 +138,11 @@ add_action(
 function wpcom_write_render_admin_page() {
 	// Check if editing an existing post.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter, gated by capability check via add_submenu_page.
-	$edit_post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
-	$edit_title   = '';
-	$edit_content = '';
-	$post_status  = 'new';
+	$edit_post_id     = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+	$edit_title       = '';
+	$edit_content     = '';
+	$post_status      = 'new';
+	$edit_featured_id = 0;
 
 	if ( $edit_post_id ) {
 		$edit_post = get_post( $edit_post_id );
