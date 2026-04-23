@@ -171,6 +171,8 @@ class Feedback_Email_Renderer {
 		/**
 		 * Filters whether to show action buttons in notification emails.
 		 *
+		 * @module contact-form
+		 * 
 		 * @since $$next-version$$
 		 *
 		 * @param bool $show Whether to show the action buttons. Default true.
