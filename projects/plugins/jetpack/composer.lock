@@ -199,7 +199,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "60da5f505adc949e2e2e4ad152bf93fc31d5cad7"
+                "reference": "9982585b47a75aea116cb3901962c054c9e215c8"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -248,6 +248,15 @@
                 ],
                 "build-production": [
                     "pnpm run build-production-concurrently"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
