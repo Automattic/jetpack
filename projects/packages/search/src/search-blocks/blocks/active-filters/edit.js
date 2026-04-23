@@ -53,7 +53,7 @@ export default function ActiveFiltersEdit() {
 			'button',
 			{
 				type: 'button',
-				className: 'wp-element-button jetpack-search-active-filters__clear-all',
+				className: 'jetpack-search-active-filters__clear-all',
 				disabled: true,
 			},
 			__( 'Clear all', 'jetpack-search-pkg' )

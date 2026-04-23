@@ -60,7 +60,7 @@ foreach ( (array) $seeded_active as $values ) {
 	</ul>
 	<button
 		type="button"
-		class="wp-element-button jetpack-search-active-filters__clear-all"
+		class="jetpack-search-active-filters__clear-all"
 		data-wp-on--click="actions.clearFilters"
 	>
 		<?php esc_html_e( 'Clear all', 'jetpack-search-pkg' ); ?>

@@ -26,10 +26,9 @@
 		padding: 0;
 	}
 
-	// Pills and the clear-all button rely on the active theme's
-	// `wp-element-button` styles (theme.json → styles.elements.button) so
-	// they adapt to the site palette. We only override what we need — shape,
-	// spacing, and the remove-icon weight.
+	// Pills carry `wp-element-button` so they adopt the active theme's
+	// button palette (theme.json → styles.elements.button). We only
+	// override what we need — pill shape, spacing, and remove-icon weight.
 	.jetpack-search-active-filters__pill {
 		display: inline-flex;
 		align-items: center;
@@ -46,7 +45,14 @@
 		line-height: 1;
 	}
 
+	// Clear-all keeps its outlined / secondary look so it stays visually
+	// distinct from the filled pills. Core's `is-style-outline` only
+	// applies inside a `.wp-block-button` wrapper, so use theme-aware
+	// CSS-wide values (`currentColor`, `inherit`, transparent) here.
 	.jetpack-search-active-filters__clear-all {
+		background: transparent;
+		border: 1px solid currentColor;
+		color: inherit;
 		border-radius: 4px;
 		padding: 0.2rem 0.5rem;
 		font-size: 0.8rem;
