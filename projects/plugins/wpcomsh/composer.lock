@@ -4,27 +4,27 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a7cd1b2d4d28b9decbe21a0e6b47e8d9",
+    "content-hash": "4cd43737267f38b079932925de9a1ab8",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v2.0.5",
+            "version": "v2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "c512aa27b2c33aee33bc024177c17f2745c52dfa"
+                "reference": "768ce866bc1b7aa926ef22f705bb3ca9d6e905cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/c512aa27b2c33aee33bc024177c17f2745c52dfa",
-                "reference": "c512aa27b2c33aee33bc024177c17f2745c52dfa",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/768ce866bc1b7aa926ef22f705bb3ca9d6e905cb",
+                "reference": "768ce866bc1b7aa926ef22f705bb3ca9d6e905cb",
                 "shasum": ""
             },
             "type": "wordpress-plugin",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2025-11-24T21:07:37+00:00"
+            "time": "2026-04-23T14:42:02+00:00"
         },
         {
             "name": "automattic/block-delimiter",

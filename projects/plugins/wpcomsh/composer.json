@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=8.1",
-		"automattic/at-pressable-podcasting": "^2.0.5",
+		"automattic/at-pressable-podcasting": "^2.0.6",
 		"automattic/custom-fonts": "^3.0",
 		"automattic/custom-fonts-typekit": "^2.0",
 		"automattic/text-media-widget-styles": "^2.0",
