@@ -37,7 +37,10 @@ function getMcpIndicator( actor?: ActivityActorDetails ): string | null {
  * @return Icon element (or null) + display label.
  */
 function getActorPresentation( actor?: ActivityActorDetails ): { icon: ReactNode; label: string } {
-	let actorName = __( 'Unknown', 'jetpack-activity-log' );
+	// tsgo types `__()`'s return as a branded `TransformedText<…>` rather
+	// than plain `string`; annotating the variable keeps later
+	// `actorName = name || actorName` assignments widened to `string`.
+	let actorName: string = __( 'Unknown', 'jetpack-activity-log' );
 
 	if ( ! actor ) {
 		return { icon: null, label: actorName };
