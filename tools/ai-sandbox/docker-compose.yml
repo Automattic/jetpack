@@ -4,7 +4,6 @@ services:
   jetpack-ai:
     build: .
     container_name: jetpack-ai-sandbox
-    command: sleep infinity
     volumes:
       - ${HOME}/.claude:/home/dev/.claude
       - ../../:/home/dev/jetpack
