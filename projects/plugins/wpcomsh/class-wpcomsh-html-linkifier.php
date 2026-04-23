@@ -10,18 +10,18 @@
  * unprotected text node, returning the document with those updates applied.
  *
  * Subclassing WP_HTML_Tag_Processor gives access to the protected `bookmarks`
- * and `lexical_updates` properties, which lets the HTML-crawling logic live in
- * one place and lets replacements be enqueued as byte-precise edits instead of
- * copying the entire document into PHP strings as it's walked.
+ * and `lexical_updates` properties, which lets text offsets be read and
+ * replacements queued as byte-precise edits instead of copying the entire
+ * document through PHP strings as it's walked.
  *
  * SCRIPT, STYLE, and TEXTAREA are raw text elements that the tokenizer bundles
- * as single `#tag` tokens, so their contents never surface as `#text` nodes and
- * don't need depth tracking here. A, PRE, and CODE are tracked explicitly, and
- * DIV.skip-make-clickable subtrees are skipped by depth.
+ * as single `#tag` tokens — their contents never surface as `#text` nodes, so
+ * nothing here needs to track them. For A, PRE, CODE, and
+ * DIV.skip-make-clickable, the scanner advances past the whole element in one
+ * inner loop, so everything that reaches the `#text` branch is guaranteed to
+ * be linkifiable content.
  */
 class Wpcomsh_HTML_Linkifier extends WP_HTML_Tag_Processor {
-
-	private const PROTECTED_TAGS = array( 'A', 'PRE', 'CODE' );
 
 	/**
 	 * Applies $updater to every unprotected `#text` node in $html.
@@ -32,39 +32,37 @@ class Wpcomsh_HTML_Linkifier extends WP_HTML_Tag_Processor {
 	 * @return string Updated HTML.
 	 */
 	public static function modify_raw_text_nodes( string $html, callable $updater ): string {
-		$scanner         = new self( $html );
-		$replacements    = array();
-		$protected_depth = 0;
-		$skip_div_depth  = 0;
+		$scanner      = new self( $html );
+		$replacements = array();
 
 		while ( $scanner->next_token() ) {
-			$token_type = $scanner->get_token_type();
+			$token_name = $scanner->get_token_name();
 
-			if ( '#tag' === $token_type ) {
-				$tag_name = $scanner->get_tag();
-				if ( $scanner->is_tag_closer() ) {
-					if ( $protected_depth > 0 && in_array( $tag_name, self::PROTECTED_TAGS, true ) ) {
-						--$protected_depth;
-					} elseif ( $skip_div_depth > 0 && 'DIV' === $tag_name ) {
-						--$skip_div_depth;
+			$is_protected_opener = ! $scanner->is_tag_closer() && (
+				'A' === $token_name
+				|| 'CODE' === $token_name
+				|| 'PRE' === $token_name
+				|| ( 'DIV' === $token_name && $scanner->has_class( 'skip-make-clickable' ) )
+			);
+
+			if ( $is_protected_opener ) {
+				// Assumes well-formed HTML; a missing closer runs the inner loop to EOF.
+				$depth = 1;
+				while ( $depth > 0 && $scanner->next_token() ) {
+					if ( $token_name === $scanner->get_token_name() ) {
+						$depth += $scanner->is_tag_closer() ? -1 : 1;
 					}
-				} elseif ( in_array( $tag_name, self::PROTECTED_TAGS, true ) ) {
-					++$protected_depth;
-				} elseif ( 'DIV' === $tag_name && ( $skip_div_depth > 0 || $scanner->has_class( 'skip-make-clickable' ) ) ) {
-					++$skip_div_depth;
 				}
 				continue;
 			}
 
-			if ( '#text' !== $token_type || $protected_depth > 0 || $skip_div_depth > 0 ) {
+			if ( '#text' !== $token_name ) {
 				continue;
 			}
 
-			$here = $scanner->current_token_span();
-			if ( null === $here ) {
-				continue;
-			}
-
+			// A #text token always has a span, so the bookmark lookup below is safe.
+			$scanner->set_bookmark( 'here' );
+			$here        = $scanner->bookmarks['here'];
 			$raw_text    = substr( $html, $here->start, $here->length );
 			$transformed = $updater( $raw_text );
 
@@ -80,23 +78,5 @@ class Wpcomsh_HTML_Linkifier extends WP_HTML_Tag_Processor {
 		$applier                  = new self( $html );
 		$applier->lexical_updates = $replacements;
 		return $applier->get_updated_html();
-	}
-
-	/**
-	 * Byte span of the current token, or null if a bookmark cannot be set.
-	 *
-	 * The underlying token offsets (`token_starts_at`, `token_length`) are
-	 * private in WP_HTML_Tag_Processor; the bookmark API is the documented
-	 * way to read them from a subclass.
-	 *
-	 * @return WP_HTML_Span|null
-	 */
-	private function current_token_span(): ?WP_HTML_Span {
-		if ( ! $this->set_bookmark( 'here' ) ) {
-			return null;
-		}
-		$span = $this->bookmarks['here'];
-		$this->release_bookmark( 'here' );
-		return $span;
 	}
 }
