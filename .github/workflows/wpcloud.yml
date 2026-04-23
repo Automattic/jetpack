@@ -36,11 +36,6 @@ jobs:
         with:
           # Match PHP version on WP Cloud so the right vendor packages get installed.
           php: 8.3
-      - name: Monorepo install
-        run: |
-          echo "::group::Pnpm"
-          pnpm install
-          echo "::endgroup::"
       - name: Detect if wpcomsh has changed
         id: changed
         run: |
@@ -48,6 +43,12 @@ jobs:
 
           WPCOMSH_CHANGED="$(jq --argjson changed "$CHANGED" -n '$changed | has( "plugins/wpcomsh" ) ')"
           echo "wpcomsh=${WPCOMSH_CHANGED}" >> "$GITHUB_OUTPUT"
+      - name: Monorepo install
+        if: steps.changed.outputs.wpcomsh == 'true'
+        run: |
+          echo "::group::Pnpm"
+          pnpm install
+          echo "::endgroup::"
       - name: Build wpcomsh
         if: steps.changed.outputs.wpcomsh == 'true'
         run: |
