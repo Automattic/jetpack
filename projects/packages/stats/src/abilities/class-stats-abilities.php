@@ -713,8 +713,10 @@ class Stats_Abilities extends Registrar {
 		$date     = self::sanitize_date( $input['date'] ?? null );
 
 		$allowed_fields = array( 'views', 'visitors', 'likes', 'comments' );
-		$fields         = isset( $input['fields'] ) && is_array( $input['fields'] ) && ! empty( $input['fields'] )
-			? array_values( array_intersect( $allowed_fields, $input['fields'] ) )
+		// Preserve the caller's order — array_intersect returns keys from its FIRST argument,
+		// so pass the user input first. Then filter out anything not in the allowed set.
+		$fields = isset( $input['fields'] ) && is_array( $input['fields'] ) && ! empty( $input['fields'] )
+			? array_values( array_intersect( $input['fields'], $allowed_fields ) )
 			: array( 'views', 'visitors' );
 		if ( empty( $fields ) ) {
 			$fields = array( 'views', 'visitors' );
@@ -854,11 +856,16 @@ class Stats_Abilities extends Registrar {
 			);
 		}
 
-		// Validate role slugs against registered roles.
-		$known_roles = array_keys( wp_roles()->roles );
+		// Validate role slugs against registered roles — but only load the role list
+		// if the caller is actually writing a role field. Boolean-only writes skip
+		// the wp_roles() resolution entirely.
+		$known_roles = null;
 		foreach ( array( 'roles', 'count_roles' ) as $role_field ) {
 			if ( ! array_key_exists( $role_field, $provided ) ) {
 				continue;
+			}
+			if ( null === $known_roles ) {
+				$known_roles = array_keys( wp_roles()->roles );
 			}
 			if ( ! is_array( $provided[ $role_field ] ) ) {
 				return new WP_Error(
@@ -913,14 +920,19 @@ class Stats_Abilities extends Registrar {
 			$changes[ $key ] = $value;
 		}
 
+		// `changed` is derived from the POST-WRITE snapshot, not from `$changes` alone —
+		// if update_option fails or refuses to persist for any reason (DB error,
+		// serialization mismatch), we must not claim a change that didn't happen.
 		if ( ! empty( $changes ) ) {
 			// One merged write instead of N get+update cycles via set_option.
 			Options::set_options( $changes );
 		}
 
+		$after = self::config_snapshot();
+
 		return array(
-			'changed' => ! empty( $changes ),
-			'config'  => self::config_snapshot(),
+			'changed' => $after !== $before,
+			'config'  => $after,
 		);
 	}
 
@@ -1167,14 +1179,14 @@ class Stats_Abilities extends Registrar {
 			return array();
 		}
 
-		$fields = isset( $raw['fields'] ) && is_array( $raw['fields'] ) ? $raw['fields'] : array( 'period', 'views' );
+		$fields    = isset( $raw['fields'] ) && is_array( $raw['fields'] ) ? $raw['fields'] : array( 'period', 'views' );
 		$date_idx  = array_search( 'period', $fields, true );
 		$views_idx = array_search( 'views', $fields, true );
-		if ( false === $date_idx ) {
-			$date_idx = 0;
-		}
-		if ( false === $views_idx ) {
-			$views_idx = 1;
+		if ( false === $date_idx || false === $views_idx ) {
+			// If either column is missing from the WPCOM response, the positional
+			// fallback is unsafe (we might collide date/views on column 0). Drop
+			// to empty rather than emit lies.
+			return array();
 		}
 
 		$series = array();
