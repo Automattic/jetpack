@@ -109,7 +109,7 @@ function jetpack_googlemaps_shortcode( $atts ) {
 				$height = (int) $value;
 			} else {
 				$key  = str_replace( '_', '.', $key );
-				$url .= esc_attr( "$key=$value&amp;" );
+				$url .= $key . '=' . rawurlencode( $value ) . '&amp;';
 			}
 		}
 		$url = substr( $url, 0, -5 );

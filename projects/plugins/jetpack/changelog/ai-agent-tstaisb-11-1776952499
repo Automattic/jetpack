@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Maps shortcode: Fix 400 error when place name contains an ampersand.

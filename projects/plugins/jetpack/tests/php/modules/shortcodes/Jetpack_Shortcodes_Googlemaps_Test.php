@@ -38,10 +38,15 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 				false,
 				'<div class="googlemaps"><iframe width="640" height="480" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"></iframe></div>',
 			),
-			'align_attribute' => array(
+			'align_attribute'          => array(
 				'[googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA align="center"]',
 				false,
 				'<div class="googlemaps aligncenter"><iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"></iframe></div>',
+			),
+			'place_name_with_ampersand' => array(
+				'[googlemaps https://maps.google.com/maps?q=Hotel%26Spa&amp;output=embed&amp;w=425&amp;h=350]',
+				false,
+				'<div class="googlemaps"><iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=Hotel%26Spa&#038;output=embed"></iframe></div>',
 			),
 		);
 	}
