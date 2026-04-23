@@ -9,6 +9,24 @@
 	"description": "Controls the order of Jetpack Search results.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"defaultSort": {
+			"type": "string",
+			"default": "relevance",
+			"enum": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ]
+		},
+		"availableSortOptions": {
+			"type": "array",
+			"default": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ],
+			"items": { "type": "string" }
+		},
+		"label": { "type": "string", "default": "" },
+		"displayAs": {
+			"type": "string",
+			"default": "select",
+			"enum": [ "select", "radio" ]
+		}
+	},
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/sort-control.js",
 	"style": "file:../../../../build/search-blocks/sort-control.css"

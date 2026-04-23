@@ -1,0 +1,222 @@
+<?php
+/**
+ * Sort Control block render.php tests.
+ *
+ * @package automattic/jetpack-search
+ */
+
+namespace Automattic\Jetpack\Search;
+
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Integration tests for the sort-control block's render template.
+ *
+ * Each test renders through `do_blocks()` so WordPress wires up the block
+ * context `get_block_wrapper_attributes()` needs — exercising the same path
+ * the front end takes, not just an isolated `include`.
+ */
+class Sort_Control_Render_Test extends TestCase {
+
+	/**
+	 * Register the sort-control block inline so `do_blocks()` can resolve it
+	 * without requiring the `build/` artifacts referenced by block.json's
+	 * `viewScriptModule` and `style` entries. The render callback forwards
+	 * `$attributes` to the render.php under test.
+	 */
+	public static function setUpBeforeClass(): void {
+		\register_block_type(
+			'jetpack/sort-control',
+			array(
+				'attributes'      => array(
+					'defaultSort'          => array(
+						'type'    => 'string',
+						'default' => 'relevance',
+					),
+					'availableSortOptions' => array(
+						'type'    => 'array',
+						'default' => array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ),
+					),
+					'label'                => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'displayAs'            => array(
+						'type'    => 'string',
+						'default' => 'select',
+					),
+				),
+				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				'render_callback' => static function ( $attributes ) {
+					ob_start();
+					include __DIR__ . '/../../src/search-blocks/blocks/sort-control/render.php';
+					return (string) ob_get_clean();
+				},
+				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			)
+		);
+	}
+
+	/**
+	 * Release the block registration so subsequent test classes don't
+	 * collide with our inline attribute schema.
+	 */
+	public static function tearDownAfterClass(): void {
+		\unregister_block_type( 'jetpack/sort-control' );
+	}
+
+	/**
+	 * Reset `$_GET` between tests so URL parsing never leaks across cases.
+	 * Interactivity state carries across tests, but render.php always writes
+	 * `sortOrder` deterministically from attrs + URL, so each render
+	 * overwrites whatever the previous one left behind.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$_GET = array();
+	}
+
+	/**
+	 * Render the sort-control block with the given attributes via `do_blocks`.
+	 *
+	 * @param array $attributes Block attributes (JSON-encoded into the comment delimiter).
+	 * @return string Rendered markup.
+	 */
+	private function render( array $attributes = array() ): string {
+		$json = empty( $attributes )
+			? ''
+			: wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES );
+		return do_blocks( '<!-- wp:jetpack/sort-control ' . $json . ' /-->' );
+	}
+
+	/**
+	 * Default render path: every built-in option appears in a `<select>`
+	 * with the "Sort by" legacy label. Guards against attribute defaults
+	 * regressing for posts saved before SEARCH-138.
+	 */
+	public function test_default_attributes_render_select_with_all_options() {
+		$markup = $this->render();
+		$this->assertStringContainsString( '<select', $markup );
+		$this->assertStringContainsString( 'Sort by', $markup );
+		foreach ( array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+			$this->assertStringContainsString( 'value="' . $key . '"', $markup );
+		}
+	}
+
+	/**
+	 * `displayAs=radio` must emit a `<fieldset>` with one `<input type="radio">`
+	 * per exposed option. The render contract says "radio group per displayAs"
+	 * — a regression here would silently keep rendering a dropdown.
+	 */
+	public function test_display_as_radio_renders_fieldset_with_radios() {
+		$markup = $this->render( array( 'displayAs' => 'radio' ) );
+		$this->assertStringContainsString( '<fieldset', $markup );
+		$this->assertStringNotContainsString( '<select', $markup );
+		$this->assertStringContainsString( 'type="radio"', $markup );
+		$this->assertStringContainsString( 'value="relevance"', $markup );
+		$this->assertStringContainsString( 'value="newest"', $markup );
+	}
+
+	/**
+	 * `availableSortOptions` must filter the rendered list: keys not in the
+	 * array must not produce options, keys in the array must.
+	 */
+	public function test_available_options_filters_rendered_options() {
+		$markup = $this->render( array( 'availableSortOptions' => array( 'relevance', 'newest' ) ) );
+		$this->assertStringContainsString( 'value="relevance"', $markup );
+		$this->assertStringContainsString( 'value="newest"', $markup );
+		$this->assertStringNotContainsString( 'value="oldest"', $markup );
+		$this->assertStringNotContainsString( 'value="price_asc"', $markup );
+	}
+
+	/**
+	 * When the URL carries no sort param, `defaultSort` must become the
+	 * server-rendered selected option so the first-paint dropdown matches
+	 * what the JS store will hydrate once the store override lands.
+	 */
+	public function test_default_sort_preselected_when_url_has_no_orderby() {
+		$markup = $this->render( array( 'defaultSort' => 'newest' ) );
+		// selected() emits `selected='selected'` under PHP's checked() helper.
+		$this->assertMatchesRegularExpression(
+			'/<option[^>]*value="newest"[^>]*selected/',
+			$markup
+		);
+	}
+
+	/**
+	 * A URL `?orderby=oldest` must win over the block's `defaultSort` —
+	 * deep links keep their meaning even when the block default differs.
+	 */
+	public function test_url_sort_wins_over_default_sort() {
+		$_GET = array( 'orderby' => 'oldest' );
+		try {
+			$markup = $this->render( array( 'defaultSort' => 'newest' ) );
+			$this->assertMatchesRegularExpression(
+				'/<option[^>]*value="oldest"[^>]*selected/',
+				$markup
+			);
+			$this->assertDoesNotMatchRegularExpression(
+				'/<option[^>]*value="newest"[^>]*selected/',
+				$markup
+			);
+		} finally {
+			$_GET = array();
+		}
+	}
+
+	/**
+	 * A user-provided `label` must appear in the rendered markup in place
+	 * of the translated "Sort by" default.
+	 */
+	public function test_custom_label_replaces_default() {
+		$markup = $this->render( array( 'label' => 'Order by' ) );
+		$this->assertStringContainsString( 'Order by', $markup );
+	}
+
+	/**
+	 * Labels are user-controlled, so the template must escape HTML to
+	 * prevent stored XSS through a crafted attribute value.
+	 */
+	public function test_label_is_html_escaped() {
+		$markup = $this->render( array( 'label' => '<script>alert(1)</script>' ) );
+		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
+		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $markup );
+	}
+
+	/**
+	 * In radio mode, the block-default option must carry the `checked`
+	 * attribute so the server-rendered DOM matches the hydrated state.
+	 */
+	public function test_radio_mode_checks_default_sort() {
+		$markup = $this->render(
+			array(
+				'displayAs'   => 'radio',
+				'defaultSort' => 'oldest',
+			)
+		);
+		$this->assertMatchesRegularExpression(
+			'/<input[^>]*value="oldest"[^>]*checked/',
+			$markup
+		);
+	}
+
+	/**
+	 * When `defaultSort` lands outside `availableSortOptions` (e.g. an
+	 * author saved a default, then unchecked it from the list), render.php
+	 * must keep rendering — falling back to the first exposed option rather
+	 * than emitting a control whose selected value is absent.
+	 */
+	public function test_default_sort_outside_available_falls_back_to_first_option() {
+		$markup = $this->render(
+			array(
+				'defaultSort'          => 'newest',
+				'availableSortOptions' => array( 'relevance', 'oldest' ),
+			)
+		);
+		$this->assertStringNotContainsString( 'value="newest"', $markup );
+		$this->assertMatchesRegularExpression(
+			'/<option[^>]*value="relevance"[^>]*selected/',
+			$markup
+		);
+	}
+}
