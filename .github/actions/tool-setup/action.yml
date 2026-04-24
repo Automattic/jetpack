@@ -69,22 +69,6 @@ runs:
         composer config --global github-protocols https
         composer config --global use-github-api false
 
-    - name: Get Composer cache directory
-      if: steps.versions.outputs.php-version != 'false'
-      id: composer-cache
-      shell: bash
-      run: |
-        # Get Composer cache directory
-        echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-    - name: Use composer cache
-      if: steps.versions.outputs.php-version != 'false'
-      uses: actions/cache@v5
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
       uses: pnpm/action-setup@v5.0.0
