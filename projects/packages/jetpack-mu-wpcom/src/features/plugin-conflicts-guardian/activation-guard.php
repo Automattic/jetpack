@@ -171,7 +171,7 @@ function pcg_guard_render_block_notice() {
 	?>
 	<div class="notice notice-error">
 		<p><strong>WordPress.com blocked activation because the pre-flight check detected a fatal:</strong></p>
-		<ul style="list-style:disc;padding-left:24px;">
+		<ul style="list-style:disc;padding-inline-start:24px;">
 			<?php foreach ( $messages as $plugin => $reason ) : ?>
 				<li><code><?php echo esc_html( $plugin ); ?></code> — <?php echo esc_html( $reason ); ?></li>
 			<?php endforeach; ?>
