@@ -8,7 +8,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-// Dummy comment so PHPCS treats the block above as the file doc comment.
+defined( 'ABSPATH' ) || exit;
+
 require_once __DIR__ . '/class-pcg-load-tester.php';
 
 // Probe endpoint must answer front-end requests, so it's not gated on is_admin().
