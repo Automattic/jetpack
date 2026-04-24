@@ -94,7 +94,7 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 			continue;
 		}
 		$result = $pcg_load_tester->test( $path );
-		$status = isset( $result['status'] ) ? (string) $result['status'] : '';
+		$status = (string) ( $result['status'] ?? '' );
 		if ( 'fatal' === $status || 'throwable' === $status ) {
 			$blocked[ $plugin ] = pcg_guard_format_block_reason( $result );
 		}
@@ -110,7 +110,7 @@ function pcg_guard_evaluate_plugins( $plugins ) {
  * @return string
  */
 function pcg_guard_format_block_reason( $result ) {
-	$message = isset( $result['message'] ) ? trim( (string) $result['message'] ) : '';
+	$message = trim( (string) ( $result['message'] ?? '' ) );
 	if ( '' === $message ) {
 		$message = 'unknown error';
 	}
@@ -126,7 +126,7 @@ function pcg_guard_format_block_reason( $result ) {
 	$location = '';
 	if ( ! empty( $result['file'] ) ) {
 		$file     = basename( (string) $result['file'] );
-		$line     = isset( $result['line'] ) ? (int) $result['line'] : 0;
+		$line     = (int) ( $result['line'] ?? 0 );
 		$location = $line > 0
 			? sprintf( ' (%s, line %d)', $file, $line )
 			: sprintf( ' (%s)', $file );
