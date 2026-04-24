@@ -166,20 +166,12 @@ function ConnectRow( { title, description, onClick } ) {
  * @param {object}   props               - Component props.
  * @param {object}   props.mcpAbilities  - Full mcp_abilities object from API.
  * @param {number}   props.blogId        - Current site's blog ID.
- * @param {string}   props.siteRawUrl    - Site raw URL for activity log link.
  * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
  * @param {Function} props.onNavigate    - Called with 'read' | 'write' | 'setup'.
  * @param {Function} props.onUpdate      - Called with partial mcp_abilities update.
  * @return {object} Component markup.
  */
-export default function McpHub( {
-	mcpAbilities,
-	blogId,
-	siteRawUrl,
-	savingToolIds,
-	onNavigate,
-	onUpdate,
-} ) {
+export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigate, onUpdate } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
 	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
@@ -290,11 +282,11 @@ export default function McpHub( {
 				</Card>
 			) }
 
-			{ isMcpEnabled && siteRawUrl && (
+			{ isMcpEnabled && (
 				<Card>
 					<a
 						className="jetpack-ai-mcp__connect-row"
-						href={ getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ) }
+						href={ getRedirectUrl( 'cloud-activity-log-wp-menu', { site: blogId } ) }
 						target="_blank"
 						rel="noopener noreferrer"
 					>

@@ -36,6 +36,15 @@
 		text-align: left;
 		border-radius: 0;
 
+		// Reset browser link styles when rendered as <a>
+		&,
+		&:visited,
+		&:hover,
+		&:active {
+			color: inherit;
+			text-decoration: none;
+		}
+
 		&:hover {
 			background: var(--color-surface-backdrop, #f0f0f1);
 		}
