@@ -119,7 +119,7 @@ class Survicate {
 		wp_register_script(
 			'wpcom-survicate',
 			false,
-			array(),
+			array( 'wp-data' ),
 			'1.0',
 			false
 		);
@@ -136,8 +136,49 @@ class Survicate {
 	script.async = true;
 	document.head.appendChild( script );
 	var traits = {$traits_json};
+
+	// The Help Center registers this @wordpress/data store from a separate bundle
+	// loaded from widgets.wp.com; reads are guarded in case it is not yet registered.
+	function isHelpCenterShown() {
+		try {
+			var store = window.wp && window.wp.data && window.wp.data.select( 'automattic/help-center' );
+			return !! ( store && typeof store.isHelpCenterShown === 'function' && store.isHelpCenterShown() );
+		} catch ( e ) {
+			return false;
+		}
+	}
+	function closeAnySurvey() {
+		if ( window._sva && typeof window._sva.closeSurvey === 'function' ) {
+			window._sva.closeSurvey();
+		}
+	}
+
+	if ( window.wp && window.wp.data && typeof window.wp.data.subscribe === 'function' ) {
+		var wasShown = isHelpCenterShown();
+		window.wp.data.subscribe( function () {
+			var shown = isHelpCenterShown();
+			if ( shown && ! wasShown ) {
+				closeAnySurvey();
+			}
+			wasShown = shown;
+		} );
+	}
+
 	window.addEventListener( 'SurvicateReady', function () {
 		window._sva.setVisitorTraits( traits );
+
+		// Covers the race where the Help Center opened before the SDK finished loading.
+		if ( isHelpCenterShown() ) {
+			closeAnySurvey();
+		}
+
+		if ( typeof window._sva.addEventListener === 'function' ) {
+			window._sva.addEventListener( 'survey_displayed', function () {
+				if ( isHelpCenterShown() ) {
+					closeAnySurvey();
+				}
+			} );
+		}
 	} );
 } )();
 JS
