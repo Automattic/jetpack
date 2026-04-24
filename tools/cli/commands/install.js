@@ -122,7 +122,7 @@ export async function handler( argv ) {
 	}
 
 	const listr = new Listr( tasks, {
-		concurrent: argv.v ? false : argv.concurrency,
+		concurrent: argv.concurrency,
 		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
 	} );
 	await listr.run().catch( err => {
