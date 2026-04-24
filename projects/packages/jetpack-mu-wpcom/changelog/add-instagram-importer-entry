@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Instagram importer entry to wp-admin/import.php, redirecting to the Calypso Instagram importer step.
