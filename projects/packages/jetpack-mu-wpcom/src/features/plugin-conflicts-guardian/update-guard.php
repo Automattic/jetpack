@@ -29,11 +29,9 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 	if ( ! apply_filters( 'pcg_guard_activation', false ) ) {
 		return $source;
 	}
-	if ( 'plugin' !== ( $hook_extra['type'] ?? '' ) ) {
-		return $source;
-	}
+	$type   = $hook_extra['type'] ?? '';
 	$action = (string) ( $hook_extra['action'] ?? '' );
-	if ( ! in_array( $action, array( 'install', 'update' ), true ) ) {
+	if ( 'plugin' !== $type || ! in_array( $action, array( 'install', 'update' ), true ) ) {
 		return $source;
 	}
 

@@ -113,10 +113,11 @@ function pcg_guard_format_block_reason( $result ) {
 		$message = 'unknown error';
 	}
 
-	$label = '';
-	if ( 'throwable' === ( $result['status'] ?? '' ) && ! empty( $result['class'] ) ) {
+	$status = $result['status'] ?? '';
+	$label  = '';
+	if ( 'throwable' === $status && ! empty( $result['class'] ) ) {
 		$label = (string) $result['class'];
-	} elseif ( 'fatal' === ( $result['status'] ?? '' ) && isset( $result['errno'] ) ) {
+	} elseif ( 'fatal' === $status && isset( $result['errno'] ) ) {
 		$label = pcg_guard_errno_name( (int) $result['errno'] );
 	}
 
