@@ -4,7 +4,6 @@ import {
 	Button,
 	CheckboxControl,
 	Icon,
-	Spinner,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -66,11 +65,6 @@ function FileBrowserNode( {
 	onTrackEvent,
 	onRequestGranularRestore,
 }: FileBrowserNodeProps ) {
-	const spinnerStyles = {
-		left: { width: '12px', height: '12px', margin: 0, padding: '0 6px' },
-		right: { width: '12px', height: '12px', margin: 0 },
-	};
-
 	const { fileBrowserState } = useFileBrowserContext();
 	const isRoot = path === '/';
 	const isCurrentNodeClicked = activeNodePath === path;
@@ -322,38 +316,29 @@ function FileBrowserNode( {
 		if ( ! item.hasChildren || shouldRestrictChildren( item ) ) {
 			return null;
 		}
-		if ( isLoading && isOpen ) {
-			return <Spinner style={ spinnerStyles.left } />;
-		}
 		return <Icon icon={ isOpen ? chevronDown : expandIcon } />;
 	};
 
-	const expandButton = () => {
-		if ( isLoading && isOpen ) {
-			return (
-				<div
-					className="file-browser-node__separate-expand-button"
-					style={ { padding: '6px', color: 'inherit' } }
-				>
-					<Spinner style={ spinnerStyles.right } />
-				</div>
-			);
-		}
-
-		return (
-			<Button
-				onClick={ handleExpandButtonClick }
-				icon={ isOpen ? chevronDown : expandIcon }
-				className="file-browser-node__separate-expand-button"
-				variant="tertiary"
-				/* translators: %s is a directory name */
-				aria-label={ sprintf( __( 'Expand contents of %s', 'jetpack-backup-pkg' ), item.name ) }
-				aria-expanded={ isOpen }
-				size="compact"
-				style={ { color: 'inherit' } }
-			/>
-		);
-	};
+	// Loading state uses the Button's built-in `isBusy` (diagonal
+	// stripe animation across the button background) instead of
+	// swapping the chevron for a <Spinner>. The Spinner from
+	// @wordpress/components ignores inline size overrides and paints
+	// its arc at the full size of the Button's icon slot, visually
+	// blowing out the whole row.
+	const expandButton = () => (
+		<Button
+			onClick={ handleExpandButtonClick }
+			icon={ isOpen ? chevronDown : expandIcon }
+			className="file-browser-node__separate-expand-button"
+			variant="tertiary"
+			isBusy={ isLoading && isOpen }
+			/* translators: %s is a directory name */
+			aria-label={ sprintf( __( 'Expand contents of %s', 'jetpack-backup-pkg' ), item.name ) }
+			aria-expanded={ isOpen }
+			size="compact"
+			style={ { color: 'inherit' } }
+		/>
+	);
 
 	const nodeItemClassName = clsx( 'file-browser-node__item', {
 		'is-alternate': isAlternate,
@@ -374,11 +359,12 @@ function FileBrowserNode( {
 					{ renderCheckbox() }
 					<Button
 						icon={ renderSeparateExpandButton ? null : buttonExpandIcon }
-						className="file-browser-node__title has-text has-icon"
+						className="file-browser-node__title"
 						onClick={ handleClick }
 						showTooltip={ isLabelTruncated }
 						label={ item.name }
 						variant="tertiary"
+						isBusy={ ! renderSeparateExpandButton && item.hasChildren && isLoading && isOpen }
 						tabIndex={ showSeparateExpandButton && ! showFileCard ? -1 : 0 }
 						size="compact"
 						style={ { color: 'inherit' } }

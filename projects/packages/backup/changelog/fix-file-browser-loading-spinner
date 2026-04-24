@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Replace the chevron swap with Button.isBusy so the file-browser node's loading state stops painting an oversized spinner arc over the row.
