@@ -12,7 +12,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { memo, useCallback, useEffect, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -431,4 +431,9 @@ function FileBrowserNode( {
 	);
 }
 
-export default FileBrowserNode;
+// React.memo so stable props (most common case when the parent
+// re-renders for unrelated reasons) skip the whole subtree re-render.
+// Without this, every parent render of the root cascades through every
+// node's useBackupContentsQuery / Button / CheckboxControl — a few
+// hundred renders per second on larger trees.
+export default memo( FileBrowserNode );

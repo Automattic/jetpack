@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Fix re-render storm (≈150Hz) in the overview — unstable references in backups-list + file-browser cascaded full-tree remounts on every frame.

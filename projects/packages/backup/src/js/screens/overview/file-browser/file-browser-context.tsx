@@ -1,6 +1,6 @@
 /* eslint-disable jsdoc/require-description, jsdoc/require-param-description, jsdoc/require-returns */
 
-import { createContext, useContext } from '@wordpress/element';
+import { createContext, useContext, useMemo } from '@wordpress/element';
 import { useFileBrowserState } from './use-file-browser-state';
 import type { FileBrowserStateActions } from '../../../data/types';
 
@@ -41,9 +41,15 @@ interface FileBrowserProviderProps {
 export function FileBrowserProvider( { children, locale, notices }: FileBrowserProviderProps ) {
 	const fileBrowserState = useFileBrowserState();
 
-	return (
-		<FileBrowserContext.Provider value={ { fileBrowserState, locale, notices } }>
-			{ children }
-		</FileBrowserContext.Provider>
+	// Memoize the context value so we don't hand every consumer a fresh
+	// object each render. Without this, every FileBrowserNode below us
+	// re-renders on every parent re-render — which among other things
+	// resets the loading <Spinner>'s CSS animation to t=0 continuously
+	// (looks static to the user) and re-paints every chevron SVG.
+	const value = useMemo(
+		() => ( { fileBrowserState, locale, notices } ),
+		[ fileBrowserState, locale, notices ]
 	);
+
+	return <FileBrowserContext.Provider value={ value }>{ children }</FileBrowserContext.Provider>;
 }

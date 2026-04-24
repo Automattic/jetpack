@@ -6,6 +6,16 @@ import FileBrowserNode from './file-browser-node';
 import styles from './style.module.scss';
 import type { FileBrowserItem } from '../../../data/types';
 
+// Stable module-scope reference — FileBrowserNode compares props by
+// reference (it's wrapped in React.memo), and previously creating this
+// inside the component body made the root item a fresh object on every
+// render, which cascaded remounts of the whole subtree.
+const ROOT_ITEM: FileBrowserItem = {
+	name: '/',
+	hasChildren: true,
+	type: 'dir',
+};
+
 export interface FileBrowserConfig {
 	restrictedPaths?: string[];
 	restrictedTypes?: string[];
@@ -43,18 +53,12 @@ function FileBrowser( {
 }: FileBrowserProps ) {
 	const [ activeNodePath, setActiveNodePath ] = useState< string >( '' );
 
-	const rootItem: FileBrowserItem = {
-		name: '/',
-		hasChildren: true,
-		type: 'dir',
-	};
-
 	return (
 		<div className={ styles.root }>
 			{ ( fileBrowserConfig?.showHeader ?? true ) && <FileBrowserHeader rewindId={ rewindId } /> }
 			<FileBrowserNode
 				rewindId={ rewindId }
-				item={ rootItem }
+				item={ ROOT_ITEM }
 				path="/"
 				isAlternate
 				setActiveNodePath={ setActiveNodePath }

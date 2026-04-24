@@ -5,7 +5,7 @@
 // between backups keeps each backup's selection intact. Check / uncheck
 // propagates to children; indeterminate ("mixed") bubbles to parents.
 
-import { useState, useCallback, useRef } from '@wordpress/element';
+import { useMemo, useState, useCallback, useRef } from '@wordpress/element';
 import type {
 	FileBrowserCheckState,
 	FileBrowserCheckListInfo,
@@ -433,11 +433,12 @@ export function useFileBrowserState(): FileBrowserStateActions {
 		[ getStateForRewindId, getNodeFromState ]
 	);
 
-	return {
-		getNode,
-		getCheckList,
-		getSelectedList,
-		setNodeCheckState,
-		addChildNodes,
-	};
+	// Memoized so the returned actions object's reference only changes
+	// when one of the underlying useCallbacks changes. Without this the
+	// provider above would hand every consumer a fresh reference on every
+	// parent render, cascading re-renders through the whole tree.
+	return useMemo(
+		() => ( { getNode, getCheckList, getSelectedList, setNodeCheckState, addChildNodes } ),
+		[ getNode, getCheckList, getSelectedList, setNodeCheckState, addChildNodes ]
+	);
 }
