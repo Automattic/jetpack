@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Fix navigation between Overview and Download not re-rendering — remount the router on hash change and patch pushState so programmatic navigate() reaches the listener.
