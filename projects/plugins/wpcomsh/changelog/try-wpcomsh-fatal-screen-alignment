@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+wpcom-fatal-error: rename the fatal-error screen's "Likely cause" heading to "Suspected plugin" / "Suspected theme", identify theme-origin fatals so the card shows the theme's name / version / description, and surface Error details + Environment (WordPress / PHP / theme / server) as always-visible sections below the card.
