@@ -13,7 +13,7 @@ Experimental AI-first development environment for the Jetpack monorepo.
 ```bash
 cd tools/ai-sandbox
 docker compose up -d --build
-docker exec -it jetpack-ai-sandbox bash
+docker exec -it -u dev jetpack-ai-sandbox bash
 cd ~/jetpack
 gh auth login
 pnpm install
