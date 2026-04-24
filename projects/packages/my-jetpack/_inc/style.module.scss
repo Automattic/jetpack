@@ -1,4 +1,11 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 :global {
+
+	body.jetpack_page_my-jetpack {
+
+		@include jetpack-admin-page-layout;
+	}
 
 	// Hello Dolly compatibility fix
 	body.jetpack_page_my-jetpack p#dolly {
