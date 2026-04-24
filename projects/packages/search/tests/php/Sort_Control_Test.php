@@ -32,12 +32,7 @@ class Sort_Control_Test extends TestCase {
 		$this->assertSame( 'newest', Sort_Control::normalize_default_sort( array( 'defaultSort' => 'newest' ) ) );
 	}
 
-	/**
-	 * Product-format keys (rating/price) live behind a WooCommerce integration
-	 * that hasn't landed yet — tracked in RSM-1082. Until then they must
-	 * collapse to `relevance` so a stray saved attribute can't render an
-	 * option the block no longer knows about.
-	 */
+	/** Product-format keys are deferred to RSM-1082. */
 	public function test_normalize_default_sort_rejects_product_key_until_woocommerce_integration() {
 		$this->assertSame( 'relevance', Sort_Control::normalize_default_sort( array( 'defaultSort' => 'price_asc' ) ) );
 	}

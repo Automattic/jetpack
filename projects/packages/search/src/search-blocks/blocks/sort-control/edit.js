@@ -11,9 +11,7 @@ import { CheckboxControl, PanelBody, SelectControl, TextControl } from '@wordpre
 import { createElement as h, Fragment, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-// Must stay in lock-step with Sort_Control::BASE_SORT_KEYS on the PHP side.
-// Product-format keys (rating/price) will rejoin once the WooCommerce
-// integration lands — tracked in RSM-1082.
+// Mirror Sort_Control::BASE_SORT_KEYS. Product-format keys rejoin in RSM-1082.
 const ALL_SORT_KEYS = [ 'relevance', 'newest', 'oldest' ];
 
 /**

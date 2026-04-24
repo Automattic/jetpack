@@ -2,10 +2,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import SortControlEdit from '../../../src/search-blocks/blocks/sort-control/edit';
 
-// InspectorControls, PanelBody and the wrapper components from @wordpress
-// own portal/slot machinery that doesn't wire up under jsdom. Replace them
-// with pass-through render helpers so the checkbox / select / text controls
-// the component drives land in the testing DOM.
+// @wordpress slot/portal components don't render under jsdom; pass-through.
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: () => ( { className: 'wp-block-jetpack-sort-control' } ),
 	InspectorControls: ( { children } ) => <div data-testid="inspector">{ children }</div>,
@@ -87,9 +84,6 @@ describe( 'SortControlEdit', () => {
 	} );
 
 	it( 'moves defaultSort onto the next available key when the author unchecks the current default', () => {
-		// This is the subtle correctness case: without the sync, the saved
-		// `defaultSort` would keep the stale value on disk while the
-		// inspector's Default-sort select visually rebinds to another key.
 		const onSetAttributes = jest.fn();
 		render(
 			<SortControlEdit

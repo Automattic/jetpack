@@ -1,9 +1,4 @@
-// Valid UI/URL values for `orderby`. Must mirror
-// `Sort_Control::get_all_option_keys()` on the PHP side — dropping one from
-// the whitelist would cause the store to silently collapse a valid user
-// selection to the default on reload or browser back/forward. Product-format
-// keys (rating/price) will rejoin the whitelist when the WooCommerce
-// integration lands (RSM-1082).
+// Mirror `Sort_Control::get_all_option_keys()`. Product-format keys rejoin in RSM-1082.
 const VALID_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
 const DEFAULT_SORT_ORDER = 'relevance';
 

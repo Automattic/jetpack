@@ -18,12 +18,7 @@ namespace Automattic\Jetpack\Search;
  */
 class Sort_Control {
 
-	/**
-	 * Sort keys valid on the non-product side of the store. `parse_url_sort()`
-	 * on Search_Blocks only parses these three, and the block intentionally
-	 * exposes the same set — product-format keys (rating/price) land in a
-	 * WooCommerce integration follow-up (RSM-1082).
-	 */
+	/** Product-format keys (rating/price) land in RSM-1082. */
 	const BASE_SORT_KEYS = array( 'relevance', 'newest', 'oldest' );
 
 	/**

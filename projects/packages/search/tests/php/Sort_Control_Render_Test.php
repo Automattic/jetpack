@@ -89,11 +89,7 @@ class Sort_Control_Render_Test extends TestCase {
 		return do_blocks( '<!-- wp:jetpack/sort-control ' . $json . ' /-->' );
 	}
 
-	/**
-	 * Default render path: dropdown, legacy "Sort by" label, every base
-	 * option present. Product-format keys are deferred to the WooCommerce
-	 * integration (RSM-1082).
-	 */
+	/** Default render: dropdown, "Sort by", all base options. Product keys deferred to RSM-1082. */
 	public function test_default_attributes_render_select_with_base_options() {
 		$markup = $this->render();
 		$this->assertStringContainsString( '<select', $markup );
@@ -103,9 +99,7 @@ class Sort_Control_Render_Test extends TestCase {
 		}
 	}
 
-	/**
-	 * `displayAs=radio` must emit a `<fieldset>` of radios, not a dropdown.
-	 */
+	/** `displayAs=radio` emits a `<fieldset>` of radios, not a dropdown. */
 	public function test_display_as_radio_renders_fieldset_with_radios() {
 		$markup = $this->render( array( 'displayAs' => 'radio' ) );
 		$this->assertStringContainsString( '<fieldset', $markup );
@@ -113,10 +107,7 @@ class Sort_Control_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'type="radio"', $markup );
 	}
 
-	/**
-	 * A URL `?orderby=oldest` must win over the block's `defaultSort` —
-	 * deep links keep their meaning even when the block default differs.
-	 */
+	/** URL `?orderby=` wins over `defaultSort` so deep links keep their meaning. */
 	public function test_url_sort_wins_over_default_sort() {
 		$_GET = array( 'orderby' => 'oldest' );
 		try {
@@ -134,10 +125,7 @@ class Sort_Control_Render_Test extends TestCase {
 		}
 	}
 
-	/**
-	 * Labels are user-controlled, so the template must escape HTML to
-	 * prevent stored XSS through a crafted attribute value.
-	 */
+	/** Label is user-controlled; must be HTML-escaped to block stored XSS. */
 	public function test_label_is_html_escaped() {
 		$markup = $this->render( array( 'label' => '<script>alert(1)</script>' ) );
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );

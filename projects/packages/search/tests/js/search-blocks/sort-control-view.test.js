@@ -1,7 +1,4 @@
-// `@wordpress/interactivity` isn't resolvable under Jest — the webpack
-// build extracts it as an external. Mock it virtually so the view module
-// can register its store, capturing the getter and action in the process.
-
+// `@wordpress/interactivity` is an externalized dep — mock virtually.
 const captured = {
 	state: {},
 	actions: {},
@@ -31,12 +28,7 @@ jest.mock(
 	{ virtual: true }
 );
 
-// The shared search store module has its own `store()` side-effect against
-// the real interactivity runtime — stub it to a no-op so importing view.js
-// only hits the mock above.
 jest.mock( '../../../src/search-blocks/store', () => ( {} ), { virtual: true } );
-
-// SCSS import is a side-effect for the webpack build, noise for Jest.
 jest.mock( '../../../src/search-blocks/blocks/sort-control/style.scss', () => ( {} ), {
 	virtual: true,
 } );

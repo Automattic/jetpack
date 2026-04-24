@@ -34,8 +34,6 @@ describe( 'stateToUrlParams', () => {
 	} );
 
 	it( 'omits product-format sort orders until WooCommerce integration lands (RSM-1082)', () => {
-		// `price_asc` stands in for the full product-format set — they share
-		// one whitelist branch, so a single case is enough to guard it.
 		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'price_asc' } );
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
@@ -83,7 +81,6 @@ describe( 'urlParamsToState', () => {
 	} );
 
 	it( 'collapses product-format URL sort to relevance until WooCommerce integration lands (RSM-1082)', () => {
-		// Same single-case guard as the serializer direction above.
 		const state = urlParamsToState( new URLSearchParams( 'orderby=price_asc' ) );
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
