@@ -163,9 +163,12 @@ export const SSO = withModuleSettingsFormHelpers(
 							</p>
 							<ModuleToggle
 								slug="sso"
-								disabled={ unavailableInOfflineMode || ! this.props.hasConnectedOwner }
+								disabled={
+									unavailableInOfflineMode ||
+									! this.props.hasConnectedOwner ||
+									this.props.isSavingAnyOption( 'sso' )
+								}
 								activated={ isSSOActive }
-								toggling={ this.props.isSavingAnyOption( 'sso' ) }
 								// eslint-disable-next-line react/jsx-no-bind
 								toggleModule={ name => {
 									if ( isSSOActive ) {

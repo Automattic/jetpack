@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+ModuleToggle: import ToggleControl from @wordpress/components instead of @automattic/jetpack-components.

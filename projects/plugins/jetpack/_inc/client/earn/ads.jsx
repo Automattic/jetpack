@@ -195,9 +195,8 @@ export const Ads = withModuleSettingsFormHelpers(
 
 						<ModuleToggle
 							slug="wordads"
-							disabled={ unavailableInOfflineMode }
+							disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'wordads' ) }
 							activated={ isAdsActive }
-							toggling={ this.props.isSavingAnyOption( 'wordads' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
