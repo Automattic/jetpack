@@ -26,6 +26,7 @@ jobs:
         uses: ./.github/actions/tool-setup
         with:
           composer-cache: ${{ matrix.composer-cache }}
+          composer-cache-key-prefix: 'benchmark-'
 
       - name: Bootstrap pnpm (install jetpack CLI)
         run: pnpm install

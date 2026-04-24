@@ -11,6 +11,9 @@ inputs:
   composer-cache:
     description: "Set 'false' to skip restoring/saving the composer cache."
     default: 'true'
+  composer-cache-key-prefix:
+    description: "Optional prefix prepended to the composer cache key/restore-keys to isolate caches per workflow."
+    default: ''
 runs:
   using: composite
   steps:
@@ -84,9 +87,9 @@ runs:
       uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        key: ${{ inputs.composer-cache-key-prefix }}${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-composer-
+          ${{ inputs.composer-cache-key-prefix }}${{ runner.os }}-composer-
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
