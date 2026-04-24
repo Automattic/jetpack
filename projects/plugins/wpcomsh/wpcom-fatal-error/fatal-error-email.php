@@ -29,21 +29,23 @@
  * @return array
  */
 function wpcomsh_fatal_customize_recovery_email( $email, $url = '', $extension = array() ) {
+	unset( $extension );
+
 	if ( empty( $email['to'] ) ) {
 		return $email;
 	}
 
 	wpcomsh_fatal_load_textdomain();
 
-	$plugin    = wpcomsh_fatal_resolve_extension( $extension );
 	$site_name = wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES );
 	$site_url  = home_url( '/' );
 
-	$error_info       = wpcomsh_fatal_get_last_error();
-	$environment      = wpcomsh_fatal_get_environment_lines();
-	$action_link      = wpcomsh_fatal_build_action_link( $plugin );
+	$error_info  = wpcomsh_fatal_get_last_error();
+	$plugin      = $error_info ? wpcomsh_fatal_identify_plugin( $error_info ) : null;
+	$environment = wpcomsh_fatal_get_environment_lines();
+
 	$email['subject'] = wpcomsh_fatal_build_email_subject( $site_name, $plugin );
-	$email['message'] = wpcomsh_fatal_build_email_message( $site_name, $site_url, (string) $url, $action_link, $plugin, $error_info, $environment );
+	$email['message'] = wpcomsh_fatal_build_email_message( $site_name, $site_url, (string) $url, $plugin, $error_info, $environment );
 	$email['headers'] = wpcomsh_fatal_merge_html_content_type( $email['headers'] ?? '' );
 
 	return $email;
@@ -70,43 +72,6 @@ function wpcomsh_fatal_merge_html_content_type( $headers ) {
 }
 
 /**
- * Build the action link for the "Likely cause" card: a URL into wp-admin
- * that takes the admin directly to the page where they can remedy the
- * offending extension.
- *
- * Branches by type because the remediation is different:
- *   - Plugin: deactivate it (Plugins page, pre-filtered to the slug).
- *   - Theme : switch to a different theme (Themes page).
- *
- * Returns null when we don't have enough info to offer a link — the
- * template falls back to just the name + description in that case.
- *
- * @param array|null $plugin Resolved extension info.
- * @return array{url:string,label:string}|null
- */
-function wpcomsh_fatal_build_action_link( $plugin ) {
-	if ( ! is_array( $plugin ) || empty( $plugin['type'] ) ) {
-		return null;
-	}
-	if ( 'plugin' === $plugin['type'] ) {
-		$url = ! empty( $plugin['slug'] )
-			? admin_url( 'plugins.php?s=' . rawurlencode( (string) $plugin['slug'] ) )
-			: admin_url( 'plugins.php' );
-		return array(
-			'url'   => $url,
-			'label' => __( 'Go to your plugins page to deactivate it', 'wpcomsh' ),
-		);
-	}
-	if ( 'theme' === $plugin['type'] ) {
-		return array(
-			'url'   => admin_url( 'themes.php' ),
-			'label' => __( 'Go to your themes page to switch to a different theme', 'wpcomsh' ),
-		);
-	}
-	return null;
-}
-
-/**
  * Pull the raw PHP error out of the same request that's sending the email.
  * The `recovery_mode_email` filter signature doesn't include `$error`, but
  * the email is dispatched from inside `WP_Fatal_Error_Handler::handle()` —
@@ -127,64 +92,6 @@ function wpcomsh_fatal_get_last_error() {
 		'file'    => (string) ( $error['file'] ?? '' ),
 		'line'    => (int) ( $error['line'] ?? 0 ),
 	);
-}
-
-/**
- * Resolve the extension blamed by core into the same {name, version,
- * description} shape the screen's `wpcomsh_fatal_identify_plugin` returns,
- * so the email template can reuse the screen's rendering logic.
- *
- * Falls back to null when the slug can't be matched, letting the template
- * fall through to a generic body.
- *
- * @param array $extension { slug, type } from the recovery_mode_email filter.
- * @return array{name:string,version:string,description:string,slug:string,type:string}|null
- */
-function wpcomsh_fatal_resolve_extension( $extension ) {
-	$slug = (string) ( $extension['slug'] ?? '' );
-	$type = (string) ( $extension['type'] ?? '' );
-	if ( '' === $slug ) {
-		return null;
-	}
-	$fallback = array(
-		'name'        => $slug,
-		'version'     => '',
-		'description' => '',
-		'slug'        => $slug,
-		'type'        => $type,
-	);
-	try {
-		if ( 'plugin' === $type ) {
-			if ( ! function_exists( 'get_plugins' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
-			foreach ( get_plugins() as $basename => $data ) {
-				if ( 0 === strpos( $basename, $slug . '/' ) && ! empty( $data['Name'] ) ) {
-					return array(
-						'name'        => (string) $data['Name'],
-						'version'     => (string) ( $data['Version'] ?? '' ),
-						'description' => wp_strip_all_tags( (string) ( $data['Description'] ?? '' ) ),
-						'slug'        => $slug,
-						'type'        => $type,
-					);
-				}
-			}
-		} elseif ( 'theme' === $type ) {
-			$theme = wp_get_theme( $slug );
-			if ( $theme->exists() ) {
-				return array(
-					'name'        => (string) $theme->get( 'Name' ),
-					'version'     => (string) $theme->get( 'Version' ),
-					'description' => wp_strip_all_tags( (string) $theme->get( 'Description' ) ),
-					'slug'        => $slug,
-					'type'        => $type,
-				);
-			}
-		}
-	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort lookup; fall through to minimal shape.
-		return $fallback;
-	}
-	return $fallback;
 }
 
 /**
@@ -220,10 +127,10 @@ function wpcomsh_fatal_build_email_subject( $site_name, $plugin ) {
  *     (the email intro additionally names the site + hostname so multi-site
  *     admins can tell at a glance which install broke).
  *   - Same "Suspected plugin" / "Suspected theme" red card, with plugin
- *     or theme name / version / description. The card's action is a plain
- *     link into wp-admin (plugins.php or themes.php) rather than the
- *     screen's one-click Deactivate button, since the signed HMAC the
- *     screen uses requires a session cookie we can't bind to from email.
+ *     or theme name / version / description. The card has no in-line
+ *     action: during an active fatal, plugins.php itself re-hits the same
+ *     error, so we route all remediation through the recovery-mode link in
+ *     "What you can try next" instead.
  *   - Same "What you can try next" list (recovery mode, support).
  *   - Separate "Error details" and "Environment" sections, each an
  *     always-open <pre> block (we drop the <details> disclosure because
@@ -241,13 +148,12 @@ function wpcomsh_fatal_build_email_subject( $site_name, $plugin ) {
  * @param string     $site_name    Decoded site title.
  * @param string     $site_url     Site home URL.
  * @param string     $recovery_url Core recovery-mode URL, or '' when unavailable.
- * @param array|null $action_link  { url, label } for the card CTA, or null.
  * @param array|null $plugin       Resolved extension info, or null.
  * @param array|null $error_info   { message, file, line } from error_get_last(), or null.
  * @param string[]   $environment  Environment detail lines ("Label: value").
  * @return string
  */
-function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url, $action_link, $plugin, $error_info = null, $environment = array() ) {
+function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url, $plugin, $error_info = null, $environment = array() ) {
 	$css            = wpcomsh_fatal_email_styles();
 	$document_title = __( 'Your site hit a critical error', 'wpcomsh' );
 
@@ -271,11 +177,12 @@ function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url
 <div class="wpcomsh-fatal-email-wrap">
 	<div class="wpcomsh-fatal-email-card">
 		<h1 class="wpcomsh-fatal-email-h1"><?php esc_html_e( 'Your site hit a critical error', 'wpcomsh' ); ?></h1>
+		<p class="wpcomsh-fatal-email-p"><?php esc_html_e( 'Howdy!', 'wpcomsh' ); ?></p>
 		<p class="wpcomsh-fatal-email-p">
 			<?php
 			printf(
-				/* translators: 1: site name, 2: site URL (wrapped in <a>). */
-				esc_html__( 'A critical error occurred on %1$s (%2$s). Here is what we know and what you can do next.', 'wpcomsh' ),
+				/* translators: 1: site name (strong), 2: site URL (wrapped in <a>). */
+				esc_html__( 'WordPress.com has a built-in feature that detects when a plugin or theme causes a fatal error on your site, and notifies you with this automated email. A critical error was just detected on %1$s (%2$s). Below is what we know and what you can try next.', 'wpcomsh' ),
 				'<strong>' . esc_html( $site_name ) . '</strong>',
 				'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_host ) . '</a>'
 			);
@@ -286,7 +193,7 @@ function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url
 			<h2 class="wpcomsh-fatal-email-subhead">
 				<span class="wpcomsh-fatal-email-subhead-icon" aria-hidden="true">&#9888;&#65039;</span>
 				<?php
-				if ( 'theme' === $plugin['type'] ) {
+				if ( 'themes' === $plugin['kind'] ) {
 					esc_html_e( 'Suspected theme', 'wpcomsh' );
 				} else {
 					esc_html_e( 'Suspected plugin', 'wpcomsh' );
@@ -303,28 +210,39 @@ function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url
 				<?php if ( ! empty( $plugin['description'] ) ) : ?>
 					<p class="wpcomsh-fatal-email-notice-desc"><?php echo esc_html( $plugin['description'] ); ?></p>
 				<?php endif; ?>
-				<?php if ( $action_link ) : ?>
-					<p class="wpcomsh-fatal-email-notice-action">
-						<a href="<?php echo esc_url( $action_link['url'] ); ?>">
-							<?php echo esc_html( $action_link['label'] ); ?>
-						</a>
-					</p>
-				<?php endif; ?>
 			</div>
 		<?php endif; ?>
 
 		<h2 class="wpcomsh-fatal-email-subhead"><?php esc_html_e( 'What you can try next', 'wpcomsh' ); ?></h2>
 		<ul class="wpcomsh-fatal-email-steps">
+			<li>
+				<?php
+				printf(
+					/* translators: 1: open <a> tag linking to the site home, 2: close </a> tag. */
+					esc_html__( 'First, %1$svisit your site%2$s and check for any visible issues — the error may have cleared already.', 'wpcomsh' ),
+					'<a href="' . esc_url( $site_url ) . '">',
+					'</a>'
+				);
+				?>
+			</li>
 			<?php if ( '' !== $recovery_url ) : ?>
 				<li>
 					<?php
 					printf(
 						/* translators: 1: open <a> tag linking to recovery mode entry, 2: close </a> tag. */
-						esc_html__( '%1$sEnter recovery mode%2$s to load your admin with plugins disabled, so you can investigate in a safe environment.', 'wpcomsh' ),
+						esc_html__( 'If the error is still there, %1$senter recovery mode%2$s to load your admin with plugins disabled, so you can investigate in a safe environment.', 'wpcomsh' ),
 						'<a href="' . esc_url( $recovery_url ) . '">',
 						'</a>'
 					);
 					?>
+					<p class="wpcomsh-fatal-email-steps-note">
+						<?php esc_html_e( 'You can also copy and paste this address into your browser:', 'wpcomsh' ); ?>
+						<br />
+						<span class="wpcomsh-fatal-email-steps-url"><?php echo esc_html( $recovery_url ); ?></span>
+					</p>
+					<p class="wpcomsh-fatal-email-steps-note">
+						<?php esc_html_e( 'To keep your site safe, this link will expire in 1 day. Don\'t worry about that, though: a new link will be emailed to you if the error occurs again after it expires.', 'wpcomsh' ); ?>
+					</p>
 				</li>
 			<?php endif; ?>
 			<li>
@@ -339,23 +257,21 @@ function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url
 			</li>
 		</ul>
 
-		<?php if ( $error_info ) : ?>
+		<?php
+		if ( $error_info ) :
+			$error_line = (string) $error_info['message'];
+			if ( '' !== $error_info['file'] && $error_info['line'] > 0 ) {
+				$error_line .= sprintf(
+					/* translators: 1: error file path, 2: error line number. */
+					' ' . __( '(in %1$s, line %2$d)', 'wpcomsh' ),
+					$error_info['file'],
+					$error_info['line']
+				);
+			}
+			?>
 			<div class="wpcomsh-fatal-email-details">
 				<h2 class="wpcomsh-fatal-email-details-heading"><?php esc_html_e( 'Error details', 'wpcomsh' ); ?></h2>
-				<pre>
-				<?php
-					$line = (string) $error_info['message'];
-				if ( '' !== $error_info['file'] && $error_info['line'] > 0 ) {
-					$line .= sprintf(
-						/* translators: 1: error file path, 2: error line number. */
-						' ' . __( '(in %1$s, line %2$d)', 'wpcomsh' ),
-						$error_info['file'],
-						$error_info['line']
-					);
-				}
-					echo esc_html( $line );
-				?>
-				</pre>
+				<pre><?php echo esc_html( $error_line ); ?></pre>
 			</div>
 		<?php endif; ?>
 
@@ -438,24 +354,32 @@ function wpcomsh_fatal_email_styles() {
 	color: #646970;
 }
 .wpcomsh-fatal-email-notice-desc {
-	margin: 0 0 12px;
+	margin: 0;
 	font-size: 13px;
 	line-height: 1.5;
 	color: #3c434a;
 }
-.wpcomsh-fatal-email-notice-action {
-	margin: 0;
-	font-size: 13px;
-}
 .wpcomsh-fatal-email-steps {
 	margin: 0;
-	padding-inline-start: 20px;
+	padding: 0;
+	list-style-position: inside;
 	font-size: 14px;
 	line-height: 1.55;
 	color: #3c434a;
 }
 .wpcomsh-fatal-email-steps li {
 	margin-bottom: 6px;
+}
+.wpcomsh-fatal-email-steps-note {
+	margin: 6px 0 0;
+	font-size: 13px;
+	line-height: 1.55;
+	color: #3c434a;
+}
+.wpcomsh-fatal-email-steps-url {
+	display: inline-block;
+	word-break: break-all;
+	color: #1d2327;
 }
 .wpcomsh-fatal-email-card a {
 	color: #3858e9;
