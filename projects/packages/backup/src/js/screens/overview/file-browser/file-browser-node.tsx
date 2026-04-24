@@ -66,9 +66,14 @@ function FileBrowserNode( {
 	onTrackEvent,
 	onRequestGranularRestore,
 }: FileBrowserNodeProps ) {
+	// Match Calypso's spinner sizing 1:1 — 12×12 icon surrounded by 6px
+	// horizontal padding totals the chevron's 24px slot width, so the
+	// label sits in the same horizontal position whether the chevron or
+	// spinner is showing. Margin:0 cancels Spinner's default 5/11/0 that
+	// would throw it out of centre inside Button's icon container.
 	const spinnerStyles = {
-		left: { width: '14px', height: '14px', margin: 0, padding: 0 },
-		right: { width: '14px', height: '14px', margin: 0 },
+		left: { width: '12px', height: '12px', margin: 0, padding: '0 6px' },
+		right: { width: '12px', height: '12px', margin: 0 },
 	};
 
 	const { fileBrowserState } = useFileBrowserContext();
