@@ -130,20 +130,17 @@ function pcg_probe_shutdown() {
 		ob_end_clean();
 	}
 
-	if ( ! headers_sent() ) {
-		status_header( 200 );
-		header( 'Content-Type: application/json; charset=utf-8' );
-	}
-	echo wp_json_encode( // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- output goes to an HTTP body, not embedded in HTML; default flags are fine.
+	// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- response goes to an HTTP body, not embedded in HTML; default flags are fine.
+	wp_send_json(
 		array(
 			'status'  => 'fatal',
 			'errno'   => (int) $error['type'],
 			'message' => (string) $error['message'],
 			'file'    => basename( (string) $error['file'] ),
 			'line'    => (int) $error['line'],
-		)
+		),
+		200
 	);
-	exit;
 }
 
 /**
@@ -157,11 +154,6 @@ function pcg_probe_respond( $payload, $status = 200 ) {
 	while ( ob_get_level() > 0 ) {
 		ob_end_clean();
 	}
-	if ( ! headers_sent() ) {
-		status_header( (int) $status );
-		header( 'Content-Type: application/json; charset=utf-8' );
-	}
-	// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- output goes to an HTTP body, not embedded in HTML; default flags are fine.
-	echo wp_json_encode( $payload );
-	exit;
+	// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- response goes to an HTTP body, not embedded in HTML; default flags are fine.
+	wp_send_json( $payload, (int) $status );
 }
