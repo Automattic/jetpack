@@ -128,7 +128,11 @@ export default function ActivityLog() {
 		const params: ActivityLogParams = {
 			sort_order: view.sort?.direction,
 			number: view.perPage || ACTIVITY_LOGS_DEFAULT_PAGE_SIZE,
-			page: view.page,
+			// `view.page` starts `undefined` and settles to `1` on the
+			// first user-triggered change; defaulting here keeps the
+			// query key stable across that transition so we don't fire
+			// a duplicate list request on page load.
+			page: view.page ?? 1,
 			after: afterIso,
 			before: beforeIso,
 		};

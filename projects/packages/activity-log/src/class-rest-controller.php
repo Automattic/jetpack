@@ -286,6 +286,11 @@ class REST_Controller {
 	 */
 	public static function get_activity_log( WP_REST_Request $request ) {
 		if ( ! self::has_activity_logs_access() ) {
+			// Mutating the request in-place is deliberate: any
+			// downstream `rest_request_*` filter sees the clamped
+			// values, not the caller's originals. For a security
+			// clamp that's the right side of the trade — no filter
+			// can undo the limit.
 			$requested = (int) $request->get_param( 'number' );
 			$request->set_param(
 				'number',
@@ -298,6 +303,14 @@ class REST_Controller {
 
 	/**
 	 * Proxy the group-counts endpoint.
+	 *
+	 * Deliberately not tier-clamped — the free-tier list clamp
+	 * (`number` → 20 / `page` → 1) is the security boundary; the group
+	 * counts are cosmetic metadata that powers the filter dropdown. A
+	 * stable, full-history count keeps the dropdown from flickering as
+	 * users type in the search field, matching Calypso's behavior at
+	 * `wp-calypso:client/dashboard/sites/logs-activity/dataviews/
+	 * index.tsx:100-102`.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return mixed

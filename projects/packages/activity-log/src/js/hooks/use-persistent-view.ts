@@ -51,9 +51,12 @@ const stripTransient = ( v: View ): View => {
 	const next = { ...v };
 	delete next.page;
 	delete next.search;
-	if ( ! next.filters?.length ) {
-		delete next.filters;
-	}
+	// Filters count as transient too — a selected activity-type is
+	// scoped to the current debugging session, not a long-lived
+	// preference. (Previously only empty-array filters were dropped,
+	// which meant a "Plugins" selection survived across reloads —
+	// reported in review.)
+	delete next.filters;
 	return next;
 };
 

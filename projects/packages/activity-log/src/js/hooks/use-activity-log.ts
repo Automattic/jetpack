@@ -26,8 +26,14 @@ interface RawActivityLogResponse {
 
 /**
  * Assemble a REST path with a query string, handling array params by
- * serializing them with `[]` brackets (what our server-side controller
- * expects).
+ * appending them with the PHP-style `[]` suffix our REST controller
+ * understands.
+ *
+ * Note that `apiFetch`/`@wordpress/url` re-serialize the path before
+ * dispatching, so the live wire form is typically indexed
+ * (`group[0]=plugin`) rather than the bare `group[]=plugin` this
+ * function emits — either form round-trips through the controller's
+ * `type: array` validation, so both are accepted.
  *
  * @param base   - Path prefix, e.g. `/jetpack/v4/activity-log`.
  * @param params - Key/value map of query params. Arrays produce repeated

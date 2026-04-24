@@ -58,7 +58,12 @@ class Initial_State {
 				'locale'                => str_replace( '_', '-', (string) get_locale() ),
 				// The paid-plan capability check. Drives the free-tier
 				// upsell callout and matches the server-side clamp in
-				// REST_Controller::get_activity_log().
+				// REST_Controller::get_activity_log(). The result is
+				// cached in a site transient by the REST controller
+				// (5-minute TTL); on a cache miss this call issues a
+				// synchronous WPCOM request (~200–800ms typical, up to
+				// the 2s internal timeout) that blocks page rendering
+				// until it returns.
 				'hasActivityLogsAccess' => REST_Controller::has_activity_logs_access(),
 			),
 			'nonces'        => array(

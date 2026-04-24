@@ -4,10 +4,16 @@ import * as WPElement from '@wordpress/element';
 import ActivityLog from './components/ActivityLog';
 import './style.scss';
 
+// The activity log is append-only: new events land upstream while this
+// page stays open, so a cached snapshot goes stale within seconds.
+// A finite `staleTime` + `refetchOnWindowFocus` keeps the list current
+// without hammering WPCOM on every keystroke — react-query still
+// de-dupes requests that share a key inside the window.
 const queryClient = new QueryClient( {
 	defaultOptions: {
 		queries: {
-			staleTime: Infinity,
+			staleTime: 60_000,
+			refetchOnWindowFocus: true,
 		},
 	},
 } );
