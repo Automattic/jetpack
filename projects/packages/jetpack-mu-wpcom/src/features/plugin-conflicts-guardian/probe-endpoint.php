@@ -130,7 +130,6 @@ function pcg_probe_shutdown() {
 		ob_end_clean();
 	}
 
-	// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- response goes to an HTTP body, not embedded in HTML; default flags are fine.
 	wp_send_json(
 		array(
 			'status'  => 'fatal',
@@ -139,7 +138,8 @@ function pcg_probe_shutdown() {
 			'file'    => basename( (string) $error['file'] ),
 			'line'    => (int) $error['line'],
 		),
-		200
+		200,
+		JSON_UNESCAPED_SLASHES
 	);
 }
 
@@ -154,6 +154,5 @@ function pcg_probe_respond( $payload, $status = 200 ) {
 	while ( ob_get_level() > 0 ) {
 		ob_end_clean();
 	}
-	// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- response goes to an HTTP body, not embedded in HTML; default flags are fine.
-	wp_send_json( $payload, (int) $status );
+	wp_send_json( $payload, (int) $status, JSON_UNESCAPED_SLASHES );
 }
