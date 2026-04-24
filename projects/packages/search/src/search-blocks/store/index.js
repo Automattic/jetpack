@@ -140,6 +140,37 @@ const { state, actions } = store( NAMESPACE, {
 		get activeFilterCount() {
 			return countActiveFilters( state.activeFilters );
 		},
+
+		/**
+		 * True when the current sort order is "relevance". Used by the sort
+		 * popover menu to set `aria-checked` on the Relevance menu item.
+		 * Interactivity API `data-wp-bind` only evaluates simple property
+		 * paths, so inline `===` comparisons are not supported — derived
+		 * booleans must live here.
+		 *
+		 * @return {boolean} Whether sortOrder is "relevance".
+		 */
+		get isSortByRelevance() {
+			return state.sortOrder === 'relevance';
+		},
+
+		/**
+		 * True when the current sort order is "newest".
+		 *
+		 * @return {boolean} Whether sortOrder is "newest".
+		 */
+		get isSortByNewest() {
+			return state.sortOrder === 'newest';
+		},
+
+		/**
+		 * True when the current sort order is "oldest".
+		 *
+		 * @return {boolean} Whether sortOrder is "oldest".
+		 */
+		get isSortByOldest() {
+			return state.sortOrder === 'oldest';
+		},
 	},
 
 	actions: {
@@ -326,6 +357,41 @@ const { state, actions } = store( NAMESPACE, {
 			state.sortOrder = next;
 			state.isSortPopoverOpen = false;
 			yield actions.search();
+		},
+
+		/**
+		 * Close any open popover when clicking outside it. Bound to
+		 * `data-wp-on-window--click` so the handler fires on every click;
+		 * early-exit when the click target lives inside any element marked
+		 * with `data-jetpack-search-popover-root`.
+		 *
+		 * @param {Event} event - Window click event.
+		 */
+		onWindowClickClosePopovers( event ) {
+			if ( ! state.isFilterPopoverOpen && ! state.isSortPopoverOpen ) {
+				return;
+			}
+			const target = event?.target;
+			if ( target && target.closest && target.closest( '[data-jetpack-search-popover-root]' ) ) {
+				return;
+			}
+			state.isFilterPopoverOpen = false;
+			state.isSortPopoverOpen = false;
+		},
+
+		/**
+		 * Close popovers on Escape.
+		 *
+		 * @param {KeyboardEvent} event - Window keydown event.
+		 */
+		onEscapeClosePopovers( event ) {
+			if ( event?.key !== 'Escape' ) {
+				return;
+			}
+			if ( state.isFilterPopoverOpen || state.isSortPopoverOpen ) {
+				state.isFilterPopoverOpen = false;
+				state.isSortPopoverOpen = false;
+			}
 		},
 	},
 
