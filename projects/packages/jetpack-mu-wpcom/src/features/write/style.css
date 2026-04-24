@@ -457,6 +457,8 @@
 }
 
 .bw-content p {
+	font-size: inherit;
+	line-height: inherit;
 	margin: 0 0 1.25em;
 }
 
