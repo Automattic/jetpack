@@ -14,9 +14,13 @@
 		opacity: 0.8;
 	}
 
-	// Leave the <select> unstyled on purpose: native browser controls
-	// render correctly on any background and stay accessible on every
-	// platform without per-OS workarounds (e.g. transparent backgrounds
-	// breaking the dropdown list on Windows). The label above carries
-	// the theme-aware text color; the select itself uses the OS chrome.
+	// Leave the <select>'s colors / border / background to the browser:
+	// native controls render correctly on any background and stay
+	// accessible on every platform without per-OS workarounds (e.g.
+	// transparent backgrounds breaking the dropdown list on Windows).
+	// Padding is safe to nudge — it doesn't affect the dropdown chrome —
+	// and matching the clear-all button keeps the toolbar row balanced.
+	select {
+		padding: 0.2rem 0.5rem;
+	}
 }
