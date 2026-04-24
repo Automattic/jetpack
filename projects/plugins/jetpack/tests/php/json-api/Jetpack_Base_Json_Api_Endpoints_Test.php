@@ -209,6 +209,37 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test get_author returns hashed email profile_URL for anonymous comment authors (user_id=0).
+	 *
+	 * This verifies the $id > 0 guard on the IS_WPCOM branch: anonymous comment authors
+	 * should always get a hashed-email profile URL instead of an incomplete login-based one.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_anonymous_comment_author_gets_hashed_email_profile_url() {
+		$endpoint = $this->get_dummy_endpoint();
+
+		$comment_data                       = new stdClass();
+		$comment_data->comment_author_email = 'anonymous@example.com';
+		$comment_data->comment_author       = 'Anonymous Visitor';
+		$comment_data->comment_author_url   = 'https://example.com';
+		$comment_data->user_id              = 0;
+		$comment_data->comment_author_IP    = '127.0.0.1';
+
+		$comment = new WP_Comment( $comment_data );
+
+		$author = $endpoint->get_author( $comment );
+
+		$expected_profile_url = 'https://gravatar.com/' . md5( strtolower( trim( 'anonymous@example.com' ) ) );
+		$this->assertSame(
+			$expected_profile_url,
+			$author->profile_URL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			'Anonymous comment author (user_id=0) should get a hashed-email profile URL.'
+		);
+	}
+
+	/**
 	 * Test get_author converts Gravatar URLs containing an email to the hashed version.
 	 *
 	 * @group json-api
