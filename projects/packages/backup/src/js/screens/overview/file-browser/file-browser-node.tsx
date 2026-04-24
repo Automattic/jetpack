@@ -66,16 +66,19 @@ function FileBrowserNode( {
 	onTrackEvent,
 	onRequestGranularRestore,
 }: FileBrowserNodeProps ) {
-	// Match Calypso's spinner sizing 1:1 — 12×12 icon surrounded by 6px
-	// horizontal padding totals the chevron's 24px slot width, so the
-	// label sits in the same horizontal position whether the chevron or
-	// spinner is showing. Margin:0 cancels Spinner's default 5/11/0 that
-	// would throw it out of centre inside Button's icon container.
-	// `boxSizing: content-box` is load-bearing: Spinner's Emotion CSS
-	// sets `box-sizing: border-box`, which combined with `padding: 0 6px`
-	// on a 12px outer would collapse inner content width to 0. The
-	// Spinner's viewBox (100×100) then renders at raw viewBox units and
-	// you get a 100px-wide arc overlapping the row.
+	// MSD-matching spinner sizing: 12×12 icon with 6px horizontal padding
+	// totals the chevron's 24px slot width, so the label stays in the
+	// same position whether the chevron or spinner is showing. Margin:0
+	// cancels Spinner's default 5/11/0 that would throw it out of
+	// centre inside Button's icon container. `boxSizing: content-box`
+	// overrides wp-admin's global border-box reset — without this the
+	// padding collapses inner content width to 0 and the viewBox paints
+	// at raw coords (100×100 arc overlapping the row).
+	//
+	// Known issue: the rotation animation isn't visibly playing on
+	// wp-admin despite `CSSAnimation.playState === 'running'` and the
+	// `animation-h38o9b` keyframe being defined. Tracked in #48297
+	// Phase 4. Visual match to MSD takes priority for now.
 	const spinnerStyles = {
 		left: {
 			width: '12px',
