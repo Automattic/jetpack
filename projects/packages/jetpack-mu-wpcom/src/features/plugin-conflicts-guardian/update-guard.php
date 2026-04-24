@@ -117,12 +117,14 @@ function pcg_update_guard_scan_for_parse_errors( $dir ) {
 			continue;
 		}
 		try {
-			token_get_all( $code, TOKEN_PARSE );
+			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariableAssignmentInFunctionBeforeUse -- called for its parse-error side effect.
+			$tokens = token_get_all( $code, TOKEN_PARSE );
+			unset( $tokens );
 		} catch ( \ParseError $e ) {
 			$errors[] = array(
 				'file'    => (string) $path,
-				'line'    => (int) $e->getLine(),
-				'message' => (string) $e->getMessage(),
+				'line'    => $e->getLine(),
+				'message' => $e->getMessage(),
 			);
 		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- tolerate weird files.
 			// Fall through.

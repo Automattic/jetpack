@@ -183,6 +183,7 @@ function pcg_probe_shutdown() {
  *
  * @param array $payload JSON-serializable payload.
  * @param int   $status  HTTP status code.
+ * @return never
  */
 function pcg_probe_respond( $payload, $status = 200 ) {
 	while ( ob_get_level() > 0 ) {
