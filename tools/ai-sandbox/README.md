@@ -15,6 +15,7 @@ cd tools/ai-sandbox
 docker compose up -d --build
 docker exec -it -u dev jetpack-ai-sandbox bash
 gh auth login
+gh auth setup-git
 pnpm install
 ```
 

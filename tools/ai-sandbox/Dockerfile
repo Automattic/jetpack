@@ -52,6 +52,9 @@ WORKDIR /home/dev/jetpack
 # System-level config so core.hooksPath applies to all users (root included — docker exec defaults to root)
 RUN git config --system core.hooksPath /home/dev/jetpack/tools/ai-sandbox/hooks
 
+# Redirect SSH GitHub URLs to HTTPS so gh's OAuth token handles pushes (no SSH key in container)
+RUN git config --system url."https://github.com/".insteadOf "git@github.com:"
+
 USER root
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["sleep", "infinity"]
