@@ -313,7 +313,17 @@ export default function ActivityLog() {
 					actions={ actions }
 					getItemId={ getItemId }
 					search
-					defaultLayouts={ { table: {} } }
+					// Advertise both the default Table layout and DataViews'
+					// built-in Activity timeline. Toggle lives in the cog
+					// popover's layout switcher. The Activity layout reuses
+					// our existing composite `event` field as the title
+					// block (icon + title + description stack) — polish
+					// for dedicated media/description fields can follow
+					// once the toggle is live.
+					defaultLayouts={ {
+						table: {},
+						activity: { titleField: 'event' },
+					} }
 					onChangeView={ onChangeView }
 					onReset={ isViewModified ? onResetView : false }
 					// On the free tier, lock the perPage selector to the
