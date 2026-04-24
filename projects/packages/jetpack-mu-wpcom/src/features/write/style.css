@@ -208,6 +208,19 @@
 	}
 }
 
+@keyframes bw-fade-in-centered {
+
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+}
+
 .bw-tool {
 	width: 34px;
 	height: 34px;
@@ -345,7 +358,7 @@
 }
 
 .bw-color-menu:not([hidden]) {
-	animation: bw-fade-in 0.12s ease;
+	animation: bw-fade-in-centered 0.12s ease;
 }
 
 .bw-color-menu[hidden] {
@@ -381,7 +394,7 @@
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	animation: bw-fade-in 0.12s ease;
+	animation: bw-fade-in-centered 0.12s ease;
 }
 
 .bw-link-popover[hidden] {

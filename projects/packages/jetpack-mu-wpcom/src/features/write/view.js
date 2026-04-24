@@ -34,12 +34,6 @@ function restoreSelection() {
 }
 
 /**
- * Convert contentEditable HTML into WordPress block markup.
- *
- * @param {string} html - The innerHTML from the contenteditable area.
- * @return {string} Serialized Gutenberg block markup.
- */
-/**
  * Normalize color markup from contentEditable before block serialization.
  *
  * The foreColor command creates <font color="..."> (legacy) or
@@ -821,6 +815,16 @@ const { state } = store( 'wpcom-write', {
 			state.showHeadingMenu = false;
 			if ( state.showTextColorMenu ) {
 				positionDropdownOnMobile( '.bw-color-menu' );
+				const close = e => {
+					if (
+						e.target.closest( '.bw-color-menu' ) ||
+						e.target.closest( '[data-wp-on--click="actions.toggleTextColorMenu"]' )
+					)
+						return;
+					state.showTextColorMenu = false;
+					document.removeEventListener( 'click', close );
+				};
+				setTimeout( () => document.addEventListener( 'click', close ), 0 );
 			}
 		},
 
@@ -863,6 +867,16 @@ const { state } = store( 'wpcom-write', {
 			state.showTextColorMenu = false;
 			if ( state.showHeadingMenu ) {
 				positionDropdownOnMobile( '.bw-heading-menu' );
+				const close = e => {
+					if (
+						e.target.closest( '.bw-heading-menu' ) ||
+						e.target.closest( '.bw-tool-heading-toggle' )
+					)
+						return;
+					state.showHeadingMenu = false;
+					document.removeEventListener( 'click', close );
+				};
+				setTimeout( () => document.addEventListener( 'click', close ), 0 );
 			}
 		},
 
