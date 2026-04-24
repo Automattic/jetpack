@@ -12,6 +12,7 @@ PUSH_REFS=$(cat)
 # Collect changed files from actual pushed refs
 CHANGED=""
 while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
+	[ -z "$local_ref" ] && continue
 	[ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
 	if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
 		# New remote branch: try upstream of this specific local_ref, fall back to REMOTE/trunk
