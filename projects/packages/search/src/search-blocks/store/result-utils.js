@@ -165,6 +165,10 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 	const imageUrl = toSafeUrl( imageSrc );
 	const plainTitle = String( fields[ 'title.default' ] ?? fields.title ?? '' );
 	const titlePieces = tokenizeHighlight( highlight.title );
+	const rawAuthor = fields[ 'author.name' ];
+	const author = Array.isArray( rawAuthor )
+		? String( rawAuthor[ 0 ] ?? '' )
+		: String( rawAuthor ?? '' );
 	return {
 		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
 		title: plainTitle,
@@ -175,6 +179,7 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 		permalink,
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date, locale ),
+		author,
 		imageUrl,
 	};
 }
