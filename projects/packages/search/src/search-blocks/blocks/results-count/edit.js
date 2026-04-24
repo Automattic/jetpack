@@ -28,8 +28,12 @@ const SAMPLE = { first: 1, last: 10, total: 42, query: 'boots' };
  */
 export default function ResultsCountEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	/* translators: %1$d: first shown result (1-based), %2$d: last shown result, %3$d: total result count. */
-	const defaultTemplate = __( 'Showing %1$d–%2$d of %3$d results', 'jetpack-search-pkg' );
+	// Comment attached directly to the __() call: the minifier merges adjacent
+	// `const` declarations and can misplace a preceding translator comment,
+	// dropping it from the built bundle and tripping the i18n-check plugin.
+	const defaultTemplate =
+		/* translators: %1$d: first shown result (1-based), %2$d: last shown result, %3$d: total result count. */
+		__( 'Showing %1$d–%2$d of %3$d results', 'jetpack-search-pkg' );
 	// Match render.php: a whitespace-only template falls back to the default
 	// in the preview so the editor mirrors the front-end behaviour the
 	// "Leave empty…" help text describes. The raw input is still stored.
