@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Activity Log: record a `jetpack_activity_log_layout_changed` Tracks event when toggling between the Table and Activity layouts.

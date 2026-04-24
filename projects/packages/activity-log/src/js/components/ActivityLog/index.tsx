@@ -206,12 +206,20 @@ export default function ActivityLog() {
 			const sortChanged = next.sort?.direction !== view.sort?.direction;
 			const filtersChanged = ! fastDeepEqual( next.filters, view.filters );
 			const searchChanged = nextSearch !== searchTerm;
+			const layoutChanged = next.type !== view.type;
 
 			const datasetChanged = perPageChanged || sortChanged || filtersChanged || searchChanged;
 
 			// Tracking — same breakdown Calypso records (per_page /
 			// filter / search / page_changed), namespaced under
-			// `jetpack_activity_log_*`.
+			// `jetpack_activity_log_*`, plus a wp-admin-only
+			// `layout_changed` since Jetpack exposes the DataViews
+			// Activity timeline as a second layout.
+			if ( layoutChanged ) {
+				tracks.recordEvent( 'jetpack_activity_log_layout_changed', {
+					layout: next.type,
+				} );
+			}
 			if ( perPageChanged ) {
 				tracks.recordEvent( 'jetpack_activity_log_per_page_changed', {
 					per_page: next.perPage,
