@@ -10,6 +10,7 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -77,7 +78,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			$script_version = $asset_manifest['version'];
 		}
 
-		$blog_id = Connection_Manager::get_site_id( true );
+		$blog_id      = Connection_Manager::get_site_id( true );
+		$site_raw_url = ( new Status() )->get_site_suffix();
 
 		wp_enqueue_script(
 			'jetpack-ai-admin',
@@ -94,6 +96,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'var jetpackAiSettings = ' . wp_json_encode(
 				array(
 					'blogId'       => $blog_id ? (int) $blog_id : 0,
+					'siteRawUrl'   => $site_raw_url,
 					'siteAdminUrl' => admin_url(),
 					'apiRoot'      => esc_url_raw( rest_url() ),
 					'apiNonce'     => wp_create_nonce( 'wp_rest' ),
