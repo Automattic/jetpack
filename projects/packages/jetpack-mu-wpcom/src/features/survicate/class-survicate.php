@@ -128,6 +128,10 @@ class Survicate {
 			'wpcom-survicate',
 			<<<JS
 ( function () {
+	if ( window.__wpcomSurvicateInit ) {
+		return;
+	}
+	window.__wpcomSurvicateInit = true;
 	if ( window.innerWidth < 480 ) {
 		return;
 	}
@@ -155,13 +159,15 @@ class Survicate {
 
 	if ( window.wp && window.wp.data && typeof window.wp.data.subscribe === 'function' ) {
 		var wasShown = isHelpCenterShown();
+		// Scope the subscription to the Help Center store so the callback does not
+		// fire on every dispatch across all registered stores (e.g. block editor).
 		window.wp.data.subscribe( function () {
 			var shown = isHelpCenterShown();
 			if ( shown && ! wasShown ) {
 				closeAnySurvey();
 			}
 			wasShown = shown;
-		} );
+		}, 'automattic/help-center' );
 	}
 
 	window.addEventListener( 'SurvicateReady', function () {
@@ -173,6 +179,9 @@ class Survicate {
 		}
 
 		if ( typeof window._sva.addEventListener === 'function' ) {
+			// The SDK does not expose a pre-display hook, so we close on the
+			// post-display event. This causes a brief flash but is the best the
+			// public API allows.
 			window._sva.addEventListener( 'survey_displayed', function () {
 				if ( isHelpCenterShown() ) {
 					closeAnySurvey();
