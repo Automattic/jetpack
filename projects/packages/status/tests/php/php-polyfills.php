@@ -2,9 +2,9 @@
 /**
  * Polyfills for PHP 8 string functions.
  *
- * A selection from `wp-includes/compat.php`, as some tests don't bootstrap WordPress core.
+ * A selection from `wp-includes/compat.php`, as some tests use these functions.
  *
- * @package automattic/phpunit-select-config
+ * @package automattic/jetpack-status
  */
 
 // @todo: Remove this file once PHP 7.x support is dropped across the monorepo.
