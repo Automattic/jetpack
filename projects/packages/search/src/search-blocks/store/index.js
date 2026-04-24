@@ -42,6 +42,12 @@ function* fetchResults( pageHandle ) {
 
 const { state, actions } = store( NAMESPACE, {
 	state: {
+		// UI: popover open flags. Kept as separate booleans so only one
+		// popover can be open at a time — the toggle actions close the
+		// other when opening this one.
+		isFilterPopoverOpen: false,
+		isSortPopoverOpen: false,
+
 		/**
 		 * Short human-readable results count for display blocks. Doubles
 		 * as the loading indicator: returning the "searching" string
@@ -274,6 +280,52 @@ const { state, actions } = store( NAMESPACE, {
 			state.sortOrder = sortOrder;
 			state.activeFilters = activeFilters;
 			yield actions.search( { syncUrl: false } );
+		},
+
+		/**
+		 * Toggle the filter popover. Closes the sort popover if it's open.
+		 */
+		toggleFilterPopover() {
+			state.isFilterPopoverOpen = ! state.isFilterPopoverOpen;
+			if ( state.isFilterPopoverOpen ) {
+				state.isSortPopoverOpen = false;
+			}
+		},
+
+		/**
+		 * Toggle the sort popover. Closes the filter popover if it's open.
+		 */
+		toggleSortPopover() {
+			state.isSortPopoverOpen = ! state.isSortPopoverOpen;
+			if ( state.isSortPopoverOpen ) {
+				state.isFilterPopoverOpen = false;
+			}
+		},
+
+		/**
+		 * Close every popover. Bound to Escape key and outside-click handlers.
+		 */
+		closeAllPopovers() {
+			state.isFilterPopoverOpen = false;
+			state.isSortPopoverOpen = false;
+		},
+
+		/**
+		 * Change sort order from a popover menu item and close the popover.
+		 * `event.currentTarget.value` carries the new sortOrder.
+		 *
+		 * @param {Event} event - Click event from the menu item.
+		 * @yield {Promise} Search fetch.
+		 */
+		*selectSortOrder( event ) {
+			const next = event?.currentTarget?.value;
+			if ( ! next || next === state.sortOrder ) {
+				state.isSortPopoverOpen = false;
+				return;
+			}
+			state.sortOrder = next;
+			state.isSortPopoverOpen = false;
+			yield actions.search();
 		},
 	},
 
