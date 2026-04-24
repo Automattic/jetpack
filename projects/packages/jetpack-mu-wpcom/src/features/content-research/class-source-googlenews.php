@@ -24,7 +24,7 @@ class Source_GoogleNews implements Content_Research_Source {
 	 * @return array Normalized results.
 	 */
 	public function search( string $query, int $count = 10 ): array {
-		$cache_key = 'content_research_gnews_' . md5( $query );
+		$cache_key = 'content_research_gnews_' . md5( $query . '_' . $count );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
@@ -64,8 +64,12 @@ class Source_GoogleNews implements Content_Research_Source {
 
 		$body = wp_remote_retrieve_body( $response );
 
-		// Parse RSS/XML.
-		$xml = simplexml_load_string( $body );
+		// Parse RSS/XML safely: suppress warnings and disallow external entities.
+		$previous_libxml_use_internal_errors = libxml_use_internal_errors( true );
+		$xml                                 = simplexml_load_string( $body, '\\SimpleXMLElement', LIBXML_NONET | LIBXML_NOCDATA );
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous_libxml_use_internal_errors );
+
 		if ( false === $xml || ! isset( $xml->channel->item ) ) {
 			return array();
 		}

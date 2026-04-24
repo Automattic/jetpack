@@ -22,7 +22,7 @@ class Source_HackerNews implements Content_Research_Source {
 	 * @return array Normalized results.
 	 */
 	public function search( string $query, int $count = 10 ): array {
-		$cache_key = 'content_research_hn_' . md5( $query );
+		$cache_key = 'content_research_hn_' . md5( $query . '_' . $count );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;

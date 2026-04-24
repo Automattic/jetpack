@@ -11,7 +11,7 @@ namespace A8C\FSE;
  * Class WP_REST_Content_Research_Search.
  *
  * Handles the /wpcom/v2/content-research/search endpoint.
- * Fans out to multiple external sources in parallel, normalizes results,
+ * Queries multiple external sources, normalizes results,
  * and returns an engagement-scored, unified response.
  */
 class WP_REST_Content_Research_Search extends \WP_REST_Controller {
@@ -51,6 +51,8 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 					'count'   => array(
 						'type'    => 'integer',
 						'default' => 10,
+						'minimum' => 1,
+						'maximum' => 20,
 					),
 				),
 			)

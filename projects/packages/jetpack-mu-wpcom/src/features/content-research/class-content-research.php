@@ -40,9 +40,13 @@ class Content_Research {
 	}
 
 	/**
-	 * Register REST API endpoints.
+	 * Register REST API endpoints (only when feature is enabled).
 	 */
 	public function register_rest_api() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		require_once __DIR__ . '/interface-content-research-source.php';
 		require_once __DIR__ . '/class-source-hackernews.php';
 		require_once __DIR__ . '/class-source-reader.php';
@@ -85,7 +89,13 @@ class Content_Research {
 		}
 
 		// Fall back to HTTP (Atomic sites).
-		$request = wp_remote_get( 'https://' . $filepath );
+		$request = wp_remote_get(
+			'https://' . $filepath,
+			array(
+				'timeout'     => 5,
+				'redirection' => 2,
+			)
+		);
 		if ( is_wp_error( $request ) || 200 !== wp_remote_retrieve_response_code( $request ) ) {
 			return null;
 		}
@@ -160,5 +170,5 @@ class Content_Research {
 	}
 }
 
-// Called directly since this file is loaded after the init hook has fired.
+// Initialize the feature when this file is loaded.
 Content_Research::init();

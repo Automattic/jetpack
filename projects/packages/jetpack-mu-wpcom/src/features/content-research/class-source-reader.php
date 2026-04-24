@@ -7,12 +7,10 @@
 
 namespace A8C\FSE;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class Source_Reader
  *
- * Fetches search results from the WordPress.com Reader internal API.
+ * Fetches search results from the WordPress.com Reader API.
  */
 class Source_Reader implements Content_Research_Source {
 
@@ -24,28 +22,23 @@ class Source_Reader implements Content_Research_Source {
 	 * @return array Normalized results.
 	 */
 	public function search( string $query, int $count = 10 ): array {
-		$cache_key = 'content_research_reader_' . md5( $query );
+		$cache_key = 'content_research_reader_' . md5( $query . '_' . $count );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
 		}
 
-		$api_path = '/read/search?' . http_build_query(
+		$url = 'https://public-api.wordpress.com/rest/v1.1/read/search?' . http_build_query(
 			array(
 				'q'      => $query,
 				'number' => $count,
 			)
 		);
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$url      = 'https://public-api.wordpress.com/rest/v1.1' . $api_path;
-			$response = wp_remote_get(
-				$url,
-				array( 'timeout' => 10 )
-			);
-		} else {
-			$response = Client::wpcom_json_api_request_as_user( $api_path );
-		}
+		$response = wp_remote_get(
+			$url,
+			array( 'timeout' => 10 )
+		);
 
 		if ( is_wp_error( $response ) ) {
 			return array();

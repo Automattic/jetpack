@@ -274,26 +274,31 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 	private function extract_main_content( string $html ): string {
 		$doc = new \DOMDocument();
 
-		// Suppress warnings from malformed HTML.
-		libxml_use_internal_errors( true );
-		$doc->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-		libxml_clear_errors();
+		// Suppress warnings from malformed HTML and restore state on exit.
+		$previous_internal_errors = libxml_use_internal_errors( true );
 
-		// Try <article> first, then <main>, then <body>.
-		$tags = array( 'article', 'main', 'body' );
-		foreach ( $tags as $tag ) {
-			$elements = $doc->getElementsByTagName( $tag );
-			if ( $elements->length > 0 ) {
-				$element    = $elements->item( 0 );
-				$inner_html = '';
-				foreach ( $element->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$inner_html .= $doc->saveHTML( $child );
+		try {
+			$doc->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+
+			// Try <article> first, then <main>, then <body>.
+			$tags = array( 'article', 'main', 'body' );
+			foreach ( $tags as $tag ) {
+				$elements = $doc->getElementsByTagName( $tag );
+				if ( $elements->length > 0 ) {
+					$element    = $elements->item( 0 );
+					$inner_html = '';
+					foreach ( $element->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						$inner_html .= $doc->saveHTML( $child );
+					}
+					return $inner_html;
 				}
-				return $inner_html;
 			}
-		}
 
-		return '';
+			return '';
+		} finally {
+			libxml_clear_errors();
+			libxml_use_internal_errors( $previous_internal_errors );
+		}
 	}
 
 	/**
@@ -445,9 +450,18 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 			$source = strtoupper( $article['source'] );
 			$title  = $article['title'];
 
+			$content = trim( (string) ( $article['content'] ?? '' ) );
+			$excerpt = trim( (string) ( $article['excerpt'] ?? '' ) );
+			$text    = '' !== $content ? $content : $excerpt;
+
+			if ( '' === $text ) {
+				// Skip articles with no usable text to summarize.
+				continue;
+			}
+
 			$chunk_prompt = "Summarize the following article in 2-3 sentences.\n\n"
 				. "Title: $title (Source: $source)\n\n"
-				. $article['content'];
+				. $text;
 
 			$summary = $ai->call_llm( $chunk_prompt );
 
