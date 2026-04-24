@@ -1,8 +1,10 @@
 import { queryOptions } from '@tanstack/react-query';
 import {
 	fetchActivityLog,
+	fetchBackupDownloadProgress,
 	fetchBackupExtensionUrl,
 	fetchBackupFileUrl,
+	fetchBackupFilteredDownloadStatus,
 	fetchBackupLs,
 	fetchBackupPathInfo,
 	fetchBackupPolicies,
@@ -74,6 +76,23 @@ export const backupFileUrlQuery = ( rewindId: string, encodedManifestPath: strin
 		queryKey: [ 'jetpack-backup', 'file-url', rewindId, encodedManifestPath ],
 		queryFn: () => fetchBackupFileUrl( { rewindId, encodedManifestPath } ),
 		staleTime: Infinity,
+	} );
+
+// Download progress — polled by the Download screen until `url` is
+// populated or an error lands. Refetch interval is set by the hook so
+// the cadence matches Calypso's 1.5s poll.
+export const backupDownloadProgressQuery = ( downloadId: number ) =>
+	queryOptions( {
+		queryKey: [ 'jetpack-backup', 'download-progress', downloadId ],
+		queryFn: () => fetchBackupDownloadProgress( downloadId ),
+	} );
+
+// Filtered-download status — used by the info card's table download.
+// Polls every 5s until `status: ready` (hook sets interval).
+export const backupFilteredDownloadStatusQuery = ( key: string, dataType: number ) =>
+	queryOptions( {
+		queryKey: [ 'jetpack-backup', 'filtered-download-status', key, dataType ],
+		queryFn: () => fetchBackupFilteredDownloadStatus( { key, dataType } ),
 	} );
 
 export const backupExtensionUrlQuery = (

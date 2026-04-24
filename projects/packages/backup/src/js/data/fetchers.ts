@@ -13,10 +13,15 @@ import {
 } from './mock';
 import type {
 	ActivityLogResponse,
+	BackupDownloadStatusResponse,
 	BackupItemUrl,
 	BackupLsResponse,
 	BackupPathInfoResponse,
 	BackupEntry,
+	DownloadConfig,
+	DownloadProgress,
+	DownloadStatusResponse,
+	PrepareBackupDownloadResponse,
 	SiteRewindPoliciesResponse,
 	SiteRewindSizeResponse,
 } from './types';
@@ -192,6 +197,131 @@ export async function fetchBackupExtensionUrl( {
 		extension_version: extensionVersion,
 	} );
 	return apiFetch< BackupItemUrl >( { path: requestPath } );
+}
+
+/**
+ *
+ * @param root0
+ * @param root0.rewindId
+ * @param root0.types
+ * @param root0.includePaths
+ * @param root0.excludePaths
+ */
+export async function initiateBackupDownload( {
+	rewindId,
+	types,
+	includePaths,
+	excludePaths,
+}: {
+	rewindId: string;
+	types?: DownloadConfig;
+	includePaths?: string;
+	excludePaths?: string;
+} ): Promise< number > {
+	const body: Record< string, unknown > = { rewind_id: rewindId };
+	if ( includePaths ) {
+		body.include_path_list = includePaths;
+		body.exclude_path_list = excludePaths ?? '';
+	} else {
+		body.types = types ?? {};
+	}
+	const data = await apiFetch< DownloadStatusResponse >( {
+		path: '/jetpack/v4/site/backup/download',
+		method: 'POST',
+		data: body,
+	} );
+	return data.downloadId;
+}
+
+/**
+ *
+ * @param downloadId
+ */
+export async function fetchBackupDownloadProgress(
+	downloadId: number
+): Promise< DownloadProgress > {
+	const path = addQueryArgs( '/jetpack/v4/site/backup/download/progress', {
+		download_id: downloadId,
+	} );
+	const data = await apiFetch< DownloadStatusResponse >( { path } );
+
+	// WPCOM returns camelCase; the rest of the app (and the type we expose
+	// here) mirrors Calypso's snake_case shape. Normalise once at the edge.
+	const {
+		downloadId: id = 0,
+		rewindId = '',
+		backupPoint = '',
+		startedAt = '',
+		progress = 0,
+		downloadCount = 0,
+		validUntil = '',
+		url = '',
+		bytes = 0,
+		bytesFormatted = '',
+		code = '',
+		message = '',
+	} = data || ( {} as DownloadStatusResponse );
+
+	return {
+		download_id: id,
+		rewind_id: rewindId,
+		backup_point: backupPoint,
+		started_at: startedAt,
+		progress,
+		download_count: downloadCount,
+		valid_until: validUntil,
+		url,
+		bytes,
+		bytes_formatted: bytesFormatted,
+		error: code ? { code, message } : undefined,
+	};
+}
+
+/**
+ *
+ * @param root0
+ * @param root0.rewindId
+ * @param root0.manifestFilter
+ * @param root0.dataType
+ */
+export async function prepareBackupDownload( {
+	rewindId,
+	manifestFilter,
+	dataType,
+}: {
+	rewindId: string;
+	manifestFilter: string;
+	dataType: number;
+} ): Promise< PrepareBackupDownloadResponse > {
+	return apiFetch< PrepareBackupDownloadResponse >( {
+		path: '/jetpack/v4/site/backup/filtered/prepare',
+		method: 'POST',
+		data: {
+			rewind_id: rewindId,
+			manifest_filter: manifestFilter,
+			data_type: dataType,
+		},
+	} );
+}
+
+/**
+ *
+ * @param root0
+ * @param root0.key
+ * @param root0.dataType
+ */
+export async function fetchBackupFilteredDownloadStatus( {
+	key,
+	dataType,
+}: {
+	key: string;
+	dataType: number;
+} ): Promise< BackupDownloadStatusResponse > {
+	return apiFetch< BackupDownloadStatusResponse >( {
+		path: '/jetpack/v4/site/backup/filtered/status',
+		method: 'POST',
+		data: { key, data_type: dataType },
+	} );
 }
 
 /**

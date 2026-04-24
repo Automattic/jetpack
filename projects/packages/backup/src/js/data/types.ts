@@ -269,6 +269,65 @@ export interface FileBrowserStateActions {
 	addChildNodes: ( parentPath: string, childrenPaths: FileBrowserItem[], rewindId: number ) => void;
 }
 
+// Download-flow types — ported verbatim from Calypso's
+// `@automattic/api-core/site-backup-download/types.ts`.
+
+export interface DownloadConfig {
+	themes?: boolean;
+	plugins?: boolean;
+	roots?: boolean;
+	contents?: boolean;
+	sqls?: boolean;
+	uploads?: boolean;
+}
+
+export interface DownloadError {
+	code: string;
+	message: string;
+}
+
+export interface DownloadProgress {
+	download_id: number;
+	rewind_id: string;
+	backup_point: string;
+	started_at: string;
+	progress: number;
+	download_count: number;
+	valid_until: string;
+	url: string;
+	bytes: number;
+	bytes_formatted: string;
+	error?: DownloadError;
+}
+
+export interface DownloadStatusResponse {
+	downloadId: number;
+	rewindId: string;
+	backupPoint: string;
+	startedAt: string;
+	progress: number;
+	downloadCount: number;
+	validUntil: string;
+	url: string;
+	bytes: number;
+	bytesFormatted: string;
+	code: string;
+	message: string;
+}
+
+export interface PrepareBackupDownloadResponse {
+	ok: boolean;
+	key: string;
+}
+
+export interface BackupDownloadStatusResponse {
+	ok: boolean;
+	status: string;
+	download_id: string;
+	token: string;
+	url: string;
+}
+
 export interface JetpackBackupInitialState {
 	API: {
 		WP_API_root: string;
