@@ -1,35 +1,13 @@
 <?php
 /**
- * HTTP-based plugin-load probe.
+ * HTTP-based plugin-load probe. See README.md for the flow + rationale.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
 /**
- * Runs a plugin's main file in a separate HTTP self-request. The parent
- * (admin) request generates a short-lived single-use token and stashes
- * the plugin path in a transient keyed to that token, then GETs a
- * special URL on this same site. The probe endpoint (registered in
- * `plugin-conflicts-guardian.php`, fires on `init`) validates the
- * token, `require`s the plugin main file with a shutdown handler armed,
- * and emits JSON — either a clean `{status: ok}` or the captured fatal.
- *
- * Why HTTP rather than a CLI subprocess:
- *   - Atomic and some managed hosts sandbox web-PHP so `proc_open`
- *     cannot find/exec a CLI binary (open_basedir + restricted exec).
- *   - A separate HTTP request is isolated from our own admin request:
- *     if the plugin fatals, the probe request 500s but the parent sees
- *     JSON via the shutdown handler, and the admin page keeps rendering.
- *
- * Limitations:
- *   - Only catches issues hit by `require`ing the plugin's main file
- *     (top-level code + immediately-registered class loads). Hooks
- *     registered by the plugin don't fire (we don't run `init` again
- *     after loading), so errors that surface only during hook callbacks
- *     are invisible.
- *   - Runs inside the normal plugins-loaded bootstrap — other active
- *     plugins are live, so conflicts with them CAN surface (the
- *     previous SHORTINIT approach avoided that).
+ * Runs a plugin's main file in a separate HTTP self-request and
+ * returns the probe verdict as an associative array.
  */
 class PCG_Load_Tester {
 
@@ -78,9 +56,6 @@ class PCG_Load_Tester {
 			)
 		);
 
-		// Clean up the transient whether or not the endpoint consumed
-		// it — the endpoint deletes it too, so a double-delete is
-		// harmless.
 		delete_transient( $this->transient_key( $token ) );
 
 		if ( is_wp_error( $response ) ) {
@@ -114,8 +89,7 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Build the transient key for a probe token. Wrapped so the
-	 * endpoint can use the same keying scheme.
+	 * Transient key for a probe token. Shared with the endpoint.
 	 *
 	 * @param string $token Random probe token.
 	 * @return string

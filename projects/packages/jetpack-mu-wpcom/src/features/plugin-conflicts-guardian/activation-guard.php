@@ -3,21 +3,7 @@
  * Activation guard — blocks plugin activations that fail a pre-flight
  * load probe, so a bad Activate click can't fatal the site.
  *
- * Hooked on `load-plugins.php` and `load-update.php` at priority 0,
- * which fire before wp-admin's inline handlers decide what to do
- * with the request. We cover every WordPress activation entry point:
- *
- *   - `plugins.php?action=activate` (single) and `...=activate-selected` (bulk)
- *     — the normal Activate link on the plugins list.
- *   - `update.php?action=activate-plugin` — the link WordPress shows
- *     after an Add New → Upload Plugin install completes.
- *
- * When the probe returns a fatal / throwable for at least one
- * plugin, we redirect back to the plugins list with an error notice
- * instead of letting core call `activate_plugin()`.
- *
- * The `pcg_guard_activation` filter (default true) is the single
- * on/off knob for the feature.
+ * See README.md for the covered activation entry points and the flow.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -27,9 +13,8 @@ add_action( 'load-update.php', 'pcg_guard_maybe_block_activation', 0 );
 add_action( 'admin_notices', 'pcg_guard_render_block_notice' );
 
 /**
- * Entry point on `load-plugins.php` / `load-update.php`. Inspects
- * the request, runs the probe on each plugin being activated, and
- * redirects with a notice when at least one would fatal.
+ * Entry point on `load-plugins.php` / `load-update.php`. Probes each
+ * plugin being activated and redirects with a notice on any failure.
  */
 function pcg_guard_maybe_block_activation() {
 	if ( ! apply_filters( 'pcg_guard_activation', true ) ) {
@@ -43,9 +28,7 @@ function pcg_guard_maybe_block_activation() {
 	$plugins_to_check = array();
 	$nonce_action     = '';
 
-	// `activate` is emitted by plugins.php; `activate-plugin` by
-	// update.php after an upload-plugin install. Both carry a single
-	// `plugin` query arg and the same activate-plugin_{file} nonce.
+	// Single-plugin path (plugins.php Activate link / update.php post-upload link).
 	if ( 'activate' === $action || 'activate-plugin' === $action ) {
 		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified below.
 		if ( '' === $plugin ) {
@@ -73,8 +56,7 @@ function pcg_guard_maybe_block_activation() {
 		return;
 	}
 
-	// Verify the nonce ourselves before running the probes; core will
-	// do the same check but rejecting here avoids a wasted probe call.
+	// Verify the nonce up front so we don't run probes for a request core will reject anyway.
 	if ( ! isset( $_REQUEST['_wpnonce'] ) || false === check_admin_referer( $nonce_action ) ) {
 		return;
 	}
@@ -95,12 +77,10 @@ function pcg_guard_maybe_block_activation() {
 }
 
 /**
- * Run the load probe for each plugin and collect reasons for any
- * that fail. Returned array is keyed by plugin basename; empty when
- * all plugins pass (or probe skipped / couldn't complete).
+ * Probe each plugin; return map of basename => reason for those that failed.
  *
  * @param string[] $plugins Plugin basenames (e.g. "akismet/akismet.php").
- * @return array<string,string> Map of plugin => human-readable block reason.
+ * @return array<string,string>
  */
 function pcg_guard_evaluate_plugins( $plugins ) {
 	$blocked = array();
@@ -122,12 +102,7 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 }
 
 /**
- * Format a human-readable reason from the probe's result payload.
- *
- * Includes file + line when present, and a severity label derived
- * from the `errno` (for fatals) or the exception class (for
- * throwables). The plugin name is omitted because it's already
- * rendered on its own line in the notice list.
+ * Format a human-readable reason like "E_USER_ERROR: msg (file.php, line 42)".
  *
  * @param array $result Probe result from PCG_Load_Tester::test().
  * @return string
@@ -160,9 +135,7 @@ function pcg_guard_format_block_reason( $result ) {
 }
 
 /**
- * Convert a PHP error constant value to its symbolic name
- * (E_ERROR, E_USER_ERROR, …) for display. Falls back to the raw
- * int when the value isn't one we recognize.
+ * Symbolic name (E_ERROR, …) for a PHP error-constant value.
  *
  * @param int $errno PHP error-constant value.
  * @return string
@@ -180,8 +153,7 @@ function pcg_guard_errno_name( $errno ) {
 }
 
 /**
- * Render the admin notice when the last request was blocked. The
- * message list is pulled from (and cleared from) a per-user transient
+ * Render the admin notice. Messages are pulled from a per-user transient
  * set by the guard before the redirect.
  */
 function pcg_guard_render_block_notice() {

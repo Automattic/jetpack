@@ -3,30 +3,7 @@
  * Update guard — refuses plugin installs / updates when the unpacked
  * package contains PHP parse errors.
  *
- * Hooks `upgrader_source_selection`, which fires after WP extracts
- * the install/update zip into a temporary source directory but
- * before it copies files over the live plugin. Returning a WP_Error
- * from that filter aborts the operation; the existing plugin files
- * stay untouched.
- *
- * Why syntax-only (not a full load probe like activation-guard does):
- *   - During a plugin *update*, the active version is already loaded
- *     in the probe request, so `require`-ing the new version's main
- *     file would always fatal with "Cannot redeclare class/function"
- *     even when the new version is perfectly fine — the probe can't
- *     distinguish real failures from that benign collision.
- *   - Side-stepping the collision would need a sandboxed bootstrap
- *     (SHORTINIT or a CLI subprocess) that isn't portable across
- *     hosts — exactly the constraint that pushed the activation
- *     probe to an HTTP round-trip.
- *   - Parse errors are the high-frequency failure mode for releases
- *     (typos, unmatched braces, bad early-9x syntax). Catching them
- *     cheaply here keeps the obvious breakage out of production;
- *     runtime errors still trip on the next Activate click via the
- *     activation guard.
- *
- * Gated by the same `pcg_guard_activation` filter as the activation
- * guard so the feature's single on/off knob covers both.
+ * See README.md for the "why syntax-only" rationale.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -34,9 +11,8 @@
 add_filter( 'upgrader_source_selection', 'pcg_update_guard_check', 99, 4 );
 
 /**
- * Filter callback. Runs the syntax sweep over the extracted source
- * and returns a WP_Error (which aborts the install/update) when any
- * parse error is found.
+ * Filter callback. Returns a WP_Error (aborts the install/update) when
+ * the extracted source contains any PHP parse errors.
  *
  * @param string|WP_Error $source        Extracted source directory, or error from a prior filter.
  * @param string          $remote_source Original remote source path (unused).
@@ -91,10 +67,7 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 }
 
 /**
- * Tokenize every `.php` file under the package with `TOKEN_PARSE` and
- * collect any that fail. Errors other than parse errors (unreadable
- * files, weird binaries) are swallowed so one bad entry doesn't
- * abort the sweep.
+ * Tokenize every `.php` under $dir with TOKEN_PARSE and return the failures.
  *
  * @param string $dir Extracted package directory.
  * @return array<int,array{file:string,line:int,message:string}>

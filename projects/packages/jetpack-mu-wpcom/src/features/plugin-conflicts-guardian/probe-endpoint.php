@@ -2,35 +2,18 @@
 /**
  * HTTP probe endpoint for the Plugin Conflicts Guardian.
  *
- * Listens for requests carrying `?pcg_probe=1&token=…` with a token we
- * stashed moments earlier in PCG_Load_Tester. The handler fires on
- * `plugins_loaded` priority 0 — the earliest point where transients
- * and WP helpers are available but the full bootstrap (init,
- * admin_init, …) hasn't finished. It:
- *
- *   1. Validates + consumes the token.
- *   2. Arms a shutdown handler so any PHP fatal from here on is turned
- *      into a clean JSON response.
- *   3. `require`s the uploaded plugin's main PHP file, registering
- *      whatever hooks the plugin wires up.
- *   4. Hooks `wp_loaded` at `PHP_INT_MAX` to emit a clean "ok"
- *      verdict — by that point `plugins_loaded`, `init` and
- *      `admin_init` have all run, so errors that only manifest inside
- *      those callbacks have had a chance to fatal.
+ * Handles `?pcg_probe=1&token=…` requests fired by PCG_Load_Tester.
+ * See README.md for the step-by-step flow.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
-// Run synchronously at require time. This file is included from
-// jetpack-mu-wpcom's `load_features()`, which itself fires on
-// `plugins_loaded` at priority 10, so we're already inside that
-// action when this runs. Registering a hook at priority 0 here would
-// be too late; inline inspection is the one reliable path.
+// Run inline: we're already inside `plugins_loaded` (load_features() priority 10),
+// so registering a hook at priority 0 would be too late.
 pcg_maybe_handle_probe();
 
 /**
- * Entry point. Bails when the request isn't a probe so unrelated
- * traffic stays untouched.
+ * Entry point. Bails when the request isn't a probe.
  */
 function pcg_maybe_handle_probe() {
 	$probe_flag = isset( $_GET['pcg_probe'] ) ? sanitize_text_field( wp_unslash( $_GET['pcg_probe'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token is the nonce, validated below.
@@ -78,18 +61,12 @@ function pcg_maybe_handle_probe() {
 		);
 	}
 
-	// Tell WP's own fatal-error handler to stand down for this request.
-	// `WP_SANDBOX_SCRAPING` is the core-blessed opt-out: the built-in
-	// shutdown handler returns early when it sees this constant, which
-	// leaves our shutdown handler free to emit a JSON verdict (instead
-	// of WP running wp_die() first and exit()ing before we get a turn).
+	// Tell WP's fatal handler to stand down so ours can emit JSON.
 	if ( ! defined( 'WP_SANDBOX_SCRAPING' ) ) {
 		define( 'WP_SANDBOX_SCRAPING', true );
 	}
 
-	// Swallow any output the plugin emits during load / hooks so the
-	// JSON response isn't corrupted; the shutdown handler flushes and
-	// discards it.
+	// Swallow plugin output so the JSON response isn't corrupted.
 	ob_start();
 
 	register_shutdown_function( 'pcg_probe_shutdown' );
@@ -109,19 +86,13 @@ function pcg_maybe_handle_probe() {
 		);
 	}
 
-	// Let WP continue bootstrapping — init, admin_init, and so on fire
-	// with the uploaded plugin's hooks in place. At `wp_loaded` we've
-	// reached the end of the bootstrap sequence; if nothing fataled we
-	// can confidently emit "ok".
+	// Let init / admin_init fire with the plugin's hooks in place; emit "ok" at the end.
 	add_action( 'wp_loaded', 'pcg_probe_emit_ok', PHP_INT_MAX );
 }
 
 /**
  * Emit a clean "ok" verdict once the full bootstrap completed.
- *
- * The `diagnostic` block is included to help debug probes that return
- * "ok" unexpectedly — it tells the parent which bootstrap actions
- * actually fired during the probe request.
+ * Diagnostic block reports which bootstrap actions actually fired.
  */
 function pcg_probe_emit_ok() {
 	pcg_probe_respond(
@@ -141,10 +112,9 @@ function pcg_probe_emit_ok() {
 }
 
 /**
- * Shutdown handler: if PHP terminated the probe request with a fatal,
- * clear buffered output (including WP's own fatal page) and emit JSON
- * with the error. Uses HTTP 200 so the parent's `wp_remote_get`
- * doesn't confuse the fatal report with a transport problem.
+ * Shutdown handler: on fatal, clear any buffered WP fatal page and emit
+ * JSON with the error. Uses HTTP 200 so the client can distinguish a
+ * captured fatal from a transport problem.
  */
 function pcg_probe_shutdown() {
 	$error = error_get_last();
@@ -177,9 +147,7 @@ function pcg_probe_shutdown() {
 }
 
 /**
- * Emit a JSON response and terminate. One helper for the three
- * validation / success paths keeps the headers-and-buffer dance
- * consistent.
+ * Emit a JSON response and terminate.
  *
  * @param array $payload JSON-serializable payload.
  * @param int   $status  HTTP status code.
