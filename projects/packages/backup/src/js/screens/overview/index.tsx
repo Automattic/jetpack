@@ -11,12 +11,13 @@ import BackupNotices from './backup-notices';
 import BackupNowButton from './backup-now-button';
 import BackupsList from './backups-list';
 import DateRangePicker from './date-range-picker';
+import { FileBrowserProvider } from './file-browser/file-browser-context';
 import styles from './style.module.scss';
 import type { ActivityLogEntry } from '../../data/types';
 import type { FC } from 'react';
 
 const OverviewScreen: FC = () => {
-	const { timezoneString, gmtOffset } = useSiteData();
+	const { timezoneString, gmtOffset, locale } = useSiteData();
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const rewindIdParam = searchParams.get( 'rewindId' );
 
@@ -89,27 +90,29 @@ const OverviewScreen: FC = () => {
 	}, [ setHeaderActions, headerActions ] );
 
 	return (
-		<div className={ styles.overviewOuter }>
-			<div className={ styles.overview }>
-				<BackupNotices backupState={ backupState } />
-				<div className={ styles.grid }>
-					<BackupsList
-						activityLog={ activityLog }
-						isLoadingActivityLog={ isLoadingActivityLog }
-						selectedBackup={ selectedBackup }
-						onSelectBackup={ handleSelectBackup }
-						dateRange={ dateRange }
-					/>
-					{ selectedBackup ? (
-						<BackupDetails backup={ selectedBackup } />
-					) : (
-						<Card>
-							<CardBody className={ styles.detailsPlaceholder }>{ null }</CardBody>
-						</Card>
-					) }
+		<FileBrowserProvider locale={ locale }>
+			<div className={ styles.overviewOuter }>
+				<div className={ styles.overview }>
+					<BackupNotices backupState={ backupState } />
+					<div className={ styles.grid }>
+						<BackupsList
+							activityLog={ activityLog }
+							isLoadingActivityLog={ isLoadingActivityLog }
+							selectedBackup={ selectedBackup }
+							onSelectBackup={ handleSelectBackup }
+							dateRange={ dateRange }
+						/>
+						{ selectedBackup ? (
+							<BackupDetails backup={ selectedBackup } />
+						) : (
+							<Card>
+								<CardBody className={ styles.detailsPlaceholder }>{ null }</CardBody>
+							</Card>
+						) }
+					</div>
 				</div>
 			</div>
-		</div>
+		</FileBrowserProvider>
 	);
 };
 

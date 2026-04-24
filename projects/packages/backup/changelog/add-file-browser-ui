@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Backup: Port the file-browser tree into the overview details pane (read-only + selection state). Download and Restore wiring follow in later phases.

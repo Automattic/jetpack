@@ -5,6 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { download, rotateLeft } from '@wordpress/icons';
 import { gridiconToWordPressIcon } from '../../data/gridicons';
 import { useFormattedTime } from '../../data/use-formatted-time';
+import FileBrowser from './file-browser';
 import styles from './style.module.scss';
 import type { ActivityLogEntry } from '../../data/types';
 import type { FC, ReactElement } from 'react';
@@ -92,6 +93,14 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 							</span>
 						) }
 					</div>
+					{ !! backup.object?.backup_period && backup.rewind_id && (
+						<div className={ styles.fileBrowserSection }>
+							<div className={ styles.fileBrowserSectionTitle }>
+								{ __( 'Files', 'jetpack-backup-pkg' ) }
+							</div>
+							<FileBrowser key={ backup.rewind_id } rewindId={ backup.rewind_id } />
+						</div>
+					) }
 				</div>
 			</CardBody>
 		</Card>

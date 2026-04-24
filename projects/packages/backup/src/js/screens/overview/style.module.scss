@@ -86,6 +86,24 @@
 	min-block-size: 300px;
 }
 
+// "Files" section inside the details card. Sits below the meta row and
+// holds the FileBrowser tree. A subtle top border separates it from
+// the summary.
+.fileBrowserSection {
+	margin-block-start: $grid-unit-20;
+	padding-block-start: $grid-unit-20;
+	border-block-start: 1px solid #dcdcde;
+}
+
+.fileBrowserSectionTitle {
+	font-size: 13px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #757575;
+	margin-block-end: $grid-unit-10;
+}
+
 // DataViews in a `Card` gets a few local overrides to match Calypso's
 // backup overview 1:1.
 .listCard {
