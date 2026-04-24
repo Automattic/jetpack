@@ -8,7 +8,7 @@ Ships dark: gated behind `apply_filters( 'pcg_guard_activation', false )`. Set t
 
 | File | Role |
 | --- | --- |
-| `plugin-conflicts-guardian.php` | Bootstrap. Loads the rest only when `pcg_enable` is on. |
+| `plugin-conflicts-guardian.php` | Bootstrap. Wires the requires for the other files. |
 | `class-pcg-load-tester.php` | Client: fires the probe HTTP request and parses the verdict. |
 | `probe-endpoint.php` | Server: handles `?pcg_probe=1`, requires the plugin, captures any fatal. |
 | `activation-guard.php` | Hooks `load-plugins.php` / `load-update.php` and blocks failing activations. |
@@ -22,6 +22,44 @@ Ships dark: gated behind `apply_filters( 'pcg_guard_activation', false )`. Set t
 4. `probe-endpoint.php` runs synchronously at require time (already inside `plugins_loaded` priority 10 via `load_features()`), validates + consumes the token, defines `WP_SANDBOX_SCRAPING` so core's fatal handler steps aside, arms a shutdown handler, and `require`s the plugin's main file.
 5. The probe lets WP finish bootstrapping (`init`, `admin_init`) so hook-time errors can fatal, then emits `{status: ok}` on `wp_loaded` at `PHP_INT_MAX`. A fatal or uncaught throwable becomes `{status: fatal|throwable, …}` with HTTP 200.
 6. If any plugin failed, the guard stashes reasons in a per-user transient and redirects to `plugins.php?pcg_blocked=1`; the admin notice reads the transient and renders it.
+
+```
+ Admin click Activate
+         │
+         ▼
+ activation-guard.php ──► verify nonce + capability
+         │
+         ▼
+ PCG_Load_Tester::test()
+         │
+         │ stash {path} in transient (random token)
+         ▼
+ GET /?pcg_probe=1&token=…  ◄── HTTP self-request
+         │
+         ▼
+ probe-endpoint.php
+   validate + consume token
+   define WP_SANDBOX_SCRAPING
+   register shutdown handler
+   require $plugin_main
+         │
+         ├───► fatal / throwable ──► {status: fatal|throwable} (HTTP 200)
+         │                                  │
+         │                                  ▼
+         │                          Guard stashes reason,
+         │                          302 → plugins.php?pcg_blocked=1
+         │
+         └───► clean load
+                 │
+                 ▼
+          wait for init / admin_init / wp_loaded
+                 │
+                 ▼
+          {status: ok} (HTTP 200)
+                 │
+                 ▼
+          Guard hands off to core activate_plugin()
+```
 
 ## Why HTTP, not a CLI subprocess
 
