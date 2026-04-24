@@ -3,7 +3,8 @@
 Experimental AI-first development environment for the Jetpack monorepo.
 
 ⚠️ Not production-ready.  
-⚠️ Do not use for core development without review.
+⚠️ Do not use for core development without review.  
+⚠️ The compose setup mounts `${HOME}/.claude` into the container — host Claude auth tokens are accessible to processes running in the sandbox. Do not share or commit that directory.
 
 ---
 

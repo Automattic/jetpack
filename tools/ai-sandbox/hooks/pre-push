@@ -2,6 +2,7 @@
 set -e
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
 
 # Save stdin — pre-push receives pushed refs on stdin; pass to both hooks
 PUSH_REFS=$(cat)

@@ -89,7 +89,7 @@ Example:
 
 * sidebar key: dashboard
 * label: Dashboard
-* path: /
+* path: /dashboard
 
 ---
 
