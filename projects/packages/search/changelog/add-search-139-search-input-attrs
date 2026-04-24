@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search Blocks: search-input gains placeholder (declared), showIcon, and submitOnly attributes with matching inspector controls.
