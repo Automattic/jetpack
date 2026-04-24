@@ -17,7 +17,7 @@ add_action( 'admin_notices', 'pcg_guard_render_block_notice' );
  * plugin being activated and redirects with a notice on any failure.
  */
 function pcg_guard_maybe_block_activation() {
-	if ( ! apply_filters( 'pcg_guard_activation', true ) ) {
+	if ( ! apply_filters( 'pcg_guard_activation', false ) ) {
 		return;
 	}
 	if ( ! current_user_can( 'activate_plugins' ) ) {

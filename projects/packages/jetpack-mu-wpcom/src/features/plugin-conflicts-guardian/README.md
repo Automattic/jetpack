@@ -2,7 +2,7 @@
 
 Pre-flight plugin-activation check. When an admin clicks Activate (or finishes an Upload Plugin install), this feature loads the plugin in an isolated HTTP request and refuses the activation if that probe captures a fatal — the site stays up instead of entering recovery mode.
 
-Ships dark: gated behind `apply_filters( 'pcg_enable', false )`. When enabled, the activation + update guards can be turned off together via `apply_filters( 'pcg_guard_activation', $bool )` (default true).
+Ships dark: gated behind `apply_filters( 'pcg_guard_activation', false )`. Set the filter to `true` to enable both the activation and update guards.
 
 ## Files
 

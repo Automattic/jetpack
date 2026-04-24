@@ -26,7 +26,7 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 	if ( is_wp_error( $source ) ) {
 		return $source;
 	}
-	if ( ! apply_filters( 'pcg_guard_activation', true ) ) {
+	if ( ! apply_filters( 'pcg_guard_activation', false ) ) {
 		return $source;
 	}
 	if ( 'plugin' !== ( $hook_extra['type'] ?? '' ) ) {
