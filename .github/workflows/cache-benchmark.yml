@@ -6,10 +6,6 @@ on:
       - update/ci/composer_cache_benchmark
   workflow_dispatch:
 
-concurrency:
-  group: cache-benchmark-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   benchmark:
     name: jetpack install --all -r (${{ matrix.label }})
