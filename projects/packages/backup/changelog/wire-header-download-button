@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Backup: Wire the "Download backup" button in the overview header — navigates to /download, or kicks off a granular download when files are selected.

@@ -1,11 +1,17 @@
 /* eslint-disable jsdoc/require-returns */
 
+import { useMutation } from '@tanstack/react-query';
 import { Button, Card, CardBody, CardHeader, Icon, Tooltip } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { useCallback } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { download, rotateLeft } from '@wordpress/icons';
+import { useNavigate } from 'react-router';
+import { initiateBackupDownload } from '../../data/fetchers';
 import { gridiconToWordPressIcon } from '../../data/gridicons';
 import { useFormattedTime } from '../../data/use-formatted-time';
+import { JetpackBackupRoutes } from '../../routes';
 import FileBrowser from './file-browser';
+import { useFileBrowserContext } from './file-browser/file-browser-context';
 import styles from './style.module.scss';
 import type { ActivityLogEntry } from '../../data/types';
 import type { FC, ReactElement } from 'react';
@@ -21,9 +27,9 @@ interface ComingSoonButtonProps {
 }
 
 /**
- * Restore / download actions are rendered but disabled in the first
- * Overview port. A tooltip explains that the flow is coming soon and
- * points users back to the WPCOM UI meanwhile.
+ * Restore action is rendered disabled with a tooltip explaining the
+ * flow is coming soon. Download is wired up now — see `handleDownloadClick`
+ * below.
  *
  * @param props          - Component props.
  * @param props.variant  - Button variant.
@@ -45,12 +51,18 @@ const ComingSoonButton: FC< ComingSoonButtonProps > = ( { variant, icon, childre
 
 /**
  * Right-hand detail pane for a selected backup: summary, timestamp,
- * actor, and placeholder Download/Restore actions.
+ * actor, Download/Restore actions, and the file-browser tree.
  *
  * @param props        - Component props.
  * @param props.backup - The activity log entry to display.
  */
 const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
+	const navigate = useNavigate();
+	const { fileBrowserState } = useFileBrowserContext();
+	const rewindIdNum = Number( backup.rewind_id );
+	const { totalItems: selectedFilesCount } = fileBrowserState.getCheckList( rewindIdNum );
+	const hasSelectedFiles = selectedFilesCount > 0;
+
 	const publishedTimestamp = backup.published || backup.last_published;
 	const formattedTime = useFormattedTime( publishedTimestamp, {
 		dateStyle: 'medium',
@@ -59,6 +71,46 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 
 	const contentText = backup.content?.text ?? '';
 	const actorName = backup.actor?.name ?? '';
+
+	const { mutate: granularMutate, isPending: isGranularPending } = useMutation( {
+		mutationFn: () => {
+			const { includeList, excludeList } = fileBrowserState.getCheckList( rewindIdNum );
+			return initiateBackupDownload( {
+				rewindId: backup.rewind_id,
+				includePaths: includeList.map( item => item.id ).join( ',' ),
+				excludePaths: excludeList.map( item => item.id ).join( ',' ),
+			} );
+		},
+	} );
+
+	const handleDownloadClick = useCallback( () => {
+		if ( hasSelectedFiles ) {
+			// Granular download: kick off the mutation now (so the paths
+			// get captured before the user navigates to the screen) and
+			// pass the resulting downloadId so the screen skips the form.
+			granularMutate( undefined, {
+				onSuccess: downloadId =>
+					navigate(
+						`${ JetpackBackupRoutes.Download }?rewindId=${ backup.rewind_id }&downloadId=${ downloadId }`
+					),
+			} );
+		} else {
+			navigate( `${ JetpackBackupRoutes.Download }?rewindId=${ backup.rewind_id }` );
+		}
+	}, [ hasSelectedFiles, granularMutate, backup.rewind_id, navigate ] );
+
+	const downloadLabel = hasSelectedFiles
+		? sprintf(
+				/* translators: %d is the number of files selected. */
+				_n(
+					'Download %d selected file',
+					'Download %d selected files',
+					selectedFilesCount,
+					'jetpack-backup-pkg'
+				),
+				selectedFilesCount
+		  )
+		: __( 'Download backup', 'jetpack-backup-pkg' );
 
 	return (
 		<Card>
@@ -69,9 +121,17 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 						<strong>{ backup.summary }</strong>
 					</div>
 					<div className={ styles.detailsHeaderActions }>
-						<ComingSoonButton variant="tertiary" icon={ download }>
-							{ __( 'Download backup', 'jetpack-backup-pkg' ) }
-						</ComingSoonButton>
+						{ backup.rewind_id ? (
+							<Button
+								variant="tertiary"
+								icon={ download }
+								onClick={ handleDownloadClick }
+								isBusy={ isGranularPending }
+								disabled={ isGranularPending }
+							>
+								{ downloadLabel }
+							</Button>
+						) : null }
 						<ComingSoonButton variant="primary" icon={ rotateLeft }>
 							{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
 						</ComingSoonButton>
