@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, jsdoc/require-description, jsdoc/require-param-description, jsdoc/require-returns */
+
 // Realistic-looking fixtures for the Backup overview. Shapes match the
 // types in `../types.ts` — edit these to explore design states that
 // are hard to reproduce on a real site (long summaries, retention
@@ -11,6 +13,9 @@ import type {
 	ActivityLogEntry,
 	ActivityLogResponse,
 	BackupEntry,
+	BackupLsResponse,
+	BackupLsResponseContents,
+	BackupPathInfoResponse,
 	SiteRewindPoliciesResponse,
 	SiteRewindSizeResponse,
 } from '../types';
@@ -160,3 +165,131 @@ export const mockSize: SiteRewindSizeResponse = {
 	retention_days: 30,
 	backups_stopped: false,
 };
+
+// File-browser fixtures. Keyed by parent path so `mockBackupLs` can
+// answer any `/`, `/wp-content`, etc. request without re-walking a tree.
+// Stays small: three directory levels and a few leaves are enough for
+// selection, check propagation, and info-card states.
+
+const mockLsTree: Record< string, BackupLsResponseContents > = {
+	'/': {
+		'wp-content': { type: 'dir', has_children: true, sort: 1 },
+		sql: { type: 'dir', has_children: true, sort: 2 },
+		'wp-config.php': {
+			type: 'file',
+			has_children: false,
+			manifest_path: 'f9/wp-config.php',
+			sort: 3,
+		},
+	},
+	'/wp-content': {
+		plugins: { type: 'dir', has_children: true, sort: 1 },
+		themes: { type: 'dir', has_children: true, sort: 2 },
+		uploads: { type: 'dir', has_children: true, sort: 3 },
+	},
+	'/wp-content/plugins': {
+		jetpack: {
+			type: 'archive',
+			has_children: false,
+			period: 'p9001',
+			extension_version: '15.2',
+			manifest_path: 'p/jetpack',
+			sort: 1,
+		},
+		akismet: {
+			type: 'archive',
+			has_children: false,
+			period: 'p9001',
+			extension_version: '5.3',
+			manifest_path: 'p/akismet',
+			sort: 2,
+		},
+		woocommerce: {
+			type: 'archive',
+			has_children: false,
+			period: 'p9001',
+			extension_version: '8.4',
+			manifest_path: 'p/woocommerce',
+			sort: 3,
+		},
+	},
+	'/wp-content/themes': {
+		twentytwentyfour: {
+			type: 'archive',
+			has_children: false,
+			period: 'p9001',
+			extension_version: '1.2',
+			manifest_path: 't/twentytwentyfour',
+			sort: 1,
+		},
+	},
+	'/wp-content/uploads': {
+		'2026': { type: 'dir', has_children: true, sort: 1 },
+	},
+	'/wp-content/uploads/2026': {
+		'hero.jpg': {
+			type: 'file',
+			has_children: false,
+			manifest_path: 'f/uploads/2026/hero.jpg',
+			sort: 1,
+		},
+		'cat.png': {
+			type: 'file',
+			has_children: false,
+			manifest_path: 'f/uploads/2026/cat.png',
+			sort: 2,
+		},
+	},
+	'/sql': {
+		wp_posts: {
+			type: 'table',
+			has_children: false,
+			manifest_path: 'sql/wp_posts',
+			row_count: 182,
+			sort: 1,
+		},
+		wp_options: {
+			type: 'table',
+			has_children: false,
+			manifest_path: 'sql/wp_options',
+			row_count: 420,
+			sort: 2,
+		},
+	},
+};
+
+/**
+ *
+ * @param _rewindId
+ * @param path
+ */
+export function mockBackupLs( _rewindId: string, path: string ): BackupLsResponse {
+	const normalised = path === '' ? '/' : path;
+	return {
+		ok: true,
+		error: '',
+		contents: mockLsTree[ normalised ] ?? {},
+	};
+}
+
+/**
+ *
+ * @param _rewindId
+ * @param manifestPath
+ * @param _extensionType
+ */
+export function mockBackupPathInfo(
+	_rewindId: string,
+	manifestPath: string,
+	_extensionType: string
+): BackupPathInfoResponse {
+	// A handful of canned sizes / hashes so the info card shows real values.
+	const byPath: Record< string, BackupPathInfoResponse > = {
+		'f9/wp-config.php': { size: 3_500, mtime: 1_714_000_000, hash: 'abc123' },
+		'f/uploads/2026/hero.jpg': { size: 820_000, mtime: 1_714_100_000, hash: 'def456' },
+		'f/uploads/2026/cat.png': { size: 210_000, mtime: 1_714_110_000, hash: 'ghi789' },
+		'sql/wp_posts': { size: 0, data_type: 1, manifest_filter: 'wp_posts' },
+		'sql/wp_options': { size: 0, data_type: 1, manifest_filter: 'wp_options' },
+	};
+	return byPath[ manifestPath ] ?? { size: 0 };
+}
