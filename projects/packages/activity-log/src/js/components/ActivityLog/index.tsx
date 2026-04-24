@@ -315,14 +315,26 @@ export default function ActivityLog() {
 					search
 					// Advertise both the default Table layout and DataViews'
 					// built-in Activity timeline. Toggle lives in the cog
-					// popover's layout switcher. The Activity layout reuses
-					// our existing composite `event` field as the title
-					// block (icon + title + description stack) — polish
-					// for dedicated media/description fields can follow
-					// once the toggle is live.
+					// popover's layout switcher. Each layout maps the
+					// event parts to the right slots:
+					//   - Table: one composite `event` column alongside
+					//     Date / User.
+					//   - Activity: `event_icon` → mediaField (left
+					//     bullet slot), `event_title` → titleField,
+					//     `event_description` → descriptionField. Date
+					//     and User render as "other fields" below the
+					//     title. Keeping `fields` explicit here prevents
+					//     the composite `event` column from rendering a
+					//     second copy of the same content in the
+					//     otherFields row.
 					defaultLayouts={ {
-						table: {},
-						activity: { titleField: 'event' },
+						table: { fields: [ 'published', 'event', 'actor' ] },
+						activity: {
+							fields: [ 'published', 'actor' ],
+							titleField: 'event_title',
+							mediaField: 'event_icon',
+							descriptionField: 'event_description',
+						},
 					} }
 					onChangeView={ onChangeView }
 					onReset={ isViewModified ? onResetView : false }

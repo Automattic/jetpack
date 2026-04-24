@@ -3,7 +3,12 @@ import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { ActivityActor } from './ActivityActor';
-import { ActivityEvent } from './ActivityEvent';
+import {
+	ActivityEvent,
+	ActivityEventDescription,
+	ActivityEventIcon,
+	ActivityEventTitle,
+} from './ActivityEvent';
 import type { Activity, ActivityLogGroupCountResponse } from './types';
 import type { Field, Operator } from '@wordpress/dataviews';
 
@@ -232,6 +237,42 @@ export function useActivityFields( {
 				getValue: ( { item } ) =>
 					`${ item.activityTitle }: ${ item.activityDescription.textDescription }`,
 				render: ( { item } ) => <ActivityEvent activity={ item } />,
+				filterBy: { operators: [] },
+			},
+			// The Activity layout renders icon / title / description in
+			// dedicated mediaField / titleField / descriptionField slots,
+			// so we expose three atomic fields alongside the Table
+			// layout's composite `event`. DataViews' `getHideableFields`
+			// excludes slot-bound fields from the Properties toggle
+			// list, so these don't double-expose in the cog popover.
+			{
+				id: 'event_icon',
+				type: 'text',
+				label: __( 'Icon', 'jetpack-activity-log' ),
+				enableSorting: false,
+				enableHiding: false,
+				getValue: ( { item } ) => item.activityIcon ?? '',
+				render: ( { item } ) => <ActivityEventIcon activity={ item } />,
+				filterBy: { operators: [] },
+			},
+			{
+				id: 'event_title',
+				type: 'text',
+				label: __( 'Title', 'jetpack-activity-log' ),
+				enableSorting: false,
+				enableHiding: false,
+				getValue: ( { item } ) => item.activityTitle,
+				render: ( { item } ) => <ActivityEventTitle activity={ item } />,
+				filterBy: { operators: [] },
+			},
+			{
+				id: 'event_description',
+				type: 'text',
+				label: __( 'Description', 'jetpack-activity-log' ),
+				enableSorting: false,
+				enableHiding: false,
+				getValue: ( { item } ) => item.activityDescription.textDescription,
+				render: ( { item } ) => <ActivityEventDescription activity={ item } />,
 				filterBy: { operators: [] },
 			},
 			{

@@ -7,52 +7,91 @@ import type { Activity } from './types';
 import './activity-event.scss';
 
 /**
- * DataViews cell renderer for the "Event" column. Composes the gridicon,
- * activity title, and formatted description into the row's main content.
+ * Just the gridicon for an activity row. Exposed as its own component
+ * so the Activity layout can mount it in DataViews' `mediaField` slot
+ * (rendering left-aligned outside the title block).
+ *
+ * @param props          - Component props.
+ * @param props.activity - Normalized Activity for the current log row.
+ * @return The icon element, or null when the activity has none.
+ */
+export function ActivityEventIcon( { activity }: { activity: Activity } ) {
+	const { activityIcon } = activity;
+	if ( ! activityIcon ) {
+		return null;
+	}
+	return (
+		<Icon
+			className="site-activity-logs__event-icon"
+			icon={ gridiconToWordPressIcon( activityIcon ) }
+			size={ 24 }
+		/>
+	);
+}
+
+/**
+ * Just the bold activity title (e.g. "Plugin activated"). Plugged into
+ * DataViews' `titleField` slot for the Activity layout.
+ *
+ * @param props          - Component props.
+ * @param props.activity - Normalized Activity for the current log row.
+ * @return The title element.
+ */
+export function ActivityEventTitle( { activity }: { activity: Activity } ) {
+	return <strong>{ activity.activityTitle }</strong>;
+}
+
+/**
+ * The formatted description body — parsed ranges (entity links,
+ * release-notes, etc.) with an `object`-level link fallback for
+ * range-less payloads like `post__published`. Plugs into DataViews'
+ * `descriptionField` slot for the Activity layout.
+ *
+ * @param props          - Component props.
+ * @param props.activity - Normalized Activity for the current log row.
+ * @return The description element, or null when the activity has none.
+ */
+export function ActivityEventDescription( { activity }: { activity: Activity } ) {
+	const { activityDescription, activityObject } = activity;
+	const hasRanges = activityDescription.items.some(
+		item => typeof item === 'object' && item !== null && 'type' in item
+	);
+	const objectHref = hasRanges ? null : buildObjectAdminLink( activityObject );
+	const formattedContent = activityDescription.items.length
+		? renderFormattedContent( { items: activityDescription.items } )
+		: null;
+	if ( ! formattedContent ) {
+		return null;
+	}
+	return (
+		<span>{ objectHref ? <a href={ objectHref }>{ formattedContent }</a> : formattedContent }</span>
+	);
+}
+
+/**
+ * DataViews cell renderer for the Table layout's "Event" column.
+ * Composes the icon, title, and description into a single cell. The
+ * Activity layout uses the three sub-components directly in their
+ * respective field slots instead.
  *
  * @param props          - Component props.
  * @param props.activity - Normalized Activity for the current log row.
  * @return The event cell.
  */
 export function ActivityEvent( { activity }: { activity: Activity } ) {
-	const { activityDescription, activityIcon, activityObject, activityTitle } = activity;
-
-	const hasRanges = activityDescription.items.some(
-		item => typeof item === 'object' && item !== null && 'type' in item
-	);
-
-	// Token-level links inside the description are produced by
-	// FormattedBlock. When the description has no ranges at all — e.g. a
-	// post__published event where `content.text` is literally the post
-	// title — fall back to the entry-level `object` and wrap the whole
-	// description in a link.
-	const objectHref = hasRanges ? null : buildObjectAdminLink( activityObject );
-
-	const formattedContent = activityDescription.items.length
-		? renderFormattedContent( { items: activityDescription.items } )
-		: null;
-
-	const descriptionNode =
-		formattedContent &&
-		( objectHref ? <a href={ objectHref }>{ formattedContent }</a> : formattedContent );
-
 	return (
 		<HStack spacing="2" alignment="left" className="site-activity-logs__event">
-			{ activityIcon && (
-				<Icon
-					className="site-activity-logs__event-icon"
-					icon={ gridiconToWordPressIcon( activityIcon ) }
-					size={ 24 }
-				/>
-			) }
+			<ActivityEventIcon activity={ activity } />
 			<HStack
 				spacing="1"
 				justify="flex-start"
 				alignment="start"
 				className="site-activity-logs__event-content"
 			>
-				<strong className="site-activity-logs__event-title">{ activityTitle }</strong>
-				{ descriptionNode && <span>{ descriptionNode }</span> }
+				<span className="site-activity-logs__event-title">
+					<ActivityEventTitle activity={ activity } />
+				</span>
+				<ActivityEventDescription activity={ activity } />
 			</HStack>
 		</HStack>
 	);
