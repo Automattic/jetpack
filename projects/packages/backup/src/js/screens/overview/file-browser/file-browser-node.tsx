@@ -71,8 +71,19 @@ function FileBrowserNode( {
 	// label sits in the same horizontal position whether the chevron or
 	// spinner is showing. Margin:0 cancels Spinner's default 5/11/0 that
 	// would throw it out of centre inside Button's icon container.
+	// `boxSizing: content-box` is load-bearing: Spinner's Emotion CSS
+	// sets `box-sizing: border-box`, which combined with `padding: 0 6px`
+	// on a 12px outer would collapse inner content width to 0. The
+	// Spinner's viewBox (100×100) then renders at raw viewBox units and
+	// you get a 100px-wide arc overlapping the row.
 	const spinnerStyles = {
-		left: { width: '12px', height: '12px', margin: 0, padding: '0 6px' },
+		left: {
+			width: '12px',
+			height: '12px',
+			margin: 0,
+			padding: '0 6px',
+			boxSizing: 'content-box' as const,
+		},
 		right: { width: '12px', height: '12px', margin: 0 },
 	};
 
