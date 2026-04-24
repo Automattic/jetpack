@@ -130,41 +130,6 @@ function wpcomsh_fatal_get_last_error() {
 }
 
 /**
- * Collect environment details (WordPress / PHP / theme / server versions)
- * to include under the Error details disclosure. Helps support triage
- * without making the recipient hunt for them.
- *
- * Each entry is already-escaped because the caller renders them inside a
- * <pre>, where line-for-line layout matters.
- *
- * @return string[] List of "Label: value" lines.
- */
-function wpcomsh_fatal_get_environment_lines() {
-	global $wp_version;
-
-	$lines = array();
-
-	$lines[] = sprintf( 'WordPress: %s', (string) ( $wp_version ?? 'unknown' ) );
-	$lines[] = sprintf( 'PHP: %s', PHP_VERSION );
-
-	try {
-		$theme = wp_get_theme();
-		if ( $theme && $theme->exists() ) {
-			$lines[] = sprintf( 'Theme: %s %s', (string) $theme->get( 'Name' ), (string) $theme->get( 'Version' ) );
-		}
-	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit theme on failure.
-		// Fall through.
-	}
-
-	$server = sanitize_text_field( (string) wp_unslash( $_SERVER['SERVER_SOFTWARE'] ?? '' ) );
-	if ( '' !== $server ) {
-		$lines[] = sprintf( 'Server: %s', $server );
-	}
-
-	return $lines;
-}
-
-/**
  * Resolve the extension blamed by core into the same {name, version,
  * description} shape the screen's `wpcomsh_fatal_identify_plugin` returns,
  * so the email template can reuse the screen's rendering logic.
