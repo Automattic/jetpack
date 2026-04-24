@@ -37,7 +37,7 @@ jobs:
       - name: Time jetpack install --all -r
         run: |
           START=$(date +%s)
-          pnpm jetpack install --all -r
+          pnpm jetpack install -v --all -r
           END=$(date +%s)
           ELAPSED=$((END - START))
           echo "jetpack install --all -r (${{ matrix.label }}) took ${ELAPSED}s"
