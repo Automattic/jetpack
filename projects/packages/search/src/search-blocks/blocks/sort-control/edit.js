@@ -11,13 +11,10 @@ import { CheckboxControl, PanelBody, SelectControl, TextControl } from '@wordpre
 import { createElement as h, Fragment, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-// Keep the base / product-format split aligned with Sort_Control::BASE_SORT_KEYS
-// and ::PRODUCT_SORT_KEYS on the PHP side. A divergence here would let the
-// editor expose a key the render callback drops, so the author would set up
-// a Sort by … option that never appears on the front end.
-const BASE_SORT_KEYS = [ 'relevance', 'newest', 'oldest' ];
-const PRODUCT_SORT_KEYS = [ 'rating_desc', 'price_asc', 'price_desc' ];
-const ALL_SORT_KEYS = [ ...BASE_SORT_KEYS, ...PRODUCT_SORT_KEYS ];
+// Must stay in lock-step with Sort_Control::BASE_SORT_KEYS on the PHP side.
+// Product-format keys (rating/price) will rejoin once the WooCommerce
+// integration lands — tracked in RSM-1082.
+const ALL_SORT_KEYS = [ 'relevance', 'newest', 'oldest' ];
 
 /**
  * Translated human-readable labels for each sort key. Declared as a function
@@ -32,9 +29,6 @@ function getSortLabels() {
 		relevance: __( 'Relevance', 'jetpack-search-pkg' ),
 		newest: __( 'Newest', 'jetpack-search-pkg' ),
 		oldest: __( 'Oldest', 'jetpack-search-pkg' ),
-		rating_desc: __( 'Rating', 'jetpack-search-pkg' ),
-		price_asc: __( 'Price: low to high', 'jetpack-search-pkg' ),
-		price_desc: __( 'Price: high to low', 'jetpack-search-pkg' ),
 	};
 }
 

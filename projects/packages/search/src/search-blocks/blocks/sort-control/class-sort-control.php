@@ -20,31 +20,20 @@ class Sort_Control {
 
 	/**
 	 * Sort keys valid on the non-product side of the store. `parse_url_sort()`
-	 * on Search_Blocks only parses these three, so keeping a block's
-	 * `defaultSort` to one of them guarantees the URL-round-trip path stays
-	 * intact. Product-format keys (rating/price) are appended conditionally at
-	 * render time by `get_all_option_keys()`.
+	 * on Search_Blocks only parses these three, and the block intentionally
+	 * exposes the same set — product-format keys (rating/price) land in a
+	 * WooCommerce integration follow-up (RSM-1082).
 	 */
 	const BASE_SORT_KEYS = array( 'relevance', 'newest', 'oldest' );
 
 	/**
-	 * Product-format-only sort keys. Always exposed at the block level per the
-	 * pragmatic choice in SEARCH-138: the editor author sees them as options,
-	 * and the runtime store decides whether to apply them based on
-	 * `resultFormat`. Listing them here keeps render.php/edit.js from having
-	 * to know about WooCommerce directly.
-	 */
-	const PRODUCT_SORT_KEYS = array( 'rating_desc', 'price_asc', 'price_desc' );
-
-	/**
 	 * All keys the block may render. Order is meaningful — `<option>` / radio
-	 * rows come out in this sequence, so base keys stay ahead of
-	 * product-only keys for non-product stores.
+	 * rows come out in this sequence.
 	 *
 	 * @return string[]
 	 */
 	public static function get_all_option_keys(): array {
-		return array_merge( self::BASE_SORT_KEYS, self::PRODUCT_SORT_KEYS );
+		return self::BASE_SORT_KEYS;
 	}
 
 	/**
@@ -56,12 +45,9 @@ class Sort_Control {
 	 */
 	public static function get_option_labels(): array {
 		return array(
-			'relevance'   => __( 'Relevance', 'jetpack-search-pkg' ),
-			'newest'      => __( 'Newest', 'jetpack-search-pkg' ),
-			'oldest'      => __( 'Oldest', 'jetpack-search-pkg' ),
-			'rating_desc' => __( 'Rating', 'jetpack-search-pkg' ),
-			'price_asc'   => __( 'Price: low to high', 'jetpack-search-pkg' ),
-			'price_desc'  => __( 'Price: high to low', 'jetpack-search-pkg' ),
+			'relevance' => __( 'Relevance', 'jetpack-search-pkg' ),
+			'newest'    => __( 'Newest', 'jetpack-search-pkg' ),
+			'oldest'    => __( 'Oldest', 'jetpack-search-pkg' ),
 		);
 	}
 

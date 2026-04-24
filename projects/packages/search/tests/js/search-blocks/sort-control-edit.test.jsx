@@ -100,7 +100,7 @@ describe( 'SortControlEdit', () => {
 	it( 'filters the preview to only keys present in availableSortOptions', () => {
 		render(
 			<SortControlEdit
-				attributes={ { availableSortOptions: [ 'relevance', 'rating_desc' ] } }
+				attributes={ { availableSortOptions: [ 'relevance', 'oldest' ] } }
 				setAttributes={ jest.fn() }
 			/>
 		);
@@ -108,7 +108,7 @@ describe( 'SortControlEdit', () => {
 		const values = within( select )
 			.getAllByRole( 'option' )
 			.map( option => option.value );
-		expect( values ).toEqual( [ 'relevance', 'rating_desc' ] );
+		expect( values ).toEqual( [ 'relevance', 'oldest' ] );
 	} );
 
 	it( 'moves defaultSort onto the next available key when the author unchecks the current default', () => {
@@ -163,7 +163,7 @@ describe( 'SortControlEdit', () => {
 	it( 'offers only enabled keys as choices in the Default sort select', () => {
 		render(
 			<SortControlEdit
-				attributes={ { availableSortOptions: [ 'relevance', 'price_asc' ] } }
+				attributes={ { availableSortOptions: [ 'relevance', 'oldest' ] } }
 				setAttributes={ jest.fn() }
 			/>
 		);
@@ -171,7 +171,7 @@ describe( 'SortControlEdit', () => {
 		const values = within( select )
 			.getAllByRole( 'option' )
 			.map( option => option.value );
-		expect( values ).toEqual( [ 'relevance', 'price_asc' ] );
+		expect( values ).toEqual( [ 'relevance', 'oldest' ] );
 	} );
 
 	it( 'uses the author-supplied label verbatim in the preview', () => {
@@ -225,13 +225,6 @@ describe( 'SortControlEdit', () => {
 		const values = within( fieldset )
 			.getAllByRole( 'radio' )
 			.map( radio => radio.value );
-		expect( values ).toEqual( [
-			'relevance',
-			'newest',
-			'oldest',
-			'rating_desc',
-			'price_asc',
-			'price_desc',
-		] );
+		expect( values ).toEqual( [ 'relevance', 'newest', 'oldest' ] );
 	} );
 } );

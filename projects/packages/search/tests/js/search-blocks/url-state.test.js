@@ -34,13 +34,14 @@ describe( 'stateToUrlParams', () => {
 	} );
 
 	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
-		'serializes product-format sort order %s',
+		'omits product-format sort order %s until WooCommerce integration lands',
 		sortOrder => {
-			// Guards against VALID_SORT_ORDERS drifting from
-			// Sort_Control::get_all_option_keys() — a missing key here would
-			// silently drop the param and reset shared links to relevance.
+			// Product-format keys are tracked for reintroduction in RSM-1082.
+			// Until then they are *not* in `VALID_SORT_ORDERS`, so the store
+			// must not serialize them — a shared link carrying one should
+			// collapse to relevance on the receiver.
 			const params = stateToUrlParams( { searchQuery: '', sortOrder } );
-			expect( params.get( 'orderby' ) ).toBe( sortOrder );
+			expect( params.has( 'orderby' ) ).toBe( false );
 		}
 	);
 
@@ -87,10 +88,13 @@ describe( 'urlParamsToState', () => {
 	} );
 
 	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
-		'accepts product-format sort order %s from URL',
+		'collapses product-format sort order %s to relevance until WooCommerce integration lands',
 		sortOrder => {
+			// Mirror of the serializer guard — see RSM-1082. A deep link carrying
+			// one of these keys today must not hydrate into the store; the PR
+			// that adds WooCommerce support will flip both checks back.
 			const state = urlParamsToState( new URLSearchParams( `orderby=${ sortOrder }` ) );
-			expect( state.sortOrder ).toBe( sortOrder );
+			expect( state.sortOrder ).toBe( 'relevance' );
 		}
 	);
 

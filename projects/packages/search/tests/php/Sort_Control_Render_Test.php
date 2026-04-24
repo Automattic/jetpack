@@ -90,39 +90,18 @@ class Sort_Control_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Default render path: only the base sort keys appear in a `<select>`
-	 * with the "Sort by" legacy label. Product-format keys (rating/price)
-	 * are opt-in — they must not leak into the default rendering of a
-	 * freshly-inserted block.
+	 * Default render path: every base sort key appears in a `<select>`
+	 * with the "Sort by" legacy label. The block ships with only the three
+	 * base keys — product-format sort keys are deferred to the WooCommerce
+	 * integration (RSM-1082).
 	 */
-	public function test_default_attributes_render_select_with_base_options_only() {
+	public function test_default_attributes_render_select_with_base_options() {
 		$markup = $this->render();
 		$this->assertStringContainsString( '<select', $markup );
 		$this->assertStringContainsString( 'Sort by', $markup );
 		foreach ( array( 'relevance', 'newest', 'oldest' ) as $key ) {
 			$this->assertStringContainsString( 'value="' . $key . '"', $markup );
 		}
-		foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
-			$this->assertStringNotContainsString( 'value="' . $key . '"', $markup );
-		}
-	}
-
-	/**
-	 * When the author explicitly opts into product-format sort keys, they
-	 * must render alongside the base keys in the canonical
-	 * base-then-product order. Guards against `resolve_available_options()`
-	 * dropping keys the enum actually permits.
-	 */
-	public function test_product_format_options_render_when_enabled() {
-		$markup = $this->render(
-			array(
-				'availableSortOptions' => array( 'relevance', 'rating_desc', 'price_asc', 'price_desc' ),
-			)
-		);
-		foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
-			$this->assertStringContainsString( 'value="' . $key . '"', $markup );
-		}
-		$this->assertStringContainsString( 'Price: low to high', $markup );
 	}
 
 	/**
@@ -148,7 +127,6 @@ class Sort_Control_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'value="relevance"', $markup );
 		$this->assertStringContainsString( 'value="newest"', $markup );
 		$this->assertStringNotContainsString( 'value="oldest"', $markup );
-		$this->assertStringNotContainsString( 'value="price_asc"', $markup );
 	}
 
 	/**

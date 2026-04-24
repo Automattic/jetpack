@@ -33,11 +33,13 @@ class Sort_Control_Test extends TestCase {
 	}
 
 	/**
-	 * Product-format keys are allowed at the block level even on non-product
-	 * stores — per SEARCH-138's "always expose and let store decide" choice.
+	 * Product-format keys (rating/price) live behind a WooCommerce integration
+	 * that hasn't landed yet — tracked in RSM-1082. Until then they must
+	 * collapse to `relevance` so a stray saved attribute can't render an
+	 * option the block no longer knows about.
 	 */
-	public function test_normalize_default_sort_accepts_product_key() {
-		$this->assertSame( 'price_asc', Sort_Control::normalize_default_sort( array( 'defaultSort' => 'price_asc' ) ) );
+	public function test_normalize_default_sort_rejects_product_key_until_woocommerce_integration() {
+		$this->assertSame( 'relevance', Sort_Control::normalize_default_sort( array( 'defaultSort' => 'price_asc' ) ) );
 	}
 
 	/**
@@ -54,7 +56,7 @@ class Sort_Control_Test extends TestCase {
 	 */
 	public function test_resolve_available_options_defaults_to_full_list() {
 		$this->assertSame(
-			array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ),
+			array( 'relevance', 'newest', 'oldest' ),
 			Sort_Control::resolve_available_options( array() )
 		);
 	}
