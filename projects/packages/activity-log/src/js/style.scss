@@ -27,5 +27,21 @@ body.jetpack_page_jetpack-activity-log {
 	> .dataviews-wrapper {
 		margin: 0;
 	}
+
+	// Activity-layout meta row ([date] … [actor]). DataViews renders
+	// this as a flex row with the default `align-items: stretch`, which
+	// left-aligns the date text to the top while the actor's icon+name
+	// HStack sits centered — producing a visible baseline mismatch
+	// (`Apr 24 …` at top, avatar+name in the middle). Center the row
+	// so every cell shares a single vertical midline, and push the
+	// trailing cell (Actor) to the far right so the date anchors left
+	// and the actor anchors right.
+	.dataviews-view-activity__item-fields {
+		align-items: center;
+
+		.dataviews-view-activity__item-field:last-child {
+			margin-inline-start: auto;
+		}
+	}
 }
 
