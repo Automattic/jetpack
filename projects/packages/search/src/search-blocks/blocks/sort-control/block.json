@@ -17,7 +17,7 @@
 		},
 		"availableSortOptions": {
 			"type": "array",
-			"default": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ],
+			"default": [ "relevance", "newest", "oldest" ],
 			"items": {
 				"type": "string",
 				"enum": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ]

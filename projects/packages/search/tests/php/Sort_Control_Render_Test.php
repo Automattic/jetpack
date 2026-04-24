@@ -35,7 +35,7 @@ class Sort_Control_Render_Test extends TestCase {
 					),
 					'availableSortOptions' => array(
 						'type'    => 'array',
-						'default' => array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ),
+						'default' => array( 'relevance', 'newest', 'oldest' ),
 					),
 					'label'                => array(
 						'type'    => 'string',
@@ -90,17 +90,39 @@ class Sort_Control_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Default render path: every built-in option appears in a `<select>`
-	 * with the "Sort by" legacy label. Guards against attribute defaults
-	 * regressing for posts saved before SEARCH-138.
+	 * Default render path: only the base sort keys appear in a `<select>`
+	 * with the "Sort by" legacy label. Product-format keys (rating/price)
+	 * are opt-in — they must not leak into the default rendering of a
+	 * freshly-inserted block.
 	 */
-	public function test_default_attributes_render_select_with_all_options() {
+	public function test_default_attributes_render_select_with_base_options_only() {
 		$markup = $this->render();
 		$this->assertStringContainsString( '<select', $markup );
 		$this->assertStringContainsString( 'Sort by', $markup );
-		foreach ( array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+		foreach ( array( 'relevance', 'newest', 'oldest' ) as $key ) {
 			$this->assertStringContainsString( 'value="' . $key . '"', $markup );
 		}
+		foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+			$this->assertStringNotContainsString( 'value="' . $key . '"', $markup );
+		}
+	}
+
+	/**
+	 * When the author explicitly opts into product-format sort keys, they
+	 * must render alongside the base keys in the canonical
+	 * base-then-product order. Guards against `resolve_available_options()`
+	 * dropping keys the enum actually permits.
+	 */
+	public function test_product_format_options_render_when_enabled() {
+		$markup = $this->render(
+			array(
+				'availableSortOptions' => array( 'relevance', 'rating_desc', 'price_asc', 'price_desc' ),
+			)
+		);
+		foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+			$this->assertStringContainsString( 'value="' . $key . '"', $markup );
+		}
+		$this->assertStringContainsString( 'Price: low to high', $markup );
 	}
 
 	/**
