@@ -53,6 +53,7 @@ function wpcomsh_filter_gutenberg_experiments() {
 	return array(
 		'gutenberg-content-guidelines' => true,
 		'gutenberg-guidelines'         => true,
+		'gutenberg-no-tinymce'         => true,
 	);
 }
 
