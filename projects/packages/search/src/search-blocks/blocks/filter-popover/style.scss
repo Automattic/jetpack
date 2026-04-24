@@ -17,9 +17,14 @@
 		border-radius: 4px;
 		cursor: pointer;
 
-		&:hover,
+		&:hover:not(:disabled),
 		&[aria-expanded="true"] {
 			background: color-mix(in sRGB, currentColor 6%, transparent);
+		}
+
+		&:disabled {
+			cursor: not-allowed;
+			opacity: 0.4;
 		}
 	}
 

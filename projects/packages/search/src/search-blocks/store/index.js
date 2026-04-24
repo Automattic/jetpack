@@ -142,6 +142,30 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * True when the filter-popover trigger should be disabled: there are
+		 * no aggregation buckets to filter on AND no active filters to clear.
+		 * Opening the popover in that state would show an empty panel, so we
+		 * gate the affordance itself. Remains enabled while any filter is
+		 * active so users can still open the popover to remove pills even
+		 * when the current query returns no results.
+		 *
+		 * @return {boolean} Whether the filter trigger is disabled.
+		 */
+		get isFilterTriggerDisabled() {
+			if ( state.hasActiveFilters ) {
+				return false;
+			}
+			const aggs = state.aggregations ?? {};
+			for ( const key of Object.keys( aggs ) ) {
+				const buckets = aggs[ key ]?.buckets;
+				if ( Array.isArray( buckets ) && buckets.length > 0 ) {
+					return false;
+				}
+			}
+			return true;
+		},
+
+		/**
 		 * True when the current sort order is "relevance". Used by the sort
 		 * popover menu to set `aria-checked` on the Relevance menu item.
 		 * Interactivity API `data-wp-bind` only evaluates simple property
