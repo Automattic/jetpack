@@ -1,0 +1,69 @@
+.jetpack-search-filter-popover {
+	position: relative;
+	display: inline-block;
+
+	&__trigger {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 4px;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 20%, transparent);
+		background: transparent;
+		color: inherit;
+		border-radius: 4px;
+		cursor: pointer;
+
+		&:hover,
+		&[aria-expanded="true"] {
+			background: color-mix(in sRGB, currentColor 6%, transparent);
+		}
+	}
+
+	&__badge {
+		position: absolute;
+		top: -4px;
+		right: -4px;
+		min-width: 16px;
+		height: 16px;
+		padding: 0 4px;
+		font-size: 11px;
+		line-height: 16px;
+		text-align: center;
+		color: var(--wp--preset--color--background, #fff);
+		background: color-mix(in sRGB, currentColor 85%, transparent);
+		border-radius: 8px;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	&__panel {
+		position: absolute;
+		right: 0;
+		top: calc(100% + 4px);
+		min-width: 260px;
+		max-width: min(360px, 90vw);
+		z-index: 20;
+		padding: 12px;
+		background: var(--wp--preset--color--background, #fff);
+		color: inherit;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 15%, transparent);
+		border-radius: 4px;
+		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
+
+		&[hidden] {
+			display: none;
+		}
+
+		&--editor {
+			position: static;
+			box-shadow: none;
+		}
+	}
+}
