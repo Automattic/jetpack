@@ -24,19 +24,15 @@ function pcg_guard_maybe_block_activation() {
 		return;
 	}
 
-	$action           = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified per-branch below.
+	$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified per-branch below.
+	if ( ! in_array( $action, array( 'activate', 'activate-plugin', 'activate-selected' ), true ) ) {
+		return;
+	}
+
 	$plugins_to_check = array();
 	$nonce_action     = '';
 
-	// Single-plugin path (plugins.php Activate link / update.php post-upload link).
-	if ( 'activate' === $action || 'activate-plugin' === $action ) {
-		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified below.
-		if ( '' === $plugin ) {
-			return;
-		}
-		$nonce_action       = 'activate-plugin_' . $plugin;
-		$plugins_to_check[] = $plugin;
-	} elseif ( 'activate-selected' === $action ) {
+	if ( 'activate-selected' === $action ) {
 		$bulk_raw = isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
 		if ( empty( $bulk_raw ) ) {
 			return;
@@ -53,7 +49,13 @@ function pcg_guard_maybe_block_activation() {
 			)
 		);
 	} else {
-		return;
+		// Single-plugin path (plugins.php Activate link / update.php post-upload link).
+		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified below.
+		if ( '' === $plugin ) {
+			return;
+		}
+		$nonce_action       = 'activate-plugin_' . $plugin;
+		$plugins_to_check[] = $plugin;
 	}
 
 	// Verify the nonce up front so we don't run probes for a request core will reject anyway.
