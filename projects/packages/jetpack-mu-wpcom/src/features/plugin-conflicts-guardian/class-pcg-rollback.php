@@ -117,6 +117,7 @@ class PCG_Rollback {
 			return $result;
 		}
 		if ( false === $result || null === $result ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- get_errors() is defined on WP_Upgrader_Skin; Phan's stubs omit it.
 			$errors = $skin->get_errors();
 			if ( $errors instanceof WP_Error && $errors->has_errors() ) {
 				return $errors;
