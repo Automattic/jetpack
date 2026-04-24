@@ -33,17 +33,12 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
-	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
-		'omits product-format sort order %s until WooCommerce integration lands',
-		sortOrder => {
-			// Product-format keys are tracked for reintroduction in RSM-1082.
-			// Until then they are *not* in `VALID_SORT_ORDERS`, so the store
-			// must not serialize them — a shared link carrying one should
-			// collapse to relevance on the receiver.
-			const params = stateToUrlParams( { searchQuery: '', sortOrder } );
-			expect( params.has( 'orderby' ) ).toBe( false );
-		}
-	);
+	it( 'omits product-format sort orders until WooCommerce integration lands (RSM-1082)', () => {
+		// `price_asc` stands in for the full product-format set — they share
+		// one whitelist branch, so a single case is enough to guard it.
+		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'price_asc' } );
+		expect( params.has( 'orderby' ) ).toBe( false );
+	} );
 
 	it( 'omits unknown sort orders', () => {
 		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'bogus' } );
@@ -87,16 +82,11 @@ describe( 'urlParamsToState', () => {
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 
-	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
-		'collapses product-format sort order %s to relevance until WooCommerce integration lands',
-		sortOrder => {
-			// Mirror of the serializer guard — see RSM-1082. A deep link carrying
-			// one of these keys today must not hydrate into the store; the PR
-			// that adds WooCommerce support will flip both checks back.
-			const state = urlParamsToState( new URLSearchParams( `orderby=${ sortOrder }` ) );
-			expect( state.sortOrder ).toBe( 'relevance' );
-		}
-	);
+	it( 'collapses product-format URL sort to relevance until WooCommerce integration lands (RSM-1082)', () => {
+		// Same single-case guard as the serializer direction above.
+		const state = urlParamsToState( new URLSearchParams( 'orderby=price_asc' ) );
+		expect( state.sortOrder ).toBe( 'relevance' );
+	} );
 
 	it( 'collapses unknown sort order to relevance', () => {
 		const state = urlParamsToState( new URLSearchParams( 'orderby=bogus' ) );

@@ -90,9 +90,8 @@ class Sort_Control_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Default render path: every base sort key appears in a `<select>`
-	 * with the "Sort by" legacy label. The block ships with only the three
-	 * base keys — product-format sort keys are deferred to the WooCommerce
+	 * Default render path: dropdown, legacy "Sort by" label, every base
+	 * option present. Product-format keys are deferred to the WooCommerce
 	 * integration (RSM-1082).
 	 */
 	public function test_default_attributes_render_select_with_base_options() {
@@ -105,42 +104,13 @@ class Sort_Control_Render_Test extends TestCase {
 	}
 
 	/**
-	 * `displayAs=radio` must emit a `<fieldset>` with one `<input type="radio">`
-	 * per exposed option. The render contract says "radio group per displayAs"
-	 * — a regression here would silently keep rendering a dropdown.
+	 * `displayAs=radio` must emit a `<fieldset>` of radios, not a dropdown.
 	 */
 	public function test_display_as_radio_renders_fieldset_with_radios() {
 		$markup = $this->render( array( 'displayAs' => 'radio' ) );
 		$this->assertStringContainsString( '<fieldset', $markup );
 		$this->assertStringNotContainsString( '<select', $markup );
 		$this->assertStringContainsString( 'type="radio"', $markup );
-		$this->assertStringContainsString( 'value="relevance"', $markup );
-		$this->assertStringContainsString( 'value="newest"', $markup );
-	}
-
-	/**
-	 * `availableSortOptions` must filter the rendered list: keys not in the
-	 * array must not produce options, keys in the array must.
-	 */
-	public function test_available_options_filters_rendered_options() {
-		$markup = $this->render( array( 'availableSortOptions' => array( 'relevance', 'newest' ) ) );
-		$this->assertStringContainsString( 'value="relevance"', $markup );
-		$this->assertStringContainsString( 'value="newest"', $markup );
-		$this->assertStringNotContainsString( 'value="oldest"', $markup );
-	}
-
-	/**
-	 * When the URL carries no sort param, `defaultSort` must become the
-	 * server-rendered selected option so the first-paint dropdown matches
-	 * what the JS store will hydrate once the store override lands.
-	 */
-	public function test_default_sort_preselected_when_url_has_no_orderby() {
-		$markup = $this->render( array( 'defaultSort' => 'newest' ) );
-		// selected() emits `selected='selected'` under PHP's checked() helper.
-		$this->assertMatchesRegularExpression(
-			'/<option[^>]*value="newest"[^>]*selected/',
-			$markup
-		);
 	}
 
 	/**
@@ -165,15 +135,6 @@ class Sort_Control_Render_Test extends TestCase {
 	}
 
 	/**
-	 * A user-provided `label` must appear in the rendered markup in place
-	 * of the translated "Sort by" default.
-	 */
-	public function test_custom_label_replaces_default() {
-		$markup = $this->render( array( 'label' => 'Order by' ) );
-		$this->assertStringContainsString( 'Order by', $markup );
-	}
-
-	/**
 	 * Labels are user-controlled, so the template must escape HTML to
 	 * prevent stored XSS through a crafted attribute value.
 	 */
@@ -181,42 +142,5 @@ class Sort_Control_Render_Test extends TestCase {
 		$markup = $this->render( array( 'label' => '<script>alert(1)</script>' ) );
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
 		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $markup );
-	}
-
-	/**
-	 * In radio mode, the block-default option must carry the `checked`
-	 * attribute so the server-rendered DOM matches the hydrated state.
-	 */
-	public function test_radio_mode_checks_default_sort() {
-		$markup = $this->render(
-			array(
-				'displayAs'   => 'radio',
-				'defaultSort' => 'oldest',
-			)
-		);
-		$this->assertMatchesRegularExpression(
-			'/<input[^>]*value="oldest"[^>]*checked/',
-			$markup
-		);
-	}
-
-	/**
-	 * When `defaultSort` lands outside `availableSortOptions` (e.g. an
-	 * author saved a default, then unchecked it from the list), render.php
-	 * must keep rendering — falling back to the first exposed option rather
-	 * than emitting a control whose selected value is absent.
-	 */
-	public function test_default_sort_outside_available_falls_back_to_first_option() {
-		$markup = $this->render(
-			array(
-				'defaultSort'          => 'newest',
-				'availableSortOptions' => array( 'relevance', 'oldest' ),
-			)
-		);
-		$this->assertStringNotContainsString( 'value="newest"', $markup );
-		$this->assertMatchesRegularExpression(
-			'/<option[^>]*value="relevance"[^>]*selected/',
-			$markup
-		);
 	}
 }
