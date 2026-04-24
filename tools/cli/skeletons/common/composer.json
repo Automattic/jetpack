@@ -13,9 +13,6 @@
 			"src/"
 		]
 	},
-	"extra": {
-		"changelogger": {}
-	},
 	"scripts": {
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
