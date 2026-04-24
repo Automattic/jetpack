@@ -89,6 +89,7 @@ function pcg_update_guard_scan_for_parse_errors( $dir ) {
 			continue;
 		}
 		try {
+			// @phan-suppress-next-line PhanPluginUseReturnValueInternalKnown -- called only for the ParseError it throws under TOKEN_PARSE; tokens themselves are unused.
 			token_get_all( $code, TOKEN_PARSE );
 		} catch ( \ParseError $e ) {
 			$errors[] = array(
