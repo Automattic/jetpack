@@ -32,8 +32,8 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      actions: read
       id-token: write
-      actions: read # Required for Claude to read CI results on PRs
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -42,20 +42,13 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@df37d2f0760a4b5683a6e617c9325bc1a36443f6 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-
-          # This is an optional setting that allows Claude to read CI results on PRs
           additional_permissions: |
             actions: read
-
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
-
-          # Restrict tools to code reading/writing, search, and GitHub CLI operations.
-          # Bash is disabled by default; only specific gh commands are allowed.
           claude_args: >-
+            --max-turns 30
             --allowedTools
             "Bash(gh issue *)"
             "Bash(gh pr *)"

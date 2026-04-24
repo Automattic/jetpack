@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Populate blog_id in JetpackScriptData and jpTracksContext so JS Tracks events include blog_id.

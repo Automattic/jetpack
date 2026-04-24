@@ -38,7 +38,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/e2e-test-utils-playwright": "1.44.0",
 		"allure-playwright": "2.15.1",
-		"axios": "1.15.0",
+		"axios": "1.15.2",
 		"chalk": "5.6.2",
 		"config": "4.4.1",
 		"localtunnel": "2.0.2",

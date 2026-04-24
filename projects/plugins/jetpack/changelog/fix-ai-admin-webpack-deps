@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts.

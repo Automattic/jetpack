@@ -497,9 +497,8 @@ export const Waf = class extends Component {
 				>
 					<ModuleToggle
 						slug="waf"
-						disabled={ unavailableInOfflineMode }
+						disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'waf' ) }
 						activated={ isWafActive }
-						toggling={ this.props.isSavingAnyOption( 'waf' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">
