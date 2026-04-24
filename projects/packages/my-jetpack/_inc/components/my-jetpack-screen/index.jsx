@@ -10,7 +10,8 @@ import {
 	Notice,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
@@ -85,7 +86,7 @@ export default function MyJetpackScreen() {
 	} = getMyJetpackWindowInitialState();
 
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { apiRoot, apiNonce } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -161,12 +162,34 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
+	const modulesMenuItem = {
+		label: _x(
+			'Modules',
+			'Navigation item. Noun. Links to a list of modules for Jetpack.',
+			'jetpack-my-jetpack'
+		),
+		title: __(
+			'Access the full list of Jetpack modules available on your site.',
+			'jetpack-my-jetpack'
+		),
+		href: `${ adminUrl }admin.php?page=jetpack_modules`,
+		onClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
+	};
+
 	const resetOptionsMenuItem = {
 		label: 'Reset options (devs)',
 		role: 'button',
 		onClick: () => resetJetpackOptions(),
 		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
 	};
+
+	const optionalMenuItems = [];
+	if ( userIsAdmin && isSiteConnected && ! isWpcomPlatformSite() ) {
+		optionalMenuItems.push( modulesMenuItem );
+	}
+	if ( isDevVersion && userIsAdmin ) {
+		optionalMenuItems.push( resetOptionsMenuItem );
+	}
 
 	return (
 		<AdminPage
@@ -175,7 +198,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
-			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
+			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
 		>
