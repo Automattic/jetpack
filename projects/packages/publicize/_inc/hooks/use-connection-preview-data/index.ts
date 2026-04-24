@@ -7,6 +7,7 @@ import { features } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
 import { usePostMeta } from '../use-post-meta';
+import useRenderedMessage from '../use-rendered-message';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
@@ -24,6 +25,10 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 	const postData = useSocialPreviewPostData();
 	const { message: globalMessage } = useSocialMediaMessage();
+	const postId = useSelect(
+		select => select( editorStore ).getCurrentPostId() as number | undefined,
+		[]
+	);
 	const featuredImageId = useSelect( select =>
 		select( editorStore ).getEditedPostAttribute( 'featured_media' )
 	);
@@ -38,7 +43,21 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 	const sig = useSigPreview( generateSigPreview );
 
+	// Effective message to render: per-connection override when set, else global.
+	// Empty string tells the backend to use the per-network default template.
+	const effectiveMessage = ( connection.message ?? globalMessage ?? '' ).trim();
+
+	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const { rendered } = useRenderedMessage( {
+		enabled: templatesEnabled,
+		postId: postId ?? 0,
+		network: connection.service_name ?? '',
+		message: effectiveMessage,
+	} );
+
 	return useMemo( () => {
+		const useRendered = templatesEnabled && typeof rendered === 'string';
+
 		if ( ! siteHasFeature( features.ENHANCED_PUBLISHING ) || ! usingPerNetworkCustomization ) {
 			// In global mode, resolve SIG URL dynamically when attachment mode is on
 			// so preview updates when template is edited
@@ -49,7 +68,7 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 			return {
 				...postData,
-				message: globalMessage.trim(),
+				message: useRendered ? rendered : globalMessage.trim(),
 				media,
 			};
 		}
@@ -85,7 +104,7 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 		return {
 			...postData,
-			message: ( connection.message ?? globalMessage ).trim(),
+			message: useRendered ? rendered : ( connection.message ?? globalMessage ).trim(),
 			media,
 		};
 	}, [
@@ -94,7 +113,9 @@ export function useConnectionPreviewData( connection: Connection ) {
 		globalMediaSource,
 		globalMessage,
 		postData,
+		rendered,
 		sig.url,
+		templatesEnabled,
 		usingPerNetworkCustomization,
 	] );
 }
