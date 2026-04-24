@@ -254,10 +254,9 @@ class SearchApp extends Component {
 	getAiAnswer = () => {
 		const query = this.props.searchQuery;
 		const options = window[ SERVER_OBJECT_NAME ] || {};
-		const token = options.aiAnswersToken;
 		const siteId = options.aiAnswersSiteId || options.siteId;
 
-		if ( ! token || ! query || query.length < 3 ) {
+		if ( ! query || query.length < 3 ) {
 			this.setState( { aiStatus: 'idle', aiText: '', aiCitations: [] } );
 			return;
 		}
@@ -270,13 +269,13 @@ class SearchApp extends Component {
 
 		this.setState( { aiStatus: 'loading', aiText: '', aiCitations: [] } );
 
-		const url = 'https://public-api.wordpress.com/wpcom/v2/ai/agent/jetpack-search-answers';
+		const url =
+			'https://public-api.wordpress.com/wpcom/v2/ai/agent/jetpack-workflow-search_summarizer';
 
 		fetchEventSource( url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${ token }`,
 			},
 			body: JSON.stringify( {
 				jsonrpc: '2.0',
