@@ -1300,12 +1300,17 @@
 		margin-top: 0;
 	}
 
+	.bw-color-menu:not([hidden]) {
+		animation: bw-fade-in 0.12s ease;
+	}
+
 	/* Link popover adapts to mobile width */
 	.bw-link-popover {
 		left: 16px;
 		right: 16px;
 		transform: none;
 		width: auto;
+		animation: bw-fade-in 0.12s ease;
 	}
 
 	.bw-link-input {
