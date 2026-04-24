@@ -1,6 +1,5 @@
 import { createHashRouter, RouterProvider } from 'react-router';
 import Providers from './providers';
-import { JetpackBackupRoutes } from './routes';
 import DownloadScreen from './screens/download';
 import OverviewScreen from './screens/overview';
 import Shell from './shell';
@@ -14,8 +13,11 @@ const router = createHashRouter( [
 	{
 		element: <Shell />,
 		children: [
-			{ path: JetpackBackupRoutes.Overview, element: <OverviewScreen /> },
-			{ path: JetpackBackupRoutes.Download, element: <DownloadScreen /> },
+			{ index: true, element: <OverviewScreen /> },
+			// Child paths must be relative (no leading slash) — otherwise
+			// the `*` catch-all wins and clicking a nav button changes the
+			// URL without swapping the rendered screen.
+			{ path: 'download', element: <DownloadScreen /> },
 			{ path: '*', element: <OverviewScreen /> },
 		],
 	},
