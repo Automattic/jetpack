@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activity Log: dark Table titles, circular Activity icons, day grouping in the Activity timeline, and stable Table columns after a layout round-trip.

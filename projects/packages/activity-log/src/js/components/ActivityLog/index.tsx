@@ -22,7 +22,7 @@ import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { useActivityFields } from './fields';
 import { extractActivityLogTypeValues } from './filters';
-import { DEFAULT_VIEW } from './views';
+import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
 import type { Activity, ActivityLogParams } from './types';
 import type { Field, Filter, View } from '@wordpress/dataviews';
 
@@ -321,21 +321,13 @@ export default function ActivityLog() {
 					//     Date / User.
 					//   - Activity: `event_icon` → mediaField (left
 					//     bullet slot), `event_title` → titleField,
-					//     `event_description` → descriptionField. Date
-					//     and User render as "other fields" below the
-					//     title. Keeping `fields` explicit here prevents
-					//     the composite `event` column from rendering a
-					//     second copy of the same content in the
-					//     otherFields row.
-					defaultLayouts={ {
-						table: { fields: [ 'published', 'event', 'actor' ] },
-						activity: {
-							fields: [ 'published', 'actor' ],
-							titleField: 'event_title',
-							mediaField: 'event_icon',
-							descriptionField: 'event_description',
-						},
-					} }
+					//     `event_description` → descriptionField, plus
+					//     `groupBy: published_date` for day headers.
+					// See DEFAULT_LAYOUTS in ./views for the full shape —
+					// it explicitly nulls slot/groupBy refs on Table so a
+					// round-trip Activity → Table doesn't carry those
+					// over and double-render as a primary column.
+					defaultLayouts={ DEFAULT_LAYOUTS }
 					onChangeView={ onChangeView }
 					onReset={ isViewModified ? onResetView : false }
 					// On the free tier, lock the perPage selector to the

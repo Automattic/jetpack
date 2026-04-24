@@ -38,7 +38,12 @@ export function ActivityEventIcon( { activity }: { activity: Activity } ) {
  * @return The title element.
  */
 export function ActivityEventTitle( { activity }: { activity: Activity } ) {
-	return <strong>{ activity.activityTitle }</strong>;
+	// `.site-activity-logs__event-title` both lightens the default
+	// `<strong>` font-weight to 500 *and* — because the class is on a
+	// non-span element — keeps the `> span { color: grey }` rule on the
+	// enclosing `.site-activity-logs__event-content` from dimming the
+	// title in the Table layout.
+	return <strong className="site-activity-logs__event-title">{ activity.activityTitle }</strong>;
 }
 
 /**
@@ -88,9 +93,7 @@ export function ActivityEvent( { activity }: { activity: Activity } ) {
 				alignment="start"
 				className="site-activity-logs__event-content"
 			>
-				<span className="site-activity-logs__event-title">
-					<ActivityEventTitle activity={ activity } />
-				</span>
+				<ActivityEventTitle activity={ activity } />
 				<ActivityEventDescription activity={ activity } />
 			</HStack>
 		</HStack>

@@ -118,6 +118,10 @@ const getDateTimeLabel = ( {
  * @param args.gmtOffset      - Decimal hour offset from UTC.
  * @param args.formatAsUTC    - True to render in UTC regardless of the
  *                            site preference.
+ * @param args.dateFormat     - `dateI18n` format string, defaulting to
+ *                            "M j, Y at g:i A" (used for the Date &
+ *                            time column). Pass "F j, Y" for the
+ *                            day-only group header.
  * @return The formatted date string.
  */
 const formatDateCell = ( {
@@ -125,16 +129,17 @@ const formatDateCell = ( {
 	gmtOffset,
 	value,
 	formatAsUTC,
+	dateFormat = 'M j, Y \\a\\t g:i A',
 }: {
 	timezoneString?: string;
 	gmtOffset?: number;
 	value?: string | number;
 	formatAsUTC?: boolean;
+	dateFormat?: string;
 } ): string => {
 	if ( ! value ) {
 		return '';
 	}
-	const dateFormat = 'M j, Y \\a\\t g:i A';
 	const date = typeof value === 'number' ? new Date( value * 1000 ) : new Date( value );
 	if ( formatAsUTC ) {
 		return dateI18n( dateFormat, date, 'UTC' );
@@ -284,6 +289,39 @@ export function useActivityFields( {
 				getValue: ( { item } ) =>
 					item.activityActor?.actorName || __( 'Unknown', 'jetpack-activity-log' ),
 				render: ( { item } ) => <ActivityActor actor={ item.activityActor } />,
+				filterBy: { operators: [] },
+			},
+			{
+				// Day-level grouping key for the Activity layout. Returns
+				// e.g. "Apr 24, 2026" in the site's local timezone so
+				// events on the same calendar day collapse under a
+				// single group header. Never rendered as a column —
+				// `enableHiding: false` keeps it out of the Properties
+				// toggle (getHideableFields filters those out) and it's
+				// never included in any layout's `view.fields`, so the
+				// Table layout ignores it entirely.
+				id: 'published_date',
+				type: 'text',
+				label: __( 'Date', 'jetpack-activity-log' ),
+				enableSorting: false,
+				enableHiding: false,
+				getValue: ( { item } ) =>
+					formatDateCell( {
+						value: item.activityUnparsedTs,
+						timezoneString,
+						gmtOffset,
+						dateFormat: 'F j, Y',
+					} ),
+				render: ( { item } ) => (
+					<span>
+						{ formatDateCell( {
+							value: item.activityUnparsedTs,
+							timezoneString,
+							gmtOffset,
+							dateFormat: 'F j, Y',
+						} ) }
+					</span>
+				),
 				filterBy: { operators: [] },
 			},
 			{
