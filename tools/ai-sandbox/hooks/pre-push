@@ -4,6 +4,8 @@ set -e
 REPO_ROOT=$(git rev-parse --show-toplevel)
 cd "$REPO_ROOT"
 
+REMOTE="$1"
+
 # Save stdin — pre-push receives pushed refs on stdin; pass to both hooks
 PUSH_REFS=$(cat)
 
@@ -12,10 +14,12 @@ CHANGED=""
 while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
 	[ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
 	if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
-		BASE=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "origin/trunk")
+		# New remote branch: try upstream of this specific local_ref, fall back to REMOTE/trunk
+		branch="${local_ref#refs/heads/}"
+		BASE=$(git rev-parse --abbrev-ref --symbolic-full-name "${branch}@{u}" 2>/dev/null || echo "${REMOTE}/trunk")
 		if ! git rev-parse --verify --quiet "$BASE" > /dev/null 2>&1; then
 			echo "Sandbox: cannot determine base ref — '$BASE' not found locally."
-			echo "Run 'git fetch origin' and retry, or set an upstream with 'git branch --set-upstream-to'."
+			echo "Run 'git fetch ${REMOTE}' and retry, or set an upstream with 'git branch --set-upstream-to'."
 			exit 1
 		fi
 	else
