@@ -514,6 +514,34 @@ class Jetpack_Backup {
 			)
 		);
 
+		// Proxy the backup file CONTENT (not just the URL) for text/code
+		// previews. The signed stream URL returned by file-url is cross-
+		// origin when wp-admin lives on a different host than the WPCOM
+		// API, and the stream endpoint doesn't set CORS headers — so a
+		// browser-side `fetch(signedUrl)` fails. Having the server make
+		// the request and return the body avoids the CORS issue.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/file-content',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_file_content',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+				'args'                => array(
+					'rewind_id'             => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'encoded_manifest_path' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+
 		// Initiate a (full or granular) backup download. Returns a download
 		// request id that the progress route polls for status / the final
 		// signed download URL.
@@ -1247,6 +1275,94 @@ class Jetpack_Backup {
 		}
 
 		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
+	}
+
+	/**
+	 * Proxy a text file's content for the file-browser preview.
+	 *
+	 * Resolves the one-time signed URL via `rewind/backup/{id}/file/…/url`,
+	 * fetches the stream server-side, and returns `{ content }` capped at
+	 * 64 KB so a single-click preview can't balloon a response. The browser
+	 * can't hit the stream URL directly because WPCOM's stream endpoint
+	 * doesn't send CORS headers.
+	 *
+	 * @param WP_REST_Request $request The REST request. Requires `rewind_id`, `encoded_manifest_path`.
+	 * @return WP_REST_Response|WP_Error The content response, or WP_Error on failure.
+	 */
+	public static function get_site_backup_file_content( $request ) {
+		$blog_id               = Jetpack_Options::get_option( 'id' );
+		$rewind_id             = $request->get_param( 'rewind_id' );
+		$encoded_manifest_path = $request->get_param( 'encoded_manifest_path' );
+
+		// Step 1: get the signed stream URL from WPCOM.
+		$url_response = Client::wpcom_json_api_request_as_user(
+			sprintf(
+				'/sites/%d/rewind/backup/%s/file/%s/url',
+				$blog_id,
+				rawurlencode( $rewind_id ),
+				rawurlencode( $encoded_manifest_path )
+			),
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $url_response ) ) {
+			return $url_response;
+		}
+
+		$url_status = wp_remote_retrieve_response_code( $url_response );
+		if ( 200 !== $url_status ) {
+			return new WP_Error(
+				'backup_file_content_url_failed',
+				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' ),
+				array( 'status' => is_int( $url_status ) && $url_status > 0 ? $url_status : 500 )
+			);
+		}
+
+		$url_body   = json_decode( wp_remote_retrieve_body( $url_response ), true );
+		$signed_url = is_array( $url_body ) && isset( $url_body['url'] ) ? $url_body['url'] : null;
+		if ( ! $signed_url ) {
+			return new WP_Error(
+				'backup_file_content_url_missing',
+				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' ),
+				array( 'status' => 502 )
+			);
+		}
+
+		// Step 2: fetch the stream body server-side.
+		$stream_response = wp_remote_get(
+			$signed_url,
+			array(
+				'timeout' => 15,
+			)
+		);
+
+		if ( is_wp_error( $stream_response ) ) {
+			return $stream_response;
+		}
+
+		$stream_status = wp_remote_retrieve_response_code( $stream_response );
+		if ( 200 !== $stream_status ) {
+			return new WP_Error(
+				'backup_file_content_stream_failed',
+				__( 'Could not fetch file content.', 'jetpack-backup-pkg' ),
+				array( 'status' => is_int( $stream_status ) && $stream_status > 0 ? $stream_status : 500 )
+			);
+		}
+
+		$content = wp_remote_retrieve_body( $stream_response );
+
+		// Cap preview size — enough to show wp-config.php / robots.txt
+		// without breaking the REST response when someone previews a
+		// multi-megabyte file.
+		$max_bytes = 64 * 1024;
+		if ( strlen( $content ) > $max_bytes ) {
+			$content = substr( $content, 0, $max_bytes );
+		}
+
+		return rest_ensure_response( array( 'content' => $content ) );
 	}
 
 	/**

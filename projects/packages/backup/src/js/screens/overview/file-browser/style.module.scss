@@ -8,6 +8,13 @@
 	:global {
 
 		.file-browser-node {
+			// Node wrapper gets `item.type` as a class (e.g. `code`, `text`,
+			// `table`) — ported verbatim from Calypso. In wp-admin this
+			// collides with a global `.code { font-family: Consolas, Monaco,
+			// monospace }` rule and cascades monospace into the info card /
+			// buttons for any code/file node. Force inheritance so the
+			// wrapper adopts wp-admin's default sans.
+			font-family: inherit;
 			margin-top: 2px;
 			margin-left: 2px;
 

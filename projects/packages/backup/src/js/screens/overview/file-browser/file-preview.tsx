@@ -11,7 +11,9 @@ import {
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
+import { fetchBackupFileContent } from '../../../data/fetchers';
 import { useBackupFileQuery } from './use-backup-file-query';
+import { encodeToBase64 } from './util';
 import type { FileBrowserItem } from '../../../data/types';
 
 interface FilePreviewProps {
@@ -29,6 +31,7 @@ interface FilePreviewProps {
  */
 function FilePreview( { item, rewindId, onTrackEvent }: FilePreviewProps ) {
 	const [ fileContent, setFileContent ] = useState( '' );
+	const [ contentError, setContentError ] = useState( false );
 	const [ showSensitivePreview, setShowSensitivePreview ] = useState( false );
 
 	const validTypes = [ 'text', 'code', 'audio', 'image', 'video' ];
@@ -54,14 +57,24 @@ function FilePreview( { item, rewindId, onTrackEvent }: FilePreviewProps ) {
 		onTrackEvent?.( 'jetpack_backup_browser_preview_file_sensitive_click' );
 	}, [ onTrackEvent ] );
 
+	// For text/code previews we can't fetch the signed stream URL
+	// directly — WPCOM's stream endpoint doesn't set CORS headers, so a
+	// browser-side `fetch()` from wp-admin fails. Call our
+	// `/site/backup/file-content` bridge instead, which resolves the URL
+	// and fetches the body server-side.
 	useEffect( () => {
-		if ( isSuccess && data && data.url && isTextContent ) {
-			window
-				.fetch( data.url )
-				.then( response => response.text() )
-				.then( fileData => setFileContent( fileData ) );
+		if ( ! shouldPreviewFile || ! isTextContent || ! item.manifestPath ) {
+			return;
 		}
-	}, [ item.type, isSuccess, data, isTextContent ] );
+		setContentError( false );
+		fetchBackupFileContent( {
+			rewindId,
+			encodedManifestPath: encodeToBase64( item.manifestPath ),
+		} ).then(
+			response => setFileContent( response.content ?? '' ),
+			() => setContentError( true )
+		);
+	}, [ shouldPreviewFile, isTextContent, item.manifestPath, rewindId ] );
 
 	if ( isSensitive && ! showSensitivePreview ) {
 		return (
@@ -119,13 +132,19 @@ function FilePreview( { item, rewindId, onTrackEvent }: FilePreviewProps ) {
 		return content;
 	};
 
-	const isLoading = isTextContent ? ! fileContent && ! isError : isQueryLoading;
+	const isLoading = isTextContent ? ! fileContent && ! contentError && ! isError : isQueryLoading;
 	const isReady = isTextContent ? fileContent : isSuccess;
+	const hasError = isTextContent ? contentError || isError : isError;
 
 	return (
 		<div className="file-card__preview">
 			{ isLoading && <div className="file-browser-node__loading placeholder" /> }
 			{ isReady ? renderFileContent() : null }
+			{ hasError && ! isLoading && (
+				<Text variant="muted">
+					{ __( 'Preview unavailable for this file.', 'jetpack-backup-pkg' ) }
+				</Text>
+			) }
 		</div>
 	);
 }

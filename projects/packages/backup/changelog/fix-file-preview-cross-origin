@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Fix the text/code file preview (wp-config.php, robots.txt etc.) — strip decimal rewind-ids at the fetcher boundary and proxy text content through a new /site/backup/file-content bridge to dodge the cross-origin block on WPCOM's signed stream URLs.

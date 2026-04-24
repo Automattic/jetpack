@@ -26,6 +26,17 @@ import type {
 	SiteRewindSizeResponse,
 } from './types';
 
+// Activity-log rewind IDs carry a decimal suffix (e.g. "1777035492.615")
+// — the sub-second portion WPCOM's activity service uses to disambiguate
+// events that share a second. The `rewind/backup/*` endpoints only
+// accept the integer-second portion of the rewind id in their URL and
+// return 404 otherwise. Strip the fractional part at the fetcher
+// boundary so every caller gets the right behaviour for free.
+const toIntRewindId = ( rewindId: string ): string => {
+	const idx = rewindId.indexOf( '.' );
+	return idx === -1 ? rewindId : rewindId.slice( 0, idx );
+};
+
 // All fetchers target local `/jetpack/v4/…` endpoints that proxy to
 // WPCOM using the site's Jetpack connection. `siteId` is resolved
 // server-side, so it is not part of any path or argument here.
@@ -112,7 +123,7 @@ export async function fetchBackupLs( {
 		return mockBackupLs( rewindId, path );
 	}
 	const requestPath = addQueryArgs( '/jetpack/v4/site/backup/ls', {
-		rewind_id: rewindId,
+		rewind_id: toIntRewindId( rewindId ),
 		path,
 	} );
 	return apiFetch< BackupLsResponse >( { path: requestPath } );
@@ -138,7 +149,7 @@ export async function fetchBackupPathInfo( {
 		return mockBackupPathInfo( rewindId, manifestPath, extensionType );
 	}
 	const requestPath = addQueryArgs( '/jetpack/v4/site/backup/path-info', {
-		rewind_id: rewindId,
+		rewind_id: toIntRewindId( rewindId ),
 		manifest_path: manifestPath,
 		extension_type: extensionType,
 	} );
@@ -162,10 +173,30 @@ export async function fetchBackupFileUrl( {
 		return { url: `about:blank#mock-${ encodedManifestPath }` };
 	}
 	const requestPath = addQueryArgs( '/jetpack/v4/site/backup/file-url', {
-		rewind_id: rewindId,
+		rewind_id: toIntRewindId( rewindId ),
 		encoded_manifest_path: encodedManifestPath,
 	} );
 	return apiFetch< BackupItemUrl >( { path: requestPath } );
+}
+
+/**
+ *
+ * @param root0
+ * @param root0.rewindId
+ * @param root0.encodedManifestPath
+ */
+export async function fetchBackupFileContent( {
+	rewindId,
+	encodedManifestPath,
+}: {
+	rewindId: string;
+	encodedManifestPath: string;
+} ): Promise< { content: string } > {
+	const requestPath = addQueryArgs( '/jetpack/v4/site/backup/file-content', {
+		rewind_id: toIntRewindId( rewindId ),
+		encoded_manifest_path: encodedManifestPath,
+	} );
+	return apiFetch< { content: string } >( { path: requestPath } );
 }
 
 /**
