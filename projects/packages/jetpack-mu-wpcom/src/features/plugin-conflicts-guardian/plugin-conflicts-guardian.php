@@ -2,14 +2,14 @@
 /**
  * Plugin Conflicts Guardian — pre-flight plugin-activation check.
  *
- * See README.md for an overview, the activation/update flows, and why
- * the probe uses an HTTP self-request rather than a CLI subprocess.
+ * See README.md for how it works.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
-defined( 'ABSPATH' ) || exit;
-
+/**
+ * Load dependencies.
+ */
 require_once __DIR__ . '/class-pcg-load-tester.php';
 
 // Probe endpoint must answer front-end requests, so it's not gated on is_admin().

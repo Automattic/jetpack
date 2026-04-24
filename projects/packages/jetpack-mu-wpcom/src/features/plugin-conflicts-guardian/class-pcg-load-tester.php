@@ -1,6 +1,6 @@
 <?php
 /**
- * HTTP-based plugin-load probe. See README.md for the flow + rationale.
+ * HTTP-based plugin-load probe.
  *
  * @package automattic/jetpack-mu-wpcom
  */

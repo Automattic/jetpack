@@ -3,8 +3,6 @@
  * Activation guard — blocks plugin activations that fail a pre-flight
  * load probe, so a bad Activate click can't fatal the site.
  *
- * See README.md for the covered activation entry points and the flow.
- *
  * @package automattic/jetpack-mu-wpcom
  */
 
@@ -24,7 +22,7 @@ function pcg_guard_maybe_block_activation() {
 		return;
 	}
 
-	$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified per-branch below.
+	$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
 	if ( ! in_array( $action, array( 'activate', 'activate-plugin', 'activate-selected' ), true ) ) {
 		return;
 	}
@@ -33,7 +31,7 @@ function pcg_guard_maybe_block_activation() {
 	$nonce_action     = '';
 
 	if ( 'activate-selected' === $action ) {
-		$bulk_raw = isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
+		$bulk_raw = isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
 		if ( empty( $bulk_raw ) ) {
 			return;
 		}
@@ -50,7 +48,7 @@ function pcg_guard_maybe_block_activation() {
 		);
 	} else {
 		// Single-plugin path (plugins.php Activate link / update.php post-upload link).
-		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verified below.
+		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : '';
 		if ( '' === $plugin ) {
 			return;
 		}

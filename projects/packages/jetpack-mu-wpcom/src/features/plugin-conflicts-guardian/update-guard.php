@@ -3,8 +3,6 @@
  * Update guard — refuses plugin installs / updates when the unpacked
  * package contains PHP parse errors.
  *
- * See README.md for the "why syntax-only" rationale.
- *
  * @package automattic/jetpack-mu-wpcom
  */
 
@@ -83,22 +81,26 @@ function pcg_update_guard_scan_for_parse_errors( $dir ) {
 		if ( ! $file->isFile() || 'php' !== strtolower( $file->getExtension() ) ) {
 			continue;
 		}
-		$code = @file_get_contents( (string) $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local read; errors are non-fatal and skipped.
+		if ( ! is_readable( (string) $path ) ) {
+			continue;
+		}
+		$code = file_get_contents( (string) $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local read inside a scan loop; WP_Filesystem is overkill here.
 		if ( false === $code ) {
 			continue;
 		}
 		try {
-			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariableAssignmentInFunctionBeforeUse -- called for its parse-error side effect.
 			$tokens = token_get_all( $code, TOKEN_PARSE );
-			unset( $tokens );
+			if ( false === $tokens ) {
+				continue;
+			}
 		} catch ( \ParseError $e ) {
 			$errors[] = array(
 				'file'    => (string) $path,
 				'line'    => $e->getLine(),
 				'message' => $e->getMessage(),
 			);
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- tolerate weird files.
-			// Fall through.
+		} catch ( \Throwable $e ) {
+			unset( $e );
 		}
 	}
 	return $errors;

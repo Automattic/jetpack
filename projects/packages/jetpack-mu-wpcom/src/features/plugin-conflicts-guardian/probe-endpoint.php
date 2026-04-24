@@ -3,7 +3,6 @@
  * HTTP probe endpoint for the Plugin Conflicts Guardian.
  *
  * Handles `?pcg_probe=1&token=…` requests fired by PCG_Load_Tester.
- * See README.md for the step-by-step flow.
  *
  * @package automattic/jetpack-mu-wpcom
  */
