@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Backup: Add local REST bridges for the file browser (ls, path-info, file-url, extension-url).
