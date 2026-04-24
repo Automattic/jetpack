@@ -1,4 +1,5 @@
 import {
+	countActiveFilters,
 	formatDate,
 	formatPath,
 	normalizeResult,
@@ -275,6 +276,30 @@ describe( 'normalizeResult', () => {
 			author: '',
 			imageUrl: '',
 		} );
+	} );
+} );
+
+describe( 'countActiveFilters', () => {
+	it( 'returns 0 for empty object', () => {
+		expect( countActiveFilters( {} ) ).toBe( 0 );
+	} );
+
+	it( 'returns 0 for null / undefined', () => {
+		expect( countActiveFilters( null ) ).toBe( 0 );
+		expect( countActiveFilters( undefined ) ).toBe( 0 );
+	} );
+
+	it( 'sums selected values across all filter keys', () => {
+		const active = {
+			category: [ 'news', 'opinion' ],
+			post_tag: [ 'a' ],
+			post_type: [],
+		};
+		expect( countActiveFilters( active ) ).toBe( 3 );
+	} );
+
+	it( 'ignores non-array values defensively', () => {
+		expect( countActiveFilters( { category: 'news' } ) ).toBe( 0 );
 	} );
 } );
 

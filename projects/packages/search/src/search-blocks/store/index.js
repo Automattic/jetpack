@@ -1,6 +1,6 @@
 import { store } from '@wordpress/interactivity';
 import { buildSearchUrl } from './api';
-import { normalizeResult } from './result-utils';
+import { countActiveFilters, normalizeResult } from './result-utils';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
@@ -123,6 +123,16 @@ const { state, actions } = store( NAMESPACE, {
 			return Object.values( state.activeFilters ?? {} ).some(
 				v => Array.isArray( v ) && v.length > 0
 			);
+		},
+
+		/**
+		 * Total selected filter values across all filter keys. Used by the
+		 * filter-popover trigger to render a count badge.
+		 *
+		 * @return {number} Count of selected filter values.
+		 */
+		get activeFilterCount() {
+			return countActiveFilters( state.activeFilters );
 		},
 	},
 
