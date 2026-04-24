@@ -14,7 +14,6 @@ Experimental AI-first development environment for the Jetpack monorepo.
 cd tools/ai-sandbox
 docker compose up -d --build
 docker exec -it -u dev jetpack-ai-sandbox bash
-cd ~/jetpack
 gh auth login
 pnpm install
 ```
@@ -40,7 +39,6 @@ Expected: Node 24.x, pnpm 10.x, PHP 8.4.x, Composer 2.9.2
 **First time only** — complete the OAuth login before starting a remote session:
 
 ```bash
-cd ~/jetpack
 claude
 ```
 
