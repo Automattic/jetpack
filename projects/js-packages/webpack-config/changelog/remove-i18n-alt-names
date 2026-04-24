@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Removed the generateI18nVariants helper from replace-textdomain Babel config.
