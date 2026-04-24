@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Backup: Wire the per-file Download button in the file-browser info card (regular files, tables, and WordPress core).

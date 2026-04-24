@@ -12,18 +12,19 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text,
 } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { fetchBackupExtensionUrl, fetchBackupFileUrl } from '../../../data/fetchers';
 import { useFileBrowserContext } from './file-browser-context';
 import FilePreview from './file-preview';
 import { useBackupPathInfoQuery } from './use-backup-path-info-query';
-import { convertBytes } from './util';
+import { PREPARE_DOWNLOAD_STATUS, usePrepareDownload } from './use-prepare-download';
+import { convertBytes, encodeToBase64 } from './util';
 import type { FileBrowserItem } from '../../../data/types';
 
-// Download is wired up in phase B; Restore in phase C. Phase A renders
-// the buttons disabled with a tooltip so the info card's layout stays
-// Calypso-identical and the phased diffs land as single-line edits.
-const DOWNLOAD_ENABLED = false;
+// Restore is wired up in phase C. For now the button stays disabled
+// with the Coming soon tooltip; phase C flips RESTORE_ENABLED and
+// removes the tooltip.
 const RESTORE_ENABLED = false;
 const COMING_SOON_TEXT = __(
 	'Coming soon in Jetpack Backup. For now, you can manage this action on WordPress.com.',
@@ -40,7 +41,7 @@ interface FileInfoCardProps {
 	onRequestGranularRestore?: ( rewindId: string ) => void;
 }
 
-function FileInfoCard( { item, rewindId }: FileInfoCardProps ) {
+function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCardProps ) {
 	const { locale, notices } = useFileBrowserContext();
 
 	const {
@@ -61,6 +62,128 @@ function FileInfoCard( { item, rewindId }: FileInfoCardProps ) {
 		  } ).format( new Date( fileInfo.mtime * 1000 ) )
 		: null;
 	const size = fileInfo?.size !== undefined ? convertBytes( fileInfo.size ) : null;
+
+	const [ isProcessingDownload, setIsProcessingDownload ] = useState< boolean >( false );
+
+	const handleDownloadError = useCallback( () => {
+		setIsProcessingDownload( false );
+		notices?.showError(
+			__( 'There was an error processing your download. Please try again.', 'jetpack-backup-pkg' )
+		);
+	}, [ notices ] );
+
+	const handlePrepareDownloadError = useCallback( () => {
+		notices?.showError(
+			__( 'There was an error preparing your download. Please try again.', 'jetpack-backup-pkg' )
+		);
+	}, [ notices ] );
+
+	const { prepareDownload, prepareDownloadStatus, downloadUrl } = usePrepareDownload(
+		handlePrepareDownloadError
+	);
+
+	const triggerFileDownload = useCallback( ( fileUrl: string ) => {
+		const link = document.createElement( 'a' );
+		link.href = fileUrl;
+		link.click();
+	}, [] );
+
+	const trackWordPressDownload = useCallback( () => {
+		onTrackEvent?.( 'jetpack_backup_browser_download', { file_type: item.type } );
+	}, [ onTrackEvent, item.type ] );
+
+	// Regular file download: resolve the one-time signed URL from the
+	// file-url endpoint, force `disposition=attachment` so the browser
+	// downloads the file instead of navigating to it, then click a
+	// synthetic <a>. Mirrors Calypso's downloadFile for non-archive types.
+	const downloadFile = useCallback( () => {
+		setIsProcessingDownload( true );
+
+		if ( item.type !== 'archive' && item.period && item.manifestPath ) {
+			const encoded = encodeToBase64( item.manifestPath );
+			fetchBackupFileUrl( { rewindId: item.period, encodedManifestPath: encoded } )
+				.then( response => {
+					if ( ! response.url ) {
+						handleDownloadError();
+						return;
+					}
+					const url = new URL( response.url );
+					url.searchParams.append( 'disposition', 'attachment' );
+					triggerFileDownload( url.toString() );
+					setIsProcessingDownload( false );
+					onTrackEvent?.( 'jetpack_backup_browser_download', { file_type: item.type } );
+				} )
+				.catch( handleDownloadError );
+			return;
+		}
+
+		// Archive path (plugin/theme). fileInfo.dataType disambiguates
+		// plugin (2) vs theme (anything else, matches Calypso's default
+		// branch).
+		if ( ! fileInfo || ! parentItem || ! parentItem.extensionVersion ) {
+			handleDownloadError();
+			return;
+		}
+		const archiveType = fileInfo.dataType === 2 ? 'plugin' : 'theme';
+		fetchBackupExtensionUrl( {
+			period: Math.round( Number( rewindId ) ).toString(),
+			archiveType,
+			extensionSlug: parentItem.name,
+			extensionVersion: parentItem.extensionVersion,
+		} )
+			.then( response => {
+				if ( ! response.url ) {
+					handleDownloadError();
+					return;
+				}
+				triggerFileDownload( response.url );
+				setIsProcessingDownload( false );
+				onTrackEvent?.( 'jetpack_backup_browser_download', { file_type: archiveType } );
+			} )
+			.catch( handleDownloadError );
+	}, [
+		fileInfo,
+		handleDownloadError,
+		item,
+		parentItem,
+		rewindId,
+		triggerFileDownload,
+		onTrackEvent,
+	] );
+
+	// Table download goes through the filtered-prepare + poll-status path.
+	// Once a URL lands the useEffect below triggers the browser download.
+	const prepareDownloadClick = useCallback( () => {
+		if ( ! item.period || ! fileInfo?.manifestFilter || fileInfo?.dataType === undefined ) {
+			handlePrepareDownloadError();
+			return;
+		}
+		prepareDownload( item.period, fileInfo.manifestFilter, fileInfo.dataType );
+	}, [ item.period, fileInfo, prepareDownload, handlePrepareDownloadError ] );
+
+	useEffect( () => {
+		if ( prepareDownloadStatus === PREPARE_DOWNLOAD_STATUS.PREPARING ) {
+			setIsProcessingDownload( true );
+		} else {
+			setIsProcessingDownload( false );
+		}
+
+		if ( prepareDownloadStatus === PREPARE_DOWNLOAD_STATUS.READY ) {
+			if ( ! downloadUrl ) {
+				handleDownloadError();
+				return;
+			}
+			triggerFileDownload( downloadUrl );
+			onTrackEvent?.( 'jetpack_backup_browser_download', { file_type: item.type } );
+		}
+	}, [
+		downloadUrl,
+		handleDownloadError,
+		item.type,
+		prepareDownloadStatus,
+		triggerFileDownload,
+		onTrackEvent,
+	] );
 
 	useEffect( () => {
 		if ( isError ) {
@@ -88,19 +211,60 @@ function FileInfoCard( { item, rewindId }: FileInfoCardProps ) {
 		return null;
 	}
 
-	const downloadButton = (
-		<Tooltip text={ COMING_SOON_TEXT }>
-			<Button
-				className="file-card__action"
-				variant="secondary"
-				size="compact"
-				disabled={ ! DOWNLOAD_ENABLED }
-				accessibleWhenDisabled
-			>
-				{ __( 'Download file', 'jetpack-backup-pkg' ) }
-			</Button>
-		</Tooltip>
+	// Three button shapes matching Calypso: direct-link for WordPress core
+	// (the path-info endpoint pre-signs a URL), filtered-prepare for
+	// tables (polls until ready), signed-URL fetch for everything else.
+	const downloadFileButton = (
+		<Button
+			className="file-card__action"
+			onClick={ downloadFile }
+			disabled={ isProcessingDownload }
+			isBusy={ isProcessingDownload }
+			variant="secondary"
+			size="compact"
+		>
+			{ isProcessingDownload
+				? __( 'Preparing', 'jetpack-backup-pkg' )
+				: __( 'Download file', 'jetpack-backup-pkg' ) }
+		</Button>
 	);
+
+	const downloadWordPressButton = (
+		<Button
+			className="file-card__action"
+			href={ fileInfo.downloadUrl }
+			onClick={ trackWordPressDownload }
+			variant="secondary"
+			size="compact"
+		>
+			{ __( 'Download file', 'jetpack-backup-pkg' ) }
+		</Button>
+	);
+
+	const prepareDownloadButton = (
+		<Button
+			className="file-card__action"
+			onClick={ prepareDownloadClick }
+			disabled={ isProcessingDownload }
+			isBusy={ isProcessingDownload }
+			variant="secondary"
+			size="compact"
+		>
+			{ isProcessingDownload
+				? __( 'Preparing', 'jetpack-backup-pkg' )
+				: __( 'Download file', 'jetpack-backup-pkg' ) }
+		</Button>
+	);
+
+	const renderDownloadButton = () => {
+		if ( item.type === 'wordpress' ) {
+			return downloadWordPressButton;
+		}
+		if ( item.type === 'table' ) {
+			return prepareDownloadButton;
+		}
+		return downloadFileButton;
+	};
 
 	const restoreButton = (
 		<Tooltip text={ COMING_SOON_TEXT }>
@@ -166,7 +330,7 @@ function FileInfoCard( { item, rewindId }: FileInfoCardProps ) {
 								style={ { width: 'auto', flexShrink: 0 } }
 								alignment="top"
 							>
-								{ downloadButton }
+								{ renderDownloadButton() }
 								{ item.type !== 'wordpress' && restoreButton }
 							</HStack>
 						) }
