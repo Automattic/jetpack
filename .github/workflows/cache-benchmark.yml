@@ -1,0 +1,48 @@
+name: Cache benchmark
+
+on:
+  push:
+    branches:
+      - update/ci/composer_cache_benchmark
+  workflow_dispatch:
+
+concurrency:
+  group: cache-benchmark-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    name: jetpack install --all -r (${{ matrix.label }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: with-cache
+            composer-cache: 'true'
+          - label: without-cache
+            composer-cache: 'false'
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Tool setup
+        uses: ./.github/actions/tool-setup
+        with:
+          composer-cache: ${{ matrix.composer-cache }}
+
+      - name: Bootstrap pnpm (install jetpack CLI)
+        run: pnpm install
+
+      - name: Time jetpack install --all -r
+        run: |
+          START=$(date +%s)
+          pnpm jetpack install --all -r
+          END=$(date +%s)
+          ELAPSED=$((END - START))
+          echo "jetpack install --all -r (${{ matrix.label }}) took ${ELAPSED}s"
+          {
+            echo "### Cache benchmark — ${{ matrix.label }}"
+            echo ""
+            echo "\`jetpack install --all -r\` took **${ELAPSED}s**."
+          } >> "$GITHUB_STEP_SUMMARY"
