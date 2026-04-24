@@ -1,0 +1,117 @@
+// Ported from Calypso's backup-contents-page stylesheet and scoped to
+// the backup overview file-browser. Using raw hex values where Calypso
+// used `--studio-*` tokens; can be swapped for valid `--wpds-*`
+// tokens once matching ones are registered in the design-system plugin.
+
+.root {
+
+	:global {
+
+		.file-browser-node {
+			margin-top: 2px;
+			margin-left: 2px;
+
+			&.is-root {
+				padding-top: 30px;
+			}
+
+			&.wordpress > .file-card .file-card__actions {
+				margin-top: 0;
+			}
+
+			&__loading {
+
+				&.placeholder {
+					height: 26px;
+					margin: 6px;
+					background-color: #f0f0f0;
+					border-radius: 2px;
+					animation: fileBrowserPulse 1.2s ease-in-out infinite;
+				}
+			}
+
+			&.is-root > .file-browser-node__contents {
+				padding-left: 0;
+			}
+
+			.file-browser-node__title {
+				white-space: nowrap;
+				overflow: hidden;
+			}
+
+			.components-button.has-icon.has-text svg {
+				fill: currentColor;
+			}
+
+			.components-button.is-tertiary {
+				border: 0;
+				color: currentColor;
+			}
+
+			.is-alternate {
+				background-color: #f6f7f7;
+			}
+
+			.file-card {
+				background-color: #f6f7f7;
+
+				.components-button.is-secondary {
+					background: #fff;
+					border: 0;
+					color: currentColor;
+				}
+
+				&__preview-sensitive {
+					background-color: #757575;
+					padding: 20px 8px;
+				}
+
+				&__preview-sensitive svg {
+					fill: #fff;
+				}
+
+				&__preview-sensitive p {
+					color: #fff;
+				}
+
+				&__detail {
+					font-size: 13px;
+				}
+			}
+
+			.form-checkbox {
+				margin: 8px;
+
+				&.mixed {
+					background-color: #dcdcde;
+				}
+			}
+		}
+
+		.file-browser-header {
+			padding: 0 2px;
+			border-bottom: 1px solid #dcdcde;
+
+			.file-browser-header__selecting {
+				margin-top: 20px;
+				padding: 6px 0;
+			}
+		}
+
+		.components-checkbox-control {
+			margin-left: 8px;
+		}
+	}
+}
+
+@keyframes fileBrowserPulse {
+
+	0%,
+	100% {
+		opacity: 0.4;
+	}
+
+	50% {
+		opacity: 0.8;
+	}
+}
