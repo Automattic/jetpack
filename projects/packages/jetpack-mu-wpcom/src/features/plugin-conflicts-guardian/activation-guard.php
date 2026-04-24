@@ -85,15 +85,15 @@ function pcg_guard_maybe_block_activation() {
  * @return array<string,string>
  */
 function pcg_guard_evaluate_plugins( $plugins ) {
-	$blocked = array();
-	$tester  = new PCG_Load_Tester();
+	$blocked         = array();
+	$pcg_load_tester = new PCG_Load_Tester();
 
 	foreach ( $plugins as $plugin ) {
 		$path = WP_PLUGIN_DIR . '/' . ltrim( plugin_basename( $plugin ), '/' );
 		if ( ! is_file( $path ) ) {
 			continue;
 		}
-		$result = $tester->test( $path );
+		$result = $pcg_load_tester->test( $path );
 		$status = isset( $result['status'] ) ? (string) $result['status'] : '';
 		if ( 'fatal' === $status || 'throwable' === $status ) {
 			$blocked[ $plugin ] = pcg_guard_format_block_reason( $result );
