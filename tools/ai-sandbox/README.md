@@ -46,19 +46,25 @@ claude
 
 Follow the login prompt (use **claude.ai**, not API key), then exit with `/exit`.
 
-**Start remote session:**
+### Option A — Control from claude.ai/code or Desktop app (recommended)
 
 ```bash
 IS_SANDBOX=1 claude --dangerously-skip-permissions --remote-control "my-agent-jetpack"
 ```
 
+This starts a remote-controlled session. Open https://claude.ai/code (or the Claude Desktop app → Remote sessions) and the session appears automatically. You control the agent from the browser or Desktop app; the CLI just keeps it alive.
+
+⚠️ **Keep the CLI running** — closing it ends the session. Use tmux (see below) to keep it alive after disconnecting.
+
 `--dangerously-skip-permissions` removes interactive permission prompts inside the container. The pre-push scope gate enforces what can be pushed — the flag removes friction for the agent, while the gate enforces code scope at push time.
 
-Then open:  
-https://claude.ai/code
+### Option B — Interactive terminal session
 
-The session will appear automatically.  
-Keep Claude running — closing it ends the session.
+```bash
+IS_SANDBOX=1 claude --dangerously-skip-permissions
+```
+
+Standard interactive Claude Code session in the terminal. No remote control — you type directly in the container.
 
 ---
 
