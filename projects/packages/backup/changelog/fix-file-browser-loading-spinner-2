@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Restore the chevron→Spinner swap on loading file-browser nodes and narrow the SVG fill rule so the Spinner's transparent background circle stays transparent.

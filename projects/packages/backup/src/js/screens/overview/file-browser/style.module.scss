@@ -39,7 +39,13 @@
 				overflow: hidden;
 			}
 
-			.components-button.has-icon.has-text svg {
+			// Narrowed to exclude the Spinner's SVG — its background circle
+			// has `fill="transparent"` as a presentation attribute, but a
+			// blanket `svg { fill: currentColor }` overrides that and
+			// paints the whole circle solid (Calypso's original rule didn't
+			// hit this because older @wordpress/components shipped Spinner
+			// as a div, not an SVG).
+			.components-button.has-icon.has-text svg:not(.components-spinner) {
 				fill: currentColor;
 			}
 
