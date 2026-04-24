@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-use PHPUnit\Framework\TestCase;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Integration tests for the sort-control block's render template.
