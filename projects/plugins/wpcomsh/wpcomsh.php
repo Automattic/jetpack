@@ -444,6 +444,9 @@ function wpcomsh_make_content_clickable( $content ) {
 	}
 
 	if ( ! method_exists( 'WP_HTML_Tag_Processor', 'next_token' ) ) {
+		if ( function_exists( 'bump_stats_extras' ) ) {
+			bump_stats_extras( 'wpcomsh-make-content-clickable', 'no-next-token' );
+		}
 		return $content;
 	}
 

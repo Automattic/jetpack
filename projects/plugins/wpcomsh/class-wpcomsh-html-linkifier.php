@@ -46,7 +46,8 @@ class Wpcomsh_HTML_Linkifier extends WP_HTML_Tag_Processor {
 			);
 
 			if ( $is_protected_opener ) {
-				// Assumes well-formed HTML; a missing closer runs the inner loop to EOF.
+				// Assumes well-formed HTML; e.g. will not track missing closing tags or
+				// implicitly-closed elements. To improve reliability use the HTML Processor.
 				$depth = 1;
 				while ( $depth > 0 && $scanner->next_token() ) {
 					if ( $token_name === $scanner->get_token_name() ) {
