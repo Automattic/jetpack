@@ -1,7 +1,29 @@
+@use "../lib/styles/helper";
+
+.jp-search-answers-panel__heading {
+	color: helper.$color-text-lighter;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	margin: 0 0 8px;
+	text-transform: uppercase;
+}
+
 .jp-search-answers-panel {
 	border-bottom: 1px solid #dcdcde;
-	margin-bottom: 16px;
-	padding-bottom: 16px;
+	height: 200px;
+	margin: 0 helper.$results-margin-lg 16px;
+	overflow-y: auto;
+
+	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
+		margin-left: helper.$results-margin-md;
+		margin-right: helper.$results-margin-md;
+	}
+
+	@include helper.break( "<m" ) {
+		margin-left: helper.$results-margin-sm;
+		margin-right: helper.$results-margin-sm;
+	}
 }
 
 .jp-search-answers-panel__loading {
@@ -10,26 +32,46 @@
 	display: flex;
 	font-size: 13px;
 	gap: 8px;
+	height: 100%;
 }
 
 .jp-search-answers-panel__text {
 	font-size: 14px;
 	line-height: 1.6;
-	white-space: pre-wrap;
-}
+	padding-bottom: 16px;
 
-.jp-search-answers-panel__citations {
-	list-style: none;
-	margin: 12px 0 0;
-	padding: 0;
-}
+	h2,
+	h3,
+	h4 {
+		font-size: 1em;
+		font-weight: 700;
+		margin: 0.8em 0 0.3em;
+	}
 
-.jp-search-answers-panel__citations li {
-	font-size: 12px;
-	margin-bottom: 4px;
-}
+	p {
+		margin: 0 0 0.6em;
+	}
 
-.jp-search-answers-panel__citations a {
-	color: #2271b1;
-	text-decoration: underline;
+	ul {
+		list-style: disc;
+		margin: 0 0 0.6em 1.2em;
+		padding: 0;
+	}
+
+	li {
+		margin-bottom: 0.2em;
+	}
+
+	strong {
+		font-weight: 700;
+	}
+
+	em {
+		font-style: italic;
+	}
+
+	a {
+		color: #2271b1;
+		text-decoration: underline;
+	}
 }

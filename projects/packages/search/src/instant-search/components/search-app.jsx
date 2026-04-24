@@ -41,7 +41,6 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
-import AnswersPanel from './answers-panel';
 import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
@@ -315,14 +314,20 @@ class SearchApp extends Component {
 			onmessage: event => {
 				try {
 					const data = JSON.parse( event.data );
-					if ( data.type === 'chunk' ) {
+					if ( data.method === 'message/delta' && data.params?.delta?.deltaType === 'content' ) {
 						this.setState( state => ( {
 							aiStatus: 'streaming',
-							aiText: state.aiText + ( data.text ?? '' ),
+							aiText: state.aiText + ( data.params.delta.content ?? '' ),
 						} ) );
-					} else if ( data.type === 'done' ) {
-						this.setState( { aiStatus: 'done', aiCitations: data.citations || [] } );
-					} else if ( data.type === 'error' ) {
+					} else if (
+						data.result?.type === 'TaskStatusUpdateEvent' &&
+						data.result?.status?.state === 'completed'
+					) {
+						const parts = data.result.status.message?.parts || [];
+						const dataPart = parts.find( p => p.type === 'data' );
+						const citations = dataPart?.data?.sources || dataPart?.data?.strict_sources || [];
+						this.setState( { aiStatus: 'done', aiCitations: citations } );
+					} else if ( data.result?.status?.state === 'failed' || data.error ) {
 						this.setState( { aiStatus: 'error' } );
 					}
 				} catch {
@@ -383,15 +388,13 @@ class SearchApp extends Component {
 						closeColor={ this.state.overlayOptions.closeColor }
 						closeOverlay={ this.hideResults }
 						colorTheme={ this.state.overlayOptions.colorTheme }
-						hasOverlayWidgets={ this.props.hasOverlayWidgets }
+						hasOverlayWidgets={ this.props.hasOverlayWidgets || this.state.aiCitations.length > 0 }
 						isVisible={ this.state.isVisible }
 					>
-						<AnswersPanel
-							status={ this.state.aiStatus }
-							text={ this.state.aiText }
-							citations={ this.state.aiCitations }
-						/>
 						<SearchResults
+							aiStatus={ this.state.aiStatus }
+							aiText={ this.state.aiText }
+							aiCitations={ this.state.aiCitations }
 							closeOverlay={ this.hideResults }
 							enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 							enableFilteringOpensOverlay={ this.state.overlayOptions.enableFilteringOpensOverlay }
