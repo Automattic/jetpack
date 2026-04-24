@@ -57,6 +57,9 @@ function _install_plugin {
 	DIR="${1%/composer.json}"
 	NAME="$(basename "$DIR")"
 
+	# Isolate composer cache per plugin, as a shared composer cache breaks during parallel writes.
+	export COMPOSER_CACHE_DIR="/tmp/composer-cache-$NAME"
+
 	echo "::group::Installing plugin $NAME into WordPress"
 
 	if php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$DIR/composer.json" )"; then
