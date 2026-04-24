@@ -375,6 +375,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
 
       - name: Monorepo install
         run: |
