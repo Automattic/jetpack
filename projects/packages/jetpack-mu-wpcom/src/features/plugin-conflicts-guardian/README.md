@@ -2,7 +2,10 @@
 
 Pre-flight plugin-activation check. When an admin clicks Activate (or finishes an Upload Plugin install), this feature loads the plugin in an isolated HTTP request and refuses the activation if that probe captures a fatal — the site stays up instead of entering recovery mode.
 
-Ships dark: gated behind `apply_filters( 'pcg_guard_activation', false )`. Set the filter to `true` to enable both the activation and update guards.
+Ships dark. Three independent filters, all default `false`:
+
+- `pcg_guard_activation` — enables the activation probe and the syntax-only install/update gate.
+- `pcg_guard_updates` — enables the post-update health check + rollback flow.
 
 ## Files
 
@@ -13,6 +16,9 @@ Ships dark: gated behind `apply_filters( 'pcg_guard_activation', false )`. Set t
 | `probe-endpoint.php` | Server: handles `?pcg_probe=1`, requires the plugin, captures any fatal. |
 | `activation-guard.php` | Hooks `load-plugins.php` / `load-update.php` and blocks failing activations. |
 | `update-guard.php` | Hooks `upgrader_source_selection` to refuse installs/updates with PHP parse errors. |
+| `class-pcg-snapshot.php` | Transient-backed pre-update snapshot (version + was_active). |
+| `class-pcg-rollback.php` | Fetches the WP.org versioned ZIP and reinstalls via `Plugin_Upgrader`. |
+| `update-healthcheck.php` | Hooks `upgrader_pre_install` + `upgrader_process_complete`; probes, rolls back on fatal, renders an admin notice. |
 
 ## Activation flow
 
@@ -71,7 +77,7 @@ Atomic and some managed hosts sandbox web-PHP so `proc_open` can't find/exec a C
 - The probe endpoint is wired up via jetpack-mu-wpcom's `load_features()` at `plugins_loaded` priority 10, so plugin callbacks registered for `plugins_loaded` at priority < 10 will have already fired before the plugin under test is `require`d. Fatals from those earlier-priority callbacks are missed. Hooking the probe handler earlier would require splitting it out of `load_features()`.
 - Other active plugins are live during the probe, so cross-plugin conflicts CAN surface (a full SHORTINIT sandbox would avoid that, but isn't portable here).
 
-## Update flow (syntax-only)
+## Update flow (syntax-only, pre-install)
 
 `update-guard.php` hooks `upgrader_source_selection` after WP extracts the install/update zip and before it copies files over the live plugin. It tokenizes every `.php` in the source with `token_get_all(…, TOKEN_PARSE)`. If any file fails to parse, it returns a `WP_Error` whose message names the first parse error and whose `$data['errors']` array carries the full list, aborting the operation without touching the live files.
 
@@ -79,4 +85,52 @@ The scan has an 8-second wall-clock budget (`PCG_UPDATE_GUARD_BUDGET_SECONDS`). 
 
 Loaded unconditionally (not gated on `is_admin()`) so cron auto-updates also hit the gate.
 
-Why not the load probe at this stage: during an *update* the active version is already loaded in the probe request, so `require`-ing the new main file would always fatal with "Cannot redeclare class/function". Parse errors are the high-frequency release failure mode; runtime errors still trip on the next Activate click.
+Why not the load probe at this stage: during an *update* the active version is already loaded in the probe request, so `require`-ing the new main file would always fatal with "Cannot redeclare class/function". Parse errors are the high-frequency release failure mode.
+
+## Post-update health check + rollback
+
+Gated on `pcg_guard_updates`. Runs *after* files are swapped, in a fresh HTTP request — so the "Cannot redeclare" problem doesn't apply.
+
+1. `upgrader_pre_install` — `PCG_Snapshot::capture()` reads the current plugin's `Version` and `is_plugin_active()` and stashes them in a transient keyed by the plugin basename.
+2. Core extracts + copies the new files.
+3. `upgrader_process_complete` (priority 99) — for each plugin in `hook_extra['plugins']`, `update-healthcheck.php` consumes the snapshot. If `was_active` was true, it runs `PCG_Load_Tester::test()` against the plugin's main file (same HTTP probe the activation guard uses).
+4. On `fatal` / `throwable` verdict, `PCG_Rollback::to_snapshot()` deactivates the broken plugin, fetches `https://downloads.wordpress.org/plugin/{slug}.{old_version}.zip`, reinstalls via `Plugin_Upgrader` with `overwrite_package`, and reactivates.
+5. If the previous-version URL can't be built (non-.org plugin, missing version string) or the download fails, the plugin is left deactivated and the admin notice says so.
+6. Notices are stashed in a per-user transient and drained by `admin_notices`, same pattern as the activation guard.
+
+```
+ upgrader_pre_install
+         │
+         ▼
+ PCG_Snapshot::capture()  ──► transient { version, was_active }
+         │
+         ▼
+ [core copies new files]
+         │
+         ▼
+ upgrader_process_complete (priority 99)
+         │
+         ├── was_active? ── no ──► done
+         │
+         ▼ yes
+ PCG_Load_Tester::test()  (HTTP probe, same as activation guard)
+         │
+         ├── ok ─────────────────► done
+         │
+         ▼ fatal / throwable
+ PCG_Rollback::to_snapshot()
+   deactivate broken
+   GET downloads.wordpress.org/plugin/{slug}.{old_ver}.zip
+   Plugin_Upgrader::install(overwrite_package)
+   reactivate (if was_active)
+         │
+         ▼
+ stash admin notice + fire pcg_post_update_diagnosis action
+```
+
+### Limitations (v1)
+
+- Only probes `home_url()`. Fatals that only surface on admin / REST aren't caught yet.
+- Rollback source is WP.org only. Paid/private plugins report `rollback_unavailable`.
+- No debug.log classifier yet — probe verdict is the only signal.
+- Multisite network updates are out of scope; the probe runs against the current site's `home_url()`.
