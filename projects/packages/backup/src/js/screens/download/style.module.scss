@@ -1,0 +1,34 @@
+@use "@wordpress/base-styles/variables" as *;
+@use "@wordpress/base-styles/breakpoints" as *;
+
+// Matches the overview's outer/inner shell pattern so the Download
+// screen sits inside the same padded, centered column.
+.screenOuter {
+	padding-block: $grid-unit-20;
+	padding-inline: $grid-unit-20;
+
+	@media (min-width: #{$break-medium}) {
+		padding-block: $grid-unit-40;
+		padding-inline: $grid-unit-30;
+	}
+}
+
+.screen {
+	display: flex;
+	flex-direction: column;
+	gap: $grid-unit-15;
+	max-width: 760px;
+	margin-inline: auto;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: $grid-unit-10;
+}
+
+.headerSubtitle {
+	color: #757575;
+	font-size: 13px;
+	margin-block-start: 2px;
+}

@@ -1,6 +1,7 @@
 import { createHashRouter, RouterProvider } from 'react-router';
 import Providers from './providers';
 import { JetpackBackupRoutes } from './routes';
+import DownloadScreen from './screens/download';
 import OverviewScreen from './screens/overview';
 import Shell from './shell';
 import type { FC } from 'react';
@@ -14,6 +15,7 @@ const router = createHashRouter( [
 		element: <Shell />,
 		children: [
 			{ path: JetpackBackupRoutes.Overview, element: <OverviewScreen /> },
+			{ path: JetpackBackupRoutes.Download, element: <DownloadScreen /> },
 			{ path: '*', element: <OverviewScreen /> },
 		],
 	},
