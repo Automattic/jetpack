@@ -46,7 +46,7 @@ export default function FilterPopoverEdit() {
 					'aria-hidden': 'true',
 					focusable: 'false',
 				},
-				h( 'path', { fill: 'currentColor', d: 'M4 5h16v2l-6 6v5l-4 2v-7L4 7V5Z' } )
+				h( 'path', { fill: 'currentColor', d: 'M3 6h18v2H3V6Zm3 5h12v2H6v-2Zm3 5h6v2H9v-2Z' } )
 			),
 			h( 'span', { className: 'screen-reader-text' }, __( 'Filter results', 'jetpack-search-pkg' ) )
 		),

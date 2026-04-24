@@ -85,7 +85,7 @@ $checked_getters = array(
 			data-wp-on--click="actions.toggleSortPopover"
 		>
 			<svg class="jetpack-search-sort__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-				<path fill="currentColor" d="M3 6h18v2H3V6Zm3 5h12v2H6v-2Zm3 5h6v2H9v-2Z"/>
+				<path fill="currentColor" d="M8 4l-4 4h3v12h2V8h3L8 4zm8 16l4-4h-3V4h-2v12h-3l4 4z"/>
 			</svg>
 			<span class="screen-reader-text"><?php esc_html_e( 'Sort results', 'jetpack-search-pkg' ); ?></span>
 		</button>

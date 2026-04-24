@@ -31,7 +31,7 @@ $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 		data-wp-on--click="actions.toggleFilterPopover"
 	>
 		<svg class="jetpack-search-filter-popover__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-			<path fill="currentColor" d="M4 5h16v2l-6 6v5l-4 2v-7L4 7V5Z"/>
+			<path fill="currentColor" d="M3 6h18v2H3V6Zm3 5h12v2H6v-2Zm3 5h6v2H9v-2Z"/>
 		</svg>
 		<span class="screen-reader-text"><?php esc_html_e( 'Filter results', 'jetpack-search-pkg' ); ?></span>
 		<span
