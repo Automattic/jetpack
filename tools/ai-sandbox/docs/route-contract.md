@@ -37,14 +37,16 @@ Each route package.json MUST include:
 
 Example:
 
+```json
 {
-"private": true,
-"name": "_@jetpack-premium-analytics/dashboard-route",
-"route": {
-"path": "/dashboard",
-"page": "jetpack-premium-analytics"
+  "private": true,
+  "name": "_@jetpack-premium-analytics/dashboard-route",
+  "route": {
+    "path": "/dashboard",
+    "page": "jetpack-premium-analytics"
+  }
 }
-}
+```
 
 ---
 
@@ -52,15 +54,17 @@ Example:
 
 Each route MUST export:
 
-stage()
+`stage()`
 
 Example:
 
+```tsx
 import React from 'react';
 
 export const stage = () => {
-return <div>Example Route</div>;
+  return <div>Example Route</div>;
 };
+```
 
 ---
 

@@ -47,9 +47,10 @@ RUN useradd -ms /bin/bash dev && \
 
 COPY entrypoint.sh /entrypoint.sh
 
-USER dev
 WORKDIR /home/dev/jetpack
-RUN git config --global core.hooksPath /home/dev/jetpack/tools/ai-sandbox/hooks
+
+# System-level config so core.hooksPath applies to all users (root included — docker exec defaults to root)
+RUN git config --system core.hooksPath /home/dev/jetpack/tools/ai-sandbox/hooks
 
 USER root
 ENTRYPOINT ["/entrypoint.sh"]

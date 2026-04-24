@@ -5,7 +5,7 @@ services:
     build: .
     container_name: jetpack-ai-sandbox
     volumes:
-      - ${HOME}/.claude:/home/dev/.claude
+      - ${HOME:?HOME not set}/.claude:/home/dev/.claude
       - ../../:/home/dev/jetpack
       - jetpack_node_modules:/home/dev/jetpack/node_modules
     working_dir: /home/dev/jetpack
