@@ -25,11 +25,9 @@ register_block_pattern(
 		'content'     => '<!-- wp:group {"style":{"spacing":{"blockGap":"1rem"}}} -->
 <div class="wp-block-group">
 
-<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
-<div class="wp-block-group">
+<!-- wp:group {"className":"jetpack-search-compact-toolbar","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+<div class="wp-block-group jetpack-search-compact-toolbar">
 <!-- wp:jetpack/search-input /-->
-<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap"}} -->
-<div class="wp-block-group">
 <!-- wp:jetpack/filter-popover -->
 <!-- wp:jetpack/active-filters /-->
 <!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
@@ -37,8 +35,6 @@ register_block_pattern(
 <!-- wp:jetpack/filter-checkbox {"filterType":"post_type"} /-->
 <!-- /wp:jetpack/filter-popover -->
 <!-- wp:jetpack/sort-control {"display":"popover"} /-->
-</div>
-<!-- /wp:group -->
 </div>
 <!-- /wp:group -->
 
