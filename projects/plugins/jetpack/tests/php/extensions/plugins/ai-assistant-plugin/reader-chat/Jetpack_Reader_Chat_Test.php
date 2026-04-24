@@ -793,8 +793,9 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			}
 		);
 
-		Jetpack_Reader_Chat::enqueue_scripts();
-		Jetpack_Reader_Chat::enqueue_scripts();
+		for ( $i = 0; $i < 2; $i++ ) {
+			Jetpack_Reader_Chat::enqueue_scripts();
+		}
 
 		$cached = get_transient( AiAssistantPlugin\READER_CHAT_ASSET_TRANSIENT );
 		$this->assertSame( 1, $request_count, 'Remote asset manifest should only be requested once.' );
