@@ -12,10 +12,10 @@ add_filter( 'upgrader_source_selection', 'pcg_update_guard_check', 99, 4 );
  * Filter callback. Returns a WP_Error (aborts the install/update) when
  * the extracted source contains any PHP parse errors.
  *
- * @param string|WP_Error $source        Extracted source directory, or error from a prior filter.
- * @param string          $remote_source Original remote source path (unused).
- * @param WP_Upgrader     $upgrader      Upgrader instance (unused).
- * @param array           $hook_extra    { type, action, plugin?, theme? }.
+ * @param string|WP_Error  $source        Extracted source directory, or error from a prior filter.
+ * @param string           $remote_source Original remote source path (unused).
+ * @param WP_Upgrader|null $upgrader      Upgrader instance (unused).
+ * @param array            $hook_extra    { type, action, plugin?, theme? }.
  * @return string|WP_Error
  */
 function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra = array() ) {
@@ -89,10 +89,7 @@ function pcg_update_guard_scan_for_parse_errors( $dir ) {
 			continue;
 		}
 		try {
-			$tokens = token_get_all( $code, TOKEN_PARSE );
-			if ( false === $tokens ) {
-				continue;
-			}
+			token_get_all( $code, TOKEN_PARSE );
 		} catch ( \ParseError $e ) {
 			$errors[] = array(
 				'file'    => (string) $path,
