@@ -209,6 +209,116 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test get_author converts Gravatar URLs containing an email to the hashed version.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_converts_gravatar_email_url_to_hash() {
+		$endpoint = $this->get_dummy_endpoint();
+
+		$comment_data                       = new stdClass();
+		$comment_data->comment_author_email = 'foo@bar.foo';
+		$comment_data->comment_author       = 'Test Author';
+		$comment_data->comment_author_url   = 'https://gravatar.com/foo@bar.foo';
+		$comment_data->user_id              = 0;
+		$comment_data->comment_author_IP    = '';
+
+		$comment = new WP_Comment( $comment_data );
+
+		$author = $endpoint->get_author( $comment );
+
+		$expected_url = 'https://gravatar.com/' . md5( 'foo@bar.foo' );
+		$this->assertSame(
+			$expected_url,
+			$author->URL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			'Gravatar URL with email should be converted to hashed version.'
+		);
+	}
+
+	/**
+	 * Test get_author does not modify Gravatar URLs that already use a hash.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_preserves_gravatar_hash_url() {
+		$hash     = md5( 'foo@bar.foo' );
+		$endpoint = $this->get_dummy_endpoint();
+
+		$comment_data                       = new stdClass();
+		$comment_data->comment_author_email = 'foo@bar.foo';
+		$comment_data->comment_author       = 'Test Author';
+		$comment_data->comment_author_url   = 'https://gravatar.com/' . $hash;
+		$comment_data->user_id              = 0;
+		$comment_data->comment_author_IP    = '';
+
+		$comment = new WP_Comment( $comment_data );
+
+		$author = $endpoint->get_author( $comment );
+
+		$this->assertSame(
+			'https://gravatar.com/' . $hash,
+			$author->URL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			'Gravatar URL with hash should not be modified.'
+		);
+	}
+
+	/**
+	 * Test get_author does not modify non-Gravatar URLs.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_preserves_non_gravatar_url() {
+		$endpoint = $this->get_dummy_endpoint();
+
+		$comment_data                       = new stdClass();
+		$comment_data->comment_author_email = 'foo@bar.foo';
+		$comment_data->comment_author       = 'Test Author';
+		$comment_data->comment_author_url   = 'https://example.com/profile';
+		$comment_data->user_id              = 0;
+		$comment_data->comment_author_IP    = '';
+
+		$comment = new WP_Comment( $comment_data );
+
+		$author = $endpoint->get_author( $comment );
+
+		$this->assertSame(
+			'https://example.com/profile',
+			$author->URL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			'Non-Gravatar URLs should not be modified.'
+		);
+	}
+
+	/**
+	 * Test get_author does not modify Gravatar URLs with a non-email username path.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_preserves_gravatar_username_url() {
+		$endpoint = $this->get_dummy_endpoint();
+
+		$comment_data                       = new stdClass();
+		$comment_data->comment_author_email = 'foo@bar.foo';
+		$comment_data->comment_author       = 'Test Author';
+		$comment_data->comment_author_url   = 'https://gravatar.com/johndoe';
+		$comment_data->user_id              = 0;
+		$comment_data->comment_author_IP    = '';
+
+		$comment = new WP_Comment( $comment_data );
+
+		$author = $endpoint->get_author( $comment );
+
+		$this->assertSame(
+			'https://gravatar.com/johndoe',
+			$author->URL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			'Gravatar URL with username (not email) should not be modified.'
+		);
+	}
+
+	/**
 	 * Generate a dummy endpoint.
 	 */
 	private function get_dummy_endpoint() {
