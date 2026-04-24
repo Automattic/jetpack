@@ -22,8 +22,9 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
-const READER_CHAT_JS_URL          = 'https://widgets.wp.com/agents-manager/reader-chat.min.js';
-const READER_CHAT_ASSET_TRANSIENT = 'jetpack_reader_chat_asset';
+const READER_CHAT_JS_URL                  = 'https://widgets.wp.com/agents-manager/reader-chat.min.js';
+const READER_CHAT_ASSET_TRANSIENT         = 'jetpack_reader_chat_asset';
+const READER_CHAT_ASSET_FAILURE_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
 
 /**
  * Handles loading the reader chat UI on the frontend.
@@ -344,6 +345,15 @@ class Jetpack_Reader_Chat {
 			// Dev mode: return a cache-busting version so the sandbox bundle loads.
 			if ( self::is_dev_mode() ) {
 				return 'dev-' . time();
+			}
+			if ( ! $skip_cache ) {
+				set_transient(
+					READER_CHAT_ASSET_TRANSIENT,
+					array(
+						'version' => null,
+					),
+					READER_CHAT_ASSET_FAILURE_CACHE_TTL
+				);
 			}
 			return null;
 		}

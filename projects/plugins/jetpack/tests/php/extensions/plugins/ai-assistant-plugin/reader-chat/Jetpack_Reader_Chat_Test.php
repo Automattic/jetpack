@@ -777,6 +777,33 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that failed asset manifest lookups are cached briefly so production
+	 * page loads do not retry the remote manifest on every request.
+	 */
+	public function test_enqueue_scripts_caches_asset_fetch_failure() {
+		$this->override_ai_features( true );
+		delete_transient( AiAssistantPlugin\READER_CHAT_ASSET_TRANSIENT );
+
+		$request_count = 0;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$request_count ) {
+				$request_count++;
+				return new WP_Error( 'blocked', 'No HTTP in tests.' );
+			}
+		);
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$cached = get_transient( AiAssistantPlugin\READER_CHAT_ASSET_TRANSIENT );
+		$this->assertSame( 1, $request_count, 'Remote asset manifest should only be requested once.' );
+		$this->assertIsArray( $cached, 'Failed lookup should be cached as asset data.' );
+		$this->assertArrayHasKey( 'version', $cached, 'Failure cache should preserve the expected asset shape.' );
+		$this->assertNull( $cached['version'], 'Failure cache should resolve to a null asset version.' );
+	}
+
+	/**
 	 * Test that the cached transient version is used when available, and the
 	 * version string matches what was cached.
 	 */
