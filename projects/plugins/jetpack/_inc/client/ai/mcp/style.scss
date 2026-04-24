@@ -24,8 +24,13 @@
 		}
 	}
 
+	&__action-card {
+		overflow: hidden;
+	}
+
 	&__connect-row {
 		display: flex;
+		box-sizing: border-box;
 		gap: 16px;
 		align-items: flex-start;
 		padding: 24px;

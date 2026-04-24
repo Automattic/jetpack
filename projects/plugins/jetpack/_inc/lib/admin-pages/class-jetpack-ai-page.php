@@ -10,6 +10,9 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -77,7 +80,13 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			$script_version = $asset_manifest['version'];
 		}
 
-		$blog_id = Connection_Manager::get_site_id( true );
+		$blog_id     = Connection_Manager::get_site_id( true );
+		$site_suffix = ( new Status() )->get_site_suffix();
+		// On Atomic, jetpack-mu-wpcom replaces the cloud redirect with a direct WPCOM URL.
+		// Mirror that behaviour here so the activity log link resolves consistently.
+		$activity_log_url = ( new Host() )->is_woa_site()
+			? 'https://wordpress.com/activity-log/' . $site_suffix
+			: Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ? $blog_id : $site_suffix ) );
 
 		wp_enqueue_script(
 			'jetpack-ai-admin',
@@ -93,12 +102,13 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
 				array(
-					'blogId'       => $blog_id ? (int) $blog_id : 0,
-					'siteAdminUrl' => admin_url(),
-					'apiRoot'      => esc_url_raw( rest_url() ),
-					'apiNonce'     => wp_create_nonce( 'wp_rest' ),
-					'pluginUrl'    => plugins_url( '', JETPACK__PLUGIN_FILE ),
-					'upgradeUrl'   => 'https://wordpress.com/plans/' . rawurlencode( wp_parse_url( home_url(), PHP_URL_HOST ) ?? '' ),
+					'blogId'         => $blog_id ? (int) $blog_id : 0,
+					'activityLogUrl' => $activity_log_url,
+					'siteAdminUrl'   => admin_url(),
+					'apiRoot'        => esc_url_raw( rest_url() ),
+					'apiNonce'       => wp_create_nonce( 'wp_rest' ),
+					'pluginUrl'      => plugins_url( '', JETPACK__PLUGIN_FILE ),
+					'upgradeUrl'     => 'https://wordpress.com/plans/' . rawurlencode( wp_parse_url( home_url(), PHP_URL_HOST ) ?? '' ),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',

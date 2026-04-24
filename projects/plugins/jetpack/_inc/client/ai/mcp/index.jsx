@@ -3,7 +3,6 @@
  * Shows the enable/disable toggle and navigation to Read, Write, and Setup sub-views.
  */
 
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	Card,
 	CardBody,
@@ -163,15 +162,23 @@ function ConnectRow( { title, description, onClick } ) {
 /**
  * MCP hub component.
  *
- * @param {object}   props               - Component props.
- * @param {object}   props.mcpAbilities  - Full mcp_abilities object from API.
- * @param {number}   props.blogId        - Current site's blog ID.
- * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
- * @param {Function} props.onNavigate    - Called with 'read' | 'write' | 'setup'.
- * @param {Function} props.onUpdate      - Called with partial mcp_abilities update.
+ * @param {object}   props                - Component props.
+ * @param {object}   props.mcpAbilities   - Full mcp_abilities object from API.
+ * @param {number}   props.blogId         - Current site's blog ID.
+ * @param {string}   props.activityLogUrl - URL for the activity log link.
+ * @param {Set}      props.savingToolIds  - Set of toolIds currently being saved.
+ * @param {Function} props.onNavigate     - Called with 'read' | 'write' | 'setup'.
+ * @param {Function} props.onUpdate       - Called with partial mcp_abilities update.
  * @return {object} Component markup.
  */
-export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigate, onUpdate } ) {
+export default function McpHub( {
+	mcpAbilities,
+	blogId,
+	activityLogUrl,
+	savingToolIds,
+	onNavigate,
+	onUpdate,
+} ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
 	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
@@ -270,7 +277,7 @@ export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigat
 			</Card>
 
 			{ isMcpEnabled && (
-				<Card>
+				<Card className="jetpack-ai-mcp__action-card">
 					<ConnectRow
 						title={ __( 'Connect external AI agent', 'jetpack' ) }
 						description={ __(
@@ -282,11 +289,11 @@ export default function McpHub( { mcpAbilities, blogId, savingToolIds, onNavigat
 				</Card>
 			) }
 
-			{ isMcpEnabled && (
-				<Card>
+			{ isMcpEnabled && activityLogUrl && (
+				<Card className="jetpack-ai-mcp__action-card">
 					<a
 						className="jetpack-ai-mcp__connect-row"
-						href={ getRedirectUrl( 'cloud-activity-log-wp-menu', { site: blogId } ) }
+						href={ activityLogUrl }
 						target="_blank"
 						rel="noopener noreferrer"
 					>

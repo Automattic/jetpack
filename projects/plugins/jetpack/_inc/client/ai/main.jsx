@@ -17,7 +17,7 @@ import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
 
-const { blogId, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
+const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 
 const VIEW_TITLES = {
 	hub: __( 'AI', 'jetpack' ),
@@ -145,6 +145,7 @@ export default function App() {
 							<McpHub
 								mcpAbilities={ mcpAbilities }
 								blogId={ blogId }
+								activityLogUrl={ activityLogUrl }
 								savingToolIds={ savingToolIds }
 								onNavigate={ setView }
 								onUpdate={ handleUpdate }
