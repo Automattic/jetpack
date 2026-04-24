@@ -20,11 +20,6 @@
 	"bin": [
 		"bin/phpunit-select-config"
 	],
-	"autoload": {
-		"files": [
-			"src/php_polyfills.php"
-		]
-	},
 	"scripts": {
 		"phpunit": [
 			"./vendor/bin/phpunit-select-config phpunit.#.xml.dist --colors=always"
