@@ -202,7 +202,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "d487609756d8f05a8357abf20f3c337b6c53e591"
+                "reference": "9e44d830cefeebc6c9b5a108cfab1ac3c1e3fd98"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -226,11 +226,6 @@
                     "link-template": "https://github.com/Automattic/phpunit-select-config/compare/v${old}...v${new}"
                 },
                 "mirror-repo": "Automattic/phpunit-select-config"
-            },
-            "autoload": {
-                "files": [
-                    "src/php_polyfills.php"
-                ]
             },
             "scripts": {
                 "phpunit": [

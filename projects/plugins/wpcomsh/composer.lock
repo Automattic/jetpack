@@ -8,23 +8,23 @@
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v2.0.5",
+            "version": "v2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "c512aa27b2c33aee33bc024177c17f2745c52dfa"
+                "reference": "768ce866bc1b7aa926ef22f705bb3ca9d6e905cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/c512aa27b2c33aee33bc024177c17f2745c52dfa",
-                "reference": "c512aa27b2c33aee33bc024177c17f2745c52dfa",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/768ce866bc1b7aa926ef22f705bb3ca9d6e905cb",
+                "reference": "768ce866bc1b7aa926ef22f705bb3ca9d6e905cb",
                 "shasum": ""
             },
             "type": "wordpress-plugin",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2025-11-24T21:07:37+00:00"
+            "time": "2026-04-23T14:42:02+00:00"
         },
         {
             "name": "automattic/block-delimiter",
@@ -3554,16 +3554,16 @@
         },
         {
             "name": "wp-php-toolkit/reprint-exporter",
-            "version": "v0.1.44",
+            "version": "v0.1.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-php-toolkit/reprint-exporter.git",
-                "reference": "80f0e0b6cd809ac81f45a13af627681bb46a3557"
+                "reference": "679f2ba88278ec8646593cc1389b2511c9c7d33d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-exporter/zipball/80f0e0b6cd809ac81f45a13af627681bb46a3557",
-                "reference": "80f0e0b6cd809ac81f45a13af627681bb46a3557",
+                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-exporter/zipball/679f2ba88278ec8646593cc1389b2511c9c7d33d",
+                "reference": "679f2ba88278ec8646593cc1389b2511c9c7d33d",
                 "shasum": ""
             },
             "require": {
@@ -3597,22 +3597,22 @@
             "description": "Streaming export engine used by the Reprint Exporter WordPress plugin",
             "support": {
                 "issues": "https://github.com/wp-php-toolkit/reprint-exporter/issues",
-                "source": "https://github.com/wp-php-toolkit/reprint-exporter/tree/v0.1.44"
+                "source": "https://github.com/wp-php-toolkit/reprint-exporter/tree/v0.1.45"
             },
-            "time": "2026-04-16T16:07:42+00:00"
+            "time": "2026-04-17T22:11:46+00:00"
         },
         {
             "name": "wp-php-toolkit/reprint-importer",
-            "version": "v0.1.44",
+            "version": "v0.1.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-php-toolkit/reprint-importer.git",
-                "reference": "9aa2108c7fa7050f5f589cd61887e50c70c00763"
+                "reference": "d4362fbc6e9c713bffee37fa3ca190a8813027da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-importer/zipball/9aa2108c7fa7050f5f589cd61887e50c70c00763",
-                "reference": "9aa2108c7fa7050f5f589cd61887e50c70c00763",
+                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-importer/zipball/d4362fbc6e9c713bffee37fa3ca190a8813027da",
+                "reference": "d4362fbc6e9c713bffee37fa3ca190a8813027da",
                 "shasum": ""
             },
             "require": {
@@ -3634,9 +3634,9 @@
             "description": "Streaming site importer with CLI and PHAR distribution support",
             "support": {
                 "issues": "https://github.com/wp-php-toolkit/reprint-importer/issues",
-                "source": "https://github.com/wp-php-toolkit/reprint-importer/tree/v0.1.44"
+                "source": "https://github.com/wp-php-toolkit/reprint-importer/tree/v0.1.45"
             },
-            "time": "2026-04-16T14:19:55+00:00"
+            "time": "2026-04-22T20:05:48+00:00"
         },
         {
             "name": "wp-php-toolkit/xml",
@@ -3697,7 +3697,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "d487609756d8f05a8357abf20f3c337b6c53e591"
+                "reference": "9e44d830cefeebc6c9b5a108cfab1ac3c1e3fd98"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -3721,11 +3721,6 @@
                     "link-template": "https://github.com/Automattic/phpunit-select-config/compare/v${old}...v${new}"
                 },
                 "mirror-repo": "Automattic/phpunit-select-config"
-            },
-            "autoload": {
-                "files": [
-                    "src/php_polyfills.php"
-                ]
             },
             "scripts": {
                 "phpunit": [
