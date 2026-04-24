@@ -174,8 +174,8 @@ export async function handler( argv ) {
 	// Add `changelogger install` task, so the "centralized" binary is available before any project build.
 	if ( argv.forMirrors ) {
 		for ( const [ k, v ] of dependencies ) {
-			// Skip self and pnpm.
-			if ( k !== 'changelogger install' && k !== 'pnpm install' ) {
+			// Skip pnpm.
+			if ( k !== 'pnpm install' ) {
 				v.add( 'changelogger install' );
 			}
 		}
