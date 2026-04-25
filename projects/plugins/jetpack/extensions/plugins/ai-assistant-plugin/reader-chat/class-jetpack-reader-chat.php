@@ -283,6 +283,14 @@ class Jetpack_Reader_Chat {
 			return null;
 		}
 
+		// Only expose current post context for content that is publicly
+		// viewable. Draft/private/future/trash posts can be visible to
+		// editors through previews, but reader chat is public-facing and
+		// should not receive non-public post content in its inline config.
+		if ( is_preview() || ! is_post_publicly_viewable( $post ) ) {
+			return null;
+		}
+
 		// Respect password-protected posts: do not leak body content to
 		// visitors who have not entered the password. Omit the whole
 		// currentPost envelope so the chat doesn't imply it "knows" the

@@ -476,6 +476,51 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that non-public singular contexts do not expose currentPost.
+	 *
+	 * Draft/private/future/trash posts are normally reached via privileged
+	 * previews rather than public permalinks. Force the query into a singular
+	 * shape so this validates the privacy guard directly.
+	 */
+	public function test_config_no_current_post_for_non_public_posts() {
+		global $post, $wp_query;
+
+		$statuses = array( 'draft', 'private', 'future', 'trash' );
+
+		foreach ( $statuses as $status ) {
+			$post_id = self::factory()->post->create(
+				array(
+					'post_title'   => 'Non-public post',
+					'post_content' => 'Private draft content should not be exposed.',
+					'post_status'  => $status,
+				)
+			);
+
+			$saved_post     = $post;
+			$saved_wp_query = clone $wp_query;
+
+			$post                        = get_post( $post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$wp_query->post              = $post;
+			$wp_query->posts             = array( $post );
+			$wp_query->queried_object    = $post;
+			$wp_query->queried_object_id = $post_id;
+			$wp_query->post_count        = 1;
+			$wp_query->is_single         = true;
+			$wp_query->is_preview        = 'publish' !== $status;
+
+			$context = $this->call_private_static( 'get_current_post_context' );
+
+			$post     = $saved_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$wp_query = $saved_wp_query; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+			$this->assertNull(
+				$context,
+				sprintf( 'currentPost should not be exposed for %s posts.', $status )
+			);
+		}
+	}
+
+	/**
 	 * Test that currentPost is absent on a singular view when the queried post
 	 * cannot be retrieved (simulate by not having a valid post in the loop).
 	 *
