@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: restructure tab panel so full-width separators and footers no longer rely on viewport-width math, eliminating the horizontal scrollbar that appeared when the page scrollbar was present.

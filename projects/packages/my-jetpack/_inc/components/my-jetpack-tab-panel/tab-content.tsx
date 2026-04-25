@@ -1,8 +1,6 @@
-import clsx from 'clsx';
 import { HelpContent } from './help/content';
 import { OverviewContent } from './overview/content';
 import { ProductsContent } from './products/content';
-import styles from './styles.module.scss';
 import { MyJetpackSection } from './types';
 import type { ComponentType } from 'react';
 
@@ -30,11 +28,5 @@ export function TabContent( { name }: TabContentProps ) {
 		return null;
 	}
 
-	return (
-		<div className={ styles[ 'my-jetpack-tab-panel-inner' ] }>
-			<div className={ clsx( styles[ 'tab-content-wrapper' ] ) }>
-				<ContentComponent />
-			</div>
-		</div>
-	);
+	return <ContentComponent />;
 }

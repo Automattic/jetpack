@@ -17,13 +17,23 @@
 	}
 }
 
-.tab-content-wrapper {
-	padding-block-start: 2.5rem;
+@mixin full-width-container {
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+}
+
+.constrained-section {
+
+	@include full-width-container;
 	padding-inline: 3rem;
 
 	@media (max-width: gb.$break-medium ) {
 		padding-inline: 1.5rem;
 	}
+}
+
+.tab-content-wrapper {
+	padding-block-start: 2.5rem;
 
 	h2 {
 
@@ -35,15 +45,7 @@
 
 .full-width-separator {
 	border-top: 1px solid var(--jp-gray);
-	width: 100vw;
-	position: relative;
-	inset-inline-start: 50%;
-	margin-inline-start: -50vw;
-}
-
-@mixin full-width-container {
-	max-width: var(--max-container-width);
-	margin: 0 auto;
+	width: 100%;
 }
 
 .my-jetpack-tab-panel--full-width {
@@ -64,10 +66,5 @@
 
 	:global(.components-tab-panel__tab-content) {
 		background-color: #fcfcfc;
-
-		.my-jetpack-tab-panel-inner {
-
-			@include full-width-container;
-		}
 	}
 }

@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import parentStyles from '../styles.module.scss';
 import { Products } from './products';
 import styles from './styles.module.scss';
 
@@ -10,7 +11,14 @@ import styles from './styles.module.scss';
  */
 const ProductsContent = () => {
 	return (
-		<section className={ clsx( styles.content, styles[ 'my-jetpack-products-tab__content' ] ) }>
+		<section
+			className={ clsx(
+				parentStyles[ 'constrained-section' ],
+				parentStyles[ 'tab-content-wrapper' ],
+				styles.content,
+				styles[ 'my-jetpack-products-tab__content' ]
+			) }
+		>
 			<h2>{ __( 'Products', 'jetpack-my-jetpack' ) }</h2>
 			<p className={ styles.description }>
 				{ __(
