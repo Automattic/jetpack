@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Endpoints: Ensure the WPCOM_REST_API_V2_Endpoint_AI does not require files, nor make function calls, unless directly called.
