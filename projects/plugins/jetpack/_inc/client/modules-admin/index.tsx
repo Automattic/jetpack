@@ -158,6 +158,7 @@ function ModuleRow( { item }: { item: JetpackModule } ) {
 				) : (
 					<ToggleControl
 						__nextHasNoMarginBottom
+						label=""
 						checked={ item.activated }
 						onChange={ onToggle }
 						aria-label={ ariaLabel }

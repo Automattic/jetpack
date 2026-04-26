@@ -1,4 +1,4 @@
 Significance: minor
-Type: changed
+Type: enhancement
 
 Modules admin page (`admin.php?page=jetpack_modules`): rewrite the legacy Backbone list-table view as a React tree wrapped in <AdminPage>, using the shared jetpack-admin-page-layout mixin. Activate/Deactivate buttons become <ToggleControl>; segmented filters use <ToggleGroupControl>; Dashboard/Settings move to the AdminPage actions slot. Backbone sources are unenqueued but left in place for a single-commit revert.

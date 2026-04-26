@@ -61,6 +61,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	public function page_render() {
 		// Instantiate the list table purely for the side effect of registering
 		// and enqueuing the React bundle + `jetpackModulesData` localized blob.
+		// @phan-suppress-next-line PhanNoopNew -- Constructor enqueues scripts.
 		new Jetpack_Modules_List_Table();
 
 		// We have static.html so let's continue trying to fetch the others.
