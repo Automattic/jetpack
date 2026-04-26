@@ -37,23 +37,23 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		$this->is_wpcom                     = true;
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
+		add_action( 'rest_api_init', array( $this, 'register_all_routes' ) );
+	}
+
+	/**
+	 * Register all routes, loading Jetpack_AI_Helper first.
+	 */
+	public function register_all_routes() {
 		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
 		}
 
-		// Register routes that don't require Jetpack AI to be enabled.
-		add_action( 'rest_api_init', array( $this, 'register_basic_routes' ) );
+		$this->register_basic_routes();
+		$this->register_ai_chat_routes();
 
-		if ( Jetpack_AI_Helper::is_ai_chat_enabled() ) {
-			add_action( 'rest_api_init', array( $this, 'register_ai_chat_routes' ) );
+		if ( \Jetpack_AI_Helper::is_enabled() ) {
+			$this->register_routes();
 		}
-
-		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
-			return;
-		}
-
-		// Register routes that require Jetpack AI to be enabled.
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'request_chat_with_site' ),
-					'permission_callback' => '__return_true',
+					'permission_callback' => array( 'Jetpack_AI_Helper', 'is_ai_chat_enabled' ),
 				),
 				'args' => array(
 					'query'         => array(
@@ -148,7 +148,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'rank_response' ),
-					'permission_callback' => '__return_true',
+					'permission_callback' => array( 'Jetpack_AI_Helper', 'is_ai_chat_enabled' ),
 				),
 				'args' => array(
 					'cache_key' => array(
