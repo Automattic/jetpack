@@ -1,0 +1,77 @@
+name: Claude Code (shared, reusable)
+
+# Reusable workflow that other Automattic repos can call via workflow_call
+# to get the same AI code review behavior as the monorepo's claude.yml.
+#
+# The review skill lives at .agents/skills/jetpack-review-pr.md in this
+# repo and is the single source of truth — callers don't maintain copies.
+# At runtime, the workflow checks out this monorepo to fetch the skill,
+# then runs anthropics/claude-code-action against the caller's repo
+# context (PR, issue, comment).
+#
+# The caller is responsible for trigger conditions (@claude mention,
+# author_association, etc.) and for granting the necessary permissions
+# and secrets.
+
+on:
+  workflow_call:
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+      id-token: write
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Fetch shared review skill from Jetpack monorepo
+        uses: actions/checkout@v6
+        with:
+          repository: Automattic/jetpack
+          ref: trunk
+          sparse-checkout: |
+            .agents/skills/jetpack-review-pr.md
+            .claude/commands/jetpack-review-pr.md
+            .claude/commands/jetpack-pr.md
+            .claude/commands/jetpack-changelog.md
+          sparse-checkout-cone-mode: false
+          path: .jetpack-shared
+          fetch-depth: 1
+
+      - name: Wire up shared slash commands and skill
+        run: |
+          mkdir -p .claude/commands .agents/skills
+          cp .jetpack-shared/.claude/commands/jetpack-review-pr.md .claude/commands/
+          cp .jetpack-shared/.claude/commands/jetpack-pr.md .claude/commands/
+          cp .jetpack-shared/.claude/commands/jetpack-changelog.md .claude/commands/
+          cp .jetpack-shared/.agents/skills/jetpack-review-pr.md .agents/skills/
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@df37d2f0760a4b5683a6e617c9325bc1a36443f6 # v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          additional_permissions: |
+            actions: read
+          claude_args: >-
+            --max-turns 30
+            --allowedTools
+            "Bash(gh issue *)"
+            "Bash(gh pr *)"
+            "Bash(git diff *)"
+            "Bash(git log *)"
+            "Bash(git show *)"
+            Read
+            Write
+            Glob
+            Grep
