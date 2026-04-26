@@ -47,15 +47,10 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		<h1 class="screen-reader-text"><?php esc_html_e( 'Jetpack Modules List', 'jetpack' ); ?></h1>
 		<?php
 
-		// Option C draft: enqueue the React modules-admin bundle instead of
-		// the legacy Backbone scripts. The Backbone sources
-		// (`_inc/jetpack-modules.js`, `.models.js`, `.views.js`) are left in
-		// the repo unchanged — a single-commit revert of this block restores
-		// the old enqueue path if the React draft is rejected.
-		//
-		// Mirrors the direct-enqueue pattern used by `network-admin.js`
-		// (see class.jetpack-network.php::enqueue_network_admin_scripts())
-		// because webpack emits this entry as `modules-admin.js` (no .min
+		// Enqueue the React `modules-admin` bundle. Mirrors the direct-enqueue
+		// pattern used by `network-admin.js` (see
+		// `class.jetpack-network.php::enqueue_network_admin_scripts()`)
+		// because webpack emits this entry as `modules-admin.js` (no `.min`
 		// suffix) with a sibling `.asset.php` dependency manifest.
 		//
 		// @since $$next-version$$

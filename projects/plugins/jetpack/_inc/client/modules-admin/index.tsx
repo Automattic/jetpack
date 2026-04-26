@@ -1,31 +1,13 @@
-// Modules admin page (React entry point).
+// Modules admin page React entry. Mounts a list view (search, active/inactive
+// filter, sort, tag sub-filter, per-row activate/deactivate toggle) into the
+// `<div id="jp-modules-admin-root">` emitted by `Jetpack_Settings_Page`,
+// dressed in `<AdminPage>` chrome and the shared `jetpack-admin-page-layout`
+// SCSS mixin.
 //
-// Option C draft v1: replaces the legacy Backbone rendering of
-// `admin.php?page=jetpack_modules` with a React tree wrapped in <AdminPage>,
-// styled via the shared `jetpack-admin-page-layout` mixin.
-//
-// Visual goal: preserve trunk's two-column layout (list left, filter sidebar
-// right). Modernization comes from swapping primitives — Activate/Deactivate
-// buttons become a <ToggleControl>; segmented filters use <ToggleGroupControl>;
-// the top-right Dashboard/Settings links are passed to <AdminPage>'s `actions`
-// slot.
-//
-// v1 scope:
-//   - Module list from the existing `jetpackModulesData` blob.
-//   - Search, active/inactive filter, sort (alphabetical / newest / popular).
-//   - Tag sub-filter with counts.
-//   - Per-row activate / deactivate via existing server URLs (nonce redirect —
-//     the page reloads with fresh data, no client-side state mutation needed).
-//   - Settings-link passthrough (server-rendered `configurable` anchor).
-//   - Dashboard / Settings as header actions on the right.
-//
-// Deferred (follow-ups):
-//   - Bulk activate / deactivate (dropdown + Apply, with row checkboxes).
-//   - Thickbox "More info" per-module modal.
-//   - URL state sync (replaceState for search/filter/tag/sort).
-//
-// The PHP layer (`Jetpack_Settings_Page::page_render`) emits a single
-// `<div id="jp-modules-admin-root">` for this entry to mount into.
+// Per-row toggle navigates to the existing
+// `admin.php?page=jetpack&action=activate|deactivate` server URLs. The server
+// redirects back and the page reloads with fresh module state, so no
+// client-side state mutation or REST roundtrip is needed.
 
 import { AdminPage, ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import {

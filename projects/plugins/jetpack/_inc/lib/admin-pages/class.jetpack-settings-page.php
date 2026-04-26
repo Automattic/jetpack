@@ -45,22 +45,20 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Renders the module list table where you can use bulk action or row
-	 * actions to activate/deactivate and configure modules.
+	 * Render the page body.
 	 *
-	 * Option C draft: this now renders a single `<div id="jp-modules-admin-root">`
-	 * that the React bundle (`modules-admin.min.js`, enqueued via
-	 * `Jetpack_Modules_List_Table::__construct`) mounts into. The legacy
-	 * Backbone-driven markup below has been removed from the rendered output;
-	 * the Backbone sources (`jetpack-modules.js`, `.models.js`, `.views.js`) are
-	 * left in place but no longer enqueued, so a single-commit revert restores
-	 * the old experience.
+	 * Emits a single mount point (`<div id="jp-modules-admin-root">`) for the
+	 * React `modules-admin` bundle, plus the noscript and REST-disabled
+	 * fallback notices. `Jetpack_Modules_List_Table`'s constructor enqueues
+	 * the bundle and localizes the `jetpackModulesData` blob the React app
+	 * reads on mount.
 	 *
 	 * @since $$next-version$$
 	 */
 	public function page_render() {
-		// Instantiate the list table purely for the side effect of registering
-		// and enqueuing the React bundle + `jetpackModulesData` localized blob.
+		// `Jetpack_Modules_List_Table::__construct` enqueues the React bundle
+		// and localizes `jetpackModulesData`, so instantiate it for the side
+		// effect.
 		// @phan-suppress-next-line PhanNoopNew -- Constructor enqueues scripts.
 		new Jetpack_Modules_List_Table();
 
