@@ -18,8 +18,7 @@ name: Claude Code (shared, reusable)
 #   id-token: write is required by claude-code-action for OIDC and must stay.
 #
 # - ref:trunk on the sparse-checkout means skill changes ship to satellites
-#   with no per-satellite bumps. Satellites that prefer to gate skill changes
-#   on an explicit bump MAY SHA-pin THIS workflow file in their `uses:` line.
+#   with no per-satellite bumps.
 
 on:
   workflow_call:
