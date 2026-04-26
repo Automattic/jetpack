@@ -49,7 +49,11 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		}
 
 		$this->register_basic_routes();
-		$this->register_ai_chat_routes();
+
+		// When AI chat is disabled, the routes are not registered (404).
+		if ( Jetpack_AI_Helper::is_ai_chat_enabled() ) {
+			$this->register_ai_chat_routes();
+		}
 
 		if ( \Jetpack_AI_Helper::is_enabled() ) {
 			$this->register_routes();
@@ -124,7 +128,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'request_chat_with_site' ),
-					'permission_callback' => array( 'Jetpack_AI_Helper', 'is_ai_chat_enabled' ),
+					'permission_callback' => '__return_true',
 				),
 				'args' => array(
 					'query'         => array(
@@ -148,7 +152,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'rank_response' ),
-					'permission_callback' => array( 'Jetpack_AI_Helper', 'is_ai_chat_enabled' ),
+					'permission_callback' => '__return_true',
 				),
 				'args' => array(
 					'cache_key' => array(
