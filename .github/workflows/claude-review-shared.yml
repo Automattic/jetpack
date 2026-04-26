@@ -1,41 +1,25 @@
 name: Claude Code (shared, reusable)
 
-# Reusable workflow that other Automattic repos call via workflow_call to get
-# the same AI code review behavior as the monorepo's claude.yml.
+# workflow_call reusable: satellites invoke this to get claude.yml's AI code
+# review behavior, with the skill and slash commands living only in the
+# monorepo.
 #
-# Skill files live at .agents/skills/jetpack-review-pr.md and .claude/commands/
-# jetpack-*.md in this repo, and are the single source of truth. Callers do not
-# maintain copies; the workflow sparse-checks-out monorepo trunk at runtime to
-# fetch them.
+# - The skill (.agents/skills/jetpack-review-pr.md) and slash commands
+#   (.claude/commands/jetpack-*.md) are sparse-checked-out from monorepo trunk
+#   at runtime and copied into the caller's workspace. Satellites must not
+#   maintain copies; any caller files at those paths get overwritten each run.
 #
-# Caller responsibilities (NOT handled here):
-#   - Trigger conditions (issue_comment, pull_request_review_comment, etc.).
-#   - Author gating (e.g. author_association in MEMBER/OWNER).
-#   - Body matching (e.g. contains(comment.body, '@claude')).
-#   - Granting secrets.ANTHROPIC_API_KEY at the satellite repo. The workflow
-#     fails opaquely if missing.
-# See Automattic/jetpack/.github/workflows/claude.yml for a reference caller.
+# - See claude.yml for caller reference. The caller wires triggers, author
+#   gating, and body matching, and provides secrets.ANTHROPIC_API_KEY at the
+#   satellite repo.
 #
-# Permissions: the satellite's GITHUB_TOKEN scope in this called job is set by
-# the permissions block below, NOT by the satellite caller's workflow-level
-# permissions. Satellites cannot tighten the scope from their side. The
-# id-token: write grant is required by anthropics/claude-code-action (it mints
-# an OIDC token for the claude[bot] identity) and must not be removed.
+# - The permissions block below sets the satellite's GITHUB_TOKEN scope for
+#   this job; satellites can't tighten or loosen it from their workflow file.
+#   id-token: write is required by claude-code-action for OIDC and must stay.
 #
-# Wire-up overwrites pre-existing satellite files at .claude/commands/jetpack-
-# review-pr.md, jetpack-pr.md, jetpack-changelog.md, and .agents/skills/jetpack-
-# review-pr.md. Satellites must not customize those paths; fork the workflow
-# if you need different behavior.
-#
-# Supply chain: this workflow checks out Automattic/jetpack@trunk on every run.
-# A bad commit to trunk in the skill files affects every satellite on its next
-# invocation. This is the explicit "single source of truth" tradeoff. Satellites
-# that want defense-in-depth MAY SHA-pin the reusable workflow itself in their
-# `uses:` line; the skill content stays on trunk by design.
-#
-# OIDC: satellites that trust GitHub OIDC for cloud roles must condition on
-# job_workflow_ref (not just repository), since a compromised monorepo trunk
-# could otherwise mint tokens the satellite cloud trust accepts.
+# - ref:trunk on the sparse-checkout means skill changes ship to satellites
+#   with no per-satellite bumps. Satellites that prefer to gate skill changes
+#   on an explicit bump MAY SHA-pin THIS workflow file in their `uses:` line.
 
 on:
   workflow_call:
