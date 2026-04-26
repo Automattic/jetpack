@@ -44,7 +44,9 @@ test.describe( 'Jetpack Protect Plugin', () => {
 
 		await test.step( 'Test the brute force protection setting', async () => {
 			// Test the setting is present and enabled by default
-			const bruteForceToggle = page.locator( '#inspector-toggle-control-1' );
+			const bruteForceToggle = page.getByRole( 'checkbox', {
+				name: 'Brute force protection',
+			} );
 			await expect( page.getByRole( 'heading', { name: 'Brute force protection' } ) ).toBeVisible();
 			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
 			await expect( bruteForceToggle, 'Brute force protection should be on' ).toBeChecked();
@@ -64,7 +66,7 @@ test.describe( 'Jetpack Protect Plugin', () => {
 
 		await test.step( 'Test the IP block list settings', async () => {
 			const blockListTextarea = page.locator( '#jetpack_waf_ip_block_list' );
-			const blockListToggle = page.locator( '#inspector-toggle-control-2' );
+			const blockListToggle = page.getByRole( 'checkbox', { name: 'Block IP addresses' } );
 
 			// Test the default block list state
 			await expect( page.getByRole( 'heading', { name: 'Block IP addresses' } ) ).toBeVisible();
@@ -85,7 +87,9 @@ test.describe( 'Jetpack Protect Plugin', () => {
 		} );
 
 		await test.step( 'Test the IP allow list settings', async () => {
-			const trustedIPsToggle = page.locator( '#inspector-toggle-control-3' );
+			const trustedIPsToggle = page.getByRole( 'checkbox', {
+				name: 'Trusted IP addresses',
+			} );
 			const saveAllowListButton = page.getByRole( 'button', { name: 'Save allow list' } );
 
 			// Validate the default allow list state
@@ -106,8 +110,12 @@ test.describe( 'Jetpack Protect Plugin', () => {
 		} );
 
 		await test.step( 'Test the data sharing settings', async () => {
-			const basicDataSharingToggle = page.locator( '#inspector-toggle-control-4' );
-			const advancedDataSharingToggle = page.locator( '#inspector-toggle-control-5' );
+			const basicDataSharingToggle = page.getByRole( 'checkbox', {
+				name: 'Share basic data',
+			} );
+			const advancedDataSharingToggle = page.getByRole( 'checkbox', {
+				name: 'Share detailed data',
+			} );
 
 			// Test the default state
 			await expect(

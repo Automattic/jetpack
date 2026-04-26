@@ -387,6 +387,7 @@ const FirewallPage = () => {
 					checked={ isBruteForceModuleEnabled }
 					onChange={ toggleBruteForceProtection }
 					disabled={ isUpdating }
+					aria-label={ __( 'Brute force protection', 'jetpack-protect' ) }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -414,6 +415,7 @@ const FirewallPage = () => {
 					checked={ ipBlockListEnabled }
 					onChange={ toggleIpBlockList }
 					disabled={ ! canEditFirewallSettings }
+					aria-label={ __( 'Block IP addresses', 'jetpack-protect' ) }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
@@ -469,6 +471,7 @@ const FirewallPage = () => {
 						checked={ jetpackWafIpAllowListEnabled }
 						onChange={ toggleIpAllowList }
 						disabled={ isUpdating }
+						aria-label={ __( 'Trusted IP addresses', 'jetpack-protect' ) }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
