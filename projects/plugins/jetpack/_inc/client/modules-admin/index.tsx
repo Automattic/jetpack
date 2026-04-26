@@ -29,15 +29,14 @@
 
 import { AdminPage, ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import {
-	Button,
 	SearchControl,
 	ToggleControl,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import './style.scss';
@@ -292,14 +291,24 @@ function ModulesAdminApp() {
 	}, [] );
 
 	const headerActions = (
-		<HStack spacing={ 2 } justify="flex-end">
-			<Button variant="secondary" href={ adminUrl( 'admin.php?page=jetpack#/dashboard' ) }>
+		<Stack direction="row" gap="sm" justify="flex-end">
+			<Button
+				variant="outline"
+				tone="neutral"
+				nativeButton={ false }
+				render={ <a href={ adminUrl( 'admin.php?page=jetpack#/dashboard' ) } /> }
+			>
 				{ __( 'Dashboard', 'jetpack' ) }
 			</Button>
-			<Button variant="secondary" href={ adminUrl( 'admin.php?page=jetpack#/settings' ) }>
+			<Button
+				variant="outline"
+				tone="neutral"
+				nativeButton={ false }
+				render={ <a href={ adminUrl( 'admin.php?page=jetpack#/settings' ) } /> }
+			>
 				{ __( 'Settings', 'jetpack' ) }
 			</Button>
-		</HStack>
+		</Stack>
 	);
 
 	if ( ! data ) {
