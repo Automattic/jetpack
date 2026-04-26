@@ -11,7 +11,7 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
@@ -36,6 +36,7 @@ import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
 import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
+import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -162,34 +163,16 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
-	const modulesMenuItem = {
-		label: _x(
-			'Modules',
-			'Navigation item. Noun. Links to a list of modules for Jetpack.',
-			'jetpack-my-jetpack'
-		),
-		title: __(
-			'Access the full list of Jetpack modules available on your site.',
-			'jetpack-my-jetpack'
-		),
-		href: `${ adminUrl }admin.php?page=jetpack_modules`,
-		onClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
-	};
-
-	const resetOptionsMenuItem = {
-		label: 'Reset options (devs)',
-		role: 'button',
-		onClick: () => resetJetpackOptions(),
-		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
-	};
-
-	const optionalMenuItems = [];
-	if ( userIsAdmin && isSiteConnected && ! isWpcomPlatformSite() ) {
-		optionalMenuItems.push( modulesMenuItem );
-	}
-	if ( isDevVersion && userIsAdmin ) {
-		optionalMenuItems.push( resetOptionsMenuItem );
-	}
+	const optionalMenuItems = buildOptionalMenuItems( {
+		adminUrl,
+		isDevVersion,
+		userIsAdmin,
+		isSiteConnected,
+		isWpcomPlatform: isWpcomPlatformSite(),
+		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
+		onResetClick: () => resetJetpackOptions(),
+		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
+	} );
 
 	return (
 		<AdminPage
