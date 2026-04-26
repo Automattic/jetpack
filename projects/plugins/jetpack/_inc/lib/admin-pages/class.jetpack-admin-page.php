@@ -106,20 +106,17 @@ abstract class Jetpack_Admin_Page {
 			return;
 		}
 
-		// Check if we are looking at the main dashboard.
-		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
+		// Pages whose React tree provides its own header/footer chrome (via
+		// `<AdminPage>`) skip the legacy `wrap_ui()` wrapper to avoid stacking
+		// two mastheads and two footers around the same content.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		if ( in_array( $page, array( 'jetpack', 'jetpack_modules' ), true ) ) {
 			$this->page_render();
 			return;
 		}
 
-		$args = array();
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['page'] ) && 'jetpack_modules' === $_GET['page'] ) {
-			$args['is-wide'] = true;
-		}
-
-		self::wrap_ui( array( $this, 'page_render' ), $args );
+		self::wrap_ui( array( $this, 'page_render' ), array() );
 	}
 
 	/**
