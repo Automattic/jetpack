@@ -8,6 +8,30 @@ const defaultFunctions = Object.freeze( {
 	_nx: 4,
 } );
 
+const I18N_MODULE = '@wordpress/i18n';
+
+/**
+ * Checks whether a given function name is an alias for an `@wordpress/i18n` import.
+ * @param {object} path - The Babel path object.
+ * @param {string} name - The function name to check.
+ * @return {string|null} The resolved function name, or null if the function name is not an alias.
+ */
+function resolveI18nAlias( path, name ) {
+	const binding = path.scope.getBinding( name );
+	if ( ! binding ) {
+		return null;
+	}
+	const bindingPath = binding.path;
+	if ( ! bindingPath.isImportSpecifier() ) {
+		return null;
+	}
+	const importDecl = bindingPath.parentPath;
+	if ( ! importDecl.isImportDeclaration() || importDecl.node.source.value !== I18N_MODULE ) {
+		return null;
+	}
+	return bindingPath.node.imported.name;
+}
+
 module.exports = ( babel, opts ) => {
 	const { types: t } = babel;
 	const seenDomains = {};
@@ -49,9 +73,14 @@ module.exports = ( babel, opts ) => {
 				if ( t.isSequenceExpression( callee ) ) {
 					callee = callee.expressions[ callee.expressions.length - 1 ];
 				}
-				const funcName = t.isMemberExpression( callee ) ? callee.property.name : callee.name;
+				const calleeName = t.isMemberExpression( callee ) ? callee.property.name : callee.name;
+
+				let funcName = calleeName;
 				if ( ! Object.hasOwn( functions, funcName ) ) {
-					return;
+					funcName = resolveI18nAlias( path, calleeName );
+					if ( ! funcName || ! Object.hasOwn( functions, funcName ) ) {
+						return;
+					}
 				}
 				const idx = functions[ funcName ];
 

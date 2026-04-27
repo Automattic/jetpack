@@ -157,6 +157,33 @@ pluginTester( {
 			},
 		},
 
+		{
+			title: 'Import alias: replaces domain',
+			setup,
+			code: `import { __ as __alias } from '@wordpress/i18n';\n__alias( 'Hello', 'old-domain' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: injects missing domain',
+			setup,
+			code: `import { __ as __alias } from '@wordpress/i18n';\n__alias( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: ignores non-i18n imports',
+			setup,
+			code: `import { __ as __alias } from 'other-module';\n__alias( 'Hello', 'old-domain' );`,
+			output: `import { __ as __alias } from 'other-module';\n__alias('Hello', 'old-domain');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+
 		// Invalid option handling.
 		{
 			title: 'Bad options: missing textdomain',

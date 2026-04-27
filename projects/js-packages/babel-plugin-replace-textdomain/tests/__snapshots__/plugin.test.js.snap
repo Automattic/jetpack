@@ -406,3 +406,42 @@ exports[`@automattic/babel-plugin-replace-textdomain 14. Expression domain: debu
 `;
 
 exports[`@automattic/babel-plugin-replace-textdomain 15. Doesn't try to handle \`toString()\` or the like: debug calls 1`] = `[]`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 16. Import alias: replaces domain: 16. Import alias: replaces domain 1`] = `
+
+import { __ as __alias } from '@wordpress/i18n';
+__alias( 'Hello', 'old-domain' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { __ as __alias } from '@wordpress/i18n';
+__alias('Hello', 'new-domain');
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 16. Import alias: replaces domain: debug calls 1`] = `[]`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 17. Import alias: injects missing domain: 17. Import alias: injects missing domain 1`] = `
+
+import { __ as __alias } from '@wordpress/i18n';
+__alias( 'Hello' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { __ as __alias } from '@wordpress/i18n';
+__alias('Hello', 'new-domain');
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 17. Import alias: injects missing domain: debug calls 1`] = `
+[
+  [
+    Domain argument (index 2) is missing
+  1 | import { __ as __alias } from '@wordpress/i18n';
+> 2 | __alias( 'Hello' );
+    | ^^^^^^^^^^^^^^^^^^,
+  ],
+]
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 18. Import alias: ignores non-i18n imports: debug calls 1`] = `[]`;
