@@ -43,4 +43,37 @@ class SalPostsTest extends WP_UnitTestCase {
 
 		$this->assertEquals( $post->post_type, $wrapped_post->get_type() );
 	}
+
+	public function test_get_has_password_returns_true_when_post_has_password() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'    => 'Password Protected Post',
+				'post_content'  => 'Secret content.',
+				'post_status'   => 'publish',
+				'post_password' => 'secret123',
+				'post_author'   => get_current_user_id(),
+			)
+		);
+
+		$post         = get_post( $post_id );
+		$wrapped_post = self::$site->wrap_post( $post, 'display' );
+
+		$this->assertTrue( $wrapped_post->get_has_password() );
+	}
+
+	public function test_get_has_password_returns_false_when_post_has_no_password() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Public Post',
+				'post_content' => 'Public content.',
+				'post_status'  => 'publish',
+				'post_author'  => get_current_user_id(),
+			)
+		);
+
+		$post         = get_post( $post_id );
+		$wrapped_post = self::$site->wrap_post( $post, 'display' );
+
+		$this->assertFalse( $wrapped_post->get_has_password() );
+	}
 }
