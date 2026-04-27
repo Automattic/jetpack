@@ -71,7 +71,7 @@ async function startConnectionFlow( siteRegistered ) {
 		if ( redirectUri ) {
 			params.set( 'redirect_uri', redirectUri );
 		}
-		params.set( 'from', 'wpcom-connector' );
+		params.set( 'from', 'jetpack-connector' );
 		if ( connectedPluginSlugs ) {
 			params.set( 'plugins', connectedPluginSlugs );
 		}
