@@ -506,7 +506,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			$wp_query->queried_object_id = $post_id;
 			$wp_query->post_count        = 1;
 			$wp_query->is_single         = true;
-			$wp_query->is_preview        = 'publish' !== $status;
+			$wp_query->is_preview        = true;
 
 			$context = $this->call_private_static( 'get_current_post_context' );
 
