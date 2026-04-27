@@ -88,7 +88,7 @@ class zeroBS__Metabox_QuoteTemplate extends zeroBS__Metabox {
 		// pass specific placeholder list for WYSIWYG inserter
 		$placeholder_templating = $zbs->get_templating();
 		$placeholder_list       = $placeholder_templating->get_placeholders_for_tooling( array( 'quote', 'contact', 'global' ), false, false );
-		echo '<script>var jpcrm_placeholder_list = ' . wp_json_encode( $placeholder_templating->simplify_placeholders_for_wysiwyg( $placeholder_list ) ) . ';</script>';
+		echo '<script>var jpcrm_placeholder_list = ' . wp_json_encode( $placeholder_templating->simplify_placeholders_for_wysiwyg( $placeholder_list ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';</script>';
 
 		// for mvp v3.0 we now just hard-type these, as there a lesser obj rarely used.
 		$fields = array(

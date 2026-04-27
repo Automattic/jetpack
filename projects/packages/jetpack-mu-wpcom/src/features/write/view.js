@@ -1,0 +1,1166 @@
+/**
+ * Write — WordPress.com — Interactivity API Store
+ *
+ * A distraction-free front-end writing experience.
+ * Creates WordPress posts with proper block markup via the REST API.
+ */
+
+/* eslint-disable @wordpress/no-global-get-selection -- Write serves a full page, not an iframe or shadow DOM. */
+
+// eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
+import { store, getElement, getContext } from '@wordpress/interactivity';
+
+// Save/restore the selection so we can insert images after the modal closes.
+let savedRange = null;
+
+/**
+ * Save the current text selection so it can be restored after a modal closes.
+ */
+function saveSelection() {
+	const sel = window.getSelection();
+	if ( sel.rangeCount > 0 ) {
+		savedRange = sel.getRangeAt( 0 ).cloneRange();
+	}
+}
+
+/**
+ * Restore a previously saved text selection.
+ */
+function restoreSelection() {
+	if ( ! savedRange ) return;
+	const sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange( savedRange );
+}
+
+/**
+ * Convert contentEditable HTML into WordPress block markup.
+ *
+ * @param {string} html - The innerHTML from the contenteditable area.
+ * @return {string} Serialized Gutenberg block markup.
+ */
+function convertToBlocks( html ) {
+	const tmp = document.createElement( 'div' );
+	tmp.innerHTML = html;
+
+	const blocks = [];
+
+	for ( const node of tmp.childNodes ) {
+		if ( node.nodeType === Node.TEXT_NODE ) {
+			const text = node.textContent.trim();
+			if ( text ) {
+				blocks.push( `<!-- wp:paragraph -->\n<p>${ text }</p>\n<!-- /wp:paragraph -->` );
+			}
+			continue;
+		}
+
+		if ( node.nodeType !== Node.ELEMENT_NODE ) continue;
+
+		const tag = node.tagName.toLowerCase();
+		const inner = node.innerHTML.trim();
+
+		if ( ! inner && ! [ 'figure', 'img', 'hr' ].includes( tag ) ) continue;
+
+		if ( tag === 'p' || tag === 'div' ) {
+			blocks.push( `<!-- wp:paragraph -->\n<p>${ inner }</p>\n<!-- /wp:paragraph -->` );
+		} else if ( /^h[1-6]$/.test( tag ) ) {
+			const level = parseInt( tag.charAt( 1 ), 10 );
+			blocks.push(
+				`<!-- wp:heading {"level":${ level }} -->\n<${ tag } class="wp-block-heading">${ inner }</${ tag }>\n<!-- /wp:heading -->`
+			);
+		} else if ( tag === 'figure' && node.querySelector( 'iframe' ) ) {
+			const iframe = node.querySelector( 'iframe' );
+			const src = iframe.getAttribute( 'src' ) || '';
+			// Convert embed URL back to watch URL for wp:embed.
+			let originalUrl = src;
+			let provider = 'youtube';
+			const ytMatch = src.match( /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/ );
+			if ( ytMatch ) originalUrl = 'https://www.youtube.com/watch?v=' + ytMatch[ 1 ];
+			const vimeoMatch = src.match( /player\.vimeo\.com\/video\/(\d+)/ );
+			if ( vimeoMatch ) {
+				originalUrl = 'https://vimeo.com/' + vimeoMatch[ 1 ];
+				provider = 'vimeo';
+			}
+			blocks.push(
+				`<!-- wp:embed {"url":"${ originalUrl }","type":"video","providerNameSlug":"${ provider }","responsive":true} -->\n<figure class="wp-block-embed is-type-video is-provider-${ provider } wp-block-embed-${ provider }"><div class="wp-block-embed__wrapper">\n${ originalUrl }\n</div></figure>\n<!-- /wp:embed -->`
+			);
+		} else if ( tag === 'figure' && node.querySelector( 'img' ) ) {
+			const img = node.querySelector( 'img' );
+			const src = img.getAttribute( 'src' ) || '';
+			const alt = img.getAttribute( 'alt' ) || '';
+			blocks.push(
+				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ alt }"/></figure>\n<!-- /wp:image -->`
+			);
+		} else if ( tag === 'blockquote' ) {
+			// inner may already contain <p> tags from contentEditable.
+			const quoteInner = inner.startsWith( '<p' ) ? inner : `<p>${ inner }</p>`;
+			blocks.push(
+				`<!-- wp:quote -->\n<blockquote class="wp-block-quote">${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+			);
+		} else if ( tag === 'hr' ) {
+			blocks.push(
+				'<!-- wp:separator -->\n<hr class="wp-block-separator has-alpha-channel-opacity"/>\n<!-- /wp:separator -->'
+			);
+		} else {
+			// Fallback: wrap in paragraph.
+			blocks.push( `<!-- wp:paragraph -->\n<p>${ inner }</p>\n<!-- /wp:paragraph -->` );
+		}
+	}
+
+	return blocks.join( '\n\n' );
+}
+
+/**
+ * Position the toolbar near the current text selection.
+ */
+function positionToolbar() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return;
+
+	const toolbar = document.querySelector( '.bw-toolbar' );
+	if ( ! toolbar ) return;
+
+	const range = sel.getRangeAt( 0 );
+	const rect = range.getBoundingClientRect();
+	const toolbarWidth = toolbar.offsetWidth;
+	let left = rect.left + rect.width / 2 - toolbarWidth / 2;
+	left = Math.max( 8, Math.min( left, window.innerWidth - toolbarWidth - 8 ) );
+	const top = rect.top - 52 + window.scrollY;
+
+	toolbar.style.position = 'absolute';
+	toolbar.style.left = left + 'px';
+	toolbar.style.top = top + 'px';
+}
+
+/**
+ * Position the slash command menu below the current cursor.
+ */
+function positionSlashMenu() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return;
+
+	const menu = document.querySelector( '.bw-slash-menu' );
+	if ( ! menu ) return;
+
+	const range = sel.getRangeAt( 0 );
+	const rect = range.getBoundingClientRect();
+	const menuWidth = menu.offsetWidth;
+	let left = rect.left;
+	left = Math.max( 8, Math.min( left, window.innerWidth - menuWidth - 8 ) );
+	const top = rect.bottom + 8 + window.scrollY;
+
+	menu.style.position = 'absolute';
+	menu.style.left = left + 'px';
+	menu.style.top = top + 'px';
+}
+
+/**
+ * Remove the slash text from the current line before inserting a block.
+ */
+function clearSlashText() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return;
+
+	const node = sel.anchorNode;
+	if ( node && node.nodeType === Node.TEXT_NODE && node.textContent.trim().startsWith( '/' ) ) {
+		node.textContent = '';
+	}
+}
+
+/**
+ * Convert a YouTube/Vimeo URL to an embeddable URL.
+ *
+ * @param {string} url - The video URL to convert.
+ * @return {string|null} The embeddable URL, or null if not recognized.
+ */
+function getEmbedUrl( url ) {
+	// YouTube
+	let match = url.match(
+		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
+	);
+	if ( match ) return 'https://www.youtube.com/embed/' + match[ 1 ];
+
+	// Vimeo
+	match = url.match( /vimeo\.com\/(\d+)/ );
+	if ( match ) return 'https://player.vimeo.com/video/' + match[ 1 ];
+
+	return null;
+}
+
+/**
+ * Add delete buttons to image/video figures in the content area.
+ */
+function addDeleteButtons() {
+	const content = document.querySelector( '.bw-content' );
+	if ( ! content ) return;
+
+	content.querySelectorAll( 'figure, .bw-image-figure, .bw-video-figure' ).forEach( fig => {
+		if ( fig.querySelector( '.bw-img-delete' ) ) return;
+
+		// Wrap img in a positioning container so buttons stay anchored to the image.
+		const img = fig.querySelector( 'img' );
+		if ( img && ! img.parentElement.classList.contains( 'bw-img-controls' ) ) {
+			const wrapper = document.createElement( 'div' );
+			wrapper.className = 'bw-img-controls';
+			wrapper.contentEditable = 'false';
+			img.before( wrapper );
+			wrapper.appendChild( img );
+		}
+		const controls = fig.querySelector( '.bw-img-controls' ) || fig;
+
+		// Delete button.
+		const btn = document.createElement( 'button' );
+		btn.className = 'bw-img-delete';
+		btn.innerHTML = '&times;';
+		btn.contentEditable = 'false';
+		btn.addEventListener( 'click', e => {
+			e.preventDefault();
+			e.stopPropagation();
+			fig.style.opacity = '0';
+			fig.style.transform = 'scale(0.95)';
+			fig.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+			setTimeout( () => fig.remove(), 200 );
+		} );
+		controls.appendChild( btn );
+
+		// Alt text button (only for images, not videos).
+		const imgEl = controls.querySelector( 'img' );
+		if ( ! imgEl ) return;
+
+		const altBtn = document.createElement( 'button' );
+		altBtn.className = 'bw-img-alt';
+		altBtn.textContent = 'ALT';
+		altBtn.contentEditable = 'false';
+		altBtn.addEventListener( 'click', e => {
+			e.preventDefault();
+			e.stopPropagation();
+
+			const existing = controls.querySelector( '.bw-img-alt-input' );
+			if ( existing ) {
+				existing.remove();
+				return;
+			}
+
+			const input = document.createElement( 'input' );
+			input.type = 'text';
+			input.className = 'bw-img-alt-input';
+			input.placeholder = 'Describe this image...';
+			input.value = imgEl.alt || '';
+			input.contentEditable = 'false';
+			input.addEventListener( 'click', ev => ev.stopPropagation() );
+			input.addEventListener( 'keydown', ev => {
+				ev.stopPropagation();
+				if ( ev.key === 'Enter' ) {
+					imgEl.alt = input.value;
+					input.remove();
+				}
+				if ( ev.key === 'Escape' ) {
+					input.remove();
+				}
+			} );
+			input.addEventListener( 'blur', () => {
+				imgEl.alt = input.value;
+				setTimeout( () => input.remove(), 150 );
+			} );
+			controls.appendChild( input );
+			input.focus();
+		} );
+		controls.appendChild( altBtn );
+
+		// Caption button.
+		const capBtn = document.createElement( 'button' );
+		capBtn.className = 'bw-img-caption-btn';
+		capBtn.textContent = 'Caption';
+		capBtn.contentEditable = 'false';
+		capBtn.addEventListener( 'click', e => {
+			e.preventDefault();
+			e.stopPropagation();
+
+			let figcaption = fig.querySelector( 'figcaption' );
+			if ( figcaption ) {
+				figcaption.focus();
+				return;
+			}
+
+			figcaption = document.createElement( 'figcaption' );
+			figcaption.className = 'bw-figcaption';
+			figcaption.contentEditable = 'true';
+			figcaption.setAttribute( 'data-placeholder', 'Write a caption...' );
+			figcaption.addEventListener( 'click', ev => ev.stopPropagation() );
+			fig.appendChild( figcaption );
+
+			// Listen on the figure for keydown so we catch it before the content area.
+			fig.addEventListener( 'keydown', ev => {
+				if (
+					ev.key === 'Enter' &&
+					fig.querySelector( 'figcaption' ) &&
+					fig.querySelector( 'figcaption' ).contains( document.getSelection().anchorNode )
+				) {
+					ev.preventDefault();
+					ev.stopImmediatePropagation();
+					let next = fig.nextElementSibling;
+					if ( ! next || next.tagName === 'FIGURE' ) {
+						next = document.createElement( 'p' );
+						next.innerHTML = '<br>';
+						fig.after( next );
+					}
+					const range = document.createRange();
+					range.setStart( next, 0 );
+					range.collapse( true );
+					const sel = window.getSelection();
+					sel.removeAllRanges();
+					sel.addRange( range );
+				}
+			} );
+			figcaption.focus();
+		} );
+		controls.appendChild( capBtn );
+	} );
+}
+
+// Tell the browser to use <p> tags for new paragraphs in contentEditable.
+document.execCommand( 'defaultParagraphSeparator', false, 'p' );
+
+// Seed the content area with an empty <p> so the cursor starts inside a paragraph.
+// This ensures Enter creates proper <p> tags from the very first line.
+const contentReady2 = setInterval( () => {
+	const contentEl = document.querySelector( '.bw-content' );
+	if ( ! contentEl ) return;
+	clearInterval( contentReady2 );
+
+	if ( ! contentEl.innerHTML.trim() ) {
+		contentEl.innerHTML = '<p><br></p>';
+	}
+}, 200 );
+
+// Watch for new figures being added.
+if ( typeof MutationObserver !== 'undefined' ) {
+	const contentReady = setInterval( () => {
+		const content = document.querySelector( '.bw-content' );
+		if ( ! content ) return;
+		clearInterval( contentReady );
+		addDeleteButtons();
+		new MutationObserver( addDeleteButtons ).observe( content, { childList: true, subtree: true } );
+	}, 200 );
+}
+
+/**
+ * Reset the image upload zone to its default state.
+ */
+function resetUploadZone() {
+	const zone = document.getElementById( 'bw-upload-zone' );
+	if ( ! zone ) return;
+	// Remove any existing preview.
+	const old = zone.querySelector( '.bw-upload-preview' );
+	if ( old ) old.remove();
+	// Reset classes.
+	zone.classList.remove( 'bw-upload-has-preview', 'bw-uploading' );
+	// Show label, hide saving.
+	const label = zone.querySelector( '.bw-upload-label' );
+	if ( label ) label.style.display = '';
+	const saving = zone.querySelector( '.bw-upload-saving' );
+	if ( saving ) saving.style.display = 'none';
+	// Clear file input.
+	const input = zone.querySelector( 'input[type="file"]' );
+	if ( input ) input.value = '';
+}
+
+/**
+ * Show a preview image in the upload zone.
+ *
+ * @param {string} src - The image source URL to preview.
+ */
+function showUploadPreview( src ) {
+	const zone = document.getElementById( 'bw-upload-zone' );
+	if ( ! zone ) return;
+	// Remove old preview if any.
+	const old = zone.querySelector( '.bw-upload-preview' );
+	if ( old ) old.remove();
+	// Hide label.
+	const label = zone.querySelector( '.bw-upload-label' );
+	if ( label ) label.style.display = 'none';
+	const saving = zone.querySelector( '.bw-upload-saving' );
+	if ( saving ) saving.style.display = 'none';
+	// Create fresh img.
+	const img = document.createElement( 'img' );
+	img.className = 'bw-upload-preview';
+	img.src = src;
+	img.alt = 'Preview';
+	img.style.display = 'block';
+	zone.classList.add( 'bw-upload-has-preview' );
+	zone.classList.remove( 'bw-uploading' );
+	zone.insertBefore( img, zone.firstChild );
+}
+
+/**
+ * Insert a new empty block (h2, blockquote, etc.) replacing the slash command line.
+ *
+ * @param {string} tag - The HTML tag name for the new block (e.g. 'h2', 'blockquote').
+ */
+function insertNewBlock( tag ) {
+	const content = document.querySelector( '.bw-content' );
+	if ( ! content ) return;
+
+	const sel = window.getSelection();
+	const newEl = document.createElement( tag );
+	newEl.innerHTML = '<br>';
+
+	// Find the paragraph containing the slash command by scanning direct children.
+	let slashBlock = null;
+	for ( const child of content.children ) {
+		if ( /^(P|DIV)$/i.test( child.tagName ) && /^\/\S*$/.test( child.textContent.trim() ) ) {
+			slashBlock = child;
+			break;
+		}
+	}
+
+	if ( slashBlock ) {
+		slashBlock.after( newEl );
+		slashBlock.remove();
+	} else {
+		content.appendChild( newEl );
+	}
+
+	// Place cursor inside the new element.
+	const range = document.createRange();
+	range.setStart( newEl, 0 );
+	range.collapse( true );
+	sel.removeAllRanges();
+	sel.addRange( range );
+
+	state.showSlashMenu = false;
+}
+
+const { state } = store( 'wpcom-write', {
+	state: {
+		formatBold: false,
+		formatItalic: false,
+		formatHeading: false,
+		formatQuote: false,
+		imageUrl: '',
+	},
+
+	actions: {
+		updateTitle() {
+			const el = getElement();
+			state.title = el.ref.value;
+			// Auto-resize textarea height for browsers without field-sizing support.
+			el.ref.style.height = 'auto';
+			el.ref.style.height = el.ref.scrollHeight + 'px';
+		},
+
+		handleTitleKeyDown( event ) {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				const content = document.querySelector( '.bw-content' );
+				if ( content ) {
+					content.focus();
+					// Ensure the cursor starts inside a paragraph.
+					if ( ! content.querySelector( 'p' ) ) {
+						document.execCommand( 'formatBlock', false, 'p' );
+					}
+				}
+			}
+		},
+
+		handleBack( event ) {
+			// Don't warn if the post has been saved/published, or if we're editing an existing post with no changes.
+			if ( state.isPublished || state.hasSaved ) {
+				return;
+			}
+
+			const content = document.querySelector( '.bw-content' );
+			const hasContent = state.title.trim() || ( content && content.textContent.trim() );
+
+			// If editing an existing post, don't warn (content was already saved before).
+			if ( state.editPostId > 0 ) {
+				return;
+			}
+
+			if ( hasContent ) {
+				event.preventDefault();
+				state.showLeaveConfirm = true;
+			}
+		},
+
+		cancelLeave() {
+			state.showLeaveConfirm = false;
+		},
+
+		checkFormatting() {
+			// Check for slash commands first.
+			const { actions } = store( 'wpcom-write' );
+			actions.checkSlashCommand();
+
+			const sel = window.getSelection();
+			const text = sel.toString().trim();
+
+			if ( ! text ) {
+				state.showToolbar = false;
+				state.showLinkInput = false;
+				return;
+			}
+
+			state.formatBold = document.queryCommandState( 'bold' );
+			state.formatItalic = document.queryCommandState( 'italic' );
+
+			// Check if inside a heading or blockquote.
+			let node = sel.anchorNode;
+			state.formatHeading = false;
+			state.formatQuote = false;
+			while ( node && node !== document.body ) {
+				if ( node.nodeType === Node.ELEMENT_NODE ) {
+					if ( /^H[1-6]$/.test( node.tagName ) ) state.formatHeading = true;
+					if ( node.tagName === 'BLOCKQUOTE' ) state.formatQuote = true;
+				}
+				node = node.parentNode;
+			}
+
+			state.showToolbar = true;
+			requestAnimationFrame( positionToolbar );
+		},
+
+		handleKeyDown( event ) {
+			// Slash menu keyboard navigation.
+			if ( state.showSlashMenu ) {
+				if ( event.key === 'Escape' ) {
+					event.preventDefault();
+					state.showSlashMenu = false;
+					return;
+				}
+
+				const visible = [ ...document.querySelectorAll( '.bw-slash-item' ) ].filter(
+					el => el.style.display !== 'none'
+				);
+
+				if ( ! visible.length ) return;
+
+				const active = document.querySelector( '.bw-slash-item-active' );
+				let idx = active ? visible.indexOf( active ) : -1;
+
+				if ( event.key === 'ArrowDown' || event.key === 'Tab' ) {
+					event.preventDefault();
+					if ( active ) active.classList.remove( 'bw-slash-item-active' );
+					idx = ( idx + 1 ) % visible.length;
+					visible[ idx ].classList.add( 'bw-slash-item-active' );
+					return;
+				}
+
+				if ( event.key === 'ArrowUp' ) {
+					event.preventDefault();
+					if ( active ) active.classList.remove( 'bw-slash-item-active' );
+					idx = idx <= 0 ? visible.length - 1 : idx - 1;
+					visible[ idx ].classList.add( 'bw-slash-item-active' );
+					return;
+				}
+
+				if ( event.key === 'Enter' ) {
+					event.preventDefault();
+					const target = active || visible[ 0 ];
+					if ( target ) {
+						// Map menu items to actions by their label text.
+						const label = target.querySelector( 'strong' )?.textContent?.toLowerCase();
+						const { actions: a } = store( 'wpcom-write' );
+						const actionMap = {
+							heading: a.insertHeading,
+							image: a.insertImage,
+							video: a.insertVideo,
+							quote: a.insertQuote,
+							divider: a.insertDivider,
+						};
+						if ( actionMap[ label ] ) {
+							actionMap[ label ]();
+						}
+					}
+					return;
+				}
+			}
+
+			// Enter key: break out of blockquotes/headings and ensure paragraphs.
+			if ( event.key === 'Enter' && ! event.shiftKey ) {
+				const sel = window.getSelection();
+				if ( sel.rangeCount ) {
+					let node = sel.anchorNode;
+					// Walk up to find if we're inside a blockquote or heading.
+					let block = null;
+					while ( node && ! node.classList?.contains( 'bw-content' ) ) {
+						if (
+							node.nodeType === Node.ELEMENT_NODE &&
+							( node.tagName === 'BLOCKQUOTE' || /^H[1-6]$/.test( node.tagName ) )
+						) {
+							block = node;
+							break;
+						}
+						node = node.parentNode;
+					}
+
+					// If at the end of a blockquote or heading, break out to a paragraph.
+					if ( block ) {
+						const range = sel.getRangeAt( 0 );
+						const textAfterCursor = range.cloneRange();
+						textAfterCursor.selectNodeContents( block );
+						textAfterCursor.setStart( range.endContainer, range.endOffset );
+						const remaining = textAfterCursor.toString().trim();
+
+						if ( ! remaining ) {
+							event.preventDefault();
+							const p = document.createElement( 'p' );
+							p.innerHTML = '<br>';
+							block.after( p );
+							const newRange = document.createRange();
+							newRange.setStart( p, 0 );
+							newRange.collapse( true );
+							sel.removeAllRanges();
+							sel.addRange( newRange );
+						}
+					}
+				}
+			}
+		},
+
+		checkSlashCommand() {
+			const sel = window.getSelection();
+			if ( ! sel.rangeCount ) {
+				state.showSlashMenu = false;
+				return;
+			}
+
+			const node = sel.anchorNode;
+			if ( ! node || node.nodeType !== Node.TEXT_NODE ) {
+				state.showSlashMenu = false;
+				return;
+			}
+
+			const text = node.textContent;
+			// Show menu when the line starts with "/" and optionally a filter after it.
+			if ( /^\/\S*$/.test( text.trim() ) ) {
+				state.slashFilter = text.trim().slice( 1 ).toLowerCase();
+				state.showSlashMenu = true;
+				requestAnimationFrame( positionSlashMenu );
+
+				// Filter menu items and reset active highlight.
+				const items = document.querySelectorAll( '.bw-slash-item' );
+				let firstVisible = null;
+				items.forEach( item => {
+					item.classList.remove( 'bw-slash-item-active' );
+					const label = item.querySelector( 'strong' ).textContent.toLowerCase();
+					const show = label.includes( state.slashFilter );
+					item.style.display = show ? '' : 'none';
+					if ( show && ! firstVisible ) firstVisible = item;
+				} );
+				// Auto-highlight the first visible item.
+				if ( firstVisible ) firstVisible.classList.add( 'bw-slash-item-active' );
+			} else {
+				state.showSlashMenu = false;
+			}
+		},
+
+		preventToolbarBlur( event ) {
+			// Prevent the toolbar from stealing focus from the content area.
+			event.preventDefault();
+		},
+
+		formatBold() {
+			document.execCommand( 'bold' );
+			state.formatBold = document.queryCommandState( 'bold' );
+		},
+
+		formatItalic() {
+			document.execCommand( 'italic' );
+			state.formatItalic = document.queryCommandState( 'italic' );
+		},
+
+		formatHeading() {
+			if ( state.formatHeading ) {
+				document.execCommand( 'formatBlock', false, 'p' );
+				state.formatHeading = false;
+			} else {
+				document.execCommand( 'formatBlock', false, 'h2' );
+				state.formatHeading = true;
+				state.formatQuote = false;
+			}
+		},
+
+		formatQuote() {
+			if ( state.formatQuote ) {
+				document.execCommand( 'formatBlock', false, 'p' );
+				state.formatQuote = false;
+			} else {
+				document.execCommand( 'formatBlock', false, 'blockquote' );
+				state.formatQuote = true;
+				state.formatHeading = false;
+			}
+		},
+
+		toggleLinkInput() {
+			if ( state.showLinkInput ) {
+				state.showLinkInput = false;
+				return;
+			}
+
+			// Save selection before the toolbar steals focus.
+			saveSelection();
+
+			// Pre-fill if cursor is inside a link.
+			const sel = window.getSelection();
+			let node = sel.anchorNode;
+			state.linkUrl = '';
+			while ( node && node !== document.body ) {
+				if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A' ) {
+					state.linkUrl = node.href;
+					break;
+				}
+				node = node.parentNode;
+			}
+
+			state.showLinkInput = true;
+
+			// Position the link popover below the toolbar.
+			requestAnimationFrame( () => {
+				const toolbar = document.querySelector( '.bw-toolbar' );
+				const popover = document.querySelector( '.bw-link-popover' );
+				if ( ! toolbar || ! popover ) return;
+
+				const rect = toolbar.getBoundingClientRect();
+				popover.style.position = 'absolute';
+				popover.style.left = toolbar.style.left;
+				popover.style.top = rect.bottom + 8 + window.scrollY + 'px';
+
+				// Focus the input.
+				const input = popover.querySelector( '.bw-link-input' );
+				if ( input ) input.focus();
+			} );
+		},
+
+		updateLinkUrl() {
+			const el = getElement();
+			state.linkUrl = el.ref.value;
+		},
+
+		handleLinkKeyDown( event ) {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				restoreSelection();
+				if ( state.linkUrl ) {
+					document.execCommand( 'createLink', false, state.linkUrl );
+				}
+				state.showLinkInput = false;
+				state.showToolbar = false;
+			}
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showLinkInput = false;
+				state.showToolbar = false;
+			}
+		},
+
+		applyLink() {
+			restoreSelection();
+			if ( state.linkUrl ) {
+				document.execCommand( 'createLink', false, state.linkUrl );
+			}
+			state.showLinkInput = false;
+			state.showToolbar = false;
+		},
+
+		removeLink() {
+			restoreSelection();
+			document.execCommand( 'unlink' );
+			state.showLinkInput = false;
+			state.showToolbar = false;
+		},
+
+		toggleFeaturedImage() {
+			state.setAsFeatured = ! state.setAsFeatured;
+		},
+
+		updateImageAlt() {
+			const el = getElement();
+			state.imageAlt = el.ref.value;
+		},
+
+		openImageModal() {
+			saveSelection();
+			state.showToolbar = false;
+			state.imageUrl = '';
+			state.imageAlt = '';
+			state.setAsFeatured = false;
+			state.uploadedMediaId = 0;
+			resetUploadZone();
+			state.showImageModal = true;
+		},
+
+		closeImageModal() {
+			state.showImageModal = false;
+			resetUploadZone();
+		},
+
+		stopPropagation( event ) {
+			event.stopPropagation();
+		},
+
+		updateImageUrl() {
+			const el = getElement();
+			state.imageUrl = el.ref.value;
+		},
+
+		insertImageFromUrl() {
+			if ( ! state.imageUrl ) return;
+
+			// Handle featured image from uploaded media.
+			if ( state.setAsFeatured && state.uploadedMediaId ) {
+				state.featuredMediaId = state.uploadedMediaId;
+			}
+
+			restoreSelection();
+			const figure = document.createElement( 'figure' );
+			figure.className = 'bw-image-figure';
+			const img = document.createElement( 'img' );
+			img.src = state.imageUrl;
+			img.alt = state.imageAlt || '';
+			figure.appendChild( img );
+
+			const content = document.querySelector( '.bw-content' );
+
+			// Find the parent block (direct child of .bw-content) to insert after.
+			const sel = window.getSelection();
+			let insertAfter = null;
+			if ( sel.rangeCount ) {
+				let node = sel.anchorNode;
+				while ( node && node !== content && node.parentNode !== content ) {
+					node = node.parentNode;
+				}
+				if ( node && node.parentNode === content ) {
+					insertAfter = node;
+				}
+			}
+
+			const p = document.createElement( 'p' );
+			p.innerHTML = '<br>';
+
+			if ( insertAfter ) {
+				insertAfter.after( figure );
+				figure.after( p );
+			} else {
+				content.appendChild( figure );
+				content.appendChild( p );
+			}
+
+			// Move cursor to the new paragraph.
+			const range = document.createRange();
+			range.setStart( p, 0 );
+			range.collapse( true );
+			sel.removeAllRanges();
+			sel.addRange( range );
+
+			state.showImageModal = false;
+			resetUploadZone();
+		},
+
+		async uploadImage() {
+			const el = getElement();
+			const file = el.ref.files[ 0 ];
+			if ( ! file ) return;
+
+			state.isUploading = true;
+			const zone = document.getElementById( 'bw-upload-zone' );
+			if ( zone ) {
+				zone.classList.add( 'bw-uploading' );
+				const label = zone.querySelector( '.bw-upload-label' );
+				if ( label ) label.style.display = 'none';
+				const saving = zone.querySelector( '.bw-upload-saving' );
+				if ( saving ) saving.style.display = '';
+			}
+
+			const formData = new FormData();
+			formData.append( 'file', file );
+
+			try {
+				const media = await window.wp.apiFetch( {
+					path: state.mediaPath,
+					method: 'POST',
+					body: formData,
+				} );
+				state.imageUrl = media.source_url;
+				state.isUploading = false;
+				if ( zone ) zone.classList.remove( 'bw-uploading' );
+
+				// Store the uploaded URL and media ID — wait for "Insert image" click.
+				state.imageUrl = media.source_url;
+				if ( ! state.imageAlt && media.alt_text ) {
+					state.imageAlt = media.alt_text;
+				}
+				if ( state.setAsFeatured ) {
+					state.featuredMediaId = media.id;
+				}
+				state.uploadedMediaId = media.id;
+
+				// Show preview.
+				showUploadPreview( media.source_url );
+			} catch ( err ) {
+				state.isUploading = false;
+				if ( zone ) zone.classList.remove( 'bw-uploading' );
+				state.message = 'Upload failed: ' + err.message;
+				setTimeout( () => {
+					state.message = '';
+				}, 3000 );
+			}
+		},
+
+		insertHeading() {
+			insertNewBlock( 'h2' );
+		},
+
+		insertImage() {
+			clearSlashText();
+			state.showSlashMenu = false;
+			saveSelection();
+			state.showImageModal = true;
+			state.imageUrl = '';
+		},
+
+		insertQuote() {
+			insertNewBlock( 'blockquote' );
+		},
+
+		insertVideo() {
+			clearSlashText();
+			state.showSlashMenu = false;
+			saveSelection();
+			state.showVideoModal = true;
+			state.videoUrl = '';
+		},
+
+		closeVideoModal() {
+			state.showVideoModal = false;
+		},
+
+		updateVideoUrl() {
+			const el = getElement();
+			state.videoUrl = el.ref.value;
+		},
+
+		handleVideoKeyDown( event ) {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				const { actions } = store( 'wpcom-write' );
+				actions.insertVideoEmbed();
+			}
+		},
+
+		insertVideoEmbed() {
+			if ( ! state.videoUrl ) return;
+
+			const embedUrl = getEmbedUrl( state.videoUrl );
+			if ( ! embedUrl ) {
+				state.message = 'Please paste a valid YouTube or Vimeo URL';
+				setTimeout( () => {
+					state.message = '';
+				}, 3000 );
+				return;
+			}
+
+			restoreSelection();
+
+			const wrapper = document.createElement( 'figure' );
+			wrapper.className = 'bw-video-figure';
+			wrapper.innerHTML = `<div class="bw-video-wrap"><iframe src="${ embedUrl }" frameborder="0" allowfullscreen></iframe></div>`;
+
+			const content = document.querySelector( '.bw-content' );
+			const sel = window.getSelection();
+
+			let insertAfter = null;
+			if ( sel.rangeCount ) {
+				let node = sel.anchorNode;
+				while ( node && node !== content && node.parentNode !== content ) {
+					node = node.parentNode;
+				}
+				if ( node && node.parentNode === content ) {
+					insertAfter = node;
+				}
+			}
+
+			const p = document.createElement( 'p' );
+			p.innerHTML = '<br>';
+
+			if ( insertAfter ) {
+				insertAfter.after( wrapper );
+				wrapper.after( p );
+			} else {
+				content.appendChild( wrapper );
+				content.appendChild( p );
+			}
+
+			const range = document.createRange();
+			range.setStart( p, 0 );
+			range.collapse( true );
+			sel.removeAllRanges();
+			sel.addRange( range );
+
+			state.showVideoModal = false;
+		},
+
+		insertDivider() {
+			clearSlashText();
+			const hr = document.createElement( 'hr' );
+			const p = document.createElement( 'p' );
+			p.innerHTML = '<br>';
+
+			const sel = window.getSelection();
+			if ( sel.rangeCount ) {
+				const range = sel.getRangeAt( 0 );
+				// Find the parent block to insert after.
+				let block = range.startContainer;
+				while (
+					block &&
+					block.parentNode &&
+					! block.parentNode.classList.contains( 'bw-content' )
+				) {
+					block = block.parentNode;
+				}
+				if ( block && block.parentNode ) {
+					block.after( hr );
+					hr.after( p );
+					// Remove empty block left behind.
+					if ( block.textContent.trim() === '' ) {
+						block.remove();
+					}
+					// Move cursor to new paragraph.
+					const newRange = document.createRange();
+					newRange.setStart( p, 0 );
+					newRange.collapse( true );
+					sel.removeAllRanges();
+					sel.addRange( newRange );
+				}
+			}
+			state.showSlashMenu = false;
+		},
+
+		toggleHelp() {
+			state.showHelp = ! state.showHelp;
+			if ( state.showHelp ) {
+				const close = e => {
+					if ( e.target.closest( '.bw-help-popover' ) || e.target.closest( '.bw-help-toggle' ) )
+						return;
+					state.showHelp = false;
+					document.removeEventListener( 'click', close );
+				};
+				setTimeout( () => document.addEventListener( 'click', close ), 0 );
+			}
+		},
+
+		toggleCatPicker( event ) {
+			event.stopPropagation();
+			state.showCatPicker = ! state.showCatPicker;
+
+			if ( state.showCatPicker ) {
+				const close = e => {
+					if ( e.target.closest( '.bw-cat-popover' ) || e.target.closest( '.bw-cat-fab' ) ) return;
+					state.showCatPicker = false;
+					document.removeEventListener( 'click', close );
+				};
+				// Delay so the current click doesn't immediately close it.
+				setTimeout( () => document.addEventListener( 'click', close ), 0 );
+			}
+		},
+
+		toggleCategory() {
+			const ctx = getContext();
+			ctx.catSelected = ! ctx.catSelected;
+			state.categories[ ctx.catIndex ].selected = ctx.catSelected;
+		},
+
+		async publish() {
+			await savePost( 'publish' );
+		},
+
+		async saveDraft() {
+			await savePost( 'draft' );
+		},
+	},
+} );
+
+/**
+ * Save or publish the current post via the REST API.
+ *
+ * @param {string} postStatus - The desired post status ('publish' or 'draft').
+ */
+async function savePost( postStatus ) {
+	if ( ! state.title.trim() ) {
+		state.message = 'Please add a title';
+		setTimeout( () => {
+			state.message = '';
+		}, 2500 );
+		return;
+	}
+
+	const content = document.querySelector( '.bw-content' );
+	if ( ! content || ! content.innerHTML.trim() ) {
+		state.message = 'Please write something';
+		setTimeout( () => {
+			state.message = '';
+		}, 2500 );
+		return;
+	}
+
+	const isEditing = state.editPostId > 0;
+	const isUpdate = isEditing && postStatus === 'publish';
+
+	state.isSaving = true;
+	let savingMessage = 'Saving draft...';
+	if ( isUpdate ) {
+		savingMessage = 'Updating...';
+	} else if ( postStatus === 'publish' ) {
+		savingMessage = 'Publishing...';
+	}
+	state.message = savingMessage;
+
+	const blockMarkup = convertToBlocks( content.innerHTML );
+
+	// Collect selected category IDs.
+	const selectedCats = state.categories.filter( c => c.selected ).map( c => c.id );
+
+	// If editing, PUT to the existing post. If new, POST to create.
+	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+
+	try {
+		const post = await window.wp.apiFetch( {
+			path,
+			method: 'POST',
+			data: {
+				title: state.title,
+				content: blockMarkup,
+				status: postStatus,
+				categories: selectedCats,
+				featured_media: state.featuredMediaId || 0,
+			},
+		} );
+
+		// Store the post ID so subsequent saves update the same post.
+		if ( ! isEditing ) {
+			state.editPostId = post.id;
+		}
+
+		if ( postStatus === 'publish' ) {
+			state.isPublished = true;
+			state.message = isUpdate ? 'Updated!' : 'Published!';
+			setTimeout( () => {
+				window.location.href = post.link;
+			}, 800 );
+		} else {
+			state.editPostId = post.id;
+			state.hasSaved = true;
+			state.message = 'Draft saved';
+			state.isSaving = false;
+			setTimeout( () => {
+				state.message = '';
+			}, 2500 );
+		}
+	} catch ( err ) {
+		state.message = 'Error: ' + err.message;
+		state.isSaving = false;
+		setTimeout( () => {
+			state.message = '';
+		}, 4000 );
+	}
+}

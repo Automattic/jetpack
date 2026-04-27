@@ -8,13 +8,19 @@
 
 	label {
 		font-size: 0.9rem;
-		color: #555;
+		// Inherit the theme's text color so the label adapts to dark themes
+		// and the site palette.
+		color: inherit;
+		opacity: 0.8;
 	}
 
+	// Leave the <select>'s colors / border / background to the browser:
+	// native controls render correctly on any background and stay
+	// accessible on every platform without per-OS workarounds (e.g.
+	// transparent backgrounds breaking the dropdown list on Windows).
+	// Padding is safe to nudge — it doesn't affect the dropdown chrome —
+	// and matching the clear-all button keeps the toolbar row balanced.
 	select {
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		padding: 0.3rem 0.5rem;
-		font-size: 0.9rem;
+		padding: 0.2rem 0.5rem;
 	}
 }

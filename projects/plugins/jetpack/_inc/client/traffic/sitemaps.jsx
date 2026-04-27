@@ -63,8 +63,8 @@ export class Sitemaps extends Component {
 					<ModuleToggle
 						slug="sitemaps"
 						compact
+						disabled={ this.props.isSavingAnyOption( 'sitemaps' ) }
 						activated={ this.props.getOptionValue( 'sitemaps' ) }
-						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

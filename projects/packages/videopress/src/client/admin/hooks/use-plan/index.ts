@@ -47,7 +47,9 @@ export const usePlan = (): usePlanProps => {
 		product: videoPressProduct,
 		productPrice,
 
-		hasVideoPressPurchase: resolvedFeatures?.isVideoPress1TBSupported ?? false,
+		hasVideoPressPurchase: Boolean(
+			resolvedFeatures?.isVideoPress1TBSupported || resolvedFeatures?.isVideoPressUnlimitedSupported
+		),
 		isFetchingFeatures,
 	};
 };

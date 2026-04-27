@@ -219,7 +219,7 @@ if ( ! empty( $tax_errors ) ) {
 
 	<script type="text/javascript">
 
-		var zeroBSCRMJS_taxTable = <?php echo json_encode( $taxTables ); ?>;
+		var zeroBSCRMJS_taxTable = <?php echo wp_json_encode( $taxTables, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		var zeroBSCRMJS_taxTableLang = {
 
 			defaultTaxName: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Tax Rate Name', 'zero-bs-crm' ) ) ); ?>',

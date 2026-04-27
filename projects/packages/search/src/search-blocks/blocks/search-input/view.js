@@ -42,6 +42,14 @@ store( NAMESPACE, {
 		onSearchInput( event ) {
 			const { state } = store( NAMESPACE );
 			state.searchQuery = event.target.value;
+			// `submitOnly` inputs still keep `state.searchQuery` in sync so
+			// bindings render the typed value, but defer the actual API call
+			// until Enter / the clear button — useful for sites that want
+			// fewer requests than the default live-search debounce produces.
+			if ( event.target.dataset.submitOnly === 'true' ) {
+				cancelPendingSearch( event.target );
+				return;
+			}
 			scheduleSearch( event.target );
 		},
 

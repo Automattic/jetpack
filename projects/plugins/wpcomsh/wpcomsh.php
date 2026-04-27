@@ -11,8 +11,11 @@
 
 define( 'WPCOMSH_VERSION', '9.0.0' );
 
-// Loaded first so the filter is registered before any other bootstrap that might fatal.
-require_once __DIR__ . '/fatal-error-screen.php';
+// Loaded first: fatal-error screen filter + one-shot plugin-deactivation endpoint.
+// The deactivator also needs to load before any regular plugin, so in production
+// a stub in wp-content/mu-plugins/ should re-include fatal-plugin-deactivator.php
+// directly (see wpcom-fatal-error/mu-plugin-stub.php).
+require_once __DIR__ . '/wpcom-fatal-error/load.php';
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );

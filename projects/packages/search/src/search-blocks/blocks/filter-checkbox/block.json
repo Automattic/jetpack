@@ -24,7 +24,12 @@
 		},
 		"label": { "type": "string", "default": "" },
 		"showCount": { "type": "boolean", "default": true },
-		"maxItems": { "type": "integer", "default": 10 }
+		"maxItems": { "type": "integer", "default": 10 },
+		"bucketSortOrder": {
+			"type": "string",
+			"default": "count",
+			"enum": [ "count", "alpha" ]
+		}
 	},
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/filter-checkbox.js",

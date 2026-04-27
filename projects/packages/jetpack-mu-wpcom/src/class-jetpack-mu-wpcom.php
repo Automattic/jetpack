@@ -302,6 +302,11 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
+		// Write: distraction-free front-end editor. Gated by blog sticker for gradual rollout.
+		if ( wpcom_has_blog_sticker( 'wpcom-write-editor', get_wpcom_blog_id() ) ) {
+			require_once __DIR__ . '/features/write/write.php';
+		}
+
 		/*
 		 * Temporarily disable client-side media processing.
 		 *

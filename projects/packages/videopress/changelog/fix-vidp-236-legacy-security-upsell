@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix upsell incorrectly shown to legacy Jetpack Security plan customers who have unlimited (but not 1TB) VideoPress storage.

@@ -45,14 +45,15 @@ store( NAMESPACE, {
 		 * `ariaLabel` is what screen readers announce — the visible "×" is
 		 * aria-hidden, and the visible label alone ("Category: news") reads
 		 * as a plain noun phrase with no hint that activating the button
-		 * removes the filter. The "Remove " prefix is locked to English
-		 * for the same reason noted in store/index.js' resultsCountText:
-		 * `@wordpress/i18n` isn't available in Interactivity view bundles.
+		 * removes the filter. The "Remove %s" format is seeded in PHP via
+		 * `Search_Blocks::build_initial_strings()` because the view bundle
+		 * can't import `@wordpress/i18n`.
 		 *
 		 * @return {Array<object>} Array of pill descriptors with id, filterKey, value, label, ariaLabel.
 		 */
 		get activePills() {
 			const { state } = store( NAMESPACE );
+			const removeFormat = state.strings?.removeFilter ?? 'Remove %s';
 			const pills = [];
 			for ( const [ filterKey, values ] of Object.entries( state.activeFilters ?? {} ) ) {
 				if ( ! Array.isArray( values ) ) {
@@ -67,7 +68,7 @@ store( NAMESPACE, {
 						filterKey,
 						value,
 						label,
-						ariaLabel: `Remove ${ label }`,
+						ariaLabel: removeFormat.replace( '%s', label ),
 					} );
 				}
 			}

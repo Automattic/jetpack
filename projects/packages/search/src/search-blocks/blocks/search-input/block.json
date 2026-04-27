@@ -11,6 +11,11 @@
 		"html": false,
 		"interactivity": true
 	},
+	"attributes": {
+		"placeholder": { "type": "string", "default": "" },
+		"showIcon": { "type": "boolean", "default": true },
+		"submitOnly": { "type": "boolean", "default": false }
+	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/search-input.js",

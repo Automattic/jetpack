@@ -33,9 +33,8 @@ const ProtectComponent = class extends Component {
 					<ModuleToggle
 						slug="protect"
 						compact
-						disabled={ unavailableInOfflineMode }
+						disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'protect' ) }
 						activated={ isProtectActive }
-						toggling={ this.props.isSavingAnyOption( 'protect' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

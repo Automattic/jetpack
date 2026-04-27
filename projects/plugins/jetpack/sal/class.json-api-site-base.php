@@ -1765,4 +1765,14 @@ abstract class SAL_Site {
 	public function is_big_sky_enabled() {
 		return false;
 	}
+
+	/**
+	 * Get Jetpack recovery mode status.
+	 *
+	 * @return array|null
+	 */
+	public function get_jetpack_recovery_mode_status() {
+		$status = get_option( 'jetpack_recovery_mode_status' );
+		return is_array( $status ) ? $status : null;
+	}
 }
