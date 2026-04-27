@@ -110,7 +110,7 @@ class Boost_Abilities extends Registrar {
 
 			'jetpack-boost/set-module-status' => array(
 				'label'               => __( 'Set Boost module status', 'jetpack-boost' ),
-				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed, available }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown or unavailable slugs return jetpack_boost_invalid_slug — call jetpack-boost/get-modules to enumerate. Toggling a parent module also drives submodule lifecycle.', 'jetpack-boost' ),
+				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed, available }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown slugs return jetpack_boost_invalid_slug; modules that exist but are not loadable on this site return jetpack_boost_module_unavailable — call jetpack-boost/get-modules to enumerate available slugs. Toggling a parent module also drives submodule lifecycle.', 'jetpack-boost' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'slug', 'active' ),
@@ -294,7 +294,7 @@ class Boost_Abilities extends Registrar {
 			? $input['status']
 			: null;
 		$search_filter = isset( $input['search'] ) && is_string( $input['search'] ) && '' !== $input['search']
-			? mb_strtolower( $input['search'] )
+			? $input['search']
 			: null;
 
 		$out = array();
@@ -322,7 +322,8 @@ class Boost_Abilities extends Registrar {
 				}
 			}
 
-			if ( null !== $search_filter && false === mb_strpos( mb_strtolower( $slug ), $search_filter ) ) {
+			// Boost slugs are ASCII snake_case; stripos is sufficient and avoids ext-mbstring.
+			if ( null !== $search_filter && false === stripos( $slug, $search_filter ) ) {
 				continue;
 			}
 

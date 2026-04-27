@@ -71,6 +71,16 @@ class Boost_Abilities_Test extends BaseTestCase {
 		}
 
 		wp_set_current_user( 0 );
+
+		// WorDBless persists the database across tests, so users created in setUp() must
+		// be removed explicitly to avoid steady user-table bloat.
+		if ( $this->admin_id ) {
+			wp_delete_user( $this->admin_id );
+		}
+		if ( $this->subscriber_id ) {
+			wp_delete_user( $this->subscriber_id );
+		}
+
 		parent::tearDown();
 	}
 
