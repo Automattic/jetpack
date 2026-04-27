@@ -36,6 +36,5 @@
 /sass/**                                        production-exclude
 /tests/**                                       production-exclude
 /vendor/automattic/jetpack-autoloader/**        production-exclude
-/vendor/automattic/jetpack-changelogger/**      production-exclude
 /vendor/automattic/jetpack-composer-plugin/**   production-exclude
 /webpack.config.js                              production-exclude
