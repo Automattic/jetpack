@@ -12,6 +12,7 @@
 import { AdminPage, ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	SearchControl,
+	SelectControl,
 	ToggleControl,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -20,7 +21,7 @@ import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './style.scss';
 
 type JetpackModule = {
@@ -55,6 +56,7 @@ declare global {
 
 type FilterActive = 'all' | 'true' | 'false';
 type SortKey = 'name' | 'introduced' | 'sort';
+type BulkAction = '' | 'bulk-activate' | 'bulk-deactivate';
 
 const FILTER_VALUES: readonly FilterActive[] = [ 'all', 'true', 'false' ] as const;
 const SORT_VALUES: readonly SortKey[] = [ 'name', 'introduced', 'sort' ] as const;
@@ -173,11 +175,21 @@ const toggleUrl = ( item: JetpackModule ): string | null => {
 /**
  * Module list row.
  *
- * @param {object}        props      - Props.
- * @param {JetpackModule} props.item - Module data.
+ * @param {object}        props          - Props.
+ * @param {JetpackModule} props.item     - Module data.
+ * @param {boolean}       props.selected - Whether this row is checked for bulk action.
+ * @param {Function}      props.onSelect - Called with (slug, checked) when the row checkbox toggles.
  * @return {import('react').ReactNode} Row markup.
  */
-function ModuleRow( { item }: { item: JetpackModule } ) {
+function ModuleRow( {
+	item,
+	selected,
+	onSelect,
+}: {
+	item: JetpackModule;
+	selected: boolean;
+	onSelect: ( slug: string, checked: boolean ) => void;
+} ) {
 	const href = toggleUrl( item );
 	const ariaLabel = item.activated
 		? // translators: %s: module name.
@@ -191,6 +203,11 @@ function ModuleRow( { item }: { item: JetpackModule } ) {
 		}
 	}, [ href ] );
 
+	const onSelectChange = useCallback(
+		( e: React.ChangeEvent< HTMLInputElement > ) => onSelect( item.module, e.target.checked ),
+		[ onSelect, item.module ]
+	);
+
 	return (
 		<div
 			id={ item.module }
@@ -199,6 +216,19 @@ function ModuleRow( { item }: { item: JetpackModule } ) {
 				'is-unavailable': ! item.available,
 			} ) }
 		>
+			<div className="jp-modules-admin__row-select">
+				{ item.available && (
+					<input
+						type="checkbox"
+						checked={ selected }
+						onChange={ onSelectChange }
+						aria-label={
+							// translators: %s: module name.
+							__( 'Select %s', 'jetpack' ).replace( '%s', item.name )
+						}
+					/>
+				) }
+			</div>
 			{ item.learn_more_button ? (
 				<a
 					className="jp-modules-admin__row-name"
@@ -273,6 +303,98 @@ function TagButton( {
 		>
 			{ label } <span className="jp-modules-admin__tag-count">({ count })</span>
 		</button>
+	);
+}
+
+/**
+ * Bulk-actions toolbar shown above the module list. Renders a master
+ * "select all" checkbox (scoped to the currently filtered + available
+ * rows), a Bulk actions select, and an Apply button. Submitting routes
+ * to the existing `admin.php?page=jetpack&action=bulk-…` URL — the
+ * server validates the nonce, runs activate/deactivate per slug, and
+ * redirects back so module state refreshes naturally.
+ *
+ * @param {object}   props                    - Props.
+ * @param {boolean}  props.allSelected        - All filtered+available rows are checked.
+ * @param {boolean}  props.someSelected       - At least one filtered+available row is checked.
+ * @param {Function} props.onToggleSelectAll  - Called with the desired master state.
+ * @param {string}   props.bulkAction         - Currently chosen bulk action ('' = none).
+ * @param {Function} props.onChangeBulkAction - Called with the new bulk action value.
+ * @param {number}   props.selectedCount      - How many modules are currently selected (across all filters).
+ * @param {Function} props.onApply            - Called when the Apply button is pressed.
+ * @return {import('react').ReactNode} Toolbar markup.
+ */
+function BulkActionsToolbar( {
+	allSelected,
+	someSelected,
+	onToggleSelectAll,
+	bulkAction,
+	onChangeBulkAction,
+	selectedCount,
+	onApply,
+}: {
+	allSelected: boolean;
+	someSelected: boolean;
+	onToggleSelectAll: ( checked: boolean ) => void;
+	bulkAction: BulkAction;
+	onChangeBulkAction: ( value: BulkAction ) => void;
+	selectedCount: number;
+	onApply: () => void;
+} ) {
+	const masterRef = useRef< HTMLInputElement | null >( null );
+	useEffect( () => {
+		if ( masterRef.current ) {
+			masterRef.current.indeterminate = ! allSelected && someSelected;
+		}
+	}, [ allSelected, someSelected ] );
+
+	const onMasterChange = useCallback(
+		( e: React.ChangeEvent< HTMLInputElement > ) => onToggleSelectAll( e.target.checked ),
+		[ onToggleSelectAll ]
+	);
+
+	const onSelectChange = useCallback(
+		( v: string ) => onChangeBulkAction( v as BulkAction ),
+		[ onChangeBulkAction ]
+	);
+
+	const canApply = bulkAction !== '' && selectedCount > 0;
+
+	return (
+		<div className="jp-modules-admin__bulk-toolbar">
+			<input
+				ref={ masterRef }
+				type="checkbox"
+				className="jp-modules-admin__bulk-master"
+				checked={ allSelected }
+				onChange={ onMasterChange }
+				aria-label={ __( 'Select all modules in the current view', 'jetpack' ) }
+			/>
+			<SelectControl
+				__nextHasNoMarginBottom
+				className="jp-modules-admin__bulk-select"
+				label={ __( 'Bulk actions', 'jetpack' ) }
+				hideLabelFromVision
+				value={ bulkAction }
+				onChange={ onSelectChange }
+				options={ [
+					{ value: '', label: __( 'Bulk actions', 'jetpack' ) },
+					{ value: 'bulk-activate', label: __( 'Activate', 'jetpack' ) },
+					{ value: 'bulk-deactivate', label: __( 'Deactivate', 'jetpack' ) },
+				] }
+			/>
+			<Button variant="secondary" onClick={ onApply } disabled={ ! canApply }>
+				{ __( 'Apply', 'jetpack' ) }
+			</Button>
+			{ selectedCount > 0 && (
+				<span className="jp-modules-admin__bulk-count" aria-live="polite">
+					{
+						// translators: %d: number of modules selected for bulk action.
+						__( '%d selected', 'jetpack' ).replace( '%d', String( selectedCount ) )
+					}
+				</span>
+			) }
+		</div>
 	);
 }
 
@@ -365,6 +487,60 @@ function ModulesAdminApp() {
 		setSortBy( v as SortKey );
 	}, [] );
 
+	// Bulk-action selection. Selection is a `Set<slug>` that persists across
+	// filter changes — modules that are selected but no longer visible still
+	// submit on Apply. This is intentional: it matches the legacy form
+	// behavior and keeps the implementation simple.
+	const [ selected, setSelected ] = useState< Set< string > >( () => new Set() );
+	const [ bulkAction, setBulkAction ] = useState< BulkAction >( '' );
+
+	const onChangeBulkAction = useCallback( ( v: BulkAction ) => setBulkAction( v ), [] );
+
+	const onSelectRow = useCallback( ( slug: string, checked: boolean ) => {
+		setSelected( prev => {
+			const next = new Set( prev );
+			if ( checked ) {
+				next.add( slug );
+			} else {
+				next.delete( slug );
+			}
+			return next;
+		} );
+	}, [] );
+
+	// "Available + currently visible" rows are what the master checkbox toggles.
+	const filteredAvailable = useMemo( () => filtered.filter( i => i.available ), [ filtered ] );
+	const allSelected =
+		filteredAvailable.length > 0 && filteredAvailable.every( i => selected.has( i.module ) );
+	const someSelected = filteredAvailable.some( i => selected.has( i.module ) );
+
+	const onToggleSelectAll = useCallback(
+		( checked: boolean ) => {
+			setSelected( prev => {
+				const next = new Set( prev );
+				if ( checked ) {
+					filteredAvailable.forEach( i => next.add( i.module ) );
+				} else {
+					filteredAvailable.forEach( i => next.delete( i.module ) );
+				}
+				return next;
+			} );
+		},
+		[ filteredAvailable ]
+	);
+
+	const onApplyBulk = useCallback( () => {
+		if ( ! bulkAction || selected.size === 0 || ! data ) {
+			return;
+		}
+		const params = new URLSearchParams();
+		params.set( 'page', 'jetpack' );
+		params.set( 'action', bulkAction );
+		selected.forEach( slug => params.append( 'modules[]', slug ) );
+		params.set( '_wpnonce', data.nonces.bulk );
+		window.location.href = adminUrl( `admin.php?${ params.toString() }` );
+	}, [ bulkAction, selected, data ] );
+
 	const headerActions = (
 		<Stack direction="row" gap="sm" justify="flex-end">
 			<Button
@@ -404,14 +580,32 @@ function ModulesAdminApp() {
 		>
 			<div className="jp-modules-admin">
 				<div className="jp-modules-admin__layout">
-					<div className="jp-modules-admin__list" role="list">
-						{ filtered.length ? (
-							filtered.map( item => <ModuleRow key={ item.module } item={ item } /> )
-						) : (
-							<div className="jp-modules-admin__empty">
-								{ __( 'No modules found.', 'jetpack' ) }
-							</div>
-						) }
+					<div className="jp-modules-admin__main">
+						<BulkActionsToolbar
+							allSelected={ allSelected }
+							someSelected={ someSelected }
+							onToggleSelectAll={ onToggleSelectAll }
+							bulkAction={ bulkAction }
+							onChangeBulkAction={ onChangeBulkAction }
+							selectedCount={ selected.size }
+							onApply={ onApplyBulk }
+						/>
+						<div className="jp-modules-admin__list" role="list">
+							{ filtered.length ? (
+								filtered.map( item => (
+									<ModuleRow
+										key={ item.module }
+										item={ item }
+										selected={ selected.has( item.module ) }
+										onSelect={ onSelectRow }
+									/>
+								) )
+							) : (
+								<div className="jp-modules-admin__empty">
+									{ __( 'No modules found.', 'jetpack' ) }
+								</div>
+							) }
+						</div>
 					</div>
 
 					<aside className="jp-modules-admin__sidebar" aria-label={ __( 'Filters', 'jetpack' ) }>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Modules admin page: restore bulk activate / deactivate. Adds a per-row checkbox column, a "Select all" master checkbox scoped to the current view, and a Bulk actions select + Apply button above the list. Submits to the existing admin.php?page=jetpack&action=bulk-(activate|deactivate) handler with the bulk nonce; the server redirects back so module state refreshes naturally.
