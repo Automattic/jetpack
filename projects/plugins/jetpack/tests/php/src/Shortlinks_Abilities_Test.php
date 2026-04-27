@@ -14,6 +14,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 require_once JETPACK__PLUGIN_DIR . 'modules/shortlinks/abilities/class-shortlinks-abilities.php';
 
 /**
+ * Tests for the Shortlinks_Abilities registrar.
+ *
  * @covers \Automattic\Jetpack\Plugin\Abilities\Shortlinks_Abilities
  */
 #[CoversClass( Shortlinks_Abilities::class )]
@@ -29,6 +31,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 	/** @var int */
 	private static $post_id;
 
+	/**
+	 * Test setup.
+	 */
 	public function set_up() {
 		parent::set_up();
 
@@ -55,32 +60,46 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 
 		Jetpack_Options::update_option( 'id', 1234 );
 
-		// Module file defines wpme_get_shortlink and registers the pre_get_shortlink filter.
+		// Module file defines wpme_get_shortlink_handler. require_once is idempotent across
+		// tests, but the WP test base resets the hook registry between tests, so re-add the
+		// pre_get_shortlink filter explicitly for every test.
 		require_once JETPACK__PLUGIN_DIR . 'modules/shortlinks.php';
+		add_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
 
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 	}
 
+	/**
+	 * Test teardown.
+	 */
 	public function tear_down() {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+		remove_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1 );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		Jetpack_Options::delete_option( 'id' );
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
 
-	// -------------------- Abstract getters --------------------
-
+	/**
+	 * Category slug uses the plugin-scoped namespace.
+	 */
 	public function test_category_slug_is_plugin_scoped() {
 		$this->assertSame( 'jetpack-shortlinks', Shortlinks_Abilities::get_category_slug() );
 	}
 
+	/**
+	 * Category definition exposes label + description.
+	 */
 	public function test_category_definition_has_label_and_description() {
 		$def = Shortlinks_Abilities::get_category_definition();
 		$this->assertArrayHasKey( 'label', $def );
 		$this->assertArrayHasKey( 'description', $def );
 	}
 
+	/**
+	 * Every ability slug is non-empty and lives in the plugin's namespace.
+	 */
 	public function test_abilities_map_is_non_empty_and_namespaced() {
 		$abilities = Shortlinks_Abilities::get_abilities();
 		$this->assertNotEmpty( $abilities );
@@ -89,6 +108,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Specs must not set their own category — Registrar auto-injects it.
+	 */
 	public function test_no_spec_sets_category_explicitly() {
 		foreach ( Shortlinks_Abilities::get_abilities() as $slug => $spec ) {
 			$this->assertArrayNotHasKey(
@@ -99,6 +121,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * The read ability declares the expected annotations.
+	 */
 	public function test_get_shortlinks_spec_is_readonly_and_idempotent() {
 		$spec = Shortlinks_Abilities::get_abilities()['jetpack-shortlinks/get-shortlinks'];
 		$this->assertTrue( $spec['meta']['annotations']['readonly'] );
@@ -107,8 +132,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		$this->assertTrue( $spec['meta']['show_in_rest'] );
 	}
 
-	// -------------------- Registrar wiring --------------------
-
+	/**
+	 * When the gate filter is false, init() must not hook anything.
+	 */
 	public function test_init_registers_nothing_when_gate_filter_is_false() {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
@@ -125,6 +151,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
 	}
 
+	/**
+	 * When the gate filter is true, init() hooks the lifecycle actions.
+	 */
 	public function test_init_hooks_lifecycle_actions_when_gate_is_true() {
 		Shortlinks_Abilities::init();
 
@@ -136,8 +165,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		);
 	}
 
-	// -------------------- Module colocation (Case A) --------------------
-
+	/**
+	 * The class file must live inside the module directory (Case A colocation).
+	 */
 	public function test_ability_class_is_colocated_with_module() {
 		$reflector = new \ReflectionClass( Shortlinks_Abilities::class );
 		$path      = $reflector->getFileName();
@@ -153,6 +183,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * The plugin bootstrap (class.jetpack.php) must not init a module-backed ability.
+	 */
 	public function test_not_wired_from_class_jetpack_php() {
 		$bootstrap = file_get_contents( JETPACK__PLUGIN_DIR . 'class.jetpack.php' );
 		$this->assertStringNotContainsString(
@@ -162,6 +195,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * The module file must wire the registrar so registration is gated by module activation.
+	 */
 	public function test_module_file_wires_init() {
 		$module = file_get_contents( JETPACK__PLUGIN_DIR . 'modules/shortlinks.php' );
 		$this->assertStringContainsString(
@@ -171,20 +207,25 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		);
 	}
 
-	// -------------------- Permission callbacks --------------------
-
+	/**
+	 * Authenticated users may call the read permission_callback.
+	 */
 	public function test_can_view_allows_authenticated_user() {
 		wp_set_current_user( self::$subscriber_id );
 		$this->assertTrue( Shortlinks_Abilities::can_view_shortlinks() );
 	}
 
+	/**
+	 * Anonymous requests are denied by the read permission_callback.
+	 */
 	public function test_can_view_denies_anonymous() {
 		wp_set_current_user( 0 );
 		$this->assertFalse( Shortlinks_Abilities::can_view_shortlinks() );
 	}
 
-	// -------------------- Execute callbacks --------------------
-
+	/**
+	 * Empty input yields an empty array.
+	 */
 	public function test_get_shortlinks_returns_array() {
 		wp_set_current_user( self::$admin_id );
 		$result = Shortlinks_Abilities::get_shortlinks( array() );
@@ -192,6 +233,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		$this->assertSame( array(), $result, 'Empty input returns an empty array.' );
 	}
 
+	/**
+	 * A known post id returns one fully-shaped entry.
+	 */
 	public function test_get_shortlinks_returns_entry_for_known_post() {
 		wp_set_current_user( self::$admin_id );
 		$result = Shortlinks_Abilities::get_shortlinks( array( 'post_ids' => array( self::$post_id ) ) );
@@ -205,6 +249,9 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		$this->assertNotEmpty( $entry['target_url'] );
 	}
 
+	/**
+	 * The include_blog flag prepends a single homepage entry.
+	 */
 	public function test_get_shortlinks_with_include_blog_prepends_blog_entry() {
 		wp_set_current_user( self::$admin_id );
 		$result = Shortlinks_Abilities::get_shortlinks( array( 'include_blog' => true ) );
@@ -215,12 +262,18 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		$this->assertStringStartsWith( 'https://wp.me/', $result[0]['shortlink'] );
 	}
 
+	/**
+	 * Unknown ids are silently omitted (consolidated-read pattern).
+	 */
 	public function test_get_shortlinks_silently_omits_unknown_ids() {
 		wp_set_current_user( self::$admin_id );
 		$result = Shortlinks_Abilities::get_shortlinks( array( 'post_ids' => array( 999999999 ) ) );
 		$this->assertSame( array(), $result, 'Unknown ids yield empty array, not WP_Error.' );
 	}
 
+	/**
+	 * A subscriber cannot see another user's private post in the response.
+	 */
 	public function test_get_shortlinks_omits_unreadable_post_for_subscriber() {
 		$private_id = self::factory()->post->create(
 			array(
@@ -235,16 +288,21 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 		$this->assertSame( array(), $result, 'Subscribers cannot read private posts authored by another user.' );
 	}
 
+	/**
+	 * The post_ids list is capped at MAX_POST_IDS without raising an error.
+	 */
 	public function test_get_shortlinks_caps_post_ids_at_max() {
 		wp_set_current_user( self::$admin_id );
 		$too_many = range( 1, Shortlinks_Abilities::MAX_POST_IDS + 50 );
 		$result   = Shortlinks_Abilities::get_shortlinks( array( 'post_ids' => $too_many ) );
 
 		$this->assertIsArray( $result );
-		// Most ids point to non-existent posts, so we just confirm no WP_Error and no overflow surprise.
 		$this->assertNotInstanceOf( \WP_Error::class, $result );
 	}
 
+	/**
+	 * Missing site id surfaces jetpack_shortlinks_blog_id_unavailable.
+	 */
 	public function test_get_shortlinks_returns_error_when_blog_id_missing() {
 		Jetpack_Options::delete_option( 'id' );
 

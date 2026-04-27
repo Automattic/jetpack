@@ -26,10 +26,20 @@ class Shortlinks_Abilities extends Registrar {
 	 */
 	const MAX_POST_IDS = 100;
 
+	/**
+	 * Returns the category slug this registrar owns.
+	 *
+	 * @return string
+	 */
 	public static function get_category_slug(): string {
 		return 'jetpack-shortlinks';
 	}
 
+	/**
+	 * Returns the category definition passed to wp_register_ability_category().
+	 *
+	 * @return array
+	 */
 	public static function get_category_definition(): array {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
@@ -38,6 +48,11 @@ class Shortlinks_Abilities extends Registrar {
 		);
 	}
 
+	/**
+	 * Returns the ability specs this registrar owns as a [ slug => spec ] map.
+	 *
+	 * @return array<string, array>
+	 */
 	public static function get_abilities(): array {
 		$item_schema = array(
 			'type'       => 'object',
