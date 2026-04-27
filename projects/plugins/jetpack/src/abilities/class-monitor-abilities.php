@@ -139,7 +139,7 @@ class Monitor_Abilities extends Registrar {
 	 * @param array|null $input Ability input (no parameters accepted).
 	 * @return array
 	 */
-	public static function get_monitor_status( $input = null ) {
+	public static function get_monitor_status( $input = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Abilities API contract requires execute callbacks to accept the input array even when the schema declares no parameters.
 		$module_active  = Jetpack::is_module_active( self::MODULE_SLUG );
 		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 
