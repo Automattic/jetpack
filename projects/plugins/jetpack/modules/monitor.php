@@ -138,3 +138,6 @@ class Jetpack_Monitor {
 }
 
 new Jetpack_Monitor();
+
+// Register Jetpack Monitor abilities (WordPress Abilities API, WP 6.9+).
+\Automattic\Jetpack\Plugin\Abilities\Monitor_Abilities::init();

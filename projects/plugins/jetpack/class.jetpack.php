@@ -763,9 +763,6 @@ class Jetpack {
 		// Jetpack plugin for now: the Connection package no longer auto-wires these, so
 		// connection-only consumers (Boost, Protect, Search, etc.) do not register them yet.
 		\Automattic\Jetpack\Connection\Abilities\Connection_Abilities::init();
-
-		// Register Jetpack Monitor abilities (WordPress Abilities API, WP 6.9+).
-		\Automattic\Jetpack\Plugin\Abilities\Monitor_Abilities::init();
 	}
 
 	/**
