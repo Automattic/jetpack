@@ -86,7 +86,8 @@ class PCG_Snapshot {
 			return '';
 		}
 		$src = WP_PLUGIN_DIR . '/' . $asset_name;
-		if ( ! file_exists( $src ) ) {
+		$fs  = self::fs();
+		if ( ! $fs || ! $fs->exists( $src ) ) {
 			return '';
 		}
 
@@ -101,8 +102,15 @@ class PCG_Snapshot {
 		}
 
 		$dest = $dest_root . '/' . $asset_name;
-		if ( ! self::copy_recursive( $src, $dest ) ) {
-			self::delete_recursive( $dest_root );
+		if ( $fs->is_file( $src ) ) {
+			if ( ! $fs->copy( $src, $dest, true ) ) {
+				$fs->delete( $dest_root, true );
+				return '';
+			}
+			return $dest_root;
+		}
+		if ( ! wp_mkdir_p( $dest ) || true !== copy_dir( $src, $dest ) ) {
+			$fs->delete( $dest_root, true );
 			return '';
 		}
 
@@ -125,7 +133,10 @@ class PCG_Snapshot {
 		if ( 0 !== strpos( $path, $root . '/' ) ) {
 			return;
 		}
-		self::delete_recursive( $path );
+		$fs = self::fs();
+		if ( $fs ) {
+			$fs->delete( $path, true );
+		}
 	}
 
 	/**
@@ -185,68 +196,23 @@ class PCG_Snapshot {
 	}
 
 	/**
-	 * Recursively copy $src → $dst. Files are copied; directories are
-	 * walked. Returns false on any error.
+	 * Lazy-init WP_Filesystem and return the global instance, or null
+	 * when initialization fails (e.g. credentialed FTP not configured).
 	 *
-	 * @param string $src Source path (file or dir).
-	 * @param string $dst Destination path.
-	 * @return bool
-	 */
-	protected static function copy_recursive( $src, $dst ) {
-		if ( is_file( $src ) ) {
-			return copy( $src, $dst );
-		}
-		if ( ! is_dir( $src ) ) {
-			return false;
-		}
-		if ( ! wp_mkdir_p( $dst ) ) {
-			return false;
-		}
-		$dir = opendir( $src );
-		if ( false === $dir ) {
-			return false;
-		}
-		while ( false !== ( $entry = readdir( $dir ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			if ( '.' === $entry || '..' === $entry ) {
-				continue;
-			}
-			if ( ! self::copy_recursive( $src . '/' . $entry, $dst . '/' . $entry ) ) {
-				closedir( $dir );
-				return false;
-			}
-		}
-		closedir( $dir );
-		return true;
-	}
-
-	/**
-	 * Recursively delete $path (file or dir). Returns true on success or
-	 * if the path didn't exist.
+	 * Inside upgrader hooks, core has already initialized WP_Filesystem,
+	 * so this is effectively a no-op fetch in that context.
 	 *
-	 * @param string $path Path to remove.
-	 * @return bool
+	 * @return WP_Filesystem_Base|null
 	 */
-	protected static function delete_recursive( $path ) {
-		if ( ! file_exists( $path ) && ! is_link( $path ) ) {
-			return true;
+	protected static function fs() {
+		global $wp_filesystem;
+		if ( $wp_filesystem ) {
+			return $wp_filesystem;
 		}
-		if ( is_file( $path ) || is_link( $path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink,WordPress.PHP.NoSilencedErrors.Discouraged -- WP_Filesystem may not be initialized in upgrader context.
-			return @unlink( $path );
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
-		$dir = opendir( $path );
-		if ( false === $dir ) {
-			return false;
-		}
-		$ok = true;
-		while ( false !== ( $entry = readdir( $dir ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			if ( '.' === $entry || '..' === $entry ) {
-				continue;
-			}
-			$ok = self::delete_recursive( $path . '/' . $entry ) && $ok;
-		}
-		closedir( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir,WordPress.PHP.NoSilencedErrors.Discouraged -- WP_Filesystem may not be initialized in upgrader context.
-		return @rmdir( $path ) && $ok;
+		WP_Filesystem();
+		return $wp_filesystem ?? null;
 	}
 }

@@ -75,8 +75,15 @@ class PCG_Rollback {
 				'reason' => 'No local backup recorded for this update.',
 			);
 		}
+		$fs = self::fs();
+		if ( ! $fs ) {
+			return array(
+				'status' => 'rollback_failed',
+				'reason' => 'WP_Filesystem unavailable.',
+			);
+		}
 		$backup_asset = $backup_path . '/' . $asset_name;
-		if ( ! file_exists( $backup_asset ) ) {
+		if ( ! $fs->exists( $backup_asset ) ) {
 			return array(
 				'status' => 'rollback_unavailable',
 				'reason' => 'Local backup missing on disk.',
@@ -84,28 +91,23 @@ class PCG_Rollback {
 		}
 
 		$current = WP_PLUGIN_DIR . '/' . $asset_name;
-		if ( file_exists( $current ) && ! self::delete_recursive( $current ) ) {
+		if ( $fs->exists( $current ) && ! $fs->delete( $current, true ) ) {
 			return array(
 				'status' => 'rollback_failed',
 				'reason' => 'Could not remove the broken plugin files.',
 			);
 		}
 
-		// Try a same-filesystem rename first; fall back to copy + delete-source.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename,WordPress.PHP.NoSilencedErrors.Discouraged -- WP_Filesystem::move would do an unconditional copy + delete; rename is the whole point here.
-		$moved = @rename( $backup_asset, $current );
-		if ( ! $moved ) {
-			if ( ! self::copy_recursive( $backup_asset, $current ) ) {
-				return array(
-					'status' => 'rollback_failed',
-					'reason' => 'Could not restore plugin from local backup.',
-				);
-			}
-			self::delete_recursive( $backup_asset );
+		// move() prefers rename and falls back to copy + delete on cross-fs.
+		if ( ! $fs->move( $backup_asset, $current, true ) ) {
+			return array(
+				'status' => 'rollback_failed',
+				'reason' => 'Could not restore plugin from local backup.',
+			);
 		}
 
 		// Drop the (now-empty) backup wrapper dir.
-		self::delete_recursive( $backup_path );
+		$fs->delete( $backup_path, true );
 
 		return array(
 			'status'      => 'restored',
@@ -227,66 +229,21 @@ class PCG_Rollback {
 	}
 
 	/**
-	 * Recursively copy $src → $dst.
+	 * Lazy-init WP_Filesystem and return the global instance, or null
+	 * when initialization fails. Inside upgrader hooks WP has already
+	 * called WP_Filesystem(), so this is effectively a no-op fetch.
 	 *
-	 * @param string $src Source path.
-	 * @param string $dst Destination path.
-	 * @return bool
+	 * @return WP_Filesystem_Base|null
 	 */
-	protected static function copy_recursive( $src, $dst ) {
-		if ( is_file( $src ) ) {
-			return copy( $src, $dst );
+	protected static function fs() {
+		global $wp_filesystem;
+		if ( $wp_filesystem ) {
+			return $wp_filesystem;
 		}
-		if ( ! is_dir( $src ) ) {
-			return false;
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
-		if ( ! wp_mkdir_p( $dst ) ) {
-			return false;
-		}
-		$dir = opendir( $src );
-		if ( false === $dir ) {
-			return false;
-		}
-		while ( false !== ( $entry = readdir( $dir ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			if ( '.' === $entry || '..' === $entry ) {
-				continue;
-			}
-			if ( ! self::copy_recursive( $src . '/' . $entry, $dst . '/' . $entry ) ) {
-				closedir( $dir );
-				return false;
-			}
-		}
-		closedir( $dir );
-		return true;
-	}
-
-	/**
-	 * Recursively delete $path. Returns true on success or if path is gone.
-	 *
-	 * @param string $path Path to delete.
-	 * @return bool
-	 */
-	protected static function delete_recursive( $path ) {
-		if ( ! file_exists( $path ) && ! is_link( $path ) ) {
-			return true;
-		}
-		if ( is_file( $path ) || is_link( $path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink,WordPress.PHP.NoSilencedErrors.Discouraged -- WP_Filesystem may not be initialized in upgrader context.
-			return @unlink( $path );
-		}
-		$dir = opendir( $path );
-		if ( false === $dir ) {
-			return false;
-		}
-		$ok = true;
-		while ( false !== ( $entry = readdir( $dir ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			if ( '.' === $entry || '..' === $entry ) {
-				continue;
-			}
-			$ok = self::delete_recursive( $path . '/' . $entry ) && $ok;
-		}
-		closedir( $dir );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir,WordPress.PHP.NoSilencedErrors.Discouraged -- WP_Filesystem may not be initialized in upgrader context.
-		return @rmdir( $path ) && $ok;
+		WP_Filesystem();
+		return $wp_filesystem ?? null;
 	}
 }
