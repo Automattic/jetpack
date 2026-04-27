@@ -86,9 +86,16 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 		if ( 'googlenews' === $result['source'] ) {
 			$timestamp = $result['timestamp'] ?? '';
 			if ( $timestamp ) {
-				$age_hours = ( time() - strtotime( $timestamp ) ) / 3600;
-				// Newer articles score higher: 1.0 for just published, ~0 for 7+ days old.
-				return max( 0, 1.0 - ( $age_hours / 168 ) );
+				$parsed_timestamp = strtotime( $timestamp );
+				if ( false !== $parsed_timestamp ) {
+					// Clamp to now to prevent future timestamps from inflating scores.
+					$effective_timestamp = min( $parsed_timestamp, time() );
+					$age_hours           = ( time() - $effective_timestamp ) / 3600;
+					$score               = 1.0 - ( $age_hours / 168 );
+
+					// Newer articles score higher: 1.0 for just published, ~0 for 7+ days old.
+					return max( 0.0, min( 1.0, $score ) );
+				}
 			}
 			return 0.5;
 		}
@@ -145,7 +152,7 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 				continue;
 			}
 
-			$age_seconds = $now - strtotime( $timestamp );
+			$age_seconds = max( 0, $now - strtotime( $timestamp ) );
 
 			if ( $age_seconds <= $thirty_days ) {
 				// 0-30 days: boost from 2x (brand new) to 1x (30 days old).

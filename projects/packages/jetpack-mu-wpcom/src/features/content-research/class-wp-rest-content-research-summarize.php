@@ -152,15 +152,17 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 		$articles = array();
 
 		foreach ( array_slice( $results, 0, self::MAX_ARTICLES ) as $result ) {
-			$url    = $result['url'] ?? '';
-			$title  = $result['title'] ?? '';
-			$source = $result['source'] ?? 'unknown';
+			// Sanitize and bound client-provided fields to limit prompt size.
+			$url     = esc_url_raw( (string) ( $result['url'] ?? '' ) );
+			$title   = mb_substr( sanitize_text_field( (string) ( $result['title'] ?? '' ) ), 0, 300 );
+			$source  = sanitize_key( (string) ( $result['source'] ?? 'unknown' ) );
+			$excerpt = mb_substr( wp_strip_all_tags( (string) ( $result['excerpt'] ?? '' ) ), 0, 500 );
 
 			$article = array(
 				'url'        => $url,
 				'title'      => $title,
 				'source'     => $source,
-				'excerpt'    => $result['excerpt'] ?? '',
+				'excerpt'    => $excerpt,
 				'engagement' => $result['engagement'] ?? null,
 				'content'    => '',
 			);

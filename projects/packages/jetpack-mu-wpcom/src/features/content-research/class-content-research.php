@@ -166,7 +166,7 @@ class Content_Research {
 			}
 		}
 
-		return apply_filters( 'content_research_enabled', false );
+		return apply_filters( 'jetpack_mu_wpcom_content_research_enabled', false );
 	}
 }
 
