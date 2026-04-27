@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Componentry: Deprecate the Chip component. Use Badge from @wordpress/ui instead — map type="new" to intent="stable".
