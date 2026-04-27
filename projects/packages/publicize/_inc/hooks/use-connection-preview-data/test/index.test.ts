@@ -187,6 +187,9 @@ describe( 'useConnectionPreviewData', () => {
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.media ).toEqual( attachedMedia );
+		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { isSocialPost: true } )
+		);
 	} );
 
 	it( 'should return featured image when media_source is featured-image', () => {
@@ -261,6 +264,37 @@ describe( 'useConnectionPreviewData', () => {
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.media ).toEqual( [] );
+		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { isSocialPost: false } )
+		);
+	} );
+
+	it( 'passes isSocialPost=true when global mode has attached media', () => {
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: false, toggle: jest.fn() } );
+		mockUseSocialPreviewPostData.mockReturnValue( {
+			...defaultPostData,
+			media: [ { url: 'https://example.com/media.jpg', type: 'image/jpeg' } ],
+		} );
+
+		const connection = createMockConnection();
+		renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { isSocialPost: true } )
+		);
+	} );
+
+	it( 'passes isSocialPost=false when global mode has no attached media', () => {
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: false, toggle: jest.fn() } );
+
+		const connection = createMockConnection();
+		renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { isSocialPost: false } )
+		);
 	} );
 
 	it( 'uses the rendered message when templates feature is on', () => {

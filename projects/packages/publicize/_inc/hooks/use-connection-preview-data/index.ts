@@ -47,37 +47,22 @@ export function useConnectionPreviewData( connection: Connection ) {
 	// Empty string tells the backend to use the per-network default template.
 	const effectiveMessage = ( connection.message ?? globalMessage ?? '' ).trim();
 
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
-	const { rendered } = useRenderedMessage( {
-		enabled: templatesEnabled,
-		postId: postId ?? 0,
-		network: connection.service_name ?? '',
-		message: effectiveMessage,
-	} );
+	const isPerNetworkMode =
+		siteHasFeature( features.ENHANCED_PUBLISHING ) && usingPerNetworkCustomization;
 
-	return useMemo( () => {
-		const useRendered = templatesEnabled && typeof rendered === 'string';
-
-		if ( ! siteHasFeature( features.ENHANCED_PUBLISHING ) || ! usingPerNetworkCustomization ) {
+	const media = useMemo< PostPreviewData[ 'media' ] >( () => {
+		if ( ! isPerNetworkMode ) {
 			// In global mode, resolve SIG URL dynamically when attachment mode is on
-			// so preview updates when template is edited
-			let media = postData.media;
+			// so preview updates when template is edited.
 			if ( globalMediaSource === 'sig' && sig.url && postData.media.length > 0 ) {
-				media = [ { url: sig.url, type: 'image/png' } ];
+				return [ { url: sig.url, type: 'image/png' } ];
 			}
-
-			return {
-				...postData,
-				message: useRendered ? rendered : globalMessage.trim(),
-				media,
-			};
+			return postData.media;
 		}
-
-		let media: PostPreviewData[ 'media' ] = connection.attached_media || [];
 
 		switch ( connection.media_source ) {
 			case 'featured-image':
-				media = featuredImageDetails?.mediaData?.sourceUrl
+				return featuredImageDetails?.mediaData?.sourceUrl
 					? [
 							{
 								url: featuredImageDetails.mediaData.sourceUrl,
@@ -85,37 +70,50 @@ export function useConnectionPreviewData( connection: Connection ) {
 							},
 					  ]
 					: [];
-				break;
 			case 'sig':
-				media = sig.url
-					? [
-							{
-								url: sig.url,
-								type: 'image/png',
-							},
-					  ]
-					: [];
-				break;
-
+				return sig.url ? [ { url: sig.url, type: 'image/png' } ] : [];
 			case 'none':
-				media = [];
-				break;
+				return [];
+			default:
+				return connection.attached_media || [];
 		}
+	}, [
+		connection.attached_media,
+		connection.media_source,
+		featuredImageDetails,
+		globalMediaSource,
+		isPerNetworkMode,
+		postData.media,
+		sig.url,
+	] );
+
+	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const { rendered } = useRenderedMessage( {
+		enabled: templatesEnabled,
+		postId: postId ?? 0,
+		network: connection.service_name ?? '',
+		message: effectiveMessage,
+		isSocialPost: media.length > 0,
+	} );
+
+	return useMemo( () => {
+		const useRendered = templatesEnabled && typeof rendered === 'string';
+		const baseMessage = isPerNetworkMode
+			? ( connection.message ?? globalMessage ).trim()
+			: globalMessage.trim();
 
 		return {
 			...postData,
-			message: useRendered ? rendered : ( connection.message ?? globalMessage ).trim(),
+			message: useRendered ? rendered : baseMessage,
 			media,
 		};
 	}, [
-		connection,
-		featuredImageDetails,
-		globalMediaSource,
+		connection.message,
 		globalMessage,
+		isPerNetworkMode,
+		media,
 		postData,
 		rendered,
-		sig.url,
 		templatesEnabled,
-		usingPerNetworkCustomization,
 	] );
 }

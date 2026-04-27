@@ -19,7 +19,13 @@ describe( 'useRenderedMessage', () => {
 
 	it( 'does not fetch when disabled', async () => {
 		const { result } = renderHook( () =>
-			useRenderedMessage( { enabled: false, postId: 1, network: 'x', message: 'hi' } )
+			useRenderedMessage( {
+				enabled: false,
+				postId: 1,
+				network: 'x',
+				message: 'hi',
+				isSocialPost: false,
+			} )
 		);
 
 		await act( async () => {
@@ -33,10 +39,22 @@ describe( 'useRenderedMessage', () => {
 
 	it( 'does not fetch without a post id or network', async () => {
 		renderHook( () =>
-			useRenderedMessage( { enabled: true, postId: 0, network: 'x', message: 'hi' } )
+			useRenderedMessage( {
+				enabled: true,
+				postId: 0,
+				network: 'x',
+				message: 'hi',
+				isSocialPost: false,
+			} )
 		);
 		renderHook( () =>
-			useRenderedMessage( { enabled: true, postId: 1, network: '', message: 'hi' } )
+			useRenderedMessage( {
+				enabled: true,
+				postId: 1,
+				network: '',
+				message: 'hi',
+				isSocialPost: false,
+			} )
 		);
 
 		await act( async () => {
@@ -53,6 +71,7 @@ describe( 'useRenderedMessage', () => {
 				postId: 42,
 				network: 'x',
 				message: '{title} {url}',
+				isSocialPost: false,
 			} )
 		);
 
@@ -68,16 +87,46 @@ describe( 'useRenderedMessage', () => {
 			expect.objectContaining( {
 				path: 'wpcom/v2/publicize/render-message',
 				method: 'POST',
-				data: { post_id: 42, network: 'x', message: '{title} {url}' },
+				data: { post_id: 42, network: 'x', message: '{title} {url}', is_social_post: false },
 			} )
 		);
 		expect( result.current.rendered ).toBe( 'Rendered' );
 	} );
 
-	it( 'debounces when the message string changes', async () => {
+	it( 'sends is_social_post=true when the post is shared as a social post', async () => {
+		renderHook( () =>
+			useRenderedMessage( {
+				enabled: true,
+				postId: 42,
+				network: 'x',
+				message: '{title}',
+				isSocialPost: true,
+			} )
+		);
+
+		await act( async () => {
+			jest.runAllTimers();
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				data: { post_id: 42, network: 'x', message: '{title}', is_social_post: true },
+			} )
+		);
+	} );
+
+	it( 'refetches immediately (no debounce) when isSocialPost toggles', async () => {
 		const { rerender } = renderHook(
 			( props: Parameters< typeof useRenderedMessage >[ 0 ] ) => useRenderedMessage( props ),
-			{ initialProps: { enabled: true, postId: 1, network: 'x', message: 'first' } }
+			{
+				initialProps: {
+					enabled: true,
+					postId: 1,
+					network: 'x',
+					message: 'same',
+					isSocialPost: false,
+				},
+			}
 		);
 
 		await act( async () => {
@@ -85,7 +134,50 @@ describe( 'useRenderedMessage', () => {
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 
-		rerender( { enabled: true, postId: 1, network: 'x', message: 'second' } );
+		rerender( { enabled: true, postId: 1, network: 'x', message: 'same', isSocialPost: true } );
+
+		// No timer advance needed — non-message changes fire on the next tick.
+		await act( async () => {
+			jest.advanceTimersByTime( 0 );
+		} );
+
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		expect( mockApiFetch ).toHaveBeenLastCalledWith(
+			expect.objectContaining( {
+				data: { post_id: 1, network: 'x', message: 'same', is_social_post: true },
+			} )
+		);
+	} );
+
+	it( 'debounces when the message string changes', async () => {
+		const { rerender } = renderHook(
+			( props: Parameters< typeof useRenderedMessage >[ 0 ] ) => useRenderedMessage( props ),
+			{
+				initialProps: {
+					enabled: true,
+					postId: 1,
+					network: 'x',
+					message: 'first',
+					isSocialPost: false,
+				},
+			}
+		);
+
+		await act( async () => {
+			jest.runAllTimers();
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+
+		rerender( {
+			enabled: true,
+			postId: 1,
+			network: 'x',
+			message: 'second',
+			isSocialPost: false,
+		} );
 
 		// Still only the first call — debounced.
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
@@ -102,7 +194,15 @@ describe( 'useRenderedMessage', () => {
 	it( 'keeps the previous rendered value on error', async () => {
 		const { result, rerender } = renderHook(
 			( props: Parameters< typeof useRenderedMessage >[ 0 ] ) => useRenderedMessage( props ),
-			{ initialProps: { enabled: true, postId: 1, network: 'x', message: 'a' } }
+			{
+				initialProps: {
+					enabled: true,
+					postId: 1,
+					network: 'x',
+					message: 'a',
+					isSocialPost: false,
+				},
+			}
 		);
 
 		await act( async () => {
@@ -114,7 +214,7 @@ describe( 'useRenderedMessage', () => {
 		} );
 
 		mockApiFetch.mockRejectedValueOnce( new Error( 'boom' ) );
-		rerender( { enabled: true, postId: 1, network: 'x', message: 'b' } );
+		rerender( { enabled: true, postId: 1, network: 'x', message: 'b', isSocialPost: false } );
 
 		await act( async () => {
 			jest.advanceTimersByTime( 1500 );

@@ -21,6 +21,12 @@ interface UseRenderedMessageOptions {
 	 * per-network default template.
 	 */
 	message: string;
+	/**
+	 * Whether the post will be shared as a social post (media attached) rather
+	 * than a link share. The backend uses this to pick the right rendering path
+	 * — most notably, whether to inline the URL in the rendered template.
+	 */
+	isSocialPost: boolean;
 }
 
 interface UseRenderedMessageResult {
@@ -36,11 +42,12 @@ interface UseRenderedMessageResult {
  * On error or abort the previously-rendered value is kept so the preview does
  * not flash between keystrokes.
  *
- * @param options         - Input options.
- * @param options.enabled - Whether template rendering is enabled.
- * @param options.postId  - Post ID to render the template against.
- * @param options.network - Social network slug (e.g. `x`, `facebook`).
- * @param options.message - Message template to render; empty uses the per-network default.
+ * @param options              - Input options.
+ * @param options.enabled      - Whether template rendering is enabled.
+ * @param options.postId       - Post ID to render the template against.
+ * @param options.network      - Social network slug (e.g. `x`, `facebook`).
+ * @param options.message      - Message template to render; empty uses the per-network default.
+ * @param options.isSocialPost - Whether the post is shared as a social post (media attached) vs. a link share.
  * @return The rendered message and loading state.
  */
 export default function useRenderedMessage( {
@@ -48,6 +55,7 @@ export default function useRenderedMessage( {
 	postId,
 	network,
 	message,
+	isSocialPost,
 }: UseRenderedMessageOptions ): UseRenderedMessageResult {
 	const [ rendered, setRendered ] = useState< string | null >( null );
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -76,6 +84,7 @@ export default function useRenderedMessage( {
 							post_id: postId,
 							network,
 							message,
+							is_social_post: isSocialPost,
 						},
 						signal: controller.signal,
 					} );
@@ -102,7 +111,7 @@ export default function useRenderedMessage( {
 			controller.abort();
 			previousMessageRef.current = message;
 		};
-	}, [ enabled, postId, network, message ] );
+	}, [ enabled, postId, network, message, isSocialPost ] );
 
 	return {
 		rendered: enabled ? rendered : null,

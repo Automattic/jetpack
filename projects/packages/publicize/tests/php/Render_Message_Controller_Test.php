@@ -177,6 +177,27 @@ class Render_Message_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * The is_social_post arg rejects values that aren't boolean-coercible.
+	 */
+	public function test_render_message_rejects_invalid_is_social_post() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-message' );
+		$request->set_body_params(
+			array(
+				'post_id'        => $this->post_id,
+				'network'        => 'x',
+				'is_social_post' => 'not-a-bool',
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'rest_invalid_param', $response->as_error()->get_error_code() );
+	}
+
+	/**
 	 * Mocks a successful response from WPCOM for the proxy path.
 	 */
 	public function mock_success_response() {

@@ -63,21 +63,27 @@ class Render_Message_Controller extends Base_Controller {
 					'allow_blog_token_access' => true,
 				),
 				'args'                           => array(
-					'post_id' => array(
+					'post_id'        => array(
 						'description' => __( 'The ID of the post to render the message for.', 'jetpack-publicize-pkg' ),
 						'type'        => 'integer',
 						'required'    => true,
 					),
-					'network' => array(
+					'network'        => array(
 						'description' => __( 'The social network slug (e.g. facebook, x, linkedin).', 'jetpack-publicize-pkg' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
-					'message' => array(
+					'message'        => array(
 						'description' => __( 'The message template to render. If empty, the default template for the network is used.', 'jetpack-publicize-pkg' ),
 						'type'        => 'string',
 						'required'    => false,
 						'default'     => '',
+					),
+					'is_social_post' => array(
+						'description' => __( 'Whether the post will be shared as a social post (media attached) rather than a link share.', 'jetpack-publicize-pkg' ),
+						'type'        => 'boolean',
+						'required'    => false,
+						'default'     => false,
 					),
 				),
 				'schema'                         => array( $this, 'get_public_item_schema' ),
@@ -149,9 +155,10 @@ class Render_Message_Controller extends Base_Controller {
 	 * @return WP_REST_Response|WP_Error The rendered message, or an error.
 	 */
 	public function render_message( $request ) {
-		$post_id = (int) $request->get_param( 'post_id' );
-		$network = (string) $request->get_param( 'network' );
-		$message = (string) $request->get_param( 'message' );
+		$post_id        = (int) $request->get_param( 'post_id' );
+		$network        = (string) $request->get_param( 'network' );
+		$message        = (string) $request->get_param( 'message' );
+		$is_social_post = (bool) $request->get_param( 'is_social_post' );
 
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/util/message-templates' );
@@ -174,7 +181,7 @@ class Render_Message_Controller extends Base_Controller {
 				);
 			}
 
-			$rendered = \Publicize\render_message_for_network( $post, $network, $message );
+			$rendered = \Publicize\render_message_for_network( $post, $network, $message, $is_social_post );
 
 			if ( null === $rendered ) {
 				$rendered = '';
