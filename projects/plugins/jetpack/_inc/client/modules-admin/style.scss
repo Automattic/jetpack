@@ -59,6 +59,14 @@ $jp-modules-admin-muted: #50575e;
 
 	&__row-name {
 		font-weight: 500;
+		color: inherit;
+		text-decoration: none;
+
+		&:hover,
+		&:focus-visible {
+			color: var(--wp-admin-theme-color, #2271b1);
+			text-decoration: underline;
+		}
 	}
 
 	&__row-actions {

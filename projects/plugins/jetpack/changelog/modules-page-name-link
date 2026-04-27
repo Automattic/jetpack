@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Modules admin page: render the module name as a link to its `learn_more_button` URL (the module's docs / product / wp-admin page), opening in a new tab — matching trunk's Backbone behavior. Modules without a `learn_more_button` keep the static name label.

@@ -199,7 +199,18 @@ function ModuleRow( { item }: { item: JetpackModule } ) {
 				'is-unavailable': ! item.available,
 			} ) }
 		>
-			<div className="jp-modules-admin__row-name">{ item.name }</div>
+			{ item.learn_more_button ? (
+				<a
+					className="jp-modules-admin__row-name"
+					href={ item.learn_more_button }
+					target="_blank"
+					rel="noreferrer noopener"
+				>
+					{ item.name }
+				</a>
+			) : (
+				<div className="jp-modules-admin__row-name">{ item.name }</div>
+			) }
 			<div className="jp-modules-admin__row-actions">
 				{ item.configurable && (
 					<span
