@@ -17,14 +17,14 @@ class PCG_Load_Tester {
 	/**
 	 * Run the probe against a plugin main file.
 	 *
-	 * Issues two probes — one against the front-end (`home_url('/')`) and
-	 * one against an admin page so `admin_init` actually fires. The admin
-	 * probe forwards the current admin's WordPress auth cookies so the
-	 * loopback can clear `auth_redirect()`.
+	 * Fires two loopback requests in parallel via the WP HTTP layer's
+	 * multi-request API: one against the front-end (`home_url('/')`) and
+	 * one against an admin page (`admin_url('index.php')`) so
+	 * `admin_init` actually fires. The admin probe forwards the current
+	 * admin's WordPress auth cookies so the loopback can clear
+	 * `auth_redirect()`.
 	 *
-	 * The first non-ok verdict wins; if both come back `ok`, the admin
-	 * probe's verdict (which carries the richer `did_admin_init`
-	 * diagnostic) is returned.
+	 * Front-end fatal wins; otherwise the admin verdict is returned.
 	 *
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
 	 * @return array{status:string,reason?:string,errno?:int,message?:string,file?:string,line?:int}
@@ -37,12 +37,39 @@ class PCG_Load_Tester {
 			);
 		}
 
-		$front_result = $this->probe_request( $plugin_main, home_url( '/' ), false );
+		$front = $this->prepare_probe( $plugin_main, home_url( '/' ), false );
+		$admin = $this->prepare_probe( $plugin_main, admin_url( 'index.php' ), true );
+
+		$requests = array(
+			'front' => $front['request'],
+			'admin' => $admin['request'],
+		);
+
+		$options = array(
+			'timeout'   => self::PROBE_TIMEOUT,
+			'redirects' => 0,
+		);
+
+		try {
+			$responses = \WpOrg\Requests\Requests::request_multiple( $requests, $options );
+		} catch ( \Throwable $t ) {
+			delete_transient( self::transient_key( $front['token'] ) );
+			delete_transient( self::transient_key( $admin['token'] ) );
+			return array(
+				'status' => 'error',
+				'reason' => sprintf( 'Probe request failed: %s', $t->getMessage() ),
+			);
+		}
+
+		delete_transient( self::transient_key( $front['token'] ) );
+		delete_transient( self::transient_key( $admin['token'] ) );
+
+		$front_result = $this->parse_response( $responses['front'], $plugin_main, false );
 		if ( ! $this->is_ok( $front_result ) ) {
 			return $front_result;
 		}
 
-		return $this->probe_request( $plugin_main, admin_url( 'index.php' ), true );
+		return $this->parse_response( $responses['admin'], $plugin_main, true );
 	}
 
 	/**
@@ -56,20 +83,21 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Issue a single loopback probe request.
+	 * Stash a probe transient and build the request descriptor for
+	 * `Requests::request_multiple`.
 	 *
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
 	 * @param string $base_url    Base URL to probe (front-end or admin).
-	 * @param bool   $is_admin    True for the admin probe — adds the
-	 *                            `pcg_admin=1` flag so the endpoint defers
-	 *                            its verdict to `admin_init`, and forwards
-	 *                            the current admin's auth cookies.
-	 * @return array{status:string,reason?:string,errno?:int,message?:string,file?:string,line?:int}
+	 * @param bool   $is_admin    True for the admin probe — adds
+	 *                            `pcg_admin=1` so the endpoint defers its
+	 *                            verdict to `admin_init`, and forwards the
+	 *                            current admin's auth cookies.
+	 * @return array{token:string,request:array}
 	 */
-	protected function probe_request( $plugin_main, $base_url, $is_admin ) {
+	protected function prepare_probe( $plugin_main, $base_url, $is_admin ) {
 		$token = wp_generate_password( 32, false );
 		set_transient(
-			$this->transient_key( $token ),
+			self::transient_key( $token ),
 			array(
 				'plugin_main' => $plugin_main,
 				'user_id'     => get_current_user_id(),
@@ -86,32 +114,43 @@ class PCG_Load_Tester {
 		}
 		$url = add_query_arg( $query, $base_url );
 
-		$args = array(
-			'timeout'     => self::PROBE_TIMEOUT,
-			'blocking'    => true,
-			// Skip redirect chasing so a sneaky 301 doesn't swallow a probe result.
-			'redirection' => 0,
-		);
+		$headers = array();
 		if ( $is_admin ) {
-			$cookies = $this->collect_auth_cookies();
-			if ( ! empty( $cookies ) ) {
-				$args['cookies'] = $cookies;
+			$cookie_header = $this->collect_auth_cookie_header();
+			if ( '' !== $cookie_header ) {
+				$headers['Cookie'] = $cookie_header;
 			}
 		}
 
-		$response = wp_remote_get( $url, $args );
+		return array(
+			'token'   => $token,
+			'request' => array(
+				'url'     => $url,
+				'type'    => 'GET',
+				'headers' => $headers,
+			),
+		);
+	}
 
-		delete_transient( $this->transient_key( $token ) );
-
-		if ( is_wp_error( $response ) ) {
+	/**
+	 * Translate a `Requests::request_multiple` response into a probe verdict.
+	 *
+	 * @param mixed  $response    Either a `WpOrg\Requests\Response` or an
+	 *                            exception thrown for that single request.
+	 * @param string $plugin_main Plugin main file (for fallback diagnostics).
+	 * @param bool   $is_admin    True when this was the admin probe.
+	 * @return array{status:string,reason?:string,errno?:int,message?:string,file?:string,line?:int}
+	 */
+	protected function parse_response( $response, $plugin_main, $is_admin ) {
+		if ( $response instanceof \Throwable ) {
 			return array(
 				'status' => 'error',
-				'reason' => sprintf( 'Probe request failed: %s', $response->get_error_message() ),
+				'reason' => sprintf( 'Probe request failed: %s', $response->getMessage() ),
 			);
 		}
 
-		$code = (int) wp_remote_retrieve_response_code( $response );
-		$body = (string) wp_remote_retrieve_body( $response );
+		$code = isset( $response->status_code ) ? (int) $response->status_code : 0;
+		$body = isset( $response->body ) ? (string) $response->body : '';
 
 		$decoded = json_decode( $body, true );
 		if ( is_array( $decoded ) && isset( $decoded['status'] ) ) {
@@ -142,17 +181,17 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Collect the WordPress auth cookies from the current request so the
-	 * admin loopback probe can authenticate as the same admin who clicked
+	 * Build a `Cookie:` header from the current request's WP auth cookies
+	 * so the admin loopback authenticates as the same admin who clicked
 	 * Activate. Without these the probe would 302 to wp-login.php.
 	 *
-	 * @return WP_Http_Cookie[]
+	 * @return string
 	 */
-	protected function collect_auth_cookies() {
-		$cookies = array();
+	protected function collect_auth_cookie_header() {
 		if ( empty( $_COOKIE ) || ! is_array( $_COOKIE ) ) {
-			return $cookies;
+			return '';
 		}
+		$pairs = array();
 		foreach ( $_COOKIE as $name => $value ) {
 			if ( ! is_string( $name ) || ! is_string( $value ) ) {
 				continue;
@@ -160,14 +199,9 @@ class PCG_Load_Tester {
 			if ( 0 !== strpos( $name, 'wordpress_' ) && 0 !== strpos( $name, 'wp-' ) ) {
 				continue;
 			}
-			$cookies[] = new WP_Http_Cookie(
-				array(
-					'name'  => $name,
-					'value' => wp_unslash( $value ),
-				)
-			);
+			$pairs[] = $name . '=' . wp_unslash( $value );
 		}
-		return $cookies;
+		return implode( '; ', $pairs );
 	}
 
 	/**
