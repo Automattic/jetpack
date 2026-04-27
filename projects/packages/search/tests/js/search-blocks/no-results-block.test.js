@@ -1,7 +1,6 @@
-// The no-results block's attribute defaults live in block.json. These
-// tests lock the defaults in place so an accidental edit — e.g. flipping
-// `showSearchAgainPrompt` on by default — can't ship unnoticed and change
-// the rendering for every existing post.
+// The no-results block's attribute defaults live in block.json. This test
+// locks the `message` default in place so an accidental edit can't ship a
+// non-empty default that would override every existing post's copy.
 import blockJson from '../../../src/search-blocks/blocks/no-results/block.json';
 
 describe( 'no-results block.json attributes', () => {
@@ -9,13 +8,6 @@ describe( 'no-results block.json attributes', () => {
 		expect( blockJson.attributes.message ).toEqual( {
 			type: 'string',
 			default: '',
-		} );
-	} );
-
-	it( 'declares a boolean `showSearchAgainPrompt` attribute that defaults to false', () => {
-		expect( blockJson.attributes.showSearchAgainPrompt ).toEqual( {
-			type: 'boolean',
-			default: false,
 		} );
 	} );
 } );

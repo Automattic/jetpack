@@ -3,11 +3,10 @@
  *
  * The front end hides this block when results are present; the editor always
  * shows it so designers can style it. The Inspector exposes a text input for
- * the `message` attribute and a toggle for `showSearchAgainPrompt` — both are
- * read by render.php to produce the front-end markup.
+ * the `message` attribute, which is read by render.php on the front end.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, TextControl } from '@wordpress/components';
 import { createElement as h, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -23,7 +22,6 @@ export default function NoResultsEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	const defaultMessage = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
 	const message = attributes.message || defaultMessage;
-	const showSearchAgainPrompt = attributes.showSearchAgainPrompt ?? false;
 	return h(
 		Fragment,
 		null,
@@ -41,30 +39,9 @@ export default function NoResultsEdit( { attributes, setAttributes } ) {
 					placeholder: defaultMessage,
 					onChange: value => setAttributes( { message: value } ),
 					help: __( 'Leave empty to use the default translated message.', 'jetpack-search-pkg' ),
-				} ),
-				h( ToggleControl, {
-					__nextHasNoMarginBottom: true,
-					label: __( 'Show "search again" prompt', 'jetpack-search-pkg' ),
-					checked: showSearchAgainPrompt,
-					onChange: value => setAttributes( { showSearchAgainPrompt: value } ),
-					help: __(
-						'Add a small hint below the message suggesting a different search.',
-						'jetpack-search-pkg'
-					),
 				} )
 			)
 		),
-		h(
-			'div',
-			blockProps,
-			h( 'p', null, message ),
-			showSearchAgainPrompt
-				? h(
-						'p',
-						{ className: 'jetpack-search-no-results__search-again' },
-						__( 'Please try again.', 'jetpack-search-pkg' )
-				  )
-				: null
-		)
+		h( 'div', blockProps, h( 'p', null, message ) )
 	);
 }

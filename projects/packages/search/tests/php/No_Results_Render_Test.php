@@ -28,13 +28,9 @@ class No_Results_Render_Test extends TestCase {
 			'jetpack/no-results',
 			array(
 				'attributes'      => array(
-					'message'               => array(
+					'message' => array(
 						'type'    => 'string',
 						'default' => '',
-					),
-					'showSearchAgainPrompt' => array(
-						'type'    => 'boolean',
-						'default' => false,
 					),
 				),
 				// $attributes is consumed by the included render.php via the
@@ -107,60 +103,5 @@ class No_Results_Render_Test extends TestCase {
 		$markup = $this->render( array( 'message' => '<script>alert(1)</script>' ) );
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
 		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $markup );
-	}
-
-	/**
-	 * When the toggle is off (default) the "search again" hint must not
-	 * render, so existing posts don't pick up the new markup silently.
-	 */
-	public function test_search_again_prompt_hidden_by_default() {
-		$markup = $this->render();
-		$this->assertStringNotContainsString( 'jetpack-search-no-results__search-again', $markup );
-	}
-
-	/**
-	 * An explicit `false` must behave the same as the default.
-	 */
-	public function test_search_again_prompt_hidden_when_false() {
-		$markup = $this->render( array( 'showSearchAgainPrompt' => false ) );
-		$this->assertStringNotContainsString( 'jetpack-search-no-results__search-again', $markup );
-	}
-
-	/**
-	 * When the toggle is on, the hint renders as its own `<p>` with the CSS
-	 * hook theme authors can target — pinning the element + class pair so a
-	 * future refactor can't quietly move the class onto a wrapper.
-	 */
-	public function test_search_again_prompt_shown_when_true() {
-		$markup = $this->render( array( 'showSearchAgainPrompt' => true ) );
-		$this->assertStringContainsString( '<p class="jetpack-search-no-results__search-again">', $markup );
-		$this->assertStringContainsString( 'Please try again.', $markup );
-	}
-
-	/**
-	 * The custom-message + prompt combination must render both — the prompt
-	 * is a separate affordance, not a replacement for the message.
-	 */
-	public function test_custom_message_with_search_again_prompt() {
-		$markup = $this->render(
-			array(
-				'message'               => 'Nothing matched your query.',
-				'showSearchAgainPrompt' => true,
-			)
-		);
-		$this->assertStringContainsString( 'Nothing matched your query.', $markup );
-		$this->assertStringContainsString( 'jetpack-search-no-results__search-again', $markup );
-	}
-
-	/**
-	 * With the default message and the prompt enabled, neither the message
-	 * nor the prompt copy may appear twice — the prompt phrase was chosen
-	 * specifically to avoid repeating the default message's trailing
-	 * sentence. Guards against future copy edits reintroducing duplication.
-	 */
-	public function test_default_message_with_prompt_does_not_duplicate_copy() {
-		$markup = $this->render( array( 'showSearchAgainPrompt' => true ) );
-		$this->assertSame( 1, substr_count( $markup, 'Try a different search.' ) );
-		$this->assertSame( 1, substr_count( $markup, 'Please try again.' ) );
 	}
 }

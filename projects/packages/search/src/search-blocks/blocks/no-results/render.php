@@ -15,8 +15,6 @@ $message = (string) ( $attributes['message'] ?? '' );
 if ( '' === $message ) {
 	$message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
 }
-
-$show_search_again_prompt = ! empty( $attributes['showSearchAgainPrompt'] );
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
@@ -24,9 +22,4 @@ $show_search_again_prompt = ! empty( $attributes['showSearchAgainPrompt'] );
 	data-wp-bind--hidden="!state.showNoResults"
 >
 	<p><?php echo esc_html( $message ); ?></p>
-	<?php if ( $show_search_again_prompt ) : ?>
-		<p class="jetpack-search-no-results__search-again">
-			<?php esc_html_e( 'Please try again.', 'jetpack-search-pkg' ); ?>
-		</p>
-	<?php endif; ?>
 </div>

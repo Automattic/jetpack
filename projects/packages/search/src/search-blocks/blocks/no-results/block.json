@@ -12,7 +12,6 @@
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/no-results.js",
 	"attributes": {
-		"message": { "type": "string", "default": "" },
-		"showSearchAgainPrompt": { "type": "boolean", "default": false }
+		"message": { "type": "string", "default": "" }
 	}
 }
