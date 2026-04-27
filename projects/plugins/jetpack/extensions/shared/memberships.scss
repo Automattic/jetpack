@@ -1,6 +1,13 @@
 /* Additional styling to thickbox that displays modal */
 /* stylelint-disable selector-max-id */
 
+@keyframes jetpack-memberships_button__spinner-animation {
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
 .jetpack-memberships-spinner {
 	display: none;
 	width: 1em;
@@ -8,10 +15,18 @@
 	margin: 0 0 0 5px;
 
 	svg {
+
+		/* Better center-align the spinner with button text, because
+		 * 1m height doesn't take line-height into account */
 		margin-bottom: -2px;
 		width: 100%;
 		height: 100%;
 	}
+}
+
+.jetpack-memberships-spinner-rotating {
+	transform-origin: center;
+	animation: jetpack-memberships_button__spinner-animation 0.75s infinite linear;
 }
 
 .is-loading .jetpack-memberships-spinner {

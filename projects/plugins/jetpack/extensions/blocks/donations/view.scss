@@ -5,6 +5,17 @@
 
 .wp-block-jetpack-donations {
 
+	@keyframes spinner {
+
+		from {
+			transform: rotate(0deg);
+		}
+
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
 	.donations__container:not(.loaded) {
 		width: 100%;
 		height: 200px;
