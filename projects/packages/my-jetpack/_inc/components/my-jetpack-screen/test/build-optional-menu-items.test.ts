@@ -8,7 +8,7 @@ const baseArgs = {
 	isDevVersion: false,
 	userIsAdmin: true,
 	isSiteConnected: true,
-	isWpcomPlatform: false,
+	isJetpackPluginActive: true,
 	onModulesClick: jest.fn(),
 	onResetClick: jest.fn(),
 	onResetKeyDown: jest.fn(),
@@ -38,8 +38,8 @@ describe( 'buildOptionalMenuItems', () => {
 			expect( items.find( item => item.label === 'Modules' ) ).toBeUndefined();
 		} );
 
-		it( 'omits the Modules link on wpcom-platform sites (Simple/WoA)', () => {
-			const items = buildOptionalMenuItems( { ...baseArgs, isWpcomPlatform: true } );
+		it( 'omits the Modules link when the main Jetpack plugin is not active', () => {
+			const items = buildOptionalMenuItems( { ...baseArgs, isJetpackPluginActive: false } );
 
 			expect( items.find( item => item.label === 'Modules' ) ).toBeUndefined();
 		} );
@@ -103,7 +103,7 @@ describe( 'buildOptionalMenuItems', () => {
 			...baseArgs,
 			userIsAdmin: false,
 			isSiteConnected: false,
-			isWpcomPlatform: true,
+			isJetpackPluginActive: false,
 			isDevVersion: false,
 		} );
 

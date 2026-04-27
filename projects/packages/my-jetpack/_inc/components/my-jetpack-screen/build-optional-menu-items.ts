@@ -14,7 +14,7 @@ type BuildOptionalMenuItemsArgs = {
 	isDevVersion: boolean;
 	userIsAdmin: boolean;
 	isSiteConnected: boolean;
-	isWpcomPlatform: boolean;
+	isJetpackPluginActive: boolean;
 	onModulesClick: () => void;
 	onResetClick: () => void;
 	onResetKeyDown: ( event: KeyboardEvent ) => void;
@@ -25,14 +25,14 @@ const buildOptionalMenuItems = ( {
 	isDevVersion,
 	userIsAdmin,
 	isSiteConnected,
-	isWpcomPlatform,
+	isJetpackPluginActive,
 	onModulesClick,
 	onResetClick,
 	onResetKeyDown,
 }: BuildOptionalMenuItemsArgs ): FooterMenuItem[] => {
 	const items: FooterMenuItem[] = [];
 
-	if ( userIsAdmin && isSiteConnected && ! isWpcomPlatform ) {
+	if ( userIsAdmin && isSiteConnected && isJetpackPluginActive ) {
 		items.push( {
 			label: _x(
 				'Modules',

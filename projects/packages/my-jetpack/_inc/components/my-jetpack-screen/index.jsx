@@ -10,7 +10,6 @@ import {
 	Notice,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -84,6 +83,7 @@ export default function MyJetpackScreen() {
 		sandboxedDomain,
 		isDevVersion,
 		userIsAdmin,
+		isJetpackPluginActive,
 	} = getMyJetpackWindowInitialState();
 
 	const { isSectionVisible } = useEvaluationRecommendations();
@@ -168,7 +168,7 @@ export default function MyJetpackScreen() {
 		isDevVersion,
 		userIsAdmin,
 		isSiteConnected,
-		isWpcomPlatform: isWpcomPlatformSite(),
+		isJetpackPluginActive,
 		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
