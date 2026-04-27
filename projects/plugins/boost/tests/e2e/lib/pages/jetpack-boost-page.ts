@@ -128,17 +128,37 @@ export default class JetpackBoostPage {
 	}
 
 	/**
-	 * Waits for the speed score refresh request to be sent.
-	 * This indicates the debounce timer has fired and the client has initiated a score refresh.
+	 * Waits for the client to send the speed score refresh request.
+	 * Use when the test asserts that the client initiated a refresh — for example,
+	 * to verify that a debounce timer has fired. Decouples from backend latency and
+	 * does not match error responses.
+	 *
+	 * @param {number} timeout - Maximum time to wait in milliseconds.
+	 * @return {Promise<import('@playwright/test').Request>} The request sent to the speed score refresh endpoint.
+	 */
+	async waitForScoreRefreshRequest( timeout = 10000 ) {
+		return this.page.waitForRequest(
+			request =>
+				request.url().includes( '/jetpack-boost/v1/speed-scores/refresh' ) &&
+				request.method() === 'POST',
+			{ timeout }
+		);
+	}
+
+	/**
+	 * Waits for a successful response from the speed score refresh endpoint.
+	 * Use when the test depends on the refresh having completed — for example,
+	 * before re-asserting score visibility after clicking Refresh.
 	 *
 	 * @param {number} timeout - Maximum time to wait in milliseconds.
 	 * @return {Promise<import('@playwright/test').Response>} The response from the speed score refresh endpoint.
 	 */
-	async waitForScoreRefreshRequest( timeout = 10000 ) {
+	async waitForScoreRefreshResponse( timeout = 10000 ) {
 		return this.page.waitForResponse(
 			response =>
 				response.url().includes( '/jetpack-boost/v1/speed-scores/refresh' ) &&
-				response.request().method() === 'POST',
+				response.request().method() === 'POST' &&
+				response.ok(),
 			{ timeout }
 		);
 	}

@@ -39,13 +39,11 @@ test.describe( 'LCP Image Optimization module', () => {
 		// Don't await the click, as it will trigger the analysis, we will await the status change instead
 		await page.getByTestId( 'module-lcp' ).getByRole( 'checkbox' ).check();
 
-		// Should show pending state initially — use .toPass() as the state transition can be fast
-		await expect( async () => {
-			await expect(
-				page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
-				'LCP optimization should show pending status during analysis'
-			).toBeVisible();
-		} ).toPass( { timeout: 20000 } );
+		// Should show pending state initially.
+		await expect(
+			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
+			'LCP optimization should show pending status during analysis'
+		).toBeVisible( { timeout: 20000 } );
 
 		await expect(
 			page.getByRole( 'button', { name: 'Optimize' } ),
@@ -62,12 +60,10 @@ test.describe( 'LCP Image Optimization module', () => {
 		await page.getByRole( 'button', { name: 'Optimize' } ).click();
 
 		// Should show pending state after clicking optimize
-		await expect( async () => {
-			await expect(
-				page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
-				'LCP optimization should show pending status after clicking Optimize button'
-			).toBeVisible();
-		} ).toPass( { timeout: 20000 } );
+		await expect(
+			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
+			'LCP optimization should show pending status after clicking Optimize button'
+		).toBeVisible( { timeout: 20000 } );
 
 		// Analysis completion can take longer than the default timeout
 		await expect(

@@ -21,10 +21,13 @@ test.describe( 'Speed Score feature', () => {
 	test( 'The Speed Scores should be able to refresh', async ( { jetpackBoostPage } ) => {
 		await jetpackBoostPage.visit();
 		await jetpackBoostPage.expectScoreToBeVisible();
-		// Set up network listener before clicking Refresh to catch the request.
-		const refreshRequestPromise = jetpackBoostPage.waitForScoreRefreshRequest();
+		// Set up network listener before clicking Refresh; the test depends on the refresh
+		// having completed before we re-assert score visibility, so wait on the response.
+		const refreshResponsePromise = jetpackBoostPage.waitForScoreRefreshResponse();
+		// Suppress unhandled rejection if the click throws before we await.
+		refreshResponsePromise.catch( () => {} );
 		await jetpackBoostPage.page.getByRole( 'button', { name: 'Refresh' } ).click();
-		await refreshRequestPromise;
+		await refreshResponsePromise;
 		await jetpackBoostPage.expectScoreToBeVisible();
 	} );
 

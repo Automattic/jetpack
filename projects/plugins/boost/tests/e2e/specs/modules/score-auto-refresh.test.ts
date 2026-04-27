@@ -29,6 +29,8 @@ test.describe( 'Auto refresh of speed scores', () => {
 				// Set up the network listener before the toggle so we catch the request
 				// that fires after the 2-second debounce.
 				refreshRequestPromise = jetpackBoostPage.waitForScoreRefreshRequest();
+				// Suppress unhandled rejection if the toggle throws before we await.
+				refreshRequestPromise.catch( () => {} );
 				await jetpackBoostPage.toggleModule( moduleSlug, true );
 			} );
 
@@ -39,7 +41,7 @@ test.describe( 'Auto refresh of speed scores', () => {
 		} );
 	} );
 
-	test( 'Score refresh should debounce between multiple module toggle', async ( {
+	test( 'Score refresh should be debounced after module toggle', async ( {
 		jetpackBoostPage,
 		page,
 	} ) => {
@@ -53,6 +55,8 @@ test.describe( 'Auto refresh of speed scores', () => {
 
 		// Set up network listener right before the toggle to avoid catching stale requests.
 		const refreshRequestPromise = jetpackBoostPage.waitForScoreRefreshRequest();
+		// Suppress unhandled rejection if the toggle throws before we await.
+		refreshRequestPromise.catch( () => {} );
 
 		let renderBlockingPromise: Promise< void > | undefined;
 
