@@ -181,7 +181,8 @@ class Render_Message_Controller extends Base_Controller {
 				);
 			}
 
-			$rendered = \Publicize\render_message_for_network( $post, $network, $message, $is_social_post );
+			// Pass null for $char_limit so the renderer uses each network's CHAR_LIMIT default.
+			$rendered = \Publicize\render_message_for_network( $post, $network, $message, null, $is_social_post );
 
 			if ( null === $rendered ) {
 				$rendered = '';
