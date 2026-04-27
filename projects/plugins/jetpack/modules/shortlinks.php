@@ -190,3 +190,10 @@ function wpme_set_extension_available() {
 }
 
 add_action( 'init', 'wpme_set_extension_available' );
+
+// Gate the abilities class load on the same filter Registrar::init() checks, so we don't pay the
+// require_once cost on every request the module is active but the Abilities API surface is off.
+if ( apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
+	require_once __DIR__ . '/shortlinks/abilities/class-shortlinks-abilities.php';
+	\Automattic\Jetpack\Plugin\Abilities\Shortlinks_Abilities::init();
+}
