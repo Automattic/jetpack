@@ -39,8 +39,8 @@ class Monitor_Abilities extends Registrar {
 	 */
 	public static function get_category_definition(): array {
 		return array(
-			// "Jetpack" is a product name and should not be translated.
-			'label'       => 'Jetpack Monitor',
+			// translators: "Jetpack" is a product name and should not be translated.
+			'label'       => __( 'Jetpack Monitor', 'jetpack' ),
 			'description' => __( 'Abilities for inspecting and configuring Jetpack Downtime Monitor.', 'jetpack' ),
 		);
 	}
@@ -256,7 +256,7 @@ class Monitor_Abilities extends Registrar {
 
 	/**
 	 * Fetch the last downtime timestamp from the remote Monitor service,
-	 * using the same 10-minute transient cache that the legacy module uses.
+	 * reusing the same transient key and 10-minute TTL written by the legacy module.
 	 *
 	 * @return string|null|\WP_Error YYYY-MM-DD HH:mm:ss string, null when no
 	 *                               downtime has been recorded, or WP_Error on
