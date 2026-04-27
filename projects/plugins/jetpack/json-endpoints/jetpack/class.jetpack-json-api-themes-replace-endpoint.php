@@ -33,12 +33,15 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
  *    on the wpcom side, any trusted site credential becomes install-anything
  *    on the site.
  *
- * ## Known pre-existing behavior inherited from the parent
+ * ## Cross-user attachment-deletion guard
  *
  * `Jetpack_JSON_API_Themes_New_Endpoint::validate_call` deletes the referenced
  * attachment on capability-check failure without verifying the caller owns it.
- * This Replace endpoint inherits that behavior. Fixing it belongs in the
- * parent endpoint and is out of scope for this PR.
+ * This Replace endpoint overrides `validate_call` to run the ownership check
+ * first, so a low-privilege caller cannot use it to hard-delete another user's
+ * attachment as a side-effect of the cap check failing. The parent's behavior
+ * is unchanged for the legitimate case (caller's own attachment is cleaned up
+ * when their cap check fails).
  *
  * @phan-constructor-used-for-side-effects
  */
@@ -51,14 +54,6 @@ class Jetpack_JSON_API_Themes_Replace_Endpoint extends Jetpack_JSON_API_Themes_N
 	 * @var array
 	 */
 	protected $needed_capabilities = array( 'install_themes', 'update_themes' );
-
-	/**
-	 * Slug declared by the caller. Used by the upgrader_source_selection filter
-	 * to reject zips whose top-level folder doesn't match.
-	 *
-	 * @var string
-	 */
-	protected $expected_slug = '';
 
 	/**
 	 * Error codes we are willing to surface to the caller. Anything outside
@@ -98,7 +93,6 @@ class Jetpack_JSON_API_Themes_Replace_Endpoint extends Jetpack_JSON_API_Themes_N
 		'fs_no_temp_backup_dir',
 		'fs_temp_backup_mkdir',
 		'fs_temp_backup_move',
-		'slug_mismatch',
 	);
 
 	/**
@@ -122,6 +116,9 @@ class Jetpack_JSON_API_Themes_Replace_Endpoint extends Jetpack_JSON_API_Themes_N
 
 		$attachment_id = (int) $args['zip'][0]['id'];
 
+		// Re-checked here so direct invocations of install() (notably the test stubs)
+		// can't accidentally bypass the ownership guard that validate_call() runs on
+		// the live request path.
 		$ownership = $this->validate_attachment_ownership( $attachment_id );
 		if ( is_wp_error( $ownership ) ) {
 			return $ownership;
@@ -142,19 +139,10 @@ class Jetpack_JSON_API_Themes_Replace_Endpoint extends Jetpack_JSON_API_Themes_N
 		$skin     = new Automatic_Install_Skin();
 		$upgrader = new Theme_Upgrader( $skin );
 
-		$this->expected_slug = $expected_slug;
-		add_filter( 'upgrader_source_selection', array( $this, 'enforce_expected_slug' ), 9999, 4 );
-
-		$result = false;
-		try {
-			$result = $upgrader->install(
-				$local_file,
-				array( 'overwrite_package' => true )
-			);
-		} finally {
-			remove_filter( 'upgrader_source_selection', array( $this, 'enforce_expected_slug' ), 9999 );
-			$this->expected_slug = '';
-		}
+		$result = $upgrader->install(
+			$local_file,
+			array( 'overwrite_package' => true )
+		);
 
 		wp_delete_attachment( $attachment_id, true );
 
@@ -179,6 +167,13 @@ class Jetpack_JSON_API_Themes_Replace_Endpoint extends Jetpack_JSON_API_Themes_N
 			return new WP_Error( 'theme_replace_info_missing', __( 'Theme was installed but its identifier could not be determined.', 'jetpack' ), 500 );
 		}
 
+		// `overwrite_package=true` trusts the zip's own folder name, so a zip whose
+		// top-level folder differs from the declared slug would clobber an unrelated
+		// theme. Verify the post-install identifier matches the caller's contract.
+		if ( strtolower( $theme_slug ) !== $expected_slug ) {
+			return new WP_Error( 'slug_mismatch', __( 'The installed theme does not match the declared slug.', 'jetpack' ), 400 );
+		}
+
 		$this->themes             = array( $theme_slug );
 		$this->log[ $theme_slug ] = $upgrader->skin->get_upgrade_messages();
 
@@ -186,43 +181,24 @@ class Jetpack_JSON_API_Themes_Replace_Endpoint extends Jetpack_JSON_API_Themes_N
 	}
 
 	/**
-	 * Filter callback for `upgrader_source_selection`. Rejects a zip whose top-level
-	 * folder does not match the slug the caller declared in the request. This closes
-	 * the cross-slug overwrite gap: `overwrite_package=true` trusts the zip's own
-	 * folder name, so without this guard a caller with install+update caps could
-	 * overwrite any theme by uploading a zip whose folder happens to match.
+	 * See class docblock — runs the attachment-ownership check before delegating
+	 * to the parent's validate_call(), which deletes the referenced attachment
+	 * on capability-check failure without verifying ownership.
 	 *
-	 * @param string|WP_Error $source        Unpacked-zip source directory.
-	 * @param string          $remote_source Remote source path.
-	 * @param WP_Upgrader     $upgrader      Upgrader instance.
-	 * @param array           $hook_extra    Hook extra data.
-	 * @return string|WP_Error
+	 * @param int    $_blog_id            Blog ID.
+	 * @param string $capability          Capability.
+	 * @param bool   $check_manage_active Whether to check manage-is-active.
+	 * @return bool|WP_Error
 	 */
-	public function enforce_expected_slug( $source, $remote_source, $upgrader, $hook_extra ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( is_wp_error( $source ) ) {
-			return $source;
+	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
+		$args = $this->input();
+		if ( isset( $args['zip'][0]['id'] ) && is_scalar( $args['zip'][0]['id'] ) ) {
+			$ownership = $this->validate_attachment_ownership( (int) $args['zip'][0]['id'] );
+			if ( is_wp_error( $ownership ) ) {
+				return $ownership;
+			}
 		}
-		if ( '' === $this->expected_slug ) {
-			return $source;
-		}
-		$actual_slug = basename( untrailingslashit( (string) $source ) );
-
-		if ( ! preg_match( '/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/', $actual_slug ) ) {
-			return new WP_Error(
-				'slug_mismatch',
-				__( 'The uploaded zip does not match the declared theme slug.', 'jetpack' ),
-				400
-			);
-		}
-
-		if ( strtolower( $actual_slug ) !== $this->expected_slug ) {
-			return new WP_Error(
-				'slug_mismatch',
-				__( 'The uploaded zip does not match the declared theme slug.', 'jetpack' ),
-				400
-			);
-		}
-		return $source;
+		return parent::validate_call( $_blog_id, $capability, $check_manage_active );
 	}
 
 	/**

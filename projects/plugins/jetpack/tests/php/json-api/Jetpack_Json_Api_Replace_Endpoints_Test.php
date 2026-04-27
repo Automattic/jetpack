@@ -76,6 +76,24 @@ class Jetpack_Json_Api_Replace_Endpoints_Test extends WP_UnitTestCase {
 		return $method->invoke( $endpoint, $attachment_id );
 	}
 
+	/**
+	 * Invoke the protected validate_call() method. Used to exercise the
+	 * cross-user attachment-deletion guard without bootstrapping the full API
+	 * dispatcher.
+	 *
+	 * @param object $endpoint     Endpoint instance.
+	 * @param array  $capabilities Capability list to pass to validate_call.
+	 * @return bool|WP_Error
+	 */
+	private function invoke_validate_call( $endpoint, $capabilities ) {
+		$class  = new ReflectionClass( $endpoint );
+		$method = $class->getMethod( 'validate_call' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( $endpoint, 0, $capabilities, true );
+	}
+
 	private function create_attachment( $author_id ) {
 		return self::factory()->attachment->create_object(
 			array(
@@ -301,6 +319,53 @@ class Jetpack_Json_Api_Replace_Endpoints_Test extends WP_UnitTestCase {
 		$this->assertNotNull( get_post( $attachment_id ), 'Attachment must survive an ownership failure.' );
 	}
 
+	/**
+	 * The cross-user attachment-deletion guard. The parent endpoint's validate_call
+	 * deletes the attachment on cap-check failure without ownership verification;
+	 * the trait's validate_call must short-circuit on ownership failure BEFORE
+	 * parent::validate_call runs, so another user's attachment is never deleted as
+	 * a side effect of a cap check failing.
+	 */
+	public function test_plugins_validate_call_rejects_other_users_attachment_without_deleting_it() {
+		$attachment_id = $this->create_attachment( self::$other_user_id );
+		$endpoint      = new Jetpack_JSON_API_Plugins_Replace_Endpoint_Test_Stub(
+			$this->endpoint_args(),
+			array( 'zip' => array( array( 'id' => $attachment_id ) ) )
+		);
+
+		$result = $this->invoke_validate_call( $endpoint, array( 'install_plugins', 'update_plugins' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'attachment_not_owned', $result->get_error_code() );
+		$this->assertNotNull( get_post( $attachment_id ), 'Cross-user attachment must not be deleted on validate_call rejection.' );
+	}
+
+	public function test_themes_validate_call_rejects_other_users_attachment_without_deleting_it() {
+		$attachment_id = $this->create_attachment( self::$other_user_id );
+		$endpoint      = new Jetpack_JSON_API_Themes_Replace_Endpoint_Test_Stub(
+			$this->endpoint_args(),
+			array( 'zip' => array( array( 'id' => $attachment_id ) ) )
+		);
+
+		$result = $this->invoke_validate_call( $endpoint, array( 'install_themes', 'update_themes' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'attachment_not_owned', $result->get_error_code() );
+		$this->assertNotNull( get_post( $attachment_id ), 'Cross-user attachment must not be deleted on validate_call rejection.' );
+	}
+
+	public function test_plugins_validate_call_rejects_invalid_attachment_id() {
+		$endpoint = new Jetpack_JSON_API_Plugins_Replace_Endpoint_Test_Stub(
+			$this->endpoint_args(),
+			array( 'zip' => array( array( 'id' => 99999999 ) ) )
+		);
+
+		$result = $this->invoke_validate_call( $endpoint, array( 'install_plugins', 'update_plugins' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'invalid_attachment', $result->get_error_code() );
+	}
+
 	public function test_plugins_install_rejects_missing_zip_param() {
 		$endpoint = new Jetpack_JSON_API_Plugins_Replace_Endpoint_Test_Stub(
 			$this->endpoint_args(),
@@ -481,70 +546,6 @@ class Jetpack_Json_Api_Replace_Endpoints_Test extends WP_UnitTestCase {
 		$this->assertNull( get_post( $attachment_id ), 'Non-.zip attachment should be cleaned up.' );
 	}
 
-	public function test_plugins_enforce_expected_slug_rejects_mismatch() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'akismet' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/hello-dolly', '', null, array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'slug_mismatch', $result->get_error_code() );
-	}
-
-	public function test_plugins_enforce_expected_slug_accepts_match() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'akismet' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/akismet', '', null, array() );
-		$this->assertSame( '/tmp/unpack/akismet', $result );
-	}
-
-	public function test_plugins_enforce_expected_slug_passes_wp_error_through() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'akismet' );
-		$pre_error = new WP_Error( 'upstream_error', 'Upstream error' );
-		$result    = $endpoint->enforce_expected_slug( $pre_error, '', null, array() );
-		$this->assertSame( $pre_error, $result );
-	}
-
-	public function test_themes_enforce_expected_slug_rejects_mismatch() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Themes_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'twentytwentyfour' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/twentytwentythree', '', null, array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'slug_mismatch', $result->get_error_code() );
-	}
-
-	public function test_themes_enforce_expected_slug_accepts_match() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Themes_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'twentytwentyfour' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/twentytwentyfour', '', null, array() );
-		$this->assertSame( '/tmp/unpack/twentytwentyfour', $result );
-	}
-
-	public function test_themes_enforce_expected_slug_passes_wp_error_through() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Themes_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'twentytwentyfour' );
-		$pre_error = new WP_Error( 'upstream_error', 'Upstream error' );
-		$result    = $endpoint->enforce_expected_slug( $pre_error, '', null, array() );
-		$this->assertSame( $pre_error, $result );
-	}
-
-	/**
-	 * With no declared slug, the filter is a no-op — the install() guard
-	 * rejects empty slugs earlier, so this branch is only reachable via
-	 * reflection, but it's worth pinning so a future refactor can't silently
-	 * drop the early return.
-	 */
-	public function test_plugins_enforce_expected_slug_passes_through_when_unset() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
-		$result   = $endpoint->enforce_expected_slug( '/tmp/unpack/anything-goes', '', null, array() );
-		$this->assertSame( '/tmp/unpack/anything-goes', $result );
-	}
-
-	public function test_themes_enforce_expected_slug_passes_through_when_unset() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Themes_Replace_Endpoint::class );
-		$result   = $endpoint->enforce_expected_slug( '/tmp/unpack/anything-goes', '', null, array() );
-		$this->assertSame( '/tmp/unpack/anything-goes', $result );
-	}
-
 	public function test_plugins_sanitize_upgrader_error_collapses_unknown_codes() {
 		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
 		$class    = new ReflectionClass( $endpoint );
@@ -685,68 +686,6 @@ class Jetpack_Json_Api_Replace_Endpoints_Test extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_enforce_expected_slug_is_case_insensitive() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'akismet' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/Akismet', '', null, array() );
-		$this->assertSame( '/tmp/unpack/Akismet', $result );
-	}
-
-	public function test_enforce_expected_slug_rejects_non_ascii_source() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'akismet' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/akîsmet', '', null, array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'slug_mismatch', $result->get_error_code() );
-	}
-
-	public function test_enforce_expected_slug_rejects_dotted_source() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'akismet' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/..', '', null, array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'slug_mismatch', $result->get_error_code() );
-	}
-
-	public function test_enforce_expected_slug_rejects_whitespace_source() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Plugins_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'akismet' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/akismet ', '', null, array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'slug_mismatch', $result->get_error_code() );
-	}
-
-	public function test_themes_enforce_expected_slug_is_case_insensitive() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Themes_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'twentytwentyfour' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/TwentyTwentyFour', '', null, array() );
-		$this->assertSame( '/tmp/unpack/TwentyTwentyFour', $result );
-	}
-
-	public function test_themes_enforce_expected_slug_rejects_non_ascii_source() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Themes_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'twentytwentyfour' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/twêntytwentyfour', '', null, array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'slug_mismatch', $result->get_error_code() );
-	}
-
-	public function test_themes_enforce_expected_slug_rejects_dotted_source() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Themes_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'twentytwentyfour' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/..', '', null, array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'slug_mismatch', $result->get_error_code() );
-	}
-
-	public function test_themes_enforce_expected_slug_rejects_whitespace_source() {
-		$endpoint = $this->make_endpoint( Jetpack_JSON_API_Themes_Replace_Endpoint::class );
-		$this->set_expected_slug( $endpoint, 'twentytwentyfour' );
-		$result = $endpoint->enforce_expected_slug( '/tmp/unpack/twentytwentyfour ', '', null, array() );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'slug_mismatch', $result->get_error_code() );
-	}
-
 	/**
 	 * @dataProvider provide_invalid_slugs
 	 */
@@ -765,21 +704,6 @@ class Jetpack_Json_Api_Replace_Endpoints_Test extends WP_UnitTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'missing_slug', $result->get_error_code() );
-	}
-
-	/**
-	 * Set the protected expected_slug property via reflection.
-	 *
-	 * @param object $endpoint
-	 * @param string $slug
-	 */
-	private function set_expected_slug( $endpoint, $slug ) {
-		$class    = new ReflectionClass( $endpoint );
-		$property = $class->getProperty( 'expected_slug' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( $endpoint, $slug );
 	}
 
 	/**
