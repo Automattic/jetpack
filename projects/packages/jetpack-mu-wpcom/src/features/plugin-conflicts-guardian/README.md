@@ -16,8 +16,8 @@ Ships dark. Three independent filters, all default `false`:
 | `probe-endpoint.php` | Server: handles `?pcg_probe=1`, requires the plugin, captures any fatal. |
 | `activation-guard.php` | Hooks `load-plugins.php` / `load-update.php` and blocks failing activations. |
 | `update-guard.php` | Hooks `upgrader_source_selection` to refuse installs/updates with PHP parse errors. |
-| `class-pcg-snapshot.php` | Transient-backed pre-update snapshot (version + was_active). |
-| `class-pcg-rollback.php` | Fetches the WP.org versioned ZIP and reinstalls via `Plugin_Upgrader`. |
+| `class-pcg-snapshot.php` | Transient-backed pre-update snapshot (version + was_active) plus an on-disk copy of the existing plugin files for offline rollback. |
+| `class-pcg-rollback.php` | Restores from the local backup first; falls back to the WP.org versioned ZIP via `Plugin_Upgrader`. |
 | `update-healthcheck.php` | Hooks `upgrader_pre_install` + `upgrader_process_complete`; probes, rolls back on fatal, renders an admin notice. |
 
 ## Activation flow
@@ -91,12 +91,14 @@ Why not the load probe at this stage: during an *update* the active version is a
 
 Gated on `pcg_guard_updates`. Runs *after* files are swapped, in a fresh HTTP request — so the "Cannot redeclare" problem doesn't apply.
 
-1. `upgrader_pre_install` — `PCG_Snapshot::capture()` reads the current plugin's `Version` and `is_plugin_active()` and stashes them in a transient keyed by the plugin basename.
-2. Core extracts + copies the new files.
-3. `upgrader_process_complete` (priority 99) — for each plugin in `hook_extra['plugins']`, `update-healthcheck.php` consumes the snapshot. If `was_active` was true, it runs `PCG_Load_Tester::test()` against the plugin's main file (same HTTP probe the activation guard uses).
-4. On `fatal` / `throwable` verdict, `PCG_Rollback::to_snapshot()` deactivates the broken plugin, fetches `https://downloads.wordpress.org/plugin/{slug}.{old_version}.zip`, reinstalls via `Plugin_Upgrader` with `overwrite_package`, and reactivates.
-5. If the previous-version URL can't be built (non-.org plugin, missing version string) or the download fails, the plugin is left deactivated and the admin notice says so.
-6. Notices are stashed in a per-user transient and drained by `admin_notices`, same pattern as the activation guard.
+1. `upgrader_pre_install` — `PCG_Snapshot::capture()` reads the current plugin's `Version` and `is_plugin_active()`, stashes them in a transient keyed by the plugin basename, **and copies the live plugin files to `wp-content/upgrade/pcg-backups/<unique>/<asset>`** so we can restore offline without re-downloading.
+2. Core extracts + copies the new files (the original copy is still safely tucked away under `pcg-backups/`).
+3. `upgrader_process_complete` (priority 99) — for each plugin in `hook_extra['plugins']`, `update-healthcheck.php` consumes the snapshot. If `was_active` was true, it runs `PCG_Load_Tester::test()` against the plugin's main file (same HTTP probes the activation guard uses).
+4. On `ok`, the backup is deleted and we're done.
+5. On `fatal` / `throwable`, `PCG_Rollback::to_snapshot()` deactivates the broken plugin, **swaps the new files for the saved local backup** via rename (or copy + delete-source as a fallback for cross-fs cases), and reactivates if the plugin was active.
+6. If the local backup is missing or the swap fails, `PCG_Rollback` falls back to fetching `https://downloads.wordpress.org/plugin/{slug}.{old_version}.zip` and reinstalling via `Plugin_Upgrader`. This still helps for .org plugins on hosts where the local backup couldn't be created (full disk, restrictive perms).
+7. If neither path works, the plugin is left deactivated and the admin notice says so.
+8. Notices are stashed in a per-user transient and drained by `admin_notices`, same pattern as the activation guard.
 
 ```
  upgrader_pre_install
@@ -131,6 +133,6 @@ Gated on `pcg_guard_updates`. Runs *after* files are swapped, in a fresh HTTP re
 ### Limitations (v1)
 
 - Only probes `home_url()`. Fatals that only surface on admin / REST aren't caught yet.
-- Rollback source is WP.org only. Paid/private plugins report `rollback_unavailable`.
+- Rollback works for any plugin via the local backup; the WP.org versioned ZIP is only used as a fallback when the local backup is missing.
 - No debug.log classifier yet — probe verdict is the only signal.
 - Multisite network updates are out of scope; the probe runs against the current site's `home_url()`.

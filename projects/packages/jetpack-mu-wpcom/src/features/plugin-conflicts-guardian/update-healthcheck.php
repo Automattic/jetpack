@@ -92,10 +92,14 @@ function pcg_healthcheck_probe_and_maybe_rollback( $plugin_file ) {
 	$status = (string) ( $result['status'] ?? '' );
 
 	if ( 'ok' === $status ) {
+		// Update succeeded — drop the local backup so it doesn't pile up under wp-content/upgrade/.
+		PCG_Snapshot::cleanup_backup( $snapshot );
 		return;
 	}
 	if ( 'fatal' !== $status && 'throwable' !== $status ) {
 		// "error" from the probe itself (transport failure, missing file) — don't roll back on ambiguous signals.
+		// Treat these as inconclusive and clean up the backup; otherwise it lingers indefinitely.
+		PCG_Snapshot::cleanup_backup( $snapshot );
 		return;
 	}
 
