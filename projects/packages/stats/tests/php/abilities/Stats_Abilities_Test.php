@@ -3,7 +3,6 @@
  * Tests for the Stats_Abilities Registrar subclass.
  *
  * @package automattic/jetpack-stats
- * @phan-file-suppress PhanPluginDuplicateAdjacentStatement -- Intentional for idempotency tests.
  */
 
 // @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
@@ -14,7 +13,6 @@ use Automattic\Jetpack\Stats\Main;
 use Automattic\Jetpack\Stats\Options;
 use Automattic\Jetpack\Stats\StatsBaseTestCase;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
-use Automattic\Jetpack\WP_Abilities\Registrar;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
@@ -23,6 +21,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
  * Run from projects/packages/stats:
  *
  *   composer phpunit -- --filter Stats_Abilities_Test
+ *
+ * @covers \Automattic\Jetpack\Stats\Abilities\Stats_Abilities
  */
 #[CoversClass( Stats_Abilities::class )]
 class Stats_Abilities_Test extends StatsBaseTestCase {
@@ -60,7 +60,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$prop->setValue( null, null );
 		Main::init();
 
-		self::$admin_id = wp_insert_user(
+		self::$admin_id      = wp_insert_user(
 			array(
 				'user_login' => 'stats_abilities_admin_' . wp_generate_password( 8, false ),
 				'user_pass'  => 'pw',
@@ -149,8 +149,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$wp_current_filter[] = 'wp_abilities_api_init';
 	}
 
-	// ========== Abstract getters ==========
-
 	public function test_category_slug_is_jetpack_stats(): void {
 		$this->assertSame( 'jetpack-stats', Stats_Abilities::get_category_slug() );
 	}
@@ -223,8 +221,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertFalse( $ann['destructive'] );
 		$this->assertTrue( $ann['idempotent'] );
 	}
-
-	// ========== Registrar wiring ==========
 
 	public function test_init_registers_nothing_when_gate_filter_is_false(): void {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
@@ -319,8 +315,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertFalse( wp_has_ability( 'jetpack-stats/set-stats-config' ) );
 	}
 
-	// ========== Permission callbacks ==========
-
 	public function test_can_view_stats_allows_admin(): void {
 		wp_set_current_user( self::$admin_id );
 		$this->assertTrue( Stats_Abilities::can_view_stats() );
@@ -346,8 +340,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertFalse( Stats_Abilities::can_manage_stats_config() );
 	}
 
-	// ========== Execute: get-site-overview ==========
-
 	public function test_get_site_overview_returns_composed_shape(): void {
 		$this->filter_wpcom_stats(
 			array(
@@ -364,10 +356,20 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					'today' => array(
 						'date'          => '2026-04-23',
 						'views_month'   => 3500,
-						'top_post'      => array( 'id' => 7, 'title' => 'Hello world', 'views' => 42 ),
+						'top_post'      => array(
+							'id'    => 7,
+							'title' => 'Hello world',
+							'views' => 42,
+						),
 						'top_referrers' => array(
-							array( 'name' => 'wordpress.com', 'views' => 60 ),
-							array( 'name' => 'google.com', 'views' => 30 ),
+							array(
+								'name'  => 'wordpress.com',
+								'views' => 60,
+							),
+							array(
+								'name'  => 'google.com',
+								'views' => 30,
+							),
 						),
 					),
 				),
@@ -392,8 +394,21 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 3500, $result['views_month'] );
 		$this->assertSame( 3, $result['streak']['current_length'] );
 		$this->assertSame( 12, $result['streak']['longest_length'] );
-		$this->assertSame( array( 'id' => 7, 'title' => 'Hello world', 'views' => 42 ), $result['top_post'] );
-		$this->assertSame( array( 'name' => 'wordpress.com', 'views' => 60 ), $result['top_referrer'] );
+		$this->assertSame(
+			array(
+				'id'    => 7,
+				'title' => 'Hello world',
+				'views' => 42,
+			),
+			$result['top_post']
+		);
+		$this->assertSame(
+			array(
+				'name'  => 'wordpress.com',
+				'views' => 60,
+			),
+			$result['top_referrer']
+		);
 		$this->assertFalse( $result['partial'] );
 		$this->assertArrayNotHasKey( 'errors', $result );
 	}
@@ -401,7 +416,10 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_site_overview_flags_partial_when_one_subcall_fails(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_stats_summary' => array( 'date' => '2026-04-23', 'views' => 10 ),
+				'get_stats_summary' => array(
+					'date'  => '2026-04-23',
+					'views' => 10,
+				),
 				'get_highlights'    => new \WP_Error( 'boom', 'nope' ),
 				'get_streak'        => array( 'streak' => array( 'currentStreakLength' => 1 ) ),
 			)
@@ -431,8 +449,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 'jetpack_stats_data_unavailable', $result->get_error_code() );
 	}
 
-	// ========== Execute: get-top-content ==========
-
 	public function test_get_top_content_rejects_missing_type(): void {
 		$result = Stats_Abilities::get_top_content( array() );
 		$this->assertInstanceOf( \WP_Error::class, $result );
@@ -446,8 +462,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					'days' => array(
 						'2026-04-23' => array(
 							'postviews' => array(
-								array( 'id' => 1, 'title' => 'Alpha', 'views' => 100, 'href' => 'https://x/alpha' ),
-								array( 'id' => 2, 'title' => 'Beta',  'views' => 50,  'href' => 'https://x/beta' ),
+								array(
+									'id'    => 1,
+									'title' => 'Alpha',
+									'views' => 100,
+									'href'  => 'https://x/alpha',
+								),
+								array(
+									'id'    => 2,
+									'title' => 'Beta',
+									'views' => 50,
+									'href'  => 'https://x/beta',
+								),
 							),
 						),
 					),
@@ -455,7 +481,13 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			)
 		);
 
-		$result = Stats_Abilities::get_top_content( array( 'type' => 'posts', 'date' => '2026-04-23', 'max' => 5 ) );
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'posts',
+				'date' => '2026-04-23',
+				'max'  => 5,
+			)
+		);
 
 		$this->assertSame( 'posts', $result['type'] );
 		$this->assertSame( 'day', $result['period'] );
@@ -475,8 +507,14 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					'days' => array(
 						'2026-04-23' => array(
 							'search_terms' => array(
-								array( 'term' => 'jetpack', 'views' => 20 ),
-								array( 'term' => 'stats',   'views' => 7 ),
+								array(
+									'term'  => 'jetpack',
+									'views' => 20,
+								),
+								array(
+									'term'  => 'stats',
+									'views' => 7,
+								),
 							),
 						),
 					),
@@ -484,7 +522,12 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			)
 		);
 
-		$result = Stats_Abilities::get_top_content( array( 'type' => 'search-terms', 'date' => '2026-04-23' ) );
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'search-terms',
+				'date' => '2026-04-23',
+			)
+		);
 
 		$this->assertSame( 'search-terms', $result['type'] );
 		$this->assertCount( 2, $result['items'] );
@@ -501,8 +544,14 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					'days'         => array(
 						'2026-04-23' => array(
 							'views' => array(
-								array( 'country_code' => 'FR', 'views' => 12 ),
-								array( 'country_code' => 'DE', 'views' => 9 ),
+								array(
+									'country_code' => 'FR',
+									'views'        => 12,
+								),
+								array(
+									'country_code' => 'DE',
+									'views'        => 9,
+								),
 							),
 						),
 					),
@@ -514,7 +563,12 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			)
 		);
 
-		$result = Stats_Abilities::get_top_content( array( 'type' => 'countries', 'date' => '2026-04-23' ) );
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'countries',
+				'date' => '2026-04-23',
+			)
+		);
 
 		$this->assertSame( 'France', $result['items'][0]['label'] );
 		$this->assertSame( 'Germany', $result['items'][1]['label'] );
@@ -525,8 +579,14 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array(
 				'get_tags' => array(
 					'tags' => array(
-						array( 'tag' => 'news', 'views' => 40 ),
-						array( 'tag' => 'updates', 'views' => 15 ),
+						array(
+							'tag'   => 'news',
+							'views' => 40,
+						),
+						array(
+							'tag'   => 'updates',
+							'views' => 15,
+						),
 					),
 				),
 			)
@@ -546,9 +606,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 					'days' => array(
 						'2026-04-23' => array(
 							'postviews' => array(
-								array( 'title' => 'A', 'views' => 1 ),
-								array( 'title' => 'B', 'views' => 1 ),
-								array( 'title' => 'C', 'views' => 1 ),
+								array(
+									'title' => 'A',
+									'views' => 1,
+								),
+								array(
+									'title' => 'B',
+									'views' => 1,
+								),
+								array(
+									'title' => 'C',
+									'views' => 1,
+								),
 							),
 						),
 					),
@@ -556,7 +625,12 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			)
 		);
 
-		$result = Stats_Abilities::get_top_content( array( 'type' => 'posts', 'max' => 2 ) );
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'posts',
+				'max'  => 2,
+			)
+		);
 
 		$this->assertCount( 2, $result['items'] );
 	}
@@ -572,8 +646,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 	}
-
-	// ========== Execute: get-post-views ==========
 
 	public function test_get_post_views_rejects_missing_post_id(): void {
 		$result = Stats_Abilities::get_post_views( array() );
@@ -615,10 +687,14 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 7, $result['post_id'] );
 		$this->assertSame( 42, $result['total_views'] );
 		$this->assertCount( 2, $result['series'] );
-		$this->assertSame( array( 'date' => '2026-04-22', 'views' => 20 ), $result['series'][0] );
+		$this->assertSame(
+			array(
+				'date'  => '2026-04-22',
+				'views' => 20,
+			),
+			$result['series'][0]
+		);
 	}
-
-	// ========== Execute: get-visits ==========
 
 	public function test_get_visits_normalizes_series_rows(): void {
 		$this->filter_wpcom_stats(
@@ -633,11 +709,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			)
 		);
 
-		$result = Stats_Abilities::get_visits( array( 'unit' => 'day', 'quantity' => 2 ) );
+		$result = Stats_Abilities::get_visits(
+			array(
+				'unit'     => 'day',
+				'quantity' => 2,
+			)
+		);
 
 		$this->assertSame( array( 'views', 'visitors' ), $result['fields'] );
 		$this->assertCount( 2, $result['series'] );
-		$this->assertSame( array( 'date' => '2026-04-22', 'views' => 100, 'visitors' => 70 ), $result['series'][0] );
+		$this->assertSame(
+			array(
+				'date'     => '2026-04-22',
+				'views'    => 100,
+				'visitors' => 70,
+			),
+			$result['series'][0]
+		);
 	}
 
 	public function test_get_visits_always_includes_requested_fields_even_when_missing_from_backing(): void {
@@ -658,17 +746,24 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 0, $result['series'][0]['likes'] );
 	}
 
-	// ========== Execute: get-followers ==========
-
 	public function test_get_followers_composes_three_subcalls(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_followers'           => array( 'email' => 10, 'wpcom' => 25 ),
+				'get_followers'           => array(
+					'email' => 10,
+					'wpcom' => 25,
+				),
 				'get_comment_followers'   => array( 'total' => 4 ),
 				'get_publicize_followers' => array(
 					'services' => array(
-						array( 'service' => 'twitter', 'followers' => 300 ),
-						array( 'service' => 'facebook', 'followers' => 80 ),
+						array(
+							'service'   => 'twitter',
+							'followers' => 300,
+						),
+						array(
+							'service'   => 'facebook',
+							'followers' => 80,
+						),
 					),
 				),
 			)
@@ -679,7 +774,13 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 10, $result['email'] );
 		$this->assertSame( 25, $result['wpcom'] );
 		$this->assertSame( 4, $result['comment'] );
-		$this->assertSame( array( 'twitter' => 300, 'facebook' => 80 ), $result['publicize'] );
+		$this->assertSame(
+			array(
+				'twitter'  => 300,
+				'facebook' => 80,
+			),
+			$result['publicize']
+		);
 		$this->assertSame( 10 + 25 + 4 + 300 + 80, $result['total'] );
 		$this->assertFalse( $result['partial'] );
 	}
@@ -687,7 +788,10 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_followers_flags_partial_on_subcall_error(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_followers'           => array( 'email' => 5, 'wpcom' => 10 ),
+				'get_followers'           => array(
+					'email' => 5,
+					'wpcom' => 10,
+				),
 				'get_comment_followers'   => new \WP_Error( 'boom', 'bad' ),
 				'get_publicize_followers' => array( 'services' => array() ),
 			)
@@ -698,8 +802,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertTrue( $result['partial'] );
 		$this->assertContains( 'comment_followers', $result['errors'] );
 	}
-
-	// ========== Execute: get-stats-config ==========
 
 	public function test_get_stats_config_returns_whitelisted_fields_only(): void {
 		$result = Stats_Abilities::get_stats_config();
@@ -714,8 +816,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertArrayNotHasKey( 'version', $result );
 		$this->assertArrayNotHasKey( 'notices', $result );
 	}
-
-	// ========== Execute: set-stats-config ==========
 
 	public function test_set_stats_config_rejects_empty_input(): void {
 		$result = Stats_Abilities::set_stats_config( array() );
@@ -779,8 +879,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'set-stats-config must not blow away unrelated internal option keys.'
 		);
 	}
-
-	// ========== Helpers ==========
 
 	/**
 	 * Install a filter that makes the abilities class use a stubbed WPCOM_Stats.

@@ -66,13 +66,46 @@ class Stats_Abilities extends Registrar {
 	 * no `days` envelope) are special-cased in the callback.
 	 */
 	const TOP_CONTENT_MAP = array(
-		'posts'        => array( 'list' => 'postviews',    'label' => 'title',    'value' => 'views',          'href' => 'href' ),
-		'referrers'    => array( 'list' => 'referrers',    'label' => 'name',     'value' => 'views' ),
-		'search-terms' => array( 'list' => 'search_terms', 'label' => 'term',     'value' => 'views' ),
-		'clicks'       => array( 'list' => 'clicks',       'label' => 'name',     'value' => 'views',          'href' => 'url',          'label_fallback' => 'url' ),
-		'authors'      => array( 'list' => 'authors',      'label' => 'name',     'value' => 'views' ),
-		'downloads'    => array( 'list' => 'files',        'label' => 'filename', 'value' => 'download_count', 'href' => 'relative_url', 'label_fallback' => 'relative_url' ),
-		'video-plays'  => array( 'list' => 'plays',        'label' => 'title',    'value' => 'plays' ),
+		'posts'        => array(
+			'list'  => 'postviews',
+			'label' => 'title',
+			'value' => 'views',
+			'href'  => 'href',
+		),
+		'referrers'    => array(
+			'list'  => 'referrers',
+			'label' => 'name',
+			'value' => 'views',
+		),
+		'search-terms' => array(
+			'list'  => 'search_terms',
+			'label' => 'term',
+			'value' => 'views',
+		),
+		'clicks'       => array(
+			'list'           => 'clicks',
+			'label'          => 'name',
+			'value'          => 'views',
+			'href'           => 'url',
+			'label_fallback' => 'url',
+		),
+		'authors'      => array(
+			'list'  => 'authors',
+			'label' => 'name',
+			'value' => 'views',
+		),
+		'downloads'    => array(
+			'list'           => 'files',
+			'label'          => 'filename',
+			'value'          => 'download_count',
+			'href'           => 'relative_url',
+			'label_fallback' => 'relative_url',
+		),
+		'video-plays'  => array(
+			'list'  => 'plays',
+			'label' => 'title',
+			'value' => 'plays',
+		),
 	);
 
 	/**
@@ -108,7 +141,8 @@ class Stats_Abilities extends Registrar {
 		);
 	}
 
-	/* ---------------------------------------------------------------------
+	/*
+	---------------------------------------------------------------------
 	 * Ability specs
 	 * ---------------------------------------------------------------------
 	 */
@@ -131,16 +165,16 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'date'            => array( 'type' => 'string' ),
-					'views_today'     => array( 'type' => 'integer' ),
-					'visitors_today'  => array( 'type' => 'integer' ),
-					'views_week'      => array( 'type' => 'integer' ),
-					'views_month'     => array( 'type' => 'integer' ),
-					'streak'          => array( 'type' => 'object' ),
-					'top_post'        => array( 'type' => array( 'object', 'null' ) ),
-					'top_referrer'    => array( 'type' => array( 'object', 'null' ) ),
-					'partial'         => array( 'type' => 'boolean' ),
-					'errors'          => array( 'type' => 'array' ),
+					'date'           => array( 'type' => 'string' ),
+					'views_today'    => array( 'type' => 'integer' ),
+					'visitors_today' => array( 'type' => 'integer' ),
+					'views_week'     => array( 'type' => 'integer' ),
+					'views_month'    => array( 'type' => 'integer' ),
+					'streak'         => array( 'type' => 'object' ),
+					'top_post'       => array( 'type' => array( 'object', 'null' ) ),
+					'top_referrer'   => array( 'type' => array( 'object', 'null' ) ),
+					'partial'        => array( 'type' => 'boolean' ),
+					'errors'         => array( 'type' => 'array' ),
 				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_site_overview' ),
@@ -497,14 +531,21 @@ class Stats_Abilities extends Registrar {
 	private static function config_output_properties(): array {
 		return array(
 			'admin_bar'            => array( 'type' => 'boolean' ),
-			'roles'                => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
-			'count_roles'          => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+			'roles'                => array(
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
+			),
+			'count_roles'          => array(
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
+			),
 			'do_not_track'         => array( 'type' => 'boolean' ),
 			'enable_odyssey_stats' => array( 'type' => 'boolean' ),
 		);
 	}
 
-	/* ---------------------------------------------------------------------
+	/*
+	---------------------------------------------------------------------
 	 * Permission callbacks
 	 * ---------------------------------------------------------------------
 	 */
@@ -535,7 +576,8 @@ class Stats_Abilities extends Registrar {
 		return current_user_can( 'manage_options' );
 	}
 
-	/* ---------------------------------------------------------------------
+	/*
+	---------------------------------------------------------------------
 	 * Execute callbacks
 	 * ---------------------------------------------------------------------
 	 */
@@ -550,9 +592,9 @@ class Stats_Abilities extends Registrar {
 		unset( $input );
 		$stats = self::get_wpcom_stats();
 
-		$summary   = $stats->get_stats_summary();
+		$summary    = $stats->get_stats_summary();
 		$highlights = $stats->get_highlights();
-		$streak    = $stats->get_streak();
+		$streak     = $stats->get_streak();
 
 		$errors = array();
 		if ( is_wp_error( $summary ) ) {
@@ -560,7 +602,7 @@ class Stats_Abilities extends Registrar {
 			$summary  = array();
 		}
 		if ( is_wp_error( $highlights ) ) {
-			$errors[] = 'highlights';
+			$errors[]   = 'highlights';
 			$highlights = array();
 		}
 		if ( is_wp_error( $streak ) ) {
@@ -598,7 +640,7 @@ class Stats_Abilities extends Registrar {
 		);
 
 		if ( ! empty( $errors ) ) {
-			$out['errors'] = array_values( $errors );
+			$out['errors'] = $errors;
 		}
 
 		return $out;
@@ -723,9 +765,9 @@ class Stats_Abilities extends Registrar {
 		}
 
 		$args = array(
-			'unit'     => $unit,
-			'quantity' => $quantity,
-			'date'     => $date,
+			'unit'        => $unit,
+			'quantity'    => $quantity,
+			'date'        => $date,
 			'stat_fields' => implode( ',', $fields ),
 		);
 
@@ -760,15 +802,15 @@ class Stats_Abilities extends Registrar {
 
 		$errors = array();
 		if ( is_wp_error( $followers ) ) {
-			$errors[] = 'followers';
+			$errors[]  = 'followers';
 			$followers = array();
 		}
 		if ( is_wp_error( $comment_followers ) ) {
-			$errors[] = 'comment_followers';
+			$errors[]          = 'comment_followers';
 			$comment_followers = array();
 		}
 		if ( is_wp_error( $publicize ) ) {
-			$errors[] = 'publicize_followers';
+			$errors[]  = 'publicize_followers';
 			$publicize = array();
 		}
 
@@ -799,7 +841,7 @@ class Stats_Abilities extends Registrar {
 		$publicize_by_service = array();
 		if ( isset( $publicize['services'] ) && is_array( $publicize['services'] ) ) {
 			foreach ( $publicize['services'] as $row ) {
-				if ( isset( $row['service'], $row['followers'] ) ) {
+				if ( isset( $row['service'] ) && isset( $row['followers'] ) ) {
 					$publicize_by_service[ (string) $row['service'] ] = (int) $row['followers'];
 				}
 			}
@@ -936,7 +978,8 @@ class Stats_Abilities extends Registrar {
 		);
 	}
 
-	/* ---------------------------------------------------------------------
+	/*
+	---------------------------------------------------------------------
 	 * Helpers
 	 * ---------------------------------------------------------------------
 	 */
@@ -1078,7 +1121,7 @@ class Stats_Abilities extends Registrar {
 				'label' => $label,
 				'value' => isset( $row[ $map['value'] ] ) ? (int) $row[ $map['value'] ] : 0,
 			);
-			if ( isset( $map['href'], $row[ $map['href'] ] ) ) {
+			if ( isset( $map['href'] ) && isset( $row[ $map['href'] ] ) ) {
 				$entry['href'] = (string) $row[ $map['href'] ];
 			}
 			$rows[] = $entry;
@@ -1230,7 +1273,7 @@ class Stats_Abilities extends Registrar {
 				'date' => isset( $row[ $date_idx ] ) ? (string) $row[ $date_idx ] : '',
 			);
 			foreach ( $fields as $field ) {
-				$idx            = $field_idx[ $field ] ?? null;
+				$idx             = $field_idx[ $field ] ?? null;
 				$entry[ $field ] = ( null !== $idx && isset( $row[ $idx ] ) ) ? (int) $row[ $idx ] : 0;
 			}
 			$series[] = $entry;
