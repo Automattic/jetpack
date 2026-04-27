@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Related Posts: register Abilities API surface (get-related-posts, get-settings, update-settings) on WP 6.9+.
