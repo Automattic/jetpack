@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.8-a.5
+Stable tag: 15.8-a.7
 Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,19 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.8-a.5 - 2026-04-20
+### 15.8-a.7 - 2026-04-27
 #### Enhancements
-- Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings).
-- AI Assistant: Add Jetpack AI sidebar that loads Agents Manager from the widgets.wp.com CDN (gated by the `jetpack_ai_sidebar_enabled` filter that defaults to false).
-- Remove the unused Title_Optimization_Ability stub.
-- Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection.
-
-#### Improved compatibility
-- Componentry: Use WordPress admin theme color variable instead of hardcoded color for text input focus state.
-- Tested up to WordPress 7.0.
+- Add MCP settings admin page and REST endpoint for managing external AI agent access to Jetpack AI.
+- Forms: Add `jetpack_forms_email_show_actions` filter to hide action buttons in notification emails.
+- Performance: Add early-return guard conditions to Gravatar Hovercards, Likes, Subscribe Floating Button, Subscribe Overlay, WooCommerce Analytics, and WordAds modules to skip loading scripts and styles on pages where they are not needed.
+- Search: Add fallback image capability in expanded search.
+- Sites endpoint: Expose `jetpack_recovery_mode_status` option so callers can read recovery-mode state from WordPress.com.
+- Subscriptions: Check email preview content with Akismet before sending to protect the mailer pipeline.
+- Top Posts block: Add `jetpack_top_posts_item_title` filter allowing customization of the posts' titles in the block.
 
 #### Bug fixes
-- Settings: Show an empty state when search returns no matching settings.
+- AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts.
+- Comment: Improve author Gravatar URLs by converting email-based or no-login URLs to hashed versions.
 
 --------
 

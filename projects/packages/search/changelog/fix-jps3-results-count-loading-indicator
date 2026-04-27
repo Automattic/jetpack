@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search 3.0: reuse the results-count block as the loading indicator ("Searching…") so the control row doesn't flicker between queries.

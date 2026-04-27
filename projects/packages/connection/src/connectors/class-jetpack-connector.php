@@ -417,7 +417,7 @@ class Jetpack_Connector {
 	 * 3. A4A only                        → jetpack-connect-a8c.svg
 	 * 4. Default (Jetpack only or other) → jetpack-connect.svg
 	 *
-	 * @since $$next-version$$
+	 * @since 8.3.2
 	 *
 	 * @return string Logo URL.
 	 */
@@ -463,7 +463,7 @@ class Jetpack_Connector {
 	 * plugins can register their own logo. Only SVG URLs are accepted
 	 * to keep the icons sharp at every display density.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.3.2
 	 *
 	 * @param string $slug Plugin slug.
 	 * @return string|null Logo URL or null.
@@ -496,7 +496,7 @@ class Jetpack_Connector {
 		 *         return $logos;
 		 *     } );
 		 *
-		 * @since $$next-version$$
+		 * @since 8.3.2
 		 *
 		 * @param array<string,string> $logos Map of plugin slug to SVG URL.
 		 */

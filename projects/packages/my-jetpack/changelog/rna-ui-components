@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Replace Badge from `@automattic/ui` with Badge from `@wordpress/ui`, and CheckmarkIcon with Icon from `@wordpress/icons`.

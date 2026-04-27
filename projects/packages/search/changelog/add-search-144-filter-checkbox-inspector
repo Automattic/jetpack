@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Search Blocks: add inspector controls for label, showCount, and maxItems, plus a bucketSortOrder attribute (count | alpha, default count) to filter-checkbox.

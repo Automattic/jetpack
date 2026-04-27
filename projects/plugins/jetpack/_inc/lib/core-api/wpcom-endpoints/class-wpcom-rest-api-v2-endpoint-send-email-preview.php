@@ -106,7 +106,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	 * Uses the post author as the identity signal (not the caller), because
 	 * the author is what Akismet should evaluate the content against.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.8
 	 *
 	 * @param WP_Post $post Post being previewed.
 	 * @return array Associative payload suitable for http_build_query().
@@ -131,7 +131,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		 *
 		 * @module subscriptions
 		 *
-		 * @since $$next-version$$
+		 * @since 15.8
 		 *
 		 * @param array   $payload The values being sent to Akismet.
 		 * @param WP_Post $post    The post being previewed.
@@ -146,7 +146,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	 *
 	 * Extracted into a method so tests can override it via a subclass.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.8
 	 *
 	 * @return bool
 	 */
@@ -159,7 +159,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	 *
 	 * Extracted into a method so tests can override it via a subclass.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.8
 	 *
 	 * @param string $query_string URL-encoded payload.
 	 * @return array Two-element array as returned by Akismet: [ headers_array, body_string ].
@@ -179,7 +179,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	 * Fail-open: any ambiguity (Akismet absent, malformed response) returns false
 	 * so the author's workflow isn't blocked on service hiccups.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.8
 	 *
 	 * @param WP_Post $post Post being previewed.
 	 * @return bool True when Akismet classifies the content as spam; false otherwise.
@@ -264,7 +264,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		 *
 		 * @module subscriptions
 		 *
-		 * @since $$next-version$$
+		 * @since 15.8
 		 *
 		 * @param WP_Post                 $post         The post being previewed.
 		 * @param Blog_Subscriber         $subscriber   The subscriber receiving the preview.
