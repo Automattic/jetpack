@@ -64,7 +64,7 @@ export function NextdoorPostPreview( {
 										maxChars: FEED_TEXT_MAX_LENGTH,
 									} ) }
 								</span>
-								{ ! hasMedia && url && (
+								{ ! hasMedia && url && ! description.includes( url ) && (
 									<>
 										<br />
 										<br />
