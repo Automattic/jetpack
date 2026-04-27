@@ -379,9 +379,13 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$option_name = 'jetpack_boost_status_minify-js';
 		delete_option( $option_name );
 
-		$received = array();
-		$callback = function ( $module_slug, $is_active ) use ( &$received ) {
-			$received[] = array( $module_slug, $is_active );
+		$captured_slug   = null;
+		$captured_active = null;
+		$call_count      = 0;
+		$callback        = function ( $module_slug, $is_active ) use ( &$captured_slug, &$captured_active, &$call_count ) {
+			$captured_slug   = $module_slug;
+			$captured_active = $is_active;
+			++$call_count;
 		};
 		add_action( 'jetpack_boost_module_status_updated', $callback, 10, 2 );
 
@@ -395,9 +399,9 @@ class Boost_Abilities_Test extends BaseTestCase {
 		remove_action( 'jetpack_boost_module_status_updated', $callback );
 		delete_option( $option_name );
 
-		$this->assertNotEmpty( $received, 'Toggle must emit jetpack_boost_module_status_updated so submodule lifecycle still runs.' );
-		$this->assertSame( $slug, $received[0][0] );
-		$this->assertTrue( $received[0][1] );
+		$this->assertSame( 1, $call_count, 'Toggle must emit jetpack_boost_module_status_updated exactly once so submodule lifecycle still runs.' );
+		$this->assertSame( $slug, $captured_slug );
+		$this->assertTrue( $captured_active );
 	}
 
 	/** -------------------- get_speed_score -------------------- */
