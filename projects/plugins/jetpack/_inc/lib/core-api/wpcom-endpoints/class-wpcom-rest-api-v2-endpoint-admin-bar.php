@@ -1,68 +1,90 @@
 <?php
 /**
- * Admin Bar REST API endpoint.
+ * REST API endpoint for admin bar.
  *
- * Returns the admin bar for the current site. It is used in the
- * WordPress.com dashboard to render the admin bar when a site is selected.
- *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
- * Exposes the current site's admin bar.
+ * Class WPCOM_REST_API_V2_Endpoint_Admin_Bar
  */
 class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
+
+	/**
+	 * Namespace prefix.
+	 *
+	 * @var string
+	 */
+	public $namespace = 'wpcom/v2';
+
+	/**
+	 * Endpoint base route.
+	 *
+	 * @var string
+	 */
+	public $rest_base = 'admin-bar';
 
 	/**
 	 * Top-level admin bar node IDs that are considered safe to show.
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_TOP_LEVEL_NODES = array( 'wpcom-logo', 'site-name', 'new-content', 'comments', 'updates', 'my-account' );
+	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'new-content', 'comments', 'updates', 'my-account' );
 
 	/**
-	 * Class constructor.
+	 * WPCOM_REST_API_V2_Endpoint_Admin_Bar constructor.
 	 */
 	public function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'admin-bar';
-
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**
-	 * Register our routes.
+	 * Register routes.
 	 */
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base,
+			$this->rest_base . '/',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_data' ),
-					'permission_callback' => array( $this, 'can_access' ),
+					'callback'            => array( $this, 'get_item' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 				),
 			)
 		);
 	}
 
 	/**
-	 * Permission callback for the REST route.
+	 * Checks if a given request has access to the admin bar.
 	 *
-	 * @return boolean
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request has read access for the item, WP_Error object otherwise.
 	 */
-	public function can_access() {
-		return current_user_can( 'manage_options' );
+	public function get_item_permissions_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to view the admin bar on this site.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 
 	/**
-	 * Returns the admin bar registered for the current site, filtered to
+	 * Retrieves the admin bar registered for the current site, filtered to
 	 * the allowed top-level nodes and their descendants.
 	 *
-	 * @return WP_REST_Response
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function get_data() {
+	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $wp_admin_bar;
 
 		if ( ! class_exists( 'WP_Screen' ) ) {
@@ -83,7 +105,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		$nodes          = $wp_admin_bar->get_nodes() ?? array();
 		$filtered_nodes = $this->filter_nodes( $nodes, self::ALLOWED_TOP_LEVEL_NODES );
 
-		return new WP_REST_Response( array( 'nodes' => array_values( $filtered_nodes ) ), 200 );
+		return rest_ensure_response( array( 'nodes' => array_values( $filtered_nodes ) ) );
 	}
 
 	/**
@@ -121,3 +143,5 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		return $allowed;
 	}
 }
+
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Admin_Bar' );
