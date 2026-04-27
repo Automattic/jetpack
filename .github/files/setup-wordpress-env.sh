@@ -52,6 +52,9 @@ export COMPOSER_MIRROR_PATH_REPOS=true
 BASE="$(pwd)"
 PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
 
+# Capture default Composer cache so we can pre-seed each plugin's cache from packages already downloaded by earlier steps (e.g. tools/php-test-env).
+DEFAULT_COMPOSER_CACHE_DIR="$(composer config cache-dir)"
+
 function _install_plugin {
 	local CODE DBNAME DEPS DIR JSON NAME TMP WP_TEST_CONFIG
 	DIR="${1%/composer.json}"
@@ -59,6 +62,8 @@ function _install_plugin {
 
 	# Isolate composer cache per plugin, as a shared composer cache breaks during parallel writes.
 	export COMPOSER_CACHE_DIR="/tmp/composer-cache-$NAME"
+	# But first let's pre-seed it with the default cache from earlier.
+	cp -a "$DEFAULT_COMPOSER_CACHE_DIR" "$COMPOSER_CACHE_DIR"
 
 	echo "::group::Installing plugin $NAME into WordPress"
 
