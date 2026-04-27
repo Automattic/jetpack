@@ -41,6 +41,13 @@ class Blaze_Abilities extends Registrar {
 	 * Bails early when WooCommerce 10.7+ with the bundled MCP adapter is
 	 * not present — the v1 surface is Woo-only on purpose.
 	 *
+	 * Note: deliberately does not call `parent::init()`. The Registrar
+	 * base gates registration behind the `jetpack_wp_abilities_enabled`
+	 * filter (default false), and toggling that filter would force-enable
+	 * registration for *every* future Registrar consumer in the monorepo,
+	 * not just Blaze. We mirror parent::init()'s lifecycle wiring directly
+	 * so we only opt in our own abilities.
+	 *
 	 * @return void
 	 */
 	public static function init() {
@@ -48,11 +55,20 @@ class Blaze_Abilities extends Registrar {
 			return;
 		}
 
-		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		add_filter( 'jetpack_wp_abilities_should_register', array( __CLASS__, 'guard_against_double_register' ), 10, 3 );
 		add_filter( 'woocommerce_mcp_include_ability', array( __CLASS__, 'opt_into_woo_mcp' ), 10, 2 );
 
-		parent::init();
+		if ( did_action( self::CATEGORIES_INIT_ACTION ) ) {
+			static::register_category();
+		} else {
+			add_action( self::CATEGORIES_INIT_ACTION, array( static::class, 'register_category' ) );
+		}
+
+		if ( did_action( self::ABILITIES_INIT_ACTION ) ) {
+			static::register_abilities();
+		} else {
+			add_action( self::ABILITIES_INIT_ACTION, array( static::class, 'register_abilities' ) );
+		}
 	}
 
 	/**
