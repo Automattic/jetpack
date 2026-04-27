@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Comment: Improve author Gravatar URLs by converting email-based or no login URLs to hashed versions.

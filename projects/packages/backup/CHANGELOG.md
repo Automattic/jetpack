@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.53] - 2026-04-27
+### Changed
+- Update dependencies. [#46758]
+
 ## [4.2.52] - 2026-04-20
 ### Changed
 - Adopt the shared Jetpack admin-page-layout mixin on the Backup admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
@@ -1096,6 +1100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.53]: https://github.com/Automattic/jetpack-backup/compare/v4.2.52...v4.2.53
 [4.2.52]: https://github.com/Automattic/jetpack-backup/compare/v4.2.51...v4.2.52
 [4.2.51]: https://github.com/Automattic/jetpack-backup/compare/v4.2.50...v4.2.51
 [4.2.50]: https://github.com/Automattic/jetpack-backup/compare/v4.2.49...v4.2.50

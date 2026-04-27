@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.8-a.7 - 2026-04-27
+### Enhancements
+- Add MCP settings admin page and REST endpoint for managing external AI agent access to Jetpack AI. [#48048]
+- Forms: Add `jetpack_forms_email_show_actions` filter to hide action buttons in notification emails. [#48262]
+- Performance: Add early-return guard conditions to Gravatar Hovercards, Likes, Subscribe Floating Button, Subscribe Overlay, WooCommerce Analytics, and WordAds modules to skip loading scripts and styles on pages where they are not needed. [#47495]
+- Search: Add fallback image capability in expanded search. [#44657]
+- Sites endpoint: Expose `jetpack_recovery_mode_status` option so callers can read recovery-mode state from WordPress.com. [#48254]
+- Subscriptions: Check email preview content with Akismet before sending to protect the mailer pipeline. [#48241]
+- Top Posts block: Add `jetpack_top_posts_item_title` filter allowing customization of the posts' titles in the block. [#48209]
+
+### Bug fixes
+- AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts. [#48048]
+- Comment: Improve author Gravatar URLs by converting email-based or no-login URLs to hashed versions. [#48309]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Componentry: Replace Chip and custom Recommendations "New" pill with Badge from @wordpress/ui. [#48162]
+- Email Preview: Avoid unconditional require_once and file loading in the REST API endpoint to prevent unnecessary file loading and hook registration on every request. [#48316]
+- Google Fonts: Update module description to note native WordPress support. [#48216]
+- ModuleToggle: Import ToggleControl from @wordpress/components instead of @automattic/jetpack-components. [#48197]
+- Monetize settings: Import ToggleControl from @wordpress/components instead of @automattic/jetpack-components. [#48207]
+- SAL: Add `has_password` field to post API response. [#47938]
+- Update package dependencies. [#48302]
+
 ## 15.8-a.5 - 2026-04-20
 ### Enhancements
 - Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings). [#48109]

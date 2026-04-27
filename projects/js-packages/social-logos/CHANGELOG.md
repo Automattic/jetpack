@@ -1,3 +1,7 @@
+## [3.3.13] - 2026-04-27
+### Changed
+- Internal updates.
+
 ## [3.3.12] - 2026-03-30
 ### Changed
 - Update package dependencies. [#47818]
@@ -324,6 +328,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.13]: https://github.com/Automattic/social-logos/compare/v3.3.12...v3.3.13
 [3.3.12]: https://github.com/Automattic/social-logos/compare/v3.3.11...v3.3.12
 [3.3.11]: https://github.com/Automattic/social-logos/compare/v3.3.10...v3.3.11
 [3.3.10]: https://github.com/Automattic/social-logos/compare/v3.3.9...v3.3.10
