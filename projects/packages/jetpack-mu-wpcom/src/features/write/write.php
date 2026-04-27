@@ -316,6 +316,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			type="url"
 			class="bw-link-input"
 			placeholder="Paste or type a link..."
+			data-wp-bind--value="state.linkUrl"
 			data-wp-on--input="actions.updateLinkUrl"
 			data-wp-on--keydown="actions.handleLinkKeyDown"
 		/>

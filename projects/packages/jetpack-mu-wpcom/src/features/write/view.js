@@ -13,6 +13,10 @@ import { store, getElement, getContext } from '@wordpress/interactivity';
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
 
+// Stored references for dropdown close handlers to prevent listener leaks.
+let headingMenuCloseHandler = null;
+let textColorMenuCloseHandler = null;
+
 /**
  * Save the current text selection so it can be restored after a modal closes.
  */
@@ -38,7 +42,7 @@ function restoreSelection() {
  *
  * The foreColor command creates <font color="..."> (legacy) or
  * <span style="color:..."> (modern). Convert both to clean <span> elements
- * with inline styles, and strip the default text color (#333333).
+ * with inline styles, and strip the default text color (#1a1a1a).
  *
  * @param {HTMLElement} container - The container to normalize in place.
  */
@@ -48,7 +52,7 @@ function normalizeColorMarkup( container ) {
 		const color = font.getAttribute( 'color' );
 		const span = document.createElement( 'span' );
 		// Skip default color — unwrap the element entirely.
-		if ( color && color.toLowerCase() !== '#333333' ) {
+		if ( color && color.toLowerCase() !== '#1a1a1a' ) {
 			span.style.color = color;
 		}
 		span.innerHTML = font.innerHTML;
@@ -60,7 +64,7 @@ function normalizeColorMarkup( container ) {
 		const color = span.style.color;
 		if ( ! color ) return;
 		// Detect default color in various formats.
-		const isDefault = color === '#333333' || color === '#333' || color === 'rgb(51, 51, 51)';
+		const isDefault = color === '#1a1a1a' || color === 'rgb(26, 26, 26)';
 		if ( isDefault ) {
 			span.replaceWith( ...span.childNodes );
 		}
@@ -142,8 +146,11 @@ function convertToBlocks( html ) {
 		} else if ( tag === 'blockquote' ) {
 			// inner may already contain <p> tags from contentEditable.
 			const quoteInner = inner.startsWith( '<p' ) ? inner : `<p>${ inner }</p>`;
+			const hasQuoteAlign = align && [ 'center', 'right' ].includes( align );
+			const quoteAlignAttr = hasQuoteAlign ? ` style="text-align:${ align }"` : '';
+			const quoteAlignJson = hasQuoteAlign ? ` {"align":"${ align }"}` : '';
 			blocks.push(
-				`<!-- wp:quote -->\n<blockquote class="wp-block-quote">${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+				`<!-- wp:quote${ quoteAlignJson } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
 			);
 		} else if ( tag === 'ul' ) {
 			blocks.push(
@@ -813,25 +820,31 @@ const { state } = store( 'wpcom-write', {
 		toggleTextColorMenu() {
 			state.showTextColorMenu = ! state.showTextColorMenu;
 			state.showHeadingMenu = false;
+			// Always clean up any existing listener first.
+			if ( textColorMenuCloseHandler ) {
+				document.removeEventListener( 'click', textColorMenuCloseHandler );
+				textColorMenuCloseHandler = null;
+			}
 			if ( state.showTextColorMenu ) {
 				positionDropdownOnMobile( '.bw-color-menu' );
-				const close = e => {
+				textColorMenuCloseHandler = e => {
 					if (
 						e.target.closest( '.bw-color-menu' ) ||
 						e.target.closest( '[data-wp-on--click="actions.toggleTextColorMenu"]' )
 					)
 						return;
 					state.showTextColorMenu = false;
-					document.removeEventListener( 'click', close );
+					document.removeEventListener( 'click', textColorMenuCloseHandler );
+					textColorMenuCloseHandler = null;
 				};
-				setTimeout( () => document.addEventListener( 'click', close ), 0 );
+				setTimeout( () => document.addEventListener( 'click', textColorMenuCloseHandler ), 0 );
 			}
 		},
 
 		setTextColorDefault() {
 			// Use foreColor with the default text color instead of removeFormat,
 			// which would strip all inline formatting (bold, italic, etc.).
-			document.execCommand( 'foreColor', false, '#333333' );
+			document.execCommand( 'foreColor', false, '#1a1a1a' );
 			state.showTextColorMenu = false;
 		},
 
@@ -865,30 +878,38 @@ const { state } = store( 'wpcom-write', {
 		toggleHeadingMenu() {
 			state.showHeadingMenu = ! state.showHeadingMenu;
 			state.showTextColorMenu = false;
+			// Always clean up any existing listener first.
+			if ( headingMenuCloseHandler ) {
+				document.removeEventListener( 'click', headingMenuCloseHandler );
+				headingMenuCloseHandler = null;
+			}
 			if ( state.showHeadingMenu ) {
 				positionDropdownOnMobile( '.bw-heading-menu' );
-				const close = e => {
+				headingMenuCloseHandler = e => {
 					if (
 						e.target.closest( '.bw-heading-menu' ) ||
 						e.target.closest( '.bw-tool-heading-toggle' )
 					)
 						return;
 					state.showHeadingMenu = false;
-					document.removeEventListener( 'click', close );
+					document.removeEventListener( 'click', headingMenuCloseHandler );
+					headingMenuCloseHandler = null;
 				};
-				setTimeout( () => document.addEventListener( 'click', close ), 0 );
+				setTimeout( () => document.addEventListener( 'click', headingMenuCloseHandler ), 0 );
 			}
 		},
 
 		setHeadingNormal() {
 			document.execCommand( 'formatBlock', false, 'p' );
 			state.formatHeading = false;
+			state.headingLabel = 'Normal';
 			state.showHeadingMenu = false;
 		},
 
 		setHeadingH2() {
 			document.execCommand( 'formatBlock', false, 'h2' );
 			state.formatHeading = true;
+			state.headingLabel = 'Heading 2';
 			state.formatQuote = false;
 			state.showHeadingMenu = false;
 		},
@@ -896,6 +917,7 @@ const { state } = store( 'wpcom-write', {
 		setHeadingH3() {
 			document.execCommand( 'formatBlock', false, 'h3' );
 			state.formatHeading = true;
+			state.headingLabel = 'Heading 3';
 			state.formatQuote = false;
 			state.showHeadingMenu = false;
 		},
@@ -970,7 +992,7 @@ const { state } = store( 'wpcom-write', {
 			state.linkUrl = '';
 			while ( node && node !== document.body ) {
 				if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A' ) {
-					state.linkUrl = node.href;
+					state.linkUrl = node.getAttribute( 'href' ) || '';
 					break;
 				}
 				node = node.parentNode;
@@ -985,6 +1007,14 @@ const { state } = store( 'wpcom-write', {
 				const input = popover.querySelector( '.bw-link-input' );
 				if ( input ) input.focus();
 			} );
+
+			// Close when clicking outside the popover.
+			const closeLink = e => {
+				if ( e.target.closest( '.bw-link-popover' ) ) return;
+				state.showLinkInput = false;
+				document.removeEventListener( 'click', closeLink );
+			};
+			setTimeout( () => document.addEventListener( 'click', closeLink ), 0 );
 		},
 
 		updateLinkUrl() {
