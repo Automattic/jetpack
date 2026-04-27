@@ -466,7 +466,7 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 			);
 		}
 
-		$ai = new $ai_services_class( 'content-research' );
+		$ai = new $ai_services_class( 'content-research' ); // @phan-suppress-current-line PhanTypeExpectedObjectOrClassName,PhanUndeclaredClass -- Loaded dynamically via require_lib.
 
 		$per_article_summaries = array();
 
