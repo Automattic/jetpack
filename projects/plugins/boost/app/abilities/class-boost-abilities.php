@@ -29,6 +29,8 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
  * - set-module-status  — declarative toggle, idempotent.
  * - get-speed-score    — latest mobile/desktop scores from history.
  * - clear-page-cache   — flush the Boost page cache for the home URL.
+ *
+ * @since $$next-version$$
  */
 class Boost_Abilities extends Registrar {
 
@@ -213,6 +215,8 @@ class Boost_Abilities extends Registrar {
 	 * Boost has no domain-specific capability; every existing Boost surface
 	 * gates on `manage_options`. We mirror that here so abilities are no more
 	 * (or less) permissive than the REST and admin surfaces.
+	 *
+	 * @since $$next-version$$
 	 */
 	public static function can_view_modules(): bool {
 		return is_user_logged_in() && current_user_can( 'manage_options' );
@@ -220,6 +224,8 @@ class Boost_Abilities extends Registrar {
 
 	/**
 	 * Permission check for write abilities.
+	 *
+	 * @since $$next-version$$
 	 */
 	public static function can_manage_modules(): bool {
 		return is_user_logged_in() && current_user_can( 'manage_options' );
@@ -265,6 +271,8 @@ class Boost_Abilities extends Registrar {
 
 	/**
 	 * Execute: filtered read of Boost modules.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array
@@ -334,6 +342,8 @@ class Boost_Abilities extends Registrar {
 
 	/**
 	 * Execute: declarative module toggle. Idempotent.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array|\WP_Error
@@ -411,6 +421,8 @@ class Boost_Abilities extends Registrar {
 	/**
 	 * Execute: latest speed score for the home URL.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array|null $input Unused; ability has no inputs.
 	 * @return array
 	 */
@@ -448,6 +460,8 @@ class Boost_Abilities extends Registrar {
 	/**
 	 * Execute: clear the Boost page cache for the home URL.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array|null $input Unused; ability has no inputs.
 	 * @return array|\WP_Error
 	 */
@@ -458,7 +472,7 @@ class Boost_Abilities extends Registrar {
 		if ( ! $page_cache->is_available() || ! $page_cache->is_enabled() ) {
 			return new \WP_Error(
 				'jetpack_boost_page_cache_inactive',
-				__( 'The page-cache module is not active. Enable it first via jetpack-boost/set-module-status with slug="page-cache" and active=true.', 'jetpack-boost' )
+				__( 'The page_cache module is not active. Enable it first via jetpack-boost/set-module-status with slug="page_cache" and active=true.', 'jetpack-boost' )
 			);
 		}
 

@@ -243,6 +243,11 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$this->assertFalse( Boost_Abilities::can_manage_modules() );
 	}
 
+	public function test_can_manage_modules_denies_anonymous(): void {
+		wp_set_current_user( 0 );
+		$this->assertFalse( Boost_Abilities::can_manage_modules() );
+	}
+
 	/** -------------------- get_modules -------------------- */
 	public function test_get_modules_returns_array_of_documented_shape(): void {
 		wp_set_current_user( $this->admin_id );
