@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Backup\V0005\Abilities\Backup_Abilities;
 use Automattic\Jetpack\Backup\V0005\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
@@ -152,6 +153,11 @@ class Jetpack_Backup {
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
 
 		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
+
+		// Register Jetpack Backup abilities with the WordPress Abilities API.
+		// `Registrar::init()` is gated by the `jetpack_wp_abilities_enabled`
+		// filter (default false), so this is a no-op until a site opts in.
+		Backup_Abilities::init();
 
 		/**
 		 * Runs right after the Jetpack Backup package is initialized.
