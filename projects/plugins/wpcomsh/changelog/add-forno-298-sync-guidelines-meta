@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Guidelines CPT meta now syncs via prefix matching in the sync package instead of a local filter.
+Guidelines CPT meta now syncs via jetpack_sync_post_meta_whitelist filter with explicit meta keys instead of prefix matching.

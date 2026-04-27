@@ -6,22 +6,19 @@
  */
 
 /**
- * Test that _guideline_* meta keys sync via prefix matching in the sync package.
+ * Test that _guideline_ meta keys are added to the sync whitelist via filter.
  */
 class GuidelineSyncTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
-	public function test_guideline_prefix_is_whitelisted() {
-		$posts_module = \Automattic\Jetpack\Sync\Modules::get_module( 'posts' );
-		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $posts_module';
-		if ( ! $posts_module || ! method_exists( $posts_module, 'is_whitelisted_post_meta' ) ) {
-			$this->markTestSkipped( 'Sync Posts module not available.' );
-		}
+	public function test_guideline_meta_keys_in_whitelist() {
+		$whitelist = apply_filters( 'jetpack_sync_post_meta_whitelist', array() );
 
-		$this->assertTrue( $posts_module->is_whitelisted_post_meta( '_guideline_copy' ) );
-		$this->assertTrue( $posts_module->is_whitelisted_post_meta( '_guideline_images' ) );
-		$this->assertTrue( $posts_module->is_whitelisted_post_meta( '_guideline_site' ) );
-		$this->assertTrue( $posts_module->is_whitelisted_post_meta( '_guideline_additional' ) );
-		$this->assertTrue( $posts_module->is_whitelisted_post_meta( '_guideline_block_core_paragraph' ) );
+		$this->assertContains( '_guideline_copy', $whitelist );
+		$this->assertContains( '_guideline_images', $whitelist );
+		$this->assertContains( '_guideline_site', $whitelist );
+		$this->assertContains( '_guideline_additional', $whitelist );
+		$this->assertContains( '_guideline_block_core_paragraph', $whitelist );
+		$this->assertContains( '_guideline_block_core_image', $whitelist );
 	}
 }

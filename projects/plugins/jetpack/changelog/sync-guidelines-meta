@@ -1,4 +1,4 @@
 Significance: minor
 Type: compat
 
-Guidelines CPT: Add sync test for _guideline_ meta prefix matching.
+Guidelines CPT: whitelist _guideline_ meta keys for sync via wpcomsh filter.
