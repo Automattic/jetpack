@@ -97,6 +97,9 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 	// -------------------- Abstract getters --------------------
 
+	/**
+	 * Category slug is namespaced under the plugin.
+	 */
 	public function test_category_slug_is_plugin_scoped() {
 		$this->assertSame( 'jetpack-monitor', Monitor_Abilities::get_category_slug() );
 	}
@@ -150,6 +153,9 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 	// -------------------- Registrar wiring --------------------
 
+	/**
+	 * Gate filter false => init() short-circuits and hooks nothing.
+	 */
 	public function test_init_registers_nothing_when_gate_filter_is_false() {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
@@ -215,7 +221,9 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		$this->fire_abilities_lifecycle();
 
 		$registered_slugs = array_map(
-			static fn ( $a ) => $a->get_name(),
+			static function ( $a ) {
+				return $a->get_name();
+			},
 			wp_get_abilities()
 		);
 		foreach ( array_keys( Monitor_Abilities::get_abilities() ) as $slug ) {
@@ -243,6 +251,9 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 	// -------------------- Permission callbacks --------------------
 
+	/**
+	 * Admins can view monitor status.
+	 */
 	public function test_can_view_monitor_allows_admin() {
 		wp_set_current_user( $this->admin_id );
 		$this->assertTrue( Monitor_Abilities::can_view_monitor() );
@@ -275,6 +286,9 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 	// -------------------- Execute callbacks --------------------
 
+	/**
+	 * Get_monitor_status() always returns the full four-key shape.
+	 */
 	public function test_get_monitor_status_returns_full_shape() {
 		wp_set_current_user( $this->admin_id );
 
