@@ -153,9 +153,10 @@ class Jetpack_Connector {
 		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
+		$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
+
 		if ( $is_registered ) {
-			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
-			$data['siteDetails']      = array(
+			$data['siteDetails'] = array(
 				'blogId'  => (int) \Jetpack_Options::get_option( 'id' ),
 				'siteUrl' => site_url(),
 				'homeUrl' => home_url(),
