@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Connector: forward `from` and `plugins` parameters to the register and authorize_url REST endpoints, and expose connectedPlugins to the connectors card before registration.
