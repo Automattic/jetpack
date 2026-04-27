@@ -45,7 +45,7 @@ function wpcomsh_fatal_customize_recovery_email( $email, $url = '', $extension =
 	$environment = wpcomsh_fatal_get_environment_lines();
 
 	$email['subject'] = wpcomsh_fatal_build_email_subject( $site_name, $plugin );
-	$email['message'] = wpcomsh_fatal_build_email_message( $site_name, $site_url, (string) $url, $plugin, $error_info, $environment );
+	$email['message'] = wpcomsh_fatal_build_email_message( $site_url, (string) $url, $plugin, $error_info, $environment );
 	$email['headers'] = wpcomsh_fatal_merge_html_content_type( $email['headers'] ?? '' );
 
 	return $email;
@@ -145,7 +145,6 @@ function wpcomsh_fatal_build_email_subject( $site_name, $plugin ) {
  * fully readable in the unstyled fallback. Colors mirror
  * fatal-error-screen.css.
  *
- * @param string     $site_name    Decoded site title.
  * @param string     $site_url     Site home URL.
  * @param string     $recovery_url Core recovery-mode URL, or '' when unavailable.
  * @param array|null $plugin       Resolved extension info, or null.
@@ -153,14 +152,12 @@ function wpcomsh_fatal_build_email_subject( $site_name, $plugin ) {
  * @param string[]   $environment  Environment detail lines ("Label: value").
  * @return string
  */
-function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url, $plugin, $error_info = null, $environment = array() ) {
+function wpcomsh_fatal_build_email_message( $site_url, $recovery_url, $plugin, $error_info = null, $environment = array() ) {
 	$css            = wpcomsh_fatal_email_styles();
 	$document_title = __( 'Your site hit a critical error', 'wpcomsh' );
 
-	$site_host = wp_parse_url( $site_url, PHP_URL_HOST );
-	if ( ! is_string( $site_host ) || '' === $site_host ) {
-		$site_host = $site_url;
-	}
+	$request_uri = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
+	$page_url    = '' !== $request_uri ? home_url( $request_uri ) : '';
 
 	ob_start();
 	?>
@@ -179,19 +176,10 @@ function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url
 		<h1 class="wpcomsh-fatal-email-h1"><?php esc_html_e( 'Your site hit a critical error', 'wpcomsh' ); ?></h1>
 		<p class="wpcomsh-fatal-email-p"><?php esc_html_e( 'Howdy!', 'wpcomsh' ); ?></p>
 		<p class="wpcomsh-fatal-email-p">
-			<?php
-			printf(
-				/* translators: 1: site name (strong), 2: site URL (wrapped in <a>). */
-				esc_html__( 'WordPress.com has a built-in feature that detects when a plugin or theme causes a fatal error on your site, and notifies you with this automated email. A critical error was just detected on %1$s (%2$s). Below is what we know and what you can try next.', 'wpcomsh' ),
-				'<strong>' . esc_html( $site_name ) . '</strong>',
-				'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_host ) . '</a>'
-			);
-			?>
+			<?php esc_html_e( 'WordPress.com has a built-in feature that detects when a plugin or theme causes a fatal error on your site, and notifies you with this automated email.', 'wpcomsh' ); ?>
 		</p>
-
 		<?php if ( $plugin ) : ?>
 			<h2 class="wpcomsh-fatal-email-subhead">
-				<span class="wpcomsh-fatal-email-subhead-icon" aria-hidden="true">&#9888;&#65039;</span>
 				<?php
 				if ( 'themes' === $plugin['kind'] ) {
 					esc_html_e( 'Suspected theme', 'wpcomsh' );
@@ -214,48 +202,47 @@ function wpcomsh_fatal_build_email_message( $site_name, $site_url, $recovery_url
 		<?php endif; ?>
 
 		<h2 class="wpcomsh-fatal-email-subhead"><?php esc_html_e( 'What you can try next', 'wpcomsh' ); ?></h2>
-		<ul class="wpcomsh-fatal-email-steps">
-			<li>
+		<p class="wpcomsh-fatal-email-p">
+			<?php
+			printf(
+				/* translators: %s: site URL (wrapped in <a>). */
+				esc_html__( 'First, visit your website (%s) and check for any visible issues.', 'wpcomsh' ),
+				'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_url ) . '</a>'
+			);
+			?>
+		</p>
+		<?php if ( '' !== $page_url && $page_url !== $site_url ) : ?>
+			<p class="wpcomsh-fatal-email-p">
 				<?php
 				printf(
-					/* translators: 1: open <a> tag linking to the site home, 2: close </a> tag. */
-					esc_html__( 'First, %1$svisit your site%2$s and check for any visible issues — the error may have cleared already.', 'wpcomsh' ),
-					'<a href="' . esc_url( $site_url ) . '">',
-					'</a>'
+					/* translators: %s: URL of the page where the error was caught (wrapped in <a>). */
+					esc_html__( 'Next, visit the page where the error was caught (%s) and check for any visible issues.', 'wpcomsh' ),
+					'<a href="' . esc_url( $page_url ) . '">' . esc_html( $page_url ) . '</a>'
 				);
 				?>
-			</li>
-			<?php if ( '' !== $recovery_url ) : ?>
-				<li>
-					<?php
-					printf(
-						/* translators: 1: open <a> tag linking to recovery mode entry, 2: close </a> tag. */
-						esc_html__( 'If the error is still there, %1$senter recovery mode%2$s to load your admin with plugins disabled, so you can investigate in a safe environment.', 'wpcomsh' ),
-						'<a href="' . esc_url( $recovery_url ) . '">',
-						'</a>'
-					);
-					?>
-					<p class="wpcomsh-fatal-email-steps-note">
-						<?php esc_html_e( 'You can also copy and paste this address into your browser:', 'wpcomsh' ); ?>
-						<br />
-						<span class="wpcomsh-fatal-email-steps-url"><?php echo esc_html( $recovery_url ); ?></span>
-					</p>
-					<p class="wpcomsh-fatal-email-steps-note">
-						<?php esc_html_e( 'To keep your site safe, this link will expire in 1 day. Don\'t worry about that, though: a new link will be emailed to you if the error occurs again after it expires.', 'wpcomsh' ); ?>
-					</p>
-				</li>
-			<?php endif; ?>
-			<li>
-				<?php
-				printf(
-					/* translators: 1: open <a> tag linking to WordPress.com support, 2: close </a> tag. */
-					esc_html__( 'Still stuck? %1$sContact WordPress.com support%2$s and we will help you get back online.', 'wpcomsh' ),
-					'<a href="https://wordpress.com/help/contact">',
-					'</a>'
-				);
-				?>
-			</li>
-		</ul>
+			</p>
+		<?php endif; ?>
+		<?php if ( '' !== $recovery_url ) : ?>
+			<p class="wpcomsh-fatal-email-p">
+				<?php esc_html_e( 'If your site appears broken and you can’t access your dashboard normally, WordPress.com has a special "recovery mode". This lets you safely login to your dashboard and investigate further.', 'wpcomsh' ); ?>
+			</p>
+			<p class="wpcomsh-fatal-email-p">
+				<span class="wpcomsh-fatal-email-steps-url"><a href="<?php echo esc_url( $recovery_url ); ?>"><?php echo esc_html( $recovery_url ); ?></a></span>
+			</p>
+			<p class="wpcomsh-fatal-email-p">
+				<?php esc_html_e( 'To keep your site safe, this link will expire in 1 day. Don’t worry about that, though: a new link will be emailed to you if the error occurs again after it expires.', 'wpcomsh' ); ?>
+			</p>
+		<?php endif; ?>
+		<p class="wpcomsh-fatal-email-p">
+			<?php
+			$support_url = 'https://wordpress.com/help/contact';
+			printf(
+				/* translators: %s: WordPress.com support URL (wrapped in <a>). */
+				esc_html__( 'Still stuck? Contact WordPress.com support and we’ll help you investigate further: %s', 'wpcomsh' ),
+				'<a href="' . esc_url( $support_url ) . '">' . esc_html( $support_url ) . '</a>'
+			);
+			?>
+		</p>
 
 		<?php
 		if ( $error_info ) :
@@ -332,9 +319,6 @@ function wpcomsh_fatal_email_styles() {
 	font-weight: 600;
 	color: #1d2327;
 }
-.wpcomsh-fatal-email-subhead-icon {
-	margin-right: 4px;
-}
 .wpcomsh-fatal-email-notice {
 	margin: 0 0 20px;
 	padding: 16px;
@@ -357,23 +341,6 @@ function wpcomsh_fatal_email_styles() {
 	margin: 0;
 	font-size: 13px;
 	line-height: 1.5;
-	color: #3c434a;
-}
-.wpcomsh-fatal-email-steps {
-	margin: 0;
-	padding: 0;
-	list-style-position: inside;
-	font-size: 14px;
-	line-height: 1.55;
-	color: #3c434a;
-}
-.wpcomsh-fatal-email-steps li {
-	margin-bottom: 6px;
-}
-.wpcomsh-fatal-email-steps-note {
-	margin: 6px 0 0;
-	font-size: 13px;
-	line-height: 1.55;
 	color: #3c434a;
 }
 .wpcomsh-fatal-email-steps-url {
