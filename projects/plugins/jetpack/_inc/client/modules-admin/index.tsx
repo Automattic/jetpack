@@ -322,6 +322,7 @@ function TagButton( {
  * @param {Function} props.onChangeBulkAction - Called with the new bulk action value.
  * @param {number}   props.selectedCount      - How many modules are currently selected (across all filters).
  * @param {Function} props.onApply            - Called when the Apply button is pressed.
+ * @param {boolean}  props.applying           - Whether a bulk submission is in flight (toggles loading + disabled).
  * @return {import('react').ReactNode} Toolbar markup.
  */
 function BulkActionsToolbar( {
@@ -332,6 +333,7 @@ function BulkActionsToolbar( {
 	onChangeBulkAction,
 	selectedCount,
 	onApply,
+	applying,
 }: {
 	allSelected: boolean;
 	someSelected: boolean;
@@ -340,6 +342,7 @@ function BulkActionsToolbar( {
 	onChangeBulkAction: ( value: BulkAction ) => void;
 	selectedCount: number;
 	onApply: () => void;
+	applying: boolean;
 } ) {
 	const masterRef = useRef< HTMLInputElement | null >( null );
 	useEffect( () => {
@@ -383,7 +386,12 @@ function BulkActionsToolbar( {
 					{ value: 'bulk-deactivate', label: __( 'Deactivate', 'jetpack' ) },
 				] }
 			/>
-			<Button variant="secondary" onClick={ onApply } disabled={ ! canApply }>
+			<Button
+				onClick={ onApply }
+				disabled={ ! canApply || applying }
+				loading={ applying }
+				loadingAnnouncement={ __( 'Applying…', 'jetpack' ) }
+			>
 				{ __( 'Apply', 'jetpack' ) }
 			</Button>
 			{ selectedCount > 0 && (
@@ -493,6 +501,7 @@ function ModulesAdminApp() {
 	// behavior and keeps the implementation simple.
 	const [ selected, setSelected ] = useState< Set< string > >( () => new Set() );
 	const [ bulkAction, setBulkAction ] = useState< BulkAction >( '' );
+	const [ applying, setApplying ] = useState( false );
 
 	const onChangeBulkAction = useCallback( ( v: BulkAction ) => setBulkAction( v ), [] );
 
@@ -530,7 +539,7 @@ function ModulesAdminApp() {
 	);
 
 	const onApplyBulk = useCallback( () => {
-		if ( ! bulkAction || selected.size === 0 || ! data ) {
+		if ( ! bulkAction || selected.size === 0 || ! data || applying ) {
 			return;
 		}
 		const params = new URLSearchParams();
@@ -538,8 +547,15 @@ function ModulesAdminApp() {
 		params.set( 'action', bulkAction );
 		selected.forEach( slug => params.append( 'modules[]', slug ) );
 		params.set( '_wpnonce', data.nonces.bulk );
-		window.location.href = adminUrl( `admin.php?${ params.toString() }` );
-	}, [ bulkAction, selected, data ] );
+		const url = adminUrl( `admin.php?${ params.toString() }` );
+
+		// Flip to loading first so React can paint the spinner before the
+		// page navigates away. setTimeout(0) yields one frame to the browser.
+		setApplying( true );
+		setTimeout( () => {
+			window.location.href = url;
+		}, 0 );
+	}, [ bulkAction, selected, data, applying ] );
 
 	const headerActions = (
 		<Stack direction="row" gap="sm" justify="flex-end">
@@ -589,6 +605,7 @@ function ModulesAdminApp() {
 							onChangeBulkAction={ onChangeBulkAction }
 							selectedCount={ selected.size }
 							onApply={ onApplyBulk }
+							applying={ applying }
 						/>
 						<div className="jp-modules-admin__list" role="list">
 							{ filtered.length ? (
