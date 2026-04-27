@@ -488,7 +488,7 @@ class Jetpack_Likes {
 		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name' data-title='$title'>";
 		$html .= $headline;
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
-		$html .= "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . Jetpack_Spinner::render( 18 ) . '</span></div>';
+		$html .= "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . Jetpack_Spinner::render( 18 ) . '<span class="screen-reader-text">' . esc_html__( 'Loading…', 'jetpack' ) . '</span></span></div>';
 		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html .= '</div>';
 
