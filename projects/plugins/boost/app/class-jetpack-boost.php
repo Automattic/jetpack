@@ -146,6 +146,10 @@ class Jetpack_Boost {
 		Site_Health::init();
 
 		Super_Cache_Tracking::setup();
+
+		// Register Boost abilities with the WordPress Abilities API. Gated behind the
+		// `jetpack_wp_abilities_enabled` filter — defaults off; opt-in per site.
+		\Automattic\Jetpack_Boost\Abilities\Boost_Abilities::init();
 	}
 
 	/**

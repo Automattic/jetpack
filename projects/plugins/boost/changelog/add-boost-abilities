@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register Jetpack Boost abilities (modules read/toggle, latest speed score, page cache flush) for AI agents on WP 6.9+.

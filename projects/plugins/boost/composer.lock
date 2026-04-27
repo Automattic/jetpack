@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b91e7ff522cddf4ba52a31c4f8f33654",
+    "content-hash": "cdc9310a7ef499e0c54bb2b98d2d64e5",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
@@ -61,7 +61,7 @@
         },
         {
             "name": "automattic/jetpack-admin-ui",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
@@ -138,7 +138,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
@@ -208,7 +208,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
@@ -276,7 +276,7 @@
         },
         {
             "name": "automattic/jetpack-boost-core",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-core",
@@ -331,7 +331,7 @@
         },
         {
             "name": "automattic/jetpack-boost-speed-score",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-speed-score",
@@ -395,7 +395,7 @@
         },
         {
             "name": "automattic/jetpack-composer-plugin",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
@@ -455,7 +455,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
@@ -526,7 +526,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
@@ -612,7 +612,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
@@ -666,7 +666,7 @@
         },
         {
             "name": "automattic/jetpack-device-detection",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
@@ -719,7 +719,7 @@
         },
         {
             "name": "automattic/jetpack-explat",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
@@ -794,7 +794,7 @@
         },
         {
             "name": "automattic/jetpack-image-cdn",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/image-cdn",
@@ -854,7 +854,7 @@
         },
         {
             "name": "automattic/jetpack-ip",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
@@ -912,7 +912,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
@@ -987,7 +987,7 @@
         },
         {
             "name": "automattic/jetpack-licensing",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
@@ -1043,7 +1043,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
@@ -1096,7 +1096,7 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
@@ -1198,7 +1198,7 @@
         },
         {
             "name": "automattic/jetpack-password-checker",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
@@ -1253,7 +1253,7 @@
         },
         {
             "name": "automattic/jetpack-plans",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
@@ -1315,7 +1315,7 @@
         },
         {
             "name": "automattic/jetpack-plugin-deactivation",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugin-deactivation",
@@ -1383,7 +1383,7 @@
         },
         {
             "name": "automattic/jetpack-plugins-installer",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
@@ -1439,7 +1439,7 @@
         },
         {
             "name": "automattic/jetpack-protect-models",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-models",
@@ -1504,7 +1504,7 @@
         },
         {
             "name": "automattic/jetpack-protect-status",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect-status",
@@ -1573,7 +1573,7 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
@@ -1628,7 +1628,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
@@ -1682,7 +1682,7 @@
         },
         {
             "name": "automattic/jetpack-schema",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/schema",
@@ -1746,7 +1746,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
@@ -1810,7 +1810,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
@@ -1881,8 +1881,66 @@
             }
         },
         {
+            "name": "automattic/jetpack-wp-abilities",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/wp-abilities",
+                "reference": "e71e43ab54aaf244b0cb2e29999da393164021f5"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-wp-abilities",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-wp-abilities/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-wp-abilities",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-registrar.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared utilities for registering abilities with the WordPress Abilities API from Jetpack packages and plugins.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-wp-js-data-sync",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-js-data-sync",
@@ -2113,7 +2171,7 @@
         },
         {
             "name": "automattic/jetpack-test-environment",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/test-environment",
@@ -2165,7 +2223,7 @@
         },
         {
             "name": "automattic/phpunit-select-config",
-            "version": "dev-trunk",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
@@ -4181,6 +4239,7 @@
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-test-environment": 20,
+        "automattic/jetpack-wp-abilities": 20,
         "automattic/jetpack-wp-js-data-sync": 20,
         "automattic/phpunit-select-config": 20
     },

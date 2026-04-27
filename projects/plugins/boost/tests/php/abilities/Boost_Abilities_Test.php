@@ -1,0 +1,445 @@
+<?php
+/**
+ * Integration tests for the Boost_Abilities Registrar subclass.
+ *
+ * Runs in the with-wordpress (WordBless) testsuite because the execute
+ * callbacks instantiate real Boost Module objects, which touch options,
+ * sanitize_title(), WP_CONTENT_DIR, and the page-cache settings storage.
+ *
+ * @package automattic/jetpack-boost
+ */
+
+// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
+
+namespace Automattic\Jetpack_Boost\Tests\Abilities;
+
+use Automattic\Jetpack\WP_Abilities\Registrar;
+use Automattic\Jetpack_Boost\Abilities\Boost_Abilities;
+use PHPUnit\Framework\Attributes\CoversClass;
+use WorDBless\BaseTestCase;
+
+// Include the main plugin file so Boost autoload + constants are wired.
+require_once dirname( __DIR__, 3 ) . '/jetpack-boost.php';
+
+/**
+ * @covers \Automattic\Jetpack_Boost\Abilities\Boost_Abilities
+ */
+#[CoversClass( Boost_Abilities::class )]
+class Boost_Abilities_Test extends BaseTestCase {
+
+	/** @var int */
+	private $admin_id;
+
+	/** @var int */
+	private $subscriber_id;
+
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->admin_id      = wp_insert_user(
+			array(
+				'user_login' => 'boost_ability_admin_' . wp_generate_password( 8, false ),
+				'user_pass'  => 'pw',
+				'role'       => 'administrator',
+			)
+		);
+		$this->subscriber_id = wp_insert_user(
+			array(
+				'user_login' => 'boost_ability_sub_' . wp_generate_password( 8, false ),
+				'user_pass'  => 'pw',
+				'role'       => 'subscriber',
+			)
+		);
+
+		// Default: gate open for most test cases. Tests that need it closed remove this filter.
+		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+	}
+
+	public function tearDown(): void {
+		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+		remove_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+		remove_all_filters( 'jetpack_wp_abilities_should_register' );
+		remove_all_actions( Registrar::CATEGORIES_INIT_ACTION );
+		remove_all_actions( Registrar::ABILITIES_INIT_ACTION );
+
+		// The Abilities API registry is global state shared across tests in the same process.
+		// Deregister anything we put in so test order doesn't matter.
+		if ( function_exists( 'wp_unregister_ability' ) ) {
+			foreach ( array_keys( Boost_Abilities::get_abilities() ) as $slug ) {
+				wp_unregister_ability( $slug );
+			}
+		}
+
+		wp_set_current_user( 0 );
+		parent::tearDown();
+	}
+
+	/** -------------------- Abstract getters -------------------- */
+	public function test_category_slug_is_jetpack_boost(): void {
+		$this->assertSame( 'jetpack-boost', Boost_Abilities::get_category_slug() );
+	}
+
+	public function test_category_definition_has_label_and_description(): void {
+		$def = Boost_Abilities::get_category_definition();
+		$this->assertArrayHasKey( 'label', $def );
+		$this->assertArrayHasKey( 'description', $def );
+		$this->assertSame( 'Jetpack Boost', $def['label'] );
+	}
+
+	public function test_abilities_map_is_non_empty_and_namespaced(): void {
+		$abilities = Boost_Abilities::get_abilities();
+		$this->assertNotEmpty( $abilities );
+		foreach ( array_keys( $abilities ) as $slug ) {
+			$this->assertStringStartsWith( 'jetpack-boost/', $slug );
+		}
+	}
+
+	public function test_no_spec_sets_category_explicitly(): void {
+		// Registrar auto-injects category; specs that set it are redundant and drift.
+		foreach ( Boost_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayNotHasKey(
+				'category',
+				$spec,
+				"Ability {$slug} should not set its own category — Registrar injects it."
+			);
+		}
+	}
+
+	public function test_every_spec_has_required_keys(): void {
+		$required = array( 'label', 'description', 'input_schema', 'execute_callback', 'permission_callback', 'meta' );
+		foreach ( Boost_Abilities::get_abilities() as $slug => $spec ) {
+			foreach ( $required as $key ) {
+				$this->assertArrayHasKey( $key, $spec, "Ability {$slug} missing key {$key}." );
+			}
+			$this->assertArrayHasKey( 'annotations', $spec['meta'] );
+			$this->assertArrayHasKey( 'show_in_rest', $spec['meta'] );
+			$this->assertArrayHasKey( 'additionalProperties', $spec['input_schema'] );
+			$this->assertFalse( $spec['input_schema']['additionalProperties'], "Ability {$slug} input_schema must set additionalProperties: false." );
+		}
+	}
+
+	public function test_write_abilities_are_marked_non_readonly(): void {
+		$abilities = Boost_Abilities::get_abilities();
+		$this->assertFalse( $abilities['jetpack-boost/set-module-status']['meta']['annotations']['readonly'] );
+		$this->assertFalse( $abilities['jetpack-boost/clear-page-cache']['meta']['annotations']['readonly'] );
+	}
+
+	public function test_read_abilities_are_marked_readonly(): void {
+		$abilities = Boost_Abilities::get_abilities();
+		$this->assertTrue( $abilities['jetpack-boost/get-modules']['meta']['annotations']['readonly'] );
+		$this->assertTrue( $abilities['jetpack-boost/get-speed-score']['meta']['annotations']['readonly'] );
+	}
+
+	/** -------------------- Registrar wiring -------------------- */
+	public function test_init_registers_nothing_when_gate_filter_is_false(): void {
+		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+
+		Boost_Abilities::init();
+
+		$this->assertFalse(
+			has_action( Registrar::CATEGORIES_INIT_ACTION, array( Boost_Abilities::class, 'register_category' ) )
+		);
+		$this->assertFalse(
+			has_action( Registrar::ABILITIES_INIT_ACTION, array( Boost_Abilities::class, 'register_abilities' ) )
+		);
+	}
+
+	public function test_init_hooks_lifecycle_actions_when_gate_is_true(): void {
+		Boost_Abilities::init();
+
+		$this->assertNotFalse(
+			has_action( Registrar::CATEGORIES_INIT_ACTION, array( Boost_Abilities::class, 'register_category' ) )
+		);
+		$this->assertNotFalse(
+			has_action( Registrar::ABILITIES_INIT_ACTION, array( Boost_Abilities::class, 'register_abilities' ) )
+		);
+	}
+
+	public function test_register_abilities_registers_every_slug(): void {
+		if ( ! function_exists( 'wp_get_abilities' ) || ! function_exists( 'wp_register_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
+		}
+
+		// `wp_register_ability_category` and `wp_register_ability` only run inside their
+		// respective lifecycle actions; firing them directly mirrors what core does.
+		Boost_Abilities::init();
+		do_action( Registrar::CATEGORIES_INIT_ACTION );
+		do_action( Registrar::ABILITIES_INIT_ACTION );
+
+		foreach ( array_keys( Boost_Abilities::get_abilities() ) as $slug ) {
+			$this->assertNotNull(
+				wp_get_ability( $slug ),
+				"Ability {$slug} should be registered."
+			);
+		}
+	}
+
+	public function test_register_abilities_injects_category_on_specs_that_omit_it(): void {
+		if ( ! function_exists( 'wp_get_abilities' ) || ! function_exists( 'wp_register_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
+		}
+
+		Boost_Abilities::init();
+		do_action( Registrar::CATEGORIES_INIT_ACTION );
+		do_action( Registrar::ABILITIES_INIT_ACTION );
+
+		// Pick any slug and confirm the registered ability carries the auto-injected category.
+		$ability = wp_get_ability( 'jetpack-boost/get-modules' );
+		$this->assertNotNull( $ability );
+		// `get_category` returns the slug string of the ability's category.
+		$this->assertSame( 'jetpack-boost', $ability->get_category() );
+	}
+
+	public function test_per_ability_allow_list_filter_is_respected(): void {
+		if ( ! function_exists( 'wp_get_abilities' ) || ! function_exists( 'wp_register_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
+		}
+
+		add_filter(
+			'jetpack_wp_abilities_should_register',
+			static function ( $enabled, $type, $_slug ) {
+				if ( 'ability' === $type ) {
+					return false;
+				}
+				return $enabled;
+			},
+			10,
+			3
+		);
+
+		Boost_Abilities::init();
+		do_action( Registrar::CATEGORIES_INIT_ACTION );
+		do_action( Registrar::ABILITIES_INIT_ACTION );
+
+		foreach ( array_keys( Boost_Abilities::get_abilities() ) as $slug ) {
+			$this->assertNull( wp_get_ability( $slug ), "Ability {$slug} must be filtered out." );
+		}
+	}
+
+	/** -------------------- Permission callbacks -------------------- */
+	public function test_can_view_modules_allows_admin(): void {
+		wp_set_current_user( $this->admin_id );
+		$this->assertTrue( Boost_Abilities::can_view_modules() );
+	}
+
+	public function test_can_view_modules_denies_subscriber(): void {
+		wp_set_current_user( $this->subscriber_id );
+		$this->assertFalse( Boost_Abilities::can_view_modules() );
+	}
+
+	public function test_can_view_modules_denies_anonymous(): void {
+		wp_set_current_user( 0 );
+		$this->assertFalse( Boost_Abilities::can_view_modules() );
+	}
+
+	public function test_can_manage_modules_allows_admin(): void {
+		wp_set_current_user( $this->admin_id );
+		$this->assertTrue( Boost_Abilities::can_manage_modules() );
+	}
+
+	public function test_can_manage_modules_denies_subscriber(): void {
+		wp_set_current_user( $this->subscriber_id );
+		$this->assertFalse( Boost_Abilities::can_manage_modules() );
+	}
+
+	/** -------------------- get_modules -------------------- */
+	public function test_get_modules_returns_array_of_documented_shape(): void {
+		wp_set_current_user( $this->admin_id );
+
+		$result = Boost_Abilities::get_modules( array() );
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result, 'Boost has features registered; the read should not be empty.' );
+
+		foreach ( $result as $entry ) {
+			$this->assertArrayHasKey( 'slug', $entry );
+			$this->assertArrayHasKey( 'active', $entry );
+			$this->assertArrayHasKey( 'available', $entry );
+			$this->assertArrayHasKey( 'optimizing', $entry );
+			$this->assertIsString( $entry['slug'] );
+			$this->assertIsBool( $entry['active'] );
+			$this->assertIsBool( $entry['available'] );
+			$this->assertIsBool( $entry['optimizing'] );
+		}
+	}
+
+	public function test_get_modules_with_unknown_slug_returns_empty_array(): void {
+		// Consolidated read: unknown slug is a no-match, not an error — agents treat the shape uniformly.
+		$result = Boost_Abilities::get_modules( array( 'slug' => 'does-not-exist-ever' ) );
+		$this->assertSame( array(), $result );
+	}
+
+	public function test_get_modules_with_known_slug_returns_single_element(): void {
+		// Boost slugs use underscores (Critical_CSS::get_slug() returns "critical_css").
+		$result = Boost_Abilities::get_modules( array( 'slug' => 'critical_css' ) );
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'critical_css', $result[0]['slug'] );
+	}
+
+	public function test_get_modules_search_is_case_insensitive_substring(): void {
+		$result = Boost_Abilities::get_modules( array( 'search' => 'CACHE' ) );
+		$this->assertNotEmpty( $result );
+		foreach ( $result as $entry ) {
+			$this->assertStringContainsString( 'cache', $entry['slug'] );
+		}
+	}
+
+	public function test_get_modules_returns_sorted_results(): void {
+		$result = Boost_Abilities::get_modules( array() );
+		$slugs  = array_column( $result, 'slug' );
+		$sorted = $slugs;
+		sort( $sorted );
+		$this->assertSame( $sorted, $slugs, 'Results must be deterministically sorted by slug.' );
+	}
+
+	/** -------------------- set_module_status -------------------- */
+	public function test_set_module_status_rejects_missing_slug(): void {
+		$result = Boost_Abilities::set_module_status( array( 'active' => true ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_missing_slug', $result->get_error_code() );
+	}
+
+	public function test_set_module_status_rejects_empty_string_slug(): void {
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => '',
+				'active' => true,
+			)
+		);
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_missing_slug', $result->get_error_code() );
+	}
+
+	public function test_set_module_status_rejects_missing_active(): void {
+		$result = Boost_Abilities::set_module_status( array( 'slug' => 'critical_css' ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_missing_active', $result->get_error_code() );
+	}
+
+	public function test_set_module_status_rejects_non_boolean_active(): void {
+		// Regression guard: schema validation may not run in unit context; the callback must defend itself.
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => 'critical_css',
+				'active' => 'yes',
+			)
+		);
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_missing_active', $result->get_error_code() );
+	}
+
+	public function test_set_module_status_rejects_unknown_slug(): void {
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => 'does-not-exist-ever',
+				'active' => true,
+			)
+		);
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_invalid_slug', $result->get_error_code() );
+	}
+
+	public function test_set_module_status_toggles_then_is_idempotent(): void {
+		// Slug uses underscores; option name maps underscores → dashes (see Lib\Status).
+		$slug        = 'render_blocking_js';
+		$option_name = 'jetpack_boost_status_render-blocking-js';
+
+		delete_option( $option_name );
+
+		$first = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => $slug,
+				'active' => true,
+			)
+		);
+		$this->assertIsArray( $first );
+		$this->assertTrue( $first['active'], 'Module should now be active.' );
+		$this->assertTrue( $first['changed'], 'First flip from inactive to active must report changed=true.' );
+
+		$second = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => $slug,
+				'active' => true,
+			)
+		);
+		$this->assertIsArray( $second );
+		$this->assertTrue( $second['active'] );
+		$this->assertFalse( $second['changed'], 'Second call with the same desired state must be a no-op.' );
+
+		delete_option( $option_name );
+	}
+
+	public function test_set_module_status_fires_status_updated_action_on_change(): void {
+		$slug        = 'minify_js';
+		$option_name = 'jetpack_boost_status_minify-js';
+		delete_option( $option_name );
+
+		$received = array();
+		$callback = function ( $module_slug, $is_active ) use ( &$received ) {
+			$received[] = array( $module_slug, $is_active );
+		};
+		add_action( 'jetpack_boost_module_status_updated', $callback, 10, 2 );
+
+		Boost_Abilities::set_module_status(
+			array(
+				'slug'   => $slug,
+				'active' => true,
+			)
+		);
+
+		remove_action( 'jetpack_boost_module_status_updated', $callback );
+		delete_option( $option_name );
+
+		$this->assertNotEmpty( $received, 'Toggle must emit jetpack_boost_module_status_updated so submodule lifecycle still runs.' );
+		$this->assertSame( $slug, $received[0][0] );
+		$this->assertTrue( $received[0][1] );
+	}
+
+	/** -------------------- get_speed_score -------------------- */
+	public function test_get_speed_score_with_no_history_returns_null_scores(): void {
+		// Make sure no history option is present for this URL.
+		global $wpdb;
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'jetpack_boost_speed_score_history_%'" );
+
+		$result = Boost_Abilities::get_speed_score();
+		$this->assertNull( $result['mobile'] );
+		$this->assertNull( $result['desktop'] );
+		$this->assertNull( $result['timestamp'] );
+		$this->assertTrue( $result['is_stale'] );
+		$this->assertFalse( $result['has_history'] );
+	}
+
+	public function test_get_speed_score_returns_latest_entry_when_present(): void {
+		$timestamp = time();
+
+		// Mirror the storage shape that Speed_Score_Request::record_history() writes.
+		$history = new \Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History( home_url() );
+		$history->push(
+			array(
+				'timestamp' => $timestamp,
+				'scores'    => array(
+					'mobile'  => 88,
+					'desktop' => 95,
+				),
+				'theme'     => 'Test Theme',
+			)
+		);
+
+		$result = Boost_Abilities::get_speed_score();
+		$this->assertSame( 88, $result['mobile'] );
+		$this->assertSame( 95, $result['desktop'] );
+		$this->assertSame( $timestamp, $result['timestamp'] );
+		$this->assertTrue( $result['has_history'] );
+		$this->assertFalse( $result['is_stale'], 'Score recorded just now must not be stale.' );
+	}
+
+	/** -------------------- clear_page_cache -------------------- */
+	public function test_clear_page_cache_returns_error_when_module_inactive(): void {
+		// Page cache module is not enabled by default. Status option name uses dashes (see Lib\Status).
+		delete_option( 'jetpack_boost_status_page-cache' );
+
+		$result = Boost_Abilities::clear_page_cache();
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_page_cache_inactive', $result->get_error_code() );
+	}
+}
