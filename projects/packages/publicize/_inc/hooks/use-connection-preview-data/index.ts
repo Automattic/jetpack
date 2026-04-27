@@ -3,7 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useMemo } from 'react';
 import { Connection } from '../../social-store/types';
-import { features } from '../../utils';
+import { features, PREVIEW_BODY_CHAR_LIMITS } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
 import { usePostMeta } from '../use-post-meta';
@@ -94,6 +94,7 @@ export function useConnectionPreviewData( connection: Connection ) {
 		network: connection.service_name ?? '',
 		message: effectiveMessage,
 		isSocialPost: media.length > 0,
+		charLimit: PREVIEW_BODY_CHAR_LIMITS[ connection.service_name ?? '' ],
 	} );
 
 	return useMemo( () => {
