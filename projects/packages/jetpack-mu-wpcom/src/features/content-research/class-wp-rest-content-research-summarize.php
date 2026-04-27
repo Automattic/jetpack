@@ -226,9 +226,13 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 		}
 
 		require_lib( 'vectorize' );
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Loaded dynamically via require_lib.
-		$converter = new \A8C\Vectorize\Html_To_Markdown();
-		$markdown  = $converter->convert( $main_html ); // @phan-suppress-current-line PhanUndeclaredClassMethod
+		$converter_class = '\A8C\Vectorize\Html_To_Markdown';
+		if ( ! class_exists( $converter_class ) ) {
+			return '';
+		}
+
+		$converter = new $converter_class(); // @phan-suppress-current-line PhanTypeExpectedObjectOrClassName,PhanUndeclaredClass -- Loaded dynamically via require_lib.
+		$markdown  = $converter->convert( $main_html );
 
 		// Truncate to max article length.
 		if ( strlen( $markdown ) > self::MAX_ARTICLE_LENGTH ) {
@@ -353,8 +357,16 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 	 */
 	private function summarize_with_llm( string $prompt ) {
 		require_lib( 'ai-services' );
-		$ai = new \AIServices( 'content-research' );
+		$ai_services_class = '\AIServices';
+		if ( ! class_exists( $ai_services_class ) ) {
+			return new \WP_Error(
+				'ai_services_unavailable',
+				'AIServices is unavailable.',
+				array( 'status' => 500 )
+			);
+		}
 
+		$ai       = new $ai_services_class( 'content-research' );
 		$response = $ai->call_llm( $prompt );
 
 		if ( is_wp_error( $response ) ) {
@@ -444,7 +456,16 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 	 */
 	private function chunk_and_condense( string $topic, array $articles ) {
 		require_lib( 'ai-services' );
-		$ai = new \AIServices( 'content-research' );
+		$ai_services_class = '\AIServices';
+		if ( ! class_exists( $ai_services_class ) ) {
+			return new \WP_Error(
+				'ai_services_unavailable',
+				'AIServices is unavailable.',
+				array( 'status' => 500 )
+			);
+		}
+
+		$ai = new $ai_services_class( 'content-research' );
 
 		$per_article_summaries = array();
 
