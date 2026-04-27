@@ -11,6 +11,26 @@ async function closeChangesSavedNotice( page: Page ) {
 	await page.getByRole( 'button', { name: 'Dismiss notice.' } ).click();
 }
 
+/**
+ * Locate a firewall toggle by the heading text of the section that contains it.
+ *
+ * The firewall ToggleControls have no visible label and the WP `<label htmlFor>`
+ * association is empty, so accessibility-tree based locators (getByRole/getByLabel)
+ * don't match reliably. Instead, find the smallest containing div that has both
+ * the section heading and a checkbox, then return the checkbox inside it.
+ * @param {Page}   page        - Playwright page object
+ * @param {string} headingName - Visible heading text of the section
+ * @return {ReturnType<Page['locator']>} Locator for the checkbox in that section
+ */
+function getToggleBySection( page: Page, headingName: string ) {
+	return page
+		.locator( 'div' )
+		.filter( { has: page.getByRole( 'heading', { name: headingName } ) } )
+		.filter( { has: page.locator( 'input[type="checkbox"]' ) } )
+		.last()
+		.locator( 'input[type="checkbox"]' );
+}
+
 test.describe( 'Jetpack Protect Plugin', () => {
 	test.beforeEach( async ( { page, admin, testUtils } ) => {
 		await testUtils.disconnect();
@@ -44,9 +64,7 @@ test.describe( 'Jetpack Protect Plugin', () => {
 
 		await test.step( 'Test the brute force protection setting', async () => {
 			// Test the setting is present and enabled by default
-			const bruteForceToggle = page.getByRole( 'checkbox', {
-				name: 'Brute force protection',
-			} );
+			const bruteForceToggle = getToggleBySection( page, 'Brute force protection' );
 			await expect( page.getByRole( 'heading', { name: 'Brute force protection' } ) ).toBeVisible();
 			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
 			await expect( bruteForceToggle, 'Brute force protection should be on' ).toBeChecked();
@@ -66,7 +84,7 @@ test.describe( 'Jetpack Protect Plugin', () => {
 
 		await test.step( 'Test the IP block list settings', async () => {
 			const blockListTextarea = page.locator( '#jetpack_waf_ip_block_list' );
-			const blockListToggle = page.getByRole( 'checkbox', { name: 'Block IP addresses' } );
+			const blockListToggle = getToggleBySection( page, 'Block IP addresses' );
 
 			// Test the default block list state
 			await expect( page.getByRole( 'heading', { name: 'Block IP addresses' } ) ).toBeVisible();
@@ -87,9 +105,7 @@ test.describe( 'Jetpack Protect Plugin', () => {
 		} );
 
 		await test.step( 'Test the IP allow list settings', async () => {
-			const trustedIPsToggle = page.getByRole( 'checkbox', {
-				name: 'Trusted IP addresses',
-			} );
+			const trustedIPsToggle = getToggleBySection( page, 'Trusted IP addresses' );
 			const saveAllowListButton = page.getByRole( 'button', { name: 'Save allow list' } );
 
 			// Validate the default allow list state
