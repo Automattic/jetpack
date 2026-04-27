@@ -2,10 +2,14 @@
 /**
  * Jetpack Blaze Abilities Registration
  *
- * Registers a read-only Blaze ability with the WordPress Abilities API and
- * opts it into WooCommerce's MCP server tool whitelist so MCP clients
- * (e.g. Claude Desktop) can discover and invoke it alongside Woo's built-in
- * abilities.
+ * Single source of truth for Blaze's WordPress Abilities API registration.
+ * Registers a read-only ability and opts it into WooCommerce's MCP server
+ * tool whitelist so MCP clients (e.g. Claude Desktop) can discover and
+ * invoke it alongside Woo's built-in abilities.
+ *
+ * Both delivery paths invoke this class:
+ * - The Jetpack plugin, via `Automattic\Jetpack\Blaze::init()` in this package.
+ * - The standalone `blaze-ads` plugin, via its own bootstrap.
  *
  * v1 scope is intentionally Woo-only: the class bails when a Woo MCP server
  * is not detected on the site. See ADS-952 for the broader rollout plan.
@@ -65,7 +69,9 @@ class Blaze_Abilities extends Registrar {
 	/**
 	 * Defensive `wp_get_ability()` check, wired through the Registrar's
 	 * per-slug filter so we skip registration if something else (a previous
-	 * call, another plugin) has already registered the ability.
+	 * call, another plugin) has already registered the ability. Belt and
+	 * braces: with both delivery paths invoking the same class this should
+	 * be a no-op, but keeps us safe against anyone else registering the slug.
 	 *
 	 * @param bool   $enabled Whether the registrar would proceed.
 	 * @param string $type    'category' or 'ability'.
@@ -154,8 +160,9 @@ class Blaze_Abilities extends Registrar {
 
 	/**
 	 * Permission gate: store-manager capability plus an active Jetpack user
-	 * connection. The user-connection check is what differs from the
-	 * standalone Blaze Ads plugin variant of this file.
+	 * connection. Both delivery paths route DSP calls through Jetpack
+	 * Connect, so the connection check is meaningful regardless of how the
+	 * package was loaded.
 	 *
 	 * @return bool
 	 */
