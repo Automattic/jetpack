@@ -64,7 +64,7 @@ jobs:
           elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             if [[ "$GITHUB_REF" == "refs/heads/trunk" ]]; then
               gh_set_output tags "type=raw,latest"
-              gh_set_output images $'automattic/jetpack-wordpress-dev\nghcr.io/automattic/jetpack-wordpress-dev'
+              gh_set_output images $'automattic/jetpack-monorepo\nghcr.io/automattic/jetpack-monorepo'
             else
               echo "Workflow dispatch for non-trunk ref $GITHUB_REF is not supported"
               exit 1
