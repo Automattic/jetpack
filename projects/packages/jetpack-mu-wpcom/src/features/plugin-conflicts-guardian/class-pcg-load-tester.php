@@ -17,6 +17,15 @@ class PCG_Load_Tester {
 	/**
 	 * Run the probe against a plugin main file.
 	 *
+	 * Issues two probes — one against the front-end (`home_url('/')`) and
+	 * one against an admin page so `admin_init` actually fires. The admin
+	 * probe forwards the current admin's WordPress auth cookies so the
+	 * loopback can clear `auth_redirect()`.
+	 *
+	 * The first non-ok verdict wins; if both come back `ok`, the admin
+	 * probe's verdict (which carries the richer `did_admin_init`
+	 * diagnostic) is returned.
+	 *
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
 	 * @return array{status:string,reason?:string,errno?:int,message?:string,file?:string,line?:int}
 	 */
@@ -28,6 +37,36 @@ class PCG_Load_Tester {
 			);
 		}
 
+		$front_result = $this->probe_request( $plugin_main, home_url( '/' ), false );
+		if ( ! $this->is_ok( $front_result ) ) {
+			return $front_result;
+		}
+
+		return $this->probe_request( $plugin_main, admin_url( 'index.php' ), true );
+	}
+
+	/**
+	 * Whether a probe verdict is a clean "ok".
+	 *
+	 * @param array $result Probe verdict.
+	 * @return bool
+	 */
+	protected function is_ok( $result ) {
+		return is_array( $result ) && isset( $result['status'] ) && 'ok' === $result['status'];
+	}
+
+	/**
+	 * Issue a single loopback probe request.
+	 *
+	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
+	 * @param string $base_url    Base URL to probe (front-end or admin).
+	 * @param bool   $is_admin    True for the admin probe — adds the
+	 *                            `pcg_admin=1` flag so the endpoint defers
+	 *                            its verdict to `admin_init`, and forwards
+	 *                            the current admin's auth cookies.
+	 * @return array{status:string,reason?:string,errno?:int,message?:string,file?:string,line?:int}
+	 */
+	protected function probe_request( $plugin_main, $base_url, $is_admin ) {
 		$token = wp_generate_password( 32, false );
 		set_transient(
 			$this->transient_key( $token ),
@@ -38,23 +77,29 @@ class PCG_Load_Tester {
 			self::TOKEN_LIFETIME
 		);
 
-		$url = add_query_arg(
-			array(
-				'pcg_probe' => '1',
-				'token'     => $token,
-			),
-			home_url( '/' )
+		$query = array(
+			'pcg_probe' => '1',
+			'token'     => $token,
 		);
+		if ( $is_admin ) {
+			$query['pcg_admin'] = '1';
+		}
+		$url = add_query_arg( $query, $base_url );
 
-		$response = wp_remote_get(
-			$url,
-			array(
-				'timeout'     => self::PROBE_TIMEOUT,
-				'blocking'    => true,
-				// Skip redirect chasing so a sneaky 301 doesn't swallow a probe result.
-				'redirection' => 0,
-			)
+		$args = array(
+			'timeout'     => self::PROBE_TIMEOUT,
+			'blocking'    => true,
+			// Skip redirect chasing so a sneaky 301 doesn't swallow a probe result.
+			'redirection' => 0,
 		);
+		if ( $is_admin ) {
+			$cookies = $this->collect_auth_cookies();
+			if ( ! empty( $cookies ) ) {
+				$args['cookies'] = $cookies;
+			}
+		}
+
+		$response = wp_remote_get( $url, $args );
 
 		delete_transient( $this->transient_key( $token ) );
 
@@ -73,6 +118,14 @@ class PCG_Load_Tester {
 			return $decoded;
 		}
 
+		// Admin probe bounced to login (no/expired cookie) — don't block on this signal.
+		if ( $is_admin && ( 301 === $code || 302 === $code ) ) {
+			return array(
+				'status' => 'ok',
+				'reason' => 'Admin probe redirected; treating as inconclusive ok.',
+			);
+		}
+
 		if ( 500 === $code ) {
 			return array(
 				'status'  => 'fatal',
@@ -86,6 +139,35 @@ class PCG_Load_Tester {
 			'status' => 'error',
 			'reason' => sprintf( 'Probe returned HTTP %d without a verdict payload.', $code ),
 		);
+	}
+
+	/**
+	 * Collect the WordPress auth cookies from the current request so the
+	 * admin loopback probe can authenticate as the same admin who clicked
+	 * Activate. Without these the probe would 302 to wp-login.php.
+	 *
+	 * @return WP_Http_Cookie[]
+	 */
+	protected function collect_auth_cookies() {
+		$cookies = array();
+		if ( empty( $_COOKIE ) || ! is_array( $_COOKIE ) ) {
+			return $cookies;
+		}
+		foreach ( $_COOKIE as $name => $value ) {
+			if ( ! is_string( $name ) || ! is_string( $value ) ) {
+				continue;
+			}
+			if ( 0 !== strpos( $name, 'wordpress_' ) && 0 !== strpos( $name, 'wp-' ) ) {
+				continue;
+			}
+			$cookies[] = new WP_Http_Cookie(
+				array(
+					'name'  => $name,
+					'value' => wp_unslash( $value ),
+				)
+			);
+		}
+		return $cookies;
 	}
 
 	/**

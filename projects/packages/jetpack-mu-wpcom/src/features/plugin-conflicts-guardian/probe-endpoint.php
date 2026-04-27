@@ -85,8 +85,14 @@ function pcg_maybe_handle_probe() {
 		);
 	}
 
-	// Let init / admin_init fire with the plugin's hooks in place; emit "ok" at the end.
-	add_action( 'wp_loaded', 'pcg_probe_emit_ok', PHP_INT_MAX );
+	// Admin probe: wait until admin_init has fired so admin-time hook fatals surface.
+	// Front-end probe: emit at wp_loaded once init has fired.
+	$is_admin_probe = isset( $_GET['pcg_admin'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['pcg_admin'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token already validated above.
+	if ( $is_admin_probe ) {
+		add_action( 'admin_init', 'pcg_probe_emit_ok', PHP_INT_MAX );
+	} else {
+		add_action( 'wp_loaded', 'pcg_probe_emit_ok', PHP_INT_MAX );
+	}
 }
 
 /**
