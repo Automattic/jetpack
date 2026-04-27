@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Removed unconditional require_once and file loading from the Email Preview REST API endpoint to avoid loading unnecessary files and registering hooks on every request.
+Email Preview: Avoid unconditional require_once and file loading in the REST API endpoint to prevent unnecessary file loading and hook registration on every request.
