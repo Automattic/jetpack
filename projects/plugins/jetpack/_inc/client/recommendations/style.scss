@@ -30,17 +30,6 @@
 	padding-top: 48px;
 }
 
-.jp-recommendations__new-badge {
-	display: inline-block;
-	padding: 2px 8px;
-	color: var(--jp-green-30);
-	border: 1px solid var(--jp-green-30);
-	text-transform: uppercase;
-	font-weight: 500;
-	border-radius: 3px;
-	font-size: 12px;
-}
-
 .jp-recommendations-question__sidebar {
 
 	@include mixin.recommendation-sidebar-blob;

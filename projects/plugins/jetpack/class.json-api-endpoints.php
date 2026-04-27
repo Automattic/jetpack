@@ -1459,9 +1459,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$name       = $author->comment_author;
 			$first_name = '';
 			$last_name  = '';
-			$url        = $author->comment_author_url;
 			$avatar_url = $this->api->get_avatar_url( $author );
 			$nice       = '';
+			$url        = $author->comment_author_url;
+			// Convert Gravatar URLs containing an email address to the hashed version.
+			if ( preg_match( '#^https?://(?:www\.)?gravatar\.com/([^/?]+)#i', $url, $matches ) && is_email( $matches[1] ) ) {
+				$url = 'https://gravatar.com/' . md5( strtolower( trim( $matches[1] ) ) );
+			}
 
 			// Add additional user data to the response if a valid user ID is available.
 			if ( 0 < $id ) {
@@ -1532,7 +1536,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$url        = $user->user_url;
 			$nice       = $user->user_nicename;
 		}
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack && $id > 0 ) {
 			/**
 			 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
 			 *

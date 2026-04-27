@@ -10,11 +10,10 @@
  *   callback only accepts Jetpack-signed requests, so it can only be
  *   invoked through the WPCOM public API proxy.
  * * ?reprint-api export requires the reprint_exporter_enabled site
- *   option to be a unix timestamp within the last 60 minutes AND the
- *   request to carry A8C_PROXIED_REQUEST (set by a8c infrastructure
- *   for Automattician proxy sessions). Each accepted request bumps
- *   the timestamp; the streaming endpoint stays internal-only until
- *   Studio ships.
+ *   option to be a unix timestamp within the last 60 minutes, AND a
+ *   valid HMAC signature produced with the per-site shared secret.
+ *   Each accepted request bumps the timestamp, so an idle site
+ *   auto-closes the gate.
  *
  * Data flow has two phases that use different auth and network paths:
  *
@@ -178,21 +177,15 @@ add_filter( 'site_settings_endpoint_update_reprint_exporter_enabled', 'wpcomsh_r
 // -- Helpers ------------------------------------------------------------------
 
 /**
- * Gate for the ?reprint-api export handler: option timestamp within
- * the last 60 minutes AND a proxied-Automattician request.
+ * Gate for the ?reprint-api export handler: the reprint_exporter_enabled
+ * option must hold a unix timestamp within the last 60 minutes. HMAC
+ * verification happens separately in the request handler.
  *
  * @return bool
  */
 function _should_expose_reprint_exporter_on_this_site(): bool {
 	$enabled_at = (int) get_option( 'reprint_exporter_enabled', 0 );
-	if ( $enabled_at <= 0 || ( time() - $enabled_at ) > HOUR_IN_SECONDS ) {
-		return false;
-	}
-
-	// A8C_PROXIED_REQUEST is set by the a8c infrastructure layer (nginx)
-	// for Automattician proxy sessions — not forgeable by clients.
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	return ! empty( $_SERVER['A8C_PROXIED_REQUEST'] );
+	return $enabled_at > 0 && ( time() - $enabled_at ) <= HOUR_IN_SECONDS;
 }
 
 /**

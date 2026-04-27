@@ -121,5 +121,3 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		return $allowed;
 	}
 }
-
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Admin_Bar' );

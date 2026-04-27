@@ -217,8 +217,8 @@ function wpcomsh_fatal_build_recovery_url() {
 }
 
 /**
- * Collect environment details (WordPress / PHP / active theme / server)
- * shown in the fatal-error screen's Environment section and reused by the
+ * Collect environment details (WordPress / PHP / active theme) shown in
+ * the fatal-error screen's Environment section and reused by the
  * recovery-mode email. Helps support triage without making the recipient
  * hunt for them.
  *
@@ -242,11 +242,6 @@ function wpcomsh_fatal_get_environment_lines() {
 		}
 	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit theme on failure.
 		// Fall through.
-	}
-
-	$server = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( (string) wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
-	if ( '' !== $server ) {
-		$lines[] = sprintf( 'Server: %s', $server );
 	}
 
 	return $lines;

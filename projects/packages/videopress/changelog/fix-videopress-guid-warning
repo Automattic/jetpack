@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix PHP warning when video info lookup returns false on WPCOM.

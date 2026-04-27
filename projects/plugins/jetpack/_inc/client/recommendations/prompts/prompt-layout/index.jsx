@@ -1,5 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -50,9 +51,7 @@ const PromptLayoutComponent = props => {
 			<div className="jp-recommendations-question__content">
 				{ ( isNew || progressBar ) && (
 					<div className="jp-recommendations-question__progress-bar-wrap">
-						{ isNew && (
-							<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
-						) }
+						{ isNew && <Badge intent="stable">{ __( 'New', 'jetpack' ) }</Badge> }
 						<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
 					</div>
 				) }
