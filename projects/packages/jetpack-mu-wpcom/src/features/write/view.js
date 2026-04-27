@@ -16,6 +16,7 @@ let savedRange = null;
 // Stored references for dropdown close handlers to prevent listener leaks.
 let headingMenuCloseHandler = null;
 let textColorMenuCloseHandler = null;
+let linkPopoverCloseHandler = null;
 
 /**
  * Save the current text selection so it can be restored after a modal closes.
@@ -978,6 +979,11 @@ const { state } = store( 'wpcom-write', {
 		// --- Link ---
 
 		toggleLinkInput() {
+			// Always clean up any existing listener first.
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
 			if ( state.showLinkInput ) {
 				state.showLinkInput = false;
 				return;
@@ -1009,12 +1015,17 @@ const { state } = store( 'wpcom-write', {
 			} );
 
 			// Close when clicking outside the popover.
-			const closeLink = e => {
-				if ( e.target.closest( '.bw-link-popover' ) ) return;
+			linkPopoverCloseHandler = e => {
+				if (
+					e.target.closest( '.bw-link-popover' ) ||
+					e.target.closest( '[data-wp-on--click="actions.toggleLinkInput"]' )
+				)
+					return;
 				state.showLinkInput = false;
-				document.removeEventListener( 'click', closeLink );
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
 			};
-			setTimeout( () => document.addEventListener( 'click', closeLink ), 0 );
+			setTimeout( () => document.addEventListener( 'click', linkPopoverCloseHandler ), 0 );
 		},
 
 		updateLinkUrl() {
