@@ -366,6 +366,7 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 			);
 		}
 
+		// @phan-suppress-next-line PhanTypeExpectedObjectOrClassName,PhanUndeclaredClass -- Loaded dynamically via require_lib.
 		$ai       = new $ai_services_class( 'content-research' );
 		$response = $ai->call_llm( $prompt );
 
