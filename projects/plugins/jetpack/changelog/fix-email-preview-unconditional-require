@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Email Preview: Avoid unconditional require_once and file loading in the REST API endpoint to prevent unnecessary file loading and hook registration on every request.
