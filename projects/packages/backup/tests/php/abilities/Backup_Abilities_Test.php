@@ -20,8 +20,11 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Backup_Abilities::class )]
 class Backup_Abilities_Test extends BaseTestCase {
 
-	private int $admin_id;
-	private int $subscriber_id;
+	/** @var int */
+	private $admin_id;
+
+	/** @var int */
+	private $subscriber_id;
 
 	public function setUp(): void {
 		parent::setUp();
@@ -224,10 +227,14 @@ class Backup_Abilities_Test extends BaseTestCase {
 		Backup_Abilities::register_abilities();
 
 		$registered = array_map(
-			static fn ( $a ) => $a->get_name(),
+			static function ( $a ) {
+				return $a->get_name();
+			},
 			array_filter(
 				wp_get_abilities(),
-				static fn ( $a ) => str_starts_with( $a->get_name(), 'jetpack-backup/' )
+				static function ( $a ) {
+					return 0 === strpos( $a->get_name(), 'jetpack-backup/' );
+				}
 			)
 		);
 
