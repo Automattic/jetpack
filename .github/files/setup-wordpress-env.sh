@@ -62,6 +62,12 @@ function _install_plugin {
 
 	echo "::group::Installing plugin $NAME into WordPress"
 
+	if [[ -n "$CHANGED" ]] && ! jq --argjson changed "$CHANGED" --arg p "plugins/$NAME" -ne '$changed[$p] // false' > /dev/null; then
+		echo "::endgroup::"
+		echo "Skipping install of plugin $NAME, not in CHANGED"
+		return 0
+	fi
+
 	if php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$DIR/composer.json" )"; then
 		echo "::endgroup::"
 		echo "Skipping install of plugin $NAME, requires PHP $( jq -r '.require.php // ""' "$DIR/composer.json" )"
