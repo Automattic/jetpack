@@ -20,7 +20,7 @@ import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import './style.scss';
 
 type JetpackModule = {
@@ -55,6 +55,82 @@ declare global {
 
 type FilterActive = 'all' | 'true' | 'false';
 type SortKey = 'name' | 'introduced' | 'sort';
+
+const FILTER_VALUES: readonly FilterActive[] = [ 'all', 'true', 'false' ] as const;
+const SORT_VALUES: readonly SortKey[] = [ 'name', 'introduced', 'sort' ] as const;
+
+type FilterState = {
+	search: string;
+	filterActive: FilterActive;
+	sortBy: SortKey;
+	moduleTag: string;
+};
+
+const DEFAULT_FILTER_STATE: FilterState = {
+	search: '',
+	filterActive: 'all',
+	sortBy: 'name',
+	moduleTag: '',
+};
+
+/**
+ * Read the four filter values from the current URL. Unknown values fall
+ * back to defaults so a hand-typed or stale URL never wedges the page.
+ *
+ * @return {FilterState} Seed state for the four filter inputs.
+ */
+const readFilterStateFromUrl = (): FilterState => {
+	if ( typeof window === 'undefined' ) {
+		return DEFAULT_FILTER_STATE;
+	}
+	const params = new URLSearchParams( window.location.search );
+	const filterParam = params.get( 'filter' );
+	const sortParam = params.get( 'sort' );
+	return {
+		search: params.get( 'search' ) || '',
+		filterActive: FILTER_VALUES.includes( filterParam as FilterActive )
+			? ( filterParam as FilterActive )
+			: 'all',
+		sortBy: SORT_VALUES.includes( sortParam as SortKey ) ? ( sortParam as SortKey ) : 'name',
+		moduleTag: params.get( 'tag' ) || '',
+	};
+};
+
+/**
+ * Reflect the four filter values into the URL via `history.replaceState`.
+ * Defaults (e.g. empty search, `filter=all`) are dropped so a clean URL
+ * stays clean. Only our four params are touched — `page=jetpack_modules`
+ * and anything else WP appends is preserved.
+ *
+ * @param {FilterState} state - Current filter values.
+ */
+const writeFilterStateToUrl = ( state: FilterState ): void => {
+	if ( typeof window === 'undefined' ) {
+		return;
+	}
+	const params = new URLSearchParams( window.location.search );
+	const set = ( key: string, value: string, isDefault: boolean ) => {
+		if ( isDefault ) {
+			params.delete( key );
+		} else {
+			params.set( key, value );
+		}
+	};
+	set( 'search', state.search, state.search === '' );
+	set( 'filter', state.filterActive, state.filterActive === 'all' );
+	set( 'sort', state.sortBy, state.sortBy === 'name' );
+	set( 'tag', state.moduleTag, state.moduleTag === '' );
+
+	const query = params.toString();
+	const next = `${ window.location.pathname }${ query ? `?${ query }` : '' }${
+		window.location.hash
+	}`;
+	if (
+		next !== `${ window.location.pathname }${ window.location.search }${ window.location.hash }`
+	) {
+		window.history.replaceState( window.history.state, '', next );
+	}
+};
 
 const adminUrl = ( path: string ): string => {
 	// WordPress injects this global on all admin screens.
@@ -198,10 +274,16 @@ function ModulesAdminApp() {
 	const data = window.jetpackModulesData;
 	const rawModules = useMemo( () => ( data ? Object.values( data.modules ) : [] ), [ data ] );
 
-	const [ search, setSearch ] = useState( '' );
-	const [ filterActive, setFilterActive ] = useState< FilterActive >( 'all' );
-	const [ sortBy, setSortBy ] = useState< SortKey >( 'name' );
-	const [ moduleTag, setModuleTag ] = useState< string >( '' );
+	// Seed once from the URL so refresh / shared links restore filter state.
+	const initialState = useMemo( readFilterStateFromUrl, [] );
+	const [ search, setSearch ] = useState( initialState.search );
+	const [ filterActive, setFilterActive ] = useState< FilterActive >( initialState.filterActive );
+	const [ sortBy, setSortBy ] = useState< SortKey >( initialState.sortBy );
+	const [ moduleTag, setModuleTag ] = useState< string >( initialState.moduleTag );
+
+	useEffect( () => {
+		writeFilterStateToUrl( { search, filterActive, sortBy, moduleTag } );
+	}, [ search, filterActive, sortBy, moduleTag ] );
 
 	const tagCounts = useMemo( () => {
 		const counts: Record< string, number > = {};

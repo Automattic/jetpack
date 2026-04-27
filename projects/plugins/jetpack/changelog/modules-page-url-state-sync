@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Modules admin page: persist search/filter/sort/tag in the URL via history.replaceState so a refresh or shared link restores filter state. Defaults are dropped from the URL to keep clean URLs clean.
