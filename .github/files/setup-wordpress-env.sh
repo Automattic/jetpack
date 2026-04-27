@@ -62,8 +62,6 @@ function _install_plugin {
 
 	# Isolate composer cache per plugin, as a shared composer cache breaks during parallel writes.
 	export COMPOSER_CACHE_DIR="/tmp/composer-cache-$NAME"
-	# But first let's pre-seed it with the default cache from earlier.
-	cp -a "$DEFAULT_COMPOSER_CACHE_DIR" "$COMPOSER_CACHE_DIR"
 
 	echo "::group::Installing plugin $NAME into WordPress"
 
@@ -91,6 +89,9 @@ function _install_plugin {
 			return 1
 		fi
 	fi
+
+	# Pre-seed the per-plugin cache with packages already downloaded by earlier steps (e.g. tools/php-test-env).
+	cp -a "$DEFAULT_COMPOSER_CACHE_DIR" "$COMPOSER_CACHE_DIR"
 
 	cd "$DIR"
 	if [[ ! -f "composer.lock" ]]; then
