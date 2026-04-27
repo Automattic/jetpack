@@ -6,12 +6,13 @@ import './answers-panel.scss';
 /**
  * AI Answers panel displayed above search results.
  *
- * @param {object} props        - Component props.
- * @param {string} props.status - 'idle' | 'loading' | 'streaming' | 'done' | 'error'
- * @param {string} props.text   - Accumulated answer text (markdown).
+ * @param {object} props           - Component props.
+ * @param {string} props.status    - 'idle' | 'loading' | 'streaming' | 'done' | 'error'
+ * @param {string} props.text      - Accumulated answer text (markdown).
+ * @param {Array}  props.citations - Array of { title, url, excerpt } citation objects.
  * @return {React.ReactElement|null} The rendered panel or null.
  */
-export default function AnswersPanel( { status, text } ) {
+export default function AnswersPanel( { status, text, citations = [] } ) {
 	if ( status === 'idle' || status === 'error' ) {
 		return null;
 	}
@@ -32,6 +33,15 @@ export default function AnswersPanel( { status, text } ) {
 					// eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ { __html: markdownToHtml( text ) } }
 				/>
+			) }
+			{ status === 'done' && citations.length > 0 && (
+				<ul className="jp-search-answers-panel__citations">
+					{ citations.map( ( { title, url }, i ) => (
+						<li key={ i }>
+							<a href={ url }>{ title }</a>
+						</li>
+					) ) }
+				</ul>
 			) }
 		</div>
 	);
