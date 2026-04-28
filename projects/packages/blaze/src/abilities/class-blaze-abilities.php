@@ -466,25 +466,39 @@ class Blaze_Abilities extends Registrar {
 	 *
 	 * STUB: implementation pending. Needs a call to the WPCOM Blaze status
 	 * endpoint to check TOS + payment method state. When either is missing,
-	 * return a `WP_Error` whose `data` carries a deep-link the merchant
-	 * follows to fix the issue (Abilities API surfaces `WP_Error` data
-	 * verbatim from `execute_callback`).
+	 * return a `WP_Error` whose **message** embeds a deep-link as a URL the
+	 * merchant follows to fix the issue.
+	 *
+	 * Why message-text and not the `data` field: the Woo MCP adapter strips
+	 * `WP_Error::data` when forwarding errors to MCP clients
+	 * (see vendor/wordpress/mcp-adapter ToolsHandler.php — only `message` +
+	 * `code` survive). Embedding the URL in the message ensures Claude /
+	 * other MCP clients can present it to the merchant. The `data` field is
+	 * kept too as belt-and-braces for direct WP Abilities REST callers,
+	 * which preserve it via standard WP REST error serialization.
 	 *
 	 * @return true|\WP_Error
 	 */
 	private static function check_tos_and_payment() {
-		// TODO(ADS-953): wire to WPCOM Blaze status endpoint.
-		// Example shape of the failure case for the eventual implementation:
-		//
-		// return new WP_Error(
-		// 'blaze_tos_required',
-		// __( 'Blaze terms of service must be accepted before creating campaigns.', 'jetpack-blaze' ),
-		// array(
-		// 'status'    => 403,
-		// 'fix_url'   => admin_url( 'tools.php?page=advertising' ),
-		// 'fix_label' => __( 'Accept terms in the Blaze dashboard', 'jetpack-blaze' ),
-		// )
-		// );
+		/*
+		 * TODO(ADS-953): wire to WPCOM Blaze status endpoint.
+		 * Example failure shape for the eventual implementation:
+		 *
+		 *   $fix_url = admin_url( 'tools.php?page=advertising' );
+		 *   return new WP_Error(
+		 *       'blaze_tos_required',
+		 *       sprintf(
+		 *           // Deep-link in the message text so MCP clients pass it through.
+		 *           __( 'Blaze terms of service must be accepted before creating campaigns. Accept them here: %s', 'jetpack-blaze' ),
+		 *           $fix_url
+		 *       ),
+		 *       array(
+		 *           'status'    => 403,
+		 *           'fix_url'   => $fix_url,
+		 *           'fix_label' => __( 'Accept terms in the Blaze dashboard', 'jetpack-blaze' ),
+		 *       )
+		 *   );
+		 */
 		return true;
 	}
 
