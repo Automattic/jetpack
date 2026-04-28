@@ -61,7 +61,22 @@ require __DIR__ . '/class-wpcom-rest-field-controller.php';
  * at the default priority 10 within the same `rest_api_init` action.
  */
 function load_wpcom_rest_api_v2_plugin_files() {
+	global $wpcom_rest_api_v2_plugins;
+
 	wpcom_rest_api_v2_load_plugin_files( 'wpcom-endpoints/*.php' );
 	wpcom_rest_api_v2_load_plugin_files( 'wpcom-fields/*.php' );
+
+	// Re-register the rest_api_init hook for each instance. Constructors add it on first
+	// instantiation, but PHPUnit's WP_UnitTestCase::tear_down() restores $wp_filter to a
+	// snapshot taken before the loader first fires, stripping these hooks between tests.
+	// Re-adding here is idempotent (WP_Hook dedupes identical callbacks at the same
+	// priority) and ensures routes register on every rest_api_init.
+	if ( ! empty( $wpcom_rest_api_v2_plugins ) ) {
+		foreach ( $wpcom_rest_api_v2_plugins as $instance ) {
+			if ( method_exists( $instance, 'register_routes' ) ) {
+				add_action( 'rest_api_init', array( $instance, 'register_routes' ) );
+			}
+		}
+	}
 }
 add_action( 'rest_api_init', 'load_wpcom_rest_api_v2_plugin_files', 5 );
