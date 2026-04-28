@@ -2,9 +2,18 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 
 const TABS = [
-	{ id: 'overview', label: __( 'Overview', 'jetpack-search-pkg' ) },
-	{ id: 'personality', label: __( 'Personality', 'jetpack-search-pkg' ) },
-	{ id: 'topics', label: __( 'Topics', 'jetpack-search-pkg' ) },
+	{ id: 'plan-usage', label: __( 'Plan & Usage', 'jetpack-search-pkg' ) },
+	{
+		id: 'ai-answers',
+		label: (
+			<>
+				{ __( 'AI Answers', 'jetpack-search-pkg' ) }
+				<span className="jp-search-dashboard-tabs__tab-preview-label">
+					{ __( '(Preview)', 'jetpack-search-pkg' ) }
+				</span>
+			</>
+		),
+	},
 ];
 
 /**
