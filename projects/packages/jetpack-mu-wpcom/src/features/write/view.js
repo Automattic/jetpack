@@ -790,7 +790,9 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		preventToolbarBlur( event ) {
-			// Prevent the toolbar from stealing focus from the content area.
+			// Prevent the toolbar from stealing focus from the content area,
+			// but allow normal interaction with form inputs (text selection, cursor).
+			if ( event.target.closest( 'input, textarea' ) ) return;
 			event.preventDefault();
 		},
 
@@ -1041,13 +1043,20 @@ const { state } = store( 'wpcom-write', {
 					document.execCommand( 'createLink', false, state.linkUrl );
 				}
 				state.showLinkInput = false;
-				// Refocus content area.
+				if ( linkPopoverCloseHandler ) {
+					document.removeEventListener( 'click', linkPopoverCloseHandler );
+					linkPopoverCloseHandler = null;
+				}
 				const content = document.querySelector( '.bw-content' );
 				if ( content ) content.focus();
 			}
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
 				state.showLinkInput = false;
+				if ( linkPopoverCloseHandler ) {
+					document.removeEventListener( 'click', linkPopoverCloseHandler );
+					linkPopoverCloseHandler = null;
+				}
 				const content = document.querySelector( '.bw-content' );
 				if ( content ) content.focus();
 			}
@@ -1059,12 +1068,24 @@ const { state } = store( 'wpcom-write', {
 				document.execCommand( 'createLink', false, state.linkUrl );
 			}
 			state.showLinkInput = false;
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
 		},
 
 		removeLink() {
 			restoreSelection();
 			document.execCommand( 'unlink' );
 			state.showLinkInput = false;
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
 		},
 
 		// --- Image ---
