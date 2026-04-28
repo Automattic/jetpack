@@ -125,6 +125,7 @@ jest.mock( '@wordpress/core-data', () => {
 			available_blocks: {
 				'ai-assistant-usage-panel': { available: false },
 				'ai-featured-image-generator': { available: true },
+				'ai-feature-clip-generator': { available: true },
 				'ai-title-optimization': { available: false },
 				'ai-title-optimization-keywords-support': { available: false },
 			},
@@ -260,6 +261,72 @@ describe( 'AiAssistantPluginSidebar', () => {
 			} );
 
 			expect( mockEditPost ).toHaveBeenCalledWith( { featured_media: 123 } );
+		} );
+	} );
+
+	describe( 'videoGenerationHandler filter', () => {
+		it( 'should call applyFilters with correct arguments for feature-clip entry point', () => {
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( applyFilters ).toHaveBeenCalledWith(
+				'jetpack.ai.videoGenerationHandler',
+				null,
+				expect.objectContaining( {
+					entryPoint: 'feature-clip',
+					extra: expect.objectContaining( {
+						placement: expect.any( String ),
+						disabled: false,
+					} ),
+				} )
+			);
+		} );
+
+		it( 'should render "Get Feature Clip" section with "Generate clip" button when filter provides a handler', () => {
+			const mockHandler = jest.fn();
+			jest.mocked( applyFilters ).mockImplementation( ( filterName: string ) => {
+				if ( filterName === 'jetpack.ai.videoGenerationHandler' ) {
+					return mockHandler;
+				}
+				return null;
+			} );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.getAllByRole( 'button', { name: 'Generate clip' } ).length ).toBeGreaterThan(
+				0
+			);
+		} );
+
+		it( 'should call custom handler when clicking "Generate clip" button', async () => {
+			const user = userEvent.setup();
+			const mockHandler = jest.fn();
+			jest.mocked( applyFilters ).mockImplementation( ( filterName: string ) => {
+				if ( filterName === 'jetpack.ai.videoGenerationHandler' ) {
+					return mockHandler;
+				}
+				return null;
+			} );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			const generateButton = within( documentPanel ).getByRole( 'button', {
+				name: 'Generate clip',
+			} );
+			await user.click( generateButton );
+
+			expect( mockHandler ).toHaveBeenCalled();
+		} );
+
+		it( 'should not render "Get Feature Clip" section when filter returns null', () => {
+			jest.mocked( applyFilters ).mockReturnValue( null );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect(
+				within( documentPanel ).queryByRole( 'button', { name: 'Generate clip' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 } );
