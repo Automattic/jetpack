@@ -1,5 +1,4 @@
-import { Alert } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useId, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -165,12 +164,12 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						) }
 					</p>
 					{ reconnectingAccount?.service_name === 'bluesky' && (
-						<Alert level="error" showIcon={ false }>
+						<Notice status="error" isDismissible={ false }>
 							{ __(
 								'Please provide an app password to fix the connection.',
 								'jetpack-publicize-pkg'
 							) }
-						</Alert>
+						</Notice>
 					) }
 				</div>
 			</>
