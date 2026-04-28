@@ -31,33 +31,14 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 	/** @var array|null */
 	private $saved_relatedposts_option;
 
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		self::$admin_id      = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$author_id     = $factory->user->create( array( 'role' => 'author' ) );
+		self::$subscriber_id = $factory->user->create( array( 'role' => 'subscriber' ) );
+	}
+
 	public function set_up() {
 		parent::set_up();
-
-		self::$admin_id      = wp_insert_user(
-			array(
-				'user_login' => 'rp_ability_admin_' . wp_generate_password( 8, false ),
-				'user_pass'  => 'pw',
-				'user_email' => 'rp_ability_admin_' . wp_generate_password( 4, false ) . '@example.test',
-				'role'       => 'administrator',
-			)
-		);
-		self::$author_id     = wp_insert_user(
-			array(
-				'user_login' => 'rp_ability_author_' . wp_generate_password( 8, false ),
-				'user_pass'  => 'pw',
-				'user_email' => 'rp_ability_author_' . wp_generate_password( 4, false ) . '@example.test',
-				'role'       => 'author',
-			)
-		);
-		self::$subscriber_id = wp_insert_user(
-			array(
-				'user_login' => 'rp_ability_sub_' . wp_generate_password( 8, false ),
-				'user_pass'  => 'pw',
-				'user_email' => 'rp_ability_sub_' . wp_generate_password( 4, false ) . '@example.test',
-				'role'       => 'subscriber',
-			)
-		);
 
 		$this->saved_relatedposts_option = Jetpack_Options::get_option( 'relatedposts', null );
 

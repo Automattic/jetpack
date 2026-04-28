@@ -25,19 +25,16 @@ use WP_Error;
  */
 class Related_Posts_Abilities extends Registrar {
 
-	/**
-	 * Maximum number of related posts returned in a single call.
-	 */
+	// Mirrors the cap the upstream Related Posts ES query enforces; raising it
+	// here would be silently truncated downstream.
 	private const MAX_SIZE = 20;
 
-	/**
-	 * Default number of related posts when the caller does not specify a size.
-	 */
 	private const DEFAULT_SIZE = 3;
 
-	/**
-	 * Editable display-settings fields.
-	 */
+	private const OPTION_KEY = 'relatedposts';
+
+	private const LAYOUTS = array( 'grid', 'list' );
+
 	private const EDITABLE_FIELDS = array(
 		'enabled',
 		'show_headline',
@@ -94,7 +91,7 @@ class Related_Posts_Abilities extends Registrar {
 				'show_context'    => array( 'type' => 'boolean' ),
 				'layout'          => array(
 					'type' => 'string',
-					'enum' => array( 'grid', 'list' ),
+					'enum' => self::LAYOUTS,
 				),
 				'headline'        => array( 'type' => 'string' ),
 				'size'            => array( 'type' => 'integer' ),
@@ -204,7 +201,7 @@ class Related_Posts_Abilities extends Registrar {
 						'layout'          => array(
 							'type'        => 'string',
 							'description' => __( 'Layout used to render the related-posts list.', 'jetpack' ),
-							'enum'        => array( 'grid', 'list' ),
+							'enum'        => self::LAYOUTS,
 						),
 						'headline'        => array(
 							'type'        => 'string',
@@ -316,9 +313,13 @@ class Related_Posts_Abilities extends Registrar {
 		}
 
 		$results = self::related_posts_instance()->get_for_post_id( $post->ID, $args );
-		if ( ! is_array( $results ) ) {
+		if ( ! is_array( $results ) || array() === $results ) {
 			return array();
 		}
+
+		// Prime the post cache once so `get_post_type()` inside summarize_related_post
+		// doesn't trigger N individual lookups when the cache is cold.
+		_prime_post_caches( wp_list_pluck( $results, 'id' ), false, false );
 
 		$out = array();
 		foreach ( $results as $related ) {
@@ -335,7 +336,7 @@ class Related_Posts_Abilities extends Registrar {
 	 */
 	public static function get_settings( $input = null ) {
 		unset( $input );
-		return self::normalize_settings( Jetpack_Options::get_option( 'relatedposts', array() ) );
+		return self::normalize_settings( Jetpack_Options::get_option( self::OPTION_KEY, array() ) );
 	}
 
 	/**
@@ -356,7 +357,7 @@ class Related_Posts_Abilities extends Registrar {
 		}
 
 		if ( isset( $updates['layout'] )
-			&& ! ( is_string( $updates['layout'] ) && in_array( $updates['layout'], array( 'grid', 'list' ), true ) )
+			&& ! ( is_string( $updates['layout'] ) && in_array( $updates['layout'], self::LAYOUTS, true ) )
 		) {
 			return new WP_Error(
 				'jetpack_related_posts_invalid_layout',
@@ -399,7 +400,7 @@ class Related_Posts_Abilities extends Registrar {
 			}
 		}
 
-		$current = self::normalize_settings( Jetpack_Options::get_option( 'relatedposts', array() ) );
+		$current = self::normalize_settings( Jetpack_Options::get_option( self::OPTION_KEY, array() ) );
 		$merged  = array_merge( $current, $updates );
 
 		$changed_fields = array();
@@ -417,7 +418,7 @@ class Related_Posts_Abilities extends Registrar {
 			);
 		}
 
-		$saved = Jetpack_Options::update_option( 'relatedposts', $merged );
+		$saved = Jetpack_Options::update_option( self::OPTION_KEY, $merged );
 		if ( ! $saved ) {
 			return new WP_Error(
 				'jetpack_related_posts_data_unavailable',
@@ -439,7 +440,9 @@ class Related_Posts_Abilities extends Registrar {
 	 * @return \Jetpack_RelatedPosts
 	 */
 	private static function related_posts_instance() {
-		require_once __DIR__ . '/../jetpack-related-posts.php';
+		if ( ! class_exists( Jetpack_RelatedPosts::class, false ) ) {
+			require_once __DIR__ . '/../jetpack-related-posts.php';
+		}
 		return Jetpack_RelatedPosts::init_raw();
 	}
 
@@ -478,7 +481,7 @@ class Related_Posts_Abilities extends Registrar {
 	private static function normalize_settings( $options ): array {
 		$options = is_array( $options ) ? $options : array();
 
-		$layout = isset( $options['layout'] ) && in_array( $options['layout'], array( 'grid', 'list' ), true )
+		$layout = isset( $options['layout'] ) && in_array( $options['layout'], self::LAYOUTS, true )
 			? $options['layout']
 			: 'grid';
 
