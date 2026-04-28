@@ -642,6 +642,7 @@ interface Window {
 		};
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
+		isJetpackPluginActive: boolean;
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
