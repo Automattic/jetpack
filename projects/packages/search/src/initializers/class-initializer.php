@@ -157,6 +157,10 @@ class Initializer {
 		if ( $success ) {
 			// registers Jetpack Search widget.
 			add_action( 'widgets_init', array( static::class, 'jetpack_search_widget_init' ) );
+
+			// Hydrate WooCommerce Product Filters blocks from Jetpack Search
+			// aggregations. Self-gated by feature flag + WC presence check.
+			WooCommerce_Filters_Bridge::init();
 		}
 
 		return $success;
