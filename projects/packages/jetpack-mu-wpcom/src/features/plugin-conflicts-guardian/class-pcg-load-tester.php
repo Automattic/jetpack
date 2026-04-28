@@ -20,11 +20,8 @@ class PCG_Load_Tester {
 	 * Fires two loopback requests in parallel: one against `home_url('/')`
 	 * (front-end) and one against `admin_url('index.php')` (so `admin_init`
 	 * fires). The admin probe forwards the current admin's WP auth cookies
-	 * so the loopback can clear `auth_redirect()`.
-	 *
-	 * Returns the first verdict that should block the activation
-	 * (`fatal`/`throwable`); otherwise prefers the admin `ok` (richer
-	 * signal) over the front-end response.
+	 * so the loopback can clear `auth_redirect()`. A captured fatal from
+	 * either probe wins; otherwise the front-end verdict is returned.
 	 *
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
 	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int}
@@ -65,14 +62,15 @@ class PCG_Load_Tester {
 		$admin_result = $this->parse_response( $responses['admin'], $plugin_main, true );
 
 		// fatal/throwable wins; an inconclusive `error` from one probe must
-		// not shadow a real fatal from the other.
+		// not shadow a real fatal from the other. Front-end is the canonical
+		// "site works" signal when neither probe captured a fatal.
 		if ( $this->is_block( $front_result ) ) {
 			return $front_result;
 		}
 		if ( $this->is_block( $admin_result ) ) {
 			return $admin_result;
 		}
-		return $this->is_ok( $admin_result ) ? $admin_result : $front_result;
+		return $front_result;
 	}
 
 	/**
@@ -87,16 +85,6 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Whether a verdict is a clean "ok".
-	 *
-	 * @param array $result Probe verdict.
-	 * @return bool
-	 */
-	protected function is_ok( $result ) {
-		return is_array( $result ) && 'ok' === ( $result['status'] ?? '' );
-	}
-
-	/**
 	 * Stash a probe transient and build the request descriptor for
 	 * `Requests::request_multiple`.
 	 *
@@ -107,26 +95,16 @@ class PCG_Load_Tester {
 	 */
 	protected function prepare_probe( $plugin_main, $base_url, $is_admin ) {
 		$token = wp_generate_password( 32, false );
-		set_transient(
-			self::transient_key( $token ),
-			array(
-				'plugin_main' => $plugin_main,
-				'user_id'     => get_current_user_id(),
-			),
-			self::TOKEN_LIFETIME
-		);
+		set_transient( self::transient_key( $token ), $plugin_main, self::TOKEN_LIFETIME );
 
-		$query = array(
+		$query   = array(
 			'pcg_probe' => '1',
 			'token'     => $token,
 		);
-		if ( $is_admin ) {
-			$query['pcg_admin'] = '1';
-		}
-
 		$headers = array();
 		if ( $is_admin ) {
-			$cookie_header = $this->collect_auth_cookie_header();
+			$query['pcg_admin'] = '1';
+			$cookie_header      = $this->collect_auth_cookie_header();
 			if ( '' !== $cookie_header ) {
 				$headers['Cookie'] = $cookie_header;
 			}
@@ -159,8 +137,8 @@ class PCG_Load_Tester {
 			);
 		}
 
-		$code = isset( $response->status_code ) ? (int) $response->status_code : 0;
-		$body = isset( $response->body ) ? (string) $response->body : '';
+		$code = (int) ( $response->status_code ?? 0 );
+		$body = (string) ( $response->body ?? '' );
 
 		$decoded = json_decode( $body, true );
 		if ( is_array( $decoded ) && isset( $decoded['status'] ) ) {
@@ -206,7 +184,7 @@ class PCG_Load_Tester {
 			if ( ! is_string( $name ) || ! is_string( $value ) ) {
 				continue;
 			}
-			if ( 0 !== strpos( $name, 'wordpress_' ) && 0 !== strpos( $name, 'wp-' ) ) {
+			if ( ! str_starts_with( $name, 'wordpress_' ) && ! str_starts_with( $name, 'wp-' ) ) {
 				continue;
 			}
 			$pairs[] = $name . '=' . wp_unslash( $value );

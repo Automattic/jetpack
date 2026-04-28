@@ -25,38 +25,18 @@ function pcg_maybe_handle_probe() {
 	$raw_token = isset( $_GET['token'] ) ? (string) wp_unslash( $_GET['token'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
 	$token     = preg_match( '/^[A-Za-z0-9]+$/', $raw_token ) ? $raw_token : '';
 	if ( '' === $token ) {
-		pcg_probe_respond(
-			array(
-				'status' => 'error',
-				'reason' => 'Missing or malformed probe token.',
-			),
-			400
-		);
+		pcg_probe_bail_error( 'Missing or malformed probe token.', 400 );
 	}
 
-	$key  = PCG_Load_Tester::transient_key( $token );
-	$data = get_transient( $key );
+	$key         = PCG_Load_Tester::transient_key( $token );
+	$plugin_main = (string) get_transient( $key );
 	delete_transient( $key );
 
-	if ( ! is_array( $data ) || empty( $data['plugin_main'] ) ) {
-		pcg_probe_respond(
-			array(
-				'status' => 'error',
-				'reason' => 'Invalid or expired probe token.',
-			),
-			403
-		);
+	if ( '' === $plugin_main ) {
+		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
 	}
-
-	$plugin_main = (string) $data['plugin_main'];
 	if ( ! is_file( $plugin_main ) || ! is_readable( $plugin_main ) ) {
-		pcg_probe_respond(
-			array(
-				'status' => 'error',
-				'reason' => 'Probe target is no longer readable.',
-			),
-			404
-		);
+		pcg_probe_bail_error( 'Probe target is no longer readable.', 404 );
 	}
 
 	// Tell WP's fatal handler to stand down so ours can emit JSON.
@@ -132,4 +112,21 @@ function pcg_probe_respond( $payload, $status = 200 ) {
 	}
 	wp_send_json( $payload, (int) $status, JSON_UNESCAPED_SLASHES );
 	exit;
+}
+
+/**
+ * Emit an `error` verdict with the given reason + HTTP status, and terminate.
+ *
+ * @param string $reason Human-readable reason for the failure.
+ * @param int    $status HTTP status code.
+ * @return never
+ */
+function pcg_probe_bail_error( $reason, $status ) {
+	pcg_probe_respond(
+		array(
+			'status' => 'error',
+			'reason' => $reason,
+		),
+		$status
+	);
 }

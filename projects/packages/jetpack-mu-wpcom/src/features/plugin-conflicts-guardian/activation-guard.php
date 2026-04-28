@@ -32,33 +32,22 @@ function pcg_guard_maybe_block_activation() {
 		return;
 	}
 
-	$plugins_to_check = array();
-	$nonce_action     = '';
-
 	if ( 'activate-selected' === $action ) {
-		$bulk_raw = isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
-		if ( empty( $bulk_raw ) ) {
-			return;
-		}
-		$nonce_action     = 'bulk-plugins';
+		$bulk_raw         = isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
 		$plugins_to_check = array_values(
 			array_filter(
-				array_map(
-					static function ( $basename ) {
-						return sanitize_text_field( (string) $basename );
-					},
-					$bulk_raw
-				)
+				array_map( static fn( $b ) => sanitize_text_field( (string) $b ), $bulk_raw )
 			)
 		);
+		$nonce_action     = 'bulk-plugins';
 	} else {
 		// Single-plugin path (plugins.php Activate link / update.php post-upload link).
-		$plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : '';
-		if ( '' === $plugin ) {
-			return;
-		}
-		$nonce_action       = 'activate-plugin_' . $plugin;
-		$plugins_to_check[] = $plugin;
+		$plugin           = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : '';
+		$plugins_to_check = '' !== $plugin ? array( $plugin ) : array();
+		$nonce_action     = 'activate-plugin_' . $plugin;
+	}
+	if ( empty( $plugins_to_check ) ) {
+		return;
 	}
 
 	// Verify the nonce up front so we don't run probes for a request core
@@ -91,8 +80,8 @@ function pcg_guard_maybe_block_activation() {
  * @return array<string,string>
  */
 function pcg_guard_evaluate_plugins( $plugins ) {
-	$blocked         = array();
-	$pcg_load_tester = new PCG_Load_Tester();
+	$blocked = array();
+	$tester  = new PCG_Load_Tester();
 
 	foreach ( $plugins as $plugin ) {
 		if ( is_plugin_active( $plugin ) ) {
@@ -102,7 +91,7 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 		if ( ! is_file( $path ) ) {
 			continue;
 		}
-		$result = $pcg_load_tester->test( $path );
+		$result = $tester->test( $path );
 		$status = (string) ( $result['status'] ?? '' );
 		if ( 'fatal' === $status || 'throwable' === $status ) {
 			$blocked[ $plugin ] = pcg_guard_format_block_reason( $result );
@@ -124,26 +113,20 @@ function pcg_guard_format_block_reason( $result ) {
 		$message = 'unknown error';
 	}
 
-	$status = $result['status'] ?? '';
-	$label  = '';
-	if ( 'throwable' === $status && ! empty( $result['class'] ) ) {
-		$label = (string) $result['class'];
-	} elseif ( 'fatal' === $status && isset( $result['errno'] ) ) {
-		$label = pcg_guard_errno_name( (int) $result['errno'] );
-	}
+	$label = match ( $result['status'] ?? '' ) {
+		'throwable' => (string) ( $result['class'] ?? '' ),
+		'fatal'     => isset( $result['errno'] ) ? pcg_guard_errno_name( (int) $result['errno'] ) : '',
+		default     => '',
+	};
 
 	$location = '';
 	if ( ! empty( $result['file'] ) ) {
 		$file     = basename( (string) $result['file'] );
 		$line     = (int) ( $result['line'] ?? 0 );
-		$location = $line > 0
-			? sprintf( ' (%s, line %d)', $file, $line )
-			: sprintf( ' (%s)', $file );
+		$location = $line > 0 ? sprintf( ' (%s, line %d)', $file, $line ) : sprintf( ' (%s)', $file );
 	}
 
-	return '' !== $label
-		? sprintf( '%s: %s%s', $label, $message, $location )
-		: $message . $location;
+	return '' !== $label ? sprintf( '%s: %s%s', $label, $message, $location ) : $message . $location;
 }
 
 /**
