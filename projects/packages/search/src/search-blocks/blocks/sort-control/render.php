@@ -36,6 +36,15 @@ if ( ! in_array( $effective_sort, $options, true ) ) {
 	$effective_sort = $options[0];
 }
 
+// `wp_interactivity_data_wp_context()` (used in the radio template) was
+// introduced in WP 6.5; calling it on older cores would fatal. Fall back
+// to the `select` variant — its template only emits inert
+// `data-wp-bind--*` attributes, which degrade harmlessly without
+// Interactivity.
+if ( 'radio' === $display_as && ! function_exists( 'wp_interactivity_data_wp_context' ) ) {
+	$display_as = 'select';
+}
+
 // Push the resolved sort into the shared Interactivity state so the
 // JS store hydrates against the same value the server rendered. Core's
 // `wp_interactivity_state()` deep-merges, so this overrides whatever the

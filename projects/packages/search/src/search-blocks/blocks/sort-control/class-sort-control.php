@@ -12,9 +12,11 @@ namespace Automattic\Jetpack\Search;
  *
  * Centralizes the list of valid sort keys, their translated labels, and the
  * attribute-normalization logic so render.php and the block's own unit tests
- * share one source of truth. Keys mirror `VALID_SORT_KEYS` in
- * src/instant-search/lib/constants.js so deep links round-trip between the
- * two surfaces.
+ * share one source of truth. The block currently exposes only the base sort
+ * keys (`relevance`, `newest`, `oldest`); product-format keys present in
+ * instant-search's `VALID_SORT_KEYS` (src/instant-search/lib/constants.js)
+ * are intentionally deferred to the WooCommerce integration tracked under
+ * RSM-1082.
  */
 class Sort_Control {
 
@@ -140,8 +142,11 @@ class Sort_Control {
 	 * @return string|null Sort key or null when no URL sort is present.
 	 */
 	public static function parse_url_sort( ?array $allowed_keys = null ): ?string {
+		// `?orderby[]=x` lands as an array — passing that to sanitize_key()
+		// would emit a PHP warning (and PHPUnit fails on those). Bail early
+		// so a malformed URL can't poison the rendered control.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
-		if ( ! isset( $_GET['orderby'] ) ) {
+		if ( ! isset( $_GET['orderby'] ) || ! is_scalar( $_GET['orderby'] ) ) {
 			return null;
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
