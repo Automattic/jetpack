@@ -15,8 +15,8 @@
  */
 class PCG_Snapshot {
 
-	const LIFETIME    = 10 * MINUTE_IN_SECONDS;
-	const BACKUP_ROOT = 'upgrade/pcg-backups';
+	const LIFETIME       = 10 * MINUTE_IN_SECONDS;
+	const BACKUP_DIRNAME = 'pcg-backups';
 
 	/**
 	 * Capture and persist the snapshot for $plugin_file.
@@ -91,8 +91,8 @@ class PCG_Snapshot {
 			return '';
 		}
 
-		$root = WP_CONTENT_DIR . '/' . self::BACKUP_ROOT;
-		if ( ! wp_mkdir_p( $root ) ) {
+		$root = self::backup_root();
+		if ( '' === $root || ! wp_mkdir_p( $root ) ) {
 			return '';
 		}
 
@@ -129,14 +129,38 @@ class PCG_Snapshot {
 			return;
 		}
 		// Sanity: only delete things we own under the backup root.
-		$root = WP_CONTENT_DIR . '/' . self::BACKUP_ROOT;
-		if ( 0 !== strpos( $path, $root . '/' ) ) {
+		$root = self::backup_root();
+		if ( '' === $root || 0 !== strpos( $path, $root . '/' ) ) {
 			return;
 		}
 		$fs = self::fs();
 		if ( $fs ) {
 			$fs->delete( $path, true );
 		}
+	}
+
+	/**
+	 * Resolve the backup root directory. Defaults to a `pcg-backups`
+	 * folder inside WordPress's temp dir (`get_temp_dir()` — typically
+	 * the system tmpdir, falling back to `wp-content/uploads/` only
+	 * when nothing else is writable). Override via `pcg_backup_root`.
+	 *
+	 * @return string Absolute path with trailing slash trimmed; '' to disable backups.
+	 */
+	public static function backup_root() {
+		if ( ! function_exists( 'get_temp_dir' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		$default = rtrim( get_temp_dir(), '/' ) . '/' . self::BACKUP_DIRNAME;
+		/**
+		 * Filter the directory where pre-update plugin backups are
+		 * staged. Return an absolute path; an empty string disables
+		 * the local-backup rollback path entirely.
+		 *
+		 * @param string $default Absolute default path.
+		 */
+		$root = (string) apply_filters( 'pcg_backup_root', $default );
+		return rtrim( $root, '/' );
 	}
 
 	/**

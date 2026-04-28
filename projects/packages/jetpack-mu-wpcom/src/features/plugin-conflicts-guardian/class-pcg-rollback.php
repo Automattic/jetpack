@@ -98,15 +98,28 @@ class PCG_Rollback {
 			);
 		}
 
-		// move() prefers rename and falls back to copy + delete on cross-fs.
-		if ( ! $fs->move( $backup_asset, $current, true ) ) {
-			return array(
-				'status' => 'rollback_failed',
-				'reason' => 'Could not restore plugin from local backup.',
-			);
+		// move() works for files (and same-fs dir renames). For cross-fs
+		// dir moves WP_Filesystem_Direct::move can't recurse, so fall
+		// back to copy_dir + delete on dirs.
+		$moved = $fs->move( $backup_asset, $current, true );
+		if ( ! $moved ) {
+			if ( $fs->is_dir( $backup_asset ) ) {
+				if ( ! wp_mkdir_p( $current ) || true !== copy_dir( $backup_asset, $current ) ) {
+					$fs->delete( $current, true );
+					return array(
+						'status' => 'rollback_failed',
+						'reason' => 'Could not restore plugin from local backup (cross-fs copy_dir failed).',
+					);
+				}
+			} else {
+				return array(
+					'status' => 'rollback_failed',
+					'reason' => 'Could not restore plugin from local backup.',
+				);
+			}
 		}
 
-		// Drop the (now-empty) backup wrapper dir.
+		// Drop the (now-empty-ish) backup wrapper dir.
 		$fs->delete( $backup_path, true );
 
 		return array(
@@ -218,10 +231,12 @@ class PCG_Rollback {
 			return $result;
 		}
 		if ( false === $result || null === $result ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod -- get_errors() is defined on WP_Upgrader_Skin; Phan's stubs omit it.
-			$errors = $skin->get_errors();
-			if ( $errors instanceof WP_Error && $errors->has_errors() ) {
-				return $errors;
+			if ( method_exists( $skin, 'get_errors' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredMethod -- existence checked at runtime.
+				$errors = $skin->get_errors();
+				if ( $errors instanceof WP_Error && $errors->has_errors() ) {
+					return $errors;
+				}
 			}
 			return new WP_Error( 'pcg_rollback_install_failed', 'Plugin_Upgrader::install() returned false.' );
 		}

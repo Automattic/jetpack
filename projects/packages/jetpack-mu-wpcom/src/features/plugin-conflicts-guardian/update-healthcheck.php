@@ -87,6 +87,19 @@ function pcg_healthcheck_probe_and_maybe_rollback( $plugin_file ) {
 		return;
 	}
 
+	// Read the just-installed (possibly broken) plugin headers so the
+	// admin notice can name the plugin and the version we tried to
+	// upgrade to, instead of the raw plugin_file path.
+	if ( ! function_exists( 'get_plugin_data' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+	$new_data    = get_plugin_data( $abs, false, false );
+	$plugin_name = (string) ( $new_data['Name'] ?? '' );
+	if ( '' === $plugin_name ) {
+		$plugin_name = $plugin_file;
+	}
+	$new_version = (string) ( $new_data['Version'] ?? '' );
+
 	$tester = new PCG_Load_Tester();
 	$result = $tester->test( $abs );
 	$status = (string) ( $result['status'] ?? '' );
@@ -104,7 +117,7 @@ function pcg_healthcheck_probe_and_maybe_rollback( $plugin_file ) {
 	}
 
 	$rollback = PCG_Rollback::to_snapshot( $snapshot );
-	pcg_healthcheck_stash_notice( $plugin_file, $result, $rollback );
+	pcg_healthcheck_stash_notice( $plugin_file, $result, $rollback, $plugin_name, $new_version, (string) ( $snapshot['version'] ?? '' ) );
 
 	/**
 	 * Fires after a post-update probe fails and rollback has been attempted.
@@ -134,20 +147,26 @@ function pcg_healthcheck_is_plugin_update( $hook_extra ) {
  * outcome, keyed by the current user id so concurrent updates don't
  * clobber each other's notices.
  *
- * @param string $plugin_file Basename relative to WP_PLUGIN_DIR.
- * @param array  $probe       Probe result from PCG_Load_Tester::test().
- * @param array  $rollback    Result from PCG_Rollback::to_snapshot().
+ * @param string $plugin_file     Basename relative to WP_PLUGIN_DIR.
+ * @param array  $probe           Probe result from PCG_Load_Tester::test().
+ * @param array  $rollback        Result from PCG_Rollback::to_snapshot().
+ * @param string $plugin_name     Human-readable plugin name (Plugin Name header).
+ * @param string $new_version     Version we tried to upgrade to (Version header on the new files).
+ * @param string $previous_version Version recorded by the snapshot (rollback target).
  * @return void
  */
-function pcg_healthcheck_stash_notice( $plugin_file, $probe, $rollback ) {
+function pcg_healthcheck_stash_notice( $plugin_file, $probe, $rollback, $plugin_name = '', $new_version = '', $previous_version = '' ) {
 	$key      = 'pcg_healthcheck_notice_' . get_current_user_id();
 	$existing = get_transient( $key );
 	if ( ! is_array( $existing ) ) {
 		$existing = array();
 	}
 	$existing[ $plugin_file ] = array(
-		'reason'   => pcg_guard_format_block_reason( $probe ),
-		'rollback' => $rollback,
+		'reason'           => pcg_guard_format_block_reason( $probe ),
+		'rollback'         => $rollback,
+		'plugin_name'      => '' !== $plugin_name ? $plugin_name : $plugin_file,
+		'new_version'      => $new_version,
+		'previous_version' => $previous_version,
 	);
 	set_transient( $key, $existing, 10 * MINUTE_IN_SECONDS );
 }
@@ -168,9 +187,21 @@ function pcg_healthcheck_render_notice() {
 	<div class="notice notice-error">
 		<p><strong><?php esc_html_e( 'WordPress.com detected a fatal after a plugin update and attempted to restore the previous version:', 'jetpack-mu-wpcom' ); ?></strong></p>
 		<ul style="list-style:disc;padding-inline-start:24px;">
-			<?php foreach ( $messages as $plugin => $info ) : ?>
+			<?php
+			foreach ( $messages as $plugin => $info ) :
+				$name        = (string) ( $info['plugin_name'] ?? $plugin );
+				$new_version = (string) ( $info['new_version'] ?? '' );
+				$headline    = '' !== $new_version
+					? sprintf(
+						/* translators: 1: plugin name, 2: version we attempted to upgrade to. */
+						__( '%1$s (update to %2$s)', 'jetpack-mu-wpcom' ),
+						$name,
+						$new_version
+					)
+					: $name;
+				?>
 				<li>
-					<code><?php echo esc_html( (string) $plugin ); ?></code> — <?php echo esc_html( (string) $info['reason'] ); ?>
+					<strong><?php echo esc_html( $headline ); ?></strong> — <?php echo esc_html( (string) $info['reason'] ); ?>
 					<br />
 					<em><?php echo esc_html( pcg_healthcheck_describe_rollback( $info['rollback'] ) ); ?></em>
 				</li>

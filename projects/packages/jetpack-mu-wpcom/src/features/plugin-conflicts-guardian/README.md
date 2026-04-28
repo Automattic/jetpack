@@ -91,7 +91,7 @@ Why not the load probe at this stage: during an *update* the active version is a
 
 Gated on `pcg_guard_updates`. Runs *after* files are swapped, in a fresh HTTP request — so the "Cannot redeclare" problem doesn't apply.
 
-1. `upgrader_pre_install` — `PCG_Snapshot::capture()` reads the current plugin's `Version` and `is_plugin_active()`, stashes them in a transient keyed by the plugin basename, **and copies the live plugin files to `wp-content/upgrade/pcg-backups/<unique>/<asset>`** so we can restore offline without re-downloading.
+1. `upgrader_pre_install` — `PCG_Snapshot::capture()` reads the current plugin's `Version` and `is_plugin_active()`, stashes them in a transient keyed by the plugin basename, **and copies the live plugin files to `<get_temp_dir()>/pcg-backups/<unique>/<asset>`** (override via the `pcg_backup_root` filter) so we can restore offline without re-downloading.
 2. Core extracts + copies the new files (the original copy is still safely tucked away under `pcg-backups/`).
 3. `upgrader_process_complete` (priority 99) — for each plugin in `hook_extra['plugins']`, `update-healthcheck.php` consumes the snapshot. If `was_active` was true, it runs `PCG_Load_Tester::test()` against the plugin's main file (same HTTP probes the activation guard uses).
 4. On `ok`, the backup is deleted and we're done.
