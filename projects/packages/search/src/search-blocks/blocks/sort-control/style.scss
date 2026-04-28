@@ -57,6 +57,11 @@
 	.jetpack-search-sort-control__radio-item {
 		display: flex;
 		align-items: center;
+		// Anchor the absolutely-positioned visually-hidden radio to its own
+		// item rather than letting it climb to the nearest positioned
+		// ancestor. No visible effect (the input is 1px clipped) — just
+		// makes the containment intent explicit.
+		position: relative;
 		font-size: 0.9rem;
 
 		input[type="radio"] {
@@ -88,14 +93,17 @@
 			outline-offset: 2px;
 		}
 
-		// Bullet separator between options. Decorative — CSS pseudo-content
-		// is ignored by screen readers, and the fieldset/legend already
-		// announces the group.
+		// Bullet separator between options. Decorative — the empty
+		// alt-text in the `content` value (`"•" / ""`) opts the glyph out
+		// of the assistive-tech accessible name, since some screen-reader
+		// configurations do read CSS-generated content otherwise. The
+		// fieldset/legend already announces the group, so an extra
+		// "bullet" announcement would be noise.
 		&:not(:last-child)::after {
-			content: "•";
-			margin: 0 0.5rem;
+			content: "•" / "";
+			margin-block: 0;
+			margin-inline: 0.5rem;
 			opacity: 0.5;
-			font-weight: 300;
 		}
 	}
 }
