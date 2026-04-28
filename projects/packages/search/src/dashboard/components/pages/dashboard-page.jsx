@@ -9,7 +9,7 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
-import BehaviorTab from 'components/behavior-tab';
+import AiAnswersTab from 'components/ai-answers-tab';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -200,7 +200,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						) }
 					</>
 				) }
-				{ activeTab === 'ai-answers' && <BehaviorTab /> }
+				{ activeTab === 'ai-answers' && <AiAnswersTab /> }
 			</AdminPage>
 		</div>
 	);
