@@ -452,7 +452,7 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 			}
 
-			return $new_password;
+			return true;
 
 		} // if wpid
 

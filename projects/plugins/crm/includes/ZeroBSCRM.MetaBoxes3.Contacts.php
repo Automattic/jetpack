@@ -1710,32 +1710,21 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 						dataType: "json"
 					});
 					i.done(function(e) {
-						//console.log(e);
-						if(typeof e.success != "undefined"){
+						if ( e && e.success ) {
 
-							var newPassword =  '<?php zeroBSCRM_slashOut( esc_html__( 'Unknown', 'zero-bs-crm' ) ); ?>';
-							if (typeof e.pw != "undefined") newPassword = e.pw;
+							swal(
+								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset', 'zero-bs-crm' ) ); ?>',
+								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal password has been reset for this contact, and they have been emailed with the new password.', 'zero-bs-crm' ) ); ?>',
+								'info'
+							);
 
-							if ( newPassword !== false ){
+						} else {
 
-								// swal confirm
-								swal(
-									'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset', 'zero-bs-crm' ) ); ?>',
-									'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal password has been reset for this contact, and they have been emailed with the new password. The new password is:', 'zero-bs-crm' ) ); ?><br /><span class="ui label">' + newPassword + '</span>',
-									'info'
-								);
-
-							} else {
-
-								// swal confirm
-								swal(
-									'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset Error', 'zero-bs-crm' ) ); ?>',
-									'<?php zeroBSCRM_slashOut( esc_html__( 'Error: Client Portal password has not been reset for this contact.', 'zero-bs-crm' ) ); ?>',
-									'info'
-								);
-
-							}
-
+							swal(
+								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset Error', 'zero-bs-crm' ) ); ?>',
+								'<?php zeroBSCRM_slashOut( esc_html__( 'Error: Client Portal password has not been reset for this contact.', 'zero-bs-crm' ) ); ?>',
+								'info'
+							);
 
 						}
 					}), i.fail(function(e) {

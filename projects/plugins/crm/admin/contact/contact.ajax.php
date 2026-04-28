@@ -163,15 +163,9 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 					break;
 				// Reset client portal password
 				case 'resetpw':
-					// fire dal disable
-					$newpw = zeroBSCRM_customerPortalPWReset( $contact_id );
-
-					// send success
+					$success = zeroBSCRM_customerPortalPWReset( $contact_id ) ? 1 : 0;
 					wp_send_json(
-						array(
-							'success' => 1,
-							'pw'      => $newpw,
-						),
+						array( 'success' => $success ),
 						200,
 						JSON_UNESCAPED_SLASHES
 					);
