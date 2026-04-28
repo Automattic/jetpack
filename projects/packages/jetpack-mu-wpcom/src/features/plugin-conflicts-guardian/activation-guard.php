@@ -93,7 +93,10 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 	$pcg_load_tester = new PCG_Load_Tester();
 
 	foreach ( $plugins as $plugin ) {
-		$path = WP_PLUGIN_DIR . '/' . ltrim( plugin_basename( $plugin ), '/' );
+		if ( is_plugin_active( $plugin ) ) {
+			continue;
+		}
+		$path = WP_PLUGIN_DIR . '/' . ltrim( $plugin, '/' );
 		if ( ! is_file( $path ) ) {
 			continue;
 		}
