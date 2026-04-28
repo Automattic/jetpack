@@ -20,7 +20,7 @@ Ships dark: gated behind `apply_filters( 'pcg_guard_activation', false )`. Set t
 2. `activation-guard.php` intercepts on `load-plugins.php` / `load-update.php` priority 0, verifies the nonce, and for each plugin calls `PCG_Load_Tester::test()`.
 3. The load tester stashes the plugin path in a short-lived transient keyed by a random token, then `wp_remote_get`s `?pcg_probe=1&token=…` on this same site.
 4. `probe-endpoint.php` runs synchronously at require time (already inside `plugins_loaded` priority 10 via `load_features()`), validates + consumes the token, defines `WP_SANDBOX_SCRAPING` so core's fatal handler steps aside, arms a shutdown handler, and `require`s the plugin's main file.
-5. Two probes fire in parallel via `\WpOrg\Requests\Requests::request_multiple()`: one against `home_url('/')` (front-end) and one against `admin_url('index.php')` with `pcg_admin=1` and the admin's WP auth cookies forwarded so `auth_redirect()` clears. The admin probe defers its verdict to `admin_init` priority `PHP_INT_MAX`; the front-end probe emits on `wp_loaded`. The front-end fatal wins; otherwise the admin verdict is returned. Fatals and throwables become `{status: fatal|throwable, …}` with HTTP 200; a 302 on the admin probe (cookies missing/expired) is treated as inconclusive ok so transport quirks don't block activation.
+5. Two probes fire in parallel via `\WpOrg\Requests\Requests::request_multiple()`: one against `home_url('/')` (front-end) and one against `admin_url('index.php')` with `pcg_admin=1` and the admin's WP auth cookies forwarded so `auth_redirect()` clears. The admin probe defers its verdict to `admin_init` priority `PHP_INT_MAX`; the front-end probe emits on `wp_loaded`. A captured `fatal` / `throwable` from either probe wins; otherwise the front-end verdict is returned. A 302 on the admin probe (cookies missing/expired) becomes a distinct `ok-inconclusive` status that's still treated as a non-blocking pass — that way transport quirks don't break activation, but the signal can be measured separately from a clean `ok`.
 6. If any plugin failed, the guard stashes reasons in a per-user transient and redirects to `plugins.php?pcg_blocked=1`; the admin notice reads the transient and renders it.
 
 ```
@@ -73,6 +73,10 @@ Atomic and some managed hosts sandbox web-PHP so `proc_open` can't find/exec a C
 
 ## Update flow (syntax-only)
 
-`update-guard.php` hooks `upgrader_source_selection` after WP extracts the install/update zip and before it copies files over the live plugin. It tokenizes every `.php` in the source with `token_get_all(…, TOKEN_PARSE)` and returns a `WP_Error` listing any parse errors, which aborts the operation without touching the live files.
+`update-guard.php` hooks `upgrader_source_selection` after WP extracts the install/update zip and before it copies files over the live plugin. It tokenizes every `.php` in the source with `token_get_all(…, TOKEN_PARSE)`. If any file fails to parse, it returns a `WP_Error` whose message names the first parse error and whose `$data['errors']` array carries the full list, aborting the operation without touching the live files.
 
-Why not the load probe: during an *update* the active version is already loaded in the probe request, so `require`-ing the new main file would always fatal with "Cannot redeclare class/function". Parse errors are the high-frequency release failure mode; runtime errors still trip on the next Activate click.
+The scan has an 8-second wall-clock budget (`PCG_UPDATE_GUARD_BUDGET_SECONDS`). Big packages (WooCommerce, Yoast, etc.) can have thousands of PHP files and we'd rather not blow the cron / request timeout. On bail with no errors found we don't fail-closed — we let the install/update through and `error_log` the slug + action so we can see how often this fires and on which packages.
+
+Loaded unconditionally (not gated on `is_admin()`) so cron auto-updates also hit the gate.
+
+Why not the load probe at this stage: during an *update* the active version is already loaded in the probe request, so `require`-ing the new main file would always fatal with "Cannot redeclare class/function". Parse errors are the high-frequency release failure mode; runtime errors still trip on the next Activate click.
