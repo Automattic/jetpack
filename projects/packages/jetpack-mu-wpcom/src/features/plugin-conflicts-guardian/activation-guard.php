@@ -62,10 +62,13 @@ function pcg_guard_maybe_block_activation() {
 		$plugins_to_check[] = $plugin;
 	}
 
-	// Verify the nonce up front so we don't run probes for a request core will reject anyway.
-	if ( ! isset( $_REQUEST['_wpnonce'] ) || false === check_admin_referer( $nonce_action ) ) {
+	// Verify the nonce up front so we don't run probes for a request core
+	// will reject anyway. check_admin_referer() die()s on a bad nonce, so
+	// we don't need to check its return value.
+	if ( ! isset( $_REQUEST['_wpnonce'] ) ) {
 		return;
 	}
+	check_admin_referer( $nonce_action );
 
 	$blocked = pcg_guard_evaluate_plugins( $plugins_to_check );
 	if ( empty( $blocked ) ) {

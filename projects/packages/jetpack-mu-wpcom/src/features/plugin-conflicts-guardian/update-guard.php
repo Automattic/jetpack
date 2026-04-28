@@ -9,6 +9,14 @@
 add_filter( 'upgrader_source_selection', 'pcg_update_guard_check', 99, 4 );
 
 /**
+ * Wall-clock budget (seconds) for scanning a package for parse errors.
+ * Big packages (looking at you, WooCommerce) can have thousands of PHP
+ * files; we'd rather bail out cleanly than blow the cron / request
+ * timeout. Filterable for tests and ops overrides.
+ */
+const PCG_UPDATE_GUARD_BUDGET_SECONDS = 8.0;
+
+/**
  * Filter callback. Returns a WP_Error (aborts the install/update) when
  * the extracted source contains any PHP parse errors.
  *
@@ -33,48 +41,69 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 		return $source;
 	}
 
-	$errors = pcg_update_guard_scan_for_parse_errors( (string) $source );
-	if ( empty( $errors ) ) {
+	$scan = pcg_update_guard_scan_for_parse_errors( (string) $source );
+	if ( empty( $scan['errors'] ) && ! $scan['budget_exceeded'] ) {
 		return $source;
 	}
 
-	$label = 'update' === $action ? 'update' : 'install';
-	$lines = array();
-	foreach ( array_slice( $errors, 0, 5 ) as $err ) {
-		$lines[] = sprintf(
-			'%s (line %d): %s',
-			basename( $err['file'] ),
-			$err['line'],
-			$err['message']
+	if ( empty( $scan['errors'] ) ) {
+		// Nothing captured but we ran out of budget on a big package —
+		// bail out of *gating* (don't fail-closed on a slow scan), but
+		// log so we can see how often this fires for which packages.
+		$slug = $hook_extra['plugin'] ?? ( $hook_extra['theme'] ?? '' );
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+				'PCG update guard: scan exceeded %.1fs budget (%d files visited) for %s; allowing %s.',
+				PCG_UPDATE_GUARD_BUDGET_SECONDS,
+				$scan['files_scanned'],
+				(string) $slug,
+				$action
+			)
 		);
+		return $source;
 	}
-	if ( count( $errors ) > 5 ) {
-		$lines[] = sprintf( '… and %d more.', count( $errors ) - 5 );
-	}
+
+	$label   = 'update' === $action ? __( 'update', 'jetpack-mu-wpcom' ) : __( 'install', 'jetpack-mu-wpcom' );
+	$first   = $scan['errors'][0];
+	$message = sprintf(
+		/* translators: 1: install or update, 2: file name, 3: line number, 4: PHP parse-error message. */
+		__( 'WordPress.com blocked the %1$s: the package contains a PHP parse error in %2$s (line %3$d): %4$s', 'jetpack-mu-wpcom' ),
+		$label,
+		basename( $first['file'] ),
+		(int) $first['line'],
+		(string) $first['message']
+	);
 
 	return new WP_Error(
 		'pcg_update_parse_error',
-		sprintf(
-			"WordPress.com blocked the %s: the package contains PHP parse error(s).\n- %s",
-			$label,
-			implode( "\n- ", $lines )
+		$message,
+		array(
+			'errors'          => $scan['errors'],
+			'files_scanned'   => $scan['files_scanned'],
+			'budget_exceeded' => $scan['budget_exceeded'],
 		)
 	);
 }
 
 /**
  * Tokenize every `.php` under $dir with TOKEN_PARSE and return the failures.
+ * Bails out (returns what it has) once the wall-clock budget is exceeded.
  *
  * @param string $dir Extracted package directory.
- * @return array<int,array{file:string,line:int,message:string}>
+ * @return array{errors:array<int,array{file:string,line:int,message:string}>,files_scanned:int,budget_exceeded:bool}
  */
 function pcg_update_guard_scan_for_parse_errors( $dir ) {
+	$result = array(
+		'errors'          => array(),
+		'files_scanned'   => 0,
+		'budget_exceeded' => false,
+	);
 	if ( '' === $dir || ! is_dir( $dir ) ) {
-		return array();
+		return $result;
 	}
 
-	$errors = array();
-	$iter   = new RecursiveIteratorIterator(
+	$started_at = microtime( true );
+	$iter       = new RecursiveIteratorIterator(
 		new RecursiveDirectoryIterator( $dir, FilesystemIterator::SKIP_DOTS )
 	);
 	foreach ( $iter as $path => $file ) {
@@ -84,6 +113,11 @@ function pcg_update_guard_scan_for_parse_errors( $dir ) {
 		if ( ! is_readable( (string) $path ) ) {
 			continue;
 		}
+		if ( ( microtime( true ) - $started_at ) > PCG_UPDATE_GUARD_BUDGET_SECONDS ) {
+			$result['budget_exceeded'] = true;
+			return $result;
+		}
+		++$result['files_scanned'];
 		$code = file_get_contents( (string) $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local read inside a scan loop; WP_Filesystem is overkill here.
 		if ( false === $code ) {
 			continue;
@@ -92,7 +126,7 @@ function pcg_update_guard_scan_for_parse_errors( $dir ) {
 			// @phan-suppress-next-line PhanPluginUseReturnValueInternalKnown -- called only for the ParseError it throws under TOKEN_PARSE; tokens themselves are unused.
 			token_get_all( $code, TOKEN_PARSE );
 		} catch ( \ParseError $e ) {
-			$errors[] = array(
+			$result['errors'][] = array(
 				'file'    => (string) $path,
 				'line'    => $e->getLine(),
 				'message' => $e->getMessage(),
@@ -101,5 +135,5 @@ function pcg_update_guard_scan_for_parse_errors( $dir ) {
 			unset( $e );
 		}
 	}
-	return $errors;
+	return $result;
 }

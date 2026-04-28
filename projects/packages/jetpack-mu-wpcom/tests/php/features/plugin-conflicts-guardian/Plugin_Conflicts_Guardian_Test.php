@@ -34,6 +34,12 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			$this->rrmdir( $this->tmp_dir );
 			$this->tmp_dir = null;
 		}
+		// activation-guard.php registers these unconditionally on require_once
+		// at the top of the file; tear them down so leakage between tests
+		// doesn't fire wp_safe_redirect / unwanted notices.
+		remove_action( 'load-plugins.php', 'pcg_guard_maybe_block_activation', 0 );
+		remove_action( 'load-update.php', 'pcg_guard_maybe_block_activation', 0 );
+		remove_action( 'admin_notices', 'pcg_guard_render_block_notice' );
 		remove_all_filters( 'pcg_guard_activation' );
 		parent::tear_down();
 	}
@@ -162,7 +168,10 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		file_put_contents( $dir . '/b.php', "<?php\nclass Pcg_Valid_B {}\n" );
 		file_put_contents( $dir . '/README.txt', "Not PHP.\n" );
 
-		$this->assertSame( array(), pcg_update_guard_scan_for_parse_errors( $dir ) );
+		$result = pcg_update_guard_scan_for_parse_errors( $dir );
+		$this->assertSame( array(), $result['errors'] );
+		$this->assertFalse( $result['budget_exceeded'] );
+		$this->assertSame( 2, $result['files_scanned'] );
 	}
 
 	/**
@@ -173,20 +182,26 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		file_put_contents( $dir . '/good.php', "<?php\nreturn 1;\n" );
 		file_put_contents( $dir . '/bad.php', "<?php\nfunction broken( {\n" );
 
-		$errors = pcg_update_guard_scan_for_parse_errors( $dir );
+		$result = pcg_update_guard_scan_for_parse_errors( $dir );
 
-		$this->assertCount( 1, $errors );
-		$this->assertStringEndsWith( '/bad.php', $errors[0]['file'] );
-		$this->assertIsInt( $errors[0]['line'] );
-		$this->assertNotEmpty( $errors[0]['message'] );
+		$this->assertCount( 1, $result['errors'] );
+		$this->assertStringEndsWith( '/bad.php', $result['errors'][0]['file'] );
+		$this->assertIsInt( $result['errors'][0]['line'] );
+		$this->assertNotEmpty( $result['errors'][0]['message'] );
+		$this->assertFalse( $result['budget_exceeded'] );
 	}
 
 	/**
-	 * A missing or empty directory returns an empty array rather than failing.
+	 * A missing or empty directory returns an empty result rather than failing.
 	 */
 	public function test_parse_error_scan_handles_missing_dir() {
-		$this->assertSame( array(), pcg_update_guard_scan_for_parse_errors( '' ) );
-		$this->assertSame( array(), pcg_update_guard_scan_for_parse_errors( '/no/such/path/pcg-does-not-exist' ) );
+		$result = pcg_update_guard_scan_for_parse_errors( '' );
+		$this->assertSame( array(), $result['errors'] );
+		$this->assertFalse( $result['budget_exceeded'] );
+
+		$result = pcg_update_guard_scan_for_parse_errors( '/no/such/path/pcg-does-not-exist' );
+		$this->assertSame( array(), $result['errors'] );
+		$this->assertFalse( $result['budget_exceeded'] );
 	}
 
 	/**
