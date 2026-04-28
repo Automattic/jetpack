@@ -22,6 +22,9 @@ let linkPopoverCloseHandler = null;
 // menu item when the filter text changes, not when the user is navigating.
 let prevSlashFilter = null;
 
+// Prevent enterKeyboardNav from stacking multiple mousemove listeners.
+let keyboardNavListenerActive = false;
+
 /**
  * Save the current text selection so it can be restored after a modal closes.
  */
@@ -208,9 +211,20 @@ function enterKeyboardNav() {
 	const menu = document.querySelector( '.bw-slash-menu' );
 	if ( ! menu ) return;
 	menu.classList.add( 'bw-slash-menu--keyboard' );
-	menu.addEventListener( 'mousemove', () => menu.classList.remove( 'bw-slash-menu--keyboard' ), {
-		once: true,
-	} );
+	if ( ! keyboardNavListenerActive ) {
+		keyboardNavListenerActive = true;
+		menu.addEventListener(
+			'mousemove',
+			() => {
+				keyboardNavListenerActive = false;
+				menu.classList.remove( 'bw-slash-menu--keyboard' );
+				menu
+					.querySelectorAll( '.bw-slash-item-active' )
+					.forEach( el => el.classList.remove( 'bw-slash-item-active' ) );
+			},
+			{ once: true }
+		);
+	}
 }
 
 /**
@@ -676,6 +690,7 @@ const { state } = store( 'wpcom-write', {
 			if ( state.showSlashMenu ) {
 				if ( event.key === 'Escape' ) {
 					event.preventDefault();
+					prevSlashFilter = null;
 					state.showSlashMenu = false;
 					return;
 				}
@@ -709,7 +724,7 @@ const { state } = store( 'wpcom-write', {
 
 				if ( event.key === 'Enter' ) {
 					event.preventDefault();
-					const target = active || visible[ 0 ];
+					const target = active || document.querySelector( '.bw-slash-item:hover' ) || visible[ 0 ];
 					if ( target ) {
 						// Map menu items to actions by their label text.
 						const label = target.querySelector( 'strong' )?.textContent?.toLowerCase();

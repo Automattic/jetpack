@@ -596,7 +596,7 @@
 }
 
 /* Suppress hover highlight during keyboard navigation. */
-.bw-slash-menu--keyboard .bw-slash-item:hover {
+.bw-slash-menu--keyboard .bw-slash-item:not(.bw-slash-item-active):hover {
 	background: #fff;
 }
 
