@@ -287,7 +287,7 @@ class SSO {
 		// Always add the jetpack-sso class so that we can add SSO specific styling even when the SSO form isn't being displayed.
 		$classes[] = 'jetpack-sso';
 
-		if ( ! ( new Status() )->in_safe_mode() && 'entered_recovery_mode' !== $action ) {
+		if ( ! ( new Status() )->in_safe_mode() ) {
 			/**
 			 * Should we show the SSO login form?
 			 *
@@ -297,7 +297,14 @@ class SSO {
 			 * The SSO module uses the method to display the default login form if we cannot find a user to log in via SSO.
 			 * But, the method could be filtered by a site admin to always show the default login form if that is preferred.
 			 */
-			if ( empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$user_chose_sso_via_toggle = isset( $_GET['jetpack-sso-show-default-form'] ) && '0' === $_GET['jetpack-sso-show-default-form']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+			if ( 'entered_recovery_mode' === $action ) {
+				// On the recovery-mode landing the wp-admin password form is the recovery fallback. Only show the SSO panel when the user explicitly opts in via the toggle, and honor that opt-in regardless of show_sso_login() so the no-JS fallback always works.
+				if ( $user_chose_sso_via_toggle ) {
+					$classes[] = 'jetpack-sso-form-display';
+				}
+			} elseif ( empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$classes[] = 'jetpack-sso-form-display';
 			}
 		}
