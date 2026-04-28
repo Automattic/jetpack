@@ -198,9 +198,21 @@
 }
 
 .bw-recovery-btn {
-	padding: 4px 14px;
+	height: 32px;
+	padding: 4px 12px;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
 	font-size: 13px;
-	border-radius: 16px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.bw-recovery-btn:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
 }
 
 .bw-recovery-dismiss {
