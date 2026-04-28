@@ -22,7 +22,13 @@ function pcg_guard_maybe_block_activation() {
 		return;
 	}
 
-	$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
+	// Bulk-action submissions from the bottom dropdown send `action=-1`
+	// and the real action in `action2`, so accept either.
+	$action  = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
+	$action2 = isset( $_REQUEST['action2'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) ) : '';
+	if ( '' === $action || '-1' === $action ) {
+		$action = $action2;
+	}
 	if ( ! in_array( $action, array( 'activate', 'activate-plugin', 'activate-selected' ), true ) ) {
 		return;
 	}

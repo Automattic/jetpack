@@ -65,11 +65,37 @@ class PCG_Load_Tester {
 		delete_transient( self::transient_key( $admin['token'] ) );
 
 		$front_result = $this->parse_response( $responses['front'], $plugin_main, false );
-		if ( ! $this->is_ok( $front_result ) ) {
+		$admin_result = $this->parse_response( $responses['admin'], $plugin_main, true );
+
+		// Captured fatals win over inconclusive transport errors: an
+		// `error` from the front-end probe shouldn't shadow a real
+		// `fatal` from the admin probe. Front-end fatal still beats
+		// admin fatal (we hit the front-end path more often in practice).
+		if ( $this->is_block( $front_result ) ) {
 			return $front_result;
 		}
+		if ( $this->is_block( $admin_result ) ) {
+			return $admin_result;
+		}
 
-		return $this->parse_response( $responses['admin'], $plugin_main, true );
+		// Neither captured a fatal — return the admin verdict if it's
+		// `ok` (richer diagnostic), otherwise fall back to whichever
+		// non-blocking response we have.
+		return $this->is_ok( $admin_result ) ? $admin_result : $front_result;
+	}
+
+	/**
+	 * Whether a probe verdict represents a captured fatal that should
+	 * block the activation. We deliberately only block on `fatal` /
+	 * `throwable` — a probe-side `error` (transport failure, missing
+	 * file, etc.) is inconclusive and shouldn't block a working plugin.
+	 *
+	 * @param array $result Probe verdict.
+	 * @return bool
+	 */
+	protected function is_block( $result ) {
+		$status = is_array( $result ) ? (string) ( $result['status'] ?? '' ) : '';
+		return 'fatal' === $status || 'throwable' === $status;
 	}
 
 	/**
