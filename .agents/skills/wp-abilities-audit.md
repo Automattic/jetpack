@@ -74,7 +74,7 @@ post-type-backed base).
 
 Read `wp-abilities-audit/references/capability-gate-tracing.md` now — it documents the two
 common mechanisms (direct `check_permission()` vs post-type-backed
-`wc_rest_check_post_permissions()`) and how to represent each in the schema.
+permission helpers in core or plugin code) and how to represent each in the schema.
 Note explicitly whether read and write gates differ: compound gates are
 represented as a `{read, write}` object, not a single string.
 
@@ -121,9 +121,12 @@ document structure must match `wp-abilities-audit/references/audit-schema.md` ex
 
 **Reference shapes** of audit docs:
 
-- WooPayments-style — shared-API-client pattern, single capability gate.
-- WooCommerce Subscriptions-style — post-type-backed capabilities,
-  inherited controllers, compound `{read, write}` gate.
+- Single-cap plugin with a shared API client — one capability gate for the
+  whole plugin, every controller takes the shared client as a constructor
+  argument.
+- Post-type-backed plugin — compound `{read, write}` capabilities derived
+  from a CPT's `capability_type` map, controllers often inherited from
+  WordPress core REST base classes.
 
 See `wp-abilities-audit/references/audit-schema.md` for the field-by-field
 schema and the legal shapes for `capability_gate`, `proposed_abilities`,
@@ -152,8 +155,9 @@ downstream workflows a deterministic starting point.
 - **Plugin has no REST controllers** — audit doesn't apply. Consider
   hooks/filters-based abilities (out of scope for this skill's current
   version) or skip abilities adoption for this plugin.
-- **Plugin inherits controllers from another repo** (common for WooCommerce
-  extensions extending `WC_REST_Orders_Controller` etc.) — capture with
+- **Plugin inherits controllers from another repo** (common when extending
+  WordPress core REST base classes or another plugin's controllers) —
+  capture with
   `backing.inherited_from: "<parent FQCN>"`. Line-number fields may be
   `null` per the schema.
 - **Compound capability gate (distinct read/write caps)** — use the

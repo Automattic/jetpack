@@ -2,7 +2,7 @@
 
 When you adopt the Abilities API inside an existing plugin, the plugin's architecture dictates HOW your execute callbacks call the existing business logic. Two patterns cover most real-world WordPress plugins. Pick one up front — the choice ripples through your delegate helper, your tests, and your error codes.
 
-## Pattern A — Shared-API-client ("Woo-family")
+## Pattern A — Shared-API-client
 
 Common in plugins that talk to a remote service (Stripe, a first-party SaaS, an upstream API). The plugin bootstraps a single API client, exposes it via a static accessor on a main plugin class, and every REST controller takes that client as a constructor argument.
 
@@ -106,9 +106,9 @@ class Abilities_Registrar {
 - **The "not initialized" error path is reachable and must be covered.** One unit test should stub the accessor to return null and assert the ability returns `<plugin>_not_initialized`. This is a common failure during partial bootstraps (WP-CLI with restricted loading, test harnesses, admin pages with conditional autoloading).
 - **Integration tests need real or faked HTTP.** The backing controller will hit the upstream unless the API client is mocked, so integration harnesses typically route through a fake transport.
 
-Worked example: WooPayments' `Abilities_Registrar` uses this pattern. Controllers extend `WC_Payments_REST_Controller`, whose constructor takes a `WC_Payments_API_Client`; the shared client comes from `WC_Payments::get_payments_api_client()`.
+Worked example: a plugin where every REST controller extends a shared `<Plugin>_REST_Controller` base whose constructor takes a `<Plugin>_API_Client`. The shared client is exposed via a static accessor on the main plugin class (`<Plugin>::get_api_client()`). The Abilities_Registrar fetches the client once per execute call and passes it into a freshly-constructed controller.
 
-## Pattern B — Zero-arg controllers ("Jetpack-family")
+## Pattern B — Zero-arg controllers
 
 Common in plugins/packages that delegate primarily to WordPress core mechanisms (custom post types, options, meta) and don't maintain a single shared API client. Controllers instantiate cleanly without a dependency graph.
 

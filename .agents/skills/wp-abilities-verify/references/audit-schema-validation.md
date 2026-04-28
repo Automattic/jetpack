@@ -48,7 +48,7 @@ Every one of these must be present and non-empty. Missing → FAIL.
 
 | Field | Type | Notes |
 |---|---|---|
-| `plugin` | string | Plugin slug, e.g. `woopayments`. |
+| `plugin` | string | Plugin slug, e.g. `jetpack-forms`. |
 | `repo` | string | `Owner/Repository` form. |
 | `plugin_family` | string | From `wp-project-triage`. Free-form. Cross-check against the CWD's triage output when available. |
 | `branch_audited` | string | Git branch. |
@@ -62,7 +62,7 @@ Every one of these must be present and non-empty. Missing → FAIL.
 
 Two legal shapes; accept both:
 
-1. Single string — `capability_gate: manage_woocommerce` (single-cap plugin).
+1. Single string — `capability_gate: manage_options` (single-cap plugin).
 2. Object — `capability_gate: { read: <cap>, write: <cap>, confirmed: bool, verified_at: string }`
    (post-type-backed or otherwise compound gate).
 
@@ -186,7 +186,7 @@ validation" section:
 | `capability_gate` shape | OK | string (single-cap) |
 | Per-ability fields | WARN | 1 ability has `backing: null` (intentional) |
 | `reference_ability` uniqueness | OK | 1 ability marked |
-| `plugin_family` triage cross-check | OK | matches `woo-payments` |
+| `plugin_family` triage cross-check | OK | matches `jetpack` |
 | `surfaced_gaps` consistency | OK | all `backing: null` entries present |
 ```
 

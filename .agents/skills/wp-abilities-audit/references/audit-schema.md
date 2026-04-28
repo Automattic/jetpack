@@ -6,9 +6,9 @@ verify skills consume it and error out on invalid or missing fields.
 
 Two reference shapes the schema below is designed to cover:
 
-- Single-cap plugin with a shared API client (WooPayments-style).
+- Single-cap plugin with a shared API client.
 - Post-type-backed plugin with compound `{read, write}` caps and inherited
-  controllers (WooCommerce Subscriptions-style).
+  controllers.
 
 ## File layout
 
@@ -32,12 +32,12 @@ A `Last updated: YYYY-MM-DD HH:MM` header sits above everything.
 
 | Field | Type | Description |
 |---|---|---|
-| `plugin` | string | Plugin slug (e.g. `woopayments`, `woocommerce-subscriptions`, `jetpack-forms`). |
-| `repo` | string | `Owner/Repository` (e.g. `Automattic/woocommerce-payments`). |
-| `plugin_family` | string | Classification from `wp-project-triage`. REQUIRED. Common values: `woo-payments`, `woo-extension`, `jetpack`, plus any family triage adds over time. Free-form string — downstream consumers treat unknown values as opaque rather than erroring. |
+| `plugin` | string | Plugin slug (e.g. `jetpack-forms`, `jetpack-stats`, `jetpack-subscriptions`). |
+| `repo` | string | `Owner/Repository` (e.g. `Automattic/jetpack`). |
+| `plugin_family` | string | Classification from `wp-project-triage`. REQUIRED. Common values: `jetpack`, `jetpack-package`, plus any family triage adds over time. Free-form string — downstream consumers treat unknown values as opaque rather than erroring. |
 | `branch_audited` | string | Git branch the audit was run against. |
 | `audited_at` | string | ISO date (YYYY-MM-DD). |
-| `auditor` | string | Human auditor name + team (e.g. `Rafael (Gamma)`). |
+| `auditor` | string | Human auditor name + team. |
 | `baseline_abilities` | integer | Count of abilities already registered by the plugin at audit time. Usually 0. |
 | `capability_gate` | string OR object | The capability gate the base controller resolves to. Accept either a single string (single-cap plugins) OR a `{read, write}` object (post-type-backed or otherwise compound gates). See `capability-gate-tracing.md` for the mechanisms. |
 
@@ -46,17 +46,17 @@ A `Last updated: YYYY-MM-DD HH:MM` header sits above everything.
 Two legal shapes, both consumed by downstream skills:
 
 ```yaml
-# Single-cap plugin (e.g. WooPayments — manage_woocommerce uniformly)
-capability_gate: manage_woocommerce  # confirmed at includes/admin/class-wc-payments-rest-controller.php line 64
+# Single-cap plugin (one capability for the whole plugin)
+capability_gate: manage_options  # confirmed at includes/rest/class-<plugin>-rest-controller.php line 64
 ```
 
 ```yaml
-# Compound read/write (e.g. WooCommerce Subscriptions — post-type-backed)
+# Compound read/write (post-type-backed CPT with map_meta_cap)
 capability_gate:
-  read: read_private_shop_orders
-  write: edit_shop_orders
+  read: read_private_<cpt-base>s
+  write: edit_<cpt-base>s
   confirmed: true
-  verified_at: "shop_subscription capability_type='shop_order' → WC core includes/wc-rest-functions.php line 229"
+  verified_at: "<cpt-slug> capability_type='<cpt-base>' → core map_meta_cap()"
 ```
 
 A legacy compound-string form exists in the wild (`"<read_cap> / <write_cap>"`)
@@ -102,14 +102,14 @@ as a warning, not an error:
 | `route_registration_line` | integer OR `null` | Line number of the `register_rest_route(` call, or `null` when inherited from a parent controller that lives outside the plugin repo. |
 | `callback` | string | Controller method name that handles the route. |
 | `callback_line` | integer OR `null` | Line number of the callback method definition, or `null` when inherited. |
-| `inherited_from` | string (optional) | Fully-qualified parent class name when the route and/or callback is inherited (e.g. `WC_REST_Orders_Controller`). Pair with `null` line numbers. Lets downstream skills skip the re-grep step cleanly. |
+| `inherited_from` | string (optional) | Fully-qualified parent class name when the route and/or callback is inherited (e.g. `WP_REST_Posts_Controller`). Pair with `null` line numbers. Lets downstream skills skip the re-grep step cleanly. |
 
 ### `permission` object
 
 | Field | Type | Description |
 |---|---|---|
 | `callback` | string | The method name used as `permission_callback`. |
-| `resolves_to` | string | The `current_user_can()` call(s) it ultimately resolves to. For compound gates, include both (e.g. `"current_user_can('read_private_shop_orders')` for read; `current_user_can('edit_shop_orders')` for write"). |
+| `resolves_to` | string | The `current_user_can()` call(s) it ultimately resolves to. For compound gates, include both (e.g. `"current_user_can('read_private_<cpt-base>s')` for read; `current_user_can('edit_<cpt-base>s')` for write"). |
 | `confirmed` | bool | `true` if verified against source; `false` if inferred. |
 
 ## `excluded_from_mvp` — array
@@ -162,12 +162,12 @@ Last updated: 2026-04-20 14:30
 ```yaml
 plugin: example-plugin
 repo: Owner/example-plugin
-plugin_family: woo-extension
+plugin_family: jetpack
 branch_audited: feat/abilities-example-plugin
 audited_at: 2026-04-20
 auditor: Your Name (Your Team)
 baseline_abilities: 0
-capability_gate: manage_woocommerce  # confirmed at includes/rest-api/class-example-rest-controller.php line 32
+capability_gate: manage_options  # confirmed at includes/rest-api/class-example-rest-controller.php line 32
 
 proposed_abilities:
 
@@ -183,7 +183,7 @@ proposed_abilities:
       callback_line: 52
     permission:
       callback: check_permission
-      resolves_to: "current_user_can('manage_woocommerce')"
+      resolves_to: "current_user_can('manage_options')"
       confirmed: true
     return_type: "WP_REST_Response (wrapping array)"
     effort: S
@@ -205,7 +205,7 @@ proposed_abilities:
       callback_line: 120
     permission:
       callback: check_permission
-      resolves_to: "current_user_can('manage_woocommerce')"
+      resolves_to: "current_user_can('manage_options')"
       confirmed: true
     return_type: "WP_REST_Response (updated item object)"
     effort: M
@@ -235,7 +235,7 @@ surfaced_gaps:
 ### Capability gate is uniform
 Every controller inherits `Example_Base_REST_Controller` and uses
 `check_permission` verbatim as the `permission_callback`. No per-route
-overrides. Safe to treat `manage_woocommerce` as the single gate.
+overrides. Safe to treat `manage_options` as the single gate.
 ````
 
 ## Known limitations

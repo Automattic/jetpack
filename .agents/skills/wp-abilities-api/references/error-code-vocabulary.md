@@ -15,7 +15,7 @@ Without a convention, every plugin invents its own codes and agents can't reason
 
 ## Vocabulary
 
-Substitute `<plugin>` with the plugin's slug in lowercase, underscores only (e.g. `woopayments`, `jetpack_forms`). This matches WordPress error-code conventions. If the plugin already has a house style for error codes (WooPayments uses `woopayments`, not `woo_payments`), mirror that — consistency within a plugin trumps consistency across the vocabulary.
+Substitute `<plugin>` with the plugin's slug in lowercase, underscores only (e.g. `jetpack_forms`, `jetpack_stats`). This matches WordPress error-code conventions. If the plugin already has a house style for error codes — multi-word slugs sometimes normalize to a single-word prefix — mirror that; consistency within a plugin trumps consistency across the vocabulary.
 
 | Code | When to use | Agent behavior |
 |---|---|---|
@@ -75,7 +75,7 @@ If the backing controller talks to a third-party API (Stripe, WPCOM, another Saa
 ## Code naming rules
 
 1. **Lowercase, underscores only.** `<plugin>_missing_order_id`, not `<plugin>-missingOrderId` or `<Plugin>-MissingOrderId`.
-2. **Plugin prefix first.** Multi-word slugs should normalize to a single-word prefix where the plugin already does (e.g. `woopayments` rather than `woo_payments`).
+2. **Plugin prefix first.** Use the plugin's existing slug convention; multi-word slugs sometimes normalize to a single-word prefix in error codes.
 3. **Action second.** Use one of `missing`, `invalid`, `not_initialized`, `<resource>_data_unavailable`.
 4. **Field or resource name last.** `<plugin>_missing_dispute_id`, not `<plugin>_dispute_id_missing`. This matches English phrasing ("a dispute_id is required") and is faster to skim in error logs.
 

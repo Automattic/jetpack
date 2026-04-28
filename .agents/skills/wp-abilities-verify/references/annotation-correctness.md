@@ -238,10 +238,10 @@ Each adversarial check finding gets one row in the run's
 ```markdown
 | Ability | Claim | Result | Evidence |
 |---|---|---|---|
-| woopayments/get-disputes | readonly=true | OK | no write patterns detected |
-| woopayments/get-transactions | readonly=true | FAIL | `src/Abilities/Transactions.php:142`: `$wpdb->update( $table, ... )` |
-| woopayments/submit-dispute-evidence | destructive=false | OK | no destructive patterns detected |
-| woopayments/submit-dispute-evidence | idempotent=false | N/A | not claimed idempotent |
+| jetpack-forms/get-responses | readonly=true | OK | no write patterns detected |
+| jetpack-forms/get-status-counts | readonly=true | FAIL | `src/abilities/class-forms-abilities.php:142`: `$wpdb->update( $table, ... )` |
+| jetpack-forms/update-response | destructive=false | OK | no destructive patterns detected |
+| jetpack-forms/update-response | idempotent=false | N/A | not claimed idempotent |
 ```
 
 The evidence column MUST cite the file + line number of the offending

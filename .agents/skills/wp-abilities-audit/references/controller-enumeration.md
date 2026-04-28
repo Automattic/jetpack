@@ -12,7 +12,7 @@ together cover every layout seen in the wild:
 
 | Path | When it works | How it works |
 |---|---|---|
-| **Glob** | Plugins that follow the standard `includes/admin/class-*-rest-*-controller.php` layout (WooCommerce core extensions, classic WooPayments). | Fast, deterministic, easy to script. Returns a complete list in one shell call. |
+| **Glob** | Plugins that follow the standard `includes/admin/class-*-rest-*-controller.php` layout. | Fast, deterministic, easy to script. Returns a complete list in one shell call. |
 | **Grep** | Any non-standard layout — `includes/api/`, `includes/rest-api/`, `src/rest/`, monorepo package directories, or anything else. | Universal fallback: grep every PHP file under the plugin root for `register_rest_route(` call sites, then collect the enclosing class for each hit. |
 
 ### Default order
@@ -33,12 +33,10 @@ ls includes/admin/class-*-rest-*-controller.php 2>/dev/null
 ls includes/reports/class-*-rest-*-controller.php 2>/dev/null
 ```
 
-What you'll see in repos that match this convention:
-
-- WooPayments (`Automattic/woocommerce-payments`) — every controller under
-  `includes/admin/class-wc-rest-payments-*-controller.php` plus some under
-  `includes/reports/`.
-- WooCommerce core's internal REST controllers use the same pattern.
+Repos that match this convention typically have all REST controllers
+under `includes/admin/class-<plugin>-rest-*-controller.php` (sometimes with
+companion files under `includes/reports/` or similar feature-specific
+directories).
 
 If glob returns 5+ hits, it's almost always the complete inventory. If it
 returns 0-2, fall through to grep.
@@ -59,22 +57,22 @@ For each hit:
 This path matters because it's the only one that finds controllers in
 non-standard locations:
 
-- **WooCommerce Subscriptions** — controllers live under `includes/api/` and
-  `includes/api/legacy/`. The standard WooPayments glob returns zero; grep is
-  mandatory.
-- **Jetpack Forms** (and most Jetpack packages) — controllers live under
-  `projects/packages/<name>/src/` with no conventional filename. Grep is
-  again mandatory.
+- **Jetpack packages** (Forms, Subscriptions, Stats, etc.) — controllers
+  live under `projects/packages/<name>/src/` with no conventional filename.
+  Grep is mandatory.
+- **Plugins with non-standard layouts** — `includes/api/`,
+  `includes/api/legacy/`, or any other in-house convention. The standard
+  glob returns zero; grep is mandatory.
 - **Custom plugin layouts** — anything with `src/Rest/`, `lib/rest/`,
   `api/v1/`, etc. Grep catches them all.
 
 ## Inherited routes
 
-A controller can extend a base class in a different repo. The prime example:
-`WC_REST_Subscriptions_Controller extends WC_REST_Orders_Controller`, where
-the parent lives in WooCommerce core — not the Subscriptions repo. The
-`parent::register_routes()` dispatch appears in the Subscriptions source,
-but the literal `register_rest_route(` call is in core.
+A controller can extend a base class in a different repo. Example shape:
+`<Plugin>_REST_<Resource>_Controller extends <Base>_REST_Controller`, where
+the parent lives in WordPress core (or another plugin) — not the plugin's
+own source. The `parent::register_routes()` dispatch appears in the plugin
+source, but the literal `register_rest_route(` call is in the parent.
 
 Handling:
 

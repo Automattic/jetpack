@@ -25,11 +25,10 @@ Read the plugin's `AGENTS.md` for the canonical env bring-up command. Do
 NOT assume `npm run wp-env start` works for every plugin. Observed
 patterns:
 
-- **Woo-family (WooPayments, WooCommerce extensions)** — `npm run wp-env start`
-  (runs `@wordpress/env` with the plugin's `.wp-env.json`).
-- **Jetpack-family** — `jetpack docker up` or a package-local
+- **Jetpack monorepo** — `jetpack docker up` or a package-local
   `composer install && composer test-php --setup-only`.
-- **Plain wp-env plugin** — `npx wp-env start`.
+- **wp-env plugin** — `npm run wp-env start` (runs `@wordpress/env` with
+  the plugin's `.wp-env.json`) or `npx wp-env start`.
 - **Dev Docker stack** — a plugin-specific `docker-compose up -d`.
 
 If `AGENTS.md` doesn't document it, ask the user rather than guessing.
@@ -306,5 +305,6 @@ Observed pattern (from the canonical harness-output example):
    section so reviewers can see what verify caught.
 
 The canonical example: an `ArgumentCountError` from a controller
-constructor caught by a runtime harness run on a WooPayments-style plugin,
-then fixed in a dedicated small commit before re-running the harness.
+constructor caught by a runtime harness run on a plugin using the
+shared-API-client pattern, then fixed in a dedicated small commit before
+re-running the harness.

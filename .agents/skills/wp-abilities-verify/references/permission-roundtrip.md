@@ -24,7 +24,7 @@ Inspect the callback's body. It must match one of these shapes:
 
 ```php
 public static function check_permission() {
-    return current_user_can( 'manage_woocommerce' );
+    return current_user_can( 'manage_options' );
 }
 ```
 
@@ -170,10 +170,10 @@ If an audit doc was provided, the audit's `capability_gate` field (or the
 per-ability `permission.resolves_to`) declares what the gate should be.
 Compare the registered capability against the audit's declared one:
 
-- Audit says `manage_woocommerce`, registration resolves to
-  `manage_woocommerce` → OK.
-- Audit says `manage_woocommerce`, registration resolves to
-  `manage_options` → FAIL. Either the audit is wrong or the registration
+- Audit says `manage_options`, registration resolves to
+  `manage_options` → OK.
+- Audit says `manage_options`, registration resolves to
+  `edit_pages` → FAIL. Either the audit is wrong or the registration
   drifted.
 - Audit is a compound `{read, write}` gate and the registration uses
   Shape B with both caps → OK.
@@ -193,8 +193,8 @@ compares.
 
 | Ability | Shape | Resolved cap(s) | anon | subscriber | admin | Audit match |
 |---|---|---|---|---|---|---|
-| <ability> | A | manage_woocommerce | false | false | true | OK |
-| <ability> | B | read:read_private_shop_orders, write:edit_shop_orders | false | false | true | OK |
+| <ability> | A | manage_options | false | false | true | OK |
+| <ability> | B | read:read_private_<cpt-base>s, write:edit_<cpt-base>s | false | false | true | OK |
 | <ability> | C | __return_true (public) | true | true | true | WARN |
 | <ability> | E | (literal true) | true | true | true | FAIL |
 ```

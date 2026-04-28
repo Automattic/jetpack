@@ -59,16 +59,16 @@ Why three works: a user asking "show me spam responses from last week" uses one 
 
 Canonical file: [`Automattic/jetpack/projects/packages/forms/src/abilities/class-forms-abilities.php`](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/forms/src/abilities/class-forms-abilities.php).
 
-## Worked example B — WooPayments disputes: one ability with a status filter, not eight
+## Worked example B — A filtered-list endpoint: one ability with an enum, not eight
 
-WooPayments' `GET /wc/v3/payments/disputes` accepts `status_is`, `status_is_not`, `date_before`, `date_after`, `date_between`, `store_currency_is`, `match`, `search`. Status values include `warning_needs_response`, `needs_response`, `under_review`, `won`, `lost`, and several more.
+Suppose a plugin exposes `GET /<plugin>/v1/items` accepting filters `status`, `is_unread`, `date_before`, `date_after`, `search`. The `status` enum has values like `pending`, `active`, `paused`, `archived`, `expired`, `flagged`, and several more.
 
-- Atomization would ship ~8 abilities (`get-disputes-warning-needs-response`, `get-disputes-won`, `get-disputes-lost`, ...).
-- Semantic-intent ships **one** — `woopayments/get-disputes` with `status_is: { type: "string", enum: ["warning_needs_response", "needs_response", "under_review", "won", "lost", ...] }`.
+- Atomization would ship ~8 abilities (`get-pending-items`, `get-active-items`, `get-paused-items`, `get-archived-items`, ...).
+- Semantic-intent ships **one** — `<plugin>/get-items` with `status: { type: "string", enum: ["pending", "active", "paused", "archived", "expired", "flagged", ...] }`.
 
-The user question "which disputes need a response?" becomes one ability invocation with `status_is: "needs_response"`. The agent doesn't scan a list of 8 near-identical tool names; it scans one, and the enum documents what values are valid.
+The user question "which items need a response?" becomes one ability invocation with `status: "pending"`. The agent doesn't scan a list of 8 near-identical tool names; it scans one, and the enum documents what values are valid.
 
-The same plugin also registers a zero-arg `get-payout-overview` ability (next payout date + amount) because "when do I get paid?" is the single highest-frequency merchant question and the backing endpoint takes no arguments. That one ability has outsized value for one line of registration code — rule 4 in action.
+A companion zero-arg `<plugin>/get-overview` ability — for example "how many of each status, in one call?" — is high-leverage by rule 4: one line of registration code answers one of the highest-frequency questions in the plugin's UI.
 
 ## Escape hatch — when atomization is right
 

@@ -6,7 +6,7 @@ controllers gate on. The audit's `capability_gate` field and each ability's
 controller docblock says.
 
 Validation runs against multiple plugins surfaced two common mechanisms —
-document both explicitly so the auditor doesn't hard-code WooPayments-style
+document both explicitly so the auditor doesn't hard-code single-cap-style
 assumptions.
 
 ## Mechanism A — Direct (`check_permission()` returning a single cap)
@@ -21,11 +21,11 @@ once. Every route in the controller uses that method as
 - The base controller has a method like:
   ```php
   public function check_permission() {
-      return current_user_can( 'manage_woocommerce' );
+      return current_user_can( 'manage_options' );
   }
   ```
-- Controllers extend the plugin's own base, not a WooCommerce/WordPress core
-  post-type-backed class.
+- Controllers extend the plugin's own base, not a WordPress core or
+  third-party post-type-backed class.
 - The grep `grep -n 'current_user_can' <base-controller>.php` yields one hit.
 
 ### How to trace
@@ -43,42 +43,43 @@ Trace once: the single `current_user_can()` call is the plugin's gate.
 ### How to represent in the audit
 
 ```yaml
-capability_gate: manage_woocommerce  # confirmed at includes/admin/class-<plugin>-rest-controller.php line 64
+capability_gate: manage_options  # confirmed at includes/admin/class-<plugin>-rest-controller.php line 64
 ```
 
-Example: WooPayments — every controller inherits
-`WC_Payments_REST_Controller::check_permission()` which resolves to
-`current_user_can('manage_woocommerce')`. One gate for the whole plugin.
+Worked example: a plugin where every controller inherits a
+`<Plugin>_REST_Controller::check_permission()` method that resolves to a
+single `current_user_can('<cap>')` call. One gate, one trace, one record.
 
-## Mechanism B — Post-type-backed (`wc_rest_check_post_permissions()`)
+## Mechanism B — Post-type-backed (CPT permission helpers)
 
-The controller extends a WooCommerce/WordPress core class that dispatches to
-the post-type capability map. There is no local `check_permission()` — the
-permission callback resolves dynamically at request time based on the
-request context (read vs write) and the post type's `cap` object.
+The controller extends a WordPress core or in-house base class that
+dispatches to the post-type capability map. There is no local
+`check_permission()` — the permission callback resolves dynamically at
+request time based on the request context (read vs write) and the post
+type's `cap` object.
 
 ### Identifying signs
 
 - The controller's base class is one of:
-  - `WC_REST_Orders_Controller` (WooCommerce core)
-  - `WC_REST_Posts_Controller`
-  - `WP_REST_Posts_Controller`
-  - Similar post-type-backed bases.
+  - `WP_REST_Posts_Controller` (WordPress core)
+  - `WP_REST_Controller` with a CPT-driven `permission_callback`
+  - A plugin-specific base extending one of the above.
 - No local `check_permission()` — permission callbacks are inherited.
-- The post type is registered with `capability_type => '<cpt_name>'` and
+- The post type is registered with `capability_type => '<cpt-base>'` and
   meta caps are mapped (usually by `map_meta_cap` in core).
 
 ### How to trace
 
 ```bash
 # Find the post-type registration.
-grep -rn "register_post_type\s*(\s*['\"]<cpt_name>['\"]" .
+grep -rn "register_post_type\s*(\s*['\"]<cpt-slug>['\"]" .
 
 # Check the capability_type and meta caps configuration.
 # The caps bag typically looks like:
-#   capability_type => '<shadow_type>' (e.g. 'shop_order' for shop_subscription)
-# which means the post type inherits the caps of the shadow type, which in
-# turn are registered by the plugin's Install class (grep for 'get_core_capabilities').
+#   capability_type => '<cpt-base>'
+# which means the post type's caps map to read_private_<cpt-base>s /
+# edit_<cpt-base>s via core's map_meta_cap (or a plugin filter that
+# customizes the mapping).
 ```
 
 Dynamic resolution typically lands at:
@@ -95,10 +96,10 @@ Use the structured `{read, write}` form from `audit-schema.md`:
 
 ```yaml
 capability_gate:
-  read: read_private_shop_orders
-  write: edit_shop_orders
+  read: read_private_<cpt-base>s
+  write: edit_<cpt-base>s
   confirmed: true
-  verified_at: "shop_subscription capability_type='shop_order' → WC core wc_rest_check_post_permissions() at includes/wc-rest-functions.php line 229"
+  verified_at: "<cpt-slug> capability_type='<cpt-base>' → core map_meta_cap()"
 ```
 
 In each ability's `permission` block, spell out both calls:
@@ -106,13 +107,13 @@ In each ability's `permission` block, spell out both calls:
 ```yaml
 permission:
   callback: get_items_permissions_check
-  resolves_to: "wc_rest_check_post_permissions('shop_subscription', 'read') → current_user_can('read_private_shop_orders')"
+  resolves_to: "permission helper for '<cpt-slug>', 'read' → current_user_can('read_private_<cpt-base>s')"
   confirmed: true
 ```
 
-Example: WooCommerce Subscriptions — `shop_subscription` is registered with
-`capability_type='shop_order'`, so reads gate on `read_private_shop_orders`
-and writes gate on `edit_shop_orders`. The audit captures both.
+Worked example: a plugin that registers a CPT (`<cpt-slug>`) with a
+`capability_type='<cpt-base>'`, so reads gate on `read_private_<cpt-base>s`
+and writes gate on `edit_<cpt-base>s`. The audit captures both.
 
 ## Compound-string form (accepted, not preferred)
 
@@ -120,7 +121,7 @@ Some earlier audits encoded compound gates as a single string with a `/`
 separator:
 
 ```yaml
-capability_gate: read_private_shop_orders / edit_shop_orders
+capability_gate: read_private_<cpt-base>s / edit_<cpt-base>s
 ```
 
 This is accepted for backwards compatibility, but:
@@ -158,6 +159,6 @@ that are safe to expose). The audit still needs a gate:
   "__return_true (public)"`) so the auditor isn't hiding reality.
 - Add a risk note: the **ability** registration must NOT copy
   `'__return_true'` — the ability's own `permission_callback` must match the
-  plugin's merchant gate (`manage_woocommerce`, `edit_pages`, etc.). The
-  ability layer is the agent-facing surface and needs that gate even when
-  the underlying REST route is public.
+  plugin's admin gate (e.g. `manage_options`, `edit_pages`). The ability
+  layer is the agent-facing surface and needs that gate even when the
+  underlying REST route is public.
