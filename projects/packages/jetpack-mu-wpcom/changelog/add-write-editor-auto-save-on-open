@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Create auto-draft posts on page load in the Write editor, enabling immediate post ID availability and editor tracking via last_editor metadata.

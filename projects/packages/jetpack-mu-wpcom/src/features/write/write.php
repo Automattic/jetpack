@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType;
+
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	define(
 		'WPCOM_WRITE_VERSION',
@@ -152,8 +154,27 @@ function wpcom_write_render_admin_page() {
 			$edit_content     = apply_filters( 'the_content', $edit_post->post_content );
 			$post_status      = $edit_post->post_status;
 			$edit_featured_id = (int) get_post_thumbnail_id( $edit_post_id );
+			EditorType\remember_editor( $edit_post_id, 'write-editor' );
 		} else {
 			$edit_post_id = 0;
+		}
+	}
+
+	// Create an auto-draft for new posts so the post ID is available immediately.
+	if ( ! $edit_post_id ) {
+		$auto_draft_id = wp_insert_post(
+			array(
+				'post_title'  => '',
+				'post_type'   => 'post',
+				'post_status' => 'auto-draft',
+			),
+			true
+		);
+
+		if ( ! is_wp_error( $auto_draft_id ) ) {
+			$edit_post_id = $auto_draft_id;
+			$post_status  = 'auto-draft';
+			EditorType\remember_editor( $edit_post_id, 'write-editor' );
 		}
 	}
 
