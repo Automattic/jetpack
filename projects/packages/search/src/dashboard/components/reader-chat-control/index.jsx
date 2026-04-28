@@ -10,6 +10,7 @@ const READER_CHAT_DESCRIPTION = __(
 	'Let readers ask your blog questions and get answers from your content.',
 	'jetpack-search-pkg'
 );
+const READER_CHAT_GUIDELINES_URL = 'options-general.php?page=guidelines-wp-admin';
 
 /**
  * Reader Chat opt-in control. Reads and writes the reader_chat option
@@ -106,6 +107,13 @@ export default function ReaderChatControl() {
 								<p className="jp-form-search-settings-group__toggle-explanation">
 									{ READER_CHAT_DESCRIPTION }
 								</p>
+								{ isEnabled && (
+									<p className="jp-form-search-settings-group__toggle-explanation">
+										<a href={ READER_CHAT_GUIDELINES_URL }>
+											{ __( 'Set content guidelines', 'jetpack-search-pkg' ) }
+										</a>
+									</p>
+								) }
 							</div>
 						</div>
 					</div>

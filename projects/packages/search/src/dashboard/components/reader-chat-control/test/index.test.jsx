@@ -71,6 +71,11 @@ describe( 'ReaderChatControl', () => {
 			name: /Enable Reader Chat/i,
 		} );
 		expect( toggle ).toBeChecked();
+		expect(
+			screen.getByRole( 'link', {
+				name: /Set content guidelines/i,
+			} )
+		).toHaveAttribute( 'href', 'options-general.php?page=guidelines-wp-admin' );
 	} );
 
 	test( 'renders the toggle as off when the stored value is false', async () => {
@@ -82,6 +87,11 @@ describe( 'ReaderChatControl', () => {
 			name: /Enable Reader Chat/i,
 		} );
 		expect( toggle ).not.toBeChecked();
+		expect(
+			screen.queryByRole( 'link', {
+				name: /Set content guidelines/i,
+			} )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'posts the new value and dispatches success notice when toggled', async () => {

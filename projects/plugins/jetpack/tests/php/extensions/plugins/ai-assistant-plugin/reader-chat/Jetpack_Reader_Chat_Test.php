@@ -54,6 +54,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		delete_transient( AiAssistantPlugin\READER_CHAT_ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_reader_chat_enabled' );
 		remove_all_filters( 'jetpack_reader_chat_has_ai_features' );
+		remove_all_filters( 'jetpack_sync_options_whitelist' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'wp_doing_ajax' );
@@ -202,6 +203,21 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			has_action( 'wp_enqueue_scripts', array( Jetpack_Reader_Chat::class, 'enqueue_scripts' ) ),
 			'enqueue_scripts should not be hooked when jetpack_reader_chat_enabled is explicitly false.'
+		);
+	}
+
+	/**
+	 * Test that init() allowlists reader_chat for Jetpack Sync even when the
+	 * feature is currently disabled.
+	 */
+	public function test_init_adds_reader_chat_to_sync_options_whitelist() {
+		add_filter( 'jetpack_reader_chat_enabled', '__return_false' );
+		Jetpack_Reader_Chat::init();
+
+		$this->assertContains(
+			'reader_chat',
+			apply_filters( 'jetpack_sync_options_whitelist', array() ),
+			'reader_chat should sync so the local toggle and wpcom agent gate stay aligned.'
 		);
 	}
 

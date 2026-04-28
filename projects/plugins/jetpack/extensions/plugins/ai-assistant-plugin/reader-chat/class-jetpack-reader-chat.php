@@ -40,6 +40,7 @@ class Jetpack_Reader_Chat {
 		// Register the setting unconditionally so the REST API can flip it even
 		// when the feature is currently disabled.
 		add_action( 'init', array( __CLASS__, 'register_settings' ) );
+		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'add_sync_options_whitelist' ) );
 
 		/**
 		 * Filter to enable or disable the Jetpack Reader Chat feature.
@@ -99,6 +100,24 @@ class Jetpack_Reader_Chat {
 				'default'           => false,
 			)
 		);
+	}
+
+	/**
+	 * Add Reader Chat's setting to Jetpack Sync's option whitelist.
+	 *
+	 * Atomic and Jurassic Ninja sites write `reader_chat` locally via
+	 * /wp/v2/settings, while the wpcom-hosted agent reads the wpcom-side
+	 * option before serving public chat requests. Syncing the option keeps
+	 * the local toggle and agent permission gate aligned.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $options Option names allowed to sync.
+	 * @return array Updated option names.
+	 */
+	public static function add_sync_options_whitelist( array $options ): array {
+		$options[] = 'reader_chat';
+		return array_values( array_unique( $options ) );
 	}
 
 	/**
