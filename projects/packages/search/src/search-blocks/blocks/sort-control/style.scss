@@ -36,15 +36,20 @@
 		margin: 0;
 		padding: 0;
 
+		// Visually hide the legend — the radio variant presents options
+		// inline without a leading label, but assistive tech still needs
+		// the fieldset to have an accessible name. Same off-screen-clip
+		// pattern as the hidden radio input.
 		legend {
-			font-size: 0.9rem;
-			// Match the select variant's `label` so the radio fieldset adapts
-			// to dark themes and the site palette instead of pinning to a
-			// hard-coded grey.
-			color: inherit;
-			opacity: 0.8;
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			margin: 0;
 			padding: 0;
-			margin-inline-end: 0.5rem;
+			border: 0;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
 		}
 	}
 

@@ -146,7 +146,7 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 				value: displayAs,
 				options: [
 					{ value: 'select', label: __( 'Dropdown', 'jetpack-search-pkg' ) },
-					{ value: 'radio', label: __( 'Radio buttons', 'jetpack-search-pkg' ) },
+					{ value: 'radio', label: __( 'Inline links', 'jetpack-search-pkg' ) },
 				],
 				onChange: value => setAttributes( { displayAs: value } ),
 			} )
