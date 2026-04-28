@@ -80,3 +80,11 @@ function load_wpcom_rest_api_v2_plugin_files() {
 	}
 }
 add_action( 'rest_api_init', 'load_wpcom_rest_api_v2_plugin_files', 5 );
+
+// In the PHPUnit test suite, fire the loader during `plugins_loaded` so all 37 endpoint
+// classes are defined before PHPUnit performs test discovery. Test files use
+// `#[CoversClass( WPCOM_REST_API_V2_Endpoint_*::class )]` attributes that PHPUnit eagerly
+// reflects, requiring the classes to be loadable at that moment.
+if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) && PHPUNIT_JETPACK_TESTSUITE ) {
+	add_action( 'plugins_loaded', 'load_wpcom_rest_api_v2_plugin_files' );
+}
