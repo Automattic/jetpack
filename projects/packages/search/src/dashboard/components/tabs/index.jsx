@@ -3,7 +3,7 @@ import './style.scss';
 
 const TABS = [
 	{ id: 'overview', label: __( 'Overview', 'jetpack-search-pkg' ) },
-	{ id: 'behavior', label: __( 'Behavior', 'jetpack-search-pkg' ) },
+	{ id: 'personality', label: __( 'Personality', 'jetpack-search-pkg' ) },
 	{ id: 'topics', label: __( 'Topics', 'jetpack-search-pkg' ) },
 ];
 

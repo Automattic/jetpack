@@ -6,13 +6,13 @@ describe( 'DashboardTabs', () => {
 	it( 'renders three tabs', () => {
 		render( <DashboardTabs activeTab="overview" onTabChange={ jest.fn() } /> );
 		expect( screen.getByText( 'Overview' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Behavior' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Personality' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Topics' ) ).toBeInTheDocument();
 	} );
 
 	it( 'marks the active tab with aria-selected', () => {
-		render( <DashboardTabs activeTab="behavior" onTabChange={ jest.fn() } /> );
-		const activeTab = screen.getByRole( 'tab', { name: 'Behavior' } );
+		render( <DashboardTabs activeTab="personality" onTabChange={ jest.fn() } /> );
+		const activeTab = screen.getByRole( 'tab', { name: 'Personality' } );
 		expect( activeTab ).toHaveAttribute( 'aria-selected', 'true' );
 		expect( activeTab ).toHaveClass( 'jp-search-dashboard-tabs__tab--active' );
 		const inactiveTab = screen.getByRole( 'tab', { name: 'Overview' } );

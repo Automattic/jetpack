@@ -201,7 +201,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						) }
 					</>
 				) }
-				{ activeTab === 'behavior' && <BehaviorTab /> }
+				{ activeTab === 'personality' && <BehaviorTab /> }
 				{ activeTab === 'topics' && <TopicsTab /> }
 			</AdminPage>
 		</div>

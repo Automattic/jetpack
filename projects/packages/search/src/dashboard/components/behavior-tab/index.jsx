@@ -1,14 +1,19 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, TextareaControl } from '@wordpress/components';
+import { Button, ExternalLink, Notice, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 
-const REST_BASE = '/wp/v2/jetpack-search-behavior';
+const REST_BASE = '/wp/v2/guidelines';
+const adminUrl = window?.JETPACK_SEARCH_DASHBOARD_INITIAL_STATE?.siteData?.adminUrl ?? '/wp-admin/';
+const DEFAULT_PERSONALITY = __(
+	'You are a search results summarizer for Jetpack Search. Your job is to summarize the best available successful search results in a succinct manner.',
+	'jetpack-search-pkg'
+);
 
 /**
- * Behavior tab component for configuring AI Answers behavior instructions.
+ * Personality tab component for configuring AI Answers personality instructions.
  *
- * @return {import('react').ReactElement} BehaviorTab component.
+ * @return {import('react').ReactElement} PersonalityTab component.
  */
 export default function BehaviorTab() {
 	const [ content, setContent ] = useState( '' );
@@ -17,16 +22,27 @@ export default function BehaviorTab() {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
 	const [ saved, setSaved ] = useState( false );
+	const [ isUnavailable, setIsUnavailable ] = useState( false );
 
 	useEffect( () => {
-		apiFetch( { path: REST_BASE + '?per_page=1&status=any' } )
+		apiFetch( { path: REST_BASE } )
 			.then( posts => {
-				if ( posts.length > 0 ) {
-					setPostId( posts[ 0 ].id );
-					setContent( posts[ 0 ].content?.raw ?? '' );
+				const post = Array.isArray( posts ) ? posts[ 0 ] : posts;
+				// id === 0 means no guidelines exist yet (singleton empty response).
+				if ( post && post.id ) {
+					setPostId( post.id );
+					setContent(
+						post.guideline_categories?.blocks?.[ 'jetpack/search-ai-summary' ]?.guidelines ?? ''
+					);
 				}
 			} )
-			.catch( err => setError( err.message ) )
+			.catch( err => {
+				if ( err.code === 'rest_no_route' || err.data?.status === 404 ) {
+					setIsUnavailable( true );
+				} else {
+					setError( err.message );
+				}
+			} )
 			.finally( () => setIsLoading( false ) );
 	}, [] );
 
@@ -35,10 +51,16 @@ export default function BehaviorTab() {
 		setSaved( false );
 		setError( null );
 		const path = postId ? `${ REST_BASE }/${ postId }` : REST_BASE;
+		const method = postId ? 'PATCH' : 'POST';
 		apiFetch( {
 			path,
-			method: 'POST',
-			data: { content, status: 'publish', title: 'Search Behavior' },
+			method,
+			data: {
+				status: 'publish',
+				guideline_categories: {
+					blocks: { 'jetpack/search-ai-summary': { guidelines: content || DEFAULT_PERSONALITY } },
+				},
+			},
 		} )
 			.then( post => {
 				setPostId( post.id );
@@ -52,27 +74,45 @@ export default function BehaviorTab() {
 		return <p>{ __( 'Loading…', 'jetpack-search-pkg' ) }</p>;
 	}
 
+	if ( isUnavailable ) {
+		return (
+			<Notice status="warning" isDismissible={ false }>
+				<p>
+					{ __(
+						'Personality instructions require the Gutenberg Guidelines feature. To enable it:',
+						'jetpack-search-pkg'
+					) }
+				</p>
+				<ol>
+					<li>{ __( 'Install or update to Gutenberg 22.7 or later.', 'jetpack-search-pkg' ) }</li>
+					<li>
+						{ __(
+							'Go to Settings → Gutenberg → Experiments and enable "Guidelines".',
+							'jetpack-search-pkg'
+						) }{ ' ' }
+						<ExternalLink href={ `${ adminUrl }admin.php?page=gutenberg-experiments` }>
+							{ __( 'Open Experiments page', 'jetpack-search-pkg' ) }
+						</ExternalLink>
+					</li>
+				</ol>
+			</Notice>
+		);
+	}
+
 	return (
 		<div className="jp-search-behavior-tab">
 			<p className="jp-search-behavior-tab__description">
 				{ __(
-					'Describe how the AI should respond to visitor questions. List the topics your site covers so the AI can classify queries.',
+					'Describe the personality of the AI summarizer. This text is sent as a system prompt to the AI.',
 					'jetpack-search-pkg'
 				) }
 			</p>
-			<p className="jp-search-behavior-tab__example">
-				<em>
-					{ __(
-						'Example: "Focus on product-related questions. Topics: Shipping, Returns, Account Access, Billing."',
-						'jetpack-search-pkg'
-					) }
-				</em>
-			</p>
 			{ error && <p className="jp-search-behavior-tab__error">{ error }</p> }
 			<TextareaControl
-				label={ __( 'Behavior instructions', 'jetpack-search-pkg' ) }
+				label={ __( 'Personality', 'jetpack-search-pkg' ) }
 				value={ content }
 				onChange={ setContent }
+				placeholder={ DEFAULT_PERSONALITY }
 				rows={ 10 }
 				disabled={ isSaving }
 			/>
