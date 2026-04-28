@@ -140,10 +140,12 @@ const JetpackAndSettingsContent = ( {
 	/**
 	 * Filters the video generation handler for AI-powered video creation entry points.
 	 *
-	 * Allows external plugins (e.g. Image Studio's Generate Feature Clip surface) to
-	 * provide a custom handler that opens an external video generation flow. When a
-	 * handler is returned, the "Generate Feature Clip" button uses it; without a
-	 * handler, the section is not rendered.
+	 * Allows external plugins to provide a custom handler that opens an external
+	 * video generation flow. When a handler is returned, the "Get Feature Clip"
+	 * section renders a "Generate clip" button that invokes it. The section is
+	 * only rendered when both a handler is provided AND the
+	 * `ai-feature-clip-generator` extension flag is available; otherwise the
+	 * section (and this filter) are skipped entirely.
 	 *
 	 * @param {Function|null} handler                 - The handler function, or null if no plugin hooks the filter.
 	 * @param {object}        options                 - Options describing the entry point context.
@@ -157,11 +159,15 @@ const JetpackAndSettingsContent = ( {
 	 * // Register a custom video generation handler from an external plugin.
 	 * import { addFilter } from '@wordpress/hooks';
 	 *
-	 * addFilter( 'jetpack.ai.videoGenerationHandler', 'my-plugin/image-studio', ( handler, options ) => {
-	 *     return () => openImageStudio( options.entryPoint );
+	 * addFilter( 'jetpack.ai.videoGenerationHandler', 'my-plugin/feature-clip', ( handler, options ) => {
+	 *     return () => openFeatureClipFlow( options.entryPoint );
 	 * } );
 	 */
 	const videoGenerationHandler = useMemo( () => {
+		if ( ! isAIFeatureClipAvailable ) {
+			return null;
+		}
+
 		const result = applyFilters( 'jetpack.ai.videoGenerationHandler', null, {
 			entryPoint: 'feature-clip',
 			extra: { placement, disabled: requireUpgrade },
