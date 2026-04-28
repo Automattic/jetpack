@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "85b0e8e58ada1a0a631d2fa807fc22bd",
+    "content-hash": "8ec26d779e5614655d8c4563c32dc12f",
     "packages": [
         {
             "name": "automattic/jetpack-assets",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "116afa785e69beb00f93503b12e0b0f4a0753ebb"
+                "reference": "a4c3991ea97f5705663221c8ebff9758b46fd683"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -20,7 +20,6 @@
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
@@ -83,14 +82,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "68901f3b3a256085ebd939a3461ee833be10f86d"
+                "reference": "8f0a2f6a6e125dc5e36f16323624fb2dfbc65a4b"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "composer/composer": "^2.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -152,14 +150,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "eb028c7425d0591689e2a0b3047c278d8ff2395e"
+                "reference": "5757fcdb855bc654b788aa1d75b3442e068c83ee"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "composer/composer": "^2.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -213,13 +210,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "378a5d122aedfc25d3aa42ab913803c85a8c857b"
+                "reference": "95cc69c8b39c9bc26cc430988a7de1297a654324"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -268,14 +264,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "8ce7c4c3d0a7c4ec9fce7b3002ba635afd5bc952"
+                "reference": "76cc443bfab1ccafe0e07fc050735bb33341f5a5"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-plans": "@dev",
@@ -824,96 +819,12 @@
     ],
     "packages-dev": [
         {
-            "name": "automattic/jetpack-changelogger",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/changelogger",
-                "reference": "b5353c88e04d5fae32ee501b1a0a4234ee968e56"
-            },
-            "require": {
-                "composer-runtime-api": "^2.2.0",
-                "php": ">=7.2.5",
-                "symfony/console": "^5.4 || ^6.4 || ^7.1",
-                "symfony/process": "^5.4 || ^6.4 || ^7.1"
-            },
-            "require-dev": {
-                "automattic/phpunit-select-config": "@dev",
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
-                "yoast/phpunit-polyfills": "^4.0.0"
-            },
-            "bin": [
-                "bin/changelogger"
-            ],
-            "type": "project",
-            "extra": {
-                "autotagger": true,
-                "branch-alias": {
-                    "dev-trunk": "6.0.x-dev"
-                },
-                "mirror-repo": "Automattic/jetpack-changelogger",
-                "version-constants": {
-                    "::VERSION": "src/Application.php"
-                },
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-changelogger/compare/${old}...${new}"
-                },
-                "dependencies": {
-                    "test-only": [
-                        "packages/phpunit-select-config"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Changelogger\\": "src",
-                    "Automattic\\Jetpack\\Changelog\\": "lib"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Changelogger\\Tests\\": "tests/php/includes/src",
-                    "Automattic\\Jetpack\\Changelog\\Tests\\": "tests/php/includes/lib"
-                }
-            },
-            "scripts": {
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "post-install-cmd": [
-                    "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger"
-                ],
-                "post-update-cmd": [
-                    "rm -f vendor/bin/changelogger && ln -s ../../bin/local-changelogger vendor/bin/changelogger"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
-            "keywords": [
-                "changelog",
-                "cli",
-                "dev",
-                "keepachangelog"
-            ],
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "automattic/phpunit-select-config",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "3f16352a5a43bdd583b78d895d092a1e1b74c397"
+                "reference": "9e44d830cefeebc6c9b5a108cfab1ac3c1e3fd98"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -922,7 +833,6 @@
             },
             "require-dev": {
                 "antecedent/patchwork": "^2.2",
-                "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "bin": [
@@ -5583,7 +5493,6 @@
     "stability-flags": {
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-changelogger": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/phpunit-select-config": 20
     },

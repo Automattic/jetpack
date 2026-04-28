@@ -42,6 +42,10 @@ const redirectUri = data.redirectUri || '';
 const currentUser = data.currentUser || null;
 const connectionOwner = data.connectionOwner || null;
 const connectedPlugins = data.connectedPlugins || [];
+const connectedPluginSlugs = connectedPlugins
+	.map( p => p.slug )
+	.filter( Boolean )
+	.join( ',' );
 const siteDetails = data.siteDetails || null;
 const isWoaSite = Boolean( data.isWoaSite );
 const isVipSite = Boolean( data.isVipSite );
@@ -67,6 +71,10 @@ async function startConnectionFlow( siteRegistered ) {
 		if ( redirectUri ) {
 			params.set( 'redirect_uri', redirectUri );
 		}
+		params.set( 'from', 'jetpack-connector' );
+		if ( connectedPluginSlugs ) {
+			params.set( 'plugins', connectedPluginSlugs );
+		}
 		const qs = params.toString();
 		const authRes = await window.fetch(
 			apiRoot + 'jetpack/v4/connection/authorize_url' + ( qs ? '?' + qs : '' ),
@@ -90,6 +98,9 @@ async function startConnectionFlow( siteRegistered ) {
 	const body = { from: 'jetpack-connector' };
 	if ( redirectUri ) {
 		body.redirect_uri = redirectUri;
+	}
+	if ( connectedPluginSlugs ) {
+		body.plugins = connectedPluginSlugs;
 	}
 
 	const response = await window.fetch( apiRoot + 'jetpack/v4/connection/register', {

@@ -14,9 +14,6 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"autoload": {
 		"classmap": [
 			"src/"

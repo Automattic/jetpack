@@ -82,7 +82,7 @@ function Search( props ) {
 						<ModuleToggle
 							activated={ isModuleEnabled }
 							compact
-							toggling={ togglingModule }
+							disabled={ togglingModule }
 							slug="search"
 							toggleModule={ toggleSearchModule }
 						>

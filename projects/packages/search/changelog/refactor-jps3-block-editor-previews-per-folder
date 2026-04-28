@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search 3.0: split editor-side block preview Edit components out of register-blocks.js into per-block edit.js files so changes to one block do not conflict with others.

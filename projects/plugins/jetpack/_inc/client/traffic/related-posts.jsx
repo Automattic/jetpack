@@ -126,9 +126,8 @@ class RelatedPostsComponent extends Component {
 					</p>
 					<ModuleToggle
 						slug="related-posts"
-						disabled={ unavailableInOfflineMode }
+						disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'related-posts' ) }
 						activated={ isRelatedPostsActive }
-						toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

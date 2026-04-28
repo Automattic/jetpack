@@ -9,6 +9,7 @@
  * Includes the Composer autoloader.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/php-polyfills.php';
 
 // Additional functions that brain/monkey doesn't currently define.
 if ( ! function_exists( 'wp_unslash' ) ) {
