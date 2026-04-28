@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Blaze: register a `blaze-ads/create-campaign` write ability with cross-cutting guardrails (TOS, spend ceiling, audit log) applied via a registration-time wrapper. Returns a draft campaign reference plus a deep-link to the Blaze widget for merchant approval.

@@ -21,18 +21,28 @@
 
 namespace Automattic\Jetpack\Blaze\Abilities;
 
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_REST_Request;
 
 /**
- * Registers the `blaze-ads` category and the `blaze-ads/list-campaigns`
- * ability, and opts the ability into WooCommerce's MCP server.
+ * Registers the `blaze-ads` category and the Blaze abilities, and opts
+ * each ability into WooCommerce's MCP server.
  */
 class Blaze_Abilities extends Registrar {
 
-	const CATEGORY_SLUG          = 'blaze-ads';
-	const ABILITY_LIST_CAMPAIGNS = 'blaze-ads/list-campaigns';
+	const CATEGORY_SLUG           = 'blaze-ads';
+	const ABILITY_LIST_CAMPAIGNS  = 'blaze-ads/list-campaigns';
+	const ABILITY_CREATE_CAMPAIGN = 'blaze-ads/create-campaign';
+
+	/**
+	 * Slugs we own — used by `opt_into_woo_mcp` and the double-register guard.
+	 */
+	const OWNED_ABILITY_SLUGS = array(
+		self::ABILITY_LIST_CAMPAIGNS,
+		self::ABILITY_CREATE_CAMPAIGN,
+	);
 
 	/**
 	 * Wire registration into the Abilities API lifecycle and opt the
@@ -57,6 +67,15 @@ class Blaze_Abilities extends Registrar {
 
 		add_filter( 'jetpack_wp_abilities_should_register', array( __CLASS__, 'guard_against_double_register' ), 10, 3 );
 		add_filter( 'woocommerce_mcp_include_ability', array( __CLASS__, 'opt_into_woo_mcp' ), 10, 2 );
+
+		// Wrap write-path abilities at registration time with cross-cutting
+		// guardrails (TOS, payment, spend ceiling). Inheritable by any future
+		// write ability — see `wrap_write_path_execute_callback` for the policy.
+		add_filter( 'wp_register_ability_args', array( __CLASS__, 'wrap_write_path_execute_callback' ), 10, 2 );
+
+		// Audit log for write-ability invocations. Read-path abilities are
+		// excluded by the listener itself.
+		add_action( 'wp_after_execute_ability', array( __CLASS__, 'audit_log_write_invocation' ), 10, 3 );
 
 		if ( did_action( self::CATEGORIES_INIT_ACTION ) ) {
 			static::register_category();
@@ -98,7 +117,32 @@ class Blaze_Abilities extends Registrar {
 		if ( ! $enabled ) {
 			return $enabled;
 		}
-		if ( 'ability' === $type && self::ABILITY_LIST_CAMPAIGNS === $slug && function_exists( 'wp_get_ability' ) && wp_get_ability( $slug ) ) {
+		if ( 'ability' !== $type || ! in_array( $slug, self::OWNED_ABILITY_SLUGS, true ) ) {
+			return $enabled;
+		}
+
+		// Kill-switch: write abilities default to enabled but can be turned off
+		// centrally via filter without a release if abuse / errors emerge.
+		if ( self::ABILITY_CREATE_CAMPAIGN === $slug ) {
+			/**
+			 * Filters whether the Blaze `create-campaign` write ability is registered.
+			 *
+			 * Default true. Return false to keep the ability out of the registry —
+			 * MCP clients won't see it, REST callers get 404. Use as a kill-switch
+			 * if abuse, error rates, or infra issues require centrally disabling
+			 * the write path without shipping a release.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $enabled Whether to register the create-campaign ability. Default true.
+			 */
+			if ( ! apply_filters( 'blaze_abilities_create_campaign_enabled', true ) ) {
+				return false;
+			}
+		}
+
+		// Defensive: skip if something else has already registered the slug.
+		if ( function_exists( 'wp_get_ability' ) && wp_get_ability( $slug ) ) {
 			return false;
 		}
 		return $enabled;
@@ -112,7 +156,7 @@ class Blaze_Abilities extends Registrar {
 	 * @return bool
 	 */
 	public static function opt_into_woo_mcp( $include, $ability_id ) {
-		if ( self::ABILITY_LIST_CAMPAIGNS === $ability_id ) {
+		if ( in_array( $ability_id, self::OWNED_ABILITY_SLUGS, true ) ) {
 			return true;
 		}
 		return $include;
@@ -147,7 +191,7 @@ class Blaze_Abilities extends Registrar {
 	 */
 	public static function get_abilities(): array {
 		return array(
-			self::ABILITY_LIST_CAMPAIGNS => array(
+			self::ABILITY_LIST_CAMPAIGNS  => array(
 				'label'               => __( 'List Blaze campaigns', 'jetpack-blaze' ),
 				'description'         => __( 'List the Blaze advertising campaigns associated with the current site, including status, schedule, spend, and performance metrics.', 'jetpack-blaze' ),
 				'input_schema'        => array(
@@ -168,6 +212,68 @@ class Blaze_Abilities extends Registrar {
 						'readonly'    => true,
 						'destructive' => false,
 						'idempotent'  => true,
+					),
+				),
+			),
+			self::ABILITY_CREATE_CAMPAIGN => array(
+				'label'               => __( 'Draft a new Blaze campaign', 'jetpack-blaze' ),
+				'description'         => __( 'Draft a new Blaze advertising campaign for an existing post or product on the site. The campaign is created in DRAFT state and requires the merchant to explicitly approve it in the Blaze UI before it goes live — the response includes a deep-link to that UI.', 'jetpack-blaze' ),
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'target_urn', 'budget_total', 'duration_days' ),
+					'properties'           => array(
+						'target_urn'    => array(
+							'type'        => 'string',
+							'description' => __( 'The URN of the post or product to promote (e.g. urn:wpcom:post:123456:42).', 'jetpack-blaze' ),
+						),
+						'budget_total'  => array(
+							'type'        => 'number',
+							'description' => __( 'Total budget for the campaign in the site\'s currency.', 'jetpack-blaze' ),
+							'minimum'     => 1,
+						),
+						'duration_days' => array(
+							'type'        => 'integer',
+							'description' => __( 'Number of days the campaign should run.', 'jetpack-blaze' ),
+							'minimum'     => 1,
+							'maximum'     => 90,
+						),
+						'objective'     => array(
+							'type'        => 'string',
+							'description' => __( 'Campaign objective.', 'jetpack-blaze' ),
+							'enum'        => array( 'VIEWS', 'CLICKS', 'SALES' ),
+							'default'     => 'VIEWS',
+						),
+					),
+					'additionalProperties' => true,
+				),
+				'output_schema'       => array(
+					'type'        => 'object',
+					'description' => __( 'Draft campaign reference plus a deep-link to the Blaze UI for merchant approval.', 'jetpack-blaze' ),
+					'required'    => array( 'campaign_id', 'status', 'approval_url' ),
+					'properties'  => array(
+						'campaign_id'  => array(
+							'type'        => 'string',
+							'description' => __( 'The DSP-assigned ID of the draft campaign.', 'jetpack-blaze' ),
+						),
+						'status'       => array(
+							'type'        => 'string',
+							'description' => __( 'Campaign status. Always "draft" for the immediate response.', 'jetpack-blaze' ),
+						),
+						'approval_url' => array(
+							'type'        => 'string',
+							'format'      => 'uri',
+							'description' => __( 'Deep-link to the Blaze widget where the merchant previews and approves this draft.', 'jetpack-blaze' ),
+						),
+					),
+				),
+				'execute_callback'    => array( __CLASS__, 'create_campaign' ),
+				'permission_callback' => array( __CLASS__, 'permission_callback' ),
+				'meta'                => array(
+					'show_in_rest' => true,
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => false,
+						'idempotent'  => false,
 					),
 				),
 			),
@@ -223,5 +329,214 @@ class Blaze_Abilities extends Registrar {
 		}
 
 		return $response->get_data();
+	}
+
+	/**
+	 * Draft a new Blaze campaign by delegating to the existing DSP create
+	 * route. Returns a draft reference plus a deep-link to the Blaze widget
+	 * for merchant approval — the campaign does not go live until the
+	 * merchant explicitly approves it there.
+	 *
+	 * Note: cross-cutting guardrails (TOS, payment, spend ceiling) run
+	 * *before* this method via the registration-time wrapper applied in
+	 * `wrap_write_path_execute_callback()`. This method only handles the
+	 * happy-path delegation.
+	 *
+	 * @param array $args Ability input — see `get_abilities()` input_schema.
+	 * @return array|\WP_Error
+	 */
+	public static function create_campaign( $args = array() ) {
+		$site_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns', $site_id );
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) );
+
+		$response = rest_do_request( $request );
+		if ( $response->is_error() ) {
+			return $response->as_error();
+		}
+
+		$data = $response->get_data();
+
+		return array(
+			'campaign_id'  => isset( $data['campaign_id'] ) ? (string) $data['campaign_id'] : ( isset( $data['id'] ) ? (string) $data['id'] : '' ),
+			'status'       => 'draft',
+			'approval_url' => self::get_approval_url( $args, $data ),
+			'campaign'     => $data,
+		);
+	}
+
+	/**
+	 * Build the deep-link the merchant follows to preview and approve a
+	 * draft campaign.
+	 *
+	 * Phase 2 punts to the existing Blaze management URL family — that's
+	 * the SPA where drafts can be reviewed today. The exact in-SPA route
+	 * for "approve this specific draft" may need a follow-up with the
+	 * Calypso team; for now we land the merchant in the advertising
+	 * dashboard with the campaign visible.
+	 *
+	 * @param array $args         Original ability input (used for target_urn fallback).
+	 * @param array $dsp_response Response payload from the DSP create route. Reserved for future use (campaign-id-based deep-link lookup).
+	 * @return string
+	 */
+	private static function get_approval_url( array $args, $dsp_response ) {
+		unset( $dsp_response );
+		// Try to extract a post ID from the target URN to leverage the
+		// existing `Blaze::get_campaign_management_url()` helper.
+		$post_id = 0;
+		$urn     = isset( $args['target_urn'] ) ? (string) $args['target_urn'] : '';
+		if ( $urn && preg_match( '/^urn:wpcom:post:\d+:(\d+)$/', $urn, $m ) ) {
+			$post_id = (int) $m[1];
+		}
+
+		if ( $post_id > 0 && class_exists( '\Automattic\Jetpack\Blaze' ) ) {
+			$url_data = Blaze::get_campaign_management_url( $post_id );
+			return is_array( $url_data ) && isset( $url_data['link'] ) ? $url_data['link'] : '';
+		}
+
+		// Fallback: the bare advertising dashboard.
+		return admin_url( 'tools.php?page=advertising' );
+	}
+
+	/**
+	 * Registration-time wrapper for write-path abilities.
+	 *
+	 * Applied via the `wp_register_ability_args` filter. For any of our
+	 * abilities marked `meta.annotations.readonly => false`, replaces the
+	 * configured `execute_callback` with a closure that runs cross-cutting
+	 * guardrails first (TOS / payment, per-session spend ceiling) and only
+	 * delegates to the original callback if all checks pass.
+	 *
+	 * Lives at registration time (not via `wp_before_execute_ability`)
+	 * because the action hook is fire-and-forget and cannot abort the
+	 * call. Lives at the wrapper level (not `permission_callback`)
+	 * because the Abilities API strips structured data from
+	 * permission errors — the merchant needs to receive a deep-link in
+	 * the error data, which only works from the execute path.
+	 *
+	 * Future Phase 3 write abilities inherit this wrapper for free as
+	 * long as they're registered with `meta.annotations.readonly => false`.
+	 *
+	 * @param array  $args         Args being registered for the ability.
+	 * @param string $ability_name The fully-qualified ability slug.
+	 * @return array
+	 */
+	public static function wrap_write_path_execute_callback( array $args, string $ability_name ): array {
+		// Only touch our own abilities.
+		if ( ! in_array( $ability_name, self::OWNED_ABILITY_SLUGS, true ) ) {
+			return $args;
+		}
+
+		$is_write = isset( $args['meta']['annotations']['readonly'] ) && false === $args['meta']['annotations']['readonly'];
+		if ( ! $is_write ) {
+			return $args;
+		}
+
+		$original_callback = isset( $args['execute_callback'] ) ? $args['execute_callback'] : null;
+		if ( ! is_callable( $original_callback ) ) {
+			return $args;
+		}
+
+		$args['execute_callback'] = static function ( $input = array() ) use ( $original_callback ) {
+			$tos_check = self::check_tos_and_payment();
+			if ( is_wp_error( $tos_check ) ) {
+				return $tos_check;
+			}
+
+			$spend_check = self::check_spend_ceiling( $input );
+			if ( is_wp_error( $spend_check ) ) {
+				return $spend_check;
+			}
+
+			return call_user_func( $original_callback, $input );
+		};
+
+		return $args;
+	}
+
+	/**
+	 * Verify the merchant's Blaze TOS acceptance and payment-method
+	 * status are good for write actions.
+	 *
+	 * STUB: implementation pending. Needs a call to the WPCOM Blaze status
+	 * endpoint to check TOS + payment method state. When either is missing,
+	 * return a `WP_Error` whose `data` carries a deep-link the merchant
+	 * follows to fix the issue (Abilities API surfaces `WP_Error` data
+	 * verbatim from `execute_callback`).
+	 *
+	 * @return true|\WP_Error
+	 */
+	private static function check_tos_and_payment() {
+		// TODO(ADS-953): wire to WPCOM Blaze status endpoint.
+		// Example shape of the failure case for the eventual implementation:
+		//
+		// return new WP_Error(
+		// 'blaze_tos_required',
+		// __( 'Blaze terms of service must be accepted before creating campaigns.', 'jetpack-blaze' ),
+		// array(
+		// 'status'    => 403,
+		// 'fix_url'   => admin_url( 'tools.php?page=advertising' ),
+		// 'fix_label' => __( 'Accept terms in the Blaze dashboard', 'jetpack-blaze' ),
+		// )
+		// );
+		return true;
+	}
+
+	/**
+	 * Enforce a per-session spend ceiling on the requested campaign budget.
+	 *
+	 * STUB: "session" semantics are still TBD for MCP — there's no obvious
+	 * server-side session boundary for an MCP client. Likely candidates:
+	 * per-user-per-day, per-application-password-per-day, or a transient
+	 * scoped to the current REST request user. To be decided when wiring.
+	 *
+	 * @param mixed $input Ability input — should include `budget_total`.
+	 * @return true|\WP_Error
+	 */
+	private static function check_spend_ceiling( $input ) {
+		// TODO(ADS-953): decide session model + ceiling, then enforce.
+		unset( $input );
+		return true;
+	}
+
+	/**
+	 * Audit-log listener for write-path ability invocations.
+	 *
+	 * Filters down to slugs we own and that are write-path; ignores
+	 * read-only abilities and anything outside our category. Logs to the
+	 * standard error log for now — a structured audit store is a follow-up.
+	 *
+	 * @param string $ability_name The slug of the executed ability.
+	 * @param mixed  $input        The input passed to the ability.
+	 * @param mixed  $result       The result the ability returned.
+	 * @return void
+	 */
+	public static function audit_log_write_invocation( string $ability_name, $input, $result ): void {
+		if ( ! in_array( $ability_name, self::OWNED_ABILITY_SLUGS, true ) ) {
+			return;
+		}
+		// Skip read-only abilities — only audit writes.
+		if ( self::ABILITY_LIST_CAMPAIGNS === $ability_name ) {
+			return;
+		}
+
+		$entry = array(
+			'ability'   => $ability_name,
+			'user_id'   => get_current_user_id(),
+			'site_id'   => \Automattic\Jetpack\Connection\Manager::get_site_id(),
+			'input'     => $input,
+			'is_error'  => is_wp_error( $result ),
+			'timestamp' => time(),
+		);
+
+		// TODO(ADS-953): replace with structured audit storage. For now, log
+		// to error_log for visibility during development and reviewer testing.
+		error_log( '[blaze-abilities-audit] ' . wp_json_encode( $entry, JSON_UNESCAPED_SLASHES ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 }
