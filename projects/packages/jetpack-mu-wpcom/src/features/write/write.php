@@ -14,12 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
-	define(
-		'WPCOM_WRITE_VERSION',
-		class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom' )
-			? \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION
-			: '1.0.0-dev'
-	);
+	// Use file modification time to bust CDN caches when files change.
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ) ) );
 }
 
 /**
@@ -117,12 +113,16 @@ add_action(
 			#adminmenuwrap,
 			#adminmenuback,
 			#adminmenumain,
-			#wpfooter { display: none !important; }
+			#wpfooter,
+			#wpcom-help-center,
+			.wp-admin-bar-fix { display: none !important; }
 			#wpcontent,
 			#wpbody,
 			#wpbody-content { margin-left: 0 !important; padding: 0 !important; }
 			.wrap { margin: 0 !important; padding: 0 !important; max-width: none !important; }
 			html.wp-toolbar { padding-top: 0 !important; }
+			body.admin-bar { padding-top: 0 !important; margin-top: 0 !important; }
+			html { margin-top: 0 !important; }
 		';
 		wp_add_inline_style( 'wpcom-write', $hide_chrome_css );
 	}
@@ -173,33 +173,41 @@ function wpcom_write_render_admin_page() {
 	wp_interactivity_state(
 		'wpcom-write',
 		array(
-			'postsPath'        => '/wp/v2/posts',
-			'mediaPath'        => '/wp/v2/media',
-			'homeUrl'          => home_url( '/' ),
-			'adminUrl'         => admin_url(),
-			'writeUrl'         => wpcom_write_url(),
-			'editPostId'       => $edit_post_id,
-			'postStatus'       => $post_status,
-			'title'            => $edit_title,
-			'isSaving'         => false,
-			'isPublished'      => false,
-			'message'          => '',
-			'showToolbar'      => false,
-			'showLinkInput'    => false,
-			'linkUrl'          => '',
-			'showImageModal'   => false,
-			'showVideoModal'   => false,
-			'videoUrl'         => '',
-			'imageAlt'         => '',
-			'setAsFeatured'    => false,
-			'featuredMediaId'  => $edit_featured_id,
-			'isUploading'      => false,
-			'categories'       => $categories_data,
-			'showCatPicker'    => false,
-			'showHelp'         => false,
-			'showSlashMenu'    => false,
-			'slashFilter'      => '',
-			'showLeaveConfirm' => false,
+			'postsPath'           => '/wp/v2/posts',
+			'mediaPath'           => '/wp/v2/media',
+			'homeUrl'             => home_url( '/' ),
+			'adminUrl'            => admin_url(),
+			'writeUrl'            => wpcom_write_url(),
+			'editPostId'          => $edit_post_id,
+			'postStatus'          => $post_status,
+			'title'               => $edit_title,
+			'isSaving'            => false,
+			'isPublished'         => false,
+			'message'             => '',
+			'showLinkInput'       => false,
+			'linkUrl'             => '',
+			'showImageModal'      => false,
+			'showVideoModal'      => false,
+			'videoUrl'            => '',
+			'imageAlt'            => '',
+			'setAsFeatured'       => false,
+			'featuredMediaId'     => $edit_featured_id,
+			'isUploading'         => false,
+			'categories'          => $categories_data,
+			'showCatPicker'       => false,
+			'showHelp'            => false,
+			'showSlashMenu'       => false,
+			'slashFilter'         => '',
+			'showLeaveConfirm'    => false,
+			'showHeadingMenu'     => false,
+			'showTextColorMenu'   => false,
+			'formatStrikethrough' => false,
+			'formatUnderline'     => false,
+			'formatAlignLeft'     => true,
+			'formatAlignCenter'   => false,
+			'formatAlignRight'    => false,
+			'formatOList'         => false,
+			'formatUList'         => false,
 		)
 	);
 
@@ -229,7 +237,9 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
 			<div class="bw-help-title">Tips</div>
 			<div class="bw-help-row"><kbd>/</kbd><span>Insert a heading, image, video, quote or divider</span></div>
-			<div class="bw-help-row"><kbd>Select text</kbd><span>Formatting toolbar appears</span></div>
+			<div class="bw-help-row"><kbd>Ctrl+B</kbd><span>Bold</span></div>
+			<div class="bw-help-row"><kbd>Ctrl+I</kbd><span>Italic</span></div>
+			<div class="bw-help-row"><kbd>Ctrl+K</kbd><span>Insert link</span></div>
 			<div class="bw-help-row"><kbd>Tab</kbd><span>Navigate slash menu options</span></div>
 		</div>
 		<span class="bw-status" data-wp-text="state.message"></span>
@@ -246,6 +256,73 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			><?php echo $edit_post_id ? 'Update' : 'Publish'; ?></button>
 		</div>
 	</header>
+
+	<!-- Persistent formatting toolbar -->
+	<div
+		class="bw-toolbar"
+		data-wp-on--mousedown="actions.preventToolbarBlur"
+	>
+		<div class="bw-toolbar-scroll">
+			<!-- Heading dropdown -->
+			<div class="bw-tool-dropdown-wrap">
+				<button class="bw-tool bw-tool-heading-toggle" data-wp-on--click="actions.toggleHeadingMenu" data-wp-class--bw-tool-active="state.formatHeading" title="Text style">
+					<span class="bw-tool-label" data-wp-text="state.headingLabel">Normal</span>
+					<span class="bw-tool-caret">&#9662;</span>
+				</button>
+				<div class="bw-heading-menu" hidden data-wp-bind--hidden="!state.showHeadingMenu">
+					<button class="bw-heading-option" data-wp-on--click="actions.setHeadingNormal" data-wp-on--mousedown="actions.preventToolbarBlur"><span>Normal</span></button>
+					<button class="bw-heading-option bw-heading-option-h2" data-wp-on--click="actions.setHeadingH2" data-wp-on--mousedown="actions.preventToolbarBlur"><span>Heading 2</span></button>
+					<button class="bw-heading-option bw-heading-option-h3" data-wp-on--click="actions.setHeadingH3" data-wp-on--mousedown="actions.preventToolbarBlur"><span>Heading 3</span></button>
+				</div>
+			</div>
+			<span class="bw-tool-divider"></span>
+			<!-- Inline formatting -->
+			<button class="bw-tool" data-wp-on--click="actions.formatBold" data-wp-class--bw-tool-active="state.formatBold" title="Bold"><span class="dashicons dashicons-editor-bold"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatItalic" data-wp-class--bw-tool-active="state.formatItalic" title="Italic"><span class="dashicons dashicons-editor-italic"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatUnderline" data-wp-class--bw-tool-active="state.formatUnderline" title="Underline"><span class="dashicons dashicons-editor-underline"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatStrikethrough" data-wp-class--bw-tool-active="state.formatStrikethrough" title="Strikethrough"><span class="dashicons dashicons-editor-strikethrough"></span></button>
+			<!-- Text color -->
+			<div class="bw-tool-dropdown-wrap">
+				<button class="bw-tool" data-wp-on--click="actions.toggleTextColorMenu" title="Text color"><span class="dashicons dashicons-admin-appearance"></span></button>
+				<div class="bw-color-menu" hidden data-wp-bind--hidden="!state.showTextColorMenu" data-wp-on--mousedown="actions.preventToolbarBlur">
+					<button class="bw-color-swatch" style="background:#1a1a1a;" data-wp-on--click="actions.setTextColorDefault" title="Default"></button>
+					<button class="bw-color-swatch" style="background:#d63638;" data-wp-on--click="actions.setTextColorRed" title="Red"></button>
+					<button class="bw-color-swatch" style="background:#2171b1;" data-wp-on--click="actions.setTextColorBlue" title="Blue"></button>
+					<button class="bw-color-swatch" style="background:#00a32a;" data-wp-on--click="actions.setTextColorGreen" title="Green"></button>
+					<button class="bw-color-swatch" style="background:#dba617;" data-wp-on--click="actions.setTextColorYellow" title="Yellow"></button>
+					<button class="bw-color-swatch" style="background:#8c5db0;" data-wp-on--click="actions.setTextColorPurple" title="Purple"></button>
+				</div>
+			</div>
+			<span class="bw-tool-divider"></span>
+			<!-- Alignment -->
+			<button class="bw-tool" data-wp-on--click="actions.alignLeft" data-wp-class--bw-tool-active="state.formatAlignLeft" title="Align left"><span class="dashicons dashicons-editor-alignleft"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" title="Align center"><span class="dashicons dashicons-editor-aligncenter"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" title="Align right"><span class="dashicons dashicons-editor-alignright"></span></button>
+			<span class="bw-tool-divider"></span>
+			<!-- Lists -->
+			<button class="bw-tool" data-wp-on--click="actions.formatUList" data-wp-class--bw-tool-active="state.formatUList" title="Bulleted list"><span class="dashicons dashicons-editor-ul"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatOList" data-wp-class--bw-tool-active="state.formatOList" title="Numbered list"><span class="dashicons dashicons-editor-ol"></span></button>
+			<span class="bw-tool-divider"></span>
+			<!-- Block-level -->
+			<button class="bw-tool" data-wp-on--click="actions.toggleLinkInput" data-wp-class--bw-tool-active="state.showLinkInput" title="Link"><span class="dashicons dashicons-admin-links"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatQuote" data-wp-class--bw-tool-active="state.formatQuote" title="Quote"><span class="dashicons dashicons-format-quote"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.openImageModal" title="Image"><span class="dashicons dashicons-format-image"></span></button>
+		</div>
+	</div>
+
+	<!-- Link input popover -->
+	<div class="bw-link-popover" hidden data-wp-bind--hidden="!state.showLinkInput" data-wp-on--mousedown="actions.preventToolbarBlur">
+		<input
+			type="url"
+			class="bw-link-input"
+			placeholder="Paste or type a link..."
+			data-wp-bind--value="state.linkUrl"
+			data-wp-on--input="actions.updateLinkUrl"
+			data-wp-on--keydown="actions.handleLinkKeyDown"
+		/>
+		<button class="bw-link-apply" data-wp-on--click="actions.applyLink">Apply</button>
+		<button class="bw-link-remove" data-wp-on--click="actions.removeLink">&times;</button>
+	</div>
 
 	<!-- Writing area -->
 	<main class="bw-main">
@@ -269,37 +346,6 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			><?php echo $edit_content ? wp_kses_post( $edit_content ) : '<p><br></p>'; ?></div>
 		</div>
 	</main>
-
-	<!-- Floating formatting toolbar -->
-	<div
-		class="bw-toolbar"
-		hidden
-		data-wp-bind--hidden="!state.showToolbar"
-		data-wp-on--mousedown="actions.preventToolbarBlur"
-	>
-		<button class="bw-tool" data-wp-on--click="actions.formatHeading" data-wp-class--bw-tool-active="state.formatHeading" title="Heading"><span class="dashicons dashicons-heading"></span></button>
-		<span class="bw-tool-divider"></span>
-		<button class="bw-tool" data-wp-on--click="actions.formatBold" data-wp-class--bw-tool-active="state.formatBold" title="Bold"><span class="dashicons dashicons-editor-bold"></span></button>
-		<button class="bw-tool" data-wp-on--click="actions.formatItalic" data-wp-class--bw-tool-active="state.formatItalic" title="Italic"><span class="dashicons dashicons-editor-italic"></span></button>
-		<span class="bw-tool-divider"></span>
-		<button class="bw-tool" data-wp-on--click="actions.formatQuote" data-wp-class--bw-tool-active="state.formatQuote" title="Quote"><span class="dashicons dashicons-format-quote"></span></button>
-		<span class="bw-tool-divider"></span>
-		<button class="bw-tool" data-wp-on--click="actions.toggleLinkInput" title="Link"><span class="dashicons dashicons-admin-links"></span></button>
-		<button class="bw-tool" data-wp-on--click="actions.openImageModal" title="Image"><span class="dashicons dashicons-format-image"></span></button>
-	</div>
-
-	<!-- Link input popover -->
-	<div class="bw-link-popover" hidden data-wp-bind--hidden="!state.showLinkInput">
-		<input
-			type="url"
-			class="bw-link-input"
-			placeholder="Paste or type a link..."
-			data-wp-on--input="actions.updateLinkUrl"
-			data-wp-on--keydown="actions.handleLinkKeyDown"
-		/>
-		<button class="bw-link-apply" data-wp-on--click="actions.applyLink">Apply</button>
-		<button class="bw-link-remove" data-wp-on--click="actions.removeLink">&times;</button>
-	</div>
 
 	<!-- Image modal -->
 	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showImageModal" data-wp-on--click="actions.closeImageModal">
@@ -415,4 +461,3 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 </div>
 	<?php
 }
-

@@ -14,7 +14,7 @@
 	top: 0;
 	left: 0;
 	right: 0;
-	z-index: 100;
+	z-index: 100000;
 	height: 56px;
 	background: #fff;
 	border-bottom: 1px solid #f0f0f0;
@@ -171,9 +171,277 @@
 	background: #1a5f99;
 }
 
+/* ===== Persistent formatting toolbar ===== */
+.bw-toolbar {
+	position: fixed;
+	top: 56px;
+	left: 0;
+	right: 0;
+	z-index: 99999;
+	background: #fff;
+	border-bottom: 1px solid #f0f0f0;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+.bw-toolbar-scroll {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 0 16px;
+	max-width: 720px;
+}
+
+@keyframes bw-fade-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes bw-fade-in-centered {
+
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+}
+
+.bw-tool {
+	width: 34px;
+	height: 34px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: #555;
+	font-size: 15px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.1s ease;
+	flex-shrink: 0;
+}
+
+.bw-tool .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
+}
+
+.bw-tool:hover {
+	background: #f0f0f0;
+	color: #1a1a1a;
+}
+
+.bw-tool-active {
+	background: #e8e8e8;
+	color: #1a1a1a;
+}
+
+.bw-tool-divider {
+	width: 1px;
+	height: 20px;
+	background: #e0e0e0;
+	margin: 0 4px;
+	flex-shrink: 0;
+}
+
+/* Heading dropdown toggle */
+.bw-tool-heading-toggle {
+	width: auto;
+	padding: 0 8px;
+	gap: 4px;
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.bw-tool-label {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.bw-tool-caret {
+	font-size: 12px;
+	color: #999;
+}
+
+/* Dropdown wrapper (for heading and color menus) */
+.bw-tool-dropdown-wrap {
+	position: relative;
+	flex-shrink: 0;
+}
+
+/* Heading menu dropdown */
+.bw-heading-menu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	margin-top: 4px;
+	z-index: 210;
+	background: #fff;
+	border-radius: 8px;
+	padding: 4px;
+	min-width: 160px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	border: 1px solid #f0f0f0;
+}
+
+.bw-heading-menu:not([hidden]) {
+	animation: bw-fade-in 0.12s ease;
+}
+
+.bw-heading-menu[hidden] {
+	display: none;
+}
+
+.bw-heading-option {
+	display: block;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	text-align: start;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 14px;
+	color: #333;
+	transition: background 0.1s ease;
+}
+
+.bw-heading-option:hover {
+	background: #f5f5f5;
+}
+
+.bw-heading-option-h2 span {
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.bw-heading-option-h3 span {
+	font-size: 15px;
+	font-weight: 700;
+}
+
+/* Text color menu */
+.bw-color-menu {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: 4px;
+	z-index: 210;
+	background: #fff;
+	border-radius: 8px;
+	padding: 8px;
+	display: flex;
+	gap: 6px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	border: 1px solid #f0f0f0;
+}
+
+.bw-color-menu:not([hidden]) {
+	animation: bw-fade-in-centered 0.12s ease;
+}
+
+.bw-color-menu[hidden] {
+	display: none;
+}
+
+.bw-color-swatch {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	cursor: pointer;
+	transition: transform 0.1s ease, box-shadow 0.1s ease;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.bw-color-swatch:hover {
+	transform: scale(1.15);
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Link popover (below toolbar) ===== */
+.bw-link-popover {
+	position: fixed;
+	top: 100px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 201;
+	background: #fff;
+	border-radius: 8px;
+	padding: 8px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	animation: bw-fade-in-centered 0.12s ease;
+}
+
+.bw-link-popover[hidden] {
+	display: none;
+}
+
+.bw-link-input {
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	padding: 6px 10px;
+	font-size: 14px;
+	outline: none;
+	width: 280px;
+	font-family: inherit;
+}
+
+.bw-link-input:focus {
+	border-color: #2171b1;
+}
+
+.bw-link-apply {
+	border: none;
+	background: #2171b1;
+	color: #fff;
+	border-radius: 6px;
+	padding: 6px 12px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.bw-link-remove {
+	border: none;
+	background: transparent;
+	color: #999;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 4px 8px;
+}
+
+.bw-link-remove:hover {
+	color: #d63638;
+}
+
 /* ===== Main writing area ===== */
 .bw-main {
-	padding-top: 96px;
+	padding-top: 120px;
 	padding-bottom: 40vh;
 	display: flex;
 	justify-content: center;
@@ -521,6 +789,28 @@
 	font-style: italic;
 }
 
+.bw-content s,
+.bw-content strike {
+	text-decoration: line-through;
+}
+
+.bw-content u {
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+/* Lists in content */
+.bw-content ul,
+.bw-content ol {
+	margin: 0 0 1.25em;
+	padding-inline-start: 1.5em;
+}
+
+.bw-content li {
+	margin-bottom: 0.25em;
+	line-height: inherit;
+}
+
 /* Images in content */
 .bw-content figure,
 .bw-content .bw-image-figure {
@@ -693,132 +983,6 @@
 	width: 100%;
 	height: 100%;
 	border: none;
-}
-
-/* ===== Floating formatting toolbar ===== */
-.bw-toolbar {
-	position: absolute;
-	z-index: 200;
-	background: #1e1e1e;
-	border-radius: 8px;
-	padding: 4px;
-	display: flex;
-	align-items: center;
-	gap: 2px;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-toolbar[hidden] {
-	display: none;
-}
-
-@keyframes bw-fade-in {
-
-	from {
-		opacity: 0;
-		transform: translateY(4px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-.bw-tool {
-	width: 34px;
-	height: 34px;
-	border: none;
-	border-radius: 6px;
-	background: transparent;
-	color: #ccc;
-	font-size: 15px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.1s ease;
-}
-
-.bw-tool .dashicons {
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
-	line-height: 18px;
-}
-
-.bw-tool:hover {
-	background: #333;
-	color: #fff;
-}
-
-.bw-tool-active {
-	background: #444;
-	color: #fff;
-}
-
-.bw-tool-divider {
-	width: 1px;
-	height: 20px;
-	background: #444;
-	margin: 0 4px;
-}
-
-/* ===== Link popover ===== */
-.bw-link-popover {
-	position: absolute;
-	z-index: 201;
-	background: #fff;
-	border-radius: 8px;
-	padding: 8px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-link-popover[hidden] {
-	display: none;
-}
-
-.bw-link-input {
-	border: 1px solid #ddd;
-	border-radius: 6px;
-	padding: 6px 10px;
-	font-size: 14px;
-	outline: none;
-	width: 240px;
-	font-family: inherit;
-}
-
-.bw-link-input:focus {
-	border-color: #2171b1;
-}
-
-.bw-link-apply {
-	border: none;
-	background: #2171b1;
-	color: #fff;
-	border-radius: 6px;
-	padding: 6px 12px;
-	font-size: 13px;
-	font-weight: 500;
-	cursor: pointer;
-}
-
-.bw-link-remove {
-	border: none;
-	background: transparent;
-	color: #999;
-	font-size: 18px;
-	cursor: pointer;
-	padding: 4px 8px;
-}
-
-.bw-link-remove:hover {
-	color: #d63638;
 }
 
 /* ===== Image modal ===== */
@@ -1109,5 +1273,54 @@
 
 	.bw-btn-draft {
 		display: none;
+	}
+
+	/* Toolbar scrolls horizontally on mobile */
+	.bw-toolbar-scroll {
+		justify-content: flex-start;
+		padding: 0 12px;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+
+	.bw-toolbar-scroll::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Escape the overflow scroll container on mobile */
+	.bw-heading-menu {
+		position: fixed;
+		top: 104px;
+		left: 16px;
+		transform: none;
+		margin-top: 0;
+	}
+
+	.bw-color-menu {
+		position: fixed;
+		top: 104px;
+		right: 16px;
+		left: auto;
+		transform: none;
+		margin-top: 0;
+	}
+
+	.bw-color-menu:not([hidden]) {
+		animation: bw-fade-in 0.12s ease;
+	}
+
+	/* Link popover adapts to mobile width */
+	.bw-link-popover {
+		left: 16px;
+		right: 16px;
+		transform: none;
+		width: auto;
+		animation: bw-fade-in 0.12s ease;
+	}
+
+	.bw-link-input {
+		width: 100%;
+		flex: 1;
 	}
 }

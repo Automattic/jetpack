@@ -189,4 +189,112 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'style.css', $url );
 		$this->assertStringContainsString( 'write', $url );
 	}
+
+	/**
+	 * Test that the persistent toolbar is rendered with the correct structure.
+	 */
+	public function test_template_contains_persistent_toolbar() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		// Toolbar is a fixed bar, not a floating element.
+		$this->assertStringContainsString( 'class="bw-toolbar"', $output );
+		$this->assertStringContainsString( 'class="bw-toolbar-scroll"', $output );
+	}
+
+	/**
+	 * Test that the toolbar is always visible (no hidden attribute or show/hide bindings).
+	 */
+	public function test_toolbar_always_visible() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-toolbar"', $output );
+		// Toolbar should not have hidden attribute or hidden binding.
+		$this->assertStringNotContainsString( 'bw-toolbar"' . "\n" . '		hidden', $output );
+	}
+
+	/**
+	 * Test that the toolbar contains all required formatting buttons.
+	 */
+	public function test_toolbar_contains_formatting_buttons() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		// Inline formatting.
+		$this->assertStringContainsString( 'actions.formatBold', $output );
+		$this->assertStringContainsString( 'actions.formatItalic', $output );
+		$this->assertStringContainsString( 'actions.formatUnderline', $output );
+		$this->assertStringContainsString( 'actions.formatStrikethrough', $output );
+
+		// Alignment.
+		$this->assertStringContainsString( 'actions.alignLeft', $output );
+		$this->assertStringContainsString( 'actions.alignCenter', $output );
+		$this->assertStringContainsString( 'actions.alignRight', $output );
+
+		// Lists.
+		$this->assertStringContainsString( 'actions.formatUList', $output );
+		$this->assertStringContainsString( 'actions.formatOList', $output );
+
+		// Block-level.
+		$this->assertStringContainsString( 'actions.toggleLinkInput', $output );
+		$this->assertStringContainsString( 'actions.formatQuote', $output );
+		$this->assertStringContainsString( 'actions.openImageModal', $output );
+	}
+
+	/**
+	 * Test that the heading dropdown menu is rendered.
+	 */
+	public function test_toolbar_contains_heading_dropdown() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'actions.toggleHeadingMenu', $output );
+		$this->assertStringContainsString( 'class="bw-heading-menu"', $output );
+		$this->assertStringContainsString( 'actions.setHeadingNormal', $output );
+		$this->assertStringContainsString( 'actions.setHeadingH2', $output );
+		$this->assertStringContainsString( 'actions.setHeadingH3', $output );
+	}
+
+	/**
+	 * Test that the text color picker is rendered.
+	 */
+	public function test_toolbar_contains_text_color_picker() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'actions.toggleTextColorMenu', $output );
+		$this->assertStringContainsString( 'class="bw-color-menu"', $output );
+		$this->assertStringContainsString( 'class="bw-color-swatch"', $output );
+	}
+
+	/**
+	 * Test that the Interactivity API state includes new toolbar state fields.
+	 */
+	public function test_interactivity_state_includes_toolbar_fields() {
+		wp_set_current_user( $this->admin_id );
+
+		// Render the admin page which calls wp_interactivity_state().
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		// Use reflection to read the stored state via the global.
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertArrayHasKey( 'showHeadingMenu', $state );
+		$this->assertArrayHasKey( 'showTextColorMenu', $state );
+		$this->assertArrayHasKey( 'formatStrikethrough', $state );
+		$this->assertArrayHasKey( 'formatUnderline', $state );
+		$this->assertArrayHasKey( 'formatAlignLeft', $state );
+		$this->assertArrayHasKey( 'formatAlignCenter', $state );
+		$this->assertArrayHasKey( 'formatAlignRight', $state );
+		$this->assertArrayHasKey( 'formatOList', $state );
+		$this->assertArrayHasKey( 'formatUList', $state );
+	}
 }

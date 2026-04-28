@@ -13,6 +13,11 @@ import { store, getElement, getContext } from '@wordpress/interactivity';
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
 
+// Stored references for dropdown close handlers to prevent listener leaks.
+let headingMenuCloseHandler = null;
+let textColorMenuCloseHandler = null;
+let linkPopoverCloseHandler = null;
+
 /**
  * Save the current text selection so it can be restored after a modal closes.
  */
@@ -34,6 +39,40 @@ function restoreSelection() {
 }
 
 /**
+ * Normalize color markup from contentEditable before block serialization.
+ *
+ * The foreColor command creates <font color="..."> (legacy) or
+ * <span style="color:..."> (modern). Convert both to clean <span> elements
+ * with inline styles, and strip the default text color (#1a1a1a).
+ *
+ * @param {HTMLElement} container - The container to normalize in place.
+ */
+function normalizeColorMarkup( container ) {
+	// Convert <font color="..."> to <span style="color:...">.
+	container.querySelectorAll( 'font[color]' ).forEach( font => {
+		const color = font.getAttribute( 'color' );
+		const span = document.createElement( 'span' );
+		// Skip default color — unwrap the element entirely.
+		if ( color && color.toLowerCase() !== '#1a1a1a' ) {
+			span.style.color = color;
+		}
+		span.innerHTML = font.innerHTML;
+		font.replaceWith( span );
+	} );
+
+	// Strip default-colored spans (unwrap them, keeping their content).
+	container.querySelectorAll( 'span' ).forEach( span => {
+		const color = span.style.color;
+		if ( ! color ) return;
+		// Detect default color in various formats.
+		const isDefault = color === '#1a1a1a' || color === 'rgb(26, 26, 26)';
+		if ( isDefault ) {
+			span.replaceWith( ...span.childNodes );
+		}
+	} );
+}
+
+/**
  * Convert contentEditable HTML into WordPress block markup.
  *
  * @param {string} html - The innerHTML from the contenteditable area.
@@ -42,6 +81,9 @@ function restoreSelection() {
 function convertToBlocks( html ) {
 	const tmp = document.createElement( 'div' );
 	tmp.innerHTML = html;
+
+	// Normalize color markup before serialization.
+	normalizeColorMarkup( tmp );
 
 	const blocks = [];
 
@@ -61,12 +103,23 @@ function convertToBlocks( html ) {
 
 		if ( ! inner && ! [ 'figure', 'img', 'hr' ].includes( tag ) ) continue;
 
+		// Check for text alignment.
+		const align = node.style && node.style.textAlign;
+		const alignAttr =
+			align && [ 'center', 'right' ].includes( align ) ? ` style="text-align:${ align }"` : '';
+		const alignJson =
+			align && [ 'center', 'right' ].includes( align ) ? `,"align":"${ align }"` : '';
+
 		if ( tag === 'p' || tag === 'div' ) {
-			blocks.push( `<!-- wp:paragraph -->\n<p>${ inner }</p>\n<!-- /wp:paragraph -->` );
+			blocks.push(
+				`<!-- wp:paragraph${
+					alignJson ? ` {${ alignJson.slice( 1 ) }}` : ''
+				} -->\n<p${ alignAttr }>${ inner }</p>\n<!-- /wp:paragraph -->`
+			);
 		} else if ( /^h[1-6]$/.test( tag ) ) {
 			const level = parseInt( tag.charAt( 1 ), 10 );
 			blocks.push(
-				`<!-- wp:heading {"level":${ level }} -->\n<${ tag } class="wp-block-heading">${ inner }</${ tag }>\n<!-- /wp:heading -->`
+				`<!-- wp:heading {"level":${ level }${ alignJson }} -->\n<${ tag } class="wp-block-heading"${ alignAttr }>${ inner }</${ tag }>\n<!-- /wp:heading -->`
 			);
 		} else if ( tag === 'figure' && node.querySelector( 'iframe' ) ) {
 			const iframe = node.querySelector( 'iframe' );
@@ -94,8 +147,19 @@ function convertToBlocks( html ) {
 		} else if ( tag === 'blockquote' ) {
 			// inner may already contain <p> tags from contentEditable.
 			const quoteInner = inner.startsWith( '<p' ) ? inner : `<p>${ inner }</p>`;
+			const hasQuoteAlign = align && [ 'center', 'right' ].includes( align );
+			const quoteAlignAttr = hasQuoteAlign ? ` style="text-align:${ align }"` : '';
+			const quoteAlignJson = hasQuoteAlign ? ` {"align":"${ align }"}` : '';
 			blocks.push(
-				`<!-- wp:quote -->\n<blockquote class="wp-block-quote">${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+				`<!-- wp:quote${ quoteAlignJson } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+			);
+		} else if ( tag === 'ul' ) {
+			blocks.push(
+				`<!-- wp:list -->\n<ul class="wp-block-list">${ inner }</ul>\n<!-- /wp:list -->`
+			);
+		} else if ( tag === 'ol' ) {
+			blocks.push(
+				`<!-- wp:list {"ordered":true} -->\n<ol class="wp-block-list">${ inner }</ol>\n<!-- /wp:list -->`
 			);
 		} else if ( tag === 'hr' ) {
 			blocks.push(
@@ -108,28 +172,6 @@ function convertToBlocks( html ) {
 	}
 
 	return blocks.join( '\n\n' );
-}
-
-/**
- * Position the toolbar near the current text selection.
- */
-function positionToolbar() {
-	const sel = window.getSelection();
-	if ( ! sel.rangeCount ) return;
-
-	const toolbar = document.querySelector( '.bw-toolbar' );
-	if ( ! toolbar ) return;
-
-	const range = sel.getRangeAt( 0 );
-	const rect = range.getBoundingClientRect();
-	const toolbarWidth = toolbar.offsetWidth;
-	let left = rect.left + rect.width / 2 - toolbarWidth / 2;
-	left = Math.max( 8, Math.min( left, window.innerWidth - toolbarWidth - 8 ) );
-	const top = rect.top - 52 + window.scrollY;
-
-	toolbar.style.position = 'absolute';
-	toolbar.style.left = left + 'px';
-	toolbar.style.top = top + 'px';
 }
 
 /**
@@ -333,7 +375,7 @@ const contentReady2 = setInterval( () => {
 	}
 }, 200 );
 
-// Watch for new figures being added.
+// Watch for new figures being added, and set up paste-to-link.
 if ( typeof MutationObserver !== 'undefined' ) {
 	const contentReady = setInterval( () => {
 		const content = document.querySelector( '.bw-content' );
@@ -341,6 +383,18 @@ if ( typeof MutationObserver !== 'undefined' ) {
 		clearInterval( contentReady );
 		addDeleteButtons();
 		new MutationObserver( addDeleteButtons ).observe( content, { childList: true, subtree: true } );
+
+		// Highlight text + paste URL → create a link.
+		content.addEventListener( 'paste', event => {
+			const sel = window.getSelection();
+			if ( ! sel.rangeCount || sel.isCollapsed ) return;
+
+			const pasted = event.clipboardData.getData( 'text/plain' );
+			if ( pasted && /^https?:\/\/\S+$/i.test( pasted.trim() ) ) {
+				event.preventDefault();
+				document.execCommand( 'createLink', false, pasted.trim() );
+			}
+		} );
 	}, 200 );
 }
 
@@ -431,6 +485,101 @@ function insertNewBlock( tag ) {
 	state.showSlashMenu = false;
 }
 
+/**
+ * Detect the current formatting state at the cursor position.
+ * Updates all toolbar button states.
+ */
+function updateFormattingState() {
+	state.formatBold = document.queryCommandState( 'bold' );
+	state.formatItalic = document.queryCommandState( 'italic' );
+	state.formatUnderline = document.queryCommandState( 'underline' );
+	state.formatStrikethrough = document.queryCommandState( 'strikeThrough' );
+	state.formatOList = document.queryCommandState( 'insertOrderedList' );
+	state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+
+	// Check block-level formatting by walking up from cursor.
+	const sel = window.getSelection();
+	state.formatHeading = false;
+	state.formatQuote = false;
+	state.headingLabel = 'Normal';
+	state.formatAlignLeft = true;
+	state.formatAlignCenter = false;
+	state.formatAlignRight = false;
+
+	if ( sel.rangeCount ) {
+		let node = sel.anchorNode;
+		while ( node && node !== document.body ) {
+			if ( node.nodeType === Node.ELEMENT_NODE ) {
+				if ( node.tagName === 'H2' ) {
+					state.formatHeading = true;
+					state.headingLabel = 'Heading 2';
+				} else if ( node.tagName === 'H3' ) {
+					state.formatHeading = true;
+					state.headingLabel = 'Heading 3';
+				} else if ( /^H[1-6]$/.test( node.tagName ) ) {
+					state.formatHeading = true;
+				}
+				if ( node.tagName === 'BLOCKQUOTE' ) {
+					state.formatQuote = true;
+				}
+				// Detect alignment from the nearest block element.
+				if ( /^(P|H[1-6]|DIV|BLOCKQUOTE)$/.test( node.tagName ) && node.style.textAlign ) {
+					const align = node.style.textAlign;
+					state.formatAlignLeft = align === 'left' || align === 'start' || align === '';
+					state.formatAlignCenter = align === 'center';
+					state.formatAlignRight = align === 'right';
+				}
+			}
+			node = node.parentNode;
+		}
+	}
+}
+
+/**
+ * Position a dropdown menu precisely on mobile by calculating from the toolbar.
+ *
+ * On mobile, dropdown menus use position:fixed to escape the overflow:auto
+ * scroll container. This calculates the correct top position from the toolbar.
+ *
+ * @param {string} selector - CSS selector for the dropdown menu.
+ */
+function positionDropdownOnMobile( selector ) {
+	if ( window.innerWidth > 768 ) return;
+
+	requestAnimationFrame( () => {
+		const menu = document.querySelector( selector );
+		const toolbar = document.querySelector( '.bw-toolbar' );
+		if ( ! menu || ! toolbar ) return;
+
+		const toolbarRect = toolbar.getBoundingClientRect();
+		menu.style.top = toolbarRect.bottom + 4 + 'px';
+	} );
+}
+
+/**
+ * Clean up stray <div> elements created by justify commands.
+ *
+ * Some browsers wrap content in a <div> when using justifyLeft/Center/Right
+ * instead of applying text-align to the existing block. This replaces those
+ * divs with <p> elements carrying the same text-align style.
+ */
+function cleanupAlignmentDivs() {
+	const content = document.querySelector( '.bw-content' );
+	if ( ! content ) return;
+
+	content.querySelectorAll( ':scope > div' ).forEach( div => {
+		// Skip intentional divs (image controls, etc.).
+		if ( div.classList.length > 0 ) return;
+
+		const p = document.createElement( 'p' );
+		if ( div.style.textAlign ) {
+			p.style.textAlign = div.style.textAlign;
+		}
+		p.innerHTML = div.innerHTML;
+		div.replaceWith( p );
+	} );
+}
+
 const { state } = store( 'wpcom-write', {
 	state: {
 		formatBold: false,
@@ -438,6 +587,7 @@ const { state } = store( 'wpcom-write', {
 		formatHeading: false,
 		formatQuote: false,
 		imageUrl: '',
+		headingLabel: 'Normal',
 	},
 
 	actions: {
@@ -492,35 +642,19 @@ const { state } = store( 'wpcom-write', {
 			const { actions } = store( 'wpcom-write' );
 			actions.checkSlashCommand();
 
-			const sel = window.getSelection();
-			const text = sel.toString().trim();
-
-			if ( ! text ) {
-				state.showToolbar = false;
-				state.showLinkInput = false;
-				return;
-			}
-
-			state.formatBold = document.queryCommandState( 'bold' );
-			state.formatItalic = document.queryCommandState( 'italic' );
-
-			// Check if inside a heading or blockquote.
-			let node = sel.anchorNode;
-			state.formatHeading = false;
-			state.formatQuote = false;
-			while ( node && node !== document.body ) {
-				if ( node.nodeType === Node.ELEMENT_NODE ) {
-					if ( /^H[1-6]$/.test( node.tagName ) ) state.formatHeading = true;
-					if ( node.tagName === 'BLOCKQUOTE' ) state.formatQuote = true;
-				}
-				node = node.parentNode;
-			}
-
-			state.showToolbar = true;
-			requestAnimationFrame( positionToolbar );
+			// Update all formatting button states based on cursor position.
+			updateFormattingState();
 		},
 
 		handleKeyDown( event ) {
+			// Ctrl+K / Cmd+K to toggle link input.
+			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'k' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.toggleLinkInput();
+				return;
+			}
+
 			// Slash menu keyboard navigation.
 			if ( state.showSlashMenu ) {
 				if ( event.key === 'Escape' ) {
@@ -656,9 +790,13 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		preventToolbarBlur( event ) {
-			// Prevent the toolbar from stealing focus from the content area.
+			// Prevent the toolbar from stealing focus from the content area,
+			// but allow normal interaction with form inputs (text selection, cursor).
+			if ( event.target.closest( 'input, textarea' ) ) return;
 			event.preventDefault();
 		},
+
+		// --- Inline formatting ---
 
 		formatBold() {
 			document.execCommand( 'bold' );
@@ -670,16 +808,164 @@ const { state } = store( 'wpcom-write', {
 			state.formatItalic = document.queryCommandState( 'italic' );
 		},
 
-		formatHeading() {
-			if ( state.formatHeading ) {
-				document.execCommand( 'formatBlock', false, 'p' );
-				state.formatHeading = false;
-			} else {
-				document.execCommand( 'formatBlock', false, 'h2' );
-				state.formatHeading = true;
-				state.formatQuote = false;
+		formatUnderline() {
+			document.execCommand( 'underline' );
+			state.formatUnderline = document.queryCommandState( 'underline' );
+		},
+
+		formatStrikethrough() {
+			document.execCommand( 'strikeThrough' );
+			state.formatStrikethrough = document.queryCommandState( 'strikeThrough' );
+		},
+
+		// --- Text color ---
+
+		toggleTextColorMenu() {
+			state.showTextColorMenu = ! state.showTextColorMenu;
+			state.showHeadingMenu = false;
+			// Always clean up any existing listener first.
+			if ( textColorMenuCloseHandler ) {
+				document.removeEventListener( 'click', textColorMenuCloseHandler );
+				textColorMenuCloseHandler = null;
+			}
+			if ( state.showTextColorMenu ) {
+				positionDropdownOnMobile( '.bw-color-menu' );
+				textColorMenuCloseHandler = e => {
+					if (
+						e.target.closest( '.bw-color-menu' ) ||
+						e.target.closest( '[data-wp-on--click="actions.toggleTextColorMenu"]' )
+					)
+						return;
+					state.showTextColorMenu = false;
+					document.removeEventListener( 'click', textColorMenuCloseHandler );
+					textColorMenuCloseHandler = null;
+				};
+				setTimeout( () => document.addEventListener( 'click', textColorMenuCloseHandler ), 0 );
 			}
 		},
+
+		setTextColorDefault() {
+			// Use foreColor with the default text color instead of removeFormat,
+			// which would strip all inline formatting (bold, italic, etc.).
+			document.execCommand( 'foreColor', false, '#1a1a1a' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorRed() {
+			document.execCommand( 'foreColor', false, '#d63638' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorBlue() {
+			document.execCommand( 'foreColor', false, '#2171b1' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorGreen() {
+			document.execCommand( 'foreColor', false, '#00a32a' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorYellow() {
+			document.execCommand( 'foreColor', false, '#dba617' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorPurple() {
+			document.execCommand( 'foreColor', false, '#8c5db0' );
+			state.showTextColorMenu = false;
+		},
+
+		// --- Heading dropdown ---
+
+		toggleHeadingMenu() {
+			state.showHeadingMenu = ! state.showHeadingMenu;
+			state.showTextColorMenu = false;
+			// Always clean up any existing listener first.
+			if ( headingMenuCloseHandler ) {
+				document.removeEventListener( 'click', headingMenuCloseHandler );
+				headingMenuCloseHandler = null;
+			}
+			if ( state.showHeadingMenu ) {
+				positionDropdownOnMobile( '.bw-heading-menu' );
+				headingMenuCloseHandler = e => {
+					if (
+						e.target.closest( '.bw-heading-menu' ) ||
+						e.target.closest( '.bw-tool-heading-toggle' )
+					)
+						return;
+					state.showHeadingMenu = false;
+					document.removeEventListener( 'click', headingMenuCloseHandler );
+					headingMenuCloseHandler = null;
+				};
+				setTimeout( () => document.addEventListener( 'click', headingMenuCloseHandler ), 0 );
+			}
+		},
+
+		setHeadingNormal() {
+			document.execCommand( 'formatBlock', false, 'p' );
+			state.formatHeading = false;
+			state.headingLabel = 'Normal';
+			state.showHeadingMenu = false;
+		},
+
+		setHeadingH2() {
+			document.execCommand( 'formatBlock', false, 'h2' );
+			state.formatHeading = true;
+			state.headingLabel = 'Heading 2';
+			state.formatQuote = false;
+			state.showHeadingMenu = false;
+		},
+
+		setHeadingH3() {
+			document.execCommand( 'formatBlock', false, 'h3' );
+			state.formatHeading = true;
+			state.headingLabel = 'Heading 3';
+			state.formatQuote = false;
+			state.showHeadingMenu = false;
+		},
+
+		// --- Alignment ---
+
+		alignLeft() {
+			document.execCommand( 'justifyLeft' );
+			cleanupAlignmentDivs();
+			state.formatAlignLeft = true;
+			state.formatAlignCenter = false;
+			state.formatAlignRight = false;
+		},
+
+		alignCenter() {
+			document.execCommand( 'justifyCenter' );
+			cleanupAlignmentDivs();
+			state.formatAlignLeft = false;
+			state.formatAlignCenter = true;
+			state.formatAlignRight = false;
+		},
+
+		alignRight() {
+			document.execCommand( 'justifyRight' );
+			cleanupAlignmentDivs();
+			state.formatAlignLeft = false;
+			state.formatAlignCenter = false;
+			state.formatAlignRight = true;
+		},
+
+		// --- Lists ---
+
+		formatUList() {
+			document.execCommand( 'insertUnorderedList' );
+			state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+			state.formatOList = document.queryCommandState( 'insertOrderedList' );
+		},
+
+		formatOList() {
+			document.execCommand( 'insertOrderedList' );
+			state.formatOList = document.queryCommandState( 'insertOrderedList' );
+			state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+		},
+
+		// --- Block formatting ---
 
 		formatQuote() {
 			if ( state.formatQuote ) {
@@ -692,7 +978,14 @@ const { state } = store( 'wpcom-write', {
 			}
 		},
 
+		// --- Link ---
+
 		toggleLinkInput() {
+			// Always clean up any existing listener first.
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
 			if ( state.showLinkInput ) {
 				state.showLinkInput = false;
 				return;
@@ -707,7 +1000,7 @@ const { state } = store( 'wpcom-write', {
 			state.linkUrl = '';
 			while ( node && node !== document.body ) {
 				if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A' ) {
-					state.linkUrl = node.href;
+					state.linkUrl = node.getAttribute( 'href' ) || '';
 					break;
 				}
 				node = node.parentNode;
@@ -715,21 +1008,26 @@ const { state } = store( 'wpcom-write', {
 
 			state.showLinkInput = true;
 
-			// Position the link popover below the toolbar.
+			// Focus the link input.
 			requestAnimationFrame( () => {
-				const toolbar = document.querySelector( '.bw-toolbar' );
 				const popover = document.querySelector( '.bw-link-popover' );
-				if ( ! toolbar || ! popover ) return;
-
-				const rect = toolbar.getBoundingClientRect();
-				popover.style.position = 'absolute';
-				popover.style.left = toolbar.style.left;
-				popover.style.top = rect.bottom + 8 + window.scrollY + 'px';
-
-				// Focus the input.
+				if ( ! popover ) return;
 				const input = popover.querySelector( '.bw-link-input' );
 				if ( input ) input.focus();
 			} );
+
+			// Close when clicking outside the popover.
+			linkPopoverCloseHandler = e => {
+				if (
+					e.target.closest( '.bw-link-popover' ) ||
+					e.target.closest( '[data-wp-on--click="actions.toggleLinkInput"]' )
+				)
+					return;
+				state.showLinkInput = false;
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			};
+			setTimeout( () => document.addEventListener( 'click', linkPopoverCloseHandler ), 0 );
 		},
 
 		updateLinkUrl() {
@@ -745,12 +1043,22 @@ const { state } = store( 'wpcom-write', {
 					document.execCommand( 'createLink', false, state.linkUrl );
 				}
 				state.showLinkInput = false;
-				state.showToolbar = false;
+				if ( linkPopoverCloseHandler ) {
+					document.removeEventListener( 'click', linkPopoverCloseHandler );
+					linkPopoverCloseHandler = null;
+				}
+				const content = document.querySelector( '.bw-content' );
+				if ( content ) content.focus();
 			}
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
 				state.showLinkInput = false;
-				state.showToolbar = false;
+				if ( linkPopoverCloseHandler ) {
+					document.removeEventListener( 'click', linkPopoverCloseHandler );
+					linkPopoverCloseHandler = null;
+				}
+				const content = document.querySelector( '.bw-content' );
+				if ( content ) content.focus();
 			}
 		},
 
@@ -760,15 +1068,27 @@ const { state } = store( 'wpcom-write', {
 				document.execCommand( 'createLink', false, state.linkUrl );
 			}
 			state.showLinkInput = false;
-			state.showToolbar = false;
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
 		},
 
 		removeLink() {
 			restoreSelection();
 			document.execCommand( 'unlink' );
 			state.showLinkInput = false;
-			state.showToolbar = false;
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
 		},
+
+		// --- Image ---
 
 		toggleFeaturedImage() {
 			state.setAsFeatured = ! state.setAsFeatured;
@@ -781,7 +1101,6 @@ const { state } = store( 'wpcom-write', {
 
 		openImageModal() {
 			saveSelection();
-			state.showToolbar = false;
 			state.imageUrl = '';
 			state.imageAlt = '';
 			state.setAsFeatured = false;
@@ -906,6 +1225,8 @@ const { state } = store( 'wpcom-write', {
 				}, 3000 );
 			}
 		},
+
+		// --- Slash commands ---
 
 		insertHeading() {
 			insertNewBlock( 'h2' );
@@ -1035,6 +1356,8 @@ const { state } = store( 'wpcom-write', {
 			}
 			state.showSlashMenu = false;
 		},
+
+		// --- UI toggles ---
 
 		toggleHelp() {
 			state.showHelp = ! state.showHelp;
