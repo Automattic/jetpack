@@ -13,8 +13,10 @@
  *   3. `jetpack_search_es_wp_query_args` — translate WC URL params
  *      (`filter_<slug>`, `categories`, `tags`, `brands`, `pa_*`) into ES
  *      filter terms
- *   4. `Classic_Search::set_filters()` on `init` — register taxonomy and
- *      attribute aggregations so ES returns bucket counts
+ *   4. `Inline_Search::set_filters()` on `init` — register taxonomy and
+ *      attribute aggregations so ES returns bucket counts (the search
+ *      instance is resolved via `Inline_Search::get_instance_maybe_fallback_to_classic()`
+ *      to handle both Inline and the legacy Classic fallback)
  *
  * @package automattic/jetpack-search
  */
@@ -35,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WooCommerce_Filters_Bridge {
 
 	/**
-	 * Prefix used when registering aggregation keys with Classic_Search so
+	 * Prefix used when registering aggregation keys with the search instance so
 	 * we can reverse-map an aggregation result back to a (filter type,
 	 * taxonomy) tuple.
 	 */
@@ -94,13 +96,24 @@ class WooCommerce_Filters_Bridge {
 			return false;
 		}
 
-		// Search module must be active so Classic_Search will actually run a
-		// query and produce aggregations.
+		// Search module must be active so Inline_Search (or the Classic
+		// fallback) will actually run a query and produce aggregations.
 		if ( ! ( new Module_Control() )->is_active() ) {
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Resolve the active search singleton.
+	 *
+	 * Mirrors the initializer's choice between Inline_Search (the current
+	 * implementation) and Classic_Search (the legacy fallback that's still
+	 * used on sites without the inline-search feature flag).
+	 */
+	private function search_instance() {
+		return Inline_Search::get_instance_maybe_fallback_to_classic();
 	}
 
 	/**
@@ -114,7 +127,8 @@ class WooCommerce_Filters_Bridge {
 	}
 
 	/**
-	 * Register taxonomy + attribute aggregations with Classic_Search.
+	 * Register taxonomy + attribute aggregations with the active search
+	 * instance.
 	 *
 	 * Each filter is keyed by `AGG_KEY_PREFIX . <type>_<taxonomy>` so the
 	 * reverse map can later resolve an aggregation bucket back to its
@@ -150,7 +164,7 @@ class WooCommerce_Filters_Bridge {
 			}
 		}
 
-		Classic_Search::instance()->set_filters( $filters );
+		$this->search_instance()->set_filters( $filters );
 	}
 
 	/**
@@ -275,7 +289,7 @@ class WooCommerce_Filters_Bridge {
 				return $this->extract_taxonomy_counts( isset( $extra['taxonomy'] ) ? (string) $extra['taxonomy'] : '', 'attribute' );
 
 			// Out of PoC scope — price/stock/rating need range/term aggregations
-			// that aren't first-class in Classic_Search::set_filters(). Returning
+			// that aren't first-class in Inline_Search::set_filters(). Returning
 			// `null` lets WooCommerce's default behavior run for those filters
 			// so the rest of the page still works.
 			case 'price':
@@ -305,7 +319,7 @@ class WooCommerce_Filters_Bridge {
 		$key_infix = ( 'attribute' === $wc_type ) ? 'attr_' : 'tax_';
 		$agg_key   = self::AGG_KEY_PREFIX . $key_infix . $taxonomy;
 
-		$aggregations = Classic_Search::instance()->get_search_aggregations_results();
+		$aggregations = $this->search_instance()->get_search_aggregations_results();
 		if ( empty( $aggregations[ $agg_key ]['buckets'] ) ) {
 			return array();
 		}
@@ -333,7 +347,7 @@ class WooCommerce_Filters_Bridge {
 	 * returns an empty array and we should defer to WC's default behavior.
 	 */
 	private function jp_search_handled_current_query() {
-		$aggregations = Classic_Search::instance()->get_search_aggregations_results();
+		$aggregations = $this->search_instance()->get_search_aggregations_results();
 		return ! empty( $aggregations );
 	}
 
