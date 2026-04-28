@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: enhancement
 
 AI Assistant: add a "Get Feature Clip" video generation entry point in the sidebar, alongside "Get Featured Image". Hidden behind a new ai-feature-clip-generator extension flag, currently restricted to internal testing environments while the underlying flow stabilizes.
