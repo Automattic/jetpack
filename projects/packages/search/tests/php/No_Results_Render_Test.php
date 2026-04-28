@@ -24,6 +24,7 @@ class No_Results_Render_Test extends TestCase {
 	 * Register the no-results block inline for the whole test class.
 	 */
 	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
 		\register_block_type(
 			'jetpack/no-results',
 			array(
@@ -51,6 +52,7 @@ class No_Results_Render_Test extends TestCase {
 	 */
 	public static function tearDownAfterClass(): void {
 		\unregister_block_type( 'jetpack/no-results' );
+		parent::tearDownAfterClass();
 	}
 
 	/**
