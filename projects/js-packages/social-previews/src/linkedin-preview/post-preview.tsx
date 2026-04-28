@@ -72,7 +72,7 @@ export function LinkedInPostPreview( {
 									maxChars: FEED_TEXT_MAX_LENGTH,
 								} ) }
 							</span>
-							{ hasMedia && url && (
+							{ hasMedia && url && ! description.includes( url ) && (
 								<>
 									{ ' - ' }
 									<a href={ url } rel="nofollow noopener noreferrer" target="_blank">

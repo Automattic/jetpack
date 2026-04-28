@@ -47,6 +47,11 @@ jest.mock( '../../use-sig-preview', () => ( {
 	default: jest.fn(),
 } ) );
 
+jest.mock( '../../use-rendered-message', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
+
 jest.mock( '../../use-post-meta', () => ( {
 	usePostMeta: jest.fn(),
 } ) );
@@ -57,6 +62,7 @@ import { useConnectionPreviewData } from '../';
 import useMediaDetails from '../../use-media-details';
 import { usePerNetworkCustomization } from '../../use-per-network-customization';
 import { usePostMeta } from '../../use-post-meta';
+import useRenderedMessage from '../../use-rendered-message';
 import useSigPreview from '../../use-sig-preview';
 import useSocialMediaMessage from '../../use-social-media-message';
 import { useSocialPreviewPostData } from '../../use-social-preview-post-data';
@@ -76,6 +82,9 @@ const mockUseSocialPreviewPostData = useSocialPreviewPostData as jest.MockedFunc
 >;
 const mockUseMediaDetails = useMediaDetails as jest.MockedFunction< typeof useMediaDetails >;
 const mockUseSigPreview = useSigPreview as jest.MockedFunction< typeof useSigPreview >;
+const mockUseRenderedMessage = useRenderedMessage as jest.MockedFunction<
+	typeof useRenderedMessage
+>;
 const mockUsePostMeta = usePostMeta as jest.MockedFunction< typeof usePostMeta >;
 
 const createMockConnection = ( overrides: Partial< Connection > = {} ): Connection => ( {
@@ -120,6 +129,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseSocialPreviewPostData.mockReturnValue( defaultPostData );
 		mockUseMediaDetails.mockReturnValue( [ null, false ] );
 		mockUseSigPreview.mockReturnValue( { url: null, isLoading: false } );
+		mockUseRenderedMessage.mockReturnValue( { rendered: null, isLoading: false } );
 		mockUsePostMeta.mockReturnValue( {
 			mediaSource: undefined,
 		} as ReturnType< typeof usePostMeta > );
@@ -177,6 +187,9 @@ describe( 'useConnectionPreviewData', () => {
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.media ).toEqual( attachedMedia );
+		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { isSocialPost: true } )
+		);
 	} );
 
 	it( 'should return featured image when media_source is featured-image', () => {
@@ -251,5 +264,74 @@ describe( 'useConnectionPreviewData', () => {
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.media ).toEqual( [] );
+		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { isSocialPost: false } )
+		);
+	} );
+
+	it( 'passes isSocialPost=true when global mode has attached media', () => {
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: false, toggle: jest.fn() } );
+		mockUseSocialPreviewPostData.mockReturnValue( {
+			...defaultPostData,
+			media: [ { url: 'https://example.com/media.jpg', type: 'image/jpeg' } ],
+		} );
+
+		const connection = createMockConnection();
+		renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { isSocialPost: true } )
+		);
+	} );
+
+	it( 'passes isSocialPost=false when global mode has no attached media', () => {
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: false, toggle: jest.fn() } );
+
+		const connection = createMockConnection();
+		renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { isSocialPost: false } )
+		);
+	} );
+
+	it( 'uses the rendered message when templates feature is on', () => {
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseRenderedMessage.mockReturnValue( {
+			rendered: 'Hello World\n\nExcerpt\n\nhttps://example.com/post',
+			isLoading: false,
+		} );
+
+		const connection = createMockConnection();
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.message ).toBe( 'Hello World\n\nExcerpt\n\nhttps://example.com/post' );
+	} );
+
+	it( 'falls back to raw message when rendered is null', () => {
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseRenderedMessage.mockReturnValue( { rendered: null, isLoading: false } );
+
+		const connection = createMockConnection();
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.message ).toBe( 'Global message' );
+	} );
+
+	it( 'ignores rendered message when MESSAGE_TEMPLATES feature is off', () => {
+		mockSiteHasFeature.mockImplementation(
+			( feature: string ) => feature !== 'social-message-templates'
+		);
+		mockUseRenderedMessage.mockReturnValue( {
+			rendered: 'Should not be used',
+			isLoading: false,
+		} );
+
+		const connection = createMockConnection();
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.message ).toBe( 'Global message' );
 	} );
 } );
