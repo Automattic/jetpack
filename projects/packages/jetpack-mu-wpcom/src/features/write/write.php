@@ -13,8 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType;
-
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	define(
 		'WPCOM_WRITE_VERSION',
@@ -154,27 +152,27 @@ function wpcom_write_render_admin_page() {
 			$edit_content     = apply_filters( 'the_content', $edit_post->post_content );
 			$post_status      = $edit_post->post_status;
 			$edit_featured_id = (int) get_post_thumbnail_id( $edit_post_id );
-			EditorType\remember_editor( $edit_post_id, 'write-editor' );
+			update_post_meta( $edit_post_id, '_last_editor_used_jetpack', 'write-editor' );
 		} else {
 			$edit_post_id = 0;
 		}
 	}
 
-	// Create an auto-draft for new posts so the post ID is available immediately.
+	// Create an auto-draft for new posts so the post ID is available immediately,
+	// matching the behavior of the classic and block editors.
 	if ( ! $edit_post_id ) {
 		$auto_draft_id = wp_insert_post(
 			array(
-				'post_title'  => '',
+				'post_title'  => __( 'Auto Draft', 'jetpack-mu-wpcom' ),
 				'post_type'   => 'post',
 				'post_status' => 'auto-draft',
-			),
-			true
+			)
 		);
 
-		if ( ! is_wp_error( $auto_draft_id ) ) {
+		if ( $auto_draft_id ) {
 			$edit_post_id = $auto_draft_id;
 			$post_status  = 'auto-draft';
-			EditorType\remember_editor( $edit_post_id, 'write-editor' );
+			update_post_meta( $edit_post_id, '_last_editor_used_jetpack', 'write-editor' );
 		}
 	}
 
@@ -225,7 +223,7 @@ function wpcom_write_render_admin_page() {
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status );
 }
 
 /**
@@ -238,8 +236,9 @@ function wpcom_write_render_admin_page() {
  * @param string $edit_content    The post content when editing.
  * @param int    $edit_post_id    The post ID when editing, 0 for new posts.
  * @param array  $categories_data Array of category data for the picker.
+ * @param string $post_status     The post status (e.g. 'auto-draft', 'draft', 'publish').
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array() ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new' ) {
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
@@ -264,7 +263,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				class="bw-btn bw-btn-publish"
 				data-wp-on--click="actions.publish"
 				data-wp-bind--disabled="state.isSaving"
-			><?php echo $edit_post_id ? 'Update' : 'Publish'; ?></button>
+			><?php echo $edit_post_id && 'auto-draft' !== $post_status ? 'Update' : 'Publish'; ?></button>
 		</div>
 	</header>
 

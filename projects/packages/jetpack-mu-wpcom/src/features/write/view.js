@@ -1103,7 +1103,7 @@ async function savePost( postStatus ) {
 		return;
 	}
 
-	const isEditing = state.editPostId > 0;
+	const isEditing = state.editPostId > 0 && state.postStatus !== 'auto-draft';
 	const isUpdate = isEditing && postStatus === 'publish';
 
 	state.isSaving = true;
