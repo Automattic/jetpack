@@ -23,11 +23,10 @@ function pcg_guard_maybe_block_activation() {
 	}
 
 	// Bulk-action submissions from the bottom dropdown send `action=-1`
-	// and the real action in `action2`, so accept either.
-	$action  = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
-	$action2 = isset( $_REQUEST['action2'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) ) : '';
+	// and the real action in `action2`.
+	$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
 	if ( '' === $action || '-1' === $action ) {
-		$action = $action2;
+		$action = isset( $_REQUEST['action2'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) ) : '';
 	}
 	if ( ! in_array( $action, array( 'activate', 'activate-plugin', 'activate-selected' ), true ) ) {
 		return;
@@ -154,15 +153,15 @@ function pcg_guard_format_block_reason( $result ) {
  * @return string
  */
 function pcg_guard_errno_name( $errno ) {
-	$names = array(
+	return match ( $errno ) {
 		E_ERROR             => 'E_ERROR',
 		E_PARSE             => 'E_PARSE',
 		E_CORE_ERROR        => 'E_CORE_ERROR',
 		E_COMPILE_ERROR     => 'E_COMPILE_ERROR',
 		E_USER_ERROR        => 'E_USER_ERROR',
 		E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
-	);
-	return $names[ $errno ] ?? sprintf( 'error %d', $errno );
+		default             => sprintf( 'error %d', $errno ),
+	};
 }
 
 /**

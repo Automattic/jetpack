@@ -17,17 +17,17 @@ class PCG_Load_Tester {
 	/**
 	 * Run the probe against a plugin main file.
 	 *
-	 * Fires two loopback requests in parallel via the WP HTTP layer's
-	 * multi-request API: one against the front-end (`home_url('/')`) and
-	 * one against an admin page (`admin_url('index.php')`) so
-	 * `admin_init` actually fires. The admin probe forwards the current
-	 * admin's WordPress auth cookies so the loopback can clear
-	 * `auth_redirect()`.
+	 * Fires two loopback requests in parallel: one against `home_url('/')`
+	 * (front-end) and one against `admin_url('index.php')` (so `admin_init`
+	 * fires). The admin probe forwards the current admin's WP auth cookies
+	 * so the loopback can clear `auth_redirect()`.
 	 *
-	 * Front-end fatal wins; otherwise the admin verdict is returned.
+	 * Returns the first verdict that should block the activation
+	 * (`fatal`/`throwable`); otherwise prefers the admin `ok` (richer
+	 * signal) over the front-end response.
 	 *
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
-	 * @return array{status:string,reason?:string,errno?:int,message?:string,file?:string,line?:int}
+	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int}
 	 */
 	public function test( $plugin_main ) {
 		if ( '' === (string) $plugin_main || ! is_file( $plugin_main ) ) {
@@ -40,55 +40,43 @@ class PCG_Load_Tester {
 		$front = $this->prepare_probe( $plugin_main, home_url( '/' ), false );
 		$admin = $this->prepare_probe( $plugin_main, admin_url( 'index.php' ), true );
 
-		$requests = array(
-			'front' => $front['request'],
-			'admin' => $admin['request'],
-		);
-
-		$options = array(
-			'timeout'   => self::PROBE_TIMEOUT,
-			'redirects' => 0,
-		);
-
 		try {
-			$responses = \WpOrg\Requests\Requests::request_multiple( $requests, $options );
+			$responses = \WpOrg\Requests\Requests::request_multiple(
+				array(
+					'front' => $front['request'],
+					'admin' => $admin['request'],
+				),
+				array(
+					'timeout'   => self::PROBE_TIMEOUT,
+					'redirects' => 0,
+				)
+			);
 		} catch ( \Throwable $t ) {
-			delete_transient( self::transient_key( $front['token'] ) );
-			delete_transient( self::transient_key( $admin['token'] ) );
 			return array(
 				'status' => 'error',
 				'reason' => sprintf( 'Probe request failed: %s', $t->getMessage() ),
 			);
+		} finally {
+			delete_transient( self::transient_key( $front['token'] ) );
+			delete_transient( self::transient_key( $admin['token'] ) );
 		}
-
-		delete_transient( self::transient_key( $front['token'] ) );
-		delete_transient( self::transient_key( $admin['token'] ) );
 
 		$front_result = $this->parse_response( $responses['front'], $plugin_main, false );
 		$admin_result = $this->parse_response( $responses['admin'], $plugin_main, true );
 
-		// Captured fatals win over inconclusive transport errors: an
-		// `error` from the front-end probe shouldn't shadow a real
-		// `fatal` from the admin probe. Front-end fatal still beats
-		// admin fatal (we hit the front-end path more often in practice).
+		// fatal/throwable wins; an inconclusive `error` from one probe must
+		// not shadow a real fatal from the other.
 		if ( $this->is_block( $front_result ) ) {
 			return $front_result;
 		}
 		if ( $this->is_block( $admin_result ) ) {
 			return $admin_result;
 		}
-
-		// Neither captured a fatal — return the admin verdict if it's
-		// `ok` (richer diagnostic), otherwise fall back to whichever
-		// non-blocking response we have.
 		return $this->is_ok( $admin_result ) ? $admin_result : $front_result;
 	}
 
 	/**
-	 * Whether a probe verdict represents a captured fatal that should
-	 * block the activation. We deliberately only block on `fatal` /
-	 * `throwable` — a probe-side `error` (transport failure, missing
-	 * file, etc.) is inconclusive and shouldn't block a working plugin.
+	 * Whether a verdict is a captured fatal that should block the activation.
 	 *
 	 * @param array $result Probe verdict.
 	 * @return bool
@@ -99,13 +87,13 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Whether a probe verdict is a clean "ok".
+	 * Whether a verdict is a clean "ok".
 	 *
 	 * @param array $result Probe verdict.
 	 * @return bool
 	 */
 	protected function is_ok( $result ) {
-		return is_array( $result ) && isset( $result['status'] ) && 'ok' === $result['status'];
+		return is_array( $result ) && 'ok' === ( $result['status'] ?? '' );
 	}
 
 	/**
@@ -114,10 +102,7 @@ class PCG_Load_Tester {
 	 *
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
 	 * @param string $base_url    Base URL to probe (front-end or admin).
-	 * @param bool   $is_admin    True for the admin probe — adds
-	 *                            `pcg_admin=1` so the endpoint defers its
-	 *                            verdict to `admin_init`, and forwards the
-	 *                            current admin's auth cookies.
+	 * @param bool   $is_admin    Adds `pcg_admin=1` and forwards auth cookies.
 	 * @return array{token:string,request:array}
 	 */
 	protected function prepare_probe( $plugin_main, $base_url, $is_admin ) {
@@ -138,7 +123,6 @@ class PCG_Load_Tester {
 		if ( $is_admin ) {
 			$query['pcg_admin'] = '1';
 		}
-		$url = add_query_arg( $query, $base_url );
 
 		$headers = array();
 		if ( $is_admin ) {
@@ -151,7 +135,7 @@ class PCG_Load_Tester {
 		return array(
 			'token'   => $token,
 			'request' => array(
-				'url'     => $url,
+				'url'     => add_query_arg( $query, $base_url ),
 				'type'    => 'GET',
 				'headers' => $headers,
 			),
@@ -161,11 +145,11 @@ class PCG_Load_Tester {
 	/**
 	 * Translate a `Requests::request_multiple` response into a probe verdict.
 	 *
-	 * @param mixed  $response    Either a `WpOrg\Requests\Response` or an
-	 *                            exception thrown for that single request.
+	 * @param mixed  $response    A `WpOrg\Requests\Response`, or an exception
+	 *                            thrown for that single request.
 	 * @param string $plugin_main Plugin main file (for fallback diagnostics).
 	 * @param bool   $is_admin    True when this was the admin probe.
-	 * @return array{status:string,reason?:string,errno?:int,message?:string,file?:string,line?:int}
+	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int}
 	 */
 	protected function parse_response( $response, $plugin_main, $is_admin ) {
 		if ( $response instanceof \Throwable ) {
@@ -183,8 +167,8 @@ class PCG_Load_Tester {
 			return $decoded;
 		}
 
-		// Admin probe bounced to login (no/expired cookie) — don't block on
-		// this signal. Distinct status so we can measure how often it fires.
+		// Admin probe bounced to login (no/expired cookie). Distinct status so
+		// we can measure how often it fires; treated as ok by callers.
 		if ( $is_admin && ( 301 === $code || 302 === $code ) ) {
 			return array(
 				'status' => 'ok-inconclusive',
@@ -208,9 +192,8 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Build a `Cookie:` header from the current request's WP auth cookies
-	 * so the admin loopback authenticates as the same admin who clicked
-	 * Activate. Without these the probe would 302 to wp-login.php.
+	 * `Cookie:` header from the current request's WP auth cookies, so the
+	 * admin loopback authenticates as the same user. Empty if none found.
 	 *
 	 * @return string
 	 */

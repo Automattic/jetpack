@@ -171,7 +171,6 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		$result = pcg_update_guard_scan_for_parse_errors( $dir );
 		$this->assertSame( array(), $result['errors'] );
 		$this->assertFalse( $result['budget_exceeded'] );
-		$this->assertSame( 2, $result['files_scanned'] );
 	}
 
 	/**

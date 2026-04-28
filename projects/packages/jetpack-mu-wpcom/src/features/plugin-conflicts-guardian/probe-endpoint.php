@@ -49,7 +49,6 @@ function pcg_maybe_handle_probe() {
 	}
 
 	$plugin_main = (string) $data['plugin_main'];
-
 	if ( ! is_file( $plugin_main ) || ! is_readable( $plugin_main ) ) {
 		pcg_probe_respond(
 			array(
@@ -80,46 +79,25 @@ function pcg_maybe_handle_probe() {
 				'message' => $t->getMessage(),
 				'file'    => basename( $t->getFile() ),
 				'line'    => $t->getLine(),
-			),
-			200
+			)
 		);
 	}
 
-	// Admin probe: wait until admin_init has fired so admin-time hook fatals surface.
-	// Front-end probe: emit at wp_loaded once init has fired.
+	// Admin probe: defer until admin_init has fired so admin-time hook fatals
+	// surface. Front-end probe: emit on wp_loaded once init has fired.
 	$is_admin_probe = isset( $_GET['pcg_admin'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['pcg_admin'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token already validated above.
-	if ( $is_admin_probe ) {
-		add_action( 'admin_init', 'pcg_probe_emit_ok', PHP_INT_MAX );
-	} else {
-		add_action( 'wp_loaded', 'pcg_probe_emit_ok', PHP_INT_MAX );
-	}
+	add_action( $is_admin_probe ? 'admin_init' : 'wp_loaded', 'pcg_probe_emit_ok', PHP_INT_MAX );
 }
 
 /**
  * Emit a clean "ok" verdict once the full bootstrap completed.
- * Diagnostic block reports which bootstrap actions actually fired.
  */
 function pcg_probe_emit_ok() {
-	pcg_probe_respond(
-		array(
-			'status'     => 'ok',
-			'diagnostic' => array(
-				'did_plugins_loaded' => (int) did_action( 'plugins_loaded' ),
-				'did_init'           => (int) did_action( 'init' ),
-				'did_admin_init'     => (int) did_action( 'admin_init' ),
-				'did_wp_loaded'      => (int) did_action( 'wp_loaded' ),
-				'is_admin'           => (bool) is_admin(),
-				'loaded_file'        => basename( __FILE__ ),
-			),
-		),
-		200
-	);
+	pcg_probe_respond( array( 'status' => 'ok' ) );
 }
 
 /**
- * Shutdown handler: on fatal, clear any buffered WP fatal page and emit
- * JSON with the error. Uses HTTP 200 so the client can distinguish a
- * captured fatal from a transport problem.
+ * Shutdown handler: on fatal, emit JSON with the captured error.
  */
 function pcg_probe_shutdown() {
 	$error = error_get_last();
@@ -130,21 +108,14 @@ function pcg_probe_shutdown() {
 	if ( 0 === ( $error['type'] & $fatal_mask ) ) {
 		return;
 	}
-
-	while ( ob_get_level() > 0 ) {
-		ob_end_clean();
-	}
-
-	wp_send_json(
+	pcg_probe_respond(
 		array(
 			'status'  => 'fatal',
 			'errno'   => (int) $error['type'],
 			'message' => (string) $error['message'],
 			'file'    => basename( (string) $error['file'] ),
 			'line'    => (int) $error['line'],
-		),
-		200,
-		JSON_UNESCAPED_SLASHES
+		)
 	);
 }
 
