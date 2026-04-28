@@ -335,6 +335,22 @@ class Modules_Abilities extends Registrar {
 		}
 
 		if ( $desired ) {
+			// Preflight: Jetpack::activate_module() ignores its $exit/$redirect flags when a
+			// conflicting standalone plugin (e.g. WordPress.com Stats vs. the stats module) is
+			// active — it calls wp_safe_redirect()+exit() and would terminate this REST request
+			// mid-response. Refuse here with a structured error instead.
+			$conflict = self::find_conflicting_active_plugin( $slug );
+			if ( null !== $conflict ) {
+				return new \WP_Error(
+					'jetpack_modules_conflicting_plugin_active',
+					sprintf(
+						/* translators: %s: name of the conflicting plugin that must be deactivated first. */
+						__( 'Cannot activate the module while a conflicting plugin (%s) is active. Deactivate it on the WordPress Plugins screen, then retry.', 'jetpack' ),
+						$conflict
+					)
+				);
+			}
+
 			// Always pass exit=false, redirect=false so the ability runs headless over REST.
 			$ok = Jetpack::activate_module( $slug, false, false );
 			if ( ! $ok ) {
@@ -353,10 +369,63 @@ class Modules_Abilities extends Registrar {
 			}
 		}
 
+		// Re-check state: activate_module() / deactivate_module() can return truthy even when a
+		// pre_update_option_jetpack_active_modules filter blocks the option write, so the response
+		// would otherwise lie about reaching the requested state.
+		$actual = Jetpack::is_module_active( $slug );
+		if ( $desired !== $actual ) {
+			return new \WP_Error(
+				'jetpack_modules_state_mismatch',
+				__( 'The module did not reach the requested state. A filter on jetpack_active_modules may have rejected the change.', 'jetpack' )
+			);
+		}
+
 		return array(
 			'slug'    => $slug,
-			'active'  => $desired,
+			'active'  => $actual,
 			'changed' => true,
 		);
+	}
+
+	/**
+	 * Return the human-readable name of the first standalone plugin currently active that
+	 * would force {@see Jetpack::activate_module()} to redirect/exit, or null when none.
+	 *
+	 * Mirrors the lookup in {@see Jetpack_Client_Server::deactivate_plugin()}: prefer the
+	 * known plugin file path, fall back to a name match across active plugins.
+	 *
+	 * @param string $slug Module slug.
+	 * @return string|null
+	 */
+	private static function find_conflicting_active_plugin( $slug ) {
+		$jetpack = Jetpack::init();
+		if ( empty( $jetpack->plugins_to_deactivate[ $slug ] ) ) {
+			return null;
+		}
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$active_plugins = null;
+		foreach ( $jetpack->plugins_to_deactivate[ $slug ] as $candidate ) {
+			list( $plugin_file, $plugin_name ) = $candidate;
+
+			if ( is_plugin_active( $plugin_file ) ) {
+				return $plugin_name;
+			}
+
+			if ( null === $active_plugins ) {
+				$active_plugins = Jetpack::get_active_plugins();
+			}
+			foreach ( $active_plugins as $active ) {
+				$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $active );
+				if ( isset( $data['Name'] ) && $data['Name'] === $plugin_name ) {
+					return $plugin_name;
+				}
+			}
+		}
+
+		return null;
 	}
 }

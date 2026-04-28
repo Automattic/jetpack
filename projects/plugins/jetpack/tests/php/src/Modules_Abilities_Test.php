@@ -358,6 +358,21 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$this->assertSame( 'jetpack_modules_missing_slug', $result->get_error_code() );
 	}
 
+	public function test_set_module_status_treats_zero_slug_as_unknown_not_missing() {
+		// Regression guard for the classic PHP empty('0') == true gotcha: a '0' slug is a
+		// non-empty string and must reach the slug-validity check, which rejects it as unknown
+		// rather than misclassifying it as a missing slug.
+		wp_set_current_user( $this->admin_id );
+		$result = Modules_Abilities::set_module_status(
+			array(
+				'slug'   => '0',
+				'active' => true,
+			)
+		);
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_modules_invalid_slug', $result->get_error_code() );
+	}
+
 	public function test_set_module_status_rejects_missing_active() {
 		wp_set_current_user( $this->admin_id );
 		$result = Modules_Abilities::set_module_status( array( 'slug' => 'stats' ) );
@@ -412,5 +427,36 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$this->assertSame( $target['slug'], $result['slug'] );
 		$this->assertSame( $target['active'], $result['active'] );
 		$this->assertFalse( $result['changed'], 'Setting current state must return changed=false.' );
+	}
+
+	public function test_set_module_status_deactivates_active_module_and_reports_changed() {
+		// State-change coverage for the deactivation path. Activation requires a Jetpack
+		// connection (see Jetpack_Sync_Modules_Test::test_sync_activate_module_event for the
+		// same constraint), but deactivation is connection-agnostic — seed an active module
+		// directly and assert the function flips it off, reports changed=true, and verifies
+		// the persisted state via Jetpack::is_module_active().
+		wp_set_current_user( $this->admin_id );
+
+		$available = Jetpack::get_available_modules();
+		if ( empty( $available ) ) {
+			$this->markTestSkipped( 'No Jetpack modules available to toggle.' );
+		}
+		$slug = reset( $available );
+
+		\Jetpack_Options::update_option( 'active_modules', array( $slug ) );
+		$this->assertTrue( Jetpack::is_module_active( $slug ), 'Sanity: seeded module should report active.' );
+
+		$result = Modules_Abilities::set_module_status(
+			array(
+				'slug'   => $slug,
+				'active' => false,
+			)
+		);
+
+		$this->assertIsArray( $result, 'Deactivation should not return WP_Error for a seeded active module.' );
+		$this->assertSame( $slug, $result['slug'] );
+		$this->assertFalse( $result['active'] );
+		$this->assertTrue( $result['changed'], 'Flipping a state change must report changed=true.' );
+		$this->assertFalse( Jetpack::is_module_active( $slug ), 'Module should be inactive after deactivation.' );
 	}
 }
