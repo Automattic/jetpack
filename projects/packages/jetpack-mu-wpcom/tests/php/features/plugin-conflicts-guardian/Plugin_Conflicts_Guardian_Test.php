@@ -66,42 +66,13 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Scenarios for pcg_guard_errno_name.
-	 *
-	 * @return array<string,array{0:int,1:string}>
-	 */
-	public static function provide_errno_names(): array {
-		return array(
-			'E_ERROR'             => array( E_ERROR, 'E_ERROR' ),
-			'E_PARSE'             => array( E_PARSE, 'E_PARSE' ),
-			'E_CORE_ERROR'        => array( E_CORE_ERROR, 'E_CORE_ERROR' ),
-			'E_COMPILE_ERROR'     => array( E_COMPILE_ERROR, 'E_COMPILE_ERROR' ),
-			'E_USER_ERROR'        => array( E_USER_ERROR, 'E_USER_ERROR' ),
-			'E_RECOVERABLE_ERROR' => array( E_RECOVERABLE_ERROR, 'E_RECOVERABLE_ERROR' ),
-			'unknown errno'       => array( 9999, 'error 9999' ),
-		);
-	}
-
-	/**
-	 * Pcg_guard_errno_name maps known error constants to their symbolic names.
-	 *
-	 * @param int    $errno    Error constant value.
-	 * @param string $expected Expected symbolic label.
-	 * @dataProvider provide_errno_names
-	 */
-	#[DataProvider( 'provide_errno_names' )]
-	public function test_errno_name( int $errno, string $expected ) {
-		$this->assertSame( $expected, pcg_guard_errno_name( $errno ) );
-	}
-
-	/**
 	 * Scenarios for pcg_guard_format_block_reason.
 	 *
 	 * @return array<string,array{0:array<string,mixed>,1:string}>
 	 */
 	public static function provide_block_reason_scenarios(): array {
 		return array(
-			'fatal with errno + file + line' => array(
+			'message + file + line'          => array(
 				array(
 					'status'  => 'fatal',
 					'errno'   => E_USER_ERROR,
@@ -109,40 +80,48 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 					'file'    => '/var/www/plugins/foo/foo.php',
 					'line'    => 42,
 				),
-				'E_USER_ERROR: boom (foo.php, line 42)',
+				'boom (in foo.php, line 42).',
 			),
-			'throwable with class + file'    => array(
+			'message + file (no line)'       => array(
 				array(
 					'status'  => 'throwable',
 					'class'   => 'RuntimeException',
 					'message' => 'nope',
 					'file'    => 'bar.php',
 				),
-				'RuntimeException: nope (bar.php)',
+				'nope (in bar.php).',
 			),
-			'no label falls back to message' => array(
+			'message only'                   => array(
 				array(
 					'message' => 'lonely message',
 				),
-				'lonely message',
+				'lonely message.',
 			),
-			'missing message says unknown'   => array(
+			'no message but file + line'     => array(
+				array(
+					'status' => 'fatal',
+					'errno'  => E_ERROR,
+					'file'   => 'x.php',
+					'line'   => 7,
+				),
+				'A fatal PHP error was detected in x.php, line 7.',
+			),
+			'no message, no file → fallback' => array(
 				array(
 					'status'  => 'fatal',
 					'errno'   => E_ERROR,
 					'message' => '',
 				),
-				'E_ERROR: unknown error',
+				'A fatal PHP error was detected.',
 			),
 			'line zero is omitted'           => array(
 				array(
 					'status'  => 'fatal',
-					'errno'   => E_ERROR,
 					'message' => 'oops',
 					'file'    => 'x.php',
 					'line'    => 0,
 				),
-				'E_ERROR: oops (x.php)',
+				'oops (in x.php).',
 			),
 		);
 	}

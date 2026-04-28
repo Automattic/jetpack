@@ -102,49 +102,44 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 }
 
 /**
- * Format a human-readable reason like "E_USER_ERROR: msg (file.php, line 42)".
+ * Build a human-readable sentence describing the captured fatal, e.g.
+ * "PCG fatal (in pcg-fatal-tester.php, line 6)." for the admin notice.
  *
  * @param array $result Probe result from PCG_Load_Tester::test().
  * @return string
  */
 function pcg_guard_format_block_reason( $result ) {
 	$message = trim( (string) ( $result['message'] ?? '' ) );
-	if ( '' === $message ) {
-		$message = 'unknown error';
-	}
 
-	$label = match ( $result['status'] ?? '' ) {
-		'throwable' => (string) ( $result['class'] ?? '' ),
-		'fatal'     => isset( $result['errno'] ) ? pcg_guard_errno_name( (int) $result['errno'] ) : '',
-		default     => '',
-	};
-
-	$location = '';
+	$where = '';
 	if ( ! empty( $result['file'] ) ) {
-		$file     = basename( (string) $result['file'] );
-		$line     = (int) ( $result['line'] ?? 0 );
-		$location = $line > 0 ? sprintf( ' (%s, line %d)', $file, $line ) : sprintf( ' (%s)', $file );
+		$file  = basename( (string) $result['file'] );
+		$line  = (int) ( $result['line'] ?? 0 );
+		$where = $line > 0
+			? sprintf(
+				/* translators: location fragment, e.g. "in plugin.php, line 42". 1: file name, 2: line number. */
+				__( 'in %1$s, line %2$d', 'jetpack-mu-wpcom' ),
+				$file,
+				$line
+			)
+			: sprintf(
+				/* translators: location fragment without a line number, e.g. "in plugin.php". %s: file name. */
+				__( 'in %s', 'jetpack-mu-wpcom' ),
+				$file
+			);
 	}
 
-	return '' !== $label ? sprintf( '%s: %s%s', $label, $message, $location ) : $message . $location;
-}
-
-/**
- * Symbolic name (E_ERROR, …) for a PHP error-constant value.
- *
- * @param int $errno PHP error-constant value.
- * @return string
- */
-function pcg_guard_errno_name( $errno ) {
-	return match ( $errno ) {
-		E_ERROR             => 'E_ERROR',
-		E_PARSE             => 'E_PARSE',
-		E_CORE_ERROR        => 'E_CORE_ERROR',
-		E_COMPILE_ERROR     => 'E_COMPILE_ERROR',
-		E_USER_ERROR        => 'E_USER_ERROR',
-		E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
-		default             => sprintf( 'error %d', $errno ),
-	};
+	if ( '' !== $message ) {
+		return '' !== $where ? sprintf( '%s (%s).', $message, $where ) : $message . '.';
+	}
+	if ( '' !== $where ) {
+		return sprintf(
+			/* translators: %s: location fragment from the strings above, which already begins with "in". */
+			__( 'A fatal PHP error was detected %s.', 'jetpack-mu-wpcom' ),
+			$where
+		);
+	}
+	return __( 'A fatal PHP error was detected.', 'jetpack-mu-wpcom' );
 }
 
 /**
