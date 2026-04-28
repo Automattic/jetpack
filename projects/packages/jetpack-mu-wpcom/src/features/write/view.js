@@ -732,6 +732,10 @@ const { state } = store( 'wpcom-write', {
 
 				if ( event.key === 'Enter' ) {
 					event.preventDefault();
+					prevSlashFilter = null;
+					keyboardNavListenerActive = false;
+					const menu = document.querySelector( '.bw-slash-menu' );
+					if ( menu ) menu.classList.remove( 'bw-slash-menu--keyboard' );
 					const target = active || document.querySelector( '.bw-slash-item:hover' ) || visible[ 0 ];
 					if ( target ) {
 						// Map menu items to actions by their label text.
@@ -820,10 +824,15 @@ const { state } = store( 'wpcom-write', {
 				// Only reset the active item when the filter text actually changes
 				// (i.e. the user typed a character). Preserve selection when navigating.
 				const filterChanged = newFilter !== prevSlashFilter;
+				const menuJustOpened = ! state.showSlashMenu;
 				state.slashFilter = newFilter;
 				prevSlashFilter = newFilter;
 				state.showSlashMenu = true;
 				requestAnimationFrame( positionSlashMenu );
+
+				// Suppress hover highlight when the menu first opens so an item
+				// under the cursor doesn't appear selected before the user moves.
+				if ( menuJustOpened ) enterKeyboardNav();
 
 				// Filter menu items; reset active highlight only on filter change.
 				const items = document.querySelectorAll( '.bw-slash-item' );
