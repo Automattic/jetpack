@@ -20,6 +20,7 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
 use WP_Error;
+use WP_Recovery_Mode_Link_Service;
 use WP_User;
 use WP_User_Query;
 
@@ -531,6 +532,8 @@ class SSO {
 				exit( 0 );
 			}
 
+			$this->display_sso_login_form();
+		} elseif ( WP_Recovery_Mode_Link_Service::LOGIN_ACTION_ENTERED === $action ) {
 			$this->display_sso_login_form();
 		}
 	}
