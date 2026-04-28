@@ -1575,7 +1575,7 @@ const { state } = store( 'wpcom-write', {
 		 */
 		resumeDraft() {
 			const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
-			if ( draftId ) {
+			if ( draftId && /^\d+$/.test( draftId ) ) {
 				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 				window.location.href = state.writeUrl + '&post=' + draftId;
 			}
