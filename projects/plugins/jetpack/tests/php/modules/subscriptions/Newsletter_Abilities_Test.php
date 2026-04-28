@@ -285,4 +285,69 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<script>', $stored );
 		$this->assertStringNotContainsString( "\n", $stored );
 	}
+
+	public function test_update_settings_rejects_non_string_from_name() {
+		$result = Newsletter_Abilities::update_settings( array( 'from_name' => 12345 ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_newsletter_invalid_from_name', $result->get_error_code() );
+	}
+
+	public function test_update_settings_rejects_oversized_from_name() {
+		// from_name caps at 200 characters; the schema advertises it and the
+		// callback enforces it so direct PHP callers can't bypass the limit.
+		$result = Newsletter_Abilities::update_settings(
+			array( 'from_name' => str_repeat( 'a', 201 ) )
+		);
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_newsletter_invalid_from_name', $result->get_error_code() );
+	}
+
+	public function test_update_settings_rejects_non_boolean_for_subscribe_comments_enabled() {
+		$result = Newsletter_Abilities::update_settings( array( 'subscribe_comments_enabled' => 1 ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_newsletter_invalid_subscribe_comments_enabled', $result->get_error_code() );
+	}
+
+	public function test_update_settings_rejects_non_boolean_for_notify_admin_on_subscribe() {
+		$result = Newsletter_Abilities::update_settings( array( 'notify_admin_on_subscribe' => 'on' ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_newsletter_invalid_notify_admin_on_subscribe', $result->get_error_code() );
+	}
+
+	public function test_per_ability_allow_list_filter_blocks_individual_slugs() {
+		// Verify the shared `jetpack_wp_abilities_should_register` filter can
+		// gate this class's slugs the same way it gates any other Registrar.
+		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_get_abilities' ) ) {
+			$this->markTestSkipped( 'Abilities API not available.' );
+		}
+
+		add_filter(
+			'jetpack_wp_abilities_should_register',
+			static function ( $enabled, $type, $slug ) {
+				if ( 'ability' === $type && str_starts_with( $slug, 'jetpack-newsletter/' ) ) {
+					return false;
+				}
+				return $enabled;
+			},
+			10,
+			3
+		);
+
+		Newsletter_Abilities::register_abilities();
+
+		// Compare against the full registry rather than calling wp_get_ability()
+		// per slug — the latter emits a `_doing_it_wrong` notice for missing
+		// slugs, which the test environment converts into a failure.
+		$registered_slugs = array_map(
+			static fn ( $ability ) => $ability->get_name(),
+			wp_get_abilities()
+		);
+		foreach ( array_keys( Newsletter_Abilities::get_abilities() ) as $slug ) {
+			$this->assertNotContains(
+				$slug,
+				$registered_slugs,
+				"Ability {$slug} must be filtered out by jetpack_wp_abilities_should_register."
+			);
+		}
+	}
 }

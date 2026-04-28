@@ -224,6 +224,10 @@ class Newsletter_Abilities extends Registrar {
 
 		$changed = array();
 		foreach ( $normalized as $field => $desired ) {
+			// String-cast on both sides because every field's storage form is
+			// scalar (`0`/`1` for BOOL, `'on'`/`'off'` for ON_OFF, plain strings
+			// for ENUM/STRING). New field types added later must keep that
+			// invariant or this comparison will misfire.
 			if ( (string) $desired === (string) $current_storage[ $field ] ) {
 				continue;
 			}
@@ -278,9 +282,10 @@ class Newsletter_Abilities extends Registrar {
 				'enum'    => self::REPLY_TO_VALUES,
 			),
 			'from_name'                  => array(
-				'option'  => 'jetpack_subscriptions_from_name',
-				'type'    => self::TYPE_STRING,
-				'default' => '',
+				'option'     => 'jetpack_subscriptions_from_name',
+				'type'       => self::TYPE_STRING,
+				'default'    => '',
+				'max_length' => 200,
 			),
 		);
 	}
@@ -351,7 +356,18 @@ class Newsletter_Abilities extends Registrar {
 				if ( ! is_string( $value ) ) {
 					return self::invalid_field( $field, __( 'expected a string.', 'jetpack' ) );
 				}
-				return sanitize_text_field( $value );
+				$sanitized = sanitize_text_field( $value );
+				if ( isset( $config['max_length'] ) && mb_strlen( $sanitized ) > (int) $config['max_length'] ) {
+					return self::invalid_field(
+						$field,
+						sprintf(
+							/* translators: %d: maximum number of characters. */
+							__( 'must be %d characters or fewer.', 'jetpack' ),
+							(int) $config['max_length']
+						)
+					);
+				}
+				return $sanitized;
 		}
 
 		return self::invalid_field( $field, __( 'unsupported field type.', 'jetpack' ) );
