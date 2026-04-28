@@ -230,17 +230,19 @@ class PCG_Rollback {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-		if ( false === $result || null === $result ) {
-			if ( method_exists( $skin, 'get_errors' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredMethod -- existence checked at runtime.
-				$errors = $skin->get_errors();
-				if ( $errors instanceof WP_Error && $errors->has_errors() ) {
-					return $errors;
-				}
-			}
-			return new WP_Error( 'pcg_rollback_install_failed', 'Plugin_Upgrader::install() returned false.' );
+		if ( true === $result ) {
+			return true;
 		}
-		return true;
+		// install() returned false/null. Surface the skin's accumulated
+		// errors when available; otherwise fall back to a generic one.
+		if ( method_exists( $skin, 'get_errors' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- existence checked at runtime.
+			$errors = $skin->get_errors();
+			if ( $errors instanceof WP_Error && $errors->has_errors() ) {
+				return $errors;
+			}
+		}
+		return new WP_Error( 'pcg_rollback_install_failed', 'Plugin_Upgrader::install() returned false.' );
 	}
 
 	/**

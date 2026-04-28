@@ -96,7 +96,7 @@ class PCG_Snapshot {
 			return '';
 		}
 
-		$dest_root = $root . '/' . self::backup_id( $plugin_file );
+		$dest_root = $root . '/' . md5( uniqid( '', true ) );
 		if ( ! wp_mkdir_p( $dest_root ) ) {
 			return '';
 		}
@@ -205,18 +205,6 @@ class PCG_Snapshot {
 	 */
 	public static function transient_key( $plugin_file ) {
 		return 'pcg_snap_' . md5( (string) $plugin_file );
-	}
-
-	/**
-	 * Backup directory id — unique per snapshot so concurrent updates of
-	 * the same plugin (rare, but possible across requests) don't clobber
-	 * each other's backup.
-	 *
-	 * @param string $plugin_file Basename relative to WP_PLUGIN_DIR.
-	 * @return string
-	 */
-	protected static function backup_id( $plugin_file ) {
-		return md5( $plugin_file . '|' . microtime( true ) . '|' . wp_generate_password( 8, false ) );
 	}
 
 	/**

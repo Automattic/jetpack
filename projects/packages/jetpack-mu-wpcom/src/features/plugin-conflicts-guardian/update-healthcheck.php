@@ -47,9 +47,7 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
  * @param array            $hook_extra { type, action, plugins? }.
  * @return void
  */
-function pcg_healthcheck_after_update( $upgrader, $hook_extra ) {
-	unset( $upgrader );
-
+function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $upgrader is the WP-Upgrader-supplied argument; we accept it for the action signature.
 	if ( ! apply_filters( 'pcg_guard_updates', false ) ) {
 		return;
 	}
@@ -104,20 +102,17 @@ function pcg_healthcheck_probe_and_maybe_rollback( $plugin_file ) {
 	$result = $tester->test( $abs );
 	$status = (string) ( $result['status'] ?? '' );
 
-	if ( 'ok' === $status ) {
-		// Update succeeded — drop the local backup so it doesn't pile up under wp-content/upgrade/.
-		PCG_Snapshot::cleanup_backup( $snapshot );
-		return;
-	}
+	// Anything other than a captured fatal is a no-op rollback-wise: ok =
+	// the update is fine; error = inconclusive transport failure we don't
+	// want to act on. Either way, drop the local backup so it doesn't
+	// linger under the temp dir.
 	if ( 'fatal' !== $status && 'throwable' !== $status ) {
-		// "error" from the probe itself (transport failure, missing file) — don't roll back on ambiguous signals.
-		// Treat these as inconclusive and clean up the backup; otherwise it lingers indefinitely.
 		PCG_Snapshot::cleanup_backup( $snapshot );
 		return;
 	}
 
 	$rollback = PCG_Rollback::to_snapshot( $snapshot );
-	pcg_healthcheck_stash_notice( $plugin_file, $result, $rollback, $plugin_name, $new_version, (string) ( $snapshot['version'] ?? '' ) );
+	pcg_healthcheck_stash_notice( $plugin_file, $result, $rollback, $plugin_name, $new_version );
 
 	/**
 	 * Fires after a post-update probe fails and rollback has been attempted.
@@ -147,26 +142,24 @@ function pcg_healthcheck_is_plugin_update( $hook_extra ) {
  * outcome, keyed by the current user id so concurrent updates don't
  * clobber each other's notices.
  *
- * @param string $plugin_file     Basename relative to WP_PLUGIN_DIR.
- * @param array  $probe           Probe result from PCG_Load_Tester::test().
- * @param array  $rollback        Result from PCG_Rollback::to_snapshot().
- * @param string $plugin_name     Human-readable plugin name (Plugin Name header).
- * @param string $new_version     Version we tried to upgrade to (Version header on the new files).
- * @param string $previous_version Version recorded by the snapshot (rollback target).
+ * @param string $plugin_file Basename relative to WP_PLUGIN_DIR.
+ * @param array  $probe       Probe result from PCG_Load_Tester::test().
+ * @param array  $rollback    Result from PCG_Rollback::to_snapshot().
+ * @param string $plugin_name Human-readable plugin Name header (falls back to $plugin_file).
+ * @param string $new_version Version we tried to upgrade to (Version header on the new files).
  * @return void
  */
-function pcg_healthcheck_stash_notice( $plugin_file, $probe, $rollback, $plugin_name = '', $new_version = '', $previous_version = '' ) {
+function pcg_healthcheck_stash_notice( $plugin_file, $probe, $rollback, $plugin_name = '', $new_version = '' ) {
 	$key      = 'pcg_healthcheck_notice_' . get_current_user_id();
 	$existing = get_transient( $key );
 	if ( ! is_array( $existing ) ) {
 		$existing = array();
 	}
 	$existing[ $plugin_file ] = array(
-		'reason'           => pcg_guard_format_block_reason( $probe ),
-		'rollback'         => $rollback,
-		'plugin_name'      => '' !== $plugin_name ? $plugin_name : $plugin_file,
-		'new_version'      => $new_version,
-		'previous_version' => $previous_version,
+		'reason'      => pcg_guard_format_block_reason( $probe ),
+		'rollback'    => $rollback,
+		'plugin_name' => '' !== $plugin_name ? $plugin_name : $plugin_file,
+		'new_version' => $new_version,
 	);
 	set_transient( $key, $existing, 10 * MINUTE_IN_SECONDS );
 }
