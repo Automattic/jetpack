@@ -13,6 +13,16 @@ jest.mock( '@wordpress/data', () => ( {
 
 jest.mock( '@wordpress/components', () => ( {
 	__esModule: true,
+	ExternalLink: ( { children, className, href } ) => (
+		<a className={ className } href={ href }>
+			{ children }
+			<span
+				aria-hidden="true"
+				className="components-external-link__icon"
+				data-testid="external-link-icon"
+			/>
+		</a>
+	),
 	ToggleControl: ( { checked, disabled, label, onChange } ) => (
 		<input
 			type="checkbox"
@@ -73,9 +83,10 @@ describe( 'ReaderChatControl', () => {
 		expect( toggle ).toBeChecked();
 		expect(
 			screen.getByRole( 'link', {
-				name: /Set content guidelines/i,
+				name: /Set guidelines/i,
 			} )
 		).toHaveAttribute( 'href', 'options-general.php?page=guidelines-wp-admin' );
+		expect( screen.getByTestId( 'external-link-icon' ) ).toBeInTheDocument();
 	} );
 
 	test( 'renders the toggle as off when the stored value is false', async () => {
@@ -89,7 +100,7 @@ describe( 'ReaderChatControl', () => {
 		expect( toggle ).not.toBeChecked();
 		expect(
 			screen.queryByRole( 'link', {
-				name: /Set content guidelines/i,
+				name: /Set guidelines/i,
 			} )
 		).not.toBeInTheDocument();
 	} );

@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { ToggleControl } from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
@@ -109,9 +109,9 @@ export default function ReaderChatControl() {
 								</p>
 								{ isEnabled && (
 									<p className="jp-form-search-settings-group__toggle-explanation">
-										<a href={ READER_CHAT_GUIDELINES_URL }>
-											{ __( 'Set content guidelines', 'jetpack-search-pkg' ) }
-										</a>
+										<ExternalLink href={ READER_CHAT_GUIDELINES_URL }>
+											{ __( 'Set guidelines', 'jetpack-search-pkg' ) }
+										</ExternalLink>
 									</p>
 								) }
 							</div>
