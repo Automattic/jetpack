@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c48ed06727e20b7215499494f079762",
+    "content-hash": "ff5646ec92656db4a5e84144887bd6ab",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -3550,13 +3550,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-abilities",
-                "reference": "d38d63604cbefe504f12a74a956502a648fdf521"
+                "reference": "e71e43ab54aaf244b0cb2e29999da393164021f5"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
