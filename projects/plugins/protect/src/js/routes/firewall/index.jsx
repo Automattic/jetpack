@@ -222,7 +222,9 @@ const FirewallPage = () => {
 	 */
 	const moduleDisabledNotice = (
 		<Notice.Root intent="error">
-			<Notice.Title>Jetpack Firewall is currently disabled.</Notice.Title>
+			<Notice.Title>
+				{ __( 'Jetpack Firewall is currently disabled.', 'jetpack-protect' ) }
+			</Notice.Title>
 			<Notice.Description>
 				<Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text>
 			</Notice.Description>

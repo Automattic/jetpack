@@ -72,8 +72,7 @@ const SettingsPage = () => {
 								href={ getRedirectUrl( 'jetpack-account-protection', {
 									anchor: 'unsupported-environments',
 								} ) }
-								target="_blank"
-								rel="noreferrer"
+								openInNewTab
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
 							</Notice.ActionLink>
@@ -93,8 +92,7 @@ const SettingsPage = () => {
 								href={ getRedirectUrl( 'jetpack-account-protection', {
 									anchor: 'requirements',
 								} ) }
-								target="_blank"
-								rel="noreferrer"
+								openInNewTab
 							>
 								{ __( 'Learn more', 'jetpack-protect' ) }
 							</Notice.ActionLink>
