@@ -124,7 +124,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {
-			analytics.tracks.recordEvent( 'jp_mcp_allowlist_updated', {
+			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
 				tool_id: toolId,
 				enabled,
 				view: 'write',
@@ -143,7 +143,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 
 	const handleEnableAll = useCallback(
 		( categoryTools, enabled ) => {
-			analytics.tracks.recordEvent( 'jp_mcp_allowlist_updated', {
+			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
 				enabled,
 				tool_count: categoryTools.length,
 				view: 'write',

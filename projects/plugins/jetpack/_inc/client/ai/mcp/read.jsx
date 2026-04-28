@@ -123,7 +123,7 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {
-			analytics.tracks.recordEvent( 'jp_mcp_allowlist_updated', {
+			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
 				tool_id: toolId,
 				enabled,
 				view: 'read',
@@ -142,7 +142,7 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 
 	const handleEnableAll = useCallback(
 		( categoryTools, enabled ) => {
-			analytics.tracks.recordEvent( 'jp_mcp_allowlist_updated', {
+			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
 				enabled,
 				tool_count: categoryTools.length,
 				view: 'read',

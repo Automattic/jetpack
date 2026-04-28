@@ -209,7 +209,7 @@ export default function McpHub( {
 
 	const handleMcpToggle = useCallback(
 		enabled => {
-			analytics.tracks.recordEvent( 'jp_mcp_enabled_toggled', { enabled } );
+			analytics.tracks.recordEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
 			const abilities = {};
 			if ( enabled ) {
 				readTools.forEach( ( [ toolId ] ) => {
