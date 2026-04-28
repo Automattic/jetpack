@@ -39,13 +39,17 @@ jobs:
       # them so the bot doesn't review under guidance the PR itself is modifying.
       - name: Skip on AGENTS.md/CLAUDE.md edits
         id: trusted_files
-        if: github.event.issue.pull_request != null || github.event_name == 'pull_request_review_comment' || github.event_name == 'pull_request_review'
         env:
           GH_TOKEN: ${{ github.token }}
+          HAS_PR: ${{ github.event.issue.pull_request != null || github.event_name == 'pull_request_review_comment' || github.event_name == 'pull_request_review' }}
           PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+          if [ "$HAS_PR" != "true" ]; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           FILES=$(gh pr diff "$PR_NUMBER" --repo "$REPO" --name-only)
           if echo "$FILES" | grep -qiE '(^|/)(AGENTS|CLAUDE)\.md$'; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -64,7 +68,7 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        if: steps.trusted_files.outputs.skip != 'true'
+        if: steps.trusted_files.outputs.skip == 'false'
         uses: anthropics/claude-code-action@df37d2f0760a4b5683a6e617c9325bc1a36443f6 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
