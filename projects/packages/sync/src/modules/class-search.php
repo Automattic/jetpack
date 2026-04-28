@@ -1821,13 +1821,13 @@ class Search extends Module {
 		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) ) ) {
 			return $list;
 		}
-		$list[] = 'jp_search_behavior';
+		$list[] = 'wp_guideline';       // Gutenberg Guidelines CPT (stores personality/behavior).
 		$list[] = 'jetpack_search_topic';
 		return $list;
 	}
 
 	/**
-	 * Add AI topic postmeta keys to the sync whitelist when AI Answers is enabled.
+	 * Add AI topic and personality postmeta keys to the sync whitelist when AI Answers is enabled.
 	 *
 	 * @param array $list Existing postmeta whitelist.
 	 * @return array Updated whitelist.
@@ -1836,6 +1836,7 @@ class Search extends Module {
 		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) ) ) {
 			return $list;
 		}
+		$list[] = '_guideline_block_jetpack_search-ai-summary'; // Personality stored in Gutenberg Guidelines.
 		$list[] = '_jstopic_keywords';
 		$list[] = '_jstopic_url';
 		return $list;
