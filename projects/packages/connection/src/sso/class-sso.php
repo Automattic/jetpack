@@ -297,14 +297,14 @@ class SSO {
 			 * The SSO module uses the method to display the default login form if we cannot find a user to log in via SSO.
 			 * But, the method could be filtered by a site admin to always show the default login form if that is preferred.
 			 */
-			$user_chose_sso_via_toggle = isset( $_GET['jetpack-sso-show-default-form'] ) && '0' === $_GET['jetpack-sso-show-default-form']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$show_sso_form = empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-			// On the recovery landing, default to the wp-admin password form only when it's a working fallback. When it's hidden, fall through so the SSO panel auto-loads — the toggle isn't rendered to opt in manually.
-			$prefer_password_default_on_recovery = 'entered_recovery_mode' === $action && ! Helpers::should_hide_login_form();
-
-			$show_sso_form = $prefer_password_default_on_recovery
-				? $user_chose_sso_via_toggle
-				: ( empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login() ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// Recovery mode is the break-glass fallback, so the wp-admin password form should be the default-visible option. Skip the override when that form is hidden, otherwise no login path would work.
+			if ( 'entered_recovery_mode' === $action
+				&& ! isset( $_GET['jetpack-sso-show-default-form'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				&& ! Helpers::should_hide_login_form() ) {
+				$show_sso_form = false;
+			}
 
 			if ( $show_sso_form ) {
 				$classes[] = 'jetpack-sso-form-display';
@@ -467,7 +467,7 @@ class SSO {
 		// And now the exceptions.
 		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Skip the SSO bypass-redirect on the recovery-mode landing page so the recovery notice stays visible and the wp-admin password fallback remains accessible.
+		// Recovery mode must complete on the local site (token validation, cookie, recovery notice). Skip the bypass-redirect so SSO doesn't carry the user off-site mid-recovery.
 		if ( 'entered_recovery_mode' === $action ) {
 			return false;
 		}
