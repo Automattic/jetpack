@@ -179,13 +179,13 @@ function pcg_guard_render_block_notice() {
 	}
 	?>
 	<div class="notice notice-error">
-		<p><strong>WordPress.com blocked activation because the pre-flight check detected a fatal:</strong></p>
+		<p><strong><?php esc_html_e( 'WordPress.com blocked activation because the pre-flight check detected a fatal:', 'jetpack-mu-wpcom' ); ?></strong></p>
 		<ul style="list-style:disc;padding-inline-start:24px;">
 			<?php foreach ( $messages as $plugin => $reason ) : ?>
 				<li><code><?php echo esc_html( $plugin ); ?></code> — <?php echo esc_html( $reason ); ?></li>
 			<?php endforeach; ?>
 		</ul>
-		<p>The plugin was not activated. Investigate the error before trying again.</p>
+		<p><?php esc_html_e( 'The plugin was not activated. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
 	</div>
 	<?php
 }
