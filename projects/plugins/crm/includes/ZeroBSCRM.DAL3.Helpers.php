@@ -381,13 +381,14 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 		$wp_user_id    = zeroBS_getCustomerWPID( $contact_id );
 		$contact       = $zbs->DAL->contacts->getContact( $contact_id );
 		$contact_email = $contact['email'];
-		$user_object   = get_userdata( $contact_email );
+		$user_object   = get_userdata( $wp_user_id );
 
 		if ( $wp_user_id > 0 && ! empty( $contact_email ) ) {
 
-			// Verify this user can be changed
-			// (Has to have singular role of `zerobs_customer`. This helps to avoid users resetting each others passwords via crm)
-			if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
+			// Verify this user can be changed.
+			// Has to have singular role of `zerobs_customer`. This helps to avoid
+			// users resetting each others passwords via the CRM.
+			if ( ! jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
 
 				return false;
 
