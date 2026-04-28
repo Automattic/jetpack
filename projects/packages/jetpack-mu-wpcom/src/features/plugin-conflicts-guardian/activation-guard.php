@@ -24,16 +24,16 @@ function pcg_guard_maybe_block_activation() {
 
 	// Bulk-action submissions from the bottom dropdown send `action=-1`
 	// and the real action in `action2`.
-	$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
+	$action = sanitize_text_field( wp_unslash( $_REQUEST['action'] ?? '' ) );
 	if ( '' === $action || '-1' === $action ) {
-		$action = isset( $_REQUEST['action2'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) ) : '';
+		$action = sanitize_text_field( wp_unslash( $_REQUEST['action2'] ?? '' ) );
 	}
 	if ( ! in_array( $action, array( 'activate', 'activate-plugin', 'activate-selected' ), true ) ) {
 		return;
 	}
 
 	if ( 'activate-selected' === $action ) {
-		$bulk_raw         = isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
+		$bulk_raw         = is_array( $_REQUEST['checked'] ?? null ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
 		$plugins_to_check = array_values(
 			array_filter(
 				array_map( static fn( $b ) => sanitize_text_field( (string) $b ), $bulk_raw )
@@ -42,7 +42,7 @@ function pcg_guard_maybe_block_activation() {
 		$nonce_action     = 'bulk-plugins';
 	} else {
 		// Single-plugin path (plugins.php Activate link / update.php post-upload link).
-		$plugin           = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : '';
+		$plugin           = sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ?? '' ) );
 		$plugins_to_check = '' !== $plugin ? array( $plugin ) : array();
 		$nonce_action     = 'activate-plugin_' . $plugin;
 	}

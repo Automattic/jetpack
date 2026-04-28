@@ -15,14 +15,14 @@ pcg_maybe_handle_probe();
  * Entry point. Bails when the request isn't a probe.
  */
 function pcg_maybe_handle_probe() {
-	$probe_flag = isset( $_GET['pcg_probe'] ) ? sanitize_text_field( wp_unslash( $_GET['pcg_probe'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token is the nonce, validated below.
+	$probe_flag = sanitize_text_field( wp_unslash( $_GET['pcg_probe'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token is the nonce, validated below.
 	if ( '1' !== $probe_flag ) {
 		return;
 	}
 
 	// Mixed-case random tokens from `wp_generate_password`; we can't
 	// `sanitize_key` (which lowercases) and must validate with a regex.
-	$raw_token = isset( $_GET['token'] ) ? (string) wp_unslash( $_GET['token'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
+	$raw_token = (string) wp_unslash( $_GET['token'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated via regex on the next line.
 	$token     = preg_match( '/^[A-Za-z0-9]+$/', $raw_token ) ? $raw_token : '';
 	if ( '' === $token ) {
 		pcg_probe_bail_error( 'Missing or malformed probe token.', 400 );
@@ -65,7 +65,7 @@ function pcg_maybe_handle_probe() {
 
 	// Admin probe: defer until admin_init has fired so admin-time hook fatals
 	// surface. Front-end probe: emit on wp_loaded once init has fired.
-	$is_admin_probe = isset( $_GET['pcg_admin'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['pcg_admin'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token already validated above.
+	$is_admin_probe = '1' === sanitize_text_field( wp_unslash( $_GET['pcg_admin'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token already validated above.
 	add_action( $is_admin_probe ? 'admin_init' : 'wp_loaded', 'pcg_probe_emit_ok', PHP_INT_MAX );
 }
 
