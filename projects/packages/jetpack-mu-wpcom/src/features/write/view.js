@@ -381,7 +381,50 @@ function addDeleteButtons() {
 			fig.style.opacity = '0';
 			fig.style.transform = 'scale(0.95)';
 			fig.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-			setTimeout( () => fig.remove(), 200 );
+			setTimeout( () => {
+				const next = fig.nextElementSibling;
+				const prev = fig.previousElementSibling;
+				fig.remove();
+				ensureBlockStructure();
+
+				// Place cursor in a text-editable block. If the nearest
+				// sibling is another figure/hr, create a <p> so typed
+				// text isn't silently lost on save.
+				const editable = /^(P|H[1-6]|BLOCKQUOTE)$/;
+				const c = document.querySelector( '.bw-content' );
+				// Verify refs are still direct children (ensureBlockStructure
+				// may have wrapped them inside a new <p>).
+				const isDirectChild = el => el && el.parentNode === c;
+				const safeNext = isDirectChild( next ) ? next : null;
+				const safePrev = isDirectChild( prev ) ? prev : null;
+				let dest = [ safeNext, safePrev ].find( el => el && editable.test( el.tagName ) );
+				if ( ! dest && c ) {
+					if ( safeNext || safePrev ) {
+						// Siblings exist but aren't editable (e.g. adjacent
+						// figures). Create a <p> where the deleted figure was.
+						const p = document.createElement( 'p' );
+						p.innerHTML = '<br>';
+						if ( safeNext ) {
+							safeNext.before( p );
+						} else {
+							safePrev.after( p );
+						}
+						dest = p;
+					} else {
+						// No direct-child siblings — ensureBlockStructure
+						// already re-seeded or wrapped the content.
+						dest = c.firstElementChild;
+					}
+				}
+				if ( dest ) {
+					const range = document.createRange();
+					range.setStart( dest, 0 );
+					range.collapse( true );
+					const sel = window.getSelection();
+					sel.removeAllRanges();
+					sel.addRange( range );
+				}
+			}, 200 );
 		} );
 		controls.appendChild( btn );
 
@@ -758,6 +801,73 @@ function cleanupAlignmentDivs() {
 	} );
 }
 
+// Block-level tags recognised by ensureBlockStructure (hoisted to avoid
+// re-creating the RegExp on every input event).
+const BLOCK_TAGS = /^(P|H[1-6]|BLOCKQUOTE|UL|OL|FIGURE|HR|DIV)$/;
+
+/**
+ * Ensure the content area always has proper block structure.
+ *
+ * Native contentEditable can leave bare text nodes or <br> elements as
+ * direct children of .bw-content (e.g. when Backspace deletes a figure
+ * and unwraps a neighbouring <p>). This wraps any such orphans in <p>
+ * tags and re-seeds an empty editor with a blank paragraph.
+ */
+function ensureBlockStructure() {
+	const content = document.querySelector( '.bw-content' );
+	if ( ! content ) return;
+
+	// Fast path: if every direct child is already a block element, bail out.
+	// This avoids allocating an array and running the full scan on every
+	// keystroke when the structure is already correct (the common case).
+	let needsRepair = ! content.firstChild;
+	if ( ! needsRepair ) {
+		for ( const node of content.childNodes ) {
+			if (
+				node.nodeType === Node.TEXT_NODE
+					? node.textContent.trim()
+					: node.nodeType !== Node.ELEMENT_NODE || ! BLOCK_TAGS.test( node.tagName )
+			) {
+				needsRepair = true;
+				break;
+			}
+		}
+	}
+	if ( ! needsRepair ) return;
+
+	// Re-seed a completely empty editor.
+	if ( ! content.firstChild ) {
+		content.innerHTML = '<p><br></p>';
+		return;
+	}
+
+	// Wrap runs of consecutive non-block nodes in <p> elements.
+	let run = [];
+	const flush = before => {
+		if ( ! run.length ) return;
+		// Skip runs that are only whitespace text nodes.
+		const hasContent = run.some(
+			n => n.nodeType === Node.ELEMENT_NODE || ( n.textContent && n.textContent.trim() )
+		);
+		if ( hasContent ) {
+			const p = document.createElement( 'p' );
+			content.insertBefore( p, before );
+			run.forEach( n => p.appendChild( n ) );
+		}
+		run = [];
+	};
+
+	// Snapshot childNodes because we'll mutate the DOM as we go.
+	[ ...content.childNodes ].forEach( node => {
+		if ( node.nodeType === Node.ELEMENT_NODE && BLOCK_TAGS.test( node.tagName ) ) {
+			flush( node );
+		} else {
+			run.push( node );
+		}
+	} );
+	flush( null );
+}
+
 const { state } = store( 'wpcom-write', {
 	state: {
 		formatBold: false,
@@ -898,6 +1008,14 @@ const { state } = store( 'wpcom-write', {
 
 			// Update all formatting button states based on cursor position.
 			updateFormattingState();
+		},
+
+		repairStructure() {
+			// Fires on the `input` event — after the browser mutates the DOM
+			// but before the next paint. Wraps any bare text/inline nodes that
+			// native contentEditable orphaned (e.g. deleting a figure via
+			// Backspace can unwrap a neighbouring <p>).
+			ensureBlockStructure();
 		},
 
 		handleKeyDown( event ) {
