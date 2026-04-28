@@ -287,7 +287,7 @@ class SSO {
 		// Always add the jetpack-sso class so that we can add SSO specific styling even when the SSO form isn't being displayed.
 		$classes[] = 'jetpack-sso';
 
-		if ( ! ( new Status() )->in_safe_mode() ) {
+		if ( ! ( new Status() )->in_safe_mode() && 'entered_recovery_mode' !== $action ) {
 			/**
 			 * Should we show the SSO login form?
 			 *
@@ -458,6 +458,11 @@ class SSO {
 		// And now the exceptions.
 		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
+		// Don't bypass to WordPress.com from the recovery-mode landing page; the user needs to see the recovery notice and have access to the wp-admin password fallback.
+		if ( 'entered_recovery_mode' === $action ) {
+			return false;
+		}
+
 		if ( Helpers::display_sso_form_for_action( $action ) ) {
 			$wants_to_login = true;
 		}
@@ -531,8 +536,6 @@ class SSO {
 				exit( 0 );
 			}
 
-			$this->display_sso_login_form();
-		} elseif ( 'entered_recovery_mode' === $action ) {
 			$this->display_sso_login_form();
 		}
 	}
