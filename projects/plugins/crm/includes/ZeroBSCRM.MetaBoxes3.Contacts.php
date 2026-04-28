@@ -1078,7 +1078,12 @@ class zeroBS__Metabox_ContactCustomFiles extends zeroBS__Metabox {
 
 								} else {
 
-									// couldn't move to store, leave in uploaded for now :)
+									// Could not move the file into private CRM storage.
+									// Delete the public copy left by `wp_upload_bits()`.
+									if ( file_exists( $upload['file'] ) ) {
+										unlink( $upload['file'] );
+									}
+									wp_die( 'There was an error storing your uploaded file.' );
 
 								}
 
@@ -1425,7 +1430,12 @@ class zeroBS__Metabox_ContactFiles extends zeroBS__Metabox {
 
 					} else {
 
-						// couldn't move to store, leave in uploaded for now :)
+						// Could not move the file into private CRM storage.
+						// Delete the public copy left by `wp_upload_bits()`.
+						if ( file_exists( $upload['file'] ) ) {
+							unlink( $upload['file'] );
+						}
+						wp_die( 'There was an error storing your uploaded file.' );
 
 					}
 
