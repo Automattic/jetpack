@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enable the `gutenberg-no-tinymce` Gutenberg experiment for all sites. Sites with the `enable-tinymce` blog sticker continue to load TinyMCE.
