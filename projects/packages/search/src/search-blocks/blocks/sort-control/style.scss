@@ -23,4 +23,35 @@
 	select {
 		padding: 0.2rem 0.5rem;
 	}
+
+	// Reset browser defaults on the radio-variant fieldset. Without this the
+	// block would render a bordered box around the radio group, which doesn't
+	// match the inline look of the select variant and surprises theme authors
+	// who style the block as a single row.
+	.jetpack-search-sort-control__radio-group {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		border: 0;
+		margin: 0;
+		padding: 0;
+
+		legend {
+			font-size: 0.9rem;
+			// Match the select variant's `label` so the radio fieldset adapts
+			// to dark themes and the site palette instead of pinning to a
+			// hard-coded grey.
+			color: inherit;
+			opacity: 0.8;
+			padding: 0;
+		}
+	}
+
+	.jetpack-search-sort-control__radio-item {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.9rem;
+	}
 }

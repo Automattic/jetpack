@@ -1,6 +1,4 @@
-// Valid UI/URL values for `orderby`. Must mirror `Search_Blocks::parse_url_sort()`
-// on the PHP side so deep links round-trip the same sort on first paint and
-// hydration.
+// Mirror `Sort_Control::get_all_option_keys()`. Product-format keys rejoin in RSM-1082.
 const VALID_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
 const DEFAULT_SORT_ORDER = 'relevance';
 

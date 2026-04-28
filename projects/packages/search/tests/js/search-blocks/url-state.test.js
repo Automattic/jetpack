@@ -33,6 +33,16 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
+	it( 'omits product-format sort orders until WooCommerce integration lands (RSM-1082)', () => {
+		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'price_asc' } );
+		expect( params.has( 'orderby' ) ).toBe( false );
+	} );
+
+	it( 'omits unknown sort orders', () => {
+		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'bogus' } );
+		expect( params.has( 'orderby' ) ).toBe( false );
+	} );
+
 	it( 'serializes active filters as flat top-level array params', () => {
 		const params = stateToUrlParams( {
 			searchQuery: '',
@@ -67,6 +77,16 @@ describe( 'urlParamsToState', () => {
 
 	it( 'defaults sort order to relevance when absent', () => {
 		const state = urlParamsToState( new URLSearchParams( '' ) );
+		expect( state.sortOrder ).toBe( 'relevance' );
+	} );
+
+	it( 'collapses product-format URL sort to relevance until WooCommerce integration lands (RSM-1082)', () => {
+		const state = urlParamsToState( new URLSearchParams( 'orderby=price_asc' ) );
+		expect( state.sortOrder ).toBe( 'relevance' );
+	} );
+
+	it( 'collapses unknown sort order to relevance', () => {
+		const state = urlParamsToState( new URLSearchParams( 'orderby=bogus' ) );
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 
