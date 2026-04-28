@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Connection: reference "WordPress.com" rather than "Jetpack" in connect-screen error messages when a non-Jetpack product (such as WooCommerce Payments) initiates the connection, so merchants see consistent branding in their setup flow.

@@ -1,6 +1,6 @@
 import { ActionButton, TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
@@ -31,14 +31,11 @@ type OwnProps = {
 	buttonIsLoading?: boolean;
 	// Whether the site is in offline mode
 	isOfflineMode?: boolean;
-	// Brand name to reference in connection error messages. Defaults to "Jetpack";
-	// non-Jetpack consumers (e.g. WooCommerce Payments onboarding) can pass "WordPress.com".
-	connectionBrandName?: string;
 };
 
 export type Props = WithRequired< SharedProps, 'buttonLabel' > & OwnProps;
 
-const getErrorMessage = ( errorCode, isOfflineMode, connectionBrandName = 'Jetpack' ) => {
+const getErrorMessage = ( errorCode, isOfflineMode ) => {
 	// Explicit error code takes precedence over the offline mode.
 	switch ( errorCode ) {
 		case 'fail_domain_forbidden':
@@ -46,13 +43,9 @@ const getErrorMessage = ( errorCode, isOfflineMode, connectionBrandName = 'Jetpa
 		case 'fail_domain_tld':
 		case 'fail_subdomain_wpcom':
 		case 'siteurl_private_ip':
-			return sprintf(
-				/* translators: %s: Brand name driving the connection, e.g. "Jetpack" or "WordPress.com". */
-				__(
-					'Your site host is on a private network. %s can only connect to public sites.',
-					'jetpack-connection-js'
-				),
-				connectionBrandName
+			return __(
+				'Your site host is on a private network. Sites can connect to WordPress.com only on public sites.',
+				'jetpack-connection-js'
 			);
 		case 'connection_disabled':
 			return __( 'This site has been suspended.', 'jetpack-connection-js' );
@@ -92,7 +85,6 @@ const ConnectScreenVisual: FC< Props > = ( {
 	footer,
 	isOfflineMode,
 	logo,
-	connectionBrandName,
 } ) => (
 	<ConnectScreenLayout
 		title={ title }
@@ -114,7 +106,7 @@ const ConnectScreenVisual: FC< Props > = ( {
 				label={ buttonLabel }
 				onClick={ handleButtonClick }
 				displayError={ displayButtonError || isOfflineMode }
-				errorMessage={ getErrorMessage( errorCode, isOfflineMode, connectionBrandName ) }
+				errorMessage={ getErrorMessage( errorCode, isOfflineMode ) }
 				isLoading={ buttonIsLoading }
 				isDisabled={ isOfflineMode }
 			/>
