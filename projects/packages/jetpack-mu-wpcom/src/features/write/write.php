@@ -105,7 +105,8 @@ add_action(
 			'caption'              => __( 'Caption', 'jetpack-mu-wpcom' ),
 			'describeImage'        => __( 'Describe this image...', 'jetpack-mu-wpcom' ),
 			'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
-			'uploadFailed'         => __( 'Upload failed: ', 'jetpack-mu-wpcom' ),
+			// translators: %s is the error message from the upload failure.
+			'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
 			'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
 			'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
 			'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
@@ -115,7 +116,8 @@ add_action(
 			'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
 			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
 			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
-			'error'                => __( 'Error: ', 'jetpack-mu-wpcom' ),
+			// translators: %s is the error message.
+			'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
 			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
@@ -264,10 +266,10 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
 			<div class="bw-help-title"><?php echo esc_html__( 'Tips', 'jetpack-mu-wpcom' ); ?></div>
 			<div class="bw-help-row"><kbd>/</kbd><span><?php echo esc_html__( 'Insert a heading, image, video, quote or divider', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd><?php echo esc_html__( 'Ctrl+B', 'jetpack-mu-wpcom' ); ?></kbd><span><?php echo esc_html__( 'Bold', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd><?php echo esc_html__( 'Ctrl+I', 'jetpack-mu-wpcom' ); ?></kbd><span><?php echo esc_html__( 'Italic', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd><?php echo esc_html__( 'Ctrl+K', 'jetpack-mu-wpcom' ); ?></kbd><span><?php echo esc_html__( 'Insert link', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd><?php echo esc_html__( 'Tab', 'jetpack-mu-wpcom' ); ?></kbd><span><?php echo esc_html__( 'Navigate slash menu options', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+B</kbd><span><?php echo esc_html__( 'Bold', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+I</kbd><span><?php echo esc_html__( 'Italic', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+K</kbd><span><?php echo esc_html__( 'Insert link', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Tab</kbd><span><?php echo esc_html__( 'Navigate slash menu options', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<span class="bw-status" data-wp-text="state.message"></span>
 		<div class="bw-topbar-actions">

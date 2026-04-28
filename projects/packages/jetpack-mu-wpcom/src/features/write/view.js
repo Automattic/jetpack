@@ -1222,7 +1222,7 @@ const { state } = store( 'wpcom-write', {
 			} catch ( err ) {
 				state.isUploading = false;
 				if ( zone ) zone.classList.remove( 'bw-uploading' );
-				state.message = ( i18n.uploadFailed || 'Upload failed: ' ) + err.message;
+				state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
 				setTimeout( () => {
 					state.message = '';
 				}, 3000 );
@@ -1483,7 +1483,7 @@ async function savePost( postStatus ) {
 			}, 2500 );
 		}
 	} catch ( err ) {
-		state.message = ( i18n.error || 'Error: ' ) + err.message;
+		state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );
 		state.isSaving = false;
 		setTimeout( () => {
 			state.message = '';
