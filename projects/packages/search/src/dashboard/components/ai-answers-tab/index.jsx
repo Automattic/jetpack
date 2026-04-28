@@ -1,5 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Notice, TextareaControl, ToggleControl } from '@wordpress/components';
+import {
+	Button,
+	ExternalLink,
+	Notice,
+	TextareaControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
@@ -18,12 +24,12 @@ const DEFAULT_PERSONALITY = __(
  * @return {import('react').ReactElement} AiAnswersTab component.
  */
 export default function AiAnswersTab() {
-	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
-	const isAiAnswersEnabled = useSelect( select => select( STORE_ID ).isAiAnswersEnabled() );
-	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
-	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
-	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom() );
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch(), [] );
+	const isAiAnswersEnabled = useSelect( select => select( STORE_ID ).isAiAnswersEnabled(), [] );
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
+	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { updateJetpackSettings } = useDispatch( STORE_ID );
 
@@ -125,6 +131,7 @@ export default function AiAnswersTab() {
 			) }
 
 			<div className={ settingsClassName } data-testid="ai-answers-settings">
+				{ isLoading && <p>{ __( 'Loading…', 'jetpack-search-pkg' ) }</p> }
 				<ToggleControl
 					label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
 					checked={ isAiAnswersEnabled }
@@ -174,7 +181,10 @@ export default function AiAnswersTab() {
 								{ __(
 									'Go to Settings → Gutenberg → Experiments and enable "Guidelines".',
 									'jetpack-search-pkg'
-								) }
+								) }{ ' ' }
+								<ExternalLink href={ `${ siteAdminUrl }admin.php?page=gutenberg-experiments` }>
+									{ __( 'Open Experiments page', 'jetpack-search-pkg' ) }
+								</ExternalLink>
 							</li>
 						</ol>
 					</Notice>
