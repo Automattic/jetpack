@@ -39,7 +39,11 @@
 
 		legend {
 			font-size: 0.9rem;
-			color: #555;
+			// Match the select variant's `label` so the radio fieldset adapts
+			// to dark themes and the site palette instead of pinning to a
+			// hard-coded grey.
+			color: inherit;
+			opacity: 0.8;
 			padding: 0;
 		}
 	}

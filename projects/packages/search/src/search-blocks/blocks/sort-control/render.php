@@ -45,12 +45,16 @@ if ( 'radio' === $display_as && ! function_exists( 'wp_interactivity_data_wp_con
 	$display_as = 'select';
 }
 
-// Push the resolved sort into the shared Interactivity state so the
-// JS store hydrates against the same value the server rendered. Core's
-// `wp_interactivity_state()` deep-merges, so this overrides whatever the
-// Search_Blocks state seeder wrote (which knows only about the legacy
-// `newest`/`oldest` URL keys — a product-format URL sort would otherwise
-// collapse to `relevance` before the block saw it).
+// Seed the shared Interactivity state with the resolved sort so the JS
+// store hydrates against the value the server rendered. Whether this seed
+// "wins" depends on theme type: under classic themes the block renders
+// during `wp_enqueue_scripts`, after the Search_Blocks state seeder, so
+// `wp_interactivity_state()`'s deep-merge layers on top. Under FSE/block
+// themes the block template renders before `wp_enqueue_scripts` fires —
+// the Search_Blocks seeder later overwrites this `sortOrder`, falling
+// back to `relevance` for any sort key it doesn't recognise. Resolving
+// the FSE precedence is tracked separately; this call still does the
+// right thing under classic themes and is harmless under FSE.
 if ( function_exists( 'wp_interactivity_state' ) ) {
 	wp_interactivity_state( 'jetpack-search', array( 'sortOrder' => $effective_sort ) );
 }
