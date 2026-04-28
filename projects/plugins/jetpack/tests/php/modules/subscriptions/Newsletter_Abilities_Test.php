@@ -7,8 +7,6 @@
 
 // @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
 
-require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/abilities/class-newsletter-abilities.php';
-
 use Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -56,6 +54,7 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		$this->assertNotEmpty( $abilities );
 		$this->assertArrayHasKey( 'jetpack-newsletter/get-settings', $abilities );
 		$this->assertArrayHasKey( 'jetpack-newsletter/update-settings', $abilities );
+		$this->assertArrayHasKey( 'jetpack-newsletter/get-subscriber-stats', $abilities );
 		foreach ( array_keys( $abilities ) as $slug ) {
 			$this->assertStringStartsWith( 'jetpack-newsletter/', $slug );
 		}
@@ -84,6 +83,11 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		$this->assertFalse( $write['readonly'] );
 		$this->assertFalse( $write['destructive'] );
 		$this->assertTrue( $write['idempotent'] );
+
+		$stats = $abilities['jetpack-newsletter/get-subscriber-stats']['meta']['annotations'];
+		$this->assertTrue( $stats['readonly'] );
+		$this->assertFalse( $stats['destructive'] );
+		$this->assertTrue( $stats['idempotent'] );
 	}
 
 	public function test_init_registers_nothing_when_gate_filter_is_false() {
@@ -351,5 +355,41 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 				"Ability {$slug} must be filtered out by jetpack_wp_abilities_should_register."
 			);
 		}
+	}
+
+	public function test_get_subscriber_stats_returns_cached_response_without_remote_call() {
+		// Pre-seed the transient so the callback's short-circuit returns it
+		// without hitting wpcom or any class_exists/connection check.
+		set_transient(
+			'jetpack_newsletter_subscriber_stats',
+			array(
+				'all'   => 1234,
+				'email' => 1000,
+				'paid'  => 234,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$result = Newsletter_Abilities::get_subscriber_stats();
+		$this->assertIsArray( $result );
+		$this->assertSame( 1234, $result['all'] );
+		$this->assertSame( 1000, $result['email'] );
+		$this->assertSame( 234, $result['paid'] );
+
+		delete_transient( 'jetpack_newsletter_subscriber_stats' );
+	}
+
+	public function test_get_subscriber_stats_returns_wp_error_when_disconnected() {
+		// No cached stats and Jetpack reports as disconnected — must surface a
+		// jetpack_newsletter_not_connected error so the agent stops calling.
+		delete_transient( 'jetpack_newsletter_subscriber_stats' );
+		add_filter( 'jetpack_is_connection_ready', '__return_false' );
+
+		$result = Newsletter_Abilities::get_subscriber_stats();
+
+		remove_filter( 'jetpack_is_connection_ready', '__return_false' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_newsletter_not_connected', $result->get_error_code() );
 	}
 }
