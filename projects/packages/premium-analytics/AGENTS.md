@@ -88,9 +88,12 @@ requires human approval.
 
 ---
 
-## Definition of done (build-sensitive changes)
+## Definition of done
 
+**Agent-verifiable (required before push):**
 - [ ] Build succeeds
+
+**Human-verifiable (PR review):**
 - [ ] App opens in `wp-admin` without blank screen
 - [ ] Route navigation works
 - [ ] No shim-dependent regression
