@@ -84,7 +84,7 @@ requires human approval.
 
 ## Adding a route
 
-Run `/premium-analytics:add-route` for the required steps.
+@docs/add-route.md
 
 ---
 
