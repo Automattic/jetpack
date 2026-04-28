@@ -249,7 +249,6 @@ class SearchResults extends Component {
 	renderSecondarySection() {
 		return (
 			<SearchSidebar
-				citations={ this.props.aiCitations }
 				filters={ this.props.filters }
 				staticFilters={ this.props.staticFilters }
 				isLoading={ this.props.isLoading }

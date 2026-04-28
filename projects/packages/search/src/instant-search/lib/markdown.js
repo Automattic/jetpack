@@ -25,7 +25,7 @@ function escapeHtml( text ) {
  * @return {string} HTML string with inline elements applied.
  */
 function inlineFormat( text ) {
-	const pattern = /(\*\*(.+?)\*\*|\*(.+?)\*|\[([^\]]+)\]\(([^)]+)\))/g;
+	const pattern = /(\*\*(.+?)\*\*|\*(.+?)\*|\[([^\]]+)\]\(([^)]+)\)|(https?:\/\/[^\s<>"')\]]+))/g;
 	const result = [];
 	let lastIndex = 0;
 	let match;
@@ -35,9 +35,9 @@ function inlineFormat( text ) {
 			result.push( escapeHtml( text.slice( lastIndex, match.index ) ) );
 		}
 		if ( match[ 2 ] !== undefined ) {
-			result.push( `<strong>${ escapeHtml( match[ 2 ] ) }</strong>` );
+			result.push( `<strong>${ inlineFormat( match[ 2 ] ) }</strong>` );
 		} else if ( match[ 3 ] !== undefined ) {
-			result.push( `<em>${ escapeHtml( match[ 3 ] ) }</em>` );
+			result.push( `<em>${ inlineFormat( match[ 3 ] ) }</em>` );
 		} else if ( match[ 4 ] !== undefined && match[ 5 ] !== undefined ) {
 			const url = /^https?:\/\//.test( match[ 5 ] ) ? escapeHtml( match[ 5 ] ) : '#';
 			result.push(
@@ -45,6 +45,9 @@ function inlineFormat( text ) {
 					match[ 4 ]
 				) }</a>`
 			);
+		} else if ( match[ 6 ] !== undefined ) {
+			const url = escapeHtml( match[ 6 ] );
+			result.push( `<a href="${ url }" target="_blank" rel="noopener noreferrer">${ url }</a>` );
 		}
 		lastIndex = match.index + match[ 0 ].length;
 	}
