@@ -90,13 +90,6 @@ class Jetpack_Mu_Wpcom {
 		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
 
-		// Enable the `gutenberg-no-tinymce` Gutenberg experiment for all sites, with an opt-out via the `enable-tinymce` blog sticker.
-		// Both filters are needed: `default_option_` fires when the option doesn't exist in the DB, `option_` fires when it does.
-		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_no_tinymce_experiment' ) );
-		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_no_tinymce_experiment' ) );
-		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'maybe_disable_gutenberg_no_tinymce_experiment' ), 1000 );
-		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'maybe_disable_gutenberg_no_tinymce_experiment' ), 1000 );
-
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -763,38 +756,6 @@ class Jetpack_Mu_Wpcom {
 			$data['site']['wpcom']['blog_id'] = $blog_id;
 		}
 		return $data;
-	}
-
-	/**
-	 * Add `gutenberg-no-tinymce` to the list of enabled Gutenberg experiments.
-	 *
-	 * @param mixed $experiments The current value of the gutenberg-experiments option.
-	 * @return array The filtered experiments.
-	 */
-	public static function enable_gutenberg_no_tinymce_experiment( $experiments ) {
-		if ( ! is_array( $experiments ) ) {
-			$experiments = array();
-		}
-		$experiments['gutenberg-no-tinymce'] = true;
-		return $experiments;
-	}
-
-	/**
-	 * Disable the `gutenberg-no-tinymce` experiment on sites with the `enable-tinymce` sticker.
-	 *
-	 * Runs at priority 1000 so it overrides the default-on filter.
-	 *
-	 * @param mixed $experiments The current value of the gutenberg-experiments option.
-	 * @return mixed The filtered experiments.
-	 */
-	public static function maybe_disable_gutenberg_no_tinymce_experiment( $experiments ) {
-		if ( ! is_array( $experiments ) ) {
-			return $experiments;
-		}
-		if ( wpcom_has_blog_sticker( 'enable-tinymce', get_wpcom_blog_id() ) ) {
-			unset( $experiments['gutenberg-no-tinymce'] );
-		}
-		return $experiments;
 	}
 
 	/**
