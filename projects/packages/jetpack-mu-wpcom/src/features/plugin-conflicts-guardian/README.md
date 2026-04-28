@@ -68,6 +68,7 @@ Atomic and some managed hosts sandbox web-PHP so `proc_open` can't find/exec a C
 ## Limitations
 
 - Only catches errors hit while `require`-ing the main file and during `plugins_loaded` / `init` / `admin_init` callbacks. Errors that surface only on later hooks (e.g. `template_redirect`, REST) are invisible.
+- The probe endpoint is wired up via jetpack-mu-wpcom's `load_features()` at `plugins_loaded` priority 10, so plugin callbacks registered for `plugins_loaded` at priority < 10 will have already fired before the plugin under test is `require`d. Fatals from those earlier-priority callbacks are missed. Hooking the probe handler earlier would require splitting it out of `load_features()`.
 - Other active plugins are live during the probe, so cross-plugin conflicts CAN surface (a full SHORTINIT sandbox would avoid that, but isn't portable here).
 
 ## Update flow (syntax-only)
