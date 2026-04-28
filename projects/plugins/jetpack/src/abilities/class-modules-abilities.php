@@ -149,10 +149,10 @@ class Modules_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
-					'mcp' => array(
-					    'public' => true,
-					    'type' => 'tool', // default is already "tool", but can be explicit.
-					)
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool', // default is already "tool", but can be explicit.
+					),
 				),
 			),
 		);
@@ -241,10 +241,10 @@ class Modules_Abilities extends Registrar {
 
 		$active_filter  = array_key_exists( 'active', $input ) && is_bool( $input['active'] ) ? $input['active'] : null;
 		$feature_filter = isset( $input['feature'] ) && is_string( $input['feature'] ) && '' !== $input['feature']
-			? mb_strtolower( $input['feature'] )
+			? strtolower( $input['feature'] )
 			: null;
 		$search_filter  = isset( $input['search'] ) && is_string( $input['search'] ) && '' !== $input['search']
-			? mb_strtolower( $input['search'] )
+			? strtolower( $input['search'] )
 			: null;
 
 		$out = array();
@@ -259,15 +259,15 @@ class Modules_Abilities extends Registrar {
 			}
 
 			if ( null !== $feature_filter ) {
-				$features_lower = array_map( 'mb_strtolower', $summary['feature'] );
+				$features_lower = array_map( 'strtolower', $summary['feature'] );
 				if ( ! in_array( $feature_filter, $features_lower, true ) ) {
 					continue;
 				}
 			}
 
 			if ( null !== $search_filter ) {
-				$haystack = mb_strtolower( $summary['slug'] . ' ' . $summary['name'] . ' ' . $summary['description'] );
-				if ( false === mb_strpos( $haystack, $search_filter ) ) {
+				$haystack = strtolower( $summary['slug'] . ' ' . $summary['name'] . ' ' . $summary['description'] );
+				if ( false === strpos( $haystack, $search_filter ) ) {
 					continue;
 				}
 			}
