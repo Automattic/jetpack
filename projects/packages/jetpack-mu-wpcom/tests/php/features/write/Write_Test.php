@@ -120,7 +120,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'data-wp-interactive="wpcom-write"', $output );
 		$this->assertStringContainsString( 'class="bw-app"', $output );
-		$this->assertStringContainsString( 'class="bw-content"', $output );
+		$this->assertStringContainsString( 'class="bw-content bw-is-empty"', $output );
 		$this->assertStringContainsString( 'contenteditable="true"', $output );
 		$this->assertStringContainsString( 'Tell your story...', $output );
 		$this->assertStringContainsString( 'Save draft', $output );
