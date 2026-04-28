@@ -110,6 +110,10 @@ class Modules_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool', // default is already "tool", but can be explicit.
+					),
 				),
 			),
 
@@ -231,12 +235,17 @@ class Modules_Abilities extends Registrar {
 		// active state per-module in a loop amplifies any hook cost by N.
 		$active_map = array_flip( Jetpack::get_active_modules() );
 
+		// Narrow the candidate set up front when `slug` is supplied; remaining
+		// filters (active / feature / search) still apply so combinations like
+		// { slug: 'stats', active: false } correctly return an empty array when
+		// stats is active.
 		if ( isset( $input['slug'] ) && is_string( $input['slug'] ) && '' !== $input['slug'] ) {
 			if ( ! Jetpack::is_module( $input['slug'] ) ) {
 				return array();
 			}
-			$summary = self::summarize_module( $input['slug'], isset( $active_map[ $input['slug'] ] ) );
-			return null === $summary ? array() : array( $summary );
+			$candidate_slugs = array( $input['slug'] );
+		} else {
+			$candidate_slugs = Jetpack::get_available_modules();
 		}
 
 		$active_filter  = array_key_exists( 'active', $input ) && is_bool( $input['active'] ) ? $input['active'] : null;
@@ -248,7 +257,7 @@ class Modules_Abilities extends Registrar {
 			: null;
 
 		$out = array();
-		foreach ( Jetpack::get_available_modules() as $slug ) {
+		foreach ( $candidate_slugs as $slug ) {
 			$summary = self::summarize_module( $slug, isset( $active_map[ $slug ] ) );
 			if ( null === $summary ) {
 				continue;

@@ -142,6 +142,14 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$this->assertTrue( $spec['meta']['annotations']['idempotent'] );
 	}
 
+	public function test_both_abilities_opt_into_mcp_as_public_tool() {
+		foreach ( array( 'jetpack-modules/get-modules', 'jetpack-modules/set-module-status' ) as $slug ) {
+			$spec = Modules_Abilities::get_abilities()[ $slug ];
+			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
+		}
+	}
+
 	public function test_init_registers_nothing_when_gate_filter_is_false() {
 		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
 		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
@@ -315,6 +323,34 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$result = Modules_Abilities::get_modules( array( 'slug' => $slug ) );
 		$this->assertCount( 1, $result );
 		$this->assertSame( $slug, $result[0]['slug'] );
+	}
+
+	public function test_get_modules_slug_lookup_still_honors_other_filters() {
+		// Regression guard: { slug, active } must apply the active filter even though
+		// slug narrows the candidate set to a single module — otherwise callers
+		// combining filters get a false positive for a module that doesn't match.
+		wp_set_current_user( $this->admin_id );
+		$all = Modules_Abilities::get_modules( array() );
+		if ( empty( $all ) ) {
+			$this->markTestSkipped( 'No modules available to probe.' );
+		}
+		$probe  = $all[0];
+		$result = Modules_Abilities::get_modules(
+			array(
+				'slug'   => $probe['slug'],
+				'active' => ! $probe['active'],
+			)
+		);
+		$this->assertSame( array(), $result );
+
+		$matching = Modules_Abilities::get_modules(
+			array(
+				'slug'   => $probe['slug'],
+				'active' => $probe['active'],
+			)
+		);
+		$this->assertCount( 1, $matching );
+		$this->assertSame( $probe['slug'], $matching[0]['slug'] );
 	}
 
 	public function test_get_modules_filters_by_active_state() {
