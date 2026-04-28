@@ -183,10 +183,11 @@ class PCG_Load_Tester {
 			return $decoded;
 		}
 
-		// Admin probe bounced to login (no/expired cookie) — don't block on this signal.
+		// Admin probe bounced to login (no/expired cookie) — don't block on
+		// this signal. Distinct status so we can measure how often it fires.
 		if ( $is_admin && ( 301 === $code || 302 === $code ) ) {
 			return array(
-				'status' => 'ok',
+				'status' => 'ok-inconclusive',
 				'reason' => 'Admin probe redirected; treating as inconclusive ok.',
 			);
 		}
