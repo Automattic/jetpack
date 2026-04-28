@@ -299,8 +299,10 @@ class SSO {
 			 */
 			$user_chose_sso_via_toggle = isset( $_GET['jetpack-sso-show-default-form'] ) && '0' === $_GET['jetpack-sso-show-default-form']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-			// On the recovery-mode landing the wp-admin password form is the recovery fallback, so only show the SSO panel when the user explicitly opts in via the toggle.
-			$show_sso_form = 'entered_recovery_mode' === $action
+			// On the recovery landing, default to the wp-admin password form only when it's a working fallback. When it's hidden, fall through so the SSO panel auto-loads — the toggle isn't rendered to opt in manually.
+			$prefer_password_default_on_recovery = 'entered_recovery_mode' === $action && ! Helpers::should_hide_login_form();
+
+			$show_sso_form = $prefer_password_default_on_recovery
 				? $user_chose_sso_via_toggle
 				: ( empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login() ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
