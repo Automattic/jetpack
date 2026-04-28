@@ -1,12 +1,6 @@
-# CLAUDE.md — premium-analytics
+# AGENTS.md — premium-analytics
 
 This file is authoritative. Read it fully before making any changes.
-
-Detailed rationale for every rule here lives in the sandbox docs:
-- `tools/ai-sandbox/docs/agent-boundaries.md`
-- `tools/ai-sandbox/docs/build-runtime-contract.md`
-- `tools/ai-sandbox/docs/ui-scope-contract.md`
-- `tools/ai-sandbox/docs/route-contract.md`
 
 ---
 
