@@ -1580,7 +1580,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 				} else {
 
 					// explainer - rarely shown
-					echo '<p style="font-size: 0.9em;margin-top: 0.5em;">' . esc_html__( 'The WordPress user has a role other than CRM Contact. They will need to reset their password via the WP login page.', 'zero-bs-crm' ) . '</p>';
+					echo '<p style="font-size: 0.9em;margin-top: 0.5em;">' . esc_html__( 'You cannot edit this user. Password resets must be done via the WP login page.', 'zero-bs-crm' ) . '</p>';
 
 				}
 
