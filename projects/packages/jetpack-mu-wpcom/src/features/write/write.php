@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
 	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ) ) );
@@ -186,6 +188,13 @@ function wpcom_write_render_admin_page() {
 			$edit_post_id = 0;
 		}
 	}
+
+	Common\wpcom_record_tracks_event(
+		'wpcom_write_editor_open',
+		array(
+			'is_new_post' => 0 === $edit_post_id,
+		)
+	);
 
 	// Build categories list for the UI.
 	$all_cats        = get_categories( array( 'hide_empty' => false ) );
