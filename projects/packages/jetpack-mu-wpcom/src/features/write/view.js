@@ -25,6 +25,10 @@ let prevSlashFilter = null;
 // Prevent enterKeyboardNav from stacking multiple mousemove listeners.
 let keyboardNavListenerActive = false;
 
+// Skip one checkSlashCommand cycle after the user dismisses the menu with Escape,
+// preventing the keyup event from immediately reopening it.
+let slashMenuEscaped = false;
+
 /**
  * Save the current text selection so it can be restored after a modal closes.
  */
@@ -690,6 +694,7 @@ const { state } = store( 'wpcom-write', {
 			if ( state.showSlashMenu ) {
 				if ( event.key === 'Escape' ) {
 					event.preventDefault();
+					slashMenuEscaped = true;
 					prevSlashFilter = null;
 					state.showSlashMenu = false;
 					return;
@@ -802,6 +807,12 @@ const { state } = store( 'wpcom-write', {
 			const text = node.textContent;
 			// Show menu when the line starts with "/" and optionally a filter after it.
 			if ( /^\/\S*$/.test( text.trim() ) ) {
+				// User just dismissed the menu with Escape — skip this keyup cycle.
+				if ( slashMenuEscaped ) {
+					slashMenuEscaped = false;
+					return;
+				}
+
 				const newFilter = text.trim().slice( 1 ).toLowerCase();
 				// Only reset the active item when the filter text actually changes
 				// (i.e. the user typed a character). Preserve selection when navigating.
@@ -824,6 +835,7 @@ const { state } = store( 'wpcom-write', {
 				// Auto-highlight the first visible item only when filter changes.
 				if ( filterChanged && firstVisible ) firstVisible.classList.add( 'bw-slash-item-active' );
 			} else {
+				slashMenuEscaped = false;
 				prevSlashFilter = null;
 				state.showSlashMenu = false;
 			}
