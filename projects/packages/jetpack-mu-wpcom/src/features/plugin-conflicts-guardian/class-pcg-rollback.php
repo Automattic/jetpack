@@ -259,6 +259,6 @@ class PCG_Rollback {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 		WP_Filesystem();
-		return $wp_filesystem ?? null;
+		return $wp_filesystem;
 	}
 }
