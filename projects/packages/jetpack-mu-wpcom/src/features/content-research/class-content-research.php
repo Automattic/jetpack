@@ -40,18 +40,9 @@ class Content_Research {
 	}
 
 	/**
-	 * Register REST API endpoints (only when feature is enabled).
+	 * Register REST API endpoints.
 	 */
 	public function register_rest_api() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
-
-		require_once __DIR__ . '/interface-content-research-source.php';
-		require_once __DIR__ . '/class-source-hackernews.php';
-		require_once __DIR__ . '/class-source-reader.php';
-		require_once __DIR__ . '/class-source-googlenews.php';
-
 		require_once __DIR__ . '/class-wp-rest-content-research-search.php';
 		( new WP_REST_Content_Research_Search() )->register_rest_route();
 
@@ -158,15 +149,13 @@ class Content_Research {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		// Blog sticker — the standard WPcom feature flag mechanism.
-		// Enable via: wpcom_set_blog_sticker( 'content-research-enabled', get_wpcom_blog_id() )
-		if ( function_exists( 'wpcom_has_blog_sticker' ) && function_exists( 'get_wpcom_blog_id' ) ) {
-			if ( wpcom_has_blog_sticker( 'content-research-enabled', get_wpcom_blog_id() ) ) {
-				return true;
-			}
+		// Only @alshakero and @ebuccelli.
+		$user_id = get_current_user_id();
+		if ( 115118448 !== $user_id && 128962475 !== $user_id ) {
+			return false;
 		}
 
-		return apply_filters( 'jetpack_mu_wpcom_content_research_enabled', false );
+		return true;
 	}
 }
 

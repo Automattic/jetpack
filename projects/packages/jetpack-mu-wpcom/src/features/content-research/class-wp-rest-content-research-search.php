@@ -7,12 +7,12 @@
 
 namespace A8C\FSE;
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Class WP_REST_Content_Research_Search.
  *
- * Handles the /wpcom/v2/content-research/search endpoint.
- * Queries multiple external sources, normalizes results,
- * and returns an engagement-scored, unified response.
+ * Proxies search requests to the WPcom platform endpoint.
  */
 class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 
@@ -20,8 +20,8 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 	 * WP_REST_Content_Research_Search constructor.
 	 */
 	public function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'content-research/search';
+		$this->namespace = 'content-research';
+		$this->rest_base = '/search';
 	}
 
 	/**
@@ -30,10 +30,10 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 	public function register_rest_route() {
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base,
+			$this->rest_base,
 			array(
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'search' ),
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_search_results' ),
 				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
 					'topic'   => array(
@@ -60,178 +60,36 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Get all available source adapters.
-	 *
-	 * @return array<string, Content_Research_Source> Map of source name to adapter instance.
-	 */
-	private function get_sources(): array {
-		return array(
-			'hn'         => new Source_HackerNews(),
-			'reader'     => new Source_Reader(),
-			'googlenews' => new Source_GoogleNews(),
-		);
-	}
-
-	/**
-	 * Calculate an engagement score for a result.
-	 *
-	 * @param array $result A normalized result item.
-	 * @return float The engagement score.
-	 */
-	private function calculate_score( array $result ): float {
-		$upvotes  = (float) ( $result['engagement']['upvotes'] ?? 0 );
-		$comments = (float) ( $result['engagement']['comments'] ?? 0 );
-
-		// Google News has no engagement data — score by recency.
-		if ( 'googlenews' === $result['source'] ) {
-			$timestamp = $result['timestamp'] ?? '';
-			if ( $timestamp ) {
-				$parsed_timestamp = strtotime( $timestamp );
-				if ( false !== $parsed_timestamp ) {
-					// Clamp to now to prevent future timestamps from inflating scores.
-					$effective_timestamp = min( $parsed_timestamp, time() );
-					$age_hours           = ( time() - $effective_timestamp ) / 3600;
-					$score               = 1.0 - ( $age_hours / 168 );
-
-					// Newer articles score higher: 1.0 for just published, ~0 for 7+ days old.
-					return max( 0.0, min( 1.0, $score ) );
-				}
-			}
-			return 0.5;
-		}
-
-		return $upvotes * 1.0 + $comments * 0.5;
-	}
-
-	/**
-	 * Normalize scores per source so no single source dominates.
-	 *
-	 * @param array $results All results with raw scores.
-	 * @return array Results with normalized scores.
-	 */
-	private function normalize_scores( array $results ): array {
-		// Group by source and find max per source.
-		$max_by_source = array();
-		foreach ( $results as $result ) {
-			$source = $result['source'];
-			$score  = $result['_score'];
-			if ( ! isset( $max_by_source[ $source ] ) || $score > $max_by_source[ $source ] ) {
-				$max_by_source[ $source ] = $score;
-			}
-		}
-
-		// Normalize each result's score to 0-1 range per source.
-		foreach ( $results as &$result ) {
-			$max = $max_by_source[ $result['source'] ] ?? 1;
-			if ( $max > 0 ) {
-				$result['_score'] /= $max;
-			}
-		}
-		unset( $result );
-
-		return $results;
-	}
-
-	/**
-	 * Apply a recency boost so items from the last 30 days are more prominent.
-	 *
-	 * Items < 1 day old get a 2x multiplier, linearly decaying to 1x at 30 days.
-	 * Items older than 30 days get a 0.5x penalty.
-	 *
-	 * @param array $results Results with normalized scores.
-	 * @return array Results with recency-boosted scores.
-	 */
-	private function apply_recency_boost( array $results ): array {
-		$now         = time();
-		$thirty_days = 30 * DAY_IN_SECONDS;
-
-		foreach ( $results as &$result ) {
-			$timestamp = $result['timestamp'] ?? '';
-			if ( ! $timestamp ) {
-				// No timestamp — keep the score as-is.
-				continue;
-			}
-
-			$parsed = strtotime( $timestamp );
-			if ( false === $parsed ) {
-				continue;
-			}
-
-			// Clamp future timestamps to now so they don't get an outsized boost.
-			$age_seconds = max( 0, $now - min( $parsed, $now ) );
-
-			if ( $age_seconds <= $thirty_days ) {
-				// 0-30 days: boost from 2x (brand new) to 1x (30 days old).
-				$freshness         = 1.0 - ( $age_seconds / $thirty_days );
-				$result['_score'] *= 1.0 + $freshness;
-			} else {
-				// Older than 30 days: penalize.
-				$result['_score'] *= 0.5;
-			}
-		}
-		unset( $result );
-
-		return $results;
-	}
-
-	/**
-	 * Search all sources and return unified results.
+	 * Proxy the search request to the WPcom platform endpoint.
 	 *
 	 * @param \WP_REST_Request $request The incoming request.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function search( \WP_REST_Request $request ) {
-		$topic           = $request->get_param( 'topic' );
-		$requested       = $request->get_param( 'sources' );
-		$count           = $request->get_param( 'count' );
-		$all_sources     = $this->get_sources();
-		$sources_queried = array();
-		$all_results     = array();
+	public function get_search_results( \WP_REST_Request $request ) {
+		$query_parameters = array(
+			'topic' => $request['topic'],
+		);
 
-		foreach ( $all_sources as $name => $source ) {
-			if ( ! in_array( $name, $requested, true ) ) {
-				continue;
-			}
-
-			$sources_queried[] = $name;
-			$source_results    = $source->search( $topic, $count );
-
-			foreach ( $source_results as &$result ) {
-				$result['_score'] = $this->calculate_score( $result );
-			}
-			unset( $result );
-
-			$all_results = array_merge( $all_results, $source_results );
+		$sources = $request->get_param( 'sources' );
+		if ( ! empty( $sources ) ) {
+			$query_parameters['sources'] = $sources;
 		}
 
-		// Normalize, apply recency boost, and sort.
-		$all_results = $this->normalize_scores( $all_results );
-		$all_results = $this->apply_recency_boost( $all_results );
-		usort(
-			$all_results,
-			function ( $a, $b ) {
-				return $b['_score'] <=> $a['_score'];
-			}
+		$count = $request->get_param( 'count' );
+		if ( ! empty( $count ) ) {
+			$query_parameters['count'] = $count;
+		}
+
+		$body = Client::wpcom_json_api_request_as_user(
+			'/content-research/search?' . http_build_query( $query_parameters )
 		);
 
-		// Remove internal score field from output.
-		$all_results = array_map(
-			function ( $result ) {
-				unset( $result['_score'] );
-				return $result;
-			},
-			$all_results
-		);
+		if ( is_wp_error( $body ) ) {
+			return $body;
+		}
 
-		return rest_ensure_response(
-			array(
-				'results' => $all_results,
-				'meta'    => array(
-					'topic'           => $topic,
-					'sources_queried' => $sources_queried,
-					'total_results'   => count( $all_results ),
-				),
-			)
-		);
+		$response = json_decode( wp_remote_retrieve_body( $body ) );
+
+		return rest_ensure_response( $response );
 	}
 }
