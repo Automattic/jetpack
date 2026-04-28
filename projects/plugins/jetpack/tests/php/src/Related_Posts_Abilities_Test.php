@@ -292,10 +292,119 @@ class Related_Posts_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	public function test_get_related_posts_returns_array_for_real_post() {
+		wp_set_current_user( self::$admin_id );
 		$post_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
 		$result  = Related_Posts_Abilities::get_related_posts( array( 'post_id' => $post_id ) );
 		// Real ES backend is unavailable in test env; an empty array is the expected shape.
 		$this->assertIsArray( $result );
+	}
+
+	public function test_get_related_posts_denies_user_who_cannot_edit_post() {
+		$author_post_id = self::factory()->post->create(
+			array(
+				'post_status' => 'draft',
+				'post_author' => self::$author_id,
+			)
+		);
+
+		// Subscriber cannot edit any post.
+		wp_set_current_user( self::$subscriber_id );
+		$result = Related_Posts_Abilities::get_related_posts( array( 'post_id' => $author_post_id ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'jetpack_related_posts_forbidden', $result->get_error_code() );
+	}
+
+	public function test_get_related_posts_summarizes_filtered_results() {
+		wp_set_current_user( self::$admin_id );
+		$source_id  = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+		$related_id = self::factory()->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'Synthetic Related',
+			)
+		);
+
+		$callback = static function () use ( $related_id ) {
+			return array(
+				array(
+					'id'      => $related_id,
+					'url'     => 'https://example.test/synthetic',
+					'title'   => 'Synthetic Related',
+					'excerpt' => 'A synthetic excerpt.',
+					'date'    => '2026-01-01',
+					'format'  => 'standard',
+				),
+			);
+		};
+		add_filter( 'jetpack_relatedposts_returned_results', $callback );
+
+		try {
+			$result = Related_Posts_Abilities::get_related_posts( array( 'post_id' => $source_id ) );
+		} finally {
+			remove_filter( 'jetpack_relatedposts_returned_results', $callback );
+		}
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+		$summary = $result[0];
+		$this->assertSame( $related_id, $summary['id'] );
+		$this->assertSame( 'https://example.test/synthetic', $summary['url'] );
+		$this->assertSame( 'Synthetic Related', $summary['title'] );
+		$this->assertSame( 'A synthetic excerpt.', $summary['excerpt'] );
+		$this->assertSame( '2026-01-01', $summary['date'] );
+		$this->assertSame( 'post', $summary['post_type'] );
+		$this->assertSame( 'standard', $summary['format'] );
+	}
+
+	public function test_get_related_posts_summary_format_is_null_when_missing() {
+		wp_set_current_user( self::$admin_id );
+		$source_id  = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+		$related_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+
+		$callback = static function () use ( $related_id ) {
+			return array(
+				array(
+					'id'    => $related_id,
+					'url'   => 'https://example.test/no-format',
+					'title' => 'No Format',
+				),
+			);
+		};
+		add_filter( 'jetpack_relatedposts_returned_results', $callback );
+
+		try {
+			$result = Related_Posts_Abilities::get_related_posts( array( 'post_id' => $source_id ) );
+		} finally {
+			remove_filter( 'jetpack_relatedposts_returned_results', $callback );
+		}
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+		$this->assertNull( $result[0]['format'] );
+		$this->assertSame( '', $result[0]['excerpt'] );
+		$this->assertSame( '', $result[0]['date'] );
+	}
+
+	public function test_get_settings_fills_defaults_from_partial_db_row() {
+		Jetpack_Options::update_option(
+			'relatedposts',
+			array(
+				'enabled' => true,
+				'size'    => 7,
+			)
+		);
+
+		$settings = Related_Posts_Abilities::get_settings();
+
+		$this->assertTrue( $settings['enabled'] );
+		$this->assertSame( 7, $settings['size'] );
+		$this->assertSame( 'grid', $settings['layout'], 'Missing layout key must default to grid.' );
+		$this->assertFalse( $settings['show_thumbnails'], 'Missing booleans must default to false.' );
+		$this->assertFalse( $settings['show_headline'] );
+		$this->assertFalse( $settings['show_date'] );
+		$this->assertFalse( $settings['show_context'] );
+		$this->assertSame( 'Related', $settings['headline'], 'Missing headline must fall back to "Related".' );
 	}
 
 	public function test_update_settings_rejects_no_fields() {

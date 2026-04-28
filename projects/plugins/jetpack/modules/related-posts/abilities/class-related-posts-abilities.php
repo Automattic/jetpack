@@ -101,7 +101,7 @@ class Related_Posts_Abilities extends Registrar {
 		return array(
 			'jetpack-related-posts/get-related-posts' => array(
 				'label'               => __( 'Get related posts', 'jetpack' ),
-				'description'         => __( 'Return related posts for a single post as an array of { id, url, title, excerpt, date, post_type, format }. Backed by Elasticsearch via the Jetpack connection: when Related Posts is disabled, the post is unknown, or the ES backend is unreachable, the array is empty (not an error). Read-only and idempotent. Use jetpack-related-posts/get-settings to inspect the display configuration; use jetpack-modules/get-modules to confirm the related-posts module is active.', 'jetpack' ),
+				'description'         => __( 'Return related posts for a single post as an array of { id, url, title, excerpt, date, post_type, format }. The caller must be able to edit the source post (edit_post capability); unauthorized requests return jetpack_related_posts_forbidden. Backed by Elasticsearch via the Jetpack connection: when Related Posts is disabled, the post is unknown, or the ES backend is unreachable, the array is empty (not an error). Read-only and idempotent. Use jetpack-related-posts/get-settings to inspect the display configuration; use jetpack-modules/get-modules to confirm the related-posts module is active.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'post_id' ),
@@ -243,11 +243,12 @@ class Related_Posts_Abilities extends Registrar {
 	}
 
 	/**
-	 * Permission check for the per-post related-posts read.
+	 * Permission gate for the ability menu.
 	 *
-	 * Broader than the existing /wpcom/v2/related-posts/{id} endpoint, which
-	 * gates on `edit_post` for the specific post; here the ability surface is
-	 * agent-facing and uses the same `edit_posts` cap as the settings reader.
+	 * Returns true if the caller can edit any post — keeps the ability listed
+	 * for agents that have at least one editable post. The actual per-post
+	 * authorization runs inside `get_related_posts()` once the source post_id
+	 * is known, mirroring the existing /wpcom/v2/related-posts/{id} endpoint.
 	 */
 	public static function can_view_related_posts(): bool {
 		return current_user_can( 'edit_posts' );
@@ -289,6 +290,17 @@ class Related_Posts_Abilities extends Registrar {
 			return new WP_Error(
 				'jetpack_related_posts_invalid_post_id',
 				__( 'Unknown post ID. Verify the post exists and is accessible.', 'jetpack' )
+			);
+		}
+
+		// Match the per-post gate the existing /wpcom/v2/related-posts/{id}
+		// endpoint uses: the broad `edit_posts` cap on permission_callback lets
+		// the ability appear in the agent menu, but the actual lookup is
+		// authorized only when the caller can edit this specific post.
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+			return new WP_Error(
+				'jetpack_related_posts_forbidden',
+				__( 'You are not allowed to fetch related posts for this post.', 'jetpack' )
 			);
 		}
 
