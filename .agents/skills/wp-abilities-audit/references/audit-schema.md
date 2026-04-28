@@ -4,13 +4,11 @@ The canonical schema for an abilities audit doc. Every audit produced by
 `wp-abilities-audit` must conform to this schema — downstream implement and
 verify skills consume it and error out on invalid or missing fields.
 
-Two complete reference implementations live in the author's vault:
+Two reference shapes the schema below is designed to cover:
 
-- `/Users/rtiodev/rtiodev_vault/plans/2026-04-20-abilities-everywhere-woopayments-audit.md`
-  (single-cap plugin with a shared API client).
-- `/Users/rtiodev/rtiodev_vault/plans/2026-04-20-abilities-audit-woocommerce-subscriptions.md`
-  (post-type-backed plugin with compound `{read, write}` caps and inherited
-  controllers).
+- Single-cap plugin with a shared API client (WooPayments-style).
+- Post-type-backed plugin with compound `{read, write}` caps and inherited
+  controllers (WooCommerce Subscriptions-style).
 
 ## File layout
 

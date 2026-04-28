@@ -119,14 +119,15 @@ document structure must match `wp-abilities-audit/references/audit-schema.md` ex
 3. "Controller Inventory" table.
 4. "Notes and Surprises" prose section.
 
-**Worked examples** (reference implementations of what the output should
-look like):
+**Reference shapes** of audit docs:
 
-- `/Users/rtiodev/rtiodev_vault/plans/2026-04-20-abilities-everywhere-woopayments-audit.md`
-  — WooPayments (shared-API-client pattern, single capability gate).
-- `/Users/rtiodev/rtiodev_vault/plans/2026-04-20-abilities-audit-woocommerce-subscriptions.md`
-  — WooCommerce Subscriptions (post-type-backed capabilities, inherited
-  controllers, compound `{read, write}` gate).
+- WooPayments-style — shared-API-client pattern, single capability gate.
+- WooCommerce Subscriptions-style — post-type-backed capabilities,
+  inherited controllers, compound `{read, write}` gate.
+
+See `wp-abilities-audit/references/audit-schema.md` for the field-by-field
+schema and the legal shapes for `capability_gate`, `proposed_abilities`,
+`excluded_from_mvp`, and `surfaced_gaps`.
 
 ### 7. (Optional) Designate a reference implementation ability
 

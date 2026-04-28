@@ -305,7 +305,6 @@ Observed pattern (from the canonical harness-output example):
 4. Preserve the pre-fix trace in the report under a "Pre-fix status"
    section so reviewers can see what verify caught.
 
-The canonical example is
-`/Users/rtiodev/rtiodev_vault/plans/2026-04-20-abilities-everywhere-woopayments-harness-output.md`
-— exactly this class of ArgumentCountError was caught by a runtime
-harness run and fixed in a dedicated small commit.
+The canonical example: an `ArgumentCountError` from a controller
+constructor caught by a runtime harness run on a WooPayments-style plugin,
+then fixed in a dedicated small commit before re-running the harness.

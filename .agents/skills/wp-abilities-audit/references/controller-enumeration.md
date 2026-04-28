@@ -72,9 +72,9 @@ non-standard locations:
 
 A controller can extend a base class in a different repo. The prime example:
 `WC_REST_Subscriptions_Controller extends WC_REST_Orders_Controller`, where
-the parent lives in WooCommerce core (`/Users/*/src/woocommerce/`) — not the
-Subscriptions repo. The `parent::register_routes()` dispatch appears in the
-Subscriptions source, but the literal `register_rest_route(` call is in core.
+the parent lives in WooCommerce core — not the Subscriptions repo. The
+`parent::register_routes()` dispatch appears in the Subscriptions source,
+but the literal `register_rest_route(` call is in core.
 
 Handling:
 
