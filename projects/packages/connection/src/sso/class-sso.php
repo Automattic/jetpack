@@ -297,13 +297,17 @@ class SSO {
 			 * The SSO module uses the method to display the default login form if we cannot find a user to log in via SSO.
 			 * But, the method could be filtered by a site admin to always show the default login form if that is preferred.
 			 */
-			$show_sso_form = empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$default_form_preference = isset( $_GET['jetpack-sso-show-default-form'] ) ? sanitize_text_field( wp_unslash( $_GET['jetpack-sso-show-default-form'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$show_sso_form           = empty( $default_form_preference ) && Helpers::show_sso_login();
 
-			// Recovery mode is the break-glass fallback, so the wp-admin password form should be the default-visible option. Skip the override when that form is hidden, otherwise no login path would work.
-			if ( 'entered_recovery_mode' === $action
-				&& ! isset( $_GET['jetpack-sso-show-default-form'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				&& ! Helpers::should_hide_login_form() ) {
-				$show_sso_form = false;
+			if ( 'entered_recovery_mode' === $action ) {
+				if ( '0' === $default_form_preference ) {
+					// Explicit user opt-in via the no-JS toggle; honor it regardless of show_sso_login() so the toggle always works.
+					$show_sso_form = true;
+				} elseif ( null === $default_form_preference && ! Helpers::should_hide_login_form() ) {
+					// Recovery is the break-glass fallback, so default to the wp-admin password form. Skip when that form is hidden, otherwise no login path would work.
+					$show_sso_form = false;
+				}
 			}
 
 			if ( $show_sso_form ) {
