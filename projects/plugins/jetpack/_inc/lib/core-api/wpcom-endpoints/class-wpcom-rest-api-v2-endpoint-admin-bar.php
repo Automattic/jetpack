@@ -33,7 +33,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'new-content', 'comments', 'updates', 'my-account' );
+	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'updates', 'comments', 'new-content', 'my-account' );
 
 	/**
 	 * WPCOM_REST_API_V2_Endpoint_Admin_Bar constructor.
@@ -122,14 +122,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	private function filter_nodes( array $nodes, array $allowed_ids ) {
 		$allowed = array();
 
-		foreach ( $allowed_ids as $id ) {
-			if ( isset( $nodes[ $id ] ) ) {
-				$allowed[ $id ] = $nodes[ $id ];
-			}
-		}
-
 		foreach ( $nodes as $id => $node ) {
-			if ( isset( $allowed[ $id ] ) ) {
+			if ( in_array( $id, $allowed_ids, true ) ) {
+				$allowed[ $id ] = $node;
 				continue;
 			}
 
