@@ -3,6 +3,7 @@
 	display: inline-block;
 
 	&__trigger {
+		position: relative;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -29,22 +30,32 @@
 	}
 
 	&__badge {
+		// Keep the badge element itself at the inherited theme text color so
+		// `currentColor` below resolves to the readable ink — not to the
+		// inverted text color, which made the pill invisible on light themes
+		// (white bg behind a white-on-white badge). Text inversion is done on
+		// the inner count span instead.
 		position: absolute;
-		top: -4px;
-		right: -4px;
+		top: 0;
+		right: 0;
+		transform: translate(50%, -50%);
+		box-sizing: border-box;
 		min-width: 16px;
 		height: 16px;
 		padding: 0 4px;
 		font-size: 11px;
 		line-height: 16px;
 		text-align: center;
-		color: var(--wp--preset--color--background, #fff);
 		background: color-mix(in sRGB, currentColor 85%, transparent);
 		border-radius: 8px;
 
 		&[hidden] {
 			display: none;
 		}
+	}
+
+	&__badge-count {
+		color: var(--wp--preset--color--background, #fff);
 	}
 
 	&__panel {
@@ -54,9 +65,17 @@
 		min-width: 260px;
 		max-width: min(360px, 90vw);
 		z-index: 20;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 		padding: 12px;
 		background: var(--wp--preset--color--background, #fff);
 		color: inherit;
+		// Reset the inherited theme base size so popover body text tracks the
+		// search-results title (also 1rem) instead of the host theme's
+		// oversized default. Rem-based children (filter title, count pill)
+		// keep their explicit sizes.
+		font-size: 1rem;
 		border: 1px solid;
 		border-color: color-mix(in sRGB, currentColor 15%, transparent);
 		border-radius: 4px;

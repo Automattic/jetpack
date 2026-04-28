@@ -179,6 +179,19 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * True when the sort-popover trigger should be disabled: there are
+		 * no results to sort AND the sort order is still the default. Mirrors
+		 * `isFilterTriggerDisabled` — opening the popover pre-search shows a
+		 * menu that would do nothing. Remains enabled when the user has
+		 * already picked a non-default sort so they can switch back.
+		 *
+		 * @return {boolean} Whether the sort trigger is disabled.
+		 */
+		get isSortTriggerDisabled() {
+			return state.totalResults === 0 && state.sortOrder === 'relevance';
+		},
+
+		/**
 		 * True when the current sort order is "newest".
 		 *
 		 * @return {boolean} Whether sortOrder is "newest".

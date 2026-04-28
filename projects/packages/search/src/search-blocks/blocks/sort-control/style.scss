@@ -131,9 +131,14 @@
 		border-radius: 4px;
 		cursor: pointer;
 
-		&:hover,
+		&:hover:not(:disabled),
 		&[aria-expanded="true"] {
 			background: color-mix(in sRGB, currentColor 6%, transparent);
+		}
+
+		&:disabled {
+			cursor: not-allowed;
+			opacity: 0.4;
 		}
 	}
 
@@ -148,6 +153,10 @@
 		padding: 4px;
 		background: var(--wp--preset--color--background, #fff);
 		color: inherit;
+		// Reset the inherited theme base size so menu items track the
+		// search-results title (also 1rem) instead of the host theme's
+		// oversized default. `font: inherit` on menu items picks this up.
+		font-size: 1rem;
 		border: 1px solid;
 		border-color: color-mix(in sRGB, currentColor 15%, transparent);
 		border-radius: 4px;

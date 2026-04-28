@@ -38,9 +38,13 @@ $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 		<span
 			class="jetpack-search-filter-popover__badge"
 			data-wp-bind--hidden="!state.activeFilterCount"
-			data-wp-text="state.activeFilterCount"
 			hidden
-		></span>
+		>
+			<span
+				class="jetpack-search-filter-popover__badge-count"
+				data-wp-text="state.activeFilterCount"
+			></span>
+		</span>
 	</button>
 	<div
 		id="<?php echo esc_attr( $panel_id ); ?>"
