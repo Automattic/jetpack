@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-WooCommerce Bridge (PoC): hydrate Product Filters blocks from Jetpack Search aggregations. Off by default behind `jetpack_search_woocommerce_bridge_enabled` filter.
+WooCommerce Bridge (PoC): client-side hydration of Product Filters blocks from Jetpack Search aggregations. Off by default behind `jetpack_search_woocommerce_bridge_enabled` filter.

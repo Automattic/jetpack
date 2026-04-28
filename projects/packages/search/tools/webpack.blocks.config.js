@@ -31,12 +31,19 @@ const blockViewEntries = readBlockViewEntries();
 const storeIndexPath = path.join( __dirname, '../src/search-blocks/store/index.js' );
 const storeEntries = fs.existsSync( storeIndexPath ) ? { 'store/index': storeIndexPath } : {};
 
+// WooCommerce Product Filters bridge: a non-block view module that overrides
+// woocommerce/product-filters actions at runtime. Built into the same output
+// directory as the search blocks so it can be enqueued as a script module.
+const wcBridgePath = path.join( __dirname, '../src/woocommerce-bridge/view.js' );
+const wcBridgeEntries = fs.existsSync( wcBridgePath ) ? { 'wc-bridge': wcBridgePath } : {};
+
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		...storeEntries,
 		...blockViewEntries,
+		...wcBridgeEntries,
 	},
 	output: {
 		...jetpackWebpackConfig.output,
