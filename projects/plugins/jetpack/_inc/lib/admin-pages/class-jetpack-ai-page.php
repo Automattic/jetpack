@@ -82,10 +82,15 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 
 		$blog_id     = Connection_Manager::get_site_id( true );
 		$site_suffix = ( new Status() )->get_site_suffix();
+		// Use the plain hostname for the Atomic activity log URL — get_site_suffix() can
+		// include '::' for subdirectory installs, which would break the URL. This matches
+		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
+		$site_host = wp_parse_url( home_url(), PHP_URL_HOST );
 		// On Atomic, jetpack-mu-wpcom replaces the cloud redirect with a direct WPCOM URL.
 		// Mirror that behaviour here so the activity log link resolves consistently.
-		$activity_log_url = ( new Host() )->is_woa_site()
-			? 'https://wordpress.com/activity-log/' . $site_suffix
+		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
+		$activity_log_url  = ( new Host() )->is_woa_site()
+			? 'https://wordpress.com/activity-log/' . $activity_log_site
 			: Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ? $blog_id : $site_suffix ) );
 
 		wp_enqueue_script(

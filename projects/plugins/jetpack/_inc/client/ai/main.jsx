@@ -77,7 +77,7 @@ export default function App() {
 
 	useEffect( () => {
 		if ( ! isLoading && hasMcpAccess ) {
-			analytics.tracks.recordEvent( 'jp_mcp_settings_viewed' );
+			analytics.tracks.recordEvent( 'jetpack_mcp_settings_viewed' );
 		}
 	}, [ isLoading, hasMcpAccess ] );
 
