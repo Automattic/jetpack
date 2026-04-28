@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { markdownToHtml } from '../lib/markdown';
@@ -31,9 +31,10 @@ const ExternalLinkIcon = () => (
  * @param {string} props.status    - 'idle' | 'loading' | 'streaming' | 'done' | 'error'
  * @param {string} props.text      - Accumulated answer text (markdown).
  * @param {Array}  props.citations - Array of { title, url, excerpt } citation objects.
+ * @param {object} props.error     - Error info: { message, code, source } or null.
  * @return {React.ReactElement|null} The rendered panel or null.
  */
-export default function AnswersPanel( { status, text, citations = [] } ) {
+export default function AnswersPanel( { status, text, citations = [], error = null } ) {
 	const [ expanded, setExpanded ] = useState( false );
 	const [ overflows, setOverflows ] = useState( false );
 	const contentRef = useRef( null );
@@ -46,8 +47,42 @@ export default function AnswersPanel( { status, text, citations = [] } ) {
 		}
 	}, [ status, text ] );
 
-	if ( status === 'idle' || status === 'error' ) {
+	if ( status === 'idle' ) {
 		return null;
+	}
+
+	if ( status === 'error' ) {
+		return (
+			<div className="jp-search-answers-panel jp-search-answers-panel--error" aria-live="polite">
+				<h2 className="jp-search-answers-panel__heading">
+					{ __( 'AI answer', 'jetpack-search-pkg' ) }
+				</h2>
+				<div className="jp-search-answers-panel__error">
+					<p className="jp-search-answers-panel__error-message">
+						{ __( 'Sorry, an error occurred while generating an answer.', 'jetpack-search-pkg' ) }
+					</p>
+					{ error && (
+						<p
+							className="jp-search-answers-panel__error-detail"
+							data-testid="answers-panel-error-detail"
+						>
+							{ error.message }
+							{ error.code !== null && (
+								<>
+									<br />
+									{
+										/* translators: %s: numeric error code */ sprintf(
+											__( 'Error code: %s', 'jetpack-search-pkg' ),
+											error.code
+										)
+									}
+								</>
+							) }
+						</p>
+					) }
+				</div>
+			</div>
+		);
 	}
 
 	const isCollapsible = status === 'done';

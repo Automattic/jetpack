@@ -47,6 +47,26 @@
 	text-transform: uppercase;
 }
 
+.jp-search-answers-panel--error {
+	border-color: #f0c0c0;
+}
+
+.jp-search-answers-panel__error {
+	padding: 0 18px 14px;
+}
+
+.jp-search-answers-panel__error-message {
+	color: #cc1818;
+	font-size: 13px;
+	margin: 0 0 4px;
+}
+
+.jp-search-answers-panel__error-detail {
+	color: helper.$color-text-lighter;
+	font-size: 12px;
+	margin: 0;
+}
+
 .jp-search-answers-panel__loading {
 	align-items: center;
 	color: #787c82;

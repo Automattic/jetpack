@@ -64,6 +64,7 @@ class SearchApp extends Component {
 			aiStatus: 'idle', // 'idle' | 'loading' | 'streaming' | 'done' | 'error'
 			aiText: '',
 			aiCitations: [],
+			aiError: null,
 		};
 
 		this.getResults = debounce( this.getResults, 200 );
@@ -256,7 +257,7 @@ class SearchApp extends Component {
 		const siteId = options.aiAnswersSiteId || options.siteId;
 
 		if ( ! query || query.length < 3 ) {
-			this.setState( { aiStatus: 'idle', aiText: '', aiCitations: [] } );
+			this.setState( { aiStatus: 'idle', aiText: '', aiCitations: [], aiError: null } );
 			return;
 		}
 
@@ -266,10 +267,25 @@ class SearchApp extends Component {
 		this.aiController = new AbortController();
 		const controller = this.aiController; // local capture to avoid race in .catch()
 
-		this.setState( { aiStatus: 'loading', aiText: '', aiCitations: [] } );
+		this.setState( { aiStatus: 'loading', aiText: '', aiCitations: [], aiError: null } );
 
 		const url =
 			'https://public-api.wordpress.com/wpcom/v2/ai/agent/jetpack-workflow-search_summarizer';
+
+		const HTTP_STATUS_NAMES = {
+			400: 'Bad Request',
+			401: 'Unauthorized',
+			403: 'Forbidden',
+			404: 'Not Found',
+			429: 'Too Many Requests',
+			500: 'Internal Server Error',
+			502: 'Bad Gateway',
+			503: 'Service Unavailable',
+			504: 'Gateway Timeout',
+		};
+
+		// Captured by onopen before onerror fires, so .catch sees the real HTTP error.
+		let httpError = null;
 
 		fetchEventSource( url, {
 			method: 'POST',
@@ -308,6 +324,11 @@ class SearchApp extends Component {
 			signal: controller.signal,
 			onopen: async response => {
 				if ( ! response.ok ) {
+					httpError = {
+						message: HTTP_STATUS_NAMES[ response.status ] || `HTTP ${ response.status }`,
+						code: response.status,
+						source: 'http',
+					};
 					throw new Error( `HTTP ${ response.status }` );
 				}
 			},
@@ -328,19 +349,29 @@ class SearchApp extends Component {
 						const citations = dataPart?.data?.sources || dataPart?.data?.strict_sources || [];
 						this.setState( { aiStatus: 'done', aiCitations: citations } );
 					} else if ( data.result?.status?.state === 'failed' || data.error ) {
-						this.setState( { aiStatus: 'error' } );
+						const textPart = data.result?.status?.message?.parts?.find( p => p.type === 'text' );
+						const message = data.error?.message || textPart?.text || 'Request failed';
+						const code = data.error?.code ?? null;
+						this.setState( {
+							aiStatus: 'error',
+							aiError: { message, code, source: 'api' },
+						} );
 					}
 				} catch {
 					// Ignore unparseable events.
 				}
 			},
 			onerror: () => {
-				this.setState( { aiStatus: 'error' } );
-				throw new Error( 'SSE error' );
+				// Rethrow without setting state — .catch handles all error state
+				// so httpError captured in onopen isn't overwritten.
+				throw new Error( 'onerror' );
 			},
 		} ).catch( () => {
 			if ( ! controller.signal.aborted ) {
-				this.setState( { aiStatus: 'error' } );
+				this.setState( {
+					aiStatus: 'error',
+					aiError: httpError ?? { message: 'Network request error', code: null, source: 'network' },
+				} );
 			}
 		} );
 	};
@@ -395,6 +426,7 @@ class SearchApp extends Component {
 							aiStatus={ this.state.aiStatus }
 							aiText={ this.state.aiText }
 							aiCitations={ this.state.aiCitations }
+							aiError={ this.state.aiError }
 							closeOverlay={ this.hideResults }
 							enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 							enableFilteringOpensOverlay={ this.state.overlayOptions.enableFilteringOpensOverlay }
