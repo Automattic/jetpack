@@ -339,7 +339,9 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 		// per slug — the latter emits a `_doing_it_wrong` notice for missing
 		// slugs, which the test environment converts into a failure.
 		$registered_slugs = array_map(
-			static fn ( $ability ) => $ability->get_name(),
+			static function ( $ability ) {
+				return $ability->get_name();
+			},
 			wp_get_abilities()
 		);
 		foreach ( array_keys( Newsletter_Abilities::get_abilities() ) as $slug ) {
