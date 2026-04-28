@@ -100,7 +100,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 
 		add_filter( 'show_admin_bar', '__return_true', 999 );
 		_wp_admin_bar_init();
+
+		ob_start();
 		do_action_ref_array( 'admin_bar_menu', array( &$wp_admin_bar ) );
+		ob_clean();
 
 		$nodes          = $wp_admin_bar->get_nodes() ?? array();
 		$filtered_nodes = $this->filter_nodes( $nodes, self::ALLOWED_TOP_LEVEL_NODES );
