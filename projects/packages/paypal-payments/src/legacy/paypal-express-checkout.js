@@ -141,7 +141,7 @@ const PaypalExpressCheckout = {
 		domEl.innerHTML = '';
 	},
 
-	renderButton: function ( blogId, buttonId, domId, enableMultiple ) {
+	renderButton: function ( blogId, buttonId, domId, enableMultiple, spayEmail ) {
 		const env = PaypalExpressCheckout.getEnvironment();
 
 		if ( ! paypal ) {
@@ -170,6 +170,7 @@ const PaypalExpressCheckout = {
 						number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
 						buttonId: buttonId,
 						env: env,
+						spay_email: spayEmail,
 					};
 
 					return new paypal.Promise( function ( resolve, reject ) {

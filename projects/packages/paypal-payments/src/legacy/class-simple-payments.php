@@ -174,14 +174,17 @@ class Simple_Payments {
 	 * @param boolean $is_multiple Whether multiple items of the same product can be purchased.
 	 */
 	public function setup_paypal_checkout_button( $id, $dom_id, $is_multiple ) {
+		$spay_email = sanitize_email( get_post_meta( $id, 'spay_email', true ) );
+
 		wp_add_inline_script(
 			'jetpack-paypal-express-checkout',
 			sprintf(
-				"try{PaypalExpressCheckout.renderButton( '%d', '%d', %s, '%d' );}catch(e){}",
+				"try{PaypalExpressCheckout.renderButton( '%d', '%d', %s, '%d', %s );}catch(e){}",
 				intval( $this->get_blog_id() ),
 				intval( $id ),
 				wp_json_encode( $dom_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
-				intval( $is_multiple )
+				intval( $is_multiple ),
+				wp_json_encode( $spay_email, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 			)
 		);
 	}
