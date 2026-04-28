@@ -261,6 +261,12 @@ class SearchApp extends Component {
 			return;
 		}
 
+		// Respect the admin's AI Answers toggle.
+		if ( options.aiAnswersEnabled === false ) {
+			this.setState( { aiStatus: 'idle', aiText: '', aiCitations: [], aiError: null } );
+			return;
+		}
+
 		if ( this.aiController ) {
 			this.aiController.abort();
 		}
