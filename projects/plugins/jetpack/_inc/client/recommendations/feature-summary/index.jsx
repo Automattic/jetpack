@@ -1,6 +1,4 @@
 import { ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
@@ -27,7 +25,6 @@ const FeatureSummaryComponent = props => {
 		featureSlug,
 		stepRoute,
 		summaryActivateButtonLabel,
-		isNew,
 		isInstalling,
 		startFeatureInstall,
 		endFeatureInstall,
@@ -106,10 +103,6 @@ const FeatureSummaryComponent = props => {
 				<span className="jp-recommendations-feature-summary__display-name-text">
 					{ displayName }
 				</span>
-				{ isNew && (
-					/* translators: 'New' is shown as a badge to indicate that this content has not been viewed before. */
-					<Badge intent="stable">{ __( 'New', 'jetpack' ) }</Badge>
-				) }
 			</Button>
 			<div className="jp-recommendations-feature-summary__actions">{ ctaButton }</div>
 		</div>
