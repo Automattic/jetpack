@@ -27,7 +27,7 @@ class Modules_Abilities extends Registrar {
 	 * {@inheritDoc}
 	 */
 	public static function get_category_slug(): string {
-		return 'jetpack-modules';
+		return 'jetpack';
 	}
 
 	/**
@@ -36,8 +36,8 @@ class Modules_Abilities extends Registrar {
 	public static function get_category_definition(): array {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
-			'label'       => 'Jetpack Modules',
-			'description' => __( 'Abilities for discovering and toggling Jetpack modules.', 'jetpack' ),
+			'label'       => 'Jetpack',
+			'description' => __( 'Abilities exposed by the Jetpack plugin.', 'jetpack' ),
 		);
 	}
 
@@ -68,9 +68,9 @@ class Modules_Abilities extends Registrar {
 		);
 
 		return array(
-			'jetpack-modules/get-modules'       => array(
+			'jetpack/get-modules'       => array(
 				'label'               => __( 'Get Jetpack modules', 'jetpack' ),
-				'description'         => __( 'Return zero or more Jetpack modules as an array. Each element has { slug, name, description, active, sort, feature, plan_classes, requires_connection, requires_user_connection, auto_activate }. Combine slug / active / feature / search filters to narrow the list. When slug is provided and unknown, the result is an empty array (not an error). Use this before calling jetpack-modules/set-module-status to enumerate legal slugs.', 'jetpack' ),
+				'description'         => __( 'Return zero or more Jetpack modules as an array. Each element has { slug, name, description, active, sort, feature, plan_classes, requires_connection, requires_user_connection, auto_activate }. Combine slug / active / feature / search filters to narrow the list. When slug is provided and unknown, the result is an empty array (not an error). Use this before calling jetpack/set-module-status to enumerate legal slugs.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'default'              => array(),
@@ -117,9 +117,9 @@ class Modules_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-modules/set-module-status' => array(
+			'jetpack/set-module-status' => array(
 				'label'               => __( 'Set Jetpack module status', 'jetpack' ),
-				'description'         => __( 'Set a Jetpack module\'s active state. Idempotent — setting a module to its current state returns changed=false. Returns { slug, active, changed }. Call jetpack-modules/get-modules first to enumerate valid slugs. Modules requiring a Jetpack connection or a paid plan may fail with jetpack_modules_activate_failed; the message indicates the next step.', 'jetpack' ),
+				'description'         => __( 'Set a Jetpack module\'s active state. Idempotent — setting a module to its current state returns changed=false. Returns { slug, active, changed }. Call jetpack/get-modules first to enumerate valid slugs. Modules requiring a Jetpack connection or a paid plan may fail with jetpack_modules_activate_failed; the message indicates the next step.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'slug', 'active' ),
@@ -310,7 +310,7 @@ class Modules_Abilities extends Registrar {
 		if ( ! isset( $input['slug'] ) || ! is_string( $input['slug'] ) || '' === $input['slug'] ) {
 			return new \WP_Error(
 				'jetpack_modules_missing_slug',
-				__( 'A module slug is required. Call jetpack-modules/get-modules to enumerate valid slugs.', 'jetpack' )
+				__( 'A module slug is required. Call jetpack/get-modules to enumerate valid slugs.', 'jetpack' )
 			);
 		}
 
@@ -333,7 +333,7 @@ class Modules_Abilities extends Registrar {
 		if ( ! Jetpack::is_module( $slug ) ) {
 			return new \WP_Error(
 				'jetpack_modules_invalid_slug',
-				__( 'Unknown Jetpack module slug. Call jetpack-modules/get-modules to enumerate valid slugs.', 'jetpack' )
+				__( 'Unknown Jetpack module slug. Call jetpack/get-modules to enumerate valid slugs.', 'jetpack' )
 			);
 		}
 

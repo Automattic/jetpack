@@ -92,7 +92,7 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	public function test_category_slug_is_plugin_scoped() {
-		$this->assertSame( 'jetpack-modules', Modules_Abilities::get_category_slug() );
+		$this->assertSame( 'jetpack', Modules_Abilities::get_category_slug() );
 	}
 
 	public function test_category_definition_has_label_and_description() {
@@ -107,7 +107,7 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$abilities = Modules_Abilities::get_abilities();
 		$this->assertNotEmpty( $abilities );
 		foreach ( array_keys( $abilities ) as $slug ) {
-			$this->assertStringStartsWith( 'jetpack-modules/', $slug );
+			$this->assertStringStartsWith( 'jetpack/', $slug );
 		}
 	}
 
@@ -124,26 +124,26 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 
 	public function test_consolidated_surface_exposes_get_modules_and_set_module_status() {
 		$abilities = Modules_Abilities::get_abilities();
-		$this->assertArrayHasKey( 'jetpack-modules/get-modules', $abilities );
-		$this->assertArrayHasKey( 'jetpack-modules/set-module-status', $abilities );
+		$this->assertArrayHasKey( 'jetpack/get-modules', $abilities );
+		$this->assertArrayHasKey( 'jetpack/set-module-status', $abilities );
 	}
 
 	public function test_get_modules_is_annotated_readonly_idempotent() {
-		$spec = Modules_Abilities::get_abilities()['jetpack-modules/get-modules'];
+		$spec = Modules_Abilities::get_abilities()['jetpack/get-modules'];
 		$this->assertTrue( $spec['meta']['annotations']['readonly'] );
 		$this->assertFalse( $spec['meta']['annotations']['destructive'] );
 		$this->assertTrue( $spec['meta']['annotations']['idempotent'] );
 	}
 
 	public function test_set_module_status_is_annotated_non_readonly_idempotent() {
-		$spec = Modules_Abilities::get_abilities()['jetpack-modules/set-module-status'];
+		$spec = Modules_Abilities::get_abilities()['jetpack/set-module-status'];
 		$this->assertFalse( $spec['meta']['annotations']['readonly'] );
 		$this->assertFalse( $spec['meta']['annotations']['destructive'] );
 		$this->assertTrue( $spec['meta']['annotations']['idempotent'] );
 	}
 
 	public function test_both_abilities_opt_into_mcp_as_public_tool() {
-		foreach ( array( 'jetpack-modules/get-modules', 'jetpack-modules/set-module-status' ) as $slug ) {
+		foreach ( array( 'jetpack/get-modules', 'jetpack/set-module-status' ) as $slug ) {
 			$spec = Modules_Abilities::get_abilities()[ $slug ];
 			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
 			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
@@ -185,7 +185,7 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 		$registered_slugs = array();
 		foreach ( wp_get_abilities() as $ability ) {
 			$name = $ability->get_name();
-			if ( str_starts_with( $name, 'jetpack-modules/' ) ) {
+			if ( str_starts_with( $name, 'jetpack/' ) ) {
 				$registered_slugs[] = $name;
 			}
 		}
@@ -236,7 +236,7 @@ class Modules_Abilities_Test extends WP_UnitTestCase {
 			$registered = wp_get_ability( $slug );
 			$this->assertNotNull( $registered, "Ability {$slug} should be registered." );
 			$this->assertSame(
-				'jetpack-modules',
+				'jetpack',
 				$registered->get_category(),
 				"Ability {$slug} should have category auto-injected."
 			);
