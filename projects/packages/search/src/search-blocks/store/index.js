@@ -1,5 +1,6 @@
 import { store } from '@wordpress/interactivity';
 import { buildSearchUrl } from './api';
+import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
@@ -399,8 +400,8 @@ const { state, actions } = store( NAMESPACE, {
 		/**
 		 * Close any open popover when clicking outside it. Bound to
 		 * `data-wp-on-window--click` so the handler fires on every click;
-		 * early-exit when the click target lives inside any element marked
-		 * with `data-jetpack-search-popover-root`.
+		 * early-exit when the click began inside any element marked with
+		 * `data-jetpack-search-popover-root`.
 		 *
 		 * @param {Event} event - Window click event.
 		 */
@@ -408,8 +409,7 @@ const { state, actions } = store( NAMESPACE, {
 			if ( ! state.isFilterPopoverOpen && ! state.isSortPopoverOpen ) {
 				return;
 			}
-			const target = event?.target;
-			if ( target && target.closest && target.closest( '[data-jetpack-search-popover-root]' ) ) {
+			if ( isEventInsidePopoverRoot( event ) ) {
 				return;
 			}
 			state.isFilterPopoverOpen = false;
