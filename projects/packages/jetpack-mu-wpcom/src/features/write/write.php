@@ -116,6 +116,7 @@ add_action(
 			'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
 			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
 			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+			'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
 			// translators: %s is the error message.
 			'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
@@ -237,6 +238,7 @@ function wpcom_write_render_admin_page() {
 			'formatAlignRight'    => false,
 			'formatOList'         => false,
 			'formatUList'         => false,
+			'showRecoveryBanner'  => false,
 		)
 	);
 
@@ -285,6 +287,13 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			><?php echo $edit_post_id ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</header>
+
+	<!-- Recovery banner -->
+	<div class="bw-recovery-banner" hidden data-wp-bind--hidden="!state.showRecoveryBanner">
+		<span class="bw-recovery-text"><?php echo esc_html__( 'You have an unsaved draft.', 'jetpack-mu-wpcom' ); ?></span>
+		<button class="bw-btn bw-btn-publish bw-recovery-btn" data-wp-on--click="actions.resumeDraft"><?php echo esc_html__( 'Resume editing', 'jetpack-mu-wpcom' ); ?></button>
+		<button class="bw-recovery-dismiss" data-wp-on--click="actions.dismissRecovery" title="<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+	</div>
 
 	<!-- Persistent formatting toolbar -->
 	<div
@@ -407,14 +416,13 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		</div>
 	</div>
 
-	<!-- Leave confirmation -->
-	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave">
+	<!-- Leave confirmation — matches @wordpress/components ConfirmDialog -->
+	<div class="bw-leave-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave">
 		<div class="bw-leave-modal" data-wp-on--click="actions.stopPropagation">
-			<h3><?php echo esc_html__( 'You have unsaved changes', 'jetpack-mu-wpcom' ); ?></h3>
-			<p><?php echo esc_html__( 'Are you sure you want to leave? Your work will be lost.', 'jetpack-mu-wpcom' ); ?></p>
+			<p><?php echo esc_html__( 'You have unsaved changes. Are you sure you want to leave?', 'jetpack-mu-wpcom' ); ?></p>
 			<div class="bw-leave-actions">
-				<button class="bw-btn bw-btn-draft" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Keep writing', 'jetpack-mu-wpcom' ); ?></button>
-				<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-btn bw-btn-leave"><?php echo esc_html__( 'Leave', 'jetpack-mu-wpcom' ); ?></a>
+				<button class="bw-leave-cancel" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Cancel', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-leave-confirm" data-wp-on--click="actions.confirmLeave"><?php echo esc_html__( 'Leave', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</div>

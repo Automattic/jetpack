@@ -13,6 +13,46 @@ import { store, getElement, getContext } from '@wordpress/interactivity';
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
 
+// Autosave configuration.
+const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
+const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
+const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
+
+// Autosave state — tracked outside the store to avoid triggering reactivity.
+let lastSavedSnapshot = { title: '', content: '' };
+let autosaveTimer = null;
+let allowLeave = false;
+
+/**
+ * Get the current content snapshot for dirty-state comparison.
+ *
+ * @return {{ title: string, content: string }} The current title and content.
+ */
+function getContentSnapshot() {
+	const contentEl = document.querySelector( '.bw-content' );
+	return {
+		title: state.title || '',
+		content: contentEl ? contentEl.innerHTML : '',
+	};
+}
+
+/**
+ * Check whether the editor content has changed since the last save.
+ *
+ * @return {boolean} True if there are unsaved changes.
+ */
+function isDirty() {
+	const current = getContentSnapshot();
+	return current.title !== lastSavedSnapshot.title || current.content !== lastSavedSnapshot.content;
+}
+
+/**
+ * Update the saved snapshot to reflect the current content.
+ */
+function updateSavedSnapshot() {
+	lastSavedSnapshot = getContentSnapshot();
+}
+
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
 
@@ -683,20 +723,13 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleBack( event ) {
-			// Don't warn if the post has been saved/published, or if we're editing an existing post with no changes.
-			if ( state.isPublished || state.hasSaved ) {
+			// Don't warn if the post has been published.
+			if ( state.isPublished ) {
 				return;
 			}
 
-			const content = document.querySelector( '.bw-content' );
-			const hasContent = state.title.trim() || ( content && content.textContent.trim() );
-
-			// If editing an existing post, don't warn (content was already saved before).
-			if ( state.editPostId > 0 ) {
-				return;
-			}
-
-			if ( hasContent ) {
+			// Use dirty-state tracking: warn if content changed since last save.
+			if ( isDirty() ) {
 				event.preventDefault();
 				state.showLeaveConfirm = true;
 			}
@@ -704,6 +737,11 @@ const { state } = store( 'wpcom-write', {
 
 		cancelLeave() {
 			state.showLeaveConfirm = false;
+		},
+
+		confirmLeave() {
+			allowLeave = true;
+			window.location.href = state.adminUrl;
 		},
 
 		checkFormatting() {
@@ -1513,45 +1551,88 @@ const { state } = store( 'wpcom-write', {
 		async saveDraft() {
 			await savePost( 'draft' );
 		},
+
+		/**
+		 * Perform a periodic autosave if the editor is dirty.
+		 */
+		async autosave() {
+			if ( ! isDirty() || state.isSaving || state.isPublished ) {
+				return;
+			}
+
+			// Require at least a title or content before autosaving.
+			const contentEl = document.querySelector( '.bw-content' );
+			const hasContent = state.title.trim() || ( contentEl && contentEl.textContent.trim() );
+			if ( ! hasContent ) {
+				return;
+			}
+
+			await savePost( 'draft', true );
+		},
+
+		/**
+		 * Resume editing an autosaved draft.
+		 */
+		resumeDraft() {
+			const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
+			if ( draftId ) {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+				window.location.href = state.writeUrl + '&post=' + draftId;
+			}
+		},
+
+		/**
+		 * Dismiss the recovery banner and discard the autosaved draft reference.
+		 */
+		dismissRecovery() {
+			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+			state.showRecoveryBanner = false;
+		},
 	},
 } );
 
 /**
  * Save or publish the current post via the REST API.
  *
- * @param {string} postStatus - The desired post status ('publish' or 'draft').
+ * @param {string}  postStatus - The desired post status ('publish' or 'draft').
+ * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
  */
-async function savePost( postStatus ) {
-	if ( ! state.title.trim() ) {
-		state.message = i18n.pleaseAddTitle || 'Please add a title';
-		setTimeout( () => {
-			state.message = '';
-		}, 2500 );
-		return;
-	}
+async function savePost( postStatus, isAutosave = false ) {
+	if ( ! isAutosave ) {
+		if ( ! state.title.trim() ) {
+			state.message = i18n.pleaseAddTitle || 'Please add a title';
+			setTimeout( () => {
+				state.message = '';
+			}, 2500 );
+			return;
+		}
 
-	const content = document.querySelector( '.bw-content' );
-	if ( ! content || ! content.innerHTML.trim() ) {
-		state.message = i18n.pleaseWriteSomething || 'Please write something';
-		setTimeout( () => {
-			state.message = '';
-		}, 2500 );
-		return;
+		const content = document.querySelector( '.bw-content' );
+		if ( ! content || ! content.innerHTML.trim() ) {
+			state.message = i18n.pleaseWriteSomething || 'Please write something';
+			setTimeout( () => {
+				state.message = '';
+			}, 2500 );
+			return;
+		}
 	}
 
 	const isEditing = state.editPostId > 0;
 	const isUpdate = isEditing && postStatus === 'publish';
 
 	state.isSaving = true;
-	let savingMessage = i18n.savingDraft || 'Saving draft...';
-	if ( isUpdate ) {
-		savingMessage = i18n.updating || 'Updating...';
-	} else if ( postStatus === 'publish' ) {
-		savingMessage = i18n.publishing || 'Publishing...';
+	if ( ! isAutosave ) {
+		let savingMessage = i18n.savingDraft || 'Saving draft...';
+		if ( isUpdate ) {
+			savingMessage = i18n.updating || 'Updating...';
+		} else if ( postStatus === 'publish' ) {
+			savingMessage = i18n.publishing || 'Publishing...';
+		}
+		state.message = savingMessage;
 	}
-	state.message = savingMessage;
 
-	const blockMarkup = convertToBlocks( content.innerHTML );
+	const contentEl = document.querySelector( '.bw-content' );
+	const blockMarkup = convertToBlocks( contentEl.innerHTML );
 
 	// Collect selected category IDs.
 	const selectedCats = state.categories.filter( c => c.selected ).map( c => c.id );
@@ -1577,26 +1658,90 @@ async function savePost( postStatus ) {
 			state.editPostId = post.id;
 		}
 
+		// Update the saved snapshot so dirty tracking resets.
+		updateSavedSnapshot();
+
 		if ( postStatus === 'publish' ) {
 			state.isPublished = true;
 			state.message = isUpdate ? i18n.updated || 'Updated!' : i18n.published || 'Published!';
+			// Clear any autosave draft reference on publish.
+			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
 				window.location.href = post.link;
 			}, 800 );
+		} else if ( isAutosave ) {
+			// Store draft ID for recovery.
+			localStorage.setItem( AUTOSAVE_STORAGE_KEY, String( post.id ) );
+			state.hasSaved = true;
+			state.isSaving = false;
+			state.message = i18n.draftAutosaved || 'Draft saved';
+			setTimeout( () => {
+				state.message = '';
+			}, AUTOSAVE_MESSAGE_DURATION_MS );
 		} else {
 			state.editPostId = post.id;
 			state.hasSaved = true;
 			state.message = i18n.draftSaved || 'Draft saved';
 			state.isSaving = false;
+			// Clear autosave reference — user explicitly saved.
+			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
 				state.message = '';
 			}, 2500 );
 		}
 	} catch ( err ) {
-		state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );
 		state.isSaving = false;
-		setTimeout( () => {
-			state.message = '';
-		}, 4000 );
+		if ( ! isAutosave ) {
+			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );
+			setTimeout( () => {
+				state.message = '';
+			}, 4000 );
+		}
 	}
 }
+
+// --- Autosave timer and recovery ---
+
+// Start the autosave interval once the content area is ready.
+const autosaveReady = setInterval( () => {
+	const contentEl = document.querySelector( '.bw-content' );
+	if ( ! contentEl ) return;
+	clearInterval( autosaveReady );
+
+	// Capture the initial snapshot so edits are detected relative to load state.
+	updateSavedSnapshot();
+
+	// Start the periodic autosave timer.
+	const { actions } = store( 'wpcom-write' );
+	autosaveTimer = setInterval( () => {
+		actions.autosave();
+	}, AUTOSAVE_INTERVAL_MS );
+
+	// Check for a recoverable autosaved draft (only for new posts).
+	if ( ! state.editPostId ) {
+		const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
+		if ( draftId ) {
+			state.showRecoveryBanner = true;
+		}
+	} else {
+		// Editing an existing post — clear any stale autosave reference.
+		const savedDraftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
+		if ( savedDraftId && String( state.editPostId ) === savedDraftId ) {
+			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+		}
+	}
+}, 200 );
+
+// Warn before leaving if there are unsaved changes.
+window.addEventListener( 'beforeunload', event => {
+	if ( isDirty() && ! state.isPublished && ! allowLeave ) {
+		event.preventDefault();
+	}
+} );
+
+// Clean up autosave timer on page unload.
+window.addEventListener( 'pagehide', () => {
+	if ( autosaveTimer ) {
+		clearInterval( autosaveTimer );
+	}
+} );
