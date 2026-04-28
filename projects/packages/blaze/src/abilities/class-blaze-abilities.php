@@ -410,15 +410,20 @@ class Blaze_Abilities extends Registrar {
 	 * Applied via the `wp_register_ability_args` filter. For any of our
 	 * abilities marked `meta.annotations.readonly => false`, replaces the
 	 * configured `execute_callback` with a closure that runs cross-cutting
-	 * guardrails first (TOS / payment, per-session spend ceiling) and only
-	 * delegates to the original callback if all checks pass.
+	 * guardrails first and only delegates to the original callback if all
+	 * checks pass.
+	 *
+	 * v1 guardrails: TOS / Blaze-eligibility check.
+	 * Deferred guardrails (tracked separately as ADS-989): per-session
+	 * spend ceiling, Picard creative moderation. The wrapper is the
+	 * intended insertion point for both.
 	 *
 	 * Lives at registration time (not via `wp_before_execute_ability`)
 	 * because the action hook is fire-and-forget and cannot abort the
 	 * call. Lives at the wrapper level (not `permission_callback`)
-	 * because the Abilities API strips structured data from
-	 * permission errors — the merchant needs to receive a deep-link in
-	 * the error data, which only works from the execute path.
+	 * because the Abilities API strips structured data from permission
+	 * errors — the merchant needs to receive a deep-link in the error,
+	 * which only works from the execute path.
 	 *
 	 * Future Phase 3 write abilities inherit this wrapper for free as
 	 * long as they're registered with `meta.annotations.readonly => false`.
@@ -449,10 +454,8 @@ class Blaze_Abilities extends Registrar {
 				return $tos_check;
 			}
 
-			$spend_check = self::check_spend_ceiling( $input );
-			if ( is_wp_error( $spend_check ) ) {
-				return $spend_check;
-			}
+			// Future write-path guardrails (per-session spend ceiling, Picard
+			// moderation gating) plug in here. Tracked separately as ADS-989.
 
 			return call_user_func( $original_callback, $input );
 		};
@@ -461,13 +464,16 @@ class Blaze_Abilities extends Registrar {
 	}
 
 	/**
-	 * Verify the merchant's Blaze TOS acceptance and payment-method
-	 * status are good for write actions.
+	 * Verify the site is eligible for Blaze write actions.
 	 *
-	 * STUB: implementation pending. Needs a call to the WPCOM Blaze status
-	 * endpoint to check TOS + payment method state. When either is missing,
-	 * return a `WP_Error` whose **message** embeds a deep-link as a URL the
-	 * merchant follows to fix the issue.
+	 * Uses the existing `Blaze::site_supports_blaze()` helper — a coarse
+	 * single-call boolean that proxies the WPCOM `/sites/<id>/blaze/status`
+	 * endpoint and is true when the site has accepted TOS and is otherwise
+	 * eligible to run campaigns. Result is cached for a day inside that
+	 * helper, so the per-call cost is a transient lookup.
+	 *
+	 * On failure, returns a `WP_Error` whose **message** embeds a deep-link
+	 * URL the merchant can follow to fix the issue in the Blaze UI.
 	 *
 	 * Why message-text and not the `data` field: the Woo MCP adapter strips
 	 * `WP_Error::data` when forwarding errors to MCP clients
@@ -480,43 +486,32 @@ class Blaze_Abilities extends Registrar {
 	 * @return true|\WP_Error
 	 */
 	private static function check_tos_and_payment() {
-		/*
-		 * TODO(ADS-953): wire to WPCOM Blaze status endpoint.
-		 * Example failure shape for the eventual implementation:
-		 *
-		 *   $fix_url = admin_url( 'tools.php?page=advertising' );
-		 *   return new WP_Error(
-		 *       'blaze_tos_required',
-		 *       sprintf(
-		 *           // Deep-link in the message text so MCP clients pass it through.
-		 *           __( 'Blaze terms of service must be accepted before creating campaigns. Accept them here: %s', 'jetpack-blaze' ),
-		 *           $fix_url
-		 *       ),
-		 *       array(
-		 *           'status'    => 403,
-		 *           'fix_url'   => $fix_url,
-		 *           'fix_label' => __( 'Accept terms in the Blaze dashboard', 'jetpack-blaze' ),
-		 *       )
-		 *   );
-		 */
-		return true;
-	}
+		$site_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
+		if ( is_wp_error( $site_id ) || ! $site_id ) {
+			// Without a connected site we can't check, and downstream calls
+			// will fail anyway — let the underlying execute_callback surface
+			// the connection error rather than fabricating one here.
+			return true;
+		}
 
-	/**
-	 * Enforce a per-session spend ceiling on the requested campaign budget.
-	 *
-	 * STUB: "session" semantics are still TBD for MCP — there's no obvious
-	 * server-side session boundary for an MCP client. Likely candidates:
-	 * per-user-per-day, per-application-password-per-day, or a transient
-	 * scoped to the current REST request user. To be decided when wiring.
-	 *
-	 * @param mixed $input Ability input — should include `budget_total`.
-	 * @return true|\WP_Error
-	 */
-	private static function check_spend_ceiling( $input ) {
-		// TODO(ADS-953): decide session model + ceiling, then enforce.
-		unset( $input );
-		return true;
+		if ( Blaze::site_supports_blaze( $site_id ) ) {
+			return true;
+		}
+
+		$fix_url = admin_url( 'tools.php?page=advertising' );
+		return new \WP_Error(
+			'blaze_setup_required',
+			sprintf(
+				/* translators: %s is a URL the merchant follows to set up Blaze. */
+				__( 'This site is not yet eligible to run Blaze campaigns. Complete Blaze setup (accept the terms of service and add a payment method) here: %s', 'jetpack-blaze' ),
+				$fix_url
+			),
+			array(
+				'status'    => 403,
+				'fix_url'   => $fix_url,
+				'fix_label' => __( 'Set up Blaze', 'jetpack-blaze' ),
+			)
+		);
 	}
 
 	/**
