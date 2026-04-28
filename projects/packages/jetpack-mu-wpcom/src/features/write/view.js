@@ -10,6 +10,9 @@
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
 import { store, getElement, getContext } from '@wordpress/interactivity';
 
+// Translated strings passed from PHP via wp_print_inline_script_tag.
+const i18n = window.wpcomWriteStrings || {};
+
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
 
@@ -271,7 +274,7 @@ function addDeleteButtons() {
 
 		const altBtn = document.createElement( 'button' );
 		altBtn.className = 'bw-img-alt';
-		altBtn.textContent = 'ALT';
+		altBtn.textContent = i18n.alt || 'ALT';
 		altBtn.contentEditable = 'false';
 		altBtn.addEventListener( 'click', e => {
 			e.preventDefault();
@@ -286,7 +289,7 @@ function addDeleteButtons() {
 			const input = document.createElement( 'input' );
 			input.type = 'text';
 			input.className = 'bw-img-alt-input';
-			input.placeholder = 'Describe this image...';
+			input.placeholder = i18n.describeImage || 'Describe this image...';
 			input.value = imgEl.alt || '';
 			input.contentEditable = 'false';
 			input.addEventListener( 'click', ev => ev.stopPropagation() );
@@ -312,7 +315,7 @@ function addDeleteButtons() {
 		// Caption button.
 		const capBtn = document.createElement( 'button' );
 		capBtn.className = 'bw-img-caption-btn';
-		capBtn.textContent = 'Caption';
+		capBtn.textContent = i18n.caption || 'Caption';
 		capBtn.contentEditable = 'false';
 		capBtn.addEventListener( 'click', e => {
 			e.preventDefault();
@@ -327,7 +330,7 @@ function addDeleteButtons() {
 			figcaption = document.createElement( 'figcaption' );
 			figcaption.className = 'bw-figcaption';
 			figcaption.contentEditable = 'true';
-			figcaption.setAttribute( 'data-placeholder', 'Write a caption...' );
+			figcaption.setAttribute( 'data-placeholder', i18n.writeCaption || 'Write a caption...' );
 			figcaption.addEventListener( 'click', ev => ev.stopPropagation() );
 			fig.appendChild( figcaption );
 
@@ -439,7 +442,7 @@ function showUploadPreview( src ) {
 	const img = document.createElement( 'img' );
 	img.className = 'bw-upload-preview';
 	img.src = src;
-	img.alt = 'Preview';
+	img.alt = i18n.preview || 'Preview';
 	img.style.display = 'block';
 	zone.classList.add( 'bw-upload-has-preview' );
 	zone.classList.remove( 'bw-uploading' );
@@ -501,7 +504,7 @@ function updateFormattingState() {
 	const sel = window.getSelection();
 	state.formatHeading = false;
 	state.formatQuote = false;
-	state.headingLabel = 'Normal';
+	state.headingLabel = i18n.normal || 'Normal';
 	state.formatAlignLeft = true;
 	state.formatAlignCenter = false;
 	state.formatAlignRight = false;
@@ -512,10 +515,10 @@ function updateFormattingState() {
 			if ( node.nodeType === Node.ELEMENT_NODE ) {
 				if ( node.tagName === 'H2' ) {
 					state.formatHeading = true;
-					state.headingLabel = 'Heading 2';
+					state.headingLabel = i18n.heading2 || 'Heading 2';
 				} else if ( node.tagName === 'H3' ) {
 					state.formatHeading = true;
-					state.headingLabel = 'Heading 3';
+					state.headingLabel = i18n.heading3 || 'Heading 3';
 				} else if ( /^H[1-6]$/.test( node.tagName ) ) {
 					state.formatHeading = true;
 				}
@@ -587,7 +590,7 @@ const { state } = store( 'wpcom-write', {
 		formatHeading: false,
 		formatQuote: false,
 		imageUrl: '',
-		headingLabel: 'Normal',
+		headingLabel: i18n.normal || 'Normal',
 	},
 
 	actions: {
@@ -905,14 +908,14 @@ const { state } = store( 'wpcom-write', {
 		setHeadingNormal() {
 			document.execCommand( 'formatBlock', false, 'p' );
 			state.formatHeading = false;
-			state.headingLabel = 'Normal';
+			state.headingLabel = i18n.normal || 'Normal';
 			state.showHeadingMenu = false;
 		},
 
 		setHeadingH2() {
 			document.execCommand( 'formatBlock', false, 'h2' );
 			state.formatHeading = true;
-			state.headingLabel = 'Heading 2';
+			state.headingLabel = i18n.heading2 || 'Heading 2';
 			state.formatQuote = false;
 			state.showHeadingMenu = false;
 		},
@@ -920,7 +923,7 @@ const { state } = store( 'wpcom-write', {
 		setHeadingH3() {
 			document.execCommand( 'formatBlock', false, 'h3' );
 			state.formatHeading = true;
-			state.headingLabel = 'Heading 3';
+			state.headingLabel = i18n.heading3 || 'Heading 3';
 			state.formatQuote = false;
 			state.showHeadingMenu = false;
 		},
@@ -1219,7 +1222,7 @@ const { state } = store( 'wpcom-write', {
 			} catch ( err ) {
 				state.isUploading = false;
 				if ( zone ) zone.classList.remove( 'bw-uploading' );
-				state.message = 'Upload failed: ' + err.message;
+				state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
 				setTimeout( () => {
 					state.message = '';
 				}, 3000 );
@@ -1274,7 +1277,7 @@ const { state } = store( 'wpcom-write', {
 
 			const embedUrl = getEmbedUrl( state.videoUrl );
 			if ( ! embedUrl ) {
-				state.message = 'Please paste a valid YouTube or Vimeo URL';
+				state.message = i18n.invalidVideoUrl || 'Please paste a valid YouTube or Vimeo URL';
 				setTimeout( () => {
 					state.message = '';
 				}, 3000 );
@@ -1410,7 +1413,7 @@ const { state } = store( 'wpcom-write', {
  */
 async function savePost( postStatus ) {
 	if ( ! state.title.trim() ) {
-		state.message = 'Please add a title';
+		state.message = i18n.pleaseAddTitle || 'Please add a title';
 		setTimeout( () => {
 			state.message = '';
 		}, 2500 );
@@ -1419,7 +1422,7 @@ async function savePost( postStatus ) {
 
 	const content = document.querySelector( '.bw-content' );
 	if ( ! content || ! content.innerHTML.trim() ) {
-		state.message = 'Please write something';
+		state.message = i18n.pleaseWriteSomething || 'Please write something';
 		setTimeout( () => {
 			state.message = '';
 		}, 2500 );
@@ -1430,11 +1433,11 @@ async function savePost( postStatus ) {
 	const isUpdate = isEditing && postStatus === 'publish';
 
 	state.isSaving = true;
-	let savingMessage = 'Saving draft...';
+	let savingMessage = i18n.savingDraft || 'Saving draft...';
 	if ( isUpdate ) {
-		savingMessage = 'Updating...';
+		savingMessage = i18n.updating || 'Updating...';
 	} else if ( postStatus === 'publish' ) {
-		savingMessage = 'Publishing...';
+		savingMessage = i18n.publishing || 'Publishing...';
 	}
 	state.message = savingMessage;
 
@@ -1466,21 +1469,21 @@ async function savePost( postStatus ) {
 
 		if ( postStatus === 'publish' ) {
 			state.isPublished = true;
-			state.message = isUpdate ? 'Updated!' : 'Published!';
+			state.message = isUpdate ? i18n.updated || 'Updated!' : i18n.published || 'Published!';
 			setTimeout( () => {
 				window.location.href = post.link;
 			}, 800 );
 		} else {
 			state.editPostId = post.id;
 			state.hasSaved = true;
-			state.message = 'Draft saved';
+			state.message = i18n.draftSaved || 'Draft saved';
 			state.isSaving = false;
 			setTimeout( () => {
 				state.message = '';
 			}, 2500 );
 		}
 	} catch ( err ) {
-		state.message = 'Error: ' + err.message;
+		state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );
 		state.isSaving = false;
 		setTimeout( () => {
 			state.message = '';

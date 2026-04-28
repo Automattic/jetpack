@@ -77,8 +77,8 @@ add_action(
 	function () {
 		add_submenu_page(
 			'', // Hidden — no parent menu.
-			'Write',
-			'Write',
+			__( 'Write', 'jetpack-mu-wpcom' ),
+			__( 'Write', 'jetpack-mu-wpcom' ),
 			'publish_posts',
 			'write',
 			'wpcom_write_render_admin_page'
@@ -98,6 +98,35 @@ add_action(
 		}
 
 		wp_enqueue_script_module( 'wpcom-write/view' );
+
+		// Pass translated strings to JavaScript for dynamic messages.
+		$write_strings = array(
+			'alt'                  => __( 'ALT', 'jetpack-mu-wpcom' ),
+			'caption'              => __( 'Caption', 'jetpack-mu-wpcom' ),
+			'describeImage'        => __( 'Describe this image...', 'jetpack-mu-wpcom' ),
+			'writeCaption'         => __( 'Write a caption...', 'jetpack-mu-wpcom' ),
+			// translators: %s is the error message from the upload failure.
+			'uploadFailed'         => __( 'Upload failed: %s', 'jetpack-mu-wpcom' ),
+			'invalidVideoUrl'      => __( 'Please paste a valid YouTube or Vimeo URL', 'jetpack-mu-wpcom' ),
+			'pleaseAddTitle'       => __( 'Please add a title', 'jetpack-mu-wpcom' ),
+			'pleaseWriteSomething' => __( 'Please write something', 'jetpack-mu-wpcom' ),
+			'savingDraft'          => __( 'Saving draft...', 'jetpack-mu-wpcom' ),
+			'updating'             => __( 'Updating...', 'jetpack-mu-wpcom' ),
+			'publishing'           => __( 'Publishing...', 'jetpack-mu-wpcom' ),
+			'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
+			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
+			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+			// translators: %s is the error message.
+			'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
+			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
+			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
+			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
+			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
+		);
+		wp_print_inline_script_tag(
+			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+		);
+
 		wp_enqueue_style(
 			'wpcom-write',
 			wpcom_write_asset_url( 'style.css' ),
@@ -232,15 +261,15 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Top bar -->
 	<header class="bw-topbar">
-		<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-back" title="Back to dashboard" data-wp-on--click="actions.handleBack">&larr;</a>
-		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="Shortcuts">?</button>
+		<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back to dashboard', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack">&larr;</a>
+		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php echo esc_attr__( 'Shortcuts', 'jetpack-mu-wpcom' ); ?>">?</button>
 		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
-			<div class="bw-help-title">Tips</div>
-			<div class="bw-help-row"><kbd>/</kbd><span>Insert a heading, image, video, quote or divider</span></div>
-			<div class="bw-help-row"><kbd>Ctrl+B</kbd><span>Bold</span></div>
-			<div class="bw-help-row"><kbd>Ctrl+I</kbd><span>Italic</span></div>
-			<div class="bw-help-row"><kbd>Ctrl+K</kbd><span>Insert link</span></div>
-			<div class="bw-help-row"><kbd>Tab</kbd><span>Navigate slash menu options</span></div>
+			<div class="bw-help-title"><?php echo esc_html__( 'Tips', 'jetpack-mu-wpcom' ); ?></div>
+			<div class="bw-help-row"><kbd>/</kbd><span><?php echo esc_html__( 'Insert a heading, image, video, quote or divider', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+B</kbd><span><?php echo esc_html__( 'Bold', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+I</kbd><span><?php echo esc_html__( 'Italic', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+K</kbd><span><?php echo esc_html__( 'Insert link', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Tab</kbd><span><?php echo esc_html__( 'Navigate slash menu options', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<span class="bw-status" data-wp-text="state.message"></span>
 		<div class="bw-topbar-actions">
@@ -248,12 +277,12 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				class="bw-btn bw-btn-draft"
 				data-wp-on--click="actions.saveDraft"
 				data-wp-bind--disabled="state.isSaving"
-			>Save draft</button>
+			><?php echo esc_html__( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
 			<button
 				class="bw-btn bw-btn-publish"
 				data-wp-on--click="actions.publish"
 				data-wp-bind--disabled="state.isSaving"
-			><?php echo $edit_post_id ? 'Update' : 'Publish'; ?></button>
+			><?php echo $edit_post_id ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</header>
 
@@ -265,48 +294,48 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<div class="bw-toolbar-scroll">
 			<!-- Heading dropdown -->
 			<div class="bw-tool-dropdown-wrap">
-				<button class="bw-tool bw-tool-heading-toggle" data-wp-on--click="actions.toggleHeadingMenu" data-wp-class--bw-tool-active="state.formatHeading" title="Text style">
-					<span class="bw-tool-label" data-wp-text="state.headingLabel">Normal</span>
+				<button class="bw-tool bw-tool-heading-toggle" data-wp-on--click="actions.toggleHeadingMenu" data-wp-class--bw-tool-active="state.formatHeading" title="<?php echo esc_attr__( 'Text style', 'jetpack-mu-wpcom' ); ?>">
+					<span class="bw-tool-label" data-wp-text="state.headingLabel"><?php echo esc_html__( 'Normal', 'jetpack-mu-wpcom' ); ?></span>
 					<span class="bw-tool-caret">&#9662;</span>
 				</button>
 				<div class="bw-heading-menu" hidden data-wp-bind--hidden="!state.showHeadingMenu">
-					<button class="bw-heading-option" data-wp-on--click="actions.setHeadingNormal" data-wp-on--mousedown="actions.preventToolbarBlur"><span>Normal</span></button>
-					<button class="bw-heading-option bw-heading-option-h2" data-wp-on--click="actions.setHeadingH2" data-wp-on--mousedown="actions.preventToolbarBlur"><span>Heading 2</span></button>
-					<button class="bw-heading-option bw-heading-option-h3" data-wp-on--click="actions.setHeadingH3" data-wp-on--mousedown="actions.preventToolbarBlur"><span>Heading 3</span></button>
+					<button class="bw-heading-option" data-wp-on--click="actions.setHeadingNormal" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php echo esc_html__( 'Normal', 'jetpack-mu-wpcom' ); ?></span></button>
+					<button class="bw-heading-option bw-heading-option-h2" data-wp-on--click="actions.setHeadingH2" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php echo esc_html__( 'Heading 2', 'jetpack-mu-wpcom' ); ?></span></button>
+					<button class="bw-heading-option bw-heading-option-h3" data-wp-on--click="actions.setHeadingH3" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php echo esc_html__( 'Heading 3', 'jetpack-mu-wpcom' ); ?></span></button>
 				</div>
 			</div>
 			<span class="bw-tool-divider"></span>
 			<!-- Inline formatting -->
-			<button class="bw-tool" data-wp-on--click="actions.formatBold" data-wp-class--bw-tool-active="state.formatBold" title="Bold"><span class="dashicons dashicons-editor-bold"></span></button>
-			<button class="bw-tool" data-wp-on--click="actions.formatItalic" data-wp-class--bw-tool-active="state.formatItalic" title="Italic"><span class="dashicons dashicons-editor-italic"></span></button>
-			<button class="bw-tool" data-wp-on--click="actions.formatUnderline" data-wp-class--bw-tool-active="state.formatUnderline" title="Underline"><span class="dashicons dashicons-editor-underline"></span></button>
-			<button class="bw-tool" data-wp-on--click="actions.formatStrikethrough" data-wp-class--bw-tool-active="state.formatStrikethrough" title="Strikethrough"><span class="dashicons dashicons-editor-strikethrough"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatBold" data-wp-class--bw-tool-active="state.formatBold" title="<?php echo esc_attr__( 'Bold', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-bold"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatItalic" data-wp-class--bw-tool-active="state.formatItalic" title="<?php echo esc_attr__( 'Italic', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-italic"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatUnderline" data-wp-class--bw-tool-active="state.formatUnderline" title="<?php echo esc_attr__( 'Underline', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-underline"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatStrikethrough" data-wp-class--bw-tool-active="state.formatStrikethrough" title="<?php echo esc_attr__( 'Strikethrough', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-strikethrough"></span></button>
 			<!-- Text color -->
 			<div class="bw-tool-dropdown-wrap">
-				<button class="bw-tool" data-wp-on--click="actions.toggleTextColorMenu" title="Text color"><span class="dashicons dashicons-admin-appearance"></span></button>
+				<button class="bw-tool" data-wp-on--click="actions.toggleTextColorMenu" title="<?php echo esc_attr__( 'Text color', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-admin-appearance"></span></button>
 				<div class="bw-color-menu" hidden data-wp-bind--hidden="!state.showTextColorMenu" data-wp-on--mousedown="actions.preventToolbarBlur">
-					<button class="bw-color-swatch" style="background:#1a1a1a;" data-wp-on--click="actions.setTextColorDefault" title="Default"></button>
-					<button class="bw-color-swatch" style="background:#d63638;" data-wp-on--click="actions.setTextColorRed" title="Red"></button>
-					<button class="bw-color-swatch" style="background:#2171b1;" data-wp-on--click="actions.setTextColorBlue" title="Blue"></button>
-					<button class="bw-color-swatch" style="background:#00a32a;" data-wp-on--click="actions.setTextColorGreen" title="Green"></button>
-					<button class="bw-color-swatch" style="background:#dba617;" data-wp-on--click="actions.setTextColorYellow" title="Yellow"></button>
-					<button class="bw-color-swatch" style="background:#8c5db0;" data-wp-on--click="actions.setTextColorPurple" title="Purple"></button>
+					<button class="bw-color-swatch" style="background:#1a1a1a;" data-wp-on--click="actions.setTextColorDefault" title="<?php echo esc_attr__( 'Default', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" style="background:#d63638;" data-wp-on--click="actions.setTextColorRed" title="<?php echo esc_attr__( 'Red', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" style="background:#2171b1;" data-wp-on--click="actions.setTextColorBlue" title="<?php echo esc_attr__( 'Blue', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" style="background:#00a32a;" data-wp-on--click="actions.setTextColorGreen" title="<?php echo esc_attr__( 'Green', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" style="background:#dba617;" data-wp-on--click="actions.setTextColorYellow" title="<?php echo esc_attr__( 'Yellow', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" style="background:#8c5db0;" data-wp-on--click="actions.setTextColorPurple" title="<?php echo esc_attr__( 'Purple', 'jetpack-mu-wpcom' ); ?>"></button>
 				</div>
 			</div>
 			<span class="bw-tool-divider"></span>
 			<!-- Alignment -->
-			<button class="bw-tool" data-wp-on--click="actions.alignLeft" data-wp-class--bw-tool-active="state.formatAlignLeft" title="Align left"><span class="dashicons dashicons-editor-alignleft"></span></button>
-			<button class="bw-tool" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" title="Align center"><span class="dashicons dashicons-editor-aligncenter"></span></button>
-			<button class="bw-tool" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" title="Align right"><span class="dashicons dashicons-editor-alignright"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.alignLeft" data-wp-class--bw-tool-active="state.formatAlignLeft" title="<?php echo esc_attr__( 'Align left', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-alignleft"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" title="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-aligncenter"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" title="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-alignright"></span></button>
 			<span class="bw-tool-divider"></span>
 			<!-- Lists -->
-			<button class="bw-tool" data-wp-on--click="actions.formatUList" data-wp-class--bw-tool-active="state.formatUList" title="Bulleted list"><span class="dashicons dashicons-editor-ul"></span></button>
-			<button class="bw-tool" data-wp-on--click="actions.formatOList" data-wp-class--bw-tool-active="state.formatOList" title="Numbered list"><span class="dashicons dashicons-editor-ol"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatUList" data-wp-class--bw-tool-active="state.formatUList" title="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-ul"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatOList" data-wp-class--bw-tool-active="state.formatOList" title="<?php echo esc_attr__( 'Numbered list', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-editor-ol"></span></button>
 			<span class="bw-tool-divider"></span>
 			<!-- Block-level -->
-			<button class="bw-tool" data-wp-on--click="actions.toggleLinkInput" data-wp-class--bw-tool-active="state.showLinkInput" title="Link"><span class="dashicons dashicons-admin-links"></span></button>
-			<button class="bw-tool" data-wp-on--click="actions.formatQuote" data-wp-class--bw-tool-active="state.formatQuote" title="Quote"><span class="dashicons dashicons-format-quote"></span></button>
-			<button class="bw-tool" data-wp-on--click="actions.openImageModal" title="Image"><span class="dashicons dashicons-format-image"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.toggleLinkInput" data-wp-class--bw-tool-active="state.showLinkInput" title="<?php echo esc_attr__( 'Link', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-admin-links"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.formatQuote" data-wp-class--bw-tool-active="state.formatQuote" title="<?php echo esc_attr__( 'Quote', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-format-quote"></span></button>
+			<button class="bw-tool" data-wp-on--click="actions.openImageModal" title="<?php echo esc_attr__( 'Image', 'jetpack-mu-wpcom' ); ?>"><span class="dashicons dashicons-format-image"></span></button>
 		</div>
 	</div>
 
@@ -315,12 +344,12 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<input
 			type="url"
 			class="bw-link-input"
-			placeholder="Paste or type a link..."
+			placeholder="<?php echo esc_attr__( 'Paste or type a link...', 'jetpack-mu-wpcom' ); ?>"
 			data-wp-bind--value="state.linkUrl"
 			data-wp-on--input="actions.updateLinkUrl"
 			data-wp-on--keydown="actions.handleLinkKeyDown"
 		/>
-		<button class="bw-link-apply" data-wp-on--click="actions.applyLink">Apply</button>
+		<button class="bw-link-apply" data-wp-on--click="actions.applyLink"><?php echo esc_html__( 'Apply', 'jetpack-mu-wpcom' ); ?></button>
 		<button class="bw-link-remove" data-wp-on--click="actions.removeLink">&times;</button>
 	</div>
 
@@ -329,7 +358,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<div class="bw-editor">
 			<textarea
 				class="bw-title"
-				placeholder="Title"
+				placeholder="<?php echo esc_attr__( 'Title', 'jetpack-mu-wpcom' ); ?>"
 				rows="1"
 				data-wp-on--input="actions.updateTitle"
 				data-wp-on--keydown="actions.handleTitleKeyDown"
@@ -342,7 +371,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--mouseup="actions.checkFormatting"
 				data-wp-on--keyup="actions.checkFormatting"
 				data-wp-on--keydown="actions.handleKeyDown"
-				data-placeholder="Tell your story..."
+				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
 			><?php echo $edit_content ? wp_kses_post( $edit_content ) : '<p><br></p>'; ?></div>
 		</div>
 	</main>
@@ -350,42 +379,42 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	<!-- Image modal -->
 	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showImageModal" data-wp-on--click="actions.closeImageModal">
 		<div class="bw-image-modal" data-wp-on--click="actions.stopPropagation">
-			<h3>Add an image</h3>
+			<h3><?php echo esc_html__( 'Add an image', 'jetpack-mu-wpcom' ); ?></h3>
 			<label class="bw-upload-zone" id="bw-upload-zone">
-				<span class="bw-upload-label">Drop a file or click to upload</span>
-				<span class="bw-upload-saving" style="display:none;">Uploading...</span>
+				<span class="bw-upload-label"><?php echo esc_html__( 'Drop a file or click to upload', 'jetpack-mu-wpcom' ); ?></span>
+				<span class="bw-upload-saving" style="display:none;"><?php echo esc_html__( 'Uploading...', 'jetpack-mu-wpcom' ); ?></span>
 				<input type="file" accept="image/*" data-wp-on--change="actions.uploadImage" hidden />
 			</label>
-			<div class="bw-image-divider"><span>or</span></div>
+			<div class="bw-image-divider"><span><?php echo esc_html__( 'or', 'jetpack-mu-wpcom' ); ?></span></div>
 			<input
 				type="url"
 				class="bw-image-url-input"
-				placeholder="Paste an image URL..."
+				placeholder="<?php echo esc_attr__( 'Paste an image URL...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageUrl"
 			/>
 			<input
 				type="text"
 				class="bw-image-url-input"
-				placeholder="Alt text (describe the image)..."
+				placeholder="<?php echo esc_attr__( 'Alt text (describe the image)...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageAlt"
 				style="margin-top:12px;"
 			/>
 			<label class="bw-featured-toggle">
 				<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" />
-				<span>Set as featured image</span>
+				<span><?php echo esc_html__( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
 			</label>
-			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertImageFromUrl" style="width:100%;margin-top:12px;">Insert image</button>
+			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertImageFromUrl" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</div>
 
 	<!-- Leave confirmation -->
 	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave">
 		<div class="bw-leave-modal" data-wp-on--click="actions.stopPropagation">
-			<h3>You have unsaved changes</h3>
-			<p>Are you sure you want to leave? Your work will be lost.</p>
+			<h3><?php echo esc_html__( 'You have unsaved changes', 'jetpack-mu-wpcom' ); ?></h3>
+			<p><?php echo esc_html__( 'Are you sure you want to leave? Your work will be lost.', 'jetpack-mu-wpcom' ); ?></p>
 			<div class="bw-leave-actions">
-				<button class="bw-btn bw-btn-draft" data-wp-on--click="actions.cancelLeave">Keep writing</button>
-				<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-btn bw-btn-leave">Leave</a>
+				<button class="bw-btn bw-btn-draft" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Keep writing', 'jetpack-mu-wpcom' ); ?></button>
+				<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-btn bw-btn-leave"><?php echo esc_html__( 'Leave', 'jetpack-mu-wpcom' ); ?></a>
 			</div>
 		</div>
 	</div>
@@ -394,38 +423,38 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	<div class="bw-slash-menu" hidden data-wp-bind--hidden="!state.showSlashMenu">
 		<div class="bw-slash-item" data-wp-on--click="actions.insertHeading" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon">H</span>
-			<div><strong>Heading</strong><span class="bw-slash-desc">Large section heading</span></div>
+			<div><strong><?php echo esc_html__( 'Heading', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Large section heading', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" data-wp-on--click="actions.insertImage" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon">&#9653;</span>
-			<div><strong>Image</strong><span class="bw-slash-desc">Upload or embed an image</span></div>
+			<div><strong><?php echo esc_html__( 'Image', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Upload or embed an image', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" data-wp-on--click="actions.insertQuote" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon">&ldquo;</span>
-			<div><strong>Quote</strong><span class="bw-slash-desc">Highlight a quote</span></div>
+			<div><strong><?php echo esc_html__( 'Quote', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Highlight a quote', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" data-wp-on--click="actions.insertVideo" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon">&#9654;</span>
-			<div><strong>Video</strong><span class="bw-slash-desc">Embed a YouTube or Vimeo video</span></div>
+			<div><strong><?php echo esc_html__( 'Video', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Embed a YouTube or Vimeo video', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" data-wp-on--click="actions.insertDivider" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon">&mdash;</span>
-			<div><strong>Divider</strong><span class="bw-slash-desc">A horizontal separator</span></div>
+			<div><strong><?php echo esc_html__( 'Divider', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'A horizontal separator', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 	</div>
 
 	<!-- Video modal -->
 	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showVideoModal" data-wp-on--click="actions.closeVideoModal">
 		<div class="bw-image-modal" data-wp-on--click="actions.stopPropagation">
-			<h3>Embed a video</h3>
+			<h3><?php echo esc_html__( 'Embed a video', 'jetpack-mu-wpcom' ); ?></h3>
 			<input
 				type="url"
 				class="bw-image-url-input"
-				placeholder="Paste a YouTube or Vimeo URL..."
+				placeholder="<?php echo esc_attr__( 'Paste a YouTube or Vimeo URL...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateVideoUrl"
 				data-wp-on--keydown="actions.handleVideoKeyDown"
 			/>
-			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertVideoEmbed" style="width:100%;margin-top:12px;">Embed video</button>
+			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertVideoEmbed" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Embed video', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</div>
 
@@ -434,7 +463,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<span class="bw-cat-fab-icon dashicons dashicons-admin-generic"></span>
 	</div>
 	<div class="bw-cat-popover" hidden data-wp-bind--hidden="!state.showCatPicker">
-		<div class="bw-cat-popover-header">Categories</div>
+		<div class="bw-cat-popover-header"><?php echo esc_html__( 'Categories', 'jetpack-mu-wpcom' ); ?></div>
 		<div class="bw-cat-popover-list">
 			<?php
 			foreach ( $categories_data as $i => $cat ) :
