@@ -18,6 +18,10 @@ let headingMenuCloseHandler = null;
 let textColorMenuCloseHandler = null;
 let linkPopoverCloseHandler = null;
 
+// Track the previous slash filter so checkSlashCommand only resets the active
+// menu item when the filter text changes, not when the user is navigating.
+let prevSlashFilter = null;
+
 /**
  * Save the current text selection so it can be restored after a modal closes.
  */
@@ -194,6 +198,19 @@ function positionSlashMenu() {
 	menu.style.position = 'absolute';
 	menu.style.left = left + 'px';
 	menu.style.top = top + 'px';
+}
+
+/**
+ * Mark the slash menu as keyboard-navigated to suppress hover highlights,
+ * then restore hover behaviour on the next mousemove.
+ */
+function enterKeyboardNav() {
+	const menu = document.querySelector( '.bw-slash-menu' );
+	if ( ! menu ) return;
+	menu.classList.add( 'bw-slash-menu--keyboard' );
+	menu.addEventListener( 'mousemove', () => menu.classList.remove( 'bw-slash-menu--keyboard' ), {
+		once: true,
+	} );
 }
 
 /**
@@ -672,19 +689,21 @@ const { state } = store( 'wpcom-write', {
 				const active = document.querySelector( '.bw-slash-item-active' );
 				let idx = active ? visible.indexOf( active ) : -1;
 
-				if ( event.key === 'ArrowDown' || event.key === 'Tab' ) {
+				if ( event.key === 'ArrowDown' || ( event.key === 'Tab' && ! event.shiftKey ) ) {
 					event.preventDefault();
 					if ( active ) active.classList.remove( 'bw-slash-item-active' );
 					idx = ( idx + 1 ) % visible.length;
 					visible[ idx ].classList.add( 'bw-slash-item-active' );
+					enterKeyboardNav();
 					return;
 				}
 
-				if ( event.key === 'ArrowUp' ) {
+				if ( event.key === 'ArrowUp' || ( event.key === 'Tab' && event.shiftKey ) ) {
 					event.preventDefault();
 					if ( active ) active.classList.remove( 'bw-slash-item-active' );
 					idx = idx <= 0 ? visible.length - 1 : idx - 1;
 					visible[ idx ].classList.add( 'bw-slash-item-active' );
+					enterKeyboardNav();
 					return;
 				}
 
@@ -768,23 +787,29 @@ const { state } = store( 'wpcom-write', {
 			const text = node.textContent;
 			// Show menu when the line starts with "/" and optionally a filter after it.
 			if ( /^\/\S*$/.test( text.trim() ) ) {
-				state.slashFilter = text.trim().slice( 1 ).toLowerCase();
+				const newFilter = text.trim().slice( 1 ).toLowerCase();
+				// Only reset the active item when the filter text actually changes
+				// (i.e. the user typed a character). Preserve selection when navigating.
+				const filterChanged = newFilter !== prevSlashFilter;
+				state.slashFilter = newFilter;
+				prevSlashFilter = newFilter;
 				state.showSlashMenu = true;
 				requestAnimationFrame( positionSlashMenu );
 
-				// Filter menu items and reset active highlight.
+				// Filter menu items; reset active highlight only on filter change.
 				const items = document.querySelectorAll( '.bw-slash-item' );
 				let firstVisible = null;
 				items.forEach( item => {
-					item.classList.remove( 'bw-slash-item-active' );
+					if ( filterChanged ) item.classList.remove( 'bw-slash-item-active' );
 					const label = item.querySelector( 'strong' ).textContent.toLowerCase();
 					const show = label.includes( state.slashFilter );
 					item.style.display = show ? '' : 'none';
 					if ( show && ! firstVisible ) firstVisible = item;
 				} );
-				// Auto-highlight the first visible item.
-				if ( firstVisible ) firstVisible.classList.add( 'bw-slash-item-active' );
+				// Auto-highlight the first visible item only when filter changes.
+				if ( filterChanged && firstVisible ) firstVisible.classList.add( 'bw-slash-item-active' );
 			} else {
+				prevSlashFilter = null;
 				state.showSlashMenu = false;
 			}
 		},

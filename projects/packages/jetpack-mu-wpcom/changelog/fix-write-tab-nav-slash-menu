@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Fix slash menu Tab key cycling and suppress hover highlight during keyboard navigation
