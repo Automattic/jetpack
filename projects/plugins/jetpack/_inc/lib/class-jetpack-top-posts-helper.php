@@ -129,7 +129,7 @@ class Jetpack_Top_Posts_Helper {
 				 *
 				 * @module stats
 				 *
-				 * @since $$next-version$$
+				 * @since 15.8
 				 *
 				 * @param string $post_title Post title.
 				 * @param array  $top_post   Information about the post.

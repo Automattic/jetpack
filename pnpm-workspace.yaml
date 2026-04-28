@@ -34,6 +34,8 @@ minimumReleaseAgeExclude:
   - dompurify@3.4.0
   # Need to unblock @wordpress/* package updates
   - '@types/wordpress__block-editor@15.0.6'
+  # Renovate security update: postcss@8.5.10
+  - postcss@8.5.10
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

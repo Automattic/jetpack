@@ -20,7 +20,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev",
@@ -74,7 +73,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "7.19.x-dev"
+			"dev-trunk": "7.20.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

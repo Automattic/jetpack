@@ -60,7 +60,6 @@
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0"
@@ -112,7 +111,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_8_a_5",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_8_a_7",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

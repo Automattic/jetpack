@@ -683,6 +683,15 @@ abstract class SAL_Post {
 	}
 
 	/**
+	 * Returns true if the post has a password set, regardless of whether the current user can view or receive the password value.
+	 *
+	 * @return bool
+	 */
+	public function get_has_password(): bool {
+		return strlen( (string) $this->post->post_password ) > 0;
+	}
+
+	/**
 	 * Returns an object representing a post's parent, and false if it doesn't have one.
 	 *
 	 * @return object|bool
