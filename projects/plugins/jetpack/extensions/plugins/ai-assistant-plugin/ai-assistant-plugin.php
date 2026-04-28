@@ -50,6 +50,35 @@ Jetpack_AI_Sidebar::init();
 require_once __DIR__ . '/reader-chat/class-jetpack-reader-chat.php';
 Jetpack_Reader_Chat::init();
 
+/**
+ * Register the `jetpack_ai_agents_enabled` site option so it can be read
+ * and written through the /wp/v2/settings REST endpoint.
+ *
+ * Backs the AI Agent Access toggle in the Jetpack Search dashboard, which
+ * lets site owners opt in to letting AI assistants (Claude, ChatGPT, etc.)
+ * answer reader questions using their blog's content. Registered
+ * unconditionally so the public-facing toggle is always available; access
+ * is still capability-gated by /wp/v2/settings (manage_options).
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function register_ai_agents_setting() {
+	register_setting(
+		'general',
+		'jetpack_ai_agents_enabled',
+		array(
+			'type'              => 'boolean',
+			'description'       => __( 'Whether AI Agent Access is enabled on this site.', 'jetpack' ),
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'show_in_rest'      => true,
+			'default'           => false,
+		)
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
+
 // Populate the available extensions with ai-assistant-plugin.
 add_filter(
 	'jetpack_set_available_extensions',
