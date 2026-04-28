@@ -240,7 +240,7 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ videoGenerationHandler && isAIFeatureClipAvailable && (
+			{ videoGenerationHandler && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
