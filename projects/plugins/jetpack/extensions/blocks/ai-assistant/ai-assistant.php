@@ -78,6 +78,10 @@ add_action(
 			Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
 			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-image-extension' );
 
+			if ( function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment() ) {
+				Jetpack_Gutenberg::set_extension_available( 'ai-feature-clip-generator' );
+			}
+
 			$site_locale = get_locale();
 			// Only enable Write Brief for sites with an English locale.
 			// Disabled by default; set the 'breve_enabled' filter to true to re-enable.

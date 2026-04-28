@@ -71,6 +71,10 @@ const isUsagePanelAvailable =
 const isAIFeaturedImageAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-featured-image-generator' ]
 		?.available || false;
+// Determine if the AI Feature Clip (video) generator is available
+const isAIFeatureClipAvailable =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-feature-clip-generator' ]
+		?.available || false;
 // Determine if the AI Title Optimization feature is available
 const isAITitleOptimizationAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-title-optimization' ]?.available ||
@@ -133,6 +137,38 @@ const JetpackAndSettingsContent = ( {
 		return typeof result === 'function' ? ( result as () => void ) : null;
 	}, [ onImageSelect, placement, requireUpgrade ] );
 
+	/**
+	 * Filters the video generation handler for AI-powered video creation entry points.
+	 *
+	 * Allows external plugins (e.g. Image Studio's Generate Feature Clip surface) to
+	 * provide a custom handler that opens an external video generation flow. When a
+	 * handler is returned, the "Generate Feature Clip" button uses it; without a
+	 * handler, the section is not rendered.
+	 *
+	 * @param {Function|null} handler                 - The handler function, or null if no plugin hooks the filter.
+	 * @param {object}        options                 - Options describing the entry point context.
+	 * @param {string}        options.entryPoint      - Identifies the UI location ('feature-clip').
+	 * @param {object}        options.extra           - Additional context for the handler.
+	 * @param {string}        options.extra.placement - The placement identifier for the entry point.
+	 * @param {boolean}       options.extra.disabled  - Whether the handler should be disabled (e.g. upgrade required).
+	 * @return {Function|null} A function to invoke the video generation flow, or null to hide the section.
+	 *
+	 * @example
+	 * // Register a custom video generation handler from an external plugin.
+	 * import { addFilter } from '@wordpress/hooks';
+	 *
+	 * addFilter( 'jetpack.ai.videoGenerationHandler', 'my-plugin/image-studio', ( handler, options ) => {
+	 *     return () => openImageStudio( options.entryPoint );
+	 * } );
+	 */
+	const videoGenerationHandler = useMemo( () => {
+		const result = applyFilters( 'jetpack.ai.videoGenerationHandler', null, {
+			entryPoint: 'feature-clip',
+			extra: { placement, disabled: requireUpgrade },
+		} );
+		return typeof result === 'function' ? ( result as () => void ) : null;
+	}, [ placement, requireUpgrade ] );
+
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
 	const titleOptimizationSectionLabel = isAITitleOptimizationKeywordsFeatureAvailable
@@ -194,6 +230,23 @@ const JetpackAndSettingsContent = ( {
 						) : (
 							<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 						) }
+					</BaseControl>
+				</PanelRow>
+			) }
+
+			{ videoGenerationHandler && isAIFeatureClipAvailable && (
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						<BaseControl.VisualLabel>
+							{ __( 'Get Feature Clip', 'jetpack' ) }
+						</BaseControl.VisualLabel>
+						<Button
+							onClick={ videoGenerationHandler }
+							variant="secondary"
+							disabled={ requireUpgrade }
+						>
+							{ __( 'Generate clip', 'jetpack' ) }
+						</Button>
 					</BaseControl>
 				</PanelRow>
 			) }
