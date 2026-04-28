@@ -16,7 +16,6 @@ import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
 import DashboardTabs from 'components/tabs';
-import TopicsTab from 'components/topics-tab';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
@@ -31,7 +30,7 @@ import './dashboard-page.scss';
  * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
-	const [ activeTab, setActiveTab ] = useState( 'overview' );
+	const [ activeTab, setActiveTab ] = useState( 'plan-usage' );
 
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
@@ -132,7 +131,7 @@ export default function DashboardPage( { isLoading = false } ) {
 				className="uses-new-admin-ui"
 			>
 				<DashboardTabs activeTab={ activeTab } onTabChange={ setActiveTab } />
-				{ activeTab === 'overview' && (
+				{ activeTab === 'plan-usage' && (
 					<>
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
@@ -201,8 +200,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						) }
 					</>
 				) }
-				{ activeTab === 'personality' && <BehaviorTab /> }
-				{ activeTab === 'topics' && <TopicsTab /> }
+				{ activeTab === 'ai-answers' && <BehaviorTab /> }
 			</AdminPage>
 		</div>
 	);
