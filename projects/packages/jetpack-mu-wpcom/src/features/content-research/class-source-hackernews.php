@@ -72,14 +72,14 @@ class Source_HackerNews implements Content_Research_Source {
 		foreach ( $body['hits'] as $hit ) {
 			$results[] = array(
 				'source'     => 'hn',
-				'title'      => $hit['title'] ?? '',
-				'url'        => $hit['url'] ?? ( 'https://news.ycombinator.com/item?id=' . ( $hit['objectID'] ?? '' ) ),
+				'title'      => sanitize_text_field( $hit['title'] ?? '' ),
+				'url'        => esc_url_raw( $hit['url'] ?? ( 'https://news.ycombinator.com/item?id=' . ( $hit['objectID'] ?? '' ) ) ),
 				'excerpt'    => '',
 				'engagement' => array(
 					'upvotes'  => (int) ( $hit['points'] ?? 0 ),
 					'comments' => (int) ( $hit['num_comments'] ?? 0 ),
 				),
-				'author'     => $hit['author'] ?? '',
+				'author'     => sanitize_text_field( $hit['author'] ?? '' ),
 				'timestamp'  => $hit['created_at'] ?? '',
 			);
 		}

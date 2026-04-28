@@ -59,15 +59,15 @@ class Source_Reader implements Content_Research_Source {
 		foreach ( $body['posts'] as $post ) {
 			$results[] = array(
 				'source'     => 'reader',
-				'title'      => $post['title'] ?? '',
-				'url'        => $post['URL'] ?? '',
-				'excerpt'    => wp_trim_words( wp_strip_all_tags( $post['excerpt'] ?? '' ), 30 ),
+				'title'      => sanitize_text_field( $post['title'] ?? '' ),
+				'url'        => esc_url_raw( $post['URL'] ?? '' ),
+				'excerpt'    => sanitize_text_field( wp_trim_words( wp_strip_all_tags( $post['excerpt'] ?? '' ), 30 ) ),
 				'engagement' => array(
 					'upvotes'  => (int) ( $post['like_count'] ?? 0 ),
 					'comments' => (int) ( $post['discussion']['comment_count'] ?? 0 ),
 				),
-				'author'     => $post['author']['name'] ?? '',
-				'timestamp'  => $post['date'] ?? '',
+				'author'     => sanitize_text_field( $post['author']['name'] ?? '' ),
+				'timestamp'  => sanitize_text_field( $post['date'] ?? '' ),
 			);
 		}
 

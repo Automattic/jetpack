@@ -152,7 +152,13 @@ class WP_REST_Content_Research_Search extends \WP_REST_Controller {
 				continue;
 			}
 
-			$age_seconds = max( 0, $now - strtotime( $timestamp ) );
+			$parsed = strtotime( $timestamp );
+			if ( false === $parsed ) {
+				continue;
+			}
+
+			// Clamp future timestamps to now so they don't get an outsized boost.
+			$age_seconds = max( 0, $now - min( $parsed, $now ) );
 
 			if ( $age_seconds <= $thirty_days ) {
 				// 0-30 days: boost from 2x (brand new) to 1x (30 days old).

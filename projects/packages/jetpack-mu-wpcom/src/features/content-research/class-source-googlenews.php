@@ -97,17 +97,17 @@ class Source_GoogleNews implements Content_Research_Source {
 			// Description contains a brief snippet.
 			$description = (string) $item->description;
 			$excerpt     = wp_strip_all_tags( $description );
-			if ( strlen( $excerpt ) > 200 ) {
-				$excerpt = substr( $excerpt, 0, 200 ) . '...';
+			if ( mb_strlen( $excerpt ) > 200 ) {
+				$excerpt = mb_substr( $excerpt, 0, 200 ) . '...';
 			}
 
 			$results[] = array(
 				'source'     => 'googlenews',
-				'title'      => $title,
-				'url'        => $link,
-				'excerpt'    => $excerpt,
+				'title'      => sanitize_text_field( $title ),
+				'url'        => esc_url_raw( $link ),
+				'excerpt'    => sanitize_text_field( $excerpt ),
 				'engagement' => array(),
-				'author'     => $source_name,
+				'author'     => sanitize_text_field( $source_name ),
 				'timestamp'  => $pub_date ? gmdate( 'c', strtotime( $pub_date ) ) : '',
 			);
 

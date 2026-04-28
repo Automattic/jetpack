@@ -66,11 +66,21 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'results' => array(
-						'type'     => 'array',
-						'required' => true,
-						'items'    => array(
+						'type'              => 'array',
+						'required'          => true,
+						'maxItems'          => self::MAX_ARTICLES,
+						'items'             => array(
 							'type' => 'object',
 						),
+						'validate_callback' => static function ( $value ) {
+							if ( ! is_array( $value ) ) {
+								return new \WP_Error( 'rest_invalid_param', 'results must be an array.' );
+							}
+							if ( count( $value ) > self::MAX_ARTICLES ) {
+								return new \WP_Error( 'rest_invalid_param', 'Too many results. Maximum is ' . self::MAX_ARTICLES . '.' );
+							}
+							return true;
+						},
 					),
 				),
 			)
@@ -153,17 +163,18 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 
 		foreach ( array_slice( $results, 0, self::MAX_ARTICLES ) as $result ) {
 			// Sanitize and bound client-provided fields to limit prompt size.
-			$url     = esc_url_raw( (string) ( $result['url'] ?? '' ) );
-			$title   = mb_substr( sanitize_text_field( (string) ( $result['title'] ?? '' ) ), 0, 300 );
-			$source  = sanitize_key( (string) ( $result['source'] ?? 'unknown' ) );
-			$excerpt = mb_substr( wp_strip_all_tags( (string) ( $result['excerpt'] ?? '' ) ), 0, 500 );
+			$url        = esc_url_raw( (string) ( $result['url'] ?? '' ) );
+			$title      = mb_substr( sanitize_text_field( (string) ( $result['title'] ?? '' ) ), 0, 300 );
+			$source     = sanitize_key( (string) ( $result['source'] ?? 'unknown' ) );
+			$excerpt    = mb_substr( wp_strip_all_tags( (string) ( $result['excerpt'] ?? '' ) ), 0, 500 );
+			$engagement = isset( $result['engagement'] ) && is_array( $result['engagement'] ) ? $result['engagement'] : null;
 
 			$article = array(
 				'url'        => $url,
 				'title'      => $title,
 				'source'     => $source,
 				'excerpt'    => $excerpt,
-				'engagement' => $result['engagement'] ?? null,
+				'engagement' => $engagement,
 				'content'    => '',
 			);
 
@@ -234,9 +245,9 @@ class WP_REST_Content_Research_Summarize extends \WP_REST_Controller {
 		$converter = new $converter_class(); // @phan-suppress-current-line PhanTypeExpectedObjectOrClassName,PhanUndeclaredClass -- Loaded dynamically via require_lib.
 		$markdown  = $converter->convert( $main_html );
 
-		// Truncate to max article length.
-		if ( strlen( $markdown ) > self::MAX_ARTICLE_LENGTH ) {
-			$markdown = substr( $markdown, 0, self::MAX_ARTICLE_LENGTH ) . '...';
+		// Truncate to max article length (multibyte-safe).
+		if ( mb_strlen( $markdown ) > self::MAX_ARTICLE_LENGTH ) {
+			$markdown = mb_substr( $markdown, 0, self::MAX_ARTICLE_LENGTH ) . '...';
 		}
 
 		return $markdown;
