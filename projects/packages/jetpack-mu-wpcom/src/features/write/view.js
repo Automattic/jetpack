@@ -442,7 +442,7 @@ function showUploadPreview( src ) {
 	const img = document.createElement( 'img' );
 	img.className = 'bw-upload-preview';
 	img.src = src;
-	img.alt = 'Preview';
+	img.alt = i18n.preview || 'Preview';
 	img.style.display = 'block';
 	zone.classList.add( 'bw-upload-has-preview' );
 	zone.classList.remove( 'bw-uploading' );

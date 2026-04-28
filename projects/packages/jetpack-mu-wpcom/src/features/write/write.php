@@ -77,8 +77,8 @@ add_action(
 	function () {
 		add_submenu_page(
 			'', // Hidden — no parent menu.
-			'Write',
-			'Write',
+			__( 'Write', 'jetpack-mu-wpcom' ),
+			__( 'Write', 'jetpack-mu-wpcom' ),
 			'publish_posts',
 			'write',
 			'wpcom_write_render_admin_page'
@@ -119,6 +119,7 @@ add_action(
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
 			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
+			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
