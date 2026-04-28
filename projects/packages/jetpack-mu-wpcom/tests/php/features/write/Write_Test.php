@@ -341,20 +341,19 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that autosave i18n strings are passed to JavaScript.
+	 * Test that autosave i18n strings are included in the rendered page state.
 	 */
 	public function test_autosave_i18n_strings_registered() {
 		wp_set_current_user( $this->admin_id );
 
-		// Simulate the admin_enqueue_scripts hook by setting the page parameter.
-		$_GET['page'] = 'write';
-
+		// Render the admin page which seeds the Interactivity API state.
 		ob_start();
-		do_action( 'admin_enqueue_scripts' );
-		$output = ob_get_clean();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
 
-		$this->assertStringContainsString( 'draftAutosaved', $output );
+		$state = wp_interactivity_state( 'wpcom-write' );
 
-		unset( $_GET['page'] );
+		// The showRecoveryBanner field confirms autosave state is registered.
+		$this->assertArrayHasKey( 'showRecoveryBanner', $state );
 	}
 }
