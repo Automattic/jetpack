@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-SSO: Show the "Log in with WordPress.com" button on the recovery mode landing page.
+SSO: Render the single sign-on login button on the recovery mode landing page.

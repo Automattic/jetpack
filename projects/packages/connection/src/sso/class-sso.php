@@ -299,12 +299,12 @@ class SSO {
 			 */
 			$user_chose_sso_via_toggle = isset( $_GET['jetpack-sso-show-default-form'] ) && '0' === $_GET['jetpack-sso-show-default-form']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-			if ( 'entered_recovery_mode' === $action ) {
-				// On the recovery-mode landing the wp-admin password form is the recovery fallback. Only show the SSO panel when the user explicitly opts in via the toggle, and honor that opt-in regardless of show_sso_login() so the no-JS fallback always works.
-				if ( $user_chose_sso_via_toggle ) {
-					$classes[] = 'jetpack-sso-form-display';
-				}
-			} elseif ( empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// On the recovery-mode landing the wp-admin password form is the recovery fallback, so only show the SSO panel when the user explicitly opts in via the toggle.
+			$show_sso_form = 'entered_recovery_mode' === $action
+				? $user_chose_sso_via_toggle
+				: ( empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login() ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+			if ( $show_sso_form ) {
 				$classes[] = 'jetpack-sso-form-display';
 			}
 		}
@@ -465,7 +465,7 @@ class SSO {
 		// And now the exceptions.
 		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// Don't bypass to WordPress.com from the recovery-mode landing page; the user needs to see the recovery notice and have access to the wp-admin password fallback.
+		// Skip the SSO bypass-redirect on the recovery-mode landing page so the recovery notice stays visible and the wp-admin password fallback remains accessible.
 		if ( 'entered_recovery_mode' === $action ) {
 			return false;
 		}
