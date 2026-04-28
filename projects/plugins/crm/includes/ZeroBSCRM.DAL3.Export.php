@@ -314,6 +314,13 @@ function jpcrm_export_process_file_export() {
 				}
 
 				if ( is_array( $availObjs ) ) {
+
+					// Bulk-fetch all tags in one go when requested.
+					$tag_map = array();
+					if ( in_array( 'tags', $fields, true ) ) {
+						$tag_map = jpcrm_export_bulk_fetch_tags( $obj_type_id, array_column( $availObjs, 'id' ) );
+					}
+
 					foreach ( $availObjs as $obj ) {
 
 							// per obj
@@ -351,6 +358,11 @@ function jpcrm_export_process_file_export() {
 								if ( isset( $obj[ str_replace( 'sec', 'secaddr_', $fK ) ] ) ) {
 									$v = $obj[ str_replace( 'sec', 'secaddr_', $fK ) ];
 								}
+							}
+
+							// Create pipe-separated tags field.
+							if ( $fK === 'tags' ) {
+								$v = implode( '|', $tag_map[ (int) $obj['id'] ] ?? array() );
 							}
 
 							// here we account for linked objects
@@ -448,6 +460,47 @@ function jpcrm_export_process_file_export() {
 	} // / Check if valid posted export request
 }
 	add_action( 'jpcrm_post_wp_loaded', 'jpcrm_export_process_file_export' );
+
+/**
+ * Fetches tag names for a list of object IDs in a single query.
+ * Returns a map of [obj_id => array of tag names], for fast row-loop lookup during export.
+ *
+ * @param int   $obj_type_id Object type ID.
+ * @param int[] $obj_ids     Array of object IDs.
+ *
+ * @return array<int,string[]>
+ */
+function jpcrm_export_bulk_fetch_tags( $obj_type_id, $obj_ids ) {
+	global $wpdb, $ZBSCRM_t;
+
+	$tag_map = array();
+
+	if ( count( $obj_ids ) === 0 ) {
+		return $tag_map;
+	}
+
+	$placeholders = implode( ',', array_fill( 0, count( $obj_ids ), '%d' ) );
+	$params       = array_merge( array( $obj_type_id ), $obj_ids );
+
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT tl.zbstl_objid AS obj_id, t.zbstag_name AS tag_name
+			 FROM {$ZBSCRM_t['taglinks']} tl
+			 INNER JOIN {$ZBSCRM_t['tags']} t ON t.ID = tl.zbstl_tagid
+			 WHERE tl.zbstl_objtype = %d AND tl.zbstl_objid IN ($placeholders)
+			 ORDER BY t.zbstag_name ASC",
+			$params
+		)
+	);
+
+	if ( is_array( $rows ) ) {
+		foreach ( $rows as $row ) {
+			$tag_map[ (int) $row->obj_id ][] = $row->tag_name;
+		}
+	}
+
+	return $tag_map;
+}
 
 /**
  * Takes an object being exported, and a linked object type, and returns the subobject
@@ -659,6 +712,16 @@ function zeroBSCRM_export_produceAvailableFields( $objTypeToExport = false, $inc
 			// simpler
 			$fieldsAvailable[ 'linked_obj_' . $objectType . '_email' ] = $label;
 		}
+	}
+
+	// Tags pseudo-field (works for all object types via taglinks)
+	if ( $includeAreas ) {
+		$fieldsAvailable['tags'] = array(
+			'label' => __( 'Tags', 'zero-bs-crm' ),
+			'area'  => __( 'Tags', 'zero-bs-crm' ),
+		);
+	} else {
+		$fieldsAvailable['tags'] = __( 'Tags', 'zero-bs-crm' );
 	}
 
 	return $fieldsAvailable;
