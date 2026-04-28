@@ -198,7 +198,7 @@ class Render_Message_Controller extends Base_Controller {
 
 			return rest_ensure_response(
 				array(
-					'rendered_message' => (string) $rendered,
+					'rendered_message' => $rendered,
 				)
 			);
 		}
