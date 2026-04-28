@@ -696,6 +696,9 @@ const { state } = store( 'wpcom-write', {
 					event.preventDefault();
 					slashMenuEscaped = true;
 					prevSlashFilter = null;
+					keyboardNavListenerActive = false;
+					const menu = document.querySelector( '.bw-slash-menu' );
+					if ( menu ) menu.classList.remove( 'bw-slash-menu--keyboard' );
 					state.showSlashMenu = false;
 					return;
 				}
