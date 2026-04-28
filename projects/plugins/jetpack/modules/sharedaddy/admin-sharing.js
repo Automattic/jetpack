@@ -460,11 +460,11 @@
 		$( '#new-service form' ).ajaxForm( {
 			beforeSubmit: function () {
 				$( '#new-service-form .error' ).hide();
-				$( '#new-service-form img' ).show();
+				$( '#new-service-form .spinner' ).addClass( 'is-active' );
 				$( '#new-service-form input[type="submit"]' ).prop( 'disabled', true );
 			},
 			success: function ( response ) {
-				$( '#new-service-form img' ).hide();
+				$( '#new-service-form .spinner' ).removeClass( 'is-active' );
 
 				if ( '' + response === '1' ) {
 					$( '#new-service-form .inerror' ).removeClass( 'inerror' ).addClass( 'error' );
