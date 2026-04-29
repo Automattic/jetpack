@@ -724,8 +724,15 @@
 	text-wrap: stable;
 }
 
-.bw-content:empty::before {
+.bw-content.bw-is-empty {
+	position: relative;
+}
+
+.bw-content.bw-is-empty::before {
 	content: attr(data-placeholder);
+	position: absolute;
+	top: 0;
+	left: 0;
 	color: #ccc;
 	pointer-events: none;
 }

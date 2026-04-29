@@ -366,7 +366,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			><?php echo esc_textarea( $edit_title ); ?></textarea>
 			<div class="bw-separator"></div>
 			<div
-				class="bw-content"
+				class="bw-content<?php echo $edit_content ? '' : ' bw-is-empty'; ?>"
 				contenteditable="true"
 				data-wp-on--mouseup="actions.checkFormatting"
 				data-wp-on--keyup="actions.checkFormatting"

@@ -371,10 +371,16 @@ document.execCommand( 'defaultParagraphSeparator', false, 'p' );
 const contentReady2 = setInterval( () => {
 	const contentEl = document.querySelector( '.bw-content' );
 	if ( ! contentEl ) return;
-	clearInterval( contentReady2 );
+	clearInterval( contentReady2 ); // cleared before init runs, so the block below executes exactly once
 
 	if ( ! contentEl.innerHTML.trim() ) {
 		contentEl.innerHTML = '<p><br></p>';
+	}
+	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
+		contentEl.classList.add( 'bw-is-empty' );
+		contentEl.addEventListener( 'input', () => contentEl.classList.remove( 'bw-is-empty' ), {
+			once: true,
+		} );
 	}
 }, 200 );
 
