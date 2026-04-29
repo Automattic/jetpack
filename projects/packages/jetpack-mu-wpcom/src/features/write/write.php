@@ -117,6 +117,7 @@ add_action(
 			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
 			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
 			'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+			'changesSaved'         => __( 'Changes saved', 'jetpack-mu-wpcom' ),
 			// translators: %s is the error message.
 			'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
@@ -210,6 +211,7 @@ function wpcom_write_render_admin_page() {
 			'writeUrl'            => wpcom_write_url(),
 			'editPostId'          => $edit_post_id,
 			'postStatus'          => $post_status,
+			'isPublishedPost'     => 'publish' === $post_status,
 			'title'               => $edit_title,
 			'isSaving'            => false,
 			'isPublished'         => false,
@@ -279,6 +281,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				class="bw-btn bw-btn-draft"
 				data-wp-on--click="actions.saveDraft"
 				data-wp-bind--disabled="state.isSaving"
+				data-wp-bind--hidden="state.isPublishedPost"
 			><?php echo esc_html__( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
 			<button
 				class="bw-btn bw-btn-publish"

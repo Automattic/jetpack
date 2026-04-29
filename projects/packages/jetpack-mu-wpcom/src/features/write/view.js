@@ -1666,7 +1666,22 @@ async function savePost( postStatus, isAutosave = false ) {
 		// during the request the editor stays dirty.
 		lastSavedSnapshot = submittedSnapshot;
 
-		if ( postStatus === 'publish' ) {
+		if ( isAutosave ) {
+			// Quiet autosave — no redirect, no localStorage clear.
+			state.hasSaved = true;
+			state.isSaving = false;
+			state.message =
+				postStatus === 'publish'
+					? i18n.changesSaved || 'Changes saved'
+					: i18n.draftAutosaved || 'Draft saved';
+			// Only store recovery reference for drafts, not published posts.
+			if ( postStatus !== 'publish' ) {
+				localStorage.setItem( AUTOSAVE_STORAGE_KEY, String( post.id ) );
+			}
+			setTimeout( () => {
+				state.message = '';
+			}, AUTOSAVE_MESSAGE_DURATION_MS );
+		} else if ( postStatus === 'publish' ) {
 			state.isPublished = true;
 			state.message = isUpdate ? i18n.updated || 'Updated!' : i18n.published || 'Published!';
 			// Clear any autosave draft reference on publish.
@@ -1674,15 +1689,6 @@ async function savePost( postStatus, isAutosave = false ) {
 			setTimeout( () => {
 				window.location.href = post.link;
 			}, 800 );
-		} else if ( isAutosave ) {
-			// Store draft ID for recovery.
-			localStorage.setItem( AUTOSAVE_STORAGE_KEY, String( post.id ) );
-			state.hasSaved = true;
-			state.isSaving = false;
-			state.message = i18n.draftAutosaved || 'Draft saved';
-			setTimeout( () => {
-				state.message = '';
-			}, AUTOSAVE_MESSAGE_DURATION_MS );
 		} else {
 			state.editPostId = post.id;
 			state.hasSaved = true;
