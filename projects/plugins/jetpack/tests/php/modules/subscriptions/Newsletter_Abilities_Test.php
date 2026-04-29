@@ -28,8 +28,8 @@ class Newsletter_Abilities_Test extends WP_UnitTestCase {
 
 		// Use the test factory so users live within the per-test transaction and
 		// stale IDs from earlier tests do not leak into wp_set_current_user.
-		$this->admin_id      = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		$this->subscriber_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$this->admin_id      = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$this->subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 
 		// Open the gate by default; individual tests override.
 		// Hooks added here are reverted when WP_UnitTestCase rolls the
