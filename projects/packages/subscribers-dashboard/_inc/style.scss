@@ -9,6 +9,20 @@
 		padding: 24px 24px 16px;
 	}
 
+	&__header-row {
+		align-items: flex-start;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 16px;
+		justify-content: space-between;
+	}
+
+	&__header-actions {
+		align-items: center;
+		display: flex;
+		gap: 8px;
+	}
+
 	&__title {
 		font-size: 23px;
 		font-weight: 400;
@@ -86,5 +100,75 @@
 
 	&-detail {
 		color: #cc1818;
+	}
+}
+
+.jetpack-subscribers-dashboard__empty {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 64px 24px;
+	text-align: center;
+
+	&-icon {
+		align-items: center;
+		background: #f0f0f1;
+		border-radius: 50%;
+		color: #50575e;
+		display: flex;
+		font-size: 28px;
+		height: 64px;
+		justify-content: center;
+		width: 64px;
+	}
+
+	&-title {
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0;
+	}
+
+	&-body {
+		color: #50575e;
+		margin: 0;
+		max-width: 440px;
+	}
+}
+
+.jetpack-subscribers-dashboard__add-modal {
+
+	&-warning {
+		color: #b32d2e;
+		font-size: 12px;
+		margin: 8px 0 0;
+	}
+
+	&-actions {
+		display: flex;
+		gap: 8px;
+		justify-content: flex-end;
+		margin-top: 16px;
+	}
+}
+
+@media (max-width: 600px) {
+
+	.jetpack-subscribers-dashboard {
+
+		&__header,
+		&__main {
+			margin: 0 12px 16px;
+			padding: 16px;
+		}
+
+		&__header-row {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		&__header-actions {
+			justify-content: flex-end;
+		}
 	}
 }

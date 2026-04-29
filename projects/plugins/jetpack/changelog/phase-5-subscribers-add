@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+REST API: add wpcom/v2/subscribers/add endpoint that proxies follower invitations to /sites/{id}/invites/new for the in-admin Subscribers dashboard.

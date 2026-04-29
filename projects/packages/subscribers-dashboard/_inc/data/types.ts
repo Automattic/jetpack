@@ -108,3 +108,9 @@ export type RemoveSubscriberResponse = {
 	ok: boolean;
 	errors: RemoveSubscriberError[];
 };
+
+export type AddSubscribersResponse = {
+	sent?: string[];
+	errors?: Record< string, string >;
+	[ key: string ]: unknown;
+};

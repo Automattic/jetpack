@@ -41,6 +41,28 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
+			'/subscribers/add',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'add_subscribers' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'emails' => array(
+							'type'              => 'array',
+							'items'             => array( 'type' => 'string' ),
+							'required'          => true,
+							'validate_callback' => function ( $value ) {
+								return is_array( $value ) && count( $value ) > 0;
+							},
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/subscribers/remove',
 			array(
 				array(
@@ -325,6 +347,75 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 				'errors' => $errors,
 			)
 		);
+	}
+
+	/**
+	 * Add subscribers by email — proxies to `/sites/{blog_id}/invites/new` (v1.1) which sends a
+	 * "follower" invitation email per address. Mirrors Calypso's `addSubscribers` action.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function add_subscribers( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$emails = (array) $request->get_param( 'emails' );
+		$emails = array_values(
+			array_filter(
+				array_map( 'sanitize_email', $emails ),
+				static function ( $email ) {
+					return is_email( $email );
+				}
+			)
+		);
+
+		if ( empty( $emails ) ) {
+			return new WP_Error(
+				'subscribers_add_no_valid_emails',
+				__( 'Provide at least one valid email address.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/invites/new', (int) $blog_id ),
+			'1.1',
+			array(
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array(
+					'invitees'    => $emails,
+					'role'        => 'follower',
+					'source'      => 'jetpack-subscribers-dashboard',
+					'is_external' => false,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'rest'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				'subscribers_add_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not add subscribers.', 'jetpack' ),
+				array( 'status' => $status )
+			);
+		}
+
+		return rest_ensure_response( $body );
 	}
 
 	/**

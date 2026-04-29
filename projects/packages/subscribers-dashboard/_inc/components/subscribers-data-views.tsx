@@ -9,6 +9,7 @@ import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
+import EmptyState from './empty-state';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews/wp';
@@ -31,13 +32,19 @@ const defaultLayouts = {
 	table: {},
 };
 
+type Props = {
+	onAddSubscribers: () => void;
+};
+
 /**
  * Subscribers DataViews table — server-driven pagination, sort, search, filters with URL
  * persistence, and per-row + bulk subscriber removal.
  *
+ * @param props                  - Component props.
+ * @param props.onAddSubscribers - Open the Add Subscribers modal (used by the empty-state CTA).
  * @return The DataViews component bound to the subscribers query.
  */
-export default function SubscribersDataViews(): JSX.Element {
+export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
 
@@ -203,6 +210,9 @@ export default function SubscribersDataViews(): JSX.Element {
 		[ totalItems, totalPages ]
 	);
 
+	const hasActiveFiltersOrSearch =
+		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 );
+
 	if ( error ) {
 		return (
 			<div className="jetpack-subscribers-dashboard__error">
@@ -210,6 +220,10 @@ export default function SubscribersDataViews(): JSX.Element {
 				<p className="jetpack-subscribers-dashboard__error-detail">{ error }</p>
 			</div>
 		);
+	}
+
+	if ( ! isLoading && ! hasActiveFiltersOrSearch && totalItems === 0 ) {
+		return <EmptyState onAddSubscribers={ onAddSubscribers } />;
 	}
 
 	return (

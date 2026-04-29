@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import type {
+	AddSubscribersResponse,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
 	SubscribersQueryParams,
@@ -73,5 +74,20 @@ export function removeSubscriber(
 			email_subscription_id: payload.email_subscription_id ?? 0,
 			paid_subscription_ids: payload.paid_subscription_ids ?? [],
 		},
+	} );
+}
+
+/**
+ * Send "follower" invitations to a list of email addresses, mirroring Calypso's
+ * `addSubscribers` action. The proxy forwards to `/sites/{id}/invites/new`.
+ *
+ * @param emails - Email addresses to invite.
+ * @return WP.com response.
+ */
+export function addSubscribers( emails: string[] ): Promise< AddSubscribersResponse > {
+	return apiFetch< AddSubscribersResponse >( {
+		path: '/wpcom/v2/subscribers/add',
+		method: 'POST',
+		data: { emails },
 	} );
 }
