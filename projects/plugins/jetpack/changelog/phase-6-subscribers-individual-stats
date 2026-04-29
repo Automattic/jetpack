@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+REST API: add wpcom/v2/subscribers/individual and wpcom/v2/subscribers/stats endpoints that proxy WP.com subscriber profile + engagement stats for the in-admin Subscribers dashboard.

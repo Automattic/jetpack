@@ -4,6 +4,8 @@ import type {
 	AddSubscribersResponse,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
+	SubscriberDetails,
+	SubscriberStats,
 	SubscribersQueryParams,
 	SubscribersResponse,
 	SubscribersTotalsResponse,
@@ -89,5 +91,43 @@ export function addSubscribers( emails: string[] ): Promise< AddSubscribersRespo
 		path: '/wpcom/v2/subscribers/add',
 		method: 'POST',
 		data: { emails },
+	} );
+}
+
+type IndividualParams = {
+	subscription_id?: number;
+	user_id?: number;
+};
+
+/**
+ * Fetch a single subscriber's profile via the Jetpack proxy. Pass `user_id` for WPCOM-mapped
+ * subscribers and `subscription_id` for email-only ones (mirrors Calypso).
+ *
+ * @param params - Subscription identifiers.
+ * @return Subscriber profile.
+ */
+export function fetchSubscriberDetails( params: IndividualParams ): Promise< SubscriberDetails > {
+	return apiFetch< SubscriberDetails >( {
+		path: addQueryArgs( '/wpcom/v2/subscribers/individual', {
+			subscription_id: params.subscription_id ?? 0,
+			user_id: params.user_id ?? 0,
+		} ),
+		method: 'GET',
+	} );
+}
+
+/**
+ * Fetch a single subscriber's engagement stats (emails sent, opens, clicks).
+ *
+ * @param params - Subscription identifiers.
+ * @return Stats payload.
+ */
+export function fetchSubscriberStats( params: IndividualParams ): Promise< SubscriberStats > {
+	return apiFetch< SubscriberStats >( {
+		path: addQueryArgs( '/wpcom/v2/subscribers/stats', {
+			subscription_id: params.subscription_id ?? 0,
+			user_id: params.user_id ?? 0,
+		} ),
+		method: 'GET',
 	} );
 }

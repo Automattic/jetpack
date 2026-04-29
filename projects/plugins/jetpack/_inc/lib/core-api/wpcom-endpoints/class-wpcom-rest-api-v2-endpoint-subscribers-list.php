@@ -92,6 +92,54 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/subscribers/individual',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_subscriber_individual' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'subscription_id' => array(
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+						'user_id'         => array(
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/stats',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_subscriber_stats' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'subscription_id' => array(
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+						'user_id'         => array(
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/subscribers/totals',
 			array(
 				array(
@@ -350,6 +398,67 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	}
 
 	/**
+	 * Proxy GET /wpcom/v2/sites/{blog_id}/subscribers/individual.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_subscriber_individual( $request ) {
+		$blog_id         = Connection_Manager::get_site_id();
+		$subscription_id = (int) $request->get_param( 'subscription_id' );
+		$user_id         = (int) $request->get_param( 'user_id' );
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( ! $subscription_id && ! $user_id ) {
+			return new WP_Error(
+				'subscriber_individual_missing_id',
+				__( 'Provide either a subscription_id or a user_id.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$type  = $user_id ? 'wpcom' : 'email';
+		$query = $user_id
+			? sprintf( 'user_id=%d&type=%s', $user_id, rawurlencode( $type ) )
+			: sprintf( 'subscription_id=%d&type=%s', $subscription_id, rawurlencode( $type ) );
+
+		return $this->wpcom_get( sprintf( '/sites/%d/subscribers/individual?%s', (int) $blog_id, $query ) );
+	}
+
+	/**
+	 * Proxy GET /wpcom/v2/sites/{blog_id}/individual-subscriber-stats.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_subscriber_stats( $request ) {
+		$blog_id         = Connection_Manager::get_site_id();
+		$subscription_id = (int) $request->get_param( 'subscription_id' );
+		$user_id         = (int) $request->get_param( 'user_id' );
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( ! $subscription_id && ! $user_id ) {
+			return new WP_Error(
+				'subscriber_stats_missing_id',
+				__( 'Provide either a subscription_id or a user_id.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$query = $user_id
+			? sprintf( 'user_id=%d', $user_id )
+			: sprintf( 'subscription_id=%d', $subscription_id );
+
+		return $this->wpcom_get( sprintf( '/sites/%d/individual-subscriber-stats?%s', (int) $blog_id, $query ) );
+	}
+
+	/**
 	 * Add subscribers by email — proxies to `/sites/{blog_id}/invites/new` (v1.1) which sends a
 	 * "follower" invitation email per address. Mirrors Calypso's `addSubscribers` action.
 	 *
@@ -411,6 +520,40 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 			return new WP_Error(
 				'subscribers_add_failed',
 				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not add subscribers.', 'jetpack' ),
+				array( 'status' => $status )
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Helper: GET a wpcom v2 path on this site as the current user. Returns the parsed JSON
+	 * response or a WP_Error.
+	 *
+	 * @param string $path Path under `/wpcom/v2`, including any query string.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	private function wpcom_get( $path ) {
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				'wpcom_call_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'WP.com call failed.', 'jetpack' ),
 				array( 'status' => $status )
 			);
 		}

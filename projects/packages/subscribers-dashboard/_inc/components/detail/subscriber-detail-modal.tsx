@@ -1,0 +1,196 @@
+import { Modal, Spinner } from '@wordpress/components';
+import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscriber-details';
+import { getSubscribedAt } from '../../lib/subscriber-helpers';
+import { getSubscriptionStatusLabel } from '../../lib/subscription-status';
+import SubscriptionTypeCell from '../cells/subscription-type-cell';
+import type { Subscriber } from '../../data/types';
+import type { OpenSubscriber } from '../../lib/use-open-subscriber';
+
+type Props = {
+	open: OpenSubscriber;
+	onClose: () => void;
+};
+
+/**
+ * Format a date in the site's locale; returns empty if the value can't be parsed.
+ *
+ * @param value - ISO-ish date.
+ * @return Formatted date.
+ */
+function formatDate( value?: string | null ): string {
+	if ( ! value ) {
+		return '';
+	}
+	return dateI18n( getDateSettings().formats.date, value, undefined );
+}
+
+/**
+ * Render a single label/value row in the detail grid.
+ *
+ * @param props       - Row props.
+ * @param props.label - Field label.
+ * @param props.value - Field value (string, node, or null).
+ * @return Label + value pair.
+ */
+function DetailRow( {
+	label,
+	value,
+}: {
+	label: string;
+	value: React.ReactNode;
+} ): JSX.Element | null {
+	if ( value == null || value === '' ) {
+		return null;
+	}
+	return (
+		<div className="jetpack-subscribers-dashboard__detail-row">
+			<span className="jetpack-subscribers-dashboard__detail-row-label">{ label }</span>
+			<span className="jetpack-subscribers-dashboard__detail-row-value">{ value }</span>
+		</div>
+	);
+}
+
+/**
+ * Subscriber detail modal — fetches profile + stats and renders identity, subscription, and
+ * engagement details. Mirrors Calypso's detail panel content.
+ *
+ * @param props         - Component props.
+ * @param props.open    - Current open-subscriber identifiers (null when closed).
+ * @param props.onClose - Close handler.
+ * @return Modal element or null when closed.
+ */
+export default function SubscriberDetailModal( { open, onClose }: Props ): JSX.Element | null {
+	const detailsQuery = useSubscriberDetails( {
+		subscription_id: open?.subscriptionId,
+		user_id: open?.userId,
+	} );
+
+	const statsQuery = useSubscriberStats( {
+		subscription_id: open?.subscriptionId,
+		user_id: open?.userId,
+	} );
+
+	if ( ! open ) {
+		return null;
+	}
+
+	const subscriber = detailsQuery.data;
+	const stats = statsQuery.data;
+
+	const title = subscriber
+		? subscriber.display_name || subscriber.email_address
+		: __( 'Subscriber', 'jetpack-subscribers-dashboard' );
+
+	return (
+		<Modal
+			title={ title }
+			onRequestClose={ onClose }
+			className="jetpack-subscribers-dashboard__detail-modal"
+		>
+			{ detailsQuery.isLoading || ! subscriber ? (
+				<div className="jetpack-subscribers-dashboard__detail-loading">
+					<Spinner />
+				</div>
+			) : (
+				<>
+					<div className="jetpack-subscribers-dashboard__detail-header">
+						{ subscriber.avatar ? (
+							<img
+								className="jetpack-subscribers-dashboard__detail-avatar"
+								src={ subscriber.avatar }
+								alt=""
+								width={ 64 }
+								height={ 64 }
+							/>
+						) : null }
+						<div>
+							<h2 className="jetpack-subscribers-dashboard__detail-name">
+								{ subscriber.display_name || subscriber.email_address }
+							</h2>
+							{ subscriber.email_address && subscriber.email_address !== subscriber.display_name ? (
+								<p className="jetpack-subscribers-dashboard__detail-email">
+									{ subscriber.email_address }
+								</p>
+							) : null }
+						</div>
+					</div>
+
+					<div className="jetpack-subscribers-dashboard__detail-grid">
+						<DetailRow
+							label={ __( 'Date subscribed', 'jetpack-subscribers-dashboard' ) }
+							value={ formatDate( getSubscribedAt( subscriber ) ) }
+						/>
+						<DetailRow
+							label={ __( 'Email subscription', 'jetpack-subscribers-dashboard' ) }
+							value={ getSubscriptionStatusLabel( subscriber.subscription_status ) }
+						/>
+						<DetailRow
+							label={ __( 'Subscription type', 'jetpack-subscribers-dashboard' ) }
+							value={ <SubscriptionTypeCell subscriber={ subscriber as Subscriber } /> }
+						/>
+						<DetailRow
+							label={ __( 'Country', 'jetpack-subscribers-dashboard' ) }
+							value={ subscriber.country }
+						/>
+						<DetailRow
+							label={ __( 'Language', 'jetpack-subscribers-dashboard' ) }
+							value={ subscriber.language }
+						/>
+					</div>
+
+					<h3 className="jetpack-subscribers-dashboard__detail-section-title">
+						{ __( 'Engagement', 'jetpack-subscribers-dashboard' ) }
+					</h3>
+					<div className="jetpack-subscribers-dashboard__detail-stats">
+						{ statsQuery.isLoading ? (
+							<Spinner />
+						) : (
+							<>
+								<DetailRow
+									label={ __( 'Emails sent', 'jetpack-subscribers-dashboard' ) }
+									value={ stats?.emails_sent ?? 0 }
+								/>
+								<DetailRow
+									label={ __( 'Unique opens', 'jetpack-subscribers-dashboard' ) }
+									value={ stats?.unique_opens ?? 0 }
+								/>
+								<DetailRow
+									label={ __( 'Unique clicks', 'jetpack-subscribers-dashboard' ) }
+									value={ stats?.unique_clicks ?? 0 }
+								/>
+							</>
+						) }
+					</div>
+
+					{ stats?.blog_registration_date ? (
+						<p className="jetpack-subscribers-dashboard__detail-meta">
+							{ sprintf(
+								// translators: %s: date the subscriber registered with the blog.
+								__( 'Joined %s.', 'jetpack-subscribers-dashboard' ),
+								formatDate( stats.blog_registration_date )
+							) }
+						</p>
+					) : null }
+
+					{ stats && ( stats.emails_sent ?? 0 ) > 0 && typeof stats.unique_opens === 'number' ? (
+						<p className="jetpack-subscribers-dashboard__detail-meta">
+							{ sprintf(
+								// translators: %1$d: emails sent. %2$d: unique opens.
+								_n(
+									'%1$d email sent · %2$d open.',
+									'%1$d emails sent · %2$d opens.',
+									stats.emails_sent ?? 0,
+									'jetpack-subscribers-dashboard'
+								),
+								stats.emails_sent ?? 0,
+								stats.unique_opens ?? 0
+							) }
+						</p>
+					) : null }
+				</>
+			) }
+		</Modal>
+	);
+}

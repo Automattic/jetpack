@@ -114,3 +114,16 @@ export type AddSubscribersResponse = {
 	errors?: Record< string, string >;
 	[ key: string ]: unknown;
 };
+
+export type SubscriberDetails = Subscriber & {
+	country?: string | null;
+	language?: string | null;
+	url?: string | null;
+};
+
+export type SubscriberStats = {
+	emails_sent: number;
+	unique_opens: number;
+	unique_clicks: number;
+	blog_registration_date?: string;
+};

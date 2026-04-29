@@ -6,9 +6,11 @@ import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutat
 import { useSubscribers } from '../data/use-subscribers';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
+import { useOpenSubscriber } from '../lib/use-open-subscriber';
 import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
+import SubscriberDetailModal from './detail/subscriber-detail-modal';
 import EmptyState from './empty-state';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
@@ -47,6 +49,7 @@ type Props = {
 export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
+	const [ openSubscriber, setOpenSubscriber ] = useOpenSubscriber();
 
 	const apiFilters = useMemo< SubscribersFilter[] >( () => {
 		const values = ( view.filters ?? [] )
@@ -173,6 +176,22 @@ export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX
 	const actions = useMemo< Action< Subscriber >[] >(
 		() => [
 			{
+				id: 'view',
+				label: __( 'View', 'jetpack-subscribers-dashboard' ),
+				isPrimary: true,
+				callback: ( items: Subscriber[] ) => {
+					const target = items[ 0 ];
+					if ( ! target ) {
+						return;
+					}
+					setOpenSubscriber( {
+						subscriptionId:
+							target.email_subscription_id || target.wpcom_subscription_id || undefined,
+						userId: target.user_id || undefined,
+					} );
+				},
+			},
+			{
 				id: 'remove',
 				label: __( 'Remove subscriber', 'jetpack-subscribers-dashboard' ),
 				supportsBulk: true,
@@ -182,8 +201,12 @@ export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX
 				},
 			},
 		],
-		[]
+		[ setOpenSubscriber ]
 	);
+
+	const handleCloseDetail = useCallback( () => {
+		setOpenSubscriber( null );
+	}, [ setOpenSubscriber ] );
 
 	const handleConfirmRemoval = useCallback( () => {
 		const targets = pendingRemoval;
@@ -247,6 +270,7 @@ export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX
 				onConfirm={ handleConfirmRemoval }
 				onCancel={ handleCancelRemoval }
 			/>
+			<SubscriberDetailModal open={ openSubscriber } onClose={ handleCloseDetail } />
 		</>
 	);
 }
