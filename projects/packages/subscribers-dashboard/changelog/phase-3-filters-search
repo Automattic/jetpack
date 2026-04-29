@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Phase 3 of #48365: subscription type and email subscription filter chips, mapped to Calypso's filters[] API values, plus URL-persisted view state (page / sort / search / filters).

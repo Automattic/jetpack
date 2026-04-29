@@ -1,13 +1,14 @@
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSubscribers } from '../data/use-subscribers';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
+import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
-import type { Subscriber, SubscribersSortField } from '../data/types';
+import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Field, View } from '@wordpress/dataviews/wp';
 
 const DEFAULT_PER_PAGE = 10;
@@ -29,15 +30,23 @@ const defaultLayouts = {
 };
 
 /**
- * Subscribers DataViews table — server-driven pagination, sort, and search.
+ * Subscribers DataViews table — server-driven pagination, sort, search, and filters with URL
+ * persistence.
  *
- * Phase 2 brings field parity with Calypso (media + identity + plan + status + date),
- * sortable on name / plan / status / date. Filters land in Phase 3.
+ * Phase 3 brings filter chips for subscription type and email subscription status, mapped to the
+ * Calypso `filters[]=…` API values, plus URL-persisted view state for back/forward and bookmarks.
  *
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews(): JSX.Element {
-	const [ view, setView ] = useState< View >( defaultView );
+	const [ view, setView ] = useViewState( defaultView );
+
+	const apiFilters = useMemo< SubscribersFilter[] >( () => {
+		const values = ( view.filters ?? [] )
+			.map( filter => filter.value as SubscribersFilter )
+			.filter( Boolean );
+		return values.length ? values : [ 'all' ];
+	}, [ view.filters ] );
 
 	const queryParams = useMemo(
 		() => ( {
@@ -46,9 +55,9 @@ export default function SubscribersDataViews(): JSX.Element {
 			sort: ( view.sort?.field as SubscribersSortField ) ?? 'date_subscribed',
 			sortOrder: ( view.sort?.direction ?? 'desc' ) as 'asc' | 'desc',
 			search: view.search ?? '',
-			filters: [ 'all' as const ],
+			filters: apiFilters,
 		} ),
-		[ view.page, view.perPage, view.sort?.field, view.sort?.direction, view.search ]
+		[ view.page, view.perPage, view.sort?.field, view.sort?.direction, view.search, apiFilters ]
 	);
 
 	const { data, isLoading, error } = useSubscribers( queryParams );
@@ -97,6 +106,12 @@ export default function SubscribersDataViews(): JSX.Element {
 					return 'free';
 				},
 				render: ( { item }: { item: Subscriber } ) => <SubscriptionTypeCell subscriber={ item } />,
+				elements: [
+					{ label: __( 'Paid', 'jetpack-subscribers-dashboard' ), value: 'paid' },
+					{ label: __( 'Comp', 'jetpack-subscribers-dashboard' ), value: 'comp' },
+					{ label: __( 'Free', 'jetpack-subscribers-dashboard' ), value: 'free' },
+				],
+				filterBy: { operators: [ 'is' ] },
 				enableSorting: true,
 				enableHiding: false,
 			},
@@ -107,6 +122,25 @@ export default function SubscribersDataViews(): JSX.Element {
 				render: ( { item }: { item: Subscriber } ) => (
 					<div>{ getSubscriptionStatusLabel( item.subscription_status ) }</div>
 				),
+				elements: [
+					{
+						label: __( 'Subscribed', 'jetpack-subscribers-dashboard' ),
+						value: 'email_subscriber',
+					},
+					{
+						label: __( 'Not subscribed', 'jetpack-subscribers-dashboard' ),
+						value: 'reader_subscriber',
+					},
+					{
+						label: __( 'Not confirmed', 'jetpack-subscribers-dashboard' ),
+						value: 'unconfirmed_subscriber',
+					},
+					{
+						label: __( 'Not sending', 'jetpack-subscribers-dashboard' ),
+						value: 'blocked_subscriber',
+					},
+				],
+				filterBy: { operators: [ 'is' ] },
 				enableSorting: true,
 				enableHiding: false,
 			},
