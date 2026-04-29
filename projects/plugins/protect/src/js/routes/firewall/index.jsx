@@ -46,6 +46,7 @@ const FirewallPage = () => {
 		displayUpgradeBadge,
 		wafSupported,
 		isUpdating,
+		isToggling,
 		stats,
 		toggleAutomaticRules,
 		toggleIpAllowList,
@@ -230,8 +231,8 @@ const FirewallPage = () => {
 					key="enable"
 					variant="link"
 					onClick={ toggleWaf }
-					isLoading={ isUpdating }
-					disabled={ isUpdating }
+					isLoading={ isToggling }
+					disabled={ isToggling }
 				>
 					{ __( 'Enable Firewall', 'jetpack-protect' ) }
 				</Button>,
