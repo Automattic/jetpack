@@ -355,17 +355,20 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 * @param int    $subscription_end_date
 	 * @param string $status
 	 * @param int    $product_id
+	 * @param bool   $is_comp Whether the subscription represents a complimentary grant.
 	 * @return array
 	 */
-	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null, $product_id = 0 ) {
+	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null, $product_id = 0, $is_comp = false ) {
 		$product_id    = $product_id ? $product_id : $this->product_id;
-		$subscriptions = ! $is_paid_subscriber ? array() : array(
-			$product_id => array(
-				'status'     => $status ? $status : 'active',
-				'end_date'   => $subscription_end_date ? $subscription_end_date : time() + HOUR_IN_SECONDS,
-				'product_id' => $product_id,
-			),
+		$subscription  = array(
+			'status'     => $status ? $status : 'active',
+			'end_date'   => $subscription_end_date ? $subscription_end_date : time() + HOUR_IN_SECONDS,
+			'product_id' => $product_id,
 		);
+		if ( $is_comp ) {
+			$subscription['is_comp'] = true;
+		}
+		$subscriptions = ! $is_paid_subscriber ? array() : array( $product_id => $subscription );
 
 		return array(
 			'blog_sub'      => $is_subscribed ? 'active' : 'inactive',
@@ -781,6 +784,43 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			// Removing filter.
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
+	}
+
+	public function test_newsletter_tier_comp_bypasses_price_gate() {
+		$bronze_tier_plan_id        = 1100;
+		$bronze_tier_annual_plan_id = 2100;
+		$silver_tier_plan_id        = 3100;
+		$silver_tier_annual_plan_id = 5100;
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
+
+		$this->setup_jetpack_tier( $bronze_tier_plan_id, $bronze_tier_annual_plan_id, 10, 100 );
+		$silver_tier_id = $this->setup_jetpack_tier( $silver_tier_plan_id, $silver_tier_annual_plan_id, 20, 200 );
+
+		$post_access_level       = 'paid_subscribers';
+		$newsletter_paid_post_id = $this->setup_jetpack_paid_newsletters();
+		update_post_meta( $newsletter_paid_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $post_access_level );
+		update_post_meta( $newsletter_paid_post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, $silver_tier_id );
+
+		$GLOBALS['post'] = get_post( $newsletter_paid_post_id );
+
+		// A bronze paid subscription is below the silver tier price - normally blocked.
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $bronze_tier_plan_id )
+		);
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// Same bronze plan but flagged as a comp - should bypass the tier price gate.
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $bronze_tier_plan_id, true )
+		);
+		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		}
 	}
