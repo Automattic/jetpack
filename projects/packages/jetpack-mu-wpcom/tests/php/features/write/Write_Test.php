@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-block-editor/functions.editor-type.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/write/write.php';
 
 /**
@@ -1052,5 +1053,65 @@ class Write_Test extends \WorDBless\BaseTestCase {
 				)
 			);
 		}
+	/**
+	 * Test that loading an existing post in the Write editor sets the last editor meta.
+	 */
+	public function test_existing_post_sets_last_editor_meta() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		// Simulate opening the post in the Write editor.
+		$_GET['post'] = $post_id;
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['post'] );
+
+		$this->assertEquals( 'write-editor', get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
+	}
+
+	/**
+	 * Test that loading an existing post overwrites a previous editor meta value.
+	 */
+	public function test_existing_post_overwrites_previous_editor_meta() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		// Simulate the post was previously edited in the block editor.
+		update_post_meta( $post_id, '_last_editor_used_jetpack', 'block-editor' );
+
+		$_GET['post'] = $post_id;
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		unset( $_GET['post'] );
+
+		$this->assertEquals( 'write-editor', get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
+	}
+
+	/**
+	 * Test that _last_editor_used_jetpack is registered for REST API access.
+	 */
+	public function test_last_editor_meta_registered_for_rest() {
+		$registered = registered_meta_key_exists( 'post', '_last_editor_used_jetpack', 'post' );
+		$this->assertTrue( $registered, '_last_editor_used_jetpack should be registered for the post type.' );
 	}
 }
