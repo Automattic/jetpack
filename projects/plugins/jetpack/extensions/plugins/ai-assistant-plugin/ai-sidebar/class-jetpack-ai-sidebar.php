@@ -240,7 +240,7 @@ class Jetpack_AI_Sidebar {
 		 */
 		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
 
-		return array(
+		$data = array(
 			'agentProviders'       => $agent_providers,
 			'useUnifiedExperience' => false,
 			'isDevMode'            => self::is_dev_mode(),
@@ -249,6 +249,15 @@ class Jetpack_AI_Sidebar {
 			'site'                 => self::get_current_site(),
 			'helpCenterUrl'        => 'https://wordpress.com/help?help-center=home',
 		);
+
+		/**
+		 * Filter the data injected into the page as `agentsManagerData`. Hosts
+		 * can add feature-flag fields here; renaming existing keys may break AM.
+		 *
+		 * @param array  $data    Data array to be JSON-encoded as `agentsManagerData`.
+		 * @param string $variant Loaded variant name.
+		 */
+		return apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $data, $variant );
 	}
 
 	// ──────────────────────────────────────────────────
