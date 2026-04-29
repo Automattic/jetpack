@@ -629,7 +629,7 @@ function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
  *
  * @return bool
  */
-function zeroBSCRM_permsManageOptions() {
+function jpcrm_perms_manage_options() {
 	$cu = wp_get_current_user();
 	return $cu->has_cap( 'admin_zerobs_manage_options' );
 }
