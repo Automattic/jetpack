@@ -77,6 +77,9 @@ module.exports = ( babel, opts ) => {
 
 				let funcName = calleeName;
 				if ( ! Object.hasOwn( functions, funcName ) ) {
+					if ( t.isMemberExpression( callee ) ) {
+						return;
+					}
 					funcName = resolveI18nAlias( path, calleeName );
 					if ( ! funcName || ! Object.hasOwn( functions, funcName ) ) {
 						return;

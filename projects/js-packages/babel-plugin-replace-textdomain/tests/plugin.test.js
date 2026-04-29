@@ -183,6 +183,36 @@ pluginTester( {
 				textdomain: 'new-domain',
 			},
 		},
+		{
+			title: 'Import alias: ignores global variables with no binding',
+			setup,
+			code: `__alias( 'Hello', 'old-domain' );`,
+			output: `__alias('Hello', 'old-domain');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: ignores field accesses with same name',
+			setup,
+			code: `import { __ as __alias } from '@wordpress/i18n';\nfoo.__alias( 'Hello', 'old-domain' );`,
+			output: `import { __ as __alias } from '@wordpress/i18n';\nfoo.__alias('Hello', 'old-domain');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
+		{
+			title: 'Import alias: ignores shadowed variables',
+			setup,
+			code: `import { __ as __alias } from '@wordpress/i18n';\nfunction f( __alias ) {\n\treturn __alias( 'Hello', 'old-domain' );\n}`,
+			output: `import { __ as __alias } from '@wordpress/i18n';\nfunction f(__alias) {\n\treturn __alias('Hello', 'old-domain');\n}`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+			},
+		},
 
 		// Invalid option handling.
 		{
