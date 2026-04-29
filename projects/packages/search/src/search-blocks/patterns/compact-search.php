@@ -34,7 +34,7 @@ register_block_pattern(
 <!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
 <!-- wp:jetpack/filter-checkbox {"filterType":"post_type"} /-->
 <!-- /wp:jetpack/filter-popover -->
-<!-- wp:jetpack/sort-control {"display":"popover"} /-->
+<!-- wp:jetpack/sort-control {"displayAs":"popover"} /-->
 </div>
 <!-- /wp:group -->
 

@@ -107,6 +107,15 @@ class Sort_Control_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'type="radio"', $markup );
 	}
 
+	/** `displayAs=popover` emits the compact icon trigger and menu. */
+	public function test_display_as_popover_renders_menu() {
+		$markup = $this->render( array( 'displayAs' => 'popover' ) );
+		$this->assertStringContainsString( 'jetpack-search-sort--popover', $markup );
+		$this->assertStringContainsString( 'aria-haspopup="menu"', $markup );
+		$this->assertStringContainsString( 'role="menu"', $markup );
+		$this->assertStringNotContainsString( '<select', $markup );
+	}
+
 	/** URL `?orderby=` wins over `defaultSort` so deep links keep their meaning. */
 	public function test_url_sort_wins_over_default_sort() {
 		$_GET = array( 'orderby' => 'oldest' );
