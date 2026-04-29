@@ -1,8 +1,8 @@
 /**
  * Editor preview for jetpack/filter-popover.
  *
- * Renders the trigger + an always-open panel in the editor so inner blocks
- * are visible and editable. Real popover behaviour is front-end only.
+ * Renders the trigger + a closed panel in the editor so the full Search
+ * pattern preview mirrors the front-end default state.
  */
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { createElement as h } from '@wordpress/element';
@@ -33,7 +33,7 @@ export default function FilterPopoverEdit() {
 				type: 'button',
 				className: 'jetpack-search-filter-popover__trigger',
 				'aria-haspopup': 'dialog',
-				'aria-expanded': 'true',
+				'aria-expanded': 'false',
 				disabled: true,
 			},
 			h(
@@ -55,6 +55,9 @@ export default function FilterPopoverEdit() {
 			{
 				className:
 					'jetpack-search-filter-popover__panel jetpack-search-filter-popover__panel--editor',
+				role: 'dialog',
+				'aria-label': __( 'Filters', 'jetpack-search-pkg' ),
+				hidden: true,
 			},
 			h( InnerBlocks, { template: TEMPLATE, allowedBlocks: ALLOWED } )
 		)
