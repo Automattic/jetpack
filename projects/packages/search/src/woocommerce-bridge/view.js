@@ -846,29 +846,50 @@ async function toggleFilterAndNavigate( filterKey, filterValue ) {
 const WC_NAMESPACE = 'woocommerce/product-filters';
 const WC_OWNED_PARAM_KEYS = [ 'min_price', 'max_price', 'rating_filter', 'filter_stock_status' ];
 
+/*
+ * Closure access to WC's store. The action generator uses this to read
+ * `wcState.params` rather than `this?.state?.params`; calling the
+ * getter via the closure keeps it inside the same Interactivity scope
+ * that actions are dispatched under, which is what its internal
+ * getContext() call relies on.
+ */
+const { state: wcState } = store( WC_NAMESPACE, {} );
+
 store( WC_NAMESPACE, {
 	actions: {
-		// Must be a generator: WC's `state.params` getter calls
-		// Interactivity's `getContext()` internally and that requires the
-		// runtime's reactive scope. Regular sync/async functions break
-		// scope and throw "Cannot call getContext() when there is no
-		// scope" when the price slider triggers actions.navigate.
 		// eslint-disable-next-line require-yield -- generator solely for Interactivity scope; no async work to yield on.
 		*navigate() {
-			const params = this?.state?.params ?? {};
 			const url = new URL( window.location.href );
-
+			const params = wcState.params ?? {};
 			let changed = false;
+
+			// Mirror what WC's own navigate does: take every key it
+			// derives from context.activeFilters and write it onto the
+			// URL. WC's state.params getter already produces the right
+			// URL contract for price (min_price / max_price), status
+			// (filter_stock_status), rating (rating_filter), and
+			// attributes — we just push the result without the HTML
+			// round-trip.
+			for ( const key in params ) {
+				const value = params[ key ];
+				if ( value === undefined || value === null || value === '' ) {
+					continue;
+				}
+				const stringified = String( value );
+				if ( url.searchParams.get( key ) !== stringified ) {
+					url.searchParams.set( key, stringified );
+					changed = true;
+				}
+			}
+
+			// Drop any of the WC-owned scalar keys that have disappeared
+			// from state.params (user cleared a filter). The bridge owns
+			// taxonomy / attribute URL state in array form, so don't
+			// touch those — `categories=...` etc. aren't in our owned
+			// list.
 			for ( const key of WC_OWNED_PARAM_KEYS ) {
-				const next = params[ key ];
-				const current = url.searchParams.get( key );
-				if ( next === undefined || next === null || next === '' ) {
-					if ( current !== null ) {
-						url.searchParams.delete( key );
-						changed = true;
-					}
-				} else if ( String( next ) !== current ) {
-					url.searchParams.set( key, String( next ) );
+				if ( ! ( key in params ) && url.searchParams.has( key ) ) {
+					url.searchParams.delete( key );
 					changed = true;
 				}
 			}
