@@ -20,7 +20,7 @@ function pcg_maybe_handle_probe() {
 		return;
 	}
 	if ( ! apply_filters( 'pcg_guard_activation', false ) ) {
-		return;
+		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
 	}
 
 	// Mixed-case random tokens from `wp_generate_password`; we can't
