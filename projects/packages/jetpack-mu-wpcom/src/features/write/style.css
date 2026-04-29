@@ -595,6 +595,11 @@
 	background: #f5f5f5;
 }
 
+/* Suppress hover highlight during keyboard navigation. */
+.bw-slash-menu--keyboard .bw-slash-item:not(.bw-slash-item-active):hover {
+	background: #fff;
+}
+
 .bw-slash-item strong {
 	display: block;
 	font-size: 14px;
