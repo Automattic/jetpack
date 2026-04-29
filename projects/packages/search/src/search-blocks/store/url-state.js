@@ -4,7 +4,26 @@ const DEFAULT_SORT_ORDER = 'relevance';
 
 // Reserved query params — not treated as filter keys on parse. Mirrors the
 // allow-list on the PHP side in Search_Blocks::parse_url_filters().
-const RESERVED_PARAMS = new Set( [ 's', 'orderby' ] );
+const RESERVED_PARAMS = new Set( [ 's', 'orderby', 'min_price', 'max_price' ] );
+
+/**
+ * Parse a `min_price` / `max_price` URL value into a finite number.
+ * Returns null on missing, non-numeric, or negative input so a garbage
+ * URL can't drive the API into producing zero results.
+ *
+ * @param {string|null} raw - Raw URL param value.
+ * @return {number|null} Parsed number or null.
+ */
+function parsePriceBound( raw ) {
+	if ( raw === null || raw === undefined || raw === '' ) {
+		return null;
+	}
+	const num = Number( raw );
+	if ( ! Number.isFinite( num ) || num < 0 ) {
+		return null;
+	}
+	return num;
+}
 
 /**
  * Serialize store state to URLSearchParams.
@@ -13,13 +32,19 @@ const RESERVED_PARAMS = new Set( [ 's', 'orderby' ] );
  * matching the shape instant-search already writes so deep links are
  * interchangeable between the two surfaces.
  *
- * @param {object} state                 - Store state slice.
- * @param {string} state.searchQuery     - Current search query.
- * @param {string} state.sortOrder       - Current sort order.
- * @param {object} [state.activeFilters] - { [filterKey]: string[] } selected filters.
+ * @param {object}      state                 - Store state slice.
+ * @param {string}      state.searchQuery     - Current search query.
+ * @param {string}      state.sortOrder       - Current sort order.
+ * @param {object}      [state.activeFilters] - { [filterKey]: string[] } selected filters.
+ * @param {object|null} [state.priceRange]    - { min, max } price range; either bound may be null.
  * @return {URLSearchParams} URL-ready params.
  */
-export function stateToUrlParams( { searchQuery, sortOrder, activeFilters = {} } ) {
+export function stateToUrlParams( {
+	searchQuery,
+	sortOrder,
+	activeFilters = {},
+	priceRange = null,
+} ) {
 	const params = new URLSearchParams();
 
 	// Always emit `s` (even empty) so a refresh keeps WP routed to the
@@ -36,6 +61,13 @@ export function stateToUrlParams( { searchQuery, sortOrder, activeFilters = {} }
 			continue;
 		}
 		values.forEach( value => params.append( `${ key }[]`, value ) );
+	}
+
+	if ( priceRange?.min != null ) {
+		params.set( 'min_price', String( priceRange.min ) );
+	}
+	if ( priceRange?.max != null ) {
+		params.set( 'max_price', String( priceRange.max ) );
 	}
 
 	return params;
@@ -93,10 +125,16 @@ export function urlParamsToState( params, filterConfigs = {} ) {
 		activeFilters[ filterKey ].push( normalized );
 	}
 
+	const minPrice = parsePriceBound( params.get( 'min_price' ) );
+	const maxPrice = parsePriceBound( params.get( 'max_price' ) );
+	const priceRange =
+		minPrice !== null || maxPrice !== null ? { min: minPrice, max: maxPrice } : null;
+
 	return {
 		searchQuery: params.get( 's' ) ?? '',
 		sortOrder: VALID_SORT_ORDERS.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER,
 		activeFilters,
+		priceRange,
 	};
 }
 

@@ -32,6 +32,7 @@ function* fetchResults( pageHandle ) {
 		homeUrl: state.homeUrl,
 		activeFilters: state.activeFilters,
 		filterConfigs: state.filterConfigs,
+		priceRange: state.priceRange,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -259,10 +260,13 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, sortOrder, activeFilters } = readStateFromUrl( state.filterConfigs );
+			const { searchQuery, sortOrder, activeFilters, priceRange } = readStateFromUrl(
+				state.filterConfigs
+			);
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;
 			state.activeFilters = activeFilters;
+			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
 	},

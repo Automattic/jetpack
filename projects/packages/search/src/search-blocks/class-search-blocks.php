@@ -18,7 +18,7 @@ class Search_Blocks {
 	 * Reserved query params that must not be parsed as filter keys. Mirrors
 	 * `RESERVED_PARAMS` in store/url-state.js.
 	 */
-	const RESERVED_QUERY_PARAMS = array( 's', 'orderby' );
+	const RESERVED_QUERY_PARAMS = array( 's', 'orderby', 'min_price', 'max_price' );
 
 	/**
 	 * Template slug used for the Jetpack Search page template.
@@ -490,6 +490,7 @@ class Search_Blocks {
 		$site_id        = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
 		$search_query   = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
 		$active_filters = static::parse_url_filters();
+		$price_range    = static::parse_url_price_range();
 
 		return array(
 			// Connection / routing config.
@@ -514,6 +515,7 @@ class Search_Blocks {
 			'searchQuery'   => $search_query,
 			'sortOrder'     => static::parse_url_sort(),
 			'activeFilters' => $active_filters,
+			'priceRange'    => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
@@ -532,7 +534,7 @@ class Search_Blocks {
 			// search query or filter selection so the no-results block stays
 			// hidden between first paint and JS hydrating the initial fetch —
 			// otherwise a "No results found" flash appears on deep links.
-			'isLoading'     => '' !== $search_query || ! empty( $active_filters ),
+			'isLoading'     => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
 			'isLoadingMore' => false,
 			'hasError'      => false,
 
@@ -583,6 +585,49 @@ class Search_Blocks {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : '';
 		return in_array( $orderby, array( 'newest', 'oldest' ), true ) ? $orderby : 'relevance';
+	}
+
+	/**
+	 * Parse the price range from the URL, mirroring the contract in
+	 * src/search-blocks/store/url-state.js. Either bound may be null for a
+	 * half-open range; non-numeric or negative values yield null so a
+	 * garbage URL can't drive the API into producing zero results.
+	 *
+	 * Returns null when neither bound is set, so callers can early-out
+	 * without checking individual fields.
+	 *
+	 * @return array{min: float|null, max: float|null}|null
+	 */
+	protected static function parse_url_price_range(): ?array {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to float in parse_price_bound() which discards any non-numeric input.
+		$min = self::parse_price_bound( $_GET['min_price'] ?? null );
+		$max = self::parse_price_bound( $_GET['max_price'] ?? null );
+		// phpcs:enable
+
+		if ( null === $min && null === $max ) {
+			return null;
+		}
+		return array(
+			'min' => $min,
+			'max' => $max,
+		);
+	}
+
+	/**
+	 * Coerce a single price-range URL value into a finite, non-negative float.
+	 *
+	 * @param mixed $raw Raw value pulled from $_GET.
+	 * @return float|null
+	 */
+	private static function parse_price_bound( $raw ): ?float {
+		if ( null === $raw || '' === $raw || ! is_scalar( $raw ) ) {
+			return null;
+		}
+		$num = (float) wp_unslash( $raw );
+		if ( ! is_finite( $num ) || $num < 0 ) {
+			return null;
+		}
+		return $num;
 	}
 
 	/**

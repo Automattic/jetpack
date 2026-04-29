@@ -169,6 +169,10 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
  * @param {object}      [opts.activeFilters] - { [filterKey]: string[] } selected filters.
  * @param {object}      [opts.filterConfigs] - { [filterKey]: FilterConfig } registered filters.
  * @param {string}      [opts.homeUrl]       - Home URL; required for private WPcom sites.
+ * @param {object|null} [opts.priceRange]    - `{ min, max }` numeric range against the
+ *                                           `wc.price` ES field. Either bound may be null
+ *                                           for a half-open range. WC bridge populates this
+ *                                           from the `min_price` / `max_price` URL params.
  * @return {string} Full URL to call.
  */
 export function buildSearchUrl( {
@@ -182,6 +186,7 @@ export function buildSearchUrl( {
 	activeFilters = {},
 	filterConfigs = {},
 	homeUrl = '',
+	priceRange = null,
 } ) {
 	// `qss.encode()` runs `encodeURIComponent` on every value, so we pass the
 	// raw query here. The instant-search code double-encodes (pre-encodes
@@ -201,7 +206,22 @@ export function buildSearchUrl( {
 		params.aggregations = aggregations;
 	}
 
-	const filter = buildFilterClause( activeFilters, filterConfigs );
+	let filter = buildFilterClause( activeFilters, filterConfigs );
+	if ( priceRange && ( priceRange.min != null || priceRange.max != null ) ) {
+		const range = {};
+		if ( priceRange.min != null ) {
+			range.gte = priceRange.min;
+		}
+		if ( priceRange.max != null ) {
+			range.lte = priceRange.max;
+		}
+		const rangeClause = { range: { 'wc.price': range } };
+		if ( filter ) {
+			filter.bool.must.push( rangeClause );
+		} else {
+			filter = { bool: { must: [ rangeClause ] } };
+		}
+	}
 	if ( filter ) {
 		params.filter = filter;
 	}

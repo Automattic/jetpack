@@ -98,27 +98,62 @@ const VALID_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
 const DEFAULT_SORT_ORDER = 'relevance';
 
 /**
+ * Coerce a `min_price` / `max_price` URL value into a finite,
+ * non-negative number. Returns null for missing, non-numeric, or
+ * negative input so a garbage URL can't drive the API to zero results.
+ *
+ * @param {string|null} raw - Raw URL param value.
+ * @return {number|null} Parsed bound or null.
+ */
+function parsePriceBound( raw ) {
+	if ( raw === null || raw === undefined || raw === '' ) {
+		return null;
+	}
+	const num = Number( raw );
+	if ( ! Number.isFinite( num ) || num < 0 ) {
+		return null;
+	}
+	return num;
+}
+
+/**
+ * Read `min_price` / `max_price` off the URL into the `priceRange` shape
+ * `buildSearchUrl()` expects. Either bound may be null. Returns null
+ * when neither is present so the caller can pass through cleanly.
+ *
+ * @param {URLSearchParams} searchParams - URL search params.
+ * @return {{min: number|null, max: number|null}|null} priceRange shape, or null if absent.
+ */
+function readPriceRangeFromUrl( searchParams ) {
+	const min = parsePriceBound( searchParams.get( 'min_price' ) );
+	const max = parsePriceBound( searchParams.get( 'max_price' ) );
+	if ( min === null && max === null ) {
+		return null;
+	}
+	return { min, max };
+}
+
+/**
  * Issue an aggregation request to the WPCOM v1.3 search API using the
- * same routing as the search-blocks store. Pulls `s` and `orderby` off
- * the URL alongside our taxonomy filters so bucket counts reflect the
- * same query the JP Search result list ran — otherwise filter counts
- * are computed against the entire index instead of the actual search
- * scope and surface stale numbers next to the visible results.
+ * same routing as the search-blocks store. Returns the parsed response
+ * or null on failure.
  *
- * Returns the parsed response or null on failure (so callers can no-op
- * cleanly).
- *
- * @param {URLSearchParams} searchParams - URL params to translate into filters.
+ * @param {object} args                 - Search arguments.
+ * @param {string} [args.searchQuery]   - Empty string yields an unscoped baseline query.
+ * @param {string} [args.sortOrder]     - One of VALID_SORT_ORDERS.
+ * @param {object} [args.activeFilters] - Per-filterKey selected slugs.
+ * @param {object} [args.priceRange]    - `{ min, max }` numeric range (either bound nullable).
  * @return {Promise<object|null>} Parsed v1.3 search response, or null on error.
  */
-async function fetchAggregations( searchParams ) {
+async function fetchSearch( {
+	searchQuery = '',
+	sortOrder = DEFAULT_SORT_ORDER,
+	activeFilters = {},
+	priceRange = null,
+} = {} ) {
 	if ( ! bridgeState?.siteId ) {
 		return null;
 	}
-	const activeFilters = urlToActiveFilters( searchParams, bridgeState.filterConfigs );
-	const searchQuery = searchParams.get( 's' ) ?? '';
-	const rawOrderby = searchParams.get( 'orderby' );
-	const sortOrder = VALID_SORT_ORDERS.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER;
 	const url = buildSearchUrl( {
 		siteId: bridgeState.siteId,
 		searchQuery,
@@ -130,6 +165,7 @@ async function fetchAggregations( searchParams ) {
 		homeUrl: bridgeState.homeUrl,
 		activeFilters,
 		filterConfigs: bridgeState.filterConfigs,
+		priceRange,
 	} );
 	try {
 		const response = await fetch( url, {
@@ -143,6 +179,43 @@ async function fetchAggregations( searchParams ) {
 	} catch {
 		return null;
 	}
+}
+
+/**
+ * Aggregations scoped to the current URL state — counts here drive what's
+ * displayed next to each option ("Red (12)").
+ *
+ * @param {URLSearchParams} searchParams - URL params to translate into filters.
+ * @return {Promise<object|null>} Parsed v1.3 search response, or null on error.
+ */
+async function fetchScopedAggregations( searchParams ) {
+	const rawOrderby = searchParams.get( 'orderby' );
+	return fetchSearch( {
+		searchQuery: searchParams.get( 's' ) ?? '',
+		sortOrder: VALID_SORT_ORDERS.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER,
+		activeFilters: urlToActiveFilters( searchParams, bridgeState.filterConfigs ),
+		priceRange: readPriceRangeFromUrl( searchParams ),
+	} );
+}
+
+// Memoizes the baseline aggregations so the second filter click doesn't
+// re-fetch the universe of options.
+let unscopedAggregationsPromise = null;
+
+/**
+ * Aggregations against the entire indexed corpus — no `s`, no
+ * activeFilters, no priceRange. Provides the *option list* for each
+ * filter so options remain visible (with a 0 count) even when nothing in
+ * the current search scope matches them. Cached for the page lifetime
+ * since the baseline is invariant to filter clicks.
+ *
+ * @return {Promise<object|null>} Parsed v1.3 search response, or null on error.
+ */
+async function fetchUnscopedAggregations() {
+	if ( ! unscopedAggregationsPromise ) {
+		unscopedAggregationsPromise = fetchSearch( {} );
+	}
+	return unscopedAggregationsPromise;
 }
 
 /**
@@ -261,13 +334,24 @@ function renderItemHtml( item, filterKey ) {
  * Walk every filter region on the page that exposes a `filterType` we
  * recognize (taxonomy/* or attribute/*). For each, locate the
  * `…__items` host inside the region's checkbox-list shell and replace
- * its contents with freshly-rendered items derived from `aggregations`.
+ * its contents with freshly-rendered items.
  *
- * @param {object}          aggregations - ES aggregations response, keyed by filterConfig key.
+ * The option list comes from `unscoped` (every taxonomy term that
+ * exists in the index) so users always see the full set of choices —
+ * "Red (0)" is more useful than a missing row when no current-scope
+ * product matches Red. The displayed count comes from `scoped`, the
+ * aggregation under the active search/filter/price state.
+ *
+ * @param {object}          scoped       - Aggregations under the current scope (drives counts).
+ * @param {object}          unscoped     - Aggregations against the entire index (drives the option list).
  * @param {URLSearchParams} searchParams - URL params used to compute selected state.
  */
-function applyToFilterBlocks( aggregations, searchParams ) {
-	if ( ! aggregations || ! bridgeState?.filterConfigs ) {
+function applyToFilterBlocks( scoped, unscoped, searchParams ) {
+	if ( ! bridgeState?.filterConfigs ) {
+		return;
+	}
+	const baseline = unscoped ?? scoped;
+	if ( ! baseline ) {
 		return;
 	}
 
@@ -295,8 +379,8 @@ function applyToFilterBlocks( aggregations, searchParams ) {
 			return;
 		}
 
-		const buckets = aggregations[ filterKey ]?.buckets;
-		if ( ! Array.isArray( buckets ) ) {
+		const universeBuckets = baseline[ filterKey ]?.buckets;
+		if ( ! Array.isArray( universeBuckets ) ) {
 			return;
 		}
 
@@ -306,10 +390,45 @@ function applyToFilterBlocks( aggregations, searchParams ) {
 		}
 		const config = bridgeState.filterConfigs[ filterKey ];
 		const selectedSlugs = new Set( activeFilters[ filterKey ] ?? [] );
-		const items = bucketsToItems( buckets, config, wcFilterType, selectedSlugs );
+
+		// Build a slug → scoped-count map so each baseline option can show
+		// its current-scope count (defaulting to 0 when the option isn't in
+		// the scoped buckets).
+		const scopedCounts = bucketsToCountMap( scoped?.[ filterKey ]?.buckets ?? [], config );
+
+		const items = bucketsToItems( universeBuckets, config, wcFilterType, selectedSlugs ).map(
+			item => ( {
+				...item,
+				count: scopedCounts[ item.value ] ?? 0,
+			} )
+		);
 		itemHost.innerHTML = items.map( item => renderItemHtml( item, filterKey ) ).join( '' );
 		wireItemListeners( itemHost );
 	} );
+}
+
+/**
+ * Build a `{ slug → count }` map from one filterKey's bucket array,
+ * normalizing the bucket key (which may be `slug/Display Name` or just
+ * `slug`) to the underlying slug.
+ *
+ * @param {Array}  buckets      - ES bucket array.
+ * @param {object} filterConfig - filterConfig the buckets belong to.
+ * @return {object} `{ [slug]: count }`
+ */
+function bucketsToCountMap( buckets, filterConfig ) {
+	const out = {};
+	if ( ! Array.isArray( buckets ) ) {
+		return out;
+	}
+	const { bucketFormat } = resolveFilterFields( filterConfig );
+	for ( const bucket of buckets ) {
+		const rawKey = String( bucket.key ?? '' );
+		const slug =
+			bucketFormat === 'slash' && rawKey.includes( '/' ) ? rawKey.split( '/' )[ 0 ] : rawKey;
+		out[ slug ] = Number( bucket.doc_count ) || 0;
+	}
+	return out;
 }
 
 /**
@@ -375,15 +494,17 @@ async function toggleFilterAndNavigate( filterKey, filterValue ) {
 	window.dispatchEvent( new PopStateEvent( 'popstate' ) );
 }
 
-// Initial hydration on every page load. Browser back/forward also fires
-// `popstate`, in which case we rerun without pushing a duplicate history
-// entry.
+// Initial hydration on every page load. Also fires on `popstate`
+// (browser back/forward, plus the synthetic dispatch from
+// `toggleFilterAndNavigate` after a filter click).
 if ( typeof window !== 'undefined' ) {
 	const hydrate = async () => {
-		const data = await fetchAggregations( new URL( window.location.href ).searchParams );
-		if ( data?.aggregations ) {
-			applyToFilterBlocks( data.aggregations, new URL( window.location.href ).searchParams );
-		}
+		const params = new URL( window.location.href ).searchParams;
+		const [ scoped, unscoped ] = await Promise.all( [
+			fetchScopedAggregations( params ),
+			fetchUnscopedAggregations(),
+		] );
+		applyToFilterBlocks( scoped?.aggregations, unscoped?.aggregations, params );
 	};
 	if ( document.readyState === 'loading' ) {
 		document.addEventListener( 'DOMContentLoaded', hydrate, { once: true } );
