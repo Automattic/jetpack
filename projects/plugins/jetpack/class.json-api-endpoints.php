@@ -1451,8 +1451,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$url        = null;
 		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
 		$site_id    = -1;
+		$comment_id = 0;
 
 		if ( isset( $author->comment_author_email ) ) {
+			$comment_id = isset( $author->comment_ID ) ? (int) $author->comment_ID : 0;
 			$id         = empty( $author->user_id ) ? 0 : (int) $author->user_id;
 			$login      = '';
 			$email      = $author->comment_author_email;
@@ -1599,17 +1601,34 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// Only include WordPress.com user data when author_wpcom_data is enabled.
 		$args = $this->query_args();
 
-		if ( ! empty( $id ) && ! empty( $args['author_wpcom_data'] ) ) {
+		if ( ! empty( $args['author_wpcom_data'] ) ) {
 			if ( ( new Host() )->is_wpcom_simple() ) {
-				$user                  = get_user_by( 'id', $id );
-				$author['wpcom_id']    = isset( $user->ID ) ? (int) $user->ID : null;
-				$author['wpcom_login'] = $user->user_login ?? '';
+				if ( ! empty( $id ) ) {
+					$user                  = get_user_by( 'id', $id );
+					$author['wpcom_id']    = isset( $user->ID ) ? (int) $user->ID : null;
+					$author['wpcom_login'] = $user->user_login ?? '';
+				}
 			} else {
-				// If this is a Jetpack site, use the connection manager to get the user data.
-				$wpcom_user_data = ( new Manager() )->get_connected_user_data( $id );
-				if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
-					$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
-					$author['wpcom_login'] = $wpcom_user_data['login'] ?? '';
+				// On Jetpack sites, prefer the WordPress.com user ID stored as comment meta by the
+				// Highlander comment form. Most commenters do not have a Jetpack user token on
+				// this site, so get_connected_user_data would return false for them. Only the
+				// WordPress.com identity source carries a WordPress.com user ID — the Jetpack
+				// source carries the commenter's local site user ID and the Facebook source
+				// carries a Facebook user ID.
+				$hc_wpcom_id  = 0;
+				$wpcom_source = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Highlander stores the source key in lowercase.
+				if ( $comment_id > 0 && $wpcom_source === get_comment_meta( $comment_id, 'hc_post_as', true ) ) {
+					$hc_wpcom_id = (int) get_comment_meta( $comment_id, 'hc_foreign_user_id', true );
+				}
+
+				if ( $hc_wpcom_id > 0 ) {
+					$author['wpcom_id'] = $hc_wpcom_id;
+				} elseif ( ! empty( $id ) ) {
+					$wpcom_user_data = ( new Manager() )->get_connected_user_data( $id );
+					if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
+						$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
+						$author['wpcom_login'] = $wpcom_user_data['login'] ?? '';
+					}
 				}
 			}
 		}

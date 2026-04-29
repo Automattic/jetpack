@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments API: include the WordPress.com user ID for commenters who signed in via the Highlander comment form, so the Reader can render clickable author links.

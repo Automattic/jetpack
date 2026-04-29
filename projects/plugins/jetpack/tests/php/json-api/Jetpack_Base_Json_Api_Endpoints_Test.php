@@ -350,6 +350,161 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test get_author populates wpcom_id from Highlander WordPress.com-source comment meta on Jetpack sites.
+	 *
+	 * On a self-hosted Jetpack-connected site, commenters who authenticate via the WordPress.com
+	 * tab in the Highlander comment form have their WordPress.com user ID stored as the
+	 * `hc_foreign_user_id` comment meta. The Reader needs `wpcom_id` in the API response so it
+	 * can build an in-Reader profile link via the existing user-profile lookup.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_populates_wpcom_id_from_highlander_wordpress_meta() {
+		$endpoint = $this->get_dummy_endpoint_with_wpcom_data();
+
+		$comment_id = self::factory()->comment->create(
+			array(
+				'comment_author'       => 'A WPCOM Commenter',
+				'comment_author_email' => 'wpcom-commenter@example.com',
+				'comment_author_url'   => 'https://commenter.example/',
+				'user_id'              => 0,
+			)
+		);
+		add_comment_meta( $comment_id, 'hc_post_as', 'wordpress' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Highlander uses lowercase 'wordpress' as the identity-source key.
+		add_comment_meta( $comment_id, 'hc_foreign_user_id', 123456 );
+
+		$author = $endpoint->get_author( get_comment( $comment_id ) );
+
+		$this->assertSame(
+			123456,
+			$author->wpcom_id,
+			'wpcom_id should be populated from hc_foreign_user_id when hc_post_as is the WordPress.com source.'
+		);
+	}
+
+	/**
+	 * Test get_author does not surface a 'jetpack' Highlander foreign user ID as wpcom_id.
+	 *
+	 * `hc_post_as = 'jetpack'` indicates the commenter was logged in to the local Jetpack site
+	 * (not authenticated against WordPress.com), so `hc_foreign_user_id` holds the local site
+	 * user ID — not a WordPress.com one. It also has no signature stored alongside it. Surfacing
+	 * it as wpcom_id would let the Reader link to an unrelated WordPress.com user account.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_does_not_populate_wpcom_id_for_jetpack_post_as() {
+		$endpoint = $this->get_dummy_endpoint_with_wpcom_data();
+
+		$comment_id = self::factory()->comment->create(
+			array(
+				'comment_author'       => 'A Jetpack Commenter',
+				'comment_author_email' => 'jp-commenter@example.com',
+				'user_id'              => 0,
+			)
+		);
+		add_comment_meta( $comment_id, 'hc_post_as', 'jetpack' );
+		add_comment_meta( $comment_id, 'hc_foreign_user_id', 7891011 );
+
+		$author = $endpoint->get_author( get_comment( $comment_id ) );
+
+		$this->assertObjectNotHasProperty(
+			'wpcom_id',
+			$author,
+			'wpcom_id must not be set when hc_post_as is jetpack (the foreign ID is a local site user ID, not a WordPress.com ID).'
+		);
+	}
+
+	/**
+	 * Test get_author does not treat a Facebook foreign user ID as a wpcom_id.
+	 *
+	 * `hc_foreign_user_id` is reused across identity providers; for Facebook commenters it holds
+	 * a Facebook user ID, not a WordPress.com one, and must not leak into wpcom_id.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_does_not_populate_wpcom_id_for_facebook_post_as() {
+		$endpoint = $this->get_dummy_endpoint_with_wpcom_data();
+
+		$comment_id = self::factory()->comment->create(
+			array(
+				'comment_author'       => 'A Facebook Commenter',
+				'comment_author_email' => 'fb-commenter@example.com',
+				'user_id'              => 0,
+			)
+		);
+		add_comment_meta( $comment_id, 'hc_post_as', 'facebook' );
+		add_comment_meta( $comment_id, 'hc_foreign_user_id', 999 );
+
+		$author = $endpoint->get_author( get_comment( $comment_id ) );
+
+		$this->assertObjectNotHasProperty(
+			'wpcom_id',
+			$author,
+			'wpcom_id must not be set when hc_post_as is facebook (the foreign ID is not a WordPress.com ID).'
+		);
+	}
+
+	/**
+	 * Test get_author leaves wpcom_id absent for guest commenters without Highlander meta.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_leaves_wpcom_id_unset_without_highlander_meta() {
+		$endpoint = $this->get_dummy_endpoint_with_wpcom_data();
+
+		$comment_id = self::factory()->comment->create(
+			array(
+				'comment_author'       => 'A Guest',
+				'comment_author_email' => 'guest@example.com',
+				'user_id'              => 0,
+			)
+		);
+
+		$author = $endpoint->get_author( get_comment( $comment_id ) );
+
+		$this->assertObjectNotHasProperty(
+			'wpcom_id',
+			$author,
+			'wpcom_id must not be set for a guest commenter with no Highlander meta.'
+		);
+	}
+
+	/**
+	 * Test get_author does not surface wpcom_id when author_wpcom_data is not requested.
+	 *
+	 * Regression check: the wpcom-data block must stay gated on the `author_wpcom_data`
+	 * query argument, even when the comment has the Highlander meta available locally.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_get_author_skips_wpcom_id_when_author_wpcom_data_not_requested() {
+		$endpoint = $this->get_dummy_endpoint();
+
+		$comment_id = self::factory()->comment->create(
+			array(
+				'comment_author'       => 'A WPCOM Commenter',
+				'comment_author_email' => 'wpcom-commenter@example.com',
+				'user_id'              => 0,
+			)
+		);
+		add_comment_meta( $comment_id, 'hc_post_as', 'wordpress' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Highlander uses lowercase 'wordpress' as the identity-source key.
+		add_comment_meta( $comment_id, 'hc_foreign_user_id', 5555 );
+
+		$author = $endpoint->get_author( get_comment( $comment_id ) );
+
+		$this->assertObjectNotHasProperty(
+			'wpcom_id',
+			$author,
+			'wpcom_id must not appear when author_wpcom_data is not in the query args.'
+		);
+	}
+
+	/**
 	 * Generate a dummy endpoint.
 	 */
 	private function get_dummy_endpoint() {
@@ -360,6 +515,17 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 		);
 
 		return $endpoint;
+	}
+
+	/**
+	 * Generate a dummy endpoint that forces author_wpcom_data on for the wpcom-data branch.
+	 */
+	private function get_dummy_endpoint_with_wpcom_data() {
+		return new Jetpack_JSON_API_Dummy_Endpoint_With_Wpcom_Data(
+			array(
+				'stat' => 'dummy',
+			)
+		);
 	}
 }
 
@@ -372,5 +538,22 @@ class Jetpack_JSON_API_Dummy_Base_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 */
 	public function result() {
 		return 'success';
+	}
+}
+
+/**
+ * Dummy endpoint that always reports author_wpcom_data=true in its query args, used to exercise
+ * the wpcom-data branch of get_author without setting up the full request pipeline.
+ */
+class Jetpack_JSON_API_Dummy_Endpoint_With_Wpcom_Data extends Jetpack_JSON_API_Dummy_Base_Endpoint {
+	/**
+	 * Force author_wpcom_data on regardless of the actual incoming query.
+	 *
+	 * @param bool $return_default_values Unused.
+	 * @param bool $cast_and_filter Unused.
+	 * @return array
+	 */
+	public function query_args( $return_default_values = true, $cast_and_filter = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return array( 'author_wpcom_data' => true );
 	}
 }
