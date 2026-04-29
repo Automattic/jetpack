@@ -64,9 +64,12 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 	const defaultSort = ALL_SORT_KEYS.includes( attributes?.defaultSort )
 		? attributes.defaultSort
 		: 'relevance';
-	const displayAs = [ 'radio', 'popover' ].includes( attributes?.displayAs )
-		? attributes.displayAs
-		: 'select';
+	let displayAs = 'select';
+	if ( [ 'radio', 'popover' ].includes( attributes?.displayAs ) ) {
+		displayAs = attributes.displayAs;
+	} else if ( 'popover' === attributes?.display ) {
+		displayAs = 'popover';
+	}
 	const blockProps = useBlockProps( {
 		className: 'popover' === displayAs ? 'jetpack-search-sort--popover' : undefined,
 	} );
@@ -153,7 +156,7 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 					{ value: 'radio', label: __( 'Inline links', 'jetpack-search-pkg' ) },
 					{ value: 'popover', label: __( 'Popover', 'jetpack-search-pkg' ) },
 				],
-				onChange: value => setAttributes( { displayAs: value } ),
+				onChange: value => setAttributes( { displayAs: value, display: undefined } ),
 			} )
 		),
 		h(

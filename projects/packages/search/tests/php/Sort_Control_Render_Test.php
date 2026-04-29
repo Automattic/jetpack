@@ -45,6 +45,9 @@ class Sort_Control_Render_Test extends TestCase {
 						'type'    => 'string',
 						'default' => 'select',
 					),
+					'display'              => array(
+						'type' => 'string',
+					),
 				),
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				'render_callback' => static function ( $attributes ) {
@@ -110,6 +113,18 @@ class Sort_Control_Render_Test extends TestCase {
 	/** `displayAs=popover` emits the compact icon trigger and menu. */
 	public function test_display_as_popover_renders_menu() {
 		$markup = $this->render( array( 'displayAs' => 'popover' ) );
+		$this->assertStringContainsString( 'jetpack-search-sort--popover', $markup );
+		$this->assertStringContainsString( 'aria-haspopup="menu"', $markup );
+		$this->assertStringContainsString( 'role="menu"', $markup );
+		$this->assertStringNotContainsString( '<select', $markup );
+	}
+
+	/**
+	 * Blocks inserted before `displayAs` landed used `display=popover`.
+	 * They must keep rendering the compact icon trigger.
+	 */
+	public function test_legacy_display_popover_renders_menu() {
+		$markup = $this->render( array( 'display' => 'popover' ) );
 		$this->assertStringContainsString( 'jetpack-search-sort--popover', $markup );
 		$this->assertStringContainsString( 'aria-haspopup="menu"', $markup );
 		$this->assertStringContainsString( 'role="menu"', $markup );

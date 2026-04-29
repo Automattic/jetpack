@@ -130,6 +130,13 @@ class Sort_Control_Test extends TestCase {
 	}
 
 	/**
+	 * `display=popover` was used before this block adopted `displayAs`.
+	 */
+	public function test_normalize_display_as_accepts_legacy_display_popover() {
+		$this->assertSame( 'popover', Sort_Control::normalize_display_as( array( 'display' => 'popover' ) ) );
+	}
+
+	/**
 	 * Unknown values must collapse to `select` so a garbage attribute can't
 	 * produce markup the view script doesn't know how to bind against.
 	 */

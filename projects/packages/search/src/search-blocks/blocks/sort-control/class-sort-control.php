@@ -106,7 +106,11 @@ class Sort_Control {
 	 */
 	public static function normalize_display_as( array $attributes ): string {
 		$candidate = (string) ( $attributes['displayAs'] ?? 'select' );
-		return in_array( $candidate, array( 'radio', 'popover' ), true ) ? $candidate : 'select';
+		if ( in_array( $candidate, array( 'radio', 'popover' ), true ) ) {
+			return $candidate;
+		}
+		$legacy_candidate = (string) ( $attributes['display'] ?? 'select' );
+		return 'popover' === $legacy_candidate ? 'popover' : 'select';
 	}
 
 	/**

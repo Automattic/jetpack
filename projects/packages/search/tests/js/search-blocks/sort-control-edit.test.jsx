@@ -91,6 +91,12 @@ describe( 'SortControlEdit', () => {
 		expect( screen.queryByRole( 'combobox', { name: 'Sort by' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'keeps legacy display=popover blocks as an icon trigger preview', () => {
+		render( <SortControlEdit attributes={ { display: 'popover' } } setAttributes={ jest.fn() } /> );
+		expect( screen.getByRole( 'button', { name: 'Sort results' } ) ).toBeDisabled();
+		expect( screen.queryByRole( 'combobox', { name: 'Sort by' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'moves defaultSort onto the next available key when the author unchecks the current default', () => {
 		const onSetAttributes = jest.fn();
 		render(
