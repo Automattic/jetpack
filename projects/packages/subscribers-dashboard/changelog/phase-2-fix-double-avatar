@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers dashboard: stop drawing the avatar twice — DataViews already renders it via mediaField.

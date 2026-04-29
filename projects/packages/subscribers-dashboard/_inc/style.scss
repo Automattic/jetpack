@@ -50,27 +50,12 @@
 	}
 }
 
-.jetpack-subscribers-dashboard__identity {
+.jetpack-subscribers-dashboard__identity-text {
 	display: flex;
-	align-items: center;
-	gap: 12px;
+	flex-direction: column;
 	min-width: 0;
 
-	&-avatar {
-		border-radius: 50%;
-		display: block;
-		flex-shrink: 0;
-		height: 40px;
-		width: 40px;
-	}
-
-	&-text {
-		display: flex;
-		flex-direction: column;
-		min-width: 0;
-	}
-
-	&-name {
+	.jetpack-subscribers-dashboard__identity-name {
 		color: #1e1e1e;
 		font-weight: 500;
 		overflow: hidden;
@@ -78,7 +63,7 @@
 		white-space: nowrap;
 	}
 
-	&-email {
+	.jetpack-subscribers-dashboard__identity-email {
 		color: #757575;
 		font-size: 12px;
 		overflow: hidden;
