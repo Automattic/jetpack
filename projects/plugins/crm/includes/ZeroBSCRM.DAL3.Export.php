@@ -484,6 +484,7 @@ function jpcrm_export_bulk_fetch_tags( $obj_type_id, $obj_ids ) {
 
 	$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->prepare(
+			// @phan-suppress-next-line PhanTypeArraySuspiciousNullable -- $ZBSCRM_t is defined in includes/ZeroBSCRM.Database.php
 			"SELECT tl.zbstl_objid AS obj_id, t.zbstag_name AS tag_name FROM {$ZBSCRM_t['taglinks']} tlINNER JOIN {$ZBSCRM_t['tags']} t ON t.ID = tl.zbstl_tagid WHERE tl.zbstl_objtype = %d AND tl.zbstl_objid IN ($placeholders) ORDER BY t.zbstag_name ASC", // phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$params
 		)
