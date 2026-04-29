@@ -32,26 +32,83 @@
 		display: flex;
 		align-items: center;
 		flex-wrap: wrap;
-		gap: 0.5rem;
 		border: 0;
 		margin: 0;
 		padding: 0;
 
+		// Visually hide the legend — the radio variant presents options
+		// inline without a leading label, but assistive tech still needs
+		// the fieldset to have an accessible name. Same off-screen-clip
+		// pattern as the hidden radio input.
 		legend {
-			font-size: 0.9rem;
-			// Match the select variant's `label` so the radio fieldset adapts
-			// to dark themes and the site palette instead of pinning to a
-			// hard-coded grey.
-			color: inherit;
-			opacity: 0.8;
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			margin: 0;
 			padding: 0;
+			border: 0;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
 		}
 	}
 
+	// Visually present the radio variant as text-only sort options, mirroring
+	// the wider-screen instant-search "with-links" variant. The radio inputs
+	// stay in the a11y tree (visually hidden, still focusable for arrow-key
+	// navigation across the group) and the label carries the click target.
+	// Selection is cued with weight + full opacity so the active option rides
+	// the site palette instead of pinning to a fixed accent color.
 	.jetpack-search-sort-control__radio-item {
 		display: flex;
 		align-items: center;
-		gap: 0.25rem;
+		// Anchor the absolutely-positioned visually-hidden radio to its own
+		// item rather than letting it climb to the nearest positioned
+		// ancestor. No visible effect (the input is 1px clipped) — just
+		// makes the containment intent explicit.
+		position: relative;
 		font-size: 0.9rem;
+
+		input[type="radio"] {
+			appearance: none;
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+
+		label {
+			cursor: pointer;
+		}
+
+		input[type="radio"]:checked + label {
+			opacity: 1;
+			font-weight: 600;
+		}
+
+		// Mirror the radio's keyboard focus on the label, since the input
+		// itself is visually hidden.
+		input[type="radio"]:focus-visible + label {
+			outline: 2px solid currentColor;
+			outline-offset: 2px;
+		}
+
+		// Bullet separator between options. Decorative — the empty
+		// alt-text in the `content` value (`"•" / ""`) opts the glyph out
+		// of the assistive-tech accessible name, since some screen-reader
+		// configurations do read CSS-generated content otherwise. The
+		// fieldset/legend already announces the group, so an extra
+		// "bullet" announcement would be noise.
+		&:not(:last-child)::after {
+			content: "•" / "";
+			margin-block: 0;
+			margin-inline: 0.5rem;
+			opacity: 0.5;
+		}
 	}
 }
