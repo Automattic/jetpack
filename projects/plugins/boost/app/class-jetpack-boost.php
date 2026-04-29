@@ -149,7 +149,9 @@ class Jetpack_Boost {
 
 		// Register Boost abilities with the WordPress Abilities API. Gated behind the
 		// `jetpack_wp_abilities_enabled` filter — defaults off; opt-in per site.
-		\Automattic\Jetpack_Boost\Abilities\Boost_Abilities::init();
+		// Deferred to `plugins_loaded:20` so consumers registering the filter at the
+		// default priority of 10 take effect before Registrar reads it.
+		add_action( 'plugins_loaded', array( '\Automattic\Jetpack_Boost\Abilities\Boost_Abilities', 'init' ), 20 );
 	}
 
 	/**

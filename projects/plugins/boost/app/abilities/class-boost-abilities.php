@@ -181,7 +181,7 @@ class Boost_Abilities extends Registrar {
 
 			'jetpack-boost/clear-page-cache'  => array(
 				'label'               => __( 'Clear page cache', 'jetpack-boost' ),
-				'description'         => __( 'Clear every cached page under the site home URL. Idempotent: re-running on an empty cache is a no-op. Returns { cleared, message }. Requires the page_cache module to be active; if it is not, returns jetpack_boost_page_cache_inactive — enable it first via jetpack-boost/set-module-status with slug="page_cache".', 'jetpack-boost' ),
+				'description'         => __( 'Clear every cached page under the site home URL. Idempotent: re-running on an empty cache is a no-op. Returns { cleared, message }. cleared=true means the clear request was dispatched against an active page_cache module; it does not promise that cached files actually existed (the underlying API does not surface a count). Requires the page_cache module to be active; if it is not, returns jetpack_boost_page_cache_inactive — enable it first via jetpack-boost/set-module-status with slug="page_cache".', 'jetpack-boost' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'default'              => array(),
@@ -397,7 +397,17 @@ class Boost_Abilities extends Registrar {
 			);
 		}
 
-		$module->update( $desired );
+		// We've already established desired !== current, so update_option() returning
+		// false here means the write failed — not a no-op. Mirror Modules_State_Entry::set()
+		// by gating the action on a successful update, and surface the failure to the caller
+		// instead of reporting changed=true on inconsistent state.
+		$updated = $module->update( $desired );
+		if ( ! $updated ) {
+			return new \WP_Error(
+				'jetpack_boost_module_update_failed',
+				__( 'Failed to persist the module status. The previous state is unchanged.', 'jetpack-boost' )
+			);
+		}
 
 		/**
 		 * Fires when a module is enabled or disabled through the abilities surface.
@@ -434,11 +444,14 @@ class Boost_Abilities extends Registrar {
 		$latest  = $history->latest();
 
 		if ( null === $latest ) {
+			// `is_stale` describes "older than 24 hours / invalidated by a site change".
+			// With no history, neither condition applies — `has_history=false` already
+			// signals "no score yet", so report `is_stale=false` to match the contract.
 			return array(
 				'mobile'      => null,
 				'desktop'     => null,
 				'timestamp'   => null,
-				'is_stale'    => true,
+				'is_stale'    => false,
 				'has_history' => false,
 			);
 		}

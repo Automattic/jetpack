@@ -384,6 +384,42 @@ class Boost_Abilities_Test extends BaseTestCase {
 		delete_option( $option_name );
 	}
 
+	public function test_set_module_status_returns_error_when_update_option_fails(): void {
+		$slug        = 'minify_css';
+		$option_name = 'jetpack_boost_status_minify-css';
+
+		// Pre-seed the status option so the module reads as inactive (false), then force
+		// update_option to no-op via pre_update_option_{name}: returning $old_value makes
+		// WordPress treat the write as a same-value update and return false.
+		update_option( $option_name, false );
+
+		$short_circuit = static function ( $_value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( "pre_update_option_{$option_name}", $short_circuit, 10, 2 );
+
+		$captured_call = 0;
+		$counter       = function () use ( &$captured_call ) {
+			++$captured_call;
+		};
+		add_action( 'jetpack_boost_module_status_updated', $counter );
+
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => $slug,
+				'active' => true,
+			)
+		);
+
+		remove_action( 'jetpack_boost_module_status_updated', $counter );
+		remove_filter( "pre_update_option_{$option_name}", $short_circuit, 10 );
+		delete_option( $option_name );
+
+		$this->assertInstanceOf( \WP_Error::class, $result, 'A failed write must surface as WP_Error, not changed=true.' );
+		$this->assertSame( 'jetpack_boost_module_update_failed', $result->get_error_code() );
+		$this->assertSame( 0, $captured_call, 'jetpack_boost_module_status_updated must not fire when the underlying write fails.' );
+	}
+
 	public function test_set_module_status_fires_status_updated_action_on_change(): void {
 		$slug        = 'minify_js';
 		$option_name = 'jetpack_boost_status_minify-js';
@@ -424,7 +460,9 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$this->assertNull( $result['mobile'] );
 		$this->assertNull( $result['desktop'] );
 		$this->assertNull( $result['timestamp'] );
-		$this->assertTrue( $result['is_stale'] );
+		// "is_stale" describes "older than 24 hours / invalidated" — neither applies before any
+		// score has been recorded. has_history=false carries the "no score yet" signal.
+		$this->assertFalse( $result['is_stale'] );
 		$this->assertFalse( $result['has_history'] );
 	}
 
