@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Omnibar: don't send response buffer from the admin-bar endpoint

@@ -1,9 +1,17 @@
 import {
+	SEARCH_FIELDS,
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
+
+describe( 'SEARCH_FIELDS', () => {
+	it( 'does not request author fields for result cards', () => {
+		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
+		expect( SEARCH_FIELDS ).not.toContain( 'author' );
+	} );
+} );
 
 describe( 'buildSearchUrl', () => {
 	it( 'builds public API URL for non-private sites', () => {
@@ -133,6 +141,31 @@ describe( 'buildSearchUrl', () => {
 		);
 	} );
 
+	it( 'flattens per-filter bucketSortOrder into the aggregation URL params', () => {
+		const url = buildSearchUrl( {
+			siteId: 12345,
+			searchQuery: 'boots',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: 'https://example.com/wp-json/',
+			filterConfigs: {
+				category: {
+					filterType: 'taxonomy',
+					taxonomy: 'category',
+					maxItems: 10,
+					bucketSortOrder: 'count',
+				},
+				authors: { filterType: 'author', maxItems: 5, bucketSortOrder: 'alpha' },
+			},
+		} );
+		// Default `count` → _count=desc.
+		expect( url ).toContain( 'aggregations%5Bcategory%5D%5Bterms%5D%5Border%5D%5B_count%5D=desc' );
+		// `alpha` → _key=asc on the per-filter agg.
+		expect( url ).toContain( 'aggregations%5Bauthors%5D%5Bterms%5D%5Border%5D%5B_key%5D=asc' );
+	} );
+
 	it( 'omits aggregations and filter when no configs or selections are supplied', () => {
 		const url = buildSearchUrl( {
 			siteId: 12345,
@@ -210,8 +243,20 @@ describe( 'buildAggregations', () => {
 			authors: { filterType: 'author', maxItems: 5 },
 		} );
 		expect( aggs ).toEqual( {
-			category: { terms: { field: 'category.slug_slash_name', size: 7 } },
-			authors: { terms: { field: 'author_login_slash_name', size: 5 } },
+			category: {
+				terms: {
+					field: 'category.slug_slash_name',
+					size: 7,
+					order: { _count: 'desc' },
+				},
+			},
+			authors: {
+				terms: {
+					field: 'author_login_slash_name',
+					size: 5,
+					order: { _count: 'desc' },
+				},
+			},
 		} );
 	} );
 
@@ -227,6 +272,27 @@ describe( 'buildAggregations', () => {
 			bogus: { filterType: 'taxonomy', taxonomy: '' },
 		} );
 		expect( aggs ).toEqual( {} );
+	} );
+
+	it( 'uses `_count: desc` order by default (instant-search parity)', () => {
+		const aggs = buildAggregations( {
+			category: { filterType: 'taxonomy', taxonomy: 'category' },
+		} );
+		expect( aggs.category.terms.order ).toEqual( { _count: 'desc' } );
+	} );
+
+	it( 'maps bucketSortOrder=alpha to `_key: asc`', () => {
+		const aggs = buildAggregations( {
+			category: { filterType: 'taxonomy', taxonomy: 'category', bucketSortOrder: 'alpha' },
+		} );
+		expect( aggs.category.terms.order ).toEqual( { _key: 'asc' } );
+	} );
+
+	it( 'falls back to `_count: desc` for unknown bucketSortOrder values', () => {
+		const aggs = buildAggregations( {
+			category: { filterType: 'taxonomy', taxonomy: 'category', bucketSortOrder: 'bogus' },
+		} );
+		expect( aggs.category.terms.order ).toEqual( { _count: 'desc' } );
 	} );
 } );
 

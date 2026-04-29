@@ -478,6 +478,98 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * Testing the `connection/register` endpoint forwards the `from` param into
+	 * the authorize URL builder, and appends `plugins` as a query arg on the
+	 * returned authorize URL.
+	 */
+	public function test_connection_register_forwards_from_and_plugins() {
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+					'from'               => 'jetpack-connector',
+					'plugins'            => 'jetpack,woocommerce',
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringContainsString( 'from=jetpack-connector', $data['authorizeUrl'] );
+		$this->assertStringContainsString( 'plugins=jetpack,woocommerce', $data['authorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/register` endpoint without the new `from` /
+	 * `plugins` params — older callers should keep working unchanged.
+	 */
+	public function test_connection_register_without_from_or_plugins() {
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringNotContainsString( 'plugins=', $data['authorizeUrl'] );
+		$this->assertStringNotContainsString( 'from=', $data['authorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/authorize_url` endpoint forwards `from` to the
+	 * underlying authorization URL builder and appends `plugins` as a query arg.
+	 */
+	public function test_connection_authorize_url_with_from_and_plugins() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/authorize_url' );
+		$request->set_query_params(
+			array(
+				'from'    => 'jetpack-connector',
+				'plugins' => 'jetpack,woocommerce',
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringContainsString( 'from=jetpack-connector', $data['authorizeUrl'] );
+		$this->assertStringContainsString( 'plugins=jetpack,woocommerce', $data['authorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/authorize_url` endpoint without the new params —
+	 * older callers should not see `from` or `plugins` injected.
+	 */
+	public function test_connection_authorize_url_without_from_or_plugins() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/connection/authorize_url' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertStringNotContainsString( 'plugins=', $data['authorizeUrl'] );
+		$this->assertStringNotContainsString( 'from=', $data['authorizeUrl'] );
+	}
+
+	/**
 	 * Testing the `connection/register` endpoint with alternate_authorization_url
 	 */
 	public function test_connection_register_with_alternate_auth_url() {

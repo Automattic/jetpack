@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit b7440f2dced65e4646dafbd77b637472677a4de3.
+ * Stubs automatically generated from WordPress.com commit b9cdd5655544ee93dbd0e64d835f467279c727e0.
  */
 
 namespace {
@@ -125,7 +125,8 @@ namespace {
      * @param string $message
      * @param string|null $docker_image_tag
      * @param string|null $guid
-     * @param array|null $job
+     * @param string|null $format
+     * @param object|null $job
      * @param array $additional_params
      */
     function videopress_log($feature, $message, $docker_image_tag, $guid, $format, $job = \null, $additional_params = array())
@@ -1693,6 +1694,24 @@ namespace Newsletter_Categories {
     }
 }
 namespace Publicize {
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_message_templates_enabled($blog_id = 0)
+    {
+    }
+    /**
+     * @param \WP_Post $post
+     * @param string $network
+     * @param string|null $template
+     * @param int|null $char_limit
+     * @param bool $is_social_post
+     * @return string|null
+     */
+    function render_message_for_network(\WP_Post $post, string $network, ?string $template = null, ?int $char_limit = null, bool $is_social_post = false): ?string
+    {
+    }
     /**
      * @param int $blog_id
      * @return array

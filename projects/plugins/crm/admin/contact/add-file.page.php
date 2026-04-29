@@ -272,7 +272,7 @@ function zeroBSCRM_render_add_or_edit_file() {
 
 					##WLREMOVE
 					// only get admins!
-					if ( current_user_can( 'admin_zerobs_manage_options' ) && $customer > 0 ) {
+					if ( jpcrm_perms_manage_options() && $customer > 0 ) {
 						?>
 						<label><?php echo esc_html( __( 'Show on Client Portal', 'zero-bs-crm' ) ); ?></label>
 						<div style="margin-bottom:1em;line-height: 1.8em"><input type="checkbox" name="fileportal" disabled="disabled" />&nbsp;&nbsp;<a href="<?php echo esc_url( $zbs->urls['upgrade'] ); ?>?utm_content=inplugin-fileedit" target="_blank"><?php echo esc_html( __( 'Upgrade to a Bundle', 'zero-bs-crm' ) ); ?></a> <?php echo esc_html( __( '(and get Client Portal Pro) to enable this', 'zero-bs-crm' ) ); ?>.</div>

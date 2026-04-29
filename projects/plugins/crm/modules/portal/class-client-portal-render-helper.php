@@ -83,10 +83,8 @@ class Client_Portal_Render_Helper {
 	// upsell shown to admins across whole portal as they view as admin
 	function admin_message() {
 
-		global $zbs;
-
 		// temp fix
-		if ( current_user_can( 'admin_zerobs_manage_options' ) && ! function_exists( 'zeroBSCRM_cpp_register_endpoints' ) ) {// !zeroBSCRM_isExtensionInstalled('clientportalpro')){
+		if ( jpcrm_perms_manage_options() && ! function_exists( 'zeroBSCRM_cpp_register_endpoints' ) ) {
 
 			##WLREMOVE
 			?>

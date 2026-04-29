@@ -88,8 +88,11 @@ new Jetpack_JSON_API_Themes_List_Endpoint(
 	)
 );
 
+require_once $json_jetpack_endpoints_dir . 'class-jetpack-json-api-attachment-ownership-trait.php';
+
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-get-endpoint.php';
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-new-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-replace-endpoint.php';
 
 // POST /sites/%s/themes/%new
 new Jetpack_JSON_API_Themes_New_Endpoint(
@@ -256,6 +259,7 @@ require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-endpo
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-get-endpoint.php';
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php';
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-new-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-replace-endpoint.php';
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-install-endpoint.php';
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-delete-endpoint.php';
 require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-endpoint.php';

@@ -73,9 +73,8 @@ class PostByEmail extends Component {
 						<ModuleToggle
 							slug="post-by-email"
 							compact
-							disabled={ disabledControls }
+							disabled={ disabledControls || this.props.isSavingAnyOption( 'post-by-email' ) }
 							activated={ isPbeActive }
-							toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">

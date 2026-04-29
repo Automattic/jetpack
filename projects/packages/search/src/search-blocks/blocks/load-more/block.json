@@ -9,6 +9,9 @@
 	"description": "Loads the next page of Jetpack Search results.",
 	"supports": { "html": false, "interactivity": true },
 	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"buttonLabel": { "type": "string", "default": "" }
+	},
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/load-more.js",
 	"style": "file:../../../../build/search-blocks/load-more.css"

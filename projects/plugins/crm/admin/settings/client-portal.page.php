@@ -144,7 +144,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 }
 
 ##WLREMOVE
-if ( current_user_can( 'admin_zerobs_manage_options' ) && ! zeroBSCRM_isExtensionInstalled( 'clientportalpro' ) ) {
+if ( jpcrm_perms_manage_options() && ! zeroBSCRM_isExtensionInstalled( 'clientportalpro' ) ) {
 
 	// upsell button
 	?>

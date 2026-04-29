@@ -40,6 +40,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
 
       # Required for list-changed-projects.sh
       - name: Install monorepo

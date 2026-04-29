@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -125,7 +125,7 @@
 		"identity-obj-proxy": "^3.0.0",
 		"jest": "30.3.0",
 		"jest-extended": "7.0.0",
-		"postcss": "8.5.6",
+		"postcss": "8.5.10",
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",

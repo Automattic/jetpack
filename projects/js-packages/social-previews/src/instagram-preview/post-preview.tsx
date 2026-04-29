@@ -78,7 +78,7 @@ export function InstagramPostPreview( {
 									platform: 'instagram',
 									maxChars: FEED_TEXT_MAX_LENGTH,
 								} ) }
-								{ media && url && (
+								{ media && url && ! caption.includes( url ) && (
 									<>
 										<br />
 										<br />

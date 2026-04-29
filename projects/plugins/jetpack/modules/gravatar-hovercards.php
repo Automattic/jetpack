@@ -249,8 +249,6 @@ function grofiles_get_avatar( $avatar, $author ) {
 
 /**
  * Loads Gravatar Hovercard script.
- *
- * @todo is_singular() only?
  */
 function grofiles_attach_cards() {
 
@@ -261,6 +259,11 @@ function grofiles_attach_cards() {
 
 	// Is the display of Gravatar Hovercards disabled?
 	if ( 'disabled' === Jetpack_Options::get_option_and_ensure_autoload( 'gravatar_disable_hovercards', '0' ) ) {
+		return;
+	}
+
+	// Hovercards are only relevant on pages that render avatars.
+	if ( ! is_singular() && ! is_home() && ! is_front_page() && ! is_archive() && ! is_search() ) {
 		return;
 	}
 

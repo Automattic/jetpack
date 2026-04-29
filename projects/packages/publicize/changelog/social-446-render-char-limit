@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social preview: pass per-network char_limit to the render-message endpoint.

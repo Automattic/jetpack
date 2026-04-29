@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+REST API: add `/sites/%s/plugins/replace` and `/sites/%s/themes/replace` endpoints for installing or overwriting a plugin/theme via zip upload.

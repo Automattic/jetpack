@@ -23,10 +23,20 @@
 	color: #1d2327;
 }
 
-.wpcomsh-fatal-notice {
+.wpcomsh-fatal-subhead-alert {
 	display: flex;
-	gap: 12px;
-	align-items: flex-start;
+	align-items: center;
+	gap: 6px;
+}
+
+.wpcomsh-fatal-subhead-icon {
+	display: inline-flex;
+	align-items: center;
+	color: #d63638;
+	line-height: 0;
+}
+
+.wpcomsh-fatal-notice {
 	margin: 0 0 20px;
 	padding: 16px;
 	border-radius: 6px;
@@ -34,16 +44,8 @@
 	border: 1px solid #f1b1b3;
 }
 
-.wpcomsh-fatal-notice-icon {
-	flex: 0 0 auto;
-	color: #d63638;
-	line-height: 0;
-	margin-top: 1px;
-}
-
-.wpcomsh-fatal-notice-body {
-	flex: 1 1 auto;
-	min-width: 0;
+.wpcomsh-fatal-notice > :last-child {
+	margin-bottom: 0;
 }
 
 .wpcomsh-fatal-notice-title {
@@ -147,16 +149,23 @@
 	margin-top: 24px;
 	padding-top: 16px;
 	border-top: 1px solid #dcdcde;
-	font-size: 13px;
 }
 
-.wpcomsh-fatal-details summary {
-	cursor: pointer;
-	color: #3c434a;
+.wpcomsh-fatal-details + .wpcomsh-fatal-details {
+	margin-top: 16px;
+	padding-top: 0;
+	border-top: 0;
+}
+
+.wpcomsh-fatal-details-heading {
+	margin: 0 0 8px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
 }
 
 .wpcomsh-fatal-details pre {
-	margin-top: 8px;
+	margin: 0;
 	padding: 12px;
 	background: #f6f7f7;
 	border: 1px solid #dcdcde;

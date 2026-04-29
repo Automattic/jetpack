@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Avoid undefined property warning when video info has no privacy_setting.

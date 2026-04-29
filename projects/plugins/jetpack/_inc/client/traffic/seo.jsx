@@ -231,10 +231,11 @@ export const SEO = withModuleSettingsFormHelpers(
 							<ModuleToggle
 								slug="seo-tools"
 								activated={ isSeoActive }
-								toggling={ this.props.isSavingAnyOption( seo.module ) }
 								disabled={
-									this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) ||
-									hasConflictingSeoPlugin
+									this.props.isSavingAnyOption( [
+										seo.module,
+										...this.constants.moduleOptionsArray,
+									] ) || hasConflictingSeoPlugin
 								}
 								toggleModule={ this.props.toggleModuleNow }
 							>
@@ -281,10 +282,11 @@ export const SEO = withModuleSettingsFormHelpers(
 						<ModuleToggle
 							slug="canonical-urls"
 							activated={ this.props.getOptionValue( 'canonical-urls' ) }
-							toggling={ this.props.isSavingAnyOption( 'canonical-urls' ) }
 							disabled={
-								this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) ||
-								hasConflictingSeoPlugin
+								this.props.isSavingAnyOption( [
+									'canonical-urls',
+									...this.constants.moduleOptionsArray,
+								] ) || hasConflictingSeoPlugin
 							}
 							toggleModule={ this.props.toggleModuleNow }
 						>

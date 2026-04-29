@@ -1,17 +1,15 @@
 import {
 	CheckmarkIcon,
 	getIconBySlug,
-	StarIcon,
 	Text,
 	H3,
-	Alert,
 	TermsOfService,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getCurrencyObject } from '@automattic/number-formatters';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, check, plus } from '@wordpress/icons';
+import { Icon, check, plus, starFilled } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
@@ -297,7 +295,7 @@ const ProductDetailCard = ( {
 		>
 			{ isBundleUpsell && (
 				<div className={ styles[ 'card-header' ] }>
-					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
+					<Icon icon={ starFilled } className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
 					<Text variant="label">{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</Text>
 				</div>
 			) }
@@ -347,7 +345,7 @@ const ProductDetailCard = ( {
 				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
 
 				{ cantInstallPlugin && (
-					<Alert>
+					<Notice status="warning" isDismissible={ false }>
 						<Text>
 							{ sprintf(
 								// translators: %s is the plugin name.
@@ -362,7 +360,7 @@ const ProductDetailCard = ( {
 								{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
 							</ExternalLink>
 						</Text>
-					</Alert>
+					</Notice>
 				) }
 
 				{ ! hideTOS && (

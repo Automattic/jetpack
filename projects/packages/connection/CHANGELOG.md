@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.2] - 2026-04-27
+### Added
+- Connectors: Add `jetpack_connection_plugin_logos` filter to allow third-party plugins to register a custom SVG logo on the Connectors card. [#48146]
+
+### Changed
+- Document `jpTracksContext` as intentional minimal Tracks-specific global. [#48096]
+- Rebrand connector to Jetpack connection. [#48146]
+
+### Fixed
+- Populate `blog_id` in `JetpackScriptData` and `jpTracksContext` so Tracks events include `blog_id`. [#48096]
+
 ## [8.3.1] - 2026-04-20
 ### Changed
 - Update package dependencies. [#48106]
@@ -1793,6 +1804,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.3.2]: https://github.com/Automattic/jetpack-connection/compare/v8.3.1...v8.3.2
 [8.3.1]: https://github.com/Automattic/jetpack-connection/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/Automattic/jetpack-connection/compare/v8.2.2...v8.3.0
 [8.2.2]: https://github.com/Automattic/jetpack-connection/compare/v8.2.1...v8.2.2

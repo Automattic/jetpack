@@ -1177,7 +1177,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									##WLREMOVE
 
 									// and upsell here if admin + not using client portal pro
-									if ( current_user_can( 'admin_zerobs_manage_options' ) && ! defined( 'ZBS_CLIENTPRO_TEMPLATES' ) ) {
+									if ( jpcrm_perms_manage_options() && ! defined( 'ZBS_CLIENTPRO_TEMPLATES' ) ) {
 
 										if ( ! $zbs->hasEntrepreneurBundleMin() ) {
 

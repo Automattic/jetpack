@@ -1,11 +1,12 @@
 import { store } from '@wordpress/interactivity';
 import { buildSearchUrl } from './api';
-import { normalizeResult } from './result-utils';
+import { isEventInsidePopoverRoot } from './popover-events';
+import { countActiveFilters, normalizeResult } from './result-utils';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
-// Monotonic token used to drop stale `search()` responses. Incremented on
+// Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
 // latest before touching store state, so a slow request for an older query
 // can't overwrite fresh results when the user changes query or sort mid-fetch.
@@ -42,38 +43,47 @@ function* fetchResults( pageHandle ) {
 
 const { state, actions } = store( NAMESPACE, {
 	state: {
+		// UI: popover open flags. Kept as separate booleans so only one
+		// popover can be open at a time — the toggle actions close the
+		// other when opening this one.
+		isFilterPopoverOpen: false,
+		isSortPopoverOpen: false,
+
 		/**
 		 * Short human-readable results count for display blocks. Doubles
-		 * as the loading indicator: returning "Searching…" in-place
-		 * keeps the results-count element populated across the transition
-		 * from one query to the next, so the flex row containing it
-		 * doesn't collapse and re-expand on every keystroke-triggered
-		 * search. There is no separate spinner/skeleton — this text is
-		 * the loading state, and the search-results wrapper carries
-		 * `aria-busy` for assistive tech.
+		 * as the loading indicator: returning the "searching" string
+		 * in-place keeps the results-count element populated across the
+		 * transition from one query to the next, so the flex row
+		 * containing it doesn't collapse and re-expand on every
+		 * keystroke-triggered search. There is no separate
+		 * spinner/skeleton — this text is the loading state, and the
+		 * search-results wrapper carries `aria-busy` for assistive tech.
 		 *
-		 * NOTE: not localized. `@wordpress/i18n` isn't available as an
-		 * Interactivity API script module (WP only registers
-		 * `@wordpress/interactivity`), and the dependency-extraction
-		 * plugin throws when any other `@wordpress/*` is imported into
-		 * an ESM view bundle. Revisit when WP registers wp-i18n as a
-		 * module, or switch to seeding translated plural forms from PHP
-		 * via `wp_interactivity_state()`. See PR #48198.
+		 * Strings are seeded from PHP via `wp_interactivity_state()`
+		 * (see `Search_Blocks::build_initial_strings()`) because the
+		 * view bundle can't import `@wordpress/i18n` — WP only registers
+		 * `@wordpress/interactivity` as a script module. Languages with
+		 * more than two plural forms degrade to "plural for all count
+		 * > 1" since the count is dynamic on the client.
 		 *
-		 * @return {string} "Searching…" while a search is in flight,
-		 * "Found 42 results" once a query resolves with hits, or an
-		 * empty string in every other case — pre-search, error, or
-		 * zero hits. The no-results block owns the empty-state copy.
+		 * @return {string} Translated "Searching…" while a search is in
+		 * flight, "Found 42 results" once a query resolves with hits,
+		 * or an empty string in every other case — pre-search, error,
+		 * or zero hits. The no-results block owns the empty-state copy.
 		 */
 		get resultsCountText() {
 			if ( state.isLoading ) {
-				return 'Searching…';
+				return state.strings?.searching ?? 'Searching…';
 			}
 			const total = state.totalResults;
 			if ( total === 0 ) {
 				return '';
 			}
-			return `Found ${ total } result${ total === 1 ? '' : 's' }`;
+			const template =
+				total === 1
+					? state.strings?.resultsCountSingle ?? 'Found %d result'
+					: state.strings?.resultsCountPlural ?? 'Found %d results';
+			return template.replace( '%d', total );
 		},
 
 		/**
@@ -121,6 +131,84 @@ const { state, actions } = store( NAMESPACE, {
 				v => Array.isArray( v ) && v.length > 0
 			);
 		},
+
+		/**
+		 * Total selected filter values across all filter keys. Used by the
+		 * filter-popover trigger to render a count badge.
+		 *
+		 * @return {number} Count of selected filter values.
+		 */
+		get activeFilterCount() {
+			return countActiveFilters( state.activeFilters );
+		},
+
+		/**
+		 * True when the filter-popover trigger should be disabled: there are
+		 * no aggregation buckets to filter on AND no active filters to clear.
+		 * Opening the popover in that state would show an empty panel, so we
+		 * gate the affordance itself. Remains enabled while any filter is
+		 * active so users can still open the popover to remove pills even
+		 * when the current query returns no results.
+		 *
+		 * @return {boolean} Whether the filter trigger is disabled.
+		 */
+		get isFilterTriggerDisabled() {
+			if ( state.hasActiveFilters ) {
+				return false;
+			}
+			const aggs = state.aggregations ?? {};
+			for ( const key of Object.keys( aggs ) ) {
+				const buckets = aggs[ key ]?.buckets;
+				if ( Array.isArray( buckets ) && buckets.length > 0 ) {
+					return false;
+				}
+			}
+			return true;
+		},
+
+		/**
+		 * True when the current sort order is "relevance". Used by the sort
+		 * popover menu to set `aria-checked` on the Relevance menu item.
+		 * Interactivity API `data-wp-bind` only evaluates simple property
+		 * paths, so inline `===` comparisons are not supported — derived
+		 * booleans must live here.
+		 *
+		 * @return {boolean} Whether sortOrder is "relevance".
+		 */
+		get isSortByRelevance() {
+			return state.sortOrder === 'relevance';
+		},
+
+		/**
+		 * True when the sort-popover trigger should be disabled: there are
+		 * no results to sort AND the sort order is still the default. Mirrors
+		 * `isFilterTriggerDisabled` — opening the popover pre-search shows a
+		 * menu that would do nothing. Remains enabled when the user has
+		 * already picked a non-default sort so they can switch back.
+		 *
+		 * @return {boolean} Whether the sort trigger is disabled.
+		 */
+		get isSortTriggerDisabled() {
+			return state.totalResults === 0 && state.sortOrder === 'relevance';
+		},
+
+		/**
+		 * True when the current sort order is "newest".
+		 *
+		 * @return {boolean} Whether sortOrder is "newest".
+		 */
+		get isSortByNewest() {
+			return state.sortOrder === 'newest';
+		},
+
+		/**
+		 * True when the current sort order is "oldest".
+		 *
+		 * @return {boolean} Whether sortOrder is "oldest".
+		 */
+		get isSortByOldest() {
+			return state.sortOrder === 'oldest';
+		},
 	},
 
 	actions: {
@@ -141,6 +229,7 @@ const { state, actions } = store( NAMESPACE, {
 		*search( { syncUrl = true } = {} ) {
 			const myToken = ++searchToken;
 			state.isLoading = true;
+			state.isLoadingMore = false;
 			state.hasError = false;
 			try {
 				const data = yield* fetchResults( null );
@@ -177,19 +266,30 @@ const { state, actions } = store( NAMESPACE, {
 			if ( ! state.pageHandle || state.isLoading || state.isLoadingMore ) {
 				return;
 			}
+			const myToken = searchToken;
 			state.isLoadingMore = true;
 			state.hasError = false;
 			try {
 				const data = yield* fetchResults( state.pageHandle );
+				// A first-page search started while this pagination request was
+				// in-flight. Its response owns the list, so don't append stale
+				// items from the old query/filter/sort state.
+				if ( myToken !== searchToken ) {
+					return;
+				}
 				state.results = [
 					...state.results,
 					...( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) ),
 				];
 				state.pageHandle = data.page_handle ?? null;
 			} catch {
-				state.hasError = true;
+				if ( myToken === searchToken ) {
+					state.hasError = true;
+				}
 			} finally {
-				state.isLoadingMore = false;
+				if ( myToken === searchToken ) {
+					state.isLoadingMore = false;
+				}
 			}
 		},
 
@@ -261,6 +361,86 @@ const { state, actions } = store( NAMESPACE, {
 			state.sortOrder = sortOrder;
 			state.activeFilters = activeFilters;
 			yield actions.search( { syncUrl: false } );
+		},
+
+		/**
+		 * Toggle the filter popover. Closes the sort popover if it's open.
+		 */
+		toggleFilterPopover() {
+			state.isFilterPopoverOpen = ! state.isFilterPopoverOpen;
+			if ( state.isFilterPopoverOpen ) {
+				state.isSortPopoverOpen = false;
+			}
+		},
+
+		/**
+		 * Toggle the sort popover. Closes the filter popover if it's open.
+		 */
+		toggleSortPopover() {
+			state.isSortPopoverOpen = ! state.isSortPopoverOpen;
+			if ( state.isSortPopoverOpen ) {
+				state.isFilterPopoverOpen = false;
+			}
+		},
+
+		/**
+		 * Close every popover. Bound to Escape key and outside-click handlers.
+		 */
+		closeAllPopovers() {
+			state.isFilterPopoverOpen = false;
+			state.isSortPopoverOpen = false;
+		},
+
+		/**
+		 * Change sort order from a popover menu item and close the popover.
+		 * `event.currentTarget.value` carries the new sortOrder.
+		 *
+		 * @param {Event} event - Click event from the menu item.
+		 * @yield {Promise} Search fetch.
+		 */
+		*selectSortOrder( event ) {
+			const next = event?.currentTarget?.value;
+			if ( ! next || next === state.sortOrder ) {
+				state.isSortPopoverOpen = false;
+				return;
+			}
+			state.sortOrder = next;
+			state.isSortPopoverOpen = false;
+			yield actions.search();
+		},
+
+		/**
+		 * Close any open popover when clicking outside it. Bound to
+		 * `data-wp-on-window--click` so the handler fires on every click;
+		 * early-exit when the click began inside any element marked with
+		 * `data-jetpack-search-popover-root`.
+		 *
+		 * @param {Event} event - Window click event.
+		 */
+		onWindowClickClosePopovers( event ) {
+			if ( ! state.isFilterPopoverOpen && ! state.isSortPopoverOpen ) {
+				return;
+			}
+			if ( isEventInsidePopoverRoot( event ) ) {
+				return;
+			}
+			state.isFilterPopoverOpen = false;
+			state.isSortPopoverOpen = false;
+		},
+
+		/**
+		 * Close popovers on Escape.
+		 *
+		 * @param {KeyboardEvent} event - Window keydown event.
+		 */
+		onEscapeClosePopovers( event ) {
+			if ( event?.key !== 'Escape' ) {
+				return;
+			}
+			if ( state.isFilterPopoverOpen || state.isSortPopoverOpen ) {
+				state.isFilterPopoverOpen = false;
+				state.isSortPopoverOpen = false;
+			}
 		},
 	},
 
