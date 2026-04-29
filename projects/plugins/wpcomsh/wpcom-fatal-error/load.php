@@ -21,5 +21,4 @@
 require_once __DIR__ . '/fatal-error-helpers.php';
 require_once __DIR__ . '/fatal-error-screen.php';
 require_once __DIR__ . '/fatal-error-email.php';
-require_once __DIR__ . '/fatal-error-logger.php';
 require_once __DIR__ . '/fatal-plugin-deactivator.php';

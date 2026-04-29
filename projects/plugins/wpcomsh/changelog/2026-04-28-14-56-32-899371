@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Fatal-error screen: emit a transportable plugin/version/core/php signature on a new wpcomsh_fatal_signature action and ship it to logstash via WPCOMSH_Log so consumers can aggregate the most common breakages.
+Fatal-error screen: log the offending extension's signature (kind, slug, version, WordPress core, PHP) to wpcom logstash via WPCOMSH_Log so MC dashboards can aggregate the most common breakages.

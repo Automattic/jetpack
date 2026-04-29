@@ -29,28 +29,12 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 
 	wpcomsh_fatal_load_textdomain();
 
-	// Resolve the offending extension and its signature once. Both are
-	// computed independent of viewer (anonymous vs admin) so the
-	// `wpcomsh_fatal_signature` action fires even when the rendered
-	// screen hides technical detail from anonymous visitors — telemetry
-	// shouldn't depend on who happened to load the page.
-	$plugin    = wpcomsh_fatal_identify_plugin( $error );
-	$signature = wpcomsh_fatal_build_signature( $plugin );
-
-	if ( null !== $signature ) {
-		/**
-		 * Fires when the fatal-error screen has identified an extension
-		 * and built a transportable plugin/version/core/php signature.
-		 * Listeners receive the encoded token for cross-site aggregation.
-		 *
-		 * @param string $signature Base64url-encoded signature token.
-		 *                          Decode via wpcom_decode_fatal_error_signature().
-		 * @param array  $plugin    Identified extension metadata
-		 *                          (name, version, slug, basename, kind, ...).
-		 * @param array  $error     Original error details from WP_Fatal_Error_Handler.
-		 */
-		do_action( 'wpcomsh_fatal_signature', $signature, $plugin, $error );
-	}
+	// Resolve the offending extension once and log its signature
+	// independent of viewer (anonymous vs admin) — telemetry shouldn't
+	// depend on who happened to load the page. The render context then
+	// drops plugin info for non-admin viewers.
+	$plugin = wpcomsh_fatal_identify_plugin( $error );
+	wpcomsh_fatal_log_signature( $plugin );
 
 	$context = wpcomsh_fatal_build_render_context( $error, $plugin );
 
@@ -80,9 +64,9 @@ function wpcomsh_fatal_load_textdomain() {
  * template only has to check truthiness.
  *
  * Identification is resolved upstream in
- * wpcomsh_customize_fatal_error_message() so the telemetry signature
- * hook fires regardless of viewer; this function then drops plugin info
- * and the error message for non-admin viewers.
+ * wpcomsh_customize_fatal_error_message() so the signature is logged
+ * regardless of viewer; this function then drops plugin info and the
+ * error message for non-admin viewers.
  *
  * @param array      $error  Error details from WP_Fatal_Error_Handler.
  * @param array|null $plugin Identified extension metadata, or null.

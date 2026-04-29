@@ -115,28 +115,45 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 }
 
 /**
- * Build a transportable fatal-error signature for the identified
- * extension. Thin wrapper around wpcom_build_fatal_error_signature() in
- * jetpack-mu-wpcom — kept here so the fatal-error module has its own
- * call site and can defend against the helper being unavailable.
+ * Ship the offending extension's signature to wpcom logstash via
+ * `WPCOMSH_Log::unsafe_direct_log()`, alongside the decoded parts so
+ * Kibana can term-aggregate without an ingest-time transform.
  *
- * Why the manual require: wpcomsh's fatal-error module loads from
- * `wpcomsh.php` line 1, before composer's autoloader runs and before
- * jetpack-mu-wpcom's `Jetpack_Mu_Wpcom::init()` has loaded its shared
- * helpers. By the time the `wp_php_error_message` filter fires (during
- * a fatal, deep into the request) the autoloader is normally up, but
- * we can't rely on it: an early fatal in mu-plugin land can fire before
- * any of that. A direct require by relative vendor path keeps this safe.
+ * Mirrors the existing wpcomsh telemetry pattern (safeguard, woa,
+ * marketplace, atomic-storage): a short labeled message + structured
+ * extra. Uses the shared `wpcom_build_fatal_error_signature()` helper
+ * in jetpack-mu-wpcom so other mu-plugins can correlate on the same
+ * encoded token (e.g. #48261's activation-probe failure path).
  *
- * Returns null when there's no identified extension or the helper file
- * isn't reachable; the screen and email then simply omit the signature.
+ * Why WPCOMSH_Log rather than log2logstash():
+ *   log2logstash() is the better fit for Kibana dashboarding (top-level
+ *   fields, per-feature index, no automatic siteurl wrap), but it lives
+ *   at `WP_CONTENT_DIR/lib/log2logstash/log2logstash.php` — an Atomic
+ *   platform file outside this repo — and a missing-file fatal during
+ *   fatal handling has shipped to production before (see
+ *   jetpack-mu-wpcom CHANGELOG, fix #31284). Until there's a dedicated
+ *   fatal-safe telemetry surface, we use the in-tree WPCOMSH_Log path,
+ *   which has visible source and predictable failure modes. The
+ *   dashboard cost is offset by emitting decoded fields alongside the
+ *   signature so Kibana queries don't need a base64+JSON decode step.
+ *
+ * Why the manual require of both files: wpcomsh's fatal-error module
+ * loads from `wpcomsh.php` line 1, before composer's autoloader runs
+ * and before `WPCOMSH_Log` is required further down. An early fatal in
+ * mu-plugin land can fire before any of that. Direct requires keep
+ * this safe; `class_exists( …, false )` and `function_exists()` skip
+ * the autoloader during fatal handling, where its filesystem reads
+ * could compound a bad state.
+ *
+ * Best-effort: silently no-ops if either dependency is unreachable —
+ * never escalate a logging failure into a second fatal.
  *
  * @param array|null $plugin Extension metadata from wpcomsh_fatal_identify_plugin().
- * @return string|null Base64url-encoded signature token, or null.
+ * @return void
  */
-function wpcomsh_fatal_build_signature( $plugin ) {
+function wpcomsh_fatal_log_signature( $plugin ) {
 	if ( ! is_array( $plugin ) || empty( $plugin['slug'] ) || empty( $plugin['kind'] ) ) {
-		return null;
+		return;
 	}
 
 	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) ) {
@@ -145,18 +162,53 @@ function wpcomsh_fatal_build_signature( $plugin ) {
 			require_once $helper;
 		}
 	}
-
 	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) ) {
-		return null;
+		return;
 	}
 
-	return wpcom_build_fatal_error_signature(
+	$signature = wpcom_build_fatal_error_signature(
 		array(
 			'kind'    => (string) $plugin['kind'],
 			'slug'    => (string) $plugin['slug'],
 			'version' => isset( $plugin['version'] ) ? (string) $plugin['version'] : '',
 		)
 	);
+	if ( null === $signature ) {
+		return;
+	}
+
+	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
+		$log_file = dirname( __DIR__ ) . '/class-wpcomsh-log.php';
+		if ( is_readable( $log_file ) ) {
+			require_once $log_file;
+		}
+	}
+	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
+		return;
+	}
+
+	$extra = array( 'signature' => $signature );
+
+	// Round-trip through the decoder so the logged parts are
+	// guaranteed to agree with the signature: a single source of
+	// truth, and any future normalization in the encoder is
+	// inherited automatically.
+	if ( function_exists( 'wpcom_decode_fatal_error_signature' ) ) {
+		$parts = wpcom_decode_fatal_error_signature( $signature );
+		if ( is_array( $parts ) ) {
+			$extra['kind']              = $parts['kind'];
+			$extra['slug']              = $parts['slug'];
+			$extra['extension_version'] = $parts['version'];
+			$extra['wp_version']        = $parts['wp'];
+			$extra['php_version']       = $parts['php'];
+		}
+	}
+
+	try {
+		\WPCOMSH_Log::unsafe_direct_log( 'wpcomsh_fatal_signature', $extra );
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; never escalate a logging failure into another fatal.
+		// Swallow.
+	}
 }
 
 /**
