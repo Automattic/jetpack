@@ -647,7 +647,7 @@ class Woo_Sync_My_Account_Integration {
 				$crm_field = $woo_field_to_crm_field[ $post_key ];
 
 				if ( ! in_array( $crm_field, $do_not_update ) ) {
-						$new_contact_data[ $crm_field ] = $post_value;
+						$new_contact_data[ $crm_field ] = sanitize_text_field( wp_unslash( $post_value ) );
 				}
 			}
 

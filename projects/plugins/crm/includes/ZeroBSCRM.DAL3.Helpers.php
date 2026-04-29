@@ -1059,11 +1059,11 @@ function zeroBS_getCustomerIcoLinked( $cID = -1, $incName = false, $extraClasses
 		$cName = zeroBS_getCustomerNameShort( $cID );
 
 		if ( ! empty( $cName ) ) {
-			$extraHTML = '<span class="">' . $cName . '</span>';
+			$extraHTML = '<span class="">' . esc_html( $cName ) . '</span>';
 		}
 	}
 
-	return '<div class="zbs-co-img' . $extraClasses . '"><a href = "' . jpcrm_esc_link( 'view', $cID, 'zerobs_customer' ) . '">' . zeroBS_customerAvatarHTML( $cID, -1, $maxSize ) . '</a>' . $extraHTML . '</div>';
+	return '<div class="zbs-co-img' . esc_attr( $extraClasses ) . '"><a href = "' . jpcrm_esc_link( 'view', $cID, 'zerobs_customer' ) . '">' . zeroBS_customerAvatarHTML( $cID, -1, $maxSize ) . '</a>' . $extraHTML . '</div>';
 }
 
 #} same as above but wrapped in contact view link + semantic ui label img link
@@ -1072,11 +1072,11 @@ function zeroBS_getCustomerIcoLinkedLabel( $cID = -1 ) {
 	$extraHTML = '';
 	$cName     = zeroBS_getCustomerNameShort( $cID );
 	if ( ! empty( $cName ) ) {
-		$extraHTML = '<span>' . $cName . '</span>';
+		$extraHTML = '<span>' . esc_html( $cName ) . '</span>';
 	} else {
 		$cEmail = zeroBS_customerEmail( $cID );
 		if ( ! empty( $cEmail ) ) {
-			$extraHTML = '<span>' . $cEmail . '</span>';
+			$extraHTML = '<span>' . esc_html( $cEmail ) . '</span>';
 		}
 	}
 
@@ -1091,11 +1091,11 @@ function zeroBS_getCustomerLinkedLabel( $cID = -1 ) {
 	$extraHTML = '';
 	$cName     = zeroBS_getCustomerNameShort( $cID );
 	if ( ! empty( $cName ) ) {
-		$extraHTML = '<span>' . $cName . '</span>';
+		$extraHTML = '<span>' . esc_html( $cName ) . '</span>';
 	} else {
 		$cEmail = zeroBS_customerEmail( $cID );
 		if ( ! empty( $cEmail ) ) {
-			$extraHTML = '<span>' . $cEmail . '</span>';
+			$extraHTML = '<span>' . esc_html( $cEmail ) . '</span>';
 		}
 	}
 	// for empties, add no

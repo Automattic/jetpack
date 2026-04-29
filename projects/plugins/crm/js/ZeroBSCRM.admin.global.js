@@ -1951,12 +1951,12 @@ function zeroBSCRMJS_genericLoaded() {
  */
 function zeroBSCRMJS_genericPostData( actionUrl, method, data ) {
 	const mapForm = jQuery(
-		'<form id="mapform" action="' + actionUrl + '" method="' + method.toLowerCase() + '"></form>'
+		'<form id="mapform" action="' + jpcrm.esc_attr( actionUrl ) + '" method="' + jpcrm.esc_attr( method.toLowerCase() ) + '"></form>'
 	);
 	for ( const key in data ) {
 		if ( Object.prototype.hasOwnProperty.call( data, key ) ) {
 			mapForm.append(
-				'<input type="hidden" name="' + key + '" id="' + key + '" value="' + data[ key ] + '" />'
+				'<input type="hidden" name="' + jpcrm.esc_attr( key ) + '" id="' + jpcrm.esc_attr( key ) + '" value="' + jpcrm.esc_attr( data[ key ] ) + '" />'
 			);
 		}
 	}

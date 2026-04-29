@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq, no-console */
-/* global swal, zbscrm_JS_validateEmail, ajaxurl */
+/* global swal, zbscrm_JS_validateEmail, ajaxurl, jpcrm */
 
 const zeroBSCRMJS_SMTPWiz = {
 	sendFromName: '',
@@ -725,7 +725,7 @@ function zeroBSCRMJS_validateSettings() {
 									let debugStr = '';
 									if ( validationResponse.debugs.length > 0 ) {
 										jQuery.each( validationResponse.debugs, function ( ind, ele ) {
-											debugStr += '<hr />' + ele;
+											debugStr += '<hr />' + jpcrm.esc_html( ele );
 										} );
 									}
 									jQuery( '#zbs-mail-delivery-wizard-admdebug' ).html(
@@ -767,7 +767,7 @@ function zeroBSCRMJS_validateSettings() {
 											resHTML =
 												window.zeroBSCRMJS_globViewLang( 'settingsValidatedSMTP' ) +
 												'<div class="zbs-validated">' +
-												window.zeroBSCRMJS_SMTPWiz.sendFromEmail +
+												jpcrm.esc_html( window.zeroBSCRMJS_SMTPWiz.sendFromEmail ) +
 												'</div>';
 											jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
 											jQuery( '#zbs-mail-delivery-wizard-validate-console-ico' ).html(

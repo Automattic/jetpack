@@ -373,9 +373,9 @@ class Mailpoet_Background_Sync_Job {
 
 			'data' => array(
 
-				'email'           => $subscriber['email'],
-				'fname'           => $subscriber['first_name'],
-				'lname'           => $subscriber['last_name'],
+				'email'           => sanitize_text_field( $subscriber['email'] ),
+				'fname'           => sanitize_text_field( $subscriber['first_name'] ),
+				'lname'           => sanitize_text_field( $subscriber['last_name'] ),
 				'wpid'            => $wpid,
 
 				'externalSources' => array(
@@ -426,7 +426,7 @@ class Mailpoet_Background_Sync_Job {
 						// .. to avoid us exporting a CRM segment into a list, then reimporting and adding a tag we created
 						if ( ! empty( $segment_name ) && ! str_ends_with( $segment_name, '| CRM' ) && ! str_ends_with( $segment_name, '| Jetpack CRM' ) ) {
 
-							$tags[] = $settings['tag_list_prefix'] . $segment_name;
+							$tags[] = sanitize_text_field( $settings['tag_list_prefix'] . $segment_name );
 
 						}
 					}
@@ -454,7 +454,7 @@ class Mailpoet_Background_Sync_Job {
 					// .. to avoid us exporting a CRM segment into a list, then reimporting and adding a tag we created
 					if ( ! str_ends_with( $tag['name'], '| CRM' ) && ! str_ends_with( $tag['name'], '| Jetpack CRM' ) ) {
 
-						$tags[] = $settings['tag_tag_prefix'] . $tag['name'];
+						$tags[] = sanitize_text_field( $settings['tag_tag_prefix'] . $tag['name'] );
 
 					}
 				}

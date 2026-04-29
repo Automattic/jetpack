@@ -168,25 +168,25 @@ class JPCRM_GiveWP {
 		foreach ( $payment_data['user_info'] as $k => $v ) {
 			switch ( $k ) {
 				case 'title':
-					$new_contact_data['prefix'] = $v;
+					$new_contact_data['prefix'] = sanitize_text_field( $v );
 					break;
 				case 'first_name':
-					$new_contact_data['fname'] = $v;
+					$new_contact_data['fname'] = sanitize_text_field( $v );
 					break;
 				case 'last_name':
-					$new_contact_data['lname'] = $v;
+					$new_contact_data['lname'] = sanitize_text_field( $v );
 					break;
 				case 'email':
-					$new_contact_data['email'] = $v;
+					$new_contact_data['email'] = sanitize_text_field( $v );
 					break;
 				case 'address':
 					if ( ! empty( $v ) ) {
-						$new_contact_data['addr1']    = $v['line1'];
-						$new_contact_data['addr2']    = $v['line2'];
-						$new_contact_data['city']     = $v['city'];
-						$new_contact_data['county']   = $v['state'];
-						$new_contact_data['postcode'] = $v['zip'];
-						$new_contact_data['country']  = $v['country'];
+						$new_contact_data['addr1']    = sanitize_text_field( $v['line1'] );
+						$new_contact_data['addr2']    = sanitize_text_field( $v['line2'] );
+						$new_contact_data['city']     = sanitize_text_field( $v['city'] );
+						$new_contact_data['county']   = sanitize_text_field( $v['state'] );
+						$new_contact_data['postcode'] = sanitize_text_field( $v['zip'] );
+						$new_contact_data['country']  = sanitize_text_field( $v['country'] );
 					}
 					break;
 				default:
@@ -196,10 +196,10 @@ class JPCRM_GiveWP {
 						$data_key = substr( $k, strlen( $jpcrm_field_prefix ) );
 						if ( ! in_array( $data_key, $restricted_keys, true ) ) {
 							if ( $data_key === 'tags' ) {
-								$new_contact_data['tags']   = explode( ',', $v );
+								$new_contact_data['tags']   = array_map( 'sanitize_text_field', explode( ',', $v ) );
 								$new_contact_data['tags'][] = 'GiveWP';
 							} else {
-								$new_contact_data[ $data_key ] = $v;
+								$new_contact_data[ $data_key ] = sanitize_text_field( $v );
 							}
 						}
 					}
