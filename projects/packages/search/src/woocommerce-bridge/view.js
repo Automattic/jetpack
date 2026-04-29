@@ -755,16 +755,18 @@ function bucketsToCountMap( buckets, filterConfig ) {
 	}
 
 	// Rating uses a histogram aggregation with offset 0.5: bucket keys
-	// are 0.5/1.5/2.5/3.5/4.5 — map them to star slugs '1'..'5'. Anything
-	// outside that range (e.g. unrated products bucketing at 0 or above
-	// 5.0) we sum into the nearest star at the boundary.
+	// are 0.5/1.5/2.5/3.5/4.5 → star slugs '1'..'5'. Drop the bucket
+	// keyed at -0.5 (where avg=0 lands — products with no reviews); WC's
+	// FilterData::get_rating_counts does the same via
+	// `WHERE average_rating > 0`. Anything below 0.5 is "unrated" and
+	// shouldn't count as 1-star.
 	if ( filterConfig?.filterType === 'wc_rating' ) {
 		for ( const bucket of buckets ) {
 			const numericKey = Number( bucket.key );
-			if ( ! Number.isFinite( numericKey ) ) {
+			if ( ! Number.isFinite( numericKey ) || numericKey < 0.5 ) {
 				continue;
 			}
-			const star = Math.min( 5, Math.max( 1, Math.floor( numericKey ) + 1 ) );
+			const star = Math.min( 5, Math.floor( numericKey ) + 1 );
 			const slug = String( star );
 			out[ slug ] = ( out[ slug ] ?? 0 ) + ( Number( bucket.doc_count ) || 0 );
 		}
