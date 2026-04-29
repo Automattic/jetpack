@@ -1,0 +1,42 @@
+.area-chart {
+	position: relative;
+
+	&--animated {
+
+		path {
+			transform-origin: 0 95%;
+			transform: scaleY(0);
+			animation: rise 1s ease-out forwards;
+		}
+	}
+
+	svg {
+		overflow: visible;
+	}
+
+	&__tooltip {
+		background: #fff;
+		padding: var(--wpds-dimension-padding-sm, 8px);
+	}
+
+	&__tooltip-date {
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		padding-bottom: var(--wpds-dimension-padding-md, 12px);
+	}
+
+	&__tooltip-row {
+		padding: var(--wpds-dimension-padding-xs, 4px) 0;
+	}
+
+	&__tooltip-label {
+		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		padding-right: var(--wpds-dimension-padding-lg, 16px);
+	}
+}
+
+@keyframes rise {
+
+	to {
+		transform: scaleY(1);
+	}
+}
