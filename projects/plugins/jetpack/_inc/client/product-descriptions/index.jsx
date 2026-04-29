@@ -1,10 +1,10 @@
+import { Spinner } from '@wordpress/components';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Route, Routes } from 'react-router';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QuerySiteProducts from 'components/data/query-site-products';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { getProductsForPurchase } from 'state/initial-state';
 import { isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingProducts as isFetchingProductsSelector } from 'state/products';
@@ -50,7 +50,7 @@ const ProductDescriptions = props => {
 
 			{ isLoading ? (
 				<div className="jp-product-descriptions__loading">
-					<JetpackLoadingIcon />
+					<Spinner />
 				</div>
 			) : (
 				<Routes>{ routes }</Routes>

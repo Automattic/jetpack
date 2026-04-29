@@ -91,7 +91,6 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 	return (
 		<ToggleSection
 			title={ __( 'Enable Social Notes', 'jetpack-publicize-pkg' ) }
-			beta
 			disabled={ isUpdating || disabled }
 			checked={ isEnabled }
 			onChange={ toggleStatus }

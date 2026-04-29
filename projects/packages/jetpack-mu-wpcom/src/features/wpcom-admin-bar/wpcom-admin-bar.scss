@@ -12,10 +12,14 @@
 }
 
 /**
- * Always shows WP logo (All Sites)
+ * Always shows WordPress.com logo
  */
-#wpadminbar li#wp-admin-bar-wpcom-logo {
+#wpadminbar li#wp-admin-bar-wp-logo {
 	display: block !important;
+
+	> .ab-item .ab-icon {
+		width: revert;
+	}
 }
 
 /**
@@ -49,7 +53,7 @@
 /**
  * WP logo menu
  */
-#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item {
+#wpadminbar #wp-admin-bar-wp-logo > .ab-item {
 	padding: 0 10px;
 
 	@media (max-width: 782px) {
@@ -57,7 +61,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon {
+#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon {
 	margin-right: 0 !important;
 
 	@media (max-width: 480px) {
@@ -65,7 +69,7 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo > .ab-item .ab-icon::before {
+#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon::before {
 	display: flex;
 	content: "";
 	width: 20px;
@@ -87,7 +91,7 @@
 
 }
 
-#wpadminbar #wp-admin-bar-wpcom-logo:not(:first-child) {
+#wpadminbar #wp-admin-bar-wp-logo:not(:first-child) {
 	// Site admin on mobile viewport (the first child is the hamburger menu)
 	@media (max-width: 480px) {
 

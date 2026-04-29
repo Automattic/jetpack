@@ -232,7 +232,9 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				caption = getCombinedText( title, excerpt );
 			}
 
-			caption += `\n\n${ url }`;
+			if ( url && ! caption.includes( url ) ) {
+				caption += `\n\n${ url }`;
+			}
 
 			return (
 				<ThreadsPostPreview
@@ -266,7 +268,9 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				text = getCombinedText( title, excerpt );
 			}
 
-			text += `\n\n${ url }`;
+			if ( url && ! text.includes( url ) ) {
+				text += `\n\n${ url }`;
+			}
 
 			return (
 				<TwitterPostPreview

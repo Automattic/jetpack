@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Count Unicode codepoints when truncating text so emoji-heavy strings are not over-truncated.

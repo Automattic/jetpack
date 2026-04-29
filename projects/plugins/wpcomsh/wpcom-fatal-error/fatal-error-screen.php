@@ -29,7 +29,34 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 
 	wpcomsh_fatal_load_textdomain();
 
-	$context = wpcomsh_fatal_build_render_context( $error );
+	$user_id  = wpcomsh_fatal_current_user_id();
+	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
+
+	// Identify only when used: admins need $plugin for the rendered
+	// notice; the anonymous path identifies once per (file, 5-min) for
+	// telemetry. Signature-level dedup downstream catches duplicates
+	// this gate misses.
+	$plugin = null;
+
+	if ( $is_admin ) {
+		$plugin = wpcomsh_fatal_identify_plugin( $error );
+		wpcomsh_fatal_log_signature( $plugin );
+	} elseif ( ! empty( $error['file'] ) ) {
+		$coarse_key = 'wpcomsh_fatal_file:' . hash( 'sha256', (string) $error['file'] );
+		$do_log     = true;
+
+		try {
+			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS );
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not silence telemetry.
+			// Fail open.
+		}
+
+		if ( $do_log ) {
+			wpcomsh_fatal_log_signature( wpcomsh_fatal_identify_plugin( $error ) );
+		}
+	}
+
+	$context = wpcomsh_fatal_build_render_context( $error, $plugin, $user_id, $is_admin );
 
 	ob_start();
 	wpcomsh_fatal_render_screen( $context );
@@ -56,15 +83,20 @@ function wpcomsh_fatal_load_textdomain() {
  * Helpers return empty strings / nulls when data is unavailable, so the
  * template only has to check truthiness.
  *
- * @param array $error Error details from WP_Fatal_Error_Handler.
+ * Viewer state is resolved upstream in
+ * wpcomsh_customize_fatal_error_message(); this function drops plugin
+ * info and the error message for non-admin viewers.
+ *
+ * @param array      $error    Error details from WP_Fatal_Error_Handler.
+ * @param array|null $plugin   Identified extension metadata, or null.
+ * @param int        $user_id  Resolved logged-in user id, or 0.
+ * @param bool       $is_admin Whether the resolved user can manage_options.
  * @return array Associative array with keys: is_admin (bool),
  *     plugin (array|null), error_message (string), deactivate_form (array|null),
  *     recovery_url (string), support_url (string), environment (string[]).
  */
-function wpcomsh_fatal_build_render_context( $error ) {
-	$user_id  = wpcomsh_fatal_current_user_id();
-	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
-	$plugin   = $is_admin ? wpcomsh_fatal_identify_plugin( $error ) : null;
+function wpcomsh_fatal_build_render_context( $error, $plugin = null, $user_id = 0, $is_admin = false ) {
+	$plugin = $is_admin ? $plugin : null;
 
 	$can_deactivate = $user_id
 		&& $plugin

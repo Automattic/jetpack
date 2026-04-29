@@ -1,5 +1,4 @@
-import { Spinner } from '@automattic/jetpack-components';
-import { Icon, Notice, Path, SVG } from '@wordpress/components';
+import { Icon, Notice, Path, SVG, Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
@@ -44,7 +43,7 @@ const ConnectionErrorNotice = ( {
 		return (
 			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
 				<div className={ styles.message }>
-					<Spinner color="#B32D2E" size={ 24 } />
+					<Spinner />
 					{ __( 'Reconnecting Jetpack', 'jetpack-connection-js' ) }
 				</div>
 			</Notice>

@@ -1,6 +1,4 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { Badge } from '@automattic/ui';
-import '@automattic/ui/style.css';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -22,8 +20,6 @@ import { XNotice } from './x-notice';
  * @return The UI details for the service.
  */
 export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiDetails {
-	const badgeNew = <Badge intent="info">{ __( 'New', 'jetpack-publicize-pkg' ) }</Badge>;
-
 	switch ( id ) {
 		case 'bluesky':
 			return {
@@ -240,7 +236,6 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 		case 'x':
 			return {
 				icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
-				badges: [ badgeNew ],
 				description: __( 'Share with your X network.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
