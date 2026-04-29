@@ -32,8 +32,6 @@ add_action(
 	}
 );
 
-// Inject a render_email_callback onto core/audio so that newsletter emails link
-// to the host post permalink instead of the raw audio file URL.
 add_filter(
 	'register_block_type_args',
 	function ( $args, $block_type ) {
@@ -41,7 +39,7 @@ add_filter(
 			return $args;
 		}
 
-		// Respect any callback that beat us (e.g. a host platform setting its own).
+		// Don't override an existing callback.
 		if ( ! empty( $args['render_email_callback'] ) ) {
 			return $args;
 		}
