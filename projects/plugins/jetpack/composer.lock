@@ -1486,7 +1486,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "be505efead4563fa34b2f1d56d206c7d9deebd02"
+                "reference": "d26c78473d3f8539df229e462cee52296cb5577e"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1500,6 +1500,7 @@
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-abilities": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
