@@ -6,7 +6,7 @@ import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
-// Monotonic token used to drop stale `search()` responses. Incremented on
+// Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
 // latest before touching store state, so a slow request for an older query
 // can't overwrite fresh results when the user changes query or sort mid-fetch.
@@ -229,6 +229,7 @@ const { state, actions } = store( NAMESPACE, {
 		*search( { syncUrl = true } = {} ) {
 			const myToken = ++searchToken;
 			state.isLoading = true;
+			state.isLoadingMore = false;
 			state.hasError = false;
 			try {
 				const data = yield* fetchResults( null );
@@ -265,19 +266,30 @@ const { state, actions } = store( NAMESPACE, {
 			if ( ! state.pageHandle || state.isLoading || state.isLoadingMore ) {
 				return;
 			}
+			const myToken = searchToken;
 			state.isLoadingMore = true;
 			state.hasError = false;
 			try {
 				const data = yield* fetchResults( state.pageHandle );
+				// A first-page search started while this pagination request was
+				// in-flight. Its response owns the list, so don't append stale
+				// items from the old query/filter/sort state.
+				if ( myToken !== searchToken ) {
+					return;
+				}
 				state.results = [
 					...state.results,
 					...( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) ),
 				];
 				state.pageHandle = data.page_handle ?? null;
 			} catch {
-				state.hasError = true;
+				if ( myToken === searchToken ) {
+					state.hasError = true;
+				}
 			} finally {
-				state.isLoadingMore = false;
+				if ( myToken === searchToken ) {
+					state.isLoadingMore = false;
+				}
 			}
 		},
 
