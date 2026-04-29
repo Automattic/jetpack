@@ -872,7 +872,12 @@ function zeroBSCRMJS_listView_bulkActionsUpdate() {
 			}
 		}
 
-		opt_html += '<option value="' + jpcrm.esc_attr( action_name ) + '">' + jpcrm.esc_html( optnamehtml ) + '</option>';
+		opt_html +=
+			'<option value="' +
+			jpcrm.esc_attr( action_name ) +
+			'">' +
+			jpcrm.esc_html( optnamehtml ) +
+			'</option>';
 	} );
 
 	jQuery( '.bulk-actions-dropdown' ).html( opt_html );

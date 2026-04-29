@@ -252,7 +252,10 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 			let Formhtml =
 				'<form target="_blank" method="post" id="zbs_invoicing_download_pdf_form" action="">';
 			Formhtml += '<input type="hidden" name="zbs_invoicing_download_pdf" value="1" />';
-			Formhtml += '<input type="hidden" name="zbs_invoice_id" value="' + jpcrm.esc_attr( res.invoiceObj.id ) + '" />';
+			Formhtml +=
+				'<input type="hidden" name="zbs_invoice_id" value="' +
+				jpcrm.esc_attr( res.invoiceObj.id ) +
+				'" />';
 			Formhtml += '</form>';
 			jQuery( '#wpbody' ).append( Formhtml );
 		}
@@ -442,7 +445,8 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 					'</a>';
 			}
 		} else {
-			html += '<span class="zbs-inv-ref">' + jpcrm.esc_html( res.invoiceObj.id_override ) + '</span>';
+			html +=
+				'<span class="zbs-inv-ref">' + jpcrm.esc_html( res.invoiceObj.id_override ) + '</span>';
 		}
 	} else {
 		html +=
@@ -725,7 +729,10 @@ function zbscrm_JS_draw_invoice_biz_info( res ) {
 	html += '<tr><td>' + jpcrm.esc_html( res.invoiceObj.settings.bizname ) + '</td></tr>';
 	html += '<tr><td>' + jpcrm.esc_html( res.invoiceObj.settings.yourname ) + '</td></tr>';
 	html += '<tr><td>' + jpcrm.esc_html( res.invoiceObj.settings.businessextra ) + '</td></tr>';
-	html += '<tr class="top-pad"><td>' + jpcrm.esc_html( res.invoiceObj.settings.businessyouremail ) + '</td></tr>';
+	html +=
+		'<tr class="top-pad"><td>' +
+		jpcrm.esc_html( res.invoiceObj.settings.businessyouremail ) +
+		'</td></tr>';
 	html += '<tr><td>' + jpcrm.esc_html( res.invoiceObj.settings.businessyoururl ) + '</td></tr>';
 	html += '</tbody>';
 	html += '</table>';

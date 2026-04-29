@@ -255,7 +255,11 @@ jQuery( function ( $ ) {
 						'<div class="pointer' + jpcrm.esc_attr( v.in_or_out ) + '"></div>'
 					);
 					$( '.zbs-email-thread' ).append(
-						'<div class="email-avatar avatar-' + jpcrm.esc_attr( v.in_or_out ) + '">' + v.avatar + '</div>'
+						'<div class="email-avatar avatar-' +
+							jpcrm.esc_attr( v.in_or_out ) +
+							'">' +
+							v.avatar +
+							'</div>'
 					);
 					$( '.zbs-email-thread' ).append( '<div class="clear"></div>' );
 

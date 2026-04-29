@@ -164,7 +164,9 @@ function cb( start, end ) {
 						<span class="range_total">+${ jpcrm.esc_html( item.range_total ) }</span>
 						<span class="alltime_total">${ jpcrm.esc_html( item.alltime_total_str ) }</span>
 					</div>
-					<a href="${ jpcrm.esc_attr( item.link ) }">${ jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'viewall' ) ) }</a>
+					<a href="${ jpcrm.esc_attr( item.link ) }">${ jpcrm.esc_html(
+						zeroBSCRMJS_globViewLang( 'viewall' )
+					) }</a>
 				</jpcrm-dashcount-card>
 				`;
 		}

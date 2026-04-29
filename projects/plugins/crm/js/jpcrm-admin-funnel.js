@@ -79,12 +79,16 @@ function jpcrm_build_funnel( funnel_data, funnel_element ) {
 			${ funnel_data[ i ].link ? 'href="' + jpcrm.esc_attr( funnel_data[ i ].link ) + '"' : '' }
 			class="funnel_section"
 			data-hover="${ jpcrm.esc_attr( funnel_data[ i ].contact_status + ': \u00a0' ) }"
-			alt="${ jpcrm.esc_attr( funnel_data[ i ].contact_status + ': ' + funnel_data[ i ].backfill_count ) }"
+			alt="${ jpcrm.esc_attr(
+				funnel_data[ i ].contact_status + ': ' + funnel_data[ i ].backfill_count
+			) }"
 			style="background-color: ${ section_color };"
 			>${ jpcrm.esc_html( funnel_data[ i ].backfill_count ) }</a>`;
 
 		if ( SHOW_FUNNEL_LEGEND ) {
-			legend_html += `<div class="legend-color" style="background-color: ${ section_color }"></div><div class="legend-label">${ jpcrm.esc_html( funnel_data[ i ].contact_status ) }</div>`;
+			legend_html += `<div class="legend-color" style="background-color: ${ section_color }"></div><div class="legend-label">${ jpcrm.esc_html(
+				funnel_data[ i ].contact_status
+			) }</div>`;
 		}
 	}
 	funnel_html += '</div>';
