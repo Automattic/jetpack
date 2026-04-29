@@ -1,0 +1,9 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+// Full-width hairline under the tab strip. Lives on a wrapper instead of on
+// Tabs.List itself because the list is `width: fit-content` (so its tabs don't
+// stretch to fill the row); a wrapper takes the full block width without
+// affecting the list's intrinsic sizing.
+.tabs-list-wrapper {
+	border-bottom: 1px solid gb.$gray-100;
+}

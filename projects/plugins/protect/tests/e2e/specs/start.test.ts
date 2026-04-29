@@ -16,14 +16,16 @@ async function closeChangesSavedNotice( page: Page ) {
  *
  * The firewall ToggleControls have no visible label and the WP `<label htmlFor>`
  * association is empty, so accessibility-tree based locators (getByRole/getByLabel)
- * don't match reliably. Instead, find the smallest containing div that has both
- * the section heading and a checkbox, then return the checkbox inside it.
+ * don't match reliably. Instead, scope to the active tab panel, then find the
+ * smallest containing div that has both the section heading and a checkbox, and
+ * return the checkbox inside it.
  * @param {Page}   page        - Playwright page object
  * @param {string} headingName - Visible heading text of the section
  * @return {ReturnType<Page['locator']>} Locator for the checkbox in that section
  */
 function getToggleBySection( page: Page, headingName: string ) {
 	return page
+		.getByRole( 'tabpanel' )
 		.locator( 'div' )
 		.filter( { has: page.getByRole( 'heading', { name: headingName } ) } )
 		.filter( { has: page.locator( 'input[type="checkbox"]' ) } )

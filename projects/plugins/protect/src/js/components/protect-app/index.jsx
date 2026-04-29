@@ -7,18 +7,23 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 import useNotices from '../../hooks/use-notices';
 import useProtectData from '../../hooks/use-protect-data';
 import Notice from '../notice';
+import styles from './styles.module.scss';
 
 /**
  * Resolve the active tab value from the current pathname.
+ *
+ * Matches '/firewall' and '/settings' exactly or as path prefixes (so future
+ * nested routes like '/settings/foo' still select the right tab) without
+ * over-matching unrelated paths like '/firewall-extras'.
  *
  * @param {string} pathname - The current location pathname.
  * @return {string} The active tab value ('scan' | 'firewall' | 'settings').
  */
 function getActiveTab( pathname ) {
-	if ( pathname.startsWith( '/firewall' ) ) {
+	if ( pathname === '/firewall' || pathname.startsWith( '/firewall/' ) ) {
 		return 'firewall';
 	}
-	if ( pathname.startsWith( '/settings' ) ) {
+	if ( pathname === '/settings' || pathname.startsWith( '/settings/' ) ) {
 		return 'settings';
 	}
 	// Default (covers '/scan', '/scan/history', '/scan/history/:filter' and any unmatched path).
@@ -72,11 +77,15 @@ const ProtectApp = () => {
 		>
 			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Tabs.Root value={ activeTab } onValueChange={ onValueChange }>
-				<Tabs.List>
-					<Tabs.Tab value="scan">{ scanLabel }</Tabs.Tab>
-					<Tabs.Tab value="firewall">{ __( 'Firewall', 'jetpack-protect' ) }</Tabs.Tab>
-					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>
-				</Tabs.List>
+				<div className={ styles[ 'tabs-list-wrapper' ] }>
+					<Tabs.List>
+						<Tabs.Tab value="scan">{ scanLabel }</Tabs.Tab>
+						<Tabs.Tab value="firewall">{ __( 'Firewall', 'jetpack-protect' ) }</Tabs.Tab>
+						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>
+					</Tabs.List>
+				</div>
+				{ /* @wordpress/ui Tabs.Panel unmounts inactive panels by default, so only the
+				     active panel's <Outlet /> mounts and the matched route renders once. */ }
 				<Tabs.Panel value="scan">
 					<Outlet />
 				</Tabs.Panel>
