@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: split the Event cell into dedicated icon/title/description fields for the Activity layout so the timeline renders the icon on the left and stops duplicating the event body as an "other fields" row.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: address engineering-review findings — drop the never-stale TanStack cache, remove a duplicate list request on page load, stop the activity-type filter from persisting across reloads, and document the deliberate asymmetry on the group-counts endpoint.

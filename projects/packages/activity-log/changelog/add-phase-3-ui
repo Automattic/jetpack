@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Port the Calypso Dashboard Activity Log UI as a DataViews-based admin page. Search, activity-type filter, sort, pagination wired to /jetpack/v4/activity-log. Phase 4 tier gating and Phase 5 backup deep-links follow.

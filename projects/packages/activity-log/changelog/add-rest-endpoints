@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add GET /jetpack/v4/activity-log and /jetpack/v4/activity-log/count/group as thin WPCOM proxies backing the Activity Log UI.

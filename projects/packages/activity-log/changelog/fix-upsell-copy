@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: rewrite upsell callout copy for the wp-admin context — title mentions "Jetpack Activity Log" (not "Activity") and the plan-availability line points at Jetpack Security/Complete instead of WordPress.com plans.

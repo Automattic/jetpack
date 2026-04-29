@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Activity Log: default the page to DataViews' Activity timeline layout instead of the Table layout. Users can still switch to Table from the cog popover's layout switcher.

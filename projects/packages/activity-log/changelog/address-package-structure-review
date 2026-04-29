@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: address package-structure review feedback — drop the V0001 namespace suffix, fold the top-level actions.php filter registration into Jetpack_Activity_Log::initialize(), site-scope the view-state localStorage key, and remove the redundant .babelrc.

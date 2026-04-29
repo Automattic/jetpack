@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: collapse the description slot in the Activity layout when an entry has no description text (e.g. "User removed"), so the row flows naturally instead of leaving a blank line under the title.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: stop marking the view as modified on first page load. The "is modified?" check now compares only the fields the settings-cog actually exposes (sort, order, properties, density, items-per-page, filters), so DataViews' internal layout normalizations don't flip the bit. Self-heals existing stale localStorage entries on mount.

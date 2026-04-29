@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Initial scaffold for the Activity Log package that will host the in-wp-admin Activity Log UI.
+Initial release of the Activity Log package: hosts the in-wp-admin Activity Log UI and its REST endpoints.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Activity Log: expose DataViews' built-in Activity layout as a second option in the layout switcher, with the existing Event composite field wired as its title block.

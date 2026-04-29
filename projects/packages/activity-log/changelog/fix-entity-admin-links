@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: strip WordPress.com anchor wrappers so entity tokens link to their wp-admin screens, and remove the <strong> emphasis on entity names.

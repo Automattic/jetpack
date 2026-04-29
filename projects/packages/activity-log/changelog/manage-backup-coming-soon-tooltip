@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Activity Log: surface a "Coming soon" tooltip on the disabled "Manage backup" row action so users understand it's a planned feature rather than a broken button.

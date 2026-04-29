@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Wire the new Activity Log package so it registers its admin page and REST namespace during plugin bootstrap.
+Activity Log: replace the external sidebar redirect with a native wp-admin page — search, activity-type filter, sort, pagination, and a date-range picker.

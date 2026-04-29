@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Wrap the Activity Log page in the shared Jetpack AdminPage header, make the DataViews table full-bleed, and lock the event-icon tile to 32x32 for visual parity with Calypso.

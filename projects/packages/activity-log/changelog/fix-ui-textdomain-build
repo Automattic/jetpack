@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Activity Log: run @automattic/babel-plugin-replace-textdomain over @automattic/ui so its DateRangeCalendar strings pass Jetpack's production i18n bundle check.
