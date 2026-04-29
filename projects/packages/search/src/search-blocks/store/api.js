@@ -85,15 +85,22 @@ export function resolveFilterFields( config ) {
 				bucketFormat: 'slash',
 			};
 		case 'wc_stock_status':
-			// The WPCOM v1.3 search index doesn't expose the stock-status
-			// postmeta as a queryable field that's been verified working
-			// (`wc.stock_status` / `meta._stock_status.value` both return
-			// 400 from the API). Until a real field path is identified,
-			// return null so `buildAggregations` and `buildFilterClause`
-			// skip this filter — the bridge still renders the 3 hardcoded
-			// options for discoverability, but selections don't yet narrow
-			// the result set. Tracked as a follow-up.
-			return { aggField: null, filterField: null, bucketFormat: 'plain' };
+			// `_stock_status` is whitelisted in `public_postmeta` on the
+			// indexer (see `Search\Plugin::get_post_meta_whitelist()` and
+			// the post-doc-builder's standard meta path), so it's stored
+			// as `meta._stock_status.value` with a `.raw` keyword
+			// subfield via the `meta_str_template` dynamic mapping. The
+			// terms-aggs whitelist (`meta\..*\.value\.raw` in
+			// class-wpcom-search-engine.php) admits this exact path —
+			// earlier 400s came from probing the wrong subfield names
+			// (`meta._stock_status.value` without `.raw`,
+			// `meta._stock_status.raw`, or `wc.*` paths that don't exist
+			// for stock status).
+			return {
+				aggField: 'meta._stock_status.value.raw',
+				filterField: 'meta._stock_status.value.raw',
+				bucketFormat: 'plain',
+			};
 		case 'wc_rating':
 			// Rating uses a range aggregation against
 			// `meta._wc_average_rating.double` (the same field

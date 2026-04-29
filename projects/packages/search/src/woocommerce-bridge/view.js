@@ -23,16 +23,15 @@
  * Filter coverage today: taxonomy (product_cat, product_tag,
  * product_brand), attributes (pa_*), stock status
  * (filter_stock_status — scalar URL key, ES field
- * `meta._stock_status.value`), active-filter removable chips driven from
- * URL state, both display variants (checkbox-list and chips), and the
- * price slider via the actions.navigate override.
+ * `meta._stock_status.value.raw`), rating (rating_filter — array URL
+ * key, histogram aggregation on `meta._wc_average_rating.double`),
+ * active-filter removable chips driven from URL state, both display
+ * variants (checkbox-list and chips), and the price slider via the
+ * actions.navigate override.
  *
- * Out of scope (TODOs): rating filter (needs a range aggregation on
- * `meta._wc_average_rating.double` plus star-bucket rendering, which
- * requires `buildAggregations` to learn about non-`terms` aggs); i18n —
- * stock-status labels are hardcoded English, follow-up should read them
- * off the existing server-rendered items or seed via
- * wp_interactivity_state.
+ * Out of scope (TODOs): i18n — stock-status labels are hardcoded
+ * English, follow-up should read them off the existing server-rendered
+ * items or seed via wp_interactivity_state.
  *
  * Runtime config (siteId, apiRoot, isPrivateSite, isWpcom, nonce, homeUrl,
  * filterConfigs) is seeded server-side via `wp_interactivity_state` under
