@@ -164,3 +164,74 @@ describe( 'urlParamsToState', () => {
 		expect( state.activeFilters ).toEqual( { category: [ 'news', 'sports' ] } );
 	} );
 } );
+
+describe( 'urlParamsToState: priceRange', () => {
+	it( 'returns null priceRange when neither bound is set', () => {
+		const state = urlParamsToState( new URLSearchParams() );
+		expect( state.priceRange ).toBeNull();
+	} );
+
+	it( 'parses min and max into a numeric priceRange', () => {
+		const state = urlParamsToState( new URLSearchParams( '?min_price=10&max_price=50' ) );
+		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
+	} );
+
+	it( 'allows a half-open range when only one bound is set', () => {
+		const state = urlParamsToState( new URLSearchParams( '?min_price=10' ) );
+		expect( state.priceRange ).toEqual( { min: 10, max: null } );
+	} );
+
+	it( 'rejects garbage URL values so a bad URL cannot zero out results', () => {
+		const state = urlParamsToState( new URLSearchParams( '?min_price=abc&max_price=-5' ) );
+		expect( state.priceRange ).toBeNull();
+	} );
+
+	it( 'never treats min_price/max_price as filter keys', () => {
+		const params = new URLSearchParams();
+		params.append( 'min_price[]', '10' );
+		params.append( 'max_price[]', '50' );
+		const state = urlParamsToState( params );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+} );
+
+describe( 'urlParamsToState: scalar comma-joined URL fallback', () => {
+	it( 'parses comma-joined values for filterConfigs whose urlFormat is `scalar`', () => {
+		const state = urlParamsToState(
+			new URLSearchParams( '?filter_stock_status=instock,outofstock' ),
+			{
+				filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' },
+			}
+		);
+		expect( state.activeFilters ).toEqual( {
+			filter_stock_status: [ 'instock', 'outofstock' ],
+		} );
+	} );
+
+	it( 'ignores scalar URL form when the filterConfig does not opt in', () => {
+		const state = urlParamsToState( new URLSearchParams( '?category=news,sports' ), {
+			category: { filterType: 'taxonomy', taxonomy: 'category' },
+		} );
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'prefers array-form when both shapes are present for the same key', () => {
+		const params = new URLSearchParams();
+		params.append( 'filter_stock_status[]', 'onbackorder' );
+		params.append( 'filter_stock_status', 'instock,outofstock' );
+		const state = urlParamsToState( params, {
+			filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' },
+		} );
+		expect( state.activeFilters ).toEqual( { filter_stock_status: [ 'onbackorder' ] } );
+	} );
+
+	it( 'de-duplicates within the scalar value list', () => {
+		const state = urlParamsToState(
+			new URLSearchParams( '?filter_stock_status=instock,instock,outofstock' ),
+			{
+				filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' },
+			}
+		);
+		expect( state.activeFilters.filter_stock_status ).toEqual( [ 'instock', 'outofstock' ] );
+	} );
+} );
