@@ -132,8 +132,8 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 		return;
 	}
 
-	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) ) {
-		$helper = __DIR__ . '/../vendor/automattic/jetpack-mu-wpcom/src/common/fatal-error-signature.php';
+	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) && defined( 'WPCOMSH__PLUGIN_DIR_PATH' ) ) {
+		$helper = WPCOMSH__PLUGIN_DIR_PATH . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/common/fatal-error-signature.php';
 		if ( is_readable( $helper ) ) {
 			require_once $helper;
 		}
@@ -165,8 +165,8 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 		// Fall through and log.
 	}
 
-	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
-		$log_file = dirname( __DIR__ ) . '/class-wpcomsh-log.php';
+	if ( ! class_exists( 'WPCOMSH_Log', false ) && defined( 'WPCOMSH__PLUGIN_DIR_PATH' ) ) {
+		$log_file = WPCOMSH__PLUGIN_DIR_PATH . '/class-wpcomsh-log.php';
 		if ( is_readable( $log_file ) ) {
 			require_once $log_file;
 		}
