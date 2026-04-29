@@ -35,17 +35,11 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * Internal keys (`blog_id`, `notices`, `views`, `collapse_nudges`,
 	 * `version`, `odyssey_stats_changed_at`) are deliberately excluded —
-	 * agents can't act on them and they'd bloat the response.
+	 * agents can't act on them and they'd bloat the response. The per-key
+	 * type (bool / role-array) is read from `Options::get_defaults()` at
+	 * runtime, not duplicated here.
 	 */
 	const CONFIG_KEYS = array( 'admin_bar', 'roles', 'count_roles', 'do_not_track', 'enable_odyssey_stats' );
-
-	/**
-	 * Subset of CONFIG_KEYS whose values are boolean.
-	 *
-	 * Read + write paths coerce to bool before comparison/emit so agents
-	 * never see `1`/`"true"` drift in place of real booleans.
-	 */
-	const CONFIG_BOOL_KEYS = array( 'admin_bar', 'do_not_track', 'enable_odyssey_stats' );
 
 	/**
 	 * Allowed `type` values for `get-top-content`.
@@ -56,11 +50,6 @@ class Stats_Abilities extends Registrar {
 	 * Allowed aggregation periods for timeseries + top-content reads.
 	 */
 	const PERIODS = array( 'day', 'week', 'month', 'year' );
-
-	/**
-	 * Subset of CONFIG_KEYS whose values are arrays of role slugs.
-	 */
-	const CONFIG_ROLE_KEYS = array( 'roles', 'count_roles' );
 
 	/**
 	 * Allowed metric fields for `get-visits`.
@@ -923,10 +912,15 @@ class Stats_Abilities extends Registrar {
 
 		// Validate role slugs against registered roles — but only load the role list
 		// if the caller is actually writing a role field. Boolean-only writes skip
-		// the wp_roles() resolution entirely.
+		// the wp_roles() resolution entirely. Role fields are detected from the
+		// option's default value type (array → role list).
+		$defaults    = Options::get_defaults();
 		$known_roles = null;
-		foreach ( self::CONFIG_ROLE_KEYS as $role_field ) {
+		foreach ( self::CONFIG_KEYS as $role_field ) {
 			if ( ! array_key_exists( $role_field, $provided ) ) {
+				continue;
+			}
+			if ( ! is_array( $defaults[ $role_field ] ?? null ) ) {
 				continue;
 			}
 			if ( null === $known_roles ) {
@@ -984,7 +978,7 @@ class Stats_Abilities extends Registrar {
 		$before  = self::config_snapshot();
 		$changes = array();
 		foreach ( $provided as $key => $value ) {
-			if ( in_array( $key, self::CONFIG_BOOL_KEYS, true ) ) {
+			if ( is_bool( $defaults[ $key ] ?? null ) ) {
 				$value = (bool) $value;
 			}
 			$current = $before[ $key ] ?? null;
@@ -1022,13 +1016,15 @@ class Stats_Abilities extends Registrar {
 	 * @return array
 	 */
 	private static function config_snapshot(): array {
-		$options = Options::get_options();
-		$out     = array();
+		$options  = Options::get_options();
+		$defaults = Options::get_defaults();
+		$out      = array();
 		foreach ( self::CONFIG_KEYS as $key ) {
-			$raw = $options[ $key ] ?? null;
-			if ( in_array( $key, self::CONFIG_BOOL_KEYS, true ) ) {
+			$raw     = $options[ $key ] ?? null;
+			$default = $defaults[ $key ] ?? null;
+			if ( is_bool( $default ) ) {
 				$out[ $key ] = (bool) $raw;
-			} elseif ( in_array( $key, self::CONFIG_ROLE_KEYS, true ) ) {
+			} elseif ( is_array( $default ) ) {
 				$out[ $key ] = is_array( $raw ) ? array_values( $raw ) : array();
 			} else {
 				$out[ $key ] = $raw;

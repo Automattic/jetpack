@@ -1006,6 +1006,19 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertArrayNotHasKey( 'notices', $result );
 	}
 
+	public function test_get_stats_config_classifies_types_from_options_defaults(): void {
+		// Regression guard: the snapshot derives bool/array typing from
+		// Options::get_defaults() rather than a duplicated allow-list, so a new
+		// option type added in Options must propagate here without code changes.
+		$result = Stats_Abilities::get_stats_config();
+
+		$this->assertIsBool( $result['admin_bar'] );
+		$this->assertIsBool( $result['do_not_track'] );
+		$this->assertIsBool( $result['enable_odyssey_stats'] );
+		$this->assertIsArray( $result['roles'] );
+		$this->assertIsArray( $result['count_roles'] );
+	}
+
 	public function test_set_stats_config_rejects_empty_input(): void {
 		$result = Stats_Abilities::set_stats_config( array() );
 		$this->assertInstanceOf( \WP_Error::class, $result );
