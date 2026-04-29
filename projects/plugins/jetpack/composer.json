@@ -102,8 +102,7 @@
 	],
 	"autoload": {
 		"classmap": [
-			"src",
-			"modules/subscriptions/abilities"
+			"src"
 		]
 	},
 	"minimum-stability": "dev",
