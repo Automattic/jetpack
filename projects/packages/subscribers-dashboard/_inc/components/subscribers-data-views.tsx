@@ -3,6 +3,10 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSubscribers } from '../data/use-subscribers';
+import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
+import { getSubscriptionStatusLabel } from '../lib/subscription-status';
+import SubscriberIdentity from './cells/subscriber-identity';
+import SubscriptionTypeCell from './cells/subscription-type-cell';
 import type { Subscriber, SubscribersSortField } from '../data/types';
 import type { Field, View } from '@wordpress/dataviews/wp';
 
@@ -16,8 +20,8 @@ const defaultView: View = {
 	filters: [],
 	sort: { field: 'date_subscribed', direction: 'desc' },
 	titleField: 'name',
-	mediaField: 'avatar',
-	fields: [ 'date_subscribed' ],
+	mediaField: 'media',
+	fields: [ 'plan', 'subscription_status', 'date_subscribed' ],
 };
 
 const defaultLayouts = {
@@ -25,31 +29,10 @@ const defaultLayouts = {
 };
 
 /**
- * Best-effort subscription date — Calypso prefers `wpcom_date_subscribed`, falling back to the
- * email subscription date for email-only subscribers.
- *
- * @param subscriber - Subscriber.
- * @return ISO-ish date string or empty.
- */
-function getSubscribedAt( subscriber: Subscriber ): string {
-	return subscriber.wpcom_date_subscribed || subscriber.email_date_subscribed || '';
-}
-
-/**
- * Stable row id — prefers `email_subscription_id`, falls back to wpcom subscription id, then user
- * id, then the email address. Mirrors `getSubscriptionIdFromSubscriber()` in Calypso.
- *
- * @param subscriber - Subscriber.
- * @return DataViews row id.
- */
-function getRowId( subscriber: Subscriber ): string {
-	const id =
-		subscriber.email_subscription_id || subscriber.wpcom_subscription_id || subscriber.user_id || 0;
-	return id ? String( id ) : subscriber.email_address;
-}
-
-/**
  * Subscribers DataViews table — server-driven pagination, sort, and search.
+ *
+ * Phase 2 brings field parity with Calypso (media + identity + plan + status + date),
+ * sortable on name / plan / status / date. Filters land in Phase 3.
  *
  * @return The DataViews component bound to the subscribers query.
  */
@@ -75,8 +58,9 @@ export default function SubscribersDataViews(): JSX.Element {
 	const fields = useMemo< Field< Subscriber >[] >(
 		() => [
 			{
-				id: 'avatar',
+				id: 'media',
 				label: __( 'Media', 'jetpack-subscribers-dashboard' ),
+				getValue: ( { item }: { item: Subscriber } ) => item.avatar ?? '',
 				render: ( { item }: { item: Subscriber } ) =>
 					item.avatar ? (
 						<img
@@ -84,7 +68,7 @@ export default function SubscribersDataViews(): JSX.Element {
 							alt=""
 							width={ 40 }
 							height={ 40 }
-							style={ { borderRadius: '50%', display: 'block' } }
+							className="jetpack-subscribers-dashboard__identity-avatar"
 						/>
 					) : null,
 				enableSorting: false,
@@ -94,17 +78,36 @@ export default function SubscribersDataViews(): JSX.Element {
 				id: 'name',
 				label: __( 'Name', 'jetpack-subscribers-dashboard' ),
 				getValue: ( { item }: { item: Subscriber } ) => item.display_name || item.email_address,
+				render: ( { item }: { item: Subscriber } ) => <SubscriberIdentity subscriber={ item } />,
+				enableSorting: true,
+				enableHiding: false,
+			},
+			{
+				id: 'plan',
+				label: __( 'Subscription type', 'jetpack-subscribers-dashboard' ),
+				getValue: ( { item }: { item: Subscriber } ) => {
+					const plans = item.plans ?? [];
+					const hasNonCompPlan = plans.some( plan => ! plan.is_comp );
+					if ( hasNonCompPlan ) {
+						return 'paid';
+					}
+					if ( plans.length ) {
+						return 'comp';
+					}
+					return 'free';
+				},
+				render: ( { item }: { item: Subscriber } ) => <SubscriptionTypeCell subscriber={ item } />,
+				enableSorting: true,
+				enableHiding: false,
+			},
+			{
+				id: 'subscription_status',
+				label: __( 'Email subscription', 'jetpack-subscribers-dashboard' ),
+				getValue: ( { item }: { item: Subscriber } ) => item.subscription_status,
 				render: ( { item }: { item: Subscriber } ) => (
-					<div style={ { display: 'flex', flexDirection: 'column' } }>
-						<strong>{ item.display_name || item.email_address }</strong>
-						{ item.display_name && item.email_address ? (
-							<span style={ { color: 'var(--wp-admin-theme-color-darker-10, #757575)' } }>
-								{ item.email_address }
-							</span>
-						) : null }
-					</div>
+					<div>{ getSubscriptionStatusLabel( item.subscription_status ) }</div>
 				),
-				enableSorting: false,
+				enableSorting: true,
 				enableHiding: false,
 			},
 			{
@@ -119,6 +122,7 @@ export default function SubscribersDataViews(): JSX.Element {
 					return <span>{ dateI18n( dateSettings.formats.date, value, undefined ) }</span>;
 				},
 				enableSorting: true,
+				enableHiding: false,
 			},
 		],
 		[ dateSettings.formats.date ]
@@ -135,9 +139,9 @@ export default function SubscribersDataViews(): JSX.Element {
 
 	if ( error ) {
 		return (
-			<div style={ { padding: '24px' } }>
+			<div className="jetpack-subscribers-dashboard__error">
 				<p>{ __( 'Could not load subscribers.', 'jetpack-subscribers-dashboard' ) }</p>
-				<p style={ { color: '#cc1818' } }>{ error }</p>
+				<p className="jetpack-subscribers-dashboard__error-detail">{ error }</p>
 			</div>
 		);
 	}
@@ -150,7 +154,7 @@ export default function SubscribersDataViews(): JSX.Element {
 			onChangeView={ setView }
 			defaultLayouts={ defaultLayouts }
 			paginationInfo={ paginationInfo }
-			getItemId={ getRowId }
+			getItemId={ getSubscriberRowId }
 			isLoading={ isLoading }
 			search
 			searchLabel={ __( 'Search subscribers…', 'jetpack-subscribers-dashboard' ) }

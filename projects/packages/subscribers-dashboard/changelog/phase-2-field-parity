@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Phase 2 of #48365: add plan / subscription status fields, sortable identity column, totals summary, and DataViews stylesheet.

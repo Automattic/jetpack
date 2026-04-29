@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+REST API: add wpcom/v2/subscribers/totals endpoint that proxies the WP.com subscriber counts for the in-admin Subscribers dashboard.
