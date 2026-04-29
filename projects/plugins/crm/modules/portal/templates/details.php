@@ -49,7 +49,7 @@ $contact_id = zeroBS_getCustomerIDWithEmail( $uinfo->user_email );
 		<h2><?php echo esc_html( $page_title ); ?></h2>
 		<?php
 		// if admin, explain
-		if ( current_user_can( 'admin_zerobs_manage_options' ) && empty( $contact_id ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( jpcrm_perms_manage_options() && empty( $contact_id ) ) {
 			$details_endpoint->render_admin_notice();
 		}
 		?>
