@@ -177,6 +177,22 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 		return;
 	}
 
+	// Dedup per (site, signature) for 5 min: a persistent fatal on a
+	// high-traffic site would otherwise emit one logstash row + one
+	// outbound HTTP per visitor. wp_cache_add is atomic where a
+	// persistent object cache is configured (Atomic uses memcached);
+	// on hosts without one it falls back to per-request, which is no
+	// worse than the unbounded baseline. Gated before the WPCOMSH_Log
+	// require so dedup hits skip the file load too.
+	$cache_key = 'wpcomsh_fatal_sig:' . hash( 'sha256', $signature );
+	try {
+		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS ) ) {
+			return;
+		}
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not block telemetry.
+		// Fall through and log.
+	}
+
 	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
 		$log_file = dirname( __DIR__ ) . '/class-wpcomsh-log.php';
 		if ( is_readable( $log_file ) ) {
