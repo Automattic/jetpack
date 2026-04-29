@@ -224,6 +224,11 @@ const AreaChartScalesRef: FC< {
 
 type VisibleSeriesEntry = { series: SeriesData; index: number; isVisible: boolean };
 
+// Narrowed call signature for the visx `xScale` / `yScale` we read from
+// `DataContext`. The real type is `AxisScale` (a wider d3-scale union with a
+// `NumberLike` return), but the only scales this chart configures are time +
+// linear and the call site wraps the result in `Number(...)` + `isFinite`,
+// so this narrower shape is safe in practice without spreading `any`.
 type ScaleFn = ( input: Date | number ) => number;
 
 // SVG overlay rendering a circle at each visible series for the currently
@@ -276,14 +281,18 @@ const HoverGlyphs: FC< {
 		const datum = series.data.find(
 			d => ( d as DataPointDate ).date?.getTime() === hoveredTime
 		) as DataPointDate | undefined;
+		// d3-stack treats missing-or-null values as 0 in the running total,
+		// so we coerce here and always advance the cumulative baseline before
+		// the skip guard. Without this, glyphs for series above a null point
+		// would land at the wrong stacked y.
 		const value = datum?.value ?? 0;
-
-		// Always advance the stack baseline (d3-stack treats missing as 0).
 		if ( stacked ) {
 			cumulative += value;
 		}
 
-		// Skip rendering a glyph when the datum is missing or null-valued.
+		// Skip rendering a glyph when the datum is missing or null-valued —
+		// the area itself collapses to baseline at that x, so a glyph would
+		// be misleading.
 		if ( ! datum || datum.value == null ) {
 			continue;
 		}
@@ -656,9 +665,10 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 												chartRef={ internalChartRef }
 												width={ width }
 												// Prefer the explicit prop (fixed mode), fall back to
-												// the measured value when the user opts into responsive
-												// sizing and doesn't pass a `height` prop.
-												height={ height ?? chartHeight }
+												// the measured value in responsive mode. `||` (not `??`)
+												// so the responsive HOC's `height = 0` placeholder also
+												// falls through to the measured value.
+												height={ height || chartHeight }
 												margin={ margin }
 											/>
 										</XYChart>
