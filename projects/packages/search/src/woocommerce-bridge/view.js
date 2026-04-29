@@ -848,7 +848,13 @@ const WC_OWNED_PARAM_KEYS = [ 'min_price', 'max_price', 'rating_filter', 'filter
 
 store( WC_NAMESPACE, {
 	actions: {
-		navigate() {
+		// Must be a generator: WC's `state.params` getter calls
+		// Interactivity's `getContext()` internally and that requires the
+		// runtime's reactive scope. Regular sync/async functions break
+		// scope and throw "Cannot call getContext() when there is no
+		// scope" when the price slider triggers actions.navigate.
+		// eslint-disable-next-line require-yield -- generator solely for Interactivity scope; no async work to yield on.
+		*navigate() {
 			const params = this?.state?.params ?? {};
 			const url = new URL( window.location.href );
 
