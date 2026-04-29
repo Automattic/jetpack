@@ -73,8 +73,8 @@
 		flex-direction: column;
 		gap: 1rem;
 		padding: 12px;
-		--jetpack-search-popover-background: var(--wp--preset--color--background, #fff);
-		--jetpack-search-popover-color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #111));
+		--jetpack-search-popover-background: var(--wp--preset--color--base, #fff);
+		--jetpack-search-popover-color: var(--wp--preset--color--contrast, #111);
 		background: var(--jetpack-search-popover-background);
 		// The panel owns its surface, so don't inherit a low-contrast body
 		// accent color from the surrounding page.
