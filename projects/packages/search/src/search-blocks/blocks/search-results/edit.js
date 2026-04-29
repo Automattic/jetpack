@@ -10,19 +10,16 @@ const SAMPLE_RESULTS = [
 		title: __( 'First sample result', 'jetpack-search-pkg' ),
 		path: 'example.com/articles/first',
 		date: 'Apr 1, 2026',
-		author: 'Ada Lovelace',
 	},
 	{
 		title: __( 'Another relevant post', 'jetpack-search-pkg' ),
 		path: 'example.com/guides/another',
 		date: 'Mar 22, 2026',
-		author: 'Grace Hopper',
 	},
 	{
 		title: __( 'Older archived entry', 'jetpack-search-pkg' ),
 		path: 'example.com/2025/older',
 		date: 'Dec 18, 2025',
-		author: 'Katherine Johnson',
 	},
 ];
 
@@ -57,9 +54,7 @@ export default function SearchResultsEdit( { attributes } ) {
 						h(
 							'div',
 							{ className: 'jetpack-search-results__meta' },
-							h( 'span', { className: 'jetpack-search-results__date' }, result.date ),
-							isCompact &&
-								h( 'span', { className: 'jetpack-search-results__author' }, result.author )
+							h( 'span', { className: 'jetpack-search-results__date' }, result.date )
 						)
 					),
 					! isCompact &&

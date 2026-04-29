@@ -1,9 +1,17 @@
 import {
+	SEARCH_FIELDS,
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
+
+describe( 'SEARCH_FIELDS', () => {
+	it( 'does not request author fields for result cards', () => {
+		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
+		expect( SEARCH_FIELDS ).not.toContain( 'author' );
+	} );
+} );
 
 describe( 'buildSearchUrl', () => {
 	it( 'builds public API URL for non-private sites', () => {

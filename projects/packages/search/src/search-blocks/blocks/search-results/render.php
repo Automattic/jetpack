@@ -64,13 +64,6 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 							data-wp-bind--hidden="!context.result.dateLabel"
 							data-wp-text="context.result.dateLabel"
 						></span>
-						<?php if ( $is_compact ) : ?>
-							<span
-								class="jetpack-search-results__author"
-								data-wp-bind--hidden="!context.result.author"
-								data-wp-text="context.result.author"
-							></span>
-						<?php endif; ?>
 					</div>
 				</div>
 				<?php if ( ! $is_compact ) : ?>

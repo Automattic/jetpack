@@ -273,9 +273,20 @@ describe( 'normalizeResult', () => {
 			permalink: '',
 			path: '',
 			dateLabel: '',
-			author: '',
 			imageUrl: '',
 		} );
+	} );
+
+	it( 'does not expose author data from the API response', () => {
+		const raw = {
+			result_id: '1',
+			fields: {
+				'permalink.url.raw': 'https://example.com/a',
+				'title.default': 'Post',
+				'author.name': 'Ada Lovelace',
+			},
+		};
+		expect( normalizeResult( raw ) ).not.toHaveProperty( 'author' );
 	} );
 } );
 
@@ -300,42 +311,5 @@ describe( 'countActiveFilters', () => {
 
 	it( 'ignores non-array values defensively', () => {
 		expect( countActiveFilters( { category: 'news' } ) ).toBe( 0 );
-	} );
-} );
-
-describe( 'normalizeResult author', () => {
-	it( 'extracts author.name from fields', () => {
-		const raw = {
-			result_id: '1',
-			fields: {
-				'permalink.url.raw': 'https://example.com/a',
-				'title.default': 'Post',
-				'author.name': 'Ada Lovelace',
-			},
-		};
-		expect( normalizeResult( raw ).author ).toBe( 'Ada Lovelace' );
-	} );
-
-	it( 'handles author.name as array (v1.3 field shape)', () => {
-		const raw = {
-			result_id: '1',
-			fields: {
-				'permalink.url.raw': 'https://example.com/a',
-				'title.default': 'Post',
-				'author.name': [ 'Ada Lovelace' ],
-			},
-		};
-		expect( normalizeResult( raw ).author ).toBe( 'Ada Lovelace' );
-	} );
-
-	it( 'returns empty string when author field is missing', () => {
-		const raw = {
-			result_id: '1',
-			fields: {
-				'permalink.url.raw': 'https://example.com/a',
-				'title.default': 'Post',
-			},
-		};
-		expect( normalizeResult( raw ).author ).toBe( '' );
 	} );
 } );
