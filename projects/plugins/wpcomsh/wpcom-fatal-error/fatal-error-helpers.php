@@ -50,13 +50,13 @@ function wpcomsh_fatal_current_user_id() {
  * fatal, using the error's absolute file path. Looks up the Name / Version
  * / Description headers so the screen can name the likely cause.
  *
- * `basename` is the plugin basename (e.g. "akismet/akismet.php") for
- * plugins and mu-plugins, and the theme stylesheet slug for themes — the
- * screen uses it to build the appropriate action (signed deactivation
- * form for plugins, themes.php link for themes).
+ * `basename` is the plugin basename for plugins/mu-plugins and the
+ * theme stylesheet slug for themes — used to build the deactivate
+ * action. `slug` is the directory slug, used by the signature so a
+ * single extension collapses to one row.
  *
  * @param array $error Error details from WP_Fatal_Error_Handler.
- * @return array{name:string, version:string, description:string, basename:string, kind:string}|null
+ * @return array{name:string, version:string, description:string, slug:string, basename:string, kind:string}|null
  */
 function wpcomsh_fatal_identify_plugin( $error ) {
 	if ( empty( $error['file'] ) ) {
@@ -77,6 +77,7 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 					'name'        => (string) $theme->get( 'Name' ),
 					'version'     => (string) $theme->get( 'Version' ),
 					'description' => wp_strip_all_tags( (string) $theme->get( 'Description' ) ),
+					'slug'        => $slug,
 					'basename'    => $slug,
 					'kind'        => $kind,
 				);
@@ -98,6 +99,7 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 					'name'        => (string) $data['Name'],
 					'version'     => isset( $data['Version'] ) ? (string) $data['Version'] : '',
 					'description' => isset( $data['Description'] ) ? wp_strip_all_tags( (string) $data['Description'] ) : '',
+					'slug'        => $slug,
 					'basename'    => $slug . '/' . basename( $candidate ),
 					'kind'        => $kind,
 				);
@@ -107,6 +109,92 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 		return null;
 	}
 	return null;
+}
+
+/**
+ * Ship the offending extension's signature to wpcomsh logstash via
+ * WPCOMSH_Log::unsafe_direct_log(), alongside the decoded parts so
+ * dashboards can aggregate without decoding the signature.
+ *
+ * Manual require: the fatal-error module loads from wpcomsh.php line
+ * 1, before the autoloader runs. Direct requires with class_exists(
+ * …, false ) skip the autoloader during fatal handling, where its
+ * filesystem reads could compound a bad state.
+ *
+ * Best-effort: silently no-ops if either dependency is unreachable.
+ * A logging failure must never escalate into a second fatal.
+ *
+ * @param array|null $plugin Extension metadata from wpcomsh_fatal_identify_plugin().
+ * @return void
+ */
+function wpcomsh_fatal_log_signature( $plugin ) {
+	if ( ! is_array( $plugin ) || empty( $plugin['slug'] ) || empty( $plugin['kind'] ) ) {
+		return;
+	}
+
+	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) && defined( 'WPCOMSH__PLUGIN_DIR_PATH' ) ) {
+		$helper = WPCOMSH__PLUGIN_DIR_PATH . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/common/fatal-error-signature.php';
+		if ( is_readable( $helper ) ) {
+			require_once $helper;
+		}
+	}
+	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) ) {
+		return;
+	}
+
+	$signature = wpcom_build_fatal_error_signature(
+		array(
+			'kind'    => (string) $plugin['kind'],
+			'slug'    => (string) $plugin['slug'],
+			'version' => isset( $plugin['version'] ) ? (string) $plugin['version'] : '',
+		)
+	);
+	if ( null === $signature ) {
+		return;
+	}
+
+	// Dedup per signature for 5 min so a persistent fatal doesn't emit
+	// one logstash row + one outbound HTTP per visitor. Gated before
+	// the WPCOMSH_Log require so dedup hits skip the file load too.
+	$cache_key = 'wpcomsh_fatal_sig:' . hash( 'sha256', $signature );
+	try {
+		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS ) ) {
+			return;
+		}
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not block telemetry.
+		// Fall through and log.
+	}
+
+	if ( ! class_exists( 'WPCOMSH_Log', false ) && defined( 'WPCOMSH__PLUGIN_DIR_PATH' ) ) {
+		$log_file = WPCOMSH__PLUGIN_DIR_PATH . '/class-wpcomsh-log.php';
+		if ( is_readable( $log_file ) ) {
+			require_once $log_file;
+		}
+	}
+	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
+		return;
+	}
+
+	$extra = array( 'signature' => $signature );
+
+	// Round-trip through the decoder so the logged parts always agree
+	// with the signature.
+	if ( function_exists( 'wpcom_decode_fatal_error_signature' ) ) {
+		$parts = wpcom_decode_fatal_error_signature( $signature );
+		if ( is_array( $parts ) ) {
+			$extra['kind']              = $parts['kind'];
+			$extra['slug']              = $parts['slug'];
+			$extra['extension_version'] = $parts['version'];
+			$extra['wp_version']        = $parts['wp'];
+			$extra['php_version']       = $parts['php'];
+		}
+	}
+
+	try {
+		\WPCOMSH_Log::unsafe_direct_log( 'wpcomsh_fatal_signature', $extra );
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; never escalate a logging failure into another fatal.
+		// Swallow.
+	}
 }
 
 /**
