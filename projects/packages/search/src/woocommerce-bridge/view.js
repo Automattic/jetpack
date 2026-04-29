@@ -90,9 +90,23 @@ function urlToActiveFilters( searchParams, filterConfigs ) {
 }
 
 /**
+ * Sort orders the WPCOM v1.3 search API accepts. Mirrors
+ * `VALID_SORT_ORDERS` in search-blocks/store/url-state.js so the bridge
+ * and JP Search blocks agree on the URL contract.
+ */
+const VALID_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
+const DEFAULT_SORT_ORDER = 'relevance';
+
+/**
  * Issue an aggregation request to the WPCOM v1.3 search API using the
- * same routing as the search-blocks store. Returns the parsed response or
- * null on failure (so callers can no-op cleanly).
+ * same routing as the search-blocks store. Pulls `s` and `orderby` off
+ * the URL alongside our taxonomy filters so bucket counts reflect the
+ * same query the JP Search result list ran — otherwise filter counts
+ * are computed against the entire index instead of the actual search
+ * scope and surface stale numbers next to the visible results.
+ *
+ * Returns the parsed response or null on failure (so callers can no-op
+ * cleanly).
  *
  * @param {URLSearchParams} searchParams - URL params to translate into filters.
  * @return {Promise<object|null>} Parsed v1.3 search response, or null on error.
@@ -102,10 +116,13 @@ async function fetchAggregations( searchParams ) {
 		return null;
 	}
 	const activeFilters = urlToActiveFilters( searchParams, bridgeState.filterConfigs );
+	const searchQuery = searchParams.get( 's' ) ?? '';
+	const rawOrderby = searchParams.get( 'orderby' );
+	const sortOrder = VALID_SORT_ORDERS.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER;
 	const url = buildSearchUrl( {
 		siteId: bridgeState.siteId,
-		searchQuery: '',
-		sortOrder: 'relevance',
+		searchQuery,
+		sortOrder,
 		pageHandle: null,
 		isPrivateSite: bridgeState.isPrivateSite,
 		isWpcom: bridgeState.isWpcom,
