@@ -349,10 +349,13 @@ async function toggleFilterAndNavigate( filterKey, filterValue ) {
 	}
 
 	window.history.pushState( {}, '', url.href );
-	const data = await fetchAggregations( url.searchParams );
-	if ( data?.aggregations ) {
-		applyToFilterBlocks( data.aggregations, url.searchParams );
-	}
+	/*
+	 * Dispatch popstate so the `jetpack-search` store's `handlePopState`
+	 * listener (search-blocks/store/index.js) re-runs the search and the
+	 * result list reflects the new filter state. Our own popstate listener
+	 * also fires and rebuilds the filter UI from fresh aggregations.
+	 */
+	window.dispatchEvent( new PopStateEvent( 'popstate' ) );
 }
 
 // Initial hydration on every page load. Browser back/forward also fires

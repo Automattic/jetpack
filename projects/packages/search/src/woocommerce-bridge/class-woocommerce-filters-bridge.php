@@ -102,6 +102,29 @@ class WooCommerce_Filters_Bridge {
 	 */
 	private function register_hooks() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_bridge_assets' ) );
+		add_filter( 'request', array( $this, 'strip_bridge_filter_query_vars' ) );
+	}
+
+	/**
+	 * Stop WordPress from treating bridge filter URL params as tax_query
+	 * arguments.
+	 *
+	 * Product taxonomies (`product_cat`, `product_tag`, `product_brand`,
+	 * `pa_*`) register their slug as a public query var, so a URL like
+	 * `?product_cat[]=shirts` lands in WP_Query's tax_query parser as an
+	 * array — WP_Query::parse_tax_query → wp_basename → urlencode then
+	 * fatals because urlencode requires a string. Strip these vars at
+	 * `request`-filter time so the main query never sees them; the client
+	 * bridge owns this URL state, WP doesn't need to.
+	 *
+	 * @param array $query_vars Parsed query vars from the request.
+	 * @return array
+	 */
+	public function strip_bridge_filter_query_vars( $query_vars ) {
+		foreach ( array_keys( $this->build_filter_configs() ) as $filter_key ) {
+			unset( $query_vars[ $filter_key ] );
+		}
+		return $query_vars;
 	}
 
 	/**
@@ -140,6 +163,23 @@ class WooCommerce_Filters_Bridge {
 
 		if ( function_exists( 'wp_interactivity_state' ) ) {
 			wp_interactivity_state( 'jetpack-search-wc-bridge', $this->build_seed_state() );
+
+			/*
+			 * Merge our taxonomies into the existing `jetpack-search`
+			 * filterConfigs (Search_Blocks::seed_interactivity_state seeds it
+			 * from the post's own filter-checkbox blocks; wp_interactivity_state
+			 * deep-merges across calls). Two effects:
+			 *  1. The jetpack-search store's `urlParamsToState()` gate accepts
+			 *     our `?product_cat[]=foo` etc., so they survive into
+			 *     `state.activeFilters`.
+			 *  2. The result-list search picks them up via `buildSearchUrl()`
+			 *     and applies them as ES filter clauses, so the rendered
+			 *     results reflect WC filter clicks.
+			 */
+			wp_interactivity_state(
+				'jetpack-search',
+				array( 'filterConfigs' => $this->build_filter_configs() )
+			);
 		}
 	}
 
