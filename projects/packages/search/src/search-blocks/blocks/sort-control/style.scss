@@ -151,12 +151,10 @@
 		display: flex;
 		flex-direction: column;
 		padding: 4px;
-		--jetpack-search-popover-background: var(--wp--preset--color--base, #fff);
-		--jetpack-search-popover-color: var(--wp--preset--color--contrast, #111);
-		background: var(--jetpack-search-popover-background);
+		background: var(--wp--preset--color--base);
 		// The menu owns its surface, so don't inherit a low-contrast body
 		// accent color from the surrounding page.
-		color: var(--jetpack-search-popover-color);
+		color: var(--wp--preset--color--contrast);
 		// Reset the inherited theme base size so menu items track the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. `font: inherit` on menu items picks this up.
