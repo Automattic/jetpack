@@ -328,8 +328,17 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	}
 
 	/**
-	 * Helper: POST to a v1.1 wpcom REST path as the current user. Returns null on success or a
-	 * WP_Error describing the failure.
+	 * Helper: POST to a v1.1 wpcom REST path as the current user.
+	 *
+	 * Note on caps: WP.com's followers / email-followers / memberships endpoints require the
+	 * calling user to have the `delete_followers` capability on the wpcom-side blog. That maps
+	 * 1:1 with the wpcom blog admin role, so this works on real Jetpack-connected sites where
+	 * the wp-admin admin user is also the wpcom-side blog admin. It does NOT work on environments
+	 * where the wpcom-side blog is owned by a different account than the locally-connected user
+	 * (e.g. some Jurassic Ninja test sites). We tried `as_blog` and forwarding as the connection
+	 * owner — both hit the same wpcom cap gate. The fix lives on the wpcom side, not here.
+	 *
+	 * Returns null on success or a WP_Error describing the failure.
 	 *
 	 * @param string $path Path under `/rest/v1.1`.
 	 * @return WP_Error|null
