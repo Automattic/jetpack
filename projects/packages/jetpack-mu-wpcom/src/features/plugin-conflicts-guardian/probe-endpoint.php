@@ -19,6 +19,9 @@ function pcg_maybe_handle_probe() {
 	if ( '1' !== $probe_flag ) {
 		return;
 	}
+	if ( ! apply_filters( 'pcg_guard_activation', false ) ) {
+		return;
+	}
 
 	// Mixed-case random tokens from `wp_generate_password`; we can't
 	// `sanitize_key` (which lowercases) and must validate with a regex.

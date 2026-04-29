@@ -84,6 +84,9 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 	$tester  = new PCG_Load_Tester();
 
 	foreach ( $plugins as $plugin ) {
+		if ( 0 !== validate_file( $plugin ) ) {
+			continue;
+		}
 		if ( is_plugin_active( $plugin ) ) {
 			continue;
 		}
