@@ -348,6 +348,7 @@ const { state, actions } = store( NAMESPACE, {
 				searchQuery: state.searchQuery,
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
+				priceRange: state.priceRange,
 			} );
 		},
 
@@ -461,7 +462,7 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
-			if ( state.searchQuery || state.hasActiveFilters ) {
+			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
 				// The URL already carries this query — don't push a duplicate
 				// history entry on top of the browser's current one.
 				actions.search( { syncUrl: false } );
