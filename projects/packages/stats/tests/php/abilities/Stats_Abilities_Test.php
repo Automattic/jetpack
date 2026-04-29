@@ -134,19 +134,30 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Simulate the `wp_abilities_api_categories_init` action having fired.
+	 * Run a callable while the given Abilities API lifecycle action appears to be firing.
+	 *
+	 * The Registrar guards its register_* methods with `doing_action()`. Pushing onto
+	 * `$wp_current_filter` simulates that the action is currently running; we always
+	 * pop the entry afterward so the simulated action doesn't leak into later tests
+	 * (which would corrupt `current_filter()` / `doing_action()` state).
+	 *
+	 * @param string   $action Action name to simulate.
+	 * @param callable $fn     Callable to run while the action is "firing".
 	 */
-	private function simulate_categories_init_fired(): void {
+	private function with_simulated_action( string $action, callable $fn ): void {
 		global $wp_current_filter;
-		$wp_current_filter[] = 'wp_abilities_api_categories_init';
-	}
-
-	/**
-	 * Simulate the `wp_abilities_api_init` action having fired.
-	 */
-	private function simulate_abilities_init_fired(): void {
-		global $wp_current_filter;
-		$wp_current_filter[] = 'wp_abilities_api_init';
+		$wp_current_filter[] = $action;
+		try {
+			$fn();
+		} finally {
+			// Defensive: pop only our own entry, in case the callback pushed/popped its own actions.
+			for ( $i = count( $wp_current_filter ) - 1; $i >= 0; $i-- ) {
+				if ( $wp_current_filter[ $i ] === $action ) {
+					array_splice( $wp_current_filter, $i, 1 );
+					break;
+				}
+			}
+		}
 	}
 
 	public function test_category_slug_is_jetpack_stats(): void {
@@ -275,11 +286,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			$this->markTestSkipped( 'Abilities API not available.' );
 		}
 
-		$this->simulate_categories_init_fired();
-		Stats_Abilities::register_category();
-
-		$this->simulate_abilities_init_fired();
-		Stats_Abilities::register_abilities();
+		$this->with_simulated_action(
+			'wp_abilities_api_categories_init',
+			static function () {
+				Stats_Abilities::register_category();
+			}
+		);
+		$this->with_simulated_action(
+			'wp_abilities_api_init',
+			static function () {
+				Stats_Abilities::register_abilities();
+			}
+		);
 
 		foreach ( array_keys( Stats_Abilities::get_abilities() ) as $slug ) {
 			$this->assertTrue( wp_has_ability( $slug ), "Ability {$slug} should be registered." );
@@ -304,11 +322,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			3
 		);
 
-		$this->simulate_categories_init_fired();
-		Stats_Abilities::register_category();
-
-		$this->simulate_abilities_init_fired();
-		Stats_Abilities::register_abilities();
+		$this->with_simulated_action(
+			'wp_abilities_api_categories_init',
+			static function () {
+				Stats_Abilities::register_category();
+			}
+		);
+		$this->with_simulated_action(
+			'wp_abilities_api_init',
+			static function () {
+				Stats_Abilities::register_abilities();
+			}
+		);
 
 		$this->assertTrue( wp_has_ability( 'jetpack-stats/get-site-overview' ) );
 		$this->assertFalse( wp_has_ability( 'jetpack-stats/get-top-content' ) );
@@ -647,6 +672,198 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertInstanceOf( \WP_Error::class, $result );
 	}
 
+	public function test_get_top_content_referrers_normalizes_groups_shape(): void {
+		// WPCOM `stats/referrers` keys per-day data under `groups` (NOT `referrers`),
+		// each with `name`/`total`/optional `url`. This regression-guards the mapping.
+		$this->filter_wpcom_stats(
+			array(
+				'get_referrers' => array(
+					'days' => array(
+						'2026-04-23' => array(
+							'groups' => array(
+								array(
+									'name'  => 'wordpress.com',
+									'url'   => 'https://wordpress.com',
+									'total' => 60,
+								),
+								array(
+									'name'  => 'Search Engines',
+									'total' => 25,
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'referrers',
+				'date' => '2026-04-23',
+			)
+		);
+
+		$this->assertSame( 'referrers', $result['type'] );
+		$this->assertCount( 2, $result['items'] );
+		$this->assertSame( 'wordpress.com', $result['items'][0]['label'] );
+		$this->assertSame( 60, $result['items'][0]['value'] );
+		$this->assertSame( 'https://wordpress.com', $result['items'][0]['href'] );
+		$this->assertSame( 'Search Engines', $result['items'][1]['label'] );
+		$this->assertSame( 25, $result['items'][1]['value'] );
+		// Groups without a `url` must omit `href` rather than emit an empty string.
+		$this->assertArrayNotHasKey( 'href', $result['items'][1] );
+	}
+
+	public function test_get_top_content_clicks_uniform_shape(): void {
+		$this->filter_wpcom_stats(
+			array(
+				'get_clicks' => array(
+					'days' => array(
+						'2026-04-23' => array(
+							'clicks' => array(
+								array(
+									'name'  => 'Docs',
+									'url'   => 'https://docs.example/x',
+									'views' => 9,
+								),
+								array(
+									// No `name` — normalization should fall back to `url`.
+									'url'   => 'https://example.com/y',
+									'views' => 3,
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'clicks',
+				'date' => '2026-04-23',
+			)
+		);
+
+		$this->assertSame( 'clicks', $result['type'] );
+		$this->assertCount( 2, $result['items'] );
+		$this->assertSame( 'Docs', $result['items'][0]['label'] );
+		$this->assertSame( 9, $result['items'][0]['value'] );
+		$this->assertSame( 'https://docs.example/x', $result['items'][0]['href'] );
+		$this->assertSame( 'https://example.com/y', $result['items'][1]['label'] );
+		$this->assertSame( 'https://example.com/y', $result['items'][1]['href'] );
+	}
+
+	public function test_get_top_content_authors_uniform_shape(): void {
+		$this->filter_wpcom_stats(
+			array(
+				'get_top_authors' => array(
+					'days' => array(
+						'2026-04-23' => array(
+							'authors' => array(
+								array(
+									'name'  => 'Ada',
+									'views' => 80,
+								),
+								array(
+									'name'  => 'Grace',
+									'views' => 30,
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'authors',
+				'date' => '2026-04-23',
+			)
+		);
+
+		$this->assertCount( 2, $result['items'] );
+		$this->assertSame( 'Ada', $result['items'][0]['label'] );
+		$this->assertSame( 80, $result['items'][0]['value'] );
+		$this->assertArrayNotHasKey( 'href', $result['items'][0] );
+	}
+
+	public function test_get_top_content_downloads_uniform_shape(): void {
+		$this->filter_wpcom_stats(
+			array(
+				'get_file_downloads' => array(
+					'days' => array(
+						'2026-04-23' => array(
+							'files' => array(
+								array(
+									'filename'       => 'whitepaper.pdf',
+									'relative_url'   => '/downloads/whitepaper.pdf',
+									'download_count' => 42,
+								),
+								array(
+									// No `filename` — normalization should fall back to relative_url.
+									'relative_url'   => '/downloads/spec.zip',
+									'download_count' => 7,
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'downloads',
+				'date' => '2026-04-23',
+			)
+		);
+
+		$this->assertCount( 2, $result['items'] );
+		$this->assertSame( 'whitepaper.pdf', $result['items'][0]['label'] );
+		$this->assertSame( 42, $result['items'][0]['value'] );
+		$this->assertSame( '/downloads/whitepaper.pdf', $result['items'][0]['href'] );
+		$this->assertSame( '/downloads/spec.zip', $result['items'][1]['label'] );
+		$this->assertSame( '/downloads/spec.zip', $result['items'][1]['href'] );
+	}
+
+	public function test_get_top_content_video_plays_uniform_shape(): void {
+		$this->filter_wpcom_stats(
+			array(
+				'get_video_plays' => array(
+					'days' => array(
+						'2026-04-23' => array(
+							'plays' => array(
+								array(
+									'title' => 'Launch demo',
+									'plays' => 200,
+								),
+								array(
+									'title' => 'Tutorial',
+									'plays' => 75,
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type' => 'video-plays',
+				'date' => '2026-04-23',
+			)
+		);
+
+		$this->assertCount( 2, $result['items'] );
+		$this->assertSame( 'Launch demo', $result['items'][0]['label'] );
+		$this->assertSame( 200, $result['items'][0]['value'] );
+		$this->assertArrayNotHasKey( 'href', $result['items'][0] );
+	}
+
 	public function test_get_post_views_rejects_missing_post_id(): void {
 		$result = Stats_Abilities::get_post_views( array() );
 		$this->assertInstanceOf( \WP_Error::class, $result );
@@ -827,6 +1044,15 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$result = Stats_Abilities::set_stats_config( array( 'roles' => array( 'robot' ) ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_stats_invalid_role', $result->get_error_code() );
+	}
+
+	public function test_set_stats_config_rejects_empty_roles_to_prevent_lockout(): void {
+		// Schema validation enforces minItems=1 on REST input, but direct PHP callers bypass
+		// that path; an empty `roles` array would revoke `view_stats` for every user, including
+		// the caller. Reject explicitly.
+		$result = Stats_Abilities::set_stats_config( array( 'roles' => array() ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_invalid_roles', $result->get_error_code() );
 	}
 
 	public function test_set_stats_config_changes_admin_bar(): void {

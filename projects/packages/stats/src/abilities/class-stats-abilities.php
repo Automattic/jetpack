@@ -73,9 +73,12 @@ class Stats_Abilities extends Registrar {
 			'href'  => 'href',
 		),
 		'referrers'    => array(
-			'list'  => 'referrers',
+			// WPCOM `stats/referrers` keys per-day data under `groups`, not `referrers` —
+			// each group exposes `name`, `total`, and (sometimes) `url`.
+			'list'  => 'groups',
 			'label' => 'name',
-			'value' => 'views',
+			'value' => 'total',
+			'href'  => 'url',
 		),
 		'search-terms' => array(
 			'list'  => 'search_terms',
@@ -154,7 +157,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats' ),
 			'description'         => __(
-				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, this week/month totals, the current posting streak, today\'s top post, and top referrer. Shape: { date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. Composes the WPCOM stats/summary, stats/highlights, and stats/streak endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls; missing data is never silently substituted with zeros. Precondition: the site must be connected to WordPress.com; a disconnected site returns jetpack_stats_not_connected. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, this week/month totals, the current posting streak, today\'s top post, and top referrer. Shape: { date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. Composes the WPCOM stats/summary, stats/highlights, and stats/streak endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls; when `partial` is true, count fields owned by the failed sub-call(s) are placeholder zeros rather than confirmed counts (cross-reference `errors` before treating a `0` as authoritative). If every sub-call fails, returns `jetpack_stats_data_unavailable`. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats'
 			),
 			'input_schema'        => array(
@@ -397,7 +400,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get follower counts', 'jetpack-stats' ),
 			'description'         => __(
-				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls; missing sources are NOT substituted with zero. Precondition: site must be connected to WordPress.com.',
+				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls; when `partial` is true, source counts owned by the failed sub-call(s) are placeholder zeros rather than confirmed zero counts (cross-reference `errors` before treating a `0` as authoritative). Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats'
 			),
 			'input_schema'        => array(
@@ -917,6 +920,15 @@ class Stats_Abilities extends Registrar {
 						__( 'Field `%s` must be an array of role slugs.', 'jetpack-stats' ),
 						$role_field
 					)
+				);
+			}
+			// `roles` gates `view_stats` — an empty array would lock every user out, including
+			// the caller. Schema validation enforces minItems=1 on REST input, but direct PHP
+			// callers bypass that path; reject explicitly here.
+			if ( 'roles' === $role_field && empty( $provided[ $role_field ] ) ) {
+				return new WP_Error(
+					self::ERROR_PREFIX . 'invalid_roles',
+					__( 'Field `roles` must be a non-empty array of role slugs — an empty list would revoke Stats access for every user.', 'jetpack-stats' )
 				);
 			}
 			$sanitized = array();
