@@ -125,6 +125,27 @@ export function urlParamsToState( params, filterConfigs = {} ) {
 		activeFilters[ filterKey ].push( normalized );
 	}
 
+	// Scalar comma-joined fallback for filterConfigs whose `urlFormat` is
+	// `scalar` (e.g. `?filter_stock_status=instock,outofstock` written by
+	// WC's Product Filter Status block). Reading both formats keeps the
+	// store interoperable with the WC bridge.
+	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		if ( config?.urlFormat !== 'scalar' || activeFilters[ filterKey ] ) {
+			continue;
+		}
+		const raw = params.get( filterKey );
+		if ( ! raw ) {
+			continue;
+		}
+		const values = String( raw )
+			.split( ',' )
+			.map( v => v.trim() )
+			.filter( Boolean );
+		if ( values.length > 0 ) {
+			activeFilters[ filterKey ] = Array.from( new Set( values ) );
+		}
+	}
+
 	const minPrice = parsePriceBound( params.get( 'min_price' ) );
 	const maxPrice = parsePriceBound( params.get( 'max_price' ) );
 	const priceRange =

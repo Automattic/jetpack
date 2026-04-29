@@ -84,6 +84,16 @@ export function resolveFilterFields( config ) {
 				filterField: 'author_login',
 				bucketFormat: 'slash',
 			};
+		case 'wc_stock_status':
+			// WooCommerce indexes `_stock_status` as a string postmeta — values
+			// are `instock`, `outofstock`, `onbackorder`. The WPCOM ES schema
+			// exposes these as `meta._stock_status.value` for both filtering
+			// and aggregation.
+			return {
+				aggField: 'meta._stock_status.value',
+				filterField: 'meta._stock_status.value',
+				bucketFormat: 'plain',
+			};
 	}
 	return { aggField: null, filterField: null, bucketFormat: 'plain' };
 }

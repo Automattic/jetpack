@@ -257,6 +257,18 @@ class WooCommerce_Filters_Bridge {
 			}
 		}
 
+		// Stock status — slugs `instock`, `outofstock`, `onbackorder`. WC
+		// writes this URL key as `filter_stock_status=instock,outofstock`
+		// (scalar comma-joined) from its Product Filter Status block;
+		// `urlFormat: 'scalar'` opts the bridge JS and the jetpack-search
+		// store's URL parser into that shape so the URL contract stays
+		// compatible with what WC already writes.
+		$configs['filter_stock_status'] = array(
+			'filterType' => 'wc_stock_status',
+			'urlFormat'  => 'scalar',
+			'maxItems'   => 10,
+		);
+
 		return $configs;
 	}
 }

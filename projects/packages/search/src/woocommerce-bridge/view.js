@@ -20,9 +20,19 @@
  * inert. The native listener toggles a slug under the filter key, pushes
  * the WC-format URL, re-fetches aggregations, and re-renders.
  *
- * Out of V2 scope: price (range slider), status (in-stock / out-of-stock),
- * rating filters. Those need range/term aggregations not exposed by the
- * standard WPCOM search API and are tracked as follow-ups.
+ * Filter coverage today: taxonomy (product_cat, product_tag,
+ * product_brand), attributes (pa_*), stock status
+ * (filter_stock_status — scalar URL key, ES field
+ * `meta._stock_status.value`), active-filter removable chips driven from
+ * URL state, both display variants (checkbox-list and chips), and the
+ * price slider via the actions.navigate override.
+ *
+ * Out of scope (TODOs): rating filter (needs a range aggregation on
+ * `meta._wc_average_rating.double` plus star-bucket rendering, which
+ * requires `buildAggregations` to learn about non-`terms` aggs); i18n —
+ * stock-status labels are hardcoded English, follow-up should read them
+ * off the existing server-rendered items or seed via
+ * wp_interactivity_state.
  *
  * Runtime config (siteId, apiRoot, isPrivateSite, isWpcom, nonce, homeUrl,
  * filterConfigs) is seeded server-side via `wp_interactivity_state` under
@@ -48,18 +58,34 @@ const { state: bridgeState } = store( BRIDGE_NAMESPACE, {} );
 function buildWcFilterTypeMap() {
 	const map = {};
 	for ( const [ filterKey, cfg ] of Object.entries( bridgeState?.filterConfigs ?? {} ) ) {
-		if ( cfg.filterType !== 'taxonomy' || ! cfg.taxonomy ) {
-			continue;
-		}
-		// Built-in product taxonomies → `taxonomy/<taxonomy>`.
-		map[ `taxonomy/${ cfg.taxonomy }` ] = filterKey;
-		// pa_* attribute taxonomies are also addressed as `attribute/<short>`.
-		if ( cfg.taxonomy.startsWith( 'pa_' ) ) {
-			map[ `attribute/${ cfg.taxonomy.slice( 3 ) }` ] = filterKey;
+		if ( cfg.filterType === 'taxonomy' && cfg.taxonomy ) {
+			// Built-in product taxonomies → `taxonomy/<taxonomy>`.
+			map[ `taxonomy/${ cfg.taxonomy }` ] = filterKey;
+			// pa_* attribute taxonomies are also addressed as `attribute/<short>`.
+			if ( cfg.taxonomy.startsWith( 'pa_' ) ) {
+				map[ `attribute/${ cfg.taxonomy.slice( 3 ) }` ] = filterKey;
+			}
+		} else if ( cfg.filterType === 'wc_stock_status' ) {
+			map.status = filterKey;
 		}
 	}
 	return map;
 }
+
+/**
+ * Friendly labels for known scalar filter slugs. WC server-renders these
+ * with localized strings via `wc_get_product_stock_status_options()`,
+ * but the bridge replaces the items list at innerHTML time and ES
+ * buckets only carry the slug. Hardcoded English labels here mean
+ * status options round-trip readably; a follow-up should read the
+ * localized labels off the existing server-rendered DOM (or seed them
+ * via wp_interactivity_state) so non-English sites get translated.
+ */
+const STOCK_STATUS_LABELS = {
+	instock: 'In stock',
+	outofstock: 'Out of stock',
+	onbackorder: 'On backorder',
+};
 
 /**
  * Read URL params and produce the activeFilters shape that
@@ -77,7 +103,23 @@ function buildWcFilterTypeMap() {
  */
 function urlToActiveFilters( searchParams, filterConfigs ) {
 	const active = {};
-	for ( const key of Object.keys( filterConfigs ?? {} ) ) {
+	for ( const [ key, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		// Scalar comma-joined first (e.g. WC's `?filter_stock_status=instock,outofstock`)
+		// when the filterConfig opts into that URL shape.
+		if ( config?.urlFormat === 'scalar' ) {
+			const raw = searchParams.get( key );
+			if ( raw ) {
+				const values = String( raw )
+					.split( ',' )
+					.map( v => v.trim() )
+					.filter( Boolean );
+				if ( values.length > 0 ) {
+					active[ key ] = Array.from( new Set( values ) );
+					continue;
+				}
+			}
+		}
+		// Default: array-form `?<key>[]=value`.
 		const values = searchParams
 			.getAll( `${ key }[]` )
 			.map( v => String( v ).trim() )
@@ -331,6 +373,56 @@ function renderItemHtml( item, filterKey ) {
 }
 
 /**
+ * Build a chip-variant button matching ProductFilterChips.php. Used when
+ * a filter region renders with `wc-block-product-filter-chips__items`
+ * (instead of the checkbox-list host) — the page editor lets each
+ * filter inner block opt into either display style.
+ *
+ * @param {object} item      - Item shape produced by `bucketsToItems()`.
+ * @param {string} filterKey - filterConfig key (e.g. `pa_color`).
+ * @return {string} HTML for one chip button.
+ */
+function renderChipsItemHtml( item, filterKey ) {
+	const itemId = `${ item.type }-${ item.value }`;
+
+	return [
+		`<button id="${ escAttr( itemId ) }"`,
+		` class="wc-block-product-filter-chips__item${ item.selected ? ' is-selected' : '' }"`,
+		' type="button" role="checkbox"',
+		` aria-label="${ escAttr( item.ariaLabel ?? item.label ) }"`,
+		` aria-checked="${ item.selected ? 'true' : 'false' }"`,
+		` value="${ escAttr( item.value ) }"`,
+		` data-jp-filter-key="${ escAttr( filterKey ) }"`,
+		` data-jp-filter-value="${ escAttr( item.value ) }">`,
+		'<span class="wc-block-product-filter-chips__label">',
+		`<span class="wc-block-product-filter-chips__text">${ escText( item.label ) }</span>`,
+		`<span class="wc-block-product-filter-chips__count">(${ item.count })</span>`,
+		'</span>',
+		'</button>',
+	].join( '' );
+}
+
+/**
+ * Find the items host inside a filter region — supports both display
+ * variants WC offers: checkbox-list and chips.
+ *
+ * @param {Element} region - Filter region (the parent ProductFilter* inner block
+ *                         element with the filterType context).
+ * @return {{ host: Element, kind: 'chips'|'checkbox-list' }|null} Host details, or null if none found.
+ */
+function findItemHost( region ) {
+	const cb = region.querySelector( '.wc-block-product-filter-checkbox-list__items' );
+	if ( cb ) {
+		return { host: cb, kind: 'checkbox-list' };
+	}
+	const chips = region.querySelector( '.wc-block-product-filter-chips__items' );
+	if ( chips ) {
+		return { host: chips, kind: 'chips' };
+	}
+	return null;
+}
+
+/**
  * Build a `{ [filterKey]: { [slug]: label } }` map for resolving each
  * active-filter chip's display name. Pulled from the unscoped baseline
  * because that's the only response guaranteed to contain a bucket for
@@ -352,11 +444,24 @@ function buildSlugLabelMap( unscoped ) {
 		}
 		const { bucketFormat } = resolveFilterFields( config );
 		const slugMap = {};
+
+		// For wc_stock_status, every supported slug should always render
+		// even when the unscoped baseline returns no bucket for it (e.g.
+		// brand-new sites with no out-of-stock products). Pre-seeding
+		// from the hardcoded label map guarantees the user sees the full
+		// set of options.
+		if ( config.filterType === 'wc_stock_status' ) {
+			Object.assign( slugMap, STOCK_STATUS_LABELS );
+		}
+
 		for ( const bucket of agg?.buckets ?? [] ) {
 			const rawKey = String( bucket.key ?? '' );
 			if ( bucketFormat === 'slash' && rawKey.includes( '/' ) ) {
 				const idx = rawKey.indexOf( '/' );
 				slugMap[ rawKey.slice( 0, idx ) ] = rawKey.slice( idx + 1 ) || rawKey.slice( 0, idx );
+			} else if ( config.filterType === 'wc_stock_status' && STOCK_STATUS_LABELS[ rawKey ] ) {
+				// Keep the friendly label rather than falling back to the slug.
+				slugMap[ rawKey ] = STOCK_STATUS_LABELS[ rawKey ];
 			} else {
 				slugMap[ rawKey ] = rawKey;
 			}
@@ -552,31 +657,46 @@ function applyToFilterBlocks( scoped, unscoped, searchParams ) {
 			return;
 		}
 
-		const universeBuckets = baseline[ filterKey ]?.buckets;
-		if ( ! Array.isArray( universeBuckets ) ) {
+		const found = findItemHost( region );
+		if ( ! found ) {
 			return;
 		}
-
-		const itemHost = region.querySelector( '.wc-block-product-filter-checkbox-list__items' );
-		if ( ! itemHost ) {
-			return;
-		}
+		const { host: itemHost, kind: hostKind } = found;
 		const config = bridgeState.filterConfigs[ filterKey ];
 		const selectedSlugs = new Set( activeFilters[ filterKey ] ?? [] );
-
-		// Build a slug → scoped-count map so each baseline option can show
-		// its current-scope count (defaulting to 0 when the option isn't in
-		// the scoped buckets).
 		const scopedCounts = bucketsToCountMap( scoped?.[ filterKey ]?.buckets ?? [], config );
 
-		const items = bucketsToItems( universeBuckets, config, wcFilterType, selectedSlugs ).map(
-			item => ( {
-				...item,
-				count: scopedCounts[ item.value ] ?? 0,
-			} )
-		);
-		itemHost.innerHTML = items.map( item => renderItemHtml( item, filterKey ) ).join( '' );
-		wireItemListeners( itemHost );
+		let items;
+		if ( config.filterType === 'wc_stock_status' ) {
+			// Always render the standard 3 stock-status options in
+			// conventional order, regardless of which buckets came back
+			// from ES — a brand-new site with zero out-of-stock products
+			// should still surface "Out of stock (0)" so the option
+			// remains discoverable.
+			items = [ 'instock', 'outofstock', 'onbackorder' ].map( slug => ( {
+				value: slug,
+				type: wcFilterType,
+				label: STOCK_STATUS_LABELS[ slug ],
+				count: scopedCounts[ slug ] ?? 0,
+				selected: selectedSlugs.has( slug ),
+				ariaLabel: STOCK_STATUS_LABELS[ slug ],
+			} ) );
+		} else {
+			const universeBuckets = baseline[ filterKey ]?.buckets;
+			if ( ! Array.isArray( universeBuckets ) ) {
+				return;
+			}
+			items = bucketsToItems( universeBuckets, config, wcFilterType, selectedSlugs ).map(
+				item => ( {
+					...item,
+					count: scopedCounts[ item.value ] ?? 0,
+				} )
+			);
+		}
+
+		const renderer = hostKind === 'chips' ? renderChipsItemHtml : renderItemHtml;
+		itemHost.innerHTML = items.map( item => renderer( item, filterKey ) ).join( '' );
+		wireItemListeners( itemHost, hostKind );
 	} );
 }
 
@@ -605,18 +725,36 @@ function bucketsToCountMap( buckets, filterConfig ) {
 }
 
 /**
- * Attach native change listeners to every input under `host`. Single
- * delegated listener at the host level — survives item re-renders only
- * when the host element itself stays in place (which it does, since we
- * `innerHTML` into it rather than replacing it).
+ * Attach a native delegated listener to the items host. Checkbox-list
+ * variant listens for `change` on inputs; chips variant listens for
+ * `click` on buttons. Single bound listener per host survives item
+ * re-renders since we `innerHTML` into the host without replacing it.
  *
- * @param {Element} host - The `…__items` div whose inputs to wire.
+ * @param {Element} host     - The `…__items` div whose items to wire.
+ * @param {string}  hostKind - `'checkbox-list'` or `'chips'`.
  */
-function wireItemListeners( host ) {
+function wireItemListeners( host, hostKind ) {
 	if ( host.dataset.jpListenerBound === '1' ) {
 		return;
 	}
 	host.dataset.jpListenerBound = '1';
+
+	if ( hostKind === 'chips' ) {
+		host.addEventListener( 'click', event => {
+			const button = event.target.closest( 'button[data-jp-filter-key]' );
+			if ( ! button ) {
+				return;
+			}
+			event.preventDefault();
+			const filterKey = button.getAttribute( 'data-jp-filter-key' );
+			const filterValue = button.getAttribute( 'data-jp-filter-value' );
+			if ( filterKey && filterValue ) {
+				toggleFilterAndNavigate( filterKey, filterValue );
+			}
+		} );
+		return;
+	}
+
 	host.addEventListener( 'change', event => {
 		const input = event.target;
 		if ( ! ( input instanceof HTMLInputElement ) ) {
@@ -644,17 +782,39 @@ function wireItemListeners( host ) {
  */
 async function toggleFilterAndNavigate( filterKey, filterValue ) {
 	const url = new URL( window.location.href );
-	const arrayParam = `${ filterKey }[]`;
-	const current = url.searchParams.getAll( arrayParam );
-	const idx = current.indexOf( filterValue );
-	if ( idx === -1 ) {
-		current.push( filterValue );
+	const config = bridgeState?.filterConfigs?.[ filterKey ];
+	const isScalar = config?.urlFormat === 'scalar';
+
+	if ( isScalar ) {
+		// Scalar comma-joined URL key (e.g. `?filter_stock_status=instock,outofstock`).
+		const current = ( url.searchParams.get( filterKey ) ?? '' )
+			.split( ',' )
+			.map( s => s.trim() )
+			.filter( Boolean );
+		const idx = current.indexOf( filterValue );
+		if ( idx === -1 ) {
+			current.push( filterValue );
+		} else {
+			current.splice( idx, 1 );
+		}
+		if ( current.length === 0 ) {
+			url.searchParams.delete( filterKey );
+		} else {
+			url.searchParams.set( filterKey, current.join( ',' ) );
+		}
 	} else {
-		current.splice( idx, 1 );
-	}
-	url.searchParams.delete( arrayParam );
-	for ( const value of current ) {
-		url.searchParams.append( arrayParam, value );
+		const arrayParam = `${ filterKey }[]`;
+		const current = url.searchParams.getAll( arrayParam );
+		const idx = current.indexOf( filterValue );
+		if ( idx === -1 ) {
+			current.push( filterValue );
+		} else {
+			current.splice( idx, 1 );
+		}
+		url.searchParams.delete( arrayParam );
+		for ( const value of current ) {
+			url.searchParams.append( arrayParam, value );
+		}
 	}
 
 	window.history.pushState( {}, '', url.href );
