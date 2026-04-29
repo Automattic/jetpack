@@ -29,14 +29,37 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 
 	wpcomsh_fatal_load_textdomain();
 
-	// Resolve the offending extension once and log its signature
-	// independent of viewer (anonymous vs admin) — telemetry shouldn't
-	// depend on who happened to load the page. The render context then
-	// drops plugin info for non-admin viewers.
-	$plugin = wpcomsh_fatal_identify_plugin( $error );
-	wpcomsh_fatal_log_signature( $plugin );
+	$user_id  = wpcomsh_fatal_current_user_id();
+	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
 
-	$context = wpcomsh_fatal_build_render_context( $error, $plugin );
+	// Pay for identification only when its output is consumed: admins
+	// need $plugin for the rendered "suspected plugin" notice, and the
+	// anonymous path needs it once per (file, 5-min) so telemetry
+	// captures the fatal without paying glob() + get_plugin_data() for
+	// every visitor of a persistent breakage. The downstream signature
+	// dedup in wpcomsh_fatal_log_signature() is the belt; this is the
+	// suspenders that also skips identification.
+	$plugin = null;
+
+	if ( $is_admin ) {
+		$plugin = wpcomsh_fatal_identify_plugin( $error );
+		wpcomsh_fatal_log_signature( $plugin );
+	} elseif ( ! empty( $error['file'] ) ) {
+		$coarse_key = 'wpcomsh_fatal_file:' . hash( 'sha256', (string) $error['file'] );
+		$do_log     = true;
+
+		try {
+			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS );
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not silence telemetry.
+			// Fail open.
+		}
+
+		if ( $do_log ) {
+			wpcomsh_fatal_log_signature( wpcomsh_fatal_identify_plugin( $error ) );
+		}
+	}
+
+	$context = wpcomsh_fatal_build_render_context( $error, $plugin, $user_id, $is_admin );
 
 	ob_start();
 	wpcomsh_fatal_render_screen( $context );
@@ -63,21 +86,22 @@ function wpcomsh_fatal_load_textdomain() {
  * Helpers return empty strings / nulls when data is unavailable, so the
  * template only has to check truthiness.
  *
- * Identification is resolved upstream in
- * wpcomsh_customize_fatal_error_message() so the signature is logged
- * regardless of viewer; this function then drops plugin info and the
- * error message for non-admin viewers.
+ * Identification, user-id resolution, and admin-capability check are
+ * all done upstream in wpcomsh_customize_fatal_error_message() so the
+ * costs are paid once per request and the telemetry/render branches
+ * share the same view of the viewer. This function then drops plugin
+ * info and the error message for non-admin viewers.
  *
- * @param array      $error  Error details from WP_Fatal_Error_Handler.
- * @param array|null $plugin Identified extension metadata, or null.
+ * @param array      $error    Error details from WP_Fatal_Error_Handler.
+ * @param array|null $plugin   Identified extension metadata, or null.
+ * @param int        $user_id  Resolved logged-in user id, or 0.
+ * @param bool       $is_admin Whether the resolved user can manage_options.
  * @return array Associative array with keys: is_admin (bool),
  *     plugin (array|null), error_message (string), deactivate_form (array|null),
  *     recovery_url (string), support_url (string), environment (string[]).
  */
-function wpcomsh_fatal_build_render_context( $error, $plugin = null ) {
-	$user_id  = wpcomsh_fatal_current_user_id();
-	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
-	$plugin   = $is_admin ? $plugin : null;
+function wpcomsh_fatal_build_render_context( $error, $plugin = null, $user_id = 0, $is_admin = false ) {
+	$plugin = $is_admin ? $plugin : null;
 
 	$can_deactivate = $user_id
 		&& $plugin
