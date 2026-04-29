@@ -186,6 +186,24 @@ describe( 'urlParamsToState: priceRange', () => {
 		expect( state.priceRange ).toBeNull();
 	} );
 
+	it( 'rejects partial-numeric values that PHP would parse but JS would not', () => {
+		// `(float)"1.5.3"` is 1.5 in PHP but `Number("1.5.3")` is NaN in JS;
+		// without the explicit numeric gate on both sides the PHP initial
+		// render and the JS hydration would disagree on the parsed value.
+		const state = urlParamsToState( new URLSearchParams( '?min_price=1.5.3' ) );
+		expect( state.priceRange ).toBeNull();
+	} );
+
+	it( 'rejects inverted bounds (min > max) so an empty ES range clause is never sent', () => {
+		const state = urlParamsToState( new URLSearchParams( '?min_price=100&max_price=10' ) );
+		expect( state.priceRange ).toBeNull();
+	} );
+
+	it( 'accepts equal bounds (min === max) as a single-value range', () => {
+		const state = urlParamsToState( new URLSearchParams( '?min_price=42&max_price=42' ) );
+		expect( state.priceRange ).toEqual( { min: 42, max: 42 } );
+	} );
+
 	it( 'never treats min_price/max_price as filter keys', () => {
 		const params = new URLSearchParams();
 		params.append( 'min_price[]', '10' );

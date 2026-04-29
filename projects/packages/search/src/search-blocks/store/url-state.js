@@ -148,8 +148,15 @@ export function urlParamsToState( params, filterConfigs = {} ) {
 
 	const minPrice = parsePriceBound( params.get( 'min_price' ) );
 	const maxPrice = parsePriceBound( params.get( 'max_price' ) );
+	// Inverted bounds (min > max) build an ES range clause that always
+	// matches zero documents, so a URL like `?min_price=100&max_price=10`
+	// would render an empty page. Treat that as garbage and drop the range
+	// entirely; mirrors parse_url_price_range() on the PHP side.
+	const hasInvertedBounds = minPrice !== null && maxPrice !== null && minPrice > maxPrice;
 	const priceRange =
-		minPrice !== null || maxPrice !== null ? { min: minPrice, max: maxPrice } : null;
+		! hasInvertedBounds && ( minPrice !== null || maxPrice !== null )
+			? { min: minPrice, max: maxPrice }
+			: null;
 
 	return {
 		searchQuery: params.get( 's' ) ?? '',

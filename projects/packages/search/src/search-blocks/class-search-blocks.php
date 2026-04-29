@@ -609,6 +609,14 @@ class Search_Blocks {
 		if ( null === $min && null === $max ) {
 			return null;
 		}
+		// Both bounds present but inverted (min > max) yields an empty ES
+		// `range` clause that returns zero results silently. Treat the URL
+		// as garbage and bail so the page renders a normal (unfiltered)
+		// search rather than a guaranteed-empty one. Mirrors the same
+		// rejection in store/url-state.js.
+		if ( null !== $min && null !== $max && $min > $max ) {
+			return null;
+		}
 		return array(
 			'min' => $min,
 			'max' => $max,
@@ -625,7 +633,15 @@ class Search_Blocks {
 		if ( null === $raw || '' === $raw || ! is_scalar( $raw ) ) {
 			return null;
 		}
-		$num = (float) wp_unslash( $raw );
+		// `is_numeric` rejects partially-numeric strings like "1.5.3" that
+		// the (float) cast would silently extract as 1.5 — JS's Number()
+		// returns NaN for the same input, so without this gate the PHP
+		// initial render and JS hydration disagree on parsed value.
+		$raw = wp_unslash( $raw );
+		if ( ! is_numeric( $raw ) ) {
+			return null;
+		}
+		$num = (float) $raw;
 		if ( ! is_finite( $num ) || $num < 0 ) {
 			return null;
 		}
