@@ -44,7 +44,7 @@ require( '../../../src/search-blocks/store' );
  * read the available sort keys and walk the structure to refocus the
  * trigger after closing.
  *
- * @return {{root: HTMLElement, trigger: HTMLElement, items: HTMLButtonElement[]}}
+ * @return {{root: HTMLElement, trigger: HTMLElement, items: HTMLButtonElement[]}} Popover refs.
  */
 function buildPopoverDom() {
 	document.body.innerHTML = `
@@ -72,7 +72,7 @@ function buildPopoverDom() {
  *
  * @param {string}      key           - KeyboardEvent.key value.
  * @param {HTMLElement} currentTarget - Element the handler is bound to.
- * @return {{key: string, currentTarget: HTMLElement, preventDefault: jest.Mock}}
+ * @return {{key: string, currentTarget: HTMLElement, preventDefault: jest.Mock}} Synthetic event.
  */
 function makeKeydown( key, currentTarget ) {
 	return {
@@ -88,7 +88,7 @@ describe( 'sort popover keyboard navigation', () => {
 		captured.state.sortMenuFocusedKey = null;
 		captured.state.isSortPopoverOpen = false;
 		captured.state.isFilterPopoverOpen = false;
-		captured.actions.search = jest.fn();
+		jest.spyOn( captured.actions, 'search' ).mockImplementation( () => {} );
 	} );
 
 	describe( 'onSortTriggerKeydown', () => {
@@ -190,7 +190,8 @@ describe( 'sort popover keyboard navigation', () => {
 
 		it( 'closes the popover and refocuses the trigger on Escape', () => {
 			const { trigger, items } = buildPopoverDom();
-			const triggerFocus = jest.spyOn( trigger, 'focus' );
+			const triggerFocus = jest.fn();
+			trigger.focus = triggerFocus;
 			captured.state.isSortPopoverOpen = true;
 			captured.state.sortMenuFocusedKey = 'newest';
 			const event = makeKeydown( 'Escape', items[ 1 ] );
@@ -220,7 +221,8 @@ describe( 'sort popover keyboard navigation', () => {
 
 		it( 'activates the focused item on Enter, closes the popover, and refocuses the trigger', () => {
 			const { trigger, items } = buildPopoverDom();
-			const triggerFocus = jest.spyOn( trigger, 'focus' );
+			const triggerFocus = jest.fn();
+			trigger.focus = triggerFocus;
 			captured.state.isSortPopoverOpen = true;
 			captured.state.sortMenuFocusedKey = 'newest';
 			captured.state.sortOrder = 'relevance';

@@ -1,4 +1,4 @@
-import { store } from '@wordpress/interactivity';
+import { store, withSyncEvent as originalWithSyncEvent } from '@wordpress/interactivity';
 import { buildSearchUrl } from './api';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
@@ -11,6 +11,17 @@ import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
+
+// `withSyncEvent` opts an action into reading synchronous event APIs
+// (`event.currentTarget`, `event.preventDefault()`) without the
+// "synchronous event access" deprecation warning the Interactivity API
+// will turn into a hard error in WordPress 7.0. Falls back to a noop
+// wrapper on older runtimes (pre-WP 6.7) so the package still loads.
+const withSyncEvent =
+	originalWithSyncEvent ||
+	( cb =>
+		( ...args ) =>
+			cb( ...args ) );
 // Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
 // latest before touching store state, so a slow request for an older query
@@ -437,7 +448,7 @@ const { state, actions } = store( NAMESPACE, {
 		 *
 		 * @param {KeyboardEvent} event - Keydown event on the trigger.
 		 */
-		onSortTriggerKeydown( event ) {
+		onSortTriggerKeydown: withSyncEvent( event => {
 			const key = event?.key;
 			if ( key !== 'ArrowDown' && key !== 'ArrowUp' && key !== 'Enter' && key !== ' ' ) {
 				return;
@@ -452,7 +463,7 @@ const { state, actions } = store( NAMESPACE, {
 				return;
 			}
 			state.sortMenuFocusedKey = key === 'ArrowUp' ? options[ options.length - 1 ] : options[ 0 ];
-		},
+		} ),
 
 		/**
 		 * Implements the ARIA menu keyboard pattern for the sort popover:
@@ -466,10 +477,13 @@ const { state, actions } = store( NAMESPACE, {
 		 * @param {KeyboardEvent} event - Keydown event on a menu item.
 		 * @yield {Promise} Optional search action when Enter/Space activates.
 		 */
-		*onSortMenuKeydown( event ) {
+		onSortMenuKeydown: withSyncEvent( function* ( event ) {
 			const key = event?.key;
-			const options = getSortMenuOptionKeysFromItem( event?.currentTarget );
-			const currentValue = event?.currentTarget?.value ?? null;
+			if ( key === 'Tab' ) {
+				state.isSortPopoverOpen = false;
+				state.sortMenuFocusedKey = null;
+				return;
+			}
 			if ( key === 'Escape' ) {
 				event.preventDefault();
 				state.isSortPopoverOpen = false;
@@ -477,47 +491,50 @@ const { state, actions } = store( NAMESPACE, {
 				focusSortTrigger( event.currentTarget );
 				return;
 			}
-			if ( key === 'Tab' ) {
-				state.isSortPopoverOpen = false;
-				state.sortMenuFocusedKey = null;
-				return;
-			}
 			if ( key === 'Enter' || key === ' ' ) {
 				event.preventDefault();
-				yield* actions.selectSortOrder( event );
-				focusSortTrigger( event.currentTarget );
+				const item = event.currentTarget;
+				const next = item?.value;
+				const shouldSearch = !! next && next !== state.sortOrder;
+				if ( shouldSearch ) {
+					state.sortOrder = next;
+				}
+				state.isSortPopoverOpen = false;
+				state.sortMenuFocusedKey = null;
+				focusSortTrigger( item );
+				if ( shouldSearch ) {
+					yield actions.search();
+				}
+				return;
+			}
+			const options = getSortMenuOptionKeysFromItem( event?.currentTarget );
+			if ( options.length === 0 ) {
 				return;
 			}
 			if ( key === 'Home' ) {
 				event.preventDefault();
-				if ( options.length > 0 ) {
-					state.sortMenuFocusedKey = options[ 0 ];
-				}
+				state.sortMenuFocusedKey = options[ 0 ];
 				return;
 			}
 			if ( key === 'End' ) {
 				event.preventDefault();
-				if ( options.length > 0 ) {
-					state.sortMenuFocusedKey = options[ options.length - 1 ];
-				}
+				state.sortMenuFocusedKey = options[ options.length - 1 ];
 				return;
 			}
 			if ( key === 'ArrowDown' || key === 'ArrowUp' ) {
 				event.preventDefault();
-				if ( options.length === 0 ) {
-					return;
-				}
+				const currentValue = event?.currentTarget?.value ?? null;
 				const currentIndex = currentValue ? options.indexOf( currentValue ) : -1;
 				const delta = key === 'ArrowDown' ? 1 : -1;
-				const nextIndex =
-					currentIndex < 0
-						? key === 'ArrowDown'
-							? 0
-							: options.length - 1
-						: ( currentIndex + delta + options.length ) % options.length;
+				let nextIndex;
+				if ( currentIndex < 0 ) {
+					nextIndex = key === 'ArrowDown' ? 0 : options.length - 1;
+				} else {
+					nextIndex = ( currentIndex + delta + options.length ) % options.length;
+				}
 				state.sortMenuFocusedKey = options[ nextIndex ];
 			}
-		},
+		} ),
 
 		/**
 		 * Close any open popover when clicking outside it. Bound to

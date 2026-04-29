@@ -35,8 +35,7 @@ store( NAMESPACE, {
 		 * `state.sortOrder` so the menu opens with focus on the active
 		 * sort.
 		 *
-		 * @return {string} `"0"` when this item is the active descendant,
-		 *   `"-1"` otherwise.
+		 * @return {string} `"0"` when this item is the active descendant, `"-1"` otherwise.
 		 */
 		get sortMenuItemTabIndex() {
 			const { state } = store( NAMESPACE );
