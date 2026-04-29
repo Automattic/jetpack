@@ -820,6 +820,19 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
+		// Expired comp should NOT bypass the tier gate.
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $bronze_tier_plan_id, true )
+		);
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// Comp for a product_id with no matching plan on this site should NOT bypass the tier gate.
+		$unknown_product_id   = 9999;
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $unknown_product_id, true )
+		);
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		}

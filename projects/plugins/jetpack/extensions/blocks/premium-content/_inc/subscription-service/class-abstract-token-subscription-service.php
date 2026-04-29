@@ -428,11 +428,6 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
 			$details = (array) $details;
 
-			// Comp subscriptions are administrative grants and bypass tier price gating.
-			if ( ! empty( $details['is_comp'] ) ) {
-				return false;
-			}
-
 			$end = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
 			if ( $end < time() ) {
 				// subscription not active anymore
@@ -451,6 +446,12 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				// No post linked to this plan
 				continue;
 			}
+
+			// Comp grants linked to a plan on this site bypass the tier price comparison.
+			if ( ! empty( $details['is_comp'] ) ) {
+				return false;
+			}
+
 			$subscription_post_id = $subscription_post->ID;
 
 			if ( $subscription_post_id === $tier_id || $subscription_post_id === $annual_tier_id ) {
