@@ -1397,6 +1397,15 @@ const { state } = store( 'wpcom-write', {
 		closeImageModal() {
 			state.showImageModal = false;
 			resetUploadZone();
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
+		},
+
+		handleImageModalKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				const { actions: a } = store( 'wpcom-write' );
+				a.closeImageModal();
+			}
 		},
 
 		stopPropagation( event ) {
@@ -1538,6 +1547,15 @@ const { state } = store( 'wpcom-write', {
 
 		closeVideoModal() {
 			state.showVideoModal = false;
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
+		},
+
+		handleVideoModalKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				const { actions: a } = store( 'wpcom-write' );
+				a.closeVideoModal();
+			}
 		},
 
 		updateVideoUrl() {
