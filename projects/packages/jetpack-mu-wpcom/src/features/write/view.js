@@ -42,6 +42,31 @@ function restoreSelection() {
 }
 
 /**
+ * Visually highlight the current selection using the CSS Custom Highlight API.
+ *
+ * This avoids mutating the DOM (which would invalidate the saved range),
+ * so the selection can be cleanly restored when the link popover closes.
+ */
+function highlightSelection() {
+	if ( ! self.Highlight || ! CSS.highlights ) return;
+
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount || sel.isCollapsed ) return;
+
+	const range = sel.getRangeAt( 0 ).cloneRange();
+	CSS.highlights.set( 'bw-link-highlight', new Highlight( range ) );
+}
+
+/**
+ * Remove the visual link-highlight overlay.
+ */
+function clearHighlight() {
+	if ( CSS.highlights ) {
+		CSS.highlights.delete( 'bw-link-highlight' );
+	}
+}
+
+/**
  * Normalize color markup from contentEditable before block serialization.
  *
  * The foreColor command creates <font color="..."> (legacy) or
@@ -996,24 +1021,34 @@ const { state } = store( 'wpcom-write', {
 				linkPopoverCloseHandler = null;
 			}
 			if ( state.showLinkInput ) {
+				clearHighlight();
 				state.showLinkInput = false;
 				return;
 			}
 
-			// Save selection before the toolbar steals focus.
-			saveSelection();
-
-			// Pre-fill if cursor is inside a link.
+			// Pre-fill if cursor is inside a link.  When the cursor is
+			// collapsed inside an <a>, expand the selection to cover the
+			// full link text so the highlight shows what will be affected.
 			const sel = window.getSelection();
 			let node = sel.anchorNode;
 			state.linkUrl = '';
 			while ( node && node !== document.body ) {
 				if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A' ) {
 					state.linkUrl = node.getAttribute( 'href' ) || '';
+					if ( sel.isCollapsed ) {
+						const range = document.createRange();
+						range.selectNodeContents( node );
+						sel.removeAllRanges();
+						sel.addRange( range );
+					}
 					break;
 				}
 				node = node.parentNode;
 			}
+
+			// Save and highlight after any selection expansion above.
+			saveSelection();
+			highlightSelection();
 
 			state.showLinkInput = true;
 
@@ -1032,6 +1067,7 @@ const { state } = store( 'wpcom-write', {
 					e.target.closest( '[data-wp-on--click="actions.toggleLinkInput"]' )
 				)
 					return;
+				clearHighlight();
 				state.showLinkInput = false;
 				document.removeEventListener( 'click', linkPopoverCloseHandler );
 				linkPopoverCloseHandler = null;
@@ -1047,6 +1083,7 @@ const { state } = store( 'wpcom-write', {
 		handleLinkKeyDown( event ) {
 			if ( event.key === 'Enter' ) {
 				event.preventDefault();
+				clearHighlight();
 				restoreSelection();
 				if ( state.linkUrl ) {
 					document.execCommand( 'createLink', false, state.linkUrl );
@@ -1061,6 +1098,7 @@ const { state } = store( 'wpcom-write', {
 			}
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
+				clearHighlight();
 				state.showLinkInput = false;
 				if ( linkPopoverCloseHandler ) {
 					document.removeEventListener( 'click', linkPopoverCloseHandler );
@@ -1072,6 +1110,7 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		applyLink() {
+			clearHighlight();
 			restoreSelection();
 			if ( state.linkUrl ) {
 				document.execCommand( 'createLink', false, state.linkUrl );
@@ -1086,6 +1125,7 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		removeLink() {
+			clearHighlight();
 			restoreSelection();
 			document.execCommand( 'unlink' );
 			state.showLinkInput = false;
