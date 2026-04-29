@@ -9,12 +9,15 @@ describe( 'stateToUrlParams', () => {
 		expect( params.get( 's' ) ).toBe( 'boots' );
 	} );
 
-	it( 'omits empty search query', () => {
+	it( 'preserves empty s= so a refresh stays on the search route', () => {
+		// Dropping `s` entirely would push WP back to the front-page route on
+		// refresh after the user clears the search input.
 		const params = stateToUrlParams( {
 			searchQuery: '',
 			sortOrder: 'relevance',
 		} );
-		expect( params.has( 's' ) ).toBe( false );
+		expect( params.has( 's' ) ).toBe( true );
+		expect( params.get( 's' ) ).toBe( '' );
 	} );
 
 	it( 'serializes non-default sort order', () => {
