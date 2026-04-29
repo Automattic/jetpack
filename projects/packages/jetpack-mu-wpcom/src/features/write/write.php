@@ -290,7 +290,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Recovery banner -->
 	<div class="bw-recovery-banner" hidden data-wp-bind--hidden="!state.showRecoveryBanner">
-		<span class="bw-recovery-text"><?php echo esc_html__( 'You have an unsaved draft.', 'jetpack-mu-wpcom' ); ?></span>
+		<span class="bw-recovery-text"><?php echo esc_html__( 'You have a recent draft — continue editing?', 'jetpack-mu-wpcom' ); ?></span>
 		<button class="bw-recovery-btn" data-wp-on--click="actions.resumeDraft"><?php echo esc_html__( 'Resume editing', 'jetpack-mu-wpcom' ); ?></button>
 		<button class="bw-recovery-dismiss" data-wp-on--click="actions.dismissRecovery" title="<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">&times;</button>
 	</div>

@@ -325,7 +325,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'class="bw-recovery-banner"', $output );
 		$this->assertStringContainsString( 'actions.resumeDraft', $output );
 		$this->assertStringContainsString( 'actions.dismissRecovery', $output );
-		$this->assertStringContainsString( 'You have an unsaved draft.', $output );
+		$this->assertStringContainsString( 'You have a recent draft', $output );
 		$this->assertStringContainsString( 'Resume editing', $output );
 	}
 

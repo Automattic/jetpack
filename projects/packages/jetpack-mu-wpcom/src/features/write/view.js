@@ -1567,7 +1567,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			await savePost( 'draft', true );
+			await savePost( state.postStatus === 'publish' ? 'publish' : 'draft', true );
 		},
 
 		/**
