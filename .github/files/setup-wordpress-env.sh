@@ -39,11 +39,14 @@ mkdir -p "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
 chmod -R 777 "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
 echo "::endgroup::"
 
-echo "::endgroup::"
-
 if [[ -n "$GITHUB_ENV" ]]; then
 	echo "WORDPRESS_DEVELOP_DIR=/tmp/wordpress-$WP_BRANCH" >> "$GITHUB_ENV"
 	echo "WORDPRESS_DIR=/tmp/wordpress-$WP_BRANCH/src" >> "$GITHUB_ENV"
+fi
+
+# When running WITH_WPCOMSH, always ensure wpcomsh is installed even if it wasn't actually changed.
+if [[ "$WITH_WPCOMSH" == true && -n "$CHANGED" ]]; then
+	CHANGED=$( jq -c '.["plugins/wpcomsh"] |= true' <<<"$CHANGED" )
 fi
 
 # Don't symlink, it breaks when copied later.
@@ -152,13 +155,6 @@ function _install_plugin {
 
 	echo "::endgroup::"
 }
-
-# When running WITH_WPCOMSH, always ensure wpcomsh is installed even if it wasn't changed.
-# The WITH_WPCOMSH block below copies wpcomsh from plugins/ to mu-plugins/ and will fail
-# if wpcomsh was skipped by the CHANGED filter.
-if [[ "$WITH_WPCOMSH" == true && -n "$CHANGED" ]]; then
-	CHANGED=$(jq -c '. += { "plugins/wpcomsh": true }' <<<"$CHANGED")
-fi
 
 EXIT=0
 PIDS=()
