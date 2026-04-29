@@ -186,11 +186,11 @@ jQuery( function ( $ ) {
 			success: function ( response ) {
 				//populate the data in the customer panel
 				$( '#panel-customer-avatar' ).html( response.avatar );
-				$( '#panel-name' ).html( response.customer.fname + ' ' + response.customer.lname );
-				$( '#panel-status' ).html( response.customer.status );
+				$( '#panel-name' ).text( response.customer.fname + ' ' + response.customer.lname );
+				$( '#panel-status' ).text( response.customer.status );
 
-				$( '.panel-customer-email' ).html( response.customer.email );
-				$( '.panel-customer-phone' ).html( response.customer.hometel );
+				$( '.panel-customer-email' ).text( response.customer.email );
+				$( '.panel-customer-phone' ).text( response.customer.hometel );
 
 				$( '.the-tasks' ).html( '' );
 
@@ -202,11 +202,15 @@ jQuery( function ( $ ) {
 					// eslint-disable-next-line eqeqeq
 					if ( v.complete == 1 ) {
 						$( '.the-tasks' ).append(
-							'<li class="complete"><i class="ui icon check green circle"></i>' + v.title + '</li>'
+							'<li class="complete"><i class="ui icon check green circle"></i>' +
+								jpcrm.esc_html( v.title ) +
+								'</li>'
 						);
 						completed_tasks++;
 					} else {
-						$( '.the-tasks' ).append( '<li class="incomplete">' + v.title + '</li>' );
+						$( '.the-tasks' ).append(
+							'<li class="incomplete">' + jpcrm.esc_html( v.title ) + '</li>'
+						);
 						progress_tasks++;
 					}
 				} );
@@ -215,19 +219,21 @@ jQuery( function ( $ ) {
 					$( '.the-tasks' ).html( "<div class='no-tasks'>No Tasks for this contact</div>" );
 				}
 
-				$( '.total-tasks-panel' ).html( total_tasks );
-				$( '.completed-tasks-panel' ).html( completed_tasks );
-				$( '.inprogress-tasks-panel' ).html( progress_tasks );
-				$( '.total-paid .the_value' ).html( response.trans_value );
-				$( '.total-due .the_value' ).html( response.quote_value );
+				$( '.total-tasks-panel' ).text( total_tasks );
+				$( '.completed-tasks-panel' ).text( completed_tasks );
+				$( '.inprogress-tasks-panel' ).text( progress_tasks );
+				$( '.total-paid .the_value' ).text( response.trans_value );
+				$( '.total-due .the_value' ).text( response.quote_value );
 
 				//the email stuff
-				$( '.zbs-email-date' ).html( response.email_date );
-				$( '.zbs-email-subject' ).html( response.email.zbsmail_subject );
+				$( '.zbs-email-date' ).text( response.email_date );
+				$( '.zbs-email-subject' ).text( response.email.zbsmail_subject );
 
 				//   $('.zbs-email-body-content').append(response.email);
 				$.each( response.email, function ( k, v ) {
-					$( '.zbs-email-thread' ).append( '<div class="zbs-email-date>' + v.date + '</div>' );
+					$( '.zbs-email-thread' ).append(
+						'<div class="zbs-email-date">' + jpcrm.esc_html( v.date ) + '</div>'
+					);
 					$( '.zbs-email-thread' ).append(
 						'<div class="zbs-email-subject em-sub-' +
 							k +
@@ -235,27 +241,30 @@ jQuery( function ( $ ) {
 							jpcrm.esc_html( v.zbsmail_subject ) +
 							'</div>'
 					);
+					// `v.zbsmail_content` is sanitized server-side via `wp_kses()`, so it is safe to render as HTML here.
 					$( '.zbs-email-thread' ).append(
 						'<div class="zbs-email-body-content ' +
-							v.in_or_out +
+							jpcrm.esc_attr( v.in_or_out ) +
 							'" id="zbsbody' +
-							v.the_id +
+							jpcrm.esc_attr( v.the_id ) +
 							'">' +
-							unescape( v.zbsmail_content ) +
+							v.zbsmail_content +
 							'</div>'
 					);
-					$( '#zbsbody' + v.the_id ).append( '<div class="pointer' + v.in_or_out + '"></div>' );
+					$( '#zbsbody' + v.the_id ).append(
+						'<div class="pointer' + jpcrm.esc_attr( v.in_or_out ) + '"></div>'
+					);
 					$( '.zbs-email-thread' ).append(
-						'<div class="email-avatar avatar-' + v.in_or_out + '">' + v.avatar + '</div>'
+						'<div class="email-avatar avatar-' + jpcrm.esc_attr( v.in_or_out ) + '">' + v.avatar + '</div>'
 					);
 					$( '.zbs-email-thread' ).append( '<div class="clear"></div>' );
 
 					if ( v.zbsmail_opened > 0 ) {
 						$( '.zbs-email-thread' ).append(
 							'<div class="zbsread' +
-								v.in_or_out +
+								jpcrm.esc_attr( v.in_or_out ) +
 								'"><span class="bold">Read:</span> ' +
-								v.zbsmail_lastopened +
+								jpcrm.esc_html( v.zbsmail_lastopened ) +
 								'</div>'
 						);
 					}
