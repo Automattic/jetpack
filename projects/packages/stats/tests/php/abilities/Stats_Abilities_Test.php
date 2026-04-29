@@ -52,12 +52,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		// `read` for configured roles, but WorDBless's _restore_hooks() wipes all
 		// filters back to the state captured before test #1. Without this reset,
 		// only the first test sees the cap mapping.
-		$ref  = new \ReflectionClass( Main::class );
-		$prop = $ref->getProperty( 'instance' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true );
-		}
-		$prop->setValue( null, null );
+		self::reset_static_property( Main::class, 'instance', null );
 		Main::init();
 
 		self::$admin_id      = wp_insert_user(
@@ -105,12 +100,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		}
 
 		// Reset Options static cache so config-writes don't leak across tests.
-		$ref  = new \ReflectionClass( Options::class );
-		$prop = $ref->getProperty( 'options' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true );
-		}
-		$prop->setValue( null, array() );
+		self::reset_static_property( Options::class, 'options', array() );
 
 		parent::tear_down();
 	}
@@ -490,25 +480,22 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_top_content_posts_uniform_shape(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_top_posts' => array(
-					'days' => array(
-						'2026-04-23' => array(
-							'postviews' => array(
-								array(
-									'id'    => 1,
-									'title' => 'Alpha',
-									'views' => 100,
-									'href'  => 'https://x/alpha',
-								),
-								array(
-									'id'    => 2,
-									'title' => 'Beta',
-									'views' => 50,
-									'href'  => 'https://x/beta',
-								),
-							),
+				'get_top_posts' => self::days_fixture(
+					'postviews',
+					array(
+						array(
+							'id'    => 1,
+							'title' => 'Alpha',
+							'views' => 100,
+							'href'  => 'https://x/alpha',
 						),
-					),
+						array(
+							'id'    => 2,
+							'title' => 'Beta',
+							'views' => 50,
+							'href'  => 'https://x/beta',
+						),
+					)
 				),
 			)
 		);
@@ -535,21 +522,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_top_content_search_terms_uniform_shape(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_search_terms' => array(
-					'days' => array(
-						'2026-04-23' => array(
-							'search_terms' => array(
-								array(
-									'term'  => 'jetpack',
-									'views' => 20,
-								),
-								array(
-									'term'  => 'stats',
-									'views' => 7,
-								),
-							),
+				'get_search_terms' => self::days_fixture(
+					'search_terms',
+					array(
+						array(
+							'term'  => 'jetpack',
+							'views' => 20,
 						),
-					),
+						array(
+							'term'  => 'stats',
+							'views' => 7,
+						),
+					)
 				),
 			)
 		);
@@ -634,25 +618,22 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_top_content_enforces_max_cap(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_top_posts' => array(
-					'days' => array(
-						'2026-04-23' => array(
-							'postviews' => array(
-								array(
-									'title' => 'A',
-									'views' => 1,
-								),
-								array(
-									'title' => 'B',
-									'views' => 1,
-								),
-								array(
-									'title' => 'C',
-									'views' => 1,
-								),
-							),
+				'get_top_posts' => self::days_fixture(
+					'postviews',
+					array(
+						array(
+							'title' => 'A',
+							'views' => 1,
 						),
-					),
+						array(
+							'title' => 'B',
+							'views' => 1,
+						),
+						array(
+							'title' => 'C',
+							'views' => 1,
+						),
+					)
 				),
 			)
 		);
@@ -680,26 +661,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_get_top_content_referrers_normalizes_groups_shape(): void {
-		// WPCOM `stats/referrers` keys per-day data under `groups` (NOT `referrers`),
-		// each with `name`/`total`/optional `url`. This regression-guards the mapping.
+		// Regression guard: WPCOM `stats/referrers` keys per-day data under `groups`,
+		// not `referrers`. The mapping must read from `groups -> name/total/url?`.
 		$this->filter_wpcom_stats(
 			array(
-				'get_referrers' => array(
-					'days' => array(
-						'2026-04-23' => array(
-							'groups' => array(
-								array(
-									'name'  => 'wordpress.com',
-									'url'   => 'https://wordpress.com',
-									'total' => 60,
-								),
-								array(
-									'name'  => 'Search Engines',
-									'total' => 25,
-								),
-							),
+				'get_referrers' => self::days_fixture(
+					'groups',
+					array(
+						array(
+							'name'  => 'wordpress.com',
+							'url'   => 'https://wordpress.com',
+							'total' => 60,
 						),
-					),
+						array(
+							'name'  => 'Search Engines',
+							'total' => 25,
+						),
+					)
 				),
 			)
 		);
@@ -718,30 +696,26 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 'https://wordpress.com', $result['items'][0]['href'] );
 		$this->assertSame( 'Search Engines', $result['items'][1]['label'] );
 		$this->assertSame( 25, $result['items'][1]['value'] );
-		// Groups without a `url` must omit `href` rather than emit an empty string.
 		$this->assertArrayNotHasKey( 'href', $result['items'][1] );
 	}
 
 	public function test_get_top_content_clicks_uniform_shape(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_clicks' => array(
-					'days' => array(
-						'2026-04-23' => array(
-							'clicks' => array(
-								array(
-									'name'  => 'Docs',
-									'url'   => 'https://docs.example/x',
-									'views' => 9,
-								),
-								array(
-									// No `name` — normalization should fall back to `url`.
-									'url'   => 'https://example.com/y',
-									'views' => 3,
-								),
-							),
+				'get_clicks' => self::days_fixture(
+					'clicks',
+					array(
+						array(
+							'name'  => 'Docs',
+							'url'   => 'https://docs.example/x',
+							'views' => 9,
 						),
-					),
+						array(
+							// No `name` — normalization should fall back to `url`.
+							'url'   => 'https://example.com/y',
+							'views' => 3,
+						),
+					)
 				),
 			)
 		);
@@ -765,21 +739,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_top_content_authors_uniform_shape(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_top_authors' => array(
-					'days' => array(
-						'2026-04-23' => array(
-							'authors' => array(
-								array(
-									'name'  => 'Ada',
-									'views' => 80,
-								),
-								array(
-									'name'  => 'Grace',
-									'views' => 30,
-								),
-							),
+				'get_top_authors' => self::days_fixture(
+					'authors',
+					array(
+						array(
+							'name'  => 'Ada',
+							'views' => 80,
 						),
-					),
+						array(
+							'name'  => 'Grace',
+							'views' => 30,
+						),
+					)
 				),
 			)
 		);
@@ -800,23 +771,20 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_top_content_downloads_uniform_shape(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_file_downloads' => array(
-					'days' => array(
-						'2026-04-23' => array(
-							'files' => array(
-								array(
-									'filename'       => 'whitepaper.pdf',
-									'relative_url'   => '/downloads/whitepaper.pdf',
-									'download_count' => 42,
-								),
-								array(
-									// No `filename` — normalization should fall back to relative_url.
-									'relative_url'   => '/downloads/spec.zip',
-									'download_count' => 7,
-								),
-							),
+				'get_file_downloads' => self::days_fixture(
+					'files',
+					array(
+						array(
+							'filename'       => 'whitepaper.pdf',
+							'relative_url'   => '/downloads/whitepaper.pdf',
+							'download_count' => 42,
 						),
-					),
+						array(
+							// No `filename` — normalization should fall back to relative_url.
+							'relative_url'   => '/downloads/spec.zip',
+							'download_count' => 7,
+						),
+					)
 				),
 			)
 		);
@@ -839,21 +807,18 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	public function test_get_top_content_video_plays_uniform_shape(): void {
 		$this->filter_wpcom_stats(
 			array(
-				'get_video_plays' => array(
-					'days' => array(
-						'2026-04-23' => array(
-							'plays' => array(
-								array(
-									'title' => 'Launch demo',
-									'plays' => 200,
-								),
-								array(
-									'title' => 'Tutorial',
-									'plays' => 75,
-								),
-							),
+				'get_video_plays' => self::days_fixture(
+					'plays',
+					array(
+						array(
+							'title' => 'Launch demo',
+							'plays' => 200,
 						),
-					),
+						array(
+							'title' => 'Tutorial',
+							'plays' => 75,
+						),
+					)
 				),
 			)
 		);
@@ -1097,12 +1062,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			)
 		);
 		// Force-reset the static cache so the next get_options() re-reads.
-		$ref  = new \ReflectionClass( Options::class );
-		$prop = $ref->getProperty( 'options' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true );
-		}
-		$prop->setValue( null, array() );
+		self::reset_static_property( Options::class, 'options', array() );
 
 		Stats_Abilities::set_stats_config( array( 'admin_bar' => false ) );
 
@@ -1111,6 +1071,41 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			Options::get_option( 'notices' ),
 			'set-stats-config must not blow away unrelated internal option keys.'
 		);
+	}
+
+	/**
+	 * Build a single-day WPCOM `stats/<endpoint>` fixture.
+	 *
+	 * Most top-content endpoints share the shape `days -> <date> -> <list_key> -> [rows]`;
+	 * this helper keeps the fixture wiring uniform and out of each test body.
+	 *
+	 * @param string $list_key Per-day list key (e.g. `postviews`, `groups`, `clicks`).
+	 * @param array  $rows     Row dictionaries.
+	 * @param string $date     Day key (defaults to the canonical fixture date).
+	 * @return array
+	 */
+	private static function days_fixture( string $list_key, array $rows, string $date = '2026-04-23' ): array {
+		return array(
+			'days' => array(
+				$date => array( $list_key => $rows ),
+			),
+		);
+	}
+
+	/**
+	 * Reset a class's static property (defeats inter-test caches).
+	 *
+	 * @param string $class Fully qualified class name.
+	 * @param string $prop  Property name.
+	 * @param mixed  $value New value.
+	 */
+	private static function reset_static_property( string $class, string $prop, $value ): void {
+		$ref      = new \ReflectionClass( $class );
+		$property = $ref->getProperty( $prop );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $value );
 	}
 
 	/**

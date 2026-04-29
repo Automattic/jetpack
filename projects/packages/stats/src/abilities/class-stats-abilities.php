@@ -58,6 +58,21 @@ class Stats_Abilities extends Registrar {
 	const PERIODS = array( 'day', 'week', 'month', 'year' );
 
 	/**
+	 * Subset of CONFIG_KEYS whose values are arrays of role slugs.
+	 */
+	const CONFIG_ROLE_KEYS = array( 'roles', 'count_roles' );
+
+	/**
+	 * Allowed metric fields for `get-visits`.
+	 */
+	const VISIT_FIELDS = array( 'views', 'visitors', 'likes', 'comments' );
+
+	/**
+	 * Default metric fields for `get-visits` when the caller omits `fields`.
+	 */
+	const DEFAULT_VISIT_FIELDS = array( 'views', 'visitors' );
+
+	/**
 	 * Normalization table for `get-top-content`.
 	 *
 	 * Each entry describes how to project a WPCOM `days -> <date> -> <list>`
@@ -375,9 +390,9 @@ class Stats_Abilities extends Registrar {
 						'description' => __( 'Which metrics to include in each row. Defaults to views+visitors.', 'jetpack-stats' ),
 						'items'       => array(
 							'type' => 'string',
-							'enum' => array( 'views', 'visitors', 'likes', 'comments' ),
+							'enum' => self::VISIT_FIELDS,
 						),
-						'default'     => array( 'views', 'visitors' ),
+						'default'     => self::DEFAULT_VISIT_FIELDS,
 					),
 				),
 				'additionalProperties' => false,
@@ -623,31 +638,19 @@ class Stats_Abilities extends Registrar {
 		unset( $input );
 		$stats = self::get_wpcom_stats();
 
-		$summary    = $stats->get_stats_summary();
-		$highlights = $stats->get_highlights();
-		$streak     = $stats->get_streak();
-
-		$errors = array();
-		if ( is_wp_error( $summary ) ) {
-			$errors[] = 'summary';
-			$summary  = array();
+		$composed = self::compose_subcalls(
+			array(
+				'summary'    => $stats->get_stats_summary(),
+				'highlights' => $stats->get_highlights(),
+				'streak'     => $stats->get_streak(),
+			),
+			__( 'Stats data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats' )
+		);
+		if ( is_wp_error( $composed ) ) {
+			return $composed;
 		}
-		if ( is_wp_error( $highlights ) ) {
-			$errors[]   = 'highlights';
-			$highlights = array();
-		}
-		if ( is_wp_error( $streak ) ) {
-			$errors[] = 'streak';
-			$streak   = array();
-		}
-
-		// If every sub-call failed, surface a single WP_Error instead of an all-null response.
-		if ( count( $errors ) === 3 ) {
-			return new WP_Error(
-				self::ERROR_PREFIX . 'data_unavailable',
-				__( 'Stats data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats' )
-			);
-		}
+		[ 'summary' => $summary, 'highlights' => $highlights, 'streak' => $streak ] = $composed['values'];
+		$errors = $composed['errors'];
 
 		$highlights_today    = isset( $highlights['today'] ) && is_array( $highlights['today'] ) ? $highlights['today'] : array();
 		$highlights_top_post = isset( $highlights_today['top_post'] ) && is_array( $highlights_today['top_post'] )
@@ -655,7 +658,7 @@ class Stats_Abilities extends Registrar {
 			: null;
 
 		$out = array(
-			'date'           => isset( $summary['date'] ) ? (string) $summary['date'] : ( isset( $highlights_today['date'] ) ? (string) $highlights_today['date'] : '' ),
+			'date'           => self::first_string( array( $summary, $highlights_today ), 'date' ),
 			'views_today'    => self::as_int( $summary, 'views' ),
 			'visitors_today' => self::as_int( $summary, 'visitors' ),
 			'views_week'     => self::as_int( $summary, 'period_total_views' ),
@@ -698,7 +701,7 @@ class Stats_Abilities extends Registrar {
 		}
 
 		$type   = $input['type'];
-		$period = isset( $input['period'] ) && in_array( $input['period'], self::PERIODS, true ) ? $input['period'] : 'day';
+		$period = self::pick_period( $input['period'] ?? null );
 		$date   = self::sanitize_date( $input['date'] ?? null );
 		$num    = self::clamp_int( $input['num'] ?? 1, 1, 90, 1 );
 		$max    = self::clamp_int( $input['max'] ?? 20, 1, 100, 20 );
@@ -746,7 +749,7 @@ class Stats_Abilities extends Registrar {
 		}
 
 		$post_id = (int) $input['post_id'];
-		$period  = isset( $input['period'] ) && in_array( $input['period'], self::PERIODS, true ) ? $input['period'] : 'day';
+		$period  = self::pick_period( $input['period'] ?? null );
 		$num     = self::clamp_int( $input['num'] ?? 30, 1, 90, 30 );
 		$date    = self::sanitize_date( $input['date'] ?? null );
 
@@ -781,18 +784,16 @@ class Stats_Abilities extends Registrar {
 	public static function get_visits( $input = null ) {
 		$input = is_array( $input ) ? $input : array();
 
-		$unit     = isset( $input['unit'] ) && in_array( $input['unit'], self::PERIODS, true ) ? $input['unit'] : 'day';
+		$unit     = self::pick_period( $input['unit'] ?? null );
 		$quantity = self::clamp_int( $input['quantity'] ?? 30, 1, 90, 30 );
 		$date     = self::sanitize_date( $input['date'] ?? null );
 
-		$allowed_fields = array( 'views', 'visitors', 'likes', 'comments' );
-		// Preserve the caller's order — array_intersect returns keys from its FIRST argument,
-		// so pass the user input first. Then filter out anything not in the allowed set.
-		$fields = isset( $input['fields'] ) && is_array( $input['fields'] ) && ! empty( $input['fields'] )
-			? array_values( array_intersect( $input['fields'], $allowed_fields ) )
-			: array( 'views', 'visitors' );
+		// Pass user input FIRST to array_intersect so caller-supplied field order is preserved.
+		$fields = isset( $input['fields'] ) && is_array( $input['fields'] )
+			? array_values( array_intersect( $input['fields'], self::VISIT_FIELDS ) )
+			: array();
 		if ( empty( $fields ) ) {
-			$fields = array( 'views', 'visitors' );
+			$fields = self::DEFAULT_VISIT_FIELDS;
 		}
 
 		$args = array(
@@ -827,30 +828,21 @@ class Stats_Abilities extends Registrar {
 		unset( $input );
 		$stats = self::get_wpcom_stats();
 
-		$followers         = $stats->get_followers();
-		$comment_followers = $stats->get_comment_followers();
-		$publicize         = $stats->get_publicize_followers();
-
-		$errors = array();
-		if ( is_wp_error( $followers ) ) {
-			$errors[]  = 'followers';
-			$followers = array();
+		$composed = self::compose_subcalls(
+			array(
+				'followers'           => $stats->get_followers(),
+				'comment_followers'   => $stats->get_comment_followers(),
+				'publicize_followers' => $stats->get_publicize_followers(),
+			),
+			__( 'Follower data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats' )
+		);
+		if ( is_wp_error( $composed ) ) {
+			return $composed;
 		}
-		if ( is_wp_error( $comment_followers ) ) {
-			$errors[]          = 'comment_followers';
-			$comment_followers = array();
-		}
-		if ( is_wp_error( $publicize ) ) {
-			$errors[]  = 'publicize_followers';
-			$publicize = array();
-		}
-
-		if ( count( $errors ) === 3 ) {
-			return new WP_Error(
-				self::ERROR_PREFIX . 'data_unavailable',
-				__( 'Follower data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats' )
-			);
-		}
+		$followers         = $composed['values']['followers'];
+		$comment_followers = $composed['values']['comment_followers'];
+		$publicize         = $composed['values']['publicize_followers'];
+		$errors            = $composed['errors'];
 
 		$email = 0;
 		$wpcom = 0;
@@ -933,7 +925,7 @@ class Stats_Abilities extends Registrar {
 		// if the caller is actually writing a role field. Boolean-only writes skip
 		// the wp_roles() resolution entirely.
 		$known_roles = null;
-		foreach ( array( 'roles', 'count_roles' ) as $role_field ) {
+		foreach ( self::CONFIG_ROLE_KEYS as $role_field ) {
 			if ( ! array_key_exists( $role_field, $provided ) ) {
 				continue;
 			}
@@ -1036,13 +1028,72 @@ class Stats_Abilities extends Registrar {
 			$raw = $options[ $key ] ?? null;
 			if ( in_array( $key, self::CONFIG_BOOL_KEYS, true ) ) {
 				$out[ $key ] = (bool) $raw;
-			} elseif ( in_array( $key, array( 'roles', 'count_roles' ), true ) ) {
+			} elseif ( in_array( $key, self::CONFIG_ROLE_KEYS, true ) ) {
 				$out[ $key ] = is_array( $raw ) ? array_values( $raw ) : array();
 			} else {
 				$out[ $key ] = $raw;
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * Compose multiple WPCOM sub-call results into a partial-tolerant envelope.
+	 *
+	 * Each named result is either an array (kept as-is) or a WP_Error
+	 * (replaced with `[]` and its key recorded under `errors`). Returns
+	 * `jetpack_stats_data_unavailable` if every sub-call failed.
+	 *
+	 * @param array  $named_results       Map of error-tag => array|WP_Error.
+	 * @param string $all_failed_message  Message for the all-failed WP_Error.
+	 * @return array{values: array, errors: array}|WP_Error
+	 */
+	private static function compose_subcalls( array $named_results, string $all_failed_message ) {
+		$values = array();
+		$errors = array();
+		foreach ( $named_results as $tag => $result ) {
+			if ( is_wp_error( $result ) ) {
+				$errors[]       = (string) $tag;
+				$values[ $tag ] = array();
+			} else {
+				$values[ $tag ] = $result;
+			}
+		}
+
+		if ( count( $errors ) === count( $named_results ) ) {
+			return new WP_Error( self::ERROR_PREFIX . 'data_unavailable', $all_failed_message );
+		}
+
+		return array(
+			'values' => $values,
+			'errors' => $errors,
+		);
+	}
+
+	/**
+	 * Return the first non-empty string at `$key` across the given source arrays.
+	 *
+	 * @param array[] $sources Ordered list of arrays to probe.
+	 * @param string  $key     Key to read from each array.
+	 * @return string
+	 */
+	private static function first_string( array $sources, string $key ): string {
+		foreach ( $sources as $source ) {
+			if ( isset( $source[ $key ] ) && '' !== $source[ $key ] ) {
+				return (string) $source[ $key ];
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Resolve an aggregation period from raw input, defaulting to `day`.
+	 *
+	 * @param mixed $raw Raw input value.
+	 * @return string One of self::PERIODS.
+	 */
+	private static function pick_period( $raw ): string {
+		return is_string( $raw ) && in_array( $raw, self::PERIODS, true ) ? $raw : 'day';
 	}
 
 	/**
@@ -1053,10 +1104,6 @@ class Stats_Abilities extends Registrar {
 	protected static function get_wpcom_stats(): WPCOM_Stats {
 		/**
 		 * Filters the WPCOM_Stats instance used by the Stats abilities.
-		 *
-		 * Primarily for tests — production code should not override this
-		 * filter. Swapping the instance lets tests intercept the WPCOM
-		 * client calls without hitting the network.
 		 *
 		 * @since $$next-version$$
 		 *
