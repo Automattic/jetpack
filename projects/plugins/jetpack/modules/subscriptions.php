@@ -1119,6 +1119,5 @@ require __DIR__ . '/subscriptions/newsletter-widget/class-jetpack-newsletter-das
 
 // Newsletter Abilities — registers only when this module is active because
 // Jetpack's load_modules() only includes this file for active modules.
-// The class is autoloaded via the `modules/*/abilities` classmap entry in
-// projects/plugins/jetpack/composer.json — no require_once needed.
+require_once __DIR__ . '/subscriptions/abilities/class-newsletter-abilities.php';
 \Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities::init();
