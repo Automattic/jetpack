@@ -163,6 +163,21 @@ class PCG_Load_Tester {
 			);
 		}
 
+		// Probe endpoint always emits JSON; a 2xx without one means the
+		// bootstrap was terminated mid-flight (exit/die during load/init/admin_init).
+		// Block, since the same termination would affect matching future requests.
+		if ( $code >= 200 && $code < 300 ) {
+			return array(
+				'status'  => 'fatal',
+				'message' => sprintf(
+					'Probe completed without a verdict (HTTP %d, non-JSON body). The plugin may have terminated the request during load, init, or admin_init.',
+					$code
+				),
+				'file'    => basename( $plugin_main ),
+				'line'    => 0,
+			);
+		}
+
 		return array(
 			'status' => 'error',
 			'reason' => sprintf( 'Probe returned HTTP %d without a verdict payload.', $code ),
