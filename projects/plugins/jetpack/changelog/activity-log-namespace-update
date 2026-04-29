@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Activity Log: update import path after the activity-log package dropped its V0001 namespace suffix.

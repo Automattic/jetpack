@@ -14,14 +14,30 @@ import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useMemo, useState } from 'react';
 import type { View } from '@wordpress/dataviews';
 
-const STORAGE_KEY = 'jetpack-activity-log:view';
+interface InitialStateShape {
+	siteData?: { id?: number | string };
+}
+
+declare const JPACTIVITYLOG_INITIAL_STATE: InitialStateShape | undefined;
+
+// Site-scope the storage key on the WPCOM blog ID seeded by Initial_State.
+// Without this, an admin who manages multiple Jetpack-connected sites in the
+// same browser would share a single view across all of them. Falls back to
+// `default` when the global is absent (storybook/tests) or the id is unset.
+const getStorageKey = (): string => {
+	const state =
+		typeof JPACTIVITYLOG_INITIAL_STATE !== 'undefined' ? JPACTIVITYLOG_INITIAL_STATE : undefined;
+	const siteId = state?.siteData?.id;
+	const scope = siteId !== undefined && siteId !== null && siteId !== '' ? siteId : 'default';
+	return `jetpack-activity-log:view:${ scope }`;
+};
 
 const readPersistedView = (): View | null => {
 	if ( typeof window === 'undefined' ) {
 		return null;
 	}
 	try {
-		const raw = window.localStorage.getItem( STORAGE_KEY );
+		const raw = window.localStorage.getItem( getStorageKey() );
 		if ( ! raw ) {
 			return null;
 		}
@@ -38,9 +54,9 @@ const writePersistedView = ( view: View | null ): void => {
 	}
 	try {
 		if ( view === null ) {
-			window.localStorage.removeItem( STORAGE_KEY );
+			window.localStorage.removeItem( getStorageKey() );
 		} else {
-			window.localStorage.setItem( STORAGE_KEY, JSON.stringify( view ) );
+			window.localStorage.setItem( getStorageKey(), JSON.stringify( view ) );
 		}
 	} catch {
 		// Quota exceeded or localStorage disabled — drop silently.

@@ -7,7 +7,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Activity_Log\V0001\Jetpack_Activity_Log as Activity_Log_Init;
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log as Activity_Log_Init;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;

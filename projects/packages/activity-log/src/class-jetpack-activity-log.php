@@ -5,22 +5,19 @@
  * @package automattic/jetpack-activity-log
  */
 
-// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
-// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
-// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
-// are installed, or in some other cases).
-namespace Automattic\Jetpack\Activity_Log\V0001;
+namespace Automattic\Jetpack\Activity_Log;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-use Automattic\Jetpack\Activity_Log\V0001\Initial_State as Activity_Log_Initial_State;
+use Automattic\Jetpack\Activity_Log\Initial_State as Activity_Log_Initial_State;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use function add_action;
+use function add_filter;
 use function current_user_can;
 use function did_action;
 use function do_action;
@@ -72,6 +69,7 @@ class Jetpack_Activity_Log {
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_filter( 'jetpack_package_versions', array( Package_Version::class, 'send_package_version_to_tracker' ) );
 
 		/**
 		 * Fires once the Jetpack Activity Log package has wired its hooks.

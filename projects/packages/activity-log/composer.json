@@ -22,9 +22,6 @@
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
-		"files": [
-			"actions.php"
-		],
 		"classmap": [
 			"src/"
 		]

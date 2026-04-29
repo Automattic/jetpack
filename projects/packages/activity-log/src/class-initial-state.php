@@ -5,11 +5,7 @@
  * @package automattic/jetpack-activity-log
  */
 
-// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
-// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
-// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
-// are installed, or in some other cases).
-namespace Automattic\Jetpack\Activity_Log\V0001;
+namespace Automattic\Jetpack\Activity_Log;
 
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
