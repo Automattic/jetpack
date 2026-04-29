@@ -584,8 +584,9 @@ async function uploadFileToMedia( file ) {
 		}
 		state.uploadedMediaId = media.id;
 
-		// Show preview.
+		// Show preview and re-focus the modal so Escape still works.
 		showUploadPreview( media.source_url );
+		focusModalInput();
 	} catch ( err ) {
 		state.isUploading = false;
 		if ( zone ) zone.classList.remove( 'bw-uploading' );
