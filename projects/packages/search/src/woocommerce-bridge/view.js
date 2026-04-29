@@ -494,6 +494,56 @@ async function toggleFilterAndNavigate( filterKey, filterValue ) {
 	window.dispatchEvent( new PopStateEvent( 'popstate' ) );
 }
 
+/*
+ * WC's server-rendered controls (Product Filter Price slider, plus the
+ * Status and Rating checkbox-lists when those have items) wire change
+ * handlers via `data-wp-on--*` directives that the Interactivity runtime
+ * hydrates on initial page load. They mutate `context.activeFilters` and
+ * call `actions.navigate`. Bridge owns the taxonomy/attribute URL state
+ * via `?<key>[]=` array params, but defers price / stock / rating params
+ * to whatever WC's `state.params` getter produces (since those use
+ * scalar URL keys and live entirely in WC's store).
+ *
+ * Replacing `actions.navigate` here lets us interpose on those flows:
+ * read just the WC-owned scalar params off `state.params`, merge them
+ * into the URL while preserving our array-format filter state, then
+ * pushState + dispatch popstate so the bridge's hydrate listener and
+ * the jetpack-search store's `handlePopState` both refresh.
+ */
+const WC_NAMESPACE = 'woocommerce/product-filters';
+const WC_OWNED_PARAM_KEYS = [ 'min_price', 'max_price', 'rating_filter', 'filter_stock_status' ];
+
+store( WC_NAMESPACE, {
+	actions: {
+		navigate() {
+			const params = this?.state?.params ?? {};
+			const url = new URL( window.location.href );
+
+			let changed = false;
+			for ( const key of WC_OWNED_PARAM_KEYS ) {
+				const next = params[ key ];
+				const current = url.searchParams.get( key );
+				if ( next === undefined || next === null || next === '' ) {
+					if ( current !== null ) {
+						url.searchParams.delete( key );
+						changed = true;
+					}
+				} else if ( String( next ) !== current ) {
+					url.searchParams.set( key, String( next ) );
+					changed = true;
+				}
+			}
+
+			if ( ! changed ) {
+				return;
+			}
+
+			window.history.pushState( {}, '', url.href );
+			window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+		},
+	},
+} );
+
 // Initial hydration on every page load. Also fires on `popstate`
 // (browser back/forward, plus the synthetic dispatch from
 // `toggleFilterAndNavigate` after a filter click).
