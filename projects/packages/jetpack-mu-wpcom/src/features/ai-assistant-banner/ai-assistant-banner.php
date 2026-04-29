@@ -23,7 +23,7 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::BIG_SKY_EXISTING_SITE ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::BIG_SKY ) ) {
 		return false;
 	}
 
