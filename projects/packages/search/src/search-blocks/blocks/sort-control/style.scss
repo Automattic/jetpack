@@ -152,7 +152,9 @@
 		flex-direction: column;
 		padding: 4px;
 		background: var(--wp--preset--color--background, #fff);
-		color: inherit;
+		// The menu uses a light surface, so don't inherit a low-contrast
+		// body accent color from the surrounding page.
+		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #111));
 		// Reset the inherited theme base size so menu items track the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. `font: inherit` on menu items picks this up.

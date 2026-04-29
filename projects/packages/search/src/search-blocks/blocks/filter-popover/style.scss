@@ -74,7 +74,9 @@
 		gap: 1rem;
 		padding: 12px;
 		background: var(--wp--preset--color--background, #fff);
-		color: inherit;
+		// The panel uses a light surface, so don't inherit a low-contrast
+		// body accent color from the surrounding page.
+		color: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #111));
 		// Reset the inherited theme base size so popover body text tracks the
 		// search-results title (also 1rem) instead of the host theme's
 		// oversized default. Rem-based children (filter title, count pill)
