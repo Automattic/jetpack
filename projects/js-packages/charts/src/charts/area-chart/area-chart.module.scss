@@ -14,8 +14,10 @@
 		overflow: visible;
 	}
 
+	// Background is set by visx's TooltipInPortal from the active theme
+	// (see <Tooltip> in @visx/xychart). Don't override it here — that would
+	// break ThemeProvider-driven theming (e.g. dark mode).
 	&__tooltip {
-		background: #fff;
 		padding: var(--wpds-dimension-padding-sm, 8px);
 	}
 

@@ -44,7 +44,15 @@ Composition-API legend slot. See the [Legend component docs](./?path=/docs/js-pa
 ## Notes on stacking
 
 - When `stacked` is `true`, the y-scale is forced to include zero so the stacked baseline is meaningful.
-- Stacking expects each series to have the same x-domain. If x-positions diverge across series, the visx stack layout treats missing values as zero.
+- Stacking expects each series to have the same x-domain. If x-positions diverge across series, the visx stack layout treats missing values as zero, and the hover-glyph overlay applies the same convention.
+
+## Hover glyphs
+
+When `withTooltips` is `true`, a circular glyph is rendered at each visible series for the hovered x-position, color-matched to the series. Glyph positions are computed directly from the chart's scales:
+
+- **Unstacked**: rendered at the series' raw y-value.
+- **Stacked + `stackOffset='none'`** (default): rendered at the cumulative top edge of each band.
+- **Stacked + `stackOffset` of `'expand'`, `'wiggle'`, or `'silhouette'`**: glyphs are not rendered. Recovering exact positions for these offsets would require re-running the d3-stack layout.
 
 ## Stack offset reference
 

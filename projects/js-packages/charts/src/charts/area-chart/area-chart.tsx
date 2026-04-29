@@ -37,6 +37,7 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
+	useGlobalChartsTheme,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
@@ -52,7 +53,7 @@ import type { CurveType } from '../line-chart/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { FC, Ref } from 'react';
+import type { FC, ReactNode, Ref } from 'react';
 
 const X_TICK_WIDTH = 60;
 
@@ -177,7 +178,12 @@ const guessOptimalNumTicks = (
 };
 
 const validateData = ( data: SeriesData[] ) => {
-	if ( ! data?.length ) return 'No data available';
+	if ( ! data?.length ) return __( 'No data available', 'jetpack-charts' );
+
+	// Reject empty series.data — downstream tick formatters and stack layout
+	// don't tolerate it (Math.min(...[]) → Infinity → NaN cascades).
+	const hasEmptySeries = data.some( series => ! series.data?.length );
+	if ( hasEmptySeries ) return __( 'No data available', 'jetpack-charts' );
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
@@ -189,7 +195,7 @@ const validateData = ( data: SeriesData[] ) => {
 		)
 	);
 
-	if ( hasInvalidData ) return 'Invalid data';
+	if ( hasInvalidData ) return __( 'Invalid data', 'jetpack-charts' );
 	return null;
 };
 
@@ -218,30 +224,33 @@ const AreaChartScalesRef: FC< {
 
 type VisibleSeriesEntry = { series: SeriesData; index: number; isVisible: boolean };
 
+type ScaleFn = ( input: Date | number ) => number;
+
 // SVG overlay rendering a circle at each visible series for the currently
 // hovered x-position. visx's `showSeriesGlyphs` doesn't work for AreaStack
 // (registered yAccessor expects a stack-bar but receives the unwrapped
 // DataPointDate, returning NaN), so glyph positions are computed from the
 // chart's own scales. Stacked + offset='none' renders at the cumulative top
-// edge; other stack offsets are skipped (would need to re-run the d3-stack
-// layout). Unstacked renders at the series' raw y-value.
+// edge of each band, matching d3-stack semantics (missing values count as 0
+// in the running total). Other stack offsets ('expand', 'wiggle', 'silhouette')
+// are skipped — recovering exact positions there would require re-running the
+// d3-stack layout. Unstacked renders at the series' raw y-value.
 const HoverGlyphs: FC< {
 	visibleSeries: VisibleSeriesEntry[];
 	stacked: boolean;
 	stackOffset: 'none' | 'expand' | 'wiggle' | 'silhouette';
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
-} > = ( { visibleSeries, stacked, stackOffset, getElementStyles } ) => {
+	strokeColor: string;
+} > = ( { visibleSeries, stacked, stackOffset, getElementStyles, strokeColor } ) => {
 	const dataContext = useContext( DataContext );
 	const tooltipContext = useContext( TooltipContext );
 
-	const xScale = dataContext?.xScale;
-	const yScale = dataContext?.yScale;
+	const xScale = dataContext?.xScale as ScaleFn | undefined;
+	const yScale = dataContext?.yScale as ScaleFn | undefined;
 	const tooltipOpen = tooltipContext?.tooltipOpen;
 	const nearestDatum = tooltipContext?.tooltipData?.nearestDatum?.datum as
 		| DataPointDate
 		| undefined;
-	const themeBg =
-		( dataContext?.theme as { backgroundColor?: string } | undefined )?.backgroundColor ?? '#fff';
 
 	if (
 		! tooltipOpen ||
@@ -254,41 +263,49 @@ const HoverGlyphs: FC< {
 		return null;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const xPx = Number( ( xScale as any )( nearestDatum.date ) );
+	const xPx = Number( xScale( nearestDatum.date ) );
 	if ( ! Number.isFinite( xPx ) ) return null;
 
 	const hoveredTime = nearestDatum.date.getTime();
 	let cumulative = 0;
-	const circles = visibleSeries
-		.map( ( { series, index } ) => {
-			const datum = series.data.find(
-				d => ( d as DataPointDate ).date?.getTime() === hoveredTime
-			) as DataPointDate | undefined;
-			if ( ! datum || datum.value == null ) return null;
+	const circles: ReactNode[] = [];
 
-			const yValue = stacked ? ( cumulative += datum.value ) : datum.value;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const yPx = Number( ( yScale as any )( yValue ) );
-			if ( ! Number.isFinite( yPx ) ) return null;
+	// Iterate ALL visible series — never short-circuit — so missing-x-domain
+	// gaps don't break the cumulative offset for subsequent series.
+	for ( const { series, index } of visibleSeries ) {
+		const datum = series.data.find(
+			d => ( d as DataPointDate ).date?.getTime() === hoveredTime
+		) as DataPointDate | undefined;
+		const value = datum?.value ?? 0;
 
-			const { color } = getElementStyles( { data: series, index } );
+		// Always advance the stack baseline (d3-stack treats missing as 0).
+		if ( stacked ) {
+			cumulative += value;
+		}
 
-			return (
-				<circle
-					key={ series.label || index }
-					cx={ xPx }
-					cy={ yPx }
-					r={ 4 }
-					fill={ color }
-					stroke={ themeBg }
-					strokeWidth={ 1.5 }
-					paintOrder="fill"
-					data-testid={ `area-chart-hover-glyph-${ index }` }
-				/>
-			);
-		} )
-		.filter( Boolean );
+		// Skip rendering a glyph when the datum is missing or null-valued.
+		if ( ! datum || datum.value == null ) {
+			continue;
+		}
+
+		const yPx = Number( yScale( stacked ? cumulative : value ) );
+		if ( ! Number.isFinite( yPx ) ) continue;
+
+		const { color } = getElementStyles( { data: series, index } );
+		circles.push(
+			<circle
+				key={ series.label || index }
+				cx={ xPx }
+				cy={ yPx }
+				r={ 4 }
+				fill={ color }
+				stroke={ strokeColor }
+				strokeWidth={ 1.5 }
+				paintOrder="fill"
+				data-testid={ `area-chart-hover-glyph-${ index }` }
+			/>
+		);
+	}
 
 	if ( circles.length === 0 ) return null;
 
@@ -335,6 +352,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const legendShape = legend.shape ?? 'rect';
 		const legendPosition = legend.position ?? 'bottom';
 
+		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const chartRef = useRef< HTMLDivElement >( null );
@@ -613,7 +631,10 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 													<AccessibleTooltip
 														detectBounds
 														snapTooltipToDatumX
-														snapTooltipToDatumY
+														// In stacked mode the registered yAccessor returns
+														// the raw value (not the stacked y), so snapping
+														// would put the tooltip box at the wrong height.
+														snapTooltipToDatumY={ ! stacked }
 														renderTooltip={ renderTooltip }
 														showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
 														showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
@@ -626,6 +647,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 														stacked={ stacked }
 														stackOffset={ stackOffset }
 														getElementStyles={ getElementStyles }
+														strokeColor={ providerTheme.backgroundColor }
 													/>
 												</>
 											) }
@@ -633,7 +655,10 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 											<AreaChartScalesRef
 												chartRef={ internalChartRef }
 												width={ width }
-												height={ height }
+												// Prefer the explicit prop (fixed mode), fall back to
+												// the measured value when the user opts into responsive
+												// sizing and doesn't pass a `height` prop.
+												height={ height ?? chartHeight }
 												margin={ margin }
 											/>
 										</XYChart>

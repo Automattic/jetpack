@@ -327,3 +327,186 @@ export const ErrorStates: StoryObj< typeof AreaChart > = {
 		},
 	},
 };
+
+// Showcase fillOpacity in both stacked and unstacked modes.
+export const FillOpacity: StoryObj< typeof AreaChart > = Template.bind( {} );
+FillOpacity.args = {
+	...areaChartStoryArgs,
+	fillOpacity: 0.5,
+	showLegend: true,
+};
+FillOpacity.parameters = {
+	docs: {
+		description: {
+			story:
+				'Use `fillOpacity` to control how transparent the bands are. Defaults: `0.85` for stacked, `0.4` for unstacked.',
+		},
+	},
+};
+
+// Demonstrate the stroke-on-area toggle.
+export const WithStroke: StoryObj< typeof AreaChart > = Template.bind( {} );
+WithStroke.args = {
+	...areaChartStoryArgs,
+	withStroke: true,
+	showLegend: true,
+};
+WithStroke.parameters = {
+	docs: {
+		description: {
+			story:
+				'`withStroke={ true }` renders a stroke on top of each band. By default, stroke is off in stacked mode and on in unstacked mode.',
+		},
+	},
+};
+
+// Show grid visibility variants side-by-side.
+export const GridVisibility: StoryObj< typeof AreaChart > = {
+	render: () => {
+		const data = sampleData.slice( 0, 3 );
+		return (
+			<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+				<div>
+					<h3>Default grid</h3>
+					<AreaChart width={ 400 } height={ 240 } data={ data } />
+				</div>
+				<div>
+					<h3>gridVisibility=&quot;none&quot;</h3>
+					<AreaChart width={ 400 } height={ 240 } data={ data } gridVisibility="none" />
+				</div>
+			</div>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`gridVisibility` controls grid rendering. Use `"none"` for compact / inline visualisations like sparkline-style cards.',
+			},
+		},
+	},
+};
+
+// Custom renderTooltip: showcase total + per-series rows.
+export const CustomTooltip: StoryObj< typeof AreaChart > = Template.bind( {} );
+CustomTooltip.args = {
+	...areaChartStoryArgs,
+	showLegend: true,
+	renderTooltip: ( { tooltipData } ) => {
+		const nearest = tooltipData?.nearestDatum?.datum;
+		if ( ! nearest ) return null;
+		const entries = Object.entries( tooltipData?.datumByKey || {} ) as Array<
+			[ string, { datum: { value: number } } ]
+		>;
+		const points = entries.map( ( [ key, entry ] ) => ( {
+			key,
+			value: entry.datum.value,
+		} ) );
+		const total = points.reduce( ( sum, p ) => sum + ( p.value ?? 0 ), 0 );
+		return (
+			<div style={ { padding: 8, minWidth: 160 } }>
+				<div style={ { fontWeight: 600, marginBottom: 6 } }>
+					{ ( nearest as { date?: Date } ).date?.toLocaleDateString() }
+				</div>
+				{ points.map( p => (
+					<div key={ p.key } style={ { display: 'flex', justifyContent: 'space-between' } }>
+						<span>{ p.key }</span>
+						<strong>{ p.value }</strong>
+					</div>
+				) ) }
+				<hr style={ { margin: '6px 0', opacity: 0.3 } } />
+				<div style={ { display: 'flex', justifyContent: 'space-between' } }>
+					<span>Total</span>
+					<strong>{ total }</strong>
+				</div>
+			</div>
+		);
+	},
+};
+CustomTooltip.parameters = {
+	docs: {
+		description: {
+			story:
+				'`renderTooltip` lets you render any React content inside the tooltip portal. The portal background is theme-driven; do not override it in custom content.',
+		},
+	},
+};
+
+// Stacked mode with mixed positive/negative values. The hover-glyph overlay
+// follows d3-stack `offset="none"` semantics — running total — so glyphs land
+// on the rendered band edge even when a series goes below zero.
+export const NegativeValues: StoryObj< typeof AreaChart > = Template.bind( {} );
+NegativeValues.args = {
+	...areaChartStoryArgs,
+	showLegend: true,
+	stacked: true,
+	stackOffset: 'none',
+	data: [
+		{
+			label: 'Inflows',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 30 },
+				{ date: new Date( '2024-02-01' ), value: 35 },
+				{ date: new Date( '2024-03-01' ), value: 50 },
+				{ date: new Date( '2024-04-01' ), value: 42 },
+				{ date: new Date( '2024-05-01' ), value: 60 },
+			],
+		},
+		{
+			label: 'Outflows',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: -15 },
+				{ date: new Date( '2024-02-01' ), value: -20 },
+				{ date: new Date( '2024-03-01' ), value: -10 },
+				{ date: new Date( '2024-04-01' ), value: -25 },
+				{ date: new Date( '2024-05-01' ), value: -18 },
+			],
+		},
+	],
+};
+NegativeValues.parameters = {
+	docs: {
+		description: {
+			story:
+				'Mixed positive/negative values with `stackOffset="none"`. Hover glyphs follow the running total, matching where d3-stack draws the band edges.',
+		},
+	},
+};
+
+// Series with different x-domains. Where a series lacks a datum, the cumulative
+// stack treats it as zero (matching d3-stack), and no glyph is rendered for
+// that series — but glyphs for series above it stay positioned correctly.
+export const MismatchedXDomains: StoryObj< typeof AreaChart > = Template.bind( {} );
+MismatchedXDomains.args = {
+	...areaChartStoryArgs,
+	showLegend: true,
+	data: [
+		{
+			label: 'Daily',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 10 },
+				{ date: new Date( '2024-01-02' ), value: 12 },
+				{ date: new Date( '2024-01-03' ), value: 14 },
+				{ date: new Date( '2024-01-04' ), value: 16 },
+				{ date: new Date( '2024-01-05' ), value: 18 },
+			],
+		},
+		{
+			// Missing the 1st and 5th — cumulative still advances correctly.
+			label: 'Sparse',
+			data: [
+				{ date: new Date( '2024-01-02' ), value: 5 },
+				{ date: new Date( '2024-01-03' ), value: 8 },
+				{ date: new Date( '2024-01-04' ), value: 6 },
+			],
+		},
+	],
+};
+MismatchedXDomains.parameters = {
+	docs: {
+		description: {
+			story:
+				'Series with non-matching x-domains. d3-stack treats missing values as zero; the hover-glyph overlay matches that convention so subsequent series glyphs stay on the correct stacked edge.',
+		},
+	},
+};
