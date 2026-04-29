@@ -171,7 +171,12 @@ class Jetpack_Copy_Post {
 		 * @param int     $target_post_id Target post ID.
 		 */
 		$data = apply_filters( 'jetpack_copy_post_data', $data, $source_post, $target_post_id );
-		return wp_update_post( $data );
+
+		// wp_update_post() expects slashed data when passing an array.
+		// Since the data comes from get_post() (which returns unslashed data),
+		// we need to re-slash it to prevent wp_unslash() from stripping
+		// backslashes and other escape sequences from the content.
+		return wp_update_post( wp_slash( $data ) );
 	}
 
 	/**

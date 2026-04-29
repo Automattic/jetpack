@@ -15,9 +15,11 @@ require_once JETPACK__PLUGIN_DIR . 'modules/copy-post.php';
  *
  * @group copy-post
  * @covers Jetpack_Copy_Post::copy_footnotes
+ * @covers Jetpack_Copy_Post::update_content
  */
 #[Group( 'copy-post' )]
 #[CoversMethod( Jetpack_Copy_Post::class, 'copy_footnotes' )]
+#[CoversMethod( Jetpack_Copy_Post::class, 'update_content' )]
 class Copy_Post_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -256,5 +258,67 @@ class Copy_Post_Test extends WP_UnitTestCase {
 		$target_footnotes = json_decode( get_post_meta( $target_post_id, 'footnotes', true ), true );
 		$this->assertIsArray( $target_footnotes );
 		$this->assertEquals( $footnote_content, $target_footnotes[0]['content'] );
+	}
+
+	/**
+	 * Test that backslashes are preserved when copying post content.
+	 *
+	 * @see https://github.com/Automattic/jetpack/issues/46020
+	 */
+	public function test_update_content_preserves_backslashes() {
+		$copy_post = new Jetpack_Copy_Post();
+
+		$content_with_backslashes = '<!-- wp:code -->
+<pre class="wp-block-code"><code>\t is a tab
+\n is newline
+\\ is backslash</code></pre>
+<!-- /wp:code -->';
+
+		$source_post_id = self::factory()->post->create(
+			array(
+				'post_content' => $content_with_backslashes,
+			)
+		);
+		$source_post    = get_post( $source_post_id );
+
+		$target_post_id = self::factory()->post->create();
+
+		// Call update_content which is the method under test.
+		$result = $copy_post->update_content( $source_post, $target_post_id );
+
+		// Assert wp_update_post succeeded.
+		$this->assertNotEquals( 0, $result );
+
+		// Fetch the target post and verify backslashes are preserved.
+		$target_post = get_post( $target_post_id );
+		$this->assertEquals( $content_with_backslashes, $target_post->post_content );
+	}
+
+	/**
+	 * Test that update_content preserves content with special escape sequences.
+	 *
+	 * @see https://github.com/Automattic/jetpack/issues/46020
+	 */
+	public function test_update_content_preserves_escape_sequences() {
+		$copy_post = new Jetpack_Copy_Post();
+
+		// Various backslash sequences that should be preserved.
+		$content = '<p>\t \n \f \\ \9 \ </p>';
+
+		$source_post_id = self::factory()->post->create(
+			array(
+				'post_content' => $content,
+			)
+		);
+		$source_post    = get_post( $source_post_id );
+
+		$target_post_id = self::factory()->post->create();
+
+		$result = $copy_post->update_content( $source_post, $target_post_id );
+
+		$this->assertNotEquals( 0, $result );
+
+		$target_post = get_post( $target_post_id );
+		$this->assertEquals( $content, $target_post->post_content, 'Backslash escape sequences should be preserved when copying posts.' );
 	}
 }
