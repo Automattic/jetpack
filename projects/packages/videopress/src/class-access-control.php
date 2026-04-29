@@ -427,10 +427,16 @@ class Access_Control {
 			return false;
 		}
 
+		/*
+		 * Fall back to SITE_DEFAULT when the property is missing so the site-level
+		 * privacy check applies, rather than treating absence as public access.
+		 */
+		$privacy_setting = $video_info->privacy_setting ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+
 		$embedded_post_id = (int) $embedded_post_id;
 		if (
 			$embedded_post_id
-			&& VIDEOPRESS_PRIVACY::IS_PUBLIC !== $video_info->privacy_setting
+			&& VIDEOPRESS_PRIVACY::IS_PUBLIC !== $privacy_setting
 			&& ! $this->post_embeds_videopress_guid( $embedded_post_id, $guid )
 		) {
 			$embedded_post_id = 0;
@@ -439,7 +445,7 @@ class Access_Control {
 		$is_user_authed = false;
 
 		// Determine if video is public, private or use site default.
-		switch ( $video_info->privacy_setting ) {
+		switch ( $privacy_setting ) {
 			case VIDEOPRESS_PRIVACY::IS_PUBLIC:
 				$is_user_authed = true;
 				break;
