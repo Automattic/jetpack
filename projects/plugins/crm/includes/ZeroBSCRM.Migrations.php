@@ -125,7 +125,7 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ) {
 	global $zeroBSCRM_migrations, $zeroBSCRM_migrations_requirements;
 
 		// catch migration block removal (can be run from system status):
-	if ( current_user_can( 'admin_zerobs_manage_options' ) && isset( $_GET['resetmigrationblock'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'resetmigrationblock' ) ) {
+	if ( jpcrm_perms_manage_options() && isset( $_GET['resetmigrationblock'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) ), 'resetmigrationblock' ) ) {
 
 		// unblock migration blocks
 		delete_option( 'zbsmigrationpreloadcatch' );
