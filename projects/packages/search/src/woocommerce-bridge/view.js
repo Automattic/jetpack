@@ -331,6 +331,175 @@ function renderItemHtml( item, filterKey ) {
 }
 
 /**
+ * Build a `{ [filterKey]: { [slug]: label } }` map for resolving each
+ * active-filter chip's display name. Pulled from the unscoped baseline
+ * because that's the only response guaranteed to contain a bucket for
+ * every selected slug — the scoped response would omit a slug whose
+ * intersection with the current filter set is empty.
+ *
+ * @param {object} unscoped - Unscoped aggregation response, keyed by filterConfig key.
+ * @return {object} `{ [filterKey]: { [slug]: label } }`
+ */
+function buildSlugLabelMap( unscoped ) {
+	const out = {};
+	if ( ! unscoped || ! bridgeState?.filterConfigs ) {
+		return out;
+	}
+	for ( const [ filterKey, agg ] of Object.entries( unscoped ) ) {
+		const config = bridgeState.filterConfigs[ filterKey ];
+		if ( ! config ) {
+			continue;
+		}
+		const { bucketFormat } = resolveFilterFields( config );
+		const slugMap = {};
+		for ( const bucket of agg?.buckets ?? [] ) {
+			const rawKey = String( bucket.key ?? '' );
+			if ( bucketFormat === 'slash' && rawKey.includes( '/' ) ) {
+				const idx = rawKey.indexOf( '/' );
+				slugMap[ rawKey.slice( 0, idx ) ] = rawKey.slice( idx + 1 ) || rawKey.slice( 0, idx );
+			} else {
+				slugMap[ rawKey ] = rawKey;
+			}
+		}
+		out[ filterKey ] = slugMap;
+	}
+	return out;
+}
+
+/**
+ * Build a `{ [filterKey]: activeLabelTemplate }` map by reading every
+ * filter region's `data-wp-context.activeLabelTemplate`. Each WC filter
+ * inner block declares its own template (e.g. `"Category: {{label}}"`)
+ * so chips read right ("Category: Accessories" rather than just
+ * "accessories"). Templates with no `{{label}}` placeholder fall back
+ * to the term's display name.
+ *
+ * @return {object} `{ [filterKey]: string }`
+ */
+function buildLabelTemplateMap() {
+	const wcTypeMap = buildWcFilterTypeMap();
+	const out = {};
+	document.querySelectorAll( '[data-wp-context*="activeLabelTemplate"]' ).forEach( el => {
+		try {
+			const ctx = JSON.parse( el.getAttribute( 'data-wp-context' ) );
+			const filterKey = wcTypeMap[ ctx?.filterType ];
+			if ( filterKey && ctx.activeLabelTemplate && ! out[ filterKey ] ) {
+				out[ filterKey ] = ctx.activeLabelTemplate;
+			}
+		} catch {
+			// ignore malformed context
+		}
+	} );
+	return out;
+}
+
+/**
+ * Render one removable chip's `<li>`. Mirrors the markup in
+ * ProductFilterRemovableChips.php's PHP-rendered fallback (the
+ * `data-wp-each-child` branch — the `<template data-wp-each>` next to
+ * it is for runtime hydration which we don't get on injected nodes).
+ * Click handling uses `data-jp-*` attributes wired up by
+ * `wireChipListeners`.
+ *
+ * @param {object} chip             - Chip data.
+ * @param {string} chip.filterKey   - filterConfig key.
+ * @param {string} chip.value       - Slug being toggled off.
+ * @param {string} chip.activeLabel - Display label (e.g. "Category: Accessories").
+ * @return {string} HTML for one chip row.
+ */
+function renderChipHtml( chip ) {
+	const removeLabel = `Remove filter: ${ chip.activeLabel }`;
+	return [
+		'<li class="wc-block-product-filter-removable-chips__item">',
+		`<span class="wc-block-product-filter-removable-chips__label">${ escText(
+			chip.activeLabel
+		) }</span>`,
+		`<button type="button" class="wc-block-product-filter-removable-chips__remove" aria-label="${ escAttr(
+			removeLabel
+		) }"`,
+		` data-jp-filter-key="${ escAttr( chip.filterKey ) }"`,
+		` data-jp-filter-value="${ escAttr( chip.value ) }">`,
+		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="25" height="25" class="wc-block-product-filter-removable-chips__remove-icon" aria-hidden="true" focusable="false">',
+		'<path d="M12 13.06l3.712 3.713 1.061-1.06L13.061 12l3.712-3.712-1.06-1.06L12 10.938 8.288 7.227l-1.061 1.06L10.939 12l-3.712 3.712 1.06 1.061L12 13.061z"></path>',
+		'</svg>',
+		`<span class="screen-reader-text">${ escText( removeLabel ) }</span>`,
+		'</button>',
+		'</li>',
+	].join( '' );
+}
+
+/**
+ * Replace removable chips in the active-filter region with chips
+ * derived from the URL state. Single delegated click listener on the
+ * host handles toggle-off via `toggleFilterAndNavigate`. Toggles the
+ * `wc-block-product-filter--hidden` class on the parent active-filter
+ * region so the wrapper itself disappears when there are no chips
+ * (mirrors what WC's `data-wp-class--hidden` directive does, which we
+ * can't rely on for injected nodes).
+ *
+ * @param {URLSearchParams} searchParams - Current URL params.
+ * @param {object}          slugLabels   - `{ [filterKey]: { [slug]: label } }` from baseline.
+ * @param {object}          templates    - `{ [filterKey]: activeLabelTemplate }` from filter regions.
+ */
+function applyChipsToActiveFilterBlock( searchParams, slugLabels, templates ) {
+	const chipHost = document.querySelector( '.wc-block-product-filter-removable-chips__items' );
+	if ( ! chipHost ) {
+		return;
+	}
+
+	const activeFilters = urlToActiveFilters( searchParams, bridgeState.filterConfigs );
+	const chips = [];
+	for ( const [ filterKey, slugs ] of Object.entries( activeFilters ) ) {
+		const template = templates[ filterKey ];
+		for ( const slug of slugs ) {
+			const label = slugLabels[ filterKey ]?.[ slug ] ?? slug;
+			const activeLabel = template ? template.replace( '{{label}}', label ) : label;
+			chips.push( { filterKey, value: slug, activeLabel } );
+		}
+	}
+
+	// Remove only existing rendered <li>s; preserve the sibling <template>
+	// element WC uses for its own hydration path.
+	chipHost
+		.querySelectorAll( 'li.wc-block-product-filter-removable-chips__item' )
+		.forEach( li => li.remove() );
+	if ( chips.length > 0 ) {
+		chipHost.insertAdjacentHTML( 'beforeend', chips.map( renderChipHtml ).join( '' ) );
+	}
+	wireChipListeners( chipHost );
+
+	const region = chipHost.closest( '.wp-block-woocommerce-product-filter-active' );
+	if ( region ) {
+		region.classList.toggle( 'wc-block-product-filter--hidden', chips.length === 0 );
+	}
+}
+
+/**
+ * Wire a single delegated click handler on the chip-host UL. Handles
+ * the "remove this filter" click on each chip's button.
+ *
+ * @param {Element} host - The chips `<ul>` host.
+ */
+function wireChipListeners( host ) {
+	if ( host.dataset.jpListenerBound === '1' ) {
+		return;
+	}
+	host.dataset.jpListenerBound = '1';
+	host.addEventListener( 'click', event => {
+		const button = event.target.closest( '.wc-block-product-filter-removable-chips__remove' );
+		if ( ! button ) {
+			return;
+		}
+		const filterKey = button.getAttribute( 'data-jp-filter-key' );
+		const filterValue = button.getAttribute( 'data-jp-filter-value' );
+		if ( filterKey && filterValue ) {
+			event.preventDefault();
+			toggleFilterAndNavigate( filterKey, filterValue );
+		}
+	} );
+}
+
+/**
  * Walk every filter region on the page that exposes a `filterType` we
  * recognize (taxonomy/* or attribute/*). For each, locate the
  * `…__items` host inside the region's checkbox-list shell and replace
@@ -357,6 +526,10 @@ function applyToFilterBlocks( scoped, unscoped, searchParams ) {
 
 	const wcTypeMap = buildWcFilterTypeMap();
 	const activeFilters = urlToActiveFilters( searchParams, bridgeState.filterConfigs );
+	const slugLabels = buildSlugLabelMap( baseline );
+	const labelTemplates = buildLabelTemplateMap();
+
+	applyChipsToActiveFilterBlock( searchParams, slugLabels, labelTemplates );
 
 	const filterRegions = document.querySelectorAll(
 		'[data-wp-interactive*="product-filters"][data-wp-context*="filterType"]'
