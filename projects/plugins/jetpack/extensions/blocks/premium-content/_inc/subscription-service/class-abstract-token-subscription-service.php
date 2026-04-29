@@ -433,7 +433,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 				return false;
 			}
 
-			$end = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
+			$end     = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
 			if ( $end < time() ) {
 				// subscription not active anymore
 				continue;
