@@ -6,11 +6,9 @@ import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutat
 import { useSubscribers } from '../data/use-subscribers';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
-import { useOpenSubscriber } from '../lib/use-open-subscriber';
 import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
-import SubscriberDetailModal from './detail/subscriber-detail-modal';
 import EmptyState from './empty-state';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
@@ -36,6 +34,7 @@ const defaultLayouts = {
 
 type Props = {
 	onAddSubscribers: () => void;
+	onViewSubscriber: ( subscriber: Subscriber ) => void;
 };
 
 /**
@@ -44,12 +43,15 @@ type Props = {
  *
  * @param props                  - Component props.
  * @param props.onAddSubscribers - Open the Add Subscribers modal (used by the empty-state CTA).
+ * @param props.onViewSubscriber - Callback fired when the View row action is invoked.
  * @return The DataViews component bound to the subscribers query.
  */
-export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX.Element {
+export default function SubscribersDataViews( {
+	onAddSubscribers,
+	onViewSubscriber,
+}: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
-	const [ openSubscriber, setOpenSubscriber ] = useOpenSubscriber();
 
 	const apiFilters = useMemo< SubscribersFilter[] >( () => {
 		const values = ( view.filters ?? [] )
@@ -184,11 +186,7 @@ export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX
 					if ( ! target ) {
 						return;
 					}
-					setOpenSubscriber( {
-						subscriptionId:
-							target.email_subscription_id || target.wpcom_subscription_id || undefined,
-						userId: target.user_id || undefined,
-					} );
+					onViewSubscriber( target );
 				},
 			},
 			{
@@ -201,12 +199,8 @@ export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX
 				},
 			},
 		],
-		[ setOpenSubscriber ]
+		[ onViewSubscriber ]
 	);
-
-	const handleCloseDetail = useCallback( () => {
-		setOpenSubscriber( null );
-	}, [ setOpenSubscriber ] );
 
 	const handleConfirmRemoval = useCallback( () => {
 		const targets = pendingRemoval;
@@ -270,7 +264,6 @@ export default function SubscribersDataViews( { onAddSubscribers }: Props ): JSX
 				onConfirm={ handleConfirmRemoval }
 				onCancel={ handleCancelRemoval }
 			/>
-			<SubscriberDetailModal open={ openSubscriber } onClose={ handleCloseDetail } />
 		</>
 	);
 }

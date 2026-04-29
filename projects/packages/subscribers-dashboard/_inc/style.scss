@@ -1,21 +1,50 @@
+@import "@wordpress/admin-ui/build-style/style.css";
 @import "@wordpress/dataviews/build-style/style.css";
 
-.jetpack-subscribers-dashboard {
-	margin: 16px 20px 0 0;
-	padding: 0;
-	max-width: 100%;
+// Page chrome — match the wp-admin sidebar bg (#1d2327 in the default
+// "fresh" scheme) so the dark sidebar and the page area behave as one
+// continuous "custom canvas". Light surface cards (#fcfcfc) pop against
+// it. Hide #wpfooter, zero #wpcontent's padding-left, and zero
+// #wpbody-content's padding-bottom — same chrome overrides Forms uses.
+body[class*="_page_subscribers"],
+body.jetpack-subscribers-dashboard-page {
+	background: #1d2327;
 
-	&__header {
-		padding: 24px 24px 16px;
+	#wpcontent {
+		padding-left: 0;
 	}
 
-	&__header-row {
-		align-items: flex-start;
+	#wpbody-content {
+		padding-bottom: 0;
+	}
+
+	#wpfooter {
+		display: none;
+	}
+}
+
+// Mount-point flex column, mirrors Forms' #jp-forms-dashboard.
+#jetpack-subscribers-dashboard {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	height: calc(100vh - var(--wp-admin-bar-height, 32px));
+
+	> div:first-child {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 16px;
-		justify-content: space-between;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-height: 0;
 	}
+}
+
+.jetpack-subscribers-dashboard {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+
+	// Separate stacking context for any portal-rendered popovers.
+	isolation: isolate;
 
 	&__header-actions {
 		align-items: center;
@@ -23,44 +52,67 @@
 		gap: 8px;
 	}
 
-	&__title {
-		font-size: 23px;
-		font-weight: 400;
-		line-height: 1.3;
-		margin: 0 0 4px;
-	}
-
-	&__subtitle {
-		color: #50575e;
-		font-size: 13px;
+	// Surfaces parent: 1:1 with `.boot-layout__surfaces`. Single-page mode
+	// kills the top + start margins so the cards hug the wp-admin chrome.
+	&__layout {
+		display: flex;
+		flex-grow: 1;
+		gap: 8px;
 		margin: 0;
-	}
 
-	&__totals {
-		color: #50575e;
-		font-size: 13px;
-		margin: 8px 0 0;
-
-		strong {
-			color: #1e1e1e;
-			font-weight: 600;
+		@media (min-width: 782px) {
+			margin: 8px;
+			margin-top: 0;
+			margin-inline-start: 0;
 		}
 	}
 
-	&__main {
-		background: #fff;
-		border: 1px solid #dcdcde;
-		border-radius: 4px;
-		margin: 0 24px 24px;
-		min-height: 480px;
-		overflow: hidden;
-	}
-}
+	// Surfaces: 1:1 with `.boot-layout__inspector, .boot-layout__stage`.
+	// Mobile = fixed fullscreen; desktop = inline cards with border-radius
+	// and a near-invisible bg contrast against the page (no border).
+	&__surface {
+		background: #fcfcfc;
+		border-radius: 0;
+		bottom: 0;
+		flex: 1;
+		height: 100vh;
+		left: 0;
+		margin: 0;
+		overflow-y: auto;
+		position: fixed;
+		right: 0;
+		top: 46px;
+		width: 100vw;
 
-#wpcontent {
+		&.is-stage {
+			z-index: 2;
+		}
 
-	.jetpack-subscribers-dashboard {
-		padding-left: 0;
+		&.is-inspector {
+			z-index: 3;
+		}
+
+		@media (min-width: 782px) {
+			border-radius: 8px;
+			height: auto;
+			margin: 0;
+			position: static;
+			width: auto;
+
+			&.is-stage {
+				flex-grow: 1;
+				min-width: 0;
+				z-index: auto;
+			}
+
+			&.is-inspector {
+				align-self: stretch;
+				flex: none;
+				max-width: 400px;
+				width: 400px;
+				z-index: auto;
+			}
+		}
 	}
 }
 
@@ -152,11 +204,29 @@
 	}
 }
 
-.jetpack-subscribers-dashboard__detail-modal {
+.jetpack-subscribers-dashboard__panel-header {
+	align-items: center;
+	border-bottom: 1px solid #f0f0f1;
+	display: flex;
+	flex-shrink: 0;
+	gap: 12px;
+	justify-content: space-between;
+	padding: 16px 24px;
+}
 
-	.components-modal__content {
-		min-width: 480px;
-	}
+.jetpack-subscribers-dashboard__panel-title {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jetpack-subscribers-dashboard__panel-body {
+	flex-grow: 1;
+	overflow-y: auto;
+	padding: 24px;
 }
 
 .jetpack-subscribers-dashboard__detail-loading {
@@ -183,7 +253,6 @@
 	font-size: 18px;
 	font-weight: 600;
 	line-height: 1.3;
-	margin: 0;
 }
 
 .jetpack-subscribers-dashboard__detail-email {
@@ -229,25 +298,4 @@
 	color: #50575e;
 	font-size: 12px;
 	margin: 8px 0 0;
-}
-
-@media (max-width: 600px) {
-
-	.jetpack-subscribers-dashboard {
-
-		&__header,
-		&__main {
-			margin: 0 12px 16px;
-			padding: 16px;
-		}
-
-		&__header-row {
-			flex-direction: column;
-			align-items: stretch;
-		}
-
-		&__header-actions {
-			justify-content: flex-end;
-		}
-	}
 }

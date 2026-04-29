@@ -115,10 +115,15 @@ export type AddSubscribersResponse = {
 	[ key: string ]: unknown;
 };
 
+export type SubscriberCountry = {
+	code: string;
+	name: string;
+};
+
 export type SubscriberDetails = Subscriber & {
-	country?: string | null;
-	language?: string | null;
+	country?: SubscriberCountry | null;
 	url?: string | null;
+	open_rate?: number;
 };
 
 export type SubscriberStats = {
