@@ -89,25 +89,21 @@ add_filter(
 );
 
 /**
- * Set _last_editor_used_jetpack when a post is first created from the Write editor.
- *
- * Checks the HTTP Referer to identify saves originating from the Write page.
- * Only runs on post creation (not updates) — existing posts have their meta
- * set on page load in wpcom_write_render_admin_page() instead.
+ * Register _last_editor_used_jetpack for REST API access so the Write editor
+ * can set it via the meta field in save requests. Follows the same pattern
+ * used by other Jetpack meta keys (e.g. _jetpack_newsletter_access).
  */
-add_action(
-	'rest_after_insert_post',
-	function ( $post, $request, $creating ) {
-		if ( ! $creating ) {
-			return;
-		}
-		$referer = $request->get_header( 'referer' );
-		if ( $referer && strpos( $referer, 'page=write' ) !== false ) {
-			update_post_meta( $post->ID, '_last_editor_used_jetpack', 'write-editor' );
-		}
-	},
-	10,
-	3
+register_post_meta(
+	'post',
+	'_last_editor_used_jetpack',
+	array(
+		'show_in_rest'  => true,
+		'single'        => true,
+		'type'          => 'string',
+		'auth_callback' => function () {
+			return wp_get_current_user()->has_cap( 'edit_posts' );
+		},
+	)
 );
 
 /**

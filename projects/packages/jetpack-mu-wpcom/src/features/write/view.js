@@ -3695,6 +3695,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				categories: selectedCats,
 				...tagData,
 				featured_media: state.featuredMediaId || 0,
+				meta: { _last_editor_used_jetpack: 'write-editor' },
 			},
 		} );
 
@@ -3732,7 +3733,7 @@ async function savePost( postStatus, isAutosave = false ) {
 			window._tkq.push( [
 				'recordEvent',
 				'wpcom_write_editor_post_published',
-				{ post_id: post.id, is_new_post: ! isEditing },
+				{ post_id: post.id },
 			] );
 			setTimeout( () => {
 				// Hide the page before navigating so the bfcache snapshot
