@@ -808,8 +808,10 @@ class Forms_Abilities extends Registrar {
 	 * Extract field definitions from raw block content.
 	 *
 	 * Walks `jetpack/field-*` blocks and projects each into a compact
-	 * `{ label, type, required, options?, placeholder? }` shape. Blocks
-	 * without a label are dropped — agents reference fields by label.
+	 * `{ label, type, required, options?, placeholder? }` shape. Modern
+	 * field blocks store the label/placeholder in `jetpack/label` and
+	 * `jetpack/input` sub-blocks; legacy fixtures keep them inline as
+	 * top-level attrs. Both layouts are supported.
 	 *
 	 * @param string $raw_content Raw block content (typically `content.raw` from REST).
 	 * @return array
@@ -826,34 +828,81 @@ class Forms_Abilities extends Registrar {
 	/**
 	 * Recursively walk parsed blocks and append field definitions to `$fields`.
 	 *
+	 * Field blocks are not recursed into — their inner blocks are layout
+	 * sub-blocks (`jetpack/label`, `jetpack/input`), not nested fields.
+	 * Non-field containers (columns, groups, the contact-form block itself)
+	 * are recursed so fields nested inside them still get picked up.
+	 *
 	 * @param array $blocks Parsed blocks.
 	 * @param array $fields Reference to the fields array being built.
 	 */
 	private static function collect_field_blocks( array $blocks, array &$fields ): void {
 		foreach ( $blocks as $block ) {
-			if ( strpos( $block['blockName'] ?? '', 'jetpack/field-' ) === 0 ) {
-				$attrs = $block['attrs'] ?? array();
-				$label = $attrs['label'] ?? '';
-				if ( '' === $label ) {
-					continue;
+			$name = $block['blockName'] ?? '';
+
+			if ( strpos( $name, 'jetpack/field-' ) === 0 ) {
+				$summary = self::summarize_field_block( $block );
+				if ( null !== $summary ) {
+					$fields[] = $summary;
 				}
-				$field = array(
-					'label'    => $label,
-					'type'     => str_replace( 'jetpack/field-', '', $block['blockName'] ),
-					'required' => ! empty( $attrs['required'] ),
-				);
-				if ( ! empty( $attrs['options'] ) ) {
-					$field['options'] = $attrs['options'];
-				}
-				if ( ! empty( $attrs['placeholder'] ) ) {
-					$field['placeholder'] = $attrs['placeholder'];
-				}
-				$fields[] = $field;
+				continue;
 			}
 
 			if ( ! empty( $block['innerBlocks'] ) ) {
 				self::collect_field_blocks( $block['innerBlocks'], $fields );
 			}
 		}
+	}
+
+	/**
+	 * Project a single `jetpack/field-*` block into the compact field shape.
+	 *
+	 * @param array $block Parsed block array.
+	 * @return array|null Field summary, or null if the block has no usable label.
+	 */
+	private static function summarize_field_block( array $block ): ?array {
+		$attrs       = $block['attrs'] ?? array();
+		$inner_attrs = self::collect_inner_attrs( $block['innerBlocks'] ?? array() );
+		$label_attrs = $inner_attrs['jetpack/label'] ?? array();
+		$input_attrs = $inner_attrs['jetpack/input'] ?? array();
+
+		$label = (string) ( $label_attrs['label'] ?? $attrs['label'] ?? '' );
+		if ( '' === $label ) {
+			return null;
+		}
+
+		$field = array(
+			'label'    => $label,
+			'type'     => str_replace( 'jetpack/field-', '', (string) ( $block['blockName'] ?? '' ) ),
+			'required' => ! empty( $attrs['required'] ),
+		);
+
+		if ( ! empty( $attrs['options'] ) ) {
+			$field['options'] = $attrs['options'];
+		}
+
+		$placeholder = $input_attrs['placeholder'] ?? $attrs['placeholder'] ?? '';
+		if ( '' !== $placeholder ) {
+			$field['placeholder'] = $placeholder;
+		}
+
+		return $field;
+	}
+
+	/**
+	 * Build a `block_name => attrs` lookup from the field's direct children.
+	 *
+	 * @param array $inner_blocks Direct children of a field block.
+	 * @return array
+	 */
+	private static function collect_inner_attrs( array $inner_blocks ): array {
+		$out = array();
+		foreach ( $inner_blocks as $child ) {
+			$name = $child['blockName'] ?? '';
+			if ( '' !== $name && ! isset( $out[ $name ] ) ) {
+				$out[ $name ] = $child['attrs'] ?? array();
+			}
+		}
+		return $out;
 	}
 }

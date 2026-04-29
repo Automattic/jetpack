@@ -414,6 +414,45 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertEquals( 'Test Form', $result['title'] );
 		$this->assertEquals( 'publish', $result['status'] );
 		$this->assertIsArray( $result['fields'] );
+		$this->assertCount( 1, $result['fields'], 'Expected one extracted jetpack/field-text block.' );
+		$this->assertSame( 'Name', $result['fields'][0]['label'] );
+		$this->assertSame( 'text', $result['fields'][0]['type'] );
+		$this->assertTrue( $result['fields'][0]['required'] );
+	}
+
+	/**
+	 * Modern Jetpack form fields nest the label/placeholder in jetpack/label
+	 * and jetpack/input sub-blocks rather than inline on the field block.
+	 * Regression guard: get-form must extract these — the previous version
+	 * read attrs.label only and silently returned an empty fields array for
+	 * every modern form.
+	 */
+	public function test_get_form_extracts_fields_with_inner_label_sub_blocks() {
+		wp_set_current_user( self::$user_id );
+
+		$content  = '<!-- wp:jetpack/contact-form -->';
+		$content .= '<!-- wp:jetpack/field-text {"required":true} -->';
+		$content .= '<!-- wp:jetpack/label {"label":"Full name"} /-->';
+		$content .= '<!-- wp:jetpack/input {"type":"text","placeholder":"Enter your name"} /-->';
+		$content .= '<!-- /wp:jetpack/field-text -->';
+		$content .= '<!-- wp:jetpack/field-email -->';
+		$content .= '<!-- wp:jetpack/label {"label":"Email"} /-->';
+		$content .= '<!-- wp:jetpack/input {"type":"email"} /-->';
+		$content .= '<!-- /wp:jetpack/field-email -->';
+		$content .= '<!-- /wp:jetpack/contact-form -->';
+
+		$post_id = self::make_form( 'Modern Form', $content );
+
+		$result = Forms_Abilities::get_form( array( 'id' => $post_id ) );
+
+		$this->assertCount( 2, $result['fields'], 'Both fields should be extracted from inner-block label structure.' );
+		$this->assertSame( 'Full name', $result['fields'][0]['label'] );
+		$this->assertSame( 'text', $result['fields'][0]['type'] );
+		$this->assertTrue( $result['fields'][0]['required'] );
+		$this->assertSame( 'Enter your name', $result['fields'][0]['placeholder'] );
+		$this->assertSame( 'Email', $result['fields'][1]['label'] );
+		$this->assertSame( 'email', $result['fields'][1]['type'] );
+		$this->assertFalse( $result['fields'][1]['required'] );
 	}
 
 	/**
