@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { DataViews } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import fastDeepEqual from 'fast-deep-equal/es6';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { activityLogQuery, activityLogGroupCountsQuery } from '../../hooks/use-activity-log';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
@@ -91,6 +91,39 @@ export default function ActivityLog() {
 	const hasActivityLogsAccess = readHasActivityLogsAccess();
 	const { view, setView, resetView, isViewModified } = usePersistentView( DEFAULT_VIEW );
 	const { tracks } = useAnalytics();
+	const wrapperRef = useRef< HTMLDivElement >( null );
+
+	// DataViews' `Action` API doesn't expose a tooltip prop, so the
+	// disabled "Manage backup" stub renders without any hint as to *why*
+	// it can't be clicked. Attach a `title` to those buttons after each
+	// render so users hovering get the "Coming soon" context — and
+	// screen readers pick it up too. The MutationObserver re-runs on
+	// pagination / filter changes, when DataViews swaps the row DOM.
+	useEffect( () => {
+		const wrapper = wrapperRef.current;
+		if ( ! wrapper ) {
+			return;
+		}
+		const manageBackupLabel = __( 'Manage backup', 'jetpack-activity-log' );
+		const tooltipText = __( 'Coming soon', 'jetpack-activity-log' );
+		const apply = ( root: ParentNode ) => {
+			const buttons = root.querySelectorAll< HTMLButtonElement >(
+				'.dataviews-item-actions button[disabled]'
+			);
+			buttons.forEach( btn => {
+				if (
+					btn.textContent?.trim() === manageBackupLabel &&
+					btn.getAttribute( 'title' ) !== tooltipText
+				) {
+					btn.setAttribute( 'title', tooltipText );
+				}
+			} );
+		};
+		apply( wrapper );
+		const observer = new MutationObserver( () => apply( wrapper ) );
+		observer.observe( wrapper, { subtree: true, childList: true } );
+		return () => observer.disconnect();
+	}, [] );
 
 	// Date-range defaults to "Last 7 days" anchored at the site's calendar
 	// today (not the browser's) — matches Calypso's `getDefaultDateRange`.
@@ -311,7 +344,7 @@ export default function ActivityLog() {
 			actions={ headerActions }
 			showFooter={ false }
 		>
-			<div className="jp-activity-log__dataviews-wrapper">
+			<div ref={ wrapperRef } className="jp-activity-log__dataviews-wrapper">
 				<DataViews< Activity >
 					data={ logData }
 					isLoading={ isFetching || isLoadingList }
