@@ -990,7 +990,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$options[ $key ] = $site->get_jetpack_recovery_mode_status();
 					break;
 				case 'apm_enabled':
-					$options[ $key ] = (bool) get_option( 'apm_enabled' );
+					$options[ $key ] = $site->get_apm_enabled();
 					break;
 			}
 		}
