@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Activity Log: hide the small "modified" dot DataViews renders on the view-options cog when the view differs from the default. The Reset view button inside the cog popover keeps the same affordance.

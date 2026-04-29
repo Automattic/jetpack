@@ -28,6 +28,16 @@ body.jetpack_page_jetpack-activity-log {
 		margin: 0;
 	}
 
+	// DataViews shows a small "modified" dot on the cog whenever the
+	// current view differs from the default (driven by our `onReset`
+	// prop). Hide it: the same signal already gates the Reset view
+	// button inside the popover, which is enough — the cog dot just
+	// adds visual noise on a page where users routinely toggle sort
+	// order, density, or filters.
+	.dataviews-view-config__modified-indicator {
+		display: none;
+	}
+
 	// Activity-layout meta row ([date] … [actor]). DataViews renders
 	// this as a flex row with the default `align-items: stretch`, which
 	// left-aligns the date text to the top while the actor's icon+name
