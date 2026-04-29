@@ -877,8 +877,11 @@ class zeroBS__Metabox_CompanyFiles extends zeroBS__Metabox {
 			if ( jpcrm_file_check_mime_extension( $_FILES['zbs_file_attachment'] ) ) {
 
 				$company_dir_info = jpcrm_storage_dir_info_for_company( $companyID );
-				$upload           = jpcrm_save_admin_upload_to_folder( 'zbs_file_attachment', $company_dir_info['files'] );
+				if ( ! $company_dir_info ) {
+					wp_die( 'Could not prepare upload directory.' );
+				}
 
+				$upload = jpcrm_save_admin_upload_to_folder( 'zbs_file_attachment', $company_dir_info['files'] );
 				if ( isset( $upload['error'] ) && $upload['error'] != 0 ) {
 					wp_die( 'There was an error uploading your file. The error is: ' . esc_html( $upload['error'] ) );
 				} else {

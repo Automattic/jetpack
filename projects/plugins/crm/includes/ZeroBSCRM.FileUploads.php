@@ -604,6 +604,10 @@ function jpcrm_storage_dir_info_for_quotes( $quote_id ) {
  * of success.
  */
 function jpcrm_save_admin_upload_to_folder( $param_name, $target_dir_info ) {
+	if ( ! $target_dir_info ) {
+		return array( 'error' => 'Could not prepare upload directory.' );
+	}
+
 	if ( empty( $_FILES[ $param_name ]['name'] ) || empty( $_FILES[ $param_name ]['tmp_name'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled the caller.
 		return array( 'error' => 'No file uploaded.' );
 	}
