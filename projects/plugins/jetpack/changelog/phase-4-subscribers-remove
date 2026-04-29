@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+REST API: add wpcom/v2/subscribers/remove endpoint that cancels paid subscriptions and deletes WPCOM + email follower records server-side for the in-admin Subscribers dashboard.

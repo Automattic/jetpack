@@ -3997,9 +3997,15 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@tanstack/react-query':
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.44.0
         version: 7.44.0
+      '@wordpress/components':
+        specifier: 32.6.0
+        version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.44.0
         version: 10.44.0(react@18.3.1)
@@ -4015,6 +4021,9 @@ importers:
       '@wordpress/i18n':
         specifier: 6.17.0
         version: 6.17.0
+      '@wordpress/notices':
+        specifier: 5.44.0
+        version: 5.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0

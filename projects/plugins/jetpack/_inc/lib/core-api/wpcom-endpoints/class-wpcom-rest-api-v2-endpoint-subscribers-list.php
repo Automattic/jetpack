@@ -41,6 +41,35 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
+			'/subscribers/remove',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'remove_subscriber' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'user_id'               => array(
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+						'email_subscription_id' => array(
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+						'paid_subscription_ids' => array(
+							'type'    => 'array',
+							'items'   => array( 'type' => 'string' ),
+							'default' => array(),
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/subscribers/totals',
 			array(
 				array(
@@ -214,6 +243,118 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		}
 
 		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Remove a subscriber by cancelling any paid subscriptions and deleting both the WPCOM
+	 * follower and email follower records, mirroring Calypso's `useSubscriberRemoveMutation`.
+	 *
+	 * Each underlying call is best-effort — we collect errors per step so the caller can show a
+	 * partial-failure notice instead of giving up on the first 4xx.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function remove_subscriber( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$user_id               = (int) $request->get_param( 'user_id' );
+		$email_subscription_id = (int) $request->get_param( 'email_subscription_id' );
+		$paid_subscription_ids = (array) $request->get_param( 'paid_subscription_ids' );
+
+		if ( ! $user_id && ! $email_subscription_id && empty( $paid_subscription_ids ) ) {
+			return new WP_Error(
+				'subscribers_remove_invalid',
+				__( 'No subscriber identifiers were provided.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$errors = array();
+
+		foreach ( $paid_subscription_ids as $paid_id ) {
+			$paid_id = sanitize_text_field( (string) $paid_id );
+			if ( '' === $paid_id ) {
+				continue;
+			}
+			$step_error = $this->wpcom_post(
+				sprintf( '/sites/%d/memberships/subscriptions/%s/cancel', (int) $blog_id, $paid_id )
+			);
+			if ( is_wp_error( $step_error ) ) {
+				$errors[] = array(
+					'step'  => 'cancel_paid_subscription',
+					'id'    => $paid_id,
+					'error' => $step_error->get_error_message(),
+				);
+			}
+		}
+
+		if ( $user_id ) {
+			$step_error = $this->wpcom_post(
+				sprintf( '/sites/%d/followers/%d/delete', (int) $blog_id, $user_id )
+			);
+			if ( is_wp_error( $step_error ) ) {
+				$errors[] = array(
+					'step'  => 'delete_follower',
+					'id'    => (string) $user_id,
+					'error' => $step_error->get_error_message(),
+				);
+			}
+		}
+
+		if ( $email_subscription_id ) {
+			$step_error = $this->wpcom_post(
+				sprintf( '/sites/%d/email-followers/%d/delete', (int) $blog_id, $email_subscription_id )
+			);
+			if ( is_wp_error( $step_error ) ) {
+				$errors[] = array(
+					'step'  => 'delete_email_follower',
+					'id'    => (string) $email_subscription_id,
+					'error' => $step_error->get_error_message(),
+				);
+			}
+		}
+
+		return rest_ensure_response(
+			array(
+				'ok'     => empty( $errors ),
+				'errors' => $errors,
+			)
+		);
+	}
+
+	/**
+	 * Helper: POST to a v1.1 wpcom REST path as the current user. Returns null on success or a
+	 * WP_Error describing the failure.
+	 *
+	 * @param string $path Path under `/rest/v1.1`.
+	 * @return WP_Error|null
+	 */
+	private function wpcom_post( $path ) {
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			'1.1',
+			array( 'method' => 'POST' ),
+			null,
+			'rest'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		if ( $status >= 400 ) {
+			$body    = json_decode( wp_remote_retrieve_body( $response ), true );
+			$message = is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'WP.com call failed.', 'jetpack' );
+			return new WP_Error( 'wpcom_call_failed', $message, array( 'status' => $status ) );
+		}
+
+		return null;
 	}
 }
 

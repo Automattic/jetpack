@@ -1,6 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import type {
+	RemoveSubscriberPayload,
+	RemoveSubscriberResponse,
 	SubscribersQueryParams,
 	SubscribersResponse,
 	SubscribersTotalsResponse,
@@ -49,5 +51,27 @@ export function fetchSubscribersTotals(): Promise< SubscribersTotalsResponse > {
 	return apiFetch< SubscribersTotalsResponse >( {
 		path: '/wpcom/v2/subscribers/totals',
 		method: 'GET',
+	} );
+}
+
+/**
+ * Cancel paid subscriptions and delete the WPCOM + email follower records for a single
+ * subscriber, mirroring Calypso's `useSubscriberRemoveMutation` cascade. Bulk callers loop and
+ * call this per subscriber.
+ *
+ * @param payload - Subscriber identifiers.
+ * @return Per-step success / error report.
+ */
+export function removeSubscriber(
+	payload: RemoveSubscriberPayload
+): Promise< RemoveSubscriberResponse > {
+	return apiFetch< RemoveSubscriberResponse >( {
+		path: '/wpcom/v2/subscribers/remove',
+		method: 'POST',
+		data: {
+			user_id: payload.user_id ?? 0,
+			email_subscription_id: payload.email_subscription_id ?? 0,
+			paid_subscription_ids: payload.paid_subscription_ids ?? [],
+		},
 	} );
 }

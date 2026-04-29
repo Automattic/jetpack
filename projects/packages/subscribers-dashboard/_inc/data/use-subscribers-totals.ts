@@ -1,4 +1,4 @@
-import { useEffect, useState } from '@wordpress/element';
+import { useQuery } from '@tanstack/react-query';
 import { fetchSubscribersTotals } from './api';
 import type { SubscribersTotals } from './types';
 
@@ -9,6 +9,8 @@ const defaultTotals: SubscribersTotals = {
 	social_followers: 0,
 };
 
+export const SUBSCRIBERS_TOTALS_QUERY_KEY = [ 'subscribers-totals' ] as const;
+
 type State = {
 	data: SubscribersTotals;
 	isLoading: boolean;
@@ -16,48 +18,22 @@ type State = {
 };
 
 /**
- * Subscriber totals hook (total / email / paid / social).
- *
- * Phase 2 keeps this on plain `useState`/`useEffect`; React Query lands in Phase 4.
+ * Subscriber totals hook backed by React Query.
  *
  * @return Loading state, totals, and error string.
  */
 export function useSubscribersTotals(): State {
-	const [ state, setState ] = useState< State >( {
-		data: defaultTotals,
-		isLoading: true,
-		error: null,
+	const query = useQuery( {
+		queryKey: SUBSCRIBERS_TOTALS_QUERY_KEY,
+		queryFn: async () => {
+			const response = await fetchSubscribersTotals();
+			return response.counts ?? defaultTotals;
+		},
 	} );
 
-	useEffect( () => {
-		let cancelled = false;
-
-		fetchSubscribersTotals()
-			.then( response => {
-				if ( cancelled ) {
-					return;
-				}
-				setState( {
-					data: response.counts ?? defaultTotals,
-					isLoading: false,
-					error: null,
-				} );
-			} )
-			.catch( ( err: Error ) => {
-				if ( cancelled ) {
-					return;
-				}
-				setState( {
-					data: defaultTotals,
-					isLoading: false,
-					error: err?.message ?? 'Failed to fetch subscriber totals',
-				} );
-			} );
-
-		return () => {
-			cancelled = true;
-		};
-	}, [] );
-
-	return state;
+	return {
+		data: query.data ?? defaultTotals,
+		isLoading: query.isLoading,
+		error: query.error?.message ?? null,
+	};
 }

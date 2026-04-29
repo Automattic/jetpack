@@ -1,4 +1,4 @@
-import type { Subscriber } from '../data/types';
+import type { RemoveSubscriberPayload, Subscriber } from '../data/types';
 
 /**
  * Best-effort subscription date — Calypso prefers `wpcom_date_subscribed`, falling back to the
@@ -28,4 +28,32 @@ export function getSubscriberRowId( subscriber: Subscriber ): string {
 	const id =
 		subscriber.email_subscription_id || subscriber.wpcom_subscription_id || subscriber.user_id || 0;
 	return id ? String( id ) : subscriber.email_address;
+}
+
+/**
+ * Build the payload the `/wpcom/v2/subscribers/remove` endpoint expects from a subscriber row.
+ *
+ * @param subscriber - Subscriber row.
+ * @return Remove payload.
+ */
+export function getRemovePayload( subscriber: Subscriber ): RemoveSubscriberPayload {
+	const paid_subscription_ids = ( subscriber.plans ?? [] )
+		.map( plan => plan.paid_subscription_id )
+		.filter( ( id ): id is string => typeof id === 'string' && id.length > 0 );
+
+	return {
+		user_id: subscriber.user_id || 0,
+		email_subscription_id: subscriber.email_subscription_id || 0,
+		paid_subscription_ids,
+	};
+}
+
+/**
+ * Display name fallback: prefer the subscriber's display name, else their email address.
+ *
+ * @param subscriber - Subscriber row.
+ * @return Display string.
+ */
+export function getSubscriberLabel( subscriber: Subscriber ): string {
+	return subscriber.display_name || subscriber.email_address;
 }

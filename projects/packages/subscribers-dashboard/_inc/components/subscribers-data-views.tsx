@@ -1,15 +1,17 @@
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
+import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
-import type { Field, View } from '@wordpress/dataviews/wp';
+import type { Action, Field, View } from '@wordpress/dataviews/wp';
 
 const DEFAULT_PER_PAGE = 10;
 
@@ -30,16 +32,14 @@ const defaultLayouts = {
 };
 
 /**
- * Subscribers DataViews table — server-driven pagination, sort, search, and filters with URL
- * persistence.
- *
- * Phase 3 brings filter chips for subscription type and email subscription status, mapped to the
- * Calypso `filters[]=…` API values, plus URL-persisted view state for back/forward and bookmarks.
+ * Subscribers DataViews table — server-driven pagination, sort, search, filters with URL
+ * persistence, and per-row + bulk subscriber removal.
  *
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews(): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
+	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
 
 	const apiFilters = useMemo< SubscribersFilter[] >( () => {
 		const values = ( view.filters ?? [] )
@@ -61,6 +61,7 @@ export default function SubscribersDataViews(): JSX.Element {
 	);
 
 	const { data, isLoading, error } = useSubscribers( queryParams );
+	const removeMutation = useSubscriberRemoveMutation();
 
 	const dateSettings = getDateSettings();
 
@@ -162,6 +163,37 @@ export default function SubscribersDataViews(): JSX.Element {
 		[ dateSettings.formats.date ]
 	);
 
+	const actions = useMemo< Action< Subscriber >[] >(
+		() => [
+			{
+				id: 'remove',
+				label: __( 'Remove subscriber', 'jetpack-subscribers-dashboard' ),
+				supportsBulk: true,
+				isDestructive: true,
+				callback: ( items: Subscriber[] ) => {
+					setPendingRemoval( items );
+				},
+			},
+		],
+		[]
+	);
+
+	const handleConfirmRemoval = useCallback( () => {
+		const targets = pendingRemoval;
+		if ( targets.length === 0 ) {
+			return;
+		}
+		removeMutation.mutate( targets, {
+			onSettled: () => {
+				setPendingRemoval( [] );
+			},
+		} );
+	}, [ pendingRemoval, removeMutation ] );
+
+	const handleCancelRemoval = useCallback( () => {
+		setPendingRemoval( [] );
+	}, [] );
+
 	const subscribers = data?.subscribers ?? [];
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
@@ -181,18 +213,26 @@ export default function SubscribersDataViews(): JSX.Element {
 	}
 
 	return (
-		<DataViews< Subscriber >
-			data={ subscribers }
-			fields={ fields }
-			view={ view }
-			onChangeView={ setView }
-			defaultLayouts={ defaultLayouts }
-			paginationInfo={ paginationInfo }
-			getItemId={ getSubscriberRowId }
-			isLoading={ isLoading }
-			search
-			searchLabel={ __( 'Search subscribers…', 'jetpack-subscribers-dashboard' ) }
-			actions={ [] }
-		/>
+		<>
+			<DataViews< Subscriber >
+				data={ subscribers }
+				fields={ fields }
+				view={ view }
+				onChangeView={ setView }
+				defaultLayouts={ defaultLayouts }
+				paginationInfo={ paginationInfo }
+				getItemId={ getSubscriberRowId }
+				isLoading={ isLoading }
+				search
+				searchLabel={ __( 'Search subscribers…', 'jetpack-subscribers-dashboard' ) }
+				actions={ actions }
+			/>
+			<UnsubscribeModal
+				subscribers={ pendingRemoval }
+				isBusy={ removeMutation.isPending }
+				onConfirm={ handleConfirmRemoval }
+				onCancel={ handleCancelRemoval }
+			/>
+		</>
 	);
 }

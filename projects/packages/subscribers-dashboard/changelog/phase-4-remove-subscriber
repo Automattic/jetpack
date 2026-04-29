@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Phase 4 of #48365: per-row + bulk remove subscriber action with confirmation modal, React Query for queries / mutations, and snackbar notices.

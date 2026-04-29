@@ -91,3 +91,20 @@ export type SubscribersQueryParams = {
 	search?: string;
 	filters: SubscribersFilter[];
 };
+
+export type RemoveSubscriberPayload = {
+	user_id?: number;
+	email_subscription_id?: number;
+	paid_subscription_ids?: string[];
+};
+
+export type RemoveSubscriberError = {
+	step: string;
+	id: string;
+	error: string;
+};
+
+export type RemoveSubscriberResponse = {
+	ok: boolean;
+	errors: RemoveSubscriberError[];
+};
