@@ -146,7 +146,7 @@ function convertToBlocks( html ) {
 			const alt = img.getAttribute( 'alt' ) || '';
 			const figcaption = node.querySelector( 'figcaption' );
 			const captionHtml = figcaption
-				? `<figcaption class="wp-element-caption" style="text-align:center">${ figcaption.innerHTML }</figcaption>`
+				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
 			blocks.push(
 				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ alt }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
