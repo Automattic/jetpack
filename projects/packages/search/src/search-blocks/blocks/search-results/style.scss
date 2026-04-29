@@ -40,7 +40,7 @@
 	}
 
 	.jetpack-search-results__highlight {
-		background: rgba(255, 230, 0, 0.35);
+		background: var(--jetpack-search-highlight-background, color-mix(in sRGB, currentColor 18%, transparent));
 		font-weight: 700;
 	}
 
