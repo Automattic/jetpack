@@ -225,6 +225,13 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		}
 	}
 
+	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
+		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertSame( true, $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
+		}
+	}
+
 	public function test_set_stats_config_is_not_readonly_but_idempotent(): void {
 		$abilities = Stats_Abilities::get_abilities();
 		$ann       = $abilities['jetpack-stats/set-stats-config']['meta']['annotations'];
