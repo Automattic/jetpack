@@ -422,10 +422,11 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	<!-- Leave confirmation — matches @wordpress/components ConfirmDialog -->
 	<div class="bw-leave-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave">
 		<div class="bw-leave-modal" data-wp-on--click="actions.stopPropagation">
-			<p><?php echo esc_html__( 'You have unsaved changes. Are you sure you want to leave?', 'jetpack-mu-wpcom' ); ?></p>
+			<p><?php echo esc_html__( 'Do you want to save your changes?', 'jetpack-mu-wpcom' ); ?></p>
 			<div class="bw-leave-actions">
 				<button class="bw-leave-cancel" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Cancel', 'jetpack-mu-wpcom' ); ?></button>
-				<button class="bw-leave-confirm" data-wp-on--click="actions.confirmLeave"><?php echo esc_html__( 'Leave', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-leave-confirm" data-wp-on--click="actions.confirmLeave"><?php echo esc_html__( "Don't save", 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-leave-save" data-wp-on--click="actions.saveAndLeave"><?php echo esc_html__( 'Save', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</div>

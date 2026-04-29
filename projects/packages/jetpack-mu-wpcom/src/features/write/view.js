@@ -744,6 +744,14 @@ const { state } = store( 'wpcom-write', {
 			window.location.href = state.adminUrl;
 		},
 
+		async saveAndLeave() {
+			state.showLeaveConfirm = false;
+			const status = state.postStatus === 'publish' ? 'publish' : 'draft';
+			await savePost( status, true );
+			allowLeave = true;
+			window.location.href = state.adminUrl;
+		},
+
 		checkFormatting() {
 			// Check for slash commands first.
 			const { actions } = store( 'wpcom-write' );
