@@ -1567,7 +1567,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 				echo ' <span class="ui green empty circular label"></span> <span class="zbs-portal-label">' . esc_html( __( 'Enabled', 'zero-bs-crm' ) ) . '</span>';
 
 				// CRM/site admins can send a reset email as long as the CRM contact only has the CRM Customer role.
-				if ( current_user_can( 'admin_zerobs_manage_options' ) && jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
+				if ( jpcrm_perms_manage_options() && jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
 
 					echo '<div id="zbs-customerportal-access-actions" class="zbs-customerportal-activeuser">';
 
@@ -1593,7 +1593,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 				echo ' <span class="ui red empty circular label"></span> <span class="zbs-portal-label">' . esc_html( __( 'Disabled', 'zero-bs-crm' ) ) . '</span>';
 
 				// CRM/site admins can enable/disable Client Portal access as long as the CRM contact only has the CRM Customer role.
-				if ( current_user_can( 'admin_zerobs_manage_options' ) && jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
+				if ( jpcrm_perms_manage_options() && jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
 
 					echo '<div id="zbs-customerportal-access-actions">';
 						echo '<button type="button" id="zbs-customerportal-toggle" data-zbsportalaction="enable" class="ui mini button positive">' . esc_html( __( 'Enable Access', 'zero-bs-crm' ) ) . '</button>';
@@ -1610,7 +1610,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 			echo '<div class="no-gen" style="text-align:center">';
 			echo esc_html( __( 'No WordPress User exists with this email', 'zero-bs-crm' ) );
 			echo '<br/><br/>';
-			if ( current_user_can( 'admin_zerobs_manage_options' ) ) {
+			if ( jpcrm_perms_manage_options() ) {
 				echo '<div class="ui primary black button button-primary wp-user-generate">';
 				echo esc_html( __( 'Generate WordPress User', 'zero-bs-crm' ) );
 				echo '</div>';

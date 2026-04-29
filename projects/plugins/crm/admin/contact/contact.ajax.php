@@ -58,7 +58,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 
 	$m = array();
 
-	if ( current_user_can( 'admin_zerobs_manage_options' ) ) {
+	if ( jpcrm_perms_manage_options() ) {
 
 		$email      = '';
 		$contact_id = -1;
@@ -132,7 +132,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 
 	check_ajax_referer( 'zbsportalaction-ajax-nonce', 'security' );
 
-	if ( current_user_can( 'admin_zerobs_manage_options' ) ) {
+	if ( jpcrm_perms_manage_options() ) {
 
 		// sanitize?
 		$action     = sanitize_text_field( $_POST['portalAction'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash

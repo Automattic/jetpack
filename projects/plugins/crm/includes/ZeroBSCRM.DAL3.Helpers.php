@@ -352,7 +352,7 @@ function zeroBS_searchCustomers( $args = array(), $withMoneyData = false ) {
 function zeroBSCRM_customerPortalDisableEnable( $contact_id = -1, $enable_or_disable = 'disable' ) {
 	global $zbs;
 
-	if ( current_user_can( 'admin_zerobs_manage_options' ) && ! empty( $contact_id ) ) {
+	if ( jpcrm_perms_manage_options() && ! empty( $contact_id ) ) {
 		// Verify this user can be changed.
 		// Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm.
 		$wp_user_id  = zeroBSCRM_getClientPortalUserID( $contact_id );
@@ -376,7 +376,7 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 	global $zbs;
 
-	if ( current_user_can( 'admin_zerobs_manage_options' ) && ! empty( $contact_id ) ) {
+	if ( jpcrm_perms_manage_options() && ! empty( $contact_id ) ) {
 
 		$wp_user_id    = zeroBS_getCustomerWPID( $contact_id );
 		$contact       = $zbs->DAL->contacts->getContact( $contact_id );
