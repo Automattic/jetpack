@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-WooCommerce Bridge: stock-status filter now narrows the result set via `meta._stock_status.value.raw` aggregation and term clauses.
