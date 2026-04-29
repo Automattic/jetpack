@@ -50,13 +50,10 @@ function wpcomsh_fatal_current_user_id() {
  * fatal, using the error's absolute file path. Looks up the Name / Version
  * / Description headers so the screen can name the likely cause.
  *
- * `basename` is the plugin basename (e.g. "akismet/akismet.php") for
- * plugins and mu-plugins, and the theme stylesheet slug for themes — the
- * screen uses it to build the appropriate action (signed deactivation
- * form for plugins, themes.php link for themes). `slug` is the directory
- * slug (e.g. "akismet") and is what the cross-site signature groups on,
- * so a single extension collapses to one row instead of one per entry
- * file.
+ * `basename` is the plugin basename for plugins/mu-plugins and the
+ * theme stylesheet slug for themes — used to build the deactivate
+ * action. `slug` is the directory slug, used by the signature so a
+ * single extension collapses to one row.
  *
  * @param array $error Error details from WP_Fatal_Error_Handler.
  * @return array{name:string, version:string, description:string, slug:string, basename:string, kind:string}|null
@@ -115,38 +112,17 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 }
 
 /**
- * Ship the offending extension's signature to wpcom logstash via
- * `WPCOMSH_Log::unsafe_direct_log()`, alongside the decoded parts so
- * Kibana can term-aggregate without an ingest-time transform.
+ * Ship the offending extension's signature to wpcomsh logstash via
+ * WPCOMSH_Log::unsafe_direct_log(), alongside the decoded parts so
+ * dashboards can aggregate without decoding the signature.
  *
- * Mirrors the existing wpcomsh telemetry pattern (safeguard, woa,
- * marketplace, atomic-storage): a short labeled message + structured
- * extra. Uses the shared `wpcom_build_fatal_error_signature()` helper
- * in jetpack-mu-wpcom so other mu-plugins can correlate on the same
- * encoded token (e.g. #48261's activation-probe failure path).
+ * Manual require: the fatal-error module loads from wpcomsh.php line
+ * 1, before the autoloader runs. Direct requires with class_exists(
+ * …, false ) skip the autoloader during fatal handling, where its
+ * filesystem reads could compound a bad state.
  *
- * Why WPCOMSH_Log rather than log2logstash():
- *   log2logstash() is the better fit for Kibana dashboarding (top-level
- *   fields, per-feature index, no automatic siteurl wrap), but it lives
- *   at `WP_CONTENT_DIR/lib/log2logstash/log2logstash.php` — an Atomic
- *   platform file outside this repo — and a missing-file fatal during
- *   fatal handling has shipped to production before (see
- *   jetpack-mu-wpcom CHANGELOG, fix #31284). Until there's a dedicated
- *   fatal-safe telemetry surface, we use the in-tree WPCOMSH_Log path,
- *   which has visible source and predictable failure modes. The
- *   dashboard cost is offset by emitting decoded fields alongside the
- *   signature so Kibana queries don't need a base64+JSON decode step.
- *
- * Why the manual require of both files: wpcomsh's fatal-error module
- * loads from `wpcomsh.php` line 1, before composer's autoloader runs
- * and before `WPCOMSH_Log` is required further down. An early fatal in
- * mu-plugin land can fire before any of that. Direct requires keep
- * this safe; `class_exists( …, false )` and `function_exists()` skip
- * the autoloader during fatal handling, where its filesystem reads
- * could compound a bad state.
- *
- * Best-effort: silently no-ops if either dependency is unreachable —
- * never escalate a logging failure into a second fatal.
+ * Best-effort: silently no-ops if either dependency is unreachable.
+ * A logging failure must never escalate into a second fatal.
  *
  * @param array|null $plugin Extension metadata from wpcomsh_fatal_identify_plugin().
  * @return void
@@ -177,13 +153,9 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 		return;
 	}
 
-	// Dedup per (site, signature) for 5 min: a persistent fatal on a
-	// high-traffic site would otherwise emit one logstash row + one
-	// outbound HTTP per visitor. wp_cache_add is atomic where a
-	// persistent object cache is configured (Atomic uses memcached);
-	// on hosts without one it falls back to per-request, which is no
-	// worse than the unbounded baseline. Gated before the WPCOMSH_Log
-	// require so dedup hits skip the file load too.
+	// Dedup per signature for 5 min so a persistent fatal doesn't emit
+	// one logstash row + one outbound HTTP per visitor. Gated before
+	// the WPCOMSH_Log require so dedup hits skip the file load too.
 	$cache_key = 'wpcomsh_fatal_sig:' . hash( 'sha256', $signature );
 	try {
 		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS ) ) {
@@ -205,10 +177,8 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 
 	$extra = array( 'signature' => $signature );
 
-	// Round-trip through the decoder so the logged parts are
-	// guaranteed to agree with the signature: a single source of
-	// truth, and any future normalization in the encoder is
-	// inherited automatically.
+	// Round-trip through the decoder so the logged parts always agree
+	// with the signature.
 	if ( function_exists( 'wpcom_decode_fatal_error_signature' ) ) {
 		$parts = wpcom_decode_fatal_error_signature( $signature );
 		if ( is_array( $parts ) ) {

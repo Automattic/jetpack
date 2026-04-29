@@ -32,13 +32,10 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 	$user_id  = wpcomsh_fatal_current_user_id();
 	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
 
-	// Pay for identification only when its output is consumed: admins
-	// need $plugin for the rendered "suspected plugin" notice, and the
-	// anonymous path needs it once per (file, 5-min) so telemetry
-	// captures the fatal without paying glob() + get_plugin_data() for
-	// every visitor of a persistent breakage. The downstream signature
-	// dedup in wpcomsh_fatal_log_signature() is the belt; this is the
-	// suspenders that also skips identification.
+	// Identify only when used: admins need $plugin for the rendered
+	// notice; the anonymous path identifies once per (file, 5-min) for
+	// telemetry. Signature-level dedup downstream catches duplicates
+	// this gate misses.
 	$plugin = null;
 
 	if ( $is_admin ) {
@@ -86,10 +83,8 @@ function wpcomsh_fatal_load_textdomain() {
  * Helpers return empty strings / nulls when data is unavailable, so the
  * template only has to check truthiness.
  *
- * Identification, user-id resolution, and admin-capability check are
- * all done upstream in wpcomsh_customize_fatal_error_message() so the
- * costs are paid once per request and the telemetry/render branches
- * share the same view of the viewer. This function then drops plugin
+ * Viewer state is resolved upstream in
+ * wpcomsh_customize_fatal_error_message(); this function drops plugin
  * info and the error message for non-admin viewers.
  *
  * @param array      $error    Error details from WP_Fatal_Error_Handler.
