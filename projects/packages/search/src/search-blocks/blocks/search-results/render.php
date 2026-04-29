@@ -37,7 +37,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 							data-wp-bind--href="context.result.permalink"
 						>
 							<span
-								data-wp-bind--hidden="context.result.hasTitleHighlight"
+								data-wp-bind--hidden="context.result.hasTitlePieces"
 								data-wp-text="context.result.title"
 							></span>
 							<template
