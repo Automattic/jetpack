@@ -7,16 +7,12 @@ import type { FC, ReactNode, Ref } from 'react';
 
 export type VisibleSeriesEntry = { series: SeriesData; index: number; isVisible: boolean };
 
-// Narrowed call signature for the visx `xScale` / `yScale` we read from
-// `DataContext`. The real type is `AxisScale` (a wider d3-scale union with a
-// `NumberLike` return), but the only scales this chart configures are time +
-// linear and the call site wraps the result in `Number(...)` + `isFinite`,
-// so this narrower shape is safe in practice without spreading `any`.
+// AreaChart only configures time + linear scales; cast to a callable shape
+// instead of spreading `any`. `Number(...)` + `isFinite` guards every call.
 type ScaleFn = ( input: Date | number ) => number;
 
-// Bridges the visx `DataContext` (xScale / yScale) up to the chart's
-// `SingleChartRef` so consumers can read scales and dimensions imperatively.
-// Must be rendered inside `<XYChart>` to access the scales.
+// Bridges visx's `DataContext` to the chart's `SingleChartRef` so consumers
+// can read scales and dimensions imperatively. Must be inside `<XYChart>`.
 export const AreaChartScalesRef: FC< {
 	chartRef?: Ref< SingleChartRef >;
 	width: number;
@@ -40,16 +36,13 @@ export const AreaChartScalesRef: FC< {
 	return null;
 };
 
-// SVG overlay rendering a circle at each visible series for the currently
-// hovered x-position. visx's `showSeriesGlyphs` doesn't work for AreaStack
-// (registered yAccessor expects a stack-bar but receives the unwrapped
-// DataPointDate, returning NaN), so glyph positions are computed from the
-// chart's own scales. Stacked + offset='none' renders at the cumulative top
-// edge of each band, matching d3-stack semantics (missing values count as 0
-// in the running total). Other stack offsets ('expand', 'wiggle', 'silhouette')
-// are skipped — recovering exact positions there would require re-running
-// the d3-stack layout. Unstacked renders at the series' raw y-value. Must be
-// rendered inside `<XYChart>` to access `DataContext` and `TooltipContext`.
+// Hover indicators for each visible series. visx's `showSeriesGlyphs`
+// mispositions on AreaStack (its registered yAccessor expects a stack-bar
+// but receives the unwrapped datum, yielding NaN), so we compute positions
+// from the chart's scales: cumulative top edge for stacked + offset='none'
+// (matches d3-stack — missing values count as 0); raw y for unstacked.
+// Skipped for `expand`/`wiggle`/`silhouette` — exact positions there would
+// need re-running the d3-stack layout.
 export const HoverGlyphs: FC< {
 	visibleSeries: VisibleSeriesEntry[];
 	stacked: boolean;
@@ -85,25 +78,18 @@ export const HoverGlyphs: FC< {
 	let cumulative = 0;
 	const circles: ReactNode[] = [];
 
-	// Iterate ALL visible series — never short-circuit — so missing-x-domain
-	// gaps don't break the cumulative offset for subsequent series.
+	// Always advance `cumulative` (d3-stack treats missing/null as 0), but
+	// only render a glyph when the series has a real value at this x.
 	for ( const { series, index } of visibleSeries ) {
 		const datum = series.data.find(
 			d => ( d as DataPointDate ).date?.getTime() === hoveredTime
 		) as DataPointDate | undefined;
 
-		// d3-stack treats missing-or-null values as 0 in the running total,
-		// so we coerce here and always advance the cumulative baseline before
-		// the skip guard. Without this, glyphs for series above a null point
-		// would land at the wrong stacked y.
 		const value = datum?.value ?? 0;
 		if ( stacked ) {
 			cumulative += value;
 		}
 
-		// Skip rendering a glyph when the datum is missing or null-valued —
-		// the area itself collapses to baseline at that x, so a glyph would
-		// be misleading.
 		if ( ! datum || datum.value == null ) {
 			continue;
 		}

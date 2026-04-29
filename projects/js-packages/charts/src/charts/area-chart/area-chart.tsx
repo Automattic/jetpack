@@ -28,6 +28,7 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
@@ -40,7 +41,6 @@ import {
 	getCurveType,
 	getFormatter,
 	guessOptimalNumTicks,
-	renderDefaultTooltip,
 	validateData,
 } from './private';
 import type { AreaChartProps } from './types';
@@ -363,9 +363,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 													<AccessibleTooltip
 														detectBounds
 														snapTooltipToDatumX
-														// In stacked mode the registered yAccessor returns
-														// the raw value (not the stacked y), so snapping
-														// would put the tooltip box at the wrong height.
+														// Stacked mode: yAccessor returns raw value, not stacked y — snapping mispositions.
 														snapTooltipToDatumY={ ! stacked }
 														renderTooltip={ renderTooltip }
 														showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
@@ -387,10 +385,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 											<AreaChartScalesRef
 												chartRef={ internalChartRef }
 												width={ width }
-												// Prefer the explicit prop (fixed mode), fall back to
-												// the measured value in responsive mode. `||` (not `??`)
-												// so the responsive HOC's `height = 0` placeholder also
-												// falls through to the measured value.
+												// `||` — responsive HOC may pass `height = 0` before measurement.
 												height={ height || chartHeight }
 												margin={ margin }
 											/>

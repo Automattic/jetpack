@@ -1,2 +1,2 @@
 export { default as AreaChart, AreaChartUnresponsive } from './area-chart';
-export type { AreaChartProps, AreaChartTooltipDatum } from './types';
+export type { AreaChartProps } from './types';

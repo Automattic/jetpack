@@ -80,7 +80,7 @@ export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/t
 export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
 
 // Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
-export type { AreaChartProps, AreaChartTooltipDatum } from './charts/area-chart';
+export type { AreaChartProps } from './charts/area-chart';
 export type { BarChartProps } from './charts/bar-chart';
 export type {
 	BarListChartProps,

@@ -86,7 +86,15 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 	}
 };
 
-const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
+/**
+ * Default visx-tooltip render that prints the hovered date as a heading and
+ * one row per visible series (label + formatted value), sorted descending by
+ * value. Reused by AreaChart, which has the same multi-series shape.
+ *
+ * @param params - visx `RenderTooltipParams< DataPointDate >`.
+ * @return Tooltip JSX, or `null` when no datum is hovered.
+ */
+export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
 	const { tooltipData } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;

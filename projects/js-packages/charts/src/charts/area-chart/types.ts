@@ -3,11 +3,6 @@ import type { CurveType } from '../line-chart/types';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { ReactNode } from 'react';
 
-export type AreaChartTooltipDatum = {
-	key: string;
-	value: number;
-};
-
 export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
 	/**
 	 * Whether series should be stacked on top of each other.
