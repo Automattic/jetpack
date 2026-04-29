@@ -92,6 +92,14 @@ export function resolveFilterFields( config ) {
  * Build ES aggregation requests from the filterConfigs registered by each
  * filter-checkbox block's render.php.
  *
+ * The `order` key maps the block's `bucketSortOrder` attribute to the ES
+ * `terms` agg order clause: `count` → `{ _count: 'desc' }` (the ES default,
+ * matched to the instant-search overlay), `alpha` → `{ _key: 'asc' }` which
+ * sorts by the aggregation's slug_slash_name key. That's "good enough"
+ * alphabetical for built-in variations since the slug typically leads with
+ * the same letter as the display name; a label-accurate sort would require
+ * a post-aggregation resort in the client.
+ *
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
  * @return {object} Aggregations payload for the v1.3 search API.
  */
@@ -102,8 +110,13 @@ export function buildAggregations( filterConfigs ) {
 		if ( ! aggField ) {
 			continue;
 		}
+		const order = config?.bucketSortOrder === 'alpha' ? { _key: 'asc' } : { _count: 'desc' };
 		aggregations[ filterKey ] = {
-			terms: { field: aggField, size: Math.max( 1, config.maxItems ?? 10 ) },
+			terms: {
+				field: aggField,
+				size: Math.max( 1, config.maxItems ?? 10 ),
+				order,
+			},
 		};
 	}
 	return aggregations;

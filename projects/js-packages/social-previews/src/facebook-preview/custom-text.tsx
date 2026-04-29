@@ -10,7 +10,10 @@ type Props = {
 const CustomText: React.FC< Props > = ( { text, url, forceUrlDisplay } ) => {
 	let postLink;
 
-	if ( forceUrlDisplay || hasTag( text, 'a' ) ) {
+	const showPostLink =
+		hasTag( text, 'a' ) || ( forceUrlDisplay && !! url && ! text.includes( url ) );
+
+	if ( showPostLink ) {
 		postLink = (
 			<a
 				className="facebook-preview__custom-text-post-url"

@@ -1,4 +1,5 @@
 import child_process from 'child_process';
+import path from 'path';
 import chalk from 'chalk';
 import enquirer from 'enquirer';
 import { readComposerJson } from '../helpers/json.js';
@@ -165,8 +166,7 @@ export async function scriptRouter( argv ) {
 			break;
 		case 'amend':
 			await checkBranchValid( argv );
-			// @todo Stop assuming `composer install` has been done so vendor/bin/changelogger already exists.
-			argv.script = `vendor/bin/changelogger`;
+			argv.script = path.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 			argv.scriptArgs = [ `write`, `--amend` ];
 			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );
 			if ( argv.useVersion ) {

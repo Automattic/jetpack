@@ -45,7 +45,7 @@ foreach ( (array) $seeded_active as $values ) {
 			<li>
 				<button
 					type="button"
-					class="jetpack-search-active-filters__pill"
+					class="wp-element-button jetpack-search-active-filters__pill"
 					data-wp-on--click="actions.onRemovePill"
 					data-wp-bind--aria-label="context.pill.ariaLabel"
 				>

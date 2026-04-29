@@ -88,8 +88,7 @@ function Blaze( props ) {
 			<ModuleToggle
 				slug="blaze"
 				activated={ blazeActive }
-				disabled={ unavailableInOfflineMode || ! hasConnectedOwner }
-				toggling={ isSavingAnyOption( 'blaze' ) }
+				disabled={ unavailableInOfflineMode || ! hasConnectedOwner || isSavingAnyOption( 'blaze' ) }
 				toggleModule={ toggleModuleNow }
 			>
 				<span className="jp-form-toggle-explanation">

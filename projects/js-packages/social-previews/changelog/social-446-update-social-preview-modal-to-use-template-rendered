@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social previews: avoid duplicated URL in Facebook, Bluesky, Instagram, LinkedIn, and Nextdoor previews when the custom text already contains the post URL

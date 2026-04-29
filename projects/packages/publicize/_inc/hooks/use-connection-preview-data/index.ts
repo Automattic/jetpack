@@ -3,10 +3,11 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useMemo } from 'react';
 import { Connection } from '../../social-store/types';
-import { features } from '../../utils';
+import { features, PREVIEW_BODY_CHAR_LIMITS } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
 import { usePostMeta } from '../use-post-meta';
+import useRenderedMessage from '../use-rendered-message';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
@@ -24,6 +25,10 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 	const postData = useSocialPreviewPostData();
 	const { message: globalMessage } = useSocialMediaMessage();
+	const postId = useSelect(
+		select => select( editorStore ).getCurrentPostId() as number | undefined,
+		[]
+	);
 	const featuredImageId = useSelect( select =>
 		select( editorStore ).getEditedPostAttribute( 'featured_media' )
 	);
@@ -38,27 +43,26 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 	const sig = useSigPreview( generateSigPreview );
 
-	return useMemo( () => {
-		if ( ! siteHasFeature( features.ENHANCED_PUBLISHING ) || ! usingPerNetworkCustomization ) {
+	// Effective message to render: per-connection override when set, else global.
+	// Empty string tells the backend to use the per-network default template.
+	const effectiveMessage = ( connection.message ?? globalMessage ?? '' ).trim();
+
+	const isPerNetworkMode =
+		siteHasFeature( features.ENHANCED_PUBLISHING ) && usingPerNetworkCustomization;
+
+	const media = useMemo< PostPreviewData[ 'media' ] >( () => {
+		if ( ! isPerNetworkMode ) {
 			// In global mode, resolve SIG URL dynamically when attachment mode is on
-			// so preview updates when template is edited
-			let media = postData.media;
+			// so preview updates when template is edited.
 			if ( globalMediaSource === 'sig' && sig.url && postData.media.length > 0 ) {
-				media = [ { url: sig.url, type: 'image/png' } ];
+				return [ { url: sig.url, type: 'image/png' } ];
 			}
-
-			return {
-				...postData,
-				message: globalMessage.trim(),
-				media,
-			};
+			return postData.media;
 		}
-
-		let media: PostPreviewData[ 'media' ] = connection.attached_media || [];
 
 		switch ( connection.media_source ) {
 			case 'featured-image':
-				media = featuredImageDetails?.mediaData?.sourceUrl
+				return featuredImageDetails?.mediaData?.sourceUrl
 					? [
 							{
 								url: featuredImageDetails.mediaData.sourceUrl,
@@ -66,35 +70,51 @@ export function useConnectionPreviewData( connection: Connection ) {
 							},
 					  ]
 					: [];
-				break;
 			case 'sig':
-				media = sig.url
-					? [
-							{
-								url: sig.url,
-								type: 'image/png',
-							},
-					  ]
-					: [];
-				break;
-
+				return sig.url ? [ { url: sig.url, type: 'image/png' } ] : [];
 			case 'none':
-				media = [];
-				break;
+				return [];
+			default:
+				return connection.attached_media || [];
 		}
+	}, [
+		connection.attached_media,
+		connection.media_source,
+		featuredImageDetails,
+		globalMediaSource,
+		isPerNetworkMode,
+		postData.media,
+		sig.url,
+	] );
+
+	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const { rendered } = useRenderedMessage( {
+		enabled: templatesEnabled,
+		postId: postId ?? 0,
+		network: connection.service_name ?? '',
+		message: effectiveMessage,
+		isSocialPost: media.length > 0,
+		charLimit: PREVIEW_BODY_CHAR_LIMITS[ connection.service_name ?? '' ],
+	} );
+
+	return useMemo( () => {
+		const useRendered = templatesEnabled && typeof rendered === 'string';
+		const baseMessage = isPerNetworkMode
+			? ( connection.message ?? globalMessage ).trim()
+			: globalMessage.trim();
 
 		return {
 			...postData,
-			message: ( connection.message ?? globalMessage ).trim(),
+			message: useRendered ? rendered : baseMessage,
 			media,
 		};
 	}, [
-		connection,
-		featuredImageDetails,
-		globalMediaSource,
+		connection.message,
 		globalMessage,
+		isPerNetworkMode,
+		media,
 		postData,
-		sig.url,
-		usingPerNetworkCustomization,
+		rendered,
+		templatesEnabled,
 	] );
 }

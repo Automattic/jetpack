@@ -1,8 +1,8 @@
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { connect } from 'react-redux';
 import { Navigate } from 'react-router';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import {
 	getNextRoute,
@@ -32,7 +32,7 @@ const ProductSuggestionsComponent = ( {
 	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
 
 	if ( isFetchingSuggestions || isFetchingUpsell ) {
-		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+		return <Spinner />;
 	}
 
 	// Redirect the user to the next step if they are not eligible for the product

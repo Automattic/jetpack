@@ -125,7 +125,7 @@ class Filter_Checkbox_Test extends TestCase {
 	/**
 	 * Config shape mirrors what the JS store consumes: missing label falls
 	 * back to default_label(); falsy `showCount` round-trips as a boolean;
-	 * `maxItems` clamps to >= 1.
+	 * `maxItems` clamps to >= 1; `bucketSortOrder` defaults to `count`.
 	 */
 	public function test_build_config_shape_and_defaults() {
 		$config = Filter_Checkbox::build_config(
@@ -137,12 +137,13 @@ class Filter_Checkbox_Test extends TestCase {
 		);
 		$this->assertSame(
 			array(
-				'filterKey'  => 'category',
-				'filterType' => 'taxonomy',
-				'taxonomy'   => 'category',
-				'label'      => 'Category',
-				'showCount'  => true,
-				'maxItems'   => 10,
+				'filterKey'       => 'category',
+				'filterType'      => 'taxonomy',
+				'taxonomy'        => 'category',
+				'label'           => 'Category',
+				'showCount'       => true,
+				'maxItems'        => 10,
+				'bucketSortOrder' => 'count',
 			),
 			$config
 		);
@@ -150,17 +151,19 @@ class Filter_Checkbox_Test extends TestCase {
 		// Explicit label wins over the default.
 		$custom = Filter_Checkbox::build_config(
 			array(
-				'filterType' => 'taxonomy',
-				'taxonomy'   => 'category',
-				'label'      => 'Topic',
-				'showCount'  => false,
-				'maxItems'   => 5,
+				'filterType'      => 'taxonomy',
+				'taxonomy'        => 'category',
+				'label'           => 'Topic',
+				'showCount'       => false,
+				'maxItems'        => 5,
+				'bucketSortOrder' => 'alpha',
 			),
 			'category'
 		);
 		$this->assertSame( 'Topic', $custom['label'] );
 		$this->assertFalse( $custom['showCount'] );
 		$this->assertSame( 5, $custom['maxItems'] );
+		$this->assertSame( 'alpha', $custom['bucketSortOrder'] );
 
 		// maxItems must clamp to at least 1 so the ES aggregation size is valid.
 		$clamped = Filter_Checkbox::build_config(
@@ -171,5 +174,52 @@ class Filter_Checkbox_Test extends TestCase {
 			'post_types'
 		);
 		$this->assertSame( 1, $clamped['maxItems'] );
+	}
+
+	/**
+	 * The bucketSortOrder attribute accepts only `count` | `alpha`; anything
+	 * else falls back to `count` so aggregation requests always have a valid
+	 * `order` clause and bucket order matches the instant-search overlay default.
+	 */
+	public function test_normalize_bucket_sort_order() {
+		$this->assertSame( 'count', Filter_Checkbox::normalize_bucket_sort_order( null ) );
+		$this->assertSame( 'count', Filter_Checkbox::normalize_bucket_sort_order( '' ) );
+		$this->assertSame( 'count', Filter_Checkbox::normalize_bucket_sort_order( 'count' ) );
+		$this->assertSame( 'count', Filter_Checkbox::normalize_bucket_sort_order( 'bogus' ) );
+		$this->assertSame( 'alpha', Filter_Checkbox::normalize_bucket_sort_order( 'alpha' ) );
+	}
+
+	/**
+	 * The label passes through sanitize_text_field() before it reaches the
+	 * Interactivity state so stored block attributes with stray HTML, tabs, or
+	 * newlines can never leak into aggregation-layer metadata or the rendered
+	 * heading. Output is still esc_html()'d separately in render.php.
+	 */
+	public function test_build_config_sanitizes_label() {
+		$config = Filter_Checkbox::build_config(
+			array(
+				'filterType' => 'post_type',
+				'label'      => "  <b>Topic</b>\nextra  ",
+			),
+			'post_types'
+		);
+		$this->assertSame( 'Topic extra', $config['label'] );
+	}
+
+	/**
+	 * An invalid bucketSortOrder in the stored attributes must never reach
+	 * the config map — the JS `buildAggregations()` path maps anything
+	 * non-'alpha' to the count-desc order, but normalizing up front keeps
+	 * the serialized Interactivity state narrow.
+	 */
+	public function test_build_config_falls_back_bucket_sort_order_for_unknown_values() {
+		$config = Filter_Checkbox::build_config(
+			array(
+				'filterType'      => 'post_type',
+				'bucketSortOrder' => 'something-else',
+			),
+			'post_types'
+		);
+		$this->assertSame( 'count', $config['bucketSortOrder'] );
 	}
 }

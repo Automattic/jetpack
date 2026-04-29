@@ -39,7 +39,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.34.4';
+	const PACKAGE_VERSION = '5.35.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -326,6 +326,7 @@ class Initializer {
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
+				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
 			)
 		);

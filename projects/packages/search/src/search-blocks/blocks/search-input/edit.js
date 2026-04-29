@@ -3,10 +3,13 @@
  *
  * Mirrors render.php's full structure — screen-reader label, icon, input,
  * and the (initially hidden) clear button — so designers can target every
- * CSS hook.
+ * CSS hook. The inspector exposes the three authoring knobs the front-end
+ * honours: placeholder copy, whether the magnifying-glass icon renders,
+ * and whether queries fire live or only on submit.
  */
-import { useBlockProps } from '@wordpress/block-editor';
-import { createElement as h, useId } from '@wordpress/element';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import { createElement as h, Fragment, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -36,46 +39,95 @@ function SearchGlyph() {
 /**
  * Edit component for the search-input block.
  *
+ * @param {object}   props               - Block props.
+ * @param {object}   props.attributes    - Saved block attributes.
+ * @param {Function} props.setAttributes - Attribute setter.
  * @return {object} Rendered element.
  */
-export default function SearchInputEdit() {
+export default function SearchInputEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	// Per-instance id keeps the label→input association valid when the editor
 	// renders more than one Search Input on the same canvas.
 	const inputId = useId();
+	const defaultPlaceholder = __( 'Search…', 'jetpack-search-pkg' );
+	// Match render.php: a whitespace-only placeholder falls back to the
+	// translated default in the preview so the editor mirrors the front end.
+	const placeholder = ( attributes?.placeholder || '' ).trim() || defaultPlaceholder;
+	const showIcon = attributes?.showIcon !== false;
+	const submitOnly = !! attributes?.submitOnly;
 	return h(
-		'div',
-		blockProps,
+		Fragment,
+		null,
 		h(
-			'label',
-			{
-				className: 'jetpack-search-input__label screen-reader-text',
-				htmlFor: inputId,
-			},
-			__( 'Search', 'jetpack-search-pkg' )
+			InspectorControls,
+			null,
+			h(
+				PanelBody,
+				{ title: __( 'Settings', 'jetpack-search-pkg' ) },
+				h( TextControl, {
+					__next40pxDefaultSize: true,
+					__nextHasNoMarginBottom: true,
+					label: __( 'Placeholder', 'jetpack-search-pkg' ),
+					value: attributes?.placeholder || '',
+					placeholder: defaultPlaceholder,
+					onChange: value => setAttributes( { placeholder: value } ),
+					help: __(
+						'Leave empty to use the default translated placeholder.',
+						'jetpack-search-pkg'
+					),
+				} ),
+				h( ToggleControl, {
+					__nextHasNoMarginBottom: true,
+					label: __( 'Show search icon', 'jetpack-search-pkg' ),
+					checked: showIcon,
+					onChange: value => setAttributes( { showIcon: value } ),
+				} ),
+				h( ToggleControl, {
+					__nextHasNoMarginBottom: true,
+					label: __( 'Search on submit only', 'jetpack-search-pkg' ),
+					checked: submitOnly,
+					onChange: value => setAttributes( { submitOnly: value } ),
+					help: __(
+						'When enabled, queries fire on Enter or when clearing the field, instead of on every keystroke.',
+						'jetpack-search-pkg'
+					),
+				} )
+			)
 		),
 		h(
 			'div',
-			{ className: 'jetpack-search-input__inside-wrapper' },
-			h( SearchGlyph, null ),
-			h( 'input', {
-				id: inputId,
-				type: 'search',
-				className: 'jetpack-search-input__field',
-				placeholder: __( 'Search…', 'jetpack-search-pkg' ),
-				disabled: true,
-				readOnly: true,
-			} ),
+			blockProps,
 			h(
-				'button',
+				'label',
 				{
-					type: 'button',
-					className: 'jetpack-search-input__clear',
-					hidden: true,
-					disabled: true,
-					'aria-label': __( 'Clear search', 'jetpack-search-pkg' ),
+					className: 'jetpack-search-input__label screen-reader-text',
+					htmlFor: inputId,
 				},
-				'×'
+				__( 'Search', 'jetpack-search-pkg' )
+			),
+			h(
+				'div',
+				{ className: 'jetpack-search-input__inside-wrapper' },
+				showIcon && h( SearchGlyph, null ),
+				h( 'input', {
+					id: inputId,
+					type: 'search',
+					className: 'jetpack-search-input__field',
+					placeholder,
+					disabled: true,
+					readOnly: true,
+				} ),
+				h(
+					'button',
+					{
+						type: 'button',
+						className: 'jetpack-search-input__clear',
+						hidden: true,
+						disabled: true,
+						'aria-label': __( 'Clear search', 'jetpack-search-pkg' ),
+					},
+					'✕'
+				)
 			)
 		)
 	);

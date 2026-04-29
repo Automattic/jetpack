@@ -17,7 +17,6 @@
 		"automattic/jetpack-test-environment": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"brain/monkey": "^2.6.2",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/phpunit-select-config": "@dev"
