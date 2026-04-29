@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Filter the data injected into the page as `agentsManagerData`. Hosts can add feature-flag field in this filter"
