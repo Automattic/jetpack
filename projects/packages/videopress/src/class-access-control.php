@@ -428,8 +428,8 @@ class Access_Control {
 		}
 
 		/*
-		 * Fall back to SITE_DEFAULT when the property is missing so the site-level
-		 * privacy check applies, rather than treating absence as public access.
+		 * Default missing privacy_setting to SITE_DEFAULT to avoid an
+		 * undefined-property warning and make the site-level fallback explicit.
 		 */
 		$privacy_setting = $video_info->privacy_setting ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 
