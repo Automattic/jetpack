@@ -269,13 +269,13 @@ class WooCommerce_Filters_Bridge {
 			'maxItems'   => 10,
 		);
 
-		// Rating — values `1`..`5` (rounded star buckets). WC writes
-		// `rating_filter=4,5` scalar comma-joined; the bridge's
-		// `wc_rating` filterType emits an ES range aggregation /
-		// range-OR filter clause against `meta._wc_average_rating.double`.
+		// Rating — values `1`..`5` (rounded star buckets). Stored in
+		// the URL as array-form `?rating_filter[]=4&rating_filter[]=5`
+		// to match the taxonomy/attribute contract; the bridge JS
+		// converts WC's native comma-joined `state.params` into
+		// array-form when its actions.navigate override fires.
 		$configs['rating_filter'] = array(
 			'filterType' => 'wc_rating',
-			'urlFormat'  => 'scalar',
 			'maxItems'   => 5,
 		);
 

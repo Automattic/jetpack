@@ -924,31 +924,60 @@ store( WC_NAMESPACE, {
 
 			// Mirror what WC's own navigate does: take every key it
 			// derives from context.activeFilters and write it onto the
-			// URL. WC's state.params getter already produces the right
-			// URL contract for price (min_price / max_price), status
-			// (filter_stock_status), rating (rating_filter), and
-			// attributes — we just push the result without the HTML
-			// round-trip.
+			// URL. WC's state.params getter produces scalar comma-joined
+			// values for everything; the bridge converts to array-form
+			// (`?rating_filter[]=4`) for any filterConfig that doesn't
+			// opt into `urlFormat: 'scalar'` so rating, taxonomy, and
+			// attribute keys all share the same URL contract.
 			for ( const key in params ) {
 				const value = params[ key ];
 				if ( value === undefined || value === null || value === '' ) {
 					continue;
 				}
-				const stringified = String( value );
-				if ( url.searchParams.get( key ) !== stringified ) {
-					url.searchParams.set( key, stringified );
-					changed = true;
+				const config = bridgeState?.filterConfigs?.[ key ];
+				const isArrayForm = config && config.urlFormat !== 'scalar';
+
+				if ( isArrayForm ) {
+					const arrayKey = `${ key }[]`;
+					const next = String( value )
+						.split( ',' )
+						.map( v => v.trim() )
+						.filter( Boolean );
+					const current = url.searchParams.getAll( arrayKey );
+					const same =
+						next.length === current.length && next.every( ( v, i ) => v === current[ i ] );
+					if ( ! same ) {
+						url.searchParams.delete( arrayKey );
+						for ( const v of next ) {
+							url.searchParams.append( arrayKey, v );
+						}
+						url.searchParams.delete( key );
+						changed = true;
+					}
+				} else {
+					const stringified = String( value );
+					if ( url.searchParams.get( key ) !== stringified ) {
+						url.searchParams.set( key, stringified );
+						changed = true;
+					}
 				}
 			}
 
-			// Drop any of the WC-owned scalar keys that have disappeared
-			// from state.params (user cleared a filter). The bridge owns
-			// taxonomy / attribute URL state in array form, so don't
-			// touch those — `categories=...` etc. aren't in our owned
-			// list.
+			// Drop WC-owned keys that have disappeared from state.params
+			// (user cleared a filter). Honors the same scalar/array-form
+			// distinction so we delete the right URL key shape. The
+			// bridge's own taxonomy / attribute URL state lives in array
+			// form too but isn't in WC_OWNED_PARAM_KEYS, so we never
+			// touch it here.
 			for ( const key of WC_OWNED_PARAM_KEYS ) {
-				if ( ! ( key in params ) && url.searchParams.has( key ) ) {
-					url.searchParams.delete( key );
+				if ( key in params ) {
+					continue;
+				}
+				const config = bridgeState?.filterConfigs?.[ key ];
+				const isArrayForm = config && config.urlFormat !== 'scalar';
+				const urlKey = isArrayForm ? `${ key }[]` : key;
+				if ( url.searchParams.has( urlKey ) ) {
+					url.searchParams.delete( urlKey );
 					changed = true;
 				}
 			}
