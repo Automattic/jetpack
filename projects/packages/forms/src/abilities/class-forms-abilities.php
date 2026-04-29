@@ -361,7 +361,7 @@ class Forms_Abilities extends Registrar {
 	private static function spec_bulk_update_responses(): array {
 		return array(
 			'label'               => __( 'Bulk update form responses', 'jetpack-forms' ),
-			'description'         => __( 'Mark multiple responses as spam or not-spam in a single operation.', 'jetpack-forms' ),
+			'description'         => __( 'Mark multiple responses as spam (or restore from spam) in a single call. Each response is processed individually; the result reports per-id success and any per-id failures so callers can see exactly which responses were updated. Also teaches Akismet from the successful updates.', 'jetpack-forms' ),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'required'             => array( 'action', 'ids' ),
@@ -662,6 +662,13 @@ class Forms_Abilities extends Registrar {
 	/**
 	 * Execute: bulk-update-responses.
 	 *
+	 * The `/wp/v2/feedback/bulk_actions` REST endpoint only teaches Akismet —
+	 * it does not change post status. The dashboard handles bulk spam/not-spam
+	 * by issuing per-id status updates first, then calling bulk_actions to
+	 * teach Akismet from the successful flips. We mirror that here so callers
+	 * get a faithful per-id confirmation: each id either lands in `succeeded`
+	 * or in `failed` with the underlying error code/message.
+	 *
 	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error
 	 */
@@ -670,15 +677,54 @@ class Forms_Abilities extends Registrar {
 			return new \WP_Error( 'missing_params', __( 'Action and IDs are required.', 'jetpack-forms' ) );
 		}
 
-		$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
-		$request->set_body_params(
-			array(
-				'action'   => $args['action'],
-				'post_ids' => array_map( 'absint', $args['ids'] ),
-			)
-		);
+		$action        = $args['action'];
+		$target_status = 'mark_as_spam' === $action ? 'spam' : 'publish';
+		$ids           = array_values( array_unique( array_map( 'absint', $args['ids'] ) ) );
 
-		return self::dispatch( $request );
+		$succeeded = array();
+		$failed    = array();
+		foreach ( $ids as $id ) {
+			if ( $id <= 0 ) {
+				$failed[] = array(
+					'id'      => $id,
+					'code'    => 'invalid_id',
+					'message' => __( 'Response IDs must be positive integers.', 'jetpack-forms' ),
+				);
+				continue;
+			}
+			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $id );
+			$request->set_body_params( array( 'status' => $target_status ) );
+			$data = self::dispatch( $request );
+			if ( is_wp_error( $data ) ) {
+				$failed[] = array(
+					'id'      => $id,
+					'code'    => $data->get_error_code(),
+					'message' => $data->get_error_message(),
+				);
+				continue;
+			}
+			$succeeded[] = $id;
+		}
+
+		// Teach Akismet from the responses whose status actually flipped.
+		// Akismet learning is best-effort and independent of the status update,
+		// so a failure here doesn't roll back the per-id changes above.
+		if ( ! empty( $succeeded ) ) {
+			$teach = new \WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+			$teach->set_body_params(
+				array(
+					'action'   => $action,
+					'post_ids' => $succeeded,
+				)
+			);
+			self::dispatch( $teach );
+		}
+
+		return array(
+			'action'    => $action,
+			'succeeded' => $succeeded,
+			'failed'    => $failed,
+		);
 	}
 
 	/**

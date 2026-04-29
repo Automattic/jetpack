@@ -487,4 +487,95 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'missing_params', $result->get_error_code() );
 	}
+
+	/**
+	 * Insert a feedback (response) post for fixture purposes.
+	 *
+	 * @param string $title  Title.
+	 * @param string $status Initial status.
+	 * @return int Inserted post ID.
+	 */
+	private static function make_feedback( string $title, string $status = 'publish' ): int {
+		return (int) wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_title'  => $title,
+				'post_status' => $status,
+			)
+		);
+	}
+
+	public function test_bulk_update_responses_returns_per_id_confirmation() {
+		wp_set_current_user( self::$user_id );
+
+		$id_a = self::make_feedback( 'A' );
+		$id_b = self::make_feedback( 'B' );
+
+		$result = Forms_Abilities::bulk_update_responses(
+			array(
+				'action' => 'mark_as_spam',
+				'ids'    => array( $id_a, $id_b ),
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'mark_as_spam', $result['action'] );
+		$this->assertEqualsCanonicalizing( array( $id_a, $id_b ), $result['succeeded'] );
+		$this->assertSame( array(), $result['failed'] );
+
+		$this->assertSame( 'spam', get_post_status( $id_a ) );
+		$this->assertSame( 'spam', get_post_status( $id_b ) );
+	}
+
+	public function test_bulk_update_responses_marks_not_spam_restores_publish_status() {
+		wp_set_current_user( self::$user_id );
+
+		$id = self::make_feedback( 'Spammed', 'spam' );
+
+		$result = Forms_Abilities::bulk_update_responses(
+			array(
+				'action' => 'mark_as_not_spam',
+				'ids'    => array( $id ),
+			)
+		);
+
+		$this->assertSame( array( $id ), $result['succeeded'] );
+		$this->assertSame( array(), $result['failed'] );
+		$this->assertSame( 'publish', get_post_status( $id ) );
+	}
+
+	public function test_bulk_update_responses_reports_failures_per_id() {
+		wp_set_current_user( self::$user_id );
+
+		$valid   = self::make_feedback( 'Real' );
+		$missing = 999999;
+
+		$result = Forms_Abilities::bulk_update_responses(
+			array(
+				'action' => 'mark_as_spam',
+				'ids'    => array( $valid, $missing ),
+			)
+		);
+
+		$this->assertSame( array( $valid ), $result['succeeded'] );
+		$this->assertCount( 1, $result['failed'] );
+		$this->assertSame( $missing, $result['failed'][0]['id'] );
+		$this->assertNotEmpty( $result['failed'][0]['code'] );
+		$this->assertNotEmpty( $result['failed'][0]['message'] );
+	}
+
+	public function test_bulk_update_responses_dedupes_repeated_ids() {
+		wp_set_current_user( self::$user_id );
+
+		$id = self::make_feedback( 'Dupe' );
+
+		$result = Forms_Abilities::bulk_update_responses(
+			array(
+				'action' => 'mark_as_spam',
+				'ids'    => array( $id, $id, $id ),
+			)
+		);
+
+		$this->assertSame( array( $id ), $result['succeeded'], 'Duplicate IDs in input should collapse to one succeeded entry.' );
+	}
 }
