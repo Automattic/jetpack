@@ -89,24 +89,6 @@ add_filter(
 );
 
 /**
- * Register _last_editor_used_jetpack for REST API access so the Write editor
- * can set it via the meta field in save requests. Follows the same pattern
- * used by other Jetpack meta keys (e.g. _jetpack_newsletter_access).
- */
-register_post_meta(
-	'post',
-	'_last_editor_used_jetpack',
-	array(
-		'show_in_rest'  => true,
-		'single'        => true,
-		'type'          => 'string',
-		'auth_callback' => function () {
-			return wp_get_current_user()->has_cap( 'edit_posts' );
-		},
-	)
-);
-
-/**
  * Register the Write admin page.
  *
  * Uses an empty parent to create a hidden page (no menu entry) — access is
