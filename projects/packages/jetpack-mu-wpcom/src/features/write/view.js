@@ -118,6 +118,19 @@ function clearHighlight() {
 }
 
 /**
+ * Focus the first visible input inside a modal after it becomes visible.
+ * Uses requestAnimationFrame so the element is no longer hidden.
+ */
+function focusModalInput() {
+	requestAnimationFrame( () => {
+		const overlay = document.querySelector( '.bw-image-overlay:not([hidden])' );
+		if ( ! overlay ) return;
+		const input = overlay.querySelector( 'input:not([hidden])' );
+		if ( input ) input.focus();
+	} );
+}
+
+/**
  * Normalize color markup from contentEditable before block serialization.
  *
  * The foreColor command creates <font color="..."> (legacy) or
@@ -869,6 +882,11 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleKeyDown( event ) {
+			// Block all keystrokes while a modal overlay is open.
+			if ( state.showImageModal || state.showVideoModal ) {
+				return;
+			}
+
 			// Ctrl+K / Cmd+K to toggle link input.
 			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'k' ) {
 				event.preventDefault();
@@ -1373,6 +1391,7 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			state.showImageModal = true;
+			focusModalInput();
 		},
 
 		closeImageModal() {
@@ -1501,6 +1520,7 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.showImageModal = true;
 			state.imageUrl = '';
+			focusModalInput();
 		},
 
 		insertQuote() {
@@ -1513,6 +1533,7 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.showVideoModal = true;
 			state.videoUrl = '';
+			focusModalInput();
 		},
 
 		closeVideoModal() {
