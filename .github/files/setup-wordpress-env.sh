@@ -65,7 +65,10 @@ function _install_plugin {
 
 	echo "::group::Installing plugin $NAME into WordPress"
 
-	if [[ -n "$CHANGED" ]] && ! jq --argjson changed "$CHANGED" --arg p "plugins/$NAME" -ne '$changed[$p] // false' > /dev/null; then
+	# wpcomsh is copied to mu-plugins below when WITH_WPCOMSH=true, so it must
+	# be installed even when not in CHANGED.
+	if [[ -n "$CHANGED" ]] && ! jq --argjson changed "$CHANGED" --arg p "plugins/$NAME" -ne '$changed[$p] // false' > /dev/null \
+		&& ! [[ "$NAME" == "wpcomsh" && "$WITH_WPCOMSH" == "true" ]]; then
 		echo "::endgroup::"
 		echo "Skipping install of plugin $NAME, not in CHANGED"
 		return 0
