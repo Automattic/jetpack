@@ -20,6 +20,11 @@
 //                                              @automattic/jetpack-components)
 //   @wordpress/admin-ui:     .admin-ui-page, .admin-ui-page__header
 //   <JetpackFooter>:         .jetpack-footer
+//   Tabs wrapper convention: .jp-admin-page-tabs   (consumer-applied div that
+//                                                   wraps `@wordpress/ui`
+//                                                   `Tabs.List`; see the
+//                                                   "Tabs strip" section
+//                                                   below)
 
 // Implementation note — `postcss-custom-properties` with `preserve: false`:
 // several consumer packages in this monorepo (publicize, videopress, search,
@@ -187,6 +192,16 @@ $jp-breakpoint-mobile: 782px;
 		flex-shrink: 0;              // pinned at top of the flex column.
 	}
 
+	// When the page hosts a tabs strip, drop the header's bottom border AND
+	// its bottom padding so the strip sits flush against the header. The
+	// strip's own hairline becomes the only divider between header and tab
+	// content. Same `:has()` pattern used elsewhere in this mixin to react
+	// to the page's content shape.
+	.admin-ui-page:has(.jp-admin-page-tabs) .admin-ui-page__header {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
 	// The scrollable middle. <AdminPage> does not pass `hasPadding` to
 	// admin-ui's <Page>, so `.admin-ui-page__content` is not rendered —
 	// children drop in as direct descendants of `.admin-ui-page`. Target
@@ -206,6 +221,43 @@ $jp-breakpoint-mobile: 782px;
 	// ── <JetpackFooter> pinned at the bottom ─────────────────────────
 	.jetpack-footer {
 		flex-shrink: 0;
+	}
+
+	// ── Tabs strip (`@wordpress/ui` Tabs hosted inside the page) ─────
+	// Consumers that render `Tabs.List` from `@wordpress/ui` inside an
+	// AdminPage should wrap it in `<div class="jp-admin-page-tabs">`.
+	// The wrapper exists because `Tabs.List` ships with `width: fit-content`
+	// (so its tabs don't stretch to fill the row); a `border-bottom` on the
+	// list shrinks to the tabs' width. The wrapper takes the full block
+	// width of the panel area, so the hairline spans the column.
+
+	// `position: sticky` pins the strip to the top of the scrollable middle
+	// (`.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer)`),
+	// which is the local opt-in equivalent of admin-ui's native sticky
+	// header — disabled globally by `<AdminPage>` per JETPACK-1386. Pinning
+	// the tabs strip here keeps cross-section navigation accessible while
+	// content scrolls underneath.
+
+	// Surface + hairline use the same `--wpds-*` design tokens that
+	// `@wordpress/admin-ui` applies to `.admin-ui-page__header`, so the
+	// tabs strip reads as a visual continuation of the page header and
+	// tracks any future token (theme/dark-mode) changes automatically.
+	.jp-admin-page-tabs {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+		background: var(--wpds-color-bg-surface-neutral-strong);
+		border-bottom: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+
+		// Align tab buttons' inline padding with the page header's
+		// horizontal padding (admin-ui ships `.admin-ui-page__header`
+		// at `padding-inline: var(--wpds-dimension-padding-2xl)`).
+		// `@wordpress/ui` Tabs default the buttons to `padding-inline:
+		// var(--wpds-dimension-padding-lg)`; bump them to 2xl so the
+		// first tab's start edge lines up under the page title.
+		[role="tab"] {
+			padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+		}
 	}
 
 	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────

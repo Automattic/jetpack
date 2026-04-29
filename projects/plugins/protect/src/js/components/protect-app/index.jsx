@@ -2,12 +2,11 @@ import { AdminPage as JetpackAdminPage } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import useNotices from '../../hooks/use-notices';
 import useProtectData from '../../hooks/use-protect-data';
 import Notice from '../notice';
-import styles from './styles.module.scss';
 
 /**
  * Resolve the active tab value from the current pathname.
@@ -50,6 +49,24 @@ const ProtectApp = () => {
 
 	const activeTab = useMemo( () => getActiveTab( location.pathname ), [ location.pathname ] );
 
+	// Reset scroll position whenever the active tab changes. The actual scroll
+	// container is the layout mixin's `overflow: auto` direct child of
+	// `.admin-ui-page` (a wrapper applied by `<AdminPage>` around `children`),
+	// not `Tabs.Root` itself. Walk up from Tabs.Root to find that ancestor so
+	// this stays robust to any future restructuring of `<AdminPage>`.
+	const tabsRootRef = useRef( null );
+	useEffect( () => {
+		let el = tabsRootRef.current?.parentElement;
+		while ( el && el !== document.body ) {
+			const { overflowY } = window.getComputedStyle( el );
+			if ( overflowY === 'auto' || overflowY === 'scroll' ) {
+				el.scrollTo( { top: 0 } );
+				break;
+			}
+			el = el.parentElement;
+		}
+	}, [ activeTab ] );
+
 	const onValueChange = useCallback(
 		value => {
 			navigate( `/${ value }` );
@@ -76,8 +93,8 @@ const ProtectApp = () => {
 			subTitle={ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }
 		>
 			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
-			<Tabs.Root value={ activeTab } onValueChange={ onValueChange }>
-				<div className={ styles[ 'tabs-list-wrapper' ] }>
+			<Tabs.Root ref={ tabsRootRef } value={ activeTab } onValueChange={ onValueChange }>
+				<div className="jp-admin-page-tabs">
 					<Tabs.List>
 						<Tabs.Tab value="scan">{ scanLabel }</Tabs.Tab>
 						<Tabs.Tab value="firewall">{ __( 'Firewall', 'jetpack-protect' ) }</Tabs.Tab>
