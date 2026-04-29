@@ -26,7 +26,9 @@ $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 		type="button"
 		class="jetpack-search-filter-popover__trigger"
 		aria-haspopup="dialog"
+		aria-expanded="false"
 		data-wp-bind--aria-expanded="state.isFilterPopoverOpen"
+		disabled
 		data-wp-bind--disabled="state.isFilterTriggerDisabled"
 		aria-controls="<?php echo esc_attr( $panel_id ); ?>"
 		data-wp-on--click="actions.toggleFilterPopover"

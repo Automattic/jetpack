@@ -80,7 +80,9 @@ $checked_getters = array(
 			type="button"
 			class="jetpack-search-sort__trigger"
 			aria-haspopup="menu"
+			aria-expanded="false"
 			data-wp-bind--aria-expanded="state.isSortPopoverOpen"
+			disabled
 			data-wp-bind--disabled="state.isSortTriggerDisabled"
 			aria-controls="<?php echo esc_attr( $menu_id ); ?>"
 			data-wp-on--click="actions.toggleSortPopover"
