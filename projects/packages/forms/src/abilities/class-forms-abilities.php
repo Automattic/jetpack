@@ -51,6 +51,34 @@ class Forms_Abilities extends Registrar {
 	const DEFAULT_FORM_CONTENT = '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/button {"element":"button","text":"Submit","lock":{"remove":true}} /--><!-- /wp:jetpack/contact-form -->';
 
 	/**
+	 * Register the category and abilities.
+	 *
+	 * Forms abilities shipped (see #45998) before the
+	 * `jetpack_wp_abilities_enabled` rollout filter existed, so this
+	 * deliberately bypasses that gate — backing the `get-responses`,
+	 * `update-response`, and `get-status-counts` abilities out behind a
+	 * default-off filter would silently break consumers that already
+	 * dispatch them. The newer admin abilities ride along for parity:
+	 * Forms abilities are uniformly available wherever the package is
+	 * loaded.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		if ( did_action( self::CATEGORIES_INIT_ACTION ) ) {
+			static::register_category();
+		} else {
+			add_action( self::CATEGORIES_INIT_ACTION, array( static::class, 'register_category' ) );
+		}
+
+		if ( did_action( self::ABILITIES_INIT_ACTION ) ) {
+			static::register_abilities();
+		} else {
+			add_action( self::ABILITIES_INIT_ACTION, array( static::class, 'register_abilities' ) );
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public static function get_category_slug(): string {

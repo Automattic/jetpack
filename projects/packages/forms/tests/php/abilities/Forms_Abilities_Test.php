@@ -53,9 +53,6 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$wp_rest_server = new \WP_REST_Server();
 		do_action( 'rest_api_init' );
 
-		// Registrar::init() is gated behind this filter (default false) for staged rollout.
-		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
-
 		self::$user_id = wp_insert_user(
 			array(
 				'user_login' => 'test_admin',
@@ -72,14 +69,6 @@ class Forms_Abilities_Test extends BaseTestCase {
 				'role'       => 'subscriber',
 			)
 		);
-	}
-
-	/**
-	 * Tearing down the test.
-	 */
-	public function tearDown(): void {
-		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
-		parent::tearDown();
 	}
 
 	/**
@@ -114,6 +103,39 @@ class Forms_Abilities_Test extends BaseTestCase {
 	private function simulate_doing_wp_abilities_init_action() {
 		global $wp_current_filter;
 		$wp_current_filter[] = 'wp_abilities_api_init';
+	}
+
+	/**
+	 * Forms abilities shipped before the `jetpack_wp_abilities_enabled` gate
+	 * existed; init() must register them even when the filter returns false,
+	 * otherwise the previously-public get-responses / update-response /
+	 * get-status-counts abilities would silently disappear.
+	 */
+	public function test_init_registers_abilities_even_when_rollout_filter_is_disabled() {
+		if ( ! function_exists( 'wp_get_abilities' ) ) {
+			$this->markTestSkipped( 'Abilities API query functions not available' );
+			return;
+		}
+
+		add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+
+		try {
+			Forms_Abilities::init();
+
+			if ( ! did_action( 'wp_abilities_api_categories_init' ) ) {
+				do_action( 'wp_abilities_api_categories_init' );
+			}
+			if ( ! did_action( 'wp_abilities_api_init' ) ) {
+				do_action( 'wp_abilities_api_init' );
+			}
+
+			$this->assertTrue(
+				wp_has_ability( 'jetpack-forms/get-responses' ),
+				'Pre-existing forms abilities must register regardless of the rollout filter.'
+			);
+		} finally {
+			remove_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+		}
 	}
 
 	/**
