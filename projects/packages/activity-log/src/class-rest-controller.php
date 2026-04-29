@@ -243,7 +243,7 @@ class REST_Controller {
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			// Fail closed: assume no access if we can't reach WPCOM. Cache for
 			// a short window to avoid hammering the endpoint on every call.
-			set_site_transient( $cache_key, 'no', MINUTE_IN_SECONDS );
+			set_site_transient( $cache_key, 'no', 10 );
 			return false;
 		}
 
@@ -269,13 +269,30 @@ class REST_Controller {
 	}
 
 	/**
+	 * Free-tier params that survive the filter strip in
+	 * {@see self::get_activity_log()}. Anything outside this list is
+	 * nulled out before the request reaches WPCOM.
+	 *
+	 * @var string[]
+	 */
+	const FREE_TIER_ALLOWED_PARAMS = array( 'number', 'page', 'sort_order' );
+
+	/**
 	 * Proxy the paginated activity list.
 	 *
-	 * Enforces the free-tier cap server-side — when the site doesn't have
-	 * access, `number` is clamped to {@see self::FREE_TIER_ITEM_CAP} and
-	 * `page` is forced to 1, regardless of what the caller sent. That way
-	 * a client-side bypass (DevTools, direct `wp.apiFetch`) can't page
-	 * past the free-tier boundary.
+	 * Enforces the free-tier boundary server-side. When the site doesn't
+	 * have access:
+	 *
+	 *   1. `number` is clamped to {@see self::FREE_TIER_ITEM_CAP}.
+	 *   2. `page` is forced to 1.
+	 *   3. All filter inputs (`after`, `before`, `group`, `not_group`,
+	 *      `text_search`) are dropped.
+	 *
+	 * Together these mean a client-side bypass (DevTools, direct
+	 * `wp.apiFetch`) is bounded to "the 20 most recent events overall" —
+	 * the same dataset the locked-down UI surfaces. Without (3),
+	 * date-walking via `before` would let a free-tier caller page through
+	 * the entire history 20 rows at a time.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return mixed
@@ -293,6 +310,12 @@ class REST_Controller {
 				$requested > 0 ? min( $requested, self::FREE_TIER_ITEM_CAP ) : self::FREE_TIER_ITEM_CAP
 			);
 			$request->set_param( 'page', 1 );
+
+			foreach ( array_keys( self::list_args() ) as $key ) {
+				if ( ! in_array( $key, self::FREE_TIER_ALLOWED_PARAMS, true ) ) {
+					$request->set_param( $key, null );
+				}
+			}
 		}
 		return self::proxy_get( '/activity', $request, array_keys( self::list_args() ) );
 	}
