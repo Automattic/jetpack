@@ -625,6 +625,16 @@ function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
 }
 
 /**
+ * Determine if current user can manage settings.
+ *
+ * @return bool
+ */
+function zeroBSCRM_permsManageOptions() {
+	$cu = wp_get_current_user();
+	return $cu->has_cap( 'admin_zerobs_manage_options' );
+}
+
+/**
  * Determine if the current user is allowed to manage contacts.
  *
  * @deprecated 6.1.0 Use jpcrm_can_user_manage_contacts()
