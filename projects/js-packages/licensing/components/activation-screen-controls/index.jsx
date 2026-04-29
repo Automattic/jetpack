@@ -165,12 +165,12 @@ const ActivationScreenControls = props => {
 			direction="column"
 			justify="space-between"
 		>
-			<Stack align="stretch" direction="column" gap="lg" style={ { margin: 'auto 0' } }>
+			<Stack align="stretch" direction="column" gap="xl" style={ { margin: 'auto 0' } }>
 				<JetpackLogo showText={ false } height={ 48 } style={ { alignSelf: 'flex-start' } } />
-				<Text variant="heading-xl" render={ <h1 /> }>
+				<Text variant="heading-2xl" render={ <h1 /> }>
 					{ __( 'Add a license key', 'jetpack-licensing' ) }
 				</Text>
-				<Text variant="body-md">
+				<Text variant="body-lg">
 					{ createInterpolateElement(
 						__(
 							'<strong>Purchased a plan?</strong><br />Check your email for your license key and paste it below.',
