@@ -321,16 +321,16 @@ export default function ActivityLog() {
 					actions={ actions }
 					getItemId={ getItemId }
 					search
-					// Advertise both the default Table layout and DataViews'
-					// built-in Activity timeline. Toggle lives in the cog
-					// popover's layout switcher. Each layout maps the
-					// event parts to the right slots:
-					//   - Table: one composite `event` column alongside
-					//     Date / User.
+					// Advertise both DataViews' built-in Activity timeline
+					// (the default) and a Table layout. Toggle lives in
+					// the cog popover's layout switcher. Each layout maps
+					// the event parts to the right slots:
 					//   - Activity: `event_icon` → mediaField (left
 					//     bullet slot), `event_title` → titleField,
 					//     `event_description` → descriptionField, plus
 					//     `groupBy: published_date` for day headers.
+					//   - Table: one composite `event` column alongside
+					//     Date / User.
 					// See DEFAULT_LAYOUTS in ./views for the full shape —
 					// it explicitly nulls slot/groupBy refs on Table so a
 					// round-trip Activity → Table doesn't carry those
