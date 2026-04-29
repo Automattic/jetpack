@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+REST API: add wpcom/v2/subscribers/list endpoint that proxies the WP.com subscribers list for the in-admin Subscribers dashboard.

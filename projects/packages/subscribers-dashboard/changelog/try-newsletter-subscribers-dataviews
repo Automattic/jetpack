@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Replace placeholder admin page with a real DataViews-based subscribers table (Phase 1 of #48365).

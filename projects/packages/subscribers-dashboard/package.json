@@ -36,8 +36,10 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@wordpress/api-fetch": "7.44.0",
 		"@wordpress/data": "10.44.0",
 		"@wordpress/dataviews": "14.1.0",
+		"@wordpress/date": "5.44.0",
 		"@wordpress/element": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/url": "4.44.0"
@@ -50,6 +52,7 @@
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.2",
 		"@types/jest": "30.0.0",
+		"@types/react": "18.3.28",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"concurrently": "9.2.1",
 		"jest": "30.3.0",
