@@ -53,10 +53,13 @@ function wpcomsh_fatal_current_user_id() {
  * `basename` is the plugin basename (e.g. "akismet/akismet.php") for
  * plugins and mu-plugins, and the theme stylesheet slug for themes — the
  * screen uses it to build the appropriate action (signed deactivation
- * form for plugins, themes.php link for themes).
+ * form for plugins, themes.php link for themes). `slug` is the directory
+ * slug (e.g. "akismet") and is what the cross-site signature groups on,
+ * so a single extension collapses to one row instead of one per entry
+ * file.
  *
  * @param array $error Error details from WP_Fatal_Error_Handler.
- * @return array{name:string, version:string, description:string, basename:string, kind:string}|null
+ * @return array{name:string, version:string, description:string, slug:string, basename:string, kind:string}|null
  */
 function wpcomsh_fatal_identify_plugin( $error ) {
 	if ( empty( $error['file'] ) ) {
@@ -77,6 +80,7 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 					'name'        => (string) $theme->get( 'Name' ),
 					'version'     => (string) $theme->get( 'Version' ),
 					'description' => wp_strip_all_tags( (string) $theme->get( 'Description' ) ),
+					'slug'        => $slug,
 					'basename'    => $slug,
 					'kind'        => $kind,
 				);
@@ -98,6 +102,7 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 					'name'        => (string) $data['Name'],
 					'version'     => isset( $data['Version'] ) ? (string) $data['Version'] : '',
 					'description' => isset( $data['Description'] ) ? wp_strip_all_tags( (string) $data['Description'] ) : '',
+					'slug'        => $slug,
 					'basename'    => $slug . '/' . basename( $candidate ),
 					'kind'        => $kind,
 				);
@@ -107,6 +112,51 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 		return null;
 	}
 	return null;
+}
+
+/**
+ * Build a transportable fatal-error signature for the identified
+ * extension. Thin wrapper around wpcom_build_fatal_error_signature() in
+ * jetpack-mu-wpcom — kept here so the fatal-error module has its own
+ * call site and can defend against the helper being unavailable.
+ *
+ * Why the manual require: wpcomsh's fatal-error module loads from
+ * `wpcomsh.php` line 1, before composer's autoloader runs and before
+ * jetpack-mu-wpcom's `Jetpack_Mu_Wpcom::init()` has loaded its shared
+ * helpers. By the time the `wp_php_error_message` filter fires (during
+ * a fatal, deep into the request) the autoloader is normally up, but
+ * we can't rely on it: an early fatal in mu-plugin land can fire before
+ * any of that. A direct require by relative vendor path keeps this safe.
+ *
+ * Returns null when there's no identified extension or the helper file
+ * isn't reachable; the screen and email then simply omit the signature.
+ *
+ * @param array|null $plugin Extension metadata from wpcomsh_fatal_identify_plugin().
+ * @return string|null Base64url-encoded signature token, or null.
+ */
+function wpcomsh_fatal_build_signature( $plugin ) {
+	if ( ! is_array( $plugin ) || empty( $plugin['slug'] ) || empty( $plugin['kind'] ) ) {
+		return null;
+	}
+
+	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) ) {
+		$helper = __DIR__ . '/../vendor/automattic/jetpack-mu-wpcom/src/common/fatal-error-signature.php';
+		if ( is_readable( $helper ) ) {
+			require_once $helper;
+		}
+	}
+
+	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) ) {
+		return null;
+	}
+
+	return wpcom_build_fatal_error_signature(
+		array(
+			'kind'    => (string) $plugin['kind'],
+			'slug'    => (string) $plugin['slug'],
+			'version' => isset( $plugin['version'] ) ? (string) $plugin['version'] : '',
+		)
+	);
 }
 
 /**
