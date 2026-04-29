@@ -129,8 +129,6 @@ class Boost_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_every_spec_publishes_mcp_metadata(): void {
-		// Mirrors Jetpack's Modules_Abilities: every ability ships meta.mcp = { public, type }
-		// so the MCP server bridge can surface them as tools.
 		foreach ( Boost_Abilities::get_abilities() as $slug => $spec ) {
 			$this->assertArrayHasKey( 'mcp', $spec['meta'], "Ability {$slug} missing meta.mcp." );
 			$this->assertTrue( $spec['meta']['mcp']['public'], "Ability {$slug} must set mcp.public=true." );
@@ -342,9 +340,7 @@ class Boost_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_set_module_status_rejects_non_boolean_active(): void {
-		// Regression guard: schema validation may not run in unit context; the callback must defend itself.
-		// Aligns with Jetpack's Modules_Abilities — non-bool gets `invalid_active`, distinct
-		// from the missing-key case so callers can disambiguate.
+		// Schema validation may not run in unit context; the callback must defend itself.
 		$result = Boost_Abilities::set_module_status(
 			array(
 				'slug'   => 'critical_css',
@@ -401,13 +397,9 @@ class Boost_Abilities_Test extends BaseTestCase {
 	public function test_set_module_status_returns_state_mismatch_when_filter_blocks_read(): void {
 		$slug        = 'speculation_rules';
 		$option_name = 'jetpack_boost_status_speculation-rules';
-
-		// Pre-seed inactive state so the `desired !== current` branch executes.
 		update_option( $option_name, false );
 
-		// Simulate a filter that masks the post-write read — the option write succeeds
-		// (update_option returns true because we changed false→true), but a `option_*`
-		// filter forces is_enabled() to keep reporting the old value.
+		// Mask the post-write read so is_enabled() keeps reporting the old value.
 		$mask_read = static function () {
 			return false;
 		};
@@ -430,20 +422,17 @@ class Boost_Abilities_Test extends BaseTestCase {
 	public function test_set_module_status_returns_error_when_update_option_fails(): void {
 		$slug        = 'minify_css';
 		$option_name = 'jetpack_boost_status_minify-css';
-
-		// Pre-seed the status option so the module reads as inactive (false), then force
-		// update_option to no-op via pre_update_option_{name}: returning $old_value makes
-		// WordPress treat the write as a same-value update and return false.
 		update_option( $option_name, false );
 
+		// Force update_option to no-op: returning $old_value makes WordPress treat the write as a same-value update.
 		$short_circuit = static function ( $_value, $old_value ) {
 			return $old_value;
 		};
 		add_filter( "pre_update_option_{$option_name}", $short_circuit, 10, 2 );
 
-		$captured_call = 0;
-		$counter       = function () use ( &$captured_call ) {
-			++$captured_call;
+		$action_calls = 0;
+		$counter      = function () use ( &$action_calls ) {
+			++$action_calls;
 		};
 		add_action( 'jetpack_boost_module_status_updated', $counter );
 
@@ -458,9 +447,9 @@ class Boost_Abilities_Test extends BaseTestCase {
 		remove_filter( "pre_update_option_{$option_name}", $short_circuit, 10 );
 		delete_option( $option_name );
 
-		$this->assertInstanceOf( \WP_Error::class, $result, 'A failed write must surface as WP_Error, not changed=true.' );
+		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_boost_module_update_failed', $result->get_error_code() );
-		$this->assertSame( 0, $captured_call, 'jetpack_boost_module_status_updated must not fire when the underlying write fails.' );
+		$this->assertSame( 0, $action_calls, 'jetpack_boost_module_status_updated must not fire when the write fails.' );
 	}
 
 	public function test_set_module_status_fires_status_updated_action_on_change(): void {

@@ -416,21 +416,15 @@ class Boost_Abilities extends Registrar {
 			);
 		}
 
-		// We've already established desired !== current, so update_option() returning
-		// false here means the write failed — not a no-op. Mirror Modules_State_Entry::set()
-		// by gating the action on a successful update, and surface the failure to the caller
-		// instead of reporting changed=true on inconsistent state.
-		$updated = $module->update( $desired );
-		if ( ! $updated ) {
+		// desired !== current was already established, so a falsy return here is a write failure.
+		if ( ! $module->update( $desired ) ) {
 			return new \WP_Error(
 				'jetpack_boost_module_update_failed',
 				__( 'Failed to persist the module status. The previous state is unchanged.', 'jetpack-boost' )
 			);
 		}
 
-		// Re-check state: a `pre_update_option`/`option_*` filter could mask the stored
-		// value, so the response would otherwise lie about reaching the requested state.
-		// Mirrors the post-write verification in Jetpack's Modules_Abilities::set_module_status().
+		// A pre_update_option / option_* filter can mask the stored value; verify before claiming success.
 		$actual = $module->is_enabled();
 		if ( $desired !== $actual ) {
 			return new \WP_Error(
@@ -442,9 +436,8 @@ class Boost_Abilities extends Registrar {
 		/**
 		 * Fires when a module is enabled or disabled through the abilities surface.
 		 *
-		 * Mirrors the action emitted by `Modules_State_Entry::set()` so listeners
-		 * — including Boost's own submodule lifecycle handler — react identically
-		 * regardless of whether the toggle came from the admin UI or an ability.
+		 * Mirrors the action emitted by `Modules_State_Entry::set()` so submodule
+		 * lifecycle handlers fire identically regardless of caller.
 		 *
 		 * @param string $module_slug The module slug.
 		 * @param bool   $is_active   The new state.
@@ -473,9 +466,6 @@ class Boost_Abilities extends Registrar {
 		$latest  = $history->latest();
 
 		if ( null === $latest ) {
-			// `is_stale` describes "older than 24 hours / invalidated by a site change".
-			// With no history, neither condition applies — `has_history=false` already
-			// signals "no score yet", so report `is_stale=false` to match the contract.
 			return array(
 				'mobile'      => null,
 				'desktop'     => null,
