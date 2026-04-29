@@ -153,6 +153,13 @@ function _install_plugin {
 	echo "::endgroup::"
 }
 
+# When running WITH_WPCOMSH, always ensure wpcomsh is installed even if it wasn't changed.
+# The WITH_WPCOMSH block below copies wpcomsh from plugins/ to mu-plugins/ and will fail
+# if wpcomsh was skipped by the CHANGED filter.
+if [[ "$WITH_WPCOMSH" == true && -n "$CHANGED" ]]; then
+	CHANGED=$(jq -c '. += { "plugins/wpcomsh": true }' <<<"$CHANGED")
+fi
+
 EXIT=0
 PIDS=()
 TMPFILES=()
