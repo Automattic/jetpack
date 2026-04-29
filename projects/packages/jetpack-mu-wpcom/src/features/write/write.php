@@ -89,6 +89,28 @@ add_filter(
 );
 
 /**
+ * Set _last_editor_used_jetpack when a post is first created from the Write editor.
+ *
+ * Checks the HTTP Referer to identify saves originating from the Write page.
+ * Only runs on post creation (not updates) — existing posts have their meta
+ * set on page load in wpcom_write_render_admin_page() instead.
+ */
+add_action(
+	'rest_after_insert_post',
+	function ( $post, $request, $creating ) {
+		if ( ! $creating ) {
+			return;
+		}
+		$referer = $request->get_header( 'referer' );
+		if ( $referer && strpos( $referer, 'page=write' ) !== false ) {
+			update_post_meta( $post->ID, '_last_editor_used_jetpack', 'write-editor' );
+		}
+	},
+	10,
+	3
+);
+
+/**
  * Register the Write admin page.
  *
  * Uses an empty parent to create a hidden page (no menu entry) — access is
@@ -465,6 +487,10 @@ function wpcom_write_render_admin_page() {
 			$post_status        = $edit_post->post_status;
 			$edit_featured_id   = (int) get_post_thumbnail_id( $edit_post_id );
 			$unsupported_type   = wpcom_write_detect_unsupported_content( $edit_post->post_content );
+
+			// Track that this post was last edited in the Write editor,
+			// matching the pattern used by the block and classic editors.
+			update_post_meta( $edit_post_id, '_last_editor_used_jetpack', 'write-editor' );
 		} else {
 			$edit_post_id = 0;
 		}
