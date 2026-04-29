@@ -1,3 +1,8 @@
 @use "sass:meta";
-@use "@automattic/jetpack-base-styles/style";
 @include meta.load-css("pkg:@wordpress/theme/design-tokens.css");
+
+.jp-license-activation-screen-controls {
+	padding: 0 var(--wp-ui-card-padding);
+	min-width: 320px;
+	width: 50%;
+}

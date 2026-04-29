@@ -1,25 +1,18 @@
 @use "@automattic/jetpack-base-styles/style";
 
+
 .jp-license-activation-screen-illustration {
-	align-items: center;
-	background: var(--jp-white-off);
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	padding: 32px;
-}
+	padding: 0 var(--wp-ui-card-padding);
 
-.jp-license-activation-screen-illustration--wrapper {
-	display: flex;
-	flex: 1;
+	min-width: 320px;
+	width: 50%;
 
-	img {
+	.jp-license-activation-screen-illustration--img {
 		max-width: 100%;
 		height: auto;
-		align-self: center;
-	}
-}
 
-.jp-license-activation-screen-illustration--support-link {
-	flex: 0;
+		@media screen and ( max-width: 780px ) {
+			display: none;
+		}
+	}
 }

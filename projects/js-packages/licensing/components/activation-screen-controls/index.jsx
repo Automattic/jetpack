@@ -7,7 +7,6 @@ import { Button, InputControl, Stack, Text } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
-import { LICENSE_ERRORS } from '../activation-screen-error/constants';
 import './style.scss';
 
 /**
@@ -158,29 +157,16 @@ const ActivationScreenControls = props => {
 		typeof licenseError === 'string' ? licenseError?.match( /\[[a-z_]+\]/ ) : null;
 	const errorType = errorTypeMatch && errorTypeMatch[ 0 ];
 
-	const { ACTIVE_ON_SAME_SITE } = LICENSE_ERRORS;
-	const isLicenseAlreadyAttached = ACTIVE_ON_SAME_SITE === errorType;
-	const className = useMemo( () => {
-		if ( ! licenseError ) {
-			return 'jp-license-activation-screen-controls--license-field';
-		}
-		if ( isLicenseAlreadyAttached ) {
-			return 'jp-license-activation-screen-controls--license-field-with-success';
-		}
-
-		return 'jp-license-activation-screen-controls--license-field-with-error';
-	}, [ licenseError, isLicenseAlreadyAttached ] );
-
 	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
 	return (
 		<Stack
+			className="jp-license-activation-screen-controls"
 			direction="column"
 			justify="space-between"
-			className="jp-license-activation-screen-controls"
 		>
-			<Stack align="start" direction="column" gap="md">
-				<JetpackLogo showText={ false } height={ 48 } />
+			<Stack align="stretch" direction="column" gap="lg" style={ { margin: 'auto 0' } }>
+				<JetpackLogo showText={ false } height={ 48 } style={ { alignSelf: 'flex-start' } } />
 				<Text variant="heading-xl" render={ <h1 /> }>
 					{ __( 'Add a license key', 'jetpack-licensing' ) }
 				</Text>
@@ -198,7 +184,6 @@ const ActivationScreenControls = props => {
 				</Text>
 				{ fetchingAvailableLicenses || hasAvailableLicenseKey ? (
 					<SelectableLicenseKeyInput
-						className={ className }
 						disabled={ fetchingAvailableLicenses || isActivating }
 						onChange={ onLicenseChange }
 						availableLicenses={ fetchingAvailableLicenses ? null : availableLicenses }
@@ -206,7 +191,6 @@ const ActivationScreenControls = props => {
 					/>
 				) : (
 					<ManualLicenseKeyInput
-						className={ className }
 						disabled={ isActivating }
 						onChange={ onLicenseChange }
 						value={ license }

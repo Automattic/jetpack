@@ -1,9 +1,4 @@
 .jp-license-activation-screen {
-	display: flex;
-	flex-direction: column;
 	min-height: 540px;
-
-	@media screen and ( min-width: 780px ) {
-		flex-direction: row;
-	}
 }
+

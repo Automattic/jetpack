@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Text, Stack } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 
 import './style.scss';
@@ -16,21 +17,24 @@ import './style.scss';
 const ActivationScreenIllustration = props => {
 	const { imageUrl, showSupportLink = false } = props;
 	return (
-		<div className="jp-license-activation-screen-illustration">
-			<div className="jp-license-activation-screen-illustration--wrapper">
-				<img className="jp-license-activation-screen-illustration--img" src={ imageUrl } alt="" />
-			</div>
+		<Stack
+			className="jp-license-activation-screen-illustration"
+			align="center"
+			direction="column"
+			justify="center"
+		>
+			<img className="jp-license-activation-screen-illustration--img" src={ imageUrl } alt="" />
 			{ showSupportLink && (
-				<p className="jp-license-activation-screen-illustration--support-link">
+				<Text variant="body-md" className="jp-license-activation-screen-illustration--support-link">
 					{ createInterpolateElement(
 						__( 'Do you need help? <a>Contact us.</a>', 'jetpack-licensing' ),
 						{
 							a: <a href={ getRedirectUrl( 'jetpack-support-license-activation' ) } />,
 						}
 					) }
-				</p>
+				</Text>
 			) }
-		</div>
+		</Stack>
 	);
 };
 

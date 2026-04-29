@@ -1,12 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import useActivePlugins from '../../../hooks/use-active-plugins';
 import { getProductGroup } from '../../activation-screen/utils';
-
-import './style.scss';
 
 const PrimaryLink = props => {
 	const { currentRecommendationsStep, siteAdminUrl, siteRawUrl, productId } = props;
@@ -23,18 +20,13 @@ const PrimaryLink = props => {
 	const isJetpackProtectActive = isPluginActive( 'Jetpack Protect' );
 
 	if ( isFetching ) {
-		return (
-			<Button variant="unstyled" className="jp-license-activation-screen-success-info--button">
-				<Spinner />
-			</Button>
-		);
+		return <Button variant="solid" loading={ true } />;
 	}
 
 	if ( isJetpackSocialProduct && ( isJetpackActive || isJetpackSocialActive ) ) {
 		return (
 			<Button
-				variant="unstyled"
-				className="jp-license-activation-screen-success-info--button"
+				variant="solid"
 				href={
 					siteAdminUrl +
 					( isJetpackActive
@@ -55,11 +47,7 @@ const PrimaryLink = props => {
 			? siteAdminUrl + 'admin.php?page=jetpack-protect'
 			: getRedirectUrl( 'jetpack-license-activation-success-scan', { site: siteRawUrl } );
 		return (
-			<Button
-				variant="unstyled"
-				className="jp-license-activation-screen-success-info--button"
-				href={ redirectSource }
-			>
+			<Button variant="solid" href={ redirectSource }>
 				{ __( 'View scan results', 'jetpack-licensing' ) }
 			</Button>
 		);
@@ -68,11 +56,7 @@ const PrimaryLink = props => {
 	// If the user has not completed the first step of the Assistant, make the primary button link to it.
 	if ( currentRecommendationsStep === 'not-started' ) {
 		return (
-			<Button
-				variant="unstyled"
-				className="jp-license-activation-screen-success-info--button"
-				href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
-			>
+			<Button variant="solid" href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }>
 				{ __( 'Configure my site', 'jetpack-licensing' ) }
 			</Button>
 		);
@@ -80,8 +64,7 @@ const PrimaryLink = props => {
 
 	return (
 		<Button
-			variant="unstyled"
-			className="jp-license-activation-screen-success-info--button"
+			variant="solid"
 			href={ getRedirectUrl( 'license-activation-view-my-plans', { site: siteRawUrl } ) }
 		>
 			{ __( 'View my plans', 'jetpack-licensing' ) }

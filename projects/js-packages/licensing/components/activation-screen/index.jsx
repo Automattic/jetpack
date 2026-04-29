@@ -1,7 +1,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Card, Stack } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
@@ -116,7 +116,7 @@ const ActivationScreen = props => {
 
 	const renderActivationSuccess = () => (
 		<Card.Root>
-			<Card.FullBleed className="jp-license-activation-screen">
+			<Stack direction="row" justify="stretch" wrap="wrap" className="jp-license-activation-screen">
 				<ActivationScreenSuccessInfo
 					siteRawUrl={ siteRawUrl }
 					productId={ activatedProduct }
@@ -124,25 +124,32 @@ const ActivationScreen = props => {
 					currentRecommendationsStep={ currentRecommendationsStep }
 				/>
 				<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
-			</Card.FullBleed>
+			</Stack>
 		</Card.Root>
 	);
 
 	const renderActivationControl = () => (
 		<Card.Root>
-			<Card.FullBleed className="jp-license-activation-screen">
-				<ActivationScreenControls
-					availableLicenses={ availableLicenses }
-					activateLicense={ activateLicense }
-					fetchingAvailableLicenses={ fetchingAvailableLicenses }
-					isActivating={ isSaving }
-					license={ license }
-					licenseError={ licenseError }
-					onLicenseChange={ setLicense }
-					siteUrl={ siteRawUrl }
-				/>
-				<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
-			</Card.FullBleed>
+			<Card.Content>
+				<Stack
+					direction="row"
+					justify="stretch"
+					wrap="wrap"
+					className="jp-license-activation-screen"
+				>
+					<ActivationScreenControls
+						availableLicenses={ availableLicenses }
+						activateLicense={ activateLicense }
+						fetchingAvailableLicenses={ fetchingAvailableLicenses }
+						isActivating={ isSaving }
+						license={ license }
+						licenseError={ licenseError }
+						onLicenseChange={ setLicense }
+						siteUrl={ siteRawUrl }
+					/>
+					<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
+				</Stack>
+			</Card.Content>
 		</Card.Root>
 	);
 
