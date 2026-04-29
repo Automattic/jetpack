@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers dashboard: Download as CSV menu item is now enabled — read the WP.com blog id from the canonical jetpack-script-data path (site.wpcom.blog_id).
