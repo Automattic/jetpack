@@ -604,11 +604,11 @@ function jpcrm_storage_dir_info_for_quotes( $quote_id ) {
  * of success.
  */
 function jpcrm_save_admin_upload_to_folder( $param_name, $target_dir_info ) {
-	if ( empty( $_FILES[ $param_name ]['name'] ) || empty( $_FILES[ $param_name ]['tmp_name'] ) ) {
+	if ( empty( $_FILES[ $param_name ]['name'] ) || empty( $_FILES[ $param_name ]['tmp_name'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled the caller.
 		return array( 'error' => 'No file uploaded.' );
 	}
 
-	$file_name = $_FILES[ $param_name ]['name']; // for admins we are accepting "filename.ext" as provided by $_FILES
+	$file_name = sanitize_file_name( wp_unslash( $_FILES[ $param_name ]['name'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by the caller.
 
 	// Match the `wp_upload_bits()` filter logic while skipping the public upload.
 	$filetype = wp_check_filetype( $file_name );
@@ -635,7 +635,8 @@ function jpcrm_save_admin_upload_to_folder( $param_name, $target_dir_info ) {
 	$private_path = $upload_path . '/' . $upload_filename;
 
 	// Move uploaded file from PHP's tmp dir directly into the private storage dir.
-	if ( ! move_uploaded_file( $_FILES[ $param_name ]['tmp_name'], $private_path ) ) {
+	$tmp_name = sanitize_text_field( wp_unslash( $_FILES[ $param_name ]['tmp_name'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by the caller.
+	if ( ! move_uploaded_file( $tmp_name, $private_path ) ) {
 		return array( 'error' => 'Could not save uploaded file.' );
 	}
 
