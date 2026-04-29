@@ -4,6 +4,15 @@
 // Tabs.List itself because the list is `width: fit-content` (so its tabs don't
 // stretch to fill the row); a wrapper takes the full block width without
 // affecting the list's intrinsic sizing.
+// The wrapper is also our sticky surface: `JetpackAdminPage` overrides
+// admin-ui's native sticky `.admin-ui-page__header` (JETPACK-1386), so the
+// page header scrolls with the content. Pinning just the tab strip locally
+// keeps section navigation accessible without re-enabling that global
+// behavior. Background + z-index ensure scrolling content passes underneath.
 .tabs-list-wrapper {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	background: var(--jp-white);
 	border-bottom: 1px solid gb.$gray-100;
 }
