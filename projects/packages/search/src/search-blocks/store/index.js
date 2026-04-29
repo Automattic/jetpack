@@ -465,6 +465,10 @@ const { state, actions } = store( NAMESPACE, {
 			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
 				// The URL already carries this query — don't push a duplicate
 				// history entry on top of the browser's current one.
+				// `priceRange` is checked separately because `hasActiveFilters`
+				// only inspects `activeFilters`; without this gate a URL like
+				// `?min_price=10` would leave PHP's `isLoading: true` spinner
+				// stuck because no initial fetch ever fires.
 				actions.search( { syncUrl: false } );
 			}
 		},

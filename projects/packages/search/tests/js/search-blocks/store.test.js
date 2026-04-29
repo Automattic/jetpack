@@ -280,6 +280,22 @@ describe( 'store actions', () => {
 		expect( state.isFilterPopoverOpen ).toBe( false );
 	} );
 
+	it( 'syncToUrl writes priceRange so a price-filtered URL survives subsequent searches', () => {
+		// Regression: omitting priceRange from pushStateToUrl meant the
+		// first search after JS hydrated rewrote `?min_price=10` away,
+		// breaking shareable URLs and back-button behavior.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = 'shoes';
+		state.priceRange = { min: 10, max: 50 };
+
+		actions.syncToUrl();
+
+		expect( replaceState ).toHaveBeenCalledTimes( 1 );
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).toContain( 'min_price=10' );
+		expect( writtenUrl ).toContain( 'max_price=50' );
+	} );
+
 	it( 'closes open popovers on Escape only', () => {
 		state.isFilterPopoverOpen = true;
 		state.isSortPopoverOpen = true;
@@ -379,11 +395,17 @@ describe( 'store callbacks', () => {
 	} );
 
 	it( 'initializes popstate handling and runs one URL-seeded search', () => {
+		// Also covers the price-only URL case: `?min_price=10` with no text
+		// query and no checkbox filters seeds isLoading=true on the PHP side,
+		// so initialize() must fire a fetch for `priceRange` alone, not just
+		// for `searchQuery || hasActiveFilters`.
 		const addEventListener = jest.spyOn( window, 'addEventListener' );
 		Object.assign( actions, originalActions );
 		jest.spyOn( actions, 'handlePopState' ).mockImplementation();
 		const search = jest.spyOn( actions, 'search' ).mockImplementation();
-		state.searchQuery = 'seeded';
+		state.searchQuery = '';
+		state.activeFilters = {};
+		state.priceRange = { min: 10, max: null };
 
 		captured.callbacks.initialize();
 		captured.callbacks.initialize();
