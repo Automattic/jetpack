@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search Blocks: sort-control gains defaultSort, availableSortOptions, label, and displayAs attributes.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix block description links breaking inserter search by adding `toString` fallback.

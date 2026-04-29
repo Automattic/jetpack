@@ -753,6 +753,9 @@ class Jetpack {
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
 		add_action( 'init', array( Deprecate::class, 'instance' ) );
+
+		// Register Jetpack module management abilities (WordPress Abilities API, WP 6.9+).
+		\Automattic\Jetpack\Plugin\Abilities\Modules_Abilities::init();
 	}
 
 	/**

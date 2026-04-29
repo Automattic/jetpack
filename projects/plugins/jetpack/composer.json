@@ -56,11 +56,11 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/woocommerce-analytics": "^0.16"
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/phpunit-select-config": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0"

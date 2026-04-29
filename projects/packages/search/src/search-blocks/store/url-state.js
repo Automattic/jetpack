@@ -1,6 +1,4 @@
-// Valid UI/URL values for `orderby`. Must mirror `Search_Blocks::parse_url_sort()`
-// on the PHP side so deep links round-trip the same sort on first paint and
-// hydration.
+// Mirror `Sort_Control::get_all_option_keys()`. Product-format keys rejoin in RSM-1082.
 const VALID_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
 const DEFAULT_SORT_ORDER = 'relevance';
 
@@ -24,9 +22,10 @@ const RESERVED_PARAMS = new Set( [ 's', 'orderby' ] );
 export function stateToUrlParams( { searchQuery, sortOrder, activeFilters = {} } ) {
 	const params = new URLSearchParams();
 
-	if ( searchQuery ) {
-		params.set( 's', searchQuery );
-	}
+	// Always emit `s` (even empty) so a refresh keeps WP routed to the
+	// search template. Dropping the param entirely when the user clears
+	// the input would push the page back to the front-page route.
+	params.set( 's', searchQuery ?? '' );
 
 	if ( sortOrder && sortOrder !== DEFAULT_SORT_ORDER && VALID_SORT_ORDERS.includes( sortOrder ) ) {
 		params.set( 'orderby', sortOrder );

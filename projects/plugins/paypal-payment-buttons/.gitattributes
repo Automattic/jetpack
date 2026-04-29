@@ -43,6 +43,5 @@ package.json                                    production-exclude
 README.md                                       production-exclude
 src/js/**                                       production-exclude
 tests/**                                        production-exclude
-/vendor/automattic/jetpack-changelogger/**     production-exclude
 /vendor/automattic/jetpack-composer-plugin/**  production-exclude
 webpack.config.js                               production-exclude

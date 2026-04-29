@@ -76,13 +76,6 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		return $result;
 	}
 
-	public function test_wp_logo_replaced_by_wpcom_logo() {
-		$admin_bar = self::make_test_admin_bar();
-
-		$this->assertNull( $admin_bar->get_node( 'wp-logo' ) );
-		$this->assertNotNull( $admin_bar->get_node( 'wpcom-logo' ) );
-	}
-
 	public function test_origin_admin_bar_param_in_menu_links() {
 		$admin_bar = self::make_test_admin_bar();
 

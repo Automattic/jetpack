@@ -6,12 +6,14 @@ import './styles.scss';
 type Props = BlueskyPreviewProps & { children?: React.ReactNode };
 
 const BlueskyPostBody: React.FC< Props > = ( { customText, url, children, appendUrl } ) => {
+	const showUrl = appendUrl && !! url && ! customText?.includes( url );
+
 	return (
 		<div className="bluesky-preview__body">
 			{ customText ? (
 				<>
 					<div>{ blueskyBody( customText ) }</div>
-					{ appendUrl && url ? (
+					{ showUrl ? (
 						<>
 							<br />
 							<a href={ url } target="_blank" rel="noreferrer noopener">
