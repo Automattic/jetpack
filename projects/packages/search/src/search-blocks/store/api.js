@@ -94,9 +94,44 @@ export function resolveFilterFields( config ) {
 			// options for discoverability, but selections don't yet narrow
 			// the result set. Tracked as a follow-up.
 			return { aggField: null, filterField: null, bucketFormat: 'plain' };
+		case 'wc_rating':
+			// Rating uses a range aggregation against
+			// `meta._wc_average_rating.double` (the same field
+			// instant-search reads via `fields` for product cards).
+			// `buildAggregations` and `buildFilterClause` special-case
+			// this filterType so they emit a `range` aggregation /
+			// range-OR filter clause instead of the standard `terms`.
+			// Star buckets follow WC's UI: `ROUND(avg_rating, 0)` from
+			// FilterData::get_rating_counts, so star=5 covers
+			// avg ∈ [4.5, ∞), star=4 covers [3.5, 4.5), etc.
+			return {
+				aggField: 'meta._wc_average_rating.double',
+				filterField: 'meta._wc_average_rating.double',
+				bucketFormat: 'plain',
+			};
 	}
 	return { aggField: null, filterField: null, bucketFormat: 'plain' };
 }
+
+/**
+ * Star buckets for `wc_rating` filter clauses. Mirrors WC's
+ * `ROUND(avg_rating, 0)` semantics: star=5 covers avg ∈ [4.5, ∞),
+ * star=4 covers [3.5, 4.5), down to star=1 covering [0.5, 1.5).
+ *
+ * Aggregation uses a histogram (range aggs aren't whitelisted on the
+ * WPCOM v1.3 search API — `[aggs:range] is not whitelisted`). The
+ * `offset: 0.5` shifts histogram bucket boundaries from integer
+ * (default) to half-integer, which is exactly the cutoffs WC's
+ * ROUND uses, so a histogram bucket keyed `4.5` corresponds to star=5,
+ * `3.5` to star=4, etc.
+ */
+const WC_RATING_RANGES = [
+	{ key: '1', from: 0.5, to: 1.5, histogramKey: 0.5 },
+	{ key: '2', from: 1.5, to: 2.5, histogramKey: 1.5 },
+	{ key: '3', from: 2.5, to: 3.5, histogramKey: 2.5 },
+	{ key: '4', from: 3.5, to: 4.5, histogramKey: 3.5 },
+	{ key: '5', from: 4.5, histogramKey: 4.5 },
+];
 
 /**
  * Build ES aggregation requests from the filterConfigs registered by each
@@ -116,6 +151,22 @@ export function resolveFilterFields( config ) {
 export function buildAggregations( filterConfigs ) {
 	const aggregations = {};
 	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		// Rating gets a histogram aggregation. `range` aggs aren't
+		// whitelisted; histogram interval=1 with offset=0.5 produces
+		// buckets keyed at .5 boundaries, mirroring WC's
+		// ROUND(avg_rating) star buckets.
+		if ( config?.filterType === 'wc_rating' ) {
+			aggregations[ filterKey ] = {
+				histogram: {
+					field: 'meta._wc_average_rating.double',
+					interval: 1,
+					offset: 0.5,
+					min_doc_count: 0,
+				},
+			};
+			continue;
+		}
+
 		const { aggField } = resolveFilterFields( config );
 		if ( ! aggField ) {
 			continue;
@@ -154,7 +205,29 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		if ( ! Array.isArray( values ) || values.length === 0 ) {
 			continue;
 		}
-		const { filterField } = resolveFilterFields( filterConfigs?.[ filterKey ] );
+		const config = filterConfigs?.[ filterKey ];
+
+		// Rating: each selected star level maps to a range clause on
+		// `meta._wc_average_rating.double`; multiple selections OR.
+		if ( config?.filterType === 'wc_rating' ) {
+			const ranges = values
+				.map( value => WC_RATING_RANGES.find( r => r.key === String( value ) ) )
+				.filter( Boolean )
+				.map( r => {
+					const range = { gte: r.from };
+					if ( r.to !== undefined ) {
+						range.lt = r.to;
+					}
+					return { range: { 'meta._wc_average_rating.double': range } };
+				} );
+			if ( ranges.length === 0 ) {
+				continue;
+			}
+			must.push( ranges.length === 1 ? ranges[ 0 ] : { bool: { should: ranges } } );
+			continue;
+		}
+
+		const { filterField } = resolveFilterFields( config );
 		if ( ! filterField ) {
 			continue;
 		}

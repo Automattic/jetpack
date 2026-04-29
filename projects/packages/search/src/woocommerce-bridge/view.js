@@ -67,6 +67,8 @@ function buildWcFilterTypeMap() {
 			}
 		} else if ( cfg.filterType === 'wc_stock_status' ) {
 			map.status = filterKey;
+		} else if ( cfg.filterType === 'wc_rating' ) {
+			map.rating = filterKey;
 		}
 	}
 	return map;
@@ -85,6 +87,21 @@ const STOCK_STATUS_LABELS = {
 	instock: 'In stock',
 	outofstock: 'Out of stock',
 	onbackorder: 'On backorder',
+};
+
+/**
+ * Star labels for the rating filter. WC's UI shows filled / unfilled
+ * stars; the bridge uses Unicode glyphs as a simple approximation that
+ * works without a webfont. The text is also fed into `aria-label` so
+ * screen readers get a meaningful description rather than just the
+ * star characters.
+ */
+const RATING_STAR_LABELS = {
+	1: { text: '★☆☆☆☆', aria: '1 star' },
+	2: { text: '★★☆☆☆', aria: '2 stars' },
+	3: { text: '★★★☆☆', aria: '3 stars' },
+	4: { text: '★★★★☆', aria: '4 stars' },
+	5: { text: '★★★★★', aria: '5 stars' },
 };
 
 /**
@@ -453,6 +470,11 @@ function buildSlugLabelMap( unscoped ) {
 		if ( config.filterType === 'wc_stock_status' ) {
 			Object.assign( slugMap, STOCK_STATUS_LABELS );
 		}
+		if ( config.filterType === 'wc_rating' ) {
+			for ( const [ star, meta ] of Object.entries( RATING_STAR_LABELS ) ) {
+				slugMap[ star ] = meta.text;
+			}
+		}
 
 		for ( const bucket of agg?.buckets ?? [] ) {
 			const rawKey = String( bucket.key ?? '' );
@@ -460,8 +482,9 @@ function buildSlugLabelMap( unscoped ) {
 				const idx = rawKey.indexOf( '/' );
 				slugMap[ rawKey.slice( 0, idx ) ] = rawKey.slice( idx + 1 ) || rawKey.slice( 0, idx );
 			} else if ( config.filterType === 'wc_stock_status' && STOCK_STATUS_LABELS[ rawKey ] ) {
-				// Keep the friendly label rather than falling back to the slug.
 				slugMap[ rawKey ] = STOCK_STATUS_LABELS[ rawKey ];
+			} else if ( config.filterType === 'wc_rating' && RATING_STAR_LABELS[ rawKey ] ) {
+				slugMap[ rawKey ] = RATING_STAR_LABELS[ rawKey ].text;
 			} else {
 				slugMap[ rawKey ] = rawKey;
 			}
@@ -681,6 +704,22 @@ function applyToFilterBlocks( scoped, unscoped, searchParams ) {
 				selected: selectedSlugs.has( slug ),
 				ariaLabel: STOCK_STATUS_LABELS[ slug ],
 			} ) );
+		} else if ( config.filterType === 'wc_rating' ) {
+			// Render 5..1 (highest first, mirroring how most ecommerce
+			// rating filters list options). Counts come from the range
+			// aggregation buckets keyed by '1'..'5' (see WC_RATING_RANGES
+			// in api.js).
+			items = [ '5', '4', '3', '2', '1' ].map( star => {
+				const meta = RATING_STAR_LABELS[ star ];
+				return {
+					value: star,
+					type: wcFilterType,
+					label: meta.text,
+					count: scopedCounts[ star ] ?? 0,
+					selected: selectedSlugs.has( star ),
+					ariaLabel: meta.aria,
+				};
+			} );
 		} else {
 			const universeBuckets = baseline[ filterKey ]?.buckets;
 			if ( ! Array.isArray( universeBuckets ) ) {
@@ -714,6 +753,24 @@ function bucketsToCountMap( buckets, filterConfig ) {
 	if ( ! Array.isArray( buckets ) ) {
 		return out;
 	}
+
+	// Rating uses a histogram aggregation with offset 0.5: bucket keys
+	// are 0.5/1.5/2.5/3.5/4.5 — map them to star slugs '1'..'5'. Anything
+	// outside that range (e.g. unrated products bucketing at 0 or above
+	// 5.0) we sum into the nearest star at the boundary.
+	if ( filterConfig?.filterType === 'wc_rating' ) {
+		for ( const bucket of buckets ) {
+			const numericKey = Number( bucket.key );
+			if ( ! Number.isFinite( numericKey ) ) {
+				continue;
+			}
+			const star = Math.min( 5, Math.max( 1, Math.floor( numericKey ) + 1 ) );
+			const slug = String( star );
+			out[ slug ] = ( out[ slug ] ?? 0 ) + ( Number( bucket.doc_count ) || 0 );
+		}
+		return out;
+	}
+
 	const { bucketFormat } = resolveFilterFields( filterConfig );
 	for ( const bucket of buckets ) {
 		const rawKey = String( bucket.key ?? '' );
