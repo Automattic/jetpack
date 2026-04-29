@@ -62,9 +62,14 @@ function buildWcFilterTypeMap() {
 }
 
 /**
- * Read WC-format URL params and produce the activeFilters shape that
- * `buildSearchUrl()` expects (keyed by filterConfig key, comma-joined
- * values split into an array).
+ * Read URL params and produce the activeFilters shape that
+ * `buildSearchUrl()` expects (keyed by filterConfig key, values as array).
+ *
+ * URL format is the same array-shape pattern used by the Jetpack Search
+ * blocks (`?<filterKey>[]=value`), so a URL like
+ * `?product_cat[]=shirts&product_cat[]=pants` is interchangeable across
+ * any filter-checkbox block on the page (WC bridge or JP Search) that
+ * registers `product_cat` as a filterKey.
  *
  * @param {URLSearchParams} searchParams  - Current URL search params.
  * @param {object}          filterConfigs - Map of registered filter configs.
@@ -73,12 +78,12 @@ function buildWcFilterTypeMap() {
 function urlToActiveFilters( searchParams, filterConfigs ) {
 	const active = {};
 	for ( const key of Object.keys( filterConfigs ?? {} ) ) {
-		const raw = searchParams.get( key );
-		if ( raw ) {
-			active[ key ] = raw
-				.split( ',' )
-				.map( s => s.trim() )
-				.filter( Boolean );
+		const values = searchParams
+			.getAll( `${ key }[]` )
+			.map( v => String( v ).trim() )
+			.filter( Boolean );
+		if ( values.length > 0 ) {
+			active[ key ] = values;
 		}
 	}
 	return active;
@@ -319,29 +324,28 @@ function wireItemListeners( host ) {
 
 /**
  * Mutate the URL to toggle one filter value, then push + fetch + render.
- * Mirrors what WC's `actions.toggleFilter` would do, but driven entirely
- * from native event listeners since Interactivity directives do not
- * hydrate on injected items.
  *
- * @param {string} filterKey   - filterConfig key (e.g. `categories`).
+ * URL format follows the Jetpack Search blocks' array-shape pattern
+ * (`?<filterKey>[]=value`) — see src/search-blocks/store/url-state.js —
+ * so deep links round-trip cleanly between WC's filter UI and any
+ * JP Search filter-checkbox blocks that share filterKey naming.
+ *
+ * @param {string} filterKey   - filterConfig key (e.g. `product_cat`).
  * @param {string} filterValue - Slug being toggled.
  */
 async function toggleFilterAndNavigate( filterKey, filterValue ) {
 	const url = new URL( window.location.href );
-	const current = ( url.searchParams.get( filterKey ) ?? '' )
-		.split( ',' )
-		.map( s => s.trim() )
-		.filter( Boolean );
+	const arrayParam = `${ filterKey }[]`;
+	const current = url.searchParams.getAll( arrayParam );
 	const idx = current.indexOf( filterValue );
 	if ( idx === -1 ) {
 		current.push( filterValue );
 	} else {
 		current.splice( idx, 1 );
 	}
-	if ( current.length === 0 ) {
-		url.searchParams.delete( filterKey );
-	} else {
-		url.searchParams.set( filterKey, current.join( ',' ) );
+	url.searchParams.delete( arrayParam );
+	for ( const value of current ) {
+		url.searchParams.append( arrayParam, value );
 	}
 
 	window.history.pushState( {}, '', url.href );

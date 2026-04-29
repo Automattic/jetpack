@@ -168,12 +168,16 @@ class WooCommerce_Filters_Bridge {
 	}
 
 	/**
-	 * Build a filterConfigs map matching the WooCommerce Product Filters
-	 * URL contract.
+	 * Build a filterConfigs map.
 	 *
-	 * Keys are the WC URL param names (`categories`, `tags`, `brands`,
-	 * `filter_<short_attr>`); values name the underlying taxonomy plus the
-	 * `filterType` enum that `resolveFilterFields()` in
+	 * Keys are the underlying taxonomy slugs (`product_cat`, `product_tag`,
+	 * `product_brand`, `pa_<short_attr>`) so the URL contract matches the
+	 * Jetpack Search blocks' existing pattern (`?<key>[]=<value>`, see
+	 * src/search-blocks/store/url-state.js). That makes filter URLs
+	 * interchangeable between WC's filter UI and any Jetpack Search
+	 * filter-checkbox blocks on the same page.
+	 *
+	 * Values carry the `filterType` enum that `resolveFilterFields()` in
 	 * src/search-blocks/store/api.js consumes when constructing the ES
 	 * aggregation field path.
 	 *
@@ -181,12 +185,12 @@ class WooCommerce_Filters_Bridge {
 	 */
 	private function build_filter_configs() {
 		$configs = array(
-			'categories' => array(
+			'product_cat' => array(
 				'filterType' => 'taxonomy',
 				'taxonomy'   => 'product_cat',
 				'maxItems'   => 100,
 			),
-			'tags'       => array(
+			'product_tag' => array(
 				'filterType' => 'taxonomy',
 				'taxonomy'   => 'product_tag',
 				'maxItems'   => 100,
@@ -194,7 +198,7 @@ class WooCommerce_Filters_Bridge {
 		);
 
 		if ( taxonomy_exists( 'product_brand' ) ) {
-			$configs['brands'] = array(
+			$configs['product_brand'] = array(
 				'filterType' => 'taxonomy',
 				'taxonomy'   => 'product_brand',
 				'maxItems'   => 100,
@@ -203,10 +207,9 @@ class WooCommerce_Filters_Bridge {
 
 		if ( function_exists( 'wc_get_attribute_taxonomies' ) ) {
 			foreach ( wc_get_attribute_taxonomies() as $attribute_object ) {
-				$short_name = $attribute_object->attribute_name;
-				$taxonomy   = wc_attribute_taxonomy_name( $short_name );
+				$taxonomy = wc_attribute_taxonomy_name( $attribute_object->attribute_name );
 
-				$configs[ 'filter_' . $short_name ] = array(
+				$configs[ $taxonomy ] = array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => $taxonomy,
 					'maxItems'   => 100,
