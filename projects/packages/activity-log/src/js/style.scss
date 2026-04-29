@@ -28,6 +28,17 @@ body.jetpack_page_jetpack-activity-log {
 		margin: 0;
 	}
 
+	// DataViews always renders the Activity-layout description slot,
+	// even when our renderer returns `null` for entries with no
+	// description payload (e.g. "User removed"). The empty
+	// `<div class="dataviews-view-activity__item-description">` then
+	// participates in the column stack's gap and leaves a visible
+	// blank line under the title. Collapse the row when the slot has
+	// no children so the layout flows tightly.
+	.dataviews-view-activity__item-description:empty {
+		display: none;
+	}
+
 	// DataViews shows a small "modified" dot on the cog whenever the
 	// current view differs from the default (driven by our `onReset`
 	// prop). Hide it: the same signal already gates the Reset view
