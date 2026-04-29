@@ -1,9 +1,9 @@
 /**
  * Editor preview for jetpack/no-results.
  *
- * The front end hides this block when results are present; the editor always
- * shows it so designers can style it. The Inspector exposes a text input for
- * the `message` attribute, which is read by render.php on the front end.
+ * The front end hides this block when results are present. The editor keeps
+ * that successful-results preview clean while still exposing the message
+ * setting in the Inspector.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl } from '@wordpress/components';
@@ -21,7 +21,6 @@ import { __ } from '@wordpress/i18n';
 export default function NoResultsEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	const defaultMessage = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
-	const message = attributes.message || defaultMessage;
 	return h(
 		Fragment,
 		null,
@@ -42,6 +41,6 @@ export default function NoResultsEdit( { attributes, setAttributes } ) {
 				} )
 			)
 		),
-		h( 'div', blockProps, h( 'p', null, message ) )
+		h( 'div', { ...blockProps, hidden: true, 'aria-hidden': 'true' } )
 	);
 }

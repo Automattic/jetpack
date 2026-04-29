@@ -102,11 +102,15 @@ class Sort_Control {
 	 * doesn't know how to bind against.
 	 *
 	 * @param array $attributes Block attributes.
-	 * @return string  'select' or 'radio'.
+	 * @return string  'select', 'radio', or 'popover'.
 	 */
 	public static function normalize_display_as( array $attributes ): string {
 		$candidate = (string) ( $attributes['displayAs'] ?? 'select' );
-		return 'radio' === $candidate ? 'radio' : 'select';
+		if ( in_array( $candidate, array( 'radio', 'popover' ), true ) ) {
+			return $candidate;
+		}
+		$legacy_candidate = (string) ( $attributes['display'] ?? 'select' );
+		return 'popover' === $legacy_candidate ? 'popover' : 'select';
 	}
 
 	/**
