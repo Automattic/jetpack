@@ -1634,6 +1634,10 @@ async function savePost( postStatus, isAutosave = false ) {
 	const contentEl = document.querySelector( '.bw-content' );
 	const blockMarkup = convertToBlocks( contentEl.innerHTML );
 
+	// Snapshot what we're about to send so dirty tracking compares against
+	// the submitted content, not whatever the DOM contains when the request resolves.
+	const submittedSnapshot = getContentSnapshot();
+
 	// Collect selected category IDs.
 	const selectedCats = state.categories.filter( c => c.selected ).map( c => c.id );
 
@@ -1658,8 +1662,9 @@ async function savePost( postStatus, isAutosave = false ) {
 			state.editPostId = post.id;
 		}
 
-		// Update the saved snapshot so dirty tracking resets.
-		updateSavedSnapshot();
+		// Mark only the submitted content as saved — if the user typed
+		// during the request the editor stays dirty.
+		lastSavedSnapshot = submittedSnapshot;
 
 		if ( postStatus === 'publish' ) {
 			state.isPublished = true;
