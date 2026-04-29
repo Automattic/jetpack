@@ -850,7 +850,7 @@ function zeroBSCRM_do_meta_box_html( $box, $page, $hidden, $object, $minimised, 
 		} */
 
 			// txt
-			echo '<div class="header item">' . esc_html( $box['title'] ) . '</div>' . $hideMinimiseMenu . "\n";
+			echo '<div class="header item">' . esc_html( $box['title'] ) . '</div>' . $hideMinimiseMenu . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is hard-coded HTML with no vars.
 
 			// right hand menu, if one
 			/*

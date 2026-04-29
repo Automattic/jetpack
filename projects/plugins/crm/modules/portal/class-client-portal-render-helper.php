@@ -116,8 +116,8 @@ class Client_Portal_Render_Helper {
 			if ( $endpoint->hide_from_menu ) {
 				continue;
 			}
-			$link  = $endpoint->slug == 'dashboard' ? $portal_root_url : $portal_root_url . $endpoint->slug;
-			$class = $endpoint->slug == $selected_item ? 'active' : '';
+			$link  = $endpoint->slug === 'dashboard' ? $portal_root_url : $portal_root_url . $endpoint->slug;
+			$class = $endpoint->slug === $selected_item ? 'active' : '';
 			// produce the menu from the array of menu items (easier to extend :-) ).
 			// WH: this assumes icon, otehrwise it'll break! :o
 			$nav_html .= "<li class='" . esc_attr( $class ) . "'><a href='" . esc_url( $link ) . "'><i class='fa " . esc_attr( $endpoint->icon ) . "'></i>" . esc_html( $endpoint->name ) . '</a></li>';
