@@ -482,13 +482,9 @@ function jpcrm_export_bulk_fetch_tags( $obj_type_id, $obj_ids ) {
 	$placeholders = implode( ',', array_fill( 0, count( $obj_ids ), '%d' ) );
 	$params       = array_merge( array( $obj_type_id ), $obj_ids );
 
-	$rows = $wpdb->get_results(
+	$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->prepare(
-			"SELECT tl.zbstl_objid AS obj_id, t.zbstag_name AS tag_name
-			 FROM {$ZBSCRM_t['taglinks']} tl
-			 INNER JOIN {$ZBSCRM_t['tags']} t ON t.ID = tl.zbstl_tagid
-			 WHERE tl.zbstl_objtype = %d AND tl.zbstl_objid IN ($placeholders)
-			 ORDER BY t.zbstag_name ASC",
+			"SELECT tl.zbstl_objid AS obj_id, t.zbstag_name AS tag_name FROM {$ZBSCRM_t['taglinks']} tlINNER JOIN {$ZBSCRM_t['tags']} t ON t.ID = tl.zbstl_tagid WHERE tl.zbstl_objtype = %d AND tl.zbstl_objid IN ($placeholders) ORDER BY t.zbstag_name ASC", // phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$params
 		)
 	);
