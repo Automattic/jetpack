@@ -53,6 +53,9 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$wp_rest_server = new \WP_REST_Server();
 		do_action( 'rest_api_init' );
 
+		// Registrar::init() is gated behind this filter (default false) for staged rollout.
+		add_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+
 		self::$user_id = wp_insert_user(
 			array(
 				'user_login' => 'test_admin',
@@ -67,6 +70,32 @@ class Forms_Abilities_Test extends BaseTestCase {
 				'user_login' => 'test_subscriber',
 				'user_pass'  => '123',
 				'role'       => 'subscriber',
+			)
+		);
+	}
+
+	/**
+	 * Tearing down the test.
+	 */
+	public function tearDown(): void {
+		remove_filter( 'jetpack_wp_abilities_enabled', '__return_true' );
+		parent::tearDown();
+	}
+
+	/**
+	 * Insert a Jetpack form post for fixture purposes.
+	 *
+	 * @param string $title   Post title.
+	 * @param string $content Post content (typically block markup).
+	 * @return int Inserted post ID.
+	 */
+	private static function make_form( string $title, string $content = '' ): int {
+		return (int) wp_insert_post(
+			array(
+				'post_type'    => Contact_Form::POST_TYPE,
+				'post_title'   => $title,
+				'post_content' => $content,
+				'post_status'  => 'publish',
 			)
 		);
 	}
@@ -351,13 +380,9 @@ class Forms_Abilities_Test extends BaseTestCase {
 	public function test_get_form_success() {
 		wp_set_current_user( self::$user_id );
 
-		$post_id = wp_insert_post(
-			array(
-				'post_type'    => 'jetpack_form',
-				'post_title'   => 'Test Form',
-				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-text {"label":"Name","required":true} /--><!-- /wp:jetpack/contact-form -->',
-				'post_status'  => 'publish',
-			)
+		$post_id = self::make_form(
+			'Test Form',
+			'<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-text {"label":"Name","required":true} /--><!-- /wp:jetpack/contact-form -->'
 		);
 
 		$result = Forms_Abilities::get_form( array( 'id' => $post_id ) );
@@ -443,14 +468,7 @@ class Forms_Abilities_Test extends BaseTestCase {
 	public function test_delete_form_success() {
 		wp_set_current_user( self::$user_id );
 
-		$post_id = wp_insert_post(
-			array(
-				'post_type'    => 'jetpack_form',
-				'post_title'   => 'Form to Delete',
-				'post_content' => '',
-				'post_status'  => 'publish',
-			)
-		);
+		$post_id = self::make_form( 'Form to Delete' );
 
 		$result = Forms_Abilities::delete_form( array( 'id' => $post_id ) );
 

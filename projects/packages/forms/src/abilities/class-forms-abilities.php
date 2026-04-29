@@ -12,6 +12,8 @@
 
 namespace Automattic\Jetpack\Forms\Abilities;
 
+use Automattic\Jetpack\WP_Abilities\Registrar;
+
 /**
  * Class Forms_Abilities
  *
@@ -19,471 +21,437 @@ namespace Automattic\Jetpack\Forms\Abilities;
  * Ability callbacks delegate to REST endpoints via rest_do_request()
  * so they inherit endpoint validation, sanitization, and hooks.
  */
-class Forms_Abilities {
+class Forms_Abilities extends Registrar {
 
-	/**
-	 * The category slug for forms abilities.
-	 *
-	 * @var string
-	 */
 	const CATEGORY_SLUG = 'jetpack-forms';
 
 	/**
-	 * Initialize the abilities registration.
-	 *
-	 * @return void
+	 * Form post statuses accepted by list-forms.
 	 */
-	public static function init() {
-		// Register category.
-		if ( did_action( 'wp_abilities_api_categories_init' ) ) {
-			self::register_category();
-		} else {
-			add_action( 'wp_abilities_api_categories_init', array( __CLASS__, 'register_category' ) );
-		}
+	const FORM_STATUSES = array( 'publish', 'draft', 'trash' );
 
-		// Register abilities.
-		if ( did_action( 'wp_abilities_api_init' ) ) {
-			self::register_abilities();
-		} else {
-			add_action( 'wp_abilities_api_init', array( __CLASS__, 'register_abilities' ) );
-		}
+	/**
+	 * Form post statuses accepted by create-form.
+	 */
+	const CREATE_FORM_STATUSES = array( 'publish', 'draft' );
+
+	/**
+	 * Response post statuses accepted by get-responses / update-response.
+	 */
+	const RESPONSE_STATUSES = array( 'publish', 'draft', 'spam', 'trash' );
+
+	/**
+	 * Bulk actions accepted by bulk-update-responses.
+	 */
+	const BULK_ACTIONS = array( 'mark_as_spam', 'mark_as_not_spam' );
+
+	/**
+	 * Default block content used when create-form is called without `content`.
+	 */
+	const DEFAULT_FORM_CONTENT = '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/button {"element":"button","text":"Submit","lock":{"remove":true}} /--><!-- /wp:jetpack/contact-form -->';
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function get_category_slug(): string {
+		return self::CATEGORY_SLUG;
 	}
 
 	/**
-	 * Register the Jetpack Forms ability category.
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
-	public static function register_category() {
-		if ( ! function_exists( 'wp_register_ability_category' ) ) {
-			return;
-		}
-
-		wp_register_ability_category(
-			self::CATEGORY_SLUG,
-			array(
-				// "Jetpack Forms" is a product name and should not be translated.
-				'label'       => 'Jetpack Forms',
-				'description' => __( 'Abilities for managing Jetpack Forms and their responses.', 'jetpack-forms' ),
-			)
+	public static function get_category_definition(): array {
+		return array(
+			// "Jetpack Forms" is a product name and should not be translated.
+			'label'       => 'Jetpack Forms',
+			'description' => __( 'Abilities for managing Jetpack Forms and their responses.', 'jetpack-forms' ),
 		);
 	}
 
 	/**
-	 * Register all Jetpack Forms abilities.
-	 *
-	 * @return void
+	 * {@inheritDoc}
 	 */
-	public static function register_abilities() {
-		if ( ! function_exists( 'wp_register_ability' ) ) {
-			return;
-		}
-
-		self::register_list_forms_ability();
-		self::register_get_form_ability();
-		self::register_create_form_ability();
-		self::register_delete_form_ability();
-		self::register_get_responses_ability();
-		self::register_update_response_ability();
-		self::register_bulk_update_responses_ability();
-		self::register_get_status_counts_ability();
+	public static function get_abilities(): array {
+		return array(
+			'jetpack-forms/list-forms'            => self::spec_list_forms(),
+			'jetpack-forms/get-form'              => self::spec_get_form(),
+			'jetpack-forms/create-form'           => self::spec_create_form(),
+			'jetpack-forms/delete-form'           => self::spec_delete_form(),
+			'jetpack-forms/get-responses'         => self::spec_get_responses(),
+			'jetpack-forms/update-response'       => self::spec_update_response(),
+			'jetpack-forms/bulk-update-responses' => self::spec_bulk_update_responses(),
+			'jetpack-forms/get-status-counts'     => self::spec_get_status_counts(),
+		);
 	}
 
-	/**
-	 * Register ability to list forms with admin-level detail.
-	 *
-	 * @return void
+	/*
+	---------------------------------------------------------------------
+	 * Ability specs
+	 * ---------------------------------------------------------------------
 	 */
-	private static function register_list_forms_ability() {
-		wp_register_ability(
-			'jetpack-forms/list-forms',
-			array(
-				'label'               => __( 'List forms (admin)', 'jetpack-forms' ),
-				'description'         => __( 'List all forms with admin detail including response counts, status, and edit URLs. Supports pagination, search, and status filtering.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'default'              => array(),
-					'properties'           => array(
-						'page'     => array(
-							'type'        => 'integer',
-							'description' => __( 'Page number for paginated results.', 'jetpack-forms' ),
-							'default'     => 1,
-						),
-						'per_page' => array(
-							'type'        => 'integer',
-							'description' => __( 'Number of forms per page (max 100).', 'jetpack-forms' ),
-							'default'     => 10,
-						),
-						'search'   => array(
-							'type'        => 'string',
-							'description' => __( 'Search forms by title.', 'jetpack-forms' ),
-						),
-						'status'   => array(
-							'type'        => 'string',
-							'description' => __( 'Filter by form status.', 'jetpack-forms' ),
-							'enum'        => array( 'publish', 'draft', 'trash' ),
-						),
+
+	/**
+	 * Spec: jetpack-forms/list-forms.
+	 */
+	private static function spec_list_forms(): array {
+		return array(
+			'label'               => __( 'List forms (admin)', 'jetpack-forms' ),
+			'description'         => __( 'List all forms with admin detail including response counts, status, and edit URLs. Supports pagination, search, and status filtering.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(
+					'page'     => array(
+						'type'        => 'integer',
+						'description' => __( 'Page number for paginated results.', 'jetpack-forms' ),
+						'default'     => 1,
+						'minimum'     => 1,
 					),
-					'additionalProperties' => false,
-				),
-				'execute_callback'    => array( __CLASS__, 'list_forms' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => true,
-						'destructive' => false,
-						'idempotent'  => true,
+					'per_page' => array(
+						'type'        => 'integer',
+						'description' => __( 'Number of forms per page.', 'jetpack-forms' ),
+						'default'     => 10,
+						'minimum'     => 1,
+						'maximum'     => 100,
 					),
-					'show_in_rest' => true,
+					'search'   => array(
+						'type'        => 'string',
+						'description' => __( 'Search forms by title.', 'jetpack-forms' ),
+					),
+					'status'   => array(
+						'type'        => 'string',
+						'description' => __( 'Filter by form status.', 'jetpack-forms' ),
+						'enum'        => self::FORM_STATUSES,
+					),
 				),
-			)
+				'additionalProperties' => false,
+			),
+			'execute_callback'    => array( __CLASS__, 'list_forms' ),
+			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'show_in_rest' => true,
+			),
 		);
 	}
 
 	/**
-	 * Register ability to get a single form's full details.
-	 *
-	 * @return void
+	 * Spec: jetpack-forms/get-form.
 	 */
-	private static function register_get_form_ability() {
-		wp_register_ability(
-			'jetpack-forms/get-form',
-			array(
-				'label'               => __( 'Get form details', 'jetpack-forms' ),
-				'description'         => __( 'Get a single form with its full structure including field definitions, status, and edit URL.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'required'             => array( 'id' ),
-					'properties'           => array(
-						'id' => array(
-							'type'        => 'integer',
-							'description' => __( 'The form ID.', 'jetpack-forms' ),
-						),
+	private static function spec_get_form(): array {
+		return array(
+			'label'               => __( 'Get form details', 'jetpack-forms' ),
+			'description'         => __( 'Get a single form with its full structure including field definitions, status, and edit URL.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'required'             => array( 'id' ),
+				'properties'           => array(
+					'id' => array(
+						'type'        => 'integer',
+						'description' => __( 'The form ID.', 'jetpack-forms' ),
 					),
-					'additionalProperties' => false,
 				),
-				'execute_callback'    => array( __CLASS__, 'get_form' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => true,
-						'destructive' => false,
-						'idempotent'  => true,
-					),
-					'show_in_rest' => true,
+				'additionalProperties' => false,
+			),
+			'execute_callback'    => array( __CLASS__, 'get_form' ),
+			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
 				),
-			)
+				'show_in_rest' => true,
+			),
 		);
 	}
 
 	/**
-	 * Register ability to create a new form.
-	 *
-	 * @return void
+	 * Spec: jetpack-forms/create-form.
 	 */
-	private static function register_create_form_ability() {
-		wp_register_ability(
-			'jetpack-forms/create-form',
-			array(
-				'label'               => __( 'Create a form', 'jetpack-forms' ),
-				'description'         => __( 'Create a new form with a title. Optionally provide block content for the form structure. Returns the new form ID and edit URL.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'required'             => array( 'title' ),
-					'properties'           => array(
-						'title'   => array(
-							'type'        => 'string',
-							'description' => __( 'The form title/name.', 'jetpack-forms' ),
-						),
-						'content' => array(
-							'type'        => 'string',
-							'description' => __( 'Block content for the form structure. If omitted, creates an empty form with a submit button.', 'jetpack-forms' ),
-						),
-						'status'  => array(
-							'type'        => 'string',
-							'description' => __( 'Initial form status.', 'jetpack-forms' ),
-							'enum'        => array( 'publish', 'draft' ),
-							'default'     => 'publish',
-						),
+	private static function spec_create_form(): array {
+		return array(
+			'label'               => __( 'Create a form', 'jetpack-forms' ),
+			'description'         => __( 'Create a new form with a title. Optionally provide block content for the form structure. Returns the new form ID and edit URL.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'required'             => array( 'title' ),
+				'properties'           => array(
+					'title'   => array(
+						'type'        => 'string',
+						'description' => __( 'The form title/name.', 'jetpack-forms' ),
 					),
-					'additionalProperties' => false,
-				),
-				'execute_callback'    => array( __CLASS__, 'create_form' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => false,
-						'destructive' => false,
-						'idempotent'  => false,
+					'content' => array(
+						'type'        => 'string',
+						'description' => __( 'Block content for the form structure. If omitted, creates an empty form with a submit button.', 'jetpack-forms' ),
 					),
-					'show_in_rest' => true,
+					'status'  => array(
+						'type'        => 'string',
+						'description' => __( 'Initial form status.', 'jetpack-forms' ),
+						'enum'        => self::CREATE_FORM_STATUSES,
+						'default'     => 'publish',
+					),
 				),
-			)
+				'additionalProperties' => false,
+			),
+			'execute_callback'    => array( __CLASS__, 'create_form' ),
+			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => false,
+				),
+				'show_in_rest' => true,
+			),
 		);
 	}
 
 	/**
-	 * Register ability to delete a form.
-	 *
-	 * @return void
+	 * Spec: jetpack-forms/delete-form.
 	 */
-	private static function register_delete_form_ability() {
-		wp_register_ability(
-			'jetpack-forms/delete-form',
-			array(
-				'label'               => __( 'Delete a form', 'jetpack-forms' ),
-				'description'         => __( 'Move a form to the trash. Does not permanently delete. Trashed forms can be restored.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'required'             => array( 'id' ),
-					'properties'           => array(
-						'id' => array(
-							'type'        => 'integer',
-							'description' => __( 'The form ID to delete.', 'jetpack-forms' ),
-						),
+	private static function spec_delete_form(): array {
+		return array(
+			'label'               => __( 'Delete a form', 'jetpack-forms' ),
+			'description'         => __( 'Move a form to the trash. Does not permanently delete. Trashed forms can be restored.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'required'             => array( 'id' ),
+				'properties'           => array(
+					'id' => array(
+						'type'        => 'integer',
+						'description' => __( 'The form ID to delete.', 'jetpack-forms' ),
 					),
-					'additionalProperties' => false,
 				),
-				'execute_callback'    => array( __CLASS__, 'delete_form' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => false,
-						'destructive' => true,
-						'idempotent'  => true,
-					),
-					'show_in_rest' => true,
+				'additionalProperties' => false,
+			),
+			'execute_callback'    => array( __CLASS__, 'delete_form' ),
+			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => false,
+					'destructive' => true,
+					'idempotent'  => true,
 				),
-			)
+				'show_in_rest' => true,
+			),
 		);
 	}
 
 	/**
-	 * Register ability to get form responses.
-	 *
-	 * @return void
+	 * Spec: jetpack-forms/get-responses.
 	 */
-	private static function register_get_responses_ability() {
-		wp_register_ability(
-			'jetpack-forms/get-responses',
-			array(
-				'label'               => __( 'Get form responses', 'jetpack-forms' ),
-				'description'         => __( 'List or search form responses. Returns response data including sender info, form fields, and metadata. Supports filtering by status, date range, read state, and search terms.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'default'              => array(),
-					'properties'           => array(
-						'ids'       => array(
-							'type'        => 'array',
-							'description' => __( 'Fetch specific responses by their IDs.', 'jetpack-forms' ),
-							'items'       => array( 'type' => 'integer' ),
-						),
-						'page'      => array(
-							'type'        => 'integer',
-							'description' => __( 'Page number for paginated results.', 'jetpack-forms' ),
-							'default'     => 1,
-						),
-						'per_page'  => array(
-							'type'        => 'integer',
-							'description' => __( 'Number of responses to return per page (max 100).', 'jetpack-forms' ),
-							'default'     => 10,
-						),
-						'parent'    => array(
-							'type'        => 'array',
-							'description' => __( 'Filter by the page or post ID where the form is embedded.', 'jetpack-forms' ),
-							'items'       => array( 'type' => 'integer' ),
-						),
-						'status'    => array(
-							'type'        => 'string',
-							'description' => __( 'Filter by response status.', 'jetpack-forms' ),
-							'enum'        => array( 'publish', 'draft', 'spam', 'trash' ),
-						),
-						'is_unread' => array(
-							'type'        => 'boolean',
-							'description' => __( 'Set true for unread only, false for read only.', 'jetpack-forms' ),
-						),
-						'search'    => array(
-							'type'        => 'string',
-							'description' => __( 'Search within response content and sender info.', 'jetpack-forms' ),
-						),
-						'before'    => array(
-							'type'        => 'string',
-							'description' => __( 'Only responses before this date (ISO8601 format).', 'jetpack-forms' ),
-							'format'      => 'date-time',
-						),
-						'after'     => array(
-							'type'        => 'string',
-							'description' => __( 'Only responses after this date (ISO8601 format).', 'jetpack-forms' ),
-							'format'      => 'date-time',
-						),
+	private static function spec_get_responses(): array {
+		return array(
+			'label'               => __( 'Get form responses', 'jetpack-forms' ),
+			'description'         => __( 'List or search form responses. Returns response data including sender info, form fields, and metadata. Supports filtering by status, date range, read state, and search terms.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(
+					'ids'       => array(
+						'type'        => 'array',
+						'description' => __( 'Fetch specific responses by their IDs.', 'jetpack-forms' ),
+						'items'       => array( 'type' => 'integer' ),
 					),
-					'additionalProperties' => false,
-				),
-				'execute_callback'    => array( __CLASS__, 'get_form_responses' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => true,
-						'destructive' => false,
-						'idempotent'  => true,
+					'page'      => array(
+						'type'        => 'integer',
+						'description' => __( 'Page number for paginated results.', 'jetpack-forms' ),
+						'default'     => 1,
+						'minimum'     => 1,
 					),
-					'show_in_rest' => true,
+					'per_page'  => array(
+						'type'        => 'integer',
+						'description' => __( 'Number of responses to return per page.', 'jetpack-forms' ),
+						'default'     => 10,
+						'minimum'     => 1,
+						'maximum'     => 100,
+					),
+					'parent'    => array(
+						'type'        => 'array',
+						'description' => __( 'Filter by the page or post ID where the form is embedded.', 'jetpack-forms' ),
+						'items'       => array( 'type' => 'integer' ),
+					),
+					'status'    => array(
+						'type'        => 'string',
+						'description' => __( 'Filter by response status.', 'jetpack-forms' ),
+						'enum'        => self::RESPONSE_STATUSES,
+					),
+					'is_unread' => array(
+						'type'        => 'boolean',
+						'description' => __( 'Set true for unread only, false for read only.', 'jetpack-forms' ),
+					),
+					'search'    => array(
+						'type'        => 'string',
+						'description' => __( 'Search within response content and sender info.', 'jetpack-forms' ),
+					),
+					'before'    => array(
+						'type'        => 'string',
+						'description' => __( 'Only responses before this date (ISO8601 format).', 'jetpack-forms' ),
+						'format'      => 'date-time',
+					),
+					'after'     => array(
+						'type'        => 'string',
+						'description' => __( 'Only responses after this date (ISO8601 format).', 'jetpack-forms' ),
+						'format'      => 'date-time',
+					),
 				),
-			)
+				'additionalProperties' => false,
+			),
+			'execute_callback'    => array( __CLASS__, 'get_form_responses' ),
+			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'show_in_rest' => true,
+			),
 		);
 	}
 
 	/**
-	 * Register ability to update a form response.
-	 *
-	 * @return void
+	 * Spec: jetpack-forms/update-response.
 	 */
-	private static function register_update_response_ability() {
-		wp_register_ability(
-			'jetpack-forms/update-response',
-			array(
-				'label'               => __( 'Update form response', 'jetpack-forms' ),
-				'description'         => __( 'Modify a form response. Use to mark as spam, move to trash, restore from trash, or toggle read/unread state.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'required'             => array( 'id' ),
-					'properties'           => array(
-						'id'        => array(
-							'type'        => 'integer',
-							'description' => __( 'The response ID to update.', 'jetpack-forms' ),
-						),
-						'status'    => array(
-							'type'        => 'string',
-							'description' => __( 'New status: "publish" (restore), "spam" (mark spam), "trash" (soft delete).', 'jetpack-forms' ),
-							'enum'        => array( 'publish', 'draft', 'spam', 'trash' ),
-						),
-						'is_unread' => array(
-							'type'        => 'boolean',
-							'description' => __( 'Set false to mark as read, true to mark as unread.', 'jetpack-forms' ),
-						),
+	private static function spec_update_response(): array {
+		return array(
+			'label'               => __( 'Update form response', 'jetpack-forms' ),
+			'description'         => __( 'Modify a form response. Use to mark as spam, move to trash, restore from trash, or toggle read/unread state.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'required'             => array( 'id' ),
+				'properties'           => array(
+					'id'        => array(
+						'type'        => 'integer',
+						'description' => __( 'The response ID to update.', 'jetpack-forms' ),
 					),
-					'additionalProperties' => false,
-				),
-				'execute_callback'    => array( __CLASS__, 'update_form_response' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => false,
-						'destructive' => false,
-						'idempotent'  => true,
+					'status'    => array(
+						'type'        => 'string',
+						'description' => __( 'New status: "publish" (restore), "spam" (mark spam), "trash" (soft delete).', 'jetpack-forms' ),
+						'enum'        => self::RESPONSE_STATUSES,
 					),
-					'show_in_rest' => true,
+					'is_unread' => array(
+						'type'        => 'boolean',
+						'description' => __( 'Set false to mark as read, true to mark as unread.', 'jetpack-forms' ),
+					),
 				),
-			)
+				'additionalProperties' => false,
+			),
+			'execute_callback'    => array( __CLASS__, 'update_form_response' ),
+			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'show_in_rest' => true,
+			),
 		);
 	}
 
 	/**
-	 * Register ability to bulk-update form responses.
-	 *
-	 * @return void
+	 * Spec: jetpack-forms/bulk-update-responses.
 	 */
-	private static function register_bulk_update_responses_ability() {
-		wp_register_ability(
-			'jetpack-forms/bulk-update-responses',
-			array(
-				'label'               => __( 'Bulk update form responses', 'jetpack-forms' ),
-				'description'         => __( 'Mark multiple responses as spam or not-spam in a single operation.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'required'             => array( 'action', 'ids' ),
-					'properties'           => array(
-						'action' => array(
-							'type'        => 'string',
-							'description' => __( 'The bulk action to perform.', 'jetpack-forms' ),
-							'enum'        => array( 'mark_as_spam', 'mark_as_not_spam' ),
-						),
-						'ids'    => array(
-							'type'        => 'array',
-							'description' => __( 'Response IDs to update.', 'jetpack-forms' ),
-							'items'       => array( 'type' => 'integer' ),
-						),
+	private static function spec_bulk_update_responses(): array {
+		return array(
+			'label'               => __( 'Bulk update form responses', 'jetpack-forms' ),
+			'description'         => __( 'Mark multiple responses as spam or not-spam in a single operation.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'required'             => array( 'action', 'ids' ),
+				'properties'           => array(
+					'action' => array(
+						'type'        => 'string',
+						'description' => __( 'The bulk action to perform.', 'jetpack-forms' ),
+						'enum'        => self::BULK_ACTIONS,
 					),
-					'additionalProperties' => false,
-				),
-				'execute_callback'    => array( __CLASS__, 'bulk_update_responses' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => false,
-						'destructive' => false,
-						'idempotent'  => true,
+					'ids'    => array(
+						'type'        => 'array',
+						'description' => __( 'Response IDs to update.', 'jetpack-forms' ),
+						'items'       => array( 'type' => 'integer' ),
+						'minItems'    => 1,
 					),
-					'show_in_rest' => true,
 				),
-			)
+				'additionalProperties' => false,
+			),
+			'execute_callback'    => array( __CLASS__, 'bulk_update_responses' ),
+			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => false,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'show_in_rest' => true,
+			),
 		);
 	}
 
 	/**
-	 * Register ability to get status counts.
-	 *
-	 * @return void
+	 * Spec: jetpack-forms/get-status-counts.
 	 */
-	private static function register_get_status_counts_ability() {
-		wp_register_ability(
-			'jetpack-forms/get-status-counts',
-			array(
-				'label'               => __( 'Get response status counts', 'jetpack-forms' ),
-				'description'         => __( 'Get a summary of form responses grouped by status. Returns counts for inbox (active), spam, and trash. Useful for dashboard stats or checking if there are new responses.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'default'              => array(),
-					'properties'           => array(
-						'search'    => array(
-							'type'        => 'string',
-							'description' => __( 'Only count responses matching this search term.', 'jetpack-forms' ),
-						),
-						'parent'    => array(
-							'type'        => 'integer',
-							'description' => __( 'Only count responses from a specific page or post.', 'jetpack-forms' ),
-						),
-						'before'    => array(
-							'type'        => 'string',
-							'description' => __( 'Only count responses before this date (ISO8601 format).', 'jetpack-forms' ),
-							'format'      => 'date-time',
-						),
-						'after'     => array(
-							'type'        => 'string',
-							'description' => __( 'Only count responses after this date (ISO8601 format).', 'jetpack-forms' ),
-							'format'      => 'date-time',
-						),
-						'is_unread' => array(
-							'type'        => 'boolean',
-							'description' => __( 'Set true to count only unread, false for only read.', 'jetpack-forms' ),
-						),
+	private static function spec_get_status_counts(): array {
+		return array(
+			'label'               => __( 'Get response status counts', 'jetpack-forms' ),
+			'description'         => __( 'Get a summary of form responses grouped by status. Returns counts for inbox (active), spam, and trash. Useful for dashboard stats or checking if there are new responses.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(
+					'search'    => array(
+						'type'        => 'string',
+						'description' => __( 'Only count responses matching this search term.', 'jetpack-forms' ),
 					),
-					'additionalProperties' => false,
-				),
-				'execute_callback'    => array( __CLASS__, 'get_status_counts' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => true,
-						'destructive' => false,
-						'idempotent'  => true,
+					'parent'    => array(
+						'type'        => 'integer',
+						'description' => __( 'Only count responses from a specific page or post.', 'jetpack-forms' ),
 					),
-					'show_in_rest' => true,
+					'before'    => array(
+						'type'        => 'string',
+						'description' => __( 'Only count responses before this date (ISO8601 format).', 'jetpack-forms' ),
+						'format'      => 'date-time',
+					),
+					'after'     => array(
+						'type'        => 'string',
+						'description' => __( 'Only count responses after this date (ISO8601 format).', 'jetpack-forms' ),
+						'format'      => 'date-time',
+					),
+					'is_unread' => array(
+						'type'        => 'boolean',
+						'description' => __( 'Set true to count only unread, false for only read.', 'jetpack-forms' ),
+					),
 				),
-			)
+				'additionalProperties' => false,
+			),
+			'execute_callback'    => array( __CLASS__, 'get_status_counts' ),
+			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'show_in_rest' => true,
+			),
 		);
 	}
 
+	/*
+	---------------------------------------------------------------------
+	 * Permission callbacks
+	 * ---------------------------------------------------------------------
+	 */
+
 	/**
-	 * Check if user can edit pages.
+	 * Permission callback shared by every Forms ability. The delegated REST
+	 * controller re-checks the user's edit permission per-route, so this is
+	 * a coarse early-rejection gate, not the authoritative authorization.
 	 *
 	 * @return bool
 	 */
@@ -491,50 +459,37 @@ class Forms_Abilities {
 		return current_user_can( 'edit_pages' );
 	}
 
-	/**
-	 * Dispatch an internal REST request and return its data or WP_Error.
-	 *
-	 * @param \WP_REST_Request $request The REST request to dispatch.
-	 * @return array|\WP_Error Response data array, or WP_Error on failure.
+	/*
+	---------------------------------------------------------------------
+	 * Execute callbacks
+	 * ---------------------------------------------------------------------
 	 */
-	private static function dispatch( $request ) {
-		$response = rest_do_request( $request );
-
-		if ( $response->is_error() ) {
-			return $response->as_error();
-		}
-
-		return $response->get_data();
-	}
 
 	/**
-	 * List forms with admin-level detail callback.
+	 * Execute: list-forms.
 	 *
-	 * Delegates to GET /wp/v2/jetpack-forms with dashboard context,
-	 * then reshapes to a compact format for AI consumption.
+	 * Delegates to GET /wp/v2/jetpack-forms with dashboard context, then
+	 * reshapes to a compact format for AI consumption.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns array of forms with admin detail.
+	 * @return array|\WP_Error
 	 */
 	public static function list_forms( $args = array() ) {
 		$args    = is_array( $args ) ? $args : array();
 		$request = new \WP_REST_Request( 'GET', '/wp/v2/jetpack-forms' );
-
 		$request->set_param( 'jetpack_forms_context', 'dashboard' );
-
-		foreach ( array( 'page', 'per_page', 'search', 'status' ) as $key ) {
-			if ( isset( $args[ $key ] ) ) {
-				$request->set_param( $key, $args[ $key ] );
-			}
-		}
+		self::set_params_from_args( $request, $args, array( 'page', 'per_page', 'search', 'status' ) );
 
 		$data = self::dispatch( $request );
 		if ( is_wp_error( $data ) ) {
 			return $data;
 		}
 
+		if ( ! is_array( $data ) ) {
+			return array();
+		}
+
 		$result = array();
-		'@phan-var array[] $data'; // Phan doesn't narrow after is_wp_error + return.
 		foreach ( $data as $form ) {
 			$result[] = array(
 				'id'            => $form['id'],
@@ -551,13 +506,14 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Get a single form's full details callback.
+	 * Execute: get-form.
 	 *
-	 * Delegates to GET /wp/v2/jetpack-forms/{id} for the base data,
-	 * then enriches with extracted field definitions from block content.
+	 * Delegates to GET /wp/v2/jetpack-forms/{id} with `context=edit` so the
+	 * raw block content comes back in the response — no second `get_post()`
+	 * fetch needed.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns form data with fields, or WP_Error.
+	 * @return array|\WP_Error
 	 */
 	public static function get_form( $args ) {
 		if ( ! isset( $args['id'] ) ) {
@@ -572,14 +528,13 @@ class Forms_Abilities {
 			return $data;
 		}
 
-		$post   = get_post( absint( $args['id'] ) );
-		$fields = $post ? self::extract_fields_from_post( $post ) : array();
+		$raw_content = $data['content']['raw'] ?? '';
 
 		return array(
 			'id'       => $data['id'],
 			'title'    => $data['title']['raw'] ?? $data['title']['rendered'] ?? '',
 			'status'   => $data['status'],
-			'fields'   => $fields,
+			'fields'   => self::extract_fields_from_content( $raw_content ),
 			'date'     => $data['date'],
 			'modified' => $data['modified'],
 			'edit_url' => $data['link'] ?? get_edit_post_link( $data['id'], 'raw' ),
@@ -587,13 +542,10 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Create a new form callback.
-	 *
-	 * Delegates to POST /wp/v2/jetpack-forms, which handles
-	 * sanitization, validation, and all insert hooks.
+	 * Execute: create-form.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns new form data or WP_Error.
+	 * @return array|\WP_Error
 	 */
 	public static function create_form( $args ) {
 		if ( empty( $args['title'] ) ) {
@@ -602,7 +554,7 @@ class Forms_Abilities {
 
 		$content = $args['content'] ?? '';
 		if ( '' === $content ) {
-			$content = '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/button {"element":"button","text":"Submit","lock":{"remove":true}} /--><!-- /wp:jetpack/contact-form -->';
+			$content = self::DEFAULT_FORM_CONTENT;
 		}
 
 		$request = new \WP_REST_Request( 'POST', '/wp/v2/jetpack-forms' );
@@ -621,20 +573,17 @@ class Forms_Abilities {
 
 		return array(
 			'id'       => $data['id'],
-			'title'    => $data['title']['rendered'] ?? $data['title']['raw'] ?? '',
+			'title'    => $data['title']['raw'] ?? $data['title']['rendered'] ?? '',
 			'status'   => $data['status'],
 			'edit_url' => get_edit_post_link( $data['id'], 'raw' ),
 		);
 	}
 
 	/**
-	 * Delete (trash) a form callback.
-	 *
-	 * Delegates to DELETE /wp/v2/jetpack-forms/{id}, which handles
-	 * permission checks and trash logic.
+	 * Execute: delete-form.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns deletion result or WP_Error.
+	 * @return array|\WP_Error
 	 */
 	public static function delete_form( $args ) {
 		if ( ! isset( $args['id'] ) ) {
@@ -656,22 +605,15 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Get form responses callback.
-	 *
-	 * Delegates to GET /wp/v2/feedback.
+	 * Execute: get-responses.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns array of responses or WP_Error on failure.
+	 * @return array|\WP_Error
 	 */
 	public static function get_form_responses( $args = array() ) {
 		$args    = is_array( $args ) ? $args : array();
 		$request = new \WP_REST_Request( 'GET', '/wp/v2/feedback' );
-
-		foreach ( array( 'page', 'per_page', 'parent', 'status', 'is_unread', 'search', 'before', 'after' ) as $key ) {
-			if ( isset( $args[ $key ] ) ) {
-				$request->set_param( $key, $args[ $key ] );
-			}
-		}
+		self::set_params_from_args( $request, $args, array( 'page', 'per_page', 'parent', 'status', 'is_unread', 'search', 'before', 'after' ) );
 
 		if ( isset( $args['ids'] ) && is_array( $args['ids'] ) ) {
 			$request->set_param( 'include', $args['ids'] );
@@ -681,13 +623,10 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Update form response callback.
-	 *
-	 * Delegates to POST /wp/v2/feedback/{id} for status changes
-	 * and POST /wp/v2/feedback/{id}/read for read state changes.
+	 * Execute: update-response.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns updated response data or WP_Error on failure.
+	 * @return array|\WP_Error
 	 */
 	public static function update_form_response( $args ) {
 		if ( ! isset( $args['id'] ) ) {
@@ -700,7 +639,6 @@ class Forms_Abilities {
 		if ( isset( $args['status'] ) ) {
 			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $id );
 			$request->set_body_params( array( 'status' => $args['status'] ) );
-
 			$data = self::dispatch( $request );
 			if ( is_wp_error( $data ) ) {
 				return $data;
@@ -711,7 +649,6 @@ class Forms_Abilities {
 		if ( isset( $args['is_unread'] ) ) {
 			$request = new \WP_REST_Request( 'POST', '/wp/v2/feedback/' . $id . '/read' );
 			$request->set_body_params( array( 'is_unread' => $args['is_unread'] ) );
-
 			$data = self::dispatch( $request );
 			if ( is_wp_error( $data ) ) {
 				return $data;
@@ -723,12 +660,10 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Bulk update responses callback.
-	 *
-	 * Delegates to POST /wp/v2/feedback/bulk_actions.
+	 * Execute: bulk-update-responses.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns update result or WP_Error.
+	 * @return array|\WP_Error
 	 */
 	public static function bulk_update_responses( $args ) {
 		if ( empty( $args['action'] ) || empty( $args['ids'] ) || ! is_array( $args['ids'] ) ) {
@@ -747,77 +682,103 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Get status counts callback.
-	 *
-	 * Delegates to GET /wp/v2/feedback/counts.
+	 * Execute: get-status-counts.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns status counts or WP_Error on failure.
+	 * @return array|\WP_Error
 	 */
 	public static function get_status_counts( $args = array() ) {
 		$args    = is_array( $args ) ? $args : array();
 		$request = new \WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
-
-		foreach ( array( 'search', 'parent', 'before', 'after', 'is_unread' ) as $key ) {
-			if ( isset( $args[ $key ] ) ) {
-				$request->set_param( $key, $args[ $key ] );
-			}
-		}
+		self::set_params_from_args( $request, $args, array( 'search', 'parent', 'before', 'after', 'is_unread' ) );
 
 		return self::dispatch( $request );
 	}
 
-	/**
-	 * Extract field definitions from a form post's block content.
-	 *
-	 * @param \WP_Post $post The form post.
-	 * @return array Array of field definitions.
+	/*
+	---------------------------------------------------------------------
+	 * Helpers
+	 * ---------------------------------------------------------------------
 	 */
-	private static function extract_fields_from_post( $post ) {
-		$blocks = parse_blocks( $post->post_content );
+
+	/**
+	 * Dispatch an internal REST request and unwrap the response.
+	 *
+	 * @param \WP_REST_Request $request The REST request to dispatch.
+	 * @return array|\WP_Error Response data array, or WP_Error on failure.
+	 */
+	private static function dispatch( $request ) {
+		$response = rest_do_request( $request );
+		if ( $response->is_error() ) {
+			return $response->as_error();
+		}
+		return $response->get_data();
+	}
+
+	/**
+	 * Copy a whitelisted subset of `$args` onto a REST request as parameters.
+	 *
+	 * @param \WP_REST_Request $request Target request.
+	 * @param array            $args    Caller-supplied arguments.
+	 * @param array            $keys    Allowed keys to forward.
+	 */
+	private static function set_params_from_args( \WP_REST_Request $request, array $args, array $keys ): void {
+		foreach ( $keys as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				$request->set_param( $key, $args[ $key ] );
+			}
+		}
+	}
+
+	/**
+	 * Extract field definitions from raw block content.
+	 *
+	 * Walks `jetpack/field-*` blocks and projects each into a compact
+	 * `{ label, type, required, options?, placeholder? }` shape. Blocks
+	 * without a label are dropped — agents reference fields by label.
+	 *
+	 * @param string $raw_content Raw block content (typically `content.raw` from REST).
+	 * @return array
+	 */
+	private static function extract_fields_from_content( string $raw_content ): array {
+		if ( '' === $raw_content ) {
+			return array();
+		}
 		$fields = array();
-
-		self::extract_fields_from_blocks( $blocks, $fields );
-
+		self::collect_field_blocks( parse_blocks( $raw_content ), $fields );
 		return $fields;
 	}
 
 	/**
-	 * Recursively extract field definitions from blocks.
+	 * Recursively walk parsed blocks and append field definitions to `$fields`.
 	 *
-	 * @param array $blocks The blocks to process.
+	 * @param array $blocks Parsed blocks.
 	 * @param array $fields Reference to the fields array being built.
 	 */
-	private static function extract_fields_from_blocks( $blocks, &$fields ) {
+	private static function collect_field_blocks( array $blocks, array &$fields ): void {
 		foreach ( $blocks as $block ) {
 			if ( strpos( $block['blockName'] ?? '', 'jetpack/field-' ) === 0 ) {
 				$attrs = $block['attrs'] ?? array();
 				$label = $attrs['label'] ?? '';
-
-				// Skip fields without a label.
 				if ( '' === $label ) {
 					continue;
 				}
-
 				$field = array(
 					'label'    => $label,
 					'type'     => str_replace( 'jetpack/field-', '', $block['blockName'] ),
 					'required' => ! empty( $attrs['required'] ),
 				);
-
 				if ( ! empty( $attrs['options'] ) ) {
 					$field['options'] = $attrs['options'];
 				}
-
 				if ( ! empty( $attrs['placeholder'] ) ) {
 					$field['placeholder'] = $attrs['placeholder'];
 				}
-
 				$fields[] = $field;
 			}
 
 			if ( ! empty( $block['innerBlocks'] ) ) {
-				self::extract_fields_from_blocks( $block['innerBlocks'], $fields );
+				self::collect_field_blocks( $block['innerBlocks'], $fields );
 			}
 		}
 	}
