@@ -85,15 +85,15 @@ export function resolveFilterFields( config ) {
 				bucketFormat: 'slash',
 			};
 		case 'wc_stock_status':
-			// WooCommerce indexes `_stock_status` as a string postmeta — values
-			// are `instock`, `outofstock`, `onbackorder`. The WPCOM ES schema
-			// exposes these as `meta._stock_status.value` for both filtering
-			// and aggregation.
-			return {
-				aggField: 'meta._stock_status.value',
-				filterField: 'meta._stock_status.value',
-				bucketFormat: 'plain',
-			};
+			// The WPCOM v1.3 search index doesn't expose the stock-status
+			// postmeta as a queryable field that's been verified working
+			// (`wc.stock_status` / `meta._stock_status.value` both return
+			// 400 from the API). Until a real field path is identified,
+			// return null so `buildAggregations` and `buildFilterClause`
+			// skip this filter — the bridge still renders the 3 hardcoded
+			// options for discoverability, but selections don't yet narrow
+			// the result set. Tracked as a follow-up.
+			return { aggField: null, filterField: null, bucketFormat: 'plain' };
 	}
 	return { aggField: null, filterField: null, bucketFormat: 'plain' };
 }

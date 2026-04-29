@@ -889,10 +889,21 @@ if ( typeof window !== 'undefined' ) {
 		] );
 		applyToFilterBlocks( scoped?.aggregations, unscoped?.aggregations, params );
 	};
+	/*
+	 * Defer the first hydrate via `requestAnimationFrame`. Module scripts
+	 * are deferred by default and typically execute before the
+	 * Interactivity runtime walks the DOM and binds `wp_interactivity_state`
+	 * seeds onto the store proxies — running hydrate() synchronously at
+	 * top-level reads `bridgeState.siteId` as undefined and short-circuits
+	 * the entire fetch path with no error. One animation frame is enough
+	 * for Interactivity to finish its initial walk; the popstate listener
+	 * picks up everything after that.
+	 */
+	const scheduleHydrate = () => requestAnimationFrame( () => hydrate() );
 	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', hydrate, { once: true } );
+		document.addEventListener( 'DOMContentLoaded', scheduleHydrate, { once: true } );
 	} else {
-		hydrate();
+		scheduleHydrate();
 	}
 	window.addEventListener( 'popstate', hydrate );
 }
