@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Link the Core Audio block to the host post URL instead of the raw audio file in newsletter emails.
