@@ -128,6 +128,16 @@ class Boost_Abilities_Test extends BaseTestCase {
 		}
 	}
 
+	public function test_every_spec_publishes_mcp_metadata(): void {
+		// Mirrors Jetpack's Modules_Abilities: every ability ships meta.mcp = { public, type }
+		// so the MCP server bridge can surface them as tools.
+		foreach ( Boost_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'mcp', $spec['meta'], "Ability {$slug} missing meta.mcp." );
+			$this->assertTrue( $spec['meta']['mcp']['public'], "Ability {$slug} must set mcp.public=true." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "Ability {$slug} must declare mcp.type=tool." );
+		}
+	}
+
 	public function test_write_abilities_are_marked_non_readonly(): void {
 		$abilities = Boost_Abilities::get_abilities();
 		$this->assertFalse( $abilities['jetpack-boost/set-module-status']['meta']['annotations']['readonly'] );
@@ -333,6 +343,8 @@ class Boost_Abilities_Test extends BaseTestCase {
 
 	public function test_set_module_status_rejects_non_boolean_active(): void {
 		// Regression guard: schema validation may not run in unit context; the callback must defend itself.
+		// Aligns with Jetpack's Modules_Abilities — non-bool gets `invalid_active`, distinct
+		// from the missing-key case so callers can disambiguate.
 		$result = Boost_Abilities::set_module_status(
 			array(
 				'slug'   => 'critical_css',
@@ -340,7 +352,7 @@ class Boost_Abilities_Test extends BaseTestCase {
 			)
 		);
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'jetpack_boost_missing_active', $result->get_error_code() );
+		$this->assertSame( 'jetpack_boost_invalid_active', $result->get_error_code() );
 	}
 
 	public function test_set_module_status_rejects_unknown_slug(): void {
@@ -368,6 +380,7 @@ class Boost_Abilities_Test extends BaseTestCase {
 			)
 		);
 		$this->assertIsArray( $first );
+		$this->assertSame( array( 'slug', 'active', 'changed' ), array_keys( $first ), 'Response shape must match Jetpack: { slug, active, changed }.' );
 		$this->assertTrue( $first['active'], 'Module should now be active.' );
 		$this->assertTrue( $first['changed'], 'First flip from inactive to active must report changed=true.' );
 
@@ -378,10 +391,40 @@ class Boost_Abilities_Test extends BaseTestCase {
 			)
 		);
 		$this->assertIsArray( $second );
+		$this->assertSame( array( 'slug', 'active', 'changed' ), array_keys( $second ) );
 		$this->assertTrue( $second['active'] );
 		$this->assertFalse( $second['changed'], 'Second call with the same desired state must be a no-op.' );
 
 		delete_option( $option_name );
+	}
+
+	public function test_set_module_status_returns_state_mismatch_when_filter_blocks_read(): void {
+		$slug        = 'speculation_rules';
+		$option_name = 'jetpack_boost_status_speculation-rules';
+
+		// Pre-seed inactive state so the `desired !== current` branch executes.
+		update_option( $option_name, false );
+
+		// Simulate a filter that masks the post-write read — the option write succeeds
+		// (update_option returns true because we changed false→true), but a `option_*`
+		// filter forces is_enabled() to keep reporting the old value.
+		$mask_read = static function () {
+			return false;
+		};
+		add_filter( "option_{$option_name}", $mask_read );
+
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => $slug,
+				'active' => true,
+			)
+		);
+
+		remove_filter( "option_{$option_name}", $mask_read );
+		delete_option( $option_name );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_module_state_mismatch', $result->get_error_code() );
 	}
 
 	public function test_set_module_status_returns_error_when_update_option_fails(): void {

@@ -105,12 +105,16 @@ class Boost_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 				),
 			),
 
 			'jetpack-boost/set-module-status' => array(
 				'label'               => __( 'Set Boost module status', 'jetpack-boost' ),
-				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed, available }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown slugs return jetpack_boost_invalid_slug; modules that exist but are not loadable on this site return jetpack_boost_module_unavailable — call jetpack-boost/get-modules to enumerate available slugs. Toggling a parent module also drives submodule lifecycle.', 'jetpack-boost' ),
+				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown slugs return jetpack_boost_invalid_slug; modules that exist but are not loadable on this site return jetpack_boost_module_unavailable — call jetpack-boost/get-modules to enumerate available slugs. Toggling a parent module also drives submodule lifecycle.', 'jetpack-boost' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'slug', 'active' ),
@@ -130,10 +134,9 @@ class Boost_Abilities extends Registrar {
 				'output_schema'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'slug'      => array( 'type' => 'string' ),
-						'active'    => array( 'type' => 'boolean' ),
-						'changed'   => array( 'type' => 'boolean' ),
-						'available' => array( 'type' => 'boolean' ),
+						'slug'    => array( 'type' => 'string' ),
+						'active'  => array( 'type' => 'boolean' ),
+						'changed' => array( 'type' => 'boolean' ),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'set_module_status' ),
@@ -145,6 +148,10 @@ class Boost_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 				),
 			),
 
@@ -176,6 +183,10 @@ class Boost_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 				),
 			),
 
@@ -204,6 +215,10 @@ class Boost_Abilities extends Registrar {
 						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
 				),
 			),
 		);
@@ -359,10 +374,16 @@ class Boost_Abilities extends Registrar {
 				__( 'A module slug is required. Call jetpack-boost/get-modules to enumerate available slugs.', 'jetpack-boost' )
 			);
 		}
-		if ( ! isset( $input['active'] ) || ! is_bool( $input['active'] ) ) {
+		if ( ! array_key_exists( 'active', $input ) ) {
 			return new \WP_Error(
 				'jetpack_boost_missing_active',
-				__( 'A boolean active state is required.', 'jetpack-boost' )
+				__( 'A desired active state (boolean) is required.', 'jetpack-boost' )
+			);
+		}
+		if ( ! is_bool( $input['active'] ) ) {
+			return new \WP_Error(
+				'jetpack_boost_invalid_active',
+				__( 'The active parameter must be a boolean. Strings like "true" / "false" are not accepted.', 'jetpack-boost' )
 			);
 		}
 
@@ -377,10 +398,9 @@ class Boost_Abilities extends Registrar {
 			);
 		}
 
-		$module    = $index[ $slug ];
-		$available = $module->is_available();
+		$module = $index[ $slug ];
 
-		if ( ! $available ) {
+		if ( ! $module->is_available() ) {
 			return new \WP_Error(
 				'jetpack_boost_module_unavailable',
 				__( 'This module is not available on this site (e.g. requires a connection or a paid plan).', 'jetpack-boost' )
@@ -390,10 +410,9 @@ class Boost_Abilities extends Registrar {
 		$current = $module->is_enabled();
 		if ( $desired === $current ) {
 			return array(
-				'slug'      => $slug,
-				'active'    => $current,
-				'changed'   => false,
-				'available' => true,
+				'slug'    => $slug,
+				'active'  => $current,
+				'changed' => false,
 			);
 		}
 
@@ -406,6 +425,17 @@ class Boost_Abilities extends Registrar {
 			return new \WP_Error(
 				'jetpack_boost_module_update_failed',
 				__( 'Failed to persist the module status. The previous state is unchanged.', 'jetpack-boost' )
+			);
+		}
+
+		// Re-check state: a `pre_update_option`/`option_*` filter could mask the stored
+		// value, so the response would otherwise lie about reaching the requested state.
+		// Mirrors the post-write verification in Jetpack's Modules_Abilities::set_module_status().
+		$actual = $module->is_enabled();
+		if ( $desired !== $actual ) {
+			return new \WP_Error(
+				'jetpack_boost_module_state_mismatch',
+				__( 'The module did not reach the requested state. A filter may have rejected the change.', 'jetpack-boost' )
 			);
 		}
 
@@ -422,10 +452,9 @@ class Boost_Abilities extends Registrar {
 		do_action( 'jetpack_boost_module_status_updated', $slug, $desired );
 
 		return array(
-			'slug'      => $slug,
-			'active'    => $desired,
-			'changed'   => true,
-			'available' => true,
+			'slug'    => $slug,
+			'active'  => $actual,
+			'changed' => true,
 		);
 	}
 
