@@ -36,8 +36,8 @@
 		// (white bg behind a white-on-white badge). Text inversion is done on
 		// the inner count span instead.
 		position: absolute;
-		top: 0;
-		right: 0;
+		inset-block-start: 0;
+		inset-inline-end: 0;
 		transform: translate(50%, -50%);
 		box-sizing: border-box;
 		min-width: 16px;
@@ -52,6 +52,10 @@
 		&[hidden] {
 			display: none;
 		}
+
+		:dir(rtl) & {
+			transform: translate(-50%, -50%);
+		}
 	}
 
 	&__badge-count {
@@ -60,8 +64,8 @@
 
 	&__panel {
 		position: absolute;
-		right: 0;
-		top: calc(100% + 4px);
+		inset-inline-end: 0;
+		inset-block-start: calc(100% + 4px);
 		min-width: 260px;
 		max-width: min(360px, 90vw);
 		z-index: 20;

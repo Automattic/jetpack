@@ -129,7 +129,7 @@
 
 	.jetpack-search-results__author::before {
 		content: "·";
-		margin-right: 0.75rem;
+		margin-inline-end: 0.75rem;
 		opacity: 0.6;
 	}
 }

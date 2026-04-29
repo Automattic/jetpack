@@ -144,8 +144,8 @@
 
 	.jetpack-search-sort__menu {
 		position: absolute;
-		right: 0;
-		top: calc(100% + 4px);
+		inset-inline-end: 0;
+		inset-block-start: calc(100% + 4px);
 		min-width: 160px;
 		z-index: 20;
 		display: flex;
@@ -173,7 +173,7 @@
 		background: transparent;
 		color: inherit;
 		padding: 6px 8px;
-		text-align: left;
+		text-align: start;
 		font: inherit;
 		border-radius: 2px;
 		cursor: pointer;
@@ -185,7 +185,7 @@
 
 		&[aria-checked="true"]::before {
 			content: "✓";
-			margin-right: 6px;
+			margin-inline-end: 6px;
 		}
 	}
 }
