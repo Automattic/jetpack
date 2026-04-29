@@ -359,8 +359,8 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 * @return array
 	 */
 	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null, $product_id = 0, $is_comp = false ) {
-		$product_id    = $product_id ? $product_id : $this->product_id;
-		$subscription  = array(
+		$product_id   = $product_id ? $product_id : $this->product_id;
+		$subscription = array(
 			'status'     => $status ? $status : 'active',
 			'end_date'   => $subscription_end_date ? $subscription_end_date : time() + HOUR_IN_SECONDS,
 			'product_id' => $product_id,
