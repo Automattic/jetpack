@@ -14,6 +14,7 @@ import {
 	Flex,
 	FlexItem,
 	PanelBody,
+	PanelRow,
 	TabPanel,
 	__experimentalDropdownContentWrapper as DropdownContentWrapper, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -244,35 +245,28 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		[ selectedAmountBackgroundColor, selectedAmountTextColor, set ]
 	);
 
-	const resetTabColors = useCallback( () => {
+	const noop = useCallback( () => {}, [] );
+
+	const resetAllTabs = useCallback( () => {
+		set.tabsAppearance( 'tabs' );
 		set.activeTabBackgroundColor();
 		set.activeTabTextColor();
 		set.inactiveTabBackgroundColor();
 		set.inactiveTabTextColor();
 		set.tabBorderColor();
-	}, [ set ] );
-
-	const resetAmountColors = useCallback( () => {
-		set.selectedAmountBackgroundColor();
-		set.selectedAmountTextColor();
-	}, [ set ] );
-
-	const resetTabAppearance = useCallback( () => {
-		set.tabsAppearance( 'tabs' );
-	}, [ set ] );
-
-	const resetTabDimensions = useCallback( () => {
 		set.tabFontSize();
 		set.tabPadding();
 	}, [ set ] );
 
-	const resetAmountSettings = useCallback( () => {
+	const resetAllAmounts = useCallback( () => {
+		set.selectedAmountBackgroundColor();
+		set.selectedAmountTextColor();
 		set.amountFontSize();
 		set.amountBorder();
 		set.amountBorderRadius();
 	}, [ set ] );
 
-	const resetButtonSettings = useCallback( () => {
+	const resetAllButton = useCallback( () => {
 		set.buttonFontSize();
 		set.buttonPadding();
 		set.buttonAlignment( '' );
@@ -322,7 +316,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 			>
 				<ToolsPanel
 					label={ __( 'Tab appearance', 'jetpack' ) }
-					resetAll={ resetTabAppearance }
+					resetAll={ noop }
 					headingLevel={ 3 }
 					__experimentalFirstVisibleItemClass="first"
 					__experimentalLastVisibleItemClass="last"
@@ -349,7 +343,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				<ToolsPanel
 					className="color-block-support-panel"
 					label={ __( 'Tab colors', 'jetpack' ) }
-					resetAll={ resetTabColors }
+					resetAll={ noop }
 					hasInnerWrapper
 					headingLevel={ 3 }
 					__experimentalFirstVisibleItemClass="first"
@@ -380,7 +374,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				/>
 				<ToolsPanel
 					label={ __( 'Tab dimensions', 'jetpack' ) }
-					resetAll={ resetTabDimensions }
+					resetAll={ noop }
 					headingLevel={ 3 }
 					__experimentalFirstVisibleItemClass="first"
 					__experimentalLastVisibleItemClass="last"
@@ -412,6 +406,11 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 						/>
 					</ToolsPanelItem>
 				</ToolsPanel>
+				<PanelRow>
+					<Button variant="secondary" onClick={ resetAllTabs }>
+						{ __( 'Reset', 'jetpack' ) }
+					</Button>
+				</PanelRow>
 			</PanelBody>
 			<PanelBody
 				title={ __( 'Amounts', 'jetpack' ) }
@@ -421,7 +420,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				<ToolsPanel
 					className="color-block-support-panel"
 					label={ __( 'Amount colors', 'jetpack' ) }
-					resetAll={ resetAmountColors }
+					resetAll={ noop }
 					hasInnerWrapper
 					headingLevel={ 3 }
 					__experimentalFirstVisibleItemClass="first"
@@ -440,7 +439,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				/>
 				<ToolsPanel
 					label={ __( 'Amount settings', 'jetpack' ) }
-					resetAll={ resetAmountSettings }
+					resetAll={ noop }
 					headingLevel={ 3 }
 					__experimentalFirstVisibleItemClass="first"
 					__experimentalLastVisibleItemClass="last"
@@ -485,6 +484,11 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 						/>
 					</ToolsPanelItem>
 				</ToolsPanel>
+				<PanelRow>
+					<Button variant="secondary" onClick={ resetAllAmounts }>
+						{ __( 'Reset', 'jetpack' ) }
+					</Button>
+				</PanelRow>
 			</PanelBody>
 			<PanelBody
 				title={ __( 'Donate button', 'jetpack' ) }
@@ -493,7 +497,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 			>
 				<ToolsPanel
 					label={ __( 'Button settings', 'jetpack' ) }
-					resetAll={ resetButtonSettings }
+					resetAll={ noop }
 					headingLevel={ 3 }
 					__experimentalFirstVisibleItemClass="first"
 					__experimentalLastVisibleItemClass="last"
@@ -545,6 +549,11 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 						</ToggleGroupControl>
 					</ToolsPanelItem>
 				</ToolsPanel>
+				<PanelRow>
+					<Button variant="secondary" onClick={ resetAllButton }>
+						{ __( 'Reset', 'jetpack' ) }
+					</Button>
+				</PanelRow>
 			</PanelBody>
 		</InspectorControls>
 	);
