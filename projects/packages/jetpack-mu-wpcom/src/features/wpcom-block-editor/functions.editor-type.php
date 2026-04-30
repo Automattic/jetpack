@@ -53,17 +53,26 @@ function remember_block_editor( $editor_settings, $post ) {
  * Write editor) can set it via the meta field in save requests. Follows the same
  * pattern used by other Jetpack meta keys (e.g. _jetpack_newsletter_access).
  */
-register_post_meta(
-	'post',
-	'_last_editor_used_jetpack',
-	array(
-		'show_in_rest'  => true,
-		'single'        => true,
-		'type'          => 'string',
-		'auth_callback' => function () {
-			return wp_get_current_user()->has_cap( 'edit_posts' );
-		},
-	)
+\add_action(
+	'init',
+	function () {
+		\register_post_meta(
+			'post',
+			'_last_editor_used_jetpack',
+			array(
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
+				'auth_callback'     => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'sanitize_callback' => function ( $value ) {
+					$allowed = array( 'classic-editor', 'block-editor', 'write-editor' );
+					return in_array( $value, $allowed, true ) ? $value : '';
+				},
+			)
+		);
+	}
 );
 
 /**

@@ -468,7 +468,7 @@ function wpcom_write_render_admin_page() {
 
 			// Track that this post was last edited in the Write editor,
 			// matching the pattern used by the block and classic editors.
-			update_post_meta( $edit_post_id, '_last_editor_used_jetpack', 'write-editor' );
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_editor( $edit_post_id, 'write-editor' );
 		} else {
 			$edit_post_id = 0;
 		}
