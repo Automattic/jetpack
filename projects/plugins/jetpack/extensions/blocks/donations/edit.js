@@ -2,7 +2,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ConnectBanner from '../../shared/components/connect-banner';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
@@ -22,12 +22,14 @@ import Tabs from './tabs';
 
 const Edit = props => {
 	const { attributes, setAttributes } = props;
-	const { currency } = attributes;
+	const { currency, tabsAppearance } = attributes;
 
 	const instanceId = useInstanceId( Edit, 'jp-donations' );
 	const customStyles = buildCustomStyles( attributes, `.${ instanceId }` );
 
-	const blockProps = useBlockProps( { className: instanceId } );
+	const wrapperClassName =
+		tabsAppearance === 'buttons' ? `${ instanceId } is-style-buttons` : instanceId;
+	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
 	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
@@ -191,7 +193,7 @@ const Edit = props => {
 	}
 
 	// When the first time modal is closed, update the user meta to mark the donation warning as dismissed
-	const handleModalClose = async () => {
+	const handleModalClose = useCallback( async () => {
 		setShowFirstTimeModal( false );
 
 		if ( ! currentUser?.id ) {
@@ -211,7 +213,7 @@ const Edit = props => {
 			// eslint-disable-next-line no-console
 			console.error( 'Failed to update user meta:', error );
 		}
-	};
+	}, [ currentUser, editEntityRecord, saveEditedEntityRecord ] );
 
 	return (
 		<div { ...blockProps }>
