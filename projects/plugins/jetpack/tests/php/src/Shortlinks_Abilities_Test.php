@@ -250,6 +250,18 @@ class Shortlinks_Abilities_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Stringy numeric ids (e.g. "123" from a query-string-encoded request) are coerced to ints.
+	 */
+	public function test_get_shortlinks_accepts_stringy_post_ids() {
+		wp_set_current_user( self::$admin_id );
+		$result = Shortlinks_Abilities::get_shortlinks( array( 'post_ids' => array( (string) self::$post_id ) ) );
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( self::$post_id, $result[0]['post_id'] );
+		$this->assertStringStartsWith( 'https://wp.me/', $result[0]['shortlink'] );
+	}
+
+	/**
 	 * The include_blog flag prepends a single homepage entry.
 	 */
 	public function test_get_shortlinks_with_include_blog_prepends_blog_entry() {

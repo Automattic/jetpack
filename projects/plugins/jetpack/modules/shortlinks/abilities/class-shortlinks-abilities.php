@@ -148,8 +148,9 @@ class Shortlinks_Abilities extends Registrar {
 		$post_ids = array();
 		if ( isset( $input['post_ids'] ) && is_array( $input['post_ids'] ) ) {
 			foreach ( $input['post_ids'] as $candidate ) {
-				if ( is_int( $candidate ) && $candidate > 0 ) {
-					$post_ids[] = $candidate;
+				$candidate_id = absint( $candidate );
+				if ( $candidate_id > 0 ) {
+					$post_ids[] = $candidate_id;
 				}
 			}
 		}
