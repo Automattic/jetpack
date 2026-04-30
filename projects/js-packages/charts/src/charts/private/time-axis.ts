@@ -10,7 +10,12 @@ const X_TICK_WIDTH = 60;
 // Resolve the visx curve generator for a given `curveType` / `smoothing`
 // combination. Shared by LineChart and AreaChart so the two render
 // identically when given the same props.
-export const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
+//
+// Explicit return type avoids a TS2742 portable-name error in the .d.ts
+// build: the inferred type traces back to `@types/d3-shape` (a transitive
+// dep), but `typeof curveLinear` resolves through `@visx/curve` which we
+// own directly.
+export const getCurveType = ( type?: CurveType, smoothing?: boolean ): typeof curveLinear => {
 	if ( ! type ) {
 		return smoothing ? curveCatmullRom : curveLinear;
 	}
