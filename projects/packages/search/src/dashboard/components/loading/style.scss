@@ -1,3 +1,15 @@
+// Pin the spinner to viewport center so it stays visually still through the
+// load → connect → dashboard mount sequence. Earlier centering relied on a
+// `position: absolute` falling back to whichever ancestor happened to be
+// positioned, which collapsed to ~0 height during initial mount and parked
+// the spinner at the top of the page.
+.jp-search-dashboard-page-loading-overlay {
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 1;
+}
+
 .components-spinner.jp-search-dashboard-page-loading-spinner {
 	position: absolute;
 	left: 50%;

@@ -60,17 +60,6 @@
 	.jp-search-dashboard-tab-content > .jp-search-dashboard-wrap {
 		justify-content: flex-start;
 	}
-
-	// Lock the loading spinner to viewport center while data resolves —
-	// using a flow-based wrapper makes the spinner ride the page header
-	// down as it mounts. Fixed positioning keeps it visually still and
-	// out of the layout flow so it never offsets sibling content.
-	.jp-search-dashboard-loading {
-		position: fixed;
-		inset: 0;
-		pointer-events: none;
-		z-index: 1;
-	}
 }
 
 .usage-meter-group {

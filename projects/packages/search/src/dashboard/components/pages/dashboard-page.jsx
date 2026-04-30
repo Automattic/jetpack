@@ -165,11 +165,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			>
 				{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
 				<DashboardNoticesSlot />
-				{ isPageLoading && (
-					<div className="jp-search-dashboard-loading">
-						<Loading />
-					</div>
-				) }
+				{ isPageLoading && <Loading /> }
 				{ /* Panels stay mounted so `@wordpress/ui`'s Tab/Panel count
 				   validator (dev) sees a balanced pair from first render.
 				   Content is gated on data being ready. */ }
