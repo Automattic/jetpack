@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Default the in-admin Subscribers screen to enabled (the jetpack_wp_admin_subscriber_management_enabled filter now defaults to true). Sites running the Newsletter module automatically get the new page; opt-out via __return_false. The static default is a placeholder for a future dynamic capability check.

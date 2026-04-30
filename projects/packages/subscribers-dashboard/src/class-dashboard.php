@@ -148,9 +148,21 @@ class Dashboard {
 
 	/**
 	 * The page to be added to submenu.
+	 *
+	 * The `jetpack_wp_admin_subscriber_management_enabled` filter was introduced
+	 * by the original wp-admin subscriber stub in #42066 with a default of `false`
+	 * so that the in-admin page stayed gated while it was a placeholder. Now that
+	 * the page is feature-complete (umbrella PR #48386), the default is `true` —
+	 * any site running the Subscriptions/Newsletter module gets the new screen.
+	 *
+	 * @todo Replace this static default with a dynamic check (e.g. the site has
+	 *       the Newsletter module active *and* the connection user owns the WPCOM
+	 *       blog, since the remove/individual REST proxies need
+	 *       `delete_followers`/`view_subscribers` on the wpcom side). Tracked in
+	 *       the umbrella issue #48365.
 	 */
 	public function add_wp_admin_submenu() {
-		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) || self::$menu_added ) {
+		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true ) || self::$menu_added ) {
 			return;
 		}
 
