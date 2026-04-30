@@ -60,6 +60,14 @@
 	.jp-search-dashboard-tab-content > .jp-search-dashboard-wrap {
 		justify-content: flex-start;
 	}
+
+	// Reserve room for the centered loading spinner so it sits in the
+	// middle of the dashboard area instead of collapsing to 0 height while
+	// the empty Tabs.Panels are mounted.
+	.jp-search-dashboard-loading {
+		position: relative;
+		min-height: 60vh;
+	}
 }
 
 .usage-meter-group {

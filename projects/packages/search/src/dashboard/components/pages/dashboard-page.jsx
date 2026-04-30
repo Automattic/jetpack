@@ -165,12 +165,16 @@ export default function DashboardPage( { isLoading = false } ) {
 			>
 				{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
 				<DashboardNoticesSlot />
-				{ /* Panels mount with the tabs so `@wordpress/ui`'s Tab/Panel
-				   count validator stays balanced even before data resolves. */ }
-				<Tabs.Panel value={ SEARCH_DASHBOARD_TAB_SETTINGS }>
-					{ isPageLoading ? (
+				{ isPageLoading && (
+					<div className="jp-search-dashboard-loading">
 						<Loading />
-					) : (
+					</div>
+				) }
+				{ /* Panels stay mounted so `@wordpress/ui`'s Tab/Panel count
+				   validator (dev) sees a balanced pair from first render.
+				   Content is gated on data being ready. */ }
+				<Tabs.Panel value={ SEARCH_DASHBOARD_TAB_SETTINGS }>
+					{ ! isPageLoading && (
 						<>
 							{ hasConnectionError && (
 								<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
@@ -198,26 +202,15 @@ export default function DashboardPage( { isLoading = false } ) {
 					) }
 				</Tabs.Panel>
 				<Tabs.Panel value={ SEARCH_DASHBOARD_TAB_PLAN_USAGE }>
-					{ isPageLoading ? (
-						<Loading />
-					) : (
-						<>
-							{ hasConnectionError && (
-								<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-									<Col lg={ 12 } md={ 12 } sm={ 12 }>
-										<ConnectionError />
-									</Col>
-								</Container>
-							) }
-							<PlanUsageTabContent
-								isNewPricing={ isNewPricing }
-								supportsInstantSearch={ supportsInstantSearch }
-								hasIndex={ postCount !== 0 }
-								recordMeterInfo={ recordMeterInfo }
-								isFreePlan={ isFreePlan }
-								sendPaidPlanToCart={ sendPaidPlanToCart }
-							/>
-						</>
+					{ ! isPageLoading && (
+						<PlanUsageTabContent
+							isNewPricing={ isNewPricing }
+							supportsInstantSearch={ supportsInstantSearch }
+							hasIndex={ postCount !== 0 }
+							recordMeterInfo={ recordMeterInfo }
+							isFreePlan={ isFreePlan }
+							sendPaidPlanToCart={ sendPaidPlanToCart }
+						/>
 					) }
 				</Tabs.Panel>
 				{ ! isPageLoading && (
