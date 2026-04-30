@@ -928,7 +928,6 @@ final class ZeroBSCRM {
 		$this->urls['oauthdocs']         = 'https://kb.jetpackcrm.com/knowledge-base/using-gmail-with-jetpack-crm-mail-delivery-system/#setting-up-gmail-oauth-connection-and-mail-delivery-method';
 		$this->urls['woosync']           = 'https://jetpackcrm.com/woocommerce/';
 		$this->urls['woomanagingorders'] = 'https://woocommerce.com/document/managing-orders/#order-statuses';
-		$this->urls['core-automations']  = 'https://jetpackcrm.com/features/automations';
 
 		// used for ext manager:
 		$this->urls['checkoutapi']       = 'https://jetpackcrm.com/wp-json/zbsextensions/v1/extensions/0';
@@ -1039,7 +1038,6 @@ final class ZeroBSCRM {
 		$this->slugs['export']           = 'zerobscrm-export';
 		$this->slugs['systemstatus']     = 'zerobscrm-systemstatus';
 		$this->slugs['sync']             = 'zerobscrm-sync';
-		$this->slugs['core-automations'] = 'jpcrm-automations';
 
 		// CSV importer Lite
 		$this->slugs['csvlite'] = 'zerobscrm-csvimporterlite-app';
