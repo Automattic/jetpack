@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social preview: drop the now-unused PREVIEW_BODY_CHAR_LIMITS map and per-network charLimit forwarded from the connection-preview hook.

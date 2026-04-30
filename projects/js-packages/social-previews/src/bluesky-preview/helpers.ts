@@ -24,12 +24,15 @@ export const blueskyTitle: Formatter = text =>
 		hardTruncation( TITLE_LENGTH )
 	)( stripHtmlTags( text ) ) || '';
 
-export const blueskyBody = ( text: string, options: { offset?: number } = {} ) => {
-	const { offset = 0 } = options;
+export const blueskyBody = (
+	text: string,
+	options: { offset?: number; reserveUrlSpace?: boolean } = {}
+) => {
+	const { offset = 0, reserveUrlSpace = true } = options;
 
 	return preparePreviewText( text, {
 		platform: 'bluesky',
-		maxChars: BODY_LENGTH - URL_LENGTH - offset,
+		maxChars: BODY_LENGTH - ( reserveUrlSpace ? URL_LENGTH : 0 ) - offset,
 	} );
 };
 

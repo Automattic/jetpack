@@ -1,4 +1,5 @@
 import { hasTag, preparePreviewText } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
 import { CUSTOM_TEXT_LENGTH } from './helpers';
 
 type Props = {
@@ -29,10 +30,14 @@ const CustomText: React.FC< Props > = ( { text, url, forceUrlDisplay } ) => {
 	return (
 		<p className="facebook-preview__custom-text">
 			<span>
-				{ preparePreviewText( text, {
-					platform: 'facebook',
-					maxChars: CUSTOM_TEXT_LENGTH,
-				} ) }
+				<ExpandableText text={ text }>
+					{ visibleText =>
+						preparePreviewText( visibleText, {
+							platform: 'facebook',
+							maxChars: CUSTOM_TEXT_LENGTH,
+						} )
+					}
+				</ExpandableText>
 			</span>
 			{ postLink }
 		</p>
