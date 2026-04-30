@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Activity_Log;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use function admin_url;
-use function esc_url;
 use function esc_url_raw;
 use function get_bloginfo;
 use function get_locale;
@@ -47,7 +46,7 @@ class Initial_State {
 			'siteData'      => array(
 				'id'                    => Jetpack_Options::get_option( 'id' ),
 				'title'                 => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
-				'adminUrl'              => esc_url( admin_url() ),
+				'adminUrl'              => esc_url_raw( admin_url() ),
 				'slug'                  => is_string( $home_host ) ? $home_host : '',
 				'gmtOffset'             => is_numeric( $gmt_offset ) ? (float) $gmt_offset : 0.0,
 				'timezoneString'        => is_string( $timezone_string ) ? $timezone_string : '',
