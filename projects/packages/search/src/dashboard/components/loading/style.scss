@@ -1,13 +1,43 @@
-// Pin the spinner to viewport center so it stays visually still through the
-// load → connect → dashboard mount sequence. Earlier centering relied on a
-// `position: absolute` falling back to whichever ancestor happened to be
-// positioned, which collapsed to ~0 height during initial mount and parked
-// the spinner at the top of the page.
+// Pin the spinner to the dashboard area's center so it stays visually still
+// through the load → connect → dashboard mount sequence. Earlier centering
+// relied on `position: absolute` falling back to whichever ancestor happened
+// to be positioned, which collapsed to ~0 height during initial mount and
+// parked the spinner at the top of the page. Anchor the overlay's left edge
+// to the wp-admin sidebar's right edge so the spinner centers over the
+// dashboard area rather than the full viewport (which appears off-center to
+// the left because of the sidebar). Mirrors wp-admin's own sidebar widths.
+$jp-sidebar-width-expanded: 160px;
+$jp-sidebar-width-folded: 36px;
+$jp-breakpoint-auto-fold: 960px;
+$jp-breakpoint-mobile: 782px;
+
 .jp-search-dashboard-page-loading-overlay {
 	position: fixed;
-	inset: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: $jp-sidebar-width-expanded;
 	pointer-events: none;
 	z-index: 1;
+
+	// `.folded` is the user's persistent "Collapse menu" preference; WP keeps
+	// it set at every viewport width.
+	body.folded & {
+		left: $jp-sidebar-width-folded;
+	}
+
+	// `.auto-fold` is WP JS state, gated to narrow-desktop widths.
+	@media (max-width: #{$jp-breakpoint-auto-fold}) {
+
+		body.auto-fold & {
+			left: $jp-sidebar-width-folded;
+		}
+	}
+
+	// On mobile the sidebar slides off-canvas.
+	@media (max-width: #{$jp-breakpoint-mobile}) {
+		left: 0;
+	}
 }
 
 .components-spinner.jp-search-dashboard-page-loading-spinner {
