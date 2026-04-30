@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WPCOMSH_Log: add `unsafe_direct_log_logstash()` for records that need their own /logstash `feature` bucket; route fatal-error signatures through it under feature `atomic_extension_conflict` (severity `critical`).
