@@ -65,3 +65,12 @@
 .jp-donations-style-panel.components-panel__body > *:not(:first-child) {
 	margin-block-start: 24px;
 }
+
+// Remove dividing border lines on controls inside our panels. Some controls
+// (notably BorderBoxControl, BorderRadiusControl, BoxControl) ship with their
+// own border-top / border-bottom that read as a dividing line above the
+// settings — standard core panels don't draw such a line.
+.jp-donations-style-panel.components-panel__body > *:not(.components-panel__body-title) {
+	border-top: 0;
+	border-bottom: 0;
+}

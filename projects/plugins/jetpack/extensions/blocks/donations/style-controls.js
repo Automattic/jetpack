@@ -14,6 +14,7 @@ import {
 	Flex,
 	FlexItem,
 	PanelBody,
+	TabPanel,
 	__experimentalDropdownContentWrapper as DropdownContentWrapper, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -78,21 +79,43 @@ const CompoundColorRow = ( { label, settings } ) => {
 		[ label, settings ]
 	);
 
-	const renderContent = useCallback(
-		() => (
-			<DropdownContentWrapper paddingSize="medium">
-				{ settings.map( ( s, i ) => (
+	const renderContent = useCallback( () => {
+		if ( settings.length === 1 ) {
+			return (
+				<DropdownContentWrapper paddingSize="medium">
 					<ColorGradientControl
-						key={ i }
-						label={ s.label }
-						colorValue={ s.value }
-						onColorChange={ s.onChange }
+						label={ settings[ 0 ].label }
+						colorValue={ settings[ 0 ].value }
+						onColorChange={ settings[ 0 ].onChange }
 					/>
-				) ) }
+				</DropdownContentWrapper>
+			);
+		}
+		// 2+ settings: tabbed UI matching the standard "Button" row.
+		const tabs = settings.map( s => ( {
+			name: s.label.toLowerCase().replace( /\s+/g, '-' ),
+			title: s.label,
+		} ) );
+		return (
+			<DropdownContentWrapper paddingSize="none">
+				<TabPanel tabs={ tabs }>
+					{ tab => {
+						const setting = settings.find(
+							s => s.label.toLowerCase().replace( /\s+/g, '-' ) === tab.name
+						);
+						return (
+							<ColorGradientControl
+								label={ setting.label }
+								colorValue={ setting.value }
+								onColorChange={ setting.onChange }
+								showTitle={ false }
+							/>
+						);
+					} }
+				</TabPanel>
 			</DropdownContentWrapper>
-		),
-		[ settings ]
-	);
+		);
+	}, [ settings ] );
 
 	return (
 		<ToolsPanelItem
