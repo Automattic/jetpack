@@ -1,5 +1,5 @@
 import { TextareaControl } from '@wordpress/components';
-import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, Notice, Stack, Tabs, Text } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
@@ -134,7 +134,23 @@ type AddTabProps = {
  */
 function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 	const [ value, setValue ] = useState( '' );
-	const { valid, invalid } = useMemo( () => partitionEmails( splitEntries( value ) ), [ value ] );
+
+	// Submit button reflects the *live* value so the user never has to wait to invite — typing one
+	// valid email enables the CTA right away.
+	const { valid } = useMemo( () => partitionEmails( splitEntries( value ) ), [ value ] );
+
+	// Inline warning runs against a debounced value so a half-typed `reader@` doesn't flash a
+	// "looks invalid" notice under the textarea on every keystroke. Re-runs ~400ms after the
+	// last edit.
+	const [ debouncedValue, setDebouncedValue ] = useState( '' );
+	useEffect( () => {
+		const handle = setTimeout( () => setDebouncedValue( value ), 400 );
+		return () => clearTimeout( handle );
+	}, [ value ] );
+	const { invalid } = useMemo(
+		() => partitionEmails( splitEntries( debouncedValue ) ),
+		[ debouncedValue ]
+	);
 
 	const handleSubmit = useCallback( () => {
 		if ( valid.length === 0 ) {
@@ -143,6 +159,7 @@ function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 		mutation.mutate( valid, {
 			onSuccess: () => {
 				setValue( '' );
+				setDebouncedValue( '' );
 				onClose();
 			},
 		} );
