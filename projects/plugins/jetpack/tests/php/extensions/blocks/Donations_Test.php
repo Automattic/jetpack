@@ -252,6 +252,18 @@ class Donations_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Tab border color applies to both the nav (default-style divider line) and
+	 * the nav items (default-style per-tab dividers and buttons-style pill borders).
+	 */
+	public function test_build_custom_styles_emits_tab_border_color() {
+		$css = Donations\build_custom_styles( array( 'tabBorderColor' => '#abc' ), '.jp-donations-1' );
+		$this->assertStringContainsString(
+			'.jp-donations-1 .donations__nav,.jp-donations-1 .donations__nav-item{border-color:#abc}',
+			$css
+		);
+	}
+
+	/**
 	 * Unknown alignment values are dropped.
 	 */
 	public function test_build_custom_styles_drops_unknown_alignment() {

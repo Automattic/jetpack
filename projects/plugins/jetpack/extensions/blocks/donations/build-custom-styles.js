@@ -16,6 +16,7 @@ const buildCustomStyles = ( attributes, scope ) => {
 		inactiveTabTextColor,
 		selectedAmountBackgroundColor,
 		selectedAmountTextColor,
+		tabBorderColor,
 		tabFontSize,
 		tabPadding,
 		buttonFontSize,
@@ -24,6 +25,12 @@ const buildCustomStyles = ( attributes, scope ) => {
 	} = attributes;
 
 	const rules = [];
+
+	if ( tabBorderColor ) {
+		rules.push(
+			`${ scope } .donations__nav,${ scope } .donations__nav-item{border-color:${ tabBorderColor }}`
+		);
+	}
 
 	const tabDecls = [];
 	if ( tabFontSize ) {

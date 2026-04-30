@@ -201,8 +201,12 @@ function render_block( $attr, $content ) {
 		);
 	}
 
-	$instance_id   = wp_unique_id( 'jp-donations-' );
-	$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $instance_id ) );
+	$instance_id      = wp_unique_id( 'jp-donations-' );
+	$instance_classes = $instance_id;
+	if ( isset( $attr['tabsAppearance'] ) && 'buttons' === $attr['tabsAppearance'] ) {
+		$instance_classes .= ' is-style-buttons';
+	}
+	$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $instance_classes ) );
 	$custom_styles = build_custom_styles( $attr, '.' . $instance_id );
 
 	return sprintf(
@@ -304,6 +308,13 @@ function build_custom_styles( $attr, $scope ) {
 		if ( $decls ) {
 			$rules[] = $group['selector'] . '{' . implode( ';', $decls ) . '}';
 		}
+	}
+
+	// User-set tab border color: applies to the default-style nav bottom
+	// divider, the per-tab dividers, and the buttons-style pill borders.
+	$tab_border_safe = sanitize_css_value( $attr['tabBorderColor'] ?? '' );
+	if ( '' !== $tab_border_safe ) {
+		$rules[] = $scope . ' .donations__nav,' . $scope . ' .donations__nav-item{border-color:' . $tab_border_safe . '}';
 	}
 
 	// In the "Buttons" style variation the nav container has its own vertical
