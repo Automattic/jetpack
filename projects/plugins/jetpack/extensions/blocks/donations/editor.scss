@@ -75,9 +75,10 @@
 	border-bottom: 0;
 }
 
-// Match the standard Gutenberg supports-panel look for individual control
-// labels: small uppercase grey labels with a consistent gap between label
-// and control, and controls that fill the panel width.
+// Make any uppercase labels inside our custom style panels inherit text
+// color from the inspector sidebar (`.interface-complementary-area`)
+// instead of the hardcoded #757575 the components style picks. Matches
+// the auto-rendered supports panels.
 .jp-donations-style-panel.components-panel__body {
 
 	.components-base-control__label,
@@ -86,20 +87,6 @@
 	.components-box-control__label,
 	.components-border-box-control__label,
 	.components-border-control__label {
-		color: #757575;
-		text-transform: uppercase;
-		font-size: 11px;
-		font-weight: 499;
-		line-height: 1.4;
-		margin-block-end: 8px;
-		display: block;
-	}
-
-	.components-base-control,
-	.components-input-control,
-	.components-box-control,
-	.components-border-box-control,
-	.components-border-radius-control {
-		width: 100%;
+		color: inherit;
 	}
 }

@@ -257,6 +257,59 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		set.selectedAmountTextColor();
 	}, [ set ] );
 
+	const resetTabSettings = useCallback( () => {
+		set.tabsAppearance( 'tabs' );
+		set.tabFontSize();
+		set.tabPadding();
+	}, [ set ] );
+
+	const resetAmountSettings = useCallback( () => {
+		set.amountFontSize();
+		set.amountBorder();
+		set.amountBorderRadius();
+	}, [ set ] );
+
+	const resetButtonSettings = useCallback( () => {
+		set.buttonFontSize();
+		set.buttonPadding();
+		set.buttonAlignment( '' );
+	}, [ set ] );
+
+	// Stable hasValue / onDeselect callbacks for each ToolsPanelItem so JSX
+	// props don't recreate functions on every render (react/jsx-no-bind).
+	const has = useMemo(
+		() => ( {
+			tabsAppearance: () => tabsAppearance === 'buttons',
+			tabFontSize: () => !! tabFontSize,
+			tabPadding: () => !! tabPadding,
+			amountFontSize: () => !! amountFontSize,
+			amountBorder: () => !! amountBorder,
+			amountBorderRadius: () => !! amountBorderRadius,
+			buttonFontSize: () => !! buttonFontSize,
+			buttonPadding: () => !! buttonPadding,
+			buttonAlignment: () => !! buttonAlignment,
+		} ),
+		[
+			tabsAppearance,
+			tabFontSize,
+			tabPadding,
+			amountFontSize,
+			amountBorder,
+			amountBorderRadius,
+			buttonFontSize,
+			buttonPadding,
+			buttonAlignment,
+		]
+	);
+
+	const deselect = useMemo(
+		() => ( {
+			tabsAppearance: () => set.tabsAppearance( 'tabs' ),
+			buttonAlignment: () => set.buttonAlignment( '' ),
+		} ),
+		[ set ]
+	);
+
 	return (
 		<InspectorControls group="styles">
 			<PanelBody
@@ -264,17 +317,6 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				initialOpen={ false }
 				className="jp-donations-style-panel"
 			>
-				<ToggleGroupControl
-					label={ __( 'Appearance', 'jetpack' ) }
-					value={ tabsAppearance || 'tabs' }
-					onChange={ set.tabsAppearance }
-					isBlock
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-				>
-					<ToggleGroupControlOption value="tabs" label={ __( 'Tabs', 'jetpack' ) } />
-					<ToggleGroupControlOption value="buttons" label={ __( 'Buttons', 'jetpack' ) } />
-				</ToggleGroupControl>
 				<ToolsPanel
 					className="color-block-support-panel"
 					label={ __( 'Tab colors', 'jetpack' ) }
@@ -307,18 +349,58 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					backgroundColor={ inactiveTabBackgroundColor }
 					textColor={ inactiveTabTextColor }
 				/>
-				<FontSizePicker
-					value={ tabFontSize }
-					onChange={ set.tabFontSize }
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
-				/>
-				<BoxControl
-					label={ __( 'Tab padding', 'jetpack' ) }
-					values={ tabPadding }
-					onChange={ set.tabPadding }
-					__next40pxDefaultSize={ true }
-				/>
+				<ToolsPanel
+					label={ __( 'Tab settings', 'jetpack' ) }
+					resetAll={ resetTabSettings }
+					headingLevel={ 3 }
+					__experimentalFirstVisibleItemClass="first"
+					__experimentalLastVisibleItemClass="last"
+				>
+					<ToolsPanelItem
+						label={ __( 'Appearance', 'jetpack' ) }
+						hasValue={ has.tabsAppearance }
+						onDeselect={ deselect.tabsAppearance }
+						isShownByDefault
+					>
+						<ToggleGroupControl
+							label={ __( 'Appearance', 'jetpack' ) }
+							value={ tabsAppearance || 'tabs' }
+							onChange={ set.tabsAppearance }
+							isBlock
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+						>
+							<ToggleGroupControlOption value="tabs" label={ __( 'Tabs', 'jetpack' ) } />
+							<ToggleGroupControlOption value="buttons" label={ __( 'Buttons', 'jetpack' ) } />
+						</ToggleGroupControl>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						label={ __( 'Font size', 'jetpack' ) }
+						hasValue={ has.tabFontSize }
+						onDeselect={ set.tabFontSize }
+						isShownByDefault
+					>
+						<FontSizePicker
+							value={ tabFontSize }
+							onChange={ set.tabFontSize }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						label={ __( 'Padding', 'jetpack' ) }
+						hasValue={ has.tabPadding }
+						onDeselect={ set.tabPadding }
+						isShownByDefault
+					>
+						<BoxControl
+							label={ __( 'Padding', 'jetpack' ) }
+							values={ tabPadding }
+							onChange={ set.tabPadding }
+							__next40pxDefaultSize={ true }
+						/>
+					</ToolsPanelItem>
+				</ToolsPanel>
 			</PanelBody>
 			<PanelBody
 				title={ __( 'Amounts', 'jetpack' ) }
@@ -345,52 +427,113 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					backgroundColor={ selectedAmountBackgroundColor }
 					textColor={ selectedAmountTextColor }
 				/>
-				<FontSizePicker
-					value={ amountFontSize }
-					onChange={ set.amountFontSize }
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
-				/>
-				<BorderBoxControl
-					label={ __( 'Border', 'jetpack' ) }
-					value={ amountBorder }
-					onChange={ set.amountBorder }
-					enableAlpha
-					enableStyle
-					__next40pxDefaultSize
-				/>
-				<BorderRadiusControl values={ amountBorderRadius } onChange={ set.amountBorderRadius } />
+				<ToolsPanel
+					label={ __( 'Amount settings', 'jetpack' ) }
+					resetAll={ resetAmountSettings }
+					headingLevel={ 3 }
+					__experimentalFirstVisibleItemClass="first"
+					__experimentalLastVisibleItemClass="last"
+				>
+					<ToolsPanelItem
+						label={ __( 'Font size', 'jetpack' ) }
+						hasValue={ has.amountFontSize }
+						onDeselect={ set.amountFontSize }
+						isShownByDefault
+					>
+						<FontSizePicker
+							value={ amountFontSize }
+							onChange={ set.amountFontSize }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						label={ __( 'Border', 'jetpack' ) }
+						hasValue={ has.amountBorder }
+						onDeselect={ set.amountBorder }
+						isShownByDefault
+					>
+						<BorderBoxControl
+							label={ __( 'Border', 'jetpack' ) }
+							value={ amountBorder }
+							onChange={ set.amountBorder }
+							enableAlpha
+							enableStyle
+							__next40pxDefaultSize
+						/>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						label={ __( 'Border radius', 'jetpack' ) }
+						hasValue={ has.amountBorderRadius }
+						onDeselect={ set.amountBorderRadius }
+						isShownByDefault
+					>
+						<BorderRadiusControl
+							values={ amountBorderRadius }
+							onChange={ set.amountBorderRadius }
+						/>
+					</ToolsPanelItem>
+				</ToolsPanel>
 			</PanelBody>
 			<PanelBody
 				title={ __( 'Donate button', 'jetpack' ) }
 				initialOpen={ false }
 				className="jp-donations-style-panel"
 			>
-				<FontSizePicker
-					value={ buttonFontSize }
-					onChange={ set.buttonFontSize }
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
-				/>
-				<BoxControl
-					label={ __( 'Button padding', 'jetpack' ) }
-					values={ buttonPadding }
-					onChange={ set.buttonPadding }
-					__next40pxDefaultSize={ true }
-				/>
-				<ToggleGroupControl
-					label={ __( 'Button alignment', 'jetpack' ) }
-					value={ buttonAlignment || '' }
-					onChange={ set.buttonAlignment }
-					isBlock
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
+				<ToolsPanel
+					label={ __( 'Button settings', 'jetpack' ) }
+					resetAll={ resetButtonSettings }
+					headingLevel={ 3 }
+					__experimentalFirstVisibleItemClass="first"
+					__experimentalLastVisibleItemClass="last"
 				>
-					<ToggleGroupControlOption value="left" label={ __( 'Left', 'jetpack' ) } />
-					<ToggleGroupControlOption value="center" label={ __( 'Center', 'jetpack' ) } />
-					<ToggleGroupControlOption value="right" label={ __( 'Right', 'jetpack' ) } />
-					<ToggleGroupControlOption value="full" label={ __( 'Full width', 'jetpack' ) } />
-				</ToggleGroupControl>
+					<ToolsPanelItem
+						label={ __( 'Font size', 'jetpack' ) }
+						hasValue={ has.buttonFontSize }
+						onDeselect={ set.buttonFontSize }
+						isShownByDefault
+					>
+						<FontSizePicker
+							value={ buttonFontSize }
+							onChange={ set.buttonFontSize }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						label={ __( 'Padding', 'jetpack' ) }
+						hasValue={ has.buttonPadding }
+						onDeselect={ set.buttonPadding }
+						isShownByDefault
+					>
+						<BoxControl
+							label={ __( 'Padding', 'jetpack' ) }
+							values={ buttonPadding }
+							onChange={ set.buttonPadding }
+							__next40pxDefaultSize={ true }
+						/>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						label={ __( 'Alignment', 'jetpack' ) }
+						hasValue={ has.buttonAlignment }
+						onDeselect={ deselect.buttonAlignment }
+						isShownByDefault
+					>
+						<ToggleGroupControl
+							label={ __( 'Alignment', 'jetpack' ) }
+							value={ buttonAlignment || '' }
+							onChange={ set.buttonAlignment }
+							isBlock
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+						>
+							<ToggleGroupControlOption value="left" label={ __( 'Left', 'jetpack' ) } />
+							<ToggleGroupControlOption value="center" label={ __( 'Center', 'jetpack' ) } />
+							<ToggleGroupControlOption value="right" label={ __( 'Right', 'jetpack' ) } />
+							<ToggleGroupControlOption value="full" label={ __( 'Full width', 'jetpack' ) } />
+						</ToggleGroupControl>
+					</ToolsPanelItem>
+				</ToolsPanel>
 			</PanelBody>
 		</InspectorControls>
 	);
