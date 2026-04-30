@@ -255,7 +255,11 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 					/>
 					<DetailRow
 						label={ __( 'Email subscription', 'jetpack-subscribers-dashboard' ) }
-						value={ <SubscriptionStatusCell status={ subscriber.subscription_status } /> }
+						value={
+							subscriber.subscription_status ? (
+								<SubscriptionStatusCell status={ subscriber.subscription_status } />
+							) : null
+						}
 					/>
 					<DetailRow
 						label={ __( 'Subscription type', 'jetpack-subscribers-dashboard' ) }

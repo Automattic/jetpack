@@ -3,7 +3,7 @@ import { getSubscriptionStatusLabel } from '../../lib/subscription-status';
 import type { SubscriptionStatus } from '../../data/types';
 
 type Props = {
-	status: SubscriptionStatus;
+	status?: SubscriptionStatus;
 };
 
 type BadgeIntent = React.ComponentProps< typeof Badge >[ 'intent' ];
@@ -35,13 +35,18 @@ function getBadgeIntent( status: SubscriptionStatus ): BadgeIntent {
 
 /**
  * Email-subscription status cell — renders the translated label as a `Badge` with a semantic
- * intent so the state communicates through color in addition to text.
+ * intent so the state communicates through color in addition to text. Returns null when the
+ * status is missing so callers don't have to guard their JSX (the individual-subscriber endpoint
+ * occasionally omits `subscription_status`, where the list endpoint always includes it).
  *
  * @param props        - Component props.
  * @param props.status - Raw status string from the API.
- * @return Status badge.
+ * @return Status badge, or null when status is missing.
  */
-export default function SubscriptionStatusCell( { status }: Props ): JSX.Element {
+export default function SubscriptionStatusCell( { status }: Props ): JSX.Element | null {
+	if ( ! status ) {
+		return null;
+	}
 	return (
 		<Badge intent={ getBadgeIntent( status ) }>{ getSubscriptionStatusLabel( status ) }</Badge>
 	);
