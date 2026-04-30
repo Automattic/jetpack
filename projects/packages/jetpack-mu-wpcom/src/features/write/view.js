@@ -398,17 +398,31 @@ function addDeleteButtons() {
 				const safeNext = isDirectChild( next ) ? next : null;
 				const safePrev = isDirectChild( prev ) ? prev : null;
 				let dest = [ safeNext, safePrev ].find( el => el && editable.test( el.tagName ) );
+				// No editable sibling — walk outward from the
+				// deletion point to find the nearest editable block.
+				if ( ! dest && c ) {
+					let after = safeNext;
+					let before = safePrev;
+					while ( after || before ) {
+						if ( after && editable.test( after.tagName ) ) {
+							dest = after;
+							break;
+						}
+						if ( before && editable.test( before.tagName ) ) {
+							dest = before;
+							break;
+						}
+						after = after ? after.nextElementSibling : null;
+						before = before ? before.previousElementSibling : null;
+					}
+				}
 				if ( ! dest && c ) {
 					if ( safeNext || safePrev ) {
-						// Siblings exist but aren't editable (e.g. adjacent
-						// figures). Create a <p> where the deleted figure was.
+						// Only non-editable blocks remain. Create a <p>
+						// after them so the user can Backspace to remove it.
 						const p = document.createElement( 'p' );
 						p.innerHTML = '<br>';
-						if ( safeNext ) {
-							safeNext.before( p );
-						} else {
-							safePrev.after( p );
-						}
+						( safePrev || safeNext ).after( p );
 						dest = p;
 					} else {
 						// No direct-child siblings — ensureBlockStructure
@@ -831,15 +845,34 @@ function ensureBlockStructure() {
 				needsRepair = true;
 				break;
 			}
+			// Flag empty figure shells for removal (e.g. Backspace can
+			// strip a figure's media but leave the wrapper behind).
+			if ( node.tagName === 'FIGURE' && ! node.querySelector( 'img, video, iframe' ) ) {
+				needsRepair = true;
+				break;
+			}
 		}
 	}
 	if ( ! needsRepair ) return;
 
-	// Re-seed a completely empty editor.
+	// Remove empty figure shells before any other repair work.
+	[ ...content.querySelectorAll( ':scope > figure' ) ].forEach( fig => {
+		if ( ! fig.querySelector( 'img, video, iframe' ) ) {
+			fig.remove();
+		}
+	} );
+
+	// Re-seed a completely empty editor (may now be empty after figure cleanup).
 	if ( ! content.firstChild ) {
 		content.innerHTML = '<p><br></p>';
 		return;
 	}
+
+	// Save the current selection so we can restore it after reparenting
+	// nodes. Without this, the cursor can jump when the input-event
+	// handler triggers a repair while the user is typing.
+	const sel = window.getSelection();
+	const rangeBackup = sel.rangeCount ? sel.getRangeAt( 0 ).cloneRange() : null;
 
 	// Wrap runs of consecutive non-block nodes in <p> elements.
 	let run = [];
@@ -853,6 +886,10 @@ function ensureBlockStructure() {
 			const p = document.createElement( 'p' );
 			content.insertBefore( p, before );
 			run.forEach( n => p.appendChild( n ) );
+		} else {
+			// Remove whitespace-only orphans so they don't persist in
+			// saved markup or trigger needsRepair on the next scan.
+			run.forEach( n => n.remove() );
 		}
 		run = [];
 	};
@@ -866,6 +903,23 @@ function ensureBlockStructure() {
 		}
 	} );
 	flush( null );
+
+	// Re-seed if cleanup left the editor empty.
+	if ( ! content.firstChild ) {
+		content.innerHTML = '<p><br></p>';
+		return;
+	}
+
+	// Restore the selection. The range may become invalid if the anchor
+	// node was removed (rather than reparented), so catch and discard.
+	if ( rangeBackup ) {
+		try {
+			sel.removeAllRanges();
+			sel.addRange( rangeBackup );
+		} catch {
+			// Range invalidated by node removal — cursor resets naturally.
+		}
+	}
 }
 
 const { state } = store( 'wpcom-write', {
