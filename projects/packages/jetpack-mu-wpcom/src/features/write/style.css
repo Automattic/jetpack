@@ -713,6 +713,14 @@
 	color: inherit;
 }
 
+/* Persistent highlight shown while the link popover is open.
+   Slightly stronger than ::selection to visually distinguish it
+   as a "target" indicator rather than an active text selection. */
+::highlight(bw-link-highlight) {
+	background-color: rgba(33, 113, 177, 0.25);
+	color: inherit;
+}
+
 /* Content area */
 .bw-content {
 	min-height: 60vh;
