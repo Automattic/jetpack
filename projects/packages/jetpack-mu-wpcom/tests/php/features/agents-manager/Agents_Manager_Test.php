@@ -1533,6 +1533,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
+		// Force a non-null variant so enqueue_scripts() reaches the inline-data block.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
 		add_filter(
 			'jetpack_ai_sidebar_agents_manager_data',
 			function ( $data ) {
@@ -1548,6 +1551,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
 		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
 
 	/**
