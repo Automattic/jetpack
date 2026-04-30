@@ -41,6 +41,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	breadcrumbs,
 	tabs,
 	showBottomBorder = true,
+	unwrapped = false,
 } ) => {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -95,9 +96,13 @@ const AdminPage: FC< AdminPageProps > = ( {
 					showSidebarToggle={ false }
 				>
 					{ tabs }
-					<Container fluid horizontalSpacing={ 0 }>
-						<Col>{ children }</Col>
-					</Container>
+					{ unwrapped ? (
+						children
+					) : (
+						<Container fluid horizontalSpacing={ 0 }>
+							<Col>{ children }</Col>
+						</Container>
+					) }
 					{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 				</Page>
 			</div>

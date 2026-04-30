@@ -349,6 +349,7 @@ export default function ActivityLog() {
 			) }
 			actions={ headerActions }
 			showFooter={ false }
+			unwrapped
 		>
 			<div ref={ wrapperRef } className="jp-activity-log__dataviews-wrapper">
 				<DataViews< Activity >
