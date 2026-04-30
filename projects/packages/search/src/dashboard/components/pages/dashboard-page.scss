@@ -3,9 +3,6 @@
 
 #jp-search-dashboard {
 	color: variables.$black;
-	// 32px = wpadminbar height
-	// 65px = wpfooter height
-	min-height: calc(100vh - 65px - 32px);
 
 	.jp-search-dashboard-page {
 		background-color: variables.$white;
