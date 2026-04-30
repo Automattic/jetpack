@@ -460,7 +460,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Floating category picker -->
 	<div class="bw-cat-fab" data-wp-on--click="actions.toggleCatPicker">
-		<span class="bw-cat-fab-icon dashicons dashicons-admin-generic"></span>
+		<span class="bw-cat-fab-icon dashicons dashicons-tag"></span>
 	</div>
 	<div class="bw-cat-popover" hidden data-wp-bind--hidden="!state.showCatPicker">
 		<div class="bw-cat-popover-header"><?php echo esc_html__( 'Categories', 'jetpack-mu-wpcom' ); ?></div>
