@@ -246,6 +246,79 @@ class Donations_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Amount tile styling with a uniform BorderBoxControl value plus a uniform
+	 * radius emits one combined rule on `.donations__amount`.
+	 */
+	public function test_build_custom_styles_emits_amount_uniform_border() {
+		$attr = array(
+			'amountFontSize'     => '18px',
+			'amountBorder'       => array(
+				'color' => '#abc',
+				'style' => 'solid',
+				'width' => '2px',
+			),
+			'amountBorderRadius' => '8px',
+		);
+
+		$css = Donations\build_custom_styles( $attr, '.jp-donations-1' );
+
+		$this->assertStringContainsString(
+			'.jp-donations-1 .donations__amount{font-size:18px;border-color:#abc;border-style:solid;border-width:2px;border-radius:8px}',
+			$css
+		);
+	}
+
+	/**
+	 * Split (per-side) BorderBoxControl values emit individual side declarations.
+	 */
+	public function test_build_custom_styles_emits_amount_split_border() {
+		$attr = array(
+			'amountBorder' => array(
+				'top'    => array(
+					'color' => '#000',
+					'style' => 'solid',
+					'width' => '2px',
+				),
+				'bottom' => array(
+					'color' => '#fff',
+					'style' => 'dashed',
+					'width' => '1px',
+				),
+			),
+		);
+
+		$css = Donations\build_custom_styles( $attr, '.jp-donations-1' );
+
+		$this->assertStringContainsString( 'border-top-color:#000', $css );
+		$this->assertStringContainsString( 'border-top-style:solid', $css );
+		$this->assertStringContainsString( 'border-top-width:2px', $css );
+		$this->assertStringContainsString( 'border-bottom-color:#fff', $css );
+		$this->assertStringContainsString( 'border-bottom-style:dashed', $css );
+		$this->assertStringContainsString( 'border-bottom-width:1px', $css );
+	}
+
+	/**
+	 * Per-corner radius values emit individual corner declarations.
+	 */
+	public function test_build_custom_styles_emits_amount_per_corner_radius() {
+		$attr = array(
+			'amountBorderRadius' => array(
+				'topLeft'     => '8px',
+				'topRight'    => '8px',
+				'bottomRight' => '0',
+				'bottomLeft'  => '0',
+			),
+		);
+
+		$css = Donations\build_custom_styles( $attr, '.jp-donations-1' );
+
+		$this->assertStringContainsString( 'border-top-left-radius:8px', $css );
+		$this->assertStringContainsString( 'border-top-right-radius:8px', $css );
+		$this->assertStringContainsString( 'border-bottom-right-radius:0', $css );
+		$this->assertStringContainsString( 'border-bottom-left-radius:0', $css );
+	}
+
+	/**
 	 * Tab border color applies to both the nav (default-style divider line) and
 	 * the nav items (default-style per-tab dividers and buttons-style pill borders).
 	 */

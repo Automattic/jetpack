@@ -2,10 +2,11 @@ import {
 	ContrastChecker,
 	FontSizePicker,
 	InspectorControls,
-	PanelColorSettings,
+	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalColorGradientControl as ColorGradientControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import {
+	BorderBoxControl,
 	BoxControl,
 	PanelBody,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -29,6 +30,9 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		buttonFontSize,
 		buttonPadding,
 		buttonAlignment,
+		amountFontSize,
+		amountBorder,
+		amountBorderRadius,
 	} = attributes;
 
 	// Stable setter refs so JSX props don't get a new function on every render
@@ -46,27 +50,14 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 			tabPadding: make( 'tabPadding' ),
 			selectedAmountBackgroundColor: make( 'selectedAmountBackgroundColor' ),
 			selectedAmountTextColor: make( 'selectedAmountTextColor' ),
+			amountFontSize: make( 'amountFontSize' ),
+			amountBorder: make( 'amountBorder' ),
+			amountBorderRadius: make( 'amountBorderRadius' ),
 			buttonFontSize: make( 'buttonFontSize' ),
 			buttonPadding: make( 'buttonPadding' ),
 			buttonAlignment: value => setAttributes( { buttonAlignment: value || '' } ),
 		};
 	}, [ setAttributes ] );
-
-	const selectedAmountColorSettings = useMemo(
-		() => [
-			{
-				value: selectedAmountBackgroundColor,
-				onChange: set.selectedAmountBackgroundColor,
-				label: __( 'Background', 'jetpack' ),
-			},
-			{
-				value: selectedAmountTextColor,
-				onChange: set.selectedAmountTextColor,
-				label: __( 'Text', 'jetpack' ),
-			},
-		],
-		[ selectedAmountBackgroundColor, selectedAmountTextColor, set ]
-	);
 
 	return (
 		<InspectorControls group="styles">
@@ -128,16 +119,37 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					__next40pxDefaultSize={ true }
 				/>
 			</PanelBody>
-			<PanelColorSettings
-				title={ __( 'Selected amount', 'jetpack' ) }
-				initialOpen={ false }
-				colorSettings={ selectedAmountColorSettings }
-			>
+			<PanelBody title={ __( 'Amounts', 'jetpack' ) } initialOpen={ false }>
+				<ColorGradientControl
+					label={ __( 'Selected amount background', 'jetpack' ) }
+					colorValue={ selectedAmountBackgroundColor }
+					onColorChange={ set.selectedAmountBackgroundColor }
+				/>
+				<ColorGradientControl
+					label={ __( 'Selected amount text', 'jetpack' ) }
+					colorValue={ selectedAmountTextColor }
+					onColorChange={ set.selectedAmountTextColor }
+				/>
 				<ContrastChecker
 					backgroundColor={ selectedAmountBackgroundColor }
 					textColor={ selectedAmountTextColor }
 				/>
-			</PanelColorSettings>
+				<FontSizePicker
+					value={ amountFontSize }
+					onChange={ set.amountFontSize }
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
+				/>
+				<BorderBoxControl
+					label={ __( 'Border', 'jetpack' ) }
+					value={ amountBorder }
+					onChange={ set.amountBorder }
+					enableAlpha
+					enableStyle
+					__next40pxDefaultSize
+				/>
+				<BorderRadiusControl values={ amountBorderRadius } onChange={ set.amountBorderRadius } />
+			</PanelBody>
 			<PanelBody title={ __( 'Donate button', 'jetpack' ) } initialOpen={ false }>
 				<FontSizePicker
 					value={ buttonFontSize }

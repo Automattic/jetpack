@@ -153,6 +153,15 @@
 			"type": "string",
 			"enum": [ "", "left", "center", "right", "full" ],
 			"default": ""
+		},
+		"amountFontSize": {
+			"type": "string"
+		},
+		"amountBorder": {
+			"type": "object"
+		},
+		"amountBorderRadius": {
+			"type": [ "string", "object" ]
 		}
 	},
 	"example": {}
