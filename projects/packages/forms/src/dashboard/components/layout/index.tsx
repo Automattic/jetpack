@@ -12,7 +12,6 @@ import useConfigValue from '../../../hooks/use-config-value.ts';
 import { adjustDashboardHeight } from '../../../util/adjust-dashboard-height.ts';
 import Integrations from '../../integrations/index.tsx';
 import './style.scss';
-import '@wordpress/admin-ui/build-style/style.css';
 
 const Layout = () => {
 	const location = useLocation();

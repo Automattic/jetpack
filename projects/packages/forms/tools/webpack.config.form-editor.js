@@ -25,15 +25,6 @@ export default {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
-			'@wordpress/admin-ui/build-style/style.css': path.join(
-				__dirname,
-				'..',
-				'node_modules',
-				'@wordpress',
-				'admin-ui',
-				'build-style',
-				'style.css'
-			),
 		},
 	},
 	externals: {

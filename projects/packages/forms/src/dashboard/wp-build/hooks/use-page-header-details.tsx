@@ -18,7 +18,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -62,7 +62,8 @@ type UsePageHeaderDetailsProps = {
 type UsePageHeaderDetailsReturn = {
 	ariaLabel: string;
 	breadcrumbs: ReactNode;
-	title?: ReactNode;
+	title?: string;
+	visual: ReactNode;
 	badges?: ReactNode;
 	subtitle: ReactNode;
 	actions?: ReactNode;
@@ -458,12 +459,7 @@ export default function usePageHeaderDetails(
 		trackAction,
 	] );
 
-	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
-		<Stack align="center" gap="xs">
-			<JetpackLogo showText={ false } width={ 20 } />
-			{ children }
-		</Stack>
-	);
+	const visual = <JetpackLogo showText={ false } width={ 20 } />;
 
 	const ariaLabel = useMemo( () => {
 		if ( isSingleFormScreen ) {
@@ -475,10 +471,10 @@ export default function usePageHeaderDetails(
 
 	const title = useMemo( () => {
 		if ( isSingleFormScreen ) {
-			return null;
+			return undefined;
 		}
 		// "Forms" is a product name, do not translate.
-		return <WrapWithJetpackLogo>Forms</WrapWithJetpackLogo>;
+		return 'Forms';
 	}, [ isSingleFormScreen ] );
 
 	const breadcrumbs = useMemo( () => {
@@ -487,14 +483,12 @@ export default function usePageHeaderDetails(
 		}
 
 		return (
-			<WrapWithJetpackLogo>
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
-						{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
-					] }
-				/>
-			</WrapWithJetpackLogo>
+			<Breadcrumbs
+				items={ [
+					{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
+					{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
+				] }
+			/>
 		);
 	}, [ isSingleFormScreen, formTitle ] );
 
@@ -884,5 +878,5 @@ export default function usePageHeaderDetails(
 		trackExportClickResponsesList,
 	] );
 
-	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
+	return { ariaLabel, breadcrumbs, title, visual, badges, subtitle, actions };
 }
