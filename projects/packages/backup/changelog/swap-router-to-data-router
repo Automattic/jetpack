@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Backup: Switch the Overview admin from `<HashRouter>` + Routes to react-router 7's data-router API (`createHashRouter` + `RouterProvider`), matching Jetpack Forms' working pattern. Removes the per-navigation HashRouter remount + history.pushState patch we used to dodge React Router's stalled subscribe→re-render under WP's canary ReactDOM, eliminating the 1–2s nav latency from Gates re-running on every route change.
