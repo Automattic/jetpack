@@ -151,4 +151,80 @@ class Donations_Test extends \WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'padding-left', $css );
 		$this->assertStringNotContainsString( 'padding-right', $css );
 	}
+
+	/**
+	 * Build_custom_styles emits font-size and padding for the donate button.
+	 */
+	public function test_build_custom_styles_emits_button_dimensions() {
+		$attr = array(
+			'buttonFontSize' => '20px',
+			'buttonPadding'  => array(
+				'top'    => '10px',
+				'right'  => '24px',
+				'bottom' => '10px',
+				'left'   => '24px',
+			),
+		);
+
+		$css = Donations\build_custom_styles( $attr, '.jp-donations-1' );
+
+		$this->assertStringContainsString(
+			'.jp-donations-1 .donations__donate-button{font-size:20px;padding-top:10px;padding-right:24px;padding-bottom:10px;padding-left:24px}',
+			$css
+		);
+	}
+
+	/**
+	 * Build_custom_styles emits text-align rule for left/center/right alignment.
+	 *
+	 * @dataProvider button_alignment_provider
+	 *
+	 * @param string $alignment Alignment value.
+	 */
+	#[DataProvider( 'button_alignment_provider' )]
+	public function test_build_custom_styles_emits_text_align( $alignment ) {
+		$attr = array( 'buttonAlignment' => $alignment );
+		$css  = Donations\build_custom_styles( $attr, '.jp-donations-1' );
+		$this->assertStringContainsString(
+			'.jp-donations-1 .donations__donate-button-wrapper{text-align:' . $alignment . '}',
+			$css
+		);
+	}
+
+	/**
+	 * Alignment values that map to a text-align rule.
+	 *
+	 * @return array
+	 */
+	public static function button_alignment_provider() {
+		return array(
+			'left'   => array( 'left' ),
+			'center' => array( 'center' ),
+			'right'  => array( 'right' ),
+		);
+	}
+
+	/**
+	 * Full-width alignment emits block-level width 100% rules instead of text-align.
+	 */
+	public function test_build_custom_styles_emits_full_width() {
+		$css = Donations\build_custom_styles( array( 'buttonAlignment' => 'full' ), '.jp-donations-1' );
+		$this->assertStringContainsString(
+			'.jp-donations-1 .donations__donate-button-wrapper{display:block;width:100%}',
+			$css
+		);
+		$this->assertStringContainsString(
+			'.jp-donations-1 .donations__donate-button{display:block;width:100%;box-sizing:border-box}',
+			$css
+		);
+		$this->assertStringNotContainsString( 'text-align', $css );
+	}
+
+	/**
+	 * Unknown alignment values are dropped.
+	 */
+	public function test_build_custom_styles_drops_unknown_alignment() {
+		$css = Donations\build_custom_styles( array( 'buttonAlignment' => 'wat' ), '.jp-donations-1' );
+		$this->assertStringNotContainsString( 'donate-button-wrapper', $css );
+	}
 }
