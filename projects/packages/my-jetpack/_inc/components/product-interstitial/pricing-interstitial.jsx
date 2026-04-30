@@ -47,7 +47,7 @@ export default function PricingInterstitial( { slug } ) {
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug } );
+	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const myJetpackCheckoutUri = getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
@@ -380,14 +380,22 @@ export default function PricingInterstitial( { slug } ) {
 	const currencyCode = productPricing?.currencyCode || bundlePricing?.currencyCode || 'USD';
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showBackground={ false }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ handleGoBack }
+					to="/products"
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
+		>
 			<Container
 				className={ styles.interstitialContainer }
 				horizontalSpacing={ 3 }
 				horizontalGap={ 2 }
 			>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
-					<GoBackLink onClick={ handleGoBack } />
 					<Text variant="body-small">
 						{ createInterpolateElement(
 							__(

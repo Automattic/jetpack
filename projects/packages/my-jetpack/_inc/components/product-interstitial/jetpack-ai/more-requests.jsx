@@ -42,11 +42,17 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 	}, [ recordEvent ] );
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage
+			showBackground={ false }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ onClickGoBack }
+					to="/products"
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
+		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col className={ styles[ 'product-interstitial__header' ] }>
-					<GoBackLink onClick={ onClickGoBack } reload={ false } />
-				</Col>
 				<Col>
 					<Container
 						className={ styles.container }
@@ -63,7 +69,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 										<Button href={ contactHref } onClick={ trackClickHandler }>
 											{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
 										</Button>
-										<Link to={ '/' } onClick={ onClickGoBack }>
+										<Link to={ '/products' } onClick={ onClickGoBack }>
 											<Button variant="secondary">{ __( 'Back', 'jetpack-my-jetpack' ) }</Button>
 										</Link>
 									</div>
