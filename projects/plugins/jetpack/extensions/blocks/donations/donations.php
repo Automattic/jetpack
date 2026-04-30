@@ -173,7 +173,7 @@ function render_block( $attr, $content ) {
 			wp_kses_post( $donation['extraText'] ?? $default_texts['extraText'] )
 		);
 		$buttons    .= sprintf(
-			'<a class="wp-block-button__link donations__donate-button %1$s" href="%2$s">%3$s</a>',
+			'<div class="wp-block-button donations__donate-button-wrapper %1$s"><a class="wp-block-button__link wp-element-button donations__donate-button %1$s" href="%2$s">%3$s</a></div>',
 			esc_attr( $donation['class'] ),
 			esc_url( \Jetpack_Memberships::get_instance()->get_subscription_url( $plan_id ) ),
 			wp_kses_post( $donation['buttonText'] )

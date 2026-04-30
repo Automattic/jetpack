@@ -1,4 +1,8 @@
 // Common styles for both views (editor and frontend).
+// Surfaces (backgrounds, text colors, typography) defer to the active theme
+// by inheriting from the surrounding context. Structural borders and active-
+// state colors remain hardcoded for now; a follow-up that adds Gutenberg
+// style supports will make them user-customizable.
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-donations {
@@ -17,11 +21,10 @@
 		display: inline-block;
 		flex: 1;
 		text-align: center;
-		font-size: 16px;
 		padding: 12px;
 		border-inline-start: 1px solid gb.$gray-400;
-		background: gb.$white;
-		color: gb.$gray-900;
+		background: transparent;
+		color: inherit;
 		cursor: pointer;
 
 		@include gb.break-small() {
@@ -69,13 +72,12 @@
 	.donations__amount {
 		display: inline-block;
 		padding: 16px 24px;
-		background-color: gb.$white;
-		color: gb.$gray-900;
+		background-color: transparent;
+		color: inherit;
 		border: 1px solid gb.$gray-400;
 		margin-inline-end: 8px;
 		margin-bottom: 8px;
 		font-weight: 600;
-		font-size: 16px;
 		white-space: nowrap;
 
 		&.has-error {

@@ -119,7 +119,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 			/>
 			<div className="wp-block-button donations__donate-button-wrapper">
 				<RichText
-					className="wp-block-button__link donations__donate-button"
+					className="wp-block-button__link wp-element-button donations__donate-button"
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
 					value={
 						getDonationValue( 'buttonText' ) || DEFAULT_TEXTS[ donationAttribute ]?.buttonText
