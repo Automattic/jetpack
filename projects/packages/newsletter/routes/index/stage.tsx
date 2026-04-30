@@ -1,10 +1,13 @@
+import analytics from '@automattic/jetpack-analytics';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { useEffect } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import NewsletterPage, { type NewsletterTab } from '../../_inc/components/newsletter-page';
 import SubscribersBody from '../../_inc/subscribers/components/subscribers-body';
 import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { NewsletterSettingsApp } from '../../src/settings';
+import { getNewsletterScriptData } from '../../src/settings/script-data';
 import '../../src/settings/style.scss';
 import './route.scss';
 
@@ -31,6 +34,15 @@ function Stage(): JSX.Element {
 	} ) as StageSearch;
 
 	const activeTab: NewsletterTab = search.tab === 'settings' ? 'settings' : 'subscribers';
+
+	// Initialize analytics once for the entire page so tab/section events fire
+	// regardless of which tab the visitor lands on.
+	useEffect( () => {
+		const tracksUserData = getNewsletterScriptData()?.tracksUserData;
+		if ( tracksUserData && typeof tracksUserData === 'object' ) {
+			analytics.initialize( tracksUserData.userid, tracksUserData.username );
+		}
+	}, [] );
 
 	return (
 		<QueryClientProvider client={ queryClient }>

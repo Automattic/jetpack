@@ -1,4 +1,6 @@
+import analytics from '@automattic/jetpack-analytics';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -73,6 +75,12 @@ export default function NewsletterPage( {
 			if ( next !== 'subscribers' && next !== 'settings' ) {
 				return;
 			}
+			if ( next !== activeTab ) {
+				analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
+					site_type: getSiteType(),
+					tab: next,
+				} );
+			}
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
@@ -80,7 +88,7 @@ export default function NewsletterPage( {
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate ]
+		[ activeTab, navigate ]
 	);
 
 	const title = (
