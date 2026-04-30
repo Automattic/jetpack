@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the @wordpress/admin-ui CSS bundle workaround from the default request map.
