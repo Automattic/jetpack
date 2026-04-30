@@ -275,6 +275,13 @@ class Agents_Manager {
 			$inline_data['agentId'] = $agent_id;
 		}
 
+		/**
+		 * Filter the data exposed to the Agents Manager frontend.
+		 *
+		 * @param array $inline_data Data encoded into `agentsManagerData`.
+		 */
+		$inline_data = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $inline_data );
+
 		wp_add_inline_script(
 			'agents-manager',
 			'const agentsManagerData = ' . wp_json_encode(
