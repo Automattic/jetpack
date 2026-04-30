@@ -201,13 +201,13 @@ function render_block( $attr, $content ) {
 		);
 	}
 
-	$instance_id     = wp_unique_id( 'jp-donations-' );
-	$wrapper_classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) . ' ' . $instance_id;
-	$custom_styles   = build_custom_styles( $attr, '.' . $instance_id );
+	$instance_id   = wp_unique_id( 'jp-donations-' );
+	$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $instance_id ) );
+	$custom_styles = build_custom_styles( $attr, '.' . $instance_id );
 
 	return sprintf(
 		'
-<div class="%1$s">%9$s
+<div %1$s>%9$s
 	<div class="donations__container">
 		%2$s
 		<div class="donations__content">
@@ -224,7 +224,7 @@ function render_block( $attr, $content ) {
 	</div>
 </div>
 ',
-		esc_attr( $wrapper_classes ),
+		$wrapper_attrs,
 		$nav,
 		$headings,
 		$choose_amount_text,

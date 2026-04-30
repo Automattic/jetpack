@@ -9,6 +9,9 @@
 	// Default border. User-set border (via the Border style support) renders as
 	// an inline style on this element, which wins on specificity.
 	border: 1px solid gb.$gray-400;
+	// Clip children to any user-set border-radius; without this, tab corners
+	// extend past the rounded outer corners.
+	overflow: hidden;
 
 	.donations__nav {
 		display: flex;
