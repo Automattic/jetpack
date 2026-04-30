@@ -1621,16 +1621,8 @@ const { state } = store( 'wpcom-write', {
  */
 async function savePost( postStatus, isAutosave = false ) {
 	if ( ! isAutosave ) {
-		if ( ! state.title.trim() ) {
-			state.message = i18n.pleaseAddTitle || 'Please add a title';
-			setTimeout( () => {
-				state.message = '';
-			}, 2500 );
-			return;
-		}
-
 		const content = document.querySelector( '.bw-content' );
-		if ( ! content || ! content.innerHTML.trim() ) {
+		if ( ! state.title.trim() && ( ! content || ! content.innerHTML.trim() ) ) {
 			state.message = i18n.pleaseWriteSomething || 'Please write something';
 			setTimeout( () => {
 				state.message = '';
