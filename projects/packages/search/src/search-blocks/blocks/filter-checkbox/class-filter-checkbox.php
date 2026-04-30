@@ -118,9 +118,13 @@ class Filter_Checkbox {
 		// map the filter list and active-filter pills would render as raw
 		// numbers. Surface the legacy `blogIdFilteringLabels` map on the
 		// config so view.js / activePills can resolve a human label without
-		// a special case for this filter type.
+		// a special case for this filter type. Skipped when the map is empty
+		// so the serialized Interactivity state doesn't carry a no-op key.
 		if ( 'blog_id' === $filter_type ) {
-			$config['displayLabels'] = static::get_blog_id_labels();
+			$labels = static::get_blog_id_labels();
+			if ( ! empty( $labels ) ) {
+				$config['displayLabels'] = $labels;
+			}
 		}
 
 		return $config;

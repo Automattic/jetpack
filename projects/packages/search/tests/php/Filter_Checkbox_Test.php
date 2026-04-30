@@ -288,15 +288,42 @@ class Filter_Checkbox_Test extends TestCase {
 
 	/**
 	 * When no consumer hooks `jetpack_instant_search_options`, the labels
-	 * map is an empty array — the filter still renders, view.js falls
-	 * back to the bucket key (numeric blog ID) with no special-casing.
+	 * map is empty — the config must omit `displayLabels` entirely so the
+	 * serialized Interactivity state doesn't carry a no-op key for every
+	 * blog_id block on the page. view.js falls back to the bucket key
+	 * (numeric blog ID) when the field is absent.
 	 */
-	public function test_build_config_blog_id_display_labels_default_to_empty() {
+	public function test_build_config_omits_display_labels_when_blog_id_map_is_empty() {
 		$config = Filter_Checkbox::build_config(
 			array( 'filterType' => 'blog_id' ),
 			'blog_ids'
 		);
-		$this->assertSame( array(), $config['displayLabels'] );
+		$this->assertArrayNotHasKey( 'displayLabels', $config );
+	}
+
+	/**
+	 * The `jetpack_instant_search_options` filter chain may run third-party
+	 * handlers that hit the DB or network; build_config() runs twice per
+	 * filter-checkbox block (once during state seeding, once from render.php),
+	 * so we memoize. This test asserts the filter fires exactly once across
+	 * two build_config() calls — a regression here would multiply the
+	 * filter chain cost by the number of blog_id blocks on the page.
+	 */
+	public function test_build_config_memoizes_blog_id_label_resolution() {
+		$call_count = 0;
+		$callback   = static function ( $options ) use ( &$call_count ) {
+			++$call_count;
+			$options['blogIdFilteringLabels'] = array( 1 => 'Main' );
+			return $options;
+		};
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			Filter_Checkbox::build_config( array( 'filterType' => 'blog_id' ), 'blog_ids' );
+			Filter_Checkbox::build_config( array( 'filterType' => 'blog_id' ), 'blog_ids' );
+			$this->assertSame( 1, $call_count );
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
 	}
 
 	/**
