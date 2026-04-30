@@ -1289,6 +1289,7 @@ const { state } = store( 'wpcom-write', {
 			}
 			if ( state.showLinkInput ) {
 				clearHighlight();
+				restoreSelection();
 				state.showLinkInput = false;
 				return;
 			}
@@ -1335,6 +1336,7 @@ const { state } = store( 'wpcom-write', {
 				)
 					return;
 				clearHighlight();
+				restoreSelection();
 				state.showLinkInput = false;
 				document.removeEventListener( 'click', linkPopoverCloseHandler );
 				linkPopoverCloseHandler = null;
@@ -1366,6 +1368,7 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
 				clearHighlight();
+				restoreSelection();
 				state.showLinkInput = false;
 				if ( linkPopoverCloseHandler ) {
 					document.removeEventListener( 'click', linkPopoverCloseHandler );
