@@ -51,11 +51,6 @@
 			"lineHeight": true,
 			"letterSpacing": true
 		},
-		"spacing": {
-			"padding": true,
-			"margin": true,
-			"blockGap": true
-		},
 		"__experimentalBorder": {
 			"color": true,
 			"radius": true,
