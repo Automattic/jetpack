@@ -8,7 +8,6 @@ import type {
 	SubscriberStats,
 	SubscribersQueryParams,
 	SubscribersResponse,
-	SubscribersTotalsResponse,
 } from './types';
 
 /**
@@ -40,19 +39,6 @@ export function fetchSubscribers( params: SubscribersQueryParams ): Promise< Sub
 
 	return apiFetch< SubscribersResponse >( {
 		path: `${ baseUrl }&${ filterQuery }`,
-		method: 'GET',
-	} );
-}
-
-/**
- * Fetch subscriber totals (total / email / paid / social) from the Jetpack REST proxy
- * (`GET /wpcom/v2/subscribers/totals`), which forwards to WP.com.
- *
- * @return Subscribers totals response.
- */
-export function fetchSubscribersTotals(): Promise< SubscribersTotalsResponse > {
-	return apiFetch< SubscribersTotalsResponse >( {
-		path: '/wpcom/v2/subscribers/totals',
 		method: 'GET',
 	} );
 }

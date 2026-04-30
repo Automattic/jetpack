@@ -1,118 +1,13 @@
-@import "@wordpress/admin-ui/build-style/style.css";
-@import "@wordpress/dataviews/build-style/style.css";
-
-// Page chrome — match the wp-admin sidebar bg (#1d2327 in the default
-// "fresh" scheme) so the dark sidebar and the page area behave as one
-// continuous "custom canvas". Light surface cards (#fcfcfc) pop against
-// it. Hide #wpfooter, zero #wpcontent's padding-left, and zero
-// #wpbody-content's padding-bottom — same chrome overrides Forms uses.
-body[class*="_page_subscribers"],
-body.jetpack-subscribers-dashboard-page {
-	background: #1d2327;
-
-	#wpcontent {
-		padding-left: 0;
-	}
-
-	#wpbody-content {
-		padding-bottom: 0;
-	}
-
-	#wpfooter {
-		display: none;
-	}
-}
-
-// Mount-point flex column, mirrors Forms' #jp-forms-dashboard.
-#jetpack-subscribers-dashboard {
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 auto;
-	height: calc(100vh - var(--wp-admin-bar-height, 32px));
-
-	> div:first-child {
-		display: flex;
-		flex-direction: column;
-		flex: 1 1 auto;
-		min-height: 0;
-	}
-}
+@use "sass:meta";
+@include meta.load-css("@wordpress/admin-ui/build-style/style.css");
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
 .jetpack-subscribers-dashboard {
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-
-	// Separate stacking context for any portal-rendered popovers.
-	isolation: isolate;
 
 	&__header-actions {
 		align-items: center;
 		display: flex;
 		gap: 8px;
-	}
-
-	// Surfaces parent: 1:1 with `.boot-layout__surfaces`. Single-page mode
-	// kills the top + start margins so the cards hug the wp-admin chrome.
-	&__layout {
-		display: flex;
-		flex-grow: 1;
-		gap: 8px;
-		margin: 0;
-
-		@media (min-width: 782px) {
-			margin: 8px;
-			margin-top: 0;
-			margin-inline-start: 0;
-		}
-	}
-
-	// Surfaces: 1:1 with `.boot-layout__inspector, .boot-layout__stage`.
-	// Mobile = fixed fullscreen; desktop = inline cards with border-radius
-	// and a near-invisible bg contrast against the page (no border).
-	&__surface {
-		background: #fcfcfc;
-		border-radius: 0;
-		bottom: 0;
-		flex: 1;
-		height: 100vh;
-		left: 0;
-		margin: 0;
-		overflow-y: auto;
-		position: fixed;
-		right: 0;
-		top: 46px;
-		width: 100vw;
-
-		&.is-stage {
-			z-index: 2;
-		}
-
-		&.is-inspector {
-			z-index: 3;
-		}
-
-		@media (min-width: 782px) {
-			border-radius: 8px;
-			height: auto;
-			margin: 0;
-			position: static;
-			width: auto;
-
-			&.is-stage {
-				flex-grow: 1;
-				min-width: 0;
-				z-index: auto;
-			}
-
-			&.is-inspector {
-				align-self: stretch;
-				flex: none;
-				max-width: 400px;
-				width: 400px;
-				z-index: auto;
-			}
-		}
 	}
 }
 

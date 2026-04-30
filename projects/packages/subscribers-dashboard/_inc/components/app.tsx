@@ -1,82 +1,78 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useNavigate, useSearch } from '@wordpress/route';
+import { queryClient } from '../lib/query-client';
 import { getBlogId } from '../lib/site';
-import { useOpenSubscriber } from '../lib/use-open-subscriber';
-import SubscriberDetailPanel from './detail/subscriber-detail-panel';
 import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
 import Notices from './notices';
 import SubscribersDataViews from './subscribers-data-views';
 import type { Subscriber } from '../data/types';
 
+type SubscribersSearch = Record< string, unknown > & {
+	subscriber?: string | number;
+	u?: string | number;
+};
+
 /**
- * Top-level Subscribers dashboard app — mirrors Forms' layout: a `is-stage` surface holding the
- * Page header + DataViews, and an `is-inspector` surface as a flex sibling for the detail view.
- * Header lives inside the stage so the two surfaces feel like equal-priority cards (rather than
- * a global header above a side panel). Wrapped in a React Query client for shared cache
- * invalidation.
+ * Subscribers dashboard stage. Boot's `RouteComponent` wraps this in
+ * `<div class="boot-layout__stage">`, and pairs it with the `inspector` export
+ * (subscriber detail) when `route.inspector({ search })` returns true. The
+ * inspector lives in `routes/subscribers/inspector.tsx`; this stage just owns
+ * the table, header, modals, and notices.
  *
- * @return The rendered admin page.
+ * Selection is URL-state via `@wordpress/route`'s `?subscriber=`/`?u=` so
+ * back/forward and reload preserve the open detail panel.
+ *
+ * @return Stage content.
  */
 export default function App(): JSX.Element {
-	const queryClient = useMemo(
-		() =>
-			new QueryClient( {
-				defaultOptions: {
-					queries: {
-						refetchOnWindowFocus: false,
-						staleTime: 30 * 1000,
-					},
-				},
-			} ),
-		[]
-	);
-
 	const blogId = useMemo( () => getBlogId(), [] );
 	const [ isAddOpen, setAddOpen ] = useState( false );
 	const openAdd = useCallback( () => setAddOpen( true ), [] );
 	const closeAdd = useCallback( () => setAddOpen( false ), [] );
 
-	const [ openSubscriber, setOpenSubscriber ] = useOpenSubscriber();
+	const navigate = useNavigate();
+	const search = useSearch( {
+		from: '/' as unknown as never,
+		strict: false,
+	} ) as SubscribersSearch;
 
 	const handleViewSubscriber = useCallback(
 		( target: Subscriber ) => {
-			setOpenSubscriber( {
-				subscriptionId: target.email_subscription_id || target.wpcom_subscription_id || undefined,
-				userId: target.user_id || undefined,
-			} );
+			const subscriptionId =
+				target.email_subscription_id || target.wpcom_subscription_id || undefined;
+			const userId = target.user_id || undefined;
+			navigate( {
+				search: {
+					...search,
+					subscriber: subscriptionId,
+					u: userId,
+				},
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ setOpenSubscriber ]
+		[ navigate, search ]
 	);
-
-	const handleCloseDetail = useCallback( () => {
-		setOpenSubscriber( null );
-	}, [ setOpenSubscriber ] );
 
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<div className="jetpack-subscribers-dashboard">
-				<div className="jetpack-subscribers-dashboard__layout">
-					<div className="jetpack-subscribers-dashboard__surface is-stage">
-						<Page
-							title={ __( 'Subscribers', 'jetpack-subscribers-dashboard' ) }
-							subTitle={ __(
-								'Manage everyone subscribed to your site.',
-								'jetpack-subscribers-dashboard'
-							) }
-							actions={ <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } /> }
-							hasPadding={ false }
-						>
-							<SubscribersDataViews
-								onAddSubscribers={ openAdd }
-								onViewSubscriber={ handleViewSubscriber }
-							/>
-						</Page>
-					</div>
-					<SubscriberDetailPanel open={ openSubscriber } onClose={ handleCloseDetail } />
-				</div>
+				<Page
+					title={ __( 'Subscribers', 'jetpack-subscribers-dashboard' ) }
+					subTitle={ __(
+						'Manage everyone subscribed to your site.',
+						'jetpack-subscribers-dashboard'
+					) }
+					actions={ <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } /> }
+					hasPadding={ false }
+				>
+					<SubscribersDataViews
+						onAddSubscribers={ openAdd }
+						onViewSubscriber={ handleViewSubscriber }
+					/>
+				</Page>
 				<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
 				<Notices />
 			</div>

@@ -6,10 +6,12 @@ import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../../lib/subscription-status';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
 import type { Subscriber } from '../../data/types';
-import type { OpenSubscriber } from '../../lib/use-open-subscriber';
 
 type Props = {
-	open: NonNullable< OpenSubscriber >;
+	open: {
+		subscriptionId?: number;
+		userId?: number;
+	};
 };
 
 /**

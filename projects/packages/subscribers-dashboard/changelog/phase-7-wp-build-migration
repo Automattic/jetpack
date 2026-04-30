@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Adopt the @wordpress/build CLI pipeline (Forms-style `routes/`) and drop the hand-rolled boot integration; subscriber detail now uses boot's inspector slot.

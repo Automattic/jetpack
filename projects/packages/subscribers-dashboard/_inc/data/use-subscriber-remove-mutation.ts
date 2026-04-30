@@ -4,7 +4,6 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { getRemovePayload, getSubscriberLabel } from '../lib/subscriber-helpers';
 import { removeSubscriber } from './api';
-import { SUBSCRIBERS_TOTALS_QUERY_KEY } from './use-subscribers-totals';
 import type { RemoveSubscriberError, Subscriber } from './types';
 
 /**
@@ -20,8 +19,8 @@ type Result = {
 
 /**
  * Remove-subscriber mutation. Iterates the input list (capped at 100), POSTs each subscriber to
- * `/wpcom/v2/subscribers/remove`, and on success invalidates the subscribers list and totals
- * caches so the table re-fetches with the row gone.
+ * `/wpcom/v2/subscribers/remove`, and on success invalidates the subscribers list cache so the
+ * table re-fetches with the row gone.
  *
  * Mirrors Calypso's `useSubscriberRemoveMutation` cascade — paid subscription cancel + WPCOM
  * follower delete + email follower delete — but the cascade itself runs server-side in our proxy.
@@ -55,7 +54,6 @@ export function useSubscriberRemoveMutation() {
 		},
 		onSuccess: result => {
 			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
-			queryClient.invalidateQueries( { queryKey: SUBSCRIBERS_TOTALS_QUERY_KEY } );
 
 			if ( result.removed.length === 1 ) {
 				createSuccessNotice(

@@ -58,17 +58,6 @@ export type SubscribersResponse = {
 	is_owner_subscribed?: boolean;
 };
 
-export type SubscribersTotals = {
-	total_subscribers: number;
-	email_subscribers: number;
-	paid_subscribers: number;
-	social_followers: number;
-};
-
-export type SubscribersTotalsResponse = {
-	counts: SubscribersTotals;
-};
-
 export type SubscribersSortField = 'date_subscribed' | 'name' | 'plan' | 'subscription_status';
 
 export type SubscribersSortOrder = 'asc' | 'desc';
