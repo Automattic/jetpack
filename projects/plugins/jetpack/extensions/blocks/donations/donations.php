@@ -301,7 +301,13 @@ function build_custom_styles( $attr, $scope ) {
 
 	$content_alignment = $attr['contentAlignment'] ?? '';
 	if ( in_array( $content_alignment, array( 'left', 'center', 'right' ), true ) ) {
-		$rules[] = $scope . ' .donations__content{text-align:' . $content_alignment . '}';
+		$rules[]     = $scope . ' .donations__content{text-align:' . $content_alignment . '}';
+		$justify_map = array(
+			'left'   => 'flex-start',
+			'center' => 'center',
+			'right'  => 'flex-end',
+		);
+		$rules[]     = $scope . ' .donations__amounts{justify-content:' . $justify_map[ $content_alignment ] . '}';
 	}
 
 	foreach ( $groups as $group ) {
