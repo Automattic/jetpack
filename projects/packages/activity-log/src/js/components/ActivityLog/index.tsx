@@ -99,6 +99,12 @@ export default function ActivityLog() {
 	// render so users hovering get the "Coming soon" context — and
 	// screen readers pick it up too. The MutationObserver re-runs on
 	// pagination / filter changes, when DataViews swaps the row DOM.
+	//
+	// TODO(#48236): drop this whole effect. Once the Backup wp-admin
+	// page lands the action stops being a stub and the row will render
+	// as an enabled link, so this textContent-matching DOM hack — which
+	// is fragile across translations and re-fires on every DataViews
+	// mutation — won't be needed at all.
 	useEffect( () => {
 		const wrapper = wrapperRef.current;
 		if ( ! wrapper ) {
