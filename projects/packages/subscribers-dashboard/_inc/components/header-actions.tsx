@@ -2,6 +2,7 @@ import { DropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { Button } from '@wordpress/ui';
+import { recordTracksEvent } from '../lib/tracks';
 import type { JetpackBlogId } from '../lib/site';
 
 type Props = {
@@ -49,6 +50,7 @@ export default function HeaderActions( { blogId, onAddSubscribers }: Props ): JS
 						onClick: () => {
 							const url = blogId ? getCsvDownloadUrl( blogId ) : null;
 							if ( url ) {
+								recordTracksEvent( 'jetpack_subscribers_export_downloaded' );
 								window.open( url, '_blank' );
 							}
 						},

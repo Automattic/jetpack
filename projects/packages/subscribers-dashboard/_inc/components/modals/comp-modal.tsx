@@ -5,6 +5,7 @@ import { Button, Dialog, Notice, Stack, Text } from '@wordpress/ui';
 import { useCompMutation } from '../../data/use-comp-mutation';
 import { useMembershipsProducts } from '../../data/use-memberships-products';
 import { getSubscriberLabel } from '../../lib/subscriber-helpers';
+import { recordTracksEvent } from '../../lib/tracks';
 import type { Subscriber, SubscriptionPlan } from '../../data/types';
 
 type Props = {
@@ -57,7 +58,9 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 		if ( ! isOpen ) {
 			setPlanId( '' );
 			setNoExpiration( false );
+			return;
 		}
+		recordTracksEvent( 'jetpack_subscribers_comp_modal_open' );
 	}, [ isOpen ] );
 
 	const compedPlanIds = useMemo( () => {
@@ -104,6 +107,11 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 		if ( ! userId || ! Number.isFinite( numericPlanId ) || numericPlanId <= 0 ) {
 			return;
 		}
+		recordTracksEvent( 'jetpack_subscribers_comp_modal_confirm', {
+			plan_id: numericPlanId,
+			user_id: userId,
+			is_email_subscriber: !! subscriber?.email_subscription_id,
+		} );
 		mutation.mutate(
 			{
 				user_id: userId,

@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { AlertDialog } from '@wordpress/ui';
 import { useRemoveCompMutation } from '../../data/use-comp-mutation';
 import { getSubscriberLabel } from '../../lib/subscriber-helpers';
+import { recordTracksEvent } from '../../lib/tracks';
 import type { Subscriber } from '../../data/types';
 
 type Props = {
@@ -27,6 +28,9 @@ export default function RemoveCompModal( { pending, onClose }: Props ): JSX.Elem
 		if ( ! pending ) {
 			return;
 		}
+		recordTracksEvent( 'jetpack_subscribers_remove_comp_confirm', {
+			comp_id: pending.compId,
+		} );
 		await mutation.mutateAsync( {
 			compId: pending.compId,
 			planTitle: pending.planTitle,

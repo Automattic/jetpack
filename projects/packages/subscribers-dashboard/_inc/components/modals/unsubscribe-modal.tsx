@@ -1,7 +1,8 @@
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { AlertDialog } from '@wordpress/ui';
 import { getSubscriberLabel } from '../../lib/subscriber-helpers';
+import { recordTracksEvent } from '../../lib/tracks';
 import type { Subscriber } from '../../data/types';
 
 type Props = {
@@ -28,13 +29,37 @@ export default function UnsubscribeModal( {
 	onConfirm,
 	onCancel,
 }: Props ): JSX.Element | null {
+	const isOpen = subscribers.length > 0;
+
+	// Mirrors Calypso's free vs. paid `_modal_showed` / `_modal_dismissed` events. We classify
+	// "paid" as soon as any subscriber in the queue has at least one non-comp paid plan.
+	const hasPaidSubscriber = subscribers.some( subscriber =>
+		( subscriber.plans ?? [] ).some( plan => ! plan.is_comp )
+	);
+
+	useEffect( () => {
+		if ( ! isOpen ) {
+			return;
+		}
+		recordTracksEvent(
+			hasPaidSubscriber
+				? 'jetpack_subscribers_remove_paid_subscriber_modal_showed'
+				: 'jetpack_subscribers_remove_free_subscriber_modal_showed'
+		);
+	}, [ isOpen, hasPaidSubscriber ] );
+
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
 			if ( ! nextOpen ) {
+				recordTracksEvent(
+					hasPaidSubscriber
+						? 'jetpack_subscribers_remove_paid_subscriber_modal_dismissed'
+						: 'jetpack_subscribers_remove_free_subscriber_modal_dismissed'
+				);
 				onCancel();
 			}
 		},
-		[ onCancel ]
+		[ onCancel, hasPaidSubscriber ]
 	);
 
 	if ( subscribers.length === 0 ) {

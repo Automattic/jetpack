@@ -1,6 +1,8 @@
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { envelope, search as searchIcon } from '@wordpress/icons';
 import { Button, EmptyState } from '@wordpress/ui';
+import { recordTracksEvent } from '../lib/tracks';
 
 type Props = {
 	hasFiltersOrSearch: boolean;
@@ -21,6 +23,12 @@ export default function SubscribersEmptyState( {
 	hasFiltersOrSearch,
 	onAddSubscribers,
 }: Props ): JSX.Element {
+	useEffect( () => {
+		recordTracksEvent( 'jetpack_subscribers_empty_view_displayed', {
+			has_filters_or_search: hasFiltersOrSearch,
+		} );
+	}, [ hasFiltersOrSearch ] );
+
 	if ( hasFiltersOrSearch ) {
 		return (
 			<EmptyState.Root>

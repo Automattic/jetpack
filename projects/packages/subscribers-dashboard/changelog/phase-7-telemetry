@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Mirror Calypso's calypso_subscribers_* Tracks events as jetpack_subscribers_* via @automattic/jetpack-analytics — search, filter, sort, row click, subscriber removed (per row), unsubscribe modal show/dismiss (free/paid), comp modal open/confirm, remove-comp confirm, CSV export, add-subscribers tab change, empty view displayed (Phase 7).

@@ -6,6 +6,7 @@ import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutat
 import { useSubscribers } from '../data/use-subscribers';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
+import { recordTracksEvent } from '../lib/tracks';
 import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionStatusCell from './cells/subscription-status-cell';
@@ -82,6 +83,47 @@ export default function SubscribersDataViews( {
 
 	const { data, isLoading, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
+
+	// Tracks: mirror Calypso's per-interaction events. Fired off `onChangeView` instead of
+	// individual handlers because DataViews owns the controls; we just diff the previous view
+	// against the next and emit one event per kind of change.
+	const handleChangeView = useCallback(
+		( nextView: View ) => {
+			if ( ( nextView.search ?? '' ) !== ( view.search ?? '' ) ) {
+				recordTracksEvent( 'jetpack_subscribers_search_performed', {
+					query: nextView.search ?? '',
+				} );
+			}
+
+			const previousFilterValues = new Set(
+				( view.filters ?? [] ).map( filter => `${ filter.field }:${ String( filter.value ) }` )
+			);
+			( nextView.filters ?? [] ).forEach( filter => {
+				const key = `${ filter.field }:${ String( filter.value ) }`;
+				if ( ! previousFilterValues.has( key ) ) {
+					recordTracksEvent( 'jetpack_subscribers_filter_applied', {
+						filter_field: filter.field,
+						filter_value: String( filter.value ),
+					} );
+				}
+			} );
+
+			if (
+				nextView.sort?.field !== view.sort?.field ||
+				nextView.sort?.direction !== view.sort?.direction
+			) {
+				if ( nextView.sort?.field ) {
+					recordTracksEvent( 'jetpack_subscribers_sort_changed', {
+						sort_field: nextView.sort.field,
+						sort_direction: nextView.sort.direction ?? 'desc',
+					} );
+				}
+			}
+
+			setView( nextView );
+		},
+		[ setView, view.filters, view.search, view.sort?.direction, view.sort?.field ]
+	);
 
 	const fields = useMemo< Field< Subscriber >[] >(
 		() => [
@@ -242,6 +284,10 @@ export default function SubscribersDataViews( {
 
 	const handleClickItem = useCallback(
 		( item: Subscriber ) => {
+			recordTracksEvent( 'jetpack_subscribers_subscriber_row_clicked', {
+				subscription_id: item.email_subscription_id ?? item.wpcom_subscription_id ?? 0,
+				user_id: item.user_id ?? 0,
+			} );
 			onViewSubscriber( item );
 		},
 		[ onViewSubscriber ]
@@ -280,7 +326,7 @@ export default function SubscribersDataViews( {
 				data={ subscribers }
 				fields={ fields }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ handleChangeView }
 				defaultLayouts={ defaultLayouts }
 				paginationInfo={ paginationInfo }
 				getItemId={ getSubscriberRowId }

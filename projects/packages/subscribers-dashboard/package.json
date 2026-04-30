@@ -39,6 +39,7 @@
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/format-currency": "1.0.1",
+		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",

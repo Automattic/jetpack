@@ -3,6 +3,7 @@ import { useDispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { getRemovePayload, getSubscriberLabel } from '../lib/subscriber-helpers';
+import { recordTracksEvent } from '../lib/tracks';
 import { removeSubscriber } from './api';
 import type { RemoveSubscriberError, Subscriber } from './types';
 
@@ -54,6 +55,14 @@ export function useSubscriberRemoveMutation() {
 		},
 		onSuccess: result => {
 			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
+
+			result.removed.forEach( subscriber => {
+				recordTracksEvent( 'jetpack_subscribers_subscriber_removed', {
+					subscription_id:
+						subscriber.email_subscription_id ?? subscriber.wpcom_subscription_id ?? 0,
+					user_id: subscriber.user_id ?? 0,
+				} );
+			} );
 
 			if ( result.removed.length === 1 ) {
 				createSuccessNotice(

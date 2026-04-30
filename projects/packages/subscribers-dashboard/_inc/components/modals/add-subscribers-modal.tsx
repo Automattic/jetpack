@@ -4,6 +4,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, Notice, Stack, Tabs, Text } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
 import { extractEmailsFromCsv } from '../../lib/csv-parse';
+import { recordTracksEvent } from '../../lib/tracks';
 
 type Props = {
 	isOpen: boolean;
@@ -358,6 +359,10 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 
 	const handleTabChange = useCallback( ( next: string ) => {
 		setTab( next as TabValue );
+		// Calypso fires `calypso_subscribers_add_question` per import-method tile click, with a
+		// `method` prop. We mirror it on every tab switch so reviewers can read tab-engagement
+		// stats the same way.
+		recordTracksEvent( 'jetpack_subscribers_add_question', { method: next } );
 	}, [] );
 
 	if ( ! isOpen ) {
