@@ -8,6 +8,7 @@ import {
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Tabs } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
 import SearchDashboardTabs from 'components/dashboard-tabs';
 import {
@@ -138,7 +139,11 @@ export default function DashboardPage( { isLoading = false } ) {
 	};
 
 	return (
-		<div className="jp-search-dashboard-page">
+		<Tabs.Root
+			value={ activeTab }
+			onValueChange={ handleTabChange }
+			className="jp-search-dashboard-page"
+		>
 			<AdminPage
 				title={ 'Search' /** "Search" is a product name, do not translate. */ }
 				subTitle={ __(
@@ -156,20 +161,24 @@ export default function DashboardPage( { isLoading = false } ) {
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
-				tabs={ <SearchDashboardTabs value={ activeTab } onChange={ handleTabChange } /> }
+				tabs={ <SearchDashboardTabs /> }
 			>
 				{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
 				<DashboardNoticesSlot />
-				{ ! isPageLoading && (
-					<>
-						{ hasConnectionError && (
-							<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-								<Col lg={ 12 } md={ 12 } sm={ 12 }>
-									<ConnectionError />
-								</Col>
-							</Container>
-						) }
-						{ activeTab === SEARCH_DASHBOARD_TAB_SETTINGS && (
+				{ /* Panels mount with the tabs so `@wordpress/ui`'s Tab/Panel
+				   count validator stays balanced even before data resolves. */ }
+				<Tabs.Panel value={ SEARCH_DASHBOARD_TAB_SETTINGS }>
+					{ isPageLoading ? (
+						<Loading />
+					) : (
+						<>
+							{ hasConnectionError && (
+								<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
+									<Col lg={ 12 } md={ 12 } sm={ 12 }>
+										<ConnectionError />
+									</Col>
+								</Container>
+							) }
 							<SettingsTabContent
 								supportsInstantSearch={ supportsInstantSearch }
 								supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -185,8 +194,21 @@ export default function DashboardPage( { isLoading = false } ) {
 								isTogglingModule={ isTogglingModule }
 								isTogglingInstantSearch={ isTogglingInstantSearch }
 							/>
-						) }
-						{ activeTab === SEARCH_DASHBOARD_TAB_PLAN_USAGE && (
+						</>
+					) }
+				</Tabs.Panel>
+				<Tabs.Panel value={ SEARCH_DASHBOARD_TAB_PLAN_USAGE }>
+					{ isPageLoading ? (
+						<Loading />
+					) : (
+						<>
+							{ hasConnectionError && (
+								<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
+									<Col lg={ 12 } md={ 12 } sm={ 12 }>
+										<ConnectionError />
+									</Col>
+								</Container>
+							) }
 							<PlanUsageTabContent
 								isNewPricing={ isNewPricing }
 								supportsInstantSearch={ supportsInstantSearch }
@@ -195,16 +217,17 @@ export default function DashboardPage( { isLoading = false } ) {
 								isFreePlan={ isFreePlan }
 								sendPaidPlanToCart={ sendPaidPlanToCart }
 							/>
-						) }
-						<NoticesList
-							notices={ notices }
-							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-						/>
-					</>
+						</>
+					) }
+				</Tabs.Panel>
+				{ ! isPageLoading && (
+					<NoticesList
+						notices={ notices }
+						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+					/>
 				) }
-				{ isPageLoading && <Loading /> }
 			</AdminPage>
-		</div>
+		</Tabs.Root>
 	);
 }
 

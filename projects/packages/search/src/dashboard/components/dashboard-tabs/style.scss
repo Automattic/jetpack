@@ -11,10 +11,6 @@ $spacing-base: var(--spacing-base, 8px);
 	background-color: #fff;
 }
 
-.jp-search-dashboard-tabs__root {
-	overflow: hidden;
-}
-
 .jp-search-dashboard-tabs__list[role="tablist"][data-orientation="horizontal"] {
 	width: 100%;
 }

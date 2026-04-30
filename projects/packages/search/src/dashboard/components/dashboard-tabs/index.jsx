@@ -13,32 +13,27 @@ const TAB_LABELS = {
 };
 
 /**
- * Tab navigation rendered in the Search dashboard header.
+ * Tab list rendered in the Search dashboard header.
  *
- * @param {object}   props          - Component props.
- * @param {string}   props.value    - Active tab id.
- * @param {Function} props.onChange - Called with the next tab id.
+ * Must be rendered inside an external `Tabs.Root` so the matching
+ * `Tabs.Panel`s can live with the page content (see `dashboard-page.jsx`).
+ * The Tab/Panel count must match — `@wordpress/ui` validates this in dev.
+ *
  * @return {import('react').ReactElement} The tab list.
  */
-export default function SearchDashboardTabs( { value, onChange } ) {
+export default function SearchDashboardTabs() {
 	return (
 		<div className="jp-search-dashboard-tabs">
-			<Tabs.Root
-				value={ value }
-				onValueChange={ onChange }
-				className="jp-search-dashboard-tabs__root"
+			<Tabs.List
+				className="jp-search-dashboard-tabs__list"
+				aria-label={ __( 'Search dashboard sections', 'jetpack-search-pkg' ) }
 			>
-				<Tabs.List
-					className="jp-search-dashboard-tabs__list"
-					aria-label={ __( 'Search dashboard sections', 'jetpack-search-pkg' ) }
-				>
-					{ SEARCH_DASHBOARD_TABS.map( tab => (
-						<Tabs.Tab key={ tab } value={ tab } className="jp-search-dashboard-tabs__tab">
-							{ TAB_LABELS[ tab ] }
-						</Tabs.Tab>
-					) ) }
-				</Tabs.List>
-			</Tabs.Root>
+				{ SEARCH_DASHBOARD_TABS.map( tab => (
+					<Tabs.Tab key={ tab } value={ tab } className="jp-search-dashboard-tabs__tab">
+						{ TAB_LABELS[ tab ] }
+					</Tabs.Tab>
+				) ) }
+			</Tabs.List>
 		</div>
 	);
 }
