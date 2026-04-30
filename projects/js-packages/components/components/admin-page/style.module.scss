@@ -13,21 +13,34 @@
 	// or when showBottomBorder is false.
 	// Ideally admin-ui would expose a prop or CSS custom property for this:
 	// https://github.com/WordPress/gutenberg/issues/75428
-	&.without-bottom-border :global(.admin-ui-page__header) {
+
+	// Anchor: `.jp-admin-page__page` is the className we pass to admin-ui's
+	// <Page>; admin-ui 2.0.0 renders the header as a stable <header> element
+	// directly inside that page node — no class hooks anymore.
+	&.without-bottom-border :global(.jp-admin-page__page > header) {
 		border-bottom: none;
 	}
 
 	// Disable sticky header until we make it work better across all pages.
 	// JETPACK-1386
-	:global(.admin-ui-page__header) {
+	:global(.jp-admin-page__page > header) {
 		position: relative;
 		z-index: 1;
 	}
 
 	// Normalize admin headers: implementation of admin-ui needs to
 	// comprehend old wp-admin floating containers, such as Hello Dolly.
-	:global(.admin-ui-page) {
+	:global(.jp-admin-page__page) {
 		clear: both;
+	}
+
+	// admin-ui 2.0.0's header `visual` slot is a 24px grid box but does not
+	// center its contents. Our JetpackLogo is 20px tall, so without this it
+	// pins to the top-left of the cell and looks misaligned vs. the title.
+	// admin-ui ships the slot as `<div aria-hidden="true">` in the header.
+	// TODO: remove once upstream centers contents in `.header-visual`.
+	:global(.jp-admin-page__page > header [aria-hidden="true"]) {
+		place-items: center;
 	}
 
 	.admin-page-header {

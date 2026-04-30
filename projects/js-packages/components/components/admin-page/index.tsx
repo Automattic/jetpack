@@ -75,6 +75,8 @@ const AdminPage: FC< AdminPageProps > = ( {
 		return (
 			<div className={ rootClassName }>
 				<Page
+					className="jp-admin-page__page"
+					headingLevel={ 2 }
 					visual={ logo || <JetpackLogo showText={ false } height={ 20 } /> }
 					breadcrumbs={ breadcrumbs }
 					title={ title }
