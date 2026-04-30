@@ -76,6 +76,10 @@ let slashMenuEscaped = false;
 // A second press on the same figure deletes it.
 let selectedFigure = null;
 
+// The cursor range saved before a figure is selected so it can be restored
+// if the user cancels the selection (Escape, click, or typing a letter).
+let preFigureSelectionRange = null;
+
 let cachedContent = null;
 
 /**
@@ -91,17 +95,28 @@ function getContent() {
 }
 
 /**
- * Deselect the currently-selected figure, if any.
+ * Deselect the currently-selected figure, if any, and optionally
+ * restore the cursor position saved before the figure was selected.
+ *
+ * @param {boolean} restoreCursor - Whether to restore the saved cursor
+ *                                position. Pass false when the caller sets its own cursor (e.g. click).
  */
-function clearFigureSelection() {
+function clearFigureSelection( restoreCursor = true ) {
 	if ( selectedFigure ) {
 		selectedFigure.classList.remove( 'bw-figure-selected' );
 		selectedFigure = null;
 	}
+	if ( restoreCursor && preFigureSelectionRange ) {
+		const sel = window.getSelection();
+		sel.removeAllRanges();
+		sel.addRange( preFigureSelectionRange );
+	}
+	preFigureSelectionRange = null;
 }
 
-// Deselect figure on any click.
-document.addEventListener( 'click', clearFigureSelection );
+// Deselect figure on any click — don't restore the saved cursor
+// because the click itself places the caret where the user wants it.
+document.addEventListener( 'click', () => clearFigureSelection( false ) );
 
 /**
  * If the cursor is at the edge of a block adjacent to a figure, return
@@ -137,7 +152,7 @@ function getFigureAdjacentToCursor( key ) {
 		const atStart = before.toString().trim() === '';
 		if ( atStart ) {
 			const prev = block.previousElementSibling;
-			if ( prev && prev.tagName === 'FIGURE' ) return prev;
+			if ( prev && prev.tagName === 'FIGURE' && ! ( 'bwDeleting' in prev.dataset ) ) return prev;
 		}
 	} else if ( key === 'Delete' ) {
 		const after = range.cloneRange();
@@ -146,7 +161,7 @@ function getFigureAdjacentToCursor( key ) {
 		const atEnd = after.toString().trim() === '';
 		if ( atEnd ) {
 			const next = block.nextElementSibling;
-			if ( next && next.tagName === 'FIGURE' ) return next;
+			if ( next && next.tagName === 'FIGURE' && ! ( 'bwDeleting' in next.dataset ) ) return next;
 		}
 	}
 
@@ -451,12 +466,29 @@ function placeCursorAt( el ) {
 }
 
 /**
+ * Place the cursor at the end of a DOM element's content.
+ *
+ * @param {Element} el - The element to place the cursor in.
+ */
+function placeCursorAtEnd( el ) {
+	const range = document.createRange();
+	range.selectNodeContents( el );
+	range.collapse( false );
+	const sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange( range );
+}
+
+/**
  * Animate a figure element out and remove it from the DOM.
  * After removal, repairs block structure and places the cursor.
  *
  * @param {Element} fig - The figure element to delete.
  */
 function animateAndDeleteFigure( fig ) {
+	// Mark as deleting so getFigureAdjacentToCursor skips it during
+	// the animation delay (prevents rapid Backspace from re-selecting).
+	fig.dataset.bwDeleting = '';
 	const next = fig.nextElementSibling;
 	const prev = fig.previousElementSibling;
 	fig.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
@@ -486,7 +518,15 @@ function placeCursorAfterFigureDelete( next, prev ) {
 	// Prefer the block before the deleted figure so the cursor lands
 	// directly adjacent to any remaining figure — this lets the two-step
 	// Backspace handler detect it on the very next keypress.
-	let dest = [ safePrev, safeNext ].find( el => el && EDITABLE_BLOCK_TAGS.test( el.tagName ) );
+	let dest = null;
+	let atEnd = false;
+
+	if ( safePrev && EDITABLE_BLOCK_TAGS.test( safePrev.tagName ) ) {
+		dest = safePrev;
+		atEnd = true;
+	} else if ( safeNext && EDITABLE_BLOCK_TAGS.test( safeNext.tagName ) ) {
+		dest = safeNext;
+	}
 
 	// No editable sibling — walk outward from the
 	// deletion point to find the nearest editable block.
@@ -500,6 +540,7 @@ function placeCursorAfterFigureDelete( next, prev ) {
 			}
 			if ( before && EDITABLE_BLOCK_TAGS.test( before.tagName ) ) {
 				dest = before;
+				atEnd = true;
 				break;
 			}
 			after = after ? after.nextElementSibling : null;
@@ -519,7 +560,11 @@ function placeCursorAfterFigureDelete( next, prev ) {
 	}
 
 	if ( dest ) {
-		placeCursorAt( dest );
+		if ( atEnd ) {
+			placeCursorAtEnd( dest );
+		} else {
+			placeCursorAt( dest );
+		}
 	}
 }
 
@@ -1533,9 +1578,15 @@ const { state } = store( 'wpcom-write', {
 					event.preventDefault();
 					selectedFigure = targetFigure;
 					targetFigure.classList.add( 'bw-figure-selected' );
+					// Save the cursor position so it can be restored if the
+					// user cancels the selection (Escape, click, or letter).
+					const sel = window.getSelection();
+					if ( sel.rangeCount ) {
+						preFigureSelectionRange = sel.getRangeAt( 0 ).cloneRange();
+					}
 					// Hide the blinking cursor so focus appears to move
 					// to the highlighted figure.
-					window.getSelection().removeAllRanges();
+					sel.removeAllRanges();
 					return;
 				}
 				// No adjacent figure — fall through to native Backspace/Delete.
@@ -2347,10 +2398,6 @@ async function savePost( postStatus, isAutosave = false ) {
 	// the save doesn't produce blank content.
 	ensureBlockStructure();
 
-	// Snapshot what we're about to send so dirty tracking compares against
-	// the submitted content, not whatever the DOM contains when the request resolves.
-	const submittedSnapshot = getContentSnapshot();
-
 	// Clone the content so we can strip editor-only elements without
 	// disrupting the live DOM (gaps and selection highlights stay visible
 	// while the save request is in flight).
@@ -2405,6 +2452,10 @@ async function savePost( postStatus, isAutosave = false ) {
 		}, 2500 );
 		return;
 	}
+
+	// Snapshot what we're about to send so dirty tracking compares against
+	// the submitted content, not whatever the DOM contains when the request resolves.
+	const submittedSnapshot = getContentSnapshot();
 
 	const blockMarkup = convertToBlocks( clone.innerHTML );
 
