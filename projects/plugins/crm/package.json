@@ -17,11 +17,6 @@
 		"clean": "rm -rf build css/*.map.css css/*.min.css* css/*.min.rtl.css css/*.rtl.css css/welcome-to-zbs/*.min.css* css/welcome-to-zbs/*.min.rtl.css js/*.min.js* js/welcome-to-zbs/wizard2.min.js*",
 		"watch": "pnpm run build && webpack watch"
 	},
-	"dependencies": {
-		"@wordpress/theme": "0.11.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
-	},
 	"devDependencies": {
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-webpack-config": "workspace:*",
@@ -30,6 +25,7 @@
 		"@babel/preset-env": "7.29.2",
 		"@babel/runtime": "7.29.2",
 		"@fullcalendar/core": "6.1.20",
+		"@wordpress/theme": "0.11.0",
 		"chart.js": "4.5.0",
 		"copy-webpack-plugin": "14.0.0",
 		"css-loader": "6.11.0",

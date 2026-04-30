@@ -4867,16 +4867,6 @@ importers:
         version: 0.0.26
 
   projects/plugins/crm:
-    dependencies:
-      '@wordpress/theme':
-        specifier: 0.11.0
-        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.1.0
@@ -4899,6 +4889,9 @@ importers:
       '@fullcalendar/core':
         specifier: 6.1.20
         version: 6.1.20
+      '@wordpress/theme':
+        specifier: 0.11.0
+        version: 0.11.0(stylelint@17.7.0)
       chart.js:
         specifier: 4.5.0
         version: 4.5.0
@@ -25469,6 +25462,15 @@ snapshots:
       memize: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      stylelint: 17.7.0
+
+  '@wordpress/theme@0.11.0(stylelint@17.7.0)':
+    dependencies:
+      '@wordpress/element': 6.44.0
+      '@wordpress/private-apis': 1.44.0
+      colorjs.io: 0.6.1
+      memize: 2.1.1
     optionalDependencies:
       stylelint: 17.7.0
 
