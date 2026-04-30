@@ -160,6 +160,11 @@
 		},
 		"buttonBorderRadius": {
 			"type": [ "string", "object" ]
+		},
+		"contentAlignment": {
+			"type": "string",
+			"enum": [ "", "left", "center", "right" ],
+			"default": ""
 		}
 	},
 	"example": {}

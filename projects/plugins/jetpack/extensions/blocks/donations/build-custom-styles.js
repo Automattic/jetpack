@@ -71,9 +71,14 @@ const buildCustomStyles = ( attributes, scope ) => {
 		buttonPadding,
 		buttonAlignment,
 		buttonBorderRadius,
+		contentAlignment,
 	} = attributes;
 
 	const rules = [];
+
+	if ( [ 'left', 'center', 'right' ].includes( contentAlignment ) ) {
+		rules.push( `${ scope } .donations__content{text-align:${ contentAlignment }}` );
+	}
 
 	if ( tabBorderColor ) {
 		rules.push(

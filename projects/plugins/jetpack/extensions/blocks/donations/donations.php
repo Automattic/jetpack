@@ -86,16 +86,12 @@ function render_block( $attr, $content ) {
 
 	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 
-	$default_texts = get_default_texts();
-
 	$donations = array(
 		'one-time' => array_merge(
 			array(
-				'planId'     => null,
-				'title'      => __( 'One-Time', 'jetpack' ),
-				'class'      => 'donations__one-time-item',
-				'heading'    => $default_texts['oneTimeDonation']['heading'],
-				'buttonText' => $default_texts['oneTimeDonation']['buttonText'],
+				'planId' => null,
+				'title'  => __( 'One-Time', 'jetpack' ),
+				'class'  => 'donations__one-time-item',
 			),
 			$attr['oneTimeDonation']
 		),
@@ -103,11 +99,9 @@ function render_block( $attr, $content ) {
 	if ( $attr['monthlyDonation']['show'] ) {
 		$donations['1 month'] = array_merge(
 			array(
-				'planId'     => null,
-				'title'      => __( 'Monthly', 'jetpack' ),
-				'class'      => 'donations__monthly-item',
-				'heading'    => $default_texts['monthlyDonation']['heading'],
-				'buttonText' => $default_texts['monthlyDonation']['buttonText'],
+				'planId' => null,
+				'title'  => __( 'Monthly', 'jetpack' ),
+				'class'  => 'donations__monthly-item',
 			),
 			$attr['monthlyDonation']
 		);
@@ -115,18 +109,16 @@ function render_block( $attr, $content ) {
 	if ( $attr['annualDonation']['show'] ) {
 		$donations['1 year'] = array_merge(
 			array(
-				'planId'     => null,
-				'title'      => __( 'Yearly', 'jetpack' ),
-				'class'      => 'donations__annual-item',
-				'heading'    => $default_texts['annualDonation']['heading'],
-				'buttonText' => $default_texts['annualDonation']['buttonText'],
+				'planId' => null,
+				'title'  => __( 'Yearly', 'jetpack' ),
+				'class'  => 'donations__annual-item',
 			),
 			$attr['annualDonation']
 		);
 	}
 
-	$choose_amount_text = isset( $attr['chooseAmountText'] ) && ! empty( $attr['chooseAmountText'] ) ? $attr['chooseAmountText'] : $default_texts['chooseAmountText'];
-	$custom_amount_text = isset( $attr['customAmountText'] ) && ! empty( $attr['customAmountText'] ) ? $attr['customAmountText'] : $default_texts['customAmountText'];
+	$choose_amount_text = $attr['chooseAmountText'] ?? '';
+	$custom_amount_text = $attr['customAmountText'] ?? '';
 	$currency           = $attr['currency'];
 	$nav                = '';
 	$headings           = '';
@@ -150,12 +142,15 @@ function render_block( $attr, $content ) {
 				esc_html( $donation['title'] )
 			);
 		}
-		$headings .= sprintf(
-			'<h4 class="%1$s">%2$s</h4>',
-			esc_attr( $donation['class'] ),
-			wp_kses_post( $donation['heading'] )
-		);
-		$amounts  .= sprintf(
+		$heading_text = wp_kses_post( $donation['heading'] ?? '' );
+		if ( '' !== trim( $heading_text ) ) {
+			$headings .= sprintf(
+				'<h4 class="%1$s">%2$s</h4>',
+				esc_attr( $donation['class'] ),
+				$heading_text
+			);
+		}
+		$amounts .= sprintf(
 			'<div class="donations__amounts %s">',
 			esc_attr( $donation['class'] )
 		);
@@ -166,13 +161,16 @@ function render_block( $attr, $content ) {
 				esc_html( \Jetpack_Currencies::format_price( $amount, $currency ) )
 			);
 		}
-		$amounts    .= '</div>';
-		$extra_text .= sprintf(
-			'<p class="%1$s">%2$s</p>',
-			esc_attr( $donation['class'] ),
-			wp_kses_post( $donation['extraText'] ?? $default_texts['extraText'] )
-		);
-		$buttons    .= sprintf(
+		$amounts        .= '</div>';
+		$extra_text_html = wp_kses_post( $donation['extraText'] ?? '' );
+		if ( '' !== trim( $extra_text_html ) ) {
+			$extra_text .= sprintf(
+				'<p class="%1$s">%2$s</p>',
+				esc_attr( $donation['class'] ),
+				$extra_text_html
+			);
+		}
+		$buttons .= sprintf(
 			'<div class="wp-block-button donations__donate-button-wrapper %1$s"><a class="wp-block-button__link wp-element-button donations__donate-button %1$s" href="%2$s">%3$s</a></div>',
 			esc_attr( $donation['class'] ),
 			esc_url( \Jetpack_Memberships::get_instance()->get_subscription_url( $plan_id ) ),
@@ -185,10 +183,10 @@ function render_block( $attr, $content ) {
 
 	$custom_amount = '';
 	if ( $attr['showCustomAmount'] ) {
-		$custom_amount        .= sprintf(
-			'<p>%s</p>',
-			wp_kses_post( $custom_amount_text )
-		);
+		$custom_amount_html = wp_kses_post( $custom_amount_text );
+		if ( '' !== trim( $custom_amount_html ) ) {
+			$custom_amount .= sprintf( '<p>%s</p>', $custom_amount_html );
+		}
 		$default_custom_amount = ( \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1 ) * 100;
 		$custom_amount        .= sprintf(
 			'<div class="donations__amount donations__custom-amount">
@@ -209,6 +207,9 @@ function render_block( $attr, $content ) {
 	$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $instance_classes ) );
 	$custom_styles = build_custom_styles( $attr, '.' . $instance_id );
 
+	$choose_amount_html  = wp_kses_post( $choose_amount_text );
+	$choose_amount_block = '' !== trim( $choose_amount_html ) ? '<p>' . $choose_amount_html . '</p>' : '';
+
 	return sprintf(
 		'
 <div %1$s>%9$s
@@ -217,7 +218,7 @@ function render_block( $attr, $content ) {
 		<div class="donations__content">
 			<div class="donations__tab">
 				%3$s
-				<p>%4$s</p>
+				%4$s
 				%5$s
 				%6$s
 				<hr class="donations__separator">
@@ -231,7 +232,7 @@ function render_block( $attr, $content ) {
 		$wrapper_attrs,
 		$nav,
 		$headings,
-		$choose_amount_text,
+		$choose_amount_block,
 		$amounts,
 		$custom_amount,
 		$extra_text,
@@ -297,6 +298,12 @@ function build_custom_styles( $attr, $scope ) {
 	);
 
 	$rules = array();
+
+	$content_alignment = $attr['contentAlignment'] ?? '';
+	if ( in_array( $content_alignment, array( 'left', 'center', 'right' ), true ) ) {
+		$rules[] = $scope . ' .donations__content{text-align:' . $content_alignment . '}';
+	}
+
 	foreach ( $groups as $group ) {
 		$decls = array();
 		foreach ( $group['properties'] as $property => $value ) {

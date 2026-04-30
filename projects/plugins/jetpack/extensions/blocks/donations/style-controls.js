@@ -407,6 +407,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 							label={ __( 'Padding', 'jetpack' ) }
 							values={ tabPadding }
 							onChange={ set.tabPadding }
+							allowReset={ false }
 							__next40pxDefaultSize={ true }
 						/>
 					</ToolsPanelItem>
@@ -530,6 +531,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 							label={ __( 'Padding', 'jetpack' ) }
 							values={ buttonPadding }
 							onChange={ set.buttonPadding }
+							allowReset={ false }
 							__next40pxDefaultSize={ true }
 						/>
 					</ToolsPanelItem>
