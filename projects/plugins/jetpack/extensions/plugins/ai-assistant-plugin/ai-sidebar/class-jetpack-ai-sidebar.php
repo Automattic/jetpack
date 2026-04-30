@@ -454,46 +454,17 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Check whether Review Mediator should be visible for the current user.
-	 *
-	 * This is a UI feature flag only. The WPCOM ability still performs its own
-	 * Automattician check before execution.
+	 * UI feature flag for Review Mediator. Server still gates execution.
+	 * Reuses the existing dev-mode predicate (proxied requests + known
+	 * dev hosts) — same precedent as Image Studio.
 	 *
 	 * @return bool
 	 */
 	private static function is_review_mediator_enabled(): bool {
 		return (bool) apply_filters(
 			'jetpack_ai_review_mediator_enabled',
-			self::is_current_user_automattician()
+			self::is_dev_mode()
 		);
-	}
-
-	/**
-	 * Check the current user's Automattician status across site types.
-	 *
-	 * Simple/WPCOM contexts can use `is_automattician()` directly. Atomic and
-	 * self-hosted Jetpack contexts rely on the connected WordPress.com user's
-	 * data, which is fetched and cached by the Jetpack connection manager.
-	 *
-	 * @return bool
-	 */
-	private static function is_current_user_automattician(): bool {
-		$user_id = get_current_user_id();
-		if ( ! $user_id ) {
-			return false;
-		}
-
-		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'is_automattician' ) ) {
-			return (bool) is_automattician( $user_id );
-		}
-
-		$connection = new Connection_Manager( 'jetpack' );
-		if ( ! $connection->is_user_connected( $user_id ) ) {
-			return false;
-		}
-
-		$wpcom_user_data = $connection->get_connected_user_data( $user_id );
-		return is_array( $wpcom_user_data ) && ! empty( $wpcom_user_data['is_automattician'] );
 	}
 
 	/**

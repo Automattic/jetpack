@@ -73,7 +73,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_ai_enabled' );
-		delete_transient( 'jetpack_connected_user_data_' . $this->connected_user_id );
 		wp_set_current_user( 0 );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		$GLOBALS['current_screen'] = $this->saved_screen;
@@ -92,15 +91,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
-	}
-
-	/**
-	 * Cache connected WordPress.com user data for the current Jetpack user.
-	 *
-	 * @param array $data Connected user data.
-	 */
-	private function cache_connected_user_data( array $data ) {
-		set_transient( 'jetpack_connected_user_data_' . $this->connected_user_id, $data, HOUR_IN_SECONDS );
 	}
 
 	/**
@@ -228,9 +218,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that Review Mediator availability is exposed in agentsManagerData.
+	 * Filter override flips the flag on regardless of dev-mode signals.
 	 */
-	public function test_maybe_enqueue_am_exposes_review_mediator_enabled() {
+	public function test_maybe_enqueue_am_exposes_review_mediator_enabled_via_filter() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
 		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_true' );
@@ -241,35 +231,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that Review Mediator is exposed for connected Automatticians.
+	 * Default off when no dev-mode signal is present and no filter override.
 	 */
-	public function test_maybe_enqueue_am_exposes_review_mediator_for_connected_automattician() {
+	public function test_maybe_enqueue_am_hides_review_mediator_by_default() {
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
-		$this->cache_connected_user_data(
-			array(
-				'ID'               => 12345,
-				'is_automattician' => true,
-			)
-		);
-
-		Jetpack_AI_Sidebar::maybe_enqueue_am();
-
-		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
-	}
-
-	/**
-	 * Test that Review Mediator is hidden for connected non-Automatticians.
-	 */
-	public function test_maybe_enqueue_am_hides_review_mediator_for_connected_non_automattician() {
-		$this->set_block_editor_screen();
-		$this->cache_am_asset_data();
-		$this->cache_connected_user_data(
-			array(
-				'ID'               => 12345,
-				'is_automattician' => false,
-			)
-		);
 
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
