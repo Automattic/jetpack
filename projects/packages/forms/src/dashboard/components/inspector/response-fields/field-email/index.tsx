@@ -15,10 +15,10 @@ const FieldEmail = ( { email } ) => {
 			justify="left"
 			spacing="2"
 		>
-		<Link href={ `mailto:${ email }` }>
-			{ emailParts[ 0 ] }
-			<wbr />@{ emailParts[ 1 ] }
-		</Link>
+			<Link href={ `mailto:${ email }` }>
+				{ emailParts[ 0 ] }
+				<wbr />@{ emailParts[ 1 ] }
+			</Link>
 			<CopyClipboardButton text={ email } />
 		</HStack>
 	);
