@@ -1,4 +1,4 @@
-import { InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
+import { ContrastChecker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
 const StyleControls = ( { attributes, setAttributes } ) => {
@@ -38,7 +38,16 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 						label: __( 'Inactive tab text', 'jetpack' ),
 					},
 				] }
-			/>
+			>
+				<ContrastChecker
+					backgroundColor={ activeTabBackgroundColor }
+					textColor={ activeTabTextColor }
+				/>
+				<ContrastChecker
+					backgroundColor={ inactiveTabBackgroundColor }
+					textColor={ inactiveTabTextColor }
+				/>
+			</PanelColorSettings>
 			<PanelColorSettings
 				title={ __( 'Selected amount', 'jetpack' ) }
 				initialOpen={ false }
@@ -54,7 +63,12 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 						label: __( 'Text', 'jetpack' ),
 					},
 				] }
-			/>
+			>
+				<ContrastChecker
+					backgroundColor={ selectedAmountBackgroundColor }
+					textColor={ selectedAmountTextColor }
+				/>
+			</PanelColorSettings>
 		</InspectorControls>
 	);
 };
