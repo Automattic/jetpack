@@ -213,20 +213,20 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * the explicit mode argument when supplied.
 	 */
 	public function test_build_probe_payload_carries_mode() {
-		$default = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php' );
+		$default = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ) );
 		$this->assertSame(
 			array(
-				'plugin' => '/abs/foo/foo.php',
-				'mode'   => 'activation',
+				'plugins' => array( '/abs/foo/foo.php' ),
+				'mode'    => 'activation',
 			),
 			$default
 		);
 
-		$update = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php', PCG_Load_Tester::MODE_UPDATE );
+		$update = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php', '/abs/bar/bar.php' ), PCG_Load_Tester::MODE_UPDATE );
 		$this->assertSame(
 			array(
-				'plugin' => '/abs/foo/foo.php',
-				'mode'   => 'update',
+				'plugins' => array( '/abs/foo/foo.php', '/abs/bar/bar.php' ),
+				'mode'    => 'update',
 			),
 			$update
 		);
@@ -237,7 +237,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * the transient with a value the endpoint will reject.
 	 */
 	public function test_build_probe_payload_rejects_unknown_mode() {
-		$payload = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php', 'bogus' );
+		$payload = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ), 'bogus' );
 		$this->assertSame( 'activation', $payload['mode'] );
 	}
 

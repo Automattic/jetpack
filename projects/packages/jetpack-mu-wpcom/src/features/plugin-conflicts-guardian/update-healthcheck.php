@@ -124,11 +124,13 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 		return;
 	}
 
-	// One probe for the whole batch. The plugin_main argument is just
-	// a target for the load tester to attribute fatals to in its
-	// diagnostics — the probe itself boots the full site.
-	$tester = new PCG_Load_Tester();
-	$result = $tester->test( $candidates[0]['plugin_main'], PCG_Load_Tester::MODE_UPDATE );
+	// One probe for the whole batch. In MODE_UPDATE the endpoint skips
+	// `require_once` entirely (the plugins are already loaded by WP's
+	// bootstrap), so the plugin_mains array is just a readability
+	// sanity-check target — the probe itself boots the full site.
+	$tester       = new PCG_Load_Tester();
+	$plugin_mains = array_values( array_column( $candidates, 'plugin_main' ) );
+	$result       = $tester->test( $plugin_mains, PCG_Load_Tester::MODE_UPDATE );
 	$status = (string) ( $result['status'] ?? '' );
 
 	// Anything other than a captured fatal is a no-op rollback-wise: ok =

@@ -74,15 +74,20 @@ function pcg_guard_maybe_block_activation() {
 }
 
 /**
- * Probe each plugin; return map of basename => reason for those that failed.
+ * Probe the requested plugins together in a single loopback request pair
+ * and return a map of basename => reason for any that fail.
+ *
+ * Eligible plugins (passes `validate_file`, not already active, file
+ * exists on disk) are passed to `PCG_Load_Tester::test()` as one batch,
+ * so probe cost is constant in N rather than 2N round-trips. As a side
+ * effect this also surfaces conflicts that only fire when two plugins
+ * load together (duplicate class, shared global, etc.).
  *
  * @param string[] $plugins Plugin basenames (e.g. "akismet/akismet.php").
  * @return array<string,string>
  */
 function pcg_guard_evaluate_plugins( $plugins ) {
-	$blocked = array();
-	$tester  = new PCG_Load_Tester();
-
+	$paths = array();
 	foreach ( $plugins as $plugin ) {
 		if ( 0 !== validate_file( $plugin ) ) {
 			continue;
@@ -94,14 +99,71 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 		if ( ! is_file( $path ) ) {
 			continue;
 		}
-		$result = $tester->test( $path );
-		$status = (string) ( $result['status'] ?? '' );
-		if ( 'fatal' === $status || 'throwable' === $status ) {
-			$blocked[ $plugin ] = pcg_guard_format_block_reason( $result );
+		$paths[ $plugin ] = $path;
+	}
+	if ( empty( $paths ) ) {
+		return array();
+	}
+
+	$tester = new PCG_Load_Tester();
+	$result = $tester->test( array_values( $paths ) );
+	$status = (string) ( $result['status'] ?? '' );
+	if ( 'fatal' !== $status && 'throwable' !== $status ) {
+		return array();
+	}
+
+	$blocked_basename = pcg_guard_attribute_block( $result, $paths );
+	return array(
+		$blocked_basename => pcg_guard_format_block_reason( $result ),
+	);
+}
+
+/**
+ * Map a fatal/throwable verdict back to the plugin basename that caused
+ * it. Tries, in order: the explicit `plugin` field on the verdict (set
+ * when a `Throwable` was caught around `require`), an exact match of
+ * the captured `file` against a plugin's main file (covers flat-file
+ * plugins like `hello.php`), and a prefix match of the captured `file`
+ * against a plugin's own subdirectory under `WP_PLUGIN_DIR`. Falls back
+ * to the first plugin in the batch when none of those match — the
+ * batch is blocked as a unit either way.
+ *
+ * @param array                $result A fatal/throwable probe verdict.
+ * @param array<string,string> $paths  Map of plugin basename => absolute main file path.
+ * @return string Plugin basename to attribute the failure to.
+ */
+function pcg_guard_attribute_block( $result, $paths ) {
+	$explicit = (string) ( $result['plugin'] ?? '' );
+	if ( '' !== $explicit ) {
+		foreach ( $paths as $basename => $path ) {
+			if ( $path === $explicit ) {
+				return $basename;
+			}
 		}
 	}
 
-	return $blocked;
+	$fatal_file = (string) ( $result['file'] ?? '' );
+	if ( '' !== $fatal_file ) {
+		foreach ( $paths as $basename => $path ) {
+			if ( $path === $fatal_file ) {
+				return $basename;
+			}
+		}
+		// Subdirectory plugins only — a flat-file plugin's dirname is
+		// `WP_PLUGIN_DIR`, which would prefix-match every other plugin's
+		// files in the batch and produce false attributions.
+		foreach ( $paths as $basename => $path ) {
+			$plugin_dir = dirname( $path );
+			if ( WP_PLUGIN_DIR === $plugin_dir ) {
+				continue;
+			}
+			if ( str_starts_with( $fatal_file, $plugin_dir . '/' ) ) {
+				return $basename;
+			}
+		}
+	}
+
+	return (string) array_key_first( $paths );
 }
 
 /**
