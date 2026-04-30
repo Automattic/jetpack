@@ -21,7 +21,6 @@
 		"automattic/jetpack-rtc": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-subscribers-dashboard": "@dev",
 		"automattic/scheduled-updates": "@dev",
 		"scssphp/scssphp": "2.1.0",
 		"symfony/filesystem": "^6.0.0",

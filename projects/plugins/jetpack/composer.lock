@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f4ec822d399a46053e8c16b122223c0",
+    "content-hash": "82fb639f80919d4501ff16e9167e49bd",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2062,7 +2062,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "7838d67127972c359395f6ff63f5c328a192b44f"
+                "reference": "d0baf762182a147c80a2450b075f2e344239ed01"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2074,7 +2074,6 @@
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
-                "automattic/jetpack-subscribers-dashboard": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -2246,7 +2245,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "8d9bb031a70efedb0d178e6c596dd487e80cca35"
+                "reference": "002a3d5daf57d09a24caf3bd94ec06958e520b77"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2255,6 +2254,7 @@
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -2291,7 +2291,7 @@
                     "pnpm run build"
                 ],
                 "build-production": [
-                    "pnpm run build-production"
+                    "NODE_ENV=production pnpm run build"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -3311,36 +3311,43 @@
         {
             "name": "automattic/jetpack-subscribers-dashboard",
             "version": "dev-trunk",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-subscribers-dashboard.git",
+                "reference": "5217bd9cf091f593f70ac3baf17212111279fbe8"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/subscribers-dashboard",
-                "reference": "66832602601278e0202880bef8da1a396d34fa45"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-subscribers-dashboard/zipball/5217bd9cf091f593f70ac3baf17212111279fbe8",
+                "reference": "5217bd9cf091f593f70ac3baf17212111279fbe8",
+                "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-jitm": "@dev",
-                "automattic/jetpack-plans": "@dev",
-                "automattic/jetpack-stats": "@dev",
-                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-connection": "^8.3.3-alpha",
+                "automattic/jetpack-constants": "^3.0.9-alpha",
+                "automattic/jetpack-jitm": "^4.3.32-alpha",
+                "automattic/jetpack-plans": "^0.11.4-alpha",
+                "automattic/jetpack-stats": "^0.18.2-alpha",
+                "automattic/jetpack-status": "^6.1.3-alpha",
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-test-environment": "@dev",
-                "automattic/phpunit-select-config": "@dev",
+                "automattic/phpunit-select-config": "^1.0.5-alpha",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
+            "default-branch": true,
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
+                "textdomain": "jetpack-subscribers-dashboard",
                 "mirror-repo": "Automattic/jetpack-subscribers-dashboard",
                 "branch-alias": {
                     "dev-trunk": "0.5.x-dev"
                 },
-                "textdomain": "jetpack-subscribers-dashboard",
                 "version-constants": {
                     "::VERSION": "src/class-dashboard.php"
                 }
@@ -3350,41 +3357,15 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "test-js": [
-                    "pnpm run test"
-                ],
-                "test-js-watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run test --watch"
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "NODE_ENV=production pnpm run build"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "Subscribers dashboard",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-subscribers-dashboard/tree/trunk"
+            },
+            "time": "2026-04-27T21:00:12+00:00"
         },
         {
             "name": "automattic/jetpack-sync",
@@ -5788,7 +5769,6 @@
         "automattic/jetpack-stats": 20,
         "automattic/jetpack-stats-admin": 20,
         "automattic/jetpack-status": 20,
-        "automattic/jetpack-subscribers-dashboard": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-videopress": 20,
         "automattic/jetpack-waf": 20,

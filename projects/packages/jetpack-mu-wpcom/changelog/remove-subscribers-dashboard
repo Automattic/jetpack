@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Drop the standalone Subscribers Dashboard registration from the wpcom admin menu; the unified Newsletter page now hosts Subscribers as its first tab.

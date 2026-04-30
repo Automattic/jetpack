@@ -13,8 +13,7 @@
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-plans": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-subscribers-dashboard": "@dev"
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"brain/monkey": "^2.6.2",

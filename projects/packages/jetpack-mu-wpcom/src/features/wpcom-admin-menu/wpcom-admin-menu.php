@@ -10,7 +10,6 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 
@@ -386,7 +385,11 @@ function wpcom_add_jetpack_submenu() {
 	);
 
 	// Jetpack > Subscribers.
-	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+	// When the in-admin Subscribers experience is on (the default), the
+	// unified Newsletter page already exposes Subscribers as its first tab,
+	// so no extra Subscribers menu is needed. Sites that filter it off keep
+	// the Calypso shortcut.
+	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true ) ) {
 		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 		add_submenu_page(
 			'jetpack',
@@ -396,9 +399,6 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-	} else {
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
 	// Jetpack > Podcasting
