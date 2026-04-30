@@ -6,7 +6,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { cloud, arrowLeft } from '@wordpress/icons';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useFormattedTime } from '../../data/use-formatted-time';
-import { useSiteData } from '../../data/use-site-data';
 import { JetpackBackupRoutes } from '../../routes';
 import DownloadError from './error';
 import DownloadForm from './form';
@@ -21,7 +20,6 @@ function DownloadScreen() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const rewindId = searchParams.get( 'rewindId' ) ?? '';
 	const downloadIdParam = searchParams.get( 'downloadId' );
-	const { timezoneString, gmtOffset } = useSiteData();
 
 	// When the Overview navigates here with a downloadId in the URL (the
 	// granular-download path kicked off in backup-details.tsx), jump
@@ -93,9 +91,7 @@ function DownloadScreen() {
 
 	const downloadPointDate = useFormattedTime(
 		rewindId ? new Date( parseFloat( rewindId ) * 1000 ).toISOString() : '',
-		{ dateStyle: 'medium', timeStyle: 'short' },
-		timezoneString,
-		gmtOffset
+		{ dateStyle: 'medium', timeStyle: 'short' }
 	);
 
 	const renderStep = () => {

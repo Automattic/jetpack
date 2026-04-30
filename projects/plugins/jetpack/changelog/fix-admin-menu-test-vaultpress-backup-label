@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tests: update Jetpack admin-menu order test to look up the renamed "VaultPress Backup" submenu label.

@@ -331,8 +331,11 @@ function FileBrowserNode( {
 				checked={ browserNodeItem?.checkState === 'checked' }
 				indeterminate={ browserNodeItem?.checkState === 'mixed' }
 				onChange={ onCheckboxChange }
-				/* translators: %s is a file or directory name */
-				aria-label={ sprintf( __( 'Select %s', 'jetpack-backup-pkg' ), item.name ) }
+				aria-label={ sprintf(
+					/* translators: %s is a file or directory name */
+					__( 'Select %s', 'jetpack-backup-pkg' ),
+					item.name
+				) }
 			/>
 		);
 	};
@@ -365,8 +368,11 @@ function FileBrowserNode( {
 				icon={ isOpen ? chevronDown : expandIcon }
 				className="file-browser-node__separate-expand-button"
 				variant="tertiary"
-				/* translators: %s is a directory name */
-				aria-label={ sprintf( __( 'Expand contents of %s', 'jetpack-backup-pkg' ), item.name ) }
+				aria-label={ sprintf(
+					/* translators: %s is a directory name */
+					__( 'Expand contents of %s', 'jetpack-backup-pkg' ),
+					item.name
+				) }
 				aria-expanded={ isOpen }
 				size="compact"
 				style={ { color: 'inherit' } }

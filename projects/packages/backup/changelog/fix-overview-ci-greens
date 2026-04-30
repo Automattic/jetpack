@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Unblock CI for the overview redesign — drop redundant useFormattedTime args, anchor translator comments inside sprintf so they survive minification, switch the Preparing/Download-file ternary to _x to defeat terser's signature-merging, replace name.replace('*','') with replaceAll, and import WP_REST_Request/WP_REST_Response so PHAN can resolve the new method signatures.
