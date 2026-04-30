@@ -138,6 +138,26 @@ describe( 'useDashboardVideos', () => {
 		expect( update ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'treats a non-numeric URL ?page= as page 1 instead of dispatching NaN', () => {
+		const setVideosQuery = jest.fn();
+		mockUseDispatch.mockReturnValue( {
+			uploadVideo: jest.fn(),
+			uploadVideoFromLibrary: jest.fn(),
+			setVideosQuery,
+		} );
+		mockUseVideos.mockReturnValue( { ...baseVideosState, page: 1 } );
+		const { deleteParam, update } = setupSearchParams( 'foo', '' );
+
+		renderHook( () => useDashboardVideos() );
+
+		expect( setVideosQuery ).not.toHaveBeenCalledWith( expect.objectContaining( { page: NaN } ) );
+		// total > 0 and the parsed page falls back to 1, which is in range, so
+		// no URL reset and no store dispatch happen for this benign input.
+		expect( deleteParam ).not.toHaveBeenCalled();
+		expect( update ).not.toHaveBeenCalled();
+		expect( setVideosQuery ).not.toHaveBeenCalled();
+	} );
+
 	it( 'placeholder IDs are stable across re-renders while fetching', () => {
 		mockUseVideos.mockReturnValue( {
 			...baseVideosState,

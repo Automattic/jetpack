@@ -32,7 +32,11 @@ export const useDashboardVideos = () => {
 
 	/** Get the page number from the search parameters and set it to the state when the state is outdated */
 	const searchParams = useSearchParams();
-	const pageFromSearchParam = parseInt( searchParams.getParam( 'page', '1' ) );
+	// Fall back to 1 if the URL `?page=` is missing, empty, or non-numeric
+	// (`parseInt` would otherwise yield NaN, which silently propagates through
+	// the bounds checks below since every comparison with NaN is false).
+	const parsedPageParam = parseInt( searchParams.getParam( 'page', '1' ), 10 );
+	const pageFromSearchParam = Number.isNaN( parsedPageParam ) ? 1 : parsedPageParam;
 	const searchFromSearchParam = searchParams.getParam( 'q', '' );
 	const totalOfPages = Math.ceil( total / itemsPerPage );
 
