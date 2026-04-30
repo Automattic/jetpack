@@ -317,6 +317,21 @@ function build_custom_styles( $attr, $scope ) {
 		$rules[] = $scope . ' .donations__nav,' . $scope . ' .donations__nav-item{border-color:' . $tab_border_safe . '}';
 	}
 
+	// User-set amount tile font size, border (BorderBoxControl shape) and
+	// border radius (BorderRadiusControl shape). Applies to all amount tiles
+	// (preset + custom); selected-state colors above only kick in when an
+	// amount has the is-selected class.
+	$amount_decls = array();
+	$amount_font  = sanitize_css_value( $attr['amountFontSize'] ?? '' );
+	if ( '' !== $amount_font ) {
+		$amount_decls[] = 'font-size:' . $amount_font;
+	}
+	$amount_decls = array_merge( $amount_decls, build_border_decls( $attr['amountBorder'] ?? null ) );
+	$amount_decls = array_merge( $amount_decls, build_radius_decls( $attr['amountBorderRadius'] ?? null ) );
+	if ( $amount_decls ) {
+		$rules[] = $scope . ' .donations__amount{' . implode( ';', $amount_decls ) . '}';
+	}
+
 	$button_alignment = $attr['buttonAlignment'] ?? '';
 	if ( in_array( $button_alignment, array( 'left', 'center', 'right' ), true ) ) {
 		$rules[] = $scope . ' .donations__donate-button-wrapper{text-align:' . $button_alignment . '}';
@@ -326,6 +341,82 @@ function build_custom_styles( $attr, $scope ) {
 	}
 
 	return implode( '', $rules );
+}
+
+/**
+ * Convert a uniform-or-split BorderBoxControl value into individual CSS declarations.
+ * Uniform shape: { color, style, width }. Split shape: { top: {...}, right: ..., etc. }.
+ *
+ * @param mixed $border BorderBoxControl value (or null).
+ * @return array List of CSS declaration strings (e.g. "border-color:#abc"), already sanitized.
+ */
+function build_border_decls( $border ) {
+	if ( ! is_array( $border ) ) {
+		return array();
+	}
+	$decls    = array();
+	$sides    = array( 'top', 'right', 'bottom', 'left' );
+	$is_split = false;
+	foreach ( $sides as $side ) {
+		if ( isset( $border[ $side ] ) ) {
+			$is_split = true;
+			break;
+		}
+	}
+	if ( $is_split ) {
+		foreach ( $sides as $side ) {
+			$sb = $border[ $side ] ?? null;
+			if ( ! is_array( $sb ) ) {
+				continue;
+			}
+			foreach ( array( 'color', 'style', 'width' ) as $prop ) {
+				$safe = sanitize_css_value( $sb[ $prop ] ?? '' );
+				if ( '' !== $safe ) {
+					$decls[] = 'border-' . $side . '-' . $prop . ':' . $safe;
+				}
+			}
+		}
+	} else {
+		foreach ( array( 'color', 'style', 'width' ) as $prop ) {
+			$safe = sanitize_css_value( $border[ $prop ] ?? '' );
+			if ( '' !== $safe ) {
+				$decls[] = 'border-' . $prop . ':' . $safe;
+			}
+		}
+	}
+	return $decls;
+}
+
+/**
+ * Convert a uniform-or-per-corner BorderRadiusControl value into CSS declarations.
+ * Uniform shape: a string like "8px". Per-corner shape:
+ * { topLeft, topRight, bottomRight, bottomLeft } each with string values.
+ *
+ * @param mixed $radius BorderRadiusControl value (or null).
+ * @return array List of CSS declaration strings.
+ */
+function build_radius_decls( $radius ) {
+	if ( is_string( $radius ) && '' !== $radius ) {
+		$safe = sanitize_css_value( $radius );
+		return '' !== $safe ? array( 'border-radius:' . $safe ) : array();
+	}
+	if ( ! is_array( $radius ) ) {
+		return array();
+	}
+	$corners = array(
+		'topLeft'     => 'border-top-left-radius',
+		'topRight'    => 'border-top-right-radius',
+		'bottomRight' => 'border-bottom-right-radius',
+		'bottomLeft'  => 'border-bottom-left-radius',
+	);
+	$decls   = array();
+	foreach ( $corners as $key => $css_prop ) {
+		$safe = sanitize_css_value( $radius[ $key ] ?? '' );
+		if ( '' !== $safe ) {
+			$decls[] = $css_prop . ':' . $safe;
+		}
+	}
+	return $decls;
 }
 
 /**

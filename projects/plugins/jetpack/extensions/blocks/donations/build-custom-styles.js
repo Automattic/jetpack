@@ -8,6 +8,51 @@
  */
 const ALLOWED_BUTTON_ALIGNMENTS = [ 'left', 'center', 'right', 'full' ];
 
+// Read a uniform-or-split BorderBoxControl value into individual side declarations.
+// Returns an array of CSS declaration strings for inclusion in a single rule.
+const borderDecls = ( border, sidesPrefix = 'border' ) => {
+	if ( ! border || typeof border !== 'object' ) {
+		return [];
+	}
+	const decls = [];
+	const sides = [ 'top', 'right', 'bottom', 'left' ];
+	const isSplit = sides.some( s => border[ s ] );
+	if ( isSplit ) {
+		sides.forEach( side => {
+			const sb = border[ side ];
+			if ( ! sb ) return;
+			if ( sb.color ) decls.push( `${ sidesPrefix }-${ side }-color:${ sb.color }` );
+			if ( sb.style ) decls.push( `${ sidesPrefix }-${ side }-style:${ sb.style }` );
+			if ( sb.width ) decls.push( `${ sidesPrefix }-${ side }-width:${ sb.width }` );
+		} );
+	} else {
+		if ( border.color ) decls.push( `${ sidesPrefix }-color:${ border.color }` );
+		if ( border.style ) decls.push( `${ sidesPrefix }-style:${ border.style }` );
+		if ( border.width ) decls.push( `${ sidesPrefix }-width:${ border.width }` );
+	}
+	return decls;
+};
+
+// Read a uniform-or-per-corner BorderRadiusControl value into declarations.
+const radiusDecls = radius => {
+	if ( ! radius ) return [];
+	if ( typeof radius === 'string' ) {
+		return [ `border-radius:${ radius }` ];
+	}
+	if ( typeof radius === 'object' ) {
+		const corners = {
+			topLeft: 'border-top-left-radius',
+			topRight: 'border-top-right-radius',
+			bottomRight: 'border-bottom-right-radius',
+			bottomLeft: 'border-bottom-left-radius',
+		};
+		return Object.entries( corners )
+			.filter( ( [ key ] ) => radius[ key ] )
+			.map( ( [ key, prop ] ) => `${ prop }:${ radius[ key ] }` );
+	}
+	return [];
+};
+
 const buildCustomStyles = ( attributes, scope ) => {
 	const {
 		activeTabBackgroundColor,
@@ -19,6 +64,9 @@ const buildCustomStyles = ( attributes, scope ) => {
 		tabBorderColor,
 		tabFontSize,
 		tabPadding,
+		amountFontSize,
+		amountBorder,
+		amountBorderRadius,
 		buttonFontSize,
 		buttonPadding,
 		buttonAlignment,
@@ -30,6 +78,16 @@ const buildCustomStyles = ( attributes, scope ) => {
 		rules.push(
 			`${ scope } .donations__nav,${ scope } .donations__nav-item{border-color:${ tabBorderColor }}`
 		);
+	}
+
+	const amountDecls = [];
+	if ( amountFontSize ) {
+		amountDecls.push( `font-size:${ amountFontSize }` );
+	}
+	amountDecls.push( ...borderDecls( amountBorder ) );
+	amountDecls.push( ...radiusDecls( amountBorderRadius ) );
+	if ( amountDecls.length ) {
+		rules.push( `${ scope } .donations__amount{${ amountDecls.join( ';' ) }}` );
 	}
 
 	const tabDecls = [];
