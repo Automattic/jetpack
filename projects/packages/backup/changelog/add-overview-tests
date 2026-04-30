@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Backup: Add phpunit coverage for the new overview REST bridges (admin-only permission callback + WP_Error pass-through on the activity-log, ls, and download initiator) and a Jest unit test for `useFileBrowserState`'s tri-state propagation (children → parent "mixed" rollup, parent → children fan-out, per-rewindId scoping).
