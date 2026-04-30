@@ -109,4 +109,38 @@
 	.donations__donate-button {
 		margin: 0;
 	}
+
+	// "Buttons" style variation: render the frequency selectors as a row of
+	// pill-shaped buttons instead of edge-to-edge tabs. Per-state colors and
+	// tab dimensions set in the inspector still apply on top of these rules.
+	&.is-style-buttons {
+
+		.donations__nav {
+			border-bottom: none;
+			gap: 8px;
+			padding: 16px 16px 0;
+
+			@include gb.break-small() {
+				gap: 12px;
+				padding: 24px 24px 0;
+			}
+		}
+
+		.donations__nav-item {
+			border: 1px solid gb.$gray-400;
+			border-radius: 9999px;
+		}
+
+		// Restore the inline-start border that the default style strips off
+		// the first item — every pill needs a full border.
+		.donations__nav-item:first-child {
+			border-inline-start: 1px solid gb.$gray-400;
+		}
+
+		// Match the active border to the active fill so the pill reads as a
+		// solid filled shape, not a bordered shape with a darker inside.
+		.donations__nav-item.is-active {
+			border-color: gb.$gray-900;
+		}
+	}
 }
