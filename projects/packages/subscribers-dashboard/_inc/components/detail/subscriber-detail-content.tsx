@@ -1,12 +1,13 @@
 import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { chartBar, envelope, navigation } from '@wordpress/icons';
+import { Card, Icon, Stack, Text } from '@wordpress/ui';
 import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscriber-details';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
+import { getResolvedPlans } from '../../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../../lib/subscription-status';
-import SubscriptionTypeCell from '../cells/subscription-type-cell';
 import type { Subscriber } from '../../data/types';
 
 type Props = {
@@ -30,12 +31,97 @@ function formatDate( value?: string | null ): string {
 }
 
 /**
- * Render a single label/value row in the detail grid. Hides itself when the value is empty.
+ * Compute a percentage from numerator/denominator, clamped 0–100. Returns null when there's no
+ * denominator (so the caller can render a dash instead of 0%).
+ *
+ * @param numerator   - Top of the ratio.
+ * @param denominator - Bottom of the ratio.
+ * @return Percentage (0–100) or null when denominator is 0/undefined.
+ */
+function ratePercent( numerator: number, denominator: number ): number | null {
+	if ( ! denominator ) {
+		return null;
+	}
+	const pct = Math.round( ( numerator / denominator ) * 100 );
+	return Math.min( 100, Math.max( 0, pct ) );
+}
+
+/**
+ * Stat tile in the detail view's hero row (Emails sent / Open rate / Click rate).
+ *
+ * @param props       - Tile props.
+ * @param props.label - Stat label.
+ * @param props.value - Stat value (string already formatted).
+ * @param props.icon  - Lead icon.
+ * @return Card containing the labeled stat.
+ */
+function StatCard( {
+	label,
+	value,
+	icon,
+}: {
+	label: string;
+	value: string;
+	icon: React.ReactElement< React.ComponentProps< 'svg' > >;
+} ): JSX.Element {
+	return (
+		<Card.Root className="jetpack-subscribers-dashboard__detail-stat">
+			<Card.Content>
+				<Stack direction="row" align="center" gap="sm">
+					<Icon icon={ icon } size={ 18 } />
+					<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-stat-label">
+						{ label }
+					</Text>
+				</Stack>
+				<Text
+					variant="heading-xl"
+					render={ <span /> }
+					className="jetpack-subscribers-dashboard__detail-stat-value"
+				>
+					{ value }
+				</Text>
+			</Card.Content>
+		</Card.Root>
+	);
+}
+
+/**
+ * Section heading for the grouped sections in the detail view.
+ *
+ * @param props          - Section props.
+ * @param props.title    - Section heading.
+ * @param props.children - Section body (rows).
+ * @return Card containing a header and the body.
+ */
+function DetailSection( {
+	title,
+	children,
+}: {
+	title: string;
+	children: React.ReactNode;
+} ): JSX.Element {
+	return (
+		<Card.Root className="jetpack-subscribers-dashboard__detail-section">
+			<Card.Header>
+				<Card.Title>
+					<Text variant="heading-sm" render={ <h3 /> }>
+						{ title }
+					</Text>
+				</Card.Title>
+			</Card.Header>
+			<Card.Content>{ children }</Card.Content>
+		</Card.Root>
+	);
+}
+
+/**
+ * Row inside a `DetailSection`. Renders a label / value pair; hides itself when the value is
+ * empty so optional fields don't leave gaps.
  *
  * @param props       - Row props.
  * @param props.label - Field label.
  * @param props.value - Field value (string, node, or null).
- * @return Label + value pair.
+ * @return The row, or null when empty.
  */
 function DetailRow( {
 	label,
@@ -48,19 +134,29 @@ function DetailRow( {
 		return null;
 	}
 	return (
-		<div className="jetpack-subscribers-dashboard__detail-row">
+		<Stack
+			direction="row"
+			align="center"
+			justify="space-between"
+			gap="md"
+			wrap="wrap"
+			className="jetpack-subscribers-dashboard__detail-row"
+		>
 			<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-row-label">
 				{ label }
 			</Text>
-			<span className="jetpack-subscribers-dashboard__detail-row-value">{ value }</span>
-		</div>
+			<Text variant="body-md" render={ <span /> }>
+				{ value }
+			</Text>
+		</Stack>
 	);
 }
 
 /**
- * Body content for the subscriber detail view — fetches profile + stats and lays them out in a
- * label/value grid plus an Engagement section. Layout-agnostic: renders identically inside the
- * desktop side-panel and the mobile Modal.
+ * Body content for the subscriber detail view — header (avatar + name + email), 3-column stat
+ * row (Emails sent / Open rate / Click rate), then grouped Subscription details and Subscriber
+ * information sections. Layout-agnostic: renders identically inside the desktop side-panel and
+ * the mobile Modal.
  *
  * @param props      - Component props.
  * @param props.open - Subscriber identifiers (must be non-null; the parent gates rendering).
@@ -96,6 +192,15 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 	const showEmail =
 		!! subscriber.email_address && subscriber.email_address !== subscriber.display_name;
 
+	const emailsSent = stats?.emails_sent ?? 0;
+	const uniqueOpens = stats?.unique_opens ?? 0;
+	const uniqueClicks = stats?.unique_clicks ?? 0;
+	const openRate = ratePercent( uniqueOpens, emailsSent );
+	const clickRate = ratePercent( uniqueClicks, emailsSent );
+	const dash = '—';
+
+	const plans = getResolvedPlans( subscriber as Subscriber );
+
 	return (
 		<Stack direction="column" gap="lg">
 			<Stack direction="row" align="center" gap="md">
@@ -108,101 +213,113 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 					/>
 				) : null }
 				<Stack direction="column" gap="xs">
-					<Text variant="heading-md" render={ <h2 /> }>
+					<Text variant="heading-lg" render={ <h2 /> }>
 						{ subscriber.display_name || subscriber.email_address }
 					</Text>
 					{ showEmail ? (
-						<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-email">
+						<Text variant="body-md" className="jetpack-subscribers-dashboard__detail-email">
 							{ subscriber.email_address }
 						</Text>
 					) : null }
 				</Stack>
 			</Stack>
 
-			<div className="jetpack-subscribers-dashboard__detail-grid">
-				<DetailRow
-					label={ __( 'Date subscribed', 'jetpack-subscribers-dashboard' ) }
-					value={ formatDate( getSubscribedAt( subscriber ) ) }
+			<Stack
+				direction="row"
+				gap="sm"
+				wrap="wrap"
+				className="jetpack-subscribers-dashboard__detail-stats"
+			>
+				<StatCard
+					label={ __( 'Emails sent', 'jetpack-subscribers-dashboard' ) }
+					value={ statsQuery.isLoading ? dash : String( emailsSent ) }
+					icon={ envelope }
 				/>
-				<DetailRow
-					label={ __( 'Email subscription', 'jetpack-subscribers-dashboard' ) }
-					value={ getSubscriptionStatusLabel( subscriber.subscription_status ) }
-				/>
-				<DetailRow
-					label={ __( 'Subscription type', 'jetpack-subscribers-dashboard' ) }
-					value={ <SubscriptionTypeCell subscriber={ subscriber as Subscriber } /> }
-				/>
-				<DetailRow
-					label={ __( 'Country', 'jetpack-subscribers-dashboard' ) }
-					value={ subscriber.country?.name }
-				/>
-				<DetailRow
-					label={ __( 'Site', 'jetpack-subscribers-dashboard' ) }
+				<StatCard
+					label={ __( 'Open rate', 'jetpack-subscribers-dashboard' ) }
 					value={
-						subscriber.url ? (
-							<a href={ subscriber.url } target="_blank" rel="noreferrer">
-								{ subscriber.url }
-							</a>
-						) : null
+						statsQuery.isLoading || openRate === null
+							? dash
+							: sprintf(
+									// translators: %d: percentage value (without the % sign).
+									__( '%d%%', 'jetpack-subscribers-dashboard' ),
+									openRate
+							  )
 					}
+					icon={ chartBar }
 				/>
-			</div>
-
-			<Stack direction="column" gap="sm">
-				<Text
-					variant="heading-sm"
-					render={ <h3 /> }
-					className="jetpack-subscribers-dashboard__detail-section-title"
-				>
-					{ __( 'Engagement', 'jetpack-subscribers-dashboard' ) }
-				</Text>
-				<div className="jetpack-subscribers-dashboard__detail-grid">
-					{ statsQuery.isLoading ? (
-						<Spinner />
-					) : (
-						<>
-							<DetailRow
-								label={ __( 'Emails sent', 'jetpack-subscribers-dashboard' ) }
-								value={ stats?.emails_sent ?? 0 }
-							/>
-							<DetailRow
-								label={ __( 'Unique opens', 'jetpack-subscribers-dashboard' ) }
-								value={ stats?.unique_opens ?? 0 }
-							/>
-							<DetailRow
-								label={ __( 'Unique clicks', 'jetpack-subscribers-dashboard' ) }
-								value={ stats?.unique_clicks ?? 0 }
-							/>
-						</>
-					) }
-				</div>
+				<StatCard
+					label={ __( 'Click rate', 'jetpack-subscribers-dashboard' ) }
+					value={
+						statsQuery.isLoading || clickRate === null
+							? dash
+							: sprintf(
+									// translators: %d: percentage value (without the % sign).
+									__( '%d%%', 'jetpack-subscribers-dashboard' ),
+									clickRate
+							  )
+					}
+					icon={ navigation }
+				/>
 			</Stack>
 
-			{ stats?.blog_registration_date ? (
-				<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-meta">
-					{ sprintf(
-						// translators: %s: date the subscriber registered with the blog.
-						__( 'Joined %s.', 'jetpack-subscribers-dashboard' ),
-						formatDate( stats.blog_registration_date )
+			<DetailSection
+				title={ __( 'Newsletter subscription details', 'jetpack-subscribers-dashboard' ) }
+			>
+				<Stack direction="column" gap="md">
+					<DetailRow
+						label={ __( 'Date subscribed', 'jetpack-subscribers-dashboard' ) }
+						value={ formatDate( getSubscribedAt( subscriber ) ) }
+					/>
+					<DetailRow
+						label={ __( 'Email subscription', 'jetpack-subscribers-dashboard' ) }
+						value={ getSubscriptionStatusLabel( subscriber.subscription_status ) }
+					/>
+					{ plans.length > 0 ? (
+						<DetailRow
+							label={ __( 'Subscription type', 'jetpack-subscribers-dashboard' ) }
+							value={ plans.map( plan => plan.plan ).join( ', ' ) }
+						/>
+					) : (
+						<DetailRow
+							label={ __( 'Subscription type', 'jetpack-subscribers-dashboard' ) }
+							value={ __( 'Free', 'jetpack-subscribers-dashboard' ) }
+						/>
 					) }
-				</Text>
-			) : null }
+				</Stack>
+			</DetailSection>
 
-			{ stats && ( stats.emails_sent ?? 0 ) > 0 && typeof stats.unique_opens === 'number' ? (
-				<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-meta">
-					{ sprintf(
-						// translators: %1$d: emails sent. %2$d: unique opens.
-						_n(
-							'%1$d email sent · %2$d open.',
-							'%1$d emails sent · %2$d opens.',
-							stats.emails_sent ?? 0,
-							'jetpack-subscribers-dashboard'
-						),
-						stats.emails_sent ?? 0,
-						stats.unique_opens ?? 0
-					) }
-				</Text>
-			) : null }
+			<DetailSection title={ __( 'Subscriber information', 'jetpack-subscribers-dashboard' ) }>
+				<Stack direction="column" gap="md">
+					<DetailRow
+						label={ __( 'Email', 'jetpack-subscribers-dashboard' ) }
+						value={ subscriber.email_address }
+					/>
+					<DetailRow
+						label={ __( 'Country', 'jetpack-subscribers-dashboard' ) }
+						value={ subscriber.country?.name }
+					/>
+					<DetailRow
+						label={ __( 'Site', 'jetpack-subscribers-dashboard' ) }
+						value={
+							subscriber.url ? (
+								<a
+									href={ subscriber.url }
+									target="_blank"
+									rel="noreferrer"
+									className="jetpack-subscribers-dashboard__detail-link"
+								>
+									{ subscriber.url }
+								</a>
+							) : null
+						}
+					/>
+					<DetailRow
+						label={ __( 'Joined', 'jetpack-subscribers-dashboard' ) }
+						value={ formatDate( stats?.blog_registration_date ) }
+					/>
+				</Stack>
+			</DetailSection>
 		</Stack>
 	);
 }

@@ -9,16 +9,22 @@
 	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
 }
 
+// Inline avatar in the identity cell — keep it circular and prevent the
+// design-system Stack from squashing it inside narrow rows.
+.jetpack-subscribers-dashboard__identity-avatar {
+	flex-shrink: 0;
+}
+
 // Inspector panel chrome.
 .jetpack-subscribers-dashboard__panel-header {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
-	padding: var(--wpds-dimension-padding-md, 16px) var(--wpds-dimension-padding-lg, 24px);
+	padding: var(--wpds-dimension-padding-sm, 8px) var(--wpds-dimension-padding-lg, 16px);
 }
 
 .jetpack-subscribers-dashboard__panel-body {
 	flex-grow: 1;
 	overflow-y: auto;
-	padding: var(--wpds-dimension-padding-lg, 24px);
+	padding: var(--wpds-dimension-padding-2xl, 24px);
 }
 
 // Subscriber detail layout.
@@ -32,32 +38,39 @@
 	flex-shrink: 0;
 }
 
-.jetpack-subscribers-dashboard__detail-grid {
-	display: grid;
-	gap: var(--wpds-dimension-gap-xs, 8px) var(--wpds-dimension-gap-lg, 24px);
-	grid-template-columns: max-content 1fr;
-}
-
-.jetpack-subscribers-dashboard__detail-row {
-	display: contents;
-
-	&-label {
-		// TODO: replace with `Text` "label/eyebrow" variant when the design system
-		// adds one (see https://github.com/WordPress/gutenberg/issues/77391).
-		color: var(--wpds-color-fg-content-neutral-weak, #50575e);
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-	}
-}
-
-.jetpack-subscribers-dashboard__detail-section-title {
-	border-top: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
-	padding-top: var(--wpds-dimension-padding-md, 16px);
-}
-
 // TODO: replace with `Text` "muted" tone once available
 // (see https://github.com/WordPress/gutenberg/issues/77391).
-.jetpack-subscribers-dashboard__detail-email,
-.jetpack-subscribers-dashboard__detail-meta {
+.jetpack-subscribers-dashboard__detail-email {
 	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+}
+
+// Stat row — Emails sent / Open rate / Click rate.
+.jetpack-subscribers-dashboard__detail-stats > * {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.jetpack-subscribers-dashboard__detail-stat-label {
+	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+}
+
+.jetpack-subscribers-dashboard__detail-stat-value {
+	display: block;
+	margin-top: var(--wpds-dimension-gap-sm, 8px);
+}
+
+// Grouped sections.
+.jetpack-subscribers-dashboard__detail-section [class*="__detail-row"]:not(:last-child) {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
+	padding-bottom: var(--wpds-dimension-padding-sm, 8px);
+}
+
+.jetpack-subscribers-dashboard__detail-row-label {
+	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+}
+
+.jetpack-subscribers-dashboard__detail-link {
+	word-break: break-all;
 }

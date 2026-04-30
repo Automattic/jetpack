@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Detail side panel polish: drop the DataViews mediaField wrapper (which added a square outline behind the circular Gravatar), render the avatar inline in the identity cell, make the title clickable to open the panel, and redesign the panel body around stat cards and Card-grouped sections from @wordpress/ui.

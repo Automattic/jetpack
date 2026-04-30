@@ -1,4 +1,3 @@
-import Gravatar from '@automattic/jetpack-components/gravatar';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -25,7 +24,6 @@ const defaultView: View = {
 	filters: [],
 	sort: { field: 'date_subscribed', direction: 'desc' },
 	titleField: 'name',
-	mediaField: 'media',
 	fields: [ 'plan', 'subscription_status', 'date_subscribed' ],
 };
 
@@ -78,22 +76,6 @@ export default function SubscribersDataViews( {
 
 	const fields = useMemo< Field< Subscriber >[] >(
 		() => [
-			{
-				id: 'media',
-				label: __( 'Media', 'jetpack-subscribers-dashboard' ),
-				getValue: ( { item }: { item: Subscriber } ) => item.email_address ?? '',
-				render: ( { item }: { item: Subscriber } ) =>
-					item.email_address ? (
-						<Gravatar
-							email={ item.email_address }
-							displayName={ item.display_name }
-							size={ 40 }
-							useHovercard={ false }
-						/>
-					) : null,
-				enableSorting: false,
-				enableHiding: false,
-			},
 			{
 				id: 'name',
 				label: __( 'Name', 'jetpack-subscribers-dashboard' ),
@@ -207,6 +189,13 @@ export default function SubscribersDataViews( {
 		setPendingRemoval( [] );
 	}, [] );
 
+	const handleClickItem = useCallback(
+		( item: Subscriber ) => {
+			onViewSubscriber( item );
+		},
+		[ onViewSubscriber ]
+	);
+
 	const subscribers = data?.subscribers ?? [];
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
@@ -245,6 +234,7 @@ export default function SubscribersDataViews( {
 				search
 				searchLabel={ __( 'Search subscribers…', 'jetpack-subscribers-dashboard' ) }
 				actions={ actions }
+				onClickItem={ handleClickItem }
 				empty={
 					<EmptyState
 						hasFiltersOrSearch={ hasActiveFiltersOrSearch }
