@@ -257,8 +257,11 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		set.selectedAmountTextColor();
 	}, [ set ] );
 
-	const resetTabSettings = useCallback( () => {
+	const resetTabAppearance = useCallback( () => {
 		set.tabsAppearance( 'tabs' );
+	}, [ set ] );
+
+	const resetTabDimensions = useCallback( () => {
 		set.tabFontSize();
 		set.tabPadding();
 	}, [ set ] );
@@ -318,40 +321,8 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				className="jp-donations-style-panel"
 			>
 				<ToolsPanel
-					className="color-block-support-panel"
-					label={ __( 'Tab colors', 'jetpack' ) }
-					resetAll={ resetTabColors }
-					hasInnerWrapper
-					headingLevel={ 3 }
-					__experimentalFirstVisibleItemClass="first"
-					__experimentalLastVisibleItemClass="last"
-				>
-					<div className="color-block-support-panel__inner-wrapper">
-						<CompoundColorRow
-							label={ __( 'Active tab', 'jetpack' ) }
-							settings={ activeTabSettings }
-						/>
-						<CompoundColorRow
-							label={ __( 'Inactive tab', 'jetpack' ) }
-							settings={ inactiveTabSettings }
-						/>
-						<CompoundColorRow
-							label={ __( 'Tab border', 'jetpack' ) }
-							settings={ tabBorderSettings }
-						/>
-					</div>
-				</ToolsPanel>
-				<ContrastChecker
-					backgroundColor={ activeTabBackgroundColor }
-					textColor={ activeTabTextColor }
-				/>
-				<ContrastChecker
-					backgroundColor={ inactiveTabBackgroundColor }
-					textColor={ inactiveTabTextColor }
-				/>
-				<ToolsPanel
-					label={ __( 'Tab settings', 'jetpack' ) }
-					resetAll={ resetTabSettings }
+					label={ __( 'Tab appearance', 'jetpack' ) }
+					resetAll={ resetTabAppearance }
 					headingLevel={ 3 }
 					__experimentalFirstVisibleItemClass="first"
 					__experimentalLastVisibleItemClass="last"
@@ -374,6 +345,46 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 							<ToggleGroupControlOption value="buttons" label={ __( 'Buttons', 'jetpack' ) } />
 						</ToggleGroupControl>
 					</ToolsPanelItem>
+				</ToolsPanel>
+				<ToolsPanel
+					className="color-block-support-panel"
+					label={ __( 'Tab colors', 'jetpack' ) }
+					resetAll={ resetTabColors }
+					hasInnerWrapper
+					headingLevel={ 3 }
+					__experimentalFirstVisibleItemClass="first"
+					__experimentalLastVisibleItemClass="last"
+				>
+					<div className="color-block-support-panel__inner-wrapper">
+						<CompoundColorRow
+							label={ __( 'Active Tab', 'jetpack' ) }
+							settings={ activeTabSettings }
+						/>
+						<CompoundColorRow
+							label={ __( 'Inactive Tab', 'jetpack' ) }
+							settings={ inactiveTabSettings }
+						/>
+						<CompoundColorRow
+							label={ __( 'Tab Border', 'jetpack' ) }
+							settings={ tabBorderSettings }
+						/>
+					</div>
+				</ToolsPanel>
+				<ContrastChecker
+					backgroundColor={ activeTabBackgroundColor }
+					textColor={ activeTabTextColor }
+				/>
+				<ContrastChecker
+					backgroundColor={ inactiveTabBackgroundColor }
+					textColor={ inactiveTabTextColor }
+				/>
+				<ToolsPanel
+					label={ __( 'Tab dimensions', 'jetpack' ) }
+					resetAll={ resetTabDimensions }
+					headingLevel={ 3 }
+					__experimentalFirstVisibleItemClass="first"
+					__experimentalLastVisibleItemClass="last"
+				>
 					<ToolsPanelItem
 						label={ __( 'Font size', 'jetpack' ) }
 						hasValue={ has.tabFontSize }
@@ -418,7 +429,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				>
 					<div className="color-block-support-panel__inner-wrapper">
 						<CompoundColorRow
-							label={ __( 'Selected amount', 'jetpack' ) }
+							label={ __( 'Selected Amount', 'jetpack' ) }
 							settings={ selectedAmountSettings }
 						/>
 					</div>

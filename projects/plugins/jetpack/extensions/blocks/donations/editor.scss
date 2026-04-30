@@ -57,12 +57,10 @@
 	min-width: 130px;
 }
 
-// Apply consistent vertical spacing between top-level controls inside our
-// custom style panels. Default control margins are inconsistent between
-// FontSizePicker, BoxControl, BorderBoxControl, BorderRadiusControl, etc.,
-// which leaves some sections crammed together. The first child (the panel
-// title) is excluded.
-.jp-donations-style-panel.components-panel__body > *:not(:first-child) {
+// Spacing between sibling sections inside our panels. The first non-title
+// child (e.g. the first ToolsPanel) sits flush; subsequent siblings get a
+// consistent gap.
+.jp-donations-style-panel.components-panel__body > :nth-child(n+3) {
 	margin-block-start: 24px;
 }
 
@@ -75,10 +73,9 @@
 	border-bottom: 0;
 }
 
-// Make any uppercase labels inside our custom style panels inherit text
-// color from the inspector sidebar (`.interface-complementary-area`)
-// instead of the hardcoded #757575 the components style picks. Matches
-// the auto-rendered supports panels.
+// Make labels inside our custom style panels inherit text color from the
+// inspector sidebar (`.interface-complementary-area`) instead of the
+// component default grey, matching the auto-rendered supports panels.
 .jp-donations-style-panel.components-panel__body {
 
 	.components-base-control__label,
@@ -88,5 +85,29 @@
 	.components-border-box-control__label,
 	.components-border-control__label {
 		color: inherit;
+	}
+
+	// Hide the inner ToolsPanel section heading (the parent PanelBody title
+	// already labels the whole section, so a sub-heading like "Tab dimensions"
+	// reads as duplicated chrome).
+	.components-tools-panel-header {
+		display: none;
+	}
+
+	// The ToolsPanel emotion-styled wrapper applies its own 16px padding;
+	// the PanelBody already provides outer padding, so the inner panel adds
+	// extra space. Drop it here.
+	.components-tools-panel {
+		padding: 0;
+	}
+
+	// Compound color row labels (Active Tab / Inactive Tab / Tab Border /
+	// Selected Amount) are clipped by core CSS at `calc(100% - 44px)` with
+	// ellipsis. Show the full label.
+	.block-editor-panel-color-gradient-settings__color-name {
+		max-width: none;
+		overflow: visible;
+		white-space: normal;
+		text-overflow: clip;
 	}
 }
