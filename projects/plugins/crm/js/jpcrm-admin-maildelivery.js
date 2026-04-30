@@ -42,12 +42,14 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 			emailFrom = jQuery( this ).attr( 'data-from' );
 
 			swal( {
-				title: window.zeroBSCRMJS_globViewLang( 'sendTestMail' ) + ' "' + emailFrom + '"',
+				title: jpcrm.esc_html(
+					window.zeroBSCRMJS_globViewLang( 'sendTestMail' ) + ' "' + emailFrom + '"'
+				),
 				//text: window.zeroBSCRMJS_globViewLang('sendTestWhere'),
 				input: 'email',
 				inputValue: emailFrom, // prefill with itself
 				showCancelButton: true,
-				confirmButtonText: window.zeroBSCRMJS_globViewLang( 'sendTestButton' ),
+				confirmButtonText: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'sendTestButton' ) ),
 				showLoaderOnConfirm: true,
 				preConfirm: function ( email ) {
 					return new Promise( function ( resolve, reject ) {
@@ -101,14 +103,14 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 					if ( window.zbsTestDelivery === 'success' ) {
 						swal( {
 							type: 'success',
-							title: window.zeroBSCRMJS_globViewLang( 'sendTestSent' ),
-							html: window.zbsTestDeliveryMsg,
+							title: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'sendTestSent' ) ),
+							html: jpcrm.esc_html( window.zbsTestDeliveryMsg ),
 						} );
 					} else {
 						swal( {
 							type: 'warning',
-							title: window.zeroBSCRMJS_globViewLang( 'sendTestFail' ),
-							html: window.zbsTestDeliveryMsg,
+							title: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'sendTestFail' ) ),
+							html: jpcrm.esc_html( window.zbsTestDeliveryMsg ),
 						} );
 					}
 				} )
@@ -125,13 +127,15 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 			emailIndx = jQuery( this ).attr( 'data-indx' );
 
 			swal( {
-				title: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureTitle' ),
-				text: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureText' ),
+				title: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureTitle' ) ),
+				text: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureText' ) ),
 				type: 'warning',
 				showCancelButton: true,
 				confirmButtonColor: '#3085d6',
 				cancelButtonColor: '#d33',
-				confirmButtonText: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureConfirm' ),
+				confirmButtonText: jpcrm.esc_html(
+					window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureConfirm' )
+				),
 			} ).then( function ( result ) {
 				if ( result.value ) {
 					// localise indx
@@ -154,8 +158,12 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 							console.log( 'del', response );
 
 							swal( {
-								title: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeletedTitle' ),
-								text: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeletedText' ),
+								title: jpcrm.esc_html(
+									window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeletedTitle' )
+								),
+								text: jpcrm.esc_html(
+									window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeletedText' )
+								),
 								type: 'success',
 								// refresh onClose: zeroBSCRMJS_refreshPage
 								onClose: function () {
@@ -169,8 +177,12 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 							console.error( 'del', response );
 
 							swal(
-								window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeleteErrTitle' ),
-								window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeleteErrText' ),
+								jpcrm.esc_html(
+									window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeleteErrTitle' )
+								),
+								jpcrm.esc_html(
+									window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeleteErrText' )
+								),
 								'warning'
 							);
 						},
@@ -189,13 +201,15 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 			emailIndx = jQuery( this ).attr( 'data-indx' );
 
 			swal( {
-				title: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureTitle' ),
-				text: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureText' ),
+				title: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureTitle' ) ),
+				text: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureText' ) ),
 				type: 'warning',
 				showCancelButton: true,
 				confirmButtonColor: '#3085d6',
 				cancelButtonColor: '#d33',
-				confirmButtonText: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureConfirm' ),
+				confirmButtonText: jpcrm.esc_html(
+					window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureConfirm' )
+				),
 			} ).then( function () {
 				// localise indx
 				const lIndx = emailIndx;
@@ -217,8 +231,12 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 						console.log( 'def', response );
 
 						swal( {
-							title: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeletedTitle' ),
-							text: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeletedText' ),
+							title: jpcrm.esc_html(
+								window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeletedTitle' )
+							),
+							text: jpcrm.esc_html(
+								window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeletedText' )
+							),
 							type: 'success',
 							// refresh onClose: zeroBSCRMJS_refreshPage
 							onClose: function () {
@@ -236,7 +254,7 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 									'#zbs-mail-delivery-' + llIndx + ' td.zbs-mail-delivery-item-details'
 								).prepend(
 									'<div class="ui ribbon label zbs-default">' +
-										window.zeroBSCRMJS_globViewLang( 'defaultText' ) +
+										jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'defaultText' ) ) +
 										'</div>'
 								);
 								jQuery(
@@ -249,8 +267,12 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 						console.error( 'def', response );
 
 						swal(
-							window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeleteErrTitle' ),
-							window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeleteErrText' ),
+							jpcrm.esc_html(
+								window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeleteErrTitle' )
+							),
+							jpcrm.esc_html(
+								window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeleteErrText' )
+							),
 							'warning'
 						);
 					},
@@ -297,7 +319,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 
 				// hide any msg
 				jQuery( '#zbs-mail-delivery-wizard-sendfromname-error' )
-					.html( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
+					.text( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
 					.addClass( 'hidden' );
 			} else {
 				// not okay
@@ -305,7 +327,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 
 				// msg
 				jQuery( '#zbs-mail-delivery-wizard-sendfromname-error' )
-					.html( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
+					.text( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
 					.removeClass( 'hidden' );
 			}
 
@@ -316,7 +338,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 
 				// hide any msg
 				jQuery( '#zbs-mail-delivery-wizard-sendfromemail-error' )
-					.html( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
+					.text( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
 					.addClass( 'hidden' );
 			} else {
 				// not okay
@@ -324,7 +346,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 
 				// msg
 				jQuery( '#zbs-mail-delivery-wizard-sendfromemail-error' )
-					.html( window.zeroBSCRMJS_globViewLang( 'pleaseEnterEmail' ) )
+					.text( window.zeroBSCRMJS_globViewLang( 'pleaseEnterEmail' ) )
 					.removeClass( 'hidden' );
 			}
 
@@ -449,14 +471,14 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 					window.zeroBSCRMJS_SMTPWiz.smtpHost = smtpHost;
 					// hide any msg
 					jQuery( '#zbs-mail-delivery-wizard-smtphost-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
 						.addClass( 'hidden' );
 				} else {
 					// not okay
 					okayToProceed = false;
 					// msg
 					jQuery( '#zbs-mail-delivery-wizard-smtphost-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
 						.removeClass( 'hidden' );
 				}
 
@@ -465,14 +487,14 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 					window.zeroBSCRMJS_SMTPWiz.smtpPort = smtpPort;
 					// hide any msg
 					jQuery( '#zbs-mail-delivery-wizard-smtpport-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
 						.addClass( 'hidden' );
 				} else {
 					// not okay
 					okayToProceed = false;
 					// msg
 					jQuery( '#zbs-mail-delivery-wizard-smtpport-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
 						.removeClass( 'hidden' );
 				}
 
@@ -481,14 +503,14 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 					window.zeroBSCRMJS_SMTPWiz.smtpUser = smtpUser;
 					// hide any msg
 					jQuery( '#zbs-mail-delivery-wizard-smtpuser-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
 						.addClass( 'hidden' );
 				} else {
 					// not okay
 					okayToProceed = false;
 					// msg
 					jQuery( '#zbs-mail-delivery-wizard-smtpuser-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
 						.removeClass( 'hidden' );
 				}
 
@@ -497,14 +519,14 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 					window.zeroBSCRMJS_SMTPWiz.smtpPass = smtpPass;
 					// hide any msg
 					jQuery( '#zbs-mail-delivery-wizard-smtppass-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'thanks' ) )
 						.addClass( 'hidden' );
 				} else {
 					// not okay
 					okayToProceed = false;
 					// msg
 					jQuery( '#zbs-mail-delivery-wizard-smtppass-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'pleaseEnter' ) )
 						.removeClass( 'hidden' );
 				}
 			} // end if smtp
@@ -524,7 +546,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 				} else {
 					okayToProceed = false;
 					jQuery( '#zbs-mail-delivery-wizard-oauth-error' )
-						.html( window.zeroBSCRMJS_globViewLang( 'oauthConnection' ) )
+						.text( window.zeroBSCRMJS_globViewLang( 'oauthConnection' ) )
 						.removeClass( 'hidden' );
 					window.zeroBSCRMJS_SMTPWiz.oauth_profile_key = false;
 				}
@@ -626,9 +648,9 @@ function zeroBSCRMJS_validateSettings() {
 					if ( typeof response.success !== 'undefined' ) {
 						// show result
 						const resHTML =
-							window.zeroBSCRMJS_globViewLang( 'settingsValidatedWPMail' ) +
+							jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'settingsValidatedWPMail' ) ) +
 							'<div class="zbs-validated">' +
-							window.zeroBSCRMJS_SMTPWiz.sendFromEmail +
+							jpcrm.esc_html( window.zeroBSCRMJS_SMTPWiz.sendFromEmail ) +
 							'</div>';
 						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
 
@@ -638,7 +660,7 @@ function zeroBSCRMJS_validateSettings() {
 					} else {
 						// some kind of error, suggest retry
 						const resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidatedWPMailError' );
-						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 						jQuery( '#zbs-mail-delivery-wizard-validate-console-ico' ).html(
 							'<i class="warning sign icon"></i>'
 						);
@@ -657,7 +679,7 @@ function zeroBSCRMJS_validateSettings() {
 
 					// some kind of error, suggest retry
 					const resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidatedWPMailError' );
-					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 
 					// enable back button, disable finish button
 					jQuery( '#zbs-mail-delivery-wizard-step-3-back' ).show();
@@ -673,7 +695,7 @@ function zeroBSCRMJS_validateSettings() {
 
 			// loading
 			jQuery( '#zbs-mail-delivery-wizard-validate-console-ico' ).addClass( 'loading' );
-			jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html(
+			jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text(
 				window.zeroBSCRMJS_globViewLang( 'settingsValidateSMTPPortCheck' )
 			);
 
@@ -694,7 +716,7 @@ function zeroBSCRMJS_validateSettings() {
 				success: function ( response ) {
 					if ( typeof response.open !== 'undefined' && response.open ) {
 						// NORMAL - validate smtp via send:
-						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html(
+						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text(
 							window.zeroBSCRMJS_globViewLang( 'settingsValidateSMTPProbing' )
 						);
 
@@ -734,7 +756,7 @@ function zeroBSCRMJS_validateSettings() {
 								}
 
 								// remove loading + play routine for now (no separate ajax tests here)
-								jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html(
+								jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text(
 									window.zeroBSCRMJS_globViewLang( 'settingsValidateSMTPProbing' )
 								);
 								jQuery( '#zbs-mail-delivery-wizard-validate-console-ico' )
@@ -743,7 +765,7 @@ function zeroBSCRMJS_validateSettings() {
 
 								setTimeout( function () {
 									// attempting to send msg
-									jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html(
+									jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text(
 										window.zeroBSCRMJS_globViewLang( 'settingsValidateSMTPAttempt' )
 									);
 									jQuery( '#zbs-mail-delivery-wizard-validate-console-ico' ).html(
@@ -756,7 +778,7 @@ function zeroBSCRMJS_validateSettings() {
 									if ( typeof response.success !== 'undefined' && response.success ) {
 										// sent
 										let resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidateSMTPSuccess' );
-										jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+										jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 										jQuery( '#zbs-mail-delivery-wizard-validate-console-ico' ).html(
 											'<i class="mail outline icon"></i>'
 										);
@@ -765,7 +787,9 @@ function zeroBSCRMJS_validateSettings() {
 											//console.log('x',window.zeroBSCRMJS_SMTPWiz.smtpHost);
 											// show result
 											resHTML =
-												window.zeroBSCRMJS_globViewLang( 'settingsValidatedSMTP' ) +
+												jpcrm.esc_html(
+													window.zeroBSCRMJS_globViewLang( 'settingsValidatedSMTP' )
+												) +
 												'<div class="zbs-validated">' +
 												jpcrm.esc_html( window.zeroBSCRMJS_SMTPWiz.sendFromEmail ) +
 												'</div>';
@@ -795,7 +819,7 @@ function zeroBSCRMJS_validateSettings() {
 										const resHTML = window.zeroBSCRMJS_globViewLang(
 											'settingsValidatedSMTPProbeError'
 										);
-										jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+										jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 										jQuery( '#zbs-mail-delivery-wizard-validate-console-ico' ).html(
 											'<i class="warning sign icon"></i>'
 										);
@@ -837,7 +861,7 @@ function zeroBSCRMJS_validateSettings() {
 								// debug (likely timed out)
 								jQuery( '#zbs-mail-delivery-wizard-admdebug' ).html(
 									'<strong>Debug Log</strong>:<br />' +
-										window.zeroBSCRMJS_globViewLang( 'likelytimeout' )
+										jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'likelytimeout' ) )
 								);
 
 								// remove loading
@@ -850,7 +874,7 @@ function zeroBSCRMJS_validateSettings() {
 								const resHTML = window.zeroBSCRMJS_globViewLang(
 									'settingsValidatedSMTPGeneralError'
 								);
-								jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+								jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 
 								// enable back button, disable finish button
 								jQuery( '#zbs-mail-delivery-wizard-step-3-back' ).show();
@@ -887,7 +911,7 @@ function zeroBSCRMJS_validateSettings() {
 
 						// some kind of error, suggest retry
 						const resHTML = window.zeroBSCRMJS_globViewLang( 'likelytimeout' );
-						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 
 						// enable back button, disable finish button
 						jQuery( '#zbs-mail-delivery-wizard-step-3-back' ).show();
@@ -908,7 +932,7 @@ function zeroBSCRMJS_validateSettings() {
 					// debug (likely timed out)
 					jQuery( '#zbs-mail-delivery-wizard-admdebug' ).html(
 						'<strong>Debug Log (Ports Blocked)</strong>:<br />' +
-							window.zeroBSCRMJS_globViewLang( 'likelytimeout' )
+							jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'likelytimeout' ) )
 					);
 
 					// remove loading
@@ -919,7 +943,7 @@ function zeroBSCRMJS_validateSettings() {
 
 					// some kind of error, suggest retry
 					const resHTML = window.zeroBSCRMJS_globViewLang( 'likelytimeout' );
-					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 
 					// enable back button, disable finish button
 					jQuery( '#zbs-mail-delivery-wizard-step-3-back' ).show();
@@ -973,9 +997,9 @@ function zeroBSCRMJS_validateSettings() {
 					if ( typeof response.success !== 'undefined' ) {
 						// show result
 						const resHTML =
-							window.zeroBSCRMJS_globViewLang( 'settingsValidatedOAuth' ) +
+							jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'settingsValidatedOAuth' ) ) +
 							'<div class="zbs-validated">' +
-							window.zeroBSCRMJS_SMTPWiz.sendFromEmail +
+							jpcrm.esc_html( window.zeroBSCRMJS_SMTPWiz.sendFromEmail ) +
 							'</div>';
 						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
 
@@ -985,7 +1009,7 @@ function zeroBSCRMJS_validateSettings() {
 					} else {
 						// some kind of error, suggest retry
 						const resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidatedOAuthError' );
-						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+						jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 						jQuery( '#zbs-mail-delivery-wizard-validate-console-ico' ).html(
 							'<i class="warning sign icon"></i>'
 						);
@@ -1004,7 +1028,7 @@ function zeroBSCRMJS_validateSettings() {
 
 					// some kind of error, suggest retry
 					const resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidatedOAuthError' );
-					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
+					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).text( resHTML );
 
 					// enable back button, disable finish button
 					jQuery( '#zbs-mail-delivery-wizard-step-3-back' ).show();
