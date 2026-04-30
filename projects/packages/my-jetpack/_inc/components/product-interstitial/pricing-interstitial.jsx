@@ -11,12 +11,10 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
-	Text,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { Spinner } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import { Button as WPButton, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
@@ -389,32 +387,22 @@ export default function PricingInterstitial( { slug } ) {
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
+			actions={
+				<WPButton
+					size="compact"
+					variant="secondary"
+					href={ getMyJetpackUrl( '#/add-license' ) }
+					onClick={ handleLicenseActivationClick }
+				>
+					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
+				</WPButton>
+			}
 		>
 			<Container
 				className={ styles.interstitialContainer }
 				horizontalSpacing={ 3 }
 				horizontalGap={ 2 }
 			>
-				<Col className={ styles[ 'product-interstitial__header' ] }>
-					<Text variant="body-small">
-						{ createInterpolateElement(
-							__(
-								'Already have an existing plan or license key? <a>Click here to get started</a>.',
-								'jetpack-my-jetpack'
-							),
-							{
-								a: (
-									<Button
-										className={ styles[ 'product-interstitial__license-activation-link' ] }
-										href={ getMyJetpackUrl( '#/add-license' ) }
-										variant="link"
-										onClick={ handleLicenseActivationClick }
-									/>
-								),
-							}
-						) }
-					</Text>
-				</Col>
 				<Col>
 					<PricingTable
 						title={ config.title }

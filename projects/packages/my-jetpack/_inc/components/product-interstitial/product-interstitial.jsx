@@ -1,16 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	AdminPage,
-	Button,
-	Col,
-	Container,
-	Text,
-	TermsOfService,
-} from '@automattic/jetpack-components';
+import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { createInterpolateElement } from '@wordpress/element';
+import { Button as WPButton } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
@@ -210,29 +203,15 @@ export default function ProductInterstitial( {
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
+			actions={
+				existingLicenseKeyUrl ? (
+					<WPButton size="compact" variant="secondary" href={ existingLicenseKeyUrl }>
+						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
+					</WPButton>
+				) : null
+			}
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col className={ styles[ 'product-interstitial__header' ] }>
-					{ existingLicenseKeyUrl && (
-						<Text variant="body-small">
-							{ createInterpolateElement(
-								__(
-									'Already have an existing plan or license key? <a>Click here to get started</a>.',
-									'jetpack-my-jetpack'
-								),
-								{
-									a: (
-										<Button
-											className={ styles[ 'product-interstitial__license-activation-link' ] }
-											href={ existingLicenseKeyUrl }
-											variant="link"
-										/>
-									),
-								}
-							) }
-						</Text>
-					) }
-				</Col>
 				<Col>
 					{ isTieredPricing ? (
 						<ProductDetailTable
