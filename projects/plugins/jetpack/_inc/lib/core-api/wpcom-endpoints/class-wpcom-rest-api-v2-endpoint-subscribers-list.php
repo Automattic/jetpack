@@ -197,6 +197,37 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/source-sites',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_source_sites' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/migrate',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'migrate_from_source_site' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'source_blog_id' => array(
+							'type'     => 'integer',
+							'required' => true,
+							'minimum'  => 1,
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -520,6 +551,118 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 			return new WP_Error(
 				'subscribers_add_failed',
 				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not add subscribers.', 'jetpack' ),
+				array( 'status' => $status )
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * GET /wpcom/v2/subscribers/source-sites — return WPCOM sites the connected user owns and
+	 * could migrate subscribers FROM. We exclude this dashboard's own connected blog id and any
+	 * non-Jetpack-eligible site so the picker shows only valid migration sources.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_source_sites() {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		// `/me/sites` returns every WPCOM site the user has access to. We filter down to the ones
+		// they actually OWN — Calypso's MigrateSubscribersModal does the same (`site_owner ===
+		// currentUserId`), since the migrate endpoint requires ownership.
+		$response = Client::wpcom_json_api_request_as_user(
+			'/me/sites?fields=ID,name,URL,site_owner&site_visibility=all',
+			'1.1',
+			array( 'method' => 'GET' ),
+			null,
+			'rest'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				'subscribers_source_sites_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not fetch source sites.', 'jetpack' ),
+				array( 'status' => $status )
+			);
+		}
+
+		$sites           = is_array( $body ) && isset( $body['sites'] ) ? (array) $body['sites'] : array();
+		$current_user_id = isset( $body['user_id'] ) ? (int) $body['user_id'] : 0;
+		$result          = array();
+		foreach ( $sites as $site ) {
+			$site_id = isset( $site['ID'] ) ? (int) $site['ID'] : 0;
+			$owner   = isset( $site['site_owner'] ) ? (int) $site['site_owner'] : 0;
+			if ( ! $site_id || $site_id === (int) $blog_id ) {
+				continue;
+			}
+			if ( $current_user_id && $owner && $owner !== $current_user_id ) {
+				continue;
+			}
+			$result[] = array(
+				'ID'   => $site_id,
+				'name' => isset( $site['name'] ) ? (string) $site['name'] : '',
+				'URL'  => isset( $site['URL'] ) ? (string) $site['URL'] : '',
+			);
+		}
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * POST /wpcom/v2/subscribers/migrate — pull subscribers in from another WPCOM site this user
+	 * owns. Mirrors Calypso's `useMigrateSubscribersCallback`, which POSTs to
+	 * `/jetpack-blogs/{target}/source/{source}/migrate`.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function migrate_from_source_site( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$source_blog_id = (int) $request->get_param( 'source_blog_id' );
+		if ( $source_blog_id <= 0 || $source_blog_id === (int) $blog_id ) {
+			return new WP_Error(
+				'subscribers_migrate_invalid_source',
+				__( 'Provide a different source site.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/jetpack-blogs/%d/source/%d/migrate', (int) $blog_id, $source_blog_id ),
+			'1.1',
+			array( 'method' => 'POST' ),
+			null,
+			'rest'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				'subscribers_migrate_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not migrate subscribers.', 'jetpack' ),
 				array( 'status' => $status )
 			);
 		}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Subscribers dashboard: add /wpcom/v2/subscribers/source-sites and /wpcom/v2/subscribers/migrate REST proxies so the in-admin dashboard can drive Calypso's migrate-from-WPCOM flow.

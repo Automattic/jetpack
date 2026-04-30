@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Migrate tab to the Add Subscribers modal that pulls subscribers in from another WordPress.com site the connected user owns (Phase 5b deferred).

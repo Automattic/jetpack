@@ -117,3 +117,41 @@ export function fetchSubscriberStats( params: IndividualParams ): Promise< Subsc
 		method: 'GET',
 	} );
 }
+
+export type SourceSite = {
+	ID: number;
+	name: string;
+	URL: string;
+};
+
+/**
+ * Fetch the list of WPCOM sites the connected user owns and could migrate subscribers from.
+ * Server-side already filters by ownership, so this list is safe to render straight into a
+ * picker.
+ *
+ * @return Source-site list.
+ */
+export function fetchSourceSites(): Promise< SourceSite[] > {
+	return apiFetch< SourceSite[] >( {
+		path: '/wpcom/v2/subscribers/source-sites',
+		method: 'GET',
+	} );
+}
+
+/**
+ * Trigger a migration from another WPCOM site the user owns into this dashboard's site, mirroring
+ * Calypso's `useMigrateSubscribersCallback`. The proxy POSTs to
+ * `/jetpack-blogs/{target}/source/{source}/migrate` server-side.
+ *
+ * @param sourceBlogId - WPCOM blog id of the source site.
+ * @return Raw WPCOM response (`{ success, message }` on success).
+ */
+export function migrateFromSourceSite(
+	sourceBlogId: number
+): Promise< { success?: boolean; message?: string } > {
+	return apiFetch( {
+		path: '/wpcom/v2/subscribers/migrate',
+		method: 'POST',
+		data: { source_blog_id: sourceBlogId },
+	} );
+}
