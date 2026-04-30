@@ -86,12 +86,21 @@ function render_block( $attr, $content ) {
 
 	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 
+	$default_texts = get_default_texts();
+
+	// `array_merge` lets the user-supplied attributes override only the keys
+	// they actually set. Undefined keys (new blocks that have never been
+	// edited) fall back to the defaults in the first array. User-cleared
+	// keys (empty strings explicitly saved) win over defaults, so
+	// "blank stays blank" and "never set" gets the default.
 	$donations = array(
 		'one-time' => array_merge(
 			array(
-				'planId' => null,
-				'title'  => __( 'One-Time', 'jetpack' ),
-				'class'  => 'donations__one-time-item',
+				'planId'     => null,
+				'title'      => __( 'One-Time', 'jetpack' ),
+				'class'      => 'donations__one-time-item',
+				'heading'    => $default_texts['oneTimeDonation']['heading'],
+				'buttonText' => $default_texts['oneTimeDonation']['buttonText'],
 			),
 			$attr['oneTimeDonation']
 		),
@@ -99,9 +108,11 @@ function render_block( $attr, $content ) {
 	if ( $attr['monthlyDonation']['show'] ) {
 		$donations['1 month'] = array_merge(
 			array(
-				'planId' => null,
-				'title'  => __( 'Monthly', 'jetpack' ),
-				'class'  => 'donations__monthly-item',
+				'planId'     => null,
+				'title'      => __( 'Monthly', 'jetpack' ),
+				'class'      => 'donations__monthly-item',
+				'heading'    => $default_texts['monthlyDonation']['heading'],
+				'buttonText' => $default_texts['monthlyDonation']['buttonText'],
 			),
 			$attr['monthlyDonation']
 		);
@@ -109,16 +120,18 @@ function render_block( $attr, $content ) {
 	if ( $attr['annualDonation']['show'] ) {
 		$donations['1 year'] = array_merge(
 			array(
-				'planId' => null,
-				'title'  => __( 'Yearly', 'jetpack' ),
-				'class'  => 'donations__annual-item',
+				'planId'     => null,
+				'title'      => __( 'Yearly', 'jetpack' ),
+				'class'      => 'donations__annual-item',
+				'heading'    => $default_texts['annualDonation']['heading'],
+				'buttonText' => $default_texts['annualDonation']['buttonText'],
 			),
 			$attr['annualDonation']
 		);
 	}
 
-	$choose_amount_text = $attr['chooseAmountText'] ?? '';
-	$custom_amount_text = $attr['customAmountText'] ?? '';
+	$choose_amount_text = $attr['chooseAmountText'] ?? $default_texts['chooseAmountText'];
+	$custom_amount_text = $attr['customAmountText'] ?? $default_texts['customAmountText'];
 	$currency           = $attr['currency'];
 	$nav                = '';
 	$headings           = '';
@@ -162,7 +175,7 @@ function render_block( $attr, $content ) {
 			);
 		}
 		$amounts        .= '</div>';
-		$extra_text_html = wp_kses_post( $donation['extraText'] ?? '' );
+		$extra_text_html = wp_kses_post( $donation['extraText'] ?? $default_texts['extraText'] );
 		if ( '' !== trim( $extra_text_html ) ) {
 			$extra_text .= sprintf(
 				'<p class="%1$s">%2$s</p>',
