@@ -78,6 +78,9 @@ class Initial_State {
 				'isWpcom'            => Helper::is_wpcom(),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				'isPlanJustUpgraded' => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
+				'themeSupports'      => array(
+					'widgets' => (bool) current_theme_supports( 'widgets' ),
+				),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
