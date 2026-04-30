@@ -14,21 +14,14 @@ const TABLE_LAYOUT = {
 };
 
 export const DEFAULT_VIEW: View = {
-	type: 'activity',
+	type: 'table',
 	perPage: 20,
 	sort: {
 		field: 'published',
 		direction: 'desc',
 	},
-	fields: [ 'published', 'actor' ],
-	layout: { density: 'balanced' },
-	titleField: 'event_title',
-	mediaField: 'event_icon',
-	descriptionField: 'event_description',
-	// Group consecutive events that fall on the same calendar day
-	// (site timezone) under a "Apr 24, 2026" header. See the matching
-	// entry in DEFAULT_LAYOUTS.activity below for the full rationale.
-	groupBy: { field: 'published_date', direction: 'desc', showLabel: false },
+	fields: [ 'published', 'event', 'actor' ],
+	layout: TABLE_LAYOUT,
 	showLevels: false,
 };
 

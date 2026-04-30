@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activity Log: default the page to the Table layout and load the upsell-callout stylesheet from the main entry so its flex rules reach the bundle.

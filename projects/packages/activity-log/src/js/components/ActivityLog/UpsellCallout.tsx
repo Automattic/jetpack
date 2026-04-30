@@ -17,7 +17,8 @@ import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
 import { useAnalytics } from '../../hooks/use-analytics';
 import illustrationUrl from './activity-logs-callout-illustration.svg';
-import './upsell-callout.scss';
+// Stylesheet is `@use`d from `src/js/style.scss` so the rules ride the
+// main entry chunk instead of relying on a side-effect JS import.
 
 const PRODUCT_SLUG = 'jetpack_security_t1_yearly';
 const UPSELL_SOURCE = 'activity-log-page-purchase';
