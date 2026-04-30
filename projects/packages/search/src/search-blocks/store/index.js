@@ -33,6 +33,7 @@ function* fetchResults( pageHandle ) {
 		homeUrl: state.homeUrl,
 		activeFilters: state.activeFilters,
 		filterConfigs: state.filterConfigs,
+		priceRange: state.priceRange,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -347,6 +348,7 @@ const { state, actions } = store( NAMESPACE, {
 				searchQuery: state.searchQuery,
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
+				priceRange: state.priceRange,
 			} );
 		},
 
@@ -356,10 +358,13 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*handlePopState() {
-			const { searchQuery, sortOrder, activeFilters } = readStateFromUrl( state.filterConfigs );
+			const { searchQuery, sortOrder, activeFilters, priceRange } = readStateFromUrl(
+				state.filterConfigs
+			);
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;
 			state.activeFilters = activeFilters;
+			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
 
@@ -457,9 +462,13 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
-			if ( state.searchQuery || state.hasActiveFilters ) {
+			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
 				// The URL already carries this query — don't push a duplicate
 				// history entry on top of the browser's current one.
+				// `priceRange` is checked separately because `hasActiveFilters`
+				// only inspects `activeFilters`; without this gate a URL like
+				// `?min_price=10` would leave PHP's `isLoading: true` spinner
+				// stuck because no initial fetch ever fires.
 				actions.search( { syncUrl: false } );
 			}
 		},

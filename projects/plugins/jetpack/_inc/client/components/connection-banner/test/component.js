@@ -21,9 +21,11 @@ describe( 'ConnectionBanner', () => {
 	};
 
 	describe( 'Initially', () => {
-		it( 'does not pass any properties to ConnectButton', () => {
+		it( 'renders the connect action button', () => {
 			render( <ConnectionBanner { ...testProps } /> );
-			const button = screen.getByLabelText( 'Connect your WordPress.com account' );
+			const button = screen.getByRole( 'button', {
+				name: 'Connect your WordPress.com account',
+			} );
 			expect( button ).toBeInTheDocument();
 		} );
 	} );
