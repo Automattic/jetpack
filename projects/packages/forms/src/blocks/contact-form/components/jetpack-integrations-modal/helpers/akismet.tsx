@@ -80,16 +80,16 @@ export function buildAkismetCard( {
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
 					) : (
-						<Button variant="link" href={ spamUrl } target="_blank" rel="noopener noreferrer">
+						<Link href={ spamUrl } openInNewTab>
 							{ __( 'View spam', 'jetpack-forms' ) }
-						</Button>
+						</Link>
 					) }
 					<span>|</span>
 					{ settingsUrl && (
 						<>
-							<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
+							<Link href={ settingsUrl } openInNewTab>
 								{ __( 'View stats and settings', 'jetpack-forms' ) }
-							</Button>
+							</Link>
 							<span>|</span>
 						</>
 					) }
