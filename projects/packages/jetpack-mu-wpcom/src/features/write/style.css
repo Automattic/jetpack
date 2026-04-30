@@ -171,6 +171,73 @@
 	background: #1a5f99;
 }
 
+/* ===== Recovery banner ===== */
+.bw-recovery-banner {
+	position: fixed;
+	top: 56px;
+	left: 0;
+	right: 0;
+	z-index: 100001;
+	height: 44px;
+	background: #fef8ee;
+	border-bottom: 1px solid #f0e0c0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	animation: bw-fade-in 0.2s ease;
+}
+
+.bw-recovery-banner[hidden] {
+	display: none;
+}
+
+.bw-recovery-text {
+	font-size: 14px;
+	color: #1a1a1a;
+}
+
+.bw-recovery-btn {
+	height: 32px;
+	padding: 4px 12px;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.bw-recovery-btn:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-recovery-dismiss {
+	border: none;
+	background: transparent;
+	color: #999;
+	font-size: 20px;
+	cursor: pointer;
+	padding: 4px 8px;
+	line-height: 1;
+}
+
+.bw-recovery-dismiss:hover {
+	color: #333;
+}
+
+/* Push toolbar and content down when recovery banner is visible */
+.bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
+	top: 100px;
+}
+
+.bw-recovery-banner:not([hidden]) ~ .bw-main {
+	padding-top: 164px;
+}
+
 /* ===== Persistent formatting toolbar ===== */
 .bw-toolbar {
 	position: fixed;
@@ -516,50 +583,129 @@
 	color: #fff;
 }
 
-/* Leave confirmation modal */
-.bw-leave-modal {
-	background: #fff;
-	border-radius: 12px;
-	padding: 32px;
-	width: 380px;
-	max-width: 90vw;
-	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
-	text-align: center;
+/* Leave confirmation modal — matches @wordpress/components ConfirmDialog */
+.bw-leave-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1000001;
+	background-color: rgba(0, 0, 0, 0.35);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: bw-fade-in 0.1s ease-out;
 }
 
-.bw-leave-modal h3 {
-	margin: 0 0 8px;
-	font-size: 18px;
-	font-weight: 600;
+.bw-leave-overlay[hidden] {
+	display: none;
+}
+
+.bw-leave-modal {
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 0.7px 1px rgba(0, 0, 0, 0.1), 0 1.2px 1.7px -0.2px rgba(0, 0, 0, 0.1), 0 2.3px 3.3px -0.5px rgba(0, 0, 0, 0.1);
+	width: 400px;
+	max-width: calc(100% - 32px);
+	max-height: calc(100% - 32px);
+	padding: 24px;
+	color: #1e1e1e;
+	animation: bw-modal-appear 0.1s ease-out;
+	box-sizing: border-box;
+}
+
+@keyframes bw-modal-appear {
+
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 .bw-leave-modal p {
-	color: #666;
-	font-size: 14px;
+	font-size: 13px;
+	line-height: 1.4;
 	margin: 0 0 24px;
+	color: #1e1e1e;
 }
 
 .bw-leave-actions {
 	display: flex;
-	gap: 10px;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+.bw-leave-cancel {
+	display: inline-flex;
+	align-items: center;
 	justify-content: center;
-}
-
-.bw-btn-leave {
-	background: #d63638;
-	color: #fff;
-	text-decoration: none;
-	border-radius: 20px;
-	padding: 8px 20px;
-	font-size: 14px;
-	font-weight: 500;
+	height: 40px;
+	padding: 6px 12px;
 	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--wp-components-color-accent, #3858e9);
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
 	cursor: pointer;
-	transition: background 0.15s ease;
+	text-decoration: none;
+	transition: color 0.1s ease;
 }
 
-.bw-btn-leave:hover {
-	background: #b32d2e;
+.bw-leave-cancel:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-leave-confirm {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	padding: 6px 12px;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--wp-components-color-accent, #3858e9);
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	transition: color 0.1s ease;
+}
+
+.bw-leave-confirm:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-leave-save {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 40px;
+	padding: 6px 12px;
+	box-sizing: border-box;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	transition: background 0.1s ease;
+}
+
+.bw-leave-save:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
 	color: #fff;
 }
 
