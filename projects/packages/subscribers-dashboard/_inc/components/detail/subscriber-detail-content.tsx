@@ -57,7 +57,7 @@ function StatCard( { label, value }: { label: string; value: string } ): JSX.Ele
 	return (
 		<Card.Root className="jetpack-subscribers-dashboard__detail-stat">
 			<Card.Content>
-				<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-stat-label">
+				<Text variant="heading-sm" className="jetpack-subscribers-dashboard__detail-stat-label">
 					{ label }
 				</Text>
 				<Text
