@@ -220,8 +220,12 @@ function convertToBlocks( html ) {
 			const img = node.querySelector( 'img' );
 			const src = img.getAttribute( 'src' ) || '';
 			const alt = img.getAttribute( 'alt' ) || '';
+			const figcaption = node.querySelector( 'figcaption' );
+			const captionHtml = figcaption
+				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
+				: '';
 			blocks.push(
-				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ alt }"/></figure>\n<!-- /wp:image -->`
+				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ alt }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// inner may already contain <p> tags from contentEditable.
