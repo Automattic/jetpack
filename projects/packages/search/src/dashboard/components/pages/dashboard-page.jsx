@@ -81,6 +81,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
 	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
 	const isInstantSearchEnabled = useSelect( select => select( STORE_ID ).isInstantSearchEnabled() );
+	const isReaderChatAvailable = useSelect( select => select( STORE_ID ).isReaderChatAvailable() );
+	const isReaderChatEnabled = useSelect( select => select( STORE_ID ).isReaderChatEnabled() );
 	const isSavingEitherOption = useSelect( select =>
 		select( STORE_ID ).isUpdatingJetpackSettings()
 	);
@@ -196,7 +198,12 @@ export default function DashboardPage( { isLoading = false } ) {
 									isTogglingInstantSearch={ isTogglingInstantSearch }
 								/>
 							) }
-							<ReaderChatControl />
+							<ReaderChatControl
+								isAvailable={ isReaderChatAvailable }
+								isEnabled={ isReaderChatEnabled }
+								isSaving={ isSavingEitherOption }
+								updateOptions={ updateOptions }
+							/>
 						</div>
 						<NoticesList
 							notices={ notices }

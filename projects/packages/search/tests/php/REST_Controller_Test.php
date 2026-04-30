@@ -58,7 +58,27 @@ class REST_Controller_Test extends Search_TestCase {
 	 */
 	public function tearDown(): void {
 		remove_action( 'rest_api_init', array( $this->rest_controller, 'register_rest_routes' ) );
+		if ( array_key_exists( 'reader_chat', get_registered_settings() ) ) {
+			unregister_setting( 'general', 'reader_chat' );
+		}
+		delete_option( 'reader_chat' );
 		parent::tearDown();
+	}
+
+	/**
+	 * Register the Reader Chat setting for rollout-enabled test cases.
+	 */
+	private function register_reader_chat_setting() {
+		register_setting(
+			'general',
+			'reader_chat',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'show_in_rest'      => true,
+				'default'           => false,
+			)
+		);
 	}
 
 	/**
@@ -299,6 +319,56 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertArrayHasKey( 'module_active', $response->get_data() );
 		$this->assertArrayHasKey( 'instant_search_enabled', $response->get_data() );
 		$this->assertArrayHasKey( 'experience', $response->get_data() );
+		$this->assertArrayNotHasKey( 'reader_chat', $response->get_data() );
+	}
+
+	/**
+	 * Testing the `GET /jetpack/v4/search/settings` endpoint includes Reader Chat when registered.
+	 */
+	public function test_get_search_settings_includes_reader_chat_when_registered() {
+		wp_set_current_user( $this->admin_id );
+		$this->register_reader_chat_setting();
+		update_option( 'reader_chat', true );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'reader_chat', $response->get_data() );
+		$this->assertTrue( $response->get_data()['reader_chat'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint updates Reader Chat when registered.
+	 */
+	public function test_update_search_settings_reader_chat_success() {
+		wp_set_current_user( $this->admin_id );
+		$this->register_reader_chat_setting();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'reader_chat' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( (bool) get_option( 'reader_chat' ) );
+		$this->assertTrue( $response->get_data()['reader_chat'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint rejects Reader Chat when unregistered.
+	 */
+	public function test_update_search_settings_reader_chat_rejected_when_unregistered() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'reader_chat' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'reader_chat' ) );
 	}
 
 	/**
