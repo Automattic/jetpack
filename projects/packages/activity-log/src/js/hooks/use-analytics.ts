@@ -11,6 +11,12 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useConnection } from '@automattic/jetpack-connection';
 import { useEffect } from 'react';
 
+// Module-level guard so multiple consumers of `useAnalytics` don't
+// re-call `initialize()` with the same identity on every mount.
+// `jetpackAnalytics` is a singleton; once it's been identified for a
+// given (id, login) pair there's nothing to redo.
+let identifiedFor: string | null = null;
+
 /**
  * Returns the shared `jetpackAnalytics` tracker, identified with the
  * connected WPCOM user once that state becomes available.
@@ -26,9 +32,15 @@ export function useAnalytics() {
 	const wpcomLogin = wpcomUser?.login;
 
 	useEffect( () => {
-		if ( isUserConnected && wpcomId && wpcomLogin ) {
-			jetpackAnalytics.initialize( wpcomId, wpcomLogin );
+		if ( ! isUserConnected || ! wpcomId || ! wpcomLogin ) {
+			return;
 		}
+		const key = `${ wpcomId }:${ wpcomLogin }`;
+		if ( identifiedFor === key ) {
+			return;
+		}
+		jetpackAnalytics.initialize( wpcomId, wpcomLogin );
+		identifiedFor = key;
 	}, [ isUserConnected, wpcomId, wpcomLogin ] );
 
 	return jetpackAnalytics;

@@ -11,7 +11,7 @@
  * move to a user-meta-backed store only touches this file.
  */
 import fastDeepEqual from 'fast-deep-equal/es6';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { View } from '@wordpress/dataviews';
 
 interface InitialStateShape {
@@ -114,14 +114,28 @@ export function usePersistentView( defaultView: View ): {
 		const persisted = readPersistedView();
 		// Self-heal: if a previous session wrote a "not really modified"
 		// view (e.g. because DataViews touched a layout subfield on mount
-		// before we added the viewSignature whitelist), drop it now and
-		// boot with the default so Reset view stays disabled on load.
+		// before we added the viewSignature whitelist), boot with the
+		// default so Reset view stays disabled on load. The matching
+		// localStorage cleanup runs in the effect below — keeping side
+		// effects out of the lazy initializer so React 18 strict-mode's
+		// double-invoke doesn't write twice.
 		if ( persisted && ! isMeaningfullyModified( persisted, defaultView ) ) {
-			writePersistedView( null );
 			return defaultView;
 		}
 		return persisted ?? defaultView;
 	} );
+
+	// One-shot mount cleanup for the self-heal case above.
+	useEffect( () => {
+		const persisted = readPersistedView();
+		if ( persisted && ! isMeaningfullyModified( persisted, defaultView ) ) {
+			writePersistedView( null );
+		}
+		// Mount-only — `defaultView` is a stable module-level constant
+		// (DEFAULT_VIEW), so re-checking on identity changes would be
+		// noise. Intentional empty deps.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const setView = useCallback(
 		( next: View ) => {
