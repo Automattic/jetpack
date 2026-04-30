@@ -639,8 +639,9 @@ function jpcrm_save_admin_upload_to_folder( $param_name, $target_dir_info ) {
 	$private_path = $upload_path . '/' . $upload_filename;
 
 	// Move uploaded file from PHP's tmp dir directly into the private storage dir.
-	$tmp_name = sanitize_text_field( wp_unslash( $_FILES[ $param_name ]['tmp_name'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by the caller.
-	if ( ! move_uploaded_file( $tmp_name, $private_path ) ) {
+	// Note that `tmp_name` is a server-generated path, so sanitize_text_field() isn't helpful; instead `is_uploaded_file()` ensures this is an actual uploaded file.
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- nonce verification is handled by the caller.
+	if ( ! is_uploaded_file( $_FILES[ $param_name ]['tmp_name'] ) || ! move_uploaded_file( $_FILES[ $param_name ]['tmp_name'], $private_path ) ) {
 		return array( 'error' => 'Could not save uploaded file.' );
 	}
 
