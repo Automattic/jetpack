@@ -2,18 +2,83 @@ import {
 	ContrastChecker,
 	FontSizePicker,
 	InspectorControls,
-	PanelColorSettings,
 	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalColorGradientControl as ColorGradientControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import {
 	BorderBoxControl,
 	BoxControl,
+	Button,
+	ColorIndicator,
+	Dropdown,
+	FlexItem,
 	PanelBody,
+	__experimentalDropdownContentWrapper as DropdownContentWrapper, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+
+/**
+ * One row of color settings, modeled after the standard Color panel's "Button"
+ * row: a label + 1–N small color swatches that opens a popover with full
+ * pickers when clicked. Used for grouping related colors (e.g. Active tab's
+ * background + text) so they read as a single conceptual setting.
+ */
+const COMPOUND_POPOVER_PROPS = { placement: 'left-start', offset: 36 };
+
+const CompoundColorRow = ( { label, settings } ) => {
+	const renderToggle = useCallback(
+		( { isOpen, onToggle } ) => (
+			<Button
+				onClick={ onToggle }
+				aria-expanded={ isOpen }
+				aria-label={ label }
+				className="block-editor-panel-color-gradient-settings__dropdown"
+			>
+				<HStack justify="flex-start">
+					{ settings.map( ( s, i ) => (
+						<ColorIndicator
+							key={ i }
+							colorValue={ s.value }
+							className="block-editor-panel-color-gradient-settings__color-indicator"
+						/>
+					) ) }
+					<FlexItem className="block-editor-panel-color-gradient-settings__color-name">
+						{ label }
+					</FlexItem>
+				</HStack>
+			</Button>
+		),
+		[ label, settings ]
+	);
+
+	const renderContent = useCallback(
+		() => (
+			<DropdownContentWrapper paddingSize="medium">
+				{ settings.map( ( s, i ) => (
+					<ColorGradientControl
+						key={ i }
+						label={ s.label }
+						colorValue={ s.value }
+						onColorChange={ s.onChange }
+					/>
+				) ) }
+			</DropdownContentWrapper>
+		),
+		[ settings ]
+	);
+
+	return (
+		<Dropdown
+			popoverProps={ COMPOUND_POPOVER_PROPS }
+			renderToggle={ renderToggle }
+			renderContent={ renderContent }
+		/>
+	);
+};
 
 const StyleControls = ( { attributes, setAttributes } ) => {
 	const {
@@ -59,53 +124,58 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		};
 	}, [ setAttributes ] );
 
-	const tabColorSettings = useMemo(
+	const activeTabSettings = useMemo(
 		() => [
 			{
-				label: __( 'Active tab background', 'jetpack' ),
+				label: __( 'Background', 'jetpack' ),
 				value: activeTabBackgroundColor,
 				onChange: set.activeTabBackgroundColor,
 			},
 			{
-				label: __( 'Active tab text', 'jetpack' ),
+				label: __( 'Text', 'jetpack' ),
 				value: activeTabTextColor,
 				onChange: set.activeTabTextColor,
 			},
+		],
+		[ activeTabBackgroundColor, activeTabTextColor, set ]
+	);
+
+	const inactiveTabSettings = useMemo(
+		() => [
 			{
-				label: __( 'Inactive tab background', 'jetpack' ),
+				label: __( 'Background', 'jetpack' ),
 				value: inactiveTabBackgroundColor,
 				onChange: set.inactiveTabBackgroundColor,
 			},
 			{
-				label: __( 'Inactive tab text', 'jetpack' ),
+				label: __( 'Text', 'jetpack' ),
 				value: inactiveTabTextColor,
 				onChange: set.inactiveTabTextColor,
 			},
+		],
+		[ inactiveTabBackgroundColor, inactiveTabTextColor, set ]
+	);
+
+	const tabBorderSettings = useMemo(
+		() => [
 			{
 				label: __( 'Tab border', 'jetpack' ),
 				value: tabBorderColor,
 				onChange: set.tabBorderColor,
 			},
 		],
-		[
-			activeTabBackgroundColor,
-			activeTabTextColor,
-			inactiveTabBackgroundColor,
-			inactiveTabTextColor,
-			tabBorderColor,
-			set,
-		]
+		[ tabBorderColor, set ]
 	);
 
-	const amountColorSettings = useMemo(
+	const selectedAmountSettings = useMemo(
 		() => [
 			{
-				label: __( 'Selected amount background', 'jetpack' ),
+				label: __( 'Background', 'jetpack' ),
 				value: selectedAmountBackgroundColor,
 				onChange: set.selectedAmountBackgroundColor,
 			},
 			{
-				label: __( 'Selected amount text', 'jetpack' ),
+				label: __( 'Text', 'jetpack' ),
 				value: selectedAmountTextColor,
 				onChange: set.selectedAmountTextColor,
 			},
@@ -115,7 +185,11 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 
 	return (
 		<InspectorControls group="styles">
-			<PanelBody title={ __( 'Tabs', 'jetpack' ) } initialOpen={ false }>
+			<PanelBody
+				title={ __( 'Tabs', 'jetpack' ) }
+				initialOpen={ false }
+				className="jp-donations-style-panel"
+			>
 				<ToggleGroupControl
 					label={ __( 'Appearance', 'jetpack' ) }
 					value={ tabsAppearance || 'tabs' }
@@ -127,16 +201,20 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					<ToggleGroupControlOption value="tabs" label={ __( 'Tabs', 'jetpack' ) } />
 					<ToggleGroupControlOption value="buttons" label={ __( 'Buttons', 'jetpack' ) } />
 				</ToggleGroupControl>
-				<PanelColorSettings showTitle={ false } colorSettings={ tabColorSettings }>
-					<ContrastChecker
-						backgroundColor={ activeTabBackgroundColor }
-						textColor={ activeTabTextColor }
-					/>
-					<ContrastChecker
-						backgroundColor={ inactiveTabBackgroundColor }
-						textColor={ inactiveTabTextColor }
-					/>
-				</PanelColorSettings>
+				<CompoundColorRow label={ __( 'Active tab', 'jetpack' ) } settings={ activeTabSettings } />
+				<CompoundColorRow
+					label={ __( 'Inactive tab', 'jetpack' ) }
+					settings={ inactiveTabSettings }
+				/>
+				<CompoundColorRow label={ __( 'Tab border', 'jetpack' ) } settings={ tabBorderSettings } />
+				<ContrastChecker
+					backgroundColor={ activeTabBackgroundColor }
+					textColor={ activeTabTextColor }
+				/>
+				<ContrastChecker
+					backgroundColor={ inactiveTabBackgroundColor }
+					textColor={ inactiveTabTextColor }
+				/>
 				<FontSizePicker
 					value={ tabFontSize }
 					onChange={ set.tabFontSize }
@@ -150,13 +228,19 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					__next40pxDefaultSize={ true }
 				/>
 			</PanelBody>
-			<PanelBody title={ __( 'Amounts', 'jetpack' ) } initialOpen={ false }>
-				<PanelColorSettings showTitle={ false } colorSettings={ amountColorSettings }>
-					<ContrastChecker
-						backgroundColor={ selectedAmountBackgroundColor }
-						textColor={ selectedAmountTextColor }
-					/>
-				</PanelColorSettings>
+			<PanelBody
+				title={ __( 'Amounts', 'jetpack' ) }
+				initialOpen={ false }
+				className="jp-donations-style-panel"
+			>
+				<CompoundColorRow
+					label={ __( 'Selected amount', 'jetpack' ) }
+					settings={ selectedAmountSettings }
+				/>
+				<ContrastChecker
+					backgroundColor={ selectedAmountBackgroundColor }
+					textColor={ selectedAmountTextColor }
+				/>
 				<FontSizePicker
 					value={ amountFontSize }
 					onChange={ set.amountFontSize }
@@ -173,7 +257,11 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				/>
 				<BorderRadiusControl values={ amountBorderRadius } onChange={ set.amountBorderRadius } />
 			</PanelBody>
-			<PanelBody title={ __( 'Donate button', 'jetpack' ) } initialOpen={ false }>
+			<PanelBody
+				title={ __( 'Donate button', 'jetpack' ) }
+				initialOpen={ false }
+				className="jp-donations-style-panel"
+			>
 				<FontSizePicker
 					value={ buttonFontSize }
 					onChange={ set.buttonFontSize }
