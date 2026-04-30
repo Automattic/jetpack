@@ -63,6 +63,7 @@ export function PaidNewsletterSection( {
 				</p>
 				<fieldset disabled={ ! isNewsletterEnabled }>
 					<Button
+						__next40pxDefaultSize
 						variant="primary"
 						href={ newsletterScriptData.setupPaymentPlansUrl }
 						target="_blank"

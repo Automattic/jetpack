@@ -1,6 +1,6 @@
-import { ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { forwardRef, useCallback } from '@wordpress/element';
+import { Link } from '@wordpress/ui';
 import type { CSSProperties, MouseEvent, ReactNode } from 'react';
 
 type Props = {
@@ -13,8 +13,8 @@ type Props = {
 
 /**
  * Renders a link that opens a WP.com support article in the Help Center when
- * the help-center store is available, falling back to an `ExternalLink`
- * otherwise.
+ * the help-center store is available, falling back to a WPDS `Link` (with
+ * `openInNewTab`) otherwise.
  *
  * Inlined locally so the wp-build settings route doesn't have to pull in
  * `@automattic/jetpack-shared-extension-utils/components`, whose index
@@ -45,9 +45,9 @@ const WpcomSupportLink = forwardRef< HTMLAnchorElement, Props >(
 		}
 
 		return (
-			<ExternalLink href={ supportLink } onClick={ onClick } style={ style }>
+			<Link href={ supportLink } onClick={ onClick } openInNewTab style={ style }>
 				{ children }
-			</ExternalLink>
+			</Link>
 		);
 	}
 );

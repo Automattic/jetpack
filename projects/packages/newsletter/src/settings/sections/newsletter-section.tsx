@@ -4,11 +4,11 @@
 import analytics from '@automattic/jetpack-analytics';
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Stack } from '@wordpress/ui';
+import { Card, Link, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -85,6 +85,7 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 				}, [ onChangeField, field, formData ] );
 				return (
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ field.label }
 						help={ field.description }
 						checked={ !! field.getValue( { item: formData } ) }
@@ -124,18 +125,20 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 					onChange={ handleChange }
 				/>
 				<Stack direction="row" justify="space-between" gap="sm" className="newsletter-card-links">
-					<ExternalLink
+					<Link
 						href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
+						openInNewTab
 					>
 						{ __( 'Privacy information', 'jetpack-newsletter' ) }
-					</ExternalLink>
+					</Link>
 					{ data.subscriptions && newsletterScriptData && (
-						<ExternalLink
+						<Link
 							href={ newsletterScriptData.subscriberManagementUrl }
 							onClick={ handleManageSubscribersClick }
+							openInNewTab
 						>
 							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
-						</ExternalLink>
+						</Link>
 					) }
 				</Stack>
 			</Card.Content>

@@ -3,10 +3,11 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getAdminUrl, type SiteType } from '@automattic/jetpack-script-data';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 
 interface ToggleWithLinkProps {
@@ -54,13 +55,13 @@ export function ToggleWithLink( {
 				<span>
 					{ field.label }{ ' ' }
 					{ isExternal ? (
-						<ExternalLink href={ url } onClick={ onLinkClick }>
+						<Link href={ url } onClick={ onLinkClick } openInNewTab>
 							{ linkText }
-						</ExternalLink>
+						</Link>
 					) : (
-						<a href={ url } onClick={ onLinkClick }>
+						<Link href={ url } onClick={ onLinkClick }>
 							{ linkText }
-						</a>
+						</Link>
 					) }
 				</span>
 			}

@@ -251,6 +251,7 @@ export function SubscriptionsSection( {
 				</fieldset>
 				<Stack direction="row" justify="flex-end" className="newsletter-card-footer">
 					<Button
+						__next40pxDefaultSize
 						variant="primary"
 						onClick={ handleSave }
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
