@@ -169,13 +169,12 @@ export const WC_RATING_RANGES = [
  * Build ES aggregation requests from the filterConfigs registered by each
  * filter block's render.php.
  *
- * `terms` for filter-checkbox: `bucketSortOrder` maps to the ES order
- * clause. `alpha` sorts by `slug_slash_name` — close enough for built-in
- * variations without a label-aware resort.
+ * `terms` for filter-checkbox: `alpha` → `_key: asc` is just a hint; the
+ * shared store's `checkboxFilterItems` resorts by visible label so slug
+ * and display name can diverge (e.g. `food-news` → "Restaurant Reviews").
  *
  * `date_histogram` for filter-date: format request makes `key_as_string`
- * match the URL slug. No `size` parameter on date_histogram; the client
- * slices to `maxItems`.
+ * match the URL slug. No `size`; the client slices to `maxItems`.
  *
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
  * @return {object} Aggregations payload for the v1.3 search API.
