@@ -314,7 +314,12 @@ function build_custom_styles( $attr, $scope ) {
 	// divider, the per-tab dividers, and the buttons-style pill borders.
 	$tab_border_safe = sanitize_css_value( $attr['tabBorderColor'] ?? '' );
 	if ( '' !== $tab_border_safe ) {
-		$rules[] = $scope . ' .donations__nav,' . $scope . ' .donations__nav-item{border-color:' . $tab_border_safe . '}';
+		$rules[] = $scope . ' .donations__nav,' . $scope . ' .donations__nav-item,' . $scope . ' .donations__nav-item.is-active{border-color:' . $tab_border_safe . '}';
+	}
+
+	$button_radius_decls = build_radius_decls( $attr['buttonBorderRadius'] ?? null );
+	if ( $button_radius_decls ) {
+		$rules[] = $scope . ' .donations__donate-button{' . implode( ';', $button_radius_decls ) . '}';
 	}
 
 	// User-set amount tile font size, border (BorderBoxControl shape) and

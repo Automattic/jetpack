@@ -70,14 +70,22 @@ const buildCustomStyles = ( attributes, scope ) => {
 		buttonFontSize,
 		buttonPadding,
 		buttonAlignment,
+		buttonBorderRadius,
 	} = attributes;
 
 	const rules = [];
 
 	if ( tabBorderColor ) {
 		rules.push(
-			`${ scope } .donations__nav,${ scope } .donations__nav-item{border-color:${ tabBorderColor }}`
+			`${ scope } .donations__nav,${ scope } .donations__nav-item,${ scope } .donations__nav-item.is-active{border-color:${ tabBorderColor }}`
 		);
+	}
+
+	if ( buttonBorderRadius ) {
+		const decls = radiusDecls( buttonBorderRadius );
+		if ( decls.length ) {
+			rules.push( `${ scope } .donations__donate-button{${ decls.join( ';' ) }}` );
+		}
 	}
 
 	const amountDecls = [];

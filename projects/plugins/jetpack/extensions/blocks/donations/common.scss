@@ -137,10 +137,5 @@
 			border-inline-start: 1px solid gb.$gray-400;
 		}
 
-		// Match the active border to the active fill so the pill reads as a
-		// solid filled shape, not a bordered shape with a darker inside.
-		.donations__nav-item.is-active {
-			border-color: gb.$gray-900;
-		}
 	}
 }

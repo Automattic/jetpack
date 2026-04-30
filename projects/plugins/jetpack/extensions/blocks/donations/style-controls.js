@@ -157,6 +157,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		buttonFontSize,
 		buttonPadding,
 		buttonAlignment,
+		buttonBorderRadius,
 		amountFontSize,
 		amountBorder,
 		amountBorderRadius,
@@ -183,20 +184,21 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 			buttonFontSize: make( 'buttonFontSize' ),
 			buttonPadding: make( 'buttonPadding' ),
 			buttonAlignment: value => setAttributes( { buttonAlignment: value || '' } ),
+			buttonBorderRadius: make( 'buttonBorderRadius' ),
 		};
 	}, [ setAttributes ] );
 
 	const activeTabSettings = useMemo(
 		() => [
 			{
-				label: __( 'Background', 'jetpack' ),
-				value: activeTabBackgroundColor,
-				onChange: set.activeTabBackgroundColor,
-			},
-			{
 				label: __( 'Text', 'jetpack' ),
 				value: activeTabTextColor,
 				onChange: set.activeTabTextColor,
+			},
+			{
+				label: __( 'Background', 'jetpack' ),
+				value: activeTabBackgroundColor,
+				onChange: set.activeTabBackgroundColor,
 			},
 		],
 		[ activeTabBackgroundColor, activeTabTextColor, set ]
@@ -205,14 +207,14 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 	const inactiveTabSettings = useMemo(
 		() => [
 			{
-				label: __( 'Background', 'jetpack' ),
-				value: inactiveTabBackgroundColor,
-				onChange: set.inactiveTabBackgroundColor,
-			},
-			{
 				label: __( 'Text', 'jetpack' ),
 				value: inactiveTabTextColor,
 				onChange: set.inactiveTabTextColor,
+			},
+			{
+				label: __( 'Background', 'jetpack' ),
+				value: inactiveTabBackgroundColor,
+				onChange: set.inactiveTabBackgroundColor,
 			},
 		],
 		[ inactiveTabBackgroundColor, inactiveTabTextColor, set ]
@@ -232,14 +234,14 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 	const selectedAmountSettings = useMemo(
 		() => [
 			{
-				label: __( 'Background', 'jetpack' ),
-				value: selectedAmountBackgroundColor,
-				onChange: set.selectedAmountBackgroundColor,
-			},
-			{
 				label: __( 'Text', 'jetpack' ),
 				value: selectedAmountTextColor,
 				onChange: set.selectedAmountTextColor,
+			},
+			{
+				label: __( 'Background', 'jetpack' ),
+				value: selectedAmountBackgroundColor,
+				onChange: set.selectedAmountBackgroundColor,
 			},
 		],
 		[ selectedAmountBackgroundColor, selectedAmountTextColor, set ]
@@ -269,6 +271,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 	const resetAllButton = useCallback( () => {
 		set.buttonFontSize();
 		set.buttonPadding();
+		set.buttonBorderRadius();
 		set.buttonAlignment( '' );
 	}, [ set ] );
 
@@ -285,6 +288,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 			buttonFontSize: () => !! buttonFontSize,
 			buttonPadding: () => !! buttonPadding,
 			buttonAlignment: () => !! buttonAlignment,
+			buttonBorderRadius: () => !! buttonBorderRadius,
 		} ),
 		[
 			tabsAppearance,
@@ -296,6 +300,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 			buttonFontSize,
 			buttonPadding,
 			buttonAlignment,
+			buttonBorderRadius,
 		]
 	);
 
@@ -342,7 +347,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				</ToolsPanel>
 				<ToolsPanel
 					className="color-block-support-panel"
-					label={ __( 'Tab colors', 'jetpack' ) }
+					label={ __( 'Colors', 'jetpack' ) }
 					resetAll={ noop }
 					hasInnerWrapper
 					headingLevel={ 3 }
@@ -419,7 +424,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 			>
 				<ToolsPanel
 					className="color-block-support-panel"
-					label={ __( 'Amount colors', 'jetpack' ) }
+					label={ __( 'Colors', 'jetpack' ) }
 					resetAll={ noop }
 					hasInnerWrapper
 					headingLevel={ 3 }
@@ -526,6 +531,17 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 							values={ buttonPadding }
 							onChange={ set.buttonPadding }
 							__next40pxDefaultSize={ true }
+						/>
+					</ToolsPanelItem>
+					<ToolsPanelItem
+						label={ __( 'Radius', 'jetpack' ) }
+						hasValue={ has.buttonBorderRadius }
+						onDeselect={ set.buttonBorderRadius }
+						isShownByDefault
+					>
+						<BorderRadiusControl
+							values={ buttonBorderRadius }
+							onChange={ set.buttonBorderRadius }
 						/>
 					</ToolsPanelItem>
 					<ToolsPanelItem
