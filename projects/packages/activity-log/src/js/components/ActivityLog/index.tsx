@@ -17,7 +17,6 @@ import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
 import { DateRangePicker } from '../DateRangePicker';
 import { formatYmd, parseYmdLocal } from '../DateRangePicker/datetime';
-import { FreeTierToolbar } from './FreeTierToolbar';
 import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
@@ -131,6 +130,55 @@ export default function ActivityLog() {
 		observer.observe( wrapper, { subtree: true, childList: true } );
 		return () => observer.disconnect();
 	}, [] );
+
+	// On free tier, neutralize DataViews' real search + filter cluster
+	// (the `.dataviews__search` Stack rendered by `DataViews`'s default
+	// UI). We let DataViews ship its own toolbar so the page tracks
+	// upstream changes for free, then attach: `aria-disabled` for
+	// assistive tech, a `title` attribute that surfaces the upgrade
+	// nudge as a native browser tooltip on hover, and `tabindex="-1"`
+	// on every focusable descendant so the cluster is unreachable via
+	// keyboard. Pointer-event blocking on the children is handled in
+	// CSS via the `[aria-disabled="true"]` rule.
+	// `MutationObserver` re-applies after DataViews remounts the
+	// toolbar / re-renders the input (e.g., on initial fetch resolution
+	// or layout switch) so React's render doesn't strip the attributes.
+	useEffect( () => {
+		if ( hasActivityLogsAccess ) {
+			return;
+		}
+
+		const wrapper = wrapperRef.current;
+		if ( ! wrapper ) {
+			return;
+		}
+
+		const tooltipText = __( 'Upgrade your plan to use this feature.', 'jetpack-activity-log' );
+
+		const apply = ( root: ParentNode ) => {
+			const cluster = root.querySelector< HTMLElement >( '.dataviews__search' );
+			if ( ! cluster ) {
+				return;
+			}
+
+			if ( cluster.getAttribute( 'aria-disabled' ) !== 'true' ) {
+				cluster.setAttribute( 'aria-disabled', 'true' );
+				cluster.setAttribute( 'title', tooltipText );
+			}
+
+			cluster.querySelectorAll< HTMLElement >( 'input, button, [tabindex]' ).forEach( el => {
+				if ( el.getAttribute( 'tabindex' ) !== '-1' ) {
+					el.setAttribute( 'tabindex', '-1' );
+				}
+			} );
+		};
+
+		apply( wrapper );
+		const observer = new MutationObserver( () => apply( wrapper ) );
+		observer.observe( wrapper, { subtree: true, childList: true } );
+
+		return () => observer.disconnect();
+	}, [ hasActivityLogsAccess ] );
 
 	// Date-range defaults to "Last 7 days" anchored at the site's calendar
 	// today (not the browser's) — matches Calypso's `getDefaultDateRange`.
@@ -401,8 +449,11 @@ export default function ActivityLog() {
 						onChangeView={ onChangeView }
 						onReset={ isViewModified ? onResetView : false }
 						// On the free tier, lock the perPage selector to the
-						// capped size. Search/filters/sort stay visible but
-						// disabled via `<FreeTierToolbar>` below — Calypso's
+						// capped size. DataViews keeps rendering its real
+						// toolbar (search + filter toggle + cog); the
+						// search/filter cluster is neutralized by the
+						// `aria-disabled` + `tabindex="-1"` overlay
+						// applied in the effect above — Calypso's
 						// equivalent switch at logs-activity/dataviews/
 						// index.tsx:201-208 hides them, but we want the
 						// upgrade affordance to be discoverable on hover.
@@ -418,14 +469,7 @@ export default function ActivityLog() {
 									: __( 'No activities', 'jetpack-activity-log' ) }
 							</p>
 						}
-					>
-						{ hasActivityLogsAccess ? undefined : (
-							<>
-								<FreeTierToolbar />
-								<DataViews.Layout />
-							</>
-						) }
-					</DataViews>
+					/>
 					{ ! hasActivityLogsAccess && ! isFetching && logData.length > 0 && <UpsellCallout /> }
 				</div>
 			</div>

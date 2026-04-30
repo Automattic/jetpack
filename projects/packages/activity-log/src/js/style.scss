@@ -5,7 +5,6 @@
 // that way they live in the same emitted chunk as the wrapper rules
 // below and can't get dropped by chunk splitting.
 @use "./components/ActivityLog/upsell-callout";
-@use "./components/ActivityLog/free-tier-toolbar";
 
 // DataViews is a bundled (not externalized) @wordpress package in
 // jetpack-webpack-config, so its stylesheet must be brought in alongside
@@ -55,6 +54,23 @@ body.jetpack_page_jetpack-activity-log {
 		> .dataviews-wrapper {
 			height: auto;
 			flex: 0 0 auto;
+		}
+	}
+
+	// Visual + click-blocking half of the free-tier "overlay" approach:
+	// the effect in ActivityLog/index.tsx toggles `aria-disabled` and
+	// `tabindex="-1"` on DataViews' real `.dataviews__search` cluster
+	// (search input + filter toggle), and adds a `title` for the
+	// upgrade tooltip. This rule dims the cluster, shows a not-allowed
+	// cursor, and shuts off pointer events on the controls inside so
+	// clicks fall through to the cluster (keeping it hoverable for the
+	// browser-native title tooltip).
+	.dataviews__search[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+
+		> * {
+			pointer-events: none;
 		}
 	}
 
