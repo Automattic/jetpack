@@ -343,7 +343,11 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 					<Dialog.Title>{ __( 'Add subscribers', 'jetpack-subscribers-dashboard' ) }</Dialog.Title>
 					<Dialog.CloseIcon />
 				</Dialog.Header>
-				<Tabs.Root value={ tab } onValueChange={ handleTabChange }>
+				<Tabs.Root
+					value={ tab }
+					onValueChange={ handleTabChange }
+					render={ <Stack direction="column" gap="lg" /> }
+				>
 					<Tabs.List variant="minimal">
 						<Tabs.Tab value="manual">{ __( 'Manual', 'jetpack-subscribers-dashboard' ) }</Tabs.Tab>
 						<Tabs.Tab value="upload">
