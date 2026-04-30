@@ -323,11 +323,11 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 
 		$verdict = $tester->test( array() );
 		$this->assertSame( 'error', $verdict['status'] );
-		$this->assertNotEmpty( $verdict['reason'] );
+		$this->assertNotEmpty( $verdict['reason'] ?? '' );
 
 		$verdict = $tester->test( array( '', '/no/such/file/pcg-missing.php' ) );
 		$this->assertSame( 'error', $verdict['status'] );
-		$this->assertNotEmpty( $verdict['reason'] );
+		$this->assertNotEmpty( $verdict['reason'] ?? '' );
 	}
 
 	/**
