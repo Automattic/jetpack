@@ -32,9 +32,7 @@ export const useDashboardVideos = () => {
 
 	/** Get the page number from the search parameters and set it to the state when the state is outdated */
 	const searchParams = useSearchParams();
-	// Fall back to 1 if the URL `?page=` is missing, empty, or non-numeric
-	// (`parseInt` would otherwise yield NaN, which silently propagates through
-	// the bounds checks below since every comparison with NaN is false).
+	// Fall back to 1: NaN would silently slip past the `< 1`/`> totalOfPages` bounds checks below.
 	const parsedPageParam = parseInt( searchParams.getParam( 'page', '1' ), 10 );
 	const pageFromSearchParam = Number.isNaN( parsedPageParam ) ? 1 : parsedPageParam;
 	const searchFromSearchParam = searchParams.getParam( 'q', '' );
@@ -81,9 +79,7 @@ export const useDashboardVideos = () => {
 				search: searchFromSearchParam,
 			} );
 		}
-		// Note: tempPage is a ref and is intentionally excluded from the deps array.
-		// Refs do not participate in re-render scheduling, and including `.current`
-		// here previously caused this effect to re-fire and mutate the ref in a loop.
+		// `tempPage.current` is intentionally excluded — including a ref's `.current` while mutating it inside the effect re-fires it in a loop.
 	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam ] );
 
 	// Stable placeholder list while fetching: deterministic IDs keyed on the
@@ -102,10 +98,9 @@ export const useDashboardVideos = () => {
 	}, [ isFetching, itemsPerPage, uploadedVideoCount, page ] );
 
 	// Do not show uploading videos if not in the first page or searching
-	let videos = page > 1 || Boolean( search ) ? items : [ ...uploadErrors, ...uploading, ...items ];
-	if ( placeholders ) {
-		videos = placeholders;
-	}
+	const videos =
+		placeholders ??
+		( page > 1 || Boolean( search ) ? items : [ ...uploadErrors, ...uploading, ...items ] );
 
 	const hasVideos =
 		uploadedVideoCount > 0 || isFetching || uploading?.length > 0 || uploadErrors?.length > 0;
