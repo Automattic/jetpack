@@ -40,7 +40,7 @@ class Settings_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_module_configuration_url_subscriptions' );
 
 		// Clear the load action registered by add_wp_admin_menu on success.
-		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
+		remove_all_actions( 'load-jetpack_page_jetpack-newsletter-wp-admin' );
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Settings_Test extends BaseTestCase {
 		$settings->add_wp_admin_menu();
 
 		$this->assertFalse(
-			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
+			has_action( 'load-jetpack_page_jetpack-newsletter-wp-admin', array( $settings, 'admin_init' ) ),
 			'Newsletter menu should not be registered when site is not connected'
 		);
 	}
@@ -85,7 +85,7 @@ class Settings_Test extends BaseTestCase {
 		$settings->add_wp_admin_menu();
 
 		$this->assertNotFalse(
-			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
+			has_action( 'load-jetpack_page_jetpack-newsletter-wp-admin', array( $settings, 'admin_init' ) ),
 			'Newsletter menu should be registered when site is connected'
 		);
 	}

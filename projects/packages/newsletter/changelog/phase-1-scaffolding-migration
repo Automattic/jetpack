@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Newsletter: migrate scaffolding from webpack/AdminPage to wp-build + `Page` from `@wordpress/admin-ui` (Phase 1 of #48416). Adds `@wordpress/route` routing with `/` (Subscribers placeholder) and `/settings`, registers via the new boot-layout pipeline, and renames the menu slug to `jetpack-newsletter-wp-admin` with a redirect from the legacy slug.

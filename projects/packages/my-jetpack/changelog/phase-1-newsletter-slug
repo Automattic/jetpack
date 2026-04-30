@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: point Newsletter management URL at the new wp-admin slug (`jetpack-newsletter-wp-admin`).

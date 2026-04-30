@@ -9,6 +9,7 @@ package.json      export-ignore
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
+.babelrc          production-exclude
 .gitignore        production-exclude
 changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
@@ -16,5 +17,8 @@ tests/**          production-exclude
 .phpcsignore      production-exclude
 tsconfig.json     production-exclude
 global.d.ts       production-exclude
+_inc/**           production-exclude
+routes/**         production-exclude
 src/**/*.scss     production-exclude
 src/**/*.tsx      production-exclude
+src/**/*.ts       production-exclude

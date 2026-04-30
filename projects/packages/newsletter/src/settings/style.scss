@@ -1,54 +1,14 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
-
-// Import dataviews styles for DataForm component
-@import "@wordpress/theme/design-tokens.css";
-@import "@wordpress/dataviews/build-style/style.css";
-
-body.jetpack_page_jetpack-newsletter {
-
-	@include jetpack-admin-page-layout;
-}
-
-#newsletter-settings-root * {
-	box-sizing: border-box;
-}
-
-.jetpack_page_jetpack-newsletter #dolly {
-	width: 100%;
-	text-align: right;
-}
+// Bundled stylesheets needed by the settings sections.
+// boot-layout + Page from @wordpress/admin-ui already supplies the page chrome.
+@use "sass:meta";
+@include meta.load-css("@wordpress/admin-ui/build-style/style.css");
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
 .newsletter-jitm-card {
 
 	.jitm-card {
 		margin-inline-end: 0;
 		margin-block: 1.5rem;
-	}
-}
-
-.newsletter-settings-connect-notice {
-	max-width: 660px;
-	margin-inline: auto;
-	margin-block-end: var(--wpds-dimension-gap-lg, 24px);
-
-	.components-notice {
-		margin: 0;
-	}
-}
-
-.newsletter-settings-disabled {
-	position: relative;
-
-	&::before {
-		content: "";
-		position: absolute;
-		top: -2px;
-		left: 0;
-		z-index: 1;
-		background: rgba(255, 255, 255, 0.6);
-		width: 100%;
-		height: calc(100% + 2px);
-		pointer-events: all;
 	}
 }
 
@@ -70,4 +30,9 @@ body.jetpack_page_jetpack-newsletter {
 		justify-content: space-between;
 		gap: 8px;
 	}
+}
+
+.newsletter-settings--error {
+	max-width: 660px;
+	margin-inline: auto;
 }

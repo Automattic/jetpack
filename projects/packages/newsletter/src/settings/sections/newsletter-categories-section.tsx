@@ -8,7 +8,6 @@ import {
 	getSiteType,
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
-import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import {
 	Button,
 	Card,
@@ -27,6 +26,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { fetchCategories } from '../api';
+import WpcomSupportLink from '../components/wpcom-support-link';
 import type { NewsletterSettings, WordPressCategory } from '../types';
 
 interface NewsletterCategoriesSectionProps {
