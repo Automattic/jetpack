@@ -22,7 +22,25 @@ import Tabs from './tabs';
 
 const Edit = props => {
 	const { attributes, setAttributes } = props;
-	const { currency, tabsAppearance } = attributes;
+	const { currency, tabsAppearance, className } = attributes;
+
+	// Migrate legacy blocks that used the block-style variation
+	// (`is-style-buttons` saved into `className`) over to the new
+	// `tabsAppearance` attribute. Strips the class so the toggle in the
+	// Appearance control reflects reality and can switch back to "Tabs".
+	useEffect( () => {
+		if ( typeof className === 'string' && className.split( ' ' ).includes( 'is-style-buttons' ) ) {
+			const cleaned = className
+				.split( ' ' )
+				.filter( c => c !== 'is-style-buttons' )
+				.join( ' ' )
+				.trim();
+			setAttributes( {
+				tabsAppearance: 'buttons',
+				className: cleaned || undefined,
+			} );
+		}
+	}, [ className, setAttributes ] );
 
 	const instanceId = useInstanceId( Edit, 'jp-donations' );
 	const customStyles = buildCustomStyles( attributes, `.${ instanceId }` );
