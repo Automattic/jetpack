@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
+import './style.scss';
 
 const REST_BASE = '/wp/v2/guidelines';
 const DEFAULT_PERSONALITY = __(
@@ -24,7 +25,11 @@ const DEFAULT_PERSONALITY = __(
  * @return {import('react').ReactElement} AiAnswersTab component.
  */
 export default function AiAnswersTab() {
-	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch(), [] );
+	const supportsInstantSearch = useSelect(
+		select => select( STORE_ID ).supportsInstantSearch(),
+		[]
+	);
+	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan(), [] );
 	const isAiAnswersEnabled = useSelect( select => select( STORE_ID ).isAiAnswersEnabled(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
@@ -100,95 +105,120 @@ export default function AiAnswersTab() {
 
 	const settingsClassName = [
 		'jp-search-ai-answers-tab__settings',
-		! supportsSearch ? 'jp-search-ai-answers-tab__settings--gated' : '',
+		isFreePlan || ! supportsInstantSearch ? 'jp-search-ai-answers-tab__settings--gated' : '',
 	]
 		.filter( Boolean )
 		.join( ' ' );
 
 	return (
 		<div className="jp-search-ai-answers-tab">
-			{ ! supportsSearch && (
+			{ ( isFreePlan || ! supportsInstantSearch ) && (
 				<div className="jp-search-ai-answers-tab__upsell">
-					<h2 className="jp-search-ai-answers-tab__upsell-heading">
-						{ __( 'Upgrade to use AI Answers', 'jetpack-search-pkg' ) }
-					</h2>
-					<ul className="jp-search-ai-answers-tab__upsell-bullets">
-						<li>
-							{ __( 'Give visitors real answers, not just search results.', 'jetpack-search-pkg' ) }
-						</li>
-						<li>{ __( "Fills gaps when your content doesn't match.", 'jetpack-search-pkg' ) }</li>
-						<li>
-							{ __(
-								'Serious, silly, or snarky — your personality, your search.',
-								'jetpack-search-pkg'
-							) }
-						</li>
-					</ul>
-					<Button variant="primary" onClick={ sendToCart }>
-						{ __( 'Upgrade now', 'jetpack-search-pkg' ) }
-					</Button>
+					<div className="jp-search-dashboard-wrap">
+						<div className="jp-search-dashboard-row">
+							<div className="jp-search-ai-answers-tab__upsell-inner lg-col-span-8 md-col-span-6 sm-col-span-4">
+								<h2 className="jp-search-ai-answers-tab__upsell-heading">
+									{ __( 'Upgrade to use AI Answers', 'jetpack-search-pkg' ) }
+								</h2>
+								<ul className="jp-search-ai-answers-tab__upsell-bullets">
+									<li>
+										{ __(
+											'Give visitors real answers, not just search results.',
+											'jetpack-search-pkg'
+										) }
+									</li>
+									<li>
+										{ __( "Fills gaps when your content doesn't match.", 'jetpack-search-pkg' ) }
+									</li>
+									<li>
+										{ __(
+											'Serious, silly, or snarky — your personality, your search.',
+											'jetpack-search-pkg'
+										) }
+									</li>
+								</ul>
+								<Button variant="primary" onClick={ sendToCart }>
+									{ __( 'Upgrade now', 'jetpack-search-pkg' ) }
+								</Button>
+							</div>
+						</div>
+					</div>
 				</div>
 			) }
 
 			<div className={ settingsClassName } data-testid="ai-answers-settings">
-				{ isLoading && <p>{ __( 'Loading…', 'jetpack-search-pkg' ) }</p> }
-				<ToggleControl
-					label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
-					checked={ isAiAnswersEnabled }
-					onChange={ value => updateJetpackSettings( { ai_answers_enabled: value } ) }
-				/>
+				<div className="jp-search-dashboard-wrap">
+					<div className="jp-search-dashboard-row">
+						<div className="jp-search-ai-answers-tab__settings-inner lg-col-span-8 md-col-span-6 sm-col-span-4">
+							{ isLoading && <p>{ __( 'Loading…', 'jetpack-search-pkg' ) }</p> }
+							<ToggleControl
+								label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
+								checked={ isAiAnswersEnabled }
+								onChange={ value => updateJetpackSettings( { ai_answers_enabled: value } ) }
+								className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+							/>
 
-				{ ! isLoading && ! isUnavailable && (
-					<>
-						{ error && <p className="jp-search-ai-answers-tab__error">{ error }</p> }
-						<TextareaControl
-							label={ __( 'Personality', 'jetpack-search-pkg' ) }
-							value={ content }
-							onChange={ setContent }
-							placeholder={ DEFAULT_PERSONALITY }
-							rows={ 10 }
-							disabled={ isSaving || ! isAiAnswersEnabled }
-						/>
-						<Button
-							variant="primary"
-							onClick={ savePersonality }
-							isBusy={ isSaving }
-							disabled={ isSaving || ! isAiAnswersEnabled }
-						>
-							{ __( 'Save', 'jetpack-search-pkg' ) }
-						</Button>
-						{ saved && (
-							<span className="jp-search-ai-answers-tab__saved">
-								{ __( 'Saved.', 'jetpack-search-pkg' ) }
-							</span>
-						) }
-					</>
-				) }
-
-				{ ! isLoading && isUnavailable && (
-					<Notice status="warning" isDismissible={ false }>
-						<p>
-							{ __(
-								'Personality instructions require the Gutenberg Guidelines feature. To enable it:',
-								'jetpack-search-pkg'
+							{ ! isLoading && ! isUnavailable && (
+								<>
+									{ error && <p className="jp-search-ai-answers-tab__error">{ error }</p> }
+									<TextareaControl
+										label={ __( 'Personality', 'jetpack-search-pkg' ) }
+										value={ content }
+										onChange={ setContent }
+										placeholder={ DEFAULT_PERSONALITY }
+										rows={ 10 }
+										disabled={ isSaving || ! isAiAnswersEnabled }
+									/>
+									<div className="jp-search-ai-answers-tab__actions">
+										<Button
+											variant="primary"
+											onClick={ savePersonality }
+											isBusy={ isSaving }
+											disabled={ isSaving || ! isAiAnswersEnabled }
+										>
+											{ __( 'Save', 'jetpack-search-pkg' ) }
+										</Button>
+										{ saved && (
+											<span className="jp-search-ai-answers-tab__saved">
+												{ __( 'Saved.', 'jetpack-search-pkg' ) }
+											</span>
+										) }
+									</div>
+								</>
 							) }
-						</p>
-						<ol>
-							<li>
-								{ __( 'Install or update to Gutenberg 22.7 or later.', 'jetpack-search-pkg' ) }
-							</li>
-							<li>
-								{ __(
-									'Go to Settings → Gutenberg → Experiments and enable "Guidelines".',
-									'jetpack-search-pkg'
-								) }{ ' ' }
-								<ExternalLink href={ `${ siteAdminUrl }admin.php?page=gutenberg-experiments` }>
-									{ __( 'Open Experiments page', 'jetpack-search-pkg' ) }
-								</ExternalLink>
-							</li>
-						</ol>
-					</Notice>
-				) }
+
+							{ ! isLoading && isUnavailable && (
+								<Notice status="warning" isDismissible={ false }>
+									<p>
+										{ __(
+											'Personality instructions require the Gutenberg Guidelines feature. To enable it:',
+											'jetpack-search-pkg'
+										) }
+									</p>
+									<ol>
+										<li>
+											{ __(
+												'Install or update to Gutenberg 22.7 or later.',
+												'jetpack-search-pkg'
+											) }
+										</li>
+										<li>
+											{ __(
+												'Go to Settings → Gutenberg → Experiments and enable "Guidelines".',
+												'jetpack-search-pkg'
+											) }{ ' ' }
+											<ExternalLink
+												href={ `${ siteAdminUrl }admin.php?page=gutenberg-experiments` }
+											>
+												{ __( 'Open Experiments page', 'jetpack-search-pkg' ) }
+											</ExternalLink>
+										</li>
+									</ol>
+								</Notice>
+							) }
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
