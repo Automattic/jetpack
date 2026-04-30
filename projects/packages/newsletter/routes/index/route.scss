@@ -12,6 +12,8 @@
 // Inline avatar in the identity cell — keep it circular and prevent the
 // design-system Stack from squashing it inside narrow rows.
 .jetpack-newsletter__identity-avatar {
+	border-radius: 50%;
+	display: block;
 	flex-shrink: 0;
 }
 

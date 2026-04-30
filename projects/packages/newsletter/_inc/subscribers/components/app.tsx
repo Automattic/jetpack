@@ -73,10 +73,11 @@ export default function App(): JSX.Element {
 		[ navigate, search ]
 	);
 
+	const productName = 'Newsletter'; /** "Newsletter" is a product name, do not translate. */
 	const title = (
 		<Stack direction="row" align="center" gap="xs">
 			<JetpackLogo height={ 20 } />
-			<span>{ __( 'Subscribers', 'jetpack-newsletter' ) }</span>
+			<span>{ productName }</span>
 		</Stack>
 	);
 
@@ -85,8 +86,8 @@ export default function App(): JSX.Element {
 			<div className="jetpack-newsletter">
 				<Page
 					title={ title }
-					ariaLabel={ __( 'Subscribers', 'jetpack-newsletter' ) }
-					subTitle={ __( 'Manage everyone subscribed to your site.', 'jetpack-newsletter' ) }
+					ariaLabel={ productName }
+					subTitle={ __( 'Reach and grow your audience with newsletters.', 'jetpack-newsletter' ) }
 					actions={ <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } /> }
 					hasPadding={ false }
 				>
