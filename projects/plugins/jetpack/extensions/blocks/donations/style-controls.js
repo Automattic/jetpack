@@ -250,19 +250,25 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					className="color-block-support-panel"
 					label={ __( 'Tab colors', 'jetpack' ) }
 					resetAll={ resetTabColors }
+					hasInnerWrapper
+					headingLevel={ 3 }
+					__experimentalFirstVisibleItemClass="first"
+					__experimentalLastVisibleItemClass="last"
 				>
-					<CompoundColorRow
-						label={ __( 'Active tab', 'jetpack' ) }
-						settings={ activeTabSettings }
-					/>
-					<CompoundColorRow
-						label={ __( 'Inactive tab', 'jetpack' ) }
-						settings={ inactiveTabSettings }
-					/>
-					<CompoundColorRow
-						label={ __( 'Tab border', 'jetpack' ) }
-						settings={ tabBorderSettings }
-					/>
+					<div className="color-block-support-panel__inner-wrapper">
+						<CompoundColorRow
+							label={ __( 'Active tab', 'jetpack' ) }
+							settings={ activeTabSettings }
+						/>
+						<CompoundColorRow
+							label={ __( 'Inactive tab', 'jetpack' ) }
+							settings={ inactiveTabSettings }
+						/>
+						<CompoundColorRow
+							label={ __( 'Tab border', 'jetpack' ) }
+							settings={ tabBorderSettings }
+						/>
+					</div>
 				</ToolsPanel>
 				<ContrastChecker
 					backgroundColor={ activeTabBackgroundColor }
@@ -294,11 +300,17 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					className="color-block-support-panel"
 					label={ __( 'Amount colors', 'jetpack' ) }
 					resetAll={ resetAmountColors }
+					hasInnerWrapper
+					headingLevel={ 3 }
+					__experimentalFirstVisibleItemClass="first"
+					__experimentalLastVisibleItemClass="last"
 				>
-					<CompoundColorRow
-						label={ __( 'Selected amount', 'jetpack' ) }
-						settings={ selectedAmountSettings }
-					/>
+					<div className="color-block-support-panel__inner-wrapper">
+						<CompoundColorRow
+							label={ __( 'Selected amount', 'jetpack' ) }
+							settings={ selectedAmountSettings }
+						/>
+					</div>
 				</ToolsPanel>
 				<ContrastChecker
 					backgroundColor={ selectedAmountBackgroundColor }
