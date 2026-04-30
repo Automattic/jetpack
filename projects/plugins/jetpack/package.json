@@ -42,7 +42,7 @@
 	],
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "4.0.0",
-		"@automattic/format-currency": "1.0.1",
+		"@automattic/format-currency": "2.1.0",
 		"@automattic/jetpack-ai-client": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
