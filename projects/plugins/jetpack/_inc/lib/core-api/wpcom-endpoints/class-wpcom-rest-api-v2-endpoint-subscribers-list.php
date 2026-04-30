@@ -197,6 +197,65 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/products',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_memberships_products' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/comp',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'add_comp' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'user_id'       => array(
+							'type'     => 'integer',
+							'required' => true,
+							'minimum'  => 1,
+						),
+						'plan_id'       => array(
+							'type'     => 'integer',
+							'required' => true,
+							'minimum'  => 1,
+						),
+						'no_expiration' => array(
+							'type'    => 'boolean',
+							'default' => false,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/remove-comp',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'remove_comp' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'comp_id' => array(
+							'type'     => 'integer',
+							'required' => true,
+							'minimum'  => 1,
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -520,6 +579,132 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 			return new WP_Error(
 				'subscribers_add_failed',
 				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not add subscribers.', 'jetpack' ),
+				array( 'status' => $status )
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Proxy GET /wpcom/v2/sites/{blog_id}/memberships/products?type=all&is_editable=true — the
+	 * paid newsletter / membership tiers configured on this site. Used by the Comp-a-subscription
+	 * plan picker so the modal can offer "comp this subscriber on plan X".
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_memberships_products() {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		return $this->wpcom_get(
+			sprintf(
+				'/sites/%d/memberships/products?type=all&is_editable=true',
+				(int) $blog_id
+			)
+		);
+	}
+
+	/**
+	 * POST /wpcom/v2/subscribers/comp — issue a complimentary subscription on a paid membership
+	 * product for a single subscriber. Mirrors Calypso's `requestAddComp` thunk, which POSTs to
+	 * `/sites/{id}/memberships/comps/{user_id}/{plan_id}`.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function add_comp( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$user_id       = (int) $request->get_param( 'user_id' );
+		$plan_id       = (int) $request->get_param( 'plan_id' );
+		$no_expiration = (bool) $request->get_param( 'no_expiration' );
+
+		$body = $no_expiration
+			? wp_json_encode( array( 'no_expiration' => true ), JSON_UNESCAPED_SLASHES )
+			: null;
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf(
+				'/sites/%d/memberships/comps/%d/%d',
+				(int) $blog_id,
+				$user_id,
+				$plan_id
+			),
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			$body,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				'subscribers_comp_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not comp the subscription.', 'jetpack' ),
+				array( 'status' => $status )
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * POST /wpcom/v2/subscribers/remove-comp — revoke a complimentary subscription. Mirrors
+	 * Calypso's `requestDeleteComp`, which DELETEs
+	 * `/sites/{id}/memberships/comp/{compId}` (singular `comp`).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function remove_comp( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$comp_id = (int) $request->get_param( 'comp_id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf(
+				'/sites/%d/memberships/comp/%d',
+				(int) $blog_id,
+				$comp_id
+			),
+			'2',
+			array( 'method' => 'DELETE' ),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			return new WP_Error(
+				'subscribers_remove_comp_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not remove the comp.', 'jetpack' ),
 				array( 'status' => $status )
 			);
 		}

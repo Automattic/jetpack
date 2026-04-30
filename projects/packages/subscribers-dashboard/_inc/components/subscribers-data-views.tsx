@@ -11,6 +11,8 @@ import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionStatusCell from './cells/subscription-status-cell';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
 import EmptyState from './empty-state';
+import CompModal from './modals/comp-modal';
+import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews/wp';
@@ -52,6 +54,12 @@ export default function SubscribersDataViews( {
 }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
+	const [ compTarget, setCompTarget ] = useState< Subscriber | null >( null );
+	const [ removeCompTarget, setRemoveCompTarget ] = useState< {
+		subscriber: Subscriber;
+		compId: number;
+		planTitle?: string;
+	} | null >( null );
 
 	const apiFilters = useMemo< SubscribersFilter[] >( () => {
 		const values = ( view.filters ?? [] )
@@ -166,6 +174,45 @@ export default function SubscribersDataViews( {
 				},
 			},
 			{
+				id: 'comp',
+				label: __( 'Comp a subscription', 'jetpack-subscribers-dashboard' ),
+				// We need a wpcom user id to attach the comp to (Calypso's
+				// `hasUncompedPlans` also checks the plans list, but that requires the site's
+				// products to be loaded — we let the modal handle the "all comped" /
+				// "no paid plans" edge cases instead).
+				isEligible: ( subscriber: Subscriber ) => !! subscriber.user_id,
+				callback: ( items: Subscriber[] ) => {
+					const target = items[ 0 ];
+					if ( ! target ) {
+						return;
+					}
+					setCompTarget( target );
+				},
+			},
+			{
+				id: 'remove-comp',
+				label: __( 'Remove comp', 'jetpack-subscribers-dashboard' ),
+				// Calypso's `findRemovableComp`: surface only when at least one plan on the row
+				// is a comp with a `comp_id` we can revoke.
+				isEligible: ( subscriber: Subscriber ) =>
+					( subscriber.plans ?? [] ).some( plan => plan.is_comp && !! plan.comp_id ),
+				callback: ( items: Subscriber[] ) => {
+					const target = items[ 0 ];
+					if ( ! target ) {
+						return;
+					}
+					const compPlan = ( target.plans ?? [] ).find( plan => plan.is_comp && !! plan.comp_id );
+					if ( ! compPlan?.comp_id ) {
+						return;
+					}
+					setRemoveCompTarget( {
+						subscriber: target,
+						compId: compPlan.comp_id,
+						planTitle: compPlan.title,
+					} );
+				},
+			},
+			{
 				id: 'remove',
 				label: __( 'Remove subscriber', 'jetpack-subscribers-dashboard' ),
 				supportsBulk: true,
@@ -199,6 +246,9 @@ export default function SubscribersDataViews( {
 		},
 		[ onViewSubscriber ]
 	);
+
+	const handleCloseComp = useCallback( () => setCompTarget( null ), [] );
+	const handleCloseRemoveComp = useCallback( () => setRemoveCompTarget( null ), [] );
 
 	const subscribers = data?.subscribers ?? [];
 	const totalItems = data?.total ?? 0;
@@ -251,6 +301,8 @@ export default function SubscribersDataViews( {
 				onConfirm={ handleConfirmRemoval }
 				onCancel={ handleCancelRemoval }
 			/>
+			<CompModal subscriber={ compTarget } onClose={ handleCloseComp } />
+			<RemoveCompModal pending={ removeCompTarget } onClose={ handleCloseRemoveComp } />
 		</>
 	);
 }

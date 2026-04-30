@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Comp a subscription / Remove comp row actions for paid newsletter subscribers (Phase 5c). Comp opens a plan picker modal with a doesn't-expire option; Remove comp confirms then revokes via comp_id.

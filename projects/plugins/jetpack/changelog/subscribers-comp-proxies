@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Subscribers dashboard: add /wpcom/v2/subscribers/comp, /remove-comp and /products REST proxies so the in-admin dashboard can drive Calypso's comp / un-comp row actions.

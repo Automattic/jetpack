@@ -117,3 +117,67 @@ export function fetchSubscriberStats( params: IndividualParams ): Promise< Subsc
 		method: 'GET',
 	} );
 }
+
+export type MembershipsProduct = {
+	ID: number;
+	title: string;
+	currency?: string;
+	price?: number;
+	renewal_schedule?: string;
+};
+
+/**
+ * Fetch the paid newsletter / membership products configured on this site. Used by the Comp
+ * modal so the user can pick which plan to comp the subscriber on.
+ *
+ * @return Membership products.
+ */
+export function fetchMembershipsProducts(): Promise< MembershipsProduct[] > {
+	return apiFetch< MembershipsProduct[] | { products?: MembershipsProduct[] } >( {
+		path: '/wpcom/v2/subscribers/products',
+		method: 'GET',
+	} ).then( body => {
+		if ( Array.isArray( body ) ) {
+			return body;
+		}
+		return body?.products ?? [];
+	} );
+}
+
+/**
+ * Issue a complimentary subscription for a single subscriber on a chosen paid plan, mirroring
+ * Calypso's `requestAddComp`. Server-side proxies to
+ * `/sites/{id}/memberships/comps/{user_id}/{plan_id}`.
+ *
+ * @param payload               - Comp parameters.
+ * @param payload.user_id       - WPCOM user id of the subscriber.
+ * @param payload.plan_id       - Membership product id to comp.
+ * @param payload.no_expiration - Whether the comp should never expire.
+ * @return Raw WP.com response.
+ */
+export function addComp( payload: {
+	user_id: number;
+	plan_id: number;
+	no_expiration?: boolean;
+} ): Promise< { id?: number; message?: string } > {
+	return apiFetch( {
+		path: '/wpcom/v2/subscribers/comp',
+		method: 'POST',
+		data: payload,
+	} );
+}
+
+/**
+ * Revoke a complimentary subscription for a single subscriber, mirroring Calypso's
+ * `requestDeleteComp`. Server-side proxies to `/sites/{id}/memberships/comp/{compId}` (DELETE).
+ *
+ * @param compId - Comp id to remove (`subscriber.plans[i].comp_id`).
+ * @return Raw WP.com response.
+ */
+export function removeComp( compId: number ): Promise< { message?: string } > {
+	return apiFetch( {
+		path: '/wpcom/v2/subscribers/remove-comp',
+		method: 'POST',
+		data: { comp_id: compId },
+	} );
+}
