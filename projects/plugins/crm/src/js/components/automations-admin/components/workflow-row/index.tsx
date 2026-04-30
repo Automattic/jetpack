@@ -1,6 +1,7 @@
-import { Button, IconTooltip, ToggleControl } from '@automattic/jetpack-components';
+import { IconTooltip, ToggleControl } from '@automattic/jetpack-components';
 import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
@@ -89,7 +90,7 @@ export const WorkflowRow: FC< WorkflowRowProps > = props => {
 					</div>
 				</td>
 				<td className={ styles[ 'edit-button' ] }>
-					<Button variant={ 'secondary' } onClick={ onEditClick }>
+					<Button variant="outline" onClick={ onEditClick }>
 						{ __( 'Edit', 'zero-bs-crm' ) }
 					</Button>
 				</td>
