@@ -244,7 +244,7 @@ function wpcom_write_render_admin_page() {
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status );
 }
 
 /**
@@ -257,8 +257,9 @@ function wpcom_write_render_admin_page() {
  * @param string $edit_content    The post content when editing.
  * @param int    $edit_post_id    The post ID when editing, 0 for new posts.
  * @param array  $categories_data Array of category data for the picker.
+ * @param string $post_status     The post status ('new', 'draft', 'publish', etc.).
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array() ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new' ) {
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
@@ -281,12 +282,13 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--click="actions.saveDraft"
 				data-wp-bind--disabled="state.isSaving"
 				data-wp-bind--hidden="state.isPublishedPost"
+				<?php echo 'publish' === $post_status ? 'hidden' : ''; ?>
 			><?php echo esc_html__( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
 			<button
 				class="bw-btn bw-btn-publish"
 				data-wp-on--click="actions.publish"
 				data-wp-bind--disabled="state.isSaving"
-			><?php echo $edit_post_id ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
+			><?php echo 'publish' === $post_status ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</header>
 
