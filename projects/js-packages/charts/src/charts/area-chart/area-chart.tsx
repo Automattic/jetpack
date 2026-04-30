@@ -364,6 +364,9 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 														showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
 														selectedIndex={ selectedIndex }
 														tooltipRef={ tooltipRef }
+														keyboardFocusedClassName={
+															styles[ 'area-chart__tooltip--keyboard-focused' ]
+														}
 														series={ dataSorted }
 													/>
 													<HoverGlyphs
