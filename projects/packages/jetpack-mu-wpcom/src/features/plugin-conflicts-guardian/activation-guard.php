@@ -112,9 +112,9 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 		return array();
 	}
 
-	$blocked_basename = pcg_guard_attribute_block( $result, $paths );
+	$blocked_plugin = pcg_guard_get_blocked_plugin( $result, $paths );
 	return array(
-		$blocked_basename => pcg_guard_format_block_reason( $result ),
+		$blocked_plugin => pcg_guard_format_block_reason( $result ),
 	);
 }
 
@@ -132,7 +132,7 @@ function pcg_guard_evaluate_plugins( $plugins ) {
  * @param array<string,string> $paths  Map of plugin basename => absolute main file path.
  * @return string Plugin basename to attribute the failure to.
  */
-function pcg_guard_attribute_block( $result, $paths ) {
+function pcg_guard_get_blocked_plugin( $result, $paths ) {
 	$explicit = (string) ( $result['plugin'] ?? '' );
 	if ( '' !== $explicit ) {
 		foreach ( $paths as $basename => $path ) {
