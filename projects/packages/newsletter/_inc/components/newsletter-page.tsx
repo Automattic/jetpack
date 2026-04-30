@@ -96,10 +96,15 @@ export default function NewsletterPage( {
 		>
 			{ subscribersEnabled ? (
 				<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-					<Tabs.List variant="minimal" className="jetpack-newsletter-page__tablist">
-						<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
-						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
-					</Tabs.List>
+					{ /* Wrapper carries the full-width bottom border. The Tabs.List
+					     inside keeps its native `width: fit-content` so the
+					     animated active-tab indicator slides smoothly. */ }
+					<div className="jetpack-newsletter-page__tabs-row">
+						<Tabs.List variant="minimal">
+							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
+							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
+						</Tabs.List>
+					</div>
 					{ /* Each tab needs a matching Panel (WAI-ARIA pattern). The content
 					     is route-driven, so the inactive Panel just stays empty. */ }
 					<Tabs.Panel value="subscribers" focusable={ false }>
