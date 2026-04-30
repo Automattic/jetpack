@@ -784,6 +784,24 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleTitleKeyDown( event ) {
+			// Block keystrokes while a modal overlay is open.
+			if ( state.showImageModal || state.showVideoModal ) {
+				if ( event.key === 'Escape' ) {
+					const { actions: a } = store( 'wpcom-write' );
+					if ( state.showImageModal ) {
+						a.closeImageModal();
+					} else {
+						a.closeVideoModal();
+					}
+					return;
+				}
+				if ( event.key === 'Tab' ) {
+					return;
+				}
+				event.preventDefault();
+				return;
+			}
+
 			if ( event.key === 'Enter' ) {
 				event.preventDefault();
 				const content = document.querySelector( '.bw-content' );
@@ -885,6 +903,19 @@ const { state } = store( 'wpcom-write', {
 		handleKeyDown( event ) {
 			// Block all keystrokes while a modal overlay is open.
 			if ( state.showImageModal || state.showVideoModal ) {
+				if ( event.key === 'Escape' ) {
+					const { actions: a } = store( 'wpcom-write' );
+					if ( state.showImageModal ) {
+						a.closeImageModal();
+					} else {
+						a.closeVideoModal();
+					}
+					return;
+				}
+				if ( event.key === 'Tab' ) {
+					return;
+				}
+				event.preventDefault();
 				return;
 			}
 
@@ -1397,7 +1428,12 @@ const { state } = store( 'wpcom-write', {
 
 		closeImageModal() {
 			state.showImageModal = false;
+			state.imageUrl = '';
+			state.imageAlt = '';
+			state.setAsFeatured = false;
+			state.uploadedMediaId = 0;
 			resetUploadZone();
+			restoreSelection();
 			const content = document.querySelector( '.bw-content' );
 			if ( content ) content.focus();
 		},
@@ -1548,6 +1584,8 @@ const { state } = store( 'wpcom-write', {
 
 		closeVideoModal() {
 			state.showVideoModal = false;
+			state.videoUrl = '';
+			restoreSelection();
 			const content = document.querySelector( '.bw-content' );
 			if ( content ) content.focus();
 		},
