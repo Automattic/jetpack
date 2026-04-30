@@ -9,12 +9,19 @@ $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
 
 body.jetpack_page_jetpack-newsletter {
 
-	// Page header: stays sticky at top, opaque background, no bottom rule
+	// Off-white page surface so the white settings cards stand out against
+	// the page background.
+	.admin-ui-page {
+		background: var(--wpds-color-bg-surface-neutral, #fcfcfc);
+	}
+
+	// Page header: stays sticky at top, opaque background (matches the
+	// page surface so content scrolls cleanly underneath), no bottom rule
 	// (the tab row owns the separator now). A min-height on the title row
 	// keeps the header the same size whether or not the actions slot is
 	// rendered, so the tab bar doesn't jump when switching tabs.
 	.admin-ui-page__header {
-		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		background: var(--wpds-color-bg-surface-neutral, #fcfcfc);
 		border-bottom: 0;
 		flex-shrink: 0;
 		padding-block-end: var(--wpds-dimension-padding-sm, 8px);
@@ -32,7 +39,7 @@ body.jetpack_page_jetpack-newsletter {
 	// nested `Tabs.List` keeps its native `width: fit-content` and the
 	// animated active-tab indicator slides smoothly between tabs.
 	.jetpack-newsletter-page__tabs-row {
-		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		background: var(--wpds-color-bg-surface-neutral, #fcfcfc);
 		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
 		box-sizing: border-box;
 		flex-shrink: 0;
@@ -49,7 +56,6 @@ body.jetpack_page_jetpack-newsletter {
 	}
 
 	.jetpack-newsletter-page__content--padded {
-		padding-block: var(--wpds-dimension-padding-md, 16px) $jetpack-newsletter-inset;
-		padding-inline: $jetpack-newsletter-inset;
+		padding: $jetpack-newsletter-inset;
 	}
 }

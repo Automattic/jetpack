@@ -349,11 +349,11 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 	return (
 		<>
 			<div id="jp-admin-notices" className="newsletter-jitm-card" />
-			<Stack gap="md" direction="column" className="newsletter-settings">
+			<Stack gap="lg" direction="column" className="newsletter-settings">
 				<NewsletterSection data={ data } onChange={ handleAutoSave } />
 
 				<Disabled isDisabled={ ! data.subscriptions }>
-					<Stack gap="md" direction="column">
+					<Stack gap="lg" direction="column">
 						<SubscriptionsSection
 							data={ data }
 							onChange={ handleSubscriptionChange }
