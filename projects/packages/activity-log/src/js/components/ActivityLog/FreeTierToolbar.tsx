@@ -33,11 +33,19 @@ export function FreeTierToolbar() {
 			<div className="dataviews__search jp-activity-log__free-toolbar-primary">
 				<Tooltip text={ upgradeTooltip } placement="top">
 					{ /*
-					 * SearchControl swallows pointer events on its inner
-					 * input when `disabled`, so wrap it to give Tooltip a
-					 * stable hover target across the whole control.
+					 * `<SearchControl>` actively destructures `disabled`
+					 * out of restProps before forwarding to its
+					 * StyledInputControl (see @wordpress/components
+					 * search-control/index.mjs), so passing `disabled`
+					 * directly is a no-op. Wrap in `<fieldset disabled>`
+					 * instead — disabled fieldsets natively disable every
+					 * form control in their subtree regardless of what
+					 * the wrapping component filters out, and the
+					 * fieldset itself still receives pointer events so
+					 * the hover tooltip fires. Default fieldset
+					 * margin/border/padding are reset in the SCSS.
 					 */ }
-					<div className="jp-activity-log__free-toolbar-search">
+					<fieldset disabled className="jp-activity-log__free-toolbar-search">
 						<SearchControl
 							className="dataviews-search"
 							value=""
@@ -45,9 +53,8 @@ export function FreeTierToolbar() {
 							label={ searchLabel }
 							placeholder={ searchLabel }
 							size="compact"
-							disabled
 						/>
-					</div>
+					</fieldset>
 				</Tooltip>
 				<Tooltip text={ upgradeTooltip } placement="top">
 					<Button

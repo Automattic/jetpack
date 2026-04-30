@@ -27,11 +27,18 @@
 	flex-shrink: 0;
 }
 
-// `<Tooltip>` clones its child's ref to attach pointer listeners. When
-// the child is a `<SearchControl>` whose root <div> is `disabled`-styled
-// the listeners still fire because hover bubbles up; this wrapper just
-// keeps the ref target small so the tooltip anchors against the input,
-// not the surrounding flex track.
+// We use a `<fieldset disabled>` to actually disable the SearchControl
+// inside (`<SearchControl>` filters its own `disabled` prop out, see
+// FreeTierToolbar.tsx for the rationale). Strip the browser's default
+// fieldset chrome so the wrapper renders as a transparent box that
+// hugs the search control — no border, no extra padding, no min-width
+// floor. `min-inline-size: 0` overrides the UA stylesheet's
+// `min-inline-size: min-content` which would otherwise stretch the
+// fieldset to fit the input's intrinsic minimum width.
 .jp-activity-log__free-toolbar-search {
 	display: inline-block;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	min-inline-size: 0;
 }
