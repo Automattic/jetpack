@@ -2,6 +2,7 @@ import {
 	ContrastChecker,
 	FontSizePicker,
 	InspectorControls,
+	PanelColorSettings,
 	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalColorGradientControl as ColorGradientControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
@@ -59,6 +60,44 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		};
 	}, [ setAttributes ] );
 
+	const tabColorSettings = useMemo(
+		() => [
+			{
+				label: __( 'Active tab background', 'jetpack' ),
+				value: activeTabBackgroundColor,
+				onChange: set.activeTabBackgroundColor,
+			},
+			{
+				label: __( 'Active tab text', 'jetpack' ),
+				value: activeTabTextColor,
+				onChange: set.activeTabTextColor,
+			},
+			{
+				label: __( 'Inactive tab background', 'jetpack' ),
+				value: inactiveTabBackgroundColor,
+				onChange: set.inactiveTabBackgroundColor,
+			},
+			{
+				label: __( 'Inactive tab text', 'jetpack' ),
+				value: inactiveTabTextColor,
+				onChange: set.inactiveTabTextColor,
+			},
+			{
+				label: __( 'Tab border', 'jetpack' ),
+				value: tabBorderColor,
+				onChange: set.tabBorderColor,
+			},
+		],
+		[
+			activeTabBackgroundColor,
+			activeTabTextColor,
+			inactiveTabBackgroundColor,
+			inactiveTabTextColor,
+			tabBorderColor,
+			set,
+		]
+	);
+
 	return (
 		<InspectorControls group="styles">
 			<PanelBody title={ __( 'Tabs', 'jetpack' ) } initialOpen={ false }>
@@ -73,39 +112,16 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					<ToggleGroupControlOption value="tabs" label={ __( 'Tabs', 'jetpack' ) } />
 					<ToggleGroupControlOption value="buttons" label={ __( 'Buttons', 'jetpack' ) } />
 				</ToggleGroupControl>
-				<ColorGradientControl
-					label={ __( 'Active tab background', 'jetpack' ) }
-					colorValue={ activeTabBackgroundColor }
-					onColorChange={ set.activeTabBackgroundColor }
-				/>
-				<ColorGradientControl
-					label={ __( 'Active tab text', 'jetpack' ) }
-					colorValue={ activeTabTextColor }
-					onColorChange={ set.activeTabTextColor }
-				/>
-				<ColorGradientControl
-					label={ __( 'Inactive tab background', 'jetpack' ) }
-					colorValue={ inactiveTabBackgroundColor }
-					onColorChange={ set.inactiveTabBackgroundColor }
-				/>
-				<ColorGradientControl
-					label={ __( 'Inactive tab text', 'jetpack' ) }
-					colorValue={ inactiveTabTextColor }
-					onColorChange={ set.inactiveTabTextColor }
-				/>
-				<ColorGradientControl
-					label={ __( 'Tab border', 'jetpack' ) }
-					colorValue={ tabBorderColor }
-					onColorChange={ set.tabBorderColor }
-				/>
-				<ContrastChecker
-					backgroundColor={ activeTabBackgroundColor }
-					textColor={ activeTabTextColor }
-				/>
-				<ContrastChecker
-					backgroundColor={ inactiveTabBackgroundColor }
-					textColor={ inactiveTabTextColor }
-				/>
+				<PanelColorSettings showTitle={ false } colorSettings={ tabColorSettings }>
+					<ContrastChecker
+						backgroundColor={ activeTabBackgroundColor }
+						textColor={ activeTabTextColor }
+					/>
+					<ContrastChecker
+						backgroundColor={ inactiveTabBackgroundColor }
+						textColor={ inactiveTabTextColor }
+					/>
+				</PanelColorSettings>
 				<FontSizePicker
 					value={ tabFontSize }
 					onChange={ set.tabFontSize }
