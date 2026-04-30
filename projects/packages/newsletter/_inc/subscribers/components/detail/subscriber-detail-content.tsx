@@ -1,10 +1,10 @@
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Card, Link, Stack, Text } from '@wordpress/ui';
 import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscriber-details';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
-import Avatar from '../avatar';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
 import type { Subscriber } from '../../data/types';
@@ -190,8 +190,7 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 		<Stack direction="column" gap="lg">
 			<Stack direction="row" align="center" gap="md">
 				{ subscriber.email_address ? (
-					<Avatar
-						avatarUrl={ subscriber.avatar }
+					<Gravatar
 						email={ subscriber.email_address }
 						displayName={ subscriber.display_name }
 						size={ 64 }

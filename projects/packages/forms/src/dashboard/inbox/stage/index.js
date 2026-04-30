@@ -3,6 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { ExternalLink, Modal } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
@@ -28,7 +29,6 @@ import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
-import Gravatar from '../../components/gravatar/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';

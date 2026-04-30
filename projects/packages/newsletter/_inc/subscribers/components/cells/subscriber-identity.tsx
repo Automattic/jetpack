@@ -1,5 +1,5 @@
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Stack, Text } from '@wordpress/ui';
-import Avatar from '../avatar';
 import type { Subscriber } from '../../data/types';
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
  * @return Identity cell.
  */
 export default function SubscriberIdentity( { subscriber }: Props ): JSX.Element {
-	const { display_name, email_address, avatar } = subscriber;
+	const { display_name, email_address } = subscriber;
 	const showEmail = !! email_address && email_address !== display_name;
 
 	return (
@@ -28,10 +28,10 @@ export default function SubscriberIdentity( { subscriber }: Props ): JSX.Element
 			     screen reader announcing the name twice. */ }
 			{ email_address ? (
 				<span aria-hidden="true">
-					<Avatar
-						avatarUrl={ avatar }
+					<Gravatar
 						email={ email_address }
 						size={ 32 }
+						useHovercard={ false }
 						className="jetpack-newsletter__identity-avatar"
 					/>
 				</span>

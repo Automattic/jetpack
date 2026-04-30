@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Newsletter: drop the local `<Avatar>` shim and use the shared `Gravatar` from `@automattic/jetpack-components` (lifted into the design system in this branch). Restores hovercard support on the subscriber detail panel and unifies the avatar treatment with Forms.

@@ -9,14 +9,6 @@
 	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
 }
 
-// Inline avatar in the identity cell — keep it circular and prevent the
-// design-system Stack from squashing it inside narrow rows.
-.jetpack-newsletter__identity-avatar {
-	border-radius: 50%;
-	display: block;
-	flex-shrink: 0;
-}
-
 // Inspector panel chrome.
 .jetpack-newsletter__panel-header {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
@@ -34,11 +26,6 @@
 	min-height: 240px;
 }
 
-.jetpack-newsletter__detail-avatar {
-	border-radius: 50%;
-	display: block;
-	flex-shrink: 0;
-}
 
 // TODO: replace with `Text` "muted" tone once available
 // (see https://github.com/WordPress/gutenberg/issues/77391).

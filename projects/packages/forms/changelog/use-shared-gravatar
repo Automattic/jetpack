@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: switch the inbox + responses Gravatar to the shared `Gravatar` from `@automattic/jetpack-components`. The local copy moves into the design system so Newsletter, Forms, and other future consumers share one implementation.
