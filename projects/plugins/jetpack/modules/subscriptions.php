@@ -22,7 +22,6 @@ use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -157,9 +156,11 @@ class Jetpack_Subscriptions {
 
 		// Track categories created through the category editor page
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard::init();
 
+		// Subscribers now live as a tab inside the unified Newsletter screen.
+		// The standalone Subscribers Dashboard package is no longer initialized
+		// here; it stays in the monorepo as a vestigial stub for one release
+		// before being removed in a follow-up.
 		$newsletter_settings = new Newsletter_Settings();
 		$newsletter_settings::init();
 	}
@@ -1030,13 +1031,17 @@ class Jetpack_Subscriptions {
 	 */
 	public function add_subscribers_menu() {
 		/**
-		 * Enables the new in development subscribers in wp-admin dashboard.
+		 * When the in-admin Subscribers experience is enabled (the default),
+		 * the unified Newsletter page already hosts a Subscribers tab so the
+		 * Calypso shortcut becomes redundant. Sites that filter this off keep
+		 * the link to Calypso.
 		 *
 		 * @since 9.5.0
+		 * @since 15.8 Default flipped to `true`.
 		 *
-		 * @param bool If the new dashboard is enabled. Default false.
+		 * @param bool $enabled Whether the in-admin Subscribers experience is on.
 		 */
-		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true ) ) {
 			return;
 		}
 
