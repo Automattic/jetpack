@@ -1445,6 +1445,25 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Escape' ) {
 				const { actions: a } = store( 'wpcom-write' );
 				a.closeImageModal();
+				return;
+			}
+			if ( event.key === 'Tab' ) {
+				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll(
+					'input:not([hidden]):not([type="file"]), button, [tabindex]:not([tabindex="-1"])'
+				);
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && ( active === first || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && ( active === last || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					first.focus();
+				}
 			}
 		},
 
@@ -1597,6 +1616,25 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Escape' ) {
 				const { actions: a } = store( 'wpcom-write' );
 				a.closeVideoModal();
+				return;
+			}
+			if ( event.key === 'Tab' ) {
+				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll(
+					'input:not([hidden]):not([type="file"]), button, [tabindex]:not([tabindex="-1"])'
+				);
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && ( active === first || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && ( active === last || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					first.focus();
+				}
 			}
 		},
 
