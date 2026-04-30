@@ -82,37 +82,43 @@ const CompoundColorRow = ( { label, settings } ) => {
 	const renderContent = useCallback( () => {
 		if ( settings.length === 1 ) {
 			return (
-				<DropdownContentWrapper paddingSize="medium">
-					<ColorGradientControl
-						label={ settings[ 0 ].label }
-						colorValue={ settings[ 0 ].value }
-						onColorChange={ settings[ 0 ].onChange }
-					/>
+				<DropdownContentWrapper paddingSize="none">
+					<div className="block-editor-panel-color-gradient-settings__dropdown-content">
+						<ColorGradientControl
+							label={ settings[ 0 ].label }
+							colorValue={ settings[ 0 ].value }
+							onColorChange={ settings[ 0 ].onChange }
+						/>
+					</div>
 				</DropdownContentWrapper>
 			);
 		}
-		// 2+ settings: tabbed UI matching the standard "Button" row.
+		// 2+ settings: tabbed UI matching the standard "Button" row. The
+		// `block-editor-panel-color-gradient-settings__dropdown-content` wrapper
+		// is required for core CSS to set the picker to width: 260px / padding: 16px.
 		const tabs = settings.map( s => ( {
 			name: s.label.toLowerCase().replace( /\s+/g, '-' ),
 			title: s.label,
 		} ) );
 		return (
 			<DropdownContentWrapper paddingSize="none">
-				<TabPanel tabs={ tabs }>
-					{ tab => {
-						const setting = settings.find(
-							s => s.label.toLowerCase().replace( /\s+/g, '-' ) === tab.name
-						);
-						return (
-							<ColorGradientControl
-								label={ setting.label }
-								colorValue={ setting.value }
-								onColorChange={ setting.onChange }
-								showTitle={ false }
-							/>
-						);
-					} }
-				</TabPanel>
+				<div className="block-editor-panel-color-gradient-settings__dropdown-content">
+					<TabPanel tabs={ tabs }>
+						{ tab => {
+							const setting = settings.find(
+								s => s.label.toLowerCase().replace( /\s+/g, '-' ) === tab.name
+							);
+							return (
+								<ColorGradientControl
+									label={ setting.label }
+									colorValue={ setting.value }
+									onColorChange={ setting.onChange }
+									showTitle={ false }
+								/>
+							);
+						} }
+					</TabPanel>
+				</div>
 			</DropdownContentWrapper>
 		);
 	}, [ settings ] );
