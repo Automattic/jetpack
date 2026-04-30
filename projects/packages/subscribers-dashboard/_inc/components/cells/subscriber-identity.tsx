@@ -27,14 +27,19 @@ export default function SubscriberIdentity( { subscriber }: Props ): JSX.Element
 			gap="sm"
 			className="jetpack-subscribers-dashboard__identity"
 		>
+			{ /* The display name + email are rendered as visible text right next to the avatar,
+			     so the avatar is decorative for assistive tech — wrap with aria-hidden + omit
+			     `displayName` (the shared component otherwise uses it as alt text) to avoid the
+			     screen reader announcing the name twice. */ }
 			{ email_address ? (
-				<Gravatar
-					email={ email_address }
-					displayName={ display_name }
-					size={ 32 }
-					useHovercard={ false }
-					className="jetpack-subscribers-dashboard__identity-avatar"
-				/>
+				<span aria-hidden="true">
+					<Gravatar
+						email={ email_address }
+						size={ 32 }
+						useHovercard={ false }
+						className="jetpack-subscribers-dashboard__identity-avatar"
+					/>
+				</span>
 			) : null }
 			<Stack direction="column" gap="xs" className="jetpack-subscribers-dashboard__identity-text">
 				<Text variant="body-md">{ display_name || email_address }</Text>
