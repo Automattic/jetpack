@@ -196,11 +196,35 @@ $jp-breakpoint-mobile: 782px;
 	// (dashboard grids with fixed column widths, wide tables, `100vw`
 	// descendants) scroll horizontally inside the middle instead of
 	// dragging the whole window into a horizontal scrollbar.
+
+	// `<AdminPage>` (title-branch) wraps children in
+	// `<Container fluid horizontalSpacing={0}><Col>{children}</Col></Container>`
+	// — that outer Container is `display: grid` and the single Col is a
+	// grid cell. Without intervention, the chain breaks here: any inner
+	// flex sizing on the consumer's wrapper (`flex: 1 1 auto; min-height: 0`)
+	// is inert under a non-flex parent, so DataViews-style pages let their
+	// content grow to its natural size and the outer Container scrolls
+	// the whole thing — instead of letting the consumer's own internal
+	// scroll surface (e.g. `.dataviews-layout__container`) handle it.
+	// Force the outer Container/Col pair to flex column so consumers can
+	// fill their bounded slot. Form-style pages keep working: their
+	// children stay content-sized (default `flex: 0 1 auto`) and any
+	// overflow still falls back to Container's `overflow: auto`.
 	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
 		overflow: auto;
+		display: flex;
+		flex-direction: column;
+
+		> * {
+			flex: 1 1 auto;
+			min-height: 0;
+			min-width: 0;
+			display: flex;
+			flex-direction: column;
+		}
 	}
 
 	// ── <JetpackFooter> pinned at the bottom ─────────────────────────

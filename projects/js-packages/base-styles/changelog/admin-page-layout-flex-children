@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+admin-page-layout mixin: extend the flex chain into AdminPage's outer Container/Col so DataViews-style consumers can fill their bounded slot and let their own internal scroll handle the table body.
