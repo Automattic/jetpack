@@ -1,0 +1,9 @@
+// Drop the Page header's bottom divider on the unified Newsletter page —
+// the active Tabs underline already terminates the header visually.
+body.jetpack_page_jetpack-newsletter {
+
+	.admin-ui-page__header {
+		border-bottom: 0;
+		padding-block-end: var(--wpds-dimension-padding-sm, 8px);
+	}
+}

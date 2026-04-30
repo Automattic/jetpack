@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Stack, Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
+import './newsletter-page.scss';
 import type { ReactNode } from 'react';
 
 export type NewsletterTab = 'subscribers' | 'settings';
@@ -68,7 +69,7 @@ export default function NewsletterPage( {
 
 	const title = (
 		<Stack direction="row" align="center" gap="xs">
-			<JetpackLogo height={ 20 } />
+			<JetpackLogo height={ 20 } showText={ false } />
 			<span>{ PRODUCT_NAME }</span>
 		</Stack>
 	);
