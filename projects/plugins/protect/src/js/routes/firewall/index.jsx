@@ -6,12 +6,12 @@ import {
 	ToggleControl,
 	ContextualUpgradeTrigger,
 	useBreakpointMatch,
-	Notice as JetpackNotice,
 } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
+import { Notice } from '@wordpress/ui';
 import moment from 'moment';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import Textarea from '../../components/textarea';
@@ -221,23 +221,19 @@ const FirewallPage = () => {
 	 * Module Disabled Notice
 	 */
 	const moduleDisabledNotice = (
-		<JetpackNotice
-			level="error"
-			title="Jetpack Firewall is currently disabled."
-			children={ <Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text> }
-			actions={ [
-				<Button
-					key="enable"
-					variant="link"
-					onClick={ toggleWaf }
-					isLoading={ isToggling }
-					disabled={ isToggling }
-				>
+		<Notice.Root intent="error">
+			<Notice.Title>
+				{ __( 'Jetpack Firewall is currently disabled.', 'jetpack-protect' ) }
+			</Notice.Title>
+			<Notice.Description>
+				<Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text>
+			</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionButton onClick={ toggleWaf } loading={ isToggling } disabled={ isToggling }>
 					{ __( 'Enable Firewall', 'jetpack-protect' ) }
-				</Button>,
-			] }
-			hideCloseButton={ true }
-		/>
+				</Notice.ActionButton>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 
 	/**
