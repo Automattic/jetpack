@@ -201,9 +201,13 @@ function render_block( $attr, $content ) {
 		);
 	}
 
+	$instance_id     = wp_unique_id( 'jp-donations-' );
+	$wrapper_classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) . ' ' . $instance_id;
+	$custom_styles   = build_custom_styles( $attr, '.' . $instance_id );
+
 	return sprintf(
 		'
-<div class="%1$s">
+<div class="%1$s">%9$s
 	<div class="donations__container">
 		%2$s
 		<div class="donations__content">
@@ -220,15 +224,88 @@ function render_block( $attr, $content ) {
 	</div>
 </div>
 ',
-		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
+		esc_attr( $wrapper_classes ),
 		$nav,
 		$headings,
 		$choose_amount_text,
 		$amounts,
 		$custom_amount,
 		$extra_text,
-		$buttons
+		$buttons,
+		$custom_styles ? '<style>' . $custom_styles . '</style>' : ''
 	);
+}
+
+/**
+ * Build a CSS string scoping per-state color rules to a single block instance.
+ *
+ * @param array  $attr  Block attributes.
+ * @param string $scope CSS class selector (with leading dot) unique to this instance.
+ * @return string CSS rules joined into one string, or '' when no overrides are set.
+ */
+function build_custom_styles( $attr, $scope ) {
+	$groups = array(
+		array(
+			'selector'   => $scope . ' .donations__nav-item.is-active',
+			'properties' => array(
+				'background' => isset( $attr['activeTabBackgroundColor'] ) ? $attr['activeTabBackgroundColor'] : '',
+				'color'      => isset( $attr['activeTabTextColor'] ) ? $attr['activeTabTextColor'] : '',
+			),
+		),
+		array(
+			'selector'   => $scope . ' .donations__nav-item:not(.is-active)',
+			'properties' => array(
+				'background' => isset( $attr['inactiveTabBackgroundColor'] ) ? $attr['inactiveTabBackgroundColor'] : '',
+				'color'      => isset( $attr['inactiveTabTextColor'] ) ? $attr['inactiveTabTextColor'] : '',
+			),
+		),
+		array(
+			'selector'   => $scope . ' .donations__amount.is-selected',
+			'properties' => array(
+				'background-color' => isset( $attr['selectedAmountBackgroundColor'] ) ? $attr['selectedAmountBackgroundColor'] : '',
+				'color'            => isset( $attr['selectedAmountTextColor'] ) ? $attr['selectedAmountTextColor'] : '',
+			),
+		),
+	);
+
+	$rules = array();
+	foreach ( $groups as $group ) {
+		$decls = array();
+		foreach ( $group['properties'] as $property => $value ) {
+			$safe = sanitize_color_for_css( $value );
+			if ( '' !== $safe ) {
+				$decls[] = $property . ':' . $safe;
+			}
+		}
+		if ( $decls ) {
+			$rules[] = $group['selector'] . '{' . implode( ';', $decls ) . '}';
+		}
+	}
+
+	return implode( '', $rules );
+}
+
+/**
+ * Sanitize a user-supplied CSS color value for safe inclusion in a <style> element.
+ * Strips characters that could break out of the style context (<, >, {, }, ;, quotes,
+ * backslash) and caps length, while leaving valid hex / rgb() / hsl() / var() / named
+ * colors intact.
+ *
+ * @param mixed $value Raw attribute value.
+ * @return string Sanitized value, or '' if rejected.
+ */
+function sanitize_color_for_css( $value ) {
+	if ( ! is_string( $value ) || '' === $value ) {
+		return '';
+	}
+	$value = trim( $value );
+	if ( strlen( $value ) > 100 ) {
+		return '';
+	}
+	if ( preg_match( '/[<>{};\\\\\'"]/', $value ) ) {
+		return '';
+	}
+	return $value;
 }
 
 /**
