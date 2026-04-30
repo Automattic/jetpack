@@ -157,6 +157,9 @@
 		},
 		"amountBorderRadius": {
 			"type": [ "string", "object" ]
+		},
+		"buttonBorderRadius": {
+			"type": [ "string", "object" ]
 		}
 	},
 	"example": {}

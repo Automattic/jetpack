@@ -87,11 +87,26 @@
 		color: inherit;
 	}
 
-	// Hide the inner ToolsPanel section heading (the parent PanelBody title
-	// already labels the whole section, so a sub-heading like "Tab dimensions"
-	// reads as duplicated chrome).
+	// Hide the inner ToolsPanel section heading on non-color panels (the
+	// parent PanelBody title already labels the whole section). The colors
+	// panel keeps its header so users see a "COLORS" label above the rows
+	// like the standard Color block-support panel.
+	.components-tools-panel:not(.color-block-support-panel)
 	.components-tools-panel-header {
 		display: none;
+	}
+
+	// Inside the colors panel header, hide just the per-panel kebab menu
+	// (we provide a panel-level Reset button at the bottom instead).
+	.color-block-support-panel
+	.components-tools-panel-header
+	.components-dropdown-menu {
+		display: none;
+	}
+
+	// Right-align the panel-level Reset button in the bottom PanelRow.
+	.components-panel__row {
+		justify-content: flex-end;
 	}
 
 	// The ToolsPanel emotion-styled wrapper applies its own 16px padding;
