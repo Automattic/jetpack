@@ -248,22 +248,22 @@ function build_custom_styles( $attr, $scope ) {
 		array(
 			'selector'   => $scope . ' .donations__nav-item.is-active',
 			'properties' => array(
-				'background' => isset( $attr['activeTabBackgroundColor'] ) ? $attr['activeTabBackgroundColor'] : '',
-				'color'      => isset( $attr['activeTabTextColor'] ) ? $attr['activeTabTextColor'] : '',
+				'background' => $attr['activeTabBackgroundColor'] ?? '',
+				'color'      => $attr['activeTabTextColor'] ?? '',
 			),
 		),
 		array(
 			'selector'   => $scope . ' .donations__nav-item:not(.is-active)',
 			'properties' => array(
-				'background' => isset( $attr['inactiveTabBackgroundColor'] ) ? $attr['inactiveTabBackgroundColor'] : '',
-				'color'      => isset( $attr['inactiveTabTextColor'] ) ? $attr['inactiveTabTextColor'] : '',
+				'background' => $attr['inactiveTabBackgroundColor'] ?? '',
+				'color'      => $attr['inactiveTabTextColor'] ?? '',
 			),
 		),
 		array(
 			'selector'   => $scope . ' .donations__amount.is-selected',
 			'properties' => array(
-				'background-color' => isset( $attr['selectedAmountBackgroundColor'] ) ? $attr['selectedAmountBackgroundColor'] : '',
-				'color'            => isset( $attr['selectedAmountTextColor'] ) ? $attr['selectedAmountTextColor'] : '',
+				'background-color' => $attr['selectedAmountBackgroundColor'] ?? '',
+				'color'            => $attr['selectedAmountTextColor'] ?? '',
 			),
 		),
 	);
