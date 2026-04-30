@@ -256,7 +256,8 @@ class Jetpack_AI_Sidebar {
 		 *
 		 * @param array $am_data Data encoded into `agentsManagerData`.
 		 */
-		return apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $am_data );
+		$filtered = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $am_data );
+		return is_array( $filtered ) ? $filtered : $am_data;
 	}
 
 	// ──────────────────────────────────────────────────

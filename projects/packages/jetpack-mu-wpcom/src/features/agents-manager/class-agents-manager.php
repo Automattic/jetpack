@@ -280,7 +280,8 @@ class Agents_Manager {
 		 *
 		 * @param array $inline_data Data encoded into `agentsManagerData`.
 		 */
-		$inline_data = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $inline_data );
+		$filtered    = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $inline_data );
+		$inline_data = is_array( $filtered ) ? $filtered : $inline_data;
 
 		wp_add_inline_script(
 			'agents-manager',

@@ -235,6 +235,23 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A misbehaving filter that returns non-array must not break the payload.
+	 */
+	public function test_maybe_enqueue_am_falls_back_when_filter_returns_non_array() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		add_filter( 'jetpack_ai_sidebar_agents_manager_data', '__return_null' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		// Original payload (with reviewMediatorEnabled) is still emitted.
+		$this->assertStringContainsString(
+			'"reviewMediatorEnabled":',
+			$this->get_agents_manager_inline_script()
+		);
+	}
+
+	/**
 	 * Test that maybe_enqueue_am skips when AM is already loaded.
 	 */
 	public function test_maybe_enqueue_am_skips_when_am_already_loaded() {
