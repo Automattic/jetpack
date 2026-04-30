@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add CSV upload + Substack importer entry points to the Add Subscribers modal (Phase 5b). The modal is now tabbed (Manual / Upload CSV / Substack); CSV files from Substack, Beehiiv, Mailchimp, Ghost, Patreon, Kit and Medium have their email column auto-detected client-side and reused via the existing /subscribers/add proxy; Substack opens Calypso's guided importer wizard in a new tab.
