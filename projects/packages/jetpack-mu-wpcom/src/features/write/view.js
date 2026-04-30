@@ -118,6 +118,19 @@ function clearHighlight() {
 }
 
 /**
+ * Focus the first visible input inside a modal after it becomes visible.
+ * Uses requestAnimationFrame so the element is no longer hidden.
+ */
+function focusModalInput() {
+	requestAnimationFrame( () => {
+		const overlay = document.querySelector( '.bw-image-overlay:not([hidden])' );
+		if ( ! overlay ) return;
+		const input = overlay.querySelector( 'input:not([hidden])' );
+		if ( input ) input.focus();
+	} );
+}
+
+/**
  * Normalize color markup from contentEditable before block serialization.
  *
  * The foreColor command creates <font color="..."> (legacy) or
@@ -571,8 +584,9 @@ async function uploadFileToMedia( file ) {
 		}
 		state.uploadedMediaId = media.id;
 
-		// Show preview.
+		// Show preview and re-focus the modal so Escape still works.
 		showUploadPreview( media.source_url );
+		focusModalInput();
 	} catch ( err ) {
 		state.isUploading = false;
 		if ( zone ) zone.classList.remove( 'bw-uploading' );
@@ -770,6 +784,24 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleTitleKeyDown( event ) {
+			// Block keystrokes while a modal overlay is open.
+			if ( state.showImageModal || state.showVideoModal ) {
+				if ( event.key === 'Escape' ) {
+					const { actions: a } = store( 'wpcom-write' );
+					if ( state.showImageModal ) {
+						a.closeImageModal();
+					} else {
+						a.closeVideoModal();
+					}
+					return;
+				}
+				if ( event.key === 'Tab' ) {
+					return;
+				}
+				event.preventDefault();
+				return;
+			}
+
 			if ( event.key === 'Enter' ) {
 				event.preventDefault();
 				const content = document.querySelector( '.bw-content' );
@@ -869,6 +901,24 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleKeyDown( event ) {
+			// Block all keystrokes while a modal overlay is open.
+			if ( state.showImageModal || state.showVideoModal ) {
+				if ( event.key === 'Escape' ) {
+					const { actions: a } = store( 'wpcom-write' );
+					if ( state.showImageModal ) {
+						a.closeImageModal();
+					} else {
+						a.closeVideoModal();
+					}
+					return;
+				}
+				if ( event.key === 'Tab' ) {
+					return;
+				}
+				event.preventDefault();
+				return;
+			}
+
 			// Ctrl+K / Cmd+K to toggle link input.
 			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'k' ) {
 				event.preventDefault();
@@ -1239,6 +1289,7 @@ const { state } = store( 'wpcom-write', {
 			}
 			if ( state.showLinkInput ) {
 				clearHighlight();
+				restoreSelection();
 				state.showLinkInput = false;
 				return;
 			}
@@ -1316,6 +1367,7 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
 				clearHighlight();
+				restoreSelection();
 				state.showLinkInput = false;
 				if ( linkPopoverCloseHandler ) {
 					document.removeEventListener( 'click', linkPopoverCloseHandler );
@@ -1373,11 +1425,45 @@ const { state } = store( 'wpcom-write', {
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			state.showImageModal = true;
+			focusModalInput();
 		},
 
 		closeImageModal() {
 			state.showImageModal = false;
+			state.imageUrl = '';
+			state.imageAlt = '';
+			state.setAsFeatured = false;
+			state.uploadedMediaId = 0;
 			resetUploadZone();
+			restoreSelection();
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
+		},
+
+		handleImageModalKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				const { actions: a } = store( 'wpcom-write' );
+				a.closeImageModal();
+				return;
+			}
+			if ( event.key === 'Tab' ) {
+				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll(
+					'input:not([hidden]):not([type="file"]), button, [tabindex]:not([tabindex="-1"])'
+				);
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && ( active === first || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && ( active === last || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
 		},
 
 		stopPropagation( event ) {
@@ -1501,6 +1587,7 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.showImageModal = true;
 			state.imageUrl = '';
+			focusModalInput();
 		},
 
 		insertQuote() {
@@ -1513,10 +1600,41 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.showVideoModal = true;
 			state.videoUrl = '';
+			focusModalInput();
 		},
 
 		closeVideoModal() {
 			state.showVideoModal = false;
+			state.videoUrl = '';
+			restoreSelection();
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
+		},
+
+		handleVideoModalKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				const { actions: a } = store( 'wpcom-write' );
+				a.closeVideoModal();
+				return;
+			}
+			if ( event.key === 'Tab' ) {
+				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll(
+					'input:not([hidden]):not([type="file"]), button, [tabindex]:not([tabindex="-1"])'
+				);
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && ( active === first || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && ( active === last || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
 		},
 
 		updateVideoUrl() {
