@@ -119,7 +119,7 @@ class Filter_Checkbox {
 	 * @return array<string, string>
 	 */
 	protected static function build_value_labels( string $filter_type ): array {
-		if ( 'post_type' !== $filter_type || ! function_exists( 'get_post_types' ) ) {
+		if ( 'post_type' !== $filter_type ) {
 			return array();
 		}
 		$labels = array();
@@ -127,7 +127,10 @@ class Filter_Checkbox {
 		// only ones whose buckets can land in `post_types` aggregations.
 		$objects = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
 		foreach ( $objects as $slug => $object ) {
-			$singular = isset( $object->labels->singular_name ) ? (string) $object->labels->singular_name : '';
+			// `singular_name` is plugin/theme-supplied via register_post_type();
+			// run it through the same sanitizer as the block's `label` attribute
+			// so stray HTML or whitespace can never reach the rendered pill.
+			$singular = sanitize_text_field( (string) ( $object->labels->singular_name ?? '' ) );
 			if ( '' !== $singular ) {
 				$labels[ (string) $slug ] = $singular;
 			}
