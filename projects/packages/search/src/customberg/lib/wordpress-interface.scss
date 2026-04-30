@@ -259,43 +259,6 @@ html.interface-interface-skeleton__html-container {
 	}
 }
 
-// more-menu-dropdown
-.interface-more-menu-dropdown {
-	margin-left: -4px;
-
-	// the padding and margin of the more menu is intentionally non-standard
-	.components-button {
-		width: auto;
-		padding: 0 2px;
-	}
-
-	@include mixins.break-small() {
-		margin-left: 0;
-
-		.components-button {
-			padding: 0 4px;
-		}
-	}
-}
-
-.interface-more-menu-dropdown__content .components-popover__content {
-	min-width: 280px;
-
-	// Let the menu scale to fit items.
-	@include mixins.break-mobile() {
-		width: auto;
-		max-width: breakpoints.$break-mobile;
-	}
-
-	.components-dropdown-menu__menu {
-		padding: 0;
-	}
-}
-
-.components-popover.interface-more-menu-dropdown__content {
-	z-index: z-index.z-index(".components-popover.interface-more-menu__content");
-}
-
 // pinned-items
 .interface-pinned-items {
 	display: flex;
