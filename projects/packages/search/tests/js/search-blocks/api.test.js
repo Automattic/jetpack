@@ -223,6 +223,16 @@ describe( 'resolveFilterFields', () => {
 		} );
 	} );
 
+	it( 'maps blog_id filter to plain `blog_id` field on both agg and filter', () => {
+		// Multisite cross-site index: aggregation buckets carry numeric blog
+		// IDs (no slug_slash_name variant), so bucketFormat is plain.
+		expect( resolveFilterFields( { filterType: 'blog_id' } ) ).toEqual( {
+			aggField: 'blog_id',
+			filterField: 'blog_id',
+			bucketFormat: 'plain',
+		} );
+	} );
+
 	it( 'returns nulls for unknown or incomplete configs', () => {
 		expect( resolveFilterFields( null ) ).toEqual( {
 			aggField: null,

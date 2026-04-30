@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add blog_id variation to the filter-checkbox block for multisite networks with cross-site indexing.

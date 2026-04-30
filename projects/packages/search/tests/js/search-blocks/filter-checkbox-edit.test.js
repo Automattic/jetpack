@@ -12,6 +12,7 @@ import {
 	VARIATION_POST_TAG,
 	VARIATION_POST_TYPE,
 	VARIATION_AUTHOR,
+	VARIATION_BLOG_ID,
 	VARIATION_CUSTOM_TAXONOMY,
 } from '../../../src/search-blocks/blocks/filter-checkbox/edit.js';
 
@@ -25,6 +26,7 @@ describe( 'deriveVariation', () => {
 		);
 		expect( deriveVariation( { filterType: 'post_type' } ) ).toBe( VARIATION_POST_TYPE );
 		expect( deriveVariation( { filterType: 'author' } ) ).toBe( VARIATION_AUTHOR );
+		expect( deriveVariation( { filterType: 'blog_id' } ) ).toBe( VARIATION_BLOG_ID );
 	} );
 
 	it( 'treats any non-built-in taxonomy slug as Custom Taxonomy', () => {
@@ -74,6 +76,10 @@ describe( 'variationToAttributes', () => {
 		expect( variationToAttributes( VARIATION_AUTHOR, '' ) ).toEqual( {
 			filterType: 'author',
 			taxonomy: '',
+		} );
+		expect( variationToAttributes( VARIATION_BLOG_ID, 'genre' ) ).toEqual( {
+			filterType: 'blog_id',
+			taxonomy: 'genre',
 		} );
 	} );
 
@@ -141,6 +147,7 @@ describe( 'variationDefaultLabel', () => {
 		);
 		expect( variationDefaultLabel( { filterType: 'post_type' } ) ).toBe( 'Post Type' );
 		expect( variationDefaultLabel( { filterType: 'author' } ) ).toBe( 'Author' );
+		expect( variationDefaultLabel( { filterType: 'blog_id' } ) ).toBe( 'Blog' );
 	} );
 
 	it( 'returns empty string for custom taxonomies so the caller falls back to the generic placeholder', () => {

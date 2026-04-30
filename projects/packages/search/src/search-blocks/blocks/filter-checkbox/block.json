@@ -6,7 +6,7 @@
 	"title": "Checkbox Filter",
 	"category": "jetpack-search",
 	"icon": "filter",
-	"description": "Checkbox filter for Jetpack Search. Use a variation (Category, Tag, Post Type, Author, Custom Taxonomy) or configure manually.",
+	"description": "Checkbox filter for Jetpack Search. Use a variation (Category, Tag, Post Type, Author, Blog, Custom Taxonomy) or configure manually.",
 	"supports": {
 		"html": false,
 		"interactivity": true
@@ -16,7 +16,7 @@
 		"filterType": {
 			"type": "string",
 			"default": "taxonomy",
-			"enum": [ "taxonomy", "post_type", "author" ]
+			"enum": [ "taxonomy", "post_type", "author", "blog_id" ]
 		},
 		"taxonomy": {
 			"type": "string",

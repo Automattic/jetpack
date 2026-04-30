@@ -181,6 +181,16 @@ class Search_Blocks {
 				'isActive'    => array( 'filterType' ),
 			),
 			array(
+				'name'        => 'blog_id',
+				'title'       => __( 'Filter by Blog', 'jetpack-search-pkg' ),
+				'description' => __( 'Filter results by blog on a multisite network with cross-site indexing.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'filterType' => 'blog_id',
+					'label'      => __( 'Blog', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType' ),
+			),
+			array(
 				'name'        => 'custom_taxonomy',
 				'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
 				'description' => __( 'Show checkboxes for any registered taxonomy.', 'jetpack-search-pkg' ),
