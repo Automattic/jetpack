@@ -94,27 +94,9 @@ class Event_Manager_Faker {
 					'price'    => '1.25',
 					'total'    => 3.75,
 				),
-				'contacts' => array( 1 ),
-				'created'  => -1,
-				'tags'     => array(
-					array(
-						'id'          => 1,
-						'objtype'     => 1,
-						'name'        => 'Name 1',
-						'slug'        => 'name-1',
-						'created'     => 1692663411,
-						'lastupdated' => 1692663411,
-					),
-					array(
-						'id'          => 2,
-						'objtype'     => 1,
-						'name'        => 'Name 2',
-						'slug'        => 'name-2',
-						'created'     => 1692663412,
-						'lastupdated' => 1692663412,
-					),
-				),
 			),
+			'contacts'    => array( 1 ),
+			'created'     => -1,
 		);
 
 		return Invoice_Factory::create( $data );
