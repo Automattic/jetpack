@@ -363,59 +363,71 @@ export default function ActivityLog() {
 					( hasActivityLogsAccess ? '' : ' jp-activity-log__dataviews-wrapper--free-tier' )
 				}
 			>
-				<DataViews< Activity >
-					data={ logData }
-					isLoading={ isFetching || isLoadingList }
-					paginationInfo={ paginationInfo }
-					fields={ fields as Field< Activity >[] }
-					view={ view }
-					actions={ actions }
-					getItemId={ getItemId }
-					search
-					// Advertise both DataViews' built-in Activity timeline
-					// (the default) and a Table layout. Toggle lives in
-					// the cog popover's layout switcher. Each layout maps
-					// the event parts to the right slots:
-					//   - Activity: `event_icon` → mediaField (left
-					//     bullet slot), `event_title` → titleField,
-					//     `event_description` → descriptionField, plus
-					//     `groupBy: published_date` for day headers.
-					//   - Table: one composite `event` column alongside
-					//     Date / User.
-					// See DEFAULT_LAYOUTS in ./views for the full shape —
-					// it explicitly nulls slot/groupBy refs on Table so a
-					// round-trip Activity → Table doesn't carry those
-					// over and double-render as a primary column.
-					defaultLayouts={ DEFAULT_LAYOUTS }
-					onChangeView={ onChangeView }
-					onReset={ isViewModified ? onResetView : false }
-					// On the free tier, lock the perPage selector to the
-					// capped size. Search/filters/sort stay visible but
-					// disabled via `<FreeTierToolbar>` below — Calypso's
-					// equivalent switch at logs-activity/dataviews/
-					// index.tsx:201-208 hides them, but we want the
-					// upgrade affordance to be discoverable on hover.
-					config={
-						hasActivityLogsAccess
-							? undefined
-							: { perPageSizes: [ ACTIVITY_LOGS_DEFAULT_PAGE_SIZE ] }
-					}
-					empty={
-						<p>
-							{ view.search
-								? __( 'No activity found', 'jetpack-activity-log' )
-								: __( 'No activities', 'jetpack-activity-log' ) }
-						</p>
-					}
-				>
-					{ hasActivityLogsAccess ? undefined : (
-						<>
-							<FreeTierToolbar />
-							<DataViews.Layout />
-						</>
-					) }
-				</DataViews>
-				{ ! hasActivityLogsAccess && ! isFetching && logData.length > 0 && <UpsellCallout /> }
+				{ /*
+				 * Single inner div soaks up `jetpack-admin-page-layout`'s
+				 * `.admin-ui-page > :not(...):not(...) > *` rule (which
+				 * force-applies `flex: 1 1 auto; flex-direction: column`
+				 * to every direct child of the page's scroll column).
+				 * With the chain landing here, DataViews and the
+				 * free-tier UpsellCallout are grandchildren and stack
+				 * without competing for flex space — no `!important`
+				 * overrides needed.
+				 */ }
+				<div className="jp-activity-log__inner">
+					<DataViews< Activity >
+						data={ logData }
+						isLoading={ isFetching || isLoadingList }
+						paginationInfo={ paginationInfo }
+						fields={ fields as Field< Activity >[] }
+						view={ view }
+						actions={ actions }
+						getItemId={ getItemId }
+						search
+						// Advertise both DataViews' built-in Activity timeline
+						// (the default) and a Table layout. Toggle lives in
+						// the cog popover's layout switcher. Each layout maps
+						// the event parts to the right slots:
+						//   - Activity: `event_icon` → mediaField (left
+						//     bullet slot), `event_title` → titleField,
+						//     `event_description` → descriptionField, plus
+						//     `groupBy: published_date` for day headers.
+						//   - Table: one composite `event` column alongside
+						//     Date / User.
+						// See DEFAULT_LAYOUTS in ./views for the full shape —
+						// it explicitly nulls slot/groupBy refs on Table so a
+						// round-trip Activity → Table doesn't carry those
+						// over and double-render as a primary column.
+						defaultLayouts={ DEFAULT_LAYOUTS }
+						onChangeView={ onChangeView }
+						onReset={ isViewModified ? onResetView : false }
+						// On the free tier, lock the perPage selector to the
+						// capped size. Search/filters/sort stay visible but
+						// disabled via `<FreeTierToolbar>` below — Calypso's
+						// equivalent switch at logs-activity/dataviews/
+						// index.tsx:201-208 hides them, but we want the
+						// upgrade affordance to be discoverable on hover.
+						config={
+							hasActivityLogsAccess
+								? undefined
+								: { perPageSizes: [ ACTIVITY_LOGS_DEFAULT_PAGE_SIZE ] }
+						}
+						empty={
+							<p>
+								{ view.search
+									? __( 'No activity found', 'jetpack-activity-log' )
+									: __( 'No activities', 'jetpack-activity-log' ) }
+							</p>
+						}
+					>
+						{ hasActivityLogsAccess ? undefined : (
+							<>
+								<FreeTierToolbar />
+								<DataViews.Layout />
+							</>
+						) }
+					</DataViews>
+					{ ! hasActivityLogsAccess && ! isFetching && logData.length > 0 && <UpsellCallout /> }
+				</div>
 			</div>
 		</AdminPage>
 	);

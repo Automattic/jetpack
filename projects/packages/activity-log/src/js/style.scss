@@ -29,35 +29,37 @@ body.jetpack_page_jetpack-activity-log {
 	flex: 1 1 auto;
 	padding: 0;
 
-	// On the free tier the table is hard-capped at 20 rows and the
-	// upsell callout renders directly below it. Stop the wrapper from
-	// stretching to viewport-fill (`flex: 1 1 auto`), and disarm
-	// `.dataviews-layout__container`'s `overflow: auto` so the table
-	// renders at content height instead of growing a private scrollbar
-	// inside the page's middle column. Net effect: the events list and
-	// the upsell flow as one continuous block, the page's outer scroll
-	// column is the only one the user ever sees. `!important` is
-	// load-bearing here: `jetpack-admin-page-layout`'s
-	// `.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) > *`
-	// rule force-applies `flex: 1 1 auto` to every direct child of the
-	// scroll column at higher specificity (one class + two `:not()`s),
-	// and the same chain forces `.dataviews-wrapper` into a flex-grow
-	// fill via `> *`. Without `!important` our rules lose the cascade.
-	&--free-tier {
-		flex: 0 0 auto !important;
+	// Free-tier visual: a teaser of the table dissolves into the upsell
+	// card sitting directly below it. The mask gradient softens the
+	// bottom edge of the events list so the transition reads as a
+	// single connected surface (rather than a hard cut between table
+	// and card). `mask-image` is the standard property; the
+	// `-webkit-` prefix keeps Safari ≤ 15.4 in line. Capping the
+	// container height at a fixed pixel value prevents the table from
+	// claiming the full inner height and pushing the upsell off-screen.
+	&--free-tier .dataviews-layout__container {
+		max-height: 280px;
+		overflow: hidden;
+		mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+		-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+	}
+
+	// On free tier, let DataViews size to its content (so it doesn't
+	// claim the full inner height via its own `height: 100%`) and let
+	// the inner wrapper carry the page's local scroll surface for short
+	// viewports. The fade + cap above keeps the natural total below
+	// most viewports, so this scroll rarely fires.
+	&--free-tier .jp-activity-log__inner {
+		overflow: auto;
 
 		> .dataviews-wrapper {
-			height: auto !important;
-			flex: 0 0 auto !important;
-		}
-
-		.dataviews-layout__container {
-			overflow: visible !important;
+			height: auto;
+			flex: 0 0 auto;
 		}
 	}
 
 	// DataViews renders its own surface; don't double-pad it.
-	> .dataviews-wrapper {
+	.dataviews-wrapper {
 		margin: 0;
 	}
 
