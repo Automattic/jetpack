@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Forms now uses the shared Gravatar component from the Jetpack design system.
+Update package dependencies.

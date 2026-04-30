@@ -1,4 +1,4 @@
 Significance: patch
-Type: removed
+Type: changed
 
-Drop the unused dependency on the Subscribers Dashboard package.
+Update package dependencies.

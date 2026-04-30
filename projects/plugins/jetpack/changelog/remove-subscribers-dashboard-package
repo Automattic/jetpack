@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Newsletter: drop the now-unused standalone Subscribers Dashboard package; subscribers live as a tab inside the Newsletter screen.
