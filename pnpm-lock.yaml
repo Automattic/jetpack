@@ -2595,8 +2595,8 @@ importers:
         specifier: 6.44.0
         version: 6.44.0
       '@wordpress/build':
-        specifier: 0.12.0
-        version: 0.12.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(browserslist@4.28.2)
+        specifier: 0.13.0
+        version: 0.13.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(browserslist@4.28.2)
       '@wordpress/date':
         specifier: 5.44.0
         version: 5.44.0
@@ -3494,8 +3494,8 @@ importers:
         specifier: 7.29.0
         version: 7.29.0
       '@wordpress/build':
-        specifier: 0.12.0
-        version: 0.12.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        specifier: 0.13.0
+        version: 0.13.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
       browserslist:
         specifier: 4.28.2
         version: 4.28.2
@@ -10403,15 +10403,15 @@ packages:
     resolution: {integrity: sha512-lYtkO7U7ok9RfRBIHWvVWXhcOys6cQuLfwFr1bGuPTE6+LmVHmRyniMnImZlG8Jb3XE4pvH8gXT1ecXogpDI2Q==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/build@0.12.0':
-    resolution: {integrity: sha512-PCwxVXEKGVjwZRRVGhl6jaiOXX4y3ENsUj7UFKFPC9Nna6ov9YOQvhM+1+87Wvqqlze9jAOAMU0cuUQ+WmntjQ==}
+  '@wordpress/build@0.13.0':
+    resolution: {integrity: sha512-a442H7Kh1hW1b9UH8DZzqLaxYAspe84/dWDRyep1R3YZFx2TcMCBs1tAF96xzvli5pN83PAN/gscv2DfNYBHyw==}
     engines: {node: '>=20.10.0', npm: '>=10.2.3'}
     hasBin: true
     peerDependencies:
-      '@wordpress/boot': '>=0.3.0'
+      '@wordpress/boot': '>=0.3.0 <1.0.0'
       '@wordpress/private-apis': ^1.0.0
-      '@wordpress/route': '>=0.2.0'
-      '@wordpress/theme': '>=0.3.0'
+      '@wordpress/route': '>=0.2.0 <1.0.0'
+      '@wordpress/theme': '>=0.8.0 <1.0.0'
     peerDependenciesMeta:
       '@wordpress/boot':
         optional: true
@@ -17413,10 +17413,12 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-to-istanbul@9.3.0:
@@ -23671,7 +23673,7 @@ snapshots:
 
   '@wordpress/browserslist-config@6.44.0': {}
 
-  '@wordpress/build@0.12.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(browserslist@4.28.2)':
+  '@wordpress/build@0.13.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       autoprefixer: 10.4.27(postcss@8.5.10)
@@ -23697,7 +23699,7 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.12.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.13.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       autoprefixer: 10.4.27(postcss@8.5.10)
