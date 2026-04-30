@@ -245,7 +245,8 @@ function render_block( $attr, $content ) {
  * @return string CSS rules joined into one string, or '' when no overrides are set.
  */
 function build_custom_styles( $attr, $scope ) {
-	$tab_padding = isset( $attr['tabPadding'] ) && is_array( $attr['tabPadding'] ) ? $attr['tabPadding'] : array();
+	$tab_padding    = isset( $attr['tabPadding'] ) && is_array( $attr['tabPadding'] ) ? $attr['tabPadding'] : array();
+	$button_padding = isset( $attr['buttonPadding'] ) && is_array( $attr['buttonPadding'] ) ? $attr['buttonPadding'] : array();
 
 	$groups = array(
 		array(
@@ -279,6 +280,16 @@ function build_custom_styles( $attr, $scope ) {
 				'color'            => $attr['selectedAmountTextColor'] ?? '',
 			),
 		),
+		array(
+			'selector'   => $scope . ' .donations__donate-button',
+			'properties' => array(
+				'font-size'      => $attr['buttonFontSize'] ?? '',
+				'padding-top'    => $button_padding['top'] ?? '',
+				'padding-right'  => $button_padding['right'] ?? '',
+				'padding-bottom' => $button_padding['bottom'] ?? '',
+				'padding-left'   => $button_padding['left'] ?? '',
+			),
+		),
 	);
 
 	$rules = array();
@@ -293,6 +304,14 @@ function build_custom_styles( $attr, $scope ) {
 		if ( $decls ) {
 			$rules[] = $group['selector'] . '{' . implode( ';', $decls ) . '}';
 		}
+	}
+
+	$button_alignment = $attr['buttonAlignment'] ?? '';
+	if ( in_array( $button_alignment, array( 'left', 'center', 'right' ), true ) ) {
+		$rules[] = $scope . ' .donations__donate-button-wrapper{text-align:' . $button_alignment . '}';
+	} elseif ( 'full' === $button_alignment ) {
+		$rules[] = $scope . ' .donations__donate-button-wrapper{display:block;width:100%}'
+			. $scope . ' .donations__donate-button{display:block;width:100%;box-sizing:border-box}';
 	}
 
 	return implode( '', $rules );

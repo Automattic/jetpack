@@ -134,6 +134,17 @@
 		},
 		"tabPadding": {
 			"type": "object"
+		},
+		"buttonFontSize": {
+			"type": "string"
+		},
+		"buttonPadding": {
+			"type": "object"
+		},
+		"buttonAlignment": {
+			"type": "string",
+			"enum": [ "", "left", "center", "right", "full" ],
+			"default": ""
 		}
 	},
 	"example": {}

@@ -4,7 +4,12 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
-import { BoxControl, PanelBody } from '@wordpress/components';
+import {
+	BoxControl,
+	PanelBody,
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const StyleControls = ( { attributes, setAttributes } ) => {
@@ -17,6 +22,9 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		selectedAmountTextColor,
 		tabFontSize,
 		tabPadding,
+		buttonFontSize,
+		buttonPadding,
+		buttonAlignment,
 	} = attributes;
 
 	return (
@@ -90,6 +98,33 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					onChange={ value => setAttributes( { tabPadding: value } ) }
 					__next40pxDefaultSize={ true }
 				/>
+			</PanelBody>
+			<PanelBody title={ __( 'Donate button', 'jetpack' ) } initialOpen={ false }>
+				<FontSizePicker
+					value={ buttonFontSize }
+					onChange={ value => setAttributes( { buttonFontSize: value } ) }
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
+				/>
+				<BoxControl
+					label={ __( 'Button padding', 'jetpack' ) }
+					values={ buttonPadding }
+					onChange={ value => setAttributes( { buttonPadding: value } ) }
+					__next40pxDefaultSize={ true }
+				/>
+				<ToggleGroupControl
+					label={ __( 'Button alignment', 'jetpack' ) }
+					value={ buttonAlignment || '' }
+					onChange={ value => setAttributes( { buttonAlignment: value || '' } ) }
+					isBlock
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+				>
+					<ToggleGroupControlOption value="left" label={ __( 'Left', 'jetpack' ) } />
+					<ToggleGroupControlOption value="center" label={ __( 'Center', 'jetpack' ) } />
+					<ToggleGroupControlOption value="right" label={ __( 'Right', 'jetpack' ) } />
+					<ToggleGroupControlOption value="full" label={ __( 'Full width', 'jetpack' ) } />
+				</ToggleGroupControl>
 			</PanelBody>
 		</InspectorControls>
 	);

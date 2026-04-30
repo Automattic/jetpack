@@ -6,6 +6,8 @@
  * @param {string} scope      - A CSS class selector (with leading dot) unique to this instance.
  * @return {string} CSS string suitable for a <style> element, or empty if no rules.
  */
+const ALLOWED_BUTTON_ALIGNMENTS = [ 'left', 'center', 'right', 'full' ];
+
 const buildCustomStyles = ( attributes, scope ) => {
 	const {
 		activeTabBackgroundColor,
@@ -16,6 +18,9 @@ const buildCustomStyles = ( attributes, scope ) => {
 		selectedAmountTextColor,
 		tabFontSize,
 		tabPadding,
+		buttonFontSize,
+		buttonPadding,
+		buttonAlignment,
 	} = attributes;
 
 	const rules = [];
@@ -68,6 +73,32 @@ const buildCustomStyles = ( attributes, scope ) => {
 	}
 	if ( selectedAmountDecls.length ) {
 		rules.push( `${ scope } .donations__amount.is-selected{${ selectedAmountDecls.join( ';' ) }}` );
+	}
+
+	const buttonDecls = [];
+	if ( buttonFontSize ) {
+		buttonDecls.push( `font-size:${ buttonFontSize }` );
+	}
+	if ( buttonPadding ) {
+		[ 'top', 'right', 'bottom', 'left' ].forEach( side => {
+			if ( buttonPadding[ side ] ) {
+				buttonDecls.push( `padding-${ side }:${ buttonPadding[ side ] }` );
+			}
+		} );
+	}
+	if ( buttonDecls.length ) {
+		rules.push( `${ scope } .donations__donate-button{${ buttonDecls.join( ';' ) }}` );
+	}
+
+	if ( ALLOWED_BUTTON_ALIGNMENTS.includes( buttonAlignment ) ) {
+		if ( buttonAlignment === 'full' ) {
+			rules.push(
+				`${ scope } .donations__donate-button-wrapper{display:block;width:100%}` +
+					`${ scope } .donations__donate-button{display:block;width:100%;box-sizing:border-box}`
+			);
+		} else {
+			rules.push( `${ scope } .donations__donate-button-wrapper{text-align:${ buttonAlignment }}` );
+		}
 	}
 
 	return rules.join( '' );
