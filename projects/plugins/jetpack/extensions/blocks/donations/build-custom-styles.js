@@ -47,22 +47,6 @@ const buildCustomStyles = ( attributes, scope ) => {
 		rules.push( `${ scope } .donations__nav-item{${ tabDecls.join( ';' ) }}` );
 	}
 
-	// In the "Buttons" style variation the nav container has its own vertical
-	// padding above the pill row. Mirror the user-set tab padding-top/bottom
-	// onto the nav so the row of pills scales with the pill interior padding.
-	if ( tabPadding ) {
-		const navDecls = [];
-		if ( tabPadding.top ) {
-			navDecls.push( `padding-top:${ tabPadding.top }` );
-		}
-		if ( tabPadding.bottom ) {
-			navDecls.push( `padding-bottom:${ tabPadding.bottom }` );
-		}
-		if ( navDecls.length ) {
-			rules.push( `${ scope }.is-style-buttons .donations__nav{${ navDecls.join( ';' ) }}` );
-		}
-	}
-
 	const activeTabDecls = [];
 	if ( activeTabBackgroundColor ) {
 		activeTabDecls.push( `background:${ activeTabBackgroundColor }` );

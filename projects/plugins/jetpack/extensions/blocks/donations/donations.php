@@ -317,22 +317,6 @@ function build_custom_styles( $attr, $scope ) {
 		$rules[] = $scope . ' .donations__nav,' . $scope . ' .donations__nav-item{border-color:' . $tab_border_safe . '}';
 	}
 
-	// In the "Buttons" style variation the nav container has its own vertical
-	// padding above the pill row. Mirror the user-set tab padding-top/bottom
-	// onto the nav so the row of pills scales with the pill interior padding.
-	$nav_decls = array();
-	$top_safe  = sanitize_css_value( $tab_padding['top'] ?? '' );
-	if ( '' !== $top_safe ) {
-		$nav_decls[] = 'padding-top:' . $top_safe;
-	}
-	$bottom_safe = sanitize_css_value( $tab_padding['bottom'] ?? '' );
-	if ( '' !== $bottom_safe ) {
-		$nav_decls[] = 'padding-bottom:' . $bottom_safe;
-	}
-	if ( $nav_decls ) {
-		$rules[] = $scope . '.is-style-buttons .donations__nav{' . implode( ';', $nav_decls ) . '}';
-	}
-
 	$button_alignment = $attr['buttonAlignment'] ?? '';
 	if ( in_array( $button_alignment, array( 'left', 'center', 'right' ), true ) ) {
 		$rules[] = $scope . ' .donations__donate-button-wrapper{text-align:' . $button_alignment . '}';

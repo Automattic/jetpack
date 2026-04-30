@@ -222,10 +222,11 @@ class Donations_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Buttons-style nav inherits user-set tab padding-top/bottom so the row scales
-	 * with the pill interior padding.
+	 * User-set tab padding only affects the pill interior; it must not also push
+	 * the buttons-style nav container's vertical padding (which controls the
+	 * space between the form border and the top of the pill row).
 	 */
-	public function test_build_custom_styles_buttons_nav_mirrors_tab_padding() {
+	public function test_build_custom_styles_tab_padding_does_not_touch_buttons_nav() {
 		$attr = array(
 			'tabPadding' => array(
 				'top'    => '8px',
@@ -238,16 +239,9 @@ class Donations_Test extends \WP_UnitTestCase {
 		$css = Donations\build_custom_styles( $attr, '.jp-donations-1' );
 
 		$this->assertStringContainsString(
-			'.jp-donations-1.is-style-buttons .donations__nav{padding-top:8px;padding-bottom:8px}',
+			'.jp-donations-1 .donations__nav-item{padding-top:8px;padding-right:20px;padding-bottom:8px;padding-left:20px}',
 			$css
 		);
-	}
-
-	/**
-	 * Without a top or bottom user value, no buttons-style nav rule is emitted.
-	 */
-	public function test_build_custom_styles_no_buttons_nav_rule_without_user_padding() {
-		$css = Donations\build_custom_styles( array(), '.jp-donations-1' );
 		$this->assertStringNotContainsString( 'is-style-buttons', $css );
 	}
 
