@@ -17,6 +17,7 @@ import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
 import { DateRangePicker } from '../DateRangePicker';
 import { formatYmd, parseYmdLocal } from '../DateRangePicker/datetime';
+import { FreeTierToolbar } from './FreeTierToolbar';
 import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
@@ -328,8 +329,10 @@ export default function ActivityLog() {
 
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's
-	// layout for the logs pages.
-	const headerActions = hasActivityLogsAccess ? (
+	// layout for the logs pages. On free tier the picker renders as a
+	// disabled upgrade affordance (no popover, hover tooltip), keeping
+	// the page surface visually consistent with the paid version.
+	const headerActions = (
 		<DateRangePicker
 			start={ dateRange.start }
 			end={ dateRange.end }
@@ -337,8 +340,10 @@ export default function ActivityLog() {
 			timezoneString={ timezoneString }
 			gmtOffset={ gmtOffset }
 			locale={ locale }
+			disabled={ ! hasActivityLogsAccess }
+			disabledTooltipText={ __( 'Upgrade your plan to use this feature.', 'jetpack-activity-log' ) }
 		/>
-	) : undefined;
+	);
 
 	return (
 		<AdminPage
@@ -379,10 +384,11 @@ export default function ActivityLog() {
 					onChangeView={ onChangeView }
 					onReset={ isViewModified ? onResetView : false }
 					// On the free tier, lock the perPage selector to the
-					// capped size and hide search/filters/sort/view-config
-					// by replacing the default UI with just the table (same
-					// switches Calypso uses at logs-activity/dataviews/
-					// index.tsx:201-208).
+					// capped size. Search/filters/sort stay visible but
+					// disabled via `<FreeTierToolbar>` below — Calypso's
+					// equivalent switch at logs-activity/dataviews/
+					// index.tsx:201-208 hides them, but we want the
+					// upgrade affordance to be discoverable on hover.
 					config={
 						hasActivityLogsAccess
 							? undefined
@@ -396,7 +402,12 @@ export default function ActivityLog() {
 						</p>
 					}
 				>
-					{ hasActivityLogsAccess ? undefined : <DataViews.Layout /> }
+					{ hasActivityLogsAccess ? undefined : (
+						<>
+							<FreeTierToolbar />
+							<DataViews.Layout />
+						</>
+					) }
 				</DataViews>
 				{ ! hasActivityLogsAccess && ! isFetching && logData.length > 0 && <UpsellCallout /> }
 			</div>

@@ -1,0 +1,37 @@
+// Visual mirror of DataViews' default `dataviews__view-actions` Stack
+// (see @wordpress/dataviews build-module/dataviews/index.mjs). Keeping
+// the gap / flex shape in lock-step here means the disabled free-tier
+// toolbar lines up pixel-for-pixel with the real toolbar on paid tier
+// — so the page doesn't visually shift the day a user upgrades.
+.jp-activity-log__free-toolbar {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 4px;
+}
+
+.jp-activity-log__free-toolbar-primary {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 8px;
+}
+
+.jp-activity-log__free-toolbar-actions {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 4px;
+	flex-shrink: 0;
+}
+
+// `<Tooltip>` clones its child's ref to attach pointer listeners. When
+// the child is a `<SearchControl>` whose root <div> is `disabled`-styled
+// the listeners still fire because hover bubbles up; this wrapper just
+// keeps the ref target small so the tooltip anchors against the input,
+// not the surrounding flex track.
+.jp-activity-log__free-toolbar-search {
+	display: inline-block;
+}

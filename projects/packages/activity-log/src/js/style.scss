@@ -5,6 +5,7 @@
 // that way they live in the same emitted chunk as the wrapper rules
 // below and can't get dropped by chunk splitting.
 @use "./components/ActivityLog/upsell-callout";
+@use "./components/ActivityLog/free-tier-toolbar";
 
 // DataViews is a bundled (not externalized) @wordpress package in
 // jetpack-webpack-config, so its stylesheet must be brought in alongside

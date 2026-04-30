@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Activity Log: default the page to the Table layout and fix the free-tier upsell callout's flex layout.
+Activity Log: default the page to the Table layout, fix the free-tier upsell callout layout, and surface the disabled toolbar + disabled date-range picker on the free tier with upgrade tooltips.
