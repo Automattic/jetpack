@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Backup: Wire the file-browser onTrackEvent prop to a real `useAnalytics().tracks.recordEvent` call so Calypso's existing browser tracks events (`jetpack_backup_browser_view_file`, `jetpack_backup_browser_download`, `jetpack_backup_browser_preview_file`, `jetpack_backup_browser_preview_file_sensitive_click`) actually fire from the new admin overview.

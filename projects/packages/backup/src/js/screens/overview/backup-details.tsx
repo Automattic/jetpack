@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router';
 import { initiateBackupDownload } from '../../data/fetchers';
 import { gridiconToWordPressIcon } from '../../data/gridicons';
 import { useFormattedTime } from '../../data/use-formatted-time';
+import { useTrackEvent } from '../../data/use-track-event';
 import { JetpackBackupRoutes } from '../../routes';
 import FileBrowser from './file-browser';
 import { useFileBrowserContext } from './file-browser/file-browser-context';
@@ -59,6 +60,7 @@ const ComingSoonButton: FC< ComingSoonButtonProps > = ( { variant, icon, childre
 const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 	const navigate = useNavigate();
 	const { fileBrowserState } = useFileBrowserContext();
+	const trackEvent = useTrackEvent();
 	const rewindIdNum = Number( backup.rewind_id );
 	const { totalItems: selectedFilesCount } = fileBrowserState.getCheckList( rewindIdNum );
 	const hasSelectedFiles = selectedFilesCount > 0;
@@ -158,7 +160,11 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 							<div className={ styles.fileBrowserSectionTitle }>
 								{ __( 'Files', 'jetpack-backup-pkg' ) }
 							</div>
-							<FileBrowser key={ backup.rewind_id } rewindId={ backup.rewind_id } />
+							<FileBrowser
+								key={ backup.rewind_id }
+								rewindId={ backup.rewind_id }
+								onTrackEvent={ trackEvent }
+							/>
 						</div>
 					) }
 				</div>
