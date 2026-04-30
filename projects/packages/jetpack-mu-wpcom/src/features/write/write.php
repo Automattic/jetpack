@@ -404,16 +404,18 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				class="bw-image-url-input"
 				placeholder="<?php echo esc_attr__( 'Paste an image URL...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageUrl"
+				data-wp-bind--value="state.imageUrl"
 			/>
 			<input
 				type="text"
 				class="bw-image-url-input"
 				placeholder="<?php echo esc_attr__( 'Alt text (describe the image)...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageAlt"
+				data-wp-bind--value="state.imageAlt"
 				style="margin-top:12px;"
 			/>
 			<label class="bw-featured-toggle">
-				<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" />
+				<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" data-wp-bind--checked="state.setAsFeatured" />
 				<span><?php echo esc_html__( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
 			</label>
 			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertImageFromUrl" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
@@ -466,6 +468,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				placeholder="<?php echo esc_attr__( 'Paste a YouTube or Vimeo URL...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateVideoUrl"
 				data-wp-on--keydown="actions.handleVideoKeyDown"
+				data-wp-bind--value="state.videoUrl"
 			/>
 			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertVideoEmbed" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Embed video', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
