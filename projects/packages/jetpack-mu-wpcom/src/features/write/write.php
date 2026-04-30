@@ -216,7 +216,7 @@ function wpcom_write_render_admin_page() {
 		Common\wpcom_record_tracks_event(
 			'wpcom_write_editor_open',
 			array(
-				'is_new_post' => 0 === $edit_post_id,
+				'is_new_post' => (int) ( 0 === $edit_post_id ),
 				'source'      => $source,
 			)
 		);
