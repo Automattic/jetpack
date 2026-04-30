@@ -13,7 +13,12 @@ export type NewsletterTab = 'subscribers' | 'settings';
 type Props = {
 	activeTab: NewsletterTab;
 	actions?: ReactNode;
-	hasPadding?: boolean;
+	/**
+	 * Whether the active tab's CONTENT should sit inside a horizontally-padded
+	 * container. The tab nav itself is always padded the same way regardless
+	 * of this prop, so the bar doesn't shift between Subscribers and Settings.
+	 */
+	contentHasPadding?: boolean;
 	children: ReactNode;
 };
 
@@ -30,27 +35,27 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
 
 /**
  * Shared chrome for the unified Newsletter page — owns the `Page` from
- * `@wordpress/admin-ui` plus the Subscribers / Settings tab nav. Each
- * route's stage renders its content as `children`; the shell handles the
- * title (Jetpack mark + product name), subtitle, actions slot, and tab
- * routing.
+ * `@wordpress/admin-ui` plus the Subscribers / Settings tab nav. The shell
+ * always passes `hasPadding={ false }` to `Page` and applies its own padding
+ * to the tab bar + content via `newsletter-page.scss`, so the bar holds a
+ * consistent position no matter which tab is active.
  *
  * The Subscribers tab is hidden when
  * `jetpack_wp_admin_subscriber_management_enabled` is filtered to false
  * (server-side), keeping the page Settings-only on hosts that defer
  * subscriber management to Calypso.
  *
- * @param props            - Component props.
- * @param props.activeTab  - Which tab the current route represents.
- * @param props.actions    - Optional actions slot (top-right of the Page header).
- * @param props.hasPadding - Whether `Page` should apply its default content padding.
- * @param props.children   - Tab content.
+ * @param props                   - Component props.
+ * @param props.activeTab         - Which tab the current route represents.
+ * @param props.actions           - Optional actions slot (top-right of the Page header).
+ * @param props.contentHasPadding - Whether the active tab's content gets the page's horizontal padding (defaults to true).
+ * @param props.children          - Tab content.
  * @return The unified Newsletter page shell.
  */
 export default function NewsletterPage( {
 	activeTab,
 	actions,
-	hasPadding = true,
+	contentHasPadding = true,
 	children,
 }: Props ): JSX.Element {
 	const navigate = useNavigate();
@@ -74,31 +79,38 @@ export default function NewsletterPage( {
 		</Stack>
 	);
 
+	const contentClass = contentHasPadding
+		? 'jetpack-newsletter-page__content jetpack-newsletter-page__content--padded'
+		: 'jetpack-newsletter-page__content';
+
+	const renderActiveContent = ( tab: NewsletterTab ) =>
+		activeTab === tab ? <div className={ contentClass }>{ children }</div> : null;
+
 	return (
 		<Page
 			title={ title }
 			ariaLabel={ PRODUCT_NAME }
 			subTitle={ SUBTITLES[ activeTab ]() }
 			actions={ actions }
-			hasPadding={ hasPadding }
+			hasPadding={ false }
 		>
 			{ subscribersEnabled ? (
 				<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-					<Tabs.List variant="minimal">
+					<Tabs.List variant="minimal" className="jetpack-newsletter-page__tablist">
 						<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
 					</Tabs.List>
 					{ /* Each tab needs a matching Panel (WAI-ARIA pattern). The content
 					     is route-driven, so the inactive Panel just stays empty. */ }
 					<Tabs.Panel value="subscribers" focusable={ false }>
-						{ activeTab === 'subscribers' ? children : null }
+						{ renderActiveContent( 'subscribers' ) }
 					</Tabs.Panel>
 					<Tabs.Panel value="settings" focusable={ false }>
-						{ activeTab === 'settings' ? children : null }
+						{ renderActiveContent( 'settings' ) }
 					</Tabs.Panel>
 				</Tabs.Root>
 			) : (
-				children
+				<div className={ contentClass }>{ children }</div>
 			) }
 		</Page>
 	);

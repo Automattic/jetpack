@@ -76,7 +76,7 @@ export default function App(): JSX.Element {
 				<NewsletterPage
 					activeTab="subscribers"
 					actions={ <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } /> }
-					hasPadding={ false }
+					contentHasPadding={ false }
 				>
 					<SubscribersDataViews
 						onAddSubscribers={ openAdd }
