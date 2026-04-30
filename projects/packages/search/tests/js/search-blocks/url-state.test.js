@@ -65,6 +65,36 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'category[]' ) ).toBe( false );
 		expect( params.getAll( 'authors[]' ) ).toEqual( [ 'jane' ] );
 	} );
+
+	it( 'serializes priceRange bounds to min_price/max_price', () => {
+		const params = stateToUrlParams( {
+			searchQuery: 'shoes',
+			sortOrder: 'relevance',
+			priceRange: { min: 10, max: 50 },
+		} );
+		expect( params.get( 'min_price' ) ).toBe( '10' );
+		expect( params.get( 'max_price' ) ).toBe( '50' );
+	} );
+
+	it( 'omits the absent bound when priceRange is half-open', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			priceRange: { min: 10, max: null },
+		} );
+		expect( params.get( 'min_price' ) ).toBe( '10' );
+		expect( params.has( 'max_price' ) ).toBe( false );
+	} );
+
+	it( 'omits both price params when priceRange is null', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			priceRange: null,
+		} );
+		expect( params.has( 'min_price' ) ).toBe( false );
+		expect( params.has( 'max_price' ) ).toBe( false );
+	} );
 } );
 
 describe( 'urlParamsToState', () => {
@@ -202,6 +232,11 @@ describe( 'urlParamsToState: priceRange', () => {
 	it( 'accepts equal bounds (min === max) as a single-value range', () => {
 		const state = urlParamsToState( new URLSearchParams( '?min_price=42&max_price=42' ) );
 		expect( state.priceRange ).toEqual( { min: 42, max: 42 } );
+	} );
+
+	it( 'accepts min_price=0 (free products are a valid lower bound)', () => {
+		const state = urlParamsToState( new URLSearchParams( '?min_price=0' ) );
+		expect( state.priceRange ).toEqual( { min: 0, max: null } );
 	} );
 
 	it( 'never treats min_price/max_price as filter keys', () => {

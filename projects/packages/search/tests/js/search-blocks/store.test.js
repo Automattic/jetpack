@@ -127,6 +127,7 @@ describe( 'store actions', () => {
 			homeUrl: 'https://example.com',
 			activeFilters: {},
 			filterConfigs: {},
+			priceRange: null,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,

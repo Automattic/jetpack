@@ -396,12 +396,12 @@ class Search_Blocks {
 		// derives it from the raw URL params, so a URL that carried only
 		// unregistered `?foo[]=bar` params (e.g. from another plugin) would
 		// leave isLoading=true after gating emptied activeFilters — and since
-		// the JS `initialize()` only fires a search when `searchQuery` or
-		// `hasActiveFilters` is truthy, neither would fire, the spinner would
+		// the JS `initialize()` only fires a search when `searchQuery`,
+		// `hasActiveFilters`, or `priceRange` is truthy, the spinner would
 		// never clear.
 		$state['isLoading'] = '' !== $state['searchQuery']
 			|| ! empty( $state['activeFilters'] )
-			|| null !== ( $state['priceRange'] ?? null );
+			|| null !== $state['priceRange'];
 		return $state;
 	}
 

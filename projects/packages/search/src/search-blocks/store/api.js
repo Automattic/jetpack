@@ -304,6 +304,8 @@ export function buildSearchUrl( {
 		params.aggregations = aggregations;
 	}
 
+	// `buildFilterClause` returns either `{ bool: { must: [...] } }` or
+	// `undefined` — the spread below relies on that shape contract.
 	let filter = buildFilterClause( activeFilters, filterConfigs );
 	if ( priceRange && ( priceRange.min != null || priceRange.max != null ) ) {
 		const range = {};
