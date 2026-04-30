@@ -214,6 +214,7 @@ const InstantSearchToggle = ( {
 			{ supportsInstantSearch && (
 				<InstantSearchButtons
 					isInstantSearchCustomizeButtonDisabled={ isInstantSearchCustomizeButtonDisabled }
+					isInstantSearchEnabled={ isInstantSearchEnabled }
 					isWidgetsEditorButtonDisabled={ isWidgetsEditorButtonDisabled }
 					returnUrl={ returnUrl }
 					themeSupportsWidgets={ themeSupportsWidgets }
@@ -225,10 +226,12 @@ const InstantSearchToggle = ( {
 
 const InstantSearchButtons = ( {
 	isInstantSearchCustomizeButtonDisabled,
+	isInstantSearchEnabled,
 	isWidgetsEditorButtonDisabled,
 	returnUrl,
 	themeSupportsWidgets,
 } ) => {
+	const showWidgetsEditorButton = themeSupportsWidgets && isInstantSearchEnabled;
 	return (
 		<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 			<Button
@@ -243,7 +246,7 @@ const InstantSearchButtons = ( {
 			>
 				<span>{ __( 'Customize search results', 'jetpack-search-pkg' ) }</span>
 			</Button>
-			{ themeSupportsWidgets && (
+			{ showWidgetsEditorButton && (
 				<>
 					<div className="lg-col-span-0 md-col-span-1 sm-col-span-0"></div>
 
