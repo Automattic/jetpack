@@ -79,6 +79,25 @@ function register_ai_agents_setting() {
 }
 add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
 
+/**
+ * Add the AI Agent Access setting to Jetpack Sync's option whitelist.
+ *
+ * Atomic and self-hosted Jetpack sites write `jetpack_ai_agents_enabled`
+ * locally via /wp/v2/settings, while the WP.com-hosted ability checks the
+ * mirrored option before answering reader questions. Syncing the option keeps
+ * the local toggle and ability permission gate aligned.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $options Option names allowed to sync.
+ * @return array Updated option names.
+ */
+function add_ai_agents_sync_options_whitelist( array $options ): array {
+	$options[] = 'jetpack_ai_agents_enabled';
+	return array_values( array_unique( $options ) );
+}
+add_filter( 'jetpack_sync_options_whitelist', __NAMESPACE__ . '\add_ai_agents_sync_options_whitelist' );
+
 // Populate the available extensions with ai-assistant-plugin.
 add_filter(
 	'jetpack_set_available_extensions',
