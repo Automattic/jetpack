@@ -77,7 +77,6 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 											title={ item.title || '' }
 											onClick={ item.onClick || undefined }
 											onKeyDown={ item.onKeyDown || undefined }
-											role="button"
 										/>
 									) : (
 										<Link
