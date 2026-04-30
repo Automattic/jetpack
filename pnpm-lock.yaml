@@ -557,6 +557,9 @@ importers:
       '@babel/runtime':
         specifier: ^7
         version: 7.29.2
+      '@gravatar-com/hovercards':
+        specifier: 0.16.0
+        version: 0.16.0
       '@wordpress/admin-ui':
         specifier: 1.12.0
         version: 1.12.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
@@ -596,6 +599,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      js-sha256:
+        specifier: 0.11.1
+        version: 0.11.1
       prop-types:
         specifier: ^15.7.2
         version: 15.8.1
@@ -2407,9 +2413,6 @@ importers:
       '@automattic/request-external-access':
         specifier: 1.0.1
         version: 1.0.1
-      '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
       '@wordpress/admin-ui':
         specifier: 1.12.0
         version: 1.12.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
@@ -2506,9 +2509,6 @@ importers:
       gridicons:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
-      js-sha256:
-        specifier: 0.11.1
-        version: 0.11.1
       libphonenumber-js:
         specifier: 1.12.42
         version: 1.12.42
@@ -4000,15 +4000,15 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
       '@automattic/jetpack-wp-build-polyfills':
         specifier: workspace:*
         version: link:../wp-build-polyfills
-      '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
       '@tanstack/react-query':
         specifier: 5.90.8
         version: 5.90.8(react@18.3.1)
@@ -4063,9 +4063,6 @@ importers:
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0
-      js-sha256:
-        specifier: 0.11.1
-        version: 0.11.1
     devDependencies:
       '@babel/core':
         specifier: 7.29.0

@@ -4,7 +4,7 @@
 	"private": true,
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
-		"@gravatar-com/hovercards": "0.16.0",
+		"@automattic/jetpack-components": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
 		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "1.12.0",
@@ -19,8 +19,7 @@
 		"@wordpress/notices": "5.44.0",
 		"@wordpress/route": "0.10.0",
 		"@wordpress/theme": "0.11.0",
-		"@wordpress/ui": "0.11.0",
-		"js-sha256": "0.11.1"
+		"@wordpress/ui": "0.11.0"
 	},
 	"route": {
 		"path": "/",

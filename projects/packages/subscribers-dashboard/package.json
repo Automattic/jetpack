@@ -39,9 +39,9 @@
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/format-currency": "1.0.1",
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
-		"@gravatar-com/hovercards": "0.16.0",
 		"@tanstack/react-query": "5.90.8",
 		"@wordpress/admin-ui": "1.12.0",
 		"@wordpress/api-fetch": "7.44.0",
@@ -59,8 +59,7 @@
 		"@wordpress/route": "0.10.0",
 		"@wordpress/theme": "0.11.0",
 		"@wordpress/ui": "0.11.0",
-		"@wordpress/url": "4.44.0",
-		"js-sha256": "0.11.1"
+		"@wordpress/url": "4.44.0"
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",

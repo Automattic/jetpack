@@ -1,3 +1,4 @@
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -10,7 +11,6 @@ import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
 import EmptyState from './empty-state';
-import Gravatar from './gravatar';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews/wp';

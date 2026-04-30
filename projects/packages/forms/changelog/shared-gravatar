@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the shared Gravatar component from @automattic/jetpack-components. The local Forms-only Gravatar implementation is removed; @gravatar-com/hovercards and js-sha256 dependencies move with it.

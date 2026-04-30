@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import {
 	ExternalLink,
 	Tooltip,
@@ -16,7 +17,6 @@ import { Badge } from '@wordpress/ui';
  * Internal dependencies
  */
 import CopyClipboardButton from '../../../components/copy-clipboard-button/index.tsx';
-import Gravatar from '../../../components/gravatar/index.tsx';
 import { getPath } from '../../../inbox/utils.js';
 import TextWithFlag from '../../text-with-flag/index.tsx';
 import type { FormResponse } from '../../../../types/index.ts';

@@ -1,3 +1,4 @@
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -6,7 +7,6 @@ import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscri
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../../lib/subscription-status';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
-import Gravatar from '../gravatar';
 import type { Subscriber } from '../../data/types';
 
 type Props = {

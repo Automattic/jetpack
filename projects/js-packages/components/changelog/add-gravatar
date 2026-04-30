@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Gravatar component (lifted from the Forms package) so any consumer can drop a Gravatar avatar with a profile hovercard via @automattic/jetpack-components.

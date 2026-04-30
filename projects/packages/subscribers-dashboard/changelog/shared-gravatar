@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the shared Gravatar component from @automattic/jetpack-components instead of a local copy.
