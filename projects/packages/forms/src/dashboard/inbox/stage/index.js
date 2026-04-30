@@ -362,7 +362,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 									const previewLabel = __( 'Form preview', 'jetpack-forms' );
 									if ( item.preview_url ) {
 										return (
-											<Link openInNewTab href={ item.preview_url }>
+											<Link href={ item.preview_url } openInNewTab>
 												{ wrapperUnread( item.is_unread, previewLabel ) }
 											</Link>
 										);
@@ -373,7 +373,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 									return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
 								}
 								return (
-									<Link openInNewTab href={ item.entry_permalink }>
+									<Link href={ item.entry_permalink } openInNewTab>
 										{ wrapperUnread(
 											item.is_unread,
 											decodeEntities( item.entry_title ) || getPath( item )

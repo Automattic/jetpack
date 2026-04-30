@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace `ExternalLink` and bare `<a href>` usages with `Link` component from `@wordpress/ui`.

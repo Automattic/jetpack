@@ -85,7 +85,7 @@ const NotificationsSettings = ( {
 							pushNotificationsLink: isWpcom ? (
 								<WpcomSupportLink supportLink={ wpcomSupportLink } />
 							) : (
-								<Link openInNewTab href={ jetpackSupportLink } />
+								<Link href={ jetpackSupportLink } openInNewTab />
 							),
 						}
 					) }

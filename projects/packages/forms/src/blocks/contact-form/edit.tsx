@@ -1249,7 +1249,7 @@ function JetpackContactFormEdit( {
 						__next40pxDefaultSize={ true }
 					/>
 					<p>
-						<Link openInNewTab href="https://developer.mozilla.org/docs/Glossary/Accessible_name">
+						<Link href="https://developer.mozilla.org/docs/Glossary/Accessible_name" openInNewTab>
 							{ __( 'Read more.', 'jetpack-forms' ) }
 						</Link>
 					</p>

@@ -52,8 +52,8 @@ export function buildHostingerReachCard( {
 				{
 					a: (
 						<Link
-							openInNewTab
 							href={ ( integration.marketingUrl as string ) || '' }
+							openInNewTab
 							children={ null }
 						/>
 					),
@@ -69,7 +69,7 @@ export function buildHostingerReachCard( {
 		body: ! isConnected ? (
 			<>
 				<p className="integration-card__description">
-					<Link openInNewTab href={ settingsUrl }>
+					<Link href={ settingsUrl } openInNewTab>
 						{ __(
 							'Hostinger Reach is active. There is one step left. Please complete Hostinger Reach setup.',
 							'jetpack-forms'
@@ -117,7 +117,7 @@ export function buildHostingerReachCard( {
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
 				{ settingsUrl && (
 					<p className="integration-card__description">
-						<Link openInNewTab href={ settingsUrl }>
+						<Link href={ settingsUrl } openInNewTab>
 							{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
 						</Link>
 					</p>

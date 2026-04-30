@@ -82,7 +82,7 @@ export function buildSalesforceCard( {
 						</HelpMessage>
 					) }
 					<p>
-						<Link openInNewTab href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
+						<Link href="https://help.salesforce.com/s/articleView?id=000325251&type=1" openInNewTab>
 							{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
 						</Link>
 					</p>

@@ -59,7 +59,7 @@ export function buildMailPoetCard( {
 					'Add powerful email marketing to your forms with <a>MailPoet</a>. Simply install the plugin to start sending emails.',
 					'jetpack-forms'
 				),
-				{ a: <Link openInNewTab href={ marketingUrl } children={ null } /> }
+				{ a: <Link href={ marketingUrl } openInNewTab children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'MailPoet is installed. Just activate the plugin to start sending emails.',
@@ -76,7 +76,7 @@ export function buildMailPoetCard( {
 							'MailPoet is active. There is one step left. Please complete <a>MailPoet setup</a>.',
 							'jetpack-forms'
 						),
-						{ a: <Link openInNewTab href={ settingsUrl } children={ null } /> }
+						{ a: <Link href={ settingsUrl } openInNewTab children={ null } /> }
 					) }
 				</p>
 				<HStack spacing="3" justify="start">
@@ -124,7 +124,7 @@ export function buildMailPoetCard( {
 				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
 				{ settingsUrl && (
 					<p className="integration-card__description">
-						<Link openInNewTab href={ settingsUrl }>
+						<Link href={ settingsUrl } openInNewTab>
 							{ __( 'View dashboard', 'jetpack-forms' ) }
 						</Link>
 					</p>

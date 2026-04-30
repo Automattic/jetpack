@@ -39,7 +39,7 @@ export function buildAkismetCard( {
 					"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
 					'jetpack-forms'
 				),
-				{ a: <Link openInNewTab href={ marketingUrl } children={ null } /> }
+				{ a: <Link href={ marketingUrl } openInNewTab children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'Akismet is installed. Just activate the plugin to start blocking spam.',
@@ -56,7 +56,7 @@ export function buildAkismetCard( {
 							'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 							'jetpack-forms'
 						),
-						{ a: <Link openInNewTab href={ settingsUrl } children={ null } /> }
+						{ a: <Link href={ settingsUrl } openInNewTab children={ null } /> }
 					) }
 				</p>
 				<Button
@@ -93,7 +93,7 @@ export function buildAkismetCard( {
 							<span>|</span>
 						</>
 					) }
-					<Link openInNewTab href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
+					<Link href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) } openInNewTab>
 						{ __( 'Learn about Akismet', 'jetpack-forms' ) }
 					</Link>
 				</HStack>
