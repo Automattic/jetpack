@@ -1,10 +1,12 @@
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscriber-details';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../../lib/subscription-status';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
+import Gravatar from '../gravatar';
 import type { Subscriber } from '../../data/types';
 
 type Props = {
@@ -47,7 +49,9 @@ function DetailRow( {
 	}
 	return (
 		<div className="jetpack-subscribers-dashboard__detail-row">
-			<span className="jetpack-subscribers-dashboard__detail-row-label">{ label }</span>
+			<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-row-label">
+				{ label }
+			</Text>
 			<span className="jetpack-subscribers-dashboard__detail-row-value">{ value }</span>
 		</div>
 	);
@@ -78,35 +82,42 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 
 	if ( detailsQuery.isLoading || ! subscriber ) {
 		return (
-			<div className="jetpack-subscribers-dashboard__detail-loading">
+			<Stack
+				direction="row"
+				align="center"
+				justify="center"
+				className="jetpack-subscribers-dashboard__detail-loading"
+			>
 				<Spinner />
-			</div>
+			</Stack>
 		);
 	}
 
+	const showEmail =
+		!! subscriber.email_address && subscriber.email_address !== subscriber.display_name;
+
 	return (
-		<>
-			<div className="jetpack-subscribers-dashboard__detail-header">
-				{ subscriber.avatar ? (
-					<img
+		<Stack direction="column" gap="lg">
+			<Stack direction="row" align="center" gap="md">
+				{ subscriber.email_address ? (
+					<Gravatar
+						email={ subscriber.email_address }
+						displayName={ subscriber.display_name }
+						size={ 64 }
 						className="jetpack-subscribers-dashboard__detail-avatar"
-						src={ subscriber.avatar }
-						alt=""
-						width={ 64 }
-						height={ 64 }
 					/>
 				) : null }
-				<div>
-					<div className="jetpack-subscribers-dashboard__detail-name">
+				<Stack direction="column" gap="xs">
+					<Text variant="heading-md" render={ <h2 /> }>
 						{ subscriber.display_name || subscriber.email_address }
-					</div>
-					{ subscriber.email_address && subscriber.email_address !== subscriber.display_name ? (
-						<p className="jetpack-subscribers-dashboard__detail-email">
+					</Text>
+					{ showEmail ? (
+						<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-email">
 							{ subscriber.email_address }
-						</p>
+						</Text>
 					) : null }
-				</div>
-			</div>
+				</Stack>
+			</Stack>
 
 			<div className="jetpack-subscribers-dashboard__detail-grid">
 				<DetailRow
@@ -137,42 +148,48 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 				/>
 			</div>
 
-			<h3 className="jetpack-subscribers-dashboard__detail-section-title">
-				{ __( 'Engagement', 'jetpack-subscribers-dashboard' ) }
-			</h3>
-			<div className="jetpack-subscribers-dashboard__detail-stats">
-				{ statsQuery.isLoading ? (
-					<Spinner />
-				) : (
-					<>
-						<DetailRow
-							label={ __( 'Emails sent', 'jetpack-subscribers-dashboard' ) }
-							value={ stats?.emails_sent ?? 0 }
-						/>
-						<DetailRow
-							label={ __( 'Unique opens', 'jetpack-subscribers-dashboard' ) }
-							value={ stats?.unique_opens ?? 0 }
-						/>
-						<DetailRow
-							label={ __( 'Unique clicks', 'jetpack-subscribers-dashboard' ) }
-							value={ stats?.unique_clicks ?? 0 }
-						/>
-					</>
-				) }
-			</div>
+			<Stack direction="column" gap="sm">
+				<Text
+					variant="heading-sm"
+					render={ <h3 /> }
+					className="jetpack-subscribers-dashboard__detail-section-title"
+				>
+					{ __( 'Engagement', 'jetpack-subscribers-dashboard' ) }
+				</Text>
+				<div className="jetpack-subscribers-dashboard__detail-grid">
+					{ statsQuery.isLoading ? (
+						<Spinner />
+					) : (
+						<>
+							<DetailRow
+								label={ __( 'Emails sent', 'jetpack-subscribers-dashboard' ) }
+								value={ stats?.emails_sent ?? 0 }
+							/>
+							<DetailRow
+								label={ __( 'Unique opens', 'jetpack-subscribers-dashboard' ) }
+								value={ stats?.unique_opens ?? 0 }
+							/>
+							<DetailRow
+								label={ __( 'Unique clicks', 'jetpack-subscribers-dashboard' ) }
+								value={ stats?.unique_clicks ?? 0 }
+							/>
+						</>
+					) }
+				</div>
+			</Stack>
 
 			{ stats?.blog_registration_date ? (
-				<p className="jetpack-subscribers-dashboard__detail-meta">
+				<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-meta">
 					{ sprintf(
 						// translators: %s: date the subscriber registered with the blog.
 						__( 'Joined %s.', 'jetpack-subscribers-dashboard' ),
 						formatDate( stats.blog_registration_date )
 					) }
-				</p>
+				</Text>
 			) : null }
 
 			{ stats && ( stats.emails_sent ?? 0 ) > 0 && typeof stats.unique_opens === 'number' ? (
-				<p className="jetpack-subscribers-dashboard__detail-meta">
+				<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-meta">
 					{ sprintf(
 						// translators: %1$d: emails sent. %2$d: unique opens.
 						_n(
@@ -184,8 +201,8 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						stats.emails_sent ?? 0,
 						stats.unique_opens ?? 0
 					) }
-				</p>
+				</Text>
 			) : null }
-		</>
+		</Stack>
 	);
 }

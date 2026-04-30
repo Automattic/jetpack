@@ -3997,15 +3997,18 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
-      '@automattic/jetpack-components':
-        specifier: workspace:*
-        version: link:../../js-packages/components
+      '@automattic/format-currency':
+        specifier: 1.0.1
+        version: 1.0.1
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
       '@automattic/jetpack-wp-build-polyfills':
         specifier: workspace:*
         version: link:../wp-build-polyfills
+      '@gravatar-com/hovercards':
+        specifier: 0.16.0
+        version: 0.16.0
       '@tanstack/react-query':
         specifier: 5.90.8
         version: 5.90.8(react@18.3.1)
@@ -4036,6 +4039,9 @@ importers:
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
+      '@wordpress/hooks':
+        specifier: 4.44.0
+        version: 4.44.0
       '@wordpress/i18n':
         specifier: 6.17.0
         version: 6.17.0
@@ -4048,9 +4054,18 @@ importers:
       '@wordpress/route':
         specifier: 0.10.0
         version: 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0
+      js-sha256:
+        specifier: 0.11.1
+        version: 0.11.1
     devDependencies:
       '@babel/core':
         specifier: 7.29.0
@@ -4081,7 +4096,7 @@ importers:
         version: 6.44.0
       '@wordpress/build':
         specifier: 0.12.0
-        version: 0.12.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.12.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(browserslist@4.28.2)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
@@ -23764,7 +23779,7 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.12.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.12.0(@babel/core@7.29.0)(@wordpress/boot@0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       autoprefixer: 10.4.27(postcss@8.5.10)
@@ -23784,6 +23799,7 @@ snapshots:
     optionalDependencies:
       '@wordpress/boot': 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
       '@wordpress/route': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
     transitivePeerDependencies:
       - '@babel/core'
       - browserslist

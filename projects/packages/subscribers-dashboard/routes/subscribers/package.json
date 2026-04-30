@@ -3,6 +3,8 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
+		"@automattic/format-currency": "1.0.1",
+		"@gravatar-com/hovercards": "0.16.0",
 		"@tanstack/react-query": "5.90.8",
 		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "1.12.0",
@@ -15,10 +17,13 @@
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/icons": "12.2.0",
 		"@wordpress/notices": "5.44.0",
-		"@wordpress/route": "0.10.0"
+		"@wordpress/route": "0.10.0",
+		"@wordpress/theme": "0.11.0",
+		"@wordpress/ui": "0.11.0",
+		"js-sha256": "0.11.1"
 	},
 	"route": {
 		"path": "/",
-		"page": "jetpack-subscribers-dashboard"
+		"page": "jetpack-subscribers"
 	}
 }

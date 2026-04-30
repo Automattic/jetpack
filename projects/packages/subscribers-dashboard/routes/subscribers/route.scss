@@ -2,140 +2,28 @@
 @include meta.load-css("@wordpress/admin-ui/build-style/style.css");
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
-.jetpack-subscribers-dashboard {
-
-	&__header-actions {
-		align-items: center;
-		display: flex;
-		gap: 8px;
-	}
+// Subscriber identity cell.
+// TODO: drop the manual color override once a design-system "muted text" tone
+// lands on `Text` (see https://github.com/WordPress/gutenberg/issues/77391).
+.jetpack-subscribers-dashboard__identity-email {
+	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
 }
 
-.jetpack-subscribers-dashboard__identity-text {
-	display: flex;
-	flex-direction: column;
-	min-width: 0;
-
-	.jetpack-subscribers-dashboard__identity-name {
-		color: #1e1e1e;
-		font-weight: 500;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.jetpack-subscribers-dashboard__identity-email {
-		color: #757575;
-		font-size: 12px;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-}
-
-.jetpack-subscribers-dashboard__plan-list {
-	display: flex;
-	flex-direction: column;
-
-	> div {
-		line-height: 1.4;
-	}
-}
-
-.jetpack-subscribers-dashboard__error {
-	padding: 24px;
-
-	&-detail {
-		color: #cc1818;
-	}
-}
-
-.jetpack-subscribers-dashboard__empty {
-	align-items: center;
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	padding: 64px 24px;
-	text-align: center;
-
-	&-icon {
-		align-items: center;
-		background: #f0f0f1;
-		border-radius: 50%;
-		color: #50575e;
-		display: flex;
-		font-size: 28px;
-		height: 64px;
-		justify-content: center;
-		width: 64px;
-	}
-
-	&-title {
-		font-size: 18px;
-		font-weight: 600;
-		margin: 0;
-	}
-
-	&-body {
-		color: #50575e;
-		margin: 0;
-		max-width: 440px;
-	}
-}
-
-.jetpack-subscribers-dashboard__add-modal {
-
-	&-warning {
-		color: #b32d2e;
-		font-size: 12px;
-		margin: 8px 0 0;
-	}
-
-	&-actions {
-		display: flex;
-		gap: 8px;
-		justify-content: flex-end;
-		margin-top: 16px;
-	}
-}
-
+// Inspector panel chrome.
 .jetpack-subscribers-dashboard__panel-header {
-	align-items: center;
-	border-bottom: 1px solid #f0f0f1;
-	display: flex;
-	flex-shrink: 0;
-	gap: 12px;
-	justify-content: space-between;
-	padding: 16px 24px;
-}
-
-.jetpack-subscribers-dashboard__panel-title {
-	font-size: 16px;
-	font-weight: 600;
-	margin: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
+	padding: var(--wpds-dimension-padding-md, 16px) var(--wpds-dimension-padding-lg, 24px);
 }
 
 .jetpack-subscribers-dashboard__panel-body {
 	flex-grow: 1;
 	overflow-y: auto;
-	padding: 24px;
+	padding: var(--wpds-dimension-padding-lg, 24px);
 }
 
+// Subscriber detail layout.
 .jetpack-subscribers-dashboard__detail-loading {
-	align-items: center;
-	display: flex;
-	justify-content: center;
 	min-height: 240px;
-}
-
-.jetpack-subscribers-dashboard__detail-header {
-	align-items: center;
-	display: flex;
-	gap: 16px;
-	margin-bottom: 24px;
 }
 
 .jetpack-subscribers-dashboard__detail-avatar {
@@ -144,53 +32,32 @@
 	flex-shrink: 0;
 }
 
-.jetpack-subscribers-dashboard__detail-name {
-	font-size: 18px;
-	font-weight: 600;
-	line-height: 1.3;
-}
-
-.jetpack-subscribers-dashboard__detail-email {
-	color: #50575e;
-	margin: 4px 0 0;
-}
-
-.jetpack-subscribers-dashboard__detail-grid,
-.jetpack-subscribers-dashboard__detail-stats {
+.jetpack-subscribers-dashboard__detail-grid {
 	display: grid;
-	gap: 8px 24px;
+	gap: var(--wpds-dimension-gap-xs, 8px) var(--wpds-dimension-gap-lg, 24px);
 	grid-template-columns: max-content 1fr;
-}
-
-.jetpack-subscribers-dashboard__detail-stats {
-	margin-bottom: 8px;
 }
 
 .jetpack-subscribers-dashboard__detail-row {
 	display: contents;
 
 	&-label {
-		color: #50575e;
-		font-size: 12px;
+		// TODO: replace with `Text` "label/eyebrow" variant when the design system
+		// adds one (see https://github.com/WordPress/gutenberg/issues/77391).
+		color: var(--wpds-color-fg-content-neutral-weak, #50575e);
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
-	}
-
-	&-value {
-		color: #1e1e1e;
 	}
 }
 
 .jetpack-subscribers-dashboard__detail-section-title {
-	border-top: 1px solid #f0f0f1;
-	font-size: 14px;
-	font-weight: 600;
-	margin: 24px 0 12px;
-	padding-top: 16px;
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
+	padding-top: var(--wpds-dimension-padding-md, 16px);
 }
 
+// TODO: replace with `Text` "muted" tone once available
+// (see https://github.com/WordPress/gutenberg/issues/77391).
+.jetpack-subscribers-dashboard__detail-email,
 .jetpack-subscribers-dashboard__detail-meta {
-	color: #50575e;
-	font-size: 12px;
-	margin: 8px 0 0;
+	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
 }

@@ -1,3 +1,4 @@
+import formatCurrency from '@automattic/format-currency';
 import type { Subscriber, SubscriptionPlan } from '../data/types';
 
 export type ResolvedPlan = {
@@ -55,7 +56,8 @@ export function getResolvedPlans( subscriber: Subscriber ): ResolvedPlan[] {
 }
 
 /**
- * Format a price using a best-effort `Intl.NumberFormat` fallback.
+ * Format a price using `@automattic/format-currency`. Returns an empty string when either
+ * the amount or currency is missing, or when the formatter can't produce a value.
  *
  * @param amount   - Numeric amount.
  * @param currency - ISO currency code.
@@ -65,14 +67,5 @@ function formatPrice( amount?: number, currency?: string ): string {
 	if ( amount == null || ! currency ) {
 		return '';
 	}
-
-	try {
-		return new Intl.NumberFormat( undefined, {
-			style: 'currency',
-			currency,
-			minimumFractionDigits: 2,
-		} ).format( amount );
-	} catch {
-		return `${ amount } ${ currency }`;
-	}
+	return formatCurrency( amount, currency ) ?? '';
 }

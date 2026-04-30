@@ -1,6 +1,7 @@
-import { Button, DropdownMenu } from '@wordpress/components';
+import { DropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
+import { Button } from '@wordpress/ui';
 import type { JetpackBlogId } from '../lib/site';
 
 type Props = {
@@ -13,15 +14,20 @@ type Props = {
  * download for the blog's subscribers and is what Calypso links to from its "Download as CSV"
  * menu item.
  *
- * @param blogId - WP.com blog id.
- * @return Absolute URL.
+ * @param blogId - WP.com blog id (coerced to a positive integer before injection).
+ * @return Absolute URL, or null when the id can't be coerced to a positive integer.
  */
-function getCsvDownloadUrl( blogId: JetpackBlogId ): string {
-	return `https://dashboard.wordpress.com/wp-admin/index.php?page=subscribers&blog=${ blogId }&blog_subscribers=csv&type=all`;
+function getCsvDownloadUrl( blogId: JetpackBlogId ): string | null {
+	const safeId = Math.trunc( Number( blogId ) );
+	if ( ! Number.isFinite( safeId ) || safeId <= 0 ) {
+		return null;
+	}
+	return `https://dashboard.wordpress.com/wp-admin/index.php?page=subscribers&blog=${ safeId }&blog_subscribers=csv&type=all`;
 }
 
 /**
  * Page-header action row — primary "Add subscribers" CTA and a More menu (Download CSV).
+ * Page already wraps actions in a Stack with `gap="sm"`, so we don't add an extra wrapper here.
  *
  * @param props                  - Component props.
  * @param props.blogId           - WP.com blog id, used to build the CSV download URL.
@@ -30,8 +36,8 @@ function getCsvDownloadUrl( blogId: JetpackBlogId ): string {
  */
 export default function HeaderActions( { blogId, onAddSubscribers }: Props ): JSX.Element {
 	return (
-		<div className="jetpack-subscribers-dashboard__header-actions">
-			<Button variant="primary" onClick={ onAddSubscribers }>
+		<>
+			<Button size="compact" onClick={ onAddSubscribers }>
 				{ __( 'Add subscribers', 'jetpack-subscribers-dashboard' ) }
 			</Button>
 			<DropdownMenu
@@ -41,15 +47,15 @@ export default function HeaderActions( { blogId, onAddSubscribers }: Props ): JS
 					{
 						title: __( 'Download as CSV', 'jetpack-subscribers-dashboard' ),
 						onClick: () => {
-							if ( ! blogId ) {
-								return;
+							const url = blogId ? getCsvDownloadUrl( blogId ) : null;
+							if ( url ) {
+								window.open( url, '_blank' );
 							}
-							window.open( getCsvDownloadUrl( blogId ), '_blank' );
 						},
 						isDisabled: ! blogId,
 					},
 				] }
 			/>
-		</div>
+		</>
 	);
 }

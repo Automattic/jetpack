@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import { getResolvedPlans } from '../../lib/subscription-plans';
 import type { Subscriber } from '../../data/types';
 
@@ -20,18 +21,18 @@ export default function SubscriptionTypeCell( { subscriber }: Props ): JSX.Eleme
 	const paidPlans = plans.filter( plan => ! plan.is_complimentary && ! plan.is_free );
 	if ( paidPlans.length > 0 ) {
 		return (
-			<div className="jetpack-subscribers-dashboard__plan-list">
+			<Stack direction="column" gap="xs">
 				{ paidPlans.map( ( plan, index ) => (
-					<div key={ `${ plan.plan }-${ index }` }>{ plan.plan }</div>
+					<span key={ `${ plan.plan }-${ index }` }>{ plan.plan }</span>
 				) ) }
-			</div>
+			</Stack>
 		);
 	}
 
 	const hasComp = plans.some( plan => plan.is_complimentary );
 	if ( hasComp ) {
-		return <div>{ __( 'Comp', 'jetpack-subscribers-dashboard' ) }</div>;
+		return <span>{ __( 'Comp', 'jetpack-subscribers-dashboard' ) }</span>;
 	}
 
-	return <div>{ __( 'Free', 'jetpack-subscribers-dashboard' ) }</div>;
+	return <span>{ __( 'Free', 'jetpack-subscribers-dashboard' ) }</span>;
 }

@@ -1,34 +1,42 @@
-// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { AlertDialog } from '@wordpress/ui';
 import { getSubscriberLabel } from '../../lib/subscriber-helpers';
 import type { Subscriber } from '../../data/types';
 
 type Props = {
 	subscribers: Subscriber[];
-	isBusy: boolean;
-	onConfirm: () => void;
+	onConfirm: () => void | Promise< void >;
 	onCancel: () => void;
 };
 
 /**
  * Confirmation dialog for the per-row + bulk remove action. Mirrors Calypso's `UnsubscribeModal`
  * copy: explains the cascade (paid subscription cancel + email + WPCOM follower removal) so the
- * user knows what they're agreeing to.
+ * user knows what they're agreeing to. Uses `AlertDialog` from `@wordpress/ui` (`intent="irreversible"`)
+ * so the confirm button picks up the destructive coloring and pending state automatically.
  *
  * @param props             - Component props.
- * @param props.subscribers - Subscribers queued for removal.
- * @param props.isBusy      - Whether the mutation is in flight.
- * @param props.onConfirm   - Confirm callback.
+ * @param props.subscribers - Subscribers queued for removal (empty list closes the dialog).
+ * @param props.onConfirm   - Confirm callback. May return a promise; the dialog will show its
+ *                          built-in pending state until it settles.
  * @param props.onCancel    - Cancel callback.
  * @return The dialog, or null when the queue is empty.
  */
 export default function UnsubscribeModal( {
 	subscribers,
-	isBusy,
 	onConfirm,
 	onCancel,
 }: Props ): JSX.Element | null {
+	const handleOpenChange = useCallback(
+		( nextOpen: boolean ) => {
+			if ( ! nextOpen ) {
+				onCancel();
+			}
+		},
+		[ onCancel ]
+	);
+
 	if ( subscribers.length === 0 ) {
 		return null;
 	}
@@ -51,27 +59,20 @@ export default function UnsubscribeModal( {
 				subscribers.length
 		  );
 
+	const description = __(
+		"They'll be unsubscribed from your site, and any paid subscriptions will be cancelled. This can't be undone.",
+		'jetpack-subscribers-dashboard'
+	);
+
 	return (
-		<ConfirmDialog
-			isOpen
-			confirmButtonText={ __( 'Remove', 'jetpack-subscribers-dashboard' ) }
-			cancelButtonText={ __( 'Cancel', 'jetpack-subscribers-dashboard' ) }
-			onConfirm={ onConfirm }
-			onCancel={ onCancel }
-			isBusy={ isBusy }
-		>
-			<h2 style={ { marginTop: 0 } }>{ title }</h2>
-			<p>
-				{ isSingle
-					? __(
-							"They'll be unsubscribed from your site, and any paid subscriptions will be cancelled. This can't be undone.",
-							'jetpack-subscribers-dashboard'
-					  )
-					: __(
-							"They'll be unsubscribed from your site, and any paid subscriptions will be cancelled. This can't be undone.",
-							'jetpack-subscribers-dashboard'
-					  ) }
-			</p>
-		</ConfirmDialog>
+		<AlertDialog.Root open onOpenChange={ handleOpenChange } onConfirm={ onConfirm }>
+			<AlertDialog.Popup
+				intent="irreversible"
+				title={ title }
+				description={ description }
+				confirmButtonText={ __( 'Remove', 'jetpack-subscribers-dashboard' ) }
+				cancelButtonText={ __( 'Cancel', 'jetpack-subscribers-dashboard' ) }
+			/>
+		</AlertDialog.Root>
 	);
 }

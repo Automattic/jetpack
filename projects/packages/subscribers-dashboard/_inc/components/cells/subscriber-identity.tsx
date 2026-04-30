@@ -1,3 +1,4 @@
+import { Stack, Text } from '@wordpress/ui';
 import type { Subscriber } from '../../data/types';
 
 type Props = {
@@ -17,13 +18,13 @@ export default function SubscriberIdentity( { subscriber }: Props ): JSX.Element
 	const showEmail = !! email_address && email_address !== display_name;
 
 	return (
-		<div className="jetpack-subscribers-dashboard__identity-text">
-			<span className="jetpack-subscribers-dashboard__identity-name">
-				{ display_name || email_address }
-			</span>
+		<Stack direction="column" gap="xs" className="jetpack-subscribers-dashboard__identity">
+			<Text variant="body-md">{ display_name || email_address }</Text>
 			{ showEmail ? (
-				<span className="jetpack-subscribers-dashboard__identity-email">{ email_address }</span>
+				<Text variant="body-sm" className="jetpack-subscribers-dashboard__identity-email">
+					{ email_address }
+				</Text>
 			) : null }
-		</div>
+		</Stack>
 	);
 }

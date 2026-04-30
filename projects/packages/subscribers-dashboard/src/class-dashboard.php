@@ -27,7 +27,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const ADMIN_SLUG = 'jetpack-subscribers-dashboard-wp-admin';
+	const ADMIN_SLUG = 'jetpack-subscribers-wp-admin';
 
 	/**
 	 * Whether the class has been initialized
@@ -154,7 +154,7 @@ class Dashboard {
 			return;
 		}
 
-		$render_fn = 'jetpack_subscribers_dashboard_jetpack_subscribers_dashboard_wp_admin_render_page';
+		$render_fn = 'jetpack_subscribers_dashboard_jetpack_subscribers_wp_admin_render_page';
 		$callback  = function_exists( $render_fn ) ? $render_fn : array( $this, 'render' );
 
 		$page_suffix = null;
@@ -189,6 +189,6 @@ class Dashboard {
 	 * from `build/pages/jetpack-subscribers-dashboard/page-wp-admin.php`.
 	 */
 	public function render() {
-		echo '<div id="jetpack-subscribers-dashboard-wp-admin-app" class="boot-layout-container"></div>';
+		echo '<div id="jetpack-subscribers-wp-admin-app" class="boot-layout-container"></div>';
 	}
 }

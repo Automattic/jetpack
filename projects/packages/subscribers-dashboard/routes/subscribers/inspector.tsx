@@ -1,9 +1,9 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close as closeIcon } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { IconButton, Stack, Text } from '@wordpress/ui';
 import SubscriberDetailContent from '../../_inc/components/detail/subscriber-detail-content';
 import { queryClient } from '../../_inc/lib/query-client';
 
@@ -58,16 +58,24 @@ function InspectorInner(): JSX.Element | null {
 
 	return (
 		<>
-			<div className="jetpack-subscribers-dashboard__panel-header">
-				<h2 className="jetpack-subscribers-dashboard__panel-title">
+			<Stack
+				direction="row"
+				align="center"
+				justify="space-between"
+				gap="sm"
+				className="jetpack-subscribers-dashboard__panel-header"
+			>
+				<Text variant="heading-md" render={ <h2 /> }>
 					{ __( 'Subscriber details', 'jetpack-subscribers-dashboard' ) }
-				</h2>
-				<Button
+				</Text>
+				<IconButton
 					icon={ closeIcon }
 					label={ __( 'Close', 'jetpack-subscribers-dashboard' ) }
+					variant="minimal"
+					tone="neutral"
 					onClick={ onClose }
 				/>
-			</div>
+			</Stack>
 			<div className="jetpack-subscribers-dashboard__panel-body">
 				<SubscriberDetailContent open={ { subscriptionId, userId } } />
 			</div>

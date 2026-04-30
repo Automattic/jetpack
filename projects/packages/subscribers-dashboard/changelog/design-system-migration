@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Adopt the @wordpress/ui design system: Stack/Text/Button/Notice/EmptyState replace ad-hoc layout, AlertDialog/Dialog replace ConfirmDialog/Modal, DataViews now uses the 'empty' slot and 'format: date' field. Switch currency formatting to @automattic/format-currency, restore the #add-subscribers hash deep link, and shorten the page slug.

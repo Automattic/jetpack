@@ -1,7 +1,7 @@
 import { DataViews } from '@wordpress/dataviews/wp';
-import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
@@ -10,11 +10,12 @@ import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
 import EmptyState from './empty-state';
+import Gravatar from './gravatar';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews/wp';
 
-const DEFAULT_PER_PAGE = 10;
+const DEFAULT_PER_PAGE = 20;
 
 const defaultView: View = {
 	type: 'table',
@@ -75,22 +76,19 @@ export default function SubscribersDataViews( {
 	const { data, isLoading, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
 
-	const dateSettings = getDateSettings();
-
 	const fields = useMemo< Field< Subscriber >[] >(
 		() => [
 			{
 				id: 'media',
 				label: __( 'Media', 'jetpack-subscribers-dashboard' ),
-				getValue: ( { item }: { item: Subscriber } ) => item.avatar ?? '',
+				getValue: ( { item }: { item: Subscriber } ) => item.email_address ?? '',
 				render: ( { item }: { item: Subscriber } ) =>
-					item.avatar ? (
-						<img
-							src={ item.avatar }
-							alt=""
-							width={ 40 }
-							height={ 40 }
-							className="jetpack-subscribers-dashboard__identity-avatar"
+					item.email_address ? (
+						<Gravatar
+							email={ item.email_address }
+							displayName={ item.display_name }
+							size={ 40 }
+							useHovercard={ false }
 						/>
 					) : null,
 				enableSorting: false,
@@ -131,10 +129,8 @@ export default function SubscribersDataViews( {
 			{
 				id: 'subscription_status',
 				label: __( 'Email subscription', 'jetpack-subscribers-dashboard' ),
-				getValue: ( { item }: { item: Subscriber } ) => item.subscription_status,
-				render: ( { item }: { item: Subscriber } ) => (
-					<div>{ getSubscriptionStatusLabel( item.subscription_status ) }</div>
-				),
+				getValue: ( { item }: { item: Subscriber } ) =>
+					getSubscriptionStatusLabel( item.subscription_status ),
 				elements: [
 					{
 						label: __( 'Subscribed', 'jetpack-subscribers-dashboard' ),
@@ -159,20 +155,14 @@ export default function SubscribersDataViews( {
 			},
 			{
 				id: 'date_subscribed',
+				type: 'date',
 				label: __( 'Date subscribed', 'jetpack-subscribers-dashboard' ),
-				getValue: ( { item }: { item: Subscriber } ) => getSubscribedAt( item ),
-				render: ( { item }: { item: Subscriber } ) => {
-					const value = getSubscribedAt( item );
-					if ( ! value ) {
-						return null;
-					}
-					return <span>{ dateI18n( dateSettings.formats.date, value, undefined ) }</span>;
-				},
+				getValue: ( { item }: { item: Subscriber } ) => getSubscribedAt( item ) ?? '',
 				enableSorting: true,
 				enableHiding: false,
 			},
 		],
-		[ dateSettings.formats.date ]
+		[]
 	);
 
 	const actions = useMemo< Action< Subscriber >[] >(
@@ -193,7 +183,6 @@ export default function SubscribersDataViews( {
 				id: 'remove',
 				label: __( 'Remove subscriber', 'jetpack-subscribers-dashboard' ),
 				supportsBulk: true,
-				isDestructive: true,
 				callback: ( items: Subscriber[] ) => {
 					setPendingRemoval( items );
 				},
@@ -202,16 +191,16 @@ export default function SubscribersDataViews( {
 		[ onViewSubscriber ]
 	);
 
-	const handleConfirmRemoval = useCallback( () => {
+	const handleConfirmRemoval = useCallback( async () => {
 		const targets = pendingRemoval;
 		if ( targets.length === 0 ) {
 			return;
 		}
-		removeMutation.mutate( targets, {
-			onSettled: () => {
-				setPendingRemoval( [] );
-			},
-		} );
+		try {
+			await removeMutation.mutateAsync( targets );
+		} finally {
+			setPendingRemoval( [] );
+		}
 	}, [ pendingRemoval, removeMutation ] );
 
 	const handleCancelRemoval = useCallback( () => {
@@ -227,20 +216,19 @@ export default function SubscribersDataViews( {
 		[ totalItems, totalPages ]
 	);
 
-	const hasActiveFiltersOrSearch =
-		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 );
+	const hasActiveFiltersOrSearch = Boolean(
+		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
+	);
 
 	if ( error ) {
 		return (
-			<div className="jetpack-subscribers-dashboard__error">
-				<p>{ __( 'Could not load subscribers.', 'jetpack-subscribers-dashboard' ) }</p>
-				<p className="jetpack-subscribers-dashboard__error-detail">{ error }</p>
-			</div>
+			<Notice.Root intent="error">
+				<Notice.Title>
+					{ __( 'Could not load subscribers.', 'jetpack-subscribers-dashboard' ) }
+				</Notice.Title>
+				<Notice.Description>{ error }</Notice.Description>
+			</Notice.Root>
 		);
-	}
-
-	if ( ! isLoading && ! hasActiveFiltersOrSearch && totalItems === 0 ) {
-		return <EmptyState onAddSubscribers={ onAddSubscribers } />;
 	}
 
 	return (
@@ -257,10 +245,15 @@ export default function SubscribersDataViews( {
 				search
 				searchLabel={ __( 'Search subscribers…', 'jetpack-subscribers-dashboard' ) }
 				actions={ actions }
+				empty={
+					<EmptyState
+						hasFiltersOrSearch={ hasActiveFiltersOrSearch }
+						onAddSubscribers={ onAddSubscribers }
+					/>
+				}
 			/>
 			<UnsubscribeModal
 				subscribers={ pendingRemoval }
-				isBusy={ removeMutation.isPending }
 				onConfirm={ handleConfirmRemoval }
 				onCancel={ handleCancelRemoval }
 			/>

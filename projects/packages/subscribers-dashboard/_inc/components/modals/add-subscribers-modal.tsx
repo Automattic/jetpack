@@ -1,6 +1,7 @@
-import { Button, Modal, TextareaControl } from '@wordpress/components';
+import { TextareaControl } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Button, Dialog, Notice, Stack } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
 
 type Props = {
@@ -57,66 +58,82 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 		} );
 	}, [ mutation, onClose, valid ] );
 
+	const handleOpenChange = useCallback(
+		( nextOpen: boolean ) => {
+			if ( ! nextOpen ) {
+				onClose();
+			}
+		},
+		[ onClose ]
+	);
+
 	if ( ! isOpen ) {
 		return null;
 	}
 
 	return (
-		<Modal
-			title={ __( 'Add subscribers', 'jetpack-subscribers-dashboard' ) }
-			onRequestClose={ onClose }
-			className="jetpack-subscribers-dashboard__add-modal"
-		>
-			<TextareaControl
-				__nextHasNoMarginBottom
-				label={ __( 'Email addresses', 'jetpack-subscribers-dashboard' ) }
-				help={ __(
-					'Enter one email per line. Subscribers receive an invitation by email.',
-					'jetpack-subscribers-dashboard'
-				) }
-				value={ value }
-				onChange={ setValue }
-				rows={ 6 }
-				placeholder="reader@example.com&#10;another@example.com"
-			/>
-
-			{ invalid.length > 0 ? (
-				<p className="jetpack-subscribers-dashboard__add-modal-warning">
-					{ sprintf(
-						// translators: %s: comma-separated list of invalid email addresses.
-						__(
-							'These entries don’t look like valid email addresses and will be skipped: %s',
+		<Dialog.Root open onOpenChange={ handleOpenChange }>
+			<Dialog.Popup>
+				<Dialog.Header>
+					<Dialog.Title>{ __( 'Add subscribers', 'jetpack-subscribers-dashboard' ) }</Dialog.Title>
+					<Dialog.CloseIcon />
+				</Dialog.Header>
+				<Stack direction="column" gap="md">
+					<TextareaControl
+						__nextHasNoMarginBottom
+						label={ __( 'Email addresses', 'jetpack-subscribers-dashboard' ) }
+						help={ __(
+							'Enter one email per line. Subscribers receive an invitation by email.',
 							'jetpack-subscribers-dashboard'
-						),
-						invalid.join( ', ' )
-					) }
-				</p>
-			) : null }
-
-			<div className="jetpack-subscribers-dashboard__add-modal-actions">
-				<Button variant="tertiary" onClick={ onClose } disabled={ mutation.isPending }>
-					{ __( 'Cancel', 'jetpack-subscribers-dashboard' ) }
-				</Button>
-				<Button
-					variant="primary"
-					onClick={ handleSubmit }
-					isBusy={ mutation.isPending }
-					disabled={ mutation.isPending || valid.length === 0 }
-				>
-					{ valid.length > 0
-						? sprintf(
-								// translators: %d: number of subscribers to invite.
-								_n(
-									'Invite %d subscriber',
-									'Invite %d subscribers',
-									valid.length,
-									'jetpack-subscribers-dashboard'
-								),
-								valid.length
-						  )
-						: __( 'Add subscribers', 'jetpack-subscribers-dashboard' ) }
-				</Button>
-			</div>
-		</Modal>
+						) }
+						value={ value }
+						onChange={ setValue }
+						rows={ 6 }
+						placeholder="reader@example.com&#10;another@example.com"
+					/>
+					{ invalid.length > 0 ? (
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ sprintf(
+									// translators: %s: comma-separated list of invalid email addresses.
+									__(
+										'These entries don’t look like valid email addresses and will be skipped: %s',
+										'jetpack-subscribers-dashboard'
+									),
+									invalid.join( ', ' )
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					) : null }
+				</Stack>
+				<Dialog.Footer>
+					<Dialog.Action
+						render={ <Button variant="outline" tone="neutral" /> }
+						onClick={ onClose }
+						disabled={ mutation.isPending }
+					>
+						{ __( 'Cancel', 'jetpack-subscribers-dashboard' ) }
+					</Dialog.Action>
+					<Button
+						onClick={ handleSubmit }
+						loading={ mutation.isPending }
+						disabled={ mutation.isPending || valid.length === 0 }
+					>
+						{ valid.length > 0
+							? sprintf(
+									// translators: %d: number of subscribers to invite.
+									_n(
+										'Invite %d subscriber',
+										'Invite %d subscribers',
+										valid.length,
+										'jetpack-subscribers-dashboard'
+									),
+									valid.length
+							  )
+							: __( 'Add subscribers', 'jetpack-subscribers-dashboard' ) }
+					</Button>
+				</Dialog.Footer>
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }
