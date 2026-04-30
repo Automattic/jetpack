@@ -529,6 +529,57 @@ function resetUploadZone() {
 }
 
 /**
+ * Upload a file to the media library and update state with the result.
+ *
+ * @param {File} file - The file to upload.
+ */
+async function uploadFileToMedia( file ) {
+	const zone = document.getElementById( 'bw-upload-zone' );
+
+	state.isUploading = true;
+	if ( zone ) {
+		zone.classList.add( 'bw-uploading' );
+		const label = zone.querySelector( '.bw-upload-label' );
+		if ( label ) label.style.display = 'none';
+		const saving = zone.querySelector( '.bw-upload-saving' );
+		if ( saving ) saving.style.display = '';
+	}
+
+	const formData = new FormData();
+	formData.append( 'file', file );
+
+	try {
+		const media = await window.wp.apiFetch( {
+			path: state.mediaPath,
+			method: 'POST',
+			body: formData,
+		} );
+		state.isUploading = false;
+		if ( zone ) zone.classList.remove( 'bw-uploading' );
+
+		// Store the uploaded URL and media ID — wait for "Insert image" click.
+		state.imageUrl = media.source_url;
+		if ( ! state.imageAlt && media.alt_text ) {
+			state.imageAlt = media.alt_text;
+		}
+		if ( state.setAsFeatured ) {
+			state.featuredMediaId = media.id;
+		}
+		state.uploadedMediaId = media.id;
+
+		// Show preview.
+		showUploadPreview( media.source_url );
+	} catch ( err ) {
+		state.isUploading = false;
+		if ( zone ) zone.classList.remove( 'bw-uploading' );
+		state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
+		setTimeout( () => {
+			state.message = '';
+		}, 3000 );
+	}
+}
+
+/**
  * Show a preview image in the upload zone.
  *
  * @param {string} src - The image source URL to preview.
@@ -1391,50 +1442,47 @@ const { state } = store( 'wpcom-write', {
 			const el = getElement();
 			const file = el.ref.files[ 0 ];
 			if ( ! file ) return;
+			await uploadFileToMedia( file );
+		},
 
-			state.isUploading = true;
+		handleDragOver( event ) {
+			event.preventDefault();
+			event.stopPropagation();
 			const zone = document.getElementById( 'bw-upload-zone' );
-			if ( zone ) {
-				zone.classList.add( 'bw-uploading' );
-				const label = zone.querySelector( '.bw-upload-label' );
-				if ( label ) label.style.display = 'none';
-				const saving = zone.querySelector( '.bw-upload-saving' );
-				if ( saving ) saving.style.display = '';
+			if ( zone ) zone.classList.add( 'bw-drag-over' );
+		},
+
+		handleDragLeave( event ) {
+			event.preventDefault();
+			event.stopPropagation();
+			const zone = document.getElementById( 'bw-upload-zone' );
+			if ( zone ) zone.classList.remove( 'bw-drag-over' );
+		},
+
+		async handleDrop( event ) {
+			event.preventDefault();
+			event.stopPropagation();
+			const zone = document.getElementById( 'bw-upload-zone' );
+			if ( zone ) zone.classList.remove( 'bw-drag-over' );
+
+			const file = event.dataTransfer?.files?.[ 0 ];
+			if ( ! file || ! file.type.startsWith( 'image/' ) ) {
+				return;
 			}
+			await uploadFileToMedia( file );
+		},
 
-			const formData = new FormData();
-			formData.append( 'file', file );
+		handleOverlayDragOver( event ) {
+			event.preventDefault();
+		},
 
-			try {
-				const media = await window.wp.apiFetch( {
-					path: state.mediaPath,
-					method: 'POST',
-					body: formData,
-				} );
-				state.imageUrl = media.source_url;
-				state.isUploading = false;
-				if ( zone ) zone.classList.remove( 'bw-uploading' );
-
-				// Store the uploaded URL and media ID — wait for "Insert image" click.
-				state.imageUrl = media.source_url;
-				if ( ! state.imageAlt && media.alt_text ) {
-					state.imageAlt = media.alt_text;
-				}
-				if ( state.setAsFeatured ) {
-					state.featuredMediaId = media.id;
-				}
-				state.uploadedMediaId = media.id;
-
-				// Show preview.
-				showUploadPreview( media.source_url );
-			} catch ( err ) {
-				state.isUploading = false;
-				if ( zone ) zone.classList.remove( 'bw-uploading' );
-				state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
-				setTimeout( () => {
-					state.message = '';
-				}, 3000 );
+		async handleOverlayDrop( event ) {
+			event.preventDefault();
+			const file = event.dataTransfer?.files?.[ 0 ];
+			if ( ! file || ! file.type.startsWith( 'image/' ) ) {
+				return;
 			}
+			await uploadFileToMedia( file );
 		},
 
 		// --- Slash commands ---

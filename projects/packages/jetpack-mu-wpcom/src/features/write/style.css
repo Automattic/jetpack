@@ -1206,7 +1206,8 @@
 	transition: color 0.3s ease;
 }
 
-.bw-upload-zone:hover {
+.bw-upload-zone:hover,
+.bw-upload-zone.bw-drag-over {
 	border-color: #2171b1;
 	color: #2171b1;
 }
