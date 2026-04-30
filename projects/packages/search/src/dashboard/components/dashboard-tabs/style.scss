@@ -1,0 +1,24 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+$spacing-base: var(--spacing-base, 8px);
+
+.jp-search-dashboard-tabs {
+	display: flex;
+	align-items: center;
+	position: relative;
+	border-bottom: 1px solid gb.$gray-100;
+	padding-inline: calc(#{$spacing-base} * 3);
+	background-color: #fff;
+}
+
+.jp-search-dashboard-tabs__root {
+	overflow: hidden;
+}
+
+.jp-search-dashboard-tabs__list[role="tablist"][data-orientation="horizontal"] {
+	width: 100%;
+}
+
+.jp-search-dashboard-tabs__tab {
+	flex: 0 0 auto;
+}

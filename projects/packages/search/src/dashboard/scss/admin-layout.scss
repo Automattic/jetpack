@@ -1,6 +1,5 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
-
-body.jetpack_page_jetpack-search {
-
-	@include jetpack-admin-page-layout;
-}
+// Search dashboard intentionally uses the natural-flow page layout (matching
+// the Jetpack reader/settings pages) rather than the viewport-pinned column
+// from `jetpack-admin-page-layout`. The mixin is opt-in; we leave it off so
+// the tab strip + tab content sit at their intrinsic height with the footer
+// flowing directly below.

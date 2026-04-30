@@ -3,14 +3,9 @@
 
 #jp-search-dashboard {
 	color: variables.$black;
-	font-size: 16px;
 	// 32px = wpadminbar height
 	// 65px = wpfooter height
 	min-height: calc(100vh - 65px - 32px);
-
-	@include variables.for-phone-down {
-		font-size: 14px;
-	}
 
 	.jp-search-dashboard-page {
 		background-color: variables.$white;
@@ -49,6 +44,24 @@
 	.jp-search-dashboard-bottom {
 		background-color: variables.$white;
 		padding-bottom: 2.5em;
+	}
+
+	.jp-search-dashboard-notices,
+	.jp-search-dashboard-tab-content {
+		width: 100%;
+		// Restore the 16px content baseline that em-based child styles
+		// (module-control, record-meter, donut-meter, hero h1, etc.) were
+		// calibrated against. Scoped here so the tab strip can keep
+		// inheriting wp-admin's default size.
+		font-size: 16px;
+
+		@include variables.for-phone-down {
+			font-size: 14px;
+		}
+	}
+
+	.jp-search-dashboard-tab-content > .jp-search-dashboard-wrap {
+		justify-content: flex-start;
 	}
 }
 
