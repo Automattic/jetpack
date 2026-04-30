@@ -36,16 +36,23 @@ body.jetpack_page_jetpack-activity-log {
 	// renders at content height instead of growing a private scrollbar
 	// inside the page's middle column. Net effect: the events list and
 	// the upsell flow as one continuous block, the page's outer scroll
-	// column is the only one the user ever sees.
+	// column is the only one the user ever sees. `!important` is
+	// load-bearing here: `jetpack-admin-page-layout`'s
+	// `.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) > *`
+	// rule force-applies `flex: 1 1 auto` to every direct child of the
+	// scroll column at higher specificity (one class + two `:not()`s),
+	// and the same chain forces `.dataviews-wrapper` into a flex-grow
+	// fill via `> *`. Without `!important` our rules lose the cascade.
 	&--free-tier {
-		flex: 0 0 auto;
+		flex: 0 0 auto !important;
 
 		> .dataviews-wrapper {
-			height: auto;
+			height: auto !important;
+			flex: 0 0 auto !important;
 		}
 
 		.dataviews-layout__container {
-			overflow: visible;
+			overflow: visible !important;
 		}
 	}
 
