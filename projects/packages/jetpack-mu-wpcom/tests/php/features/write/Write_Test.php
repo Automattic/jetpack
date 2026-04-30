@@ -101,12 +101,12 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * @param array  $categories Categories data.
 	 * @return string The rendered HTML.
 	 */
-	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array() ) {
+	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array(), $post_status = 'new' ) {
 		remove_all_actions( 'wp_head' );
 		remove_all_actions( 'wp_footer' );
 
 		ob_start();
-		wpcom_write_template( $title, $content, $post_id, $categories );
+		wpcom_write_template( $title, $content, $post_id, $categories, $post_status );
 		return ob_get_clean();
 	}
 
@@ -141,7 +141,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$output = $this->render_template( 'Test Post', '<p>Content</p>', $post_id );
+		$output = $this->render_template( 'Test Post', '<p>Content</p>', $post_id, array(), 'publish' );
 
 		$this->assertStringContainsString( 'Update', $output );
 		$this->assertStringNotContainsString( '>Publish<', $output );
