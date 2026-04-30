@@ -85,13 +85,6 @@ class Render_Message_Controller extends Base_Controller {
 						'required'    => false,
 						'default'     => false,
 					),
-					'char_limit'     => array(
-						'description' => __( 'Optional character limit override. When omitted, the network\'s default CHAR_LIMIT is used.', 'jetpack-publicize-pkg' ),
-						'type'        => 'integer',
-						'required'    => false,
-						'minimum'     => 1,
-						'maximum'     => 65000,
-					),
 				),
 				'schema'                         => array( $this, 'get_public_item_schema' ),
 			)
