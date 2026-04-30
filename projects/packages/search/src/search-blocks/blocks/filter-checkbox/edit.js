@@ -28,11 +28,11 @@ const SAMPLE_FILTER_ITEMS = [
 // Variation identifiers mirror the variation `name`s registered in
 // Search_Blocks::register_variations() so the inspector picker and the
 // block-inserter picker describe the same set of filter schemas.
-const VARIATION_CATEGORY = 'category';
-const VARIATION_POST_TAG = 'post_tag';
-const VARIATION_POST_TYPE = 'post_type';
-const VARIATION_AUTHOR = 'author';
-const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
+export const VARIATION_CATEGORY = 'category';
+export const VARIATION_POST_TAG = 'post_tag';
+export const VARIATION_POST_TYPE = 'post_type';
+export const VARIATION_AUTHOR = 'author';
+export const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
 
 /**
  * Identify which built-in variation the current (filterType, taxonomy) pair
@@ -42,7 +42,7 @@ const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
  * @param {object} attributes - Block attributes.
  * @return {string} Variation identifier.
  */
-function deriveVariation( attributes ) {
+export function deriveVariation( attributes ) {
 	const filterType = attributes?.filterType || '';
 	if ( filterType === 'post_type' ) {
 		return VARIATION_POST_TYPE;
@@ -62,25 +62,33 @@ function deriveVariation( attributes ) {
 
 /**
  * Map a variation identifier back to the (filterType, taxonomy) attribute
- * pair the JS store and PHP helpers expect. Switching to "Custom taxonomy"
- * preserves any user-entered slug so toggling off-and-back doesn't force a
- * re-entry; built-in categorical slugs (category, post_tag) are dropped
- * because they'd be miscategorized as custom.
+ * pair the JS store and PHP helpers expect.
+ *
+ * Author and Post Type variations carry `previousTaxonomy` forward so a
+ * Custom-taxonomy → Author/Post Type → Custom-taxonomy round-trip doesn't
+ * force the author to re-enter their slug. render.php ignores `taxonomy`
+ * whenever `filterType` isn't 'taxonomy', so the preserved value is purely
+ * UI state and never reaches the aggregation request.
+ *
+ * Category and Tag overwrite `taxonomy` with their built-in slugs, which
+ * means a Custom → Category → Custom round-trip *will* clear the slug.
+ * On the return trip we deliberately drop 'category' and 'post_tag' so the
+ * Taxonomy slug input doesn't surface them as custom-typed slugs.
  *
  * @param {string} variation        - Target variation identifier.
  * @param {string} previousTaxonomy - Current taxonomy attribute value.
  * @return {{filterType: string, taxonomy: string}} Attribute pair.
  */
-function variationToAttributes( variation, previousTaxonomy ) {
+export function variationToAttributes( variation, previousTaxonomy ) {
 	switch ( variation ) {
 		case VARIATION_CATEGORY:
 			return { filterType: 'taxonomy', taxonomy: 'category' };
 		case VARIATION_POST_TAG:
 			return { filterType: 'taxonomy', taxonomy: 'post_tag' };
 		case VARIATION_POST_TYPE:
-			return { filterType: 'post_type', taxonomy: '' };
+			return { filterType: 'post_type', taxonomy: previousTaxonomy || '' };
 		case VARIATION_AUTHOR:
-			return { filterType: 'author', taxonomy: '' };
+			return { filterType: 'author', taxonomy: previousTaxonomy || '' };
 		case VARIATION_CUSTOM_TAXONOMY:
 		default: {
 			const preserved =
@@ -103,7 +111,7 @@ function variationToAttributes( variation, previousTaxonomy ) {
  * @param {object} attributes - Block attributes.
  * @return {string} Variation default label, or '' when not a built-in variation.
  */
-function variationDefaultLabel( attributes ) {
+export function variationDefaultLabel( attributes ) {
 	const filterType = attributes?.filterType || '';
 	if ( filterType === 'post_type' ) {
 		return __( 'Post Type', 'jetpack-search-pkg' );
