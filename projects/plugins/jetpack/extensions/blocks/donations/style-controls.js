@@ -11,12 +11,16 @@ import {
 	Button,
 	ColorIndicator,
 	Dropdown,
+	Flex,
 	FlexItem,
 	PanelBody,
 	__experimentalDropdownContentWrapper as DropdownContentWrapper, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalZStack as ZStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -29,23 +33,42 @@ import { __ } from '@wordpress/i18n';
  */
 const COMPOUND_POPOVER_PROPS = { placement: 'left-start', offset: 36 };
 
+/**
+ * Render a row in our color settings panels with the same look as the
+ * standard "Color (Block support panel)" rows: a labeled-indicators toggle
+ * button (slightly overlapping swatches via ZStack with offset:-8) inside a
+ * ToolsPanelItem so that the standard
+ * `block-editor-tools-panel-color-gradient-settings__item` styles (borders,
+ * rounded corners, kebab-menu reset) apply for free.
+ *
+ * Accepts 1+ settings; one setting renders one swatch, two render an
+ * overlapping pair (matches the standard "Button" row).
+ *
+ * @param {object}   props          - Component props.
+ * @param {string}   props.label    - Row label shown next to the swatches.
+ * @param {object[]} props.settings - Color settings for this row, each with `label`, `value`, `onChange`.
+ * @return {Element} The rendered ToolsPanelItem.
+ */
 const CompoundColorRow = ( { label, settings } ) => {
+	const hasValue = useCallback( () => settings.some( s => !! s.value ), [ settings ] );
+	const onDeselect = useCallback( () => settings.forEach( s => s.onChange() ), [ settings ] );
+
 	const renderToggle = useCallback(
 		( { isOpen, onToggle } ) => (
 			<Button
 				onClick={ onToggle }
 				aria-expanded={ isOpen }
 				aria-label={ label }
-				className="block-editor-panel-color-gradient-settings__dropdown"
+				__next40pxDefaultSize
 			>
 				<HStack justify="flex-start">
-					{ settings.map( ( s, i ) => (
-						<ColorIndicator
-							key={ i }
-							colorValue={ s.value }
-							className="block-editor-panel-color-gradient-settings__color-indicator"
-						/>
-					) ) }
+					<ZStack isLayered={ false } offset={ -8 }>
+						{ settings.map( ( s, i ) => (
+							<Flex key={ i } expanded={ false }>
+								<ColorIndicator colorValue={ s.value } />
+							</Flex>
+						) ) }
+					</ZStack>
 					<FlexItem className="block-editor-panel-color-gradient-settings__color-name">
 						{ label }
 					</FlexItem>
@@ -72,11 +95,20 @@ const CompoundColorRow = ( { label, settings } ) => {
 	);
 
 	return (
-		<Dropdown
-			popoverProps={ COMPOUND_POPOVER_PROPS }
-			renderToggle={ renderToggle }
-			renderContent={ renderContent }
-		/>
+		<ToolsPanelItem
+			className="block-editor-tools-panel-color-gradient-settings__item"
+			label={ label }
+			hasValue={ hasValue }
+			onDeselect={ onDeselect }
+			isShownByDefault
+		>
+			<Dropdown
+				popoverProps={ COMPOUND_POPOVER_PROPS }
+				className="block-editor-tools-panel-color-gradient-settings__dropdown"
+				renderToggle={ renderToggle }
+				renderContent={ renderContent }
+			/>
+		</ToolsPanelItem>
 	);
 };
 
@@ -183,6 +215,19 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		[ selectedAmountBackgroundColor, selectedAmountTextColor, set ]
 	);
 
+	const resetTabColors = useCallback( () => {
+		set.activeTabBackgroundColor();
+		set.activeTabTextColor();
+		set.inactiveTabBackgroundColor();
+		set.inactiveTabTextColor();
+		set.tabBorderColor();
+	}, [ set ] );
+
+	const resetAmountColors = useCallback( () => {
+		set.selectedAmountBackgroundColor();
+		set.selectedAmountTextColor();
+	}, [ set ] );
+
 	return (
 		<InspectorControls group="styles">
 			<PanelBody
@@ -201,12 +246,24 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					<ToggleGroupControlOption value="tabs" label={ __( 'Tabs', 'jetpack' ) } />
 					<ToggleGroupControlOption value="buttons" label={ __( 'Buttons', 'jetpack' ) } />
 				</ToggleGroupControl>
-				<CompoundColorRow label={ __( 'Active tab', 'jetpack' ) } settings={ activeTabSettings } />
-				<CompoundColorRow
-					label={ __( 'Inactive tab', 'jetpack' ) }
-					settings={ inactiveTabSettings }
-				/>
-				<CompoundColorRow label={ __( 'Tab border', 'jetpack' ) } settings={ tabBorderSettings } />
+				<ToolsPanel
+					className="color-block-support-panel"
+					label={ __( 'Tab colors', 'jetpack' ) }
+					resetAll={ resetTabColors }
+				>
+					<CompoundColorRow
+						label={ __( 'Active tab', 'jetpack' ) }
+						settings={ activeTabSettings }
+					/>
+					<CompoundColorRow
+						label={ __( 'Inactive tab', 'jetpack' ) }
+						settings={ inactiveTabSettings }
+					/>
+					<CompoundColorRow
+						label={ __( 'Tab border', 'jetpack' ) }
+						settings={ tabBorderSettings }
+					/>
+				</ToolsPanel>
 				<ContrastChecker
 					backgroundColor={ activeTabBackgroundColor }
 					textColor={ activeTabTextColor }
@@ -233,10 +290,16 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				initialOpen={ false }
 				className="jp-donations-style-panel"
 			>
-				<CompoundColorRow
-					label={ __( 'Selected amount', 'jetpack' ) }
-					settings={ selectedAmountSettings }
-				/>
+				<ToolsPanel
+					className="color-block-support-panel"
+					label={ __( 'Amount colors', 'jetpack' ) }
+					resetAll={ resetAmountColors }
+				>
+					<CompoundColorRow
+						label={ __( 'Selected amount', 'jetpack' ) }
+						settings={ selectedAmountSettings }
+					/>
+				</ToolsPanel>
 				<ContrastChecker
 					backgroundColor={ selectedAmountBackgroundColor }
 					textColor={ selectedAmountTextColor }
