@@ -78,6 +78,10 @@ const buildCustomStyles = ( attributes, scope ) => {
 
 	if ( [ 'left', 'center', 'right' ].includes( contentAlignment ) ) {
 		rules.push( `${ scope } .donations__content{text-align:${ contentAlignment }}` );
+		const justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+		rules.push(
+			`${ scope } .donations__amounts{justify-content:${ justifyMap[ contentAlignment ] }}`
+		);
 	}
 
 	if ( tabBorderColor ) {
