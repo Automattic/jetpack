@@ -237,14 +237,27 @@ function render_block( $attr, $content ) {
 }
 
 /**
- * Build a CSS string scoping per-state color rules to a single block instance.
+ * Build a CSS string scoping per-state and tab-level style rules to a single
+ * block instance.
  *
  * @param array  $attr  Block attributes.
  * @param string $scope CSS class selector (with leading dot) unique to this instance.
  * @return string CSS rules joined into one string, or '' when no overrides are set.
  */
 function build_custom_styles( $attr, $scope ) {
+	$tab_padding = isset( $attr['tabPadding'] ) && is_array( $attr['tabPadding'] ) ? $attr['tabPadding'] : array();
+
 	$groups = array(
+		array(
+			'selector'   => $scope . ' .donations__nav-item',
+			'properties' => array(
+				'font-size'      => $attr['tabFontSize'] ?? '',
+				'padding-top'    => $tab_padding['top'] ?? '',
+				'padding-right'  => $tab_padding['right'] ?? '',
+				'padding-bottom' => $tab_padding['bottom'] ?? '',
+				'padding-left'   => $tab_padding['left'] ?? '',
+			),
+		),
 		array(
 			'selector'   => $scope . ' .donations__nav-item.is-active',
 			'properties' => array(
@@ -272,7 +285,7 @@ function build_custom_styles( $attr, $scope ) {
 	foreach ( $groups as $group ) {
 		$decls = array();
 		foreach ( $group['properties'] as $property => $value ) {
-			$safe = sanitize_color_for_css( $value );
+			$safe = sanitize_css_value( $value );
 			if ( '' !== $safe ) {
 				$decls[] = $property . ':' . $safe;
 			}
@@ -286,15 +299,15 @@ function build_custom_styles( $attr, $scope ) {
 }
 
 /**
- * Sanitize a user-supplied CSS color value for safe inclusion in a <style> element.
- * Strips characters that could break out of the style context (<, >, {, }, ;, quotes,
- * backslash) and caps length, while leaving valid hex / rgb() / hsl() / var() / named
- * colors intact.
+ * Sanitize a user-supplied CSS value (color, length, etc.) for safe inclusion
+ * in a <style> element. Strips characters that could break out of the style
+ * context (<, >, {, }, ;, quotes, backslash) and caps length, while leaving
+ * valid hex / rgb() / hsl() / var() / named-color / px / rem / em values intact.
  *
  * @param mixed $value Raw attribute value.
  * @return string Sanitized value, or '' if rejected.
  */
-function sanitize_color_for_css( $value ) {
+function sanitize_css_value( $value ) {
 	if ( ! is_string( $value ) || '' === $value ) {
 		return '';
 	}

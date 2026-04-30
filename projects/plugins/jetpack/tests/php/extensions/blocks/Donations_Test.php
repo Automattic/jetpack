@@ -14,9 +14,9 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/donations/donations.php';
  * Donations block tests.
  *
  * @covers ::Automattic\Jetpack\Extensions\Donations\build_custom_styles
- * @covers ::Automattic\Jetpack\Extensions\Donations\sanitize_color_for_css
+ * @covers ::Automattic\Jetpack\Extensions\Donations\sanitize_css_value
  */
-#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\sanitize_color_for_css' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\sanitize_css_value' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\build_custom_styles' )]
 class Donations_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -24,22 +24,22 @@ class Donations_Test extends \WP_UnitTestCase {
 	/**
 	 * Sanitizer accepts safe color values and rejects unsafe ones.
 	 *
-	 * @dataProvider sanitize_color_for_css_provider
+	 * @dataProvider sanitize_css_value_provider
 	 *
 	 * @param mixed  $input    Raw value passed to the sanitizer.
 	 * @param string $expected Expected sanitized return value.
 	 */
-	#[DataProvider( 'sanitize_color_for_css_provider' )]
-	public function test_sanitize_color_for_css( $input, $expected ) {
-		$this->assertSame( $expected, Donations\sanitize_color_for_css( $input ) );
+	#[DataProvider( 'sanitize_css_value_provider' )]
+	public function test_sanitize_css_value( $input, $expected ) {
+		$this->assertSame( $expected, Donations\sanitize_css_value( $input ) );
 	}
 
 	/**
-	 * Inputs and expected outputs for sanitize_color_for_css.
+	 * Inputs and expected outputs for sanitize_css_value.
 	 *
 	 * @return array
 	 */
-	public static function sanitize_color_for_css_provider() {
+	public static function sanitize_css_value_provider() {
 		return array(
 			'hex short'       => array( '#fff', '#fff' ),
 			'hex long'        => array( '#ff0000', '#ff0000' ),
@@ -107,5 +107,48 @@ class Donations_Test extends \WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'javascript', $css );
 		$this->assertStringNotContainsString( 'background:red', $css );
 		$this->assertStringContainsString( 'color:#fff', $css );
+	}
+
+	/**
+	 * Build_custom_styles emits font-size and per-side padding for tabs.
+	 */
+	public function test_build_custom_styles_emits_tab_dimensions() {
+		$attr = array(
+			'tabFontSize' => '18px',
+			'tabPadding'  => array(
+				'top'    => '12px',
+				'right'  => '20px',
+				'bottom' => '12px',
+				'left'   => '20px',
+			),
+		);
+
+		$css = Donations\build_custom_styles( $attr, '.jp-donations-1' );
+
+		$this->assertStringContainsString(
+			'.jp-donations-1 .donations__nav-item{font-size:18px;padding-top:12px;padding-right:20px;padding-bottom:12px;padding-left:20px}',
+			$css
+		);
+	}
+
+	/**
+	 * Partial tab padding emits only the sides the user specified.
+	 */
+	public function test_build_custom_styles_partial_tab_padding() {
+		$attr = array(
+			'tabPadding' => array(
+				'top'    => '8px',
+				'bottom' => '8px',
+			),
+		);
+
+		$css = Donations\build_custom_styles( $attr, '.jp-donations-1' );
+
+		$this->assertStringContainsString(
+			'.jp-donations-1 .donations__nav-item{padding-top:8px;padding-bottom:8px}',
+			$css
+		);
+		$this->assertStringNotContainsString( 'padding-left', $css );
+		$this->assertStringNotContainsString( 'padding-right', $css );
 	}
 }
