@@ -35,11 +35,13 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * Internal keys (`blog_id`, `notices`, `views`, `collapse_nudges`,
 	 * `version`, `odyssey_stats_changed_at`) are deliberately excluded —
-	 * agents can't act on them and they'd bloat the response. The per-key
-	 * type (bool / role-array) is read from `Options::get_defaults()` at
-	 * runtime, not duplicated here.
+	 * agents can't act on them and they'd bloat the response.
+	 * `enable_odyssey_stats` is also excluded: it's a UI dashboard toggle
+	 * with no meaningful agent use case. The per-key type (bool /
+	 * role-array) is read from `Options::get_defaults()` at runtime, not
+	 * duplicated here.
 	 */
-	const CONFIG_KEYS = array( 'admin_bar', 'roles', 'count_roles', 'do_not_track', 'enable_odyssey_stats' );
+	const CONFIG_KEYS = array( 'admin_bar', 'roles', 'count_roles', 'do_not_track' );
 
 	/**
 	 * Allowed `type` values for `get-top-content`.
@@ -464,7 +466,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get Stats configuration', 'jetpack-stats' ),
 			'description'         => __(
-				'Read the current Jetpack Stats configuration: who sees the Stats admin bar + menu, whose visits are counted, DNT behavior, and Odyssey Stats enablement. Shape: { admin_bar, roles, count_roles, do_not_track, enable_odyssey_stats }. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted. Call jetpack-stats/set-stats-config to change any of these.',
+				'Read the current Jetpack Stats configuration: who sees the Stats admin bar + menu, whose visits are counted, and DNT behavior. Shape: { admin_bar, roles, count_roles, do_not_track }. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted. Call jetpack-stats/set-stats-config to change any of these.',
 				'jetpack-stats'
 			),
 			'input_schema'        => array(
@@ -500,34 +502,30 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Set Stats configuration', 'jetpack-stats' ),
 			'description'         => __(
-				'Update one or more Jetpack Stats configuration fields. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Shape: { changed, config: { admin_bar, roles, count_roles, do_not_track, enable_odyssey_stats } }. Role slugs in `roles` and `count_roles` are validated against the site\'s registered roles; unknown slugs return jetpack_stats_invalid_role. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
+				'Update one or more Jetpack Stats configuration fields. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Shape: { changed, config: { admin_bar, roles, count_roles, do_not_track } }. Role slugs in `roles` and `count_roles` are validated against the site\'s registered roles; unknown slugs return jetpack_stats_invalid_role. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
 				'jetpack-stats'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'properties'           => array(
-					'admin_bar'            => array(
+					'admin_bar'    => array(
 						'type'        => 'boolean',
 						'description' => __( 'Whether to show the Stats item in the admin bar for users who can view Stats.', 'jetpack-stats' ),
 					),
-					'roles'                => array(
+					'roles'        => array(
 						'type'        => 'array',
 						'description' => __( 'Role slugs that can view Stats. Must be non-empty; each slug must be a registered role.', 'jetpack-stats' ),
 						'items'       => array( 'type' => 'string' ),
 						'minItems'    => 1,
 					),
-					'count_roles'          => array(
+					'count_roles'  => array(
 						'type'        => 'array',
 						'description' => __( 'Role slugs whose visits are counted. May be empty (count visits from all users).', 'jetpack-stats' ),
 						'items'       => array( 'type' => 'string' ),
 					),
-					'do_not_track'         => array(
+					'do_not_track' => array(
 						'type'        => 'boolean',
 						'description' => __( 'Whether to honor the browser Do Not Track header.', 'jetpack-stats' ),
-					),
-					'enable_odyssey_stats' => array(
-						'type'        => 'boolean',
-						'description' => __( 'Whether to render the Odyssey Stats dashboard.', 'jetpack-stats' ),
 					),
 				),
 				'additionalProperties' => false,
@@ -565,17 +563,16 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function config_output_properties(): array {
 		return array(
-			'admin_bar'            => array( 'type' => 'boolean' ),
-			'roles'                => array(
+			'admin_bar'    => array( 'type' => 'boolean' ),
+			'roles'        => array(
 				'type'  => 'array',
 				'items' => array( 'type' => 'string' ),
 			),
-			'count_roles'          => array(
+			'count_roles'  => array(
 				'type'  => 'array',
 				'items' => array( 'type' => 'string' ),
 			),
-			'do_not_track'         => array( 'type' => 'boolean' ),
-			'enable_odyssey_stats' => array( 'type' => 'boolean' ),
+			'do_not_track' => array( 'type' => 'boolean' ),
 		);
 	}
 

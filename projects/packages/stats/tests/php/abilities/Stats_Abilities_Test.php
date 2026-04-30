@@ -997,7 +997,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertSame(
-			array( 'admin_bar', 'roles', 'count_roles', 'do_not_track', 'enable_odyssey_stats' ),
+			array( 'admin_bar', 'roles', 'count_roles', 'do_not_track' ),
 			array_keys( $result )
 		);
 		// Internal keys must NOT leak.
@@ -1014,7 +1014,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 
 		$this->assertIsBool( $result['admin_bar'] );
 		$this->assertIsBool( $result['do_not_track'] );
-		$this->assertIsBool( $result['enable_odyssey_stats'] );
 		$this->assertIsArray( $result['roles'] );
 		$this->assertIsArray( $result['count_roles'] );
 	}
