@@ -553,6 +553,7 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			state.isFilterPopoverOpen = false;
 			state.isSortPopoverOpen = false;
+			state.sortMenuFocusedKey = null;
 		},
 
 		/**
@@ -567,6 +568,7 @@ const { state, actions } = store( NAMESPACE, {
 			if ( state.isFilterPopoverOpen || state.isSortPopoverOpen ) {
 				state.isFilterPopoverOpen = false;
 				state.isSortPopoverOpen = false;
+				state.sortMenuFocusedKey = null;
 			}
 		},
 	},

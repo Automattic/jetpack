@@ -285,4 +285,30 @@ describe( 'sort popover keyboard navigation', () => {
 			expect( captured.state.sortMenuFocusedKey ).toBeNull();
 		} );
 	} );
+
+	describe( 'onWindowClickClosePopovers', () => {
+		it( 'clears sortMenuFocusedKey when an outside click closes the sort popover', () => {
+			document.body.innerHTML = '<button id="outside" type="button"></button>';
+			captured.state.isSortPopoverOpen = true;
+			captured.state.sortMenuFocusedKey = 'newest';
+
+			const event = { target: document.getElementById( 'outside' ) };
+			captured.actions.onWindowClickClosePopovers( event );
+
+			expect( captured.state.isSortPopoverOpen ).toBe( false );
+			expect( captured.state.sortMenuFocusedKey ).toBeNull();
+		} );
+	} );
+
+	describe( 'onEscapeClosePopovers', () => {
+		it( 'clears sortMenuFocusedKey when Escape closes the sort popover', () => {
+			captured.state.isSortPopoverOpen = true;
+			captured.state.sortMenuFocusedKey = 'oldest';
+
+			captured.actions.onEscapeClosePopovers( makeKeydown( 'Escape' ) );
+
+			expect( captured.state.isSortPopoverOpen ).toBe( false );
+			expect( captured.state.sortMenuFocusedKey ).toBeNull();
+		} );
+	} );
 } );
