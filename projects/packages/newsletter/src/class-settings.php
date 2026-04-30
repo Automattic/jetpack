@@ -29,22 +29,21 @@ class Settings {
 	const PACKAGE_VERSION = '0.8.5';
 
 	/**
-	 * Slug used by wp-build's auto-generated page-wp-admin.php.
-	 *
-	 * Matches `wpPlugin.pages[0]` in package.json plus the `-wp-admin` suffix
-	 * the wp-build template appends. The legacy slug `jetpack-newsletter` is
-	 * preserved via redirect_legacy_slug() below.
+	 * URL-facing menu slug. Stays at the historical `jetpack-newsletter` so
+	 * existing bookmarks, support docs, and deep links keep working.
 	 *
 	 * @var string
 	 */
-	const ADMIN_SLUG = 'jetpack-newsletter-wp-admin';
+	const ADMIN_SLUG = 'jetpack-newsletter';
 
 	/**
-	 * Legacy slug retained for backwards-compatible deep links and bookmarks.
+	 * Internal slug emitted by `@wordpress/build` (`wpPlugin.pages[0]` plus
+	 * the `-wp-admin` suffix the build template appends). Used to find the
+	 * auto-generated render / enqueue functions and to mount the boot app.
 	 *
 	 * @var string
 	 */
-	const LEGACY_ADMIN_SLUG = 'jetpack-newsletter';
+	const WP_BUILD_SLUG = 'jetpack-newsletter-wp-admin';
 
 	/**
 	 * Whether the class has been initialized.
@@ -95,6 +94,7 @@ class Settings {
 	public function init_hooks() {
 		self::load_wp_build();
 		self::fix_boot_import_map_ordering();
+		self::bridge_wp_build_enqueue();
 
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
@@ -110,9 +110,6 @@ class Settings {
 			},
 			20
 		);
-
-		// Redirect bookmarks/links targeting the legacy slug.
-		add_action( 'admin_init', array( __CLASS__, 'redirect_legacy_slug' ) );
 
 		$host = new Host();
 
@@ -148,6 +145,42 @@ class Settings {
 	}
 
 	/**
+	 * Bridge wp-build's auto-generated enqueue function — which checks for
+	 * `?page=jetpack-newsletter-wp-admin` — to our user-facing slug
+	 * `?page=jetpack-newsletter`. Hooked at priority 9 so the wp-build copy
+	 * (registered at priority 10) sees the original `$_GET['page']` and
+	 * skips its own enqueue.
+	 */
+	public static function bridge_wp_build_enqueue() {
+		add_action(
+			'admin_enqueue_scripts',
+			static function ( $hook_suffix ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( ! isset( $_GET['page'] ) || self::ADMIN_SLUG !== $_GET['page'] ) {
+					return;
+				}
+
+				$enqueue_fn = 'jetpack_newsletter_jetpack_newsletter_wp_admin_enqueue_scripts';
+				if ( ! function_exists( $enqueue_fn ) ) {
+					return;
+				}
+
+				// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$original     = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
+				$_GET['page'] = self::WP_BUILD_SLUG;
+				call_user_func( $enqueue_fn, $hook_suffix );
+				if ( null === $original ) {
+					unset( $_GET['page'] );
+				} else {
+					$_GET['page'] = $original;
+				}
+				// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			},
+			9
+		);
+	}
+
+	/**
 	 * Fix import map ordering for the wp-build boot script.
 	 *
 	 * In wp-admin, _wp_footer_scripts (classic scripts) and print_import_map
@@ -162,7 +195,7 @@ class Settings {
 	 *       (WordPress/gutenberg#76870) and Jetpack updates the dependency.
 	 */
 	public static function fix_boot_import_map_ordering() {
-		$handle = self::ADMIN_SLUG . '-prerequisites';
+		$handle = self::WP_BUILD_SLUG . '-prerequisites';
 
 		add_action(
 			'admin_enqueue_scripts',
@@ -203,28 +236,6 @@ class Settings {
 			},
 			PHP_INT_MAX
 		);
-	}
-
-	/**
-	 * Redirect legacy `?page=jetpack-newsletter` URLs to the new wp-build slug.
-	 *
-	 * Bookmarks, support docs, and the My Jetpack newsletter card may still
-	 * point at the older slug. We translate transparently rather than asking
-	 * users to update their links.
-	 */
-	public static function redirect_legacy_slug() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['page'] ) || self::LEGACY_ADMIN_SLUG !== $_GET['page'] ) {
-			return;
-		}
-
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$args         = $_GET;
-		$args['page'] = self::ADMIN_SLUG;
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-		wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) );
-		exit;
 	}
 
 	/**
@@ -338,7 +349,7 @@ class Settings {
 		$is_block_theme         = wp_is_block_theme();
 		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
+		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -406,7 +417,7 @@ class Settings {
 	 * from `build/pages/jetpack-newsletter/page-wp-admin.php`.
 	 */
 	public function render() {
-		echo '<div id="jetpack-newsletter-wp-admin-app" class="boot-layout-container"></div>';
+		echo '<div id="' . esc_attr( self::WP_BUILD_SLUG ) . '-app" class="boot-layout-container"></div>';
 	}
 
 	/**

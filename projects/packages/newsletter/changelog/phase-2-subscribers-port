@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Newsletter: port the Subscribers DataViews stage into the unified Newsletter package (Phase 2 of #48416). Mounts at `/` with the subscriber-detail inspector at `?subscriber=…&u=…`; React Query hooks, modals, cells, helpers, and route styling all move under `_inc/subscribers/`.

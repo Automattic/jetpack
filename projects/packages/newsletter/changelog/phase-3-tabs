@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Newsletter: Phase 3 — add Subscribers / Settings tabs (`Tabs` from `@wordpress/ui`) to the unified page (#48416). Tab state is route-driven via `@wordpress/route` (`/` Subscribers, `/settings` Settings), so back/forward + reload + deep links all work. The Subscribers tab is hidden and `/` redirects to `/settings` when `jetpack_wp_admin_subscriber_management_enabled` is filtered to false.
