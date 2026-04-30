@@ -2,11 +2,11 @@ import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Card, Stack, Text } from '@wordpress/ui';
+import { Card, Link, Stack, Text } from '@wordpress/ui';
 import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscriber-details';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
-import { getResolvedPlans } from '../../lib/subscription-plans';
-import { getSubscriptionStatusLabel } from '../../lib/subscription-status';
+import SubscriptionStatusCell from '../cells/subscription-status-cell';
+import SubscriptionTypeCell from '../cells/subscription-type-cell';
 import type { Subscriber } from '../../data/types';
 
 type Props = {
@@ -186,8 +186,6 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 	const clickRate = ratePercent( uniqueClicks, emailsSent );
 	const dash = '—';
 
-	const plans = getResolvedPlans( subscriber as Subscriber );
-
 	return (
 		<Stack direction="column" gap="lg">
 			<Stack direction="row" align="center" gap="md">
@@ -257,19 +255,12 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 					/>
 					<DetailRow
 						label={ __( 'Email subscription', 'jetpack-subscribers-dashboard' ) }
-						value={ getSubscriptionStatusLabel( subscriber.subscription_status ) }
+						value={ <SubscriptionStatusCell status={ subscriber.subscription_status } /> }
 					/>
-					{ plans.length > 0 ? (
-						<DetailRow
-							label={ __( 'Subscription type', 'jetpack-subscribers-dashboard' ) }
-							value={ plans.map( plan => plan.plan ).join( ', ' ) }
-						/>
-					) : (
-						<DetailRow
-							label={ __( 'Subscription type', 'jetpack-subscribers-dashboard' ) }
-							value={ __( 'Free', 'jetpack-subscribers-dashboard' ) }
-						/>
-					) }
+					<DetailRow
+						label={ __( 'Subscription type', 'jetpack-subscribers-dashboard' ) }
+						value={ <SubscriptionTypeCell subscriber={ subscriber as Subscriber } /> }
+					/>
 				</Stack>
 			</DetailSection>
 
@@ -291,14 +282,9 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						label={ __( 'Site', 'jetpack-subscribers-dashboard' ) }
 						value={
 							subscriber.url ? (
-								<a
-									href={ subscriber.url }
-									target="_blank"
-									rel="noreferrer"
-									className="jetpack-subscribers-dashboard__detail-link"
-								>
+								<Link href={ subscriber.url } openInNewTab tone="neutral">
 									{ subscriber.url }
-								</a>
+								</Link>
 							) : null
 						}
 					/>

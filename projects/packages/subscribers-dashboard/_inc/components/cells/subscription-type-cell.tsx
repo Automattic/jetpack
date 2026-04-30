@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import { getResolvedPlans } from '../../lib/subscription-plans';
 import type { Subscriber } from '../../data/types';
 
@@ -8,8 +8,9 @@ type Props = {
 };
 
 /**
- * Subscription type cell — paid plans list paid plans by name; otherwise shows "Comp" when any
- * complimentary plan is present, falling back to "Free". Mirrors Calypso's `SubscriptionTypeCell`.
+ * Subscription type cell — paid plans render as stable-intent `Badge`s named after the plan;
+ * complimentary subscriptions render as an informational badge ("Comp"); a free reader gets a
+ * neutral badge. Mirrors Calypso's `SubscriptionTypeCell`.
  *
  * @param props            - Component props.
  * @param props.subscriber - Subscriber row.
@@ -21,9 +22,11 @@ export default function SubscriptionTypeCell( { subscriber }: Props ): JSX.Eleme
 	const paidPlans = plans.filter( plan => ! plan.is_complimentary && ! plan.is_free );
 	if ( paidPlans.length > 0 ) {
 		return (
-			<Stack direction="column" gap="xs">
+			<Stack direction="row" gap="xs" wrap="wrap">
 				{ paidPlans.map( ( plan, index ) => (
-					<span key={ `${ plan.plan }-${ index }` }>{ plan.plan }</span>
+					<Badge key={ `${ plan.plan }-${ index }` } intent="stable">
+						{ plan.plan }
+					</Badge>
 				) ) }
 			</Stack>
 		);
@@ -31,8 +34,8 @@ export default function SubscriptionTypeCell( { subscriber }: Props ): JSX.Eleme
 
 	const hasComp = plans.some( plan => plan.is_complimentary );
 	if ( hasComp ) {
-		return <span>{ __( 'Comp', 'jetpack-subscribers-dashboard' ) }</span>;
+		return <Badge intent="informational">{ __( 'Comp', 'jetpack-subscribers-dashboard' ) }</Badge>;
 	}
 
-	return <span>{ __( 'Free', 'jetpack-subscribers-dashboard' ) }</span>;
+	return <Badge intent="none">{ __( 'Free', 'jetpack-subscribers-dashboard' ) }</Badge>;
 }

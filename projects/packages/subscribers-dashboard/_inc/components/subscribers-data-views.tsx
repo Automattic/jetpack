@@ -8,6 +8,7 @@ import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { useViewState } from '../lib/use-view-state';
 import SubscriberIdentity from './cells/subscriber-identity';
+import SubscriptionStatusCell from './cells/subscription-status-cell';
 import SubscriptionTypeCell from './cells/subscription-type-cell';
 import EmptyState from './empty-state';
 import UnsubscribeModal from './modals/unsubscribe-modal';
@@ -113,6 +114,9 @@ export default function SubscribersDataViews( {
 				label: __( 'Email subscription', 'jetpack-subscribers-dashboard' ),
 				getValue: ( { item }: { item: Subscriber } ) =>
 					getSubscriptionStatusLabel( item.subscription_status ),
+				render: ( { item }: { item: Subscriber } ) => (
+					<SubscriptionStatusCell status={ item.subscription_status } />
+				),
 				elements: [
 					{
 						label: __( 'Subscribed', 'jetpack-subscribers-dashboard' ),
