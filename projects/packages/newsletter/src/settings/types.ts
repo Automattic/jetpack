@@ -46,6 +46,7 @@ export interface NewsletterScriptData {
 	gravatar: string;
 	dateExample: string;
 	subscriberManagementUrl: string;
+	subscriberManagementEnabled: boolean;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;

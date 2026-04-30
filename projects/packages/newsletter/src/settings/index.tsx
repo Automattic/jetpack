@@ -3,13 +3,13 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { Page } from '@wordpress/admin-ui';
 import { Notice, Disabled, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Stack } from '@wordpress/ui';
+import NewsletterPage from '../../_inc/components/newsletter-page';
 /**
  * Internal dependencies
  */
@@ -320,31 +320,25 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 			} );
 	}, [ createErrorNotice, createSuccessNotice, welcomeEmailChanges, data ] );
 
-	const pageTitle = 'Newsletter'; /** "Newsletter" is a product name, do not translate. */
-	const pageSubtitle = __(
-		'Transform your blog posts into newsletters to easily reach your subscribers.',
-		'jetpack-newsletter'
-	);
-
 	if ( isLoading ) {
 		return (
-			<Page title={ pageTitle } ariaLabel={ pageTitle } subTitle={ pageSubtitle }>
+			<NewsletterPage activeTab="settings">
 				<div className="newsletter-settings">
 					<Spinner />
 				</div>
-			</Page>
+			</NewsletterPage>
 		);
 	}
 
 	if ( error ) {
 		return (
-			<Page title={ pageTitle } ariaLabel={ pageTitle } subTitle={ pageSubtitle }>
+			<NewsletterPage activeTab="settings">
 				<div className="newsletter-settings newsletter-settings--error">
 					<Notice status="error" isDismissible={ false }>
 						{ error }
 					</Notice>
 				</div>
-			</Page>
+			</NewsletterPage>
 		);
 	}
 
@@ -358,7 +352,7 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<Page title={ pageTitle } ariaLabel={ pageTitle } subTitle={ pageSubtitle }>
+		<NewsletterPage activeTab="settings">
 			<div id="jp-admin-notices" className="newsletter-jitm-card" />
 			<Stack gap="md" direction="column" className="newsletter-settings">
 				<NewsletterSection data={ data } onChange={ handleAutoSave } />
@@ -426,6 +420,6 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 					</Stack>
 				</Disabled>
 			</Stack>
-		</Page>
+		</NewsletterPage>
 	);
 }

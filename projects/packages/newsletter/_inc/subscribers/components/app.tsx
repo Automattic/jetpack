@@ -1,14 +1,11 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Page } from '@wordpress/admin-ui';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
+import NewsletterPage from '../../components/newsletter-page';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { queryClient } from '../lib/query-client';
 import { getBlogId } from '../lib/site';
 import HeaderActions from './header-actions';
-import JetpackLogo from './jetpack-logo';
 import AddSubscribersModal from './modals/add-subscribers-modal';
 import SubscribersDataViews from './subscribers-data-views';
 import type { Subscriber } from '../data/types';
@@ -73,21 +70,11 @@ export default function App(): JSX.Element {
 		[ navigate, search ]
 	);
 
-	const productName = 'Newsletter'; /** "Newsletter" is a product name, do not translate. */
-	const title = (
-		<Stack direction="row" align="center" gap="xs">
-			<JetpackLogo height={ 20 } />
-			<span>{ productName }</span>
-		</Stack>
-	);
-
 	return (
 		<QueryClientProvider client={ queryClient }>
 			<div className="jetpack-newsletter">
-				<Page
-					title={ title }
-					ariaLabel={ productName }
-					subTitle={ __( 'Reach and grow your audience with newsletters.', 'jetpack-newsletter' ) }
+				<NewsletterPage
+					activeTab="subscribers"
 					actions={ <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } /> }
 					hasPadding={ false }
 				>
@@ -95,7 +82,7 @@ export default function App(): JSX.Element {
 						onAddSubscribers={ openAdd }
 						onViewSubscriber={ handleViewSubscriber }
 					/>
-				</Page>
+				</NewsletterPage>
 				<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
 			</div>
 		</QueryClientProvider>
