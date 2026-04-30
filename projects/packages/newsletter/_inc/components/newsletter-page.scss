@@ -38,6 +38,14 @@ body.jetpack_page_jetpack-newsletter {
 		flex-shrink: 0;
 		padding-inline: $jetpack-newsletter-inset;
 		width: 100%;
+
+		// Sticky-stick the tab row directly beneath the sticky page header,
+		// so Subscribers / Settings stay visible while content scrolls.
+		// `--jetpack-newsletter-header-height` is set on `.admin-ui-page` by
+		// `NewsletterPage` via a ResizeObserver.
+		position: sticky;
+		top: var(--jetpack-newsletter-header-height, 96px);
+		z-index: 9;
 	}
 
 	.jetpack-newsletter-page__content--padded {

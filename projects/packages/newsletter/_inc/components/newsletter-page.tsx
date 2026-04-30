@@ -2,7 +2,7 @@ import analytics from '@automattic/jetpack-analytics';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import { Page } from '@wordpress/admin-ui';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Stack, Tabs } from '@wordpress/ui';
@@ -67,6 +67,34 @@ export default function NewsletterPage( {
 }: Props ): JSX.Element {
 	const navigate = useNavigate();
 	const subscribersEnabled = getNewsletterScriptData()?.subscriberManagementEnabled !== false;
+
+	// Track the Page header's height so the tab row can sticky-stick directly
+	// underneath it. Stored as a CSS var on the page container — we don't
+	// know the height ahead of time (subtitle wrapping, badges, etc).
+	useEffect( () => {
+		const header = document.querySelector< HTMLElement >( '.admin-ui-page__header' );
+		const target = document.querySelector< HTMLElement >( '.admin-ui-page' );
+		if ( ! header || ! target ) {
+			return;
+		}
+		const stage = document.querySelector< HTMLElement >( '.boot-layout__stage' );
+		const sync = () => {
+			target.style.setProperty(
+				'--jetpack-newsletter-header-height',
+				`${ Math.ceil( header.getBoundingClientRect().height ) }px`
+			);
+		};
+		sync();
+		const ro = new ResizeObserver( sync );
+		ro.observe( header );
+		stage?.addEventListener( 'scroll', sync, { passive: true } );
+		window.addEventListener( 'resize', sync );
+		return () => {
+			ro.disconnect();
+			stage?.removeEventListener( 'scroll', sync );
+			window.removeEventListener( 'resize', sync );
+		};
+	}, [] );
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
