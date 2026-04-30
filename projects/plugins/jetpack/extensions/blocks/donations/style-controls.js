@@ -4,7 +4,6 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalColorGradientControl as ColorGradientControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import {
 	BorderBoxControl,
@@ -98,6 +97,22 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		]
 	);
 
+	const amountColorSettings = useMemo(
+		() => [
+			{
+				label: __( 'Selected amount background', 'jetpack' ),
+				value: selectedAmountBackgroundColor,
+				onChange: set.selectedAmountBackgroundColor,
+			},
+			{
+				label: __( 'Selected amount text', 'jetpack' ),
+				value: selectedAmountTextColor,
+				onChange: set.selectedAmountTextColor,
+			},
+		],
+		[ selectedAmountBackgroundColor, selectedAmountTextColor, set ]
+	);
+
 	return (
 		<InspectorControls group="styles">
 			<PanelBody title={ __( 'Tabs', 'jetpack' ) } initialOpen={ false }>
@@ -136,20 +151,12 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				/>
 			</PanelBody>
 			<PanelBody title={ __( 'Amounts', 'jetpack' ) } initialOpen={ false }>
-				<ColorGradientControl
-					label={ __( 'Selected amount background', 'jetpack' ) }
-					colorValue={ selectedAmountBackgroundColor }
-					onColorChange={ set.selectedAmountBackgroundColor }
-				/>
-				<ColorGradientControl
-					label={ __( 'Selected amount text', 'jetpack' ) }
-					colorValue={ selectedAmountTextColor }
-					onColorChange={ set.selectedAmountTextColor }
-				/>
-				<ContrastChecker
-					backgroundColor={ selectedAmountBackgroundColor }
-					textColor={ selectedAmountTextColor }
-				/>
+				<PanelColorSettings showTitle={ false } colorSettings={ amountColorSettings }>
+					<ContrastChecker
+						backgroundColor={ selectedAmountBackgroundColor }
+						textColor={ selectedAmountTextColor }
+					/>
+				</PanelColorSettings>
 				<FontSizePicker
 					value={ amountFontSize }
 					onChange={ set.amountFontSize }
