@@ -18,7 +18,13 @@
 //   <AdminPage> root:        .jp-admin-page   (added unconditionally by the
 //                                              <AdminPage> component from
 //                                              @automattic/jetpack-components)
-//   @wordpress/admin-ui:     .admin-ui-page, .admin-ui-page__header
+//   admin-ui's <Page>:       .jp-admin-page__page   (className passed through
+//                                                    by <AdminPage>; admin-ui
+//                                                    2.0.0 forwards it onto
+//                                                    the page's outer node)
+//   admin-ui's header:       <header> element rendered by admin-ui's <Page>
+//                            inside `.jp-admin-page__page` (no class hooks —
+//                            we anchor structurally to the HTML5 element)
 //   <JetpackFooter>:         .jetpack-footer
 //   Tabs wrapper convention: .jp-admin-page-tabs   (consumer-applied div that
 //                                                   wraps `@wordpress/ui`
@@ -177,10 +183,16 @@ $jp-breakpoint-mobile: 782px;
 	}
 
 	// ── admin-ui Page internals ───────────────────────────────────────
-	// admin-ui ships `.admin-ui-page` with `height: 100%`, which fills its
+	// admin-ui ships its page node with `height: 100%`, which fills its
 	// parent's computed height. Paired with our flex chain, the element
 	// becomes a viewport-fitted flex column.
-	.admin-ui-page {
+
+	// admin-ui 2.0.0 moved internals to CSS Modules (no `.admin-ui-page*`
+	// class hooks anymore). We pass `className="jp-admin-page__page"` from
+	// <AdminPage>; admin-ui forwards it onto the page's outer node. The
+	// header is a stable `<header>` element directly inside that node, so
+	// we anchor to `> header` instead of a class.
+	.jp-admin-page__page {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
@@ -188,100 +200,29 @@ $jp-breakpoint-mobile: 782px;
 		flex-direction: column;
 	}
 
-	.admin-ui-page__header {
+	.jp-admin-page__page > header {
 		flex-shrink: 0;              // pinned at top of the flex column.
 	}
 
-	// When the page hosts a tabs strip, drop the header's bottom border AND
-	// its bottom padding so the strip sits flush against the header. The
-	// strip's own hairline becomes the only divider between header and tab
-	// content. Same `:has()` pattern used elsewhere in this mixin to react
-	// to the page's content shape.
-	.admin-ui-page:has(.jp-admin-page-tabs) .admin-ui-page__header {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-
 	// The scrollable middle. <AdminPage> does not pass `hasPadding` to
-	// admin-ui's <Page>, so `.admin-ui-page__content` is not rendered —
-	// children drop in as direct descendants of `.admin-ui-page`. Target
+	// admin-ui's <Page>, so admin-ui's content wrapper is not rendered —
+	// children drop in as direct descendants of the page node. Target
 	// anything that isn't the header or the footer.
 
 	// `overflow: auto` (both axes) lets any child wider than the column
 	// (dashboard grids with fixed column widths, wide tables, `100vw`
 	// descendants) scroll horizontally inside the middle instead of
 	// dragging the whole window into a horizontal scrollbar.
-
-	// `<AdminPage>` (title-branch) wraps children in
-	// `<Container fluid horizontalSpacing={0}><Col>{children}</Col></Container>`
-	// — that outer Container is `display: grid` and the single Col is a
-	// grid cell. Without intervention, the chain breaks here: any inner
-	// flex sizing on the consumer's wrapper (`flex: 1 1 auto; min-height: 0`)
-	// is inert under a non-flex parent, so DataViews-style pages let their
-	// content grow to its natural size and the outer Container scrolls
-	// the whole thing — instead of letting the consumer's own internal
-	// scroll surface (e.g. `.dataviews-layout__container`) handle it.
-	// Force the outer Container/Col pair to flex column so consumers can
-	// fill their bounded slot. Form-style pages keep working: their
-	// children stay content-sized (default `flex: 0 1 auto`) and any
-	// overflow still falls back to Container's `overflow: auto`.
-	.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer) {
+	.jp-admin-page__page > :not(header):not(.jetpack-footer) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
 		overflow: auto;
-		display: flex;
-		flex-direction: column;
-
-		> * {
-			flex: 1 1 auto;
-			min-height: 0;
-			min-width: 0;
-			display: flex;
-			flex-direction: column;
-		}
 	}
 
 	// ── <JetpackFooter> pinned at the bottom ─────────────────────────
 	.jetpack-footer {
 		flex-shrink: 0;
-	}
-
-	// ── Tabs strip (`@wordpress/ui` Tabs hosted inside the page) ─────
-	// Consumers that render `Tabs.List` from `@wordpress/ui` inside an
-	// AdminPage should wrap it in `<div class="jp-admin-page-tabs">`.
-	// The wrapper exists because `Tabs.List` ships with `width: fit-content`
-	// (so its tabs don't stretch to fill the row); a `border-bottom` on the
-	// list shrinks to the tabs' width. The wrapper takes the full block
-	// width of the panel area, so the hairline spans the column.
-
-	// `position: sticky` pins the strip to the top of the scrollable middle
-	// (`.admin-ui-page > :not(.admin-ui-page__header):not(.jetpack-footer)`),
-	// which is the local opt-in equivalent of admin-ui's native sticky
-	// header — disabled globally by `<AdminPage>` per JETPACK-1386. Pinning
-	// the tabs strip here keeps cross-section navigation accessible while
-	// content scrolls underneath.
-
-	// Surface + hairline use the same `--wpds-*` design tokens that
-	// `@wordpress/admin-ui` applies to `.admin-ui-page__header`, so the
-	// tabs strip reads as a visual continuation of the page header and
-	// tracks any future token (theme/dark-mode) changes automatically.
-	.jp-admin-page-tabs {
-		position: sticky;
-		top: 0;
-		z-index: 10;
-		background: var(--wpds-color-bg-surface-neutral-strong);
-		border-bottom: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-
-		// Align tab buttons' inline padding with the page header's
-		// horizontal padding (admin-ui ships `.admin-ui-page__header`
-		// at `padding-inline: var(--wpds-dimension-padding-2xl)`).
-		// `@wordpress/ui` Tabs default the buttons to `padding-inline:
-		// var(--wpds-dimension-padding-lg)`; bump them to 2xl so the
-		// first tab's start edge lines up under the page title.
-		[role="tab"] {
-			padding-inline: var(--wpds-dimension-padding-2xl, 24px);
-		}
 	}
 
 	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────
