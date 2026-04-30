@@ -123,6 +123,14 @@ export function resolveFilterFields( config ) {
  * `ROUND(avg_rating, 0)` semantics: star=5 covers avg ∈ [4.5, ∞),
  * star=4 covers [3.5, 4.5), down to star=1 covering [0.5, 1.5).
  *
+ * Products with `_wc_average_rating` < 0.5 fall into a histogram
+ * bucket at -0.5 with no corresponding star entry — they're returned
+ * in unfiltered results but cannot be selected via the rating filter.
+ * This matches WC's own `ROUND(avg_rating, 0)` filter UI which has
+ * no "0-star" option either; when the front-end filter block lands
+ * (DSGWOO-equivalent on the Search 3.0 side) it will surface only the
+ * 1–5 entries here.
+ *
  * Aggregation uses a histogram (range aggs aren't whitelisted on the
  * WPCOM v1.3 search API). `histogramKey` is the bucket key the
  * histogram emits for that star band when called with `interval: 1`
@@ -160,9 +168,10 @@ export function buildAggregations( filterConfigs ) {
 		// produces buckets keyed at .5 boundaries, mirroring WC's
 		// ROUND(avg_rating) star buckets.
 		if ( config?.filterType === 'wc_rating' ) {
+			const { aggField: ratingField } = resolveFilterFields( config );
 			aggregations[ filterKey ] = {
 				histogram: {
-					field: 'meta._wc_average_rating.double',
+					field: ratingField,
 					interval: 1,
 					offset: 0.5,
 					min_doc_count: 0,
@@ -212,8 +221,9 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		const config = filterConfigs?.[ filterKey ];
 
 		// Rating: each selected star level maps to a range clause on
-		// `meta._wc_average_rating.double`; multiple selections OR.
+		// the rating field resolved from the config; multiple selections OR.
 		if ( config?.filterType === 'wc_rating' ) {
+			const { filterField: ratingField } = resolveFilterFields( config );
 			const ranges = values
 				.map( value => WC_RATING_RANGES.find( r => r.key === String( value ) ) )
 				.filter( Boolean )
@@ -222,7 +232,7 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 					if ( r.to !== undefined ) {
 						range.lt = r.to;
 					}
-					return { range: { 'meta._wc_average_rating.double': range } };
+					return { range: { [ ratingField ]: range } };
 				} );
 			if ( ranges.length === 0 ) {
 				continue;
@@ -304,11 +314,13 @@ export function buildSearchUrl( {
 			range.lte = priceRange.max;
 		}
 		const rangeClause = { range: { 'wc.price': range } };
-		if ( filter ) {
-			filter.bool.must.push( rangeClause );
-		} else {
-			filter = { bool: { must: [ rangeClause ] } };
-		}
+		// Build a fresh wrapper rather than mutating the object returned by
+		// `buildFilterClause` — safe today because that helper always returns
+		// a freshly constructed object, but the non-mutating shape stays
+		// correct if memoisation or caching is added later.
+		filter = filter
+			? { bool: { must: [ ...filter.bool.must, rangeClause ] } }
+			: { bool: { must: [ rangeClause ] } };
 	}
 	if ( filter ) {
 		params.filter = filter;
