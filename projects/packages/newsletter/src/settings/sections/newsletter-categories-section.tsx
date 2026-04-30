@@ -8,20 +8,11 @@ import {
 	getSiteType,
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
-import {
-	Button,
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	ExternalLink,
-	Notice,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Button, ExternalLink, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -166,11 +157,11 @@ export function NewsletterCategoriesSection( {
 	);
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Newsletter categories', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Newsletter categories', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<p>
 					<Text>
 						{ createInterpolateElement(
@@ -210,23 +201,23 @@ export function NewsletterCategoriesSection( {
 						</p>
 					) }
 				</fieldset>
-			</CardBody>
-			<CardFooter>
-				<Button
-					variant="primary"
-					onClick={ handleSave }
-					disabled={
-						! isNewsletterEnabled ||
-						isSaving ||
-						! hasChanges ||
-						isFetchingCategories ||
-						( data.wpcom_newsletter_categories_enabled && ! isValid )
-					}
-					isBusy={ isSaving }
-				>
-					{ isSaving ? savingText : saveText }
-				</Button>
-			</CardFooter>
-		</Card>
+				<Stack direction="row" justify="flex-end" className="newsletter-card-footer">
+					<Button
+						variant="primary"
+						onClick={ handleSave }
+						disabled={
+							! isNewsletterEnabled ||
+							isSaving ||
+							! hasChanges ||
+							isFetchingCategories ||
+							( data.wpcom_newsletter_categories_enabled && ! isValid )
+						}
+						isBusy={ isSaving }
+					>
+						{ isSaving ? savingText : saveText }
+					</Button>
+				</Stack>
+			</Card.Content>
+		</Card.Root>
 	);
 }

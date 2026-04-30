@@ -4,18 +4,11 @@
 import analytics from '@automattic/jetpack-analytics';
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
-import {
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	ExternalLink,
-	ToggleControl,
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -113,11 +106,11 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 	];
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Newsletter', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Newsletter', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<DataForm
 					data={ data }
 					fields={ fields }
@@ -130,22 +123,22 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 					} }
 					onChange={ handleChange }
 				/>
-			</CardBody>
-			<CardFooter className="newsletter-card-footer">
-				<ExternalLink
-					href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
-				>
-					{ __( 'Privacy information', 'jetpack-newsletter' ) }
-				</ExternalLink>
-				{ data.subscriptions && newsletterScriptData && (
+				<Stack direction="row" justify="space-between" gap="sm" className="newsletter-card-links">
 					<ExternalLink
-						href={ newsletterScriptData.subscriberManagementUrl }
-						onClick={ handleManageSubscribersClick }
+						href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
 					>
-						{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
+						{ __( 'Privacy information', 'jetpack-newsletter' ) }
 					</ExternalLink>
-				) }
-			</CardFooter>
-		</Card>
+					{ data.subscriptions && newsletterScriptData && (
+						<ExternalLink
+							href={ newsletterScriptData.subscriberManagementUrl }
+							onClick={ handleManageSubscribersClick }
+						>
+							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
+						</ExternalLink>
+					) }
+				</Stack>
+			</Card.Content>
+		</Card.Root>
 	);
 }

@@ -3,18 +3,11 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import {
-	Button,
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -205,11 +198,11 @@ export function SubscriptionsSection( {
 	];
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Subscriptions', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Subscriptions', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<p>
 					<Text>
 						{ __(
@@ -256,17 +249,17 @@ export function SubscriptionsSection( {
 						onChange={ onChange }
 					/>
 				</fieldset>
-			</CardBody>
-			<CardFooter>
-				<Button
-					variant="primary"
-					onClick={ handleSave }
-					disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-					isBusy={ isSaving }
-				>
-					{ isSaving ? savingText : saveText }
-				</Button>
-			</CardFooter>
-		</Card>
+				<Stack direction="row" justify="flex-end" className="newsletter-card-footer">
+					<Button
+						variant="primary"
+						onClick={ handleSave }
+						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+						isBusy={ isSaving }
+					>
+						{ isSaving ? savingText : saveText }
+					</Button>
+				</Stack>
+			</Card.Content>
+		</Card.Root>
 	);
 }

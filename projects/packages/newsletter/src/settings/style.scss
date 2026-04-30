@@ -20,15 +20,17 @@
 		margin-block-end: var(--wpds-dimension-gap-lg, 24px);
 	}
 
-	.components-card__body > p:first-child {
-		margin-top: 0;
+	// Inline link row at the bottom of the Newsletter card (Privacy info /
+	// Manage all subscribers). WPDS Card.Content stacks children vertically.
+	.newsletter-card-links {
+		flex-wrap: wrap;
+		margin-block-start: var(--wpds-dimension-gap-lg, 24px);
 	}
 
+	// Save button row at the bottom of the cards that need an explicit save.
 	.newsletter-card-footer {
-		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-between;
-		gap: 8px;
+		margin-block-start: var(--wpds-dimension-gap-lg, 24px);
 	}
 }
 
