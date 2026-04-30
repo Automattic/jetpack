@@ -76,30 +76,21 @@ export function UpsellCallout() {
 
 	return (
 		<div className="jp-activity-log__upsell-callout">
-			<img
-				className="jp-activity-log__upsell-callout-image"
-				src={ illustrationUrl }
-				alt=""
-				role="presentation"
-			/>
 			<div className="jp-activity-log__upsell-callout-content">
 				<h2 className="jp-activity-log__upsell-callout-title">
-					{ __( 'Track every action with Jetpack Activity Log', 'jetpack-activity-log' ) }
+					{ __( 'Track every action with Activity logs', 'jetpack-activity-log' ) }
 				</h2>
 				<Text as="p" variant="muted">
 					{ __(
-						'Debug issues faster with insights from a comprehensive audit log of all your admin activities.',
+						'Debug issues faster with insights from a comprehensive audit log of all your site events.',
 						'jetpack-activity-log'
 					) }
 				</Text>
 				<Text as="p" variant="muted">
 					{ __(
-						'With your free plan, you can see your 20 most recent events. Upgrade for 30 days of history, plus filtering and date range controls.',
+						'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on the Jetpack Security and Complete plans.',
 						'jetpack-activity-log'
 					) }
-				</Text>
-				<Text as="p" variant="muted">
-					{ __( 'Available on the Jetpack Security and Complete plans.', 'jetpack-activity-log' ) }
 				</Text>
 				<Button
 					variant="primary"
@@ -107,9 +98,15 @@ export function UpsellCallout() {
 					isBusy={ hasCheckoutStarted }
 					disabled={ hasCheckoutStarted }
 				>
-					{ __( 'Upgrade', 'jetpack-activity-log' ) }
+					{ __( 'Upgrade plan', 'jetpack-activity-log' ) }
 				</Button>
 			</div>
+			<img
+				className="jp-activity-log__upsell-callout-image"
+				src={ illustrationUrl }
+				alt=""
+				role="presentation"
+			/>
 		</div>
 	);
 }
