@@ -205,7 +205,8 @@ class Donations_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Full-width alignment emits block-level width 100% rules instead of text-align.
+	 * Full-width alignment emits block-level width 100% rules instead of text-align on
+	 * the wrapper, and centers the text inside the now-block-level button.
 	 */
 	public function test_build_custom_styles_emits_full_width() {
 		$css = Donations\build_custom_styles( array( 'buttonAlignment' => 'full' ), '.jp-donations-1' );
@@ -214,10 +215,40 @@ class Donations_Test extends \WP_UnitTestCase {
 			$css
 		);
 		$this->assertStringContainsString(
-			'.jp-donations-1 .donations__donate-button{display:block;width:100%;box-sizing:border-box}',
+			'.jp-donations-1 .donations__donate-button{display:block;width:100%;box-sizing:border-box;text-align:center}',
 			$css
 		);
-		$this->assertStringNotContainsString( 'text-align', $css );
+		$this->assertStringNotContainsString( 'donate-button-wrapper{text-align', $css );
+	}
+
+	/**
+	 * Buttons-style nav inherits user-set tab padding-top/bottom so the row scales
+	 * with the pill interior padding.
+	 */
+	public function test_build_custom_styles_buttons_nav_mirrors_tab_padding() {
+		$attr = array(
+			'tabPadding' => array(
+				'top'    => '8px',
+				'bottom' => '8px',
+				'left'   => '20px',
+				'right'  => '20px',
+			),
+		);
+
+		$css = Donations\build_custom_styles( $attr, '.jp-donations-1' );
+
+		$this->assertStringContainsString(
+			'.jp-donations-1.is-style-buttons .donations__nav{padding-top:8px;padding-bottom:8px}',
+			$css
+		);
+	}
+
+	/**
+	 * Without a top or bottom user value, no buttons-style nav rule is emitted.
+	 */
+	public function test_build_custom_styles_no_buttons_nav_rule_without_user_padding() {
+		$css = Donations\build_custom_styles( array(), '.jp-donations-1' );
+		$this->assertStringNotContainsString( 'is-style-buttons', $css );
 	}
 
 	/**
