@@ -4891,7 +4891,7 @@ importers:
         version: 6.1.20
       '@wordpress/theme':
         specifier: 0.11.0
-        version: 0.11.0(stylelint@17.7.0)
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
       chart.js:
         specifier: 4.5.0
         version: 4.5.0
@@ -4928,6 +4928,12 @@ importers:
       push.js:
         specifier: 1.0.12
         version: 1.0.12
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -25462,15 +25468,6 @@ snapshots:
       memize: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-    optionalDependencies:
-      stylelint: 17.7.0
-
-  '@wordpress/theme@0.11.0(stylelint@17.7.0)':
-    dependencies:
-      '@wordpress/element': 6.44.0
-      '@wordpress/private-apis': 1.44.0
-      colorjs.io: 0.6.1
-      memize: 2.1.1
     optionalDependencies:
       stylelint: 17.7.0
 
