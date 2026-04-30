@@ -2,8 +2,7 @@ import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { chartBar, envelope, navigation } from '@wordpress/icons';
-import { Card, Icon, Stack, Text } from '@wordpress/ui';
+import { Card, Stack, Text } from '@wordpress/ui';
 import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscriber-details';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import { getResolvedPlans } from '../../lib/subscription-plans';
@@ -52,27 +51,15 @@ function ratePercent( numerator: number, denominator: number ): number | null {
  * @param props       - Tile props.
  * @param props.label - Stat label.
  * @param props.value - Stat value (string already formatted).
- * @param props.icon  - Lead icon.
  * @return Card containing the labeled stat.
  */
-function StatCard( {
-	label,
-	value,
-	icon,
-}: {
-	label: string;
-	value: string;
-	icon: React.ReactElement< React.ComponentProps< 'svg' > >;
-} ): JSX.Element {
+function StatCard( { label, value }: { label: string; value: string } ): JSX.Element {
 	return (
 		<Card.Root className="jetpack-subscribers-dashboard__detail-stat">
 			<Card.Content>
-				<Stack direction="row" align="center" gap="sm">
-					<Icon icon={ icon } size={ 18 } />
-					<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-stat-label">
-						{ label }
-					</Text>
-				</Stack>
+				<Text variant="body-sm" className="jetpack-subscribers-dashboard__detail-stat-label">
+					{ label }
+				</Text>
 				<Text
 					variant="heading-xl"
 					render={ <span /> }
@@ -233,7 +220,6 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 				<StatCard
 					label={ __( 'Emails sent', 'jetpack-subscribers-dashboard' ) }
 					value={ statsQuery.isLoading ? dash : String( emailsSent ) }
-					icon={ envelope }
 				/>
 				<StatCard
 					label={ __( 'Open rate', 'jetpack-subscribers-dashboard' ) }
@@ -246,7 +232,6 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 									openRate
 							  )
 					}
-					icon={ chartBar }
 				/>
 				<StatCard
 					label={ __( 'Click rate', 'jetpack-subscribers-dashboard' ) }
@@ -259,7 +244,6 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 									clickRate
 							  )
 					}
-					icon={ navigation }
 				/>
 			</Stack>
 

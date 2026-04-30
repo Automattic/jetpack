@@ -61,12 +61,8 @@
 	margin-top: var(--wpds-dimension-gap-sm, 8px);
 }
 
-// Grouped sections.
-.jetpack-subscribers-dashboard__detail-section [class*="__detail-row"]:not(:last-child) {
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
-	padding-bottom: var(--wpds-dimension-padding-sm, 8px);
-}
-
+// Grouped sections — Card already provides the outer border, so rows just sit
+// in a column with the design-system gap.
 .jetpack-subscribers-dashboard__detail-row-label {
 	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
 }
