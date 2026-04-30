@@ -56,3 +56,12 @@
 .jetpack-donations__currency-popover .components-popover__content {
 	min-width: 130px;
 }
+
+// Apply consistent vertical spacing between top-level controls inside our
+// custom style panels. Default control margins are inconsistent between
+// FontSizePicker, BoxControl, BorderBoxControl, BorderRadiusControl, etc.,
+// which leaves some sections crammed together. The first child (the panel
+// title) is excluded.
+.jp-donations-style-panel.components-panel__body > *:not(:first-child) {
+	margin-block-start: 24px;
+}
