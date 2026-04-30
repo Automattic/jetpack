@@ -183,7 +183,7 @@ class Search_Blocks {
 			array(
 				'name'        => 'custom_taxonomy',
 				'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
-				'description' => __( 'Show checkboxes for any registered taxonomy.', 'jetpack-search-pkg' ),
+				'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => '',

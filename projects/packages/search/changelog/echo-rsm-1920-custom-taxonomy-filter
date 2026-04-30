@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search 3.0: surface a Taxonomy picker so the Custom Taxonomy filter variation actually targets a registered taxonomy.
