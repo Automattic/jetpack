@@ -706,6 +706,12 @@ const { state } = store( 'wpcom-write', {
 			// Auto-resize textarea height for browsers without field-sizing support.
 			el.ref.style.height = 'auto';
 			el.ref.style.height = el.ref.scrollHeight + 'px';
+
+			// Dismiss the recovery banner once the user starts editing.
+			if ( state.showRecoveryBanner ) {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+				state.showRecoveryBanner = false;
+			}
 		},
 
 		handleTitleKeyDown( event ) {
@@ -753,6 +759,12 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		checkFormatting() {
+			// Dismiss the recovery banner once the user starts editing.
+			if ( state.showRecoveryBanner ) {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+				state.showRecoveryBanner = false;
+			}
+
 			// Check for slash commands first.
 			const { actions } = store( 'wpcom-write' );
 			actions.checkSlashCommand();
@@ -1564,7 +1576,9 @@ const { state } = store( 'wpcom-write', {
 		 * Perform a periodic autosave if the editor is dirty.
 		 */
 		async autosave() {
-			if ( ! isDirty() || state.isSaving || state.isPublished ) {
+			// Skip autosave for published posts — partial edits should not go live silently.
+			// Users can still save manually via the unsaved-changes modal.
+			if ( ! isDirty() || state.isSaving || state.isPublished || state.postStatus === 'publish' ) {
 				return;
 			}
 
@@ -1575,7 +1589,7 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
-			await savePost( state.postStatus === 'publish' ? 'publish' : 'draft', true );
+			await savePost( 'draft', true );
 		},
 
 		/**
@@ -1678,14 +1692,8 @@ async function savePost( postStatus, isAutosave = false ) {
 			// Quiet autosave — no redirect, no localStorage clear.
 			state.hasSaved = true;
 			state.isSaving = false;
-			state.message =
-				postStatus === 'publish'
-					? i18n.changesSaved || 'Changes saved'
-					: i18n.draftAutosaved || 'Draft saved';
-			// Only store recovery reference for drafts, not published posts.
-			if ( postStatus !== 'publish' ) {
-				localStorage.setItem( AUTOSAVE_STORAGE_KEY, String( post.id ) );
-			}
+			state.message = i18n.draftAutosaved || 'Draft saved';
+			localStorage.setItem( AUTOSAVE_STORAGE_KEY, String( post.id ) );
 			setTimeout( () => {
 				state.message = '';
 			}, AUTOSAVE_MESSAGE_DURATION_MS );
