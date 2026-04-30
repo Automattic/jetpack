@@ -1,5 +1,5 @@
 import { TextareaControl } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, Notice, Stack, Tabs, Text } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
@@ -139,17 +139,24 @@ function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 	// valid email enables the CTA right away.
 	const { valid } = useMemo( () => partitionEmails( splitEntries( value ) ), [ value ] );
 
-	// Inline warning runs against a debounced value so a half-typed `reader@` doesn't flash a
-	// "looks invalid" notice under the textarea on every keystroke. Re-runs ~400ms after the
-	// last edit.
-	const [ debouncedValue, setDebouncedValue ] = useState( '' );
-	useEffect( () => {
-		const handle = setTimeout( () => setDebouncedValue( value ), 400 );
-		return () => clearTimeout( handle );
-	}, [ value ] );
+	// Inline warning only updates when the textarea loses focus, so a half-typed `reader@`
+	// doesn't flash a "looks invalid" notice mid-word. We hold the most-recently-blurred value
+	// and re-partition that — clearing it again as the user starts typing again so a stale
+	// warning isn't shown after the user starts fixing it.
+	const [ blurredValue, setBlurredValue ] = useState( '' );
+	const handleChange = useCallback(
+		( next: string ) => {
+			setValue( next );
+			if ( blurredValue !== '' ) {
+				setBlurredValue( '' );
+			}
+		},
+		[ blurredValue ]
+	);
+	const handleBlur = useCallback( () => setBlurredValue( value ), [ value ] );
 	const { invalid } = useMemo(
-		() => partitionEmails( splitEntries( debouncedValue ) ),
-		[ debouncedValue ]
+		() => partitionEmails( splitEntries( blurredValue ) ),
+		[ blurredValue ]
 	);
 
 	const handleSubmit = useCallback( () => {
@@ -159,7 +166,7 @@ function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 		mutation.mutate( valid, {
 			onSuccess: () => {
 				setValue( '' );
-				setDebouncedValue( '' );
+				setBlurredValue( '' );
 				onClose();
 			},
 		} );
@@ -175,7 +182,8 @@ function ManualTab( { mutation, onClose }: AddTabProps ): JSX.Element {
 					'jetpack-subscribers-dashboard'
 				) }
 				value={ value }
-				onChange={ setValue }
+				onChange={ handleChange }
+				onBlur={ handleBlur }
 				rows={ 6 }
 				placeholder="reader@example.com&#10;another@example.com"
 			/>
