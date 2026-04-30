@@ -38,13 +38,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	private $saved_screen;
 
 	/**
-	 * Connected test user ID.
-	 *
-	 * @var int
-	 */
-	private $connected_user_id;
-
-	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -87,7 +80,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	private function simulate_connected_owner() {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
-		$this->connected_user_id = $user_id;
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
