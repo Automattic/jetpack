@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Update wp-php-toolkit/reprint-exporter and reprint-importer to ^0.7.0 for smaller Packagist dist artifacts.
+Update wp-php-toolkit/reprint-exporter and reprint-importer to ^0.7.1, picking up wp-php-toolkit/html ^0.7.2 and wp-php-toolkit/data-liberation ^0.7.2. Smaller Packagist dist artifacts and fixes the WP_Token_Map redeclare fatal that hit wpcomsh's PHPUnit run.
