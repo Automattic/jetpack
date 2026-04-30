@@ -20,7 +20,7 @@ use WP_Error;
  * Registers Jetpack Stats abilities with the WordPress Abilities API.
  *
  * Exposes a small, consolidated surface for reading Jetpack Stats traffic
- * insights and managing site-level Stats configuration so AI agents can
+ * insights and managing site-level Stats settings so AI agents can
  * answer site-owner questions through the standard `wp-abilities/v1` REST
  * surface. Seven abilities wrap ~25 atomic WPCOM Stats endpoints plus the
  * `stats_options` WP option.
@@ -31,7 +31,7 @@ class Stats_Abilities extends Registrar {
 	const ERROR_PREFIX  = 'jetpack_stats_';
 
 	/**
-	 * Whitelist of stats_options keys exposed via the config abilities.
+	 * Whitelist of stats_options keys exposed via the settings abilities.
 	 *
 	 * Internal keys (`blog_id`, `notices`, `views`, `collapse_nudges`,
 	 * `version`, `odyssey_stats_changed_at`) are deliberately excluded —
@@ -41,7 +41,7 @@ class Stats_Abilities extends Registrar {
 	 * role-array) is read from `Options::get_defaults()` at runtime, not
 	 * duplicated here.
 	 */
-	const CONFIG_KEYS = array( 'admin_bar', 'roles', 'count_roles', 'do_not_track' );
+	const SETTINGS_KEYS = array( 'admin_bar', 'roles', 'count_roles', 'do_not_track' );
 
 	/**
 	 * Allowed `type` values for `get-top-content`.
@@ -131,7 +131,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
 			'label'       => 'Jetpack Stats',
-			'description' => __( 'Abilities for reading Jetpack Stats traffic insights and managing site-level Stats configuration.', 'jetpack-stats' ),
+			'description' => __( 'Abilities for reading Jetpack Stats traffic insights and managing site-level Stats settings.', 'jetpack-stats' ),
 		);
 	}
 
@@ -145,8 +145,8 @@ class Stats_Abilities extends Registrar {
 			'jetpack-stats/get-post-views'    => self::spec_get_post_views(),
 			'jetpack-stats/get-visits'        => self::spec_get_visits(),
 			'jetpack-stats/get-followers'     => self::spec_get_followers(),
-			'jetpack-stats/get-stats-config'  => self::spec_get_stats_config(),
-			'jetpack-stats/set-stats-config'  => self::spec_set_stats_config(),
+			'jetpack-stats/get-settings'      => self::spec_get_settings(),
+			'jetpack-stats/update-settings'   => self::spec_update_settings(),
 		);
 	}
 
@@ -460,13 +460,13 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Spec: jetpack-stats/get-stats-config.
+	 * Spec: jetpack-stats/get-settings.
 	 */
-	private static function spec_get_stats_config(): array {
+	private static function spec_get_settings(): array {
 		return array(
-			'label'               => __( 'Get Stats configuration', 'jetpack-stats' ),
+			'label'               => __( 'Get Stats settings', 'jetpack-stats' ),
 			'description'         => __(
-				'Read the current Jetpack Stats configuration: who sees the Stats admin bar + menu, whose visits are counted, and DNT behavior. Shape: { admin_bar, roles, count_roles, do_not_track }. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted. Call jetpack-stats/set-stats-config to change any of these.',
+				'Read the current Jetpack Stats settings: who sees the Stats admin bar + menu, whose visits are counted, and DNT behavior. Shape: { admin_bar, roles, count_roles, do_not_track }. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted. Call jetpack-stats/update-settings to change any of these.',
 				'jetpack-stats'
 			),
 			'input_schema'        => array(
@@ -476,9 +476,9 @@ class Stats_Abilities extends Registrar {
 			),
 			'output_schema'       => array(
 				'type'       => 'object',
-				'properties' => self::config_output_properties(),
+				'properties' => self::settings_output_properties(),
 			),
-			'execute_callback'    => array( __CLASS__, 'get_stats_config' ),
+			'execute_callback'    => array( __CLASS__, 'get_settings' ),
 			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
 			'meta'                => array(
 				'annotations'  => array(
@@ -496,13 +496,13 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Spec: jetpack-stats/set-stats-config.
+	 * Spec: jetpack-stats/update-settings.
 	 */
-	private static function spec_set_stats_config(): array {
+	private static function spec_update_settings(): array {
 		return array(
-			'label'               => __( 'Set Stats configuration', 'jetpack-stats' ),
+			'label'               => __( 'Update Stats settings', 'jetpack-stats' ),
 			'description'         => __(
-				'Update one or more Jetpack Stats configuration fields. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Shape: { changed, config: { admin_bar, roles, count_roles, do_not_track } }. Role slugs in `roles` and `count_roles` are validated against the site\'s registered roles; unknown slugs return jetpack_stats_invalid_role. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
+				'Update one or more Jetpack Stats settings. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Shape: { changed, settings: { admin_bar, roles, count_roles, do_not_track } }. Role slugs in `roles` and `count_roles` are validated against the site\'s registered roles; unknown slugs return jetpack_stats_invalid_role. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
 				'jetpack-stats'
 			),
 			'input_schema'        => array(
@@ -534,15 +534,15 @@ class Stats_Abilities extends Registrar {
 			'output_schema'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'changed' => array( 'type' => 'boolean' ),
-					'config'  => array(
+					'changed'  => array( 'type' => 'boolean' ),
+					'settings' => array(
 						'type'       => 'object',
-						'properties' => self::config_output_properties(),
+						'properties' => self::settings_output_properties(),
 					),
 				),
 			),
-			'execute_callback'    => array( __CLASS__, 'set_stats_config' ),
-			'permission_callback' => array( __CLASS__, 'can_manage_stats_config' ),
+			'execute_callback'    => array( __CLASS__, 'update_settings' ),
+			'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
 			'meta'                => array(
 				'annotations'  => array(
 					'readonly'    => false,
@@ -559,9 +559,9 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Output schema properties shared by get-stats-config and set-stats-config's `config` field.
+	 * Output schema properties shared by get-settings and update-settings' `settings` field.
 	 */
-	private static function config_output_properties(): array {
+	private static function settings_output_properties(): array {
 		return array(
 			'admin_bar'    => array( 'type' => 'boolean' ),
 			'roles'        => array(
@@ -604,7 +604,7 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * @return bool
 	 */
-	public static function can_manage_stats_config(): bool {
+	public static function can_manage_settings(): bool {
 		return current_user_can( 'manage_options' );
 	}
 
@@ -875,34 +875,34 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Execute: get-stats-config.
+	 * Execute: get-settings.
 	 *
 	 * @param array|null $input Ignored — zero-arg ability.
 	 * @return array
 	 */
-	public static function get_stats_config( $input = null ) {
+	public static function get_settings( $input = null ) {
 		unset( $input );
-		return self::config_snapshot();
+		return self::settings_snapshot();
 	}
 
 	/**
-	 * Execute: set-stats-config.
+	 * Execute: update-settings.
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array|WP_Error
 	 */
-	public static function set_stats_config( $input = null ) {
+	public static function update_settings( $input = null ) {
 		$input = is_array( $input ) ? $input : array();
 
 		// At least one of the whitelisted keys must be present.
-		$provided = array_intersect_key( $input, array_flip( self::CONFIG_KEYS ) );
+		$provided = array_intersect_key( $input, array_flip( self::SETTINGS_KEYS ) );
 		if ( empty( $provided ) ) {
 			return new WP_Error(
-				self::ERROR_PREFIX . 'missing_config_field',
+				self::ERROR_PREFIX . 'missing_setting_field',
 				sprintf(
 					/* translators: %s: comma-separated list of writable field names. */
 					__( 'Provide at least one of: %s.', 'jetpack-stats' ),
-					implode( ', ', self::CONFIG_KEYS )
+					implode( ', ', self::SETTINGS_KEYS )
 				)
 			);
 		}
@@ -913,7 +913,7 @@ class Stats_Abilities extends Registrar {
 		// option's default value type (array → role list).
 		$defaults    = Options::get_defaults();
 		$known_roles = null;
-		foreach ( self::CONFIG_KEYS as $role_field ) {
+		foreach ( self::SETTINGS_KEYS as $role_field ) {
 			if ( ! array_key_exists( $role_field, $provided ) ) {
 				continue;
 			}
@@ -972,7 +972,7 @@ class Stats_Abilities extends Registrar {
 			$provided[ $role_field ] = array_values( array_unique( $sanitized ) );
 		}
 
-		$before  = self::config_snapshot();
+		$before  = self::settings_snapshot();
 		$changes = array();
 		foreach ( $provided as $key => $value ) {
 			if ( is_bool( $defaults[ $key ] ?? null ) ) {
@@ -993,11 +993,11 @@ class Stats_Abilities extends Registrar {
 			Options::set_options( $changes );
 		}
 
-		$after = self::config_snapshot();
+		$after = self::settings_snapshot();
 
 		return array(
-			'changed' => $after !== $before,
-			'config'  => $after,
+			'changed'  => $after !== $before,
+			'settings' => $after,
 		);
 	}
 
@@ -1012,11 +1012,11 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * @return array
 	 */
-	private static function config_snapshot(): array {
+	private static function settings_snapshot(): array {
 		$options  = Options::get_options();
 		$defaults = Options::get_defaults();
 		$out      = array();
-		foreach ( self::CONFIG_KEYS as $key ) {
+		foreach ( self::SETTINGS_KEYS as $key ) {
 			$raw     = $options[ $key ] ?? null;
 			$default = $defaults[ $key ] ?? null;
 			if ( is_bool( $default ) ) {

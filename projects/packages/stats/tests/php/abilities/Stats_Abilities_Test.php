@@ -203,7 +203,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			'jetpack-stats/get-post-views',
 			'jetpack-stats/get-visits',
 			'jetpack-stats/get-followers',
-			'jetpack-stats/get-stats-config',
+			'jetpack-stats/get-settings',
 		);
 		$abilities  = Stats_Abilities::get_abilities();
 		foreach ( $read_slugs as $slug ) {
@@ -222,9 +222,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		}
 	}
 
-	public function test_set_stats_config_is_not_readonly_but_idempotent(): void {
+	public function test_update_settings_is_not_readonly_but_idempotent(): void {
 		$abilities = Stats_Abilities::get_abilities();
-		$ann       = $abilities['jetpack-stats/set-stats-config']['meta']['annotations'];
+		$ann       = $abilities['jetpack-stats/update-settings']['meta']['annotations'];
 		$this->assertFalse( $ann['readonly'] );
 		$this->assertFalse( $ann['destructive'] );
 		$this->assertTrue( $ann['idempotent'] );
@@ -334,7 +334,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 
 		$this->assertTrue( wp_has_ability( 'jetpack-stats/get-site-overview' ) );
 		$this->assertFalse( wp_has_ability( 'jetpack-stats/get-top-content' ) );
-		$this->assertFalse( wp_has_ability( 'jetpack-stats/set-stats-config' ) );
+		$this->assertFalse( wp_has_ability( 'jetpack-stats/update-settings' ) );
 	}
 
 	public function test_can_view_stats_allows_admin(): void {
@@ -352,14 +352,14 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertFalse( Stats_Abilities::can_view_stats() );
 	}
 
-	public function test_can_manage_stats_config_allows_admin(): void {
+	public function test_can_manage_settings_allows_admin(): void {
 		wp_set_current_user( self::$admin_id );
-		$this->assertTrue( Stats_Abilities::can_manage_stats_config() );
+		$this->assertTrue( Stats_Abilities::can_manage_settings() );
 	}
 
-	public function test_can_manage_stats_config_denies_subscriber(): void {
+	public function test_can_manage_settings_denies_subscriber(): void {
 		wp_set_current_user( self::$subscriber_id );
-		$this->assertFalse( Stats_Abilities::can_manage_stats_config() );
+		$this->assertFalse( Stats_Abilities::can_manage_settings() );
 	}
 
 	public function test_get_site_overview_returns_composed_shape(): void {
@@ -992,8 +992,8 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertContains( 'comment_followers', $result['errors'] );
 	}
 
-	public function test_get_stats_config_returns_whitelisted_fields_only(): void {
-		$result = Stats_Abilities::get_stats_config();
+	public function test_get_settings_returns_whitelisted_fields_only(): void {
+		$result = Stats_Abilities::get_settings();
 
 		$this->assertIsArray( $result );
 		$this->assertSame(
@@ -1006,11 +1006,11 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertArrayNotHasKey( 'notices', $result );
 	}
 
-	public function test_get_stats_config_classifies_types_from_options_defaults(): void {
+	public function test_get_settings_classifies_types_from_options_defaults(): void {
 		// Regression guard: the snapshot derives bool/array typing from
 		// Options::get_defaults() rather than a duplicated allow-list, so a new
 		// option type added in Options must propagate here without code changes.
-		$result = Stats_Abilities::get_stats_config();
+		$result = Stats_Abilities::get_settings();
 
 		$this->assertIsBool( $result['admin_bar'] );
 		$this->assertIsBool( $result['do_not_track'] );
@@ -1018,51 +1018,51 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertIsArray( $result['count_roles'] );
 	}
 
-	public function test_set_stats_config_rejects_empty_input(): void {
-		$result = Stats_Abilities::set_stats_config( array() );
+	public function test_update_settings_rejects_empty_input(): void {
+		$result = Stats_Abilities::update_settings( array() );
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'jetpack_stats_missing_config_field', $result->get_error_code() );
+		$this->assertSame( 'jetpack_stats_missing_setting_field', $result->get_error_code() );
 	}
 
-	public function test_set_stats_config_rejects_unknown_role(): void {
-		$result = Stats_Abilities::set_stats_config( array( 'roles' => array( 'robot' ) ) );
+	public function test_update_settings_rejects_unknown_role(): void {
+		$result = Stats_Abilities::update_settings( array( 'roles' => array( 'robot' ) ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_stats_invalid_role', $result->get_error_code() );
 	}
 
-	public function test_set_stats_config_rejects_empty_roles_to_prevent_lockout(): void {
+	public function test_update_settings_rejects_empty_roles_to_prevent_lockout(): void {
 		// Schema validation enforces minItems=1 on REST input, but direct PHP callers bypass
 		// that path; an empty `roles` array would revoke `view_stats` for every user, including
 		// the caller. Reject explicitly.
-		$result = Stats_Abilities::set_stats_config( array( 'roles' => array() ) );
+		$result = Stats_Abilities::update_settings( array( 'roles' => array() ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_stats_invalid_roles', $result->get_error_code() );
 	}
 
-	public function test_set_stats_config_changes_admin_bar(): void {
-		$before = Stats_Abilities::get_stats_config();
+	public function test_update_settings_changes_admin_bar(): void {
+		$before = Stats_Abilities::get_settings();
 		$this->assertTrue( $before['admin_bar'] );
 
-		$result = Stats_Abilities::set_stats_config( array( 'admin_bar' => false ) );
+		$result = Stats_Abilities::update_settings( array( 'admin_bar' => false ) );
 
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['changed'] );
-		$this->assertFalse( $result['config']['admin_bar'] );
+		$this->assertFalse( $result['settings']['admin_bar'] );
 	}
 
-	public function test_set_stats_config_is_idempotent_for_current_state(): void {
-		$before = Stats_Abilities::get_stats_config();
-		$result = Stats_Abilities::set_stats_config( array( 'admin_bar' => $before['admin_bar'] ) );
+	public function test_update_settings_is_idempotent_for_current_state(): void {
+		$before = Stats_Abilities::get_settings();
+		$result = Stats_Abilities::update_settings( array( 'admin_bar' => $before['admin_bar'] ) );
 		$this->assertFalse( $result['changed'], 'Desired == current must be a no-op.' );
 	}
 
-	public function test_set_stats_config_accepts_empty_count_roles(): void {
-		$result = Stats_Abilities::set_stats_config( array( 'count_roles' => array() ) );
+	public function test_update_settings_accepts_empty_count_roles(): void {
+		$result = Stats_Abilities::update_settings( array( 'count_roles' => array() ) );
 		$this->assertIsArray( $result );
-		$this->assertSame( array(), $result['config']['count_roles'] );
+		$this->assertSame( array(), $result['settings']['count_roles'] );
 	}
 
-	public function test_set_stats_config_preserves_unrelated_option_keys(): void {
+	public function test_update_settings_preserves_unrelated_option_keys(): void {
 		// Seed an unrelated internal key.
 		update_option(
 			'stats_options',
@@ -1076,12 +1076,12 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		// Force-reset the static cache so the next get_options() re-reads.
 		self::reset_static_property( Options::class, 'options', array() );
 
-		Stats_Abilities::set_stats_config( array( 'admin_bar' => false ) );
+		Stats_Abilities::update_settings( array( 'admin_bar' => false ) );
 
 		$this->assertSame(
 			array( 'do_not_clobber' => 1 ),
 			Options::get_option( 'notices' ),
-			'set-stats-config must not blow away unrelated internal option keys.'
+			'update-settings must not blow away unrelated internal option keys.'
 		);
 	}
 
