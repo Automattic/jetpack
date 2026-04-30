@@ -28,12 +28,12 @@ import { RELEVANCE_SORT_KEY, VALID_SORT_KEYS } from '../../../src/instant-search
 import { getFilterKeys } from '../../../src/instant-search/lib/filters';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
 
-// Filter configs the blocks-side parser uses to gate which array params
-// are recognized as filters. These mirror the keys the overlay knows
-// about so both sides accept the same vocabulary in this test.
+// A representative subset of the filter keys both sides know about;
+// sufficient to cover the fixtures below. `urlParamsToState` only checks
+// `filterKey in filterConfigs` (it never reads the values), so the
+// `filterType` / `taxonomy` shape here is documentation, not behavior.
 const FILTER_CONFIGS = {
 	category: { filterType: 'taxonomy', taxonomy: 'category' },
-	post_tag: { filterType: 'taxonomy', taxonomy: 'post_tag' },
 	post_types: { filterType: 'post_type' },
 	authors: { filterType: 'author' },
 };
@@ -73,15 +73,17 @@ function overlaySerialize( {
 /**
  * Deserialize an overlay-emitted URL search string back to state.
  * Mirrors `effects.js#initializeQueryValues` against the canonical
- * filter-key list returned by `getFilterKeys()`.
+ * filter-key list. `getFilterKeys` is called with explicit empty widget
+ * lists so the helper is independent of any stray
+ * `window.JetpackInstantSearchOptions` a future test setup might seed.
  *
  * @param {string} searchString - URL search string, no leading `?`.
- * @return {{ searchQuery: string, sortOrder: string, activeFilters: object }} Search state.
+ * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: null }} Search state.
  */
 function overlayDeserialize( searchString ) {
 	const queryObject = overlayDecode( searchString, false, false );
 	const activeFilters = {};
-	for ( const filterKey of getFilterKeys() ) {
+	for ( const filterKey of getFilterKeys( [], [] ) ) {
 		if ( ! ( filterKey in queryObject ) ) {
 			continue;
 		}
@@ -94,6 +96,13 @@ function overlayDeserialize( searchString ) {
 		searchQuery: typeof queryObject.s === 'string' ? queryObject.s : '',
 		sortOrder: VALID_SORT_KEYS.includes( queryObject.sort ) ? queryObject.sort : RELEVANCE_SORT_KEY,
 		activeFilters,
+		// The overlay URL format has no concept of price range; surface
+		// the field anyway so the state shape lines up with the blocks
+		// side's `urlParamsToState` for round-trip equality. A blocks
+		// URL carrying `min_price` / `max_price` would lose those bounds
+		// when round-tripped through the overlay — covered as part of
+		// the cross-surface skips tracked in RSM-1928.
+		priceRange: null,
 	};
 }
 
@@ -117,6 +126,11 @@ function blocksDeserialize( searchString ) {
 	return urlParamsToState( new URLSearchParams( searchString ), FILTER_CONFIGS );
 }
 
+// `priceRange: null` is set on every fixture below to match the blocks
+// state shape that `urlParamsToState` returns; none of these fixtures
+// exercises the price-range bound. A dedicated price-range fixture is
+// out of scope here because the overlay format has no encoding for
+// price range — see TODO at end of file.
 const FIXTURES = [
 	{
 		name: 'plain search query, default sort, no filters',
@@ -124,6 +138,7 @@ const FIXTURES = [
 			searchQuery: 'boots',
 			sortOrder: 'relevance',
 			activeFilters: {},
+			priceRange: null,
 		},
 	},
 	{
@@ -132,6 +147,7 @@ const FIXTURES = [
 			searchQuery: 'jacket',
 			sortOrder: 'newest',
 			activeFilters: {},
+			priceRange: null,
 		},
 	},
 	{
@@ -140,6 +156,7 @@ const FIXTURES = [
 			searchQuery: 'tomatoes',
 			sortOrder: 'relevance',
 			activeFilters: { category: [ 'recipes', 'gardening' ] },
+			priceRange: null,
 		},
 	},
 	{
@@ -152,6 +169,7 @@ const FIXTURES = [
 				post_types: [ 'post', 'page' ],
 				authors: [ '12' ],
 			},
+			priceRange: null,
 		},
 	},
 ];
@@ -189,9 +207,11 @@ describe.each( FIXTURES )( 'deep-link round trip — $name', ( { state } ) => {
 	} );
 } );
 
-// TODO(RSM-1923): once `search-blocks/blocks/filter-date/` ships a
-// date-filter block, append a fixture covering the date-histogram URL
-// keys (`month_post_date`, `year_post_date`, …) so the contract is
-// exercised across that surface too. The block does not exist in this
-// tree yet, so the case is omitted rather than asserted on a half-built
-// API.
+// TODO(RSM-1923): append fixtures for any filter type that has yet to
+// land at the time the parallel work concludes:
+//   - date histogram (`month_post_date`, `year_post_date`, …) once the
+//     `search-blocks/blocks/filter-date/` block ships.
+//   - price range (`min_price` / `max_price`) once both surfaces share
+//     a contract for it; today only the blocks side knows about it,
+//     and the overlay format has no encoding for the bound.
+// Each is omitted rather than asserted on a half-built API.
