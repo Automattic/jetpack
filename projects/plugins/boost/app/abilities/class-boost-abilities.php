@@ -114,7 +114,7 @@ class Boost_Abilities extends Registrar {
 
 			'jetpack-boost/set-module-status' => array(
 				'label'               => __( 'Set Boost module status', 'jetpack-boost' ),
-				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown slugs return jetpack_boost_invalid_slug; modules that exist but are not loadable on this site return jetpack_boost_module_unavailable — call jetpack-boost/get-modules to enumerate available slugs. Toggling a parent module also drives submodule lifecycle.', 'jetpack-boost' ),
+				'description'         => __( 'Enable or disable a single Jetpack Boost module by slug. Required: { slug, active }. Returns { slug, active, changed }. Idempotent: setting a module to its current state returns changed=false. Slugs use underscores (e.g. "critical_css", "page_cache"). Unknown slugs return jetpack_boost_invalid_slug; modules not loadable on this site return jetpack_boost_module_unavailable; always-on modules cannot be disabled and return jetpack_boost_module_always_on — call jetpack-boost/get-modules to enumerate available slugs. Toggling a parent module also drives submodule lifecycle.', 'jetpack-boost' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'slug', 'active' ),
@@ -290,19 +290,27 @@ class Boost_Abilities extends Registrar {
 	 * @since $$next-version$$
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
-	 * @return array
+	 * @return array|\WP_Error
 	 */
 	public static function get_modules( $input = null ) {
 		$input = is_array( $input ) ? $input : array();
 		$index = self::build_module_index();
 
 		// Single-slug short-circuit — return 0- or 1-element array, same shape as the list case.
-		if ( isset( $input['slug'] ) && is_string( $input['slug'] ) && '' !== $input['slug'] ) {
-			$slug = $input['slug'];
-			if ( ! isset( $index[ $slug ] ) ) {
-				return array();
+		// A non-string slug is invalid input (not "unknown"); rejecting it prevents the bad-shape
+		// fall-through where slug:123 would silently return every module.
+		if ( isset( $input['slug'] ) ) {
+			if ( ! is_string( $input['slug'] ) ) {
+				return new \WP_Error(
+					'jetpack_boost_invalid_slug',
+					__( 'The slug parameter must be a string.', 'jetpack-boost' )
+				);
 			}
-			return array( self::render_module( $index[ $slug ] ) );
+			if ( '' !== $input['slug'] ) {
+				return isset( $index[ $input['slug'] ] )
+					? array( self::render_module( $index[ $input['slug'] ] ) )
+					: array();
+			}
 		}
 
 		$status_filter = isset( $input['status'] ) && is_string( $input['status'] ) && '' !== $input['status']
@@ -404,6 +412,22 @@ class Boost_Abilities extends Registrar {
 			return new \WP_Error(
 				'jetpack_boost_module_unavailable',
 				__( 'This module is not available on this site (e.g. requires a connection or a paid plan).', 'jetpack-boost' )
+			);
+		}
+
+		// Always-on modules ignore the persisted option at runtime. Writing here would leave
+		// on-disk state diverged from runtime state with no rollback, so refuse the write up front.
+		if ( $module->is_always_on() ) {
+			if ( $desired ) {
+				return array(
+					'slug'    => $slug,
+					'active'  => true,
+					'changed' => false,
+				);
+			}
+			return new \WP_Error(
+				'jetpack_boost_module_always_on',
+				__( 'This module is always on and cannot be disabled.', 'jetpack-boost' )
 			);
 		}
 

@@ -174,6 +174,38 @@ class Boost_Abilities_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_init_registers_directly_when_lifecycle_actions_already_fired(): void {
+		// Simulate a late-loading deployment: the lifecycle actions ran before our init().
+		do_action( Registrar::CATEGORIES_INIT_ACTION );
+		do_action( Registrar::ABILITIES_INIT_ACTION );
+
+		// Spy on the shared registration filter — Registrar calls it once per category and once per ability,
+		// so a non-zero call count proves register_category()/register_abilities() ran synchronously.
+		$invocations = array();
+		$spy         = function ( $enabled, $type, $slug ) use ( &$invocations ) {
+			$invocations[] = array( $type, $slug );
+			return $enabled;
+		};
+		add_filter( 'jetpack_wp_abilities_should_register', $spy, 10, 3 );
+
+		Boost_Abilities::init();
+
+		remove_filter( 'jetpack_wp_abilities_should_register', $spy, 10 );
+
+		// The synchronous branch must NOT add hooks for actions that already fired.
+		$this->assertFalse(
+			has_action( Registrar::CATEGORIES_INIT_ACTION, array( Boost_Abilities::class, 'register_category' ) ),
+			'Late-load path should call register_category() directly, not hook the already-fired action.'
+		);
+		$this->assertFalse(
+			has_action( Registrar::ABILITIES_INIT_ACTION, array( Boost_Abilities::class, 'register_abilities' ) )
+		);
+
+		$types = array_column( $invocations, 0 );
+		$this->assertContains( 'category', $types, 'register_category() must run synchronously when CATEGORIES_INIT_ACTION already fired.' );
+		$this->assertContains( 'ability', $types, 'register_abilities() must run synchronously when ABILITIES_INIT_ACTION already fired.' );
+	}
+
 	public function test_register_abilities_registers_every_slug(): void {
 		if ( ! function_exists( 'wp_get_abilities' ) || ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
@@ -292,6 +324,13 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$this->assertSame( array(), $result );
 	}
 
+	public function test_get_modules_rejects_non_string_slug(): void {
+		// A non-string slug is a shape error, not "unknown" — must fail loudly rather than fall through to the full list.
+		$result = Boost_Abilities::get_modules( array( 'slug' => 123 ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_invalid_slug', $result->get_error_code() );
+	}
+
 	public function test_get_modules_with_known_slug_returns_single_element(): void {
 		// Boost slugs use underscores (Critical_CSS::get_slug() returns "critical_css").
 		$result = Boost_Abilities::get_modules( array( 'slug' => 'critical_css' ) );
@@ -360,6 +399,52 @@ class Boost_Abilities_Test extends BaseTestCase {
 		);
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_boost_invalid_slug', $result->get_error_code() );
+	}
+
+	public function test_set_module_status_treats_zero_string_slug_as_present(): void {
+		// Required-id check uses '' !== $value, NOT empty(), so '0' stays a legal slug.
+		// Reaching jetpack_boost_invalid_slug (lookup miss) proves we passed the missing-slug guard.
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => '0',
+				'active' => true,
+			)
+		);
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_invalid_slug', $result->get_error_code() );
+	}
+
+	public function test_set_module_status_disable_on_always_on_module_returns_error_without_writing(): void {
+		// minify_common implements Is_Always_On and is_available() returns true unconditionally
+		// (its parents Minify_JS / Minify_CSS are also unconditionally available).
+		$option_name = 'jetpack_boost_status_minify-common';
+		delete_option( $option_name );
+
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => 'minify_common',
+				'active' => false,
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_module_always_on', $result->get_error_code() );
+
+		// Critical: the option must not have been written. No stale on-disk state.
+		$this->assertSame( '__sentinel__', get_option( $option_name, '__sentinel__' ) );
+	}
+
+	public function test_set_module_status_enable_on_always_on_module_is_idempotent(): void {
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => 'minify_common',
+				'active' => true,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertTrue( $result['active'] );
+		$this->assertFalse( $result['changed'], 'Always-on modules report changed=false on enable.' );
 	}
 
 	public function test_set_module_status_toggles_then_is_idempotent(): void {
