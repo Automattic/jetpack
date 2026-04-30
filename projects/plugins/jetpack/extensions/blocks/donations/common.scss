@@ -1,15 +1,14 @@
 // Common styles for both views (editor and frontend).
 // Surfaces (backgrounds, text colors, typography) defer to the active theme
-// by inheriting from the surrounding context. Structural borders and active-
-// state colors remain hardcoded for now; a follow-up that adds Gutenberg
-// style supports will make them user-customizable.
+// by inheriting from the surrounding context. Per-state colors (active tab,
+// selected amount) are rendered via a per-instance scoped <style> element
+// because the postcss build inlines var() fallbacks at compile time.
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-donations {
-
-	.donations__container {
-		border: 1px solid gb.$gray-400;
-	}
+	// Default border. User-set border (via the Border style support) renders as
+	// an inline style on this element, which wins on specificity.
+	border: 1px solid gb.$gray-400;
 
 	.donations__nav {
 		display: flex;
