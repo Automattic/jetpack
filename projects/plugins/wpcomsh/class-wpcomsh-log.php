@@ -219,10 +219,7 @@ class WPCOMSH_Log {
 		}
 
 		foreach ( $this->logstash_queue as $entry ) {
-			$params            = $entry;
-			$params['siteurl'] = $this->siteurl;
-
-			wp_remote_post( self::$logstash_endpoint, array( 'body' => array( 'params' => wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) ) ) );
+			wp_remote_post( self::$logstash_endpoint, array( 'body' => array( 'params' => wp_json_encode( $entry, JSON_UNESCAPED_SLASHES ) ) ) );
 		}
 	}
 }
