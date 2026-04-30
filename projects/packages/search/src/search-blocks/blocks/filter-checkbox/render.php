@@ -76,7 +76,7 @@ if ( $has_buckets && ! empty( $seeded_selected ) ) {
 $label = $config['label'];
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
+	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
 	data-wp-interactive="jetpack-search"
 	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
 	data-wp-bind--hidden="!state.hasFilterBuckets"

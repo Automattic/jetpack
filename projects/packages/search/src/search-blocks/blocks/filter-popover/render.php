@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\Search;
 $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-popover' ) ) ); ?>
+	<?php echo get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-popover' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
 	data-wp-interactive="jetpack-search"
 	data-jetpack-search-popover-root
 	data-wp-on-window--click="actions.onWindowClickClosePopovers"

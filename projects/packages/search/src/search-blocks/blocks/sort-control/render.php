@@ -70,7 +70,7 @@ $checked_getters = array(
 ?>
 <?php if ( 'popover' === $display_as ) : ?>
 	<div
-		<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-sort--popover' ) ) ); ?>
+		<?php echo get_block_wrapper_attributes( array( 'class' => 'jetpack-search-sort--popover' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
 		data-wp-interactive="jetpack-search"
 		data-jetpack-search-popover-root
 		data-wp-on-window--click="actions.onWindowClickClosePopovers"
@@ -119,7 +119,7 @@ $checked_getters = array(
 	</div>
 <?php else : ?>
 	<div
-		<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
+		<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
 		data-wp-interactive="jetpack-search"
 	>
 		<?php if ( 'radio' === $display_as ) : ?>

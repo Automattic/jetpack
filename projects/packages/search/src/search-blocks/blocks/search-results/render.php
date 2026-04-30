@@ -16,7 +16,7 @@ $wrapper_class = $is_compact ? 'jetpack-search-results--compact' : 'jetpack-sear
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );
 ?>
 <div
-	<?php echo wp_kses_data( $wrapper_attrs ); ?>
+	<?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-init="callbacks.initialize"
 	data-wp-bind--aria-busy="state.isLoading"

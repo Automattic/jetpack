@@ -29,7 +29,7 @@ foreach ( (array) $seeded_active as $values ) {
 }
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
+	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-bind--hidden="!state.hasActiveFilters"
 	<?php echo $has_active_on_paint ? '' : 'hidden'; ?>
