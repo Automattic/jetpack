@@ -33,16 +33,10 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
+import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import styles from './area-chart.module.scss';
-import {
-	AreaChartScalesRef,
-	HoverGlyphs,
-	getCurveType,
-	getFormatter,
-	guessOptimalNumTicks,
-	validateData,
-} from './private';
+import { AreaChartScalesRef, HoverGlyphs, validateData } from './private';
 import type { AreaChartProps } from './types';
 import type { DataPointDate, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';

@@ -1,15 +1,15 @@
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { scaleTime } from '@visx/scale';
 import { differenceInHours, differenceInYears } from 'date-fns';
-import type { useChartDataTransform } from '../../../hooks';
-import type { CurveType } from '../../line-chart/types';
+import type { useChartDataTransform } from '../../hooks';
+import type { CurveType } from '../line-chart/types';
 
-/** Approximate min pixel width for an x-axis tick label, used to derive numTicks. */
-export const X_TICK_WIDTH = 60;
+// Approximate min pixel width for an x-axis tick label.
+const X_TICK_WIDTH = 60;
 
-// Resolve the visx curve generator for a given AreaChart `curveType` /
-// `smoothing` combination. Mirrors LineChart's behaviour so users can swap
-// between the two charts with the same props.
+// Resolve the visx curve generator for a given `curveType` / `smoothing`
+// combination. Shared by LineChart and AreaChart so the two render
+// identically when given the same props.
 export const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 	if ( ! type ) {
 		return smoothing ? curveCatmullRom : curveLinear;
