@@ -1,8 +1,13 @@
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+import { getCurrencyObject } from '@automattic/format-currency';
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import clsx from 'clsx';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
+
+const formatAmountWithoutSymbol = ( value, currency ) => {
+	const { sign, integer, fraction } = getCurrencyObject( value, currency );
+	return sign + integer + fraction;
+};
 
 const Amount = ( {
 	className = null,
@@ -13,9 +18,7 @@ const Amount = ( {
 	onChange = null,
 	value = '',
 } ) => {
-	const [ editedValue, setEditedValue ] = useState(
-		formatCurrency( value, currency, { symbol: '' } )
-	);
+	const [ editedValue, setEditedValue ] = useState( formatAmountWithoutSymbol( value, currency ) );
 	const [ isFocused, setIsFocused ] = useState( false );
 	const [ isInvalid, setIsInvalid ] = useState( false );
 	const richTextRef = useRef( null );
@@ -25,7 +28,7 @@ const Amount = ( {
 			setEditedValue( currentAmount => {
 				// Validate the amount only when it changes.
 				if ( amount !== currentAmount ) {
-					const parsedAmount = parseAmount( amount, currency );
+					const parsedAmount = parseAmount( amount );
 					if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
 						setIsInvalid( false );
 						if ( shouldSync ) {
@@ -62,7 +65,7 @@ const Amount = ( {
 		const onBlur = () => {
 			setIsFocused( false );
 			if ( ! editedValue ) {
-				setAmount( formatCurrency( defaultValue, currency, { symbol: '' } ) );
+				setAmount( formatAmountWithoutSymbol( defaultValue, currency ) );
 			}
 		};
 
@@ -78,11 +81,11 @@ const Amount = ( {
 		if ( isFocused || isInvalid ) {
 			return;
 		}
-		setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
+		setEditedValue( formatAmountWithoutSymbol( value, currency ) );
 	}, [ currency, isFocused, isInvalid, value ] );
 
 	useEffect( () => {
-		setAmount( formatCurrency( value, currency, { symbol: '' } ) );
+		setAmount( formatAmountWithoutSymbol( value, currency ) );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ currency, value ] );
 
@@ -97,17 +100,17 @@ const Amount = ( {
 			onClick={ setFocus }
 			onKeyDown={ setFocus }
 		>
-			{ CURRENCIES[ currency ].symbol }
+			{ getCurrencyObject( 0, currency ).symbol }
 			{ disabled ? (
 				<div className="donations__amount-value">
-					{ formatCurrency( value ? value : defaultValue, currency, { symbol: '' } ) }
+					{ formatAmountWithoutSymbol( value ? value : defaultValue, currency ) }
 				</div>
 			) : (
 				<RichText
 					allowedFormats={ [] }
 					aria-label={ label }
 					onChange={ amount => setAmount( amount, true ) }
-					placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
+					placeholder={ formatAmountWithoutSymbol( defaultValue, currency ) }
 					ref={ richTextRef }
 					value={ editedValue }
 					withoutInteractiveFormatting

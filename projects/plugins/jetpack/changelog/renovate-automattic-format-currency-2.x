@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: compat
 
-Update package dependencies.
+Donations block: Update compatibility with @automattic/format-currency v2.

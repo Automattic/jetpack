@@ -1,6 +1,25 @@
-import { CURRENCIES } from '@automattic/format-currency';
 import ProductPrice from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
+
+const CURRENCY_OPTIONS = [
+	'USD',
+	'EUR',
+	'GBP',
+	'AUD',
+	'CAD',
+	'BRL',
+	'CHF',
+	'DKK',
+	'HKD',
+	'INR',
+	'JPY',
+	'MXN',
+	'NOK',
+	'NZD',
+	'PLN',
+	'SEK',
+	'SGD',
+];
 
 const meta: Meta< typeof ProductPrice > = {
 	title: 'JS Packages/Components/Product Price',
@@ -8,7 +27,7 @@ const meta: Meta< typeof ProductPrice > = {
 	argTypes: {
 		currency: {
 			control: { type: 'select' },
-			options: Object.keys( CURRENCIES ),
+			options: CURRENCY_OPTIONS,
 		},
 		variant: {
 			control: { type: 'select' },

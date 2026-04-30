@@ -1,4 +1,4 @@
-import formatCurrency from '@automattic/format-currency';
+import { getCurrencyObject } from '@automattic/format-currency';
 import domReady from '@wordpress/dom-ready';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
@@ -79,7 +79,7 @@ class JetpackDonations {
 
 		// Validates the amount.
 		const currency = input.dataset.currency;
-		const parsedAmount = parseAmount( amount, currency );
+		const parsedAmount = parseAmount( amount );
 		const wrapper = this.block.querySelector( '.donations__custom-amount' );
 		if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
 			wrapper.classList.remove( 'has-error' );
@@ -180,10 +180,9 @@ class JetpackDonations {
 				return;
 			}
 
-			// Formats the entered amount.
-			input.innerHTML = formatCurrency( this.amount, input.dataset.currency, {
-				symbol: '',
-			} );
+			// Formats the entered amount without the currency symbol.
+			const { sign, integer, fraction } = getCurrencyObject( this.amount, input.dataset.currency );
+			input.innerHTML = sign + integer + fraction;
 		} );
 
 		input.addEventListener( 'input', () => this.updateAmountFromCustomAmountInput() );

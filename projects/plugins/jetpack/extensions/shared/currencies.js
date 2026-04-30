@@ -1,4 +1,4 @@
-import { CURRENCIES } from '@automattic/format-currency';
+import { getCurrencyObject } from '@automattic/format-currency';
 
 // Removes all dots (`.`) from the end of a string.
 function removeTrailingDots( string ) {
@@ -7,20 +7,17 @@ function removeTrailingDots( string ) {
 
 /**
  * Get the currency settings for a certain currency.
- * This is an internalized version of the function previously provided by format-currency.
  *
  * @param {string} code - The currency code.
  * @return {object} - Object containing currency settings.
  */
 export function getCurrencyDefaults( code ) {
-	return (
-		CURRENCIES[ code ] || {
-			symbol: '$',
-			decimal: '.',
-			grouping: ',',
-			precision: 2,
-		}
-	);
+	try {
+		const { symbol } = getCurrencyObject( 0, code );
+		return { symbol, decimal: '.', grouping: ',', precision: 2 };
+	} catch {
+		return { symbol: '$', decimal: '.', grouping: ',', precision: 2 };
+	}
 }
 
 /**
@@ -103,7 +100,7 @@ export function isPriceValid( currency, price ) {
 	return ! isNaN( price ) && price >= minimumTransactionAmountForCurrency( currency );
 }
 
-export function parseAmount( amount, currency ) {
+export function parseAmount( amount ) {
 	if ( ! amount ) {
 		return null;
 	}
@@ -112,19 +109,23 @@ export function parseAmount( amount, currency ) {
 		return amount;
 	}
 
+	// Determine the decimal and grouping separators used by the browser locale,
+	// which matches what formatCurrency outputs.
+	const localeParts = new Intl.NumberFormat().formatToParts( 1111.1 );
+	const escapeRegex = str => str.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+	const decimal = localeParts.find( ( { type } ) => type === 'decimal' )?.value ?? '.';
+	const group = localeParts.find( ( { type } ) => type === 'group' )?.value ?? '';
+
 	let ungrouped_amount = amount;
-	if ( CURRENCIES[ currency ].grouping ) {
+	if ( group ) {
 		// Remove any thousand grouping separator.
-		ungrouped_amount = amount.replace(
-			new RegExp( '\\' + CURRENCIES[ currency ].grouping, 'g' ),
-			''
-		);
+		ungrouped_amount = amount.replace( new RegExp( escapeRegex( group ), 'g' ), '' );
 	}
 
 	amount = parseFloat(
 		ungrouped_amount
 			// Replace the localized decimal separator with a dot (the standard decimal separator in float numbers).
-			.replace( new RegExp( '\\' + CURRENCIES[ currency ].decimal, 'g' ), '.' )
+			.replace( new RegExp( escapeRegex( decimal ), 'g' ), '.' )
 	);
 
 	if ( isNaN( amount ) ) {

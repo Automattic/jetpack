@@ -1,4 +1,4 @@
-import { CURRENCIES } from '@automattic/format-currency';
+import { getCurrencyObject } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE } from './constants';
 
@@ -24,20 +24,21 @@ const getNavigatorLanguage = ( defaultLang = 'en-US' ) => {
 
 /**
  * Get the currency settings for a certain currency.
- * This is an internalized version of the function previously provided by format-currency.
  *
  * @param {string} code - The currency code.
  * @return {object} - Object containing currency settings.
  */
 export function getCurrencyDefaults( code ) {
-	return (
-		CURRENCIES[ code ] || {
-			symbol: '$',
-			decimal: '.',
-			grouping: ',',
-			precision: 2,
-		}
-	);
+	try {
+		const { symbol } = getCurrencyObject( 0, code );
+		const precision = new Intl.NumberFormat( 'en-US', {
+			style: 'currency',
+			currency: code,
+		} ).resolvedOptions().maximumFractionDigits;
+		return { symbol, decimal: '.', grouping: ',', precision };
+	} catch {
+		return { symbol: '$', decimal: '.', grouping: ',', precision: 2 };
+	}
 }
 
 // Legacy method of displaying prices.
