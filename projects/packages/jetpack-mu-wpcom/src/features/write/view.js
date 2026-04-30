@@ -738,11 +738,51 @@ const { state } = store( 'wpcom-write', {
 			if ( isDirty() ) {
 				event.preventDefault();
 				state.showLeaveConfirm = true;
+
+				// Move focus into the modal for a11y.
+				requestAnimationFrame( () => {
+					const modal = document.querySelector( '.bw-leave-modal' );
+					if ( modal ) {
+						const firstBtn = modal.querySelector( 'button' );
+						if ( firstBtn ) firstBtn.focus();
+					}
+				} );
 			}
 		},
 
 		cancelLeave() {
 			state.showLeaveConfirm = false;
+			// Return focus to the back button.
+			const backBtn = document.querySelector( '.bw-back' );
+			if ( backBtn ) backBtn.focus();
+		},
+
+		handleLeaveModalKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showLeaveConfirm = false;
+				const backBtn = document.querySelector( '.bw-back' );
+				if ( backBtn ) backBtn.focus();
+				return;
+			}
+
+			// Trap Tab within the modal.
+			if ( event.key === 'Tab' ) {
+				const modal = document.querySelector( '.bw-leave-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll( 'button' );
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && active === first ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && active === last ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
 		},
 
 		confirmLeave() {

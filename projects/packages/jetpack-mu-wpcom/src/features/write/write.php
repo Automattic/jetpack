@@ -117,7 +117,6 @@ add_action(
 			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
 			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
 			'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
-			'changesSaved'         => __( 'Changes saved', 'jetpack-mu-wpcom' ),
 			// translators: %s is the error message.
 			'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
@@ -295,7 +294,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	<div class="bw-recovery-banner" hidden data-wp-bind--hidden="!state.showRecoveryBanner">
 		<span class="bw-recovery-text"><?php echo esc_html__( 'You have a recent draft — continue editing?', 'jetpack-mu-wpcom' ); ?></span>
 		<button class="bw-recovery-btn" data-wp-on--click="actions.resumeDraft"><?php echo esc_html__( 'Resume editing', 'jetpack-mu-wpcom' ); ?></button>
-		<button class="bw-recovery-dismiss" data-wp-on--click="actions.dismissRecovery" title="<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+		<button class="bw-recovery-dismiss" data-wp-on--click="actions.dismissRecovery" aria-label="<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">&times;</button>
 	</div>
 
 	<!-- Persistent formatting toolbar -->
@@ -420,8 +419,8 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</div>
 
 	<!-- Leave confirmation — matches @wordpress/components ConfirmDialog -->
-	<div class="bw-leave-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave">
-		<div class="bw-leave-modal" data-wp-on--click="actions.stopPropagation">
+	<div class="bw-leave-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave" data-wp-on--keydown="actions.handleLeaveModalKeyDown">
+		<div class="bw-leave-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Unsaved changes', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
 			<p><?php echo esc_html__( 'Do you want to save your changes?', 'jetpack-mu-wpcom' ); ?></p>
 			<div class="bw-leave-actions">
 				<button class="bw-leave-cancel" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Cancel', 'jetpack-mu-wpcom' ); ?></button>
