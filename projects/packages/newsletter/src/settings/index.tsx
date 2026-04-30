@@ -9,7 +9,6 @@ import { useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Stack } from '@wordpress/ui';
-import NewsletterPage from '../../_inc/components/newsletter-page';
 /**
  * Internal dependencies
  */
@@ -322,23 +321,19 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( isLoading ) {
 		return (
-			<NewsletterPage activeTab="settings">
-				<div className="newsletter-settings">
-					<Spinner />
-				</div>
-			</NewsletterPage>
+			<div className="newsletter-settings">
+				<Spinner />
+			</div>
 		);
 	}
 
 	if ( error ) {
 		return (
-			<NewsletterPage activeTab="settings">
-				<div className="newsletter-settings newsletter-settings--error">
-					<Notice status="error" isDismissible={ false }>
-						{ error }
-					</Notice>
-				</div>
-			</NewsletterPage>
+			<div className="newsletter-settings newsletter-settings--error">
+				<Notice status="error" isDismissible={ false }>
+					{ error }
+				</Notice>
+			</div>
 		);
 	}
 
@@ -352,7 +347,7 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<NewsletterPage activeTab="settings">
+		<>
 			<div id="jp-admin-notices" className="newsletter-jitm-card" />
 			<Stack gap="md" direction="column" className="newsletter-settings">
 				<NewsletterSection data={ data } onChange={ handleAutoSave } />
@@ -420,6 +415,6 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 					</Stack>
 				</Disabled>
 			</Stack>
-		</NewsletterPage>
+		</>
 	);
 }

@@ -19,6 +19,11 @@ type Props = {
 	 * of this prop, so the bar doesn't shift between Subscribers and Settings.
 	 */
 	contentHasPadding?: boolean;
+	/**
+	 * `Tabs.Panel` children. The shell renders one `Tabs.Root` + `Tabs.List`
+	 * shared across both tabs so the animated active-tab indicator slides
+	 * between them — clients hand in the panels, the shell handles routing.
+	 */
 	children: ReactNode;
 };
 
@@ -61,13 +66,19 @@ export default function NewsletterPage( {
 	const navigate = useNavigate();
 	const subscribersEnabled = getNewsletterScriptData()?.subscriberManagementEnabled !== false;
 
+	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
+	// `Tabs.Root` mounts once and the active-tab indicator can animate.
 	const onTabChange = useCallback(
 		( next: string | null ) => {
-			if ( next === 'subscribers' ) {
-				navigate( { to: '/' } as unknown as Parameters< typeof navigate >[ 0 ] );
-			} else if ( next === 'settings' ) {
-				navigate( { to: '/settings' } as unknown as Parameters< typeof navigate >[ 0 ] );
+			if ( next !== 'subscribers' && next !== 'settings' ) {
+				return;
 			}
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( {
+					...prev,
+					tab: next === 'settings' ? 'settings' : undefined,
+				} ),
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
 		[ navigate ]
 	);
@@ -82,9 +93,6 @@ export default function NewsletterPage( {
 	const contentClass = contentHasPadding
 		? 'jetpack-newsletter-page__content jetpack-newsletter-page__content--padded'
 		: 'jetpack-newsletter-page__content';
-
-	const renderActiveContent = ( tab: NewsletterTab ) =>
-		activeTab === tab ? <div className={ contentClass }>{ children }</div> : null;
 
 	return (
 		<Page
@@ -105,14 +113,7 @@ export default function NewsletterPage( {
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					{ /* Each tab needs a matching Panel (WAI-ARIA pattern). The content
-					     is route-driven, so the inactive Panel just stays empty. */ }
-					<Tabs.Panel value="subscribers" focusable={ false }>
-						{ renderActiveContent( 'subscribers' ) }
-					</Tabs.Panel>
-					<Tabs.Panel value="settings" focusable={ false }>
-						{ renderActiveContent( 'settings' ) }
-					</Tabs.Panel>
+					<div className={ contentClass }>{ children }</div>
 				</Tabs.Root>
 			) : (
 				<div className={ contentClass }>{ children }</div>

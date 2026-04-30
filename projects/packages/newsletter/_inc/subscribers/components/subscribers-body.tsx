@@ -1,14 +1,12 @@
-import { QueryClientProvider } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
-import NewsletterPage from '../../components/newsletter-page';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
-import { queryClient } from '../lib/query-client';
 import { getBlogId } from '../lib/site';
 import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
 import SubscribersDataViews from './subscribers-data-views';
 import type { Subscriber } from '../data/types';
+import type { ReactNode } from 'react';
 
 installDataViewsFooterI18n();
 
@@ -19,20 +17,29 @@ type SubscribersSearch = Record< string, unknown > & {
 	u?: string | number;
 };
 
+type RenderProps = {
+	body: ReactNode;
+	actions: ReactNode;
+};
+
 /**
- * Subscribers dashboard stage. Boot's `RouteComponent` wraps this in
- * `<div class="boot-layout__stage">`, and pairs it with the `inspector` export
- * (subscriber detail) when `route.inspector({ search })` returns true. The
- * inspector lives in `routes/subscribers/inspector.tsx`; this stage just owns
- * the table, header, and the Add Subscribers modal. Snackbars render in
- * boot's notices slot.
+ * Subscribers tab body for the unified Newsletter page.
  *
- * Selection is URL-state via `@wordpress/route`'s `?subscriber=`/`?u=` so
- * back/forward and reload preserve the open detail panel.
+ * Returns the data-view content + modals separately from the page-header
+ * actions so the parent `NewsletterPage` can mount once at the route level
+ * (the `Tabs.Root` indicator slides only when the tab control persists
+ * between tab changes — re-mounting per route would reset it).
  *
- * @return Stage content.
+ * @param props          - Props.
+ * @param props.children - Render-prop receiving `{ body, actions }` so the
+ *                       caller decides how to slot them into the page.
+ * @return Whatever `children` returns.
  */
-export default function App(): JSX.Element {
+export default function SubscribersBody( {
+	children,
+}: {
+	children: ( props: RenderProps ) => ReactNode;
+} ): JSX.Element {
 	const blogId = useMemo( () => getBlogId(), [] );
 	const [ isAddOpen, setAddOpen ] = useState( false );
 	const openAdd = useCallback( () => setAddOpen( true ), [] );
@@ -70,21 +77,17 @@ export default function App(): JSX.Element {
 		[ navigate, search ]
 	);
 
-	return (
-		<QueryClientProvider client={ queryClient }>
-			<div className="jetpack-newsletter">
-				<NewsletterPage
-					activeTab="subscribers"
-					actions={ <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } /> }
-					contentHasPadding={ false }
-				>
-					<SubscribersDataViews
-						onAddSubscribers={ openAdd }
-						onViewSubscriber={ handleViewSubscriber }
-					/>
-				</NewsletterPage>
-				<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
-			</div>
-		</QueryClientProvider>
+	const body = (
+		<>
+			<SubscribersDataViews
+				onAddSubscribers={ openAdd }
+				onViewSubscriber={ handleViewSubscriber }
+			/>
+			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
+		</>
 	);
+
+	const actions = <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } />;
+
+	return <>{ children( { body, actions } ) }</>;
 }
