@@ -12,7 +12,7 @@ body.jetpack_page_jetpack-newsletter {
 	// Off-white page surface so the white settings cards stand out against
 	// the page background.
 	.admin-ui-page {
-		background: var(--wpds-color-bg-surface-neutral, #fcfcfc);
+		background: var(--wpds-color-bg-surface-neutral-weak, #fcfcfc);
 	}
 
 	// Page header: stays sticky at top, opaque background (matches the
@@ -21,7 +21,7 @@ body.jetpack_page_jetpack-newsletter {
 	// keeps the header the same size whether or not the actions slot is
 	// rendered, so the tab bar doesn't jump when switching tabs.
 	.admin-ui-page__header {
-		background: var(--wpds-color-bg-surface-neutral, #fcfcfc);
+		background: var(--wpds-color-bg-surface-neutral-weak, #fcfcfc);
 		border-bottom: 0;
 		flex-shrink: 0;
 		padding-block-end: var(--wpds-dimension-padding-sm, 8px);
@@ -39,7 +39,7 @@ body.jetpack_page_jetpack-newsletter {
 	// nested `Tabs.List` keeps its native `width: fit-content` and the
 	// animated active-tab indicator slides smoothly between tabs.
 	.jetpack-newsletter-page__tabs-row {
-		background: var(--wpds-color-bg-surface-neutral, #fcfcfc);
+		background: var(--wpds-color-bg-surface-neutral-weak, #fcfcfc);
 		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
 		box-sizing: border-box;
 		flex-shrink: 0;
