@@ -142,6 +142,14 @@ class Settings {
 		if ( file_exists( $wp_build_index ) ) {
 			require_once $wp_build_index;
 		}
+
+		// `page.php` ships an `admin_init` interceptor that takes over our slug
+		// with a standalone (non-wp-admin) render. We want the wp-admin
+		// integrated experience, so unregister it as soon as it's loaded.
+		remove_action(
+			'admin_init',
+			'jetpack_newsletter_jetpack_newsletter_intercept_render'
+		);
 	}
 
 	/**

@@ -1,8 +1,9 @@
+import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { Stack, Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
 import type { ReactNode } from 'react';
 
@@ -30,7 +31,8 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
  * Shared chrome for the unified Newsletter page — owns the `Page` from
  * `@wordpress/admin-ui` plus the Subscribers / Settings tab nav. Each
  * route's stage renders its content as `children`; the shell handles the
- * title, subtitle, actions slot, and tab routing.
+ * title (Jetpack mark + product name), subtitle, actions slot, and tab
+ * routing.
  *
  * The Subscribers tab is hidden when
  * `jetpack_wp_admin_subscriber_management_enabled` is filtered to false
@@ -64,9 +66,16 @@ export default function NewsletterPage( {
 		[ navigate ]
 	);
 
+	const title = (
+		<Stack direction="row" align="center" gap="xs">
+			<JetpackLogo height={ 20 } />
+			<span>{ PRODUCT_NAME }</span>
+		</Stack>
+	);
+
 	return (
 		<Page
-			title={ PRODUCT_NAME }
+			title={ title }
 			ariaLabel={ PRODUCT_NAME }
 			subTitle={ SUBTITLES[ activeTab ]() }
 			actions={ actions }
@@ -78,9 +87,18 @@ export default function NewsletterPage( {
 						<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
 					</Tabs.List>
+					{ /* Each tab needs a matching Panel (WAI-ARIA pattern). The content
+					     is route-driven, so the inactive Panel just stays empty. */ }
+					<Tabs.Panel value="subscribers" focusable={ false }>
+						{ activeTab === 'subscribers' ? children : null }
+					</Tabs.Panel>
+					<Tabs.Panel value="settings" focusable={ false }>
+						{ activeTab === 'settings' ? children : null }
+					</Tabs.Panel>
 				</Tabs.Root>
-			) : null }
-			{ children }
+			) : (
+				children
+			) }
 		</Page>
 	);
 }
