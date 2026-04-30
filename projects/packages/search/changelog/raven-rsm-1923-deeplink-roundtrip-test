@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search Blocks: Add regression test asserting deep-link URL round-trip parity between the instant-search overlay and search-blocks.
