@@ -61,12 +61,15 @@
 		justify-content: flex-start;
 	}
 
-	// Reserve room for the centered loading spinner so it sits in the
-	// middle of the dashboard area instead of collapsing to 0 height while
-	// the empty Tabs.Panels are mounted.
+	// Lock the loading spinner to viewport center while data resolves —
+	// using a flow-based wrapper makes the spinner ride the page header
+	// down as it mounts. Fixed positioning keeps it visually still and
+	// out of the layout flow so it never offsets sibling content.
 	.jp-search-dashboard-loading {
-		position: relative;
-		min-height: 60vh;
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		z-index: 1;
 	}
 }
 
