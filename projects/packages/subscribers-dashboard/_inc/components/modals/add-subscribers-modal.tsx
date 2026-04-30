@@ -1,10 +1,8 @@
-import { SelectControl, TextareaControl } from '@wordpress/components';
+import { TextareaControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, Notice, Stack, Tabs, Text } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
-import { useMigrateSubscribersMutation } from '../../data/use-migrate-subscribers-mutation';
-import { useSourceSites } from '../../data/use-source-sites';
 import { extractEmailsFromCsv } from '../../lib/csv-parse';
 
 type Props = {
@@ -14,7 +12,7 @@ type Props = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type TabValue = 'manual' | 'upload' | 'substack' | 'migrate';
+type TabValue = 'manual' | 'upload' | 'substack';
 
 /**
  * Calypso's Substack importer wizard. We don't reimplement the multi-step Stripe / paid-plan
@@ -332,109 +330,13 @@ function SubstackTab(): JSX.Element {
 	);
 }
 
-type MigrateTabProps = {
-	active: boolean;
-	onClose: () => void;
-};
-
 /**
- * Migrate tab. Lets the user pick another WPCOM site they own and pull subscribers in from
- * there, mirroring Calypso's `MigrateSubscribersModal`. The picker is gated on the tab being
- * active so we don't pre-warm the `/me/sites` proxy request just because the modal is open.
- *
- * @param props         - Component props.
- * @param props.active  - Whether the tab is currently selected.
- * @param props.onClose - Close handler invoked after a successful migration.
- * @return Tab body.
- */
-function MigrateTab( { active, onClose }: MigrateTabProps ): JSX.Element {
-	const sitesQuery = useSourceSites( active );
-	const mutation = useMigrateSubscribersMutation();
-	const [ selectedId, setSelectedId ] = useState< string >( '' );
-
-	const sites = useMemo( () => sitesQuery.data ?? [], [ sitesQuery.data ] );
-	const handleSubmit = useCallback( () => {
-		const sourceBlogId = Number( selectedId );
-		if ( ! Number.isFinite( sourceBlogId ) || sourceBlogId <= 0 ) {
-			return;
-		}
-		const sourceSiteName = sites.find( site => site.ID === sourceBlogId )?.name;
-		mutation.mutate(
-			{ sourceBlogId, sourceSiteName },
-			{
-				onSuccess: () => {
-					setSelectedId( '' );
-					onClose();
-				},
-			}
-		);
-	}, [ mutation, onClose, selectedId, sites ] );
-
-	const options = useMemo(
-		() => [
-			{
-				value: '',
-				label: __( 'Select a site to migrate from…', 'jetpack-subscribers-dashboard' ),
-			},
-			...sites.map( site => ( {
-				value: String( site.ID ),
-				label: site.name ? `${ site.name } (${ site.URL })` : site.URL,
-			} ) ),
-		],
-		[ sites ]
-	);
-
-	return (
-		<Stack direction="column" gap="md">
-			<Text variant="body-md">
-				{ __(
-					'Pick another WordPress.com site you own and we’ll move its subscribers over to this site.',
-					'jetpack-subscribers-dashboard'
-				) }
-			</Text>
-			{ sitesQuery.isError ? (
-				<Notice.Root intent="error">
-					<Notice.Description>
-						{ sitesQuery.error?.message ||
-							__( 'Could not load your WordPress.com sites.', 'jetpack-subscribers-dashboard' ) }
-					</Notice.Description>
-				</Notice.Root>
-			) : null }
-			<SelectControl
-				__nextHasNoMarginBottom
-				label={ __( 'Source site', 'jetpack-subscribers-dashboard' ) }
-				value={ selectedId }
-				onChange={ setSelectedId }
-				options={ options }
-				disabled={ sitesQuery.isLoading || mutation.isPending }
-			/>
-			{ ! sitesQuery.isLoading && sites.length === 0 && ! sitesQuery.isError ? (
-				<Text variant="body-sm">
-					{ __(
-						'You don’t own any other WordPress.com sites we can migrate subscribers from.',
-						'jetpack-subscribers-dashboard'
-					) }
-				</Text>
-			) : null }
-			<Stack direction="row" justify="end" gap="sm">
-				<Button
-					onClick={ handleSubmit }
-					loading={ mutation.isPending }
-					disabled={ mutation.isPending || ! selectedId }
-				>
-					{ __( 'Migrate subscribers', 'jetpack-subscribers-dashboard' ) }
-				</Button>
-			</Stack>
-		</Stack>
-	);
-}
-
-/**
- * Modal that invites new subscribers by email. Four tabs — manual entry, CSV upload, a Substack
- * importer hand-off, and a Migrate-from-another-WPCOM-site flow — share a single
- * `useAddSubscribersMutation` for the email-based ones so the snackbar feedback + dashboard
- * cache invalidation behave identically across tabs (Migrate has its own mutation since the
- * server response shape differs).
+ * Modal that invites new subscribers by email. Three tabs — manual entry, CSV upload, and a
+ * Substack importer hand-off — share a single `useAddSubscribersMutation` so the snackbar
+ * feedback + dashboard cache invalidation behave identically across tabs. (Calypso also has a
+ * "Migrate from another WordPress.com site" flow; we don't ship it from inside the in-admin
+ * dashboard yet because its `/me/sites` lookup needs an oauth token the Jetpack-as-user proxy
+ * can't supply server-side. Tracked in #48365 — Phase 5b deferred.)
  *
  * @param props         - Component props.
  * @param props.isOpen  - Whether the modal is open.
@@ -482,9 +384,6 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 						<Tabs.Tab value="substack">
 							{ __( 'Substack', 'jetpack-subscribers-dashboard' ) }
 						</Tabs.Tab>
-						<Tabs.Tab value="migrate">
-							{ __( 'Migrate', 'jetpack-subscribers-dashboard' ) }
-						</Tabs.Tab>
 					</Tabs.List>
 					<Tabs.Panel value="manual">
 						<ManualTab mutation={ mutation } onClose={ onClose } />
@@ -494,9 +393,6 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 					</Tabs.Panel>
 					<Tabs.Panel value="substack">
 						<SubstackTab />
-					</Tabs.Panel>
-					<Tabs.Panel value="migrate">
-						<MigrateTab active={ tab === 'migrate' } onClose={ onClose } />
 					</Tabs.Panel>
 				</Tabs.Root>
 			</Dialog.Popup>
