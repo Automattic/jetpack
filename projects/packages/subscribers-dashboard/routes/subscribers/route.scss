@@ -50,6 +50,14 @@
 	min-width: 0;
 }
 
+// Card defaults `--wp-ui-card-padding` to padding-2xl (24px). That
+// reads as too generous in the inspector column; drop one rung to
+// padding-lg (16px).
+.jetpack-subscribers-dashboard__detail-stat,
+.jetpack-subscribers-dashboard__detail-section {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg, 16px);
+}
+
 .jetpack-subscribers-dashboard__detail-stat-value {
 	display: block;
 	margin-top: var(--wpds-dimension-gap-sm, 8px);
