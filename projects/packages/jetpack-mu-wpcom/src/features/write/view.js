@@ -1801,7 +1801,7 @@ async function savePost( postStatus, isAutosave = false ) {
 			window._tkq.push( [
 				'recordEvent',
 				'wpcom_write_editor_draft_saved',
-				{ is_new_post: ! isEditing },
+				{ is_new_post: ! isEditing, post_id: post.id },
 			] );
 			setTimeout( () => {
 				state.message = '';
