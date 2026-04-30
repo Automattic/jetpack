@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "54c5bc256922d232ff0572569c5a504d",
+    "content-hash": "ca5db4a80577e1a4142f748db93a2f59",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -3614,7 +3614,7 @@
         },
         {
             "name": "wp-php-toolkit/reprint-exporter",
-            "version": "v0.7.1",
+            "version": "v0.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-php-toolkit/reprint-exporter.git",
@@ -3657,13 +3657,13 @@
             "description": "Streaming export engine used by the Reprint Exporter WordPress plugin",
             "support": {
                 "issues": "https://github.com/wp-php-toolkit/reprint-exporter/issues",
-                "source": "https://github.com/wp-php-toolkit/reprint-exporter/tree/v0.7.1"
+                "source": "https://github.com/wp-php-toolkit/reprint-exporter/tree/v0.7.2"
             },
             "time": "2026-04-30T22:29:29+00:00"
         },
         {
             "name": "wp-php-toolkit/reprint-importer",
-            "version": "v0.7.1",
+            "version": "v0.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-php-toolkit/reprint-importer.git",
@@ -3694,7 +3694,7 @@
             "description": "Streaming site importer with CLI and PHAR distribution support",
             "support": {
                 "issues": "https://github.com/wp-php-toolkit/reprint-importer/issues",
-                "source": "https://github.com/wp-php-toolkit/reprint-importer/tree/v0.7.1"
+                "source": "https://github.com/wp-php-toolkit/reprint-importer/tree/v0.7.2"
             },
             "time": "2026-04-30T22:29:29+00:00"
         },
