@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update wp-php-toolkit/reprint-exporter and reprint-importer to ^0.7.0 for smaller Packagist dist artifacts.
