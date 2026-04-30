@@ -1,17 +1,26 @@
-// Use a single horizontal-padding token across the page header, the tab
-// bar, and the content slot so the tabs hold their position when switching
-// between Subscribers and Settings.
+// Patterned after Forms' page + dataviews-header-row styles so the unified
+// Newsletter page scrolls the way Forms does:
+// - the Page header sticks to the top of `.boot-layout__stage` while content
+//   scrolls underneath (no double border, opaque background covers the data)
+// - the tab row scrolls away with the rest of the content but carries the
+//   visible 1px separator that used to live on the Page header
+
 $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
 
 body.jetpack_page_jetpack-newsletter {
 
-	// The active Tabs underline already terminates the header visually, so
-	// drop the Page header's bottom divider here. The min-height on the
-	// title row keeps the header the same size regardless of whether the
-	// actions slot is rendered (so tabs don't jump on tab switch).
+	// Page header: stays sticky at top, opaque background, no bottom rule
+	// (the tab row owns the separator now). A min-height on the title row
+	// keeps the header the same size whether or not the actions slot is
+	// rendered, so the tab bar doesn't jump when switching tabs.
 	.admin-ui-page__header {
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: 0;
+		flex-shrink: 0;
 		padding-block-end: var(--wpds-dimension-padding-sm, 8px);
+		position: sticky;
+		top: 0;
+		z-index: 10;
 
 		// First flex row (title + actions) sits before the subtitle.
 		> *:first-child {
@@ -20,13 +29,29 @@ body.jetpack_page_jetpack-newsletter {
 	}
 
 	.jetpack-newsletter-page__tablist {
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+		flex-shrink: 0;
 		padding-inline: $jetpack-newsletter-inset;
+
+		// Match Forms' tab type/color rhythm (see Forms' dataviews-header-row).
+		button[role="tab"] {
+			color: var(--wpds-color-fg-interactive-neutral);
+			margin: 0;
+			padding-block: 12px;
+
+			&[data-active="true"] {
+				color: var(--wpds-color-fg-interactive-neutral-active);
+			}
+
+			&:hover:not([data-active="true"]) {
+				color: var(--wpds-color-fg-interactive-neutral-active);
+			}
+		}
 	}
 
 	.jetpack-newsletter-page__content--padded {
-		padding-block:
-			var(--wpds-dimension-padding-md, 16px)
-			$jetpack-newsletter-inset;
+		padding-block: var(--wpds-dimension-padding-md, 16px) $jetpack-newsletter-inset;
 		padding-inline: $jetpack-newsletter-inset;
 	}
 }
