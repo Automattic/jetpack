@@ -356,7 +356,13 @@ export default function ActivityLog() {
 			showFooter={ false }
 			unwrapped
 		>
-			<div ref={ wrapperRef } className="jp-activity-log__dataviews-wrapper">
+			<div
+				ref={ wrapperRef }
+				className={
+					'jp-activity-log__dataviews-wrapper' +
+					( hasActivityLogsAccess ? '' : ' jp-activity-log__dataviews-wrapper--free-tier' )
+				}
+			>
 				<DataViews< Activity >
 					data={ logData }
 					isLoading={ isFetching || isLoadingList }

@@ -29,6 +29,26 @@ body.jetpack_page_jetpack-activity-log {
 	flex: 1 1 auto;
 	padding: 0;
 
+	// On the free tier the table is hard-capped at 20 rows and the
+	// upsell callout renders directly below it. Stop the wrapper from
+	// stretching to viewport-fill (`flex: 1 1 auto`), and disarm
+	// `.dataviews-layout__container`'s `overflow: auto` so the table
+	// renders at content height instead of growing a private scrollbar
+	// inside the page's middle column. Net effect: the events list and
+	// the upsell flow as one continuous block, the page's outer scroll
+	// column is the only one the user ever sees.
+	&--free-tier {
+		flex: 0 0 auto;
+
+		> .dataviews-wrapper {
+			height: auto;
+		}
+
+		.dataviews-layout__container {
+			overflow: visible;
+		}
+	}
+
 	// DataViews renders its own surface; don't double-pad it.
 	> .dataviews-wrapper {
 		margin: 0;
