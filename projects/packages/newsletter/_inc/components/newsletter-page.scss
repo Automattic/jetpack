@@ -31,12 +31,19 @@ body.jetpack_page_jetpack-newsletter {
 	.jetpack-newsletter-page__tablist {
 		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+		box-sizing: border-box;
 		flex-shrink: 0;
 		padding-inline: $jetpack-newsletter-inset;
+		width: 100%;
 
 		// Match Forms' tab type/color rhythm (see Forms' dataviews-header-row).
+		// Default `Tabs.List` stretches each tab to fill the row; we want them
+		// hugged to the left so the bottom border still extends full-width.
+		justify-content: flex-start;
+
 		button[role="tab"] {
 			color: var(--wpds-color-fg-interactive-neutral);
+			flex: 0 0 auto;
 			margin: 0;
 			padding-block: 12px;
 
