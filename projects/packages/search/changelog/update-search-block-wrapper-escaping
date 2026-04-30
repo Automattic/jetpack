@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Search Blocks: drop redundant `wp_kses_data()` wrapping around `get_block_wrapper_attributes()` in render templates.
+Search Blocks: Drop redundant `wp_kses_data()` wrapping around `get_block_wrapper_attributes()` in render templates.
