@@ -29,7 +29,11 @@ import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
-const PLAN_USAGE_RETURN_PATH = 'admin.php?page=jetpack-search&just_upgraded=1&tab=plan-usage';
+const PLAN_USAGE_RETURN_PATH = `admin.php?${ new URLSearchParams( {
+	page: 'jetpack-search',
+	just_upgraded: '1',
+	tab: SEARCH_DASHBOARD_TAB_PLAN_USAGE,
+} ).toString() }`;
 
 /**
  * SearchDashboard component definition.
@@ -205,7 +209,7 @@ export default function DashboardPage( { isLoading = false } ) {
 }
 
 const DashboardNoticesSlot = () => (
-	<div className="jp-search-dashboard-notices">
+	<div className="jp-search-dashboard-notices jp-search-dashboard-wrap">
 		<div className="jp-search-dashboard-row">
 			<div
 				id="jp-admin-notices"
