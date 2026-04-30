@@ -1336,7 +1336,6 @@ const { state } = store( 'wpcom-write', {
 				)
 					return;
 				clearHighlight();
-				restoreSelection();
 				state.showLinkInput = false;
 				document.removeEventListener( 'click', linkPopoverCloseHandler );
 				linkPopoverCloseHandler = null;
