@@ -56,13 +56,21 @@ export function buildAkismetCard( {
 							'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 							'jetpack-forms'
 						),
-						{ a: <Link href={ settingsUrl } openInNewTab children={ null } /> }
+						{
+							a: (
+								<Link
+									children={ null }
+									href={ settingsUrl }
+									openInNewTab={ context === 'block-editor' }
+								/>
+							),
+						}
 					) }
 				</p>
 				<Button
 					variant="secondary"
 					href={ settingsUrl }
-					target="_blank"
+					target={ context === 'block-editor' ? '_blank' : '_self' }
 					rel="noopener noreferrer"
 					__next40pxDefaultSize={ true }
 				>
@@ -76,18 +84,17 @@ export function buildAkismetCard( {
 				</p>
 				<HStack spacing="2" justify="start" className="integration-card__links">
 					{ context === 'dashboard' && handlers?.goToSpam ? (
-						<Button variant="link" onClick={ handlers.goToSpam }>
-							{ __( 'View spam', 'jetpack-forms' ) }
-						</Button>
+						<Link onClick={ handlers.goToSpam }>{ __( 'View spam', 'jetpack-forms' ) }</Link>
 					) : (
-						<Link href={ spamUrl } openInNewTab>
+						<Link href={ spamUrl } openInNewTab={ context === 'block-editor' }>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Link>
 					) }
+					{ context }
 					<span>|</span>
 					{ settingsUrl && (
 						<>
-							<Link href={ settingsUrl } openInNewTab>
+							<Link href={ settingsUrl } openInNewTab={ context === 'block-editor' }>
 								{ __( 'View stats and settings', 'jetpack-forms' ) }
 							</Link>
 							<span>|</span>
