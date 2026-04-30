@@ -1,4 +1,10 @@
-import { ContrastChecker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
+import {
+	ContrastChecker,
+	FontSizePicker,
+	InspectorControls,
+	PanelColorSettings,
+} from '@wordpress/block-editor';
+import { BoxControl, PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const StyleControls = ( { attributes, setAttributes } ) => {
@@ -9,6 +15,8 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		inactiveTabTextColor,
 		selectedAmountBackgroundColor,
 		selectedAmountTextColor,
+		tabFontSize,
+		tabPadding,
 	} = attributes;
 
 	return (
@@ -69,6 +77,20 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 					textColor={ selectedAmountTextColor }
 				/>
 			</PanelColorSettings>
+			<PanelBody title={ __( 'Tab dimensions', 'jetpack' ) } initialOpen={ false }>
+				<FontSizePicker
+					value={ tabFontSize }
+					onChange={ value => setAttributes( { tabFontSize: value } ) }
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
+				/>
+				<BoxControl
+					label={ __( 'Tab padding', 'jetpack' ) }
+					values={ tabPadding }
+					onChange={ value => setAttributes( { tabPadding: value } ) }
+					__next40pxDefaultSize={ true }
+				/>
+			</PanelBody>
 		</InspectorControls>
 	);
 };

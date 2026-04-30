@@ -128,6 +128,12 @@
 		},
 		"selectedAmountTextColor": {
 			"type": "string"
+		},
+		"tabFontSize": {
+			"type": "string"
+		},
+		"tabPadding": {
+			"type": "object"
 		}
 	},
 	"example": {}
