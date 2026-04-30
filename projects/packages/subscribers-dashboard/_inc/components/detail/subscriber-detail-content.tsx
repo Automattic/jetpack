@@ -276,6 +276,10 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 			<DetailSection title={ __( 'Subscriber information', 'jetpack-subscribers-dashboard' ) }>
 				<Stack direction="column" gap="md">
 					<DetailRow
+						label={ __( 'Joined', 'jetpack-subscribers-dashboard' ) }
+						value={ formatDate( stats?.blog_registration_date ) }
+					/>
+					<DetailRow
 						label={ __( 'Email', 'jetpack-subscribers-dashboard' ) }
 						value={ subscriber.email_address }
 					/>
@@ -297,10 +301,6 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 								</a>
 							) : null
 						}
-					/>
-					<DetailRow
-						label={ __( 'Joined', 'jetpack-subscribers-dashboard' ) }
-						value={ formatDate( stats?.blog_registration_date ) }
 					/>
 				</Stack>
 			</DetailSection>
