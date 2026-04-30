@@ -315,6 +315,154 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The load tester's `test()` rejects an empty / non-existent input list
+	 * before doing any HTTP work, returning an `error` verdict.
+	 */
+	public function test_load_tester_rejects_empty_plugin_list() {
+		$tester = new PCG_Load_Tester();
+
+		$verdict = $tester->test( array() );
+		$this->assertSame( 'error', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] );
+
+		$verdict = $tester->test( array( '', '/no/such/file/pcg-missing.php' ) );
+		$this->assertSame( 'error', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] );
+	}
+
+	/**
+	 * The explicit `plugin` field on a Throwable verdict wins when it
+	 * matches a known path in the batch.
+	 */
+	public function test_blame_uses_explicit_plugin_field() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'throwable',
+				'plugin' => WP_PLUGIN_DIR . '/bar/bar.php',
+				'file'   => WP_PLUGIN_DIR . '/bar/bar.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * When the explicit `plugin` field doesn't match anything in the batch,
+	 * attribution falls through to the captured `file`.
+	 */
+	public function test_blame_falls_back_to_file_when_explicit_plugin_unknown() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'throwable',
+				'plugin' => '/some/path/we/dont/recognise.php',
+				'file'   => WP_PLUGIN_DIR . '/bar/lib/helper.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * An exact-path match against a plugin's main file wins — covers
+	 * flat-file plugins where the prefix match would be unsafe.
+	 */
+	public function test_blame_matches_flat_file_plugin_exactly() {
+		$paths = array(
+			'hello.php'   => WP_PLUGIN_DIR . '/hello.php',
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/hello.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'hello.php', $blamed );
+	}
+
+	/**
+	 * A fatal in a file inside a plugin's own subdirectory is attributed
+	 * via prefix match.
+	 */
+	public function test_blame_matches_subdirectory_plugin_prefix() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/bar/lib/deeply/nested.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * A fatal at `WP_PLUGIN_DIR/something.php` must NOT be attributed to a
+	 * flat-file plugin in the batch via the prefix arm — that would
+	 * produce a false attribution because the dirname is the plugins root.
+	 * Falls back to first plugin in the batch.
+	 */
+	public function test_blame_does_not_false_match_flat_file_plugins_via_prefix() {
+		$paths = array(
+			'hello.php' => WP_PLUGIN_DIR . '/hello.php',
+			'world.php' => WP_PLUGIN_DIR . '/world.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/something-unrelated.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'hello.php', $blamed );
+	}
+
+	/**
+	 * With nothing on the verdict to attribute against, the first plugin
+	 * in the batch is returned — the batch is blocked as a unit either way.
+	 */
+	public function test_blame_falls_back_to_first_plugin_when_unattributable() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin( array( 'status' => 'fatal' ), $paths );
+		$this->assertSame( 'foo/foo.php', $blamed );
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => '/var/www/wp-includes/load.php',
+			),
+			$paths
+		);
+		$this->assertSame( 'foo/foo.php', $blamed );
+	}
+
+	/**
 	 * A package with only valid PHP files scans clean.
 	 */
 	public function test_parse_error_scan_returns_empty_for_valid_files() {
