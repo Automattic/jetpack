@@ -37,7 +37,7 @@ function pcg_maybe_handle_probe() {
 	}
 	$plugin_main = (string) $payload['plugin'];
 	$mode        = (string) $payload['mode'];
-	if ( ! in_array( $mode, array( PCG_Load_Tester::MODE_ACTIVATION, PCG_Load_Tester::MODE_UPDATE ), true ) ) {
+	if ( '' === $plugin_main || ! in_array( $mode, array( PCG_Load_Tester::MODE_ACTIVATION, PCG_Load_Tester::MODE_UPDATE ), true ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
 	}
 
@@ -49,7 +49,7 @@ function pcg_maybe_handle_probe() {
 		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
 	}
 
-	if ( '' === $plugin_main || ! is_file( $plugin_main ) || ! is_readable( $plugin_main ) ) {
+	if ( ! is_file( $plugin_main ) || ! is_readable( $plugin_main ) ) {
 		pcg_probe_bail_error( 'Probe target is no longer readable.', 404 );
 	}
 
