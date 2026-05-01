@@ -64,12 +64,12 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
-		focusOnMount: 'container' as const,
+		focusOnMount: 'firstElement',
 		onClose: hideTooltip,
 		className: 'icon-tooltip-container',
 		inline,
 		shift,
-	};
+	} satisfies Omit< React.ComponentProps< typeof Popover >, 'children' >;
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
 

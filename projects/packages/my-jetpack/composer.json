@@ -22,7 +22,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/jetpack-search": "@dev",
 		"automattic/jetpack-videopress": "@dev",
@@ -61,6 +60,10 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
+		],
+		"watch-hot": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch:hot"
 		]
 	},
 	"repositories": [
@@ -82,7 +85,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "5.30.x-dev"
+			"dev-trunk": "5.35.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"

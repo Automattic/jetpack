@@ -25,6 +25,7 @@ const wpPkgs = {
 	],
 	'@wordpress/element': [ 'react-dom' ],
 	'@wordpress/data': [ 'use-memo-one' ],
+	'@wordpress/ui': [ '@base-ui/react' ],
 };
 const wpPkgFetches = {};
 
@@ -75,9 +76,8 @@ async function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
-	// https://github.com/WordPress/gutenberg/issues/74394
 	if (
-		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/image-cropper' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -89,12 +89,17 @@ async function fixDeps( pkg ) {
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
 		for ( const fromPkg of Object.keys( wpPkgs ) ) {
+			if ( ! pkg.dependencies[ fromPkg ] ) {
+				// Old version of dataviews lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
+				continue;
+			}
+
 			if ( ! wpPkgFetches[ fromPkg ] ) {
 				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
 					r.json()
 				);
 			}
-			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' );
+			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
 			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
 			for ( const dep of wpPkgs[ fromPkg ] ) {
 				if ( deps[ dep ] === undefined ) {
@@ -149,6 +154,38 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Outdated dependency
+	if ( pkg.name === '@wordpress/jest-console' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( 'jest-' ) && ver.startsWith( '^29.' ) ) {
+				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
+	}
+
+	// @wordpress/stylelint-config is still CJS, which caps how high we can upgrade.
+	// https://github.com/WordPress/gutenberg/issues/75047
+	if ( pkg.name === '@wordpress/stylelint-config' ) {
+		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
+			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
+		}
+		if ( pkg.dependencies?.[ 'stylelint-config-recommended' ]?.startsWith( '^14.' ) ) {
+			pkg.dependencies[ 'stylelint-config-recommended' ] = '^17'; // 18 is ESM
+		}
+		if ( pkg.dependencies?.[ 'stylelint-config-recommended-scss' ]?.startsWith( '^14.' ) ) {
+			pkg.dependencies[ 'stylelint-config-recommended-scss' ] = '^16'; // 17 is ESM
+		}
+		if ( pkg.peerDependencies?.stylelint?.startsWith( '^16.' ) ) {
+			pkg.peerDependencies.stylelint = '^17';
+		}
+		if ( pkg.peerDependencies?.[ 'stylelint-scss' ]?.startsWith( '^6.' ) ) {
+			pkg.peerDependencies[ 'stylelint-scss' ] = '^7';
+		}
+	}
+	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
+		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
+	}
+
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
@@ -175,10 +212,12 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// https://github.com/istanbuljs/babel-plugin-istanbul/issues/300
 	// https://github.com/jestjs/jest/issues/15236
-	if ( pkg.name === 'babel-plugin-istanbul' && pkg.dependencies[ 'test-exclude' ] === '^6.0.0' ) {
-		pkg.dependencies[ 'test-exclude' ] = '^7.0.0';
+	if (
+		( pkg.name === 'babel-jest' || pkg.name === '@jest/transform' ) &&
+		pkg.dependencies[ 'babel-plugin-istanbul' ] === '^7.0.1'
+	) {
+		pkg.dependencies[ 'babel-plugin-istanbul' ] = '^8.0.0';
 	}
 
 	// Outdated dependency.
@@ -222,15 +261,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
 	}
 
-	// Outdated, deprecated dependency.
-	// https://github.com/hipstersmoothie/react-docgen-typescript-plugin/issues/93
-	if (
-		pkg.name === '@storybook/react-docgen-typescript-plugin' &&
-		pkg.dependencies?.[ 'flat-cache' ] === '^3.0.4'
-	) {
-		pkg.dependencies[ 'flat-cache' ] = '^4';
-	}
-
 	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
 	// No upstream evident to report bugs to.
 	if ( pkg.name === '@paulirish/trace_engine' ) {
@@ -241,25 +271,23 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Seems to depend on hoisting. 33306 doesn't seem to directly address it, but 33315 looks like it will fix it anyway.
-	// https://github.com/storybookjs/storybook/issues/33306
-	if ( pkg.name === 'storybook' && ! pkg.dependencies[ '@vitest/mocker' ] ) {
-		pkg.dependencies[ '@vitest/mocker' ] = '*';
+	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
+	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
+	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob = '^13';
+	}
+	if ( pkg.peerDependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob = '^13';
 	}
 
-	// CVE-2026-22036
-	// https://github.com/actions/toolkit/issues/2242
+	// `@base-ui/react` added a peer dependency on `date-fns`, but `@wordpress/ui` doesn't satisfy it.
+	// https://github.com/WordPress/gutenberg/issues/77395
 	if (
-		( pkg.name === '@actions/http-client' || pkg.name === '@actions/github' ) &&
-		pkg.dependencies?.undici?.startsWith( '^5.' )
+		( pkg.name === '@wordpress/ui' || pkg.name === '@wordpress/dataviews' ) &&
+		( ! pkg.dependencies?.[ 'date-fns' ] || ! pkg.dependencies?.[ '@date-fns/tz' ] )
 	) {
-		pkg.dependencies.undici = '^6.23.0';
-	}
-
-	// GHSA-73rr-hh4g-fpgx
-	// https://github.com/WordPress/gutenberg/issues/74669
-	if ( pkg.name === '@wordpress/block-editor' && pkg.dependencies?.diff?.startsWith( '^4.' ) ) {
-		pkg.dependencies.diff = '^8.0.3';
+		pkg.dependencies[ 'date-fns' ] ??= '^4.0.0';
+		pkg.dependencies[ '@date-fns/tz' ] ??= '^1.2.0';
 	}
 
 	return pkg;
@@ -318,10 +346,48 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
 	}
 
+	// Outdated peer dependency because Gutenberg is still on node 20.
+	if (
+		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
+		! pkg.peerDependencies?.[ '@types/node' ]?.includes( '^24.' )
+	) {
+		pkg.peerDependencies[ '@types/node' ] += ' || ^24.0.0';
+	}
+
+	// Outdated dependency because Calypso is still on node 22.
+	if (
+		pkg.name === '@automattic/calypso-config' &&
+		! pkg.dependencies?.[ '@types/node' ]?.includes( '^24.' )
+	) {
+		pkg.dependencies[ '@types/node' ] += ' || ^24.0.0';
+	}
+
 	// Should be an optional peer dep, but isn't.
 	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
 	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
 		delete pkg.dependencies.sass;
+	}
+
+	// These packages went ESM-only in their latest versions, which breaks `@wordpress/stylelint-config`.
+	// So we need to keep older CJS versions for now, while bumping their stylelint peer deps.
+	// https://github.com/WordPress/gutenberg/issues/75047
+	if (
+		( pkg.name === 'stylelint-config-recommended' ||
+			pkg.name === 'stylelint-config-recommended-scss' ||
+			pkg.name === '@stylistic/stylelint-plugin' ||
+			pkg.name === 'stylelint-scss' ) &&
+		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
+	) {
+		pkg.peerDependencies.stylelint = '^17';
+	}
+
+	// 0.x versions treat `^` like `~`. Replace with `>=`.
+	if ( pkg.name === '@wordpress/build' && pkg.peerDependencies ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
+			if ( ver.startsWith( '^0.' ) ) {
+				pkg.peerDependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
 	}
 
 	return pkg;
@@ -348,9 +414,10 @@ async function readPackage( pkg, context ) {
  *
  * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
  * @param {object} lockfile - Lockfile data.
+ * @param {object} context  - Pnpm object of some sort.
  * @return {object} Modified lockfile.
  */
-function afterAllResolved( lockfile ) {
+function afterAllResolved( lockfile, context ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
 	if ( Object.keys( lockfile.importers ).length === 1 ) {
 		return lockfile;
@@ -385,6 +452,14 @@ function afterAllResolved( lockfile ) {
 		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {
 			throw new Error(
 				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
+			);
+		}
+	}
+
+	for ( const fromPkg of Object.keys( wpPkgs ) ) {
+		if ( ! wpPkgFetches[ fromPkg ] ) {
+			context.log(
+				`pnpmfile hack needs updating: wpPkgs['${ fromPkg }'] was not used. Is it obsolete?`
 			);
 		}
 	}

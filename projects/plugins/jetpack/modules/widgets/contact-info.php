@@ -160,11 +160,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			if ( '' !== $instance['phone'] ) {
-				if ( wp_is_mobile() ) {
-					echo '<div class="confit-phone"><span itemprop="telephone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . '</a></span></div>';
-				} else {
-					echo '<div class="confit-phone"><span itemprop="telephone">' . esc_html( $instance['phone'] ) . '</span></div>';
-				}
+				echo '<div class="confit-phone"><span itemprop="telephone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . '</a></span></div>';
 			}
 
 			if (

@@ -1,28 +1,12 @@
 @use "scss/variables";
 
-.jp-search-dashboard-upsell-page {
-	line-height: 1.5;
-	width: 100%;
-
-	h1 {
-		line-height: 1.2;
-	}
-
-	// Targets AdminPage component, which uses obfuscated CSS names.
-	> div {
-		margin-left: 0;
-	}
-
-	&__header {
-		display: flex;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: calc(var(--horizontal-spacing) * 3);
-	}
-
-	&__logo {
-		flex-shrink: 0;
-	}
+// Container ships with width:100% + padding without border-box, so it
+// overflows its parent. Force border-box and let descendants shrink past
+// their intrinsic width.
+.jp-search-upsell-container,
+.jp-search-upsell-container * {
+	box-sizing: border-box;
+	min-width: 0;
 }
 
 .price-tip {

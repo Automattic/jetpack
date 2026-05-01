@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -13,124 +13,124 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 // takes inv meta and works out if due
 // now v3.0 friendly!
-function zeroBSCRM_invoiceBuilder_isInvoiceDue($zbsInvoice=array()){
+function zeroBSCRM_invoiceBuilder_isInvoiceDue( $zbsInvoice = array() ) {
 
-    global $zbs;
+	global $zbs;
 
-    if (is_array($zbsInvoice)){
+	if ( is_array( $zbsInvoice ) ) {
 
-        // first get due
-        $due = 0; if (isset($zbsInvoice['due_date']) && $zbsInvoice['due_date'] > 0) $due = (int)$zbsInvoice['due_date'];
+		// first get due
+		$due = 0;
+		if ( isset( $zbsInvoice['due_date'] ) && $zbsInvoice['due_date'] > 0 ) {
+			$due = (int) $zbsInvoice['due_date'];
+		}
 
-        // compare (could give days difference here, but not req yet.)
-        if ($due > time()){
-            // not due
-            return false;
-        } else {
-            // due
-            return true;
-        }
+		// compare (could give days difference here, but not req yet.)
+		if ( $due > time() ) {
+			// not due
+			return false;
+		} else {
+			// due
+			return true;
+		}
+	}
 
-    }
-
-    return false;
-
+	return false;
 }
 
-
-/* ======================================================
-    ZBS Invoicing - REMOVE previous submit meta box + replace with custom
-   ====================================================== */
+/*
+======================================================
+	ZBS Invoicing - REMOVE previous submit meta box + replace with custom
+	====================================================== */
 
 #} This adds our own save box
-function zeroBSCRM_replace_invoice_submit_meta_box() 
-{
+function zeroBSCRM_replace_invoice_submit_meta_box() {
 
-        #} remove typical submit box:
-        remove_meta_box('submitdiv', 'zerobs_invoice', 'core'); // $item represents post_type
- 
-        #} Include/initialise custom submitbox
-        require_once( ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes.SubmitBoxes.php');
-  
+		#} remove typical submit box:
+		remove_meta_box( 'submitdiv', 'zerobs_invoice', 'core' ); // $item represents post_type
+
+		#} Include/initialise custom submitbox
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes.SubmitBoxes.php';
 }
 
 add_action( 'admin_init', 'zeroBSCRM_replace_invoice_submit_meta_box' );
 
 #} This specifies 1 column pre-save, 2 columns post-save :)
-function zeroBSCRM_invoiceBuilderColumnCount(){
+function zeroBSCRM_invoiceBuilderColumnCount() {
 
-        global $post;
-        if (isset($post->post_status) && $post->post_status != "auto-draft") return 2;
+		global $post;
+	if ( isset( $post->post_status ) && $post->post_status != 'auto-draft' ) {
+		return 2;
+	}
 
-        return 2;
-
+		return 2;
 }
-add_filter('get_user_option_screen_layout_zerobs_invoice', 'zeroBSCRM_invoiceBuilderColumnCount' );
+add_filter( 'get_user_option_screen_layout_zerobs_invoice', 'zeroBSCRM_invoiceBuilderColumnCount' );
 
-
-/* ======================================================
-    ZBS Invoicing - HTML GENERATOR
-   ====================================================== */
+/*
+======================================================
+	ZBS Invoicing - HTML GENERATOR
+	====================================================== */
 
 #} Generates the HTML of an invoice based on the template in templates/invoices/invoice-pdf.html
 #} if $return, it'll return, otherwise it'll echo + exit
 #} --------- Notes:
-#} ... there's several ways we COULD do this, 
-#} ... suggest we explore this way first, then re-discuss, 
+#} ... there's several ways we COULD do this,
+#} ... suggest we explore this way first, then re-discuss,
 #} ... Benefits of this inc. easy to theme ;) just create variations of invoice.html
 // Note: This is primarily used to generate PDF invoice html. (dig down and see use if "zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID,'pdf'")
-function zeroBSCRM_invoice_generateInvoiceHTML($invoicePostID=-1,$return=true){
+function zeroBSCRM_invoice_generateInvoiceHTML( $invoicePostID = -1, $return = true ) {
 
-    if (!empty($invoicePostID)){
+	if ( ! empty( $invoicePostID ) ) {
 
-        global $zbs;
-        return zeroBSCRM_invoice_generateInvoiceHTML_v3( $invoicePostID, $return );
+		global $zbs;
+		return zeroBSCRM_invoice_generateInvoiceHTML_v3( $invoicePostID, $return );
 
-    } 
+	}
 
-    #} Empty inv id
-    return false;
+	#} Empty inv id
+	return false;
 }
 
 // invoice html generation 3.0+
-function zeroBSCRM_invoice_generateInvoiceHTML_v3( $invoiceID=-1, $return=true ){
+function zeroBSCRM_invoice_generateInvoiceHTML_v3( $invoiceID = -1, $return = true ) {
 
-    global $zbs;
+	global $zbs;
 
-    if (!empty($invoiceID)){
+	if ( ! empty( $invoiceID ) ) {
 
-        // Discern template and retrieve    
-        $global_invoice_pdf_template = zeroBSCRM_getSetting('inv_pdf_template');
-        if ( !empty( $global_invoice_pdf_template ) ){
-            $templatedHTML = jpcrm_retrieve_template( $global_invoice_pdf_template, false );
-        }
+		// Discern template and retrieve
+		$global_invoice_pdf_template = zeroBSCRM_getSetting( 'inv_pdf_template' );
+		if ( ! empty( $global_invoice_pdf_template ) ) {
+			$templatedHTML = jpcrm_retrieve_template( $global_invoice_pdf_template, false );
+		}
 
-        // fallback to default template
-        if ( !isset( $templatedHTML ) || empty( $templatedHTML ) ){
+		// fallback to default template
+		if ( ! isset( $templatedHTML ) || empty( $templatedHTML ) ) {
 
-            // template failed as setting potentially holds out of date (removed) template
-            // so use the default
-            $templatedHTML = jpcrm_retrieve_template( 'invoices/invoice-pdf.html', false );
+			// template failed as setting potentially holds out of date (removed) template
+			// so use the default
+			$templatedHTML = jpcrm_retrieve_template( 'invoices/invoice-pdf.html', false );
 
-        }
+		}
 
-        #} Act
-        if (!empty($templatedHTML)){
+		#} Act
+		if ( ! empty( $templatedHTML ) ) {
 
-            // Over-ride the #MSGCONTENT# part
-            $placeholder_templating = $zbs->get_templating();
+			// Over-ride the #MSGCONTENT# part
+			$placeholder_templating = $zbs->get_templating();
 
-            // replace the content with our new ID ... (gets our content template info and replaces ###MSG CONTENT)
-            $message_content = zeroBSCRM_mailTemplate_get(ZBSEMAIL_EMAILINVOICE);
-            $message_content = $message_content->zbsmail_body;
-            $templatedHTML   = $placeholder_templating->replace_single_placeholder( 'msg-content', $message_content, $templatedHTML );
+			// replace the content with our new ID ... (gets our content template info and replaces ###MSG CONTENT)
+			$message_content = zeroBSCRM_mailTemplate_get( ZBSEMAIL_EMAILINVOICE );
+			$message_content = $message_content->zbsmail_body;
+			$templatedHTML   = $placeholder_templating->replace_single_placeholder( 'msg-content', $message_content, $templatedHTML );
 
-            // for v3.0 WH split out the data-retrieval from scattering amongst this func, unified here:
-            // translated the below cpt way into dal / v3.0:
+			// for v3.0 WH split out the data-retrieval from scattering amongst this func, unified here:
+			// translated the below cpt way into dal / v3.0:
 
-            // this was refactored as was duplicate code.
-            // now all wired through zeroBSCRM_invoicing_generateInvoiceHTML
-            $html = zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID,'pdf',$templatedHTML);
+			// this was refactored as was duplicate code.
+			// now all wired through zeroBSCRM_invoicing_generateInvoiceHTML
+			$html = zeroBSCRM_invoicing_generateInvoiceHTML( $invoiceID, 'pdf', $templatedHTML );
 
 			// return
 			if ( ! $return ) {
@@ -150,54 +150,53 @@ function zeroBSCRM_invoice_generateInvoiceHTML_v3( $invoiceID=-1, $return=true )
 // this was clunky, so split into 3.0 and <3.0 versions.
 // ultimately this is much like zeroBSCRM_invoice_generateInvoiceHTML
 // ... should refactor the bits that are the same
-function zeroBSCRM_invoice_generatePortalInvoiceHTML($invoicePostID=-1,$return=true){
-    global $zbs;
+function zeroBSCRM_invoice_generatePortalInvoiceHTML( $invoicePostID = -1, $return = true ) {
+	global $zbs;
 
-    if (!empty($invoicePostID)){
-        return zeroBSCRM_invoice_generatePortalInvoiceHTML_v3( $invoicePostID, $return );
-    } 
+	if ( ! empty( $invoicePostID ) ) {
+		return zeroBSCRM_invoice_generatePortalInvoiceHTML_v3( $invoicePostID, $return );
+	}
 
-    #} Empty inv id
-    return false;
+	#} Empty inv id
+	return false;
 }
 
-
 // 3.0+
-function zeroBSCRM_invoice_generatePortalInvoiceHTML_v3($invoiceID=-1,$return=true){
+function zeroBSCRM_invoice_generatePortalInvoiceHTML_v3( $invoiceID = -1, $return = true ) {
 
-    global $zbs;
+	global $zbs;
 
-    if (!empty($invoiceID)){        
+	if ( ! empty( $invoiceID ) ) {
 
-        // Discern template and retrieve    
-        $global_invoice_portal_template = zeroBSCRM_getSetting('inv_portal_template');
-        if ( !empty( $global_invoice_portal_template ) ){
-            $html = jpcrm_retrieve_template( $global_invoice_portal_template, false );
-        }
+		// Discern template and retrieve
+		$global_invoice_portal_template = zeroBSCRM_getSetting( 'inv_portal_template' );
+		if ( ! empty( $global_invoice_portal_template ) ) {
+			$html = jpcrm_retrieve_template( $global_invoice_portal_template, false );
+		}
 
-        // fallback to default template
-        if ( !isset( $html ) || empty( $html ) ){
+		// fallback to default template
+		if ( ! isset( $html ) || empty( $html ) ) {
 
-            // template failed as setting potentially holds out of date (removed) template
-            // so use the default
-            $html = jpcrm_retrieve_template( 'invoices/portal-invoice.html', false );
+			// template failed as setting potentially holds out of date (removed) template
+			// so use the default
+			$html = jpcrm_retrieve_template( 'invoices/portal-invoice.html', false );
 
-        }
+		}
 
-        #} Act
-        if (!empty($html)){
+		#} Act
+		if ( ! empty( $html ) ) {
 
-            // load templating
-            $placeholder_templating = $zbs->get_templating();
+			// load templating
+			$placeholder_templating = $zbs->get_templating();
 
-            // replace the content with our new ID ... (gets our content template info and replaces ###MSG CONTENT)
-            $message_content = zeroBSCRM_mailTemplate_get(ZBSEMAIL_EMAILINVOICE);
-            $message_content = $message_content->zbsmail_body;
-            $html   = $placeholder_templating->replace_single_placeholder( 'msg-content', $message_content, $html );
+			// replace the content with our new ID ... (gets our content template info and replaces ###MSG CONTENT)
+			$message_content = zeroBSCRM_mailTemplate_get( ZBSEMAIL_EMAILINVOICE );
+			$message_content = $message_content->zbsmail_body;
+			$html            = $placeholder_templating->replace_single_placeholder( 'msg-content', $message_content, $html );
 
-            // this was refactored as was duplicate code.
-            // now all wired through zeroBSCRM_invoicing_generateInvoiceHTML
-            $html = zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID,'portal',$html);
+			// this was refactored as was duplicate code.
+			// now all wired through zeroBSCRM_invoicing_generateInvoiceHTML
+			$html = zeroBSCRM_invoicing_generateInvoiceHTML( $invoiceID, 'portal', $html );
 
 			// return
 			if ( ! $return ) {
@@ -213,7 +212,7 @@ function zeroBSCRM_invoice_generatePortalInvoiceHTML_v3($invoiceID=-1,$return=tr
 	return false;
 }
 
-function zbs_invoice_generate_pdf(){
+function zbs_invoice_generate_pdf() {
 
 	// download flag
 	if ( isset( $_POST['zbs_invoicing_download_pdf'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -296,15 +295,15 @@ function jpcrm_invoice_generate_pdf( $invoice_id = -1 ) {
 
 // LEGACY, should now be using zeroBSCRM_invoice_generateInvoiceHTML
 // still used in Client Portal Pro
-function zbs_invoice_html($invoicePostID){
+function zbs_invoice_html( $invoicePostID ) {
 
-    $html = zeroBSCRM_invoice_generateInvoiceHTML($invoicePostID);
+	$html = zeroBSCRM_invoice_generateInvoiceHTML( $invoicePostID );
 
-    return $html;
+	return $html;
 }
 
 #} this generates a PDF statement for a contact, either returning the filepath or a PDF download prompt
-function zeroBSCRM_invoicing_generateStatementPDF( $contactID = -1, $returnPDF = false ){
+function zeroBSCRM_invoicing_generateStatementPDF( $contactID = -1, $returnPDF = false ) {
 
 	if ( ! zeroBSCRM_permsInvoices() ) {
 		exit( 0 );
@@ -312,74 +311,75 @@ function zeroBSCRM_invoicing_generateStatementPDF( $contactID = -1, $returnPDF =
 
 	global $zbs;
 
-    #} Check ID
-    $contactID = (int)$contactID;
-    #} If user has no perms, or id not present, die
-    if (!zeroBSCRM_permsInvoices() || empty($contactID) || $contactID <= 0){
+	#} Check ID
+	$contactID = (int) $contactID;
+	#} If user has no perms, or id not present, die
+	if ( ! zeroBSCRM_permsInvoices() || empty( $contactID ) || $contactID <= 0 ) {
 		die( 0 );
-    }
+	}
 
-    $html = zeroBSCRM_invoicing_generateStatementHTML($contactID);
+	$html = zeroBSCRM_invoicing_generateStatementHTML( $contactID );
 
-    // build PDF
-    $dompdf = $zbs->pdf_engine();
-    $dompdf->loadHtml($html,'UTF-8');
-    $dompdf->render();
+	// build PDF
+	$dompdf = $zbs->pdf_engine();
+	$dompdf->loadHtml( $html, 'UTF-8' );
+	$dompdf->render();
 
-    // target dir
-    $upload_dir = wp_upload_dir();
-    $zbsInvoicingDir = $upload_dir['basedir'].'/invoices/';
+	// target dir
+	$upload_dir      = wp_upload_dir();
+	$zbsInvoicingDir = $upload_dir['basedir'] . '/invoices/';
 
-    if ( ! file_exists( $zbsInvoicingDir ) ) {
-        wp_mkdir_p( $zbsInvoicingDir );
-    }
-    // got it?
-    if ( ! file_exists( $zbsInvoicingDir ) ) {
-        return false;
-    }
+	if ( ! file_exists( $zbsInvoicingDir ) ) {
+		wp_mkdir_p( $zbsInvoicingDir );
+	}
+	// got it?
+	if ( ! file_exists( $zbsInvoicingDir ) ) {
+		return false;
+	}
 
-    // make a hash
-    // here we've tried to protect against someone overriding the security,
-    // but if they're inside... it's too late anyhow.
-    $hash = wp_generate_password(14, false);
-    if (empty($hash) || strlen($hash) < 14) $hash = md5(time().'xcsac'); // backup 
-    
-    $statementFilename = $zbsInvoicingDir.$hash.'-'.__('statement','zero-bs-crm').'-'.$contactID.'.pdf';
+	// make a hash
+	// here we've tried to protect against someone overriding the security,
+	// but if they're inside... it's too late anyhow.
+	$hash = wp_generate_password( 14, false );
+	if ( empty( $hash ) || strlen( $hash ) < 14 ) {
+		$hash = md5( time() . 'xcsac' ); // backup
+	}
 
-    //save the pdf file on the server
-    file_put_contents($statementFilename, $dompdf->output());  
+	$statementFilename = $zbsInvoicingDir . $hash . '-' . __( 'statement', 'zero-bs-crm' ) . '-' . $contactID . '.pdf';
 
-    if (file_exists( $statementFilename )) {
+	// save the pdf file on the server
+	file_put_contents( $statementFilename, $dompdf->output() );
 
-        // if return pdf, return, otherwise return filepath
-        if ($returnPDF){
+	if ( file_exists( $statementFilename ) ) {
 
-            //print the pdf file to the screen for saving
-            header('Content-type: application/pdf');
+		// if return pdf, return, otherwise return filepath
+		if ( $returnPDF ) {
+
+			// print the pdf file to the screen for saving
+			header( 'Content-type: application/pdf' );
 			header( 'Content-Disposition: attachment; filename="' . __( 'statement', 'zero-bs-crm' ) . '-' . $contactID . '.pdf' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-            header('Content-Transfer-Encoding: binary');
-            header('Content-Length: ' . filesize($statementFilename));
-            header('Accept-Ranges: bytes');
-            readfile($statementFilename);
+			header( 'Content-Transfer-Encoding: binary' );
+			header( 'Content-Length: ' . filesize( $statementFilename ) );
+			header( 'Accept-Ranges: bytes' );
+			readfile( $statementFilename );
 
-            //delete the PDF file once it's been read (i.e. downloaded)
-            unlink($statementFilename); 
+			// delete the PDF file once it's been read (i.e. downloaded)
+			unlink( $statementFilename );
 
-        } else {
+		} else {
 
-            return $statementFilename;
+			return $statementFilename;
 
-        }
+		}
+	} // if file
 
-
-    } // if file
-
-    return false;
+	return false;
 }
 
-/* ======================================================
-    ZBS Invoicing - STATEMENT HTML GENERATOR
-   ====================================================== */
+/*
+======================================================
+	ZBS Invoicing - STATEMENT HTML GENERATOR
+	====================================================== */
 
 // phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag
 /**
@@ -583,7 +583,7 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 				// due
 				if ( $invoice['due_date'] <= 0 ) {
 
-					//no due date;
+					// no due date;
 					$due_date_str = __( 'No due date', 'zero-bs-crm' );
 
 				} else {
@@ -788,7 +788,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	// due
 	if ( $invoice['due_date'] <= 0 ) {
 
-		//no due date
+		// no due date
 		$due_date_str = __( 'No due date', 'zero-bs-crm' );
 
 	} else {
@@ -954,7 +954,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 	// == Build biz info table.
 
-	//the business info from the settings
+	// the business info from the settings
 	$zbs_biz_name      = zeroBSCRM_getSetting( 'businessname' );
 	$zbs_biz_yourname  = zeroBSCRM_getSetting( 'businessyourname' );
 	$zbs_biz_extra     = zeroBSCRM_getSetting( 'businessextra' );
@@ -1258,7 +1258,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 }
 
 // Used to generate specific part of invoice pdf: Biz table (Pay To)
-function zeroBSCRM_invoicing_generateInvPart_bizTable($args=array()){
+function zeroBSCRM_invoicing_generateInvPart_bizTable( $args = array() ) {
 
 	#} =========== LOAD ARGS ==============
 	$defaultArgs = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -1271,7 +1271,21 @@ function zeroBSCRM_invoicing_generateInvPart_bizTable($args=array()){
 
 		'template'          => 'pdf', // this'll choose between the html output variants below, e.g. pdf, portal, notification
 
-    ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
+	);
+	foreach ( $defaultArgs as $argK => $argV ) {
+		$$argK = $argV;
+		if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+			if ( is_array( $args[ $argK ] ) ) {
+				$newData = $$argK;
+				if ( ! is_array( $newData ) ) {
+					$newData = array();
+				} foreach ( $args[ $argK ] as $subK => $subV ) {
+					$newData[ $subK ] = $subV;
+				}$$argK = $newData;
+			} else {
+				$$argK = $args[ $argK ]; }
+		}
+	}
 	#} =========== / LOAD ARGS =============
 
 	$biz_info_table = '';
@@ -1381,78 +1395,72 @@ function zeroBSCRM_invoicing_generateInvPart_custTable( $inv_to = array(), $temp
 
 		$invoice_customer_info_table_html .= '</div>';
 
-		//filter the whole thing if you really want to modify it
+		// filter the whole thing if you really want to modify it
 		$invoice_customer_info_table_html = apply_filters( 'zbs_invoice_customer_info_table', $invoice_customer_info_table_html );
 
 		return $invoice_customer_info_table_html;
 }
-
-
-
-
 
 /*
 * Generates html string to output customer (contact or company) custom field lines for templating
 *
 * @param array $customer - a contact|company object
 * @param string $template - 'pdf', 'notification', or 'portal'
-* 
+*
 * @return string HTML
 */
-function jpcrm_invoicing_generate_customer_custom_fields_lines( $customer, $template ){
+function jpcrm_invoicing_generate_customer_custom_fields_lines( $customer, $template ) {
 
-    global $zbs;
+	global $zbs;
 
-    $customer_custom_fields_html = '';
+	$customer_custom_fields_html = '';
 
-    // retrieve custom fields to pass through
-    // contact or company?
-    if ( $customer['objtype'] == ZBS_TYPE_CONTACT ){
+	// retrieve custom fields to pass through
+	// contact or company?
+	if ( $customer['objtype'] == ZBS_TYPE_CONTACT ) {
 
-        $custom_fields_to_include = zeroBSCRM_getSetting( 'contactcustomfields' );
+		$custom_fields_to_include = zeroBSCRM_getSetting( 'contactcustomfields' );
 
-    } elseif ( $customer['objtype'] == ZBS_TYPE_COMPANY ){
+	} elseif ( $customer['objtype'] == ZBS_TYPE_COMPANY ) {
 
-        $custom_fields_to_include = zeroBSCRM_getSetting( 'companycustomfields' );
+		$custom_fields_to_include = zeroBSCRM_getSetting( 'companycustomfields' );
 
-    } else {
+	} else {
 
-        // no type? ¯\_(ツ)_/¯
-        return '';
+		// no type? ¯\_(ツ)_/¯
+		return '';
 
-    }
-    
-    
-    if ( !empty( $custom_fields_to_include ) ){
+	}
 
-        // split the csv
-        $custom_fields_to_include = array_map( 'trim', explode( ',',  $custom_fields_to_include ) );
+	if ( ! empty( $custom_fields_to_include ) ) {
 
-        // retrieve fields
-        $invoice_custom_fields = $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => $customer['objtype'] ) );
+		// split the csv
+		$custom_fields_to_include = array_map( 'trim', explode( ',', $custom_fields_to_include ) );
 
-        // build custom fields string. 
-        // here we immitate what we expect the HTML to be, which will be errorsome if people modify heavily.
-        // for now it's better than no custom fields, let's see if people have issue with this approach.
-        foreach ( $invoice_custom_fields as $field_key => $field_info){
+		// retrieve fields
+		$invoice_custom_fields = $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => $customer['objtype'] ) );
 
-            // where user has set the field in settings
-            if ( in_array( $field_key, $custom_fields_to_include ) ){
+		// build custom fields string.
+		// here we immitate what we expect the HTML to be, which will be errorsome if people modify heavily.
+		// for now it's better than no custom fields, let's see if people have issue with this approach.
+		foreach ( $invoice_custom_fields as $field_key => $field_info ) {
 
-                $custom_field_str = '';
+			// where user has set the field in settings
+			if ( in_array( $field_key, $custom_fields_to_include ) ) {
 
-                if ( isset( $customer[ $field_key ] ) && $customer[ $field_key ] ){
+				$custom_field_str = '';
 
-                    $custom_field_str = $customer[ $field_key ];
+				if ( isset( $customer[ $field_key ] ) && $customer[ $field_key ] ) {
 
-                    // catch formatted dates
-                    if ( isset( $customer[ $field_key . '_cfdate' ] ) ){
+					$custom_field_str = $customer[ $field_key ];
 
-                        $custom_field_str = $customer[ $field_key . '_cfdate' ];
+					// catch formatted dates
+					if ( isset( $customer[ $field_key . '_cfdate' ] ) ) {
 
-                    }
+						$custom_field_str = $customer[ $field_key . '_cfdate' ];
 
-                }
+					}
+				}
 
 				// skip empties
 				if ( empty( $custom_field_str ) ) {
@@ -1478,52 +1486,51 @@ function jpcrm_invoicing_generate_customer_custom_fields_lines( $customer, $temp
 	return $customer_custom_fields_html;
 }
 
-
 /*
 * Generates html string to output invoice custom field lines for templating
 *
 * @param array $invoice - an invoice object
 * @param string $template - 'pdf', 'notification', or 'portal'
-* 
+*
 * @return string HTML
 */
-function jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $template ){
+function jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $template ) {
 
-    global $zbs;
+	global $zbs;
 
-    $invoice_custom_fields_html = '';
+	$invoice_custom_fields_html = '';
 
-    // retrieve custom fields to pass through
-    $custom_fields_to_include = zeroBSCRM_getSetting( 'invcustomfields' );
-    if ( !empty( $custom_fields_to_include ) ){
+	// retrieve custom fields to pass through
+	$custom_fields_to_include = zeroBSCRM_getSetting( 'invcustomfields' );
+	if ( ! empty( $custom_fields_to_include ) ) {
 
-        // split the csv
-        $custom_fields_to_include = array_map( 'trim', explode( ',',  $custom_fields_to_include ) );
+		// split the csv
+		$custom_fields_to_include = array_map( 'trim', explode( ',', $custom_fields_to_include ) );
 
-        // retrieve fields
-        $invoice_custom_fields = $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_INVOICE ) );
+		// retrieve fields
+		$invoice_custom_fields = $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_INVOICE ) );
 
-        // build custom fields string. 
-        // here we immitate what we expect the HTML to be, which will be errorsome if people modify heavily.
-        // for now it's better than no custom fields, let's see if people have issue with this approach.
-        foreach ( $invoice_custom_fields as $field_key => $field_info){
+		// build custom fields string.
+		// here we immitate what we expect the HTML to be, which will be errorsome if people modify heavily.
+		// for now it's better than no custom fields, let's see if people have issue with this approach.
+		foreach ( $invoice_custom_fields as $field_key => $field_info ) {
 
-            // where user has set the field in settings
-            if ( in_array( $field_key, $custom_fields_to_include ) ){
+			// where user has set the field in settings
+			if ( in_array( $field_key, $custom_fields_to_include ) ) {
 
-                $custom_field_str = '';
+				$custom_field_str = '';
 
-                if ( $invoice[ $field_key ] ){
+				if ( $invoice[ $field_key ] ) {
 
-                    $custom_field_str = $invoice[ $field_key ];
+					$custom_field_str = $invoice[ $field_key ];
 
-                    // catch formatted dates
-                    if ( isset( $invoice[ $field_key . '_cfdate' ] ) ){
+					// catch formatted dates
+					if ( isset( $invoice[ $field_key . '_cfdate' ] ) ) {
 
-                        $custom_field_str = $invoice[ $field_key . '_cfdate' ];
+						$custom_field_str = $invoice[ $field_key . '_cfdate' ];
 
-                    }
-                }
+					}
+				}
 
 				// skip empties
 				if ( empty( $custom_field_str ) ) {
@@ -1550,7 +1557,6 @@ function jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $templa
 
 	return $invoice_custom_fields_html;
 }
-
 
 // Used to generate specific part of invoice pdf: (Lineitem row in inv table)
 // phpcs:ignore Squiz.Commenting.FunctionComment.Missing

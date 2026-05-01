@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  * V2.52+
@@ -11,147 +11,162 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-class zeroBSCRM_Edit{
+class zeroBSCRM_Edit {
 
-    private $objID = false;
-    private $obj = false; 
-    private $objTypeID = false; // ZBS_TYPE_CONTACT - v3.0+
+	private $objID     = false;
+	private $obj       = false;
+	private $objTypeID = false; // ZBS_TYPE_CONTACT - v3.0+
 
-    // following now FILLED OUT by objTypeID above, v3.0+
-    private $objType = false; // 'contact'
-    private $singular = false; 
-    private $plural = false;
-    // renamed listViewSlug v3.0+ private $postPage = false;
-    private $listViewSlug = false;
+	// following now FILLED OUT by objTypeID above, v3.0+
+	private $objType  = false; // 'contact'
+	private $singular = false;
+	private $plural   = false;
+	// renamed listViewSlug v3.0+ private $postPage = false;
+	private $listViewSlug = false;
 
-    private $langLabels = false;
-    private $bulkActions = false;
-    private $sortables = false;
-    private $unsortables = false;
-    private $extraBoxes = '';
-    private $isGhostRecord = false;
-    private $isNewRecord = false;
+	private $langLabels    = false;
+	private $bulkActions   = false;
+	private $sortables     = false;
+	private $unsortables   = false;
+	private $extraBoxes    = '';
+	private $isGhostRecord = false;
+	private $isNewRecord   = false;
 
-    // permissions
-    private $has_permissions_to_edit = false;
+	// permissions
+	private $has_permissions_to_edit = false;
 
-    function __construct($args=array()) {
+	function __construct( $args = array() ) {
 
+		#} =========== LOAD ARGS ==============
+		$defaultArgs = array(
 
-        #} =========== LOAD ARGS ==============
-        $defaultArgs = array(
+			'objID'        => false,
+			'objTypeID'    => false,   // 5
 
-            'objID' => false,
-            'objTypeID'   => false,   //5
+			// these are now retrieved from DAL centralised vars by objTypeID above, v3.0+
+			// ... unless hard typed here.
+			'objType'      => false,   // transaction
+			'singular'     => false,  // Transaction
+			'plural'       => false,      // Transactions
+			'listViewSlug' => false,    // manage-transactions
 
-             // these are now retrieved from DAL centralised vars by objTypeID above, v3.0+
-             // ... unless hard typed here.
-            'objType'   => false,   //transaction
-            'singular'   => false,  //Transaction
-            'plural' => false,      //Transactions
-            'listViewSlug' => false,    //manage-transactions
+			'langLabels'   => array(),
+			'extraBoxes'   => '', // html for extra boxes e.g. upsells :)
 
-            'langLabels' => array(
-                    
-            ),
-            'extraBoxes' => '' // html for extra boxes e.g. upsells :)
+		);
+		foreach ( $defaultArgs as $argK => $argV ) {
+			$this->$argK = $argV;
+			if ( is_array( $args ) && isset( $args[ $argK ] ) ) {
+				if ( is_array( $args[ $argK ] ) ) {
+					$newData = $this->$argK;
+					if ( ! is_array( $newData ) ) {
+						$newData = array();
+					} foreach ( $args[ $argK ] as $subK => $subV ) {
+						$newData[ $subK ] = $subV;
+					}$this->$argK = $newData;
+				} else {
+					$this->$argK = $args[ $argK ]; }
+			}
+		}
+		#} =========== / LOAD ARGS =============
 
-        ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
-        #} =========== / LOAD ARGS =============
+		// NOTE: here these vars are passed like:
+		// $this->objID
+		// .. NOT
+		// $objID
 
-        // NOTE: here these vars are passed like:
-        // $this->objID
-        // .. NOT
-        // $objID
+		global $zbs;
 
-
-        global $zbs;
-
-        // we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
+		// we load from DAL defaults, if objTypeID passed (overriding anything passed, if empty/false)
 		if ( isset( $this->objTypeID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-            $objTypeID = (int)$this->objTypeID;
-            if ($objTypeID > 0){
+			$objTypeID = (int) $this->objTypeID;
+			if ( $objTypeID > 0 ) {
 
-                // obj type (contact)
-                $objTypeStr = $zbs->DAL->objTypeKey($objTypeID);
-                if ((!isset($this->objType) || $this->objType == false) && !empty($objTypeStr)) $this->objType = $objTypeStr;
+				// obj type (contact)
+				$objTypeStr = $zbs->DAL->objTypeKey( $objTypeID );
+				if ( ( ! isset( $this->objType ) || $this->objType == false ) && ! empty( $objTypeStr ) ) {
+					$this->objType = $objTypeStr;
+				}
 
-                // singular
-                $objSingular = $zbs->DAL->typeStr($objTypeID);
-                if ((!isset($this->singular) || $this->singular == false) && !empty($objSingular)) $this->singular = $objSingular;
+				// singular
+				$objSingular = $zbs->DAL->typeStr( $objTypeID );
+				if ( ( ! isset( $this->singular ) || $this->singular == false ) && ! empty( $objSingular ) ) {
+					$this->singular = $objSingular;
+				}
 
-                // plural
-                $objPlural = $zbs->DAL->typeStr($objTypeID,true);
-                if ((!isset($this->plural) || $this->plural == false) && !empty($objPlural)) $this->plural = $objPlural;
+				// plural
+				$objPlural = $zbs->DAL->typeStr( $objTypeID, true );
+				if ( ( ! isset( $this->plural ) || $this->plural == false ) && ! empty( $objPlural ) ) {
+					$this->plural = $objPlural;
+				}
 
-                // listViewSlug
-                $objSlug = $zbs->DAL->listViewSlugFromObjID($objTypeID);
-                if ((!isset($this->listViewSlug) || $this->listViewSlug == false) && !empty($objSlug)) $this->listViewSlug = $objSlug;
+				// listViewSlug
+				$objSlug = $zbs->DAL->listViewSlugFromObjID( $objTypeID );
+				if ( ( ! isset( $this->listViewSlug ) || $this->listViewSlug == false ) && ! empty( $objSlug ) ) {
+					$this->listViewSlug = $objSlug;
+				}
+			}
+		} else {
+			$this->isNewRecord = true;
+		}
 
-            }
-        } else $this->isNewRecord = true;
+		// if objid - load $post
+		$this->loadObject();
 
-        // if objid - load $post
-        $this->loadObject();
+		// Ghost?
+		if ( $this->objID !== -1 && ! $this->isNewRecord && isset( $this->objTypeID ) && ! is_array( $this->obj ) ) {
+			$this->isGhostRecord = true;
+		}
 
-        // Ghost?
-        if ($this->objID !== -1 && !$this->isNewRecord && isset($this->objTypeID) && !is_array($this->obj)) $this->isGhostRecord = true;
+		// anything to save?
+		$this->catchPost();
 
-        // anything to save?
-        $this->catchPost(); 
+		// include any 'post learn menu' code
+		add_action( 'zerobscrm-subtop-menu', array( $this, 'post_learn_menu_output' ) );
+	}
 
-        // include any 'post learn menu' code
-        add_action( 'zerobscrm-subtop-menu', array( $this, 'post_learn_menu_output' ) );
+	// automatically, generically, loads the single obj
+	public function loadObject() {
 
-    }
+		// if objid - load $post
+		if ( isset( $this->objID ) && ! empty( $this->objID ) && $this->objID > 0 ) {
 
-    // automatically, generically, loads the single obj
-    public function loadObject(){
+			global $zbs;
 
-        // if objid - load $post
-        if ( isset( $this->objID ) && !empty( $this->objID ) && $this->objID > 0 ) {
+			if ( $this->objTypeID > 0 ) {
 
-            global $zbs;
+				// got permissions?
+				if ( zeroBSCRM_permsObjType( $this->objTypeID ) ) {
 
-            if ( $this->objTypeID > 0 ){
+					// this gets $zbs->DAL->contacts->getSingle()
+					$this->obj = $zbs->DAL->getObjectLayerByType( $this->objTypeID )->getSingle( $this->objID );
 
-                // got permissions?
-                if ( zeroBSCRM_permsObjType( $this->objTypeID ) ){
+					// has permissions
+					$this->has_permissions_to_edit = true;
 
-                    // this gets $zbs->DAL->contacts->getSingle()
-                    $this->obj = $zbs->DAL->getObjectLayerByType($this->objTypeID)->getSingle($this->objID);
+				}
+			}
+		}
+	}
 
-                    // has permissions
-                    $this->has_permissions_to_edit = true;
+	public function catchPost() {
 
-                }
+		// If post, fire do_action
+		if ( isset( $_POST['zbs-edit-form-master'] ) && $_POST['zbs-edit-form-master'] == $this->objType ) {
 
-            }
+			// make sure we have perms to save
+			if ( $this->preChecks() ) {
+				// fire it
+				do_action( 'zerobs_save_' . $this->objType, $this->objID, $this->obj );
+				// after catching post, we need to reload data :) (as may be changed)
+				$this->loadObject();
+			}
+		}
+	}
 
-        }
-
-    }
-
-    public function catchPost(){
-
-        // If post, fire do_action
-        if (isset($_POST['zbs-edit-form-master']) && $_POST['zbs-edit-form-master'] == $this->objType){
-
-            // make sure we have perms to save
-            if ($this->preChecks()) {
-              // fire it
-              do_action('zerobs_save_'.$this->objType, $this->objID, $this->obj);
-              // after catching post, we need to reload data :) (as may be changed)
-              $this->loadObject();
-            }
-
-
-        }
-    }
-
-    // check ownership, access etc. 
-    public function preChecks(){
+	// check ownership, access etc.
+	public function preChecks() {
 
 		global $zbs;
 
@@ -205,216 +220,227 @@ class zeroBSCRM_Edit{
 					$this->preCheckFail( sprintf( __( 'You do not have permission to edit this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->objTypeID ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					return false;
 
-            }
-            if ( !$this->has_permissions_to_edit ){
-              // user does not have a role which can edit this object type
-              $this->preCheckFail( sprintf( __( 'You do not have permission to edit this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->objTypeID ) ) );
-              return false;
+			}
+			if ( ! $this->has_permissions_to_edit ) {
+				// user does not have a role which can edit this object type
+				$this->preCheckFail( sprintf( __( 'You do not have permission to edit this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->objTypeID ) ) );
+				return false;
 
-            }
-            if ( $is_malformed_obj ) {
-              // not a perms issue, so show general error
-              $this->preCheckFail( sprintf( __( 'There was an error loading this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->objTypeID ) ) );
-              return false;
-            }
+			}
+			if ( $is_malformed_obj ) {
+				// not a perms issue, so show general error
+				$this->preCheckFail( sprintf( __( 'There was an error loading this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $this->objTypeID ) ) );
+				return false;
+			}
+		}
 
-          }
+		// load if is legit
+		return true;
+	}
 
-        //load if is legit
-        return true;
-    }
+	public function preCheckFail( $msg = '' ) {
 
-    public function preCheckFail($msg=''){
+			echo '<div id="zbs-obj-edit-precheck-fail" class="ui grid"><div class="row"><div class="two wide column"></div><div class="twelve wide column">';
+			echo zeroBSCRM_UI2_messageHTML( 'warning', $msg, '', 'disabled warning sign', 'failRetrieving' );
+			echo '</div></div>';
 
-            echo '<div id="zbs-obj-edit-precheck-fail" class="ui grid"><div class="row"><div class="two wide column"></div><div class="twelve wide column">';
-            echo zeroBSCRM_UI2_messageHTML('warning',$msg,'','disabled warning sign','failRetrieving');
-            echo '</div></div>';
+			// grim quick hack to hide save button
+			echo '<style>#zbs-edit-save{display:none}</style>';
+	}
 
-            // grim quick hack to hide save button
-            echo '<style>#zbs-edit-save{display:none}</style>';
-    }
+	/*
+	*  Code added to this function will be called just after the learn menu is output
+	*  (where we're on an edit page)
+	*/
+	public function post_learn_menu_output() {
 
-    /*
-    *  Code added to this function will be called just after the learn menu is output
-    *  (where we're on an edit page)
-    */
-    public function post_learn_menu_output(){
+		// put screen options out
+		zeroBSCRM_screenOptionsPanel();
+	}
 
-        // put screen options out
-        zeroBSCRM_screenOptionsPanel();
+	public function drawEditView() {
 
-    }
+		// run pre-checks which verify ownership etc.
+		$okayToDraw = $this->preChecks();
 
-    public function drawEditView(){
+		// draw if okay :)
+		if ( $okayToDraw ) {
+			$this->drawEditViewHTML();
+		}
+	}
 
-        // run pre-checks which verify ownership etc.
-        $okayToDraw = $this->preChecks();
+	public function drawEditViewHTML() {
 
-        // draw if okay :)
-        if ($okayToDraw) $this->drawEditViewHTML();
+		if ( empty( $this->objType ) || empty( $this->listViewSlug ) || empty( $this->singular ) || empty( $this->plural ) ) {
 
-    }
+			echo zeroBSCRM_UI2_messageHTML( 'warning', 'Error Retrieving ' . $this->singular, 'There has been a problem retrieving your ' . $this->singular . ', if this issue persists, please contact support.', 'disabled warning sign', 'zbsCantLoadData' );
+			return false;
 
-    public function drawEditViewHTML(){
+		}
 
-        if (empty($this->objType) || empty($this->listViewSlug) || empty($this->singular) || empty($this->plural)){
+		// catch id's passed where no contact exists for them.
+		if ( $this->isGhostRecord ) {
 
+			// brutal hide, then msg #ghostrecord
+			?><style type="text/css">#zbs-edit-save, #zbs-nav-view, #zbs-nav-prev, #zbs-nav-next { display:none; }</style>
+			<div id="zbs-edit-warnings-wrap">
+			<?php
+			echo zeroBSCRM_UI2_messageHTML( 'warning', 'Error Retrieving ' . $this->singular, 'There does not appear to be a ' . $this->singular . ' with this ID.', 'disabled warning sign', 'zbsCantLoadData' );
+			?>
+			</div>
+			<?php
+			return false;
 
-            echo zeroBSCRM_UI2_messageHTML('warning','Error Retrieving '.$this->singular,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please contact support.','disabled warning sign','zbsCantLoadData');  
-            return false;
+		}
 
-        }
+		// catch if is new record + hide zbs-nav-view
+		if ( $this->isNewRecord ) {
 
-        // catch id's passed where no contact exists for them.
-        if ($this->isGhostRecord){
+			// just hide button via css. Should just stop this via learn in time
+			?>
+			<style type="text/css">#zbs-nav-view { display:none; }</style>
+			<?php
 
-            // brutal hide, then msg #ghostrecord
-            ?><style type="text/css">#zbs-edit-save, #zbs-nav-view, #zbs-nav-prev, #zbs-nav-next { display:none; }</style>
-            <div id="zbs-edit-warnings-wrap"><?php
-            echo zeroBSCRM_UI2_messageHTML('warning','Error Retrieving '.$this->singular,'There does not appear to be a '.$this->singular.' with this ID.','disabled warning sign','zbsCantLoadData');  
-            ?></div><?php  
-            return false;
+		}
 
-        }
+		global $zbs;
 
-        // catch if is new record + hide zbs-nav-view
-        if ($this->isNewRecord){
+		// run pre-checks which verify ownership etc.
+		$this->preChecks();
 
-            // just hide button via css. Should just stop this via learn in time
-            ?><style type="text/css">#zbs-nav-view { display:none; }</style><?php  
+		?>
+		<div id="zbs-edit-master-wrap"><form method="post" id="zbs-edit-form" enctype="multipart/form-data"><input type="hidden" name="zbs-edit-form-master" value="<?php echo esc_attr( $this->objType ); ?>" />
 
-        }
+			<div id="zbs-edit-warnings-wrap">
+				<?php
+				#} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these
 
-        global $zbs;
+				echo zeroBSCRM_UI2_messageHTML( 'warning hidden', 'Error Retrieving ' . $this->plural, 'There has been a problem retrieving your ' . $this->singular . ', if this issue persists, please ask your administrator to reach out to Jetpack CRM.', 'disabled warning sign', 'zbsCantLoadData' );
+				echo zeroBSCRM_UI2_messageHTML( 'warning hidden', 'Error Retrieving ' . $this->singular, 'There has been a problem retrieving your ' . $this->singular . ', if this issue persists, please ask your administrator to reach out to Jetpack CRM.', 'disabled warning sign', 'zbsCantLoadDataSingle' );
 
-        // run pre-checks which verify ownership etc.
-        $this->preChecks();
+				?>
+			</div>
+			<!-- main view: list + sidebar -->
+			<div id="zbs-edit-wrap" class="ui divided grid <?php echo 'zbs-edit-wrap-' . esc_attr( $this->objType ); ?>">
 
+				<?php
 
-        ?><div id="zbs-edit-master-wrap"><form method="post" id="zbs-edit-form" enctype="multipart/form-data"><input type="hidden" name="zbs-edit-form-master" value="<?php echo esc_attr( $this->objType ); ?>" />
+				if ( count( $zbs->pageMessages ) > 0 ) {
 
-            <div id="zbs-edit-warnings-wrap">
-                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these 
+					#} Updated Msgs
+					// was doing like this, but need control over styling
+					// do_action( 'zerobs_updatemsg_contact');
+					// so for now just using global :)
+					echo '<div class="row" style="padding-bottom: 0 !important;" id="zbs-edit-notification-row"><div class="sixteen wide column" id="zbs-edit-notification-wrap">';
 
-                echo zeroBSCRM_UI2_messageHTML('warning hidden','Error Retrieving '.$this->plural,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please ask your administrator to reach out to Jetpack CRM.','disabled warning sign','zbsCantLoadData');
-                echo zeroBSCRM_UI2_messageHTML('warning hidden','Error Retrieving '.$this->singular,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please ask your administrator to reach out to Jetpack CRM.','disabled warning sign','zbsCantLoadDataSingle');
-              
-                ?>
-            </div>
-            <!-- main view: list + sidebar -->
-            <div id="zbs-edit-wrap" class="ui divided grid <?php echo 'zbs-edit-wrap-'. esc_attr( $this->objType ); ?>">
+					foreach ( $zbs->pageMessages as $msg ) {
 
-                <?php
+						// for now these can be any html :)
+						echo $msg;
 
-                    if (count($zbs->pageMessages) > 0){
-                
-                        #} Updated Msgs
-                        // was doing like this, but need control over styling
-                        // do_action( 'zerobs_updatemsg_contact');
-                        // so for now just using global :)
-                        echo '<div class="row" style="padding-bottom: 0 !important;" id="zbs-edit-notification-row"><div class="sixteen wide column" id="zbs-edit-notification-wrap">';
+					}
 
-                            foreach ($zbs->pageMessages as $msg){
+						echo '</div></div>';
 
-                                // for now these can be any html :)
-                                echo $msg;
+				}
 
-                            }
+				?>
 
-                        echo '</div></div>';
+				<div class="row">
 
-                    }
 
+					<!-- record list -->
+					<div class="twelve wide column" id="zbs-edit-table-wrap">
 
+						<?php
+							#} Main Metaboxes
+							zeroBSCRM_do_meta_boxes( 'zbs-add-edit-' . $this->objType . '-edit', 'normal', $this->obj );
+						?>
 
-                ?>
+					</div>
+					<!-- side bar -->
+					<div class="four wide column" id="zbs-edit-sidebar-wrap">
+						<?php
 
-                <div class="row">
+							#} Sidebar metaboxes
+							zeroBSCRM_do_meta_boxes( 'zbs-add-edit-' . $this->objType . '-edit', 'side', $this->obj );
 
+						?>
 
-                    <!-- record list -->
-                    <div class="twelve wide column" id="zbs-edit-table-wrap">
+						<?php ##WLREMOVE ?>
+						<?php echo $this->extraBoxes; ?>
+						<?php ##/WLREMOVE ?>
+					</div>
+				</div>
 
-                        <?php 
-                            #} Main Metaboxes
-                            zeroBSCRM_do_meta_boxes( 'zbs-add-edit-'.$this->objType.'-edit', 'normal', $this->obj );
-                        ?>
+				<!-- could use this for mobile variant?) 
+				<div class="two column mobile only row" style="display:none"></div>
+				-->
+			</div> <!-- / mainlistview wrap -->
+		</form></div>
 
-                    </div>
-                    <!-- side bar -->
-                    <div class="four wide column" id="zbs-edit-sidebar-wrap">
-                        <?php 
+		<script type="text/javascript">
 
-                            #} Sidebar metaboxes
-                            zeroBSCRM_do_meta_boxes( 'zbs-add-edit-'.$this->objType.'-edit', 'side', $this->obj );
+			jQuery(function($){
 
-                        ?>
+				console.log("======= EDIT VIEW UI =========");
+				
+				jQuery('.show-more-tags').on("click",function(e){
+					jQuery('.more-tags').show();
+					jQuery(this).hide();
+				});
 
-                        <?php ##WLREMOVE ?>
-                        <?php echo $this->extraBoxes; ?>
-                        <?php ##/WLREMOVE ?>
-                    </div>
-                </div>
+			});
 
-                <!-- could use this for mobile variant?) 
-                <div class="two column mobile only row" style="display:none"></div>
-                -->
-            </div> <!-- / mainlistview wrap -->
-        </form></div>
+			// General options for edit page
+			var zbsEditSettings = {
 
-        <script type="text/javascript">
+				objid: <?php echo esc_js( $this->objID ); ?>,
+				objdbname: '<?php echo esc_js( $this->objType ); ?>',
+				nonce: '<?php echo esc_js( wp_create_nonce( 'edit-nonce-' . $this->objType ) ); ?>'
 
-            jQuery(function($){
+			};
+			var zbsDrawEditViewBlocker = false;
+			var zbsDrawEditAJAXBlocker = false;
 
-                console.log("======= EDIT VIEW UI =========");
-                
-                jQuery('.show-more-tags').on("click",function(e){
-                    jQuery('.more-tags').show();
-                    jQuery(this).hide();
-                });
+			<?php // these are all legacy, move over to zeroBSCRMJS_obj_editLink in global js: ?>
+			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
+			var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
+			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
+			var zbsListViewLink = '<?php echo jpcrm_esc_link( $this->listViewSlug ); ?>';
 
-            });
+			
+			var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
+			var zbsEditViewLangLabels = {
 
-            // General options for edit page
-            var zbsEditSettings = {
+					'today': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Today', 'zero-bs-crm' ) ) ); ?>',
+					'view': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'View', 'zero-bs-crm' ) ) ); ?>',
+					'contact': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Contact', 'zero-bs-crm' ) ) ); ?>',
+					'company': '<?php echo esc_html( zeroBSCRM_slashOut( jpcrm_label_company() ) ); ?>',
 
-                objid: <?php echo esc_js( $this->objID ); ?>,
-                objdbname: '<?php echo esc_js( $this->objType ); ?>',
-                nonce: '<?php echo esc_js( wp_create_nonce( 'edit-nonce-'. $this->objType ) ); ?>'
+					<?php
+					$labelCount = 0;
+					if ( count( $this->langLabels ) > 0 ) {
+						foreach ( $this->langLabels as $labelK => $labelV ) {
 
-            };
-            var zbsDrawEditViewBlocker = false;
-            var zbsDrawEditAJAXBlocker = false;
+							if ( $labelCount > 0 ) {
+								echo ',';
+							}
 
-            <?php // these are all legacy, move over to zeroBSCRMJS_obj_editLink in global js: ?>
-            var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
-            var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
-            var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
-            var zbsListViewLink = '<?php echo jpcrm_esc_link( $this->listViewSlug ); ?>';
+							echo esc_html( $labelK ) . ":'" . esc_html( zeroBSCRM_slashOut( $labelV, true ) ) . "'";
 
-            
-            var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting('clicktocalltype') ); ?>');
-            var zbsEditViewLangLabels = {
+							++$labelCount;
 
-                    'today': '<?php echo esc_html( zeroBSCRM_slashOut(__('Today',"zero-bs-crm")) ); ?>',
-                    'view': '<?php echo esc_html( zeroBSCRM_slashOut(__('View',"zero-bs-crm")) ); ?>',
-                    'contact': '<?php echo esc_html( zeroBSCRM_slashOut(__('Contact',"zero-bs-crm")) ); ?>',
-                    'company': '<?php echo esc_html( zeroBSCRM_slashOut(jpcrm_label_company()) ); ?>',
+						}
+					}
+					?>
 
-                    <?php $labelCount = 0; 
-                    if (count($this->langLabels) > 0) foreach ($this->langLabels as $labelK => $labelV){
-
-                        if ($labelCount > 0) echo ',';
-
-                        echo esc_html( $labelK ).":'". esc_html( zeroBSCRM_slashOut($labelV,true) )."'";
-
-                        $labelCount++;
-
-                    } ?>
-
-            };
-            <?php   #} Nonce for AJAX
-                    echo "var zbscrmjs_secToken = '" . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . "';"; ?></script><?php
-
-    } // /draw func
+			};
+			<?php
+			#} Nonce for AJAX
+					echo "var zbscrmjs_secToken = '" . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . "';";
+			?>
+					</script>
+					<?php
+	} // /draw func
 } // class

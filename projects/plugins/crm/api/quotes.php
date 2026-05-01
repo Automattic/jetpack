@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -47,4 +46,4 @@ $args = array(
 
 $quotes = $zbs->DAL->quotes->getQuotes( $args );
 
-wp_send_json( $quotes );
+wp_send_json( $quotes, 200, JSON_UNESCAPED_SLASHES );

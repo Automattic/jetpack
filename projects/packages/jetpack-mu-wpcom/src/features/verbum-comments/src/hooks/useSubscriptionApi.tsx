@@ -12,7 +12,7 @@ const getSubscriptionDetails = async () => {
 
 	return await wpcomRequest( {
 		path: `/read/sites/${ siteId }/subscription-details?post_id=${ encodeURIComponent(
-			VerbumComments.postId
+			VerbumComments.postId ?? ''
 		) }`,
 		apiNamespace: 'wpcom/v2',
 		apiVersion: '2',
@@ -42,7 +42,8 @@ export default function useSubscriptionApi() {
 	useEffect( () => {
 		setSubscriptionSettingsIsLoading( true );
 		getSubscriptionDetails()
-			.then( ( data: Record< string, string | SubscriptionDetails > ) => {
+			.then( result => {
+				const data = result as Record< string, string | SubscriptionDetails >;
 				setSubscriptionSettingsIsLoading( false );
 				// When a Facebook user doesn't have a subscription, it does not return delivery_methods object.
 				// We set the default values for the subscription settings.
@@ -66,7 +67,7 @@ export default function useSubscriptionApi() {
 	}, [] );
 
 	const setEmailPostsSubscription = async function ( change: EmailPostsChange ) {
-		let response: EmailSubscriptionResponse;
+		let response: EmailSubscriptionResponse | undefined;
 		if ( change.type === 'frequency' ) {
 			response = await wpcomRequest< EmailSubscriptionResponse >( {
 				path: `/read/site/${ siteId }/post_email_subscriptions/update`,
@@ -91,11 +92,11 @@ export default function useSubscriptionApi() {
 		}
 
 		const subscriptionSettingsValue = subscriptionSettings.peek();
-		if ( response.success ) {
+		if ( response?.success ) {
 			subscriptionSettings.value = {
 				...subscriptionSettingsValue,
 				email: {
-					...subscriptionSettingsValue.email,
+					...subscriptionSettingsValue?.email,
 					send_posts: response.subscribed,
 					post_delivery_frequency: response.subscription?.delivery_frequency ?? 'instantly',
 				},
@@ -107,7 +108,7 @@ export default function useSubscriptionApi() {
 		const comments = await wpcomRequest< Record< string, boolean > >( {
 			path: `/read/site/${ siteId }/comment_email_subscriptions/${
 				subscribe ? 'new' : 'delete'
-			}/?post_id=${ encodeURIComponent( VerbumComments.postId ) }`,
+			}/?post_id=${ encodeURIComponent( VerbumComments.postId ?? '' ) }`,
 			apiVersion: '1.2',
 			method: 'POST',
 		} );
@@ -117,7 +118,7 @@ export default function useSubscriptionApi() {
 			subscriptionSettings.value = {
 				...subscriptionSettingsValue,
 				email: {
-					...subscriptionSettingsValue.email,
+					...subscriptionSettingsValue?.email,
 					send_comments: comments.subscribed,
 				},
 			};
@@ -135,7 +136,7 @@ export default function useSubscriptionApi() {
 		const subscriptionSettingsValue = subscriptionSettings.peek();
 		if ( notifications.success ) {
 			subscriptionSettings.value = {
-				...subscriptionSettingsValue,
+				...subscriptionSettingsValue!,
 				notification: {
 					send_posts: notifications.subscribed,
 				},

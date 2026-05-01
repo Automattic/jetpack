@@ -1,18 +1,15 @@
-import { Button } from '@automattic/jetpack-components';
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useReducer } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Button, Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
-import type { ComponentProps } from 'react';
 
 export type DisconnectProps = {
 	connection: Connection;
-	variant?: ComponentProps< typeof Button >[ 'variant' ];
-	isDestructive?: boolean;
-	buttonClassName?: string;
+	variant?: 'outline' | 'minimal' | 'link';
 };
 /**
  * Disconnect component
@@ -21,12 +18,7 @@ export type DisconnectProps = {
  *
  * @return {import('react').ReactNode} - React element
  */
-export function Disconnect( {
-	connection,
-	variant = 'secondary',
-	isDestructive = true,
-	buttonClassName,
-}: DisconnectProps ) {
+export function Disconnect( { connection, variant = 'outline' }: DisconnectProps ) {
 	const [ isConfirmOpen, toggleConfirm ] = useReducer( state => ! state, false );
 
 	const { deleteConnectionById } = useDispatch( socialStore );
@@ -51,9 +43,23 @@ export function Disconnect( {
 		} );
 	}, [ connection.connection_id, deleteConnectionById ] );
 
+	const onLinkClick = useCallback(
+		( event: React.MouseEvent ) => {
+			event.preventDefault();
+			if ( ! isDisconnecting ) {
+				toggleConfirm();
+			}
+		},
+		[ isDisconnecting ]
+	);
+
 	if ( ! canManageConnection ) {
 		return null;
 	}
+
+	const label = isDisconnecting
+		? __( 'Disconnecting…', 'jetpack-publicize-pkg' )
+		: _x( 'Disconnect', 'Disconnect a social media account', 'jetpack-publicize-pkg' );
 
 	return (
 		<>
@@ -77,18 +83,25 @@ export function Disconnect( {
 					{ strong: <strong></strong> }
 				) }
 			</ConfirmDialog>
-			<Button
-				size="small"
-				onClick={ toggleConfirm }
-				disabled={ isDisconnecting }
-				variant={ variant }
-				isDestructive={ isDestructive }
-				className={ buttonClassName }
-			>
-				{ isDisconnecting
-					? __( 'Disconnecting…', 'jetpack-publicize-pkg' )
-					: _x( 'Disconnect', 'Disconnect a social media account', 'jetpack-publicize-pkg' ) }
-			</Button>
+			{ variant === 'link' ? (
+				<Link
+					variant="default"
+					href="#"
+					aria-disabled={ isDisconnecting || undefined }
+					onClick={ onLinkClick }
+				>
+					{ label }
+				</Link>
+			) : (
+				<Button
+					size="small"
+					variant={ variant }
+					onClick={ toggleConfirm }
+					disabled={ isDisconnecting }
+				>
+					{ label }
+				</Button>
+			) }
 		</>
 	);
 }

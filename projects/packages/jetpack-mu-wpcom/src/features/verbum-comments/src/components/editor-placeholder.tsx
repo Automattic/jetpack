@@ -4,7 +4,13 @@ import { translate } from '../i18n';
 import { VerbumSignals } from '../state';
 import { CustomLoadingSpinner } from './custom-loading-spinner';
 
-export const EditorPlaceholder = ( { onClick, loading } ) => {
+export const EditorPlaceholder = ( {
+	onClick,
+	loading,
+}: {
+	onClick: VoidFunction;
+	loading: boolean;
+} ) => {
 	const { commentParent } = useContext( VerbumSignals );
 	return (
 		<div

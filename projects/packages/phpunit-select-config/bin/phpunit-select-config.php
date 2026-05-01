@@ -47,6 +47,12 @@ foreach ( array( 'pcov', 'xdebug' ) as $ext ) {
 	}
 }
 
+// Pass through auto_prepend_file if set
+$prepend = ini_get( 'auto_prepend_file' );
+if ( $prepend ) {
+	array_unshift( $argv, '-dauto_prepend_file=' . $prepend );
+}
+
 // Assume phpdbg is being run with -qrr.
 if ( 'phpdbg' === php_sapi_name() ) {
 	array_unshift( $argv, '-qrr' );

@@ -447,8 +447,8 @@ class Jetpack_Podcast_Helper {
 		$track = array(
 			'id'               => wp_unique_id( 'podcast-track-' ),
 			'link'             => esc_url( $episode->get_link() ),
-			'src'              => esc_url( $enclosure->link ),
-			'type'             => esc_attr( $enclosure->type ),
+			'src'              => esc_url( (string) $enclosure->link ),
+			'type'             => esc_attr( (string) $enclosure->type ),
 			'description'      => $this->get_plain_text( $episode->get_description() ),
 			'description_html' => $this->get_html_text( $episode->get_description() ),
 			'title'            => $this->get_plain_text( $episode->get_title() ),
@@ -462,7 +462,7 @@ class Jetpack_Podcast_Helper {
 		}
 
 		if ( ! empty( $enclosure->duration ) ) {
-			$track['duration'] = esc_html( $this->format_track_duration( $enclosure->duration ) );
+			$track['duration'] = esc_html( $this->format_track_duration( (int) $enclosure->duration ) );
 		}
 
 		return $track;

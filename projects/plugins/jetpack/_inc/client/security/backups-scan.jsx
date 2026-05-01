@@ -15,7 +15,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
-import { showBackups } from 'state/initial-state';
+import { showBackups, showScan } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 import { isFetchingRewindStatus } from 'state/rewind';
 import { siteHasFeature } from 'state/site';
@@ -202,7 +202,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 		}
 
 		render() {
-			if ( ! this.props.showBackups ) {
+			if ( ! this.props.showBackups || ! this.props.showScan ) {
 				return null;
 			}
 
@@ -268,6 +268,7 @@ export default connect( state => {
 		hasThreats: getVaultPressScanThreatCount( state ),
 		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
 		showBackups: showBackups( state ),
+		showScan: showScan( state ),
 		isFetchingRewindStatus: isFetchingRewindStatus( state ),
 	};
 } )( BackupsScan );

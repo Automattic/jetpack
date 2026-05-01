@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -35,7 +34,9 @@ foreach ( $required_fields as $field ) {
 			array(
 				'error'   => 400,
 				'message' => 'Missing required field: ' . $field,
-			)
+			),
+			200,
+			JSON_UNESCAPED_SLASHES
 		);
 		exit( 0 );
 	}
@@ -217,9 +218,6 @@ if ( ! empty( $orderid ) ) {
 			);
 	// ^^ this'll be either: ID if added, no of rows if updated, or FALSE if failed to insert/update
 
-	// old way just returned what was sent...
-	// wp_send_json($json_params);
-
 	// thorough much? lol.
 	if ( ! empty( $trans ) && $trans !== -1 ) {
 
@@ -233,12 +231,12 @@ if ( ! empty( $orderid ) ) {
 		}
 
 		// return
-		wp_send_json( $return_params );
+		wp_send_json( $return_params, 200, JSON_UNESCAPED_SLASHES );
 
 	} else {
 
 		// fail.
-		wp_send_json( array( 'error' => 100 ) );
+		wp_send_json( array( 'error' => 100 ), 200, JSON_UNESCAPED_SLASHES );
 
 	}
 }

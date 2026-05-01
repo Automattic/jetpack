@@ -3,7 +3,6 @@ import { __, isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, close } from '@wordpress/icons';
 import { useCallback, useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
-import styles from './styles.module.scss';
 
 export type HeaderProps = {
 	/**
@@ -18,6 +17,14 @@ export type HeaderProps = {
 	 * Optional icon to display in the header.
 	 */
 	icon?: React.ReactNode;
+	/**
+	 * Optional callback to run before navigating back.
+	 */
+	onGoBack?: VoidFunction;
+	/**
+	 * Optional callback to run before closing the modal.
+	 */
+	onClose?: VoidFunction;
 };
 
 /**
@@ -26,17 +33,29 @@ export type HeaderProps = {
  *
  * @return component
  */
-export function Header( { icon, title, isScreenLocked }: HeaderProps ) {
+export function Header( {
+	icon,
+	title,
+	isScreenLocked,
+	onGoBack: onGoBackProp,
+	onClose: onCloseProp,
+}: HeaderProps ) {
 	const context = useContext( NavigatorModalContext );
 	const navigator = useNavigator();
 
 	const onGoBack = useCallback( () => {
+		onGoBackProp?.();
 		navigator.goBack();
-	}, [ navigator ] );
+	}, [ navigator, onGoBackProp ] );
+
+	const onCloseModal = useCallback( () => {
+		onCloseProp?.();
+		context.onClose?.();
+	}, [ onCloseProp, context ] );
 
 	return (
-		<div className={ styles.header }>
-			<div className={ styles[ 'title-wrap' ] }>
+		<div className="jp-navigator-modal__header">
+			<div className="jp-navigator-modal__title-wrap">
 				{ ! isScreenLocked ? (
 					<Button
 						label={ __( 'Go back', 'jetpack-components' ) }
@@ -52,7 +71,7 @@ export function Header( { icon, title, isScreenLocked }: HeaderProps ) {
 			{ context.isDismissible ? (
 				<Button
 					size="compact"
-					onClick={ context.onClose }
+					onClick={ onCloseModal }
 					icon={ close }
 					label={ __( 'Close', 'jetpack-components' ) }
 					variant="tertiary"

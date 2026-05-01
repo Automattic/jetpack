@@ -83,9 +83,52 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
+		 * Handle error events from External_Storage for monitoring and alerting.
+		 *
+		 * Reports storage errors and empty states to the wpcom logstash cluster
+		 * for centralized error tracking and alerting.
+		 * Currently we are reporting only errors.
+		 *
+		 * @since 9.0.0
+		 *
+		 * @param string $event_type  The event type ('error' or 'empty').
+		 * @param string $key         The option key that triggered the event.
+		 * @param string $details     Additional error details.
+		 * @param string $environment The environment identifier.
+		 */
+		public function handle_error_event( $event_type, $key, $details, $environment ) {
+			if ( 'error' !== $event_type ) {
+				return;
+			}
+
+			// Build log message
+			$message = sprintf(
+				'External Storage %s: %s',
+				$event_type,
+				$key
+			);
+
+			$extra = array(
+				'event_type'  => $event_type,
+				'key'         => $key,
+				'environment' => $environment,
+			);
+
+			if ( ! empty( $details ) ) {
+				$extra['details'] = $details;
+			}
+
+			// Use unsafe_direct_log to ensure storage errors are always logged
+			// regardless of at_options_logging_on setting
+			if ( class_exists( 'WPCOMSH_Log' ) ) {
+				\WPCOMSH_Log::unsafe_direct_log( $message, $extra );
+			}
+		}
+
+		/**
 		 * Get the master user id from email.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.0.0
 		 *
 		 * @param string $email The user email.
 		 * @return int|bool The master user id or false if not found.
@@ -114,7 +157,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * - Current user has a different token string than normalized token
 		 * - Any other user has a token sharing the same secret prefix
 		 *
-		 * @since $$next-version$$
+		 * @since 9.0.0
 		 *
 		 * @param array  $tokens           Tokens array keyed by user ID.
 		 * @param string $normalized_token Normalized token (token_key.secret.user_id).
@@ -167,7 +210,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 *
 		 * Re-reads the latest state before persisting to minimize race condition window.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.0.0
 		 *
 		 * @param string $normalized_token The normalized token from external storage (token_key.secret.user_id).
 		 * @param array  $existing_tokens The existing tokens from the database.
@@ -213,7 +256,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		/**
 		 * Get the user tokens by email and secret.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.0.0
 		 *
 		 * @param string $email The user email.
 		 * @param string $secret The token secret (format: token_key.secret).

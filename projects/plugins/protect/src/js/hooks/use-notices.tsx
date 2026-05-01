@@ -81,6 +81,7 @@ export default function useNotices() {
 								supportLink: (
 									<ExternalLink
 										href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+										children={ null }
 									/>
 								),
 							}

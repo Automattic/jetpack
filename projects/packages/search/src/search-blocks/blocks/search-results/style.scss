@@ -1,0 +1,133 @@
+.wp-block-jetpack-search-results {
+
+	.jetpack-search-results__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.jetpack-search-results__item {
+		display: flex;
+		align-items: flex-start;
+		gap: 1.5rem;
+		padding: 1.5rem 0;
+	}
+
+	.jetpack-search-results__copy {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.jetpack-search-results__title {
+		margin: 0 0 0.25rem;
+		font-size: 1.5rem;
+		font-weight: 700;
+		line-height: 1.25;
+	}
+
+	.jetpack-search-results__title-link {
+		color: inherit;
+		text-decoration: none;
+
+		&:hover,
+		&:focus-visible {
+			text-decoration: underline;
+		}
+
+		span[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__highlight {
+		background: var(--jetpack-search-highlight-background, color-mix(in sRGB, currentColor 18%, transparent));
+		font-weight: 700;
+	}
+
+	.jetpack-search-results__path {
+		margin-top: 0.25rem;
+		color: inherit;
+		opacity: 0.75;
+		font-size: 0.95rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__date {
+		margin-top: 1rem;
+		color: inherit;
+		opacity: 0.6;
+		font-size: 0.9rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__image-link {
+		flex: 0 0 auto;
+		width: 200px;
+		max-width: 30%;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__image {
+		display: block;
+		width: 100%;
+		height: auto;
+		aspect-ratio: 16 / 10;
+		object-fit: cover;
+		border-radius: 4px;
+	}
+}
+
+.jetpack-search-results--compact {
+
+	.jetpack-search-results__list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.jetpack-search-results__item {
+		padding: 0.5rem 0;
+		border-top: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 15%, transparent);
+
+		&:first-child {
+			border-top: none;
+		}
+	}
+
+	.jetpack-search-results__copy {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.25rem 0.75rem;
+	}
+
+	.jetpack-search-results__title {
+		font-size: 1rem;
+		font-weight: 500;
+		margin: 0;
+	}
+
+	.jetpack-search-results__meta {
+		display: flex;
+		gap: 0.75rem;
+		font-size: 0.875em;
+		opacity: 0.75;
+	}
+
+	.jetpack-search-results__date {
+		margin-top: 0;
+	}
+}

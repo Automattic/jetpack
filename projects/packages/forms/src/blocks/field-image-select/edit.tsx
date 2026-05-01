@@ -34,7 +34,7 @@ export default function ImageSelectFieldEdit( props ) {
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	const { optionsBlock, imagesData } = useSelect(
+	const { optionsBlock, imageOptionsInnerBlocks } = useSelect(
 		select => {
 			const { getBlock } = select( blockEditorStore ) as BlockEditorStoreSelect;
 
@@ -42,23 +42,28 @@ export default function ImageSelectFieldEdit( props ) {
 				( innerBlock: Block ) => innerBlock.name === 'jetpack/fieldset-image-options'
 			);
 
-			const images =
-				block?.innerBlocks?.[ 0 ]?.innerBlocks
-					// Filter out inner blocks that don't have a media id, i.e. external images.
-					?.filter( innerBlock => innerBlock.attributes?.id !== undefined )
-					// Map the inner blocks to an array of objects with the media id and client id.
-					?.map( innerBlock => ( {
-						clientId: innerBlock.clientId,
-						mediaId: innerBlock.attributes.id as number,
-					} ) ) ?? [];
-
 			return {
 				optionsBlock: block,
-				imagesData: images,
+				imageOptionsInnerBlocks: block?.innerBlocks?.[ 0 ]?.innerBlocks,
 			};
 		},
 		[ clientId ]
 	);
+
+	// Memoize the derived imagesData to avoid creating new array/object references on every render.
+	// This prevents the "useSelect returns different values" warning.
+	const imagesData = useMemo( () => {
+		return (
+			imageOptionsInnerBlocks
+				// Filter out inner blocks that don't have a media id, i.e. external images.
+				?.filter( innerBlock => innerBlock.attributes?.id !== undefined )
+				// Map the inner blocks to an array of objects with the media id and client id.
+				?.map( innerBlock => ( {
+					clientId: innerBlock.clientId,
+					mediaId: innerBlock.attributes.id as number,
+				} ) ) ?? []
+		);
+	}, [ imageOptionsInnerBlocks ] );
 
 	// Preload the image entity records reactively, as they are not available on first load.
 	// This is necessary to ensure the image URLs can be updated correctly when the supersized attribute is changed.
@@ -156,7 +161,7 @@ export default function ImageSelectFieldEdit( props ) {
 
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton onClick={ addOption }>
+					<ToolbarButton onClick={ () => addOption() }>
 						{ __( 'Add choice', 'jetpack-forms' ) }
 					</ToolbarButton>
 				</ToolbarGroup>

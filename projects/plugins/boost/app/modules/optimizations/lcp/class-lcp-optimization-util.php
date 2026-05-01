@@ -95,6 +95,21 @@ class LCP_Optimization_Util {
 		return false;
 	}
 
+	/**
+	 * Check if a specific optimization should be applied based on cloud response.
+	 * Returns true if no optimizations object exists (backward compatibility) or if the flag is truthy.
+	 *
+	 * @since 4.5.6
+	 *
+	 * @param array  $lcp_data The LCP data array.
+	 * @param string $key      The optimization key to check.
+	 * @return bool True if the optimization should be applied.
+	 */
+	public static function should_apply_optimization( $lcp_data, $key ) {
+		return ! isset( $lcp_data['optimizations'] )
+			|| ! empty( $lcp_data['optimizations'][ $key ] );
+	}
+
 	public function get_lcp_image_url() {
 		if ( ! $this->can_optimize() ) {
 			return null;

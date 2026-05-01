@@ -7,6 +7,8 @@
  * @package
  */
 
+import { FORM_CATEGORIES, type FormCategory } from './form-categories';
+
 export interface Category {
 	slug: string;
 	title?: string;
@@ -71,4 +73,37 @@ export function moveContactFormCategoryToBack( categories: Category[] ): Categor
 
 	// No 'grow' category found, append to the end
 	return [ ...withoutContact, contactFormCategory ];
+}
+
+/**
+ * Registers the granular form categories at the beginning of the categories array.
+ *
+ * This adds the form-specific categories (input, contact, choice, other) at the
+ * beginning of the block inserter, making them prominent in the form editor.
+ *
+ * @param categories - Array of block categories
+ * @return New array with form categories added at the beginning
+ */
+export function registerFormCategories( categories: Category[] ): Category[] {
+	// Convert form categories to the Category type
+	const formCategories: Category[] = FORM_CATEGORIES.map( ( cat: FormCategory ) => ( {
+		slug: cat.slug,
+		title: cat.title,
+	} ) );
+
+	return [ ...formCategories, ...categories ];
+}
+
+/**
+ * Removes the granular form categories from the categories array.
+ *
+ * This is used when leaving the form editor to restore the normal
+ * category list without the form-specific categories.
+ *
+ * @param categories - Array of block categories
+ * @return New array with form categories removed
+ */
+export function unregisterFormCategories( categories: Category[] ): Category[] {
+	const formCategorySlugs = FORM_CATEGORIES.map( ( cat: FormCategory ) => cat.slug );
+	return categories.filter( cat => ! formCategorySlugs.includes( cat.slug ) );
 }

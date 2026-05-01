@@ -1,12 +1,17 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import defaultSettings from '../shared/settings/index.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-time';
-const settings = {
+export const name = 'field-time';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Time input field', 'jetpack-forms' ),
 	description: __( 'Capture time information with a time picker.', 'jetpack-forms' ),
@@ -40,4 +45,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

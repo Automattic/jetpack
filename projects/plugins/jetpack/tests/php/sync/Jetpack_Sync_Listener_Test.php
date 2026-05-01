@@ -245,23 +245,172 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 
-		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue(), 'test_action' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertTrue( isset( $event->args['timestamp'] ) );
 		$this->assertTrue( isset( $event->args['queue_size'] ) );
 		$this->assertTrue( isset( $event->args['queue_lag'] ) );
+		$this->assertTrue( isset( $event->args['extra'] ) );
+		$this->assertIsArray( $event->args['extra'] );
+		$this->assertEquals( array( 'current_filter' => 'test_action' ), $event->args['extra'] );
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 	}
 
 	public function test_data_loss_action_ignored_if_already_out_of_sync() {
 		Health::update_status( Health::STATUS_OUT_OF_SYNC );
 
-		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue(), 'test_action' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertFalse( $event );
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
+	}
+
+	public function test_does_listener_add_mcp_actor_fields_when_header_present() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		$mcp_data                    = array(
+			'mcp_client_name'    => 'test-client',
+			'mcp_client_version' => '1.0.0',
+		);
+		$_SERVER['HTTP_X_WPCOM_MCP'] = base64_encode( wp_json_encode( $mcp_data, JSON_UNESCAPED_SLASHES ) );
+		self::factory()->post->create();
+
+		$all = $queue->get_all();
+		$this->assertNotEmpty( $all );
+
+		foreach ( $all as $queue_item ) {
+			list( , , , , , $actor ) = $queue_item->value;
+			$this->assertArrayHasKey( 'mcp_client_name', $actor );
+			$this->assertArrayHasKey( 'mcp_client_version', $actor );
+			$this->assertArrayHasKey( 'is_mcp_agent', $actor );
+			$this->assertEquals( 'test-client', $actor['mcp_client_name'] );
+			$this->assertEquals( '1.0.0', $actor['mcp_client_version'] );
+			$this->assertTrue( $actor['is_mcp_agent'] );
+		}
+	}
+
+	public function test_does_listener_not_add_mcp_actor_fields_when_header_invalid() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		$_SERVER['HTTP_X_WPCOM_MCP'] = '!!!invalid-base64!!!';
+
+		self::factory()->post->create();
+
+		$all = $queue->get_all();
+		$this->assertNotEmpty( $all );
+
+		foreach ( $all as $queue_item ) {
+			list( , , , , , $actor ) = $queue_item->value;
+			$this->assertArrayNotHasKey( 'mcp_client_name', $actor );
+			$this->assertArrayNotHasKey( 'mcp_client_version', $actor );
+			$this->assertArrayNotHasKey( 'is_mcp_agent', $actor );
+		}
+	}
+
+	public function test_does_listener_add_mcp_actor_fields_with_partial_data() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		$mcp_data                    = array(
+			'mcp_client_name' => 'partial-client',
+		);
+		$_SERVER['HTTP_X_WPCOM_MCP'] = base64_encode( wp_json_encode( $mcp_data, JSON_UNESCAPED_SLASHES ) );
+		self::factory()->post->create();
+
+		$all = $queue->get_all();
+		$this->assertNotEmpty( $all );
+
+		foreach ( $all as $queue_item ) {
+			list( , , , , , $actor ) = $queue_item->value;
+			$this->assertArrayHasKey( 'mcp_client_name', $actor );
+			$this->assertArrayNotHasKey( 'mcp_client_version', $actor );
+			$this->assertArrayHasKey( 'is_mcp_agent', $actor );
+			$this->assertEquals( 'partial-client', $actor['mcp_client_name'] );
+			$this->assertTrue( $actor['is_mcp_agent'] );
+		}
+	}
+
+	public function test_request_cache_reduces_get_transient_calls() {
+		$transient_calls = 0;
+		add_filter(
+			'pre_transient_jetpack_sync_last_checked_queue_state_sync',
+			function ( $pre ) use ( &$transient_calls ) {
+				$transient_calls++;
+				return $pre;
+			},
+			0
+		);
+
+		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
+		$this->listener->force_recheck_queue_limit();
+
+		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement - intentional for testing.
+		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement - intentional for testing.
+		do_action( 'my_action' );
+
+		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
+
+		$this->assertSame( 1, $transient_calls );
+	}
+
+	public function test_request_cache_invalidates_after_threshold() {
+		$transient_calls = 0;
+		add_filter(
+			'pre_transient_jetpack_sync_last_checked_queue_state_sync',
+			function ( $pre ) use ( &$transient_calls ) {
+				$transient_calls++;
+				return $pre;
+			},
+			0
+		);
+
+		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
+		$this->listener->force_recheck_queue_limit();
+
+		// Fire one more than the invalidation threshold: the first item causes a transient
+		// read, items 2–50 hit the in-memory cache, and item 51 causes a second
+		// transient read after the cache is invalidated at the 50-item threshold.
+		$threshold = \Automattic\Jetpack\Sync\Listener::REQUEST_STATE_CACHE_INVALIDATE_AFTER;
+		for ( $i = 0; $i < $threshold + 1; $i++ ) {
+			do_action( 'my_action' );
+		}
+
+		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
+
+		$this->assertSame( 2, $transient_calls );
+	}
+
+	public function test_jetpack_sync_actor_data_filter() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		$callback = function ( $actor ) {
+			$actor['client_name'] = '<script>xss</script>woo_ai';
+			return $actor;
+		};
+		add_filter( 'jetpack_sync_actor_data', $callback );
+		self::factory()->post->create();
+		remove_filter( 'jetpack_sync_actor_data', $callback );
+
+		$all = $queue->get_all();
+		$this->assertNotEmpty( $all );
+
+		$actor = $all[0]->value[5];
+		$this->assertEquals( 'woo_ai', $actor['client_name'] );
 	}
 
 	public function get_page_url() {

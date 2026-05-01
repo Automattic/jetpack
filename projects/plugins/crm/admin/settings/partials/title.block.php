@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page Partial: Settings: Title Block
  */
 

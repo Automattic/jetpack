@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initial release of the Activity Log package: hosts the in-wp-admin Activity Log UI and its REST endpoints.

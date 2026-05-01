@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Tests: Add coverage for modules added to sync configuration mid-progress.

@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.98] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [2.0.97] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## [2.0.96] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [2.0.95] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [2.0.94] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [2.0.93] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [2.0.92] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+- Update package dependencies. [#47173]
+
+## [2.0.91] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [2.0.90] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [2.0.89] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
 ## [2.0.88] - 2026-01-07
 ### Changed
 - Update package dependencies. [#46456]
@@ -382,6 +423,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[2.0.98]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.97...v2.0.98
+[2.0.97]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.96...v2.0.97
+[2.0.96]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.95...v2.0.96
+[2.0.95]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.94...v2.0.95
+[2.0.94]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.93...v2.0.94
+[2.0.93]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.92...v2.0.93
+[2.0.92]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.91...v2.0.92
+[2.0.91]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.90...v2.0.91
+[2.0.90]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.89...v2.0.90
+[2.0.89]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.88...v2.0.89
 [2.0.88]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.87...v2.0.88
 [2.0.87]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.86...v2.0.87
 [2.0.86]: https://github.com/Automattic/i18n-loader-webpack-plugin/compare/v2.0.85...v2.0.86

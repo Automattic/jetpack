@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Export Page
  * Jetpack CRM - https://jetpackcrm.com
  */
@@ -17,7 +16,7 @@ if ( ! zeroBSCRM_permsExport() ) {
 	 **/
 function jpcrm_export_preflight_error( $message ) {
 
-	echo '<h2>' . esc_html( $message ) . '</h2><button class="ui blue button" onclick="history.back()">' . esc_html( __( 'Go Back', 'zerob-bs-crm' ) ) . '</button>';
+	echo '<h2>' . esc_html( $message ) . '</h2><button class="ui blue button" onclick="history.back()">' . esc_html( __( 'Go Back', 'zero-bs-crm' ) ) . '</button>';
 }
 
 	/**
@@ -30,7 +29,7 @@ function jpcrm_render_export_page() {
 	// secondary permissions check
 	if ( ! zeroBSCRM_permsExport() ) {
 
-		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.' ) );
+		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.', 'zero-bs-crm' ) );
 
 	}
 
@@ -63,12 +62,12 @@ function jpcrm_render_export_page() {
 
 	// bad object type, so fail
 	if ( ! $zbs->DAL->isValidObjTypeID( $obj_type_id ) ) {
-		return jpcrm_export_preflight_error( __( 'Invalid object selected for export!' ) );
+		return jpcrm_export_preflight_error( __( 'Invalid object selected for export!', 'zero-bs-crm' ) );
 	}
 
 	// no perms for this object
 	if ( ! zeroBSCRM_permsObjType( $obj_type_id ) ) {
-		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.' ) );
+		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.', 'zero-bs-crm' ) );
 	}
 
 	// get segment id, if exporting segment
@@ -117,7 +116,7 @@ function jpcrm_render_export_page() {
 
 	// bad object type, so fail
 	if ( $obj_count == 0 ) {
-		return jpcrm_export_preflight_error( __( 'No objects to export!' ) );
+		return jpcrm_export_preflight_error( __( 'No objects to export!', 'zero-bs-crm' ) );
 	}
 
 	// == / Retrieve objs to export =======
@@ -156,7 +155,8 @@ function jpcrm_render_export_page() {
 	<input type="hidden" name="jpcrm-export-request-segment-id" value="<?php echo esc_attr( $potential_segment_id ); ?>" />
 	<?php } ?>
 
-	<h2><?php echo esc_html__( sprintf( __( 'Export %1$s %2$s %3$s', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $obj_count ), $exportTypeLabel, $extra_title_str ) ); ?></h2>
+	<?php /* translators: %1$s: number of objects, %2$s: object type label, %3$s: extra title (e.g. segment name) */ ?>
+	<h2><?php echo esc_html( sprintf( __( 'Export %1$s %2$s %3$s', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $obj_count ), $exportTypeLabel, $extra_title_str ) ); ?></h2>
 
 	<div class="ui segment" id="zbs-export-filetype-wrap">
 	<i class="file alternate outline icon"></i> <?php esc_html_e( 'Export as .CSV file', 'zero-bs-crm' ); // later offer choice (excel variant? Outlook addressbook?) ?>

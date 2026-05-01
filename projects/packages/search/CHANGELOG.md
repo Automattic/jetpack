@@ -5,6 +5,129 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.57.0] - 2026-04-27
+### Added
+- Search 3.0: Add icons for the Jetpack Search blocks and improve Blog Search pattern keywords. [#48232]
+- Search 3.0: Add `filter-checkbox` and `active-filters` blocks with instant-search-aligned field conventions, aggregation-driven item lists, and flat URL state (?category[]=news). [#48227]
+- Search 3.0: Use Interactivity API block foundation — composable search blocks, shared reactive store, and Blog Search Page pattern (Phase 1). [#48198]
+- Search 3.0: Expose buttonLabel attribute on `load-more` block (editor inspector text input, translated default fallback) and adopt the active theme's button styles via the wp-element-button class. [#48253]
+- Search 3.0: Render sample data in the Site Editor preview for each search block so designers see a real DOM shape instead of an empty ServerSideRender shell. [#48233]
+- Search: Add fallback image capability in expanded search. [#44657]
+- Search: Register a plugin-origin block template so the Jetpack Search layout takes over the theme's search results page. [#48252]
+- Search Blocks: Add inspector controls for label, showCount, and maxItems, plus a bucketSortOrder attribute (count | alpha, default count) to filter-checkbox. [#48281]
+- Search Blocks: Add authoring controls to `search-input`, including placeholder (declared), showIcon, and submitOnly attributes, with matching inspector controls. [#48280]
+
+### Changed
+- Remove redundant @wordpress/interactivity imports from display-only block views. [#48229]
+- Search 3.0: Rename the block inserter category to "Search" with the Jetpack logo so it matches the Forms, Monetize, and Grow headings. [#48256]
+- Search 3.0: Split editor-side block preview Edit components out of register-blocks.js into per-block edit.js files so changes to one block do not conflict with others. [#48255]
+- Search 3.0: Swap hardcoded colors in block styles for theme-aware tokens so the search blocks adapt to the active theme palette and dark backgrounds. [#48259]
+- Update package dependencies. [#48302]
+
+### Fixed
+- Search 3.0: Hide the `load-more` wrapper while a first-page search is in flight, and swap the button for a spinner while paginating. [#48231]
+- Search 3.0: Keep the search results list in the DOM so screen readers announce updates from the ARIA live region. [#48230]
+- Search 3.0: Localize Interactivity API view-bundle strings (results count, loading indicator, and active-filter pill aria labels) via wp_interactivity_state. [#48257]
+- Search 3.0: Reuse the results-count block as the loading indicator ("Searching…") so the control row doesn't flicker between queries. [#48234]
+
+## [0.56.10] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Search admin page. Drops the inline JetpackFooter render and `showFooter={false}` override so AdminPage's built-in footer lives inside the flex column that the mixin pins. [#48109]
+- Align Search dashboard toggle to its label baseline so wrapped labels on mobile no longer push the toggle into the middle of the row. [#48178]
+- Drop the local `#screen-meta`/`#screen-meta-links` hide rule now that the shared admin-page-layout mixin handles it. [#48195]
+- Remove custom toggle color overrides to use native WordPress admin theme colors. [#47317]
+- Swap the custom FormToggle on the Search admin dashboard for WordPress ToggleControl, restoring native rendering of the Enable Jetpack Search and Enable instant search toggles. [#48178]
+- Update package dependencies. [#48106] [#48141]
+
+### Removed
+- Remove the unused custom FormToggle component; all call sites now use WordPress ToggleControl. [#48178]
+
+### Fixed
+- Fix mobile overflow on the upsell/pricing page so cards no longer get clipped. [#48194]
+
+## [0.56.9] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+### Fixed
+- Dashboard: Avoid forcing a white background in the upsell pricing grid view. [#48088]
+
+## [0.56.8] - 2026-04-10
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## [0.56.7] - 2026-04-06
+### Changed
+- Update admin page footer design. [#47840]
+
+## [0.56.6] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [0.56.5] - 2026-03-23
+### Changed
+- Move admin notices and JITMs below the page header instead of rendering inside it. [#47558]
+- Search: Update header action buttons to use compact size for consistent UI. [#47679]
+- Update package dependencies. [#47684]
+
+## [0.56.4] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.56.3] - 2026-03-09
+### Changed
+- Dashboard: Remove global CSS overrides and move admin notices inside the main container. [#47313]
+- Migrate upsell page header to use unified AdminHeader component. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Use the core WordPress spinner component for the dashboard loading state. [#47467]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+
+## [0.56.2] - 2026-03-02
+### Changed
+- Update package dependencies. [#47357]
+
+## [0.56.1] - 2026-02-26
+### Changed
+- Search admin: Change `max-width` of contents to 1040px. [#47326]
+- Update package dependencies. [#47288] [#47300]
+
+## [0.56.0] - 2026-02-23
+### Added
+- Add a new `disable_tracking` feature flag. [#46722]
+
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.55.4] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.55.3] - 2026-02-10
+### Changed
+- Update dependencies. [#46931] [#47002]
+
+## [0.55.2] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.55.1] - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## [0.55.0] - 2026-01-19
+### Added
+- Add a "Show price" option to allow prices to be shown or hidden in Jetpack Instant Search results. [#46454]
+
+### Changed
+- Show WooCommerce product filters in filter widget. [#46373]
+- Update package dependencies. [#46552] [#46647]
+
 ## [0.54.10] - 2026-01-12
 ### Changed
 - Update package dependencies. [#46456] [#46491]
@@ -1414,6 +1537,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.57.0]: https://github.com/Automattic/jetpack-search/compare/v0.56.10...v0.57.0
+[0.56.10]: https://github.com/Automattic/jetpack-search/compare/v0.56.9...v0.56.10
+[0.56.9]: https://github.com/Automattic/jetpack-search/compare/v0.56.8...v0.56.9
+[0.56.8]: https://github.com/Automattic/jetpack-search/compare/v0.56.7...v0.56.8
+[0.56.7]: https://github.com/Automattic/jetpack-search/compare/v0.56.6...v0.56.7
+[0.56.6]: https://github.com/Automattic/jetpack-search/compare/v0.56.5...v0.56.6
+[0.56.5]: https://github.com/Automattic/jetpack-search/compare/v0.56.4...v0.56.5
+[0.56.4]: https://github.com/Automattic/jetpack-search/compare/v0.56.3...v0.56.4
+[0.56.3]: https://github.com/Automattic/jetpack-search/compare/v0.56.2...v0.56.3
+[0.56.2]: https://github.com/Automattic/jetpack-search/compare/v0.56.1...v0.56.2
+[0.56.1]: https://github.com/Automattic/jetpack-search/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/Automattic/jetpack-search/compare/v0.55.4...v0.56.0
+[0.55.4]: https://github.com/Automattic/jetpack-search/compare/v0.55.3...v0.55.4
+[0.55.3]: https://github.com/Automattic/jetpack-search/compare/v0.55.2...v0.55.3
+[0.55.2]: https://github.com/Automattic/jetpack-search/compare/v0.55.1...v0.55.2
+[0.55.1]: https://github.com/Automattic/jetpack-search/compare/v0.55.0...v0.55.1
+[0.55.0]: https://github.com/Automattic/jetpack-search/compare/v0.54.10...v0.55.0
 [0.54.10]: https://github.com/Automattic/jetpack-search/compare/v0.54.9...v0.54.10
 [0.54.9]: https://github.com/Automattic/jetpack-search/compare/v0.54.8...v0.54.9
 [0.54.8]: https://github.com/Automattic/jetpack-search/compare/v0.54.7...v0.54.8

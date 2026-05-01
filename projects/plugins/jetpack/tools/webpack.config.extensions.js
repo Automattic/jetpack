@@ -155,13 +155,6 @@ const sharedWebpackConfig = {
 	module: {
 		strictExportPresence: true,
 		rules: [
-			// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-			// https://github.com/WordPress/gutenberg/issues/73362
-			{
-				test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-				resolve: { fullySpecified: false },
-			},
-
 			// Transpile JavaScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
@@ -193,14 +186,6 @@ const sharedWebpackConfig = {
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
 				],
 			} ),
-
-			// Allow importing .svg files as React components by appending `?component` to the import, e.g. `import Logo from './logo.svg?component';`
-			{
-				test: /\.svg$/i,
-				issuer: /\.[jt]sx?$/,
-				resourceQuery: /component/,
-				use: [ '@svgr/webpack' ],
-			},
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
@@ -290,7 +275,7 @@ module.exports = [
 					if ( ! resource.contextInfo.issuer.includes( 'extensions/shared/i18n-to-php' ) ) {
 						resource.request = path.join(
 							path.dirname( __dirname ),
-							'./extensions/shared/i18n-to-php'
+							'./extensions/shared/i18n-to-php.js'
 						);
 					}
 				}

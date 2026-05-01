@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.9] - 2026-04-13
+
+### Changed
+- Update package dependencies. [#47505] [#47684] [#47719] [#47799] [#47825] [#47870] [#47890] [#47998]
+
+### Fixed
+- Image Guide: Fix script errors when JavaScript concatenation is enabled under certain conditions. [#47918]
+
+## [4.5.8-beta] - 2026-03-09
+### Changed
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Replace the large Jetpack Boost logo header with a compact unified header pattern (Jetpack icon + title + subtitle) for consistent product identity. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Fix Hello Dolly banner background color and clear floats in admin layout. [#47313]
+- Fix TS errors detected by tsgo. [#47426]
+- I18N: Fix translatable strings extraction. [#47432]
+
+## [4.5.7] - 2026-02-04
+### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+
+### Changed
+- Update package dependencies. [#46785] [#46854] [#46905]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Compatibility: Disable JS concatenation in Beaver Builder editor to prevent script execution order issues. [#46827]
+
+## [4.5.6] - 2026-01-28
+### Changed
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Update composer.lock. [#46686]
+- Update package dependencies. [#46512] [#46552] [#46647]
+
+### Fixed
+- LCP: Skip image optimizations that would break responsive backgrounds or custom focal points under specific configurations. [#46683]
+
 ## [4.5.5] - 2026-01-08
 ### Added
 - Connection: Add revalidation for IDCs. [#46268]
@@ -621,7 +665,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
-- Minify CSS: Moved the default URL base of minified CSS files to /_jb_static, and added a constant to override it. [#31631]
+- Minify CSS: Moved the default URL base of minified CSS files to /\_jb_static, and added a constant to override it. [#31631]
 - Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
@@ -880,6 +924,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.5.9]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.8-beta...4.5.9
+[4.5.8-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.7...4.5.8-beta
+[4.5.7]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.6...4.5.7
+[4.5.6]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.5...4.5.6
 [4.5.5]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.4...4.5.5
 [4.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.3...4.5.4
 [4.5.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.2...4.5.3

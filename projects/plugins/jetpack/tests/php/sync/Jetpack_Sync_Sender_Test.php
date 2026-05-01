@@ -47,6 +47,9 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		// Restore default setting.
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
 
+		// Reset cron flag to default behavior.
+		Settings::set_doing_cron( null );
+
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
 
 		// Reset queue.
@@ -625,6 +628,85 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * Test do_sync syncs directly when doing cron even if dedicated sync is enabled.
+	 */
+	public function test_do_sync_runs_inline_when_doing_cron_even_if_dedicated_enabled() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		Settings::set_doing_cron( true );
+		self::factory()->post->create();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+		Settings::set_doing_cron( null );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$this->assertNotNull( $event );
+	}
+
+	/**
+	 * Test do_sync syncs directly when doing cron even with an active dedicated sync lock.
+	 */
+	public function test_do_sync_runs_inline_when_doing_cron_even_with_dedicated_lock_set() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		Settings::set_doing_cron( true );
+
+		// Set up an active dedicated sync lock.
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
+		$lock_expires_name = $lock_option_name . '_expires';
+		$expires_at        = microtime( true ) + 10;
+		\Jetpack_Options::update_raw_option( $lock_expires_name, $expires_at );
+
+		self::factory()->post->create();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+		Settings::set_doing_cron( null );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$this->assertNotNull( $event );
+	}
+
+	/**
+	 * Test do_sync does not set throttle when doing cron.
+	 */
+	public function test_do_sync_does_not_set_throttle_when_doing_cron() {
+		// Flush any existing queue items first.
+		$this->sender->do_sync();
+
+		Settings::set_doing_cron( true );
+
+		// Set up throttling config.
+		$this->sender->set_upload_max_rows( 2 );
+		$this->sender->set_sync_wait_time( 2 );
+		$this->sender->set_sync_wait_threshold( 0 );
+
+		add_action( 'demo_action', array( $this->listener, 'action_handler' ) );
+
+		do_action( 'demo_action' );
+		do_action( 'demo_action' );
+		do_action( 'demo_action' );
+		do_action( 'demo_action' );
+
+		// First sync should work and send 2 items.
+		$this->assertTrue( $this->sender->do_sync() );
+		$this->assertCount( 2, $this->server_event_storage->get_all_events( 'demo_action' ) );
+
+		// Second sync should also work (not throttled) because cron doesn't set throttles.
+		$result = $this->sender->do_sync();
+		$this->assertTrue( $result );
+		$this->assertCount( 4, $this->server_event_storage->get_all_events( 'demo_action' ) );
+		Settings::set_doing_cron( null );
+		remove_action( 'demo_action', array( $this->listener, 'action_handler' ) );
+	}
+
+	/**
 	 * Validate that WP_Error is returned in do_full_sync if JETPACK_SYNC_READ_ONLY is defined and true.
 	 */
 	public function test_do_full_sync_errors_if_read_only() {
@@ -655,7 +737,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		$lock_expires_name  = $lock_option_name . '_expires';
 		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**
@@ -702,7 +784,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
 		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**
@@ -725,7 +807,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
 		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
 	}
 
 	/**

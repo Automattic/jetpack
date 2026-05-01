@@ -1,0 +1,99 @@
+.jetpack-search-filter-popover {
+	position: relative;
+	display: inline-block;
+
+	&__trigger {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 4px;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 20%, transparent);
+		background: transparent;
+		color: inherit;
+		border-radius: 4px;
+		cursor: pointer;
+
+		&:hover:not(:disabled),
+		&[aria-expanded="true"] {
+			background: color-mix(in sRGB, currentColor 6%, transparent);
+		}
+
+		&:disabled {
+			cursor: not-allowed;
+			opacity: 0.4;
+		}
+	}
+
+	&__badge {
+		// Keep the badge element itself at the inherited theme text color so
+		// `currentColor` below resolves to the readable ink — not to the
+		// inverted text color, which made the pill invisible on light themes
+		// (white bg behind a white-on-white badge). Text inversion is done on
+		// the inner count span instead.
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-end: 0;
+		transform: translate(50%, -50%);
+		box-sizing: border-box;
+		min-width: 16px;
+		height: 16px;
+		padding: 0 4px;
+		font-size: 11px;
+		line-height: 16px;
+		text-align: center;
+		background: color-mix(in sRGB, currentColor 85%, transparent);
+		border-radius: 8px;
+
+		&[hidden] {
+			display: none;
+		}
+
+		:dir(rtl) & {
+			transform: translate(-50%, -50%);
+		}
+	}
+
+	&__badge-count {
+		color: var(--wp--preset--color--background, #fff);
+	}
+
+	&__panel {
+		position: absolute;
+		inset-inline-end: 0;
+		inset-block-start: calc(100% + 4px);
+		min-width: 260px;
+		max-width: min(360px, 90vw);
+		z-index: 20;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		padding: 12px;
+		background: var(--wp--preset--color--base);
+		// The panel owns its surface, so don't inherit a low-contrast body
+		// accent color from the surrounding page.
+		color: var(--wp--preset--color--contrast);
+		// Reset the inherited theme base size so popover body text tracks the
+		// search-results title (also 1rem) instead of the host theme's
+		// oversized default. Rem-based children (filter title, count pill)
+		// keep their explicit sizes.
+		font-size: 1rem;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 15%, transparent);
+		border-radius: 4px;
+		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
+
+		&[hidden] {
+			display: none;
+		}
+
+		&--editor {
+			position: static;
+			box-shadow: none;
+		}
+	}
+}

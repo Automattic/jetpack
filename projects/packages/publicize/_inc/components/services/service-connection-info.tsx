@@ -3,12 +3,13 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
+import ConnectionIcon from '../connection-icon';
 import { ConnectionName } from '../connection-management/connection-name';
 import { ConnectionStatus } from '../connection-management/connection-status';
 import { Disconnect } from '../connection-management/disconnect';
 import { MarkAsShared } from '../connection-management/mark-as-shared';
 import styles from './style.module.scss';
-import { SupportedService } from './use-supported-services';
+import { SupportedService } from './types';
 
 export type ServiceConnectionInfoProps = {
 	connection: Connection;
@@ -29,15 +30,11 @@ export const ServiceConnectionInfo = ( {
 	return (
 		<div className={ styles[ 'service-connection' ] }>
 			<div>
-				{ connection.profile_picture ? (
-					<img
-						className={ styles[ 'profile-pic' ] }
-						src={ connection.profile_picture }
-						alt={ connection.display_name }
-					/>
-				) : (
-					<service.icon iconSize={ 40 } />
-				) }
+				<ConnectionIcon
+					className={ styles[ 'profile-pic' ] }
+					profilePicture={ connection.profile_picture }
+					label={ connection.display_name }
+				/>
 			</div>
 			<div className={ styles[ 'connection-details' ] }>
 				<ConnectionName connection={ connection } />
@@ -88,12 +85,7 @@ export const ServiceConnectionInfo = ( {
 				} )( connection ) }
 			</div>
 			<div className={ styles[ 'connection-actions' ] }>
-				<Disconnect
-					connection={ connection }
-					isDestructive={ false }
-					variant="tertiary"
-					buttonClassName={ styles.disconnect }
-				/>
+				<Disconnect connection={ connection } variant="minimal" />
 			</div>
 		</div>
 	);

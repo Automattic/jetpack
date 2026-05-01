@@ -1,4 +1,11 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 :global {
+
+	body.jetpack_page_jetpack-social {
+
+		@include jetpack-admin-page-layout;
+	}
 
 	#wpbody-content {
 
@@ -22,4 +29,8 @@
 
 .notice {
 	grid-column: 1 / -1;
+}
+
+.connection-error-col {
+	margin-top: 25px;
 }

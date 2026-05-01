@@ -272,7 +272,9 @@
 		}
 
 		function stripHTML( text ) {
-			return text.replace( /<[^>]*>?/gm, '' );
+			var tmp = document.createElement( 'div' );
+			tmp.innerHTML = text.replace( /<[^>]*>?/gm, '' );
+			return tmp.textContent;
 		}
 
 		return {
@@ -915,7 +917,7 @@
 				return args.origFile;
 			}
 
-			if ( typeof args.mediumFile === 'undefined' || typeof args.largeFile === 'undefined' ) {
+			if ( typeof args.largeFile === 'undefined' ) {
 				return args.origFile;
 			}
 
@@ -942,14 +944,6 @@
 
 			if ( largeWidth >= args.maxWidth || largeHeight >= args.maxHeight ) {
 				return args.largeFile;
-			}
-
-			var mediumSizeParts = getImageSizeParts( args.mediumFile, args.origWidth, isPhotonUrl );
-			var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
-			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
-
-			if ( mediumWidth >= args.maxWidth || mediumHeight >= args.maxHeight ) {
-				return args.mediumFile;
 			}
 
 			if ( isPhotonUrl ) {
@@ -1084,18 +1078,18 @@
 					domUtil.show( descriptionElement );
 
 					if ( ! title && ! caption ) {
-						captionMainElement.innerHTML = domUtil.stripHTML( desc );
+						captionMainElement.textContent = domUtil.stripHTML( desc );
 						domUtil.show( captionMainElement );
 					}
 				}
 
 				if ( title ) {
 					var plainTitle = domUtil.stripHTML( title );
-					titleElement.innerHTML = plainTitle;
+					titleElement.textContent = plainTitle;
 
 					if ( ! caption ) {
-						captionMainElement.innerHTML = plainTitle;
-						captionInfoExtraElement.innerHTML = plainTitle;
+						captionMainElement.textContent = plainTitle;
+						captionInfoExtraElement.textContent = plainTitle;
 
 						domUtil.show( captionMainElement );
 					}
@@ -1430,7 +1424,6 @@
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
 					desc: item.getAttribute( 'data-image-description' ) || '',
-					mediumFile: item.getAttribute( 'data-medium-file' ) || '',
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
@@ -1461,7 +1454,6 @@
 						origHeight: attrs.origHeight,
 						maxWidth: max.width,
 						maxHeight: max.height,
-						mediumFile: attrs.mediumFile,
 						largeFile: attrs.largeFile,
 					} );
 				}

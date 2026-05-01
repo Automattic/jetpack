@@ -1,4 +1,5 @@
 import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { getSettings as getDateSettings, dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
@@ -62,7 +63,8 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 		if (
 			! redBubbleAlerts?.backup_failure ||
 			status === 'backups-deactivated' ||
-			status === 'multisite_not_supported'
+			status === 'multisite_not_supported' ||
+			getScriptData().site.is_multisite
 		) {
 			return;
 		}

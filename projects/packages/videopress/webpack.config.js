@@ -12,8 +12,6 @@ module.exports = [
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
 
-			'lib/videopress-token-bridge': './src/client/lib/videopress-token-bridge.js',
-
 			// VideoPress dashboard page
 			'admin/index': './src/client/admin/index.js',
 
@@ -54,13 +52,6 @@ module.exports = [
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-				// https://github.com/WordPress/gutenberg/issues/73362
-				{
-					test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-					resolve: { fullySpecified: false },
-				},
-
 				// Transpile JavaScript
 				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,
@@ -70,6 +61,9 @@ module.exports = [
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
+
+				// Workarounds for non-extracted `@wordpress/*` packages.
+				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {

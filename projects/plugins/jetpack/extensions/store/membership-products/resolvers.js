@@ -15,8 +15,8 @@ import {
 	setConnectedAccountDefaultCurrency,
 	setSubscriberCounts,
 	setNewsletterCategories,
-	setNewsletterCategoriesSubscriptionsCount,
 	setTotalEmailsSentCount,
+	setPostEmailSentState,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
@@ -27,8 +27,8 @@ const TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY =
 	'membership-products-resolver-getTotalEmailsSentCount';
 const GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY =
 	'membership-products-resolver-getNewsletterCategories';
-const GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY =
-	'membership-products-resolver-getNewsletterCategoriesSubscriptionsCount';
+const GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY =
+	'membership-products-resolver-getPostEmailSentState';
 let hydratedFromAPI = false;
 
 const fetchMemberships = async () => {
@@ -156,9 +156,13 @@ const fetchNewsletterCategories = async () => {
 	return response;
 };
 
-export const fetchNewsletterCategoriesSubscriptionsCount = async termIds => {
+const fetchPostEmailSentState = async postId => {
+	if ( ! postId ) {
+		return { email_sent_at: null, stats_on_send: null };
+	}
+
 	const response = await apiFetch( {
-		path: `/wpcom/v2/newsletter-categories/count?term_ids=${ termIds.join( ',' ) }`,
+		path: addQueryArgs( '/wpcom/v2/newsletter-email-sent-status', { post_id: postId } ),
 		method: 'GET',
 	} );
 
@@ -166,14 +170,6 @@ export const fetchNewsletterCategoriesSubscriptionsCount = async termIds => {
 		throw new Error( 'Unexpected API response' );
 	}
 
-	/**
-	 * WP_Error returns a list of errors with custom names:
-	 * `errors: { foo: [ 'message' ], bar: [ 'message' ] }`
-	 * Since we don't know their names, to get the message, we transform the object
-	 * into an array, and just pick the first message of the first error.
-	 *
-	 * @see https://developer.wordpress.org/reference/classes/wp_error/
-	 */
 	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
 	if ( wpError ) {
 		throw new Error( wpError );
@@ -290,7 +286,7 @@ export const getSubscriberCounts =
 
 export const getTotalEmailsSentCount =
 	( blogId, postId ) =>
-	async ( { dispatch, registry } ) => {
+	async ( { dispatch } ) => {
 		await executionLock.blockExecution( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
 
 		const lock = executionLock.acquire( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
@@ -298,8 +294,11 @@ export const getTotalEmailsSentCount =
 			const response = await fetchTotalEmailsSentCount( blogId, postId );
 			dispatch( setTotalEmailsSentCount( response?.total_sends ) );
 		} catch ( error ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			onError( error.message, registry );
+			// Email open stats are informational. Fail silently so a slow or
+			// failed WPCOM response (e.g. 5s timeout on stats/opens/emails) does
+			// not surface a snackbar error in the editor. See NL-578.
+			// eslint-disable-next-line no-console
+			console.warn( 'Failed to fetch total emails sent count:', error?.message );
 		} finally {
 			executionLock.release( lock );
 		}
@@ -328,22 +327,25 @@ export const getNewsletterCategories =
 		}
 	};
 
-export const getNewsletterCategoriesSubscriptionsCount =
-	( termIds = [] ) =>
+export const getPostEmailSentState =
+	postId =>
 	async ( { dispatch, registry } ) => {
-		await executionLock.blockExecution(
-			GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY
-		);
+		if ( ! postId ) {
+			return;
+		}
 
-		const lock = executionLock.acquire(
-			GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY
-		);
+		await executionLock.blockExecution( GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY );
 
+		const lock = executionLock.acquire( GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY );
 		try {
-			const response = await fetchNewsletterCategoriesSubscriptionsCount( termIds );
-			dispatch( setNewsletterCategoriesSubscriptionsCount( response.subscriptions_count ) );
+			const response = await fetchPostEmailSentState( postId );
+			dispatch(
+				setPostEmailSentState( postId, {
+					email_sent_at: response.email_sent_at ?? null,
+					stats_on_send: response.stats_on_send ?? null,
+				} )
+			);
 		} catch ( error ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
 		} finally {
 			executionLock.release( lock );

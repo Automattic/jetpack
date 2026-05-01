@@ -126,7 +126,6 @@ export type usePlanProps = {
 	product?: productProps;
 	productPrice?: productPriceOriginalProps;
 
-	purchases?: Array< object >;
 	hasVideoPressPurchase: boolean;
-	isFetchingPurchases: boolean;
+	isFetchingFeatures: boolean;
 };

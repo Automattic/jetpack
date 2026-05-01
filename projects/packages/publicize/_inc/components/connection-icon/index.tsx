@@ -1,13 +1,15 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { useCallback, useState } from '@wordpress/element';
 import clsx from 'clsx';
+import defaultAvatar from './default-avatar.svg';
 import styles from './styles.module.scss';
 
 export type ConnectionIconProps = {
-	serviceName: string;
+	serviceName?: string;
 	label: string;
 	profilePicture: string;
 	disabled?: boolean;
+	className?: string;
 };
 
 /**
@@ -20,12 +22,13 @@ export function ConnectionIcon( {
 	serviceName,
 	profilePicture,
 	disabled,
+	className,
 }: ConnectionIconProps ) {
 	const [ imageErrorFor, setImageErrorFor ] = useState( null );
 
 	const onError = useCallback( () => setImageErrorFor( profilePicture ), [ profilePicture ] );
 
-	const hasDisplayPicture = !! profilePicture && imageErrorFor !== profilePicture;
+	const useDefaultAvatar = ! profilePicture || imageErrorFor === profilePicture;
 
 	const service_name = (
 		'instagram-business' === serviceName ? 'instagram' : serviceName
@@ -33,13 +36,22 @@ export function ConnectionIcon( {
 
 	return (
 		<div
-			className={ clsx( styles.wrapper, {
-				[ styles[ 'has-picture' ] ]: hasDisplayPicture,
-				[ styles.disabled ]: disabled,
-			} ) }
+			className={ clsx(
+				styles.wrapper,
+				{
+					[ styles.disabled ]: disabled,
+				},
+				className
+			) }
 		>
-			{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
-			<SocialServiceIcon serviceName={ service_name } className={ styles[ 'social-icon' ] } />
+			<img
+				src={ useDefaultAvatar ? defaultAvatar : profilePicture }
+				alt={ label }
+				onError={ onError }
+			/>
+			{ service_name ? (
+				<SocialServiceIcon serviceName={ service_name } className={ styles[ 'social-icon' ] } />
+			) : null }
 		</div>
 	);
 }

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.6] - 2026-02-24
+### Changed
+- Make it explicit that this package has no JS exports by setting `exports` in package.json. [#47283]
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
+
 ## [2.1.5] - 2025-12-04
 ### Fixed
 - Do the right thing for `--git --diff-only` and input paths not relative to the repo root. [#46180]
@@ -119,6 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Created as a tool within the monorepo.
 
+[2.1.6]: https://github.com/Automattic/eslint-changed/compare/2.1.5...2.1.6
 [2.1.5]: https://github.com/Automattic/eslint-changed/compare/2.1.4...2.1.5
 [2.1.4]: https://github.com/Automattic/eslint-changed/compare/2.1.3...2.1.4
 [2.1.3]: https://github.com/Automattic/eslint-changed/compare/2.1.2...2.1.3

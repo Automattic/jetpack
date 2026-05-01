@@ -14,7 +14,7 @@ describe( 'SupportInfo', () => {
 		render( <SupportInfo { ...testProps } /> );
 		await user.click( screen.getByRole( 'button', { name: 'Learn more' } ) );
 		expect(
-			screen.getByRole( 'link', { name: 'Learn more (opens in a new tab)' } )
+			screen.getByRole( 'link', { name: 'Learn more(opens in a new tab)' } )
 		).toHaveAttribute( 'href', 'https://foo.com/' );
 	} );
 
@@ -23,7 +23,7 @@ describe( 'SupportInfo', () => {
 		render( <SupportInfo { ...testProps } /> );
 		await user.click( screen.getByRole( 'button', { name: 'Learn more' } ) );
 		expect(
-			screen.getByRole( 'link', { name: 'Privacy information (opens in a new tab)' } )
+			screen.getByRole( 'link', { name: 'Privacy information(opens in a new tab)' } )
 		).toHaveAttribute( 'href', 'https://foo.com/privacy/' );
 	} );
 } );

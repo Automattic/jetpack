@@ -5,6 +5,100 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.53] - 2026-04-27
+### Changed
+- Update dependencies. [#46758]
+
+## [4.2.52] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Backup admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Storage meter: Migrate ProgressBar to @wordpress/components; preserve color-by-usage-level styling via scoped CSS. [#48206]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+## [4.2.51] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+
+## [4.2.50] - 2026-04-11
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## [4.2.49] - 2026-04-06
+### Changed
+- Replace @automattic/jetpack-components Button with @wordpress/components Button in BackupNowButton component. [#47418]
+- Simplify admin menu title from 'VaultPress Backup' to 'Backups'. [#47418]
+- Update admin page footer design. [#47840]
+- Update package dependencies. [#47870]
+
+## [4.2.48] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [4.2.47] - 2026-03-23
+### Changed
+- Backup: Update header action buttons to use compact size for consistent UI. [#47679]
+- Update package dependencies. [#47684] [#47719]
+
+### Fixed
+- Prevent progress animation fro overlapping the page header. [#47697]
+
+## [4.2.46] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [4.2.45] - 2026-03-09
+### Changed
+- Migrate admin page header to use unified AdminHeader component from jetpack-components. [#47313]
+- Replace @automattic/jetpack-components Button with @wordpress/components Button in BackupNowButton component. [#47417]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Simplify admin menu title from 'VaultPress Backup' to 'Backups'. [#47417]
+- Storage popover: Use core components and remove custom CSS. [#47448]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+
+## [4.2.44] - 2026-03-02
+### Changed
+- Update dependencies. [#46758]
+
+## [4.2.43] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+## [4.2.42] - 2026-02-23
+### Changed
+- Convert testimonial and connection screen images from PNG to WebP. [#47085]
+- Update package dependencies. [#47173]
+
+### Removed
+- Remove outdated "Restore points created with every edit" notice from the Backup admin page. [#47216]
+
+## [4.2.41] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [4.2.40] - 2026-02-10
+### Changed
+- Update package dependencies. [#46905] [#47002]
+
+## [4.2.39] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [4.2.38] - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## [4.2.37] - 2026-01-19
+### Changed
+- Update package dependencies. [#46552] [#46647]
+
 ## [4.2.36] - 2026-01-12
 ### Changed
 - Update package dependencies. [#46456]
@@ -1006,6 +1100,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.53]: https://github.com/Automattic/jetpack-backup/compare/v4.2.52...v4.2.53
+[4.2.52]: https://github.com/Automattic/jetpack-backup/compare/v4.2.51...v4.2.52
+[4.2.51]: https://github.com/Automattic/jetpack-backup/compare/v4.2.50...v4.2.51
+[4.2.50]: https://github.com/Automattic/jetpack-backup/compare/v4.2.49...v4.2.50
+[4.2.49]: https://github.com/Automattic/jetpack-backup/compare/v4.2.48...v4.2.49
+[4.2.48]: https://github.com/Automattic/jetpack-backup/compare/v4.2.47...v4.2.48
+[4.2.47]: https://github.com/Automattic/jetpack-backup/compare/v4.2.46...v4.2.47
+[4.2.46]: https://github.com/Automattic/jetpack-backup/compare/v4.2.45...v4.2.46
+[4.2.45]: https://github.com/Automattic/jetpack-backup/compare/v4.2.44...v4.2.45
+[4.2.44]: https://github.com/Automattic/jetpack-backup/compare/v4.2.43...v4.2.44
+[4.2.43]: https://github.com/Automattic/jetpack-backup/compare/v4.2.42...v4.2.43
+[4.2.42]: https://github.com/Automattic/jetpack-backup/compare/v4.2.41...v4.2.42
+[4.2.41]: https://github.com/Automattic/jetpack-backup/compare/v4.2.40...v4.2.41
+[4.2.40]: https://github.com/Automattic/jetpack-backup/compare/v4.2.39...v4.2.40
+[4.2.39]: https://github.com/Automattic/jetpack-backup/compare/v4.2.38...v4.2.39
+[4.2.38]: https://github.com/Automattic/jetpack-backup/compare/v4.2.37...v4.2.38
+[4.2.37]: https://github.com/Automattic/jetpack-backup/compare/v4.2.36...v4.2.37
 [4.2.36]: https://github.com/Automattic/jetpack-backup/compare/v4.2.35...v4.2.36
 [4.2.35]: https://github.com/Automattic/jetpack-backup/compare/v4.2.34...v4.2.35
 [4.2.34]: https://github.com/Automattic/jetpack-backup/compare/v4.2.33...v4.2.34

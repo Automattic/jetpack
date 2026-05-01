@@ -1,13 +1,13 @@
-import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { store } from '../../social-store';
 import { KeyringResult } from '../../social-store/types';
-import { SupportedService } from '../services/use-supported-services';
 import { CustomInputs } from './custom-inputs';
 import styles from './style.module.scss';
+import { SupportedService } from './types';
 import { useRequestAccess } from './use-request-access';
 import type { FormEvent } from 'react';
 
@@ -92,28 +92,25 @@ export function ConnectForm( {
 			) : null }
 
 			<div className={ styles[ 'fields-wrapper' ] }>
-				<div className={ styles[ 'fields-item' ] }>
-					<Button
-						variant={ hasConnections ? 'secondary' : 'primary' }
-						type="submit"
-						className={ styles[ 'connect-button' ] }
-						disabled={ isFetchingServicesList }
-					>
-						{ ( label => {
-							if ( label ) {
-								return label;
-							}
+				<Button
+					variant={ hasConnections ? 'outline' : 'solid' }
+					type="submit"
+					disabled={ isFetchingServicesList }
+				>
+					{ ( label => {
+						if ( label ) {
+							return label;
+						}
 
-							if ( isFetchingServicesList && isConnecting ) {
-								return __( 'Connecting…', 'jetpack-publicize-pkg' );
-							}
+						if ( isFetchingServicesList && isConnecting ) {
+							return __( 'Connecting…', 'jetpack-publicize-pkg' );
+						}
 
-							return hasConnections
-								? _x( 'Connect more', '', 'jetpack-publicize-pkg' )
-								: __( 'Connect', 'jetpack-publicize-pkg' );
-						} )( buttonLabel ) }
-					</Button>
-				</div>
+						return hasConnections
+							? _x( 'Connect more', '', 'jetpack-publicize-pkg' )
+							: __( 'Connect', 'jetpack-publicize-pkg' );
+					} )( buttonLabel ) }
+				</Button>
 			</div>
 		</form>
 	);

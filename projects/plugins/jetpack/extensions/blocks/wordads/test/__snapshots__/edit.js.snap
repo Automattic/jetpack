@@ -14,7 +14,7 @@ exports[`WordAdsEdit matches snapshot: WordAdsEdit 1`] = `
     >
       <div
         class="jetpack-wordads__ad"
-        style="width: 300px; height: 250px; background-size: cover;"
+        style="width: 300px; height: 250px; background-image: url("example_300x250.png"); background-size: cover;"
       />
     </div>
   </div>

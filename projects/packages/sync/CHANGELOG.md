@@ -5,6 +5,106 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.36.0] - 2026-04-15
+### Added
+- Add WooCommerce Accounts and Privacy settings page options to sync whitelist, as part of activity log improvements. [#48041]
+
+### Fixed
+- Tests: Increase lock time tolerance. [#48054]
+
+## [4.35.0] - 2026-04-06
+### Added
+- Sync: Add documentation_category to taxonomy allowlist. [#47951]
+
+## [4.34.0] - 2026-03-30
+### Added
+- Add 'note' to the default whitelisted comment types and centralize the list in the Defaults class. [#47746]
+
+### Fixed
+- Users: Use the effective role when the role-change payload is empty, and avoid syncing empty roles. [#47754]
+
+## [4.33.0] - 2026-03-23
+### Added
+- Add a filter to customize the actor. [#47634]
+- Instant Search: Add article-type taxonomy. [#47595]
+- Jetpack Sync: Add page_condition taxonomy to approved sync list. [#47691]
+
+### Changed
+- Reduce debug_backtrace overhead in Users sync module. [#47658]
+- Sync: Improve checksum performance for meta tables. [#47579]
+
+### Fixed
+- Prevent incremental sync for posts with unregistered post types. [#47580]
+
+## [4.32.1] - 2026-03-16
+### Changed
+- Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default. [#47564]
+
+## [4.32.0] - 2026-03-09
+### Added
+- `REST_Endpoints`: Add `use_memory_limit` argument to the checkout endpoint, enabling memory-based queue checkout that skips item count validation. [#47338]
+
+## [4.31.0] - 2026-03-02
+### Added
+- Add `protocol` to the comment meta whitelist for syncing. [#47379]
+
+### Changed
+- Documentation: Update variable type in docblock to match reality. [#47346]
+
+### Fixed
+- `REST_Endpoints`: Fix sync health check to verify queue size and lag before allowing status to be set to `in_sync`. [#47323]
+
+## [4.30.0] - 2026-02-26
+### Added
+- REST_Endpoints: Add `clear-queue` endpoint to allow clearing a Sync queue via REST API. [#47303]
+
+### Changed
+- Full Sync: Store `last_item` in status to avoid re-running an expensive query on every invocation. [#47292]
+- Listener: Add per-request in-memory cache to avoid repeated `get_transient` calls when checking queue state. [#47282]
+
+### Fixed
+- Full Sync: Fix chunk size adjustment when sync is stuck to correctly preserve adjusted chunk size and stuck count across invocations. [#47293]
+
+## [4.29.0] - 2026-02-23
+### Added
+- Add MCP information to the actor. [#47223]
+
+### Fixed
+- Listener: Replace redundant `filter_var` with `sanitize_text_field` for user agent sanitization. [#47244]
+
+## [4.28.0] - 2026-02-19
+### Added
+- Add WooCommerce store address details (`address`, `address_2`, `city`, `postcode`) and admin install timestamp to sync whitelist for improved WooCommerce site settings sync. [#47192]
+- Add triggering action name to data sent with `jetpack_sync_data_loss` action. [#47161]
+
+## [4.27.0] - 2026-02-10
+### Changed
+- Ensure we sync directly during cron. [#46887]
+
+## [4.26.0] - 2026-02-02
+### Added
+- Introduce Sync blacklist for `jetpack_options`. [#46852]
+
+### Changed
+- Stop syncing deleted_post_meta actions when deleting posts. [#46775]
+
+### Removed
+- Stop syncing `updating_jetpack_version` actions to WordPress.com. [#46762]
+
+## [4.25.2] - 2026-01-26
+### Changed
+- Move installation and update failure actions to shutdown to decrease their associated lag. [#46723]
+- Search Sync Settings: Add some more meta fields for WooCommerce.com products to allow list. [#46739]
+- Stats Module: Send Heartbeat data immediately. [#46725]
+- Stop sending redundant actions when Dedicated Sync fails to enable. [#46700]
+
+### Fixed
+- Prevent warnings when unexpected data is passed into filters or added meta consumed by Sync. [#46637]
+
+## [4.25.1] - 2026-01-19
+### Added
+- Add _wpas_connection_overrides and _wpas_customize_per_network to post meta whitelist for Jetpack Social. [#46563]
+
 ## [4.25.0] - 2026-01-14
 ### Added
 - Instant Search: Add 'guest' custom taxonomy for Sync. [#46562]
@@ -1624,6 +1724,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.36.0]: https://github.com/Automattic/jetpack-sync/compare/v4.35.0...v4.36.0
+[4.35.0]: https://github.com/Automattic/jetpack-sync/compare/v4.34.0...v4.35.0
+[4.34.0]: https://github.com/Automattic/jetpack-sync/compare/v4.33.0...v4.34.0
+[4.33.0]: https://github.com/Automattic/jetpack-sync/compare/v4.32.1...v4.33.0
+[4.32.1]: https://github.com/Automattic/jetpack-sync/compare/v4.32.0...v4.32.1
+[4.32.0]: https://github.com/Automattic/jetpack-sync/compare/v4.31.0...v4.32.0
+[4.31.0]: https://github.com/Automattic/jetpack-sync/compare/v4.30.0...v4.31.0
+[4.30.0]: https://github.com/Automattic/jetpack-sync/compare/v4.29.0...v4.30.0
+[4.29.0]: https://github.com/Automattic/jetpack-sync/compare/v4.28.0...v4.29.0
+[4.28.0]: https://github.com/Automattic/jetpack-sync/compare/v4.27.0...v4.28.0
+[4.27.0]: https://github.com/Automattic/jetpack-sync/compare/v4.26.0...v4.27.0
+[4.26.0]: https://github.com/Automattic/jetpack-sync/compare/v4.25.2...v4.26.0
+[4.25.2]: https://github.com/Automattic/jetpack-sync/compare/v4.25.1...v4.25.2
+[4.25.1]: https://github.com/Automattic/jetpack-sync/compare/v4.25.0...v4.25.1
 [4.25.0]: https://github.com/Automattic/jetpack-sync/compare/v4.24.2...v4.25.0
 [4.24.2]: https://github.com/Automattic/jetpack-sync/compare/v4.24.1...v4.24.2
 [4.24.1]: https://github.com/Automattic/jetpack-sync/compare/v4.24.0...v4.24.1

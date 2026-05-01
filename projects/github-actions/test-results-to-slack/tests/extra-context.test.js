@@ -1,4 +1,4 @@
-const { mockContextExtras } = require( './test-utils' );
+import { mockContextExtras } from './test-utils.js';
 
 describe( 'Extra context', () => {
 	const runAttempt = '3';
@@ -10,7 +10,7 @@ describe( 'Extra context', () => {
 	mockContextExtras( { repository, refType, refName, triggeringActor, runAttempt } );
 
 	test( 'Environment variables are exposed in extra context', async () => {
-		const extras = require( '../src/extra-context' );
+		const { default: extras } = await import( '../src/extra-context.js' );
 
 		expect( extras.runAttempt ).toBe( runAttempt );
 		expect( extras.refType ).toBe( refType );

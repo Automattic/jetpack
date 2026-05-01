@@ -104,7 +104,7 @@ class Admin_Menu_Test extends TestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
-		$this->assertCount( 17, $menu, 'Admin menu should not have unexpected top menu items.' );
+		$this->assertCount( 16, $menu, 'Admin menu should not have unexpected top menu items.' );
 
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
@@ -117,18 +117,6 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'users.php' ) );
 		static::$admin_menu->set_preferred_view( 'options-general.php', 'unknown' );
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'options-general.php' ) );
-	}
-
-	/**
-	 * Tests add_upgrades_menu
-	 */
-	public function test_add_upgrades_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_upgrades_menu( 'Test Plan' );
-		$this->assertSame( 'Upgrades<span class="inline-text" style="display:none">Test Plan</span>', $submenu['paid-upgrades.php'][0][0] );
-		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 	}
 
 	/**

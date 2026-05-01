@@ -3,16 +3,16 @@ import { translate } from '../i18n';
 import { FrequencyToggle } from './FrequencyToggle';
 
 const options = [
-	{ value: 'instantly', label: translate( 'Instantly' ), checked: true },
-	{ value: 'daily', label: translate( 'Daily' ), checked: false },
-	{ value: 'weekly', label: translate( 'Weekly' ), checked: false },
+	{ value: 'instantly' as const, label: translate( 'Instantly' ), checked: true },
+	{ value: 'daily' as const, label: translate( 'Daily' ), checked: false },
+	{ value: 'weekly' as const, label: translate( 'Weekly' ), checked: false },
 ];
 
 interface EmailFrequencyGroupProps {
 	isChecked: boolean;
 	onChange: ( value: 'instantly' | 'daily' | 'weekly' ) => void;
 	selectedOption: string;
-	label: string;
+	label?: string | null;
 	disabled: boolean;
 }
 

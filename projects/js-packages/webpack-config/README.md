@@ -45,6 +45,9 @@ module.exports = {
 				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
 
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule(),
 
@@ -140,6 +143,29 @@ This is an object suitable for spreading some defaults into Webpack's `resolve` 
 `watchOptions` is an object suitable for spreading some defaults into Webpack's `watchOptions` setting. It sets the following:
 
 * `ignored`: `[ '**/node_modules', '**/dist', '**/vendor' ]`.
+
+#### `DevServer( options )`
+
+Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Returns `undefined` when not running `webpack serve`, so you can use it directly without conditional checks. Requires `webpack-dev-server` as a dev dependency.
+
+```js
+// webpack.config.js
+module.exports = {
+	devServer: jetpackWebpackConfig.DevServer( {
+		static: { directory: path.resolve( './build' ) },
+	} ),
+};
+```
+
+Options:
+- `hot`: true
+- `liveReload`: false
+- `writeToDisk`: true (for PHP compatibility)
+
+The following environment variables may be set to configure the dev server at runtime:
+- `JETPACK_WEBPACK_DEV_SERVER_HOST`: Host to listen on. Default 'localhost'.
+- `JETPACK_WEBPACK_DEV_SERVER_PORT`: Port to listen on. Default is 'auto', which will have webpack-dev-server select a free port.
+- `JETPACK_WEBPACK_DEV_SERVER_CLIENT_URL`: String for [`devServer.client.webSocketURL`](https://webpack.js.org/configuration/dev-server/#websocketurl), in case you are proxying the dev server.
 
 #### Plugins
 
@@ -237,9 +263,15 @@ This provides an slightly modified instance of Webpack's built-in DeterministicM
 
 This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). The `options` are passed to the plugin.
 
+##### `ReactRefreshWebpackPlugin`
+
+Re-export of [@pmmmwh/react-refresh-webpack-plugin](https://www.npmjs.com/package/@pmmmwh/react-refresh-webpack-plugin) for React Fast Refresh. Automatically included in `StandardPlugins()` when `WEBPACK_SERVE=true` in development mode. Set `ReactRefreshWebpackPlugin: false` to disable.
+
+Requires WordPress's `wp-react-refresh-runtime` script to be enqueued.
+
 #### Module rules and loaders
 
-Note all rule sets are provided as factory functions returning a single rule.
+Note all rule sets (except `BundledWpPkgsTranspileRules`) are provided as factory functions returning a single rule.
 
 ##### `TranspileRule( options )`
 
@@ -255,6 +287,15 @@ Options are:
   - `cacheDirectory`: `path.resolve( '.cache/babel` )`.
   - `cacheCompression`: `true`.
   - If `path.resolve( 'babel.config.js' )` exists, `configFile` will default to that. Otherwise, `presets` will default to set some appropriate defaults (which will require the peer dependencies on [@babel/core](https://www.npmjs.com/package/@babel/core) and [@babel/runtime](https://www.npmjs.com/package/@babel/runtime)).
+
+##### `BundledWpPkgsTranspileRules( options )`
+
+This provides two instances of `TranspileRule` configured to handle known `@wordpress/*` packages that aren't extracted by `@wordpress/dependency-extraction-webpack-plugin`.
+
+If you're not using the relevant packages, there's no need to use this.
+
+Options are:
+- `textdomain`: Text domain for [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain). Defaults to reading the domain from `composer.json`.
 
 ##### `CssRule( options )`
 
@@ -277,7 +318,7 @@ This is a simple [asset module](https://webpack.js.org/guides/asset-modules/) ru
 
 Options are:
 - `filename`: Output filename pattern. Default is `images/[name]-[contenthash][ext]`.
-- `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg' ]`.
+- `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg', 'webp' ]`.
 - `maxInlineSize`: If set to a number greater than 0, files will be inlined if they are smaller than this. Default is 0.
 
 ### Babel
@@ -327,3 +368,4 @@ The options and corresponding components are:
   - `absoluteRuntime`: Set true, as otherwise transpilation of code symlinked in node_modules (i.e. everything when using pnpm) breaks.
   - `version`: Set to the version from `@babel/runtime`.
 - `pluginPreserveI18n`: Corresponds to [@automattic/babel-plugin-preserve-i18n](https://www.npmjs.com/package/@automattic/babel-plugin-preserve-i18n).
+- `pluginReactRefresh`: Corresponds to [react-refresh/babel](https://www.npmjs.com/package/react-refresh). Only included when `WEBPACK_SERVE=true` in development mode. Set to false to disable.

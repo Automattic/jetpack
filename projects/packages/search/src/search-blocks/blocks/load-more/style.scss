@@ -1,0 +1,32 @@
+.wp-block-jetpack-load-more {
+	text-align: center;
+	padding-block: var(--wp--style--block-gap, 1rem);
+
+	&[hidden] {
+		display: none;
+	}
+
+	// The button itself relies on the active theme's `wp-element-button`
+	// styles (theme.json → styles.elements.button) — we only own the
+	// disabled visual since theme.json doesn't define one.
+	.jetpack-search-load-more__button {
+		cursor: pointer;
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+
+	.jetpack-search-load-more__spinner {
+		display: block;
+		margin-block: var(--wp--style--block-gap, 0.5rem);
+		margin-inline: auto;
+		color: inherit;
+		opacity: 0.7;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+}

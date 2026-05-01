@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -96,7 +95,7 @@ $args = array(
 
 $customers = $zbs->DAL->contacts->getContacts( $args );
 
-wp_send_json( $customers );
+wp_send_json( $customers, 200, JSON_UNESCAPED_SLASHES );
 
 // phpcs:enabled WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 

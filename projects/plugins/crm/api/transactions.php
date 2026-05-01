@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -38,4 +37,4 @@ $args       = array(
 global $zbs;
 $transactions = $zbs->DAL->transactions->getTransactions( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-wp_send_json( $transactions );
+wp_send_json( $transactions, 200, JSON_UNESCAPED_SLASHES );

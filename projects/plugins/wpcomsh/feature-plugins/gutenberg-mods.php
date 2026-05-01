@@ -8,8 +8,15 @@
  * @package wpcomsh
  */
 
+// Enable allowed experiments early so Gutenberg's load.php include-time check picks them up.
+// This runs at MU plugin load time, before Gutenberg (a regular plugin) is loaded.
+// Both filters are needed: default_option_ fires when the option doesn't exist in the DB,
+// option_ fires when it does.
+add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+
 /**
- * Disable all Gutenberg experiments.
+ * Disable all Gutenberg experiments except explicitly allowed ones.
  *
  * @see https://github.com/WordPress/gutenberg/blob/e6d8284b03799136915495654e821ca6212ae6d8/lib/load.php#L22
  */
@@ -26,13 +33,28 @@ function wpcomsh_remove_gutenberg_experiments() {
 	);
 
 	if ( in_array( $blog_id, $allowed_blogs, true ) ) {
+		// Undo the early filters for allowed blogs so they can still manage Gutenberg experiments.
+		remove_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+		remove_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 		return;
 	}
-
-	add_filter( 'option_gutenberg-experiments', '__return_false' );
 	add_action( 'admin_menu', 'wpcomsh_remove_gutenberg_experimental_menu' );
 }
 add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
+
+/**
+ * Disable all Gutenberg experiments except explicitly allowed ones.
+ *
+ * Allowed experiments are always enabled regardless of the option value in the database.
+ *
+ * @return array List of the enabled experiments.
+ */
+function wpcomsh_filter_gutenberg_experiments() {
+	return array(
+		'gutenberg-content-guidelines' => true,
+		'gutenberg-guidelines'         => true,
+	);
+}
 
 /**
  * Remove Gutenberg's Experiments submenu item.
@@ -170,3 +192,40 @@ function wpcom_safecss_allow_additional_css_properties( $css_properties ) {
 	return $css_properties;
 }
 add_filter( 'safe_style_css', 'wpcom_safecss_allow_additional_css_properties', 10, 1 );
+
+/**
+ * Add guideline meta keys to the Jetpack sync post meta whitelist.
+ *
+ * @param array $whitelist Current post meta whitelist.
+ * @return array
+ */
+function wpcomsh_add_guideline_sync_meta_whitelist( $whitelist ) {
+	$guideline_meta_keys = array(
+		'_guideline_copy',
+		'_guideline_images',
+		'_guideline_site',
+		'_guideline_additional',
+		'_guideline_block_core_paragraph',
+		'_guideline_block_core_image',
+		'_guideline_block_core_heading',
+		'_guideline_block_core_list',
+		'_guideline_block_core_list_item',
+		'_guideline_block_core_quote',
+		'_guideline_block_core_code',
+		'_guideline_block_core_table',
+		'_guideline_block_core_video',
+		'_guideline_block_core_audio',
+		'_guideline_block_core_gallery',
+		'_guideline_block_core_cover',
+		'_guideline_block_core_pullquote',
+		'_guideline_block_core_preformatted',
+		'_guideline_block_core_verse',
+		'_guideline_block_core_button',
+		'_guideline_block_core_media_text',
+		'_guideline_block_core_freeform',
+		'_guideline_block_core_html',
+		'_guideline_block_core_embed',
+	);
+	return array_merge( $whitelist, $guideline_meta_keys );
+}
+add_filter( 'jetpack_sync_post_meta_whitelist', 'wpcomsh_add_guideline_sync_meta_whitelist' );

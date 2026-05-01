@@ -1,21 +1,20 @@
 import {
-	Button,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
 	getRedirectUrl,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useProductInfo from '../../../hooks/use-product-info';
 import { store as socialStore } from '../../../social-store';
-import { getSocialScriptData } from '../../../utils/script-data';
+import { getRefreshPlanQuery, getSocialScriptData } from '../../../utils/script-data';
 import styles from './styles.module.scss';
 
 type PricingPageProps = {
@@ -30,14 +29,19 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 
 	const { setShowPricingPage, updateSocialModuleSettings } = useDispatch( socialStore );
 
-	const [ isLarge ] = useBreakpointMatch( 'lg' );
-
 	const isEnablingSocial = useSelect(
 		select => select( socialStore ).isSavingSocialModuleSettings(),
 		[]
 	);
 
 	const { is_publicize_enabled: isSocialEnabled } = getSocialScriptData();
+
+	const onGetSocialClick = useCallback( () => {
+		window.location.href = getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
+			site: blogID ? blogID.toString() : siteSuffix,
+			query: getRefreshPlanQuery(),
+		} );
+	}, [ blogID, siteSuffix ] );
 
 	const startForFree = useCallback( async () => {
 		// First let us activate the Social module, if it is not already enabled
@@ -117,13 +121,7 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 					) : (
 						<Spinner className={ styles.spinner } />
 					) }
-					<Button
-						href={ getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
-							site: blogID ? blogID.toString() : siteSuffix,
-							query: 'redirect_to=admin.php?page=jetpack-social',
-						} ) }
-						fullWidth
-					>
+					<Button onClick={ onGetSocialClick } className={ styles[ 'cta-button' ] }>
 						{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
 					</Button>
 				</PricingTableHeader>
@@ -146,10 +144,9 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 						hidePriceFraction
 					/>
 					<Button
-						fullWidth
-						variant="secondary"
+						variant="outline"
 						onClick={ startForFree }
-						className={ isLarge && styles.button }
+						className={ styles[ 'cta-button' ] }
 						disabled={ isEnablingSocial }
 					>
 						{ isEnablingSocial

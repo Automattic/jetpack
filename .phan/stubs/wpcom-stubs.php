@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit c84f5ccb1f8cef50461785b548aedd6a7dbcb159.
+ * Stubs automatically generated from WordPress.com commit 0079ea4c26d955b4cfca4d3eb035a2ec06f0bd68.
  */
 
 namespace {
@@ -125,7 +125,8 @@ namespace {
      * @param string $message
      * @param string|null $docker_image_tag
      * @param string|null $guid
-     * @param array|null $job
+     * @param string|null $format
+     * @param object|null $job
      * @param array $additional_params
      */
     function videopress_log($feature, $message, $docker_image_tag, $guid, $format, $job = \null, $additional_params = array())
@@ -215,7 +216,7 @@ namespace {
         }
     }
     /**
-    * @return Store_Product|null
+     * @return Store_Product|null
     */
     function get_store_product($product_id, $meta = \null, $currency = \null, $blog_id = \null, ?int $usage_quantity = \null, ?string $plan_id = \null)
     {
@@ -1689,6 +1690,41 @@ namespace Newsletter_Categories {
      * @return int
      */
     function get_blog_subscriptions_aggregate_count(?int $blog_id = null, $post_term_ids = []): int
+    {
+    }
+}
+namespace Publicize {
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_message_templates_enabled($blog_id = 0)
+    {
+    }
+    /**
+     * @param \WP_Post $post
+     * @param array<int, array{id?: string, network: string, message?: string, is_social_post?: bool}> $items
+     * @return array<int, array<string, mixed>>
+     */
+    function render_messages_for_networks(\WP_Post $post, array $items): array
+    {
+    }
+    /**
+     * @param \WP_Post $post
+     * @param string $network
+     * @param string|null $template
+     * @param int|null $char_limit
+     * @param bool $is_social_post
+     * @return string|null
+     */
+    function render_message_for_network(\WP_Post $post, string $network, ?string $template = null, ?int $char_limit = null, bool $is_social_post = false): ?string
+    {
+    }
+    /**
+     * @param int $blog_id
+     * @return array
+     */
+    function get_x_usage(int $blog_id = 0): array
     {
     }
 }

@@ -5,6 +5,10 @@ import save from './save.js';
 
 export const name = 'form-step-navigation';
 
+export const form_editor = {
+	category: 'multistep',
+};
+
 export const settings = {
 	apiVersion: 3,
 	category: 'contact-form',
@@ -38,4 +42,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

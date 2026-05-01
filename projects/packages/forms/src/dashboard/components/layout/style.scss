@@ -1,7 +1,7 @@
 @use "../../mixins";
 @use "@wordpress/base-styles/variables";
 @use "@wordpress/base-styles/mixins" as wp-mixins;
-@import "../../design-tokens.css";
+@use "../../design-tokens";
 
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
@@ -37,6 +37,19 @@ body.jetpack_page_jetpack-forms-admin {
 
 	@include mixins.flex-center;
 	gap: 8px;
+
+	&__link {
+		font: inherit;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
+		}
+
+		&:focus-visible {
+			text-decoration: underline;
+		}
+	}
 }
 
 .jp-forms-layout__surface {

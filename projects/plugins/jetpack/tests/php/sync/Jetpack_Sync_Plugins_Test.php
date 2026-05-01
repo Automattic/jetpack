@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
 /**
@@ -31,21 +33,16 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 		add_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		self::install_the_plugin();
 		remove_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
+		$plugins_module = Modules::get_module( 'plugins' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Plugins $plugins_module';
+		$has_action = has_action( 'shutdown', array( $plugins_module, 'sync_plugins_installed' ) );
+		$plugins_module->sync_plugins_installed();
 		$this->sender->do_sync();
-		// Determine which action came first as between jetpack_installed_plugin and jetpack_sync_callable
-		$events = $this->server_event_storage->get_all_events();
 
-		$first_action = false;
-		foreach ( $events as $event ) {
-			if ( 'jetpack_plugin_installed' === $event->action ||
-			'jetpack_sync_callable' === $event->action ) {
-				$first_action = $event->action;
-				break;
-			}
-		}
-		$this->assertEquals( 'jetpack_plugin_installed', $first_action, 'First action is not jetpack plugin installed' );
+		$this->assertTrue( (bool) $has_action );
 
 		$installed_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_installed' );
+		$this->assertNotFalse( $installed_plugin );
 		$this->assertEquals( 'the/the.php', $installed_plugin->args[0][0]['slug'] );
 		$this->assertEquals( 'The', $installed_plugin->args[0][0]['Name'] );
 

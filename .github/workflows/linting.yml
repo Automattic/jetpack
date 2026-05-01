@@ -63,6 +63,9 @@ jobs:
       # Whether any miscellaneous files related to CSS linting have changed.
       misc_css: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_css == 'true' }}
 
+      # Whether any miscellaneous files related to Phan static analysis have changed.
+      misc_phan: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_phan == 'true' }}
+
       # JSON string holding an array of files in phpcs-excludelist.json that have changed.
       php_excluded_files: ${{ steps.filterPHP.outputs.php_excluded_files }}
 
@@ -75,12 +78,15 @@ jobs:
       # Whether any auto-updated Phan stub files were changed.
       phanstubs: ${{ steps.filter.outputs.phanstubs == 'true' }}
 
+      # Whether any project composer.json files were changed (for the mirror-repos check).
+      projectcomposerjsons: ${{ steps.filter.outputs.projectcomposerjsons == 'true' }}
+
     steps:
       - if: github.event_name == 'pull_request'
         uses: actions/checkout@v6
 
       - if: github.event_name == 'pull_request'
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         id: filter
         with:
           list-files: json
@@ -92,13 +98,18 @@ jobs:
             js:
               # If any JS file changed, they need checking.
               - added|modified:
-                - '**.cjs'
                 - '**.js'
                 - '**.jsx'
+                - '**.cjs'
                 - '**.mjs'
                 - '**.ts'
                 - '**.tsx'
+                - '**.cts'
+                - '**.mts'
                 - '**.svelte'
+                - '**.json'
+                - '**.jsonc'
+                - '**.json5'
             css:
               # If any style file changed, they need checking.
               - added|modified:
@@ -108,14 +119,25 @@ jobs:
               # If any PHP or JS file changed or was deleted, we need to check the excludelist.
               - modified|deleted:
                 - '**.php'
+                - '**.ts'
                 - '**.js'
                 - '**.jsx'
+                - '**.cjs'
+                - '**.mjs'
                 - '**.ts'
+                - '**.tsx'
+                - '**.cts'
+                - '**.mts'
+                - '**.svelte'
+                - '**.json'
+                - '**.jsonc'
+                - '**.json5'
             lockfiles:
               - 'composer.json'
               - 'composer.lock'
               - 'package.json'
               - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
               - '**/composer.json'
               - '**/composer.lock'
               - '**/package.json'
@@ -147,6 +169,7 @@ jobs:
               - 'package.json'
               - 'tools/js-tools/package.json'
               - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
               - '.eslintignore'
               - '.eslintignore.root'
               - 'eslint.config.*'
@@ -155,11 +178,24 @@ jobs:
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/eslint-excludelist.json'
             misc_css:
-              # If Stylelint config changed, there may be new checks.
+              # If package or stylelint config changed, there may be new checks.
+              - 'package.json'
+              - 'tools/js-tools/package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
               - .stylelintignore
               - stylelint.config.mjs
               - '**/stylelint.config.{js,mjs,cjs}'
               - tools/js-tools/stylelint.config.base.mjs
+            misc_phan:
+              # If root composer changed, there may be new stub packages.
+              - 'composer.json'
+              - 'composer.lock'
+              # If Phan config or the CLI that runs it changed, re-run static analysis.
+              - '.phan/**'
+              - '**/.phan/**'
+              - 'tools/cli/**'
+              - 'projects/packages/phan-plugins/**'
             misc_excludelist:
               - 'tools/cleanup-excludelists.sh'
               - 'tools/js-tools/check-excludelist-diff.js'
@@ -169,6 +205,8 @@ jobs:
             phanstubs:
               # If auto-generated Phan stub files are changed, we may want to post a warning to the PR.
               - '.phan/stubs/**'
+            projectcomposerjsons:
+              - 'projects/*/*/composer.json'
 
       - if: github.event_name == 'pull_request'
         id: filterPHP
@@ -205,7 +243,9 @@ jobs:
 
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`
-  # We don't use an `if` here because GH Actions had issues expanding the name when we did. See also:
+  # We can't use a job-level `if` because GH Actions doesn't expand matrix names for skipped jobs,
+  # which breaks required status checks. Instead, we gate at the step level so the matrix entries
+  # always report a status. See also:
   #    - https://github.com/Automattic/jetpack/pull/17940
   #    - https://github.com/Automattic/jetpack/pull/18979
   php_lint:
@@ -223,14 +263,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        if: &php_lint_cond github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
 
       - name: Setup tools
+        if: *php_lint_cond
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php-versions }}
           node: false
 
       - name: Install dependencies
+        if: *php_lint_cond
         run: |
           # Install stuff ignoring platform reqs.
           composer install --ignore-platform-reqs
@@ -239,6 +282,7 @@ jobs:
           composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer automattic/jetpack-phan-plugins phan/phan
 
       - name: Run linter
+        if: *php_lint_cond
         run: |
           echo "::add-matcher::.github/matchers/php-lint-problem-matcher.json"
           composer php:lint -- --checkstyle
@@ -349,13 +393,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
-    timeout-minutes: 10  # 2025-11-06: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
+    timeout-minutes: 10  # 2025-11-06: Runs now take ~5 minutes due to now installing all JS deps to ensure valid linting.
 
     steps:
       - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
 
       - name: Monorepo pnpm install
         run: pnpm install
@@ -384,6 +430,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
 
       - name: Monorepo pnpm install
         run: pnpm install
@@ -409,6 +457,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
 
       - name: Monorepo pnpm install
         run: pnpm install
@@ -607,11 +657,15 @@ jobs:
   typecheck:
     name: Type checking
     runs-on: ubuntu-latest
+    needs: changed_files
+    if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
     timeout-minutes: 10 # 2025-11-20: Takes around 3 minutes.
     steps:
       - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
       - name: Pnpm install
         run: pnpm install
       - name: Run type checking
@@ -630,6 +684,8 @@ jobs:
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
+    needs: changed_files
+    if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
       - uses: actions/checkout@v6
@@ -703,3 +759,47 @@ jobs:
             echo "::error::Phan baselines have changed (good job!). Run \`jetpack phan --update-baseline ${PROJECTS[*]}\` to update them."
           fi
           exit 1
+
+  mirror_repos:
+    name: Mirror repo check
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: github.event_name == 'pull_request' && needs.changed_files.outputs.projectcomposerjsons == 'true' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    timeout-minutes: 5  # 2026-04-16: Should just be a minute or two.
+    steps:
+      # We don't need full git history, but we do need everything up to the merge-base.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 10
+      - uses: ./.github/actions/deepen-to-merge-base
+      - name: Check mirrors
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        run: |
+          MBASE=$( git merge-base "$BASE" "$HEAD" )
+          EXIT=0
+          for f in $( git -c core.quotepath=off diff --name-only "$BASE...$HEAD" -- 'projects/*/*/composer.json' ); do
+            if [[ ! -f "$f" ]]; then
+              echo "$f: File was deleted, so it has no mirror"
+              continue
+            fi
+
+            OLDMIRROR=$( { git show "$MBASE:$f" 2>/dev/null || true; } | jq -r '.extra["mirror-repo"] // empty' )
+            NEWMIRROR=$( jq -r '.extra["mirror-repo"] // empty' "$f" )
+            echo "$f: old version has mirror $OLDMIRROR, new has mirror $NEWMIRROR"
+            if [[ -z "$NEWMIRROR" ]]; then
+              echo "$f: No mirror repo in current version"
+            elif [[ "$NEWMIRROR" = "$OLDMIRROR" ]]; then
+              echo "$f: Mirror repo $NEWMIRROR is unchanged"
+            else
+              echo "$f: Mirror changed from ${OLDMIRROR:-none} → $NEWMIRROR"
+              LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["extra","mirror-repo"] then input_line_number else empty end' "$f" | head -n 1)
+              if ! CIERRORLINE=" file=$f,line=$LINE" tools/audit-mirror-repos.sh "$NEWMIRROR"; then
+                EXIT=1
+              fi
+            fi
+          done
+          exit "$EXIT"

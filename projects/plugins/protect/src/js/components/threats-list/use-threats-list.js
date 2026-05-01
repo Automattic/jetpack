@@ -41,16 +41,16 @@ const flattenThreats = ( data, newData ) => {
 /**
  * Threats List Hook
  *
- * @param    {object}   args        - Arguments for the hook.
- * @param    {string}   args.source - "scan" or "history".
- * @param    {string}   args.status - "all", "fixed", or "ignored".
- *                                  ---
+ * @param    {object}                         args        - Arguments for the hook.
+ * @param    {string}                         args.source - "scan" or "history".
+ * @param    {string}                         args.status - "all", "fixed", or "ignored".
+ *                                                        ---
  * @typedef {object} UseThreatsList
- * @property {object}   item        - The selected threat category.
- * @property {object[]} list        - The list of threats to display.
- * @property {string}   selected    - The selected threat category.
- * @property {Function} setSelected - Sets the selected threat category.
- *                                  ---
+ * @property {object}                         item        - The selected threat category.
+ * @property {Array<{firstDetected: string}>} list        - The list of threats to display.
+ * @property {string}                         selected    - The selected threat category.
+ * @property {Function}                       setSelected - Sets the selected threat category.
+ *                                                        ---
  * @return {UseThreatsList} useThreatsList hook.
  */
 const useThreatsList = ( { source, status } = { source: 'scan', status: 'all' } ) => {

@@ -7,7 +7,7 @@ import type { AttachedMedia, JetpackSocialOptions, SIGSettings } from '../../uti
 /**
  * Media source types
  */
-export type MediaSourceType = 'featured-image' | 'media-library' | 'sig' | null;
+export type MediaSourceType = 'featured-image' | 'media-library' | 'upload-video' | 'sig' | null;
 
 /**
  * Menu option IDs - includes all menu items including 'ai-image' which is handled specially
@@ -93,6 +93,11 @@ export interface MediaSectionV2Props {
 	 * operates in "controlled" mode and uses the media props above instead of fetching from the store.
 	 */
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
+
+	/**
+	 * Whether to force media as attachment.
+	 */
+	forceAsAttachment?: boolean;
 }
 
 /**
@@ -125,6 +130,16 @@ export interface MediaSourceMenuProps {
 	disabled?: boolean;
 
 	/**
+	 * Featured image ID - used to disable "Use featured image" option when not available
+	 */
+	featuredImageId?: number;
+
+	/**
+	 * Callback when "No media" is selected (removes media)
+	 */
+	onRemove?: () => void;
+
+	/**
 	 * Optional children render function that receives open function
 	 */
 	children?: ( { open }: { open: () => void } ) => React.ReactNode;
@@ -143,19 +158,4 @@ export interface MediaPreviewProps {
 	 * Whether the preview is in loading state
 	 */
 	isLoading?: boolean;
-
-	/**
-	 * Callback to replace the media
-	 */
-	onReplace?: () => void;
-
-	/**
-	 * Callback to remove the media
-	 */
-	onRemove?: () => void;
-
-	/**
-	 * Whether the actions are disabled
-	 */
-	disabled?: boolean;
 }

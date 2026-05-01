@@ -3,7 +3,7 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-import connectImage from './connect.png';
+import connectImage from './connect.webp';
 import styles from './styles.module.scss';
 import type { FC, ReactNode } from 'react';
 

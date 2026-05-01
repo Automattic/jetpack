@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Main Page file for User Profile: This file renders views associated with the CRM user profile
  * Jetpack CRM - https://jetpackcrm.com
  */

@@ -23,18 +23,25 @@ test.describe( 'Auto refresh of speed scores', () => {
 				await jetpackBoostPage.expectScoreToBeVisible();
 			} );
 
+			let refreshRequestPromise: ReturnType< typeof jetpackBoostPage.waitForScoreRefreshRequest >;
+
 			await test.step( `Toggle ${ moduleSlug } module on`, async () => {
+				// Set up the network listener before the toggle so we catch the request
+				// that fires after the 2-second debounce.
+				refreshRequestPromise = jetpackBoostPage.waitForScoreRefreshRequest();
+				// Suppress unhandled rejection if the toggle throws before we await.
+				refreshRequestPromise.catch( () => {} );
 				await jetpackBoostPage.toggleModule( moduleSlug, true );
 			} );
 
-			await test.step( 'Wait for score refresh after 2 second delay and verify score is visible', async () => {
-				await new Promise( resolve => setTimeout( resolve, 2100 ) );
+			await test.step( 'Wait for score refresh request after debounce and verify score is visible', async () => {
+				await refreshRequestPromise;
 				await jetpackBoostPage.expectScoreToBeVisible();
 			} );
 		} );
 	} );
 
-	test( 'Score refresh should debounce between multiple module toggle', async ( {
+	test( 'Score refresh should be debounced after module toggle', async ( {
 		jetpackBoostPage,
 		page,
 	} ) => {
@@ -46,31 +53,31 @@ test.describe( 'Auto refresh of speed scores', () => {
 			await jetpackBoostPage.expectScoreToBeVisible();
 		} );
 
-		await test.step( 'Wait 1 second before toggling another module', async () => {
-			await new Promise( resolve => setTimeout( resolve, 1000 ) );
-		} );
+		// Set up network listener right before the toggle to avoid catching stale requests.
+		const refreshRequestPromise = jetpackBoostPage.waitForScoreRefreshRequest();
+		// Suppress unhandled rejection if the toggle throws before we await.
+		refreshRequestPromise.catch( () => {} );
 
-		let renderBlockingPromise;
-		await test.step( 'Toggle minify_js module before automatic score refresh starts', async () => {
+		let renderBlockingPromise: Promise< void > | undefined;
+
+		await test.step( 'Toggle minify_js module', async () => {
 			renderBlockingPromise = jetpackBoostPage.toggleModule( 'minify_js', true );
 		} );
 
-		await test.step( 'Wait 1.1 seconds after second module toggle', async () => {
+		await test.step( 'Wait 1.1 seconds after module toggle', async () => {
 			await new Promise( resolve => setTimeout( resolve, 1100 ) );
 		} );
 
-		await test.step( 'Verify score refresh has not started after 2 seconds of first module toggle', async () => {
+		await test.step( 'Verify score refresh has not started within debounce window', async () => {
 			await expect( page.getByRole( 'heading', { name: 'Loading…' } ) ).toBeHidden();
 			await expect( page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ) ).toBeVisible();
 			await expect( page.locator( '.jb-score-bar--mobile .jb-score-bar__loading' ) ).toBeHidden();
 			await expect( page.locator( '.jb-score-bar--desktop .jb-score-bar__loading' ) ).toBeHidden();
 		} );
 
-		await test.step( 'Wait 1 more second and verify score refresh has started after 2 seconds of second module toggle', async () => {
-			await new Promise( resolve => setTimeout( resolve, 1000 ) );
-			await expect( page.getByRole( 'heading', { name: 'Loading…' } ) ).toBeVisible();
-			await expect( page.locator( '.jb-score-bar--mobile .jb-score-bar__loading' ) ).toBeVisible();
-			await expect( page.locator( '.jb-score-bar--desktop .jb-score-bar__loading' ) ).toBeVisible();
+		await test.step( 'Verify score refresh starts after debounce', async () => {
+			// Wait for the actual refresh network request instead of checking transient UI state.
+			await refreshRequestPromise;
 		} );
 
 		await test.step( 'Verify module toggle operations complete successfully', async () => {

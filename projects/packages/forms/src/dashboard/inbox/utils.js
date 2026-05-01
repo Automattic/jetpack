@@ -73,3 +73,20 @@ export const updateMenuCounterOptimistically = count => {
  * @return {string} The ID of the item.
  */
 export const getItemId = item => item?.id?.toString() ?? '';
+
+/**
+ * Wraps a promise with a timeout to ensure it rejects after a reasonable time.
+ * This is useful for network requests that might hang when the network is disabled.
+ *
+ * @param {Promise} promise   - The promise to wrap.
+ * @param {number}  timeoutMs - The timeout in milliseconds (default: 30000).
+ * @return {Promise} The wrapped promise that will reject on timeout.
+ */
+export const withTimeout = ( promise, timeoutMs = 30000 ) => {
+	return Promise.race( [
+		promise,
+		new Promise( ( _, reject ) =>
+			setTimeout( () => reject( new Error( 'Request timeout' ) ), timeoutMs )
+		),
+	] );
+};

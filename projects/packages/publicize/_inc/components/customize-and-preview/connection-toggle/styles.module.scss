@@ -1,0 +1,16 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.connection-toggle {
+
+	label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+.description {
+	color: gb.$gray-700;
+	font-size: 0.75rem;
+	margin-block-start: 0;
+}

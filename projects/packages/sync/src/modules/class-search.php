@@ -442,6 +442,9 @@ class Search extends Module {
 		'_wc_general_product_dependency_plugin'  => array(),
 		'wpcom_marketplace_product_extra_fields' => array(),
 		'wccom_product_search_keywords'          => array( 'searchable_in_all_content' => true ),
+		'_wccom_product_faqs'                    => array( 'searchable_in_all_content' => true ),
+		'wccom_product_features'                 => array( 'searchable_in_all_content' => true ),
+		'wccom_product_compatibility'            => array( 'searchable_in_all_content' => true ),
 
 	); // end indexed post meta.
 
@@ -769,6 +772,7 @@ class Search extends Module {
 		'translation_priority',
 
 		// woocommerce.
+		'documentation_category',
 		'pa_accessory-type',
 		'pa_actor',
 		'pa_age',
@@ -1329,6 +1333,7 @@ class Search extends Module {
 		'organization',
 		'our_team_category',
 		'page_category',
+		'page_condition',
 		'parisrestaurant',
 		'parissauna',
 		'partner_category',
@@ -1740,6 +1745,9 @@ class Search extends Module {
 		// wp.com a8c-support-theme taxonomies.
 		'kb_category',
 		'kb_tag',
+
+		// coolhunting.com
+		'article-type',
 
 	); // end taxonomies.
 

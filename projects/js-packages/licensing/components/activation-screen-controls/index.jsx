@@ -1,6 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { JetpackLogo, Spinner } from '@automattic/jetpack-components';
-import { Button, TextControl, SelectControl } from '@wordpress/components';
+import { JetpackLogo } from '@automattic/jetpack-components';
+import { Button, TextControl, SelectControl, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -180,11 +180,12 @@ const ActivationScreenControls = props => {
 				<p>
 					{ createInterpolateElement(
 						__(
-							'<strong>Check your email</strong> for your license key. You should have received it after making your purchase.',
+							'<strong>Purchased a plan?</strong><br />Check your email for your license key and paste it below.',
 							'jetpack-licensing'
 						),
 						{
-							strong: <strong></strong>,
+							strong: <strong />,
+							br: <br />,
 						}
 					) }
 				</p>

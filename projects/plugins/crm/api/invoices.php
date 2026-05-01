@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -38,4 +37,4 @@ global $zbs;
 $invoices = $zbs->DAL->invoices->getInvoices( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 
-wp_send_json( $invoices );
+wp_send_json( $invoices, 200, JSON_UNESCAPED_SLASHES );

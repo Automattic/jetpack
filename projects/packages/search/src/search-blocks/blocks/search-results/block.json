@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/search-results",
+	"version": "0.1.0",
+	"title": "Search Results",
+	"category": "jetpack-search",
+	"icon": "list-view",
+	"description": "Displays Jetpack Search results.",
+	"attributes": {
+		"layout": {
+			"type": "string",
+			"enum": [ "card", "compact" ],
+			"default": "card"
+		}
+	},
+	"supports": {
+		"html": false,
+		"interactivity": true
+	},
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/search-results.js",
+	"style": "file:../../../../build/search-blocks/search-results.css"
+}

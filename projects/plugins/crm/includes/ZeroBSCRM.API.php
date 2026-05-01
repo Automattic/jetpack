@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V2.0
@@ -85,7 +84,7 @@ function jpcrm_api_invalid_request() {
 		'status'  => __( 'Bad request', 'zero-bs-crm' ),
 		'message' => __( 'The API request was invalid.', 'zero-bs-crm' ),
 	);
-	wp_send_json_error( $reply, 400 );
+	wp_send_json_error( $reply, 400, JSON_UNESCAPED_SLASHES );
 }
 
 /**
@@ -96,7 +95,7 @@ function jpcrm_api_unauthorised_request() {
 		'status'  => __( 'Unauthorized', 'zero-bs-crm' ),
 		'message' => __( 'Please ensure your Jetpack CRM API key and secret are correctly configured.', 'zero-bs-crm' ),
 	);
-	wp_send_json_error( $reply, 401 );
+	wp_send_json_error( $reply, 401, JSON_UNESCAPED_SLASHES );
 }
 
 /**
@@ -107,7 +106,7 @@ function jpcrm_api_forbidden_request() {
 		'status'  => __( 'Forbidden', 'zero-bs-crm' ),
 		'message' => __( 'You do not have permission to access this resource.', 'zero-bs-crm' ),
 	);
-	wp_send_json_error( $reply, 403 );
+	wp_send_json_error( $reply, 403, JSON_UNESCAPED_SLASHES );
 }
 
 /**
@@ -118,7 +117,7 @@ function jpcrm_api_invalid_method() {
 		'status'  => __( 'Method not allowed', 'zero-bs-crm' ),
 		'message' => __( 'Please ensure you are using the proper method (e.g. POST or GET).', 'zero-bs-crm' ),
 	);
-	wp_send_json_error( $reply, 405 );
+	wp_send_json_error( $reply, 405, JSON_UNESCAPED_SLASHES );
 }
 
 /**
@@ -129,7 +128,7 @@ function jpcrm_api_teapot() {
 		'status'  => 'I\'m a teapot',
 		'message' => 'As per RFC 2324 (section 2.3.2), this response is short and stout.',
 	);
-	wp_send_json_error( $reply, 418 );
+	wp_send_json_error( $reply, 418, JSON_UNESCAPED_SLASHES );
 }
 
 /**
@@ -174,7 +173,7 @@ function zeroBSCRM_API_error( $errorMsg = 'Error', $header_code = 400 ) {
 
 	// } 400 = general error
 	// } 403 = perms
-	wp_send_json( array( 'error' => $errorMsg ), $header_code );
+	wp_send_json( array( 'error' => $errorMsg ), $header_code, JSON_UNESCAPED_SLASHES );
 }
 
 // now to locate the templates...

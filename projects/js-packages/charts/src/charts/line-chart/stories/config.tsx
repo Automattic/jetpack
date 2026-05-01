@@ -59,6 +59,11 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 		...themeArgTypes,
 		...sharedChartArgTypes,
 		...lineChartTooltipArgTypes,
+		data: {
+			control: { type: 'object' },
+			description: 'Array of series data to display in the chart',
+			table: { category: 'Data' },
+		},
 	},
 };
 
@@ -69,7 +74,6 @@ export const lineChartStoryArgs = {
 	withLegendGlyph: false,
 	smoothing: true,
 	maxWidth: 1200,
-	aspectRatio: 0.5,
 	resizeDebounceTime: 300,
 	options: {
 		axis: {

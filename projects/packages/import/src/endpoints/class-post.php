@@ -210,7 +210,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @return array                  Array of term IDs.
 	 */
 	protected function get_term_ids_from_slugs( $term_slugs, $taxonomy_name ) {
-		// @phan-suppress-next-line PhanAccessMethodInternal -- the @internal annotation is for an internal comment, not to mark the function as internal
+		// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 		return get_terms(
 			array(
 				'fields'     => 'ids',

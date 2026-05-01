@@ -39,6 +39,11 @@ export interface MediaSourceMenuItemProps {
 	 * Callback when Generate with AI option is clicked
 	 */
 	onAiImageClick?: () => void;
+
+	/**
+	 * Whether the menu item is disabled
+	 */
+	disabled?: boolean;
 }
 
 /**
@@ -54,6 +59,7 @@ export default function MediaSourceMenuItem( {
 	onClose,
 	onMediaLibraryClick,
 	onAiImageClick,
+	disabled = false,
 }: MediaSourceMenuItemProps ) {
 	const handleClick = useCallback( () => {
 		if ( option.id === 'media-library' ) {
@@ -72,6 +78,7 @@ export default function MediaSourceMenuItem( {
 			icon={ option.icon }
 			isSelected={ isSelected }
 			onClick={ handleClick }
+			disabled={ disabled }
 		>
 			{ option.label }
 		</MenuItem>

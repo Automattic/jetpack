@@ -199,8 +199,9 @@ function zbscrm_JS_adminMenuDropdown() {
 
 		// if calypso, loading on an embed page, already full screen, need to run this to re-adjust/hide:
 		setTimeout( function () {
-			if ( ! jQuery( '#jpcrm-top-menu .logo-cube' ).hasClass( 'menu-open' ) ) {
-				zbscrm_JS_fullscreenModeOn( jQuery( '#jpcrm-top-menu .logo-cube' ) );
+			const $logoCube = jQuery( '#jpcrm-top-menu .logo-cube' );
+			if ( $logoCube.length && ! $logoCube.hasClass( 'menu-open' ) ) {
+				zbscrm_JS_fullscreenModeOn( $logoCube );
 			}
 		}, 0 );
 	}
@@ -2625,27 +2626,6 @@ function jpcrm_bind_licensing_modals() {
 			function () {
 				// failed to set (hide anyway)
 				jQuery( '#jpcrm-modal-message-licensing' ).hide();
-			}
-		);
-	} );
-
-	// licensing modal "you have updates" -> set transient for 1h and load updates page
-	jQuery( '.jpcrm-licensing-modal-set-transient-and-go' ).on( 'click', function () {
-		const target_url = jQuery( this ).attr( 'data-href' );
-
-		// set transient & close
-		jpcrm_set_jpcrm_transient(
-			window.jpcrm_modal_message_licensing_nonce,
-			'jpcrm-license-modal',
-			'nag',
-			3600,
-			function () {
-				// successfully set
-				window.location = target_url;
-			},
-			function () {
-				// failed to set (hide anyway)
-				window.location = target_url;
 			}
 		);
 	} );

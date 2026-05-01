@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Remove unused `wp-theme-slug` fallback. It can be added back (everywhere in monorepo tooling) if we ever do have themes in the monorepo.

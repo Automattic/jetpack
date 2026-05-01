@@ -1,9 +1,9 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
-Requires at least: 6.7
-Tested up to: 6.9
-Stable tag: 2.7
+Requires at least: 6.8
+Tested up to: 7.0
+Stable tag: 3.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,16 +83,8 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.7 - 2025-11-21
-#### Added
-- Tested up to WordPress 6.9.
-
+### 3.0 - 2026-04-16
 #### Changed
-- Update dependencies.
+- Tested up to WordPress 7.0.
 - Update package dependencies.
-
-#### Fixed
-- Jetpack: Remove getIconColor functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products.
-- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin.
 

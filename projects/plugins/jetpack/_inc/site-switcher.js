@@ -173,16 +173,22 @@ function useSiteSwitcherCommandLoader( { search } ) {
 		} );
 		cleanedSearch = cleanedSearch.trim().replace( /\s+/g, ' ' );
 
-		// If search is empty after stripping generic keywords, show all sites
-		const filteredSites = ! cleanedSearch
-			? sites
-			: sites.filter( site => {
-					const domain = getHostnameFromURL( site.URL );
-					return (
-						( site.name && site.name.toLowerCase().includes( cleanedSearch ) ) ||
-						domain.toLowerCase().includes( cleanedSearch )
-					);
-			  } );
+		// Check if the search is a prefix of any generic keyword (e.g., "swit" matches "switch")
+		// If so, treat it as a generic search and show all sites
+		const isGenericKeywordPrefix =
+			cleanedSearch && genericKeywords.some( keyword => keyword.startsWith( cleanedSearch ) );
+
+		// If search is empty after stripping generic keywords, or is a prefix of a generic keyword, show all sites
+		const filteredSites =
+			! cleanedSearch || isGenericKeywordPrefix
+				? sites
+				: sites.filter( site => {
+						const domain = getHostnameFromURL( site.URL );
+						return (
+							( site.name && site.name.toLowerCase().includes( cleanedSearch ) ) ||
+							domain.toLowerCase().includes( cleanedSearch )
+						);
+				  } );
 
 		// Filter out sites with invalid URLs (can't navigate to them anyway)
 		const validSites = filteredSites.filter( site => {

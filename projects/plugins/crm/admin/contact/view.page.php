@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Single contact view page
  */
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
@@ -1127,7 +1126,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 												if ( $wp_user !== null && zeroBSCRM_isWPAdmin() ) {
 													$url = admin_url( 'user-edit.php?user_id=' . $zbsFile['owner'] );
-													echo '<br /><br /><a style="font-size: 12px;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>';
+													echo '<br /><br /><a style="font-size: 12px;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- "wordpress" is a Semantic UI icon class name, not the brand name.
 												}
 
 												?>
@@ -1178,7 +1177,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									##WLREMOVE
 
 									// and upsell here if admin + not using client portal pro
-									if ( current_user_can( 'admin_zerobs_manage_options' ) && ! defined( 'ZBS_CLIENTPRO_TEMPLATES' ) ) {
+									if ( jpcrm_perms_manage_options() && ! defined( 'ZBS_CLIENTPRO_TEMPLATES' ) ) {
 
 										if ( ! $zbs->hasEntrepreneurBundleMin() ) {
 

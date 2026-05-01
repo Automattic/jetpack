@@ -68,8 +68,9 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
 
-		// Unregister the post type if it was registered
+		// Unregister the post types if they were registered
 		unregister_post_type( 'jetpack_form' );
+		unregister_post_type( 'feedback' );
 	}
 
 	/**
@@ -310,5 +311,137 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		$this->assertEquals( 'edit_posts', $post_type_object->cap->read, 'Read capability should be edit_posts' );
 		$this->assertEquals( 'publish_posts', $post_type_object->cap->create_posts, 'Create capability should be publish_posts' );
 		$this->assertEquals( 'edit_posts', $post_type_object->cap->edit_posts, 'Edit posts capability should be edit_posts' );
+	}
+
+	/**
+	 * Set the private has_responses_filter property on the endpoint via reflection.
+	 *
+	 * @param Jetpack_Form_Endpoint $endpoint The endpoint instance.
+	 * @param bool                  $value    The filter value.
+	 */
+	private function set_has_responses_filter( Jetpack_Form_Endpoint $endpoint, bool $value ): void {
+		$ref = new \ReflectionProperty( Jetpack_Form_Endpoint::class, 'has_responses_filter' );
+		$ref->setValue( $endpoint, $value );
+	}
+
+	/**
+	 * Create a WP_Query instance targeting the jetpack_form post type, for use in filter_by_responses tests.
+	 *
+	 * @return \WP_Query
+	 */
+	private function get_jetpack_form_query(): \WP_Query {
+		$query = new \WP_Query();
+		$query->set( 'post_type', Contact_Form::POST_TYPE );
+		return $query;
+	}
+
+	/**
+	 * Test that the has_responses REST parameter is registered in collection params.
+	 */
+	public function test_has_responses_param_is_registered() {
+		Contact_Form::register_post_type();
+
+		$endpoint = new Jetpack_Form_Endpoint();
+		$params   = $endpoint->get_collection_params();
+
+		$this->assertArrayHasKey( 'has_responses', $params );
+		$this->assertEquals( 'string', $params['has_responses']['type'] );
+		$this->assertContains( 'true', $params['has_responses']['enum'] );
+		$this->assertContains( 'false', $params['has_responses']['enum'] );
+		$this->assertSame( '', $params['has_responses']['default'] );
+	}
+
+	/**
+	 * Test that filter_by_responses adds an EXISTS subquery when has_responses_filter is true.
+	 */
+	public function test_filter_by_responses_adds_exists_clause() {
+		Contact_Form::register_post_type();
+
+		$endpoint = new Jetpack_Form_Endpoint();
+		$this->set_has_responses_filter( $endpoint, true );
+
+		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ), $this->get_jetpack_form_query() );
+
+		$this->assertStringContainsString( 'EXISTS', $clauses['where'] );
+		$this->assertStringNotContainsString( 'NOT EXISTS', $clauses['where'] );
+		$this->assertStringContainsString( 'feedback', $clauses['where'] );
+		$this->assertStringContainsString( 'post_parent', $clauses['where'] );
+	}
+
+	/**
+	 * Test that filter_by_responses adds a NOT EXISTS subquery when has_responses_filter is false.
+	 */
+	public function test_filter_by_responses_adds_not_exists_clause() {
+		Contact_Form::register_post_type();
+
+		$endpoint = new Jetpack_Form_Endpoint();
+		$this->set_has_responses_filter( $endpoint, false );
+
+		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ), $this->get_jetpack_form_query() );
+
+		$this->assertStringContainsString( 'NOT EXISTS', $clauses['where'] );
+		$this->assertStringContainsString( 'feedback', $clauses['where'] );
+		$this->assertStringContainsString( 'post_parent', $clauses['where'] );
+	}
+
+	/**
+	 * Test that filter_by_responses only checks publish and draft feedback statuses.
+	 */
+	public function test_filter_by_responses_checks_publish_and_draft_statuses() {
+		Contact_Form::register_post_type();
+
+		$endpoint = new Jetpack_Form_Endpoint();
+		$this->set_has_responses_filter( $endpoint, true );
+
+		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ), $this->get_jetpack_form_query() );
+
+		$this->assertStringContainsString( "'publish'", $clauses['where'] );
+		$this->assertStringContainsString( "'draft'", $clauses['where'] );
+	}
+
+	/**
+	 * Test that filter_by_responses preserves existing where clauses.
+	 */
+	public function test_filter_by_responses_preserves_existing_where() {
+		Contact_Form::register_post_type();
+
+		$endpoint = new Jetpack_Form_Endpoint();
+		$this->set_has_responses_filter( $endpoint, true );
+
+		$existing_where = "AND post_type = 'jetpack_form'";
+		$clauses        = $endpoint->filter_by_responses( array( 'where' => $existing_where ), $this->get_jetpack_form_query() );
+
+		$this->assertStringContainsString( $existing_where, $clauses['where'] );
+		$this->assertStringContainsString( 'EXISTS', $clauses['where'] );
+	}
+
+	/**
+	 * Test that source post ID meta is stored when creating a form via REST API.
+	 */
+	public function test_create_jetpack_form_stores_source_post_id_meta() {
+		Contact_Form::register_post_type();
+		do_action( 'rest_api_init' );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'edit_posts' );
+		$user->add_cap( 'publish_posts' );
+
+		$source_post_id = 123;
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/jetpack-forms' );
+		$request->set_param( 'title', 'Form with Source' );
+		$request->set_param( 'status', 'publish' );
+		$request->set_param( 'content', '<!-- wp:jetpack/contact-form --><!-- /wp:jetpack/contact-form -->' );
+		$request->set_param( 'meta', array( '_jetpack_forms_source_post_id' => $source_post_id ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 201, $response->get_status(), 'POST request should return 201' );
+
+		$data    = $response->get_data();
+		$post_id = $data['id'];
+
+		$stored_meta = get_post_meta( $post_id, '_jetpack_forms_source_post_id', true );
+		$this->assertEquals( $source_post_id, (int) $stored_meta, 'Source post ID meta should be stored' );
 	}
 }

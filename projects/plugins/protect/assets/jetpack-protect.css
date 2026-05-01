@@ -15,8 +15,7 @@
 [class*=" jp-protect-icon"] {
 
 	/* Use !important to avoid issues with browser extensions that change fonts. */
-	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword
-	-- this is a one-off icon font. */
+	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword -- this is a one-off icon font. */
 	font-family: jetpack-protect !important;
 	speak: never;
 	font-style: normal;

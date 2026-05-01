@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/search-input",
+	"version": "0.1.0",
+	"title": "Search Input",
+	"category": "jetpack-search",
+	"icon": "search",
+	"description": "Text input that drives Jetpack Search results.",
+	"supports": {
+		"html": false,
+		"interactivity": true
+	},
+	"attributes": {
+		"placeholder": { "type": "string", "default": "" },
+		"showIcon": { "type": "boolean", "default": true },
+		"submitOnly": { "type": "boolean", "default": false }
+	},
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/search-input.js",
+	"style": "file:../../../../build/search-blocks/search-input.css"
+}

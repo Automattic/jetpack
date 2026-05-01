@@ -168,11 +168,27 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'author_avatar', $schema_properties );
 		$this->assertArrayHasKey( 'email_marketing_consent', $schema_properties );
 		$this->assertArrayHasKey( 'ip', $schema_properties );
+		$this->assertArrayHasKey( 'country_code', $schema_properties );
+		$this->assertArrayHasKey( 'browser', $schema_properties );
+		$this->assertArrayHasKey( 'logged_in_user', $schema_properties );
 		$this->assertArrayHasKey( 'entry_title', $schema_properties );
 		$this->assertArrayHasKey( 'entry_permalink', $schema_properties );
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
 		$this->assertArrayHasKey( 'is_unread', $schema_properties );
+		$this->assertArrayHasKey( 'is_test', $schema_properties );
+		$this->assertEquals( 'boolean', $schema_properties['is_test']['type'] );
+		$this->assertArrayHasKey( 'preview_url', $schema_properties );
+
+		// Verify logged_in_user schema structure
+		$logged_in_user_schema = $schema_properties['logged_in_user'];
+		$this->assertArrayHasKey( 'type', $logged_in_user_schema );
+		$this->assertContains( 'object', $logged_in_user_schema['type'] );
+		$this->assertContains( 'null', $logged_in_user_schema['type'] );
+		$this->assertArrayHasKey( 'properties', $logged_in_user_schema );
+		$this->assertArrayHasKey( 'display_name', $logged_in_user_schema['properties'] );
+		$this->assertArrayHasKey( 'username', $logged_in_user_schema['properties'] );
+		$this->assertArrayHasKey( 'id', $logged_in_user_schema['properties'] );
 
 		// Also make sure that we don't have fields that are not relevant to feedback.
 		$this->assertArrayNotHasKey( 'link', $schema_properties );
@@ -181,6 +197,118 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'title', $schema_properties );
 		$this->assertArrayNotHasKey( 'content', $schema_properties );
 		$this->assertArrayNotHasKey( 'excerpt', $schema_properties );
+	}
+
+	/**
+	 * Helper: insert a v3-format feedback post, optionally flagged as a test submission.
+	 *
+	 * @param bool $is_test Whether to mark the feedback as a test submission.
+	 * @return int The new feedback post ID.
+	 */
+	private function insert_v3_feedback_post( $is_test = false ) {
+		$content = array(
+			'subject'     => 'Subject',
+			'ip'          => '127.0.0.1',
+			'entry_title' => 'Source Post',
+			'entry_page'  => 1,
+			'source_id'   => 0,
+			'source_type' => 'single',
+			'request_url' => '',
+			'fields'      => array(
+				array(
+					'id'    => '1_Name',
+					'label' => 'Name',
+					'type'  => 'text',
+					'value' => $is_test ? 'Preview Tester' : 'Real User',
+				),
+			),
+		);
+
+		if ( $is_test ) {
+			$content['is_test'] = true;
+		}
+
+		Feedback::clear_cache();
+
+		return wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Response ' . ( $is_test ? 'test' : 'real' ) . ' ' . microtime(),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v3',
+			)
+		);
+	}
+
+	/**
+	 * A real feedback row exposes is_test = false and preview_url = null.
+	 */
+	public function test_get_item_exposes_is_test_false_for_real_feedback() {
+		$post_id = $this->insert_v3_feedback_post( false );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'is_test', $data );
+		$this->assertFalse( $data['is_test'] );
+		$this->assertArrayHasKey( 'preview_url', $data );
+		$this->assertNull( $data['preview_url'] );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * A feedback row flagged as test exposes is_test = true and a preview_url
+	 * when a parent form is available and the current user can preview it.
+	 */
+	public function test_get_item_exposes_is_test_true_for_preview_feedback() {
+		// Register the jetpack_form CPT so the Feedback loader picks up the
+		// post_parent as the form_id and preview URL generation can run.
+		if ( ! post_type_exists( Contact_Form::POST_TYPE ) ) {
+			register_post_type(
+				Contact_Form::POST_TYPE,
+				array(
+					'public'       => false,
+					'show_ui'      => true,
+					'map_meta_cap' => true,
+				)
+			);
+		}
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => Contact_Form::POST_TYPE,
+				'post_status'  => 'publish',
+				'post_title'   => 'Preview Test Form',
+				'post_content' => '<!-- wp:jetpack/contact-form /-->',
+				'post_author'  => self::$user_id,
+			)
+		);
+
+		$post_id = $this->insert_v3_feedback_post( true );
+		wp_update_post(
+			array(
+				'ID'          => $post_id,
+				'post_parent' => $form_id,
+			)
+		);
+		Feedback::clear_cache();
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'is_test', $data );
+		$this->assertTrue( $data['is_test'] );
+		$this->assertArrayHasKey( 'preview_url', $data );
+		$this->assertIsString( $data['preview_url'] );
+		$this->assertStringContainsString( 'jetpack_form_preview=' . $form_id, $data['preview_url'] );
+
+		wp_delete_post( $post_id, true );
+		wp_delete_post( $form_id, true );
 	}
 
 	/**
@@ -774,24 +902,100 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		add_post_meta( $post_id, '_feedback_subject', 'Test Subject' );
 		add_post_meta( $post_id, '_feedback_ip', '127.0.0.1' );
 
-		// Test the get_item endpoint
+		// Test the get_item endpoint with collection format to get rich field data
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$request->set_param( 'fields_format', 'collection' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		// Verify file field data in response (collection format returns array of field objects)
+		$this->assertArrayHasKey( 'fields', $data );
+		$this->assertIsArray( $data['fields'] );
+
+		// Find the file field in the collection array
+		$file_field = null;
+		foreach ( $data['fields'] as $field ) {
+			if ( isset( $field['type'] ) && $field['type'] === 'file' ) {
+				$file_field = $field;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $file_field, 'File field should exist in fields collection' );
+		$this->assertArrayHasKey( 'value', $file_field );
+		$this->assertArrayHasKey( 'files', $file_field['value'] );
+
+		$file = $file_field['value']['files'][0];
+		$this->assertEquals( 123, $file['file_id'] );
+		$this->assertEquals( 'test.jpg', $file['name'] );
+		$this->assertEquals( '1 KB', $file['size'] );
+		$this->assertTrue( $file['is_previewable'] );
+		$this->assertTrue( $data['has_file'] );
+	}
+
+	/**
+	 * Test fields_format parameter defaults to label-value format for backwards compatibility
+	 */
+	public function test_fields_format_defaults_to_label_value() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		// Request WITHOUT fields_format parameter - should return label-value format
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 
-		// Verify file field data in response
 		$this->assertArrayHasKey( 'fields', $data );
-		$this->assertArrayHasKey( 'file', $data['fields'] );
-		$this->assertArrayHasKey( 'files', $data['fields']['file'] );
+		$this->assertIsArray( $data['fields'] );
 
-		$file = $data['fields']['file']['files'][0];
-		$this->assertEquals( 123, $file['file_id'] );
-		$this->assertEquals( 'test.jpg', $file['name'] );
-		$this->assertEquals( '1 KB', $file['size'] );
-		$this->assertTrue( $file['is_previewable'] );
-		$this->assertTrue( $data['has_file'] );
+		// label-value format should have field labels as keys
+		$this->assertArrayHasKey( 'Name', $data['fields'] );
+		$this->assertArrayHasKey( 'Email', $data['fields'] );
+		$this->assertEquals( 'Test User', $data['fields']['Name'] );
+		$this->assertEquals( 'test@example.com', $data['fields']['Email'] );
+	}
+
+	/**
+	 * Test fields_format=collection returns rich field data
+	 */
+	public function test_fields_format_collection_returns_rich_data() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		// Request WITH fields_format=collection - should return array of field objects
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$request->set_param( 'fields_format', 'collection' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'fields', $data );
+		$this->assertIsArray( $data['fields'] );
+
+		// collection format should be an indexed array of objects with label, value, type, etc.
+		$first_field = $data['fields'][0];
+		$this->assertArrayHasKey( 'label', $first_field );
+		$this->assertArrayHasKey( 'value', $first_field );
+		$this->assertArrayHasKey( 'type', $first_field );
+		$this->assertArrayHasKey( 'id', $first_field );
+		$this->assertArrayHasKey( 'key', $first_field );
 	}
 
 	/**
@@ -1092,5 +1296,271 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test prepare_item_for_response includes logged_in_user when user is logged in.
+	 */
+	public function test_prepare_item_for_response_with_logged_in_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'testuser',
+				'user_pass'    => 'testpass',
+				'display_name' => 'Test Display Name',
+			)
+		);
+
+		$feedback_time = current_time( 'mysql' );
+		$content       = wp_json_encode(
+			array(
+				'subject'        => 'Test Subject',
+				'ip'             => '127.0.0.1',
+				'country_code'   => 'US',
+				'entry_title'    => 'Test Form',
+				'entry_page'     => 123,
+				'logged_in_user' => array(
+					'display_name' => 'Test Display Name',
+					'username'     => 'testuser',
+					'id'           => $user_id,
+				),
+				'fields'         => array(
+					array(
+						'id'    => '1',
+						'label' => 'Name',
+						'value' => 'Submitter Name',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Test Feedback - ' . $feedback_time,
+				'post_content'   => $content,
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'logged_in_user', $data );
+		$this->assertIsArray( $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'display_name', $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'username', $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'id', $data['logged_in_user'] );
+		$this->assertEquals( 'Test Display Name', $data['logged_in_user']['display_name'] );
+		$this->assertEquals( 'testuser', $data['logged_in_user']['username'] );
+		$this->assertEquals( $user_id, $data['logged_in_user']['id'] );
+
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test prepare_item_for_response returns null for logged_in_user when not logged in.
+	 */
+	public function test_prepare_item_for_response_without_logged_in_user() {
+		$feedback_time = current_time( 'mysql' );
+		$content       = wp_json_encode(
+			array(
+				'subject'        => 'Test Subject',
+				'ip'             => '127.0.0.1',
+				'country_code'   => 'US',
+				'entry_title'    => 'Test Form',
+				'entry_page'     => 123,
+				'logged_in_user' => null,
+				'fields'         => array(
+					array(
+						'id'    => '1',
+						'label' => 'Name',
+						'value' => 'Submitter Name',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Test Feedback - ' . $feedback_time,
+				'post_content'   => $content,
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'logged_in_user', $data );
+		$this->assertNull( $data['logged_in_user'] );
+	}
+
+	/**
+	 * Test that the source parameter is registered in the feedback collection schema.
+	 */
+	public function test_source_parameter_is_registered() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'source', $data['endpoints'][0]['args'] );
+		$this->assertEquals( 'integer', $data['endpoints'][0]['args']['source']['type'] );
+	}
+
+	/**
+	 * Test that the source parameter is registered in the counts endpoint.
+	 */
+	public function test_source_parameter_is_registered_in_counts() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'source', $data['endpoints'][0]['args'] );
+		$this->assertEquals( 'integer', $data['endpoints'][0]['args']['source']['type'] );
+	}
+
+	/**
+	 * Test that the counts endpoint applies source filter SQL when source param is set.
+	 */
+	public function test_counts_with_source_includes_source_filter_sql() {
+		$captured_query = null;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$captured_query ) {
+				if ( strpos( $query, 'SUM(CASE' ) !== false && strpos( $query, 'source_meta' ) !== false ) {
+					$captured_query = $query;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$request->set_param( 'source', 123 );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertNotNull( $captured_query, 'Counts query should include source filter SQL' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Counts query should reference the source meta key' );
+		$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Counts query should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $captured_query, 'Counts query should include post_parent fallback' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that the shared Feedback::get_source_filter_sql helper returns
+	 * the correct SQL JOIN and WHERE fragments.
+	 */
+	public function test_source_filter_sql_helper_returns_expected_fragments() {
+		$sql = Feedback::get_source_filter_sql( 42 );
+
+		$this->assertArrayHasKey( 'join', $sql );
+		$this->assertArrayHasKey( 'where', $sql );
+
+		$this->assertStringContainsString( 'source_meta', $sql['join'], 'JOIN should include the source_meta alias' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $sql['join'], 'JOIN should reference the source meta key' );
+
+		$this->assertStringContainsString( 'source_meta.meta_value', $sql['where'], 'WHERE should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $sql['where'], 'WHERE should include post_parent fallback' );
+		$this->assertStringContainsString( 'source_meta.meta_id IS NULL', $sql['where'], 'WHERE should check for missing meta in fallback' );
+		$this->assertStringContainsString( "'42'", $sql['where'], 'WHERE should include the source ID value' );
+	}
+
+	/**
+	 * Test that source filter hooks are cleaned up after get_items
+	 * by verifying a second request without source does not include source SQL.
+	 */
+	public function test_source_filter_hooks_are_cleaned_up() {
+		// First request with source filter.
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 42 );
+		$this->server->dispatch( $request );
+
+		// Second request without source — capture SQL to verify no leftover filter.
+		$found_source_sql = false;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request2 = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$this->server->dispatch( $request2 );
+
+		$this->assertFalse( $found_source_sql, 'Source filter should not leak into subsequent requests' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that without source param, no source filter hooks are added.
+	 */
+	public function test_no_source_filter_without_param() {
+		$found_source_sql = false;
+
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$this->server->dispatch( $request );
+
+		$this->assertFalse( $found_source_sql, 'SQL should not include source_meta when no source param' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that source=0 does not inject source filter SQL.
+	 */
+	public function test_source_filter_with_zero_value_is_ignored() {
+		$found_source_sql = false;
+
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 0 );
+		$this->server->dispatch( $request );
+
+		$this->assertFalse( $found_source_sql, 'source=0 should not inject source filter SQL' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
 	}
 }

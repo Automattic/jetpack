@@ -3,7 +3,7 @@
  */
 import { fixes, Block, AiFeedbackThumbs, AiSVG } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { rawHandler, serialize } from '@wordpress/blocks';
+import { rawHandler, serialize, type Block as WPBlock } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
@@ -197,7 +197,7 @@ export default function Highlight() {
 		const { target, occurrence } = getTargetText( anchor as HTMLElement );
 
 		// The serialize function returns the block's HTML with its Gutenberg comments
-		const html = serialize( block );
+		const html = serialize( block as WPBlock );
 		const fixedHtml = replaceOccurrence( {
 			text: html,
 			target,
@@ -266,7 +266,6 @@ export default function Highlight() {
 					anchor={ virtual }
 					placement={ feature === LONG_SENTENCES.name ? 'bottom' : 'bottom-start' }
 					className="jetpack-ai-breve__highlight-popover"
-					variant="tooltip"
 					animate={ false }
 					focusOnMount={ false }
 					onMouseEnter={ handleMouseEnter }

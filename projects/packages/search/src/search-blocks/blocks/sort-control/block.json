@@ -1,0 +1,40 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/sort-control",
+	"version": "0.1.0",
+	"title": "Sort Control",
+	"category": "jetpack-search",
+	"icon": "sort",
+	"description": "Controls the order of Jetpack Search results.",
+	"supports": { "html": false, "interactivity": true },
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"defaultSort": {
+			"type": "string",
+			"default": "relevance",
+			"enum": [ "relevance", "newest", "oldest" ]
+		},
+		"availableSortOptions": {
+			"type": "array",
+			"default": [ "relevance", "newest", "oldest" ],
+			"items": {
+				"type": "string",
+				"enum": [ "relevance", "newest", "oldest" ]
+			}
+		},
+		"label": { "type": "string", "default": "" },
+		"displayAs": {
+			"type": "string",
+			"default": "select",
+			"enum": [ "select", "radio", "popover" ]
+		},
+		"display": {
+			"type": "string",
+			"enum": [ "select", "popover" ]
+		}
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/sort-control.js",
+	"style": "file:../../../../build/search-blocks/sort-control.css"
+}

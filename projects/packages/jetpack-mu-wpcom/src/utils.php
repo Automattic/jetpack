@@ -89,6 +89,8 @@ function wpcom_get_calypso_origin() {
 		'https://wordpress.com',
 		'http://my.localhost:3000',
 		'https://my.wordpress.com',
+		'http://my.woo.localhost:3000',
+		'https://my.woo.ai',
 	);
 	return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
 }
@@ -103,16 +105,22 @@ function wpcom_get_calypso_origin() {
  */
 function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) {
 	$asset_handle = "jetpack-mu-wpcom-$asset_name";
-	$asset_file   = include Jetpack_Mu_Wpcom::BASE_DIR . "build/$asset_name/$asset_name.asset.php";
+	$asset_path   = Jetpack_Mu_Wpcom::BASE_DIR . "build/$asset_name/$asset_name.asset.php";
+	$asset_file   = file_exists( $asset_path ) ? include $asset_path : array();
+	if ( ! is_array( $asset_file ) ) {
+		$asset_file = array();
+	}
 
 	if ( in_array( 'js', $asset_types, true ) ) {
 		$js_file      = "build/$asset_name/$asset_name.js";
+		$js_path      = Jetpack_Mu_Wpcom::BASE_DIR . $js_file;
 		$dependencies = $asset_file['dependencies'] ?? array();
+		$version      = $asset_file['version'] ?? ( file_exists( $js_path ) ? filemtime( $js_path ) : null );
 		wp_enqueue_script(
 			"jetpack-mu-wpcom-$asset_name",
 			plugins_url( $js_file, Jetpack_Mu_Wpcom::BASE_FILE ),
 			$dependencies,
-			$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $js_file ),
+			$version,
 			true
 		);
 		if ( in_array( 'wp-i18n', $dependencies, true ) ) {
@@ -123,11 +131,12 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
 	if ( in_array( 'css', $asset_types, true ) ) {
 		$css_ext  = is_rtl() ? 'rtl.css' : 'css';
 		$css_file = "build/$asset_name/$asset_name.$css_ext";
+		$css_path = Jetpack_Mu_Wpcom::BASE_DIR . $css_file;
 		wp_enqueue_style(
 			"jetpack-mu-wpcom-$asset_name",
 			plugins_url( $css_file, Jetpack_Mu_Wpcom::BASE_FILE ),
 			array(),
-			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $css_file )
+			file_exists( $css_path ) ? filemtime( $css_path ) : null
 		);
 	}
 

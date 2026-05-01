@@ -1,0 +1,62 @@
+.wp-block-jetpack-active-filters {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+
+	&[hidden] {
+		display: none;
+	}
+
+	.jetpack-search-active-filters__heading {
+		font-size: 0.8rem;
+		font-weight: 600;
+		// Inherit the theme's text color so the heading adapts to dark
+		// themes and the site palette.
+		color: inherit;
+		opacity: 0.8;
+	}
+
+	.jetpack-search-active-filters__pills {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	// Pills carry `wp-element-button` so they adopt the active theme's
+	// button palette (theme.json → styles.elements.button). We only
+	// override what we need — pill shape, spacing, and remove-icon weight.
+	.jetpack-search-active-filters__pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		border-radius: 12px;
+		padding: 0.2rem 0.6rem;
+		font-size: 0.8rem;
+		line-height: 1.2;
+		cursor: pointer;
+	}
+
+	.jetpack-search-active-filters__pill-remove {
+		font-weight: 700;
+		line-height: 1;
+	}
+
+	// Clear-all keeps its outlined / secondary look so it stays visually
+	// distinct from the filled pills. Core's `is-style-outline` only
+	// applies inside a `.wp-block-button` wrapper, so use theme-aware
+	// CSS-wide values (`currentColor`, `inherit`, transparent) here.
+	.jetpack-search-active-filters__clear-all {
+		background: transparent;
+		border: 1px solid currentColor;
+		color: inherit;
+		border-radius: 4px;
+		padding: 0.2rem 0.5rem;
+		font-size: 0.8rem;
+		line-height: 1.2;
+		cursor: pointer;
+	}
+}

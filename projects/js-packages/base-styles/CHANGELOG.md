@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-04-20
+### Added
+- Add admin-page-layout mixin, a shared SCSS mixin that standardizes Jetpack wp-admin pages with a viewport-pinned content column (pinned header, scrolling middle, pinned footer). Consumed as `@use "@automattic/jetpack-base-styles/admin-page-layout"`. [#48109]
+
+### Changed
+- Remove unused `--jp-highlight` CSS variable. [#47317]
+- Update package dependencies. [#48106]
+
+### Fixed
+- admin-page-layout: honor WP.com nav-unification's 272px sidebar width at expanded viewports so the content column aligns with the visible sidebar instead of leaving a 112px gap. [#48182]
+- Hide #screen-meta-links inside the jetpack-admin-page-layout mixin so the wp-admin Screen Options/Help wrapper stops reserving a 20px slot at the top of the content column. [#48195]
+
+## [1.0.21] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## [1.0.20] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [1.0.19] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [1.0.18] - 2026-02-26
+### Changed
+- Set `exports` in package.json. [#47283]
+- Update package dependencies. [#47300]
+
+## [1.0.17] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.0.16] - 2026-02-16
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [1.0.15] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [1.0.14] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
 ## [1.0.13] - 2026-01-07
 ### Changed
 - Update package dependencies. [#46456]
@@ -456,6 +501,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.1.0]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.21...1.1.0
+[1.0.21]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.20...1.0.21
+[1.0.20]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.19...1.0.20
+[1.0.19]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.18...1.0.19
+[1.0.18]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.17...1.0.18
+[1.0.17]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.16...1.0.17
+[1.0.16]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.15...1.0.16
+[1.0.15]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.14...1.0.15
+[1.0.14]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.13...1.0.14
 [1.0.13]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.12...1.0.13
 [1.0.12]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.11...1.0.12
 [1.0.11]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.10...1.0.11

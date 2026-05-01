@@ -87,7 +87,7 @@ class Connections_Post_Field_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections', 'test_connection' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections', 'test_connection', 'has_paid_features' ) )->getMock();
 
 		$this->publicize->method( 'refresh_connections' )
 			->withAnyParameters()
@@ -409,5 +409,314 @@ class Connections_Post_Field_Test extends TestCase {
 		}
 
 		remove_filter( 'publicize_checkbox_default', $filter_func );
+	}
+
+	/**
+	 * Test saving connection overrides via REST API.
+	 */
+	public function test_save_connection_overrides() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+
+		// Enable per-network customization.
+		update_post_meta( $this->draft_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'jetpack_publicize_connections' => array(
+					array(
+						'connection_id'  => '4560',
+						'enabled'        => true,
+						'message'        => 'Custom message for this connection',
+						'attached_media' => array(
+							array(
+								'id'   => 123,
+								'url'  => 'https://example.com/image.jpg',
+								'type' => 'image/jpeg',
+							),
+						),
+					),
+				),
+			)
+		);
+		$this->server->dispatch( $request );
+
+		$overrides = get_post_meta( $this->draft_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+
+		$this->assertIsArray( $overrides );
+		$this->assertArrayHasKey( '4560', $overrides );
+		$this->assertSame( 'Custom message for this connection', $overrides['4560']['message'] );
+		$this->assertCount( 1, $overrides['4560']['attached_media'] );
+		$this->assertSame( 123, $overrides['4560']['attached_media'][0]['id'] );
+	}
+
+	/**
+	 * Test that connection overrides are NOT saved when user lacks paid features.
+	 */
+	public function test_connection_overrides_not_saved_without_paid_features() {
+		// Override the has_paid_features method to return false for this test.
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( false );
+
+		// Enable per-network customization flag (should be ignored without paid features).
+		update_post_meta( $this->draft_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'jetpack_publicize_connections' => array(
+					array(
+						'connection_id'  => '4560',
+						'enabled'        => true,
+						'message'        => 'Custom message for this connection',
+						'attached_media' => array(
+							array(
+								'id'   => 123,
+								'url'  => 'https://example.com/image.jpg',
+								'type' => 'image/jpeg',
+							),
+						),
+					),
+				),
+			)
+		);
+		$this->server->dispatch( $request );
+
+		$overrides = get_post_meta( $this->draft_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+
+		// Assert that overrides were NOT saved.
+		$this->assertEmpty( $overrides );
+	}
+
+	/**
+	 * Test that connection overrides are stored and retrieved from post meta.
+	 */
+	public function test_get_connection_overrides() {
+		// Set up override data directly in post meta.
+		$override_data = array(
+			'4560' => array(
+				'message'        => 'Test override message',
+				'attached_media' => array(
+					array(
+						'id'   => 100,
+						'url'  => 'https://example.com/test.jpg',
+						'type' => 'image/jpeg',
+					),
+				),
+			),
+		);
+
+		update_post_meta(
+			$this->draft_id,
+			Publicize_Base::POST_CONNECTION_OVERRIDES,
+			$override_data
+		);
+
+		// Verify the data can be retrieved from post meta.
+		$retrieved = get_post_meta( $this->draft_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+
+		$this->assertIsArray( $retrieved );
+		$this->assertArrayHasKey( '4560', $retrieved );
+		$this->assertSame( 'Test override message', $retrieved['4560']['message'] );
+		$this->assertCount( 1, $retrieved['4560']['attached_media'] );
+		$this->assertSame( 100, $retrieved['4560']['attached_media'][0]['id'] );
+	}
+
+	/**
+	 * Test that connection overrides are cleared when no message or media is provided.
+	 */
+	public function test_clear_connection_overrides() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+
+		// First, set up some override data.
+		update_post_meta(
+			$this->draft_id,
+			Publicize_Base::POST_CONNECTION_OVERRIDES,
+			array(
+				'4560' => array(
+					'message'        => 'Should be cleared',
+					'attached_media' => array(),
+				),
+			)
+		);
+
+		// Now update without message or attached_media.
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'jetpack_publicize_connections' => array(
+					array(
+						'connection_id' => '4560',
+						'enabled'       => true,
+					),
+				),
+			)
+		);
+		$this->server->dispatch( $request );
+
+		$overrides = get_post_meta( $this->draft_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+
+		// Overrides should be empty or not contain the connection.
+		$this->assertTrue( empty( $overrides ) || ! isset( $overrides['4560'] ) );
+	}
+
+	/**
+	 * Test that when a post is loaded with multiple X connections, only one is
+	 * enabled by default (X Developer Policy).
+	 */
+	public function test_single_x_connection_default_on_load() {
+		set_transient(
+			Connections::CONNECTIONS_TRANSIENT,
+			array(
+				array(
+					'service_name'  => 'x',
+					'id'            => 'x1',
+					'connection_id' => 'x1000',
+					'external_id'   => 'ext-x1',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+				array(
+					'service_name'  => 'x',
+					'id'            => 'x2',
+					'connection_id' => 'x2000',
+					'external_id'   => 'ext-x2',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$connections = $this->publicize->get_filtered_connection_data( $this->draft_id );
+
+		$enabled_x = array();
+		foreach ( $connections as $connection ) {
+			if ( 'x' === $connection['service_name'] && ! empty( $connection['enabled'] ) ) {
+				$enabled_x[] = $connection;
+			}
+		}
+
+		$this->assertCount( 1, $enabled_x, 'Only one X connection should be enabled by default.' );
+
+		delete_transient( Connections::CONNECTIONS_TRANSIENT );
+	}
+
+	/**
+	 * Test that only one X connection can remain enabled per post (X Developer Policy).
+	 */
+	public function test_single_x_connection_enforcement() {
+		// get_filtered_connection_data() reads from Connections::get_all_for_user(),
+		// which is backed by this transient. Populate it directly with two X connections.
+		set_transient(
+			Connections::CONNECTIONS_TRANSIENT,
+			array(
+				array(
+					'service_name'  => 'x',
+					'id'            => 'x1',
+					'connection_id' => 'x1000',
+					'external_id'   => 'ext-x1',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+				array(
+					'service_name'  => 'x',
+					'id'            => 'x2',
+					'connection_id' => 'x2000',
+					'external_id'   => 'ext-x2',
+					'shared'        => true,
+					'wpcom_user_id' => 0,
+					'status'        => 'ok',
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'jetpack_publicize_connections' => array(
+					array(
+						'connection_id' => 'x1000',
+						'enabled'       => true,
+					),
+					array(
+						'connection_id' => 'x2000',
+						'enabled'       => true,
+					),
+				),
+			)
+		);
+		$this->server->dispatch( $request );
+
+		$skip_x1 = get_post_meta( $this->draft_id, $this->publicize->POST_SKIP_PUBLICIZE . 'x1000', true );
+		$skip_x2 = get_post_meta( $this->draft_id, $this->publicize->POST_SKIP_PUBLICIZE . 'x2000', true );
+
+		$kept_count    = (int) empty( $skip_x1 ) + (int) empty( $skip_x2 );
+		$skipped_count = (int) ! empty( $skip_x1 ) + (int) ! empty( $skip_x2 );
+
+		$this->assertSame( 1, $kept_count, 'Exactly one X connection should remain enabled.' );
+		$this->assertSame( 1, $skipped_count, 'Exactly one X connection should be marked as skipped.' );
+
+		delete_transient( Connections::CONNECTIONS_TRANSIENT );
+	}
+
+	/**
+	 * Test that attached_media is properly sanitized.
+	 */
+	public function test_sanitize_attached_media() {
+		$this->publicize->method( 'has_paid_features' )
+			->willReturn( true );
+
+		// Enable per-network customization.
+		update_post_meta( $this->draft_id, Publicize_Base::POST_CUSTOMIZE_PER_NETWORK, true );
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'jetpack_publicize_connections' => array(
+					array(
+						'connection_id'  => '4560',
+						'enabled'        => true,
+						'message'        => 'Test',
+						'attached_media' => array(
+							array(
+								'id'   => '456',  // String should become int.
+								'url'  => 'javascript:alert(1)', // Invalid URL should be sanitized.
+								'type' => '<script>alert(1)</script>', // XSS should be sanitized.
+							),
+							array(
+								'id'   => 789,
+								'url'  => 'https://example.com/valid.jpg',
+								'type' => 'image/jpeg',
+							),
+						),
+					),
+				),
+			)
+		);
+		$this->server->dispatch( $request );
+
+		$overrides = get_post_meta( $this->draft_id, Publicize_Base::POST_CONNECTION_OVERRIDES, true );
+
+		$this->assertIsArray( $overrides );
+		$this->assertArrayHasKey( '4560', $overrides );
+
+		$media = $overrides['4560']['attached_media'];
+
+		// First item: id should be int, url should be empty (invalid), type should be sanitized.
+		$this->assertSame( 456, $media[0]['id'] );
+		$this->assertSame( '', $media[0]['url'] );
+		$this->assertStringNotContainsString( '<script>', $media[0]['type'] );
+
+		// Second item should be valid.
+		$this->assertSame( 789, $media[1]['id'] );
+		$this->assertSame( 'https://example.com/valid.jpg', $media[1]['url'] );
+		$this->assertSame( 'image/jpeg', $media[1]['type'] );
 	}
 }

@@ -579,7 +579,7 @@ class Instant_Search extends Classic_Search {
 			$registry = WP_Block_Patterns_Registry::get_instance();
 			if ( $registry->is_registered( $slug ) ) {
 				$pattern = $registry->get_registered( $slug );
-				return $pattern['content'];
+				return $pattern['content'] ?? '';
 			}
 		}
 		return $block_pattern;

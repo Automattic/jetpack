@@ -1,15 +1,28 @@
+import { ConnectionService } from '../types';
+import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
+
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
-export type Connection = {
+/**
+ * Connection object in the block editor
+ */
+export interface EditorConnection {
+	enabled: boolean;
+	// Customization fields
+	message?: string;
+	attached_media?: Array< AttachedMedia >;
+	media_source?: MediaSourceValue;
+}
+
+export type Connection = Partial< EditorConnection > & {
 	connection_id: string;
 	display_name: string;
-	enabled: boolean;
 	external_handle: string;
 	external_id: string;
 	profile_link: string;
 	profile_picture: string;
 	service_label: string;
-	service_name: string;
+	service_name: ConnectionService[ 'id' ];
 	shared: boolean;
 	status: ConnectionStatus;
 	wpcom_user_id: number;
@@ -23,6 +36,12 @@ export type ConnectionData = {
 	keyringResult?: KeyringResult;
 	abortControllers?: Record< string, Array< AbortController > >;
 	isConnectionsModalOpen?: boolean;
+	/**
+	 * Transient flag set when the user toggles a second X connection on,
+	 * which causes another X connection to auto-disable. Surfaces the
+	 * single-X-per-post info notice in the sidebar.
+	 */
+	shouldShowSingleXNotice?: boolean;
 };
 
 export type JetpackSettings = {
@@ -56,12 +75,10 @@ export type PostShareStatus = {
 };
 
 export type ShareStatus = {
-	isModalOpen?: boolean;
 	[ PostId: number ]: PostShareStatus;
 };
 
 export type SharePost = {
-	isModalOpen?: boolean;
 	isSharingCurrentPost?: boolean;
 };
 
@@ -69,10 +86,20 @@ export type ScheduledShares = {
 	isScheduling?: boolean;
 };
 
+export type UnifiedModalData = {
+	sharingActivity?: {
+		initialTab?: ( typeof SHARING_ACTIVITY_TABS )[ keyof typeof SHARING_ACTIVITY_TABS ];
+	};
+	socialPreview?: {
+		initialTab?: string;
+	};
+};
+
 export type UnifiedModalState = {
 	isOpen?: boolean;
 	initialPath?: string;
 	isScreenLocked?: boolean;
+	data?: UnifiedModalData;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };

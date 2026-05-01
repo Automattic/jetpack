@@ -29,6 +29,14 @@ class Util {
 		add_filter( 'render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_unset_block_template_part_id_global', 10, 2 );
 		add_filter( 'widget_block_content', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_filter_widget_block_content', 1, 3 );
 
+		// Register the default for the `central-form-management` feature flag at bootstrap
+		// so that early callers of Contact_Form_Plugin::has_editor_feature_flag() — such as
+		// the Forms dashboard default-tab redirect, which runs before the `init` hook fires —
+		// see the correct value. Only the lightweight default is registered here; paid-plan
+		// flags stay in Contact_Form_Block::register_feature(), hooked later from
+		// Contact_Form_Block::register_block() on `init` priority 9.
+		add_filter( 'jetpack_block_editor_feature_flags', '\Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::register_central_form_management_default' );
+
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init', 9 );
 		add_action( 'grunion_scheduled_delete', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' );
 		add_action( 'grunion_scheduled_delete_temp', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_temp_feedback' );
@@ -252,7 +260,7 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
 		// Use the spam status changed date if available, otherwise fall back to post_date_gmt for backward compatibility
 		$sql      = $wpdb->prepare(
 			"
@@ -306,7 +314,7 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
 		$sql     = $wpdb->prepare(
 			"
 			SELECT `ID`
@@ -468,5 +476,19 @@ class Util {
 				sanitize_file_name( get_bloginfo( 'name' ) ),
 				sanitize_file_name( html_entity_decode( $source, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) )
 			);
+	}
+
+	/**
+	 * Ensures a field label ends with a colon, unless it ends with a question mark.
+	 *
+	 * @param string $label The field label.
+	 * @return string The formatted label.
+	 */
+	public static function maybe_add_colon_to_label( $label ) {
+		$formatted_label = $label ? $label : '';
+		// Special case for the Terms consent field block which a period after the label.
+		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':.' ) . ':';
+
+		return $formatted_label;
 	}
 }

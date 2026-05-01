@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.8.2 - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## 3.8.1 - 2026-04-09
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## 3.8.0 - 2026-04-06
+### Added
+- Add `BundledWpPkgsTranspileRules` to centralize the hacks needed for non-extracted `@wordpress/*` packages. [#47840]
+
+### Changed
+- Update package dependencies. [#47941]
+
+## 3.7.30 - 2026-03-30
+### Changed
+- Update dependencies.
+
+## 3.7.29 - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## 3.7.28 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## 3.7.27 - 2026-03-09
+### Changed
+- Centralize admin-ui CSS bundling: add subpath to defaultRequestMap and mark CSS imports as sideEffects to prevent incorrect externalization and tree-shaking. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47497] [#47500]
+
+## 3.7.26 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## 3.7.25 - 2026-02-18
+### Changed
+- Add WebP to default file extensions handled by `FileRule`. [#47085]
+- Update package dependencies. [#47173]
+
+## 3.7.24 - 2026-02-16
+### Changed
+- Update package dependencies. [#47130]
+
+## 3.7.23 - 2026-02-12
+### Changed
+- Added WebP to default file extensions handled by FileRule. [#47082]
+- Update package dependencies. [#47095] [#47099] [#47101]
+
+## 3.7.22 - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## 3.7.21 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 3.7.20 - 2026-01-26
+### Added
+- Add HMR support by setting up dev server. [#46686]
+
+## 3.7.19 - 2026-01-19
+### Changed
+- Remove unused `wp-theme-slug` fallback. It can be added back (everywhere in monorepo tooling) if we ever do have themes in the monorepo. [#46601]
+- Use `beta-plugin-slug` as a fallback for plugin textdomains if `wp-plugin-slug` isn't set. [#46601]
+- Update package dependencies. [#46647]
+
 ## 3.7.18 - 2026-01-07
 ### Changed
 - Update package dependencies. [#46456]

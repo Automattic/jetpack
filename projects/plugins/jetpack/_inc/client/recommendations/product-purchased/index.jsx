@@ -1,10 +1,10 @@
 import { ProgressBar } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import analytics from 'lib/analytics';
 import {
 	getProductSuggestions,
@@ -69,7 +69,7 @@ const ProductPurchasedComponent = props => {
 	}, [ suggestion ] );
 
 	if ( ! suggestion ) {
-		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+		return <Spinner />;
 	}
 
 	const answerSection = (

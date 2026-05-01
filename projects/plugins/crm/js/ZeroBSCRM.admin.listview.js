@@ -543,8 +543,8 @@ function jpcrm_update_listview_counts() {
 	}
 
 	let html = zeroBSCRMJS_listViewLang( 'listview_counts' );
-	html = html.replace( '%s', current_range );
-	html = html.replace( '%s', zbsListViewCount );
+	html = html.replace( '%1$s', current_range );
+	html = html.replace( '%2$s', zbsListViewCount );
 	listview_count_els.forEach( element => ( element.textContent = html ) );
 }
 
@@ -5372,7 +5372,7 @@ function zeroBSCRMJS_listView_bindInlineEditSave() {
 							// replace html  + do classes
 							jQuery( lThis )
 								.closest( '.zbs-inline-editing' )
-								.html( lLabel )
+								.text( lLabel )
 								.removeClass( 'zbs-inline-editing' )
 								.addClass( 'zbs-inline-edit' );
 
@@ -5402,7 +5402,7 @@ function zeroBSCRMJS_listView_bindInlineEditSave() {
 				// replace html  + do classes
 				jQuery( lThis )
 					.closest( '.zbs-inline-editing' )
-					.html( lLabel )
+					.text( lLabel )
 					.removeClass( 'zbs-inline-editing' )
 					.addClass( 'zbs-inline-edit' );
 

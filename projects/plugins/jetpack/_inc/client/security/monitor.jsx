@@ -43,9 +43,12 @@ export const Monitor = withModuleSettingsFormHelpers(
 					>
 						<ModuleToggle
 							slug="monitor"
-							disabled={ unavailableInOfflineMode || ! hasConnectedOwner }
+							disabled={
+								unavailableInOfflineMode ||
+								! hasConnectedOwner ||
+								this.props.isSavingAnyOption( 'monitor' )
+							}
 							activated={ isMonitorActive }
-							toggling={ this.props.isSavingAnyOption( 'monitor' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">

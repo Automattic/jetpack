@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.9.0';
+	const PACKAGE_VERSION = '6.10.1';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -29,6 +29,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
 		// Load features that don't need any special loading considerations.
@@ -37,6 +38,9 @@ class Jetpack_Mu_Wpcom {
 		// Load features that only apply to WordPress.com-connected users.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ) );
+
+		// Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_sites_features' ) );
 
 		// Load ETK features flag to turn off the features in the ETK plugin.
 		// It needs higher priority than the ETK plugin.
@@ -83,6 +87,9 @@ class Jetpack_Mu_Wpcom {
 
 		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via P2.
 		add_filter( 'jetpack_public_js_script_data', array( __CLASS__, 'add_jetpack_script_data_for_p2' ), 10, 1 );
+
+		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -281,18 +288,38 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
+		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
+		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
+		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
+
+		// Write: distraction-free front-end editor. Gated by blog sticker for gradual rollout.
+		if ( wpcom_has_blog_sticker( 'wpcom-write-editor', get_wpcom_blog_id() ) ) {
+			require_once __DIR__ . '/features/write/write.php';
+		}
+
+		/*
+		 * Temporarily disable client-side media processing.
+		 *
+		 * Client-side media processing enables cross-origin isolation (COEP/COOP headers)
+		 * which can break authenticated API requests. This should be removed once client-side
+		 * media processing is compatible with Dotcom's infrastructure.
+		 *
+		 * @see gutenberg_set_up_cross_origin_isolation() in Gutenberg's lib/media/load.php
+		 * @see https://a8c.slack.com/archives/CBTN58FTJ/p1771950744814189
+		 */
+		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
@@ -302,6 +329,7 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
@@ -310,22 +338,25 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load features that only apply to WordPress.com users.
+	 * Load features that only apply to WordPress.com-connected users.
 	 */
 	public static function load_wpcom_user_features() {
-		if ( ! is_wpcom_user() ) {
-			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
-
-			return;
-		}
-
 		// To avoid potential collisions with ETK.
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
+
+		if ( ! is_wpcom_user() ) {
+			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
+			return;
+		}
 		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
 			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
 		}
+		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
+			require_once __DIR__ . '/features/survicate/class-survicate.php';
+		}
+		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -334,6 +365,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
+		require_once __DIR__ . '/features/wpcom-colourlovers-deprecate/wpcom-colourlovers-deprecate.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -349,11 +381,27 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
+		// Initialize Newsletter Settings so hooks like the Reading page notice
+		// are registered on Simple sites (where load-jetpack.php doesn't run).
+		\Automattic\Jetpack\Newsletter\Settings::init();
+
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
 		}
+	}
+
+	/**
+	 * Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+	 */
+	public static function load_wpcom_sites_features() {
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
+		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
 	}
 
 	/**
@@ -435,6 +483,9 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+		} elseif ( isset( $pagenow ) && 'customize.php' === $pagenow ) {
+			// Load wpcom-global-styles on the customizer so access to additional css can be checked there.
+			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 		}
 	}
 
@@ -693,6 +744,20 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
+	}
+
+	/**
+	 * Populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function set_wpcom_blog_id_script_data( $data ) {
+		$blog_id = get_wpcom_blog_id();
+		if ( $blog_id ) {
+			$data['site']['wpcom']['blog_id'] = $blog_id;
+		}
+		return $data;
 	}
 
 	/**

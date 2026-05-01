@@ -77,7 +77,6 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
-		invalidateResolution: jest.fn(),
 		setCounts: jest.fn(),
 		setCurrentQuery: jest.fn(),
 		setSelectedResponses: jest.fn(),
@@ -103,7 +102,9 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 				return mockDispatch;
 			}
 			if ( store === 'core' ) {
-				return { invalidateResolution: mockDispatch.invalidateResolution };
+				return {
+					invalidateResolutionForStoreSelector: jest.fn(),
+				};
 			}
 			if ( store === 'dashboard' ) {
 				return {
@@ -150,10 +151,19 @@ const EmptySpamButtonModule = await import(
 );
 const EmptySpamButton = EmptySpamButtonModule.default;
 
+const DashboardSearchParamsModule = await import(
+	'../../../../../src/dashboard/router/dashboard-search-params-context'
+);
+const { DashboardSearchParamsProvider } = DashboardSearchParamsModule;
+
 describe( 'EmptySpamButton', () => {
+	const mockSetSearchParams = jest.fn();
+	const mockSearchParams = new URLSearchParams( 'status=spam' );
+
 	beforeEach( async () => {
 		// Reset all mocks before each test
 		jest.clearAllMocks();
+		mockSetSearchParams.mockClear();
 		const coreDataModule = await import( '@wordpress/core-data' );
 		coreDataModule.useEntityRecords.mockReturnValue( {
 			totalItems: 1,
@@ -161,8 +171,16 @@ describe( 'EmptySpamButton', () => {
 		} );
 	} );
 
+	const renderWithProvider = component => {
+		return render(
+			<DashboardSearchParamsProvider value={ [ mockSearchParams, mockSetSearchParams ] }>
+				{ component }
+			</DashboardSearchParamsProvider>
+		);
+	};
+
 	it( 'renders correctly', () => {
-		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeInTheDocument();
@@ -170,8 +188,8 @@ describe( 'EmptySpamButton', () => {
 		expect( button ).toBeEnabled();
 	} );
 
-	it( 'shows disabled state when trash is empty', () => {
-		render( <EmptySpamButton totalItemsSpam={ 0 } isLoadingCounts={ false } /> );
+	it( 'shows disabled state when spam is empty', () => {
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 0 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeDisabled();
@@ -179,7 +197,7 @@ describe( 'EmptySpamButton', () => {
 	} );
 
 	it( 'shows confirmation dialog when clicked', async () => {
-		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
@@ -189,14 +207,14 @@ describe( 'EmptySpamButton', () => {
 		expect( screen.getByText( 'Delete forever' ) ).toBeInTheDocument();
 	} );
 
-	it( 'empties trash when confirmed', async () => {
+	it( 'empties spam when confirmed', async () => {
 		const { default: apiFetch } = await import( '@wordpress/api-fetch' );
 		const { useDispatch } = await import( '@wordpress/data' );
 		const mockDispatch = useDispatch( 'notices' );
 
-		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
-		// Click empty trash button
+		// Click empty spam button
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 

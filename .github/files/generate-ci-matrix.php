@@ -59,7 +59,7 @@ $default_matrix_vars = array(
 $matrix = array();
 
 // Add PHP tests.
-foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ) as $php ) {
+foreach ( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
 		'script'  => 'test-php',
@@ -80,16 +80,6 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	);
 }
 
-// todo: move to the main matrix once WP latest is compatible with PHP 8.5.
-$matrix[] = array(
-	'name'                => 'PHP tests: PHP 8.5 WP trunk',
-	'script'              => 'test-php',
-	'php'                 => '8.5',
-	'wp'                  => 'trunk',
-	'timeout'             => 15, // 2025-11-06: Successful runs seem to take ~8 minutes.
-	'force-package-tests' => true,
-);
-
 // Add WooCommerce tests.
 $matrix[] = array(
 	'name'             => 'PHP tests: PHP 7.4 WP latest with WooCommerce',
@@ -102,9 +92,9 @@ $matrix[] = array(
 
 // Add wpcomsh tests.
 $matrix[] = array(
-	'name'         => 'PHP tests: PHP 8.1 WP latest with wpcomsh',
+	'name'         => 'PHP tests: PHP 8.3 WP latest with wpcomsh',
 	'script'       => 'test-php',
-	'php'          => '8.1',
+	'php'          => '8.3',
 	'wp'           => 'latest',
 	'timeout'      => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	'with-wpcomsh' => true,

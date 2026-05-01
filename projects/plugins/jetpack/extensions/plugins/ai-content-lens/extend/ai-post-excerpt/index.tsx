@@ -73,14 +73,12 @@ function AiPostExcerpt() {
 	const { request, stopSuggestion, suggestion, requestingState, error, reset, model } =
 		useAiSuggestions( {
 			onDone: useCallback(
-				( _content, skipRequestCount, modelUsed ) => {
+				( _content, modelUsed ) => {
 					/*
 					 * Increase the AI Suggestion counter.
 					 * @todo: move this at store level.
 					 */
-					if ( ! skipRequestCount ) {
-						increaseAiAssistantRequestsCount();
-					}
+					increaseAiAssistantRequestsCount();
 					tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
 						feature: 'jetpack-ai-content-lens',
 						model: modelUsed,
@@ -109,14 +107,9 @@ function AiPostExcerpt() {
 				},
 				[ increaseAiAssistantRequestsCount ]
 			),
-			onAllErrors: useCallback(
-				( _suggestionError, skipRequestCount ) => {
-					if ( ! skipRequestCount ) {
-						increaseAiAssistantRequestsCount();
-					}
-				},
-				[ increaseAiAssistantRequestsCount ]
-			),
+			onAllErrors: useCallback( () => {
+				increaseAiAssistantRequestsCount();
+			}, [ increaseAiAssistantRequestsCount ] ),
 		} );
 
 	// Cancel and reset AI suggestion when the component is unmounted

@@ -4,6 +4,45 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.6] - 2026-04-15
+### Changed
+- Internal updates.
+
+## [1.1.5] - 2026-04-09
+### Changed
+- Internal updates.
+
+## [1.1.4] - 2026-04-06
+### Changed
+- Update package dependencies. [#47887]
+
+### Fixed
+- Access wp.date settings directly. [#47812]
+
+## [1.1.3] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [1.1.2] - 2026-03-16
+### Changed
+- Tests: Disable test incompatible with newer Node versions (22.22.1+). [#47588]
+
+## [1.1.1] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+## [1.1.0] - 2026-02-23
+### Added
+- `getCurrencyObject`: Add `floatValue` property to currency object. [#47203]
+
+## [1.0.18] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.0.17] - 2026-02-12
+### Changed
+- Update package dependencies. [#47099]
+
 ## [1.0.16] - 2026-01-14
 ### Changed
 - Internal updates.
@@ -97,6 +136,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release
 - Basic number formatting functionality
 
+[1.1.6]: https://github.com/Automattic/number-formatters/compare/1.1.5...1.1.6
+[1.1.5]: https://github.com/Automattic/number-formatters/compare/1.1.4...1.1.5
+[1.1.4]: https://github.com/Automattic/number-formatters/compare/1.1.3...1.1.4
+[1.1.3]: https://github.com/Automattic/number-formatters/compare/1.1.2...1.1.3
+[1.1.2]: https://github.com/Automattic/number-formatters/compare/1.1.1...1.1.2
+[1.1.1]: https://github.com/Automattic/number-formatters/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/Automattic/number-formatters/compare/1.0.18...1.1.0
+[1.0.18]: https://github.com/Automattic/number-formatters/compare/1.0.17...1.0.18
+[1.0.17]: https://github.com/Automattic/number-formatters/compare/1.0.16...1.0.17
 [1.0.16]: https://github.com/Automattic/number-formatters/compare/1.0.15...1.0.16
 [1.0.15]: https://github.com/Automattic/number-formatters/compare/1.0.14...1.0.15
 [1.0.14]: https://github.com/Automattic/number-formatters/compare/1.0.13...1.0.14

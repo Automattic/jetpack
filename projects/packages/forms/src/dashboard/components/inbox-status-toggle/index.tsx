@@ -4,15 +4,14 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { Badge } from '@automattic/ui';
 import { __, _x } from '@wordpress/i18n';
+import { Badge, Tabs } from '@wordpress/ui';
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
 import useInboxData from '../../hooks/use-inbox-data.ts';
-import * as Tabs from '../tabs/index.ts';
+import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 
 /**
  * Returns a formatted tab label with count badge.
@@ -25,13 +24,13 @@ function getTabLabel( label: string, count: number ): JSX.Element {
 	return (
 		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
 			{ label }
-			<Badge intent="default">{ formatNumberCompact( count || 0 ) }</Badge>
+			<Badge intent="draft">{ formatNumberCompact( count || 0 ) }</Badge>
 		</span>
 	);
 }
 
 type InboxStatusToggleProps = {
-	onChange: ( status: string ) => void;
+	onChange?: ( status: string ) => void;
 };
 
 /**
@@ -41,7 +40,7 @@ type InboxStatusToggleProps = {
  * @return {JSX.Element} The status toggle component.
  */
 export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
-	const [ searchParams, setSearchParams ] = useSearchParams();
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
@@ -71,14 +70,14 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 				return params;
 			} );
 			setSelectedResponses( [] );
-			onChange( newStatus );
+			onChange?.( newStatus );
 		},
 		[ isSm, status, setSearchParams, onChange, setSelectedResponses ]
 	);
 
 	return (
 		<Tabs.Root value={ status } onValueChange={ handleChange }>
-			<Tabs.List density="compact">
+			<Tabs.List variant="minimal">
 				{ statusTabs.map( option => (
 					<Tabs.Tab key={ option.value } value={ option.value }>
 						{ option.label }

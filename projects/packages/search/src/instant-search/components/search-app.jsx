@@ -308,6 +308,8 @@ class SearchApp extends Component {
 							hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 							additionalBlogIds={ this.props.options.additionalBlogIds }
 							showPostDate={ this.state.overlayOptions.enablePostDate }
+							enableFallbackImage={ this.state.overlayOptions.enableFallbackImage }
+							fallbackImageUrl={ this.state.overlayOptions.fallbackImageUrl }
 							showProductPrice={ this.state.overlayOptions.enableProductPrice }
 						/>
 					</Overlay>,

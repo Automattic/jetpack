@@ -1,0 +1,18 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/load-more",
+	"version": "0.1.0",
+	"title": "Load More",
+	"category": "jetpack-search",
+	"icon": "plus-alt2",
+	"description": "Loads the next page of Jetpack Search results.",
+	"supports": { "html": false, "interactivity": true },
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"buttonLabel": { "type": "string", "default": "" }
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/load-more.js",
+	"style": "file:../../../../build/search-blocks/load-more.css"
+}

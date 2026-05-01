@@ -190,7 +190,7 @@ class Jetpack_REST_API_Authentication_Test extends Jetpack_REST_TestCase {
 		$response          = $this->server->dispatch( $this->request );
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertEquals( 'Brute force protection', $data['name'] );
+		$this->assertEquals( 'Brute Force Protection', $data['name'] );
 		$this->assertEquals( self::$admin_id, get_current_user_id() );
 	}
 

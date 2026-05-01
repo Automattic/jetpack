@@ -44,7 +44,16 @@ import { parse, parseISO, isValid } from 'date-fns';
  * @return {boolean} True if the date string contains timezone information, false otherwise
  */
 const hasTimezone = ( dateString: string ): boolean => {
-	return /T.*[Z]$|T.*[+-]\d{2}:?\d{2}$/.test( dateString );
+	const tIndex = dateString.indexOf( 'T' );
+	if ( tIndex === -1 ) {
+		return false;
+	}
+
+	if ( dateString.endsWith( 'Z' ) ) {
+		return true;
+	}
+
+	return /[+-]\d{2}:?\d{2}$/.test( dateString.slice( tIndex + 1 ) );
 };
 
 /**

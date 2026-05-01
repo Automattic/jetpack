@@ -40,7 +40,7 @@ describe( 'ConnectScreenRequiredPlan', () => {
 
 	it( 'applies correct href to terms of service', () => {
 		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
-		const terms = screen.getByRole( 'link', { name: 'Terms of Service (opens in a new tab)' } );
+		const terms = screen.getByRole( 'link', { name: 'Terms of Service(opens in a new tab)' } );
 		expect( terms ).toHaveAttribute( 'href', 'https://jetpack.com/redirect/?source=wpcom-tos' );
 		expect( terms ).toHaveAttribute( 'target', '_blank' );
 	} );
@@ -48,7 +48,7 @@ describe( 'ConnectScreenRequiredPlan', () => {
 	it( 'applies correct href to share', () => {
 		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
 		const share = screen.getByRole( 'link', {
-			name: 'sync your site‘s data (opens in a new tab)',
+			name: 'sync your site‘s data(opens in a new tab)',
 		} );
 		expect( share ).toHaveAttribute(
 			'href',

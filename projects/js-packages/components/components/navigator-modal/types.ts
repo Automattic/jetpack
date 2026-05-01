@@ -13,15 +13,3 @@ export type TNavigatorModalContext = {
 	 */
 	onClose?: VoidFunction;
 };
-
-export type SharedProps = {
-	/**
-	 * The content of the component.
-	 */
-	children: React.ReactNode;
-
-	/**
-	 * className to be applied to the modal.
-	 */
-	className?: string;
-};

@@ -1,0 +1,73 @@
+// Inside the Compact Search pattern's toolbar, the input grows to fill the
+// remaining row width so the filter / sort triggers sit right next to it.
+.jetpack-search-compact-toolbar > .wp-block-jetpack-search-input {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.wp-block-jetpack-search-input {
+
+	.jetpack-search-input__inside-wrapper {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0;
+		border-bottom: 1px solid currentColor;
+	}
+
+	.jetpack-search-input__icon {
+		flex: 0 0 auto;
+		width: 1.5rem;
+		height: 1.5rem;
+		fill: currentColor;
+		opacity: 0.6;
+	}
+
+	.jetpack-search-input__field {
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		font-size: 1.25rem;
+		line-height: 1.4;
+		color: inherit;
+
+		// Hide browser-default search clear — we ship our own button.
+		&::-webkit-search-cancel-button,
+		&::-webkit-search-decoration {
+			appearance: none;
+		}
+
+		&::placeholder {
+			color: inherit;
+			opacity: 0.5;
+		}
+
+		&:focus {
+			outline: none;
+		}
+	}
+
+	.jetpack-search-input__clear {
+		flex: 0 0 auto;
+		padding: 0.25rem 0.5rem;
+		background: none;
+		border: 0;
+		cursor: pointer;
+		color: inherit;
+		opacity: 0.6;
+		font-size: 1rem;
+		line-height: 1;
+
+		&[hidden] {
+			display: none;
+		}
+
+		&:hover,
+		&:focus-visible {
+			opacity: 1;
+		}
+	}
+}

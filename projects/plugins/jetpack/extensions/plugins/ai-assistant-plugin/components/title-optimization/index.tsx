@@ -192,7 +192,7 @@ export default function TitleOptimization( {
 	}, [ handleRequest ] );
 
 	const handleAccept = useCallback(
-		( event: MouseEvent ) => {
+		( event: React.MouseEvent< HTMLButtonElement > ) => {
 			// track the generated title acceptance
 			recordEvent( 'jetpack_ai_title_optimization_accept', {
 				placement,

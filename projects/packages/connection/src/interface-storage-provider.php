@@ -16,6 +16,61 @@ namespace Automattic\Jetpack\Connection;
  * All storage providers must implement this interface to ensure
  * compatibility with the External_Storage system.
  *
+ * ## Required Methods
+ *
+ * - `is_available()` - Check if storage backend is accessible
+ * - `should_handle( $option_name )` - Determine if provider handles the option
+ * - `get( $option_name )` - Retrieve value from external storage
+ * - `get_environment_id()` - Return environment identifier for logging
+ *
+ * ## Optional Methods
+ *
+ * Providers may implement these additional methods for enhanced functionality:
+ *
+ * ### handle_error_event( string $event_type, string $key, string $details, string $environment )
+ *
+ * Called when External_Storage detects an error or empty state. Implement this
+ * to report errors to your host's monitoring system.
+ *
+ * - `$event_type` - 'error' or 'empty'
+ * - `$key` - The option key that triggered the event
+ * - `$details` - Additional error details (error message, etc.)
+ * - `$environment` - Environment identifier from get_environment_id()
+ *
+ * Example:
+ *
+ *     public function handle_error_event( $event_type, $key, $details, $environment ) {
+ *         // Report to your monitoring system
+ *         wp_remote_post(
+ *             'https://your-api/errors',
+ *             array(
+ *                 'body' => array(
+ *                     'event_type'  => $event_type,
+ *                     'key'         => $key,
+ *                     'details'     => $details,
+ *                     'environment' => $environment,
+ *                 ),
+ *             )
+ *         );
+ *     }
+ *
+ * ### get_empty_state_delay_threshold()
+ *
+ * Customize the delay before reporting empty states. Returns delay in seconds.
+ * Default (when not implemented) is 5 minutes (300 seconds). Use this if your
+ * storage system has different sync times.
+ *
+ * - Return `0` if external storage is the source of truth (written first)
+ * - Return higher values for slower sync systems
+ * - Maximum allowed value is 15 minutes (900 seconds); values above this are ignored
+ *
+ * Example:
+ *
+ *     public function get_empty_state_delay_threshold() {
+ *         return 90; // 90 seconds for fast-syncing storage
+ *         // return 0; // No delay - external storage is written first
+ *     }
+ *
  * @since 6.18.0
  */
 interface Storage_Provider_Interface {

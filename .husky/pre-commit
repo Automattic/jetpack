@@ -1,1 +1,1 @@
-node tools/js-tools/git-hooks/pre-commit-hook.mjs
+pnpm exec node tools/js-tools/git-hooks/pre-commit-hook.mjs

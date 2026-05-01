@@ -1,0 +1,144 @@
+.jetpack-ai-mcp {
+
+	&__summary-row {
+		display: block;
+		width: 100%;
+		padding: 16px 24px;
+		height: auto;
+		text-align: left;
+		border-radius: 0;
+		box-shadow: none;
+
+		&:hover {
+			background: var(--color-surface-backdrop, #f0f0f1);
+		}
+
+		// Remove default Button border
+		&.components-button.is-tertiary {
+			box-shadow: none;
+		}
+
+		// Row decoration icons (Read / Write) — neutral gray to match Calypso
+		svg.jetpack-ai-mcp__row-icon {
+			fill: var(--color-neutral-70, #3c434a);
+		}
+	}
+
+	&__action-card {
+		overflow: hidden;
+	}
+
+	&__connect-row {
+		display: flex;
+		box-sizing: border-box;
+		gap: 16px;
+		align-items: flex-start;
+		padding: 24px;
+		cursor: pointer;
+		width: 100%;
+		background: none;
+		border: none;
+		text-align: left;
+		border-radius: 0;
+
+		// Reset browser link styles when rendered as <a>
+		&,
+		&:visited,
+		&:hover,
+		&:active {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		&:hover {
+			background: var(--color-surface-backdrop, #f0f0f1);
+		}
+	}
+
+	&__connect-row-icon {
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	&__connect-row-text {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__connect-row-title {
+		margin: 0;
+	}
+
+	&__connect-row-description {
+		margin: 0;
+	}
+
+	&__connect-row-chevron {
+		flex-shrink: 0;
+		margin-top: 2px;
+		color: var(--color-neutral-60, #50575e);
+	}
+
+	&__badge-content {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	&__category-header-row {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+
+	&__tool-group-divider {
+		margin: 0;
+	}
+
+	&__access-card {
+		overflow: hidden;
+	}
+}
+
+.jetpack-ai-mcp-setup {
+
+	&__steps {
+		margin: 0;
+		padding-left: 20px;
+
+		li {
+			margin-bottom: 8px;
+		}
+	}
+
+	&__code {
+		font-size: 12px;
+		background: var(--color-neutral-5, #f0f0f1);
+		padding: 1px 4px;
+		border-radius: 2px;
+	}
+
+	&__config-textarea {
+
+		textarea {
+			font-family: monospace;
+			font-size: 12px;
+			min-height: 140px;
+		}
+	}
+
+	&__action-button {
+		align-self: flex-start;
+
+		// When the button renders as an <a> tag, WP admin link styles can override
+		// the button's foreground color — force white text to match variant="solid".
+		&,
+		&:visited,
+		&:hover,
+		&:active {
+			color: var(--wp-ui-button-foreground-color, #fff);
+		}
+	}
+}

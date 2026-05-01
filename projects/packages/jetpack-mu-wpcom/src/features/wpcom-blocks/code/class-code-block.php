@@ -36,15 +36,64 @@ abstract class Code_Block {
 	 * @return bool
 	 */
 	private static function should_load_block(): bool {
-		$filtered_value = apply_filters( 'jetpack_mu_wpcom_should_load_code_block', false );
+		$filtered_value = apply_filters( 'jetpack_mu_wpcom_should_load_code_block', true );
 		return \is_bool( $filtered_value ) ? $filtered_value : false;
+	}
+
+	/**
+	 * Check if the build assets required for the code block are available.
+	 *
+	 * @return bool
+	 */
+	private static function assets_available(): bool {
+		static $result = null;
+		if ( null === $result ) {
+			$block_definition_asset_readable = is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php' );
+			$module_asset_readable           = is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php' );
+			$editor_style_asset_readable     = is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php' );
+			$style_asset_readable            = is_readable( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php' );
+
+			$result = $block_definition_asset_readable && $module_asset_readable && $editor_style_asset_readable && $style_asset_readable;
+			if ( ! $result && \defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+				$data = array(
+					'blog_id' => get_current_blog_id(),
+				);
+
+				$message = 'Missing build asset files.';
+				if ( ! $block_definition_asset_readable ) {
+					$message .= ' Block definition asset file is missing `' . Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php`.';
+				}
+				if ( ! $module_asset_readable ) {
+					$message .= ' Module asset file is missing `' . Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php`.';
+				}
+				if ( ! $editor_style_asset_readable ) {
+					$message .= ' Editor style asset file is missing `' . Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php`.';
+				}
+				if ( ! $style_asset_readable ) {
+					$message .= ' Style asset file is missing `' . Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php`.';
+				}
+
+				log2logstash(
+					array(
+						'feature' => 'jetpack-enhanced-code-block',
+						'message' => $message,
+						'extra'   => wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
+					)
+				);
+			}
+		}
+		return $result;
 	}
 
 	/**
 	 * Set up the block.
 	 */
 	public static function setup() {
-		if ( ! self::should_load_block() ) {
+		if (
+			! self::should_load_block() ||
+			! self::assets_available()
+		) {
 			return;
 		}
 
@@ -227,13 +276,9 @@ abstract class Code_Block {
 
 					/*
 					 * Core should handle this, but Script Module assets are not currently handled.
-					 *
-					 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
-					 * `function_exists()` can be removed when 6.8+ is required.
 					 */
 					if (
-						function_exists( 'wp_should_load_block_assets_on_demand' )
-						&& ! wp_should_load_block_assets_on_demand() // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
+						! wp_should_load_block_assets_on_demand()
 						&& has_block( 'core/code' )
 					) {
 						self::enqueue_view_assets();

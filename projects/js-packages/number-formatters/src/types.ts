@@ -118,6 +118,17 @@ export interface CurrencyObject {
 	 * True if the formatted number has a non-0 decimal part.
 	 */
 	hasNonZeroFraction: boolean;
+
+	/**
+	 * The raw floating-point version of the number prepared for formatting,
+	 * after unit conversion and precision scaling.
+	 *
+	 * For non-decimal currencies (eg: JPY) this will actually be an integer.
+	 * Otherwise it will likely be a floating-point number. Be careful with this!
+	 * It should not be used for math if possible because of floating-point
+	 * rounding issues! Use the smallest unit instead.
+	 */
+	floatValue: number;
 }
 
 export type FormatNumber = (

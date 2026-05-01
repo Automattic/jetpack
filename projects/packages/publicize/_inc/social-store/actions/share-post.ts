@@ -3,40 +3,8 @@ import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { isErrorResponse } from '../../utils/share-post';
-import { SET_IS_SHARING_CURRENT_POST, TOGGLE_SHARE_POST_MODAL } from './constants';
+import { SET_IS_SHARING_CURRENT_POST } from './constants';
 import { pollForPostShareStatus } from './share-status';
-
-/**
- * Toggles the share post modal.
- *
- * @param isOpen - Whether the modal is open.
- *
- * @return - An action object.
- */
-export function toggleSharePostModal( isOpen: boolean ) {
-	return {
-		type: TOGGLE_SHARE_POST_MODAL,
-		isOpen,
-	};
-}
-
-/**
- * Opens the share post modal.
- *
- * @return - An action object.
- */
-export function openSharePostModal() {
-	return toggleSharePostModal( true );
-}
-
-/**
- * Closes the share post modal.
- *
- * @return - An action object.
- */
-export function closeSharePostModal() {
-	return toggleSharePostModal( false );
-}
 
 /**
  * Sets whether the current post is being shared.
@@ -75,8 +43,7 @@ export function shareCurrentPost(
 	{ apiPath, savePost = true }: ShareCurrentPostConfig
 ) {
 	return async function ( { dispatch, registry } ): Promise< boolean > {
-		const { createErrorNotice, createSuccessNotice, removeNotice } =
-			registry.dispatch( noticesStore );
+		const { createErrorNotice, removeNotice } = registry.dispatch( noticesStore );
 		const { isCurrentPostPublished, isEditedPostDirty, isEditedPostAutosaveable } =
 			registry.select( editorStore );
 
@@ -132,11 +99,6 @@ export function shareCurrentPost(
 			} );
 		} else {
 			dispatch( pollForPostShareStatus() );
-
-			createSuccessNotice( __( 'Request submitted successfully.', 'jetpack-publicize-pkg' ), {
-				type: 'snackbar',
-				id: SHARE_POST_NOTICE_ID,
-			} );
 		}
 
 		dispatch( setIsSharingCurrentPost( false ) );

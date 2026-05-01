@@ -14,6 +14,8 @@ export type ConnectionsToggleListProps = {
 	getItemClassName?: ( connection: Connection ) => string;
 };
 
+const noop = () => {};
+
 /**
  * The component to render a list of social media connections as a toggle list.
  *
@@ -24,7 +26,7 @@ export function ConnectionsToggleList( {
 	onClickItem,
 	getItemClassName,
 }: ConnectionsToggleListProps ) {
-	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
+	const { canBeTurnedOn, shouldBeDisabled, getDisabledReason } = useConnectionState();
 	const { connections } = useSocialMediaConnections();
 
 	const onClickConnection = useCallback(
@@ -44,8 +46,19 @@ export function ConnectionsToggleList( {
 				const isSelected = Boolean( canBeTurnedOn( connection ) && connection.enabled );
 
 				const isDisabled = shouldBeDisabled( connection );
+				const isQuotaBlocked = getDisabledReason( connection ) === 'quota_exceeded';
 
 				const ariaLabel = getA11yLabelForConnectionToggle( connection );
+				const quotaReachedLabel = __( 'Sharing limit reached', 'jetpack-publicize-pkg' );
+
+				const quotaTooltipProps = isQuotaBlocked
+					? {
+							label: quotaReachedLabel,
+							description: quotaReachedLabel,
+							showTooltip: true,
+							accessibleWhenDisabled: true,
+					  }
+					: {};
 
 				return (
 					<Button
@@ -65,17 +78,17 @@ export function ConnectionsToggleList( {
 						aria-label={ ariaLabel }
 						aria-checked={ isSelected }
 						className={ clsx( styles.item, getItemClassName?.( connection ) ) }
+						{ ...quotaTooltipProps }
 					>
 						<div className={ styles[ 'connection-info' ] }>
 							<FormToggle
 								tabIndex={ -1 }
 								checked={ isSelected }
+								onChange={ noop }
 								disabled={ isDisabled }
 								aria-label={ ariaLabel }
 							/>
-							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
-								{ connection.display_name }
-							</div>
+							<div className={ styles[ 'display-name' ] }>{ connection.display_name }</div>
 						</div>
 					</Button>
 				);

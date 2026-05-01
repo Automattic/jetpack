@@ -14,6 +14,7 @@ import { BlockHandler } from '../block-handler';
  * Types
  */
 import type { BlockEditorDispatch } from '../types';
+import type { Block as WPBlock } from '@wordpress/blocks';
 
 export class JetpackFormHandler extends BlockHandler {
 	currentListOfValidBlocks = [];
@@ -42,7 +43,7 @@ export class JetpackFormHandler extends BlockHandler {
 		// Extract variation name from the parsed contact-form block if present
 		const contactFormBlock = parsedBlocks.find( block => block.name === 'jetpack/contact-form' );
 		if ( contactFormBlock && contactFormBlock.attributes?.variationName ) {
-			this.originalVariationName = contactFormBlock.attributes.variationName;
+			this.originalVariationName = contactFormBlock.attributes.variationName as string;
 		}
 
 		// Remove the Jetpack Form block from the content.
@@ -107,11 +108,15 @@ export class JetpackFormHandler extends BlockHandler {
 
 			/*
 			 * Inspect generated blocks list,
-			 * checking if the jetpack/button block:
+			 * checking the submit button block (core/button or jetpack/button):
 			 * - if it exists twice or more, remove the first one.
 			 * - if it does not exist, create one (unless there's a navigation block).
 			 */
-			const allButtonBlocks = validBlocks.filter( block => block.name === 'jetpack/button' );
+			const isButtonBlock = ( block: ( typeof validBlocks )[ number ] ) =>
+				block.name === 'jetpack/button' ||
+				( block.name === 'core/button' && block.attributes?.tagName === 'button' );
+
+			const allButtonBlocks = validBlocks.filter( isButtonBlock );
 			const hasNavigationBlock = validBlocks.some(
 				block => block.name === 'jetpack/form-step-navigation'
 			);
@@ -121,7 +126,7 @@ export class JetpackFormHandler extends BlockHandler {
 				// Remove all button blocks, less the last one.
 				let buttonCounter = 0;
 				this.currentListOfValidBlocks = this.currentListOfValidBlocks.filter( block => {
-					if ( block.name !== 'jetpack/button' ) {
+					if ( ! isButtonBlock( block ) ) {
 						return true;
 					}
 
@@ -137,11 +142,10 @@ export class JetpackFormHandler extends BlockHandler {
 				// One button block is required for non-multistep forms.
 				replaceInnerBlocks( this.clientId, [
 					...this.currentListOfValidBlocks,
-					createBlock( 'jetpack/button', {
-						label: __( 'Submit', 'jetpack' ),
-						element: 'button',
+					createBlock( 'core/button', {
+						tagName: 'button',
+						type: 'submit',
 						text: __( 'Submit', 'jetpack' ),
-						borderRadius: 8,
 						lock: {
 							remove: true,
 						},
@@ -193,7 +197,7 @@ export class JetpackFormHandler extends BlockHandler {
 		}
 
 		return innerBlocks.reduce( ( acc, innerBlock ) => {
-			return acc + serialize( innerBlock ) + '\n\n';
+			return acc + serialize( innerBlock as WPBlock ) + '\n\n';
 		}, '' );
 	}
 

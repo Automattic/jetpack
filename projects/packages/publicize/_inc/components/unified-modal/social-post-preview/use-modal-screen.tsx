@@ -3,9 +3,11 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import { hasSocialPaidFeatures } from '../../../utils';
 import { ScreenDetails } from '../types';
 import { Content } from './content';
 import { FooterContent } from './footer-content';
+import styles from './styles.module.scss';
 import { useFooterActions } from './use-footer-actions';
 
 /**
@@ -13,7 +15,7 @@ import { useFooterActions } from './use-footer-actions';
  *
  * @return screen details
  */
-export function useModalScreen(): ScreenDetails {
+export function useModalScreen() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const footerActions = useFooterActions();
@@ -23,22 +25,39 @@ export function useModalScreen(): ScreenDetails {
 		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
 	}, [] );
 
-	return useMemo(
+	// useMemo not really needed but it encapsulates the logic.
+	const title = useMemo( () => {
+		if ( isPrePublishScreen ) {
+			return _x(
+				'Confirm social sharing',
+				'Modal title for pre-publish confirmation',
+				'jetpack-publicize-pkg'
+			);
+		}
+
+		if ( isPostPublished ) {
+			return __( 'Customize and share to social media', 'jetpack-publicize-pkg' );
+		}
+
+		return _x(
+			'Preview and customize',
+			'Title for social post preview modal',
+			'jetpack-publicize-pkg'
+		);
+	}, [ isPrePublishScreen, isPostPublished ] );
+
+	return useMemo< ScreenDetails >(
 		() => ( {
 			path: '/',
-			title: ! isPostPublished
-				? __( 'Preview and customize', 'jetpack-publicize-pkg' )
-				: _x(
-						'Customize and share to social media',
-						'Share here is imperative verb',
-						'jetpack-publicize-pkg'
-				  ),
+			title,
 			isScreenLocked: true,
 			headerIcon: isPrePublishScreen ? <JetpackLogo /> : null,
 			content: <Content />,
 			footerContent: <FooterContent />,
 			footerActions,
+			className: styles[ 'social-post-preview-screen' ],
+			'data-plan': hasSocialPaidFeatures() ? 'paid' : 'free',
 		} ),
-		[ isPostPublished, isPrePublishScreen, footerActions ]
+		[ isPrePublishScreen, footerActions, title ]
 	);
 }

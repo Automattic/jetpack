@@ -1,0 +1,8 @@
+.wp-block-jetpack-results-count {
+	font-size: 0.85rem;
+	// Inherit the theme's text color so the block adapts to the site palette
+	// and dark themes. Opacity keeps the muted look.
+	color: inherit;
+	opacity: 0.7;
+	margin: 0;
+}

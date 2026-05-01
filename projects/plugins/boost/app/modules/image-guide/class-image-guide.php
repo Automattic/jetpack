@@ -68,7 +68,7 @@ class Image_Guide implements Feature {
 				'id'     => 'jetpack-boost-guide',
 				'parent' => null,
 				'group'  => null,
-				'title'  => __( 'Jetpack Boost', 'jetpack-boost' ),
+				'title'  => 'Jetpack Boost', // "Jetpack Boost" is a product name, do not translate.
 				'href'   => admin_url( 'admin.php?page=' . Admin::MENU_SLUG ),
 				'meta'   => array(
 					'target' => '_self',

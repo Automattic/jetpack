@@ -44,6 +44,9 @@ class Jetpack_Google_Font_Face {
 	public function wp_loaded() {
 		remove_action( 'wp_head', 'wp_print_fonts', 50 );
 		remove_action( 'wp_head', 'wp_print_font_faces', 50 );
+		// Gutenberg 22.4+ overrides Core's font printing with its own function
+		// for classic theme support. Remove it so we can print only fonts in use.
+		remove_action( 'wp_head', 'gutenberg_print_font_faces', 50 );
 	}
 
 	/**

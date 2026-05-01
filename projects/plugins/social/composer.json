@@ -18,7 +18,6 @@
 		"automattic/jetpack-post-list": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"brain/monkey": "^2.6.2",
@@ -84,6 +83,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ7_4_0"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ8_0_1"
 	}
 }

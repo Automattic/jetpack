@@ -11,9 +11,9 @@ namespace Automattic\Jetpack\Extensions\Story;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Connection_Assets;
+use Automattic\Jetpack\Post_Media\Images;
 use Jetpack;
 use Jetpack_Gutenberg;
-use Jetpack_PostImages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -278,7 +278,7 @@ function get_image_crop_class( $width, $height ) {
  * @return string
  */
 function get_blavatar_or_site_icon_url( $size, $fallback ) {
-	$image_array = Jetpack_PostImages::from_blavatar( get_the_ID(), $size );
+	$image_array = Images::from_blavatar( get_the_ID(), $size );
 	if ( ! empty( $image_array ) ) {
 		return $image_array[0]['src'];
 	} else {

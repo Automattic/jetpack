@@ -1,37 +1,7 @@
 @use "scss/variables";
 @use "scss/rna-styles";
 
-* {
-	box-sizing: border-box;
-}
-
-body {
-	min-height: 100%;
-	margin: 0;
-	padding: 0;
-	font-family:
-		-apple-system,
-		BlinkMacSystemFont,
-		"Segoe UI",
-		Roboto,
-		Oxygen-Sans,
-		Ubuntu,
-		Cantarell,
-		"Helvetica Neue",
-		sans-serif;
-}
-
-#wpcontent {
-	padding-left: 0 !important;
-}
-
-#screen-meta,
-#screen-meta-links {
-	display: none;
-}
-
 #jp-search-dashboard {
-	background-color: variables.$white;
 	color: variables.$black;
 	font-size: 16px;
 	// 32px = wpadminbar height
@@ -43,6 +13,7 @@ body {
 	}
 
 	.jp-search-dashboard-page {
+		background-color: variables.$white;
 		width: 100%;
 	}
 
@@ -52,8 +23,13 @@ body {
 
 	.jp-search-dashboard-top {
 		background-color: #f9f9f6;
-
-		overflow: hidden;
+		// Clip only the bottom edge so the mocked-search box-shadow doesn't
+		// bleed into the next section, while leaving the shadow visible on
+		// the other sides. Avoids `overflow: hidden` here because the mixin
+		// in @automattic/jetpack-base-styles/admin-page-layout makes this a
+		// flex item; `overflow != visible` would resolve `min-height: auto`
+		// to 0 and let the section get crushed.
+		clip-path: inset(-100px -100px 0 -100px);
 	}
 
 	.jp-search-dashboard-top__title {
@@ -77,19 +53,7 @@ body {
 
 	.jp-search-dashboard-bottom {
 		background-color: variables.$white;
-	}
-
-	.jp-search-dashboard-header,
-	.jp-search-dashboard-footer {
-		padding: 2.5em 0;
-
-		background-color: variables.$white;
-	}
-
-	.jp-search-dashboard-header__logo-container {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		padding-bottom: 2.5em;
 	}
 }
 

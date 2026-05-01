@@ -136,7 +136,7 @@ function wpcom_imports_enqueue_script() {
 		'wpcom-importer-entry',
 		plugins_url( 'wpcom-importer-entry.js', __FILE__ ),
 		array( 'wp-i18n', 'wp-dom-ready' ),
-		'1.0.0',
+		'1.0.1',
 		true
 	);
 

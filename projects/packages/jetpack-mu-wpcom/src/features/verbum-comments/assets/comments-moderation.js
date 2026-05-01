@@ -5,7 +5,7 @@
  */
 /* global VerbumComments, verbumBlockEditor */
 document.addEventListener( 'DOMContentLoaded', function () {
-	const embedContentCallback = embedUrl => {
+	const embedContentCallback = ( /** @type {string} */ embedUrl ) => {
 		return {
 			path: '/verbum/embed',
 			query: `embed_url=${ encodeURIComponent( embedUrl ) }&embed_nonce=${ encodeURIComponent(
@@ -28,6 +28,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		},
 		VerbumComments.isRTL,
 		embedContentCallback,
-		false // No dark-mode: wp-admin is always the same colour as winter in Britain.
+		false, // No dark-mode: wp-admin is always the same colour as winter in Britain.
+		false // Avoid focusing the editor when it mounts, as this shifts focus to the editor immediately on page load, a practice that is not ideal for accessibility.
 	);
 } );

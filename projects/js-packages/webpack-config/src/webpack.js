@@ -5,13 +5,17 @@ const I18nSafeMangleExportsWebpackPlugin = require( '@automattic/i18n-check-webp
 const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
 const WebpackRTLWebpackPlugin = require( '@automattic/webpack-rtl-plugin' );
 const DuplicatePackageCheckerWebpackPlugin = require( '@cerner/duplicate-package-checker-webpack-plugin' );
+const ReactRefreshWebpackPlugin = require( '@pmmmwh/react-refresh-webpack-plugin' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const CssMinimizerWebpackPlugin = require( 'css-minimizer-webpack-plugin' );
 const ForkTSCheckerWebpackPlugin = require( 'fork-ts-checker-webpack-plugin' );
 const MiniCssExtractWebpackPlugin = require( 'mini-css-extract-plugin' );
 const webpack = require( 'webpack' );
+const BundledWpPkgsTranspileRules = require( './webpack/bundled-wp-pkgs-transpile-rules' );
 const CssRule = require( './webpack/css-rule' );
+const DevServer = require( './webpack/dev-server' );
 const FileRule = require( './webpack/file-rule' );
+const loadTextDomainFromComposerJson = require( './webpack/load-textdomain-from-composer-json.js' );
 const MiniCSSWithRTLWebpackPlugin = require( './webpack/mini-css-with-rtl' );
 const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-ids.js' );
 const TerserPlugin = require( './webpack/terser' );
@@ -20,36 +24,6 @@ const TranspileRule = require( './webpack/transpile-rule' );
 const CssMinimizerPlugin = options => new CssMinimizerWebpackPlugin( options );
 
 /****** Functions ******/
-
-let loadTextDomainFromComposerJson = () => {
-	let dir = process.cwd(),
-		olddir,
-		ret;
-	do {
-		const file = path.join( dir, 'composer.json' );
-		if ( fs.existsSync( file ) ) {
-			const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
-			if ( cfg.extra ) {
-				if ( cfg.extra.textdomain ) {
-					ret = cfg.extra.textdomain;
-				} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
-					ret = cfg.extra[ 'wp-plugin-slug' ];
-				} else if ( cfg.extra[ 'beta-plugin-slug' ] ) {
-					ret = cfg.extra[ 'beta-plugin-slug' ];
-				}
-			}
-			break;
-		}
-
-		olddir = dir;
-		dir = path.dirname( dir );
-	} while ( dir !== olddir );
-
-	// thunk it
-	loadTextDomainFromComposerJson = () => ret;
-
-	return ret;
-};
 
 const i18nFilterFunction = file => {
 	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
@@ -140,6 +114,12 @@ const defaultRequestMap = {
 	'@automattic/jetpack-connection': {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
+	},
+	// Bundle admin-ui CSS with our assets. The JS side is already handled by the
+	// DependencyExtractionPlugin's BUNDLED_PACKAGES list, but the CSS subpath import
+	// doesn't match that exact-match check and would be incorrectly externalized.
+	'@wordpress/admin-ui/build-style/style.css': {
+		external: false,
 	},
 };
 
@@ -286,6 +266,11 @@ const StandardPlugins = ( options = {} ) => {
 			? []
 			: PnpmDeterministicModuleIdsPlugin( options.PnpmDeterministicModuleIdsPlugin ) ),
 		...( options.WebpackRtlPlugin === false ? [] : WebpackRtlPlugin( options.WebpackRtlPlugin ) ),
+		...( options.ReactRefreshWebpackPlugin === false ||
+		process.env.WEBPACK_SERVE !== 'true' ||
+		isProduction
+			? []
+			: [ new ReactRefreshWebpackPlugin( options.ReactRefreshWebpackPlugin ) ] ),
 	];
 };
 
@@ -307,6 +292,7 @@ module.exports = {
 	CssMinimizerPlugin,
 	resolve,
 	watchOptions,
+	DevServer,
 	// Plugins.
 	StandardPlugins,
 	DefinePlugin,
@@ -321,8 +307,10 @@ module.exports = {
 	MomentLocaleIgnorePlugin,
 	PnpmDeterministicModuleIdsPlugin,
 	WebpackRtlPlugin,
+	ReactRefreshWebpackPlugin,
 	// Module rules and loaders.
 	TranspileRule,
+	BundledWpPkgsTranspileRules,
 	CssRule,
 	FileRule,
 };

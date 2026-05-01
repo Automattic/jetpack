@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -54,4 +53,4 @@ $args = array(
 global $zbs;
 $tasks = $zbs->DAL->events->getEvents( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-wp_send_json( $tasks );
+wp_send_json( $tasks, 200, JSON_UNESCAPED_SLASHES );

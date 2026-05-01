@@ -22,13 +22,13 @@ function check_underscores {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (120_stop_invalid_characters)
+# Based on Automattic/pre-receive-hooks/blob/a8ad6e0c/main-pre-receive-hooks.sh (120_stop_invalid_characters)
 function check_invalid_chars {
 	local FILE="$1"
-	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@-]' <<<"$FILE" || true )
+	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@\-,]' <<<"$FILE" || true )
 	if [[ -n "$Z" ]]; then
 		echo '  ❌ Filename contains disallowed characters!'
-		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, and `-` are allowed.'
+		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, `-`, and `,` are allowed.'
 	fi
 }
 
@@ -168,7 +168,7 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 		echo "- $FILE"
 		check_executable "$FILE"
 		check_symlink "$FILE"
-	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=M )
+	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=MT )
 
 	if [[ -z "$FAILED" ]]; then
 		OUTPUT+=( "✅ $SLUG: All good!" )

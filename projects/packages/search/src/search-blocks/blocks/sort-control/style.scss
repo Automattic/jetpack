@@ -1,0 +1,193 @@
+.wp-block-jetpack-sort-control {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	// Pin to the right edge of its flex-row parent (e.g. the Blog Search Page
+	// pattern) regardless of sibling widths.
+	margin-inline-start: auto;
+
+	label {
+		font-size: 0.9rem;
+		// Inherit the theme's text color so the label adapts to dark themes
+		// and the site palette.
+		color: inherit;
+		opacity: 0.8;
+	}
+
+	// Leave the <select>'s colors / border / background to the browser:
+	// native controls render correctly on any background and stay
+	// accessible on every platform without per-OS workarounds (e.g.
+	// transparent backgrounds breaking the dropdown list on Windows).
+	// Padding is safe to nudge — it doesn't affect the dropdown chrome —
+	// and matching the clear-all button keeps the toolbar row balanced.
+	select {
+		padding: 0.2rem 0.5rem;
+	}
+
+	// Reset browser defaults on the radio-variant fieldset. Without this the
+	// block would render a bordered box around the radio group, which doesn't
+	// match the inline look of the select variant and surprises theme authors
+	// who style the block as a single row.
+	.jetpack-search-sort-control__radio-group {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		border: 0;
+		margin: 0;
+		padding: 0;
+
+		// Visually hide the legend — the radio variant presents options
+		// inline without a leading label, but assistive tech still needs
+		// the fieldset to have an accessible name. Same off-screen-clip
+		// pattern as the hidden radio input.
+		legend {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+	}
+
+	// Visually present the radio variant as text-only sort options, mirroring
+	// the wider-screen instant-search "with-links" variant. The radio inputs
+	// stay in the a11y tree (visually hidden, still focusable for arrow-key
+	// navigation across the group) and the label carries the click target.
+	// Selection is cued with weight + full opacity so the active option rides
+	// the site palette instead of pinning to a fixed accent color.
+	.jetpack-search-sort-control__radio-item {
+		display: flex;
+		align-items: center;
+		// Anchor the absolutely-positioned visually-hidden radio to its own
+		// item rather than letting it climb to the nearest positioned
+		// ancestor. No visible effect (the input is 1px clipped) — just
+		// makes the containment intent explicit.
+		position: relative;
+		font-size: 0.9rem;
+
+		input[type="radio"] {
+			appearance: none;
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+
+		label {
+			cursor: pointer;
+		}
+
+		input[type="radio"]:checked + label {
+			opacity: 1;
+			font-weight: 600;
+		}
+
+		// Mirror the radio's keyboard focus on the label, since the input
+		// itself is visually hidden.
+		input[type="radio"]:focus-visible + label {
+			outline: 2px solid currentColor;
+			outline-offset: 2px;
+		}
+
+		// Bullet separator between options. Decorative — the empty
+		// alt-text in the `content` value (`"•" / ""`) opts the glyph out
+		// of the assistive-tech accessible name, since some screen-reader
+		// configurations do read CSS-generated content otherwise. The
+		// fieldset/legend already announces the group, so an extra
+		// "bullet" announcement would be noise.
+		&:not(:last-child)::after {
+			content: "•" / "";
+			margin-block: 0;
+			margin-inline: 0.5rem;
+			opacity: 0.5;
+		}
+	}
+}
+
+.jetpack-search-sort--popover {
+	position: relative;
+	display: inline-block;
+
+	.jetpack-search-sort__trigger {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 20%, transparent);
+		background: transparent;
+		color: inherit;
+		border-radius: 4px;
+		cursor: pointer;
+
+		&:hover:not(:disabled),
+		&[aria-expanded="true"] {
+			background: color-mix(in sRGB, currentColor 6%, transparent);
+		}
+
+		&:disabled {
+			cursor: not-allowed;
+			opacity: 0.4;
+		}
+	}
+
+	.jetpack-search-sort__menu {
+		position: absolute;
+		inset-inline-end: 0;
+		inset-block-start: calc(100% + 4px);
+		min-width: 160px;
+		z-index: 20;
+		display: flex;
+		flex-direction: column;
+		padding: 4px;
+		background: var(--wp--preset--color--base);
+		// The menu owns its surface, so don't inherit a low-contrast body
+		// accent color from the surrounding page.
+		color: var(--wp--preset--color--contrast);
+		// Reset the inherited theme base size so menu items track the
+		// search-results title (also 1rem) instead of the host theme's
+		// oversized default. `font: inherit` on menu items picks this up.
+		font-size: 1rem;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 15%, transparent);
+		border-radius: 4px;
+		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-sort__menu-item {
+		appearance: none;
+		border: none;
+		background: transparent;
+		color: inherit;
+		padding: 6px 8px;
+		text-align: start;
+		font: inherit;
+		border-radius: 2px;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			background: color-mix(in sRGB, currentColor 8%, transparent);
+		}
+
+		&[aria-checked="true"]::before {
+			content: "✓";
+			margin-inline-end: 6px;
+		}
+	}
+}

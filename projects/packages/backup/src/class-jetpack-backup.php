@@ -30,10 +30,6 @@ use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
-// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
-use function __;
-// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
-use function _x;
 use function add_action;
 use function add_filter;
 use function did_action;
@@ -161,8 +157,8 @@ class Jetpack_Backup {
 	 */
 	public static function add_wp_admin_submenu() {
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack VaultPress Backup', 'jetpack-backup-pkg' ),
-			_x( 'VaultPress Backup', 'The Jetpack VaultPress Backup product name, without the Jetpack prefix', 'jetpack-backup-pkg' ),
+			'Jetpack Backup',
+			'Backup', // Product name, do not translate.
 			'manage_options',
 			'jetpack-backup',
 			array( __CLASS__, 'plugin_settings_page' ),
@@ -592,14 +588,14 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns the result of `/sites/%d/purchases` endpoint call.
+	 * Returns the result of `/upgrades` endpoint call.
 	 *
 	 * @return array of site purchases.
 	 */
 	public static function get_site_current_purchases() {
 
-		$request  = sprintf( '/sites/%d/purchases', Jetpack_Options::get_option( 'id' ) );
-		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+		$request  = sprintf( '/upgrades?site=%d', Jetpack_Options::get_option( 'id' ) );
+		$response = Client::wpcom_json_api_request_as_blog( $request, '1.2' );
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {

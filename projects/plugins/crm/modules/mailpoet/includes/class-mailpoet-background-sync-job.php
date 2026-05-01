@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -30,7 +30,7 @@ class Mailpoet_Background_Sync_Job {
 	 * Number of subscribers to process per job
 	 */
 	private $subscribers_per_page = 500;
-	private $pages_per_job = 1;
+	private $pages_per_job        = 1;
 
 	/**
 	 * Current page the job is working on
@@ -46,12 +46,12 @@ class Mailpoet_Background_Sync_Job {
 	 * Number of subscribers in MailPoet
 	 */
 	private $mailpoet_total_subscribers = 0;
-	
+
 	/**
 	 * A per-job cached list of MailPoet Segment data
 	 */
 	public $segment_list = false;
-	
+
 	/**
 	 * If set to true this will echo progress of a sync job.
 	 */
@@ -62,79 +62,70 @@ class Mailpoet_Background_Sync_Job {
 	 */
 	public function __construct( $debug = false, $subscribers_per_page = 50, $pages_per_job = 1 ) {
 
-
 		// set vars
-		$this->debug           = $debug;
+		$this->debug                = $debug;
 		$this->subscribers_per_page = $subscribers_per_page;
-		$this->pages_per_job   = $pages_per_job;
+		$this->pages_per_job        = $pages_per_job;
 
 		// promote paused state
 		// <for now we're pausing on this pause functionality>
-
 	}
-
 
 	/**
 	 * Returns main class instance
 	 */
-	public function mailpoet(){
+	public function mailpoet() {
 
 		global $zbs;
 		return $zbs->modules->mailpoet;
-
 	}
-
 
 	/**
 	 * Returns full settings array from main settings class
 	 */
-	public function settings(){
+	public function settings() {
 
 		return $this->mailpoet()->settings->getAll();
-
 	}
 
-	
 	/**
 	 * If $this->debug is true, outputs passed string
 	 *
 	 * @param string - Debug string
 	 */
-	private function debug( $str ){
+	private function debug( $str ) {
 
-		if ( $this->debug ){
+		if ( $this->debug ) {
 
 			echo '[' . zeroBSCRM_locale_utsToDatetime( time() ) . '] ' . $str . '<br>';
 
 		}
-
 	}
-
 
 	/**
 	 * Main job function: this will retrieve and import subscribers from MailPoet into CRM.
-	 * 
+	 *
 	 * @return mixed (int|json)
 	 *   - if cron originated: a count of subscribers imported is returned
 	 *   - if not cron originated (assumes AJAX):
 	 *      - if completed sync: JSON summary info is output and then exit() is called
 	 *      - else count of subscribers imported is returned
 	 */
-	public function run_sync(){
+	public function run_sync() {
 
 		global $zbs;
 
 		$this->debug( 'Fired `run_sync()`' );
 
 		// prep vars
-		$run_sync_job = true;
+		$run_sync_job          = true;
 		$total_remaining_pages = 0;
-		$total_pages = 0;
-		$errors = array();
-		$subscribers_synced = 0;
+		$total_pages           = 0;
+		$errors                = array();
+		$subscribers_synced    = 0;
 
 		// check not marked 'paused'
-		if ( $this->paused ){
+		if ( $this->paused ) {
 
 			// skip it
 			$this->debug( 'Skipping Sync (mode: ' . $this->mode . ') - Paused' );
@@ -146,11 +137,11 @@ class Mailpoet_Background_Sync_Job {
 
 		// switch by mode
 		if ( $this->mode == JPCRM_MAILPOET_MODE_LOCAL ) {
-	
+
 			// local install
 
 			// verify mailpoet installed
-			if ( !$zbs->mailpoet_is_active() ) {
+			if ( ! $zbs->mailpoet_is_active() ) {
 
 				$status_short_text = __( 'Missing MailPoet', 'zero-bs-crm' );
 
@@ -167,7 +158,6 @@ class Mailpoet_Background_Sync_Job {
 				$run_sync_job = false;
 
 			}
-
 		} else {
 
 			// no mode, or a faulty one!
@@ -185,7 +175,7 @@ class Mailpoet_Background_Sync_Job {
 
 		}
 
-		if ( $run_sync_job ){
+		if ( $run_sync_job ) {
 
 			$this->debug( 'Running Import of ' . $this->pages_per_job . ' pages' );
 
@@ -207,8 +197,8 @@ class Mailpoet_Background_Sync_Job {
 
 				// import the page of subscribers
 				// This always returns the count of imported subscribers,
-				//   unless 100% sync is reached, at which point it will exit (if called via AJAX)
-				//   for now, we don't need to track the return
+				// unless 100% sync is reached, at which point it will exit (if called via AJAX)
+				// for now, we don't need to track the return
 				$subscribers_synced += (int) $this->import_page_of_subscribers( $page_to_retrieve );
 
 				$this->debug( 'Subscribers completed: ' . min( ( $this->current_page * $this->subscribers_per_page ) + $subscribers_synced, $this->mailpoet_total_subscribers ) . ' / ' . $this->mailpoet_total_subscribers );
@@ -223,13 +213,13 @@ class Mailpoet_Background_Sync_Job {
 		// return overall % counts later used to provide a summary % across sync site connections
 		$percentage_counts = $this->percentage_completed( true );
 		if ( is_array( $percentage_counts ) ) {
-			$total_pages = (int)$percentage_counts['total_pages'];
+			$total_pages           = (int) $percentage_counts['total_pages'];
 			$total_remaining_pages = $percentage_counts['total_pages'] - ( $percentage_counts['page_no'] + 1 );
 		}
 
 		// We should never have less than zero here
 		// (seems to happen when site connections error out)
-		if ( $total_remaining_pages < 0 ){
+		if ( $total_remaining_pages < 0 ) {
 			$total_remaining_pages = 0;
 		}
 
@@ -237,11 +227,9 @@ class Mailpoet_Background_Sync_Job {
 			'total_pages'           => $total_pages,
 			'total_remaining_pages' => $total_remaining_pages,
 			'errors'                => $errors,
-			'subscribers_synced'    => $subscribers_synced
+			'subscribers_synced'    => $subscribers_synced,
 		);
-
 	}
-
 
 	/**
 	 * Retrieve and process 1 page of MailPoet Subscribers from local install (or later, API)
@@ -270,9 +258,7 @@ class Mailpoet_Background_Sync_Job {
 			return false;
 
 		}
-
 	}
-
 
 	/**
 	 * Retrieve and process a page of MailPoet Subscribers from local install
@@ -290,7 +276,7 @@ class Mailpoet_Background_Sync_Job {
 		// Where we're trying to run without MailPoet, fail.
 		// In theory we shouldn't ever hit this, as we catch it earlier.
 		global $zbs;
-		if ( !$zbs->mailpoet_is_active() ) {
+		if ( ! $zbs->mailpoet_is_active() ) {
 			$this->debug( 'Unable to import as it appears the MailPoet plugin is not installed.' );
 			return false;
 		}
@@ -299,7 +285,7 @@ class Mailpoet_Background_Sync_Job {
 		if ( $page_no < 0 ) {
 			$page_no = 0;
 		}
-		$limit = $this->subscribers_per_page;
+		$limit  = $this->subscribers_per_page;
 		$offset = $this->subscribers_per_page * $page_no;
 
 		$this->debug( 'Retrieving page ' . $page_no . ' of subscribers (limit=' . $limit . ', offset=' . $offset . ')' );
@@ -318,10 +304,9 @@ class Mailpoet_Background_Sync_Job {
 				// will be an assoc arr of sub details
 				$this->import_subscriber( $subscriber );
 
-				$subscribers_synced++;
+				++$subscribers_synced;
 
 			}
-
 		} else {
 
 			$this->debug( 'No MailPoet subscribers found (have we reached the end of the list?)' );
@@ -361,7 +346,7 @@ class Mailpoet_Background_Sync_Job {
 	 * Takes a MailPoet associative array for a subscriber and adds/updates a crm contact
 	 *
 	 * @param array $subscriber
-	 * 
+	 *
 	 * @return int $contact_id
 	 */
 	public function import_subscriber( $subscriber ) {
@@ -373,39 +358,39 @@ class Mailpoet_Background_Sync_Job {
 
 		// get wpid where passed
 		$wpid = -1;
-		if ( isset( $subscriber['wp_user_id'] ) && !empty( $subscriber['wp_user_id'] ) ){
+		if ( isset( $subscriber['wp_user_id'] ) && ! empty( $subscriber['wp_user_id'] ) ) {
 
 			$wpid = $subscriber['wp_user_id'];
 
 		}
 
 		// unused subscriber attributes:
-		// is_woocommerce_user, status, subscribed_ip, confirmed_ip, confirmed_at, last_subscribed_at, 
-		// updated_at, deleted_at, unconfirmed_data, source (e.g. wordpress user), count_confirmations,
+		// is_woocommerce_user, status, subscribed_ip, confirmed_ip, confirmed_at, last_subscribed_at,
+		// updated_at, deleted_at, unconfirmed_data, source (e.g. WordPress user), count_confirmations,
 		// unsubscribe_token, link_token, engagement_score, engagement_score_updated_at, last_engagement_at
 		// woocommerce_synced_at, email_count
 		$contact_args = array(
 
 			'data' => array(
 
-				'email' => $subscriber['email'],
-                'fname' =>  $subscriber['first_name'],
-                'lname' =>  $subscriber['last_name'],
-                'wpid'  => $wpid,
+				'email'           => $subscriber['email'],
+				'fname'           => $subscriber['first_name'],
+				'lname'           => $subscriber['last_name'],
+				'wpid'            => $wpid,
 
-                'externalSources' => array( 
-                	array( 
-	                	'source'   => 'mailpoet',
-	                	'uid'      => $subscriber['id'],
-	                	'origin'   => '', // for now this is always same-site
-	                	'owner'    => 0 // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
-                	)
-                ),
+				'externalSources' => array(
+					array(
+						'source' => 'mailpoet',
+						'uid'    => $subscriber['id'],
+						'origin' => '', // for now this is always same-site
+						'owner'  => 0, // for now we hard-type no owner to avoid ownership issues. As we roll out fuller ownership we may want to adapt this.
+					),
+				),
 
-                'created' => strtotime( $subscriber['created_at'] ),
+				'created'         => strtotime( $subscriber['created_at'] ),
 
 			),
-			//'extraMeta' => array()
+			// 'extraMeta' => array()
 
 		);
 
@@ -447,7 +432,6 @@ class Mailpoet_Background_Sync_Job {
 					}
 				}
 			}
-
 		}
 
 		if ( $settings['tag_with_tags'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
@@ -475,19 +459,17 @@ class Mailpoet_Background_Sync_Job {
 					}
 				}
 			}
-
 		}
 
 		// got tags?
-		if ( count( $tags ) > 0 ){
+		if ( count( $tags ) > 0 ) {
 
-			$contact_args['data']['tags'] = $tags;
+			$contact_args['data']['tags']     = $tags;
 			$contact_args['data']['tag_mode'] = 'append';
 
 		}
 
-
-		//$this->debug( 'Add/Update contact: <pre>' . var_export( $contact_args ) . '</pre>' );
+		// $this->debug( 'Add/Update contact: <pre>' . var_export( $contact_args ) . '</pre>' );
 
 		// Add/update the contact & return id
 		return $zbs->DAL->contacts->addUpdateContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -498,18 +480,17 @@ class Mailpoet_Background_Sync_Job {
 		);
 	}
 
-
 	/**
 	 * Returns a number for total pages to process (with current $this->subscribers_per_page)
 	 *
 	 * @return int $total_pages
 	 */
-	public function get_total_page_count(){
+	public function get_total_page_count() {
 
 		// calculate it
 		$this->mailpoet_total_subscribers = $this->mailpoet()->get_all_mailpoet_subscribers_count();
-		$total_pages = 0;
-		if ( $this->subscribers_per_page > 0 && $this->mailpoet_total_subscribers > 0 ){
+		$total_pages                      = 0;
+		if ( $this->subscribers_per_page > 0 && $this->mailpoet_total_subscribers > 0 ) {
 
 			$total_pages = ceil( $this->mailpoet_total_subscribers / $this->subscribers_per_page );
 
@@ -518,9 +499,7 @@ class Mailpoet_Background_Sync_Job {
 		$this->mailpoet_total_pages = $total_pages;
 
 		return $total_pages;
-
 	}
-
 
 	/**
 	 * Set's a completion status for subscriber imports
@@ -530,60 +509,52 @@ class Mailpoet_Background_Sync_Job {
 	 *
 	 * @return bool $status
 	 */
-	public function set_first_import_status( $status ){
+	public function set_first_import_status( $status ) {
 
 		return $this->mailpoet()->background_sync->set_first_import_status( $status );
-
 	}
-
 
 	/**
 	 * Returns a completion status for subscriber imports
 	 * (Wrapper)
-	 * 
+	 *
 	 * @return bool $status
 	 */
-	public function first_import_completed(){
+	public function first_import_completed() {
 
 		return $this->mailpoet()->background_sync->first_import_completed();
-
 	}
 
 	/**
 	 * Sets current working page index (to resume from)
 	 * (Wrapper)
-	 * 
+	 *
 	 * @return int $page
 	 */
-	public function set_resume_from_page( $page_no ){
+	public function set_resume_from_page( $page_no ) {
 
 		return $this->mailpoet()->background_sync->set_resume_from_page( $page_no );
-
 	}
-
 
 	/**
 	 * Return current working page index (to resume from)
 	 * (Wrapper)
-	 * 
+	 *
 	 * @return int $page
 	 */
-	public function resume_from_page(){
+	public function resume_from_page() {
 
 		return $this->mailpoet()->background_sync->resume_from_page();
-
 	}
-
 
 	/**
 	 * Returns 'local' or 'api'
 	 *  (whichever mode is selected in settings)
 	 * (Wrapper)
 	 */
-	public function import_mode( $str_mode = false ){
+	public function import_mode( $str_mode = false ) {
 
 		return $this->mailpoet()->background_sync->import_mode( $str_mode );
-
 	}
 
 	/**
@@ -591,13 +562,13 @@ class Mailpoet_Background_Sync_Job {
 	 *
 	 * @param bool $return_counts - Return counts (if true returns an array inc % completed, x of y pages)
 	 * @param bool $use_cache - use values cached in object instead of retrieving them directly from MailPoet
-	 * 
+	 *
 	 * @return int|bool - percentage completed, or false if not attainable
 	 */
 	public function percentage_completed( $return_counts = false, $use_cache = true ) {
 
 		// if not using cache, retrieve values from MailPoet
-		if ( !$use_cache ) {
+		if ( ! $use_cache ) {
 
 			// could probably abstract the retrieval of subscribers for more nesting. For now it's fairly DRY as only in 2 places.
 
@@ -619,12 +590,12 @@ class Mailpoet_Background_Sync_Job {
 		$this->debug( 'Percentage completed: ' . $percentage_completed . '%' );
 		$this->debug( 'Pages completed: ' . ( $this->current_page + 1 ) . ' / ' . $this->mailpoet_total_pages );
 
-		if ( $return_counts ){
+		if ( $return_counts ) {
 
 			return array(
 				'page_no'              => $this->current_page,
 				'total_pages'          => $this->mailpoet_total_pages,
-				'percentage_completed' => $percentage_completed
+				'percentage_completed' => $percentage_completed,
 			);
 
 		}
@@ -637,6 +608,5 @@ class Mailpoet_Background_Sync_Job {
 		}
 
 		return false;
-
 	}
 }

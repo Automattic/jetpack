@@ -12,7 +12,6 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -67,6 +66,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_paypal_payment_buttonsⓥ0_3_2"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_paypal_payment_buttonsⓥ0_4_0"
 	}
 }

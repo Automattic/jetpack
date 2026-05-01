@@ -29,6 +29,7 @@ import {
 	CompleteInterstitial,
 } from './components/product-interstitial';
 import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
+import ProtectProductPage from './components/product-interstitial/protect/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
@@ -90,6 +91,7 @@ const MyJetpack = () => {
 						<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
 					) }
 					<Route path={ MyJetpackRoutes.JetpackAi } element={ <JetpackAiProductPage /> } />
+					<Route path={ MyJetpackRoutes.ProtectDetails } element={ <ProtectProductPage /> } />
 					<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
 					<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
 					<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />

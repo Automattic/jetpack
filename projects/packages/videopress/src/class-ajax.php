@@ -65,7 +65,7 @@ class AJAX {
 			return false;
 		}
 
-		preg_match( '/^[a-z0-9]+$/i', $guid, $matches );
+		preg_match( '/^[a-z0-9]{8}$/i', $guid, $matches );
 
 		if ( empty( $matches ) ) {
 			return false;
@@ -173,6 +173,12 @@ class AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_videopress_get_upload_jwt() {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to upload files.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
+			return;
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
 		$args          = array(
 			'method' => 'POST',
@@ -206,6 +212,12 @@ class AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_videopress_get_upload_token() {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to upload files.', 'jetpack-videopress-pkg' ) ), null, JSON_UNESCAPED_SLASHES );
+			return;
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
 
 		$args = array(

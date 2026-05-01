@@ -94,16 +94,16 @@ class Data {
 		);
 
 		$args = array(
-			'order'      => $video_data['query']['order'],
-			'orderby'    => $video_data['query']['orderBy'],
-			'per_page'   => $video_data['query']['itemsPerPage'],
-			'page'       => $video_data['query']['page'],
-			'media_type' => 'video',
+			'order'    => $video_data['query']['order'],
+			'orderby'  => $video_data['query']['orderBy'],
+			'per_page' => $video_data['query']['itemsPerPage'],
+			'page'     => $video_data['query']['page'],
 		);
 
 		if ( $is_videopress ) {
 			$args['mime_type'] = 'video/videopress';
 		} else {
+			$args['media_type']    = 'video';
 			$args['no_videopress'] = true;
 		}
 

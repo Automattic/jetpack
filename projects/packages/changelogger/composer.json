@@ -17,7 +17,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
+		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0 || ^4.0",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {

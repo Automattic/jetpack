@@ -24,12 +24,6 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
 
-// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
-const priorityRepos = new Set( [
-	'Automattic/jetpack-production',
-	'Automattic/jetpack-mu-wpcom-plugin',
-] );
-
 /**
  * Options definition for the build subcommand.
  *
@@ -68,6 +62,7 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Build for production.',
 		} )
+		.option( 'pnpm-install', { type: 'boolean', hidden: true } )
 		.option( 'no-pnpm-install', {
 			type: 'boolean',
 			description: 'Skip execution of `pnpm install` before the build.',
@@ -176,6 +171,31 @@ export async function handler( argv ) {
 		);
 	}
 
+	// Add `changelogger install` task, so the "centralized" binary is available before any project build.
+	if ( argv.forMirrors ) {
+		for ( const [ k, v ] of dependencies ) {
+			// Skip pnpm.
+			if ( k !== 'pnpm install' ) {
+				v.add( 'changelogger install' );
+			}
+		}
+		dependencies.set( 'changelogger install', new Set() );
+		listr.add(
+			createBuildTask( 'changelogger install', argv, `Install changelogger`, async t => {
+				await t.setStatus( 'installing' );
+				await t.execa(
+					'composer',
+					await getInstallArgs( 'packages/changelogger', 'composer', argv ),
+					{
+						cwd: projectDir( 'packages/changelogger' ),
+						stdio: [ 'ignore', 'inherit', 'inherit' ],
+						buffer: false,
+					}
+				);
+			} )
+		);
+	}
+
 	// Add build tasks.
 	for ( const project of buildOrder ) {
 		listr.add( createBuildTask( project, argv, `Build ${ project }`, buildProject ) );
@@ -193,19 +213,11 @@ export async function handler( argv ) {
 		limit: pLimit( argv.concurrency ),
 		dependencies,
 		promises: {},
+		mirrorMutex: pLimit( 1 ),
 		versions: {},
-		mirrorRepos: [],
 	};
 	await listr
 		.run( ctx )
-		.then( async () => {
-			if ( argv.forMirrors && ctx.mirrorRepos.length > 0 ) {
-				const mirrorsFile = `${ argv.forMirrors }/mirrors.txt`;
-				await fs.writeFile( mirrorsFile, ctx.mirrorRepos.join( '\n' ) + '\n', {
-					encoding: 'utf8',
-				} );
-			}
-		} )
 		.finally( () => {
 			if ( missing.size ) {
 				console.error( '' );
@@ -608,12 +620,7 @@ async function buildProject( t ) {
 	);
 
 	// Update the changelog, if applicable.
-	if (
-		t.argv.forMirrors &&
-		( t.project === 'packages/changelogger' ||
-			composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
-			composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ] )
-	) {
+	if ( t.argv.forMirrors ) {
 		const changelogger = npath.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 		const changesDir = npath.resolve(
 			t.cwd,
@@ -626,15 +633,6 @@ async function buildProject( t ) {
 				() => false
 			)
 		) {
-			// If we're building changelogger itself, we need to install before we can run it.
-			if ( t.project === 'packages/changelogger' ) {
-				await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-					cwd: t.cwd,
-					stdio: [ 'ignore', 'inherit', 'inherit' ],
-					buffer: false,
-				} );
-			}
-
 			let prerelease = 'alpha';
 			if ( composerJson.extra?.[ 'dev-releases' ] ) {
 				const m = (
@@ -706,11 +704,7 @@ async function buildProject( t ) {
 	}
 
 	// We don't need to `composer install` if it's a CI build of a non-plugin with no build script. Except for changelogger.
-	const skipInstall =
-		t.argv.forMirrors &&
-		script === null &&
-		! t.project.startsWith( 'plugins/' ) &&
-		t.project !== 'packages/changelogger';
+	const skipInstall = t.argv.forMirrors && script === null && ! t.project.startsWith( 'plugins/' );
 
 	if ( t.argv.forMirrors && ! skipInstall ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..
@@ -1078,11 +1072,8 @@ async function buildProject( t ) {
 		version: projectVersionNumber,
 		runversion: projectRunVersionNumber,
 	};
-
-	// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
-	if ( priorityRepos.has( gitSlug ) ) {
-		t.ctx.mirrorRepos.unshift( gitSlug );
-	} else {
-		t.ctx.mirrorRepos.push( gitSlug );
-	}
+	await t.ctx.mirrorMutex( async () => {
+		// prettier-ignore
+		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
+	} );
 }

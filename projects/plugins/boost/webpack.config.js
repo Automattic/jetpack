@@ -29,6 +29,19 @@ module.exports = [
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
+			minimizer: [
+				/**
+				 * mck89/peast (used by wp i18n make-pot) can't correctly parse a ParenthesizedExpression generated from react-router.
+				 * Somehow, setting this causes that code from react-router to be tree-shaken out.
+				 */
+				jetpackWebpackConfig.TerserPlugin( {
+					terserOptions: {
+						enclose: true,
+					},
+				} ),
+				jetpackWebpackConfig.CssMinimizerPlugin(),
+			],
+
 			splitChunks: {
 				minChunks: 2,
 			},
@@ -65,6 +78,15 @@ module.exports = [
 				MiniCssExtractPlugin: {
 					filename: 'jetpack-boost.css',
 				},
+				DependencyExtractionPlugin: {
+					requestMap: {
+						// Bundle @wordpress/theme and @wordpress/private-apis inline —
+						// they're transitive deps of @wordpress/ui but aren't registered
+						// as script handles in WP core, so externalizing them breaks enqueue.
+						'@wordpress/theme': { external: false },
+						'@wordpress/private-apis': { external: false },
+					},
+				},
 			} ),
 			new webpack.ProvidePlugin( {
 				process: require.resolve( 'process/browser' ),
@@ -73,13 +95,6 @@ module.exports = [
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-				// https://github.com/WordPress/gutenberg/issues/73362
-				{
-					test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-					resolve: { fullySpecified: false },
-				},
-
 				// Transpile JavaScript
 				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,
@@ -89,6 +104,9 @@ module.exports = [
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
+
+				// Workarounds for non-extracted `@wordpress/*` packages.
+				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {

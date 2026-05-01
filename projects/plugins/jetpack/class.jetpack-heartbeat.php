@@ -64,20 +64,19 @@ class Jetpack_Heartbeat {
 	public static function generate_stats_array( $prefix = '' ) {
 		$return = array();
 
-		$return[ "{$prefix}version" ]        = JETPACK__VERSION;
-		$return[ "{$prefix}wp-version" ]     = get_bloginfo( 'version' );
-		$return[ "{$prefix}php-version" ]    = PHP_VERSION;
-		$return[ "{$prefix}branch" ]         = (float) JETPACK__VERSION;
-		$return[ "{$prefix}wp-branch" ]      = (float) get_bloginfo( 'version' );
-		$return[ "{$prefix}php-branch" ]     = (float) PHP_VERSION;
-		$return[ "{$prefix}public" ]         = Jetpack_Options::get_option( 'public' );
-		$return[ "{$prefix}ssl" ]            = Jetpack::permit_ssl();
-		$return[ "{$prefix}is-https" ]       = is_ssl() ? 'https' : 'http';
-		$return[ "{$prefix}language" ]       = get_bloginfo( 'language' );
-		$return[ "{$prefix}charset" ]        = get_bloginfo( 'charset' );
-		$return[ "{$prefix}is-multisite" ]   = is_multisite() ? 'multisite' : 'singlesite';
-		$return[ "{$prefix}identitycrisis" ] = Jetpack::check_identity_crisis() ? 'yes' : 'no';
-		$return[ "{$prefix}plugins" ]        = implode( ',', Jetpack::get_active_plugins() );
+		$return[ "{$prefix}version" ]      = JETPACK__VERSION;
+		$return[ "{$prefix}wp-version" ]   = get_bloginfo( 'version' );
+		$return[ "{$prefix}php-version" ]  = PHP_VERSION;
+		$return[ "{$prefix}branch" ]       = (float) JETPACK__VERSION;
+		$return[ "{$prefix}wp-branch" ]    = (float) get_bloginfo( 'version' );
+		$return[ "{$prefix}php-branch" ]   = (float) PHP_VERSION;
+		$return[ "{$prefix}public" ]       = Jetpack_Options::get_option( 'public' );
+		$return[ "{$prefix}ssl" ]          = Jetpack::permit_ssl();
+		$return[ "{$prefix}is-https" ]     = is_ssl() ? 'https' : 'http';
+		$return[ "{$prefix}language" ]     = get_bloginfo( 'language' );
+		$return[ "{$prefix}charset" ]      = get_bloginfo( 'charset' );
+		$return[ "{$prefix}is-multisite" ] = is_multisite() ? 'multisite' : 'singlesite';
+		$return[ "{$prefix}plugins" ]      = implode( ',', Jetpack::get_active_plugins() );
 		if ( function_exists( 'get_mu_plugins' ) ) {
 			$return[ "{$prefix}mu-plugins" ] = implode( ',', array_keys( get_mu_plugins() ) );
 		}

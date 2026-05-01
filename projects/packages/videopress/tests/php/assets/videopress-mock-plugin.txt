@@ -1,0 +1,18 @@
+<?php
+/**
+ * VideoPress Plugin Mock
+ *
+ * Plugin Name:       VideoPress
+ * Description:       VideoPress mock for testing
+ * Author:            Automattic
+ * Author URI:        https://automattic.com
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ */
+
+/**
+ * Mock class for Jetpack_VideoPress_Plugin.
+ *
+ * Makes Status::is_standalone_plugin_active() return true.
+ */
+class Jetpack_VideoPress_Plugin {}

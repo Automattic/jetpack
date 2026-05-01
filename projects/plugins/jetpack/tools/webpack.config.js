@@ -38,13 +38,6 @@ const sharedWebpackConfig = {
 	module: {
 		strictExportPresence: true,
 		rules: [
-			// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
-			// https://github.com/WordPress/gutenberg/issues/73362
-			{
-				test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
-				resolve: { fullySpecified: false },
-			},
-
 			// Transpile JavaScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
@@ -54,6 +47,9 @@ const sharedWebpackConfig = {
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [ '@automattic/', 'debug/' ],
 			} ),
+
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
@@ -161,10 +157,35 @@ module.exports = [
 				},
 			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
+			'network-admin': path.join( __dirname, '../_inc/client', 'network-admin.tsx' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+		],
+		externals: {
+			...sharedWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack',
+			} ),
+		},
+	},
+	// Build AI admin page JS.
+	{
+		...sharedWebpackConfig,
+		entry: {
+			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.js' ),
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.DependencyExtractionPlugin( {
+				// Match Boost: @wordpress/ui pulls these in; they are not reliable as WP script
+				// handles in all contexts, so bundle them instead of externalizing.
+				requestMap: {
+					'@wordpress/theme': { external: false },
+					'@wordpress/private-apis': { external: false },
+				},
+			} ),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,

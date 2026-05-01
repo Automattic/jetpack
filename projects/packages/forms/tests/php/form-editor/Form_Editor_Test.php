@@ -89,6 +89,9 @@ class Form_Editor_Test extends BaseTestCase {
 		// Verify that core blocks are in the allowed list
 		$this->assertContains( 'core/paragraph', $result, 'Paragraph block should be allowed' );
 		$this->assertContains( 'core/heading', $result, 'Heading block should be allowed' );
+		$this->assertContains( 'core/accordion', $result, 'Accordion block should be allowed' );
+		$this->assertContains( 'core/details', $result, 'Details block should be allowed' );
+		$this->assertContains( 'core/icon', $result, 'Icon block should be allowed' );
 
 		// Verify that contact-form block is NOT in the list (handled by DOM manipulation)
 		$this->assertNotContains( 'jetpack/contact-form', $result, 'Contact form block should not be in the allowed list' );
@@ -410,7 +413,11 @@ class Form_Editor_Test extends BaseTestCase {
 			'jetpack/field-rating',
 			'jetpack/field-text',
 			'jetpack/field-number',
-			'jetpack/field-file-upload',
+			'jetpack/field-hidden',
+			'jetpack/field-file',
+			'jetpack/field-time',
+			'jetpack/field-slider',
+			'jetpack/field-image-select',
 		);
 
 		// Expected blocks - supporting blocks
@@ -421,6 +428,11 @@ class Form_Editor_Test extends BaseTestCase {
 			'jetpack/options',
 			'jetpack/option',
 			'jetpack/phone-input',
+			'jetpack/dropzone',
+			'jetpack/input-range',
+			'jetpack/input-rating',
+			'jetpack/fieldset-image-options',
+			'jetpack/input-image-option',
 		);
 
 		// Expected blocks - multistep blocks
@@ -434,17 +446,28 @@ class Form_Editor_Test extends BaseTestCase {
 
 		// Expected blocks - core blocks
 		$expected_core_blocks = array(
-			'core/paragraph',
+			'core/accordion',
+			'core/audio',
+			'core/button',
+			'core/code',
+			'core/column',
+			'core/columns',
+			'core/details',
+			'core/group',
 			'core/heading',
+			'core/html',
+			'core/icon',
+			'core/image',
 			'core/list',
 			'core/list-item',
+			'core/math',
+			'core/paragraph',
+			'core/row',
 			'core/separator',
 			'core/spacer',
-			'core/columns',
-			'core/column',
-			'core/group',
-			'core/image',
-			'core/html',
+			'core/stack',
+			'core/subhead',
+			'core/video',
 		);
 
 		// Verify all expected blocks are present

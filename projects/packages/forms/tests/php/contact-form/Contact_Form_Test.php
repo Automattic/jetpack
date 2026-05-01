@@ -15,6 +15,7 @@ use DOMElement;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 use WP_Block;
@@ -128,6 +129,61 @@ class Contact_Form_Test extends BaseTestCase {
 
 		// Verify the form attribute is correctly set
 		$this->assertEquals( 'no', $form->get_attribute( 'saveResponses' ), 'Form should have saveResponses set to no' );
+	}
+
+	/**
+	 * Preview (test) submissions mark the feedback as a test response, skip
+	 * Akismet, and still keep the post_status as 'publish' so the owner can
+	 * find it in the normal inbox alongside real responses.
+	 */
+	public function test_process_submission_marks_preview_submission_as_test_feedback() {
+		$this->add_field_values(
+			array(
+				'name'    => 'Preview Tester',
+				'email'   => 'preview@example.com',
+				'message' => 'This should be stored as test feedback',
+			)
+		);
+
+		// Track whether Akismet filter was invoked — it must not be.
+		$akismet_called = 0;
+		add_filter(
+			'jetpack_contact_form_is_spam',
+			function ( $is_spam ) use ( &$akismet_called ) {
+				++$akismet_called;
+				return $is_spam;
+			},
+			10,
+			1
+		);
+
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+		$form->set_is_preview_submission( true );
+
+		$initial_count = count( Posts::init()->posts );
+		$result        = $form->process_submission();
+
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful for preview submissions.' );
+
+		$final_posts = Posts::init()->posts;
+		$this->assertCount( $initial_count + 1, $final_posts, 'A feedback post should be created for preview submissions.' );
+
+		$new_post = end( $final_posts );
+		$this->assertEquals( 'feedback', $new_post->post_type, 'The new post should be of type feedback.' );
+		$this->assertEquals( 'publish', $new_post->post_status, 'Test feedback should be stored with publish status, not spam.' );
+
+		$this->assertSame( 0, $akismet_called, 'Akismet filter must not be invoked for preview (test) submissions.' );
+
+		// Round-trip through the Feedback reader to confirm the is_test flag is
+		// serialized into post_content.
+		$feedback = Feedback::get( $new_post->ID );
+		$this->assertInstanceOf( Feedback::class, $feedback );
+		$this->assertTrue( $feedback->is_test(), 'Feedback loaded from post_content should report is_test() === true.' );
+
+		remove_all_filters( 'jetpack_contact_form_is_spam' );
 	}
 
 	/**
@@ -338,7 +394,9 @@ class Contact_Form_Test extends BaseTestCase {
 		// Default metadata should be saved.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 		$this->assertEquals( 'john <john@example.com>', $email['to'][0] );
-		$this->assertStringContainsString( 'IP Address: <a href="https://jetpack.com/redirect/?source=ip-lookup&#038;path=127.0.0.1">127.0.0.1</a>', $email['message'] );
+		// IP address is now shown in the metadata section.
+		$this->assertStringContainsString( '>IP address:<', $email['message'] );
+		$this->assertStringContainsString( '127.0.0.1', $email['message'] );
 	}
 
 	/**
@@ -505,9 +563,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
 
-		// Browser information should be included in the email.
+		// Browser/device information should be included in the email metadata section.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
-		$this->assertStringContainsString( 'Browser:', $email['message'] );
+		$this->assertStringContainsString( '>Device:<', $email['message'] );
 		$this->assertStringContainsString( 'Chrome', $email['message'] );
 	}
 
@@ -722,12 +780,17 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 
-		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
-		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
-		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
-		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
-
-		$this->assertStringContainsString( $expected, $email['message'] );
+		// New type-aware rendering uses table-based layout with labels and values.
+		$this->assertStringContainsString( 'Name', $email['message'] );
+		$this->assertStringContainsString( 'John Doe', $email['message'] );
+		$this->assertStringContainsString( 'Dropdown', $email['message'] );
+		$this->assertStringContainsString( 'First option', $email['message'] );
+		$this->assertStringContainsString( 'Radio', $email['message'] );
+		$this->assertStringContainsString( 'Second option', $email['message'] );
+		$this->assertStringContainsString( 'Text', $email['message'] );
+		$this->assertStringContainsString( 'Texty text', $email['message'] );
+		// Verify table-based structure is used.
+		$this->assertStringContainsString( '<table role="presentation"', $email['message'] );
 	}
 
 	/**
@@ -771,12 +834,17 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertContains( 'john <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
-		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
-		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
-		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
-		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
-
-		$this->assertStringContainsString( $expected, $args['message'] );
+		// New type-aware rendering uses table-based layout with labels and values.
+		$this->assertStringContainsString( 'Name', $args['message'] );
+		$this->assertStringContainsString( 'John Doe', $args['message'] );
+		$this->assertStringContainsString( 'Dropdown', $args['message'] );
+		$this->assertStringContainsString( 'First option', $args['message'] );
+		$this->assertStringContainsString( 'Radio', $args['message'] );
+		$this->assertStringContainsString( 'Second option', $args['message'] );
+		$this->assertStringContainsString( 'Text', $args['message'] );
+		$this->assertStringContainsString( 'Texty text', $args['message'] );
+		// Verify table-based structure is used.
+		$this->assertStringContainsString( '<table role="presentation"', $args['message'] );
 	}
 
 	/**
@@ -810,7 +878,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( $title, $result );
 		$this->assertStringContainsString( $body, $result );
-		$this->assertStringContainsString( $footer, $result );
+		// Note: Legacy footer content is no longer displayed in template - metadata section shows this info instead.
 	}
 
 	/**
@@ -2632,6 +2700,97 @@ class Contact_Form_Test extends BaseTestCase {
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 
+	/**
+	 * A JWT issued while Form_Preview::is_preview_mode() is active carries
+	 * is_test=true inside its serialized source. After decode, the form's
+	 * source should report is_test() === true, which is how
+	 * process_form_submission() recognizes preview submissions.
+	 */
+	public function test_jwt_source_is_flagged_as_test_when_rendered_in_preview_mode() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Flip the Form_Preview static flag for the duration of this test so
+		// Feedback_Source::get_current() — invoked by get_jwt() — records the
+		// preview context in the serialized source.
+		$reflection   = new \ReflectionClass( Form_Preview::class );
+		$preview_flag = $reflection->getProperty( 'is_preview_mode' );
+		// PHP 8.1+ makes this a no-op and 8.5+ emits a deprecation notice.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$preview_flag->setAccessible( true );
+		}
+		$previous_value = $preview_flag->getValue();
+		$preview_flag->setValue( null, true );
+
+		try {
+			$form = new Contact_Form(
+				array(
+					'to'      => 'preview@example.com',
+					'subject' => 'preview subject',
+				),
+				"[contact-field label='Name' type='name' required='1'/]"
+			);
+
+			$jwt = $form->get_jwt();
+
+			$decoded = Contact_Form::get_instance_from_jwt( $jwt );
+
+			$this->assertNotNull( $decoded, 'JWT should decode successfully.' );
+			$this->assertTrue(
+				$decoded->get_source()->is_test(),
+				'A JWT issued while preview mode was active should carry is_test=true in its source.'
+			);
+		} finally {
+			$preview_flag->setValue( null, $previous_value );
+			Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+		}
+	}
+
+	/**
+	 * Backward compatibility: a JWT issued before this feature shipped (or
+	 * issued outside preview mode) has no is_test key in its source. After
+	 * decode, the form's source should report is_test() === false, so the
+	 * submission flows through the normal response pipeline. This matters
+	 * because JWTs can live in cached HTML fragments across page loads.
+	 */
+	public function test_jwt_without_is_test_in_source_is_not_a_preview_submission() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		$form = new Contact_Form(
+			array(
+				'to'      => 'normal@example.com',
+				'subject' => 'normal subject',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+
+		// Sanity-check the serialized JWT does not carry is_test. We read the
+		// unencrypted outer claims directly — implementation detail, but it
+		// documents the backward-compat contract.
+		$raw_parts       = explode( '.', $jwt );
+		$raw_payload     = $raw_parts[1] ?? '';
+		$decoded_json    = base64_decode( strtr( $raw_payload, '-_', '+/' ), true );
+		$decoded_payload = $decoded_json === false ? null : json_decode( $decoded_json, true );
+		$this->assertIsArray( $decoded_payload );
+		$this->assertArrayHasKey( 'source', $decoded_payload );
+		$this->assertArrayNotHasKey(
+			'is_test',
+			$decoded_payload['source'],
+			'Outside preview mode the source must not include an is_test key so old cached JWTs stay compatible.'
+		);
+
+		$decoded = Contact_Form::get_instance_from_jwt( $jwt );
+
+		$this->assertNotNull( $decoded );
+		$this->assertFalse(
+			$decoded->get_source()->is_test(),
+			'A JWT without is_test in its source must decode to a regular (non-test) submission.'
+		);
+
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
 	public function test_get_instance_from_jwt_uses_default_secret_when_no_token_secret() {
 		// Ensure JETPACK_BLOG_TOKEN is not defined, so default secret is used
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
@@ -2696,7 +2855,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['notificationRecipients'] = array();
 		$expected_attributes['webhooks']               = array();
 		$expected_attributes['disableSummary']         = '';
-		$expected_attributes['confirmationType']       = '';
+		$expected_attributes['confirmationType']       = 'text';
 		$expected_attributes['hostingerReach']         = '';
 		$expected_attributes['ref']                    = '';
 		$expected_attributes['formTitle']              = 'Test Form';
@@ -3895,5 +4054,323 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
 
 		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test prepare_submit_button adds interactivity attributes to submit buttons.
+	 *
+	 * @dataProvider data_provider_prepare_submit_button
+	 */
+	#[DataProvider( 'data_provider_prepare_submit_button' )]
+	public function test_prepare_submit_button( $input_html, $expected_contains, $expected_not_contains, $description ) {
+		// Use reflection to access private method
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'prepare_submit_button' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null, $input_html );
+
+		foreach ( $expected_contains as $expected ) {
+			$this->assertStringContainsString( $expected, $result, "$description: should contain $expected" );
+		}
+
+		foreach ( $expected_not_contains as $not_expected ) {
+			$this->assertStringNotContainsString( $not_expected, $result, "$description: should NOT contain $not_expected" );
+		}
+	}
+
+	/**
+	 * Data provider for prepare_submit_button tests.
+	 */
+	public static function data_provider_prepare_submit_button() {
+		return array(
+			'button with type=submit'        => array(
+				'<button type="submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+					'data-wp-bind--aria-disabled="state.isAriaDisabled"',
+					'data-wp-bind--disabled="state.isAriaDisabled"',
+				),
+				array(),
+				'Button with type=submit should get interactivity attributes',
+			),
+			'button with is-submit class'    => array(
+				'<button class="is-submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+					'data-wp-bind--aria-disabled="state.isAriaDisabled"',
+					'data-wp-bind--disabled="state.isAriaDisabled"',
+				),
+				array(),
+				'Button with is-submit class should get interactivity attributes',
+			),
+			'button with form-button-submit' => array(
+				'<button class="form-button-submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+					'data-wp-bind--aria-disabled="state.isAriaDisabled"',
+					'data-wp-bind--disabled="state.isAriaDisabled"',
+				),
+				array(),
+				'Button with form-button-submit class should get interactivity attributes',
+			),
+			'regular button not affected'    => array(
+				'<button class="some-other-class">Click</button>',
+				array(),
+				array(
+					'data-wp-class--is-submitting',
+					'data-wp-bind--aria-disabled',
+					'data-wp-bind--disabled',
+				),
+				'Regular button should NOT get interactivity attributes',
+			),
+			'multiple buttons mixed'         => array(
+				'<button class="is-previous">Previous</button><button class="is-next">Next</button><button class="is-submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+				),
+				array(),
+				'Only submit button should get interactivity attributes in mixed buttons',
+			),
+			'button with multiple classes'   => array(
+				'<button class="wp-block-button__link is-submit form-button-submit">Submit</button>',
+				array(
+					'data-wp-class--is-submitting="state.isSubmitting"',
+				),
+				array(),
+				'Button with multiple classes including is-submit should get attributes',
+			),
+		);
+	}
+
+	/**
+	 * Test escape_and_sanitize_field_value handles rating and URL field types.
+	 *
+	 * @dataProvider data_provider_escape_and_sanitize_field_value_structured
+	 *
+	 * @param array  $value    The structured field value.
+	 * @param string $expected The expected sanitized output.
+	 */
+	#[DataProvider( 'data_provider_escape_and_sanitize_field_value_structured' )]
+	public function test_escape_and_sanitize_field_value_structured( $value, $expected ) {
+		$this->assertSame( $expected, Contact_Form::escape_and_sanitize_field_value( $value ) );
+	}
+
+	/**
+	 * Data provider for structured field value sanitization (rating, URL types).
+	 *
+	 * @return array[]
+	 */
+	public static function data_provider_escape_and_sanitize_field_value_structured() {
+		return array(
+			'rating with displayValue'              => array(
+				array(
+					'type'         => 'rating',
+					'displayValue' => '3/5',
+				),
+				'3/5',
+			),
+			'rating without displayValue'           => array(
+				array( 'type' => 'rating' ),
+				'',
+			),
+			'rating escapes HTML in displayValue'   => array(
+				array(
+					'type'         => 'rating',
+					'displayValue' => '<script>alert("xss")</script>',
+				),
+				'&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;',
+			),
+			'URL with displayValue and url'         => array(
+				array(
+					'type'         => 'url',
+					'displayValue' => 'Example Site',
+					'url'          => 'https://example.com',
+				),
+				'Example Site',
+			),
+			'URL with url only'                     => array(
+				array(
+					'type' => 'url',
+					'url'  => 'https://example.com',
+				),
+				'https://example.com',
+			),
+			'URL with neither displayValue nor url' => array(
+				array( 'type' => 'url' ),
+				'',
+			),
+		);
+	}
+
+	/**
+	 * Test the get_block_container_classes method
+	 */
+	public function test_get_block_container_classes() {
+		// Test with no attributes (default case)
+		$classes = Contact_Form::get_block_container_classes();
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+
+		// Test with empty attributes array
+		$classes = Contact_Form::get_block_container_classes( array() );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+
+		// Test with align attribute set to 'wide'
+		$attributes = array( 'align' => 'wide' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringContainsString( 'alignwide', $classes );
+
+		// Test with align attribute set to 'full'
+		$attributes = array( 'align' => 'full' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringContainsString( 'alignfull', $classes );
+
+		// Test with unsupported align attribute (should not add alignment class)
+		$attributes = array( 'align' => 'left' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringNotContainsString( 'alignleft', $classes );
+
+		// Test that classes are space-separated string
+		$attributes    = array( 'align' => 'wide' );
+		$classes       = Contact_Form::get_block_container_classes( $attributes );
+		$classes_array = explode( ' ', $classes );
+		$this->assertContains( 'jetpack-contact-form-container', $classes_array );
+		$this->assertContains( 'alignwide', $classes_array );
+	}
+
+	/**
+	 * Test that get_field_type_icon rejects field types that don't match the
+	 * required format (lowercase letter prefix, then lowercase letters, digits,
+	 * or hyphens).
+	 *
+	 * @dataProvider data_provider_get_field_type_icon_invalid
+	 *
+	 * @param mixed  $field_type  The field type to test.
+	 * @param string $description Human-readable description of the case.
+	 */
+	#[DataProvider( 'data_provider_get_field_type_icon_invalid' )]
+	public function test_get_field_type_icon_rejects_invalid_field_type_format( $field_type, $description ) {
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'get_field_type_icon' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null, $field_type );
+
+		$this->assertSame( '', $result, $description );
+	}
+
+	/**
+	 * Data provider for invalid field type format cases.
+	 *
+	 * @return array[]
+	 */
+	public static function data_provider_get_field_type_icon_invalid() {
+		return array(
+			'contains parent directory segment' => array(
+				'../../../../etc/passwd',
+				'Field type containing ../ should be rejected',
+			),
+			'contains url-encoded path segment' => array(
+				'..%2F..%2Fetc%2Fpasswd',
+				'Field type with url-encoded path segment should be rejected',
+			),
+			'contains backslash path segment'   => array(
+				'..\\..\\windows\\system32',
+				'Field type with backslash path segment should be rejected',
+			),
+			'leading slash'                     => array(
+				'/etc/passwd',
+				'Field type beginning with a forward slash should be rejected',
+			),
+			'contains null byte'                => array(
+				"text\0.svg",
+				'Field type with embedded null byte should be rejected',
+			),
+			'uppercase letters'                 => array(
+				'TEXT',
+				'Uppercase field type should be rejected (strict format)',
+			),
+			'starts with digit'                 => array(
+				'1text',
+				'Field type starting with digit should be rejected',
+			),
+			'starts with hyphen'                => array(
+				'-text',
+				'Field type starting with hyphen should be rejected',
+			),
+			'contains space'                    => array(
+				'text field',
+				'Field type with space should be rejected',
+			),
+			'non-string array'                  => array(
+				array( 'text' ),
+				'Array field type should be rejected',
+			),
+			'non-string integer'                => array(
+				123,
+				'Integer field type should be rejected',
+			),
+			'non-string null'                   => array(
+				null,
+				'Null field type should be rejected',
+			),
+			'empty string'                      => array(
+				'',
+				'Empty field type should be rejected',
+			),
+		);
+	}
+
+	/**
+	 * Test that get_field_type_icon returns valid SVG markup for known field types.
+	 *
+	 * Companion to test_get_field_type_icon_rejects_invalid_field_type_format —
+	 * ensures the format check does not break legitimate field types.
+	 *
+	 * @dataProvider data_provider_get_field_type_icon_valid
+	 *
+	 * @param string $field_type The valid field type to test.
+	 */
+	#[DataProvider( 'data_provider_get_field_type_icon_valid' )]
+	public function test_get_field_type_icon_accepts_valid_types( $field_type ) {
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'get_field_type_icon' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null, $field_type );
+
+		// Valid field types either return SVG markup (when the icon file exists)
+		// or an empty string (when the block directory exists but has no icon.svg yet).
+		$this->assertIsString( $result, "Field type '$field_type' should return a string" );
+		if ( $result !== '' ) {
+			$this->assertStringContainsString( '<svg', $result, "Field type '$field_type' should return SVG markup" );
+		}
+	}
+
+	/**
+	 * Data provider for valid field type acceptance test cases.
+	 *
+	 * @return array[]
+	 */
+	public static function data_provider_get_field_type_icon_valid() {
+		return array(
+			'text'                           => array( 'text' ),
+			'email'                          => array( 'email' ),
+			'textarea'                       => array( 'textarea' ),
+			'phone (via exception map)'      => array( 'phone' ),
+			'telephone (via exception map)'  => array( 'telephone' ),
+			'radio (via exception map)'      => array( 'radio' ),
+			'checkbox-multiple (hyphenated)' => array( 'checkbox-multiple' ),
+			'image-select (hyphenated)'      => array( 'image-select' ),
+		);
 	}
 }

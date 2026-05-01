@@ -23,6 +23,15 @@ package.json      export-ignore
 /vendor/symfony/polyfill-mbstring/**          production-include
 /vendor/tubalmartin/**                        production-include
 /vendor/wordpress/classic-editor-plugin/**    production-include
+/vendor/wp-php-toolkit/bytestream/**             production-include
+/vendor/wp-php-toolkit/data-liberation/**         production-include
+/vendor/wp-php-toolkit/encoding/**                production-include
+/vendor/wp-php-toolkit/filesystem/**              production-include
+/vendor/wp-php-toolkit/html/**                    production-include
+/vendor/wp-php-toolkit/http-client/**             production-include
+/vendor/wp-php-toolkit/reprint-exporter/**        production-include
+/vendor/wp-php-toolkit/reprint-importer/**        production-include
+/vendor/wp-php-toolkit/xml/**                     production-include
 /jetpack_vendor/**                            production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
@@ -45,7 +54,6 @@ composer.lock                                 production-exclude
 /vendor/automattic/**/src/css/*.scss          production-exclude
 /vendor/automattic/**/composer.json           production-exclude
 /vendor/automattic/jetpack-autoloader/**      production-exclude
-/vendor/automattic/jetpack-changelogger/**    production-exclude
 /vendor/automattic/jetpack-composer-plugin/** production-exclude
 /vendor/**/.git*                              production-exclude
 /vendor/**/.git*/**                           production-exclude

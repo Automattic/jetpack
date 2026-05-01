@@ -20,16 +20,17 @@ type ModalTriggerProps = ButtonProps & {
 /**
  * Modal trigger component.
  */
-export const ModalTrigger = forwardRef(
-	( { withWrapper = false, analyticsData = null, ...props }: ModalTriggerProps, ref: unknown ) => {
+export const ModalTrigger = forwardRef< HTMLButtonElement, ModalTriggerProps >(
+	( { withWrapper = false, analyticsData = null, ...props }, ref ) => {
 		const { recordEvent } = useAnalytics();
-		const { openShareStatusModal } = useDispatch( socialStore );
+		const { openUnifiedModal } = useDispatch( socialStore );
 		const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
 		const onButtonClicked = useCallback( () => {
 			recordEvent( 'jetpack_social_share_status_modal_opened', analyticsData );
-			openShareStatusModal();
-		}, [ analyticsData, openShareStatusModal, recordEvent ] );
+
+			openUnifiedModal( { initialPath: '/sharing-activity', isScreenLocked: true } );
+		}, [ analyticsData, openUnifiedModal, recordEvent ] );
 
 		// If the post is not shared anywhere, thus there is no share status or no shares, we don't need to show the trigger.
 		if ( ! shareStatus || ! shareStatus.shares || shareStatus.shares.length === 0 ) {
@@ -44,7 +45,7 @@ export const ModalTrigger = forwardRef(
 				className={ clsx( styles.trigger, props.className ) }
 				ref={ ref }
 			>
-				{ props.children || __( 'View sharing history', 'jetpack-publicize-pkg' ) }
+				{ props.children || __( 'View sharing activity', 'jetpack-publicize-pkg' ) }
 			</Button>
 		);
 

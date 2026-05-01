@@ -583,10 +583,11 @@ class Jetpack_Carousel {
 		$require_name_email = (int) get_option( 'require_name_email' );
 		/* translators: %s is replaced with a field name in the form, e.g. "Email" */
 		$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
 		?>
 		<div id="jp-carousel-loading-overlay">
 			<div id="jp-carousel-loading-wrapper">
-				<span id="jp-carousel-library-loading">&nbsp;</span>
+				<span id="jp-carousel-library-loading"><?php echo Jetpack_Spinner::render( 40 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 			</div>
 		</div>
 		<div class="jp-carousel-overlay<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>" style="display: none;">
@@ -683,7 +684,7 @@ class Jetpack_Carousel {
 								</div>
 								<div class="jp-carousel-comments"></div>
 								<div id="jp-carousel-comment-form-container">
-									<span id="jp-carousel-comment-form-spinner">&nbsp;</span>
+									<span id="jp-carousel-comment-form-spinner"><?php echo Jetpack_Spinner::render( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 									<div id="jp-carousel-comment-post-results"></div>
 									<?php if ( $use_local_comments ) : ?>
 										<?php if ( ! $localize_strings['is_logged_in'] && $localize_strings['comment_registration'] ) : ?>
@@ -963,9 +964,6 @@ class Jetpack_Carousel {
 		 * array(4) { [0]=> string(82) "http://vanillawpinstall.blah/wp-content/uploads/2012/06/IMG_3534-1024x764.jpg" [1]=> int(640) [2]=> int(477) [3]=> bool(true) }
 		 */
 
-		$medium_file_info = wp_get_attachment_image_src( $attachment_id, 'medium' );
-		$medium_file      = isset( $medium_file_info[0] ) ? $medium_file_info[0] : '';
-
 		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
 		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
 
@@ -990,7 +988,6 @@ class Jetpack_Carousel {
 		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title, ENT_COMPAT ) );
 		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc, ENT_COMPAT ) );
 		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption, ENT_COMPAT ) );
-		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 		return $attr;
 	}

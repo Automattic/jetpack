@@ -697,7 +697,6 @@ HTML;
 		<!DOCTYPE html>
 		<html>
 		<head>
-		<link rel="preload" as="image" href="https://jetpack.wordpress.com/wp-admin/images/spinner.gif"> <!-- Preload the spinner image -->
 		<meta charset="utf-8">
 		<title><?php echo esc_html__( 'Submitting Comment', 'jetpack' ); ?></title>
 		<style type="text/css">
@@ -711,10 +710,20 @@ HTML;
 				overflow: hidden;
 				color: #333;
 			}
+			.jetpack-comment-spinner {
+				display: table-cell;
+				vertical-align: middle;
+				text-align: center;
+			}
 		</style>
 		</head>
 		<body>
-		<img src="https://jetpack.wordpress.com/wp-admin/images/spinner.gif" >
+		<div class="jetpack-comment-spinner">
+			<?php
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
+			echo Jetpack_Spinner::render( 28 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup.
+			?>
+		</div>
 		<form id="jetpack-remote-comment-post-form" action="<?php echo esc_url( get_site_url() ); ?>/wp-comments-post.php?for=jetpack&only_once=true" method="POST">
 			<?php foreach ( $comment_data as $key => $val ) : ?>
 				<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $val ); ?>" />

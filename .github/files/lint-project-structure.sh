@@ -165,16 +165,39 @@ for PROJECT in projects/*/*; do
 			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.type\` to \"git\", as the monorepo is a git repository."
 		fi
 		URL="$(jq -r '.url' <<<"$JSON")"
-		if [[ "$URL" != "https://github.com/Automattic/jetpack.git" && "$URL" != "https://github.com/Automattic/jetpack" ]]; then
+
+		# Published packages need to point to the mirror repo. Unpublished packages can point to mirror or monorepo.
+		declare -A OKURLS=()
+		MIRROR=$( jq -r '.extra["mirror-repo"]' "$PROJECT/composer.json" )
+		OKURLS["git+https://github.com/$MIRROR.git"]=''
+		if jq -e '.extra["npmjs-autopublish"]' "$PROJECT/composer.json" >/dev/null; then
+			ERR1="Set \`.repository.url\` for published packages to point to the mirror repo in npm's canonical format, i.e. \"git+https://github.com/$MIRROR.git\"."
+		else
+			OKURLS["https://github.com/$MIRROR"]=''
+			OKURLS["https://github.com/$MIRROR.git"]=''
+			OKURLS["https://github.com/Automattic/jetpack"]="$PROJECT"
+			OKURLS["https://github.com/Automattic/jetpack.git"]="$PROJECT"
+			OKURLS["git+https://github.com/Automattic/jetpack.git"]="$PROJECT"
+			ERR1="Set \`.repository.url\` to point to the monorepo or mirror repo, e.g. \"https://github.com/Automattic/jetpack\" or \"git+https://github.com/$MIRROR.git\"."
+		fi
+
+		if [[ ! -v OKURLS["$URL"] ]]; then
 			EXIT=1
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
-			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.url\` to point to the monorepo, i.e. \"https://github.com/Automattic/jetpack\"."
-		fi
-		TMP="$(jq -r '.directory' <<<"$JSON")"
-		if [[ "$TMP" != "$PROJECT" ]]; then
-			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
-			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.directory\` to point to the project's path within the monorepo, i.e. \"$PROJECT\"."
+			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::$ERR1"
+		elif [[ -z "${OKURLS["$URL"]}" ]]; then
+			if jq -e 'has( "directory" )' <<<"$JSON" &>/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+				echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::When \`.repository.url\` is set to the mirror repo, \`.repository.directory\` should not be set."
+			fi
+		else
+			TMP="$(jq -r '.directory' <<<"$JSON")"
+			if [[ "$TMP" != "${OKURLS["$URL"]}" ]]; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+				echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.directory\` to point to the project's path within the specified repo, i.e. \"${OKURLS["$URL"]}\"."
+			fi
 		fi
 	fi
 
@@ -190,7 +213,7 @@ for PROJECT in projects/*/*; do
 	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies["ts-loader"] // .devDependencies["ts-loader"] // .optionalDependencies["ts-loader"]' "$PROJECT/package.json" >/dev/null; then
 		EXIT=1
 		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["dependencies","ts-loader"] or . == ["devDependencies","ts-loader"] or . == ["optionalDependencies","ts-loader"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json" | head -1)
-		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsc\` for definition files) rather than \`ts-loader\`. Please switch to that."
+		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsgo\` for definition files) rather than \`ts-loader\`. Please switch to that."
 	fi
 
 	# - certain tsconfig options should not be used directly.
@@ -244,22 +267,16 @@ for PROJECT in projects/*/*; do
 		echo "::error file=$PROJECT/composer.json::$PROJECT/composer.json should have a \`repositories\` entry pointing to \`../../packages/*\`."
 	fi
 
-	# - composer.json must require-dev (or just require) changelogger.
 	# - Changelogger's changes-dir must have a .gitkeep.
 	# - Changelogger's changes-dir must be production-excluded.
-	if [[ "$SLUG" != "packages/changelogger" ]] && ! jq -e '.require["automattic/changelogger"] // .["require-dev"]["automattic/jetpack-changelogger"]' "$PROJECT/composer.json" >/dev/null; then
+	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
+	if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
 		EXIT=1
-		echo "::error file=$PROJECT/composer.json::Project $SLUG should include automattic/jetpack-changelogger in \`require-dev\`."
-	else
-		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
-		if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
-			EXIT=1
-			echo "::error file=$PROJECT/$CHANGES_DIR/.gitkeep::Project $SLUG should have a file at $CHANGES_DIR/.gitkeep so that $CHANGES_DIR does not get removed when releasing."
-		fi
-		if [[ "$(git check-attr production-exclude -- $PROJECT/$CHANGES_DIR/file)" != *": production-exclude: set" ]]; then
-			EXIT=1
-			echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
-		fi
+		echo "::error file=$PROJECT/$CHANGES_DIR/.gitkeep::Project $SLUG should have a file at $CHANGES_DIR/.gitkeep so that $CHANGES_DIR does not get removed when releasing."
+	fi
+	if [[ "$(git check-attr production-exclude -- $PROJECT/$CHANGES_DIR/file)" != *": production-exclude: set" ]]; then
+		EXIT=1
+		echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
 	fi
 
 	# - Packages must have a dev-trunk branch-alias.
@@ -471,6 +488,16 @@ for PROJECT in projects/*/*; do
 			EXIT=1
 			echo "::error file=$PROJECT/composer.json,line=${LINE}::Do not use \`automattic/wordbless\` directly; use \`automattic/jetpack-test-environment\` instead. See #41057 for details."
 		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/wordbless"] or .[0] == ["require-dev","automattic/wordbless"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
+	fi
+
+	# - Must use yoast/phpunit-polyfills with automattic/phpunit-select-config.
+	if jq -e '.require["automattic/phpunit-select-config"] // .["require-dev"]["automattic/phpunit-select-config"]' "$PROJECT/composer.json" >/dev/null &&
+		! jq -e '.require["yoast/phpunit-polyfills"] // .["require-dev"]["yoast/phpunit-polyfills"]' "$PROJECT/composer.json" >/dev/null
+	then
+		while IFS=$'\t' read -r LINE; do
+			EXIT=1
+			echo "::error file=$PROJECT/composer.json,line=${LINE}::We require \`yoast/phpunit-polyfills\` to get the correct version of PHPUnit. Please add it, or remove other PHPUnit-related packages if you're not using PHPUnit for testing."
+		done < <( jq --stream -r 'if length == 2 and ( .[0] == ["require","automattic/phpunit-select-config"] or .[0] == ["require-dev","automattic/phpunit-select-config"] ) then [input_line_number] | @tsv else empty end' "$PROJECT/composer.json" )
 	fi
 
 	# - Plugins shouldn't have redundant wp-plugin-slug and beta-plugin-slug.
@@ -742,5 +769,11 @@ if [[ -d node_modules/.pnpm/node_modules ]]; then
 	EXIT=1
 	echo '::error::Packages are unexpectedly hoisted into node_modules/.pnpm/node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.'
 fi
+
+# - Obsolete pnpm trustPolicyExclude.
+debug "Checking for obsolete pnpm trustPolicyExclude"
+"$BASE/tools/js-tools/check-obsolete-pnpm-trust-policy-exclude.mjs" || EXIT=1
+
+debug "Finished"
 
 exit $EXIT

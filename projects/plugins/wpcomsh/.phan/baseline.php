@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginMixedKeyNoKey : 30+ occurrences
+    // PhanPluginMixedKeyNoKey : 50+ occurrences
     // PhanUndeclaredStaticMethod : 15+ occurrences
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
@@ -17,7 +17,7 @@ return [
     // PhanTypeVoidAssignment : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
-    // PhanUndeclaredClassMethod : 3 occurrences
+    // PhanUndeclaredClassMethod : 6 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
@@ -41,6 +41,7 @@ return [
         'functions.php' => ['PhanUndeclaredClassStaticProperty'],
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
         'safeguard/utils.php' => ['PhanTypeMismatchArgument'],
+        'tests/ActivityPubTest.php' => ['PhanUndeclaredClassMethod'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],

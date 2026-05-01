@@ -48,6 +48,10 @@ class WPCOM_REST_API_V2_Verbum_OEmbed extends \WP_REST_Controller {
 	 * @return bool
 	 */
 	public function permission_callback( WP_REST_Request $request ) {
+		if ( is_user_logged_in() ) {
+			return true; // Bypass nonce check for logged-in users.
+		}
+
 		$nonce = $request->get_param( 'embed_nonce' );
 
 		return wp_verify_nonce( $nonce, 'embed_nonce' );

@@ -41,6 +41,7 @@ export async function builder( yargs ) {
 			type: 'boolean',
 			description: 'Run tests on everything.',
 		} )
+		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
 		.option( 'no-use-uncommitted-composer-lock', {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
@@ -51,6 +52,7 @@ export async function builder( yargs ) {
 			default: os.availableParallelism(),
 			coerce: coerceConcurrency,
 		} )
+		.option( 'html', { type: 'boolean', hidden: true } )
 		.option( 'no-html', {
 			type: 'boolean',
 			description: 'For coverage tests, do not generate HTML reports.',
@@ -228,6 +230,47 @@ export async function runTests( argv, opts ) {
 		process.stderr.setMaxListeners( projects.size + 10 );
 	}
 
+	// Do a monorepo root install if anything uses automattic/jetpack-test-environment.
+	const {
+		promise: rootInstall,
+		resolve: rootInstallResolve,
+		reject: rootInstallReject,
+	} = Promise.withResolvers();
+	let any = false;
+	if ( argv.test === 'php' || argv.test === 'coverage' ) {
+		for ( const project of projects ) {
+			const composerJson = await readComposerJson( project, false );
+			if ( composerJson?.[ 'require-dev' ]?.[ 'automattic/jetpack-test-environment' ] ) {
+				any = true;
+				break;
+			}
+		}
+	}
+	if ( any ) {
+		tasks.push( {
+			title: 'Installing monorepo composer dependencies',
+			task: async () => {
+				try {
+					const args = await getInstallArgs( 'monorepo', 'composer', argv );
+					const proc = execa( 'composer', args, {
+						cwd: projectDir( 'monorepo' ),
+						stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
+					} );
+					if ( argv.v ) {
+						proc.stdout.pipe( process.stdout, { end: false } );
+						proc.stderr.pipe( process.stderr, { end: false } );
+					}
+					await proc;
+					rootInstallResolve();
+				} catch ( e ) {
+					rootInstallReject( e );
+				}
+			},
+		} );
+	} else {
+		rootInstallResolve();
+	}
+
 	const promises = [];
 	for ( const project of projects ) {
 		const cwd = projectDir( project );
@@ -254,6 +297,7 @@ export async function runTests( argv, opts ) {
 		let skip;
 		if ( argv.test === 'typecheck' ) {
 			skip = async () => {
+				await rootInstall;
 				const packageJson = await readPackageJson( project );
 				if ( ! packageJson?.scripts?.typecheck ) {
 					resolve();
@@ -263,6 +307,7 @@ export async function runTests( argv, opts ) {
 			};
 		} else {
 			skip = async () => {
+				await rootInstall;
 				const composerJson = await readComposerJson( project );
 				if ( ! composerJson?.scripts?.[ `test-${ argv.test }` ] ) {
 					resolve();

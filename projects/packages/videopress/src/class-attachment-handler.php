@@ -44,6 +44,10 @@ class Attachment_Handler {
 		add_action( 'pre_get_posts', array( __CLASS__, 'media_list_table_query' ) );
 
 		add_filter( 'user_has_cap', array( __CLASS__, 'disable_delete_if_disconnected' ), 10, 3 );
+
+		add_action( 'admin_print_scripts-upload.php', array( __CLASS__, 'enqueue_media_library_poll' ) );
+		add_action( 'admin_print_styles-upload.php', array( __CLASS__, 'enqueue_media_library_styles' ) );
+		add_filter( 'heartbeat_received', array( __CLASS__, 'heartbeat_received' ), 10, 2 );
 	}
 
 	/**
@@ -118,7 +122,8 @@ class Attachment_Handler {
 		$wpcom_response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/videos/%s/delete', $guid ),
 			'1.1',
-			array( 'method' => 'POST' )
+			array( 'method' => 'POST' ),
+			array( 'user_id' => get_current_user_id() )
 		);
 
 		if ( is_wp_error( $wpcom_response ) ) {
@@ -190,13 +195,18 @@ class Attachment_Handler {
 	/**
 	 * Make sure that any Video that has a VideoPress GUID passes that data back.
 	 *
-	 * @param WP_Post $post Attachment object.
+	 * @param array $post Attachment data array.
+	 * @return array
 	 */
 	public static function prepare_attachment_for_js( $post ) {
 		if ( 'video' === $post['type'] ) {
 			$guid = get_post_meta( $post['id'], 'videopress_guid', true );
 			if ( $guid ) {
 				$post['videopress_guid'] = $guid;
+			}
+			$status = get_post_meta( $post['id'], 'videopress_status', true );
+			if ( $status ) {
+				$post['videopress_status'] = $status;
 			}
 		}
 		return $post;
@@ -290,5 +300,85 @@ class Attachment_Handler {
 		}
 
 		return $allcaps;
+	}
+
+	/**
+	 * Enqueues the script that hooks into WP Heartbeat to refresh
+	 * processing VideoPress video data in the media library grid.
+	 *
+	 * @since 0.35.4
+	 *
+	 * @return void
+	 */
+	public static function enqueue_media_library_poll() {
+		wp_enqueue_script(
+			'videopress-media-library-poll',
+			plugins_url( 'js/media-library-poll.js', __FILE__ ),
+			array( 'jquery', 'heartbeat', 'media-grid' ),
+			Package_Version::PACKAGE_VERSION,
+			true
+		);
+
+		add_filter( 'heartbeat_settings', array( __CLASS__, 'heartbeat_settings' ) );
+	}
+
+	/**
+	 * Adds inline styles for the media library grid on the upload page.
+	 *
+	 * @since 0.35.4
+	 *
+	 * @return void
+	 */
+	public static function enqueue_media_library_styles() {
+		// Constrain poster images so they fit within the media library grid cell.
+		wp_add_inline_style(
+			'media-views',
+			'.attachment-preview.type-video .thumbnail .centered img.thumbnail { max-width: 100%; max-height: 100%; }'
+		);
+	}
+
+	/**
+	 * Lowers the Heartbeat minimum interval on the media library page
+	 * so the polling script can request a faster tick rate.
+	 *
+	 * @since 0.35.4
+	 *
+	 * @param array $settings Heartbeat settings.
+	 * @return array
+	 */
+	public static function heartbeat_settings( $settings ) {
+		$settings['minimalInterval'] = 5;
+
+		return $settings;
+	}
+
+	/**
+	 * Heartbeat API handler that checks the processing status of VideoPress videos.
+	 *
+	 * @since 0.35.4
+	 *
+	 * @param array $response The Heartbeat response.
+	 * @param array $data     The data sent with the Heartbeat request.
+	 * @return array
+	 */
+	public static function heartbeat_received( $response, $data ) {
+		if ( empty( $data['videopress_processing_ids'] ) || ! is_array( $data['videopress_processing_ids'] ) ) {
+			return $response;
+		}
+
+		$statuses = array();
+		foreach ( $data['videopress_processing_ids'] as $id ) {
+			$id     = (int) $id;
+			$status = get_post_meta( $id, 'videopress_status', true );
+			if ( $status ) {
+				$statuses[ $id ] = $status;
+			}
+		}
+
+		if ( ! empty( $statuses ) ) {
+			$response['videopress_processing_status'] = $statuses;
+		}
+
+		return $response;
 	}
 }

@@ -13,7 +13,7 @@ type ShareStatusProps = {
  * Share status component.
  *
  * @param {ShareStatusProps} props - component props
- * @return {import('react').ReactNode} - React element
+ * @return React element
  */
 export function ShareStatus( { reShareTimestamp }: ShareStatusProps ) {
 	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
@@ -23,6 +23,8 @@ export function ShareStatus( { reShareTimestamp }: ShareStatusProps ) {
 		: shareStatus.shares;
 
 	if ( shareStatus.polling ) {
+		// Not using the `Notice` component here because we show a snackbar,
+		// that announces that sharing is in progress to screen readers.
 		return (
 			<div className={ styles[ 'loading-block' ] }>
 				<Spinner />
@@ -64,22 +66,27 @@ export function ShareStatus( { reShareTimestamp }: ShareStatusProps ) {
 		// If we are here, it means that polling has finished/timedout
 		// but we don't know the share status yet.
 		return (
-			<span>
+			<Notice isDismissible={ false }>
 				{ __( 'The request to share your post is still in progress.', 'jetpack-publicize-pkg' ) }
-				&nbsp;
+				<br />
 				{ __( 'Please refresh and check again in a few minutes.', 'jetpack-publicize-pkg' ) }
-			</span>
+			</Notice>
 		);
 	}
 
 	if ( ! currentShares.length ) {
 		// We should ideally never reach here but just in case.
-		return <span>{ __( 'Your post was not shared.', 'jetpack-publicize-pkg' ) }</span>;
+		return (
+			<Notice isDismissible={ false } status="warning">
+				{ __( 'Your post was not shared.', 'jetpack-publicize-pkg' ) }
+			</Notice>
+		);
 	}
 
 	return (
-		<>
-			<b>{ __( 'Your post was shared.', 'jetpack-publicize-pkg' ) }</b>&nbsp;{ '🎉' }
+		<Notice status="success" isDismissible={ false }>
+			<b>{ __( 'Your post was shared.', 'jetpack-publicize-pkg' ) }</b>&nbsp;
+			<span aria-hidden="true">{ '🎉' }</span>
 			<p>
 				{ sprintf(
 					/* translators: %d: number of connections to which a post was shared */
@@ -97,6 +104,6 @@ export function ShareStatus( { reShareTimestamp }: ShareStatusProps ) {
 					location: reShareTimestamp ? 'resharing-section' : 'post-publish-panel',
 				} }
 			/>
-		</>
+		</Notice>
 	);
 }

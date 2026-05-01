@@ -480,7 +480,7 @@
 
 .jp-connection-settings__text {
 	margin-left: rem.convert(16px);
-	word-break: break-word;
+	overflow-wrap: break-word;
 	color: calypso-colors.$gray-80;
 	font-size: typography.$font-body-small;
 	line-height: 24px;
@@ -605,6 +605,10 @@
 
 .jp-dash-item__videopress-storage {
 	margin-top: rem.convert(16px);
+
+	> div {
+		height: 12px;
+	}
 
 	span {
 		margin-top: rem.convert(10px);

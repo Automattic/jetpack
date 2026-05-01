@@ -13,10 +13,10 @@ return [
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanUndeclaredClassStaticProperty : 4 occurrences
-    // PhanTypeMismatchArgument : 3 occurrences
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanUndeclaredConstantOfClass : 3 occurrences
     // PhanUndeclaredMethod : 3 occurrences
+    // PhanTypeMismatchArgument : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredClass : 2 occurrences
     // PhanEmptyForeach : 1 occurrence

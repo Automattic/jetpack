@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
+import useConnection from '@automattic/jetpack-connection/use-connection';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import requestExternalAccess from '@automattic/request-external-access';

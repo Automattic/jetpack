@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -94,12 +93,12 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 
 		// } Also need to make sure this is dumped out for js
 		global $haszbscrmBHURLCompaniesOut;
-		if ( ! isset( $haszbscrmBHURLCompaniesOut ) ) {
+	if ( ! isset( $haszbscrmBHURLCompaniesOut ) ) {
 
 		$nonce         = wp_create_nonce( 'wp_rest' );
 		$rest_base_url = get_rest_url();
 
-			// handle bare permalink structure
+		// handle bare permalink structure
 		if ( empty( get_option( 'permalink_structure' ) ) ) {
 			$param_separator = '&';
 		} else {
@@ -109,7 +108,7 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 
 		$ret .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
 
-			$haszbscrmBHURLCompaniesOut = true;
+		$haszbscrmBHURLCompaniesOut = true;
 	}
 
 		// } Global JS does the rest ;)
@@ -128,7 +127,7 @@ function zeroBSCRM_cjson() {
 		$ret = zeroBS_getCustomers( true, 10000, 0, false, false, '', false, false, false );
 	}
 
-	wp_send_json( $ret );
+	wp_send_json( $ret, 200, JSON_UNESCAPED_SLASHES );
 }
 
 	// WH NOTE: WHY is this getting ALL of them and not s? param
@@ -153,7 +152,7 @@ function zeroBSCRM_cojson() {
 
 	}
 
-	wp_send_json( $ret );
+	wp_send_json( $ret, 200, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -410,7 +409,7 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 	// $zbsQPI['retrieveCustomers1'] = zeroBSCRM_mtime_float();
 
 	// } Req.
-	global $zbs,$zbsCustomerFields, $zbsCustomerFiltersInEffect, $zbsCustomerFiltersCurrentList;
+	global $zbs, $zbsCustomerFields, $zbsCustomerFiltersInEffect, $zbsCustomerFiltersCurrentList;
 
 	// } Already cached?
 	if (

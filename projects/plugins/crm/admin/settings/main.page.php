@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Main Settings Page file: This is the main file which controls the different pages in the setting section and render the layout
  * Jetpack CRM - https://jetpackcrm.com
  */
@@ -18,7 +17,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	====================================================== */
 
 // permissions check
-if ( ! current_user_can( 'admin_zerobs_manage_options' ) ) {
+if ( ! jpcrm_perms_manage_options() ) {
 	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
 
 // required

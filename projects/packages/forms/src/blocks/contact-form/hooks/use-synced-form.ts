@@ -3,14 +3,18 @@
  */
 
 import { parse } from '@wordpress/blocks';
-import { useEntityRecord } from '@wordpress/core-data';
+import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
+import type { Block } from '@wordpress/blocks';
 
 // Infer the block type from the parse function's return type
 type ParsedBlock = ReturnType< typeof parse >[ number ];
 interface JetpackForm {
 	content?: { raw: string } | undefined;
+	status: string;
+	date: string;
 }
 
 interface UseSyncedFormResult {
@@ -18,7 +22,10 @@ interface UseSyncedFormResult {
 	syncedAttributes: Record< string, unknown > | null;
 	syncedInnerBlocks: ParsedBlock[] | null;
 	syncedForm: JetpackForm | null;
+	errorType: 'permission_denied' | 'not_found' | null;
 }
+
+const EMPTY_FORM = { syncedAttributes: null, syncedInnerBlocks: null };
 
 /**
  * Custom hook to load a synced form from jetpack_form post type
@@ -29,32 +36,135 @@ interface UseSyncedFormResult {
  * @return {UseSyncedFormResult} Object containing loading state and parsed block data
  */
 export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
-	const { record, isResolving } = useEntityRecord< JetpackForm >( 'postType', FORM_POST_TYPE, ref );
+	const { record, isResolving, status, hasEdits } = useEntityRecord< JetpackForm >(
+		'postType',
+		FORM_POST_TYPE,
+		ref,
+		{
+			enabled: !! ref,
+		}
+	);
 
-	// Parse the block content when the post is loaded
+	// Check for resolution errors to distinguish permission denied from not found
+	const resolutionError = useSelect(
+		select => {
+			if ( ! ref ) {
+				return null;
+			}
+			const store = select( coreStore ) as Record< string, ( ...args: unknown[] ) => unknown >;
+			if ( typeof store.getResolutionError !== 'function' ) {
+				return null;
+			}
+			return store.getResolutionError( 'getEntityRecord', [ 'postType', FORM_POST_TYPE, ref ] ) as {
+				status?: number;
+				data?: { status?: number };
+			} | null;
+		},
+		[ ref ]
+	);
+
+	// Get the actual pending edits object to see exactly what's being changed
+	const pendingEdits = useSelect(
+		select => {
+			if ( ! ref ) {
+				return null;
+			}
+			return select( coreStore ).getEntityRecordEdits( 'postType', FORM_POST_TYPE, ref );
+		},
+		[ ref ]
+	);
+
+	// Check if there are pending edits (either blocks or content)
+	const pendingBlocks = useMemo( () => {
+		if ( ! hasEdits || ! pendingEdits ) {
+			return null;
+		}
+		const edits = pendingEdits as Record< string, unknown >;
+
+		// First check for block edits (from block editor)
+		if ( edits.blocks && Array.isArray( edits.blocks ) ) {
+			return edits.blocks as Block[];
+		}
+
+		// Then check for content edits (from our auto-save which stores serialized content)
+		if ( typeof edits.content === 'string' ) {
+			const parsedBlocks = parse( edits.content );
+			return parsedBlocks.length > 0 ? parsedBlocks : null;
+		}
+
+		return null;
+	}, [ hasEdits, pendingEdits ] );
+
+	// Parse the block content - prefer pending edits over saved record
 	const { syncedAttributes, syncedInnerBlocks } = useMemo( () => {
+		// If we have pending block edits, use those instead of saved content
+		if ( pendingBlocks && pendingBlocks.length > 0 ) {
+			const formBlock = pendingBlocks[ 0 ];
+
+			if ( formBlock.name !== 'jetpack/contact-form' ) {
+				return { syncedAttributes: null, syncedInnerBlocks: null };
+			}
+
+			// Get attributes and add 'ref' (lock is stripped via destructuring)
+			const attrs = ( formBlock.attributes || {} ) as Record< string, unknown >;
+			const { lock, ...attributesWithoutLock } = attrs;
+			void lock; // Intentionally unused - stripped from synced attributes
+			const finalAttributes = {
+				...attributesWithoutLock,
+				ref,
+			};
+
+			return {
+				syncedAttributes: finalAttributes,
+				syncedInnerBlocks: formBlock.innerBlocks || [],
+			};
+		}
+
+		// Fall back to saved record content
 		if ( ! record?.content?.raw ) {
-			return { syncedAttributes: null, syncedInnerBlocks: null };
+			return EMPTY_FORM;
 		}
 
 		const parsedBlocks = parse( record.content.raw );
 
 		if ( ! parsedBlocks || parsedBlocks.length === 0 ) {
-			return { syncedAttributes: null, syncedInnerBlocks: null };
+			return EMPTY_FORM;
 		}
 
 		// Get the first block (should be the contact-form block)
 		const formBlock = parsedBlocks[ 0 ];
 
 		if ( formBlock.name !== 'jetpack/contact-form' ) {
-			return { syncedAttributes: null, syncedInnerBlocks: null };
+			return EMPTY_FORM;
 		}
 
+		// Get attributes and add 'ref' (lock is stripped via destructuring)
+		const attrs = ( formBlock.attributes || {} ) as Record< string, unknown >;
+		const { lock, ...attributesWithoutLock } = attrs;
+		void lock; // Intentionally unused - stripped from synced attributes
+		const finalAttributes = {
+			...attributesWithoutLock,
+			ref,
+		};
+
 		return {
-			syncedAttributes: formBlock.attributes || {},
+			syncedAttributes: finalAttributes,
 			syncedInnerBlocks: formBlock.innerBlocks || [],
 		};
-	}, [ record ] );
+	}, [ pendingBlocks, record, ref ] );
+
+	// Derive error type from resolution error
+	let errorType: UseSyncedFormResult[ 'errorType' ] = null;
+	if ( ref && ! record && ! isResolving && status !== 'IDLE' ) {
+		const httpStatus =
+			( resolutionError as { status?: number } )?.status ??
+			( resolutionError as { data?: { status?: number } } )?.data?.status;
+		if ( httpStatus === 403 ) {
+			errorType = 'permission_denied';
+		} else {
+			errorType = 'not_found';
+		}
+	}
 
 	if ( ! ref ) {
 		return {
@@ -62,6 +172,18 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 			syncedAttributes: null,
 			syncedInnerBlocks: null,
 			syncedForm: null,
+			errorType: null,
+		};
+	}
+
+	// IDLE Status is when we haven't started the loading process just yet.
+	if ( status === 'IDLE' ) {
+		return {
+			isLoading: true,
+			syncedAttributes,
+			syncedInnerBlocks,
+			syncedForm: record,
+			errorType,
 		};
 	}
 
@@ -70,5 +192,6 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 		syncedAttributes,
 		syncedInnerBlocks,
 		syncedForm: record,
+		errorType,
 	};
 }

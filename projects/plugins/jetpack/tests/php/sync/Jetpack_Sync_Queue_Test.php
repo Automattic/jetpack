@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
+use Automattic\Jetpack\Sync\Utils;
 
 class Jetpack_Sync_Queue_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -46,12 +47,43 @@ class Jetpack_Sync_Queue_Test extends WP_UnitTestCase {
 		$this->assertEquals( array( 'foo', 'bar' ), $this->queue->peek( 2 ) );
 	}
 
+	public function test_peek_newest_items() {
+		$this->queue->add( 'foo' );
+		$this->queue->add( 'bar' );
+		$this->queue->add( 'baz' );
+
+		$this->assertEquals( array( 'baz' ), $this->queue->peek_newest( 1 ) );
+		$this->assertEquals( array( 'baz', 'bar' ), $this->queue->peek_newest( 2 ) );
+	}
+
 	public function test_items_exist() {
 		$this->assertFalse( $this->queue->has_any_items() );
 
 		$this->queue->add( 'foo' );
 
 		$this->assertTrue( $this->queue->has_any_items() );
+	}
+
+	public function test_pop_items() {
+		$this->queue->add( 'foo' );
+		$this->queue->add( 'bar' );
+		$this->queue->add( 'baz' );
+
+		$popped = $this->queue->pop( 1 );
+
+		$this->assertEquals( array( 'foo' ), Utils::get_item_values( $popped ) );
+		$this->assertSame( 2, $this->queue->size() );
+	}
+
+	public function test_pop_newest_items() {
+		$this->queue->add( 'foo' );
+		$this->queue->add( 'bar' );
+		$this->queue->add( 'baz' );
+
+		$popped = $this->queue->pop_newest( 1 );
+
+		$this->assertEquals( array( 'baz' ), Utils::get_item_values( $popped ) );
+		$this->assertSame( 2, $this->queue->size() );
 	}
 
 	public function test_queue_lag() {
