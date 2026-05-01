@@ -229,7 +229,7 @@ class Jetpack_Scan {
 			return null;
 		}
 
-		$render_fn = 'jetpack_scan_jetpack_scan_wp_admin_render';
+		$render_fn = 'jetpack_scan_jetpack_scan_wp_admin_render_page';
 		$render    = function_exists( $render_fn )
 			? $render_fn
 			: array( __CLASS__, 'render_page_fallback' );
