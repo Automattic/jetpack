@@ -32,7 +32,7 @@
 			"pnpm run build"
 		],
 		"build-production": [
-			"pnpm run build-production-concurrently"
+			"pnpm run build-production"
 		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
