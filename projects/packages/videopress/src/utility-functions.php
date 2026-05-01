@@ -55,7 +55,12 @@ function videopress_is_valid_preload( $value ) {
  * @return mixed Nested arrays in place of objects, scalars unchanged.
  */
 function videopress_object_to_array( $value ) {
-	return json_decode( wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true );
+	$json = wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+	if ( false === $json ) {
+		return array();
+	}
+	$decoded = json_decode( $json, true );
+	return is_array( $decoded ) ? $decoded : array();
 }
 
 /**
@@ -113,9 +118,16 @@ function videopress_get_video_details( $guid ) {
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
 			return new WP_Error(
-				'video-not-found',
-				__( 'The specified video was not found.', 'jetpack-videopress-pkg' ),
-				array( 'status' => $response_code )
+				'videopress-api-error',
+				sprintf(
+					/* translators: %d: HTTP status code returned by the WordPress.com VideoPress API. */
+					__( 'The WordPress.com VideoPress API returned an unexpected HTTP %d.', 'jetpack-videopress-pkg' ),
+					$response_code
+				),
+				array(
+					'status' => $response_code,
+					'body'   => wp_remote_retrieve_body( $result ),
+				)
 			);
 		}
 

@@ -134,25 +134,25 @@ class CLI extends WP_CLI_Command {
 		$dry_run = (bool) get_flag_value( $assoc_args, 'dry-run', false );
 		$force   = (bool) get_flag_value( $assoc_args, 'force', false );
 
-		$imported = array();
-		$skipped  = array();
-		$failed   = array();
+		$imported = 0;
+		$skipped  = 0;
+		$failed   = 0;
 
 		foreach ( $guids as $guid ) {
 			$result = $this->process_import( $guid, $force, 0, $dry_run );
 
 			switch ( $result['status'] ) {
 				case 'imported':
-					$imported[ $guid ] = $result['attachment_id'];
+					++$imported;
 					WP_CLI::log( sprintf( '[%s] %s', $guid, $result['message'] ) );
 					break;
 				case 'skipped':
-					$skipped[ $guid ] = $result['message'];
+					++$skipped;
 					WP_CLI::log( sprintf( '[%s] %s', $guid, $result['message'] ) );
 					break;
 				case 'failed':
 				default:
-					$failed[ $guid ] = $result['message'];
+					++$failed;
 					WP_CLI::log( sprintf( '[%s] FAIL: %s', $guid, $result['message'] ) );
 					break;
 			}
@@ -163,13 +163,13 @@ class CLI extends WP_CLI_Command {
 			sprintf(
 				'Batch import complete: %1$d total, %2$d imported, %3$d skipped, %4$d failed.',
 				count( $guids ),
-				count( $imported ),
-				count( $skipped ),
-				count( $failed )
+				$imported,
+				$skipped,
+				$failed
 			)
 		);
 
-		if ( ! empty( $failed ) ) {
+		if ( $failed > 0 ) {
 			WP_CLI::error( 'One or more videos failed to import. See output above.' );
 		}
 	}
