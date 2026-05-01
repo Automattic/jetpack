@@ -255,7 +255,7 @@ class Video_Authorization_Test extends BaseTestCase {
 
 		// WorDBless does not fully emulate WP_Query meta_query; seed the guid->id cache that
 		// videopress_get_post_id_by_guid() consults before querying.
-		set_transient( 'videopress_get_post_id_by_guid_' . $guid, $attachment_id, HOUR_IN_SECONDS );
+		set_transient( videopress_get_post_id_by_guid_cache_key( $guid ), $attachment_id, HOUR_IN_SECONDS );
 		wp_cache_delete( 'get_post_by_guid_' . $guid, 'videopress' );
 
 		return $attachment_id;

@@ -86,7 +86,7 @@ class CLI extends WP_CLI_Command {
 				);
 			}
 
-			delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
+			videopress_clear_post_id_by_guid_cache( $guid );
 			WP_CLI::log(
 				sprintf(
 					/* translators: %d: attachment id */

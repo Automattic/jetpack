@@ -121,7 +121,7 @@ class CLI_Test extends BaseTestCase {
 	 */
 	public function clear_video_cache( $guid ) {
 		delete_transient( 'jetpack_videopress_' . $guid );
-		delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
+		videopress_clear_post_id_by_guid_cache( $guid );
 	}
 
 	/**
@@ -276,7 +276,7 @@ class CLI_Test extends BaseTestCase {
 
 		// Simulate an existing attachment by setting the transient.
 		// videopress_get_post_id_by_guid() checks this transient first.
-		set_transient( 'videopress_get_post_id_by_guid_' . $guid, $existing_post_id, HOUR_IN_SECONDS );
+		set_transient( videopress_get_post_id_by_guid_cache_key( $guid ), $existing_post_id, HOUR_IN_SECONDS );
 
 		$cli = new CLI();
 
@@ -291,7 +291,7 @@ class CLI_Test extends BaseTestCase {
 		$this->assertFalse( $exception_thrown, 'Import should return early with warning, not throw error' );
 
 		// Cleanup.
-		delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
+		videopress_clear_post_id_by_guid_cache( $guid );
 	}
 
 	/**
@@ -312,7 +312,7 @@ class CLI_Test extends BaseTestCase {
 		update_post_meta( $existing_post_id, 'videopress_guid', $guid );
 
 		// Set transient so videopress_get_post_id_by_guid() finds it.
-		set_transient( 'videopress_get_post_id_by_guid_' . $guid, $existing_post_id, HOUR_IN_SECONDS );
+		set_transient( videopress_get_post_id_by_guid_cache_key( $guid ), $existing_post_id, HOUR_IN_SECONDS );
 
 		$this->mock_video_data = $this->get_mock_video_data();
 		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
@@ -345,7 +345,7 @@ class CLI_Test extends BaseTestCase {
 		// Set transient pointing to a non-existent post ID.
 		// wp_delete_attachment() will return null/false for non-existent posts.
 		$fake_post_id = 999999;
-		set_transient( 'videopress_get_post_id_by_guid_' . $guid, $fake_post_id, HOUR_IN_SECONDS );
+		set_transient( videopress_get_post_id_by_guid_cache_key( $guid ), $fake_post_id, HOUR_IN_SECONDS );
 
 		$cli = new CLI();
 
@@ -360,7 +360,7 @@ class CLI_Test extends BaseTestCase {
 		$this->assertTrue( $exception_thrown, 'Expected error when deletion fails' );
 
 		// Cleanup.
-		delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
+		videopress_clear_post_id_by_guid_cache( $guid );
 	}
 
 	/**

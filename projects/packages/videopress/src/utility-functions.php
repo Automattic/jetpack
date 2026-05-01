@@ -725,6 +725,28 @@ function videopress_get_post_by_guid( $guid ) {
 }
 
 /**
+ * Build the cache key used by videopress_get_post_id_by_guid().
+ *
+ * @param string $guid Video GUID.
+ * @return string Transient key.
+ */
+function videopress_get_post_id_by_guid_cache_key( $guid ) {
+	return 'videopress_get_post_id_by_guid_' . $guid;
+}
+
+/**
+ * Clear the cached attachment-ID-by-GUID lookup.
+ *
+ * Call after creating or deleting a VideoPress attachment to ensure subsequent
+ * videopress_get_post_id_by_guid() lookups hit the database.
+ *
+ * @param string $guid Video GUID.
+ */
+function videopress_clear_post_id_by_guid_cache( $guid ) {
+	delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
+}
+
+/**
  * Using a GUID, find the associated post ID.
  *
  * @since 8.4.0
@@ -732,7 +754,7 @@ function videopress_get_post_by_guid( $guid ) {
  * @return int|false The post ID for that guid, or false if none is found.
  */
 function videopress_get_post_id_by_guid( $guid ) {
-	$cache_key = 'videopress_get_post_id_by_guid_' . $guid;
+	$cache_key = videopress_get_post_id_by_guid_cache_key( $guid );
 	$cached_id = get_transient( $cache_key );
 
 	if ( is_int( $cached_id ) ) {

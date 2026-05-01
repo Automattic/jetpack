@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor only — wraps the videopress_get_post_id_by_guid() cache key in helper functions so callers stop poking the private transient name directly.
+
