@@ -18,7 +18,7 @@ namespace Automattic\Jetpack\Search;
 // keeps the two controls at the outer edges of the row.
 ?>
 <p
-	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
+	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-text="state.resultsCountText"
 ></p>

@@ -25,7 +25,7 @@ $initial_query = (string) get_search_query();
 $input_id      = wp_unique_id( 'jetpack-search-input-' );
 ?>
 <div
-	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
+	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
 >
 	<label class="jetpack-search-input__label screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>">

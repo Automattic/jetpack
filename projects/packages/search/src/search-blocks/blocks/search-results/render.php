@@ -13,10 +13,10 @@ namespace Automattic\Jetpack\Search;
 $layout        = ( (array) $attributes )['layout'] ?? 'card';
 $is_compact    = 'compact' === $layout;
 $wrapper_class = $is_compact ? 'jetpack-search-results--compact' : 'jetpack-search-results--card';
-$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );
+$wrapper_attrs = wp_kses_data( get_block_wrapper_attributes( array( 'class' => $wrapper_class ) ) );
 ?>
 <div
-	<?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
+	<?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses_data() above. ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-init="callbacks.initialize"
 	data-wp-bind--aria-busy="state.isLoading"

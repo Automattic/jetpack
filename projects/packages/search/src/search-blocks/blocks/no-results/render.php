@@ -17,7 +17,7 @@ if ( '' === $message ) {
 }
 ?>
 <div
-	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped by get_block_wrapper_attributes(). ?>
+	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-bind--hidden="!state.showNoResults"
 >
