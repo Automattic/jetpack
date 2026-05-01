@@ -985,6 +985,11 @@
 	line-height: inherit;
 }
 
+.bw-content li ul,
+.bw-content li ol {
+	margin-bottom: 0;
+}
+
 /* Images in content */
 .bw-content figure,
 .bw-content .bw-image-figure {
