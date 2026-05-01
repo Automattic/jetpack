@@ -132,9 +132,17 @@ class Jetpack_Scan {
 
 	/**
 	 * Fires when the admin page is loaded.
+	 *
+	 * Wires the bundle enqueue and silences the standard wp-admin notice
+	 * channels (`admin_notices` / `all_admin_notices`) so JITMs and
+	 * plugin-update messages don't reflow the focused Scan layout
+	 * mid-scan or while a fix modal is open. Same Forms-style pattern
+	 * used by `Automattic\Jetpack\Forms\Dashboard\Dashboard`.
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
 	}
 
 	/**
