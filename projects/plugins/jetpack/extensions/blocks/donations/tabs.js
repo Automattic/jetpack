@@ -4,15 +4,25 @@ import clsx from 'clsx';
 import Controls from './controls';
 import Tab from './tab';
 
+const firstShownInterval = ( oneTimeShown, monthlyShown, annualShown ) => {
+	if ( oneTimeShown ) return 'one-time';
+	if ( monthlyShown ) return '1 month';
+	if ( annualShown ) return '1 year';
+	return null;
+};
+
 const Tabs = props => {
 	const { attributes, products, setAttributes } = props;
 	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
-	const [ activeTab, setActiveTab ] = useState( 'one-time' );
+	const oneTimeShown = oneTimeDonation.show !== false;
+	const initialActiveTab =
+		firstShownInterval( oneTimeShown, monthlyDonation.show, annualDonation.show ) ?? 'one-time';
+	const [ activeTab, setActiveTab ] = useState( initialActiveTab );
 
 	const isTabActive = useCallback( tab => activeTab === tab, [ activeTab ] );
 
 	const tabs = {
-		'one-time': { title: __( 'One-Time', 'jetpack' ) },
+		...( oneTimeShown && { 'one-time': { title: __( 'One-Time', 'jetpack' ) } } ),
 		...( monthlyDonation.show && { '1 month': { title: __( 'Monthly', 'jetpack' ) } } ),
 		...( annualDonation.show && { '1 year': { title: __( 'Yearly', 'jetpack' ) } } ),
 	};
@@ -40,16 +50,23 @@ const Tabs = props => {
 		} );
 	}, [ oneTimeDonation, monthlyDonation, annualDonation, setAttributes, products ] );
 
-	// Activates the one-time tab if the interval of the current active tab is disabled.
+	// If the current active tab's interval is hidden, fall back to the first
+	// still-shown interval. Tries one-time first, then monthly, then yearly.
 	useEffect( () => {
+		const fallback = firstShownInterval( oneTimeShown, monthlyDonation.show, annualDonation.show );
+		if ( fallback === null ) {
+			return;
+		}
+		if ( ! oneTimeShown && isTabActive( 'one-time' ) ) {
+			setActiveTab( fallback );
+		}
 		if ( ! monthlyDonation.show && isTabActive( '1 month' ) ) {
-			setActiveTab( 'one-time' );
+			setActiveTab( fallback );
 		}
-
 		if ( ! annualDonation.show && isTabActive( '1 year' ) ) {
-			setActiveTab( 'one-time' );
+			setActiveTab( fallback );
 		}
-	}, [ monthlyDonation, annualDonation, setActiveTab, isTabActive ] );
+	}, [ oneTimeShown, monthlyDonation, annualDonation, setActiveTab, isTabActive ] );
 
 	return (
 		<>

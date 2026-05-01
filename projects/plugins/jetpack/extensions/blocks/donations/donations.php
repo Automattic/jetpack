@@ -93,8 +93,11 @@ function render_block( $attr, $content ) {
 	// edited) fall back to the defaults in the first array. User-cleared
 	// keys (empty strings explicitly saved) win over defaults, so
 	// "blank stays blank" and "never set" gets the default.
-	$donations = array(
-		'one-time' => array_merge(
+	// Treat `show !== false` as on, so legacy blocks (where `show` was never
+	// set on oneTimeDonation) still render the one-time interval by default.
+	$donations = array();
+	if ( false !== ( $attr['oneTimeDonation']['show'] ?? true ) ) {
+		$donations['one-time'] = array_merge(
 			array(
 				'planId'     => null,
 				'title'      => __( 'One-Time', 'jetpack' ),
@@ -103,8 +106,8 @@ function render_block( $attr, $content ) {
 				'buttonText' => $default_texts['oneTimeDonation']['buttonText'],
 			),
 			$attr['oneTimeDonation']
-		),
-	);
+		);
+	}
 	if ( $attr['monthlyDonation']['show'] ) {
 		$donations['1 month'] = array_merge(
 			array(

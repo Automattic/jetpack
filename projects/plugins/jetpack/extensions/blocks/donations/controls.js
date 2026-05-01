@@ -34,6 +34,7 @@ const Controls = props => {
 
 	const toggleDonation = ( interval, show ) => {
 		const donationAttributes = {
+			'one-time': 'oneTimeDonation',
 			'1 month': 'monthlyDonation',
 			'1 year': 'annualDonation',
 		};
@@ -121,6 +122,12 @@ const Controls = props => {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					<ToggleControl
+						checked={ oneTimeDonation.show !== false }
+						onChange={ value => toggleDonation( 'one-time', value ) }
+						label={ __( 'Show one-time donations', 'jetpack' ) }
+						__nextHasNoMarginBottom={ true }
+					/>
 					<ToggleControl
 						checked={ monthlyDonation.show }
 						onChange={ value => toggleDonation( '1 month', value ) }
