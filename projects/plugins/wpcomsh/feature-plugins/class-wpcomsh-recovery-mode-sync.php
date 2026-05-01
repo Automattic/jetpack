@@ -44,7 +44,7 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 * Pending state snapshot. Empty until the first capture this request —
 	 * its non-emptiness doubles as the "send needed" flag.
 	 *
-	 * @var array<string,int>
+	 * @var array<string,mixed>
 	 */
 	private static $payload = array();
 
