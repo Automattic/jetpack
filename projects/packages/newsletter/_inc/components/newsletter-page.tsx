@@ -98,6 +98,10 @@ export default function NewsletterPage( {
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
+	// Clear the subscriber-detail inspector params (`subscriber`, `u`) on
+	// every tab switch — those are Subscribers-tab-only state, but
+	// `route.inspector` decides visibility from search alone, so without
+	// this reset the inspector hitchhikes across to Settings.
 	const onTabChange = useCallback(
 		( next: string | null ) => {
 			if ( next !== 'subscribers' && next !== 'settings' ) {
@@ -113,6 +117,8 @@ export default function NewsletterPage( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					tab: next === 'settings' ? 'settings' : undefined,
+					subscriber: undefined,
+					u: undefined,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
