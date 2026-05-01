@@ -165,9 +165,11 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// returns null while the request is in flight and an array of taxonomy
 	// objects once resolved. Skip the request entirely outside the
 	// custom-taxonomy variation so the built-in variations don't pay for a
-	// REST call they never use.
+	// REST call they never use. No `per_page` arg — the
+	// /wp/v2/taxonomies endpoint doesn't register that collection param,
+	// and the response is a finite list anyway.
 	const taxonomies = useSelect(
-		select => ( isCustomTaxonomy ? select( 'core' ).getTaxonomies( { per_page: -1 } ) : null ),
+		select => ( isCustomTaxonomy ? select( 'core' ).getTaxonomies() : null ),
 		[ isCustomTaxonomy ]
 	);
 	// Derive options separately so the filter/map only re-runs when the
@@ -180,11 +182,13 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 		return taxonomies
 			.filter(
 				t =>
-					t?.slug && ! BUILT_IN_TAXONOMY_SLUGS.includes( t.slug ) && false !== t?.visibility?.public
+					t?.slug && ! BUILT_IN_TAXONOMY_SLUGS.includes( t.slug ) && t?.visibility?.public !== false
 			)
 			.map( t => ( { value: t.slug, label: t.name || t.slug } ) );
 	}, [ taxonomies ] );
 	const isLoadingTaxonomies = isCustomTaxonomy && taxonomies === null;
+	const hasNoCustomTaxonomies =
+		isCustomTaxonomy && Array.isArray( taxonomyOptions ) && taxonomyOptions.length === 0;
 
 	const rawLabel = attributes?.label || '';
 	const variationLabel = variationDefaultLabel( attributes );
@@ -267,10 +271,15 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							...( taxonomyOptions || [] ),
 						],
 						onChange: value => setAttributes( { taxonomy: value } ),
-						help: __(
-							'Pick which registered taxonomy this filter targets. Built-in Category and Tag have their own dedicated filters in the inserter.',
-							'jetpack-search-pkg'
-						),
+						help: hasNoCustomTaxonomies
+							? __(
+									'No custom taxonomies registered on this site. Register one with register_taxonomy() and it will appear here.',
+									'jetpack-search-pkg'
+							  )
+							: __(
+									'Pick which registered taxonomy this filter targets. Built-in Category and Tag have their own dedicated filters in the inserter.',
+									'jetpack-search-pkg'
+							  ),
 					} ),
 				h( TextControl, {
 					__next40pxDefaultSize: true,

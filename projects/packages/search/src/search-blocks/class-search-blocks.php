@@ -189,7 +189,14 @@ class Search_Blocks {
 					'taxonomy'   => '',
 					'label'      => '',
 				),
-				'isActive'    => array( 'filterType', 'taxonomy' ),
+				// Match on filterType only (no taxonomy comparison) so the
+				// variation identity survives once the author picks a slug
+				// via the inspector. The Category and Tag variations both
+				// pin `taxonomy` in their isActive arrays, so WP's
+				// most-specific-match resolution still routes those slugs
+				// to their dedicated variations — Custom Taxonomy claims
+				// every other registered taxonomy.
+				'isActive'    => array( 'filterType' ),
 			),
 		);
 
