@@ -1,8 +1,12 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useQuery } from '@tanstack/react-query';
-import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/components';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { siteScanQuery } from '../../data/query-options';
+import { useSetHeaderActions } from '../../header-actions-context';
+import BulkFixModal from './bulk-fix-modal';
 import EmptyState from './empty-state';
 import { useThreatActions } from './use-threat-actions';
 import type { FC } from 'react';
@@ -25,6 +29,37 @@ import type { FC } from 'react';
 const ActiveThreats: FC = () => {
 	const { data, isLoading, error } = useQuery( siteScanQuery() );
 	const { onFixThreats, onIgnoreThreats } = useThreatActions();
+	const setHeaderActions = useSetHeaderActions();
+
+	const threats = useMemo( () => data?.threats ?? [], [ data ] );
+	const fixableCount = useMemo(
+		() => threats.filter( threat => !! threat.fixable ).length,
+		[ threats ]
+	);
+
+	const [ isBulkFixOpen, setBulkFixOpen ] = useState( false );
+	const openBulkFix = useCallback( () => setBulkFixOpen( true ), [] );
+	const closeBulkFix = useCallback( () => setBulkFixOpen( false ), [] );
+
+	// Slot the "Auto-fix N threats" CTA into the AdminPage header whenever
+	// the Active tab has fixable threats. Cleared on tab switch / unmount
+	// so other tabs (History) don't inherit it.
+	useEffect( () => {
+		if ( fixableCount > 0 ) {
+			setHeaderActions(
+				<Button variant="primary" onClick={ openBulkFix } __next40pxDefaultSize>
+					{ sprintf(
+						/* translators: %d is the count of threats Jetpack Scan can auto-fix. */
+						_n( 'Auto-fix %d threat', 'Auto-fix %d threats', fixableCount, 'jetpack-scan-page' ),
+						fixableCount
+					) }
+				</Button>
+			);
+		} else {
+			setHeaderActions( null );
+		}
+		return () => setHeaderActions( null );
+	}, [ fixableCount, setHeaderActions, openBulkFix ] );
 
 	if ( isLoading ) {
 		return <LoadingPlaceholder width="100%" height={ 400 } />;
@@ -37,20 +72,23 @@ const ActiveThreats: FC = () => {
 	}
 
 	return (
-		<ThreatsDataViews
-			data={ data?.threats ?? [] }
-			onFixThreats={ onFixThreats }
-			onIgnoreThreats={ onIgnoreThreats }
-			empty={
-				<EmptyState
-					heading={ __( "You're set up. No active threats.", 'jetpack-scan-page' ) }
-					body={ __(
-						'Jetpack Scan watches your site for vulnerabilities and suspicious files. New findings will appear here.',
-						'jetpack-scan-page'
-					) }
-				/>
-			}
-		/>
+		<>
+			<ThreatsDataViews
+				data={ threats }
+				onFixThreats={ onFixThreats }
+				onIgnoreThreats={ onIgnoreThreats }
+				empty={
+					<EmptyState
+						heading={ __( "You're set up. No active threats.", 'jetpack-scan-page' ) }
+						body={ __(
+							'Jetpack Scan watches your site for vulnerabilities and suspicious files. New findings will appear here.',
+							'jetpack-scan-page'
+						) }
+					/>
+				}
+			/>
+			{ isBulkFixOpen && <BulkFixModal threats={ threats } onClose={ closeBulkFix } /> }
+		</>
 	);
 };
 
