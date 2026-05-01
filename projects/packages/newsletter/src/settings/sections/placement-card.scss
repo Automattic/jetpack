@@ -77,13 +77,13 @@
 
 .jetpack-newsletter-placement__checkbox {
 	position: absolute;
-	inset-block-start: var(--wpds-dimension-padding-sm, 8px);
-	inset-inline-start: var(--wpds-dimension-padding-sm, 8px);
+	inset-block-start: var(--wpds-dimension-padding-md, 12px);
+	inset-inline-start: var(--wpds-dimension-padding-md, 12px);
 
 	// `CheckboxControl` wraps the native input in `BaseControl` +
 	// `__field` + `__input-container`. Each carries its own
 	// margin/padding that pushes the visible square off-center inside the
-	// 8px-from-edges absolute wrapper. Zero them out so the visible
+	// 12px-from-edges absolute wrapper. Zero them out so the visible
 	// checkbox box is exactly equidistant from the card's top and inline
 	// end edges.
 	.components-base-control,
