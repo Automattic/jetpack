@@ -10,13 +10,17 @@ $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
 body.jetpack_page_jetpack-newsletter {
 
 	// Off-white page surface so the white settings cards stand out against
-	// the page background. `.admin-ui-page` defaults to `height: 100%` —
-	// override to `auto` + `min-block-size: 100%` so the page grows with
-	// its content. Without this, the page is one-viewport tall and the
-	// sticky header / tab row scroll out of view as soon as the user
-	// passes the first viewport's worth of content.
+	// the page background. WPDS doesn't ship a token at exactly `#fcfcfc`
+	// today (the closest, `--wpds-color-bg-surface-neutral-weak`, resolves
+	// to `#f7f7f7` inside the admin-ui scope). The literal `#fcfcfc` is
+	// already the "Jetpack page surface" value used by Jetpack settings,
+	// the Forms inspector, and My Jetpack interstitials, so we match it
+	// here. Also override `.admin-ui-page`'s default `height: 100%` so the page
+	// grows with its content — without this, the page is one-viewport
+	// tall and the sticky header / tab row scroll out of view as soon as
+	// the user passes the first viewport's worth of content.
 	.admin-ui-page {
-		background: var(--wpds-color-bg-surface-neutral-weak, #fcfcfc);
+		background: #fcfcfc;
 		block-size: auto;
 		min-block-size: 100%;
 	}
