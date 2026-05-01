@@ -31,6 +31,7 @@ The sniff only matches when both calls reference the same single argument, and a
 
 * Multi-argument `isset()` (e.g. `isset( $a, $b )`) is left alone due to complexity (e.g. `empty()` only supports one argument).
 * The sniff only inspects the immediate left and right operands of each `&&` / `||` token. Redundancy separated by an intervening clause is **not** detected — for example, `isset( $a ) && do_x() && ! empty( $a )` will pass without warning, even though the `isset( $a )` is still redundant.
+* This may generate false positives for function/method calls, assignments inside the argument, and other expressions with observable side effects.
 
 ### Messages
 
