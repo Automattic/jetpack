@@ -1,5 +1,6 @@
 import * as WPElement from '@wordpress/element';
 import App from './admin';
+import './style.scss';
 
 /**
  * Initial render function.

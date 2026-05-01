@@ -4,7 +4,6 @@ import { Tabs } from '@wordpress/ui';
 import { useSearchParams } from 'react-router';
 import ActiveThreats from './active-threats';
 import ScanHistory from './scan-history';
-import './style.scss';
 import type { FC } from 'react';
 
 type ScanTab = 'active' | 'history';
@@ -17,9 +16,11 @@ const isScanTab = ( value: string | null ): value is ScanTab =>
  * Calypso's `client/dashboard/sites/scan/`. Tab selection is URL-synced
  * via `?tab=active|history` so deep-links and reloads round-trip.
  *
- * Single `Tabs.Root` keeps the active-tab indicator animated when the user
- * slides between tabs — the same pattern Newsletter's unified page uses
- * (see #48420 phase 3).
+ * The tabs strip is wrapped in a `.jp-admin-page-tabs` div so the
+ * `jetpack-admin-page-layout` mixin (from `@automattic/jetpack-base-styles`)
+ * pins it to the top of the scrollable middle, aligns the tab buttons
+ * with the page header inset, and stretches the hairline across the
+ * full column width — same convention Activity Log + Newsletter use.
  *
  * @return The tabbed overview screen.
  */
@@ -50,26 +51,19 @@ const OverviewScreen: FC = () => {
 	);
 
 	return (
-		<Tabs.Root className="jetpack-scan-page" value={ activeTab } onValueChange={ handleTabChange }>
-			{ /*
-			   The wrapper carries the full-width bottom border + page padding;
-			   the inner `Tabs.List` keeps its native `width: fit-content` so the
-			   animated active-tab indicator slides smoothly between tabs.
-			*/ }
-			<div className="jetpack-scan-page__tabs-row">
+		<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
+			<div className="jp-admin-page-tabs">
 				<Tabs.List variant="minimal">
 					<Tabs.Tab value="active">{ __( 'Active threats', 'jetpack-scan-page' ) }</Tabs.Tab>
 					<Tabs.Tab value="history">{ __( 'History', 'jetpack-scan-page' ) }</Tabs.Tab>
 				</Tabs.List>
 			</div>
-			<div className="jetpack-scan-page__content">
-				<Tabs.Panel value="active" focusable={ false }>
-					<ActiveThreats />
-				</Tabs.Panel>
-				<Tabs.Panel value="history" focusable={ false }>
-					<ScanHistory />
-				</Tabs.Panel>
-			</div>
+			<Tabs.Panel value="active" focusable={ false }>
+				<ActiveThreats />
+			</Tabs.Panel>
+			<Tabs.Panel value="history" focusable={ false }>
+				<ScanHistory />
+			</Tabs.Panel>
 		</Tabs.Root>
 	);
 };

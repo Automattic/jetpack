@@ -1,0 +1,19 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "sass:meta";
+
+// `@wordpress/dataviews` is bundled (not externalized) by
+// jetpack-webpack-config, so its stylesheet ships with the JS bundle
+// rather than being enqueued separately. Same pattern Activity Log
+// (and Forms) uses to bring DataViews styles into the page.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// `body.<menu>_page_<slug>` is the wp-admin convention. The Scan page
+// lives under the Jetpack top-level menu (slug `jetpack`), so the body
+// class is `jetpack_page_jetpack-scan`. We also match the standalone
+// shape for completeness (no top-level Jetpack menu => the page would
+// register as `toplevel_page_jetpack-scan`).
+body.toplevel_page_jetpack-scan,
+body.jetpack_page_jetpack-scan {
+
+	@include jetpack-admin-page-layout;
+}
