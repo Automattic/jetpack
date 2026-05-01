@@ -66,10 +66,7 @@ function remember_block_editor( $editor_settings, $post ) {
 				'auth_callback'     => function () {
 					return current_user_can( 'edit_posts' );
 				},
-				'sanitize_callback' => function ( $value ) {
-					$allowed = array( 'classic-editor', 'block-editor', 'write-editor' );
-					return in_array( $value, $allowed, true ) ? $value : '';
-				},
+				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
 	}

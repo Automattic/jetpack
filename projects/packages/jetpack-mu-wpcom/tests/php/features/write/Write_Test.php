@@ -1117,15 +1117,15 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that the sanitize callback rejects invalid editor values.
+	 * Test that the sanitize callback strips unsafe content.
 	 */
-	public function test_sanitize_callback_rejects_invalid_values() {
+	public function test_sanitize_callback_strips_unsafe_content() {
 		do_action( 'init' );
 
 		$this->assertEquals( 'write-editor', sanitize_meta( '_last_editor_used_jetpack', 'write-editor', 'post', 'post' ) );
 		$this->assertEquals( 'block-editor', sanitize_meta( '_last_editor_used_jetpack', 'block-editor', 'post', 'post' ) );
 		$this->assertEquals( 'classic-editor', sanitize_meta( '_last_editor_used_jetpack', 'classic-editor', 'post', 'post' ) );
-		$this->assertSame( '', sanitize_meta( '_last_editor_used_jetpack', 'malicious-value', 'post', 'post' ) );
-		$this->assertSame( '', sanitize_meta( '_last_editor_used_jetpack', '<script>alert(1)</script>', 'post', 'post' ) );
+		$this->assertEquals( 'future-editor', sanitize_meta( '_last_editor_used_jetpack', 'future-editor', 'post', 'post' ) );
+		$this->assertSame( 'alert(1)', sanitize_meta( '_last_editor_used_jetpack', '<script>alert(1)</script>', 'post', 'post' ) );
 	}
 }
