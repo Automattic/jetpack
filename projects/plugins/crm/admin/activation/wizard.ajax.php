@@ -25,7 +25,7 @@ function zbs_wizard_fin() {
 	$crm_curr       = sanitize_text_field( wp_unslash( $_POST['zbs_crm_curr'] ?? '' ) );
 	$crm_type       = sanitize_text_field( wp_unslash( $_POST['zbs_crm_type'] ?? '' ) );
 	$crm_other      = sanitize_text_field( wp_unslash( $_POST['zbs_crm_other'] ?? '' ) );
-	$crm_menu_style = (int) $_POST['zbs_crm_menu_style'] ?? 2;
+	$crm_menu_style = (int) sanitize_text_field( wp_unslash( $_POST['zbs_crm_menu_style'] ?? 2 ) );
 	$crm_share      = empty( $_POST['zbs_crm_share_essentials'] ) ? 0 : 1;
 
 	$crm_enable_quotes     = empty( $_POST['zbs_quotes'] ) ? 0 : 1;
