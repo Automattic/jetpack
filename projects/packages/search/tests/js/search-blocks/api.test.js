@@ -4,6 +4,7 @@ import {
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
+	formatDateBucketLabel,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
 
@@ -235,6 +236,23 @@ describe( 'resolveFilterFields', () => {
 			bucketFormat: 'slash',
 		} );
 	} );
+
+	it( 'maps date filters to the WPCOM-whitelisted `date` field with bucketFormat=date', () => {
+		// WPCOM Search v1.3 only accepts `date` for date_histogram aggs and
+		// `range` filter clauses; the WP-side `post_date` column name is
+		// rejected. The block's filter key (post_date) is independent of the
+		// ES field — only the ES field is asserted here.
+		expect( resolveFilterFields( { filterType: 'date', interval: 'year' } ) ).toEqual( {
+			aggField: 'date',
+			filterField: 'date',
+			bucketFormat: 'date',
+		} );
+		expect( resolveFilterFields( { filterType: 'date', interval: 'month' } ) ).toEqual( {
+			aggField: 'date',
+			filterField: 'date',
+			bucketFormat: 'date',
+		} );
+	} );
 } );
 
 describe( 'buildAggregations', () => {
@@ -295,6 +313,58 @@ describe( 'buildAggregations', () => {
 		} );
 		expect( aggs.category.terms.order ).toEqual( { _count: 'desc' } );
 	} );
+
+	it( 'emits a date_histogram (not a terms agg) for date filters', () => {
+		const aggs = buildAggregations( {
+			post_date: {
+				filterType: 'date',
+				interval: 'year',
+				bucketSortOrder: 'newest',
+			},
+		} );
+		expect( aggs.post_date ).toEqual( {
+			date_histogram: {
+				field: 'date',
+				calendar_interval: 'year',
+				format: 'yyyy',
+				min_doc_count: 1,
+				order: { _key: 'desc' },
+			},
+		} );
+		// Date filters must not pick up `terms` accidentally — that would
+		// hand ES a numeric field with no sub-bucketing.
+		expect( aggs.post_date.terms ).toBeUndefined();
+	} );
+
+	it( 'requests a yyyy-MM format for month-interval date filters', () => {
+		const aggs = buildAggregations( {
+			post_date: {
+				filterType: 'date',
+				interval: 'month',
+			},
+		} );
+		expect( aggs.post_date.date_histogram.calendar_interval ).toBe( 'month' );
+		expect( aggs.post_date.date_histogram.format ).toBe( 'yyyy-MM' );
+	} );
+
+	it( 'maps date bucketSortOrder values to ES order clauses', () => {
+		const cases = [
+			[ 'newest', { _key: 'desc' } ],
+			[ 'oldest', { _key: 'asc' } ],
+			[ 'count', { _count: 'desc' } ],
+			[ 'bogus', { _key: 'desc' } ],
+		];
+		for ( const [ input, expected ] of cases ) {
+			const aggs = buildAggregations( {
+				post_date: {
+					filterType: 'date',
+					interval: 'year',
+					bucketSortOrder: input,
+				},
+			} );
+			expect( aggs.post_date.date_histogram.order ).toEqual( expected );
+		}
+	} );
 } );
 
 describe( 'buildFilterClause', () => {
@@ -344,6 +414,116 @@ describe( 'buildFilterClause', () => {
 
 	it( 'returns undefined when no selections are active', () => {
 		expect( buildFilterClause( {}, {} ) ).toBeUndefined();
+	} );
+
+	it( 'emits a half-open `range` clause for a single year selection', () => {
+		// Filter key (`post_date`) is the URL/state key; the ES field is
+		// `date` per the WPCOM Search v1.3 whitelist.
+		const clause = buildFilterClause(
+			{ post_date: [ '2024' ] },
+			{ post_date: { filterType: 'date', interval: 'year' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [
+					{
+						range: {
+							date: { gte: '2024-01-01', lt: '2025-01-01' },
+						},
+					},
+				],
+			},
+		} );
+	} );
+
+	it( 'rolls month boundaries forward across year wrap', () => {
+		// Selecting December must hand ES `lt: <next year>-01-01`, not
+		// `<same year>-13-01` (which ES rejects).
+		const clause = buildFilterClause(
+			{ post_date: [ '2024-12' ] },
+			{ post_date: { filterType: 'date', interval: 'month' } }
+		);
+		expect( clause.bool.must[ 0 ] ).toEqual( {
+			range: {
+				date: { gte: '2024-12-01', lt: '2025-01-01' },
+			},
+		} );
+	} );
+
+	it( 'wraps multi-value date selections in bool.should (OR within a date filter)', () => {
+		const clause = buildFilterClause(
+			{ post_date: [ '2024', '2023' ] },
+			{ post_date: { filterType: 'date', interval: 'year' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [
+					{
+						bool: {
+							should: [
+								{ range: { date: { gte: '2024-01-01', lt: '2025-01-01' } } },
+								{ range: { date: { gte: '2023-01-01', lt: '2024-01-01' } } },
+							],
+						},
+					},
+				],
+			},
+		} );
+	} );
+
+	it( 'drops malformed date slugs rather than passing them through to ES', () => {
+		// A garbage slug from a tampered URL must not become an open-ended
+		// range. With every value invalid the whole filter drops out.
+		const clause = buildFilterClause(
+			{ post_date: [ 'banana' ] },
+			{ post_date: { filterType: 'date', interval: 'year' } }
+		);
+		expect( clause ).toBeUndefined();
+	} );
+
+	it( 'keeps valid date selections when one of several values is malformed', () => {
+		const clause = buildFilterClause(
+			{ post_date: [ 'banana', '2024' ] },
+			{ post_date: { filterType: 'date', interval: 'year' } }
+		);
+		// Single surviving clause shouldn't be wrapped in bool.should.
+		expect( clause ).toEqual( {
+			bool: {
+				must: [ { range: { date: { gte: '2024-01-01', lt: '2025-01-01' } } } ],
+			},
+		} );
+	} );
+} );
+
+describe( 'formatDateBucketLabel', () => {
+	it( 'returns year buckets verbatim — no locale chrome added', () => {
+		expect( formatDateBucketLabel( '2024', 'year' ) ).toBe( '2024' );
+		expect( formatDateBucketLabel( '1999', 'year', 'fr-FR' ) ).toBe( '1999' );
+	} );
+
+	it( 'formats month buckets with a localized full-month + year', () => {
+		// `Intl.DateTimeFormat` output varies by ICU version; assert the year
+		// + a known month substring instead of the exact rendered string.
+		const enUS = formatDateBucketLabel( '2024-03', 'month', 'en-US' );
+		expect( enUS ).toMatch( /^March 2024$|^March of 2024$/ );
+
+		const frFR = formatDateBucketLabel( '2024-03', 'month', 'fr-FR' );
+		expect( frFR ).toContain( '2024' );
+		expect( frFR.toLowerCase() ).toContain( 'mars' );
+	} );
+
+	it( 'falls back to the raw value for malformed slugs', () => {
+		expect( formatDateBucketLabel( '', 'month' ) ).toBe( '' );
+		expect( formatDateBucketLabel( 'not-a-date', 'month' ) ).toBe( 'not-a-date' );
+		expect( formatDateBucketLabel( '2024-13', 'month' ) ).toBe( '2024-13' );
+	} );
+
+	it( 'tolerates an invalid locale by returning the raw value', () => {
+		// `Intl.DateTimeFormat` throws on a malformed BCP47 tag; we'd rather
+		// the active-filter pill render a useful slug than blow up the page.
+		expect( formatDateBucketLabel( '2024-03', 'month', 'definitely-not-a-locale' ) ).toMatch(
+			/2024/
+		);
 	} );
 } );
 

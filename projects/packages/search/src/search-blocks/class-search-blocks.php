@@ -410,7 +410,12 @@ class Search_Blocks {
 	 * @return array<string, array<string, mixed>>
 	 */
 	protected static function collect_filter_configs_from_post(): array {
-		if ( ! function_exists( 'get_post' ) || ! function_exists( 'parse_blocks' ) || ! class_exists( Filter_Checkbox::class ) ) {
+		if (
+			! function_exists( 'get_post' )
+			|| ! function_exists( 'parse_blocks' )
+			|| ! class_exists( Filter_Checkbox::class )
+			|| ! class_exists( Filter_Date::class )
+		) {
 			return array();
 		}
 		$post = get_post();
@@ -423,24 +428,46 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Recursively walk a parsed block tree and push filter-checkbox configs
-	 * into `$configs`. Passing `$configs` by reference keeps the recursion
-	 * flat — callers don't need to merge children's maps back into parents'.
+	 * Map of filter block name → helper class that owns its `derive_filter_key`
+	 * and `build_config` methods. Adding a new filter block type is a
+	 * one-line change here.
+	 *
+	 * @return array<string, class-string>
+	 */
+	protected static function filter_block_helpers(): array {
+		return array(
+			'jetpack/filter-checkbox' => Filter_Checkbox::class,
+			'jetpack/filter-date'     => Filter_Date::class,
+		);
+	}
+
+	/**
+	 * Recursively walk a parsed block tree and push every filter block's
+	 * config into `$configs`. Passing `$configs` by reference keeps the
+	 * recursion flat — callers don't need to merge children's maps back into
+	 * parents'.
+	 *
+	 * The block-name → helper-class lookup keeps adding a new filter block
+	 * type to a one-line registry change in `filter_block_helpers()`; both
+	 * helpers expose the same `derive_filter_key()` / `build_config()` shape.
 	 *
 	 * @param array $blocks  Parsed block tree from parse_blocks().
 	 * @param array $configs Accumulator map keyed by filterKey.
 	 * @return void
 	 */
 	protected static function walk_blocks_for_filter_configs( array $blocks, array &$configs ): void {
+		$helpers = static::filter_block_helpers();
 		foreach ( $blocks as $block ) {
 			if ( ! is_array( $block ) ) {
 				continue;
 			}
-			if ( 'jetpack/filter-checkbox' === ( $block['blockName'] ?? '' ) ) {
-				$attrs = (array) ( $block['attrs'] ?? array() );
-				$key   = Filter_Checkbox::derive_filter_key( $attrs );
+			$block_name = (string) ( $block['blockName'] ?? '' );
+			if ( isset( $helpers[ $block_name ] ) ) {
+				$helper = $helpers[ $block_name ];
+				$attrs  = (array) ( $block['attrs'] ?? array() );
+				$key    = $helper::derive_filter_key( $attrs );
 				if ( '' !== $key ) {
-					$configs[ $key ] = Filter_Checkbox::build_config( $attrs, $key );
+					$configs[ $key ] = $helper::build_config( $attrs, $key );
 				}
 			}
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
