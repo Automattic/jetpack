@@ -53,7 +53,6 @@ class Search extends Module {
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_search_options_whitelist' ), 10 );
 		// AI Answers CPTs and post meta (gated by feature flag).
 		add_filter( 'jetpack_sync_post_types_whitelist', array( $this, 'add_ai_answer_post_types' ), 10 );
-		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_ai_answer_post_meta' ), 10 );
 	}
 
 	/**
@@ -1822,26 +1821,11 @@ class Search extends Module {
 		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) ) ) {
 			return $list;
 		}
-		$list[] = 'wp_guideline';       // Gutenberg Guidelines CPT (stores personality/behavior).
-		$list[] = 'jetpack_search_topic';
+		$list[] = 'wp_guideline';
 		return $list;
 	}
 
 	/**
-	 * Add AI topic and personality postmeta keys to the sync whitelist when AI Answers is enabled.
-	 *
-	 * @param array $list Existing postmeta whitelist.
-	 * @return array Updated whitelist.
-	 */
-	public function add_ai_answer_post_meta( $list ) {
-		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) ) ) {
-			return $list;
-		}
-		$list[] = '_jstopic_keywords';
-		$list[] = '_jstopic_url';
-		return $list;
-	}
-
 	//
 	// Indexing functions for wp.com.
 
