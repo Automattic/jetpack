@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Strip the decimal suffix from `rewindId` before posting it to the restore initiator. Activity-log rewind ids carry a sub-second disambiguator (e.g. `1777647204.5541`); WPCOM's `/sites/{id}/rewind/to/{timestamp}` endpoint expects the integer-second portion in the URL path and rejects the decimal form. The Restore form was failing with "Failed to start the restore." for every backup. Same `toIntRewindId` helper the file-browser fetchers already use, just applied to one more boundary.

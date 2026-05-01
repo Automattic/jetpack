@@ -399,7 +399,11 @@ export async function initiateBackupRestore( {
 		// fetcher handles the rest of the simulation.
 		return 1;
 	}
-	const body: Record< string, unknown > = { rewind_id: rewindId };
+	// `/rewind/to/{timestamp}` expects the integer-second portion of the
+	// rewind id, same family as the `rewind/backup/*` endpoints. Strip
+	// the activity-log's decimal suffix here so the bridge proxies a
+	// URL WPCOM will accept.
+	const body: Record< string, unknown > = { rewind_id: toIntRewindId( rewindId ) };
 	if ( includePaths ) {
 		body.include_path_list = includePaths;
 		body.exclude_path_list = excludePaths ?? '';
