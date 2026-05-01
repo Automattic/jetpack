@@ -1,5 +1,9 @@
-import { store, withSyncEvent as originalWithSyncEvent } from '@wordpress/interactivity';
-import { buildSearchUrl } from './api';
+import {
+	store,
+	getContext,
+	withSyncEvent as originalWithSyncEvent,
+} from '@wordpress/interactivity';
+import { buildSearchUrl, formatDateBucketLabel } from './api';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
 import {
@@ -48,6 +52,130 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 		gated[ key ] = values;
 	}
 	return { gated, droppedAny };
+}
+
+/**
+ * Parse a `slug_slash_name` aggregation bucket key into `{ value, label }`.
+ *
+ * Taxonomy, author, and product-attribute aggregations index the bucket key
+ * as `slug/Display Name`; post-type buckets are plain (no slash) so value
+ * and label are the same. Splitting on the *first* `/` handles names that
+ * themselves contain slashes.
+ *
+ * @param {unknown} rawKey - Bucket `key` from the search response.
+ * @return {{ value: string, label: string }} Parsed value (slug) and label (display name).
+ */
+function parseSlashBucketKey( rawKey ) {
+	const key = String( rawKey ?? '' );
+	const slashIdx = key.indexOf( '/' );
+	if ( slashIdx === -1 ) {
+		return { value: key, label: key };
+	}
+	return { value: key.slice( 0, slashIdx ), label: key.slice( slashIdx + 1 ) };
+}
+
+/**
+ * Resolve the slug for a date_histogram bucket.
+ *
+ * Date buckets carry both `key` (epoch milliseconds) and `key_as_string`
+ * (formatted by ES with the `Y` / `Y-m` format the block requested). We use
+ * `key_as_string` as the slug so URLs read like `?post_date[]=2024` or
+ * `?post_date[]=2024-03`, which is what `Filter_Date::format_bucket_label`
+ * keys against and what visitors expect to see.
+ *
+ * @param {object} bucket - Aggregation bucket from the search response.
+ * @return {string} Bucket slug (year or yyyy-mm).
+ */
+function dateBucketSlug( bucket ) {
+	const ks = bucket?.key_as_string;
+	if ( typeof ks === 'string' && ks !== '' ) {
+		return ks;
+	}
+	// `key_as_string` is always populated when ES has a `format` on the agg
+	// (which buildAggregations supplies), but fall back to the numeric key
+	// stringified so a malformed response still produces a stable identifier.
+	return String( bucket?.key ?? '' );
+}
+
+/**
+ * Build the `filterItems` list for a `slash`-format filter (taxonomy,
+ * post_type, author). Selected buckets are dropped — active filters appear
+ * in the active-filters block, so the checkbox list only offers values the
+ * user hasn't chosen yet.
+ *
+ * @param {object} sharedState - Live store state.
+ * @param {string} filterKey   - Key of this filter's aggregation entry.
+ * @param {object} config      - filterConfigs entry for this filter.
+ * @return {Array<object>} Item descriptors for each unselected bucket.
+ */
+function checkboxFilterItems( sharedState, filterKey, config ) {
+	const buckets = sharedState.aggregations?.[ filterKey ]?.buckets;
+	if ( ! Array.isArray( buckets ) ) {
+		return [];
+	}
+	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
+	const showCount = config.showCount !== false;
+	return buckets.reduce( ( items, bucket ) => {
+		const { value, label } = parseSlashBucketKey( bucket.key );
+		if ( selected.includes( value ) ) {
+			return items;
+		}
+		items.push( {
+			value,
+			label,
+			showCount,
+			countLabel: String( bucket.doc_count ?? 0 ),
+		} );
+		return items;
+	}, [] );
+}
+
+/**
+ * Build the `filterItems` list for a `date` filter. Drops empty
+ * (`doc_count: 0`) buckets and buckets the user has already selected, then
+ * truncates to `maxItems`. Each item carries a pre-formatted `label` via
+ * `formatDateBucketLabel` so the active-filters pill code can read this
+ * same shape without re-implementing date formatting per block.
+ *
+ * @param {object} sharedState - Live store state.
+ * @param {string} filterKey   - Key of this filter's aggregation entry.
+ * @param {object} config      - filterConfigs entry for this filter.
+ * @return {Array<object>} Item descriptors for each unselected, populated bucket.
+ */
+function dateFilterItems( sharedState, filterKey, config ) {
+	const buckets = sharedState.aggregations?.[ filterKey ]?.buckets;
+	if ( ! Array.isArray( buckets ) ) {
+		return [];
+	}
+	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
+	const showCount = config.showCount !== false;
+	const interval = config.interval === 'month' ? 'month' : 'year';
+	const locale = sharedState.locale || 'en-US';
+	// date_histogram has no ES `size` parameter — the response carries every
+	// non-empty bucket in the date range. Slice client-side to `maxItems` so
+	// a long-running blog doesn't render dozens of checkboxes; ES order has
+	// already placed the user's preferred buckets at the head of the list.
+	const limit = Math.max( 1, config.maxItems ?? 10 );
+	const items = [];
+	for ( const bucket of buckets ) {
+		if ( items.length >= limit ) {
+			break;
+		}
+		if ( ( bucket?.doc_count ?? 0 ) <= 0 ) {
+			continue;
+		}
+		const value = dateBucketSlug( bucket );
+		if ( ! value || selected.includes( value ) ) {
+			continue;
+		}
+		items.push( {
+			value,
+			label: formatDateBucketLabel( value, interval, locale ),
+			showCount,
+			countLabel: String( bucket.doc_count ),
+		} );
+	}
+	return items;
 }
 // Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
@@ -260,9 +388,103 @@ const { state, actions } = store( NAMESPACE, {
 		get isSortByOldest() {
 			return state.sortOrder === 'oldest';
 		},
+
+		/**
+		 * Whether the current filter block has any aggregation buckets to
+		 * render. Bound to the wrapper's `hidden` attribute so a filter
+		 * group with no matches disappears rather than showing an empty
+		 * heading. Dispatches on `filterType` so each block type uses its
+		 * own emptiness rule: `date` requires at least one populated bucket
+		 * (`doc_count > 0`), since the date_histogram is requested with
+		 * `min_doc_count: 1` and empty buckets shouldn't arrive — keep the
+		 * guard as defence-in-depth against response-shape changes. Every
+		 * other filter type just needs at least one bucket of any size.
+		 *
+		 * @return {boolean} True when buckets are available.
+		 */
+		get hasFilterBuckets() {
+			const { filterKey } = getContext();
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				return buckets.some( bucket => ( bucket?.doc_count ?? 0 ) > 0 );
+			}
+			return true;
+		},
+
+		/**
+		 * True when every available bucket is already in `activeFilters` —
+		 * the checkbox list would render empty and the block should show
+		 * the "All filters applied" message instead. Bucket-slug derivation
+		 * dispatches on `filterType`: date filters compare against
+		 * `key_as_string`; other filters parse the `slug/Name` key.
+		 *
+		 * @return {boolean} True when the list has nothing left to offer.
+		 */
+		get allBucketsSelected() {
+			const { filterKey } = getContext();
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const selected = state.activeFilters?.[ filterKey ] ?? [];
+			if ( selected.length === 0 ) {
+				return false;
+			}
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				const populated = buckets.filter( bucket => ( bucket?.doc_count ?? 0 ) > 0 );
+				if ( populated.length === 0 ) {
+					return false;
+				}
+				return populated.every( bucket => selected.includes( dateBucketSlug( bucket ) ) );
+			}
+			return buckets.every( bucket => {
+				const { value } = parseSlashBucketKey( bucket.key );
+				return selected.includes( value );
+			} );
+		},
+
+		/**
+		 * Derived list of `{ value, label, showCount, countLabel }` items
+		 * for the current filter block. Dispatches on `filterType` to the
+		 * matching builder so a single getter on the shared namespace
+		 * serves every filter block — registering it inside each view
+		 * bundle would clobber siblings on a page with mixed filter types
+		 * (Interactivity API merges later `store()` patches).
+		 *
+		 * @return {Array<object>} Item descriptors for each unselected bucket.
+		 */
+		get filterItems() {
+			const { filterKey } = getContext();
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				return dateFilterItems( state, filterKey, config );
+			}
+			return checkboxFilterItems( state, filterKey, config );
+		},
 	},
 
 	actions: {
+		/**
+		 * Toggle the filter value that owns the change event. Shared by
+		 * filter-checkbox and filter-date — both bind the same checkbox
+		 * `change` handler; the input's `value` carries the slug, and
+		 * `filterKey` comes from the wrapper context. Living on the shared
+		 * namespace keeps the action registration single-owner so a later-
+		 * loaded view bundle can't replace it with a divergent copy.
+		 *
+		 * @param {Event} event - Change event.
+		 * @yield {Promise} setFilter action.
+		 */
+		*onFilterChange( event ) {
+			const { filterKey } = getContext();
+			yield actions.setFilter( filterKey, event.target.value );
+		},
+
 		/**
 		 * Run a search and replace the result list.
 		 *
