@@ -99,7 +99,7 @@ class CLI extends WP_CLI_Command {
 				);
 			}
 
-			videopress_clear_post_id_by_guid_cache( $guid );
+			delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
 			WP_CLI::log(
 				sprintf(
 					/* translators: %d: attachment id */
@@ -186,7 +186,7 @@ class CLI extends WP_CLI_Command {
 		foreach ( $guids as $guid ) {
 			if ( ! videopress_is_valid_guid( $guid ) ) {
 				$failed[ $guid ] = __( 'Invalid GUID.', 'jetpack-videopress-pkg' );
-				WP_CLI::log( sprintf( '[%s] invalid GUID — skipped', $guid ) );
+				WP_CLI::log( sprintf( '[%s] FAIL: %s', $guid, $failed[ $guid ] ) );
 				continue;
 			}
 
@@ -195,7 +195,7 @@ class CLI extends WP_CLI_Command {
 			switch ( $result['status'] ) {
 				case 'imported':
 					$imported[ $guid ] = $result['attachment_id'];
-					WP_CLI::log( sprintf( '[%s] -> attachment %d', $guid, $result['attachment_id'] ) );
+					WP_CLI::log( sprintf( '[%s] %s', $guid, $result['message'] ) );
 					break;
 				case 'skipped':
 					$skipped[ $guid ] = $result['message'];
@@ -248,8 +248,21 @@ class CLI extends WP_CLI_Command {
 			return array();
 		}
 
+		// Distinguish a real read failure from an empty input. Casting false → '' would
+		// make a permission/IO error look like "no GUIDs provided", which is misleading.
+		if ( false === $raw ) {
+			WP_CLI::error(
+				sprintf(
+					/* translators: %s file path or "stdin" */
+					__( 'Failed to read GUID list from %s.', 'jetpack-videopress-pkg' ),
+					'-' === $source ? 'stdin' : $source
+				)
+			);
+			return array();
+		}
+
 		$guids = array();
-		foreach ( preg_split( '/\R/', (string) $raw ) as $line ) {
+		foreach ( preg_split( '/\R/', $raw ) as $line ) {
 			$line = trim( $line );
 			if ( '' === $line || '#' === substr( $line, 0, 1 ) ) {
 				continue;
@@ -263,21 +276,25 @@ class CLI extends WP_CLI_Command {
 	 * Run a single-GUID import for batch mode and return a structured result.
 	 *
 	 * Mirrors the import() command's logic but returns instead of calling WP_CLI::error/success,
-	 * so failures don't abort the whole batch.
+	 * so failures don't abort the whole batch. The caller logs `message` verbatim for every
+	 * status, so each status's message must be self-contained:
+	 *   - 'imported': real ID for a real run; the would-be ID for a dry run (0 if not preserved).
+	 *   - 'skipped' / 'failed': always 0 — the relevant ID is interpolated into `message`.
 	 *
 	 * @param string $guid Video GUID.
 	 * @param bool   $force Whether to delete existing attachments before importing.
 	 * @param bool   $preserve_id Whether to preserve the original wpcom post ID.
 	 * @param bool   $dry_run If true, no state is mutated.
-	 * @return array{status:string,attachment_id?:int,message?:string}
+	 * @return array{status:'imported'|'skipped'|'failed',attachment_id:int,message:string}
 	 */
 	private function import_one_for_batch( $guid, $force, $preserve_id, $dry_run ) {
 		$existing_post_id = videopress_get_post_id_by_guid( $guid );
 
 		if ( $existing_post_id && ! $force ) {
 			return array(
-				'status'  => 'skipped',
-				'message' => sprintf(
+				'status'        => 'skipped',
+				'attachment_id' => 0,
+				'message'       => sprintf(
 					/* translators: %d existing attachment id */
 					__( 'Already imported as Attachment ID %d. Use --force to re-import.', 'jetpack-videopress-pkg' ),
 					$existing_post_id
@@ -289,15 +306,23 @@ class CLI extends WP_CLI_Command {
 			$vp_data = videopress_get_video_details( $guid );
 			if ( is_wp_error( $vp_data ) ) {
 				return array(
-					'status'  => 'failed',
-					'message' => $vp_data->get_error_message(),
+					'status'        => 'failed',
+					'attachment_id' => 0,
+					'message'       => $vp_data->get_error_message(),
 				);
 			}
-			$target = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
+			$target  = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
+			$message = $target > 0
+				? sprintf(
+					/* translators: %d: attachment id that would be used */
+					__( '[dry-run] Would import as attachment %d (preserved from WordPress.com).', 'jetpack-videopress-pkg' ),
+					$target
+				)
+				: __( '[dry-run] Would import with a fresh auto-incremented ID.', 'jetpack-videopress-pkg' );
 			return array(
 				'status'        => 'imported',
-				'attachment_id' => $target > 0 ? $target : 0,
-				'message'       => __( '[dry-run] Would import.', 'jetpack-videopress-pkg' ),
+				'attachment_id' => $target,
+				'message'       => $message,
 			);
 		}
 
@@ -305,36 +330,40 @@ class CLI extends WP_CLI_Command {
 			$deleted = wp_delete_attachment( $existing_post_id, true );
 			if ( ! $deleted ) {
 				return array(
-					'status'  => 'failed',
-					'message' => sprintf(
+					'status'        => 'failed',
+					'attachment_id' => 0,
+					'message'       => sprintf(
 						/* translators: %d existing attachment id */
 						__( 'Failed to delete existing Attachment ID %d.', 'jetpack-videopress-pkg' ),
 						$existing_post_id
 					),
 				);
 			}
-			videopress_clear_post_id_by_guid_cache( $guid );
+			delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
 		}
 
 		$attachment_id = create_local_media_library_for_videopress_guid( $guid, 0, $preserve_id );
 
 		if ( is_wp_error( $attachment_id ) ) {
 			return array(
-				'status'  => 'failed',
-				'message' => $attachment_id->get_error_message(),
+				'status'        => 'failed',
+				'attachment_id' => 0,
+				'message'       => $attachment_id->get_error_message(),
 			);
 		}
 
 		if ( ! $attachment_id ) {
 			return array(
-				'status'  => 'failed',
-				'message' => __( 'Unknown error during import.', 'jetpack-videopress-pkg' ),
+				'status'        => 'failed',
+				'attachment_id' => 0,
+				'message'       => __( 'Unknown error during import.', 'jetpack-videopress-pkg' ),
 			);
 		}
 
 		return array(
 			'status'        => 'imported',
 			'attachment_id' => (int) $attachment_id,
+			'message'       => sprintf( '-> attachment %d', (int) $attachment_id ),
 		);
 	}
 
@@ -388,7 +417,7 @@ class CLI extends WP_CLI_Command {
 				WP_CLI::error(
 					sprintf(
 						/* translators: %1$d: target post ID, %2$s: existing post type */
-						__( '[dry-run] Would refuse — original Attachment ID %1$d is occupied by post type "%2$s". Pass --no-preserve-id to import with a fresh ID, or --force to delete and replace.', 'jetpack-videopress-pkg' ),
+						__( '[dry-run] Would refuse — original Attachment ID %1$d is occupied by post type "%2$s". Pass --no-preserve-id to import with a fresh ID, or delete the conflicting post first.', 'jetpack-videopress-pkg' ),
 						$original_post_id,
 						$existing->post_type
 					)

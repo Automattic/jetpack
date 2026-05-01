@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\VideoPress\Tests\Mock_WP_CLI_Output_Capture;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -30,6 +31,7 @@ class CLI_Test extends BaseTestCase {
 	 */
 	#[BeforeClass]
 	public static function set_up_class() {
+		require_once __DIR__ . '/fixtures/class-mock-wp-cli-output-capture.php';
 		require_once __DIR__ . '/fixtures/wp-cli-mock.php';
 		require_once __DIR__ . '/../../src/utility-functions.php';
 
@@ -48,7 +50,7 @@ class CLI_Test extends BaseTestCase {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
 		// Reset captured WP_CLI output between tests.
-		\WP_CLI::reset_capture();
+		Mock_WP_CLI_Output_Capture::reset();
 	}
 
 	/**
@@ -124,7 +126,7 @@ class CLI_Test extends BaseTestCase {
 	 */
 	public function clear_video_cache( $guid ) {
 		delete_transient( 'jetpack_videopress_' . $guid );
-		videopress_clear_post_id_by_guid_cache( $guid );
+		delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
 	}
 
 	/**
@@ -226,10 +228,12 @@ class CLI_Test extends BaseTestCase {
 		remove_filter( 'pre_http_request', $mock, 10 );
 		unlink( $file );
 
-		$summary = implode( "\n", \WP_CLI::$captured['log'] );
-		$this->assertStringContainsString( '2 total', $summary );
-		$this->assertStringContainsString( '2 imported', $summary );
-		$this->assertStringContainsString( '0 failed', $summary );
+		$log = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
+		$this->assertStringContainsString( '2 total', $log );
+		$this->assertStringContainsString( '2 imported', $log );
+		$this->assertStringContainsString( '0 failed', $log );
+		// Pin the per-GUID success line format so the imported message contract doesn't drift silently.
+		$this->assertStringContainsString( '-> attachment', $log );
 	}
 
 	/**
@@ -248,12 +252,14 @@ class CLI_Test extends BaseTestCase {
 		unlink( $file );
 
 		$this->assertTrue( $exception_thrown, 'Batch with failures should exit via WP_CLI::error.' );
-		$summary = implode( "\n", \WP_CLI::$captured['log'] );
-		$this->assertStringContainsString( '1 failed', $summary );
+		$log = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
+		$this->assertStringContainsString( '1 failed', $log );
+		// Invalid GUIDs are bucketed as failures; the per-line output must say so, not "skipped".
+		$this->assertStringContainsString( 'FAIL: Invalid GUID.', $log );
 	}
 
 	/**
-	 * Test batch_import --dry-run does not mutate state.
+	 * Test batch_import --dry-run does not mutate state and reports the would-preserve ID.
 	 */
 	public function test_batch_import_dry_run_skips_writes() {
 		$guid = 'aaaaaaaa';
@@ -278,6 +284,37 @@ class CLI_Test extends BaseTestCase {
 		unlink( $file );
 
 		$this->assertNull( $captured_data, 'Dry run should not invoke wp_insert_attachment.' );
+
+		$log = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
+		$this->assertStringContainsString( '[dry-run] Would import as attachment 90220', $log );
+		$this->assertStringContainsString( 'preserved from WordPress.com', $log );
+	}
+
+	/**
+	 * Test batch_import --dry-run --no-preserve-id reports a fresh-ID would-import line.
+	 */
+	public function test_batch_import_dry_run_fresh_id_message() {
+		$guid = 'aaaaaaaa';
+		$this->clear_video_cache( $guid );
+
+		$file = tempnam( sys_get_temp_dir(), 'guids' );
+		file_put_contents( $file, "$guid\n" );
+
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90221 ) );
+
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		( new CLI() )->batch_import(
+			array( $file ),
+			array(
+				'dry-run'     => true,
+				'preserve-id' => false,
+			)
+		);
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		unlink( $file );
+
+		$log = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
+		$this->assertStringContainsString( 'fresh auto-incremented ID', $log );
 	}
 
 	/**
@@ -302,7 +339,7 @@ class CLI_Test extends BaseTestCase {
 
 		$this->assertNull( $captured_data, 'Dry run should not invoke wp_insert_attachment.' );
 
-		$logs = implode( "\n", \WP_CLI::$captured['log'] );
+		$logs = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
 		$this->assertStringContainsString( '90217', $logs );
 		$this->assertStringContainsString( '[dry-run]', $logs );
 	}
@@ -438,13 +475,13 @@ class CLI_Test extends BaseTestCase {
 		$this->assertFalse( $exception_thrown, 'Import should return early with warning, not throw error' );
 
 		// Confirm the warning was actually emitted, naming the existing attachment ID.
-		$this->assertCount( 1, \WP_CLI::$captured['warning'] );
-		$this->assertStringContainsString( (string) $existing_post_id, \WP_CLI::$captured['warning'][0] );
-		$this->assertStringContainsString( '--force', \WP_CLI::$captured['warning'][0] );
-		$this->assertSame( array(), \WP_CLI::$captured['success'] );
+		$this->assertCount( 1, Mock_WP_CLI_Output_Capture::$captured['warning'] );
+		$this->assertStringContainsString( (string) $existing_post_id, Mock_WP_CLI_Output_Capture::$captured['warning'][0] );
+		$this->assertStringContainsString( '--force', Mock_WP_CLI_Output_Capture::$captured['warning'][0] );
+		$this->assertSame( array(), Mock_WP_CLI_Output_Capture::$captured['success'] );
 
 		// Cleanup.
-		videopress_clear_post_id_by_guid_cache( $guid );
+		delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
 	}
 
 	/**
@@ -513,7 +550,7 @@ class CLI_Test extends BaseTestCase {
 		$this->assertTrue( $exception_thrown, 'Expected error when deletion fails' );
 
 		// Cleanup.
-		videopress_clear_post_id_by_guid_cache( $guid );
+		delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
 	}
 
 	/**

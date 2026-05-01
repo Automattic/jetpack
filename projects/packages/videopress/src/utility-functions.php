@@ -749,18 +749,6 @@ function videopress_get_post_id_by_guid_cache_key( $guid ) {
 }
 
 /**
- * Clear the cached attachment-ID-by-GUID lookup.
- *
- * Call after creating or deleting a VideoPress attachment to ensure subsequent
- * videopress_get_post_id_by_guid() lookups hit the database.
- *
- * @param string $guid Video GUID.
- */
-function videopress_clear_post_id_by_guid_cache( $guid ) {
-	delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
-}
-
-/**
  * Using a GUID, find the associated post ID.
  *
  * @since 8.4.0

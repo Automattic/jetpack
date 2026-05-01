@@ -46,35 +46,13 @@ namespace {
 
 	if ( ! class_exists( 'WP_CLI' ) ) {
 		/**
-		 * Mock WP_CLI class with static methods for output.
+		 * Mock WP_CLI class with static methods that delegate output to Mock_WP_CLI_Output_Capture.
 		 *
-		 * Captures messages by level (warning/log/success) so tests can assert
-		 * the right output was produced. Tests should call WP_CLI::reset_capture()
-		 * in their set_up() to clear state between runs.
+		 * Tests assert against \Automattic\Jetpack\VideoPress\Tests\Mock_WP_CLI_Output_Capture::$captured
+		 * rather than touching state on this WP_CLI mock directly — phan parses the capture class but
+		 * not this file (it would clash with wp-cli stubs).
 		 */
 		class WP_CLI {
-			/**
-			 * Captured messages keyed by level.
-			 *
-			 * @var array<string,string[]>
-			 */
-			public static $captured = array(
-				'warning' => array(),
-				'log'     => array(),
-				'success' => array(),
-			);
-
-			/**
-			 * Reset captured messages between tests.
-			 */
-			public static function reset_capture() {
-				self::$captured = array(
-					'warning' => array(),
-					'log'     => array(),
-					'success' => array(),
-				);
-			}
-
 			/**
 			 * Output an error message and exit.
 			 *
@@ -91,7 +69,7 @@ namespace {
 			 * @param string $message The warning message.
 			 */
 			public static function warning( $message ) {
-				self::$captured['warning'][] = $message;
+				\Automattic\Jetpack\VideoPress\Tests\Mock_WP_CLI_Output_Capture::record( 'warning', $message );
 			}
 
 			/**
@@ -100,7 +78,7 @@ namespace {
 			 * @param string $message The log message.
 			 */
 			public static function log( $message ) {
-				self::$captured['log'][] = $message;
+				\Automattic\Jetpack\VideoPress\Tests\Mock_WP_CLI_Output_Capture::record( 'log', $message );
 			}
 
 			/**
@@ -109,7 +87,7 @@ namespace {
 			 * @param string $message The success message.
 			 */
 			public static function success( $message ) {
-				self::$captured['success'][] = $message;
+				\Automattic\Jetpack\VideoPress\Tests\Mock_WP_CLI_Output_Capture::record( 'success', $message );
 			}
 		}
 	}
