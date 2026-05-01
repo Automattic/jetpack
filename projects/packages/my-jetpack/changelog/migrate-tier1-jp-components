@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Components: migrate Tier 1 jetpack-components to @wordpress/components and @wordpress/icons (no user-facing change).

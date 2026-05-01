@@ -113,8 +113,13 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 
 /**
  * Ship the offending extension's signature to wpcomsh logstash via
- * WPCOMSH_Log::unsafe_direct_log(), alongside the decoded parts so
- * dashboards can aggregate without decoding the signature.
+ * WPCOMSH_Log::unsafe_direct_log_logstash(), alongside the decoded parts
+ * so dashboards can aggregate without decoding the signature.
+ *
+ * Routed to the `/logstash` endpoint under feature
+ * `atomic_extension_conflict` with severity `critical` so these surface
+ * in their own Kibana bucket (the default `feature:automated_transfer`
+ * stream is too noisy to alert on).
  *
  * Manual require: the fatal-error module loads from wpcomsh.php line
  * 1, before the autoloader runs. Direct requires with class_exists(
@@ -175,23 +180,39 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 		return;
 	}
 
-	$extra = array( 'signature' => $signature );
+	$properties = array( 'signature' => $signature );
+
+	// `get_site_url()` runs the `site_url` / `option_siteurl` filters, so a
+	// misbehaving filter could throw — keep the lookup in its own guard so
+	// the rest of the signature still makes it to logstash.
+	try {
+		$properties['site_url'] = get_site_url();
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit site_url if a filter misbehaves.
+		// Fall through.
+	}
 
 	// Round-trip through the decoder so the logged parts always agree
 	// with the signature.
 	if ( function_exists( 'wpcom_decode_fatal_error_signature' ) ) {
 		$parts = wpcom_decode_fatal_error_signature( $signature );
 		if ( is_array( $parts ) ) {
-			$extra['kind']              = $parts['kind'];
-			$extra['slug']              = $parts['slug'];
-			$extra['extension_version'] = $parts['version'];
-			$extra['wp_version']        = $parts['wp'];
-			$extra['php_version']       = $parts['php'];
+			$properties['kind']              = $parts['kind'];
+			$properties['slug']              = $parts['slug'];
+			$properties['extension_version'] = $parts['version'];
+			$properties['wp_version']        = $parts['wp'];
+			$properties['php_version']       = $parts['php'];
 		}
 	}
 
 	try {
-		\WPCOMSH_Log::unsafe_direct_log( 'wpcomsh_fatal_signature', $extra );
+		\WPCOMSH_Log::unsafe_direct_log_logstash(
+			'atomic_extension_conflict',
+			'wpcomsh_fatal_signature',
+			array(
+				'severity'   => 'critical',
+				'properties' => $properties,
+			)
+		);
 	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; never escalate a logging failure into another fatal.
 		// Swallow.
 	}

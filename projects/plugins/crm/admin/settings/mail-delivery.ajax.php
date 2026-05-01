@@ -225,7 +225,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	// } Perms?
-	if ( ! zeroBSCRM_permsMailCampaigns() ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		wp_send_json( array( 'permserror' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 	}
 
@@ -345,7 +345,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	// } Perms?
-	if ( ! zeroBSCRM_permsMailCampaigns() ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		exit( 0 );
 	}
 
@@ -499,7 +499,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTPPorts() {
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	// } Perms?
-	if ( ! zeroBSCRM_permsMailCampaigns() ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		exit( 0 );
 	}
 
@@ -571,7 +571,7 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	// Permission check
-	if ( ! zeroBSCRM_permsMailCampaigns() ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		wp_send_json( array( 'permserror' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 	}
 
@@ -719,7 +719,7 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	// } Perms?
-	if ( ! zeroBSCRM_permsMailCampaigns() ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		exit( 0 );
 	}
 
@@ -794,7 +794,7 @@ function zeroBSCRM_AJAX_mailDelivery_removeMailDelivery() {
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	// } Perms?
-	if ( ! zeroBSCRM_permsMailCampaigns() ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		exit( 0 );
 	}
 
@@ -875,7 +875,7 @@ function zeroBSCRM_AJAX_mailDelivery_setMailDeliveryAsDefault() {
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
 	// } Perms?
-	if ( ! zeroBSCRM_permsMailCampaigns() ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		exit( 0 );
 	}
 

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit b9cdd5655544ee93dbd0e64d835f467279c727e0.
+ * Stubs automatically generated from WordPress.com commit 0079ea4c26d955b4cfca4d3eb035a2ec06f0bd68.
  */
 
 namespace {
@@ -1699,6 +1699,14 @@ namespace Publicize {
      * @return bool
      */
     function is_message_templates_enabled($blog_id = 0)
+    {
+    }
+    /**
+     * @param \WP_Post $post
+     * @param array<int, array{id?: string, network: string, message?: string, is_social_post?: bool}> $items
+     * @return array<int, array<string, mixed>>
+     */
+    function render_messages_for_networks(\WP_Post $post, array $items): array
     {
     }
     /**

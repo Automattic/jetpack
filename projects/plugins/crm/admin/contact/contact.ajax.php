@@ -58,8 +58,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 
 	$m = array();
 
-	// Perms check
-	if ( zeroBSCRM_permsCustomers() ) {
+	if ( jpcrm_perms_manage_options() ) {
 
 		$email      = '';
 		$contact_id = -1;
@@ -133,8 +132,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 
 	check_ajax_referer( 'zbsportalaction-ajax-nonce', 'security' );
 
-	// can manage users?
-	if ( zeroBSCRM_permsCustomers() ) {
+	if ( jpcrm_perms_manage_options() ) {
 
 		// sanitize?
 		$action     = sanitize_text_field( $_POST['portalAction'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
@@ -163,15 +161,9 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 					break;
 				// Reset client portal password
 				case 'resetpw':
-					// fire dal disable
-					$newpw = zeroBSCRM_customerPortalPWReset( $contact_id );
-
-					// send success
+					$success = zeroBSCRM_customerPortalPWReset( $contact_id ) ? 1 : 0;
 					wp_send_json(
-						array(
-							'success' => 1,
-							'pw'      => $newpw,
-						),
+						array( 'success' => $success ),
 						200,
 						JSON_UNESCAPED_SLASHES
 					);

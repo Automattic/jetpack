@@ -101,12 +101,12 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * @param array  $categories Categories data.
 	 * @return string The rendered HTML.
 	 */
-	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array() ) {
+	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array(), $post_status = 'new' ) {
 		remove_all_actions( 'wp_head' );
 		remove_all_actions( 'wp_footer' );
 
 		ob_start();
-		wpcom_write_template( $title, $content, $post_id, $categories );
+		wpcom_write_template( $title, $content, $post_id, $categories, $post_status );
 		return ob_get_clean();
 	}
 
@@ -141,7 +141,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$output = $this->render_template( 'Test Post', '<p>Content</p>', $post_id );
+		$output = $this->render_template( 'Test Post', '<p>Content</p>', $post_id, array(), 'publish' );
 
 		$this->assertStringContainsString( 'Update', $output );
 		$this->assertStringNotContainsString( '>Publish<', $output );
@@ -296,5 +296,64 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertArrayHasKey( 'formatAlignRight', $state );
 		$this->assertArrayHasKey( 'formatOList', $state );
 		$this->assertArrayHasKey( 'formatUList', $state );
+	}
+
+	/**
+	 * Test that the Interactivity API state includes the recovery banner field.
+	 */
+	public function test_interactivity_state_includes_recovery_banner() {
+		wp_set_current_user( $this->admin_id );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertArrayHasKey( 'showRecoveryBanner', $state );
+		$this->assertFalse( $state['showRecoveryBanner'] );
+	}
+
+	/**
+	 * Test that the template contains the recovery banner markup.
+	 */
+	public function test_template_contains_recovery_banner() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-recovery-banner"', $output );
+		$this->assertStringContainsString( 'actions.resumeDraft', $output );
+		$this->assertStringContainsString( 'actions.dismissRecovery', $output );
+		$this->assertStringContainsString( 'You have a recent draft', $output );
+		$this->assertStringContainsString( 'Resume editing', $output );
+	}
+
+	/**
+	 * Test that the recovery banner is hidden by default.
+	 */
+	public function test_recovery_banner_hidden_by_default() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'bw-recovery-banner" hidden', $output );
+	}
+
+	/**
+	 * Test that autosave i18n strings are included in the rendered page state.
+	 */
+	public function test_autosave_i18n_strings_registered() {
+		wp_set_current_user( $this->admin_id );
+
+		// Render the admin page which seeds the Interactivity API state.
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		// The showRecoveryBanner field confirms autosave state is registered.
+		$this->assertArrayHasKey( 'showRecoveryBanner', $state );
 	}
 }
