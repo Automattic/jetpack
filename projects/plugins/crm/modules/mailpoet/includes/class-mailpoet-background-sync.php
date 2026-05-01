@@ -409,7 +409,7 @@ class Mailpoet_Background_Sync {
 				// ... AFTER email change.
 				if ( $potential_subscriber['email'] != $potential_contact['email'] ) {
 
-					$contact_changes['email'] = sanitize_text_field( $potential_subscriber->data->email );
+					$contact_changes['email'] = sanitize_email( $potential_subscriber->data->email );
 
 					// if email changed, add old as an alias
 					// for that we need the old alias list to append to

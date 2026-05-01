@@ -177,7 +177,7 @@ class JPCRM_GiveWP {
 					$new_contact_data['lname'] = sanitize_text_field( $v );
 					break;
 				case 'email':
-					$new_contact_data['email'] = sanitize_text_field( $v );
+					$new_contact_data['email'] = sanitize_email( $v );
 					break;
 				case 'address':
 					if ( ! empty( $v ) ) {

@@ -858,7 +858,7 @@ function jpcrm_ajax_quote_send_email() {
 	}
 	$target_email = '';
 	if ( isset( $_POST['em'] ) ) {
-		$target_email = sanitize_text_field( $_POST['em'] );
+		$target_email = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 	$contactID = -1;
 	if ( isset( $_POST['cid'] ) ) {
@@ -1401,7 +1401,7 @@ function zbs_lead_form_capture() {
 
 				case 'zbs_simple':
 					// simple just has email
-					$zbs_email = sanitize_text_field( $_POST['zbs_email'] ); // } This is validated above, but sanitize just in case!
+					$zbs_email = sanitize_email( wp_unslash( $_POST['zbs_email'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					// have added a new 'form' for 'externals'
 					$cID = zeroBS_integrations_addOrUpdateCustomer(
 						'form',
@@ -1452,7 +1452,7 @@ function zbs_lead_form_capture() {
 					// } Naked only has name + email?
 
 					// validate these...  (use functions in form save down...)
-					$zbs_email = sanitize_text_field( $_POST['zbs_email'] ); // } This is validated above, but sanitize just in case!
+					$zbs_email = sanitize_email( wp_unslash( $_POST['zbs_email'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$zbs_fname = sanitize_text_field( $_POST['zbs_fname'] );
 					// $zbs_lname = sanitize_text_field($_POST['zbs_lname']);
 					// $zbs_notes = "Customer Form Submit Message:\r\n===========\r\n".sanitize_text_field($_POST['zbs_notes'])."\r\n===========\r\n";
@@ -1484,7 +1484,7 @@ function zbs_lead_form_capture() {
 					break;
 				case 'zbs_cgrab':
 					// validate these...  (use functions in form save down...)
-					$zbs_email = sanitize_text_field( $_POST['zbs_email'] ); // } This is validated above, but sanitize just in case!
+					$zbs_email = sanitize_email( wp_unslash( $_POST['zbs_email'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$zbs_fname = sanitize_text_field( $_POST['zbs_fname'] );
 					$zbs_lname = sanitize_text_field( $_POST['zbs_lname'] );
 					// Raw: $zbs_notes = "Customer Form Submit Message:\r\n===========\r\n".zeroBSCRM_textProcess($_POST['zbs_notes'])."\r\n===========\r\n";
@@ -5066,17 +5066,17 @@ function zbs_invoice_send_invoice() {
 	$em        = '';
 	$r         = array();
 	if ( isset( $_POST['id'] ) && ! empty( $_POST['id'] ) ) {
-		$zbs_invID = (int) sanitize_text_field( $_POST['id'] );  // accepts the post ID
+		$zbs_invID = (int) $_POST['id']; // accepts the post ID
 	}
-	if ( isset( $_POST['em'] ) && ! empty( $_POST['em'] ) ) {
-		$em = sanitize_text_field( $_POST['em'] );
+	if ( ! empty( $_POST['em'] ) ) {
+		$em = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 
 	// v3.0 changed var and added a few more:
 	$attachAssignedDocs = false;
 	$attachAsPDF        = false;
-	if ( isset( $_POST['email'] ) && ! empty( $_POST['email'] ) ) {
-		$em = sanitize_text_field( $_POST['email'] );
+	if ( ! empty( $_POST['email'] ) ) {
+		$em = sanitize_email( wp_unslash( $_POST['email'] ) );
 	}
 	if ( isset( $_POST['attachassoc'] ) && $_POST['attachassoc'] == 1 ) {
 		$attachAssignedDocs = true;
@@ -5289,11 +5289,11 @@ function zeroBSCRM_AJAX_sendStatement() {
 	$cID = -1;
 	$em  = '';
 	$r   = array();
-	if ( isset( $_POST['cid'] ) && ! empty( $_POST['cid'] ) ) {
-		$cID = (int) sanitize_text_field( $_POST['cid'] );  // accepts the post ID
+	if ( ! empty( $_POST['cid'] ) ) {
+		$cID = (int) $_POST['cid']; // accepts the post ID
 	}
-	if ( isset( $_POST['em'] ) && ! empty( $_POST['em'] ) ) {
-		$em = sanitize_text_field( $_POST['em'] );
+	if ( ! empty( $_POST['em'] ) ) {
+		$em = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 
 	// validate the email
@@ -5422,11 +5422,11 @@ function zbs_invoice_send_test_invoice() {
 	$em        = '';
 	$r         = array();
 
-	if ( isset( $_POST['id'] ) && ! empty( $_POST['id'] ) ) {
-		$zbs_invID = (int) sanitize_text_field( $_POST['id'] );  // accepts the post ID
+	if ( ! empty( $_POST['id'] ) ) {
+		$zbs_invID = (int) sanitize_text_field( wp_unslash( $_POST['id'] ) );  // accepts the post ID
 	}
-	if ( isset( $_POST['em'] ) && ! empty( $_POST['em'] ) ) {
-		$em = sanitize_text_field( $_POST['em'] );
+	if ( ! empty( $_POST['em'] ) ) {
+		$em = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 
 	// debug

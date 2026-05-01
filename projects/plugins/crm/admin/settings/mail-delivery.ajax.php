@@ -224,19 +224,19 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 	// } Check nonce
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
-	// } Perms?
+	// Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
 		wp_send_json( array( 'permserror' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 	}
 
-	// } Retrieve...
+	// Retrieve...
 	$sendFromName = '';
 	if ( isset( $_POST['sendFromName'] ) ) {
-		$sendFromName = sanitize_text_field( $_POST['sendFromName'] );
+		$sendFromName = sanitize_text_field( wp_unslash( $_POST['sendFromName'] ) );
 	}
 	$sendFromEmail = '';
 	if ( isset( $_POST['sendFromEmail'] ) ) {
-		$sendFromEmail = sanitize_text_field( $_POST['sendFromEmail'] );
+		$sendFromEmail = sanitize_email( wp_unslash( $_POST['sendFromEmail'] ) );
 	}
 
 	// } ... validate
@@ -344,35 +344,35 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 	// } Check nonce
 	check_ajax_referer( 'wpzbs-ajax-nonce', 'sec' );  // nonce to bounce out if not from right page
 
-	// } Perms?
+	// Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
 		exit( 0 );
 	}
 
-	// } Retrieve...
+	// Retrieve...
 	$sendFromName = '';
 	if ( isset( $_POST['sendFromName'] ) ) {
-		$sendFromName = sanitize_text_field( $_POST['sendFromName'] );
+		$sendFromName = sanitize_text_field( wp_unslash( $_POST['sendFromName'] ) );
 	}
 	$sendFromEmail = '';
 	if ( isset( $_POST['sendFromEmail'] ) ) {
-		$sendFromEmail = sanitize_text_field( $_POST['sendFromEmail'] );
+		$sendFromEmail = sanitize_email( wp_unslash( $_POST['sendFromEmail'] ) );
 	}
 	$smtpHost = '';
 	if ( isset( $_POST['smtpHost'] ) ) {
-		$smtpHost = sanitize_text_field( $_POST['smtpHost'] );
+		$smtpHost = sanitize_text_field( wp_unslash( $_POST['smtpHost'] ) );
 	}
 	$smtpPort = '';
 	if ( isset( $_POST['smtpPort'] ) ) {
-		$smtpPort = sanitize_text_field( $_POST['smtpPort'] );
+		$smtpPort = sanitize_text_field( wp_unslash( $_POST['smtpPort'] ) );
 	}
 	$smtpUser = '';
 	if ( isset( $_POST['smtpUser'] ) ) {
-		$smtpUser = sanitize_text_field( $_POST['smtpUser'] );
+		$smtpUser = sanitize_text_field( wp_unslash( $_POST['smtpUser'] ) );
 	}
 	$smtpPass = '';
 	if ( isset( $_POST['smtpPass'] ) ) {
-		$smtpPass = sanitize_text_field( $_POST['smtpPass'] );
+		$smtpPass = sanitize_text_field( wp_unslash( $_POST['smtpPass'] ) );
 	}
 
 	// } ... validate
@@ -503,30 +503,13 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTPPorts() {
 		exit( 0 );
 	}
 
-	// } Retrieve...
-	$sendFromName = '';
-	if ( isset( $_POST['sendFromName'] ) ) {
-		$sendFromName = sanitize_text_field( $_POST['sendFromName'] );
-	}
-	$sendFromEmail = '';
-	if ( isset( $_POST['sendFromEmail'] ) ) {
-		$sendFromEmail = sanitize_text_field( $_POST['sendFromEmail'] );
-	}
 	$smtpHost = '';
 	if ( isset( $_POST['smtpHost'] ) ) {
-		$smtpHost = sanitize_text_field( $_POST['smtpHost'] );
+		$smtpHost = sanitize_text_field( wp_unslash( $_POST['smtpHost'] ) );
 	}
 	$smtpPort = '';
 	if ( isset( $_POST['smtpPort'] ) ) {
-		$smtpPort = sanitize_text_field( $_POST['smtpPort'] );
-	}
-	$smtpUser = '';
-	if ( isset( $_POST['smtpUser'] ) ) {
-		$smtpUser = sanitize_text_field( $_POST['smtpUser'] );
-	}
-	$smtpPass = '';
-	if ( isset( $_POST['smtpPass'] ) ) {
-		$smtpPass = sanitize_text_field( $_POST['smtpPass'] );
+		$smtpPort = sanitize_text_field( wp_unslash( $_POST['smtpPort'] ) );
 	}
 
 	// } ... validate
@@ -539,14 +522,6 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTPPorts() {
 		// has smtpPort
 
 		// port check (local)
-		/*
-		leave to smtp wiz for now */
-		/*
-		$localPortCheck = zeroBSCRM_mailDelivery_checkPort($smtpPort,$smtpHost);
-		if (!$localPortCheck[0]){
-			$res['debugs'][] = __('Your server seems to be blocking outbound traffic for this port: '.$smtpPort.', it will not be possible to send mail while this port is blocked.','zero-bs-crm');
-			$okay = false;
-		} */
 		// remote + local, one test :)
 		$remotePortCheck = zeroBSCRM_mailDelivery_checkPort( $smtpPort, $smtpHost );
 		if ( ! $remotePortCheck[0] ) {
@@ -583,15 +558,15 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 	// Retrieve parameters
 	$send_from_name = '';
 	if ( isset( $_POST['send_from_name'] ) ) {
-		$send_from_name = sanitize_text_field( $_POST['send_from_name'] );
+		$send_from_name = sanitize_text_field( wp_unslash( $_POST['send_from_name'] ) );
 	}
 	$send_from_email = '';
 	if ( isset( $_POST['send_from_email'] ) ) {
-		$send_from_email = sanitize_text_field( $_POST['send_from_email'] );
+		$send_from_email = sanitize_email( wp_unslash( $_POST['send_from_email'] ) );
 	}
 	$oauth_provider = '';
 	if ( isset( $_POST['oauth_provider'] ) ) {
-		$oauth_provider = sanitize_text_field( $_POST['oauth_provider'] );
+		$oauth_provider = sanitize_text_field( wp_unslash( $_POST['oauth_provider'] ) );
 	}
 
 	// Load OAuth
@@ -729,11 +704,11 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	// } Retrive deets
 	$mailDeliveryIndxKey = -1;
 	if ( isset( $_POST['indx'] ) ) {
-		$mailDeliveryIndxKey = sanitize_text_field( $_POST['indx'] );
+		$mailDeliveryIndxKey = sanitize_text_field( wp_unslash( $_POST['indx'] ) );
 	}
 	$sendToEmail = '';
 	if ( isset( $_POST['em'] ) ) {
-		$sendToEmail = sanitize_text_field( $_POST['em'] );
+		$sendToEmail = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 
 	// validate the email

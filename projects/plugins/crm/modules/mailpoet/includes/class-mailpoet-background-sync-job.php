@@ -373,7 +373,7 @@ class Mailpoet_Background_Sync_Job {
 
 			'data' => array(
 
-				'email'           => sanitize_text_field( $subscriber['email'] ),
+				'email'           => sanitize_email( $subscriber['email'] ),
 				'fname'           => sanitize_text_field( $subscriber['first_name'] ),
 				'lname'           => sanitize_text_field( $subscriber['last_name'] ),
 				'wpid'            => $wpid,

@@ -63,10 +63,10 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 
 		$email      = '';
 		$contact_id = -1;
-		if ( isset( $_POST['email'] ) && ! empty( $_POST['email'] ) ) {
-			$email = sanitize_text_field( $_POST['email'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		if ( ! empty( $_POST['email'] ) ) {
+			$email = sanitize_email( wp_unslash( $_POST['email'] ) );
 		}
-		if ( isset( $_POST['cid'] ) && ! empty( $_POST['cid'] ) ) {
+		if ( ! empty( $_POST['cid'] ) ) {
 			$contact_id = (int) $_POST['cid'];
 		}
 		if ( ! zeroBSCRM_validateEmail( $email ) ) {

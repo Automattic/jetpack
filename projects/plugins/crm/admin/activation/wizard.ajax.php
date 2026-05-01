@@ -21,21 +21,21 @@ function zbs_wizard_fin() {
 	global $zbs;
 
 	// Retrieve post
-	$crm_name       = sanitize_text_field( $_POST['zbs_crm_name'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$crm_curr       = sanitize_text_field( $_POST['zbs_crm_curr'] );  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$crm_type       = sanitize_text_field( $_POST['zbs_crm_type'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$crm_other      = sanitize_text_field( $_POST['zbs_crm_other'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$crm_menu_style = (int) sanitize_text_field( $_POST['zbs_crm_menu_style'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$crm_name       = sanitize_text_field( wp_unslash( $_POST['zbs_crm_name'] ?? '' ) );
+	$crm_curr       = sanitize_text_field( wp_unslash( $_POST['zbs_crm_curr'] ?? '' ) );
+	$crm_type       = sanitize_text_field( wp_unslash( $_POST['zbs_crm_type'] ?? '' ) );
+	$crm_other      = sanitize_text_field( wp_unslash( $_POST['zbs_crm_other'] ?? '' ) );
+	$crm_menu_style = (int) $_POST['zbs_crm_menu_style'] ?? 2;
 	$crm_share      = empty( $_POST['zbs_crm_share_essentials'] ) ? 0 : 1;
 
 	$crm_enable_quotes     = empty( $_POST['zbs_quotes'] ) ? 0 : 1;
 	$crm_enable_invoices   = empty( $_POST['zbs_invoicing'] ) ? 0 : 1;
 	$crm_enable_woo_module = empty( $_POST['jpcrm_woo_module'] ) ? 0 : 1;
 
-	$bn      = sanitize_text_field( $_POST['zbs_crm_subblogname'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$fn      = sanitize_text_field( $_POST['zbs_crm_first_name'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$ln      = sanitize_text_field( $_POST['zbs_crm_last_name'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-	$em      = sanitize_text_field( $_POST['zbs_crm_email'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$bn      = sanitize_text_field( wp_unslash( $_POST['zbs_crm_subblogname'] ?? '' ) );
+	$fn      = sanitize_text_field( wp_unslash( $_POST['zbs_crm_first_name'] ?? '' ) );
+	$ln      = sanitize_text_field( wp_unslash( $_POST['zbs_crm_last_name'] ?? '' ) );
+	$em      = sanitize_email( wp_unslash( $_POST['zbs_crm_email'] ?? '' ) );
 	$emv     = zeroBSCRM_validateEmail( $em );
 	$crm_sub = empty( $_POST['zbs_crm_subscribed'] ) ? 0 : 1;
 

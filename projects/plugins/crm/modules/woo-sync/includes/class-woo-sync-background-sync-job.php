@@ -1265,16 +1265,16 @@ class Woo_Sync_Background_Sync_Job {
 			// then we have an existing user. Get the WP email
 				$user = get_user_by( 'id', $order_data['customer_id'] );
 			if ( $user ) {
-				$contact_email = $user->user_email;
+				$contact_email = sanitize_email( $user->user_email );
 			}
 			if ( isset( $order_data['billing']['email'] ) ) {
-				$billing_email = $order_data['billing']['email'];
+				$billing_email = sanitize_email( $order_data['billing']['email'] );
 			}
 
 			// pass WP ID to contact
 			$data['contact']['wpid'] = $order_data['customer_id'];
 		} elseif ( isset( $order_data['billing']['email'] ) ) {
-			$billing_email = $order_data['billing']['email'];
+			$billing_email = sanitize_email( $order_data['billing']['email'] );
 			$contact_email = $billing_email;
 		}
 
@@ -1943,7 +1943,7 @@ class Woo_Sync_Background_Sync_Job {
 			'customer_id'    => 0, // will be 0 from the API.
 			'billing'        => array(
 				'company'    => $order->billing->company,
-				'email'      => $order->billing->email,
+				'email'      => sanitize_email( $order->billing->email ),
 				'first_name' => $order->billing->first_name,
 				'last_name'  => $order->billing->last_name,
 				'address_1'  => $order->billing->address_1,
