@@ -10,18 +10,25 @@ $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl, 24px);
 body.jetpack_page_jetpack-newsletter {
 
 	// Off-white page surface so the white settings cards stand out against
-	// the page background.
+	// the page background. `.admin-ui-page` defaults to `height: 100%` —
+	// override to `auto` + `min-block-size: 100%` so the page grows with
+	// its content. Without this, the page is one-viewport tall and the
+	// sticky header / tab row scroll out of view as soon as the user
+	// passes the first viewport's worth of content.
 	.admin-ui-page {
 		background: var(--wpds-color-bg-surface-neutral-weak, #fcfcfc);
+		block-size: auto;
+		min-block-size: 100%;
 	}
 
-	// Page header: stays sticky at top, opaque background (matches the
-	// page surface so content scrolls cleanly underneath), no bottom rule
-	// (the tab row owns the separator now). A min-height on the title row
-	// keeps the header the same size whether or not the actions slot is
-	// rendered, so the tab bar doesn't jump when switching tabs.
+	// Page header: stays white (the page surface around it is the off-white
+	// `--wpds-color-bg-surface-neutral-weak`), sticks to the top with no
+	// bottom rule (the tab row owns the separator now). A min-height on
+	// the title row keeps the header the same size whether or not the
+	// actions slot is rendered, so the tab bar doesn't jump when switching
+	// tabs.
 	.admin-ui-page__header {
-		background: var(--wpds-color-bg-surface-neutral-weak, #fcfcfc);
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: 0;
 		flex-shrink: 0;
 		padding-block-end: var(--wpds-dimension-padding-sm, 8px);
@@ -39,7 +46,7 @@ body.jetpack_page_jetpack-newsletter {
 	// nested `Tabs.List` keeps its native `width: fit-content` and the
 	// animated active-tab indicator slides smoothly between tabs.
 	.jetpack-newsletter-page__tabs-row {
-		background: var(--wpds-color-bg-surface-neutral-weak, #fcfcfc);
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
 		box-sizing: border-box;
 		flex-shrink: 0;
