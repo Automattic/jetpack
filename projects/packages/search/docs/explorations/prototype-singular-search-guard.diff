@@ -1,0 +1,131 @@
+Exploration spike for RSM-1754 — NOT for merge.
+
+This patch demonstrates Option B from
+`embedded-search-refresh-404.md`: when a frontend main search query
+resolves to a singular permalink (e.g. /about/?s=react) AND that
+post hosts at least one Jetpack Search block, drop the `s` query
+var from the WP_Query so core doesn't AND a search WHERE clause
+into the page lookup and 404 the singular request.
+
+The Interactivity API store still seeds searchQuery from
+$_GET['s'] (via get_search_query()), so the inline search UI
+still runs the API request after hydration.
+
+Intentionally minimal: no tests, no changelog, no Phan baseline
+update. Those belong in the implementation PR once we pick a
+direction.
+
+--- a/projects/packages/search/src/search-blocks/class-search-blocks.php
++++ b/projects/packages/search/src/search-blocks/class-search-blocks.php
+@@ -22,6 +22,28 @@ class Search_Blocks {
+ 	const RESERVED_QUERY_PARAMS = array( 's', 'orderby', 'min_price', 'max_price' );
+ 
++	/**
++	 * Block names registered by the Search 3.0 surface. Used by
++	 * `post_hosts_search_blocks()` to detect when a singular post
++	 * embeds the inline search experience and should bypass core's
++	 * "page name + search query" 404 path.
++	 *
++	 * Kept in sync with the directories under `src/search-blocks/blocks/`.
++	 *
++	 * @var string[]
++	 */
++	const SEARCH_BLOCK_NAMES = array(
++		'jetpack/active-filters',
++		'jetpack/filter-checkbox',
++		'jetpack/filter-popover',
++		'jetpack/load-more',
++		'jetpack/no-results',
++		'jetpack/results-count',
++		'jetpack/search-input',
++		'jetpack/search-results',
++		'jetpack/sort-control',
++	);
++
+ 	/**
+ 	 * Template slug used for the Jetpack Search page template.
+ 	 */
+@@ -39,12 +61,77 @@ class Search_Blocks {
+ 	public static function init() {
+ 		add_action( 'init', array( static::class, 'register_blocks' ) );
+ 		add_action( 'init', array( static::class, 'register_search_template' ) );
+ 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
+ 		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+ 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
+ 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
++		// Avoid 404s when a search query lands on a singular permalink
++		// that hosts the inline search blocks (e.g. /about/?s=react).
++		// See docs/explorations/embedded-search-refresh-404.md.
++		add_action( 'pre_get_posts', array( static::class, 'unset_search_on_singular_block_host' ) );
+ 	}
+ 
++	/**
++	 * On the main frontend search query, when the request resolves to a
++	 * singular permalink that hosts at least one Jetpack Search block,
++	 * drop the `s` query var so WordPress doesn't AND a `post_content
++	 * LIKE` clause into the singular post lookup (which empties $posts
++	 * and trips handle_404()).
++	 *
++	 * `$_GET['s']` is left intact so the Interactivity API store can
++	 * still seed `searchQuery` from the URL on first paint and run the
++	 * API fetch after hydration.
++	 *
++	 * @param \WP_Query $query Main query about to run.
++	 * @return void
++	 */
++	public static function unset_search_on_singular_block_host( $query ) {
++		if ( is_admin() || ! $query->is_main_query() || ! $query->is_search() ) {
++			return;
++		}
++		// At pre_get_posts time, is_singular() may not be reliable yet
++		// because tax/page parsing has happened but template loading
++		// hasn't — but pagename/name/page_id query vars are populated
++		// from rewrite resolution at this point and are sufficient.
++		$is_singular_request = $query->get( 'pagename' )
++			|| $query->get( 'name' )
++			|| $query->get( 'page_id' );
++		if ( ! $is_singular_request ) {
++			return;
++		}
++		$post = get_post();
++		if ( ! $post || ! self::post_hosts_search_blocks( $post ) ) {
++			return;
++		}
++		$query->set( 's', '' );
++	}
++
++	/**
++	 * Whether a post's content tree contains any registered Jetpack
++	 * Search 3.0 block (any name in SEARCH_BLOCK_NAMES). Walks
++	 * innerBlocks recursively.
++	 *
++	 * @param \WP_Post $post Post to inspect.
++	 * @return bool
++	 */
++	public static function post_hosts_search_blocks( $post ): bool {
++		if ( empty( $post->post_content ) || ! function_exists( 'parse_blocks' ) ) {
++			return false;
++		}
++		$found = false;
++		$walk  = static function ( array $blocks ) use ( &$walk, &$found ) {
++			foreach ( $blocks as $block ) {
++				if ( $found ) {
++					return;
++				}
++				$name = $block['blockName'] ?? '';
++				if ( in_array( $name, self::SEARCH_BLOCK_NAMES, true ) ) {
++					$found = true;
++					return;
++				}
++				if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
++					$walk( $block['innerBlocks'] );
++				}
++			}
++		};
++		$walk( parse_blocks( $post->post_content ) );
++		return $found;
++	}
++
+ 	/**
+ 	 * Enqueue the client-side block registration bundle in the block editor.
+
