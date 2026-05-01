@@ -55,7 +55,31 @@ function videopress_is_valid_preload( $value ) {
  * @return mixed Nested arrays in place of objects, scalars unchanged.
  */
 function videopress_object_to_array( $value ) {
-	return json_decode( wp_json_encode( $value, JSON_HEX_TAG | JSON_HEX_AMP ), true );
+	return json_decode( wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true );
+}
+
+/**
+ * Detect whether a post ID is occupied by an unrelated post (not the same VideoPress GUID).
+ *
+ * Used by both the import helper and the CLI's dry-run preview so the same collision
+ * rule lives in one place.
+ *
+ * @param int    $post_id Post ID to inspect.
+ * @param string $guid Video GUID we are importing.
+ * @return WP_Post|null The occupant if it's an unrelated post; null if the slot is free or already holds this GUID.
+ */
+function videopress_get_id_collision( $post_id, $guid ) {
+	if ( $post_id <= 0 ) {
+		return null;
+	}
+	$existing = get_post( $post_id );
+	if ( ! $existing ) {
+		return null;
+	}
+	if ( get_post_meta( $post_id, 'videopress_guid', true ) === $guid ) {
+		return null;
+	}
+	return $existing;
 }
 
 /**
@@ -159,20 +183,26 @@ function videopress_download_poster_image( $url, $attachment_id ) {
 /**
  * Creates a local media library item of a remote VideoPress video.
  *
+ * Tries to reuse the original `post_id` from the WordPress.com videos table so the
+ * post↔video relationship recorded there stays in sync without a separate sync-back
+ * call. If that ID is already occupied locally by an unrelated post, behavior depends
+ * on `$force_on_collision`: by default the import is refused (`id_collision` WP_Error);
+ * when true, falls back to a fresh auto-incremented ID without touching the occupant.
+ *
  * @param string $guid Video GUID.
  * @param int    $parent_id Parent post ID.
- * @param bool   $preserve_id Whether to reuse the original post_id from the WordPress.com videos table. Defaults to true.
+ * @param bool   $force_on_collision Fall back to a fresh ID instead of refusing if the original ID is occupied.
  *
  * @return int|WP_Error
  */
-function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0, $preserve_id = true ) {
+function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0, $force_on_collision = false ) {
 	$vp_data = videopress_get_video_details( $guid );
 	if ( ! $vp_data || is_wp_error( $vp_data ) ) {
 		return $vp_data;
 	}
 
 	// Verify the video belongs to this site.
-	$current_blog_id = \Jetpack_Options::get_option( 'id' );
+	$current_blog_id = (int) \Jetpack_Options::get_option( 'id' );
 
 	if ( ! $current_blog_id ) {
 		return new \WP_Error(
@@ -183,7 +213,7 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0, 
 
 	$video_blog_id = (int) ( $vp_data->blog_id ?? 0 );
 
-	if ( (int) $current_blog_id !== $video_blog_id ) {
+	if ( $current_blog_id !== $video_blog_id ) {
 		return new \WP_Error(
 			'wrong_blog',
 			__( 'This video belongs to a different site. You can only import videos uploaded to this site.', 'jetpack-videopress-pkg' )
@@ -198,29 +228,23 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0, 
 		'guid'           => videopress_build_url( $guid ),
 	);
 
-	/*
-	 * Re-create the attachment with its original post ID so the post↔video
-	 * relationship recorded on WordPress.com (videos.post_id) stays in sync
-	 * without a separate sync-back call. wp_insert_post() honors 'import_id'
-	 * only when the ID is unused; on collision it silently falls back to a
-	 * fresh auto-increment. To surface that case explicitly, refuse upfront
-	 * if the ID is already taken by an unrelated post.
-	 */
-	$original_post_id = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
-	if ( $original_post_id > 0 ) {
-		$existing = get_post( $original_post_id );
-		if ( $existing && get_post_meta( $original_post_id, 'videopress_guid', true ) !== $guid ) {
-			return new \WP_Error(
-				'id_collision',
-				sprintf(
-					/* translators: %1$d: existing post ID, %2$s: existing post type. */
-					__( 'Original attachment ID %1$d is already in use by post type "%2$s". Re-importing would change the ID and break the WordPress.com video table relationship.', 'jetpack-videopress-pkg' ),
-					$original_post_id,
-					$existing->post_type
-				),
-				array( 'post_id' => $original_post_id )
-			);
-		}
+	$original_post_id = isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
+	$collision        = $original_post_id > 0 ? videopress_get_id_collision( $original_post_id, $guid ) : null;
+	if ( $collision && ! $force_on_collision ) {
+		// wp_insert_post() honors 'import_id' only when the ID is unused, otherwise it silently
+		// falls back to a fresh auto-increment — surface that case explicitly instead.
+		return new \WP_Error(
+			'id_collision',
+			sprintf(
+				/* translators: %1$d: existing post ID, %2$s: existing post type. */
+				__( 'Original attachment ID %1$d is already in use by post type "%2$s". Re-importing would change the ID and break the WordPress.com video table relationship.', 'jetpack-videopress-pkg' ),
+				$original_post_id,
+				$collision->post_type
+			),
+			array( 'post_id' => $original_post_id )
+		);
+	}
+	if ( $original_post_id > 0 && ! $collision ) {
 		$args['import_id'] = $original_post_id;
 	}
 

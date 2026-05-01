@@ -570,12 +570,17 @@ class Utility_Functions_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test create_local_media_library_for_videopress_guid honors the $preserve_id parameter.
+	 * Test create_local_media_library_for_videopress_guid with $force_on_collision = true falls back to a fresh ID when the original is occupied.
 	 */
-	public function test_create_local_media_library_preserve_id_false_skips_import_id() {
-		$guid = 'abc12345';
+	public function test_create_local_media_library_force_on_collision_falls_back() {
+		$guid             = 'abc12345';
+		$original_post_id = 90213;
 		$this->clear_video_cache( $guid );
-		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90213 ) );
+
+		// Squat on the original ID with an unrelated post.
+		$this->inject_post_at_id( $original_post_id, array( 'post_type' => 'page' ) );
+
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
 
 		$captured_postarr = null;
 		$capture          = function ( $data, $postarr ) use ( &$captured_postarr ) {
@@ -585,12 +590,13 @@ class Utility_Functions_Test extends BaseTestCase {
 
 		add_filter( 'wp_insert_attachment_data', $capture, 5, 2 );
 		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
-		create_local_media_library_for_videopress_guid( $guid, 0, false );
+		$result = create_local_media_library_for_videopress_guid( $guid, 0, true );
 		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
 		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
 
+		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertIsArray( $captured_postarr );
-		$this->assertEmpty( $captured_postarr['import_id'] ?? null );
+		$this->assertEmpty( $captured_postarr['import_id'] ?? null, 'Force-on-collision must drop import_id.' );
 	}
 
 	/**

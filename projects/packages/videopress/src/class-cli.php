@@ -247,9 +247,49 @@ class CLI extends WP_CLI_Command {
 			);
 		}
 
-		// Fetch the wpcom metadata once. Used for the ownership/collision pre-flight below
-		// and for the actual import. videopress_get_video_details() caches in a transient,
-		// so create_local_media_library_for_videopress_guid() reuses this fetch.
+		if ( $dry_run ) {
+			return $this->dry_run_preview( $guid, $force, $existing_post_id );
+		}
+
+		if ( $existing_post_id && $force ) {
+			$deleted = wp_delete_attachment( $existing_post_id, true );
+			if ( ! $deleted ) {
+				return $this->fail( sprintf( 'Failed to delete existing Attachment ID %d.', $existing_post_id ) );
+			}
+			delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
+		}
+
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid, $parent_id, $force );
+
+		if ( is_wp_error( $attachment_id ) ) {
+			$message = $attachment_id->get_error_message();
+			if ( 'id_collision' === $attachment_id->get_error_code() ) {
+				$message .= ' Pass --force to import with a fresh ID, or delete the conflicting post first.';
+			}
+			return $this->fail( $message );
+		}
+		if ( ! $attachment_id ) {
+			return $this->fail( 'Unknown error during import.' );
+		}
+
+		$attachment_id = (int) $attachment_id;
+		return array(
+			'status'        => 'imported',
+			'attachment_id' => $attachment_id,
+			'message'       => sprintf( 'Imported as Attachment ID %d.', $attachment_id ),
+		);
+	}
+
+	/**
+	 * Build a dry-run "imported" result by mirroring the helper's pre-flight checks
+	 * without writing anything.
+	 *
+	 * @param string $guid Video GUID.
+	 * @param bool   $force Whether --force was passed (drives same-GUID delete preview and collision fallback).
+	 * @param int    $existing_post_id Existing same-GUID attachment ID (or 0).
+	 * @return array{status:'imported'|'failed',attachment_id:int,message:string}
+	 */
+	private function dry_run_preview( $guid, $force, $existing_post_id ) {
 		$vp_data = videopress_get_video_details( $guid );
 		if ( is_wp_error( $vp_data ) ) {
 			return $this->fail( $vp_data->get_error_message() );
@@ -261,84 +301,41 @@ class CLI extends WP_CLI_Command {
 		}
 		$video_blog_id = (int) ( $vp_data->blog_id ?? 0 );
 		if ( $current_blog_id !== $video_blog_id ) {
-			return $this->fail( sprintf( 'Video belongs to a different site (blog %2$d, this site is %1$d).', $current_blog_id, $video_blog_id ) );
+			return $this->fail( sprintf( 'Video belongs to a different site (blog %1$d, this site is %2$d).', $video_blog_id, $current_blog_id ) );
 		}
 
-		// Decide whether to preserve the original post ID. If it's occupied by an unrelated
-		// post, default behavior refuses; --force falls back to a fresh ID without touching
-		// the unrelated post.
 		$original_post_id = isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
-		$preserve_id      = $original_post_id > 0;
-		$collision_post   = null;
+		$collision        = videopress_get_id_collision( $original_post_id, $guid );
 
-		if ( $preserve_id ) {
-			$occupant = get_post( $original_post_id );
-			if ( $occupant && get_post_meta( $original_post_id, 'videopress_guid', true ) !== $guid ) {
-				if ( ! $force ) {
-					return $this->fail(
-						sprintf(
-							'Original Attachment ID %1$d is occupied by post type "%2$s". Pass --force to import with a fresh ID, or delete the conflicting post first.',
-							$original_post_id,
-							$occupant->post_type
-						)
-					);
-				}
-				$preserve_id    = false;
-				$collision_post = $occupant;
-			}
-		}
-
-		if ( $dry_run ) {
-			if ( $collision_post ) {
-				$message = sprintf(
-					'[dry-run] Would import with a fresh auto-incremented ID (original ID %1$d is occupied by post type "%2$s").',
+		if ( $collision && ! $force ) {
+			return $this->fail(
+				sprintf(
+					'Original Attachment ID %1$d is occupied by post type "%2$s". Pass --force to import with a fresh ID, or delete the conflicting post first.',
 					$original_post_id,
-					$collision_post->post_type
-				);
-			} elseif ( $preserve_id ) {
-				$message = sprintf( '[dry-run] Would import as attachment %d (preserved from WordPress.com).', $original_post_id );
-			} else {
-				$message = '[dry-run] Would import with a fresh auto-incremented ID.';
-			}
-			// Surface the destructive same-GUID delete that --force would perform on a real run,
-			// so dry-run is a faithful preview of mutations.
-			if ( $existing_post_id && $force ) {
-				$message = sprintf( '[dry-run] Would delete existing Attachment ID %d and re-import. ', $existing_post_id ) . $message;
-			}
-			return array(
-				'status'        => 'imported',
-				'attachment_id' => $preserve_id ? $original_post_id : 0,
-				'message'       => $message,
+					$collision->post_type
+				)
 			);
 		}
 
-		if ( $existing_post_id && $force ) {
-			$deleted = wp_delete_attachment( $existing_post_id, true );
-			if ( ! $deleted ) {
-				return $this->fail( sprintf( 'Failed to delete existing Attachment ID %d.', $existing_post_id ) );
-			}
-			delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
-		}
-
-		$attachment_id = create_local_media_library_for_videopress_guid( $guid, $parent_id, $preserve_id );
-
-		if ( is_wp_error( $attachment_id ) ) {
-			return $this->fail( $attachment_id->get_error_message() );
-		}
-		if ( ! $attachment_id ) {
-			return $this->fail( 'Unknown error during import.' );
-		}
-
-		$attachment_id = (int) $attachment_id;
-		if ( $collision_post ) {
-			$message = sprintf( 'Imported as Attachment ID %1$d (fresh ID; original %2$d was occupied).', $attachment_id, $original_post_id );
+		if ( $collision ) {
+			$message = sprintf(
+				'[dry-run] Would import with a fresh auto-incremented ID (original ID %1$d is occupied by post type "%2$s").',
+				$original_post_id,
+				$collision->post_type
+			);
+		} elseif ( $original_post_id > 0 ) {
+			$message = sprintf( '[dry-run] Would import as attachment %d (preserved from WordPress.com).', $original_post_id );
 		} else {
-			$message = sprintf( 'Imported as Attachment ID %d.', $attachment_id );
+			$message = '[dry-run] Would import with a fresh auto-incremented ID.';
+		}
+		// Surface the destructive same-GUID delete --force would perform on a real run.
+		if ( $existing_post_id && $force ) {
+			$message = sprintf( '[dry-run] Would delete existing Attachment ID %d and re-import. ', $existing_post_id ) . $message;
 		}
 
 		return array(
 			'status'        => 'imported',
-			'attachment_id' => $attachment_id,
+			'attachment_id' => $collision ? 0 : $original_post_id,
 			'message'       => $message,
 		);
 	}
