@@ -13,7 +13,7 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Badge } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../threat-fixer-button/index.tsx';
 import {
@@ -43,16 +43,17 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
 /**
  * DataViews component for displaying security threats.
  *
- * @param {object}   props                             - Component props.
- * @param {Array}    props.data                        - Threats data.
- * @param {Array}    props.filters                     - Initial DataView filters.
- * @param {Function} props.onChangeSelection           - Callback function run when an item is selected.
- * @param {Function} props.onFixThreats                - Threat fix action callback.
- * @param {Function} props.onIgnoreThreats             - Threat ignore action callback.
- * @param {Function} props.onUnignoreThreats           - Threat unignore action callback.
- * @param {Function} props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
- * @param {Function} props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
- * @param {Function} props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * @param {object}    props                             - Component props.
+ * @param {Array}     props.data                        - Threats data.
+ * @param {Array}     props.filters                     - Initial DataView filters.
+ * @param {Function}  props.onChangeSelection           - Callback function run when an item is selected.
+ * @param {Function}  props.onFixThreats                - Threat fix action callback.
+ * @param {Function}  props.onIgnoreThreats             - Threat ignore action callback.
+ * @param {Function}  props.onUnignoreThreats           - Threat unignore action callback.
+ * @param {Function}  props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
+ * @param {Function}  props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
+ * @param {Function}  props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
+ * @param {ReactNode} [props.empty]                     - Empty-state node forwarded to DataViews when `data` is empty. Defaults to DataViews' built-in "no items" body.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
@@ -66,6 +67,7 @@ export default function ThreatsDataViews( {
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
+	empty,
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -76,6 +78,7 @@ export default function ThreatsDataViews( {
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
+	empty?: ReactNode;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -518,6 +521,7 @@ export default function ThreatsDataViews( {
 			onChangeView={ onChangeView }
 			paginationInfo={ paginationInfo }
 			view={ view }
+			empty={ empty }
 			header={
 				<ThreatsStatusToggleGroupControl
 					data={ data }

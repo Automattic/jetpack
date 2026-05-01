@@ -3,6 +3,7 @@ import { ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { siteScanHistoryQuery } from '../../data/query-options';
+import EmptyState from './empty-state';
 import type { FC } from 'react';
 
 /**
@@ -31,7 +32,20 @@ const ScanHistory: FC = () => {
 		);
 	}
 
-	return <ThreatsDataViews data={ data?.threats ?? [] } />;
+	return (
+		<ThreatsDataViews
+			data={ data?.threats ?? [] }
+			empty={
+				<EmptyState
+					heading={ __( 'No scan history yet', 'jetpack-scan-page' ) }
+					body={ __(
+						'Past scan results will appear here once your site has been scanned.',
+						'jetpack-scan-page'
+					) }
+				/>
+			}
+		/>
+	);
 };
 
 export default ScanHistory;

@@ -3,6 +3,7 @@ import { ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { siteScanQuery } from '../../data/query-options';
+import EmptyState from './empty-state';
 import type { FC } from 'react';
 
 /**
@@ -33,7 +34,20 @@ const ActiveThreats: FC = () => {
 		);
 	}
 
-	return <ThreatsDataViews data={ data?.threats ?? [] } />;
+	return (
+		<ThreatsDataViews
+			data={ data?.threats ?? [] }
+			empty={
+				<EmptyState
+					heading={ __( "You're set up. No active threats.", 'jetpack-scan-page' ) }
+					body={ __(
+						'Jetpack Scan watches your site for vulnerabilities and suspicious files. New findings will appear here.',
+						'jetpack-scan-page'
+					) }
+				/>
+			}
+		/>
+	);
 };
 
 export default ActiveThreats;
