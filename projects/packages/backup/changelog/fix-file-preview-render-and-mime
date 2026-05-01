@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Move the file-preview tracks event into a `useEffect` (was firing once per render), use the file name for image alt text, and drop the hard-coded `audio/mpeg` / `video/mp4` MIME hints so non-mp3/mp4 previews don't silently fail.

@@ -76,6 +76,18 @@ function FilePreview( { item, rewindId, onTrackEvent }: FilePreviewProps ) {
 		);
 	}, [ shouldPreviewFile, isTextContent, item.manifestPath, rewindId ] );
 
+	const isLoading = isTextContent ? ! fileContent && ! contentError && ! isError : isQueryLoading;
+	const isReady = isTextContent ? !! fileContent : isSuccess;
+	const hasError = isTextContent ? contentError || isError : isError;
+
+	// Fire the preview-loaded analytics event once the preview lands. Doing
+	// this from inside `renderFileContent` would emit one event per re-render.
+	useEffect( () => {
+		if ( isReady ) {
+			onTrackEvent?.( 'jetpack_backup_browser_preview_file', { file_type: item.type } );
+		}
+	}, [ isReady, item.type, onTrackEvent ] );
+
 	if ( isSensitive && ! showSensitivePreview ) {
 		return (
 			<VStack className="file-card__preview-sensitive" alignment="center">
@@ -98,43 +110,33 @@ function FilePreview( { item, rewindId, onTrackEvent }: FilePreviewProps ) {
 	}
 
 	const renderFileContent = () => {
-		let content;
-
 		switch ( item.type ) {
 			case 'text':
 			case 'code':
-				content = (
+				return (
 					<Text as="pre" style={ { backgroundColor: '#f0f0f0' } }>
 						{ fileContent }
 					</Text>
 				);
-				break;
 			case 'image':
-				content = <img src={ data?.url } alt="file-preview" />;
-				break;
+				return <img src={ data?.url } alt={ item.name } />;
 			case 'audio':
-				content = (
+				// Omit `type` so the browser sniffs the format from the
+				// signed stream — hard-coding e.g. `audio/mpeg` would silently
+				// break previews of `.ogg` / `.flac`.
+				return (
 					<audio controls style={ { width: '100%' } }>
-						<source src={ data?.url } type="audio/mpeg" />
+						<source src={ data?.url } />
 					</audio>
 				);
-				break;
 			case 'video':
-				content = (
+				return (
 					<video controls style={ { width: '100%' } }>
-						<source src={ data?.url } type="video/mp4" />
+						<source src={ data?.url } />
 					</video>
 				);
-				break;
 		}
-
-		onTrackEvent?.( 'jetpack_backup_browser_preview_file', { file_type: item.type } );
-		return content;
 	};
-
-	const isLoading = isTextContent ? ! fileContent && ! contentError && ! isError : isQueryLoading;
-	const isReady = isTextContent ? fileContent : isSuccess;
-	const hasError = isTextContent ? contentError || isError : isError;
 
 	return (
 		<div className="file-card__preview">
