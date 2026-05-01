@@ -97,6 +97,9 @@
 			"type": "boolean",
 			"default": true
 		},
+		"defaultInterval": {
+			"type": "string"
+		},
 		"chooseAmountText": {
 			"type": "string"
 		},

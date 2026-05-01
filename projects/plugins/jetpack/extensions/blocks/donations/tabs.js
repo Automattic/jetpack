@@ -3,20 +3,19 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import Controls from './controls';
 import Tab from './tab';
-
-const firstShownInterval = ( oneTimeShown, monthlyShown, annualShown ) => {
-	if ( oneTimeShown ) return 'one-time';
-	if ( monthlyShown ) return '1 month';
-	if ( annualShown ) return '1 year';
-	return null;
-};
+import { firstShownInterval } from './utils';
 
 const Tabs = props => {
 	const { attributes, products, setAttributes } = props;
-	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
+	const { oneTimeDonation, monthlyDonation, annualDonation, defaultInterval } = attributes;
 	const oneTimeShown = oneTimeDonation.show !== false;
-	const initialActiveTab =
+	const fallbackInterval =
 		firstShownInterval( oneTimeShown, monthlyDonation.show, annualDonation.show ) ?? 'one-time';
+	const isDefaultShown =
+		( defaultInterval === 'one-time' && oneTimeShown ) ||
+		( defaultInterval === '1 month' && monthlyDonation.show ) ||
+		( defaultInterval === '1 year' && annualDonation.show );
+	const initialActiveTab = isDefaultShown ? defaultInterval : fallbackInterval;
 	const [ activeTab, setActiveTab ] = useState( initialActiveTab );
 
 	const isTabActive = useCallback( tab => activeTab === tab, [ activeTab ] );

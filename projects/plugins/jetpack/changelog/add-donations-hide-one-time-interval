@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Donations Block: Add an admin toggle to hide the One-Time interval, and require at least one frequency (one-time, monthly, or annual) to remain enabled.
+Donations Block: Add admin controls for hiding the One-Time interval, choosing the default frequency, and setting a per-frequency default donation amount. At least one frequency must remain enabled.

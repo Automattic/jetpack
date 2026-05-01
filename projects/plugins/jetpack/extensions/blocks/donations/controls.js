@@ -1,4 +1,4 @@
-import { CURRENCIES } from '@automattic/format-currency';
+import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { AlignmentControl, BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
@@ -8,6 +8,7 @@ import {
 	MenuGroup,
 	MenuItem,
 	PanelBody,
+	SelectControl,
 	ToggleControl,
 	ToolbarGroup,
 	ToolbarItem,
@@ -20,6 +21,13 @@ import {
 	getDefaultDonationAmountsForCurrency,
 	SUPPORTED_CURRENCIES,
 } from '../../shared/currencies';
+import { firstShownInterval } from './utils';
+
+const INTERVAL_TO_ATTRIBUTE = {
+	'one-time': 'oneTimeDonation',
+	'1 month': 'monthlyDonation',
+	'1 year': 'annualDonation',
+};
 
 const Controls = props => {
 	const { attributes, setAttributes } = props;
@@ -30,30 +38,82 @@ const Controls = props => {
 		annualDonation,
 		showCustomAmount,
 		contentAlignment,
+		defaultInterval,
 	} = attributes;
-
-	const toggleDonation = ( interval, show ) => {
-		const donationAttributes = {
-			'one-time': 'oneTimeDonation',
-			'1 month': 'monthlyDonation',
-			'1 year': 'annualDonation',
-		};
-		const donationAttribute = donationAttributes[ interval ];
-		const donation = attributes[ donationAttribute ];
-
-		setAttributes( {
-			[ donationAttribute ]: {
-				...donation,
-				show,
-			},
-		} );
-	};
 
 	const oneTimeOn = oneTimeDonation.show !== false;
 	const monthlyOn = !! monthlyDonation.show;
 	const annualOn = !! annualDonation.show;
 	const enabledIntervalCount = ( oneTimeOn ? 1 : 0 ) + ( monthlyOn ? 1 : 0 ) + ( annualOn ? 1 : 0 );
 	const lastEnabledHelp = __( 'At least one frequency must be enabled.', 'jetpack' );
+
+	const fallbackInterval = firstShownInterval( oneTimeOn, monthlyOn, annualOn ) ?? 'one-time';
+	const isDefaultIntervalShown =
+		( defaultInterval === 'one-time' && oneTimeOn ) ||
+		( defaultInterval === '1 month' && monthlyOn ) ||
+		( defaultInterval === '1 year' && annualOn );
+	const effectiveDefaultInterval = isDefaultIntervalShown ? defaultInterval : fallbackInterval;
+
+	const toggleDonation = ( interval, show ) => {
+		const donationAttribute = INTERVAL_TO_ATTRIBUTE[ interval ];
+		const donation = attributes[ donationAttribute ];
+		const updates = {
+			[ donationAttribute ]: { ...donation, show },
+		};
+
+		// If we're hiding the frequency that's currently the effective default, shift the
+		// default to the next still-shown interval so the form never points at a hidden one.
+		if ( ! show && effectiveDefaultInterval === interval ) {
+			const stillShown = {
+				oneTime: interval === 'one-time' ? false : oneTimeOn,
+				monthly: interval === '1 month' ? false : monthlyOn,
+				annual: interval === '1 year' ? false : annualOn,
+			};
+			const nextDefault = firstShownInterval(
+				stillShown.oneTime,
+				stillShown.monthly,
+				stillShown.annual
+			);
+			if ( nextDefault ) {
+				updates.defaultInterval = nextDefault;
+			}
+		}
+
+		setAttributes( updates );
+	};
+
+	const setDonationValue = ( interval, key, value ) => {
+		const donationAttribute = INTERVAL_TO_ATTRIBUTE[ interval ];
+		setAttributes( {
+			[ donationAttribute ]: { ...attributes[ donationAttribute ], [ key ]: value },
+		} );
+	};
+
+	const intervalLabels = {
+		'one-time': __( 'One-Time', 'jetpack' ),
+		'1 month': __( 'Monthly', 'jetpack' ),
+		'1 year': __( 'Yearly', 'jetpack' ),
+	};
+	const frequencyOptions = [
+		...( oneTimeOn ? [ { value: 'one-time', label: intervalLabels[ 'one-time' ] } ] : [] ),
+		...( monthlyOn ? [ { value: '1 month', label: intervalLabels[ '1 month' ] } ] : [] ),
+		...( annualOn ? [ { value: '1 year', label: intervalLabels[ '1 year' ] } ] : [] ),
+	];
+	const buildAmountOptions = amounts => [
+		{ value: '', label: __( 'None', 'jetpack' ) },
+		...( amounts || [] ).map( ( amount, idx ) => ( {
+			value: String( idx ),
+			label: formatCurrency( amount, currency ),
+		} ) ),
+	];
+	const amountValue = donation =>
+		donation.defaultAmountIndex !== undefined ? String( donation.defaultAmountIndex ) : '';
+	const onAmountChange = interval => value =>
+		setDonationValue(
+			interval,
+			'defaultAmountIndex',
+			value === '' ? undefined : parseInt( value, 10 )
+		);
 
 	const setContentAlignment = useCallback(
 		value => setAttributes( { contentAlignment: value || '' } ),
@@ -158,6 +218,40 @@ const Controls = props => {
 						label={ __( 'Show custom amount option', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
+					<SelectControl
+						label={ __( 'Default frequency', 'jetpack' ) }
+						value={ effectiveDefaultInterval }
+						options={ frequencyOptions }
+						onChange={ value => setAttributes( { defaultInterval: value } ) }
+						__nextHasNoMarginBottom={ true }
+					/>
+					{ oneTimeOn && (
+						<SelectControl
+							label={ __( 'Default amount for One-Time', 'jetpack' ) }
+							value={ amountValue( oneTimeDonation ) }
+							options={ buildAmountOptions( oneTimeDonation.amounts ) }
+							onChange={ onAmountChange( 'one-time' ) }
+							__nextHasNoMarginBottom={ true }
+						/>
+					) }
+					{ monthlyOn && (
+						<SelectControl
+							label={ __( 'Default amount for Monthly', 'jetpack' ) }
+							value={ amountValue( monthlyDonation ) }
+							options={ buildAmountOptions( monthlyDonation.amounts ) }
+							onChange={ onAmountChange( '1 month' ) }
+							__nextHasNoMarginBottom={ true }
+						/>
+					) }
+					{ annualOn && (
+						<SelectControl
+							label={ __( 'Default amount for Annual', 'jetpack' ) }
+							value={ amountValue( annualDonation ) }
+							options={ buildAmountOptions( annualDonation.amounts ) }
+							onChange={ onAmountChange( '1 year' ) }
+							__nextHasNoMarginBottom={ true }
+						/>
+					) }
 					<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
 						{ __( 'View donation earnings', 'jetpack' ) }
 					</ExternalLink>
