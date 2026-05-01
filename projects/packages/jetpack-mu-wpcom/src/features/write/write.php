@@ -213,12 +213,18 @@ function wpcom_write_render_admin_page() {
 	}
 
 	if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event' ) ) {
+		$event_props = array(
+			'is_new_post' => (int) ( 0 === $edit_post_id ),
+			'source'      => $source,
+		);
+
+		if ( $edit_post_id > 0 ) {
+			$event_props['post_id'] = $edit_post_id;
+		}
+
 		Common\wpcom_record_tracks_event(
 			'wpcom_write_editor_open',
-			array(
-				'is_new_post' => (int) ( 0 === $edit_post_id ),
-				'source'      => $source,
-			)
+			$event_props
 		);
 	}
 
