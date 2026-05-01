@@ -13,6 +13,11 @@ import type { FC } from 'react';
  * legacy Protect surface. Action handlers are stubbed in Phase 1; the
  * fix / ignore / unignore / view-details modals wire up in Phases 3–4.
  *
+ * Empty + error states are handled inside the DataViews shell — passing
+ * `data={ [] }` renders the table chrome with DataViews' built-in
+ * "no items" body so reviewers always see column headers + filter
+ * controls (Phase 1+ wires up search / sort persistence on top).
+ *
  * @return The active threats panel.
  */
 const ActiveThreats: FC = () => {
@@ -28,13 +33,7 @@ const ActiveThreats: FC = () => {
 		);
 	}
 
-	const threats = data?.threats ?? [];
-
-	if ( threats.length === 0 ) {
-		return <p>{ __( 'No active threats detected on your site.', 'jetpack-scan-page' ) }</p>;
-	}
-
-	return <ThreatsDataViews data={ threats } />;
+	return <ThreatsDataViews data={ data?.threats ?? [] } />;
 };
 
 export default ActiveThreats;

@@ -11,6 +11,11 @@ import type { FC } from 'react';
  * `@automattic/jetpack-scan` (the js-package) and lets users search /
  * filter / sort the same way Calypso's `scan-history/` does.
  *
+ * Empty + error states are handled inside the DataViews shell — passing
+ * `data={ [] }` renders the table chrome with DataViews' built-in
+ * "no items" body so reviewers always see column headers + filter
+ * controls.
+ *
  * @return The history panel.
  */
 const ScanHistory: FC = () => {
@@ -26,13 +31,7 @@ const ScanHistory: FC = () => {
 		);
 	}
 
-	const threats = data?.threats ?? [];
-
-	if ( threats.length === 0 ) {
-		return <p>{ __( 'No scan history available yet.', 'jetpack-scan-page' ) }</p>;
-	}
-
-	return <ThreatsDataViews data={ threats } />;
+	return <ThreatsDataViews data={ data?.threats ?? [] } />;
 };
 
 export default ScanHistory;
