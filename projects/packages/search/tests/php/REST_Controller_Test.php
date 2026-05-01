@@ -118,6 +118,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => true,
 			'instant_search_enabled'        => true,
 			'swap_classic_to_inline_search' => false,
+			'ai_answers_enabled'            => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -169,6 +170,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => false,
 			'instant_search_enabled'        => false,
 			'swap_classic_to_inline_search' => false,
+			'ai_answers_enabled'            => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -191,6 +193,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => false,
 			'instant_search_enabled'        => false,
 			'swap_classic_to_inline_search' => false,
+			'ai_answers_enabled'            => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -213,6 +216,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => true,
 			'instant_search_enabled'        => true,
 			'swap_classic_to_inline_search' => false,
+			'ai_answers_enabled'            => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -235,6 +239,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => false,
 			'instant_search_enabled'        => false,
 			'swap_classic_to_inline_search' => true,
+			'ai_answers_enabled'            => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -257,6 +262,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => false,
 			'instant_search_enabled'        => false,
 			'swap_classic_to_inline_search' => false,
+			'ai_answers_enabled'            => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );

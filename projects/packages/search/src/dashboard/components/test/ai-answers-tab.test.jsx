@@ -5,9 +5,18 @@ import AiAnswersTab from '../ai-answers-tab';
 
 jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-plugin' } ) );
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isWpcomPlatformSite: () => false,
+} ) );
+
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	getSiteFragment: () => 'example.com',
+} ) );
+
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: jest.fn(),
 	useDispatch: jest.fn(),
+	createRegistryControl: jest.fn(),
 	combineReducers: jest.fn( reducers => reducers ),
 	registerStore: jest.fn(),
 	createReduxStore: jest.fn(),
@@ -15,10 +24,7 @@ jest.mock( '@wordpress/data', () => ( {
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick } ) => <button onClick={ onClick }>{ children }</button>,
-	Notice: ( { children } ) => <div role="status">{ children }</div>,
 	TextareaControl: ( { label } ) => <span>{ label }</span>,
-
 	ToggleControl: ( { label, checked, onChange } ) => (
 		<label htmlFor="toggle-control">
 			<input
@@ -32,38 +38,62 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 } ) );
 
+jest.mock( '@wordpress/ui', () => ( {
+	Button: ( { children, onClick } ) => <button onClick={ onClick }>{ children }</button>,
+	Link: ( { children, href } ) => <a href={ href }>{ children }</a>,
+	Notice: {
+		Root: ( { children } ) => <div role="status">{ children }</div>,
+		Title: ( { children } ) => <div>{ children }</div>,
+		Description: ( { children } ) => <div>{ children }</div>,
+	},
+} ) );
+
 jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
 	run: jest.fn(),
 	hasCheckoutStarted: false,
 } ) );
 
-jest.mock( '@automattic/jetpack-api', () => ( { setApiNonce: jest.fn() } ) );
-
-jest.mock( '@wordpress/api-fetch', () => jest.fn().mockResolvedValue( [] ) );
+jest.mock( 'hooks/use-ai-answers-settings', () => ( {
+	__esModule: true,
+	default: () => ( {
+		content: '',
+		setContent: jest.fn(),
+		postId: null,
+		isSaving: false,
+		isLoading: false,
+		error: null,
+		saved: false,
+		isUnavailable: false,
+		savePersonality: jest.fn(),
+	} ),
+	DEFAULT_PERSONALITY: 'Default personality instructions.',
+} ) );
 
 const mockUpdateJetpackSettings = jest.fn();
 
 /**
  * Set up mocked store state for testing.
  *
- * @param {object}  root0                    - Options.
- * @param {boolean} root0.supportsSearch     - Whether the site supports search.
- * @param {boolean} root0.isAiAnswersEnabled - Whether AI Answers is enabled.
+ * @param {object}  root0                       - Options.
+ * @param {boolean} root0.supportsInstantSearch - Whether the site supports instant search.
+ * @param {boolean} root0.isFreePlan            - Whether the site is on a free plan.
+ * @param {boolean} root0.isAiAnswersEnabled    - Whether AI Answers is enabled.
  */
-function setupStore( { supportsSearch = true, isAiAnswersEnabled = false } = {} ) {
+function setupStore( {
+	supportsInstantSearch = true,
+	isFreePlan = false,
+	isAiAnswersEnabled = false,
+} = {} ) {
 	useDispatch.mockReturnValue( {
 		updateJetpackSettings: mockUpdateJetpackSettings,
-		fetchSearchPlanInfo: jest.fn().mockResolvedValue( {} ),
 	} );
 	useSelect.mockImplementation( fn =>
 		fn( () => ( {
-			supportsSearch: () => supportsSearch,
+			supportsInstantSearch: () => supportsInstantSearch,
+			isFreePlan: () => isFreePlan,
 			isAiAnswersEnabled: () => isAiAnswersEnabled,
-			getCalypsoSlug: () => 'example.com',
 			getBlogId: () => 1,
 			getSiteAdminUrl: () => 'http://example.com/wp-admin/',
-			isWpcom: () => false,
-			getAPINonce: () => 'nonce123',
 		} ) )
 	);
 }
@@ -73,8 +103,8 @@ describe( 'AiAnswersTab', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'shows upsell banner for free/no-plan users', async () => {
-		setupStore( { supportsSearch: false } );
+	it( 'shows upsell banner for free plan users', async () => {
+		setupStore( { isFreePlan: true } );
 		render( <AiAnswersTab /> );
 		await waitFor( () => {
 			expect( screen.getByText( 'Upgrade to use AI Answers' ) ).toBeInTheDocument();
@@ -85,8 +115,16 @@ describe( 'AiAnswersTab', () => {
 		expect( screen.getByRole( 'button', { name: /upgrade now/i } ) ).toBeInTheDocument();
 	} );
 
-	it( 'does not show upsell banner for paid plan users', async () => {
-		setupStore( { supportsSearch: true } );
+	it( 'shows upsell banner when instant search is not supported', async () => {
+		setupStore( { supportsInstantSearch: false } );
+		render( <AiAnswersTab /> );
+		await waitFor( () => {
+			expect( screen.getByText( 'Upgrade to use AI Answers' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	it( 'does not show upsell banner for paid plan users with instant search', async () => {
+		setupStore( { supportsInstantSearch: true, isFreePlan: false } );
 		render( <AiAnswersTab /> );
 		await waitFor( () => {
 			expect( screen.queryByText( 'Upgrade to use AI Answers' ) ).not.toBeInTheDocument();
@@ -94,15 +132,14 @@ describe( 'AiAnswersTab', () => {
 	} );
 
 	it( 'settings section is present for paid plan users', async () => {
-		setupStore( { supportsSearch: true, isAiAnswersEnabled: true } );
+		setupStore( { supportsInstantSearch: true, isAiAnswersEnabled: true } );
 		render( <AiAnswersTab /> );
 		await expect( screen.findByText( 'Enable AI Answers' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'settings section is present but visually gated for free plan users', async () => {
-		setupStore( { supportsSearch: false } );
+		setupStore( { isFreePlan: true } );
 		render( <AiAnswersTab /> );
-		// The settings section still renders (just gated via CSS class)
 		await expect( screen.findByText( 'Enable AI Answers' ) ).resolves.toBeInTheDocument();
 		const gated = screen.getByTestId( 'ai-answers-settings' );
 		expect( gated ).toHaveClass( 'jp-search-ai-answers-tab__settings--gated' );
