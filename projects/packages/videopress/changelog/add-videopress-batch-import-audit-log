@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: Add `--audit-log=<path>` flag to `wp videopress batch-import` to write a JSON GUID -> attachment-ID mapping (and any failures) for auditing customer-site reattach runs.

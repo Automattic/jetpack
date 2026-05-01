@@ -152,12 +152,17 @@ class CLI extends WP_CLI_Command {
 	 * [--dry-run]
 	 * : Report what would happen for each GUID without mutating state.
 	 *
+	 * [--audit-log=<path>]
+	 * : Write a JSON audit log to this path: { run, total, imported{guid:id}, skipped{guid:reason},
+	 * failed{guid:reason} }. Useful when running on a customer site to keep a record of
+	 * what GUID became which attachment ID.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp videopress batch-import guids.txt
 	 *     wp videopress batch-import guids.txt --dry-run
 	 *     cat guids.txt | wp videopress batch-import
-	 *     wp videopress batch-import guids.txt --force
+	 *     wp videopress batch-import guids.txt --force --audit-log=/tmp/import.json
 	 *
 	 * @subcommand batch-import
 	 *
@@ -175,6 +180,7 @@ class CLI extends WP_CLI_Command {
 		$dry_run     = (bool) get_flag_value( $assoc_args, 'dry-run', false );
 		$force       = (bool) get_flag_value( $assoc_args, 'force', false );
 		$preserve_id = (bool) get_flag_value( $assoc_args, 'preserve-id', true );
+		$audit_log   = (string) get_flag_value( $assoc_args, 'audit-log', '' );
 
 		$imported = array();
 		$skipped  = array();
@@ -218,9 +224,57 @@ class CLI extends WP_CLI_Command {
 			)
 		);
 
+		if ( '' !== $audit_log ) {
+			$this->write_audit_log( $audit_log, $guids, $imported, $skipped, $failed, $dry_run );
+		}
+
 		if ( ! empty( $failed ) ) {
 			WP_CLI::error( __( 'One or more videos failed to import. See output above.', 'jetpack-videopress-pkg' ) );
 		}
+	}
+
+	/**
+	 * Write a JSON audit log of a batch run.
+	 *
+	 * @param string $path Path to write to.
+	 * @param array  $guids GUIDs that were processed.
+	 * @param array  $imported Map of GUID -> attachment ID.
+	 * @param array  $skipped Map of GUID -> reason.
+	 * @param array  $failed Map of GUID -> reason.
+	 * @param bool   $dry_run Whether the run was a dry-run.
+	 */
+	private function write_audit_log( $path, $guids, $imported, $skipped, $failed, $dry_run ) {
+		$payload = array(
+			'run'      => array(
+				'timestamp' => gmdate( 'c' ),
+				'dry_run'   => $dry_run,
+				'total'     => count( $guids ),
+			),
+			'imported' => $imported,
+			'skipped'  => $skipped,
+			'failed'   => $failed,
+		);
+
+		$json = wp_json_encode( $payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+
+		if ( false === file_put_contents( $path, $json ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			WP_CLI::warning(
+				sprintf(
+					/* translators: %s: audit log path */
+					__( 'Failed to write audit log to %s.', 'jetpack-videopress-pkg' ),
+					$path
+				)
+			);
+			return;
+		}
+
+		WP_CLI::log(
+			sprintf(
+				/* translators: %s: audit log path */
+				__( 'Audit log written to %s.', 'jetpack-videopress-pkg' ),
+				$path
+			)
+		);
 	}
 
 	/**
