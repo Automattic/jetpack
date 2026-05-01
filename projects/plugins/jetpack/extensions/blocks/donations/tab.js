@@ -17,6 +17,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		monthlyDonation,
 		annualDonation,
 		showCustomAmount,
+		customAmountPlaceholder,
 		// Destructure defaults are only applied when the property is `undefined`.
 		// User-cleared empty strings are left as-is, so they render empty.
 		chooseAmountText = DEFAULT_TEXTS.chooseAmountText,
@@ -106,7 +107,9 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 					<Amount
 						currency={ currency }
 						label={ __( 'Custom amount', 'jetpack' ) }
-						defaultValue={ minimumTransactionAmountForCurrency( currency ) * 100 }
+						defaultValue={
+							customAmountPlaceholder ?? minimumTransactionAmountForCurrency( currency ) * 100
+						}
 						className="donations__custom-amount"
 						disabled={ true }
 					/>

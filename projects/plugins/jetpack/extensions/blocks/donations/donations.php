@@ -232,7 +232,8 @@ function render_block( $attr, $content ) {
 		if ( '' !== trim( $custom_amount_html ) ) {
 			$custom_amount .= sprintf( '<p>%s</p>', $custom_amount_html );
 		}
-		$default_custom_amount = ( \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1 ) * 100;
+		$default_custom_amount = $attr['customAmountPlaceholder']
+			?? ( \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1 ) * 100;
 		$custom_amount        .= sprintf(
 			'<div class="donations__amount donations__custom-amount">
 				%1$s

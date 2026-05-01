@@ -9,6 +9,7 @@ import {
 	MenuItem,
 	PanelBody,
 	SelectControl,
+	TextControl,
 	ToggleControl,
 	ToolbarGroup,
 	ToolbarItem,
@@ -19,6 +20,7 @@ import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
 import {
 	getDefaultDonationAmountsForCurrency,
+	minimumTransactionAmountForCurrency,
 	SUPPORTED_CURRENCIES,
 } from '../../shared/currencies';
 import { firstShownInterval } from './utils';
@@ -39,7 +41,12 @@ const Controls = props => {
 		showCustomAmount,
 		contentAlignment,
 		defaultInterval,
+		customAmountPlaceholder,
 	} = attributes;
+
+	const computedCustomAmountPlaceholder = minimumTransactionAmountForCurrency( currency ) * 100;
+	const effectiveCustomAmountPlaceholder =
+		customAmountPlaceholder ?? computedCustomAmountPlaceholder;
 
 	const oneTimeOn = oneTimeDonation.show !== false;
 	const monthlyOn = !! monthlyDonation.show;
@@ -128,6 +135,7 @@ const Controls = props => {
 			oneTimeDonation: { ...oneTimeDonation, amounts: defaultAmounts },
 			monthlyDonation: { ...monthlyDonation, amounts: defaultAmounts },
 			annualDonation: { ...annualDonation, amounts: defaultAmounts },
+			customAmountPlaceholder: undefined,
 		} );
 	};
 
@@ -188,6 +196,11 @@ const Controls = props => {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					<p>
+						<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
+							{ __( 'View donation earnings', 'jetpack' ) }
+						</ExternalLink>
+					</p>
 					<ToggleControl
 						checked={ oneTimeOn }
 						onChange={ value => toggleDonation( 'one-time', value ) }
@@ -218,6 +231,26 @@ const Controls = props => {
 						label={ __( 'Show custom amount option', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
+					{ showCustomAmount && (
+						<TextControl
+							type="number"
+							label={ __( 'Suggested custom amount', 'jetpack' ) }
+							help={ __(
+								'Shown as the placeholder when donors enter a custom amount.',
+								'jetpack'
+							) }
+							value={ effectiveCustomAmountPlaceholder }
+							onChange={ value =>
+								setAttributes( {
+									customAmountPlaceholder:
+										value === '' || value === undefined ? undefined : Number( value ),
+								} )
+							}
+							min={ minimumTransactionAmountForCurrency( currency ) }
+							step={ 0.01 }
+							__nextHasNoMarginBottom={ true }
+						/>
+					) }
 					<SelectControl
 						label={ __( 'Default frequency', 'jetpack' ) }
 						value={ effectiveDefaultInterval }
@@ -252,9 +285,6 @@ const Controls = props => {
 							__nextHasNoMarginBottom={ true }
 						/>
 					) }
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
-						{ __( 'View donation earnings', 'jetpack' ) }
-					</ExternalLink>
 				</PanelBody>
 			</InspectorControls>
 		</>
