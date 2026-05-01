@@ -13,7 +13,7 @@ import {
 	__experimentalText as Text,
 } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { fetchBackupExtensionUrl, fetchBackupFileUrl } from '../../../data/fetchers';
 import { useFileBrowserContext } from './file-browser-context';
 import FilePreview from './file-preview';
@@ -224,7 +224,7 @@ function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCar
 			size="compact"
 		>
 			{ isProcessingDownload
-				? _x( 'Preparing', '', 'jetpack-backup-pkg' )
+				? __( 'Preparing…', 'jetpack-backup-pkg' )
 				: __( 'Download file', 'jetpack-backup-pkg' ) }
 		</Button>
 	);
@@ -251,7 +251,7 @@ function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCar
 			size="compact"
 		>
 			{ isProcessingDownload
-				? _x( 'Preparing', '', 'jetpack-backup-pkg' )
+				? __( 'Preparing…', 'jetpack-backup-pkg' )
 				: __( 'Download file', 'jetpack-backup-pkg' ) }
 		</Button>
 	);

@@ -10,7 +10,7 @@ import {
 	__experimentalText as Text,
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { _n, sprintf } from '@wordpress/i18n';
 import { useFileBrowserContext } from './file-browser-context';
 
 /**
@@ -40,7 +40,16 @@ function FileBrowserHeader( { rewindId }: { rewindId: string } ) {
 					onChange={ onCheckboxChange }
 				/>
 				<Text size="small">
-					{ browserCheckList.totalItems } { __( 'files selected', 'jetpack-backup-pkg' ) }
+					{ sprintf(
+						/* translators: %d is the number of files selected. */
+						_n(
+							'%d file selected',
+							'%d files selected',
+							browserCheckList.totalItems,
+							'jetpack-backup-pkg'
+						),
+						browserCheckList.totalItems
+					) }
 				</Text>
 			</HStack>
 		</VStack>

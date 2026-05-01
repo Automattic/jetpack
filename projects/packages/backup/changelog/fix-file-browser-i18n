@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Use `_n` for the file-browser "X files selected" count (was concatenated, didn't pluralize), and drop the empty-context `_x` on the "Preparing" download label.
