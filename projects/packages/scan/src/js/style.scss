@@ -23,12 +23,25 @@ body.jetpack_page_jetpack-scan,
 body.toplevel_page_jetpack-scan {
 
 	// Off-white page surface so the white DataViews chrome stands out
-	// against it. `block-size: auto; min-block-size: 100%` keeps the
-	// page growing with content while always at least viewport-tall.
+	// against it. `min-block-size: calc(100vh - <admin-bar>)` anchors
+	// the page chain to the viewport (regardless of `#wpbody-content`'s
+	// content-driven height) so the JetpackFooter sits at the bottom
+	// of the screen on tall viewports and the empty-state body has a
+	// real height to flex-grow into. `block-size: auto` lets a populated
+	// table push the page taller than the viewport — the wpadmin window
+	// scrolls naturally past that point. Mobile bumps the admin-bar
+	// reservation to 46px (see `@media` block below).
 	.admin-ui-page {
 		background: #fcfcfc;
 		block-size: auto;
-		min-block-size: 100%;
+		min-block-size: calc(100vh - var(--wp-admin-bar-height, 32px));
+	}
+
+	@media (max-width: 782px) {
+
+		.admin-ui-page {
+			min-block-size: calc(100vh - var(--wp-admin-bar-height, 46px));
+		}
 	}
 
 	// Page header: stays white, sticks to the top, drops its own bottom
