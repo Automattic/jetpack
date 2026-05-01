@@ -108,8 +108,9 @@ function jetpack_googlemaps_shortcode( $atts ) {
 			} elseif ( 'h' === $key ) {
 				$height = (int) $value;
 			} else {
-				$key  = str_replace( '_', '.', $key );
-				$url .= esc_attr( "$key=$value&amp;" );
+				$key   = str_replace( '_', '.', $key );
+				$value = str_replace( '&', '%26', $value );
+				$url  .= esc_attr( "$key=$value&amp;" );
 			}
 		}
 		$url = substr( $url, 0, -5 );
