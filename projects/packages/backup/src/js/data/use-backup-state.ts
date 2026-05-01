@@ -23,6 +23,7 @@ export interface BackupState {
  */
 export function useBackupState(): BackupState {
 	const trackedBackupRef = useRef< BackupEntry[ 'period' ] | null >( null );
+	const enqueuedAtPeriodRef = useRef< BackupEntry[ 'period' ] | null >( null );
 	const [ isEnqueued, setIsEnqueued ] = useState( false );
 
 	const setEnqueued = useCallback( ( enqueued: boolean ) => {
@@ -48,13 +49,26 @@ export function useBackupState(): BackupState {
 	} );
 
 	const latestBackup = backups[ 0 ];
-	const isRunning = latestBackup?.status === BackupEntryStatuses.STARTED;
 
+	// Snapshot the head of the list on entry into the enqueued state so we
+	// can tell when a *new* entry appears — regardless of whether it lands
+	// as STARTED, FINISHED, or errored. Without this, a backup that
+	// completes between two polls (or returns FINISHED on the first poll)
+	// would leave `isEnqueued` true and the user stuck on the
+	// "Backup starting…" notice.
 	useEffect( () => {
-		if ( isRunning ) {
+		if ( ! isEnqueued ) {
+			enqueuedAtPeriodRef.current = null;
+			return;
+		}
+		if ( enqueuedAtPeriodRef.current === null ) {
+			enqueuedAtPeriodRef.current = latestBackup?.period ?? null;
+			return;
+		}
+		if ( latestBackup?.period && latestBackup.period !== enqueuedAtPeriodRef.current ) {
 			setIsEnqueued( false );
 		}
-	}, [ isRunning ] );
+	}, [ isEnqueued, latestBackup?.period ] );
 
 	if ( isEnqueued ) {
 		return {

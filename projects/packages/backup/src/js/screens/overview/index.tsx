@@ -34,6 +34,10 @@ const OverviewScreen: FC = () => {
 	// Sync rewindId query param → selection. When the param names a backup
 	// we have in the fetched set, select it. When no param is present we
 	// default to the first entry so the details pane isn't empty.
+	//
+	// We hold off on clearing the selection while the activity log is still
+	// loading, otherwise a URL-driven `?rewindId=…` flashes the empty
+	// placeholder until the fetch lands.
 	useEffect( () => {
 		if ( rewindIdParam ) {
 			const targetBackup = activityLog.find( item => item.rewind_id === rewindIdParam ) ?? null;
@@ -41,10 +45,13 @@ const OverviewScreen: FC = () => {
 				setSelectedBackupInState( targetBackup );
 				return;
 			}
+			if ( isLoadingActivityLog ) {
+				return;
+			}
 		}
 		const firstBackup = activityLog[ 0 ] ?? null;
 		setSelectedBackupInState( rewindIdParam ? null : firstBackup );
-	}, [ rewindIdParam, activityLog ] );
+	}, [ rewindIdParam, activityLog, isLoadingActivityLog ] );
 
 	const handleSelectBackup = useCallback(
 		( backup: ActivityLogEntry | null ) => {

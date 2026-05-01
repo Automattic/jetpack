@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Reset the "enqueued" state when a fresh backup entry shows up in any terminal status (so a fast-finishing backup doesn't leave the "Backup starting…" notice on screen), and don't clear the URL-driven backup selection while the activity log is still loading.
