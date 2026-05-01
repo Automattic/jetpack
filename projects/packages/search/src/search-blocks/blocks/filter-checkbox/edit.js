@@ -221,7 +221,8 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 		? __( 'A label is required so visitors see a heading above this filter.', 'jetpack-search-pkg' )
 		: __(
 				"Leave empty to use the variation's default label (e.g. Category, Tag).",
-				'jetpack-search-pkg'
+				'jetpack-search-pkg',
+				/* dummy arg to avoid bad minification */ 0
 		  );
 
 	return h(
@@ -265,7 +266,11 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 								value: '',
 								label: isLoadingTaxonomies
 									? __( 'Loading taxonomies…', 'jetpack-search-pkg' )
-									: __( 'Select a taxonomy', 'jetpack-search-pkg' ),
+									: __(
+											'Select a taxonomy',
+											'jetpack-search-pkg',
+											/* dummy arg to avoid bad minification */ 0
+									  ),
 								disabled: true,
 							},
 							...( taxonomyOptions || [] ),
@@ -278,7 +283,8 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							  )
 							: __(
 									'Pick which registered taxonomy this filter targets. Built-in Category and Tag have their own dedicated filters in the inserter.',
-									'jetpack-search-pkg'
+									'jetpack-search-pkg',
+									/* dummy arg to avoid bad minification */ 0
 							  ),
 					} ),
 				h( TextControl, {
