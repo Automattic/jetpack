@@ -1,0 +1,118 @@
+// PlacementCard — selectable card composed from `<label htmlFor>` +
+// `CheckboxControl`. Selected state is driven by `[data-checked="true"]` set
+// by the React component (no `:has()` dependency for this state). Focus ring
+// uses `:has(input:focus-visible)` so the visual ring lives on the card
+// surface, matching the actual click target.
+
+.jetpack-newsletter-placements-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	// Tighter horizontal gap between the two columns; more breathing room
+	// between rows so the second row reads as a separate band.
+	column-gap: var(--wpds-dimension-gap-md, 16px);
+	row-gap: var(--wpds-dimension-gap-2xl, 32px);
+
+	@media (max-width: 720px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.jetpack-newsletter-placement {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.jetpack-newsletter-placement__card {
+	position: relative;
+	// Thinner card border per WPDS — `border-width-sm` is the closest token.
+	border:
+		var(--wpds-border-width-sm, 1.5px) solid
+		var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	border-radius: var(--wpds-border-radius-md, 8px);
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	overflow: hidden;
+	transition: border-color 0.15s ease-out;
+
+	// Selected state: brand-toned active stroke (the WPDS primary blue).
+	&[data-checked="true"] {
+		border-color: var(--wpds-color-stroke-interactive-brand-active);
+	}
+
+	&:hover:not([data-checked="true"]) {
+		border-color: var(--wpds-color-stroke-surface-neutral-strong, #b0b0b0);
+	}
+
+	// Focus ring on the card itself (not the checkbox input), using the
+	// canonical brand focus token.
+	&:has(input:focus-visible) {
+		outline:
+			var(--wpds-border-width-focus, 2px) solid
+			var(--wpds-color-stroke-focus-brand);
+		outline-offset: 2px;
+	}
+}
+
+.jetpack-newsletter-placement__surface {
+	display: block;
+	cursor: pointer;
+}
+
+.jetpack-newsletter-placement__illustration {
+	// Match the v2 SVG's intrinsic 294×192 aspect so the wireframe
+	// fills the card surface edge-to-edge.
+	aspect-ratio: 294 / 192;
+	background: var(--wpds-color-bg-surface-neutral-weak, #f7f7f7);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+
+	> svg {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+	}
+}
+
+.jetpack-newsletter-placement__checkbox {
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-sm, 8px);
+	inset-inline-start: var(--wpds-dimension-padding-sm, 8px);
+
+	// `CheckboxControl` wraps the native input in `BaseControl` +
+	// `__field` + `__input-container`. Each carries its own
+	// margin/padding that pushes the visible square off-center inside the
+	// 8px-from-edges absolute wrapper. Zero them out so the visible
+	// checkbox box is exactly equidistant from the card's top and inline
+	// end edges.
+	.components-base-control,
+	.components-base-control__field,
+	.components-checkbox-control,
+	.components-checkbox-control__input-container {
+		margin: 0;
+		padding: 0;
+	}
+
+	.components-checkbox-control__input {
+		margin: 0;
+	}
+
+	// The empty fallback <label> CheckboxControl renders is hidden — the
+	// visible title sits below the card.
+	.components-checkbox-control__label {
+		display: none;
+	}
+}
+
+.jetpack-newsletter-placement__caption {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs, 4px);
+}
+
+.jetpack-newsletter-placement__title {
+	font-size: var(--wpds-typography-font-size-sm, 14px);
+	font-weight: var(--wpds-typography-font-weight-regular, 400);
+	line-height: var(--wpds-typography-line-height-md, 1.4);
+}

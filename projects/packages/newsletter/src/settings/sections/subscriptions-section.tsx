@@ -2,18 +2,27 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { getSiteType } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getSiteType } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack, Text } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
 import { ToggleWithEditorLink } from '../components/toggle-with-link';
 import { getNewsletterScriptData } from '../script-data';
+import { PlacementCard } from './placement-card';
+import {
+	OverlayIllustration,
+	PopupIllustration,
+	EndOfPostIllustration,
+	FloatingIllustration,
+} from './placement-illustrations';
 import type { NewsletterSettings } from '../types';
+import type { ReactNode } from 'react';
 
 interface FieldRenderProps {
 	data: NewsletterSettings;
@@ -68,79 +77,75 @@ export function SubscriptionsSection( {
 	const canShowSubscriptionEditorLinks =
 		newsletterScriptData?.isSubscriptionSiteEditSupported && newsletterScriptData?.themeStylesheet;
 
+	// "Pages and posts" placements rendered as a 2×2 grid of selectable
+	// cards. Each entry carries the underlying boolean key + the site-editor
+	// template that backs the "Preview and edit" link.
+	const placements: Array< {
+		key: keyof NewsletterSettings;
+		title: string;
+		illustration?: ReactNode;
+		previewUrl?: string;
+	} > = [
+		{
+			key: 'jetpack_subscribe_overlay_enabled',
+			title: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
+			illustration: <OverlayIllustration />,
+			previewUrl: canShowBlockThemeEditorLinks
+				? addQueryArgs( getAdminUrl( 'site-editor.php' ), {
+						postType: 'wp_template_part',
+						postId: `${ newsletterScriptData.themeStylesheet }//jetpack-subscribe-overlay`,
+						canvas: 'edit',
+				  } )
+				: undefined,
+		},
+		{
+			key: 'sm_enabled',
+			title: __( 'Subscription pop-up in post', 'jetpack-newsletter' ),
+			illustration: <PopupIllustration />,
+			previewUrl: canShowBlockThemeEditorLinks
+				? addQueryArgs( getAdminUrl( 'site-editor.php' ), {
+						postType: 'wp_template_part',
+						postId: `${ newsletterScriptData.themeStylesheet }//jetpack-subscribe-modal`,
+						canvas: 'edit',
+				  } )
+				: undefined,
+		},
+		{
+			key: 'jetpack_subscriptions_subscribe_post_end_enabled',
+			title: __( 'Subscribe block at the end of each post', 'jetpack-newsletter' ),
+			illustration: <EndOfPostIllustration />,
+			previewUrl: canShowSubscriptionEditorLinks
+				? addQueryArgs( getAdminUrl( 'site-editor.php' ), {
+						postType: 'wp_template',
+						postId: `${ newsletterScriptData.themeStylesheet }//single`,
+						canvas: 'edit',
+				  } )
+				: undefined,
+		},
+		{
+			key: 'jetpack_subscribe_floating_button_enabled',
+			title: __( 'Floating button on bottom corner', 'jetpack-newsletter' ),
+			illustration: <FloatingIllustration />,
+			previewUrl: canShowBlockThemeEditorLinks
+				? addQueryArgs( getAdminUrl( 'site-editor.php' ), {
+						postType: 'wp_template_part',
+						postId: `${ newsletterScriptData.themeStylesheet }//jetpack-subscribe-floating-button`,
+						canvas: 'edit',
+				  } )
+				: undefined,
+		},
+	];
+
+	const handlePlacementChange = useCallback(
+		( key: string, next: boolean ) => {
+			onChange( { [ key ]: next } as Partial< NewsletterSettings > );
+		},
+		[ onChange ]
+	);
+
+	// DataForm carries only Navigation + Comments now. The Pages-and-posts
+	// group lifted out into the card grid above.
 	const fields: Field< NewsletterSettings >[] = [
-		{
-			id: 'jetpack_subscriptions_subscribe_post_end_enabled',
-			label: __( 'Add the Subscribe Block at the end of each post', 'jetpack-newsletter' ),
-			type: 'boolean' as const,
-			Edit: canShowSubscriptionEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
-						<ToggleWithEditorLink
-							data={ formData }
-							field={ field }
-							onChange={ fieldOnChange }
-							themeStylesheet={ newsletterScriptData.themeStylesheet }
-							postType="wp_template"
-							templateId="single"
-							siteType={ siteType }
-						/>
-				  )
-				: ( 'toggle' as const ),
-		},
-		{
-			id: 'sm_enabled',
-			label: __( 'Show subscription pop-up when scrolling a post', 'jetpack-newsletter' ),
-			type: 'boolean' as const,
-			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
-						<ToggleWithEditorLink
-							data={ formData }
-							field={ field }
-							onChange={ fieldOnChange }
-							themeStylesheet={ newsletterScriptData.themeStylesheet }
-							postType="wp_template_part"
-							templateId="jetpack-subscribe-modal"
-							siteType={ siteType }
-						/>
-				  )
-				: ( 'toggle' as const ),
-		},
-		{
-			id: 'jetpack_subscribe_overlay_enabled',
-			label: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
-			type: 'boolean' as const,
-			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
-						<ToggleWithEditorLink
-							data={ formData }
-							field={ field }
-							onChange={ fieldOnChange }
-							themeStylesheet={ newsletterScriptData.themeStylesheet }
-							postType="wp_template_part"
-							templateId="jetpack-subscribe-overlay"
-							siteType={ siteType }
-						/>
-				  )
-				: ( 'toggle' as const ),
-		},
-		{
-			id: 'jetpack_subscribe_floating_button_enabled',
-			label: __( "Floating subscribe button on site's bottom corner", 'jetpack-newsletter' ),
-			type: 'boolean' as const,
-			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
-						<ToggleWithEditorLink
-							data={ formData }
-							field={ field }
-							onChange={ fieldOnChange }
-							themeStylesheet={ newsletterScriptData.themeStylesheet }
-							postType="wp_template_part"
-							templateId="jetpack-subscribe-floating-button"
-							siteType={ siteType }
-						/>
-				  )
-				: ( 'toggle' as const ),
-		},
 		{
 			id: 'jetpack_subscriptions_subscribe_navigation_enabled',
 			label: __( 'Add the Subscribe Block to the navigation', 'jetpack-newsletter' ),
@@ -212,42 +217,50 @@ export function SubscriptionsSection( {
 					</Text>
 				</p>
 				<fieldset disabled={ ! isNewsletterEnabled }>
-					<DataForm
-						data={ data }
-						fields={ fields }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [
-								{
-									id: 'homepage_and_posts',
-									label: __( 'Homepage and posts', 'jetpack-newsletter' ),
-									children: [
-										'jetpack_subscriptions_subscribe_post_end_enabled',
-										'sm_enabled',
-										'jetpack_subscribe_overlay_enabled',
-										'jetpack_subscribe_floating_button_enabled',
-									],
+					<Stack gap="lg" direction="column">
+						<div className="jetpack-newsletter-placements-grid">
+							{ placements.map( placement => (
+								<PlacementCard
+									key={ placement.key }
+									id={ `placement-${ placement.key }` }
+									name={ String( placement.key ) }
+									title={ placement.title }
+									illustration={ placement.illustration }
+									previewUrl={ placement.previewUrl }
+									checked={ Boolean( data[ placement.key ] ) }
+									onChange={ handlePlacementChange }
+									disabled={ ! isNewsletterEnabled }
+								/>
+							) ) }
+						</div>
+
+						<DataForm
+							data={ data }
+							fields={ fields }
+							form={ {
+								layout: {
+									type: 'regular',
+									labelPosition: 'top',
 								},
-								{
-									id: 'navigation',
-									label: __( 'Navigation', 'jetpack-newsletter' ),
-									children: [
-										'jetpack_subscriptions_subscribe_navigation_enabled',
-										'jetpack_subscriptions_login_navigation_enabled',
-									],
-								},
-								{
-									id: 'comments',
-									label: __( 'Comments', 'jetpack-newsletter' ),
-									children: [ 'stb_enabled', 'stc_enabled' ],
-								},
-							],
-						} }
-						onChange={ onChange }
-					/>
+								fields: [
+									{
+										id: 'navigation',
+										label: __( 'Navigation', 'jetpack-newsletter' ),
+										children: [
+											'jetpack_subscriptions_subscribe_navigation_enabled',
+											'jetpack_subscriptions_login_navigation_enabled',
+										],
+									},
+									{
+										id: 'comments',
+										label: __( 'Comments', 'jetpack-newsletter' ),
+										children: [ 'stb_enabled', 'stc_enabled' ],
+									},
+								],
+							} }
+							onChange={ onChange }
+						/>
+					</Stack>
 				</fieldset>
 				<Stack direction="row" justify="flex-end" className="newsletter-card-footer">
 					<Button
