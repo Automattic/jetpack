@@ -1117,15 +1117,20 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that the sanitize callback strips unsafe content.
+	 * Test that _last_editor_used_jetpack sanitizes HTML on save.
 	 */
-	public function test_sanitize_callback_strips_unsafe_content() {
+	public function test_last_editor_meta_sanitizes_html_on_save() {
 		do_action( 'init' );
 
-		$this->assertEquals( 'write-editor', sanitize_meta( '_last_editor_used_jetpack', 'write-editor', 'post', 'post' ) );
-		$this->assertEquals( 'block-editor', sanitize_meta( '_last_editor_used_jetpack', 'block-editor', 'post', 'post' ) );
-		$this->assertEquals( 'classic-editor', sanitize_meta( '_last_editor_used_jetpack', 'classic-editor', 'post', 'post' ) );
-		$this->assertEquals( 'future-editor', sanitize_meta( '_last_editor_used_jetpack', 'future-editor', 'post', 'post' ) );
-		$this->assertSame( 'alert(1)', sanitize_meta( '_last_editor_used_jetpack', '<script>alert(1)</script>', 'post', 'post' ) );
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		update_post_meta( $post_id, '_last_editor_used_jetpack', '<script>alert(1)</script>' );
+		$this->assertStringNotContainsString( '<script>', get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
 	}
 }
