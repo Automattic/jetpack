@@ -52,6 +52,7 @@ class Utility_Functions_Test extends BaseTestCase {
 		$defaults = array(
 			'guid'            => 'abc12345',
 			'blog_id'         => 12345, // Must match Jetpack_Options 'id' set in set_up().
+			'post_id'         => 0,     // Tests opting in to ID preservation set this explicitly.
 			'title'           => 'Test Video Title',
 			'description'     => 'Test video description',
 			'upload_date'     => '2024-01-15 10:30:00',
@@ -440,6 +441,61 @@ class Utility_Functions_Test extends BaseTestCase {
 		$post = get_post( $attachment_id );
 
 		$this->assertSame( $parent_id, $post->post_parent );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid passes the original post_id through as import_id.
+	 *
+	 * Verifies the contract: wp_insert_post() interprets import_id as the desired post ID
+	 * when the row is unused. This test captures the postarr to confirm import_id is set,
+	 * since WorDBless's in-memory store does not exercise the wpdb-level import_id branch.
+	 */
+	public function test_create_local_media_library_preserves_original_post_id() {
+		$guid             = 'abc12345';
+		$original_post_id = 90210;
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
+
+		$captured_postarr = null;
+		$capture          = function ( $data, $postarr ) use ( &$captured_postarr ) {
+			$captured_postarr = $postarr;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5, 2 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		create_local_media_library_for_videopress_guid( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+
+		$this->assertIsArray( $captured_postarr );
+		$this->assertArrayHasKey( 'import_id', $captured_postarr );
+		$this->assertSame( $original_post_id, $captured_postarr['import_id'] );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid omits import_id when post_id is missing from the API response.
+	 */
+	public function test_create_local_media_library_omits_import_id_when_post_id_missing() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data(); // post_id defaults to 0.
+
+		$captured_postarr = null;
+		$capture          = function ( $data, $postarr ) use ( &$captured_postarr ) {
+			$captured_postarr = $postarr;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5, 2 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		create_local_media_library_for_videopress_guid( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+
+		$this->assertIsArray( $captured_postarr );
+		// wp_insert_post() merges in 'import_id' => 0 as a default; assert no preservation requested.
+		$this->assertEmpty( $captured_postarr['import_id'] ?? null );
 	}
 
 	/**

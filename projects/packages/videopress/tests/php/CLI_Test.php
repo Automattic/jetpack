@@ -58,6 +58,7 @@ class CLI_Test extends BaseTestCase {
 		$defaults = array(
 			'guid'            => 'abc12345',
 			'blog_id'         => 12345, // Must match Jetpack_Options 'id' set in set_up().
+			'post_id'         => 0,     // Tests opting in to ID preservation set this explicitly.
 			'title'           => 'Test Video Title',
 			'description'     => 'Test video description',
 			'upload_date'     => '2024-01-15 10:30:00',

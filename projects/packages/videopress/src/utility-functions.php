@@ -183,6 +183,17 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 		'guid'           => videopress_build_url( $guid ),
 	);
 
+	/*
+	 * Re-create the attachment with its original post ID so the post↔video
+	 * relationship recorded on WordPress.com (videos.post_id) stays in sync
+	 * without a separate sync-back call. wp_insert_post() honors 'import_id'
+	 * only when the ID is unused; collisions are detected by callers.
+	 */
+	$original_post_id = isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
+	if ( $original_post_id > 0 ) {
+		$args['import_id'] = $original_post_id;
+	}
+
 	$attachment_id = wp_insert_attachment( $args, null, $parent_id );
 
 	if ( ! is_wp_error( $attachment_id ) ) {
