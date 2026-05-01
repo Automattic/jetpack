@@ -393,12 +393,10 @@ const monthLabelFormatters = new Map();
  * Format a date filter bucket value (`2024` or `2024-03`) as a localized
  * display label.
  *
- * Single source of truth for date-bucket labels on the JS side; mirrors
- * `Filter_Date::format_bucket_label()` in PHP so the same value renders the
- * same way whether the label comes from the SSR seed, this view bundle, or
- * (once the active-filter pill formatter task lands) the active-filters
- * block. Centralising avoids each consumer reinventing the slug → label
- * mapping and getting subtly different month casings or numeric pads.
+ * Single source of truth for date-bucket labels on the JS side. Centralising
+ * avoids each consumer (filter list, active-filters pill) reinventing the
+ * slug → label mapping and getting subtly different month casings or numeric
+ * pads.
  *
  * @param {string} value    - Bucket slug (`2024`, `2024-03`).
  * @param {string} interval - 'year' | 'month'.

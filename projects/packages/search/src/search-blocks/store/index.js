@@ -80,8 +80,7 @@ function parseSlashBucketKey( rawKey ) {
  * Date buckets carry both `key` (epoch milliseconds) and `key_as_string`
  * (formatted by ES with the `Y` / `Y-m` format the block requested). We use
  * `key_as_string` as the slug so URLs read like `?post_date[]=2024` or
- * `?post_date[]=2024-03`, which is what `Filter_Date::format_bucket_label`
- * keys against and what visitors expect to see.
+ * `?post_date[]=2024-03`, which is what visitors expect to see.
  *
  * @param {object} bucket - Aggregation bucket from the search response.
  * @return {string} Bucket slug (year or yyyy-mm).

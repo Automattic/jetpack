@@ -10,11 +10,11 @@ namespace Automattic\Jetpack\Search;
 /**
  * Helper methods for the jetpack/filter-date block.
  *
- * Mirrors Filter_Checkbox so the SSR seed path, the block render, and any
- * future server-side bucket formatting share one source of truth. The block
- * groups search hits into yearly or monthly buckets via an Elasticsearch
- * date_histogram aggregation; selecting a bucket narrows the result set with
- * a `range` filter clause.
+ * Mirrors Filter_Checkbox so the page-level filterConfig seed walk in
+ * Search_Blocks::collect_filter_configs_from_post() and the block's own
+ * render.php share one source of truth. The block groups search hits into
+ * yearly or monthly buckets via an Elasticsearch date_histogram aggregation;
+ * selecting a bucket narrows the result set with a `range` filter clause.
  */
 class Filter_Date {
 
@@ -140,67 +140,5 @@ class Filter_Date {
 			return 'count';
 		}
 		return 'newest';
-	}
-
-	/**
-	 * Format a date_histogram bucket key as a human-readable label.
-	 *
-	 * Used as the canonical server-side formatter so any SSR consumer (and
-	 * the active-filter pill PHP path, when added) produces the same label
-	 * the client view bundle does. The JS counterpart in store/api.js mirrors
-	 * the `month` formatting via `Intl.DateTimeFormat`; for year buckets the
-	 * label is the bare four-digit year on both sides.
-	 *
-	 * `wp_date()` honours the site's timezone and locale, which matches how
-	 * the rest of Jetpack Search labels dates on the front end.
-	 *
-	 * @param string $bucket_key Bucket key as produced by ES `date_histogram`
-	 *                           with the formats this block requests — `Y` for
-	 *                           year buckets, `Y-m` for month buckets.
-	 * @param string $interval   'year' | 'month'.
-	 * @return string Formatted label, or the raw key when it can't be parsed.
-	 */
-	public static function format_bucket_label( string $bucket_key, string $interval ): string {
-		if ( '' === $bucket_key ) {
-			return '';
-		}
-		// Year buckets render verbatim — `2024` doesn't need locale-specific
-		// formatting and `wp_date()` would surround it with extraneous
-		// surroundings on some locales (e.g. era markers).
-		if ( 'year' === $interval ) {
-			return $bucket_key;
-		}
-
-		// Strict `Y-m` parse. strtotime() alone is too lenient — it would
-		// gladly accept `not-a-date-01 00:00:00` as a relative expression
-		// and silently anchor it on `today`. Regex-gate the slug shape so
-		// only well-formed bucket keys make it to wp_date().
-		if ( ! preg_match( '/^(\d{4})-(\d{2})$/', $bucket_key, $matches ) ) {
-			return $bucket_key;
-		}
-		$month = (int) $matches[2];
-		if ( $month < 1 || $month > 12 ) {
-			return $bucket_key;
-		}
-		// Anchor the timestamp explicitly in UTC. `strtotime()` reads the
-		// PHP server timezone (typically UTC, but not guaranteed); `wp_date()`
-		// then converts the timestamp to the WordPress site timezone before
-		// formatting. On a site configured to a large negative UTC offset
-		// (e.g. UTC-12, Baker Island), a server-TZ midnight of `2024-01-01`
-		// shifts back into `December 2023` once `wp_date()` applies the site
-		// offset. Using DateTimeImmutable with a fixed UTC zone keeps the
-		// PHP path bit-identical to the JS side, which uses
-		// `Date.UTC(year, month - 1, 1)` paired with `timeZone: 'UTC'`.
-		$dt = \DateTimeImmutable::createFromFormat(
-			'Y-m-d H:i:s',
-			$bucket_key . '-01 00:00:00',
-			new \DateTimeZone( 'UTC' )
-		);
-		if ( false === $dt ) {
-			return $bucket_key;
-		}
-		$timestamp = $dt->getTimestamp();
-		/* translators: PHP date() format string for month + year bucket labels (e.g. `F Y` → "March 2024"). See https://www.php.net/manual/en/datetime.format.php for token reference. */
-		return (string) wp_date( __( 'F Y', 'jetpack-search-pkg' ), $timestamp );
 	}
 }

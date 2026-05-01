@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for Filter_Date helpers — filter-key derivation, default label,
- * config shape, interval / sort-order normalization, and the
- * wp_date()-backed bucket label formatter that the active-filter pill
- * formatter task will call into.
+ * config shape, and interval / sort-order normalization.
  */
 class Filter_Date_Test extends TestCase {
 
@@ -134,46 +132,5 @@ class Filter_Date_Test extends TestCase {
 			'post_date'
 		);
 		$this->assertSame( 'When extra', $config['label'] );
-	}
-
-	/**
-	 * Year buckets render verbatim — wp_date() formatting would surround a
-	 * bare four-digit year with locale chrome on some locales (era markers,
-	 * ordinal indicators). Since the slug already reads as a year, return it
-	 * directly.
-	 */
-	public function test_format_bucket_label_passes_through_year() {
-		$this->assertSame( '2024', Filter_Date::format_bucket_label( '2024', 'year' ) );
-		$this->assertSame( '1999', Filter_Date::format_bucket_label( '1999', 'year' ) );
-	}
-
-	/**
-	 * Month buckets get the localized full-month + year format (`F Y`).
-	 * Asserts via the English fallback the test environment uses when no
-	 * textdomain is loaded; the production translation layer swaps the
-	 * pattern out per locale via wp_date().
-	 */
-	public function test_format_bucket_label_formats_month() {
-		$this->assertSame( 'March 2024', Filter_Date::format_bucket_label( '2024-03', 'month' ) );
-		$this->assertSame( 'January 1999', Filter_Date::format_bucket_label( '1999-01', 'month' ) );
-		$this->assertSame( 'December 2024', Filter_Date::format_bucket_label( '2024-12', 'month' ) );
-	}
-
-	/**
-	 * Malformed slugs must fall back to the raw value rather than producing
-	 * "January 1970" via strtotime() guesswork — the slug source is ES, so
-	 * an unparseable value signals a response shape change worth surfacing
-	 * (the active-filter pill will then read as the raw slug, not silently
-	 * shifted onto the Unix epoch).
-	 */
-	public function test_format_bucket_label_falls_back_on_unparseable_slug() {
-		$this->assertSame( '', Filter_Date::format_bucket_label( '', 'month' ) );
-		$this->assertSame( 'not-a-date', Filter_Date::format_bucket_label( 'not-a-date', 'month' ) );
-		// Out-of-range months — `2024-00` and `2024-13` are syntactically
-		// `Y-m` shaped but invalid calendar months; without the explicit
-		// `$month < 1 || $month > 12` guard, `strtotime` would slide them
-		// into Dec 2023 / Jan 2025 silently.
-		$this->assertSame( '2024-00', Filter_Date::format_bucket_label( '2024-00', 'month' ) );
-		$this->assertSame( '2024-13', Filter_Date::format_bucket_label( '2024-13', 'month' ) );
 	}
 }

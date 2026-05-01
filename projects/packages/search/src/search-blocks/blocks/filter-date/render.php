@@ -2,10 +2,12 @@
 /**
  * Filter-date block render.
  *
- * Mirrors filter-checkbox/render.php so the SSR shell, the seeded filterConfig
- * entry, and the first-paint hidden state behave the same — the difference is
- * only in the aggregation shape (date_histogram instead of terms) and bucket
- * key parsing, both of which live in the JS view bundle.
+ * Mirrors filter-checkbox/render.php so the seeded filterConfig entry and the
+ * shell markup behave the same — the difference is only in the aggregation
+ * shape (date_histogram instead of terms) and bucket key parsing, both of
+ * which live in the JS view bundle. Aggregations are populated client-side
+ * after hydration, so the wrapper renders `hidden` on first paint and the
+ * `data-wp-bind--hidden` directives take over once JS attaches.
  *
  * WordPress passes $attributes, $content, $block at runtime; VariableAnalysis
  * can't see that, so the sniff is disabled here.
@@ -47,51 +49,6 @@ wp_interactivity_state(
 	)
 );
 
-// Render `hidden` on first paint when no aggregation buckets are available
-// for this filter. Seeded `state.aggregations` is empty before the first JS
-// fetch, so on the server we default to hidden — otherwise an empty filter
-// title would occupy the top of the sidebar during the load and misalign
-// with the adjacent results column. JS unhides once buckets arrive.
-$seeded_state = wp_interactivity_state( 'jetpack-search' );
-// aggregations is seeded as stdClass when empty (so JS sees `{}` not `[]`);
-// cast here so the nested subscript works in either shape.
-$seeded_aggs       = (array) ( $seeded_state['aggregations'] ?? array() );
-$seeded_filter_agg = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
-$seeded_buckets    = $seeded_filter_agg['buckets'] ?? null;
-$has_buckets       = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
-
-// First-paint "all selected" flag mirrors the `allBucketsSelected` getter in
-// store/index.js so the list and the fallback message come out pre-hidden
-// correctly and there's no flicker during hydration. Date buckets use
-// `key_as_string` (e.g. `2024`, `2024-03`) as both the slug and the label,
-// so we compare the raw bucket key directly without the slash-split
-// filter-checkbox uses.
-//
-// Empty buckets (`doc_count <= 0`) are skipped to keep this in lockstep with
-// the JS getter, which filters to populated buckets before the
-// `every(selected.includes)` check. `min_doc_count: 1` on the agg means
-// empty buckets shouldn't arrive in practice, but if a future code path
-// seeds a warm aggregation without that gate, this prevents a phantom
-// "All filters applied" flash on first paint.
-$seeded_selected       = (array) ( ( (array) ( $seeded_state['activeFilters'] ?? array() ) )[ $filter_key ] ?? array() );
-$all_selected_on_paint = false;
-if ( $has_buckets && ! empty( $seeded_selected ) ) {
-	$populated_count = 0;
-	$all_match       = true;
-	foreach ( $seeded_buckets as $bucket ) {
-		if ( ! is_array( $bucket ) || ( (int) ( $bucket['doc_count'] ?? 0 ) ) <= 0 ) {
-			continue;
-		}
-		++$populated_count;
-		$value = (string) ( $bucket['key_as_string'] ?? $bucket['key'] ?? '' );
-		if ( ! in_array( $value, $seeded_selected, true ) ) {
-			$all_match = false;
-			break;
-		}
-	}
-	$all_selected_on_paint = $populated_count > 0 && $all_match;
-}
-
 $label = $config['label'];
 ?>
 <div
@@ -99,7 +56,7 @@ $label = $config['label'];
 	data-wp-interactive="jetpack-search"
 	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
 	data-wp-bind--hidden="!state.hasFilterBuckets"
-	<?php echo $has_buckets ? '' : 'hidden'; ?>
+	hidden
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
@@ -107,7 +64,6 @@ $label = $config['label'];
 	<ul
 		class="jetpack-search-filter__list"
 		data-wp-bind--hidden="state.allBucketsSelected"
-		<?php echo $all_selected_on_paint ? 'hidden' : ''; ?>
 	>
 		<template
 			data-wp-each--item="state.filterItems"
@@ -138,7 +94,7 @@ $label = $config['label'];
 	<p
 		class="jetpack-search-filter__all-selected"
 		data-wp-bind--hidden="!state.allBucketsSelected"
-		<?php echo $all_selected_on_paint ? '' : 'hidden'; ?>
+		hidden
 	>
 		<?php esc_html_e( 'All filters applied', 'jetpack-search-pkg' ); ?>
 	</p>
