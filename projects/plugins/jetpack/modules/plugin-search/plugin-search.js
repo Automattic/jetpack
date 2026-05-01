@@ -213,21 +213,27 @@ var JetpackPSH = {};
 					}
 				} )
 				.on( 'click', '.jetpack-plugin-search__learn-more', function ( event ) {
-					event.preventDefault();
 					var $this = $( this );
+					var opensInNewTab = '_blank' === $this.attr( 'target' );
+					if ( ! opensInNewTab ) {
+						event.preventDefault();
+					}
 					JetpackPSH.trackEvent(
 						'wpa_plugin_search_learn_more',
 						$this.data( 'module' ),
-						$this.get( 0 )
+						opensInNewTab ? undefined : $this.get( 0 )
 					);
 				} )
 				.on( 'click', '.jetpack-plugin-search__support_link', function ( event ) {
-					event.preventDefault();
 					var $this = $( this );
+					var opensInNewTab = '_blank' === $this.attr( 'target' );
+					if ( ! opensInNewTab ) {
+						event.preventDefault();
+					}
 					JetpackPSH.trackEvent(
 						'wpa_plugin_search_support_link',
 						$this.data( 'module' ),
-						$this.get( 0 )
+						opensInNewTab ? undefined : $this.get( 0 )
 					);
 				} );
 		},
