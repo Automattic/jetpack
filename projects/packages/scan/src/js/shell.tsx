@@ -13,6 +13,7 @@ const ShellChrome: FC = () => {
 	return (
 		<AdminPage
 			showFooter
+			unwrapped
 			title={ 'Scan' /* "Scan" is a product name, do not translate. */ }
 			subTitle={ __(
 				'Find and fix vulnerabilities and suspicious files on your site.',
