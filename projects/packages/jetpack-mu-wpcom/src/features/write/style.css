@@ -1019,6 +1019,11 @@
 	transform: scale(1);
 }
 
+.bw-video-figure:hover .bw-img-delete {
+	opacity: 1;
+	transform: scale(1);
+}
+
 .bw-img-controls .bw-img-delete:hover {
 	background: rgba(214, 54, 56, 0.85);
 }
