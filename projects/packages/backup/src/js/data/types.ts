@@ -328,6 +328,36 @@ export interface BackupDownloadStatusResponse {
 	url: string;
 }
 
+// Restore-flow types — same six data-kind toggles as DownloadConfig
+// (themes/plugins/roots/contents/sqls/uploads), kept as a separate
+// interface so future restore-only options stay isolated.
+
+export interface RestoreConfig {
+	themes?: boolean;
+	plugins?: boolean;
+	roots?: boolean;
+	contents?: boolean;
+	sqls?: boolean;
+	uploads?: boolean;
+}
+
+// WPCOM's restore status. `status` is one of `queued`, `running`,
+// `finished`, or `fail` (Calypso's set). `progress` is 0..100 for the
+// running state. `error_code` / `reason` / `message` populate on `fail`.
+export interface RestoreProgress {
+	restore_id: number;
+	status: 'queued' | 'running' | 'finished' | 'fail';
+	progress: number;
+	error_code?: string;
+	reason?: string;
+	message?: string;
+}
+
+export interface RestoreInitiateResponse {
+	id: number;
+	restore_status: string;
+}
+
 export interface JetpackBackupInitialState {
 	API: {
 		WP_API_root: string;

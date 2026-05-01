@@ -8,6 +8,7 @@ import {
 	fetchBackupLs,
 	fetchBackupPathInfo,
 	fetchBackupPolicies,
+	fetchBackupRestoreProgress,
 	fetchBackupSize,
 	fetchBackups,
 } from './fetchers';
@@ -93,6 +94,15 @@ export const backupFilteredDownloadStatusQuery = ( key: string, dataType: number
 	queryOptions( {
 		queryKey: [ 'jetpack-backup', 'filtered-download-status', key, dataType ],
 		queryFn: () => fetchBackupFilteredDownloadStatus( { key, dataType } ),
+	} );
+
+// Restore progress — polled by the Restore screen until status reaches
+// `finished` or `fail`. The screen sets the refetchInterval so the
+// cadence matches Calypso's polling shape.
+export const backupRestoreProgressQuery = ( restoreId: number ) =>
+	queryOptions( {
+		queryKey: [ 'jetpack-backup', 'restore-progress', restoreId ],
+		queryFn: () => fetchBackupRestoreProgress( restoreId ),
 	} );
 
 export const backupExtensionUrlQuery = (

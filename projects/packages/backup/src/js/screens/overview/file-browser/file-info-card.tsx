@@ -4,7 +4,6 @@ import {
 	Button,
 	Card,
 	CardBody,
-	Tooltip,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -14,22 +13,15 @@ import {
 } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useNavigate } from 'react-router';
 import { fetchBackupExtensionUrl, fetchBackupFileUrl } from '../../../data/fetchers';
+import { JetpackBackupRoutes } from '../../../routes';
 import { useFileBrowserContext } from './file-browser-context';
 import FilePreview from './file-preview';
 import { useBackupPathInfoQuery } from './use-backup-path-info-query';
 import { PREPARE_DOWNLOAD_STATUS, usePrepareDownload } from './use-prepare-download';
 import { convertBytes, encodeToBase64 } from './util';
 import type { FileBrowserItem } from '../../../data/types';
-
-// Restore is wired up in phase C. For now the button stays disabled
-// with the Coming soon tooltip; phase C flips RESTORE_ENABLED and
-// removes the tooltip.
-const RESTORE_ENABLED = false;
-const COMING_SOON_TEXT = __(
-	'Coming soon in Jetpack Backup. For now, you can manage this action on WordPress.com.',
-	'jetpack-backup-pkg'
-);
 
 interface FileInfoCardProps {
 	item: FileBrowserItem;
@@ -43,6 +35,7 @@ interface FileInfoCardProps {
 
 function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCardProps ) {
 	const { locale, notices } = useFileBrowserContext();
+	const navigate = useNavigate();
 
 	const {
 		isSuccess,
@@ -91,6 +84,16 @@ function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCar
 	const trackWordPressDownload = useCallback( () => {
 		onTrackEvent?.( 'jetpack_backup_browser_download', { file_type: item.type } );
 	}, [ onTrackEvent, item.type ] );
+
+	const handleRestoreClick = useCallback( () => {
+		// Navigate to the Restore screen with this rewindId pre-selected.
+		// Per-file granularity here is not yet wired (a single-file restore
+		// would need a different selection-shape than the file-browser's
+		// global getCheckList) — for now the button restores the whole
+		// backup at this rewind point, matching Calypso's pre-Dashboard
+		// behaviour for the per-file action.
+		navigate( `${ JetpackBackupRoutes.Restore }?rewindId=${ rewindId }` );
+	}, [ navigate, rewindId ] );
 
 	// Regular file download: resolve the one-time signed URL from the
 	// file-url endpoint, force `disposition=attachment` so the browser
@@ -272,16 +275,9 @@ function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCar
 	};
 
 	const restoreButton = (
-		<Tooltip text={ COMING_SOON_TEXT }>
-			<Button
-				variant="primary"
-				size="compact"
-				disabled={ ! RESTORE_ENABLED }
-				accessibleWhenDisabled
-			>
-				{ __( 'Restore', 'jetpack-backup-pkg' ) }
-			</Button>
-		</Tooltip>
+		<Button variant="primary" size="compact" onClick={ handleRestoreClick }>
+			{ __( 'Restore', 'jetpack-backup-pkg' ) }
+		</Button>
 	);
 
 	const FileDetail = ( { label, value }: { label: string; value: string | number } ) => {

@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router/dom';
 import Providers from './providers';
 import DownloadScreen from './screens/download';
 import OverviewScreen from './screens/overview';
+import RestoreScreen from './screens/restore';
 import Shell from './shell';
 import type { FC } from 'react';
 
@@ -19,6 +20,7 @@ const router = createHashRouter( [
 		children: [
 			{ index: true, element: <OverviewScreen /> },
 			{ path: 'download', element: <DownloadScreen /> },
+			{ path: 'restore', element: <RestoreScreen /> },
 			{ path: '*', element: <OverviewScreen /> },
 		],
 	},

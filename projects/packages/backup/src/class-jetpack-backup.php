@@ -682,6 +682,59 @@ class Jetpack_Backup {
 				),
 			)
 		);
+
+		// Initiate a restore to a specific point in time. `types` selects
+		// data kinds (themes/plugins/roots/contents/sqls/uploads); when
+		// `include_path_list` is non-empty the request becomes a granular
+		// restore (mirrors the download bridge's path mode).
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/restore',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => __CLASS__ . '::initiate_site_backup_restore',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+				'args'                => array(
+					'rewind_id'         => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'types'             => array(
+						'type'    => 'object',
+						'default' => new \stdClass(),
+					),
+					'include_path_list' => array(
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'exclude_path_list' => array(
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+
+		// Poll progress for an in-flight restore.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/restore/progress',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_restore_progress',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+				'args'                => array(
+					'restore_id' => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -1573,6 +1626,97 @@ class Jetpack_Backup {
 			return new WP_Error(
 				'backup_filtered_status_fetch_failed',
 				__( 'Could not fetch filtered-download status.', 'jetpack-backup-pkg' ),
+				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+			);
+		}
+
+		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
+	}
+
+	/**
+	 * Initiate a restore to a specific point in time (full or granular).
+	 *
+	 * Proxies `POST wpcom/v2 sites/{id}/rewind/to/{rewindId}`. When
+	 * `include_path_list` is non-empty the request becomes a granular
+	 * restore — the wpcom side switches its `types` payload to
+	 * `paths:true` automatically when those lists are present (mirrors
+	 * the download bridge's behaviour).
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return WP_REST_Response|WP_Error The decoded WPCOM response, or WP_Error on failure.
+	 */
+	public static function initiate_site_backup_restore( $request ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$rewind_id     = (string) $request->get_param( 'rewind_id' );
+		$include_paths = (string) $request->get_param( 'include_path_list' );
+		$exclude_paths = (string) $request->get_param( 'exclude_path_list' );
+		$is_granular   = '' !== $include_paths;
+
+		$body = array(
+			'types' => $is_granular ? array( 'paths' => true ) : $request->get_param( 'types' ),
+		);
+		if ( $is_granular ) {
+			$body['include_path_list'] = $include_paths;
+			$body['exclude_path_list'] = $exclude_paths;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/to/%s', $blog_id, rawurlencode( $rewind_id ) ),
+			'v2',
+			array( 'method' => 'POST' ),
+			$body,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $status_code ) {
+			return new WP_Error(
+				'backup_restore_initiate_failed',
+				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
+				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+			);
+		}
+
+		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
+	}
+
+	/**
+	 * Poll progress for an in-flight restore.
+	 *
+	 * Proxies `GET wpcom/v2 sites/{id}/rewind/restores/{restoreId}`.
+	 *
+	 * @param WP_REST_Request $request The REST request. Requires `restore_id`.
+	 * @return WP_REST_Response|WP_Error The decoded WPCOM response, or WP_Error on failure.
+	 */
+	public static function get_site_backup_restore_progress( $request ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf(
+				'/sites/%d/rewind/restores/%d',
+				$blog_id,
+				$request->get_param( 'restore_id' )
+			),
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $status_code ) {
+			return new WP_Error(
+				'backup_restore_progress_fetch_failed',
+				__( 'Could not fetch restore progress.', 'jetpack-backup-pkg' ),
 				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
 			);
 		}

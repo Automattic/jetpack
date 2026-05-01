@@ -1,12 +1,12 @@
 /* eslint-disable jsdoc/require-returns */
 
 import { useMutation } from '@tanstack/react-query';
-import { Button, Card, CardBody, CardHeader, Icon, Tooltip } from '@wordpress/components';
+import { Button, Card, CardBody, CardHeader, Icon } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { download, rotateLeft } from '@wordpress/icons';
 import { useNavigate } from 'react-router';
-import { initiateBackupDownload } from '../../data/fetchers';
+import { initiateBackupDownload, initiateBackupRestore } from '../../data/fetchers';
 import { gridiconToWordPressIcon } from '../../data/gridicons';
 import { useFormattedTime } from '../../data/use-formatted-time';
 import { useTrackEvent } from '../../data/use-track-event';
@@ -15,40 +15,11 @@ import FileBrowser from './file-browser';
 import { useFileBrowserContext } from './file-browser/file-browser-context';
 import styles from './style.module.scss';
 import type { ActivityLogEntry } from '../../data/types';
-import type { FC, ReactElement } from 'react';
+import type { FC } from 'react';
 
 interface BackupDetailsProps {
 	backup: ActivityLogEntry;
 }
-
-interface ComingSoonButtonProps {
-	variant: 'tertiary' | 'primary';
-	icon: ReactElement;
-	children: string;
-}
-
-/**
- * Restore action is rendered disabled with a tooltip explaining the
- * flow is coming soon. Download is wired up now — see `handleDownloadClick`
- * below.
- *
- * @param props          - Component props.
- * @param props.variant  - Button variant.
- * @param props.icon     - Icon element to render in the button.
- * @param props.children - Button label.
- */
-const ComingSoonButton: FC< ComingSoonButtonProps > = ( { variant, icon, children } ) => (
-	<Tooltip
-		text={ __(
-			'Coming soon in Jetpack Backup. For now, you can manage this action on WordPress.com.',
-			'jetpack-backup-pkg'
-		) }
-	>
-		<Button variant={ variant } icon={ icon } disabled accessibleWhenDisabled>
-			{ children }
-		</Button>
-	</Tooltip>
-);
 
 /**
  * Right-hand detail pane for a selected backup: summary, timestamp,
@@ -85,6 +56,17 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 		},
 	} );
 
+	const { mutate: granularRestoreMutate, isPending: isGranularRestorePending } = useMutation( {
+		mutationFn: () => {
+			const { includeList, excludeList } = fileBrowserState.getCheckList( rewindIdNum );
+			return initiateBackupRestore( {
+				rewindId: backup.rewind_id,
+				includePaths: includeList.map( item => item.id ).join( ',' ),
+				excludePaths: excludeList.map( item => item.id ).join( ',' ),
+			} );
+		},
+	} );
+
 	const handleDownloadClick = useCallback( () => {
 		if ( hasSelectedFiles ) {
 			// Granular download: kick off the mutation now (so the paths
@@ -101,6 +83,21 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 		}
 	}, [ hasSelectedFiles, granularMutate, backup.rewind_id, navigate ] );
 
+	const handleRestoreClick = useCallback( () => {
+		if ( hasSelectedFiles ) {
+			// Granular restore: capture the selected paths now, then jump
+			// straight into the progress step on the Restore screen.
+			granularRestoreMutate( undefined, {
+				onSuccess: restoreId =>
+					navigate(
+						`${ JetpackBackupRoutes.Restore }?rewindId=${ backup.rewind_id }&restoreId=${ restoreId }`
+					),
+			} );
+		} else {
+			navigate( `${ JetpackBackupRoutes.Restore }?rewindId=${ backup.rewind_id }` );
+		}
+	}, [ hasSelectedFiles, granularRestoreMutate, backup.rewind_id, navigate ] );
+
 	const downloadLabel = hasSelectedFiles
 		? sprintf(
 				/* translators: %d is the number of files selected. */
@@ -113,6 +110,19 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 				selectedFilesCount
 		  )
 		: __( 'Download backup', 'jetpack-backup-pkg' );
+
+	const restoreLabel = hasSelectedFiles
+		? sprintf(
+				/* translators: %d is the number of files selected. */
+				_n(
+					'Restore %d selected file',
+					'Restore %d selected files',
+					selectedFilesCount,
+					'jetpack-backup-pkg'
+				),
+				selectedFilesCount
+		  )
+		: __( 'Restore to this point', 'jetpack-backup-pkg' );
 
 	return (
 		<Card>
@@ -134,9 +144,17 @@ const BackupDetails: FC< BackupDetailsProps > = ( { backup } ) => {
 								{ downloadLabel }
 							</Button>
 						) : null }
-						<ComingSoonButton variant="primary" icon={ rotateLeft }>
-							{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
-						</ComingSoonButton>
+						{ backup.rewind_id ? (
+							<Button
+								variant="primary"
+								icon={ rotateLeft }
+								onClick={ handleRestoreClick }
+								isBusy={ isGranularRestorePending }
+								disabled={ isGranularRestorePending }
+							>
+								{ restoreLabel }
+							</Button>
+						) : null }
 					</div>
 				</div>
 			</CardHeader>

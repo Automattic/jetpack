@@ -22,6 +22,9 @@ import type {
 	DownloadProgress,
 	DownloadStatusResponse,
 	PrepareBackupDownloadResponse,
+	RestoreConfig,
+	RestoreInitiateResponse,
+	RestoreProgress,
 	SiteRewindPoliciesResponse,
 	SiteRewindSizeResponse,
 } from './types';
@@ -366,4 +369,82 @@ export async function enqueueBackup(): Promise< void > {
 		path: '/jetpack/v4/site/backup/enqueue',
 		method: 'POST',
 	} );
+}
+
+// Restore-flow fetchers — same shape as the download fetchers above.
+// `includePaths` (when set) flips the bridge into granular mode and the
+// `types` value is ignored on the server side.
+
+/**
+ *
+ * @param root0
+ * @param root0.rewindId
+ * @param root0.types
+ * @param root0.includePaths
+ * @param root0.excludePaths
+ */
+export async function initiateBackupRestore( {
+	rewindId,
+	types,
+	includePaths,
+	excludePaths,
+}: {
+	rewindId: string;
+	types?: RestoreConfig;
+	includePaths?: string;
+	excludePaths?: string;
+} ): Promise< number > {
+	if ( isMockMode() ) {
+		// Mock mode short-circuits with a fake restore id; the progress
+		// fetcher handles the rest of the simulation.
+		return 1;
+	}
+	const body: Record< string, unknown > = { rewind_id: rewindId };
+	if ( includePaths ) {
+		body.include_path_list = includePaths;
+		body.exclude_path_list = excludePaths ?? '';
+	} else {
+		body.types = types ?? {};
+	}
+	const data = await apiFetch< RestoreInitiateResponse >( {
+		path: '/jetpack/v4/site/backup/restore',
+		method: 'POST',
+		data: body,
+	} );
+	return data.id;
+}
+
+/**
+ *
+ * @param restoreId
+ */
+export async function fetchBackupRestoreProgress( restoreId: number ): Promise< RestoreProgress > {
+	if ( isMockMode() ) {
+		// Pretend the restore finishes after the first poll.
+		return {
+			restore_id: restoreId,
+			status: 'finished',
+			progress: 100,
+		};
+	}
+	const path = addQueryArgs( '/jetpack/v4/site/backup/restore/progress', {
+		restore_id: restoreId,
+	} );
+	const data = await apiFetch< {
+		id?: number;
+		status?: 'queued' | 'running' | 'finished' | 'fail';
+		progress?: number;
+		error_code?: string;
+		reason?: string;
+		message?: string;
+	} >( { path } );
+
+	return {
+		restore_id: data?.id ?? restoreId,
+		status: data?.status ?? 'queued',
+		progress: typeof data?.progress === 'number' ? data.progress : 0,
+		error_code: data?.error_code,
+		reason: data?.reason,
+		message: data?.message,
+	};
 }

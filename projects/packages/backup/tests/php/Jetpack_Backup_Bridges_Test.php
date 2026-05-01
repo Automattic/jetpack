@@ -104,4 +104,28 @@ class Jetpack_Backup_Bridges_Test extends TestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 	}
+
+	/**
+	 * Same WP_Error contract for the restore initiator (POST bridge).
+	 */
+	public function test_initiate_site_backup_restore_returns_wp_error_when_upstream_fails() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/site/backup/restore' );
+		$request->set_param( 'rewind_id', '1700000000' );
+		$result = Jetpack_Backup::initiate_site_backup_restore( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+	}
+
+	/**
+	 * Restore progress poll returns WP_Error when the upstream call can't
+	 * complete — the front-end relies on this to surface a user-facing
+	 * error rather than spinning forever.
+	 */
+	public function test_get_site_backup_restore_progress_returns_wp_error_when_upstream_fails() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/backup/restore/progress' );
+		$request->set_param( 'restore_id', 1 );
+		$result = Jetpack_Backup::get_site_backup_restore_progress( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+	}
 }

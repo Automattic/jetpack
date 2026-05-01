@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Backup: Wire up the Restore flow on the new admin overview. Two new REST bridges (`POST /jetpack/v4/site/backup/restore` proxying `wpcom/v2 /sites/{id}/rewind/to/{rewindId}`, and `GET /jetpack/v4/site/backup/restore/progress` proxying `wpcom/v2 /sites/{id}/rewind/restores/{restoreId}`); a `/restore` screen with form → progress → success / error states (mirrors the Download screen); a real header Restore button on `backup-details` (replaces the "Coming soon" tooltip) that supports granular restore via `getCheckList` when files are selected; per-file Restore in the file-info card; and mock-mode shortcuts so the screen can be exercised under `?jpb-mock=1` without a real backup plan. Includes phpunit coverage of the two new bridges' WP_Error pass-through.
