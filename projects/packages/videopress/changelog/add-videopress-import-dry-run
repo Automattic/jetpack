@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: Add `--dry-run` flag to `wp videopress import` for previewing what would happen (existing attachment, ID collision, target ID) without mutating state.

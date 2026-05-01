@@ -198,6 +198,67 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test --dry-run reports the would-preserve ID without mutating state.
+	 */
+	public function test_import_dry_run_reports_preserved_id() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90217 ) );
+
+		$captured_data = null;
+		$capture       = function ( $data ) use ( &$captured_data ) {
+			$captured_data = $data;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		( new CLI() )->import( array( $guid ), array( 'dry-run' => true ) );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+
+		$this->assertNull( $captured_data, 'Dry run should not invoke wp_insert_attachment.' );
+
+		$logs = implode( "\n", \WP_CLI::$captured['log'] );
+		$this->assertStringContainsString( '90217', $logs );
+		$this->assertStringContainsString( '[dry-run]', $logs );
+	}
+
+	/**
+	 * Test --dry-run reports a collision without raising it as a failure-causing error.
+	 */
+	public function test_import_dry_run_reports_collision_as_error() {
+		$guid             = 'abc12345';
+		$original_post_id = 90218;
+		$this->clear_video_cache( $guid );
+
+		// Squat on the original ID with an unrelated post.
+		Posts::init()->posts[ $original_post_id ] = (object) array(
+			'ID'             => $original_post_id,
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'post_title'     => 'Squatter',
+			'post_mime_type' => '',
+		);
+		wp_cache_add( $original_post_id, Posts::init()->posts[ $original_post_id ], 'posts' );
+
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
+
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		$exception_thrown = false;
+		try {
+			( new CLI() )->import( array( $guid ), array( 'dry-run' => true ) );
+		} catch ( \WP_CLI\ExitException $e ) {
+			$exception_thrown = true;
+			$this->assertStringContainsString( '[dry-run]', $e->getMessage() );
+			$this->assertStringContainsString( (string) $original_post_id, $e->getMessage() );
+		}
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+
+		$this->assertTrue( $exception_thrown, 'Dry-run should surface the collision via WP_CLI::error.' );
+	}
+
+	/**
 	 * Test import command propagates --no-preserve-id to the helper.
 	 */
 	public function test_import_no_preserve_id_skips_import_id() {
