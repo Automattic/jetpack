@@ -5,6 +5,9 @@ import {
 	Dashicon,
 	Dropdown,
 	ExternalLink,
+	Flex,
+	FlexBlock,
+	FlexItem,
 	MenuGroup,
 	MenuItem,
 	PanelBody,
@@ -196,11 +199,6 @@ const Controls = props => {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
-					<p>
-						<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
-							{ __( 'View donation earnings', 'jetpack' ) }
-						</ExternalLink>
-					</p>
 					<ToggleControl
 						checked={ oneTimeOn }
 						onChange={ value => toggleDonation( 'one-time', value ) }
@@ -251,40 +249,80 @@ const Controls = props => {
 							__nextHasNoMarginBottom={ true }
 						/>
 					) }
+					<h3
+						className="jp-donations-defaults-heading"
+						style={ { margin: '24px 0 8px', fontSize: 13, fontWeight: 600 } }
+					>
+						{ __( 'Defaults', 'jetpack' ) }
+					</h3>
 					<SelectControl
-						label={ __( 'Default frequency', 'jetpack' ) }
+						label={ __( 'Frequency', 'jetpack' ) }
 						value={ effectiveDefaultInterval }
 						options={ frequencyOptions }
 						onChange={ value => setAttributes( { defaultInterval: value } ) }
 						__nextHasNoMarginBottom={ true }
 					/>
+					<h4
+						className="jp-donations-defaults-subheading"
+						style={ {
+							margin: '16px 0 8px',
+							fontSize: 11,
+							fontWeight: 500,
+							textTransform: 'uppercase',
+						} }
+					>
+						{ __( 'Amounts', 'jetpack' ) }
+					</h4>
 					{ oneTimeOn && (
-						<SelectControl
-							label={ __( 'Default amount for One-Time', 'jetpack' ) }
-							value={ amountValue( oneTimeDonation ) }
-							options={ buildAmountOptions( oneTimeDonation.amounts ) }
-							onChange={ onAmountChange( 'one-time' ) }
-							__nextHasNoMarginBottom={ true }
-						/>
+						<Flex justify="space-between" align="center" style={ { marginBottom: 8 } }>
+							<FlexItem style={ { minWidth: 80 } }>{ __( 'One-Time', 'jetpack' ) }</FlexItem>
+							<FlexBlock>
+								<SelectControl
+									hideLabelFromVision
+									label={ __( 'Default amount for One-Time', 'jetpack' ) }
+									value={ amountValue( oneTimeDonation ) }
+									options={ buildAmountOptions( oneTimeDonation.amounts ) }
+									onChange={ onAmountChange( 'one-time' ) }
+									__nextHasNoMarginBottom={ true }
+								/>
+							</FlexBlock>
+						</Flex>
 					) }
 					{ monthlyOn && (
-						<SelectControl
-							label={ __( 'Default amount for Monthly', 'jetpack' ) }
-							value={ amountValue( monthlyDonation ) }
-							options={ buildAmountOptions( monthlyDonation.amounts ) }
-							onChange={ onAmountChange( '1 month' ) }
-							__nextHasNoMarginBottom={ true }
-						/>
+						<Flex justify="space-between" align="center" style={ { marginBottom: 8 } }>
+							<FlexItem style={ { minWidth: 80 } }>{ __( 'Monthly', 'jetpack' ) }</FlexItem>
+							<FlexBlock>
+								<SelectControl
+									hideLabelFromVision
+									label={ __( 'Default amount for Monthly', 'jetpack' ) }
+									value={ amountValue( monthlyDonation ) }
+									options={ buildAmountOptions( monthlyDonation.amounts ) }
+									onChange={ onAmountChange( '1 month' ) }
+									__nextHasNoMarginBottom={ true }
+								/>
+							</FlexBlock>
+						</Flex>
 					) }
 					{ annualOn && (
-						<SelectControl
-							label={ __( 'Default amount for Annual', 'jetpack' ) }
-							value={ amountValue( annualDonation ) }
-							options={ buildAmountOptions( annualDonation.amounts ) }
-							onChange={ onAmountChange( '1 year' ) }
-							__nextHasNoMarginBottom={ true }
-						/>
+						<Flex justify="space-between" align="center" style={ { marginBottom: 8 } }>
+							<FlexItem style={ { minWidth: 80 } }>{ __( 'Annual', 'jetpack' ) }</FlexItem>
+							<FlexBlock>
+								<SelectControl
+									hideLabelFromVision
+									label={ __( 'Default amount for Annual', 'jetpack' ) }
+									value={ amountValue( annualDonation ) }
+									options={ buildAmountOptions( annualDonation.amounts ) }
+									onChange={ onAmountChange( '1 year' ) }
+									__nextHasNoMarginBottom={ true }
+								/>
+							</FlexBlock>
+						</Flex>
 					) }
+					<p style={ { marginTop: 24 } }>
+						<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
+							{ __( 'View donation earnings', 'jetpack' ) }
+						</ExternalLink>
+					</p>
 				</PanelBody>
 			</InspectorControls>
 		</>
