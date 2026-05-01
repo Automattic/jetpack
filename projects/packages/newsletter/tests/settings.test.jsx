@@ -40,7 +40,6 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 } ) );
 
 jest.mock( '../src/settings/sections', () => ( {
-	NewsletterSection: () => <div data-testid="newsletter-section" />,
 	SubscriptionsSection: () => <div data-testid="subscriptions-section" />,
 	PaidNewsletterSection: () => <div data-testid="paid-newsletter-section" />,
 	NewsletterCategoriesSection: () => <div data-testid="newsletter-categories-section" />,
@@ -108,10 +107,10 @@ describe( 'NewsletterSettingsApp', () => {
 			render( <NewsletterSettingsApp /> );
 
 			await waitFor( () => {
-				expect( screen.getByTestId( 'newsletter-section' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'subscriptions-section' ) ).toBeInTheDocument();
 			} );
 			// The Disabled component should not add inert when connected
-			expect( screen.getByTestId( 'newsletter-section' ) ).not.toHaveAttribute( 'inert' );
+			expect( screen.getByTestId( 'subscriptions-section' ) ).not.toHaveAttribute( 'inert' );
 		} );
 	} );
 
@@ -140,7 +139,7 @@ describe( 'NewsletterSettingsApp', () => {
 
 			await waitFor( () => {
 				// The Disabled component wrapping settings should add inert when not connected
-				expect( screen.getByTestId( 'newsletter-section' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'subscriptions-section' ) ).toBeInTheDocument();
 			} );
 		} );
 	} );
