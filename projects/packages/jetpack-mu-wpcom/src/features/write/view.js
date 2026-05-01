@@ -10,8 +10,67 @@
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
 import { store, getElement, getContext } from '@wordpress/interactivity';
 
+// Translated strings passed from PHP via wp_print_inline_script_tag.
+const i18n = window.wpcomWriteStrings || {};
+
+// Autosave configuration.
+const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
+const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
+const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
+
+// Autosave state — tracked outside the store to avoid triggering reactivity.
+let lastSavedSnapshot = { title: '', content: '' };
+let autosaveTimer = null;
+let allowLeave = false;
+
+/**
+ * Get the current content snapshot for dirty-state comparison.
+ *
+ * @return {{ title: string, content: string }} The current title and content.
+ */
+function getContentSnapshot() {
+	const contentEl = document.querySelector( '.bw-content' );
+	return {
+		title: state.title || '',
+		content: contentEl ? contentEl.innerHTML : '',
+	};
+}
+
+/**
+ * Check whether the editor content has changed since the last save.
+ *
+ * @return {boolean} True if there are unsaved changes.
+ */
+function isDirty() {
+	const current = getContentSnapshot();
+	return current.title !== lastSavedSnapshot.title || current.content !== lastSavedSnapshot.content;
+}
+
+/**
+ * Update the saved snapshot to reflect the current content.
+ */
+function updateSavedSnapshot() {
+	lastSavedSnapshot = getContentSnapshot();
+}
+
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
+
+// Stored references for dropdown close handlers to prevent listener leaks.
+let headingMenuCloseHandler = null;
+let textColorMenuCloseHandler = null;
+let linkPopoverCloseHandler = null;
+
+// Track the previous slash filter so checkSlashCommand only resets the active
+// menu item when the filter text changes, not when the user is navigating.
+let prevSlashFilter = null;
+
+// Prevent enterKeyboardNav from stacking multiple mousemove listeners.
+let keyboardNavListenerActive = false;
+
+// Skip one checkSlashCommand cycle after the user dismisses the menu with Escape,
+// preventing the keyup event from immediately reopening it.
+let slashMenuEscaped = false;
 
 /**
  * Save the current text selection so it can be restored after a modal closes.
@@ -34,6 +93,78 @@ function restoreSelection() {
 }
 
 /**
+ * Visually highlight the current selection using the CSS Custom Highlight API.
+ *
+ * This avoids mutating the DOM (which would invalidate the saved range),
+ * so the selection can be cleanly restored when the link popover closes.
+ */
+function highlightSelection() {
+	if ( ! self.Highlight || ! CSS.highlights ) return;
+
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount || sel.isCollapsed ) return;
+
+	const range = sel.getRangeAt( 0 ).cloneRange();
+	CSS.highlights.set( 'bw-link-highlight', new Highlight( range ) );
+}
+
+/**
+ * Remove the visual link-highlight overlay.
+ */
+function clearHighlight() {
+	if ( CSS.highlights ) {
+		CSS.highlights.delete( 'bw-link-highlight' );
+	}
+}
+
+/**
+ * Focus the first visible input inside a modal after it becomes visible.
+ * Uses requestAnimationFrame so the element is no longer hidden.
+ */
+function focusModalInput() {
+	requestAnimationFrame( () => {
+		const overlay = document.querySelector( '.bw-image-overlay:not([hidden])' );
+		if ( ! overlay ) return;
+		const input = overlay.querySelector( 'input:not([hidden])' );
+		if ( input ) input.focus();
+	} );
+}
+
+/**
+ * Normalize color markup from contentEditable before block serialization.
+ *
+ * The foreColor command creates <font color="..."> (legacy) or
+ * <span style="color:..."> (modern). Convert both to clean <span> elements
+ * with inline styles, and strip the default text color (#1a1a1a).
+ *
+ * @param {HTMLElement} container - The container to normalize in place.
+ */
+function normalizeColorMarkup( container ) {
+	// Convert <font color="..."> to <span style="color:...">.
+	container.querySelectorAll( 'font[color]' ).forEach( font => {
+		const color = font.getAttribute( 'color' );
+		const span = document.createElement( 'span' );
+		// Skip default color — unwrap the element entirely.
+		if ( color && color.toLowerCase() !== '#1a1a1a' ) {
+			span.style.color = color;
+		}
+		span.innerHTML = font.innerHTML;
+		font.replaceWith( span );
+	} );
+
+	// Strip default-colored spans (unwrap them, keeping their content).
+	container.querySelectorAll( 'span' ).forEach( span => {
+		const color = span.style.color;
+		if ( ! color ) return;
+		// Detect default color in various formats.
+		const isDefault = color === '#1a1a1a' || color === 'rgb(26, 26, 26)';
+		if ( isDefault ) {
+			span.replaceWith( ...span.childNodes );
+		}
+	} );
+}
+
+/**
  * Convert contentEditable HTML into WordPress block markup.
  *
  * @param {string} html - The innerHTML from the contenteditable area.
@@ -42,6 +173,9 @@ function restoreSelection() {
 function convertToBlocks( html ) {
 	const tmp = document.createElement( 'div' );
 	tmp.innerHTML = html;
+
+	// Normalize color markup before serialization.
+	normalizeColorMarkup( tmp );
 
 	const blocks = [];
 
@@ -61,12 +195,23 @@ function convertToBlocks( html ) {
 
 		if ( ! inner && ! [ 'figure', 'img', 'hr' ].includes( tag ) ) continue;
 
+		// Check for text alignment.
+		const align = node.style && node.style.textAlign;
+		const alignAttr =
+			align && [ 'center', 'right' ].includes( align ) ? ` style="text-align:${ align }"` : '';
+		const alignJson =
+			align && [ 'center', 'right' ].includes( align ) ? `,"align":"${ align }"` : '';
+
 		if ( tag === 'p' || tag === 'div' ) {
-			blocks.push( `<!-- wp:paragraph -->\n<p>${ inner }</p>\n<!-- /wp:paragraph -->` );
+			blocks.push(
+				`<!-- wp:paragraph${
+					alignJson ? ` {${ alignJson.slice( 1 ) }}` : ''
+				} -->\n<p${ alignAttr }>${ inner }</p>\n<!-- /wp:paragraph -->`
+			);
 		} else if ( /^h[1-6]$/.test( tag ) ) {
 			const level = parseInt( tag.charAt( 1 ), 10 );
 			blocks.push(
-				`<!-- wp:heading {"level":${ level }} -->\n<${ tag } class="wp-block-heading">${ inner }</${ tag }>\n<!-- /wp:heading -->`
+				`<!-- wp:heading {"level":${ level }${ alignJson }} -->\n<${ tag } class="wp-block-heading"${ alignAttr }>${ inner }</${ tag }>\n<!-- /wp:heading -->`
 			);
 		} else if ( tag === 'figure' && node.querySelector( 'iframe' ) ) {
 			const iframe = node.querySelector( 'iframe' );
@@ -88,14 +233,29 @@ function convertToBlocks( html ) {
 			const img = node.querySelector( 'img' );
 			const src = img.getAttribute( 'src' ) || '';
 			const alt = img.getAttribute( 'alt' ) || '';
+			const figcaption = node.querySelector( 'figcaption' );
+			const captionHtml = figcaption
+				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
+				: '';
 			blocks.push(
-				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ alt }"/></figure>\n<!-- /wp:image -->`
+				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ alt }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// inner may already contain <p> tags from contentEditable.
 			const quoteInner = inner.startsWith( '<p' ) ? inner : `<p>${ inner }</p>`;
+			const hasQuoteAlign = align && [ 'center', 'right' ].includes( align );
+			const quoteAlignAttr = hasQuoteAlign ? ` style="text-align:${ align }"` : '';
+			const quoteAlignJson = hasQuoteAlign ? ` {"align":"${ align }"}` : '';
 			blocks.push(
-				`<!-- wp:quote -->\n<blockquote class="wp-block-quote">${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+				`<!-- wp:quote${ quoteAlignJson } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
+			);
+		} else if ( tag === 'ul' ) {
+			blocks.push(
+				`<!-- wp:list -->\n<ul class="wp-block-list">${ inner }</ul>\n<!-- /wp:list -->`
+			);
+		} else if ( tag === 'ol' ) {
+			blocks.push(
+				`<!-- wp:list {"ordered":true} -->\n<ol class="wp-block-list">${ inner }</ol>\n<!-- /wp:list -->`
 			);
 		} else if ( tag === 'hr' ) {
 			blocks.push(
@@ -108,28 +268,6 @@ function convertToBlocks( html ) {
 	}
 
 	return blocks.join( '\n\n' );
-}
-
-/**
- * Position the toolbar near the current text selection.
- */
-function positionToolbar() {
-	const sel = window.getSelection();
-	if ( ! sel.rangeCount ) return;
-
-	const toolbar = document.querySelector( '.bw-toolbar' );
-	if ( ! toolbar ) return;
-
-	const range = sel.getRangeAt( 0 );
-	const rect = range.getBoundingClientRect();
-	const toolbarWidth = toolbar.offsetWidth;
-	let left = rect.left + rect.width / 2 - toolbarWidth / 2;
-	left = Math.max( 8, Math.min( left, window.innerWidth - toolbarWidth - 8 ) );
-	const top = rect.top - 52 + window.scrollY;
-
-	toolbar.style.position = 'absolute';
-	toolbar.style.left = left + 'px';
-	toolbar.style.top = top + 'px';
 }
 
 /**
@@ -152,6 +290,30 @@ function positionSlashMenu() {
 	menu.style.position = 'absolute';
 	menu.style.left = left + 'px';
 	menu.style.top = top + 'px';
+}
+
+/**
+ * Mark the slash menu as keyboard-navigated to suppress hover highlights,
+ * then restore hover behaviour on the next mousemove.
+ */
+function enterKeyboardNav() {
+	const menu = document.querySelector( '.bw-slash-menu' );
+	if ( ! menu ) return;
+	menu.classList.add( 'bw-slash-menu--keyboard' );
+	if ( ! keyboardNavListenerActive ) {
+		keyboardNavListenerActive = true;
+		menu.addEventListener(
+			'mousemove',
+			() => {
+				keyboardNavListenerActive = false;
+				menu.classList.remove( 'bw-slash-menu--keyboard' );
+				menu
+					.querySelectorAll( '.bw-slash-item-active' )
+					.forEach( el => el.classList.remove( 'bw-slash-item-active' ) );
+			},
+			{ once: true }
+		);
+	}
 }
 
 /**
@@ -229,7 +391,7 @@ function addDeleteButtons() {
 
 		const altBtn = document.createElement( 'button' );
 		altBtn.className = 'bw-img-alt';
-		altBtn.textContent = 'ALT';
+		altBtn.textContent = i18n.alt || 'ALT';
 		altBtn.contentEditable = 'false';
 		altBtn.addEventListener( 'click', e => {
 			e.preventDefault();
@@ -244,7 +406,7 @@ function addDeleteButtons() {
 			const input = document.createElement( 'input' );
 			input.type = 'text';
 			input.className = 'bw-img-alt-input';
-			input.placeholder = 'Describe this image...';
+			input.placeholder = i18n.describeImage || 'Describe this image...';
 			input.value = imgEl.alt || '';
 			input.contentEditable = 'false';
 			input.addEventListener( 'click', ev => ev.stopPropagation() );
@@ -270,7 +432,7 @@ function addDeleteButtons() {
 		// Caption button.
 		const capBtn = document.createElement( 'button' );
 		capBtn.className = 'bw-img-caption-btn';
-		capBtn.textContent = 'Caption';
+		capBtn.textContent = i18n.caption || 'Caption';
 		capBtn.contentEditable = 'false';
 		capBtn.addEventListener( 'click', e => {
 			e.preventDefault();
@@ -285,7 +447,7 @@ function addDeleteButtons() {
 			figcaption = document.createElement( 'figcaption' );
 			figcaption.className = 'bw-figcaption';
 			figcaption.contentEditable = 'true';
-			figcaption.setAttribute( 'data-placeholder', 'Write a caption...' );
+			figcaption.setAttribute( 'data-placeholder', i18n.writeCaption || 'Write a caption...' );
 			figcaption.addEventListener( 'click', ev => ev.stopPropagation() );
 			fig.appendChild( figcaption );
 
@@ -326,14 +488,20 @@ document.execCommand( 'defaultParagraphSeparator', false, 'p' );
 const contentReady2 = setInterval( () => {
 	const contentEl = document.querySelector( '.bw-content' );
 	if ( ! contentEl ) return;
-	clearInterval( contentReady2 );
+	clearInterval( contentReady2 ); // cleared before init runs, so the block below executes exactly once
 
 	if ( ! contentEl.innerHTML.trim() ) {
 		contentEl.innerHTML = '<p><br></p>';
 	}
+	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
+		contentEl.classList.add( 'bw-is-empty' );
+		contentEl.addEventListener( 'input', () => contentEl.classList.remove( 'bw-is-empty' ), {
+			once: true,
+		} );
+	}
 }, 200 );
 
-// Watch for new figures being added.
+// Watch for new figures being added, and set up paste-to-link.
 if ( typeof MutationObserver !== 'undefined' ) {
 	const contentReady = setInterval( () => {
 		const content = document.querySelector( '.bw-content' );
@@ -341,6 +509,18 @@ if ( typeof MutationObserver !== 'undefined' ) {
 		clearInterval( contentReady );
 		addDeleteButtons();
 		new MutationObserver( addDeleteButtons ).observe( content, { childList: true, subtree: true } );
+
+		// Highlight text + paste URL → create a link.
+		content.addEventListener( 'paste', event => {
+			const sel = window.getSelection();
+			if ( ! sel.rangeCount || sel.isCollapsed ) return;
+
+			const pasted = event.clipboardData.getData( 'text/plain' );
+			if ( pasted && /^https?:\/\/\S+$/i.test( pasted.trim() ) ) {
+				event.preventDefault();
+				document.execCommand( 'createLink', false, pasted.trim() );
+			}
+		} );
 	}, 200 );
 }
 
@@ -366,6 +546,58 @@ function resetUploadZone() {
 }
 
 /**
+ * Upload a file to the media library and update state with the result.
+ *
+ * @param {File} file - The file to upload.
+ */
+async function uploadFileToMedia( file ) {
+	const zone = document.getElementById( 'bw-upload-zone' );
+
+	state.isUploading = true;
+	if ( zone ) {
+		zone.classList.add( 'bw-uploading' );
+		const label = zone.querySelector( '.bw-upload-label' );
+		if ( label ) label.style.display = 'none';
+		const saving = zone.querySelector( '.bw-upload-saving' );
+		if ( saving ) saving.style.display = '';
+	}
+
+	const formData = new FormData();
+	formData.append( 'file', file );
+
+	try {
+		const media = await window.wp.apiFetch( {
+			path: state.mediaPath,
+			method: 'POST',
+			body: formData,
+		} );
+		state.isUploading = false;
+		if ( zone ) zone.classList.remove( 'bw-uploading' );
+
+		// Store the uploaded URL and media ID — wait for "Insert image" click.
+		state.imageUrl = media.source_url;
+		if ( ! state.imageAlt && media.alt_text ) {
+			state.imageAlt = media.alt_text;
+		}
+		if ( state.setAsFeatured ) {
+			state.featuredMediaId = media.id;
+		}
+		state.uploadedMediaId = media.id;
+
+		// Show preview and re-focus the modal so Escape still works.
+		showUploadPreview( media.source_url );
+		focusModalInput();
+	} catch ( err ) {
+		state.isUploading = false;
+		if ( zone ) zone.classList.remove( 'bw-uploading' );
+		state.message = ( i18n.uploadFailed || 'Upload failed: %s' ).replace( '%s', err.message );
+		setTimeout( () => {
+			state.message = '';
+		}, 3000 );
+	}
+}
+
+/**
  * Show a preview image in the upload zone.
  *
  * @param {string} src - The image source URL to preview.
@@ -385,7 +617,7 @@ function showUploadPreview( src ) {
 	const img = document.createElement( 'img' );
 	img.className = 'bw-upload-preview';
 	img.src = src;
-	img.alt = 'Preview';
+	img.alt = i18n.preview || 'Preview';
 	img.style.display = 'block';
 	zone.classList.add( 'bw-upload-has-preview' );
 	zone.classList.remove( 'bw-uploading' );
@@ -431,6 +663,101 @@ function insertNewBlock( tag ) {
 	state.showSlashMenu = false;
 }
 
+/**
+ * Detect the current formatting state at the cursor position.
+ * Updates all toolbar button states.
+ */
+function updateFormattingState() {
+	state.formatBold = document.queryCommandState( 'bold' );
+	state.formatItalic = document.queryCommandState( 'italic' );
+	state.formatUnderline = document.queryCommandState( 'underline' );
+	state.formatStrikethrough = document.queryCommandState( 'strikeThrough' );
+	state.formatOList = document.queryCommandState( 'insertOrderedList' );
+	state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+
+	// Check block-level formatting by walking up from cursor.
+	const sel = window.getSelection();
+	state.formatHeading = false;
+	state.formatQuote = false;
+	state.headingLabel = i18n.normal || 'Normal';
+	state.formatAlignLeft = true;
+	state.formatAlignCenter = false;
+	state.formatAlignRight = false;
+
+	if ( sel.rangeCount ) {
+		let node = sel.anchorNode;
+		while ( node && node !== document.body ) {
+			if ( node.nodeType === Node.ELEMENT_NODE ) {
+				if ( node.tagName === 'H2' ) {
+					state.formatHeading = true;
+					state.headingLabel = i18n.heading2 || 'Heading 2';
+				} else if ( node.tagName === 'H3' ) {
+					state.formatHeading = true;
+					state.headingLabel = i18n.heading3 || 'Heading 3';
+				} else if ( /^H[1-6]$/.test( node.tagName ) ) {
+					state.formatHeading = true;
+				}
+				if ( node.tagName === 'BLOCKQUOTE' ) {
+					state.formatQuote = true;
+				}
+				// Detect alignment from the nearest block element.
+				if ( /^(P|H[1-6]|DIV|BLOCKQUOTE)$/.test( node.tagName ) && node.style.textAlign ) {
+					const align = node.style.textAlign;
+					state.formatAlignLeft = align === 'left' || align === 'start' || align === '';
+					state.formatAlignCenter = align === 'center';
+					state.formatAlignRight = align === 'right';
+				}
+			}
+			node = node.parentNode;
+		}
+	}
+}
+
+/**
+ * Position a dropdown menu precisely on mobile by calculating from the toolbar.
+ *
+ * On mobile, dropdown menus use position:fixed to escape the overflow:auto
+ * scroll container. This calculates the correct top position from the toolbar.
+ *
+ * @param {string} selector - CSS selector for the dropdown menu.
+ */
+function positionDropdownOnMobile( selector ) {
+	if ( window.innerWidth > 768 ) return;
+
+	requestAnimationFrame( () => {
+		const menu = document.querySelector( selector );
+		const toolbar = document.querySelector( '.bw-toolbar' );
+		if ( ! menu || ! toolbar ) return;
+
+		const toolbarRect = toolbar.getBoundingClientRect();
+		menu.style.top = toolbarRect.bottom + 4 + 'px';
+	} );
+}
+
+/**
+ * Clean up stray <div> elements created by justify commands.
+ *
+ * Some browsers wrap content in a <div> when using justifyLeft/Center/Right
+ * instead of applying text-align to the existing block. This replaces those
+ * divs with <p> elements carrying the same text-align style.
+ */
+function cleanupAlignmentDivs() {
+	const content = document.querySelector( '.bw-content' );
+	if ( ! content ) return;
+
+	content.querySelectorAll( ':scope > div' ).forEach( div => {
+		// Skip intentional divs (image controls, etc.).
+		if ( div.classList.length > 0 ) return;
+
+		const p = document.createElement( 'p' );
+		if ( div.style.textAlign ) {
+			p.style.textAlign = div.style.textAlign;
+		}
+		p.innerHTML = div.innerHTML;
+		div.replaceWith( p );
+	} );
+}
+
 const { state } = store( 'wpcom-write', {
 	state: {
 		formatBold: false,
@@ -438,6 +765,7 @@ const { state } = store( 'wpcom-write', {
 		formatHeading: false,
 		formatQuote: false,
 		imageUrl: '',
+		headingLabel: i18n.normal || 'Normal',
 	},
 
 	actions: {
@@ -447,9 +775,33 @@ const { state } = store( 'wpcom-write', {
 			// Auto-resize textarea height for browsers without field-sizing support.
 			el.ref.style.height = 'auto';
 			el.ref.style.height = el.ref.scrollHeight + 'px';
+
+			// Dismiss the recovery banner once the user starts editing.
+			if ( state.showRecoveryBanner ) {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+				state.showRecoveryBanner = false;
+			}
 		},
 
 		handleTitleKeyDown( event ) {
+			// Block keystrokes while a modal overlay is open.
+			if ( state.showImageModal || state.showVideoModal ) {
+				if ( event.key === 'Escape' ) {
+					const { actions: a } = store( 'wpcom-write' );
+					if ( state.showImageModal ) {
+						a.closeImageModal();
+					} else {
+						a.closeVideoModal();
+					}
+					return;
+				}
+				if ( event.key === 'Tab' ) {
+					return;
+				}
+				event.preventDefault();
+				return;
+			}
+
 			if ( event.key === 'Enter' ) {
 				event.preventDefault();
 				const content = document.querySelector( '.bw-content' );
@@ -464,67 +816,126 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleBack( event ) {
-			// Don't warn if the post has been saved/published, or if we're editing an existing post with no changes.
-			if ( state.isPublished || state.hasSaved ) {
+			// Don't warn if the post has been published.
+			if ( state.isPublished ) {
 				return;
 			}
 
-			const content = document.querySelector( '.bw-content' );
-			const hasContent = state.title.trim() || ( content && content.textContent.trim() );
-
-			// If editing an existing post, don't warn (content was already saved before).
-			if ( state.editPostId > 0 ) {
-				return;
-			}
-
-			if ( hasContent ) {
+			// Use dirty-state tracking: warn if content changed since last save.
+			if ( isDirty() ) {
 				event.preventDefault();
 				state.showLeaveConfirm = true;
+
+				// Move focus into the modal for a11y.
+				requestAnimationFrame( () => {
+					const modal = document.querySelector( '.bw-leave-modal' );
+					if ( modal ) {
+						const firstBtn = modal.querySelector( 'button' );
+						if ( firstBtn ) firstBtn.focus();
+					}
+				} );
 			}
 		},
 
 		cancelLeave() {
 			state.showLeaveConfirm = false;
+			// Return focus to the back button.
+			const backBtn = document.querySelector( '.bw-back' );
+			if ( backBtn ) backBtn.focus();
+		},
+
+		handleLeaveModalKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showLeaveConfirm = false;
+				const backBtn = document.querySelector( '.bw-back' );
+				if ( backBtn ) backBtn.focus();
+				return;
+			}
+
+			// Trap Tab within the modal.
+			if ( event.key === 'Tab' ) {
+				const modal = document.querySelector( '.bw-leave-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll( 'button' );
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && active === first ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && active === last ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
+		},
+
+		confirmLeave() {
+			allowLeave = true;
+			window.location.href = state.adminUrl;
+		},
+
+		async saveAndLeave() {
+			state.showLeaveConfirm = false;
+			const status = state.postStatus === 'publish' ? 'publish' : 'draft';
+			await savePost( status, true );
+			allowLeave = true;
+			window.location.href = state.adminUrl;
 		},
 
 		checkFormatting() {
+			// Dismiss the recovery banner once the user starts editing.
+			if ( state.showRecoveryBanner ) {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+				state.showRecoveryBanner = false;
+			}
+
 			// Check for slash commands first.
 			const { actions } = store( 'wpcom-write' );
 			actions.checkSlashCommand();
 
-			const sel = window.getSelection();
-			const text = sel.toString().trim();
-
-			if ( ! text ) {
-				state.showToolbar = false;
-				state.showLinkInput = false;
-				return;
-			}
-
-			state.formatBold = document.queryCommandState( 'bold' );
-			state.formatItalic = document.queryCommandState( 'italic' );
-
-			// Check if inside a heading or blockquote.
-			let node = sel.anchorNode;
-			state.formatHeading = false;
-			state.formatQuote = false;
-			while ( node && node !== document.body ) {
-				if ( node.nodeType === Node.ELEMENT_NODE ) {
-					if ( /^H[1-6]$/.test( node.tagName ) ) state.formatHeading = true;
-					if ( node.tagName === 'BLOCKQUOTE' ) state.formatQuote = true;
-				}
-				node = node.parentNode;
-			}
-
-			state.showToolbar = true;
-			requestAnimationFrame( positionToolbar );
+			// Update all formatting button states based on cursor position.
+			updateFormattingState();
 		},
 
 		handleKeyDown( event ) {
+			// Block all keystrokes while a modal overlay is open.
+			if ( state.showImageModal || state.showVideoModal ) {
+				if ( event.key === 'Escape' ) {
+					const { actions: a } = store( 'wpcom-write' );
+					if ( state.showImageModal ) {
+						a.closeImageModal();
+					} else {
+						a.closeVideoModal();
+					}
+					return;
+				}
+				if ( event.key === 'Tab' ) {
+					return;
+				}
+				event.preventDefault();
+				return;
+			}
+
+			// Ctrl+K / Cmd+K to toggle link input.
+			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'k' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.toggleLinkInput();
+				return;
+			}
+
 			// Slash menu keyboard navigation.
 			if ( state.showSlashMenu ) {
 				if ( event.key === 'Escape' ) {
 					event.preventDefault();
+					slashMenuEscaped = true;
+					prevSlashFilter = null;
+					keyboardNavListenerActive = false;
+					const menu = document.querySelector( '.bw-slash-menu' );
+					if ( menu ) menu.classList.remove( 'bw-slash-menu--keyboard' );
 					state.showSlashMenu = false;
 					return;
 				}
@@ -538,25 +949,31 @@ const { state } = store( 'wpcom-write', {
 				const active = document.querySelector( '.bw-slash-item-active' );
 				let idx = active ? visible.indexOf( active ) : -1;
 
-				if ( event.key === 'ArrowDown' || event.key === 'Tab' ) {
+				if ( event.key === 'ArrowDown' || ( event.key === 'Tab' && ! event.shiftKey ) ) {
 					event.preventDefault();
 					if ( active ) active.classList.remove( 'bw-slash-item-active' );
 					idx = ( idx + 1 ) % visible.length;
 					visible[ idx ].classList.add( 'bw-slash-item-active' );
+					enterKeyboardNav();
 					return;
 				}
 
-				if ( event.key === 'ArrowUp' ) {
+				if ( event.key === 'ArrowUp' || ( event.key === 'Tab' && event.shiftKey ) ) {
 					event.preventDefault();
 					if ( active ) active.classList.remove( 'bw-slash-item-active' );
 					idx = idx <= 0 ? visible.length - 1 : idx - 1;
 					visible[ idx ].classList.add( 'bw-slash-item-active' );
+					enterKeyboardNav();
 					return;
 				}
 
 				if ( event.key === 'Enter' ) {
 					event.preventDefault();
-					const target = active || visible[ 0 ];
+					prevSlashFilter = null;
+					keyboardNavListenerActive = false;
+					const menu = document.querySelector( '.bw-slash-menu' );
+					if ( menu ) menu.classList.remove( 'bw-slash-menu--keyboard' );
+					const target = active || document.querySelector( '.bw-slash-item:hover' ) || visible[ 0 ];
 					if ( target ) {
 						// Map menu items to actions by their label text.
 						const label = target.querySelector( 'strong' )?.textContent?.toLowerCase();
@@ -634,31 +1051,53 @@ const { state } = store( 'wpcom-write', {
 			const text = node.textContent;
 			// Show menu when the line starts with "/" and optionally a filter after it.
 			if ( /^\/\S*$/.test( text.trim() ) ) {
-				state.slashFilter = text.trim().slice( 1 ).toLowerCase();
+				// User just dismissed the menu with Escape — skip this keyup cycle.
+				if ( slashMenuEscaped ) {
+					slashMenuEscaped = false;
+					return;
+				}
+
+				const newFilter = text.trim().slice( 1 ).toLowerCase();
+				// Only reset the active item when the filter text actually changes
+				// (i.e. the user typed a character). Preserve selection when navigating.
+				const filterChanged = newFilter !== prevSlashFilter;
+				const menuJustOpened = ! state.showSlashMenu;
+				state.slashFilter = newFilter;
+				prevSlashFilter = newFilter;
 				state.showSlashMenu = true;
 				requestAnimationFrame( positionSlashMenu );
 
-				// Filter menu items and reset active highlight.
+				// Suppress hover highlight when the menu first opens so an item
+				// under the cursor doesn't appear selected before the user moves.
+				if ( menuJustOpened ) enterKeyboardNav();
+
+				// Filter menu items; reset active highlight only on filter change.
 				const items = document.querySelectorAll( '.bw-slash-item' );
 				let firstVisible = null;
 				items.forEach( item => {
-					item.classList.remove( 'bw-slash-item-active' );
+					if ( filterChanged ) item.classList.remove( 'bw-slash-item-active' );
 					const label = item.querySelector( 'strong' ).textContent.toLowerCase();
 					const show = label.includes( state.slashFilter );
 					item.style.display = show ? '' : 'none';
 					if ( show && ! firstVisible ) firstVisible = item;
 				} );
-				// Auto-highlight the first visible item.
-				if ( firstVisible ) firstVisible.classList.add( 'bw-slash-item-active' );
+				// Auto-highlight the first visible item only when filter changes.
+				if ( filterChanged && firstVisible ) firstVisible.classList.add( 'bw-slash-item-active' );
 			} else {
+				slashMenuEscaped = false;
+				prevSlashFilter = null;
 				state.showSlashMenu = false;
 			}
 		},
 
 		preventToolbarBlur( event ) {
-			// Prevent the toolbar from stealing focus from the content area.
+			// Prevent the toolbar from stealing focus from the content area,
+			// but allow normal interaction with form inputs (text selection, cursor).
+			if ( event.target.closest( 'input, textarea' ) ) return;
 			event.preventDefault();
 		},
+
+		// --- Inline formatting ---
 
 		formatBold() {
 			document.execCommand( 'bold' );
@@ -670,16 +1109,164 @@ const { state } = store( 'wpcom-write', {
 			state.formatItalic = document.queryCommandState( 'italic' );
 		},
 
-		formatHeading() {
-			if ( state.formatHeading ) {
-				document.execCommand( 'formatBlock', false, 'p' );
-				state.formatHeading = false;
-			} else {
-				document.execCommand( 'formatBlock', false, 'h2' );
-				state.formatHeading = true;
-				state.formatQuote = false;
+		formatUnderline() {
+			document.execCommand( 'underline' );
+			state.formatUnderline = document.queryCommandState( 'underline' );
+		},
+
+		formatStrikethrough() {
+			document.execCommand( 'strikeThrough' );
+			state.formatStrikethrough = document.queryCommandState( 'strikeThrough' );
+		},
+
+		// --- Text color ---
+
+		toggleTextColorMenu() {
+			state.showTextColorMenu = ! state.showTextColorMenu;
+			state.showHeadingMenu = false;
+			// Always clean up any existing listener first.
+			if ( textColorMenuCloseHandler ) {
+				document.removeEventListener( 'click', textColorMenuCloseHandler );
+				textColorMenuCloseHandler = null;
+			}
+			if ( state.showTextColorMenu ) {
+				positionDropdownOnMobile( '.bw-color-menu' );
+				textColorMenuCloseHandler = e => {
+					if (
+						e.target.closest( '.bw-color-menu' ) ||
+						e.target.closest( '[data-wp-on--click="actions.toggleTextColorMenu"]' )
+					)
+						return;
+					state.showTextColorMenu = false;
+					document.removeEventListener( 'click', textColorMenuCloseHandler );
+					textColorMenuCloseHandler = null;
+				};
+				setTimeout( () => document.addEventListener( 'click', textColorMenuCloseHandler ), 0 );
 			}
 		},
+
+		setTextColorDefault() {
+			// Use foreColor with the default text color instead of removeFormat,
+			// which would strip all inline formatting (bold, italic, etc.).
+			document.execCommand( 'foreColor', false, '#1a1a1a' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorRed() {
+			document.execCommand( 'foreColor', false, '#d63638' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorBlue() {
+			document.execCommand( 'foreColor', false, '#2171b1' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorGreen() {
+			document.execCommand( 'foreColor', false, '#00a32a' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorYellow() {
+			document.execCommand( 'foreColor', false, '#dba617' );
+			state.showTextColorMenu = false;
+		},
+
+		setTextColorPurple() {
+			document.execCommand( 'foreColor', false, '#8c5db0' );
+			state.showTextColorMenu = false;
+		},
+
+		// --- Heading dropdown ---
+
+		toggleHeadingMenu() {
+			state.showHeadingMenu = ! state.showHeadingMenu;
+			state.showTextColorMenu = false;
+			// Always clean up any existing listener first.
+			if ( headingMenuCloseHandler ) {
+				document.removeEventListener( 'click', headingMenuCloseHandler );
+				headingMenuCloseHandler = null;
+			}
+			if ( state.showHeadingMenu ) {
+				positionDropdownOnMobile( '.bw-heading-menu' );
+				headingMenuCloseHandler = e => {
+					if (
+						e.target.closest( '.bw-heading-menu' ) ||
+						e.target.closest( '.bw-tool-heading-toggle' )
+					)
+						return;
+					state.showHeadingMenu = false;
+					document.removeEventListener( 'click', headingMenuCloseHandler );
+					headingMenuCloseHandler = null;
+				};
+				setTimeout( () => document.addEventListener( 'click', headingMenuCloseHandler ), 0 );
+			}
+		},
+
+		setHeadingNormal() {
+			document.execCommand( 'formatBlock', false, 'p' );
+			state.formatHeading = false;
+			state.headingLabel = i18n.normal || 'Normal';
+			state.showHeadingMenu = false;
+		},
+
+		setHeadingH2() {
+			document.execCommand( 'formatBlock', false, 'h2' );
+			state.formatHeading = true;
+			state.headingLabel = i18n.heading2 || 'Heading 2';
+			state.formatQuote = false;
+			state.showHeadingMenu = false;
+		},
+
+		setHeadingH3() {
+			document.execCommand( 'formatBlock', false, 'h3' );
+			state.formatHeading = true;
+			state.headingLabel = i18n.heading3 || 'Heading 3';
+			state.formatQuote = false;
+			state.showHeadingMenu = false;
+		},
+
+		// --- Alignment ---
+
+		alignLeft() {
+			document.execCommand( 'justifyLeft' );
+			cleanupAlignmentDivs();
+			state.formatAlignLeft = true;
+			state.formatAlignCenter = false;
+			state.formatAlignRight = false;
+		},
+
+		alignCenter() {
+			document.execCommand( 'justifyCenter' );
+			cleanupAlignmentDivs();
+			state.formatAlignLeft = false;
+			state.formatAlignCenter = true;
+			state.formatAlignRight = false;
+		},
+
+		alignRight() {
+			document.execCommand( 'justifyRight' );
+			cleanupAlignmentDivs();
+			state.formatAlignLeft = false;
+			state.formatAlignCenter = false;
+			state.formatAlignRight = true;
+		},
+
+		// --- Lists ---
+
+		formatUList() {
+			document.execCommand( 'insertUnorderedList' );
+			state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+			state.formatOList = document.queryCommandState( 'insertOrderedList' );
+		},
+
+		formatOList() {
+			document.execCommand( 'insertOrderedList' );
+			state.formatOList = document.queryCommandState( 'insertOrderedList' );
+			state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+		},
+
+		// --- Block formatting ---
 
 		formatQuote() {
 			if ( state.formatQuote ) {
@@ -692,44 +1279,68 @@ const { state } = store( 'wpcom-write', {
 			}
 		},
 
+		// --- Link ---
+
 		toggleLinkInput() {
+			// Always clean up any existing listener first.
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
 			if ( state.showLinkInput ) {
+				clearHighlight();
+				restoreSelection();
 				state.showLinkInput = false;
 				return;
 			}
 
-			// Save selection before the toolbar steals focus.
-			saveSelection();
-
-			// Pre-fill if cursor is inside a link.
+			// Pre-fill if cursor is inside a link.  When the cursor is
+			// collapsed inside an <a>, expand the selection to cover the
+			// full link text so the highlight shows what will be affected.
 			const sel = window.getSelection();
 			let node = sel.anchorNode;
 			state.linkUrl = '';
 			while ( node && node !== document.body ) {
 				if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A' ) {
-					state.linkUrl = node.href;
+					state.linkUrl = node.getAttribute( 'href' ) || '';
+					if ( sel.isCollapsed ) {
+						const range = document.createRange();
+						range.selectNodeContents( node );
+						sel.removeAllRanges();
+						sel.addRange( range );
+					}
 					break;
 				}
 				node = node.parentNode;
 			}
 
+			// Save and highlight after any selection expansion above.
+			saveSelection();
+			highlightSelection();
+
 			state.showLinkInput = true;
 
-			// Position the link popover below the toolbar.
+			// Focus the link input.
 			requestAnimationFrame( () => {
-				const toolbar = document.querySelector( '.bw-toolbar' );
 				const popover = document.querySelector( '.bw-link-popover' );
-				if ( ! toolbar || ! popover ) return;
-
-				const rect = toolbar.getBoundingClientRect();
-				popover.style.position = 'absolute';
-				popover.style.left = toolbar.style.left;
-				popover.style.top = rect.bottom + 8 + window.scrollY + 'px';
-
-				// Focus the input.
+				if ( ! popover ) return;
 				const input = popover.querySelector( '.bw-link-input' );
 				if ( input ) input.focus();
 			} );
+
+			// Close when clicking outside the popover.
+			linkPopoverCloseHandler = e => {
+				if (
+					e.target.closest( '.bw-link-popover' ) ||
+					e.target.closest( '[data-wp-on--click="actions.toggleLinkInput"]' )
+				)
+					return;
+				clearHighlight();
+				state.showLinkInput = false;
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			};
+			setTimeout( () => document.addEventListener( 'click', linkPopoverCloseHandler ), 0 );
 		},
 
 		updateLinkUrl() {
@@ -740,35 +1351,62 @@ const { state } = store( 'wpcom-write', {
 		handleLinkKeyDown( event ) {
 			if ( event.key === 'Enter' ) {
 				event.preventDefault();
+				clearHighlight();
 				restoreSelection();
 				if ( state.linkUrl ) {
 					document.execCommand( 'createLink', false, state.linkUrl );
 				}
 				state.showLinkInput = false;
-				state.showToolbar = false;
+				if ( linkPopoverCloseHandler ) {
+					document.removeEventListener( 'click', linkPopoverCloseHandler );
+					linkPopoverCloseHandler = null;
+				}
+				const content = document.querySelector( '.bw-content' );
+				if ( content ) content.focus();
 			}
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
+				clearHighlight();
+				restoreSelection();
 				state.showLinkInput = false;
-				state.showToolbar = false;
+				if ( linkPopoverCloseHandler ) {
+					document.removeEventListener( 'click', linkPopoverCloseHandler );
+					linkPopoverCloseHandler = null;
+				}
+				const content = document.querySelector( '.bw-content' );
+				if ( content ) content.focus();
 			}
 		},
 
 		applyLink() {
+			clearHighlight();
 			restoreSelection();
 			if ( state.linkUrl ) {
 				document.execCommand( 'createLink', false, state.linkUrl );
 			}
 			state.showLinkInput = false;
-			state.showToolbar = false;
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
 		},
 
 		removeLink() {
+			clearHighlight();
 			restoreSelection();
 			document.execCommand( 'unlink' );
 			state.showLinkInput = false;
-			state.showToolbar = false;
+			if ( linkPopoverCloseHandler ) {
+				document.removeEventListener( 'click', linkPopoverCloseHandler );
+				linkPopoverCloseHandler = null;
+			}
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
 		},
+
+		// --- Image ---
 
 		toggleFeaturedImage() {
 			state.setAsFeatured = ! state.setAsFeatured;
@@ -781,18 +1419,51 @@ const { state } = store( 'wpcom-write', {
 
 		openImageModal() {
 			saveSelection();
-			state.showToolbar = false;
 			state.imageUrl = '';
 			state.imageAlt = '';
 			state.setAsFeatured = false;
 			state.uploadedMediaId = 0;
 			resetUploadZone();
 			state.showImageModal = true;
+			focusModalInput();
 		},
 
 		closeImageModal() {
 			state.showImageModal = false;
+			state.imageUrl = '';
+			state.imageAlt = '';
+			state.setAsFeatured = false;
+			state.uploadedMediaId = 0;
 			resetUploadZone();
+			restoreSelection();
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
+		},
+
+		handleImageModalKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				const { actions: a } = store( 'wpcom-write' );
+				a.closeImageModal();
+				return;
+			}
+			if ( event.key === 'Tab' ) {
+				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll(
+					'input:not([hidden]):not([type="file"]), button, [tabindex]:not([tabindex="-1"])'
+				);
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && ( active === first || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && ( active === last || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
 		},
 
 		stopPropagation( event ) {
@@ -861,51 +1532,50 @@ const { state } = store( 'wpcom-write', {
 			const el = getElement();
 			const file = el.ref.files[ 0 ];
 			if ( ! file ) return;
-
-			state.isUploading = true;
-			const zone = document.getElementById( 'bw-upload-zone' );
-			if ( zone ) {
-				zone.classList.add( 'bw-uploading' );
-				const label = zone.querySelector( '.bw-upload-label' );
-				if ( label ) label.style.display = 'none';
-				const saving = zone.querySelector( '.bw-upload-saving' );
-				if ( saving ) saving.style.display = '';
-			}
-
-			const formData = new FormData();
-			formData.append( 'file', file );
-
-			try {
-				const media = await window.wp.apiFetch( {
-					path: state.mediaPath,
-					method: 'POST',
-					body: formData,
-				} );
-				state.imageUrl = media.source_url;
-				state.isUploading = false;
-				if ( zone ) zone.classList.remove( 'bw-uploading' );
-
-				// Store the uploaded URL and media ID — wait for "Insert image" click.
-				state.imageUrl = media.source_url;
-				if ( ! state.imageAlt && media.alt_text ) {
-					state.imageAlt = media.alt_text;
-				}
-				if ( state.setAsFeatured ) {
-					state.featuredMediaId = media.id;
-				}
-				state.uploadedMediaId = media.id;
-
-				// Show preview.
-				showUploadPreview( media.source_url );
-			} catch ( err ) {
-				state.isUploading = false;
-				if ( zone ) zone.classList.remove( 'bw-uploading' );
-				state.message = 'Upload failed: ' + err.message;
-				setTimeout( () => {
-					state.message = '';
-				}, 3000 );
-			}
+			await uploadFileToMedia( file );
 		},
+
+		handleDragOver( event ) {
+			event.preventDefault();
+			event.stopPropagation();
+			const zone = document.getElementById( 'bw-upload-zone' );
+			if ( zone ) zone.classList.add( 'bw-drag-over' );
+		},
+
+		handleDragLeave( event ) {
+			event.preventDefault();
+			event.stopPropagation();
+			const zone = document.getElementById( 'bw-upload-zone' );
+			if ( zone ) zone.classList.remove( 'bw-drag-over' );
+		},
+
+		async handleDrop( event ) {
+			event.preventDefault();
+			event.stopPropagation();
+			const zone = document.getElementById( 'bw-upload-zone' );
+			if ( zone ) zone.classList.remove( 'bw-drag-over' );
+
+			const file = event.dataTransfer?.files?.[ 0 ];
+			if ( ! file || ! file.type.startsWith( 'image/' ) ) {
+				return;
+			}
+			await uploadFileToMedia( file );
+		},
+
+		handleOverlayDragOver( event ) {
+			event.preventDefault();
+		},
+
+		async handleOverlayDrop( event ) {
+			event.preventDefault();
+			const file = event.dataTransfer?.files?.[ 0 ];
+			if ( ! file || ! file.type.startsWith( 'image/' ) ) {
+				return;
+			}
+			await uploadFileToMedia( file );
+		},
+
+		// --- Slash commands ---
 
 		insertHeading() {
 			insertNewBlock( 'h2' );
@@ -917,6 +1587,7 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.showImageModal = true;
 			state.imageUrl = '';
+			focusModalInput();
 		},
 
 		insertQuote() {
@@ -929,10 +1600,41 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.showVideoModal = true;
 			state.videoUrl = '';
+			focusModalInput();
 		},
 
 		closeVideoModal() {
 			state.showVideoModal = false;
+			state.videoUrl = '';
+			restoreSelection();
+			const content = document.querySelector( '.bw-content' );
+			if ( content ) content.focus();
+		},
+
+		handleVideoModalKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				const { actions: a } = store( 'wpcom-write' );
+				a.closeVideoModal();
+				return;
+			}
+			if ( event.key === 'Tab' ) {
+				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
+				if ( ! modal ) return;
+				const focusable = modal.querySelectorAll(
+					'input:not([hidden]):not([type="file"]), button, [tabindex]:not([tabindex="-1"])'
+				);
+				if ( ! focusable.length ) return;
+				const first = focusable[ 0 ];
+				const last = focusable[ focusable.length - 1 ];
+				const active = modal.ownerDocument.activeElement;
+				if ( event.shiftKey && ( active === first || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					last.focus();
+				} else if ( ! event.shiftKey && ( active === last || ! modal.contains( active ) ) ) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
 		},
 
 		updateVideoUrl() {
@@ -953,7 +1655,7 @@ const { state } = store( 'wpcom-write', {
 
 			const embedUrl = getEmbedUrl( state.videoUrl );
 			if ( ! embedUrl ) {
-				state.message = 'Please paste a valid YouTube or Vimeo URL';
+				state.message = i18n.invalidVideoUrl || 'Please paste a valid YouTube or Vimeo URL';
 				setTimeout( () => {
 					state.message = '';
 				}, 3000 );
@@ -1036,6 +1738,8 @@ const { state } = store( 'wpcom-write', {
 			state.showSlashMenu = false;
 		},
 
+		// --- UI toggles ---
+
 		toggleHelp() {
 			state.showHelp = ! state.showHelp;
 			if ( state.showHelp ) {
@@ -1077,45 +1781,86 @@ const { state } = store( 'wpcom-write', {
 		async saveDraft() {
 			await savePost( 'draft' );
 		},
+
+		/**
+		 * Perform a periodic autosave if the editor is dirty.
+		 */
+		async autosave() {
+			// Skip autosave for published posts — partial edits should not go live silently.
+			// Users can still save manually via the unsaved-changes modal.
+			if ( ! isDirty() || state.isSaving || state.isPublished || state.postStatus === 'publish' ) {
+				return;
+			}
+
+			// Require at least a title or content before autosaving.
+			const contentEl = document.querySelector( '.bw-content' );
+			const hasContent = state.title.trim() || ( contentEl && contentEl.textContent.trim() );
+			if ( ! hasContent ) {
+				return;
+			}
+
+			await savePost( 'draft', true );
+		},
+
+		/**
+		 * Resume editing an autosaved draft.
+		 */
+		resumeDraft() {
+			const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
+			if ( draftId && /^\d+$/.test( draftId ) ) {
+				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+				window.location.href = state.writeUrl + '&post=' + draftId;
+			}
+		},
+
+		/**
+		 * Dismiss the recovery banner and discard the autosaved draft reference.
+		 */
+		dismissRecovery() {
+			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+			state.showRecoveryBanner = false;
+		},
 	},
 } );
 
 /**
  * Save or publish the current post via the REST API.
  *
- * @param {string} postStatus - The desired post status ('publish' or 'draft').
+ * @param {string}  postStatus - The desired post status ('publish' or 'draft').
+ * @param {boolean} isAutosave - Whether this is a periodic autosave (quieter UX).
  */
-async function savePost( postStatus ) {
-	if ( ! state.title.trim() ) {
-		state.message = 'Please add a title';
-		setTimeout( () => {
-			state.message = '';
-		}, 2500 );
-		return;
-	}
-
-	const content = document.querySelector( '.bw-content' );
-	if ( ! content || ! content.innerHTML.trim() ) {
-		state.message = 'Please write something';
-		setTimeout( () => {
-			state.message = '';
-		}, 2500 );
-		return;
+async function savePost( postStatus, isAutosave = false ) {
+	if ( ! isAutosave ) {
+		const content = document.querySelector( '.bw-content' );
+		if ( ! state.title.trim() && ( ! content || ! content.innerHTML.trim() ) ) {
+			state.message = i18n.pleaseWriteSomething || 'Please write something';
+			setTimeout( () => {
+				state.message = '';
+			}, 2500 );
+			return;
+		}
 	}
 
 	const isEditing = state.editPostId > 0;
 	const isUpdate = isEditing && postStatus === 'publish';
 
 	state.isSaving = true;
-	let savingMessage = 'Saving draft...';
-	if ( isUpdate ) {
-		savingMessage = 'Updating...';
-	} else if ( postStatus === 'publish' ) {
-		savingMessage = 'Publishing...';
+	if ( ! isAutosave ) {
+		let savingMessage = i18n.savingDraft || 'Saving draft...';
+		if ( isUpdate ) {
+			savingMessage = i18n.updating || 'Updating...';
+		} else if ( postStatus === 'publish' ) {
+			savingMessage = i18n.publishing || 'Publishing...';
+		}
+		state.message = savingMessage;
 	}
-	state.message = savingMessage;
 
-	const blockMarkup = convertToBlocks( content.innerHTML );
+	const contentEl = document.querySelector( '.bw-content' );
+	const blockMarkup = convertToBlocks( contentEl.innerHTML );
+
+	// Snapshot what we're about to send so dirty tracking compares against
+	// the submitted content, not whatever the DOM contains when the request resolves.
+	const submittedSnapshot = getContentSnapshot();
 
 	// Collect selected category IDs.
 	const selectedCats = state.categories.filter( c => c.selected ).map( c => c.id );
@@ -1141,26 +1886,91 @@ async function savePost( postStatus ) {
 			state.editPostId = post.id;
 		}
 
-		if ( postStatus === 'publish' ) {
+		// Mark only the submitted content as saved — if the user typed
+		// during the request the editor stays dirty.
+		lastSavedSnapshot = submittedSnapshot;
+
+		if ( isAutosave ) {
+			// Quiet autosave — no redirect, no localStorage clear.
+			state.hasSaved = true;
+			state.isSaving = false;
+			state.message = i18n.draftAutosaved || 'Draft saved';
+			localStorage.setItem( AUTOSAVE_STORAGE_KEY, String( post.id ) );
+			setTimeout( () => {
+				state.message = '';
+			}, AUTOSAVE_MESSAGE_DURATION_MS );
+		} else if ( postStatus === 'publish' ) {
 			state.isPublished = true;
-			state.message = isUpdate ? 'Updated!' : 'Published!';
+			state.message = isUpdate ? i18n.updated || 'Updated!' : i18n.published || 'Published!';
+			// Clear any autosave draft reference on publish.
+			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
 				window.location.href = post.link;
 			}, 800 );
 		} else {
 			state.editPostId = post.id;
 			state.hasSaved = true;
-			state.message = 'Draft saved';
+			state.message = i18n.draftSaved || 'Draft saved';
 			state.isSaving = false;
+			// Clear autosave reference — user explicitly saved.
+			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 			setTimeout( () => {
 				state.message = '';
 			}, 2500 );
 		}
 	} catch ( err ) {
-		state.message = 'Error: ' + err.message;
 		state.isSaving = false;
-		setTimeout( () => {
-			state.message = '';
-		}, 4000 );
+		if ( ! isAutosave ) {
+			state.message = ( i18n.error || 'Error: %s' ).replace( '%s', err.message );
+			setTimeout( () => {
+				state.message = '';
+			}, 4000 );
+		}
 	}
 }
+
+// --- Autosave timer and recovery ---
+
+// Start the autosave interval once the content area is ready.
+const autosaveReady = setInterval( () => {
+	const contentEl = document.querySelector( '.bw-content' );
+	if ( ! contentEl ) return;
+	clearInterval( autosaveReady );
+
+	// Capture the initial snapshot so edits are detected relative to load state.
+	updateSavedSnapshot();
+
+	// Start the periodic autosave timer.
+	const { actions } = store( 'wpcom-write' );
+	autosaveTimer = setInterval( () => {
+		actions.autosave();
+	}, AUTOSAVE_INTERVAL_MS );
+
+	// Check for a recoverable autosaved draft (only for new posts).
+	if ( ! state.editPostId ) {
+		const draftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
+		if ( draftId ) {
+			state.showRecoveryBanner = true;
+		}
+	} else {
+		// Editing an existing post — clear any stale autosave reference.
+		const savedDraftId = localStorage.getItem( AUTOSAVE_STORAGE_KEY );
+		if ( savedDraftId && String( state.editPostId ) === savedDraftId ) {
+			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+		}
+	}
+}, 200 );
+
+// Warn before leaving if there are unsaved changes.
+window.addEventListener( 'beforeunload', event => {
+	if ( isDirty() && ! state.isPublished && ! allowLeave ) {
+		event.preventDefault();
+	}
+} );
+
+// Clean up autosave timer on page unload.
+window.addEventListener( 'pagehide', () => {
+	if ( autosaveTimer ) {
+		clearInterval( autosaveTimer );
+	}
+} );

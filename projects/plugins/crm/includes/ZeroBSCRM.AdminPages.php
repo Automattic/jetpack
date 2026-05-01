@@ -462,7 +462,7 @@ function zeroBSCRM_pages_home() {
 
 	global $wpdb, $zbs; // } Req
 
-	if ( ! current_user_can( 'admin_zerobs_manage_options' ) ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
 
 	// } Homepage
@@ -483,7 +483,7 @@ function zeroBSCRM_pages_extensions() {
 
 	global $wpdb, $zbs; // } Req
 
-	if ( ! current_user_can( 'admin_zerobs_manage_options' ) ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
 
 	// } page
@@ -496,9 +496,7 @@ function zeroBSCRM_pages_extensions() {
 // Modules page
 function jpcrm_pages_modules() {
 
-	global $wpdb, $zbs;
-
-	if ( ! current_user_can( 'admin_zerobs_manage_options' ) ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
 
 	jpcrm_html_modules();
@@ -511,7 +509,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 
 	global $zbs;
 
-	if ( ! current_user_can( 'admin_zerobs_manage_options' ) ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
 
 	// for now put this here, should probs be stored against template:
@@ -1192,9 +1190,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 // } Data Tools Page
 function zeroBSCRM_pages_datatools() {
 
-	global $wpdb, $zbs; // } Req
-
-	if ( ! current_user_can( 'admin_zerobs_manage_options' ) ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
 
 	// } Settings
@@ -1208,9 +1204,7 @@ function zeroBSCRM_pages_datatools() {
 // } Install Extensions helper page
 function zeroBSCRM_pages_installextensionshelper() {
 
-	global $wpdb, $zbs;  // } Req
-
-	if ( ! current_user_can( 'admin_zerobs_manage_options' ) ) {
+	if ( ! jpcrm_perms_manage_options() ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
 	// } Settings
 	zeroBSCRM_html_installextensionshelper();

@@ -14,7 +14,7 @@
 	top: 0;
 	left: 0;
 	right: 0;
-	z-index: 100;
+	z-index: 100000;
 	height: 56px;
 	background: #fff;
 	border-bottom: 1px solid #f0f0f0;
@@ -171,9 +171,344 @@
 	background: #1a5f99;
 }
 
+/* ===== Recovery banner ===== */
+.bw-recovery-banner {
+	position: fixed;
+	top: 56px;
+	left: 0;
+	right: 0;
+	z-index: 100001;
+	height: 44px;
+	background: #fef8ee;
+	border-bottom: 1px solid #f0e0c0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	animation: bw-fade-in 0.2s ease;
+}
+
+.bw-recovery-banner[hidden] {
+	display: none;
+}
+
+.bw-recovery-text {
+	font-size: 14px;
+	color: #1a1a1a;
+}
+
+.bw-recovery-btn {
+	height: 32px;
+	padding: 4px 12px;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+
+.bw-recovery-btn:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-recovery-dismiss {
+	border: none;
+	background: transparent;
+	color: #999;
+	font-size: 20px;
+	cursor: pointer;
+	padding: 4px 8px;
+	line-height: 1;
+}
+
+.bw-recovery-dismiss:hover {
+	color: #333;
+}
+
+/* Push toolbar and content down when recovery banner is visible */
+.bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
+	top: 100px;
+}
+
+.bw-recovery-banner:not([hidden]) ~ .bw-main {
+	padding-top: 164px;
+}
+
+/* ===== Persistent formatting toolbar ===== */
+.bw-toolbar {
+	position: fixed;
+	top: 56px;
+	left: 0;
+	right: 0;
+	z-index: 99999;
+	background: #fff;
+	border-bottom: 1px solid #f0f0f0;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+.bw-toolbar-scroll {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 0 16px;
+	max-width: 720px;
+}
+
+@keyframes bw-fade-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes bw-fade-in-centered {
+
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+}
+
+.bw-tool {
+	width: 34px;
+	height: 34px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: #555;
+	font-size: 15px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.1s ease;
+	flex-shrink: 0;
+}
+
+.bw-tool .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
+}
+
+.bw-tool:hover {
+	background: #f0f0f0;
+	color: #1a1a1a;
+}
+
+.bw-tool-active {
+	background: #e8e8e8;
+	color: #1a1a1a;
+}
+
+.bw-tool-divider {
+	width: 1px;
+	height: 20px;
+	background: #e0e0e0;
+	margin: 0 4px;
+	flex-shrink: 0;
+}
+
+/* Heading dropdown toggle */
+.bw-tool-heading-toggle {
+	width: auto;
+	padding: 0 8px;
+	gap: 4px;
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.bw-tool-label {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.bw-tool-caret {
+	font-size: 12px;
+	color: #999;
+}
+
+/* Dropdown wrapper (for heading and color menus) */
+.bw-tool-dropdown-wrap {
+	position: relative;
+	flex-shrink: 0;
+}
+
+/* Heading menu dropdown */
+.bw-heading-menu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	margin-top: 4px;
+	z-index: 210;
+	background: #fff;
+	border-radius: 8px;
+	padding: 4px;
+	min-width: 160px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	border: 1px solid #f0f0f0;
+}
+
+.bw-heading-menu:not([hidden]) {
+	animation: bw-fade-in 0.12s ease;
+}
+
+.bw-heading-menu[hidden] {
+	display: none;
+}
+
+.bw-heading-option {
+	display: block;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	text-align: start;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 14px;
+	color: #333;
+	transition: background 0.1s ease;
+}
+
+.bw-heading-option:hover {
+	background: #f5f5f5;
+}
+
+.bw-heading-option-h2 span {
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.bw-heading-option-h3 span {
+	font-size: 15px;
+	font-weight: 700;
+}
+
+/* Text color menu */
+.bw-color-menu {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: 4px;
+	z-index: 210;
+	background: #fff;
+	border-radius: 8px;
+	padding: 8px;
+	display: flex;
+	gap: 6px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	border: 1px solid #f0f0f0;
+}
+
+.bw-color-menu:not([hidden]) {
+	animation: bw-fade-in-centered 0.12s ease;
+}
+
+.bw-color-menu[hidden] {
+	display: none;
+}
+
+.bw-color-swatch {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	cursor: pointer;
+	transition: transform 0.1s ease, box-shadow 0.1s ease;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.bw-color-swatch:hover {
+	transform: scale(1.15);
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Link popover (below toolbar) ===== */
+.bw-link-popover {
+	position: fixed;
+	top: 100px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 201;
+	background: #fff;
+	border-radius: 8px;
+	padding: 8px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	animation: bw-fade-in-centered 0.12s ease;
+}
+
+.bw-link-popover[hidden] {
+	display: none;
+}
+
+.bw-link-input {
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	padding: 6px 10px;
+	font-size: 14px;
+	outline: none;
+	width: 280px;
+	font-family: inherit;
+}
+
+.bw-link-input:focus {
+	border-color: #2171b1;
+}
+
+.bw-link-apply {
+	border: none;
+	background: #2171b1;
+	color: #fff;
+	border-radius: 6px;
+	padding: 6px 12px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.bw-link-remove {
+	border: none;
+	background: transparent;
+	color: #999;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 4px 8px;
+}
+
+.bw-link-remove:hover {
+	color: #d63638;
+}
+
 /* ===== Main writing area ===== */
 .bw-main {
-	padding-top: 96px;
+	padding-top: 120px;
 	padding-bottom: 40vh;
 	display: flex;
 	justify-content: center;
@@ -204,6 +539,7 @@
 	overflow: hidden;
 	box-sizing: border-box;
 	field-sizing: content;
+	text-wrap: stable;
 }
 
 .bw-title::placeholder {
@@ -247,50 +583,129 @@
 	color: #fff;
 }
 
-/* Leave confirmation modal */
-.bw-leave-modal {
-	background: #fff;
-	border-radius: 12px;
-	padding: 32px;
-	width: 380px;
-	max-width: 90vw;
-	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
-	text-align: center;
+/* Leave confirmation modal — matches @wordpress/components ConfirmDialog */
+.bw-leave-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1000001;
+	background-color: rgba(0, 0, 0, 0.35);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: bw-fade-in 0.1s ease-out;
 }
 
-.bw-leave-modal h3 {
-	margin: 0 0 8px;
-	font-size: 18px;
-	font-weight: 600;
+.bw-leave-overlay[hidden] {
+	display: none;
+}
+
+.bw-leave-modal {
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 0.7px 1px rgba(0, 0, 0, 0.1), 0 1.2px 1.7px -0.2px rgba(0, 0, 0, 0.1), 0 2.3px 3.3px -0.5px rgba(0, 0, 0, 0.1);
+	width: 400px;
+	max-width: calc(100% - 32px);
+	max-height: calc(100% - 32px);
+	padding: 24px;
+	color: #1e1e1e;
+	animation: bw-modal-appear 0.1s ease-out;
+	box-sizing: border-box;
+}
+
+@keyframes bw-modal-appear {
+
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 .bw-leave-modal p {
-	color: #666;
-	font-size: 14px;
+	font-size: 13px;
+	line-height: 1.4;
 	margin: 0 0 24px;
+	color: #1e1e1e;
 }
 
 .bw-leave-actions {
 	display: flex;
-	gap: 10px;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+.bw-leave-cancel {
+	display: inline-flex;
+	align-items: center;
 	justify-content: center;
-}
-
-.bw-btn-leave {
-	background: #d63638;
-	color: #fff;
-	text-decoration: none;
-	border-radius: 20px;
-	padding: 8px 20px;
-	font-size: 14px;
-	font-weight: 500;
+	height: 40px;
+	padding: 6px 12px;
 	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--wp-components-color-accent, #3858e9);
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
 	cursor: pointer;
-	transition: background 0.15s ease;
+	text-decoration: none;
+	transition: color 0.1s ease;
 }
 
-.bw-btn-leave:hover {
-	background: #b32d2e;
+.bw-leave-cancel:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-leave-confirm {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	padding: 6px 12px;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: var(--wp-components-color-accent, #3858e9);
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	transition: color 0.1s ease;
+}
+
+.bw-leave-confirm:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-leave-save {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 40px;
+	padding: 6px 12px;
+	box-sizing: border-box;
+	border: none;
+	border-radius: 4px;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	transition: background 0.1s ease;
+}
+
+.bw-leave-save:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
 	color: #fff;
 }
 
@@ -324,6 +739,11 @@
 .bw-slash-item:hover,
 .bw-slash-item-active {
 	background: #f5f5f5;
+}
+
+/* Suppress hover highlight during keyboard navigation. */
+.bw-slash-menu--keyboard .bw-slash-item:not(.bw-slash-item-active):hover {
+	background: #fff;
 }
 
 .bw-slash-item strong {
@@ -439,6 +859,14 @@
 	color: inherit;
 }
 
+/* Persistent highlight shown while the link popover is open.
+   Slightly stronger than ::selection to visually distinguish it
+   as a "target" indicator rather than an active text selection. */
+::highlight(bw-link-highlight) {
+	background-color: rgba(33, 113, 177, 0.25);
+	color: inherit;
+}
+
 /* Content area */
 .bw-content {
 	min-height: 60vh;
@@ -448,10 +876,22 @@
 	outline: none;
 	overflow-wrap: break-word;
 	word-break: normal;
+	text-wrap: stable;
 }
 
-.bw-content:empty::before {
+.bw-content * {
+	text-wrap: stable;
+}
+
+.bw-content.bw-is-empty {
+	position: relative;
+}
+
+.bw-content.bw-is-empty::before {
 	content: attr(data-placeholder);
+	position: absolute;
+	top: 0;
+	left: 0;
 	color: #ccc;
 	pointer-events: none;
 }
@@ -513,6 +953,28 @@
 .bw-content em,
 .bw-content i {
 	font-style: italic;
+}
+
+.bw-content s,
+.bw-content strike {
+	text-decoration: line-through;
+}
+
+.bw-content u {
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+/* Lists in content */
+.bw-content ul,
+.bw-content ol {
+	margin: 0 0 1.25em;
+	padding-inline-start: 1.5em;
+}
+
+.bw-content li {
+	margin-bottom: 0.25em;
+	line-height: inherit;
 }
 
 /* Images in content */
@@ -689,132 +1151,6 @@
 	border: none;
 }
 
-/* ===== Floating formatting toolbar ===== */
-.bw-toolbar {
-	position: absolute;
-	z-index: 200;
-	background: #1e1e1e;
-	border-radius: 8px;
-	padding: 4px;
-	display: flex;
-	align-items: center;
-	gap: 2px;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-toolbar[hidden] {
-	display: none;
-}
-
-@keyframes bw-fade-in {
-
-	from {
-		opacity: 0;
-		transform: translateY(4px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-.bw-tool {
-	width: 34px;
-	height: 34px;
-	border: none;
-	border-radius: 6px;
-	background: transparent;
-	color: #ccc;
-	font-size: 15px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.1s ease;
-}
-
-.bw-tool .dashicons {
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
-	line-height: 18px;
-}
-
-.bw-tool:hover {
-	background: #333;
-	color: #fff;
-}
-
-.bw-tool-active {
-	background: #444;
-	color: #fff;
-}
-
-.bw-tool-divider {
-	width: 1px;
-	height: 20px;
-	background: #444;
-	margin: 0 4px;
-}
-
-/* ===== Link popover ===== */
-.bw-link-popover {
-	position: absolute;
-	z-index: 201;
-	background: #fff;
-	border-radius: 8px;
-	padding: 8px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-link-popover[hidden] {
-	display: none;
-}
-
-.bw-link-input {
-	border: 1px solid #ddd;
-	border-radius: 6px;
-	padding: 6px 10px;
-	font-size: 14px;
-	outline: none;
-	width: 240px;
-	font-family: inherit;
-}
-
-.bw-link-input:focus {
-	border-color: #2171b1;
-}
-
-.bw-link-apply {
-	border: none;
-	background: #2171b1;
-	color: #fff;
-	border-radius: 6px;
-	padding: 6px 12px;
-	font-size: 13px;
-	font-weight: 500;
-	cursor: pointer;
-}
-
-.bw-link-remove {
-	border: none;
-	background: transparent;
-	color: #999;
-	font-size: 18px;
-	cursor: pointer;
-	padding: 4px 8px;
-}
-
-.bw-link-remove:hover {
-	color: #d63638;
-}
-
 /* ===== Image modal ===== */
 .bw-image-overlay {
 	position: fixed;
@@ -870,7 +1206,8 @@
 	transition: color 0.3s ease;
 }
 
-.bw-upload-zone:hover {
+.bw-upload-zone:hover,
+.bw-upload-zone.bw-drag-over {
 	border-color: #2171b1;
 	color: #2171b1;
 }
@@ -1103,5 +1440,54 @@
 
 	.bw-btn-draft {
 		display: none;
+	}
+
+	/* Toolbar scrolls horizontally on mobile */
+	.bw-toolbar-scroll {
+		justify-content: flex-start;
+		padding: 0 12px;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+
+	.bw-toolbar-scroll::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Escape the overflow scroll container on mobile */
+	.bw-heading-menu {
+		position: fixed;
+		top: 104px;
+		left: 16px;
+		transform: none;
+		margin-top: 0;
+	}
+
+	.bw-color-menu {
+		position: fixed;
+		top: 104px;
+		right: 16px;
+		left: auto;
+		transform: none;
+		margin-top: 0;
+	}
+
+	.bw-color-menu:not([hidden]) {
+		animation: bw-fade-in 0.12s ease;
+	}
+
+	/* Link popover adapts to mobile width */
+	.bw-link-popover {
+		left: 16px;
+		right: 16px;
+		transform: none;
+		width: auto;
+		animation: bw-fade-in 0.12s ease;
+	}
+
+	.bw-link-input {
+		width: 100%;
+		flex: 1;
 	}
 }

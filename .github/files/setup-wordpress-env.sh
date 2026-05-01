@@ -39,11 +39,14 @@ mkdir -p "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
 chmod -R 777 "/tmp/wordpress-$WP_BRANCH/src/wp-content/uploads"
 echo "::endgroup::"
 
-echo "::endgroup::"
-
 if [[ -n "$GITHUB_ENV" ]]; then
 	echo "WORDPRESS_DEVELOP_DIR=/tmp/wordpress-$WP_BRANCH" >> "$GITHUB_ENV"
 	echo "WORDPRESS_DIR=/tmp/wordpress-$WP_BRANCH/src" >> "$GITHUB_ENV"
+fi
+
+# When running WITH_WPCOMSH, always ensure wpcomsh is installed even if it wasn't actually changed.
+if [[ "$WITH_WPCOMSH" == true && -n "$CHANGED" ]]; then
+	CHANGED=$( jq -c '.["plugins/wpcomsh"] |= true' <<<"$CHANGED" )
 fi
 
 # Don't symlink, it breaks when copied later.
@@ -52,12 +55,24 @@ export COMPOSER_MIRROR_PATH_REPOS=true
 BASE="$(pwd)"
 PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
 
+# Capture default Composer cache so we can pre-seed each plugin's cache from packages already downloaded by earlier steps (e.g. tools/php-test-env).
+DEFAULT_COMPOSER_CACHE_DIR="$(composer config cache-dir)"
+
 function _install_plugin {
 	local CODE DBNAME DEPS DIR JSON NAME TMP WP_TEST_CONFIG
 	DIR="${1%/composer.json}"
 	NAME="$(basename "$DIR")"
 
+	# Isolate composer cache per plugin, as a shared composer cache breaks during parallel writes.
+	export COMPOSER_CACHE_DIR="/tmp/composer-cache-$NAME"
+
 	echo "::group::Installing plugin $NAME into WordPress"
+
+	if [[ -n "$CHANGED" ]] && ! jq --argjson changed "$CHANGED" --arg p "plugins/$NAME" -ne '$changed[$p] // false' > /dev/null; then
+		echo "::endgroup::"
+		echo "Skipping install of plugin $NAME, not in CHANGED"
+		return 0
+	fi
 
 	if php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$DIR/composer.json" )"; then
 		echo "::endgroup::"
@@ -77,6 +92,9 @@ function _install_plugin {
 			return 1
 		fi
 	fi
+
+	# Pre-seed the per-plugin cache with packages already downloaded by earlier steps (e.g. tools/php-test-env).
+	cp -a "$DEFAULT_COMPOSER_CACHE_DIR" "$COMPOSER_CACHE_DIR"
 
 	cd "$DIR"
 	if [[ ! -f "composer.lock" ]]; then

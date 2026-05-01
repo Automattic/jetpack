@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove "new" style variant from the Chip component.

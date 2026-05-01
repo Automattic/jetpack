@@ -475,7 +475,7 @@ class Sharing_Admin {
 					<td class="description">
 						<h3>
 							<?php esc_html_e( 'Enabled Services', 'jetpack' ); ?>
-							<img src="<?php echo esc_url( admin_url( 'images/loading.gif' ) ); ?>" width="16" height="16" alt="loading" style="vertical-align: middle; display: none" />
+							<span class="spinner" style="vertical-align: middle"></span>
 						</h3>
 						<p><?php esc_html_e( 'Services dragged here will appear individually.', 'jetpack' ); ?></p>
 					</td>
@@ -698,7 +698,7 @@ class Sharing_Admin {
 						<th scope="row"></th>
 						<td>
 							<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Create Share Button', 'jetpack' ); ?>" />
-							<img src="<?php echo esc_url( admin_url( 'images/loading.gif' ) ); ?>" width="16" height="16" alt="loading" style="vertical-align: middle; display: none" />
+							<span class="spinner" style="vertical-align: middle"></span>
 						</td>
 					</tr>
 

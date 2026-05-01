@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.

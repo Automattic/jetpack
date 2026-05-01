@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: filter-checkbox + active-filters blocks with instant-search-aligned field conventions, aggregation-driven item lists, and flat URL state (?category[]=news).

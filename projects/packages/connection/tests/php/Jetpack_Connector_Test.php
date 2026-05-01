@@ -170,7 +170,8 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertNotEmpty( $data['apiRoot'] );
 		$this->assertNotEmpty( $data['apiNonce'] );
 		$this->assertNotEmpty( $data['redirectUri'] );
-		$this->assertArrayNotHasKey( 'connectedPlugins', $data );
+		$this->assertArrayHasKey( 'connectedPlugins', $data );
+		$this->assertIsArray( $data['connectedPlugins'] );
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'currentUser', $data );
 		$this->assertArrayNotHasKey( 'connectionOwner', $data );

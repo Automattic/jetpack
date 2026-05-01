@@ -101,12 +101,12 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * @param array  $categories Categories data.
 	 * @return string The rendered HTML.
 	 */
-	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array() ) {
+	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array(), $post_status = 'new' ) {
 		remove_all_actions( 'wp_head' );
 		remove_all_actions( 'wp_footer' );
 
 		ob_start();
-		wpcom_write_template( $title, $content, $post_id, $categories );
+		wpcom_write_template( $title, $content, $post_id, $categories, $post_status );
 		return ob_get_clean();
 	}
 
@@ -120,7 +120,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'data-wp-interactive="wpcom-write"', $output );
 		$this->assertStringContainsString( 'class="bw-app"', $output );
-		$this->assertStringContainsString( 'class="bw-content"', $output );
+		$this->assertStringContainsString( 'class="bw-content bw-is-empty"', $output );
 		$this->assertStringContainsString( 'contenteditable="true"', $output );
 		$this->assertStringContainsString( 'Tell your story...', $output );
 		$this->assertStringContainsString( 'Save draft', $output );
@@ -141,7 +141,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$output = $this->render_template( 'Test Post', '<p>Content</p>', $post_id );
+		$output = $this->render_template( 'Test Post', '<p>Content</p>', $post_id, array(), 'publish' );
 
 		$this->assertStringContainsString( 'Update', $output );
 		$this->assertStringNotContainsString( '>Publish<', $output );
@@ -188,5 +188,172 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$url = wpcom_write_asset_url( 'style.css' );
 		$this->assertStringContainsString( 'style.css', $url );
 		$this->assertStringContainsString( 'write', $url );
+	}
+
+	/**
+	 * Test that the persistent toolbar is rendered with the correct structure.
+	 */
+	public function test_template_contains_persistent_toolbar() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		// Toolbar is a fixed bar, not a floating element.
+		$this->assertStringContainsString( 'class="bw-toolbar"', $output );
+		$this->assertStringContainsString( 'class="bw-toolbar-scroll"', $output );
+	}
+
+	/**
+	 * Test that the toolbar is always visible (no hidden attribute or show/hide bindings).
+	 */
+	public function test_toolbar_always_visible() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-toolbar"', $output );
+		// Toolbar should not have hidden attribute or hidden binding.
+		$this->assertStringNotContainsString( 'bw-toolbar"' . "\n" . '		hidden', $output );
+	}
+
+	/**
+	 * Test that the toolbar contains all required formatting buttons.
+	 */
+	public function test_toolbar_contains_formatting_buttons() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		// Inline formatting.
+		$this->assertStringContainsString( 'actions.formatBold', $output );
+		$this->assertStringContainsString( 'actions.formatItalic', $output );
+		$this->assertStringContainsString( 'actions.formatUnderline', $output );
+		$this->assertStringContainsString( 'actions.formatStrikethrough', $output );
+
+		// Alignment.
+		$this->assertStringContainsString( 'actions.alignLeft', $output );
+		$this->assertStringContainsString( 'actions.alignCenter', $output );
+		$this->assertStringContainsString( 'actions.alignRight', $output );
+
+		// Lists.
+		$this->assertStringContainsString( 'actions.formatUList', $output );
+		$this->assertStringContainsString( 'actions.formatOList', $output );
+
+		// Block-level.
+		$this->assertStringContainsString( 'actions.toggleLinkInput', $output );
+		$this->assertStringContainsString( 'actions.formatQuote', $output );
+		$this->assertStringContainsString( 'actions.openImageModal', $output );
+	}
+
+	/**
+	 * Test that the heading dropdown menu is rendered.
+	 */
+	public function test_toolbar_contains_heading_dropdown() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'actions.toggleHeadingMenu', $output );
+		$this->assertStringContainsString( 'class="bw-heading-menu"', $output );
+		$this->assertStringContainsString( 'actions.setHeadingNormal', $output );
+		$this->assertStringContainsString( 'actions.setHeadingH2', $output );
+		$this->assertStringContainsString( 'actions.setHeadingH3', $output );
+	}
+
+	/**
+	 * Test that the text color picker is rendered.
+	 */
+	public function test_toolbar_contains_text_color_picker() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'actions.toggleTextColorMenu', $output );
+		$this->assertStringContainsString( 'class="bw-color-menu"', $output );
+		$this->assertStringContainsString( 'class="bw-color-swatch"', $output );
+	}
+
+	/**
+	 * Test that the Interactivity API state includes new toolbar state fields.
+	 */
+	public function test_interactivity_state_includes_toolbar_fields() {
+		wp_set_current_user( $this->admin_id );
+
+		// Render the admin page which calls wp_interactivity_state().
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		// Use reflection to read the stored state via the global.
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertArrayHasKey( 'showHeadingMenu', $state );
+		$this->assertArrayHasKey( 'showTextColorMenu', $state );
+		$this->assertArrayHasKey( 'formatStrikethrough', $state );
+		$this->assertArrayHasKey( 'formatUnderline', $state );
+		$this->assertArrayHasKey( 'formatAlignLeft', $state );
+		$this->assertArrayHasKey( 'formatAlignCenter', $state );
+		$this->assertArrayHasKey( 'formatAlignRight', $state );
+		$this->assertArrayHasKey( 'formatOList', $state );
+		$this->assertArrayHasKey( 'formatUList', $state );
+	}
+
+	/**
+	 * Test that the Interactivity API state includes the recovery banner field.
+	 */
+	public function test_interactivity_state_includes_recovery_banner() {
+		wp_set_current_user( $this->admin_id );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertArrayHasKey( 'showRecoveryBanner', $state );
+		$this->assertFalse( $state['showRecoveryBanner'] );
+	}
+
+	/**
+	 * Test that the template contains the recovery banner markup.
+	 */
+	public function test_template_contains_recovery_banner() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-recovery-banner"', $output );
+		$this->assertStringContainsString( 'actions.resumeDraft', $output );
+		$this->assertStringContainsString( 'actions.dismissRecovery', $output );
+		$this->assertStringContainsString( 'You have a recent draft', $output );
+		$this->assertStringContainsString( 'Resume editing', $output );
+	}
+
+	/**
+	 * Test that the recovery banner is hidden by default.
+	 */
+	public function test_recovery_banner_hidden_by_default() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'bw-recovery-banner" hidden', $output );
+	}
+
+	/**
+	 * Test that autosave i18n strings are included in the rendered page state.
+	 */
+	public function test_autosave_i18n_strings_registered() {
+		wp_set_current_user( $this->admin_id );
+
+		// Render the admin page which seeds the Interactivity API state.
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		// The showRecoveryBanner field confirms autosave state is registered.
+		$this->assertArrayHasKey( 'showRecoveryBanner', $state );
 	}
 }

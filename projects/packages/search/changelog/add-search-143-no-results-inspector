@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search Blocks: Add Inspector panel to the no-results block so block authors can customize the empty-state message.

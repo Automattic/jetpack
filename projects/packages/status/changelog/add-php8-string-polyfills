@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Tests: Load polyfills for `str_contains`, `str_starts_with`, and `str_ends_with` in the test bootstrap on PHP < 8.0.

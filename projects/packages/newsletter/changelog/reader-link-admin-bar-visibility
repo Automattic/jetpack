@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Reader Link: Only enqueue styles when the admin bar is visible.

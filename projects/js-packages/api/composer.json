@@ -3,9 +3,6 @@
 	"description": "Jetpack API Library.",
 	"license": "GPL-2.0-or-later",
 	"require": {},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"scripts": {
 		"test-js": [
 			"pnpm run test"

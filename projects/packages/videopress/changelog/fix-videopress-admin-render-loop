@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Fix runaway render loop on the admin library page when paginating on WordPress 7.0.

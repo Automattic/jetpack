@@ -1,6 +1,4 @@
 import { ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -10,7 +8,7 @@ import { getSummaryResourceProps } from '../feature-utils';
 import './style.scss';
 
 const ResourceSummaryComponent = props => {
-	const { displayName, ctaLabel, ctaLink, resourceSlug, isNew, stepRoute } = props;
+	const { displayName, ctaLabel, ctaLink, resourceSlug, stepRoute } = props;
 	const onLearnMoreClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_learn_more_click', {
 			feature: resourceSlug,
@@ -34,10 +32,6 @@ const ResourceSummaryComponent = props => {
 				<span className="jp-recommendations-feature-summary__display-name-text">
 					{ displayName }
 				</span>
-				{ isNew && (
-					/* translators: 'New' is shown as a badge to indicate that this content has not been viewed before. */
-					<Badge intent="stable">{ __( 'New', 'jetpack' ) }</Badge>
-				) }
 			</Button>
 			<div className="jp-recommendations-feature-summary__actions">
 				<div className="jp-recommendations-feature-summary__cta">

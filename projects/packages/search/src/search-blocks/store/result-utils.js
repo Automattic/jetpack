@@ -171,10 +171,26 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 		// Rendered when the API returns a highlighted title; template
 		// falls back to `title` when this is empty.
 		titlePieces,
-		hasTitleHighlight: titlePieces.length > 0,
+		hasTitlePieces: titlePieces.length > 0,
 		permalink,
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date, locale ),
 		imageUrl,
 	};
+}
+
+/**
+ * Count the total number of selected filter values across all filter keys.
+ *
+ * @param {object} activeFilters - Map of filterKey → array of selected values.
+ * @return {number} Total selected values; 0 if input is not a plain object.
+ */
+export function countActiveFilters( activeFilters ) {
+	if ( ! activeFilters || typeof activeFilters !== 'object' ) {
+		return 0;
+	}
+	return Object.values( activeFilters ).reduce(
+		( sum, v ) => sum + ( Array.isArray( v ) ? v.length : 0 ),
+		0
+	);
 }
