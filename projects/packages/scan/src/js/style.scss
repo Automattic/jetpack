@@ -1,19 +1,82 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "sass:meta";
 
 // `@wordpress/dataviews` is bundled (not externalized) by
 // jetpack-webpack-config, so its stylesheet ships with the JS bundle
-// rather than being enqueued separately. Same pattern Activity Log
-// (and Forms) uses to bring DataViews styles into the page.
+// rather than being enqueued separately. Same pattern Newsletter and
+// Activity Log use to bring DataViews styles into the page.
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
-// `body.<menu>_page_<slug>` is the wp-admin convention. The Scan page
-// lives under the Jetpack top-level menu (slug `jetpack`), so the body
-// class is `jetpack_page_jetpack-scan`. We also match the standalone
-// shape for completeness (no top-level Jetpack menu => the page would
-// register as `toplevel_page_jetpack-scan`).
-body.toplevel_page_jetpack-scan,
-body.jetpack_page_jetpack-scan {
+// Patterned after Newsletter's `newsletter-page.scss` (#48420 phase 3) so
+// the Scan page scrolls the way Newsletter does:
+// - `.admin-ui-page` grows with content but always at least viewport-tall
+// - the page header sticks to the top with the tab row sticky-stacked
+//   directly underneath it
+// - the tab row carries the only horizontal hairline (the page header's
+//   own border is suppressed) so there's exactly one separator between
+//   the title block and the panel content
+// - off-white page surface so the white DataViews chrome stands out
+//   against the page background
 
-	@include jetpack-admin-page-layout;
+$jetpack-scan-inset: var(--wpds-dimension-padding-2xl, 24px);
+
+body.jetpack_page_jetpack-scan,
+body.toplevel_page_jetpack-scan {
+
+	// Off-white page surface so the white DataViews chrome stands out
+	// against the page background. Same `#fcfcfc` Newsletter uses.
+	// Override `.admin-ui-page`'s default `height: 100%` so the page
+	// grows with its content while still spanning the viewport.
+	.admin-ui-page {
+		background: #fcfcfc;
+		block-size: auto;
+		min-block-size: 100%;
+	}
+
+	// Page header: stays white, sticks to the top, drops its own bottom
+	// rule (the tab row owns the hairline). A min-height on the title
+	// row keeps the header the same size whether or not the actions
+	// slot is rendered, so the tab bar doesn't jump on tab switches.
+	.admin-ui-page__header {
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		border-bottom: 0;
+		flex-shrink: 0;
+		padding-block-end: var(--wpds-dimension-padding-sm, 8px);
+		position: sticky;
+		top: 0;
+		z-index: 10;
+
+		> *:first-child {
+			min-block-size: 40px;
+		}
+	}
+
+	// Wrapper carries the full-width separator and inline padding, so the
+	// nested `Tabs.List` keeps its native `width: fit-content` and the
+	// animated active-tab indicator slides smoothly between tabs.
+	//
+	// Sticky-stick the tab row directly beneath the sticky page header
+	// so the tabs stay visible while content scrolls. The
+	// `--jetpack-scan-page-header-height` custom property is set on
+	// `.admin-ui-page` by the shell via a `ResizeObserver`.
+	.jetpack-scan-page__tabs-row {
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+		box-sizing: border-box;
+		flex-shrink: 0;
+		padding-inline: $jetpack-scan-inset;
+		position: sticky;
+		top: var(--jetpack-scan-page-header-height, 96px);
+		width: 100%;
+		z-index: 9;
+	}
+
+	// Active panel fills the remaining vertical space so DataViews
+	// (height: 100% + flex column internally) can take the full page
+	// and center its empty-state body in the available area.
+	[role='tabpanel'] {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		min-block-size: 0;
+	}
 }
