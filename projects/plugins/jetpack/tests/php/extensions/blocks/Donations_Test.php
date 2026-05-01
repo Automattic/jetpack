@@ -324,8 +324,11 @@ class Donations_Test extends \WP_UnitTestCase {
 	 */
 	public function test_build_custom_styles_emits_tab_border_color() {
 		$css = Donations\build_custom_styles( array( 'tabBorderColor' => '#abc' ), '.jp-donations-1' );
+		// The user-set Tab Border color also applies to the active pill in the
+		// Buttons appearance, so the rule's selector list includes
+		// `.donations__nav-item.is-active`.
 		$this->assertStringContainsString(
-			'.jp-donations-1 .donations__nav,.jp-donations-1 .donations__nav-item{border-color:#abc}',
+			'.jp-donations-1 .donations__nav,.jp-donations-1 .donations__nav-item,.jp-donations-1 .donations__nav-item.is-active{border-color:#abc}',
 			$css
 		);
 	}
