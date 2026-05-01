@@ -3,9 +3,9 @@
  * The Scan REST Controller.
  *
  * Registers the `/jetpack/v4/site/scan/*` routes backing the admin UI.
- * Each read route proxies to the corresponding WPCOM v2 endpoint,
- * authenticated with the user's Jetpack token. Mutations (enqueue,
- * fix/ignore/unignore, bulk fix) land in later phases.
+ * Read routes proxy to the corresponding WPCOM v2 endpoint, mutation
+ * routes proxy to the user-scoped `wpcom/v2 /sites/:siteId/alerts/*`
+ * surface that the Calypso Scan dashboard already uses.
  *
  * @package automattic/jetpack-scan-page
  */
@@ -16,13 +16,16 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
+use function add_query_arg;
 use function current_user_can;
 use function esc_html__;
 use function is_wp_error;
 use function json_decode;
 use function register_rest_route;
 use function rest_ensure_response;
+use function wp_json_encode;
 use function wp_remote_retrieve_body;
 use function wp_remote_retrieve_response_code;
 
@@ -49,9 +52,9 @@ class REST_Controller {
 	 * Register the REST routes backing the Scan UI.
 	 *
 	 * Read paths land in Phase 1 (this controller). Mutation paths
-	 * (`/enqueue`, threat-id `fix`/`ignore`/`unignore`, bulk `threats/fix`,
-	 * `threats/fix-status`) land in Phases 3–5 once the corresponding UI
-	 * flows are ported.
+	 * (threat-id `ignore` / `unignore`, bulk `threats/fix`,
+	 * `threats/fix-status`) land in Phase 3. The scan-enqueue mutation
+	 * lands in Phase 5.
 	 */
 	public static function register_rest_routes() {
 		register_rest_route(
@@ -83,6 +86,78 @@ class REST_Controller {
 				'permission_callback' => array( __CLASS__, 'permissions_check' ),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_ROUTE_PREFIX . '/threat/(?P<id>[\w\-]+)/ignore',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'post_threat_ignore' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				'args'                => array(
+					'id' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_ROUTE_PREFIX . '/threat/(?P<id>[\w\-]+)/unignore',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'post_threat_unignore' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				'args'                => array(
+					'id' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_ROUTE_PREFIX . '/threats/fix',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'post_threats_fix' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				'args'                => array(
+					'threat_ids' => array(
+						'type'     => 'array',
+						'required' => true,
+						'items'    => array(
+							'type' => 'string',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_ROUTE_PREFIX . '/threats/fix-status',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_threats_fix_status' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				'args'                => array(
+					'threat_ids' => array(
+						'type'     => 'array',
+						'required' => true,
+						'items'    => array(
+							'type' => 'string',
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -111,7 +186,7 @@ class REST_Controller {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_site_scan() {
-		return self::proxy_to_wpcom( '/scan', 'scan' );
+		return self::proxy_get( '/scan', 'scan' );
 	}
 
 	/**
@@ -122,7 +197,7 @@ class REST_Controller {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_site_scan_history() {
-		return self::proxy_to_wpcom( '/scan/history', 'scan_history' );
+		return self::proxy_get( '/scan/history', 'scan_history' );
 	}
 
 	/**
@@ -133,7 +208,83 @@ class REST_Controller {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_site_scan_counts() {
-		return self::proxy_to_wpcom( '/scan/counts', 'scan_counts' );
+		return self::proxy_get( '/scan/counts', 'scan_counts' );
+	}
+
+	/**
+	 * POST /site/scan/threat/{id}/ignore — mark a threat as ignored.
+	 *
+	 * Proxies WPCOM `POST /sites/:siteId/alerts/:threatId` with
+	 * `{ ignore: true }`. Same shape Protect plugin's
+	 * `Threats::ignore_threat()` already uses.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function post_threat_ignore( WP_REST_Request $request ) {
+		$threat_id = (string) $request->get_param( 'id' );
+		return self::proxy_post(
+			sprintf( '/alerts/%s', rawurlencode( $threat_id ) ),
+			array( 'ignore' => true ),
+			'scan_threat_ignore'
+		);
+	}
+
+	/**
+	 * POST /site/scan/threat/{id}/unignore — reactivate a previously-ignored
+	 * threat.
+	 *
+	 * Proxies WPCOM `POST /sites/:siteId/alerts/:threatId` with
+	 * `{ unignore: true }`.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function post_threat_unignore( WP_REST_Request $request ) {
+		$threat_id = (string) $request->get_param( 'id' );
+		return self::proxy_post(
+			sprintf( '/alerts/%s', rawurlencode( $threat_id ) ),
+			array( 'unignore' => true ),
+			'scan_threat_unignore'
+		);
+	}
+
+	/**
+	 * POST /site/scan/threats/fix — kick auto-fix for one or more threats.
+	 *
+	 * Proxies WPCOM `POST /sites/:siteId/alerts/fix` with
+	 * `{ threat_ids: [...] }`. Same endpoint handles single + bulk fix.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function post_threats_fix( WP_REST_Request $request ) {
+		$ids = (array) $request->get_param( 'threat_ids' );
+		$ids = array_values( array_filter( array_map( 'strval', $ids ) ) );
+		return self::proxy_post(
+			'/alerts/fix',
+			array( 'threat_ids' => $ids ),
+			'scan_threats_fix'
+		);
+	}
+
+	/**
+	 * GET /site/scan/threats/fix-status — poll the auto-fixer for the
+	 * current state of one or more threats.
+	 *
+	 * Proxies WPCOM `GET /sites/:siteId/alerts/fix?threat_ids[]=…`. Body
+	 * shape mirrors `post_threats_fix` so the UI hook can poll until each
+	 * threat reaches a terminal state.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_threats_fix_status( WP_REST_Request $request ) {
+		$ids = (array) $request->get_param( 'threat_ids' );
+		$ids = array_values( array_filter( array_map( 'strval', $ids ) ) );
+
+		$path = add_query_arg( array( 'threat_ids' => $ids ), '/alerts/fix' );
+		return self::proxy_get( $path, 'scan_threats_fix_status' );
 	}
 
 	/**
@@ -144,21 +295,15 @@ class REST_Controller {
 	 * Forwarding the visitor IP keeps WPCOM-side audit logs aligned with
 	 * the existing `/jetpack/v4/site/activity` proxy in `activity-log`.
 	 *
-	 * @param string $upstream_path WPCOM path suffix (e.g. `/scan`, `/scan/counts`).
+	 * @param string $upstream_path WPCOM path suffix (e.g. `/scan`, `/alerts/fix`).
 	 * @param string $error_slug    Slug used when synthesising WP_Error codes.
 	 * @return \WP_REST_Response|WP_Error
 	 */
-	private static function proxy_to_wpcom( $upstream_path, $error_slug ) {
-		$blog_id = (int) Jetpack_Options::get_option( 'id' );
-		if ( $blog_id <= 0 ) {
-			return new WP_Error(
-				'jetpack_scan_no_blog_id',
-				esc_html__( 'Site is not connected to WordPress.com.', 'jetpack-scan-page' ),
-				array( 'status' => 400 )
-			);
+	private static function proxy_get( $upstream_path, $error_slug ) {
+		$path = self::resolve_blog_path( $upstream_path );
+		if ( is_wp_error( $path ) ) {
+			return $path;
 		}
-
-		$path = sprintf( '/sites/%d%s', $blog_id, $upstream_path );
 
 		$response = Client::wpcom_json_api_request_as_user(
 			$path,
@@ -173,6 +318,71 @@ class REST_Controller {
 			'wpcom'
 		);
 
+		return self::map_response( $response, $error_slug );
+	}
+
+	/**
+	 * Proxy a POST request to the user-scoped WPCOM v2 Scan endpoint
+	 * with a JSON body and pass the response through (or surface a
+	 * WP_Error mapping the upstream status code).
+	 *
+	 * @param string $upstream_path WPCOM path suffix (e.g. `/alerts/fix`).
+	 * @param array  $body          Body payload sent as JSON.
+	 * @param string $error_slug    Slug used when synthesising WP_Error codes.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	private static function proxy_post( $upstream_path, array $body, $error_slug ) {
+		$path = self::resolve_blog_path( $upstream_path );
+		if ( is_wp_error( $path ) ) {
+			return $path;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$path,
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			),
+			wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+			'wpcom'
+		);
+
+		return self::map_response( $response, $error_slug );
+	}
+
+	/**
+	 * Resolve the connected blog id and prefix it onto the WPCOM path
+	 * suffix. Surfaces a 400 WP_Error if the site isn't connected.
+	 *
+	 * @param string $upstream_path WPCOM path suffix.
+	 * @return string|WP_Error
+	 */
+	private static function resolve_blog_path( $upstream_path ) {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( $blog_id <= 0 ) {
+			return new WP_Error(
+				'jetpack_scan_no_blog_id',
+				esc_html__( 'Site is not connected to WordPress.com.', 'jetpack-scan-page' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return sprintf( '/sites/%d%s', $blog_id, $upstream_path );
+	}
+
+	/**
+	 * Translate a WPCOM HTTP response into a `WP_REST_Response` /
+	 * `WP_Error` for the local `/jetpack/v4/*` route to return.
+	 *
+	 * @param array|WP_Error $response   Result of `wpcom_json_api_request_as_user`.
+	 * @param string         $error_slug Slug used when synthesising WP_Error codes.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	private static function map_response( $response, $error_slug ) {
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
 				'jetpack_' . $error_slug . '_request_failed',
@@ -184,7 +394,7 @@ class REST_Controller {
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( 200 !== $status ) {
+		if ( $status < 200 || $status >= 300 ) {
 			return new WP_Error(
 				'jetpack_' . $error_slug . '_request_failed',
 				isset( $body['message'] ) ? (string) $body['message'] : esc_html__( 'Unable to fetch Scan data.', 'jetpack-scan-page' ),

@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { siteScanQuery } from '../../data/query-options';
 import EmptyState from './empty-state';
+import { useThreatActions } from './use-threat-actions';
 import type { FC } from 'react';
 
 /**
@@ -23,6 +24,7 @@ import type { FC } from 'react';
  */
 const ActiveThreats: FC = () => {
 	const { data, isLoading, error } = useQuery( siteScanQuery() );
+	const { onFixThreats, onIgnoreThreats } = useThreatActions();
 
 	if ( isLoading ) {
 		return <LoadingPlaceholder width="100%" height={ 400 } />;
@@ -37,6 +39,8 @@ const ActiveThreats: FC = () => {
 	return (
 		<ThreatsDataViews
 			data={ data?.threats ?? [] }
+			onFixThreats={ onFixThreats }
+			onIgnoreThreats={ onIgnoreThreats }
 			empty={
 				<EmptyState
 					heading={ __( "You're set up. No active threats.", 'jetpack-scan-page' ) }

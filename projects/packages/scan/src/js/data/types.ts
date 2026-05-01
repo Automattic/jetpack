@@ -66,3 +66,18 @@ export interface SiteScanCountsResponse {
 	fixed: number;
 	ignored: number;
 }
+
+/**
+ * Auto-fixer status reported per threat by `/threats/fix-status`.
+ */
+export type ThreatFixStatus = 'in_progress' | 'fixed' | 'not_fixed' | 'not_found' | string;
+
+/**
+ * Response shape for `POST /threats/fix` and `GET /threats/fix-status`.
+ */
+export interface FixThreatsResponse {
+	ok: boolean;
+	threats: Record< string, { status: ThreatFixStatus; error?: string } >;
+}
+
+export type FixThreatsStatusResponse = FixThreatsResponse;

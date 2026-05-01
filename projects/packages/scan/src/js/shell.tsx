@@ -4,6 +4,7 @@ import { Outlet } from 'react-router';
 import Gates from './gates';
 import { HeaderActionsProvider, useHeaderActions } from './header-actions-context';
 import MockBanner from './mock-banner';
+import NoticesList from './notices-list';
 import type { FC } from 'react';
 
 const ShellChrome: FC = () => {
@@ -23,6 +24,7 @@ const ShellChrome: FC = () => {
 			<Gates>
 				<Outlet />
 			</Gates>
+			<NoticesList />
 		</AdminPage>
 	);
 };
