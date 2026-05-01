@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: Add `--parent-id` flag to `wp videopress import` for one-off operator reattaches where the target post is known.

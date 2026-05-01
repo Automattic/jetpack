@@ -34,11 +34,17 @@ class CLI extends WP_CLI_Command {
 	 * inserted with the same ID it had on WordPress.com (when known) so the wpcom video table
 	 * relationship stays intact. Pass this flag to fall back to a fresh auto-incremented ID.
 	 *
+	 * [--parent-id=<id>]
+	 * : Attach the new attachment to a specific parent post. Useful for one-off operator
+	 * reattaches where the target post is known. Bulk automation typically leaves this unset
+	 * because a video may appear in multiple posts.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp videopress import kUJmAcSf
 	 *     wp videopress import kUJmAcSf --force
 	 *     wp videopress import kUJmAcSf --no-preserve-id
+	 *     wp videopress import kUJmAcSf --parent-id=42
 	 *
 	 *     # Import multiple videos from a file
 	 *     cat guids.txt | xargs -I {} wp videopress import {}
@@ -54,6 +60,7 @@ class CLI extends WP_CLI_Command {
 		$guid             = $args[0];
 		$force            = get_flag_value( $assoc_args, 'force', false );
 		$preserve_id      = get_flag_value( $assoc_args, 'preserve-id', true );
+		$parent_id        = (int) get_flag_value( $assoc_args, 'parent-id', 0 );
 		$existing_post_id = videopress_get_post_id_by_guid( $guid );
 
 		if ( $existing_post_id ) {
@@ -89,7 +96,7 @@ class CLI extends WP_CLI_Command {
 			);
 		}
 
-		$attachment_id = create_local_media_library_for_videopress_guid( $guid, 0, (bool) $preserve_id );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid, $parent_id, (bool) $preserve_id );
 
 		if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
 			WP_CLI::success(

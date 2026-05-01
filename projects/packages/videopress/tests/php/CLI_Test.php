@@ -219,6 +219,29 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test import command propagates --parent-id to the helper.
+	 */
+	public function test_import_parent_id_flag() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data();
+
+		$captured_data = null;
+		$capture       = function ( $data ) use ( &$captured_data ) {
+			$captured_data = $data;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		( new CLI() )->import( array( $guid ), array( 'parent-id' => 4242 ) );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+
+		$this->assertSame( 4242, (int) ( $captured_data['post_parent'] ?? 0 ) );
+	}
+
+	/**
 	 * Test import command preserves the original ID by default.
 	 */
 	public function test_import_preserves_id_by_default() {
