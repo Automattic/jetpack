@@ -490,6 +490,12 @@ class Boost_Abilities_Test extends BaseTestCase {
 		};
 		add_filter( "option_{$option_name}", $mask_read );
 
+		$action_calls = 0;
+		$counter      = function () use ( &$action_calls ) {
+			++$action_calls;
+		};
+		add_action( 'jetpack_boost_module_status_updated', $counter );
+
 		$result = Boost_Abilities::set_module_status(
 			array(
 				'slug'   => $slug,
@@ -497,11 +503,13 @@ class Boost_Abilities_Test extends BaseTestCase {
 			)
 		);
 
+		remove_action( 'jetpack_boost_module_status_updated', $counter );
 		remove_filter( "option_{$option_name}", $mask_read );
 		delete_option( $option_name );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_boost_module_state_mismatch', $result->get_error_code() );
+		$this->assertSame( 1, $action_calls, 'jetpack_boost_module_status_updated must still fire when the write succeeded but a read-side filter masks the value, so submodule lifecycle handlers run.' );
 	}
 
 	public function test_set_module_status_returns_error_when_update_option_fails(): void {

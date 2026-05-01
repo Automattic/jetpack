@@ -448,7 +448,20 @@ class Boost_Abilities extends Registrar {
 			);
 		}
 
-		// A pre_update_option / option_* filter can mask the stored value; verify before claiming success.
+		/**
+		 * Fires when a module is enabled or disabled through the abilities surface.
+		 *
+		 * Mirrors the action emitted by `Modules_State_Entry::set()` so submodule
+		 * lifecycle handlers fire identically regardless of caller. Fired before
+		 * the post-write read-back so handlers still run when an `option_*`
+		 * filter masks the read of a value that was actually persisted.
+		 *
+		 * @param string $module_slug The module slug.
+		 * @param bool   $is_active   The new state.
+		 */
+		do_action( 'jetpack_boost_module_status_updated', $slug, $desired );
+
+		// A read-side option_* filter can mask the stored value; verify before claiming success.
 		$actual = $module->is_enabled();
 		if ( $desired !== $actual ) {
 			return new \WP_Error(
@@ -456,17 +469,6 @@ class Boost_Abilities extends Registrar {
 				__( 'The module did not reach the requested state. A filter may have rejected the change.', 'jetpack-boost' )
 			);
 		}
-
-		/**
-		 * Fires when a module is enabled or disabled through the abilities surface.
-		 *
-		 * Mirrors the action emitted by `Modules_State_Entry::set()` so submodule
-		 * lifecycle handlers fire identically regardless of caller.
-		 *
-		 * @param string $module_slug The module slug.
-		 * @param bool   $is_active   The new state.
-		 */
-		do_action( 'jetpack_boost_module_status_updated', $slug, $desired );
 
 		return array(
 			'slug'    => $slug,
