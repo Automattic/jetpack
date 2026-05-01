@@ -14,8 +14,8 @@ return [
     // PhanRedundantCondition : 410+ occurrences
     // PhanTypeMismatchReturn : 330+ occurrences
     // PhanUnextractableAnnotationElementName : 200+ occurrences
+    // PhanTypeMismatchArgument : 160+ occurrences
     // PhanPossiblyUndeclaredVariable : 150+ occurrences
-    // PhanTypeMismatchArgument : 150+ occurrences
     // PhanPluginUnreachableCode : 140+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 120+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 110+ occurrences
@@ -40,9 +40,9 @@ return [
     // PhanDeprecatedFunction : 35+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 35+ occurrences
     // PhanPluginSimplifyExpressionBool : 35+ occurrences
-    // PhanTypeConversionFromArray : 30+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanTypeComparisonFromArray : 25+ occurrences
+    // PhanTypeConversionFromArray : 25+ occurrences
     // PhanUnreferencedUseNormal : 25+ occurrences
     // PhanCommentParamWithoutRealParam : 20+ occurrences
     // PhanParamSignaturePHPDocMismatchReturnType : 20+ occurrences
@@ -51,10 +51,10 @@ return [
     // PhanTypeSuspiciousStringExpression : 20+ occurrences
     // PhanUndeclaredClassProperty : 20+ occurrences
     // PhanUndeclaredFunction : 20+ occurrences
-    // PhanUndeclaredVariableDim : 20+ occurrences
     // PhanEmptyForeach : 15+ occurrences
     // PhanTypeMismatchDeclaredReturnNullable : 15+ occurrences
     // PhanUndeclaredGlobalVariable : 15+ occurrences
+    // PhanUndeclaredVariableDim : 15+ occurrences
     // PhanAccessMethodPrivate : 10+ occurrences
     // PhanNoopBinaryOperator : 10+ occurrences
     // PhanTypeMismatchProperty : 10+ occurrences
@@ -129,7 +129,6 @@ return [
         'admin/email/main.page.php' => ['PhanEmptyForeach', 'PhanPluginDuplicateAdjacentStatement', 'PhanRedundantCondition', 'PhanTypeMismatchArgument'],
         'admin/export/main.page.php' => ['PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
         'admin/settings/api-settings.page.php' => ['PhanTypeMismatchArgument'],
-        'admin/settings/client-portal.page.php' => ['PhanUndeclaredVariableDim'],
         'admin/settings/custom-fields.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchDimFetch'],
         'admin/settings/field-options.page.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchDimAssignment'],
         'admin/settings/field-sorts.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
@@ -139,7 +138,6 @@ return [
         'admin/settings/locale.page.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredVariableDim'],
         'admin/settings/mail-delivery.ajax.php' => ['PhanRedundantCondition'],
         'admin/settings/mail-delivery.page.php' => ['PhanTypeArraySuspiciousNullable'],
-        'admin/settings/mail.page.php' => ['PhanUndeclaredVariableDim'],
         'admin/settings/main.page.php' => ['PhanTypePossiblyInvalidDimOffset', 'PhanUnextractableAnnotationElementName'],
         'admin/settings/oauth-connections.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'admin/settings/partials/menu.block.php' => ['PhanTypeArraySuspiciousNullable', 'PhanUndeclaredGlobalVariable'],
