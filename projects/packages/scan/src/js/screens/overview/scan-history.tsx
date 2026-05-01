@@ -1,6 +1,8 @@
-import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useQuery } from '@tanstack/react-query';
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import { Spinner, __experimentalVStack as VStack } from '@wordpress/components';
+/* eslint-enable @wordpress/no-unsafe-wp-apis */
 import { __ } from '@wordpress/i18n';
 import { siteScanHistoryQuery } from '../../data/query-options';
 import EmptyState from './empty-state';
@@ -24,7 +26,11 @@ const ScanHistory: FC = () => {
 	const { data, isLoading, error } = useQuery( siteScanHistoryQuery() );
 
 	if ( isLoading ) {
-		return <LoadingPlaceholder width="100%" height={ 400 } />;
+		return (
+			<VStack alignment="center" style={ { minHeight: 360 } }>
+				<Spinner />
+			</VStack>
+		);
 	}
 
 	if ( error ) {

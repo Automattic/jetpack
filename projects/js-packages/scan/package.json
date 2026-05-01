@@ -24,9 +24,10 @@
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts && pnpm run copy-scss",
 		"clean": "rm -rf build/",
 		"compile-ts": "tsgo --pretty",
+		"copy-scss": "node ./tools/copy-scss-to-build.mjs",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit"

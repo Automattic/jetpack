@@ -1,7 +1,8 @@
-import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@wordpress/components';
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import { Button, Spinner, __experimentalVStack as VStack } from '@wordpress/components';
+/* eslint-enable @wordpress/no-unsafe-wp-apis */
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { siteScanQuery } from '../../data/query-options';
@@ -76,7 +77,11 @@ const ActiveThreats: FC = () => {
 	}, [ fixableCount, isScanRunning, setHeaderActions, openBulkFix ] );
 
 	if ( isLoading ) {
-		return <LoadingPlaceholder width="100%" height={ 400 } />;
+		return (
+			<VStack alignment="center" style={ { minHeight: 360 } }>
+				<Spinner />
+			</VStack>
+		);
 	}
 
 	if ( error ) {

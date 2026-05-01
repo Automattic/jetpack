@@ -1,5 +1,5 @@
-import { Col, Container, LoadingPlaceholder } from '@automattic/jetpack-components';
-import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import { Spinner, __experimentalVStack as VStack } from '@wordpress/components';
 import { isMockMode } from './data/mock';
 import useConnection from './hooks/use-connection';
 import type { FC, ReactNode } from 'react';
@@ -17,7 +17,6 @@ import type { FC, ReactNode } from 'react';
  */
 const Gates: FC< { children: ReactNode } > = ( { children } ) => {
 	const connectionStatus = useConnection();
-	const { hasConnectionError } = useConnectionErrorNotice();
 
 	// `?jps-mock=1` short-circuits every gate so the overview renders
 	// immediately, even on sites without a Jetpack connection or a Scan
@@ -28,28 +27,15 @@ const Gates: FC< { children: ReactNode } > = ( { children } ) => {
 
 	const connectionLoaded = Object.keys( connectionStatus ).length > 0;
 
-	const connectionBanner = hasConnectionError ? (
-		<Col className="jetpack-connection-verified-error">
-			<ConnectionError />
-		</Col>
-	) : null;
-
 	if ( ! connectionLoaded ) {
 		return (
-			<Container horizontalSpacing={ 5 } fluid>
-				<Col>
-					<LoadingPlaceholder width="100%" height={ 500 } />
-				</Col>
-			</Container>
+			<VStack alignment="center" style={ { minHeight: 360 } }>
+				<Spinner />
+			</VStack>
 		);
 	}
 
-	return (
-		<>
-			{ connectionBanner }
-			{ children }
-		</>
-	);
+	return <>{ children }</>;
 };
 
 export default Gates;
