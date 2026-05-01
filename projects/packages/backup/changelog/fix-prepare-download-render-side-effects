@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Move the prepare-download status updates out of react-query's `select` into a `useEffect`, and let `data_type: 0` keep the polling enabled.

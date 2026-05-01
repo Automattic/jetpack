@@ -1,7 +1,7 @@
 /* eslint-disable jsdoc/require-description, jsdoc/require-param-description, jsdoc/require-returns */
 
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { prepareBackupDownload } from '../../../data/fetchers';
 import { backupFilteredDownloadStatusQuery } from '../../../data/query-options';
 
@@ -37,9 +37,9 @@ export function usePrepareDownload( onError: () => void ) {
 	// Poll the build status every 5s once we have a key. `url` populated
 	// means the filtered archive is ready to download; anything else keeps
 	// us polling until the user cancels or the request errors.
-	useQuery( {
+	const { data: statusData } = useQuery( {
 		...backupFilteredDownloadStatusQuery( buildKey ?? '', dataType ?? 0 ),
-		enabled: !! buildKey && !! dataType && status === PREPARE_DOWNLOAD_STATUS.PREPARING,
+		enabled: !! buildKey && dataType !== null && status === PREPARE_DOWNLOAD_STATUS.PREPARING,
 		refetchInterval: query => {
 			const data = query.state.data;
 			if ( data?.status === 'ready' && data.url ) {
@@ -47,14 +47,14 @@ export function usePrepareDownload( onError: () => void ) {
 			}
 			return 5000;
 		},
-		select: data => {
-			if ( data?.status === 'ready' && data.url ) {
-				setStatus( PREPARE_DOWNLOAD_STATUS.READY );
-				setDownloadUrl( data.url );
-			}
-			return data;
-		},
 	} );
+
+	useEffect( () => {
+		if ( statusData?.status === 'ready' && statusData.url ) {
+			setStatus( PREPARE_DOWNLOAD_STATUS.READY );
+			setDownloadUrl( statusData.url );
+		}
+	}, [ statusData ] );
 
 	const prepareDownload = useCallback(
 		( rewindId: string, manifestFilter: string, payloadDataType: number ) => {
