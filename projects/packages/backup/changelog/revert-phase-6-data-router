@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Backup: Revert the Phase 6 data-router swap. Programmatic navigation (`useNavigate()` to `/restore` or `/download`) updates the data-router's internal location state, but RouterProvider's `useSyncExternalStore` subscribers don't re-render under WP's canary ReactDOM — Restore navigation went to the URL but never swapped screens. Falling back to `<HashRouter key={hashKey}>` + the patched `pushState`/`replaceState` listener that triggers a remount on every nav. Costs ~1-2s of `Gates` re-run, but it reliably propagates location changes. A targeted fix that keeps the data router can land later.
