@@ -45,6 +45,20 @@ function videopress_is_valid_preload( $value ) {
 }
 
 /**
+ * Recursively convert a stdClass tree (typically from json_decode()) to a nested array.
+ *
+ * Used so attachment metadata stored under the `videopress` key can be accessed via
+ * array syntax by Automattic\Jetpack\VideoPress\Data and the rest of the consuming code,
+ * matching the structure XMLRPC::update_videopress_media_item() produces.
+ *
+ * @param mixed $value The value to convert.
+ * @return mixed Nested arrays in place of objects, scalars unchanged.
+ */
+function videopress_object_to_array( $value ) {
+	return json_decode( wp_json_encode( $value, JSON_HEX_TAG | JSON_HEX_AMP ), true );
+}
+
+/**
  * Get details about a specific video by GUID:
  *
  * @param string $guid Video GUID.
@@ -219,7 +233,7 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0, 
 		$meta = array(
 			'width'      => $vp_data->width ?? 0,
 			'height'     => $vp_data->height ?? 0,
-			'videopress' => json_decode( wp_json_encode( $vp_data, JSON_HEX_TAG | JSON_HEX_AMP ), true ), // Convert stdClass to array.
+			'videopress' => videopress_object_to_array( $vp_data ),
 		);
 
 		if ( ! empty( $vp_data->original ) ) {
