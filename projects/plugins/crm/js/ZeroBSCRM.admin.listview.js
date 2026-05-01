@@ -981,11 +981,11 @@ function zeroBSCRMJS_enactBulkAction( actionstr, idList, extraParams, successcb,
 			error: function ( response ) {
 				if ( response.status === 403 ) {
 					// permissions error
-					swal(
-						zeroBSCRMJS_listViewLang( 'badperms' ),
-						zeroBSCRMJS_listViewLang( 'badperms_desc' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'badperms' ),
+						text: zeroBSCRMJS_listViewLang( 'badperms_desc' ),
+						type: 'warning',
+					} );
 				} else if ( typeof errcb === 'function' ) {
 					errcb( response );
 				}
@@ -1296,29 +1296,29 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_addtag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -1410,29 +1410,29 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_removetag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -1569,11 +1569,19 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal( zeroBSCRMJS_listViewLang( 'statusupdated' ), '', 'success' );
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'statusupdated' ),
+						text: '',
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal( zeroBSCRMJS_listViewLang( 'statusnotupdated' ), '', 'warning' );
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'statusnotupdated' ),
+						text: '',
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -1630,11 +1638,11 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notcontactsdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notcontactsdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -1689,19 +1697,19 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'merged' ),
-						zeroBSCRMJS_listViewLang( 'contactsmerged' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'merged' ),
+						text: zeroBSCRMJS_listViewLang( 'contactsmerged' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notmerged' ),
-						zeroBSCRMJS_listViewLang( 'contactsnotmerged' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notmerged' ),
+						text: zeroBSCRMJS_listViewLang( 'contactsnotmerged' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -2810,19 +2818,19 @@ function zeroBSCRMJS_listView_segment_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'segmentsdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'segmentsdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notsegmentsdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notsegmentsdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3344,19 +3352,19 @@ function zeroBSCRMJS_listView_company_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'companysdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'companysdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notcompanysdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notcompanysdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3457,29 +3465,29 @@ function zeroBSCRMJS_listView_company_bulkActionFire_addtag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -3579,29 +3587,29 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -3760,19 +3768,19 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markaccepted() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'acceptdeleted' ),
-						zeroBSCRMJS_listViewLang( 'acceptcompanysdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'acceptdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'acceptcompanysdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'acceptnotdeleted' ),
-						zeroBSCRMJS_listViewLang( 'acceptnotcompanysdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'acceptnotdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'acceptnotcompanysdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3811,19 +3819,19 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markunaccepted() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'unacceptdeleted' ),
-						zeroBSCRMJS_listViewLang( 'unacceptcompanysdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'unacceptdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'unacceptcompanysdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'unacceptnotdeleted' ),
-						zeroBSCRMJS_listViewLang( 'unacceptnotcompanysdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'unacceptnotdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'unacceptnotcompanysdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3858,19 +3866,19 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'quotesdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'quotesdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notquotesdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notquotesdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -3922,19 +3930,19 @@ function zeroBSCRMJS_listView_quotetemplate_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'quotetemplatesdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'quotetemplatesdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notquotetemplatesdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notquotetemplatesdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -4176,19 +4184,19 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'statusupdated' ),
-						zeroBSCRMJS_listViewLang( 'statuscompanysupdated' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'statusupdated' ),
+						text: zeroBSCRMJS_listViewLang( 'statuscompanysupdated' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'statusnotupdated' ),
-						zeroBSCRMJS_listViewLang( 'statusnotcompanysupdated' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'statusnotupdated' ),
+						text: zeroBSCRMJS_listViewLang( 'statusnotcompanysupdated' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -4223,19 +4231,19 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'invoicesdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'invoicesdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notinvoicesdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notinvoicesdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -4496,19 +4504,19 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'transactionsdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'transactionsdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'nottransactionsdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'nottransactionsdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -4609,29 +4617,29 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_addtag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsaddeddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotadded' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotaddeddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -4731,29 +4739,29 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_removetag() {
 					extraParams,
 					function () {
 						// success ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
-							'success'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsremoveddesc' ),
+							type: 'success',
+						} );
 					},
 					function () {
 						// fail ? SWAL?
-						swal(
-							zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
-							zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
-							'warning'
-						);
+						swal( {
+							titleText: zeroBSCRMJS_listViewLang( 'tagsnotremoved' ),
+							text: zeroBSCRMJS_listViewLang( 'tagsnotremoveddesc' ),
+							type: 'warning',
+						} );
 					}
 				);
 			} else {
 				// didn't select tags
 
-				swal(
-					zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
-					zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
-					'warning'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_listViewLang( 'tagsnotselected' ),
+					text: zeroBSCRMJS_listViewLang( 'tagsnotselecteddesc' ),
+					type: 'warning',
+				} );
 			}
 		}
 	} );
@@ -4877,19 +4885,19 @@ function zeroBSCRMJS_listView_form_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'formsdeleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'formsdeleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'notformsdeleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'notformsdeleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -5137,19 +5145,19 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'tasks_deleted' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'tasks_deleted' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'tasks_not_deleted' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'notdeleted' ),
+						text: zeroBSCRMJS_listViewLang( 'tasks_not_deleted' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -5190,19 +5198,19 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'tasks_marked' ),
-						zeroBSCRMJS_listViewLang( 'tasks_marked' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'tasks_marked' ),
+						text: zeroBSCRMJS_listViewLang( 'tasks_marked' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
-						zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
+						text: zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -5243,19 +5251,19 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 				extraParams,
 				function () {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'eventsmarked' ),
-						zeroBSCRMJS_listViewLang( 'eventsmarked' ),
-						'success'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'eventsmarked' ),
+						text: zeroBSCRMJS_listViewLang( 'eventsmarked' ),
+						type: 'success',
+					} );
 				},
 				function () {
 					// fail ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
-						zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
-						'warning'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
+						text: zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
+						type: 'warning',
+					} );
 				}
 			);
 		}
@@ -5430,11 +5438,11 @@ function zeroBSCRMJS_listView_bindInlineEditSave() {
 						},
 						function () {
 							// err
-							swal(
-								zeroBSCRMJS_listViewLang( 'couldntupdate' ),
-								zeroBSCRMJS_listViewLang( 'couldntupdatedeets' ),
-								'warning'
-							);
+							swal( {
+								titleText: zeroBSCRMJS_listViewLang( 'couldntupdate' ),
+								text: zeroBSCRMJS_listViewLang( 'couldntupdatedeets' ),
+								type: 'warning',
+							} );
 						}
 					);
 				}

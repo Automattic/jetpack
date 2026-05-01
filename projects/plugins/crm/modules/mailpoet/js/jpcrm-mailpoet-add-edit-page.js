@@ -15,11 +15,11 @@
 function jpcrm_segment_export_to_mailpoet( exportButton ) {
 	// Segment must exist
 	if ( ! window.zbsSegment.id ) {
-		swal(
-			zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
-			zeroBSCRMJS_segmentLang( 'nosegmentid' ),
-			'error'
-		);
+		swal( {
+			titleText: zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
+			text: zeroBSCRMJS_segmentLang( 'nosegmentid' ),
+			type: 'error',
+		} );
 
 		return;
 	}
@@ -183,11 +183,11 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 				return true;
 			},
 			error: function ( response ) {
-				swal(
-					zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
-					zeroBSCRMJS_segmentLang( 'nosegmentid' ),
-					'error'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
+					text: zeroBSCRMJS_segmentLang( 'nosegmentid' ),
+					type: 'error',
+				} );
 				exportButton.removeClass( 'loading' );
 				window.zbsAJAXSending = false;
 				// eslint-disable-next-line no-console
@@ -277,11 +277,11 @@ function jpcrm_segment_batch_export( params ) {
 				// hard fail
 				// eslint-disable-next-line no-console
 				console.log( 'Export to MailPoet Error', response );
-				swal(
-					zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
-					zeroBSCRMJS_segmentLang( 'nosegmentid' ),
-					'error'
-				);
+				swal( {
+					titleText: zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
+					text: zeroBSCRMJS_segmentLang( 'nosegmentid' ),
+					type: 'error',
+				} );
 				window.zbsAJAXSending = false;
 				return false;
 			}
@@ -316,11 +316,11 @@ function jpcrm_mailpoet_retrieve_list_summary( list_name, callback, error_callba
 			// hard fail
 			// eslint-disable-next-line no-console
 			console.log( 'MailPoet summary retrieve error', response );
-			swal(
-				zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
-				zeroBSCRMJS_segmentLang( 'generalerror' ),
-				'error'
-			);
+			swal( {
+				titleText: zeroBSCRMJS_segmentLang( 'generalerrortitle' ),
+				text: zeroBSCRMJS_segmentLang( 'generalerror' ),
+				type: 'error',
+			} );
 
 			if ( typeof error_callback === 'function' ) {
 				error_callback();

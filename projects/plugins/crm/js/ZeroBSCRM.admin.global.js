@@ -2342,21 +2342,21 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 							// blocker
 							window.zbscrmjs_adminMenuBlocker = false;
 							// success ? SWAL?
-							swal(
-								zeroBSCRMJS_globViewLang( 'sent' ),
-								zeroBSCRMJS_globViewLang( 'statementsent' ),
-								'success'
-							);
+							swal( {
+								titleText: zeroBSCRMJS_globViewLang( 'sent' ),
+								text: zeroBSCRMJS_globViewLang( 'statementsent' ),
+								type: 'success',
+							} );
 						},
 						error: function () {
 							// blocker
 							window.zbscrmjs_adminMenuBlocker = false;
 							// fail ? SWAL?
-							swal(
-								zeroBSCRMJS_globViewLang( 'notsent' ),
-								zeroBSCRMJS_globViewLang( 'statementnotsent' ),
-								'warning'
-							);
+							swal( {
+								titleText: zeroBSCRMJS_globViewLang( 'notsent' ),
+								text: zeroBSCRMJS_globViewLang( 'statementnotsent' ),
+								type: 'warning',
+							} );
 						},
 					} );
 				}

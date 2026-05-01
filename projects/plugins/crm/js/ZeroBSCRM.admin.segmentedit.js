@@ -927,11 +927,11 @@ function zeroBSCRMJS_segment_previewAudience() {
 						.prop( 'disabled', false );
 
 					// err
-					swal(
-						zeroBSCRMJS_segmentLang( 'generalerrortitle' ) + ' #219',
-						zeroBSCRMJS_segmentLang( 'generalerror' ),
-						'error'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_segmentLang( 'generalerrortitle' ) + ' #219',
+						text: zeroBSCRMJS_segmentLang( 'generalerror' ),
+						type: 'error',
+					} );
 				}
 			);
 		} else {
@@ -1095,11 +1095,11 @@ function zeroBSCRMJS_segment_saveSegmentAct() {
 						.prop( 'disabled', false );
 
 					// err
-					swal(
-						zeroBSCRMJS_segmentLang( 'generalerrortitle' ) + ' #221',
-						zeroBSCRMJS_segmentLang( 'generalerror' ),
-						'error'
-					);
+					swal( {
+						titleText: zeroBSCRMJS_segmentLang( 'generalerrortitle' ) + ' #221',
+						text: zeroBSCRMJS_segmentLang( 'generalerror' ),
+						type: 'error',
+					} );
 				}
 			);
 		} else {

@@ -1714,19 +1714,19 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 					i.done(function(e) {
 						if ( e && e.success ) {
 
-							swal(
-								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset', 'zero-bs-crm' ) ); ?>',
-								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal password has been reset for this contact, and they have been emailed with the new password.', 'zero-bs-crm' ) ); ?>',
-								'info'
-							);
+							swal({
+								titleText: '<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset', 'zero-bs-crm' ) ); ?>',
+								text: '<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal password has been reset for this contact, and they have been emailed with the new password.', 'zero-bs-crm' ) ); ?>',
+								type: 'info',
+							});
 
 						} else {
 
-							swal(
-								'<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset Error', 'zero-bs-crm' ) ); ?>',
-								'<?php zeroBSCRM_slashOut( esc_html__( 'Error: Client Portal password has not been reset for this contact.', 'zero-bs-crm' ) ); ?>',
-								'info'
-							);
+							swal({
+								titleText: '<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset Error', 'zero-bs-crm' ) ); ?>',
+								text: '<?php zeroBSCRM_slashOut( esc_html__( 'Error: Client Portal password has not been reset for this contact.', 'zero-bs-crm' ) ); ?>',
+								type: 'info',
+							});
 
 						}
 					}), i.fail(function(e) {
@@ -2070,22 +2070,22 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 														if (response.fail == 'existing'){
 
 															// already in use err
-															swal(
-																'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-																'<?php esc_html_e( 'This Alias is already in use by another contact.', 'zero-bs-crm' ); ?>',
-																'warning'
-															);
+															swal({
+																titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
+																text: '<?php esc_html_e( 'This Alias is already in use by another contact.', 'zero-bs-crm' ); ?>',
+																type: 'warning',
+															});
 
 														}
 
 													} else {
 
 														// general err
-														swal(
-															'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-															'<?php esc_html_e( 'There was an error adding this alias', 'zero-bs-crm' ); ?>',
-															'warning'
-														);
+														swal({
+															titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
+															text: '<?php esc_html_e( 'There was an error adding this alias', 'zero-bs-crm' ); ?>',
+															type: 'warning',
+														});
 
 													}
 													//unblock
@@ -2097,11 +2097,11 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 												error: function(response){
 
 													// err
-													swal(
-														'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-														'<?php esc_html_e( 'There was an error adding this alias', 'zero-bs-crm' ); ?>',
-														'warning'
-													);
+													swal({
+														titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
+														text: '<?php esc_html_e( 'There was an error adding this alias', 'zero-bs-crm' ); ?>',
+														type: 'warning'
+													});
 													//unblock
 													window.zbsAliasAKABlocker = false;
 													jQuery('#zbs-aka-alias-loader').hide();
@@ -2203,11 +2203,11 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 										} else {
 
 											// err
-											swal(
-												'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-												'<?php esc_html_e( 'There was an error removing this alias', 'zero-bs-crm' ); ?>',
-												'warning'
-											);
+											swal({
+												titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
+												text: '<?php esc_html_e( 'There was an error removing this alias', 'zero-bs-crm' ); ?>',
+												type: 'warning',
+											});
 											//unblock
 											window.zbsAliasAKABlocker = false;
 											jQuery('#zbs-aka-alias-loader').hide();
@@ -2217,11 +2217,11 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 										error: function(response){
 
 											// err
-											swal(
-												'<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-												'<?php esc_html_e( 'There was an error removing this alias', 'zero-bs-crm' ); ?>',
-												'warning'
-											);
+											swal({
+												titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
+												text: '<?php esc_html_e( 'There was an error removing this alias', 'zero-bs-crm' ); ?>',
+												type: 'warning',
+											});
 											//unblock
 											window.zbsAliasAKABlocker = false;
 											jQuery('#zbs-aka-alias-loader').hide();

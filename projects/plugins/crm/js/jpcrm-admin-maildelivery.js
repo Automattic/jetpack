@@ -170,15 +170,13 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 						error: function ( response ) {
 							console.error( 'del', response );
 
-							swal(
-								jpcrm.esc_html(
-									window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeleteErrTitle' )
+							swal( {
+								titleText: window.zeroBSCRMJS_globViewLang(
+									'deleteMailDeliverySureDeleteErrTitle'
 								),
-								jpcrm.esc_html(
-									window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeleteErrText' )
-								),
-								'warning'
-							);
+								text: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeleteErrText' ),
+								type: 'warning',
+							} );
 						},
 					} );
 				}
@@ -256,15 +254,11 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 					error: function ( response ) {
 						console.error( 'def', response );
 
-						swal(
-							jpcrm.esc_html(
-								window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeleteErrTitle' )
-							),
-							jpcrm.esc_html(
-								window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeleteErrText' )
-							),
-							'warning'
-						);
+						swal( {
+							titleText: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeleteErrTitle' ),
+							text: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeleteErrText' ),
+							type: 'warning',
+						} );
 					},
 				} );
 			} );

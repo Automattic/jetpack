@@ -2327,11 +2327,11 @@ function zbscrmJS_sendInvoiceEmail( params ) {
 				dataType: 'json',
 				success: function () {
 					// done
-					swal(
-						jpcrm.esc_html( zbscrm_JS_invoice_lang( 'senttitle' ) ),
-						jpcrm.esc_html( zbscrm_JS_invoice_lang( 'sent' ) ),
-						'info'
-					);
+					swal( {
+						titleText: zbscrm_JS_invoice_lang( 'senttitle' ),
+						text: zbscrm_JS_invoice_lang( 'sent' ),
+						type: 'info',
+					} );
 
 					// blocker
 					window.zbsInvBlocker = false;
@@ -2341,11 +2341,11 @@ function zbscrmJS_sendInvoiceEmail( params ) {
 					console.error( 'senderr', response );
 
 					// err
-					swal(
-						jpcrm.esc_html( zbscrm_JS_invoice_lang( 'senderrortitle' ) ) + ' #19v3',
-						jpcrm.esc_html( zbscrm_JS_invoice_lang( 'senderror' ) ),
-						'error'
-					);
+					swal( {
+						titleText: zbscrm_JS_invoice_lang( 'senderrortitle' ) + ' #19v3',
+						text: zbscrm_JS_invoice_lang( 'senderror' ),
+						type: 'error',
+					} );
 
 					// blocker
 					window.zbsInvBlocker = false;

@@ -359,13 +359,13 @@ function jpcrm_quotes_send_email_modal() {
 					jpcrm_quotes_send_email( params );
 				} else {
 					// not legit email!
-					swal.fire( jpcrm_quotes_lang( 'sendneedsassignment' ) );
+					swal.fire( { titleText: jpcrm_quotes_lang( 'sendneedsassignment' ) } );
 				}
 			}
 		} );
 	} else {
 		// not legit email!
-		swal.fire( jpcrm_quotes_lang( 'sendneedsassignment' ) );
+		swal.fire( { titleText: jpcrm_quotes_lang( 'sendneedsassignment' ) } );
 	}
 }
 
@@ -403,18 +403,22 @@ function jpcrm_quotes_send_email( params ) {
 				dataType: 'json',
 				success: function () {
 					// done
-					swal( jpcrm_quotes_lang( 'senttitle' ), jpcrm_quotes_lang( 'sent' ), 'info' );
+					swal( {
+						titleText: jpcrm_quotes_lang( 'senttitle' ),
+						text: jpcrm_quotes_lang( 'sent' ),
+						type: 'info',
+					} );
 
 					// blocker
 					window.jpcrmQuoteBlocker = false;
 				},
 				error: function () {
 					// err
-					swal(
-						jpcrm_quotes_lang( 'senderrortitle' ) + ' #19v3',
-						jpcrm_quotes_lang( 'senderror' ),
-						'error'
-					);
+					swal( {
+						titleText: jpcrm_quotes_lang( 'senderrortitle' ) + ' #19v3',
+						text: jpcrm_quotes_lang( 'senderror' ),
+						type: 'error',
+					} );
 
 					// blocker
 					window.jpcrmQuoteBlocker = false;

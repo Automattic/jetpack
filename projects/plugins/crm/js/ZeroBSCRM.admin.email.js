@@ -110,7 +110,11 @@ jQuery( function ( $ ) {
 						dataType: 'json',
 						timeout: 20000,
 						success: function () {
-							swal( 'Email thread deleted!', 'Your email thread has been removed.', 'success' );
+							swal( {
+								titleText: 'Email thread deleted!',
+								text: 'Your email thread has been removed.',
+								type: 'success',
+							} );
 
 							// remove it from the list
 							$( '#zbs-email-body' ).hide();
@@ -121,11 +125,11 @@ jQuery( function ( $ ) {
 							$( '.zbs-email-list-' + emailid ).remove();
 						},
 						error: function () {
-							swal(
-								'Email Thread Not Deleted!',
-								'Your email thread was not removed, please try again.',
-								'warning'
-							);
+							swal( {
+								titleText: 'Email Thread Not Deleted!',
+								text: 'Your email thread was not removed, please try again.',
+								type: 'warning',
+							} );
 						},
 					} );
 				}
