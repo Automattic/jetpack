@@ -568,24 +568,26 @@ export default function ThreatsDataViews( {
 	const getItemId = useCallback( ( item: Threat ) => item.id.toString(), [] );
 
 	return (
-		<DataViews
-			actions={ actions }
-			data={ processedData }
-			defaultLayouts={ defaultLayouts }
-			fields={ fields }
-			getItemId={ getItemId }
-			onChangeSelection={ onChangeSelection }
-			onChangeView={ onChangeView }
-			paginationInfo={ paginationInfo }
-			view={ view }
-			empty={ empty }
-			header={
-				<ThreatsStatusToggleGroupControl
-					data={ data }
-					view={ view }
-					onChangeView={ onChangeView }
-				/>
-			}
-		/>
+		<div className={ styles[ 'threats-data-views' ] }>
+			<DataViews
+				actions={ actions }
+				data={ processedData }
+				defaultLayouts={ defaultLayouts }
+				fields={ fields }
+				getItemId={ getItemId }
+				onChangeSelection={ onChangeSelection }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				view={ view }
+				empty={ empty }
+				header={
+					<ThreatsStatusToggleGroupControl
+						data={ data }
+						view={ view }
+						onChangeView={ onChangeView }
+					/>
+				}
+			/>
+		</div>
 	);
 }
