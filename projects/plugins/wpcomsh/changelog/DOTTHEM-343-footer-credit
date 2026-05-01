@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Added word boundary to prevent replacing first instance of the word theme with an empty string when a theme doesn't have a valid style.css
