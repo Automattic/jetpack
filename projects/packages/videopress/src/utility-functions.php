@@ -52,7 +52,7 @@ function videopress_is_valid_preload( $value ) {
  * matching the structure XMLRPC::update_videopress_media_item() produces.
  *
  * @param mixed $value The value to convert.
- * @return mixed Nested arrays in place of objects, scalars unchanged.
+ * @return array Nested arrays in place of objects; an empty array if encoding/decoding fails or the value isn't structural.
  */
 function videopress_object_to_array( $value ) {
 	$json = wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
