@@ -256,12 +256,14 @@ function jpcrm_quotes_send_email_modal() {
 		// to
 		optsHTML += '<div class="jpcrm-send-email-modal-field">';
 		optsHTML +=
-			'<label for="jpcrm_quote_email_modal_toemail">' + jpcrm_quotes_lang( 'toemail' ) + '</label>';
+			'<label for="jpcrm_quote_email_modal_toemail">' +
+			jpcrm.esc_html( jpcrm_quotes_lang( 'toemail' ) ) +
+			'</label>';
 		optsHTML +=
 			'<input type="email" id="jpcrm_quote_email_modal_toemail" value="' +
 			recipientEmail +
 			'" placeholder="' +
-			jpcrm_quotes_lang( 'toemailplaceholder' ) +
+			jpcrm.esc_attr( jpcrm_quotes_lang( 'toemailplaceholder' ) ) +
 			'" />';
 		optsHTML += '</div>';
 
@@ -278,7 +280,7 @@ function jpcrm_quotes_send_email_modal() {
 				'/>';
 			optsHTML +=
 				'<label for="jpcrm_quote_email_modal_attachassoc">' +
-				jpcrm_quotes_lang( 'attachassoc' ) +
+				jpcrm.esc_html( jpcrm_quotes_lang( 'attachassoc' ) ) +
 				'</label>';
 			optsHTML += '</div>';
 		}
