@@ -39,7 +39,7 @@ class Search_Blocks {
 	const NON_SEARCH_QUERY_PARAM = 'q';
 
 	/**
-	 * Template slug used for the Jetpack Search page template.
+	 * Template slug used for the primary Jetpack Search page template.
 	 *
 	 * Intentionally distinct from WordPress's `search` slug so the plugin
 	 * template never collides with (and gets deduplicated against) a block
@@ -47,6 +47,20 @@ class Search_Blocks {
 	 * slug so it still wins on `/?s=...` requests.
 	 */
 	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
+
+	/**
+	 * Template slug for the compact-toolbar variant of the search results page.
+	 *
+	 * Registered alongside the primary template so site owners can pick the
+	 * compact layout from the Site Editor's Templates list (Appearance →
+	 * Editor → Templates → Add New). This slug is intentionally NOT prepended
+	 * to `search_template_hierarchy`: only one plugin-registered template
+	 * should win the hierarchy lookup, and the layout-rich `jetpack-search`
+	 * template remains the default. Site owners switch by either assigning
+	 * this template to a page or editing the resolved search template's
+	 * content to match.
+	 */
+	const SEARCH_COMPACT_TEMPLATE_SLUG = 'jetpack-search-compact';
 
 	/**
 	 * Per-request memo backing `is_initial_loading()`. Lifted out of the
@@ -713,72 +727,108 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Build the full search page template content.
+	 * Build the full search page template content for a bundled template file.
 	 *
-	 * Mirrors the "Blog Search Page" pattern's layout (see
-	 * `src/search-blocks/patterns/blog-search.php`) wrapped in header/main/
-	 * footer template parts so the plugin-registered template renders the
-	 * same page users get from inserting the pattern directly. Markup lives
-	 * in `templates/jetpack-search.html` — the canonical block-theme format
-	 * for block templates — with a `{{FILTER_HEADING}}` placeholder for the
-	 * filter-sidebar heading so that string still goes through `esc_html__()`.
+	 * Each template lives in `templates/<slug>.html` — the canonical
+	 * block-theme format for block templates. The default `jetpack-search`
+	 * template mirrors the "Blog Search Page" pattern (see
+	 * `src/search-blocks/patterns/blog-search.php`); the
+	 * `jetpack-search-compact` template mirrors the "Compact Search" pattern
+	 * (see `src/search-blocks/patterns/compact-search.php`). Both are
+	 * wrapped in header/main/footer template parts so the plugin-registered
+	 * templates render the same page users get from inserting the patterns
+	 * directly. The default template uses a `{{FILTER_HEADING}}` placeholder
+	 * for the filter-sidebar heading so that string still goes through
+	 * `esc_html__()`; the compact template has no equivalent placeholder
+	 * because its filter labels live inside individual blocks.
 	 *
-	 * Memoized: `register_search_template()` runs on every `init`, and the
-	 * template markup is identical every request, so read the file and run
-	 * the translation substitution once per process.
+	 * Memoized per slug: `register_search_template()` runs on every `init`,
+	 * and the template markup is identical every request, so read each file
+	 * and run the translation substitution once per process.
 	 *
-	 * @return string Block markup for a complete page template.
+	 * @param string $slug Template slug (basename of the .html file).
+	 * @return string Block markup for a complete page template, or '' when
+	 *                the bundled file is missing/unreadable.
 	 */
-	protected static function get_search_template_content(): string {
-		static $content = null;
-		if ( null !== $content ) {
-			return $content;
+	protected static function get_search_template_content( string $slug = self::SEARCH_TEMPLATE_SLUG ): string {
+		static $cache = array();
+		if ( array_key_exists( $slug, $cache ) ) {
+			return $cache[ $slug ];
 		}
-		$template_path = __DIR__ . '/templates/jetpack-search.html';
+		$template_path = __DIR__ . '/templates/' . $slug . '.html';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, bundled template file; wp_remote_get() is for remote URLs.
-		$raw     = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
-		$content = str_replace(
+		$raw            = is_readable( $template_path ) ? (string) file_get_contents( $template_path ) : '';
+		$cache[ $slug ] = str_replace(
 			'{{FILTER_HEADING}}',
 			esc_html__( 'Filter options', 'jetpack-search-pkg' ),
 			$raw
 		);
-		return $content;
+		return $cache[ $slug ];
 	}
 
 	/**
-	 * Register the Jetpack Search page template with the block-template
-	 * registry so it surfaces in the Site Editor's Templates list and can be
-	 * resolved via the template hierarchy.
+	 * Register the Jetpack Search page templates with the block-template
+	 * registry so they surface in the Site Editor's Templates list and can
+	 * be resolved via the template hierarchy.
+	 *
+	 * Two templates are registered:
+	 *
+	 * - `jetpack-search` — the default sidebar layout from the "Blog Search
+	 *   Page" pattern. Prepended to `search_template_hierarchy` so it wins
+	 *   `/?s=...` requests automatically.
+	 * - `jetpack-search-compact` — the toolbar layout from the "Compact
+	 *   Search" pattern. Available in the Site Editor's Templates list so
+	 *   site owners can opt into the compact layout, but NOT prepended to
+	 *   the search hierarchy (only one plugin template should win the
+	 *   `/?s=...` lookup, and the sidebar layout remains the default).
 	 *
 	 * Uses `register_block_template()` (WP 6.7+). Jetpack requires WP 6.8+,
 	 * so the function is always present at runtime — the function_exists
 	 * guard is defensive for phpstan/phan and edge environments.
 	 *
 	 * DB-stored customizations continue to take precedence: if a site owner
-	 * edits this template in the Site Editor, the `custom` source wins during
-	 * resolution automatically.
+	 * edits either template in the Site Editor, the `custom` source wins
+	 * during resolution automatically.
 	 */
 	public static function register_search_template() {
 		if ( ! function_exists( 'register_block_template' ) ) {
 			return;
 		}
-		$content = static::get_search_template_content();
+		$namespace = static::get_parent_plugin_slug();
+
+		$default_content = static::get_search_template_content( self::SEARCH_TEMPLATE_SLUG );
 		// Skip registration if the bundled template file is missing or
 		// unreadable. Since this template's slug is prepended to the
 		// search hierarchy, registering with empty content would take
 		// over `/?s=...` and render a blank page; bailing here lets core
 		// fall through to the theme's `search.html` instead.
-		if ( '' === $content ) {
-			return;
+		if ( '' !== $default_content ) {
+			register_block_template(
+				$namespace . '//' . self::SEARCH_TEMPLATE_SLUG,
+				array(
+					'title'       => __( 'Jetpack Search Results', 'jetpack-search-pkg' ),
+					'description' => __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
+					'content'     => $default_content,
+				)
+			);
 		}
-		register_block_template(
-			static::get_parent_plugin_slug() . '//' . self::SEARCH_TEMPLATE_SLUG,
-			array(
-				'title'       => __( 'Jetpack Search Results', 'jetpack-search-pkg' ),
-				'description' => __( 'Displays search results with Jetpack Search filters.', 'jetpack-search-pkg' ),
-				'content'     => $content,
-			)
-		);
+
+		$compact_content = static::get_search_template_content( self::SEARCH_COMPACT_TEMPLATE_SLUG );
+		// The compact template is opt-in via the Site Editor and is not
+		// prepended to the search hierarchy, so an empty file just hides
+		// the option from the Templates list rather than blanking out
+		// `/?s=...`. Skipping when empty still avoids registering a no-op
+		// entry that would render blank if a site owner did select it.
+		if ( '' !== $compact_content ) {
+			register_block_template(
+				$namespace . '//' . self::SEARCH_COMPACT_TEMPLATE_SLUG,
+				array(
+					'title'       => __( 'Jetpack Search Results (Compact)', 'jetpack-search-pkg' ),
+					'description' => __( 'Displays search results with a compact Jetpack Search toolbar (inline filters and sort).', 'jetpack-search-pkg' ),
+					'content'     => $compact_content,
+				)
+			);
+		}
 	}
 
 	/**

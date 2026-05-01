@@ -493,7 +493,14 @@ class Search_Blocks_Test extends TestCase {
 		// Isolate from any prior registration — the registry is a singleton
 		// across tests, and register_block_template() errors on duplicates.
 		$registry = \WP_Block_Templates_Registry::get_instance();
-		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+		foreach (
+			array(
+				'jetpack-search//jetpack-search',
+				'jetpack//jetpack-search',
+				'jetpack-search//jetpack-search-compact',
+				'jetpack//jetpack-search-compact',
+			) as $name
+		) {
 			if ( $registry->is_registered( $name ) ) {
 				$registry->unregister( $name );
 			}
@@ -517,6 +524,56 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertStringNotContainsString( '{{FILTER_HEADING}}', $registered->content );
 
 		$registry->unregister( $expected );
+		$registry->unregister( $namespace . '//jetpack-search-compact' );
+	}
+
+	/**
+	 * The compact template surfaces an alternative Site Editor layout that
+	 * mirrors the "Compact Search" pattern — single-row toolbar (search
+	 * input + filter popover + sort popover) over a `layout:"compact"`
+	 * search-results list. It must register under the same namespace as
+	 * the default template, but it must NOT be prepended to the search
+	 * hierarchy (only one plugin template should win the `/?s=...` lookup).
+	 */
+	public function test_register_search_template_registers_compact_variant() {
+		if ( ! function_exists( 'register_block_template' ) ) {
+			$this->markTestSkipped( 'register_block_template() unavailable in this test environment.' );
+		}
+		$registry = \WP_Block_Templates_Registry::get_instance();
+		foreach (
+			array(
+				'jetpack-search//jetpack-search',
+				'jetpack//jetpack-search',
+				'jetpack-search//jetpack-search-compact',
+				'jetpack//jetpack-search-compact',
+			) as $name
+		) {
+			if ( $registry->is_registered( $name ) ) {
+				$registry->unregister( $name );
+			}
+		}
+
+		Search_Blocks::register_search_template();
+
+		$namespace = $this->invoke_protected( 'get_parent_plugin_slug' );
+		$expected  = $namespace . '//jetpack-search-compact';
+		$this->assertTrue( $registry->is_registered( $expected ), "Template $expected should be registered." );
+
+		$registered = $registry->get_registered( $expected );
+		$this->assertSame( 'Jetpack Search Results (Compact)', $registered->title );
+		// Compact-toolbar layout markers — guards against an accidental
+		// swap where the default sidebar markup gets registered under the
+		// compact slug.
+		$this->assertStringContainsString( '<!-- wp:jetpack-search/search-input /-->', $registered->content );
+		$this->assertStringContainsString( '<!-- wp:jetpack-search/filters-popover', $registered->content );
+		$this->assertStringContainsString( '"layout":"compact"', $registered->content );
+		// The compact slug must NOT win the search hierarchy — only the
+		// default `jetpack-search` slug is prepended.
+		$hierarchy = Search_Blocks::prepend_search_template( array( 'search', 'index' ) );
+		$this->assertNotContains( 'jetpack-search-compact', $hierarchy );
+
+		$registry->unregister( $expected );
+		$registry->unregister( $namespace . '//jetpack-search' );
 	}
 
 	/**
@@ -532,7 +589,14 @@ class Search_Blocks_Test extends TestCase {
 			$this->markTestSkipped( 'register_block_template() unavailable in this test environment.' );
 		}
 		$registry = \WP_Block_Templates_Registry::get_instance();
-		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+		foreach (
+			array(
+				'jetpack-search//jetpack-search',
+				'jetpack//jetpack-search',
+				'jetpack-search//jetpack-search-compact',
+				'jetpack//jetpack-search-compact',
+			) as $name
+		) {
 			if ( $registry->is_registered( $name ) ) {
 				$registry->unregister( $name );
 			}
@@ -540,15 +604,30 @@ class Search_Blocks_Test extends TestCase {
 
 		// Stub empty content by temporarily overriding the method's output
 		// via a mock subclass. Simplest: run register_search_template on a
-		// subclass that returns '' from get_search_template_content().
+		// subclass that returns '' from get_search_template_content() for
+		// every slug (the default and the compact variant).
 		$anon = new class() extends Search_Blocks {
-			protected static function get_search_template_content(): string {
+			/**
+			 * Stub override returning empty content for every slug.
+			 *
+			 * @param string $slug Required to match parent signature; intentionally unused.
+			 * @return string
+			 */
+			protected static function get_search_template_content( string $slug = self::SEARCH_TEMPLATE_SLUG ): string {
+				unset( $slug );
 				return '';
 			}
 		};
 		$anon::register_search_template();
 
-		foreach ( array( 'jetpack-search//jetpack-search', 'jetpack//jetpack-search' ) as $name ) {
+		foreach (
+			array(
+				'jetpack-search//jetpack-search',
+				'jetpack//jetpack-search',
+				'jetpack-search//jetpack-search-compact',
+				'jetpack//jetpack-search-compact',
+			) as $name
+		) {
 			$this->assertFalse( $registry->is_registered( $name ), "Template $name should NOT be registered when content is empty." );
 		}
 	}

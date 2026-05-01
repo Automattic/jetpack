@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: Register a second block template ("Jetpack Search Results (Compact)") that mirrors the Compact Search pattern, so site owners can opt into the toolbar-style search layout from the Site Editor.
