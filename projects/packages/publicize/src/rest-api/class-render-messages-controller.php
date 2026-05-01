@@ -218,73 +218,14 @@ class Render_Messages_Controller extends Base_Controller {
 				);
 			}
 
-			return rest_ensure_response( self::render_items_for_post( $post, $items ) );
+			return rest_ensure_response(
+				\Publicize\render_messages_for_networks( $post, $items )
+			);
 		}
 
 		// Self-hosted Jetpack: proxy the GET (with its query string) to WPCOM.
 		return rest_ensure_response(
 			$this->proxy_request_to_wpcom_as_blog( $request )
 		);
-	}
-
-	/**
-	 * Render the items for a post.
-	 *
-	 * Public-static for ease of testing. Dedupes by render-affecting input hash so two
-	 * items with identical `{ network, message, is_social_post }` only render once.
-	 *
-	 * @param \WP_Post $post  The post to render against.
-	 * @param array    $items Items to render.
-	 * @return array<int, array<string, mixed>> Array of result records, one per input item, in input order.
-	 */
-	public static function render_items_for_post( $post, array $items ) {
-		$cache   = array(); // hash => string (rendered) | WP_Error.
-		$results = array();
-
-		foreach ( $items as $item ) {
-			$network        = isset( $item['network'] ) ? (string) $item['network'] : '';
-			$message        = isset( $item['message'] ) ? (string) $item['message'] : '';
-			$is_social_post = ! empty( $item['is_social_post'] );
-			$id             = isset( $item['id'] ) ? (string) $item['id'] : '';
-
-			$key = md5(
-				wp_json_encode(
-					array(
-						'network'        => $network,
-						'message'        => $message,
-						'is_social_post' => $is_social_post,
-					),
-					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-				)
-			);
-
-			if ( ! array_key_exists( $key, $cache ) ) {
-				try {
-					$rendered      = \Publicize\render_message_for_network( $post, $network, $message, null, $is_social_post );
-					$cache[ $key ] = null === $rendered ? '' : $rendered;
-				} catch ( \Throwable $e ) {
-					$cache[ $key ] = new WP_Error( 'render_failed', $e->getMessage() );
-				}
-			}
-
-			$rendered = $cache[ $key ];
-
-			if ( is_wp_error( $rendered ) ) {
-				$results[] = array(
-					'id'    => $id,
-					'error' => array(
-						'code'    => $rendered->get_error_code(),
-						'message' => $rendered->get_error_message(),
-					),
-				);
-			} else {
-				$results[] = array(
-					'id'               => $id,
-					'rendered_message' => $rendered,
-				);
-			}
-		}
-
-		return $results;
 	}
 }
