@@ -19,9 +19,15 @@ $placeholder = trim( (string) ( $attributes['placeholder'] ?? '' ) );
 if ( '' === $placeholder ) {
 	$placeholder = __( 'Search…', 'jetpack-search-pkg' );
 }
-$show_icon     = (bool) ( $attributes['showIcon'] ?? true );
-$submit_only   = ! empty( $attributes['submitOnly'] );
-$initial_query = (string) get_search_query();
+$show_icon   = (bool) ( $attributes['showIcon'] ?? true );
+$submit_only = ! empty( $attributes['submitOnly'] );
+// Read directly from $_GET['s'] rather than going through
+// get_search_query(), which reads from $wp_query — and may have been
+// emptied by Search_Blocks::unset_search_on_singular_block_host() to
+// dodge the singular 404 path. Sanitization mirrors that helper.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to string + sanitize_text_field( wp_unslash( ... ) ) on the next line.
+$raw_s         = $_GET['s'] ?? '';
+$initial_query = is_scalar( $raw_s ) ? trim( sanitize_text_field( wp_unslash( (string) $raw_s ) ) ) : '';
 $input_id      = wp_unique_id( 'jetpack-search-input-' );
 ?>
 <div

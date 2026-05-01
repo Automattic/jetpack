@@ -1,8 +1,10 @@
 # Exploration: embedded search returns 404 on refresh (RSM-1754)
 
-> **Status:** Exploration only — no production fix applied. This document
-> captures the root cause, reproduction notes, and trade-offs between
-> candidate fixes so we can decide on a direction in a follow-up PR.
+> **Status:** Implemented — Option B is now live. See
+> `Search_Blocks::unset_search_on_singular_block_host()` and
+> `Search_Blocks::post_hosts_search_blocks()` in
+> `src/search-blocks/class-search-blocks.php`. This document is kept for
+> the design rationale and for reviewers comparing alternatives.
 
 ## Problem statement
 
@@ -26,13 +28,20 @@ page that **also** carries a search query. Internally:
 1. `WP::parse_request()` resolves the rewrite rule for `/about/` and
    sets `pagename=about`. It also sees `?s=react` in `$_GET` and
    queues `s=react` as a query var.
-2. `WP_Query::get_posts()` runs with both:
-   - `is_singular() === true` (because `pagename=about` was matched), and
-   - `is_search() === true` (because `s` is set).
-3. The MySQL query that core builds for that combined state is
-   essentially "page named `about` whose post_content matches
-   `react`". For the typical case (the page doesn't contain the
-   word "react"), the resulting `$posts` is empty.
+2. `WP_Query::parse_query()` resolves the query as singular
+   (`is_page === true`, `is_singular() === true`) because `pagename` is
+   set. *Despite `s` being non-empty, `is_search` stays false* — the
+   `is_search = true` branch only fires in the archive `else` arm of
+   `parse_query()` (see `class-wp-query.php`, the `if ( isset(
+   $this->query['s'] ) )` block ~L894). This is a useful detail for
+   the fix: gating on `is_search()` would skip exactly the case we
+   need to catch.
+3. `WP_Query::get_posts()` still adds the search WHERE clause whenever
+   `strlen( $query_vars['s'] ) > 0` (see `class-wp-query.php` ~L2278),
+   regardless of `is_search`. The MySQL query that core builds for
+   that combined state is essentially "page named `about` whose
+   post_content matches `react`". For the typical case (the page
+   doesn't contain the word "react"), the resulting `$posts` is empty.
 4. `WP::handle_404()` then sees a singular request with an empty
    `$posts` and sets a 404, which is what the visitor sees.
 
@@ -177,24 +186,30 @@ If we want the "refreshing keeps you on the search-results page"
 mental model from Option C, that's a follow-up: the prerequisite is
 still suppressing the singular 404 path, which Option B does.
 
-## Prototype patch
+## Implementation notes
 
-A minimal, reviewable spike of Option B is in
-`prototype-singular-search-guard.diff` next to this file.
+Option B shipped with two changes in
+`src/search-blocks/class-search-blocks.php`:
 
-It:
+1. `Search_Blocks::post_hosts_search_blocks( \WP_Post $post )` walks
+   `parse_blocks( $post->post_content )` and returns true when any
+   block name in `SEARCH_BLOCK_NAMES` is found anywhere in the tree
+   (including nested `innerBlocks` like a Group wrapper).
+2. `Search_Blocks::unset_search_on_singular_block_host( \WP_Query $query )`
+   hooks `pre_get_posts`. On the main frontend query, when `s` is
+   non-empty and `pagename`/`page_id`/`name` resolves to a post that
+   hosts any search block, it calls `$query->set( 's', '' )` so core
+   doesn't AND a `post_content LIKE` clause into the singular post
+   lookup. `$_GET['s']` is left intact, so the Interactivity store's
+   `searchQuery` seed still picks up the URL value and the inline
+   search runs after hydration.
 
-1. Adds a `Search_Blocks::post_hosts_search_blocks()` helper (factored
-   out of `collect_filter_configs_from_post()`).
-2. Adds a `pre_get_posts` filter that, on the main frontend search
-   query, when `is_singular()` and the resolved post hosts any
-   `jetpack/search-*` block, removes the `s` query var from the
-   `WP_Query`. The Interactivity store still reads `?s=` from
-   `$_GET` for state seeding.
-
-The diff is shown unapplied so reviewers can compare. Tests, lint,
-and changelog entries are intentionally not included — those belong
-in the implementation PR once a direction is chosen.
+The fix gates on the raw `s` query var rather than `is_search()`
+because `WP_Query::parse_query()` resolves the `pagename`+`s`
+collision as singular (`is_page=true`) and never sets `is_search` in
+that branch — but `WP_Query::get_posts()` still folds the search
+WHERE clause in based purely on `strlen( $qv['s'] ) > 0`. See the
+"Root cause" section above.
 
 ## Open questions for the implementation PR
 

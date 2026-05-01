@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search 3.0: prevent 404 when refreshing a singular page that hosts inline search blocks (e.g. /about/?s=react).
