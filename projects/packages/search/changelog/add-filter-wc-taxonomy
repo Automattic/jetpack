@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: adds the `jetpack-search/filter-wc-taxonomy` block — a checkbox-list filter targeting one of the three built-in WooCommerce product taxonomies (product_cat, product_tag, product_brand). Three block variations (Category / Tag / Brand) registered server-side so each surfaces as a dedicated inserter entry. Rides the existing `filterType: 'taxonomy'` data plane and the shared `state.filterItems` getter from the foundation PR. Tracked under epic [RSM-1929].

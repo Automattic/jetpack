@@ -30,6 +30,7 @@ import ResultsListEdit from '../blocks/results-list/edit';
 import ResultsLoadMoreEdit from '../blocks/results-load-more/edit';
 import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
+import FilterWcTaxonomyEdit from '../blocks/filter-wc-taxonomy/edit';
 import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
 
 // Default save for blocks that own no editor-side state — render.php is the
@@ -53,6 +54,7 @@ const BLOCKS = [
 	[ 'jetpack-search/results-load-more', ResultsLoadMoreEdit ],
 	[ 'jetpack-search/search-results', SearchResultsEdit, searchResultsSave ],
 	[ 'jetpack-search/powered-by', PoweredByEdit ],
+	[ 'jetpack-search/filter-wc-taxonomy', FilterWcTaxonomyEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /

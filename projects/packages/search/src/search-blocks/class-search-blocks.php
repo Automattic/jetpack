@@ -213,6 +213,7 @@ class Search_Blocks {
 		}
 
 		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
+		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_wc_taxonomy_variations' ), 10, 2 );
 		static::register_patterns();
 	}
 
@@ -307,6 +308,67 @@ class Search_Blocks {
 		// or a higher-priority filter) wins over our preset of the same name —
 		// `array_merge` would otherwise append duplicates and the inserter
 		// would render two cards for the same variation.
+		$variations    = (array) $variations;
+		$existing_keys = array_flip( array_column( $variations, 'name' ) );
+		foreach ( $additions as $variation ) {
+			if ( ! isset( $existing_keys[ $variation['name'] ] ) ) {
+				$variations[] = $variation;
+			}
+		}
+		return $variations;
+	}
+
+	/**
+	 * Inject named block variations for the filter-wc-taxonomy block.
+	 *
+	 * Registers three dedicated inserter entries — Filter by Product Category,
+	 * Product Tag, Product Brand — so authors don't need to locate the generic
+	 * block and remember which taxonomy slug to enter. Mirrors the
+	 * inject_filter_checkbox_variations() pattern but targets the WooCommerce
+	 * product taxonomy block.
+	 *
+	 * @param array          $variations Variations registered on the block type.
+	 * @param \WP_Block_Type $block_type Block type the filter is being applied to.
+	 * @return array
+	 */
+	public static function inject_filter_wc_taxonomy_variations( $variations, $block_type ) {
+		if ( ! isset( $block_type->name ) || 'jetpack-search/filter-wc-taxonomy' !== $block_type->name ) {
+			return $variations;
+		}
+
+		$additions = array(
+			array(
+				'name'        => 'product_cat',
+				'title'       => __( 'Filter by Product Category', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product category checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'taxonomy' => 'product_cat',
+					'label'    => __( 'Category', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'taxonomy' ),
+			),
+			array(
+				'name'        => 'product_tag',
+				'title'       => __( 'Filter by Product Tag', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'taxonomy' => 'product_tag',
+					'label'    => __( 'Tag', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'taxonomy' ),
+			),
+			array(
+				'name'        => 'product_brand',
+				'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product brand checkboxes with live result counts. Requires a registered `product_brand` taxonomy.', 'jetpack-search-pkg' ),
+				'attributes'  => array(
+					'taxonomy' => 'product_brand',
+					'label'    => __( 'Brand', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'taxonomy' ),
+			),
+		);
+
 		$variations    = (array) $variations;
 		$existing_keys = array_flip( array_column( $variations, 'name' ) );
 		foreach ( $additions as $variation ) {
@@ -511,7 +573,7 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Walk the current post's block tree for jetpack-search/filter-checkbox blocks
+	 * Walk the current post's block tree for filter blocks
 	 * and build the matching filterConfigs map.
 	 *
 	 * Covers the common case where a page uses the Blog Search Page pattern
@@ -549,8 +611,9 @@ class Search_Blocks {
 	 */
 	protected static function filter_block_helpers(): array {
 		return array(
-			'jetpack-search/filter-checkbox' => Filter_Checkbox::class,
-			'jetpack-search/filter-date'     => Filter_Date::class,
+			'jetpack-search/filter-checkbox'    => Filter_Checkbox::class,
+			'jetpack-search/filter-date'        => Filter_Date::class,
+			'jetpack-search/filter-wc-taxonomy' => Filter_Wc_Taxonomy::class,
 		);
 	}
 
@@ -577,6 +640,7 @@ class Search_Blocks {
 					$configs[ $key ] = $helper::build_config( $attrs, $key );
 				}
 			}
+
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 				static::walk_blocks_for_filter_configs( $block['innerBlocks'], $configs );
 			}

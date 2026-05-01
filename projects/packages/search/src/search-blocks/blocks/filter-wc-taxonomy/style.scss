@@ -1,0 +1,12 @@
+// Wrapper-only styling. Shared `.jetpack-search-filter__list/__item/__label/
+// __count` classes are loaded by the filter-checkbox stylesheet (whichever
+// block lands first on the page registers them); a Search 3.0 page that
+// uses any product filter block will typically also have filter-checkbox
+// or its own product-filter sibling on the page, so the shared classes are
+// available.
+.jetpack-search-filter-wc-taxonomy {
+
+	&[hidden] {
+		display: none;
+	}
+}
