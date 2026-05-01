@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: post-update probe no longer re-requires the active plugin's main file (avoids 'Cannot redeclare' false-positive fatals) and now gates on pcg_guard_updates instead of pcg_guard_activation.

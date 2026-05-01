@@ -199,6 +199,48 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Mode constants have the documented values; the endpoint relies on
+	 * these specific strings, so a rename here is a wire-protocol change.
+	 */
+	public function test_load_tester_mode_constant_values() {
+		$this->assertSame( 'activation', PCG_Load_Tester::MODE_ACTIVATION );
+		$this->assertSame( 'update', PCG_Load_Tester::MODE_UPDATE );
+	}
+
+	/**
+	 * `build_probe_payload` defaults to activation mode and round-trips
+	 * the explicit mode argument when supplied.
+	 */
+	public function test_build_probe_payload_carries_mode() {
+		$default = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php' );
+		$this->assertSame(
+			array(
+				'plugin' => '/abs/foo/foo.php',
+				'mode'   => 'activation',
+			),
+			$default
+		);
+
+		$update = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php', PCG_Load_Tester::MODE_UPDATE );
+		$this->assertSame(
+			array(
+				'plugin' => '/abs/foo/foo.php',
+				'mode'   => 'update',
+			),
+			$update
+		);
+	}
+
+	/**
+	 * Unknown mode strings fall back to activation rather than poisoning
+	 * the transient with a value the endpoint will reject.
+	 */
+	public function test_build_probe_payload_rejects_unknown_mode() {
+		$payload = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php', 'bogus' );
+		$this->assertSame( 'activation', $payload['mode'] );
+	}
+
+	/**
 	 * Scenarios for pcg_guard_format_block_reason.
 	 *
 	 * @return array<string,array{0:array<string,mixed>,1:string}>

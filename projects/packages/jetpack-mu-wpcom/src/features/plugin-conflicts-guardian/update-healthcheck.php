@@ -99,7 +99,7 @@ function pcg_healthcheck_probe_and_maybe_rollback( $plugin_file ) {
 	$new_version = (string) ( $new_data['Version'] ?? '' );
 
 	$tester = new PCG_Load_Tester();
-	$result = $tester->test( $abs );
+	$result = $tester->test( $abs, PCG_Load_Tester::MODE_UPDATE );
 	$status = (string) ( $result['status'] ?? '' );
 
 	// Anything other than a captured fatal is a no-op rollback-wise: ok =
