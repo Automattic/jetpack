@@ -229,29 +229,14 @@ const Controls = props => {
 						label={ __( 'Show custom amount option', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
-					{ showCustomAmount && (
-						<TextControl
-							type="number"
-							label={ __( 'Suggested custom amount', 'jetpack' ) }
-							help={ __(
-								'Shown as the placeholder when donors enter a custom amount.',
-								'jetpack'
-							) }
-							value={ effectiveCustomAmountPlaceholder }
-							onChange={ value =>
-								setAttributes( {
-									customAmountPlaceholder:
-										value === '' || value === undefined ? undefined : Number( value ),
-								} )
-							}
-							min={ minimumTransactionAmountForCurrency( currency ) }
-							step={ 0.01 }
-							__nextHasNoMarginBottom={ true }
-						/>
-					) }
 					<h3
 						className="jp-donations-defaults-heading"
-						style={ { margin: '24px 0 8px', fontSize: 13, fontWeight: 600 } }
+						style={ {
+							margin: '24px 0 8px',
+							fontSize: 13,
+							fontWeight: 600,
+							textTransform: 'none',
+						} }
 					>
 						{ __( 'Defaults', 'jetpack' ) }
 					</h3>
@@ -313,6 +298,28 @@ const Controls = props => {
 									value={ amountValue( annualDonation ) }
 									options={ buildAmountOptions( annualDonation.amounts ) }
 									onChange={ onAmountChange( '1 year' ) }
+									__nextHasNoMarginBottom={ true }
+								/>
+							</FlexBlock>
+						</Flex>
+					) }
+					{ showCustomAmount && (
+						<Flex justify="space-between" align="center" style={ { marginBottom: 8 } }>
+							<FlexItem style={ { minWidth: 80 } }>{ __( 'Custom', 'jetpack' ) }</FlexItem>
+							<FlexBlock>
+								<TextControl
+									type="number"
+									hideLabelFromVision
+									label={ __( 'Suggested custom amount', 'jetpack' ) }
+									value={ effectiveCustomAmountPlaceholder }
+									onChange={ value =>
+										setAttributes( {
+											customAmountPlaceholder:
+												value === '' || value === undefined ? undefined : Number( value ),
+										} )
+									}
+									min={ minimumTransactionAmountForCurrency( currency ) }
+									step={ 0.01 }
 									__nextHasNoMarginBottom={ true }
 								/>
 							</FlexBlock>
