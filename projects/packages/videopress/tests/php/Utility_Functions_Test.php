@@ -548,6 +548,30 @@ class Utility_Functions_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test create_local_media_library_for_videopress_guid honors the $preserve_id parameter.
+	 */
+	public function test_create_local_media_library_preserve_id_false_skips_import_id() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90213 ) );
+
+		$captured_postarr = null;
+		$capture          = function ( $data, $postarr ) use ( &$captured_postarr ) {
+			$captured_postarr = $postarr;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5, 2 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		create_local_media_library_for_videopress_guid( $guid, 0, false );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+
+		$this->assertIsArray( $captured_postarr );
+		$this->assertEmpty( $captured_postarr['import_id'] ?? null );
+	}
+
+	/**
 	 * Test create_local_media_library_for_videopress_guid omits import_id when post_id is missing from the API response.
 	 */
 	public function test_create_local_media_library_omits_import_id_when_post_id_missing() {

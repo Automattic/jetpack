@@ -195,6 +195,53 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test import command propagates --no-preserve-id to the helper.
+	 */
+	public function test_import_no_preserve_id_skips_import_id() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90215 ) );
+
+		$captured_postarr = null;
+		$capture          = function ( $data, $postarr ) use ( &$captured_postarr ) {
+			$captured_postarr = $postarr;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5, 2 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		( new CLI() )->import( array( $guid ), array( 'preserve-id' => false ) );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+
+		$this->assertIsArray( $captured_postarr );
+		$this->assertEmpty( $captured_postarr['import_id'] ?? null );
+	}
+
+	/**
+	 * Test import command preserves the original ID by default.
+	 */
+	public function test_import_preserves_id_by_default() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90216 ) );
+
+		$captured_postarr = null;
+		$capture          = function ( $data, $postarr ) use ( &$captured_postarr ) {
+			$captured_postarr = $postarr;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5, 2 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		( new CLI() )->import( array( $guid ), array() );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+
+		$this->assertSame( 90216, $captured_postarr['import_id'] ?? null );
+	}
+
+	/**
 	 * Test import command returns early when video already exists without --force.
 	 *
 	 * Uses transient to simulate existing post lookup, bypassing WP_Query

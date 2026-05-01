@@ -147,10 +147,11 @@ function videopress_download_poster_image( $url, $attachment_id ) {
  *
  * @param string $guid Video GUID.
  * @param int    $parent_id Parent post ID.
+ * @param bool   $preserve_id Whether to reuse the original post_id from the WordPress.com videos table. Defaults to true.
  *
  * @return int|WP_Error
  */
-function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 ) {
+function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0, $preserve_id = true ) {
 	$vp_data = videopress_get_video_details( $guid );
 	if ( ! $vp_data || is_wp_error( $vp_data ) ) {
 		return $vp_data;
@@ -191,7 +192,7 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 	 * fresh auto-increment. To surface that case explicitly, refuse upfront
 	 * if the ID is already taken by an unrelated post.
 	 */
-	$original_post_id = isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
+	$original_post_id = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
 	if ( $original_post_id > 0 ) {
 		$existing = get_post( $original_post_id );
 		if ( $existing && get_post_meta( $original_post_id, 'videopress_guid', true ) !== $guid ) {

@@ -29,10 +29,16 @@ class CLI extends WP_CLI_Command {
 	 * [--force]
 	 * : Delete any existing attachment for this GUID and create a new one.
 	 *
+	 * [--no-preserve-id]
+	 * : Skip reusing the original WordPress.com attachment ID. By default the new attachment is
+	 * inserted with the same ID it had on WordPress.com (when known) so the wpcom video table
+	 * relationship stays intact. Pass this flag to fall back to a fresh auto-incremented ID.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp videopress import kUJmAcSf
 	 *     wp videopress import kUJmAcSf --force
+	 *     wp videopress import kUJmAcSf --no-preserve-id
 	 *
 	 *     # Import multiple videos from a file
 	 *     cat guids.txt | xargs -I {} wp videopress import {}
@@ -47,6 +53,7 @@ class CLI extends WP_CLI_Command {
 
 		$guid             = $args[0];
 		$force            = get_flag_value( $assoc_args, 'force', false );
+		$preserve_id      = get_flag_value( $assoc_args, 'preserve-id', true );
 		$existing_post_id = videopress_get_post_id_by_guid( $guid );
 
 		if ( $existing_post_id ) {
@@ -82,7 +89,7 @@ class CLI extends WP_CLI_Command {
 			);
 		}
 
-		$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid, 0, (bool) $preserve_id );
 
 		if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
 			WP_CLI::success(
