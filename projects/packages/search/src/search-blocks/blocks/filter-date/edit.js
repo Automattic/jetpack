@@ -1,9 +1,5 @@
 /**
  * Editor preview for jetpack/filter-date.
- *
- * Sample buckets reflect the current `interval` attribute so an author
- * switching between Year and Month sees the matching label shape (`2024`
- * vs `March 2024`) without having to save the post and view the front end.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
@@ -32,7 +28,7 @@ const SAMPLE_BUCKETS_MONTH = [
  * Edit component for the filter-date block.
  *
  * @param {object}   props               - Block props.
- * @param {object}   props.attributes    - Saved block attributes.
+ * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Attribute setter.
  * @return {object} Rendered element.
  */
@@ -47,8 +43,6 @@ export default function FilterDateEdit( { attributes, setAttributes } ) {
 		Number.isFinite( attributes?.maxItems ) ? attributes.maxItems : 10
 	);
 	const interval = attributes?.interval === 'month' ? 'month' : 'year';
-	// Unknown values fall back to `newest` so the preview controls always
-	// reflect a valid enum option; render.php normalizes the same way.
 	const bucketSortOrder = [ 'newest', 'oldest', 'count' ].includes( attributes?.bucketSortOrder )
 		? attributes.bucketSortOrder
 		: 'newest';

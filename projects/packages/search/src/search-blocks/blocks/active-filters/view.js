@@ -6,20 +6,12 @@ import './style.scss';
 const NAMESPACE = 'jetpack-search';
 
 /**
- * Look up the display label for a selected filter value.
- *
- * Active filters store the *slug* part of each selection. Date filters use
- * the bucket's `key_as_string` (e.g. `2024` / `2024-03`) as the slug and
- * format it via `formatDateBucketLabel` so a pill reads "March 2024", not
- * the raw slug — mirrors the per-block list label so the active-filters
- * pill UI agrees with the filter sidebar. Other filter types use the
- * `slug/Name` aggregation bucket key (post types are slug-only). If no
- * bucket matches we fall back to the raw slug — bucket counts can shift
- * with every new query, and we don't want a selected pill to disappear
- * just because its value fell out of the top-N agg buckets.
+ * Resolve the display label for a selected filter value. Falls back to the
+ * raw slug so a pill doesn't disappear when its bucket falls out of the
+ * top-N between queries.
  *
  * @param {object} state       - Store state.
- * @param {string} filterKey   - Filter key this value belongs to.
+ * @param {string} filterKey   - Filter key.
  * @param {string} filterValue - Selected slug.
  * @return {string} Display label.
  */

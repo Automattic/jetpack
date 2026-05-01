@@ -33,21 +33,13 @@ const SORT_QUERY_MAP = {
 	relevance: 'score_default',
 };
 
-/**
- * Calendar-interval strings the v1.3 search API accepts on a date_histogram.
- * Mirrors `Filter_Date::ALLOWED_INTERVALS`. ES rejects unknown intervals with
- * a 400, so the lookup doubles as the gate for `buildAggregations`.
- */
+// Mirrors Filter_Date::ALLOWED_INTERVALS. Doubles as the gate in
+// buildAggregations — ES 400s on unknown intervals.
 const DATE_HISTOGRAM_FORMATS = {
 	year: 'yyyy',
 	month: 'yyyy-MM',
 };
 
-/**
- * `bucketSortOrder` → ES order clause for date_histogram aggs. The default
- * (`newest`) is used for any unrecognized value so an upgraded block with
- * stale attributes still produces a valid query.
- */
 const DATE_AGG_ORDERS = {
 	newest: { _key: 'desc' },
 	oldest: { _key: 'asc' },
@@ -64,14 +56,12 @@ const DATE_AGG_ORDERS = {
  * the stored filter value) and the display label — no extra WP lookup on
  * the client.
  *
- * `bucketFormat` tells consumers how to parse a bucket key into a
- * `{ value, label }` pair: `slash` splits on the first `/`, `plain` uses the
- * key as both value and label, `date` uses the bucket's `key_as_string` as
- * the value (formatted by ES with the `Y` / `Y-m` format) and a locale-aware
- * label computed by `formatDateBucketLabel`.
+ * `bucketFormat`: `slash` splits on the first `/`, `plain` uses the key as
+ * both value and label, `date` uses the bucket's `key_as_string` and a
+ * locale-aware label from `formatDateBucketLabel`.
  *
  * @param {object} config - FilterConfig entry from the store.
- * @return {{ aggField: string|null, filterField: string|null, bucketFormat: 'slash'|'plain'|'date' }} Resolved ES fields and bucket key format for the filter.
+ * @return {{ aggField: string|null, filterField: string|null, bucketFormat: 'slash'|'plain'|'date' }} Resolved fields.
  */
 export function resolveFilterFields( config ) {
 	if ( ! config ) {
@@ -142,11 +132,7 @@ export function resolveFilterFields( config ) {
 				bucketFormat: 'plain',
 			};
 		case 'date':
-			// The WPCOM Search v1.3 endpoint only whitelists `date` for
-			// date_histogram aggregations and `range` filter clauses; the
-			// other WP date columns return `bad_request` so we don't expose
-			// a field selector. The block's filter key is still `post_date`
-			// (so URLs read `?post_date[]=2024`); the ES field is just `date`.
+			// WPCOM v1.3 only whitelists `date` for date_histogram + range.
 			return { aggField: 'date', filterField: 'date', bucketFormat: 'date' };
 	}
 	return { aggField: null, filterField: null, bucketFormat: 'plain' };
@@ -183,21 +169,13 @@ export const WC_RATING_RANGES = [
  * Build ES aggregation requests from the filterConfigs registered by each
  * filter block's render.php.
  *
- * Two aggregation shapes coexist. `terms` for filter-checkbox (taxonomy /
- * post_type / author): the `order` key maps the block's `bucketSortOrder`
- * attribute to the ES term-agg order clause — `count` → `{ _count: 'desc' }`
- * (the ES default, matched to the instant-search overlay), `alpha` →
- * `{ _key: 'asc' }` which sorts by the slug_slash_name key. That's
- * "good enough" alphabetical for built-in variations since the slug typically
- * leads with the same letter as the display name; a label-accurate sort would
- * require a post-aggregation resort in the client.
+ * `terms` for filter-checkbox: `bucketSortOrder` maps to the ES order
+ * clause. `alpha` sorts by `slug_slash_name` — close enough for built-in
+ * variations without a label-aware resort.
  *
- * `date_histogram` for filter-date: calendar interval comes from
- * `config.interval` and the matching format is requested so each bucket's
- * `key_as_string` is the same slug the URL stores. `min_doc_count: 1` keeps
- * empty time slices out of the response so `filterItems` doesn't render
- * unselectable rows. Date_histogram has no `size`; the client slices to
- * `maxItems` after sorting.
+ * `date_histogram` for filter-date: format request makes `key_as_string`
+ * match the URL slug. No `size` parameter on date_histogram; the client
+ * slices to `maxItems`.
  *
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
  * @return {object} Aggregations payload for the v1.3 search API.
@@ -228,8 +206,6 @@ export function buildAggregations( filterConfigs ) {
 		}
 		if ( config?.filterType === 'date' ) {
 			const interval = DATE_HISTOGRAM_FORMATS[ config.interval ] ? config.interval : 'year';
-			// Default `newest` — most-recent bucket first, matching the
-			// inspector default and what visitors expect for date filters.
 			const order = DATE_AGG_ORDERS[ config.bucketSortOrder ] ?? DATE_AGG_ORDERS.newest;
 			aggregations[ filterKey ] = {
 				date_histogram: {
@@ -255,17 +231,12 @@ export function buildAggregations( filterConfigs ) {
 }
 
 /**
- * Translate a date filter slug + interval into ES-friendly `gte` / `lt`
- * bounds. Year slugs cover Jan 1 → following Jan 1; month slugs cover the
- * first of the month → first of the next month. Keeping the half-open
- * `[gte, lt)` shape avoids the off-by-one that `lte` introduces around the
- * boundary between two adjacent buckets.
+ * Translate a date filter slug into half-open `[gte, lt)` bounds for ES.
+ * `lt` over `lte` avoids the off-by-one between adjacent buckets.
  *
- * @param {string} value    - Slug from activeFilters (`2024` or `2024-03`).
+ * @param {string} value    - `2024` or `2024-03`.
  * @param {string} interval - 'year' | 'month'.
- * @return {{ gte: string, lt: string }|null} Range bounds or null when the slug
- * doesn't parse — caller should drop the filter rather than send an open-
- * ended `range` to ES.
+ * @return {{ gte: string, lt: string }|null} null when the slug doesn't parse.
  */
 function dateRangeFromSlug( value, interval ) {
 	if ( interval === 'year' ) {
@@ -302,28 +273,10 @@ function dateRangeFromSlug( value, interval ) {
 /**
  * Build the ES filter clause from active selections.
  *
- * Multi-select semantics across the registered filter types:
- *
- * **OR within a single filter key**: selecting two categories broadens the
- * result set to anything in either category (`bool.should`). This diverges
- * from the legacy instant-search overlay in `src/instant-search/lib/api.js`,
- * which ANDs multi-value selections (`bool.must`) — a holdover from when
- * each filter was a single-select dropdown. Search 3.0 deliberately mirrors
- * the broaden-on-click UX shipped by every modern faceted-search UI (Algolia,
- * ES UI, ProductFilter): clicking another box in the same group adds, never
- * restricts. We accept the divergence so the new UX is internally consistent;
- * deep links between the two surfaces still round-trip filter keys + values,
- * only the boolean shape differs.
- *
- * **AND across filter keys**: two different filters narrow the result set
- * together (a category AND a post type). Each filter's clause is appended to
- * the top-level `bool.must`, which is how ES interprets must-list members
- * semantically.
- *
- * **OR within a date filter**: selecting two years (or two months) returns
- * posts in *either* range, mirroring the within-key OR shape above. Each
- * selection becomes a `range` sub-clause; multiple ranges are wrapped in
- * `bool.should` exactly like multi-value taxonomy selections.
+ * OR within a single filter key (`bool.should`); AND across keys
+ * (`bool.must`). Diverges from the legacy instant-search overlay which ANDs
+ * multi-value selections — Search 3.0 follows the broaden-on-click UX of
+ * modern faceted search.
  *
  * @param {object} activeFilters - { [filterKey]: string[] } selections.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
@@ -382,21 +335,12 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 	return must.length ? { bool: { must } } : undefined;
 }
 
-// Per-locale `Intl.DateTimeFormat` cache. Constructing the formatter is the
-// expensive step in this hot path — `filterItems` re-runs on every state read
-// and may call `formatDateBucketLabel` once per bucket — so memoize across
-// calls. The cache is bounded by the set of locales the visitor actually
-// sees, which is effectively one entry per session.
+// Memoized: `filterItems` re-runs on every state read and may invoke
+// `formatDateBucketLabel` once per bucket.
 const monthLabelFormatters = new Map();
 
 /**
- * Format a date filter bucket value (`2024` or `2024-03`) as a localized
- * display label.
- *
- * Single source of truth for date-bucket labels on the JS side. Centralising
- * avoids each consumer (filter list, active-filters pill) reinventing the
- * slug → label mapping and getting subtly different month casings or numeric
- * pads.
+ * Format a date filter bucket value as a localized display label.
  *
  * @param {string} value    - Bucket slug (`2024`, `2024-03`).
  * @param {string} interval - 'year' | 'month'.
@@ -408,8 +352,6 @@ export function formatDateBucketLabel( value, interval, locale = 'en-US' ) {
 		return '';
 	}
 	if ( interval !== 'month' ) {
-		// Year buckets are already display-ready; bare four-digit years don't
-		// benefit from locale-specific reformatting.
 		return value;
 	}
 	const match = /^(\d{4})-(\d{2})$/.exec( value );
@@ -425,20 +367,15 @@ export function formatDateBucketLabel( value, interval, locale = 'en-US' ) {
 		return value;
 	}
 	const year = Number.parseInt( match[ 1 ], 10 );
-	// `Date.UTC` paired with the formatter's `timeZone: 'UTC'` keeps the
-	// rendered month from sliding into the previous one on negative-offset
-	// locales at 00:00 local.
+	// Date.UTC + `timeZone: 'UTC'` prevents month-rollback on negative-offset locales.
 	return formatter.format( new Date( Date.UTC( year, month - 1, 1 ) ) );
 }
 
 /**
- * Build (or fetch from cache) the `Intl.DateTimeFormat` used for month
- * labels. `Intl.DateTimeFormat` throws `RangeError` on a structurally
- * invalid BCP47 tag; we return null in that case so callers can fall back
- * to the raw slug rather than blow up the page.
+ * Cached `Intl.DateTimeFormat` for month labels.
  *
  * @param {string} locale - BCP47 locale tag.
- * @return {Intl.DateTimeFormat|null} Cached formatter, or null when the locale tag is malformed.
+ * @return {Intl.DateTimeFormat|null} null when the tag is malformed.
  */
 function getMonthLabelFormatter( locale ) {
 	let formatter = monthLabelFormatters.get( locale );

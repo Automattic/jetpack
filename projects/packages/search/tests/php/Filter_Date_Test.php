@@ -10,15 +10,12 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for Filter_Date helpers — filter-key derivation, default label,
- * config shape, and interval / sort-order normalization.
+ * Tests for Filter_Date helpers.
  */
 class Filter_Date_Test extends TestCase {
 
 	/**
-	 * Filter key is the constant `post_date` regardless of attributes — the
-	 * block has no field selector because the WPCOM Search v1.3 endpoint
-	 * only accepts `date` for date_histogram aggs.
+	 * Filter key is `post_date` regardless of attributes.
 	 */
 	public function test_derive_filter_key_returns_post_date_constant() {
 		$this->assertSame( 'post_date', Filter_Date::FILTER_KEY );
@@ -28,30 +25,21 @@ class Filter_Date_Test extends TestCase {
 	}
 
 	/**
-	 * Pins the dev-time invariant that `FILTER_KEY` doesn't accidentally
-	 * collide with a reserved URL param. The runtime check that lived in
-	 * `derive_filter_key` was provably dead with today's constants (Phan
-	 * flagged it as `PhanImpossibleTypeComparison`); moving the assertion
-	 * here means a future change to either constant — adding `post_date`
-	 * to `RESERVED_QUERY_PARAMS`, or renaming `FILTER_KEY` to a reserved
-	 * value — fails this test before it can ship.
+	 * Pin the dev-time invariant that FILTER_KEY isn't reserved.
 	 */
 	public function test_filter_key_does_not_collide_with_reserved_params() {
 		$this->assertNotContains( Filter_Date::FILTER_KEY, Search_Blocks::RESERVED_QUERY_PARAMS );
 	}
 
 	/**
-	 * Built-in default label is "Date" so a pattern can omit an explicit
-	 * label and still render a sensible heading.
+	 * Default label.
 	 */
 	public function test_default_label_returns_date() {
 		$this->assertSame( 'Date', Filter_Date::default_label() );
 	}
 
 	/**
-	 * Config shape mirrors what the JS store consumes: missing label falls
-	 * back to default_label(); falsy `showCount` round-trips as a boolean;
-	 * `maxItems` clamps to >= 1; defaults for `interval` and `bucketSortOrder`.
+	 * Config shape and defaults.
 	 */
 	public function test_build_config_shape_and_defaults() {
 		$config = Filter_Date::build_config( array(), 'post_date' );
@@ -68,7 +56,6 @@ class Filter_Date_Test extends TestCase {
 			$config
 		);
 
-		// Explicit values win over the defaults.
 		$custom = Filter_Date::build_config(
 			array(
 				'interval'        => 'month',
@@ -85,8 +72,7 @@ class Filter_Date_Test extends TestCase {
 		$this->assertSame( 5, $custom['maxItems'] );
 		$this->assertSame( 'oldest', $custom['bucketSortOrder'] );
 
-		// maxItems must clamp to at least 1 so the client slice produces a
-		// non-empty bucket list when an author types `0` into the inspector.
+		// maxItems clamps to >= 1 so author-entered 0 still yields a usable list.
 		$clamped = Filter_Date::build_config(
 			array( 'maxItems' => 0 ),
 			'post_date'
@@ -95,9 +81,7 @@ class Filter_Date_Test extends TestCase {
 	}
 
 	/**
-	 * `interval` accepts only `year` | `month`; anything else falls back to
-	 * `year` so the seeded filterConfig always carries a valid
-	 * `calendar_interval` for the date_histogram aggregation.
+	 * Interval normalization.
 	 */
 	public function test_normalize_interval() {
 		$this->assertSame( 'year', Filter_Date::normalize_interval( null ) );
@@ -108,8 +92,7 @@ class Filter_Date_Test extends TestCase {
 	}
 
 	/**
-	 * `bucketSortOrder` accepts `newest` | `oldest` | `count`; anything else
-	 * falls back to `newest` (the inspector default).
+	 * BucketSortOrder normalization.
 	 */
 	public function test_normalize_bucket_sort_order() {
 		$this->assertSame( 'newest', Filter_Date::normalize_bucket_sort_order( null ) );
@@ -121,10 +104,7 @@ class Filter_Date_Test extends TestCase {
 	}
 
 	/**
-	 * The label passes through sanitize_text_field() before it reaches the
-	 * Interactivity state so stored block attributes with stray HTML, tabs, or
-	 * newlines can never leak into aggregation-layer metadata or the rendered
-	 * heading. Output is still esc_html()'d separately in render.php.
+	 * Label is sanitize_text_field()'d before it reaches Interactivity state.
 	 */
 	public function test_build_config_sanitizes_label() {
 		$config = Filter_Date::build_config(

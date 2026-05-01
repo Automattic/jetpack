@@ -413,12 +413,7 @@ class Search_Blocks {
 		if ( ! function_exists( 'get_post' ) || ! function_exists( 'parse_blocks' ) ) {
 			return array();
 		}
-		// Drive the helper-availability check from the same registry that
-		// `walk_blocks_for_filter_configs()` walks, so adding a new filter
-		// block type is still a one-line change in `filter_block_helpers()`
-		// — no need to come back here and add another `class_exists()`
-		// branch. If any helper is missing the feature is half-loaded; bail
-		// rather than ship inconsistent filterConfigs to the client.
+		// Bail if any helper is missing — half-loaded feature would ship inconsistent filterConfigs.
 		foreach ( static::filter_block_helpers() as $helper ) {
 			if ( ! class_exists( $helper ) ) {
 				return array();
@@ -434,9 +429,8 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Map of filter block name → helper class that owns its `derive_filter_key`
-	 * and `build_config` methods. Adding a new filter block type is a
-	 * one-line change here.
+	 * Map of filter block name → helper class. Add a new filter block type
+	 * by appending one entry here.
 	 *
 	 * @return array<string, class-string>
 	 */
@@ -448,14 +442,8 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Recursively walk a parsed block tree and push every filter block's
-	 * config into `$configs`. Passing `$configs` by reference keeps the
-	 * recursion flat — callers don't need to merge children's maps back into
-	 * parents'.
-	 *
-	 * The block-name → helper-class lookup keeps adding a new filter block
-	 * type to a one-line registry change in `filter_block_helpers()`; both
-	 * helpers expose the same `derive_filter_key()` / `build_config()` shape.
+	 * Recursively walk a parsed block tree, pushing each filter block's
+	 * config into `$configs` by reference.
 	 *
 	 * @param array $blocks  Parsed block tree from parse_blocks().
 	 * @param array $configs Accumulator map keyed by filterKey.
