@@ -80,7 +80,7 @@ class RedundantIssetEmptySniff implements Sniff {
 		$tokens = $phpcs_file->getTokens();
 		$close  = $phpcs_file->findPrevious( Tokens::$emptyTokens, $op_ptr - 1, null, true );
 		if (
-			! $close // no previous token
+			! $close // no previous token or 0 position
 			|| T_CLOSE_PARENTHESIS !== $tokens[ $close ]['code'] // previous token isn't a closed parenthesis
 			|| ! isset( $tokens[ $close ]['parenthesis_opener'] ) // previous closed parenthesis doesn't have an opening match
 		) {

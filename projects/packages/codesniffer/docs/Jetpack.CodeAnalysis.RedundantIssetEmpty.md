@@ -12,20 +12,22 @@ isset( $x )   || ! empty( $x )    // `! empty()` is redundant
 For example, this:
 
 ```php
-if ( isset( $_GET['a'] ) && ! empty( $_GET['a'] ) ) {
-    // ...
-}
+if ( isset( $_GET['a'] ) && ! empty( $_GET['a'] ) ) { ... }
 ```
 
 can be simplified to the following:
 
 ```php
-if ( ! empty( $_GET['a'] ) ) {
-    // ...
-}
+if ( ! empty( $_GET['a'] ) ) { ... }
 ```
 
 The sniff only matches when both calls reference the same single argument, and an inversed operand order is also detected.
+
+Note that if you're sure the variable is defined and you're just testing for truthiness, you can just use the following instead:
+
+```php
+if ( ! $a ) { ... }
+```
 
 ### Limitations
 
