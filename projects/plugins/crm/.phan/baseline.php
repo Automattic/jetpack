@@ -193,7 +193,7 @@ return [
         'includes/ZeroBSCRM.Edit.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'includes/ZeroBSCRM.Encryption.php' => ['PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.ExternalSources.php' => ['PhanPluginMixedKeyNoKey', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspiciousNullable'],
-        'includes/ZeroBSCRM.FileUploads.php' => ['PhanTypeComparisonFromArray', 'PhanTypeMismatchDimFetch'],
+        'includes/ZeroBSCRM.FileUploads.php' => ['PhanTypeMismatchDimFetch'],
         'includes/ZeroBSCRM.FormatHelpers.php' => ['PhanNoopVariable', 'PhanPluginRedundantAssignment', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidLeftOperandOfAdd', 'PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.Forms.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeConversionFromArray', 'PhanTypeNonVarPassByRef'],
         'includes/ZeroBSCRM.GeneralFuncs.php' => ['PhanCommentParamWithoutRealParam', 'PhanMisspelledAnnotation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanTypeComparisonToArray', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredVariableDim'],
