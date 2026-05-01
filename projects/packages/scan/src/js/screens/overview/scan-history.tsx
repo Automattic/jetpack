@@ -43,6 +43,7 @@ const ScanHistory: FC = () => {
 		<ThreatsDataViews
 			data={ data?.threats ?? [] }
 			RenderUnignoreModal={ UnignoreThreatModal }
+			showStatusFilter={ false }
 			empty={
 				<EmptyState
 					heading={ __( 'No scan history yet', 'jetpack-scan-page' ) }

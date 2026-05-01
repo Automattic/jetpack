@@ -66,6 +66,7 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {Function}  props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function}  props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
  * @param {ReactNode} [props.empty]                     - Empty-state node forwarded to DataViews when `data` is empty. Defaults to DataViews' built-in "no items" body.
+ * @param {boolean}   [props.showStatusFilter]          - Whether to render the active/historic status toggle above the table. Defaults to `true`. Set to `false` when the consumer already filters the dataset by status outside the component (e.g. page-level tabs).
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
@@ -83,6 +84,7 @@ export default function ThreatsDataViews( {
 	RenderIgnoreModal,
 	RenderUnignoreModal,
 	empty,
+	showStatusFilter = true,
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -97,6 +99,7 @@ export default function ThreatsDataViews( {
 	RenderIgnoreModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
 	RenderUnignoreModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
 	empty?: ReactNode;
+	showStatusFilter?: boolean;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -581,11 +584,13 @@ export default function ThreatsDataViews( {
 				view={ view }
 				empty={ empty }
 				header={
-					<ThreatsStatusToggleGroupControl
-						data={ data }
-						view={ view }
-						onChangeView={ onChangeView }
-					/>
+					showStatusFilter ? (
+						<ThreatsStatusToggleGroupControl
+							data={ data }
+							view={ view }
+							onChangeView={ onChangeView }
+						/>
+					) : undefined
 				}
 			/>
 		</div>

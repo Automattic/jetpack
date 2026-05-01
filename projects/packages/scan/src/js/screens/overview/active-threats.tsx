@@ -101,6 +101,7 @@ const ActiveThreats: FC = () => {
 				onFixThreats={ onFixThreats }
 				RenderFixModal={ FixThreatModal }
 				RenderIgnoreModal={ IgnoreThreatModal }
+				showStatusFilter={ false }
 				empty={
 					<EmptyState
 						heading={ __( "You're set up. No active threats.", 'jetpack-scan-page' ) }
