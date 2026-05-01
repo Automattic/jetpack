@@ -38,3 +38,29 @@
 	max-width: 660px;
 	margin-inline: auto;
 }
+
+// Reset the native <fieldset> chrome so the only thing it adds is the
+// `disabled` semantic. Browser default styling (groove border, padding,
+// margin, min-inline-size) breaks the section's vertical rhythm otherwise.
+.jetpack-newsletter-section__fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0;
+	min-inline-size: 0;
+}
+
+// Heading + toggle list for sub-groups inside a section card (Navigation,
+// Comments inside the Subscriptions card). Heading sits flush, with a
+// consistent gap below it before the toggle list.
+.jetpack-newsletter-subgroup {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+}
+
+.jetpack-newsletter-subgroup__title {
+	margin: 0;
+	font-size: var(--wpds-typography-font-size-md, 14px);
+	font-weight: var(--wpds-typography-font-weight-medium, 500);
+	line-height: var(--wpds-typography-line-height-md, 1.4);
+}
