@@ -3034,7 +3034,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scan",
-                "reference": "157ec12c60dd3890d2dce9662f422c978acf48c9"
+                "reference": "81c06937020b33e1d2f55ed2512b9e7ea20b6ce2"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3080,6 +3080,12 @@
                 ],
                 "build-production": [
                     "pnpm run build-production-concurrently"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",

@@ -33,6 +33,12 @@
 		"build-production": [
 			"pnpm run build-production-concurrently"
 		],
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"

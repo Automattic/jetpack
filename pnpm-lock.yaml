@@ -3969,6 +3969,9 @@ importers:
       '@babel/runtime':
         specifier: 7.29.2
         version: 7.29.2
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
@@ -3981,6 +3984,9 @@ importers:
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
+      jest:
+        specifier: 30.3.0
+        version: 30.3.0
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
