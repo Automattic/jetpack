@@ -74,7 +74,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$submenu_names = array_column( $submenu['jetpack'], 3 );
 		// Capture the positions of these submenu items.
 		$videopress_submenu_position = array_search( 'Jetpack VideoPress', $submenu_names, true );
-		$backup_submenu_position     = array_search( 'VaultPress Backup', $submenu_names, true );
+		$backup_submenu_position     = array_search( 'Jetpack VaultPress Backup', $submenu_names, true );
 		$search_submenu_position     = array_search( 'Jetpack Search', $submenu_names, true );
 		$settings_submenu_position   = array_search( 'Settings', $submenu_names, true );
 
