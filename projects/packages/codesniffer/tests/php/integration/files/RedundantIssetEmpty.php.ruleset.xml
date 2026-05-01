@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<config name="testVersion" value="7.2-"/>
+
+	<rule ref="../../../../Jetpack/Sniffs/CodeAnalysis/RedundantIssetEmptySniff.php" />
+
+</ruleset>

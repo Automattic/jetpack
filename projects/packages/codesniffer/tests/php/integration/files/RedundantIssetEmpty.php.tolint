@@ -1,0 +1,101 @@
+<?php
+/**
+ * Test fixture for Jetpack.PHP.RedundantIssetEmpty.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// Bad: isset() && ! empty() on the same variable.
+if ( isset( $j ) && ! empty( $j ) ) {
+	echo 'yay';
+}
+
+// Bad: reversed AND order.
+if ( ! empty( $e ) && isset( $e ) ) {
+	echo 'yay';
+}
+
+// Bad: array access with whitespace differences should still match.
+if ( isset( $t['key'] ) && ! empty( $t [ 'key' ] ) ) {
+	echo 'yay';
+}
+
+// Bad: with comments inside the calls.
+if ( isset( $p ) && ! empty( /* same argument */ $p ) ) {
+	echo 'yay';
+}
+
+// Bad: chained with another && — adjacent bad pair should still flag.
+if ( $other && isset( $a ) && ! empty( $a ) ) {
+	echo 'yay';
+}
+
+// Bad: ! isset() || empty() on the same variable.
+if ( ! isset( $c ) || empty( $c ) ) {
+	echo 'yay';
+}
+
+// Bad: reversed OR order.
+if ( empty( $k ) || ! isset( $k ) ) {
+	echo 'yay';
+}
+
+// Bad: isset() || ! empty() — `! empty()` is redundant.
+if ( isset( $m ) || ! empty( $m ) ) {
+	echo 'yay';
+}
+
+// Bad: reversed.
+if ( ! empty( $o ) || isset( $o ) ) {
+	echo 'yay';
+}
+
+// Bad: ! isset() && empty() — `empty()` is redundant.
+if ( ! isset( $n ) && empty( $n ) ) {
+	echo 'yay';
+}
+
+// Bad: reversed.
+if ( empty( $o ) && ! isset( $o ) ) {
+	echo 'yay';
+}
+
+// OK: different arguments.
+if ( isset( $r ) && ! empty( $s ) ) {
+	echo 'ok';
+}
+
+// OK: multi-arg isset() gets messy.
+if ( isset( $e, $b ) && ! empty( $e ) && ! empty( $b ) ) {
+	echo 'ok';
+}
+
+// OK: isset with empty.
+if ( isset( $p ) && empty( $p ) ) {
+	echo 'ok';
+}
+
+// OK: only isset().
+if ( isset( $o ) ) {
+	echo 'ok';
+}
+
+// OK: ! isset only.
+if ( ! isset( $t ) ) {
+	echo 'ok';
+}
+
+// OK: only ! empty().
+if ( ! empty( $e ) ) {
+	echo 'ok';
+}
+
+// OK: empty only.
+if ( empty( $a ) ) {
+	echo 'ok';
+}
+
+// OK: unrelated to this sniff.
+if ( $m ) {
+	echo 'ok';
+}
