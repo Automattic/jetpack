@@ -4877,15 +4877,6 @@ importers:
       '@automattic/remove-asset-webpack-plugin':
         specifier: workspace:*
         version: link:../../js-packages/remove-asset-webpack-plugin
-      '@babel/core':
-        specifier: 7.29.0
-        version: 7.29.0
-      '@babel/preset-env':
-        specifier: 7.29.2
-        version: 7.29.2(@babel/core@7.29.0)
-      '@babel/runtime':
-        specifier: 7.29.2
-        version: 7.29.2
       '@fullcalendar/core':
         specifier: 6.1.20
         version: 6.1.20
@@ -4898,9 +4889,6 @@ importers:
       copy-webpack-plugin:
         specifier: 14.0.0
         version: 14.0.0(webpack@5.105.2)
-      css-loader:
-        specifier: 6.11.0
-        version: 6.11.0(webpack@5.105.2)
       daterangepicker:
         specifier: 3.1.0
         version: 3.1.0
