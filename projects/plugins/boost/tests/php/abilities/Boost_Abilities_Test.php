@@ -346,6 +346,7 @@ class Boost_Abilities_Test extends BaseTestCase {
 
 	public function test_get_modules_search_is_case_insensitive_substring(): void {
 		$result = Boost_Abilities::get_modules( array( 'search' => 'CACHE' ) );
+		$this->assertIsArray( $result );
 		$this->assertNotEmpty( $result );
 		foreach ( $result as $entry ) {
 			$this->assertStringContainsString( 'cache', $entry['slug'] );

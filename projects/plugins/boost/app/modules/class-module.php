@@ -158,8 +158,8 @@ class Module {
 	/**
 	 * Check if the module's feature implements Is_Always_On.
 	 *
-	 * Always-on modules cannot be disabled: a runtime filter forces is_enabled()
-	 * to true regardless of the persisted option, so writes via update() are
+	 * Always-on modules cannot be disabled: is_enabled() short-circuits to true
+	 * for them regardless of the persisted option, so writes via update() are
 	 * silently overridden. Callers writing module state should bail before the
 	 * write rather than letting on-disk state diverge from runtime state.
 	 *
