@@ -2,11 +2,10 @@
 /**
  * VideoPress CLI - Cron and cleanup commands.
  *
- * Inherits the `import` and `batch-import` commands from the VideoPress package
- * (Automattic\Jetpack\VideoPress\CLI). Both this class and the package's CLI register
- * under the `videopress` root command — WP-CLI's last-registration-wins semantics mean
- * this class's registration overrides the package's, so inheriting ensures all
- * subcommands (import, batch-import, cleanup_videos, list_crons, …) are available.
+ * The `import` and `batch-import` subcommands live in the VideoPress package
+ * (Automattic\Jetpack\VideoPress\CLI). WP-CLI's add_command merges subcommands
+ * across duplicate root-command registrations, so registering this class under
+ * the same `videopress` root coexists cleanly with the package's registration.
  *
  * @package automattic/jetpack
  */
@@ -20,7 +19,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	/**
 	 * VideoPress command line utilities.
 	 */
-	class VideoPress_CLI extends \Automattic\Jetpack\VideoPress\CLI {
+	class VideoPress_CLI extends WP_CLI_Command {
 
 		/**
 		 * Manually runs the job to cleanup videos from the media library that failed during the upload process.
