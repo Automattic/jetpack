@@ -68,7 +68,7 @@ body.toplevel_page_jetpack-scan {
 		// DataViews (`height: 100%` + internal flex-grow on its
 		// `.dataviews-no-results` body) fills the remaining vertical
 		// space and centers its empty state.
-		[role='tabpanel'] {
+		[role="tabpanel"] {
 			display: flex;
 			flex: 1 1 auto;
 			flex-direction: column;
