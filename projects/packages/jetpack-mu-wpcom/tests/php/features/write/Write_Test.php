@@ -261,6 +261,18 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the slash menu contains list entries.
+	 */
+	public function test_slash_menu_contains_list_entries() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'actions.insertBulletedList', $output );
+		$this->assertStringContainsString( 'actions.insertNumberedList', $output );
+	}
+
+	/**
 	 * Test that the text color picker is rendered.
 	 */
 	public function test_toolbar_contains_text_color_picker() {

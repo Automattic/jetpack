@@ -449,6 +449,14 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<span class="bw-slash-icon">&ldquo;</span>
 			<div><strong><?php echo esc_html__( 'Quote', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Highlight a quote', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
+		<div class="bw-slash-item" data-wp-on--click="actions.insertBulletedList" data-wp-on--mousedown="actions.preventToolbarBlur">
+			<span class="bw-slash-icon">&bull;</span>
+			<div><strong><?php echo esc_html__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'An unordered list', 'jetpack-mu-wpcom' ); ?></span></div>
+		</div>
+		<div class="bw-slash-item" data-wp-on--click="actions.insertNumberedList" data-wp-on--mousedown="actions.preventToolbarBlur">
+			<span class="bw-slash-icon">1.</span>
+			<div><strong><?php echo esc_html__( 'Numbered list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'An ordered list', 'jetpack-mu-wpcom' ); ?></span></div>
+		</div>
 		<div class="bw-slash-item" data-wp-on--click="actions.insertVideo" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon">&#9654;</span>
 			<div><strong><?php echo esc_html__( 'Video', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Embed a YouTube or Vimeo video', 'jetpack-mu-wpcom' ); ?></span></div>

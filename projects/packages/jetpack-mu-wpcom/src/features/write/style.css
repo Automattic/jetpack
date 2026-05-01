@@ -972,6 +972,14 @@
 	padding-inline-start: 1.5em;
 }
 
+.bw-content ul {
+	list-style-type: disc;
+}
+
+.bw-content ol {
+	list-style-type: decimal;
+}
+
 .bw-content li {
 	margin-bottom: 0.25em;
 	line-height: inherit;

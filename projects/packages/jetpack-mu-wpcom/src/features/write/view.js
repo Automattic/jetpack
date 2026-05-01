@@ -345,13 +345,17 @@ function convertToBlocks( html ) {
 			blocks.push(
 				`<!-- wp:quote${ quoteAlignJson } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }</blockquote>\n<!-- /wp:quote -->`
 			);
-		} else if ( tag === 'ul' ) {
+		} else if ( tag === 'ul' || tag === 'ol' ) {
+			// Wrap each <li> in wp:list-item block comments.
+			const listItems = Array.from( node.querySelectorAll( ':scope > li' ) )
+				.map(
+					li => `<!-- wp:list-item -->\n<li>${ li.innerHTML.trim() }</li>\n<!-- /wp:list-item -->`
+				)
+				.join( '\n' );
+			const listTag = tag === 'ol' ? 'ol' : 'ul';
+			const attrs = tag === 'ol' ? ' {"ordered":true}' : '';
 			blocks.push(
-				`<!-- wp:list -->\n<ul class="wp-block-list">${ inner }</ul>\n<!-- /wp:list -->`
-			);
-		} else if ( tag === 'ol' ) {
-			blocks.push(
-				`<!-- wp:list {"ordered":true} -->\n<ol class="wp-block-list">${ inner }</ol>\n<!-- /wp:list -->`
+				`<!-- wp:list${ attrs } -->\n<${ listTag } class="wp-block-list">${ listItems }</${ listTag }>\n<!-- /wp:list -->`
 			);
 		} else if ( tag === 'hr' ) {
 			blocks.push(
@@ -463,6 +467,127 @@ function placeCursorAt( el ) {
 	const sel = window.getSelection();
 	sel.removeAllRanges();
 	sel.addRange( range );
+}
+
+/**
+ * If the cursor is inside a list item, extract its content into a new
+ * block-level element and remove the list item. If the list becomes
+ * empty, remove the list too. Returns the new element so the caller
+ * can place the cursor, or null if the cursor was not inside a list.
+ *
+ * @param {string} tag - The HTML tag for the replacement element (e.g. 'p', 'h2').
+ * @return {Element|null} The newly created element, or null if not in a list.
+ */
+function exitListAndApplyBlock( tag ) {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return null;
+
+	// Walk up from the cursor to find a <li> inside a <ul>/<ol>.
+	let li = null;
+	let node = sel.anchorNode;
+	while ( node && node !== document.body ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.tagName === 'LI' ) {
+			li = node;
+			break;
+		}
+		node = node.parentNode;
+	}
+
+	if ( ! li ) return null;
+
+	const list = li.parentNode; // <ul> or <ol>
+	const content = getContent();
+	if ( ! list || ! content ) return null;
+
+	const newEl = document.createElement( tag );
+	newEl.innerHTML = li.innerHTML || '<br>';
+
+	// Collect items before and after this <li> so we can split the list.
+	const items = Array.from( list.children );
+	const idx = items.indexOf( li );
+	const before = items.slice( 0, idx );
+	const after = items.slice( idx + 1 );
+
+	if ( before.length > 0 && after.length > 0 ) {
+		// Middle item: split the list into two with the new element between.
+		const newList = document.createElement( list.tagName );
+		after.forEach( item => newList.appendChild( item ) );
+		list.after( newEl );
+		newEl.after( newList );
+	} else if ( after.length > 0 ) {
+		// First item: insert new element before the list.
+		list.before( newEl );
+	} else {
+		// Last (or only) item: insert new element after the list.
+		list.after( newEl );
+	}
+
+	li.remove();
+	if ( list.children.length === 0 ) {
+		list.remove();
+	}
+
+	placeCursorAt( newEl );
+	updateFormattingState();
+	return newEl;
+}
+
+/**
+ * Indent or outdent a list item by nesting/unnesting it in a sub-list.
+ *
+ * Indent: moves the <li> into a new sub-list appended to the previous sibling <li>.
+ * Outdent: moves the <li> out of its nested list back into the parent list.
+ *
+ * @param {Element} li        - The list item to indent/outdent.
+ * @param {string}  direction - 'indent' or 'outdent'.
+ */
+function indentListItem( li, direction ) {
+	const list = li.parentNode;
+	if ( ! list || ! /^(UL|OL)$/i.test( list.tagName ) ) return;
+
+	if ( direction === 'indent' ) {
+		// Can only indent if there's a previous sibling to nest under.
+		const prev = li.previousElementSibling;
+		if ( ! prev || prev.tagName !== 'LI' ) return;
+
+		// Look for an existing sub-list inside the previous <li>, or create one.
+		let subList = prev.querySelector( ':scope > ul, :scope > ol' );
+		if ( ! subList ) {
+			subList = document.createElement( list.tagName );
+			prev.appendChild( subList );
+		}
+		subList.appendChild( li );
+	} else {
+		// Outdent: the list must be nested inside another <li>.
+		const parentLi = list.parentNode;
+		if ( ! parentLi || parentLi.tagName !== 'LI' ) return;
+
+		const parentList = parentLi.parentNode;
+		if ( ! parentList ) return;
+
+		// Move any siblings after this <li> into a new sub-list kept inside the current list.
+		const siblingsAfter = [];
+		let next = li.nextElementSibling;
+		while ( next ) {
+			siblingsAfter.push( next );
+			next = next.nextElementSibling;
+		}
+		if ( siblingsAfter.length > 0 ) {
+			const tailList = document.createElement( list.tagName );
+			siblingsAfter.forEach( s => tailList.appendChild( s ) );
+			li.appendChild( tailList );
+		}
+
+		// Insert the <li> after its parent <li> in the outer list.
+		parentLi.after( li );
+
+		// Clean up empty lists.
+		if ( list.children.length === 0 ) {
+			list.remove();
+		}
+	}
+
+	placeCursorAt( li );
 }
 
 /**
@@ -870,6 +995,44 @@ function insertNewBlock( tag ) {
 	placeCursorAt( newEl );
 
 	state.showSlashMenu = false;
+}
+
+/**
+ * Insert a new list (ul or ol) replacing the slash command line,
+ * with an initial empty list item for the cursor.
+ *
+ * @param {string} listTag - 'ul' or 'ol'.
+ */
+function insertNewList( listTag ) {
+	const content = getContent();
+	if ( ! content ) return;
+
+	const list = document.createElement( listTag );
+	const li = document.createElement( 'li' );
+	li.innerHTML = '<br>';
+	list.appendChild( li );
+
+	// Find the paragraph containing the slash command.
+	let slashBlock = null;
+	for ( const child of content.children ) {
+		if ( /^(P|DIV)$/i.test( child.tagName ) && /^\/\S*$/.test( child.textContent.trim() ) ) {
+			slashBlock = child;
+			break;
+		}
+	}
+
+	if ( slashBlock ) {
+		slashBlock.after( list );
+		slashBlock.remove();
+	} else {
+		content.appendChild( list );
+	}
+
+	placeCursorAt( li );
+
+	state.showSlashMenu = false;
+	state.formatUList = listTag === 'ul';
+	state.formatOList = listTag === 'ol';
 }
 
 /**
@@ -1546,6 +1709,8 @@ const { state } = store( 'wpcom-write', {
 						const actionMap = {
 							heading: a.insertHeading,
 							image: a.insertImage,
+							'bulleted list': a.insertBulletedList,
+							'numbered list': a.insertNumberedList,
 							video: a.insertVideo,
 							quote: a.insertQuote,
 							divider: a.insertDivider,
@@ -1590,6 +1755,54 @@ const { state } = store( 'wpcom-write', {
 					return;
 				}
 				// No adjacent figure — fall through to native Backspace/Delete.
+			}
+
+			// Tab / Shift-Tab inside a list: indent / outdent.
+			if ( event.key === 'Tab' ) {
+				const sel = window.getSelection();
+				let li = null;
+				if ( sel.rangeCount ) {
+					let n = sel.anchorNode;
+					while ( n && ! n.classList?.contains( 'bw-content' ) ) {
+						if ( n.nodeType === Node.ELEMENT_NODE && n.tagName === 'LI' ) {
+							li = n;
+							break;
+						}
+						n = n.parentNode;
+					}
+				}
+				if ( li ) {
+					event.preventDefault();
+					if ( event.shiftKey ) {
+						indentListItem( li, 'outdent' );
+					} else {
+						indentListItem( li, 'indent' );
+					}
+					return;
+				}
+			}
+
+			// Backspace in an empty list item: exit the list.
+			if ( event.key === 'Backspace' ) {
+				const sel = window.getSelection();
+				let li = null;
+				if ( sel.rangeCount ) {
+					let n = sel.anchorNode;
+					while ( n && ! n.classList?.contains( 'bw-content' ) ) {
+						if ( n.nodeType === Node.ELEMENT_NODE && n.tagName === 'LI' ) {
+							li = n;
+							break;
+						}
+						n = n.parentNode;
+					}
+				}
+				if ( li && li.textContent.trim() === '' ) {
+					event.preventDefault();
+					exitListAndApplyBlock( 'p' );
+					state.formatUList = false;
+					state.formatOList = false;
+					return;
+				}
 			}
 
 			// Enter key: break out of blockquotes/headings and ensure paragraphs.
@@ -1804,25 +2017,37 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		setHeadingNormal() {
-			document.execCommand( 'formatBlock', false, 'p' );
+			if ( ! exitListAndApplyBlock( 'p' ) ) {
+				document.execCommand( 'formatBlock', false, 'p' );
+			}
 			state.formatHeading = false;
+			state.formatUList = false;
+			state.formatOList = false;
 			state.headingLabel = i18n.normal || 'Normal';
 			state.showHeadingMenu = false;
 		},
 
 		setHeadingH2() {
-			document.execCommand( 'formatBlock', false, 'h2' );
+			if ( ! exitListAndApplyBlock( 'h2' ) ) {
+				document.execCommand( 'formatBlock', false, 'h2' );
+			}
 			state.formatHeading = true;
 			state.headingLabel = i18n.heading2 || 'Heading 2';
 			state.formatQuote = false;
+			state.formatUList = false;
+			state.formatOList = false;
 			state.showHeadingMenu = false;
 		},
 
 		setHeadingH3() {
-			document.execCommand( 'formatBlock', false, 'h3' );
+			if ( ! exitListAndApplyBlock( 'h3' ) ) {
+				document.execCommand( 'formatBlock', false, 'h3' );
+			}
 			state.formatHeading = true;
 			state.headingLabel = i18n.heading3 || 'Heading 3';
 			state.formatQuote = false;
+			state.formatUList = false;
+			state.formatOList = false;
 			state.showHeadingMenu = false;
 		},
 
@@ -1870,13 +2095,19 @@ const { state } = store( 'wpcom-write', {
 
 		formatQuote() {
 			if ( state.formatQuote ) {
-				document.execCommand( 'formatBlock', false, 'p' );
+				if ( ! exitListAndApplyBlock( 'p' ) ) {
+					document.execCommand( 'formatBlock', false, 'p' );
+				}
 				state.formatQuote = false;
 			} else {
-				document.execCommand( 'formatBlock', false, 'blockquote' );
+				if ( ! exitListAndApplyBlock( 'blockquote' ) ) {
+					document.execCommand( 'formatBlock', false, 'blockquote' );
+				}
 				state.formatQuote = true;
 				state.formatHeading = false;
 			}
+			state.formatUList = false;
+			state.formatOList = false;
 		},
 
 		// --- Link ---
@@ -2160,6 +2391,14 @@ const { state } = store( 'wpcom-write', {
 			state.showImageModal = true;
 			state.imageUrl = '';
 			focusModalInput();
+		},
+
+		insertBulletedList() {
+			insertNewList( 'ul' );
+		},
+
+		insertNumberedList() {
+			insertNewList( 'ol' );
 		},
 
 		insertQuote() {
