@@ -9,6 +9,8 @@ import { useTrackEvent } from '../../data/use-track-event';
 import { useSetHeaderActions } from '../../header-actions-context';
 import BulkFixModal from './bulk-fix-modal';
 import EmptyState from './empty-state';
+import { FixThreatModal } from './fix-threat-modal';
+import { IgnoreThreatModal } from './ignore-threat-modal';
 import ScanNowButton from './scan-now-button';
 import ScanStatus from './scan-status';
 import { useThreatActions } from './use-threat-actions';
@@ -31,7 +33,7 @@ import type { FC } from 'react';
  */
 const ActiveThreats: FC = () => {
 	const { data, isLoading, error } = useQuery( siteScanQuery() );
-	const { onFixThreats, onIgnoreThreats } = useThreatActions();
+	const { onFixThreats } = useThreatActions();
 	const setHeaderActions = useSetHeaderActions();
 
 	const threats = useMemo( () => data?.threats ?? [], [ data ] );
@@ -92,7 +94,8 @@ const ActiveThreats: FC = () => {
 			<ThreatsDataViews
 				data={ threats }
 				onFixThreats={ onFixThreats }
-				onIgnoreThreats={ onIgnoreThreats }
+				RenderFixModal={ FixThreatModal }
+				RenderIgnoreModal={ IgnoreThreatModal }
 				empty={
 					<EmptyState
 						heading={ __( "You're set up. No active threats.", 'jetpack-scan-page' ) }

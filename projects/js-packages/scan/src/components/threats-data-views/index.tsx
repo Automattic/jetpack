@@ -4,6 +4,7 @@ import {
 	type Field,
 	type FieldTypeName,
 	type Filter,
+	type RenderModalProps,
 	type SortDirection,
 	type View,
 	DataViews,
@@ -13,7 +14,7 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Badge } from '@wordpress/ui';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactElement, type ReactNode } from 'react';
 import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../threat-fixer-button/index.tsx';
 import {
@@ -43,13 +44,24 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
 /**
  * DataViews component for displaying security threats.
  *
+ * Each row action (Auto-fix / Ignore / Unignore) supports two wiring shapes:
+ * pass a callback (`onFixThreats` etc.) for the existing fire-and-forget
+ * behaviour, or pass a React component via the matching `Render*Modal` prop
+ * to open a confirmation modal — DataViews renders it inline when the
+ * action is invoked, and consumers receive `{ items, closeModal }` from
+ * `RenderModalProps< Threat >`. Render-modal props take precedence when
+ * both are supplied for the same action.
+ *
  * @param {object}    props                             - Component props.
  * @param {Array}     props.data                        - Threats data.
  * @param {Array}     props.filters                     - Initial DataView filters.
  * @param {Function}  props.onChangeSelection           - Callback function run when an item is selected.
- * @param {Function}  props.onFixThreats                - Threat fix action callback.
- * @param {Function}  props.onIgnoreThreats             - Threat ignore action callback.
- * @param {Function}  props.onUnignoreThreats           - Threat unignore action callback.
+ * @param {Function}  props.onFixThreats                - Threat fix action callback (used when no `RenderFixModal`).
+ * @param {Function}  props.onIgnoreThreats             - Threat ignore action callback (used when no `RenderIgnoreModal`).
+ * @param {Function}  props.onUnignoreThreats           - Threat unignore action callback (used when no `RenderUnignoreModal`).
+ * @param {Function}  props.RenderFixModal              - Optional component rendered as the fix-action modal.
+ * @param {Function}  props.RenderIgnoreModal           - Optional component rendered as the ignore-action modal.
+ * @param {Function}  props.RenderUnignoreModal         - Optional component rendered as the unignore-action modal.
  * @param {Function}  props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
  * @param {Function}  props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function}  props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
@@ -67,6 +79,9 @@ export default function ThreatsDataViews( {
 	onFixThreats,
 	onIgnoreThreats,
 	onUnignoreThreats,
+	RenderFixModal,
+	RenderIgnoreModal,
+	RenderUnignoreModal,
 	empty,
 }: {
 	data: Threat[];
@@ -78,6 +93,9 @@ export default function ThreatsDataViews( {
 	onFixThreats?: ( threats: Threat[] ) => void;
 	onIgnoreThreats?: ActionButton< Threat >[ 'callback' ];
 	onUnignoreThreats?: ActionButton< Threat >[ 'callback' ];
+	RenderFixModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
+	RenderIgnoreModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
+	RenderUnignoreModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
 	empty?: ReactNode;
 } ): JSX.Element {
 	const baseView = {
@@ -421,57 +439,93 @@ export default function ThreatsDataViews( {
 		const result: Action< Threat >[] = [];
 
 		if ( dataFields.includes( 'fixable' ) ) {
-			result.push( {
-				id: THREAT_ACTION_FIX,
-				label: __( 'Auto-fix', 'jetpack-scan' ),
-				isPrimary: true,
-				callback: onFixThreats,
-				isEligible( item ) {
-					if ( ! onFixThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForFix ) {
-						return isThreatEligibleForFix( item );
-					}
-					return !! item.fixable;
-				},
-			} );
+			const isEligible = ( item: Threat ) => {
+				if ( ! RenderFixModal && ! onFixThreats ) {
+					return false;
+				}
+				if ( isThreatEligibleForFix ) {
+					return isThreatEligibleForFix( item );
+				}
+				return !! item.fixable;
+			};
+			if ( RenderFixModal ) {
+				result.push( {
+					id: THREAT_ACTION_FIX,
+					label: __( 'Auto-fix', 'jetpack-scan' ),
+					isPrimary: true,
+					modalHeader: __( 'Fix threat', 'jetpack-scan' ),
+					RenderModal: RenderFixModal,
+					isEligible,
+				} );
+			} else {
+				result.push( {
+					id: THREAT_ACTION_FIX,
+					label: __( 'Auto-fix', 'jetpack-scan' ),
+					isPrimary: true,
+					callback: onFixThreats,
+					isEligible,
+				} );
+			}
 		}
 
 		if ( dataFields.includes( 'status' ) ) {
-			result.push( {
-				id: THREAT_ACTION_IGNORE,
-				label: __( 'Ignore', 'jetpack-scan' ),
-				isPrimary: true,
-				callback: onIgnoreThreats,
-				isEligible( item ) {
-					if ( ! onIgnoreThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForIgnore ) {
-						return isThreatEligibleForIgnore( item );
-					}
-					return item.status === 'current';
-				},
-			} );
+			const isEligible = ( item: Threat ) => {
+				if ( ! RenderIgnoreModal && ! onIgnoreThreats ) {
+					return false;
+				}
+				if ( isThreatEligibleForIgnore ) {
+					return isThreatEligibleForIgnore( item );
+				}
+				return item.status === 'current';
+			};
+			if ( RenderIgnoreModal ) {
+				result.push( {
+					id: THREAT_ACTION_IGNORE,
+					label: __( 'Ignore', 'jetpack-scan' ),
+					isPrimary: true,
+					modalHeader: __( 'Ignore threat', 'jetpack-scan' ),
+					RenderModal: RenderIgnoreModal,
+					isEligible,
+				} );
+			} else {
+				result.push( {
+					id: THREAT_ACTION_IGNORE,
+					label: __( 'Ignore', 'jetpack-scan' ),
+					isPrimary: true,
+					callback: onIgnoreThreats,
+					isEligible,
+				} );
+			}
 		}
 
 		if ( dataFields.includes( 'status' ) ) {
-			result.push( {
-				id: THREAT_ACTION_UNIGNORE,
-				label: __( 'Unignore', 'jetpack-scan' ),
-				isPrimary: true,
-				callback: onUnignoreThreats,
-				isEligible( item ) {
-					if ( ! onUnignoreThreats ) {
-						return false;
-					}
-					if ( isThreatEligibleForUnignore ) {
-						return isThreatEligibleForUnignore( item );
-					}
-					return item.status === 'ignored';
-				},
-			} );
+			const isEligible = ( item: Threat ) => {
+				if ( ! RenderUnignoreModal && ! onUnignoreThreats ) {
+					return false;
+				}
+				if ( isThreatEligibleForUnignore ) {
+					return isThreatEligibleForUnignore( item );
+				}
+				return item.status === 'ignored';
+			};
+			if ( RenderUnignoreModal ) {
+				result.push( {
+					id: THREAT_ACTION_UNIGNORE,
+					label: __( 'Unignore', 'jetpack-scan' ),
+					isPrimary: true,
+					modalHeader: __( 'Unignore threat', 'jetpack-scan' ),
+					RenderModal: RenderUnignoreModal,
+					isEligible,
+				} );
+			} else {
+				result.push( {
+					id: THREAT_ACTION_UNIGNORE,
+					label: __( 'Unignore', 'jetpack-scan' ),
+					isPrimary: true,
+					callback: onUnignoreThreats,
+					isEligible,
+				} );
+			}
 		}
 
 		return result;
@@ -480,6 +534,9 @@ export default function ThreatsDataViews( {
 		onFixThreats,
 		onIgnoreThreats,
 		onUnignoreThreats,
+		RenderFixModal,
+		RenderIgnoreModal,
+		RenderUnignoreModal,
 		isThreatEligibleForFix,
 		isThreatEligibleForIgnore,
 		isThreatEligibleForUnignore,

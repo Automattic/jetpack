@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { siteScanHistoryQuery } from '../../data/query-options';
 import EmptyState from './empty-state';
-import { useThreatActions } from './use-threat-actions';
+import { UnignoreThreatModal } from './unignore-threat-modal';
 import type { FC } from 'react';
 
 /**
@@ -22,7 +22,6 @@ import type { FC } from 'react';
  */
 const ScanHistory: FC = () => {
 	const { data, isLoading, error } = useQuery( siteScanHistoryQuery() );
-	const { onUnignoreThreats } = useThreatActions();
 
 	if ( isLoading ) {
 		return <LoadingPlaceholder width="100%" height={ 400 } />;
@@ -37,7 +36,7 @@ const ScanHistory: FC = () => {
 	return (
 		<ThreatsDataViews
 			data={ data?.threats ?? [] }
-			onUnignoreThreats={ onUnignoreThreats }
+			RenderUnignoreModal={ UnignoreThreatModal }
 			empty={
 				<EmptyState
 					heading={ __( 'No scan history yet', 'jetpack-scan-page' ) }
