@@ -92,24 +92,42 @@ describe( 'sort popover keyboard navigation', () => {
 	} );
 
 	describe( 'onSortTriggerKeydown', () => {
-		it( 'opens the popover and focuses the first item on ArrowDown', () => {
+		it( 'opens the popover and anchors focus on the active sort for ArrowDown', () => {
+			captured.state.sortOrder = 'newest';
 			const { trigger } = buildPopoverDom();
 			const event = makeKeydown( 'ArrowDown', trigger );
 			captured.actions.onSortTriggerKeydown( event );
 			expect( event.preventDefault ).toHaveBeenCalled();
 			expect( captured.state.isSortPopoverOpen ).toBe( true );
-			expect( captured.state.sortMenuFocusedKey ).toBe( 'relevance' );
+			expect( captured.state.sortMenuFocusedKey ).toBe( 'newest' );
 		} );
 
-		it( 'opens the popover and focuses the last item on ArrowUp', () => {
+		it( 'opens the popover and anchors focus on the active sort for ArrowUp', () => {
+			captured.state.sortOrder = 'newest';
 			const { trigger } = buildPopoverDom();
 			const event = makeKeydown( 'ArrowUp', trigger );
 			captured.actions.onSortTriggerKeydown( event );
 			expect( captured.state.isSortPopoverOpen ).toBe( true );
+			expect( captured.state.sortMenuFocusedKey ).toBe( 'newest' );
+		} );
+
+		it( 'falls back to the first item on ArrowDown when the active sort is not rendered', () => {
+			captured.state.sortOrder = 'unavailable';
+			const { trigger } = buildPopoverDom();
+			const event = makeKeydown( 'ArrowDown', trigger );
+			captured.actions.onSortTriggerKeydown( event );
+			expect( captured.state.sortMenuFocusedKey ).toBe( 'relevance' );
+		} );
+
+		it( 'falls back to the last item on ArrowUp when the active sort is not rendered', () => {
+			captured.state.sortOrder = 'unavailable';
+			const { trigger } = buildPopoverDom();
+			const event = makeKeydown( 'ArrowUp', trigger );
+			captured.actions.onSortTriggerKeydown( event );
 			expect( captured.state.sortMenuFocusedKey ).toBe( 'oldest' );
 		} );
 
-		it( 'opens the popover on Enter without changing focused key when already open', () => {
+		it( 'opens the popover on Enter and anchors focus on the active sort', () => {
 			const { trigger } = buildPopoverDom();
 			const event = makeKeydown( 'Enter', trigger );
 			captured.actions.onSortTriggerKeydown( event );
