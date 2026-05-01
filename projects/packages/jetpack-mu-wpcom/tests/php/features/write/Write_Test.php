@@ -368,4 +368,137 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// The showRecoveryBanner field confirms autosave state is registered.
 		$this->assertArrayHasKey( 'showRecoveryBanner', $state );
 	}
+
+	/**
+	 * Helper: build a wp:embed block string.
+	 *
+	 * @param string $url  The embed URL.
+	 * @param string $type The embed type attribute (default "video").
+	 * @return string Block markup.
+	 */
+	private function embed_block( $url, $type = 'video' ) {
+		$attrs = wp_json_encode(
+			array(
+				'url'              => $url,
+				'type'             => $type,
+				'providerNameSlug' => 'youtube',
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		return '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"><div class="wp-block-embed__wrapper">' . esc_url( $url ) . '</div></figure><!-- /wp:embed -->';
+	}
+
+	/**
+	 * Test YouTube standard URL is converted to an embed iframe.
+	 */
+	public function test_convert_video_embeds_youtube_standard() {
+		$content = $this->embed_block( 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertStringContainsString( 'class="bw-video-figure"', $result );
+		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $result );
+		$this->assertStringContainsString( '<iframe', $result );
+	}
+
+	/**
+	 * Test YouTube short URL (youtu.be) is converted to an embed iframe.
+	 */
+	public function test_convert_video_embeds_youtube_short() {
+		$content = $this->embed_block( 'https://youtu.be/dQw4w9WgXcQ' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertStringContainsString( 'class="bw-video-figure"', $result );
+		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $result );
+	}
+
+	/**
+	 * Test Vimeo URL is converted to an embed iframe.
+	 */
+	public function test_convert_video_embeds_vimeo() {
+		$content = $this->embed_block( 'https://vimeo.com/123456789' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertStringContainsString( 'class="bw-video-figure"', $result );
+		$this->assertStringContainsString( 'https://player.vimeo.com/video/123456789', $result );
+		$this->assertStringContainsString( '<iframe', $result );
+	}
+
+	/**
+	 * Test that non-video embed blocks are left unchanged.
+	 */
+	public function test_convert_video_embeds_skips_non_video() {
+		$content = $this->embed_block( 'https://twitter.com/example/status/123', 'rich' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertStringNotContainsString( 'bw-video-figure', $result );
+		$this->assertStringNotContainsString( '<iframe', $result );
+		$this->assertSame( $content, $result );
+	}
+
+	/**
+	 * Test that embed blocks with missing URL are left unchanged.
+	 */
+	public function test_convert_video_embeds_skips_missing_url() {
+		$attrs   = wp_json_encode(
+			array(
+				'type'             => 'video',
+				'providerNameSlug' => 'youtube',
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$content = '<!-- wp:embed ' . $attrs . ' --><figure class="wp-block-embed"><div class="wp-block-embed__wrapper"></div></figure><!-- /wp:embed -->';
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertSame( $content, $result );
+	}
+
+	/**
+	 * Test that plain content without embed blocks passes through unchanged.
+	 */
+	public function test_convert_video_embeds_plain_content() {
+		$content = '<p>Hello world</p>';
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertSame( $content, $result );
+	}
+
+	/**
+	 * Test that multiple video embeds in one string are all converted.
+	 */
+	public function test_convert_video_embeds_multiple() {
+		$content = $this->embed_block( 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' )
+			. "\n"
+			. $this->embed_block( 'https://vimeo.com/987654321' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $result );
+		$this->assertStringContainsString( 'https://player.vimeo.com/video/987654321', $result );
+		$this->assertSame( 2, substr_count( $result, 'bw-video-figure' ) );
+	}
+
+	/**
+	 * Test that editing a post with a video embed renders an iframe in the template.
+	 */
+	public function test_template_renders_video_embed_iframe() {
+		wp_set_current_user( $this->admin_id );
+
+		$video_block = $this->embed_block( 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' );
+		$post_id     = wp_insert_post(
+			array(
+				'post_title'   => 'Video Post',
+				'post_content' => $video_block,
+				'post_status'  => 'draft',
+				'post_author'  => $this->admin_id,
+			)
+		);
+
+		// Simulate the render path: convert embeds then apply the_content.
+		$post        = get_post( $post_id );
+		$raw_content = wpcom_write_convert_video_embeds( $post->post_content );
+		$output      = $this->render_template( 'Video Post', $raw_content, $post_id, array(), 'draft' );
+
+		$this->assertStringContainsString( '<iframe', $output );
+		$this->assertStringContainsString( 'youtube.com/embed/dQw4w9WgXcQ', $output );
+		$this->assertStringContainsString( 'bw-video-figure', $output );
+	}
 }
