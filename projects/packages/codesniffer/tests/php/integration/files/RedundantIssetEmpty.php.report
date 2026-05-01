@@ -9,3 +9,5 @@
  49 | WARNING | `isset( $o )` already covers `! empty( $o )`. The `! empty()` check is redundant; use `isset( $o )` alone. (Jetpack.CodeAnalysis.RedundantIssetEmpty.RedundantNotEmpty)
  54 | WARNING | `! isset( $n )` already implies `empty( $n )`. The `empty()` check is redundant; use `! isset( $n )` alone. (Jetpack.CodeAnalysis.RedundantIssetEmpty.RedundantEmpty)
  59 | WARNING | `! isset( $o )` already implies `empty( $o )`. The `empty()` check is redundant; use `! isset( $o )` alone. (Jetpack.CodeAnalysis.RedundantIssetEmpty.RedundantEmpty)
+ 64 | WARNING | `! empty( $r )` already implies `isset( $r )`. The `isset()` check is redundant; use `! empty( $r )` alone. (Jetpack.CodeAnalysis.RedundantIssetEmpty.RedundantIsset)
+ 69 | WARNING | `empty( $e )` already covers `! isset( $e )`. The `! isset()` check is redundant; use `empty( $e )` alone. (Jetpack.CodeAnalysis.RedundantIssetEmpty.RedundantNotIsset)

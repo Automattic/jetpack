@@ -60,42 +60,48 @@ if ( empty( $o ) && ! isset( $o ) ) {
 	echo 'yay';
 }
 
+// Bad: word-form `and` operator.
+if ( isset( $r ) and ! empty( $r ) ) {
+	echo 'yay';
+}
+
+// Bad: word-form `or` operator.
+if ( empty( $e ) or ! isset( $e ) ) {
+	echo 'yay';
+}
+
 // OK: different arguments.
-if ( isset( $r ) && ! empty( $s ) ) {
+if ( isset( $p ) && ! empty( $q ) ) {
 	echo 'ok';
 }
 
 // OK: multi-arg isset() gets messy.
-if ( isset( $e, $b ) && ! empty( $e ) && ! empty( $b ) ) {
+if ( isset( $o, $p ) && ! empty( $o ) && ! empty( $p ) ) {
 	echo 'ok';
 }
 
 // OK: isset with empty.
-if ( isset( $p ) && empty( $p ) ) {
+if ( isset( $t ) && empty( $t ) ) {
 	echo 'ok';
 }
 
 // OK: only isset().
-if ( isset( $o ) ) {
+if ( isset( $e ) ) {
 	echo 'ok';
 }
 
 // OK: ! isset only.
-if ( ! isset( $t ) ) {
+if ( ! isset( $a ) ) {
 	echo 'ok';
 }
 
 // OK: only ! empty().
-if ( ! empty( $e ) ) {
+if ( ! empty( $m ) ) {
 	echo 'ok';
 }
 
 // OK: empty only.
-if ( empty( $a ) ) {
+if ( empty( $_ ) ) {
 	echo 'ok';
 }
 
-// OK: unrelated to this sniff.
-if ( $m ) {
-	echo 'ok';
-}

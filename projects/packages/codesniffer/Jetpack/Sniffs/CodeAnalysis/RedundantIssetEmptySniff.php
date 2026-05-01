@@ -22,11 +22,11 @@ class RedundantIssetEmptySniff implements Sniff {
 	 * @return int[]
 	 */
 	public function register() {
-		return array( T_BOOLEAN_AND, T_BOOLEAN_OR );
+		return array( T_BOOLEAN_AND, T_BOOLEAN_OR, T_LOGICAL_AND, T_LOGICAL_OR );
 	}
 
 	/**
-	 * Process a `&&` or `||` token and inspect its left and right operands.
+	 * Process a `&&` / `and` or `||` / `or` token and inspect its left and right operands.
 	 *
 	 * @param File $phpcs_file File being scanned.
 	 * @param int  $stack_ptr  Position of the operator token.
@@ -42,7 +42,8 @@ class RedundantIssetEmptySniff implements Sniff {
 		$pair = array( $left['type'], $right['type'] );
 		sort( $pair );
 
-		$is_and = T_BOOLEAN_AND === $phpcs_file->getTokens()[ $stack_ptr ]['code'];
+		$op_code = $phpcs_file->getTokens()[ $stack_ptr ]['code'];
+		$is_and  = T_BOOLEAN_AND === $op_code || T_LOGICAL_AND === $op_code;
 
 		if ( $is_and && array( 'isset', 'not_empty' ) === $pair ) {
 			$error_code = 'RedundantIsset';
