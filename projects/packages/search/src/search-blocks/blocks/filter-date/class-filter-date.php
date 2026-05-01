@@ -47,9 +47,15 @@ class Filter_Date {
 	 * field selector — the WPCOM Search v1.3 endpoint only accepts `date`
 	 * for date_histogram aggs. The signature still takes attributes to
 	 * stay drop-in compatible with the helper-class registry shape used
-	 * by `Search_Blocks::walk_blocks_for_filter_configs()`. Returns ''
-	 * if the URL key collides with a reserved query param so the render
-	 * short-circuits rather than registering a clobbered filterConfig.
+	 * by `Search_Blocks::walk_blocks_for_filter_configs()`.
+	 *
+	 * The reserved-query-param collision check that sits inside
+	 * Filter_Checkbox::derive_filter_key() is unnecessary here — both
+	 * sides are constants, so any collision is a development-time error
+	 * caught by `test_filter_key_does_not_collide_with_reserved_params`
+	 * rather than a runtime branch. Phan's `PhanImpossibleTypeComparison`
+	 * sniff also flags the runtime check as provably-dead given today's
+	 * constants.
 	 *
 	 * @param array $_attributes Block attributes (unused, kept for shape).
 	 * @return string Filter key.
@@ -59,9 +65,6 @@ class Filter_Date {
 		// to readers; VariableAnalysis doesn't honor that convention so we
 		// "use" it here as a no-op to satisfy the sniff.
 		unset( $_attributes );
-		if ( in_array( self::FILTER_KEY, Search_Blocks::RESERVED_QUERY_PARAMS, true ) ) {
-			return '';
-		}
 		return self::FILTER_KEY;
 	}
 

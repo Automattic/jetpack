@@ -30,6 +30,19 @@ class Filter_Date_Test extends TestCase {
 	}
 
 	/**
+	 * Pins the dev-time invariant that `FILTER_KEY` doesn't accidentally
+	 * collide with a reserved URL param. The runtime check that lived in
+	 * `derive_filter_key` was provably dead with today's constants (Phan
+	 * flagged it as `PhanImpossibleTypeComparison`); moving the assertion
+	 * here means a future change to either constant — adding `post_date`
+	 * to `RESERVED_QUERY_PARAMS`, or renaming `FILTER_KEY` to a reserved
+	 * value — fails this test before it can ship.
+	 */
+	public function test_filter_key_does_not_collide_with_reserved_params() {
+		$this->assertNotContains( Filter_Date::FILTER_KEY, Search_Blocks::RESERVED_QUERY_PARAMS );
+	}
+
+	/**
 	 * Built-in default label is "Date" so a pattern can omit an explicit
 	 * label and still render a sensible heading.
 	 */
