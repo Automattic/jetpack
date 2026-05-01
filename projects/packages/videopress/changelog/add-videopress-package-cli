@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add `import` CLI command to the package. The command creates a local media library attachment for a VideoPress video by GUID.
+VideoPress: Add `wp videopress import` and `wp videopress batch-import` CLI commands for re-attaching VideoPress videos by GUID.

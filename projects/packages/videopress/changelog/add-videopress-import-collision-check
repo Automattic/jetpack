@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Importing a VideoPress video now refuses upfront when the original attachment ID is occupied by an unrelated post, rather than silently changing the ID.

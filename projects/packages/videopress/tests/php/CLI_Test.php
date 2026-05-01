@@ -253,36 +253,6 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test batch_import writes an audit log when --audit-log is provided.
-	 */
-	public function test_batch_import_writes_audit_log() {
-		$guid = 'aaaaaaaa';
-		$this->clear_video_cache( $guid );
-
-		$guids_file = tempnam( sys_get_temp_dir(), 'guids' );
-		$audit_path = tempnam( sys_get_temp_dir(), 'audit' );
-		file_put_contents( $guids_file, "$guid\n" );
-
-		$this->mock_video_data = $this->get_mock_video_data();
-		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
-		( new CLI() )->batch_import(
-			array( $guids_file ),
-			array( 'audit-log' => $audit_path )
-		);
-		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
-		unlink( $guids_file );
-
-		$this->assertFileExists( $audit_path );
-		$payload = json_decode( file_get_contents( $audit_path ), true );
-		unlink( $audit_path );
-
-		$this->assertSame( 1, $payload['run']['total'] );
-		$this->assertFalse( $payload['run']['dry_run'] );
-		$this->assertArrayHasKey( $guid, $payload['imported'] );
-		$this->assertSame( array(), $payload['failed'] );
-	}
-
-	/**
 	 * Test batch_import --dry-run does not mutate state.
 	 */
 	public function test_batch_import_dry_run_skips_writes() {

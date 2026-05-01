@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Imported videos now reuse the original WordPress.com attachment post ID, preserving the post-to-video relationship recorded in the WordPress.com videos table.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Internal refactor only — replaces an inline json_decode( wp_json_encode() ) round-trip with a named helper.
-

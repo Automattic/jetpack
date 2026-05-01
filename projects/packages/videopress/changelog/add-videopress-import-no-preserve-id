@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-VideoPress: Add `--no-preserve-id` flag to `wp videopress import` to opt out of reusing the original WordPress.com attachment ID.
