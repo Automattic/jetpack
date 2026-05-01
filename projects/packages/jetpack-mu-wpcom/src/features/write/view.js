@@ -920,7 +920,7 @@ const { state } = store( 'wpcom-write', {
 			}
 
 			// Block undo/redo (Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y).
-			if ( ( event.ctrlKey || event.metaKey ) && ( event.key === 'z' || event.key === 'y' ) ) {
+			if ( ( event.ctrlKey || event.metaKey ) && /^[zy]$/i.test( event.key ) ) {
 				event.preventDefault();
 				return;
 			}
