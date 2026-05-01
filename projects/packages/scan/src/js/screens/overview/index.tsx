@@ -50,7 +50,7 @@ const OverviewScreen: FC = () => {
 	);
 
 	return (
-		<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
+		<Tabs.Root className="jetpack-scan-page" value={ activeTab } onValueChange={ handleTabChange }>
 			{ /*
 			   The wrapper carries the full-width bottom border + page padding;
 			   the inner `Tabs.List` keeps its native `width: fit-content` so the
