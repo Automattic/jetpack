@@ -175,6 +175,12 @@ class Boost_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_init_registers_directly_when_lifecycle_actions_already_fired(): void {
+		// Spy assertions key off should_register(), which Registrar guards behind
+		// function_exists() checks for the WP 6.9+ Abilities API surface.
+		if ( ! function_exists( 'wp_register_ability_category' ) || ! function_exists( 'wp_register_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available (WP < 6.9).' );
+		}
+
 		// Simulate a late-loading deployment: the lifecycle actions ran before our init().
 		do_action( Registrar::CATEGORIES_INIT_ACTION );
 		do_action( Registrar::ABILITIES_INIT_ACTION );
