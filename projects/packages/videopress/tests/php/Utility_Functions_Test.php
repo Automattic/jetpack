@@ -548,6 +548,28 @@ class Utility_Functions_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that imported attachments are not eligible for the cleanup-stale-uploads job.
+	 *
+	 * The videopress_cleanup_media_library() function targets attachments with
+	 * videopress_status='new' (failed in-progress uploads). A freshly-imported video
+	 * must be marked 'complete' so the cleanup query never picks it up — even if the
+	 * (currently disabled) function is re-enabled later.
+	 */
+	public function test_create_local_media_library_not_eligible_for_cleanup() {
+		$guid = 'abc12345';
+		$this->clear_video_cache( $guid );
+		$this->mock_video_data = $this->get_mock_video_data();
+
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+
+		$status = get_post_meta( $attachment_id, 'videopress_status', true );
+		$this->assertSame( 'complete', $status );
+		$this->assertNotSame( 'new', $status, 'Imported attachments must not look like in-progress uploads.' );
+	}
+
+	/**
 	 * Test create_local_media_library_for_videopress_guid honors the $preserve_id parameter.
 	 */
 	public function test_create_local_media_library_preserve_id_false_skips_import_id() {
