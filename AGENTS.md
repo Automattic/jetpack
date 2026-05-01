@@ -251,6 +251,28 @@ Before introducing new dependencies:
 - **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 
+## Cursor Cloud specific instructions
+
+### Services overview
+
+This is a PHP/JS monorepo with ~20 WordPress plugins, ~78 Composer packages, and ~31 JS packages. There is no single "application server" to start; the development workflow revolves around the Jetpack CLI (`pnpm jetpack` or `jetpack`/`jp` if globally linked).
+
+### Key commands (non-obvious notes)
+
+- **Lint JS**: `pnpm lint-file <path>` (single file) or `pnpm lint` (full repo). Uses ESLint 9 with `--flag v10_config_lookup_from_file`.
+- **Lint PHP**: `composer phpcs:lint` (full repo) or `vendor/bin/phpcs --standard=.phpcs.xml.dist <path>` (single file).
+- **PHP tests**: `pnpm jetpack test php <project>` for packages/plugins. Three plugins (`plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) require Docker — use `pnpm jetpack docker phpunit <target>` instead.
+- **JS tests**: `pnpm jetpack test js <project>`.
+- **Phan (static analysis)**: `pnpm jetpack phan <project>`. Requires the PHP `ast` extension.
+- **Build**: `pnpm jetpack build <project>` (optionally `--deps` to include dependencies).
+
+### Gotchas
+
+- The Jetpack CLI link (`pnpm jetpack cli link`) requires `PNPM_HOME` to be configured. The update script handles `pnpm setup`, but in interactive mode the CLI prompts for analytics tracking — always decline (`n`) or pipe through non-interactive mode.
+- `composer install` triggers a `post-install-cmd` that also installs dependencies in `tools/php-test-env/`. This is expected and installs the WorDBless test harness.
+- Docker is optional — only needed for testing the three plugins listed above and for running a local WordPress site. Package-level PHP/JS tests work without Docker.
+- WorDBless-based test warnings about `REQUEST_URI` in `wp-includes/cron.php` are benign noise from the lightweight WordPress test environment.
+
 ## Maintaining This File
 
 If you discover a pattern or pitfall not covered here, mention it to the developer so they can decide whether to update this file.
