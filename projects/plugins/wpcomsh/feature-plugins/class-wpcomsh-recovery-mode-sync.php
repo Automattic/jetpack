@@ -15,11 +15,9 @@
  *   - `recovery_session_exited_at`     — wpcomsh-managed; updated on deletion
  *     of `{session_id}_paused_extensions`, i.e. when the admin exits recovery.
  *   - `recovery_session_errors`        — a list of `{kind, slug, version,
- *     errno, message, file, line, signature}` records derived from the live
+ *     errno, message, file, line}` records derived from the live
  *     `*_paused_extensions` option, so wpcom can surface what fataled rather
  *     than just that something fataled. Empty once the admin exits recovery.
- *     The signature is the shared transportable token from #48369 for
- *     cross-surface grouping with the wpcomsh fatal-error screen.
  *
  * The POST runs from a PHP shutdown function so the signal reaches wpcom even
  * on fatal-error requests, matching the pattern used by migrate-guru-canary.
@@ -245,9 +243,7 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 * `[ 'plugin' => [ slug => {type,file,line,message} ], 'theme' => [ ... ] ]`.
 	 *
 	 * Each output record carries the kind/slug/version + the captured error
-	 * (file is reduced to its basename so server paths don't leak), plus a
-	 * transportable `signature` token built via the shared helper from #48369
-	 * so consumers can group fatals across the recovery and probe surfaces.
+	 * (file is reduced to its basename so server paths don't leak).
 	 *
 	 * @param mixed $paused_extensions Raw option value.
 	 * @return array<int,array<string,mixed>>
@@ -276,29 +272,15 @@ class WPCOMSH_Recovery_Mode_Sync {
 				if ( ! is_string( $slug ) || '' === $slug || ! is_array( $error ) ) {
 					continue;
 				}
-				$version = self::resolve_extension_version( $kind, $slug, $plugins );
-				$record  = array(
+				$out[] = array(
 					'kind'    => $kind,
 					'slug'    => $slug,
-					'version' => $version,
+					'version' => self::resolve_extension_version( $kind, $slug, $plugins ),
 					'errno'   => isset( $error['type'] ) ? (int) $error['type'] : 0,
 					'message' => isset( $error['message'] ) ? (string) $error['message'] : '',
 					'file'    => isset( $error['file'] ) ? basename( (string) $error['file'] ) : '',
 					'line'    => isset( $error['line'] ) ? (int) $error['line'] : 0,
 				);
-				if ( function_exists( 'wpcom_build_fatal_error_signature' ) ) {
-					$signature = wpcom_build_fatal_error_signature(
-						array(
-							'kind'    => $kind,
-							'slug'    => $slug,
-							'version' => $version,
-						)
-					);
-					if ( null !== $signature ) {
-						$record['signature'] = $signature;
-					}
-				}
-				$out[] = $record;
 			}
 		}
 		return $out;
