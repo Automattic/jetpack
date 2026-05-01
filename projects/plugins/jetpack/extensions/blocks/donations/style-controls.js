@@ -150,6 +150,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 		inactiveTabTextColor,
 		selectedAmountBackgroundColor,
 		selectedAmountTextColor,
+		selectedAmountOutlineColor,
 		tabsAppearance,
 		tabBorderColor,
 		tabFontSize,
@@ -178,6 +179,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 			tabPadding: make( 'tabPadding' ),
 			selectedAmountBackgroundColor: make( 'selectedAmountBackgroundColor' ),
 			selectedAmountTextColor: make( 'selectedAmountTextColor' ),
+			selectedAmountOutlineColor: make( 'selectedAmountOutlineColor' ),
 			amountFontSize: make( 'amountFontSize' ),
 			amountBorder: make( 'amountBorder' ),
 			amountBorderRadius: make( 'amountBorderRadius' ),
@@ -243,8 +245,13 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 				value: selectedAmountBackgroundColor,
 				onChange: set.selectedAmountBackgroundColor,
 			},
+			{
+				label: __( 'Outline', 'jetpack' ),
+				value: selectedAmountOutlineColor,
+				onChange: set.selectedAmountOutlineColor,
+			},
 		],
-		[ selectedAmountBackgroundColor, selectedAmountTextColor, set ]
+		[ selectedAmountBackgroundColor, selectedAmountTextColor, selectedAmountOutlineColor, set ]
 	);
 
 	const noop = useCallback( () => {}, [] );
@@ -263,6 +270,7 @@ const StyleControls = ( { attributes, setAttributes } ) => {
 	const resetAllAmounts = useCallback( () => {
 		set.selectedAmountBackgroundColor();
 		set.selectedAmountTextColor();
+		set.selectedAmountOutlineColor();
 		set.amountFontSize();
 		set.amountBorder();
 		set.amountBorderRadius();

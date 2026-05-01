@@ -61,6 +61,7 @@ const buildCustomStyles = ( attributes, scope ) => {
 		inactiveTabTextColor,
 		selectedAmountBackgroundColor,
 		selectedAmountTextColor,
+		selectedAmountOutlineColor,
 		tabBorderColor,
 		tabFontSize,
 		tabPadding,
@@ -152,6 +153,12 @@ const buildCustomStyles = ( attributes, scope ) => {
 	}
 	if ( selectedAmountTextColor ) {
 		selectedAmountDecls.push( `color:${ selectedAmountTextColor }` );
+	}
+	// Override only the outer ring color; the inner 1px white separator stays put.
+	if ( selectedAmountOutlineColor ) {
+		selectedAmountDecls.push(
+			`box-shadow:0 0 0 1px #fff,0 0 0 3px ${ selectedAmountOutlineColor }`
+		);
 	}
 	if ( selectedAmountDecls.length ) {
 		rules.push( `${ scope } .donations__amount.is-selected{${ selectedAmountDecls.join( ';' ) }}` );

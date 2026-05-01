@@ -124,6 +124,9 @@
 		"selectedAmountTextColor": {
 			"type": "string"
 		},
+		"selectedAmountOutlineColor": {
+			"type": "string"
+		},
 		"tabsAppearance": {
 			"type": "string",
 			"enum": [ "tabs", "buttons" ],
