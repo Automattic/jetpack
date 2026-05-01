@@ -318,9 +318,10 @@ class Filter_Checkbox_Test extends TestCase {
 		};
 		add_filter( 'jetpack_instant_search_options', $callback );
 		try {
-			Filter_Checkbox::build_config( array( 'filterType' => 'blog_id' ), 'blog_ids' );
-			Filter_Checkbox::build_config( array( 'filterType' => 'blog_id' ), 'blog_ids' );
+			$first  = Filter_Checkbox::build_config( array( 'filterType' => 'blog_id' ), 'blog_ids' );
+			$second = Filter_Checkbox::build_config( array( 'filterType' => 'blog_id' ), 'blog_ids' );
 			$this->assertSame( 1, $call_count );
+			$this->assertSame( $first, $second );
 		} finally {
 			remove_filter( 'jetpack_instant_search_options', $callback );
 		}
