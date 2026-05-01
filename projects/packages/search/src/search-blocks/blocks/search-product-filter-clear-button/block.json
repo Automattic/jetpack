@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/search-product-filter-clear-button",
+	"version": "0.1.0",
+	"title": "Clear Filters Button",
+	"category": "jetpack-search",
+	"icon": "trash",
+	"description": "A button that clears every active filter, including the price range. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"label": { "type": "string", "default": "" },
+		"hideWhenInactive": { "type": "boolean", "default": true }
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/search-product-filter-clear-button.js",
+	"style": "file:../../../../build/search-blocks/search-product-filter-clear-button.css"
+}

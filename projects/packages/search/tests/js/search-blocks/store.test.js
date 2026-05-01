@@ -8,6 +8,11 @@ const captured = {
 };
 const originalFetch = global.fetch;
 
+// `getContext()` returns whatever the test sets up via `setMockContext` —
+// the shared store getters (filterItems, hasFilterBuckets, allBucketsSelected)
+// and the shared `onFilterChange` action all read `filterKey` from context.
+const captured_context = { current: {} };
+
 jest.mock(
 	'@wordpress/interactivity',
 	() => ( {
@@ -22,9 +27,21 @@ jest.mock(
 			}
 			return { state: captured.state, actions: captured.actions };
 		},
+		getContext: () => captured_context.current,
 	} ),
 	{ virtual: true }
 );
+
+/**
+ * Set the value `getContext()` returns inside store getters / actions
+ * during the next test step. Call before exercising any getter or action
+ * that reads `filterKey` (or any other context key) from context.
+ *
+ * @param {object} ctx - Mock context to expose.
+ */
+function setMockContext( ctx ) {
+	captured_context.current = ctx;
+}
 
 import { actions, state } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
@@ -188,6 +205,19 @@ describe( 'store actions', () => {
 		expect( state.results[ 0 ].title ).toBe( 'Fresh result' );
 		expect( state.pageHandle ).toBeNull();
 		expect( state.isLoadingMore ).toBe( false );
+	} );
+
+	it( 'onFilterChange dispatches setFilter with the input value and the context filterKey', async () => {
+		// Promoted from filter-checkbox/view.js to the shared store so the
+		// new attribute and taxonomy filter blocks can reuse it. Verify the
+		// dispatch happens via setFilter (not a direct mutation) so the
+		// fetch-and-search side-effects stay centralized.
+		const setFilter = jest.spyOn( actions, 'setFilter' ).mockImplementation( function* () {} );
+		setMockContext( { filterKey: 'pa_color' } );
+
+		await runGenerator( actions.onFilterChange( { target: { value: 'red' } } ) );
+
+		expect( setFilter ).toHaveBeenCalledWith( 'pa_color', 'red' );
 	} );
 
 	it( 'adds and removes selected filter values before searching', async () => {
@@ -411,6 +441,12 @@ describe( 'store getters', () => {
 			activeFilters: {},
 			aggregations: {},
 			sortOrder: 'relevance',
+			// Explicitly reset priceRange and filterConfigs — without this,
+			// a `hasAnyActiveFilters`-style test that sets a price range
+			// leaks into later getter tests (e.g. `isFilterTriggerDisabled`,
+			// which now consults priceRange via hasAnyActiveFilters).
+			priceRange: null,
+			filterConfigs: {},
 			strings: {
 				searching: 'Looking…',
 				resultsCountSingle: 'Found %d item',
@@ -452,6 +488,76 @@ describe( 'store getters', () => {
 		state.activeFilters = { category: [ 'news', 'updates' ] };
 		expect( state.hasActiveFilters ).toBe( true );
 		expect( state.activeFilterCount ).toBe( 2 );
+	} );
+
+	it( 'hasAnyActiveFilters surfaces with active filters, with a price range, or both', () => {
+		// Drives the active-filters wrapper and the clear-button block's
+		// visibility — keeping all three sources gated behind one getter
+		// keeps the bug where a price-only selection left the wrapper
+		// hidden from regressing.
+		state.activeFilters = {};
+		state.priceRange = null;
+		expect( state.hasAnyActiveFilters ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.hasAnyActiveFilters ).toBe( true );
+
+		state.activeFilters = {};
+		state.priceRange = { min: 10, max: null };
+		expect( state.hasAnyActiveFilters ).toBe( true );
+
+		state.priceRange = { min: null, max: null };
+		expect( state.hasAnyActiveFilters ).toBe( false );
+
+		state.priceRange = { min: 0, max: 0 };
+		expect( state.hasAnyActiveFilters ).toBe( true );
+	} );
+
+	it( 'filterItems projects unselected aggregation buckets onto item descriptors', () => {
+		state.activeFilters = { category: [ 'news' ] };
+		state.filterConfigs = { category: { showCount: true } };
+		state.aggregations = {
+			category: {
+				buckets: [
+					{ key: 'news/News', doc_count: 4 },
+					{ key: 'updates/Updates', doc_count: 2 },
+				],
+			},
+		};
+		setMockContext( { filterKey: 'category' } );
+		const items = state.filterItems;
+		// "news" is selected so it drops out — the active-filters block
+		// renders it as a chip instead.
+		expect( items ).toHaveLength( 1 );
+		expect( items[ 0 ] ).toEqual( {
+			value: 'updates',
+			label: 'Updates',
+			showCount: true,
+			countLabel: '2',
+		} );
+	} );
+
+	it( 'hasFilterBuckets is false when the aggregation is empty', () => {
+		state.aggregations = { category: { buckets: [] } };
+		setMockContext( { filterKey: 'category' } );
+		expect( state.hasFilterBuckets ).toBe( false );
+
+		state.aggregations = { category: { buckets: [ { key: 'news/News', doc_count: 4 } ] } };
+		expect( state.hasFilterBuckets ).toBe( true );
+	} );
+
+	it( 'allBucketsSelected is true only once every bucket appears in activeFilters', () => {
+		state.aggregations = {
+			category: {
+				buckets: [ { key: 'news/News' }, { key: 'updates/Updates' } ],
+			},
+		};
+		state.activeFilters = { category: [ 'news' ] };
+		setMockContext( { filterKey: 'category' } );
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { category: [ 'news', 'updates' ] };
+		expect( state.allBucketsSelected ).toBe( true );
 	} );
 
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {

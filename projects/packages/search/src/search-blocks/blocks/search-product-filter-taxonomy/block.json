@@ -1,0 +1,38 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/search-product-filter-taxonomy",
+	"version": "0.1.0",
+	"title": "Filter by Product Taxonomy",
+	"category": "jetpack-search",
+	"icon": "category",
+	"description": "Let shoppers filter products by category, tag, or brand. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true,
+			"blockGap": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"taxonomy": {
+			"type": "string",
+			"default": "product_cat",
+			"enum": [ "product_cat", "product_tag", "product_brand" ]
+		},
+		"label": { "type": "string", "default": "" },
+		"showCount": { "type": "boolean", "default": true },
+		"maxItems": { "type": "integer", "default": 10 },
+		"bucketSortOrder": {
+			"type": "string",
+			"default": "count",
+			"enum": [ "count", "alpha" ]
+		}
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/search-product-filter-taxonomy.js",
+	"style": "file:../../../../build/search-blocks/search-product-filter-taxonomy.css"
+}

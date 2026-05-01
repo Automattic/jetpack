@@ -47,6 +47,22 @@ $seeded_max   = is_array( $seeded_price ) && null !== ( $seeded_price['max'] ?? 
 	? (string) $seeded_price['max']
 	: '';
 
+// Push the block author's chosen currency symbol and group label into the
+// shared store so the active-filters block can render a price chip ("Price:
+// $10 – $50") that uses the same adornment the user sees on the input. The
+// chip block doesn't know about the price block at render time, so without
+// this seed it would fall back to the generic default. wp_interactivity_state
+// deep-merges, so writing here doesn't disturb other state branches.
+wp_interactivity_state(
+	'jetpack-search',
+	array(
+		'priceCurrencySymbol' => $symbol_short,
+		'strings'             => array(
+			'priceLabel' => $label,
+		),
+	)
+);
+
 $min_id = wp_unique_id( 'jetpack-search-product-filter-price-min-' );
 $max_id = wp_unique_id( 'jetpack-search-product-filter-price-max-' );
 ?>

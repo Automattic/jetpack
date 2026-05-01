@@ -1,4 +1,4 @@
-import { store } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import { buildSearchUrl } from './api';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
@@ -6,6 +6,31 @@ import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
+
+/**
+ * Parse an aggregation bucket key into `{ value, label }`.
+ *
+ * Taxonomy, author, and product-attribute aggregations use `slug_slash_name`
+ * fields — bucket keys carry both pieces (e.g. `news/News`). Post-type and
+ * stock-status aggregations use plain fields with no slash. Splitting on the
+ * first* `/` keeps names that themselves contain slashes intact.
+ *
+ * Lives in the shared store so every checkbox-shaped filter block (the
+ * generic `jetpack/filter-checkbox`, plus the per-pa_* attribute and
+ * product-taxonomy product-filter blocks) reads buckets through the same
+ * `state.filterItems` getter without each view bundle re-implementing it.
+ *
+ * @param {unknown} rawKey - Bucket `key` from the search response.
+ * @return {{ value: string, label: string }} Parsed value + display name.
+ */
+function parseBucketKey( rawKey ) {
+	const key = String( rawKey ?? '' );
+	const slashIdx = key.indexOf( '/' );
+	if ( slashIdx === -1 ) {
+		return { value: key, label: key };
+	}
+	return { value: key.slice( 0, slashIdx ), label: key.slice( slashIdx + 1 ) };
+}
 // Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
 // latest before touching store state, so a slow request for an older query
@@ -134,6 +159,24 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * True when *any* facet is active — selected filter values or a
+		 * price range. The active-filters block, the clear-button block,
+		 * and the filter-popover trigger all key off this rather than
+		 * `hasActiveFilters` (which is `activeFilters`-only); without the
+		 * priceRange branch, a price-only selection leaves the active-
+		 * filters wrapper hidden even though the user has a chip to clear.
+		 *
+		 * @return {boolean} Whether any filter or the price range is active.
+		 */
+		get hasAnyActiveFilters() {
+			if ( state.hasActiveFilters ) {
+				return true;
+			}
+			const range = state.priceRange;
+			return !! range && ( range.min != null || range.max != null );
+		},
+
+		/**
 		 * Total selected filter values across all filter keys. Used by the
 		 * filter-popover trigger to render a count badge.
 		 *
@@ -154,7 +197,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * @return {boolean} Whether the filter trigger is disabled.
 		 */
 		get isFilterTriggerDisabled() {
-			if ( state.hasActiveFilters ) {
+			if ( state.hasAnyActiveFilters ) {
 				return false;
 			}
 			const aggs = state.aggregations ?? {};
@@ -209,6 +252,83 @@ const { state, actions } = store( NAMESPACE, {
 		 */
 		get isSortByOldest() {
 			return state.sortOrder === 'oldest';
+		},
+
+		/**
+		 * Whether the current `data-wp-context` filter block has any
+		 * aggregation buckets to render. Bound to each filter block's
+		 * wrapper `hidden` attribute so a filter group with no matches
+		 * disappears rather than showing an empty list. Reads `filterKey`
+		 * from the wrapper's context, so the same getter serves every
+		 * bucket-shaped filter block.
+		 *
+		 * @return {boolean} True when the aggregation has at least one bucket.
+		 */
+		get hasFilterBuckets() {
+			const { filterKey } = getContext() ?? {};
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			return Array.isArray( buckets ) && buckets.length > 0;
+		},
+
+		/**
+		 * True when every available bucket is already in activeFilters — the
+		 * checkbox list would render empty and the block should show the
+		 * "All filters applied" message instead. Also covers the case where
+		 * selected includes slugs that no longer appear in the aggregation
+		 * (stale URL params), since filterItems would still be empty.
+		 *
+		 * @return {boolean} True when the list has nothing left to offer.
+		 */
+		get allBucketsSelected() {
+			const { filterKey } = getContext() ?? {};
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const selected = state.activeFilters?.[ filterKey ] ?? [];
+			if ( selected.length === 0 ) {
+				return false;
+			}
+			return buckets.every( bucket => {
+				const { value } = parseBucketKey( bucket.key );
+				return selected.includes( value );
+			} );
+		},
+
+		/**
+		 * Derived list of `{ value, label, showCount, countLabel }` items for
+		 * the current `data-wp-context` filterKey. Selected buckets are
+		 * omitted — active filters appear in the active-filters block
+		 * instead, so the checkbox list only offers values the user hasn't
+		 * chosen yet.
+		 *
+		 * Shared by every checkbox-shaped filter block. The status and
+		 * rating blocks have their own option-list shape (fixed options vs.
+		 * dynamic buckets) so they don't read this getter.
+		 *
+		 * @return {Array<object>} Item descriptors for each unselected bucket.
+		 */
+		get filterItems() {
+			const { filterKey } = getContext() ?? {};
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) ) {
+				return [];
+			}
+			const selected = state.activeFilters?.[ filterKey ] ?? [];
+			const showCount = state.filterConfigs?.[ filterKey ]?.showCount !== false;
+			return buckets.reduce( ( items, bucket ) => {
+				const { value, label } = parseBucketKey( bucket.key );
+				if ( selected.includes( value ) ) {
+					return items;
+				}
+				items.push( {
+					value,
+					label,
+					showCount,
+					countLabel: String( bucket.doc_count ?? 0 ),
+				} );
+				return items;
+			}, [] );
 		},
 	},
 
@@ -292,6 +412,19 @@ const { state, actions } = store( NAMESPACE, {
 					state.isLoadingMore = false;
 				}
 			}
+		},
+
+		/**
+		 * Toggle the filter value that owns a checkbox change event. The
+		 * input's `value` carries the slug; filterKey comes from the wrapper
+		 * `data-wp-context`. Shared by every checkbox-shaped filter block.
+		 *
+		 * @param {Event} event - Change event.
+		 * @yield {Promise} setFilter action.
+		 */
+		*onFilterChange( event ) {
+			const { filterKey } = getContext() ?? {};
+			yield actions.setFilter( filterKey, event.target.value );
 		},
 
 		/**

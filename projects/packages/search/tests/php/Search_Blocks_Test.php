@@ -321,6 +321,143 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The active-filters block reads `state.wcStockStatusLabels` to render
+	 * "Stock status: In stock" chips without an extra REST hop. The map is
+	 * sourced from the status block's option list so there's one source of
+	 * truth for the label set; missing keys would cause the chip to fall
+	 * back to the raw slug ("Stock status: instock").
+	 */
+	public function test_build_initial_state_seeds_wc_stock_status_labels() {
+		$state = Search_Blocks::build_initial_state();
+		$this->assertArrayHasKey( 'wcStockStatusLabels', $state );
+		$labels = $state['wcStockStatusLabels'];
+		$this->assertSame( 'In stock', $labels['instock'] ?? null );
+		$this->assertSame( 'Out of stock', $labels['outofstock'] ?? null );
+		$this->assertSame( 'On backorder', $labels['onbackorder'] ?? null );
+	}
+
+	/**
+	 * The active-filters block reads `state.priceCurrencySymbol` to format
+	 * the price chip ("Price: $10 – $50"). Default is `$`; the price block
+	 * overrides this with the author's currencySymbol attribute at render
+	 * time. Without this default, sites with no price block on the page
+	 * would render "Price: 10 – 50".
+	 */
+	public function test_build_initial_state_seeds_default_price_currency_symbol() {
+		$state = Search_Blocks::build_initial_state();
+		$this->assertArrayHasKey( 'priceCurrencySymbol', $state );
+		$this->assertSame( '$', $state['priceCurrencySymbol'] );
+	}
+
+	/**
+	 * The active-filters block can't import @wordpress/i18n (only
+	 *
+	 * @wordpress/interactivity is registered as a script module), so the
+	 * star-row plural templates and price-range format strings must be
+	 * seeded as `state.strings.*` for the view bundle to read.
+	 */
+	public function test_build_initial_state_seeds_product_chip_strings() {
+		$strings = Search_Blocks::build_initial_state()['strings'];
+		foreach (
+			array(
+				'ratingStarsSingle',
+				'ratingStarsPlural',
+				'priceRangeFromTo',
+				'priceRangeFrom',
+				'priceRangeUpTo',
+				'priceLabel',
+			) as $key
+		) {
+			$this->assertArrayHasKey( $key, $strings, "Missing seeded string: $key" );
+			$this->assertNotSame( '', $strings[ $key ], "Empty seeded string: $key" );
+		}
+		$this->assertStringContainsString( '%d', $strings['ratingStarsSingle'] );
+		$this->assertStringContainsString( '%d', $strings['ratingStarsPlural'] );
+		$this->assertStringContainsString( '%1$s', $strings['priceRangeFromTo'] );
+		$this->assertStringContainsString( '%2$s', $strings['priceRangeFromTo'] );
+		$this->assertStringContainsString( '%s', $strings['priceRangeFrom'] );
+		$this->assertStringContainsString( '%s', $strings['priceRangeUpTo'] );
+	}
+
+	/**
+	 * `walk_blocks_for_filter_configs` must recognize the new product
+	 * filter blocks (attribute + taxonomy) so the URL gate sees the same
+	 * keys those blocks register at render time, regardless of block order
+	 * in the post tree. Without this, a deep-link with `?pa_color[]=red`
+	 * or `?product_cat[]=hoodies` would be dropped on the way through
+	 * gate_active_filters().
+	 */
+	public function test_walk_blocks_recognizes_product_filter_attribute_and_taxonomy() {
+		$ref = new \ReflectionMethod( Search_Blocks::class, 'walk_blocks_for_filter_configs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+
+		$configs = array();
+		$blocks  = array(
+			array(
+				'blockName' => 'jetpack/search-product-filter-attribute',
+				'attrs'     => array(
+					'attributeTaxonomy' => 'pa_color',
+					'label'             => 'Colour',
+				),
+			),
+			array(
+				'blockName' => 'jetpack/search-product-filter-taxonomy',
+				'attrs'     => array( 'taxonomy' => 'product_cat' ),
+			),
+			array(
+				// Out-of-list taxonomy slug — derive_filter_key returns ''
+				// so the walker should NOT push a config entry.
+				'blockName' => 'jetpack/search-product-filter-taxonomy',
+				'attrs'     => array( 'taxonomy' => 'category' ),
+			),
+		);
+		$ref->invokeArgs( null, array( $blocks, &$configs ) );
+
+		$this->assertArrayHasKey( 'pa_color', $configs );
+		$this->assertSame( 'taxonomy', $configs['pa_color']['filterType'] );
+		$this->assertSame( 'pa_color', $configs['pa_color']['taxonomy'] );
+		$this->assertSame( 'Colour', $configs['pa_color']['label'] );
+
+		$this->assertArrayHasKey( 'product_cat', $configs );
+		$this->assertSame( 'taxonomy', $configs['product_cat']['filterType'] );
+		$this->assertSame( 'product_cat', $configs['product_cat']['taxonomy'] );
+
+		$this->assertArrayNotHasKey( 'category', $configs );
+	}
+
+	/**
+	 * Nested filter blocks (e.g. inside a `jetpack/search-product-filters`
+	 * parent or a Group block) must be walked recursively so the
+	 * filterConfigs map covers every filter on the page, not just
+	 * top-level ones.
+	 */
+	public function test_walk_blocks_recurses_into_inner_blocks() {
+		$ref = new \ReflectionMethod( Search_Blocks::class, 'walk_blocks_for_filter_configs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
+
+		$configs = array();
+		$blocks  = array(
+			array(
+				'blockName'   => 'jetpack/search-product-filters',
+				'attrs'       => array(),
+				'innerBlocks' => array(
+					array(
+						'blockName' => 'jetpack/search-product-filter-status',
+						'attrs'     => array(),
+					),
+				),
+			),
+		);
+		$ref->invokeArgs( null, array( $blocks, &$configs ) );
+
+		$this->assertArrayHasKey( 'filter_stock_status', $configs );
+	}
+
+	/**
 	 * Invoke a protected static on Search_Blocks from test code. Reflection
 	 * is the cheapest way to cover this logic without leaking visibility
 	 * just for testability.
