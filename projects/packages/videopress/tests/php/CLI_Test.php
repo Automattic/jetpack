@@ -46,6 +46,9 @@ class CLI_Test extends BaseTestCase {
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 12345 );
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Reset captured WP_CLI output between tests.
+		\WP_CLI::reset_capture();
 	}
 
 	/**
@@ -289,6 +292,12 @@ class CLI_Test extends BaseTestCase {
 		}
 
 		$this->assertFalse( $exception_thrown, 'Import should return early with warning, not throw error' );
+
+		// Confirm the warning was actually emitted, naming the existing attachment ID.
+		$this->assertCount( 1, \WP_CLI::$captured['warning'] );
+		$this->assertStringContainsString( (string) $existing_post_id, \WP_CLI::$captured['warning'][0] );
+		$this->assertStringContainsString( '--force', \WP_CLI::$captured['warning'][0] );
+		$this->assertSame( array(), \WP_CLI::$captured['success'] );
 
 		// Cleanup.
 		videopress_clear_post_id_by_guid_cache( $guid );
