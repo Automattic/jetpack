@@ -519,6 +519,50 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 1, $action_calls, 'jetpack_boost_module_status_updated must still fire when the write succeeded but a read-side filter masks the value, so submodule lifecycle handlers run.' );
 	}
 
+	public function test_set_module_status_treats_concurrent_state_match_as_no_op(): void {
+		// Simulate a concurrent writer: the option already holds the desired state by
+		// the time update() runs, but a read-side filter masks our pre-write check so
+		// we still attempt the write. update_option() returns false for the benign
+		// reason ("no change needed"), and the fix re-reads to disambiguate. The
+		// concurrent writer already fired the action, so we must not fire it again.
+		$slug        = 'minify_js';
+		$option_name = 'jetpack_boost_status_minify-js';
+		update_option( $option_name, true );
+
+		$masked_reads_remaining = 1;
+		$mask_pre_check         = function ( $value ) use ( &$masked_reads_remaining ) {
+			if ( $masked_reads_remaining > 0 ) {
+				--$masked_reads_remaining;
+				return false;
+			}
+			return $value;
+		};
+		add_filter( "option_{$option_name}", $mask_pre_check );
+
+		$action_calls = 0;
+		$counter      = function () use ( &$action_calls ) {
+			++$action_calls;
+		};
+		add_action( 'jetpack_boost_module_status_updated', $counter );
+
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => $slug,
+				'active' => true,
+			)
+		);
+
+		remove_action( 'jetpack_boost_module_status_updated', $counter );
+		remove_filter( "option_{$option_name}", $mask_pre_check );
+		delete_option( $option_name );
+
+		$this->assertIsArray( $result, 'Concurrent state match must produce a success response, not module_update_failed.' );
+		$this->assertSame( array( 'slug', 'active', 'changed' ), array_keys( $result ) );
+		$this->assertTrue( $result['active'] );
+		$this->assertFalse( $result['changed'], 'Concurrent state match must report changed=false.' );
+		$this->assertSame( 0, $action_calls, 'Action must not double-fire when the concurrent writer already fired it.' );
+	}
+
 	public function test_set_module_status_returns_error_when_update_option_fails(): void {
 		$slug        = 'minify_css';
 		$option_name = 'jetpack_boost_status_minify-css';
