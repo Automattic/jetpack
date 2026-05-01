@@ -25,6 +25,12 @@ import LoadMoreEdit from '../blocks/load-more/edit';
 import NoResultsEdit from '../blocks/no-results/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
+import SearchProductFilterPriceEdit from '../blocks/search-product-filter-price/edit';
+import SearchProductFilterRatingEdit from '../blocks/search-product-filter-rating/edit';
+import SearchProductFilterStatusEdit from '../blocks/search-product-filter-status/edit';
+import SearchProductFiltersEdit, {
+	save as searchProductFiltersSave,
+} from '../blocks/search-product-filters/edit';
 import SearchResultsEdit from '../blocks/search-results/edit';
 import SortControlEdit from '../blocks/sort-control/edit';
 
@@ -41,6 +47,10 @@ const BLOCKS = [
 	[ 'jetpack/results-count', ResultsCountEdit ],
 	[ 'jetpack/no-results', NoResultsEdit ],
 	[ 'jetpack/load-more', LoadMoreEdit ],
+	[ 'jetpack/search-product-filters', SearchProductFiltersEdit, searchProductFiltersSave ],
+	[ 'jetpack/search-product-filter-status', SearchProductFilterStatusEdit ],
+	[ 'jetpack/search-product-filter-rating', SearchProductFilterRatingEdit ],
+	[ 'jetpack/search-product-filter-price', SearchProductFilterPriceEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /

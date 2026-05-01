@@ -220,6 +220,73 @@ describe( 'store actions', () => {
 		expect( search ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'clearFilters also clears priceRange so a single affordance resets every facet', async () => {
+		// Without this, a sidebar "clear all" button would leave a sticky
+		// price filter behind, surprising users who expect it to wipe state.
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.activeFilters = {};
+		state.priceRange = { min: 10, max: null };
+
+		await runGenerator( actions.clearFilters() );
+
+		expect( state.activeFilters ).toEqual( {} );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'setPriceRange updates state and re-runs the search', async () => {
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = null;
+
+		await runGenerator( actions.setPriceRange( 5, 50 ) );
+
+		expect( state.priceRange ).toEqual( { min: 5, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'setPriceRange no-ops when called with the current bounds', async () => {
+		// Prevents a stray blur on an unchanged input from triggering an
+		// identical re-fetch — wasteful and risks burning the search-token
+		// counter on no actual user intent.
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = { min: 5, max: 50 };
+
+		await runGenerator( actions.setPriceRange( 5, 50 ) );
+
+		expect( search ).not.toHaveBeenCalled();
+	} );
+
+	it( 'setPriceRange drops inverted bounds rather than producing zero-result range clauses', async () => {
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = null;
+
+		await runGenerator( actions.setPriceRange( 100, 10 ) );
+
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+	} );
+
+	it( 'setPriceRange clears the range when both bounds are null', async () => {
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = { min: 5, max: 50 };
+
+		await runGenerator( actions.setPriceRange( null, null ) );
+
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'setPriceRange rejects negative or non-finite bounds without searching', async () => {
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = null;
+
+		await runGenerator( actions.setPriceRange( -5, 50 ) );
+		await runGenerator( actions.setPriceRange( NaN, 50 ) );
+
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+	} );
+
 	it( 'keeps filter and sort popovers mutually exclusive', () => {
 		state.isSortPopoverOpen = true;
 		actions.toggleFilterPopover();
@@ -295,6 +362,27 @@ describe( 'store actions', () => {
 		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
 		expect( writtenUrl ).toContain( 'min_price=10' );
 		expect( writtenUrl ).toContain( 'max_price=50' );
+	} );
+
+	it( 'syncToUrl honors urlFormat:"scalar" filterConfigs and emits comma-joined values', () => {
+		// Without this, status selections would round-trip as the default
+		// array-form (`?filter_stock_status[]=instock`), breaking parity
+		// with WC's native URL contract — a deep link from a WC store
+		// would no longer match this block's URL on first load.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = 'shirts';
+		state.activeFilters = { filter_stock_status: [ 'instock', 'onbackorder' ] };
+		state.filterConfigs = {
+			filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' },
+		};
+
+		actions.syncToUrl();
+
+		expect( replaceState ).toHaveBeenCalledTimes( 1 );
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).toContain( 'filter_stock_status=instock%2Conbackorder' );
+		expect( writtenUrl ).not.toContain( 'filter_stock_status[]' );
+		expect( writtenUrl ).not.toContain( 'filter_stock_status%5B%5D' );
 	} );
 
 	it( 'closes open popovers on Escape only', () => {

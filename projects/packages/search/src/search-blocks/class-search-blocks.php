@@ -455,9 +455,18 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Recursively walk a parsed block tree and push filter-checkbox configs
+	 * Recursively walk a parsed block tree and push filter-block configs
 	 * into `$configs`. Passing `$configs` by reference keeps the recursion
 	 * flat — callers don't need to merge children's maps back into parents'.
+	 *
+	 * Recognizes:
+	 * - `jetpack/filter-checkbox` (generic taxonomy / post-type / author filters)
+	 * - `jetpack/search-product-filter-status` (WC stock status, scalar URL)
+	 * - `jetpack/search-product-filter-rating` (WC star rating, histogram-driven)
+	 *
+	 * The price filter (`jetpack/search-product-filter-price`) intentionally
+	 * doesn't register a filterConfig — `priceRange` is its own state branch
+	 * with `min_price` / `max_price` already in `RESERVED_QUERY_PARAMS`.
 	 *
 	 * @param array $blocks  Parsed block tree from parse_blocks().
 	 * @param array $configs Accumulator map keyed by filterKey.
@@ -468,13 +477,22 @@ class Search_Blocks {
 			if ( ! is_array( $block ) ) {
 				continue;
 			}
-			if ( 'jetpack/filter-checkbox' === ( $block['blockName'] ?? '' ) ) {
-				$attrs = (array) ( $block['attrs'] ?? array() );
-				$key   = Filter_Checkbox::derive_filter_key( $attrs );
+			$name  = (string) ( $block['blockName'] ?? '' );
+			$attrs = (array) ( $block['attrs'] ?? array() );
+
+			if ( 'jetpack/filter-checkbox' === $name ) {
+				$key = Filter_Checkbox::derive_filter_key( $attrs );
 				if ( '' !== $key ) {
 					$configs[ $key ] = Filter_Checkbox::build_config( $attrs, $key );
 				}
+			} elseif ( 'jetpack/search-product-filter-status' === $name && class_exists( Search_Product_Filter_Status::class ) ) {
+				$key             = Search_Product_Filter_Status::FILTER_KEY;
+				$configs[ $key ] = Search_Product_Filter_Status::build_config( $attrs );
+			} elseif ( 'jetpack/search-product-filter-rating' === $name && class_exists( Search_Product_Filter_Rating::class ) ) {
+				$key             = Search_Product_Filter_Rating::FILTER_KEY;
+				$configs[ $key ] = Search_Product_Filter_Rating::build_config( $attrs );
 			}
+
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 				static::walk_blocks_for_filter_configs( $block['innerBlocks'], $configs );
 			}

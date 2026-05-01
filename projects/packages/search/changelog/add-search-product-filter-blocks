@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: WooCommerce-style product filter blocks. Adds the parent `jetpack/search-product-filters` (composable InnerBlocks wrapper) plus three filter children: `…-status` (stock status, scalar `?filter_stock_status=…` URL form), `…-rating` (1–5 star rows backed by the histogram agg), and `…-price` (min/max number inputs driving `state.priceRange` via a new `setPriceRange` action). Builds on the data-plane helpers from [#48397]; tracked under epic [RSM-1929]. Attribute, taxonomy, display-variant, and clear-button blocks land in a follow-up.

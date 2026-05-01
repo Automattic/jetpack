@@ -28,15 +28,19 @@ function parsePriceBound( raw ) {
 /**
  * Serialize store state to URLSearchParams.
  *
- * Filter keys are written as flat top-level array params (`?category[]=news`),
+ * Filter keys default to flat top-level array params (`?category[]=news`),
  * matching the shape instant-search already writes so deep links are
- * interchangeable between the two surfaces.
+ * interchangeable between the two surfaces. Filters whose registered config
+ * sets `urlFormat: 'scalar'` instead emit a single key with comma-joined
+ * values (`?filter_stock_status=instock,outofstock`) — used by product-shape
+ * filters that need to round-trip with WooCommerce's native URL contract.
  *
  * @param {object}      state                 - Store state slice.
  * @param {string}      state.searchQuery     - Current search query.
  * @param {string}      state.sortOrder       - Current sort order.
  * @param {object}      [state.activeFilters] - { [filterKey]: string[] } selected filters.
  * @param {object|null} [state.priceRange]    - { min, max } price range; either bound may be null.
+ * @param {object}      [state.filterConfigs] - { [filterKey]: FilterConfig } map. Drives per-key URL shape (`scalar` vs default array form).
  * @return {URLSearchParams} URL-ready params.
  */
 export function stateToUrlParams( {
@@ -44,6 +48,7 @@ export function stateToUrlParams( {
 	sortOrder,
 	activeFilters = {},
 	priceRange = null,
+	filterConfigs = {},
 } ) {
 	const params = new URLSearchParams();
 
@@ -58,6 +63,10 @@ export function stateToUrlParams( {
 
 	for ( const [ key, values ] of Object.entries( activeFilters ) ) {
 		if ( ! Array.isArray( values ) || values.length === 0 ) {
+			continue;
+		}
+		if ( filterConfigs?.[ key ]?.urlFormat === 'scalar' ) {
+			params.set( key, values.join( ',' ) );
 			continue;
 		}
 		values.forEach( value => params.append( `${ key }[]`, value ) );
