@@ -359,10 +359,12 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 			<Disabled isDisabled={ ! isNewsletterEnabled }>
 				<Stack gap="lg" direction="column" className="newsletter-settings">
 					{ /* IA order:
-					     1. Subscribe placements
-					     2. Email customization (5 sections)
-					     3. Paid content
+					     1. Paid content (monetization sits above the funnel)
+					     2. Subscribe placements
+					     3. Email customization (5 sections)
 					     4. Newsletter categories */ }
+					<PaidNewsletterSection isNewsletterEnabled={ isNewsletterEnabled } />
+
 					<SubscriptionsSection
 						data={ data }
 						onChange={ handleSubscriptionChange }
@@ -402,11 +404,6 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 						isSaving={ isSavingWelcomeEmail }
 						hasChanges={ hasWelcomeEmailChanges }
 						isNewsletterEnabled={ isNewsletterEnabled }
-					/>
-
-					<PaidNewsletterSection
-						isNewsletterEnabled={ isNewsletterEnabled }
-						hasActivePlan={ data.newsletter_has_active_plan }
 					/>
 
 					<NewsletterCategoriesSection

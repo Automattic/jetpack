@@ -15,7 +15,6 @@ import { getNewsletterScriptData } from '../script-data';
 
 interface PaidNewsletterSectionProps {
 	isNewsletterEnabled: boolean;
-	hasActivePlan?: boolean;
 }
 
 /**
@@ -26,7 +25,6 @@ interface PaidNewsletterSectionProps {
  */
 export function PaidNewsletterSection( {
 	isNewsletterEnabled,
-	hasActivePlan = false,
 }: PaidNewsletterSectionProps ): JSX.Element | null {
 	const siteType = getSiteType();
 	const newsletterScriptData = getNewsletterScriptData();
@@ -34,17 +32,12 @@ export function PaidNewsletterSection( {
 	const handlePaidPlansClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_paid_plans_click', {
 			site_type: siteType,
-			has_active_plan: !! hasActivePlan,
 		} );
-	}, [ hasActivePlan, siteType ] );
+	}, [ siteType ] );
 
 	if ( ! newsletterScriptData?.setupPaymentPlansUrl ) {
 		return null;
 	}
-
-	const buttonText = hasActivePlan
-		? __( 'Manage plans', 'jetpack-newsletter' )
-		: __( 'Add plans', 'jetpack-newsletter' );
 
 	return (
 		<Card.Root>
@@ -74,7 +67,7 @@ export function PaidNewsletterSection( {
 							disabled={ ! isNewsletterEnabled }
 							onClick={ handlePaidPlansClick }
 						>
-							{ buttonText }
+							{ __( 'Manage plans', 'jetpack-newsletter' ) }
 						</Button>
 					</fieldset>
 				</Stack>
