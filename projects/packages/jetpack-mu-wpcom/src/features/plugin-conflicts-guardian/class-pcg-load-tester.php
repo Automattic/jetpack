@@ -105,8 +105,9 @@ class PCG_Load_Tester {
 	 * Build the transient payload that the probe endpoint will consume.
 	 *
 	 * Exposed for unit tests so they can assert the stash shape without
-	 * needing a live HTTP loopback.
+	 * needing a live HTTP loopback. Not part of the public API.
 	 *
+	 * @internal
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
 	 * @param string $mode        Probe mode constant.
 	 * @return array{plugin:string,mode:string}
