@@ -187,10 +187,25 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 	 * Re-create the attachment with its original post ID so the post↔video
 	 * relationship recorded on WordPress.com (videos.post_id) stays in sync
 	 * without a separate sync-back call. wp_insert_post() honors 'import_id'
-	 * only when the ID is unused; collisions are detected by callers.
+	 * only when the ID is unused; on collision it silently falls back to a
+	 * fresh auto-increment. To surface that case explicitly, refuse upfront
+	 * if the ID is already taken by an unrelated post.
 	 */
 	$original_post_id = isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
 	if ( $original_post_id > 0 ) {
+		$existing = get_post( $original_post_id );
+		if ( $existing && get_post_meta( $original_post_id, 'videopress_guid', true ) !== $guid ) {
+			return new \WP_Error(
+				'id_collision',
+				sprintf(
+					/* translators: %1$d: existing post ID, %2$s: existing post type. */
+					__( 'Original attachment ID %1$d is already in use by post type "%2$s". Re-importing would change the ID and break the WordPress.com video table relationship.', 'jetpack-videopress-pkg' ),
+					$original_post_id,
+					$existing->post_type
+				),
+				array( 'post_id' => $original_post_id )
+			);
+		}
 		$args['import_id'] = $original_post_id;
 	}
 

@@ -474,6 +474,80 @@ class Utility_Functions_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Inject a post into WorDBless's in-memory store at a specific ID.
+	 *
+	 * WorDBless treats wp_insert_post() with an ID set as an update of an
+	 * existing post; if the ID doesn't exist yet, it returns 0 instead of
+	 * squatting on the ID. This helper writes directly to the WorDBless
+	 * store so collision tests can stage a pre-existing post at an arbitrary ID.
+	 *
+	 * @param int   $post_id The target post ID.
+	 * @param array $overrides Post field overrides.
+	 */
+	private function inject_post_at_id( $post_id, $overrides = array() ) {
+		$defaults                        = array(
+			'ID'             => $post_id,
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'post_title'     => 'Injected',
+			'post_mime_type' => '',
+		);
+		$post                            = (object) array_merge( $defaults, $overrides );
+		Posts::init()->posts[ $post_id ] = $post;
+		wp_cache_add( $post_id, $post, 'posts' );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid refuses to clobber an unrelated post at the original ID.
+	 */
+	public function test_create_local_media_library_refuses_id_collision() {
+		$guid             = 'abc12345';
+		$original_post_id = 90211;
+		$this->clear_video_cache( $guid );
+
+		// Squat on the original ID with an unrelated post.
+		$this->inject_post_at_id( $original_post_id, array( 'post_type' => 'post' ) );
+
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
+
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		$result = create_local_media_library_for_videopress_guid( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'id_collision', $result->get_error_code() );
+		$this->assertSame( $original_post_id, $result->get_error_data()['post_id'] );
+	}
+
+	/**
+	 * Test create_local_media_library_for_videopress_guid proceeds when the existing post at the original ID is the same VideoPress attachment.
+	 */
+	public function test_create_local_media_library_no_collision_for_same_guid() {
+		$guid             = 'abc12345';
+		$original_post_id = 90212;
+		$this->clear_video_cache( $guid );
+
+		// Pre-existing attachment with the SAME GUID at the target ID.
+		$this->inject_post_at_id(
+			$original_post_id,
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_status'    => 'inherit',
+			)
+		);
+		update_post_meta( $original_post_id, 'videopress_guid', $guid );
+
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
+
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		$result = create_local_media_library_for_videopress_guid( $guid );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+	}
+
+	/**
 	 * Test create_local_media_library_for_videopress_guid omits import_id when post_id is missing from the API response.
 	 */
 	public function test_create_local_media_library_omits_import_id_when_post_id_missing() {
