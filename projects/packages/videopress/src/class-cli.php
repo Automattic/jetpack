@@ -60,7 +60,7 @@ class CLI extends WP_CLI_Command {
 	 */
 	public function import( $args, $assoc_args ) {
 		if ( empty( $args[0] ) ) {
-			WP_CLI::error( __( 'You must provide a VideoPress GUID.', 'jetpack-videopress-pkg' ) );
+			WP_CLI::error( 'You must provide a VideoPress GUID.' );
 		}
 
 		$guid        = $args[0];
@@ -78,51 +78,27 @@ class CLI extends WP_CLI_Command {
 
 		if ( $existing_post_id ) {
 			if ( ! $force ) {
-				WP_CLI::warning(
-					sprintf(
-						/* translators: %d: attachment id */
-						__( 'Video already exists as Attachment ID %d. Use --force to re-import.', 'jetpack-videopress-pkg' ),
-						$existing_post_id
-					)
-				);
+				WP_CLI::warning( sprintf( 'Video already exists as Attachment ID %d. Use --force to re-import.', $existing_post_id ) );
 				return;
 			}
 
 			$deleted = wp_delete_attachment( $existing_post_id, true );
 			if ( ! $deleted ) {
-				WP_CLI::error(
-					sprintf(
-						/* translators: %d: attachment id */
-						__( 'Failed to delete existing Attachment ID %d.', 'jetpack-videopress-pkg' ),
-						$existing_post_id
-					)
-				);
+				WP_CLI::error( sprintf( 'Failed to delete existing Attachment ID %d.', $existing_post_id ) );
 			}
 
 			delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
-			WP_CLI::log(
-				sprintf(
-					/* translators: %d: attachment id */
-					__( 'Deleted existing Attachment ID %d.', 'jetpack-videopress-pkg' ),
-					$existing_post_id
-				)
-			);
+			WP_CLI::log( sprintf( 'Deleted existing Attachment ID %d.', $existing_post_id ) );
 		}
 
 		$attachment_id = create_local_media_library_for_videopress_guid( $guid, $parent_id, $preserve_id );
 
 		if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
-			WP_CLI::success(
-				sprintf(
-					/* translators: %d: attachment id */
-					__( 'The video has been imported as Attachment ID %d.', 'jetpack-videopress-pkg' ),
-					$attachment_id
-				)
-			);
+			WP_CLI::success( sprintf( 'The video has been imported as Attachment ID %d.', $attachment_id ) );
 		} else {
 			$message = is_wp_error( $attachment_id )
 				? $attachment_id->get_error_message()
-				: __( 'An unknown error has been encountered.', 'jetpack-videopress-pkg' );
+				: 'An unknown error has been encountered.';
 			WP_CLI::error( $message );
 		}
 	}
@@ -172,7 +148,7 @@ class CLI extends WP_CLI_Command {
 		$guids  = $this->read_guid_list( $source );
 
 		if ( empty( $guids ) ) {
-			WP_CLI::error( __( 'No GUIDs provided.', 'jetpack-videopress-pkg' ) );
+			WP_CLI::error( 'No GUIDs provided.' );
 		}
 
 		$dry_run     = (bool) get_flag_value( $assoc_args, 'dry-run', false );
@@ -185,7 +161,7 @@ class CLI extends WP_CLI_Command {
 
 		foreach ( $guids as $guid ) {
 			if ( ! videopress_is_valid_guid( $guid ) ) {
-				$failed[ $guid ] = __( 'Invalid GUID.', 'jetpack-videopress-pkg' );
+				$failed[ $guid ] = 'Invalid GUID.';
 				WP_CLI::log( sprintf( '[%s] FAIL: %s', $guid, $failed[ $guid ] ) );
 				continue;
 			}
@@ -212,8 +188,7 @@ class CLI extends WP_CLI_Command {
 		WP_CLI::log( '' );
 		WP_CLI::log(
 			sprintf(
-				/* translators: %1$d total, %2$d imported, %3$d skipped, %4$d failed */
-				__( 'Batch import complete: %1$d total, %2$d imported, %3$d skipped, %4$d failed.', 'jetpack-videopress-pkg' ),
+				'Batch import complete: %1$d total, %2$d imported, %3$d skipped, %4$d failed.',
 				count( $guids ),
 				count( $imported ),
 				count( $skipped ),
@@ -222,7 +197,7 @@ class CLI extends WP_CLI_Command {
 		);
 
 		if ( ! empty( $failed ) ) {
-			WP_CLI::error( __( 'One or more videos failed to import. See output above.', 'jetpack-videopress-pkg' ) );
+			WP_CLI::error( 'One or more videos failed to import. See output above.' );
 		}
 	}
 
@@ -238,26 +213,14 @@ class CLI extends WP_CLI_Command {
 		} elseif ( is_readable( $source ) ) {
 			$raw = file_get_contents( $source ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		} else {
-			WP_CLI::error(
-				sprintf(
-					/* translators: %s file path */
-					__( 'Cannot read GUID list from %s.', 'jetpack-videopress-pkg' ),
-					$source
-				)
-			);
+			WP_CLI::error( sprintf( 'Cannot read GUID list from %s.', $source ) );
 			return array();
 		}
 
 		// Distinguish a real read failure from an empty input. Casting false → '' would
 		// make a permission/IO error look like "no GUIDs provided", which is misleading.
 		if ( false === $raw ) {
-			WP_CLI::error(
-				sprintf(
-					/* translators: %s file path or "stdin" */
-					__( 'Failed to read GUID list from %s.', 'jetpack-videopress-pkg' ),
-					'-' === $source ? 'stdin' : $source
-				)
-			);
+			WP_CLI::error( sprintf( 'Failed to read GUID list from %s.', '-' === $source ? 'stdin' : $source ) );
 			return array();
 		}
 
@@ -294,11 +257,7 @@ class CLI extends WP_CLI_Command {
 			return array(
 				'status'        => 'skipped',
 				'attachment_id' => 0,
-				'message'       => sprintf(
-					/* translators: %d existing attachment id */
-					__( 'Already imported as Attachment ID %d. Use --force to re-import.', 'jetpack-videopress-pkg' ),
-					$existing_post_id
-				),
+				'message'       => sprintf( 'Already imported as Attachment ID %d. Use --force to re-import.', $existing_post_id ),
 			);
 		}
 
@@ -313,12 +272,8 @@ class CLI extends WP_CLI_Command {
 			}
 			$target  = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
 			$message = $target > 0
-				? sprintf(
-					/* translators: %d: attachment id that would be used */
-					__( '[dry-run] Would import as attachment %d (preserved from WordPress.com).', 'jetpack-videopress-pkg' ),
-					$target
-				)
-				: __( '[dry-run] Would import with a fresh auto-incremented ID.', 'jetpack-videopress-pkg' );
+				? sprintf( '[dry-run] Would import as attachment %d (preserved from WordPress.com).', $target )
+				: '[dry-run] Would import with a fresh auto-incremented ID.';
 			return array(
 				'status'        => 'imported',
 				'attachment_id' => $target,
@@ -332,11 +287,7 @@ class CLI extends WP_CLI_Command {
 				return array(
 					'status'        => 'failed',
 					'attachment_id' => 0,
-					'message'       => sprintf(
-						/* translators: %d existing attachment id */
-						__( 'Failed to delete existing Attachment ID %d.', 'jetpack-videopress-pkg' ),
-						$existing_post_id
-					),
+					'message'       => sprintf( 'Failed to delete existing Attachment ID %d.', $existing_post_id ),
 				);
 			}
 			delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
@@ -356,7 +307,7 @@ class CLI extends WP_CLI_Command {
 			return array(
 				'status'        => 'failed',
 				'attachment_id' => 0,
-				'message'       => __( 'Unknown error during import.', 'jetpack-videopress-pkg' ),
+				'message'       => 'Unknown error during import.',
 			);
 		}
 
@@ -386,8 +337,8 @@ class CLI extends WP_CLI_Command {
 		$existing_post_id = videopress_get_post_id_by_guid( $guid );
 		if ( $existing_post_id ) {
 			$action = $force
-				? sprintf( /* translators: %d: existing attachment id */ __( '[dry-run] Would delete existing Attachment ID %d and re-import.', 'jetpack-videopress-pkg' ), $existing_post_id )
-				: sprintf( /* translators: %d: existing attachment id */ __( '[dry-run] Would skip with warning — Attachment ID %d already exists. Use --force to re-import.', 'jetpack-videopress-pkg' ), $existing_post_id );
+				? sprintf( '[dry-run] Would delete existing Attachment ID %d and re-import.', $existing_post_id )
+				: sprintf( '[dry-run] Would skip with warning — Attachment ID %d already exists. Use --force to re-import.', $existing_post_id );
 			WP_CLI::log( $action );
 			if ( ! $force ) {
 				return;
@@ -397,53 +348,27 @@ class CLI extends WP_CLI_Command {
 		$current_blog_id = (int) \Jetpack_Options::get_option( 'id' );
 		$video_blog_id   = (int) ( $vp_data->blog_id ?? 0 );
 		if ( ! $current_blog_id ) {
-			WP_CLI::error( __( '[dry-run] Site is not connected to WordPress.com.', 'jetpack-videopress-pkg' ) );
+			WP_CLI::error( '[dry-run] Site is not connected to WordPress.com.' );
 		}
 		if ( $current_blog_id !== $video_blog_id ) {
-			WP_CLI::error(
-				sprintf(
-					/* translators: %1$d current blog id, %2$d video blog id */
-					__( '[dry-run] Video belongs to a different site (blog %2$d, this site is %1$d). Import would be refused.', 'jetpack-videopress-pkg' ),
-					$current_blog_id,
-					$video_blog_id
-				)
-			);
+			WP_CLI::error( sprintf( '[dry-run] Video belongs to a different site (blog %2$d, this site is %1$d). Import would be refused.', $current_blog_id, $video_blog_id ) );
 		}
 
 		$original_post_id = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
 		if ( $original_post_id > 0 ) {
 			$existing = get_post( $original_post_id );
 			if ( $existing && get_post_meta( $original_post_id, 'videopress_guid', true ) !== $guid ) {
-				WP_CLI::error(
-					sprintf(
-						/* translators: %1$d: target post ID, %2$s: existing post type */
-						__( '[dry-run] Would refuse — original Attachment ID %1$d is occupied by post type "%2$s". Pass --no-preserve-id to import with a fresh ID, or delete the conflicting post first.', 'jetpack-videopress-pkg' ),
-						$original_post_id,
-						$existing->post_type
-					)
-				);
+				WP_CLI::error( sprintf( '[dry-run] Would refuse — original Attachment ID %1$d is occupied by post type "%2$s". Pass --no-preserve-id to import with a fresh ID, or delete the conflicting post first.', $original_post_id, $existing->post_type ) );
 			}
-			WP_CLI::log(
-				sprintf(
-					/* translators: %d: attachment id that would be used */
-					__( '[dry-run] Would create attachment with ID %d (preserved from WordPress.com).', 'jetpack-videopress-pkg' ),
-					$original_post_id
-				)
-			);
+			WP_CLI::log( sprintf( '[dry-run] Would create attachment with ID %d (preserved from WordPress.com).', $original_post_id ) );
 		} else {
-			WP_CLI::log( __( '[dry-run] Would create attachment with a fresh auto-incremented ID.', 'jetpack-videopress-pkg' ) );
+			WP_CLI::log( '[dry-run] Would create attachment with a fresh auto-incremented ID.' );
 		}
 
 		if ( $parent_id > 0 ) {
-			WP_CLI::log(
-				sprintf(
-					/* translators: %d: parent post id */
-					__( '[dry-run] Would attach to parent post %d.', 'jetpack-videopress-pkg' ),
-					$parent_id
-				)
-			);
+			WP_CLI::log( sprintf( '[dry-run] Would attach to parent post %d.', $parent_id ) );
 		}
 
-		WP_CLI::success( __( '[dry-run] No errors detected. Re-run without --dry-run to apply.', 'jetpack-videopress-pkg' ) );
+		WP_CLI::success( '[dry-run] No errors detected. Re-run without --dry-run to apply.' );
 	}
 }
