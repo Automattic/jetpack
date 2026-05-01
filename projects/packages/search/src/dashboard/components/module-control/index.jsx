@@ -65,7 +65,6 @@ export default function SearchModuleControl( {
 		from: 'jetpack-search',
 	} );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
-	const themeSupportsWidgets = useSelect( select => select( STORE_ID ).themeSupportsWidgets(), [] );
 	const upgradeUrl = getProductCheckoutUrl(
 		'jetpack_search_free',
 		domain,
@@ -140,7 +139,6 @@ export default function SearchModuleControl( {
 						returnUrl={ siteAdminUrl + RETURN_PATH }
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-						themeSupportsWidgets={ themeSupportsWidgets }
 						toggleInstantSearch={ toggleInstantSearch }
 						upgradeUrl={ upgradeUrl }
 						isDisabledFromOverLimit={ isDisabledFromOverLimit }
@@ -160,7 +158,6 @@ const InstantSearchToggle = ( {
 	returnUrl,
 	supportsInstantSearch,
 	supportsOnlyClassicSearch,
-	themeSupportsWidgets,
 	toggleInstantSearch,
 	upgradeUrl,
 	isDisabledFromOverLimit,
@@ -217,7 +214,6 @@ const InstantSearchToggle = ( {
 					isInstantSearchEnabled={ isInstantSearchEnabled }
 					isWidgetsEditorButtonDisabled={ isWidgetsEditorButtonDisabled }
 					returnUrl={ returnUrl }
-					themeSupportsWidgets={ themeSupportsWidgets }
 				/>
 			) }
 		</div>
@@ -229,9 +225,8 @@ const InstantSearchButtons = ( {
 	isInstantSearchEnabled,
 	isWidgetsEditorButtonDisabled,
 	returnUrl,
-	themeSupportsWidgets,
 } ) => {
-	const showWidgetsEditorButton = themeSupportsWidgets && isInstantSearchEnabled;
+	const showWidgetsEditorButton = isInstantSearchEnabled;
 	return (
 		<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 			<Button

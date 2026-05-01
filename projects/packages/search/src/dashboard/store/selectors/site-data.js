@@ -12,7 +12,6 @@ const siteDataSelectors = {
 	getSiteTitle: state => state.siteData?.title || '',
 	isWpcom: state => state.siteData?.isWpcom ?? false,
 	isPlanJustUpgraded: state => state.siteData?.isPlanJustUpgraded ?? false,
-	themeSupportsWidgets: state => state.siteData?.themeSupports?.widgets ?? true,
 };
 
 export default siteDataSelectors;

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Search: Hide the "Edit sidebar widgets" button when the active theme does not support widgets or when Instant Search is disabled, preventing a fatal error when clicking it.
+Search: Hide the "Edit sidebar widgets" button when Instant Search is disabled, preventing a fatal error on block themes that do not register classic sidebars.
