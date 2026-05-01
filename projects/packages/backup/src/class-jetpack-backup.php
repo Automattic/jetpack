@@ -1675,6 +1675,12 @@ class Jetpack_Backup {
 		// `base_api_path` defaults to 'wpcom' on `as_user`, but the
 		// activity-log endpoints live under `rest/v1/...`
 		// (https://public-api.wordpress.com/rest/v1/activity-log/...).
+		// Sign as the user: rewind is a destructive admin action and
+		// WPCOM's audit log identifies the actor by their wpcom user.
+		// (We tried as_blog v1.1 to side-step user-permission
+		// requirements; WPCOM rejects it with `That API call is not
+		// allowed for this account.` — the rewind endpoint refuses
+		// blog-token auth entirely.)
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/activity-log/%d/rewind/to/%s', $blog_id, rawurlencode( $rewind_id ) ),
 			'1',
