@@ -211,6 +211,15 @@ function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCar
 		return null;
 	}
 
+	// Hoist the download-button labels into locals so the ternary below
+	// references variables instead of inlining two `__()` calls. When two
+	// `__()` calls share a translation function and live in a ternary, the
+	// bundler can collapse them into `__( cond ? 'a' : 'b', domain )` —
+	// which the i18n-check-webpack-plugin rejects (msgid must be a string
+	// literal). See the plugin's "Known problematic code patterns" doc.
+	const preparingLabel = __( 'Preparing…', 'jetpack-backup-pkg' );
+	const downloadFileLabel = __( 'Download file', 'jetpack-backup-pkg' );
+
 	// Three button shapes matching Calypso: direct-link for WordPress core
 	// (the path-info endpoint pre-signs a URL), filtered-prepare for
 	// tables (polls until ready), signed-URL fetch for everything else.
@@ -223,9 +232,7 @@ function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCar
 			variant="secondary"
 			size="compact"
 		>
-			{ isProcessingDownload
-				? __( 'Preparing…', 'jetpack-backup-pkg' )
-				: __( 'Download file', 'jetpack-backup-pkg' ) }
+			{ isProcessingDownload ? preparingLabel : downloadFileLabel }
 		</Button>
 	);
 
@@ -237,7 +244,7 @@ function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCar
 			variant="secondary"
 			size="compact"
 		>
-			{ __( 'Download file', 'jetpack-backup-pkg' ) }
+			{ downloadFileLabel }
 		</Button>
 	);
 
@@ -250,9 +257,7 @@ function FileInfoCard( { item, rewindId, parentItem, onTrackEvent }: FileInfoCar
 			variant="secondary"
 			size="compact"
 		>
-			{ isProcessingDownload
-				? __( 'Preparing…', 'jetpack-backup-pkg' )
-				: __( 'Download file', 'jetpack-backup-pkg' ) }
+			{ isProcessingDownload ? preparingLabel : downloadFileLabel }
 		</Button>
 	);
 

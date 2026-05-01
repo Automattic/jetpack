@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Hoist the file-info-card download-button labels into locals so the bundler doesn't collapse the two `__()` calls in the busy-state ternary into a single `__( cond ? '…' : '…', domain )` (which the i18n linter rejects).
