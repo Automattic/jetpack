@@ -4,7 +4,7 @@ import type { FileBrowserItem } from '../../../../data/types';
 
 const REWIND_ID = 1700000000;
 
-const child = ( name: string, type: FileBrowserItem[ 'type' ] = 'file' ): FileBrowserItem => ( {
+const child = ( name: string, type: FileBrowserItem[ 'type' ] = 'other' ): FileBrowserItem => ( {
 	id: name,
 	name,
 	type,

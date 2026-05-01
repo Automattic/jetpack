@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Add `@types/jest` and use a valid `FileType` in the file-browser test fixture so `pnpm typecheck` greens up.
