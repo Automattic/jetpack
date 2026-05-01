@@ -1019,6 +1019,11 @@
 	transform: scale(1);
 }
 
+.bw-video-figure:hover .bw-img-delete {
+	opacity: 1;
+	transform: scale(1);
+}
+
 .bw-img-controls .bw-img-delete:hover {
 	background: rgba(214, 54, 56, 0.85);
 }
@@ -1149,6 +1154,22 @@
 	width: 100%;
 	height: 100%;
 	border: none;
+}
+
+/* Figure keyboard selection highlight */
+.bw-figure-selected {
+	outline: 3px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 4px;
+	border-radius: 4px;
+}
+
+/* Gap paragraphs between non-editable blocks */
+.bw-block-gap {
+	height: 4px;
+	margin: 0;
+	padding: 0;
+	cursor: text;
+	outline: none;
 }
 
 /* ===== Image modal ===== */

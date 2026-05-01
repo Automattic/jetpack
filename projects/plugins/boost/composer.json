@@ -29,6 +29,7 @@
 		"automattic/jetpack-schema": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/jetpack-wp-js-data-sync": "@dev",
 		"matthiasmullie/minify": "^1.3"
 	},

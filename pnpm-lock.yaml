@@ -4867,61 +4867,6 @@ importers:
         version: 0.0.26
 
   projects/plugins/crm:
-    dependencies:
-      '@automattic/jetpack-base-styles':
-        specifier: workspace:*
-        version: link:../../js-packages/base-styles
-      '@automattic/jetpack-components':
-        specifier: workspace:*
-        version: link:../../js-packages/components
-      '@automattic/jetpack-shared-extension-utils':
-        specifier: workspace:*
-        version: link:../../js-packages/shared-extension-utils
-      '@tanstack/react-query':
-        specifier: 5.90.8
-        version: 5.90.8(react@18.3.1)
-      '@wordpress/api-fetch':
-        specifier: 7.44.0
-        version: 7.44.0
-      '@wordpress/base-styles':
-        specifier: 6.20.0
-        version: 6.20.0
-      '@wordpress/components':
-        specifier: 32.6.0
-        version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data':
-        specifier: 10.44.0
-        version: 10.44.0(react@18.3.1)
-      '@wordpress/element':
-        specifier: 6.44.0
-        version: 6.44.0
-      '@wordpress/i18n':
-        specifier: 6.17.0
-        version: 6.17.0
-      '@wordpress/icons':
-        specifier: 12.2.0
-        version: 12.2.0(react@18.3.1)
-      '@wordpress/theme':
-        specifier: 0.11.0
-        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
-      '@wordpress/ui':
-        specifier: 0.11.0
-        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
-      clsx:
-        specifier: 2.1.1
-        version: 2.1.1
-      prop-types:
-        specifier: 15.8.1
-        version: 15.8.1
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-router:
-        specifier: 7.12.0
-        version: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.1.0
@@ -4932,45 +4877,18 @@ importers:
       '@automattic/remove-asset-webpack-plugin':
         specifier: workspace:*
         version: link:../../js-packages/remove-asset-webpack-plugin
-      '@babel/core':
-        specifier: 7.29.0
-        version: 7.29.0
-      '@babel/preset-env':
-        specifier: 7.29.2
-        version: 7.29.2(@babel/core@7.29.0)
-      '@babel/runtime':
-        specifier: 7.29.2
-        version: 7.29.2
       '@fullcalendar/core':
         specifier: 6.1.20
         version: 6.1.20
-      '@testing-library/dom':
-        specifier: 10.4.1
-        version: 10.4.1
-      '@testing-library/react':
-        specifier: 16.3.2
-        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/jest':
-        specifier: 30.0.0
-        version: 30.0.0
-      '@types/react':
-        specifier: 18.3.28
-        version: 18.3.28
-      '@types/react-dom':
-        specifier: 18.3.7
-        version: 18.3.7(@types/react@18.3.28)
-      '@typescript/native-preview':
-        specifier: 7.0.0-dev.20260225.1
-        version: 7.0.0-dev.20260225.1
+      '@wordpress/theme':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
       chart.js:
         specifier: 4.5.0
         version: 4.5.0
       copy-webpack-plugin:
         specifier: 14.0.0
         version: 14.0.0(webpack@5.105.2)
-      css-loader:
-        specifier: 6.11.0
-        version: 6.11.0(webpack@5.105.2)
       daterangepicker:
         specifier: 3.1.0
         version: 3.1.0
@@ -4986,9 +4904,6 @@ importers:
       hopscotch:
         specifier: 0.3.1
         version: 0.3.1
-      jest:
-        specifier: 30.3.0
-        version: 30.3.0
       jquery-modal:
         specifier: 0.9.2
         version: 0.9.2
@@ -5001,6 +4916,12 @@ importers:
       push.js:
         specifier: 1.0.12
         version: 1.0.12
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
