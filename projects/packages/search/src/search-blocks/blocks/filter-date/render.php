@@ -61,21 +61,35 @@ $seeded_buckets    = $seeded_filter_agg['buckets'] ?? null;
 $has_buckets       = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
 
 // First-paint "all selected" flag mirrors the `allBucketsSelected` getter in
-// view.js so the list and the fallback message come out pre-hidden correctly
-// and there's no flicker during hydration. Date buckets use `key_as_string`
-// (e.g. `2024`, `2024-03`) as both the slug and the label, so we compare the
-// raw bucket key directly without the slash-split filter-checkbox uses.
+// store/index.js so the list and the fallback message come out pre-hidden
+// correctly and there's no flicker during hydration. Date buckets use
+// `key_as_string` (e.g. `2024`, `2024-03`) as both the slug and the label,
+// so we compare the raw bucket key directly without the slash-split
+// filter-checkbox uses.
+//
+// Empty buckets (`doc_count <= 0`) are skipped to keep this in lockstep with
+// the JS getter, which filters to populated buckets before the
+// `every(selected.includes)` check. `min_doc_count: 1` on the agg means
+// empty buckets shouldn't arrive in practice, but if a future code path
+// seeds a warm aggregation without that gate, this prevents a phantom
+// "All filters applied" flash on first paint.
 $seeded_selected       = (array) ( ( (array) ( $seeded_state['activeFilters'] ?? array() ) )[ $filter_key ] ?? array() );
 $all_selected_on_paint = false;
 if ( $has_buckets && ! empty( $seeded_selected ) ) {
-	$all_selected_on_paint = true;
+	$populated_count = 0;
+	$all_match       = true;
 	foreach ( $seeded_buckets as $bucket ) {
+		if ( ! is_array( $bucket ) || ( (int) ( $bucket['doc_count'] ?? 0 ) ) <= 0 ) {
+			continue;
+		}
+		++$populated_count;
 		$value = (string) ( $bucket['key_as_string'] ?? $bucket['key'] ?? '' );
 		if ( ! in_array( $value, $seeded_selected, true ) ) {
-			$all_selected_on_paint = false;
+			$all_match = false;
 			break;
 		}
 	}
+	$all_selected_on_paint = $populated_count > 0 && $all_match;
 }
 
 $label = $config['label'];
