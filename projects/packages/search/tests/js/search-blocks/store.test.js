@@ -411,6 +411,11 @@ describe( 'store getters', () => {
 			activeFilters: {},
 			aggregations: {},
 			sortOrder: 'relevance',
+			// Explicitly reset priceRange — without this, a `hasAnyActiveFilters`
+			// test that sets a price range leaks into later getter tests
+			// (e.g. `isFilterTriggerDisabled`, which now consults priceRange
+			// via hasAnyActiveFilters).
+			priceRange: null,
 			strings: {
 				searching: 'Looking…',
 				resultsCountSingle: 'Found %d item',
@@ -452,6 +457,29 @@ describe( 'store getters', () => {
 		state.activeFilters = { category: [ 'news', 'updates' ] };
 		expect( state.hasActiveFilters ).toBe( true );
 		expect( state.activeFilterCount ).toBe( 2 );
+	} );
+
+	it( 'hasAnyActiveFilters surfaces with active filters, with a price range, or both', () => {
+		// Drives the active-filters wrapper and the clear-button block's
+		// visibility — keeping all three sources gated behind one getter
+		// keeps the bug where a price-only selection left the wrapper
+		// hidden from regressing.
+		state.activeFilters = {};
+		state.priceRange = null;
+		expect( state.hasAnyActiveFilters ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.hasAnyActiveFilters ).toBe( true );
+
+		state.activeFilters = {};
+		state.priceRange = { min: 10, max: null };
+		expect( state.hasAnyActiveFilters ).toBe( true );
+
+		state.priceRange = { min: null, max: null };
+		expect( state.hasAnyActiveFilters ).toBe( false );
+
+		state.priceRange = { min: 0, max: 0 };
+		expect( state.hasAnyActiveFilters ).toBe( true );
 	} );
 
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {

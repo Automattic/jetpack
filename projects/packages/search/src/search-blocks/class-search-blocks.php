@@ -514,49 +514,49 @@ class Search_Blocks {
 
 		return array(
 			// Connection / routing config.
-			'siteId'        => $site_id,
-			'apiRoot'       => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'         => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite' => $is_private,
-			'isWpcom'       => $is_wpcom,
-			'homeUrl'       => function_exists( 'home_url' ) ? home_url() : '',
+			'siteId'              => $site_id,
+			'apiRoot'             => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'               => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite'       => $is_private,
+			'isWpcom'             => $is_wpcom,
+			'homeUrl'             => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'        => function_exists( 'get_locale' )
+			'locale'              => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'   => $search_query,
-			'sortOrder'     => static::parse_url_sort(),
-			'activeFilters' => $active_filters,
-			'priceRange'    => $price_range,
+			'searchQuery'         => $search_query,
+			'sortOrder'           => static::parse_url_sort(),
+			'activeFilters'       => $active_filters,
+			'priceRange'          => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
 			// taxonomy, label, showCount, maxItems } }.
-			'filterConfigs' => array(),
+			'filterConfigs'       => array(),
 
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'       => array(),
-			'aggregations'  => (object) array(),
-			'totalResults'  => 0,
-			'pageHandle'    => null,
+			'results'             => array(),
+			'aggregations'        => (object) array(),
+			'totalResults'        => 0,
+			'pageHandle'          => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the no-results block stays
 			// hidden between first paint and JS hydrating the initial fetch —
 			// otherwise a "No results found" flash appears on deep links.
-			'isLoading'     => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
-			'isLoadingMore' => false,
-			'hasError'      => false,
+			'isLoading'           => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
+			'isLoadingMore'       => false,
+			'hasError'            => false,
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -565,8 +565,52 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'       => static::build_initial_strings(),
+			'strings'             => static::build_initial_strings(),
+
+			// Currency symbol displayed inside the price filter pill rendered
+			// by the active-filters block. Defaults to `$`; the price block's
+			// render.php overrides this with the author's currencySymbol
+			// attribute so a single chip on the page reflects whatever symbol
+			// the price input itself uses. The stored numeric value stays
+			// locale-agnostic — only the display string carries the symbol.
+			'priceCurrencySymbol' => '$',
+
+			// Display labels for `wc_stock_status` selections, keyed by slug.
+			// Seeded from the status block's static option list so an active-
+			// filters chip for "instock" reads "In stock" rather than the raw
+			// slug. RSM-1932 will swap this with WC's translated labels so
+			// non-English locales render correctly; the map shape stays the
+			// same.
+			'wcStockStatusLabels' => static::build_stock_status_labels(),
 		);
+	}
+
+	/**
+	 * Slug → display label map for `wc_stock_status` selections, used by the
+	 * active-filters block to render product-aware chips.
+	 *
+	 * Sourced from the status block's `get_options()` so there's one source of
+	 * truth for the label set; in RSM-1932 we'll switch to WC's translated
+	 * labels (`wc_get_product_stock_status_options()`) without changing this
+	 * shape. Returns an empty array when the status helper class isn't loaded
+	 * — defensive for environments that pull the search package in isolation
+	 * (tests, partial installs).
+	 *
+	 * @return array<string, string>
+	 */
+	protected static function build_stock_status_labels(): array {
+		if ( ! class_exists( Search_Product_Filter_Status::class ) ) {
+			return array();
+		}
+		$labels = array();
+		foreach ( Search_Product_Filter_Status::get_options() as $option ) {
+			$value = (string) ( $option['value'] ?? '' );
+			if ( '' === $value ) {
+				continue;
+			}
+			$labels[ $value ] = (string) ( $option['label'] ?? $value );
+		}
+		return $labels;
 	}
 
 	/**
@@ -581,6 +625,12 @@ class Search_Blocks {
 				'resultsCountSingle' => 'Found %d result',
 				'resultsCountPlural' => 'Found %d results',
 				'removeFilter'       => 'Remove %s',
+				'ratingStarsSingle'  => '%d star',
+				'ratingStarsPlural'  => '%d stars',
+				'priceRangeFromTo'   => '%1$s – %2$s',
+				'priceRangeFrom'     => 'From %s',
+				'priceRangeUpTo'     => 'Up to %s',
+				'priceLabel'         => 'Price',
 			);
 		}
 		return array(
@@ -591,6 +641,18 @@ class Search_Blocks {
 			'resultsCountPlural' => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
 			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
+			/* translators: %d: number of stars (singular form, used for 1). */
+			'ratingStarsSingle'  => _n( '%d star', '%d stars', 1, 'jetpack-search-pkg' ),
+			/* translators: %d: number of stars (plural form). */
+			'ratingStarsPlural'  => _n( '%d star', '%d stars', 2, 'jetpack-search-pkg' ),
+			/* translators: 1: minimum price (already includes the currency symbol). 2: maximum price (already includes the currency symbol). Renders an active "Price: $10 – $50" filter pill. */
+			'priceRangeFromTo'   => __( '%1$s – %2$s', 'jetpack-search-pkg' ),
+			/* translators: %s: minimum price (already includes the currency symbol). Renders an active "Price: From $10" filter pill (no upper bound). */
+			'priceRangeFrom'     => __( 'From %s', 'jetpack-search-pkg' ),
+			/* translators: %s: maximum price (already includes the currency symbol). Renders an active "Price: Up to $50" filter pill (no lower bound). */
+			'priceRangeUpTo'     => __( 'Up to %s', 'jetpack-search-pkg' ),
+			/* translators: Group label for the price filter pill ("Price: $10 – $50"). Mirrors the price block's default heading; falls back to this when no price block is on the page. */
+			'priceLabel'         => __( 'Price', 'jetpack-search-pkg' ),
 		);
 	}
 

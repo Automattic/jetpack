@@ -12,14 +12,15 @@ namespace Automattic\Jetpack\Search;
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 // Render `hidden` on first paint when no filters are active. JS unhides once
-// `state.hasActiveFilters` flips — relying only on data-wp-bind--hidden leaves
-// the "Active filters:" label and "Clear all" button visible on the server-
-// rendered HTML until hydration, which pushes sibling filter blocks ~30px
-// down and misaligns the sidebar with the adjacent results column.
+// `state.hasAnyActiveFilters` flips — relying only on data-wp-bind--hidden
+// leaves the "Active filters:" label and "Clear all" button visible on the
+// server-rendered HTML until hydration, which pushes sibling filter blocks
+// ~30px down and misaligns the sidebar with the adjacent results column.
 $seeded_state        = function_exists( 'wp_interactivity_state' )
 	? wp_interactivity_state( 'jetpack-search' )
 	: array();
 $seeded_active       = $seeded_state['activeFilters'] ?? array();
+$seeded_price        = $seeded_state['priceRange'] ?? null;
 $has_active_on_paint = false;
 foreach ( (array) $seeded_active as $values ) {
 	if ( is_array( $values ) && ! empty( $values ) ) {
@@ -27,11 +28,19 @@ foreach ( (array) $seeded_active as $values ) {
 		break;
 	}
 }
+// Mirror `hasAnyActiveFilters` on the server: a price-only deep link should
+// keep the wrapper visible so the user has a price chip to remove. Without
+// this branch the wrapper would paint hidden and only unhide on hydration,
+// flashing the price chip into view.
+if ( ! $has_active_on_paint && is_array( $seeded_price ) ) {
+	$has_active_on_paint = ( $seeded_price['min'] ?? null ) !== null
+		|| ( $seeded_price['max'] ?? null ) !== null;
+}
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	data-wp-bind--hidden="!state.hasActiveFilters"
+	data-wp-bind--hidden="!state.hasAnyActiveFilters"
 	<?php echo $has_active_on_paint ? '' : 'hidden'; ?>
 >
 	<span class="jetpack-search-active-filters__heading">

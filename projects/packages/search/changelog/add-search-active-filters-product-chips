@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: active-filters block now renders product-aware chips ("Stock status: In stock", "Rating: 5 stars", "Price: $10 – $50") and surfaces with a price-only selection. Adds the `state.hasAnyActiveFilters` getter, the `state.wcStockStatusLabels` and `state.priceCurrencySymbol` seeds, and the rating + price chip string templates. Also adds the standalone `jetpack/search-product-filter-clear-button` block — a thin wrapper around `actions.clearFilters` that hides itself when no facet is active. Tracked under epic [RSM-1929].

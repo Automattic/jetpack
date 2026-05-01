@@ -134,6 +134,24 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * True when *any* facet is active — selected filter values or a
+		 * price range. The active-filters block, the clear-button block,
+		 * and the filter-popover trigger all key off this rather than
+		 * `hasActiveFilters` (which is `activeFilters`-only); without the
+		 * priceRange branch, a price-only selection leaves the active-
+		 * filters wrapper hidden even though the user has a chip to clear.
+		 *
+		 * @return {boolean} Whether any filter or the price range is active.
+		 */
+		get hasAnyActiveFilters() {
+			if ( state.hasActiveFilters ) {
+				return true;
+			}
+			const range = state.priceRange;
+			return !! range && ( range.min != null || range.max != null );
+		},
+
+		/**
 		 * Total selected filter values across all filter keys. Used by the
 		 * filter-popover trigger to render a count badge.
 		 *
@@ -154,7 +172,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * @return {boolean} Whether the filter trigger is disabled.
 		 */
 		get isFilterTriggerDisabled() {
-			if ( state.hasActiveFilters ) {
+			if ( state.hasAnyActiveFilters ) {
 				return false;
 			}
 			const aggs = state.aggregations ?? {};

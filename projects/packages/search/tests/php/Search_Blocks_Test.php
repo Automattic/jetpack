@@ -321,6 +321,65 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The active-filters block reads `state.wcStockStatusLabels` to render
+	 * "Stock status: In stock" chips without an extra REST hop. The map is
+	 * sourced from the status block's option list so there's one source of
+	 * truth for the label set; missing keys would cause the chip to fall
+	 * back to the raw slug ("Stock status: instock").
+	 */
+	public function test_build_initial_state_seeds_wc_stock_status_labels() {
+		$state = Search_Blocks::build_initial_state();
+		$this->assertArrayHasKey( 'wcStockStatusLabels', $state );
+		$labels = $state['wcStockStatusLabels'];
+		$this->assertSame( 'In stock', $labels['instock'] ?? null );
+		$this->assertSame( 'Out of stock', $labels['outofstock'] ?? null );
+		$this->assertSame( 'On backorder', $labels['onbackorder'] ?? null );
+	}
+
+	/**
+	 * The active-filters block reads `state.priceCurrencySymbol` to format
+	 * the price chip ("Price: $10 – $50"). Default is `$`; the price block
+	 * overrides this with the author's currencySymbol attribute at render
+	 * time. Without this default, sites with no price block on the page
+	 * would render "Price: 10 – 50".
+	 */
+	public function test_build_initial_state_seeds_default_price_currency_symbol() {
+		$state = Search_Blocks::build_initial_state();
+		$this->assertArrayHasKey( 'priceCurrencySymbol', $state );
+		$this->assertSame( '$', $state['priceCurrencySymbol'] );
+	}
+
+	/**
+	 * The active-filters block can't import @wordpress/i18n (only
+	 *
+	 * @wordpress/interactivity is registered as a script module), so the
+	 * star-row plural templates and price-range format strings must be
+	 * seeded as `state.strings.*` for the view bundle to read.
+	 */
+	public function test_build_initial_state_seeds_product_chip_strings() {
+		$strings = Search_Blocks::build_initial_state()['strings'];
+		foreach (
+			array(
+				'ratingStarsSingle',
+				'ratingStarsPlural',
+				'priceRangeFromTo',
+				'priceRangeFrom',
+				'priceRangeUpTo',
+				'priceLabel',
+			) as $key
+		) {
+			$this->assertArrayHasKey( $key, $strings, "Missing seeded string: $key" );
+			$this->assertNotSame( '', $strings[ $key ], "Empty seeded string: $key" );
+		}
+		$this->assertStringContainsString( '%d', $strings['ratingStarsSingle'] );
+		$this->assertStringContainsString( '%d', $strings['ratingStarsPlural'] );
+		$this->assertStringContainsString( '%1$s', $strings['priceRangeFromTo'] );
+		$this->assertStringContainsString( '%2$s', $strings['priceRangeFromTo'] );
+		$this->assertStringContainsString( '%s', $strings['priceRangeFrom'] );
+		$this->assertStringContainsString( '%s', $strings['priceRangeUpTo'] );
+	}
+
+	/**
 	 * Invoke a protected static on Search_Blocks from test code. Reflection
 	 * is the cheapest way to cover this logic without leaking visibility
 	 * just for testability.

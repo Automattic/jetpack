@@ -25,6 +25,7 @@ import LoadMoreEdit from '../blocks/load-more/edit';
 import NoResultsEdit from '../blocks/no-results/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
+import SearchProductFilterClearButtonEdit from '../blocks/search-product-filter-clear-button/edit';
 import SearchProductFilterPriceEdit from '../blocks/search-product-filter-price/edit';
 import SearchProductFilterRatingEdit from '../blocks/search-product-filter-rating/edit';
 import SearchProductFilterStatusEdit from '../blocks/search-product-filter-status/edit';
@@ -51,6 +52,7 @@ const BLOCKS = [
 	[ 'jetpack/search-product-filter-status', SearchProductFilterStatusEdit ],
 	[ 'jetpack/search-product-filter-rating', SearchProductFilterRatingEdit ],
 	[ 'jetpack/search-product-filter-price', SearchProductFilterPriceEdit ],
+	[ 'jetpack/search-product-filter-clear-button', SearchProductFilterClearButtonEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /
