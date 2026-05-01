@@ -51,12 +51,14 @@ class Filter_Date {
 	 * if the URL key collides with a reserved query param so the render
 	 * short-circuits rather than registering a clobbered filterConfig.
 	 *
-	 * @param array $attributes Block attributes (unused, kept for shape).
+	 * @param array $_attributes Block attributes (unused, kept for shape).
 	 * @return string Filter key.
 	 */
-	public static function derive_filter_key( array $attributes ): string {
-		// Suppress unused-parameter Phan warning — the registry shape requires it.
-		unset( $attributes );
+	public static function derive_filter_key( array $_attributes ): string {
+		// Underscore-prefixed parameter name signals "intentionally unused"
+		// to readers; VariableAnalysis doesn't honor that convention so we
+		// "use" it here as a no-op to satisfy the sniff.
+		unset( $_attributes );
 		if ( in_array( self::FILTER_KEY, Search_Blocks::RESERVED_QUERY_PARAMS, true ) ) {
 			return '';
 		}
@@ -177,12 +179,25 @@ class Filter_Date {
 		if ( $month < 1 || $month > 12 ) {
 			return $bucket_key;
 		}
-		$timestamp = strtotime( $bucket_key . '-01 00:00:00' );
-		if ( false === $timestamp ) {
+		// Anchor the timestamp explicitly in UTC. `strtotime()` reads the
+		// PHP server timezone (typically UTC, but not guaranteed); `wp_date()`
+		// then converts the timestamp to the WordPress site timezone before
+		// formatting. On a site configured to a large negative UTC offset
+		// (e.g. UTC-12, Baker Island), a server-TZ midnight of `2024-01-01`
+		// shifts back into `December 2023` once `wp_date()` applies the site
+		// offset. Using DateTimeImmutable with a fixed UTC zone keeps the
+		// PHP path bit-identical to the JS side, which uses
+		// `Date.UTC(year, month - 1, 1)` paired with `timeZone: 'UTC'`.
+		$dt = \DateTimeImmutable::createFromFormat(
+			'Y-m-d H:i:s',
+			$bucket_key . '-01 00:00:00',
+			new \DateTimeZone( 'UTC' )
+		);
+		if ( false === $dt ) {
 			return $bucket_key;
 		}
-		// `F Y` resolves to translated full-month + year (e.g. `March 2024`,
-		// `März 2024`) when a textdomain is loaded.
+		$timestamp = $dt->getTimestamp();
+		/* translators: PHP date() format string for month + year bucket labels (e.g. `F Y` → "March 2024"). See https://www.php.net/manual/en/datetime.format.php for token reference. */
 		return (string) wp_date( __( 'F Y', 'jetpack-search-pkg' ), $timestamp );
 	}
 }
