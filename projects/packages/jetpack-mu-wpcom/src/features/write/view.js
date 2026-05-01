@@ -919,6 +919,12 @@ const { state } = store( 'wpcom-write', {
 				return;
 			}
 
+			// Block undo/redo (Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y).
+			if ( ( event.ctrlKey || event.metaKey ) && ( event.key === 'z' || event.key === 'y' ) ) {
+				event.preventDefault();
+				return;
+			}
+
 			// Ctrl+K / Cmd+K to toggle link input.
 			if ( ( event.ctrlKey || event.metaKey ) && event.key === 'k' ) {
 				event.preventDefault();
@@ -1032,6 +1038,13 @@ const { state } = store( 'wpcom-write', {
 						}
 					}
 				}
+			}
+		},
+
+		handleBeforeInput( event ) {
+			// Block undo/redo triggered via browser Edit menu.
+			if ( event.inputType === 'historyUndo' || event.inputType === 'historyRedo' ) {
+				event.preventDefault();
 			}
 		},
 
