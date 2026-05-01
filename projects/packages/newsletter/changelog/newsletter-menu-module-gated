@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Newsletter: hide the wp-admin menu item when the Subscriptions module is off. The page itself stays reachable via direct URL.

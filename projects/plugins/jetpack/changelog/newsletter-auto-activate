@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Newsletter: auto-activate the Subscriptions module on new installs so the unified Newsletter page is wired up out of the box.

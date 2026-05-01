@@ -73,19 +73,27 @@ class Settings {
 
 	/**
 	 * Determine whether to show the Newsletter menu item.
-	 * When true, shown regardless of subscriptions module state.
+	 *
+	 * The unified page no longer carries the activation toggle (that lives on
+	 * the global Newsletter product control), so when the Subscriptions
+	 * module is off there's nothing actionable inside this page — hide it
+	 * entirely. Sites can override via `jetpack_show_newsletter_menu_item`
+	 * if they need the page reachable through the menu while the module is
+	 * off (the page itself remains accessible via direct URL regardless).
 	 *
 	 * @return bool
 	 */
 	private function should_show_menu_item() {
 		/**
 		 * Filter to control Newsletter menu item visibility.
-		 * Defaults to true.
+		 *
+		 * Defaults to true when the Subscriptions module is active, false
+		 * otherwise.
 		 *
 		 * @since 0.6.0
 		 * @param bool $show Whether to show the menu item.
 		 */
-		return apply_filters( 'jetpack_show_newsletter_menu_item', true );
+		return apply_filters( 'jetpack_show_newsletter_menu_item', $this->is_subscriptions_active() );
 	}
 
 	/**
