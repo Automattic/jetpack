@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: Point the restore initiator and progress poller at the right WPCOM endpoint. Phase 5's first pass guessed `wpcom/v2 /sites/{id}/rewind/to/{timestamp}` and `wpcom/v2 /sites/{id}/rewind/restores/{restoreId}`, both of which 404 (`rest_no_route`). Calypso's `state/data-layer/wpcom/activity-log/rewind/to/` and `restore-status/` data layers actually hit `rest/v1 /activity-log/{site}/rewind/to/{timestamp}` and `rest/v1 /activity-log/{site}/rewind/{restoreId}/restore-status` — different base path (`rest` not `wpcom`), different version (`1` not `2`), different prefix (`/activity-log/{site}` not `/sites/{site}/rewind`). Bridge now mirrors the Calypso path, sends `force_rewind: true` + `types` (object for full / `'paths'` + path lists for granular) on initiate, and unwraps the upstream `restore_status` envelope on poll so the TS fetcher's flat `{ status, progress, error_code, reason, message }` contract still matches.

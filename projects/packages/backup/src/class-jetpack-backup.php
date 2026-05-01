@@ -1653,20 +1653,34 @@ class Jetpack_Backup {
 		$exclude_paths = (string) $request->get_param( 'exclude_path_list' );
 		$is_granular   = '' !== $include_paths;
 
+		// Mirrors Calypso's restore-flow data layer at
+		// state/data-layer/wpcom/activity-log/rewind/to/. We post against
+		// the v1 activity-log endpoint, sending force_rewind together
+		// with either a types map for full restore, or the literal
+		// string paths plus the include and exclude path lists for
+		// granular restore. The endpoint sits under activity-log rather
+		// than under sites-rewind, which is why the obvious sites
+		// prefixed patterns all returned rest_no_route while guessing.
 		$body = array(
-			'types' => $is_granular ? array( 'paths' => true ) : $request->get_param( 'types' ),
+			'force_rewind' => true,
+			'types'        => $is_granular ? 'paths' : $request->get_param( 'types' ),
 		);
 		if ( $is_granular ) {
 			$body['include_path_list'] = $include_paths;
-			$body['exclude_path_list'] = $exclude_paths;
+			if ( '' !== $exclude_paths ) {
+				$body['exclude_path_list'] = $exclude_paths;
+			}
 		}
 
+		// `base_api_path` defaults to 'wpcom' on `as_user`, but the
+		// activity-log endpoints live under `rest/v1/...`
+		// (https://public-api.wordpress.com/rest/v1/activity-log/...).
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/rewind/to/%s', $blog_id, rawurlencode( $rewind_id ) ),
-			'v2',
+			sprintf( '/activity-log/%d/rewind/to/%s', $blog_id, rawurlencode( $rewind_id ) ),
+			'1',
 			array( 'method' => 'POST' ),
 			$body,
-			'wpcom'
+			'rest'
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -1675,14 +1689,36 @@ class Jetpack_Backup {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
+			// Forward the upstream WPCOM error so the front-end can
+			// distinguish authorization_required, plan-not-attached,
+			// and rewind_id-not-found cases (the user-facing copy stays
+			// in the React layer where translation lives).
+			$upstream_body = wp_remote_retrieve_body( $response );
+			$decoded       = json_decode( $upstream_body, true );
 			return new WP_Error(
 				'backup_restore_initiate_failed',
 				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				array(
+					'status'   => is_int( $status_code ) && $status_code > 0 ? $status_code : 500,
+					'upstream' => is_array( $decoded ) ? $decoded : $upstream_body,
+				)
 			);
 		}
 
-		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
+		// Calypso's `fromApi` parses `data.restore_id` from the
+		// response. Normalise to `id` so the TS fetcher
+		// (`initiateBackupRestore` returns `data.id`) sees a stable
+		// shape — same convention as the download initiator.
+		$body          = json_decode( wp_remote_retrieve_body( $response ), true );
+		$restore_id_in = is_array( $body ) && isset( $body['restore_id'] ) ? (int) $body['restore_id'] : 0;
+		if ( ! $restore_id_in ) {
+			return new WP_Error(
+				'backup_restore_initiate_failed',
+				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+		return rest_ensure_response( array( 'id' => $restore_id_in ) );
 	}
 
 	/**
@@ -1696,16 +1732,23 @@ class Jetpack_Backup {
 	public static function get_site_backup_restore_progress( $request ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
+		// Calypso polls GET /rest/v1/activity-log/{site}/rewind/{restore_id}/restore-status
+		// (see `state/data-layer/wpcom/activity-log/rewind/restore-status/index.js`).
+		// The response wraps everything in a `restore_status` object —
+		// keys: status, percent, rewind_id, message, error_code,
+		// failure_reason, context, current_entry. We forward the raw
+		// shape; the front-end normaliser already accepts both legacy
+		// flat fields and the wrapped form.
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf(
-				'/sites/%d/rewind/restores/%d',
+				'/activity-log/%d/rewind/%d/restore-status',
 				$blog_id,
 				$request->get_param( 'restore_id' )
 			),
-			'v2',
+			'1',
 			array(),
 			null,
-			'wpcom'
+			'rest'
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -1716,12 +1759,33 @@ class Jetpack_Backup {
 		if ( 200 !== $status_code ) {
 			return new WP_Error(
 				'backup_restore_progress_fetch_failed',
+				/* translators: error shown to admins when WPCOM's restore status poll fails. */
 				__( 'Could not fetch restore progress.', 'jetpack-backup-pkg' ),
 				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
 			);
 		}
 
-		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
+		// Unwrap the WPCOM `restore_status` envelope and normalise field
+		// names so the TS fetcher's flat shape (status / progress /
+		// error_code / reason / message) keeps working without a
+		// front-end change.
+		$body          = json_decode( wp_remote_retrieve_body( $response ), true );
+		$status        = is_array( $body ) && isset( $body['restore_status'] ) && is_array( $body['restore_status'] )
+			? $body['restore_status']
+			: ( is_array( $body ) ? $body : array() );
+		$restore_id_in = isset( $status['restore_id'] )
+			? (int) $status['restore_id']
+			: (int) $request->get_param( 'restore_id' );
+		$normalised    = array(
+			'id'         => $restore_id_in,
+			'status'     => isset( $status['status'] ) ? (string) $status['status'] : 'queued',
+			'progress'   => isset( $status['percent'] ) ? (float) $status['percent'] : 0,
+			'rewind_id'  => isset( $status['rewind_id'] ) ? (string) $status['rewind_id'] : '',
+			'error_code' => isset( $status['error_code'] ) ? (string) $status['error_code'] : '',
+			'reason'     => isset( $status['failure_reason'] ) ? (string) $status['failure_reason'] : '',
+			'message'    => isset( $status['message'] ) ? (string) $status['message'] : '',
+		);
+		return rest_ensure_response( $normalised );
 	}
 
 	/**
