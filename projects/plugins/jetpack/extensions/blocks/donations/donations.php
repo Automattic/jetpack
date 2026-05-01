@@ -299,6 +299,15 @@ function build_custom_styles( $attr, $scope ) {
 			),
 		),
 		array(
+			'selector'   => $scope . ' .donations__amount.is-selected',
+			'properties' => array(
+				// Override only the outer ring color; the inner 1px white separator stays put.
+				'box-shadow' => isset( $attr['selectedAmountOutlineColor'] ) && '' !== $attr['selectedAmountOutlineColor']
+					? '0 0 0 1px #fff,0 0 0 3px ' . $attr['selectedAmountOutlineColor']
+					: '',
+			),
+		),
+		array(
 			'selector'   => $scope . ' .donations__donate-button',
 			'properties' => array(
 				'font-size'      => $attr['buttonFontSize'] ?? '',
