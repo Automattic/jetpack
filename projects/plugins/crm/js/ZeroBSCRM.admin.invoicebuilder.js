@@ -2237,7 +2237,7 @@ function zbscrmJS_sendInvoiceModal() {
 
 		// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 		swal( {
-			title: jpcrm.esc_html( zbscrm_JS_invoice_lang( 'send_email' ) ),
+			titleText: zbscrm_JS_invoice_lang( 'send_email' ),
 			html:
 				'<div class="ui segment">' +
 				jpcrm.esc_html( zbscrm_JS_invoice_lang( 'sendthisemail' ) ) +
@@ -2284,7 +2284,7 @@ function zbscrmJS_sendInvoiceModal() {
 
 					// send email
 					swal.fire( {
-						title: jpcrm.esc_html( zbscrm_JS_invoice_lang( 'sendingemail' ) ),
+						titleText: zbscrm_JS_invoice_lang( 'sendingemail' ),
 						html: '<div style="clear:both">&nbsp;</div><div class="ui active loader" style="margin-top:2em;padding-bottom:2em"></div><div style="clear:both">&nbsp;</div>',
 						showConfirmButton: false,
 						showCancelButton: false,

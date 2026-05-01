@@ -271,7 +271,7 @@ if ( ! empty( $tax_errors ) ) {
 				var that = this;
 
 				swal({
-					title: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Are you sure?', 'zero-bs-crm' ) ) ); ?>',
+					titleText: '<?php echo esc_html( __( 'Are you sure?', 'zero-bs-crm' ) ); ?>',
 					text: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Are you sure you want to delete this tax rate? This will remove it from your database and existing transactions with this tax rate will not show properly. You cannot undo this.', 'zero-bs-crm' ) ) ); ?>',
 					type: 'warning',
 					showCancelButton: true,

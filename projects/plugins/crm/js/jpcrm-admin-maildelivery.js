@@ -42,9 +42,7 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 			emailFrom = jQuery( this ).attr( 'data-from' );
 
 			swal( {
-				title: jpcrm.esc_html(
-					window.zeroBSCRMJS_globViewLang( 'sendTestMail' ) + ' "' + emailFrom + '"'
-				),
+				titleText: window.zeroBSCRMJS_globViewLang( 'sendTestMail' ) + ' "' + emailFrom + '"',
 				//text: window.zeroBSCRMJS_globViewLang('sendTestWhere'),
 				input: 'email',
 				inputValue: emailFrom, // prefill with itself
@@ -103,14 +101,14 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 					if ( window.zbsTestDelivery === 'success' ) {
 						swal( {
 							type: 'success',
-							title: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'sendTestSent' ) ),
-							html: jpcrm.esc_html( window.zbsTestDeliveryMsg ),
+							titleText: window.zeroBSCRMJS_globViewLang( 'sendTestSent' ),
+							text: window.zbsTestDeliveryMsg,
 						} );
 					} else {
 						swal( {
 							type: 'warning',
-							title: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'sendTestFail' ) ),
-							html: jpcrm.esc_html( window.zbsTestDeliveryMsg ),
+							titleText: window.zeroBSCRMJS_globViewLang( 'sendTestFail' ),
+							text: window.zbsTestDeliveryMsg,
 						} );
 					}
 				} )
@@ -127,8 +125,8 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 			emailIndx = jQuery( this ).attr( 'data-indx' );
 
 			swal( {
-				title: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureTitle' ) ),
-				text: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureText' ) ),
+				titleText: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureTitle' ),
+				text: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureText' ),
 				type: 'warning',
 				showCancelButton: true,
 				confirmButtonColor: '#3085d6',
@@ -158,12 +156,8 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 							console.log( 'del', response );
 
 							swal( {
-								title: jpcrm.esc_html(
-									window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeletedTitle' )
-								),
-								text: jpcrm.esc_html(
-									window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeletedText' )
-								),
+								titleText: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeletedTitle' ),
+								text: window.zeroBSCRMJS_globViewLang( 'deleteMailDeliverySureDeletedText' ),
 								type: 'success',
 								// refresh onClose: zeroBSCRMJS_refreshPage
 								onClose: function () {
@@ -201,8 +195,8 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 			emailIndx = jQuery( this ).attr( 'data-indx' );
 
 			swal( {
-				title: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureTitle' ) ),
-				text: jpcrm.esc_html( window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureText' ) ),
+				titleText: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureTitle' ),
+				text: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureText' ),
 				type: 'warning',
 				showCancelButton: true,
 				confirmButtonColor: '#3085d6',
@@ -231,12 +225,8 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 						console.log( 'def', response );
 
 						swal( {
-							title: jpcrm.esc_html(
-								window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeletedTitle' )
-							),
-							text: jpcrm.esc_html(
-								window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeletedText' )
-							),
+							titleText: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeletedTitle' ),
+							text: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureDeletedText' ),
 							type: 'success',
 							// refresh onClose: zeroBSCRMJS_refreshPage
 							onClose: function () {

@@ -5,7 +5,7 @@
  * MailPoet Add Edit page JS
  */
 
-/* global swal, zeroBSCRMJS_segmentLang, ajaxurl */
+/* global swal, zeroBSCRMJS_segmentLang, ajaxurl, jpcrm */
 
 /**
  * Export a segment to a mailpoet list
@@ -39,11 +39,14 @@ function jpcrm_segment_export_to_mailpoet( exportButton ) {
 				// show user prompt
 				swal
 					.fire( {
-						title: zeroBSCRMJS_segmentLang( 'mailpoet_list_exists' ),
-						html: '<p>' + zeroBSCRMJS_segmentLang( 'mailpoet_list_exists_detail' ) + '</p>',
+						titleText: zeroBSCRMJS_segmentLang( 'mailpoet_list_exists' ),
+						html:
+							'<p>' +
+							jpcrm.esc_html( zeroBSCRMJS_segmentLang( 'mailpoet_list_exists_detail' ) ) +
+							'</p>',
 						showCancelButton: true,
-						confirmButtonText: zeroBSCRMJS_segmentLang( 'continue_export' ),
-						cancelButtonText: zeroBSCRMJS_segmentLang( 'cancel' ),
+						confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_segmentLang( 'continue_export' ) ),
+						cancelButtonText: jpcrm.esc_html( zeroBSCRMJS_segmentLang( 'cancel' ) ),
 					} )
 					.then( result => {
 						if ( result.value ) {
@@ -132,12 +135,20 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 				// eslint-disable-next-line eqeqeq
 				if ( response.success == true && response.mailpoet_list_ID ) {
 					swal.fire( {
-						title: response.lang.export_in_progress,
-						html: `<div id="jpcrm_segment_mailpoet_modal" style="clear:both" data-complete-title="${ response.lang.export_finished }">
-                            <p class="jpcrm-export-success">${ response.lang.export_in_progress_long }</p>
+						titleText: response.lang.export_in_progress,
+						html: `<div id="jpcrm_segment_mailpoet_modal" style="clear:both" data-complete-title="${ jpcrm.esc_attr(
+							response.lang.export_finished
+						) }">
+                            <p class="jpcrm-export-success">${ jpcrm.esc_html(
+															response.lang.export_in_progress_long
+														) }</p>
                             <p class="jpcrm-export-progress"></p>
-                            <p style="display:none" class="jpcrm-export-complete">${ response.lang.export_finished_long }</p>
-                            <a style="display:none" class="jpcrm-export-goto-mailpoet ui button small basic" href="/wp-admin/admin.php?page=mailpoet-subscribers#/filter[segment=${ response.mailpoet_list_ID }]">${ response.lang.go_to_mailpoet_list }</a>
+                            <p style="display:none" class="jpcrm-export-complete">${ jpcrm.esc_html(
+															response.lang.export_finished_long
+														) }</p>
+                            <a style="display:none" class="jpcrm-export-goto-mailpoet ui button small basic" href="/wp-admin/admin.php?page=mailpoet-subscribers#/filter[segment=${ jpcrm.esc_html(
+															response.mailpoet_list_ID
+														) }]">${ response.lang.go_to_mailpoet_list }</a>
                             </div>`,
 						showConfirmButton: false,
 						showCancelButton: true,
@@ -160,7 +171,7 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 					} );
 				} else {
 					swal.fire( {
-						title: response.lang.error_title,
+						titleText: response.lang.error_title,
 						html: `<div style="clear:both"></div>`,
 						showConfirmButton: false,
 					} );

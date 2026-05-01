@@ -736,7 +736,7 @@ if ( ! $confirmAct ) {
 			jQuery('#wpzbscrm_loginlogourlAdd').on( 'click', function(e) {
 				e.preventDefault();
 				var image = wp.media({
-					title: '<?php esc_html_e( 'Upload Image', 'zero-bs-crm' ); ?>',
+					titleText: '<?php esc_html_e( 'Upload Image', 'zero-bs-crm' ); ?>',
 					// mutiple: true if you want to upload multiple files at once
 					multiple: false
 				}).open()

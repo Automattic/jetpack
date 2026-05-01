@@ -82,7 +82,7 @@ jQuery( function ( $ ) {
 
 	$( '.zbs-email-actions .trash' ).on( 'click', function () {
 		swal( {
-			title: 'Are you sure?',
+			titleText: 'Are you sure?',
 			text: 'This will delete the email thread and remove it from your database. You cannot undo this',
 			type: 'warning',
 			showCancelButton: true,

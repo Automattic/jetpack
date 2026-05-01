@@ -7,7 +7,7 @@
  *
  * Date: 22/12/2016
  */
-/* global ajaxurl, swal, zbscrm_JS_validateEmail */
+/* global ajaxurl, swal, zbscrm_JS_validateEmail, jpcrm */
 
 // declare
 window.quoteTemplateBlocker = false;
@@ -163,7 +163,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 					if ( e.error == 1 || e.processed == -1 ) {
 						//catch expected errors
 						swal( {
-							title: 'Error!',
+							titleText: 'Error!',
 							text: 'Failed retrieving template! If this error persists please contact Jetpack CRM support.',
 							type: 'error',
 							confirmButtonText: 'OK',
@@ -173,7 +173,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 						}
 					} else {
 						swal( {
-							title: 'Success!',
+							titleText: 'Success!',
 							text: 'Quote Template Populated',
 							type: 'success',
 							confirmButtonText: 'OK',
@@ -201,7 +201,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 					quoteTemplateAJAX.fail( function () {
 						// catch unexpected errors
 						swal( {
-							title: 'Error!',
+							titleText: 'Error!',
 							text: 'Failed retrieving template! If this error persists please contact Jetpack CRM support.',
 							type: 'error',
 							confirmButtonText: 'OK',
@@ -221,7 +221,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 		} else {
 			//no customer selected
 			swal( {
-				title: 'Error!',
+				titleText: 'Error!',
 				text: 'Please Choose a Contact',
 				type: 'error',
 				confirmButtonText: 'OK',
@@ -292,21 +292,25 @@ function jpcrm_quotes_send_email_modal() {
 			'/>';
 		optsHTML +=
 			'<label for="jpcrm_quote_email_modal_attachaspdf">' +
-			jpcrm_quotes_lang( 'attachpdf' ) +
+			jpcrm.esc_html( jpcrm_quotes_lang( 'attachpdf' ) ) +
 			'</label>';
 		optsHTML += '</div>';
 
 		optsHTML += '</div>';
 
 		swal( {
-			title: jpcrm_quotes_lang( 'send_email' ),
-			html: '<div class="ui segment">' + jpcrm_quotes_lang( 'sendthisemail' ) + optsHTML + '</div>',
+			titleText: jpcrm_quotes_lang( 'send_email' ),
+			html:
+				'<div class="ui segment">' +
+				jpcrm.esc_html( jpcrm_quotes_lang( 'sendthisemail' ) ) +
+				optsHTML +
+				'</div>',
 			type: 'question',
 			showCancelButton: true,
 			confirmButtonColor: '#000',
 			cancelButtonColor: '#fff',
 			cancelButtonText: '<span style="color: #000">Cancel</span>',
-			confirmButtonText: jpcrm_quotes_lang( 'sendthemail' ),
+			confirmButtonText: jpcrm.esc_html( jpcrm_quotes_lang( 'sendthemail' ) ),
 			//allowOutsideClick: false
 		} ).then( function ( result ) {
 			// this check required from swal2 6.0+
@@ -344,7 +348,7 @@ function jpcrm_quotes_send_email_modal() {
 
 					// send email
 					swal.fire( {
-						title: jpcrm_quotes_lang( 'sendingemail' ),
+						titleText: jpcrm_quotes_lang( 'sendingemail' ),
 						html: '<div style="clear:both">&nbsp;</div><div class="ui active loader" style="margin-top:2em;padding-bottom:2em"></div><div style="clear:both">&nbsp;</div>',
 						showConfirmButton: false,
 						showCancelButton: false,

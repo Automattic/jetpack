@@ -2298,14 +2298,15 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 			// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 			swal( {
 				title:
-					'<i class="envelope outline icon"></i> ' + zeroBSCRMJS_globViewLang( 'sendstatement' ),
+					'<i class="envelope outline icon"></i> ' +
+					jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'sendstatement' ) ),
 				html:
 					'<div style="font-size: 1.2em;padding: 0.3em;">' +
-					zeroBSCRMJS_globViewLang( 'sendstatementaddr' ) +
+					jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'sendstatementaddr' ) ) +
 					'<br /><div class="ui input"><input type="text" name="zbs-send-pdf-statement-to-email" id="zbs-send-pdf-statement-to-email" value="' +
-					emailToSendTo +
+					jpcrm.esc_attr( emailToSendTo ) +
 					'" placeholder="' +
-					zeroBSCRMJS_globViewLang( 'enteremail' ) +
+					jpcrm.esc_attr( zeroBSCRMJS_globViewLang( 'enteremail' ) ) +
 					'" /></div></div>',
 				//text: "Are you sure you want to delete these?",
 				type: '',
@@ -2313,8 +2314,10 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 				confirmButtonColor: '#000',
 				cancelButtonColor: '#fff',
 				cancelButtonText:
-					'<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
-				confirmButtonText: zeroBSCRMJS_globViewLang( 'send' ),
+					'<span style="color: #000">' +
+					jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'cancel' ) ) +
+					'</span>',
+				confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'send' ) ),
 			} ).then( function ( result ) {
 				// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
 				if ( result.value ) {

@@ -328,14 +328,14 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 
 			if ( tagID > 0 ) {
 				swal( {
-					title: window.zbsTagListLang.deleteswaltitle,
+					titleText: window.zbsTagListLang.deleteswaltitle,
 					text: window.zbsTagListLang.deleteswaltext,
 					type: 'warning',
 					showCancelButton: true,
 					confirmButtonColor: '#000',
 					cancelButtonColor: '#fff',
 					cancelButtonText: '<span style="color: #000">Cancel</span>',
-					confirmButtonText: window.zbsTagListLang.deleteswalconfirm,
+					confirmButtonText: jpcrm.esc_html( window.zbsTagListLang.deleteswalconfirm ),
 					allowOutsideClick: false,
 				} ).then( function ( result ) {
 					if ( result.value ) {

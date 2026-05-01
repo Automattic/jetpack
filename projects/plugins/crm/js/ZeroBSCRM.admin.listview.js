@@ -1237,22 +1237,28 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_addtag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsadd' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsadd' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'addthesetags' ) ),
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -1345,21 +1351,27 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_removetag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsremove' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsremove' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'removethesetags' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -1530,10 +1542,10 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'statusareyousurethese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusareyousurethese' ) ) +
 			'</div>' +
 			status_selector_html,
 		//text: "Are you sure you want to delete these?",
@@ -1542,7 +1554,7 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesupdate' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -1577,16 +1589,16 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'areyousurethese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) +
 			'<br /><label>' +
-			zeroBSCRMJS_listViewLang( 'andthese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'andthese' ) ) +
 			'</label></div><select id="zbsbulkactiondeleteleaveorphans"><option value="1" selected="selected">' +
-			zeroBSCRMJS_listViewLang( 'noleave' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'noleave' ) ) +
 			'</option><option value="0">' +
-			zeroBSCRMJS_listViewLang( 'yesthose' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesthose' ) ) +
 			'</option></select></div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
@@ -1610,7 +1622,7 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 				function () {
 					// success ? SWAL?
 					swal( {
-						title: zeroBSCRMJS_listViewLang( 'deleted' ),
+						titleText: zeroBSCRMJS_listViewLang( 'deleted' ),
 						text: zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
 						confirmButtonColor: '#000',
 						type: 'success',
@@ -1647,12 +1659,12 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'areyousurethesemerge' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethesemerge' ) ) +
 			'<br /><label>' +
-			zeroBSCRMJS_listViewLang( 'whichdominant' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichdominant' ) ) +
 			'</label></div>' +
 			selectHTML +
 			'</div>',
@@ -1662,7 +1674,7 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesmerge' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesmerge' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -2778,8 +2790,8 @@ function zeroBSCRMJS_listView_segment_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
@@ -3300,23 +3312,23 @@ function zeroBSCRMJS_listView_company_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'areyousurethese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) +
 			'<br /><label>' +
-			zeroBSCRMJS_listViewLang( 'andthese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'andthese' ) ) +
 			'</label></div><select id="zbsbulkactiondeleteleaveorphans"><option value="1" selected="selected">' +
-			zeroBSCRMJS_listViewLang( 'noleave' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'noleave' ) ) +
 			'</option><option value="0">' +
-			zeroBSCRMJS_listViewLang( 'yesthose' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesthose' ) ) +
 			'</option></select></div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3386,22 +3398,28 @@ function zeroBSCRMJS_listView_company_bulkActionFire_addtag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsadd' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsadd' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'addthesetags' ) ),
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -3502,21 +3520,27 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsremove' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsremove' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'removethesetags' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -3712,15 +3736,16 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markaccepted() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'acceptareyousurequotes' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html:
+			'<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'acceptareyousurequotes' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'acceptyesdoit' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3762,15 +3787,16 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markunaccepted() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'unacceptareyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html:
+			'<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'unacceptareyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesproceed' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesproceed' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3812,14 +3838,14 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3876,14 +3902,14 @@ function zeroBSCRMJS_listView_quotetemplate_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4116,18 +4142,18 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
 		html:
 			'<div>' +
-			zeroBSCRMJS_listViewLang( 'statusareyousurethese' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusareyousurethese' ) ) +
 			'</div><select id="zbsbulkactionnewstatus"><option value="Draft" selected="selected">' +
-			zeroBSCRMJS_listViewLang( 'statusdraft' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusdraft' ) ) +
 			'</option><option value="Unpaid">' +
-			zeroBSCRMJS_listViewLang( 'statusunpaid' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusunpaid' ) ) +
 			'</option><option value="Paid">' +
-			zeroBSCRMJS_listViewLang( 'statuspaid' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statuspaid' ) ) +
 			'</option><option value="Overdue">' +
-			zeroBSCRMJS_listViewLang( 'statusoverdue' ) +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'statusoverdue' ) ) +
 			'</option></select></div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
@@ -4135,7 +4161,7 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesupdate' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4177,14 +4203,14 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4450,14 +4476,14 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4524,22 +4550,28 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_addtag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsadd' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsadd' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'addthesetags' ) ),
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -4640,21 +4672,27 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_removetag() {
 		} );
 	} else {
 		tagSelectList +=
-			'<div class="ui message"><p>' + zeroBSCRMJS_listViewLang( 'notags' ) + '</p></div>';
+			'<div class="ui message"><p>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'notags' ) ) +
+			'</p></div>';
 	}
 	tagSelectList += '</div>';
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'whichtags' ),
+		titleText: zeroBSCRMJS_listViewLang( 'whichtags' ),
 		html:
-			'<div>' + zeroBSCRMJS_listViewLang( 'whichtagsremove' ) + '<br />' + tagSelectList + '</div>',
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'whichtagsremove' ) ) +
+			'<br />' +
+			tagSelectList +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'removethesetags' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -4819,14 +4857,14 @@ function zeroBSCRMJS_listView_form_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -5079,14 +5117,14 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 
 	// see ans 3 here https://stackoverflow.com/questions/31463649/sweetalert-prompt-with-two-input-fields
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousurethese' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html: '<div>' + jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousurethese' ) ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'yesdelete' ) ),
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -5126,15 +5164,18 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 	const extraParams = {};
 
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousure_tasks_completed' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html:
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousure_tasks_completed' ) ) +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'acceptyesdoit' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5176,15 +5217,18 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 	const extraParams = {};
 
 	swal( {
-		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousure_tasks_incomplete' ) + '</div>',
+		titleText: zeroBSCRMJS_listViewLang( 'areyousure' ),
+		html:
+			'<div>' +
+			jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'areyousure_tasks_incomplete' ) ) +
+			'</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText: '<span style="color: #000">Cancel</span>',
-		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_listViewLang( 'acceptyesdoit' ) ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
