@@ -1,0 +1,17 @@
+// Tab-row chrome for the Scan overview, mirroring the unified Newsletter
+// page from #48420 phase 3 — full-width bottom border with the inner
+// `Tabs.List` keeping its native `width: fit-content` so the animated
+// active-tab indicator can slide smoothly.
+
+$jetpack-scan-inset: var(--wpds-dimension-padding-2xl, 24px);
+
+.jetpack-scan-page__tabs-row {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	box-sizing: border-box;
+	padding-inline: $jetpack-scan-inset;
+	width: 100%;
+}
+
+.jetpack-scan-page__content {
+	padding: $jetpack-scan-inset;
+}
