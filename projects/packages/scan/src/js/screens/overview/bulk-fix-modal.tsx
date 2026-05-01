@@ -64,7 +64,10 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 			setPollingIds( fixableIds );
 		} catch ( error ) {
 			trackEvent( 'jetpack_scan_bulk_fix_threats_modal_failed', { threat_count: fixable.length } );
-			setStep( 'done' );
+			// Don't render the "Auto-fix complete" summary — there's no
+			// polling data, so the count would read "0 of 0 threats fixed".
+			// Close the modal and let the error snackbar speak for itself.
+			onClose();
 			createErrorNotice(
 				error instanceof Error
 					? error.message
@@ -72,11 +75,29 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 				{ type: 'snackbar' }
 			);
 		}
-	}, [ fixable.length, fixableIds, fixMutation, createErrorNotice, trackEvent ] );
+	}, [ fixable.length, fixableIds, fixMutation, createErrorNotice, trackEvent, onClose ] );
 
 	// Step transition once polling reports every threat is in a terminal state.
 	useEffect( () => {
-		if ( step !== 'progress' || ! isComplete ) {
+		if ( step !== 'progress' ) {
+			return;
+		}
+		// `/threats/fix-status` errored mid-poll — don't strand the modal at
+		// "Fixing threats…" forever. Close + error snackbar.
+		if ( statusQuery.isError ) {
+			trackEvent( 'jetpack_scan_bulk_fix_threats_modal_failed', {
+				threat_count: pollingIds?.length ?? 0,
+			} );
+			onClose();
+			createErrorNotice(
+				statusQuery.error instanceof Error
+					? statusQuery.error.message
+					: __( "Couldn't check fix status. Please refresh and try again.", 'jetpack-scan-page' ),
+				{ type: 'snackbar' }
+			);
+			return;
+		}
+		if ( ! isComplete ) {
 			return;
 		}
 		setStep( 'done' );
@@ -104,7 +125,18 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 			),
 			{ type: 'snackbar' }
 		);
-	}, [ step, isComplete, polling, pollingIds, createSuccessNotice, trackEvent ] );
+	}, [
+		step,
+		isComplete,
+		statusQuery.isError,
+		statusQuery.error,
+		polling,
+		pollingIds,
+		createSuccessNotice,
+		createErrorNotice,
+		trackEvent,
+		onClose,
+	] );
 
 	const title = useMemo( () => {
 		if ( step === 'progress' ) {

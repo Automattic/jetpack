@@ -191,34 +191,36 @@ class REST_Controller {
 	/**
 	 * GET /site/scan — current scan state + active threats.
 	 *
-	 * Proxies WPCOM `/sites/:siteId/scan`.
+	 * Proxies WPCOM `/sites/:siteId/scan` with blog auth (matches Protect
+	 * plugin's `Threats::fetch_status()`).
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_site_scan() {
-		return self::proxy_get( '/scan', 'scan' );
+		return self::proxy_get( '/scan', 'scan', true );
 	}
 
 	/**
 	 * GET /site/scan/history — past scan runs and their threats.
 	 *
-	 * Proxies WPCOM `/sites/:siteId/scan/history`.
+	 * Proxies WPCOM `/sites/:siteId/scan/history` with blog auth (matches
+	 * Protect plugin's `Threats::history()`).
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_site_scan_history() {
-		return self::proxy_get( '/scan/history', 'scan_history' );
+		return self::proxy_get( '/scan/history', 'scan_history', true );
 	}
 
 	/**
 	 * GET /site/scan/counts — threat counts for the overview tabs.
 	 *
-	 * Proxies WPCOM `/sites/:siteId/scan/counts`.
+	 * Proxies WPCOM `/sites/:siteId/scan/counts` with blog auth.
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_site_scan_counts() {
-		return self::proxy_get( '/scan/counts', 'scan_counts' );
+		return self::proxy_get( '/scan/counts', 'scan_counts', true );
 	}
 
 	/**
@@ -281,13 +283,13 @@ class REST_Controller {
 	/**
 	 * POST /site/scan/enqueue — trigger an immediate scan run.
 	 *
-	 * Proxies WPCOM `POST /sites/:siteId/scan/enqueue`. Same endpoint
-	 * Protect plugin's `Threats::scan()` already calls.
+	 * Proxies WPCOM `POST /sites/:siteId/scan/enqueue` with blog auth
+	 * (matches Protect plugin's `Threats::scan()`).
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function post_scan_enqueue() {
-		return self::proxy_post( '/scan/enqueue', array(), 'scan_enqueue' );
+		return self::proxy_post( '/scan/enqueue', array(), 'scan_enqueue', true );
 	}
 
 	/**
@@ -310,35 +312,52 @@ class REST_Controller {
 	}
 
 	/**
-	 * Proxy a GET request to the user-scoped WPCOM v2 Scan endpoint and
-	 * pass the JSON body through (or surface a WP_Error mapping the
-	 * upstream status code).
+	 * Proxy a GET request to the WPCOM v2 Scan endpoint and pass the JSON
+	 * body through (or surface a WP_Error mapping the upstream status
+	 * code).
+	 *
+	 * Site-level reads (`/scan`, `/scan/history`, `/scan/counts`) sign
+	 * with blog auth — the same contract Protect plugin's `Threats::*`
+	 * helpers use, and what WPCOM expects for these endpoints. Alert /
+	 * fix-status endpoints stay on user auth so per-user permissions on
+	 * threat mutations carry through.
 	 *
 	 * Forwarding the visitor IP keeps WPCOM-side audit logs aligned with
 	 * the existing `/jetpack/v4/site/activity` proxy in `activity-log`.
 	 *
 	 * @param string $upstream_path WPCOM path suffix (e.g. `/scan`, `/alerts/fix`).
 	 * @param string $error_slug    Slug used when synthesising WP_Error codes.
+	 * @param bool   $as_blog       Sign with blog auth instead of user auth.
 	 * @return \WP_REST_Response|WP_Error
 	 */
-	private static function proxy_get( $upstream_path, $error_slug ) {
+	private static function proxy_get( $upstream_path, $error_slug, $as_blog = false ) {
 		$path = self::resolve_blog_path( $upstream_path );
 		if ( is_wp_error( $path ) ) {
 			return $path;
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
-			$path,
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
+		$args = array(
+			'method'  => 'GET',
+			'headers' => array(
+				'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 			),
-			null,
-			'wpcom'
 		);
+
+		$response = $as_blog
+			? Client::wpcom_json_api_request_as_blog(
+				$path,
+				'2',
+				$args,
+				null,
+				'wpcom'
+			)
+			: Client::wpcom_json_api_request_as_user(
+				$path,
+				'2',
+				$args,
+				null,
+				'wpcom'
+			);
 
 		return self::map_response( $response, $error_slug );
 	}
@@ -351,27 +370,39 @@ class REST_Controller {
 	 * @param string $upstream_path WPCOM path suffix (e.g. `/alerts/fix`).
 	 * @param array  $body          Body payload sent as JSON.
 	 * @param string $error_slug    Slug used when synthesising WP_Error codes.
+	 * @param bool   $as_blog       Sign with blog auth instead of user auth.
 	 * @return \WP_REST_Response|WP_Error
 	 */
-	private static function proxy_post( $upstream_path, array $body, $error_slug ) {
+	private static function proxy_post( $upstream_path, array $body, $error_slug, $as_blog = false ) {
 		$path = self::resolve_blog_path( $upstream_path );
 		if ( is_wp_error( $path ) ) {
 			return $path;
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
-			$path,
-			'2',
-			array(
-				'method'  => 'POST',
-				'headers' => array(
-					'Content-Type'    => 'application/json',
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
+		$args         = array(
+			'method'  => 'POST',
+			'headers' => array(
+				'Content-Type'    => 'application/json',
+				'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 			),
-			wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
-			'wpcom'
 		);
+		$encoded_body = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
+
+		$response = $as_blog
+			? Client::wpcom_json_api_request_as_blog(
+				$path,
+				'2',
+				$args,
+				$encoded_body,
+				'wpcom'
+			)
+			: Client::wpcom_json_api_request_as_user(
+				$path,
+				'2',
+				$args,
+				$encoded_body,
+				'wpcom'
+			);
 
 		return self::map_response( $response, $error_slug );
 	}

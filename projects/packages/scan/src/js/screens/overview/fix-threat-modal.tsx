@@ -41,7 +41,23 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 	}, [ trackEvent ] );
 
 	useEffect( () => {
-		if ( ! pollingId || ! isFixComplete( statusQuery.data ) ) {
+		if ( ! pollingId ) {
+			return;
+		}
+		// `/threats/fix-status` errored — don't strand the modal at "Fixing
+		// threat…" forever. Surface the failure and close.
+		if ( statusQuery.isError ) {
+			closeModal?.();
+			trackEvent( 'jetpack_scan_fix_threat_failed' );
+			createErrorNotice(
+				statusQuery.error instanceof Error
+					? statusQuery.error.message
+					: __( "Couldn't check fix status. Please refresh and try again.", 'jetpack-scan-page' ),
+				{ type: 'snackbar' }
+			);
+			return;
+		}
+		if ( ! isFixComplete( statusQuery.data ) ) {
 			return;
 		}
 		const entry = statusQuery.data?.threats?.[ pollingId ];
@@ -59,6 +75,8 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 	}, [
 		pollingId,
 		statusQuery.data,
+		statusQuery.isError,
+		statusQuery.error,
 		closeModal,
 		trackEvent,
 		createSuccessNotice,
