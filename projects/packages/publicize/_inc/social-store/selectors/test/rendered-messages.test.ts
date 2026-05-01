@@ -68,8 +68,10 @@ describe( 'rendered-messages selectors', () => {
 		} );
 
 		it( 'merges results across multiple chunks', () => {
-			const longMessage = 'x'.repeat( 200 );
-			const items = Array.from( { length: 6 }, ( _, i ) => ( {
+			// Sized to exceed the default chunk byte budget (~3KB) so chunkRenderItems
+			// actually splits the batch into multiple GETs.
+			const longMessage = 'x'.repeat( 1500 );
+			const items = Array.from( { length: 3 }, ( _, i ) => ( {
 				...item( String( i ) ),
 				message: longMessage,
 			} ) );
@@ -133,8 +135,8 @@ describe( 'rendered-messages selectors', () => {
 		it( 'returns true if any chunk is currently resolving', () => {
 			mockIsResolving.mockReturnValueOnce( false ).mockReturnValueOnce( true );
 
-			const longMessage = 'x'.repeat( 200 );
-			const items = Array.from( { length: 6 }, ( _, i ) => ( {
+			const longMessage = 'x'.repeat( 1500 );
+			const items = Array.from( { length: 3 }, ( _, i ) => ( {
 				...item( String( i ) ),
 				message: longMessage,
 			} ) );
