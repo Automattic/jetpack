@@ -440,23 +440,10 @@ class Boost_Abilities extends Registrar {
 			);
 		}
 
-		// `update_option()` returns false for two reasons: a genuine write failure
-		// AND "value unchanged." A concurrent caller can flip the option between our
-		// pre-check ($current) and our update(), so a falsy return here may be a
-		// benign no-op rather than a failure. Disambiguate by re-reading: if the
-		// stored value already matches $desired, treat it as success and skip
-		// firing the action (the concurrent writer already fired it).
 		if ( ! $module->update( $desired ) ) {
-			if ( $module->is_enabled() === $desired ) {
-				return array(
-					'slug'    => $slug,
-					'active'  => $desired,
-					'changed' => false,
-				);
-			}
 			return new \WP_Error(
 				'jetpack_boost_module_update_failed',
-				__( 'Failed to persist the module status. The previous state is unchanged.', 'jetpack-boost' )
+				__( 'Failed to persist the module status.', 'jetpack-boost' )
 			);
 		}
 
@@ -464,27 +451,16 @@ class Boost_Abilities extends Registrar {
 		 * Fires when a module is enabled or disabled through the abilities surface.
 		 *
 		 * Mirrors the action emitted by `Modules_State_Entry::set()` so submodule
-		 * lifecycle handlers fire identically regardless of caller. Fired before
-		 * the post-write read-back so handlers still run when an `option_*`
-		 * filter masks the read of a value that was actually persisted.
+		 * lifecycle handlers fire identically regardless of caller.
 		 *
 		 * @param string $module_slug The module slug.
 		 * @param bool   $is_active   The new state.
 		 */
 		do_action( 'jetpack_boost_module_status_updated', $slug, $desired );
 
-		// A read-side option_* filter can mask the stored value; verify before claiming success.
-		$actual = $module->is_enabled();
-		if ( $desired !== $actual ) {
-			return new \WP_Error(
-				'jetpack_boost_module_state_mismatch',
-				__( 'The module did not reach the requested state. A filter may have rejected the change.', 'jetpack-boost' )
-			);
-		}
-
 		return array(
 			'slug'    => $slug,
-			'active'  => $actual,
+			'active'  => $desired,
 			'changed' => true,
 		);
 	}
