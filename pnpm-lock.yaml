@@ -3893,31 +3893,100 @@ importers:
 
   projects/packages/scan:
     dependencies:
-      '@automattic/jetpack-wp-build-polyfills':
+      '@automattic/jetpack-analytics':
         specifier: workspace:*
-        version: link:../wp-build-polyfills
+        version: link:../../js-packages/analytics
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../../js-packages/connection
+      '@automattic/jetpack-scan':
+        specifier: workspace:*
+        version: link:../../js-packages/scan
+      '@tanstack/react-query':
+        specifier: ^5.90.8
+        version: 5.90.8(react@18.3.1)
+      '@wordpress/api-fetch':
+        specifier: 7.44.0
+        version: 7.44.0
+      '@wordpress/components':
+        specifier: 32.6.0
+        version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose':
+        specifier: 7.44.0
+        version: 7.44.0(react@18.3.1)
+      '@wordpress/data':
+        specifier: 10.44.0
+        version: 10.44.0(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 14.1.0
+        version: 14.1.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
       '@wordpress/i18n':
         specifier: 6.17.0
         version: 6.17.0
+      '@wordpress/icons':
+        specifier: 12.2.0
+        version: 12.2.0(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.44.0
+        version: 4.44.0
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-router:
+        specifier: 7.10.0
+        version: 7.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: workspace:*
+        version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@babel/core':
         specifier: 7.29.0
         version: 7.29.0
+      '@babel/preset-env':
+        specifier: 7.29.2
+        version: 7.29.2(@babel/core@7.29.0)
+      '@babel/runtime':
+        specifier: 7.29.2
+        version: 7.29.2
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/browserslist-config':
         specifier: 6.44.0
         version: 6.44.0
-      '@wordpress/build':
-        specifier: 0.13.0
-        version: 0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)
-      browserslist:
-        specifier: ^4.24.0
-        version: 4.28.2
+      concurrently:
+        specifier: 9.2.1
+        version: 9.2.1
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
+      webpack:
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/search:
     dependencies:
@@ -15819,6 +15888,16 @@ packages:
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
+
+  react-router@7.10.0:
+    resolution: {integrity: sha512-FVyCOH4IZ0eDDRycODfUqoN8ZSR2LbTvtx6RPsBgzvJ8xAXlMZNCrOFpu+jb8QbtZnpAd/cEki2pwE848pNGxw==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
 
   react-router@7.12.0:
     resolution: {integrity: sha512-kTPDYPFzDVGIIGNLS5VJykK0HfHLY5MF3b+xj0/tTyNYL1gF1qs7u67Z9jEhQk2sQ98SUaHxlG31g1JtF7IfVw==}
@@ -31375,6 +31454,14 @@ snapshots:
     dependencies:
       '@remix-run/router': 1.23.2
       react: 18.3.1
+
+  react-router@7.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      cookie: 1.0.2
+      react: 18.3.1
+      set-cookie-parser: 2.7.2
+    optionalDependencies:
+      react-dom: 18.3.1(react@18.3.1)
 
   react-router@7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
