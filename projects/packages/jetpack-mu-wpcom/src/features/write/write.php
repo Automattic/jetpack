@@ -53,6 +53,73 @@ function wpcom_write_url() {
 }
 
 /**
+ * Register the /write rewrite rule and flush when version changes.
+ *
+ * Maps yoursite.com/write to the Write admin page via a front-end redirect.
+ * Uses a version option to flush rewrite rules only when the rule changes.
+ */
+add_action(
+	'init',
+	function () {
+		add_rewrite_rule( '^write/?$', 'index.php?wpcom_write=1', 'top' );
+
+		$current_version = 1;
+		if ( (int) get_option( 'wpcom_write_rewrite_version' ) !== $current_version ) {
+			flush_rewrite_rules();
+			update_option( 'wpcom_write_rewrite_version', $current_version );
+		}
+	}
+);
+
+/**
+ * Register wpcom_write as a public query variable so WordPress recognises it.
+ */
+add_filter(
+	'query_vars',
+	function ( $vars ) {
+		$vars[] = 'wpcom_write';
+		return $vars;
+	}
+);
+
+/**
+ * Redirect /write to the Write admin page.
+ *
+ * - Unauthenticated users are sent to the login page with a redirect back.
+ * - Users without publish_posts are sent to the admin dashboard.
+ * - Passes ?post=ID through for editing existing posts.
+ * - Adds source=bookmarkable_url for Tracks attribution.
+ */
+add_action(
+	'template_redirect',
+	function () {
+		if ( ! get_query_var( 'wpcom_write' ) ) {
+			return;
+		}
+
+		$write_url = wpcom_write_url() . '&source=bookmarkable_url';
+
+		if ( ! is_user_logged_in() ) {
+			wp_safe_redirect( wp_login_url( home_url( '/write/' ) ) );
+			exit;
+		}
+
+		if ( ! current_user_can( 'publish_posts' ) ) {
+			wp_safe_redirect( admin_url() );
+			exit;
+		}
+
+		// Pass through post ID for editing existing posts.
+		if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for routing.
+			$write_url .= '&post=' . absint( $_GET['post'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
+		wp_safe_redirect( $write_url );
+		exit;
+	}
+);
+
+/**
  * Register the script module on init.
  */
 add_action(

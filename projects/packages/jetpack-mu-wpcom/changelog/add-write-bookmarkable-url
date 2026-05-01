@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write: add bookmarkable /write URL that routes to the Write editor for new posts
