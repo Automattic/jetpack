@@ -29,7 +29,7 @@ let allowLeave = false;
  * @return {{ title: string, content: string }} The current title and content.
  */
 function getContentSnapshot() {
-	const contentEl = document.querySelector( '.bw-content' );
+	const contentEl = getContent();
 	return {
 		title: state.title || '',
 		content: contentEl ? contentEl.innerHTML : '',
@@ -71,6 +71,102 @@ let keyboardNavListenerActive = false;
 // Skip one checkSlashCommand cycle after the user dismisses the menu with Escape,
 // preventing the keyup event from immediately reopening it.
 let slashMenuEscaped = false;
+
+// Track the figure currently "selected" by the first Backspace/Delete press.
+// A second press on the same figure deletes it.
+let selectedFigure = null;
+
+// The cursor range saved before a figure is selected so it can be restored
+// if the user cancels the selection (Escape, click, or typing a letter).
+let preFigureSelectionRange = null;
+
+let cachedContent = null;
+
+/**
+ * Get the content editable element, caching the reference.
+ *
+ * @return {Element|null} The .bw-content element.
+ */
+function getContent() {
+	if ( ! cachedContent || ! cachedContent.isConnected ) {
+		cachedContent = document.querySelector( '.bw-content' );
+	}
+	return cachedContent;
+}
+
+/**
+ * Deselect the currently-selected figure, if any, and optionally
+ * restore the cursor position saved before the figure was selected.
+ *
+ * @param {boolean} restoreCursor - Whether to restore the saved cursor
+ *                                position. Pass false when the caller sets its own cursor (e.g. click).
+ */
+function clearFigureSelection( restoreCursor = true ) {
+	if ( selectedFigure ) {
+		selectedFigure.classList.remove( 'bw-figure-selected' );
+		selectedFigure = null;
+	}
+	if ( restoreCursor && preFigureSelectionRange ) {
+		const sel = window.getSelection();
+		sel.removeAllRanges();
+		sel.addRange( preFigureSelectionRange );
+	}
+	preFigureSelectionRange = null;
+}
+
+// Deselect figure on any click — don't restore the saved cursor
+// because the click itself places the caret where the user wants it.
+document.addEventListener( 'click', () => clearFigureSelection( false ) );
+
+/**
+ * If the cursor is at the edge of a block adjacent to a figure, return
+ * that figure. Otherwise return null.
+ *
+ * @param {string} key - 'Backspace' or 'Delete'.
+ * @return {Element|null} The adjacent figure element, or null if none.
+ */
+function getFigureAdjacentToCursor( key ) {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount || ! sel.isCollapsed ) return null;
+
+	const range = sel.getRangeAt( 0 );
+	let block = range.startContainer;
+	const contentEl = getContent();
+	if ( ! contentEl ) return null;
+
+	// Walk up to the direct child of .bw-content.
+	while ( block && block.parentNode !== contentEl ) {
+		block = block.parentNode;
+	}
+	if ( ! block || block.nodeType !== Node.ELEMENT_NODE ) return null;
+
+	// Detect whether the cursor is at the very start or end of the
+	// block by checking if there is any text content before/after it.
+	// This handles arbitrary nesting (e.g. <blockquote><p>text|</p>
+	// </blockquote>) where compareBoundaryPoints would report the
+	// cursor as "before the end" even though no content follows.
+	if ( key === 'Backspace' ) {
+		const before = document.createRange();
+		before.selectNodeContents( block );
+		before.setEnd( range.startContainer, range.startOffset );
+		const atStart = before.toString().trim() === '';
+		if ( atStart ) {
+			const prev = block.previousElementSibling;
+			if ( prev && prev.tagName === 'FIGURE' && ! ( 'bwDeleting' in prev.dataset ) ) return prev;
+		}
+	} else if ( key === 'Delete' ) {
+		const after = range.cloneRange();
+		after.selectNodeContents( block );
+		after.setStart( range.startContainer, range.startOffset );
+		const atEnd = after.toString().trim() === '';
+		if ( atEnd ) {
+			const next = block.nextElementSibling;
+			if ( next && next.tagName === 'FIGURE' && ! ( 'bwDeleting' in next.dataset ) ) return next;
+		}
+	}
+
+	return null;
+}
 
 /**
  * Save the current text selection so it can be restored after a modal closes.
@@ -325,7 +421,13 @@ function clearSlashText() {
 
 	const node = sel.anchorNode;
 	if ( node && node.nodeType === Node.TEXT_NODE && node.textContent.trim().startsWith( '/' ) ) {
-		node.textContent = '';
+		// Replace the text with <br> so the parent <p> doesn't collapse
+		// to zero height (an empty text node has no rendered height).
+		const parent = node.parentNode;
+		node.remove();
+		if ( parent && parent.nodeType === Node.ELEMENT_NODE && ! parent.firstChild ) {
+			parent.innerHTML = '<br>';
+		}
 	}
 }
 
@@ -350,21 +452,140 @@ function getEmbedUrl( url ) {
 }
 
 /**
+ * Place the cursor at the start of a DOM element.
+ *
+ * @param {Element} el - The element to place the cursor in.
+ */
+function placeCursorAt( el ) {
+	const range = document.createRange();
+	range.setStart( el, 0 );
+	range.collapse( true );
+	const sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange( range );
+}
+
+/**
+ * Place the cursor at the end of a DOM element's content.
+ *
+ * @param {Element} el - The element to place the cursor in.
+ */
+function placeCursorAtEnd( el ) {
+	const range = document.createRange();
+	range.selectNodeContents( el );
+	range.collapse( false );
+	const sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange( range );
+}
+
+/**
+ * Animate a figure element out and remove it from the DOM.
+ * After removal, repairs block structure and places the cursor.
+ *
+ * @param {Element} fig - The figure element to delete.
+ */
+function animateAndDeleteFigure( fig ) {
+	// Mark as deleting so getFigureAdjacentToCursor skips it during
+	// the animation delay (prevents rapid Backspace from re-selecting).
+	fig.dataset.bwDeleting = '';
+	const next = fig.nextElementSibling;
+	const prev = fig.previousElementSibling;
+	fig.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+	fig.style.opacity = '0';
+	fig.style.transform = 'scale(0.95)';
+	setTimeout( () => {
+		fig.remove();
+		ensureBlockStructure();
+		placeCursorAfterFigureDelete( next, prev );
+	}, 200 );
+}
+
+/**
+ * Place the cursor in the nearest text-editable block after a figure
+ * has been removed from the DOM.
+ *
+ * @param {Element|null} next - The element that was the figure's nextElementSibling before removal.
+ * @param {Element|null} prev - The element that was the figure's previousElementSibling before removal.
+ */
+function placeCursorAfterFigureDelete( next, prev ) {
+	const c = getContent();
+	if ( ! c ) return;
+
+	const isDirectChild = el => el && el.parentNode === c;
+	const safeNext = isDirectChild( next ) ? next : null;
+	const safePrev = isDirectChild( prev ) ? prev : null;
+	// Prefer the block before the deleted figure so the cursor lands
+	// directly adjacent to any remaining figure — this lets the two-step
+	// Backspace handler detect it on the very next keypress.
+	let dest = null;
+	let atEnd = false;
+
+	if ( safePrev && EDITABLE_BLOCK_TAGS.test( safePrev.tagName ) ) {
+		dest = safePrev;
+		atEnd = true;
+	} else if ( safeNext && EDITABLE_BLOCK_TAGS.test( safeNext.tagName ) ) {
+		dest = safeNext;
+	}
+
+	// No editable sibling — walk outward from the
+	// deletion point to find the nearest editable block.
+	if ( ! dest ) {
+		let after = safeNext;
+		let before = safePrev;
+		while ( after || before ) {
+			if ( after && EDITABLE_BLOCK_TAGS.test( after.tagName ) ) {
+				dest = after;
+				break;
+			}
+			if ( before && EDITABLE_BLOCK_TAGS.test( before.tagName ) ) {
+				dest = before;
+				atEnd = true;
+				break;
+			}
+			after = after ? after.nextElementSibling : null;
+			before = before ? before.previousElementSibling : null;
+		}
+	}
+
+	if ( ! dest ) {
+		if ( safeNext || safePrev ) {
+			const p = document.createElement( 'p' );
+			p.innerHTML = '<br>';
+			( safePrev || safeNext ).after( p );
+			dest = p;
+		} else {
+			dest = c.firstElementChild;
+		}
+	}
+
+	if ( dest ) {
+		if ( atEnd ) {
+			placeCursorAtEnd( dest );
+		} else {
+			placeCursorAt( dest );
+		}
+	}
+}
+
+/**
  * Add delete buttons to image/video figures in the content area.
  */
 function addDeleteButtons() {
-	const content = document.querySelector( '.bw-content' );
+	const content = getContent();
 	if ( ! content ) return;
 
 	content.querySelectorAll( 'figure, .bw-image-figure, .bw-video-figure' ).forEach( fig => {
 		if ( fig.querySelector( '.bw-img-delete' ) ) return;
+
+		// Prevent native contentEditable from modifying figure internals.
+		fig.contentEditable = 'false';
 
 		// Wrap img in a positioning container so buttons stay anchored to the image.
 		const img = fig.querySelector( 'img' );
 		if ( img && ! img.parentElement.classList.contains( 'bw-img-controls' ) ) {
 			const wrapper = document.createElement( 'div' );
 			wrapper.className = 'bw-img-controls';
-			wrapper.contentEditable = 'false';
 			img.before( wrapper );
 			wrapper.appendChild( img );
 		}
@@ -378,10 +599,8 @@ function addDeleteButtons() {
 		btn.addEventListener( 'click', e => {
 			e.preventDefault();
 			e.stopPropagation();
-			fig.style.opacity = '0';
-			fig.style.transform = 'scale(0.95)';
-			fig.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-			setTimeout( () => fig.remove(), 200 );
+			clearFigureSelection();
+			animateAndDeleteFigure( fig );
 		} );
 		controls.appendChild( btn );
 
@@ -466,12 +685,7 @@ function addDeleteButtons() {
 						next.innerHTML = '<br>';
 						fig.after( next );
 					}
-					const range = document.createRange();
-					range.setStart( next, 0 );
-					range.collapse( true );
-					const sel = window.getSelection();
-					sel.removeAllRanges();
-					sel.addRange( range );
+					placeCursorAt( next );
 				}
 			} );
 			figcaption.focus();
@@ -486,7 +700,7 @@ document.execCommand( 'defaultParagraphSeparator', false, 'p' );
 // Seed the content area with an empty <p> so the cursor starts inside a paragraph.
 // This ensures Enter creates proper <p> tags from the very first line.
 const contentReady2 = setInterval( () => {
-	const contentEl = document.querySelector( '.bw-content' );
+	const contentEl = getContent();
 	if ( ! contentEl ) return;
 	clearInterval( contentReady2 ); // cleared before init runs, so the block below executes exactly once
 
@@ -504,7 +718,7 @@ const contentReady2 = setInterval( () => {
 // Watch for new figures being added, and set up paste-to-link.
 if ( typeof MutationObserver !== 'undefined' ) {
 	const contentReady = setInterval( () => {
-		const content = document.querySelector( '.bw-content' );
+		const content = getContent();
 		if ( ! content ) return;
 		clearInterval( contentReady );
 		addDeleteButtons();
@@ -630,10 +844,9 @@ function showUploadPreview( src ) {
  * @param {string} tag - The HTML tag name for the new block (e.g. 'h2', 'blockquote').
  */
 function insertNewBlock( tag ) {
-	const content = document.querySelector( '.bw-content' );
+	const content = getContent();
 	if ( ! content ) return;
 
-	const sel = window.getSelection();
 	const newEl = document.createElement( tag );
 	newEl.innerHTML = '<br>';
 
@@ -654,11 +867,7 @@ function insertNewBlock( tag ) {
 	}
 
 	// Place cursor inside the new element.
-	const range = document.createRange();
-	range.setStart( newEl, 0 );
-	range.collapse( true );
-	sel.removeAllRanges();
-	sel.addRange( range );
+	placeCursorAt( newEl );
 
 	state.showSlashMenu = false;
 }
@@ -742,7 +951,7 @@ function positionDropdownOnMobile( selector ) {
  * divs with <p> elements carrying the same text-align style.
  */
 function cleanupAlignmentDivs() {
-	const content = document.querySelector( '.bw-content' );
+	const content = getContent();
 	if ( ! content ) return;
 
 	content.querySelectorAll( ':scope > div' ).forEach( div => {
@@ -756,6 +965,334 @@ function cleanupAlignmentDivs() {
 		p.innerHTML = div.innerHTML;
 		div.replaceWith( p );
 	} );
+}
+
+// Block-level tags recognised by ensureBlockStructure (hoisted to avoid
+// re-creating the RegExp on every input event).
+const BLOCK_TAGS = /^(P|H[1-6]|BLOCKQUOTE|UL|OL|FIGURE|HR)$/;
+
+// Editable block tags — blocks that can receive the cursor (excludes
+// non-editable blocks like FIGURE and HR).
+const EDITABLE_BLOCK_TAGS = /^(P|H[1-6]|BLOCKQUOTE|UL|OL)$/;
+
+/**
+ * Return true if the node is a non-editable block (figure, hr) that needs
+ * gap paragraphs around it for cursor access.
+ *
+ * @param {Node} node - The DOM node to test.
+ * @return {boolean} True if the node is a FIGURE or HR element.
+ */
+function isNonEditableBlock( node ) {
+	return (
+		node &&
+		node.nodeType === Node.ELEMENT_NODE &&
+		( node.tagName === 'FIGURE' || node.tagName === 'HR' )
+	);
+}
+
+/**
+ * Re-demote empty paragraphs back to gap styling when they sit
+ * between non-editable blocks and the cursor has moved elsewhere.
+ * Called on mouseup/keyup so the gap re-collapses after the user
+ * clicks away without typing.
+ */
+function demoteEmptyGaps() {
+	const c = getContent();
+	if ( ! c ) return;
+	const sel = window.getSelection();
+	const cursorBlock = sel.rangeCount ? sel.anchorNode : null;
+
+	[ ...c.querySelectorAll( ':scope > p' ) ].forEach( p => {
+		// Skip if the paragraph has content or is already a gap.
+		if ( p.classList.contains( 'bw-block-gap' ) ) return;
+		if ( p.textContent && p.textContent.trim() ) return;
+		// Skip if the cursor is currently inside this paragraph.
+		if ( cursorBlock && p.contains( cursorBlock ) ) return;
+
+		const prev = p.previousElementSibling;
+		const next = p.nextElementSibling;
+		// Only re-demote if the paragraph is in a true gap position:
+		// between two non-editable blocks, or at the edge with no
+		// editable block on the other side. Don't demote empty
+		// paragraphs the user intentionally created next to a figure.
+		const shouldBeGap =
+			( isNonEditableBlock( prev ) && isNonEditableBlock( next ) ) ||
+			( ! prev && isNonEditableBlock( next ) ) ||
+			( ! next && isNonEditableBlock( prev ) );
+		if ( shouldBeGap ) {
+			p.classList.add( 'bw-block-gap' );
+			p.innerHTML = '<br>';
+		}
+	} );
+}
+
+/**
+ * If the cursor is inside a gap paragraph, promote it to a normal <p>
+ * so the user can type. Called on click and input inside .bw-content.
+ *
+ * Note: focusin/focusout on document cannot detect focus changes to
+ * individual elements inside a contenteditable area (e.target is
+ * always the contenteditable host, not the inner <p>).
+ */
+function promoteGapAtCursor() {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return;
+	let node = sel.anchorNode;
+	while ( node ) {
+		if ( node.nodeType === Node.ELEMENT_NODE && node.classList.contains( 'bw-block-gap' ) ) {
+			node.classList.remove( 'bw-block-gap' );
+			return;
+		}
+		if ( node.classList && node.classList.contains( 'bw-content' ) ) break;
+		node = node.parentNode;
+	}
+}
+
+/**
+ * Ensure the content area always has proper block structure.
+ *
+ * Native contentEditable can leave bare text nodes or <br> elements as
+ * direct children of .bw-content (e.g. when Backspace deletes a figure
+ * and unwraps a neighbouring <p>). This wraps any such orphans in <p>
+ * tags and re-seeds an empty editor with a blank paragraph.
+ */
+function ensureBlockStructure() {
+	const content = getContent();
+	if ( ! content ) return;
+
+	// Fast path: if every direct child is already a block element, bail out.
+	// This avoids allocating an array and running the full scan on every
+	// keystroke when the structure is already correct (the common case).
+	let needsRepair = ! content.firstChild;
+	if ( ! needsRepair ) {
+		for ( const node of content.childNodes ) {
+			if (
+				node.nodeType === Node.TEXT_NODE
+					? node.textContent.trim()
+					: node.nodeType !== Node.ELEMENT_NODE || ! BLOCK_TAGS.test( node.tagName )
+			) {
+				needsRepair = true;
+				break;
+			}
+			// Flag non-editable blocks that are the first child or follow
+			// another non-editable block without a gap.
+			if ( isNonEditableBlock( node ) ) {
+				const prevEl = node.previousElementSibling;
+				if (
+					! prevEl ||
+					( isNonEditableBlock( prevEl ) && ! prevEl.classList.contains( 'bw-block-gap' ) )
+				) {
+					needsRepair = true;
+					break;
+				}
+			}
+			// Flag orphaned gap paragraphs no longer adjacent to any
+			// non-editable block (e.g. after a figure was deleted).
+			if ( node.nodeType === Node.ELEMENT_NODE && node.classList.contains( 'bw-block-gap' ) ) {
+				const gapPrev = node.previousElementSibling;
+				const gapNext = node.nextElementSibling;
+				if ( ! isNonEditableBlock( gapPrev ) && ! isNonEditableBlock( gapNext ) ) {
+					needsRepair = true;
+					break;
+				}
+			}
+		}
+	}
+	// Check if the last child is a non-editable block without a trailing gap.
+	if ( ! needsRepair ) {
+		const lastChild = content.lastElementChild;
+		if ( isNonEditableBlock( lastChild ) ) {
+			needsRepair = true;
+		}
+	}
+	// Check if every block is a gap paragraph (e.g. after all figures
+	// were deleted). Without a real editable block the save cleanup
+	// would strip all gaps and serialize empty content.
+	if ( ! needsRepair ) {
+		let hasRealEditable = false;
+		for ( const el of content.children ) {
+			if ( EDITABLE_BLOCK_TAGS.test( el.tagName ) && ! el.classList.contains( 'bw-block-gap' ) ) {
+				hasRealEditable = true;
+				break;
+			}
+		}
+		if ( ! hasRealEditable ) {
+			needsRepair = true;
+		}
+	}
+	if ( ! needsRepair ) return;
+
+	// Convert alignment divs to <p> before the orphan scan, so they
+	// aren't mis-detected as orphan inline elements.
+	cleanupAlignmentDivs();
+
+	// Re-seed a completely empty editor.
+	if ( ! content.firstChild ) {
+		content.innerHTML = '<p><br></p>';
+		return;
+	}
+
+	// Save the current selection so we can restore it after reparenting
+	// nodes. Without this, the cursor can jump when the input-event
+	// handler triggers a repair while the user is typing.
+	const sel = window.getSelection();
+	const rangeBackup = sel.rangeCount ? sel.getRangeAt( 0 ).cloneRange() : null;
+
+	// Wrap runs of consecutive non-block nodes in <p> elements.
+	let run = [];
+	const flush = before => {
+		if ( ! run.length ) return;
+		// Skip runs that are only whitespace text nodes.
+		const hasContent = run.some(
+			n => n.nodeType === Node.ELEMENT_NODE || ( n.textContent && n.textContent.trim() )
+		);
+		if ( hasContent ) {
+			const p = document.createElement( 'p' );
+			content.insertBefore( p, before );
+			run.forEach( n => p.appendChild( n ) );
+		} else {
+			// Remove whitespace-only orphans so they don't persist in
+			// saved markup or trigger needsRepair on the next scan.
+			run.forEach( n => n.remove() );
+		}
+		run = [];
+	};
+
+	// Snapshot childNodes because we'll mutate the DOM as we go.
+	[ ...content.childNodes ].forEach( node => {
+		if ( node.nodeType === Node.ELEMENT_NODE && BLOCK_TAGS.test( node.tagName ) ) {
+			flush( node );
+		} else {
+			run.push( node );
+		}
+	} );
+	flush( null );
+
+	// Re-seed if cleanup left the editor empty.
+	if ( ! content.firstChild ) {
+		content.innerHTML = '<p><br></p>';
+		return;
+	}
+
+	// Remove orphaned gap paragraphs that are no longer adjacent to
+	// non-editable blocks (e.g. after all figures were deleted).
+	[ ...content.querySelectorAll( ':scope > .bw-block-gap' ) ].forEach( gap => {
+		const gapPrev = gap.previousElementSibling;
+		const gapNext = gap.nextElementSibling;
+		const isOrphaned = ! isNonEditableBlock( gapPrev ) && ! isNonEditableBlock( gapNext );
+		if ( isOrphaned ) {
+			gap.remove();
+		}
+	} );
+
+	// Re-seed if orphaned-gap cleanup left the editor empty.
+	if ( ! content.firstChild ) {
+		content.innerHTML = '<p><br></p>';
+		return;
+	}
+
+	// Insert gap paragraphs between consecutive non-editable blocks and
+	// at the edges when the first/last child is non-editable.
+	const children = [ ...content.children ];
+	for ( let i = 0; i < children.length; i++ ) {
+		const child = children[ i ];
+		if ( ! isNonEditableBlock( child ) ) continue;
+
+		// Gap before if first child or previous sibling is also non-editable.
+		const prev = child.previousElementSibling;
+		if ( ! prev || isNonEditableBlock( prev ) ) {
+			// Don't insert a duplicate gap.
+			if ( prev && prev.classList.contains( 'bw-block-gap' ) ) continue;
+			if ( ! prev && child === content.firstElementChild ) {
+				const gap = document.createElement( 'p' );
+				gap.className = 'bw-block-gap';
+				gap.innerHTML = '<br>';
+				content.insertBefore( gap, child );
+			} else if ( prev && isNonEditableBlock( prev ) ) {
+				const gap = document.createElement( 'p' );
+				gap.className = 'bw-block-gap';
+				gap.innerHTML = '<br>';
+				prev.after( gap );
+			}
+		}
+	}
+	// Gap after last child if it's non-editable.
+	const last = content.lastElementChild;
+	if ( isNonEditableBlock( last ) ) {
+		const gap = document.createElement( 'p' );
+		gap.className = 'bw-block-gap';
+		gap.innerHTML = '<br>';
+		content.appendChild( gap );
+	}
+
+	// Guarantee at least one text-editable block exists.
+	let hasEditable = false;
+	for ( const el of content.children ) {
+		if ( EDITABLE_BLOCK_TAGS.test( el.tagName ) && ! el.classList.contains( 'bw-block-gap' ) ) {
+			hasEditable = true;
+			break;
+		}
+	}
+	if ( ! hasEditable && content.firstChild ) {
+		const p = document.createElement( 'p' );
+		p.innerHTML = '<br>';
+		content.appendChild( p );
+	}
+
+	// Restore the selection. The range may become invalid if the anchor
+	// node was removed (rather than reparented), so catch and discard.
+	if ( rangeBackup ) {
+		try {
+			sel.removeAllRanges();
+			sel.addRange( rangeBackup );
+		} catch {
+			// Range invalidated by node removal — cursor resets naturally.
+		}
+	}
+}
+
+/**
+ * Insert a media element (figure) into the editor at the current
+ * cursor position, followed by an empty paragraph.
+ *
+ * @param {Element} mediaEl - The figure element to insert.
+ * @return {Element|null} The trailing paragraph (cursor target).
+ */
+function insertMediaBlock( mediaEl ) {
+	const content = getContent();
+	if ( ! content ) return null;
+
+	const sel = window.getSelection();
+	let insertAfter = null;
+	if ( sel.rangeCount ) {
+		let node = sel.anchorNode;
+		while ( node && node !== content && node.parentNode !== content ) {
+			node = node.parentNode;
+		}
+		if ( node && node.parentNode === content ) {
+			insertAfter = node;
+		}
+	}
+
+	const p = document.createElement( 'p' );
+	p.innerHTML = '<br>';
+
+	if ( insertAfter ) {
+		insertAfter.after( mediaEl );
+		mediaEl.after( p );
+		if (
+			insertAfter.tagName === 'P' &&
+			( ! insertAfter.textContent || ! insertAfter.textContent.trim() )
+		) {
+			insertAfter.remove();
+		}
+	} else {
+		content.appendChild( mediaEl );
+		content.appendChild( p );
+	}
+
+	ensureBlockStructure();
+	return p;
 }
 
 const { state } = store( 'wpcom-write', {
@@ -804,7 +1341,7 @@ const { state } = store( 'wpcom-write', {
 
 			if ( event.key === 'Enter' ) {
 				event.preventDefault();
-				const content = document.querySelector( '.bw-content' );
+				const content = getContent();
 				if ( content ) {
 					content.focus();
 					// Ensure the cursor starts inside a paragraph.
@@ -892,12 +1429,28 @@ const { state } = store( 'wpcom-write', {
 				state.showRecoveryBanner = false;
 			}
 
+			// Re-demote empty paragraphs that were promoted from gaps
+			// but never received content (user clicked in then away).
+			demoteEmptyGaps();
+
+			// Expand the gap paragraph the user clicked into.
+			promoteGapAtCursor();
+
 			// Check for slash commands first.
 			const { actions } = store( 'wpcom-write' );
 			actions.checkSlashCommand();
 
 			// Update all formatting button states based on cursor position.
 			updateFormattingState();
+		},
+
+		repairStructure() {
+			// Fires on the `input` event — after the browser mutates the DOM
+			// but before the next paint. Wraps any bare text/inline nodes that
+			// native contentEditable orphaned (e.g. deleting a figure via
+			// Backspace can unwrap a neighbouring <p>).
+			promoteGapAtCursor();
+			ensureBlockStructure();
 		},
 
 		handleKeyDown( event ) {
@@ -925,6 +1478,18 @@ const { state } = store( 'wpcom-write', {
 				const { actions: a } = store( 'wpcom-write' );
 				a.toggleLinkInput();
 				return;
+			}
+
+			// Escape deselects a keyboard-selected figure.
+			if ( event.key === 'Escape' && selectedFigure ) {
+				event.preventDefault();
+				clearFigureSelection();
+				return;
+			}
+
+			// Any key other than Backspace/Delete/Escape deselects the figure.
+			if ( selectedFigure && event.key !== 'Backspace' && event.key !== 'Delete' ) {
+				clearFigureSelection();
 			}
 
 			// Slash menu keyboard navigation.
@@ -993,6 +1558,40 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
+			// Two-step figure deletion: first Backspace/Delete selects the
+			// adjacent figure, second press deletes it.
+			if ( event.key === 'Backspace' || event.key === 'Delete' ) {
+				// Second press — delete the already-selected figure.
+				// Check this first because the selection was cleared when
+				// the figure was highlighted (no blinking cursor).
+				if ( selectedFigure ) {
+					event.preventDefault();
+					const fig = selectedFigure;
+					clearFigureSelection();
+					animateAndDeleteFigure( fig );
+					return;
+				}
+
+				// First press — select the adjacent figure.
+				const targetFigure = getFigureAdjacentToCursor( event.key );
+				if ( targetFigure ) {
+					event.preventDefault();
+					selectedFigure = targetFigure;
+					targetFigure.classList.add( 'bw-figure-selected' );
+					// Save the cursor position so it can be restored if the
+					// user cancels the selection (Escape, click, or letter).
+					const sel = window.getSelection();
+					if ( sel.rangeCount ) {
+						preFigureSelectionRange = sel.getRangeAt( 0 ).cloneRange();
+					}
+					// Hide the blinking cursor so focus appears to move
+					// to the highlighted figure.
+					sel.removeAllRanges();
+					return;
+				}
+				// No adjacent figure — fall through to native Backspace/Delete.
+			}
+
 			// Enter key: break out of blockquotes/headings and ensure paragraphs.
 			if ( event.key === 'Enter' && ! event.shiftKey ) {
 				const sel = window.getSelection();
@@ -1024,11 +1623,7 @@ const { state } = store( 'wpcom-write', {
 							const p = document.createElement( 'p' );
 							p.innerHTML = '<br>';
 							block.after( p );
-							const newRange = document.createRange();
-							newRange.setStart( p, 0 );
-							newRange.collapse( true );
-							sel.removeAllRanges();
-							sel.addRange( newRange );
+							placeCursorAt( p );
 						}
 					}
 				}
@@ -1361,8 +1956,8 @@ const { state } = store( 'wpcom-write', {
 					document.removeEventListener( 'click', linkPopoverCloseHandler );
 					linkPopoverCloseHandler = null;
 				}
-				const content = document.querySelector( '.bw-content' );
-				if ( content ) content.focus();
+				const contentEl1 = getContent();
+				if ( contentEl1 ) contentEl1.focus();
 			}
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
@@ -1373,8 +1968,8 @@ const { state } = store( 'wpcom-write', {
 					document.removeEventListener( 'click', linkPopoverCloseHandler );
 					linkPopoverCloseHandler = null;
 				}
-				const content = document.querySelector( '.bw-content' );
-				if ( content ) content.focus();
+				const contentEl2 = getContent();
+				if ( contentEl2 ) contentEl2.focus();
 			}
 		},
 
@@ -1389,7 +1984,7 @@ const { state } = store( 'wpcom-write', {
 				document.removeEventListener( 'click', linkPopoverCloseHandler );
 				linkPopoverCloseHandler = null;
 			}
-			const content = document.querySelector( '.bw-content' );
+			const content = getContent();
 			if ( content ) content.focus();
 		},
 
@@ -1402,7 +1997,7 @@ const { state } = store( 'wpcom-write', {
 				document.removeEventListener( 'click', linkPopoverCloseHandler );
 				linkPopoverCloseHandler = null;
 			}
-			const content = document.querySelector( '.bw-content' );
+			const content = getContent();
 			if ( content ) content.focus();
 		},
 
@@ -1491,38 +2086,10 @@ const { state } = store( 'wpcom-write', {
 			img.alt = state.imageAlt || '';
 			figure.appendChild( img );
 
-			const content = document.querySelector( '.bw-content' );
-
-			// Find the parent block (direct child of .bw-content) to insert after.
-			const sel = window.getSelection();
-			let insertAfter = null;
-			if ( sel.rangeCount ) {
-				let node = sel.anchorNode;
-				while ( node && node !== content && node.parentNode !== content ) {
-					node = node.parentNode;
-				}
-				if ( node && node.parentNode === content ) {
-					insertAfter = node;
-				}
+			const p = insertMediaBlock( figure );
+			if ( p ) {
+				placeCursorAt( p );
 			}
-
-			const p = document.createElement( 'p' );
-			p.innerHTML = '<br>';
-
-			if ( insertAfter ) {
-				insertAfter.after( figure );
-				figure.after( p );
-			} else {
-				content.appendChild( figure );
-				content.appendChild( p );
-			}
-
-			// Move cursor to the new paragraph.
-			const range = document.createRange();
-			range.setStart( p, 0 );
-			range.collapse( true );
-			sel.removeAllRanges();
-			sel.addRange( range );
 
 			state.showImageModal = false;
 			resetUploadZone();
@@ -1668,36 +2235,10 @@ const { state } = store( 'wpcom-write', {
 			wrapper.className = 'bw-video-figure';
 			wrapper.innerHTML = `<div class="bw-video-wrap"><iframe src="${ embedUrl }" frameborder="0" allowfullscreen></iframe></div>`;
 
-			const content = document.querySelector( '.bw-content' );
-			const sel = window.getSelection();
-
-			let insertAfter = null;
-			if ( sel.rangeCount ) {
-				let node = sel.anchorNode;
-				while ( node && node !== content && node.parentNode !== content ) {
-					node = node.parentNode;
-				}
-				if ( node && node.parentNode === content ) {
-					insertAfter = node;
-				}
+			const p = insertMediaBlock( wrapper );
+			if ( p ) {
+				placeCursorAt( p );
 			}
-
-			const p = document.createElement( 'p' );
-			p.innerHTML = '<br>';
-
-			if ( insertAfter ) {
-				insertAfter.after( wrapper );
-				wrapper.after( p );
-			} else {
-				content.appendChild( wrapper );
-				content.appendChild( p );
-			}
-
-			const range = document.createRange();
-			range.setStart( p, 0 );
-			range.collapse( true );
-			sel.removeAllRanges();
-			sel.addRange( range );
 
 			state.showVideoModal = false;
 		},
@@ -1727,12 +2268,9 @@ const { state } = store( 'wpcom-write', {
 					if ( block.textContent.trim() === '' ) {
 						block.remove();
 					}
+					ensureBlockStructure();
 					// Move cursor to new paragraph.
-					const newRange = document.createRange();
-					newRange.setStart( p, 0 );
-					newRange.collapse( true );
-					sel.removeAllRanges();
-					sel.addRange( newRange );
+					placeCursorAt( p );
 				}
 			}
 			state.showSlashMenu = false;
@@ -1831,7 +2369,7 @@ const { state } = store( 'wpcom-write', {
  */
 async function savePost( postStatus, isAutosave = false ) {
 	if ( ! isAutosave ) {
-		const content = document.querySelector( '.bw-content' );
+		const content = getContent();
 		if ( ! state.title.trim() && ( ! content || ! content.innerHTML.trim() ) ) {
 			state.message = i18n.pleaseWriteSomething || 'Please write something';
 			setTimeout( () => {
@@ -1855,12 +2393,71 @@ async function savePost( postStatus, isAutosave = false ) {
 		state.message = savingMessage;
 	}
 
-	const contentEl = document.querySelector( '.bw-content' );
-	const blockMarkup = convertToBlocks( contentEl.innerHTML );
+	// Ensure the live DOM has proper structure before cloning — this
+	// converts any gap-only state into a real editable paragraph so
+	// the save doesn't produce blank content.
+	ensureBlockStructure();
+
+	// Clone the content so we can strip editor-only elements without
+	// disrupting the live DOM (gaps and selection highlights stay visible
+	// while the save request is in flight).
+	const contentEl = getContent();
+	const clone = contentEl.cloneNode( true );
+	clone.querySelectorAll( '.bw-block-gap' ).forEach( el => el.remove() );
+	// Strip empty paragraphs in gap positions (between two non-editable
+	// blocks, or at the edge with no sibling). These are promoted gaps
+	// the user never typed into. Don't strip intentional empty paragraphs
+	// that happen to be next to a single figure.
+	clone.querySelectorAll( ':scope > p' ).forEach( p => {
+		if ( p.textContent && p.textContent.trim() ) return;
+		const prev = p.previousElementSibling;
+		const next = p.nextElementSibling;
+		const isGapPosition =
+			( isNonEditableBlock( prev ) && isNonEditableBlock( next ) ) ||
+			( ! prev && isNonEditableBlock( next ) ) ||
+			( ! next && isNonEditableBlock( prev ) );
+		if ( isGapPosition ) {
+			p.remove();
+		}
+	} );
+	clone.querySelectorAll( '.bw-figure-selected' ).forEach( el => {
+		el.classList.remove( 'bw-figure-selected' );
+	} );
+	// Also strip the contenteditable attribute from figures — it's a
+	// runtime attribute that shouldn't be persisted.
+	clone.querySelectorAll( 'figure[contenteditable]' ).forEach( el => {
+		el.removeAttribute( 'contenteditable' );
+	} );
+	// Strip runtime control wrappers and buttons from figures so only
+	// the original media elements are saved.
+	clone.querySelectorAll( '.bw-img-controls' ).forEach( wrapper => {
+		// Move the img back out of the wrapper.
+		const img = wrapper.querySelector( 'img' );
+		if ( img ) {
+			wrapper.before( img );
+		}
+		wrapper.remove();
+	} );
+	clone
+		.querySelectorAll( '.bw-img-delete, .bw-img-alt, .bw-img-alt-input, .bw-img-caption-btn' )
+		.forEach( el => el.remove() );
+
+	// Safety net: if stripping editor-only elements left the clone
+	// empty, treat it the same as no content.
+	if ( ! clone.innerHTML.trim() ) {
+		state.message = i18n.pleaseWriteSomething || 'Please write something';
+		state.isSaving = false;
+		setTimeout( () => {
+			state.message = '';
+		}, 2500 );
+		return;
+	}
 
 	// Snapshot what we're about to send so dirty tracking compares against
 	// the submitted content, not whatever the DOM contains when the request resolves.
 	const submittedSnapshot = getContentSnapshot();
+
+	const blockMarkup = convertToBlocks( clone.innerHTML );
 
 	// Collect selected category IDs.
 	const selectedCats = state.categories.filter( c => c.selected ).map( c => c.id );
