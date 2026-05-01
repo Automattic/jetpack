@@ -1,0 +1,12 @@
+// Shape parity with filter-checkbox / filter-status / filter-rating: the
+// list, item, label, and count classes live in the *shared* SCSS shipped
+// from those blocks (they all use `.jetpack-search-filter__list` etc.), so
+// this file only needs the wrapper-level styling that's specific to the
+// attribute filter. Anything more would duplicate styles already loaded
+// via filter-checkbox's stylesheet.
+.jetpack-search-filter-wc-attribute {
+
+	&[hidden] {
+		display: none;
+	}
+}

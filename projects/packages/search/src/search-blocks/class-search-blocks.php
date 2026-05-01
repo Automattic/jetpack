@@ -579,9 +579,10 @@ class Search_Blocks {
 	 */
 	protected static function filter_block_helpers(): array {
 		return array(
-			'jetpack-search/filter-checkbox'  => Filter_Checkbox::class,
-			'jetpack-search/filter-date'      => Filter_Date::class,
-			'jetpack-search/filter-wc-rating' => Filter_Wc_Rating::class,
+			'jetpack-search/filter-checkbox'     => Filter_Checkbox::class,
+			'jetpack-search/filter-date'         => Filter_Date::class,
+			'jetpack-search/filter-wc-rating'    => Filter_Wc_Rating::class,
+			'jetpack-search/filter-wc-attribute' => Filter_Wc_Attribute::class,
 		);
 	}
 
@@ -608,6 +609,7 @@ class Search_Blocks {
 					$configs[ $key ] = $helper::build_config( $attrs, $key );
 				}
 			}
+
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 				static::walk_blocks_for_filter_configs( $block['innerBlocks'], $configs );
 			}
