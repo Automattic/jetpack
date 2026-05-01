@@ -126,7 +126,7 @@ function wpcom_better_footer_links( $footer ) {
 	$theme_regex = array(
 		'(?:\s*\|\s*)?',       // Optional pipe with spaces (non-capturing)
 		'(?:<span\s[^>]+>)?',  // Optional opening span tag (non-capturing)
-		'(Theme|%s)',          // $1: "Theme" or the localized equivalent
+		'(\bTheme\b|%s)',      // $1: "Theme" or the localized equivalent (word boundaries prevent partial match)
 		'\s*(?:&nbsp;)?:?\s*', // Zero or more whitespace characters, an optional colon, zero or more whitespace characters
 		'(%s|<a[^>]+>%s</a>)', // $2: The theme name, or link
 		'\.?',                 // Optional period
