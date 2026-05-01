@@ -38,16 +38,19 @@ Ships dark. Three independent filters, all default `false`:
          ▼
  PCG_Load_Tester::test()
          │
-         │ stash {path} in transient (random token)
+         │ stash { plugin, mode } in transient (random token)
          ▼
  GET /?pcg_probe=1&token=…  ◄── HTTP self-request
          │
          ▼
  probe-endpoint.php
    validate + consume token
+   gate on per-mode filter
+     (pcg_guard_activation | pcg_guard_updates)
    define WP_SANDBOX_SCRAPING
    register shutdown handler
-   require $plugin_main
+   require $plugin_main   (activation mode only — update mode
+                           skips this; plugin already loaded by WP)
          │
          ├───► fatal / throwable ──► {status: fatal|throwable} (HTTP 200)
          │                                  │
