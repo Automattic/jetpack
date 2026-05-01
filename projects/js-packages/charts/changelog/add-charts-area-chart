@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: Add AreaChart component for stacked and overlapping area visualisations.

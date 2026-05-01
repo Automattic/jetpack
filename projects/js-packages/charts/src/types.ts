@@ -16,6 +16,7 @@ type ValueOf< T > = T[ keyof T ];
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
 export type ChartType =
+	| 'area'
 	| 'bar'
 	| 'conversion-funnel'
 	| 'leaderboard'
