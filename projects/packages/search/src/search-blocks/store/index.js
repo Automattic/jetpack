@@ -441,10 +441,13 @@ const { state, actions } = store( NAMESPACE, {
 
 		/**
 		 * Open the sort popover from the trigger via ArrowDown/ArrowUp/Enter
-		 * /Space, focusing the first or last menu item to match the ARIA
-		 * menu-button keyboard pattern. Tab is intentionally left to the
-		 * browser so users can step past the trigger without entering the
-		 * menu — same behavior as the WAI-ARIA APG menu-button example.
+		 * /Space and move focus into the menu. Anchors focus on the active
+		 * sort (the checked menuitemradio) — matches the radio-menu pattern
+		 * where reopening returns to the selected option rather than
+		 * snapping back to the top. Falls back to the first/last item only
+		 * when the active sort isn't in the rendered list. Tab is left to
+		 * the browser so users can step past the trigger without entering
+		 * the menu, matching the WAI-ARIA APG menu-button example.
 		 *
 		 * @param {KeyboardEvent} event - Keydown event on the trigger.
 		 */
@@ -460,6 +463,10 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			const options = getSortMenuOptionKeysFromTrigger( event.currentTarget );
 			if ( options.length === 0 ) {
+				return;
+			}
+			if ( options.includes( state.sortOrder ) ) {
+				state.sortMenuFocusedKey = state.sortOrder;
 				return;
 			}
 			state.sortMenuFocusedKey = key === 'ArrowUp' ? options[ options.length - 1 ] : options[ 0 ];
