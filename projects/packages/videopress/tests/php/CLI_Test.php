@@ -253,6 +253,30 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test batch_import dedups repeated GUIDs in the input file.
+	 *
+	 * Without dedup, the second occurrence of a GUID would trip the "already imported"
+	 * skip path on its own second pass, inflating the skipped count.
+	 */
+	public function test_batch_import_dedups_input_lines() {
+		$guid = 'aaaaaaaa';
+		$this->clear_video_cache( $guid );
+
+		$file = tempnam( sys_get_temp_dir(), 'guids' );
+		file_put_contents( $file, "$guid\n$guid\n$guid\n" );
+
+		$this->mock_video_data = $this->get_mock_video_data();
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		( new CLI() )->batch_import( array( $file ), array() );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		unlink( $file );
+
+		$log = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
+		$this->assertStringContainsString( '1 total', $log );
+		$this->assertStringContainsString( '1 imported', $log );
+	}
+
+	/**
 	 * Test batch_import surfaces invalid GUIDs as failures and exits non-zero.
 	 */
 	public function test_batch_import_marks_invalid_guids_as_failed() {

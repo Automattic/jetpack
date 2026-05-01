@@ -205,7 +205,10 @@ class CLI extends WP_CLI_Command {
 			}
 			$guids[] = $line;
 		}
-		return $guids;
+
+		// Dedup so a GUID listed twice doesn't double-count or trip the "already
+		// imported" path on its own second pass.
+		return array_values( array_unique( $guids ) );
 	}
 
 	/**
