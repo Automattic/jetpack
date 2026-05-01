@@ -533,6 +533,49 @@ function exitListAndApplyBlock( tag ) {
 }
 
 /**
+ * If the cursor is inside a heading or blockquote, replace it with a
+ * list containing the block's content as the first item. Returns true
+ * if a conversion happened, false otherwise.
+ *
+ * @param {string} listTag - 'ul' or 'ol'.
+ * @return {boolean} Whether a block was converted to a list.
+ */
+function exitBlockAndApplyList( listTag ) {
+	const sel = window.getSelection();
+	if ( ! sel.rangeCount ) return false;
+
+	let block = null;
+	let node = sel.anchorNode;
+	const content = getContent();
+	while ( node && node !== content && node !== document.body ) {
+		if (
+			node.nodeType === Node.ELEMENT_NODE &&
+			( /^H[1-6]$/.test( node.tagName ) || node.tagName === 'BLOCKQUOTE' )
+		) {
+			block = node;
+			break;
+		}
+		node = node.parentNode;
+	}
+
+	if ( ! block ) return false;
+
+	const list = document.createElement( listTag );
+	const li = document.createElement( 'li' );
+	li.innerHTML = block.innerHTML || '<br>';
+	list.appendChild( li );
+
+	block.replaceWith( list );
+
+	placeCursorAt( li );
+	state.formatHeading = false;
+	state.formatQuote = false;
+	state.headingLabel = i18n.normal || 'Normal';
+	updateFormattingState();
+	return true;
+}
+
+/**
  * Indent or outdent a list item by nesting/unnesting it in a sub-list.
  *
  * Indent: moves the <li> into a new sub-list appended to the previous sibling <li>.
@@ -2082,15 +2125,25 @@ const { state } = store( 'wpcom-write', {
 		// --- Lists ---
 
 		formatUList() {
-			document.execCommand( 'insertUnorderedList' );
-			state.formatUList = document.queryCommandState( 'insertUnorderedList' );
-			state.formatOList = document.queryCommandState( 'insertOrderedList' );
+			if ( exitBlockAndApplyList( 'ul' ) ) {
+				state.formatUList = true;
+				state.formatOList = false;
+			} else {
+				document.execCommand( 'insertUnorderedList' );
+				state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+				state.formatOList = document.queryCommandState( 'insertOrderedList' );
+			}
 		},
 
 		formatOList() {
-			document.execCommand( 'insertOrderedList' );
-			state.formatOList = document.queryCommandState( 'insertOrderedList' );
-			state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+			if ( exitBlockAndApplyList( 'ol' ) ) {
+				state.formatOList = true;
+				state.formatUList = false;
+			} else {
+				document.execCommand( 'insertOrderedList' );
+				state.formatOList = document.queryCommandState( 'insertOrderedList' );
+				state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+			}
 		},
 
 		// --- Block formatting ---
