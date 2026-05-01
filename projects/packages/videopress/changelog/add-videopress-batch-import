@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: Add `wp videopress batch-import` to import multiple videos by GUID in one CLI run, with a per-line log and a final imported/skipped/failed summary.

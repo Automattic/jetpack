@@ -198,6 +198,89 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test batch_import processes a list of GUIDs and reports a summary.
+	 */
+	public function test_batch_import_from_file() {
+		$guid_a = 'aaaaaaaa';
+		$guid_b = 'bbbbbbbb';
+		$this->clear_video_cache( $guid_a );
+		$this->clear_video_cache( $guid_b );
+
+		$file = tempnam( sys_get_temp_dir(), 'guids' );
+		file_put_contents( $file, "$guid_a\n# comment\n\n$guid_b\n" );
+
+		$this->mock_video_data = $this->get_mock_video_data();
+		$mock                  = function ( $preempt, $args, $url ) {
+			if ( strpos( $url, 'videos/' ) === false ) {
+				return $preempt;
+			}
+			$guid = preg_match( '#videos/([a-z0-9]+)#i', $url, $m ) ? $m[1] : 'aaaaaaaa';
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( $this->get_mock_video_data( array( 'guid' => $guid ) ), JSON_HEX_TAG | JSON_HEX_AMP ),
+			);
+		};
+
+		add_filter( 'pre_http_request', $mock, 10, 3 );
+		( new CLI() )->batch_import( array( $file ), array() );
+		remove_filter( 'pre_http_request', $mock, 10 );
+		unlink( $file );
+
+		$summary = implode( "\n", \WP_CLI::$captured['log'] );
+		$this->assertStringContainsString( '2 total', $summary );
+		$this->assertStringContainsString( '2 imported', $summary );
+		$this->assertStringContainsString( '0 failed', $summary );
+	}
+
+	/**
+	 * Test batch_import surfaces invalid GUIDs as failures and exits non-zero.
+	 */
+	public function test_batch_import_marks_invalid_guids_as_failed() {
+		$file = tempnam( sys_get_temp_dir(), 'guids' );
+		file_put_contents( $file, "not a guid\n" );
+
+		$exception_thrown = false;
+		try {
+			( new CLI() )->batch_import( array( $file ), array() );
+		} catch ( \WP_CLI\ExitException $e ) {
+			$exception_thrown = true;
+		}
+		unlink( $file );
+
+		$this->assertTrue( $exception_thrown, 'Batch with failures should exit via WP_CLI::error.' );
+		$summary = implode( "\n", \WP_CLI::$captured['log'] );
+		$this->assertStringContainsString( '1 failed', $summary );
+	}
+
+	/**
+	 * Test batch_import --dry-run does not mutate state.
+	 */
+	public function test_batch_import_dry_run_skips_writes() {
+		$guid = 'aaaaaaaa';
+		$this->clear_video_cache( $guid );
+
+		$file = tempnam( sys_get_temp_dir(), 'guids' );
+		file_put_contents( $file, "$guid\n" );
+
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90220 ) );
+
+		$captured_data = null;
+		$capture       = function ( $data ) use ( &$captured_data ) {
+			$captured_data = $data;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		( new CLI() )->batch_import( array( $file ), array( 'dry-run' => true ) );
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+		unlink( $file );
+
+		$this->assertNull( $captured_data, 'Dry run should not invoke wp_insert_attachment.' );
+	}
+
+	/**
 	 * Test --dry-run reports the would-preserve ID without mutating state.
 	 */
 	public function test_import_dry_run_reports_preserved_id() {

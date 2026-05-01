@@ -128,6 +128,214 @@ class CLI extends WP_CLI_Command {
 	}
 
 	/**
+	 * Import multiple VideoPress videos by GUID in one CLI run.
+	 *
+	 * Reads GUIDs (one per line) from a file or stdin and calls the same per-video import
+	 * pipeline as `wp videopress import`. Lines that are blank or start with `#` are ignored.
+	 * On completion, prints a summary of imported / skipped / failed counts.
+	 *
+	 * Compared to `xargs -I {} wp videopress import {}`, this runs in a single PHP process
+	 * (no per-GUID bootstrap), keeps a unified summary, and lets dry-run preview the whole
+	 * batch without applying anything.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<file>]
+	 * : Path to a file containing GUIDs (one per line). Pass `-` or omit to read from stdin.
+	 *
+	 * [--force]
+	 * : Re-import videos that already exist locally (deletes the existing attachment first).
+	 *
+	 * [--no-preserve-id]
+	 * : Skip reusing the original WordPress.com attachment ID.
+	 *
+	 * [--dry-run]
+	 * : Report what would happen for each GUID without mutating state.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp videopress batch-import guids.txt
+	 *     wp videopress batch-import guids.txt --dry-run
+	 *     cat guids.txt | wp videopress batch-import
+	 *     wp videopress batch-import guids.txt --force
+	 *
+	 * @subcommand batch-import
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 */
+	public function batch_import( $args, $assoc_args ) {
+		$source = $args[0] ?? '-';
+		$guids  = $this->read_guid_list( $source );
+
+		if ( empty( $guids ) ) {
+			WP_CLI::error( __( 'No GUIDs provided.', 'jetpack-videopress-pkg' ) );
+		}
+
+		$dry_run     = (bool) get_flag_value( $assoc_args, 'dry-run', false );
+		$force       = (bool) get_flag_value( $assoc_args, 'force', false );
+		$preserve_id = (bool) get_flag_value( $assoc_args, 'preserve-id', true );
+
+		$imported = array();
+		$skipped  = array();
+		$failed   = array();
+
+		foreach ( $guids as $guid ) {
+			if ( ! videopress_is_valid_guid( $guid ) ) {
+				$failed[ $guid ] = __( 'Invalid GUID.', 'jetpack-videopress-pkg' );
+				WP_CLI::log( sprintf( '[%s] %s', $guid, __( 'invalid GUID — skipped', 'jetpack-videopress-pkg' ) ) );
+				continue;
+			}
+
+			$result = $this->import_one_for_batch( $guid, $force, $preserve_id, $dry_run );
+
+			switch ( $result['status'] ) {
+				case 'imported':
+					$imported[ $guid ] = $result['attachment_id'];
+					WP_CLI::log( sprintf( '[%s] -> attachment %d', $guid, $result['attachment_id'] ) );
+					break;
+				case 'skipped':
+					$skipped[ $guid ] = $result['message'];
+					WP_CLI::log( sprintf( '[%s] %s', $guid, $result['message'] ) );
+					break;
+				case 'failed':
+				default:
+					$failed[ $guid ] = $result['message'];
+					WP_CLI::log( sprintf( '[%s] FAIL: %s', $guid, $result['message'] ) );
+					break;
+			}
+		}
+
+		WP_CLI::log( '' );
+		WP_CLI::log(
+			sprintf(
+				/* translators: %1$d total, %2$d imported, %3$d skipped, %4$d failed */
+				__( 'Batch import complete: %1$d total, %2$d imported, %3$d skipped, %4$d failed.', 'jetpack-videopress-pkg' ),
+				count( $guids ),
+				count( $imported ),
+				count( $skipped ),
+				count( $failed )
+			)
+		);
+
+		if ( ! empty( $failed ) ) {
+			WP_CLI::error( __( 'One or more videos failed to import. See output above.', 'jetpack-videopress-pkg' ) );
+		}
+	}
+
+	/**
+	 * Read a newline-separated GUID list from a file path, stdin, or the special source `-`.
+	 *
+	 * @param string $source File path, or '-' for stdin.
+	 * @return string[]
+	 */
+	private function read_guid_list( $source ) {
+		if ( '-' === $source ) {
+			$raw = stream_get_contents( STDIN );
+		} elseif ( is_readable( $source ) ) {
+			$raw = file_get_contents( $source ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		} else {
+			WP_CLI::error(
+				sprintf(
+					/* translators: %s file path */
+					__( 'Cannot read GUID list from %s.', 'jetpack-videopress-pkg' ),
+					$source
+				)
+			);
+			return array();
+		}
+
+		$guids = array();
+		foreach ( preg_split( '/\R/', (string) $raw ) as $line ) {
+			$line = trim( $line );
+			if ( '' === $line || '#' === substr( $line, 0, 1 ) ) {
+				continue;
+			}
+			$guids[] = $line;
+		}
+		return $guids;
+	}
+
+	/**
+	 * Run a single-GUID import for batch mode and return a structured result.
+	 *
+	 * Mirrors the import() command's logic but returns instead of calling WP_CLI::error/success,
+	 * so failures don't abort the whole batch.
+	 *
+	 * @param string $guid Video GUID.
+	 * @param bool   $force Whether to delete existing attachments before importing.
+	 * @param bool   $preserve_id Whether to preserve the original wpcom post ID.
+	 * @param bool   $dry_run If true, no state is mutated.
+	 * @return array{status:string,attachment_id?:int,message?:string}
+	 */
+	private function import_one_for_batch( $guid, $force, $preserve_id, $dry_run ) {
+		$existing_post_id = videopress_get_post_id_by_guid( $guid );
+
+		if ( $existing_post_id && ! $force ) {
+			return array(
+				'status'  => 'skipped',
+				'message' => sprintf(
+					/* translators: %d existing attachment id */
+					__( 'Already imported as Attachment ID %d. Use --force to re-import.', 'jetpack-videopress-pkg' ),
+					$existing_post_id
+				),
+			);
+		}
+
+		if ( $dry_run ) {
+			$vp_data = videopress_get_video_details( $guid );
+			if ( is_wp_error( $vp_data ) ) {
+				return array(
+					'status'  => 'failed',
+					'message' => $vp_data->get_error_message(),
+				);
+			}
+			$target = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
+			return array(
+				'status'        => 'imported',
+				'attachment_id' => $target > 0 ? $target : 0,
+				'message'       => __( '[dry-run] Would import.', 'jetpack-videopress-pkg' ),
+			);
+		}
+
+		if ( $existing_post_id && $force ) {
+			$deleted = wp_delete_attachment( $existing_post_id, true );
+			if ( ! $deleted ) {
+				return array(
+					'status'  => 'failed',
+					'message' => sprintf(
+						/* translators: %d existing attachment id */
+						__( 'Failed to delete existing Attachment ID %d.', 'jetpack-videopress-pkg' ),
+						$existing_post_id
+					),
+				);
+			}
+			videopress_clear_post_id_by_guid_cache( $guid );
+		}
+
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid, 0, $preserve_id );
+
+		if ( is_wp_error( $attachment_id ) ) {
+			return array(
+				'status'  => 'failed',
+				'message' => $attachment_id->get_error_message(),
+			);
+		}
+
+		if ( ! $attachment_id ) {
+			return array(
+				'status'  => 'failed',
+				'message' => __( 'Unknown error during import.', 'jetpack-videopress-pkg' ),
+			);
+		}
+
+		return array(
+			'status'        => 'imported',
+			'attachment_id' => (int) $attachment_id,
+		);
+	}
+
+	/**
 	 * Report what `wp videopress import` would do for the given GUID without mutating state.
 	 *
 	 * @param string $guid Video GUID.
