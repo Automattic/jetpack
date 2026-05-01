@@ -246,8 +246,9 @@ class REST_Controller {
 		$module_active                 = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
 		$instant_search_enabled        = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
 		$swap_classic_to_inline_search = isset( $request_body['swap_classic_to_inline_search'] ) ? (bool) $request_body['swap_classic_to_inline_search'] : null;
+		$ai_answers_enabled            = isset( $request_body['ai_answers_enabled'] ) ? (bool) $request_body['ai_answers_enabled'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search );
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $ai_answers_enabled );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -277,6 +278,10 @@ class REST_Controller {
 			$this->search_module->update_swap_classic_to_inline_search( $swap_classic_to_inline_search );
 		}
 
+		if ( $ai_answers_enabled !== null ) {
+			update_option( 'jetpack_search_ai_answers_enabled', $ai_answers_enabled );
+		}
+
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
 				'some_updated',
@@ -301,10 +306,15 @@ class REST_Controller {
 	 * @param boolean $module_active - Module status.
 	 * @param boolean $instant_search_enabled - Instant Search status.
 	 * @param boolean $swap_classic_to_inline_search - New inline search status.
+	 * @param boolean $ai_answers_enabled - New AI answers status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $ai_answers_enabled = null ) {
 		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search !== null ) {
 			// allow updating 'swap_classic_to_inline_search' without updating/validating other settings.
+			return true;
+		}
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search === null && $ai_answers_enabled !== null ) {
+			// allow updating 'ai_answers_enabled' without updating/validating other settings.
 			return true;
 		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
@@ -326,6 +336,7 @@ class REST_Controller {
 				'module_active'                 => $this->search_module->is_active(),
 				'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
 				'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
+				'ai_answers_enabled'            => AI_Answers::is_enabled(),
 			)
 		);
 	}
