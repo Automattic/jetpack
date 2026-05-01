@@ -344,7 +344,7 @@ class zeroBS__Metabox_Contact extends zeroBS__Metabox {
 
 					if ( isset( $_POST['zerobscrm-owner'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- todo - noted in zero-bs-crm 2457.
 
-						$potential_owner = (int) sanitize_text_field( wp_unslash( $_POST['zerobscrm-owner'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- todo - noted in zero-bs-crm 2457.
+						$potential_owner = (int) $_POST['zerobscrm-owner']; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- todo - noted in zero-bs-crm 2457.
 						if ( $potential_owner > 0 ) {
 							$owner = $potential_owner;
 						}

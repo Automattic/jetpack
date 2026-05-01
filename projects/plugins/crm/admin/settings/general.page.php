@@ -79,7 +79,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 	$updatedSettings['menulayout'] = 2;
 	if ( isset( $_POST['wpzbscrm_menulayout'] ) && ! empty( $_POST['wpzbscrm_menulayout'] ) ) {
-		$updatedSettings['menulayout'] = (int) sanitize_text_field( $_POST['wpzbscrm_menulayout'] );
+		$updatedSettings['menulayout'] = (int) $_POST['wpzbscrm_menulayout'];
 	}
 
 	$updatedSettings['showfullwidthforlisting'] = 0; // phpcs:ignore
@@ -124,7 +124,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	}
 	$updatedSettings['clicktocalltype'] = 1;
 	if ( isset( $_POST['wpzbscrm_clicktocalltype'] ) && ! empty( $_POST['wpzbscrm_clicktocalltype'] ) ) {
-		$updatedSettings['clicktocalltype'] = (int) sanitize_text_field( $_POST['wpzbscrm_clicktocalltype'] );
+		$updatedSettings['clicktocalltype'] = (int) $_POST['wpzbscrm_clicktocalltype'];
 	}
 	$updatedSettings['objnav'] = 0;
 	if ( isset( $_POST['wpzbscrm_objnav'] ) && ! empty( $_POST['wpzbscrm_objnav'] ) ) {
@@ -140,7 +140,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	}
 	$updatedSettings['wpzbscrm_avatarmode'] = 1;
 	if ( isset( $_POST['wpzbscrm_avatarmode'] ) && ! empty( $_POST['wpzbscrm_avatarmode'] ) ) {
-		$updatedSettings['avatarmode'] = (int) sanitize_text_field( $_POST['wpzbscrm_avatarmode'] );
+		$updatedSettings['avatarmode'] = (int) $_POST['wpzbscrm_avatarmode'];
 	}
 
 	$updatedSettings['wptakeovermode'] = 0;

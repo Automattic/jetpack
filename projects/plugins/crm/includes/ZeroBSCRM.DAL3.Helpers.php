@@ -6007,7 +6007,7 @@ function zeroBSCRM_security_logRequest( $reqType = 'unknown', $reqHash = '', $re
 	if ( strlen( $reqHash ) > 128 ) {
 		$reqHash = '';
 	}
-	$reqID = (int) sanitize_text_field( $reqID );
+	$reqID = (int) $reqID;
 
 	if ( $wpdb->insert(
 		$ZBSCRM_t['security_log'],
