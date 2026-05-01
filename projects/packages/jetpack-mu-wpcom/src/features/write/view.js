@@ -1046,6 +1046,7 @@ function updateFormattingState() {
 	state.formatStrikethrough = document.queryCommandState( 'strikeThrough' );
 	state.formatOList = document.queryCommandState( 'insertOrderedList' );
 	state.formatUList = document.queryCommandState( 'insertUnorderedList' );
+	state.insideList = state.formatOList || state.formatUList;
 
 	// Check block-level formatting by walking up from cursor.
 	const sel = window.getSelection();
@@ -1858,7 +1859,8 @@ const { state } = store( 'wpcom-write', {
 
 			const text = node.textContent;
 			// Show menu when the line starts with "/" and optionally a filter after it.
-			if ( /^\/\S*$/.test( text.trimStart() ) ) {
+			// Suppress inside lists — block-level insertions are not supported there.
+			if ( /^\/\S*$/.test( text.trimStart() ) && ! state.insideList ) {
 				// User just dismissed the menu with Escape — skip this keyup cycle.
 				if ( slashMenuEscaped ) {
 					slashMenuEscaped = false;

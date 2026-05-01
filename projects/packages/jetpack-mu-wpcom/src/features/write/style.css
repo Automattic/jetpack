@@ -321,6 +321,11 @@
 	color: #1a1a1a;
 }
 
+.bw-tool:disabled {
+	opacity: 0.3;
+	pointer-events: none;
+}
+
 .bw-tool-divider {
 	width: 1px;
 	height: 20px;
