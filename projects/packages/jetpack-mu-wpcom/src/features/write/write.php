@@ -159,6 +159,49 @@ add_action(
 );
 
 /**
+ * Convert wp:embed video blocks in raw block markup to bw-video-figure HTML.
+ *
+ * The the_content filter + wp_kses_post pipeline strips the iframe from embed
+ * blocks, leaving an empty wrapper.  By converting video embeds to the Write
+ * editor's own markup before that pipeline runs, the iframe is preserved.
+ *
+ * @param string $content Raw post_content (block markup).
+ * @return string Content with video embed blocks replaced by bw-video-figure HTML.
+ */
+function wpcom_write_convert_video_embeds( $content ) {
+	return preg_replace_callback(
+		'/<!-- wp:embed (\{[^}]*"type"\s*:\s*"video"[^}]*\}) -->.+?<!-- \/wp:embed -->/s',
+		static function ( $matches ) {
+			$attrs = json_decode( $matches[1], true );
+			if ( ! is_array( $attrs ) || empty( $attrs['url'] ) ) {
+				return $matches[0];
+			}
+			$url       = $attrs['url'];
+			$embed_url = '';
+
+			// YouTube.
+			if ( preg_match( '/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $url, $yt ) ) {
+				$embed_url = 'https://www.youtube.com/embed/' . $yt[1];
+			}
+			// Vimeo.
+			if ( ! $embed_url && preg_match( '/vimeo\.com\/(\d+)/', $url, $vim ) ) {
+				$embed_url = 'https://player.vimeo.com/video/' . $vim[1];
+			}
+
+			if ( ! $embed_url ) {
+				return $matches[0];
+			}
+
+			return sprintf(
+				'<figure class="bw-video-figure"><div class="bw-video-wrap"><iframe src="%s" frameborder="0" allowfullscreen></iframe></div></figure>',
+				esc_url( $embed_url )
+			);
+		},
+		$content
+	);
+}
+
+/**
  * Render the Write admin page.
  *
  * Called by add_submenu_page as the page callback. Runs inside wp-admin's
@@ -178,8 +221,11 @@ function wpcom_write_render_admin_page() {
 		$edit_post = get_post( $edit_post_id );
 		if ( $edit_post && current_user_can( 'edit_post', $edit_post_id ) ) {
 			$edit_title = $edit_post->post_title;
+			// Convert video embed blocks to the editor's bw-video-figure markup
+			// before the_content + wp_kses_post strip the iframe.
+			$raw_content = wpcom_write_convert_video_embeds( $edit_post->post_content );
 			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter needed to render blocks.
-			$edit_content     = apply_filters( 'the_content', $edit_post->post_content );
+			$edit_content     = apply_filters( 'the_content', $raw_content );
 			$post_status      = $edit_post->post_status;
 			$edit_featured_id = (int) get_post_thumbnail_id( $edit_post_id );
 		} else {
@@ -388,7 +434,31 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--keydown="actions.handleKeyDown"
 				data-wp-on--beforeinput="actions.handleBeforeInput"
 				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
-			><?php echo $edit_content ? wp_kses_post( $edit_content ) : '<p><br></p>'; ?></div>
+			>
+			<?php
+			if ( $edit_content ) {
+				// Allow iframe through wp_kses_post so video embeds survive.
+				$wpcom_write_allow_iframe = static function ( $tags, $context ) {
+					if ( 'post' === $context && ! isset( $tags['iframe'] ) ) {
+						$tags['iframe'] = array(
+							'src'             => true,
+							'frameborder'     => true,
+							'allowfullscreen' => true,
+							'width'           => true,
+							'height'          => true,
+							'title'           => true,
+						);
+					}
+					return $tags;
+				};
+				add_filter( 'wp_kses_allowed_html', $wpcom_write_allow_iframe, 10, 2 );
+				echo wp_kses_post( $edit_content );
+				remove_filter( 'wp_kses_allowed_html', $wpcom_write_allow_iframe, 10 );
+			} else {
+				echo '<p><br></p>';
+			}
+			?>
+			</div>
 		</div>
 	</main>
 

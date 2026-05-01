@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Fix video embeds not displaying after page reload by converting embed blocks to the editor format before the_content filter strips them.
