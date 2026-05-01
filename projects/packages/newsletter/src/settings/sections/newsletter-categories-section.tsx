@@ -26,6 +26,8 @@ interface NewsletterCategoriesSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
+	/** Setting keys staged in this section's changeset, fed into section_save analytics. */
+	changedKeys?: string[];
 	isNewsletterEnabled: boolean;
 }
 
@@ -41,6 +43,7 @@ export function NewsletterCategoriesSection( {
 	onSave,
 	isSaving,
 	hasChanges,
+	changedKeys,
 	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
 	const siteType = getSiteType();
@@ -48,14 +51,15 @@ export function NewsletterCategoriesSection( {
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
 
-	// Track section save
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
 			site_type: siteType,
 			section: 'newsletter_categories',
+			changed_keys: ( changedKeys ?? [] ).join( ',' ),
+			change_count: ( changedKeys ?? [] ).length,
 		} );
 		onSave();
-	}, [ onSave, siteType ] );
+	}, [ changedKeys, onSave, siteType ] );
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {

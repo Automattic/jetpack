@@ -33,6 +33,12 @@ interface PlacementCardProps {
 	 * the Site Editor.
 	 */
 	previewUrl?: string;
+	/**
+	 * Optional callback fired when the "Preview and edit" link is clicked.
+	 * Receives the same `name` the change handler does so the parent can
+	 * fire a per-placement Tracks event without binding closures per row.
+	 */
+	onPreviewClick?: ( name: string ) => void;
 	/** Disable the whole card (parent section gates on `data.subscriptions`). */
 	disabled?: boolean;
 }
@@ -46,15 +52,16 @@ interface PlacementCardProps {
  * the label, beneath the card) is the checkbox's accessible name. Selected-
  * state border is driven by `:has(input:checked)` in CSS.
  *
- * @param props              - Component props.
- * @param props.id           - Stable id used to bind the checkbox to the visual surface.
- * @param props.name         - Stable name passed back to the parent's `onChange`.
- * @param props.title        - Caption rendered below the card; also the checkbox's accessible name.
- * @param props.illustration - Slot for the placement preview wireframe.
- * @param props.checked      - Whether this placement is currently selected.
- * @param props.onChange     - Called with `(name, next)` when the user toggles.
- * @param props.previewUrl   - Optional Site Editor URL that backs the "Preview and edit" link.
- * @param props.disabled     - Disables the whole card (gated by the section's `data.subscriptions`).
+ * @param props                - Component props.
+ * @param props.id             - Stable id used to bind the checkbox to the visual surface.
+ * @param props.name           - Stable name passed back to the parent's `onChange`.
+ * @param props.title          - Caption rendered below the card; also the checkbox's accessible name.
+ * @param props.illustration   - Slot for the placement preview wireframe.
+ * @param props.checked        - Whether this placement is currently selected.
+ * @param props.onChange       - Called with `(name, next)` when the user toggles.
+ * @param props.previewUrl     - Optional Site Editor URL that backs the "Preview and edit" link.
+ * @param props.onPreviewClick - Optional callback fired when the "Preview and edit" link is clicked.
+ * @param props.disabled       - Disables the whole card (gated by the section's `data.subscriptions`).
  * @return Selectable placement card.
  */
 export function PlacementCard( {
@@ -65,6 +72,7 @@ export function PlacementCard( {
 	checked,
 	onChange,
 	previewUrl,
+	onPreviewClick,
 	disabled,
 }: PlacementCardProps ): JSX.Element {
 	const titleId = `${ id }__title`;
@@ -73,6 +81,10 @@ export function PlacementCard( {
 		( next: boolean ) => onChange( name, next ),
 		[ name, onChange ]
 	);
+
+	const handlePreviewClick = useCallback( () => {
+		onPreviewClick?.( name );
+	}, [ name, onPreviewClick ] );
 
 	return (
 		<div className="jetpack-newsletter-placement">
@@ -104,7 +116,9 @@ export function PlacementCard( {
 					{ title }
 				</span>
 				{ previewUrl && (
-					<Link href={ previewUrl }>{ __( 'Preview and edit', 'jetpack-newsletter' ) }</Link>
+					<Link href={ previewUrl } onClick={ handlePreviewClick }>
+						{ __( 'Preview and edit', 'jetpack-newsletter' ) }
+					</Link>
 				) }
 			</div>
 		</div>

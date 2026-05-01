@@ -19,6 +19,8 @@ interface WelcomeEmailSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
+	/** Setting keys staged in this section's changeset, fed into section_save analytics. */
+	changedKeys?: string[];
 	isNewsletterEnabled: boolean;
 }
 
@@ -41,6 +43,7 @@ export function WelcomeEmailSection( {
 	onSave,
 	isSaving,
 	hasChanges,
+	changedKeys,
 	isNewsletterEnabled,
 }: WelcomeEmailSectionProps ): JSX.Element {
 	const siteType = getSiteType();
@@ -57,14 +60,15 @@ export function WelcomeEmailSection( {
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
-	// Track section save
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
 			site_type: siteType,
 			section: 'welcome_email',
+			changed_keys: ( changedKeys ?? [] ).join( ',' ),
+			change_count: ( changedKeys ?? [] ).length,
 		} );
 		onSave();
-	}, [ onSave, siteType ] );
+	}, [ changedKeys, onSave, siteType ] );
 
 	const fields: Field< WelcomeEmailFormData >[] = [
 		{

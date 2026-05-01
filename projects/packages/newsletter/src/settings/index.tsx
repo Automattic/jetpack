@@ -371,6 +371,7 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 						onSave={ saveSubscriptionSettings }
 						isSaving={ isSavingSubscriptions }
 						hasChanges={ hasSubscriptionChanges }
+						changedKeys={ Object.keys( subscriptionChanges ) }
 						isNewsletterEnabled={ isNewsletterEnabled }
 					/>
 
@@ -390,6 +391,7 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 						onSave={ saveSenderName }
 						isSaving={ isSavingSenderName }
 						hasChanges={ hasSenderNameChanges }
+						changedKeys={ Object.keys( senderNameChanges ) }
 						isNewsletterEnabled={ isNewsletterEnabled }
 					/>
 					<EmailReplyToSettingsSection
@@ -403,6 +405,7 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 						onSave={ saveWelcomeEmail }
 						isSaving={ isSavingWelcomeEmail }
 						hasChanges={ hasWelcomeEmailChanges }
+						changedKeys={ Object.keys( welcomeEmailChanges ) }
 						isNewsletterEnabled={ isNewsletterEnabled }
 					/>
 
@@ -412,6 +415,7 @@ export function NewsletterSettingsApp(): JSX.Element | null {
 						onSave={ saveNewsletterCategories }
 						isSaving={ isSavingNewsletterCategories }
 						hasChanges={ hasNewsletterCategoriesChanges }
+						changedKeys={ Object.keys( newsletterCategoriesChanges ) }
 						isNewsletterEnabled={ isNewsletterEnabled }
 					/>
 				</Stack>

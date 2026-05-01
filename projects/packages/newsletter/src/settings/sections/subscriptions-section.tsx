@@ -28,6 +28,8 @@ interface SubscriptionsSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
+	/** Setting keys staged in this section's changeset, fed into section_save analytics. */
+	changedKeys?: string[];
 	isNewsletterEnabled: boolean;
 }
 
@@ -43,6 +45,7 @@ export function SubscriptionsSection( {
 	onSave,
 	isSaving,
 	hasChanges,
+	changedKeys,
 	isNewsletterEnabled,
 }: SubscriptionsSectionProps ): JSX.Element {
 	const siteType = getSiteType();
@@ -52,14 +55,19 @@ export function SubscriptionsSection( {
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
-	// Track section save
+	// Track section save with the keys that changed since the last save so
+	// we can see what's actually in each user's batch (which placements
+	// flipped, which navigation toggles moved) without firing a per-toggle
+	// event on every click.
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
 			site_type: siteType,
 			section: 'subscriptions',
+			changed_keys: ( changedKeys ?? [] ).join( ',' ),
+			change_count: ( changedKeys ?? [] ).length,
 		} );
 		onSave();
-	}, [ onSave, siteType ] );
+	}, [ changedKeys, onSave, siteType ] );
 
 	// Helper to check if we can show editor links for block theme features
 	const canShowBlockThemeEditorLinks =
@@ -71,18 +79,21 @@ export function SubscriptionsSection( {
 
 	// "Pages and posts" placements rendered as a 2×2 grid of selectable
 	// cards (Image #5). Each entry carries the underlying boolean key + the
-	// site-editor template that backs the "Preview and edit" link. The
-	// `illustration` slot is left empty for now — designs are being mocked
-	// separately and will be slotted in via this prop without touching the
-	// surrounding chassis.
+	// site-editor template that backs the "Preview and edit" link, plus a
+	// stable analytics slug so Tracks events stay readable when the
+	// underlying setting key churns. The `illustration` slot is left empty
+	// for now — designs are being mocked separately and will be slotted in
+	// via this prop without touching the surrounding chassis.
 	const placements: Array< {
 		key: keyof NewsletterSettings;
+		slug: string;
 		title: string;
 		illustration?: ReactNode;
 		previewUrl?: string;
 	} > = [
 		{
 			key: 'jetpack_subscribe_overlay_enabled',
+			slug: 'overlay',
 			title: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
 			illustration: <OverlayIllustration />,
 			previewUrl: canShowBlockThemeEditorLinks
@@ -95,6 +106,7 @@ export function SubscriptionsSection( {
 		},
 		{
 			key: 'sm_enabled',
+			slug: 'modal',
 			title: __( 'Subscription pop-up in post', 'jetpack-newsletter' ),
 			illustration: <PopupIllustration />,
 			previewUrl: canShowBlockThemeEditorLinks
@@ -107,6 +119,7 @@ export function SubscriptionsSection( {
 		},
 		{
 			key: 'jetpack_subscriptions_subscribe_post_end_enabled',
+			slug: 'post_end',
 			title: __( 'Subscribe block at the end of each post', 'jetpack-newsletter' ),
 			illustration: <EndOfPostIllustration />,
 			previewUrl: canShowSubscriptionEditorLinks
@@ -119,6 +132,7 @@ export function SubscriptionsSection( {
 		},
 		{
 			key: 'jetpack_subscribe_floating_button_enabled',
+			slug: 'floating_button',
 			title: __( 'Floating button on bottom corner', 'jetpack-newsletter' ),
 			illustration: <FloatingIllustration />,
 			previewUrl: canShowBlockThemeEditorLinks
@@ -131,14 +145,41 @@ export function SubscriptionsSection( {
 		},
 	];
 
+	// Map setting key -> placement slug for analytics. The PlacementCard's
+	// onChange/onPreviewClick callbacks identify the row by its setting key
+	// (the `name` prop), so we resolve back to the readable slug here.
+	const placementSlugByKey: Record< string, string > = Object.fromEntries(
+		placements.map( p => [ String( p.key ), p.slug ] )
+	);
+
 	// Single change handler shared across the whole placement grid. The
 	// PlacementCard's `name` prop carries the setting key, so we don't need
-	// to bind a closure per row in render.
+	// to bind a closure per row in render. Per-placement Tracks event
+	// `jetpack_newsletter_placement_toggle` fires alongside the state
+	// update so we can see which placements are toggled before any save.
 	const handlePlacementChange = useCallback(
 		( key: string, next: boolean ) => {
+			analytics.tracks.recordEvent( 'jetpack_newsletter_placement_toggle', {
+				site_type: siteType,
+				placement: placementSlugByKey[ key ] ?? key,
+				enabled: next,
+			} );
 			onChange( { [ key ]: next } as Partial< NewsletterSettings > );
 		},
-		[ onChange ]
+		[ onChange, placementSlugByKey, siteType ]
+	);
+
+	// Preview-and-edit click on a placement card. Mirrors the navigation
+	// `jetpack_newsletter_edit_link_click` event but tags it with the
+	// placement slug so we can filter by which card was opened.
+	const handlePlacementPreviewClick = useCallback(
+		( key: string ) => {
+			analytics.tracks.recordEvent( 'jetpack_newsletter_placement_preview_click', {
+				site_type: siteType,
+				placement: placementSlugByKey[ key ] ?? key,
+			} );
+		},
+		[ placementSlugByKey, siteType ]
 	);
 
 	// Per-toggle stable handlers for the Navigation + Comments groups. Each
@@ -215,6 +256,7 @@ export function SubscriptionsSection( {
 										previewUrl={ placement.previewUrl }
 										checked={ Boolean( data[ placement.key ] ) }
 										onChange={ handlePlacementChange }
+										onPreviewClick={ handlePlacementPreviewClick }
 										disabled={ ! isNewsletterEnabled }
 									/>
 								) ) }
