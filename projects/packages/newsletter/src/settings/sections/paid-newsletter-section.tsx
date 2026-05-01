@@ -6,7 +6,8 @@ import { getSiteType } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Text } from '@wordpress/ui';
+import { external } from '@wordpress/icons';
+import { Card, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -30,7 +31,6 @@ export function PaidNewsletterSection( {
 	const siteType = getSiteType();
 	const newsletterScriptData = getNewsletterScriptData();
 
-	// Track paid plans button click
 	const handlePaidPlansClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_paid_plans_click', {
 			site_type: siteType,
@@ -42,10 +42,9 @@ export function PaidNewsletterSection( {
 		return null;
 	}
 
-	// Button text based on whether they have an active plan
-	const addPlansText = __( 'Add plans', 'jetpack-newsletter' );
-	const managePlansText = __( 'Manage plans', 'jetpack-newsletter' );
-	const buttonText = hasActivePlan ? managePlansText : addPlansText;
+	const buttonText = hasActivePlan
+		? __( 'Manage plans', 'jetpack-newsletter' )
+		: __( 'Add plans', 'jetpack-newsletter' );
 
 	return (
 		<Card.Root>
@@ -53,27 +52,32 @@ export function PaidNewsletterSection( {
 				<Card.Title>{ __( 'Paid newsletter', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<p>
+				<Stack direction="column" gap="lg">
 					<Text>
 						{ __(
 							'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
 							'jetpack-newsletter'
 						) }
 					</Text>
-				</p>
-				<fieldset disabled={ ! isNewsletterEnabled }>
-					<Button
-						__next40pxDefaultSize
-						variant="primary"
-						href={ newsletterScriptData.setupPaymentPlansUrl }
-						target="_blank"
-						rel="noopener noreferrer"
+					<fieldset
+						className="jetpack-newsletter-section__fieldset"
 						disabled={ ! isNewsletterEnabled }
-						onClick={ handlePaidPlansClick }
 					>
-						{ buttonText }
-					</Button>
-				</fieldset>
+						<Button
+							size="compact"
+							variant="primary"
+							href={ newsletterScriptData.setupPaymentPlansUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							icon={ external }
+							iconPosition="right"
+							disabled={ ! isNewsletterEnabled }
+							onClick={ handlePaidPlansClick }
+						>
+							{ buttonText }
+						</Button>
+					</fieldset>
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);
