@@ -48,39 +48,6 @@
 	.jp-search-dashboard-toggle {
 		margin-bottom: 1.5em;
 	}
-
-	.components-base-control__label {
-		font-size: 1em;
-		font-weight: 600;
-		color: variables.$jp-black;
-	}
-
-	textarea.components-textarea-control__input {
-		font-size: 0.9375em;
-		line-height: 1.6;
-		color: variables.$jp-black-80;
-		border-color: variables.$jp-gray;
-		border-radius: variables.$jp-border-radius;
-
-		&:focus {
-			border-color: variables.$jp-black-80;
-			box-shadow: 0 0 0 1px variables.$jp-black-80;
-		}
-	}
-
-	.components-notice {
-		margin: 0 0 1.5em;
-
-		ol {
-			margin: 0.5em 0 0 1.5em;
-			padding: 0;
-
-			li {
-				margin-bottom: 0.5em;
-				line-height: 1.5;
-			}
-		}
-	}
 }
 
 .jp-search-ai-answers-tab__actions {
@@ -88,14 +55,6 @@
 	align-items: center;
 	gap: 1em;
 	margin-top: 0.5em;
-
-	.components-button.is-primary {
-		font-size: 1em;
-		font-weight: 500;
-		padding: 0.5em 1.5em;
-		min-height: 2.5em;
-		border-radius: variables.$jp-border-radius;
-	}
 }
 
 .jp-search-ai-answers-tab__error {

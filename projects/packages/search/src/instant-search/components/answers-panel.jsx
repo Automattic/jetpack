@@ -53,7 +53,7 @@ export default function AnswersPanel( { status, text, citations = [], error = nu
 
 	if ( status === 'error' ) {
 		return (
-			<div className="jp-search-answers-panel jp-search-answers-panel--error" aria-live="polite">
+			<div className="jp-search-answers-panel jp-search-answers-panel--error" role="alert">
 				<h2 className="jp-search-answers-panel__heading">
 					{ __( 'AI answer', 'jetpack-search-pkg' ) }
 				</h2>

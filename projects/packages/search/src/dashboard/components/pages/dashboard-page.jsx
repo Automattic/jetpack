@@ -1,13 +1,8 @@
-import {
-	AdminPage,
-	Button,
-	Container,
-	Col,
-	getProductCheckoutUrl,
-} from '@automattic/jetpack-components';
+import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Stack, Tabs } from '@wordpress/ui';
 import { useState } from 'react';
 import AiAnswersTab from 'components/ai-answers-tab';
 import NoticesList from 'components/global-notices';
@@ -15,7 +10,6 @@ import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
-import DashboardTabs from 'components/tabs';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
@@ -130,9 +124,17 @@ export default function DashboardPage( { isLoading = false } ) {
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
 			>
-				<DashboardTabs activeTab={ activeTab } onTabChange={ setActiveTab } />
-				{ activeTab === 'plan-usage' && (
-					<>
+				<Tabs.Root value={ activeTab } onValueChange={ setActiveTab }>
+					<Tabs.List>
+						<Tabs.Tab value="plan-usage">{ __( 'Plan & Usage', 'jetpack-search-pkg' ) }</Tabs.Tab>
+						<Tabs.Tab value="ai-answers">
+							{ __( 'AI Answers', 'jetpack-search-pkg' ) }{ ' ' }
+							<span className="jp-search-dashboard-tabs__tab-preview-label">
+								{ __( '(Preview)', 'jetpack-search-pkg' ) }
+							</span>
+						</Tabs.Tab>
+					</Tabs.List>
+					<Tabs.Panel value="plan-usage">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
 							<div className="jp-search-dashboard-row">
@@ -152,11 +154,9 @@ export default function DashboardPage( { isLoading = false } ) {
 						{ ! isPageLoading && (
 							<>
 								{ hasConnectionError && (
-									<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-										<Col lg={ 12 } md={ 12 } sm={ 12 }>
-											<ConnectionError />
-										</Col>
-									</Container>
+									<Stack direction="column">
+										<ConnectionError />
+									</Stack>
 								) }
 								{ isNewPricing && supportsInstantSearch && (
 									<PlanInfo
@@ -198,9 +198,11 @@ export default function DashboardPage( { isLoading = false } ) {
 								/>
 							</>
 						) }
-					</>
-				) }
-				{ activeTab === 'ai-answers' && <AiAnswersTab /> }
+					</Tabs.Panel>
+					<Tabs.Panel value="ai-answers">
+						<AiAnswersTab />
+					</Tabs.Panel>
+				</Tabs.Root>
 			</AdminPage>
 		</div>
 	);

@@ -1,23 +1,13 @@
-import apiFetch from '@wordpress/api-fetch';
-import {
-	Button,
-	ExternalLink,
-	Notice,
-	TextareaControl,
-	ToggleControl,
-} from '@wordpress/components';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
+import { Button, Link, Notice } from '@wordpress/ui';
+import useAiAnswersSettings, { DEFAULT_PERSONALITY } from 'hooks/use-ai-answers-settings';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
 import './style.scss';
-
-const REST_BASE = '/wp/v2/guidelines';
-const DEFAULT_PERSONALITY = __(
-	'You are a search results summarizer for Jetpack Search. Your job is to summarize the best available successful search results in a succinct manner.',
-	'jetpack-search-pkg'
-);
 
 /**
  * AiAnswersTab component for configuring AI Answers settings.
@@ -31,10 +21,8 @@ export default function AiAnswersTab() {
 	);
 	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan(), [] );
 	const isAiAnswersEnabled = useSelect( select => select( STORE_ID ).isAiAnswersEnabled(), [] );
-	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { updateJetpackSettings } = useDispatch( STORE_ID );
 
@@ -43,65 +31,13 @@ export default function AiAnswersTab() {
 		adminUrl: siteAdminUrl,
 		redirectUri: 'admin.php?page=jetpack-search&just_upgraded=1',
 		from: 'jetpack-search',
-		siteSuffix: domain,
+		siteSuffix: getSiteFragment(),
 		blogID,
-		isWpcom,
+		isWpcom: isWpcomPlatformSite(),
 	} );
 
-	// Personality textarea state (migrated from BehaviorTab)
-	const [ content, setContent ] = useState( '' );
-	const [ postId, setPostId ] = useState( null );
-	const [ isSaving, setIsSaving ] = useState( false );
-	const [ isLoading, setIsLoading ] = useState( true );
-	const [ error, setError ] = useState( null );
-	const [ saved, setSaved ] = useState( false );
-	const [ isUnavailable, setIsUnavailable ] = useState( false );
-
-	useEffect( () => {
-		apiFetch( { path: REST_BASE } )
-			.then( posts => {
-				const post = Array.isArray( posts ) ? posts[ 0 ] : posts;
-				// id === 0 means no guidelines exist yet (singleton empty response).
-				if ( post && post.id ) {
-					setPostId( post.id );
-					setContent(
-						post.guideline_categories?.blocks?.[ 'jetpack/search-ai-summary' ]?.guidelines ?? ''
-					);
-				}
-			} )
-			.catch( err => {
-				if ( err.code === 'rest_no_route' || err.data?.status === 404 ) {
-					setIsUnavailable( true );
-				} else {
-					setError( err.message );
-				}
-			} )
-			.finally( () => setIsLoading( false ) );
-	}, [] );
-
-	const savePersonality = () => {
-		setIsSaving( true );
-		setSaved( false );
-		setError( null );
-		const path = postId ? `${ REST_BASE }/${ postId }` : REST_BASE;
-		const method = postId ? 'PATCH' : 'POST';
-		apiFetch( {
-			path,
-			method,
-			data: {
-				status: 'publish',
-				guideline_categories: {
-					blocks: { 'jetpack/search-ai-summary': { guidelines: content || DEFAULT_PERSONALITY } },
-				},
-			},
-		} )
-			.then( post => {
-				setPostId( post.id );
-				setSaved( true );
-			} )
-			.catch( err => setError( err.message ) )
-			.finally( () => setIsSaving( false ) );
-	};
+	const { content, setContent, isSaving, isLoading, error, saved, isUnavailable, savePersonality } =
+		useAiAnswersSettings();
 
 	const settingsClassName = [
 		'jp-search-ai-answers-tab__settings',
@@ -137,7 +73,7 @@ export default function AiAnswersTab() {
 										) }
 									</li>
 								</ul>
-								<Button variant="primary" onClick={ sendToCart }>
+								<Button variant="solid" onClick={ sendToCart }>
 									{ __( 'Upgrade now', 'jetpack-search-pkg' ) }
 								</Button>
 							</div>
@@ -171,12 +107,13 @@ export default function AiAnswersTab() {
 									/>
 									<div className="jp-search-ai-answers-tab__actions">
 										<Button
-											variant="primary"
+											variant="solid"
 											onClick={ savePersonality }
-											isBusy={ isSaving }
 											disabled={ isSaving || ! isAiAnswersEnabled }
 										>
-											{ __( 'Save', 'jetpack-search-pkg' ) }
+											{ isSaving
+												? __( 'Saving…', 'jetpack-search-pkg' )
+												: __( 'Save', 'jetpack-search-pkg' ) }
 										</Button>
 										{ saved && (
 											<span className="jp-search-ai-answers-tab__saved">
@@ -188,33 +125,36 @@ export default function AiAnswersTab() {
 							) }
 
 							{ ! isLoading && isUnavailable && (
-								<Notice status="warning" isDismissible={ false }>
-									<p>
+								<Notice.Root intent="warning">
+									<Notice.Title>
 										{ __(
 											'Personality instructions require the Gutenberg Guidelines feature. To enable it:',
 											'jetpack-search-pkg'
 										) }
-									</p>
-									<ol>
-										<li>
-											{ __(
-												'Install or update to Gutenberg 22.7 or later.',
-												'jetpack-search-pkg'
-											) }
-										</li>
-										<li>
-											{ __(
-												'Go to Settings → Gutenberg → Experiments and enable "Guidelines".',
-												'jetpack-search-pkg'
-											) }{ ' ' }
-											<ExternalLink
-												href={ `${ siteAdminUrl }admin.php?page=gutenberg-experiments` }
-											>
-												{ __( 'Open Experiments page', 'jetpack-search-pkg' ) }
-											</ExternalLink>
-										</li>
-									</ol>
-								</Notice>
+									</Notice.Title>
+									<Notice.Description>
+										<ol>
+											<li>
+												{ __(
+													'Install or update to Gutenberg 22.7 or later.',
+													'jetpack-search-pkg'
+												) }
+											</li>
+											<li>
+												{ __(
+													'Go to Settings → Gutenberg → Experiments and enable "Guidelines".',
+													'jetpack-search-pkg'
+												) }{ ' ' }
+												<Link
+													href={ `${ siteAdminUrl }admin.php?page=gutenberg-experiments` }
+													openInNewTab
+												>
+													{ __( 'Open Experiments page', 'jetpack-search-pkg' ) }
+												</Link>
+											</li>
+										</ol>
+									</Notice.Description>
+								</Notice.Root>
 							) }
 						</div>
 					</div>
