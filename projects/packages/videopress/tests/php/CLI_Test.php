@@ -89,6 +89,22 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Squat on a post ID with an unrelated post so the import collides with it.
+	 *
+	 * @param int $post_id Post ID to occupy.
+	 */
+	protected function add_squatter_post( $post_id ) {
+		Posts::init()->posts[ $post_id ] = (object) array(
+			'ID'             => $post_id,
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'post_title'     => 'Squatter',
+			'post_mime_type' => '',
+		);
+		wp_cache_add( $post_id, Posts::init()->posts[ $post_id ], 'posts' );
+	}
+
+	/**
 	 * Mock video data for the current test.
 	 *
 	 * @var object|null
@@ -233,7 +249,7 @@ class CLI_Test extends BaseTestCase {
 		$this->assertStringContainsString( '2 imported', $log );
 		$this->assertStringContainsString( '0 failed', $log );
 		// Pin the per-GUID success line format so the imported message contract doesn't drift silently.
-		$this->assertStringContainsString( '-> attachment', $log );
+		$this->assertStringContainsString( 'Imported as Attachment ID', $log );
 	}
 
 	/**
@@ -254,8 +270,9 @@ class CLI_Test extends BaseTestCase {
 		$this->assertTrue( $exception_thrown, 'Batch with failures should exit via WP_CLI::error.' );
 		$log = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
 		$this->assertStringContainsString( '1 failed', $log );
-		// Invalid GUIDs are bucketed as failures; the per-line output must say so, not "skipped".
-		$this->assertStringContainsString( 'FAIL: Invalid GUID.', $log );
+		// Invalid GUIDs are bucketed as failures; the per-line output must say so, not "skipped",
+		// and must echo the offending GUID for paste/typo diagnosis.
+		$this->assertStringContainsString( 'FAIL: Invalid GUID: not a guid', $log );
 	}
 
 	/**
@@ -291,23 +308,25 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test batch_import --dry-run --no-preserve-id reports a fresh-ID would-import line.
+	 * Test batch_import --dry-run --force on an ID collision reports a fresh-ID fallback.
 	 */
-	public function test_batch_import_dry_run_fresh_id_message() {
-		$guid = 'aaaaaaaa';
+	public function test_batch_import_dry_run_force_collision_falls_back() {
+		$guid             = 'aaaaaaaa';
+		$original_post_id = 90221;
 		$this->clear_video_cache( $guid );
+		$this->add_squatter_post( $original_post_id );
 
 		$file = tempnam( sys_get_temp_dir(), 'guids' );
 		file_put_contents( $file, "$guid\n" );
 
-		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90221 ) );
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
 
 		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
 		( new CLI() )->batch_import(
 			array( $file ),
 			array(
-				'dry-run'     => true,
-				'preserve-id' => false,
+				'dry-run' => true,
+				'force'   => true,
 			)
 		);
 		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
@@ -315,6 +334,7 @@ class CLI_Test extends BaseTestCase {
 
 		$log = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
 		$this->assertStringContainsString( 'fresh auto-incremented ID', $log );
+		$this->assertStringContainsString( (string) $original_post_id, $log );
 	}
 
 	/**
@@ -339,28 +359,20 @@ class CLI_Test extends BaseTestCase {
 
 		$this->assertNull( $captured_data, 'Dry run should not invoke wp_insert_attachment.' );
 
-		$logs = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['log'] );
-		$this->assertStringContainsString( '90217', $logs );
-		$this->assertStringContainsString( '[dry-run]', $logs );
+		// Single-mode import() emits the would-import line via WP_CLI::success.
+		$success = implode( "\n", Mock_WP_CLI_Output_Capture::$captured['success'] );
+		$this->assertStringContainsString( '90217', $success );
+		$this->assertStringContainsString( '[dry-run]', $success );
 	}
 
 	/**
-	 * Test --dry-run reports a collision without raising it as a failure-causing error.
+	 * Test --dry-run with default flags surfaces a collision via WP_CLI::error.
 	 */
 	public function test_import_dry_run_reports_collision_as_error() {
 		$guid             = 'abc12345';
 		$original_post_id = 90218;
 		$this->clear_video_cache( $guid );
-
-		// Squat on the original ID with an unrelated post.
-		Posts::init()->posts[ $original_post_id ] = (object) array(
-			'ID'             => $original_post_id,
-			'post_type'      => 'page',
-			'post_status'    => 'publish',
-			'post_title'     => 'Squatter',
-			'post_mime_type' => '',
-		);
-		wp_cache_add( $original_post_id, Posts::init()->posts[ $original_post_id ], 'posts' );
+		$this->add_squatter_post( $original_post_id );
 
 		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
 
@@ -370,8 +382,8 @@ class CLI_Test extends BaseTestCase {
 			( new CLI() )->import( array( $guid ), array( 'dry-run' => true ) );
 		} catch ( \WP_CLI\ExitException $e ) {
 			$exception_thrown = true;
-			$this->assertStringContainsString( '[dry-run]', $e->getMessage() );
 			$this->assertStringContainsString( (string) $original_post_id, $e->getMessage() );
+			$this->assertStringContainsString( '--force', $e->getMessage() );
 		}
 		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
 
@@ -379,12 +391,50 @@ class CLI_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test import command propagates --no-preserve-id to the helper.
+	 * Test that without --force, an ID collision aborts the real run without touching the squatter.
 	 */
-	public function test_import_no_preserve_id_skips_import_id() {
-		$guid = 'abc12345';
+	public function test_import_refuses_id_collision_without_force() {
+		$guid             = 'abc12345';
+		$original_post_id = 90230;
 		$this->clear_video_cache( $guid );
-		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => 90215 ) );
+		$this->add_squatter_post( $original_post_id );
+
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
+
+		$captured_data = null;
+		$capture       = function ( $data ) use ( &$captured_data ) {
+			$captured_data = $data;
+			return $data;
+		};
+
+		add_filter( 'wp_insert_attachment_data', $capture, 5 );
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+		$exception_thrown = false;
+		try {
+			( new CLI() )->import( array( $guid ), array() );
+		} catch ( \WP_CLI\ExitException $e ) {
+			$exception_thrown = true;
+			$this->assertStringContainsString( '--force', $e->getMessage() );
+			$this->assertStringContainsString( (string) $original_post_id, $e->getMessage() );
+		}
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
+		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
+
+		$this->assertTrue( $exception_thrown );
+		$this->assertNull( $captured_data, 'Refusing on collision must not call wp_insert_attachment.' );
+		$this->assertNotNull( get_post( $original_post_id ), 'Squatter must remain untouched.' );
+	}
+
+	/**
+	 * Test --force on an ID collision falls back to a fresh ID instead of failing.
+	 */
+	public function test_import_force_falls_back_on_id_collision() {
+		$guid             = 'abc12345';
+		$original_post_id = 90219;
+		$this->clear_video_cache( $guid );
+		$this->add_squatter_post( $original_post_id );
+
+		$this->mock_video_data = $this->get_mock_video_data( array( 'post_id' => $original_post_id ) );
 
 		$captured_postarr = null;
 		$capture          = function ( $data, $postarr ) use ( &$captured_postarr ) {
@@ -394,12 +444,15 @@ class CLI_Test extends BaseTestCase {
 
 		add_filter( 'wp_insert_attachment_data', $capture, 5, 2 );
 		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
-		( new CLI() )->import( array( $guid ), array( 'preserve-id' => false ) );
+		( new CLI() )->import( array( $guid ), array( 'force' => true ) );
 		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
 		remove_filter( 'wp_insert_attachment_data', $capture, 5 );
 
+		// --force on a collision should drop import_id (fall back to fresh) without touching the squatter.
 		$this->assertIsArray( $captured_postarr );
-		$this->assertEmpty( $captured_postarr['import_id'] ?? null );
+		$this->assertEmpty( $captured_postarr['import_id'] ?? null, '--force should NOT preserve the colliding ID.' );
+		// The squatter must remain.
+		$this->assertNotNull( get_post( $original_post_id ) );
 	}
 
 	/**
@@ -537,6 +590,11 @@ class CLI_Test extends BaseTestCase {
 		$fake_post_id = 999999;
 		set_transient( videopress_get_post_id_by_guid_cache_key( $guid ), $fake_post_id, HOUR_IN_SECONDS );
 
+		// process_import() fetches video metadata before attempting the force-delete now,
+		// so we need to mock the API for it to reach the delete-attempt branch.
+		$this->mock_video_data = $this->get_mock_video_data();
+		add_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10, 3 );
+
 		$cli = new CLI();
 
 		$exception_thrown = false;
@@ -546,6 +604,7 @@ class CLI_Test extends BaseTestCase {
 			$exception_thrown = true;
 			$this->assertStringContainsString( (string) $fake_post_id, $e->getMessage() );
 		}
+		remove_filter( 'pre_http_request', array( $this, 'filter_mock_videopress_api' ), 10 );
 
 		$this->assertTrue( $exception_thrown, 'Expected error when deletion fails' );
 

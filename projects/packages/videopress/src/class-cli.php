@@ -21,18 +21,21 @@ class CLI extends WP_CLI_Command {
 	 *
 	 * Creates a local media library attachment for a VideoPress video by GUID.
 	 *
+	 * By default the new attachment reuses the post ID it had on WordPress.com so the
+	 * `videos.post_id` relationship recorded there stays intact. If that ID is already
+	 * occupied locally by an unrelated post, the import is refused — pass `--force` to
+	 * fall back to a fresh auto-incremented ID instead.
+	 *
 	 * ## OPTIONS
 	 *
 	 * <guid>
 	 * : The GUID of the video to import.
 	 *
 	 * [--force]
-	 * : Delete any existing attachment for this GUID and create a new one.
-	 *
-	 * [--no-preserve-id]
-	 * : Skip reusing the original WordPress.com attachment ID. By default the new attachment is
-	 * inserted with the same ID it had on WordPress.com (when known) so the wpcom video table
-	 * relationship stays intact. Pass this flag to fall back to a fresh auto-incremented ID.
+	 * : Resolve conflicts instead of refusing. If a same-GUID attachment already exists,
+	 * it is deleted and re-imported. If the original WordPress.com post ID is occupied
+	 * by an unrelated post, that post is left alone and the new attachment is given a
+	 * fresh auto-incremented ID.
 	 *
 	 * [--parent-id=<id>]
 	 * : Attach the new attachment to a specific parent post. Useful for one-off operator
@@ -48,7 +51,6 @@ class CLI extends WP_CLI_Command {
 	 *
 	 *     wp videopress import kUJmAcSf
 	 *     wp videopress import kUJmAcSf --force
-	 *     wp videopress import kUJmAcSf --no-preserve-id
 	 *     wp videopress import kUJmAcSf --parent-id=42
 	 *     wp videopress import kUJmAcSf --dry-run
 	 *
@@ -63,56 +65,37 @@ class CLI extends WP_CLI_Command {
 			WP_CLI::error( 'You must provide a VideoPress GUID.' );
 		}
 
-		$guid        = $args[0];
-		$force       = (bool) get_flag_value( $assoc_args, 'force', false );
-		$preserve_id = (bool) get_flag_value( $assoc_args, 'preserve-id', true );
-		$parent_id   = (int) get_flag_value( $assoc_args, 'parent-id', 0 );
-		$dry_run     = (bool) get_flag_value( $assoc_args, 'dry-run', false );
+		$result = $this->process_import(
+			$args[0],
+			(bool) get_flag_value( $assoc_args, 'force', false ),
+			(int) get_flag_value( $assoc_args, 'parent-id', 0 ),
+			(bool) get_flag_value( $assoc_args, 'dry-run', false )
+		);
 
-		if ( $dry_run ) {
-			$this->import_dry_run( $guid, $force, $preserve_id, $parent_id );
-			return;
-		}
-
-		$existing_post_id = videopress_get_post_id_by_guid( $guid );
-
-		if ( $existing_post_id ) {
-			if ( ! $force ) {
-				WP_CLI::warning( sprintf( 'Video already exists as Attachment ID %d. Use --force to re-import.', $existing_post_id ) );
-				return;
-			}
-
-			$deleted = wp_delete_attachment( $existing_post_id, true );
-			if ( ! $deleted ) {
-				WP_CLI::error( sprintf( 'Failed to delete existing Attachment ID %d.', $existing_post_id ) );
-			}
-
-			delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
-			WP_CLI::log( sprintf( 'Deleted existing Attachment ID %d.', $existing_post_id ) );
-		}
-
-		$attachment_id = create_local_media_library_for_videopress_guid( $guid, $parent_id, $preserve_id );
-
-		if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
-			WP_CLI::success( sprintf( 'The video has been imported as Attachment ID %d.', $attachment_id ) );
-		} else {
-			$message = is_wp_error( $attachment_id )
-				? $attachment_id->get_error_message()
-				: 'An unknown error has been encountered.';
-			WP_CLI::error( $message );
+		switch ( $result['status'] ) {
+			case 'imported':
+				WP_CLI::success( $result['message'] );
+				break;
+			case 'skipped':
+				WP_CLI::warning( $result['message'] );
+				break;
+			case 'failed':
+			default:
+				WP_CLI::error( $result['message'] );
+				break;
 		}
 	}
 
 	/**
 	 * Import multiple VideoPress videos by GUID in one CLI run.
 	 *
-	 * Reads GUIDs (one per line) from a file or stdin and calls the same per-video import
+	 * Reads GUIDs (one per line) from a file or stdin and runs the same per-video import
 	 * pipeline as `wp videopress import`. Lines that are blank or start with `#` are ignored.
 	 * On completion, prints a summary of imported / skipped / failed counts.
 	 *
 	 * Compared to `xargs -I {} wp videopress import {}`, this runs in a single PHP process
-	 * (no per-GUID bootstrap), keeps a unified summary, and lets dry-run preview the whole
-	 * batch without applying anything.
+	 * (no per-GUID WordPress bootstrap), keeps a unified summary, and lets dry-run preview
+	 * the whole batch without applying anything.
 	 *
 	 * ## OPTIONS
 	 *
@@ -120,10 +103,7 @@ class CLI extends WP_CLI_Command {
 	 * : Path to a file containing GUIDs (one per line). Pass `-` or omit to read from stdin.
 	 *
 	 * [--force]
-	 * : Re-import videos that already exist locally (deletes the existing attachment first).
-	 *
-	 * [--no-preserve-id]
-	 * : Skip reusing the original WordPress.com attachment ID.
+	 * : Resolve conflicts instead of refusing. See `wp videopress import --help`.
 	 *
 	 * [--dry-run]
 	 * : Report what would happen for each GUID without mutating state.
@@ -151,22 +131,15 @@ class CLI extends WP_CLI_Command {
 			WP_CLI::error( 'No GUIDs provided.' );
 		}
 
-		$dry_run     = (bool) get_flag_value( $assoc_args, 'dry-run', false );
-		$force       = (bool) get_flag_value( $assoc_args, 'force', false );
-		$preserve_id = (bool) get_flag_value( $assoc_args, 'preserve-id', true );
+		$dry_run = (bool) get_flag_value( $assoc_args, 'dry-run', false );
+		$force   = (bool) get_flag_value( $assoc_args, 'force', false );
 
 		$imported = array();
 		$skipped  = array();
 		$failed   = array();
 
 		foreach ( $guids as $guid ) {
-			if ( ! videopress_is_valid_guid( $guid ) ) {
-				$failed[ $guid ] = 'Invalid GUID.';
-				WP_CLI::log( sprintf( '[%s] FAIL: %s', $guid, $failed[ $guid ] ) );
-				continue;
-			}
-
-			$result = $this->import_one_for_batch( $guid, $force, $preserve_id, $dry_run );
+			$result = $this->process_import( $guid, $force, 0, $dry_run );
 
 			switch ( $result['status'] ) {
 				case 'imported':
@@ -236,47 +209,102 @@ class CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Run a single-GUID import for batch mode and return a structured result.
+	 * Run a single-GUID import and return a structured result.
 	 *
-	 * Mirrors the import() command's logic but returns instead of calling WP_CLI::error/success,
-	 * so failures don't abort the whole batch. The caller logs `message` verbatim for every
-	 * status, so each status's message must be self-contained:
-	 *   - 'imported': real ID for a real run; the would-be ID for a dry run (0 if not preserved).
+	 * Single source of truth for both `wp videopress import` and `wp videopress batch-import`:
+	 * returns instead of calling WP_CLI::error/success so the caller can present the result
+	 * how it wants (success/warning/error in single mode; one log line per GUID in batch mode).
+	 *
+	 * The `message` is self-contained for every status so callers can log it verbatim.
+	 *   - 'imported': real ID for a real run; the would-be ID for a dry run (0 for fresh ID).
 	 *   - 'skipped' / 'failed': always 0 — the relevant ID is interpolated into `message`.
 	 *
 	 * @param string $guid Video GUID.
-	 * @param bool   $force Whether to delete existing attachments before importing.
-	 * @param bool   $preserve_id Whether to preserve the original wpcom post ID.
+	 * @param bool   $force Resolve conflicts (delete same-GUID attachment, fall back to fresh ID on collision) instead of refusing.
+	 * @param int    $parent_id Parent post ID, 0 for unattached.
 	 * @param bool   $dry_run If true, no state is mutated.
 	 * @return array{status:'imported'|'skipped'|'failed',attachment_id:int,message:string}
 	 */
-	private function import_one_for_batch( $guid, $force, $preserve_id, $dry_run ) {
+	private function process_import( $guid, $force, $parent_id, $dry_run ) {
+		if ( ! videopress_is_valid_guid( $guid ) ) {
+			return $this->fail( sprintf( 'Invalid GUID: %s', $guid ) );
+		}
+
 		$existing_post_id = videopress_get_post_id_by_guid( $guid );
 
 		if ( $existing_post_id && ! $force ) {
+			$message = sprintf( 'Already imported as Attachment ID %d. Use --force to re-import.', $existing_post_id );
+			if ( $dry_run ) {
+				$message = '[dry-run] Would skip — ' . $message;
+			}
 			return array(
 				'status'        => 'skipped',
 				'attachment_id' => 0,
-				'message'       => sprintf( 'Already imported as Attachment ID %d. Use --force to re-import.', $existing_post_id ),
+				'message'       => $message,
 			);
 		}
 
-		if ( $dry_run ) {
-			$vp_data = videopress_get_video_details( $guid );
-			if ( is_wp_error( $vp_data ) ) {
-				return array(
-					'status'        => 'failed',
-					'attachment_id' => 0,
-					'message'       => $vp_data->get_error_message(),
-				);
+		// Fetch the wpcom metadata once. Used for the ownership/collision pre-flight below
+		// and for the actual import. videopress_get_video_details() caches in a transient,
+		// so create_local_media_library_for_videopress_guid() reuses this fetch.
+		$vp_data = videopress_get_video_details( $guid );
+		if ( is_wp_error( $vp_data ) ) {
+			return $this->fail( $vp_data->get_error_message() );
+		}
+
+		$current_blog_id = (int) \Jetpack_Options::get_option( 'id' );
+		if ( ! $current_blog_id ) {
+			return $this->fail( 'Site is not connected to WordPress.com.' );
+		}
+		$video_blog_id = (int) ( $vp_data->blog_id ?? 0 );
+		if ( $current_blog_id !== $video_blog_id ) {
+			return $this->fail( sprintf( 'Video belongs to a different site (blog %2$d, this site is %1$d).', $current_blog_id, $video_blog_id ) );
+		}
+
+		// Decide whether to preserve the original post ID. If it's occupied by an unrelated
+		// post, default behavior refuses; --force falls back to a fresh ID without touching
+		// the unrelated post.
+		$original_post_id = isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
+		$preserve_id      = $original_post_id > 0;
+		$collision_post   = null;
+
+		if ( $preserve_id ) {
+			$occupant = get_post( $original_post_id );
+			if ( $occupant && get_post_meta( $original_post_id, 'videopress_guid', true ) !== $guid ) {
+				if ( ! $force ) {
+					return $this->fail(
+						sprintf(
+							'Original Attachment ID %1$d is occupied by post type "%2$s". Pass --force to import with a fresh ID, or delete the conflicting post first.',
+							$original_post_id,
+							$occupant->post_type
+						)
+					);
+				}
+				$preserve_id    = false;
+				$collision_post = $occupant;
 			}
-			$target  = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
-			$message = $target > 0
-				? sprintf( '[dry-run] Would import as attachment %d (preserved from WordPress.com).', $target )
-				: '[dry-run] Would import with a fresh auto-incremented ID.';
+		}
+
+		if ( $dry_run ) {
+			if ( $collision_post ) {
+				$message = sprintf(
+					'[dry-run] Would import with a fresh auto-incremented ID (original ID %1$d is occupied by post type "%2$s").',
+					$original_post_id,
+					$collision_post->post_type
+				);
+			} elseif ( $preserve_id ) {
+				$message = sprintf( '[dry-run] Would import as attachment %d (preserved from WordPress.com).', $original_post_id );
+			} else {
+				$message = '[dry-run] Would import with a fresh auto-incremented ID.';
+			}
+			// Surface the destructive same-GUID delete that --force would perform on a real run,
+			// so dry-run is a faithful preview of mutations.
+			if ( $existing_post_id && $force ) {
+				$message = sprintf( '[dry-run] Would delete existing Attachment ID %d and re-import. ', $existing_post_id ) . $message;
+			}
 			return array(
 				'status'        => 'imported',
-				'attachment_id' => $target,
+				'attachment_id' => $preserve_id ? $original_post_id : 0,
 				'message'       => $message,
 			);
 		}
@@ -284,91 +312,45 @@ class CLI extends WP_CLI_Command {
 		if ( $existing_post_id && $force ) {
 			$deleted = wp_delete_attachment( $existing_post_id, true );
 			if ( ! $deleted ) {
-				return array(
-					'status'        => 'failed',
-					'attachment_id' => 0,
-					'message'       => sprintf( 'Failed to delete existing Attachment ID %d.', $existing_post_id ),
-				);
+				return $this->fail( sprintf( 'Failed to delete existing Attachment ID %d.', $existing_post_id ) );
 			}
 			delete_transient( videopress_get_post_id_by_guid_cache_key( $guid ) );
 		}
 
-		$attachment_id = create_local_media_library_for_videopress_guid( $guid, 0, $preserve_id );
+		$attachment_id = create_local_media_library_for_videopress_guid( $guid, $parent_id, $preserve_id );
 
 		if ( is_wp_error( $attachment_id ) ) {
-			return array(
-				'status'        => 'failed',
-				'attachment_id' => 0,
-				'message'       => $attachment_id->get_error_message(),
-			);
+			return $this->fail( $attachment_id->get_error_message() );
+		}
+		if ( ! $attachment_id ) {
+			return $this->fail( 'Unknown error during import.' );
 		}
 
-		if ( ! $attachment_id ) {
-			return array(
-				'status'        => 'failed',
-				'attachment_id' => 0,
-				'message'       => 'Unknown error during import.',
-			);
+		$attachment_id = (int) $attachment_id;
+		if ( $collision_post ) {
+			$message = sprintf( 'Imported as Attachment ID %1$d (fresh ID; original %2$d was occupied).', $attachment_id, $original_post_id );
+		} else {
+			$message = sprintf( 'Imported as Attachment ID %d.', $attachment_id );
 		}
 
 		return array(
 			'status'        => 'imported',
-			'attachment_id' => (int) $attachment_id,
-			'message'       => sprintf( '-> attachment %d', (int) $attachment_id ),
+			'attachment_id' => $attachment_id,
+			'message'       => $message,
 		);
 	}
 
 	/**
-	 * Report what `wp videopress import` would do for the given GUID without mutating state.
+	 * Build a 'failed' result with the given message.
 	 *
-	 * @param string $guid Video GUID.
-	 * @param bool   $force Whether --force was passed.
-	 * @param bool   $preserve_id Whether the original post ID would be preserved.
-	 * @param int    $parent_id Parent post ID, 0 for unattached.
+	 * @param string $message Failure message.
+	 * @return array{status:'failed',attachment_id:int,message:string}
 	 */
-	private function import_dry_run( $guid, $force, $preserve_id, $parent_id ) {
-		WP_CLI::log( '[dry-run] No changes will be written.' );
-
-		$vp_data = videopress_get_video_details( $guid );
-		if ( is_wp_error( $vp_data ) ) {
-			WP_CLI::error( $vp_data->get_error_message() );
-		}
-
-		$existing_post_id = videopress_get_post_id_by_guid( $guid );
-		if ( $existing_post_id ) {
-			$action = $force
-				? sprintf( '[dry-run] Would delete existing Attachment ID %d and re-import.', $existing_post_id )
-				: sprintf( '[dry-run] Would skip with warning — Attachment ID %d already exists. Use --force to re-import.', $existing_post_id );
-			WP_CLI::log( $action );
-			if ( ! $force ) {
-				return;
-			}
-		}
-
-		$current_blog_id = (int) \Jetpack_Options::get_option( 'id' );
-		$video_blog_id   = (int) ( $vp_data->blog_id ?? 0 );
-		if ( ! $current_blog_id ) {
-			WP_CLI::error( '[dry-run] Site is not connected to WordPress.com.' );
-		}
-		if ( $current_blog_id !== $video_blog_id ) {
-			WP_CLI::error( sprintf( '[dry-run] Video belongs to a different site (blog %2$d, this site is %1$d). Import would be refused.', $current_blog_id, $video_blog_id ) );
-		}
-
-		$original_post_id = $preserve_id && isset( $vp_data->post_id ) ? (int) $vp_data->post_id : 0;
-		if ( $original_post_id > 0 ) {
-			$existing = get_post( $original_post_id );
-			if ( $existing && get_post_meta( $original_post_id, 'videopress_guid', true ) !== $guid ) {
-				WP_CLI::error( sprintf( '[dry-run] Would refuse — original Attachment ID %1$d is occupied by post type "%2$s". Pass --no-preserve-id to import with a fresh ID, or delete the conflicting post first.', $original_post_id, $existing->post_type ) );
-			}
-			WP_CLI::log( sprintf( '[dry-run] Would create attachment with ID %d (preserved from WordPress.com).', $original_post_id ) );
-		} else {
-			WP_CLI::log( '[dry-run] Would create attachment with a fresh auto-incremented ID.' );
-		}
-
-		if ( $parent_id > 0 ) {
-			WP_CLI::log( sprintf( '[dry-run] Would attach to parent post %d.', $parent_id ) );
-		}
-
-		WP_CLI::success( '[dry-run] No errors detected. Re-run without --dry-run to apply.' );
+	private function fail( $message ) {
+		return array(
+			'status'        => 'failed',
+			'attachment_id' => 0,
+			'message'       => $message,
+		);
 	}
 }
