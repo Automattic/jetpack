@@ -1645,7 +1645,7 @@ const { state } = store( 'wpcom-write', {
 
 			const text = node.textContent;
 			// Show menu when the line starts with "/" and optionally a filter after it.
-			if ( /^\/\S*$/.test( text.trim() ) ) {
+			if ( /^\/\S*$/.test( text.trimStart() ) ) {
 				// User just dismissed the menu with Escape — skip this keyup cycle.
 				if ( slashMenuEscaped ) {
 					slashMenuEscaped = false;
@@ -1676,8 +1676,13 @@ const { state } = store( 'wpcom-write', {
 					item.style.display = show ? '' : 'none';
 					if ( show && ! firstVisible ) firstVisible = item;
 				} );
+				// Close the menu when no items match the filter.
+				if ( ! firstVisible ) {
+					state.showSlashMenu = false;
+					return;
+				}
 				// Auto-highlight the first visible item only when filter changes.
-				if ( filterChanged && firstVisible ) firstVisible.classList.add( 'bw-slash-item-active' );
+				if ( filterChanged ) firstVisible.classList.add( 'bw-slash-item-active' );
 			} else {
 				slashMenuEscaped = false;
 				prevSlashFilter = null;
