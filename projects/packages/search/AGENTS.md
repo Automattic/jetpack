@@ -1,4 +1,4 @@
-# Jetpack Search — Claude Notes
+# Jetpack Search
 
 ## UI Components
 
@@ -38,6 +38,17 @@ When unsure which component to use, the `@wordpress/design-system-mcp` MCP is co
 
 ## Testing
 
-- JS: `pnpm test-scripts` (from `projects/packages/search/`)
-- PHP: `jetpack test php packages/search -v` (from monorepo root)
+Always run all three suites when changing search code:
+
+```bash
+# JS tests (from projects/packages/search/)
+pnpm test-scripts
+
+# Search PHP tests
+jetpack test php packages/search -v
+
+# Sync PHP tests — search changes often affect the sync whitelist
+jetpack test php packages/sync -v
+```
+
 - Mock external packages in tests; mock custom hooks (`hooks/use-*`) rather than their internals
