@@ -142,6 +142,16 @@ class REST_Controller {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/' . self::REST_ROUTE_PREFIX . '/enqueue',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'post_scan_enqueue' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/' . self::REST_ROUTE_PREFIX . '/threats/fix-status',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -266,6 +276,18 @@ class REST_Controller {
 			array( 'threat_ids' => $ids ),
 			'scan_threats_fix'
 		);
+	}
+
+	/**
+	 * POST /site/scan/enqueue — trigger an immediate scan run.
+	 *
+	 * Proxies WPCOM `POST /sites/:siteId/scan/enqueue`. Same endpoint
+	 * Protect plugin's `Threats::scan()` already calls.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function post_scan_enqueue() {
+		return self::proxy_post( '/scan/enqueue', array(), 'scan_enqueue' );
 	}
 
 	/**

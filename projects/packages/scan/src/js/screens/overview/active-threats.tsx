@@ -8,6 +8,8 @@ import { siteScanQuery } from '../../data/query-options';
 import { useSetHeaderActions } from '../../header-actions-context';
 import BulkFixModal from './bulk-fix-modal';
 import EmptyState from './empty-state';
+import ScanNowButton from './scan-now-button';
+import ScanStatus from './scan-status';
 import { useThreatActions } from './use-threat-actions';
 import type { FC } from 'react';
 
@@ -37,29 +39,33 @@ const ActiveThreats: FC = () => {
 		[ threats ]
 	);
 
+	const scanState = data?.state;
+	const isScanRunning = scanState === 'enqueued' || scanState === 'running';
+
 	const [ isBulkFixOpen, setBulkFixOpen ] = useState( false );
 	const openBulkFix = useCallback( () => setBulkFixOpen( true ), [] );
 	const closeBulkFix = useCallback( () => setBulkFixOpen( false ), [] );
 
-	// Slot the "Auto-fix N threats" CTA into the AdminPage header whenever
-	// the Active tab has fixable threats. Cleared on tab switch / unmount
-	// so other tabs (History) don't inherit it.
+	// Slot the "Scan now" + optional "Auto-fix N threats" CTAs into the
+	// AdminPage header. Cleared on tab switch / unmount so the History tab
+	// doesn't inherit them.
 	useEffect( () => {
-		if ( fixableCount > 0 ) {
-			setHeaderActions(
-				<Button variant="primary" onClick={ openBulkFix } __next40pxDefaultSize>
-					{ sprintf(
-						/* translators: %d is the count of threats Jetpack Scan can auto-fix. */
-						_n( 'Auto-fix %d threat', 'Auto-fix %d threats', fixableCount, 'jetpack-scan-page' ),
-						fixableCount
-					) }
-				</Button>
-			);
-		} else {
-			setHeaderActions( null );
-		}
+		setHeaderActions(
+			<>
+				<ScanNowButton variant="secondary" disabled={ isScanRunning } />
+				{ fixableCount > 0 && ! isScanRunning && (
+					<Button variant="primary" onClick={ openBulkFix } __next40pxDefaultSize>
+						{ sprintf(
+							/* translators: %d is the count of threats Jetpack Scan can auto-fix. */
+							_n( 'Auto-fix %d threat', 'Auto-fix %d threats', fixableCount, 'jetpack-scan-page' ),
+							fixableCount
+						) }
+					</Button>
+				) }
+			</>
+		);
 		return () => setHeaderActions( null );
-	}, [ fixableCount, setHeaderActions, openBulkFix ] );
+	}, [ fixableCount, isScanRunning, setHeaderActions, openBulkFix ] );
 
 	if ( isLoading ) {
 		return <LoadingPlaceholder width="100%" height={ 400 } />;
@@ -69,6 +75,10 @@ const ActiveThreats: FC = () => {
 		return (
 			<p>{ __( 'Unable to load active threats. Please try again later.', 'jetpack-scan-page' ) }</p>
 		);
+	}
+
+	if ( isScanRunning ) {
+		return <ScanStatus state={ scanState } progress={ data?.current?.progress } />;
 	}
 
 	return (

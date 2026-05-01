@@ -55,6 +55,21 @@ export async function fetchSiteScanCounts(): Promise< SiteScanCountsResponse > {
 }
 
 /**
+ * Trigger a fresh scan via `POST /jetpack/v4/site/scan/enqueue`. Resolves
+ * to the WPCOM acknowledgement (typically `{ success: true }`); the
+ * `siteScanQuery` cache picks up the new state on its next refetch.
+ */
+export async function enqueueScan(): Promise< unknown > {
+	if ( isMockMode() ) {
+		return Promise.resolve( { success: true } );
+	}
+	return apiFetch( {
+		path: '/jetpack/v4/site/scan/enqueue',
+		method: 'POST',
+	} );
+}
+
+/**
  *
  * @param threatId
  */

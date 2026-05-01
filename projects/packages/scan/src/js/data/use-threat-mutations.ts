@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { fixThreats, ignoreThreat, unignoreThreat } from './fetchers';
+import { enqueueScan, fixThreats, ignoreThreat, unignoreThreat } from './fetchers';
 import type { FixThreatsResponse } from './types';
 
 // On any successful threat mutation we invalidate the three queries that
@@ -31,6 +31,21 @@ export function useUnignoreThreatMutation() {
 	const queryClient = useQueryClient();
 	return useMutation< unknown, Error, string | number >( {
 		mutationFn: threatId => unignoreThreat( threatId ),
+		onSuccess: () => {
+			queryClient.invalidateQueries( { queryKey: SCAN_QUERY_PREFIX } );
+		},
+	} );
+}
+
+/**
+ * Trigger a fresh scan run.
+ *
+ * @return TanStack mutation handle.
+ */
+export function useEnqueueScanMutation() {
+	const queryClient = useQueryClient();
+	return useMutation< unknown, Error, void >( {
+		mutationFn: () => enqueueScan(),
 		onSuccess: () => {
 			queryClient.invalidateQueries( { queryKey: SCAN_QUERY_PREFIX } );
 		},
