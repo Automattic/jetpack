@@ -15,9 +15,12 @@
  *   - `recovery_session_exited_at`     — wpcomsh-managed; updated on deletion
  *     of `{session_id}_paused_extensions`, i.e. when the admin exits recovery.
  *   - `recovery_session_errors`        — a list of `{kind, slug, version,
- *     errno, message, file, line}` records derived from the live
- *     `*_paused_extensions` option, so wpcom can surface what fataled rather
- *     than just that something fataled. Empty once the admin exits recovery.
+ *     errno, message, file, line}` records, so wpcom can surface what fataled
+ *     rather than just that something fataled. Sourced from the live
+ *     `*_paused_extensions` option once the admin enters recovery; on the
+ *     fatal request itself (before the admin clicks the email link) the list
+ *     is populated from `error_get_last()` so the very first POST already
+ *     carries the error info. Empty once the admin exits recovery.
  *
  * The POST runs from a PHP shutdown function so the signal reaches wpcom even
  * on fatal-error requests, matching the pattern used by migrate-guru-canary.
@@ -47,6 +50,16 @@ class WPCOMSH_Recovery_Mode_Sync {
 	private static $payload = array();
 
 	/**
+	 * Error record captured from `error_get_last()` at email-send time so the
+	 * fatal-request POST carries error info before the admin enters recovery
+	 * and `*_paused_extensions` exists. Null when no fatal has been captured
+	 * (or when the fatal didn't come from a known plugin/theme).
+	 *
+	 * @var array<string,mixed>|null
+	 */
+	private static $transient_fatal = null;
+
+	/**
 	 * Register option-change listeners.
 	 */
 	public static function init() {
@@ -66,6 +79,10 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 * Listener for the recovery-mode email timestamp.
 	 */
 	public static function capture_email_last_sent() {
+		// We're called inside WP's fatal-handler shutdown stack, so
+		// `error_get_last()` still holds the original fatal that caused WP to
+		// send the email. Snapshot it now so the snapshot below picks it up.
+		self::capture_current_fatal();
 		self::snapshot();
 		self::trace(
 			'captured email_last_sent',
@@ -226,15 +243,128 @@ class WPCOMSH_Recovery_Mode_Sync {
 	 * @return array<int,array<string,mixed>>
 	 */
 	private static function current_session_errors() {
-		if ( ! function_exists( 'wp_recovery_mode' ) ) {
-			return array();
+		if ( function_exists( 'wp_recovery_mode' ) ) {
+			$session_id = wp_recovery_mode()->get_session_id();
+			if ( ! empty( $session_id ) ) {
+				$errors = self::extract_errors(
+					get_option( $session_id . self::PAUSED_EXTENSIONS_OPTION_SUFFIX )
+				);
+				if ( ! empty( $errors ) ) {
+					return $errors;
+				}
+			}
 		}
-		$session_id = wp_recovery_mode()->get_session_id();
-		if ( empty( $session_id ) ) {
-			return array();
+		// No active session yet (fatal request, before admin clicks the email
+		// link) — fall back to the fatal we captured from `error_get_last()`.
+		return null !== self::$transient_fatal ? array( self::$transient_fatal ) : array();
+	}
+
+	/**
+	 * Snapshot the currently-pending PHP fatal (if any) into a transportable
+	 * record. Called from `capture_email_last_sent()` so we run inside WP's
+	 * fatal-handler shutdown, when `error_get_last()` still holds the fatal
+	 * that triggered the recovery email. No-op when there's no fatal pending
+	 * or the fatal didn't originate from a known plugin/theme path.
+	 */
+	private static function capture_current_fatal() {
+		if ( null !== self::$transient_fatal ) {
+			return;
 		}
-		$value = get_option( $session_id . self::PAUSED_EXTENSIONS_OPTION_SUFFIX );
-		return self::extract_errors( $value );
+		$err = error_get_last();
+		if ( ! is_array( $err ) ) {
+			return;
+		}
+		$fatal_mask = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
+		if ( ! ( (int) ( $err['type'] ?? 0 ) & $fatal_mask ) ) {
+			return;
+		}
+		$file     = (string) ( $err['file'] ?? '' );
+		$resolved = self::resolve_extension_for_file( $file );
+		if ( null === $resolved ) {
+			return;
+		}
+		list( $kind, $slug ) = $resolved;
+
+		if ( ! function_exists( 'get_plugins' ) && defined( 'ABSPATH' ) ) {
+			$plugin_admin = ABSPATH . 'wp-admin/includes/plugin.php';
+			if ( file_exists( $plugin_admin ) ) {
+				require_once $plugin_admin;
+			}
+		}
+		$plugins = function_exists( 'get_plugins' ) ? get_plugins() : array();
+
+		self::$transient_fatal = array(
+			'kind'    => $kind,
+			'slug'    => $slug,
+			'version' => self::resolve_extension_version( $kind, $slug, $plugins ),
+			'errno'   => (int) $err['type'],
+			'message' => (string) ( $err['message'] ?? '' ),
+			'file'    => '' !== $file ? basename( $file ) : '',
+			'line'    => (int) ( $err['line'] ?? 0 ),
+		);
+	}
+
+	/**
+	 * Identify the plugin or theme a fatal originated from by matching the
+	 * file path against active plugin main files and the active theme
+	 * directories. Returns `[kind, slug]` matching the shape used by WP's own
+	 * `*_paused_extensions` storage (plugin slug = main-file relative path,
+	 * theme slug = stylesheet/template directory name), or null if the file
+	 * doesn't live under a known extension (e.g. core, mu-plugins, drop-ins).
+	 *
+	 * @param string $file Absolute path to the file that fataled.
+	 * @return array{0:string,1:string}|null
+	 */
+	private static function resolve_extension_for_file( $file ) {
+		if ( '' === $file || ! function_exists( 'wp_normalize_path' ) ) {
+			return null;
+		}
+		$normalized = wp_normalize_path( $file );
+
+		if ( defined( 'WP_PLUGIN_DIR' ) ) {
+			$plugin_dir = wp_normalize_path( WP_PLUGIN_DIR ) . '/';
+			if ( str_starts_with( $normalized, $plugin_dir ) ) {
+				$rel = substr( $normalized, strlen( $plugin_dir ) );
+				if ( ! function_exists( 'get_plugins' ) && defined( 'ABSPATH' ) ) {
+					$plugin_admin = ABSPATH . 'wp-admin/includes/plugin.php';
+					if ( file_exists( $plugin_admin ) ) {
+						require_once $plugin_admin;
+					}
+				}
+				$plugins = function_exists( 'get_plugins' ) ? get_plugins() : array();
+				foreach ( $plugins as $main_file => $_data ) {
+					$main_dir = dirname( $main_file );
+					if ( '.' === $main_dir ) {
+						if ( $rel === $main_file ) {
+							return array( 'plugin', $main_file );
+						}
+					} elseif ( str_starts_with( $rel, $main_dir . '/' ) ) {
+						return array( 'plugin', $main_file );
+					}
+				}
+			}
+		}
+
+		if ( function_exists( 'get_stylesheet' ) && function_exists( 'get_stylesheet_directory' ) ) {
+			$candidates = array();
+			$stylesheet = (string) get_stylesheet();
+			if ( '' !== $stylesheet ) {
+				$candidates[ $stylesheet ] = wp_normalize_path( get_stylesheet_directory() ) . '/';
+			}
+			if ( function_exists( 'get_template' ) && function_exists( 'get_template_directory' ) ) {
+				$template = (string) get_template();
+				if ( '' !== $template && $template !== $stylesheet ) {
+					$candidates[ $template ] = wp_normalize_path( get_template_directory() ) . '/';
+				}
+			}
+			foreach ( $candidates as $slug => $dir ) {
+				if ( str_starts_with( $normalized, $dir ) ) {
+					return array( 'theme', $slug );
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**
