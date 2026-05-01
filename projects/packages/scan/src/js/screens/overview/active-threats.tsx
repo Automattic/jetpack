@@ -5,6 +5,7 @@ import { Button } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { siteScanQuery } from '../../data/query-options';
+import { useTrackEvent } from '../../data/use-track-event';
 import { useSetHeaderActions } from '../../header-actions-context';
 import BulkFixModal from './bulk-fix-modal';
 import EmptyState from './empty-state';
@@ -42,8 +43,13 @@ const ActiveThreats: FC = () => {
 	const scanState = data?.state;
 	const isScanRunning = scanState === 'enqueued' || scanState === 'running';
 
+	const trackEvent = useTrackEvent();
 	const [ isBulkFixOpen, setBulkFixOpen ] = useState( false );
-	const openBulkFix = useCallback( () => setBulkFixOpen( true ), [] );
+	const openBulkFix = useCallback( () => {
+		trackEvent( 'jetpack_scan_fix_threats_cta_click', { threat_count: fixableCount } );
+		trackEvent( 'jetpack_scan_bulk_fix_threats_modal_open', { threat_count: fixableCount } );
+		setBulkFixOpen( true );
+	}, [ trackEvent, fixableCount ] );
 	const closeBulkFix = useCallback( () => setBulkFixOpen( false ), [] );
 
 	// Slot the "Scan now" + optional "Auto-fix N threats" CTAs into the

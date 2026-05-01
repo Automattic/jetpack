@@ -13,6 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isFixComplete, useFixThreatsStatusQuery } from '../../data/use-fix-threats-status';
 import { useFixThreatsMutation } from '../../data/use-threat-mutations';
+import { useTrackEvent } from '../../data/use-track-event';
 import type { FC } from 'react';
 
 type ModalStep = 'confirm' | 'progress' | 'done';
@@ -43,6 +44,7 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 
 	const fixMutation = useFixThreatsMutation();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const trackEvent = useTrackEvent();
 
 	const [ step, setStep ] = useState< ModalStep >( 'confirm' );
 	const [ pollingIds, setPollingIds ] = useState< string[] | null >( null );
@@ -55,11 +57,13 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 		if ( fixable.length === 0 ) {
 			return;
 		}
+		trackEvent( 'jetpack_scan_bulk_fix_threats_modal_click', { threat_count: fixable.length } );
 		setStep( 'progress' );
 		try {
 			await fixMutation.mutateAsync( fixableIds );
 			setPollingIds( fixableIds );
 		} catch ( error ) {
+			trackEvent( 'jetpack_scan_bulk_fix_threats_modal_failed', { threat_count: fixable.length } );
 			setStep( 'done' );
 			createErrorNotice(
 				error instanceof Error
@@ -68,7 +72,7 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 				{ type: 'snackbar' }
 			);
 		}
-	}, [ fixable.length, fixableIds, fixMutation, createErrorNotice ] );
+	}, [ fixable.length, fixableIds, fixMutation, createErrorNotice, trackEvent ] );
 
 	// Step transition once polling reports every threat is in a terminal state.
 	useEffect( () => {
@@ -79,7 +83,13 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 		const fixedCount = Object.values( polling?.threats ?? {} ).filter(
 			entry => entry.status === 'fixed'
 		).length;
-		const failedCount = ( pollingIds?.length ?? 0 ) - fixedCount;
+		const totalCount = pollingIds?.length ?? 0;
+		const failedCount = totalCount - fixedCount;
+		trackEvent( 'jetpack_scan_bulk_fix_threats_modal_success', {
+			threat_count: totalCount,
+			fixed_count: fixedCount,
+			failed_count: failedCount,
+		} );
 		createSuccessNotice(
 			sprintf(
 				/* translators: %1$d is the number of threats fixed; %2$d is the number that couldn't be fixed. */
@@ -94,7 +104,7 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 			),
 			{ type: 'snackbar' }
 		);
-	}, [ step, isComplete, polling, pollingIds, createSuccessNotice ] );
+	}, [ step, isComplete, polling, pollingIds, createSuccessNotice, trackEvent ] );
 
 	const title = useMemo( () => {
 		if ( step === 'progress' ) {

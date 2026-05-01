@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useCallback } from 'react';
 import { useEnqueueScanMutation } from '../../data/use-threat-mutations';
+import { useTrackEvent } from '../../data/use-track-event';
 import type { FC } from 'react';
 
 interface ScanNowButtonProps {
@@ -24,8 +25,10 @@ interface ScanNowButtonProps {
 const ScanNowButton: FC< ScanNowButtonProps > = ( { disabled = false, variant = 'secondary' } ) => {
 	const enqueueMutation = useEnqueueScanMutation();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const trackEvent = useTrackEvent();
 
 	const onClick = useCallback( async () => {
+		trackEvent( 'jetpack_scan_scan_now' );
 		try {
 			await enqueueMutation.mutateAsync();
 			createSuccessNotice( __( 'Scan started.', 'jetpack-scan-page' ), { type: 'snackbar' } );
@@ -37,7 +40,7 @@ const ScanNowButton: FC< ScanNowButtonProps > = ( { disabled = false, variant = 
 				{ type: 'snackbar' }
 			);
 		}
-	}, [ enqueueMutation, createSuccessNotice, createErrorNotice ] );
+	}, [ enqueueMutation, createSuccessNotice, createErrorNotice, trackEvent ] );
 
 	return (
 		<Button
