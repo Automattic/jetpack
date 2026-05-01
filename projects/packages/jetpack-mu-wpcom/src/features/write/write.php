@@ -180,7 +180,7 @@ function wpcom_write_convert_video_embeds( $content ) {
 			$embed_url = '';
 
 			// YouTube.
-			if ( preg_match( '/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $url, $yt ) ) {
+			if ( preg_match( '/(?:youtube\.com\/watch\?(?:[^&]*&)*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $url, $yt ) ) {
 				$embed_url = 'https://www.youtube.com/embed/' . $yt[1];
 			}
 			// Vimeo.
@@ -192,9 +192,12 @@ function wpcom_write_convert_video_embeds( $content ) {
 				return $matches[0];
 			}
 
+			$title = $yt ? 'YouTube video' : 'Vimeo video';
+
 			return sprintf(
-				'<figure class="bw-video-figure"><div class="bw-video-wrap"><iframe src="%s" frameborder="0" allowfullscreen></iframe></div></figure>',
-				esc_url( $embed_url )
+				'<figure class="bw-video-figure"><div class="bw-video-wrap"><iframe src="%s" title="%s" frameborder="0" allowfullscreen></iframe></div></figure>',
+				esc_url( $embed_url ),
+				esc_attr( $title )
 			);
 		},
 		$content

@@ -398,6 +398,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'class="bw-video-figure"', $result );
 		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $result );
 		$this->assertStringContainsString( '<iframe', $result );
+		$this->assertStringContainsString( 'title="YouTube video"', $result );
 	}
 
 	/**
@@ -405,6 +406,18 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_convert_video_embeds_youtube_short() {
 		$content = $this->embed_block( 'https://youtu.be/dQw4w9WgXcQ' );
+		$result  = wpcom_write_convert_video_embeds( $content );
+
+		$this->assertStringContainsString( 'class="bw-video-figure"', $result );
+		$this->assertStringContainsString( 'https://www.youtube.com/embed/dQw4w9WgXcQ', $result );
+		$this->assertStringContainsString( 'title="YouTube video"', $result );
+	}
+
+	/**
+	 * Test YouTube URL with v= not as the first query parameter.
+	 */
+	public function test_convert_video_embeds_youtube_v_not_first_param() {
+		$content = $this->embed_block( 'https://www.youtube.com/watch?feature=share&v=dQw4w9WgXcQ' );
 		$result  = wpcom_write_convert_video_embeds( $content );
 
 		$this->assertStringContainsString( 'class="bw-video-figure"', $result );
@@ -421,6 +434,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'class="bw-video-figure"', $result );
 		$this->assertStringContainsString( 'https://player.vimeo.com/video/123456789', $result );
 		$this->assertStringContainsString( '<iframe', $result );
+		$this->assertStringContainsString( 'title="Vimeo video"', $result );
 	}
 
 	/**
