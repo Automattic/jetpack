@@ -1,3 +1,10 @@
+// Inside the Compact Search pattern's toolbar, the input grows to fill the
+// remaining row width so the filter / sort triggers sit right next to it.
+.jetpack-search-compact-toolbar > .wp-block-jetpack-search-input {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
 .wp-block-jetpack-search-input {
 
 	.jetpack-search-input__inside-wrapper {

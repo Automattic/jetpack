@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+REST API: expose `apm_enabled` via the GET site endpoint's `?options=` query param.

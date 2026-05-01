@@ -84,9 +84,66 @@ export function resolveFilterFields( config ) {
 				filterField: 'author_login',
 				bucketFormat: 'slash',
 			};
+		case 'wc_stock_status':
+			// Reads WooCommerce-populated postmeta indexed under
+			// `meta._stock_status.value` with a `.raw` keyword subfield via
+			// the `meta_str_template` dynamic mapping. The terms-aggs
+			// whitelist (`meta\..*\.value\.raw` in
+			// class-wpcom-search-engine.php) admits this exact path. The
+			// `wc_*` prefix on the filterType marks the dependency on
+			// WC-populated meta even though no WC-side code is involved at
+			// query time.
+			return {
+				aggField: 'meta._stock_status.value.raw',
+				filterField: 'meta._stock_status.value.raw',
+				bucketFormat: 'plain',
+			};
+		case 'wc_rating':
+			// Reads WC's per-product `_wc_average_rating` meta. Aggregation
+			// uses a histogram (range aggs aren't whitelisted on the
+			// WPCOM v1.3 search API — `[aggs:range] is not whitelisted`)
+			// with `interval: 1, offset: 0.5` so bucket boundaries fall on
+			// half-integers, mirroring WC's `ROUND(avg_rating, 0)` star
+			// cutoffs from FilterData::get_rating_counts. Filter clauses
+			// use `range` per selected star, OR'd via `bool.should`.
+			// `buildAggregations` and `buildFilterClause` special-case this
+			// filterType because the standard `terms` agg / `term` clause
+			// don't apply.
+			return {
+				aggField: 'meta._wc_average_rating.double',
+				filterField: 'meta._wc_average_rating.double',
+				bucketFormat: 'plain',
+			};
 	}
 	return { aggField: null, filterField: null, bucketFormat: 'plain' };
 }
+
+/**
+ * Star buckets for `wc_rating` filter clauses. Mirrors WC's
+ * `ROUND(avg_rating, 0)` semantics: star=5 covers avg ∈ [4.5, ∞),
+ * star=4 covers [3.5, 4.5), down to star=1 covering [0.5, 1.5).
+ *
+ * Products with `_wc_average_rating` < 0.5 fall into a histogram
+ * bucket at -0.5 with no corresponding star entry — they're returned
+ * in unfiltered results but cannot be selected via the rating filter.
+ * This matches WC's own `ROUND(avg_rating, 0)` filter UI which has
+ * no "0-star" option either; when the front-end filter block lands
+ * (DSGWOO-equivalent on the Search 3.0 side) it will surface only the
+ * 1–5 entries here.
+ *
+ * Aggregation uses a histogram (range aggs aren't whitelisted on the
+ * WPCOM v1.3 search API). `histogramKey` is the bucket key the
+ * histogram emits for that star band when called with `interval: 1`
+ * and `offset: 0.5` — useful for response-side bucket → star
+ * projection.
+ */
+export const WC_RATING_RANGES = [
+	{ key: '1', from: 0.5, to: 1.5, histogramKey: 0.5 },
+	{ key: '2', from: 1.5, to: 2.5, histogramKey: 1.5 },
+	{ key: '3', from: 2.5, to: 3.5, histogramKey: 2.5 },
+	{ key: '4', from: 3.5, to: 4.5, histogramKey: 3.5 },
+	{ key: '5', from: 4.5, histogramKey: 4.5 },
+];
 
 /**
  * Build ES aggregation requests from the filterConfigs registered by each
@@ -106,6 +163,23 @@ export function resolveFilterFields( config ) {
 export function buildAggregations( filterConfigs ) {
 	const aggregations = {};
 	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
+		// Rating gets a histogram aggregation. `range` aggs aren't
+		// whitelisted on the v1.3 API; histogram interval=1 with offset=0.5
+		// produces buckets keyed at .5 boundaries, mirroring WC's
+		// ROUND(avg_rating) star buckets.
+		if ( config?.filterType === 'wc_rating' ) {
+			const { aggField: ratingField } = resolveFilterFields( config );
+			aggregations[ filterKey ] = {
+				histogram: {
+					field: ratingField,
+					interval: 1,
+					offset: 0.5,
+					min_doc_count: 0,
+				},
+			};
+			continue;
+		}
+
 		const { aggField } = resolveFilterFields( config );
 		if ( ! aggField ) {
 			continue;
@@ -144,7 +218,30 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		if ( ! Array.isArray( values ) || values.length === 0 ) {
 			continue;
 		}
-		const { filterField } = resolveFilterFields( filterConfigs?.[ filterKey ] );
+		const config = filterConfigs?.[ filterKey ];
+
+		// Rating: each selected star level maps to a range clause on
+		// the rating field resolved from the config; multiple selections OR.
+		if ( config?.filterType === 'wc_rating' ) {
+			const { filterField: ratingField } = resolveFilterFields( config );
+			const ranges = values
+				.map( value => WC_RATING_RANGES.find( r => r.key === String( value ) ) )
+				.filter( Boolean )
+				.map( r => {
+					const range = { gte: r.from };
+					if ( r.to !== undefined ) {
+						range.lt = r.to;
+					}
+					return { range: { [ ratingField ]: range } };
+				} );
+			if ( ranges.length === 0 ) {
+				continue;
+			}
+			must.push( ranges.length === 1 ? ranges[ 0 ] : { bool: { should: ranges } } );
+			continue;
+		}
+
+		const { filterField } = resolveFilterFields( config );
 		if ( ! filterField ) {
 			continue;
 		}
@@ -169,6 +266,11 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
  * @param {object}      [opts.activeFilters] - { [filterKey]: string[] } selected filters.
  * @param {object}      [opts.filterConfigs] - { [filterKey]: FilterConfig } registered filters.
  * @param {string}      [opts.homeUrl]       - Home URL; required for private WPcom sites.
+ * @param {object|null} [opts.priceRange]    - `{ min, max }` numeric range against the
+ *                                           `wc.price` ES field. Either bound may be null
+ *                                           for a half-open range. Read by future product
+ *                                           filter blocks driven by `min_price` / `max_price`
+ *                                           URL params.
  * @return {string} Full URL to call.
  */
 export function buildSearchUrl( {
@@ -182,6 +284,7 @@ export function buildSearchUrl( {
 	activeFilters = {},
 	filterConfigs = {},
 	homeUrl = '',
+	priceRange = null,
 } ) {
 	// `qss.encode()` runs `encodeURIComponent` on every value, so we pass the
 	// raw query here. The instant-search code double-encodes (pre-encodes
@@ -201,7 +304,26 @@ export function buildSearchUrl( {
 		params.aggregations = aggregations;
 	}
 
-	const filter = buildFilterClause( activeFilters, filterConfigs );
+	// `buildFilterClause` returns either `{ bool: { must: [...] } }` or
+	// `undefined` — the spread below relies on that shape contract.
+	let filter = buildFilterClause( activeFilters, filterConfigs );
+	if ( priceRange && ( priceRange.min != null || priceRange.max != null ) ) {
+		const range = {};
+		if ( priceRange.min != null ) {
+			range.gte = priceRange.min;
+		}
+		if ( priceRange.max != null ) {
+			range.lte = priceRange.max;
+		}
+		const rangeClause = { range: { 'wc.price': range } };
+		// Build a fresh wrapper rather than mutating the object returned by
+		// `buildFilterClause` — safe today because that helper always returns
+		// a freshly constructed object, but the non-mutating shape stays
+		// correct if memoisation or caching is added later.
+		filter = filter
+			? { bool: { must: [ ...filter.bool.must, rangeClause ] } }
+			: { bool: { must: [ rangeClause ] } };
+	}
 	if ( filter ) {
 		params.filter = filter;
 	}

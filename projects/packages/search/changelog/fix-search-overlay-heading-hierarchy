@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: changed search overlay heading from h1 to h2 to fix heading hierarchy on pages that already have an h1.

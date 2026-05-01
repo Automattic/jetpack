@@ -27,7 +27,11 @@
 		"displayAs": {
 			"type": "string",
 			"default": "select",
-			"enum": [ "select", "radio" ]
+			"enum": [ "select", "radio", "popover" ]
+		},
+		"display": {
+			"type": "string",
+			"enum": [ "select", "popover" ]
 		}
 	},
 	"render": "file:./render.php",

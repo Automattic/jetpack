@@ -543,8 +543,8 @@ function jpcrm_update_listview_counts() {
 	}
 
 	let html = zeroBSCRMJS_listViewLang( 'listview_counts' );
-	html = html.replace( '%s', current_range );
-	html = html.replace( '%s', zbsListViewCount );
+	html = html.replace( '%1$s', current_range );
+	html = html.replace( '%2$s', zbsListViewCount );
 	listview_count_els.forEach( element => ( element.textContent = html ) );
 }
 

@@ -7,6 +7,13 @@
 	"category": "jetpack-search",
 	"icon": "list-view",
 	"description": "Displays Jetpack Search results.",
+	"attributes": {
+		"layout": {
+			"type": "string",
+			"enum": [ "card", "compact" ],
+			"default": "card"
+		}
+	},
 	"supports": {
 		"html": false,
 		"interactivity": true

@@ -427,10 +427,16 @@ class Access_Control {
 			return false;
 		}
 
+		/*
+		 * Default missing privacy_setting to SITE_DEFAULT to avoid an
+		 * undefined-property warning and make the site-level fallback explicit.
+		 */
+		$privacy_setting = $video_info->privacy_setting ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+
 		$embedded_post_id = (int) $embedded_post_id;
 		if (
 			$embedded_post_id
-			&& VIDEOPRESS_PRIVACY::IS_PUBLIC !== $video_info->privacy_setting
+			&& VIDEOPRESS_PRIVACY::IS_PUBLIC !== $privacy_setting
 			&& ! $this->post_embeds_videopress_guid( $embedded_post_id, $guid )
 		) {
 			$embedded_post_id = 0;
@@ -439,7 +445,7 @@ class Access_Control {
 		$is_user_authed = false;
 
 		// Determine if video is public, private or use site default.
-		switch ( $video_info->privacy_setting ) {
+		switch ( $privacy_setting ) {
 			case VIDEOPRESS_PRIVACY::IS_PUBLIC:
 				$is_user_authed = true;
 				break;

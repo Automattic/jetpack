@@ -56,7 +56,6 @@ function resolveAvailable( stored ) {
  * @return {object} Rendered element.
  */
 export default function SortControlEdit( { attributes, setAttributes } ) {
-	const blockProps = useBlockProps();
 	// Per-instance id keeps the label→control association valid when the
 	// editor renders more than one Sort Control on the same canvas.
 	const baseId = useId();
@@ -65,7 +64,15 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 	const defaultSort = ALL_SORT_KEYS.includes( attributes?.defaultSort )
 		? attributes.defaultSort
 		: 'relevance';
-	const displayAs = 'radio' === attributes?.displayAs ? 'radio' : 'select';
+	let displayAs = 'select';
+	if ( [ 'radio', 'popover' ].includes( attributes?.displayAs ) ) {
+		displayAs = attributes.displayAs;
+	} else if ( 'popover' === attributes?.display ) {
+		displayAs = 'popover';
+	}
+	const blockProps = useBlockProps( {
+		className: 'popover' === displayAs ? 'jetpack-search-sort--popover' : undefined,
+	} );
 	const storedAvailable = Array.isArray( attributes?.availableSortOptions )
 		? attributes.availableSortOptions
 		: ALL_SORT_KEYS;
@@ -147,8 +154,9 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 				options: [
 					{ value: 'select', label: __( 'Dropdown', 'jetpack-search-pkg' ) },
 					{ value: 'radio', label: __( 'Inline links', 'jetpack-search-pkg' ) },
+					{ value: 'popover', label: __( 'Popover', 'jetpack-search-pkg' ) },
 				],
-				onChange: value => setAttributes( { displayAs: value } ),
+				onChange: value => setAttributes( { displayAs: value, display: undefined } ),
 			} )
 		),
 		h(
@@ -166,40 +174,69 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 		)
 	);
 
-	const preview =
-		'radio' === displayAs
-			? h(
-					'fieldset',
-					{ className: 'jetpack-search-sort-control__radio-group' },
-					h( 'legend', null, labelText ),
-					available.map( key => {
-						const radioId = `${ baseId }-${ key }`;
-						return h(
-							'div',
-							{ key, className: 'jetpack-search-sort-control__radio-item' },
-							h( 'input', {
-								type: 'radio',
-								id: radioId,
-								name: baseId,
-								value: key,
-								checked: previewSelected === key,
-								disabled: true,
-								readOnly: true,
-							} ),
-							h( 'label', { htmlFor: radioId }, labels[ key ] )
-						);
-					} )
-			  )
-			: h(
-					Fragment,
-					null,
-					h( 'label', { htmlFor: baseId }, labelText ),
-					h(
-						'select',
-						{ id: baseId, disabled: true, value: previewSelected, onChange: () => {} },
-						available.map( key => h( 'option', { key, value: key }, labels[ key ] ) )
-					)
-			  );
+	let preview;
+	if ( 'popover' === displayAs ) {
+		preview = h(
+			'button',
+			{
+				type: 'button',
+				className: 'jetpack-search-sort__trigger',
+				'aria-haspopup': 'menu',
+				'aria-expanded': 'false',
+				disabled: true,
+			},
+			h(
+				'svg',
+				{
+					className: 'jetpack-search-sort__icon',
+					width: 18,
+					height: 18,
+					viewBox: '0 0 24 24',
+					'aria-hidden': 'true',
+					focusable: 'false',
+				},
+				h( 'path', {
+					fill: 'currentColor',
+					d: 'M8 4l-4 4h3v12h2V8h3L8 4zm8 16l4-4h-3V4h-2v12h-3l4 4z',
+				} )
+			),
+			h( 'span', { className: 'screen-reader-text' }, __( 'Sort results', 'jetpack-search-pkg' ) )
+		);
+	} else if ( 'radio' === displayAs ) {
+		preview = h(
+			'fieldset',
+			{ className: 'jetpack-search-sort-control__radio-group' },
+			h( 'legend', null, labelText ),
+			available.map( key => {
+				const radioId = `${ baseId }-${ key }`;
+				return h(
+					'div',
+					{ key, className: 'jetpack-search-sort-control__radio-item' },
+					h( 'input', {
+						type: 'radio',
+						id: radioId,
+						name: baseId,
+						value: key,
+						checked: previewSelected === key,
+						disabled: true,
+						readOnly: true,
+					} ),
+					h( 'label', { htmlFor: radioId }, labels[ key ] )
+				);
+			} )
+		);
+	} else {
+		preview = h(
+			Fragment,
+			null,
+			h( 'label', { htmlFor: baseId }, labelText ),
+			h(
+				'select',
+				{ id: baseId, disabled: true, value: previewSelected, onChange: () => {} },
+				available.map( key => h( 'option', { key, value: key }, labels[ key ] ) )
+			)
+		);
+	}
 
 	return h( Fragment, null, inspector, h( 'div', blockProps, preview ) );
 }

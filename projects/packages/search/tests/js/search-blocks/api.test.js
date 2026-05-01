@@ -1,9 +1,18 @@
 import {
+	SEARCH_FIELDS,
+	WC_RATING_RANGES,
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
+
+describe( 'SEARCH_FIELDS', () => {
+	it( 'does not request author fields for result cards', () => {
+		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
+		expect( SEARCH_FIELDS ).not.toContain( 'author' );
+	} );
+} );
 
 describe( 'buildSearchUrl', () => {
 	it( 'builds public API URL for non-private sites', () => {
@@ -335,5 +344,167 @@ describe( 'buildFilterClause', () => {
 
 	it( 'returns undefined when no selections are active', () => {
 		expect( buildFilterClause( {}, {} ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'product-shaped filter helpers', () => {
+	describe( 'resolveFilterFields', () => {
+		it( 'maps wc_stock_status to the indexed meta keyword field', () => {
+			expect( resolveFilterFields( { filterType: 'wc_stock_status' } ) ).toEqual( {
+				aggField: 'meta._stock_status.value.raw',
+				filterField: 'meta._stock_status.value.raw',
+				bucketFormat: 'plain',
+			} );
+		} );
+
+		it( 'maps wc_rating to the average-rating numeric field', () => {
+			expect( resolveFilterFields( { filterType: 'wc_rating' } ) ).toEqual( {
+				aggField: 'meta._wc_average_rating.double',
+				filterField: 'meta._wc_average_rating.double',
+				bucketFormat: 'plain',
+			} );
+		} );
+	} );
+
+	describe( 'buildAggregations', () => {
+		it( 'emits a terms agg for wc_stock_status', () => {
+			const aggs = buildAggregations( {
+				filter_stock_status: { filterType: 'wc_stock_status', maxItems: 10 },
+			} );
+			expect( aggs.filter_stock_status ).toEqual( {
+				terms: {
+					field: 'meta._stock_status.value.raw',
+					size: 10,
+					order: { _count: 'desc' },
+				},
+			} );
+		} );
+
+		it( 'emits a histogram (not terms) for wc_rating because range aggs are not whitelisted', () => {
+			const aggs = buildAggregations( { rating_filter: { filterType: 'wc_rating' } } );
+			expect( aggs.rating_filter ).toEqual( {
+				histogram: {
+					field: 'meta._wc_average_rating.double',
+					interval: 1,
+					offset: 0.5,
+					min_doc_count: 0,
+				},
+			} );
+		} );
+	} );
+
+	describe( 'buildFilterClause: wc_rating range branch', () => {
+		it( 'emits a single range clause for one star selection', () => {
+			const clause = buildFilterClause(
+				{ rating_filter: [ '5' ] },
+				{ rating_filter: { filterType: 'wc_rating' } }
+			);
+			expect( clause ).toEqual( {
+				bool: {
+					must: [ { range: { 'meta._wc_average_rating.double': { gte: 4.5 } } } ],
+				},
+			} );
+		} );
+
+		it( 'wraps multi-star selections in bool.should (OR within rating filter)', () => {
+			const clause = buildFilterClause(
+				{ rating_filter: [ '4', '5' ] },
+				{ rating_filter: { filterType: 'wc_rating' } }
+			);
+			expect( clause ).toEqual( {
+				bool: {
+					must: [
+						{
+							bool: {
+								should: [
+									{ range: { 'meta._wc_average_rating.double': { gte: 3.5, lt: 4.5 } } },
+									{ range: { 'meta._wc_average_rating.double': { gte: 4.5 } } },
+								],
+							},
+						},
+					],
+				},
+			} );
+		} );
+
+		it( 'gives star=5 an open upper bound (no `lt`) so 5.0 ratings count', () => {
+			const five = WC_RATING_RANGES.find( r => r.key === '5' );
+			expect( five.to ).toBeUndefined();
+			expect( five.from ).toBe( 4.5 );
+		} );
+
+		it( 'drops unknown star values', () => {
+			const clause = buildFilterClause(
+				{ rating_filter: [ '99' ] },
+				{ rating_filter: { filterType: 'wc_rating' } }
+			);
+			expect( clause ).toBeUndefined();
+		} );
+	} );
+
+	describe( 'buildFilterClause: wc_stock_status uses the standard term branch', () => {
+		it( 'OR-joins multiple stock-status selections within the filter', () => {
+			const clause = buildFilterClause(
+				{ filter_stock_status: [ 'instock', 'outofstock' ] },
+				{ filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' } }
+			);
+			expect( clause ).toEqual( {
+				bool: {
+					must: [
+						{
+							bool: {
+								should: [
+									{ term: { 'meta._stock_status.value.raw': 'instock' } },
+									{ term: { 'meta._stock_status.value.raw': 'outofstock' } },
+								],
+							},
+						},
+					],
+				},
+			} );
+		} );
+	} );
+
+	describe( 'buildSearchUrl: priceRange', () => {
+		const baseOpts = {
+			siteId: 1,
+			searchQuery: '',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: '',
+		};
+
+		it( 'omits price range when both bounds are null', () => {
+			const url = buildSearchUrl( { ...baseOpts, priceRange: { min: null, max: null } } );
+			expect( url ).not.toContain( 'wc.price' );
+		} );
+
+		it( 'emits a half-open `gte` range when only min is set', () => {
+			const url = buildSearchUrl( { ...baseOpts, priceRange: { min: 10, max: null } } );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][range][wc.price][gte]=10' );
+			expect( decoded ).not.toContain( '[lte]' );
+		} );
+
+		it( 'emits a closed range when both bounds are set', () => {
+			const url = buildSearchUrl( { ...baseOpts, priceRange: { min: 10, max: 50 } } );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][range][wc.price][gte]=10' );
+			expect( decoded ).toContain( 'filter[bool][must][0][range][wc.price][lte]=50' );
+		} );
+
+		it( 'appends price range alongside an existing filter clause without overwriting it', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				activeFilters: { category: [ 'news' ] },
+				filterConfigs: { category: { filterType: 'taxonomy', taxonomy: 'category' } },
+				priceRange: { min: 10, max: null },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+			expect( decoded ).toContain( 'filter[bool][must][1][range][wc.price][gte]=10' );
+		} );
 	} );
 } );
