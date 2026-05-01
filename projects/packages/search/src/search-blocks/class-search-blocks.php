@@ -410,13 +410,19 @@ class Search_Blocks {
 	 * @return array<string, array<string, mixed>>
 	 */
 	protected static function collect_filter_configs_from_post(): array {
-		if (
-			! function_exists( 'get_post' )
-			|| ! function_exists( 'parse_blocks' )
-			|| ! class_exists( Filter_Checkbox::class )
-			|| ! class_exists( Filter_Date::class )
-		) {
+		if ( ! function_exists( 'get_post' ) || ! function_exists( 'parse_blocks' ) ) {
 			return array();
+		}
+		// Drive the helper-availability check from the same registry that
+		// `walk_blocks_for_filter_configs()` walks, so adding a new filter
+		// block type is still a one-line change in `filter_block_helpers()`
+		// — no need to come back here and add another `class_exists()`
+		// branch. If any helper is missing the feature is half-loaded; bail
+		// rather than ship inconsistent filterConfigs to the client.
+		foreach ( static::filter_block_helpers() as $helper ) {
+			if ( ! class_exists( $helper ) ) {
+				return array();
+			}
 		}
 		$post = get_post();
 		if ( ! $post || empty( $post->post_content ) ) {

@@ -156,5 +156,11 @@ class Filter_Date_Test extends TestCase {
 	public function test_format_bucket_label_falls_back_on_unparseable_slug() {
 		$this->assertSame( '', Filter_Date::format_bucket_label( '', 'month' ) );
 		$this->assertSame( 'not-a-date', Filter_Date::format_bucket_label( 'not-a-date', 'month' ) );
+		// Out-of-range months — `2024-00` and `2024-13` are syntactically
+		// `Y-m` shaped but invalid calendar months; without the explicit
+		// `$month < 1 || $month > 12` guard, `strtotime` would slide them
+		// into Dec 2023 / Jan 2025 silently.
+		$this->assertSame( '2024-00', Filter_Date::format_bucket_label( '2024-00', 'month' ) );
+		$this->assertSame( '2024-13', Filter_Date::format_bucket_label( '2024-13', 'month' ) );
 	}
 }
