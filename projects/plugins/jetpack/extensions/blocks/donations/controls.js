@@ -49,6 +49,12 @@ const Controls = props => {
 		} );
 	};
 
+	const oneTimeOn = oneTimeDonation.show !== false;
+	const monthlyOn = !! monthlyDonation.show;
+	const annualOn = !! annualDonation.show;
+	const enabledIntervalCount = ( oneTimeOn ? 1 : 0 ) + ( monthlyOn ? 1 : 0 ) + ( annualOn ? 1 : 0 );
+	const lastEnabledHelp = __( 'At least one frequency must be enabled.', 'jetpack' );
+
 	const setContentAlignment = useCallback(
 		value => setAttributes( { contentAlignment: value || '' } ),
 		[ setAttributes ]
@@ -123,20 +129,26 @@ const Controls = props => {
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
-						checked={ oneTimeDonation.show !== false }
+						checked={ oneTimeOn }
 						onChange={ value => toggleDonation( 'one-time', value ) }
+						disabled={ oneTimeOn && enabledIntervalCount === 1 }
+						help={ oneTimeOn && enabledIntervalCount === 1 ? lastEnabledHelp : undefined }
 						label={ __( 'Show one-time donations', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
-						checked={ monthlyDonation.show }
+						checked={ monthlyOn }
 						onChange={ value => toggleDonation( '1 month', value ) }
+						disabled={ monthlyOn && enabledIntervalCount === 1 }
+						help={ monthlyOn && enabledIntervalCount === 1 ? lastEnabledHelp : undefined }
 						label={ __( 'Show monthly donations', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
 					<ToggleControl
-						checked={ annualDonation.show }
+						checked={ annualOn }
 						onChange={ value => toggleDonation( '1 year', value ) }
+						disabled={ annualOn && enabledIntervalCount === 1 }
+						help={ annualOn && enabledIntervalCount === 1 ? lastEnabledHelp : undefined }
 						label={ __( 'Show annual donations', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
