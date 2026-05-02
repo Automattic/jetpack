@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { markdownToHtml } from '../lib/markdown';
 import './answers-panel.scss';
 
@@ -27,17 +27,26 @@ const ExternalLinkIcon = () => (
 /**
  * AI Answers panel displayed above search results.
  *
- * @param {object} props           - Component props.
- * @param {string} props.status    - 'idle' | 'loading' | 'streaming' | 'done' | 'error'
- * @param {string} props.text      - Accumulated answer text (markdown).
- * @param {Array}  props.citations - Array of { title, url, excerpt } citation objects.
- * @param {object} props.error     - Error info: { message, code, source } or null.
+ * @param {object}        props            - Component props.
+ * @param {string}        props.status     - 'idle' | 'loading' | 'streaming' | 'done' | 'error'
+ * @param {string}        props.text       - Accumulated answer text (markdown).
+ * @param {Array}         props.citations  - Array of { title, url, excerpt } citation objects.
+ * @param {object}        props.error      - Error info: { message, code, source } or null.
+ * @param {Function|null} props.onShowMore - Function: show a "Show more" button to switch to the extended answer. null: extended mode active, render full content. undefined: standard overflow toggle.
  * @return {React.ReactElement|null} The rendered panel or null.
  */
-export default function AnswersPanel( { status, text, citations = [], error = null } ) {
+export default function AnswersPanel( { status, text, citations = [], error = null, onShowMore } ) {
 	const [ expanded, setExpanded ] = useState( false );
 	const [ overflows, setOverflows ] = useState( false );
 	const contentRef = useRef( null );
+
+	// Reset collapse state when the displayed answer switches (e.g. brief → extended loading).
+	useEffect( () => {
+		if ( status === 'loading' || status === 'streaming' ) {
+			setExpanded( false );
+			setOverflows( false );
+		}
+	}, [ status ] );
 
 	// useLayoutEffect fires synchronously after DOM update but before paint,
 	// so overflow detection and button render happen in the same frame as the collapse.
@@ -85,11 +94,16 @@ export default function AnswersPanel( { status, text, citations = [], error = nu
 		);
 	}
 
+	// onShowMore semantics:
+	//   function  → brief answer is done; show a "Show more" button to load the extended answer
+	//   null      → extended mode is active; render full combined content without collapse
+	//   undefined → no dual-answer flow; use standard overflow expand/collapse toggle
 	const isCollapsible = status === 'done';
-	const isCollapsed = isCollapsible && ! expanded;
-	// Keep fixed height through done+collapsed so the panel stays stable when
-	// the toggle button appears — flex layout absorbs the button height internally.
-	const isFixedHeight = status === 'loading' || status === 'streaming' || isCollapsed;
+	// In extended mode (null) the panel is always fully expanded.
+	const isCollapsed = isCollapsible && onShowMore === undefined && ! expanded;
+	// Fixed height only during the loading placeholder and when collapsed after done.
+	// During streaming the panel grows naturally with the incoming content.
+	const isFixedHeight = status === 'loading' || isCollapsed;
 	const showMoreLabel = __( 'Show more', 'jetpack-search-pkg' );
 	const showLessLabel = __( 'Show less', 'jetpack-search-pkg' );
 
@@ -136,7 +150,13 @@ export default function AnswersPanel( { status, text, citations = [], error = nu
 					) }
 				</div>
 			) }
-			{ isCollapsible && overflows && (
+			{ isCollapsible && typeof onShowMore === 'function' && (
+				<button className="jp-search-answers-panel__toggle" onClick={ onShowMore }>
+					{ showMoreLabel }
+					<span className="jp-search-answers-panel__toggle-icon" aria-hidden="true" />
+				</button>
+			) }
+			{ isCollapsible && onShowMore === undefined && overflows && (
 				<button
 					className={
 						'jp-search-answers-panel__toggle' +

@@ -158,6 +158,7 @@ class SearchResults extends Component {
 					text={ this.props.aiText }
 					citations={ this.props.aiCitations }
 					error={ this.props.aiError }
+					onShowMore={ this.props.onShowMoreAiAnswer }
 				/>
 				<TabbedSearchFilters />
 

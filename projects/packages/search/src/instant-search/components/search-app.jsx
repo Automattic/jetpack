@@ -3,7 +3,7 @@ import debounce from 'debounce';
 import stringify from 'fast-json-stable-stringify';
 import * as React from 'react';
 import { Component, Fragment } from 'react';
-import { createPortal } from 'react-dom';
+import { createPortal, flushSync } from 'react-dom';
 import { connect } from 'react-redux';
 import {
 	MULTISITE_NO_GROUP_VALUE,
@@ -60,16 +60,24 @@ class SearchApp extends Component {
 			// TODO: Migrate visibility state to Redux.
 			isVisible: !! this.props.initialIsVisible, // initialIsVisible can be undefined
 			overlayOptionsCustomizerOverride: {},
-			// AI Answers state
-			aiStatus: 'idle', // 'idle' | 'loading' | 'streaming' | 'done' | 'error'
-			aiText: '',
-			aiCitations: [],
-			aiError: null,
+			// AI Answers state — brief (fast) answer
+			aiBriefStatus: 'idle', // 'idle' | 'loading' | 'streaming' | 'done' | 'error'
+			aiBriefText: '',
+			aiBriefCitations: [],
+			aiBriefError: null,
+			// AI Answers state — extended (verbose) answer
+			aiExtendedStatus: 'idle',
+			aiExtendedText: '',
+			aiExtendedCitations: [],
+			aiExtendedError: null,
+			// Which answer the panel is currently showing
+			aiShowExtended: false,
 		};
 
 		this.getResults = debounce( this.getResults, 200 );
-		this.aiController = null;
-		this.getAiAnswer = debounce( this.getAiAnswer, 400 );
+		this.aiBriefController = null;
+		this.aiExtendedController = null;
+		this.getAiAnswer = debounce( this.getAiAnswer, 500 );
 		this.props.enableAnalytics ? this.initializeAnalytics() : disableAnalytics();
 
 		if ( this.props.shouldIntegrateWithDom ) {
@@ -130,8 +138,11 @@ class SearchApp extends Component {
 	}
 
 	componentWillUnmount() {
-		if ( this.aiController ) {
-			this.aiController.abort();
+		if ( this.aiBriefController ) {
+			this.aiBriefController.abort();
+		}
+		if ( this.aiExtendedController ) {
+			this.aiExtendedController.abort();
 		}
 		this.getAiAnswer.clear();
 	}
@@ -251,32 +262,33 @@ class SearchApp extends Component {
 		} );
 	};
 
-	getAiAnswer = () => {
-		const query = this.props.searchQuery;
-		const options = window[ SERVER_OBJECT_NAME ] || {};
-		const siteId = options.aiAnswersSiteId || options.siteId;
+	/**
+	 * Stream a single AI answer request and write results into the given state slice.
+	 *
+	 * @param {object}          args             - Arguments.
+	 * @param {string}          args.agentId     - The AI agent workflow ID to call.
+	 * @param {AbortController} args.controller  - AbortController for this request.
+	 * @param {string}          args.statePrefix - 'aiBrief' or 'aiExtended'.
+	 * @param {string}          args.query       - The search query.
+	 * @param {string}          args.siteId      - The site ID.
+	 * @param {object}          args.options     - The server options object.
+	 */
+	streamAiAnswer = ( { agentId, controller, statePrefix, query, siteId, options } ) => {
+		const keys = {
+			status: statePrefix + 'Status',
+			text: statePrefix + 'Text',
+			citations: statePrefix + 'Citations',
+			error: statePrefix + 'Error',
+		};
 
-		if ( ! query || query.length < 3 ) {
-			this.setState( { aiStatus: 'idle', aiText: '', aiCitations: [], aiError: null } );
-			return;
-		}
+		this.setState( {
+			[ keys.status ]: 'loading',
+			[ keys.text ]: '',
+			[ keys.citations ]: [],
+			[ keys.error ]: null,
+		} );
 
-		// Respect the admin's AI Answers toggle.
-		if ( options.aiAnswersEnabled === false ) {
-			this.setState( { aiStatus: 'idle', aiText: '', aiCitations: [], aiError: null } );
-			return;
-		}
-
-		if ( this.aiController ) {
-			this.aiController.abort();
-		}
-		this.aiController = new AbortController();
-		const controller = this.aiController; // local capture to avoid race in .catch()
-
-		this.setState( { aiStatus: 'loading', aiText: '', aiCitations: [], aiError: null } );
-
-		const url =
-			'https://public-api.wordpress.com/wpcom/v2/ai/agent/jetpack-workflow-search_summarizer';
+		const url = `https://public-api.wordpress.com/wpcom/v2/ai/agent/${ agentId }`;
 
 		const HTTP_STATUS_NAMES = {
 			400: 'Bad Request',
@@ -342,10 +354,16 @@ class SearchApp extends Component {
 				try {
 					const data = JSON.parse( event.data );
 					if ( data.method === 'message/delta' && data.params?.delta?.deltaType === 'content' ) {
-						this.setState( state => ( {
-							aiStatus: 'streaming',
-							aiText: state.aiText + ( data.params.delta.content ?? '' ),
-						} ) );
+						// flushSync forces a synchronous render for each token so the
+						// text streams visibly rather than batching into one update
+						// (React 18 automatic batching would otherwise collapse rapid
+						// SSE events into a single render).
+						flushSync( () => {
+							this.setState( state => ( {
+								[ keys.status ]: 'streaming',
+								[ keys.text ]: state[ keys.text ] + ( data.params.delta.content ?? '' ),
+							} ) );
+						} );
 					} else if (
 						data.result?.type === 'TaskStatusUpdateEvent' &&
 						data.result?.status?.state === 'completed'
@@ -353,14 +371,14 @@ class SearchApp extends Component {
 						const parts = data.result.status.message?.parts || [];
 						const dataPart = parts.find( p => p.type === 'data' );
 						const citations = dataPart?.data?.sources || dataPart?.data?.strict_sources || [];
-						this.setState( { aiStatus: 'done', aiCitations: citations } );
+						this.setState( { [ keys.status ]: 'done', [ keys.citations ]: citations } );
 					} else if ( data.result?.status?.state === 'failed' || data.error ) {
 						const textPart = data.result?.status?.message?.parts?.find( p => p.type === 'text' );
 						const message = data.error?.message || textPart?.text || 'Request failed';
 						const code = data.error?.code ?? null;
 						this.setState( {
-							aiStatus: 'error',
-							aiError: { message, code, source: 'api' },
+							[ keys.status ]: 'error',
+							[ keys.error ]: { message, code, source: 'api' },
 						} );
 					}
 				} catch {
@@ -375,11 +393,78 @@ class SearchApp extends Component {
 		} ).catch( () => {
 			if ( ! controller.signal.aborted ) {
 				this.setState( {
-					aiStatus: 'error',
-					aiError: httpError ?? { message: 'Network request error', code: null, source: 'network' },
+					[ keys.status ]: 'error',
+					[ keys.error ]: httpError ?? {
+						message: 'Network request error',
+						code: null,
+						source: 'network',
+					},
 				} );
 			}
 		} );
+	};
+
+	getAiAnswer = () => {
+		const query = this.props.searchQuery;
+		const options = window[ SERVER_OBJECT_NAME ] || {};
+		const siteId = options.aiAnswersSiteId || options.siteId;
+
+		const idleState = {
+			aiBriefStatus: 'idle',
+			aiBriefText: '',
+			aiBriefCitations: [],
+			aiBriefError: null,
+			aiExtendedStatus: 'idle',
+			aiExtendedText: '',
+			aiExtendedCitations: [],
+			aiExtendedError: null,
+			aiShowExtended: false,
+		};
+
+		if ( ! query || query.length < 3 ) {
+			this.setState( idleState );
+			return;
+		}
+
+		// Respect the admin's AI Answers toggle.
+		if ( options.aiAnswersEnabled === false ) {
+			this.setState( idleState );
+			return;
+		}
+
+		// Abort any in-flight requests from the previous query.
+		if ( this.aiBriefController ) {
+			this.aiBriefController.abort();
+		}
+		if ( this.aiExtendedController ) {
+			this.aiExtendedController.abort();
+		}
+		this.aiBriefController = new AbortController();
+		this.aiExtendedController = new AbortController();
+
+		this.setState( { aiShowExtended: false } );
+
+		// Fire both requests in parallel.
+		this.streamAiAnswer( {
+			agentId: 'jetpack-workflow-search_brief_summarizer',
+			controller: this.aiBriefController,
+			statePrefix: 'aiBrief',
+			query,
+			siteId,
+			options,
+		} );
+		this.streamAiAnswer( {
+			agentId: 'jetpack-workflow-search_summarizer',
+			controller: this.aiExtendedController,
+			statePrefix: 'aiExtended',
+			query,
+			siteId,
+			options,
+		} );
+	};
+
+	handleShowMore = () => {
+		this.setState( { aiShowExtended: true } );
 	};
 
 	updateOverlayOptions = ( newOverlayOptions, callback ) => {
@@ -397,6 +482,53 @@ class SearchApp extends Component {
 	render() {
 		const noop = input => input;
 		const resultFormat = this.getResultFormat();
+
+		const {
+			aiBriefStatus,
+			aiBriefText,
+			aiBriefCitations,
+			aiBriefError,
+			aiExtendedStatus,
+			aiExtendedText,
+			aiExtendedCitations,
+			aiExtendedError,
+			aiShowExtended,
+		} = this.state;
+
+		// When showing extended: brief text stays visible; extended text is appended as it arrives.
+		// Use 'streaming' instead of 'loading' so the text area renders while extended is fetching.
+		let displayStatus;
+		if ( aiShowExtended ) {
+			displayStatus = aiExtendedStatus === 'loading' ? 'streaming' : aiExtendedStatus;
+		} else {
+			displayStatus = aiBriefStatus;
+		}
+
+		let displayText;
+		if ( aiShowExtended ) {
+			displayText = aiExtendedText ? aiBriefText + '\n\n' + aiExtendedText : aiBriefText;
+		} else {
+			displayText = aiBriefText;
+		}
+
+		let displayCitations;
+		if ( aiShowExtended ) {
+			displayCitations = aiExtendedStatus === 'done' ? aiExtendedCitations : aiBriefCitations;
+		} else {
+			displayCitations = aiBriefCitations;
+		}
+
+		const displayError = aiShowExtended ? aiExtendedError : aiBriefError;
+
+		// null  = extended mode active — render full content without collapse
+		// fn    = brief is done and extended not yet shown — render "Show more" button
+		// undef = no dual-answer flow — render standard overflow toggle
+		let onShowMoreAiAnswer;
+		if ( aiShowExtended ) {
+			onShowMoreAiAnswer = null;
+		} else if ( aiBriefStatus === 'done' ) {
+			onShowMoreAiAnswer = this.handleShowMore;
+		}
 
 		const portalFn = this.props.shouldCreatePortal ? createPortal : noop;
 
@@ -425,14 +557,18 @@ class SearchApp extends Component {
 						closeColor={ this.state.overlayOptions.closeColor }
 						closeOverlay={ this.hideResults }
 						colorTheme={ this.state.overlayOptions.colorTheme }
-						hasOverlayWidgets={ this.props.hasOverlayWidgets || this.state.aiCitations.length > 0 }
+						hasOverlayWidgets={
+							this.props.hasOverlayWidgets ||
+							( aiShowExtended ? aiExtendedCitations.length > 0 : aiBriefCitations.length > 0 )
+						}
 						isVisible={ this.state.isVisible }
 					>
 						<SearchResults
-							aiStatus={ this.state.aiStatus }
-							aiText={ this.state.aiText }
-							aiCitations={ this.state.aiCitations }
-							aiError={ this.state.aiError }
+							aiStatus={ displayStatus }
+							aiText={ displayText }
+							aiCitations={ displayCitations }
+							aiError={ displayError }
+							onShowMoreAiAnswer={ onShowMoreAiAnswer }
 							closeOverlay={ this.hideResults }
 							enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 							enableFilteringOpensOverlay={ this.state.overlayOptions.enableFilteringOpensOverlay }

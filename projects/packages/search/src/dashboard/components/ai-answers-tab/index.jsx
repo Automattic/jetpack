@@ -19,6 +19,10 @@ export default function AiAnswersTab() {
 		select => select( STORE_ID ).supportsInstantSearch(),
 		[]
 	);
+	const isInstantSearchEnabled = useSelect(
+		select => select( STORE_ID ).isInstantSearchEnabled(),
+		[]
+	);
 	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan(), [] );
 	const isAiAnswersEnabled = useSelect( select => select( STORE_ID ).isAiAnswersEnabled(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
@@ -87,11 +91,25 @@ export default function AiAnswersTab() {
 					<div className="jp-search-dashboard-row">
 						<div className="jp-search-ai-answers-tab__settings-inner lg-col-span-8 md-col-span-6 sm-col-span-4">
 							{ isLoading && <p>{ __( 'Loading…', 'jetpack-search-pkg' ) }</p> }
+							{ supportsInstantSearch && ! isInstantSearchEnabled && (
+								<Notice.Root intent="warning">
+									<Notice.Title>
+										{ __(
+											'Instant Search must be enabled for AI Answers to work.',
+											'jetpack-search-pkg'
+										) }
+									</Notice.Title>
+									<Notice.Description>
+										{ __( 'Enable Instant Search on the Plan & Usage tab.', 'jetpack-search-pkg' ) }
+									</Notice.Description>
+								</Notice.Root>
+							) }
 							<ToggleControl
 								label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
 								checked={ isAiAnswersEnabled }
 								onChange={ value => updateJetpackSettings( { ai_answers_enabled: value } ) }
 								className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
+								disabled={ ! isInstantSearchEnabled }
 							/>
 
 							{ ! isLoading && ! isUnavailable && (
@@ -103,13 +121,13 @@ export default function AiAnswersTab() {
 										onChange={ setContent }
 										placeholder={ DEFAULT_PERSONALITY }
 										rows={ 10 }
-										disabled={ isSaving || ! isAiAnswersEnabled }
+										disabled={ isSaving || ! isAiAnswersEnabled || ! isInstantSearchEnabled }
 									/>
 									<div className="jp-search-ai-answers-tab__actions">
 										<Button
 											variant="solid"
 											onClick={ savePersonality }
-											disabled={ isSaving || ! isAiAnswersEnabled }
+											disabled={ isSaving || ! isAiAnswersEnabled || ! isInstantSearchEnabled }
 										>
 											{ isSaving
 												? __( 'Saving…', 'jetpack-search-pkg' )
@@ -124,7 +142,20 @@ export default function AiAnswersTab() {
 								</>
 							) }
 
-							{ ! isLoading && isUnavailable && (
+							{ ! isLoading && isUnavailable && isWpcomPlatformSite() && (
+								<Notice.Root intent="warning">
+									<Notice.Title>
+										{ __(
+											'Personality instructions are temporarily unavailable.',
+											'jetpack-search-pkg'
+										) }
+									</Notice.Title>
+									<Notice.Description>
+										{ __( 'Please try again later or contact support.', 'jetpack-search-pkg' ) }
+									</Notice.Description>
+								</Notice.Root>
+							) }
+							{ ! isLoading && isUnavailable && ! isWpcomPlatformSite() && (
 								<Notice.Root intent="warning">
 									<Notice.Title>
 										{ __(
