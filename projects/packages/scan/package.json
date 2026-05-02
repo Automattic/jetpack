@@ -1,4 +1,5 @@
 {
+	"name": "@automattic/jetpack-scan-page",
 	"private": true,
 	"description": "Scan UI for the Jetpack plugin in wp-admin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/scan/#readme",
@@ -19,7 +20,7 @@
 	"scripts": {
 		"build": "pnpm run build:deps && pnpm run clean && pnpm run build:wp-build && pnpm run build:boot-asset",
 		"build:boot-asset": "provide-boot-asset-file",
-		"build:deps": "pnpm --filter '@automattic/jetpack-components' --filter '@automattic/jetpack-scan' run build",
+		"build:deps": "pnpm --filter '@automattic/jetpack-scan-page...' --filter '!@automattic/jetpack-scan-page' run build",
 		"build:wp-build": "wp-build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf build/",
