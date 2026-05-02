@@ -3,8 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { Spinner, __experimentalVStack as VStack } from '@wordpress/components';
 /* eslint-enable @wordpress/no-unsafe-wp-apis */
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { siteScanHistoryQuery } from '../../data/query-options';
+import { useTrackEvent } from '../../data/use-track-event';
 import EmptyState from './empty-state';
 import { UnignoreThreatModal } from './unignore-threat-modal';
 import { ViewDetailsModal } from './view-details-modal';
@@ -25,6 +27,13 @@ import type { FC } from 'react';
  */
 const ScanHistory: FC = () => {
 	const { data, isLoading, error } = useQuery( siteScanHistoryQuery() );
+	const trackEvent = useTrackEvent();
+
+	const onTrackDataViewsEvent = useCallback(
+		( event: string, properties?: Record< string, unknown > ) =>
+			trackEvent( `jetpack_scan_${ event }`, properties ),
+		[ trackEvent ]
+	);
 
 	if ( isLoading ) {
 		return (
@@ -46,6 +55,7 @@ const ScanHistory: FC = () => {
 			RenderUnignoreModal={ UnignoreThreatModal }
 			RenderViewModal={ ViewDetailsModal }
 			showStatusFilter={ false }
+			onTrackEvent={ onTrackDataViewsEvent }
 			empty={
 				<EmptyState
 					heading={ __( 'No scan history yet', 'jetpack-scan-page' ) }

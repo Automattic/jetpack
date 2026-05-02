@@ -14,7 +14,7 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Badge } from '@wordpress/ui';
-import { useCallback, useMemo, useState, type ReactElement, type ReactNode } from 'react';
+import { useCallback, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../threat-fixer-button/index.tsx';
 import {
@@ -69,6 +69,7 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {Function}  props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
  * @param {ReactNode} [props.empty]                     - Empty-state node forwarded to DataViews when `data` is empty. Defaults to DataViews' built-in "no items" body.
  * @param {boolean}   [props.showStatusFilter]          - Whether to render the active/historic status toggle above the table. Defaults to `true`. Set to `false` when the consumer already filters the dataset by status outside the component (e.g. page-level tabs).
+ * @param {Function}  [props.onTrackEvent]              - Optional callback that receives DataViews-canonical event names (`view_change`, `filter_change`, `search`, `page_change`, `layout_changed`) on the matching view transitions. Consumers prefix and forward to their own analytics client.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
@@ -88,6 +89,7 @@ export default function ThreatsDataViews( {
 	RenderViewModal,
 	empty,
 	showStatusFilter = true,
+	onTrackEvent,
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -104,6 +106,7 @@ export default function ThreatsDataViews( {
 	RenderViewModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
 	empty?: ReactNode;
 	showStatusFilter?: boolean;
+	onTrackEvent?: ( event: string, properties?: Record< string, unknown > ) => void;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -577,13 +580,42 @@ export default function ThreatsDataViews( {
 	}, [ data, view, fields ] );
 
 	/**
-	 * Callback function to update the view state.
+	 * Callback function to update the view state. When `onTrackEvent` is
+	 * supplied, diff the previous view against the new one and fire the
+	 * matching DataViews-canonical event names so consumer analytics can
+	 * track which dimension actually changed (search vs filter vs page
+	 * vs layout). The generic `view_change` event always fires last so
+	 * consumers can choose between the granular events and an "anything
+	 * changed" hook.
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#onchangeview-function
 	 */
-	const onChangeView = useCallback( ( newView: View ) => {
-		setView( newView );
-	}, [] );
+	const previousViewRef = useRef< View >( view );
+	const onChangeView = useCallback(
+		( newView: View ) => {
+			if ( onTrackEvent ) {
+				const previous = previousViewRef.current;
+				if ( previous.search !== newView.search ) {
+					onTrackEvent( 'search', { has_query: !! newView.search } );
+				}
+				if ( previous.type !== newView.type ) {
+					onTrackEvent( 'layout_changed', { layout: newView.type } );
+				}
+				if ( previous.page !== newView.page ) {
+					onTrackEvent( 'page_change', { page: newView.page } );
+				}
+				if (
+					JSON.stringify( previous.filters ?? [] ) !== JSON.stringify( newView.filters ?? [] )
+				) {
+					onTrackEvent( 'filter_change' );
+				}
+				onTrackEvent( 'view_change' );
+			}
+			previousViewRef.current = newView;
+			setView( newView );
+		},
+		[ onTrackEvent ]
+	);
 
 	/**
 	 * DataView getItemId function - returns the unique ID for each record in the dataset.

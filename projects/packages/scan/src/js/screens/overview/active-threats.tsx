@@ -48,6 +48,11 @@ const ActiveThreats: FC = () => {
 	const isScanRunning = scanState === 'enqueued' || scanState === 'running';
 
 	const trackEvent = useTrackEvent();
+	const onTrackDataViewsEvent = useCallback(
+		( event: string, properties?: Record< string, unknown > ) =>
+			trackEvent( `jetpack_scan_${ event }`, properties ),
+		[ trackEvent ]
+	);
 	const [ isBulkFixOpen, setBulkFixOpen ] = useState( false );
 	const openBulkFix = useCallback( () => {
 		trackEvent( 'jetpack_scan_fix_threats_cta_click', { threat_count: fixableCount } );
@@ -104,6 +109,7 @@ const ActiveThreats: FC = () => {
 				RenderIgnoreModal={ IgnoreThreatModal }
 				RenderViewModal={ ViewDetailsModal }
 				showStatusFilter={ false }
+				onTrackEvent={ onTrackDataViewsEvent }
 				empty={
 					<EmptyState
 						heading={ __( "You're set up. No active threats.", 'jetpack-scan-page' ) }
