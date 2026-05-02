@@ -50,6 +50,7 @@
 		"@wordpress/compose": "7.44.0",
 		"@wordpress/data": "10.44.0",
 		"@wordpress/dataviews": "14.1.0",
+		"@wordpress/date": "5.44.0",
 		"@wordpress/element": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/icons": "12.2.0",

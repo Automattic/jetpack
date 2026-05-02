@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { siteScanHistoryQuery } from '../../data/query-options';
 import EmptyState from './empty-state';
 import { UnignoreThreatModal } from './unignore-threat-modal';
+import { ViewDetailsModal } from './view-details-modal';
 import type { FC } from 'react';
 
 /**
@@ -43,6 +44,7 @@ const ScanHistory: FC = () => {
 		<ThreatsDataViews
 			data={ data?.threats ?? [] }
 			RenderUnignoreModal={ UnignoreThreatModal }
+			RenderViewModal={ ViewDetailsModal }
 			showStatusFilter={ false }
 			empty={
 				<EmptyState

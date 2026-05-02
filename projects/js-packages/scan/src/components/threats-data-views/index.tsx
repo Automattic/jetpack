@@ -21,6 +21,7 @@ import {
 	THREAT_ACTION_FIX,
 	THREAT_ACTION_IGNORE,
 	THREAT_ACTION_UNIGNORE,
+	THREAT_ACTION_VIEW,
 	THREAT_FIELD_AUTO_FIX,
 	THREAT_FIELD_DESCRIPTION,
 	THREAT_FIELD_EXTENSION,
@@ -62,6 +63,7 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {Function}  props.RenderFixModal              - Optional component rendered as the fix-action modal.
  * @param {Function}  props.RenderIgnoreModal           - Optional component rendered as the ignore-action modal.
  * @param {Function}  props.RenderUnignoreModal         - Optional component rendered as the unignore-action modal.
+ * @param {Function}  props.RenderViewModal             - Optional component rendered as the view-details modal. Unlike the fix / ignore / unignore actions, this one is always eligible for any row.
  * @param {Function}  props.isThreatEligibleForFix      - Function to determine if a threat is eligible for fixing.
  * @param {Function}  props.isThreatEligibleForIgnore   - Function to determine if a threat is eligible for ignoring.
  * @param {Function}  props.isThreatEligibleForUnignore - Function to determine if a threat is eligible for unignoring.
@@ -83,6 +85,7 @@ export default function ThreatsDataViews( {
 	RenderFixModal,
 	RenderIgnoreModal,
 	RenderUnignoreModal,
+	RenderViewModal,
 	empty,
 	showStatusFilter = true,
 }: {
@@ -98,6 +101,7 @@ export default function ThreatsDataViews( {
 	RenderFixModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
 	RenderIgnoreModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
 	RenderUnignoreModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
+	RenderViewModal?: ( props: RenderModalProps< Threat > ) => ReactElement;
 	empty?: ReactNode;
 	showStatusFilter?: boolean;
 } ): JSX.Element {
@@ -531,6 +535,23 @@ export default function ThreatsDataViews( {
 			}
 		}
 
+		// View details — always-eligible row action that opens the
+		// supplied `RenderViewModal`. Unlike fix / ignore / unignore, it
+		// is NOT gated by threat status or capability, so the user can
+		// always drill in for the full file context, fix description,
+		// and metadata.
+		if ( RenderViewModal ) {
+			result.push( {
+				id: THREAT_ACTION_VIEW,
+				label: __( 'View details', 'jetpack-scan' ),
+				isPrimary: false,
+				modalHeader: __( 'Threat details', 'jetpack-scan' ),
+				modalSize: 'large',
+				RenderModal: RenderViewModal,
+				isEligible: () => true,
+			} );
+		}
+
 		return result;
 	}, [
 		dataFields,
@@ -540,6 +561,7 @@ export default function ThreatsDataViews( {
 		RenderFixModal,
 		RenderIgnoreModal,
 		RenderUnignoreModal,
+		RenderViewModal,
 		isThreatEligibleForFix,
 		isThreatEligibleForIgnore,
 		isThreatEligibleForUnignore,

@@ -15,6 +15,7 @@ import { IgnoreThreatModal } from './ignore-threat-modal';
 import ScanNowButton from './scan-now-button';
 import ScanStatus from './scan-status';
 import { useThreatActions } from './use-threat-actions';
+import { ViewDetailsModal } from './view-details-modal';
 import type { FC } from 'react';
 
 /**
@@ -101,6 +102,7 @@ const ActiveThreats: FC = () => {
 				onFixThreats={ onFixThreats }
 				RenderFixModal={ FixThreatModal }
 				RenderIgnoreModal={ IgnoreThreatModal }
+				RenderViewModal={ ViewDetailsModal }
 				showStatusFilter={ false }
 				empty={
 					<EmptyState
