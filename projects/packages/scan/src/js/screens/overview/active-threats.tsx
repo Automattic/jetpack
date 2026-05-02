@@ -109,6 +109,7 @@ const ActiveThreats: FC = () => {
 				RenderIgnoreModal={ IgnoreThreatModal }
 				RenderViewModal={ ViewDetailsModal }
 				showStatusFilter={ false }
+				persistKey="jetpack-scan:active-threats:view"
 				onTrackEvent={ onTrackDataViewsEvent }
 				empty={
 					<EmptyState

@@ -14,7 +14,15 @@ import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Badge } from '@wordpress/ui';
-import { useCallback, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type ReactElement,
+	type ReactNode,
+} from 'react';
 import { ThreatSeverityBadge, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import ThreatFixerButton from '../threat-fixer-button/index.tsx';
 import {
@@ -70,6 +78,7 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {ReactNode} [props.empty]                     - Empty-state node forwarded to DataViews when `data` is empty. Defaults to DataViews' built-in "no items" body.
  * @param {boolean}   [props.showStatusFilter]          - Whether to render the active/historic status toggle above the table. Defaults to `true`. Set to `false` when the consumer already filters the dataset by status outside the component (e.g. page-level tabs).
  * @param {Function}  [props.onTrackEvent]              - Optional callback that receives DataViews-canonical event names (`view_change`, `filter_change`, `search`, `page_change`, `layout_changed`) on the matching view transitions. Consumers prefix and forward to their own analytics client.
+ * @param {string}    [props.persistKey]                - Optional `localStorage` key. When set, the component hydrates its initial view state from `localStorage[persistKey]` and writes back on every change. Use stable, namespaced keys (e.g. `jetpack-scan:active-threats:view`) so consumer panels don't collide. Quietly no-ops when `localStorage` is unavailable.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
  */
@@ -90,6 +99,7 @@ export default function ThreatsDataViews( {
 	empty,
 	showStatusFilter = true,
 	onTrackEvent,
+	persistKey,
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -107,6 +117,7 @@ export default function ThreatsDataViews( {
 	empty?: ReactNode;
 	showStatusFilter?: boolean;
 	onTrackEvent?: ( event: string, properties?: Record< string, unknown > ) => void;
+	persistKey?: string;
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -151,12 +162,39 @@ export default function ThreatsDataViews( {
 	/**
 	 * DataView view object - configures how the dataset is visible to the user.
 	 *
+	 * When `persistKey` is supplied, the initial view hydrates from
+	 * `localStorage[persistKey]` so reloads, tab changes, and drill-ins
+	 * preserve the user's filters / sort / pagination / layout. Falls
+	 * back to the default table view on parse failure or first load.
+	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
-	const [ view, setView ] = useState< View >( {
-		type: 'table',
-		...defaultLayouts.table,
+	const [ view, setView ] = useState< View >( () => {
+		const fallback: View = { type: 'table', ...defaultLayouts.table };
+		if ( ! persistKey || typeof window === 'undefined' ) {
+			return fallback;
+		}
+		try {
+			const stored = window.localStorage.getItem( persistKey );
+			if ( stored ) {
+				return JSON.parse( stored ) as View;
+			}
+		} catch {
+			// localStorage may be disabled (privacy mode, full disk) — no-op.
+		}
+		return fallback;
 	} );
+
+	useEffect( () => {
+		if ( ! persistKey || typeof window === 'undefined' ) {
+			return;
+		}
+		try {
+			window.localStorage.setItem( persistKey, JSON.stringify( view ) );
+		} catch {
+			// localStorage may be disabled (privacy mode, full disk) — no-op.
+		}
+	}, [ persistKey, view ] );
 
 	/**
 	 * Compute values from the provided threats data.

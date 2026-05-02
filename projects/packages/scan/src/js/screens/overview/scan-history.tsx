@@ -55,6 +55,7 @@ const ScanHistory: FC = () => {
 			RenderUnignoreModal={ UnignoreThreatModal }
 			RenderViewModal={ ViewDetailsModal }
 			showStatusFilter={ false }
+			persistKey="jetpack-scan:scan-history:view"
 			onTrackEvent={ onTrackDataViewsEvent }
 			empty={
 				<EmptyState
