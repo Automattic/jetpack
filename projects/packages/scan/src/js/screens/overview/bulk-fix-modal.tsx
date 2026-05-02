@@ -1,15 +1,10 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { type Threat } from '@automattic/jetpack-scan';
-import {
-	Button,
-	Modal,
-	Notice,
-	__experimentalText as Text,
-	__experimentalVStack as VStack,
-} from '@wordpress/components';
+import { Notice, __experimentalText as Text } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { Button, Dialog, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isFixComplete, useFixThreatsStatusQuery } from '../../data/use-fix-threats-status';
 import { useFixThreatsMutation } from '../../data/use-threat-mutations';
@@ -32,6 +27,9 @@ const fixableThreatsOf = ( threats: Threat[] ): Threat[] =>
  * 2 s until every threat reaches a terminal state. Mirrors the spirit
  * of Calypso's `bulk-fix-threats-modal` (issue #48456 phase 4): list →
  * confirm → progress → done summary.
+ *
+ * Uses `Dialog` from `@wordpress/ui` per the CIAB component-priority
+ * guide (`@wordpress/ui` > `@automattic/design-system` > `@wordpress/components`).
  *
  * @param root0         - Component props.
  * @param root0.threats - Threats to attempt auto-fix on. Non-fixable entries are filtered before submitting.
@@ -64,9 +62,6 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 			setPollingIds( fixableIds );
 		} catch ( error ) {
 			trackEvent( 'jetpack_scan_bulk_fix_threats_modal_failed', { threat_count: fixable.length } );
-			// Don't render the "Auto-fix complete" summary — there's no
-			// polling data, so the count would read "0 of 0 threats fixed".
-			// Close the modal and let the error snackbar speak for itself.
 			onClose();
 			createErrorNotice(
 				error instanceof Error
@@ -77,13 +72,10 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 		}
 	}, [ fixable.length, fixableIds, fixMutation, createErrorNotice, trackEvent, onClose ] );
 
-	// Step transition once polling reports every threat is in a terminal state.
 	useEffect( () => {
 		if ( step !== 'progress' ) {
 			return;
 		}
-		// `/threats/fix-status` errored mid-poll — don't strand the modal at
-		// "Fixing threats…" forever. Close + error snackbar.
 		if ( statusQuery.isError ) {
 			trackEvent( 'jetpack_scan_bulk_fix_threats_modal_failed', {
 				threat_count: pollingIds?.length ?? 0,
@@ -149,7 +141,7 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 	}, [ step ] );
 
 	const renderConfirm = () => (
-		<VStack spacing={ 4 }>
+		<Stack gap="lg" direction="column">
 			<Text>
 				{ sprintf(
 					/* translators: %d is the number of threats Jetpack Scan can auto-fix. */
@@ -172,31 +164,26 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 					<li key={ String( threat.id ) }>{ threat.title || threat.signature || threat.id }</li>
 				) ) }
 			</ul>
-			<div style={ { display: 'flex', justifyContent: 'flex-end', gap: 8 } }>
-				<Button variant="tertiary" onClick={ onClose }>
+			<Dialog.Footer>
+				<Button variant="outline" onClick={ onClose }>
 					{ __( 'Cancel', 'jetpack-scan-page' ) }
 				</Button>
-				<Button
-					variant="primary"
-					onClick={ onConfirm }
-					disabled={ fixable.length === 0 }
-					__next40pxDefaultSize
-				>
+				<Button variant="solid" onClick={ onConfirm } disabled={ fixable.length === 0 }>
 					{ __( 'Auto-fix all', 'jetpack-scan-page' ) }
 				</Button>
-			</div>
-		</VStack>
+			</Dialog.Footer>
+		</Stack>
 	);
 
 	const renderProgress = () => (
-		<VStack spacing={ 4 } alignment="center">
+		<Stack gap="lg" direction="column" align="center">
 			<Text>
 				{ __(
 					'Hang tight — Jetpack is applying the fixes. This usually takes a few moments.',
 					'jetpack-scan-page'
 				) }
 			</Text>
-		</VStack>
+		</Stack>
 	);
 
 	const renderDone = () => {
@@ -205,7 +192,7 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 		const totalCount = entries.length;
 
 		return (
-			<VStack spacing={ 4 }>
+			<Stack gap="lg" direction="column">
 				<Text>
 					{ sprintf(
 						/* translators: %1$d is the number of threats fixed; %2$d is the total threats. */
@@ -214,21 +201,42 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 						totalCount
 					) }
 				</Text>
-				<div style={ { display: 'flex', justifyContent: 'flex-end' } }>
-					<Button variant="primary" onClick={ onClose } __next40pxDefaultSize>
+				<Dialog.Footer>
+					<Button variant="solid" onClick={ onClose }>
 						{ __( 'Done', 'jetpack-scan-page' ) }
 					</Button>
-				</div>
-			</VStack>
+				</Dialog.Footer>
+			</Stack>
 		);
 	};
 
+	// `Dialog.Root`'s `onOpenChange` fires for both successful close and
+	// outside-dismiss attempts. While the fixer is mid-poll we don't want
+	// to allow the user to close the modal and walk away from the
+	// in-flight request, so we only forward the close to the parent when
+	// the step is not `progress` — mirrors the previous `Modal`'s
+	// `shouldCloseOnEsc={ step !== 'progress' }`.
+	const handleOpenChange = useCallback(
+		( open: boolean ) => {
+			if ( ! open && step !== 'progress' ) {
+				onClose();
+			}
+		},
+		[ step, onClose ]
+	);
+
 	return (
-		<Modal title={ title } onRequestClose={ onClose } shouldCloseOnEsc={ step !== 'progress' }>
-			{ step === 'confirm' && renderConfirm() }
-			{ step === 'progress' && renderProgress() }
-			{ step === 'done' && renderDone() }
-		</Modal>
+		<Dialog.Root open onOpenChange={ handleOpenChange } modal>
+			<Dialog.Popup>
+				<Dialog.Header>
+					<Dialog.Title>{ title }</Dialog.Title>
+					{ step !== 'progress' && <Dialog.CloseIcon /> }
+				</Dialog.Header>
+				{ step === 'confirm' && renderConfirm() }
+				{ step === 'progress' && renderProgress() }
+				{ step === 'done' && renderDone() }
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 };
 

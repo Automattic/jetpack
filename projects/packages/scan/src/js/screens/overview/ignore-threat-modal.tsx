@@ -1,14 +1,8 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { ThreatSeverityBadge, type Threat } from '@automattic/jetpack-scan';
-import {
-	Button,
-	Notice,
-	__experimentalText as Text,
-	__experimentalVStack as VStack,
-} from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
 import { useIgnoreThreatMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
@@ -16,9 +10,11 @@ import type { RenderModalProps } from '@wordpress/dataviews';
 
 /**
  * Single-threat ignore-confirmation modal — wired into `ThreatsDataViews`'
- * row "Ignore" action via the `RenderIgnoreModal` prop. Mirrors Calypso's
- * `ignore-threat-modal.tsx`: warn the user that ignoring leaves a
- * potentially malicious file in place, then fire the ignore mutation.
+ * row "Ignore" action via the `RenderIgnoreModal` prop. DataViews wraps
+ * this content in its own `Modal`; this component renders only the
+ * body + action buttons. Mirrors Calypso's `ignore-threat-modal.tsx`:
+ * warn the user that ignoring leaves a potentially malicious file in
+ * place, then fire the ignore mutation.
  *
  * @param props            - DataViews-supplied modal props.
  * @param props.items      - Selected threats. Single-threat row action, so always `[ threat ]`.
@@ -67,38 +63,39 @@ export function IgnoreThreatModal( {
 	] );
 
 	return (
-		<VStack spacing={ 4 }>
+		<Stack gap="lg" direction="column">
 			<Text variant="muted">
 				{ __( 'Jetpack will be ignoring the following threat:', 'jetpack-scan-page' ) }
 			</Text>
-			<VStack spacing={ 1 }>
-				<div style={ { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' } }>
+			<Stack gap="xs" direction="column">
+				<Stack gap="sm" direction="row" align="center" wrap="wrap">
 					<Text weight={ 500 }>{ threat.title }</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-				</div>
+				</Stack>
 				{ threat.description && <Text variant="muted">{ threat.description }</Text> }
-			</VStack>
-			<Notice status="error" isDismissible={ false }>
-				{ __(
-					'By ignoring this threat you confirm that you have reviewed the detected code and assume the risks of keeping a potentially malicious file on your site.',
-					'jetpack-scan-page'
-				) }
-			</Notice>
-			<div style={ { display: 'flex', justifyContent: 'flex-end', gap: 8 } }>
-				<Button variant="tertiary" onClick={ closeModal } disabled={ ignoreMutation.isPending }>
+			</Stack>
+			<Notice.Root variant="error">
+				<Notice.Description>
+					{ __(
+						'By ignoring this threat you confirm that you have reviewed the detected code and assume the risks of keeping a potentially malicious file on your site.',
+						'jetpack-scan-page'
+					) }
+				</Notice.Description>
+			</Notice.Root>
+			<Stack gap="sm" direction="row" justify="flex-end">
+				<Button variant="outline" onClick={ closeModal } disabled={ ignoreMutation.isPending }>
 					{ __( 'Cancel', 'jetpack-scan-page' ) }
 				</Button>
 				<Button
-					variant="primary"
+					variant="solid"
 					onClick={ handleIgnore }
-					isBusy={ ignoreMutation.isPending }
+					loading={ ignoreMutation.isPending }
 					disabled={ ignoreMutation.isPending }
-					__next40pxDefaultSize
 				>
 					{ __( 'Ignore threat', 'jetpack-scan-page' ) }
 				</Button>
-			</div>
-		</VStack>
+			</Stack>
+		</Stack>
 	);
 }
 

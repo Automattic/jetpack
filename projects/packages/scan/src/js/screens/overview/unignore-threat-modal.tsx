@@ -1,14 +1,8 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { ThreatSeverityBadge, type Threat } from '@automattic/jetpack-scan';
-import {
-	Button,
-	Notice,
-	__experimentalText as Text,
-	__experimentalVStack as VStack,
-} from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
 import { useUnignoreThreatMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
@@ -17,9 +11,10 @@ import type { RenderModalProps } from '@wordpress/dataviews';
 /**
  * Single-threat unignore-confirmation modal — wired into
  * `ThreatsDataViews`' row "Unignore" action via the `RenderUnignoreModal`
- * prop. Mirrors Calypso's `unignore-threat-modal.tsx`: warn the user
- * that the threat will become active again, then fire the unignore
- * mutation.
+ * prop. DataViews wraps this content in its own `Modal`; this component
+ * renders only the body + action buttons. Mirrors Calypso's
+ * `unignore-threat-modal.tsx`: warn the user that the threat will become
+ * active again, then fire the unignore mutation.
  *
  * @param props            - DataViews-supplied modal props.
  * @param props.items      - Selected threats. Single-threat row action, so always `[ threat ]`.
@@ -70,38 +65,39 @@ export function UnignoreThreatModal( {
 	] );
 
 	return (
-		<VStack spacing={ 4 }>
+		<Stack gap="lg" direction="column">
 			<Text variant="muted">
 				{ __( 'Jetpack will be unignoring the following threat:', 'jetpack-scan-page' ) }
 			</Text>
-			<VStack spacing={ 1 }>
-				<div style={ { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' } }>
+			<Stack gap="xs" direction="column">
+				<Stack gap="sm" direction="row" align="center" wrap="wrap">
 					<Text weight={ 500 }>{ threat.title }</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-				</div>
+				</Stack>
 				{ threat.description && <Text variant="muted">{ threat.description }</Text> }
-			</VStack>
-			<Notice status="warning" isDismissible={ false }>
-				{ __(
-					'By unignoring this threat you confirm that you have reviewed the detected code and assume the risks of treating a potentially malicious file as an active threat again.',
-					'jetpack-scan-page'
-				) }
-			</Notice>
-			<div style={ { display: 'flex', justifyContent: 'flex-end', gap: 8 } }>
-				<Button variant="tertiary" onClick={ closeModal } disabled={ unignoreMutation.isPending }>
+			</Stack>
+			<Notice.Root variant="warning">
+				<Notice.Description>
+					{ __(
+						'By unignoring this threat you confirm that you have reviewed the detected code and assume the risks of treating a potentially malicious file as an active threat again.',
+						'jetpack-scan-page'
+					) }
+				</Notice.Description>
+			</Notice.Root>
+			<Stack gap="sm" direction="row" justify="flex-end">
+				<Button variant="outline" onClick={ closeModal } disabled={ unignoreMutation.isPending }>
 					{ __( 'Cancel', 'jetpack-scan-page' ) }
 				</Button>
 				<Button
-					variant="primary"
+					variant="solid"
 					onClick={ handleUnignore }
-					isBusy={ unignoreMutation.isPending }
+					loading={ unignoreMutation.isPending }
 					disabled={ unignoreMutation.isPending }
-					__next40pxDefaultSize
 				>
 					{ __( 'Unignore threat', 'jetpack-scan-page' ) }
 				</Button>
-			</div>
-		</VStack>
+			</Stack>
+		</Stack>
 	);
 }
 

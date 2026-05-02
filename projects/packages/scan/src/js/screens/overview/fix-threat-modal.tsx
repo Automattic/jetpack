@@ -1,13 +1,8 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { ThreatSeverityBadge, type Threat } from '@automattic/jetpack-scan';
-import {
-	Button,
-	__experimentalText as Text,
-	__experimentalVStack as VStack,
-} from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
 import { isFixComplete, useFixThreatsStatusQuery } from '../../data/use-fix-threats-status';
 import { useFixThreatsMutation } from '../../data/use-threat-mutations';
@@ -16,9 +11,11 @@ import type { RenderModalProps } from '@wordpress/dataviews';
 
 /**
  * Single-threat fix-confirmation modal — wired into `ThreatsDataViews`'
- * row "Auto-fix" action via the `RenderFixModal` prop. Mirrors Calypso's
- * `fix-threat-modal.tsx`: confirm → kick the fix mutation → poll status
- * → close with snackbar on terminal state.
+ * row "Auto-fix" action via the `RenderFixModal` prop. DataViews wraps
+ * this content in its own `Modal`; this component renders only the body
+ * + action buttons. Mirrors Calypso's `fix-threat-modal.tsx`: confirm →
+ * kick the fix mutation → poll status → close with snackbar on terminal
+ * state.
  *
  * @param props            - DataViews-supplied modal props.
  * @param props.items      - Selected threats. Single-threat row action, so always `[ threat ]`.
@@ -44,8 +41,6 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 		if ( ! pollingId ) {
 			return;
 		}
-		// `/threats/fix-status` errored — don't strand the modal at "Fixing
-		// threat…" forever. Surface the failure and close.
 		if ( statusQuery.isError ) {
 			closeModal?.();
 			trackEvent( 'jetpack_scan_fix_threat_failed' );
@@ -101,34 +96,28 @@ export function FixThreatModal( { items, closeModal }: RenderModalProps< Threat 
 	}, [ threat.id, fixMutation, closeModal, trackEvent, createErrorNotice ] );
 
 	return (
-		<VStack spacing={ 4 }>
+		<Stack gap="lg" direction="column">
 			<Text variant="muted">
 				{ __( 'Jetpack will be fixing the following threat:', 'jetpack-scan-page' ) }
 			</Text>
-			<VStack spacing={ 1 }>
-				<div style={ { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' } }>
+			<Stack gap="xs" direction="column">
+				<Stack gap="sm" direction="row" align="center" wrap="wrap">
 					<Text weight={ 500 }>{ threat.title }</Text>
 					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-				</div>
+				</Stack>
 				{ threat.description && <Text variant="muted">{ threat.description }</Text> }
-			</VStack>
-			<div style={ { display: 'flex', justifyContent: 'flex-end', gap: 8 } }>
-				<Button variant="tertiary" onClick={ closeModal } disabled={ isFixing }>
+			</Stack>
+			<Stack gap="sm" direction="row" justify="flex-end">
+				<Button variant="outline" onClick={ closeModal } disabled={ isFixing }>
 					{ __( 'Cancel', 'jetpack-scan-page' ) }
 				</Button>
-				<Button
-					variant="primary"
-					onClick={ handleFix }
-					isBusy={ isFixing }
-					disabled={ isFixing }
-					__next40pxDefaultSize
-				>
+				<Button variant="solid" onClick={ handleFix } loading={ isFixing } disabled={ isFixing }>
 					{ isFixing
 						? __( 'Fixing threat…', 'jetpack-scan-page' )
 						: __( 'Fix threat', 'jetpack-scan-page' ) }
 				</Button>
-			</div>
-		</VStack>
+			</Stack>
+		</Stack>
 	);
 }
 
