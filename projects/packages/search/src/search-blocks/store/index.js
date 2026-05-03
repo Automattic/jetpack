@@ -598,6 +598,29 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
+			// Drop activeFilters keys that aren't in the now-complete
+			// filterConfigs registry. PHP seed runs before any filter block
+			// renders, so any gate it could apply on its own would use a
+			// partial registry — and would wrongly drop URL params for
+			// blocks placed in templates / template parts. By the time this
+			// callback fires every block's render.php has contributed its
+			// filterConfig via wp_interactivity_state(), so the registry
+			// here is complete. The gate also keeps stray params from
+			// another plugin (e.g. `?foo[]=bar`) out of the URL state that
+			// pushStateToUrl will later re-emit.
+			const allowedKeys = state.filterConfigs ?? {};
+			const gated = {};
+			let droppedAny = false;
+			for ( const [ key, values ] of Object.entries( state.activeFilters ?? {} ) ) {
+				if ( allowedKeys[ key ] ) {
+					gated[ key ] = values;
+					continue;
+				}
+				droppedAny = true;
+			}
+			if ( droppedAny ) {
+				state.activeFilters = gated;
+			}
 			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
 				// The URL already carries this query — don't push a duplicate
 				// history entry on top of the browser's current one.
@@ -606,6 +629,12 @@ const { state, actions } = store( NAMESPACE, {
 				// `?min_price=10` would leave PHP's `isLoading: true` spinner
 				// stuck because no initial fetch ever fires.
 				actions.search( { syncUrl: false } );
+			} else if ( droppedAny ) {
+				// PHP seeded `isLoading: true` based on the URL's raw
+				// activeFilters; the gate above just emptied them. With no
+				// fetch about to flip the flag, clear it here so the
+				// spinner doesn't stick.
+				state.isLoading = false;
 			}
 		},
 	},

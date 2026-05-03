@@ -377,9 +377,16 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Compose the final seeded state for `wp_interactivity_state()`. Takes
-	 * $filter_configs as an argument so tests can exercise the full gating +
-	 * isLoading recomputation path without a WP post lookup.
+	 * Compose the final seeded state for `wp_interactivity_state()`. Seeds
+	 * `activeFilters` from the raw URL params (no PHP-side gating) — every
+	 * filter block contributes its filterConfig at render time via
+	 * `wp_interactivity_state()`'s deep-merge, so the JS-side store has the
+	 * complete registry by hydration. Gating happens once there, in
+	 * `store/index.js`'s `initialize()` callback, which can correctly drop
+	 * stray params regardless of whether the filter block lives in post
+	 * content or in a template / template part. Doing the same gate here
+	 * could only use a partial registry, and would wrongly drop URL params
+	 * for filter blocks placed outside post_content.
 	 *
 	 * @param array<string, array<string, mixed>> $filter_configs Map of filter
 	 *   configs collected from the current post (or injected by tests).
@@ -388,45 +395,7 @@ class Search_Blocks {
 	public static function build_seed_state( array $filter_configs ): array {
 		$state                  = static::build_initial_state();
 		$state['filterConfigs'] = $filter_configs;
-		$state['activeFilters'] = static::gate_active_filters(
-			$state['activeFilters'] ?? array(),
-			$filter_configs
-		);
-		// Recompute isLoading from the *post-gating* state. build_initial_state()
-		// derives it from the raw URL params, so a URL that carried only
-		// unregistered `?foo[]=bar` params (e.g. from another plugin) would
-		// leave isLoading=true after gating emptied activeFilters — and since
-		// the JS `initialize()` only fires a search when `searchQuery`,
-		// `hasActiveFilters`, or `priceRange` is truthy, the spinner would
-		// never clear.
-		$state['isLoading'] = '' !== $state['searchQuery']
-			|| ! empty( $state['activeFilters'] )
-			|| null !== $state['priceRange'];
 		return $state;
-	}
-
-	/**
-	 * Drop active-filter keys that aren't registered by any filter-checkbox
-	 * block on the current post. parse_url_filters() accepts any array-shaped
-	 * top-level URL param, so without this gate a stray `?foo[]=bar` seeded
-	 * by another plugin would get merged into `activeFilters` and then
-	 * re-serialized back into subsequent search URLs. Mirrors the same gating
-	 * that store/url-state.js applies on the client side.
-	 *
-	 * Skipped when `$filter_configs` is empty — no filter blocks means we
-	 * don't know what's valid, and we don't want to silently drop filters
-	 * a filter block placed inside a template part would accept after hydration.
-	 *
-	 * @param array<string, string[]>             $active_filters Parsed active filters.
-	 * @param array<string, array<string, mixed>> $filter_configs Known filter configs keyed by filterKey.
-	 * @return array<string, string[]>
-	 */
-	public static function gate_active_filters( array $active_filters, array $filter_configs ): array {
-		if ( empty( $filter_configs ) ) {
-			return $active_filters;
-		}
-		$allowed = array_fill_keys( array_keys( $filter_configs ), true );
-		return array_intersect_key( $active_filters, $allowed );
 	}
 
 	/**
