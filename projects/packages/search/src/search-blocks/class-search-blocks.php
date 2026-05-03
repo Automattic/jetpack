@@ -364,7 +364,9 @@ class Search_Blocks {
 	 *
 	 * Individual block render.php files may also call wp_interactivity_state()
 	 * — core deep-merges each call, so each block can contribute its own
-	 * entries (e.g. filter-checkbox writes its filterConfig).
+	 * entries (e.g. filter-checkbox writes its filterConfig). Filter blocks
+	 * placed in templates or template parts contribute their config the same
+	 * way; the complete registry exists by the time JS hydrates.
 	 *
 	 * URL-derived `activeFilters` is passed straight through; the JS store
 	 * gates it against the complete `filterConfigs` registry on hydration
