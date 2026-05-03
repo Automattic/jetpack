@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: wrap column names in backticks to prevent SQL errors when a column name matches a MySQL reserved word.
