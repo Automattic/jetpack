@@ -174,7 +174,10 @@ const InstantSearchToggle = ( {
 		! supportsInstantSearch ||
 		isDisabledFromOverLimit;
 	const isWidgetsEditorButtonDisabled =
-		isSavingEitherOption || ! isModuleEnabled || isDisabledFromOverLimit;
+		isSavingEitherOption ||
+		! isModuleEnabled ||
+		! isInstantSearchEnabled ||
+		isDisabledFromOverLimit;
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
@@ -211,7 +214,6 @@ const InstantSearchToggle = ( {
 			{ supportsInstantSearch && (
 				<InstantSearchButtons
 					isInstantSearchCustomizeButtonDisabled={ isInstantSearchCustomizeButtonDisabled }
-					isInstantSearchEnabled={ isInstantSearchEnabled }
 					isWidgetsEditorButtonDisabled={ isWidgetsEditorButtonDisabled }
 					returnUrl={ returnUrl }
 				/>
@@ -222,11 +224,9 @@ const InstantSearchToggle = ( {
 
 const InstantSearchButtons = ( {
 	isInstantSearchCustomizeButtonDisabled,
-	isInstantSearchEnabled,
 	isWidgetsEditorButtonDisabled,
 	returnUrl,
 } ) => {
-	const showWidgetsEditorButton = isInstantSearchEnabled;
 	return (
 		<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 			<Button
@@ -241,25 +241,21 @@ const InstantSearchButtons = ( {
 			>
 				<span>{ __( 'Customize search results', 'jetpack-search-pkg' ) }</span>
 			</Button>
-			{ showWidgetsEditorButton && (
-				<>
-					<div className="lg-col-span-0 md-col-span-1 sm-col-span-0"></div>
+			<div className="lg-col-span-0 md-col-span-1 sm-col-span-0"></div>
 
-					<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
-					<Button
-						variant="secondary"
-						className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-4"
-						href={
-							! isWidgetsEditorButtonDisabled
-								? sprintf( WIDGETS_EDITOR_URL, encodeURIComponent( returnUrl ) )
-								: undefined
-						}
-						disabled={ isWidgetsEditorButtonDisabled }
-					>
-						<span>{ __( 'Edit sidebar widgets', 'jetpack-search-pkg' ) }</span>
-					</Button>
-				</>
-			) }
+			<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
+			<Button
+				variant="secondary"
+				className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-4"
+				href={
+					! isWidgetsEditorButtonDisabled
+						? sprintf( WIDGETS_EDITOR_URL, encodeURIComponent( returnUrl ) )
+						: undefined
+				}
+				disabled={ isWidgetsEditorButtonDisabled }
+			>
+				<span>{ __( 'Edit sidebar widgets', 'jetpack-search-pkg' ) }</span>
+			</Button>
 		</div>
 	);
 };
