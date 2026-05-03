@@ -261,6 +261,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 						__nextHasNoMarginBottom: true,
 						label: __( 'Taxonomy', 'jetpack-search-pkg' ),
 						value: taxonomy,
+						disabled: hasNoCustomTaxonomies,
 						options: [
 							{
 								value: '',
