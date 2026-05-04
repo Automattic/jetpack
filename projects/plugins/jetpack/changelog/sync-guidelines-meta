@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Guidelines CPT: whitelist _guideline_ meta keys for sync via wpcomsh filter.

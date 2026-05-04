@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-AI MCP settings: add activity log link and Tracks analytics events (jp_mcp_settings_viewed, jp_mcp_enabled_toggled, jp_mcp_allowlist_updated)

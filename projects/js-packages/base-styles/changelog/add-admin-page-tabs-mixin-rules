@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-admin-page-layout mixin: style hooks for `@wordpress/ui` Tabs hosted in an AdminPage (sticky `.jp-admin-page-tabs` wrapper, inline-padding alignment for tab buttons, header bottom-border/padding suppression when tabs are present).
