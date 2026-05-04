@@ -112,7 +112,7 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 		}
 		?>
 		<?php /* AJAX NONCE */ ?>
-		<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+		<script type="text/javascript">var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 		<?php /* END OF NONCE */ ?>
 		<?php
 		// AJAX NONCE for inv sending... defunct v3.0?
@@ -139,13 +139,13 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 
 			<?php
 			if ( $prefill_obj > 0 ) {
-				echo 'var zbsJS_prefillobjtype = ' . esc_js( $prefill_obj ) . ';';
+				echo 'var zbsJS_prefillobjtype = ' . (int) $prefill_obj . ';';
 			}
 			if ( $prefill_id > 0 ) {
-				echo 'var zbsJS_prefillid = ' . esc_js( $prefill_id ) . ';';
+				echo 'var zbsJS_prefillid = ' . (int) $prefill_id . ';';
 			}
-			echo 'var zbsJS_prefillemail = \'' . esc_js( $prefill_email ) . '\';';
-			echo 'var zbsJS_prefillname = \'' . esc_js( $prefill_name ) . '\';';
+			echo 'var zbsJS_prefillemail = ' . wp_json_encode( $prefill_email, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
+			echo 'var zbsJS_prefillname = ' . wp_json_encode( $prefill_name, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 
 			// only sendemail if have active template :)
 			echo 'var zbsJS_invEmailActive = ' . ( zeroBSCRM_get_email_status( ZBSEMAIL_EMAILINVOICE ) == 1 ? '1' : '-1' ) . ';';
@@ -537,10 +537,10 @@ class zeroBS__Metabox_InvoiceFiles extends zeroBS__Metabox {
 
 				var zbsInvoicesCurrentlyDeleting = false;
 				var zbsMetaboxFilesLang = {
-					'err': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Error', 'zero-bs-crm' ) ) ); ?>',
-					'unabletodel' : '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Unable to delete this file', 'zero-bs-crm' ) ) ); ?>',
-							'viewcontact' : '<?php echo esc_html__( 'View contact', 'zero-bs-crm' ); ?>',
-							'viewcompany' : '<?php echo esc_html( __( 'View', 'zero-bs-crm' ) . ' ' . jpcrm_label_company() ); ?>',
+				'err': <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+				'unabletodel' : <?php echo wp_json_encode( __( 'Unable to delete this file', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+						'viewcontact' : <?php echo wp_json_encode( __( 'View contact', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+						'viewcompany' : <?php echo wp_json_encode( __( 'View', 'zero-bs-crm' ) . ' ' . jpcrm_label_company(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 				}
 
 				jQuery(function(){
@@ -564,7 +564,7 @@ class zeroBS__Metabox_InvoiceFiles extends zeroBS__Metabox {
 									'action': 'delFile',
 									'zbsfType': 'invoices',
 									'zbsDel':  delUrl, // could be csv, never used though
-									'zbsCID': <?php echo esc_html( $invoiceID ); ?>,
+									'zbsCID': <?php echo (int) $invoiceID; ?>,
 									'sec': window.zbscrmjs_secToken
 									};
 

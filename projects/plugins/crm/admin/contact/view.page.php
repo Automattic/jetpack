@@ -1365,14 +1365,14 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 			<script type="text/javascript">
 			
 			// Nonce
-			var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';
+			var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 			// moved to singleview.js
 			var zbsViewSettings = {
 
-				objid: <?php echo esc_html( $id ); ?>,
+				objid: <?php echo (int) $id; ?>,
 				objdbname: 'contact',
-				update_meta_nonce: '<?php echo esc_html( wp_create_nonce( 'jpcrm-update-meta-ajax' ) ); ?>'
+				update_meta_nonce: <?php echo wp_json_encode( wp_create_nonce( 'jpcrm-update-meta-ajax' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
 
 			};
 

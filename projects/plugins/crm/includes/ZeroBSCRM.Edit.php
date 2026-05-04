@@ -395,28 +395,28 @@ class zeroBSCRM_Edit {
 			// General options for edit page
 			var zbsEditSettings = {
 
-				objid: <?php echo esc_js( $this->objID ); ?>,
-				objdbname: '<?php echo esc_js( $this->objType ); ?>',
-				nonce: '<?php echo esc_js( wp_create_nonce( 'edit-nonce-' . $this->objType ) ); ?>'
+				objid: <?php echo (int) $this->objID; ?>,
+				objdbname: <?php echo wp_json_encode( $this->objType, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+				nonce: <?php echo wp_json_encode( wp_create_nonce( 'edit-nonce-' . $this->objType ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
 
 			};
 			var zbsDrawEditViewBlocker = false;
 			var zbsDrawEditAJAXBlocker = false;
 
 			<?php // these are all legacy, move over to zeroBSCRMJS_obj_editLink in global js: ?>
-			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
-			var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
-			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
-			var zbsListViewLink = '<?php echo jpcrm_esc_link( $this->listViewSlug ); ?>';
+			var zbsObjectViewLinkPrefixCustomer = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixCustomer = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixCompany = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_company', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsListViewLink = <?php echo wp_json_encode( jpcrm_esc_link( $this->listViewSlug ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 			
-			var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
+			var zbsClick2CallType = <?php echo (int) zeroBSCRM_getSetting( 'clicktocalltype' ); ?>;
 			var zbsEditViewLangLabels = {
 
-					'today': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Today', 'zero-bs-crm' ) ) ); ?>',
-					'view': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'View', 'zero-bs-crm' ) ) ); ?>',
-					'contact': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Contact', 'zero-bs-crm' ) ) ); ?>',
-					'company': '<?php echo esc_html( zeroBSCRM_slashOut( jpcrm_label_company() ) ); ?>',
+					'today': <?php echo wp_json_encode( __( 'Today', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+					'view': <?php echo wp_json_encode( __( 'View', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+					'contact': <?php echo wp_json_encode( __( 'Contact', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+					'company': <?php echo wp_json_encode( jpcrm_label_company(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 
 					<?php
 					$labelCount = 0;
@@ -427,7 +427,7 @@ class zeroBSCRM_Edit {
 								echo ',';
 							}
 
-							echo esc_html( $labelK ) . ":'" . esc_html( zeroBSCRM_slashOut( $labelV, true ) ) . "'";
+							echo esc_html( $labelK ) . ':' . wp_json_encode( $labelV, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 
 							++$labelCount;
 
@@ -438,7 +438,7 @@ class zeroBSCRM_Edit {
 			};
 			<?php
 			#} Nonce for AJAX
-					echo "var zbscrmjs_secToken = '" . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . "';";
+					echo 'var zbscrmjs_secToken = ' . wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 			?>
 					</script>
 					<?php
