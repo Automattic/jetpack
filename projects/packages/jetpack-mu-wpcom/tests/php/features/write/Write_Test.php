@@ -506,10 +506,11 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		// Simulate the render path: convert embeds then apply the_content.
+		// Simulate the render path: convert embeds then do_blocks.
 		$post        = get_post( $post_id );
 		$raw_content = wpcom_write_convert_video_embeds( $post->post_content );
-		$output      = $this->render_template( 'Video Post', $raw_content, $post_id, array(), 'draft' );
+		$rendered    = do_blocks( $raw_content );
+		$output      = $this->render_template( 'Video Post', $rendered, $post_id, array(), 'draft' );
 
 		$this->assertStringContainsString( '<iframe', $output );
 		$this->assertStringContainsString( 'youtube.com/embed/dQw4w9WgXcQ', $output );

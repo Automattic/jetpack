@@ -161,9 +161,10 @@ add_action(
 /**
  * Convert wp:embed video blocks in raw block markup to bw-video-figure HTML.
  *
- * The the_content filter + wp_kses_post pipeline strips the iframe from embed
- * blocks, leaving an empty wrapper.  By converting video embeds to the Write
- * editor's own markup before that pipeline runs, the iframe is preserved.
+ * The do_blocks() renderer doesn't convert embed blocks into iframes the way
+ * the full the_content pipeline would (via WP_Embed).  This function detects
+ * YouTube / Vimeo embed blocks and rewrites them to the Write editor's own
+ * bw-video-figure markup so videos display on reload.
  *
  * @param string $content Raw post_content (block markup).
  * @return string Content with video embed blocks replaced by bw-video-figure HTML.
@@ -201,7 +202,7 @@ function wpcom_write_convert_video_embeds( $content ) {
 			);
 		},
 		$content
-	);
+	) ?? $content;
 }
 
 /**
@@ -224,11 +225,13 @@ function wpcom_write_render_admin_page() {
 		$edit_post = get_post( $edit_post_id );
 		if ( $edit_post && current_user_can( 'edit_post', $edit_post_id ) ) {
 			$edit_title = $edit_post->post_title;
-			// Convert video embed blocks to the editor's bw-video-figure markup
-			// before the_content + wp_kses_post strip the iframe.
+			// Convert video embed blocks to the editor's bw-video-figure markup.
 			$raw_content = wpcom_write_convert_video_embeds( $edit_post->post_content );
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter needed to render blocks.
-			$edit_content     = apply_filters( 'the_content', $raw_content );
+			// Use do_blocks() instead of apply_filters( 'the_content' ) — the Write
+			// editor only produces block markup, so the full the_content pipeline
+			// (oEmbed, shortcodes, wpautop, etc.) is unnecessary and its wpcom-specific
+			// filters can mangle iframes on Simple / Atomic sites.
+			$edit_content     = do_blocks( $raw_content );
 			$post_status      = $edit_post->post_status;
 			$edit_featured_id = (int) get_post_thumbnail_id( $edit_post_id );
 		} else {
