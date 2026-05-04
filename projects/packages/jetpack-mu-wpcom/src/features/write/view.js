@@ -1677,6 +1677,46 @@ const { state } = store( 'wpcom-write', {
 			updateFormattingState();
 		},
 
+		handleContentClick( event ) {
+			const content = getContent();
+			if ( ! content ) return;
+
+			const lastChild = content.lastElementChild;
+			if ( ! lastChild ) return;
+
+			// Check if the click landed below the last child element.
+			const lastRect = lastChild.getBoundingClientRect();
+			if ( event.clientY <= lastRect.bottom ) return;
+
+			// Don't stack empty paragraphs — if the last element is
+			// already an empty paragraph, just place the cursor there.
+			if (
+				lastChild.tagName === 'P' &&
+				! lastChild.classList.contains( 'bw-block-gap' ) &&
+				( ! lastChild.textContent || ! lastChild.textContent.trim() )
+			) {
+				const sel = window.getSelection();
+				const range = document.createRange();
+				range.setStart( lastChild, 0 );
+				range.collapse( true );
+				sel.removeAllRanges();
+				sel.addRange( range );
+				return;
+			}
+
+			// Append a new empty paragraph and place the cursor in it.
+			const p = document.createElement( 'p' );
+			p.innerHTML = '<br>';
+			content.appendChild( p );
+
+			const sel = window.getSelection();
+			const range = document.createRange();
+			range.setStart( p, 0 );
+			range.collapse( true );
+			sel.removeAllRanges();
+			sel.addRange( range );
+		},
+
 		repairStructure() {
 			// Fires on the `input` event — after the browser mutates the DOM
 			// but before the next paint. Wraps any bare text/inline nodes that

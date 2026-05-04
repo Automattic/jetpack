@@ -384,6 +384,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				contenteditable="true"
 				data-wp-on--mouseup="actions.checkFormatting"
 				data-wp-on--keyup="actions.checkFormatting"
+				data-wp-on--click="actions.handleContentClick"
 				data-wp-on--input="actions.repairStructure"
 				data-wp-on--keydown="actions.handleKeyDown"
 				data-wp-on--beforeinput="actions.handleBeforeInput"
