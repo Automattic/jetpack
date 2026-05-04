@@ -99,22 +99,26 @@ const CoverImageControl = ( {
 
 	const hasImage = !! imageUrl || imageId > 0;
 
+	// Pre-resolve the two button labels separately so the i18n-check-webpack-plugin
+	// validator sees two distinct __() calls in the bundled output. Inlining the
+	// ternary inside __() (or even between two __() calls in JSX) lets terser fold
+	// them into __(cond?'a':'b'), which the validator rejects.
+	const changeLabel = __( 'Change cover', 'jetpack-podcast' );
+	const setLabel = __( 'Set cover image', 'jetpack-podcast' );
+	const noImageLabel = __( 'No image set', 'jetpack-podcast' );
+
 	return (
 		<div className="podcast__cover-control">
 			<div className="podcast__cover-preview">
 				{ imageUrl ? (
 					<img src={ imageUrl } alt={ __( 'Podcast cover', 'jetpack-podcast' ) } />
 				) : (
-					<span className="podcast__cover-placeholder">
-						{ frame ? __( 'No image set', 'jetpack-podcast' ) : <Spinner /> }
-					</span>
+					<span className="podcast__cover-placeholder">{ frame ? noImageLabel : <Spinner /> }</span>
 				) }
 			</div>
 			<div className="podcast__cover-actions">
 				<Button variant="secondary" onClick={ open } disabled={ disabled || ! frame }>
-					{ hasImage
-						? __( 'Change cover', 'jetpack-podcast' )
-						: __( 'Set cover image', 'jetpack-podcast' ) }
+					{ hasImage ? changeLabel : setLabel }
 				</Button>
 				{ hasImage && (
 					<Button variant="tertiary" isDestructive onClick={ onRemove } disabled={ disabled }>

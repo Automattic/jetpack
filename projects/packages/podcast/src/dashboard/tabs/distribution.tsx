@@ -91,6 +91,12 @@ const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 	event.currentTarget.select();
 };
 
+// Pre-resolved so the i18n-check-webpack-plugin validator sees two distinct
+// __() calls in the bundled output instead of __(cond?'a':'b'). Hoisted out of
+// the component since these strings don't depend on props or state.
+const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
+const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
+
 const FeedCopyField = ( { value }: { value: string } ) => {
 	const [ copied, setCopied ] = useState( false );
 	const timeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
@@ -133,7 +139,7 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 				onClick={ onCopy }
 				disabled={ ! value }
 			>
-				{ copied ? __( 'Copied!', 'jetpack-podcast' ) : __( 'Copy link', 'jetpack-podcast' ) }
+				{ copied ? COPIED_LABEL : COPY_LINK_LABEL }
 			</Button>
 		</HStack>
 	);

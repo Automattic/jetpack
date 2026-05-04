@@ -89,6 +89,11 @@ const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProp
 
 	const isUnchanged = draftUrl.trim() === storedUrl.trim();
 
+	// Pre-resolve so the i18n-check-webpack-plugin validator sees two distinct
+	// __() calls in the bundled output instead of __(cond?'a':'b').
+	const copiedLabel = __( 'Copied!', 'jetpack-podcast' );
+	const copyLinkLabel = __( 'Copy link', 'jetpack-podcast' );
+
 	const titleText = sprintf(
 		/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
 		__( 'Submit to %s', 'jetpack-podcast' ),
@@ -131,9 +136,7 @@ const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProp
 							iconPosition="left"
 							onClick={ handleCopy }
 						>
-							{ hasCopied
-								? __( 'Copied!', 'jetpack-podcast' )
-								: __( 'Copy link', 'jetpack-podcast' ) }
+							{ hasCopied ? copiedLabel : copyLinkLabel }
 						</Button>
 					) }
 				</VStack>
