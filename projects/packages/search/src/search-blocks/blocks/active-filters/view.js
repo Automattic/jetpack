@@ -1,14 +1,14 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { formatDateBucketLabel } from '../../store/api';
 import '../../store';
+import { bucketLabel, bucketValue } from '../../store/bucket-key';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
 
 /**
  * Resolve the display label for a selected filter value. Falls back to the
- * raw slug so a pill doesn't disappear when its bucket falls out of the
- * top-N between queries.
+ * raw slug so a pill stays readable when its bucket falls out of the top-N.
  *
  * @param {object} state       - Store state.
  * @param {string} filterKey   - Filter key.
@@ -21,14 +21,17 @@ function resolveValueLabel( state, filterKey, filterValue ) {
 		const interval = config.interval === 'month' ? 'month' : 'year';
 		return formatDateBucketLabel( filterValue, interval, state.locale || 'en-US' );
 	}
+	const fromConfig = config.valueLabels?.[ filterValue ];
+	if ( fromConfig ) {
+		return fromConfig;
+	}
 	const buckets = state.aggregations?.[ filterKey ]?.buckets;
 	if ( Array.isArray( buckets ) ) {
 		for ( const bucket of buckets ) {
-			const key = String( bucket.key ?? '' );
-			const slashIdx = key.indexOf( '/' );
-			const slug = slashIdx === -1 ? key : key.slice( 0, slashIdx );
-			if ( slug === filterValue ) {
-				return slashIdx === -1 ? key : key.slice( slashIdx + 1 );
+			if ( bucketValue( bucket.key ) === filterValue ) {
+				// `valueLabels` already missed above; only the post-slash
+				// split is meaningful at this branch.
+				return bucketLabel( bucket.key );
 			}
 		}
 	}
@@ -38,19 +41,11 @@ function resolveValueLabel( state, filterKey, filterValue ) {
 store( NAMESPACE, {
 	state: {
 		/**
-		 * Flatten activeFilters into a list of pill descriptors for
-		 * `data-wp-each`. Pills carry their own filterKey + value so the
-		 * remove handler can toggle the correct selection without looking
-		 * it up from the event target.
+		 * Pill descriptors for `data-wp-each`. `ariaLabel` uses the "Remove %s"
+		 * format seeded from PHP because the view bundle cannot import
+		 * `@wordpress/i18n`.
 		 *
-		 * `ariaLabel` is what screen readers announce — the visible "×" is
-		 * aria-hidden, and the visible label alone ("Category: news") reads
-		 * as a plain noun phrase with no hint that activating the button
-		 * removes the filter. The "Remove %s" format is seeded in PHP via
-		 * `Search_Blocks::build_initial_strings()` because the view bundle
-		 * can't import `@wordpress/i18n`.
-		 *
-		 * @return {Array<object>} Array of pill descriptors with id, filterKey, value, label, ariaLabel.
+		 * @return {Array<object>} Pill descriptors.
 		 */
 		get activePills() {
 			const { state } = store( NAMESPACE );
@@ -79,8 +74,7 @@ store( NAMESPACE, {
 
 	actions: {
 		/**
-		 * Remove the pill currently in `data-wp-each` scope by toggling its
-		 * filter value off.
+		 * Remove the pill currently in `data-wp-each` scope.
 		 *
 		 * @yield {Promise} setFilter action.
 		 */

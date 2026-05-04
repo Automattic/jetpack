@@ -4,6 +4,7 @@ import {
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
 import { buildSearchUrl, formatDateBucketLabel } from './api';
+import { bucketLabel, bucketValue } from './bucket-key';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
 import {
@@ -55,22 +56,6 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 }
 
 /**
- * Parse a `slug/Display Name` bucket key. Plain (no-slash) keys round-trip
- * as { value: key, label: key }.
- *
- * @param {unknown} rawKey - Bucket key from the search response.
- * @return {{ value: string, label: string }} Parsed value and label.
- */
-function parseSlashBucketKey( rawKey ) {
-	const key = String( rawKey ?? '' );
-	const slashIdx = key.indexOf( '/' );
-	if ( slashIdx === -1 ) {
-		return { value: key, label: key };
-	}
-	return { value: key.slice( 0, slashIdx ), label: key.slice( slashIdx + 1 ) };
-}
-
-/**
  * Slug for a date_histogram bucket. Falls back to the numeric key when
  * `key_as_string` is missing.
  *
@@ -86,8 +71,11 @@ function dateBucketSlug( bucket ) {
 }
 
 /**
- * filterItems for a `slash`-format filter (taxonomy, post_type, author).
+ * filterItems for non-date filters. Handles both `slug/Name` keys (taxonomy,
+ * author) and bare-slug keys (post_type) via `bucketLabel`/`bucketValue`.
  * Drops selected buckets — those appear in the active-filters block.
+ * Resorts by visible label when `bucketSortOrder === 'alpha'` since the
+ * ES `_key: asc` order is by slug, not display label.
  *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
@@ -101,19 +89,25 @@ function checkboxFilterItems( sharedState, filterKey, config ) {
 	}
 	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
 	const showCount = config.showCount !== false;
-	return buckets.reduce( ( items, bucket ) => {
-		const { value, label } = parseSlashBucketKey( bucket.key );
+	const valueLabels = config.valueLabels;
+	const items = buckets.reduce( ( acc, bucket ) => {
+		const value = bucketValue( bucket.key );
 		if ( selected.includes( value ) ) {
-			return items;
+			return acc;
 		}
-		items.push( {
+		acc.push( {
 			value,
-			label,
+			label: bucketLabel( bucket.key, valueLabels ),
 			showCount,
 			countLabel: String( bucket.doc_count ?? 0 ),
 		} );
-		return items;
+		return acc;
 	}, [] );
+	if ( config.bucketSortOrder === 'alpha' ) {
+		const locale = sharedState.locale || 'en-US';
+		items.sort( ( a, b ) => a.label.localeCompare( b.label, locale, { sensitivity: 'base' } ) );
+	}
+	return items;
 }
 
 /**
@@ -412,10 +406,7 @@ const { state, actions } = store( NAMESPACE, {
 				}
 				return populated.every( bucket => selected.includes( dateBucketSlug( bucket ) ) );
 			}
-			return buckets.every( bucket => {
-				const { value } = parseSlashBucketKey( bucket.key );
-				return selected.includes( value );
-			} );
+			return buckets.every( bucket => selected.includes( bucketValue( bucket.key ) ) );
 		},
 
 		/**

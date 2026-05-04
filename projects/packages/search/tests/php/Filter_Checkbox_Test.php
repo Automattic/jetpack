@@ -144,6 +144,9 @@ class Filter_Checkbox_Test extends TestCase {
 				'showCount'       => true,
 				'maxItems'        => 10,
 				'bucketSortOrder' => 'count',
+				// Taxonomy buckets carry their label inline (slug_slash_name), so
+				// no value→label seeding is needed.
+				'valueLabels'     => array(),
 			),
 			$config
 		);
@@ -174,6 +177,50 @@ class Filter_Checkbox_Test extends TestCase {
 			'post_types'
 		);
 		$this->assertSame( 1, $clamped['maxItems'] );
+	}
+
+	/**
+	 * Post-type filters seed a `valueLabels` map keyed by post-type slug so the
+	 * active-filter pill can render the post type's `singular_name` (e.g.
+	 * "Post Type: Post") instead of the raw `post` slug. Post-type aggregation
+	 * buckets are bare slugs with no `slug_slash_name` variant, so without
+	 * this map the pill has nothing else to display. Other filter types skip
+	 * the map because their `slug_slash_name` buckets carry the label inline.
+	 */
+	public function test_build_config_seeds_value_labels_for_post_type() {
+		register_post_type(
+			'rsm_book',
+			array(
+				'public'              => true,
+				'exclude_from_search' => false,
+				'labels'              => array( 'singular_name' => 'Book' ),
+			)
+		);
+
+		$config = Filter_Checkbox::build_config(
+			array( 'filterType' => 'post_type' ),
+			'post_types'
+		);
+		$this->assertArrayHasKey( 'valueLabels', $config );
+		$this->assertSame( 'Book', $config['valueLabels']['rsm_book'] ?? null );
+
+		// Taxonomy and author filters skip the map — their buckets carry labels.
+		$taxonomy_config = Filter_Checkbox::build_config(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'category',
+			),
+			'category'
+		);
+		$this->assertSame( array(), $taxonomy_config['valueLabels'] );
+
+		$author_config = Filter_Checkbox::build_config(
+			array( 'filterType' => 'author' ),
+			'authors'
+		);
+		$this->assertSame( array(), $author_config['valueLabels'] );
+
+		unregister_post_type( 'rsm_book' );
 	}
 
 	/**
