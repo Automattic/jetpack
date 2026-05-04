@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+When only a -dev version is installed (but not active), it will no longer be hidden in the plugins list. This allows for deleting the files via the plugin page, and for Core's plugin-dependency feature to not give confusing results.
