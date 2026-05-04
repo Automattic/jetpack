@@ -7,7 +7,6 @@
  * block-wrapper div and lets each inner filter contribute its own markup.
  */
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
-import { createElement as h } from '@wordpress/element';
 
 const TEMPLATE = [
 	[ 'jetpack/active-filters' ],
@@ -27,7 +26,11 @@ const ALLOWED = [ 'jetpack/active-filters', 'jetpack/filter-checkbox', 'jetpack/
  */
 export default function CommonFiltersEdit() {
 	const blockProps = useBlockProps( { className: 'jetpack-search-common-filters' } );
-	return h( 'div', blockProps, h( InnerBlocks, { template: TEMPLATE, allowedBlocks: ALLOWED } ) );
+	return (
+		<div { ...blockProps }>
+			<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />
+		</div>
+	);
 }
 
 /**
@@ -35,4 +38,4 @@ export default function CommonFiltersEdit() {
  *
  * @return {object} Rendered element.
  */
-export const save = () => h( InnerBlocks.Content, {} );
+export const save = () => <InnerBlocks.Content />;
