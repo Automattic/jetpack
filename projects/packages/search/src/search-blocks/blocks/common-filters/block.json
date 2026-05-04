@@ -7,9 +7,9 @@
 	"category": "jetpack-search",
 	"icon": "filter",
 	"description": "Container for a stack of Jetpack Search filter blocks. Pre-populated with the most common filters; rearrange, remove, or add more from the inserter.",
+	"keywords": [ "search", "filter", "filters" ],
 	"supports": {
 		"html": false,
-		"interactivity": true,
 		"color": {
 			"background": true,
 			"text": true,
@@ -20,7 +20,7 @@
 			"margin": true,
 			"blockGap": true
 		},
-		"__experimentalBorder": {
+		"border": {
 			"color": true,
 			"radius": true,
 			"style": true,
