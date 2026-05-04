@@ -15,10 +15,11 @@
  * one mode, then pick the post types that belong to it.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { FormTokenField, PanelBody, Placeholder, RadioControl } from '@wordpress/components';
+import { FormTokenField, Icon, PanelBody, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { unseen } from '@wordpress/icons';
 
 const MODE_INCLUDE = 'include';
 const MODE_EXCLUDE = 'exclude';
@@ -240,11 +241,36 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<Placeholder label={ __( 'Post Type Scope', 'jetpack-search-pkg' ) }>
-					<p style={ { margin: 0 } }>
-						<strong>{ previewState.label }</strong> { previewState.value }
-					</p>
-				</Placeholder>
+				{ /* Flat preview, no card chrome — matches the filter-checkbox
+				     and search-results editor previews (just an h3 + content,
+				     letting the editor's own selection outline frame it). The
+				     "Hidden on front end" eyebrow is the only addition: this
+				     block writes to interactivity state and emits no markup,
+				     and that is otherwise invisible in the canvas. */ }
+				<p
+					style={ {
+						display: 'flex',
+						alignItems: 'center',
+						gap: '4px',
+						margin: '0 0 4px',
+						fontSize: '11px',
+						textTransform: 'uppercase',
+						letterSpacing: '0.4px',
+						color: 'rgba(30, 30, 30, 0.55)',
+					} }
+				>
+					<Icon icon={ unseen } size={ 14 } />
+					<span>{ __( 'Hidden on the front end', 'jetpack-search-pkg' ) }</span>
+				</p>
+				<h3
+					className="jetpack-search-post-type-filter__title"
+					style={ { margin: '0 0 4px', fontSize: '14px', fontWeight: 600 } }
+				>
+					{ __( 'Post Type Scope', 'jetpack-search-pkg' ) }
+				</h3>
+				<p style={ { margin: 0, fontSize: '13px' } }>
+					<strong>{ previewState.label }</strong> { previewState.value }
+				</p>
 			</div>
 		</>
 	);
