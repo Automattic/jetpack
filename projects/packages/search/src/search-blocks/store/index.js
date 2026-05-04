@@ -22,6 +22,36 @@ const withSyncEvent =
 	( cb =>
 		( ...args ) =>
 			cb( ...args ) );
+
+/**
+ * Drop activeFilters keys whose filter is not in the filterConfigs registry.
+ *
+ * The PHP seed runs before any filter block has rendered, so any gate it
+ * could apply on its own would use a partial registry — and would wrongly
+ * drop URL params for blocks placed in templates / template parts. By the
+ * time `initialize()` fires every block's render.php has contributed its
+ * filterConfig via `wp_interactivity_state()`, so the registry here is
+ * complete. The gate also keeps stray params from another plugin (e.g.
+ * `?foo[]=bar`) out of the URL state that pushStateToUrl will re-emit.
+ *
+ * @param {object} activeFilters - { [filterKey]: string[] } selections from the seed.
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig } registered filters.
+ * @return {{ gated: object, droppedAny: boolean }} Subset of `activeFilters`
+ * keyed by registered filter keys, plus a flag indicating whether anything was dropped.
+ */
+export function gateActiveFilters( activeFilters, filterConfigs ) {
+	const allowedKeys = filterConfigs ?? {};
+	const gated = {};
+	let droppedAny = false;
+	for ( const [ key, values ] of Object.entries( activeFilters ?? {} ) ) {
+		if ( allowedKeys[ key ] ) {
+			gated[ key ] = values;
+			continue;
+		}
+		droppedAny = true;
+	}
+	return { gated, droppedAny };
+}
 // Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
 // latest before touching store state, so a slow request for an older query
@@ -598,26 +628,7 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
-			// Drop activeFilters keys that aren't in the now-complete
-			// filterConfigs registry. PHP seed runs before any filter block
-			// renders, so any gate it could apply on its own would use a
-			// partial registry — and would wrongly drop URL params for
-			// blocks placed in templates / template parts. By the time this
-			// callback fires every block's render.php has contributed its
-			// filterConfig via wp_interactivity_state(), so the registry
-			// here is complete. The gate also keeps stray params from
-			// another plugin (e.g. `?foo[]=bar`) out of the URL state that
-			// pushStateToUrl will later re-emit.
-			const allowedKeys = state.filterConfigs ?? {};
-			const gated = {};
-			let droppedAny = false;
-			for ( const [ key, values ] of Object.entries( state.activeFilters ?? {} ) ) {
-				if ( allowedKeys[ key ] ) {
-					gated[ key ] = values;
-					continue;
-				}
-				droppedAny = true;
-			}
+			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
 			if ( droppedAny ) {
 				state.activeFilters = gated;
 			}

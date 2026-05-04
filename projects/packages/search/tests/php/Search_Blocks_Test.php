@@ -96,12 +96,12 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Build_seed_state() seeds activeFilters from the raw URL — gating moved
-	 * to store/index.js's `initialize()` callback, which can apply it once
+	 * Seeded `activeFilters` is the raw URL params — gating moved to
+	 * store/index.js's `initialize()` callback, which can apply it once
 	 * every filter block's render.php has contributed its filterConfig (and
-	 * the registry is complete). PHP seed must therefore pass URL params
-	 * through unchanged regardless of whether the matching filter block was
-	 * found in post content.
+	 * the registry is complete). `build_seed_state()` must therefore pass
+	 * URL params through unchanged regardless of whether the matching filter
+	 * block was found in post content.
 	 */
 	public function test_build_seed_state_passes_url_filters_through() {
 		$original_get   = $_GET;

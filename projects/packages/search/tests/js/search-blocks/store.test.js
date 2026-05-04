@@ -26,7 +26,7 @@ jest.mock(
 	{ virtual: true }
 );
 
-import { actions, state } from '../../../src/search-blocks/store';
+import { actions, gateActiveFilters, state } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
 
 const originalActions = { ...actions };
@@ -390,6 +390,38 @@ describe( 'store getters', () => {
 	} );
 } );
 
+describe( 'gateActiveFilters', () => {
+	it( 'drops keys that are not in the registered filterConfigs', () => {
+		const { gated, droppedAny } = gateActiveFilters(
+			{ category: [ 'news' ], post_date: [ '2024-08' ], foo: [ 'bar' ] },
+			{ category: { filterKey: 'category' }, post_date: { filterKey: 'post_date' } }
+		);
+		expect( gated ).toEqual( { category: [ 'news' ], post_date: [ '2024-08' ] } );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'keeps every key when filterConfigs covers them all', () => {
+		const { gated, droppedAny } = gateActiveFilters(
+			{ category: [ 'news' ] },
+			{ category: { filterKey: 'category' }, post_date: { filterKey: 'post_date' } }
+		);
+		expect( gated ).toEqual( { category: [ 'news' ] } );
+		expect( droppedAny ).toBe( false );
+	} );
+
+	it( 'returns droppedAny=false when activeFilters is empty', () => {
+		const { gated, droppedAny } = gateActiveFilters( {}, { category: { filterKey: 'category' } } );
+		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( false );
+	} );
+
+	it( 'drops everything when filterConfigs is empty', () => {
+		const { gated, droppedAny } = gateActiveFilters( { category: [ 'news' ] }, {} );
+		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( true );
+	} );
+} );
+
 describe( 'store callbacks', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
@@ -415,5 +447,47 @@ describe( 'store callbacks', () => {
 		expect( addEventListener ).toHaveBeenCalledWith( 'popstate', actions.handlePopState );
 		expect( search ).toHaveBeenCalledTimes( 1 );
 		expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+	} );
+
+	it( 'drops unknown activeFilters keys before running the URL-seeded search', () => {
+		jest.isolateModules( () => {
+			const fresh = require( '../../../src/search-blocks/store' );
+			jest.spyOn( window, 'addEventListener' ).mockImplementation();
+			jest.spyOn( fresh.actions, 'handlePopState' ).mockImplementation();
+			const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+			fresh.state.searchQuery = 'wordpress';
+			fresh.state.priceRange = null;
+			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
+			fresh.state.activeFilters = { category: [ 'news' ], foo: [ 'bar' ] };
+
+			captured.callbacks.initialize();
+
+			expect( fresh.state.activeFilters ).toEqual( { category: [ 'news' ] } );
+			expect( search ).toHaveBeenCalledTimes( 1 );
+			expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+		} );
+	} );
+
+	it( 'clears isLoading when gating empties activeFilters and no fetch will fire', () => {
+		jest.isolateModules( () => {
+			const fresh = require( '../../../src/search-blocks/store' );
+			jest.spyOn( window, 'addEventListener' ).mockImplementation();
+			jest.spyOn( fresh.actions, 'handlePopState' ).mockImplementation();
+			const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+			// No searchQuery / priceRange, only a stray URL key — gating empties
+			// activeFilters, no fetch fires, and the spinner must be cleared
+			// otherwise the page stays in its PHP-seeded `isLoading: true` state.
+			fresh.state.searchQuery = '';
+			fresh.state.priceRange = null;
+			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
+			fresh.state.activeFilters = { foo: [ 'bar' ] };
+			fresh.state.isLoading = true;
+
+			captured.callbacks.initialize();
+
+			expect( fresh.state.activeFilters ).toEqual( {} );
+			expect( search ).not.toHaveBeenCalled();
+			expect( fresh.state.isLoading ).toBe( false );
+		} );
 	} );
 } );
