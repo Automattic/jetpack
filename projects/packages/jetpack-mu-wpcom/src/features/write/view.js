@@ -707,6 +707,11 @@ const contentReady2 = setInterval( () => {
 	if ( ! contentEl.innerHTML.trim() ) {
 		contentEl.innerHTML = '<p><br></p>';
 	}
+	// When reopening a media-only post, the content may contain only
+	// non-editable blocks (e.g. figures) with no editable paragraphs.
+	// Run the block-structure audit immediately so gap paragraphs are
+	// inserted and the user can start editing right away.
+	ensureBlockStructure();
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
 		contentEl.classList.add( 'bw-is-empty' );
 		contentEl.addEventListener( 'input', () => contentEl.classList.remove( 'bw-is-empty' ), {
