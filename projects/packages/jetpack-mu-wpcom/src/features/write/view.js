@@ -1269,6 +1269,41 @@ function promoteGapAtCursor() {
 }
 
 /**
+ * Focus the end of the content area. If the last child is already an
+ * empty paragraph, place the cursor there; otherwise append a new one.
+ *
+ * @param {HTMLElement} content   - The .bw-content element.
+ * @param {Element}     lastChild - The last child element in the content.
+ */
+function focusEndOfContent( content, lastChild ) {
+	let target;
+
+	// Don't stack empty paragraphs — reuse an existing empty trailing <p>.
+	if (
+		lastChild.tagName === 'P' &&
+		! lastChild.classList.contains( 'bw-block-gap' ) &&
+		( ! lastChild.textContent || ! lastChild.textContent.trim() )
+	) {
+		target = lastChild;
+	} else {
+		target = document.createElement( 'p' );
+		target.innerHTML = '<br>';
+		content.appendChild( target );
+	}
+
+	const sel = window.getSelection();
+	const range = document.createRange();
+	range.setStart( target, 0 );
+	range.collapse( true );
+	sel.removeAllRanges();
+	sel.addRange( range );
+
+	// Focus after setting the selection so the browser doesn't
+	// scroll to the top of the contenteditable area.
+	content.focus( { preventScroll: true } );
+}
+
+/**
  * Ensure the content area always has proper block structure.
  *
  * Native contentEditable can leave bare text nodes or <br> elements as
@@ -1688,33 +1723,32 @@ const { state } = store( 'wpcom-write', {
 			const lastRect = lastChild.getBoundingClientRect();
 			if ( event.clientY <= lastRect.bottom ) return;
 
-			// Don't stack empty paragraphs — if the last element is
-			// already an empty paragraph, just place the cursor there.
+			focusEndOfContent( content, lastChild );
+		},
+
+		handleMainClick( event ) {
+			const content = getContent();
+			if ( ! content ) return;
+
+			// Only handle clicks directly on .bw-main or .bw-editor
+			// (the padding area below the content), not on child elements
+			// like the content area itself or the title.
+			const tag = event.target.tagName;
+			const cls = event.target.classList;
 			if (
-				lastChild.tagName === 'P' &&
-				! lastChild.classList.contains( 'bw-block-gap' ) &&
-				( ! lastChild.textContent || ! lastChild.textContent.trim() )
+				! ( tag === 'MAIN' && cls.contains( 'bw-main' ) ) &&
+				! ( tag === 'DIV' && cls.contains( 'bw-editor' ) )
 			) {
-				const sel = window.getSelection();
-				const range = document.createRange();
-				range.setStart( lastChild, 0 );
-				range.collapse( true );
-				sel.removeAllRanges();
-				sel.addRange( range );
 				return;
 			}
 
-			// Append a new empty paragraph and place the cursor in it.
-			const p = document.createElement( 'p' );
-			p.innerHTML = '<br>';
-			content.appendChild( p );
+			const contentRect = content.getBoundingClientRect();
+			if ( event.clientY <= contentRect.bottom ) return;
 
-			const sel = window.getSelection();
-			const range = document.createRange();
-			range.setStart( p, 0 );
-			range.collapse( true );
-			sel.removeAllRanges();
-			sel.addRange( range );
+			const lastChild = content.lastElementChild;
+			if ( ! lastChild ) return;
+
+			focusEndOfContent( content, lastChild );
 		},
 
 		repairStructure() {

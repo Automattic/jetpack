@@ -368,7 +368,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</div>
 
 	<!-- Writing area -->
-	<main class="bw-main">
+	<main class="bw-main" data-wp-on--click="actions.handleMainClick">
 		<div class="bw-editor">
 			<textarea
 				class="bw-title"
