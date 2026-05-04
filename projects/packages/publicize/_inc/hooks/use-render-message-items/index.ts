@@ -69,7 +69,7 @@ function connectionHasMedia(
  * item's `message` string changes; 0ms (next tick) when only non-message inputs change
  * (network membership, `is_social_post`).
  *
- * @return The debounced items array, ready to feed to `getRenderedMessageForConnection`.
+ * @return The debounced items array, ready to feed to `getRenderedMessages`.
  */
 export function useRenderMessageItems(): RenderItem[] {
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );

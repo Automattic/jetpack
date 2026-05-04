@@ -92,12 +92,11 @@ export function useConnectionPreviewData( connection: Connection ) {
 			if ( ! templatesEnabled || ! postId ) {
 				return null;
 			}
-			const slice = select( socialStore ).getRenderedMessageForConnection(
-				postId,
-				items,
-				connection.connection_id
-			);
-			return slice?.rendered_message ?? null;
+			// Calling getRenderedMessages via select() is what triggers the resolver
+			// (and the POST). Picking the per-connection slice off the returned batch
+			// keeps the call explicit instead of routing through a derived selector.
+			const batch = select( socialStore ).getRenderedMessages( postId, items );
+			return batch?.[ connection.connection_id ]?.rendered_message ?? null;
 		},
 		[ templatesEnabled, postId, items, connection.connection_id ]
 	);

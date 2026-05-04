@@ -1,15 +1,5 @@
-// Mock @wordpress/data so the registry selector resolves with our injected select.
-const mockGetRenderedMessages = jest.fn();
-
-jest.mock( '@wordpress/data', () => ( {
-	createRegistrySelector: ( factory: ( select: unknown ) => unknown ) =>
-		factory( () => ( {
-			getRenderedMessages: mockGetRenderedMessages,
-		} ) ),
-} ) );
-
 import { hashRenderItems, type RenderItem } from '../../../utils/render-messages';
-import { getRenderedMessages, getRenderedMessageForConnection } from '../rendered-messages';
+import { getRenderedMessages } from '../rendered-messages';
 import type { RenderedMessages, SocialStoreState } from '../../types';
 
 const item = ( id: string, message = '' ): RenderItem => ( {
@@ -56,44 +46,5 @@ describe( 'getRenderedMessages', () => {
 		expect( getRenderedMessages( state, 42, itemsB )?.a.rendered_message ).toBe( 'rendered-B' );
 		// Reverting reads the original — no collision.
 		expect( getRenderedMessages( state, 42, itemsA )?.a.rendered_message ).toBe( 'rendered-A' );
-	} );
-} );
-
-describe( 'getRenderedMessageForConnection', () => {
-	beforeEach( () => {
-		mockGetRenderedMessages.mockReset();
-	} );
-
-	it( 'returns the slice for the requested connection', () => {
-		mockGetRenderedMessages.mockReturnValueOnce( {
-			a: { rendered_message: 'A' },
-			b: { error: { code: 'render_failed', message: 'oops' } },
-		} );
-
-		expect( getRenderedMessageForConnection( {}, 42, [ item( 'a' ), item( 'b' ) ], 'a' ) ).toEqual(
-			{
-				rendered_message: 'A',
-			}
-		);
-
-		mockGetRenderedMessages.mockReturnValueOnce( {
-			a: { rendered_message: 'A' },
-			b: { error: { code: 'render_failed', message: 'oops' } },
-		} );
-		expect( getRenderedMessageForConnection( {}, 42, [ item( 'a' ), item( 'b' ) ], 'b' ) ).toEqual(
-			{
-				error: { code: 'render_failed', message: 'oops' },
-			}
-		);
-	} );
-
-	it( 'returns null when the connection is not in the batch', () => {
-		mockGetRenderedMessages.mockReturnValueOnce( { a: { rendered_message: 'A' } } );
-		expect( getRenderedMessageForConnection( {}, 42, [ item( 'a' ) ], 'unknown' ) ).toBeNull();
-	} );
-
-	it( 'returns null while the batch is unresolved', () => {
-		mockGetRenderedMessages.mockReturnValueOnce( undefined );
-		expect( getRenderedMessageForConnection( {}, 42, [ item( 'a' ) ], 'a' ) ).toBeNull();
 	} );
 } );
