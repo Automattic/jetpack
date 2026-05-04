@@ -683,7 +683,7 @@ class zeroBSCRM_list {
 					};
 					<?php
 					// Nonce for AJAX
-					echo 'var zbscrmjs_secToken = "' . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . '";';
+					echo 'var zbscrmjs_secToken = ' . wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 
 					// any last JS?
 					if ( isset( $this->extraJS ) && ! empty( $this->extraJS ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase

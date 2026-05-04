@@ -106,10 +106,10 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 		<div style="clear:both"></div>
 		<script type="text/javascript">
 			var jpcrm_proposal_data = {
-				'quote_id': '<?php echo esc_js( $quote_id ); ?>',
-				'quote_hash': '<?php echo esc_js( $quote_hash ); ?>',
-				'proposal_nonce': '<?php echo esc_js( wp_create_nonce( 'zbscrmquo-nonce' ) ); ?>',
-				'ajax_url': '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>'
+				'quote_id': <?php echo (int) $quote_id; ?>,
+				'quote_hash': <?php echo wp_json_encode( $quote_hash, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+				'proposal_nonce': <?php echo wp_json_encode( wp_create_nonce( 'zbscrmquo-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+				'ajax_url': <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
 			};
 		</script>
 		<?php
