@@ -108,9 +108,12 @@ function jetpack_googlemaps_shortcode( $atts ) {
 			} elseif ( 'h' === $key ) {
 				$height = (int) $value;
 			} else {
-				$key   = str_replace( '_', '.', $key );
+				$key = str_replace( '_', '.', $key );
+
+				// Re-encode literal `&` to `%26`: parse_str() URL-decodes `%26` in values, and a stray `&` would be treated as a query separator downstream.
 				$value = str_replace( '&', '%26', $value );
-				$url  .= esc_attr( "$key=$value&amp;" );
+
+				$url .= esc_attr( "$key=$value&amp;" );
 			}
 		}
 		$url = substr( $url, 0, -5 );

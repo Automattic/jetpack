@@ -84,7 +84,10 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 		$shortcode = '[googlemaps https://maps.google.com/maps?q=The%20Westin%20Doha%20Hotel%20%26%20Spa]';
 		$rendered  = do_shortcode( $shortcode );
 
-		$this->assertStringContainsString( '%26', $rendered );
+		$this->assertStringContainsString(
+			'src="https://maps.google.com/maps?q=The%20Westin%20Doha%20Hotel%20%26%20Spa"',
+			$rendered
+		);
 		$this->assertStringNotContainsString( 'Hotel%20&amp;%20Spa', $rendered );
 		$this->assertStringNotContainsString( 'Hotel & Spa', $rendered );
 	}
