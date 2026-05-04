@@ -181,11 +181,11 @@ class Filter_Checkbox_Test extends TestCase {
 
 	/**
 	 * Post-type filters seed a `valueLabels` map keyed by post-type slug so the
-	 * active-filter pill can render "Posts" instead of the raw `post` slug —
-	 * post-type aggregation buckets are bare slugs (no `slug_slash_name`
-	 * field), so without this map the pill has nothing else to display. Other
-	 * filter types skip the map because their `slug_slash_name` buckets carry
-	 * the label inline.
+	 * active-filter pill can render the post type's `singular_name` (e.g.
+	 * "Post Type: Post") instead of the raw `post` slug. Post-type aggregation
+	 * buckets are bare slugs with no `slug_slash_name` variant, so without
+	 * this map the pill has nothing else to display. Other filter types skip
+	 * the map because their `slug_slash_name` buckets carry the label inline.
 	 */
 	public function test_build_config_seeds_value_labels_for_post_type() {
 		register_post_type(

@@ -100,12 +100,11 @@ class Filter_Checkbox {
 			'maxItems'        => max( 1, (int) ( $attributes['maxItems'] ?? 10 ) ),
 			'bucketSortOrder' => static::normalize_bucket_sort_order( $attributes['bucketSortOrder'] ?? null ),
 			// Pre-resolved value→label map used by the active-filters pill list
-			// and the checkbox list to render human-readable labels. Taxonomy
-			// and author aggregations use `slug_slash_name` fields, so each
-			// bucket key already carries both pieces — JS post-slash-splits at
-			// render time. Post-type buckets are bare slugs (`post`, `page`),
-			// so without a lookup the pill would read "post" instead of
-			// "Posts"; we seed the singular_name labels here.
+			// and the checkbox list. Taxonomy and author aggregations use
+			// `slug_slash_name` keys, so the bucket already carries the label
+			// — JS post-slash-splits at render time. Post-type buckets are
+			// bare slugs (`post`, `page`), so without a lookup the pill would
+			// read "post" instead of "Post"; we seed the singular_name here.
 			'valueLabels'     => static::build_value_labels( $filter_type ),
 		);
 	}

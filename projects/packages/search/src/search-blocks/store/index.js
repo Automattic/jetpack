@@ -71,7 +71,8 @@ function dateBucketSlug( bucket ) {
 }
 
 /**
- * filterItems for a `slash`-format filter (taxonomy, post_type, author).
+ * filterItems for non-date filters. Handles both `slug/Name` keys (taxonomy,
+ * author) and bare-slug keys (post_type) via `bucketLabel`/`bucketValue`.
  * Drops selected buckets — those appear in the active-filters block.
  * Resorts by visible label when `bucketSortOrder === 'alpha'` since the
  * ES `_key: asc` order is by slug, not display label.
