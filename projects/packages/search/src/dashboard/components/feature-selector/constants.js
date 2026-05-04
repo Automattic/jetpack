@@ -1,5 +1,5 @@
 import { __, _x } from '@wordpress/i18n';
-import { grid, desktop, search, cancelCircleFilled } from '@wordpress/icons';
+import { grid, navigationOverlay, search, cancelCircleFilled } from '@wordpress/icons';
 
 /**
  * Experience IDs.
@@ -90,7 +90,7 @@ export function getExperienceIcon( experience ) {
 		case EXPERIENCE.EMBEDDED:
 			return grid;
 		case EXPERIENCE.OVERLAY:
-			return desktop;
+			return navigationOverlay;
 		case EXPERIENCE.CLASSIC:
 			return search;
 		case EXPERIENCE.OFF:
