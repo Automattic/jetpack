@@ -90,8 +90,21 @@ class Settings_REST {
 
 	/**
 	 * Register hooks.
+	 *
+	 * `register_setting()` is always installed — it's the canonical entry point
+	 * for `/wp/v2/settings` on Atomic and standard WP, and nothing else (legacy
+	 * code included) puts the `podcasting_*` keys there. The wpcom site-settings
+	 * filters, on the other hand, do overlap with the legacy mu-plugin / bridge
+	 * when both are active, so we skip them in that case.
+	 *
+	 * @param bool $register_wpcom_filters Whether to register the
+	 *                                     `site_settings_endpoint_get` /
+	 *                                     `rest_api_update_site_settings`
+	 *                                     filters. Pass `false` when legacy
+	 *                                     code is active to avoid running
+	 *                                     equivalent logic twice.
 	 */
-	public static function init() {
+	public static function init( $register_wpcom_filters = true ) {
 		if ( self::$initialized ) {
 			return;
 		}
@@ -102,9 +115,15 @@ class Settings_REST {
 		// burns cycles on every frontend pageload.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_settings' ) );
 
-		// wpcom-only filters; no-ops on Atomic. Cheap to register either way.
-		add_filter( 'site_settings_endpoint_get', array( __CLASS__, 'handle_wpcom_get' ) );
-		add_filter( 'rest_api_update_site_settings', array( __CLASS__, 'handle_wpcom_update' ), 10, 2 );
+		if ( $register_wpcom_filters ) {
+			add_filter( 'site_settings_endpoint_get', array( __CLASS__, 'handle_wpcom_get' ) );
+			add_filter(
+				'rest_api_update_site_settings',
+				array( __CLASS__, 'handle_wpcom_update' ),
+				10,
+				2
+			);
+		}
 	}
 
 	/**

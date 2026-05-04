@@ -49,11 +49,15 @@ class Podcast {
 
 		$legacy_active = class_exists( 'Automattic_Podcasting', false );
 
-		// REST settings filters need to register early so they're available for any /wp/v2/settings request.
-		// Skipped when the legacy code is active — it already registers equivalent filters.
-		if ( ! $legacy_active ) {
-			Settings_REST::init();
-		}
+		// `register_setting()` always runs — it's the only path that exposes
+		// `podcasting_*` keys via `/wp/v2/settings` on Atomic, and the legacy
+		// wpcom mu-plugin / at-pressable-podcasting bridge don't register them
+		// there. Skipping it would leave the SPA with no way to read or write
+		// settings on Atomic. The wpcom-only `site_settings_endpoint_get` /
+		// `rest_api_update_site_settings` filters are a different story —
+		// those `do` overlap with the legacy code, so we skip them when the
+		// legacy code is loaded.
+		Settings_REST::init( ! $legacy_active );
 
 		// Admin page registration is only relevant in wp-admin contexts. Always
 		// registered (even alongside legacy) so the new SPA is the canonical
