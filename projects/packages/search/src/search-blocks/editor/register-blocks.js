@@ -20,6 +20,7 @@ import { getCategories, registerBlockType, setCategories } from '@wordpress/bloc
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
+import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPopoverEdit, { save as filterPopoverSave } from '../blocks/filter-popover/edit';
 import LoadMoreEdit from '../blocks/load-more/edit';
 import NoResultsEdit from '../blocks/no-results/edit';
@@ -35,6 +36,7 @@ const BLOCKS = [
 	[ 'jetpack/search-input', SearchInputEdit ],
 	[ 'jetpack/search-results', SearchResultsEdit ],
 	[ 'jetpack/filter-checkbox', FilterCheckboxEdit ],
+	[ 'jetpack/filter-date', FilterDateEdit ],
 	[ 'jetpack/active-filters', ActiveFiltersEdit ],
 	[ 'jetpack/filter-popover', FilterPopoverEdit, filterPopoverSave ],
 	[ 'jetpack/sort-control', SortControlEdit ],

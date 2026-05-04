@@ -1,5 +1,9 @@
-import { store, withSyncEvent as originalWithSyncEvent } from '@wordpress/interactivity';
-import { buildSearchUrl } from './api';
+import {
+	store,
+	getContext,
+	withSyncEvent as originalWithSyncEvent,
+} from '@wordpress/interactivity';
+import { buildSearchUrl, formatDateBucketLabel } from './api';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
 import {
@@ -48,6 +52,109 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
 		gated[ key ] = values;
 	}
 	return { gated, droppedAny };
+}
+
+/**
+ * Parse a `slug/Display Name` bucket key. Plain (no-slash) keys round-trip
+ * as { value: key, label: key }.
+ *
+ * @param {unknown} rawKey - Bucket key from the search response.
+ * @return {{ value: string, label: string }} Parsed value and label.
+ */
+function parseSlashBucketKey( rawKey ) {
+	const key = String( rawKey ?? '' );
+	const slashIdx = key.indexOf( '/' );
+	if ( slashIdx === -1 ) {
+		return { value: key, label: key };
+	}
+	return { value: key.slice( 0, slashIdx ), label: key.slice( slashIdx + 1 ) };
+}
+
+/**
+ * Slug for a date_histogram bucket. Falls back to the numeric key when
+ * `key_as_string` is missing.
+ *
+ * @param {object} bucket - Aggregation bucket.
+ * @return {string} Bucket slug.
+ */
+function dateBucketSlug( bucket ) {
+	const ks = bucket?.key_as_string;
+	if ( typeof ks === 'string' && ks !== '' ) {
+		return ks;
+	}
+	return String( bucket?.key ?? '' );
+}
+
+/**
+ * filterItems for a `slash`-format filter (taxonomy, post_type, author).
+ * Drops selected buckets — those appear in the active-filters block.
+ *
+ * @param {object} sharedState - Live store state.
+ * @param {string} filterKey   - Filter key.
+ * @param {object} config      - filterConfigs entry.
+ * @return {Array<object>} Item descriptors.
+ */
+function checkboxFilterItems( sharedState, filterKey, config ) {
+	const buckets = sharedState.aggregations?.[ filterKey ]?.buckets;
+	if ( ! Array.isArray( buckets ) ) {
+		return [];
+	}
+	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
+	const showCount = config.showCount !== false;
+	return buckets.reduce( ( items, bucket ) => {
+		const { value, label } = parseSlashBucketKey( bucket.key );
+		if ( selected.includes( value ) ) {
+			return items;
+		}
+		items.push( {
+			value,
+			label,
+			showCount,
+			countLabel: String( bucket.doc_count ?? 0 ),
+		} );
+		return items;
+	}, [] );
+}
+
+/**
+ * filterItems for a `date` filter. Drops empty + selected buckets, then
+ * slices to `maxItems` (date_histogram has no ES `size`).
+ *
+ * @param {object} sharedState - Live store state.
+ * @param {string} filterKey   - Filter key.
+ * @param {object} config      - filterConfigs entry.
+ * @return {Array<object>} Item descriptors.
+ */
+function dateFilterItems( sharedState, filterKey, config ) {
+	const buckets = sharedState.aggregations?.[ filterKey ]?.buckets;
+	if ( ! Array.isArray( buckets ) ) {
+		return [];
+	}
+	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
+	const showCount = config.showCount !== false;
+	const interval = config.interval === 'month' ? 'month' : 'year';
+	const locale = sharedState.locale || 'en-US';
+	const limit = Math.max( 1, config.maxItems ?? 10 );
+	const items = [];
+	for ( const bucket of buckets ) {
+		if ( items.length >= limit ) {
+			break;
+		}
+		if ( ( bucket?.doc_count ?? 0 ) <= 0 ) {
+			continue;
+		}
+		const value = dateBucketSlug( bucket );
+		if ( ! value || selected.includes( value ) ) {
+			continue;
+		}
+		items.push( {
+			value,
+			label: formatDateBucketLabel( value, interval, locale ),
+			showCount,
+			countLabel: String( bucket.doc_count ),
+		} );
+	}
+	return items;
 }
 // Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
@@ -260,9 +367,87 @@ const { state, actions } = store( NAMESPACE, {
 		get isSortByOldest() {
 			return state.sortOrder === 'oldest';
 		},
+
+		/**
+		 * Bound to the wrapper's `hidden` attribute. Date filters require at
+		 * least one populated bucket (defence against response-shape changes
+		 * since `min_doc_count: 1` should already exclude empty buckets).
+		 *
+		 * @return {boolean} True when buckets are available.
+		 */
+		get hasFilterBuckets() {
+			const { filterKey } = getContext();
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				return buckets.some( bucket => ( bucket?.doc_count ?? 0 ) > 0 );
+			}
+			return true;
+		},
+
+		/**
+		 * True when every bucket is in activeFilters — block then shows
+		 * the "All filters applied" message instead of an empty list.
+		 *
+		 * @return {boolean} True when nothing is left to offer.
+		 */
+		get allBucketsSelected() {
+			const { filterKey } = getContext();
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const selected = state.activeFilters?.[ filterKey ] ?? [];
+			if ( selected.length === 0 ) {
+				return false;
+			}
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				const populated = buckets.filter( bucket => ( bucket?.doc_count ?? 0 ) > 0 );
+				if ( populated.length === 0 ) {
+					return false;
+				}
+				return populated.every( bucket => selected.includes( dateBucketSlug( bucket ) ) );
+			}
+			return buckets.every( bucket => {
+				const { value } = parseSlashBucketKey( bucket.key );
+				return selected.includes( value );
+			} );
+		},
+
+		/**
+		 * `{ value, label, showCount, countLabel }` items for the current
+		 * filter block. Dispatches on `filterType`. Lives on the shared
+		 * namespace so per-block view bundles don't clobber siblings.
+		 *
+		 * @return {Array<object>} Item descriptors.
+		 */
+		get filterItems() {
+			const { filterKey } = getContext();
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				return dateFilterItems( state, filterKey, config );
+			}
+			return checkboxFilterItems( state, filterKey, config );
+		},
 	},
 
 	actions: {
+		/**
+		 * Toggle the filter value that owns the change event. Shared by
+		 * filter-checkbox and filter-date.
+		 *
+		 * @param {Event} event - Change event.
+		 * @yield {Promise} setFilter action.
+		 */
+		*onFilterChange( event ) {
+			const { filterKey } = getContext();
+			yield actions.setFilter( filterKey, event.target.value );
+		},
+
 		/**
 		 * Run a search and replace the result list.
 		 *

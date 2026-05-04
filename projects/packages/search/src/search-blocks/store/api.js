@@ -33,6 +33,19 @@ const SORT_QUERY_MAP = {
 	relevance: 'score_default',
 };
 
+// Mirrors Filter_Date::ALLOWED_INTERVALS. Doubles as the gate in
+// buildAggregations — ES 400s on unknown intervals.
+const DATE_HISTOGRAM_FORMATS = {
+	year: 'yyyy',
+	month: 'yyyy-MM',
+};
+
+const DATE_AGG_ORDERS = {
+	newest: { _key: 'desc' },
+	oldest: { _key: 'asc' },
+	count: { _count: 'desc' },
+};
+
 /**
  * Resolve ES field names and bucket format for a given filterConfig.
  *
@@ -43,8 +56,12 @@ const SORT_QUERY_MAP = {
  * the stored filter value) and the display label — no extra WP lookup on
  * the client.
  *
+ * `bucketFormat`: `slash` splits on the first `/`, `plain` uses the key as
+ * both value and label, `date` uses the bucket's `key_as_string` and a
+ * locale-aware label from `formatDateBucketLabel`.
+ *
  * @param {object} config - FilterConfig entry from the store.
- * @return {{ aggField: string|null, filterField: string|null, bucketFormat: 'slash'|'plain' }} Resolved ES fields and bucket key format for the filter.
+ * @return {{ aggField: string|null, filterField: string|null, bucketFormat: 'slash'|'plain'|'date' }} Resolved fields.
  */
 export function resolveFilterFields( config ) {
 	if ( ! config ) {
@@ -114,6 +131,9 @@ export function resolveFilterFields( config ) {
 				filterField: 'meta._wc_average_rating.double',
 				bucketFormat: 'plain',
 			};
+		case 'date':
+			// WPCOM v1.3 only whitelists `date` for date_histogram + range.
+			return { aggField: 'date', filterField: 'date', bucketFormat: 'date' };
 	}
 	return { aggField: null, filterField: null, bucketFormat: 'plain' };
 }
@@ -147,15 +167,15 @@ export const WC_RATING_RANGES = [
 
 /**
  * Build ES aggregation requests from the filterConfigs registered by each
- * filter-checkbox block's render.php.
+ * filter block's render.php.
  *
- * The `order` key maps the block's `bucketSortOrder` attribute to the ES
- * `terms` agg order clause: `count` → `{ _count: 'desc' }` (the ES default,
- * matched to the instant-search overlay), `alpha` → `{ _key: 'asc' }` which
- * sorts by the aggregation's slug_slash_name key. That's "good enough"
- * alphabetical for built-in variations since the slug typically leads with
- * the same letter as the display name; a label-accurate sort would require
- * a post-aggregation resort in the client.
+ * `terms` for filter-checkbox: `bucketSortOrder` maps to the ES order
+ * clause. `alpha` sorts by `slug_slash_name` — close enough for built-in
+ * variations without a label-aware resort.
+ *
+ * `date_histogram` for filter-date: format request makes `key_as_string`
+ * match the URL slug. No `size` parameter on date_histogram; the client
+ * slices to `maxItems`.
  *
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
  * @return {object} Aggregations payload for the v1.3 search API.
@@ -184,6 +204,20 @@ export function buildAggregations( filterConfigs ) {
 		if ( ! aggField ) {
 			continue;
 		}
+		if ( config?.filterType === 'date' ) {
+			const interval = DATE_HISTOGRAM_FORMATS[ config.interval ] ? config.interval : 'year';
+			const order = DATE_AGG_ORDERS[ config.bucketSortOrder ] ?? DATE_AGG_ORDERS.newest;
+			aggregations[ filterKey ] = {
+				date_histogram: {
+					field: aggField,
+					calendar_interval: interval,
+					format: DATE_HISTOGRAM_FORMATS[ interval ],
+					min_doc_count: 1,
+					order,
+				},
+			};
+			continue;
+		}
 		const order = config?.bucketSortOrder === 'alpha' ? { _key: 'asc' } : { _count: 'desc' };
 		aggregations[ filterKey ] = {
 			terms: {
@@ -197,16 +231,52 @@ export function buildAggregations( filterConfigs ) {
 }
 
 /**
+ * Translate a date filter slug into half-open `[gte, lt)` bounds for ES.
+ * `lt` over `lte` avoids the off-by-one between adjacent buckets.
+ *
+ * @param {string} value    - `2024` or `2024-03`.
+ * @param {string} interval - 'year' | 'month'.
+ * @return {{ gte: string, lt: string }|null} null when the slug doesn't parse.
+ */
+function dateRangeFromSlug( value, interval ) {
+	if ( interval === 'year' ) {
+		const year = Number.parseInt( value, 10 );
+		if ( ! Number.isFinite( year ) || String( year ) !== value ) {
+			return null;
+		}
+		return {
+			gte: `${ year }-01-01`,
+			lt: `${ year + 1 }-01-01`,
+		};
+	}
+	if ( interval === 'month' ) {
+		const match = /^(\d{4})-(\d{2})$/.exec( value );
+		if ( ! match ) {
+			return null;
+		}
+		const year = Number.parseInt( match[ 1 ], 10 );
+		const month = Number.parseInt( match[ 2 ], 10 );
+		if ( month < 1 || month > 12 ) {
+			return null;
+		}
+		const nextYear = month === 12 ? year + 1 : year;
+		const nextMonth = month === 12 ? 1 : month + 1;
+		const pad = n => String( n ).padStart( 2, '0' );
+		return {
+			gte: `${ year }-${ pad( month ) }-01`,
+			lt: `${ nextYear }-${ pad( nextMonth ) }-01`,
+		};
+	}
+	return null;
+}
+
+/**
  * Build the ES filter clause from active selections.
  *
- * Each selected value becomes a `term` clause against the configured
- * filterField. Within a single filter key, multiple values OR together
- * (selecting two categories broadens the result set) — across different
- * keys, clauses AND together. Note this diverges from the instant-search
- * overlay in `src/instant-search/lib/api.js`, which ANDs multi-value
- * selections into `bool.must` directly; here we wrap them in a
- * `bool.should` so the facet UX matches what users expect from modern
- * faceted search (click-to-broaden within a facet).
+ * OR within a single filter key (`bool.should`); AND across keys
+ * (`bool.must`). Diverges from the legacy instant-search overlay which ANDs
+ * multi-value selections — Search 3.0 follows the broaden-on-click UX of
+ * modern faceted search.
  *
  * @param {object} activeFilters - { [filterKey]: string[] } selections.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } map.
@@ -245,10 +315,84 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		if ( ! filterField ) {
 			continue;
 		}
-		const terms = values.map( value => ( { term: { [ filterField ]: value } } ) );
-		must.push( terms.length === 1 ? terms[ 0 ] : { bool: { should: terms } } );
+		let clauses;
+		if ( config?.filterType === 'date' ) {
+			const interval = DATE_HISTOGRAM_FORMATS[ config.interval ] ? config.interval : 'year';
+			clauses = values
+				.map( value => {
+					const range = dateRangeFromSlug( value, interval );
+					return range ? { range: { [ filterField ]: range } } : null;
+				} )
+				.filter( Boolean );
+		} else {
+			clauses = values.map( value => ( { term: { [ filterField ]: value } } ) );
+		}
+		if ( clauses.length === 0 ) {
+			continue;
+		}
+		must.push( clauses.length === 1 ? clauses[ 0 ] : { bool: { should: clauses } } );
 	}
 	return must.length ? { bool: { must } } : undefined;
+}
+
+// Memoized: `filterItems` re-runs on every state read and may invoke
+// `formatDateBucketLabel` once per bucket.
+const monthLabelFormatters = new Map();
+
+/**
+ * Format a date filter bucket value as a localized display label.
+ *
+ * @param {string} value    - Bucket slug (`2024`, `2024-03`).
+ * @param {string} interval - 'year' | 'month'.
+ * @param {string} [locale] - BCP47 locale (default `en-US`).
+ * @return {string} Display label, or the raw value if it can't be parsed.
+ */
+export function formatDateBucketLabel( value, interval, locale = 'en-US' ) {
+	if ( typeof value !== 'string' || value === '' ) {
+		return '';
+	}
+	if ( interval !== 'month' ) {
+		return value;
+	}
+	const match = /^(\d{4})-(\d{2})$/.exec( value );
+	if ( ! match ) {
+		return value;
+	}
+	const month = Number.parseInt( match[ 2 ], 10 );
+	if ( month < 1 || month > 12 ) {
+		return value;
+	}
+	const formatter = getMonthLabelFormatter( locale || 'en-US' );
+	if ( ! formatter ) {
+		return value;
+	}
+	const year = Number.parseInt( match[ 1 ], 10 );
+	// Date.UTC + `timeZone: 'UTC'` prevents month-rollback on negative-offset locales.
+	return formatter.format( new Date( Date.UTC( year, month - 1, 1 ) ) );
+}
+
+/**
+ * Cached `Intl.DateTimeFormat` for month labels.
+ *
+ * @param {string} locale - BCP47 locale tag.
+ * @return {Intl.DateTimeFormat|null} null when the tag is malformed.
+ */
+function getMonthLabelFormatter( locale ) {
+	let formatter = monthLabelFormatters.get( locale );
+	if ( formatter ) {
+		return formatter;
+	}
+	try {
+		formatter = new Intl.DateTimeFormat( locale, {
+			year: 'numeric',
+			month: 'long',
+			timeZone: 'UTC',
+		} );
+	} catch {
+		return null;
+	}
+	monthLabelFormatters.set( locale, formatter );
+	return formatter;
 }
 
 /**

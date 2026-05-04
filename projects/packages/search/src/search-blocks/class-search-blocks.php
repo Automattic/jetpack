@@ -364,7 +364,9 @@ class Search_Blocks {
 	 *
 	 * Individual block render.php files may also call wp_interactivity_state()
 	 * — core deep-merges each call, so each block can contribute its own
-	 * entries (e.g. filter-checkbox writes its filterConfig).
+	 * entries (e.g. filter-checkbox writes its filterConfig). Filter blocks
+	 * placed in templates or template parts contribute their config the same
+	 * way; the complete registry exists by the time JS hydrates.
 	 *
 	 * URL-derived `activeFilters` is passed straight through; the JS store
 	 * gates it against the complete `filterConfigs` registry on hydration
@@ -410,8 +412,14 @@ class Search_Blocks {
 	 * @return array<string, array<string, mixed>>
 	 */
 	protected static function collect_filter_configs_from_post(): array {
-		if ( ! function_exists( 'get_post' ) || ! function_exists( 'parse_blocks' ) || ! class_exists( Filter_Checkbox::class ) ) {
+		if ( ! function_exists( 'get_post' ) || ! function_exists( 'parse_blocks' ) ) {
 			return array();
+		}
+		// Bail if any helper is missing — half-loaded feature would ship inconsistent filterConfigs.
+		foreach ( static::filter_block_helpers() as $helper ) {
+			if ( ! class_exists( $helper ) ) {
+				return array();
+			}
 		}
 		$post = get_post();
 		if ( ! $post || empty( $post->post_content ) ) {
@@ -423,24 +431,39 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Recursively walk a parsed block tree and push filter-checkbox configs
-	 * into `$configs`. Passing `$configs` by reference keeps the recursion
-	 * flat — callers don't need to merge children's maps back into parents'.
+	 * Map of filter block name → helper class. Add a new filter block type
+	 * by appending one entry here.
+	 *
+	 * @return array<string, class-string>
+	 */
+	protected static function filter_block_helpers(): array {
+		return array(
+			'jetpack/filter-checkbox' => Filter_Checkbox::class,
+			'jetpack/filter-date'     => Filter_Date::class,
+		);
+	}
+
+	/**
+	 * Recursively walk a parsed block tree, pushing each filter block's
+	 * config into `$configs` by reference.
 	 *
 	 * @param array $blocks  Parsed block tree from parse_blocks().
 	 * @param array $configs Accumulator map keyed by filterKey.
 	 * @return void
 	 */
 	protected static function walk_blocks_for_filter_configs( array $blocks, array &$configs ): void {
+		$helpers = static::filter_block_helpers();
 		foreach ( $blocks as $block ) {
 			if ( ! is_array( $block ) ) {
 				continue;
 			}
-			if ( 'jetpack/filter-checkbox' === ( $block['blockName'] ?? '' ) ) {
-				$attrs = (array) ( $block['attrs'] ?? array() );
-				$key   = Filter_Checkbox::derive_filter_key( $attrs );
+			$block_name = (string) ( $block['blockName'] ?? '' );
+			if ( isset( $helpers[ $block_name ] ) ) {
+				$helper = $helpers[ $block_name ];
+				$attrs  = (array) ( $block['attrs'] ?? array() );
+				$key    = $helper::derive_filter_key( $attrs );
 				if ( '' !== $key ) {
-					$configs[ $key ] = Filter_Checkbox::build_config( $attrs, $key );
+					$configs[ $key ] = $helper::build_config( $attrs, $key );
 				}
 			}
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {

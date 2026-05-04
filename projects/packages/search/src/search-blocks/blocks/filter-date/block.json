@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/filter-date",
+	"version": "0.1.0",
+	"title": "Date Filter",
+	"category": "jetpack-search",
+	"icon": "calendar-alt",
+	"description": "Date filter for Jetpack Search. Group results into yearly or monthly buckets so visitors can scope a search to a single time window.",
+	"supports": {
+		"html": false,
+		"interactivity": true
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"interval": {
+			"type": "string",
+			"default": "year",
+			"enum": [ "year", "month" ]
+		},
+		"label": { "type": "string", "default": "" },
+		"showCount": { "type": "boolean", "default": true },
+		"maxItems": { "type": "integer", "default": 10 },
+		"bucketSortOrder": {
+			"type": "string",
+			"default": "newest",
+			"enum": [ "newest", "oldest", "count" ]
+		}
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-date.js",
+	"style": "file:../../../../build/search-blocks/filter-date.css"
+}

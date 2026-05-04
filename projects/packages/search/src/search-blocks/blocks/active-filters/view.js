@@ -1,25 +1,26 @@
 import { store, getContext } from '@wordpress/interactivity';
+import { formatDateBucketLabel } from '../../store/api';
 import '../../store';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
 
 /**
- * Look up the display label for a selected filter value.
- *
- * Active filters store the *slug* part of each selection; the matching
- * aggregation bucket key is either the slug itself (post types) or
- * `slug/Name` (taxonomies, authors). If we can find a bucket we use its
- * display name, otherwise we fall back to the raw slug — bucket counts can
- * shift with every new query, and we don't want a selected pill to disappear
- * just because its value fell out of the top-N agg buckets.
+ * Resolve the display label for a selected filter value. Falls back to the
+ * raw slug so a pill doesn't disappear when its bucket falls out of the
+ * top-N between queries.
  *
  * @param {object} state       - Store state.
- * @param {string} filterKey   - Filter key this value belongs to.
+ * @param {string} filterKey   - Filter key.
  * @param {string} filterValue - Selected slug.
  * @return {string} Display label.
  */
 function resolveValueLabel( state, filterKey, filterValue ) {
+	const config = state.filterConfigs?.[ filterKey ] ?? {};
+	if ( config.filterType === 'date' ) {
+		const interval = config.interval === 'month' ? 'month' : 'year';
+		return formatDateBucketLabel( filterValue, interval, state.locale || 'en-US' );
+	}
 	const buckets = state.aggregations?.[ filterKey ]?.buckets;
 	if ( Array.isArray( buckets ) ) {
 		for ( const bucket of buckets ) {
