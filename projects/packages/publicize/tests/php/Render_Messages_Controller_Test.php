@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Publicize\REST_API\Render_Message_Controller;
+use Automattic\Jetpack\Publicize\REST_API\Render_Messages_Controller;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -14,14 +14,14 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Unit tests for the Render_Message_Controller class.
+ * Unit tests for the Render_Messages_Controller class.
  *
- * These exercise the self-hosted (proxy) code path — the WPCOM path requires
+ * Exercises the self-hosted (proxy) code path — the WPCOM render code path requires
  * wp.com-only libraries and is tested in a8c-sandbox.
  *
  * @package automattic/jetpack-publicize
  */
-class Render_Message_Controller_Test extends TestCase {
+class Render_Messages_Controller_Test extends TestCase {
 
 	/**
 	 * Admin user ID.
@@ -77,7 +77,7 @@ class Render_Message_Controller_Test extends TestCase {
 		Jetpack_Options::update_option( 'id', get_current_blog_id() );
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
-		add_action( 'rest_api_init', array( new Render_Message_Controller(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( new Render_Messages_Controller(), 'register_routes' ) );
 
 		do_action( 'rest_api_init' );
 	}
@@ -99,13 +99,17 @@ class Render_Message_Controller_Test extends TestCase {
 	/**
 	 * Request without authentication is rejected.
 	 */
-	public function test_render_message_without_permission() {
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-message' );
+	public function test_render_messages_without_permission() {
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
 		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
-				'network' => 'x',
-				'message' => '',
+				'items'   => array(
+					array(
+						'id'      => 'a',
+						'network' => 'x',
+					),
+				),
 			)
 		);
 		$response = $this->server->dispatch( $request );
@@ -115,10 +119,10 @@ class Render_Message_Controller_Test extends TestCase {
 	/**
 	 * Missing required parameters return a validation error.
 	 */
-	public function test_render_message_missing_params() {
+	public function test_render_messages_missing_params() {
 		wp_set_current_user( $this->admin_id );
 
-		$request  = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-message' );
+		$request  = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 400, $response->get_status() );
@@ -126,9 +130,56 @@ class Render_Message_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * An empty items[] array fails validation (minItems = 1).
+	 */
+	public function test_render_messages_rejects_empty_items() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
+			array(
+				'post_id' => $this->post_id,
+				'items'   => array(),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'rest_invalid_param', $response->as_error()->get_error_code() );
+	}
+
+	/**
+	 * Items missing required fields fail validation.
+	 */
+	public function test_render_messages_rejects_item_missing_required_fields() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
+			array(
+				'post_id' => $this->post_id,
+				// Missing `network` on the second item.
+				'items'   => array(
+					array(
+						'id'      => 'a',
+						'network' => 'x',
+					),
+					array( 'id' => 'b' ),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'rest_invalid_param', $response->as_error()->get_error_code() );
+	}
+
+	/**
 	 * Authenticated request without edit_post capability on the target post is rejected.
 	 */
-	public function test_render_message_without_post_edit_cap() {
+	public function test_render_messages_without_post_edit_cap() {
 		$subscriber_id = wp_insert_user(
 			array(
 				'user_login' => 'subscriber_user',
@@ -138,11 +189,16 @@ class Render_Message_Controller_Test extends TestCase {
 		);
 		wp_set_current_user( $subscriber_id );
 
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-message' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
 		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
-				'network' => 'x',
+				'items'   => array(
+					array(
+						'id'      => 'a',
+						'network' => 'x',
+					),
+				),
 			)
 		);
 		$response = $this->server->dispatch( $request );
@@ -151,17 +207,25 @@ class Render_Message_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Happy path: authenticated admin, request proxies to WPCOM and returns rendered message.
+	 * Happy path: authenticated admin, request proxies to WPCOM and returns the rendered batch.
 	 */
-	public function test_render_message_proxies_to_wpcom() {
+	public function test_render_messages_proxies_to_wpcom() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-message' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
 		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
-				'network' => 'x',
-				'message' => '',
+				'items'   => array(
+					array(
+						'id'      => 'conn_a',
+						'network' => 'x',
+					),
+					array(
+						'id'      => 'conn_b',
+						'network' => 'facebook',
+					),
+				),
 			)
 		);
 
@@ -171,7 +235,16 @@ class Render_Message_Controller_Test extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame(
-			array( 'rendered_message' => 'Hello World\n\nBody\n\nhttps://example.com/post' ),
+			array(
+				array(
+					'id'               => 'conn_a',
+					'rendered_message' => 'A',
+				),
+				array(
+					'id'               => 'conn_b',
+					'rendered_message' => 'B',
+				),
+			),
 			$response->get_data()
 		);
 	}
@@ -179,15 +252,20 @@ class Render_Message_Controller_Test extends TestCase {
 	/**
 	 * The is_social_post arg rejects values that aren't boolean-coercible.
 	 */
-	public function test_render_message_rejects_invalid_is_social_post() {
+	public function test_render_messages_rejects_invalid_is_social_post() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-message' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
 		$request->set_body_params(
 			array(
-				'post_id'        => $this->post_id,
-				'network'        => 'x',
-				'is_social_post' => 'not-a-bool',
+				'post_id' => $this->post_id,
+				'items'   => array(
+					array(
+						'id'             => 'a',
+						'network'        => 'x',
+						'is_social_post' => 'not-a-bool',
+					),
+				),
 			)
 		);
 
@@ -203,7 +281,16 @@ class Render_Message_Controller_Test extends TestCase {
 	public function mock_success_response() {
 		return array(
 			'body'     => wp_json_encode(
-				array( 'rendered_message' => 'Hello World\n\nBody\n\nhttps://example.com/post' ),
+				array(
+					array(
+						'id'               => 'conn_a',
+						'rendered_message' => 'A',
+					),
+					array(
+						'id'               => 'conn_b',
+						'rendered_message' => 'B',
+					),
+				),
 				JSON_UNESCAPED_SLASHES
 			),
 			'response' => array(

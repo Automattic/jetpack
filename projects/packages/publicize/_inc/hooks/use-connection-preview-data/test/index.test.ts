@@ -47,9 +47,8 @@ jest.mock( '../../use-sig-preview', () => ( {
 	default: jest.fn(),
 } ) );
 
-jest.mock( '../../use-rendered-message', () => ( {
-	__esModule: true,
-	default: jest.fn(),
+jest.mock( '../../use-render-message-items', () => ( {
+	useRenderMessageItems: jest.fn(),
 } ) );
 
 jest.mock( '../../use-post-meta', () => ( {
@@ -62,7 +61,7 @@ import { useConnectionPreviewData } from '../';
 import useMediaDetails from '../../use-media-details';
 import { usePerNetworkCustomization } from '../../use-per-network-customization';
 import { usePostMeta } from '../../use-post-meta';
-import useRenderedMessage from '../../use-rendered-message';
+import { useRenderMessageItems } from '../../use-render-message-items';
 import useSigPreview from '../../use-sig-preview';
 import useSocialMediaMessage from '../../use-social-media-message';
 import { useSocialPreviewPostData } from '../../use-social-preview-post-data';
@@ -82,8 +81,8 @@ const mockUseSocialPreviewPostData = useSocialPreviewPostData as jest.MockedFunc
 >;
 const mockUseMediaDetails = useMediaDetails as jest.MockedFunction< typeof useMediaDetails >;
 const mockUseSigPreview = useSigPreview as jest.MockedFunction< typeof useSigPreview >;
-const mockUseRenderedMessage = useRenderedMessage as jest.MockedFunction<
-	typeof useRenderedMessage
+const mockUseRenderMessageItems = useRenderMessageItems as jest.MockedFunction<
+	typeof useRenderMessageItems
 >;
 const mockUsePostMeta = usePostMeta as jest.MockedFunction< typeof usePostMeta >;
 
@@ -114,12 +113,27 @@ const defaultPostData = {
 	message: '',
 };
 
+/**
+ * Mock the chained useSelect calls inside the hook so each one returns its expected
+ * shape: postId, featuredImageId, then the rendered slice.
+ *
+ * @param opts          - Per-test overrides.
+ * @param opts.postId   - Post id returned to the editor-store useSelect.
+ * @param opts.rendered - String returned for the rendered slice, or null to signal "no slice yet".
+ */
+function mockSelectCalls( opts: { postId?: number; rendered?: string | null } = {} ) {
+	const { postId = 42, rendered = null } = opts;
+	mockUseSelect
+		.mockReturnValueOnce( postId )
+		.mockReturnValueOnce( 0 )
+		.mockReturnValueOnce( rendered );
+}
+
 describe( 'useConnectionPreviewData', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 
 		mockSiteHasFeature.mockReturnValue( false );
-		mockUseSelect.mockReturnValue( 0 );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: false, toggle: jest.fn() } );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'Global message',
@@ -129,7 +143,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseSocialPreviewPostData.mockReturnValue( defaultPostData );
 		mockUseMediaDetails.mockReturnValue( [ null, false ] );
 		mockUseSigPreview.mockReturnValue( { url: null, isLoading: false } );
-		mockUseRenderedMessage.mockReturnValue( { rendered: null, isLoading: false } );
+		mockUseRenderMessageItems.mockReturnValue( [] );
 		mockUsePostMeta.mockReturnValue( {
 			mediaSource: undefined,
 		} as ReturnType< typeof usePostMeta > );
@@ -140,6 +154,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'should return post data with global message when per-network customization is disabled', () => {
+		mockSelectCalls();
 		const connection = createMockConnection();
 
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
@@ -151,6 +166,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'should return post data with global message when ENHANCED_PUBLISHING feature is not available', () => {
+		mockSelectCalls();
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 		mockSiteHasFeature.mockReturnValue( false );
 
@@ -162,6 +178,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'should trim the global message', () => {
+		mockSelectCalls();
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: '  Message with spaces  ',
 			updateMessage: jest.fn(),
@@ -176,6 +193,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'should use connection attached_media when per-network customization is enabled', () => {
+		mockSelectCalls();
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 
@@ -187,12 +205,10 @@ describe( 'useConnectionPreviewData', () => {
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.media ).toEqual( attachedMedia );
-		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
-			expect.objectContaining( { isSocialPost: true } )
-		);
 	} );
 
 	it( 'should return featured image when media_source is featured-image', () => {
+		mockSelectCalls();
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 		mockUseMediaDetails.mockReturnValue( [
@@ -213,10 +229,9 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'should return empty media when media_source is featured-image but no featured image exists', () => {
+		mockSelectCalls();
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
-		// When no featured image is set, useMediaDetails returns [ {} ] with no mediaData.sourceUrl
-		// The hook checks featuredImageDetails?.mediaData?.sourceUrl to handle this edge case
 		mockUseMediaDetails.mockReturnValue( [ {}, false ] as ReturnType< typeof useMediaDetails > );
 
 		const connection = createMockConnection( { media_source: 'featured-image' } );
@@ -227,6 +242,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'should return SIG image when media_source is sig', () => {
+		mockSelectCalls();
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 		mockUseSigPreview.mockReturnValue( {
@@ -244,6 +260,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'should return empty media when media_source is sig but no SIG URL exists', () => {
+		mockSelectCalls();
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 		mockUseSigPreview.mockReturnValue( { url: null, isLoading: false } );
@@ -256,6 +273,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'should return empty media when media_source is none', () => {
+		mockSelectCalls();
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 
@@ -264,45 +282,13 @@ describe( 'useConnectionPreviewData', () => {
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.media ).toEqual( [] );
-		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
-			expect.objectContaining( { isSocialPost: false } )
-		);
 	} );
 
-	it( 'passes isSocialPost=true when global mode has attached media', () => {
-		mockSiteHasFeature.mockReturnValue( true );
-		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: false, toggle: jest.fn() } );
-		mockUseSocialPreviewPostData.mockReturnValue( {
-			...defaultPostData,
-			media: [ { url: 'https://example.com/media.jpg', type: 'image/jpeg' } ],
-		} );
-
-		const connection = createMockConnection();
-		renderHook( () => useConnectionPreviewData( connection ) );
-
-		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
-			expect.objectContaining( { isSocialPost: true } )
-		);
-	} );
-
-	it( 'passes isSocialPost=false when global mode has no attached media', () => {
-		mockSiteHasFeature.mockReturnValue( true );
-		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: false, toggle: jest.fn() } );
-
-		const connection = createMockConnection();
-		renderHook( () => useConnectionPreviewData( connection ) );
-
-		expect( mockUseRenderedMessage ).toHaveBeenCalledWith(
-			expect.objectContaining( { isSocialPost: false } )
-		);
-	} );
-
-	it( 'uses the rendered message when templates feature is on', () => {
-		mockSiteHasFeature.mockReturnValue( true );
-		mockUseRenderedMessage.mockReturnValue( {
+	it( 'uses the rendered message from the store when templates feature is on', () => {
+		mockSelectCalls( {
 			rendered: 'Hello World\n\nExcerpt\n\nhttps://example.com/post',
-			isLoading: false,
 		} );
+		mockSiteHasFeature.mockReturnValue( true );
 
 		const connection = createMockConnection();
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
@@ -310,9 +296,9 @@ describe( 'useConnectionPreviewData', () => {
 		expect( result.current.message ).toBe( 'Hello World\n\nExcerpt\n\nhttps://example.com/post' );
 	} );
 
-	it( 'falls back to raw message when rendered is null', () => {
+	it( 'falls back to raw message when no rendered slice is available', () => {
+		mockSelectCalls( { rendered: null } );
 		mockSiteHasFeature.mockReturnValue( true );
-		mockUseRenderedMessage.mockReturnValue( { rendered: null, isLoading: false } );
 
 		const connection = createMockConnection();
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
@@ -321,13 +307,10 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'ignores rendered message when MESSAGE_TEMPLATES feature is off', () => {
+		mockSelectCalls( { rendered: 'Should not be used' } );
 		mockSiteHasFeature.mockImplementation(
 			( feature: string ) => feature !== 'social-message-templates'
 		);
-		mockUseRenderedMessage.mockReturnValue( {
-			rendered: 'Should not be used',
-			isLoading: false,
-		} );
 
 		const connection = createMockConnection();
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );

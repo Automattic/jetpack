@@ -104,6 +104,23 @@ export type UnifiedModalState = {
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
 
+/**
+ * One rendered batch, indexed by per-connection result. The batch is keyed in
+ * `RenderedMessages` by `${postId}|${hashRenderItems(items)}` so each unique
+ * input shape gets its own slot — reverting to a previously-seen shape reads
+ * back the original response without refetching.
+ */
+export type RenderedMessageBatch = {
+	[ ConnectionId: string ]: {
+		rendered_message?: string;
+		error?: { code: string; message: string };
+	};
+};
+
+export type RenderedMessages = {
+	[ Key: string ]: RenderedMessageBatch;
+};
+
 export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
@@ -111,6 +128,7 @@ export type SocialStoreState = {
 	scheduledShares?: ScheduledShares;
 	unifiedModal?: UnifiedModalState;
 	renderCount?: RenderCount;
+	renderedMessages?: RenderedMessages;
 };
 
 export interface KeyringAdditionalUser {
