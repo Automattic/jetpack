@@ -667,6 +667,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_can_generate_video_clips_true_on_wpcom_with_videopress() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
 		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
 		if ( function_exists( 'wpcom_site_has_feature' ) ) {
@@ -691,6 +694,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_can_generate_video_clips_false_on_wpcom_without_videopress() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
 		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
 		if ( function_exists( 'wpcom_site_has_feature' ) ) {
