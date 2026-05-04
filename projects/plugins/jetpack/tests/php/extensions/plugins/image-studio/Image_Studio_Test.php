@@ -603,167 +603,71 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the helper falls back to VideoPress\Status::is_active() when
-	 * wpcom_site_has_feature( 'videopress' ) returns false.
+	 * Test that the helper returns true when wpcom_site_can_upload_videos() reports true.
 	 *
-	 * Runs in a separate process so we can stub wpcom_site_has_feature to
-	 * return false for the VideoPress feature without leaking the definition
-	 * into the main test process. With the OR-semantics logic, a false
-	 * result from the WPCOM helper must NOT short-circuit — the helper
-	 * should consult VideoPress\Status::is_active() and return whatever it
-	 * reports. This guards the self-hosted / mixed-environment branch (where
-	 * the WPCOM helper is loaded but the site is not actually a WPCOM site)
-	 * against a regression that would silently hide the feature.
-	 *
-	 * The default Jetpack PHPUnit bootstrap (tests/php/lib/mock-functions.php)
-	 * defines wpcom_site_has_feature returning false for 'videopress' anyway,
-	 * but we stub it explicitly here so the assertion documents the behavior
-	 * the test relies on. We assert the result equals
-	 * VideoPress\Status::is_active() rather than a fixed boolean so the test
-	 * stays valid regardless of CI's VideoPress activation state.
+	 * Runs in a separate process so we can stub wpcom_site_can_upload_videos
+	 * without leaking the definition into the main test process. Skipped in
+	 * environments where the helper is already defined (e.g. WPCOMSH job)
+	 * since we cannot redefine an existing function.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_falls_back_to_videopress_status() {
+	public function test_can_generate_video_clips_true_when_wpcom_helper_true() {
 		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
-		// In the sub-process the bootstrap re-runs and defines wpcom_site_has_feature
-		// (mock returns false for 'videopress' by default). That already forces the
-		// helper through the fallback, which is exactly what we want to assert.
-		// If the function is somehow undefined, define a stub returning false so the
-		// test still exercises the fallback path deterministically.
-		if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
-			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
-			eval( 'function wpcom_site_has_feature( $feature, $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
-		}
-
-		// Sanity-check the precondition: the WPCOM helper must report false for VideoPress
-		// so we know the helper actually fell through to VideoPress_Status::is_active().
-		$this->assertFalse( (bool) wpcom_site_has_feature( 'videopress' ), 'wpcom_site_has_feature(videopress) must be false to exercise the fallback path.' );
-
-		$expected = \Automattic\Jetpack\VideoPress\Status::is_active();
-		$this->assertSame( $expected, ImageStudio\image_studio_can_generate_video_clips() );
-	}
-
-	/**
-	 * Test that on WPCOM (Simple/Atomic) the helper returns true when
-	 * wpcom_site_has_feature( 'videopress' ) returns true.
-	 *
-	 * Runs in a separate process so we can stub wpcom_site_has_feature without
-	 * leaking the definition into the main test process. This exercises the
-	 * Simple/Atomic branch (the main behavior introduced by this PR) in the
-	 * standalone PHPUnit job, where the helper would otherwise be undefined
-	 * and the test would silently take the self-hosted fallback path.
-	 *
-	 * Skipped in environments where wpcom_site_has_feature is already defined
-	 * (e.g. WPCOMSH test job) since we cannot redefine an existing function.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_true_on_wpcom_with_videopress() {
-		if ( ! defined( 'IS_WPCOM' ) ) {
-			define( 'IS_WPCOM', true );
-		}
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_has_feature' ) ) {
-			$this->markTestSkipped( 'wpcom_site_has_feature already defined; cannot stub.' );
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
 		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
-		eval( 'function wpcom_site_has_feature( $feature, $blog_id = 0 ) { return $feature === "videopress"; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 
 	/**
-	 * Test that on WPCOM (Simple/Atomic) the helper returns false when
-	 * wpcom_site_has_feature( 'videopress' ) returns false — even on sites
-	 * that have the broader UPLOAD_VIDEO_FILES feature (Premium plans without
-	 * VideoPress). This is the regression guard for the strict-VideoPress check.
+	 * Test that the helper returns false when wpcom_site_can_upload_videos() reports false.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_false_on_wpcom_without_videopress() {
-		if ( ! defined( 'IS_WPCOM' ) ) {
-			define( 'IS_WPCOM', true );
-		}
+	public function test_can_generate_video_clips_false_when_wpcom_helper_false() {
 		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
-		if ( function_exists( 'wpcom_site_has_feature' ) ) {
-			$this->markTestSkipped( 'wpcom_site_has_feature already defined; cannot stub.' );
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
 		}
 
-		// Simulate a Premium-without-VideoPress site: only UPLOAD_VIDEO_FILES is true,
-		// VIDEOPRESS is false. The helper must return false because the generation
-		// pipeline writes to VideoPress specifically.
 		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
-		eval( 'function wpcom_site_has_feature( $feature, $blog_id = 0 ) { return $feature === "upload_video_files"; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 
 	/**
-	 * Test that on WPCOM Simple the helper consults wpcom_site_has_videopress()
-	 * preferentially (matching the canonical wpcom_site_can_upload_videos pattern)
-	 * and returns true when that helper reports true.
+	 * Test that off WPCOM (no wpcom_site_can_upload_videos) the helper returns
+	 * true so the entry point is not gated on environments where we have no
+	 * way to determine capability up-front. The server is the source of truth
+	 * in that case.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_uses_wpcom_site_has_videopress_when_available() {
-		if ( ! defined( 'IS_WPCOM' ) ) {
-			define( 'IS_WPCOM', true );
-		}
+	public function test_can_generate_video_clips_true_off_wpcom() {
 		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
-		if ( function_exists( 'wpcom_site_has_videopress' ) ) {
-			$this->markTestSkipped( 'wpcom_site_has_videopress already defined; cannot stub.' );
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos defined; cannot exercise off-WPCOM branch.' );
 		}
-
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
-		eval( 'function wpcom_site_has_videopress( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 
 		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
-	}
-
-	/**
-	 * Test that on WPCOM Simple the helper returns false when
-	 * wpcom_site_has_videopress() reports false — and crucially does NOT fall
-	 * back to wpcom_site_has_feature() or VideoPress\Status::is_active().
-	 * Regression guard for the Simple-without-VideoPress case where the local
-	 * module-state check would otherwise give a false positive.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_can_generate_video_clips_false_on_wpcom_simple_without_videopress() {
-		if ( ! defined( 'IS_WPCOM' ) ) {
-			define( 'IS_WPCOM', true );
-		}
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-
-		if ( function_exists( 'wpcom_site_has_videopress' ) ) {
-			$this->markTestSkipped( 'wpcom_site_has_videopress already defined; cannot stub.' );
-		}
-
-		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
-		eval( 'function wpcom_site_has_videopress( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
-
-		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 
 	/**

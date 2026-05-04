@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Extensions\ImageStudio;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\VideoPress\Status as VideoPress_Status;
 use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -109,23 +108,11 @@ function has_jetpack_ai_features() {
 /**
  * Check whether the video clip generation flow can run on the current site.
  *
- * Strictly VideoPress-scoped: the server-side generation pipeline writes the
- * generated video to VideoPress specifically, so this must not return true
- * for sites that only have generic video-upload capability (e.g. WordPress.com
- * Premium plans without VideoPress). Self-hosted sites can still upload
- * videos through the standard WordPress media flow when this is false; this
- * flag is exclusively about the video clip generation entry point.
- *
- * Detection is environment-aware and mirrors the canonical "site has
- * VideoPress" pattern used by `wpcom_site_can_upload_videos` on WPCOM:
- * - On WordPress.com Simple, prefer wpcom_site_has_videopress() — it respects
- *   the additional `wpcom_site_has_videopress` filter that consumers rely on.
- * - On Atomic (WPCOMSH), fall back to wpcom_site_has_feature( 'videopress' )
- *   since wpcom_site_has_videopress() isn't loaded there.
- * - On self-hosted Jetpack and standalone VideoPress, defer to
- *   VideoPress\Status::is_active(). The local module-state check would give
- *   false positives on WPCOM (where modules are nominally active regardless
- *   of plan eligibility), so it is only consulted off-WPCOM.
+ * Mirrors the WordPress.com server-side gate: defers to
+ * `wpcom_site_can_upload_videos()` when available so the client and server
+ * agree on capability. Off-WPCOM (self-hosted Jetpack, standalone VideoPress,
+ * dev environments) the helper isn't loaded; we don't gate the entry point in
+ * those contexts and let the server respond if generation is unsupported.
  *
  * @return bool
  */
@@ -146,15 +133,11 @@ function image_studio_can_generate_video_clips() {
 		return (bool) $override;
 	}
 
-	$host = new Host();
-	if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
-		if ( function_exists( 'wpcom_site_has_videopress' ) ) {
-			return (bool) wpcom_site_has_videopress();
-		}
-		return function_exists( 'wpcom_site_has_feature' ) && (bool) wpcom_site_has_feature( 'videopress' );
+	if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+		return (bool) wpcom_site_can_upload_videos();
 	}
 
-	return VideoPress_Status::is_active();
+	return true;
 }
 
 /**
