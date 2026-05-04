@@ -488,3 +488,29 @@ describe( 'store callbacks', () => {
 		} );
 	} );
 } );
+
+describe( 'handlePopState gating', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	it( 'drops unknown activeFilters keys even when filterConfigs is empty', async () => {
+		// Empty filterConfigs is the case where urlParamsToState bypasses its
+		// own gate — handlePopState must still drop stray keys before they
+		// land in state and round-trip via pushStateToUrl.
+		const stub = require( '../../../src/search-blocks/store/url-state' );
+		jest.spyOn( stub, 'readStateFromUrl' ).mockReturnValue( {
+			searchQuery: 'hello',
+			sortOrder: 'relevance',
+			activeFilters: { foo: [ 'bar' ] },
+			priceRange: null,
+		} );
+		Object.assign( actions, originalActions );
+		jest.spyOn( actions, 'search' ).mockImplementation();
+		state.filterConfigs = {};
+
+		await runGenerator( actions.handlePopState() );
+
+		expect( state.activeFilters ).toEqual( {} );
+	} );
+} );

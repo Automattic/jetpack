@@ -359,12 +359,10 @@ class Search_Blocks {
 	 * — core deep-merges each call, so each block can contribute its own
 	 * entries (e.g. filter-checkbox writes its filterConfig).
 	 *
-	 * Pre-populates `filterConfigs` by scanning the current post content for
-	 * jetpack/filter-checkbox blocks so the seeded state always carries the
-	 * known filter schema regardless of block order in the tree. That in turn
-	 * lets `gate_active_filters()` drop URL-derived `activeFilters` keys that
-	 * aren't registered anywhere on the post, preventing unrelated array
-	 * params from round-tripping into subsequent search URLs.
+	 * URL-derived `activeFilters` is passed straight through; the JS store
+	 * gates it against the complete `filterConfigs` registry on hydration
+	 * (see `gateActiveFilters()` in `store/index.js`), so any stray params
+	 * don't round-trip back into subsequent search URLs.
 	 */
 	public static function seed_interactivity_state() {
 		if ( ! function_exists( 'wp_interactivity_state' ) ) {

@@ -407,7 +407,11 @@ const { state, actions } = store( NAMESPACE, {
 			);
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;
-			state.activeFilters = activeFilters;
+			// urlParamsToState bypasses its own gate when filterConfigs is empty;
+			// re-gate here so popstate matches initialize() and stray URL keys
+			// can't round-trip back into pushStateToUrl on a page with no
+			// registered filters.
+			state.activeFilters = gateActiveFilters( activeFilters, state.filterConfigs ).gated;
 			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
