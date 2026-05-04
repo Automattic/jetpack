@@ -29,7 +29,9 @@ function resolveValueLabel( state, filterKey, filterValue ) {
 	if ( Array.isArray( buckets ) ) {
 		for ( const bucket of buckets ) {
 			if ( bucketValue( bucket.key ) === filterValue ) {
-				return bucketLabel( bucket.key, config.valueLabels );
+				// `valueLabels` already missed above; only the post-slash
+				// split is meaningful at this branch.
+				return bucketLabel( bucket.key );
 			}
 		}
 	}
