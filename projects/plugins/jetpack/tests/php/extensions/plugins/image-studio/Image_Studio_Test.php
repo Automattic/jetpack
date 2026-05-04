@@ -713,6 +713,60 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that on WPCOM Simple the helper consults wpcom_site_has_videopress()
+	 * preferentially (matching the canonical wpcom_site_can_upload_videos pattern)
+	 * and returns true when that helper reports true.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_uses_wpcom_site_has_videopress_when_available() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_has_videopress' ) ) {
+			$this->markTestSkipped( 'wpcom_site_has_videopress already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_has_videopress( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that on WPCOM Simple the helper returns false when
+	 * wpcom_site_has_videopress() reports false — and crucially does NOT fall
+	 * back to wpcom_site_has_feature() or VideoPress\Status::is_active().
+	 * Regression guard for the Simple-without-VideoPress case where the local
+	 * module-state check would otherwise give a false positive.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_false_on_wpcom_simple_without_videopress() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_has_videopress' ) ) {
+			$this->markTestSkipped( 'wpcom_site_has_videopress already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_has_videopress( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
 	 * Test style is enqueued with wp-components dependency.
 	 */
 	public function test_style_enqueued_with_wp_components() {

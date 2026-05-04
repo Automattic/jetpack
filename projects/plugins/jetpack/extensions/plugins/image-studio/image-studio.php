@@ -116,14 +116,16 @@ function has_jetpack_ai_features() {
  * videos through the standard WordPress media flow when this is false; this
  * flag is exclusively about the video clip generation entry point.
  *
- * Detection is environment-aware:
- * - On WordPress.com Simple and Atomic, the strict VideoPress feature flag
- *   via wpcom_site_has_feature( 'videopress' ) is the canonical signal. The
- *   local VideoPress\Status::is_active() check is NOT used here — on Simple
- *   it would give false positives because Jetpack modules are nominally
- *   active regardless of plan eligibility.
- * - On self-hosted Jetpack and standalone VideoPress, VideoPress\Status::is_active()
- *   reports VideoPress is active as a Jetpack module or stand-alone plugin.
+ * Detection is environment-aware and mirrors the canonical "site has
+ * VideoPress" pattern used by `wpcom_site_can_upload_videos` on WPCOM:
+ * - On WordPress.com Simple, prefer wpcom_site_has_videopress() — it respects
+ *   the additional `wpcom_site_has_videopress` filter that consumers rely on.
+ * - On Atomic (WPCOMSH), fall back to wpcom_site_has_feature( 'videopress' )
+ *   since wpcom_site_has_videopress() isn't loaded there.
+ * - On self-hosted Jetpack and standalone VideoPress, defer to
+ *   VideoPress\Status::is_active(). The local module-state check would give
+ *   false positives on WPCOM (where modules are nominally active regardless
+ *   of plan eligibility), so it is only consulted off-WPCOM.
  *
  * @return bool
  */
@@ -146,6 +148,9 @@ function image_studio_can_generate_video_clips() {
 
 	$host = new Host();
 	if ( $host->is_wpcom_simple() || $host->is_woa_site() ) {
+		if ( function_exists( 'wpcom_site_has_videopress' ) ) {
+			return (bool) wpcom_site_has_videopress();
+		}
 		return function_exists( 'wpcom_site_has_feature' ) && (bool) wpcom_site_has_feature( 'videopress' );
 	}
 
