@@ -75,27 +75,6 @@ export function setJetpackSettings( options ) {
 }
 
 /**
- * Translate an experience ID into the Save payload sent to
- * /jetpack/v4/search/settings.
- *
- * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
- * so the front end and back end ship together — `experience` is the only thing
- * we need to send. The back end is responsible for translating `experience`
- * into whatever it persists, and for migrating any pre-existing
- * `instant_search_enabled` / `module_active` booleans on first read so the
- * initial active row reflects the user's prior state.
- *
- * @param {string} experience - One of 'embedded' | 'overlay' | 'classic' | 'off'.
- * @return {object} - The payload object.
- */
-export function experienceToPayload( experience ) {
-	if ( ! [ 'embedded', 'overlay', 'classic', 'off' ].includes( experience ) ) {
-		throw new Error( `Unknown experience: ${ experience }` );
-	}
-	return { experience };
-}
-
-/**
  * Set the user's in-flight, unsaved experience selection.
  *
  * @param {string|null} experience - One of the experience IDs, or null to clear.
@@ -118,9 +97,14 @@ export function setLastSavedExperience( experience ) {
 
 /**
  * Save the chosen experience by calling the existing updateJetpackSettings
- * generator with a forward-compat payload, then promoting pending → last_saved
- * on success. The inner generator's optimistic-with-rollback handling covers
- * the failure case (we leave pending in place so the user can retry).
+ * generator, then promoting pending → last_saved on success. The inner
+ * generator's optimistic-with-rollback handling covers the failure case
+ * (we leave pending in place so the user can retry).
+ *
+ * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
+ * so we send only `{ experience }`. The back end translates that into whatever
+ * it persists, and migrates any pre-existing `module_active` /
+ * `instant_search_enabled` booleans on first read.
  *
  * Records a single `jetpack_search_experience_save` analytics event at the
  * point of submit. The event fires regardless of save outcome — same behavior
@@ -136,8 +120,7 @@ export function* saveExperience( experience ) {
 		previous_experience: previousExperience,
 		new_experience: experience,
 	} );
-	const payload = experienceToPayload( experience );
-	yield updateJetpackSettings( payload );
+	yield updateJetpackSettings( { experience } );
 	yield setLastSavedExperience( experience );
 	yield setPendingExperience( null );
 }

@@ -194,18 +194,6 @@ describe( 'experience actions', () => {
 	} );
 
 	describe( 'saveExperience', () => {
-		test( 'translates each experience to a single-field payload', () => {
-			// saveExperience exports its translation as a named helper so the
-			// payload shape can be unit-tested without driving the generator.
-			const { experienceToPayload } = jest.requireActual(
-				'../../../../src/dashboard/store/actions/jetpack-settings'
-			);
-			expect( experienceToPayload( 'overlay' ) ).toEqual( { experience: 'overlay' } );
-			expect( experienceToPayload( 'embedded' ) ).toEqual( { experience: 'embedded' } );
-			expect( experienceToPayload( 'classic' ) ).toEqual( { experience: 'classic' } );
-			expect( experienceToPayload( 'off' ) ).toEqual( { experience: 'off' } );
-		} );
-
 		test( 'saveExperience yields update, success, then setLastSavedExperience + setPendingExperience(null)', () => {
 			const gen = saveExperience( 'overlay' );
 
