@@ -40,7 +40,7 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 
 	if ( $is_admin ) {
 		$plugin = wpcomsh_fatal_identify_plugin( $error );
-		wpcomsh_fatal_log_signature( $plugin );
+		wpcomsh_fatal_log_event( $plugin, 'wpcomsh_fatal_signature' );
 	} elseif ( ! empty( $error['file'] ) ) {
 		$coarse_key = 'wpcomsh_fatal_file:' . hash( 'sha256', (string) $error['file'] );
 		$do_log     = true;
@@ -52,7 +52,7 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 		}
 
 		if ( $do_log ) {
-			wpcomsh_fatal_log_signature( wpcomsh_fatal_identify_plugin( $error ) );
+			wpcomsh_fatal_log_event( wpcomsh_fatal_identify_plugin( $error ), 'wpcomsh_fatal_signature' );
 		}
 	}
 
