@@ -1,6 +1,5 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
-// phpcs:ignore -- SCSS selector, not a PHP file
 body.jetpack_page_ai {
 
 	@include jetpack-admin-page-layout;
