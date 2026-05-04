@@ -52,6 +52,10 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
+
+		if ( self::is_modernized() && self::is_videopress_admin_request() ) {
+			self::load_wp_build();
+		}
 	}
 
 	/**
@@ -424,6 +428,32 @@ class Admin_UI {
 	}
 	// phpcs:enable WordPress.Security.EscapeOutput.UnsafePrintingFunction
 	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+
+	/**
+	 * Load the wp-build entry file and register its polyfills.
+	 *
+	 * Only called on `?page=jetpack-videopress` admin requests when the
+	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 *
+	 * @return void
+	 */
+	private static function load_wp_build() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
+		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+			'jetpack-videopress',
+			array_merge(
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+	}
 
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
