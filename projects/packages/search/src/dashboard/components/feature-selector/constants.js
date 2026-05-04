@@ -1,5 +1,5 @@
 import { __, _x } from '@wordpress/i18n';
-import { grid, navigationOverlay, published, cancelCircleFilled } from '@wordpress/icons';
+import { grid, navigationOverlay, trendingUp, notAllowed } from '@wordpress/icons';
 
 /**
  * Experience IDs.
@@ -92,9 +92,9 @@ export function getExperienceIcon( experience ) {
 		case EXPERIENCE.OVERLAY:
 			return navigationOverlay;
 		case EXPERIENCE.CLASSIC:
-			return published;
+			return trendingUp;
 		case EXPERIENCE.OFF:
-			return cancelCircleFilled;
+			return notAllowed;
 		default:
 			return null;
 	}
