@@ -599,14 +599,25 @@ class Search_Blocks {
 	 * @return bool
 	 */
 	public static function is_initial_loading(): bool {
+		// Memoize per-request: the URL doesn't change mid-request, and this
+		// helper is hit by every block render.php (one per filter block plus
+		// search-results, results-count, etc.) AND by `build_initial_state()`,
+		// each of which would otherwise re-parse `$_GET` independently.
+		static $cached = null;
+		if ( null !== $cached ) {
+			return $cached;
+		}
 		$search_query = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
 		if ( '' !== $search_query ) {
+			$cached = true;
 			return true;
 		}
 		if ( ! empty( static::parse_url_filters() ) ) {
+			$cached = true;
 			return true;
 		}
-		return null !== static::parse_url_price_range();
+		$cached = null !== static::parse_url_price_range();
+		return $cached;
 	}
 
 	/**

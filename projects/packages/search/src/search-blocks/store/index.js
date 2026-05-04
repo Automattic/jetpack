@@ -166,10 +166,13 @@ let searchToken = 0;
  * with the counters; SSR resolves `data-wp-text` against that seeded value
  * directly, so the string can't live on a JS getter.
  *
+ * Exported so tests can verify the formatting in isolation without driving
+ * the full `actions.search()` lifecycle.
+ *
  * @param {object} liveState - The IA store state.
  * @return {string} Localized results-count or status string.
  */
-function computeResultsCountText( liveState ) {
+export function computeResultsCountText( liveState ) {
 	if ( liveState.isLoading ) {
 		return liveState.strings?.searching ?? 'Searching…';
 	}

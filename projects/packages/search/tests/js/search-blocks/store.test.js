@@ -26,7 +26,12 @@ jest.mock(
 	{ virtual: true }
 );
 
-import { actions, gateActiveFilters, state } from '../../../src/search-blocks/store';
+import {
+	actions,
+	computeResultsCountText,
+	gateActiveFilters,
+	state,
+} from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
 
 const originalActions = { ...actions };
@@ -361,18 +366,24 @@ describe( 'store getters', () => {
 	} );
 
 	it( 'formats the results count for loading, singular, plural, and empty states', () => {
+		// `resultsCountText` is now a regular state value updated by
+		// `actions.search()` rather than a getter — the SSR pass needs to
+		// read a literal string off the seeded state, and JS getters don't
+		// resolve server-side. Exercising `computeResultsCountText` directly
+		// keeps the formatting contract under test without driving the full
+		// fetch lifecycle.
 		state.isLoading = true;
-		expect( state.resultsCountText ).toBe( 'Looking…' );
+		expect( computeResultsCountText( state ) ).toBe( 'Looking…' );
 
 		state.isLoading = false;
 		state.totalResults = 1;
-		expect( state.resultsCountText ).toBe( 'Found 1 item' );
+		expect( computeResultsCountText( state ) ).toBe( 'Found 1 item' );
 
 		state.totalResults = 3;
-		expect( state.resultsCountText ).toBe( 'Found 3 items' );
+		expect( computeResultsCountText( state ) ).toBe( 'Found 3 items' );
 
 		state.totalResults = 0;
-		expect( state.resultsCountText ).toBe( '' );
+		expect( computeResultsCountText( state ) ).toBe( '' );
 	} );
 
 	it( 'derives result, load-more, and filter visibility flags', () => {
