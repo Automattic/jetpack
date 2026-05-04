@@ -1,6 +1,10 @@
 @use "scss/variables";
 
 .jp-search-feature-selector {
+	// Match the horizontal alignment of `.jp-search-dashboard-row` above
+	// (MockedSearch, RecordMeter): 1040px constrained, centered in the page.
+	max-width: 1040px;
+	margin-inline: auto;
 	background: #fff;
 	border: 1px solid #dcdcde;
 	border-radius: 6px;
