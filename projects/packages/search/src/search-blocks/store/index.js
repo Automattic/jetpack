@@ -248,7 +248,8 @@ const { state, actions } = store( NAMESPACE, {
 		 * Gated on `searchQuery` (so the message doesn't flash on a bare
 		 * `/search/` page where the user hasn't typed) and on `!hasError`
 		 * (so "No results found" doesn't display when the fetch actually
-		 * failed — there is no dedicated error block yet).
+		 * failed — the dedicated `jetpack/search-error` block owns that
+		 * message instead).
 		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
@@ -256,6 +257,22 @@ const { state, actions } = store( NAMESPACE, {
 			return (
 				!! state.searchQuery && ! state.isLoading && ! state.hasError && state.results.length === 0
 			);
+		},
+
+		/**
+		 * Visibility flag for the `jetpack/search-error` block. Gated on
+		 * both `!isLoading` and `!isLoadingMore` so the message hides the
+		 * moment the user retries — covering the `loadMore()` failure path
+		 * (where `isLoading` stays false but `isLoadingMore` toggles)
+		 * symmetrically with the `search()` path. `hasError` itself is also
+		 * cleared at the start of each action, but binding through a single
+		 * getter keeps the template `data-wp-bind` simple (the Interactivity
+		 * API only evaluates simple property paths).
+		 *
+		 * @return {boolean} True when the error message should show.
+		 */
+		get showError() {
+			return !! state.hasError && ! state.isLoading && ! state.isLoadingMore;
 		},
 
 		/**

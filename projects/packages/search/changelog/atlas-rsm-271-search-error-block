@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search: render a visible error message when a search or load-more request fails.

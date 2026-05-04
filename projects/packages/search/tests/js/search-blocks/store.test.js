@@ -75,6 +75,9 @@ function createResult( title ) {
 
 /**
  * Resolve each promise yielded by an Interactivity API action generator.
+ * Rejected yields are propagated back into the generator via `.throw()` so
+ * the action's own try/catch can absorb them — without this, awaiting a
+ * rejected fetch outside the generator would surface the error to the test.
  *
  * @param {Generator} generator - Action generator.
  * @return {Promise<*>} Final generator return value.
@@ -82,7 +85,11 @@ function createResult( title ) {
 async function runGenerator( generator ) {
 	let step = generator.next();
 	while ( ! step.done ) {
-		step = generator.next( await step.value );
+		try {
+			step = generator.next( await step.value );
+		} catch ( err ) {
+			step = generator.throw( err );
+		}
 	}
 	return step.value;
 }
@@ -157,6 +164,28 @@ describe( 'store actions', () => {
 			delete global.fetch;
 		}
 		jest.restoreAllMocks();
+	} );
+
+	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {
+		state.pageHandle = 'next-page';
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) ).mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Recovered result' ) ],
+				page_handle: null,
+			} )
+		);
+
+		await runGenerator( actions.loadMore() );
+		expect( state.hasError ).toBe( true );
+		expect( state.isLoadingMore ).toBe( false );
+
+		// Re-enable pagination so the second call doesn't early-out (the
+		// failed request leaves pageHandle untouched, but the action also
+		// short-circuits when pageHandle is null).
+		state.pageHandle = 'next-page';
+		await runGenerator( actions.loadMore() );
+		expect( state.hasError ).toBe( false );
+		expect( state.results.map( r => r.title ) ).toContain( 'Recovered result' );
 	} );
 
 	it( 'drops load-more responses superseded by a new search', async () => {
@@ -349,11 +378,27 @@ describe( 'store getters', () => {
 	it( 'derives result, load-more, and filter visibility flags', () => {
 		state.results = [];
 		expect( state.showNoResults ).toBe( true );
+		expect( state.showError ).toBe( false );
 
 		state.hasError = true;
 		expect( state.showNoResults ).toBe( false );
+		expect( state.showError ).toBe( true );
 
+		// While a fresh search is in flight the error block stays hidden so
+		// the previous-query message doesn't linger over the next request.
+		state.isLoading = true;
+		expect( state.showError ).toBe( false );
+
+		// Same when paginating an existing query — keeps the symmetry with
+		// loadMore()'s lifecycle (which only flips isLoadingMore).
+		state.isLoading = false;
+		state.isLoadingMore = true;
+		expect( state.showError ).toBe( false );
+
+		state.isLoadingMore = false;
 		state.hasError = false;
+		expect( state.showError ).toBe( false );
+
 		state.pageHandle = 'next-page';
 		expect( state.showLoadMore ).toBe( true );
 
