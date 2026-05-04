@@ -40,8 +40,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 */
 	public function get_page_hook() {
 		return Admin_Menu::add_menu(
-			__( 'Jetpack AI', 'jetpack' ),
-			__( 'AI', 'jetpack' ),
+			// "Jetpack AI" is a product name and should not be translated.
+			'Jetpack AI',
+			'AI',
 			'manage_options',
 			'jetpack-ai',
 			array( $this, 'render' ),
