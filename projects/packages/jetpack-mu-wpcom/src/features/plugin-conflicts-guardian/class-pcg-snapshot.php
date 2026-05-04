@@ -19,6 +19,13 @@ class PCG_Snapshot {
 	const BACKUP_DIRNAME = 'pcg-backups';
 
 	/**
+	 * How long a backup directory may sit untouched before the
+	 * opportunistic sweep treats it as orphaned. Generous vs. LIFETIME
+	 * to avoid racing a slow upgrader that's still running.
+	 */
+	const STALE_BACKUP_TTL = HOUR_IN_SECONDS;
+
+	/**
 	 * Capture and persist the snapshot for $plugin_file.
 	 *
 	 * @param string $plugin_file Basename relative to WP_PLUGIN_DIR, e.g. "akismet/akismet.php".
@@ -96,6 +103,11 @@ class PCG_Snapshot {
 			return '';
 		}
 
+		// Sweep orphaned backups left behind when a previous update
+		// captured a snapshot but `upgrader_process_complete` never
+		// fired (upgrader fatal, redirect, etc.).
+		self::sweep_stale_backups();
+
 		$dest_root = $root . '/' . md5( uniqid( '', true ) );
 		if ( ! wp_mkdir_p( $dest_root ) ) {
 			return '';
@@ -135,6 +147,44 @@ class PCG_Snapshot {
 		}
 		$fs = self::fs();
 		if ( $fs ) {
+			$fs->delete( $path, true );
+		}
+	}
+
+	/**
+	 * Delete backup subdirectories under the backup root that are older
+	 * than {@see self::STALE_BACKUP_TTL}. Cheap to run — the root is
+	 * shallow and only touched during plugin updates.
+	 *
+	 * Only entries whose names look like our own md5-named dirs are
+	 * considered, so a misconfigured `pcg_backup_root` filter pointing
+	 * at a shared directory can't trash unrelated files.
+	 *
+	 * @return void
+	 */
+	public static function sweep_stale_backups() {
+		$root = self::backup_root();
+		if ( '' === $root || ! is_dir( $root ) ) {
+			return;
+		}
+		$fs = self::fs();
+		if ( ! $fs ) {
+			return;
+		}
+		$entries = @scandir( $root ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- scandir on a missing/unreadable dir is non-fatal here.
+		if ( ! is_array( $entries ) ) {
+			return;
+		}
+		$cutoff = time() - self::STALE_BACKUP_TTL;
+		foreach ( $entries as $entry ) {
+			if ( ! preg_match( '/^[a-f0-9]{32}$/', $entry ) ) {
+				continue;
+			}
+			$path  = $root . '/' . $entry;
+			$mtime = @filemtime( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- transient FS races shouldn't warn.
+			if ( false === $mtime || $mtime > $cutoff ) {
+				continue;
+			}
 			$fs->delete( $path, true );
 		}
 	}

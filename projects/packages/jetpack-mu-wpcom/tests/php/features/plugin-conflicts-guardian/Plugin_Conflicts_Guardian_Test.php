@@ -45,6 +45,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'admin_notices', 'pcg_guard_render_block_notice' );
 		remove_all_filters( 'pcg_guard_activation' );
 		remove_all_filters( 'pcg_guard_updates' );
+		remove_all_filters( 'pcg_backup_root' );
 		parent::tear_down();
 	}
 
@@ -487,6 +488,47 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( $incoming, $result );
+	}
+
+	/**
+	 * Sweep_stale_backups deletes md5-named subdirs older than the TTL,
+	 * leaves recent ones, and ignores entries that don't match our naming.
+	 */
+	public function test_snapshot_sweep_stale_backups_drops_orphaned_dirs() {
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			$this->markTestSkipped( 'WP_Filesystem unavailable in this test env.' );
+		}
+
+		$root = $this->make_tmp_dir();
+		add_filter(
+			'pcg_backup_root',
+			static function () use ( $root ) {
+				return $root;
+			}
+		);
+
+		$stale     = $root . '/' . md5( 'stale' );
+		$fresh     = $root . '/' . md5( 'fresh' );
+		$unrelated = $root . '/not-ours';
+		mkdir( $stale, 0777, true );
+		mkdir( $fresh, 0777, true );
+		mkdir( $unrelated, 0777, true );
+		file_put_contents( $unrelated . '/keep.txt', 'keep' );
+
+		$past = time() - ( 2 * HOUR_IN_SECONDS );
+		touch( $stale, $past );
+		touch( $unrelated, $past );
+
+		PCG_Snapshot::sweep_stale_backups();
+
+		$this->assertFalse( is_dir( $stale ), 'Stale md5-named backup should be deleted.' );
+		$this->assertTrue( is_dir( $fresh ), 'Recent md5-named backup should be preserved.' );
+		$this->assertTrue( is_dir( $unrelated ), 'Non-matching entries must be left alone.' );
 	}
 
 	/**

@@ -33,9 +33,19 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
 		return $return;
 	}
 	$plugin_file = (string) ( $hook_extra['plugin'] ?? '' );
-	if ( '' !== $plugin_file ) {
-		PCG_Snapshot::capture( $plugin_file );
+	if ( '' === $plugin_file ) {
+		return $return;
 	}
+	// Inactive plugins can't take the site down on load, so the
+	// post-update probe bails on them. Skip the snapshot entirely
+	// here too — otherwise we'd stage a backup we never consume.
+	if ( ! function_exists( 'is_plugin_active' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+	if ( ! is_plugin_active( $plugin_file ) ) {
+		return $return;
+	}
+	PCG_Snapshot::capture( $plugin_file );
 	return $return;
 }
 
@@ -76,7 +86,11 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
  */
 function pcg_healthcheck_probe_and_maybe_rollback( $plugin_file ) {
 	$snapshot = PCG_Snapshot::consume( $plugin_file );
-	if ( ! is_array( $snapshot ) || empty( $snapshot['was_active'] ) ) {
+	if ( ! is_array( $snapshot ) ) {
+		return;
+	}
+	if ( empty( $snapshot['was_active'] ) ) {
+		PCG_Snapshot::cleanup_backup( $snapshot );
 		return;
 	}
 
