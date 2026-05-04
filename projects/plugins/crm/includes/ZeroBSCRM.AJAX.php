@@ -218,7 +218,7 @@ function jpcrm_set_jpcrm_transient() {
 
 		if ( isset( $_POST['transient-expiration'] ) && ! empty( $_POST['transient-expiration'] ) ) {
 
-			$transientExpiration = (int) sanitize_text_field( $_POST['transient-expiration'] );
+			$transientExpiration = (int) $_POST['transient-expiration'];
 
 		}
 
@@ -263,7 +263,7 @@ function zeroBSCRM_AJAX_getCustInvs() {
 		// } Retrieve ID
 		$cID = -1;
 		if ( isset( $_POST['cid'] ) ) {
-			$cID = (int) sanitize_text_field( $_POST['cid'] );
+			$cID = (int) $_POST['cid'];
 		}
 
 		if ( $cID > 0 ) {
@@ -302,7 +302,7 @@ function zeroBSCRM_removeFile() {
 			// } Type? ID?
 			if ( isset( $_POST['zbsCID'] ) && ! empty( $_POST['zbsCID'] ) ) {
 
-				$objectID = (int) sanitize_text_field( $_POST['zbsCID'] );
+				$objectID = (int) $_POST['zbsCID'];
 				$fileType = sanitize_text_field( $_POST['zbsfType'] ); // assured as checked by if above (customer, quotes, invoices)
 				$zbsDel   = sanitize_text_field( $_POST['zbsDel'] );
 
@@ -384,7 +384,7 @@ function zeroBSCRM_AJAX_addLog() {
 
 	// Retrieve vars - this allows notes against ALL post types (just by id)
 	if ( ! empty( $_POST['zbsnagainstid'] ) ) {
-		$zbsNoteAgainstPostID = (int) sanitize_text_field( $_POST['zbsnagainstid'] );
+		$zbsNoteAgainstPostID = (int) $_POST['zbsnagainstid'];
 	}
 	if ( ! empty( $_POST['zbsntype'] ) ) {
 		$zbsNoteType = sanitize_text_field( $_POST['zbsntype'] );
@@ -412,7 +412,7 @@ function zeroBSCRM_AJAX_addLog() {
 	// optional: logid to overwrite:
 	$zbsNoteIDtoUpdate = -1;
 	if ( ! empty( $_POST['zbsnoverwriteid'] ) ) {
-		$zbsNoteIDtoUpdate = (int) sanitize_text_field( $_POST['zbsnoverwriteid'] );
+		$zbsNoteIDtoUpdate = (int) $_POST['zbsnoverwriteid'];
 	}
 
 	$pinned = empty( $_POST['pinned'] ) ? -1 : 1;
@@ -462,10 +462,10 @@ function zeroBSCRM_AJAX_updateLog() {
 
 	// Retrieve vars - this allows notes against ALL post types (just by id)
 	if ( ! empty( $_POST['zbsnprevid'] ) ) {
-		$zbsNoteID = (int) sanitize_text_field( $_POST['zbsnprevid'] );
+		$zbsNoteID = (int) $_POST['zbsnprevid'];
 	}
 	if ( ! empty( $_POST['zbsnagainstid'] ) ) {
-		$zbsNoteAgainstPostID = (int) sanitize_text_field( $_POST['zbsnagainstid'] );
+		$zbsNoteAgainstPostID = (int) $_POST['zbsnagainstid'];
 	}
 	if ( ! empty( $_POST['zbsntype'] ) ) {
 		$zbsNoteType = sanitize_text_field( $_POST['zbsntype'] );
@@ -551,7 +551,7 @@ function zeroBSCRM_AJAX_deleteLog() {
 
 	// } Retrieve vars - this allows notes against ALL post types (just by id)
 	if ( isset( $_POST['zbsnid'] ) && ! empty( $_POST['zbsnid'] ) ) {
-		$zbsNoteID = (int) sanitize_text_field( $_POST['zbsnid'] );
+		$zbsNoteID = (int) $_POST['zbsnid'];
 	}
 
 	// } Validate
@@ -854,19 +854,19 @@ function jpcrm_ajax_quote_send_email() {
 	// Retrive details
 	$quoteID = -1;
 	if ( isset( $_POST['qid'] ) ) {
-		$quoteID = (int) sanitize_text_field( $_POST['qid'] );
+		$quoteID = (int) $_POST['qid'];
 	}
 	$target_email = '';
 	if ( isset( $_POST['em'] ) ) {
-		$target_email = sanitize_text_field( $_POST['em'] );
+		$target_email = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 	$contactID = -1;
 	if ( isset( $_POST['cid'] ) ) {
-		$contactID = (int) sanitize_text_field( $_POST['cid'] );
+		$contactID = (int) $_POST['cid'];
 	}
 	$companyID = -1;
 	if ( isset( $_POST['coid'] ) ) {
-		$companyID = (int) sanitize_text_field( $_POST['coid'] ); // track if companyID - not wired in via fronend yet, but will work
+		$companyID = (int) $_POST['coid']; // track if companyID - not wired in via fronend yet, but will work
 	}
 	$attachAssignedDocs = false;
 	$attachAsPDF        = false;
@@ -1401,7 +1401,7 @@ function zbs_lead_form_capture() {
 
 				case 'zbs_simple':
 					// simple just has email
-					$zbs_email = sanitize_text_field( $_POST['zbs_email'] ); // } This is validated above, but sanitize just in case!
+					$zbs_email = sanitize_email( wp_unslash( $_POST['zbs_email'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					// have added a new 'form' for 'externals'
 					$cID = zeroBS_integrations_addOrUpdateCustomer(
 						'form',
@@ -1452,7 +1452,7 @@ function zbs_lead_form_capture() {
 					// } Naked only has name + email?
 
 					// validate these...  (use functions in form save down...)
-					$zbs_email = sanitize_text_field( $_POST['zbs_email'] ); // } This is validated above, but sanitize just in case!
+					$zbs_email = sanitize_email( wp_unslash( $_POST['zbs_email'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$zbs_fname = sanitize_text_field( $_POST['zbs_fname'] );
 					// $zbs_lname = sanitize_text_field($_POST['zbs_lname']);
 					// $zbs_notes = "Customer Form Submit Message:\r\n===========\r\n".sanitize_text_field($_POST['zbs_notes'])."\r\n===========\r\n";
@@ -1484,7 +1484,7 @@ function zbs_lead_form_capture() {
 					break;
 				case 'zbs_cgrab':
 					// validate these...  (use functions in form save down...)
-					$zbs_email = sanitize_text_field( $_POST['zbs_email'] ); // } This is validated above, but sanitize just in case!
+					$zbs_email = sanitize_email( wp_unslash( $_POST['zbs_email'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$zbs_fname = sanitize_text_field( $_POST['zbs_fname'] );
 					$zbs_lname = sanitize_text_field( $_POST['zbs_lname'] );
 					// Raw: $zbs_notes = "Customer Form Submit Message:\r\n===========\r\n".zeroBSCRM_textProcess($_POST['zbs_notes'])."\r\n===========\r\n";
@@ -1606,7 +1606,7 @@ function zeroBSCRM_AJAX_addAlias() {
 
 		$custID = -1;
 	if ( isset( $_POST['cid'] ) ) {
-		$custID = (int) sanitize_text_field( $_POST['cid'] );
+		$custID = (int) $_POST['cid'];
 	}
 		$alias = '';
 	if ( isset( $_POST['aka'] ) ) {
@@ -1655,11 +1655,11 @@ function zeroBSCRM_AJAX_removeAlias() {
 
 		$custID = -1;
 	if ( isset( $_POST['cid'] ) ) {
-		$custID = (int) sanitize_text_field( $_POST['cid'] );
+		$custID = (int) $_POST['cid'];
 	}
 		$aliasID = -1;
 	if ( isset( $_POST['akaid'] ) ) {
-		$aliasID = (int) sanitize_text_field( $_POST['akaid'] );
+		$aliasID = (int) $_POST['akaid'];
 	}
 
 		// } Any good?
@@ -1971,9 +1971,9 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 		'columns'    => array(),
 		'editinline' => ( isset( $pArray['editinline'] ) ) ? sanitize_text_field( $pArray['editinline'] ) : '',
 		'retrieved'  => ( isset( $pArray['retrieved'] ) ) ? false : true, // doesn't look like this is used
-		'count'      => ( isset( $pArray['count'] ) ) ? (int) sanitize_text_field( $pArray['count'] ) : 20,
+		'count'      => ( isset( $pArray['count'] ) ) ? (int) $pArray['count'] : 20,
 		'pagination' => ( isset( $pArray['pagination'] ) ) ? sanitize_text_field( $pArray['pagination'] ) : true,
-		'paged'      => ( isset( $pArray['paged'] ) ) ? (int) sanitize_text_field( $pArray['paged'] ) : 1,
+		'paged'      => ( isset( $pArray['paged'] ) ) ? (int) $pArray['paged'] : 1,
 		'filters'    => array(),
 		'sort'       => ( isset( $pArray['sort'] ) ) ? sanitize_text_field( $pArray['sort'] ) : false,
 		'sortorder'  => ( isset( $pArray['sortorder'] ) ) ? sanitize_text_field( $pArray['sortorder'] ) : false,
@@ -2001,7 +2001,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					'namestr'  => ( isset( $col['namestr'] ) ) ? sanitize_text_field( $col['namestr'] ) : '',
 					'fieldstr' => ( isset( $col['fieldstr'] ) ) ? sanitize_text_field( $col['fieldstr'] ) : '',
-					'inline'   => ( isset( $col['inline'] ) ) ? (int) sanitize_text_field( $col['inline'] ) : -1,
+					'inline'   => ( isset( $col['inline'] ) ) ? (int) $col['inline'] : -1,
 
 				);
 
@@ -3740,7 +3740,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 							// merge which into which
 							$dominant = false;
 							if ( isset( $_POST['dominant'] ) && ! empty( $_POST['dominant'] ) ) {
-								$dominant = (int) sanitize_text_field( $_POST['dominant'] );
+								$dominant = (int) $_POST['dominant'];
 							}
 							$slave = false; if ( ! empty( $dominant ) ) {
 
@@ -4538,7 +4538,7 @@ function zeroBSCRM_AJAX_previewSegment() {
 		// sanitize?
 		$segmentID = -1;
 		if ( isset( $_POST['sID'] ) ) {
-			$segmentID = (int) sanitize_text_field( $_POST['sID'] );
+			$segmentID = (int) $_POST['sID'];
 		}
 		$segmentTitle = __( 'Untitled Segment', 'zero-bs-crm' );
 		if ( isset( $_POST['sTitle'] ) ) {
@@ -4622,7 +4622,7 @@ function zeroBSCRM_AJAX_saveSegment() {
 		// sanitize?
 		$segmentID = -1;
 		if ( isset( $_POST['sID'] ) ) {
-			$segmentID = (int) sanitize_text_field( $_POST['sID'] );
+			$segmentID = (int) $_POST['sID'];
 		}
 		$segmentTitle = __( 'Untitled Segment', 'zero-bs-crm' );
 		if ( isset( $_POST['sTitle'] ) ) {
@@ -4778,7 +4778,7 @@ function zeroBSCRM_AJAX_deleteTag() {
 		// $objType = -1; if (isset($_POST['objtype']) && !empty($_POST['objtype'])) $objType = (int)sanitize_text_field( $_POST['objtype'] );
 		$objTagID = -1;
 		if ( isset( $_POST['tagid'] ) && ! empty( $_POST['tagid'] ) ) {
-			$objTagID = (int) sanitize_text_field( $_POST['tagid'] );
+			$objTagID = (int) $_POST['tagid'];
 		}
 
 		if ( empty( $objTagID ) ) {
@@ -4822,7 +4822,7 @@ function zeroBSCRM_AJAX_previewTagged() {
 		// sanitize?
 		$tagID = -1;
 		if ( isset( $_POST['tagID'] ) ) {
-			$tagID = (int) sanitize_text_field( $_POST['tagID'] );
+			$tagID = (int) $_POST['tagID'];
 		}
 		$tagMatchType = 'hastag';
 		if ( isset( $_POST['tagMatchType'] ) ) {
@@ -5066,17 +5066,17 @@ function zbs_invoice_send_invoice() {
 	$em        = '';
 	$r         = array();
 	if ( isset( $_POST['id'] ) && ! empty( $_POST['id'] ) ) {
-		$zbs_invID = (int) sanitize_text_field( $_POST['id'] );  // accepts the post ID
+		$zbs_invID = (int) $_POST['id']; // accepts the post ID
 	}
-	if ( isset( $_POST['em'] ) && ! empty( $_POST['em'] ) ) {
-		$em = sanitize_text_field( $_POST['em'] );
+	if ( ! empty( $_POST['em'] ) ) {
+		$em = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 
 	// v3.0 changed var and added a few more:
 	$attachAssignedDocs = false;
 	$attachAsPDF        = false;
-	if ( isset( $_POST['email'] ) && ! empty( $_POST['email'] ) ) {
-		$em = sanitize_text_field( $_POST['email'] );
+	if ( ! empty( $_POST['email'] ) ) {
+		$em = sanitize_email( wp_unslash( $_POST['email'] ) );
 	}
 	if ( isset( $_POST['attachassoc'] ) && $_POST['attachassoc'] == 1 ) {
 		$attachAssignedDocs = true;
@@ -5289,11 +5289,11 @@ function zeroBSCRM_AJAX_sendStatement() {
 	$cID = -1;
 	$em  = '';
 	$r   = array();
-	if ( isset( $_POST['cid'] ) && ! empty( $_POST['cid'] ) ) {
-		$cID = (int) sanitize_text_field( $_POST['cid'] );  // accepts the post ID
+	if ( ! empty( $_POST['cid'] ) ) {
+		$cID = (int) $_POST['cid']; // accepts the post ID
 	}
-	if ( isset( $_POST['em'] ) && ! empty( $_POST['em'] ) ) {
-		$em = sanitize_text_field( $_POST['em'] );
+	if ( ! empty( $_POST['em'] ) ) {
+		$em = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 
 	// validate the email
@@ -5422,11 +5422,11 @@ function zbs_invoice_send_test_invoice() {
 	$em        = '';
 	$r         = array();
 
-	if ( isset( $_POST['id'] ) && ! empty( $_POST['id'] ) ) {
-		$zbs_invID = (int) sanitize_text_field( $_POST['id'] );  // accepts the post ID
+	if ( ! empty( $_POST['id'] ) ) {
+		$zbs_invID = (int) $_POST['id']; // accepts the post ID
 	}
-	if ( isset( $_POST['em'] ) && ! empty( $_POST['em'] ) ) {
-		$em = sanitize_text_field( $_POST['em'] );
+	if ( ! empty( $_POST['em'] ) ) {
+		$em = sanitize_email( wp_unslash( $_POST['em'] ) );
 	}
 
 	// debug
@@ -5579,7 +5579,7 @@ function zeroBSCRM_AJAX_getInvoice() {
 	if ( $invID > 0 ) {
 
 		// retrieve ID
-		$invID = (int) sanitize_text_field( $_POST['invid'] );
+		$invID = (int) $_POST['invid'];
 
 		// retrieve obj to return
 		$data = zeroBSCRM_invoicing_getInvoiceData( $invID );

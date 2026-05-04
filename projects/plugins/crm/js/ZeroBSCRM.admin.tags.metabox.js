@@ -328,14 +328,14 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 
 			if ( tagID > 0 ) {
 				swal( {
-					title: window.zbsTagListLang.deleteswaltitle,
+					titleText: window.zbsTagListLang.deleteswaltitle,
 					text: window.zbsTagListLang.deleteswaltext,
 					type: 'warning',
 					showCancelButton: true,
 					confirmButtonColor: '#000',
 					cancelButtonColor: '#fff',
 					cancelButtonText: '<span style="color: #000">Cancel</span>',
-					confirmButtonText: window.zbsTagListLang.deleteswalconfirm,
+					confirmButtonText: jpcrm.esc_html( window.zbsTagListLang.deleteswalconfirm ),
 					allowOutsideClick: false,
 				} ).then( function ( result ) {
 					if ( result.value ) {
@@ -357,21 +357,21 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 							dataType: 'json',
 							timeout: 20000,
 							success: function () {
-								swal(
-									window.zbsTagListLang.tagdeleted,
-									window.zbsTagListLang.tagremoved,
-									'success'
-								);
+								swal( {
+									titleText: window.zbsTagListLang.tagdeleted,
+									text: window.zbsTagListLang.tagremoved,
+									type: 'success',
+								} );
 
 								// reload page
 								location.reload();
 							},
 							error: function () {
-								swal(
-									window.zbsTagListLang.tagnotdeleted,
-									window.zbsTagListLang.tagnotremoved,
-									'warning'
-								);
+								swal( {
+									titleText: window.zbsTagListLang.tagnotdeleted,
+									text: window.zbsTagListLang.tagnotremoved,
+									type: 'warning',
+								} );
 							},
 						} );
 					}

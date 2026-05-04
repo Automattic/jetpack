@@ -50,7 +50,7 @@ if ( isset( $new_trans['orderid'] ) ) {
 }
 
 if ( isset( $new_trans['email'] ) ) {
-	$email = sanitize_text_field( $new_trans['email'] );
+	$email = sanitize_email( $new_trans['email'] );
 }
 		$customer = zeroBS_getCustomerIDWithEmail( $email );
 if ( isset( $new_trans['fname'] ) ) {
