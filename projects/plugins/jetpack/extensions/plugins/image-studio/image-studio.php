@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Extensions\ImageStudio;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\VideoPress\Status as VideoPress_Status;
 use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -103,6 +104,28 @@ function has_jetpack_ai_features() {
 	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 		&& ! ( new Status() )->is_offline_mode()
 		&& apply_filters( 'jetpack_ai_enabled', true );
+}
+
+/**
+ * Check whether the current site can upload videos.
+ *
+ * Mirrors the capability check used by the server-side video generation ability
+ * so the client can hide entry points on sites where generation would fail.
+ *
+ * - On WordPress.com Simple and Atomic, defers to wpcom_site_can_upload_videos()
+ *   which accounts for both VideoPress and the general video upload feature
+ *   (Premium+ plans).
+ * - On self-hosted Jetpack and standalone VideoPress, checks whether VideoPress
+ *   is active as a Jetpack module or stand-alone plugin.
+ *
+ * @return bool
+ */
+function site_can_upload_videos() {
+	if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+		return (bool) wpcom_site_can_upload_videos();
+	}
+
+	return VideoPress_Status::is_active();
 }
 
 /**
@@ -275,9 +298,10 @@ function do_enqueue_assets() {
 	);
 
 	$image_studio_data = array(
-		'enabled'   => true,
-		'version'   => '1.0',
-		'isDevMode' => jetpack_is_internal_testing_environment(),
+		'enabled'         => true,
+		'version'         => '1.0',
+		'isDevMode'       => jetpack_is_internal_testing_environment(),
+		'canUploadVideos' => site_can_upload_videos(),
 	);
 
 	wp_add_inline_script(

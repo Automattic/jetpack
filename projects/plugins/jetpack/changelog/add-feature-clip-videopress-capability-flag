@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Generate Feature Clip: expose VideoPress capability flag to client so the sidebar entry point can hide itself on sites where video generation is not available.
