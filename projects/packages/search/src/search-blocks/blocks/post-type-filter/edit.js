@@ -15,13 +15,7 @@
  * one mode, then pick the post types that belong to it.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import {
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
-	FormTokenField,
-	PanelBody,
-	Placeholder,
-} from '@wordpress/components';
+import { FormTokenField, PanelBody, Placeholder, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -159,12 +153,25 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
-					<ToggleGroupControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						isBlock
+					<RadioControl
 						label={ __( 'Mode', 'jetpack-search-pkg' ) }
-						value={ mode }
+						selected={ mode }
+						options={ [
+							{
+								label: __(
+									'Exclude — remove the selected post types from results',
+									'jetpack-search-pkg'
+								),
+								value: MODE_EXCLUDE,
+							},
+							{
+								label: __(
+									'Include only — search will return only the selected post types',
+									'jetpack-search-pkg'
+								),
+								value: MODE_INCLUDE,
+							},
+						] }
 						onChange={ value => {
 							// Clear the slug list when switching modes so the
 							// previously-typed list can not silently flip
@@ -172,27 +179,7 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 							// "include only these" list is a footgun).
 							setAttributes( { mode: value, postTypes: [] } );
 						} }
-						help={
-							mode === MODE_INCLUDE
-								? __(
-										'Include is restrictive: only the selected post types will appear in results.',
-										'jetpack-search-pkg'
-								  )
-								: __(
-										'Exclude is subtractive: the selected post types are removed from results; everything else stays searchable.',
-										'jetpack-search-pkg'
-								  )
-						}
-					>
-						<ToggleGroupControlOption
-							value={ MODE_EXCLUDE }
-							label={ __( 'Exclude', 'jetpack-search-pkg' ) }
-						/>
-						<ToggleGroupControlOption
-							value={ MODE_INCLUDE }
-							label={ __( 'Include only', 'jetpack-search-pkg' ) }
-						/>
-					</ToggleGroupControl>
+					/>
 					<FormTokenField
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
