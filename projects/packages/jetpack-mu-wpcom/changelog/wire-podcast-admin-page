@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Jetpack > Podcast: replace the Calypso redirect with the in-admin Podcast SPA when the Jetpack Podcast package is loaded.

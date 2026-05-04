@@ -7,93 +7,50 @@
 
 namespace Automattic\Jetpack\Podcast;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status\Host;
 
 /**
  * Adds the Jetpack > Podcast wp-admin screen.
+ *
+ * On Simple and Atomic the canonical entry point is `wpcom-admin-menu.php`
+ * (in the `jetpack-mu-wpcom` package), which calls `add_wp_admin_submenu()`
+ * at priority 999999 — late enough that the Jetpack parent menu is already
+ * registered. We do not register our own `admin_menu` hook here; doing so on
+ * Atomic would race with the wpcom-admin-menu callback and duplicate the
+ * "Podcasting" item that used to redirect to Calypso.
  */
 class Settings {
 
 	const MENU_SLUG = 'jetpack-podcast';
 
 	/**
-	 * Whether the class has been initialized.
+	 * Whether the admin-init hooks have been wired.
 	 *
 	 * @var bool
 	 */
-	private static $initialized = false;
+	private static $admin_init_wired = false;
 
 	/**
-	 * Init Podcast Settings if it wasn't already.
+	 * Init Podcast Settings.
+	 *
+	 * Currently a no-op kept for symmetry with the rest of the package — the
+	 * actual menu registration happens via `add_wp_admin_submenu()`, called
+	 * by `wpcom-admin-menu.php`.
 	 */
 	public static function init() {
-		if ( self::$initialized ) {
-			return;
-		}
-		self::$initialized = true;
-		( new self() )->init_hooks();
+		// Intentionally empty: see class docblock.
 	}
 
 	/**
-	 * Subscribe to necessary hooks.
-	 */
-	public function init_hooks() {
-		$host = new Host();
-
-		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php.
-		// Mirror the Newsletter pattern: skip here and let wpcom-admin-menu call add_wp_admin_submenu().
-		if ( $host->is_wpcom_simple() ) {
-			return;
-		}
-
-		// Priority 999 so we register before Admin_Menu::admin_menu_hook_callback runs at 1000.
-		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
-	}
-
-	/**
-	 * Register the Podcast submenu under the Jetpack menu (Atomic / standalone Jetpack path).
+	 * Register the Podcast submenu directly under the Jetpack menu.
 	 *
-	 * Not called on Simple sites — see add_wp_admin_submenu().
+	 * Called from wpcom-admin-menu.php at priority 999999 (Simple + Atomic)
+	 * once the Jetpack menu is in place. The host gate happens earlier in
+	 * `Podcast::init()` so by the time this runs we know we're on a host we
+	 * support.
 	 */
-	public function add_wp_admin_menu() {
-		$host = new Host();
-
-		// Atomic uses native add_submenu_page so the menu nests under the wpcom-managed Jetpack menu.
-		if ( $host->is_woa_site() ) {
-			$page_suffix = add_submenu_page(
-				'jetpack',
-				/** "Podcast" is a product name, do not translate. */
-				'Podcast',
-				'Podcast',
-				'manage_options',
-				self::MENU_SLUG,
-				array( $this, 'render' )
-			);
-		} else {
-			$page_suffix = Admin_Menu::add_menu(
-				/** "Podcast" is a product name, do not translate. */
-				'Podcast',
-				'Podcast',
-				'manage_options',
-				self::MENU_SLUG,
-				array( $this, 'render' ),
-				12
-			);
-		}
-
-		if ( $page_suffix ) {
-			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-		}
-	}
-
-	/**
-	 * Add the Podcast submenu directly under the Jetpack menu on Simple sites.
-	 *
-	 * Called from wpcom-admin-menu.php at priority 999999 once the Jetpack menu exists.
-	 */
-	public function add_wp_admin_submenu() {
+	public static function add_wp_admin_submenu() {
 		$page_suffix = add_submenu_page(
 			'jetpack',
 			/** "Podcast" is a product name, do not translate. */
@@ -101,20 +58,21 @@ class Settings {
 			'Podcast',
 			'manage_options',
 			self::MENU_SLUG,
-			array( $this, 'render' )
+			array( __CLASS__, 'render' )
 		);
 
-		if ( $page_suffix ) {
-			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		if ( $page_suffix && ! self::$admin_init_wired ) {
+			self::$admin_init_wired = true;
+			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		}
 	}
 
 	/**
 	 * Admin init actions. Triggered only when the Podcast page is being loaded.
 	 */
-	public function admin_init() {
-		add_filter( 'jetpack_admin_js_script_data', array( $this, 'add_script_data' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+	public static function admin_init() {
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'load_admin_scripts' ) );
 	}
 
 	/**
@@ -123,7 +81,7 @@ class Settings {
 	 * @param array $data Existing script data.
 	 * @return array
 	 */
-	public function add_script_data( $data ) {
+	public static function add_script_data( $data ) {
 		$current_user = wp_get_current_user();
 		$host         = new Host();
 		$blog_id      = (int) $host->get_wpcom_site_id();
@@ -151,12 +109,11 @@ class Settings {
 	 * Enqueue the podcast SPA bundle.
 	 *
 	 * The asset.php manifest emitted by webpack already declares every
-	 *
-	 * @wordpress/* dependency our bundle pulls in, so the only manual entry
+	 * `@wordpress/*` dependency our bundle pulls in, so the only manual entry
 	 * we add here is `jetpack-script-data` (a Jetpack-specific dep webpack
 	 * doesn't know to extract).
 	 */
-	public function load_admin_scripts() {
+	public static function load_admin_scripts() {
 		Assets::register_script(
 			'jetpack-podcast',
 			'../build/podcast.js',
@@ -173,7 +130,7 @@ class Settings {
 	/**
 	 * Render the Podcast SPA mount point.
 	 */
-	public function render() {
+	public static function render() {
 		?>
 		<div id="jetpack-podcast-root"></div>
 		<?php
