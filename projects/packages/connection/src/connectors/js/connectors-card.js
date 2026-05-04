@@ -54,6 +54,7 @@ const CONNECTOR_LOGO = data.connectorLogoUrl
 	? createElement( 'img', { src: data.connectorLogoUrl, alt: '', width: 36, height: 36 } )
 	: null;
 const ssoStatus = data.ssoStatus ?? null;
+const isFirstConnection = Boolean( data.isFirstConnection );
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
@@ -203,6 +204,61 @@ function ErrorNotice( { message, onDismiss = null } ) {
 					__( 'Dismiss', 'jetpack-connection' )
 			  )
 			: null
+	);
+}
+
+/**
+ * Terms of Service and Privacy Policy notice for first-time connections.
+ *
+ * Uses a translatable template string with {{tos}} and {{privacy}} placeholders
+ * that get replaced with link elements.
+ *
+ * @return {object} React element.
+ */
+function TosNotice() {
+	const tosUrl = 'https://wordpress.com/tos/';
+	const privacyUrl = 'https://automattic.com/privacy/';
+
+	const template = __(
+		'By connecting, you agree to our {{tos}} and have read our {{privacy}}.',
+		'jetpack-connection'
+	);
+
+	const parts = [];
+	let remaining = template;
+
+	const placeholders = {
+		'{{tos}}': createElement(
+			'a',
+			{ key: 'tos', href: tosUrl, target: '_blank', rel: 'noopener noreferrer' },
+			__( 'Terms of Service', 'jetpack-connection' )
+		),
+		'{{privacy}}': createElement(
+			'a',
+			{ key: 'privacy', href: privacyUrl, target: '_blank', rel: 'noopener noreferrer' },
+			__( 'Privacy Policy', 'jetpack-connection' )
+		),
+	};
+
+	for ( const [ placeholder, element ] of Object.entries( placeholders ) ) {
+		const idx = remaining.indexOf( placeholder );
+		if ( idx === -1 ) {
+			continue;
+		}
+		if ( idx > 0 ) {
+			parts.push( remaining.slice( 0, idx ) );
+		}
+		parts.push( element );
+		remaining = remaining.slice( idx + placeholder.length );
+	}
+	if ( remaining ) {
+		parts.push( remaining );
+	}
+
+	return createElement(
+		Text,
+		{ variant: 'muted', size: 12, className: 'jetpack-connector__tos-notice' },
+		...parts
 	);
 }
 
@@ -778,8 +834,8 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		const badgeProps = isConnected
 			? { label: __( 'Connected', 'jetpack-connection' ) }
 			: {
-					label: __( 'Site connected', 'jetpack-connection' ),
-					modifier: 'site-connected',
+					label: __( 'Site registered', 'jetpack-connection' ),
+					modifier: 'site-registered',
 			  };
 
 		actionArea = createElement(
@@ -848,7 +904,8 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 					message: connectError,
 					onDismiss: () => setConnectError( null ),
 			  } )
-			: null
+			: null,
+		isFirstConnection && ! isConnected && ! isSiteRegistered ? createElement( TosNotice ) : null
 	);
 }
 
