@@ -159,8 +159,6 @@ class Render_Message_Controller extends Base_Controller {
 		$network        = (string) $request->get_param( 'network' );
 		$message        = (string) $request->get_param( 'message' );
 		$is_social_post = (bool) $request->get_param( 'is_social_post' );
-		$char_limit_raw = $request->get_param( 'char_limit' );
-		$char_limit     = null === $char_limit_raw ? null : (int) $char_limit_raw;
 
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/util/message-templates' );
@@ -183,7 +181,7 @@ class Render_Message_Controller extends Base_Controller {
 				);
 			}
 
-			$rendered = \Publicize\render_message_for_network( $post, $network, $message, $char_limit, $is_social_post );
+			$rendered = \Publicize\render_message_for_network( $post, $network, $message, null, $is_social_post );
 
 			if ( null === $rendered ) {
 				$rendered = '';
