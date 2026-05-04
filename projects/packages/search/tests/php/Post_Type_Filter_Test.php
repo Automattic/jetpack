@@ -71,11 +71,15 @@ class Post_Type_Filter_Test extends TestCase {
 	 * cache `protected`/`public` purely for test access.
 	 */
 	private function reset_searchable_cache(): void {
-		// PHP 8.1+ no longer requires setAccessible() for non-public
-		// reflection access; calling it triggers a deprecation on 8.5+.
-		( new \ReflectionClass( Post_Type_Filter::class ) )
-			->getProperty( 'searchable_cache' )
-			->setValue( null, null );
+		// PHP 7.2–8.0 require setAccessible(true) to read/write private
+		// statics via Reflection; PHP 8.1 made the call a no-op and 8.5
+		// emits a deprecation. Gate on the version so the package's full
+		// CI matrix (PHP 7.2 through 8.5) stays green.
+		$prop = ( new \ReflectionClass( Post_Type_Filter::class ) )->getProperty( 'searchable_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, null );
 	}
 
 	/**
