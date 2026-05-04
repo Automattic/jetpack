@@ -27,12 +27,6 @@ interface UseRenderedMessageOptions {
 	 * — most notably, whether to inline the URL in the rendered template.
 	 */
 	isSocialPost: boolean;
-	/**
-	 * Optional character limit override. When provided, sent as `char_limit` so
-	 * the backend's priority-based stripping renders within this cap. When
-	 * omitted, the backend uses each network's default CHAR_LIMIT.
-	 */
-	charLimit?: number;
 }
 
 interface UseRenderedMessageResult {
@@ -54,7 +48,6 @@ interface UseRenderedMessageResult {
  * @param options.network      - Social network slug (e.g. `x`, `facebook`).
  * @param options.message      - Message template to render; empty uses the per-network default.
  * @param options.isSocialPost - Whether the post is shared as a social post (media attached) vs. a link share.
- * @param options.charLimit    - Optional character limit override; sent as `char_limit` when provided.
  * @return The rendered message and loading state.
  */
 export default function useRenderedMessage( {
@@ -63,7 +56,6 @@ export default function useRenderedMessage( {
 	network,
 	message,
 	isSocialPost,
-	charLimit,
 }: UseRenderedMessageOptions ): UseRenderedMessageResult {
 	const [ rendered, setRendered ] = useState< string | null >( null );
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -93,7 +85,6 @@ export default function useRenderedMessage( {
 							network,
 							message,
 							is_social_post: isSocialPost,
-							...( charLimit ? { char_limit: charLimit } : {} ),
 						},
 						signal: controller.signal,
 					} );
@@ -120,7 +111,7 @@ export default function useRenderedMessage( {
 			controller.abort();
 			previousMessageRef.current = message;
 		};
-	}, [ enabled, postId, network, message, isSocialPost, charLimit ] );
+	}, [ enabled, postId, network, message, isSocialPost ] );
 
 	return {
 		rendered: enabled ? rendered : null,

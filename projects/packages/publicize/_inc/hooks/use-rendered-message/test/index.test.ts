@@ -93,54 +93,6 @@ describe( 'useRenderedMessage', () => {
 		expect( result.current.rendered ).toBe( 'Rendered' );
 	} );
 
-	it( 'forwards char_limit to the endpoint when provided', async () => {
-		renderHook( () =>
-			useRenderedMessage( {
-				enabled: true,
-				postId: 42,
-				network: 'tumblr',
-				message: '{title} {url}',
-				isSocialPost: false,
-				charLimit: 400,
-			} )
-		);
-
-		await act( async () => {
-			jest.runAllTimers();
-		} );
-
-		expect( mockApiFetch ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				data: {
-					post_id: 42,
-					network: 'tumblr',
-					message: '{title} {url}',
-					is_social_post: false,
-					char_limit: 400,
-				},
-			} )
-		);
-	} );
-
-	it( 'omits char_limit from the request when not provided', async () => {
-		renderHook( () =>
-			useRenderedMessage( {
-				enabled: true,
-				postId: 42,
-				network: 'x',
-				message: '{title}',
-				isSocialPost: false,
-			} )
-		);
-
-		await act( async () => {
-			jest.runAllTimers();
-		} );
-
-		const call = mockApiFetch.mock.calls[ 0 ]?.[ 0 ] as { data?: Record< string, unknown > };
-		expect( call?.data ).not.toHaveProperty( 'char_limit' );
-	} );
-
 	it( 'sends is_social_post=true when the post is shared as a social post', async () => {
 		renderHook( () =>
 			useRenderedMessage( {

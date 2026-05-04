@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { preparePreviewText } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { Bookmark as BookmarkIcon } from './icons/bookmark';
 import { Comment as CommentIcon } from './icons/comment';
@@ -74,10 +75,14 @@ export function InstagramPostPreview( {
 						&nbsp;
 						{ caption ? (
 							<div className="instagram-preview__content--text">
-								{ preparePreviewText( caption, {
-									platform: 'instagram',
-									maxChars: FEED_TEXT_MAX_LENGTH,
-								} ) }
+								<ExpandableText text={ caption }>
+									{ visibleText =>
+										preparePreviewText( visibleText, {
+											platform: 'instagram',
+											maxChars: FEED_TEXT_MAX_LENGTH,
+										} )
+									}
+								</ExpandableText>
 								{ media && url && ! caption.includes( url ) && (
 									<>
 										<br />

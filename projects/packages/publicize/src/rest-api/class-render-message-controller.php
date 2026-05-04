@@ -85,13 +85,6 @@ class Render_Message_Controller extends Base_Controller {
 						'required'    => false,
 						'default'     => false,
 					),
-					'char_limit'     => array(
-						'description' => __( 'Optional character limit override. When omitted, the network\'s default CHAR_LIMIT is used.', 'jetpack-publicize-pkg' ),
-						'type'        => 'integer',
-						'required'    => false,
-						'minimum'     => 1,
-						'maximum'     => 65000,
-					),
 				),
 				'schema'                         => array( $this, 'get_public_item_schema' ),
 			)
@@ -166,8 +159,6 @@ class Render_Message_Controller extends Base_Controller {
 		$network        = (string) $request->get_param( 'network' );
 		$message        = (string) $request->get_param( 'message' );
 		$is_social_post = (bool) $request->get_param( 'is_social_post' );
-		$char_limit_raw = $request->get_param( 'char_limit' );
-		$char_limit     = null === $char_limit_raw ? null : (int) $char_limit_raw;
 
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/util/message-templates' );
@@ -190,7 +181,7 @@ class Render_Message_Controller extends Base_Controller {
 				);
 			}
 
-			$rendered = \Publicize\render_message_for_network( $post, $network, $message, $char_limit, $is_social_post );
+			$rendered = \Publicize\render_message_for_network( $post, $network, $message, null, $is_social_post );
 
 			if ( null === $rendered ) {
 				$rendered = '';
