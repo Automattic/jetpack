@@ -29,7 +29,7 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
 	if ( ! apply_filters( 'pcg_guard_updates', false ) ) {
 		return $return;
 	}
-	if ( ! pcg_healthcheck_is_plugin_update( $hook_extra ) ) {
+	if ( ! pcg_healthcheck_is_plugin_pre_install_update( $hook_extra ) ) {
 		return $return;
 	}
 	$plugin_file = (string) ( $hook_extra['plugin'] ?? '' );
@@ -154,6 +154,9 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 /**
  * Is this $hook_extra a plugin update (not an install, not a theme)?
  *
+ * Use on `upgrader_process_complete`, where WP core always populates
+ * `type` and `action` even for bulk runs.
+ *
  * @param array $hook_extra { type, action, ... }.
  * @return bool
  */
@@ -161,6 +164,33 @@ function pcg_healthcheck_is_plugin_update( $hook_extra ) {
 	$type   = (string) ( $hook_extra['type'] ?? '' );
 	$action = (string) ( $hook_extra['action'] ?? '' );
 	return 'plugin' === $type && 'update' === $action;
+}
+
+/**
+ * Is this $hook_extra a plugin update at the `upgrader_pre_install` filter?
+ *
+ * `Plugin_Upgrader::bulk_upgrade()` only passes `plugin` (and `temp_backup`)
+ * in the per-plugin `hook_extra` — `type` and `action` aren't set, so the
+ * post-install predicate would miss every bulk update. We disambiguate by
+ * presence of the `plugin` key plus negative checks: if `type`/`action`
+ * happen to be set (single-update path), they must say plugin/update.
+ * Theme bulk updates use a `theme` key instead, and plugin installs don't
+ * set `plugin`, so neither false-matches.
+ *
+ * @param array $hook_extra { plugin, type?, action?, temp_backup?, ... }.
+ * @return bool
+ */
+function pcg_healthcheck_is_plugin_pre_install_update( $hook_extra ) {
+	if ( empty( $hook_extra['plugin'] ) ) {
+		return false;
+	}
+	if ( isset( $hook_extra['type'] ) && 'plugin' !== $hook_extra['type'] ) {
+		return false;
+	}
+	if ( isset( $hook_extra['action'] ) && 'update' !== $hook_extra['action'] ) {
+		return false;
+	}
+	return true;
 }
 
 /**
