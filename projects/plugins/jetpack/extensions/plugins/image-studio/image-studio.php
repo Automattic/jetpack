@@ -126,6 +126,22 @@ function has_jetpack_ai_features() {
  * @return bool
  */
 function site_can_upload_videos_for_image_studio() {
+	/**
+	 * Filter the Image Studio video-upload capability determination.
+	 *
+	 * Return null to fall through to the default capability detection;
+	 * return a boolean to override. Useful for environments that need to
+	 * force the answer (custom hosts, integration tests, etc.).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool|null $override Override value, or null to use default detection.
+	 */
+	$override = apply_filters( 'jetpack_image_studio_can_upload_videos', null );
+	if ( null !== $override ) {
+		return (bool) $override;
+	}
+
 	if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
 		return (bool) wpcom_site_can_upload_videos();
 	}

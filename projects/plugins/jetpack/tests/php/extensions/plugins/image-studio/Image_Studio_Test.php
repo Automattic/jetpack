@@ -81,6 +81,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
+		remove_all_filters( 'jetpack_image_studio_can_upload_videos' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
@@ -530,6 +531,92 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			}
 		}
 		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script includes canUploadVideos property.
+	 */
+	public function test_inline_script_includes_can_upload_videos() {
+		$this->enable_and_enqueue_block_editor();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$this->assertIsArray( $inline );
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"canUploadVideos":', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script reflects canUploadVideos = true when forced via filter.
+	 */
+	public function test_inline_script_can_upload_videos_true_via_filter() {
+		add_filter( 'jetpack_image_studio_can_upload_videos', '__return_true' );
+		$this->enable_and_enqueue_block_editor();
+
+		$inline  = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+		$matched = false;
+		foreach ( (array) $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$matched = true;
+				$this->assertStringContainsString( '"canUploadVideos":true', $line );
+			}
+		}
+		$this->assertTrue( $matched, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script reflects canUploadVideos = false when forced via filter.
+	 */
+	public function test_inline_script_can_upload_videos_false_via_filter() {
+		add_filter( 'jetpack_image_studio_can_upload_videos', '__return_false' );
+		$this->enable_and_enqueue_block_editor();
+
+		$inline  = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+		$matched = false;
+		foreach ( (array) $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$matched = true;
+				$this->assertStringContainsString( '"canUploadVideos":false', $line );
+			}
+		}
+		$this->assertTrue( $matched, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test that site_can_upload_videos_for_image_studio() honors the override filter.
+	 */
+	public function test_site_can_upload_videos_filter_override() {
+		add_filter( 'jetpack_image_studio_can_upload_videos', '__return_true' );
+		$this->assertTrue( ImageStudio\site_can_upload_videos_for_image_studio() );
+
+		remove_all_filters( 'jetpack_image_studio_can_upload_videos' );
+		add_filter( 'jetpack_image_studio_can_upload_videos', '__return_false' );
+		$this->assertFalse( ImageStudio\site_can_upload_videos_for_image_studio() );
+	}
+
+	/**
+	 * Test that the helper falls back to VideoPress\Status::is_active() when
+	 * neither the filter nor wpcom_site_can_upload_videos() short-circuit.
+	 *
+	 * In the standard self-hosted PHPUnit environment wpcom_site_can_upload_videos
+	 * is not defined, so the call goes through the VideoPress fallback. We only
+	 * assert that the result type matches what VideoPress\Status::is_active()
+	 * would return — covering the fallback wiring without binding to a specific
+	 * VideoPress activation state in CI.
+	 */
+	public function test_site_can_upload_videos_falls_back_to_videopress_status() {
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos is defined; fallback path is unreachable here.' );
+		}
+
+		$expected = \Automattic\Jetpack\VideoPress\Status::is_active();
+		$this->assertSame( $expected, ImageStudio\site_can_upload_videos_for_image_studio() );
 	}
 
 	/**
