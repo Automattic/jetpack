@@ -706,7 +706,7 @@ async function buildProject( t ) {
 	// We don't need to `composer install` if it's a CI build of a non-plugin with no build script. Except for changelogger.
 	const skipInstall = t.argv.forMirrors && script === null && ! t.project.startsWith( 'plugins/' );
 
-	if ( t.argv.forMirrors && ! skipInstall ) {
+	if ( t.argv.forMirrors ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..
 		const idx = composerJson.repositories?.findIndex( r => r.options?.monorepo );
 		if ( typeof idx === 'number' && idx >= 0 ) {
@@ -755,8 +755,8 @@ async function buildProject( t ) {
 					JSON.stringify( composerJson, null, '\t' ) + '\n',
 					{ encoding: 'utf8' }
 				);
-				// Update composer.lock too, if any.
-				if ( await fsExists( `${ t.cwd }/composer.lock` ) ) {
+				// Update composer.lock too, if any and if we're installing.
+				if ( ! skipInstall && ( await fsExists( `${ t.cwd }/composer.lock` ) ) ) {
 					await t.execa( 'composer', [ 'update', '--no-install', ...Object.keys( versions ) ], {
 						cwd: t.cwd,
 						stdio: [ 'ignore', 'inherit', 'inherit' ],

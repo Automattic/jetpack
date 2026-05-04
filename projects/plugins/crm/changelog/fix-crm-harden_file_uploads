@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+File Uploads: Clean up upload logic.

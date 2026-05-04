@@ -18,7 +18,7 @@ class Search_Blocks {
 	 * Reserved query params that must not be parsed as filter keys. Mirrors
 	 * `RESERVED_PARAMS` in store/url-state.js.
 	 */
-	const RESERVED_QUERY_PARAMS = array( 's', 'orderby' );
+	const RESERVED_QUERY_PARAMS = array( 's', 'orderby', 'min_price', 'max_price' );
 
 	/**
 	 * Template slug used for the Jetpack Search page template.
@@ -183,13 +183,20 @@ class Search_Blocks {
 			array(
 				'name'        => 'custom_taxonomy',
 				'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
-				'description' => __( 'Show checkboxes for any registered taxonomy.', 'jetpack-search-pkg' ),
+				'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => '',
 					'label'      => '',
 				),
-				'isActive'    => array( 'filterType', 'taxonomy' ),
+				// Match on filterType only (no taxonomy comparison) so the
+				// variation identity survives once the author picks a slug
+				// via the inspector. The Category and Tag variations both
+				// pin `taxonomy` in their isActive arrays, so WP's
+				// most-specific-match resolution still routes those slugs
+				// to their dedicated variations — Custom Taxonomy claims
+				// every other registered taxonomy.
+				'isActive'    => array( 'filterType' ),
 			),
 		);
 
@@ -357,14 +364,14 @@ class Search_Blocks {
 	 *
 	 * Individual block render.php files may also call wp_interactivity_state()
 	 * — core deep-merges each call, so each block can contribute its own
-	 * entries (e.g. filter-checkbox writes its filterConfig).
+	 * entries (e.g. filter-checkbox writes its filterConfig). Filter blocks
+	 * placed in templates or template parts contribute their config the same
+	 * way; the complete registry exists by the time JS hydrates.
 	 *
-	 * Pre-populates `filterConfigs` by scanning the current post content for
-	 * jetpack/filter-checkbox blocks so the seeded state always carries the
-	 * known filter schema regardless of block order in the tree. That in turn
-	 * lets `gate_active_filters()` drop URL-derived `activeFilters` keys that
-	 * aren't registered anywhere on the post, preventing unrelated array
-	 * params from round-tripping into subsequent search URLs.
+	 * URL-derived `activeFilters` is passed straight through; the JS store
+	 * gates it against the complete `filterConfigs` registry on hydration
+	 * (see `gateActiveFilters()` in `store/index.js`), so any stray params
+	 * don't round-trip back into subsequent search URLs.
 	 */
 	public static function seed_interactivity_state() {
 		if ( ! function_exists( 'wp_interactivity_state' ) ) {
@@ -377,9 +384,10 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Compose the final seeded state for `wp_interactivity_state()`. Takes
-	 * $filter_configs as an argument so tests can exercise the full gating +
-	 * isLoading recomputation path without a WP post lookup.
+	 * Compose the final seeded state for `wp_interactivity_state()`.
+	 *
+	 * `activeFilters` is passed through from the URL — the JS store gates
+	 * against the complete `filterConfigs` registry on hydration.
 	 *
 	 * @param array<string, array<string, mixed>> $filter_configs Map of filter
 	 *   configs collected from the current post (or injected by tests).
@@ -388,43 +396,7 @@ class Search_Blocks {
 	public static function build_seed_state( array $filter_configs ): array {
 		$state                  = static::build_initial_state();
 		$state['filterConfigs'] = $filter_configs;
-		$state['activeFilters'] = static::gate_active_filters(
-			$state['activeFilters'] ?? array(),
-			$filter_configs
-		);
-		// Recompute isLoading from the *post-gating* state. build_initial_state()
-		// derives it from the raw URL params, so a URL that carried only
-		// unregistered `?foo[]=bar` params (e.g. from another plugin) would
-		// leave isLoading=true after gating emptied activeFilters — and since
-		// the JS `initialize()` only fires a search when `searchQuery` or
-		// `hasActiveFilters` is truthy, neither would fire, the spinner would
-		// never clear.
-		$state['isLoading'] = '' !== $state['searchQuery'] || ! empty( $state['activeFilters'] );
 		return $state;
-	}
-
-	/**
-	 * Drop active-filter keys that aren't registered by any filter-checkbox
-	 * block on the current post. parse_url_filters() accepts any array-shaped
-	 * top-level URL param, so without this gate a stray `?foo[]=bar` seeded
-	 * by another plugin would get merged into `activeFilters` and then
-	 * re-serialized back into subsequent search URLs. Mirrors the same gating
-	 * that store/url-state.js applies on the client side.
-	 *
-	 * Skipped when `$filter_configs` is empty — no filter blocks means we
-	 * don't know what's valid, and we don't want to silently drop filters
-	 * a filter block placed inside a template part would accept after hydration.
-	 *
-	 * @param array<string, string[]>             $active_filters Parsed active filters.
-	 * @param array<string, array<string, mixed>> $filter_configs Known filter configs keyed by filterKey.
-	 * @return array<string, string[]>
-	 */
-	public static function gate_active_filters( array $active_filters, array $filter_configs ): array {
-		if ( empty( $filter_configs ) ) {
-			return $active_filters;
-		}
-		$allowed = array_fill_keys( array_keys( $filter_configs ), true );
-		return array_intersect_key( $active_filters, $allowed );
 	}
 
 	/**
@@ -440,8 +412,14 @@ class Search_Blocks {
 	 * @return array<string, array<string, mixed>>
 	 */
 	protected static function collect_filter_configs_from_post(): array {
-		if ( ! function_exists( 'get_post' ) || ! function_exists( 'parse_blocks' ) || ! class_exists( Filter_Checkbox::class ) ) {
+		if ( ! function_exists( 'get_post' ) || ! function_exists( 'parse_blocks' ) ) {
 			return array();
+		}
+		// Bail if any helper is missing — half-loaded feature would ship inconsistent filterConfigs.
+		foreach ( static::filter_block_helpers() as $helper ) {
+			if ( ! class_exists( $helper ) ) {
+				return array();
+			}
 		}
 		$post = get_post();
 		if ( ! $post || empty( $post->post_content ) ) {
@@ -453,24 +431,39 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Recursively walk a parsed block tree and push filter-checkbox configs
-	 * into `$configs`. Passing `$configs` by reference keeps the recursion
-	 * flat — callers don't need to merge children's maps back into parents'.
+	 * Map of filter block name → helper class. Add a new filter block type
+	 * by appending one entry here.
+	 *
+	 * @return array<string, class-string>
+	 */
+	protected static function filter_block_helpers(): array {
+		return array(
+			'jetpack/filter-checkbox' => Filter_Checkbox::class,
+			'jetpack/filter-date'     => Filter_Date::class,
+		);
+	}
+
+	/**
+	 * Recursively walk a parsed block tree, pushing each filter block's
+	 * config into `$configs` by reference.
 	 *
 	 * @param array $blocks  Parsed block tree from parse_blocks().
 	 * @param array $configs Accumulator map keyed by filterKey.
 	 * @return void
 	 */
 	protected static function walk_blocks_for_filter_configs( array $blocks, array &$configs ): void {
+		$helpers = static::filter_block_helpers();
 		foreach ( $blocks as $block ) {
 			if ( ! is_array( $block ) ) {
 				continue;
 			}
-			if ( 'jetpack/filter-checkbox' === ( $block['blockName'] ?? '' ) ) {
-				$attrs = (array) ( $block['attrs'] ?? array() );
-				$key   = Filter_Checkbox::derive_filter_key( $attrs );
+			$block_name = (string) ( $block['blockName'] ?? '' );
+			if ( isset( $helpers[ $block_name ] ) ) {
+				$helper = $helpers[ $block_name ];
+				$attrs  = (array) ( $block['attrs'] ?? array() );
+				$key    = $helper::derive_filter_key( $attrs );
 				if ( '' !== $key ) {
-					$configs[ $key ] = Filter_Checkbox::build_config( $attrs, $key );
+					$configs[ $key ] = $helper::build_config( $attrs, $key );
 				}
 			}
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
@@ -490,6 +483,7 @@ class Search_Blocks {
 		$site_id        = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
 		$search_query   = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
 		$active_filters = static::parse_url_filters();
+		$price_range    = static::parse_url_price_range();
 
 		return array(
 			// Connection / routing config.
@@ -514,6 +508,7 @@ class Search_Blocks {
 			'searchQuery'   => $search_query,
 			'sortOrder'     => static::parse_url_sort(),
 			'activeFilters' => $active_filters,
+			'priceRange'    => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
@@ -532,7 +527,7 @@ class Search_Blocks {
 			// search query or filter selection so the no-results block stays
 			// hidden between first paint and JS hydrating the initial fetch —
 			// otherwise a "No results found" flash appears on deep links.
-			'isLoading'     => '' !== $search_query || ! empty( $active_filters ),
+			'isLoading'     => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
 			'isLoadingMore' => false,
 			'hasError'      => false,
 
@@ -583,6 +578,65 @@ class Search_Blocks {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : '';
 		return in_array( $orderby, array( 'newest', 'oldest' ), true ) ? $orderby : 'relevance';
+	}
+
+	/**
+	 * Parse the price range from the URL, mirroring the contract in
+	 * src/search-blocks/store/url-state.js. Either bound may be null for a
+	 * half-open range; non-numeric or negative values yield null so a
+	 * garbage URL can't drive the API into producing zero results.
+	 *
+	 * Returns null when neither bound is set, so callers can early-out
+	 * without checking individual fields.
+	 *
+	 * @return array{min: float|null, max: float|null}|null
+	 */
+	protected static function parse_url_price_range(): ?array {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to float in parse_price_bound() which discards any non-numeric input.
+		$min = self::parse_price_bound( $_GET['min_price'] ?? null );
+		$max = self::parse_price_bound( $_GET['max_price'] ?? null );
+		// phpcs:enable
+
+		if ( null === $min && null === $max ) {
+			return null;
+		}
+		// Both bounds present but inverted (min > max) yields an empty ES
+		// `range` clause that returns zero results silently. Treat the URL
+		// as garbage and bail so the page renders a normal (unfiltered)
+		// search rather than a guaranteed-empty one. Mirrors the same
+		// rejection in store/url-state.js.
+		if ( null !== $min && null !== $max && $min > $max ) {
+			return null;
+		}
+		return array(
+			'min' => $min,
+			'max' => $max,
+		);
+	}
+
+	/**
+	 * Coerce a single price-range URL value into a finite, non-negative float.
+	 *
+	 * @param mixed $raw Raw value pulled from $_GET.
+	 * @return float|null
+	 */
+	private static function parse_price_bound( $raw ): ?float {
+		if ( null === $raw || '' === $raw || ! is_scalar( $raw ) ) {
+			return null;
+		}
+		// `is_numeric` rejects partially-numeric strings like "1.5.3" that
+		// the (float) cast would silently extract as 1.5 — JS's Number()
+		// returns NaN for the same input, so without this gate the PHP
+		// initial render and JS hydration disagree on parsed value.
+		$raw = wp_unslash( $raw );
+		if ( ! is_numeric( $raw ) ) {
+			return null;
+		}
+		$num = (float) $raw;
+		if ( ! is_finite( $num ) || $num < 0 ) {
+			return null;
+		}
+		return $num;
 	}
 
 	/**

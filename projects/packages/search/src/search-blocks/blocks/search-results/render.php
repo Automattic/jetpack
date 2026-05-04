@@ -2,20 +2,21 @@
 /**
  * Search Results block render.
  *
- * Pure template — no PHP pre-fetch. Search_Blocks::seed_interactivity_state()
- * already seeds empty `results` / `aggregations` / `totalResults` plus an
- * `isLoading` flag that's true whenever the URL carries a search query or
- * filter selection, so the JS store fetches on hydration without flashing
- * the no-results block first.
- *
  * @package automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+// @phan-suppress-next-line PhanUndeclaredGlobalVariable
+$layout        = ( (array) $attributes )['layout'] ?? 'card';
+$is_compact    = 'compact' === $layout;
+$wrapper_class = $is_compact ? 'jetpack-search-results--compact' : 'jetpack-search-results--card';
+$wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
+	<?php echo wp_kses_data( $wrapper_attrs ); ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-init="callbacks.initialize"
 	data-wp-bind--aria-busy="state.isLoading"
@@ -36,7 +37,7 @@ namespace Automattic\Jetpack\Search;
 							data-wp-bind--href="context.result.permalink"
 						>
 							<span
-								data-wp-bind--hidden="context.result.hasTitleHighlight"
+								data-wp-bind--hidden="context.result.hasTitlePieces"
 								data-wp-text="context.result.title"
 							></span>
 							<template
@@ -50,30 +51,36 @@ namespace Automattic\Jetpack\Search;
 							</template>
 						</a>
 					</h3>
-					<div
-						class="jetpack-search-results__path"
-						data-wp-bind--hidden="!context.result.path"
-						data-wp-text="context.result.path"
-					></div>
-					<div
-						class="jetpack-search-results__date"
-						data-wp-bind--hidden="!context.result.dateLabel"
-						data-wp-text="context.result.dateLabel"
-					></div>
+					<?php if ( ! $is_compact ) : ?>
+						<div
+							class="jetpack-search-results__path"
+							data-wp-bind--hidden="!context.result.path"
+							data-wp-text="context.result.path"
+						></div>
+					<?php endif; ?>
+					<div class="jetpack-search-results__meta">
+						<span
+							class="jetpack-search-results__date"
+							data-wp-bind--hidden="!context.result.dateLabel"
+							data-wp-text="context.result.dateLabel"
+						></span>
+					</div>
 				</div>
-				<a
-					class="jetpack-search-results__image-link"
-					data-wp-bind--href="context.result.permalink"
-					data-wp-bind--hidden="!context.result.imageUrl"
-					tabindex="-1"
-					aria-hidden="true"
-				>
-					<img
-						class="jetpack-search-results__image"
-						data-wp-bind--src="context.result.imageUrl"
-						alt=""
-					/>
-				</a>
+				<?php if ( ! $is_compact ) : ?>
+					<a
+						class="jetpack-search-results__image-link"
+						data-wp-bind--href="context.result.permalink"
+						data-wp-bind--hidden="!context.result.imageUrl"
+						tabindex="-1"
+						aria-hidden="true"
+					>
+						<img
+							class="jetpack-search-results__image"
+							data-wp-bind--src="context.result.imageUrl"
+							alt=""
+						/>
+					</a>
+				<?php endif; ?>
 			</li>
 		</template>
 	</ul>

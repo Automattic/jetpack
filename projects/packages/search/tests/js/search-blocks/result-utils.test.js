@@ -1,4 +1,5 @@
 import {
+	countActiveFilters,
 	formatDate,
 	formatPath,
 	normalizeResult,
@@ -214,7 +215,7 @@ describe( 'normalizeResult', () => {
 			permalink: '//example.com/2026/04/20/hi/',
 			path: '2026 › 04 › 20 › hi',
 			imageUrl: '//cdn.example.com/img.jpg',
-			hasTitleHighlight: true,
+			hasTitlePieces: true,
 		} );
 		expect( r.titlePieces ).toEqual( [ { index: 0, text: 'Hello', isHighlight: true } ] );
 		expect( r.dateLabel ).toMatch( /Apr 20, 2026/ );
@@ -229,14 +230,14 @@ describe( 'normalizeResult', () => {
 		).toBe( '//example.com/a/' );
 	} );
 
-	it( 'hasTitleHighlight is false when no mark tags present', () => {
+	it( 'hasTitlePieces is true when highlight title contains plain text only', () => {
 		const r = normalizeResult( {
 			...RAW,
 			highlight: { title: 'no highlights here' },
 		} );
-		// tokenizeHighlight still yields one piece (isHighlight=false), so we
-		// need to confirm hasTitleHighlight reflects the absence of any mark.
-		expect( r.hasTitleHighlight ).toBe( true );
+		// The template should render titlePieces whenever the API returns
+		// highlight title tokens, even when none of them contain <mark>.
+		expect( r.hasTitlePieces ).toBe( true );
 	} );
 
 	it( 'defaults to empty title when both title.default and title are missing', () => {
@@ -268,11 +269,47 @@ describe( 'normalizeResult', () => {
 			id: '',
 			title: '',
 			titlePieces: [],
-			hasTitleHighlight: false,
+			hasTitlePieces: false,
 			permalink: '',
 			path: '',
 			dateLabel: '',
 			imageUrl: '',
 		} );
+	} );
+
+	it( 'does not expose author data from the API response', () => {
+		const raw = {
+			result_id: '1',
+			fields: {
+				'permalink.url.raw': 'https://example.com/a',
+				'title.default': 'Post',
+				'author.name': 'Ada Lovelace',
+			},
+		};
+		expect( normalizeResult( raw ) ).not.toHaveProperty( 'author' );
+	} );
+} );
+
+describe( 'countActiveFilters', () => {
+	it( 'returns 0 for empty object', () => {
+		expect( countActiveFilters( {} ) ).toBe( 0 );
+	} );
+
+	it( 'returns 0 for null / undefined', () => {
+		expect( countActiveFilters( null ) ).toBe( 0 );
+		expect( countActiveFilters( undefined ) ).toBe( 0 );
+	} );
+
+	it( 'sums selected values across all filter keys', () => {
+		const active = {
+			category: [ 'news', 'opinion' ],
+			post_tag: [ 'a' ],
+			post_type: [],
+		};
+		expect( countActiveFilters( active ) ).toBe( 3 );
+	} );
+
+	it( 'ignores non-array values defensively', () => {
+		expect( countActiveFilters( { category: 'news' } ) ).toBe( 0 );
 	} );
 } );

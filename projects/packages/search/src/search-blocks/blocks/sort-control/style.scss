@@ -112,3 +112,82 @@
 		}
 	}
 }
+
+.jetpack-search-sort--popover {
+	position: relative;
+	display: inline-block;
+
+	.jetpack-search-sort__trigger {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 20%, transparent);
+		background: transparent;
+		color: inherit;
+		border-radius: 4px;
+		cursor: pointer;
+
+		&:hover:not(:disabled),
+		&[aria-expanded="true"] {
+			background: color-mix(in sRGB, currentColor 6%, transparent);
+		}
+
+		&:disabled {
+			cursor: not-allowed;
+			opacity: 0.4;
+		}
+	}
+
+	.jetpack-search-sort__menu {
+		position: absolute;
+		inset-inline-end: 0;
+		inset-block-start: calc(100% + 4px);
+		min-width: 160px;
+		z-index: 20;
+		display: flex;
+		flex-direction: column;
+		padding: 4px;
+		background: var(--wp--preset--color--base);
+		// The menu owns its surface, so don't inherit a low-contrast body
+		// accent color from the surrounding page.
+		color: var(--wp--preset--color--contrast);
+		// Reset the inherited theme base size so menu items track the
+		// search-results title (also 1rem) instead of the host theme's
+		// oversized default. `font: inherit` on menu items picks this up.
+		font-size: 1rem;
+		border: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 15%, transparent);
+		border-radius: 4px;
+		box-shadow: 0 4px 16px color-mix(in sRGB, currentColor 12%, transparent);
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-sort__menu-item {
+		appearance: none;
+		border: none;
+		background: transparent;
+		color: inherit;
+		padding: 6px 8px;
+		text-align: start;
+		font: inherit;
+		border-radius: 2px;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			background: color-mix(in sRGB, currentColor 8%, transparent);
+		}
+
+		&[aria-checked="true"]::before {
+			content: "✓";
+			margin-inline-end: 6px;
+		}
+	}
+}

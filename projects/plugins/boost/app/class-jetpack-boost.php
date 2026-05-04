@@ -146,6 +146,10 @@ class Jetpack_Boost {
 		Site_Health::init();
 
 		Super_Cache_Tracking::setup();
+
+		// Boost abilities (WP Abilities API). Gated by `jetpack_wp_abilities_enabled`;
+		// priority 20 leaves room for default-priority filter registrations to land first.
+		add_action( 'plugins_loaded', array( '\Automattic\Jetpack_Boost\Abilities\Boost_Abilities', 'init' ), 20 );
 	}
 
 	/**

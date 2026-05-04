@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: fix dashboard hero section being crushed under shared admin page layout mixin.

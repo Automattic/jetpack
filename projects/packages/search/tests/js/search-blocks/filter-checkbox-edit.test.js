@@ -1,0 +1,150 @@
+// Pins the pure helpers behind the filter-checkbox inspector. The component
+// itself is integration-tested via the editor; here we lock the variation
+// identification, attribute mapping, and label-default logic in isolation
+// because subtle changes (e.g. dropping `previousTaxonomy` for Author) have
+// silently broken slug round-trips in the past.
+
+import {
+	deriveVariation,
+	variationToAttributes,
+	variationDefaultLabel,
+	VARIATION_CATEGORY,
+	VARIATION_POST_TAG,
+	VARIATION_POST_TYPE,
+	VARIATION_AUTHOR,
+	VARIATION_CUSTOM_TAXONOMY,
+} from '../../../src/search-blocks/blocks/filter-checkbox/edit.js';
+
+describe( 'deriveVariation', () => {
+	it( 'maps the four built-in (filterType, taxonomy) pairs to their variation ids', () => {
+		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'category' } ) ).toBe(
+			VARIATION_CATEGORY
+		);
+		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'post_tag' } ) ).toBe(
+			VARIATION_POST_TAG
+		);
+		expect( deriveVariation( { filterType: 'post_type' } ) ).toBe( VARIATION_POST_TYPE );
+		expect( deriveVariation( { filterType: 'author' } ) ).toBe( VARIATION_AUTHOR );
+	} );
+
+	it( 'treats any non-built-in taxonomy slug as Custom Taxonomy', () => {
+		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toBe(
+			VARIATION_CUSTOM_TAXONOMY
+		);
+		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
+			VARIATION_CUSTOM_TAXONOMY
+		);
+	} );
+
+	it( 'falls back to Custom Taxonomy when filterType is empty (defensive)', () => {
+		// block.json declares `filterType: 'taxonomy'` and `taxonomy: 'category'`
+		// as defaults, so a freshly-inserted block always satisfies the Category
+		// branch above. This guards a hypothetical legacy save where the
+		// attributes are blank — the slug input shows up so the author can
+		// recover, instead of misclassifying as a built-in variation.
+		expect( deriveVariation( {} ) ).toBe( VARIATION_CUSTOM_TAXONOMY );
+		expect( deriveVariation( { filterType: '', taxonomy: '' } ) ).toBe( VARIATION_CUSTOM_TAXONOMY );
+	} );
+} );
+
+describe( 'variationToAttributes', () => {
+	it( 'returns the canonical (filterType, taxonomy) pair for each built-in variation', () => {
+		expect( variationToAttributes( VARIATION_CATEGORY, '' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: 'category',
+		} );
+		expect( variationToAttributes( VARIATION_POST_TAG, '' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: 'post_tag',
+		} );
+	} );
+
+	it( 'preserves previousTaxonomy for Author and Post Type so Custom-slug round-trips survive', () => {
+		// render.php ignores `taxonomy` when filterType isn't 'taxonomy', so
+		// keeping the slug here is purely UI state — but it lets the author
+		// flip Custom → Author → Custom without retyping `genre`.
+		expect( variationToAttributes( VARIATION_POST_TYPE, 'genre' ) ).toEqual( {
+			filterType: 'post_type',
+			taxonomy: 'genre',
+		} );
+		expect( variationToAttributes( VARIATION_AUTHOR, 'product_cat' ) ).toEqual( {
+			filterType: 'author',
+			taxonomy: 'product_cat',
+		} );
+		expect( variationToAttributes( VARIATION_AUTHOR, '' ) ).toEqual( {
+			filterType: 'author',
+			taxonomy: '',
+		} );
+	} );
+
+	it( 'preserves a custom slug when re-selecting Custom Taxonomy', () => {
+		expect( variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'genre' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: 'genre',
+		} );
+	} );
+
+	it( 'drops built-in `category` / `post_tag` when switching to Custom Taxonomy', () => {
+		// Otherwise these would surface as user-typed slugs in the Taxonomy
+		// slug input, which would be wrong: they're built-in variations.
+		expect( variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'category' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: '',
+		} );
+		expect( variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'post_tag' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: '',
+		} );
+	} );
+
+	it( 'falls through to Custom Taxonomy for unknown variation ids (defensive)', () => {
+		expect( variationToAttributes( 'not-a-real-variation', 'genre' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: 'genre',
+		} );
+	} );
+
+	it( 'preserves a custom slug across Custom → Author → Custom', () => {
+		// Simulates the inspector workflow: user types `genre`, swaps to
+		// Author, swaps back to Custom Taxonomy. The slug must come back.
+		const step1 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'genre' );
+		const step2 = variationToAttributes( VARIATION_AUTHOR, step1.taxonomy );
+		const step3 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, step2.taxonomy );
+		expect( step3.taxonomy ).toBe( 'genre' );
+	} );
+
+	it( 'preserves a custom slug across Custom → Post Type → Custom', () => {
+		const step1 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'product_cat' );
+		const step2 = variationToAttributes( VARIATION_POST_TYPE, step1.taxonomy );
+		const step3 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, step2.taxonomy );
+		expect( step3.taxonomy ).toBe( 'product_cat' );
+	} );
+
+	it( 'intentionally clears the slug across Custom → Category → Custom', () => {
+		// Once the author swaps through Category, the stored taxonomy is
+		// `category`, which we drop on the way back to avoid presenting it
+		// as a custom-typed slug. Documented behavior, not a regression.
+		const step1 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'genre' );
+		const step2 = variationToAttributes( VARIATION_CATEGORY, step1.taxonomy );
+		const step3 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, step2.taxonomy );
+		expect( step3.taxonomy ).toBe( '' );
+	} );
+} );
+
+describe( 'variationDefaultLabel', () => {
+	it( 'returns the seeded variation label for each built-in variation', () => {
+		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'category' } ) ).toBe(
+			'Category'
+		);
+		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'post_tag' } ) ).toBe(
+			'Tag'
+		);
+		expect( variationDefaultLabel( { filterType: 'post_type' } ) ).toBe( 'Post Type' );
+		expect( variationDefaultLabel( { filterType: 'author' } ) ).toBe( 'Author' );
+	} );
+
+	it( 'returns empty string for custom taxonomies so the caller falls back to the generic placeholder', () => {
+		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toBe( '' );
+		expect( variationDefaultLabel( {} ) ).toBe( '' );
+	} );
+} );

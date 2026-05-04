@@ -45,6 +45,9 @@ class Sort_Control_Render_Test extends TestCase {
 						'type'    => 'string',
 						'default' => 'select',
 					),
+					'display'              => array(
+						'type' => 'string',
+					),
 				),
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				'render_callback' => static function ( $attributes ) {
@@ -105,6 +108,59 @@ class Sort_Control_Render_Test extends TestCase {
 		$this->assertStringContainsString( '<fieldset', $markup );
 		$this->assertStringNotContainsString( '<select', $markup );
 		$this->assertStringContainsString( 'type="radio"', $markup );
+	}
+
+	/** `displayAs=popover` emits the compact icon trigger and menu. */
+	public function test_display_as_popover_renders_menu() {
+		$markup = $this->render( array( 'displayAs' => 'popover' ) );
+		$this->assertStringContainsString( 'jetpack-search-sort--popover', $markup );
+		$this->assertStringContainsString( 'aria-haspopup="menu"', $markup );
+		$this->assertStringContainsString( 'role="menu"', $markup );
+		$this->assertStringNotContainsString( '<select', $markup );
+	}
+
+	/**
+	 * Blocks inserted before `displayAs` landed used `display=popover`.
+	 * They must keep rendering the compact icon trigger.
+	 */
+	public function test_legacy_display_popover_renders_menu() {
+		$markup = $this->render( array( 'display' => 'popover' ) );
+		$this->assertStringContainsString( 'jetpack-search-sort--popover', $markup );
+		$this->assertStringContainsString( 'aria-haspopup="menu"', $markup );
+		$this->assertStringContainsString( 'role="menu"', $markup );
+		$this->assertStringNotContainsString( '<select', $markup );
+	}
+
+	/**
+	 * Popover menu items participate in the ARIA menu keyboard pattern:
+	 * each item starts with `tabindex="-1"` (server-rendered), carries a
+	 * roving-tabindex binding, a `data-wp-context` with its sort key, and
+	 * a keydown handler so arrow keys can navigate within the menu. The
+	 * trigger also has its own keydown handler so ArrowDown/ArrowUp open
+	 * the popover with focus on the first or last item.
+	 */
+	public function test_display_as_popover_menu_items_have_keyboard_navigation_hooks() {
+		$markup = $this->render( array( 'displayAs' => 'popover' ) );
+
+		// Trigger handles ArrowDown/ArrowUp/Enter/Space to open the menu.
+		$this->assertMatchesRegularExpression(
+			'/class="jetpack-search-sort__trigger"[^>]*data-wp-on--keydown="actions\.onSortTriggerKeydown"/s',
+			$markup
+		);
+
+		// Each menu item ships with the roving-tabindex defaults.
+		$this->assertStringContainsString( 'data-wp-bind--tabindex="state.sortMenuItemTabIndex"', $markup );
+		$this->assertStringContainsString( 'data-wp-on--keydown="actions.onSortMenuKeydown"', $markup );
+		$this->assertMatchesRegularExpression(
+			'/class="jetpack-search-sort__menu-item"[^>]*tabindex="-1"/s',
+			$markup
+		);
+
+		// Per-item context carries the sort key for the watch callback.
+		$this->assertStringContainsString( 'data-wp-context=', $markup );
+		$this->assertStringContainsString( '&quot;sortKey&quot;:&quot;relevance&quot;', $markup );
+		$this->assertStringContainsString( '&quot;sortKey&quot;:&quot;newest&quot;', $markup );
+		$this->assertStringContainsString( '&quot;sortKey&quot;:&quot;oldest&quot;', $markup );
 	}
 
 	/** URL `?orderby=` wins over `defaultSort` so deep links keep their meaning. */

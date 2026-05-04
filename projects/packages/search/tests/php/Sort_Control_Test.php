@@ -116,10 +116,24 @@ class Sort_Control_Test extends TestCase {
 	}
 
 	/**
-	 * `radio` is the only non-default value the block supports.
+	 * `radio` and `popover` are the supported non-default presentations.
 	 */
 	public function test_normalize_display_as_accepts_radio() {
 		$this->assertSame( 'radio', Sort_Control::normalize_display_as( array( 'displayAs' => 'radio' ) ) );
+	}
+
+	/**
+	 * `popover` uses the compact toolbar icon trigger and menu.
+	 */
+	public function test_normalize_display_as_accepts_popover() {
+		$this->assertSame( 'popover', Sort_Control::normalize_display_as( array( 'displayAs' => 'popover' ) ) );
+	}
+
+	/**
+	 * `display=popover` was used before this block adopted `displayAs`.
+	 */
+	public function test_normalize_display_as_accepts_legacy_display_popover() {
+		$this->assertSame( 'popover', Sort_Control::normalize_display_as( array( 'display' => 'popover' ) ) );
 	}
 
 	/**

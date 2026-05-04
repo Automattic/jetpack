@@ -116,6 +116,7 @@ add_action(
 			'updated'              => __( 'Updated!', 'jetpack-mu-wpcom' ),
 			'published'            => __( 'Published!', 'jetpack-mu-wpcom' ),
 			'draftSaved'           => __( 'Draft saved', 'jetpack-mu-wpcom' ),
+			'draftAutosaved'       => __( 'Draft saved', 'jetpack-mu-wpcom' ),
 			// translators: %s is the error message.
 			'error'                => __( 'Error: %s', 'jetpack-mu-wpcom' ),
 			'normal'               => __( 'Normal', 'jetpack-mu-wpcom' ),
@@ -209,6 +210,7 @@ function wpcom_write_render_admin_page() {
 			'writeUrl'            => wpcom_write_url(),
 			'editPostId'          => $edit_post_id,
 			'postStatus'          => $post_status,
+			'isPublishedPost'     => 'publish' === $post_status,
 			'title'               => $edit_title,
 			'isSaving'            => false,
 			'isPublished'         => false,
@@ -237,11 +239,12 @@ function wpcom_write_render_admin_page() {
 			'formatAlignRight'    => false,
 			'formatOList'         => false,
 			'formatUList'         => false,
+			'showRecoveryBanner'  => false,
 		)
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status );
 }
 
 /**
@@ -254,8 +257,9 @@ function wpcom_write_render_admin_page() {
  * @param string $edit_content    The post content when editing.
  * @param int    $edit_post_id    The post ID when editing, 0 for new posts.
  * @param array  $categories_data Array of category data for the picker.
+ * @param string $post_status     The post status ('new', 'draft', 'publish', etc.).
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array() ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new' ) {
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
@@ -277,14 +281,23 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				class="bw-btn bw-btn-draft"
 				data-wp-on--click="actions.saveDraft"
 				data-wp-bind--disabled="state.isSaving"
+				data-wp-bind--hidden="state.isPublishedPost"
+				<?php echo 'publish' === $post_status ? 'hidden' : ''; ?>
 			><?php echo esc_html__( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
 			<button
 				class="bw-btn bw-btn-publish"
 				data-wp-on--click="actions.publish"
 				data-wp-bind--disabled="state.isSaving"
-			><?php echo $edit_post_id ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
+			><?php echo 'publish' === $post_status ? esc_html__( 'Update', 'jetpack-mu-wpcom' ) : esc_html__( 'Publish', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</header>
+
+	<!-- Recovery banner -->
+	<div class="bw-recovery-banner" hidden data-wp-bind--hidden="!state.showRecoveryBanner">
+		<span class="bw-recovery-text"><?php echo esc_html__( 'You have a recent draft — continue editing?', 'jetpack-mu-wpcom' ); ?></span>
+		<button class="bw-recovery-btn" data-wp-on--click="actions.resumeDraft"><?php echo esc_html__( 'Resume editing', 'jetpack-mu-wpcom' ); ?></button>
+		<button class="bw-recovery-dismiss" data-wp-on--click="actions.dismissRecovery" aria-label="<?php echo esc_attr__( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+	</div>
 
 	<!-- Persistent formatting toolbar -->
 	<div
@@ -370,6 +383,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				contenteditable="true"
 				data-wp-on--mouseup="actions.checkFormatting"
 				data-wp-on--keyup="actions.checkFormatting"
+				data-wp-on--input="actions.repairStructure"
 				data-wp-on--keydown="actions.handleKeyDown"
 				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
 			><?php echo $edit_content ? wp_kses_post( $edit_content ) : '<p><br></p>'; ?></div>
@@ -377,10 +391,10 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</main>
 
 	<!-- Image modal -->
-	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showImageModal" data-wp-on--click="actions.closeImageModal">
-		<div class="bw-image-modal" data-wp-on--click="actions.stopPropagation">
+	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showImageModal" data-wp-on--click="actions.closeImageModal" data-wp-on--keydown="actions.handleImageModalKeyDown" data-wp-on--dragover="actions.handleOverlayDragOver" data-wp-on--drop="actions.handleOverlayDrop">
+		<div class="bw-image-modal" data-wp-on--click="actions.stopPropagation" data-wp-on--dragover="actions.handleOverlayDragOver" data-wp-on--drop="actions.handleOverlayDrop">
 			<h3><?php echo esc_html__( 'Add an image', 'jetpack-mu-wpcom' ); ?></h3>
-			<label class="bw-upload-zone" id="bw-upload-zone">
+			<label class="bw-upload-zone" id="bw-upload-zone" data-wp-on--dragover="actions.handleDragOver" data-wp-on--dragleave="actions.handleDragLeave" data-wp-on--drop="actions.handleDrop">
 				<span class="bw-upload-label"><?php echo esc_html__( 'Drop a file or click to upload', 'jetpack-mu-wpcom' ); ?></span>
 				<span class="bw-upload-saving" style="display:none;"><?php echo esc_html__( 'Uploading...', 'jetpack-mu-wpcom' ); ?></span>
 				<input type="file" accept="image/*" data-wp-on--change="actions.uploadImage" hidden />
@@ -391,30 +405,32 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				class="bw-image-url-input"
 				placeholder="<?php echo esc_attr__( 'Paste an image URL...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageUrl"
+				data-wp-bind--value="state.imageUrl"
 			/>
 			<input
 				type="text"
 				class="bw-image-url-input"
 				placeholder="<?php echo esc_attr__( 'Alt text (describe the image)...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageAlt"
+				data-wp-bind--value="state.imageAlt"
 				style="margin-top:12px;"
 			/>
 			<label class="bw-featured-toggle">
-				<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" />
+				<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" data-wp-bind--checked="state.setAsFeatured" />
 				<span><?php echo esc_html__( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
 			</label>
 			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertImageFromUrl" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</div>
 
-	<!-- Leave confirmation -->
-	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave">
-		<div class="bw-leave-modal" data-wp-on--click="actions.stopPropagation">
-			<h3><?php echo esc_html__( 'You have unsaved changes', 'jetpack-mu-wpcom' ); ?></h3>
-			<p><?php echo esc_html__( 'Are you sure you want to leave? Your work will be lost.', 'jetpack-mu-wpcom' ); ?></p>
+	<!-- Leave confirmation — matches @wordpress/components ConfirmDialog -->
+	<div class="bw-leave-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave" data-wp-on--keydown="actions.handleLeaveModalKeyDown">
+		<div class="bw-leave-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Unsaved changes', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
+			<p><?php echo esc_html__( 'Do you want to save your changes?', 'jetpack-mu-wpcom' ); ?></p>
 			<div class="bw-leave-actions">
-				<button class="bw-btn bw-btn-draft" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Keep writing', 'jetpack-mu-wpcom' ); ?></button>
-				<a href="<?php echo esc_url( admin_url() ); ?>" class="bw-btn bw-btn-leave"><?php echo esc_html__( 'Leave', 'jetpack-mu-wpcom' ); ?></a>
+				<button class="bw-leave-cancel" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Cancel', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-leave-confirm" data-wp-on--click="actions.confirmLeave"><?php echo esc_html__( "Don't save", 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-leave-save" data-wp-on--click="actions.saveAndLeave"><?php echo esc_html__( 'Save', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</div>
@@ -444,7 +460,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</div>
 
 	<!-- Video modal -->
-	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showVideoModal" data-wp-on--click="actions.closeVideoModal">
+	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showVideoModal" data-wp-on--click="actions.closeVideoModal" data-wp-on--keydown="actions.handleVideoModalKeyDown">
 		<div class="bw-image-modal" data-wp-on--click="actions.stopPropagation">
 			<h3><?php echo esc_html__( 'Embed a video', 'jetpack-mu-wpcom' ); ?></h3>
 			<input
@@ -453,6 +469,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				placeholder="<?php echo esc_attr__( 'Paste a YouTube or Vimeo URL...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateVideoUrl"
 				data-wp-on--keydown="actions.handleVideoKeyDown"
+				data-wp-bind--value="state.videoUrl"
 			/>
 			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertVideoEmbed" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Embed video', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
@@ -460,7 +477,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Floating category picker -->
 	<div class="bw-cat-fab" data-wp-on--click="actions.toggleCatPicker">
-		<span class="bw-cat-fab-icon dashicons dashicons-admin-generic"></span>
+		<span class="bw-cat-fab-icon dashicons dashicons-tag"></span>
 	</div>
 	<div class="bw-cat-popover" hidden data-wp-bind--hidden="!state.showCatPicker">
 		<div class="bw-cat-popover-header"><?php echo esc_html__( 'Categories', 'jetpack-mu-wpcom' ); ?></div>

@@ -24,41 +24,9 @@ class REST_Authentication_Test extends REST_Base_TestCase {
 	 */
 	public static function auth_user_url_provider() {
 		return array(
-			'contacts_controller::get_item'     => array(
+			'contacts_controller::get_item' => array(
 				WP_REST_Server::READABLE,
 				'/jetpack-crm/v4/contacts/123',
-				array(),
-			),
-			'automation_workflows::get_items'   => array(
-				WP_REST_Server::READABLE,
-				'/jetpack-crm/v4/automation/workflows',
-				array(),
-			),
-			'automation_workflows::get_item'    => array(
-				WP_REST_Server::READABLE,
-				'/jetpack-crm/v4/automation/workflows/123',
-				array(),
-			),
-			'automation_workflows::update_item' => array(
-				WP_REST_Server::CREATABLE,
-				'/jetpack-crm/v4/automation/workflows/123',
-				array(),
-			),
-			'automation_workflows::create_item' => array(
-				WP_REST_Server::CREATABLE,
-				'/jetpack-crm/v4/automation/workflows',
-				array(
-					'name'         => 'abc',
-					'description'  => 'abc',
-					'category'     => 'abc',
-					'active'       => true,
-					'initial_step' => 0,
-					'steps'        => array(),
-				),
-			),
-			'automation_workflows::delete_item' => array(
-				WP_REST_Server::DELETABLE,
-				'/jetpack-crm/v4/automation/workflows/123',
 				array(),
 			),
 		);

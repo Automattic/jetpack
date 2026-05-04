@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities API: register jetpack-stats abilities for site overview, top content, post views, visits, followers, and stats configuration.
