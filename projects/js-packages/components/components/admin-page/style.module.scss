@@ -91,7 +91,7 @@
 // wrapper's `.jp-admin-page` class. Any Jetpack admin page gets the
 // normalized look for free. Per-page overrides can still layer on top
 // via higher-specificity selectors (see e.g. My Jetpack).
-//
+
 // We deliberately do NOT set `position`/`top`/`left`/`right` here:
 // those would become active on any per-page rule that flips Dolly to
 // `position: absolute` (e.g. My Jetpack), causing it to stretch to its
