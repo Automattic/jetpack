@@ -15,14 +15,17 @@
  */
 class PCG_Snapshot {
 
-	const LIFETIME       = 10 * MINUTE_IN_SECONDS;
 	const BACKUP_DIRNAME = 'pcg-backups';
 
 	/**
-	 * How long a backup directory may sit untouched before the
-	 * opportunistic sweep treats it as orphaned. Generous vs. LIFETIME
-	 * to avoid racing a slow upgrader that's still running.
+	 * How long the snapshot transient and on-disk backup live before
+	 * cleanup considers them stale. A slow upgrader (large package, slow
+	 * disk, queued cron run) can take well over the WP transient default,
+	 * and if the transient expires before `upgrader_process_complete`
+	 * fires, the backup on disk becomes unrecoverable for rollback. Match
+	 * the sweep TTL so both expire on the same clock.
 	 */
+	const LIFETIME         = HOUR_IN_SECONDS;
 	const STALE_BACKUP_TTL = HOUR_IN_SECONDS;
 
 	/**

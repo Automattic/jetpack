@@ -96,12 +96,12 @@ Gated on `pcg_guard_updates`. Runs *after* files are swapped, in a fresh HTTP re
 
 1. `upgrader_pre_install` — `PCG_Snapshot::capture()` reads the current plugin's `Version` and `is_plugin_active()`, stashes them in a transient keyed by the plugin basename, **and copies the live plugin files to `<get_temp_dir()>/pcg-backups/<unique>/<asset>`** (override via the `pcg_backup_root` filter) so we can restore offline without re-downloading.
 2. Core extracts + copies the new files (the original copy is still safely tucked away under `pcg-backups/`).
-3. `upgrader_process_complete` (priority 99) — for each plugin in `hook_extra['plugins']`, `update-healthcheck.php` consumes the snapshot. If `was_active` was true, it runs `PCG_Load_Tester::test( $abs, PCG_Load_Tester::MODE_UPDATE )` against the plugin's main file. The probe endpoint skips the `require` in update mode and just observes whether the (already-loaded) new code completes the bootstrap cleanly.
-4. On `ok`, the backup is deleted and we're done.
-5. On `fatal` / `throwable`, `PCG_Rollback::to_snapshot()` deactivates the broken plugin, **swaps the new files for the saved local backup** via rename (or copy + delete-source as a fallback for cross-fs cases), and reactivates if the plugin was active.
-6. If the local backup is missing or the swap fails, `PCG_Rollback` falls back to fetching `https://downloads.wordpress.org/plugin/{slug}.{old_version}.zip` and reinstalling via `Plugin_Upgrader`. This still helps for .org plugins on hosts where the local backup couldn't be created (full disk, restrictive perms).
+3. `upgrader_process_complete` (priority 99) — `update-healthcheck.php` drains the snapshots for every plugin in `hook_extra['plugins']`, keeps the ones that were active and whose new files are still on disk, and runs **one** `PCG_Load_Tester::test( $candidate, PCG_Load_Tester::MODE_UPDATE )` for the whole batch. MODE_UPDATE checks whether the site as a whole bootstraps; it doesn't isolate a specific plugin, so a single probe is enough. The probe endpoint skips the `require` in update mode and just observes whether the (already-loaded) new code completes the bootstrap cleanly.
+4. On `ok` (or any inconclusive non-fatal status), every backup in the batch is deleted and we're done.
+5. On `fatal` / `throwable`, `PCG_Rollback::to_snapshot()` runs for **every** snapshot in the batch — deactivating each broken plugin, **swapping the new files for the saved local backup** via rename (or copy + delete-source as a fallback for cross-fs cases), and reactivating if the plugin was active. We can't tell which plugin in the batch caused the fatal, so restoring the whole batch is the safe call.
+6. If a local backup is missing or the swap fails, `PCG_Rollback` falls back to fetching `https://downloads.wordpress.org/plugin/{slug}.{old_version}.zip` and reinstalling via `Plugin_Upgrader`. This still helps for .org plugins on hosts where the local backup couldn't be created (full disk, restrictive perms).
 7. If neither path works, the plugin is left deactivated and the admin notice says so.
-8. Notices are stashed in a per-user transient and drained by `admin_notices`, same pattern as the activation guard.
+8. Notices are stashed in a site-wide transient and drained by `admin_notices` for users with `manage_options` (so cron / WP-CLI updates, which run with no current user, still surface to admins on next page load).
 
 ```
  upgrader_pre_install
@@ -115,19 +115,20 @@ Gated on `pcg_guard_updates`. Runs *after* files are swapped, in a fresh HTTP re
          ▼
  upgrader_process_complete (priority 99)
          │
-         ├── was_active? ── no ──► done
+         ├── any candidates active + on disk? ── no ──► done
          │
          ▼ yes
- PCG_Load_Tester::test()  (HTTP probe, same as activation guard)
+ PCG_Load_Tester::test()  (one HTTP probe for the batch)
          │
-         ├── ok ─────────────────► done
+         ├── ok ──────────────────────────────────────► done
          │
          ▼ fatal / throwable
- PCG_Rollback::to_snapshot()
-   deactivate broken
-   GET downloads.wordpress.org/plugin/{slug}.{old_ver}.zip
-   Plugin_Upgrader::install(overwrite_package)
-   reactivate (if was_active)
+ for each snapshot in batch:
+   PCG_Rollback::to_snapshot()
+     deactivate broken
+     swap new files for local backup
+     (or GET downloads.wordpress.org/plugin/{slug}.{old_ver}.zip + Plugin_Upgrader::install)
+     reactivate (if was_active)
          │
          ▼
  stash admin notice + fire pcg_post_update_diagnosis action
