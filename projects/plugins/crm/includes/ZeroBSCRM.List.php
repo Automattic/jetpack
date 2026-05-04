@@ -571,31 +571,31 @@ class zeroBSCRM_list {
 			var zbsDrawListViewColUpdateBlocker = false;
 			var zbsDrawListViewColUpdateAJAXBlocker = false;
 
-			var zbsObjectEmailLinkPrefix = '<?php echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true ); /* this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol) */ ?>';
-			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
-			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
-			var zbsObjectViewLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
-			var zbsObjectViewLinkPrefixInvoice = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ); ?>';
-			var zbsObjectViewLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ); ?>';
-			var zbsObjectViewLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ); ?>';
-			var zbsObjectViewLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ); ?>';
-			var zbsObjectViewLinkPrefixTask = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_TASK, true ); ?>';
+			var zbsObjectEmailLinkPrefix = <?php echo wp_json_encode( jpcrm_esc_link( 'email', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>; /* this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol) */
+			var zbsObjectViewLinkPrefixCustomer = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixCompany = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_company', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixQuote = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixInvoice = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixTransaction = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixForm = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixSegment = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixTask = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_TASK, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-			var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
-			var zbsObjectEditLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_company', true ); ?>';
-			var zbsObjectEditLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
-			var zbsObjectEditLinkPrefixQuoteTemplate = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quo_template', true ); ?>';
-			var zbsObjectEditLinkPrefixInvoice = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ); ?>';
-			var zbsObjectEditLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ); ?>';
-			var zbsObjectEditLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ); ?>';
-			var zbsObjectEditLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ); ?>';
+			var zbsObjectEditLinkPrefixCustomer = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixCompany = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_company', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixQuote = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixQuoteTemplate = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_quo_template', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixInvoice = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixTransaction = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixForm = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixSegment = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-			var jpcrm_segment_export_url_prefix = '<?php echo jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' ); ?>';
+			var jpcrm_segment_export_url_prefix = <?php echo wp_json_encode( jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-						var zbsListViewLink = '<?php echo esc_url( admin_url( 'admin.php?page=' . $this->postPage ) ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>';
-			var zbsExportPostURL = '<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>';
-						var zbsTagSkipLinkPrefix = zbsListViewLink + '&zbs_tag=';
-			var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
+						var zbsListViewLink = <?php echo wp_json_encode( esc_url( admin_url( 'admin.php?page=' . $this->postPage ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>;
+			var zbsExportPostURL = <?php echo wp_json_encode( esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsTagSkipLinkPrefix = zbsListViewLink + '&zbs_tag=';
+			var zbsClick2CallType = <?php echo (int) zeroBSCRM_getSetting( 'clicktocalltype' ); ?>;
 			var zbsListViewObjName = <?php echo wp_json_encode( $zbs_list_view_obj_name, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 			<?php
