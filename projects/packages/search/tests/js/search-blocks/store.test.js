@@ -349,11 +349,21 @@ describe( 'store getters', () => {
 	it( 'derives result, load-more, and filter visibility flags', () => {
 		state.results = [];
 		expect( state.showNoResults ).toBe( true );
+		expect( state.showError ).toBe( false );
 
 		state.hasError = true;
 		expect( state.showNoResults ).toBe( false );
+		expect( state.showError ).toBe( true );
 
+		// While a fetch is in flight the error block stays hidden so the
+		// previous-query message doesn't linger over the next request.
+		state.isLoading = true;
+		expect( state.showError ).toBe( false );
+
+		state.isLoading = false;
 		state.hasError = false;
+		expect( state.showError ).toBe( false );
+
 		state.pageHandle = 'next-page';
 		expect( state.showLoadMore ).toBe( true );
 
