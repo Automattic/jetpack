@@ -159,20 +159,23 @@ add_action(
 );
 
 /**
- * Convert wp:embed video blocks in raw block markup to bw-video-figure HTML.
+ * Convert wp:embed video blocks to placeholder tokens for the Write editor.
  *
- * The do_blocks() renderer doesn't convert embed blocks into iframes the way
- * the full the_content pipeline would (via WP_Embed).  This function detects
- * YouTube / Vimeo embed blocks and rewrites them to the Write editor's own
- * bw-video-figure markup so videos display on reload.
+ * Video embed blocks are replaced with inert HTML comment tokens that survive
+ * the_content filters, wp_kses_post(), and the pre_kses filter chain (which
+ * converts YouTube iframes to shortcodes on non-frontend requests).  The
+ * returned placeholders map is used to swap tokens for real iframe HTML after
+ * all sanitization is complete.
  *
  * @param string $content Raw post_content (block markup).
- * @return string Content with video embed blocks replaced by bw-video-figure HTML.
+ * @return array { content: string, placeholders: array<string,string> }
  */
 function wpcom_write_convert_video_embeds( $content ) {
-	return preg_replace_callback(
+	$placeholders = array();
+
+	$replaced = preg_replace_callback(
 		'/<!-- wp:embed (\{[^}]*"type"\s*:\s*"video"[^}]*\}) -->.+?<!-- \/wp:embed -->/s',
-		static function ( $matches ) {
+		static function ( $matches ) use ( &$placeholders ) {
 			$attrs = json_decode( $matches[1], true );
 			if ( ! is_array( $attrs ) || empty( $attrs['url'] ) ) {
 				return $matches[0];
@@ -194,15 +197,23 @@ function wpcom_write_convert_video_embeds( $content ) {
 			}
 
 			$title = $yt ? __( 'YouTube video', 'jetpack-mu-wpcom' ) : __( 'Vimeo video', 'jetpack-mu-wpcom' );
-
-			return sprintf(
+			$token = '<!--WRITE_VIDEO_' . md5( $embed_url ) . '-->';
+			$html  = sprintf(
 				'<figure class="bw-video-figure"><div class="bw-video-wrap"><iframe src="%s" title="%s" frameborder="0" allowfullscreen></iframe></div></figure>',
 				esc_url( $embed_url ),
 				esc_attr( $title )
 			);
+
+			$placeholders[ $token ] = $html;
+			return $token;
 		},
 		$content
-	) ?? $content;
+	);
+
+	return array(
+		'content'      => $replaced ?? $content,
+		'placeholders' => $placeholders,
+	);
 }
 
 /**
@@ -215,25 +226,26 @@ function wpcom_write_convert_video_embeds( $content ) {
 function wpcom_write_render_admin_page() {
 	// Check if editing an existing post.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter, gated by capability check via add_submenu_page.
-	$edit_post_id     = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
-	$edit_title       = '';
-	$edit_content     = '';
-	$post_status      = 'new';
-	$edit_featured_id = 0;
+	$edit_post_id       = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+	$edit_title         = '';
+	$edit_content       = '';
+	$post_status        = 'new';
+	$edit_featured_id   = 0;
+	$video_placeholders = array();
 
 	if ( $edit_post_id ) {
 		$edit_post = get_post( $edit_post_id );
 		if ( $edit_post && current_user_can( 'edit_post', $edit_post_id ) ) {
 			$edit_title = $edit_post->post_title;
-			// Convert video embed blocks to the editor's bw-video-figure markup.
-			$raw_content = wpcom_write_convert_video_embeds( $edit_post->post_content );
-			// Use do_blocks() instead of apply_filters( 'the_content' ) — the Write
-			// editor only produces block markup, so the full the_content pipeline
-			// (oEmbed, shortcodes, wpautop, etc.) is unnecessary and its wpcom-specific
-			// filters can mangle iframes on Simple / Atomic sites.
-			$edit_content     = do_blocks( $raw_content );
-			$post_status      = $edit_post->post_status;
-			$edit_featured_id = (int) get_post_thumbnail_id( $edit_post_id );
+			// Convert video embed blocks to inert placeholder tokens before the
+			// the_content + wp_kses_post pipeline runs.  Tokens survive all filters;
+			// real iframe HTML is swapped in after sanitization in the template.
+			$video_result = wpcom_write_convert_video_embeds( $edit_post->post_content );
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter needed to render blocks.
+			$edit_content       = apply_filters( 'the_content', $video_result['content'] );
+			$video_placeholders = $video_result['placeholders'];
+			$post_status        = $edit_post->post_status;
+			$edit_featured_id   = (int) get_post_thumbnail_id( $edit_post_id );
 		} else {
 			$edit_post_id = 0;
 		}
@@ -297,7 +309,7 @@ function wpcom_write_render_admin_page() {
 	);
 
 	// Output the editor UI inside wp-admin's wrapper.
-	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status );
+	wpcom_write_template( $edit_title, $edit_content, $edit_post_id, $categories_data, $post_status, $video_placeholders );
 }
 
 /**
@@ -306,13 +318,14 @@ function wpcom_write_render_admin_page() {
  * This outputs HTML inside wp-admin's page wrapper (not a standalone page).
  * The wp-admin chrome is hidden via CSS added in admin_enqueue_scripts.
  *
- * @param string $edit_title      The post title when editing.
- * @param string $edit_content    The post content when editing.
- * @param int    $edit_post_id    The post ID when editing, 0 for new posts.
- * @param array  $categories_data Array of category data for the picker.
- * @param string $post_status     The post status ('new', 'draft', 'publish', etc.).
+ * @param string $edit_title          The post title when editing.
+ * @param string $edit_content        The post content when editing.
+ * @param int    $edit_post_id        The post ID when editing, 0 for new posts.
+ * @param array  $categories_data     Array of category data for the picker.
+ * @param string $post_status         The post status ('new', 'draft', 'publish', etc.).
+ * @param array  $video_placeholders  Map of comment tokens to iframe HTML for video embeds.
  */
-function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new' ) {
+function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array() ) {
 	?>
 <div data-wp-interactive="wpcom-write" class="bw-app">
 
@@ -443,23 +456,14 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			>
 			<?php
 			if ( $edit_content ) {
-				// Allow iframe through wp_kses_post so video embeds survive.
-				$wpcom_write_allow_iframe = static function ( $tags, $context ) {
-					if ( 'post' === $context && ! isset( $tags['iframe'] ) ) {
-						$tags['iframe'] = array(
-							'src'             => true,
-							'frameborder'     => true,
-							'allowfullscreen' => true,
-							'width'           => true,
-							'height'          => true,
-							'title'           => true,
-						);
-					}
-					return $tags;
-				};
-				add_filter( 'wp_kses_allowed_html', $wpcom_write_allow_iframe, 10, 2 );
-				echo wp_kses_post( $edit_content );
-				remove_filter( 'wp_kses_allowed_html', $wpcom_write_allow_iframe, 10 );
+				// Sanitize through wp_kses_post — video embed tokens (HTML comments)
+				// pass through untouched, then we swap them for the real iframe HTML.
+				// This avoids the pre_kses filter that converts iframes to shortcodes.
+				$sanitized = wp_kses_post( $edit_content );
+				if ( $video_placeholders ) {
+					$sanitized = str_replace( array_keys( $video_placeholders ), array_values( $video_placeholders ), $sanitized );
+				}
+				echo $sanitized; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sanitized by wp_kses_post; iframe HTML is self-constructed with esc_url/esc_attr.
 			} else {
 				echo '<p><br></p>';
 			}
