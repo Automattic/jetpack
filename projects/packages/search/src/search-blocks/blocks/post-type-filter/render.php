@@ -19,9 +19,9 @@ if ( ! function_exists( 'wp_interactivity_state' ) ) {
 }
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$lists = Post_Type_Filter::build_lists( (array) $attributes );
+$constraint = Post_Type_Filter::build_constraint( (array) $attributes );
 
-if ( empty( $lists['include'] ) && empty( $lists['exclude'] ) ) {
+if ( empty( $constraint['include'] ) && empty( $constraint['exclude'] ) ) {
 	// Nothing to contribute. Bailing keeps the seeded `staticPostTypes` shape
 	// untouched so an empty / unconfigured block can't accidentally widen or
 	// narrow results.
@@ -30,7 +30,7 @@ if ( empty( $lists['include'] ) && empty( $lists['exclude'] ) ) {
 
 $current         = wp_interactivity_state( 'jetpack-search' );
 $existing_static = (array) ( $current['staticPostTypes'] ?? array() );
-$merged          = Post_Type_Filter::merge_state( $existing_static, $lists );
+$merged          = Post_Type_Filter::merge_state( $existing_static, $constraint );
 
 wp_interactivity_state(
 	'jetpack-search',

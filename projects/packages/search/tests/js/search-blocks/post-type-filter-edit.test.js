@@ -1,12 +1,11 @@
 /**
  * Editor-only helpers for jetpack/post-type-filter.
  *
- * The block's edit component does meaningful work outside the React render —
- * label/slug round-tripping, conflict detection across case-different inputs,
- * disambiguating duplicate post-type labels, and `sanitize_key`-equivalent
- * normalization on save. These tests lock in those contracts so the editor
- * can't drift from what the server normalizer (`Post_Type_Filter::build_lists`)
- * eventually applies on render.
+ * Single-mode UX: the block carries one `mode` ('include'|'exclude') plus
+ * one `postTypes` slug list, never both lists at once. The editor's
+ * algorithmic surface (slug normalization, label disambiguation, preview
+ * copy) is unit-tested here; component-level rendering follows the same
+ * approach the rest of the package uses (no React-Testing-Library mounts).
  */
 import {
 	sanitizeKey,
@@ -43,9 +42,6 @@ describe( 'disambiguateLabels', () => {
 	} );
 
 	it( 'appends the slug to every collision so labels round-trip 1:1 to slugs', () => {
-		// Two CPTs share the singular_name "Portfolio" — without
-		// disambiguation, picking either suggestion would always resolve
-		// to whichever appears first in the list.
 		const opts = [
 			{ value: 'jetpack-portfolio', label: 'Portfolio' },
 			{ value: 'custom-portfolio', label: 'Portfolio' },
@@ -78,8 +74,6 @@ describe( 'tokensToSlugs', () => {
 	} );
 
 	it( 'collapses case-different free-typed values to the same slug', () => {
-		// Without normalization, `Post` (free-typed) and `post` (picked) would
-		// both store as distinct entries in the attribute list.
 		expect( tokensToSlugs( [ 'Post', 'post' ], options ) ).toEqual( [ 'post' ] );
 	} );
 
@@ -108,35 +102,31 @@ describe( 'describePreview', () => {
 		[ 'product', 'Product' ],
 	] );
 
-	it( 'flags the empty state when neither list has values', () => {
-		expect( describePreview( [], [], labelBySlug ) ).toEqual( {
-			empty: true,
-			includeText: '(any post type)',
-			excludeText: '(none)',
+	it( 'renders the Exclude label and value when mode is exclude', () => {
+		expect( describePreview( 'exclude', [ 'product' ], labelBySlug ) ).toEqual( {
+			label: 'Exclude:',
+			value: 'Product',
 		} );
 	} );
 
-	it( 'renders Include labels (not raw slugs) and the empty-Exclude fallback', () => {
-		expect( describePreview( [ 'post', 'page' ], [], labelBySlug ) ).toEqual( {
-			empty: false,
-			includeText: 'Post, Page',
-			excludeText: '(none)',
+	it( 'renders the Include label and value when mode is include', () => {
+		expect( describePreview( 'include', [ 'post', 'page' ], labelBySlug ) ).toEqual( {
+			label: 'Include only:',
+			value: 'Post, Page',
 		} );
 	} );
 
-	it( 'renders Exclude labels and the empty-Include fallback', () => {
-		expect( describePreview( [], [ 'product' ], labelBySlug ) ).toEqual( {
-			empty: false,
-			includeText: '(any post type)',
-			excludeText: 'Product',
+	it( 'shows "(none selected)" when no post types are configured (Exclude mode)', () => {
+		expect( describePreview( 'exclude', [], labelBySlug ) ).toEqual( {
+			label: 'Exclude:',
+			value: '(none selected)',
 		} );
 	} );
 
-	it( 'renders both label lists when include and exclude are both set', () => {
-		expect( describePreview( [ 'post' ], [ 'product' ], labelBySlug ) ).toEqual( {
-			empty: false,
-			includeText: 'Post',
-			excludeText: 'Product',
+	it( 'shows "(none selected)" when no post types are configured (Include mode)', () => {
+		expect( describePreview( 'include', [], labelBySlug ) ).toEqual( {
+			label: 'Include only:',
+			value: '(none selected)',
 		} );
 	} );
 
@@ -144,10 +134,9 @@ describe( 'describePreview', () => {
 		// Simulates the brief window where core-data has not resolved
 		// `getPostTypes()` yet — the picker shows raw slugs as token
 		// titles, and the preview should match.
-		expect( describePreview( [ 'unknown-cpt' ], [], new Map() ) ).toEqual( {
-			empty: false,
-			includeText: 'unknown-cpt',
-			excludeText: '(none)',
+		expect( describePreview( 'exclude', [ 'unknown-cpt' ], new Map() ) ).toEqual( {
+			label: 'Exclude:',
+			value: 'unknown-cpt',
 		} );
 	} );
 } );

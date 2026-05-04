@@ -2,29 +2,37 @@
  * Editor preview for jetpack/post-type-filter.
  *
  * Hidden filter: the front-end render is empty by design — this block only
- * contributes an include/exclude constraint to the shared search state. The
- * editor preview is a small Placeholder card so the editor can see and
- * configure the block without it being invisible in the canvas.
+ * contributes a single-mode constraint (Include OR Exclude, never both) to
+ * the shared search state. The editor preview is a small Placeholder card
+ * so the editor can see and configure the block without it being invisible
+ * in the canvas.
  *
- * The Inspector exposes two FormTokenField pickers — Include and Exclude —
- * populated from registered post types via core-data. When a slug appears in
- * both lists the include side wins and we visually flag the conflict; the
- * server normalizer drops the duplicate from the exclude list before it
- * reaches the ES filter clause.
+ * Single-mode rather than two attribute lists: combining Include and
+ * Exclude on one block is technically valid (Include narrows, Exclude
+ * subtracts inside it), but it confuses authors — Exclude visibly does
+ * "nothing" most of the time when Include is set, since the include set
+ * is already restrictive. A toggle keeps the mental model simple: pick
+ * one mode, then pick the post types that belong to it.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { FormTokenField, PanelBody, Placeholder } from '@wordpress/components';
+import {
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	FormTokenField,
+	PanelBody,
+	Placeholder,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
+
+const MODE_INCLUDE = 'include';
+const MODE_EXCLUDE = 'exclude';
 
 /**
  * sanitize_key() (PHP) approximation: lowercase + strip anything that is not
- * `[a-z0-9_]`. Mirrors how the server normalizes attribute slugs so the
+ * `[a-z0-9_-]`. Mirrors how the server normalizes attribute slugs so the
  * editor's stored attribute matches what eventually reaches ES.
- *
- * Hyphens — common in CPT slugs (`jetpack-portfolio`) — are preserved
- * (sanitize_key allows them too).
  *
  * @param {string} value - Raw token string.
  * @return {string} Sanitized slug, or empty string when nothing remains.
@@ -40,8 +48,7 @@ function sanitizeKey( value ) {
  * types share the same `singular_name` (a plugin can register an entirely
  * different CPT with the same human label as a built-in), append the slug
  * in parentheses so the FormTokenField suggestion list stays one-to-one
- * with the underlying slug. Without this the label→slug round-trip in
- * `labelFromTokenString()` would silently always pick the first match.
+ * with the underlying slug.
  *
  * @param {Array<{value: string, label: string}>} options - Raw slug/label list.
  * @return {Array<{value: string, label: string}>} Same shape with disambiguated labels.
@@ -73,13 +80,11 @@ function toTokens( slugs, labelBySlug ) {
 }
 
 /**
- * Convert the FormTokenField output back into a sanitized slug list. Tokens
- * may come back as strings (free entry or, in our setup, a label picked
- * from suggestions) or as `{ value }` objects; both resolve to the slug we
- * store on the attribute. Free-typed values are passed through `sanitizeKey`
- * so the saved attribute matches what the server normalizer will produce —
- * otherwise a typed `"Post"` and a typed `"post"` would both end up sent to
- * ES as `post` while the editor saw them as distinct entries.
+ * Convert FormTokenField output back into a sanitized slug list. Tokens
+ * may come back as strings (free entry or label picked from suggestions)
+ * or as `{ value }` objects; both resolve to the slug we store on the
+ * attribute. Free-typed values pass through `sanitizeKey` so the saved
+ * attribute matches what the server normalizer will produce.
  *
  * @param {Array<string|{value: string}>}         tokens  - Tokens emitted by onChange.
  * @param {Array<{value: string, label: string}>} options - Resolved post-type options for label→slug lookup.
@@ -88,9 +93,6 @@ function toTokens( slugs, labelBySlug ) {
 function tokensToSlugs( tokens, options ) {
 	const out = [];
 	for ( const token of tokens || [] ) {
-		// Strings come from FormTokenField when the user picks a suggestion
-		// or types freely; objects only show up when we round-trip our own
-		// `{value, title}` shape from `toTokens()`.
 		const raw = typeof token === 'string' ? labelFromTokenString( token, options ) : token?.value;
 		const slug = sanitizeKey( raw );
 		if ( slug && ! out.includes( slug ) ) {
@@ -110,40 +112,35 @@ function tokensToSlugs( tokens, options ) {
  */
 export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	// Memoize the array reads: a fresh `[]` on each render would otherwise
-	// invalidate every downstream useMemo that lists these as dependencies.
-	const include = useMemo(
-		() => ( Array.isArray( attributes?.include ) ? attributes.include : [] ),
-		[ attributes?.include ]
-	);
-	const exclude = useMemo(
-		() => ( Array.isArray( attributes?.exclude ) ? attributes.exclude : [] ),
-		[ attributes?.exclude ]
+	const mode = attributes?.mode === MODE_INCLUDE ? MODE_INCLUDE : MODE_EXCLUDE;
+	const postTypes = useMemo(
+		() => ( Array.isArray( attributes?.postTypes ) ? attributes.postTypes : [] ),
+		[ attributes?.postTypes ]
 	);
 
 	// `getPostTypes()` proxies getEntityRecords( 'root', 'postType' ); it
 	// returns null until resolved and a finite list once loaded. We further
-	// drop `attachment` and any type whose `viewable` flag is `false` here.
-	// We can't filter by `exclude_from_search` from JS — the REST endpoint
-	// does not expose that flag — so the *server* normalizer
-	// (`Post_Type_Filter::build_lists()`) is the canonical allowlist gate.
-	// The editor list may include a few search-excluded types; saving them
-	// is harmless because they'll be dropped on render.
-	const postTypes = useSelect( select => select( 'core' ).getPostTypes( { per_page: -1 } ), [] );
+	// drop `attachment` and any type whose `viewable` flag is `false` here;
+	// the *server* normalizer (`Post_Type_Filter::build_constraint()`) is
+	// the canonical allowlist gate against `exclude_from_search => false`.
+	const registeredTypes = useSelect(
+		select => select( 'core' ).getPostTypes( { per_page: -1 } ),
+		[]
+	);
 
 	const options = useMemo( () => {
-		if ( ! Array.isArray( postTypes ) ) {
+		if ( ! Array.isArray( registeredTypes ) ) {
 			return null;
 		}
 		return disambiguateLabels(
-			postTypes
+			registeredTypes
 				.filter( type => type?.slug && type.slug !== 'attachment' && type?.viewable !== false )
 				.map( type => ( {
 					value: type.slug,
 					label: type?.labels?.singular_name || type?.name || type.slug,
 				} ) )
 		);
-	}, [ postTypes ] );
+	}, [ registeredTypes ] );
 
 	const labelBySlug = useMemo( () => {
 		const map = new Map();
@@ -156,75 +153,60 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 		[ options ]
 	);
 
-	const onChangeList = key => tokens => {
-		setAttributes( { [ key ]: tokensToSlugs( tokens, options ) } );
-	};
-
-	// Compare via `sanitizeKey` so case/punctuation differences that the
-	// server normalizer collapses to the same slug also flag here. Without
-	// this, `Post` in Include and `post` in Exclude would not surface a
-	// conflict in the editor even though the server drops one of them.
-	const conflictingSlugs = useMemo( () => {
-		const includeNorm = new Set( include.map( sanitizeKey ).filter( Boolean ) );
-		return exclude.map( sanitizeKey ).filter( slug => slug && includeNorm.has( slug ) );
-	}, [ include, exclude ] );
-
-	const conflictingLabels = useMemo(
-		() => conflictingSlugs.map( slug => labelBySlug.get( slug ) || slug ),
-		[ conflictingSlugs, labelBySlug ]
-	);
-
-	const previewState = describePreview( include, exclude, labelBySlug );
+	const previewState = describePreview( mode, postTypes, labelBySlug );
 
 	return (
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
+					<ToggleGroupControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						isBlock
+						label={ __( 'Mode', 'jetpack-search-pkg' ) }
+						value={ mode }
+						onChange={ value => {
+							// Clear the slug list when switching modes so the
+							// previously-typed list can not silently flip
+							// meaning (an "exclude these" list becoming an
+							// "include only these" list is a footgun).
+							setAttributes( { mode: value, postTypes: [] } );
+						} }
+						help={
+							mode === MODE_INCLUDE
+								? __(
+										'Include is restrictive: only the selected post types will appear in results.',
+										'jetpack-search-pkg'
+								  )
+								: __(
+										'Exclude is subtractive: the selected post types are removed from results; everything else stays searchable.',
+										'jetpack-search-pkg'
+								  )
+						}
+					>
+						<ToggleGroupControlOption
+							value={ MODE_EXCLUDE }
+							label={ __( 'Exclude', 'jetpack-search-pkg' ) }
+						/>
+						<ToggleGroupControlOption
+							value={ MODE_INCLUDE }
+							label={ __( 'Include only', 'jetpack-search-pkg' ) }
+						/>
+					</ToggleGroupControl>
 					<FormTokenField
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
-						label={ __( 'Include only these post types', 'jetpack-search-pkg' ) }
-						value={ toTokens( include, labelBySlug ) }
+						label={
+							mode === MODE_INCLUDE
+								? __( 'Post types to include', 'jetpack-search-pkg' )
+								: __( 'Post types to exclude', 'jetpack-search-pkg' )
+						}
+						value={ toTokens( postTypes, labelBySlug ) }
 						suggestions={ suggestionList }
 						__experimentalExpandOnFocus
 						__experimentalShowHowTo={ false }
-						onChange={ onChangeList( 'include' ) }
+						onChange={ tokens => setAttributes( { postTypes: tokensToSlugs( tokens, options ) } ) }
 					/>
-					<FormTokenField
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'Exclude these post types', 'jetpack-search-pkg' ) }
-						value={ toTokens( exclude, labelBySlug ) }
-						suggestions={ suggestionList }
-						__experimentalExpandOnFocus
-						__experimentalShowHowTo={ false }
-						onChange={ onChangeList( 'exclude' ) }
-					/>
-					{ conflictingLabels.length > 0 && (
-						<p
-							className="jetpack-search-post-type-filter__conflict"
-							style={ {
-								// Inline because the editor build pipeline has no CSS
-								// loader — see tools/webpack.blocks-editor.config.js. The
-								// warning tone (matches WP admin notice color #d63638)
-								// lifts the conflict notice off the picker stack so
-								// authors see it before saving.
-								color: '#d63638',
-								fontSize: '12px',
-								marginTop: '8px',
-								marginBottom: 0,
-							} }
-						>
-							{ sprintf(
-								/* translators: %s: comma-separated list of post-type labels appearing in both Include and Exclude. */
-								__(
-									'These post types are listed in both Include and Exclude — Include wins, the duplicate is dropped from Exclude: %s',
-									'jetpack-search-pkg'
-								),
-								conflictingLabels.join( ', ' )
-							) }
-						</p>
-					) }
 					<p
 						className="jetpack-search-post-type-filter__hint"
 						style={ {
@@ -243,28 +225,10 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				{ /* No `icon` on Placeholder: passing one offsets the label
-				     to the right of the icon while the children stay flush-
-				     left, so the title and the include/exclude rows visibly
-				     drift apart. Without an icon every line shares the same
-				     left column. */ }
 				<Placeholder label={ __( 'Post Type Scope', 'jetpack-search-pkg' ) }>
-					{ previewState.empty ? (
-						<p style={ { margin: 0 } }>
-							{ __(
-								'No constraint configured. Add post types to Include or Exclude in the block settings.',
-								'jetpack-search-pkg'
-							) }
-						</p>
-					) : (
-						<p style={ { margin: 0, lineHeight: 1.6 } }>
-							<strong>{ __( 'Include:', 'jetpack-search-pkg' ) }</strong>{ ' ' }
-							{ previewState.includeText }
-							<br />
-							<strong>{ __( 'Exclude:', 'jetpack-search-pkg' ) }</strong>{ ' ' }
-							{ previewState.excludeText }
-						</p>
-					) }
+					<p style={ { margin: 0 } }>
+						<strong>{ previewState.label }</strong> { previewState.value }
+					</p>
 				</Placeholder>
 			</div>
 		</>
@@ -273,13 +237,8 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 
 /**
  * Translate a label string emitted by FormTokenField back to the matching
- * post-type slug. FormTokenField returns the label rather than the slug
- * because we feed it labels in the suggestions array; this is the inverse
- * lookup so attributes stay slug-keyed.
- *
- * Labels are disambiguated upstream by `disambiguateLabels()`, so each label
- * in `options` resolves to exactly one slug — `Array.find()` is unambiguous
- * even when two CPTs share a `singular_name`.
+ * post-type slug. Labels are disambiguated upstream by `disambiguateLabels()`,
+ * so each label in `options` resolves to exactly one slug.
  *
  * @param {string} token   - Token string from FormTokenField.
  * @param {Array}  options - { value, label } option list.
@@ -295,49 +254,36 @@ function labelFromTokenString( token, options ) {
 }
 
 /**
- * Build the structured state the canvas preview renders from. Returns
- * three pieces in one call:
+ * Build the canvas preview copy for the current mode + selection. Returns a
+ * `{ label, value }` pair that the JSX renders as `<strong>{label}</strong> {value}`.
  *
- * `empty` is true only when neither list has any values; signals the
- * Placeholder to render the "Not set" hint instead of the include/
- * exclude rows. `includeText` is comma-joined human labels (via
- * `labelBySlug`) when Include has values, or a localized "(any post
- * type)" fallback so the row's state is explicit rather than appearing
- * blank. `excludeText` is the same shape for the Exclude side, with
- * "(none)" as the empty-row fallback — Include and Exclude carry
- * different semantics when empty: an empty Include means no
- * restriction, while an empty Exclude means no exclusion.
+ * Mode-specific labels keep the canvas text aligned with the Inspector
+ * (Include/Exclude) instead of restating "Results limited to..."  copy that
+ * has to be re-read every time. Empty selections render a clear "(none
+ * selected)" so the unconfigured state is unambiguous.
  *
- * Always renders labels (via `labelBySlug`) rather than raw slugs so the
- * canvas preview matches the FormTokenField token display in the Inspector.
- *
- * @param {string[]} include     - Include list.
- * @param {string[]} exclude     - Exclude list.
+ * @param {string}   mode        - 'include' | 'exclude'.
+ * @param {string[]} postTypes   - Selected slug list.
  * @param {Map}      labelBySlug - slug -> label map.
- * @return {{empty: boolean, includeText: string, excludeText: string}} Structured preview state.
+ * @return {{label: string, value: string}} Preview rows.
  */
-function describePreview( include, exclude, labelBySlug ) {
-	const formatList = list => list.map( slug => labelBySlug.get( slug ) || slug ).join( ', ' );
+function describePreview( mode, postTypes, labelBySlug ) {
+	const valueText =
+		postTypes.length > 0
+			? postTypes.map( slug => labelBySlug.get( slug ) || slug ).join( ', ' )
+			: __( '(none selected)', 'jetpack-search-pkg' );
 
-	const empty = include.length === 0 && exclude.length === 0;
-
-	const includeText =
-		include.length > 0
-			? formatList( include )
-			: // Translators: shown in the editor preview when no Include
-			  // constraint is set — meaning every post type is searchable.
-			  __( '(any post type)', 'jetpack-search-pkg' );
-
-	const excludeText =
-		exclude.length > 0
-			? formatList( exclude )
-			: // Translators: shown in the editor preview when no Exclude
-			  // constraint is set — meaning nothing is removed from results.
-			  __( '(none)', 'jetpack-search-pkg' );
-
-	return { empty, includeText, excludeText };
+	if ( mode === MODE_INCLUDE ) {
+		return {
+			label: __( 'Include only:', 'jetpack-search-pkg' ),
+			value: valueText,
+		};
+	}
+	return {
+		label: __( 'Exclude:', 'jetpack-search-pkg' ),
+		value: valueText,
+	};
 }
 
-// Re-export internals for unit tests (jest's module-cache picks them up via
-// `import * as`).
+// Re-export internals for unit tests.
 export { sanitizeKey, disambiguateLabels, tokensToSlugs, describePreview };

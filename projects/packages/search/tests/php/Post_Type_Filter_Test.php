@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for Post_Type_Filter helpers — list normalization, conflict
- * resolution between include / exclude, and multi-instance state merging.
+ * Tests for Post_Type_Filter helpers — single-mode constraint building,
+ * registry-allowlist enforcement, and multi-instance state merging.
  */
 class Post_Type_Filter_Test extends TestCase {
 
@@ -22,7 +22,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 *
 	 * `setUp` runs after the in-class static cache for `searchable_post_type_slugs`
 	 * may have been seeded by prior tests, so each test re-resets the cache via
-	 * the helper below.
+	 * Reflection below.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -42,8 +42,7 @@ class Post_Type_Filter_Test extends TestCase {
 				'labels'              => array( 'singular_name' => 'Order' ),
 			)
 		);
-		// A type opted out of search; build_lists() must drop it from
-		// include and exclude lists alike.
+		// A type opted out of search; build_constraint() must drop it.
 		register_post_type(
 			'private_doc',
 			array(
@@ -52,8 +51,6 @@ class Post_Type_Filter_Test extends TestCase {
 				'labels'              => array( 'singular_name' => 'Private Doc' ),
 			)
 		);
-		// Reset the cached registry on each test so a register/unregister
-		// in another test can't leak through.
 		$this->reset_searchable_cache();
 	}
 
@@ -66,9 +63,8 @@ class Post_Type_Filter_Test extends TestCase {
 	}
 
 	/**
-	 * Reset the static cache `searchable_post_type_slugs()` keeps. Uses
-	 * Reflection because the helper is private — preferable to making the
-	 * cache `protected`/`public` purely for test access.
+	 * Reset the static cache `searchable_post_type_slugs()` keeps so tests
+	 * that register/unregister fixtures see fresh registry data.
 	 */
 	private function reset_searchable_cache(): void {
 		// PHP 7.2–8.0 require setAccessible(true) to read/write private
@@ -83,17 +79,75 @@ class Post_Type_Filter_Test extends TestCase {
 	}
 
 	/**
-	 * Empty / missing attributes produce empty include and exclude lists so
-	 * an unconfigured block contributes nothing to the search constraint.
+	 * Empty / missing attributes produce an all-empty constraint so an
+	 * unconfigured block contributes nothing to the search query.
 	 */
-	public function test_build_lists_returns_empty_for_missing_attributes() {
+	public function test_build_constraint_returns_empty_for_missing_attributes() {
 		$this->assertSame(
 			array(
 				'include' => array(),
 				'exclude' => array(),
 			),
-			Post_Type_Filter::build_lists( array() )
+			Post_Type_Filter::build_constraint( array() )
 		);
+	}
+
+	/**
+	 * Default mode is `exclude` — matches the SEARCH-145 motivating use
+	 * case (the legacy `excluded_post_types` option). A block with only
+	 * `postTypes` set populates the `exclude` side.
+	 */
+	public function test_build_constraint_defaults_to_exclude_mode() {
+		$constraint = Post_Type_Filter::build_constraint(
+			array( 'postTypes' => array( 'product' ) )
+		);
+		$this->assertSame( array(), $constraint['include'] );
+		$this->assertSame( array( 'product' ), $constraint['exclude'] );
+	}
+
+	/**
+	 * `mode: include` populates the `include` side and leaves `exclude`
+	 * empty — single-mode UX guarantees only one side is ever set per block.
+	 */
+	public function test_build_constraint_include_mode_populates_include_only() {
+		$constraint = Post_Type_Filter::build_constraint(
+			array(
+				'mode'      => 'include',
+				'postTypes' => array( 'post', 'page' ),
+			)
+		);
+		$this->assertSame( array( 'post', 'page' ), $constraint['include'] );
+		$this->assertSame( array(), $constraint['exclude'] );
+	}
+
+	/**
+	 * `mode: exclude` populates the `exclude` side and leaves `include` empty.
+	 */
+	public function test_build_constraint_exclude_mode_populates_exclude_only() {
+		$constraint = Post_Type_Filter::build_constraint(
+			array(
+				'mode'      => 'exclude',
+				'postTypes' => array( 'product' ),
+			)
+		);
+		$this->assertSame( array(), $constraint['include'] );
+		$this->assertSame( array( 'product' ), $constraint['exclude'] );
+	}
+
+	/**
+	 * Unknown mode values fall back to `exclude` so a malformed attribute
+	 * (older block schema, hand-edited markup) can't silently flip
+	 * Exclude into Include and broaden results in the wrong direction.
+	 */
+	public function test_build_constraint_unknown_mode_falls_back_to_exclude() {
+		$constraint = Post_Type_Filter::build_constraint(
+			array(
+				'mode'      => 'something-else',
+				'postTypes' => array( 'product' ),
+			)
+		);
+		$this->assertSame( array(), $constraint['include'] );
+		$this->assertSame( array( 'product' ), $constraint['exclude'] );
 	}
 
 	/**
@@ -102,86 +156,58 @@ class Post_Type_Filter_Test extends TestCase {
 	 * with `exclude_from_search => false` is dropped so a stray slug can't
 	 * collapse every search to zero results by reaching ES.
 	 */
-	public function test_build_lists_sanitizes_dedupes_and_validates_slugs() {
-		$lists = Post_Type_Filter::build_lists(
+	public function test_build_constraint_sanitizes_dedupes_and_validates_slugs() {
+		$constraint = Post_Type_Filter::build_constraint(
 			array(
-				'include' => array( 'Post', 'page', 'page', '<bad>', '', 'unregistered_cpt' ),
-				'exclude' => array( 'product', 'product' ),
+				'mode'      => 'include',
+				'postTypes' => array( 'Post', 'page', 'page', '<bad>', '', 'unregistered_cpt' ),
 			)
 		);
 		// `Post` lowercases to `post`; `<bad>` sanitizes to `bad` and gets
-		// dropped because no `bad` post type is registered. The blank entry
-		// and the duplicate `page` are silently filtered.
-		$this->assertSame( array( 'post', 'page' ), $lists['include'] );
-		$this->assertSame( array( 'product' ), $lists['exclude'] );
+		// dropped because no `bad` post type is registered.
+		$this->assertSame( array( 'post', 'page' ), $constraint['include'] );
+		$this->assertSame( array(), $constraint['exclude'] );
 	}
 
 	/**
-	 * Post types registered with `exclude_from_search => true` are dropped
-	 * from both lists. Listing one would either zero results (if in
-	 * include — the type is invisible to search) or be a no-op (if in
-	 * exclude — the type is already absent from the result set).
+	 * Post types registered with `exclude_from_search => true` are dropped.
+	 * In include mode, listing one would zero results (the type is invisible
+	 * to search); in exclude mode it would be a no-op (already absent).
 	 */
-	public function test_build_lists_drops_search_excluded_post_types() {
-		$lists = Post_Type_Filter::build_lists(
+	public function test_build_constraint_drops_search_excluded_post_types() {
+		$exclude_constraint = Post_Type_Filter::build_constraint(
 			array(
-				'include' => array( 'post', 'private_doc' ),
-				'exclude' => array( 'private_doc', 'product' ),
+				'mode'      => 'exclude',
+				'postTypes' => array( 'private_doc', 'product' ),
 			)
 		);
-		$this->assertSame( array( 'post' ), $lists['include'] );
-		$this->assertSame( array( 'product' ), $lists['exclude'] );
+		$this->assertSame( array( 'product' ), $exclude_constraint['exclude'] );
+
+		$include_constraint = Post_Type_Filter::build_constraint(
+			array(
+				'mode'      => 'include',
+				'postTypes' => array( 'post', 'private_doc' ),
+			)
+		);
+		$this->assertSame( array( 'post' ), $include_constraint['include'] );
 	}
 
 	/**
-	 * Non-array / non-scalar values are dropped silently — an attribute
+	 * Non-array / non-scalar postTypes are dropped silently — an attribute
 	 * stored as a string or an object would otherwise trip a fatal in
 	 * `sanitize_key`. Normalization is the boundary at which malformed
 	 * input is contained.
 	 */
-	public function test_build_lists_drops_non_scalar_values() {
-		$lists = Post_Type_Filter::build_lists(
-			array(
-				'include' => 'not-an-array',
-				'exclude' => array( 'page', array( 'nested' ), null, false, 'product' ),
-			)
+	public function test_build_constraint_drops_non_scalar_values() {
+		$string_input = Post_Type_Filter::build_constraint(
+			array( 'postTypes' => 'not-an-array' )
 		);
-		$this->assertSame( array(), $lists['include'] );
-		$this->assertSame( array( 'page', 'product' ), $lists['exclude'] );
-	}
+		$this->assertSame( array(), $string_input['exclude'] );
 
-	/**
-	 * Slugs that appear in both include and exclude are dropped from the
-	 * exclude list. Listing a slug in both is contradictory user input —
-	 * the include clause already restricts results to that set, so the
-	 * exclude entry is at best redundant and at worst confusing for
-	 * future readers of the saved attributes.
-	 */
-	public function test_build_lists_drops_excludes_that_collide_with_includes() {
-		$lists = Post_Type_Filter::build_lists(
-			array(
-				'include' => array( 'post', 'page' ),
-				'exclude' => array( 'page', 'product' ),
-			)
+		$mixed_input = Post_Type_Filter::build_constraint(
+			array( 'postTypes' => array( 'page', array( 'nested' ), null, false, 'product' ) )
 		);
-		$this->assertSame( array( 'post', 'page' ), $lists['include'] );
-		$this->assertSame( array( 'product' ), $lists['exclude'] );
-	}
-
-	/**
-	 * Exclusion-only configs leave the exclude list untouched — the
-	 * include-collision normalization only applies when the include list
-	 * is non-empty.
-	 */
-	public function test_build_lists_keeps_exclude_when_include_is_empty() {
-		$lists = Post_Type_Filter::build_lists(
-			array(
-				'include' => array(),
-				'exclude' => array( 'product', 'shop_order' ),
-			)
-		);
-		$this->assertSame( array(), $lists['include'] );
-		$this->assertSame( array( 'product', 'shop_order' ), $lists['exclude'] );
+		$this->assertSame( array( 'page', 'product' ), $mixed_input['exclude'] );
 	}
 
 	/**
@@ -205,32 +231,12 @@ class Post_Type_Filter_Test extends TestCase {
 	}
 
 	/**
-	 * After merge, the include/exclude exclusivity normalization is
-	 * re-applied: a slug newly added to the include set must not stay in
-	 * the exclude set inherited from a previous instance.
-	 */
-	public function test_merge_state_reapplies_include_exclude_normalization() {
-		$merged = Post_Type_Filter::merge_state(
-			array(
-				'include' => array( 'post' ),
-				'exclude' => array( 'page' ),
-			),
-			array(
-				'include' => array( 'page' ),
-				'exclude' => array(),
-			)
-		);
-		$this->assertSame( array( 'post', 'page' ), $merged['include'] );
-		$this->assertSame( array(), $merged['exclude'] );
-	}
-
-	/**
-	 * Existing state may carry malformed entries (e.g. from a future field
-	 * shape change); the merge sanitizes both sides before unioning so a
-	 * stray non-array value can't poison the merged output. `merge_state`
-	 * does not enforce the registry allowlist on the existing-state side
-	 * (already-filtered by the contributing block's own `build_lists()`
-	 * call) — `42` survives sanitize_key as the string `"42"`.
+	 * Existing state may carry malformed entries (forward-compat with a
+	 * future shape change); the merge sanitizes both sides before unioning
+	 * so a stray non-array value can't poison the merged output.
+	 * `merge_state` does not enforce the registry allowlist on the
+	 * existing-state side (already-filtered by the contributing block's
+	 * own `build_constraint()` call).
 	 */
 	public function test_merge_state_sanitizes_existing_state() {
 		$merged = Post_Type_Filter::merge_state(
