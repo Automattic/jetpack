@@ -173,11 +173,12 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 							},
 						] }
 						onChange={ value => {
-							// Clear the slug list when switching modes so the
-							// previously-typed list can not silently flip
-							// meaning (an "exclude these" list becoming an
-							// "include only these" list is a footgun).
-							setAttributes( { mode: value, postTypes: [] } );
+							// Keep the slug list across mode switches so the
+							// author can flip the meaning of a typed list
+							// without re-entering it. The label and helper
+							// text on the radio + picker make the new
+							// interpretation explicit.
+							setAttributes( { mode: value } );
 						} }
 					/>
 					<FormTokenField
