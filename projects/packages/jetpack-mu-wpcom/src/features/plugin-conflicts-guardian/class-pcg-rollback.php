@@ -5,7 +5,7 @@
  * Two paths, tried in order:
  *
  *   1. Local backup. If `PCG_Snapshot::create_backup()` stashed a copy
- *      of the pre-update files under `wp-content/upgrade/pcg-backups/`,
+ *      of the pre-update files under `<get_temp_dir()>/pcg-backups/<unique>/`,
  *      restore from there — works for any plugin (paid, private, .org)
  *      and needs no network round-trip.
  *   2. WordPress.org versioned ZIP. Fallback for cases where the local
