@@ -271,14 +271,14 @@ if ( ! empty( $tax_errors ) ) {
 				var that = this;
 
 				swal({
-					titleText: '<?php echo esc_html( __( 'Are you sure?', 'zero-bs-crm' ) ); ?>',
-					text: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Are you sure you want to delete this tax rate? This will remove it from your database and existing transactions with this tax rate will not show properly. You cannot undo this.', 'zero-bs-crm' ) ) ); ?>',
+					titleText: <?php echo wp_json_encode( __( 'Are you sure?', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+					text: <?php echo wp_json_encode( __( 'Are you sure you want to delete this tax rate? This will remove it from your database and existing transactions with this tax rate will not show properly. You cannot undo this.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 					type: 'warning',
 					showCancelButton: true,
 					confirmButtonColor: '#000',
 					cancelButtonColor: '#fff',
 					cancelButtonText: '<span style="color: #000">Cancel</span>',
-					confirmButtonText: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Yes, remove the tax rate.', 'zero-bs-crm' ) ) ); ?>',
+					confirmButtonText: <?php echo wp_json_encode( __( 'Yes, remove the tax rate.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 				})//.then((result) => {
 					.then(function (result) {
 						if (typeof result.value != "undefined" && result.value) {

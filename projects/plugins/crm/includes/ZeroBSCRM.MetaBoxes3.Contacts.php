@@ -1725,16 +1725,16 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 						if ( e && e.success ) {
 
 							swal({
-								titleText: '<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset', 'zero-bs-crm' ) ); ?>',
-								text: '<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal password has been reset for this contact, and they have been emailed with the new password.', 'zero-bs-crm' ) ); ?>',
+								titleText: <?php echo wp_json_encode( __( 'Client Portal Password Reset', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+								text: <?php echo wp_json_encode( __( 'Client Portal password has been reset for this contact, and they have been emailed with the new password.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 								type: 'info',
 							});
 
 						} else {
 
 							swal({
-								titleText: '<?php zeroBSCRM_slashOut( esc_html__( 'Client Portal Password Reset Error', 'zero-bs-crm' ) ); ?>',
-								text: '<?php zeroBSCRM_slashOut( esc_html__( 'Error: Client Portal password has not been reset for this contact.', 'zero-bs-crm' ) ); ?>',
+								titleText: <?php echo wp_json_encode( __( 'Client Portal Password Reset Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+								text: <?php echo wp_json_encode( __( 'Error: Client Portal password has not been reset for this contact.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 								type: 'info',
 							});
 
@@ -2081,8 +2081,8 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 
 															// already in use err
 															swal({
-																titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-																text: '<?php esc_html_e( 'This Alias is already in use by another contact.', 'zero-bs-crm' ); ?>',
+																titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+																text: <?php echo wp_json_encode( __( 'This Alias is already in use by another contact.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 																type: 'warning',
 															});
 
@@ -2092,8 +2092,8 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 
 														// general err
 														swal({
-															titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-															text: '<?php esc_html_e( 'There was an error adding this alias', 'zero-bs-crm' ); ?>',
+															titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+															text: <?php echo wp_json_encode( __( 'There was an error adding this alias', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 															type: 'warning',
 														});
 
@@ -2108,8 +2108,8 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 
 													// err
 													swal({
-														titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-														text: '<?php esc_html_e( 'There was an error adding this alias', 'zero-bs-crm' ); ?>',
+														titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+														text: <?php echo wp_json_encode( __( 'There was an error adding this alias', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 														type: 'warning'
 													});
 													//unblock
@@ -2214,8 +2214,8 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 
 											// err
 											swal({
-												titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-												text: '<?php esc_html_e( 'There was an error removing this alias', 'zero-bs-crm' ); ?>',
+												titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+												text: <?php echo wp_json_encode( __( 'There was an error removing this alias', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 												type: 'warning',
 											});
 											//unblock
@@ -2228,8 +2228,8 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 
 											// err
 											swal({
-												titleText: '<?php esc_html_e( 'Error', 'zero-bs-crm' ); ?>',
-												text: '<?php esc_html_e( 'There was an error removing this alias', 'zero-bs-crm' ); ?>',
+												titleText: <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+												text: <?php echo wp_json_encode( __( 'There was an error removing this alias', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 												type: 'warning',
 											});
 											//unblock
