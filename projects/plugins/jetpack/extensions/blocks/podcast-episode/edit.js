@@ -272,13 +272,23 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, isSelec
 							onSelect={ onSelectImage }
 							allowedTypes={ [ 'image' ] }
 							value={ imageId }
-							render={ ( { open } ) => (
-								<ToolbarButton aria-label={ __( 'Select cover art', 'jetpack' ) } onClick={ open }>
-									{ imageUrl
-										? __( 'Change cover art', 'jetpack' )
-										: __( 'Add cover art', 'jetpack' ) }
-								</ToolbarButton>
-							) }
+							render={ ( { open } ) =>
+								imageUrl ? (
+									<ToolbarButton
+										aria-label={ __( 'Select cover art', 'jetpack' ) }
+										onClick={ open }
+									>
+										{ __( 'Change cover art', 'jetpack' ) }
+									</ToolbarButton>
+								) : (
+									<ToolbarButton
+										aria-label={ __( 'Select cover art', 'jetpack' ) }
+										onClick={ open }
+									>
+										{ __( 'Add cover art', 'jetpack' ) }
+									</ToolbarButton>
+								)
+							}
 						/>
 					</MediaUploadCheck>
 				</ToolbarGroup>
@@ -402,11 +412,15 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, isSelec
 							value={ imageId }
 							render={ ( { open } ) => (
 								<PanelRow>
-									<Button variant="secondary" onClick={ open } __next40pxDefaultSize>
-										{ imageUrl
-											? __( 'Replace cover art', 'jetpack' )
-											: __( 'Select cover art', 'jetpack' ) }
-									</Button>
+									{ imageUrl ? (
+										<Button variant="secondary" onClick={ open } __next40pxDefaultSize>
+											{ __( 'Replace cover art', 'jetpack' ) }
+										</Button>
+									) : (
+										<Button variant="secondary" onClick={ open } __next40pxDefaultSize>
+											{ __( 'Select cover art', 'jetpack' ) }
+										</Button>
+									) }
 									{ imageUrl && (
 										<Button variant="link" isDestructive onClick={ clearImage }>
 											{ __( 'Remove', 'jetpack' ) }
