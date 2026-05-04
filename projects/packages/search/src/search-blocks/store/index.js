@@ -178,6 +178,7 @@ function* fetchResults( pageHandle ) {
 		activeFilters: state.activeFilters,
 		filterConfigs: state.filterConfigs,
 		priceRange: state.priceRange,
+		staticPostTypes: state.staticPostTypes,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},

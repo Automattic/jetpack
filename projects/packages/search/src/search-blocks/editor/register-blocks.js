@@ -25,6 +25,7 @@ import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPopoverEdit, { save as filterPopoverSave } from '../blocks/filter-popover/edit';
 import LoadMoreEdit from '../blocks/load-more/edit';
 import NoResultsEdit from '../blocks/no-results/edit';
+import PostTypeFilterEdit from '../blocks/post-type-filter/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import ResultsPanelEdit, { save as resultsPanelSave } from '../blocks/results-panel/edit';
 import SearchErrorEdit from '../blocks/search-error/edit';
@@ -41,6 +42,7 @@ const BLOCKS = [
 	[ 'jetpack/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack/filter-date', FilterDateEdit ],
 	[ 'jetpack/active-filters', ActiveFiltersEdit ],
+	[ 'jetpack/post-type-filter', PostTypeFilterEdit ],
 	[ 'jetpack/common-filters', CommonFiltersEdit, commonFiltersSave ],
 	[ 'jetpack/filter-popover', FilterPopoverEdit, filterPopoverSave ],
 	[ 'jetpack/sort-control', SortControlEdit ],
