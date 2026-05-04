@@ -420,6 +420,36 @@ describe( 'gateActiveFilters', () => {
 		expect( gated ).toEqual( {} );
 		expect( droppedAny ).toBe( true );
 	} );
+
+	it( 'drops prototype-chain keys regardless of filterConfigs contents', () => {
+		// `__proto__`, `constructor`, `toString`, `hasOwnProperty` etc. are
+		// inherited from Object.prototype; a naive `allowedKeys[key]` lookup
+		// would treat them as truthy and let them survive the gate. Use
+		// JSON.parse so `__proto__` lands as an own property (object literals
+		// would set the prototype instead).
+		const activeFilters = JSON.parse(
+			'{"__proto__":["pwn"],"constructor":["x"],"toString":["y"],"category":["news"]}'
+		);
+		const { gated, droppedAny } = gateActiveFilters( activeFilters, {
+			category: { filterKey: 'category' },
+		} );
+		expect( gated ).toEqual( { category: [ 'news' ] } );
+		expect( droppedAny ).toBe( true );
+		// Output must not have inherited the polluted prototype value either.
+		expect( Object.getPrototypeOf( gated ) ).toBeNull();
+	} );
+
+	it( 'does not allow Object.prototype keys to act as registered filter keys', () => {
+		// Even if filterConfigs only mentions `category`, an attacker URL of
+		// `?toString[]=…` should not survive because `toString` is inherited,
+		// not own.
+		const activeFilters = JSON.parse( '{"toString":["bad"]}' );
+		const { gated, droppedAny } = gateActiveFilters( activeFilters, {
+			category: { filterKey: 'category' },
+		} );
+		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( true );
+	} );
 } );
 
 describe( 'store callbacks', () => {

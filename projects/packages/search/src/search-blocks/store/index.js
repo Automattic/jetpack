@@ -26,20 +26,26 @@ const withSyncEvent =
 /**
  * Drop activeFilters keys not present in filterConfigs.
  *
+ * Uses `Object.hasOwn` rather than `allowedKeys[key]` so prototype-chain
+ * keys (`__proto__`, `constructor`, `toString`, …) can't survive the gate
+ * via inherited properties. Output uses a null prototype for the same
+ * reason — assigning `gated.__proto__` on a plain object would trigger
+ * the prototype setter instead of writing a regular property.
+ *
  * @param {object} activeFilters - { [filterKey]: string[] } URL-seeded selections.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } registered filters.
  * @return {{ gated: object, droppedAny: boolean }} Filtered selections plus a drop flag.
  */
 export function gateActiveFilters( activeFilters, filterConfigs ) {
 	const allowedKeys = filterConfigs ?? {};
-	const gated = {};
+	const gated = Object.create( null );
 	let droppedAny = false;
 	for ( const [ key, values ] of Object.entries( activeFilters ?? {} ) ) {
-		if ( allowedKeys[ key ] ) {
-			gated[ key ] = values;
+		if ( ! Object.hasOwn( allowedKeys, key ) ) {
+			droppedAny = true;
 			continue;
 		}
-		droppedAny = true;
+		gated[ key ] = values;
 	}
 	return { gated, droppedAny };
 }
