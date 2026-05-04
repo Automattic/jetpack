@@ -43,17 +43,21 @@ wp_interactivity_state(
 );
 
 // Render `hidden` on first paint when no aggregation buckets are available
-// for this filter. Seeded `state.aggregations` is empty before the first JS
-// fetch, so on the server we default to hidden — otherwise an empty filter
-// title would occupy the top of the sidebar during the load and misalign
-// with the adjacent results column. JS unhides once buckets arrive.
+// for this filter and no fetch is in flight. Seeded `state.aggregations` is
+// empty before the first JS fetch — but on a deep-link load where a fetch
+// IS coming, we keep the wrapper visible so it can host a skeleton list
+// (otherwise the entire sidebar collapses to just the heading and pops in
+// when results arrive). JS-side `state.showFilterWrapper` mirrors the same
+// rule and takes over after hydration.
 $seeded_state = wp_interactivity_state( 'jetpack-search' );
 // aggregations is seeded as stdClass when empty (so JS sees `{}` not `[]`);
 // cast here so the nested subscript works in either shape.
-$seeded_aggs       = (array) ( $seeded_state['aggregations'] ?? array() );
-$seeded_filter_agg = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
-$seeded_buckets    = $seeded_filter_agg['buckets'] ?? null;
-$has_buckets       = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
+$seeded_aggs        = (array) ( $seeded_state['aggregations'] ?? array() );
+$seeded_filter_agg  = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
+$seeded_buckets     = $seeded_filter_agg['buckets'] ?? null;
+$has_buckets        = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
+$is_initial_loading = Search_Blocks::is_initial_loading();
+$show_wrapper       = $has_buckets || $is_initial_loading;
 
 // First-paint "all selected" flag: mirrors the `allBucketsSelected` state
 // getter so the list and the fallback message come out pre-hidden correctly
@@ -78,12 +82,42 @@ $label = $config['label'];
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
-	data-wp-bind--hidden="!state.hasFilterBuckets"
-	<?php echo $has_buckets ? '' : 'hidden'; ?>
+	<?php
+	// Per-block visibility flag carried in the local context so the wrapper's
+	// `data-wp-bind--hidden` resolves against a single seeded value (data-wp-bind
+	// only evaluates direct property paths). `wrapperHidden` is seeded to
+	// `! $show_wrapper` so the SSR pass and PHP-time `hidden` agree, and the
+	// `syncFilterWrapperVisibility` callback keeps it in sync once buckets
+	// arrive — preserving the legacy "hide empty filter sections" UX without
+	// fighting the IA SSR evaluator.
+	echo wp_kses_data(
+		wp_interactivity_data_wp_context(
+			array(
+				'filterKey'     => $filter_key,
+				'wrapperHidden' => ! $show_wrapper,
+			)
+		)
+	);
+	?>
+	data-wp-bind--hidden="context.wrapperHidden"
+	data-wp-watch="callbacks.syncFilterWrapperVisibility"
+	<?php echo $show_wrapper ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
+	<?php endif; ?>
+	<?php if ( $is_initial_loading ) : ?>
+		<ul
+			class="jetpack-search-filter__list jetpack-search-filter__list--skeleton"
+			data-wp-bind--hidden="state.skeletonHidden"
+			aria-hidden="true"
+		>
+			<?php for ( $i = 0; $i < 4; $i++ ) : ?>
+				<li class="jetpack-search-filter__item jetpack-search-filter__item--skeleton">
+					<span class="jetpack-search-skeleton jetpack-search-skeleton--filter-row"></span>
+				</li>
+			<?php endfor; ?>
+		</ul>
 	<?php endif; ?>
 	<ul
 		class="jetpack-search-filter__list"

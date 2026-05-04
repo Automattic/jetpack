@@ -41,6 +41,19 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_search_template' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		// Seed on `template_redirect` (fires before block-template rendering)
+		// AND on `wp_enqueue_scripts` (covers classic-theme paths and admin
+		// previews where `template_redirect` doesn't run). The IA store
+		// deep-merges, so calling twice is idempotent — the second call's
+		// values overwrite the first with the same data. The earlier hook is
+		// what makes pre-hydration values like `state.resultsCountText` and
+		// `state.skeletonHidden` visible to the SSR pass on FSE block themes,
+		// which call `get_the_block_template_html()` *before* `wp_head()` so
+		// blocks can register scripts/styles for the head — which means our
+		// individual block render.php files would otherwise see an unseeded
+		// state when their `data-wp-bind` / `data-wp-text` directives are
+		// resolved.
+		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 	}
@@ -478,58 +491,82 @@ class Search_Blocks {
 	 * @return array<string, mixed>
 	 */
 	public static function build_initial_state() {
-		$is_private     = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
-		$is_wpcom       = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
-		$site_id        = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
-		$search_query   = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
-		$active_filters = static::parse_url_filters();
-		$price_range    = static::parse_url_price_range();
+		$is_private         = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
+		$is_wpcom           = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
+		$site_id            = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
+		$search_query       = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		$active_filters     = static::parse_url_filters();
+		$price_range        = static::parse_url_price_range();
+		$is_initial_loading = '' !== $search_query || ! empty( $active_filters ) || null !== $price_range;
+		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
 		return array(
 			// Connection / routing config.
-			'siteId'        => $site_id,
-			'apiRoot'       => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'         => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite' => $is_private,
-			'isWpcom'       => $is_wpcom,
-			'homeUrl'       => function_exists( 'home_url' ) ? home_url() : '',
+			'siteId'           => $site_id,
+			'apiRoot'          => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'            => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite'    => $is_private,
+			'isWpcom'          => $is_wpcom,
+			'homeUrl'          => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'        => function_exists( 'get_locale' )
+			'locale'           => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'   => $search_query,
-			'sortOrder'     => static::parse_url_sort(),
-			'activeFilters' => $active_filters,
-			'priceRange'    => $price_range,
+			'searchQuery'      => $search_query,
+			'sortOrder'        => static::parse_url_sort(),
+			'activeFilters'    => $active_filters,
+			'priceRange'       => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
 			// taxonomy, label, showCount, maxItems } }.
-			'filterConfigs' => array(),
+			'filterConfigs'    => array(),
 
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'       => array(),
-			'aggregations'  => (object) array(),
-			'totalResults'  => 0,
-			'pageHandle'    => null,
+			'results'          => array(),
+			'aggregations'     => (object) array(),
+			'totalResults'     => 0,
+			'pageHandle'       => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the no-results block stays
 			// hidden between first paint and JS hydrating the initial fetch —
 			// otherwise a "No results found" flash appears on deep links.
-			'isLoading'     => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
-			'isLoadingMore' => false,
-			'hasError'      => false,
+			'isLoading'        => $is_initial_loading,
+			'isLoadingMore'    => false,
+			'hasError'         => false,
+
+			// Pre-hydration skeleton gate. `data-wp-bind` directives are
+			// evaluated at SSR time using only the seeded state — derived
+			// getters can't run server-side, so the skeleton blocks bind
+			// directly to this single seeded boolean. Stays false until the
+			// first search() action resolves on the client; the IA SSR pass
+			// then leaves the `hidden` attribute off so the skeletons paint
+			// immediately. Once JS flips it to true the same binding hides
+			// the placeholders for the rest of the session — subsequent
+			// re-searches keep the live results visible without a skeleton
+			// flash.
+			'skeletonHidden'   => false,
+
+			// Live results-count copy. Same SSR rationale as `skeletonHidden`:
+			// the JS-side `data-wp-text="state.resultsCountText"` directive is
+			// resolved at SSR time, so the value must be a seeded string rather
+			// than a derived JS getter. Pre-hydration we mirror the JS-side
+			// `computeResultsCountText()` loading branch so the line reads
+			// "Searching…" on a deep link instead of staying blank until JS
+			// hydrates. Every action that mutates `isLoading` / `totalResults`
+			// re-runs the computer to keep this in lockstep.
+			'resultsCountText' => $is_initial_loading ? $searching_text : '',
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -538,8 +575,38 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'       => static::build_initial_strings(),
+			'strings'          => static::build_initial_strings(),
 		);
+	}
+
+	/**
+	 * Whether the page starts in a loading state — i.e. the URL carries a
+	 * search query, filter selection, or price range, so the JS store will
+	 * fire an initial fetch on hydration.
+	 *
+	 * Render.php callers branch on this to emit pre-hydration affordances
+	 * (skeleton placeholders, seeded "Searching…" text). The value is derived
+	 * from the request URL rather than read back through
+	 * `wp_interactivity_state()` because in block themes individual block
+	 * renders can run before `seed_interactivity_state()` finishes (FSE
+	 * pre-resolves template attributes by walking blocks before the
+	 * `wp_enqueue_scripts` hook fires) — so a state-read fallback would
+	 * silently return false on the very pages this helper is meant to flag.
+	 * The condition mirrors the `isLoading` value seeded into
+	 * `build_initial_state()` exactly so PHP-time and JS-side answers stay
+	 * in lockstep.
+	 *
+	 * @return bool
+	 */
+	public static function is_initial_loading(): bool {
+		$search_query = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		if ( '' !== $search_query ) {
+			return true;
+		}
+		if ( ! empty( static::parse_url_filters() ) ) {
+			return true;
+		}
+		return null !== static::parse_url_price_range();
 	}
 
 	/**

@@ -1,4 +1,64 @@
+// Shared skeleton placeholder used pre-hydration. Kept inside the block-
+// scoped wrapper so the keyframe + base class never leak to other blocks
+// or page content.
 .wp-block-jetpack-search-results {
+
+	@keyframes jetpack-search-skeleton-shimmer {
+
+		from {
+			background-position: -200% 0;
+		}
+
+		to {
+			background-position: 200% 0;
+		}
+	}
+
+	.jetpack-search-skeleton {
+		display: block;
+		border-radius: 4px;
+		background: color-mix(in sRGB, currentColor 8%, transparent) linear-gradient(90deg, transparent 0%, color-mix(in sRGB, currentColor 6%, transparent) 50%, transparent 100%) repeat;
+		background-size: 200% 100%;
+		animation: jetpack-search-skeleton-shimmer 1.5s linear infinite;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		.jetpack-search-skeleton {
+			animation: none;
+		}
+	}
+
+	.jetpack-search-skeleton--title {
+		height: 1.5rem;
+		width: 65%;
+	}
+
+	.jetpack-search-skeleton--path {
+		height: 0.95rem;
+		width: 40%;
+		margin-top: 0.5rem;
+	}
+
+	.jetpack-search-skeleton--meta {
+		height: 0.9rem;
+		width: 25%;
+		margin-top: 1rem;
+	}
+
+	.jetpack-search-skeleton--image {
+		flex: 0 0 auto;
+		width: 200px;
+		max-width: 30%;
+		aspect-ratio: 16 / 10;
+	}
+
+	.jetpack-search-results__item--skeleton {
+
+		&[hidden] {
+			display: none;
+		}
+	}
 
 	.jetpack-search-results__list {
 		list-style: none;
