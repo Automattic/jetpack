@@ -91,35 +91,59 @@ class PCG_Rollback {
 		}
 
 		$current = WP_PLUGIN_DIR . '/' . $asset_name;
-		if ( $fs->exists( $current ) && ! $fs->delete( $current, true ) ) {
-			return array(
-				'status' => 'rollback_failed',
-				'reason' => 'Could not remove the broken plugin files.',
-			);
-		}
 
-		// move() works for files (and same-fs dir renames). For cross-fs
-		// dir moves WP_Filesystem_Direct::move can't recurse, so fall
-		// back to copy_dir + delete on dirs.
-		$moved = $fs->move( $backup_asset, $current, true );
-		if ( ! $moved ) {
-			if ( $fs->is_dir( $backup_asset ) ) {
-				if ( ! wp_mkdir_p( $current ) || true !== copy_dir( $backup_asset, $current ) ) {
-					$fs->delete( $current, true );
-					return array(
-						'status' => 'rollback_failed',
-						'reason' => 'Could not restore plugin from local backup (cross-fs copy_dir failed).',
-					);
-				}
-			} else {
+		// Stage the broken plugin aside (instead of deleting it outright)
+		// so a failed restore leaves the slug populated with the broken
+		// version, not empty. The plugin will still be deactivated by the
+		// caller, but its files staying on disk is what lets WP / the user
+		// see and re-attempt the update later.
+		//
+		// The dot-prefix on the trash basename hides it from
+		// `get_plugins()`, which skips entries starting with `.`. Avoids
+		// a phantom plugin row appearing during the brief rollback window.
+		$trash = '';
+		if ( $fs->exists( $current ) ) {
+			$trash = WP_PLUGIN_DIR . '/.pcg-rollback-trash-' . $asset_name . '-' . md5( uniqid( '', true ) );
+			if ( ! $fs->move( $current, $trash, false ) ) {
 				return array(
 					'status' => 'rollback_failed',
-					'reason' => 'Could not restore plugin from local backup.',
+					'reason' => 'Could not stage broken plugin files aside.',
 				);
 			}
 		}
 
-		// Drop the (now-empty-ish) backup wrapper dir.
+		$restore_failed = static function ( $reason ) use ( $fs, $current, $trash ) {
+			if ( '' !== $trash ) {
+				// Throw away any partial restore, then put the broken
+				// plugin back where it was so the slug isn't empty.
+				$fs->delete( $current, true );
+				$fs->move( $trash, $current, true );
+			}
+			return array(
+				'status' => 'rollback_failed',
+				'reason' => $reason,
+			);
+		};
+
+		// move() works for files (and same-fs dir renames). For cross-fs
+		// dir moves WP_Filesystem_Direct::move can't recurse, so fall
+		// back to copy_dir on dirs.
+		$moved = $fs->move( $backup_asset, $current, true );
+		if ( ! $moved ) {
+			if ( $fs->is_dir( $backup_asset ) ) {
+				if ( ! wp_mkdir_p( $current ) || true !== copy_dir( $backup_asset, $current ) ) {
+					return $restore_failed( 'Could not restore plugin from local backup (cross-fs copy_dir failed).' );
+				}
+			} else {
+				return $restore_failed( 'Could not restore plugin from local backup.' );
+			}
+		}
+
+		// Restore succeeded — drop the trashed broken plugin and the
+		// (now-empty-ish) backup wrapper dir.
+		if ( '' !== $trash ) {
+			$fs->delete( $trash, true );
+		}
 		$fs->delete( $backup_path, true );
 
 		return array(
