@@ -146,6 +146,7 @@ class Jetpack_Connector {
 
 		$data['isConnected']          = $is_connected;
 		$data['isRegistered']         = $is_registered;
+		$data['isFirstConnection']    = ! $is_registered && ! (bool) \Jetpack_Options::get_option( 'id' );
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();

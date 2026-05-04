@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connector card: Fix description padding not reserving space in Chrome, reset connecting state on back-button navigation, use text label instead of busy stripes on link-style disconnect button, and honor redirect parameter after already-authorized webhook.
