@@ -87,6 +87,18 @@ class Search_Error_Render_Test extends TestCase {
 	}
 
 	/**
+	 * A whitespace-only `message` must fall back to the default — otherwise
+	 * an author who typed spaces would ship a blank alert. The Inspector
+	 * help text already tells authors to leave the field empty for the
+	 * default; the fallback is the belt-and-suspenders for anyone who
+	 * misses that.
+	 */
+	public function test_whitespace_message_falls_back_to_default() {
+		$markup = $this->render( array( 'message' => "  \t\n " ) );
+		$this->assertStringContainsString( 'Something went wrong. Please try again.', $markup );
+	}
+
+	/**
 	 * A custom `message` must replace the default copy on the front end.
 	 */
 	public function test_custom_message_renders() {

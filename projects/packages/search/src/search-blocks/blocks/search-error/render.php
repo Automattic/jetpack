@@ -11,7 +11,9 @@ namespace Automattic\Jetpack\Search;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-$message = (string) ( $attributes['message'] ?? '' );
+// `trim()` so a whitespace-only attribute (e.g. an author saved spaces)
+// still falls back to the default copy instead of rendering a blank alert.
+$message = trim( (string) ( $attributes['message'] ?? '' ) );
 if ( '' === $message ) {
 	$message = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
 }
