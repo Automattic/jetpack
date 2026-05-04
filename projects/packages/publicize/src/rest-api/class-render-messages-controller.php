@@ -25,10 +25,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * fetch all enabled connections' previews in one round-trip when the
  * `social-message-templates` feature is enabled.
  *
- * The endpoint follows the WP REST collection pattern: a GET on
- * `/publicize/render-messages` that returns an array of records keyed by
- * client-supplied `id` (typically the connection_id), so it slots into
- * `getEntityRecords` on the JS side.
+ * POST takes a JSON body of `{ post_id, items: [...] }` and returns one
+ * record per input item, in input order, keyed by client-supplied `id`
+ * (typically the connection_id). Body-based POST is used instead of a GET
+ * collection so multi-connection / long-message batches don't hit
+ * infrastructure URL caps.
  *
  * @phan-constructor-used-for-side-effects
  */
@@ -61,7 +62,7 @@ class Render_Messages_Controller extends Base_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				'methods'                        => WP_REST_Server::READABLE,
+				'methods'                        => WP_REST_Server::CREATABLE,
 				'callback'                       => array( $this, 'render_messages' ),
 				'permission_callback'            => array( $this, 'permissions_check' ),
 				'private_site_security_settings' => array(

@@ -1,103 +1,67 @@
-import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
-import {
-	chunkRenderItems,
-	type RenderItem,
-	type RenderResult,
-	type RenderQueryArgs,
-} from '../../utils/render-messages';
+import { hashRenderItems, type RenderItem } from '../../utils/render-messages';
+import type { RenderedMessageBatch, SocialStoreState } from '../types';
 
-const ENTITY_KIND = 'wpcom/v2';
-const ENTITY_NAME = 'publicize/render-messages';
+const STORE_ID = 'jetpack-social-plugin';
 
 /**
- * Trigger resolution and collect results across all chunks for a given (postId, items)
- * call. Returns null until every chunk has resolved (so consumers can keep showing the
- * previous render and avoid mid-batch flashes), then returns a Map keyed by the input id.
+ * Compute the cache slot key for a given (postId, items) batch.
  *
- * @param postId - The post being previewed.
- * @param items  - All items to render (the selector handles chunking internally).
- * @return Map of id → result, or null while any chunk is still resolving.
+ * @param postId - Post being previewed.
+ * @param items  - The render items.
+ * @return Cache key string.
  */
-export const getRenderedMessages = createRegistrySelector(
+function cacheKeyFor( postId: number, items: RenderItem[] ): string {
+	return `${ postId }|${ hashRenderItems( items ) }`;
+}
+
+/**
+ * The whole batch for a given (postId, items). Pairs with the
+ * `getRenderedMessages` resolver, which fires the POST on first read with
+ * these args and stores the response under the same cache key.
+ *
+ * Reading this selector is what triggers the fetch — consumers that only need
+ * one connection's slice should call {@link getRenderedMessageForConnection},
+ * which routes through this selector so the resolver still fires.
+ *
+ * @param state  - State object.
+ * @param postId - Post being previewed.
+ * @param items  - The render items.
+ * @return The batch (id → result), or undefined if the resolver hasn't filled it yet.
+ */
+export function getRenderedMessages(
+	state: SocialStoreState,
+	postId: number,
+	items: RenderItem[]
+): RenderedMessageBatch | undefined {
+	if ( ! postId || items.length === 0 ) {
+		return undefined;
+	}
+	return state.renderedMessages?.[ cacheKeyFor( postId, items ) ];
+}
+
+/**
+ * Pull a single connection's rendered slice from the current batch. Calls
+ * `getRenderedMessages` via the registry, which is what triggers the
+ * resolver — so reading this selector from a `useSelect` is enough to drive
+ * the fetch.
+ *
+ * @param postId       - Post being previewed.
+ * @param items        - All items in the batch — used as the cache key.
+ * @param connectionId - Which connection's slice to read.
+ * @return The slice for this connection, or null if the batch hasn't resolved yet.
+ */
+export const getRenderedMessageForConnection = createRegistrySelector(
 	select =>
 		(
 			_state: unknown,
 			postId: number,
-			items: RenderItem[]
-		): Map< string, RenderResult > | null => {
-			if ( ! postId || items.length === 0 ) {
-				return new Map();
-			}
-
-			const chunks = chunkRenderItems( items );
-			const merged = new Map< string, RenderResult >();
-
-			for ( const chunk of chunks ) {
-				const queryArgs: RenderQueryArgs = { post_id: postId, items: chunk };
-				const records = select( coreStore ).getEntityRecords< RenderResult >(
-					ENTITY_KIND,
-					ENTITY_NAME,
-					queryArgs
-				);
-
-				if ( ! records ) {
-					// Any unresolved chunk means we report "not ready yet" for the whole batch.
-					return null;
-				}
-
-				for ( const record of records ) {
-					merged.set( record.id, record );
-				}
-			}
-
-			return merged;
-		}
-);
-
-/**
- * Pull a single connection's rendered slice from the batched result.
- *
- * @param state        - State (unused; supplied by the data store).
- * @param postId       - The post being previewed.
- * @param items        - All items in the batch (used to drive resolution + cache key).
- * @param connectionId - Which connection's slice to read.
- * @return The result record, or null if nothing has resolved yet for this batch.
- */
-export function getRenderedMessageForConnection(
-	state: unknown,
-	postId: number,
-	items: RenderItem[],
-	connectionId: string
-): RenderResult | null {
-	const map = getRenderedMessages( state, postId, items );
-
-	if ( ! map ) {
-		return null;
-	}
-
-	return map.get( connectionId ) ?? null;
-}
-
-/**
- * Whether any chunk for the current batch is still being fetched.
- */
-export const isFetchingRenderedMessages = createRegistrySelector(
-	select =>
-		( _state: unknown, postId: number, items: RenderItem[] ): boolean => {
-			if ( ! postId || items.length === 0 ) {
-				return false;
-			}
-
-			const { isResolving } = select( coreStore );
-			const chunks = chunkRenderItems( items );
-
-			return chunks.some( chunk =>
-				isResolving( 'getEntityRecords', [
-					ENTITY_KIND,
-					ENTITY_NAME,
-					{ post_id: postId, items: chunk },
-				] )
-			);
+			items: RenderItem[],
+			connectionId: string
+		): RenderedMessageBatch[ string ] | null => {
+			const batch = select( STORE_ID ).getRenderedMessages( postId, items ) as
+				| RenderedMessageBatch
+				| undefined;
+			return batch?.[ connectionId ] ?? null;
 		}
 );

@@ -1,6 +1,4 @@
-/* eslint-disable testing-library/render-result-naming-convention */
-import { chunkRenderItems, DEFAULT_CHUNK_BYTE_BUDGET } from '../render-messages';
-import type { RenderItem } from '../render-messages';
+import { hashRenderItems, type RenderItem } from '../render-messages';
 
 const item = ( overrides: Partial< RenderItem > = {} ): RenderItem => ( {
 	id: 'a',
@@ -10,55 +8,38 @@ const item = ( overrides: Partial< RenderItem > = {} ): RenderItem => ( {
 	...overrides,
 } );
 
-describe( 'chunkRenderItems', () => {
-	it( 'returns nothing when given an empty list', () => {
-		expect( chunkRenderItems( [] ) ).toEqual( [] );
+describe( 'hashRenderItems', () => {
+	it( 'is empty-input safe', () => {
+		expect( hashRenderItems( [] ) ).toBe( '[]' );
 	} );
 
-	it( 'fits a small batch into a single chunk', () => {
-		const items = [ item( { id: '1' } ), item( { id: '2' } ), item( { id: '3' } ) ];
-		const split = chunkRenderItems( items );
-
-		expect( split ).toHaveLength( 1 );
-		expect( split[ 0 ] ).toEqual( items );
+	it( 'produces the same hash for equivalent inputs', () => {
+		const a = [ item( { id: '1', message: 'hello' } ) ];
+		const b = [ item( { id: '1', message: 'hello' } ) ];
+		expect( hashRenderItems( a ) ).toBe( hashRenderItems( b ) );
 	} );
 
-	it( 'splits a batch when the cumulative payload exceeds the budget', () => {
-		// Build items whose individual JSON size is ~120 bytes; budget=300 forces split of 2.
-		const longMessage = 'x'.repeat( 100 );
-		const items = Array.from( { length: 5 }, ( _, i ) =>
-			item( { id: String( i ), message: longMessage } )
-		);
-
-		const split = chunkRenderItems( items, 300 );
-
-		expect( split.length ).toBeGreaterThan( 1 );
-		// Every chunk's payload stays under budget.
-		for ( const chunk of split ) {
-			const size = chunk.reduce( ( acc, it ) => acc + JSON.stringify( it ).length, 0 );
-			expect( size ).toBeLessThanOrEqual( 300 );
-		}
-		// All items survive the split, in order.
-		expect( split.flat().map( c => c.id ) ).toEqual( items.map( i => i.id ) );
+	it( 'differs when message changes', () => {
+		const a = [ item( { id: '1', message: 'hello' } ) ];
+		const b = [ item( { id: '1', message: 'world' } ) ];
+		expect( hashRenderItems( a ) ).not.toBe( hashRenderItems( b ) );
 	} );
 
-	it( 'allows a single oversized item to occupy its own chunk', () => {
-		const oversized = item( { id: 'big', message: 'x'.repeat( 1000 ) } );
-		const small = item( { id: 'small' } );
-
-		const split = chunkRenderItems( [ oversized, small ], 100 );
-
-		expect( split ).toHaveLength( 2 );
-		expect( split[ 0 ] ).toEqual( [ oversized ] );
-		expect( split[ 1 ] ).toEqual( [ small ] );
+	it( 'differs when items are reordered', () => {
+		const ab = [ item( { id: 'a' } ), item( { id: 'b' } ) ];
+		const ba = [ item( { id: 'b' } ), item( { id: 'a' } ) ];
+		expect( hashRenderItems( ab ) ).not.toBe( hashRenderItems( ba ) );
 	} );
 
-	it( 'uses DEFAULT_CHUNK_BYTE_BUDGET when no budget is supplied', () => {
-		const small = Array.from( { length: 10 }, ( _, i ) => item( { id: String( i ) } ) );
-		// All items fit comfortably in the default budget — single chunk.
-		expect( chunkRenderItems( small ) ).toHaveLength( 1 );
+	it( 'distinguishes ["a","b"] from ["ab"] (no separator collision)', () => {
+		const split = [ item( { id: '1', message: 'a' } ), item( { id: '2', message: 'b' } ) ];
+		const joined = [ item( { id: '1', message: 'ab' } ) ];
+		expect( hashRenderItems( split ) ).not.toBe( hashRenderItems( joined ) );
+	} );
 
-		const totalBytes = small.reduce( ( acc, it ) => acc + JSON.stringify( it ).length, 0 );
-		expect( totalBytes ).toBeLessThan( DEFAULT_CHUNK_BYTE_BUDGET );
+	it( 'normalises missing message and is_social_post defaults', () => {
+		const explicit = [ item( { id: '1', message: '', is_social_post: false } ) ];
+		const implicit = [ { id: '1', network: 'x' } as RenderItem ];
+		expect( hashRenderItems( explicit ) ).toBe( hashRenderItems( implicit ) );
 	} );
 } );

@@ -100,8 +100,8 @@ class Render_Messages_Controller_Test extends TestCase {
 	 * Request without authentication is rejected.
 	 */
 	public function test_render_messages_without_permission() {
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/render-messages' );
-		$request->set_query_params(
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
 				'items'   => array(
@@ -122,7 +122,7 @@ class Render_Messages_Controller_Test extends TestCase {
 	public function test_render_messages_missing_params() {
 		wp_set_current_user( $this->admin_id );
 
-		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/render-messages' );
+		$request  = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 400, $response->get_status() );
@@ -135,8 +135,8 @@ class Render_Messages_Controller_Test extends TestCase {
 	public function test_render_messages_rejects_empty_items() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/render-messages' );
-		$request->set_query_params(
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
 				'items'   => array(),
@@ -155,8 +155,8 @@ class Render_Messages_Controller_Test extends TestCase {
 	public function test_render_messages_rejects_item_missing_required_fields() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/render-messages' );
-		$request->set_query_params(
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
 				// Missing `network` on the second item.
@@ -189,8 +189,8 @@ class Render_Messages_Controller_Test extends TestCase {
 		);
 		wp_set_current_user( $subscriber_id );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/render-messages' );
-		$request->set_query_params(
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
 				'items'   => array(
@@ -212,8 +212,8 @@ class Render_Messages_Controller_Test extends TestCase {
 	public function test_render_messages_proxies_to_wpcom() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/render-messages' );
-		$request->set_query_params(
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
 				'items'   => array(
@@ -255,8 +255,8 @@ class Render_Messages_Controller_Test extends TestCase {
 	public function test_render_messages_rejects_invalid_is_social_post() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/render-messages' );
-		$request->set_query_params(
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/render-messages' );
+		$request->set_body_params(
 			array(
 				'post_id' => $this->post_id,
 				'items'   => array(

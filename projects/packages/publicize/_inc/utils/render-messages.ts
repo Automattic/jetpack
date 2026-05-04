@@ -1,11 +1,14 @@
 /**
- * Render-messages payload sizing + chunking.
+ * Render-messages types + cache-key hashing.
  *
- * The `wpcom/v2/publicize/render-messages` endpoint is GET, which keeps it slottable
- * into core-data's `getEntityRecords`. The tradeoff is URL length: many connections
- * with long messages can blow past infrastructure caps (typically ~4KB safe, ~8KB
- * risky). We pre-chunk by encoded payload size so the common case stays a single
- * request, and only pay for chunking when the batch actually grows.
+ * The `wpcom/v2/publicize/render-messages` endpoint is POST with a JSON body
+ * (see `Render_Messages_Controller`), and the response is cached client-side in
+ * the `renderedMessages` social-store slice keyed by `${postId}|${hashRenderItems(items)}`.
+ * Each unique render-input batch gets its own cache slot, so reverting to a
+ * previously-seen items shape reads back the cached response without refetching
+ * and without the stale-content collisions that core-data's entity-records cache
+ * would have produced (records there merge by id across queries, which is wrong
+ * for content that depends on query inputs).
  */
 
 export type RenderItem = {
@@ -21,68 +24,15 @@ export type RenderResult = {
 	error?: { code: string; message: string };
 };
 
-export type RenderQueryArgs = {
-	post_id: number;
-	items: RenderItem[];
-};
-
 /**
- * Conservative payload-size threshold (bytes of JSON-encoded items array).
- * Picked well below typical proxy/CDN URL limits to leave headroom for
- * the encoded query string overhead.
- */
-export const DEFAULT_CHUNK_BYTE_BUDGET = 3000;
-
-/**
- * Estimate the encoded byte size of an item. JSON length is a fine proxy for the
- * URL-encoded length — both grow linearly with content, and JSON is cheaper to
- * compute than running each item through the same encoder core-data uses.
+ * Stable hash of the items array — used as the cache key in the rendered-messages
+ * store slice so each unique render-input batch gets its own slot.
  *
- * @param item - The render item to size.
- * @return Estimated byte size.
+ * @param items - The render items being sent to the server.
+ * @return A stable string fingerprint of the items array.
  */
-function estimateItemSize( item: RenderItem ): number {
-	return JSON.stringify( item ).length;
-}
-
-/**
- * Split items into chunks where each chunk's encoded payload stays under `byteBudget`.
- *
- * - Greedy bin-packing in input order, which preserves the caller's ordering inside each chunk and keeps the implementation trivial.
- * - A single oversized item is allowed to occupy its own chunk — the server still handles it, and splitting one item's render across requests isn't possible.
- *
- * @param items      - All items to render.
- * @param byteBudget - Max encoded item-payload bytes per chunk. Defaults to {@link DEFAULT_CHUNK_BYTE_BUDGET}.
- * @return Array of chunks. Always returns at least one chunk when `items` is non-empty.
- */
-export function chunkRenderItems(
-	items: RenderItem[],
-	byteBudget: number = DEFAULT_CHUNK_BYTE_BUDGET
-): RenderItem[][] {
-	if ( items.length === 0 ) {
-		return [];
-	}
-
-	const chunks: RenderItem[][] = [];
-	let current: RenderItem[] = [];
-	let currentSize = 0;
-
-	for ( const item of items ) {
-		const size = estimateItemSize( item );
-
-		if ( current.length > 0 && currentSize + size > byteBudget ) {
-			chunks.push( current );
-			current = [];
-			currentSize = 0;
-		}
-
-		current.push( item );
-		currentSize += size;
-	}
-
-	if ( current.length > 0 ) {
-		chunks.push( current );
-	}
-
-	return chunks;
+export function hashRenderItems( items: RenderItem[] ): string {
+	return JSON.stringify(
+		items.map( i => [ i.id, i.network, i.message ?? '', Boolean( i.is_social_post ) ] )
+	);
 }

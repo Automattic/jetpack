@@ -89,16 +89,4 @@ export async function hydrateStores() {
 			},
 		] );
 	}
-
-	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/render-messages' ) ) {
-		await addEntities( [
-			{
-				kind: 'wpcom/v2',
-				name: 'publicize/render-messages',
-				baseURL: '/wpcom/v2/publicize/render-messages',
-				label: __( 'Publicize rendered messages', 'jetpack-publicize-pkg' ),
-				key: 'id',
-			},
-		] );
-	}
 }
