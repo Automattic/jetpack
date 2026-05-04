@@ -69,4 +69,37 @@ body.jetpack_page_jetpack-newsletter {
 	.jetpack-newsletter-page__content--padded {
 		padding: $jetpack-newsletter-inset;
 	}
+
+	// Subscribers tab — let the DataViews surface fill the remaining viewport
+	// height instead of collapsing to its natural content height. Scoped via
+	// `:has(.dataviews-wrapper)` so the Settings tab keeps its existing
+	// "page grows with content, page scrolls" model. On the Subscribers
+	// branch we flip to "page locked to viewport, dataviews scrolls
+	// internally": the Page header + tab row stay sticky at the top, the
+	// table (or its empty state) fills the rest, and oversized result sets
+	// scroll inside the dataviews surface — not the page.
+	.admin-ui-page:has(.dataviews-wrapper) {
+		block-size: 100%;
+
+		// Walk the chain from `.admin-ui-page` (already flex column) down to
+		// the dataviews root: every wrapper between them needs to flex-grow
+		// AND drop its min-content floor so the leaf can absorb leftover
+		// space. The Tabs primitives from `@wordpress/ui` use hashed CSS-
+		// module class names, so we anchor selectors structurally via
+		// `:has()` rather than naming the hashed classes directly.
+		> div:has(.jetpack-newsletter-page__content),
+		> div:has(.jetpack-newsletter-page__content) > [class*="__root"],
+		.jetpack-newsletter-page__content,
+		.jetpack-newsletter-page__content > [class*="__tabpanel"] {
+			display: flex;
+			flex: 1 1 auto;
+			flex-direction: column;
+			min-block-size: 0;
+		}
+
+		.dataviews-wrapper {
+			flex: 1 1 auto;
+			min-block-size: 0;
+		}
+	}
 }
