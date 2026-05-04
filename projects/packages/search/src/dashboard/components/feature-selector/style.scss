@@ -6,6 +6,13 @@
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
+// Section heading rendered above the form. Reset top margin so it doesn't
+// double-up on the wrap's padding, and add bottom spacing before the card.
+.jp-search-feature-selector__heading {
+	margin-block-start: 0;
+	margin-block-end: var(--wpds-dimension-gap-lg);
+}
+
 .jp-search-feature-selector {
 	background: var(--wpds-color-bg-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
@@ -16,19 +23,6 @@
 		border: 0;
 		margin: 0;
 		padding: 0;
-	}
-
-	&__legend {
-		// Visually hidden — the canonical name for the radiogroup. The visible
-		// label below uses aria-hidden so screen readers don't read it twice.
-		clip-path: inset(50%);
-		height: 1px;
-		margin: -1px;
-		overflow: hidden;
-		padding: 0;
-		position: absolute;
-		width: 1px;
-		overflow-wrap: normal !important;
 	}
 
 	&__label {

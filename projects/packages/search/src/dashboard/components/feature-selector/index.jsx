@@ -47,40 +47,41 @@ export default function FeatureSelector() {
 	};
 
 	return (
-		<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
-			<fieldset className="jp-search-feature-selector__fieldset">
-				<legend className="jp-search-feature-selector__legend">
-					{ __( 'Pick what visitors see when they search', 'jetpack-search-pkg' ) }
-				</legend>
-				<div
-					className="jp-search-feature-selector__options"
-					role="radiogroup"
-					aria-label={ __( 'Search experience', 'jetpack-search-pkg' ) }
+		<>
+			<h2 id="jp-search-feature-selector-heading" className="jp-search-feature-selector__heading">
+				{ __( 'Pick what visitors see when they search', 'jetpack-search-pkg' ) }
+			</h2>
+			<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
+				<fieldset
+					className="jp-search-feature-selector__fieldset"
+					aria-labelledby="jp-search-feature-selector-heading"
 				>
-					{ EXPERIENCE_ORDER.map( experience => (
-						<ExperienceOption
-							key={ experience }
-							experience={ experience }
-							disabled={ isExperienceDisabled( experience ) }
-						/>
-					) ) }
+					<div className="jp-search-feature-selector__options">
+						{ EXPERIENCE_ORDER.map( experience => (
+							<ExperienceOption
+								key={ experience }
+								experience={ experience }
+								disabled={ isExperienceDisabled( experience ) }
+							/>
+						) ) }
+					</div>
+				</fieldset>
+				<div className="jp-search-feature-selector__footer" aria-live="polite">
+					<p className="jp-search-feature-selector__status">
+						{ isUpdating
+							? __( 'Saving…', 'jetpack-search-pkg' )
+							: __( 'Currently active. Edits apply when you save.', 'jetpack-search-pkg' ) }
+					</p>
+					<Button
+						variant="primary"
+						type="submit"
+						aria-disabled={ isSaveDisabled }
+						isBusy={ isUpdating }
+					>
+						{ __( 'Save', 'jetpack-search-pkg' ) }
+					</Button>
 				</div>
-			</fieldset>
-			<div className="jp-search-feature-selector__footer" aria-live="polite">
-				<p className="jp-search-feature-selector__status">
-					{ isUpdating
-						? __( 'Saving…', 'jetpack-search-pkg' )
-						: __( 'Currently active. Edits apply when you save.', 'jetpack-search-pkg' ) }
-				</p>
-				<Button
-					variant="primary"
-					type="submit"
-					aria-disabled={ isSaveDisabled }
-					isBusy={ isUpdating }
-				>
-					{ __( 'Save', 'jetpack-search-pkg' ) }
-				</Button>
-			</div>
-		</form>
+			</form>
+		</>
 	);
 }
