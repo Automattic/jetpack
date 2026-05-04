@@ -86,6 +86,7 @@ $checked_getters = array(
 			data-wp-bind--disabled="state.isSortTriggerDisabled"
 			aria-controls="<?php echo esc_attr( $menu_id ); ?>"
 			data-wp-on--click="actions.toggleSortPopover"
+			data-wp-on--keydown="actions.onSortTriggerKeydown"
 		>
 			<svg class="jetpack-search-sort__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 				<path fill="currentColor" d="M8 4l-4 4h3v12h2V8h3L8 4zm8 16l4-4h-3V4h-2v12h-3l4 4z"/>
@@ -109,8 +110,13 @@ $checked_getters = array(
 					role="menuitemradio"
 					class="jetpack-search-sort__menu-item"
 					value="<?php echo esc_attr( $sort_key ); ?>"
+					tabindex="-1"
+					data-wp-context='<?php echo esc_attr( wp_json_encode( array( 'sortKey' => $sort_key ), JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ); ?>'
 					data-wp-bind--aria-checked="<?php echo esc_attr( $checked_binding ); ?>"
+					data-wp-bind--tabindex="state.sortMenuItemTabIndex"
 					data-wp-on--click="actions.selectSortOrder"
+					data-wp-on--keydown="actions.onSortMenuKeydown"
+					data-wp-watch="callbacks.focusSelectedSortMenuItem"
 				>
 					<?php echo esc_html( $option_label ); ?>
 				</button>

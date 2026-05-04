@@ -1,11 +1,27 @@
-import { store } from '@wordpress/interactivity';
+import { store, withSyncEvent as originalWithSyncEvent } from '@wordpress/interactivity';
 import { buildSearchUrl } from './api';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
+import {
+	focusSortTrigger,
+	getSortMenuOptionKeysFromItem,
+	getSortMenuOptionKeysFromTrigger,
+} from './sort-menu-dom';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
+
+// `withSyncEvent` opts an action into reading synchronous event APIs
+// (`event.currentTarget`, `event.preventDefault()`) without the
+// "synchronous event access" deprecation warning the Interactivity API
+// will turn into a hard error in WordPress 7.0. Falls back to a noop
+// wrapper on older runtimes (pre-WP 6.7) so the package still loads.
+const withSyncEvent =
+	originalWithSyncEvent ||
+	( cb =>
+		( ...args ) =>
+			cb( ...args ) );
 // Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
 // latest before touching store state, so a slow request for an older query
@@ -49,6 +65,13 @@ const { state, actions } = store( NAMESPACE, {
 		// other when opening this one.
 		isFilterPopoverOpen: false,
 		isSortPopoverOpen: false,
+
+		// Roving-tabindex state for the sort popover's ARIA menu. Tracks
+		// which menu item is the active descendant for keyboard
+		// navigation; `null` (or a key not present in the rendered menu)
+		// means the menu hasn't been keyboard-engaged yet, in which case
+		// the currently checked option becomes the implicit default.
+		sortMenuFocusedKey: null,
 
 		/**
 		 * Short human-readable results count for display blocks. Doubles
@@ -380,11 +403,15 @@ const { state, actions } = store( NAMESPACE, {
 
 		/**
 		 * Toggle the sort popover. Closes the filter popover if it's open.
+		 * Resets the menu's roving-tabindex state on close so the next
+		 * open starts focus on the active sort.
 		 */
 		toggleSortPopover() {
 			state.isSortPopoverOpen = ! state.isSortPopoverOpen;
 			if ( state.isSortPopoverOpen ) {
 				state.isFilterPopoverOpen = false;
+			} else {
+				state.sortMenuFocusedKey = null;
 			}
 		},
 
@@ -394,6 +421,7 @@ const { state, actions } = store( NAMESPACE, {
 		closeAllPopovers() {
 			state.isFilterPopoverOpen = false;
 			state.isSortPopoverOpen = false;
+			state.sortMenuFocusedKey = null;
 		},
 
 		/**
@@ -407,12 +435,118 @@ const { state, actions } = store( NAMESPACE, {
 			const next = event?.currentTarget?.value;
 			if ( ! next || next === state.sortOrder ) {
 				state.isSortPopoverOpen = false;
+				state.sortMenuFocusedKey = null;
 				return;
 			}
 			state.sortOrder = next;
 			state.isSortPopoverOpen = false;
+			state.sortMenuFocusedKey = null;
 			yield actions.search();
 		},
+
+		/**
+		 * Open the sort popover from the trigger via ArrowDown/ArrowUp/Enter
+		 * /Space and move focus into the menu. Anchors focus on the active
+		 * sort (the checked menuitemradio) — matches the radio-menu pattern
+		 * where reopening returns to the selected option rather than
+		 * snapping back to the top. Falls back to the first/last item only
+		 * when the active sort isn't in the rendered list. Tab is left to
+		 * the browser so users can step past the trigger without entering
+		 * the menu, matching the WAI-ARIA APG menu-button example.
+		 *
+		 * @param {KeyboardEvent} event - Keydown event on the trigger.
+		 */
+		onSortTriggerKeydown: withSyncEvent( event => {
+			const key = event?.key;
+			if ( key !== 'ArrowDown' && key !== 'ArrowUp' && key !== 'Enter' && key !== ' ' ) {
+				return;
+			}
+			event.preventDefault();
+			if ( ! state.isSortPopoverOpen ) {
+				state.isSortPopoverOpen = true;
+				state.isFilterPopoverOpen = false;
+			}
+			const options = getSortMenuOptionKeysFromTrigger( event.currentTarget );
+			if ( options.length === 0 ) {
+				return;
+			}
+			if ( options.includes( state.sortOrder ) ) {
+				state.sortMenuFocusedKey = state.sortOrder;
+				return;
+			}
+			state.sortMenuFocusedKey = key === 'ArrowUp' ? options[ options.length - 1 ] : options[ 0 ];
+		} ),
+
+		/**
+		 * Implements the ARIA menu keyboard pattern for the sort popover:
+		 * roving tabindex with ArrowUp/ArrowDown wrapping, Home/End to
+		 * jump to ends, Enter/Space to activate, Escape to close and
+		 * return focus to the trigger, and Tab to leave the menu (handled
+		 * by letting the browser's default focus order continue while we
+		 * close the popover so the focus ring lands on the next focusable
+		 * sibling rather than skipping back into a hidden menu item).
+		 *
+		 * @param {KeyboardEvent} event - Keydown event on a menu item.
+		 * @yield {Promise} Optional search action when Enter/Space activates.
+		 */
+		onSortMenuKeydown: withSyncEvent( function* ( event ) {
+			const key = event?.key;
+			if ( key === 'Tab' ) {
+				state.isSortPopoverOpen = false;
+				state.sortMenuFocusedKey = null;
+				return;
+			}
+			if ( key === 'Escape' ) {
+				event.preventDefault();
+				state.isSortPopoverOpen = false;
+				state.sortMenuFocusedKey = null;
+				focusSortTrigger( event.currentTarget );
+				return;
+			}
+			if ( key === 'Enter' || key === ' ' ) {
+				event.preventDefault();
+				const item = event.currentTarget;
+				const next = item?.value;
+				const shouldSearch = !! next && next !== state.sortOrder;
+				if ( shouldSearch ) {
+					state.sortOrder = next;
+				}
+				state.isSortPopoverOpen = false;
+				state.sortMenuFocusedKey = null;
+				focusSortTrigger( item );
+				if ( shouldSearch ) {
+					yield actions.search();
+				}
+				return;
+			}
+			const options = getSortMenuOptionKeysFromItem( event?.currentTarget );
+			if ( options.length === 0 ) {
+				return;
+			}
+			if ( key === 'Home' ) {
+				event.preventDefault();
+				state.sortMenuFocusedKey = options[ 0 ];
+				return;
+			}
+			if ( key === 'End' ) {
+				event.preventDefault();
+				state.sortMenuFocusedKey = options[ options.length - 1 ];
+				return;
+			}
+			if ( key === 'ArrowDown' || key === 'ArrowUp' ) {
+				event.preventDefault();
+				const currentValue = event?.currentTarget?.value ?? null;
+				const currentIndex = currentValue ? options.indexOf( currentValue ) : -1;
+				const delta = key === 'ArrowDown' ? 1 : -1;
+				let nextIndex;
+				if ( currentIndex < 0 ) {
+					nextIndex = key === 'ArrowDown' ? 0 : options.length - 1;
+				} else {
+					nextIndex = ( currentIndex + delta + options.length ) % options.length;
+				}
+				state.sortMenuFocusedKey = options[ nextIndex ];
+			}
+		} ),
 
 		/**
 		 * Close any open popover when clicking outside it. Bound to
@@ -431,6 +565,7 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			state.isFilterPopoverOpen = false;
 			state.isSortPopoverOpen = false;
+			state.sortMenuFocusedKey = null;
 		},
 
 		/**
@@ -445,6 +580,7 @@ const { state, actions } = store( NAMESPACE, {
 			if ( state.isFilterPopoverOpen || state.isSortPopoverOpen ) {
 				state.isFilterPopoverOpen = false;
 				state.isSortPopoverOpen = false;
+				state.sortMenuFocusedKey = null;
 			}
 		},
 	},

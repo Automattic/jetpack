@@ -131,6 +131,38 @@ class Sort_Control_Render_Test extends TestCase {
 		$this->assertStringNotContainsString( '<select', $markup );
 	}
 
+	/**
+	 * Popover menu items participate in the ARIA menu keyboard pattern:
+	 * each item starts with `tabindex="-1"` (server-rendered), carries a
+	 * roving-tabindex binding, a `data-wp-context` with its sort key, and
+	 * a keydown handler so arrow keys can navigate within the menu. The
+	 * trigger also has its own keydown handler so ArrowDown/ArrowUp open
+	 * the popover with focus on the first or last item.
+	 */
+	public function test_display_as_popover_menu_items_have_keyboard_navigation_hooks() {
+		$markup = $this->render( array( 'displayAs' => 'popover' ) );
+
+		// Trigger handles ArrowDown/ArrowUp/Enter/Space to open the menu.
+		$this->assertMatchesRegularExpression(
+			'/class="jetpack-search-sort__trigger"[^>]*data-wp-on--keydown="actions\.onSortTriggerKeydown"/s',
+			$markup
+		);
+
+		// Each menu item ships with the roving-tabindex defaults.
+		$this->assertStringContainsString( 'data-wp-bind--tabindex="state.sortMenuItemTabIndex"', $markup );
+		$this->assertStringContainsString( 'data-wp-on--keydown="actions.onSortMenuKeydown"', $markup );
+		$this->assertMatchesRegularExpression(
+			'/class="jetpack-search-sort__menu-item"[^>]*tabindex="-1"/s',
+			$markup
+		);
+
+		// Per-item context carries the sort key for the watch callback.
+		$this->assertStringContainsString( 'data-wp-context=', $markup );
+		$this->assertStringContainsString( '&quot;sortKey&quot;:&quot;relevance&quot;', $markup );
+		$this->assertStringContainsString( '&quot;sortKey&quot;:&quot;newest&quot;', $markup );
+		$this->assertStringContainsString( '&quot;sortKey&quot;:&quot;oldest&quot;', $markup );
+	}
+
 	/** URL `?orderby=` wins over `defaultSort` so deep links keep their meaning. */
 	public function test_url_sort_wins_over_default_sort() {
 		$_GET = array( 'orderby' => 'oldest' );
