@@ -377,16 +377,10 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Compose the final seeded state for `wp_interactivity_state()`. Seeds
-	 * `activeFilters` from the raw URL params (no PHP-side gating) — every
-	 * filter block contributes its filterConfig at render time via
-	 * `wp_interactivity_state()`'s deep-merge, so the JS-side store has the
-	 * complete registry by hydration. Gating happens once there, in
-	 * `store/index.js`'s `initialize()` callback, which can correctly drop
-	 * stray params regardless of whether the filter block lives in post
-	 * content or in a template / template part. Doing the same gate here
-	 * could only use a partial registry, and would wrongly drop URL params
-	 * for filter blocks placed outside post_content.
+	 * Compose the final seeded state for `wp_interactivity_state()`.
+	 *
+	 * `activeFilters` is passed through from the URL — the JS store gates
+	 * against the complete `filterConfigs` registry on hydration.
 	 *
 	 * @param array<string, array<string, mixed>> $filter_configs Map of filter
 	 *   configs collected from the current post (or injected by tests).
