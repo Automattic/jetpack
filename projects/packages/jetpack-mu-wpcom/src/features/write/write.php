@@ -386,6 +386,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--keyup="actions.checkFormatting"
 				data-wp-on--input="actions.repairStructure"
 				data-wp-on--keydown="actions.handleKeyDown"
+				data-wp-on--beforeinput="actions.handleBeforeInput"
 				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
 			><?php echo $edit_content ? wp_kses_post( $edit_content ) : '<p><br></p>'; ?></div>
 		</div>
