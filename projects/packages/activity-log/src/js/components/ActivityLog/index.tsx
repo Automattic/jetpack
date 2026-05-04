@@ -131,6 +131,55 @@ export default function ActivityLog() {
 		return () => observer.disconnect();
 	}, [] );
 
+	// On free tier, neutralize DataViews' real search + filter cluster
+	// (the `.dataviews__search` Stack rendered by `DataViews`'s default
+	// UI). We let DataViews ship its own toolbar so the page tracks
+	// upstream changes for free, then attach: `aria-disabled` for
+	// assistive tech, a `title` attribute that surfaces the upgrade
+	// nudge as a native browser tooltip on hover, and `tabindex="-1"`
+	// on every focusable descendant so the cluster is unreachable via
+	// keyboard. Pointer-event blocking on the children is handled in
+	// CSS via the `[aria-disabled="true"]` rule.
+	// `MutationObserver` re-applies after DataViews remounts the
+	// toolbar / re-renders the input (e.g., on initial fetch resolution
+	// or layout switch) so React's render doesn't strip the attributes.
+	useEffect( () => {
+		if ( hasActivityLogsAccess ) {
+			return;
+		}
+
+		const wrapper = wrapperRef.current;
+		if ( ! wrapper ) {
+			return;
+		}
+
+		const tooltipText = __( 'Upgrade your plan to use this feature.', 'jetpack-activity-log' );
+
+		const apply = ( root: ParentNode ) => {
+			const cluster = root.querySelector< HTMLElement >( '.dataviews__search' );
+			if ( ! cluster ) {
+				return;
+			}
+
+			if ( cluster.getAttribute( 'aria-disabled' ) !== 'true' ) {
+				cluster.setAttribute( 'aria-disabled', 'true' );
+				cluster.setAttribute( 'title', tooltipText );
+			}
+
+			cluster.querySelectorAll< HTMLElement >( 'input, button, [tabindex]' ).forEach( el => {
+				if ( el.getAttribute( 'tabindex' ) !== '-1' ) {
+					el.setAttribute( 'tabindex', '-1' );
+				}
+			} );
+		};
+
+		apply( wrapper );
+		const observer = new MutationObserver( () => apply( wrapper ) );
+		observer.observe( wrapper, { subtree: true, childList: true } );
+
+		return () => observer.disconnect();
+	}, [ hasActivityLogsAccess ] );
+
 	// Date-range defaults to "Last 7 days" anchored at the site's calendar
 	// today (not the browser's) — matches Calypso's `getDefaultDateRange`.
 	// The range is client-only state: refreshes reset to the default
@@ -328,8 +377,10 @@ export default function ActivityLog() {
 
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's
-	// layout for the logs pages.
-	const headerActions = hasActivityLogsAccess ? (
+	// layout for the logs pages. On free tier the picker renders as a
+	// disabled upgrade affordance (no popover, hover tooltip), keeping
+	// the page surface visually consistent with the paid version.
+	const headerActions = (
 		<DateRangePicker
 			start={ dateRange.start }
 			end={ dateRange.end }
@@ -337,8 +388,10 @@ export default function ActivityLog() {
 			timezoneString={ timezoneString }
 			gmtOffset={ gmtOffset }
 			locale={ locale }
+			disabled={ ! hasActivityLogsAccess }
+			disabledTooltipText={ __( 'Upgrade your plan to use this feature.', 'jetpack-activity-log' ) }
 		/>
-	) : undefined;
+	);
 
 	return (
 		<AdminPage
@@ -351,54 +404,74 @@ export default function ActivityLog() {
 			showFooter={ false }
 			unwrapped
 		>
-			<div ref={ wrapperRef } className="jp-activity-log__dataviews-wrapper">
-				<DataViews< Activity >
-					data={ logData }
-					isLoading={ isFetching || isLoadingList }
-					paginationInfo={ paginationInfo }
-					fields={ fields as Field< Activity >[] }
-					view={ view }
-					actions={ actions }
-					getItemId={ getItemId }
-					search
-					// Advertise both DataViews' built-in Activity timeline
-					// (the default) and a Table layout. Toggle lives in
-					// the cog popover's layout switcher. Each layout maps
-					// the event parts to the right slots:
-					//   - Activity: `event_icon` → mediaField (left
-					//     bullet slot), `event_title` → titleField,
-					//     `event_description` → descriptionField, plus
-					//     `groupBy: published_date` for day headers.
-					//   - Table: one composite `event` column alongside
-					//     Date / User.
-					// See DEFAULT_LAYOUTS in ./views for the full shape —
-					// it explicitly nulls slot/groupBy refs on Table so a
-					// round-trip Activity → Table doesn't carry those
-					// over and double-render as a primary column.
-					defaultLayouts={ DEFAULT_LAYOUTS }
-					onChangeView={ onChangeView }
-					onReset={ isViewModified ? onResetView : false }
-					// On the free tier, lock the perPage selector to the
-					// capped size and hide search/filters/sort/view-config
-					// by replacing the default UI with just the table (same
-					// switches Calypso uses at logs-activity/dataviews/
-					// index.tsx:201-208).
-					config={
-						hasActivityLogsAccess
-							? undefined
-							: { perPageSizes: [ ACTIVITY_LOGS_DEFAULT_PAGE_SIZE ] }
-					}
-					empty={
-						<p>
-							{ view.search
-								? __( 'No activity found', 'jetpack-activity-log' )
-								: __( 'No activities', 'jetpack-activity-log' ) }
-						</p>
-					}
-				>
-					{ hasActivityLogsAccess ? undefined : <DataViews.Layout /> }
-				</DataViews>
-				{ ! hasActivityLogsAccess && ! isFetching && logData.length > 0 && <UpsellCallout /> }
+			<div
+				ref={ wrapperRef }
+				className={
+					'jp-activity-log__dataviews-wrapper' +
+					( hasActivityLogsAccess ? '' : ' jp-activity-log__dataviews-wrapper--free-tier' )
+				}
+			>
+				{ /*
+				 * Single inner div soaks up `jetpack-admin-page-layout`'s
+				 * `.admin-ui-page > :not(...):not(...) > *` rule (which
+				 * force-applies `flex: 1 1 auto; flex-direction: column`
+				 * to every direct child of the page's scroll column).
+				 * With the chain landing here, DataViews and the
+				 * free-tier UpsellCallout are grandchildren and stack
+				 * without competing for flex space — no `!important`
+				 * overrides needed.
+				 */ }
+				<div className="jp-activity-log__inner">
+					<DataViews< Activity >
+						data={ logData }
+						isLoading={ isFetching || isLoadingList }
+						paginationInfo={ paginationInfo }
+						fields={ fields as Field< Activity >[] }
+						view={ view }
+						actions={ actions }
+						getItemId={ getItemId }
+						search
+						// Advertise both DataViews' built-in Activity timeline
+						// (the default) and a Table layout. Toggle lives in
+						// the cog popover's layout switcher. Each layout maps
+						// the event parts to the right slots:
+						//   - Activity: `event_icon` → mediaField (left
+						//     bullet slot), `event_title` → titleField,
+						//     `event_description` → descriptionField, plus
+						//     `groupBy: published_date` for day headers.
+						//   - Table: one composite `event` column alongside
+						//     Date / User.
+						// See DEFAULT_LAYOUTS in ./views for the full shape —
+						// it explicitly nulls slot/groupBy refs on Table so a
+						// round-trip Activity → Table doesn't carry those
+						// over and double-render as a primary column.
+						defaultLayouts={ DEFAULT_LAYOUTS }
+						onChangeView={ onChangeView }
+						onReset={ isViewModified ? onResetView : false }
+						// On the free tier, lock the perPage selector to the
+						// capped size. DataViews keeps rendering its real
+						// toolbar (search + filter toggle + cog); the
+						// search/filter cluster is neutralized by the
+						// `aria-disabled` + `tabindex="-1"` overlay
+						// applied in the effect above — Calypso's
+						// equivalent switch at logs-activity/dataviews/
+						// index.tsx:201-208 hides them, but we want the
+						// upgrade affordance to be discoverable on hover.
+						config={
+							hasActivityLogsAccess
+								? undefined
+								: { perPageSizes: [ ACTIVITY_LOGS_DEFAULT_PAGE_SIZE ] }
+						}
+						empty={
+							<p>
+								{ view.search
+									? __( 'No activity found', 'jetpack-activity-log' )
+									: __( 'No activities', 'jetpack-activity-log' ) }
+							</p>
+						}
+					/>
+					{ ! hasActivityLogsAccess && ! isFetching && logData.length > 0 && <UpsellCallout /> }
+				</div>
 			</div>
 		</AdminPage>
 	);

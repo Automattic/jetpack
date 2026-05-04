@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Activity Log: default the page to the Table layout, fix the free-tier upsell callout layout, and surface the disabled toolbar + disabled date-range picker on the free tier with upgrade tooltips.
