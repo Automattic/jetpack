@@ -1,10 +1,9 @@
+import './style.scss';
+
 /**
- * Small status pill used for "RECOMMENDED" and "ACTIVE" labels on a feature
- * tile. Intentionally local to feature-selector — `@wordpress/ui` does not
- * yet ship a Badge primitive, and the inline alternative (a styled span)
- * would obscure the intent at the call site.
- *
- * The label visible to sighted users is uppercase by CSS; the `aria-label`
+ * Small status pill used for short labels such as "RECOMMENDED" and "ACTIVE".
+ * `@wordpress/components` does not yet ship a Badge primitive, so we keep a
+ * minimal local one. The visible label is uppercased by CSS; the `aria-label`
  * passed in is what screen readers announce.
  *
  * @param {object}                 props           - Component props.
@@ -15,10 +14,7 @@
  */
 export default function Badge( { variant, children, ariaLabel } ) {
 	return (
-		<span
-			className={ `jp-search-feature-selector__badge jp-search-feature-selector__badge--${ variant }` }
-			aria-label={ ariaLabel }
-		>
+		<span className={ `jp-search-badge jp-search-badge--${ variant }` } aria-label={ ariaLabel }>
 			{ children }
 		</span>
 	);

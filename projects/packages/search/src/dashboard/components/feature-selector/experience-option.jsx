@@ -1,8 +1,8 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import Badge from 'components/badge';
 import { STORE_ID } from 'store';
-import Badge from './badge';
 import {
 	EXPERIENCE,
 	getExperienceLabel,

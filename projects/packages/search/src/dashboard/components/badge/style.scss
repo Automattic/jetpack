@@ -1,0 +1,17 @@
+.jp-search-badge {
+	display: inline-flex;
+	align-items: center;
+	font-size: var(--wpds-typography-font-size-xs);
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+	border-radius: 999px; // Pill shape — intentional, no token equivalent.
+	line-height: 1.6;
+
+	&--recommended,
+	&--active {
+		background-color: var(--wpds-color-bg-surface-success);
+		color: var(--wpds-color-fg-content-success-weak);
+	}
+}
