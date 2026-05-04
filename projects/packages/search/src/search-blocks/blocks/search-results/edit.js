@@ -2,7 +2,6 @@
  * Editor preview for jetpack/search-results.
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import { createElement as h } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const SAMPLE_RESULTS = [
@@ -36,40 +35,31 @@ export default function SearchResultsEdit( { attributes } ) {
 	const blockProps = useBlockProps( {
 		className: isCompact ? 'jetpack-search-results--compact' : 'jetpack-search-results--card',
 	} );
-	return h(
-		'div',
-		blockProps,
-		h(
-			'ul',
-			{ className: 'jetpack-search-results__list' },
-			SAMPLE_RESULTS.map( result =>
-				h(
-					'li',
-					{ key: result.path, className: 'jetpack-search-results__item' },
-					h(
-						'div',
-						{ className: 'jetpack-search-results__copy' },
-						h( 'h3', { className: 'jetpack-search-results__title' }, result.title ),
-						! isCompact && h( 'div', { className: 'jetpack-search-results__path' }, result.path ),
-						h(
-							'div',
-							{ className: 'jetpack-search-results__meta' },
-							h( 'span', { className: 'jetpack-search-results__date' }, result.date )
-						)
-					),
-					! isCompact &&
-						h(
-							'a',
-							{
-								className: 'jetpack-search-results__image-link',
-								hidden: true,
-								tabIndex: -1,
-								'aria-hidden': 'true',
-							},
-							h( 'img', { className: 'jetpack-search-results__image', alt: '' } )
-						)
-				)
-			)
-		)
+	return (
+		<div { ...blockProps }>
+			<ul className="jetpack-search-results__list">
+				{ SAMPLE_RESULTS.map( result => (
+					<li key={ result.path } className="jetpack-search-results__item">
+						<div className="jetpack-search-results__copy">
+							<h3 className="jetpack-search-results__title">{ result.title }</h3>
+							{ ! isCompact && <div className="jetpack-search-results__path">{ result.path }</div> }
+							<div className="jetpack-search-results__meta">
+								<span className="jetpack-search-results__date">{ result.date }</span>
+							</div>
+						</div>
+						{ ! isCompact && (
+							<a
+								className="jetpack-search-results__image-link"
+								hidden
+								tabIndex={ -1 }
+								aria-hidden="true"
+							>
+								<img className="jetpack-search-results__image" alt="" />
+							</a>
+						) }
+					</li>
+				) ) }
+			</ul>
+		</div>
 	);
 }
