@@ -98,5 +98,14 @@
 		"typescript": "5.9.3",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
+	},
+	"wpPlugin": {
+		"name": "jetpack_videopress",
+		"scriptGlobal": "jetpackVideoPress",
+		"packageNamespace": "jetpack-videopress",
+		"handlePrefix": "jetpack-videopress",
+		"pages": [
+			"jetpack-videopress"
+		]
 	}
 }
