@@ -28,6 +28,14 @@ class Admin_UI {
 	const ADMIN_PAGE_SLUG = 'jetpack-videopress';
 
 	/**
+	 * Filter name that gates the wp-build–based dashboard.
+	 *
+	 * When this filter returns true, "Jetpack > VideoPress" renders the new
+	 * wp-build dashboard instead of the legacy React app.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_videopress';
+
+	/**
 	 * Initializes the Admin UI of VideoPress
 	 *
 	 * This method is called only once by the Initializer class
@@ -416,4 +424,30 @@ class Admin_UI {
 	}
 	// phpcs:enable WordPress.Security.EscapeOutput.UnsafePrintingFunction
 	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+
+	/**
+	 * Returns true when the wp-build modernization filter is enabled.
+	 *
+	 * @return bool
+	 */
+	private static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the current request targets the VideoPress admin page.
+	 *
+	 * Used to scope wp-build loading to the one page that needs it. The
+	 * `$_GET['page']` value is populated by wp-admin/admin.php before any of
+	 * our hooks fire, so this check is reliable from `init()` onwards.
+	 *
+	 * @return bool
+	 */
+	private static function is_videopress_admin_request() {
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === self::ADMIN_PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
 }
