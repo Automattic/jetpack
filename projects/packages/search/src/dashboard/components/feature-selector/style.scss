@@ -61,8 +61,8 @@
 		}
 
 		&.is-selected {
-			border-color: var(--wpds-color-fg-content-success-weak);
-			box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-fg-content-success-weak);
+			border-color: var(--wpds-color-stroke-interactive-brand);
+			box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-interactive-brand);
 		}
 
 		&.is-disabled {
