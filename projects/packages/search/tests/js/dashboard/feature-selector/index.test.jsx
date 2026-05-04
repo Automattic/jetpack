@@ -33,7 +33,7 @@ describe( '<FeatureSelector>', () => {
 		expect( radios ).toHaveLength( 4 );
 		expect( radios[ 0 ] ).toHaveAccessibleName( /embedded search/i );
 		expect( radios[ 1 ] ).toHaveAccessibleName( /overlay search/i );
-		expect( radios[ 2 ] ).toHaveAccessibleName( /faster results/i );
+		expect( radios[ 2 ] ).toHaveAccessibleName( /theme search/i );
 		expect( radios[ 3 ] ).toHaveAccessibleName( /off/i );
 	} );
 
@@ -50,14 +50,14 @@ describe( '<FeatureSelector>', () => {
 
 	test( 'Save button enables once a different option is selected', () => {
 		renderWith( baseSettings );
-		fireEvent.click( screen.getByRole( 'radio', { name: /faster results/i } ) );
+		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
 		const save = screen.getByRole( 'button', { name: /save/i } );
 		expect( save ).toHaveAttribute( 'aria-disabled', 'false' );
 	} );
 
 	test( 'Save button disables when selection returns to active', () => {
 		renderWith( baseSettings );
-		fireEvent.click( screen.getByRole( 'radio', { name: /faster results/i } ) );
+		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
 		fireEvent.click( screen.getByRole( 'radio', { name: /overlay search/i } ) );
 		const save = screen.getByRole( 'button', { name: /save/i } );
 		expect( save ).toHaveAttribute( 'aria-disabled', 'true' );
@@ -88,7 +88,7 @@ describe( '<FeatureSelector>', () => {
 		);
 		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeDisabled();
 		expect( screen.getByRole( 'radio', { name: /overlay search/i } ) ).toBeDisabled();
-		expect( screen.getByRole( 'radio', { name: /faster results/i } ) ).toBeEnabled();
+		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeEnabled();
 		expect( screen.getByRole( 'radio', { name: /off/i } ) ).toBeEnabled();
 	} );
 } );

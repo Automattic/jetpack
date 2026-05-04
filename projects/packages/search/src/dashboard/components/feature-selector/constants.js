@@ -38,11 +38,11 @@ export const EXPERIENCE_ORDER = [
 export function getExperienceLabel( experience ) {
 	switch ( experience ) {
 		case EXPERIENCE.EMBEDDED:
-			return __( 'Embedded Search', 'jetpack-search-pkg' );
+			return __( 'Embedded search', 'jetpack-search-pkg' );
 		case EXPERIENCE.OVERLAY:
-			return __( 'Overlay Search', 'jetpack-search-pkg' );
+			return __( 'Overlay search', 'jetpack-search-pkg' );
 		case EXPERIENCE.CLASSIC:
-			return __( 'Faster results', 'jetpack-search-pkg' );
+			return __( 'Theme search', 'jetpack-search-pkg' );
 		case EXPERIENCE.OFF:
 			return _x( 'Off', 'Jetpack Search disabled', 'jetpack-search-pkg' );
 		default:
@@ -62,13 +62,16 @@ export function getExperienceLabel( experience ) {
 export function getExperienceDescription( experience ) {
 	switch ( experience ) {
 		case EXPERIENCE.EMBEDDED:
-			return __( 'A custom search page built with blocks.', 'jetpack-search-pkg' );
+			return __(
+				'A search-as-you-type customizable search page built with blocks.',
+				'jetpack-search-pkg'
+			);
 		case EXPERIENCE.OVERLAY:
 			return __( 'A search-as-you-type overlay (formerly Instant Search).', 'jetpack-search-pkg' );
 		case EXPERIENCE.CLASSIC:
-			return __( 'Same theme layout, faster results.', 'jetpack-search-pkg' );
+			return __( "Your theme's search layout, with faster results.", 'jetpack-search-pkg' );
 		case EXPERIENCE.OFF:
-			return __( "Use WordPress's default search.", 'jetpack-search-pkg' );
+			return __( 'WordPress default search.', 'jetpack-search-pkg' );
 		default:
 			return '';
 	}

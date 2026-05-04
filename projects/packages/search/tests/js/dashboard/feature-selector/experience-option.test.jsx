@@ -28,8 +28,10 @@ const baseSettings = {
 describe( '<ExperienceOption>', () => {
 	test( 'renders title and description', () => {
 		renderWith( baseSettings, { experience: 'embedded' } );
-		expect( screen.getByText( 'Embedded Search' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'A custom search page built with blocks.' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Embedded search' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'A search-as-you-type customizable search page built with blocks.' )
+		).toBeInTheDocument();
 	} );
 
 	test( 'shows RECOMMENDED badge only on Embedded', () => {
@@ -63,13 +65,13 @@ describe( '<ExperienceOption>', () => {
 
 	test( 'radio is checked when experience matches selected', () => {
 		renderWith( { ...baseSettings, pending_experience: 'classic' }, { experience: 'classic' } );
-		expect( screen.getByRole( 'radio', { name: /faster results/i } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeChecked();
 	} );
 
 	test( 'clicking the row dispatches setPendingExperience', () => {
 		renderWith( baseSettings, { experience: 'classic' } );
-		fireEvent.click( screen.getByRole( 'radio', { name: /faster results/i } ) );
-		expect( screen.getByRole( 'radio', { name: /faster results/i } ) ).toBeChecked();
+		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
+		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeChecked();
 	} );
 
 	test( 'renders the radio as disabled when disabled prop is true', () => {
