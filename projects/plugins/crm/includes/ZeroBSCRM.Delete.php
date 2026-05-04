@@ -515,7 +515,7 @@ class zeroBSCRM_Delete {
 								echo ',';
 							}
 
-							echo esc_html( $labelK ) . ':' . wp_json_encode( $labelV, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+							echo wp_json_encode( $labelK, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ':' . wp_json_encode( $labelV, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 
 							++$labelCount;
 
