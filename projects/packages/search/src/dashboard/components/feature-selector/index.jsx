@@ -68,9 +68,7 @@ export default function FeatureSelector() {
 				</fieldset>
 				<div className="jp-search-feature-selector__footer" aria-live="polite">
 					<p className="jp-search-feature-selector__status">
-						{ isUpdating
-							? __( 'Saving…', 'jetpack-search-pkg' )
-							: __( 'Currently active. Edits apply when you save.', 'jetpack-search-pkg' ) }
+						{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
 					</p>
 					<Button
 						variant="primary"
