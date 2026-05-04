@@ -1,6 +1,7 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import clsx from 'clsx';
 import Badge from 'components/badge';
 import { STORE_ID } from 'store';
 import {
@@ -40,14 +41,11 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 
 	const inputId = `jp-search-experience-${ experience }`;
 
-	const className = [
-		'jp-search-feature-selector__option',
-		isSelected && 'is-selected',
-		isActive && 'is-active',
-		disabled && 'is-disabled',
-	]
-		.filter( Boolean )
-		.join( ' ' );
+	const className = clsx( 'jp-search-feature-selector__option', {
+		'is-selected': isSelected,
+		'is-active': isActive,
+		'is-disabled': disabled,
+	} );
 
 	const upsellHint = __( 'Upgrade your plan to unlock this option.', 'jetpack-search-pkg' );
 
