@@ -326,19 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.8-a.7 - 2026-04-27
+### 15.8-beta - 2026-05-04
 #### Enhancements
-- Add MCP settings admin page and REST endpoint for managing external AI agent access to Jetpack AI.
-- Forms: Add `jetpack_forms_email_show_actions` filter to hide action buttons in notification emails.
-- Performance: Add early-return guard conditions to Gravatar Hovercards, Likes, Subscribe Floating Button, Subscribe Overlay, WooCommerce Analytics, and WordAds modules to skip loading scripts and styles on pages where they are not needed.
-- Search: Add fallback image capability in expanded search.
-- Sites endpoint: Expose `jetpack_recovery_mode_status` option so callers can read recovery-mode state from WordPress.com.
-- Subscriptions: Check email preview content with Akismet before sending to protect the mailer pipeline.
-- Top Posts block: Add `jetpack_top_posts_item_title` filter allowing customization of the posts' titles in the block.
+- Activity Log: Replace the external sidebar redirect with a native WP Admin page — search, activity type filter, sort, pagination, and a date-range picker.
+- AI MCP settings: Add activity log link and Tracks analytics events (jp_mcp_settings_viewed, jp_mcp_enabled_toggled, jp_mcp_allowlist_updated).
+- Make phone numbers in the Contact Info widget clickable on all devices, not just mobile.
+- Newsletter: Register Abilities API surface for module settings and subscriber stats on WP 6.9+.
+- Omnibar: Add wpcom/v2/admin-bar endpoint to fetch site's admin bar nodes.
+- Stats: Register abilities.
+- REST API: Add `/sites/%s/plugins/replace` and `/sites/%s/themes/replace` endpoints for installing or overwriting a plugin/theme via zip upload.
 
 #### Bug fixes
-- AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts.
-- Comment: Improve author Gravatar URLs by converting email-based or no-login URLs to hashed versions.
+- AI: Change admin page slug from 'ai' to 'jetpack-ai' to avoid conflicts with the WordPress core AI plugin.
+- Paywall: Subscribers can now access tier-gated posts regardless of plan price.
 
 --------
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: render human-readable labels in active-filter pills and resort `bucketSortOrder=alpha` filter lists by visible label client-side.

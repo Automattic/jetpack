@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Align per-network preview body char limits with each platform's actual limit, add a "See more" toggle for captions over 400 chars, and stop hiding URLs that the user embedded in custom message templates on Bluesky and X.

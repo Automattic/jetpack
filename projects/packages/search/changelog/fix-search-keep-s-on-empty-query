@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: keep `s=` in the URL when the search query is empty so a refresh stays on the search template instead of falling back to the front-page route.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-REST API: defer loading of helper classes in Top Posts, Podcast Player, and Instagram Gallery endpoints until callbacks are invoked, reducing overhead on unrelated REST requests.

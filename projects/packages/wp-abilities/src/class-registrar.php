@@ -23,7 +23,7 @@ namespace Automattic\Jetpack\WP_Abilities;
  */
 abstract class Registrar {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Action fired by the Abilities API when ability categories should register.
@@ -85,7 +85,7 @@ abstract class Registrar {
 		 * request, typically gated on a site option, user capability, or
 		 * feature flag to support staged rollout.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param bool $enabled Whether to register abilities. Default false.
 		 */
@@ -173,7 +173,7 @@ abstract class Registrar {
 		 * individual ability, so callbacks can allow-list or deny-list by
 		 * `$slug`.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param bool   $enabled Whether to register. Default true.
 		 * @param string $type    Either 'category' or 'ability'.

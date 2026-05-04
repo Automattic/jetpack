@@ -1098,7 +1098,7 @@ class Stats_Abilities extends Registrar {
 		/**
 		 * Filters the WPCOM_Stats instance used by the Stats abilities.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.19.0
 		 *
 		 * @param WPCOM_Stats $wpcom_stats The default instance.
 		 */
