@@ -1,5 +1,6 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
@@ -128,6 +129,34 @@ export function useRenderMessageItems(): RenderItem[] {
 	}, [ connections, globalMessage, ctx ] );
 
 	return useDebouncedItems( items );
+}
+
+/**
+ * Drive the rendered-messages fetch from a layer that's mounted regardless of
+ * which (if any) tab is currently focused. Without this, switching to a
+ * disabled-connection tab — where `<PostPreview>` doesn't mount and therefore
+ * doesn't read the selector — would leave the resolver untriggered, so editing
+ * the message there wouldn't fire a request.
+ *
+ * Mount in a parent that's always present while the customize-and-preview UI
+ * is open (e.g. `<TabPanelWrapper>`).
+ */
+export function useDriveRenderedMessagesFetch(): void {
+	const items = useRenderMessageItems();
+	const postId = useSelect(
+		select => select( editorStore ).getCurrentPostId() as number | undefined,
+		[]
+	);
+
+	useSelect(
+		select => {
+			if ( ! postId || items.length === 0 ) {
+				return null;
+			}
+			return select( socialStore ).getRenderedMessages( postId, items );
+		},
+		[ postId, items ]
+	);
 }
 
 /**
