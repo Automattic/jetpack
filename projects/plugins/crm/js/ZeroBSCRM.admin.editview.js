@@ -154,7 +154,7 @@ function zeroBSCRMJS_editContactInit() {
 	jQuery( '.send-sms-none' ).on( 'click', function () {
 		swal( {
 			titleText: 'Twilio Extension Needed!',
-			text: 'To SMS your contacts you need the <a target="_blank" style="font-weight:900;text-decoration:underline;" href="https://jetpackcrm.com/extension-bundles/">Twilio extension</a> (included in our Entrepreneurs Bundle)',
+			html: 'To SMS your contacts you need the <a target="_blank" style="font-weight:900;text-decoration:underline;" href="https://jetpackcrm.com/extension-bundles/">Twilio extension</a> (included in our Entrepreneurs Bundle)',
 			type: 'info',
 		} );
 	} );
