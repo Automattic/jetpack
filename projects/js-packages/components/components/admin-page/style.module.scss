@@ -100,13 +100,14 @@
 // `float: right`; pages that need different positioning add their own
 // position rule on top.
 :global(.jetpack-admin-page #dolly) {
+	// Hello Dolly already ships `padding: 5px 10px; margin: 0; font-size: 12px;
+	// line-height: 1.6666;` — see https://github.com/WordPress/WordPress/blob/trunk/wp-content/plugins/hello.php
+	// We override only the bits that need to differ from those defaults.
 	float: none;
-	padding: 10px;
 	text-align: right;
-	background: #fff;
-	font-size: 12px;
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 	font-style: italic;
-	color: #87a6bc;
+	color: var(--wpds-color-fg-content-neutral-weak, #87a6bc);
 	border-bottom: none;
 
 	@media (max-width: 659px) {
