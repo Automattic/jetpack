@@ -53,7 +53,7 @@
 		"source.fixAll.eslint": "explicit",
 		"source.fixAll.stylelint": "explicit"
 	},
-	// Use this wp-prettier from this path.
+	// Use Prettier from this path.
 	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs",
 	// Use ESLint from this path.
 	"eslint.nodePath": "tools/js-tools/node_modules",
@@ -66,5 +66,5 @@
 	},
 	"stylelint.validate": [ "css", "scss" ],
 	// Use Native TypeScript
-	"typescript.experimental.useTsgo": true
+	"js/ts.experimental.useTsgo": true
 }
