@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a Blog filter variation to the filter-checkbox block for multisite networks with cross-site indexing.
+Search: add a static `jetpack/filter-blog` radio filter for multisite networks. Registers only when `is_multisite()` is true; the radio list resolves from the legacy `blogIdFilteringLabels` option (populated via the `jetpack_instant_search_options` filter) and does not depend on aggregation buckets.

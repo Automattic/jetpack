@@ -85,11 +85,12 @@ export function resolveFilterFields( config ) {
 				bucketFormat: 'slash',
 			};
 		case 'blog_id':
-			// Multisite cross-site index. Aggregation buckets carry numeric
-			// blog IDs (no slug_slash_name variant); display labels resolve
-			// from `config.displayLabels` server-side via the legacy
-			// `blogIdFilteringLabels` option.
-			return { aggField: 'blog_id', filterField: 'blog_id', bucketFormat: 'plain' };
+			// Multisite cross-site index. Static filter — the option list
+			// comes from the server-side `blogIdFilteringLabels` map, so
+			// `aggField` is null and `buildAggregations` skips it. Only
+			// `filterField` is used to build the ES `term` clause for the
+			// selected blog.
+			return { aggField: null, filterField: 'blog_id', bucketFormat: 'plain' };
 		case 'wc_stock_status':
 			// Reads WooCommerce-populated postmeta indexed under
 			// `meta._stock_status.value` with a `.raw` keyword subfield via

@@ -9,10 +9,12 @@ const NAMESPACE = 'jetpack-search';
  *
  * Active filters store the *slug* part of each selection; the matching
  * aggregation bucket key is either the slug itself (post types) or
- * `slug/Name` (taxonomies, authors). If we can find a bucket we use its
- * display name, otherwise we fall back to the raw slug — bucket counts can
- * shift with every new query, and we don't want a selected pill to disappear
- * just because its value fell out of the top-N agg buckets.
+ * `slug/Name` (taxonomies, authors). Static filters (blog) carry their
+ * own `{value,label}` options on the filterConfig — no aggregation bucket
+ * exists — so we look there first. If neither resolves, fall back to the
+ * raw slug; bucket counts can shift with every new query, and we don't
+ * want a selected pill to disappear just because its value fell out of
+ * the top-N agg buckets.
  *
  * @param {object} state       - Store state.
  * @param {string} filterKey   - Filter key this value belongs to.
@@ -20,6 +22,13 @@ const NAMESPACE = 'jetpack-search';
  * @return {string} Display label.
  */
 function resolveValueLabel( state, filterKey, filterValue ) {
+	const options = state.filterConfigs?.[ filterKey ]?.options;
+	if ( Array.isArray( options ) ) {
+		const match = options.find( opt => opt?.value === filterValue );
+		if ( match?.label ) {
+			return match.label;
+		}
+	}
 	const buckets = state.aggregations?.[ filterKey ]?.buckets;
 	if ( Array.isArray( buckets ) ) {
 		for ( const bucket of buckets ) {

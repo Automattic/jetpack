@@ -164,6 +164,17 @@ const { state, actions } = store( NAMESPACE, {
 					return false;
 				}
 			}
+			// Static filters (e.g. blog) carry their list on the filterConfig
+			// rather than producing an aggregation request — keep the trigger
+			// enabled when one is present so users can still open the panel
+			// to make a selection.
+			const configs = state.filterConfigs ?? {};
+			for ( const key of Object.keys( configs ) ) {
+				const options = configs[ key ]?.options;
+				if ( Array.isArray( options ) && options.length > 0 ) {
+					return false;
+				}
+			}
 			return true;
 		},
 
@@ -324,6 +335,28 @@ const { state, actions } = store( NAMESPACE, {
 					state.activeFilters = { ...state.activeFilters, [ filterKey ]: next };
 				}
 			}
+			yield actions.search();
+		},
+
+		/**
+		 * Replace the value selected for a single-select (radio) filter,
+		 * then re-run the search. Native radios can't be deselected by
+		 * clicking the same option, so this action only sets — clearing
+		 * happens via the active-filters pill.
+		 *
+		 * @param {string} filterKey   - Filter key (e.g. `blog_ids`).
+		 * @param {string} filterValue - New selected value.
+		 * @yield {Promise} search action.
+		 */
+		*setRadioFilter( filterKey, filterValue ) {
+			const current = state.activeFilters[ filterKey ] ?? [];
+			if ( current.length === 1 && current[ 0 ] === filterValue ) {
+				return;
+			}
+			state.activeFilters = {
+				...state.activeFilters,
+				[ filterKey ]: [ filterValue ],
+			};
 			yield actions.search();
 		},
 

@@ -5,7 +5,7 @@
  * shape so designers can style the filter list in place. The inspector
  * exposes the user-tunable attributes (filter type, label, showCount,
  * maxItems, bucketSortOrder). The filter-type control lets authors swap
- * between the Category / Tag / Post Type / Author / Blog / Custom Taxonomy
+ * between the Category / Tag / Post Type / Author / Custom Taxonomy
  * variations without deleting and re-inserting the block.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
@@ -32,7 +32,6 @@ export const VARIATION_CATEGORY = 'category';
 export const VARIATION_POST_TAG = 'post_tag';
 export const VARIATION_POST_TYPE = 'post_type';
 export const VARIATION_AUTHOR = 'author';
-export const VARIATION_BLOG_ID = 'blog_id';
 export const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
 
 /**
@@ -50,9 +49,6 @@ export function deriveVariation( attributes ) {
 	}
 	if ( filterType === 'author' ) {
 		return VARIATION_AUTHOR;
-	}
-	if ( filterType === 'blog_id' ) {
-		return VARIATION_BLOG_ID;
 	}
 	const taxonomy = attributes?.taxonomy || '';
 	if ( taxonomy === 'category' ) {
@@ -93,8 +89,6 @@ export function variationToAttributes( variation, previousTaxonomy ) {
 			return { filterType: 'post_type', taxonomy: previousTaxonomy || '' };
 		case VARIATION_AUTHOR:
 			return { filterType: 'author', taxonomy: previousTaxonomy || '' };
-		case VARIATION_BLOG_ID:
-			return { filterType: 'blog_id', taxonomy: previousTaxonomy || '' };
 		case VARIATION_CUSTOM_TAXONOMY:
 		default: {
 			const preserved =
@@ -124,9 +118,6 @@ export function variationDefaultLabel( attributes ) {
 	}
 	if ( filterType === 'author' ) {
 		return __( 'Author', 'jetpack-search-pkg' );
-	}
-	if ( filterType === 'blog_id' ) {
-		return __( 'Blog', 'jetpack-search-pkg' );
 	}
 	if ( filterType === 'taxonomy' ) {
 		const taxonomy = attributes?.taxonomy || '';
@@ -198,7 +189,6 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 						{ value: VARIATION_POST_TAG, label: __( 'Tag', 'jetpack-search-pkg' ) },
 						{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
 						{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
-						{ value: VARIATION_BLOG_ID, label: __( 'Blog', 'jetpack-search-pkg' ) },
 						{
 							value: VARIATION_CUSTOM_TAXONOMY,
 							label: __( 'Custom taxonomy', 'jetpack-search-pkg' ),

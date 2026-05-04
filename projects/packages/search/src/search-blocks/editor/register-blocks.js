@@ -19,6 +19,7 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { getCategories, registerBlockType, setCategories } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
+import FilterBlogEdit from '../blocks/filter-blog/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterPopoverEdit, { save as filterPopoverSave } from '../blocks/filter-popover/edit';
 import LoadMoreEdit from '../blocks/load-more/edit';
@@ -35,6 +36,7 @@ const BLOCKS = [
 	[ 'jetpack/search-input', SearchInputEdit ],
 	[ 'jetpack/search-results', SearchResultsEdit ],
 	[ 'jetpack/filter-checkbox', FilterCheckboxEdit ],
+	[ 'jetpack/filter-blog', FilterBlogEdit ],
 	[ 'jetpack/active-filters', ActiveFiltersEdit ],
 	[ 'jetpack/filter-popover', FilterPopoverEdit, filterPopoverSave ],
 	[ 'jetpack/sort-control', SortControlEdit ],
@@ -62,6 +64,15 @@ setCategories(
 	)
 );
 
+// Mirrors the multisite gate in PHP. `filter-blog` is only registered
+// server-side on multisite networks; skipping the editor registration on
+// single-site keeps the block out of the inserter so the editor and front
+// end agree on which blocks exist.
+const isMultisite = !! window.jetpackSearchBlocksConfig?.isMultisite;
+
 BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
+	if ( name === 'jetpack/filter-blog' && ! isMultisite ) {
+		return;
+	}
 	registerBlockType( name, { edit, save: blockSave ?? save } );
 } );

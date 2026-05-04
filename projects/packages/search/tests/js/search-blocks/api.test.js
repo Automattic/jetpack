@@ -223,11 +223,12 @@ describe( 'resolveFilterFields', () => {
 		} );
 	} );
 
-	it( 'maps blog_id filter to plain `blog_id` field on both agg and filter', () => {
-		// Multisite cross-site index: aggregation buckets carry numeric blog
-		// IDs (no slug_slash_name variant), so bucketFormat is plain.
+	it( 'maps blog_id filter to filter-only ES field (no aggregation)', () => {
+		// Static filter — list comes from the server-side
+		// `blogIdFilteringLabels` map, so `aggField` is null and
+		// `buildAggregations` skips the entry.
 		expect( resolveFilterFields( { filterType: 'blog_id' } ) ).toEqual( {
-			aggField: 'blog_id',
+			aggField: null,
 			filterField: 'blog_id',
 			bucketFormat: 'plain',
 		} );
@@ -281,6 +282,16 @@ describe( 'buildAggregations', () => {
 	it( 'skips configs whose field mapping is unknown', () => {
 		const aggs = buildAggregations( {
 			bogus: { filterType: 'taxonomy', taxonomy: '' },
+		} );
+		expect( aggs ).toEqual( {} );
+	} );
+
+	it( 'skips blog_id (static) filters — no aggregation request', () => {
+		// blog_id resolves to `aggField: null` and the loop drops it,
+		// so the search request stays slim when only a static filter
+		// is registered.
+		const aggs = buildAggregations( {
+			blog_ids: { filterType: 'blog_id' },
 		} );
 		expect( aggs ).toEqual( {} );
 	} );
@@ -345,6 +356,16 @@ describe( 'buildFilterClause', () => {
 			}
 		);
 		expect( clause.bool.must ).toHaveLength( 2 );
+	} );
+
+	it( 'emits a `term` clause on the `blog_id` field for selected blog filters', () => {
+		const clause = buildFilterClause(
+			{ blog_ids: [ '2' ] },
+			{ blog_ids: { filterType: 'blog_id' } }
+		);
+		expect( clause ).toEqual( {
+			bool: { must: [ { term: { blog_id: '2' } } ] },
+		} );
 	} );
 
 	it( 'drops selections with no matching config', () => {

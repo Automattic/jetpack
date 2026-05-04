@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/filter-blog",
+	"version": "0.1.0",
+	"title": "Filter by Blog",
+	"category": "jetpack-search",
+	"icon": "filter",
+	"description": "Static radio filter for selecting a single blog on a multisite network with cross-site indexing.",
+	"supports": {
+		"html": false,
+		"interactivity": true
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"label": { "type": "string", "default": "" }
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-blog.js",
+	"style": "file:../../../../build/search-blocks/filter-blog.css"
+}

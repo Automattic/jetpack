@@ -16,16 +16,6 @@ use PHPUnit\Framework\TestCase;
 class Filter_Checkbox_Test extends TestCase {
 
 	/**
-	 * Reset the memoized blog-id labels before each test so cases that hook
-	 * `jetpack_instant_search_options` see a fresh resolution rather than a
-	 * cached map from an earlier test.
-	 */
-	protected function setUp(): void {
-		parent::setUp();
-		Filter_Checkbox::reset_blog_id_labels_cache();
-	}
-
-	/**
 	 * Built-in filter variations map to stable keys that round-trip through
 	 * the flat URL shape (store/url-state.js writes `?<key>[]=<value>`).
 	 */
@@ -50,7 +40,6 @@ class Filter_Checkbox_Test extends TestCase {
 		);
 		$this->assertSame( 'post_types', Filter_Checkbox::derive_filter_key( array( 'filterType' => 'post_type' ) ) );
 		$this->assertSame( 'authors', Filter_Checkbox::derive_filter_key( array( 'filterType' => 'author' ) ) );
-		$this->assertSame( 'blog_ids', Filter_Checkbox::derive_filter_key( array( 'filterType' => 'blog_id' ) ) );
 	}
 
 	/**
@@ -120,7 +109,6 @@ class Filter_Checkbox_Test extends TestCase {
 		);
 		$this->assertSame( 'Post Type', Filter_Checkbox::default_label( array( 'filterType' => 'post_type' ) ) );
 		$this->assertSame( 'Author', Filter_Checkbox::default_label( array( 'filterType' => 'author' ) ) );
-		$this->assertSame( 'Blog', Filter_Checkbox::default_label( array( 'filterType' => 'blog_id' ) ) );
 		// Custom taxonomies get no fallback — the editor user is expected to
 		// provide a meaningful label.
 		$this->assertSame(
@@ -233,121 +221,5 @@ class Filter_Checkbox_Test extends TestCase {
 			'post_types'
 		);
 		$this->assertSame( 'count', $config['bucketSortOrder'] );
-	}
-
-	/**
-	 * The blog_id variation surfaces the legacy `blogIdFilteringLabels`
-	 * option through `displayLabels` on the filterConfig — that's the
-	 * channel view.js / activePills use to render a human label in place
-	 * of a raw numeric blog ID.
-	 */
-	public function test_build_config_surfaces_blog_id_display_labels() {
-		$callback = static function ( $options ) {
-			$options['blogIdFilteringLabels'] = array(
-				123 => 'Design Blog',
-				456 => 'News Blog',
-			);
-			return $options;
-		};
-		add_filter( 'jetpack_instant_search_options', $callback );
-		try {
-			$config = Filter_Checkbox::build_config(
-				array( 'filterType' => 'blog_id' ),
-				'blog_ids'
-			);
-			$this->assertSame(
-				array(
-					'123' => 'Design Blog',
-					'456' => 'News Blog',
-				),
-				$config['displayLabels']
-			);
-			$this->assertSame( 'blog_ids', $config['filterKey'] );
-			$this->assertSame( 'blog_id', $config['filterType'] );
-			$this->assertSame( 'Blog', $config['label'] );
-		} finally {
-			remove_filter( 'jetpack_instant_search_options', $callback );
-		}
-	}
-
-	/**
-	 * Non-blog_id filter types must not carry a `displayLabels` key — the
-	 * server only owns labels for blog_id; taxonomy / author / post_type
-	 * derive their labels from aggregation bucket keys (`slug/Name`).
-	 */
-	public function test_build_config_omits_display_labels_for_non_blog_id_types() {
-		$config = Filter_Checkbox::build_config(
-			array(
-				'filterType' => 'taxonomy',
-				'taxonomy'   => 'category',
-			),
-			'category'
-		);
-		$this->assertArrayNotHasKey( 'displayLabels', $config );
-	}
-
-	/**
-	 * When no consumer hooks `jetpack_instant_search_options`, the labels
-	 * map is empty — the config must omit `displayLabels` entirely so the
-	 * serialized Interactivity state doesn't carry a no-op key for every
-	 * blog_id block on the page. view.js falls back to the bucket key
-	 * (numeric blog ID) when the field is absent.
-	 */
-	public function test_build_config_omits_display_labels_when_blog_id_map_is_empty() {
-		$config = Filter_Checkbox::build_config(
-			array( 'filterType' => 'blog_id' ),
-			'blog_ids'
-		);
-		$this->assertArrayNotHasKey( 'displayLabels', $config );
-	}
-
-	/**
-	 * The `jetpack_instant_search_options` filter chain may run third-party
-	 * handlers that hit the DB or network; build_config() runs twice per
-	 * filter-checkbox block (once during state seeding, once from render.php),
-	 * so we memoize. This test asserts the filter fires exactly once across
-	 * two build_config() calls — a regression here would multiply the
-	 * filter chain cost by the number of blog_id blocks on the page.
-	 */
-	public function test_build_config_memoizes_blog_id_label_resolution() {
-		$call_count = 0;
-		$callback   = static function ( $options ) use ( &$call_count ) {
-			++$call_count;
-			$options['blogIdFilteringLabels'] = array( 1 => 'Main' );
-			return $options;
-		};
-		add_filter( 'jetpack_instant_search_options', $callback );
-		try {
-			$first  = Filter_Checkbox::build_config( array( 'filterType' => 'blog_id' ), 'blog_ids' );
-			$second = Filter_Checkbox::build_config( array( 'filterType' => 'blog_id' ), 'blog_ids' );
-			$this->assertSame( 1, $call_count );
-			$this->assertSame( $first, $second );
-		} finally {
-			remove_filter( 'jetpack_instant_search_options', $callback );
-		}
-	}
-
-	/**
-	 * Labels with stray HTML / whitespace must be sanitized before they
-	 * land in the Interactivity state — render.php still escapes on
-	 * output, but defense-in-depth keeps the serialized state narrow.
-	 */
-	public function test_build_config_sanitizes_blog_id_display_labels() {
-		$callback = static function ( $options ) {
-			$options['blogIdFilteringLabels'] = array(
-				123 => "  <b>Design</b>\nBlog  ",
-			);
-			return $options;
-		};
-		add_filter( 'jetpack_instant_search_options', $callback );
-		try {
-			$config = Filter_Checkbox::build_config(
-				array( 'filterType' => 'blog_id' ),
-				'blog_ids'
-			);
-			$this->assertSame( array( '123' => 'Design Blog' ), $config['displayLabels'] );
-		} finally {
-			remove_filter( 'jetpack_instant_search_options', $callback );
-		}
 	}
 }

@@ -207,6 +207,34 @@ describe( 'store actions', () => {
 		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
+	it( 'replaces (not toggles) the value selected for a radio filter', async () => {
+		// Single-select semantics: clicking a different radio replaces the
+		// previous selection rather than appending. Mirrors the `group`
+		// filter pattern in the legacy instant-search overlay.
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+
+		await runGenerator( actions.setRadioFilter( 'blog_ids', '2' ) );
+		expect( state.activeFilters ).toEqual( { blog_ids: [ '2' ] } );
+
+		await runGenerator( actions.setRadioFilter( 'blog_ids', '5' ) );
+		expect( state.activeFilters ).toEqual( { blog_ids: [ '5' ] } );
+
+		expect( search ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'no-ops setRadioFilter when the same value is already selected', async () => {
+		// Native radios can't be deselected by clicking the active option,
+		// so this action only sets — clearing happens via the active-filters
+		// pill X. A re-click on the active radio should not refire the search.
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.activeFilters = { blog_ids: [ '2' ] };
+
+		await runGenerator( actions.setRadioFilter( 'blog_ids', '2' ) );
+
+		expect( state.activeFilters ).toEqual( { blog_ids: [ '2' ] } );
+		expect( search ).not.toHaveBeenCalled();
+	} );
+
 	it( 'clears filters only when filters are active', async () => {
 		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
 
@@ -322,6 +350,7 @@ describe( 'store getters', () => {
 			pageHandle: null,
 			activeFilters: {},
 			aggregations: {},
+			filterConfigs: {},
 			sortOrder: 'relevance',
 			strings: {
 				searching: 'Looking…',
@@ -374,6 +403,22 @@ describe( 'store getters', () => {
 
 		state.aggregations = {};
 		state.activeFilters = { category: [ 'news' ] };
+		expect( state.isFilterTriggerDisabled ).toBe( false );
+	} );
+
+	it( 'enables the filter trigger when a static (radio) filter has options to choose from', () => {
+		// Static filters (e.g. blog) carry their list on the filterConfig
+		// rather than producing an aggregation request. Without this branch
+		// the popover trigger would stay disabled on a page whose only
+		// filter is filter-blog with no other filters active.
+		expect( state.isFilterTriggerDisabled ).toBe( true );
+
+		state.filterConfigs = {
+			blog_ids: {
+				filterType: 'blog_id',
+				options: [ { value: '1', label: 'Main Site' } ],
+			},
+		};
 		expect( state.isFilterTriggerDisabled ).toBe( false );
 	} );
 

@@ -73,6 +73,24 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+
+		// Mirror the multisite gate from register_blocks() so the editor
+		// only registers `jetpack/filter-blog` when the matching server-side
+		// block type exists. Without this, single-site installs would surface
+		// a client-only block in the inserter that has no front-end render.
+		wp_add_inline_script(
+			'jetpack-search-blocks-register',
+			sprintf(
+				'window.jetpackSearchBlocksConfig = %s;',
+				wp_json_encode(
+					array(
+						'isMultisite' => function_exists( 'is_multisite' ) && is_multisite(),
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+				)
+			),
+			'before'
+		);
 	}
 
 	/**
@@ -114,10 +132,20 @@ class Search_Blocks {
 			return;
 		}
 
+		// `filter-blog` only makes sense on a multisite network with a
+		// cross-site index — on a single-site install the radio list would
+		// be empty (or trivially one option) so the block stays out of the
+		// inserter entirely.
+		$is_multisite = function_exists( 'is_multisite' ) && is_multisite();
+
 		foreach ( $block_dirs as $block_dir ) {
-			if ( file_exists( $block_dir . '/block.json' ) ) {
-				register_block_type( $block_dir );
+			if ( ! file_exists( $block_dir . '/block.json' ) ) {
+				continue;
 			}
+			if ( ! $is_multisite && 'filter-blog' === basename( $block_dir ) ) {
+				continue;
+			}
+			register_block_type( $block_dir );
 		}
 
 		static::register_variations();
@@ -177,16 +205,6 @@ class Search_Blocks {
 				'attributes'  => array(
 					'filterType' => 'author',
 					'label'      => __( 'Author', 'jetpack-search-pkg' ),
-				),
-				'isActive'    => array( 'filterType' ),
-			),
-			array(
-				'name'        => 'blog_id',
-				'title'       => __( 'Filter by Blog', 'jetpack-search-pkg' ),
-				'description' => __( 'Filter results by blog on a multisite network with cross-site indexing.', 'jetpack-search-pkg' ),
-				'attributes'  => array(
-					'filterType' => 'blog_id',
-					'label'      => __( 'Blog', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType' ),
 			),
@@ -465,9 +483,11 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Recursively walk a parsed block tree and push filter-checkbox configs
-	 * into `$configs`. Passing `$configs` by reference keeps the recursion
-	 * flat — callers don't need to merge children's maps back into parents'.
+	 * Recursively walk a parsed block tree and push filter configs into
+	 * `$configs`. Covers both `jetpack/filter-checkbox` (taxonomy / post
+	 * type / author variations) and `jetpack/filter-blog` (multisite radio
+	 * filter). Passing `$configs` by reference keeps the recursion flat —
+	 * callers don't need to merge children's maps back into parents'.
 	 *
 	 * @param array $blocks  Parsed block tree from parse_blocks().
 	 * @param array $configs Accumulator map keyed by filterKey.
@@ -478,11 +498,17 @@ class Search_Blocks {
 			if ( ! is_array( $block ) ) {
 				continue;
 			}
-			if ( 'jetpack/filter-checkbox' === ( $block['blockName'] ?? '' ) ) {
-				$attrs = (array) ( $block['attrs'] ?? array() );
-				$key   = Filter_Checkbox::derive_filter_key( $attrs );
+			$block_name = $block['blockName'] ?? '';
+			$attrs      = (array) ( $block['attrs'] ?? array() );
+			if ( 'jetpack/filter-checkbox' === $block_name ) {
+				$key = Filter_Checkbox::derive_filter_key( $attrs );
 				if ( '' !== $key ) {
 					$configs[ $key ] = Filter_Checkbox::build_config( $attrs, $key );
+				}
+			} elseif ( 'jetpack/filter-blog' === $block_name && class_exists( Filter_Blog::class ) ) {
+				$config = Filter_Blog::build_config( $attrs );
+				if ( ! empty( $config['options'] ) ) {
+					$configs[ $config['filterKey'] ] = $config;
 				}
 			}
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {

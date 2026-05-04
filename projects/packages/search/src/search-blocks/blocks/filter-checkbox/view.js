@@ -72,11 +72,6 @@ store( NAMESPACE, {
 		 * filters appear in the active-filters block instead, so the
 		 * checkbox list only offers values the user hasn't chosen yet.
 		 *
-		 * When the filterConfig carries a `displayLabels` map (blog_id
-		 * filters fill this from the server's `blogIdFilteringLabels`
-		 * option), it overrides the bucket-derived label so the checkbox
-		 * shows a human name instead of a raw blog ID.
-		 *
 		 * @return {Array<object>} Item descriptors for each unselected bucket.
 		 */
 		get filterItems() {
@@ -87,9 +82,7 @@ store( NAMESPACE, {
 				return [];
 			}
 			const selected = state.activeFilters?.[ filterKey ] ?? [];
-			const config = state.filterConfigs?.[ filterKey ];
-			const showCount = config?.showCount !== false;
-			const displayLabels = config?.displayLabels;
+			const showCount = state.filterConfigs?.[ filterKey ]?.showCount !== false;
 			return buckets.reduce( ( items, bucket ) => {
 				const { value, label } = parseBucketKey( bucket.key );
 				if ( selected.includes( value ) ) {
@@ -97,7 +90,7 @@ store( NAMESPACE, {
 				}
 				items.push( {
 					value,
-					label: displayLabels?.[ value ] ?? label,
+					label,
 					showCount,
 					countLabel: String( bucket.doc_count ?? 0 ),
 				} );
