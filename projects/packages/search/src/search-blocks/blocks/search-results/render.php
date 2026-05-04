@@ -19,7 +19,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 // when the URL carries a query/filter that will trigger an initial fetch on
 // hydration; otherwise emitting them would freeze placeholder rows on a bare
 // /search/ page where no fetch ever fires. Once JS hydrates,
-// `data-wp-bind--hidden="!state.showResultsSkeleton"` takes over visibility.
+// `data-wp-bind--hidden="state.skeletonHidden"` takes over visibility.
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = $is_compact ? 6 : 4;
 ?>

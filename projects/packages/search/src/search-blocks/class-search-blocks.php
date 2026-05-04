@@ -497,7 +497,7 @@ class Search_Blocks {
 		$search_query       = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
 		$active_filters     = static::parse_url_filters();
 		$price_range        = static::parse_url_price_range();
-		$is_initial_loading = '' !== $search_query || ! empty( $active_filters ) || null !== $price_range;
+		$is_initial_loading = static::is_initial_loading();
 		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
 		return array(
