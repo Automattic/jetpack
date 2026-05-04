@@ -15,7 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client && pnpm run build:wp-build",
+		"build": "pnpm run clean && pnpm run build-client && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build:boot-asset": "provide-boot-asset-file",
 		"build:wp-build": "wp-build",
 		"build-client": "webpack",
 		"clean": "rm -rf build/",
