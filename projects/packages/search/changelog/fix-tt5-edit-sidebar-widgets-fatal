@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Disable the "Edit sidebar widgets" button when Instant Search is disabled, preventing a fatal error on block themes that do not register classic sidebars.
