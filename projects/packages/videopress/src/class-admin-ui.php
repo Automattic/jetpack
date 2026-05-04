@@ -157,6 +157,8 @@ class Admin_UI {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
+		// This callback is registered via `load-{$page_suffix}` in `enable_menu()`,
+		// so it only fires on the VideoPress admin page — no need to re-check the page here.
 		if ( self::is_modernized() ) {
 			// wp-build manages its own enqueue pipeline. The legacy script,
 			// initial state, tracking, and media-library bootstrap are all
