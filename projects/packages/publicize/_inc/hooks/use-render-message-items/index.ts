@@ -74,8 +74,13 @@ function connectionHasMedia(
 export function useRenderMessageItems(): RenderItem[] {
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 
-	const enabledConnections = useSelect(
-		select => ( templatesEnabled ? select( socialStore ).getEnabledConnections() : [] ),
+	// All connections (not just enabled ones) — the per-connection customization
+	// editor is visible for the focused tab regardless of toggle state, so editing
+	// a disabled connection's message must still update the items array. Including
+	// disabled connections also keeps their preview cached for instant display when
+	// the user re-enables them.
+	const connections = useSelect(
+		select => ( templatesEnabled ? select( socialStore ).getConnections() : [] ),
 		[ templatesEnabled ]
 	);
 
@@ -89,7 +94,7 @@ export function useRenderMessageItems(): RenderItem[] {
 
 	const generateSigPreview =
 		siteHasFeature( features.IMAGE_GENERATOR ) &&
-		( globalMediaSource === 'sig' || enabledConnections.some( c => c.media_source === 'sig' ) );
+		( globalMediaSource === 'sig' || connections.some( c => c.media_source === 'sig' ) );
 
 	const sig = useSigPreview( generateSigPreview );
 
@@ -111,7 +116,7 @@ export function useRenderMessageItems(): RenderItem[] {
 	);
 
 	const items = useMemo< RenderItem[] >( () => {
-		return enabledConnections.map( connection => {
+		return connections.map( connection => {
 			const message = ( connection.message ?? globalMessage ?? '' ).trim();
 			return {
 				id: connection.connection_id,
@@ -120,7 +125,7 @@ export function useRenderMessageItems(): RenderItem[] {
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
-	}, [ enabledConnections, globalMessage, ctx ] );
+	}, [ connections, globalMessage, ctx ] );
 
 	return useDebouncedItems( items );
 }
