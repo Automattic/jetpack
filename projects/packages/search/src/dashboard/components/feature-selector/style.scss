@@ -1,10 +1,12 @@
 @use "scss/variables";
 
+// Vertical breathing room around the selector card. Matches the pattern of
+// `.jp-search-dashboard-meter-wrap` above, without the divider border.
+.jp-search-feature-selector-wrap {
+	padding-block: 32px;
+}
+
 .jp-search-feature-selector {
-	// Match the horizontal alignment of `.jp-search-dashboard-row` above
-	// (MockedSearch, RecordMeter): 1040px constrained, centered in the page.
-	max-width: 1040px;
-	margin-inline: auto;
 	background: #fff;
 	border: 1px solid #dcdcde;
 	border-radius: 6px;

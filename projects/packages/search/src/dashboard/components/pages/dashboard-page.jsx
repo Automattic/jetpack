@@ -171,7 +171,13 @@ export default function DashboardPage( { isLoading = false } ) {
 						) }
 						<div className="jp-search-dashboard-bottom">
 							{ isSearchBlocksEnabled ? (
-								<FeatureSelector />
+								<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
+									<div className="jp-search-dashboard-row">
+										<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+											<FeatureSelector />
+										</div>
+									</div>
+								</div>
 							) : (
 								<ModuleControl
 									siteAdminUrl={ siteAdminUrl }
