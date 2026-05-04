@@ -21,14 +21,11 @@ if ( '' === $placeholder ) {
 }
 $show_icon   = (bool) ( $attributes['showIcon'] ?? true );
 $submit_only = ! empty( $attributes['submitOnly'] );
-// Read whichever URL key Search_Blocks says is active for this request:
-// `s` on the WP search route, `q` on non-search pages where `s` would
-// trip core's singular 404 path. Sanitization mirrors
-// Search_Blocks::parse_url_search_query().
-$search_param = Search_Blocks::get_search_param_name();
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to string + sanitize_text_field( wp_unslash( ... ) ) on the next line.
-$raw_query     = $_GET[ $search_param ] ?? '';
-$initial_query = is_scalar( $raw_query ) ? trim( sanitize_text_field( wp_unslash( (string) $raw_query ) ) ) : '';
+// Read the URL-derived query through the shared helper so the SSR
+// `value=` matches the Interactivity store's seeded `searchQuery`.
+// The helper picks `s` vs `q` based on `is_search()` and applies the
+// same sanitize_text_field + trim WP would have applied to `s`.
+$initial_query = Search_Blocks::parse_url_search_query();
 $input_id      = wp_unique_id( 'jetpack-search-input-' );
 ?>
 <div

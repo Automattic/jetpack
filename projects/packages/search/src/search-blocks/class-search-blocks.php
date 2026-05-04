@@ -623,9 +623,13 @@ class Search_Blocks {
 	 * the WP search route, `q` everywhere else). Sanitization mirrors
 	 * what WP would have done for `s` (sanitize_text_field + trim).
 	 *
+	 * Public so block render templates (e.g. `search-input/render.php`)
+	 * can seed their initial `value=` from the same source the
+	 * Interactivity store seeds `searchQuery` from.
+	 *
 	 * @return string
 	 */
-	protected static function parse_url_search_query(): string {
+	public static function parse_url_search_query(): string {
 		$key = self::get_search_param_name();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to string + sanitize_text_field( wp_unslash( ... ) ) on the next line.
 		$raw = $_GET[ $key ] ?? '';
