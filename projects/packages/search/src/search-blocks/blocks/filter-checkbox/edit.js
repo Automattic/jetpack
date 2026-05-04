@@ -7,16 +7,24 @@
  * maxItems, bucketSortOrder). The filter-type control lets authors swap
  * between the Category / Tag / Post Type / Author / Custom Taxonomy
  * variations without deleting and re-inserting the block.
+ *
+ * Custom Taxonomy is the one variation whose target isn't fixed by the
+ * inserter choice: its variation seeds `taxonomy=''` so the inspector
+ * surfaces a SelectControl populated from registered taxonomies (via
+ * core-data) so the user can pick which taxonomy to filter by. Without
+ * that picker the block would silently render nothing on the front end.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	PanelBody,
+	Placeholder,
 	SelectControl,
 	RangeControl,
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { createElement as h, Fragment } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { createElement as h, Fragment, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const SAMPLE_FILTER_ITEMS = [
@@ -24,6 +32,12 @@ const SAMPLE_FILTER_ITEMS = [
 	{ value: 'two', label: __( 'Second option', 'jetpack-search-pkg' ), count: 12 },
 	{ value: 'three', label: __( 'Third option', 'jetpack-search-pkg' ), count: 7 },
 ];
+
+// Built-in taxonomies that have their own filter-checkbox variations
+// (Category / Tag). Excluded from the custom-taxonomy picker so site builders
+// reach for the dedicated variation rather than re-creating it via the
+// generic Custom Taxonomy entry.
+const BUILT_IN_TAXONOMY_SLUGS = [ 'category', 'post_tag' ];
 
 // Variation identifiers mirror the variation `name`s registered in
 // Search_Blocks::register_variations() so the inspector picker and the
@@ -73,7 +87,7 @@ export function deriveVariation( attributes ) {
  * Category and Tag overwrite `taxonomy` with their built-in slugs, which
  * means a Custom → Category → Custom round-trip *will* clear the slug.
  * On the return trip we deliberately drop 'category' and 'post_tag' so the
- * Taxonomy slug input doesn't surface them as custom-typed slugs.
+ * Taxonomy picker doesn't surface them as custom-typed slugs.
  *
  * @param {string} variation        - Target variation identifier.
  * @param {string} previousTaxonomy - Current taxonomy attribute value.
@@ -141,6 +155,41 @@ export function variationDefaultLabel( attributes ) {
  */
 export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
+	const currentVariation = deriveVariation( attributes );
+	const isCustomTaxonomy = currentVariation === VARIATION_CUSTOM_TAXONOMY;
+	const taxonomy = attributes?.taxonomy || '';
+	const needsTaxonomyChoice = isCustomTaxonomy && '' === taxonomy;
+
+	// Pull the registered taxonomies for the picker. `getTaxonomies` is the
+	// core-data shortcut for getEntityRecords( 'root', 'taxonomy' ); it
+	// returns null while the request is in flight and an array of taxonomy
+	// objects once resolved. Skip the request entirely outside the
+	// custom-taxonomy variation so the built-in variations don't pay for a
+	// REST call they never use. No `per_page` arg — the
+	// /wp/v2/taxonomies endpoint doesn't register that collection param,
+	// and the response is a finite list anyway.
+	const taxonomies = useSelect(
+		select => ( isCustomTaxonomy ? select( 'core' ).getTaxonomies() : null ),
+		[ isCustomTaxonomy ]
+	);
+	// Derive options separately so the filter/map only re-runs when the
+	// underlying records change, not on every store update that re-runs the
+	// useSelect callback.
+	const taxonomyOptions = useMemo( () => {
+		if ( ! Array.isArray( taxonomies ) ) {
+			return null;
+		}
+		return taxonomies
+			.filter(
+				t =>
+					t?.slug && ! BUILT_IN_TAXONOMY_SLUGS.includes( t.slug ) && t?.visibility?.public !== false
+			)
+			.map( t => ( { value: t.slug, label: t.name || t.slug } ) );
+	}, [ taxonomies ] );
+	const isLoadingTaxonomies = isCustomTaxonomy && taxonomies === null;
+	const hasNoCustomTaxonomies =
+		isCustomTaxonomy && Array.isArray( taxonomyOptions ) && taxonomyOptions.length === 0;
+
 	const rawLabel = attributes?.label || '';
 	const variationLabel = variationDefaultLabel( attributes );
 	const placeholderLabel = variationLabel || __( 'Filter', 'jetpack-search-pkg' );
@@ -153,8 +202,6 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 	// Unknown values fall back to `count` so the preview controls always
 	// reflect a valid enum option; render.php normalizes the same way.
 	const bucketSortOrder = attributes?.bucketSortOrder === 'alpha' ? 'alpha' : 'count';
-	const currentVariation = deriveVariation( attributes );
-	const taxonomy = attributes?.taxonomy || '';
 
 	// Swapping the filter type via the inspector shouldn't wipe an author's
 	// custom label, but when the stored label still matches the prior
@@ -169,6 +216,14 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 		}
 		setAttributes( next );
 	};
+
+	const labelHelp = isCustomTaxonomy
+		? __( 'A label is required so visitors see a heading above this filter.', 'jetpack-search-pkg' )
+		: __(
+				"Leave empty to use the variation's default label (e.g. Category, Tag).",
+				'jetpack-search-pkg',
+				/* dummy arg to avoid bad minification */ 0
+		  );
 
 	return h(
 		Fragment,
@@ -200,19 +255,39 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 						'jetpack-search-pkg'
 					),
 				} ),
-				currentVariation === VARIATION_CUSTOM_TAXONOMY
-					? h( TextControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: __( 'Taxonomy slug', 'jetpack-search-pkg' ),
-							value: taxonomy,
-							onChange: value => setAttributes( { taxonomy: value } ),
-							help: __(
-								'The registered taxonomy slug to filter by (e.g. genre, product_cat).',
-								'jetpack-search-pkg'
-							),
-					  } )
-					: null,
+				isCustomTaxonomy &&
+					h( SelectControl, {
+						__next40pxDefaultSize: true,
+						__nextHasNoMarginBottom: true,
+						label: __( 'Taxonomy', 'jetpack-search-pkg' ),
+						value: taxonomy,
+						disabled: hasNoCustomTaxonomies,
+						options: [
+							{
+								value: '',
+								label: isLoadingTaxonomies
+									? __( 'Loading taxonomies…', 'jetpack-search-pkg' )
+									: __(
+											'Select a taxonomy',
+											'jetpack-search-pkg',
+											/* dummy arg to avoid bad minification */ 0
+									  ),
+								disabled: true,
+							},
+							...( taxonomyOptions || [] ),
+						],
+						onChange: value => setAttributes( { taxonomy: value } ),
+						help: hasNoCustomTaxonomies
+							? __(
+									'No custom taxonomies registered on this site. Register one with register_taxonomy() and it will appear here.',
+									'jetpack-search-pkg'
+							  )
+							: __(
+									'Pick which registered taxonomy this filter targets. Built-in Category and Tag have their own dedicated filters in the inserter.',
+									'jetpack-search-pkg',
+									/* dummy arg to avoid bad minification */ 0
+							  ),
+					} ),
 				h( TextControl, {
 					__next40pxDefaultSize: true,
 					__nextHasNoMarginBottom: true,
@@ -220,10 +295,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 					value: rawLabel,
 					placeholder: placeholderLabel,
 					onChange: value => setAttributes( { label: value } ),
-					help: __(
-						"Leave empty to use the variation's default label (e.g. Category, Tag).",
-						'jetpack-search-pkg'
-					),
+					help: labelHelp,
 				} ),
 				h( ToggleControl, {
 					__nextHasNoMarginBottom: true,
@@ -257,26 +329,43 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 		h(
 			'div',
 			blockProps,
-			h( 'h3', { className: 'jetpack-search-filter__title' }, previewLabel ),
-			h(
-				'ul',
-				{ className: 'jetpack-search-filter__list' },
-				SAMPLE_FILTER_ITEMS.slice( 0, maxItems ).map( item =>
-					h(
-						'li',
-						{ key: item.value, className: 'jetpack-search-filter__item' },
+			needsTaxonomyChoice
+				? h( Placeholder, {
+						icon: 'filter',
+						label: __( 'Custom Taxonomy Filter', 'jetpack-search-pkg' ),
+						instructions: __(
+							'Choose a taxonomy in the block settings to enable this filter. Until a taxonomy is set, this block renders nothing on the front end.',
+							'jetpack-search-pkg'
+						),
+				  } )
+				: h(
+						Fragment,
+						null,
+						h( 'h3', { className: 'jetpack-search-filter__title' }, previewLabel ),
 						h(
-							'label',
-							null,
-							h( 'input', { type: 'checkbox', disabled: true } ),
-							h( 'span', { className: 'jetpack-search-filter__label' }, item.label ),
-							showCount
-								? h( 'span', { className: 'jetpack-search-filter__count' }, String( item.count ) )
-								: null
+							'ul',
+							{ className: 'jetpack-search-filter__list' },
+							SAMPLE_FILTER_ITEMS.slice( 0, maxItems ).map( item =>
+								h(
+									'li',
+									{ key: item.value, className: 'jetpack-search-filter__item' },
+									h(
+										'label',
+										null,
+										h( 'input', { type: 'checkbox', disabled: true } ),
+										h( 'span', { className: 'jetpack-search-filter__label' }, item.label ),
+										showCount
+											? h(
+													'span',
+													{ className: 'jetpack-search-filter__count' },
+													String( item.count )
+											  )
+											: null
+									)
+								)
+							)
 						)
-					)
-				)
-			)
+				  )
 		)
 	);
 }
