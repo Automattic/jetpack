@@ -421,6 +421,34 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Both URL keys the inline blocks may write (`s` on the search route,
+	 * `q` off it) must be reserved by `parse_url_filters()` so a hostile
+	 * or malformed `?s[]=…&q[]=…` can't smuggle the search query into
+	 * `activeFilters` (which would forward it to ES as a filter clause
+	 * and round-trip it back into the URL on every keystroke). The real
+	 * filter alongside them proves the rest of the parser is still
+	 * working — i.e. the reservation gate is surgical, not a side
+	 * effect of an unrelated rejection earlier in the loop.
+	 */
+	public function test_build_initial_state_reserves_both_s_and_q_from_active_filters() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array(
+			's'        => array( 'ignored' ),
+			'q'        => array( 'ignored' ),
+			'category' => array( 'news' ),
+		);
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array( 'category' => array( 'news' ) ), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
 	 * Invoke a protected static on Search_Blocks from test code. Reflection
 	 * is the cheapest way to cover this logic without leaking visibility
 	 * just for testability.

@@ -192,6 +192,25 @@ describe( 'urlParamsToState', () => {
 		expect( state.activeFilters ).toEqual( {} );
 	} );
 
+	it( 'rejects array-shaped `s` and `q` even when a real filter sits alongside them', () => {
+		// Both URL keys the inline blocks may use (`s` on the search route,
+		// `q` off it) must be reserved on the JS side so a hostile or
+		// malformed `?s[]=…&q[]=…` can't smuggle the search query into
+		// `activeFilters` (where it would be re-emitted as a filter clause
+		// to the API and round-tripped back into the URL on every keystroke).
+		// The real filter alongside them proves the rest of the parser is
+		// still working — i.e. the reservation gate is surgical, not a
+		// side effect of an unrelated rejection earlier in the loop.
+		const params = new URLSearchParams();
+		params.append( 's[]', 'ignored' );
+		params.append( 'q[]', 'ignored' );
+		params.append( 'category[]', 'news' );
+		const state = urlParamsToState( params, {
+			category: { filterType: 'taxonomy', taxonomy: 'category' },
+		} );
+		expect( state.activeFilters ).toEqual( { category: [ 'news' ] } );
+	} );
+
 	it( 'drops empty and whitespace-only filter values', () => {
 		// A bare `?category[]=` (or a stray trailing space) would otherwise
 		// produce a term filter with an empty value and zero out the result
