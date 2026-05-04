@@ -604,18 +604,45 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test that the helper falls back to VideoPress\Status::is_active() when
-	 * neither the filter nor wpcom_site_has_feature() short-circuit.
+	 * wpcom_site_has_feature( 'videopress' ) returns false.
 	 *
-	 * In the standard self-hosted PHPUnit environment wpcom_site_has_feature
-	 * is not defined, so the call goes through the VideoPress fallback. We only
-	 * assert that the result type matches what VideoPress\Status::is_active()
-	 * would return — covering the fallback wiring without binding to a specific
-	 * VideoPress activation state in CI.
+	 * Runs in a separate process so we can stub wpcom_site_has_feature to
+	 * return false for the VideoPress feature without leaking the definition
+	 * into the main test process. With the OR-semantics logic, a false
+	 * result from the WPCOM helper must NOT short-circuit — the helper
+	 * should consult VideoPress\Status::is_active() and return whatever it
+	 * reports. This guards the self-hosted / mixed-environment branch (where
+	 * the WPCOM helper is loaded but the site is not actually a WPCOM site)
+	 * against a regression that would silently hide the feature.
+	 *
+	 * The default Jetpack PHPUnit bootstrap (tests/php/lib/mock-functions.php)
+	 * defines wpcom_site_has_feature returning false for 'videopress' anyway,
+	 * but we stub it explicitly here so the assertion documents the behavior
+	 * the test relies on. We assert the result equals
+	 * VideoPress\Status::is_active() rather than a fixed boolean so the test
+	 * stays valid regardless of CI's VideoPress activation state.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_can_generate_video_clips_falls_back_to_videopress_status() {
-		if ( function_exists( 'wpcom_site_has_feature' ) ) {
-			$this->markTestSkipped( 'wpcom_site_has_feature is defined; fallback path is unreachable here.' );
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		// In the sub-process the bootstrap re-runs and defines wpcom_site_has_feature
+		// (mock returns false for 'videopress' by default). That already forces the
+		// helper through the fallback, which is exactly what we want to assert.
+		// If the function is somehow undefined, define a stub returning false so the
+		// test still exercises the fallback path deterministically.
+		if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+			eval( 'function wpcom_site_has_feature( $feature, $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
 		}
+
+		// Sanity-check the precondition: the WPCOM helper must report false for VideoPress
+		// so we know the helper actually fell through to VideoPress_Status::is_active().
+		$this->assertFalse( (bool) wpcom_site_has_feature( 'videopress' ), 'wpcom_site_has_feature(videopress) must be false to exercise the fallback path.' );
 
 		$expected = \Automattic\Jetpack\VideoPress\Status::is_active();
 		$this->assertSame( $expected, ImageStudio\image_studio_can_generate_video_clips() );
