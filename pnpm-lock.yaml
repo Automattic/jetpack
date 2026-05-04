@@ -3548,6 +3548,101 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.105.2)
 
+  projects/packages/podcast:
+    dependencies:
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
+      '@tanstack/react-query':
+        specifier: 5.96.1
+        version: 5.96.1(react@18.3.1)
+      '@wordpress/api-fetch':
+        specifier: 7.44.0
+        version: 7.44.0
+      '@wordpress/components':
+        specifier: 32.6.0
+        version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/data':
+        specifier: 10.44.0
+        version: 10.44.0(react@18.3.1)
+      '@wordpress/dataviews':
+        specifier: 14.1.0
+        version: 14.1.0(@types/react@18.3.28)(react@18.3.1)(stylelint@17.7.0)
+      '@wordpress/element':
+        specifier: 6.44.0
+        version: 6.44.0
+      '@wordpress/html-entities':
+        specifier: 4.44.0
+        version: 4.44.0
+      '@wordpress/i18n':
+        specifier: 6.17.0
+        version: 6.17.0
+      '@wordpress/icons':
+        specifier: 12.2.0
+        version: 12.2.0(react@18.3.1)
+      '@wordpress/notices':
+        specifier: 5.44.0
+        version: 5.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
+      '@wordpress/url':
+        specifier: 4.44.0
+        version: 4.44.0
+    devDependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: workspace:*
+        version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@babel/runtime':
+        specifier: 7.29.2
+        version: 7.29.2
+      '@types/react':
+        specifier: 18.3.28
+        version: 18.3.28
+      '@types/react-dom':
+        specifier: 18.3.7
+        version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
+      '@wordpress/browserslist-config':
+        specifier: 6.44.0
+        version: 6.44.0
+      jest:
+        specifier: 30.3.0
+        version: 30.3.0
+      postcss:
+        specifier: 8.5.10
+        version: 8.5.10
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
+      webpack:
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.105.2)
+    optionalDependencies:
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+
   projects/packages/post-list:
     dependencies:
       '@wordpress/i18n':
@@ -9460,6 +9555,9 @@ packages:
   '@tanstack/query-core@5.90.8':
     resolution: {integrity: sha512-4E0RP/0GJCxSNiRF2kAqE/LQkTJVlL/QNU7gIJSptaseV9HP6kOuA+N11y4bZKZxa3QopK3ZuewwutHx6DqDXQ==}
 
+  '@tanstack/query-core@5.96.1':
+    resolution: {integrity: sha512-u1yBgtavSy+N8wgtW3PiER6UpxcplMje65yXnnVgiHTqiMwLlxiw4WvQDrXyn+UD6lnn8kHaxmerJUzQcV/MMg==}
+
   '@tanstack/query-devtools@5.90.1':
     resolution: {integrity: sha512-GtINOPjPUH0OegJExZ70UahT9ykmAhmtNVcmtdnOZbxLwT7R5OmRztR5Ahe3/Cu7LArEmR6/588tAycuaWb1xQ==}
 
@@ -9471,6 +9569,11 @@ packages:
 
   '@tanstack/react-query@5.90.8':
     resolution: {integrity: sha512-/3b9QGzkf4rE5/miL6tyhldQRlLXzMHcySOm/2Tm2OLEFE9P1ImkH0+OviDBSvyAvtAOJocar5xhd7vxdLi3aQ==}
+    peerDependencies:
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.96.1':
+    resolution: {integrity: sha512-2X7KYK5KKWUKGeWCVcqxXAkYefJtrKB7tSKWgeG++b0H6BRHxQaLSSi8AxcgjmUnnosHuh9WsFZqvE16P1WCzA==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -18089,7 +18192,7 @@ snapshots:
       '@automattic/number-formatters': 1.1.5
       '@automattic/oauth-token': 1.0.1
       '@automattic/shopping-cart': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tanstack/react-query': 5.90.8(react@18.3.1)
+      '@tanstack/react-query': 5.96.1(react@18.3.1)
       '@wordpress/api-fetch': 7.44.0
       '@wordpress/data': 10.44.0(react@18.3.1)
       '@wordpress/data-controls': 4.44.0(react@18.3.1)
@@ -18160,7 +18263,7 @@ snapshots:
       '@automattic/i18n-utils': 1.2.3
       '@automattic/typography': 1.0.0
       '@automattic/viewport': 1.1.0
-      '@tanstack/react-query': 5.90.8(react@18.3.1)
+      '@tanstack/react-query': 5.96.1(react@18.3.1)
       '@wordpress/base-styles': 6.20.0
       '@wordpress/components': 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.44.0(react@18.3.1)
@@ -21964,6 +22067,8 @@ snapshots:
 
   '@tanstack/query-core@5.90.8': {}
 
+  '@tanstack/query-core@5.96.1': {}
+
   '@tanstack/query-devtools@5.90.1': {}
 
   '@tanstack/react-query-devtools@5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)':
@@ -21975,6 +22080,11 @@ snapshots:
   '@tanstack/react-query@5.90.8(react@18.3.1)':
     dependencies:
       '@tanstack/query-core': 5.90.8
+      react: 18.3.1
+
+  '@tanstack/react-query@5.96.1(react@18.3.1)':
+    dependencies:
+      '@tanstack/query-core': 5.96.1
       react: 18.3.1
 
   '@tanstack/react-router@1.167.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':

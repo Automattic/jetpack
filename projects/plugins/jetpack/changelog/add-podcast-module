@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Podcast: new wp-admin page (Jetpack &rarr; Podcast) for Simple and Atomic sites. Manages podcast settings, episodes, and directory submission in one place.

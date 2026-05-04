@@ -71,6 +71,10 @@ if ( is_admin() ) {
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
+// Initialize Podcast (Simple + Atomic only). Loaded on both admin and frontend so the
+// feed customization, REST settings, and admin page all work from the same entry point.
+\Automattic\Jetpack\Podcast\Podcast::init();
+
 // Play nice with https://wp-cli.org/.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php';

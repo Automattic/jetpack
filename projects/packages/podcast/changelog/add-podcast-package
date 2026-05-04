@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initial release of the Jetpack Podcast package: wp-admin SPA, RSS feed customization, and site-settings REST integration. Available on Simple and Atomic sites only.

@@ -1,0 +1,69 @@
+{
+	"name": "@automattic/jetpack-podcast",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "Jetpack Podcast functionality (Simple and Atomic only).",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/podcast/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Podcast"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/podcast"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "pnpm webpack --config webpack.config.js",
+		"build-js": "webpack --config webpack.config.js",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"clean": "rm -rf build/",
+		"test": "jest --config=tests/jest.config.js --passWithNoTests",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && pnpm webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@tanstack/react-query": "5.96.1",
+		"@wordpress/api-fetch": "7.44.0",
+		"@wordpress/components": "32.6.0",
+		"@wordpress/data": "10.44.0",
+		"@wordpress/dataviews": "14.1.0",
+		"@wordpress/element": "6.44.0",
+		"@wordpress/html-entities": "4.44.0",
+		"@wordpress/i18n": "6.17.0",
+		"@wordpress/icons": "12.2.0",
+		"@wordpress/notices": "5.44.0",
+		"@wordpress/ui": "0.11.0",
+		"@wordpress/url": "4.44.0"
+	},
+	"devDependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.0",
+		"@babel/runtime": "7.29.2",
+		"@types/react": "18.3.28",
+		"@types/react-dom": "18.3.7",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/browserslist-config": "6.44.0",
+		"jest": "30.3.0",
+		"postcss": "8.5.10",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"webpack": "5.105.2",
+		"webpack-cli": "6.0.1"
+	},
+	"optionalDependencies": {
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	}
+}
