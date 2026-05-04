@@ -260,17 +260,19 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Visibility flag for the `jetpack/search-error` block. Hidden while
-		 * a fetch is in flight so the message doesn't linger over the next
-		 * query — `search()` and `loadMore()` already clear `hasError` at
-		 * the start of every request, but binding through a single getter
-		 * keeps the template `data-wp-bind` simple (the Interactivity API
-		 * only evaluates simple property paths).
+		 * Visibility flag for the `jetpack/search-error` block. Gated on
+		 * both `!isLoading` and `!isLoadingMore` so the message hides the
+		 * moment the user retries — covering the `loadMore()` failure path
+		 * (where `isLoading` stays false but `isLoadingMore` toggles)
+		 * symmetrically with the `search()` path. `hasError` itself is also
+		 * cleared at the start of each action, but binding through a single
+		 * getter keeps the template `data-wp-bind` simple (the Interactivity
+		 * API only evaluates simple property paths).
 		 *
 		 * @return {boolean} True when the error message should show.
 		 */
 		get showError() {
-			return !! state.hasError && ! state.isLoading;
+			return !! state.hasError && ! state.isLoading && ! state.isLoadingMore;
 		},
 
 		/**
