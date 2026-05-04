@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove dev-dep on `@size-limit/time`
+
+

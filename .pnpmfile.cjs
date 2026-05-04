@@ -202,15 +202,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Unnecessary strict deps.
-	if ( pkg.name === 'estimo' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
-				pkg.dependencies[ dep ] = '^' + ver;
-			}
-		}
-	}
-
 	// Outdated dependency.
 	// https://github.com/jestjs/jest/issues/15236
 	if (
@@ -332,9 +323,9 @@ function fixPeerDeps( pkg ) {
 	// https://github.com/ai/size-limit/issues/366
 	if ( pkg.name === 'size-limit' ) {
 		pkg.peerDependencies ??= {};
-		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
+		pkg.peerDependencies[ '@size-limit/file' ] = '*';
 		pkg.peerDependenciesMeta ??= {};
-		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
+		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
 	}
 
 	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
