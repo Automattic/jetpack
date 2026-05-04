@@ -6,7 +6,7 @@
 	"title": "Post Type Scope",
 	"category": "jetpack-search",
 	"icon": "filter",
-	"description": "Constrain Jetpack Search results to a fixed set of post types, or remove specific post types from results. Renders nothing on the front end.",
+	"description": "Constrain Jetpack Search results to a fixed set of post types, or remove specific post types from results. Visible in the editor inserter and inspector for configuration; renders nothing on the front end.",
 	"supports": {
 		"html": false,
 		"interactivity": true,

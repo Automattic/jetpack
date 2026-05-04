@@ -15,8 +15,46 @@
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { FormTokenField, PanelBody, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { Fragment, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+
+/**
+ * sanitize_key() (PHP) approximation: lowercase + strip anything that is not
+ * `[a-z0-9_]`. Mirrors how the server normalizes attribute slugs so the
+ * editor's stored attribute matches what eventually reaches ES.
+ *
+ * Hyphens — common in CPT slugs (`jetpack-portfolio`) — are preserved
+ * (sanitize_key allows them too).
+ *
+ * @param {string} value - Raw token string.
+ * @return {string} Sanitized slug, or empty string when nothing remains.
+ */
+function sanitizeKey( value ) {
+	return String( value || '' )
+		.toLowerCase()
+		.replace( /[^a-z0-9_-]+/g, '' );
+}
+
+/**
+ * Build a unique-by-construction display label for each post type. When two
+ * types share the same `singular_name` (a plugin can register an entirely
+ * different CPT with the same human label as a built-in), append the slug
+ * in parentheses so the FormTokenField suggestion list stays one-to-one
+ * with the underlying slug. Without this the label→slug round-trip in
+ * `labelFromTokenString()` would silently always pick the first match.
+ *
+ * @param {Array<{value: string, label: string}>} options - Raw slug/label list.
+ * @return {Array<{value: string, label: string}>} Same shape with disambiguated labels.
+ */
+function disambiguateLabels( options ) {
+	const counts = new Map();
+	for ( const { label } of options ) {
+		counts.set( label, ( counts.get( label ) || 0 ) + 1 );
+	}
+	return options.map( opt =>
+		counts.get( opt.label ) > 1 ? { ...opt, label: `${ opt.label } (${ opt.value })` } : opt
+	);
+}
 
 /**
  * Map a list of post-type slugs to the labelled token shape FormTokenField
@@ -36,19 +74,27 @@ function toTokens( slugs, labelBySlug ) {
 
 /**
  * Convert the FormTokenField output back into a sanitized slug list. Tokens
- * may come back as strings (free entry) or as `{ value }` objects (suggestion
- * pick); both resolve to the slug we store on the attribute.
+ * may come back as strings (free entry or, in our setup, a label picked
+ * from suggestions) or as `{ value }` objects; both resolve to the slug we
+ * store on the attribute. Free-typed values are passed through `sanitizeKey`
+ * so the saved attribute matches what the server normalizer will produce —
+ * otherwise a typed `"Post"` and a typed `"post"` would both end up sent to
+ * ES as `post` while the editor saw them as distinct entries.
  *
- * @param {Array<string|{value: string}>} tokens - Tokens emitted by onChange.
- * @return {string[]} Deduped, non-empty slug list.
+ * @param {Array<string|{value: string}>}         tokens  - Tokens emitted by onChange.
+ * @param {Array<{value: string, label: string}>} options - Resolved post-type options for label→slug lookup.
+ * @return {string[]} Deduped, non-empty, sanitize_key-equivalent slug list.
  */
-function tokensToSlugs( tokens ) {
+function tokensToSlugs( tokens, options ) {
 	const out = [];
 	for ( const token of tokens || [] ) {
-		const slug = typeof token === 'string' ? token : token?.value || '';
-		const trimmed = slug.trim();
-		if ( trimmed && ! out.includes( trimmed ) ) {
-			out.push( trimmed );
+		// Strings come from FormTokenField when the user picks a suggestion
+		// or types freely; objects only show up when we round-trip our own
+		// `{value, title}` shape from `toTokens()`.
+		const raw = typeof token === 'string' ? labelFromTokenString( token, options ) : token?.value;
+		const slug = sanitizeKey( raw );
+		if ( slug && ! out.includes( slug ) ) {
+			out.push( slug );
 		}
 	}
 	return out;
@@ -76,22 +122,27 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 	);
 
 	// `getPostTypes()` proxies getEntityRecords( 'root', 'postType' ); it
-	// returns null until resolved and a finite list once loaded. The result
-	// already excludes private / non-public types in the default REST view,
-	// so we only need to filter out `attachment` and any type that opts out
-	// of search to match the aggregation surface.
+	// returns null until resolved and a finite list once loaded. We further
+	// drop `attachment` and any type whose `viewable` flag is `false` here.
+	// We can't filter by `exclude_from_search` from JS — the REST endpoint
+	// does not expose that flag — so the *server* normalizer
+	// (`Post_Type_Filter::build_lists()`) is the canonical allowlist gate.
+	// The editor list may include a few search-excluded types; saving them
+	// is harmless because they'll be dropped on render.
 	const postTypes = useSelect( select => select( 'core' ).getPostTypes( { per_page: -1 } ), [] );
 
 	const options = useMemo( () => {
 		if ( ! Array.isArray( postTypes ) ) {
 			return null;
 		}
-		return postTypes
-			.filter( type => type?.slug && type.slug !== 'attachment' && type?.viewable !== false )
-			.map( type => ( {
-				value: type.slug,
-				label: type?.labels?.singular_name || type?.name || type.slug,
-			} ) );
+		return disambiguateLabels(
+			postTypes
+				.filter( type => type?.slug && type.slug !== 'attachment' && type?.viewable !== false )
+				.map( type => ( {
+					value: type.slug,
+					label: type?.labels?.singular_name || type?.name || type.slug,
+				} ) )
+		);
 	}, [ postTypes ] );
 
 	const labelBySlug = useMemo( () => {
@@ -106,28 +157,27 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 	);
 
 	const onChangeList = key => tokens => {
-		const slugs = tokensToSlugs(
-			tokens.map( token => {
-				// FormTokenField emits the suggestion *label* on pick (because we
-				// pass labels in `suggestions`). Translate that label back to the
-				// canonical slug so the attribute stores stable values.
-				const slug =
-					typeof token === 'string' ? labelFromTokenString( token, options ) : token?.value;
-				return slug || token;
-			} )
-		);
-		setAttributes( { [ key ]: slugs } );
+		setAttributes( { [ key ]: tokensToSlugs( tokens, options ) } );
 	};
 
-	const conflictingSlugs = useMemo(
-		() => include.filter( slug => exclude.includes( slug ) ),
-		[ include, exclude ]
+	// Compare via `sanitizeKey` so case/punctuation differences that the
+	// server normalizer collapses to the same slug also flag here. Without
+	// this, `Post` in Include and `post` in Exclude would not surface a
+	// conflict in the editor even though the server drops one of them.
+	const conflictingSlugs = useMemo( () => {
+		const includeNorm = new Set( include.map( sanitizeKey ).filter( Boolean ) );
+		return exclude.map( sanitizeKey ).filter( slug => slug && includeNorm.has( slug ) );
+	}, [ include, exclude ] );
+
+	const conflictingLabels = useMemo(
+		() => conflictingSlugs.map( slug => labelBySlug.get( slug ) || slug ),
+		[ conflictingSlugs, labelBySlug ]
 	);
 
 	const previewText = describePreview( include, exclude, labelBySlug );
 
 	return (
-		<Fragment>
+		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
 					<FormTokenField
@@ -150,19 +200,41 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 						__experimentalShowHowTo={ false }
 						onChange={ onChangeList( 'exclude' ) }
 					/>
-					{ conflictingSlugs.length > 0 && (
-						<p className="jetpack-search-post-type-filter__conflict">
+					{ conflictingLabels.length > 0 && (
+						<p
+							className="jetpack-search-post-type-filter__conflict"
+							style={ {
+								// Inline because the editor build pipeline has no CSS
+								// loader — see tools/webpack.blocks-editor.config.js. The
+								// warning tone (matches WP admin notice color #d63638)
+								// lifts the conflict notice off the picker stack so
+								// authors see it before saving.
+								color: '#d63638',
+								fontSize: '12px',
+								marginTop: '8px',
+								marginBottom: 0,
+							} }
+						>
 							{ sprintf(
-								/* translators: %s: comma-separated list of conflicting post-type slugs. */
+								/* translators: %s: comma-separated list of post-type labels appearing in both Include and Exclude. */
 								__(
 									'These post types are listed in both Include and Exclude — Include wins, the duplicate is dropped from Exclude: %s',
 									'jetpack-search-pkg'
 								),
-								conflictingSlugs.join( ', ' )
+								conflictingLabels.join( ', ' )
 							) }
 						</p>
 					) }
-					<p className="jetpack-search-post-type-filter__hint">
+					<p
+						className="jetpack-search-post-type-filter__hint"
+						style={ {
+							color: 'rgba(30, 30, 30, 0.62)',
+							fontSize: '12px',
+							fontStyle: 'italic',
+							marginTop: '12px',
+							marginBottom: 0,
+						} }
+					>
 						{ __(
 							'This block does not render anything on the front end — it only constrains which post types Jetpack Search returns.',
 							'jetpack-search-pkg'
@@ -177,7 +249,7 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 					instructions={ previewText }
 				/>
 			</div>
-		</Fragment>
+		</>
 	);
 }
 
@@ -187,9 +259,14 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
  * because we feed it labels in the suggestions array; this is the inverse
  * lookup so attributes stay slug-keyed.
  *
+ * Labels are disambiguated upstream by `disambiguateLabels()`, so each label
+ * in `options` resolves to exactly one slug — `Array.find()` is unambiguous
+ * even when two CPTs share a `singular_name`.
+ *
  * @param {string} token   - Token string from FormTokenField.
  * @param {Array}  options - { value, label } option list.
- * @return {string} Slug, or the original token if no match.
+ * @return {string} Slug, or the original token if no match. Free-typed input is
+ * left untouched here; `tokensToSlugs` runs it through `sanitizeKey` before saving.
  */
 function labelFromTokenString( token, options ) {
 	if ( ! Array.isArray( options ) ) {
@@ -200,7 +277,9 @@ function labelFromTokenString( token, options ) {
 }
 
 /**
- * Build the human-readable summary line for the editor preview card.
+ * Build the human-readable summary line for the editor preview card. Always
+ * renders labels (via `labelBySlug`) rather than raw slugs so the canvas
+ * preview matches the FormTokenField token display in the Inspector.
  *
  * @param {string[]} include     - Include list.
  * @param {string[]} exclude     - Exclude list.
@@ -237,3 +316,7 @@ function describePreview( include, exclude, labelBySlug ) {
 		formatList( exclude )
 	);
 }
+
+// Re-export internals for unit tests (jest's module-cache picks them up via
+// `import * as`).
+export { sanitizeKey, disambiguateLabels, tokensToSlugs, describePreview };

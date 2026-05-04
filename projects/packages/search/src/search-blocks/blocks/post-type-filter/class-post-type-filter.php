@@ -24,10 +24,27 @@ namespace Automattic\Jetpack\Search;
 class Post_Type_Filter {
 
 	/**
+	 * Per-request cache of slugs of post types registered with
+	 * `exclude_from_search => false`. Built lazily by
+	 * `searchable_post_type_slugs()` on first call.
+	 *
+	 * Test-only: tests reset this via Reflection across `setUp`/`tearDown`
+	 * so newly-registered fixture post types take effect. Production code
+	 * never mutates this directly.
+	 *
+	 * @var string[]|null
+	 */
+	private static $searchable_cache = null;
+
+	/**
 	 * Normalize and sanitize include/exclude lists from raw block attributes.
 	 *
 	 * Output guarantees:
 	 *  - Each value is a non-empty `sanitize_key`'d string.
+	 *  - Each value is a registered post type whose `exclude_from_search`
+	 *    flag is `false` — anything else (typo, retired CPT, private type)
+	 *    is dropped silently so a stray slug can't collapse every search on
+	 *    the page to zero results by reaching ES.
 	 *  - Lists are deduplicated and re-indexed.
 	 *  - `exclude` does not contain any slug that also appears in `include`.
 	 *
@@ -35,8 +52,9 @@ class Post_Type_Filter {
 	 * @return array{include: string[], exclude: string[]}
 	 */
 	public static function build_lists( array $attributes ): array {
-		$include = static::sanitize_slug_list( $attributes['include'] ?? array() );
-		$exclude = static::sanitize_slug_list( $attributes['exclude'] ?? array() );
+		$searchable = static::searchable_post_type_slugs();
+		$include    = static::sanitize_slug_list( $attributes['include'] ?? array(), $searchable );
+		$exclude    = static::sanitize_slug_list( $attributes['exclude'] ?? array(), $searchable );
 
 		if ( ! empty( $include ) && ! empty( $exclude ) ) {
 			$exclude = array_values( array_diff( $exclude, $include ) );
@@ -52,12 +70,15 @@ class Post_Type_Filter {
 	 * Coerce a raw attribute value into a sanitized, deduped, re-indexed
 	 * list of post-type slugs. Non-arrays, non-scalars, and empty values
 	 * are dropped silently so a malformed attribute can never reach the ES
-	 * filter clause.
+	 * filter clause. When `$allowed` is provided, slugs not present in the
+	 * allowlist are also dropped — see `build_lists()` for the boundary
+	 * where this is enforced against the live post-type registry.
 	 *
-	 * @param mixed $raw Raw attribute value.
+	 * @param mixed         $raw     Raw attribute value.
+	 * @param string[]|null $allowed Optional allowlist of slugs to keep; null skips the check.
 	 * @return string[]
 	 */
-	protected static function sanitize_slug_list( $raw ): array {
+	private static function sanitize_slug_list( $raw, ?array $allowed = null ): array {
 		if ( ! is_array( $raw ) ) {
 			return array();
 		}
@@ -67,11 +88,39 @@ class Post_Type_Filter {
 				continue;
 			}
 			$slug = sanitize_key( (string) $value );
-			if ( '' !== $slug && ! in_array( $slug, $clean, true ) ) {
-				$clean[] = $slug;
+			if ( '' === $slug || in_array( $slug, $clean, true ) ) {
+				continue;
 			}
+			if ( null !== $allowed && ! in_array( $slug, $allowed, true ) ) {
+				continue;
+			}
+			$clean[] = $slug;
 		}
 		return $clean;
+	}
+
+	/**
+	 * Slugs of post types that participate in search — i.e. registered with
+	 * `exclude_from_search => false`. Cached per-request so repeated lookups
+	 * (one per attribute list per render) don't re-walk the registry.
+	 *
+	 * Returns null if `get_post_types` is unavailable (very early load,
+	 * isolated test runtime); callers treat null as "no allowlist" and
+	 * skip the registry-membership check.
+	 *
+	 * @return string[]|null
+	 */
+	private static function searchable_post_type_slugs(): ?array {
+		if ( null !== static::$searchable_cache ) {
+			return static::$searchable_cache;
+		}
+		if ( ! function_exists( 'get_post_types' ) ) {
+			return null;
+		}
+		static::$searchable_cache = array_values(
+			get_post_types( array( 'exclude_from_search' => false ) )
+		);
+		return static::$searchable_cache;
 	}
 
 	/**
@@ -90,6 +139,10 @@ class Post_Type_Filter {
 	 * @return array{include: string[], exclude: string[]}
 	 */
 	public static function merge_state( array $existing, array $contribution ): array {
+		// Existing state may be malformed (forward-compat with an older
+		// state shape); sanitize_slug_list strips bad entries. The
+		// contribution itself was already passed through `build_lists()`
+		// so it's clean at this point.
 		$existing_include = static::sanitize_slug_list( $existing['include'] ?? array() );
 		$existing_exclude = static::sanitize_slug_list( $existing['exclude'] ?? array() );
 

@@ -404,6 +404,13 @@ function getMonthLabelFormatter( locale ) {
  * as separate `must` entries so the include and exclude semantics stay
  * orthogonal in ES — same shape used by instant-search's `excludedPostTypes`.
  *
+ * Asymmetry: a single-slug include emits a bare `{ term: { post_type: T } }`
+ * rather than wrapping it in `{ bool: { should: [...] } }`. Inside the outer
+ * `bool.must` array those are semantically identical (a single-clause
+ * `should` behaves like `must`), and the bare form keeps the URL shorter and
+ * the test assertions readable. A single-slug exclude *always* wraps in
+ * `bool.must_not` because ES has no bare-term equivalent for negation.
+ *
  * @param {object|null} staticPostTypes - `{ include, exclude }` slug lists.
  * @return {Array<object>} ES filter clauses, possibly empty.
  */

@@ -702,6 +702,22 @@ describe( 'product-shaped filter helpers', () => {
 			] );
 		} );
 
+		it( 'treats a non-array include as empty and skips the clause', () => {
+			// The defensive `Array.isArray` guard exists so a forward-compat
+			// state-shape change can not crash the URL builder. Locking it
+			// in via a test makes the contract explicit.
+			expect( buildStaticPostTypeClauses( { include: 'post', exclude: [] } ) ).toEqual( [] );
+			expect( buildStaticPostTypeClauses( { include: null, exclude: [ 'product' ] } ) ).toEqual( [
+				{ bool: { must_not: [ { term: { post_type: 'product' } } ] } },
+			] );
+		} );
+
+		it( 'treats a non-array exclude as empty and emits only the include clause', () => {
+			expect( buildStaticPostTypeClauses( { include: [ 'post' ], exclude: 'page' } ) ).toEqual( [
+				{ term: { post_type: 'post' } },
+			] );
+		} );
+
 		it( 'concatenates include and exclude clauses when both are set', () => {
 			expect(
 				buildStaticPostTypeClauses( { include: [ 'post', 'page' ], exclude: [ 'product' ] } )

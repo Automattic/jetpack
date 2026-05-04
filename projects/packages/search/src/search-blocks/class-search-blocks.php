@@ -487,60 +487,58 @@ class Search_Blocks {
 
 		return array(
 			// Connection / routing config.
-			'siteId'          => $site_id,
-			'apiRoot'         => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'           => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite'   => $is_private,
-			'isWpcom'         => $is_wpcom,
-			'homeUrl'         => function_exists( 'home_url' ) ? home_url() : '',
+			'siteId'        => $site_id,
+			'apiRoot'       => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'         => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite' => $is_private,
+			'isWpcom'       => $is_wpcom,
+			'homeUrl'       => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'          => function_exists( 'get_locale' )
+			'locale'        => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'     => $search_query,
-			'sortOrder'       => static::parse_url_sort(),
-			'activeFilters'   => $active_filters,
-			'priceRange'      => $price_range,
+			'searchQuery'   => $search_query,
+			'sortOrder'     => static::parse_url_sort(),
+			'activeFilters' => $active_filters,
+			'priceRange'    => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
 			// taxonomy, label, showCount, maxItems } }.
-			'filterConfigs'   => array(),
+			'filterConfigs' => array(),
 
-			// staticPostTypes: include/exclude post-type lists contributed by
-			// the hidden `jetpack/post-type-filter` block. Folded into the ES
-			// filter clause client-side (see store/api.js) — never surfaced in
-			// the active-filters pill list. Seeded as a stable shape so the
-			// first-paint store has predictable defaults even before any block
-			// renders.
-			'staticPostTypes' => array(
-				'include' => array(),
-				'exclude' => array(),
-			),
+			// Note: `staticPostTypes` (contributed by `jetpack/post-type-filter`)
+			// is intentionally NOT seeded here. FSE block templates can render
+			// before `wp_enqueue_scripts` fires (where this seed runs), so
+			// pre-seeding the slot with `{ include: [], exclude: [] }` would
+			// merge AFTER the block contribution and clobber it. Letting
+			// render.php own the slot keeps template-rendered blocks working;
+			// the JS reader treats `state.staticPostTypes` undefined as
+			// "no constraint" via Array.isArray() checks in store/api.js.
 
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'         => array(),
-			'aggregations'    => (object) array(),
-			'totalResults'    => 0,
-			'pageHandle'      => null,
+			'results'       => array(),
+			'aggregations'  => (object) array(),
+			'totalResults'  => 0,
+			'pageHandle'    => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the no-results block stays
 			// hidden between first paint and JS hydrating the initial fetch —
 			// otherwise a "No results found" flash appears on deep links.
-			'isLoading'       => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
-			'isLoadingMore'   => false,
-			'hasError'        => false,
+			'isLoading'     => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
+			'isLoadingMore' => false,
+			'hasError'      => false,
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -549,7 +547,7 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'         => static::build_initial_strings(),
+			'strings'       => static::build_initial_strings(),
 		);
 	}
 
