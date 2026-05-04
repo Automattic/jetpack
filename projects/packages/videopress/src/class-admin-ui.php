@@ -156,6 +156,13 @@ class Admin_UI {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
+		if ( self::is_modernized() ) {
+			// wp-build manages its own enqueue pipeline. The legacy script,
+			// initial state, tracking, and media-library bootstrap are all
+			// intentionally skipped for the wp-build dashboard.
+			return;
+		}
+
 		Assets::register_script(
 			self::JETPACK_VIDEOPRESS_PKG_NAMESPACE,
 			'../build/admin/index.js',
