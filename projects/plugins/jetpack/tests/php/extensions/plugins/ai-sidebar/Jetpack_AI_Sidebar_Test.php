@@ -172,6 +172,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			'register_provider should be hooked when filter is true.'
 		);
 		$this->assertNotFalse(
+			has_filter( 'jetpack_ai_sidebar_agents_manager_data', array( Jetpack_AI_Sidebar::class, 'add_agents_manager_data' ) ),
+			'add_agents_manager_data should be hooked when filter is true.'
+		);
+		$this->assertNotFalse(
 			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_am' ) ),
 			'maybe_enqueue_am should be hooked when filter is true.'
 		);
@@ -232,6 +236,24 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
 		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * Platform-emitted Agents Manager data gets the review mediator flag.
+	 */
+	public function test_add_agents_manager_data_exposes_review_mediator_enabled() {
+		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_true' );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame( true, $data['reviewMediatorEnabled'] );
+	}
+
+	/**
+	 * Invalid upstream filter data should pass through without a TypeError.
+	 */
+	public function test_add_agents_manager_data_ignores_non_array_data() {
+		$this->assertNull( Jetpack_AI_Sidebar::add_agents_manager_data( null ) );
 	}
 
 	/**

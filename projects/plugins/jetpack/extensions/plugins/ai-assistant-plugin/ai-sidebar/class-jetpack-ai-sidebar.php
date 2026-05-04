@@ -57,6 +57,8 @@ class Jetpack_AI_Sidebar {
 		// Priority 20 so Jetpack loads AFTER Image Studio (priority 10).
 		add_filter( 'agents_manager_agent_providers', array( __CLASS__, 'register_provider' ), 20 );
 
+		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( __CLASS__, 'add_agents_manager_data' ), 10, 1 );
+
 		// Load AM from CDN if not already present.
 		// Priority 200: runs AFTER the AM class in jetpack-mu-wpcom (priority 101),
 		// so wp_script_is('agents-manager') correctly detects if AM is already loaded.
@@ -248,6 +250,7 @@ class Jetpack_AI_Sidebar {
 			'currentUser'           => self::get_current_user_data(),
 			'site'                  => self::get_current_site(),
 			'helpCenterUrl'         => 'https://wordpress.com/help?help-center=home',
+			// Direct CDN-loader fallback; add_agents_manager_data covers platform-emitted AM data.
 			'reviewMediatorEnabled' => self::is_review_mediator_enabled(),
 		);
 
@@ -464,8 +467,24 @@ class Jetpack_AI_Sidebar {
 	private static function is_review_mediator_enabled(): bool {
 		return (bool) apply_filters(
 			'jetpack_ai_review_mediator_enabled',
+			// Intentionally site-side: wpcom uses A8C user/proxy context for backend execution.
 			self::is_dev_mode()
 		);
+	}
+
+	/**
+	 * Add Jetpack AI Sidebar-specific data to externally emitted Agents Manager payloads.
+	 *
+	 * @param mixed $data Data encoded into `agentsManagerData`.
+	 * @return mixed Filtered data.
+	 */
+	public static function add_agents_manager_data( $data ) {
+		if ( ! is_array( $data ) ) {
+			return $data;
+		}
+
+		$data['reviewMediatorEnabled'] = self::is_review_mediator_enabled();
+		return $data;
 	}
 
 	/**
