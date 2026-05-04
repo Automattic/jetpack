@@ -50,6 +50,9 @@ export default function AiAnswersTab() {
 		.filter( Boolean )
 		.join( ' ' );
 
+	const savingLabel = __( 'Saving…', 'jetpack-search-pkg' );
+	const saveLabel = __( 'Save', 'jetpack-search-pkg' );
+
 	return (
 		<div className="jp-search-ai-answers-tab">
 			{ ( isFreePlan || ! supportsInstantSearch ) && (
@@ -129,9 +132,7 @@ export default function AiAnswersTab() {
 											onClick={ savePersonality }
 											disabled={ isSaving || ! isAiAnswersEnabled || ! isInstantSearchEnabled }
 										>
-											{ isSaving
-												? __( 'Saving…', 'jetpack-search-pkg' )
-												: __( 'Save', 'jetpack-search-pkg' ) }
+											{ isSaving ? savingLabel : saveLabel }
 										</Button>
 										{ saved && (
 											<span className="jp-search-ai-answers-tab__saved">
