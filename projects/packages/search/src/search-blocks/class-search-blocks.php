@@ -17,30 +17,26 @@ class Search_Blocks {
 	/**
 	 * Reserved query params that must not be parsed as filter keys. Mirrors
 	 * `RESERVED_PARAMS` in store/url-state.js.
+	 *
+	 * Includes both `s` (used on the WP search route) and `q` (used by the
+	 * inline blocks on non-search pages, see `get_search_param_name()`) so
+	 * neither name can be misread as a filter key.
 	 */
-	const RESERVED_QUERY_PARAMS = array( 's', 'orderby', 'min_price', 'max_price' );
+	const RESERVED_QUERY_PARAMS = array( 's', 'q', 'orderby', 'min_price', 'max_price' );
 
 	/**
-	 * Block names registered by the Search 3.0 surface. Used by
-	 * `post_hosts_search_blocks()` to detect when a singular post
-	 * embeds the inline search experience and should bypass core's
-	 * "page name + search query" 404 path.
+	 * URL param the inline search blocks use to carry the query string when
+	 * embedded on a non-search page (e.g. `/about/?q=boots`). On the WP
+	 * search route (`is_search()`) the canonical `s` key is used instead.
 	 *
-	 * Kept in sync with the directories under `src/search-blocks/blocks/`.
-	 *
-	 * @var string[]
+	 * The non-`s` name on singular pages is what dodges core's
+	 * `WP_Query::get_posts()` AND'ing a `post_content LIKE` clause into the
+	 * singular page lookup and 404'ing the page on refresh. `q` matches the
+	 * de-facto search-URL convention (Google, GitHub, Wikipedia, etc.) so
+	 * shared links read naturally. See
+	 * `docs/explorations/embedded-search-refresh-404.md` (RSM-1754).
 	 */
-	const SEARCH_BLOCK_NAMES = array(
-		'jetpack/active-filters',
-		'jetpack/filter-checkbox',
-		'jetpack/filter-popover',
-		'jetpack/load-more',
-		'jetpack/no-results',
-		'jetpack/results-count',
-		'jetpack/search-input',
-		'jetpack/search-results',
-		'jetpack/sort-control',
-	);
+	const NON_SEARCH_QUERY_PARAM = 'q';
 
 	/**
 	 * Template slug used for the Jetpack Search page template.
@@ -65,132 +61,23 @@ class Search_Blocks {
 		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
-		// Avoid 404s when a search query lands on a singular permalink that
-		// hosts the inline search blocks (e.g. /about/?s=react). See
-		// docs/explorations/embedded-search-refresh-404.md (RSM-1754).
-		add_action( 'pre_get_posts', array( static::class, 'unset_search_on_singular_block_host' ) );
 	}
 
 	/**
-	 * On the main frontend query, when a request resolves to a singular
-	 * permalink that ALSO carries an `s` query var AND that post hosts at
-	 * least one Jetpack Search block, drop `s` from the WP_Query so
-	 * WordPress doesn't AND a `post_content LIKE` clause into the
-	 * singular post lookup (which empties `$posts` and trips
-	 * `WP::handle_404()`).
+	 * URL param key the inline search experience uses for the current request.
 	 *
-	 * Note: we deliberately don't gate on `is_search()` — when `pagename`
-	 * or `page_id` is set alongside `s`, `WP_Query::parse_query()`
-	 * resolves the query as singular and never sets `$is_search` to true,
-	 * even though `WP_Query::get_posts()` still folds the `s` LIKE clause
-	 * into the WHERE on the next line. Checking the raw `s` query var is
-	 * what actually maps to "this query will trip the 404 path."
+	 * On WP's search route (`is_search()`) the canonical `s` key is used so
+	 * the blocks interoperate with core's search routing, body classes, and
+	 * any theme/plugin code keyed off `s`. On non-search pages — singular
+	 * permalinks, archives, the front page — the blocks switch to
+	 * `NON_SEARCH_QUERY_PARAM` (`q`) so a refresh of an inline-search URL
+	 * like `/about/?q=boots` doesn't trip core's `WP_Query::get_posts()`
+	 * `post_content LIKE` AND clause and 404 the page.
 	 *
-	 * `$_GET['s']` is left intact so the Interactivity API store still
-	 * seeds `searchQuery` from the URL on first paint and the inline
-	 * search UI runs the API fetch after hydration.
-	 *
-	 * @param \WP_Query $query Main query about to run.
-	 * @return void
+	 * @return string
 	 */
-	public static function unset_search_on_singular_block_host( $query ) {
-		if ( is_admin() || ! $query instanceof \WP_Query || ! $query->is_main_query() ) {
-			return;
-		}
-		if ( '' === (string) $query->get( 's' ) ) {
-			return;
-		}
-		$post = self::resolve_singular_request_post( $query );
-		if ( ! $post || ! self::post_hosts_search_blocks( $post ) ) {
-			return;
-		}
-		$query->set( 's', '' );
-	}
-
-	/**
-	 * Resolve the singular post that the current main query is about to
-	 * load, by re-running the same slug → post lookup core would do
-	 * during `WP_Query::get_posts()`. We can't read `get_post()` /
-	 * `$GLOBALS['post']` at `pre_get_posts` time because the loop
-	 * hasn't started yet — and on a fresh request that global is null.
-	 *
-	 * Returns null for non-singular queries (the caller treats that
-	 * as "no guard needed").
-	 *
-	 * @param \WP_Query $query Main query about to run.
-	 * @return \WP_Post|null
-	 */
-	private static function resolve_singular_request_post( \WP_Query $query ): ?\WP_Post {
-		$page_id = (int) $query->get( 'page_id' );
-		if ( $page_id > 0 && function_exists( 'get_post' ) ) {
-			$post = get_post( $page_id );
-			return $post instanceof \WP_Post ? $post : null;
-		}
-		if ( ! function_exists( 'get_page_by_path' ) ) {
-			return null;
-		}
-		$pagename = (string) $query->get( 'pagename' );
-		if ( '' !== $pagename ) {
-			$post = get_page_by_path( $pagename );
-			return $post instanceof \WP_Post ? $post : null;
-		}
-		$name = (string) $query->get( 'name' );
-		if ( '' !== $name ) {
-			$post_type = $query->get( 'post_type' );
-			if ( empty( $post_type ) || 'any' === $post_type ) {
-				$post_type = 'post';
-			}
-			$post = get_page_by_path( $name, OBJECT, $post_type );
-			return $post instanceof \WP_Post ? $post : null;
-		}
-		return null;
-	}
-
-	/**
-	 * Whether a post's content tree contains any registered Jetpack
-	 * Search 3.0 block (any name in `SEARCH_BLOCK_NAMES`). Walks
-	 * `innerBlocks` recursively.
-	 *
-	 * Template parts and reusable blocks placed via the Site Editor are
-	 * intentionally not walked: matching the same scope as
-	 * `collect_filter_configs_from_post()`. A post that hosts search
-	 * blocks only via a template part will still 404 on refresh; the
-	 * fix for that case is tracked alongside RSM-1754.
-	 *
-	 * @param \WP_Post $post Post to inspect.
-	 * @return bool
-	 */
-	public static function post_hosts_search_blocks( \WP_Post $post ): bool {
-		if ( empty( $post->post_content ) || ! function_exists( 'parse_blocks' ) ) {
-			return false;
-		}
-		return self::block_tree_contains_search_block( parse_blocks( $post->post_content ) );
-	}
-
-	/**
-	 * Recursively walk a parsed block tree looking for any block whose
-	 * `blockName` is in `SEARCH_BLOCK_NAMES`. Returns as soon as one is
-	 * found.
-	 *
-	 * @param array $blocks Parsed block tree from `parse_blocks()`.
-	 * @return bool
-	 */
-	private static function block_tree_contains_search_block( array $blocks ): bool {
-		foreach ( $blocks as $block ) {
-			if ( ! is_array( $block ) ) {
-				continue;
-			}
-			$name = $block['blockName'] ?? '';
-			if ( '' !== $name && in_array( $name, self::SEARCH_BLOCK_NAMES, true ) ) {
-				return true;
-			}
-			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
-				if ( self::block_tree_contains_search_block( $block['innerBlocks'] ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public static function get_search_param_name(): string {
+		return function_exists( 'is_search' ) && is_search() ? 's' : self::NON_SEARCH_QUERY_PARAM;
 	}
 
 	/**
@@ -644,49 +531,55 @@ class Search_Blocks {
 
 		return array(
 			// Connection / routing config.
-			'siteId'        => $site_id,
-			'apiRoot'       => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'         => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite' => $is_private,
-			'isWpcom'       => $is_wpcom,
-			'homeUrl'       => function_exists( 'home_url' ) ? home_url() : '',
+			'siteId'          => $site_id,
+			'apiRoot'         => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'           => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite'   => $is_private,
+			'isWpcom'         => $is_wpcom,
+			'homeUrl'         => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'        => function_exists( 'get_locale' )
+			'locale'          => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'   => $search_query,
-			'sortOrder'     => static::parse_url_sort(),
-			'activeFilters' => $active_filters,
-			'priceRange'    => $price_range,
+			'searchQuery'     => $search_query,
+			// URL key the JS store uses to read/write the search query. `s`
+			// on the WP search route, `q` on non-search pages — see
+			// `get_search_param_name()`. Threaded through the seed so the JS
+			// store reads from the same key the seed pulled `searchQuery`
+			// from.
+			'searchParamName' => static::get_search_param_name(),
+			'sortOrder'       => static::parse_url_sort(),
+			'activeFilters'   => $active_filters,
+			'priceRange'      => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
 			// taxonomy, label, showCount, maxItems } }.
-			'filterConfigs' => array(),
+			'filterConfigs'   => array(),
 
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'       => array(),
-			'aggregations'  => (object) array(),
-			'totalResults'  => 0,
-			'pageHandle'    => null,
+			'results'         => array(),
+			'aggregations'    => (object) array(),
+			'totalResults'    => 0,
+			'pageHandle'      => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the no-results block stays
 			// hidden between first paint and JS hydrating the initial fetch —
 			// otherwise a "No results found" flash appears on deep links.
-			'isLoading'     => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
-			'isLoadingMore' => false,
-			'hasError'      => false,
+			'isLoading'       => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
+			'isLoadingMore'   => false,
+			'hasError'        => false,
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -695,7 +588,7 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'       => static::build_initial_strings(),
+			'strings'         => static::build_initial_strings(),
 		);
 	}
 
@@ -725,22 +618,17 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Parse the search query from the URL.
-	 *
-	 * Reads `$_GET['s']` directly rather than going through
-	 * `get_search_query()` because `unset_search_on_singular_block_host()`
-	 * may have stripped `s` from the WP_Query to dodge the singular 404
-	 * path — `get_search_query()` would then return ''. The raw `$_GET`
-	 * value is what the rest of the seed (filters, sort, price range) is
-	 * already keyed off, so the inline search experience reads a
-	 * consistent URL-derived view of state. Sanitization mirrors what
-	 * WP would have done for `s` (sanitize_text_field + trim).
+	 * Parse the search query from the URL, reading whichever key
+	 * `get_search_param_name()` says is active for this request (`s` on
+	 * the WP search route, `q` everywhere else). Sanitization mirrors
+	 * what WP would have done for `s` (sanitize_text_field + trim).
 	 *
 	 * @return string
 	 */
 	protected static function parse_url_search_query(): string {
+		$key = self::get_search_param_name();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to string + sanitize_text_field( wp_unslash( ... ) ) on the next line.
-		$raw = $_GET['s'] ?? '';
+		$raw = $_GET[ $key ] ?? '';
 		if ( ! is_scalar( $raw ) ) {
 			return '';
 		}

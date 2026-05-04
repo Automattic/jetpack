@@ -95,6 +95,32 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'min_price' ) ).toBe( false );
 		expect( params.has( 'max_price' ) ).toBe( false );
 	} );
+
+	it( 'writes the search query under the configured param name (q on non-search pages)', () => {
+		// Off the WP search route the inline blocks switch to `q`
+		// so a refresh of `/about/?q=boots` doesn't trigger core's
+		// singular 404 path. This verifies the URL writer honours the seed.
+		const params = stateToUrlParams( {
+			searchQuery: 'boots',
+			sortOrder: 'relevance',
+			searchParamName: 'q',
+		} );
+		expect( params.get( 'q' ) ).toBe( 'boots' );
+		expect( params.has( 's' ) ).toBe( false );
+	} );
+
+	it( 'preserves empty search param so a refresh keeps the inline-search URL shape', () => {
+		// Same rationale as the empty-`s` case: dropping the param entirely
+		// when the user clears the input would drop the visible URL marker
+		// that says "this page is hosting an inline search".
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			searchParamName: 'q',
+		} );
+		expect( params.has( 'q' ) ).toBe( true );
+		expect( params.get( 'q' ) ).toBe( '' );
+	} );
 } );
 
 describe( 'urlParamsToState', () => {

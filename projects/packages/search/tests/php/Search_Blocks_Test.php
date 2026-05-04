@@ -27,6 +27,7 @@ class Search_Blocks_Test extends TestCase {
 			'homeUrl',
 			'locale',
 			'searchQuery',
+			'searchParamName',
 			'sortOrder',
 			'results',
 			'totalResults',
@@ -321,132 +322,52 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * The 404 guard must drop `s` from the WP_Query when a search request
-	 * resolves to a singular page that hosts at least one Jetpack Search
-	 * block. Without this, `WP::handle_404()` would 404 the page on
-	 * refresh because the AND'd `post_content LIKE '%react%'` clause
-	 * empties $posts (RSM-1754).
+	 * On the WP search route, the inline blocks must keep using the
+	 * canonical `s` URL key so they interoperate with core's search
+	 * routing, body classes, and any theme/plugin code keyed off `s`.
 	 */
-	public function test_unset_search_on_singular_block_host_drops_s_when_page_hosts_blocks() {
-		$page_id = wp_insert_post(
-			array(
-				'post_type'    => 'page',
-				'post_title'   => 'About',
-				'post_name'    => 'about',
-				'post_status'  => 'publish',
-				'post_content' => "<!-- wp:jetpack/search-input /-->\n<!-- wp:jetpack/search-results /-->",
-			)
-		);
-
-		$original_main_query = $GLOBALS['wp_the_query'] ?? null;
-		try {
-			$query                   = $this->build_singular_search_query( $page_id, 'react' );
-			$GLOBALS['wp_the_query'] = $query;
-			Search_Blocks::unset_search_on_singular_block_host( $query );
-			$this->assertSame( '', $query->get( 's' ) );
-		} finally {
-			$GLOBALS['wp_the_query'] = $original_main_query;
-			wp_delete_post( $page_id, true );
-		}
-	}
-
-	/**
-	 * Pages without any Jetpack Search blocks must keep their `s` query
-	 * var intact — the historic singular-search behaviour (which 404s
-	 * by default) is only worth overriding when we *know* an inline
-	 * search experience is mounted on the page.
-	 */
-	public function test_unset_search_on_singular_block_host_preserves_s_when_no_blocks() {
-		$page_id = wp_insert_post(
-			array(
-				'post_type'    => 'page',
-				'post_title'   => 'Plain',
-				'post_name'    => 'plain',
-				'post_status'  => 'publish',
-				'post_content' => '<!-- wp:paragraph --><p>just some text</p><!-- /wp:paragraph -->',
-			)
-		);
-
-		$original_main_query = $GLOBALS['wp_the_query'] ?? null;
-		try {
-			$query                   = $this->build_singular_search_query( $page_id, 'react' );
-			$GLOBALS['wp_the_query'] = $query;
-			Search_Blocks::unset_search_on_singular_block_host( $query );
-			$this->assertSame( 'react', $query->get( 's' ) );
-		} finally {
-			$GLOBALS['wp_the_query'] = $original_main_query;
-			wp_delete_post( $page_id, true );
-		}
-	}
-
-	/**
-	 * On a bare `/?s=react` search (no `pagename`/`name`/`page_id`),
-	 * the guard must do nothing so `Inline_Search` and the rest of the
-	 * search pipeline continue to handle the query normally.
-	 */
-	public function test_unset_search_on_singular_block_host_ignores_non_singular_search() {
-		$original_main_query = $GLOBALS['wp_the_query'] ?? null;
-		try {
-			$query = new \WP_Query();
-			$query->parse_query( array( 's' => 'react' ) );
-			$GLOBALS['wp_the_query'] = $query;
-			Search_Blocks::unset_search_on_singular_block_host( $query );
-			$this->assertSame( 'react', $query->get( 's' ) );
-		} finally {
-			$GLOBALS['wp_the_query'] = $original_main_query;
-		}
-	}
-
-	/**
-	 * Non-main queries (e.g. a secondary `WP_Query` in a custom block)
-	 * must never be touched — the guard targets the singular 404 path,
-	 * which only fires for the main frontend request.
-	 */
-	public function test_unset_search_on_singular_block_host_ignores_secondary_queries() {
-		$page_id = wp_insert_post(
-			array(
-				'post_type'    => 'page',
-				'post_title'   => 'About',
-				'post_name'    => 'about',
-				'post_status'  => 'publish',
-				'post_content' => '<!-- wp:jetpack/search-input /-->',
-			)
-		);
-
-		$original_main_query = $GLOBALS['wp_the_query'] ?? null;
-		try {
-			// Build a query and explicitly make a *different* one the main
-			// query so `is_main_query()` returns false for our $query.
-			$main_query              = new \WP_Query();
-			$GLOBALS['wp_the_query'] = $main_query;
-
-			$query = $this->build_singular_search_query( $page_id, 'react' );
-			Search_Blocks::unset_search_on_singular_block_host( $query );
-			$this->assertSame( 'react', $query->get( 's' ) );
-		} finally {
-			$GLOBALS['wp_the_query'] = $original_main_query;
-			wp_delete_post( $page_id, true );
-		}
-	}
-
-	/**
-	 * After `unset_search_on_singular_block_host()` strips `s` from the
-	 * WP_Query to dodge the 404 path, the Interactivity store must still
-	 * seed `searchQuery` from the URL — otherwise the user's term shows
-	 * up in the address bar but not in the search input or results.
-	 * Regression coverage for /<page>/?s=<term> on a page that hosts
-	 * search blocks.
-	 */
-	public function test_build_initial_state_seeds_search_query_from_get_even_when_wp_query_s_is_empty() {
-		$original_get   = $_GET;
+	public function test_get_search_param_name_uses_s_on_search_route() {
 		$original_query = $GLOBALS['wp_query'] ?? null;
-		$_GET           = array( 's' => 'react' );
-		// Mimic the post-guard state: $_GET still carries `s`, but the
-		// main WP_Query has had it stripped.
-		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => '' ) );
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+			$this->assertSame( 's', Search_Blocks::get_search_param_name() );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * On any non-search request (singular page, archive, front page),
+	 * the inline blocks must switch to `q` so a refresh of an inline-
+	 * search URL like `/about/?q=boots` doesn't trip core's
+	 * `WP_Query::get_posts()` AND'd `post_content LIKE` clause and
+	 * 404 the page (RSM-1754).
+	 */
+	public function test_get_search_param_name_uses_q_off_search_route() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query();
+			$this->assertSame( 'q', Search_Blocks::get_search_param_name() );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * On the WP search route, the seed must read `searchQuery` from
+	 * `?s=…` and tell the JS store the active key is `s` so subsequent
+	 * URL writes (debounced search keystrokes, `popstate`) stay on the
+	 * canonical key.
+	 */
+	public function test_build_initial_state_uses_s_on_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => 'boots' );
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
 		try {
 			$state = Search_Blocks::build_initial_state();
-			$this->assertSame( 'react', $state['searchQuery'] );
+			$this->assertSame( 'boots', $state['searchQuery'] );
+			$this->assertSame( 's', $state['searchParamName'] );
 		} finally {
 			$_GET                = $original_get;
 			$GLOBALS['wp_query'] = $original_query;
@@ -454,55 +375,49 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * The block walker must detect search blocks nested inside other
-	 * blocks (e.g. inside a Group), since the bundled "Blog Search Page"
-	 * pattern wraps the search blocks in layout containers.
+	 * On a non-search page (singular embed, archive, etc.), the seed
+	 * must read `searchQuery` from `?q=…` and ignore any stray `?s=…`
+	 * (which is the URL shape we deliberately stopped writing to
+	 * dodge the singular 404 path).
 	 */
-	public function test_post_hosts_search_blocks_walks_inner_blocks() {
-		$post = new \WP_Post(
-			(object) array(
-				'post_content' => '<!-- wp:group --><div class="wp-block-group"><!-- wp:jetpack/search-input /--></div><!-- /wp:group -->',
-			)
+	public function test_build_initial_state_uses_q_off_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array(
+			'q' => 'boots',
+			's' => 'ignored',
 		);
-		$this->assertTrue( Search_Blocks::post_hosts_search_blocks( $post ) );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( 'boots', $state['searchQuery'] );
+			$this->assertSame( 'q', $state['searchParamName'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
 	}
 
 	/**
-	 * A post without any registered Jetpack Search block must report
-	 * false even when it contains other Jetpack-namespaced blocks, so
-	 * we don't accidentally suppress `s` on unrelated pages.
+	 * Off the search route, an `?s=boots` URL must NOT seed the inline
+	 * search — the active key is `q`. Without this, a stray `s` (from
+	 * a pre-existing shared link or an unrelated plugin) would still
+	 * hydrate the Interactivity store and re-emit `?s=` on the next
+	 * URL push, walking us back into the singular 404 path.
 	 */
-	public function test_post_hosts_search_blocks_returns_false_for_unrelated_blocks() {
-		$post = new \WP_Post(
-			(object) array(
-				'post_content' => '<!-- wp:jetpack/contact-form /--><!-- wp:paragraph --><p>hi</p><!-- /wp:paragraph -->',
-			)
-		);
-		$this->assertFalse( Search_Blocks::post_hosts_search_blocks( $post ) );
-	}
-
-	/**
-	 * Build a `WP_Query` resembling the one core dispatches for
-	 * `/<pagename>/?s=<term>` (using `page_id` rather than `pagename`
-	 * because WorDBless's wpdb stub only resolves SELECTs by ID).
-	 *
-	 * The caller is responsible for assigning it to `$GLOBALS['wp_the_query']`
-	 * so `is_main_query()` returns the desired value (and for restoring
-	 * the prior value in a `finally` block).
-	 *
-	 * @param int    $page_id Singular post ID.
-	 * @param string $search  Search term.
-	 * @return \WP_Query
-	 */
-	private function build_singular_search_query( int $page_id, string $search ): \WP_Query {
-		$query = new \WP_Query();
-		$query->parse_query(
-			array(
-				'page_id' => $page_id,
-				's'       => $search,
-			)
-		);
-		return $query;
+	public function test_build_initial_state_ignores_legacy_s_param_off_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => 'boots' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( '', $state['searchQuery'] );
+			$this->assertSame( 'q', $state['searchParamName'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
 	}
 
 	/**

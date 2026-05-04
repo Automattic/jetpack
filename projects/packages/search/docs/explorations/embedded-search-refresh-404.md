@@ -1,8 +1,8 @@
 # Exploration: embedded search returns 404 on refresh (RSM-1754)
 
-> **Status:** Implemented — Option B is now live. See
-> `Search_Blocks::unset_search_on_singular_block_host()` and
-> `Search_Blocks::post_hosts_search_blocks()` in
+> **Status:** Implemented — Option E (use a non-`s` URL key off the search
+> route) is now live. See `Search_Blocks::get_search_param_name()` and the
+> `searchParamName` field on the seeded Interactivity state in
 > `src/search-blocks/class-search-blocks.php`. This document is kept for
 > the design rationale and for reviewers comparing alternatives.
 
@@ -11,7 +11,7 @@
 When the Jetpack Search 3.0 search-input block (or the "Compact Search" /
 "Blog Search Page" pattern) is inserted into a non-search page, e.g.
 `/about/`, typing in the input and pressing Enter works — JS keeps the
-URL on `/about/?s=react` and re-renders results inline via the
+URL on `/about/?s=boots` and re-renders results inline via the
 Interactivity API store.
 
 But once the user **refreshes** that URL, WordPress returns a 404
@@ -22,26 +22,24 @@ Reproduction is on `pixelantics.jetpack.ngrok.app/about/?s=react`
 
 ## Root cause
 
-WordPress treats a URL like `/about/?s=react` as a request for a single
+WordPress treats a URL like `/about/?s=boots` as a request for a single
 page that **also** carries a search query. Internally:
 
 1. `WP::parse_request()` resolves the rewrite rule for `/about/` and
-   sets `pagename=about`. It also sees `?s=react` in `$_GET` and
-   queues `s=react` as a query var.
+   sets `pagename=about`. It also sees `?s=boots` in `$_GET` and
+   queues `s=boots` as a query var.
 2. `WP_Query::parse_query()` resolves the query as singular
    (`is_page === true`, `is_singular() === true`) because `pagename` is
    set. *Despite `s` being non-empty, `is_search` stays false* — the
    `is_search = true` branch only fires in the archive `else` arm of
    `parse_query()` (see `class-wp-query.php`, the `if ( isset(
-   $this->query['s'] ) )` block ~L894). This is a useful detail for
-   the fix: gating on `is_search()` would skip exactly the case we
-   need to catch.
+   $this->query['s'] ) )` block ~L894).
 3. `WP_Query::get_posts()` still adds the search WHERE clause whenever
    `strlen( $query_vars['s'] ) > 0` (see `class-wp-query.php` ~L2278),
    regardless of `is_search`. The MySQL query that core builds for
    that combined state is essentially "page named `about` whose
-   post_content matches `react`". For the typical case (the page
-   doesn't contain the word "react"), the resulting `$posts` is empty.
+   post_content matches `boots`". For the typical case (the page
+   doesn't contain the word "boots"), the resulting `$posts` is empty.
 4. `WP::handle_404()` then sees a singular request with an empty
    `$posts` and sets a 404, which is what the visitor sees.
 
@@ -63,29 +61,12 @@ are both true — but the singular page query that core dispatches
 Net effect: the inline search experience only "works" until the next
 refresh, exactly as the bug report describes.
 
-## Reproduction (without docker)
-
-The 404 path can be exercised with WP core's bundled tests, but the
-shortest repro that matches the user-reported flow is:
-
-```
-1. On a Search-3.0-enabled site, edit the `/about/` page and insert
-   the `jetpack/search-input` block (or the Compact Search pattern).
-2. Visit `/about/`.
-3. Type "react" in the search input and press Enter. Results render
-   inline; URL becomes `/about/?s=react`.
-4. Refresh the browser tab. The site returns the theme's 404 page.
-```
-
-A code-only repro (no docker required) is documented in the prototype
-patch in this directory under `prototype-singular-search-guard.diff`.
-
 ## Why this is specific to the embedded surface
 
 The historic Jetpack Search behaviour ("classic" or "instant") is
 either:
 
-- The user clicks a search input that submits to `/?s=react` — a
+- The user clicks a search input that submits to `/?s=boots` — a
   bare search route, where `is_singular()` is false and the 404
   pathway never trips. ✓
 - Or the modal Instant Search overlay is rendered on the page; it
@@ -112,7 +93,7 @@ mutate the request so it resolves as a pure search query
 * **Pro:** WordPress then routes the request through
   `search_template_hierarchy`, our prepended
   `jetpack-search` template wins, and inline search renders just like
-  it does on `/?s=react`.
+  it does on `/?s=boots`.
 * **Con:** It changes the URL-to-template contract for *any* search
   on a singular permalink, even on sites that haven't enabled
   Search 3.0 blocks. Need to gate the rewrite on either
@@ -127,14 +108,12 @@ mutate the request so it resolves as a pure search query
 In `pre_get_posts`, when we detect the same collision, leave
 `pagename` alone but unset the `s` query var on the WP_Query so
 core doesn't AND a `post_content LIKE` filter into the page lookup.
-The Interactivity store reads `s` out of `$_GET` directly (via
-`get_search_query()` / `$_GET['s']`), so the inline experience
-would still run. The page would resolve normally.
+The Interactivity store reads `s` out of `$_GET` directly, so the
+inline experience would still run; the page would resolve normally.
 
-* **Pro:** Smallest change. The `/about/` page renders normally
-  with its content **and** the inline search blocks, which is
-  arguably what most authors want when they drop a search input
-  on a content page.
+* **Pro:** The `/about/` page renders normally with its content
+  **and** the inline search blocks, which is arguably what most
+  authors want when they drop a search input on a content page.
 * **Pro:** No template-routing changes — Site Editor customizations
   still apply.
 * **Con:** Requires the page itself to contain the search blocks
@@ -142,11 +121,12 @@ would still run. The page would resolve normally.
   no search UI). We'd want to gate this on "the post contains a
   jetpack/search-* block" so we don't strip `s` from arbitrary
   singular requests on pages that just happen to carry the param.
-* **Con:** `get_search_query()` would still return "react" (because
-  WP only nulls `s` after the query runs, and we strip it pre-query
-  anyway), so seeded state is fine; but `body_class()` would no
-  longer include `search` and themes that style search differently
-  would lose those rules.
+  That gate needs a block-tree walker that runs at `pre_get_posts`
+  time on every front-end request.
+* **Con:** Walker has to either re-implement post-resolution from
+  query vars (it can't read `get_post()` at `pre_get_posts` time),
+  or be deferred to `wp` / `template_redirect` — by which point
+  `WP::handle_404()` has already fired.
 
 ### Option C — render the search template instead of the page when both apply
 
@@ -172,72 +152,69 @@ works on the search page, and prevent insertion elsewhere via
 * **Con:** Contradicts the design intent of Search 3.0 (the
   "inline anywhere" pitch on the radicalupdates p2 announcement).
 
+### Option E — never write `?s=` from inline blocks on non-search pages
+
+The blocks are the only thing producing `/about/?s=boots` in the
+first place — the user types in our `<input>` and our JS pushes
+the URL. So have the JS push `/about/?q=boots` instead and
+read from `$_GET['q']` on first paint. WP_Query never sees
+`s`, so core's `WP_Query::get_posts()` `LIKE` clause never fires
+and the singular 404 path is never reached.
+
+* **Pro:** Smallest implementation. No `pre_get_posts` hook, no
+  block-tree walker, no post-from-query-vars resolution. The
+  Interactivity store is already the single source of truth for
+  every URL push the inline experience makes; we just toggle the
+  key it writes under based on `is_search()`.
+* **Pro:** The page renders via its normal singular template,
+  including custom layouts and Site Editor customizations.
+  `body_class()` reflects the actual route (singular, not search),
+  so theme styles for content pages still apply.
+* **Pro:** Composable with the search route — when the same blocks
+  render on the `/?s=boots` route (e.g. the Jetpack Search template
+  or a theme's `search.html`), they continue using `s` and stay
+  interoperable with browser history, bookmarks, and other
+  WordPress code keyed off the canonical search query.
+* **Con:** A pre-existing shared link of shape `/about/?s=boots`
+  (e.g. one a user generated with a previous build of these blocks,
+  or copy-pasted from the address bar) still 404s on refresh. We
+  no longer try to override that — it's pure WP behaviour now. The
+  inline search itself never produces that URL again.
+* **Con:** Two URL key names exist for the same logical "search
+  query" parameter. Tooling that scrapes search terms from access
+  logs (analytics, marketing tags) needs to know about both. The
+  RESERVED_PARAMS allow-list on both PHP and JS sides ensures
+  neither name leaks into `activeFilters`.
+
 ## Recommendation
 
-**Option B** is the smallest behavioural change and most closely matches
-how the search-input block is documented to work ("drop it anywhere; it
-filters the inline result list"). The gate ("does the resolved post
-contain any `jetpack/search-*` block?") fits with the existing
-`Search_Blocks::collect_filter_configs_from_post()` walker — we can
-factor out a single "does this post host search blocks?" predicate and
-use it in both places.
+**Option E** ships the smallest amount of code and removes an entire
+class of edge cases (nested template parts, reusable blocks, posts
+that *could* host search blocks but don't yet). The pre-existing
+shared-link case is the only behaviour we give up — and that case
+is a pure WP feature, not a Search 3.0 promise.
 
-If we want the "refreshing keeps you on the search-results page"
-mental model from Option C, that's a follow-up: the prerequisite is
-still suppressing the singular 404 path, which Option B does.
+If we ever do want the "refreshing keeps you on the search-results
+page" mental model from Option C, it's still a future follow-up:
+shipping Option E doesn't preclude it.
 
 ## Implementation notes
 
-Option B shipped with two changes in
-`src/search-blocks/class-search-blocks.php`:
+Option E ships as one helper plus a thread-through on both the PHP
+seed and the JS store:
 
-1. `Search_Blocks::post_hosts_search_blocks( \WP_Post $post )` walks
-   `parse_blocks( $post->post_content )` and returns true when any
-   block name in `SEARCH_BLOCK_NAMES` is found anywhere in the tree
-   (including nested `innerBlocks` like a Group wrapper).
-2. `Search_Blocks::unset_search_on_singular_block_host( \WP_Query $query )`
-   hooks `pre_get_posts`. On the main frontend query, when `s` is
-   non-empty and `pagename`/`page_id`/`name` resolves to a post that
-   hosts any search block, it calls `$query->set( 's', '' )` so core
-   doesn't AND a `post_content LIKE` clause into the singular post
-   lookup. `$_GET['s']` is left intact, so the Interactivity store's
-   `searchQuery` seed still picks up the URL value and the inline
-   search runs after hydration.
-
-The fix gates on the raw `s` query var rather than `is_search()`
-because `WP_Query::parse_query()` resolves the `pagename`+`s`
-collision as singular (`is_page=true`) and never sets `is_search` in
-that branch — but `WP_Query::get_posts()` still folds the search
-WHERE clause in based purely on `strlen( $qv['s'] ) > 0`. See the
-"Root cause" section above.
-
-## Open questions for the implementation PR
-
-- Do we want the **page content with the inline search** to render
-  (Option B), or the **search results template** to take over
-  `/about/` on refresh (Options A/C)? Both are defensible; Option B
-  preserves the page's own custom layout, Options A/C preserve
-  the user's "I'm on a search page" mental model.
-- After Option B sets `s=''` on the WP_Query, `WP_Query::is_search()`
-  flips to `false` and `Inline_Search::filter__posts_pre_query()`
-  no longer fires. That's intentional — the page itself runs as a
-  normal singular request, and the inline-search blocks fetch
-  results client-side via the REST API. Confirm this matches the
-  behaviour we want during implementation.
-- Should we also seed Interactivity API state on `is_singular` pages
-  that host search blocks today? `Search_Blocks::seed_interactivity_state()`
-  fires on `wp_enqueue_scripts` for every front-end request, so seeding
-  already happens — but `parse_url_filters()` etc. read from `$_GET`,
-  which is preserved. Worth re-confirming during implementation.
-- Is the bug also reproducible with `/?s=react` on a site whose
-  homepage is a static page? (Same `is_singular() && is_search()`
-  collision could apply.) Worth covering with a regression test
-  in the implementation PR.
-- Does `post_hosts_search_blocks()` need to walk **template parts**
-  the way the Site Editor renders them? The current `Search_Blocks::
-  collect_filter_configs_from_post()` walker explicitly does not (see
-  its docblock). For the 404 guard we only need the predicate to fire
-  when a search-input block is actually present on the post — if a
-  user dropped one in a template part instead of the post content,
-  `/about/?s=react` would still 404 with this prototype. Need to
-  decide whether to extend the walker or accept the gap.
+1. `Search_Blocks::get_search_param_name()` returns `'s'` when
+   `is_search()` is true and `Search_Blocks::NON_SEARCH_QUERY_PARAM`
+   (`'q'`) otherwise.
+2. `Search_Blocks::build_initial_state()` reads the URL through
+   that helper and exposes the active key as `searchParamName` on
+   the seeded Interactivity state.
+3. `search-input/render.php` reads `$_GET[ $search_param ]` through
+   the same helper for its initial `value`.
+4. `store/index.js` threads `state.searchParamName` into
+   `pushStateToUrl()` (debounced search, sort, filter changes) and
+   `readStateFromUrl()` (popstate handler) so subsequent URL writes
+   stay on whichever key the seed picked.
+5. Both `Search_Blocks::RESERVED_QUERY_PARAMS` and
+   `RESERVED_PARAMS` in `store/url-state.js` include both `s` and
+   `q` so neither name can be misread as a filter key.
