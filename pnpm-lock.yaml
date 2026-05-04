@@ -18,9 +18,6 @@ importers:
 
   .:
     devDependencies:
-      eslint:
-        specifier: 9.39.4
-        version: 9.39.4
       husky:
         specifier: 9.1.7
         version: 9.1.7
