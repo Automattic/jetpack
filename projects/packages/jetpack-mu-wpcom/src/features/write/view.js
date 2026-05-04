@@ -1023,10 +1023,14 @@ function insertNewBlock( tag ) {
 	const newEl = document.createElement( tag );
 	newEl.innerHTML = '<br>';
 
-	// Find the paragraph containing the slash command by scanning direct children.
+	// Find the block containing the slash command by scanning direct children.
+	// Include headings and blockquotes so slash commands work inside them.
 	let slashBlock = null;
 	for ( const child of content.children ) {
-		if ( /^(P|DIV)$/i.test( child.tagName ) && /^\/\S*$/.test( child.textContent.trim() ) ) {
+		if (
+			/^(P|DIV|H[1-6]|BLOCKQUOTE)$/i.test( child.tagName ) &&
+			/^\/\S*$/.test( child.textContent.trim() )
+		) {
 			slashBlock = child;
 			break;
 		}
@@ -1060,10 +1064,14 @@ function insertNewList( listTag ) {
 	li.innerHTML = '<br>';
 	list.appendChild( li );
 
-	// Find the paragraph containing the slash command.
+	// Find the block containing the slash command.
+	// Include headings and blockquotes so slash commands work inside them.
 	let slashBlock = null;
 	for ( const child of content.children ) {
-		if ( /^(P|DIV)$/i.test( child.tagName ) && /^\/\S*$/.test( child.textContent.trim() ) ) {
+		if (
+			/^(P|DIV|H[1-6]|BLOCKQUOTE)$/i.test( child.tagName ) &&
+			/^\/\S*$/.test( child.textContent.trim() )
+		) {
 			slashBlock = child;
 			break;
 		}
@@ -1506,7 +1514,7 @@ function insertMediaBlock( mediaEl ) {
 		insertAfter.after( mediaEl );
 		mediaEl.after( p );
 		if (
-			insertAfter.tagName === 'P' &&
+			/^(P|H[1-6]|BLOCKQUOTE)$/i.test( insertAfter.tagName ) &&
 			( ! insertAfter.textContent || ! insertAfter.textContent.trim() )
 		) {
 			insertAfter.remove();
