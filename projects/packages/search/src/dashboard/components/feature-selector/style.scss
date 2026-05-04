@@ -48,7 +48,7 @@
 
 	&__option {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		gap: 12px;
 		padding: 16px;
 		border: 1px solid #dcdcde;
@@ -73,10 +73,6 @@
 				border-color: #dcdcde;
 			}
 		}
-	}
-
-	&__option-radio {
-		margin-block-start: 2px;
 	}
 
 	&__option-icon {
