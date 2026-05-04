@@ -152,9 +152,9 @@ function pcg_healthcheck_is_plugin_update( $hook_extra ) {
 }
 
 /**
- * Stash a per-user admin notice describing the probe failure and rollback
- * outcome, keyed by the current user id so concurrent updates don't
- * clobber each other's notices.
+ * Stash a site-wide admin notice describing the probe failure and rollback
+ * outcome. Site-wide (not per-user) so cron/CLI updates — which run with
+ * no current user — still surface a notice to admins on next page load.
  *
  * @param string $plugin_file Basename relative to WP_PLUGIN_DIR.
  * @param array  $probe       Probe result from PCG_Load_Tester::test().
@@ -164,7 +164,7 @@ function pcg_healthcheck_is_plugin_update( $hook_extra ) {
  * @return void
  */
 function pcg_healthcheck_stash_notice( $plugin_file, $probe, $rollback, $plugin_name = '', $new_version = '' ) {
-	$key      = 'pcg_healthcheck_notice_' . get_current_user_id();
+	$key      = 'pcg_healthcheck_notice';
 	$existing = get_transient( $key );
 	if ( ! is_array( $existing ) ) {
 		$existing = array();
@@ -179,12 +179,15 @@ function pcg_healthcheck_stash_notice( $plugin_file, $probe, $rollback, $plugin_
 }
 
 /**
- * Render any stashed post-update notices for the current user.
+ * Render any stashed post-update notices to users who can manage plugins.
  *
  * @return void
  */
 function pcg_healthcheck_render_notice() {
-	$key      = 'pcg_healthcheck_notice_' . get_current_user_id();
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$key      = 'pcg_healthcheck_notice';
 	$messages = get_transient( $key );
 	if ( ! is_array( $messages ) || empty( $messages ) ) {
 		return;
