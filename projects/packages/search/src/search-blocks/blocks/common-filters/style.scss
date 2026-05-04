@@ -1,0 +1,8 @@
+.jetpack-search-common-filters {
+	display: flex;
+	flex-direction: column;
+	// Default inter-filter spacing. Themes / block supports override this via
+	// the `--wp--style--block-gap` custom property emitted by the
+	// spacing.blockGap support.
+	gap: var(--wp--style--block-gap, 1rem);
+}
