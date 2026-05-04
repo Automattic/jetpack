@@ -306,11 +306,12 @@ class WPCOMSH_Recovery_Mode_Sync {
 
 	/**
 	 * Identify the plugin or theme a fatal originated from by matching the
-	 * file path against active plugin main files and the active theme
-	 * directories. Returns `[kind, slug]` matching the shape used by WP's own
-	 * `*_paused_extensions` storage (plugin slug = main-file relative path,
-	 * theme slug = stylesheet/template directory name), or null if the file
-	 * doesn't live under a known extension (e.g. core, mu-plugins, drop-ins).
+	 * file path against the plugin and active theme directories. Returns
+	 * `[kind, slug]` matching the shape WP's own recovery storage uses — the
+	 * plugin slug is the first path segment under `WP_PLUGIN_DIR` (mirroring
+	 * core's `WP_Recovery_Mode::get_extension_for_error()`), and the theme
+	 * slug is the stylesheet/template directory name. Returns null when the
+	 * file doesn't live under a known extension (core, mu-plugins, drop-ins).
 	 *
 	 * @param string $file Absolute path to the file that fataled.
 	 * @return array{0:string,1:string}|null
@@ -324,23 +325,10 @@ class WPCOMSH_Recovery_Mode_Sync {
 		if ( defined( 'WP_PLUGIN_DIR' ) ) {
 			$plugin_dir = wp_normalize_path( WP_PLUGIN_DIR ) . '/';
 			if ( str_starts_with( $normalized, $plugin_dir ) ) {
-				$rel = substr( $normalized, strlen( $plugin_dir ) );
-				if ( ! function_exists( 'get_plugins' ) && defined( 'ABSPATH' ) ) {
-					$plugin_admin = ABSPATH . 'wp-admin/includes/plugin.php';
-					if ( file_exists( $plugin_admin ) ) {
-						require_once $plugin_admin;
-					}
-				}
-				$plugins = function_exists( 'get_plugins' ) ? get_plugins() : array();
-				foreach ( $plugins as $main_file => $_data ) {
-					$main_dir = dirname( $main_file );
-					if ( '.' === $main_dir ) {
-						if ( $rel === $main_file ) {
-							return array( 'plugin', $main_file );
-						}
-					} elseif ( str_starts_with( $rel, $main_dir . '/' ) ) {
-						return array( 'plugin', $main_file );
-					}
+				$rel   = substr( $normalized, strlen( $plugin_dir ) );
+				$parts = explode( '/', $rel );
+				if ( '' !== $parts[0] ) {
+					return array( 'plugin', $parts[0] );
 				}
 			}
 		}
