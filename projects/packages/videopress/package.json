@@ -15,14 +15,16 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client",
+		"build": "pnpm run clean && pnpm run build-client && pnpm run build:wp-build",
+		"build:wp-build": "wp-build",
 		"build-client": "webpack",
 		"clean": "rm -rf build/",
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "echo \"pending implementation\"",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm build && pnpm build-client --watch"
+		"watch": "concurrently 'pnpm:build-client --watch' 'pnpm:watch:wp-build'",
+		"watch:wp-build": "wp-build --watch"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
