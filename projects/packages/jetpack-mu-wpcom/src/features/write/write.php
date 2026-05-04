@@ -192,7 +192,7 @@ function wpcom_write_convert_video_embeds( $content ) {
 				return $matches[0];
 			}
 
-			$title = $yt ? 'YouTube video' : 'Vimeo video';
+			$title = $yt ? __( 'YouTube video', 'jetpack-mu-wpcom' ) : __( 'Vimeo video', 'jetpack-mu-wpcom' );
 
 			return sprintf(
 				'<figure class="bw-video-figure"><div class="bw-video-wrap"><iframe src="%s" title="%s" frameborder="0" allowfullscreen></iframe></div></figure>',
