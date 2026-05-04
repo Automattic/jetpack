@@ -194,30 +194,16 @@ describe( 'experience actions', () => {
 	} );
 
 	describe( 'saveExperience', () => {
-		test( 'translates "overlay" pending to the correct payload', () => {
+		test( 'translates each experience to a single-field payload', () => {
 			// saveExperience exports its translation as a named helper so the
 			// payload shape can be unit-tested without driving the generator.
 			const { experienceToPayload } = jest.requireActual(
 				'../../../../src/dashboard/store/actions/jetpack-settings'
 			);
-			expect( experienceToPayload( 'overlay' ) ).toEqual( {
-				module_active: true,
-				instant_search_enabled: true,
-				experience: 'overlay',
-			} );
-			expect( experienceToPayload( 'embedded' ) ).toEqual( {
-				module_active: true,
-				instant_search_enabled: false,
-				experience: 'embedded',
-			} );
-			expect( experienceToPayload( 'classic' ) ).toEqual( {
-				module_active: true,
-				instant_search_enabled: false,
-				experience: 'classic',
-			} );
-			expect( experienceToPayload( 'off' ) ).toEqual( {
-				module_active: false,
-			} );
+			expect( experienceToPayload( 'overlay' ) ).toEqual( { experience: 'overlay' } );
+			expect( experienceToPayload( 'embedded' ) ).toEqual( { experience: 'embedded' } );
+			expect( experienceToPayload( 'classic' ) ).toEqual( { experience: 'classic' } );
+			expect( experienceToPayload( 'off' ) ).toEqual( { experience: 'off' } );
 		} );
 
 		test( 'saveExperience yields update, success, then setLastSavedExperience + setPendingExperience(null)', () => {

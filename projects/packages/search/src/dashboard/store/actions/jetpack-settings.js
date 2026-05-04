@@ -78,30 +78,21 @@ export function setJetpackSettings( options ) {
  * Translate an experience ID into the Save payload sent to
  * /jetpack/v4/search/settings.
  *
- * `experience` is forward-compat: the back end ignores it today; the existing
- * booleans are what actually wire the feature up. When the back end persists
- * `experience`, the booleans become redundant and can be dropped from the
- * payload — that change happens in a separate PR.
+ * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
+ * so the front end and back end ship together — `experience` is the only thing
+ * we need to send. The back end is responsible for translating `experience`
+ * into whatever it persists, and for migrating any pre-existing
+ * `instant_search_enabled` / `module_active` booleans on first read so the
+ * initial active row reflects the user's prior state.
  *
  * @param {string} experience - One of 'embedded' | 'overlay' | 'classic' | 'off'.
  * @return {object} - The payload object.
  */
 export function experienceToPayload( experience ) {
-	switch ( experience ) {
-		case 'embedded':
-			return { module_active: true, instant_search_enabled: false, experience: 'embedded' };
-		case 'overlay':
-			return { module_active: true, instant_search_enabled: true, experience: 'overlay' };
-		case 'classic':
-			return { module_active: true, instant_search_enabled: false, experience: 'classic' };
-		case 'off':
-			// We deliberately leave `instant_search_enabled` and `experience` out
-			// of the payload so the user's previous overlay/embedded preference
-			// is preserved server-side for next time they re-enable search.
-			return { module_active: false };
-		default:
-			throw new Error( `Unknown experience: ${ experience }` );
+	if ( ! [ 'embedded', 'overlay', 'classic', 'off' ].includes( experience ) ) {
+		throw new Error( `Unknown experience: ${ experience }` );
 	}
+	return { experience };
 }
 
 /**

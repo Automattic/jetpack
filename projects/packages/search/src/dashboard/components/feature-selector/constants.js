@@ -4,10 +4,12 @@ import { grid, desktop, search, cancelCircleFilled } from '@wordpress/icons';
 /**
  * Experience IDs.
  *
- * - 'embedded' and 'overlay' are persisted server-side once the back end
- * ships the feature (today they are written but ignored).
- * - 'classic' and 'off' are synthetic UI tokens; the back end sees them as
- * boolean combinations of `module_active` and `instant_search_enabled`.
+ * Sent to the back end as `{ experience }`. The whole UI is gated behind
+ * `jetpack_search_blocks_enabled`, so front and back ship together — there
+ * is no need to also send the legacy `module_active` / `instant_search_enabled`
+ * booleans. The back end translates `experience` into whatever it persists,
+ * and migrates any pre-existing booleans on first read so the initial active
+ * row reflects the user's prior state.
  */
 export const EXPERIENCE = Object.freeze( {
 	EMBEDDED: 'embedded',
