@@ -106,8 +106,6 @@
 		justify-content: space-between;
 		gap: var(--wpds-dimension-gap-md);
 		margin-block-start: var(--wpds-dimension-gap-lg);
-		padding-block-start: var(--wpds-dimension-padding-lg);
-		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	}
 
 	&__status {
