@@ -1,5 +1,14 @@
 :global {
 
+	// @wordpress/ui Button styles live inside `@layer wp-ui-components`, which
+	// loses to wp-admin's un-layered `a { color: ... }` rule when the Button is
+	// rendered via base-ui's `render={<a/>}` prop. Re-assert the button's own
+	// foreground color outside of any layer so the `<a>` variant renders with
+	// the correct text color.
+	body.jetpack_page_my-jetpack a[class*="__button"][class*="__is-"] {
+		color: var(--wp-ui-button-foreground-color);
+	}
+
 	// Hello Dolly compatibility fix
 	body.jetpack_page_my-jetpack p#dolly {
 		position: absolute;
