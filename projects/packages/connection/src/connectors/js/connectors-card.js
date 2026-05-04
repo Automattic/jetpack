@@ -23,7 +23,7 @@ const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, useState, useEffect, useRef } = window.wp.element;
+const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
 const { __ } = window.wp.i18n;
 const { Button, Modal } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
@@ -210,55 +210,32 @@ function ErrorNotice( { message, onDismiss = null } ) {
 /**
  * Terms of Service and Privacy Policy notice for first-time connections.
  *
- * Uses a translatable template string with {{tos}} and {{privacy}} placeholders
- * that get replaced with link elements.
- *
  * @return {object} React element.
  */
 function TosNotice() {
-	const tosUrl = 'https://wordpress.com/tos/';
-	const privacyUrl = 'https://automattic.com/privacy/';
-
-	const template = __(
-		'By connecting, you agree to our {{tos}} and have read our {{privacy}}.',
-		'jetpack-connection'
+	const message = createInterpolateElement(
+		__(
+			'By connecting, you agree to our <tos>Terms of Service</tos> and have read our <privacy>Privacy Policy</privacy>.',
+			'jetpack-connection'
+		),
+		{
+			tos: createElement( 'a', {
+				href: 'https://wordpress.com/tos/',
+				target: '_blank',
+				rel: 'noopener noreferrer',
+			} ),
+			privacy: createElement( 'a', {
+				href: 'https://automattic.com/privacy/',
+				target: '_blank',
+				rel: 'noopener noreferrer',
+			} ),
+		}
 	);
-
-	const parts = [];
-	let remaining = template;
-
-	const placeholders = {
-		'{{tos}}': createElement(
-			'a',
-			{ key: 'tos', href: tosUrl, target: '_blank', rel: 'noopener noreferrer' },
-			__( 'Terms of Service', 'jetpack-connection' )
-		),
-		'{{privacy}}': createElement(
-			'a',
-			{ key: 'privacy', href: privacyUrl, target: '_blank', rel: 'noopener noreferrer' },
-			__( 'Privacy Policy', 'jetpack-connection' )
-		),
-	};
-
-	for ( const [ placeholder, element ] of Object.entries( placeholders ) ) {
-		const idx = remaining.indexOf( placeholder );
-		if ( idx === -1 ) {
-			continue;
-		}
-		if ( idx > 0 ) {
-			parts.push( remaining.slice( 0, idx ) );
-		}
-		parts.push( element );
-		remaining = remaining.slice( idx + placeholder.length );
-	}
-	if ( remaining ) {
-		parts.push( remaining );
-	}
 
 	return createElement(
 		Text,
 		{ variant: 'muted', size: 12, className: 'jetpack-connector__tos-notice' },
-		...parts
+		message
 	);
 }
 
