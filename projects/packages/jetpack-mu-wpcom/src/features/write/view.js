@@ -875,6 +875,11 @@ const contentReady2 = setInterval( () => {
 	if ( ! contentEl.innerHTML.trim() ) {
 		contentEl.innerHTML = '<p><br></p>';
 	}
+	// When reopening a media-only post, the content may contain only
+	// non-editable blocks (e.g. figures) with no editable paragraphs.
+	// Run the block-structure audit immediately so gap paragraphs are
+	// inserted and the user can start editing right away.
+	ensureBlockStructure();
 	if ( ! contentEl.textContent.trim() && ! contentEl.querySelector( 'img, video, figure' ) ) {
 		contentEl.classList.add( 'bw-is-empty' );
 		contentEl.addEventListener( 'input', () => contentEl.classList.remove( 'bw-is-empty' ), {
@@ -1313,17 +1318,22 @@ function ensureBlockStructure() {
 		}
 	}
 	// Check if every block is a gap paragraph (e.g. after all figures
-	// were deleted). Without a real editable block the save cleanup
-	// would strip all gaps and serialize empty content.
+	// were deleted) and no non-editable blocks remain.  When figures
+	// or HRs still exist the gap paragraphs are sufficient cursor
+	// targets and no additional editable block is needed.
 	if ( ! needsRepair ) {
 		let hasRealEditable = false;
+		let hasNonEditableBlock = false;
 		for ( const el of content.children ) {
 			if ( EDITABLE_BLOCK_TAGS.test( el.tagName ) && ! el.classList.contains( 'bw-block-gap' ) ) {
 				hasRealEditable = true;
 				break;
 			}
+			if ( isNonEditableBlock( el ) ) {
+				hasNonEditableBlock = true;
+			}
 		}
-		if ( ! hasRealEditable ) {
+		if ( ! hasRealEditable && ! hasNonEditableBlock ) {
 			needsRepair = true;
 		}
 	}
@@ -1432,15 +1442,23 @@ function ensureBlockStructure() {
 		content.appendChild( gap );
 	}
 
-	// Guarantee at least one text-editable block exists.
+	// Guarantee at least one text-editable block exists.  When
+	// non-editable blocks (figures, HRs) are present, the surrounding
+	// gap paragraphs already provide editable cursor targets that can
+	// be promoted on click — adding another paragraph here would create
+	// a visible duplicate once the trailing gap is promoted.
 	let hasEditable = false;
+	let hasNonEditable = false;
 	for ( const el of content.children ) {
 		if ( EDITABLE_BLOCK_TAGS.test( el.tagName ) && ! el.classList.contains( 'bw-block-gap' ) ) {
 			hasEditable = true;
 			break;
 		}
+		if ( isNonEditableBlock( el ) ) {
+			hasNonEditable = true;
+		}
 	}
-	if ( ! hasEditable && content.firstChild ) {
+	if ( ! hasEditable && ! hasNonEditable && content.firstChild ) {
 		const p = document.createElement( 'p' );
 		p.innerHTML = '<br>';
 		content.appendChild( p );
