@@ -138,6 +138,7 @@ class Customize_Feed {
 		$image = Podcast::get_image_url();
 		if ( ! empty( $image ) ) {
 			if ( function_exists( 'jetpack_photon_url' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only helper; guarded above.
 				$image = jetpack_photon_url( $image, array( 'fit' => '3000,3000' ), 'https' );
 			}
 			echo "<itunes:image href='" . esc_url( $image ) . "' />\n";
@@ -175,6 +176,7 @@ class Customize_Feed {
 			if ( ! empty( $image_src ) && is_array( $image_src ) ) {
 				$image = $image_src[0];
 				if ( function_exists( 'jetpack_photon_url' ) ) {
+					// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only helper; guarded above.
 					$image = jetpack_photon_url( $image, array( 'fit' => '3000,3000' ), 'https' );
 				}
 				echo "<itunes:image href='" . esc_url( $image ) . "' />\n";
