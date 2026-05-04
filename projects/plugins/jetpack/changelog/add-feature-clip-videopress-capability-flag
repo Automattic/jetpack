@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Generate Feature Clip: expose VideoPress capability flag to client so the sidebar entry point can hide itself on sites where video generation is not available.
+Image Studio: expose a strict VideoPress capability flag (`canGenerateVideoClips`) on the localized data so the client can hide the video clip generation entry point on sites where the server-side pipeline cannot run.

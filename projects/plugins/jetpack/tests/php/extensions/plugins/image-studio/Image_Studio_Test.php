@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Extensions\ImageStudio;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
@@ -81,7 +83,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
-		remove_all_filters( 'jetpack_image_studio_can_upload_videos' );
+		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
@@ -534,9 +536,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test inline script includes canUploadVideos property.
+	 * Test inline script includes canGenerateVideoClips property.
 	 */
-	public function test_inline_script_includes_can_upload_videos() {
+	public function test_inline_script_includes_can_generate_video_clips() {
 		$this->enable_and_enqueue_block_editor();
 
 		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
@@ -546,17 +548,17 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		foreach ( $inline as $line ) {
 			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
 				$found = true;
-				$this->assertStringContainsString( '"canUploadVideos":', $line );
+				$this->assertStringContainsString( '"canGenerateVideoClips":', $line );
 			}
 		}
 		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
 	}
 
 	/**
-	 * Test inline script reflects canUploadVideos = true when forced via filter.
+	 * Test inline script reflects canGenerateVideoClips = true when forced via filter.
 	 */
-	public function test_inline_script_can_upload_videos_true_via_filter() {
-		add_filter( 'jetpack_image_studio_can_upload_videos', '__return_true' );
+	public function test_inline_script_can_generate_video_clips_true_via_filter() {
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 		$this->enable_and_enqueue_block_editor();
 
 		$inline  = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
@@ -564,17 +566,17 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		foreach ( (array) $inline as $line ) {
 			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
 				$matched = true;
-				$this->assertStringContainsString( '"canUploadVideos":true', $line );
+				$this->assertStringContainsString( '"canGenerateVideoClips":true', $line );
 			}
 		}
 		$this->assertTrue( $matched, 'Inline script with imageStudioData not found.' );
 	}
 
 	/**
-	 * Test inline script reflects canUploadVideos = false when forced via filter.
+	 * Test inline script reflects canGenerateVideoClips = false when forced via filter.
 	 */
-	public function test_inline_script_can_upload_videos_false_via_filter() {
-		add_filter( 'jetpack_image_studio_can_upload_videos', '__return_false' );
+	public function test_inline_script_can_generate_video_clips_false_via_filter() {
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
 		$this->enable_and_enqueue_block_editor();
 
 		$inline  = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
@@ -582,41 +584,99 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		foreach ( (array) $inline as $line ) {
 			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
 				$matched = true;
-				$this->assertStringContainsString( '"canUploadVideos":false', $line );
+				$this->assertStringContainsString( '"canGenerateVideoClips":false', $line );
 			}
 		}
 		$this->assertTrue( $matched, 'Inline script with imageStudioData not found.' );
 	}
 
 	/**
-	 * Test that site_can_upload_videos_for_image_studio() honors the override filter.
+	 * Test that image_studio_can_generate_video_clips() honors the override filter.
 	 */
-	public function test_site_can_upload_videos_filter_override() {
-		add_filter( 'jetpack_image_studio_can_upload_videos', '__return_true' );
-		$this->assertTrue( ImageStudio\site_can_upload_videos_for_image_studio() );
+	public function test_can_generate_video_clips_filter_override() {
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
 
-		remove_all_filters( 'jetpack_image_studio_can_upload_videos' );
-		add_filter( 'jetpack_image_studio_can_upload_videos', '__return_false' );
-		$this->assertFalse( ImageStudio\site_can_upload_videos_for_image_studio() );
+		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 
 	/**
 	 * Test that the helper falls back to VideoPress\Status::is_active() when
-	 * neither the filter nor wpcom_site_can_upload_videos() short-circuit.
+	 * neither the filter nor wpcom_site_has_feature() short-circuit.
 	 *
-	 * In the standard self-hosted PHPUnit environment wpcom_site_can_upload_videos
+	 * In the standard self-hosted PHPUnit environment wpcom_site_has_feature
 	 * is not defined, so the call goes through the VideoPress fallback. We only
 	 * assert that the result type matches what VideoPress\Status::is_active()
 	 * would return — covering the fallback wiring without binding to a specific
 	 * VideoPress activation state in CI.
 	 */
-	public function test_site_can_upload_videos_falls_back_to_videopress_status() {
-		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-			$this->markTestSkipped( 'wpcom_site_can_upload_videos is defined; fallback path is unreachable here.' );
+	public function test_can_generate_video_clips_falls_back_to_videopress_status() {
+		if ( function_exists( 'wpcom_site_has_feature' ) ) {
+			$this->markTestSkipped( 'wpcom_site_has_feature is defined; fallback path is unreachable here.' );
 		}
 
 		$expected = \Automattic\Jetpack\VideoPress\Status::is_active();
-		$this->assertSame( $expected, ImageStudio\site_can_upload_videos_for_image_studio() );
+		$this->assertSame( $expected, ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that on WPCOM (Simple/Atomic) the helper returns true when
+	 * wpcom_site_has_feature( 'videopress' ) returns true.
+	 *
+	 * Runs in a separate process so we can stub wpcom_site_has_feature without
+	 * leaking the definition into the main test process. This exercises the
+	 * Simple/Atomic branch (the main behavior introduced by this PR) in the
+	 * standalone PHPUnit job, where the helper would otherwise be undefined
+	 * and the test would silently take the self-hosted fallback path.
+	 *
+	 * Skipped in environments where wpcom_site_has_feature is already defined
+	 * (e.g. WPCOMSH test job) since we cannot redefine an existing function.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_true_on_wpcom_with_videopress() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_has_feature' ) ) {
+			$this->markTestSkipped( 'wpcom_site_has_feature already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_has_feature( $feature, $blog_id = 0 ) { return $feature === "videopress"; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that on WPCOM (Simple/Atomic) the helper returns false when
+	 * wpcom_site_has_feature( 'videopress' ) returns false — even on sites
+	 * that have the broader UPLOAD_VIDEO_FILES feature (Premium plans without
+	 * VideoPress). This is the regression guard for the strict-VideoPress check.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_false_on_wpcom_without_videopress() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_has_feature' ) ) {
+			$this->markTestSkipped( 'wpcom_site_has_feature already defined; cannot stub.' );
+		}
+
+		// Simulate a Premium-without-VideoPress site: only UPLOAD_VIDEO_FILES is true,
+		// VIDEOPRESS is false. The helper must return false because the generation
+		// pipeline writes to VideoPress specifically.
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_has_feature( $feature, $blog_id = 0 ) { return $feature === "upload_video_files"; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 
 	/**

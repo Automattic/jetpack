@@ -107,27 +107,26 @@ function has_jetpack_ai_features() {
 }
 
 /**
- * Check whether the Image Studio video generation flow can run on the current site.
+ * Check whether the video clip generation flow can run on the current site.
  *
- * This is feature-scoped, not a general "can this site upload any video" check —
- * self-hosted Jetpack sites without VideoPress can still upload videos through
- * the standard WordPress media flow, but the Image Studio video generation
- * pipeline writes to VideoPress and would fail there.
+ * Strictly VideoPress-scoped: the server-side generation pipeline writes the
+ * generated video to VideoPress specifically, so this must not return true
+ * for sites that only have generic video-upload capability (e.g. WordPress.com
+ * Premium plans without VideoPress). Self-hosted sites can still upload
+ * videos through the standard WordPress media flow when this is false; this
+ * flag is exclusively about the video clip generation entry point.
  *
- * Mirrors the capability check used by the server-side video generation ability
- * so the client can hide entry points on sites where generation would fail.
- *
- * - On WordPress.com Simple and Atomic, defers to wpcom_site_can_upload_videos()
- *   which accounts for both VideoPress and the general video upload feature
- *   (Premium+ plans).
- * - On self-hosted Jetpack and standalone VideoPress, checks whether VideoPress
- *   is active as a Jetpack module or stand-alone plugin.
+ * - On WordPress.com Simple and Atomic, checks the strict VideoPress feature
+ *   via wpcom_site_has_feature( 'videopress' ), which is available on both
+ *   environments (loaded by mu-plugins on Simple, by WPCOMSH on Atomic).
+ * - On self-hosted Jetpack and standalone VideoPress, checks whether
+ *   VideoPress is active as a Jetpack module or stand-alone plugin.
  *
  * @return bool
  */
-function site_can_upload_videos_for_image_studio() {
+function image_studio_can_generate_video_clips() {
 	/**
-	 * Filter the Image Studio video-upload capability determination.
+	 * Filter the video clip generation capability determination.
 	 *
 	 * Return null to fall through to the default capability detection;
 	 * return a boolean to override. Useful for environments that need to
@@ -137,13 +136,14 @@ function site_can_upload_videos_for_image_studio() {
 	 *
 	 * @param bool|null $override Override value, or null to use default detection.
 	 */
-	$override = apply_filters( 'jetpack_image_studio_can_upload_videos', null );
+	$override = apply_filters( 'jetpack_image_studio_can_generate_video_clips', null );
 	if ( null !== $override ) {
 		return (bool) $override;
 	}
 
-	if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
-		return (bool) wpcom_site_can_upload_videos();
+	// Strict VideoPress check; wpcom_site_can_upload_videos() is too broad (also true for the generic UPLOAD_VIDEO_FILES feature on Premium plans without VideoPress).
+	if ( function_exists( 'wpcom_site_has_feature' ) ) {
+		return (bool) wpcom_site_has_feature( 'videopress' );
 	}
 
 	return VideoPress_Status::is_active();
@@ -319,10 +319,10 @@ function do_enqueue_assets() {
 	);
 
 	$image_studio_data = array(
-		'enabled'         => true,
-		'version'         => '1.0',
-		'isDevMode'       => jetpack_is_internal_testing_environment(),
-		'canUploadVideos' => site_can_upload_videos_for_image_studio(),
+		'enabled'               => true,
+		'version'               => '1.0',
+		'isDevMode'             => jetpack_is_internal_testing_environment(),
+		'canGenerateVideoClips' => image_studio_can_generate_video_clips(),
 	);
 
 	wp_add_inline_script(
