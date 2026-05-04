@@ -107,7 +107,12 @@ function has_jetpack_ai_features() {
 }
 
 /**
- * Check whether the current site can upload videos.
+ * Check whether the Image Studio video generation flow can run on the current site.
+ *
+ * This is feature-scoped, not a general "can this site upload any video" check —
+ * self-hosted Jetpack sites without VideoPress can still upload videos through
+ * the standard WordPress media flow, but the Image Studio video generation
+ * pipeline writes to VideoPress and would fail there.
  *
  * Mirrors the capability check used by the server-side video generation ability
  * so the client can hide entry points on sites where generation would fail.
@@ -120,7 +125,7 @@ function has_jetpack_ai_features() {
  *
  * @return bool
  */
-function site_can_upload_videos() {
+function site_can_upload_videos_for_image_studio() {
 	if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
 		return (bool) wpcom_site_can_upload_videos();
 	}
@@ -301,7 +306,7 @@ function do_enqueue_assets() {
 		'enabled'         => true,
 		'version'         => '1.0',
 		'isDevMode'       => jetpack_is_internal_testing_environment(),
-		'canUploadVideos' => site_can_upload_videos(),
+		'canUploadVideos' => site_can_upload_videos_for_image_studio(),
 	);
 
 	wp_add_inline_script(
