@@ -22,6 +22,33 @@ const withSyncEvent =
 	( cb =>
 		( ...args ) =>
 			cb( ...args ) );
+
+/**
+ * Drop activeFilters keys not present in filterConfigs.
+ *
+ * Uses `Object.hasOwn` rather than `allowedKeys[key]` so prototype-chain
+ * keys (`__proto__`, `constructor`, `toString`, …) can't survive the gate
+ * via inherited properties. Output uses a null prototype for the same
+ * reason — assigning `gated.__proto__` on a plain object would trigger
+ * the prototype setter instead of writing a regular property.
+ *
+ * @param {object} activeFilters - { [filterKey]: string[] } URL-seeded selections.
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig } registered filters.
+ * @return {{ gated: object, droppedAny: boolean }} Filtered selections plus a drop flag.
+ */
+export function gateActiveFilters( activeFilters, filterConfigs ) {
+	const allowedKeys = filterConfigs ?? {};
+	const gated = Object.create( null );
+	let droppedAny = false;
+	for ( const [ key, values ] of Object.entries( activeFilters ?? {} ) ) {
+		if ( ! Object.hasOwn( allowedKeys, key ) ) {
+			droppedAny = true;
+			continue;
+		}
+		gated[ key ] = values;
+	}
+	return { gated, droppedAny };
+}
 // Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
 // latest before touching store state, so a slow request for an older query
@@ -386,7 +413,11 @@ const { state, actions } = store( NAMESPACE, {
 			);
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;
-			state.activeFilters = activeFilters;
+			// urlParamsToState bypasses its own gate when filterConfigs is empty;
+			// re-gate here so popstate matches initialize() and stray URL keys
+			// can't round-trip back into pushStateToUrl on a page with no
+			// registered filters.
+			state.activeFilters = gateActiveFilters( activeFilters, state.filterConfigs ).gated;
 			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
@@ -598,14 +629,17 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
+			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
+			if ( droppedAny ) {
+				state.activeFilters = gated;
+			}
 			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
-				// The URL already carries this query — don't push a duplicate
-				// history entry on top of the browser's current one.
-				// `priceRange` is checked separately because `hasActiveFilters`
-				// only inspects `activeFilters`; without this gate a URL like
-				// `?min_price=10` would leave PHP's `isLoading: true` spinner
-				// stuck because no initial fetch ever fires.
+				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
+				// priceRange is checked separately so `?min_price=10` still triggers an initial fetch.
 				actions.search( { syncUrl: false } );
+			} else if ( droppedAny ) {
+				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded spinner.
+				state.isLoading = false;
 			}
 		},
 	},

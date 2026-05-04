@@ -26,7 +26,7 @@ jest.mock(
 	{ virtual: true }
 );
 
-import { actions, state } from '../../../src/search-blocks/store';
+import { actions, gateActiveFilters, state } from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
 
 const originalActions = { ...actions };
@@ -390,6 +390,68 @@ describe( 'store getters', () => {
 	} );
 } );
 
+describe( 'gateActiveFilters', () => {
+	it( 'drops keys that are not in the registered filterConfigs', () => {
+		const { gated, droppedAny } = gateActiveFilters(
+			{ category: [ 'news' ], post_date: [ '2024-08' ], foo: [ 'bar' ] },
+			{ category: { filterKey: 'category' }, post_date: { filterKey: 'post_date' } }
+		);
+		expect( gated ).toEqual( { category: [ 'news' ], post_date: [ '2024-08' ] } );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'keeps every key when filterConfigs covers them all', () => {
+		const { gated, droppedAny } = gateActiveFilters(
+			{ category: [ 'news' ] },
+			{ category: { filterKey: 'category' }, post_date: { filterKey: 'post_date' } }
+		);
+		expect( gated ).toEqual( { category: [ 'news' ] } );
+		expect( droppedAny ).toBe( false );
+	} );
+
+	it( 'returns droppedAny=false when activeFilters is empty', () => {
+		const { gated, droppedAny } = gateActiveFilters( {}, { category: { filterKey: 'category' } } );
+		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( false );
+	} );
+
+	it( 'drops everything when filterConfigs is empty', () => {
+		const { gated, droppedAny } = gateActiveFilters( { category: [ 'news' ] }, {} );
+		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( true );
+	} );
+
+	it( 'drops prototype-chain keys regardless of filterConfigs contents', () => {
+		// `__proto__`, `constructor`, `toString`, `hasOwnProperty` etc. are
+		// inherited from Object.prototype; a naive `allowedKeys[key]` lookup
+		// would treat them as truthy and let them survive the gate. Use
+		// JSON.parse so `__proto__` lands as an own property (object literals
+		// would set the prototype instead).
+		const activeFilters = JSON.parse(
+			'{"__proto__":["pwn"],"constructor":["x"],"toString":["y"],"category":["news"]}'
+		);
+		const { gated, droppedAny } = gateActiveFilters( activeFilters, {
+			category: { filterKey: 'category' },
+		} );
+		expect( gated ).toEqual( { category: [ 'news' ] } );
+		expect( droppedAny ).toBe( true );
+		// Output must not have inherited the polluted prototype value either.
+		expect( Object.getPrototypeOf( gated ) ).toBeNull();
+	} );
+
+	it( 'does not allow Object.prototype keys to act as registered filter keys', () => {
+		// Even if filterConfigs only mentions `category`, an attacker URL of
+		// `?toString[]=…` should not survive because `toString` is inherited,
+		// not own.
+		const activeFilters = JSON.parse( '{"toString":["bad"]}' );
+		const { gated, droppedAny } = gateActiveFilters( activeFilters, {
+			category: { filterKey: 'category' },
+		} );
+		expect( gated ).toEqual( {} );
+		expect( droppedAny ).toBe( true );
+	} );
+} );
+
 describe( 'store callbacks', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
@@ -415,5 +477,70 @@ describe( 'store callbacks', () => {
 		expect( addEventListener ).toHaveBeenCalledWith( 'popstate', actions.handlePopState );
 		expect( search ).toHaveBeenCalledTimes( 1 );
 		expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+	} );
+
+	it( 'drops unknown activeFilters keys before running the URL-seeded search', () => {
+		jest.isolateModules( () => {
+			const fresh = require( '../../../src/search-blocks/store' );
+			jest.spyOn( window, 'addEventListener' ).mockImplementation();
+			jest.spyOn( fresh.actions, 'handlePopState' ).mockImplementation();
+			const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+			fresh.state.searchQuery = 'wordpress';
+			fresh.state.priceRange = null;
+			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
+			fresh.state.activeFilters = { category: [ 'news' ], foo: [ 'bar' ] };
+
+			captured.callbacks.initialize();
+
+			expect( fresh.state.activeFilters ).toEqual( { category: [ 'news' ] } );
+			expect( search ).toHaveBeenCalledTimes( 1 );
+			expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+		} );
+	} );
+
+	it( 'clears isLoading when gating empties activeFilters and no fetch will fire', () => {
+		jest.isolateModules( () => {
+			const fresh = require( '../../../src/search-blocks/store' );
+			jest.spyOn( window, 'addEventListener' ).mockImplementation();
+			jest.spyOn( fresh.actions, 'handlePopState' ).mockImplementation();
+			const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+			fresh.state.searchQuery = '';
+			fresh.state.priceRange = null;
+			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
+			fresh.state.activeFilters = { foo: [ 'bar' ] };
+			fresh.state.isLoading = true;
+
+			captured.callbacks.initialize();
+
+			expect( fresh.state.activeFilters ).toEqual( {} );
+			expect( search ).not.toHaveBeenCalled();
+			expect( fresh.state.isLoading ).toBe( false );
+		} );
+	} );
+} );
+
+describe( 'handlePopState gating', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	it( 'drops unknown activeFilters keys even when filterConfigs is empty', async () => {
+		// Empty filterConfigs is the case where urlParamsToState bypasses its
+		// own gate — handlePopState must still drop stray keys before they
+		// land in state and round-trip via pushStateToUrl.
+		const stub = require( '../../../src/search-blocks/store/url-state' );
+		jest.spyOn( stub, 'readStateFromUrl' ).mockReturnValue( {
+			searchQuery: 'hello',
+			sortOrder: 'relevance',
+			activeFilters: { foo: [ 'bar' ] },
+			priceRange: null,
+		} );
+		Object.assign( actions, originalActions );
+		jest.spyOn( actions, 'search' ).mockImplementation();
+		state.filterConfigs = {};
+
+		await runGenerator( actions.handlePopState() );
+
+		expect( state.activeFilters ).toEqual( {} );
 	} );
 } );

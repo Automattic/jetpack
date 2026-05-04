@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: gate URL-seeded activeFilters on the client instead of at PHP seed time, so deep links work for filter blocks placed in templates / template parts (not just post content).
