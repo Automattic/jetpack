@@ -3465,7 +3465,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "3cf80af16fff7392d877369083ca5b051350955f"
+                "reference": "70de574c28bdf70d98a748697cd7d191565d7eb1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3474,6 +3474,7 @@
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
