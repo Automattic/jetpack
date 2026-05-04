@@ -17,7 +17,7 @@
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { FormTokenField, PanelBody, Placeholder, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const MODE_INCLUDE = 'include';
@@ -149,6 +149,40 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 
 	const previewState = describePreview( mode, postTypes, labelBySlug );
 
+	// Per-mode draft cache. Lets the author flip Exclude ⇄ Include, edit
+	// each side independently, and have the previously-typed list come back
+	// when they flip back. Only the active mode's `postTypes` is persisted
+	// to attributes — the inactive draft is local to this editor session
+	// and is discarded on save / reload (matching "only the saved mode
+	// survives a page refresh").
+	const draftRef = useRef( null );
+	if ( draftRef.current === null ) {
+		draftRef.current = {
+			[ MODE_INCLUDE ]: mode === MODE_INCLUDE ? postTypes : [],
+			[ MODE_EXCLUDE ]: mode === MODE_EXCLUDE ? postTypes : [],
+		};
+	}
+
+	const handleModeChange = nextMode => {
+		if ( nextMode === mode ) {
+			return;
+		}
+		// Stash the slugs the author had under the current mode, restore
+		// whatever they had previously typed under the new mode (or an
+		// empty list when this is the first switch into that mode).
+		draftRef.current = { ...draftRef.current, [ mode ]: postTypes };
+		setAttributes( {
+			mode: nextMode,
+			postTypes: draftRef.current[ nextMode ] || [],
+		} );
+	};
+
+	const handlePostTypesChange = tokens => {
+		const slugs = tokensToSlugs( tokens, options );
+		draftRef.current = { ...draftRef.current, [ mode ]: slugs };
+		setAttributes( { postTypes: slugs } );
+	};
+
 	return (
 		<>
 			<InspectorControls>
@@ -172,14 +206,7 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 								value: MODE_INCLUDE,
 							},
 						] }
-						onChange={ value => {
-							// Keep the slug list across mode switches so the
-							// author can flip the meaning of a typed list
-							// without re-entering it. The label and helper
-							// text on the radio + picker make the new
-							// interpretation explicit.
-							setAttributes( { mode: value } );
-						} }
+						onChange={ handleModeChange }
 					/>
 					<FormTokenField
 						__next40pxDefaultSize
@@ -193,7 +220,7 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 						suggestions={ suggestionList }
 						__experimentalExpandOnFocus
 						__experimentalShowHowTo={ false }
-						onChange={ tokens => setAttributes( { postTypes: tokensToSlugs( tokens, options ) } ) }
+						onChange={ handlePostTypesChange }
 					/>
 					<p
 						className="jetpack-search-post-type-filter__hint"
