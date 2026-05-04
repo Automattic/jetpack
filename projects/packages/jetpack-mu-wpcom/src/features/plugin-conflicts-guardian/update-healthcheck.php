@@ -1,7 +1,7 @@
 <?php
 /**
- * Post-update health check — probes each updated plugin after the files
- * are swapped and rolls back on failure.
+ * Post-update health check — probes the site once after a batch of plugin
+ * updates and rolls back every snapshot in the batch on failure.
  *
  * Complements `update-guard.php` (parse-error gate before install) with a
  * runtime probe after install, so fatals that only surface at load or init
@@ -50,8 +50,14 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
 }
 
 /**
- * Hooked on `upgrader_process_complete`. For each plugin update, probes the
- * installed code and rolls back to the snapshot on fatal/throwable.
+ * Hooked on `upgrader_process_complete`. Probes the site once after the
+ * batch of plugin updates and, on fatal, rolls back every snapshotted
+ * plugin in the batch.
+ *
+ * One probe is enough because MODE_UPDATE checks whether the site as a
+ * whole bootstraps — it doesn't isolate which plugin caused the fatal.
+ * If the site is broken, we can't safely tell which plugin to blame, so
+ * we restore the whole batch.
  *
  * @param WP_Upgrader|null $upgrader   Upgrader instance (unused).
  * @param array            $hook_extra { type, action, plugins? }.
@@ -72,71 +78,77 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 		$plugin_files[] = (string) $hook_extra['plugin'];
 	}
 
-	foreach ( $plugin_files as $plugin_file ) {
-		pcg_healthcheck_probe_and_maybe_rollback( $plugin_file );
-	}
-}
-
-/**
- * Run the probe for a single plugin and roll back if it fails. Results are
- * stashed in a per-user transient that the admin_notices hook drains.
- *
- * @param string $plugin_file Basename relative to WP_PLUGIN_DIR.
- * @return void
- */
-function pcg_healthcheck_probe_and_maybe_rollback( $plugin_file ) {
-	$snapshot = PCG_Snapshot::consume( $plugin_file );
-	if ( ! is_array( $snapshot ) ) {
-		return;
-	}
-	if ( empty( $snapshot['was_active'] ) ) {
-		PCG_Snapshot::cleanup_backup( $snapshot );
-		return;
-	}
-
-	$abs = WP_PLUGIN_DIR . '/' . $plugin_file;
-	if ( ! is_file( $abs ) ) {
-		return;
-	}
-
-	// Read the just-installed (possibly broken) plugin headers so the
-	// admin notice can name the plugin and the version we tried to
-	// upgrade to, instead of the raw plugin_file path.
+	// Drain all stashed snapshots up front, keeping only the ones that
+	// were active and whose new files are still on disk. Anything else
+	// can't take the site down, so it doesn't need a probe.
 	if ( ! function_exists( 'get_plugin_data' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
-	$new_data    = get_plugin_data( $abs, false, false );
-	$plugin_name = (string) ( $new_data['Name'] ?? '' );
-	if ( '' === $plugin_name ) {
-		$plugin_name = $plugin_file;
-	}
-	$new_version = (string) ( $new_data['Version'] ?? '' );
+	$candidates = array();
+	foreach ( $plugin_files as $plugin_file ) {
+		$snapshot = PCG_Snapshot::consume( $plugin_file );
+		if ( ! is_array( $snapshot ) ) {
+			continue;
+		}
+		if ( empty( $snapshot['was_active'] ) ) {
+			PCG_Snapshot::cleanup_backup( $snapshot );
+			continue;
+		}
+		$plugin_main = WP_PLUGIN_DIR . '/' . $plugin_file;
+		if ( ! is_file( $plugin_main ) ) {
+			continue;
+		}
 
+		$new_data    = get_plugin_data( $plugin_main, false, false );
+		$plugin_name = (string) ( $new_data['Name'] ?? '' );
+		if ( '' === $plugin_name ) {
+			$plugin_name = $plugin_file;
+		}
+		$candidates[] = array(
+			'plugin_file' => $plugin_file,
+			'snapshot'    => $snapshot,
+			'plugin_main' => $plugin_main,
+			'plugin_name' => $plugin_name,
+			'new_version' => (string) ( $new_data['Version'] ?? '' ),
+		);
+	}
+
+	if ( empty( $candidates ) ) {
+		return;
+	}
+
+	// One probe for the whole batch. The plugin_main argument is just
+	// a target for the load tester to attribute fatals to in its
+	// diagnostics — the probe itself boots the full site.
 	$tester = new PCG_Load_Tester();
-	$result = $tester->test( $abs, PCG_Load_Tester::MODE_UPDATE );
+	$result = $tester->test( $candidates[0]['plugin_main'], PCG_Load_Tester::MODE_UPDATE );
 	$status = (string) ( $result['status'] ?? '' );
 
 	// Anything other than a captured fatal is a no-op rollback-wise: ok =
 	// the update is fine; error = inconclusive transport failure we don't
-	// want to act on. Either way, drop the local backup so it doesn't
+	// want to act on. Either way, drop local backups so they don't
 	// linger under the temp dir.
 	if ( 'fatal' !== $status && 'throwable' !== $status ) {
-		PCG_Snapshot::cleanup_backup( $snapshot );
+		foreach ( $candidates as $candidate ) {
+			PCG_Snapshot::cleanup_backup( $candidate['snapshot'] );
+		}
 		return;
 	}
 
-	$rollback = PCG_Rollback::to_snapshot( $snapshot );
-	pcg_healthcheck_stash_notice( $plugin_file, $result, $rollback, $plugin_name, $new_version );
+	foreach ( $candidates as $candidate ) {
+		$rollback = PCG_Rollback::to_snapshot( $candidate['snapshot'] );
+		pcg_healthcheck_stash_notice( $candidate['plugin_file'], $result, $rollback, $candidate['plugin_name'], $candidate['new_version'] );
 
-	/**
-	 * Fires after a post-update probe fails and rollback has been attempted.
-	 *
-	 * @param string $plugin_file Basename relative to WP_PLUGIN_DIR.
-	 * @param array  $probe       Probe result from PCG_Load_Tester::test().
-	 * @param array  $rollback    Result from PCG_Rollback::to_snapshot().
-	 * @param array  $snapshot    The consumed snapshot.
-	 */
-	do_action( 'pcg_post_update_diagnosis', $plugin_file, $result, $rollback, $snapshot );
+		/**
+		 * Fires after a post-update probe fails and rollback has been attempted.
+		 *
+		 * @param string $plugin_file Basename relative to WP_PLUGIN_DIR.
+		 * @param array  $probe       Probe result from PCG_Load_Tester::test().
+		 * @param array  $rollback    Result from PCG_Rollback::to_snapshot().
+		 * @param array  $snapshot    The consumed snapshot.
+		 */
+		do_action( 'pcg_post_update_diagnosis', $candidate['plugin_file'], $result, $rollback, $candidate['snapshot'] );
+	}
 }
 
 /**
