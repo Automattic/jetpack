@@ -64,12 +64,16 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function enable_menu() {
+		$callback = self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
+			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
+			: array( __CLASS__, 'plugin_settings_page' );
+
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
 			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			array( __CLASS__, 'plugin_settings_page' ),
+			$callback,
 			3
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
