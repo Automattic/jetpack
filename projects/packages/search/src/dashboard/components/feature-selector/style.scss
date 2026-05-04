@@ -3,14 +3,14 @@
 // Vertical breathing room around the selector card. Matches the pattern of
 // `.jp-search-dashboard-meter-wrap` above, without the divider border.
 .jp-search-feature-selector-wrap {
-	padding-block: 32px;
+	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
 .jp-search-feature-selector {
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 6px;
-	padding: 24px;
+	background: var(--wpds-color-bg-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+	padding: var(--wpds-dimension-padding-2xl);
 
 	&__fieldset {
 		border: 0;
@@ -32,37 +32,37 @@
 	}
 
 	&__label {
-		font-size: 11px;
+		font-size: var(--wpds-typography-font-size-xs);
 		font-weight: 600;
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
-		color: #50575e;
-		margin: 0 0 12px;
+		color: var(--wpds-color-fg-content-neutral-weak);
+		margin: 0 0 var(--wpds-dimension-gap-md);
 	}
 
 	&__options {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--wpds-dimension-gap-sm);
 	}
 
 	&__option {
 		display: flex;
 		align-items: center;
-		gap: 12px;
-		padding: 16px;
-		border: 1px solid #dcdcde;
-		border-radius: 6px;
+		gap: var(--wpds-dimension-gap-md);
+		padding: var(--wpds-dimension-padding-lg);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
 		cursor: pointer;
 		transition: border-color 120ms ease, box-shadow 120ms ease;
 
 		&:hover {
-			border-color: #c3c4c7;
+			border-color: var(--wpds-color-stroke-interactive-neutral);
 		}
 
 		&.is-selected {
-			border-color: #008a20;
-			box-shadow: inset 0 0 0 1px #008a20;
+			border-color: var(--wpds-color-fg-content-success-weak);
+			box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-fg-content-success-weak);
 		}
 
 		&.is-disabled {
@@ -70,55 +70,55 @@
 			opacity: 0.55;
 
 			&:hover {
-				border-color: #dcdcde;
+				border-color: var(--wpds-color-stroke-surface-neutral);
 			}
 		}
 	}
 
 	&__option-icon {
 		flex: 0 0 auto;
-		fill: #1e1e1e;
+		fill: var(--wpds-color-fg-content-neutral);
 	}
 
 	&__option-body {
 		flex: 1 1 auto;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--wpds-dimension-gap-xs);
 	}
 
 	&__option-title {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--wpds-dimension-gap-sm);
 		font-weight: 600;
-		color: #1e1e1e;
+		color: var(--wpds-color-fg-content-neutral);
 	}
 
 	&__option-description {
-		color: #50575e;
-		font-size: 13px;
+		color: var(--wpds-color-fg-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-md);
 	}
 
 	&__badge {
 		display: inline-flex;
 		align-items: center;
-		font-size: 10px;
+		font-size: var(--wpds-typography-font-size-xs);
 		font-weight: 600;
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
-		padding: 2px 8px;
-		border-radius: 999px;
+		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+		border-radius: 999px; // Pill shape — intentional, no token equivalent.
 		line-height: 1.6;
 
 		&--recommended {
-			background-color: #d3f1d6;
-			color: #125f1c;
+			background-color: var(--wpds-color-bg-surface-success);
+			color: var(--wpds-color-fg-content-success-weak);
 		}
 
 		&--active {
-			background-color: #d3f1d6;
-			color: #125f1c;
+			background-color: var(--wpds-color-bg-surface-success);
+			color: var(--wpds-color-fg-content-success-weak);
 			margin-inline-start: auto;
 		}
 	}
@@ -127,15 +127,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
-		margin-block-start: 16px;
-		padding-block-start: 16px;
-		border-block-start: 1px solid #f0f0f0;
+		gap: var(--wpds-dimension-gap-md);
+		margin-block-start: var(--wpds-dimension-gap-lg);
+		padding-block-start: var(--wpds-dimension-padding-lg);
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	}
 
 	&__status {
-		color: #50575e;
-		font-size: 13px;
+		color: var(--wpds-color-fg-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-md);
 		margin: 0;
 	}
 }
@@ -143,7 +143,7 @@
 @include variables.for-phone-down {
 
 	.jp-search-feature-selector {
-		padding: 16px;
+		padding: var(--wpds-dimension-padding-lg);
 
 		&__option {
 			flex-wrap: wrap;
