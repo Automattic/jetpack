@@ -43,7 +43,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			__( 'Jetpack AI', 'jetpack' ),
 			__( 'AI', 'jetpack' ),
 			'manage_options',
-			'ai',
+			'jetpack-ai',
 			array( $this, 'render' ),
 			4
 		);
