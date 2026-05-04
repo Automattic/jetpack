@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import {
@@ -73,4 +74,87 @@ export function setJetpackSettings( options ) {
 	return { type: SET_JETPACK_SETTINGS, options };
 }
 
-export default { updateJetpackSettings, setJetpackSettings };
+/**
+ * Translate an experience ID into the Save payload sent to
+ * /jetpack/v4/search/settings.
+ *
+ * `experience` is forward-compat: the back end ignores it today; the existing
+ * booleans are what actually wire the feature up. When the back end persists
+ * `experience`, the booleans become redundant and can be dropped from the
+ * payload — that change happens in a separate PR.
+ *
+ * @param {string} experience - One of 'embedded' | 'overlay' | 'classic' | 'off'.
+ * @return {object} - The payload object.
+ */
+export function experienceToPayload( experience ) {
+	switch ( experience ) {
+		case 'embedded':
+			return { module_active: true, instant_search_enabled: false, experience: 'embedded' };
+		case 'overlay':
+			return { module_active: true, instant_search_enabled: true, experience: 'overlay' };
+		case 'classic':
+			return { module_active: true, instant_search_enabled: false, experience: 'classic' };
+		case 'off':
+			// We deliberately leave `instant_search_enabled` and `experience` out
+			// of the payload so the user's previous overlay/embedded preference
+			// is preserved server-side for next time they re-enable search.
+			return { module_active: false };
+		default:
+			throw new Error( `Unknown experience: ${ experience }` );
+	}
+}
+
+/**
+ * Set the user's in-flight, unsaved experience selection.
+ *
+ * @param {string|null} experience - One of the experience IDs, or null to clear.
+ * @return {object} - an action object.
+ */
+export function setPendingExperience( experience ) {
+	return setJetpackSettings( { pending_experience: experience } );
+}
+
+/**
+ * Promote a successfully saved experience selection so the ACTIVE badge can
+ * stay on the user's choice (Embedded vs. Classic) for the rest of the session.
+ *
+ * @param {string} experience - One of the experience IDs.
+ * @return {object} - an action object.
+ */
+export function setLastSavedExperience( experience ) {
+	return setJetpackSettings( { last_saved_experience: experience } );
+}
+
+/**
+ * Save the chosen experience by calling the existing updateJetpackSettings
+ * generator with a forward-compat payload, then promoting pending → last_saved
+ * on success. The inner generator's optimistic-with-rollback handling covers
+ * the failure case (we leave pending in place so the user can retry).
+ *
+ * Records a single `jetpack_search_experience_save` analytics event at the
+ * point of submit. The event fires regardless of save outcome — same behavior
+ * as the legacy per-toggle events in `ModuleControl`. We capture the previous
+ * experience by reading the store synchronously before yielding the save.
+ *
+ * @param {string} experience - The experience to save.
+ * @yield {object} - an action object.
+ */
+export function* saveExperience( experience ) {
+	const previousExperience = select( STORE_ID ).getActiveExperience();
+	analytics.tracks.recordEvent( 'jetpack_search_experience_save', {
+		previous_experience: previousExperience,
+		new_experience: experience,
+	} );
+	const payload = experienceToPayload( experience );
+	yield updateJetpackSettings( payload );
+	yield setLastSavedExperience( experience );
+	yield setPendingExperience( null );
+}
+
+export default {
+	updateJetpackSettings,
+	setJetpackSettings,
+	setPendingExperience,
+	setLastSavedExperience,
+	saveExperience,
+};
