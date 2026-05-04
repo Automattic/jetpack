@@ -26,6 +26,7 @@ import FilterPopoverEdit, { save as filterPopoverSave } from '../blocks/filter-p
 import LoadMoreEdit from '../blocks/load-more/edit';
 import NoResultsEdit from '../blocks/no-results/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
+import ResultsPanelEdit, { save as resultsPanelSave } from '../blocks/results-panel/edit';
 import SearchErrorEdit from '../blocks/search-error/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit from '../blocks/search-results/edit';
@@ -47,6 +48,7 @@ const BLOCKS = [
 	[ 'jetpack/no-results', NoResultsEdit ],
 	[ 'jetpack/search-error', SearchErrorEdit ],
 	[ 'jetpack/load-more', LoadMoreEdit ],
+	[ 'jetpack/results-panel', ResultsPanelEdit, resultsPanelSave ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /
