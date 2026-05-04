@@ -108,34 +108,46 @@ describe( 'describePreview', () => {
 		[ 'product', 'Product' ],
 	] );
 
-	it( 'returns the empty-state hint when neither list has values', () => {
-		expect( describePreview( [], [], labelBySlug ) ).toMatch( /No constraint configured/ );
+	it( 'flags the empty state when neither list has values', () => {
+		expect( describePreview( [], [], labelBySlug ) ).toEqual( {
+			empty: true,
+			includeText: '(any post type)',
+			excludeText: '(none)',
+		} );
 	} );
 
-	it( 'renders labels (not raw slugs) for include-only configs', () => {
-		expect( describePreview( [ 'post', 'page' ], [], labelBySlug ) ).toMatch(
-			/Results limited to: Post, Page/
-		);
+	it( 'renders Include labels (not raw slugs) and the empty-Exclude fallback', () => {
+		expect( describePreview( [ 'post', 'page' ], [], labelBySlug ) ).toEqual( {
+			empty: false,
+			includeText: 'Post, Page',
+			excludeText: '(none)',
+		} );
 	} );
 
-	it( 'renders labels (not raw slugs) for exclude-only configs', () => {
-		expect( describePreview( [], [ 'product' ], labelBySlug ) ).toMatch(
-			/Results exclude: Product/
-		);
+	it( 'renders Exclude labels and the empty-Include fallback', () => {
+		expect( describePreview( [], [ 'product' ], labelBySlug ) ).toEqual( {
+			empty: false,
+			includeText: '(any post type)',
+			excludeText: 'Product',
+		} );
 	} );
 
 	it( 'renders both label lists when include and exclude are both set', () => {
-		expect( describePreview( [ 'post' ], [ 'product' ], labelBySlug ) ).toMatch(
-			/Results limited to: Post · Excluding: Product/
-		);
+		expect( describePreview( [ 'post' ], [ 'product' ], labelBySlug ) ).toEqual( {
+			empty: false,
+			includeText: 'Post',
+			excludeText: 'Product',
+		} );
 	} );
 
 	it( 'falls back to the raw slug when the type is not yet loaded', () => {
 		// Simulates the brief window where core-data has not resolved
 		// `getPostTypes()` yet — the picker shows raw slugs as token
 		// titles, and the preview should match.
-		expect( describePreview( [ 'unknown-cpt' ], [], new Map() ) ).toMatch(
-			/Results limited to: unknown-cpt/
-		);
+		expect( describePreview( [ 'unknown-cpt' ], [], new Map() ) ).toEqual( {
+			empty: false,
+			includeText: 'unknown-cpt',
+			excludeText: '(none)',
+		} );
 	} );
 } );

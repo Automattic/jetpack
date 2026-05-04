@@ -174,7 +174,7 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 		[ conflictingSlugs, labelBySlug ]
 	);
 
-	const previewText = describePreview( include, exclude, labelBySlug );
+	const previewState = describePreview( include, exclude, labelBySlug );
 
 	return (
 		<>
@@ -243,11 +243,29 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<Placeholder
-					icon="filter"
-					label={ __( 'Post Type Scope', 'jetpack-search-pkg' ) }
-					instructions={ previewText }
-				/>
+				{ /* No `icon` on Placeholder: passing one offsets the label
+				     to the right of the icon while the children stay flush-
+				     left, so the title and the include/exclude rows visibly
+				     drift apart. Without an icon every line shares the same
+				     left column. */ }
+				<Placeholder label={ __( 'Post Type Scope', 'jetpack-search-pkg' ) }>
+					{ previewState.empty ? (
+						<p style={ { margin: 0 } }>
+							{ __(
+								'No constraint configured. Add post types to Include or Exclude in the block settings.',
+								'jetpack-search-pkg'
+							) }
+						</p>
+					) : (
+						<p style={ { margin: 0, lineHeight: 1.6 } }>
+							<strong>{ __( 'Include:', 'jetpack-search-pkg' ) }</strong>{ ' ' }
+							{ previewState.includeText }
+							<br />
+							<strong>{ __( 'Exclude:', 'jetpack-search-pkg' ) }</strong>{ ' ' }
+							{ previewState.excludeText }
+						</p>
+					) }
+				</Placeholder>
 			</div>
 		</>
 	);
@@ -277,44 +295,47 @@ function labelFromTokenString( token, options ) {
 }
 
 /**
- * Build the human-readable summary line for the editor preview card. Always
- * renders labels (via `labelBySlug`) rather than raw slugs so the canvas
- * preview matches the FormTokenField token display in the Inspector.
+ * Build the structured state the canvas preview renders from. Returns
+ * three pieces in one call:
+ *
+ * `empty` is true only when neither list has any values; signals the
+ * Placeholder to render the "Not set" hint instead of the include/
+ * exclude rows. `includeText` is comma-joined human labels (via
+ * `labelBySlug`) when Include has values, or a localized "(any post
+ * type)" fallback so the row's state is explicit rather than appearing
+ * blank. `excludeText` is the same shape for the Exclude side, with
+ * "(none)" as the empty-row fallback — Include and Exclude carry
+ * different semantics when empty: an empty Include means no
+ * restriction, while an empty Exclude means no exclusion.
+ *
+ * Always renders labels (via `labelBySlug`) rather than raw slugs so the
+ * canvas preview matches the FormTokenField token display in the Inspector.
  *
  * @param {string[]} include     - Include list.
  * @param {string[]} exclude     - Exclude list.
  * @param {Map}      labelBySlug - slug -> label map.
- * @return {string} Summary text.
+ * @return {{empty: boolean, includeText: string, excludeText: string}} Structured preview state.
  */
 function describePreview( include, exclude, labelBySlug ) {
 	const formatList = list => list.map( slug => labelBySlug.get( slug ) || slug ).join( ', ' );
 
-	if ( include.length === 0 && exclude.length === 0 ) {
-		return __(
-			'No constraint configured. Add post types to Include or Exclude in the block settings.',
-			'jetpack-search-pkg'
-		);
-	}
-	if ( include.length > 0 && exclude.length === 0 ) {
-		return sprintf(
-			/* translators: %s: comma-separated list of post-type labels. */
-			__( 'Results limited to: %s', 'jetpack-search-pkg' ),
-			formatList( include )
-		);
-	}
-	if ( include.length === 0 && exclude.length > 0 ) {
-		return sprintf(
-			/* translators: %s: comma-separated list of post-type labels. */
-			__( 'Results exclude: %s', 'jetpack-search-pkg' ),
-			formatList( exclude )
-		);
-	}
-	return sprintf(
-		/* translators: 1: include list, 2: exclude list. */
-		__( 'Results limited to: %1$s · Excluding: %2$s', 'jetpack-search-pkg' ),
-		formatList( include ),
-		formatList( exclude )
-	);
+	const empty = include.length === 0 && exclude.length === 0;
+
+	const includeText =
+		include.length > 0
+			? formatList( include )
+			: // Translators: shown in the editor preview when no Include
+			  // constraint is set — meaning every post type is searchable.
+			  __( '(any post type)', 'jetpack-search-pkg' );
+
+	const excludeText =
+		exclude.length > 0
+			? formatList( exclude )
+			: // Translators: shown in the editor preview when no Exclude
+			  // constraint is set — meaning nothing is removed from results.
+			  __( '(none)', 'jetpack-search-pkg' );
+
+	return { empty, includeText, excludeText };
 }
 
 // Re-export internals for unit tests (jest's module-cache picks them up via
