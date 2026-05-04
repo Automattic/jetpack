@@ -11,6 +11,7 @@
 // ```
 
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fixupPluginRules } from '@eslint/compat';
@@ -48,6 +49,7 @@ export * from './files.mjs';
 export { defineConfig, globalIgnores } from 'eslint/config';
 
 const debug = makeDebug( 'eslintrc/base' );
+const require = createRequire( import.meta.url );
 
 const rootdir = fileURLToPath( new URL( '../../..', import.meta.url ) );
 
@@ -146,6 +148,14 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		path.join( rootdir, 'projects/js-packages/storybook/storybook/main.js' )
 	);
 
+	const jetpackComponentsDenylistPath = path.join(
+		rootdir,
+		'tools/eslint/jetpack-components-denylist.json'
+	);
+	const jetpackEslintPlugin = fixupPluginRules(
+		require( path.join( rootdir, 'tools/eslint/eslint-plugin-jetpack/index.cjs' ) )
+	);
+
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
 
@@ -195,6 +205,11 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				wordpressEslintPlugin.configs.custom,
 				wordpressEslintPlugin.configs.esnext,
 				wordpressEslintPlugin.configs.i18n,
+				{
+					rules: {
+						'@wordpress/use-recommended-components': 'error',
+					},
+				},
 
 				{
 					plugins: {
@@ -220,6 +235,22 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				prettier: eslintPluginPrettier,
 			},
 			extends: [ eslintPluginPrettierRecommended ],
+		},
+
+		{
+			name: 'Jetpack recommended components',
+			files: javascriptFiles,
+			plugins: {
+				'@automattic/jetpack': jetpackEslintPlugin,
+			},
+			rules: {
+				'@automattic/jetpack/use-recommended-jetpack-components': [
+					'error',
+					{
+						denylistPath: jetpackComponentsDenylistPath,
+					},
+				],
+			},
 		},
 
 		// Base config.
@@ -437,9 +468,24 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			},
 		},
 
-		// Various config files should allow 'node' globals.
+		// The components package implements Jetpack UI primitives.
 		{
-			files: [ '**/*.config.?([cm])js', '**/webpack.config.*.?([cm])js' ],
+			files: [ 'projects/js-packages/components/**/*.{js,jsx,ts,tsx,mjs,cjs,svelte}' ],
+			rules: {
+				'@automattic/jetpack/use-recommended-jetpack-components': 'off',
+			},
+		},
+
+		// Various Node-oriented files should allow 'node' globals.
+		{
+			files: [
+				'.pnpmfile.cjs',
+				'tools/js-tools/eslintrc/get-ts-parser.cjs',
+				'tools/eslint/eslint-plugin-jetpack/**/*.cjs',
+				'**/tests/e2e/config/default.cjs',
+				'**/*.config.?([cm])js',
+				'**/webpack.config.*.?([cm])js',
+			],
 			languageOptions: {
 				globals: globals.node,
 			},
