@@ -97,8 +97,8 @@ function jetpack_googlemaps_shortcode( $atts ) {
 			return '';
 		}
 
-		$base_url     = ( isset( $url_parts['scheme'] ) ? $url_parts['scheme'] : 'https' ) . '://' . $url_parts['host'] . ( isset( $url_parts['path'] ) ? $url_parts['path'] : '' );
-		$query_string = isset( $url_parts['query'] ) ? $url_parts['query'] : '';
+		$base_url     = ( $url_parts['scheme'] ?? 'https' ) . '://' . $url_parts['host'] . ( $url_parts['path'] ?? '' );
+		$query_string = $url_parts['query'] ?? '';
 
 		// Convert separator-position `&amp;` (and `&amp;amp;` etc.) to `&` so parse_str() can split parameters,
 		// but leave entity-encoded ampersands inside values alone — those are handled after parse_str().
