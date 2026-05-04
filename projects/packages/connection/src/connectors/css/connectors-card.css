@@ -11,6 +11,7 @@
  */
 
 .jetpack-connector__description-padded {
+	display: block;
 	padding-inline-end: 40px;
 }
 

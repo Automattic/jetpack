@@ -23,7 +23,7 @@ const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, useState, useRef } = window.wp.element;
+const { createElement, useState, useEffect, useRef } = window.wp.element;
 const { __ } = window.wp.i18n;
 const { Button, Modal } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
@@ -620,12 +620,13 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 										ref: disconnectAccountRef,
 										variant: 'link',
 										isDestructive: true,
-										isBusy: isUnlinking,
 										disabled: isUnlinking || isDisconnecting,
 										onClick: handleUnlinkUser,
 										className: 'jetpack-connector__inline-action',
 									},
-									__( 'Disconnect account', 'jetpack-connection' )
+									isUnlinking
+										? __( 'Disconnecting…', 'jetpack-connection' )
+										: __( 'Disconnect account', 'jetpack-connection' )
 							  ),
 			  } )
 			: null,
@@ -742,6 +743,18 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const isSiteRegistered = initialIsRegistered;
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
+
+	// Reset "Connecting…" state when the page is restored from bfcache
+	// (e.g. user hits Back after being redirected to the auth page).
+	useEffect( () => {
+		const onPageShow = e => {
+			if ( e.persisted ) {
+				setIsConnecting( false );
+			}
+		};
+		window.addEventListener( 'pageshow', onPageShow );
+		return () => window.removeEventListener( 'pageshow', onPageShow );
+	}, [] );
 
 	const handleConnect = async () => {
 		setIsConnecting( true );
