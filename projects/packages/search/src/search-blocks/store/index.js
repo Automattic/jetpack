@@ -24,20 +24,11 @@ const withSyncEvent =
 			cb( ...args ) );
 
 /**
- * Drop activeFilters keys whose filter is not in the filterConfigs registry.
+ * Drop activeFilters keys not present in filterConfigs.
  *
- * The PHP seed runs before any filter block has rendered, so any gate it
- * could apply on its own would use a partial registry — and would wrongly
- * drop URL params for blocks placed in templates / template parts. By the
- * time `initialize()` fires every block's render.php has contributed its
- * filterConfig via `wp_interactivity_state()`, so the registry here is
- * complete. The gate also keeps stray params from another plugin (e.g.
- * `?foo[]=bar`) out of the URL state that pushStateToUrl will re-emit.
- *
- * @param {object} activeFilters - { [filterKey]: string[] } selections from the seed.
+ * @param {object} activeFilters - { [filterKey]: string[] } URL-seeded selections.
  * @param {object} filterConfigs - { [filterKey]: FilterConfig } registered filters.
- * @return {{ gated: object, droppedAny: boolean }} Subset of `activeFilters`
- * keyed by registered filter keys, plus a flag indicating whether anything was dropped.
+ * @return {{ gated: object, droppedAny: boolean }} Filtered selections plus a drop flag.
  */
 export function gateActiveFilters( activeFilters, filterConfigs ) {
 	const allowedKeys = filterConfigs ?? {};
@@ -633,18 +624,11 @@ const { state, actions } = store( NAMESPACE, {
 				state.activeFilters = gated;
 			}
 			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
-				// The URL already carries this query — don't push a duplicate
-				// history entry on top of the browser's current one.
-				// `priceRange` is checked separately because `hasActiveFilters`
-				// only inspects `activeFilters`; without this gate a URL like
-				// `?min_price=10` would leave PHP's `isLoading: true` spinner
-				// stuck because no initial fetch ever fires.
+				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
+				// priceRange is checked separately so `?min_price=10` still triggers an initial fetch.
 				actions.search( { syncUrl: false } );
 			} else if ( droppedAny ) {
-				// PHP seeded `isLoading: true` based on the URL's raw
-				// activeFilters; the gate above just emptied them. With no
-				// fetch about to flip the flag, clear it here so the
-				// spinner doesn't stick.
+				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded spinner.
 				state.isLoading = false;
 			}
 		},

@@ -474,9 +474,6 @@ describe( 'store callbacks', () => {
 			jest.spyOn( window, 'addEventListener' ).mockImplementation();
 			jest.spyOn( fresh.actions, 'handlePopState' ).mockImplementation();
 			const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
-			// No searchQuery / priceRange, only a stray URL key — gating empties
-			// activeFilters, no fetch fires, and the spinner must be cleared
-			// otherwise the page stays in its PHP-seeded `isLoading: true` state.
 			fresh.state.searchQuery = '';
 			fresh.state.priceRange = null;
 			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
