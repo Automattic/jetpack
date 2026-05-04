@@ -66,6 +66,9 @@ class Jetpack_Admin {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
 		$jetpack_ai = new Jetpack_AI_Page();
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-posts-to-podcast-page.php';
+		$jetpack_posts_to_podcast = new Jetpack_Posts_To_Podcast_Page();
+
 		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );
@@ -74,6 +77,7 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_about, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_ai, 'add_actions' ) );
+		add_action( 'jetpack_admin_menu', array( $jetpack_posts_to_podcast, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );
