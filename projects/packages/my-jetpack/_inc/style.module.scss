@@ -1,14 +1,19 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 :global {
 
-	// Hello Dolly compatibility fix
-	body.jetpack_page_my-jetpack p#dolly {
-		position: absolute;
-		inset-inline-end: 0;
-		z-index: 2;
-
-		@media (max-width: 782px) {
-			padding-inline-end: 10px;
-		}
+	// Apply the shared admin-page-layout mixin so the main My Jetpack page
+	// (sticky header, internally scrollable middle, JetpackFooter pinned at
+	// viewport bottom) matches Boost / Protect / VideoPress / Search /
+	// Newsletter / Publicize / Backup / Jetpack network admin / AI.
+	//
+	// Excluded: My Jetpack's `.jetpack-admin-full-screen` interstitial mode,
+	// which hides the admin bar and takes over the whole viewport; its
+	// existing rules (further down in this file) override wp-admin chrome
+	// directly and should keep doing so. The `:has(.jetpack-admin-full-screen)`
+	// selector scopes the mixin to the regular dashboard view only.
+	body.jetpack_page_my-jetpack:not(:has(.jetpack-admin-full-screen)) {
+		@include jetpack-admin-page-layout;
 	}
 
 	#my-jetpack-container {
