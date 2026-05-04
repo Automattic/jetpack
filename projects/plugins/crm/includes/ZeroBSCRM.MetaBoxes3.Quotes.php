@@ -1043,14 +1043,16 @@ class zeroBS__Metabox_QuoteFiles extends zeroBS__Metabox {
 					</td></tr>
 		
 			</table>
+			<?php
+			$jpcrm_metabox_files_lang = array(
+				'err'         => __( 'Error', 'zero-bs-crm' ),
+				'unabletodel' => __( 'Unable to delete this file', 'zero-bs-crm' ),
+			);
+			?>
 			<script type="text/javascript">
 
 				var zbsQuotesCurrentlyDeleting = false;
-				var zbsMetaboxFilesLang = {
-					'err': <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-					'unabletodel' : <?php echo wp_json_encode( __( 'Unable to delete this file', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-
-				}
+				var zbsMetaboxFilesLang = <?php echo wp_json_encode( $jpcrm_metabox_files_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 				jQuery(function(){
 

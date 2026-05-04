@@ -723,9 +723,7 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox {
 		if ( ! $is_new_contact ) {
 			?>
 		<script type="text/javascript">
-			var zbsContactAvatarLang = {
-				'upload': '<?php esc_html_e( 'Upload Image', 'zero-bs-crm' ); ?>',
-			};
+			var zbsContactAvatarLang = <?php echo wp_json_encode( array( 'upload' => __( 'Upload Image', 'zero-bs-crm' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		</script>
 		<div class="action-wrap">
 			<div class="ui dropdown jpcrm-button white-bg jpcrm-dropdown"><?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?><i class="fa fa-angle-down"></i>
@@ -1259,15 +1257,16 @@ class zeroBS__Metabox_ContactFiles extends zeroBS__Metabox {
 				// PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox');
 				// PerfTest: zeroBSCRM_performanceTest_debugOut();
 
+				$jpcrm_metabox_files_lang = array(
+					'error'          => __( 'Error', 'zero-bs-crm' ),
+					'unabletodelete' => __( 'Unable to delete this file.', 'zero-bs-crm' ),
+				);
+
 				?>
 				<script type="text/javascript">
 
 					var zbsCustomerCurrentlyDeleting = false;
-					var zbsMetaboxFilesLang = {
-
-						'error': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Error', 'zero-bs-crm' ) ) ); ?>',
-						'unabletodelete': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Unable to delete this file.', 'zero-bs-crm' ) ) ); ?>'
-					};
+					var zbsMetaboxFilesLang = <?php echo wp_json_encode( $jpcrm_metabox_files_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 					jQuery(function(){
 

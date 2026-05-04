@@ -379,6 +379,22 @@ class zeroBSCRM_Edit {
 			</div> <!-- / mainlistview wrap -->
 		</form></div>
 
+		<?php
+		$jpcrm_edit_settings         = array(
+			'objid'     => (int) $this->objID,
+			'objdbname' => $this->objType,
+			'nonce'     => wp_create_nonce( 'edit-nonce-' . $this->objType ),
+		);
+		$jpcrm_edit_view_lang_labels = array_merge(
+			array(
+				'today'   => __( 'Today', 'zero-bs-crm' ),
+				'view'    => __( 'View', 'zero-bs-crm' ),
+				'contact' => __( 'Contact', 'zero-bs-crm' ),
+				'company' => jpcrm_label_company(),
+			),
+			is_array( $this->langLabels ) ? $this->langLabels : array(),
+		);
+		?>
 		<script type="text/javascript">
 
 			jQuery(function($){
@@ -393,13 +409,7 @@ class zeroBSCRM_Edit {
 			});
 
 			// General options for edit page
-			var zbsEditSettings = {
-
-				objid: <?php echo (int) $this->objID; ?>,
-				objdbname: <?php echo wp_json_encode( $this->objType, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-				nonce: <?php echo wp_json_encode( wp_create_nonce( 'edit-nonce-' . $this->objType ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
-
-			};
+			var zbsEditSettings = <?php echo wp_json_encode( $jpcrm_edit_settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			var zbsDrawEditViewBlocker = false;
 			var zbsDrawEditAJAXBlocker = false;
 
@@ -411,31 +421,7 @@ class zeroBSCRM_Edit {
 
 			
 			var zbsClick2CallType = <?php echo (int) zeroBSCRM_getSetting( 'clicktocalltype' ); ?>;
-			var zbsEditViewLangLabels = {
-
-					'today': <?php echo wp_json_encode( __( 'Today', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-					'view': <?php echo wp_json_encode( __( 'View', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-					'contact': <?php echo wp_json_encode( __( 'Contact', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-					'company': <?php echo wp_json_encode( jpcrm_label_company(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-
-					<?php
-					$labelCount = 0;
-					if ( count( $this->langLabels ) > 0 ) {
-						foreach ( $this->langLabels as $labelK => $labelV ) {
-
-							if ( $labelCount > 0 ) {
-								echo ',';
-							}
-
-							echo wp_json_encode( $labelK, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ':' . wp_json_encode( $labelV, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-
-							++$labelCount;
-
-						}
-					}
-					?>
-
-			};
+			var zbsEditViewLangLabels = <?php echo wp_json_encode( $jpcrm_edit_view_lang_labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		</script>
 		<?php

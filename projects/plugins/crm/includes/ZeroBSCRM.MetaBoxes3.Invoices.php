@@ -533,15 +533,18 @@ class zeroBS__Metabox_InvoiceFiles extends zeroBS__Metabox {
 					</td></tr>
 			
 			</table>
+			<?php
+			$jpcrm_metabox_files_lang = array(
+				'err'         => __( 'Error', 'zero-bs-crm' ),
+				'unabletodel' => __( 'Unable to delete this file', 'zero-bs-crm' ),
+				'viewcontact' => __( 'View contact', 'zero-bs-crm' ),
+				'viewcompany' => __( 'View', 'zero-bs-crm' ) . ' ' . jpcrm_label_company(),
+			);
+			?>
 			<script type="text/javascript">
 
 				var zbsInvoicesCurrentlyDeleting = false;
-				var zbsMetaboxFilesLang = {
-				'err': <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-				'unabletodel' : <?php echo wp_json_encode( __( 'Unable to delete this file', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-						'viewcontact' : <?php echo wp_json_encode( __( 'View contact', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-						'viewcompany' : <?php echo wp_json_encode( __( 'View', 'zero-bs-crm' ) . ' ' . jpcrm_label_company(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-				}
+				var zbsMetaboxFilesLang = <?php echo wp_json_encode( $jpcrm_metabox_files_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 				jQuery(function(){
 

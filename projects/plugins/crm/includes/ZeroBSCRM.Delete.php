@@ -483,7 +483,12 @@ class zeroBSCRM_Delete {
 
 			<input type="hidden" name="zbs-delete-nonce" value="<?php echo esc_attr( wp_create_nonce( 'delete-nonce' ) ); ?>" />
 		</form></div>
-
+		<?php
+		$jpcrm_edit_view_lang_labels = array_merge(
+			array( 'today' => __( 'Today', 'zero-bs-crm' ) ),
+			is_array( $this->langLabels ) ? $this->langLabels : array(),
+		);
+		?>
 		<script type="text/javascript">
 
 			jQuery(function($){
@@ -502,28 +507,7 @@ class zeroBSCRM_Delete {
 			var zbsObjectViewLinkPrefixCompany = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_company', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			var zbsListViewLink = <?php echo wp_json_encode( jpcrm_esc_link( $this->listViewSlug ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			var zbsClick2CallType = <?php echo (int) zeroBSCRM_getSetting( 'clicktocalltype' ); ?>;
-			var zbsEditViewLangLabels = {
-
-					'today': <?php echo wp_json_encode( __( 'Today', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-
-					<?php
-					$labelCount = 0;
-					if ( count( $this->langLabels ) > 0 ) {
-						foreach ( $this->langLabels as $labelK => $labelV ) {
-
-							if ( $labelCount > 0 ) {
-								echo ',';
-							}
-
-							echo wp_json_encode( $labelK, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ':' . wp_json_encode( $labelV, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-
-							++$labelCount;
-
-						}
-					}
-					?>
-
-			};
+			var zbsEditViewLangLabels = <?php echo wp_json_encode( $jpcrm_edit_view_lang_labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		</script>
 		<?php

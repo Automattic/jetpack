@@ -737,15 +737,16 @@ class zeroBS__Metabox_CompanyFiles extends zeroBS__Metabox {
 				// PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox');
 				// PerfTest: zeroBSCRM_performanceTest_debugOut();
 
+				$jpcrm_metabox_files_lang = array(
+					'error'          => __( 'Error', 'zero-bs-crm' ),
+					'unabletodelete' => __( 'Unable to delete this file.', 'zero-bs-crm' ),
+				);
+
 				?>
 				<script type="text/javascript">
 
 					var zbsCurrentlyDeleting = false;
-					var zbsMetaboxFilesLang = {
-
-						'error': <?php echo wp_json_encode( __( 'Error', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
-						'unabletodelete': <?php echo wp_json_encode( __( 'Unable to delete this file.', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
-					};
+					var zbsMetaboxFilesLang = <?php echo wp_json_encode( $jpcrm_metabox_files_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 					jQuery(function(){
 

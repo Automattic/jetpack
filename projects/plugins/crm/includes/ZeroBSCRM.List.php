@@ -494,6 +494,33 @@ class zeroBSCRM_list {
 
 			);
 
+			switch ( $this->postType ) {
+				case 'zerobs_customer':
+					$zbs_list_view_obj_name = __( 'Contact', 'zero-bs-crm' );
+					break;
+				case 'zerobs_company':
+					$zbs_list_view_obj_name = jpcrm_label_company();
+					break;
+				case 'zerobs_quote':
+					$zbs_list_view_obj_name = __( 'Quote', 'zero-bs-crm' );
+					break;
+				case 'zerobs_invoice':
+					$zbs_list_view_obj_name = __( 'Invoice', 'zero-bs-crm' );
+					break;
+				case 'zerobs_transaction':
+					$zbs_list_view_obj_name = __( 'Transaction', 'zero-bs-crm' );
+					break;
+				case 'zerobs_form':
+					$zbs_list_view_obj_name = __( 'Form', 'zero-bs-crm' );
+					break;
+				case 'zerobs_quotetemplate':
+					$zbs_list_view_obj_name = __( 'Quote Template', 'zero-bs-crm' );
+					break;
+				default:
+					$zbs_list_view_obj_name = __( 'Item', 'zero-bs-crm' );
+					break;
+			}
+
 			?>
 
 			// General options for listview
@@ -568,46 +595,8 @@ class zeroBSCRM_list {
 						var zbsListViewLink = '<?php echo esc_url( admin_url( 'admin.php?page=' . $this->postPage ) ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>';
 			var zbsExportPostURL = '<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>';
 						var zbsTagSkipLinkPrefix = zbsListViewLink + '&zbs_tag=';
-			var zbsListViewObjName = '<?php
-
-			switch ( $this->postType ) {
-
-				case 'zerobs_customer':
-					zeroBSCRM_slashOut( __( 'Contact', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_company':
-					zeroBSCRM_slashOut( jpcrm_label_company() );
-					break;
-
-				case 'zerobs_quote':
-					zeroBSCRM_slashOut( __( 'Quote', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_invoice':
-					zeroBSCRM_slashOut( __( 'Invoice', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_transaction':
-					zeroBSCRM_slashOut( __( 'Transaction', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_form':
-					zeroBSCRM_slashOut( __( 'Form', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_quotetemplate':
-					zeroBSCRM_slashOut( __( 'Quote Template', 'zero-bs-crm' ) );
-					break;
-
-				default:
-					zeroBSCRM_slashOut( __( 'Item', 'zero-bs-crm' ) );
-					break;
-
-			}
-
-			?>';
 			var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
+			var zbsListViewObjName = <?php echo wp_json_encode( $zbs_list_view_obj_name, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 			<?php
 			$jpcrm_listview_lang_labels = array();
