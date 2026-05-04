@@ -1,1 +1,154 @@
-// Styles for the feature selector live here. Filled in during Task 10.
+@use "scss/variables";
+
+.jp-search-feature-selector {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 24px;
+
+	&__fieldset {
+		border: 0;
+		margin: 0;
+		padding: 0;
+	}
+
+	&__legend {
+		// Visually hidden — the canonical name for the radiogroup. The visible
+		// label below uses aria-hidden so screen readers don't read it twice.
+		clip-path: inset(50%);
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		padding: 0;
+		position: absolute;
+		width: 1px;
+		overflow-wrap: normal !important;
+	}
+
+	&__label {
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		color: #50575e;
+		margin: 0 0 12px;
+	}
+
+	&__options {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	&__option {
+		display: flex;
+		align-items: flex-start;
+		gap: 12px;
+		padding: 16px;
+		border: 1px solid #dcdcde;
+		border-radius: 6px;
+		cursor: pointer;
+		transition: border-color 120ms ease, box-shadow 120ms ease;
+
+		&:hover {
+			border-color: #c3c4c7;
+		}
+
+		&.is-selected {
+			border-color: #008a20;
+			box-shadow: inset 0 0 0 1px #008a20;
+		}
+
+		&.is-disabled {
+			cursor: not-allowed;
+			opacity: 0.55;
+
+			&:hover {
+				border-color: #dcdcde;
+			}
+		}
+	}
+
+	&__option-radio {
+		margin-block-start: 2px;
+	}
+
+	&__option-icon {
+		flex: 0 0 auto;
+		fill: #1e1e1e;
+	}
+
+	&__option-body {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	&__option-title {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-weight: 600;
+		color: #1e1e1e;
+	}
+
+	&__option-description {
+		color: #50575e;
+		font-size: 13px;
+	}
+
+	&__badge {
+		display: inline-flex;
+		align-items: center;
+		font-size: 10px;
+		font-weight: 600;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		padding: 2px 8px;
+		border-radius: 999px;
+		line-height: 1.6;
+
+		&--recommended {
+			background-color: #d3f1d6;
+			color: #125f1c;
+		}
+
+		&--active {
+			background-color: #d3f1d6;
+			color: #125f1c;
+			margin-inline-start: auto;
+		}
+	}
+
+	&__footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-block-start: 16px;
+		padding-block-start: 16px;
+		border-block-start: 1px solid #f0f0f0;
+	}
+
+	&__status {
+		color: #50575e;
+		font-size: 13px;
+		margin: 0;
+	}
+}
+
+@include variables.for-phone-down {
+
+	.jp-search-feature-selector {
+		padding: 16px;
+
+		&__option {
+			flex-wrap: wrap;
+		}
+
+		&__badge--active {
+			margin-inline-start: 0;
+		}
+	}
+}
