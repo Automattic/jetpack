@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social admin page: prevent stacked content sections from collapsing when the page content overflows the scrollable area.
