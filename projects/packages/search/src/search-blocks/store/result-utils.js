@@ -269,6 +269,7 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 	const imageUrl = toSafeUrl( imageSrc );
 	const plainTitle = String( fields[ 'title.default' ] ?? fields.title ?? '' );
 	const titlePieces = tokenizeHighlight( highlight.title );
+	const contentPieces = tokenizeHighlight( highlight.content );
 	return {
 		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
 		title: plainTitle,
@@ -276,6 +277,10 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 		// falls back to `title` when this is empty.
 		titlePieces,
 		hasTitlePieces: titlePieces.length > 0,
+		// Rendered when the API returns a highlighted content snippet;
+		// hidden when empty so the layout does not gain an empty gap.
+		contentPieces,
+		hasContentPieces: contentPieces.length > 0,
 		permalink,
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date, locale ),

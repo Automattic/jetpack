@@ -19,7 +19,7 @@ namespace Automattic\Jetpack\Search;
  * sections differ.
  *
  * @param string $layout Layout key.
- * @return array{modifier:string, show_image:bool, show_path:bool, show_date:bool, show_price:bool, show_rating:bool}
+ * @return array{modifier:string, show_image:bool, show_path:bool, show_content:bool, show_date:bool, show_price:bool, show_rating:bool}
  */
 $resolve_layout = static function ( $layout ) {
 	$map = array(
@@ -27,6 +27,7 @@ $resolve_layout = static function ( $layout ) {
 			'modifier'    => 'compact',
 			'show_image'  => false,
 			'show_path'   => false,
+			'show_content' => false,
 			'show_date'   => true,
 			'show_price'  => false,
 			'show_rating' => false,
@@ -35,6 +36,7 @@ $resolve_layout = static function ( $layout ) {
 			'modifier'    => 'expanded',
 			'show_image'  => true,
 			'show_path'   => true,
+			'show_content' => true,
 			'show_date'   => true,
 			'show_price'  => false,
 			'show_rating' => false,
@@ -43,6 +45,7 @@ $resolve_layout = static function ( $layout ) {
 			'modifier'    => 'product',
 			'show_image'  => true,
 			'show_path'   => false,
+			'show_content' => false,
 			'show_date'   => false,
 			'show_price'  => true,
 			'show_rating' => true,
@@ -146,6 +149,22 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 							</template>
 						</a>
 					</h3>
+					<?php if ( $features['show_content'] ) : ?>
+						<div
+							class="jetpack-search-results__content"
+							data-wp-bind--hidden="!context.result.hasContentPieces"
+						>
+							<template
+								data-wp-each--piece="context.result.contentPieces"
+								data-wp-key="context.piece.index"
+							>
+								<span
+									data-wp-text="context.piece.text"
+									data-wp-class--jetpack-search-results__highlight="context.piece.isHighlight"
+								></span>
+							</template>
+						</div>
+					<?php endif; ?>
 					<?php if ( $features['show_path'] ) : ?>
 						<div
 							class="jetpack-search-results__path"

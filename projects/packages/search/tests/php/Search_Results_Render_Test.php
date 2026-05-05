@@ -128,4 +128,36 @@ class Search_Results_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'jetpack-search-results__path', $markup );
 		$this->assertStringContainsString( 'jetpack-search-results__image', $markup );
 	}
+
+	/**
+	 * Expanded layout emits the content-snippet section wired to
+	 * `context.result.hasContentPieces` / `context.result.contentPieces`
+	 * so highlighted passages from the API surface under the title.
+	 */
+	public function test_expanded_layout_renders_content_snippet_bindings() {
+		$markup = $this->render( array( 'layout' => 'expanded' ) );
+		$this->assertStringContainsString( 'jetpack-search-results__content', $markup );
+		$this->assertStringContainsString( 'context.result.hasContentPieces', $markup );
+		$this->assertStringContainsString( 'context.result.contentPieces', $markup );
+	}
+
+	/**
+	 * Compact layout should NOT render the content-snippet section — the
+	 * dense single-line row only carries a title and a date.
+	 */
+	public function test_compact_layout_omits_content_snippet() {
+		$markup = $this->render( array( 'layout' => 'compact' ) );
+		$this->assertStringNotContainsString( 'jetpack-search-results__content', $markup );
+		$this->assertStringNotContainsString( 'context.result.contentPieces', $markup );
+	}
+
+	/**
+	 * Product layout should NOT render the content-snippet section — product
+	 * cards show price and rating instead of an editorial excerpt.
+	 */
+	public function test_product_layout_omits_content_snippet() {
+		$markup = $this->render( array( 'layout' => 'product' ) );
+		$this->assertStringNotContainsString( 'jetpack-search-results__content', $markup );
+		$this->assertStringNotContainsString( 'context.result.contentPieces', $markup );
+	}
 }
