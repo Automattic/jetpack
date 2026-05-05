@@ -3891,6 +3891,34 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.105.2)
 
+  projects/packages/scan:
+    dependencies:
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
+      '@wordpress/element':
+        specifier: 6.44.0
+        version: 6.44.0
+      '@wordpress/i18n':
+        specifier: 6.17.0
+        version: 6.17.0
+    devDependencies:
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@types/react':
+        specifier: 18.3.28
+        version: 18.3.28
+      '@wordpress/browserslist-config':
+        specifier: 6.44.0
+        version: 6.44.0
+      '@wordpress/build':
+        specifier: 0.13.0
+        version: 0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.2
+
   projects/packages/search:
     dependencies:
       '@automattic/calypso-color-schemes':
