@@ -27,4 +27,5 @@ export const youtube: PodcastApp = {
 	Logo: YouTubeLogo,
 	submitUrl: 'https://studio.youtube.com',
 	learnMoreUrl: 'https://support.google.com/youtube/answer/13973017',
+	showHosts: [ 'youtube.com', 'm.youtube.com', 'youtu.be', 'music.youtube.com' ],
 };

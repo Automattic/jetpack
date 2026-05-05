@@ -7,14 +7,19 @@
  * one-click API submission) ship their own component instead.
  *
  * The submitted-show URL is persisted on the `podcasting_show_urls` site
- * setting (server-side host allowlist enforced by class-settings-rest.php).
+ * setting. The host allowlist is enforced server-side; we mirror it here
+ * (PodcastApp.showHosts) so we can fail-fast on the client and surface an
+ * inline error rather than silently dropping the user's input.
  */
 
 import {
 	Button,
 	ExternalLink,
+	Icon,
 	Modal,
+	Notice,
 	TextControl,
+	VisuallyHidden,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -23,12 +28,41 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { external, link } from '@wordpress/icons';
+import { check, external, link } from '@wordpress/icons';
+import { prependHTTPS } from '@wordpress/url';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import type { PodcastAppModalProps } from '../podcast-apps';
 import type { FormEvent } from 'react';
+
+// Mirrors SHOW_URL_MAX_LENGTH in src/rest/class-settings-rest.php.
+const SHOW_URL_MAX_LENGTH = 2048;
+
+// `prependHTTPS` adds the scheme for bare hosts but leaves an existing
+// `http://` alone — the backend rejects non-https, so upgrade ourselves.
+const normalizeShowUrl = ( raw: string ): string =>
+	prependHTTPS( raw.trim() ).replace( /^http:\/\//i, 'https://' );
+
+// Mirrors the per-podcatcher allowlist + esc_url_raw + wp_http_validate_url
+// gauntlet the backend runs each save through. Empty input is rejected here
+// so the modal never silently deletes a stored entry by clearing the field.
+const isValidShowUrl = ( url: string, allowedHosts: readonly string[] ): boolean => {
+	if ( url === '' || url.length > SHOW_URL_MAX_LENGTH ) {
+		return false;
+	}
+	let parsed: URL;
+	try {
+		parsed = new URL( url );
+	} catch {
+		return false;
+	}
+	if ( parsed.protocol !== 'https:' ) {
+		return false;
+	}
+	const host = parsed.hostname.toLowerCase().replace( /^www\./, '' );
+	return allowedHosts.includes( host );
+};
 
 const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 	const { data: settings } = usePodcastSettings();
@@ -37,29 +71,98 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 	const storedUrl = settings?.podcasting_show_urls?.[ app.id ] ?? '';
 	const [ draftUrl, setDraftUrl ] = useState( storedUrl );
 	const [ hasCopied, setHasCopied ] = useState( false );
+	const [ isEditing, setIsEditing ] = useState( false );
+	const [ saveError, setSaveError ] = useState< string | null >( null );
+	const inputContainerRef = useRef< HTMLDivElement >( null );
+	// `storedUrl` may be empty on mount if settings haven't hydrated yet;
+	// once it lands, mirror it into the draft. Flipped to true the moment
+	// the draft is touched (sync, typing, or Replace) so late hydration
+	// can never clobber input the user has already started.
+	const hasInitializedDraft = useRef( !! storedUrl );
+	// Set when Replace is clicked so the post-render effect knows to focus
+	// the now-mounted input. Don't trigger on every isEditing flip — typing
+	// also flips it, and stealing focus mid-keystroke is disruptive.
+	const shouldFocusInputRef = useRef( false );
 
 	useEffect( () => {
-		setDraftUrl( storedUrl );
+		if ( ! hasInitializedDraft.current && storedUrl ) {
+			hasInitializedDraft.current = true;
+			setDraftUrl( storedUrl );
+		}
 	}, [ storedUrl ] );
+
+	useEffect( () => {
+		if ( ! shouldFocusInputRef.current || ! isEditing ) {
+			return;
+		}
+		shouldFocusInputRef.current = false;
+		const input = inputContainerRef.current?.querySelector( 'input' );
+		input?.focus();
+		input?.select();
+	}, [ isEditing ] );
 
 	const copyRef = useCopyToClipboard< HTMLButtonElement >( feedUrl, () => {
 		setHasCopied( true );
 		setTimeout( () => setHasCopied( false ), 2000 );
 	} );
 
+	const handleReplace = useCallback( () => {
+		hasInitializedDraft.current = true;
+		shouldFocusInputRef.current = true;
+		setDraftUrl( storedUrl );
+		setSaveError( null );
+		setIsEditing( true );
+	}, [ storedUrl ] );
+
+	const handleDraftChange = useCallback( ( value: string ) => {
+		hasInitializedDraft.current = true;
+		// Pin the form open so a late `storedUrl` hydration can't swap us
+		// back to the saved/read-only view mid-keystroke.
+		setIsEditing( true );
+		setDraftUrl( value );
+		setSaveError( null );
+	}, [] );
+
+	const handleDismissError = useCallback( () => setSaveError( null ), [] );
+
+	const normalizedDraft = normalizeShowUrl( draftUrl );
+	const isUnchanged = draftUrl === storedUrl;
+
 	const handleSave = useCallback(
 		( event: FormEvent< HTMLFormElement > ) => {
 			event.preventDefault();
-			// Send only the changed key — server merges with the stored map.
+			if ( ! isValidShowUrl( normalizedDraft, app.showHosts ) ) {
+				setSaveError(
+					sprintf(
+						/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
+						__( 'Enter a valid %s URL.', 'jetpack-podcast' ),
+						app.name
+					)
+				);
+				return;
+			}
+			setSaveError( null );
 			saveSettings(
-				{ podcasting_show_urls: { [ app.id ]: draftUrl.trim() } },
-				{ onSuccess: onClose }
+				{ podcasting_show_urls: { [ app.id ]: normalizedDraft } },
+				{
+					onSuccess: () => {
+						setIsEditing( false );
+						onClose();
+					},
+					onError: () => {
+						setSaveError(
+							sprintf(
+								/* translators: %s: podcast directory name. */
+								__( 'We couldn’t save your %s URL. Please try again.', 'jetpack-podcast' ),
+								app.name
+							)
+						);
+					},
+				}
 			);
 		},
-		[ draftUrl, app.id, saveSettings, onClose ]
+		[ normalizedDraft, app.showHosts, app.id, app.name, saveSettings, onClose ]
 	);
-
-	const isUnchanged = draftUrl.trim() === storedUrl.trim();
 
 	// Pre-resolve so the i18n-check-webpack-plugin validator sees two distinct
 	// __() calls in the bundled output instead of __(cond?'a':'b').
@@ -71,6 +174,8 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 		__( 'Submit to %s', 'jetpack-podcast' ),
 		app.name
 	);
+
+	const showSavedReadOnly = !! storedUrl && ! isEditing;
 
 	return (
 		<Modal title={ titleText } onRequestClose={ onClose } className="podcast__submit-modal">
@@ -174,36 +279,81 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 							app.name
 						) }
 					</Text>
-					<form className="podcast__submit-step-form" onSubmit={ handleSave }>
+					{ showSavedReadOnly ? (
 						<HStack spacing={ 2 } alignment="center" className="podcast__submit-step-row">
-							<div className="podcast__submit-step-field">
-								<TextControl
-									label={ sprintf(
-										/* translators: %s: podcast directory name. */
-										__( '%s URL', 'jetpack-podcast' ),
-										app.name
-									) }
-									hideLabelFromVision
-									value={ draftUrl }
-									onChange={ setDraftUrl }
-									placeholder="https://"
-									type="url"
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-								/>
-							</div>
-							<Button
-								variant="primary"
-								__next40pxDefaultSize
-								type="submit"
-								disabled={ isUnchanged || isSaving }
-								isBusy={ isSaving }
-								accessibleWhenDisabled
+							<HStack
+								spacing={ 2 }
+								alignment="center"
+								expanded={ false }
+								justify="flex-start"
+								className="podcast__submit-step-saved"
 							>
-								{ __( 'Save', 'jetpack-podcast' ) }
+								<Icon
+									icon={ check }
+									className="podcast__submit-step-saved-icon"
+									aria-hidden="true"
+								/>
+								<VisuallyHidden>{ __( 'Saved:', 'jetpack-podcast' ) }</VisuallyHidden>
+								<Text className="podcast__submit-step-saved-url" title={ storedUrl }>
+									{ storedUrl }
+								</Text>
+							</HStack>
+							<Button
+								variant="secondary"
+								__next40pxDefaultSize
+								aria-label={ sprintf(
+									/* translators: %s: podcast directory name. */
+									__( 'Replace %s URL', 'jetpack-podcast' ),
+									app.name
+								) }
+								onClick={ handleReplace }
+							>
+								{ __( 'Replace', 'jetpack-podcast' ) }
 							</Button>
 						</HStack>
-					</form>
+					) : (
+						<form className="podcast__submit-step-form" onSubmit={ handleSave }>
+							<HStack spacing={ 2 } alignment="center" className="podcast__submit-step-row">
+								<div className="podcast__submit-step-field" ref={ inputContainerRef }>
+									<TextControl
+										label={ sprintf(
+											/* translators: %s: podcast directory name. */
+											__( '%s URL', 'jetpack-podcast' ),
+											app.name
+										) }
+										hideLabelFromVision
+										value={ draftUrl }
+										onChange={ handleDraftChange }
+										placeholder="https://"
+										type="text"
+										inputMode="url"
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+									/>
+								</div>
+								<Button
+									variant="primary"
+									__next40pxDefaultSize
+									type="submit"
+									disabled={ ! normalizedDraft || isUnchanged || isSaving }
+									isBusy={ isSaving }
+									accessibleWhenDisabled
+								>
+									{ __( 'Save', 'jetpack-podcast' ) }
+								</Button>
+							</HStack>
+							{ saveError && (
+								<Notice
+									status="error"
+									isDismissible
+									onRemove={ handleDismissError }
+									className="podcast__submit-step-notice"
+								>
+									{ saveError }
+								</Notice>
+							) }
+						</form>
+					) }
 				</VStack>
 			</VStack>
 		</Modal>

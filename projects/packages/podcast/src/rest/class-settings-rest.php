@@ -97,7 +97,7 @@ class Settings_REST {
 		'apple'        => array( 'podcasts.apple.com' ),
 		'spotify'      => array( 'open.spotify.com' ),
 		'youtube'      => array( 'youtube.com', 'm.youtube.com', 'youtu.be', 'music.youtube.com' ),
-		'amazon'       => array( 'music.amazon.com', 'music.amazon.co.uk', 'music.amazon.de', 'music.amazon.co.jp' ),
+		'amazon'       => array( 'music.amazon.com', 'music.amazon.co.uk', 'music.amazon.de', 'music.amazon.co.jp', 'music.amazon.com.au', 'music.amazon.fr', 'music.amazon.ca', 'music.amazon.es' ),
 		'podcastindex' => array( 'podcastindex.org' ),
 	);
 

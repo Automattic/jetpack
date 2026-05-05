@@ -24,6 +24,13 @@ export interface PodcastApp {
 	submitUrl: string;
 	/** Optional "learn more" link shown inside the default modal. */
 	learnMoreUrl?: string;
+	/**
+	 * Hostnames a saved show URL is allowed to live on (lowercase, no `www.`).
+	 * Mirrors `SHOW_URL_HOSTS` in src/rest/class-settings-rest.php so the
+	 * client can reject obviously-wrong URLs before round-tripping; the
+	 * server enforces the same allowlist authoritatively.
+	 */
+	showHosts: readonly string[];
 	/** Optional content rendered below the standard Step 2 copy. */
 	step2Extra?: ReactNode;
 	/** Override the default 3-step submit modal entirely. */
