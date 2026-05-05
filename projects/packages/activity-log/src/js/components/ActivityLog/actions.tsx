@@ -5,24 +5,42 @@ import { useMemo } from 'react';
 import type { Activity } from './types';
 import type { Action } from '@wordpress/dataviews';
 
+interface InitialStateWithCalypsoSlug {
+	jetpackStatus?: { calypsoSlug?: string };
+}
+
+declare const JPACTIVITYLOG_INITIAL_STATE: InitialStateWithCalypsoSlug | undefined;
+
+// Read once at module load; the value doesn't change within a session.
+const calypsoSlug: string =
+	( typeof JPACTIVITYLOG_INITIAL_STATE !== 'undefined'
+		? JPACTIVITYLOG_INITIAL_STATE?.jetpackStatus?.calypsoSlug
+		: undefined ) ?? '';
+
+type Tracks = { recordEvent: ( name: string, props?: Record< string, unknown > ) => void };
+
 type UseActivityActionsOptions = {
 	isLoading: boolean;
+	tracks?: Tracks;
 };
 
 /**
- * Row actions for the DataViews table. Phase 5 wires the "Manage backup"
- * action into the Backup package's admin page; for now the action is
- * present but disabled so the column space is preserved and the planned
- * feature is visible.
+ * Row actions for the DataViews table. The single primary action deep-
+ * links into the Calypso Backup restore flow for the row's rewind point
+ * (`https://wordpress.com/backup/{slug}/restore/{rewindId}`) and opens
+ * in a new tab. Eligibility requires `activityIsRewindable`, a
+ * `rewindId`, and a `calypsoSlug` from Initial_State; rows missing any
+ * of those don't render the action.
  *
  * @param options           - Hook options.
  * @param options.isLoading - Whether the list is currently fetching. Kept
- *                          in the API so Phase 5 doesn't need to refactor
- *                          the call site.
+ *                          in the API for symmetry with the call site.
+ * @param options.tracks    - Optional analytics handle for the click event.
  * @return The actions array for `<DataViews actions=… />`.
  */
 export function useActivityActions( {
 	isLoading,
+	tracks,
 }: UseActivityActionsOptions ): Action< Activity >[] {
 	return useMemo( () => {
 		const backupAction: Action< Activity > = {
@@ -30,11 +48,20 @@ export function useActivityActions( {
 			isPrimary: true,
 			label: __( 'Manage backup', 'jetpack-activity-log' ),
 			icon: <Icon icon={ backup } />,
-			// Phase 5: enable and deep-link into the Backup package's admin page.
-			disabled: true,
-			isEligible: item => item.activityIsRewindable,
-			callback: async () => {
-				/* no-op until Phase 5 */
+			isEligible: item => Boolean( item.activityIsRewindable && item.rewindId && calypsoSlug ),
+			callback: async items => {
+				const item = items[ 0 ];
+				if ( ! item?.rewindId || ! calypsoSlug ) {
+					return;
+				}
+				const url = `https://wordpress.com/backup/${ encodeURIComponent(
+					calypsoSlug
+				) }/restore/${ encodeURIComponent( item.rewindId ) }`;
+				tracks?.recordEvent( 'jetpack_activity_log_manage_backup_click', {
+					rewind_id: item.rewindId,
+					activity_name: item.activityName,
+				} );
+				window.open( url, '_blank', 'noopener,noreferrer' );
 			},
 		};
 
@@ -42,5 +69,5 @@ export function useActivityActions( {
 		void isLoading;
 
 		return [ backupAction ];
-	}, [ isLoading ] );
+	}, [ isLoading, tracks ] );
 }

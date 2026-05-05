@@ -93,44 +93,6 @@ export default function ActivityLog() {
 	const { tracks } = useAnalytics();
 	const wrapperRef = useRef< HTMLDivElement >( null );
 
-	// DataViews' `Action` API doesn't expose a tooltip prop, so the
-	// disabled "Manage backup" stub renders without any hint as to *why*
-	// it can't be clicked. Attach a `title` to those buttons after each
-	// render so users hovering get the "Coming soon" context — and
-	// screen readers pick it up too. The MutationObserver re-runs on
-	// pagination / filter changes, when DataViews swaps the row DOM.
-	//
-	// TODO(#48236): drop this whole effect. Once the Backup wp-admin
-	// page lands the action stops being a stub and the row will render
-	// as an enabled link, so this textContent-matching DOM hack — which
-	// is fragile across translations and re-fires on every DataViews
-	// mutation — won't be needed at all.
-	useEffect( () => {
-		const wrapper = wrapperRef.current;
-		if ( ! wrapper ) {
-			return;
-		}
-		const manageBackupLabel = __( 'Manage backup', 'jetpack-activity-log' );
-		const tooltipText = __( 'Coming soon', 'jetpack-activity-log' );
-		const apply = ( root: ParentNode ) => {
-			const buttons = root.querySelectorAll< HTMLButtonElement >(
-				'.dataviews-item-actions button[disabled]'
-			);
-			buttons.forEach( btn => {
-				if (
-					btn.textContent?.trim() === manageBackupLabel &&
-					btn.getAttribute( 'title' ) !== tooltipText
-				) {
-					btn.setAttribute( 'title', tooltipText );
-				}
-			} );
-		};
-		apply( wrapper );
-		const observer = new MutationObserver( () => apply( wrapper ) );
-		observer.observe( wrapper, { subtree: true, childList: true } );
-		return () => observer.disconnect();
-	}, [] );
-
 	// On free tier, neutralize DataViews' real search + filter cluster
 	// (the `.dataviews__search` Stack rendered by `DataViews`'s default
 	// UI). We let DataViews ship its own toolbar so the page tracks
@@ -274,7 +236,7 @@ export default function ActivityLog() {
 		activityLogTypes: groupCountsData?.groups,
 	} );
 
-	const actions = useActivityActions( { isLoading: isFetching } );
+	const actions = useActivityActions( { isLoading: isFetching, tracks } );
 
 	const onChangeView = useCallback(
 		( next: View ) => {
