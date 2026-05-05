@@ -28,6 +28,7 @@ const SAMPLE_PRODUCTS = [
 	{
 		title: __( 'Sample product', 'jetpack-search-pkg' ),
 		formattedPrice: '$24.00',
+		rating: 4.5,
 		ratingPercent: '90%',
 		reviewCount: 42,
 	},
@@ -36,12 +37,14 @@ const SAMPLE_PRODUCTS = [
 		formattedRegularPrice: '$30.00',
 		formattedSalePrice: '$19.99',
 		hasSalePrice: true,
+		rating: 3.5,
 		ratingPercent: '70%',
 		reviewCount: 12,
 	},
 	{
 		title: __( 'Third product', 'jetpack-search-pkg' ),
 		formattedPrice: '$48.00',
+		rating: 5,
 		ratingPercent: '100%',
 		reviewCount: 7,
 	},
@@ -163,7 +166,7 @@ function renderProductPreview( products ) {
 						</div>
 						<div
 							className="jetpack-search-results__rating"
-							aria-label={ `${ product.ratingPercent } rating` }
+							aria-label={ `${ product.rating } / 5` }
 						>
 							<span className="jetpack-search-results__rating-stars" aria-hidden="true">
 								<span
