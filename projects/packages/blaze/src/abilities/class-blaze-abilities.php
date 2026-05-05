@@ -256,6 +256,24 @@ class Blaze_Abilities extends Registrar {
 							'type'        => 'string',
 							'description' => __( 'Optional ad copy override. Defaults to the post excerpt (or first ~200 chars of content).', 'jetpack-blaze' ),
 						),
+						'languages'     => array(
+							'type'        => 'array',
+							'description' => __( 'Optional ISO 639-1 language codes to target (e.g. ["en", "es"]). Defaults to all languages when omitted; pass a non-empty array to narrow targeting.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type'      => 'string',
+								'minLength' => 2,
+								'maxLength' => 5,
+							),
+						),
+						'countries'     => array(
+							'type'        => 'array',
+							'description' => __( 'Optional ISO 3166-1 alpha-2 country codes to target (e.g. ["US", "GB"]). Defaults to worldwide when omitted; pass a non-empty array to limit reach to those countries.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type'      => 'string',
+								'minLength' => 2,
+								'maxLength' => 2,
+							),
+						),
 					),
 					'additionalProperties' => false,
 				),
@@ -464,6 +482,34 @@ class Blaze_Abilities extends Registrar {
 				'url'       => $featured_image_url,
 				'mime_type' => $featured_image_mime ? $featured_image_mime : 'image/jpeg',
 			);
+		}
+
+		// Optional targeting overrides. Pass-through normalisation only — the
+		// widget resolves country codes to its internal geo records and the
+		// language codes map straight to the language picker. Empty arrays
+		// are dropped so the widget keeps its "all languages / worldwide"
+		// defaults instead of being forced to an empty selection.
+		if ( isset( $args['languages'] ) && is_array( $args['languages'] ) ) {
+			$languages = array_values(
+				array_filter(
+					array_map( 'strtolower', array_map( 'strval', $args['languages'] ) ),
+					static fn( $code ) => '' !== $code
+				)
+			);
+			if ( ! empty( $languages ) ) {
+				$payload['languages'] = $languages;
+			}
+		}
+		if ( isset( $args['countries'] ) && is_array( $args['countries'] ) ) {
+			$countries = array_values(
+				array_filter(
+					array_map( 'strtoupper', array_map( 'strval', $args['countries'] ) ),
+					static fn( $code ) => 2 === strlen( $code )
+				)
+			);
+			if ( ! empty( $countries ) ) {
+				$payload['countries'] = $countries;
+			}
 		}
 
 		return $payload;
