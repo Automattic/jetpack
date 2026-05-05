@@ -56,17 +56,22 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 
 	return (
 		<label htmlFor={ inputId } className={ className } title={ disabled ? upsellHint : undefined }>
-			<Stack gap="md" align="center" className="jp-search-feature-selector__option-stack">
-				<input
-					id={ inputId }
-					type="radio"
-					name="jp-search-experience"
-					className="jp-search-feature-selector__option-radio"
-					value={ experience }
-					checked={ isSelected }
-					disabled={ disabled }
-					onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
-				/>
+			<input
+				id={ inputId }
+				type="radio"
+				name="jp-search-experience"
+				className="jp-search-feature-selector__option-radio"
+				value={ experience }
+				checked={ isSelected }
+				disabled={ disabled }
+				onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
+			/>
+			<Stack
+				gap="md"
+				align="center"
+				wrap="wrap"
+				className="jp-search-feature-selector__option-content"
+			>
 				<Icon
 					className="jp-search-feature-selector__option-icon"
 					icon={ getExperienceIcon( experience ) }

@@ -25,8 +25,14 @@
 		padding: 0;
 	}
 
+	// Two-column grid: radio in column 1 (vertically centered against the
+	// content), everything else in column 2. Inside column 2 the content can
+	// wrap freely on narrow viewports without bumping the radio off its row.
 	&__option {
-		display: block;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-md);
 		padding: var(--wpds-dimension-padding-lg);
 		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 		border-radius: var(--wpds-border-radius-lg);
@@ -94,13 +100,5 @@
 
 	.jp-search-feature-selector {
 		padding: var(--wpds-dimension-padding-lg);
-
-		&__option-stack {
-			flex-wrap: wrap;
-		}
-
-		&__option-trailing {
-			margin-inline-start: 0;
-		}
 	}
 }
