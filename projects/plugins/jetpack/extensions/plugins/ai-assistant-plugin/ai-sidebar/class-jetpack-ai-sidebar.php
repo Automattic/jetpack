@@ -483,6 +483,7 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
+		// Jetpack owns this flag; hosts can override via jetpack_ai_review_mediator_enabled.
 		$data['reviewMediatorEnabled'] = self::is_review_mediator_enabled();
 		return $data;
 	}
