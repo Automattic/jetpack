@@ -16,7 +16,7 @@ const usageInfoFromAPIData = apiData => {
 		recordCount: apiData?.currentUsage?.num_records || 0,
 		recordMax: apiData?.currentPlan?.record_limit || 0,
 		requestCount: apiData?.latestMonthRequests?.num_requests || 0,
-		requestMax: apiData?.currentPlan.monthly_search_request_limit || 0,
+		requestMax: apiData?.currentPlan?.monthly_search_request_limit || 0,
 	};
 };
 
