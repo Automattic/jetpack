@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
 	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ) ) );
@@ -185,6 +187,45 @@ function wpcom_write_render_admin_page() {
 		} else {
 			$edit_post_id = 0;
 		}
+	}
+
+	// Determine how the user arrived at the Write editor.
+	// 1. Explicit query param (highest priority).
+	// 2. Infer from HTTP referer.
+	// 3. Fall back to 'direct' (bookmarks, typed URLs, stripped referers).
+	// Note: When the /write → wp-admin redirect is implemented, it must forward the source query param.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter used for analytics only.
+	$source = isset( $_GET['source'] ) ? sanitize_key( $_GET['source'] ) : '';
+	if ( ! $source ) {
+		$referer = wp_get_referer();
+		if ( $referer ) {
+			$path = wp_parse_url( $referer, PHP_URL_PATH );
+			if ( $path && str_contains( $path, '/wp-admin/index.php' ) ) {
+				$source = 'dashboard';
+			} elseif ( $path && str_contains( $path, '/wp-admin/edit.php' ) ) {
+				$source = 'posts_list';
+			} else {
+				$source = 'referrer';
+			}
+		} else {
+			$source = 'direct';
+		}
+	}
+
+	if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event' ) ) {
+		$event_props = array(
+			'is_new_post' => (int) ( 0 === $edit_post_id ),
+			'source'      => $source,
+		);
+
+		if ( $edit_post_id > 0 ) {
+			$event_props['post_id'] = $edit_post_id;
+		}
+
+		Common\wpcom_record_tracks_event(
+			'wpcom_write_editor_open',
+			$event_props
+		);
 	}
 
 	// Build categories list for the UI.
