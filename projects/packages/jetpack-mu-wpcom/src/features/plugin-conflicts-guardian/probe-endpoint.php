@@ -70,12 +70,9 @@ function pcg_maybe_handle_probe() {
 
 	register_shutdown_function( 'pcg_probe_shutdown' );
 
-	// Activation mode: the plugins are inactive, so `require_once` each
-	// in order to exercise their load paths. Update mode: the plugins
-	// are already loaded by WP's normal bootstrap (they were active
-	// before the update); we only verify that the bootstrap completed
-	// cleanly with the new code, and re-requiring would fatal with
-	// "Cannot redeclare class/function".
+	// Activation: load each plugin to exercise its load path. Update: skip;
+	// re-requiring an already-loaded plugin would fatal with
+	// "Cannot redeclare". The shutdown handler catches either way.
 	if ( PCG_Load_Tester::MODE_ACTIVATION === $mode ) {
 		foreach ( $plugin_mains as $plugin_main ) {
 			try {

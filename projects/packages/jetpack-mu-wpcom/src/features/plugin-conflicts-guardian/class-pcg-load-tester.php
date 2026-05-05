@@ -14,48 +14,25 @@ class PCG_Load_Tester {
 	const PROBE_TIMEOUT  = 15;
 	const TOKEN_LIFETIME = 30;
 
-	/**
-	 * Probe mode: files are currently inactive and the endpoint must
-	 * `require_once` each one in order to exercise their load paths.
-	 * Used by the activation guard.
-	 */
+	/** Activation guard: plugins are inactive; endpoint require_once's each. */
 	const MODE_ACTIVATION = 'activation';
 
 	/**
-	 * Probe mode: files are already loaded by WP's normal bootstrap (they
-	 * were active plugins before the just-completed update). The endpoint
-	 * must NOT re-`require` them — doing so would fatal with "Cannot
-	 * redeclare class/function" — and instead just verifies that the
-	 * bootstrap completed cleanly with the new code.
+	 * Post-update healthcheck: plugins are already loaded by WP's bootstrap;
+	 * endpoint skips require_once (would fatal with "Cannot redeclare").
 	 */
 	const MODE_UPDATE = 'update';
 
 	/**
-	 * Run the probe against a set of plugin main files in a single
-	 * loopback request pair.
+	 * Probe a batch of plugin main files in one loopback request pair.
 	 *
-	 * In MODE_ACTIVATION the probe endpoint `require_once`s each plugin in
-	 * order under one `WP_SANDBOX_SCRAPING` request, so the batch resolves
-	 * in one round-trip regardless of how many plugins are passed in. As a
-	 * side effect this also catches conflicts that only fire when two
-	 * plugins are loaded together (duplicate class, shared global, etc.) —
-	 * which a per-plugin probe model could never see.
-	 *
-	 * In MODE_UPDATE the endpoint skips the `require_once` and just
-	 * observes whether the surrounding WP bootstrap (which already loaded
-	 * the freshly-installed plugin files) completes cleanly.
-	 *
-	 * Fires two loopback requests in parallel: one against `home_url('/')`
-	 * (front-end) and one against `admin_url('index.php')` so `admin_init`
-	 * fires. The admin probe forwards the current admin's WP auth cookies
-	 * so the loopback can clear `auth_redirect()`. A captured fatal from
-	 * either probe wins; otherwise the front-end verdict is returned. On a
-	 * fatal/throwable the verdict's `plugin` key (when present) names the
-	 * specific plugin main file the endpoint was loading at the time.
+	 * Fires front-end + admin probes in parallel; front-end auth cookies are
+	 * forwarded so admin_init can fire. Fatal from either wins; otherwise
+	 * front-end's verdict. On fatal/throwable, the verdict's `plugin` key
+	 * names the file the endpoint was loading at the time.
 	 *
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
-	 * @param string   $mode         Probe mode: self::MODE_ACTIVATION (default) or
-	 *                               self::MODE_UPDATE. See class constants.
+	 * @param string   $mode         self::MODE_ACTIVATION or self::MODE_UPDATE.
 	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int,plugin?:string}
 	 */
 	public function test( array $plugin_mains, $mode = self::MODE_ACTIVATION ) {
@@ -141,12 +118,11 @@ class PCG_Load_Tester {
 	}
 
 	/**
-	 * Stash a probe transient (the list of plugin main files to require
-	 * and the probe mode) and build the request descriptor for
-	 * `Requests::request_multiple`.
+	 * Stash a probe transient and build the `Requests::request_multiple`
+	 * descriptor for one of the two parallel probes.
 	 *
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
-	 * @param string   $base_url     Base URL to probe (front-end or admin).
+	 * @param string   $base_url     Front-end or admin base URL.
 	 * @param bool     $is_admin     Adds `pcg_admin=1` and forwards auth cookies.
 	 * @param string   $mode         Probe mode constant.
 	 * @return array{token:string,request:array}
