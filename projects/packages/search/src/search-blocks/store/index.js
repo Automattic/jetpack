@@ -602,6 +602,7 @@ const { state, actions } = store( NAMESPACE, {
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
 				priceRange: state.priceRange,
+				searchParamName: state.searchParamName,
 			} );
 		},
 
@@ -612,7 +613,8 @@ const { state, actions } = store( NAMESPACE, {
 		 */
 		*handlePopState() {
 			const { searchQuery, sortOrder, activeFilters, priceRange } = readStateFromUrl(
-				state.filterConfigs
+				state.filterConfigs,
+				state.searchParamName
 			);
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;

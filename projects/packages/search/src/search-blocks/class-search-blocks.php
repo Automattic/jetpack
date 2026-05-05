@@ -17,8 +17,26 @@ class Search_Blocks {
 	/**
 	 * Reserved query params that must not be parsed as filter keys. Mirrors
 	 * `RESERVED_PARAMS` in store/url-state.js.
+	 *
+	 * Includes both `s` (used on the WP search route) and `q` (used by the
+	 * inline blocks on non-search pages, see `get_search_param_name()`) so
+	 * neither name can be misread as a filter key.
 	 */
-	const RESERVED_QUERY_PARAMS = array( 's', 'orderby', 'min_price', 'max_price' );
+	const RESERVED_QUERY_PARAMS = array( 's', 'q', 'orderby', 'min_price', 'max_price' );
+
+	/**
+	 * URL param the inline search blocks use to carry the query string when
+	 * embedded on a non-search page (e.g. `/about/?q=boots`). On the WP
+	 * search route (`is_search()`) the canonical `s` key is used instead.
+	 *
+	 * The non-`s` name on singular pages is what dodges core's
+	 * `WP_Query::get_posts()` AND'ing a `post_content LIKE` clause into the
+	 * singular page lookup and 404'ing the page on refresh. `q` matches the
+	 * de-facto search-URL convention (Google, GitHub, Wikipedia, etc.) so
+	 * shared links read naturally. See
+	 * `docs/explorations/embedded-search-refresh-404.md` (RSM-1754).
+	 */
+	const NON_SEARCH_QUERY_PARAM = 'q';
 
 	/**
 	 * Template slug used for the Jetpack Search page template.
@@ -29,6 +47,18 @@ class Search_Blocks {
 	 * slug so it still wins on `/?s=...` requests.
 	 */
 	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
+
+	/**
+	 * Per-request memo backing `is_initial_loading()`. Lifted out of the
+	 * method's local `static` so tests can clear it between cases via
+	 * `reset_initial_loading_cache()` — function-local statics aren't
+	 * reachable from outside the function, so they'd otherwise leak the
+	 * first test's URL state into every subsequent test in the same
+	 * PHPUnit process.
+	 *
+	 * @var bool|null
+	 */
+	private static $is_initial_loading_cache = null;
 
 	/**
 	 * Register block types and hook into WordPress.
@@ -50,6 +80,23 @@ class Search_Blocks {
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+	}
+
+	/**
+	 * URL param key the inline search experience uses for the current request.
+	 *
+	 * On WP's search route (`is_search()`) the canonical `s` key is used so
+	 * the blocks interoperate with core's search routing, body classes, and
+	 * any theme/plugin code keyed off `s`. On non-search pages — singular
+	 * permalinks, archives, the front page — the blocks switch to
+	 * `NON_SEARCH_QUERY_PARAM` (`q`) so a refresh of an inline-search URL
+	 * like `/about/?q=boots` doesn't trip core's `WP_Query::get_posts()`
+	 * `post_content LIKE` AND clause and 404 the page.
+	 *
+	 * @return string
+	 */
+	public static function get_search_param_name(): string {
+		return function_exists( 'is_search' ) && is_search() ? 's' : self::NON_SEARCH_QUERY_PARAM;
 	}
 
 	/**
@@ -488,7 +535,7 @@ class Search_Blocks {
 		$is_private         = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
 		$is_wpcom           = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
 		$site_id            = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
-		$search_query       = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		$search_query       = static::parse_url_search_query();
 		$active_filters     = static::parse_url_filters();
 		$price_range        = static::parse_url_price_range();
 		$is_initial_loading = static::is_initial_loading();
@@ -515,6 +562,12 @@ class Search_Blocks {
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
 			'searchQuery'      => $search_query,
+			// URL key the JS store uses to read/write the search query. `s`
+			// on the WP search route, `q` on non-search pages — see
+			// `get_search_param_name()`. Threaded through the seed so the JS
+			// store reads from the same key the seed pulled `searchQuery`
+			// from.
+			'searchParamName'  => static::get_search_param_name(),
 			'sortOrder'        => static::parse_url_sort(),
 			'activeFilters'    => $active_filters,
 			'priceRange'       => $price_range,
@@ -597,21 +650,39 @@ class Search_Blocks {
 		// helper is hit by every block render.php (one per filter block plus
 		// search-results, results-count, etc.) AND by `build_initial_state()`,
 		// each of which would otherwise re-parse `$_GET` independently.
-		static $cached = null;
-		if ( null !== $cached ) {
-			return $cached;
+		if ( null !== self::$is_initial_loading_cache ) {
+			return self::$is_initial_loading_cache;
 		}
-		$search_query = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		$search_query = static::parse_url_search_query();
 		if ( '' !== $search_query ) {
-			$cached = true;
+			self::$is_initial_loading_cache = true;
 			return true;
 		}
 		if ( ! empty( static::parse_url_filters() ) ) {
-			$cached = true;
+			self::$is_initial_loading_cache = true;
 			return true;
 		}
-		$cached = null !== static::parse_url_price_range();
-		return $cached;
+		self::$is_initial_loading_cache = null !== static::parse_url_price_range();
+		return self::$is_initial_loading_cache;
+	}
+
+	/**
+	 * Reset the `is_initial_loading()` memo. Test-only — production WP runs
+	 * a single request per process, so the memo never needs clearing there.
+	 * The PHPUnit harness reuses one process across every test method, so
+	 * without this hook a `$_GET` set by an earlier test would pin the
+	 * memoized value and silently override later tests' URL fixtures.
+	 *
+	 * Guarded so a misconfigured production caller can't accidentally drop
+	 * the cache mid-request: bail when running under WordPress (`ABSPATH`
+	 * defined) but not under PHPUnit (`PHPUNIT_COMPOSER_INSTALL` is set by
+	 * PHPUnit's composer-installed autoloader).
+	 */
+	public static function reset_initial_loading_cache(): void {
+		if ( defined( 'ABSPATH' ) && ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
+			return;
+		}
+		self::$is_initial_loading_cache = null;
 	}
 
 	/**
@@ -690,6 +761,28 @@ class Search_Blocks {
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
 			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
 		);
+	}
+
+	/**
+	 * Parse the search query from the URL, reading whichever key
+	 * `get_search_param_name()` says is active for this request (`s` on
+	 * the WP search route, `q` everywhere else). Sanitization mirrors
+	 * what WP would have done for `s` (sanitize_text_field + trim).
+	 *
+	 * Public so block render templates (e.g. `search-input/render.php`)
+	 * can seed their initial `value=` from the same source the
+	 * Interactivity store seeds `searchQuery` from.
+	 *
+	 * @return string
+	 */
+	public static function parse_url_search_query(): string {
+		$key = self::get_search_param_name();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to string + sanitize_text_field( wp_unslash( ... ) ) on the next line.
+		$raw = $_GET[ $key ] ?? '';
+		if ( ! is_scalar( $raw ) ) {
+			return '';
+		}
+		return trim( sanitize_text_field( wp_unslash( (string) $raw ) ) );
 	}
 
 	/**
