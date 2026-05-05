@@ -39,7 +39,7 @@ class PCG_Load_Tester {
 		$plugin_mains = array_values(
 			array_filter(
 				array_map( static fn( $p ) => (string) $p, $plugin_mains ),
-				static fn( $p ) => '' !== $p && is_file( $p )
+				static fn( $p ) => '' !== $p && is_file( $p ) && is_readable( $p )
 			)
 		);
 		if ( empty( $plugin_mains ) ) {
