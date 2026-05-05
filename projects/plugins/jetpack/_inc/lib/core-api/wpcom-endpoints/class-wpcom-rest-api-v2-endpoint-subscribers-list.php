@@ -405,13 +405,21 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		$errors = array();
 
+		// Tolerate idempotent "already gone" errors as success — Calypso treats `not_following`
+		// and `not_found` as a successful removal, since the subscriber was already detached.
+		$idempotent_errors = array( 'not_following', 'not_found', 'subscription_not_found' );
+
 		foreach ( $paid_subscription_ids as $paid_id ) {
 			$paid_id = sanitize_text_field( (string) $paid_id );
 			if ( '' === $paid_id ) {
 				continue;
 			}
+			// Mirror Calypso: pass `{ user_id }` so the cancel knows which subscriber it's
+			// acting on (the wpcom-side endpoint expects this).
 			$step_error = $this->wpcom_post(
-				sprintf( '/sites/%d/memberships/subscriptions/%s/cancel', (int) $blog_id, $paid_id )
+				sprintf( '/sites/%d/memberships/subscriptions/%s/cancel', (int) $blog_id, $paid_id ),
+				$user_id ? array( 'user_id' => $user_id ) : null,
+				$idempotent_errors
 			);
 			if ( is_wp_error( $step_error ) ) {
 				$errors[] = array(
@@ -424,7 +432,9 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		if ( $user_id ) {
 			$step_error = $this->wpcom_post(
-				sprintf( '/sites/%d/followers/%d/delete', (int) $blog_id, $user_id )
+				sprintf( '/sites/%d/followers/%d/delete', (int) $blog_id, $user_id ),
+				null,
+				$idempotent_errors
 			);
 			if ( is_wp_error( $step_error ) ) {
 				$errors[] = array(
@@ -437,7 +447,9 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		if ( $email_subscription_id ) {
 			$step_error = $this->wpcom_post(
-				sprintf( '/sites/%d/email-followers/%d/delete', (int) $blog_id, $email_subscription_id )
+				sprintf( '/sites/%d/email-followers/%d/delete', (int) $blog_id, $email_subscription_id ),
+				null,
+				$idempotent_errors
 			);
 			if ( is_wp_error( $step_error ) ) {
 				$errors[] = array(
@@ -757,17 +769,26 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * (e.g. some Jurassic Ninja test sites). We tried `as_blog` and forwarding as the connection
 	 * owner — both hit the same wpcom cap gate. The fix lives on the wpcom side, not here.
 	 *
-	 * Returns null on success or a WP_Error describing the failure.
+	 * Returns null on success or a WP_Error describing the failure. If the wpcom error code is
+	 * in `$tolerable_errors`, the call is treated as a successful no-op (mirrors Calypso's
+	 * "already not following" handling, which is idempotent for removal).
 	 *
-	 * @param string $path Path under `/rest/v1.1`.
+	 * @param string     $path             Path under `/rest/v1.1`.
+	 * @param array|null $body             Optional JSON body.
+	 * @param string[]   $tolerable_errors WPCOM error slugs that should be treated as success.
 	 * @return WP_Error|null
 	 */
-	private function wpcom_post( $path ) {
+	private function wpcom_post( $path, $body = null, $tolerable_errors = array() ) {
+		$args = array( 'method' => 'POST' );
+		if ( null !== $body ) {
+			$args['headers'] = array( 'Content-Type' => 'application/json' );
+		}
+
 		$response = Client::wpcom_json_api_request_as_user(
 			$path,
 			'1.1',
-			array( 'method' => 'POST' ),
-			null,
+			$args,
+			null !== $body ? wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) : null,
 			'rest'
 		);
 
@@ -777,8 +798,12 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		if ( $status >= 400 ) {
-			$body    = json_decode( wp_remote_retrieve_body( $response ), true );
-			$message = is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'WP.com call failed.', 'jetpack' );
+			$decoded     = json_decode( wp_remote_retrieve_body( $response ), true );
+			$wpcom_error = is_array( $decoded ) && isset( $decoded['error'] ) ? (string) $decoded['error'] : '';
+			if ( '' !== $wpcom_error && in_array( $wpcom_error, $tolerable_errors, true ) ) {
+				return null;
+			}
+			$message = is_array( $decoded ) && isset( $decoded['message'] ) ? $decoded['message'] : __( 'WP.com call failed.', 'jetpack' );
 			return new WP_Error( 'wpcom_call_failed', $message, array( 'status' => $status ) );
 		}
 

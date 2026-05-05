@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Newsletter: make Subscribers remove idempotent and optimistic — rows disappear immediately, "already not following" responses count as success, and a failed call rolls the cache back.

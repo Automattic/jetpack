@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Newsletter: Subscribers remove proxy now passes `user_id` on the cancel-paid step and tolerates idempotent "not_following" / "not_found" responses as success, mirroring Calypso.
