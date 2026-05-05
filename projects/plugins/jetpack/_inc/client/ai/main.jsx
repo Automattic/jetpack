@@ -19,6 +19,13 @@ import McpWrite from './mcp/write';
 
 const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 
+const VALID_VIEWS = [ 'read', 'write', 'setup' ];
+
+const getViewFromHash = () => {
+	const hash = window.location.hash.replace( /^#\//, '' );
+	return VALID_VIEWS.includes( hash ) ? hash : 'hub';
+};
+
 const VIEW_TITLES = {
 	hub: 'AI', // "AI" is a product name and should not be translated.
 	read: __( 'Read', 'jetpack' ),
@@ -71,10 +78,18 @@ function Breadcrumbs( { view, onNavigate } ) {
  * @return {object} Component markup.
  */
 export default function App() {
-	const [ view, setView ] = useState( 'hub' );
+	const [ view, setView ] = useState( getViewFromHash );
 	const [ saveError, setSaveError ] = useState( null );
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings();
+
+	useEffect( () => {
+		// Tag the initial history entry so the popstate handler can restore the hub view.
+		window.history.replaceState( { view: getViewFromHash() }, '' );
+		const handlePopState = event => setView( event.state?.view ?? 'hub' );
+		window.addEventListener( 'popstate', handlePopState );
+		return () => window.removeEventListener( 'popstate', handlePopState );
+	}, [] );
 
 	useEffect( () => {
 		if ( ! isLoading && hasMcpAccess ) {
@@ -93,7 +108,15 @@ export default function App() {
 	);
 
 	const dismissSaveError = useCallback( () => setSaveError( null ), [] );
-	const navigateBack = useCallback( () => setView( 'hub' ), [] );
+
+	const navigateToView = useCallback( newView => {
+		window.history.pushState( { view: newView }, '', '#/' + newView );
+		setView( newView );
+	}, [] );
+
+	// The breadcrumb back link mirrors the browser Back button so the history
+	// entry for the sub-view is popped rather than a new hub entry being pushed.
+	const navigateBack = useCallback( () => window.history.back(), [] );
 
 	const isSubView = view !== 'hub';
 
@@ -148,7 +171,7 @@ export default function App() {
 								blogId={ blogId }
 								activityLogUrl={ activityLogUrl }
 								savingToolIds={ savingToolIds }
-								onNavigate={ setView }
+								onNavigate={ navigateToView }
 								onUpdate={ handleUpdate }
 							/>
 						) }

@@ -91,10 +91,25 @@
 		justify-content: space-between;
 		align-items: center;
 		width: 100%;
+
+		// The ToggleControl label uses line-height equal to the toggle height for
+		// vertical alignment, but the FlexBlock wrapper defaults to align-items:
+		// stretch. Force center so the "Enable all" text sits mid-toggle.
+		.components-toggle-control__label {
+			display: flex;
+			align-items: center;
+		}
 	}
 
 	&__tool-group-divider {
 		margin: 0;
+	}
+
+	// Tighten the gap between each tool toggle's help text and the next toggle.
+	// WP's BaseControl adds margin-top: 8px on the help text; bump overall
+	// row gap down slightly so the combined visual spacing feels even.
+	.components-base-control__help {
+		margin-top: 4px;
 	}
 
 	&__access-card {
