@@ -47,6 +47,10 @@ const SAMPLE_PRODUCTS = [
 	},
 ];
 
+// Declared as a function (rather than a module-level constant) so the `__()`
+// calls run after the block editor's i18n is loaded — otherwise the strings
+// would be cached in the source locale on module init. Mirrors the same
+// pattern in `sort-control/edit.js`.
 const LAYOUT_OPTIONS = () => [
 	{ label: __( 'Card', 'jetpack-search-pkg' ), value: 'card' },
 	{ label: __( 'Compact', 'jetpack-search-pkg' ), value: 'compact' },
@@ -134,38 +138,43 @@ function renderProductPreview( products ) {
 		<ul className="jetpack-search-results__list">
 			{ products.map( product => (
 				<li key={ product.title } className="jetpack-search-results__item">
-					<div className="jetpack-search-results__product-image-link" aria-hidden="true">
-						<span
-							className="jetpack-search-results__product-image-placeholder"
-							aria-hidden="true"
-						/>
-					</div>
-					<h3 className="jetpack-search-results__title">{ product.title }</h3>
-					<div className="jetpack-search-results__price">
-						{ product.hasSalePrice ? (
-							<>
-								<del className="jetpack-search-results__price-regular">
-									{ product.formattedRegularPrice }
-								</del>{ ' ' }
-								<ins className="jetpack-search-results__price-sale">
-									{ product.formattedSalePrice }
-								</ins>
-							</>
-						) : (
-							<span>{ product.formattedPrice }</span>
-						) }
-					</div>
-					<div
-						className="jetpack-search-results__rating"
-						aria-label={ `${ product.ratingPercent } rating` }
+					<a
+						className="jetpack-search-results__product-image-link"
+						tabIndex={ -1 }
+						aria-hidden="true"
 					>
-						<span className="jetpack-search-results__rating-stars" aria-hidden="true">
-							<span
-								className="jetpack-search-results__rating-fill"
-								style={ { width: product.ratingPercent } }
-							/>
-						</span>
-						<span className="jetpack-search-results__rating-count">({ product.reviewCount })</span>
+						<span className="jetpack-search-results__product-image-placeholder" />
+					</a>
+					<div className="jetpack-search-results__copy">
+						<h3 className="jetpack-search-results__title">{ product.title }</h3>
+						<div className="jetpack-search-results__price">
+							{ product.hasSalePrice ? (
+								<>
+									<del className="jetpack-search-results__price-regular">
+										{ product.formattedRegularPrice }
+									</del>{ ' ' }
+									<ins className="jetpack-search-results__price-sale">
+										{ product.formattedSalePrice }
+									</ins>
+								</>
+							) : (
+								<span>{ product.formattedPrice }</span>
+							) }
+						</div>
+						<div
+							className="jetpack-search-results__rating"
+							aria-label={ `${ product.ratingPercent } rating` }
+						>
+							<span className="jetpack-search-results__rating-stars" aria-hidden="true">
+								<span
+									className="jetpack-search-results__rating-fill"
+									style={ { width: product.ratingPercent } }
+								/>
+							</span>
+							<span className="jetpack-search-results__rating-count">
+								({ product.reviewCount })
+							</span>
+						</div>
 					</div>
 				</li>
 			) ) }

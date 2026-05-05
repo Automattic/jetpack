@@ -99,6 +99,8 @@ $skeleton_count     = $is_compact ? 6 : 4;
 					<a
 						class="jetpack-search-results__product-image-link"
 						data-wp-bind--href="context.result.permalink"
+						tabindex="-1"
+						aria-hidden="true"
 					>
 						<span
 							class="jetpack-search-results__product-image"
@@ -108,7 +110,6 @@ $skeleton_count     = $is_compact ? 6 : 4;
 						<span
 							class="jetpack-search-results__product-image-placeholder"
 							data-wp-bind--hidden="context.result.imageUrl"
-							aria-hidden="true"
 						></span>
 					</a>
 				<?php endif; ?>
