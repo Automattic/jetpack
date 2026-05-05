@@ -346,11 +346,11 @@ class DashBackups extends Component {
 				if ( hasRealTimeBackups ) {
 					message = createInterpolateElement(
 						__(
-							'Every change you make will be backed up, in real-time, as you edit your site. <ExternalLink>Learn More</ExternalLink>',
+							'Every change you make will be backed up, in real-time, as you edit your site. <Link>Learn More</Link>',
 							'jetpack'
 						),
 						{
-							ExternalLink: (
+							Link: (
 								<Link
 									openInNewTab
 									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }

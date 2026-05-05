@@ -60,11 +60,11 @@ const JetpackBenefits = props => {
 						<li key="reason-cdn">
 							{ createInterpolateElement(
 								__(
-									'Speed up your site and provide mobile-ready images with <ExternalLink>our CDN</ExternalLink>',
+									'Speed up your site and provide mobile-ready images with <Link>our CDN</Link>',
 									'jetpack'
 								),
 								{
-									ExternalLink: (
+									Link: (
 										<Link
 											openInNewTab
 											href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
@@ -78,11 +78,11 @@ const JetpackBenefits = props => {
 						<li key="reason-brute-force">
 							{ createInterpolateElement(
 								__(
-									'Block <ExternalLink>brute force attacks</ExternalLink> and get immediate notifications if your site is down',
+									'Block <Link>brute force attacks</Link> and get immediate notifications if your site is down',
 									'jetpack'
 								),
 								{
-									ExternalLink: (
+									Link: (
 										<Link
 											openInNewTab
 											href={ getRedirectUrl( 'jetpack-features-brute-force' ) }
@@ -96,11 +96,11 @@ const JetpackBenefits = props => {
 						<li key="reason-social">
 							{ createInterpolateElement(
 								__(
-									'Grow your traffic with automated social <ExternalLink>publishing and sharing</ExternalLink>',
+									'Grow your traffic with automated social <Link>publishing and sharing</Link>',
 									'jetpack'
 								),
 								{
-									ExternalLink: (
+									Link: (
 										<Link
 											openInNewTab
 											href={ getRedirectUrl( 'jetpack-support-social' ) }

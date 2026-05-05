@@ -132,9 +132,7 @@ const ResourcePromptComponent = props => {
 					? createInterpolateElement( description, {
 							br: <br />,
 							strong: <strong />,
-							ExternalLink: (
-								<Link openInNewTab href={ descriptionLink } onClick={ onExternalLinkClick } />
-							),
+							Link: <Link openInNewTab href={ descriptionLink } onClick={ onExternalLinkClick } />,
 					  } )
 					: null
 			}

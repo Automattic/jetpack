@@ -110,26 +110,23 @@ class DashStatsBottom extends Component {
 						}
 						{ this.props.isLinked &&
 							! this.props.isOdysseyStatsEnabled && // Only show if Odyssey Stats is disabled
-							createInterpolateElement(
-								__( '<ExternalLink>View on WordPress.com</ExternalLink>', 'jetpack' ),
-								{
-									ExternalLink: (
-										<Link
-											openInNewTab
-											onClick={ this.trackViewWpcomStats }
-											href={ getRedirectUrl( 'calypso-stats-insights', {
-												site: this.props.siteRawUrl,
-											} ) }
-											rel="noopener noreferrer"
-											target="_blank"
-											className={ clsx(
-												'jp-at-a-glance__stats-ctas-wpcom-stats',
-												this.props.className
-											) }
-										/>
-									),
-								}
-							) }
+							createInterpolateElement( __( '<Link>View on WordPress.com</Link>', 'jetpack' ), {
+								Link: (
+									<Link
+										openInNewTab
+										onClick={ this.trackViewWpcomStats }
+										href={ getRedirectUrl( 'calypso-stats-insights', {
+											site: this.props.siteRawUrl,
+										} ) }
+										rel="noopener noreferrer"
+										target="_blank"
+										className={ clsx(
+											'jp-at-a-glance__stats-ctas-wpcom-stats',
+											this.props.className
+										) }
+									/>
+								),
+							} ) }
 					</div>
 				</div>
 			</div>

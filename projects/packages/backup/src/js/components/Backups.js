@@ -199,7 +199,7 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 					! backupsStopped &&
 					createInterpolateElement(
 						__(
-							'<Button>See your backups in the cloud</Button><br/><ExternalLink>View activity log</ExternalLink>',
+							'<Button>See your backups in the cloud</Button><br/><Link>View activity log</Link>',
 							'jetpack-backup-pkg'
 						),
 						{
@@ -214,7 +214,7 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 								/>
 							),
 							br: <br />,
-							ExternalLink: (
+							Link: (
 								<Link
 									openInNewTab
 									className="backup__restore-point-link"

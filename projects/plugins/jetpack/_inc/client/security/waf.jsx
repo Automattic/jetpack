@@ -260,11 +260,11 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy. <Link>Learn more</Link> <hr /> <Link>Privacy Information</Link>',
 										'jetpack'
 									),
 									{
-										ExternalLink: (
+										Link: (
 											<Link
 												openInNewTab
 												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
@@ -299,11 +299,11 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy. <Link>Learn more</Link> <hr /> <Link>Privacy Information</Link>',
 										'jetpack'
 									),
 									{
-										ExternalLink: (
+										Link: (
 											<Link
 												openInNewTab
 												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }

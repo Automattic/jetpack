@@ -526,11 +526,11 @@ const CriticalCssInfoPopover = () => {
 				<p>
 					{ createInterpolateElement(
 						__(
-							'You should regenerate <ExternalLink>Critical CSS</ExternalLink> to optimize speed whenever your site’s HTML or CSS structure changes after:',
+							'You should regenerate <Link>Critical CSS</Link> to optimize speed whenever your site’s HTML or CSS structure changes after:',
 							'jetpack'
 						),
 						{
-							ExternalLink: (
+							Link: (
 								<Link
 									openInNewTab
 									onClick={ trackCriticalCSSLinkClick }

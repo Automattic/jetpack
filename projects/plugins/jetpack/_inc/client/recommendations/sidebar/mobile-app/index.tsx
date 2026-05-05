@@ -76,11 +76,11 @@ const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 			<p className="jp-recommendations-sidebar-mobile__qr-code-body">
 				{ createInterpolateElement(
 					__(
-						'Visit <ExternalLink>jetpack.com/app</ExternalLink> or scan this code to download the Jetpack mobile app.',
+						'Visit <Link>jetpack.com/app</Link> or scan this code to download the Jetpack mobile app.',
 						'jetpack'
 					),
 					{
-						ExternalLink: (
+						Link: (
 							<Link
 								openInNewTab
 								href={ getRedirectUrl( 'jetpack-plugin-recommendations-mobile-app-component' ) }

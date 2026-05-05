@@ -37,12 +37,9 @@ function DashJetpackAi( props ) {
 		link: getRedirectUrl( 'org-ai' ),
 	};
 
-	const learnMoreLink = createInterpolateElement(
-		__( '<ExternalLink>Learn more</ExternalLink>', 'jetpack' ),
-		{
-			ExternalLink: <Link openInNewTab href={ getRedirectUrl( 'org-ai' ) } />,
-		}
-	);
+	const learnMoreLink = createInterpolateElement( __( '<Link>Learn more</Link>', 'jetpack' ), {
+		Link: <Link openInNewTab href={ getRedirectUrl( 'org-ai' ) } />,
+	} );
 
 	// TODO: useExperiment to switch upgradeUrl between add-jetpack-ai (default from getProductDescriptionUrl) and jetpack-ai
 

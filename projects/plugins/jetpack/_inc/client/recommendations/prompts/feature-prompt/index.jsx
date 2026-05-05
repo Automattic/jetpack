@@ -170,9 +170,7 @@ const FeaturePromptComponent = props => {
 			description={ createInterpolateElement( description, {
 				br: <br />,
 				strong: <strong />,
-				ExternalLink: (
-					<Link openInNewTab href={ descriptionLink } onClick={ onExternalLinkClick } />
-				),
+				Link: <Link openInNewTab href={ descriptionLink } onClick={ onExternalLinkClick } />,
 			} ) }
 			content={
 				descriptionList || descriptionSecondary ? (
