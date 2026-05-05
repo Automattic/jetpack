@@ -1,11 +1,10 @@
 /**
  * Distribution tab — copy-the-feed CTA + per-directory submit buttons.
  *
- * Mirrors `client/my-sites/podcast/components/distribution.tsx` from Calypso.
- * Replaces Calypso's `ClipboardButtonInput` with a small inline copy button so
- * we don't pull in any Calypso-only components, and reads the feed URL from
- * the script data injected by `class-settings.php` (the same URL produced by
- * `get_term_feed_link()`).
+ * Each podcast directory ("podcast app") lives in its own self-contained
+ * file under `../podcast-apps/`. This tab just renders the registry and
+ * delegates the submission flow to either the default 3-step `SubmitModal`
+ * or, when an app sets `Modal`, that app's custom modal.
  */
 
 import {
@@ -20,74 +19,15 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useCallback, useState, type ComponentType } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
-import {
-	LogoAmazon,
-	LogoApple,
-	LogoPocketCasts,
-	LogoPodcastIndex,
-	LogoSpotify,
-	LogoYouTube,
-} from '../components/logos';
 import SubmitModal from '../components/submit-modal';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
+import { PODCAST_APPS, type PodcastApp } from '../podcast-apps';
 import { getPodcastScriptData } from '../script-data';
 import type { PodcatcherId } from '../types';
 import type { FocusEvent } from 'react';
-
-interface Directory {
-	id: PodcatcherId;
-	name: string;
-	submitUrl: string;
-	learnMoreUrl?: string;
-	Logo: ComponentType;
-}
-
-const DIRECTORIES: Directory[] = [
-	{
-		id: 'pocketcasts',
-		name: 'Pocket Casts',
-		submitUrl: 'https://pocketcasts.com/submit',
-		learnMoreUrl: 'https://support.pocketcasts.com/knowledge-base/submitting-podcasts/',
-		Logo: LogoPocketCasts,
-	},
-	{
-		id: 'apple',
-		name: 'Apple Podcasts',
-		submitUrl: 'https://podcastsconnect.apple.com/',
-		learnMoreUrl: 'https://podcasters.apple.com/support/897-submit-a-show',
-		Logo: LogoApple,
-	},
-	{
-		id: 'spotify',
-		name: 'Spotify',
-		submitUrl: 'https://creators.spotify.com/',
-		learnMoreUrl:
-			'https://support.spotify.com/creators/article/claiming-your-podcast-on-spotify-for-creators/',
-		Logo: LogoSpotify,
-	},
-	{
-		id: 'youtube',
-		name: 'YouTube',
-		submitUrl: 'https://studio.youtube.com',
-		learnMoreUrl: 'https://support.google.com/youtube/answer/13973017',
-		Logo: LogoYouTube,
-	},
-	{
-		id: 'amazon',
-		name: 'Amazon Music',
-		submitUrl: 'https://podcasters.amazon.com',
-		Logo: LogoAmazon,
-	},
-	{
-		id: 'podcastindex',
-		name: 'Podcast Index',
-		submitUrl: 'https://podcastindex.org/add',
-		Logo: LogoPodcastIndex,
-	},
-];
 
 const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 	event.currentTarget.select();
@@ -129,18 +69,18 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 	);
 };
 
-interface DirectoryRowProps {
-	directory: Directory;
+interface AppRowProps {
+	app: PodcastApp;
 	isEnabled: boolean;
 	onSelect: ( id: PodcatcherId ) => void;
 }
 
-const DirectoryRow = ( { directory, isEnabled, onSelect }: DirectoryRowProps ) => {
+const AppRow = ( { app, isEnabled, onSelect }: AppRowProps ) => {
 	const handleClick = useCallback( () => {
-		onSelect( directory.id );
-	}, [ directory.id, onSelect ] );
+		onSelect( app.id );
+	}, [ app.id, onSelect ] );
 
-	const { Logo } = directory;
+	const { Logo } = app;
 
 	return (
 		<HStack as="li" alignment="center" justify="space-between" className="podcast__directory-row">
@@ -148,7 +88,7 @@ const DirectoryRow = ( { directory, isEnabled, onSelect }: DirectoryRowProps ) =
 				<span aria-hidden="true">
 					<Logo />
 				</span>
-				<Text weight={ 500 }>{ directory.name }</Text>
+				<Text weight={ 500 }>{ app.name }</Text>
 			</HStack>
 			<Button variant="primary" size="compact" onClick={ handleClick } disabled={ ! isEnabled }>
 				{ __( 'Submit', 'jetpack-podcast' ) }
@@ -164,7 +104,7 @@ const DistributionTab = () => {
 	const isEnabled = !! settings?.podcasting_category_id;
 
 	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
-	const activeDirectory = DIRECTORIES.find( d => d.id === activeId ) ?? null;
+	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
 
 	const handleSelect = useCallback( ( id: PodcatcherId ) => {
 		setActiveId( id );
@@ -173,6 +113,8 @@ const DistributionTab = () => {
 	const handleClose = useCallback( () => {
 		setActiveId( null );
 	}, [] );
+
+	const ActiveModal = activeApp?.Modal ?? SubmitModal;
 
 	return (
 		<>
@@ -224,10 +166,10 @@ const DistributionTab = () => {
 								</Text>
 							</VStack>
 							<VStack as="ul" spacing={ 0 } className="podcast__directory-list">
-								{ DIRECTORIES.map( directory => (
-									<DirectoryRow
-										key={ directory.id }
-										directory={ directory }
+								{ PODCAST_APPS.map( app => (
+									<AppRow
+										key={ app.id }
+										app={ app }
 										isEnabled={ isEnabled }
 										onSelect={ handleSelect }
 									/>
@@ -238,18 +180,7 @@ const DistributionTab = () => {
 				</CardBody>
 			</Card>
 
-			{ activeDirectory && (
-				<SubmitModal
-					feedUrl={ feedUrl }
-					podcatcher={ {
-						id: activeDirectory.id,
-						name: activeDirectory.name,
-						submitUrl: activeDirectory.submitUrl,
-						learnMoreUrl: activeDirectory.learnMoreUrl,
-					} }
-					onClose={ handleClose }
-				/>
-			) }
+			{ activeApp && <ActiveModal app={ activeApp } feedUrl={ feedUrl } onClose={ handleClose } /> }
 		</>
 	);
 };
