@@ -529,42 +529,8 @@ class zeroBSCRM_list {
 			// Vars for zbs list view drawer
 			var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-			var zbsSortables = [
-			<?php
-
-				$c = 0; if ( count( $this->sortables ) > 0 ) {
-				foreach ( $this->sortables as $sortableStr ) {
-
-					if ( $c > 0 ) {
-						echo ',';
-					}
-
-							echo "'" . esc_html( $sortableStr ) . "'";
-
-							++$c;
-
-				}
-				}
-
-				?>
-				]; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
-			var zbsBulkActions = [
-			<?php
-			$bulkCount = 0; if ( count( $this->bulkActions ) > 0 ) {
-				foreach ( $this->bulkActions as $bulkActionStr ) {
-
-					if ( $bulkCount > 0 ) {
-						echo ',';
-					}
-
-						echo "'" . esc_html( $bulkActionStr ) . "'";
-
-						++$bulkCount;
-
-				}
-			}
-			?>
-			]; // :D
+			var zbsSortables = <?php echo wp_json_encode( $this->sortables, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
+			var zbsBulkActions = <?php echo wp_json_encode( $this->bulkActions, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>; // :D
 			var zbsListViewData = []; var zbsListViewCount = 0;
 			var zbsDrawListViewBlocker = false;
 			var zbsDrawListViewAJAXBlocker = false;
@@ -609,67 +575,46 @@ class zeroBSCRM_list {
 			}
 			?>
 			var zbsListViewLangLabels = <?php echo wp_json_encode( $jpcrm_listview_lang_labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
-			var zbsTagsForBulkActions = 
 			<?php
-				$tags = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					array(
-						'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						'withCount'    => true,
-						'excludeEmpty' => false,
-						'ignoreowner'  => true,
-					)
-				);
+			$tags = $zbs->DAL->getTagsForObjType(
+				array(
+					'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					'withCount'    => true,
+					'excludeEmpty' => false,
+					'ignoreowner'  => true,
+				)
+			);
 
-				// make simplified
-				$simple_tags = array();
-				if ( is_array( $tags ) && count( $tags ) > 0 ) {
-					foreach ( $tags as $t ) {
-						$simple_tags[] = array(
-							'id'   => $t['id'],
-							'name' => $t['name'],
-							'slug' => $t['slug'],
-						);
-					}
+			// make simplified
+			$simple_tags = array();
+			if ( is_array( $tags ) ) {
+				foreach ( $tags as $t ) {
+					$simple_tags[] = array(
+						'id'   => $t['id'],
+						'name' => $t['name'],
+						'slug' => $t['slug'],
+					);
 				}
-
-				$zbs_tags_for_bulk_actions = wp_json_encode( $simple_tags, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-				echo ( $zbs_tags_for_bulk_actions ? $zbs_tags_for_bulk_actions : '[]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-			?>;
+			}
+			?>
+			var zbsTagsForBulkActions = <?php echo wp_json_encode( $simple_tags, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var zbsListViewIcos = {};
+				<?php
+				// MUST be a better way than this to get customer statuses...
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				global $zbsCustomerFields;
+				$zbs_customer_statuses = is_array( $zbsCustomerFields['status'][3] ) ? $zbsCustomerFields['status'][3] : array();
+				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// hardcoded customer perms atm
+				$zbs_possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
+				$zbs_possible_owners = is_array( $zbs_possible_owners ) ? $zbs_possible_owners : array();
+				$zbs_inline_edit     = array(
+					'customer' => array( 'statuses' => $zbs_customer_statuses ),
+					'owners'   => $zbs_possible_owners,
+				);
+				?>
 				// gives data used by inline editor
-				var zbsListViewInlineEdit = {
-
-					// for now just put contacts in here
-					customer: {
-						statuses: 
-						<?php
-							// MUST be a better way than this to get customer statuses...
-							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-							global $zbsCustomerFields;
-							if ( is_array( $zbsCustomerFields['status'][3] ) ) {
-								echo wp_json_encode( $zbsCustomerFields['status'][3], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-							} else {
-								echo '[]';
-							}
-							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						?>
-					},
-
-					owners: 
-					<?php
-
-						// hardcoded customer perms atm
-						$possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
-						if ( ! is_array( $possible_owners ) ) {
-						echo wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-					} else {
-						echo wp_json_encode( $possible_owners, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-					}
-
-					?>
-
-					};
+				var zbsListViewInlineEdit = <?php echo wp_json_encode( $zbs_inline_edit, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 					var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 					<?php
 

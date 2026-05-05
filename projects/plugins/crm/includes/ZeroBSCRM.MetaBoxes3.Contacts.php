@@ -1290,15 +1290,7 @@ class zeroBS__Metabox_ContactFiles extends zeroBS__Metabox {
 										'action': 'delFile',
 										'zbsfType': 'customer',
 										'zbsDel':  delUrl, // could be csv, never used though
-										'zbsCID': 
-										<?php
-										if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-											echo esc_html( $contact['id'] );
-										} else {
-											echo -1;
-										}
-										?>
-													,
+										'zbsCID': <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 										'sec': window.zbscrmjs_secToken
 										};
 
@@ -1647,15 +1639,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 					var t = {
 						action: "zbsPortalAction",
 						portalAction: action,
-						cid: 
-						<?php
-						if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-							echo esc_html( $contact['id'] );
-						} else {
-							echo -1;
-						}
-						?>
-							,
+						cid: <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 						security: jQuery( '#zbsportalaction-ajax-nonce' ).val()
 					}
 					i = jQuery.ajax({
@@ -1703,15 +1687,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 					var t = {
 						action: "zbsPortalAction",
 						portalAction: 'resetpw',
-						cid: 
-						<?php
-						if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-							echo esc_html( $contact['id'] );
-						} else {
-							echo -1;
-						}
-						?>
-							,
+						cid: <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 						security: jQuery( '#zbsportalaction-ajax-nonce' ).val()
 					}
 					i = jQuery.ajax({
@@ -1748,15 +1724,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox {
 				// bind create
 				jQuery('.wp-user-generate').off("click").on('click',function(e){
 					email = jQuery('#email').val();
-					customerid = 
-					<?php
-					if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-						echo esc_html( $contact['id'] );
-					} else {
-						echo -1;
-					}
-					?>
-								;
+					customerid = <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>;
 					if(email == ''){
 						alert("The email field is blank. Please fill in the email and save");
 						return false;
@@ -2024,17 +1992,7 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 										// postbag!
 										var data = {
 										'action': 'addAlias',
-										'cid': 
-										<?php
-										if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-											echo esc_html( $contact['id'] );
-										} else {
-											echo -1;
-										}
-										?>
-												,
-										'aka': v,
-										'sec': window.zbscrmjs_secToken
+										'cid': <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 										};
 
 										// Send it Pat :D
@@ -2174,15 +2132,7 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 								// postbag!
 								var data = {
 								'action': 'removeAlias',
-								'cid': 
-								<?php
-								if ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) {
-									echo esc_html( $contact['id'] );
-								} else {
-									echo -1;
-								}
-								?>
-										,
+								'cid': <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
 								'akaid': akaID,
 								'sec': window.zbscrmjs_secToken
 								};
