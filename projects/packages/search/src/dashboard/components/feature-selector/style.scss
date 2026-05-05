@@ -25,15 +25,6 @@
 		padding: 0;
 	}
 
-	&__label {
-		font-size: var(--wpds-typography-font-size-xs);
-		font-weight: 600;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
-		color: var(--wpds-color-fg-content-neutral-weak);
-		margin: 0 0 var(--wpds-dimension-gap-md);
-	}
-
 	&__options {
 		display: flex;
 		flex-direction: column;
