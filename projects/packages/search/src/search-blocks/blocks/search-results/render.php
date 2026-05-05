@@ -58,7 +58,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 // /search/ page where no fetch ever fires. Once JS hydrates,
 // `data-wp-bind--hidden="state.skeletonHidden"` takes over visibility.
 $is_initial_loading = Search_Blocks::is_initial_loading();
-$skeleton_count     = $is_compact ? 6 : 4;
+$skeleton_count     = 'compact' === $layout ? 6 : 4;
 ?>
 <div
 	<?php echo wp_kses_data( $wrapper_attrs ); ?>
@@ -79,12 +79,12 @@ $skeleton_count     = $is_compact ? 6 : 4;
 				>
 					<div class="jetpack-search-results__copy">
 						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-						<?php if ( ! $is_compact ) : ?>
+						<?php if ( 'compact' !== $layout ) : ?>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
 						<?php endif; ?>
 					</div>
-					<?php if ( ! $is_compact ) : ?>
+					<?php if ( 'compact' !== $layout ) : ?>
 						<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
 					<?php endif; ?>
 				</li>
