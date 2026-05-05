@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
+use Automattic\Jetpack\Podcast\Feed\Feed_Detection;
 use Automattic\Jetpack\Podcast\REST\Settings_REST;
 use Automattic\Jetpack\Status\Host;
 
@@ -82,9 +83,14 @@ class Podcast {
 
 	/**
 	 * Load feed customization only when the podcast category feed is requested.
+	 *
+	 * Also runs the podcatcher detector here — same gate (single feed
+	 * request), guaranteed to run before the response goes out, and cheap
+	 * enough that piggybacking is fine.
 	 */
 	public static function maybe_load_feed_customization() {
 		if ( is_feed() && is_category( self::get_category_id() ) ) {
+			Feed_Detection::detect_and_record();
 			Customize_Feed::init();
 		}
 	}
