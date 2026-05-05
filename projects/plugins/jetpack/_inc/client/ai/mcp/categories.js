@@ -33,12 +33,14 @@ const SUB_CATEGORIES = {
 	POSTS: __( 'Posts', 'jetpack' ),
 	COMMENTS: __( 'Comments', 'jetpack' ),
 	CATEGORIES_TAGS: __( 'Categories & tags', 'jetpack' ),
-	SITES: __( 'Sites', 'jetpack' ),
+	SITE_INFO: __( 'Site info', 'jetpack' ),
+	NAVIGATION: __( 'Navigation', 'jetpack' ),
 	MEDIA: __( 'Media', 'jetpack' ),
 	SITE_SETTINGS: __( 'Site settings', 'jetpack' ),
 	ANALYTICS: __( 'Analytics', 'jetpack' ),
-	ACCOUNT: __( 'Account', 'jetpack' ),
+	PROFILE: __( 'Profile', 'jetpack' ),
 	NOTIFICATIONS: __( 'Notifications', 'jetpack' ),
+	BILLING: __( 'Billing', 'jetpack' ),
 };
 
 export const SUB_CATEGORY_ORDER = {
@@ -48,12 +50,17 @@ export const SUB_CATEGORY_ORDER = {
 		SUB_CATEGORIES.CATEGORIES_TAGS,
 	],
 	[ DISPLAY_CATEGORIES.SITES ]: [
-		SUB_CATEGORIES.SITES,
+		SUB_CATEGORIES.SITE_INFO,
+		SUB_CATEGORIES.NAVIGATION,
 		SUB_CATEGORIES.SITE_SETTINGS,
 		SUB_CATEGORIES.MEDIA,
 		SUB_CATEGORIES.ANALYTICS,
 	],
-	[ DISPLAY_CATEGORIES.ACCOUNT ]: [ SUB_CATEGORIES.ACCOUNT, SUB_CATEGORIES.NOTIFICATIONS ],
+	[ DISPLAY_CATEGORIES.ACCOUNT ]: [
+		SUB_CATEGORIES.PROFILE,
+		SUB_CATEGORIES.NOTIFICATIONS,
+		SUB_CATEGORIES.BILLING,
+	],
 };
 
 const API_CATEGORY_TO_DISPLAY = {
@@ -79,15 +86,28 @@ const API_CATEGORY_TO_SUB_CATEGORY = {
 	posts: SUB_CATEGORIES.POSTS,
 	comments: SUB_CATEGORIES.COMMENTS,
 	'categories-tags': SUB_CATEGORIES.CATEGORIES_TAGS,
-	sites: SUB_CATEGORIES.SITES,
+	sites: SUB_CATEGORIES.SITE_INFO,
 	media: SUB_CATEGORIES.MEDIA,
 	users: SUB_CATEGORIES.SITE_SETTINGS,
 	plugins: SUB_CATEGORIES.SITE_SETTINGS,
 	'site-settings': SUB_CATEGORIES.SITE_SETTINGS,
 	analytics: SUB_CATEGORIES.ANALYTICS,
-	account: SUB_CATEGORIES.ACCOUNT,
+	account: SUB_CATEGORIES.PROFILE,
 	notifications: SUB_CATEGORIES.NOTIFICATIONS,
-	billing: SUB_CATEGORIES.ACCOUNT,
+	billing: SUB_CATEGORIES.BILLING,
+};
+
+const TOOL_ID_TO_SUB_CATEGORY = {
+	list_menus: SUB_CATEGORIES.NAVIGATION,
+	get_menu: SUB_CATEGORIES.NAVIGATION,
+	list_menu_items: SUB_CATEGORIES.NAVIGATION,
+	get_menu_item: SUB_CATEGORIES.NAVIGATION,
+	list_navigation: SUB_CATEGORIES.NAVIGATION,
+	get_navigation: SUB_CATEGORIES.NAVIGATION,
+	create_navigation: SUB_CATEGORIES.NAVIGATION,
+	update_navigation: SUB_CATEGORIES.NAVIGATION,
+	delete_navigation: SUB_CATEGORIES.NAVIGATION,
+	list_themes: SUB_CATEGORIES.SITE_SETTINGS,
 };
 
 /**
@@ -98,6 +118,9 @@ const API_CATEGORY_TO_SUB_CATEGORY = {
  * @return {string | undefined} Sub-category display name, or undefined if none.
  */
 export function getSubCategory( toolId, ability ) {
+	if ( toolId && TOOL_ID_TO_SUB_CATEGORY[ toolId ] ) {
+		return TOOL_ID_TO_SUB_CATEGORY[ toolId ];
+	}
 	const apiCategory = ability?.category;
 	if ( apiCategory ) {
 		return API_CATEGORY_TO_SUB_CATEGORY[ apiCategory ];
