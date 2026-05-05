@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import PluginDashItem from 'components/plugin-dash-item';
@@ -29,7 +29,7 @@ class DashCRM extends Component {
 						'jetpack'
 					),
 					{
-						ExternalLink: <ExternalLink href={ getRedirectUrl( 'stats-nudges-crm-learn' ) } />,
+						ExternalLink: <Link openInNewTab href={ getRedirectUrl( 'stats-nudges-crm-learn' ) } />,
 						br: <br />,
 					}
 				) }

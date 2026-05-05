@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -59,7 +59,8 @@ export const Monitor = withModuleSettingsFormHelpers(
 									),
 									{
 										a: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href="https://wordpress.com/me/account"
 												onClick={ this.trackConfigureClick }
 											/>

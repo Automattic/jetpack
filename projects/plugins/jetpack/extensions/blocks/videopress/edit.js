@@ -12,7 +12,6 @@ import {
 import {
 	BaseControl,
 	Button,
-	ExternalLink,
 	PanelBody,
 	ResizableBox,
 	SandBox,
@@ -40,6 +39,7 @@ import {
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
@@ -620,7 +620,7 @@ const VideoPressEdit = CoreVideoEdit =>
 							{ createInterpolateElement(
 								__( 'Send us your <a>VideoPress feedback</a>', 'jetpack' ),
 								{
-									a: <ExternalLink href="https://automattic.survey.fm/videopress-feedback" />,
+									a: <Link openInNewTab href="https://automattic.survey.fm/videopress-feedback" />,
 								}
 							) }
 						</PanelBody>

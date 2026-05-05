@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 import AppsBadge from 'components/apps-badge';
@@ -10,7 +10,6 @@ import analytics from 'lib/analytics';
 import detectMobileDevice from 'lib/device-detector';
 import { SidebarCard } from '../sidebar-card';
 import type { FC } from 'react';
-
 import './style.scss';
 
 type Props = {
@@ -82,7 +81,8 @@ const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 					),
 					{
 						ExternalLink: (
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ getRedirectUrl( 'jetpack-plugin-recommendations-mobile-app-component' ) }
 								rel="noopener noreferrer"
 								target="_blank"

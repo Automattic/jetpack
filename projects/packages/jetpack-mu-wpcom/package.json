@@ -81,6 +81,7 @@
 		"@wordpress/rich-text": "7.44.0",
 		"@wordpress/router": "^1.8.11",
 		"@wordpress/sync": "1.44.0",
+		"@wordpress/ui": "0.11.0",
 		"@wordpress/url": "4.44.0",
 		"canvas-confetti": "^1.9.4",
 		"clsx": "2.1.1",

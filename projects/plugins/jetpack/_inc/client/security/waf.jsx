@@ -1,7 +1,8 @@
 import { getRedirectUrl, Status } from '@automattic/jetpack-components';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -264,7 +265,8 @@ export const Waf = class extends Component {
 									),
 									{
 										ExternalLink: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
 											/>
 										),
@@ -302,7 +304,8 @@ export const Waf = class extends Component {
 									),
 									{
 										ExternalLink: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
 											/>
 										),

@@ -1,15 +1,4 @@
-/**
- * Renders the structured tokens produced by the parser.
- *
- * Ported (simplified) from Calypso's logs-activity-formatted-block. Calypso
- * links entities into its own routes (/reader/blogs/…, /people/edit/…,
- * /plugins/…); in wp-admin we link into the equivalent core screens
- * (post.php, user-edit.php, plugins.php, themes.php, comment.php) via
- * `buildAdminLink`. Entities without a wp-admin equivalent (site, backup)
- * fall through to plain strong text. Direct URL ranges (release notes,
- * docs) still render as external links.
- */
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import { Fragment, type MouseEvent, type ReactNode } from 'react';
 import { buildAdminLink } from '../admin-links';
 import type { ActivityBlockContent, ActivityBlockMeta, ActivityBlockNode } from './types';
@@ -73,7 +62,8 @@ const Link: BlockRenderer = ( { content, children, onClick, meta } ) => {
 	}
 
 	return (
-		<ExternalLink
+		<Link
+			openInNewTab
 			href={ url }
 			onClick={ onClick }
 			data-activity={ activity ?? meta.activity }
@@ -81,7 +71,7 @@ const Link: BlockRenderer = ( { content, children, onClick, meta } ) => {
 			data-intent={ intent ?? meta.intent }
 		>
 			{ children }
-		</ExternalLink>
+		</Link>
 	);
 };
 

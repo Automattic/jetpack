@@ -6,18 +6,12 @@ import {
 	useBlockProps,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import {
-	Button,
-	ExternalLink,
-	Placeholder,
-	Spinner,
-	withNotices,
-	ResizableBox,
-} from '@wordpress/components';
+import { Button, Placeholder, Spinner, withNotices, ResizableBox } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { getActiveStyleName } from '../../shared/block-styles';
 import AddPoint from './add-point';
 import metadata from './block.json';
@@ -258,9 +252,9 @@ const MapEdit = ( {
 					<p className="components-placeholder__instructions">
 						{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
 						<br />
-						<ExternalLink href="https://www.mapbox.com">
+						<Link openInNewTab href="https://www.mapbox.com">
 							{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
-						</ExternalLink>
+						</Link>
 						<br />
 						{ __(
 							'Locate and copy the default access token. Then, paste it into the field below.',

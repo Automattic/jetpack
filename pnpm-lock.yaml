@@ -216,6 +216,9 @@ importers:
       '@wordpress/primitives':
         specifier: 4.44.0
         version: 4.44.0(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0
@@ -723,6 +726,9 @@ importers:
       '@wordpress/icons':
         specifier: 12.2.0
         version: 12.2.0(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0
@@ -1093,6 +1099,9 @@ importers:
       '@wordpress/icons':
         specifier: 12.2.0
         version: 12.2.0(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -1443,6 +1452,9 @@ importers:
       '@wordpress/primitives':
         specifier: 4.44.0
         version: 4.44.0(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0
@@ -1869,6 +1881,9 @@ importers:
       '@wordpress/icons':
         specifier: 12.2.0
         version: 12.2.0(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0
@@ -2030,6 +2045,9 @@ importers:
       '@wordpress/icons':
         specifier: 12.2.0
         version: 12.2.0(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       moment:
         specifier: 2.30.1
         version: 2.30.1
@@ -2912,6 +2930,9 @@ importers:
       '@wordpress/sync':
         specifier: 1.44.0
         version: 1.44.0
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0
@@ -3436,6 +3457,9 @@ importers:
       '@wordpress/i18n':
         specifier: 6.17.0
         version: 6.17.0
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/widgets':
         specifier: 4.44.0
         version: 4.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3981,6 +4005,9 @@ importers:
       '@wordpress/server-side-render':
         specifier: 6.20.0
         version: 6.20.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.44.0
         version: 4.44.0
@@ -4499,6 +4526,9 @@ importers:
       '@wordpress/plugins':
         specifier: 7.44.0
         version: 7.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       gridicons:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
@@ -4566,6 +4596,9 @@ importers:
       '@wordpress/i18n':
         specifier: 6.17.0
         version: 6.17.0
+      '@wordpress/ui':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx:
         specifier: 2.1.1
         version: 2.1.1

@@ -5,9 +5,9 @@ import {
 	calculateDaysSince,
 } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
@@ -482,14 +482,15 @@ const ConversionLossPopover = () => {
 			>
 				<p className="boost-conversion-loss-info__source">
 					{ __( 'Source:', 'jetpack' ) }{ ' ' }
-					<ExternalLink
+					<Link
+						openInNewTab
 						href="https://web.dev/why-speed-matters/"
 						target="_blank"
 						rel="noopener noreferrer"
 						onClick={ trackSourceClick }
 					>
 						web.dev
-					</ExternalLink>
+					</Link>
 				</p>
 			</InfoPopover>
 		</div>
@@ -530,7 +531,8 @@ const CriticalCssInfoPopover = () => {
 						),
 						{
 							ExternalLink: (
-								<ExternalLink
+								<Link
+									openInNewTab
 									onClick={ trackCriticalCSSLinkClick }
 									href={ criticalCssUrl }
 									target="_blank"

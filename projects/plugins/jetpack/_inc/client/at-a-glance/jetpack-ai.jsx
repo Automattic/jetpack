@@ -2,12 +2,12 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { Link } from '@wordpress/ui';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
@@ -40,7 +40,7 @@ function DashJetpackAi( props ) {
 	const learnMoreLink = createInterpolateElement(
 		__( '<ExternalLink>Learn more</ExternalLink>', 'jetpack' ),
 		{
-			ExternalLink: <ExternalLink href={ getRedirectUrl( 'org-ai' ) } />,
+			ExternalLink: <Link openInNewTab href={ getRedirectUrl( 'org-ai' ) } />,
 		}
 	);
 

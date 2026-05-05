@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { DisconnectCard } from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Fragment } from 'react';
 import './style.scss';
@@ -65,11 +65,12 @@ const JetpackBenefits = props => {
 								),
 								{
 									ExternalLink: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										></ExternalLink>
+										></Link>
 									),
 								}
 							) }
@@ -82,11 +83,12 @@ const JetpackBenefits = props => {
 								),
 								{
 									ExternalLink: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-features-brute-force' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										></ExternalLink>
+										></Link>
 									),
 								}
 							) }
@@ -99,11 +101,12 @@ const JetpackBenefits = props => {
 								),
 								{
 									ExternalLink: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-support-social' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										></ExternalLink>
+										></Link>
 									),
 								}
 							) }

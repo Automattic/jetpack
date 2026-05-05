@@ -3,11 +3,11 @@ import {
 	getRedirectUrl,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, dateI18n } from '@wordpress/date';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { BACKUP_STATE } from '../constants';
 import useAnalytics from '../hooks/useAnalytics';
 import useBackupsState from '../hooks/useBackupsState.js';
@@ -204,7 +204,8 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 						),
 						{
 							Button: (
-								<ExternalLink
+								<Link
+									openInNewTab
 									className="button"
 									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 									onClick={ trackSeeBackupsCtaClick }
@@ -214,7 +215,8 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 							),
 							br: <br />,
 							ExternalLink: (
-								<ExternalLink
+								<Link
+									openInNewTab
 									className="backup__restore-point-link"
 									href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
 									onClick={ trackRecentRestorePointClick }

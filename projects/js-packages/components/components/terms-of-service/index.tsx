@@ -1,6 +1,6 @@
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { getRedirectUrl } from '../../index.ts';
 import Text from '../text/index.tsx';
@@ -94,9 +94,9 @@ const TermsOfServiceTextOnly = () =>
 	);
 
 const Link: FC< { slug: string; children?: ReactNode } > = ( { slug, children } ) => (
-	<ExternalLink className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
+	<Link openInNewTab className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
 		{ children }
-	</ExternalLink>
+	</Link>
 );
 
 export default TermsOfService;
