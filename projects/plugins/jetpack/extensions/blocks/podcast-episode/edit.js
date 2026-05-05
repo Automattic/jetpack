@@ -16,9 +16,12 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import metadata from './block.json';
 import { microphone } from './icons';
@@ -38,19 +41,7 @@ const TRANSCRIPT_TYPE_OPTIONS = [
 	{ label: 'JSON (application/json)', value: 'application/json' },
 ];
 
-function formatSeconds( totalSeconds ) {
-	const n = Number( totalSeconds );
-	if ( ! n || Number.isNaN( n ) ) {
-		return '';
-	}
-	const seconds = Math.floor( n % 60 );
-	const minutes = Math.floor( ( n / 60 ) % 60 );
-	const hours = Math.floor( n / 3600 );
-	const pad = v => String( v ).padStart( 2, '0' );
-	return hours > 0
-		? `${ hours }:${ pad( minutes ) }:${ pad( seconds ) }`
-		: `${ minutes }:${ pad( seconds ) }`;
-}
+const PERSON_ROW_STYLE = { marginBottom: '1em' };
 
 function PeopleEditor( { people, onChange } ) {
 	const updatePerson = ( index, patch ) => {
@@ -66,7 +57,7 @@ function PeopleEditor( { people, onChange } ) {
 				<div
 					className="jetpack-podcast-episode__person-editor"
 					key={ index }
-					style={ { marginBottom: '1em' } }
+					style={ PERSON_ROW_STYLE }
 				>
 					<TextControl
 						label={ __( 'Name', 'jetpack' ) }
@@ -111,7 +102,7 @@ function PeopleEditor( { people, onChange } ) {
 	);
 }
 
-export default function PodcastEpisodeEdit( { attributes, setAttributes } ) {
+export default function PodcastEpisodeEdit( { attributes, setAttributes, context } ) {
 	const validated = getValidatedAttributes( metadata.attributes, attributes );
 	const {
 		mediaId,
@@ -134,26 +125,30 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes } ) {
 		showPoster,
 	} = validated;
 
-	const { postType, postTitle, postExcerpt, postAuthor, thumbnailUrl } = useSelect( select => {
-		const editor = select( 'core/editor' );
-		const core = select( 'core' );
-		if ( ! editor ) {
-			return {};
-		}
-		const featuredId = editor.getEditedPostAttribute( 'featured_media' );
-		const media = featuredId ? core.getMedia( featuredId ) : null;
-		const authorId = editor.getEditedPostAttribute( 'author' );
-		const author = authorId ? core.getUser( authorId ) : null;
-		return {
-			postType: editor.getCurrentPostType(),
-			postTitle: editor.getEditedPostAttribute( 'title' ),
-			postExcerpt: editor.getEditedPostAttribute( 'excerpt' ),
-			postAuthor: author?.name || '',
-			thumbnailUrl: media?.source_url || '',
-		};
-	}, [] );
+	const { postId, postType } = context || {};
 
-	const inPostContext = postType === 'post' || postType === 'page';
+	// Pull display content from the surrounding post via block context. This is
+	// the same pattern core's post-title / post-excerpt / post-featured-image
+	// blocks use, which means this block also works inside Query Loops and
+	// site-editor singular templates, not just the post editor.
+	const [ postTitle ] = useEntityProp( 'postType', postType, 'title', postId );
+	const [ postExcerpt ] = useEntityProp( 'postType', postType, 'excerpt', postId );
+	const [ featuredId ] = useEntityProp( 'postType', postType, 'featured_media', postId );
+	const [ postDate ] = useEntityProp( 'postType', postType, 'date', postId );
+	const [ authorId ] = useEntityProp( 'postType', postType, 'author', postId );
+
+	const { thumbnailUrl, postAuthor } = useSelect(
+		select => {
+			const core = select( coreStore );
+			const media = featuredId ? core.getMedia( featuredId ) : null;
+			const author = authorId ? core.getUser( authorId ) : null;
+			return {
+				thumbnailUrl: media?.source_url || '',
+				postAuthor: author?.name || '',
+			};
+		},
+		[ featuredId, authorId ]
+	);
 
 	const blockProps = useBlockProps( { className: 'wp-block-jetpack-podcast-episode' } );
 	const [ uploadError, setUploadError ] = useState( null );
@@ -170,7 +165,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes } ) {
 		const nextDuration =
 			duration ||
 			( typeof media.fileLength === 'string' && media.fileLength ) ||
-			formatSeconds( media.duration );
+			( media.duration ? convertSecondsToTimeCode( media.duration ) : '' );
 
 		const immediate = {
 			mediaId: media.id,
@@ -186,10 +181,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes } ) {
 			return;
 		}
 
-		// Backfill any empty audio metadata fields from the attachment's ID3 data
-		// (parsed by WordPress via wp_read_audio_metadata on upload). We never
-		// overwrite values the user has already typed, and we no longer touch
-		// title/author — those live on the post itself.
+		// Backfill empty audio metadata from the attachment's ID3 data
+		// (parsed by WordPress via wp_read_audio_metadata on upload).
 		try {
 			const attachment = await apiFetch( { path: `/wp/v2/media/${ media.id }` } );
 			const details = attachment?.media_details || {};
@@ -199,7 +192,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes } ) {
 			if ( ! immediate.duration && details.length_formatted ) {
 				patch.duration = details.length_formatted;
 			} else if ( ! immediate.duration && details.length ) {
-				patch.duration = formatSeconds( details.length );
+				patch.duration = convertSecondsToTimeCode( details.length );
 			}
 
 			if ( ! immediate.mediaSize && details.filesize ) {
@@ -218,14 +211,14 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes } ) {
 		}
 	};
 
-	if ( ! inPostContext ) {
+	if ( ! postId ) {
 		return (
 			<div { ...blockProps }>
 				<Placeholder
 					icon={ microphone }
 					label={ __( 'Podcast Episode', 'jetpack' ) }
 					instructions={ __(
-						'This block reads the title, cover art, and excerpt from the post it lives in. Drop it inside a podcast post.',
+						'This block reads the title, cover art, excerpt, and author from the post it lives in. Drop it inside a podcast post or singular template.',
 						'jetpack'
 					) }
 				/>
@@ -256,6 +249,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes } ) {
 			</div>
 		);
 	}
+
+	const dateSettings = getDateSettings();
 
 	return (
 		<div { ...blockProps }>
@@ -451,10 +446,15 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes } ) {
 						{ postTitle || __( 'Untitled episode', 'jetpack' ) }
 					</h3>
 
-					{ ( postAuthor || duration ) && (
+					{ ( postAuthor || postDate || duration ) && (
 						<p className="jetpack-podcast-episode__byline">
 							{ postAuthor && (
 								<span className="jetpack-podcast-episode__author">{ postAuthor }</span>
+							) }
+							{ postDate && (
+								<time className="jetpack-podcast-episode__date">
+									{ dateI18n( dateSettings.formats.date, postDate ) }
+								</time>
 							) }
 							{ duration && (
 								<span className="jetpack-podcast-episode__duration">{ duration }</span>

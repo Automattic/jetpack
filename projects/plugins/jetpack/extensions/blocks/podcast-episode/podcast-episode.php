@@ -91,7 +91,7 @@ function render_block( $attributes, $content ) {
 	$excerpt      = get_the_excerpt();
 	$author_name  = get_the_author();
 	$publish_date = get_the_date( 'c' );
-	$image_url    = $show_poster ? (string) get_the_post_thumbnail_url( null, 'large' ) : '';
+	$image_url    = $show_poster ? (string) get_the_post_thumbnail_url( null, 'medium_large' ) : '';
 
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 	$wrapper_style      = ! empty( $wrapper_attributes['style'] ) ? $wrapper_attributes['style'] : '';
