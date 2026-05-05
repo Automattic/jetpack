@@ -309,36 +309,12 @@ function do_enqueue_assets() {
 		true
 	);
 
-	$is_dev_mode = jetpack_is_internal_testing_environment();
-
 	$image_studio_data = array(
 		'enabled'               => true,
 		'version'               => '1.0',
-		'isDevMode'             => $is_dev_mode,
+		'isDevMode'             => jetpack_is_internal_testing_environment(),
 		'canGenerateVideoClips' => image_studio_can_generate_video_clips(),
 	);
-
-	// Temporary diagnostic block — gated on dev mode only. Remove once the
-	// canGenerateVideoClips wiring is verified end-to-end across site types.
-	if ( $is_dev_mode ) {
-		$host = new Host();
-
-		$has_can_upload_videos = function_exists( 'wpcom_site_can_upload_videos' );
-		$has_has_videopress    = function_exists( 'wpcom_site_has_videopress' );
-		$has_has_feature       = function_exists( 'wpcom_site_has_feature' );
-
-		$image_studio_data['_debug'] = array(
-			'is_wpcom_simple'                              => $host->is_wpcom_simple(),
-			'is_woa_site'                                  => $host->is_woa_site(),
-			'function_exists_wpcom_site_can_upload_videos' => $has_can_upload_videos,
-			'wpcom_site_can_upload_videos_result'          => $has_can_upload_videos ? (bool) wpcom_site_can_upload_videos() : null,
-			'function_exists_wpcom_site_has_videopress'    => $has_has_videopress,
-			'wpcom_site_has_videopress_result'             => $has_has_videopress ? (bool) wpcom_site_has_videopress() : null,
-			'function_exists_wpcom_site_has_feature'       => $has_has_feature,
-			'wpcom_site_has_feature_videopress'            => $has_has_feature ? (bool) wpcom_site_has_feature( 'videopress' ) : null,
-			'wpcom_site_has_feature_upload_video_files'    => $has_has_feature ? (bool) wpcom_site_has_feature( 'upload_video_files' ) : null,
-		);
-	}
 
 	wp_add_inline_script(
 		FEATURE_NAME,
