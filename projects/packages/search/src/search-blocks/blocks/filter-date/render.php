@@ -30,56 +30,25 @@ wp_interactivity_state(
 	)
 );
 
-// Pre-hydration loading state — mirrors filter-checkbox/render.php. On a
-// deep-link load `state.aggregations` is empty until the JS fetch resolves,
-// so without this the date-filter wrapper would collapse to nothing and
-// pop in once buckets arrive. `$show_wrapper` keeps it visible during the
-// initial-loading window so the skeleton list inside has somewhere to
-// render; `callbacks.syncFilterWrapperVisibility` (in the shared store)
-// keeps `context.wrapperHidden` in sync after JS hydrates.
-$seeded_state       = wp_interactivity_state( 'jetpack-search' );
-$seeded_aggs        = (array) ( $seeded_state['aggregations'] ?? array() );
-$seeded_filter_agg  = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
-$seeded_buckets     = $seeded_filter_agg['buckets'] ?? null;
-$has_buckets        = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
-$is_initial_loading = Search_Blocks::is_initial_loading();
-$show_wrapper       = $has_buckets || $is_initial_loading;
-
+$view  = Search_Blocks::pre_hydration_filter_view( $filter_key );
 $label = $config['label'];
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php
-	echo wp_kses_data(
-		wp_interactivity_data_wp_context(
-			array(
-				'filterKey'     => $filter_key,
-				'wrapperHidden' => ! $show_wrapper,
-			)
-		)
-	);
-	?>
+	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
 	data-wp-bind--hidden="context.wrapperHidden"
 	data-wp-watch="callbacks.syncFilterWrapperVisibility"
-	<?php echo $show_wrapper ? '' : 'hidden'; ?>
+	<?php echo $view['show_wrapper'] ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
-	<?php if ( $is_initial_loading ) : ?>
-		<ul
-			class="jetpack-search-filter__list jetpack-search-filter__list--skeleton"
-			data-wp-bind--hidden="state.skeletonHidden"
-			aria-hidden="true"
-		>
-			<?php for ( $i = 0; $i < 4; $i++ ) : ?>
-				<li class="jetpack-search-filter__item jetpack-search-filter__item--skeleton">
-					<span class="jetpack-search-skeleton jetpack-search-skeleton--filter-row"></span>
-				</li>
-			<?php endfor; ?>
-		</ul>
-	<?php endif; ?>
+	<?php
+	if ( $view['is_initial_loading'] ) {
+		require __DIR__ . '/../filter-skeleton-partial.php';
+	}
+	?>
 	<ul
 		class="jetpack-search-filter__list"
 		data-wp-bind--hidden="state.allBucketsSelected"

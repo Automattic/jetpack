@@ -1,33 +1,8 @@
-// Shared skeleton placeholder used pre-hydration. Kept inside the block-
-// scoped wrapper so the keyframe + base class never leak to other blocks
-// or page content.
+@use "../skeleton" as skeleton;
+
 .wp-block-jetpack-search-results {
 
-	@keyframes jetpack-search-skeleton-shimmer {
-
-		from {
-			background-position: -200% 0;
-		}
-
-		to {
-			background-position: 200% 0;
-		}
-	}
-
-	.jetpack-search-skeleton {
-		display: block;
-		border-radius: 4px;
-		background: color-mix(in sRGB, currentColor 8%, transparent) linear-gradient(90deg, transparent 0%, color-mix(in sRGB, currentColor 6%, transparent) 50%, transparent 100%) repeat;
-		background-size: 200% 100%;
-		animation: jetpack-search-skeleton-shimmer 1.5s linear infinite;
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-
-		.jetpack-search-skeleton {
-			animation: none;
-		}
-	}
+	@include skeleton.shimmer;
 
 	.jetpack-search-skeleton--title {
 		height: 1.5rem;

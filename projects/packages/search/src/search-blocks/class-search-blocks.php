@@ -41,18 +41,12 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_search_template' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
-		// Seed on `template_redirect` (fires before block-template rendering)
-		// AND on `wp_enqueue_scripts` (covers classic-theme paths and admin
-		// previews where `template_redirect` doesn't run). The IA store
-		// deep-merges, so calling twice is idempotent — the second call's
-		// values overwrite the first with the same data. The earlier hook is
-		// what makes pre-hydration values like `state.resultsCountText` and
-		// `state.skeletonHidden` visible to the SSR pass on FSE block themes,
-		// which call `get_the_block_template_html()` *before* `wp_head()` so
-		// blocks can register scripts/styles for the head — which means our
-		// individual block render.php files would otherwise see an unseeded
-		// state when their `data-wp-bind` / `data-wp-text` directives are
-		// resolved.
+		// FSE block-template rendering runs *before* `wp_head()` (see
+		// `wp-includes/template-canvas.php`), so blocks would resolve
+		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
+		// only hooked `wp_enqueue_scripts`. Seeding on `template_redirect`
+		// closes that gap; the second call from `wp_enqueue_scripts` is a
+		// deep-merge no-op and keeps classic-theme paths covered.
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
@@ -546,26 +540,17 @@ class Search_Blocks {
 			'isLoadingMore'    => false,
 			'hasError'         => false,
 
-			// Pre-hydration skeleton gate. `data-wp-bind` directives are
-			// evaluated at SSR time using only the seeded state — derived
-			// getters can't run server-side, so the skeleton blocks bind
-			// directly to this single seeded boolean. Stays false until the
-			// first search() action resolves on the client; the IA SSR pass
-			// then leaves the `hidden` attribute off so the skeletons paint
-			// immediately. Once JS flips it to true the same binding hides
-			// the placeholders for the rest of the session — subsequent
-			// re-searches keep the live results visible without a skeleton
-			// flash.
+			// One-shot pre-hydration skeleton gate. The IA SSR pass evaluates
+			// `data-wp-bind--hidden` against literal seeded values (it can't
+			// run JS getters), so skeleton elements bind directly to this
+			// boolean. JS flips it to true once `actions.search()` resolves
+			// and never resets it — subsequent re-searches keep live results
+			// on screen without re-flashing placeholders.
 			'skeletonHidden'   => false,
 
-			// Live results-count copy. Same SSR rationale as `skeletonHidden`:
-			// the JS-side `data-wp-text="state.resultsCountText"` directive is
-			// resolved at SSR time, so the value must be a seeded string rather
-			// than a derived JS getter. Pre-hydration we mirror the JS-side
-			// `computeResultsCountText()` loading branch so the line reads
-			// "Searching…" on a deep link instead of staying blank until JS
-			// hydrates. Every action that mutates `isLoading` / `totalResults`
-			// re-runs the computer to keep this in lockstep.
+			// Seeded so the SSR pass can resolve `data-wp-text` to a real
+			// string on first paint; `actions.search()` keeps it in lockstep
+			// with `isLoading` / `totalResults` via `computeResultsCountText`.
 			'resultsCountText' => $is_initial_loading ? $searching_text : '',
 
 			// Translated view-bundle strings. The Interactivity API view bundle
@@ -618,6 +603,59 @@ class Search_Blocks {
 		}
 		$cached = null !== static::parse_url_price_range();
 		return $cached;
+	}
+
+	/**
+	 * Pre-hydration view state for a filter block's wrapper. Centralizes the
+	 * seeded-state read shared by filter-checkbox and filter-date so each
+	 * render.php branches on a single struct rather than re-deriving the
+	 * same flags inline.
+	 *
+	 * @param string $filter_key The filter key (e.g. `category`, `post_type`).
+	 * @return array{has_buckets:bool,is_initial_loading:bool,show_wrapper:bool}
+	 */
+	public static function pre_hydration_filter_view( string $filter_key ): array {
+		if ( ! function_exists( 'wp_interactivity_state' ) ) {
+			return array(
+				'has_buckets'        => false,
+				'is_initial_loading' => false,
+				'show_wrapper'       => false,
+			);
+		}
+		// `aggregations` is seeded as `stdClass` when empty (so JS sees `{}`,
+		// not `[]`); cast before subscripting so the read works in either shape.
+		$state              = wp_interactivity_state( 'jetpack-search' );
+		$aggs               = (array) ( $state['aggregations'] ?? array() );
+		$has_buckets        = ! empty( $aggs[ $filter_key ]['buckets'] ?? array() );
+		$is_initial_loading = static::is_initial_loading();
+		return array(
+			'has_buckets'        => $has_buckets,
+			'is_initial_loading' => $is_initial_loading,
+			'show_wrapper'       => $has_buckets || $is_initial_loading,
+		);
+	}
+
+	/**
+	 * Emit the `data-wp-context` attribute for a filter block's wrapper. The
+	 * seeded `wrapperHidden` value is what the IA SSR pass evaluates
+	 * `data-wp-bind--hidden="context.wrapperHidden"` against, and what the
+	 * `syncFilterWrapperVisibility` callback updates after hydration.
+	 *
+	 * @param string $filter_key   The filter key.
+	 * @param bool   $show_wrapper Whether the wrapper should be visible on first paint.
+	 */
+	public static function emit_filter_wrapper_context( string $filter_key, bool $show_wrapper ): void {
+		if ( ! function_exists( 'wp_interactivity_data_wp_context' ) ) {
+			return;
+		}
+		echo wp_kses_data(
+			wp_interactivity_data_wp_context(
+				array(
+					'filterKey'     => $filter_key,
+					'wrapperHidden' => ! $show_wrapper,
+				)
+			)
+		);
 	}
 
 	/**

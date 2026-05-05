@@ -500,11 +500,12 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken === searchToken ) {
 					state.isLoading = false;
 					state.resultsCountText = computeResultsCountText( state );
-					// First fetch (success or error) ends the pre-hydration window;
-					// hide the skeleton placeholders for the rest of the session.
-					// Idempotent — flipping a true flag to true is a no-op in the
-					// IA store, so subsequent searches don't re-trigger a re-render.
-					state.skeletonHidden = true;
+					// First fetch (success or error) ends the pre-hydration window —
+					// guard the write so subsequent re-searches don't trigger an IA
+					// re-render of every skeleton-bound element.
+					if ( ! state.skeletonHidden ) {
+						state.skeletonHidden = true;
+					}
 				}
 			}
 		},
