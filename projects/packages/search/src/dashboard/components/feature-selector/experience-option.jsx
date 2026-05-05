@@ -66,18 +66,18 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				disabled={ disabled }
 				onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
 			/>
-			<Stack
-				gap="md"
-				align="center"
-				wrap="wrap"
-				className="jp-search-feature-selector__option-content"
-			>
+			<Stack gap="md" align="center" className="jp-search-feature-selector__option-content">
 				<Icon
 					className="jp-search-feature-selector__option-icon"
 					icon={ getExperienceIcon( experience ) }
 				/>
 				<Stack direction="column" gap="xs" className="jp-search-feature-selector__option-body">
-					<Stack gap="sm" align="center" className="jp-search-feature-selector__option-title">
+					<Stack
+						gap="sm"
+						align="center"
+						wrap="wrap"
+						className="jp-search-feature-selector__option-title"
+					>
 						{ getExperienceLabel( experience ) }
 						{ isRecommended && (
 							<Badge
