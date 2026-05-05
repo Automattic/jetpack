@@ -66,9 +66,9 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				disabled={ disabled }
 				onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
 			/>
-			<Stack direction="column" gap="xs" className="jp-search-feature-selector__option-content">
+			<Stack direction="column" gap="sm" className="jp-search-feature-selector__option-content">
 				<Stack
-					gap="md"
+					gap="sm"
 					align="center"
 					wrap="wrap"
 					className="jp-search-feature-selector__option-headline"
