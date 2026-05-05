@@ -35,7 +35,7 @@ export function* updateJetpackSettings( settings ) {
 	} catch {
 		const oldSettings = Object.fromEntries(
 			Object.entries( select( STORE_ID ).getSearchModuleStatus() ).filter(
-				( [ k ] ) => k === 'module_active' || k === 'instant_search_enabled'
+				( [ k ] ) => k === 'module_active' || k === 'instant_search_enabled' || k === 'experience'
 			)
 		);
 		yield setJetpackSettings( oldSettings );
