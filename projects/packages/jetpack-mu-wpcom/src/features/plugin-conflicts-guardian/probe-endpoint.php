@@ -54,10 +54,18 @@ function pcg_maybe_handle_probe() {
 		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
 	}
 
-	foreach ( $plugin_mains as $plugin_main ) {
-		if ( ! is_file( $plugin_main ) || ! is_readable( $plugin_main ) ) {
-			pcg_probe_bail_error( 'Probe target is no longer readable: ' . basename( $plugin_main ), 404 );
-		}
+	// Drop unreadable entries instead of bailing on the first one. Bailing
+	// would emit `error`, which the activation guard treats as a non-block
+	// and lets the activation through — masking a fatal in a later
+	// readable plugin. Only bail when nothing readable remains.
+	$plugin_mains = array_values(
+		array_filter(
+			$plugin_mains,
+			static fn( $p ) => is_file( $p ) && is_readable( $p )
+		)
+	);
+	if ( empty( $plugin_mains ) ) {
+		pcg_probe_bail_error( 'No probe targets are readable.', 404 );
 	}
 
 	// Tell WP's fatal handler to stand down so ours can emit JSON.
