@@ -19,7 +19,7 @@ namespace Automattic\Jetpack\Search;
  * sections differ.
  *
  * @param string $layout Layout key.
- * @return array{modifier:string, show_image:bool, show_path:bool, show_content:bool, show_date:bool, show_price:bool, show_rating:bool}
+ * @return array{modifier:string, show_content:bool, show_date:bool, show_image:bool, show_path:bool, show_price:bool, show_rating:bool}
  */
 $resolve_layout = static function ( $layout ) {
 	$map = array(

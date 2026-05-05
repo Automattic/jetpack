@@ -271,6 +271,10 @@ describe( 'normalizeResult', () => {
 			'match',
 			' second snippet',
 		] );
+		// Verify the highlight flag is preserved across the joined snippets.
+		expect( r.contentPieces[ 1 ].isHighlight ).toBe( true );
+		expect( r.contentPieces[ 0 ].isHighlight ).toBe( false );
+		expect( r.contentPieces[ 2 ].isHighlight ).toBe( false );
 	} );
 
 	it( 'hasContentPieces is false when highlight.content is missing', () => {
