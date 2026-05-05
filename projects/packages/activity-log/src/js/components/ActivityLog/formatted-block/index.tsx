@@ -33,7 +33,7 @@ const FilePath = ( { children }: { children: ReactNode } ) => (
 const isWordPressDotComUrl = ( url?: string | null ): boolean =>
 	!! url && url.startsWith( 'https://wordpress.com/' );
 
-const Link: BlockRenderer = ( { content, children, onClick, meta } ) => {
+const AnchorBlock: BlockRenderer = ( { content, children, onClick, meta } ) => {
 	const { url, activity, section, intent } = content;
 
 	if ( ! url ) {
@@ -92,8 +92,8 @@ const blockTypeMapping: Record< string, BlockRenderer > = {
 	i: ( { children } ) => <Emphasis>{ children }</Emphasis>,
 	em: ( { children } ) => <Emphasis>{ children }</Emphasis>,
 	pre: ( { children } ) => <Preformatted>{ children }</Preformatted>,
-	a: Link,
-	link: Link,
+	a: AnchorBlock,
+	link: AnchorBlock,
 	filepath: ( { children } ) => <FilePath>{ children }</FilePath>,
 	post: EntityLink,
 	comment: EntityLink,
