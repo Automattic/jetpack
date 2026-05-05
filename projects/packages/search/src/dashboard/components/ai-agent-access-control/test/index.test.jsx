@@ -9,6 +9,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: jest.fn(),
+	useSelect: jest.fn(),
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
@@ -44,13 +45,21 @@ jest.mock(
 
 /* eslint-disable import/order -- mocks above must hoist before imports */
 import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import AIAgentAccessControl from '../index.jsx';
 /* eslint-enable import/order */
 
 describe( 'AIAgentAccessControl', () => {
 	let dispatchSpies;
+
+	const mockIsWpcom = isWpcom => {
+		useSelect.mockImplementation( callback =>
+			callback( () => ( {
+				isWpcom: () => isWpcom,
+			} ) )
+		);
+	};
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -61,6 +70,7 @@ describe( 'AIAgentAccessControl', () => {
 			errorNotice: jest.fn(),
 		};
 		useDispatch.mockReturnValue( dispatchSpies );
+		mockIsWpcom( false );
 	} );
 
 	test( 'renders nothing while the initial settings request is in flight', () => {
@@ -96,6 +106,7 @@ describe( 'AIAgentAccessControl', () => {
 			} )
 		).toHaveAttribute( 'href', 'https://jetpack.com/support/ai-agent-access/' );
 		expect( screen.getByTestId( 'external-link-icon' ) ).toBeInTheDocument();
+		expect( apiFetch ).toHaveBeenCalledWith( { path: '/wp/v2/settings' } );
 	} );
 
 	test( 'renders the toggle as off when the stored value is false', async () => {
@@ -131,6 +142,42 @@ describe( 'AIAgentAccessControl', () => {
 
 		expect( dispatchSpies.updatingNotice ).toHaveBeenCalled();
 		expect( dispatchSpies.removeUpdatingNotice ).toHaveBeenCalled();
+		expect( dispatchSpies.successNotice ).toHaveBeenCalled();
+		expect( dispatchSpies.errorNotice ).not.toHaveBeenCalled();
+	} );
+
+	test( 'uses the wpcom ai-agents settings endpoint on WordPress.com', async () => {
+		mockIsWpcom( true );
+		apiFetch.mockResolvedValueOnce( { enabled: true } );
+
+		render( <AIAgentAccessControl /> );
+
+		const toggle = await screen.findByRole( 'checkbox', {
+			name: /Enable AI Agent Access/i,
+		} );
+		expect( toggle ).toBeChecked();
+		expect( apiFetch ).toHaveBeenCalledWith( { path: '/wpcom/v2/ai-agents-settings' } );
+	} );
+
+	test( 'posts enabled to the wpcom ai-agents settings endpoint', async () => {
+		mockIsWpcom( true );
+		apiFetch.mockResolvedValueOnce( { enabled: false } ).mockResolvedValueOnce( { enabled: true } );
+
+		render( <AIAgentAccessControl /> );
+
+		const toggle = await screen.findByRole( 'checkbox', {
+			name: /Enable AI Agent Access/i,
+		} );
+		fireEvent.click( toggle );
+
+		await waitFor( () => {
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/ai-agents-settings',
+				method: 'POST',
+				data: { enabled: true },
+			} );
+		} );
+
 		expect( dispatchSpies.successNotice ).toHaveBeenCalled();
 		expect( dispatchSpies.errorNotice ).not.toHaveBeenCalled();
 	} );

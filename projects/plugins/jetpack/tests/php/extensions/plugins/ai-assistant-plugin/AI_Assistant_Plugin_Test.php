@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
@@ -20,14 +21,15 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		unregister_setting( 'general', 'jetpack_ai_agents_enabled' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		parent::tear_down();
 	}
 
 	/**
-	 * Test that the AI Agent Access setting is exposed as a REST-writable boolean.
+	 * Test that the AI Agent Access setting is exposed as a REST-writable boolean outside WPCOM Simple.
 	 */
-	public function test_register_ai_agents_setting_registers_rest_boolean_option() {
+	public function test_register_ai_agents_setting_registers_rest_boolean_option_outside_wpcom_simple() {
 		global $wp_registered_settings;
 
 		AiAssistantPlugin\register_ai_agents_setting();
@@ -41,6 +43,20 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 		$this->assertSame( 'rest_sanitize_boolean', $setting['sanitize_callback'] );
 		$this->assertTrue( $setting['show_in_rest'] );
 		$this->assertFalse( $setting['default'] );
+	}
+
+	/**
+	 * Test that WPCOM Simple uses the dedicated wpcom/v2 endpoint instead of core settings.
+	 */
+	public function test_register_ai_agents_setting_hides_rest_option_on_wpcom_simple() {
+		global $wp_registered_settings;
+
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		AiAssistantPlugin\register_ai_agents_setting();
+
+		$this->assertArrayHasKey( 'jetpack_ai_agents_enabled', $wp_registered_settings );
+		$this->assertFalse( $wp_registered_settings['jetpack_ai_agents_enabled']['show_in_rest'] );
 	}
 
 	/**

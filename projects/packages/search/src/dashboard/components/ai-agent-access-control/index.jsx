@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import Card from 'components/card';
@@ -11,14 +11,11 @@ const AI_AGENT_ACCESS_DESCRIPTION = __(
 	'jetpack-search-pkg'
 );
 const AI_AGENT_ACCESS_LEARN_MORE_URL = 'https://jetpack.com/support/ai-agent-access/';
+const WP_SETTINGS_PATH = '/wp/v2/settings';
+const WPCOM_AI_AGENTS_SETTINGS_PATH = '/wpcom/v2/ai-agents-settings';
 
 /**
- * AI Agent Access opt-in control. Reads and writes the
- * `jetpack_ai_agents_enabled` option via the /wp/v2/settings REST endpoint.
- *
- * Mirrors the Reader Chat control (see reader-chat-control/index.jsx in
- * https://github.com/Automattic/jetpack/pull/48144) so both cards align on
- * the dashboard.
+ * AI Agent Access opt-in control.
  *
  * @return {import('react').Component} AI Agent Access settings component.
  */
@@ -26,47 +23,42 @@ export default function AIAgentAccessControl() {
 	const [ isEnabled, setIsEnabled ] = useState( false );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isSaving, setIsSaving ] = useState( false );
-	// `isAvailable` tracks whether the site has the
-	// `jetpack_ai_agents_enabled` setting registered via REST. If the
-	// Jetpack version on the site predates this feature, the key is absent
-	// from /wp/v2/settings and the card hides itself.
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 	const [ isAvailable, setIsAvailable ] = useState( true );
 	const storeDispatch = useDispatch( STORE_ID );
+	const settingsPath = isWpcom ? WPCOM_AI_AGENTS_SETTINGS_PATH : WP_SETTINGS_PATH;
+	const settingsKey = isWpcom ? 'enabled' : 'jetpack_ai_agents_enabled';
 
 	useEffect( () => {
-		apiFetch( { path: '/wp/v2/settings' } )
+		apiFetch( { path: settingsPath } )
 			.then( settings => {
-				if (
-					settings &&
-					Object.prototype.hasOwnProperty.call( settings, 'jetpack_ai_agents_enabled' )
-				) {
-					setIsEnabled( Boolean( settings.jetpack_ai_agents_enabled ) );
+				if ( settings && Object.prototype.hasOwnProperty.call( settings, settingsKey ) ) {
+					setIsEnabled( Boolean( settings[ settingsKey ] ) );
 					setIsAvailable( true );
 				} else {
 					setIsAvailable( false );
 				}
 			} )
 			.catch( () => {
-				// On REST failure, hide the card rather than showing a
-				// broken toggle. A real outage will be visible elsewhere.
+				// Hide the card on unsupported older builds or REST failures.
 				setIsAvailable( false );
 			} )
 			.finally( () => {
 				setIsLoading( false );
 			} );
-	}, [] );
+	}, [ settingsKey, settingsPath ] );
 
 	const toggle = useCallback(
 		next => {
 			setIsSaving( true );
 			storeDispatch.updatingNotice();
 			apiFetch( {
-				path: '/wp/v2/settings',
+				path: settingsPath,
 				method: 'POST',
-				data: { jetpack_ai_agents_enabled: next },
+				data: isWpcom ? { enabled: next } : { jetpack_ai_agents_enabled: next },
 			} )
 				.then( settings => {
-					setIsEnabled( Boolean( settings?.jetpack_ai_agents_enabled ) );
+					setIsEnabled( Boolean( settings?.[ settingsKey ] ) );
 					storeDispatch.removeUpdatingNotice();
 					storeDispatch.successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 				} )
@@ -81,12 +73,9 @@ export default function AIAgentAccessControl() {
 					setIsSaving( false );
 				} );
 		},
-		[ storeDispatch ]
+		[ isWpcom, settingsKey, settingsPath, storeDispatch ]
 	);
 
-	// Hide the entire card when the setting is not registered on this
-	// site (older Jetpack versions). Also hide during the initial fetch to
-	// avoid a flash of a broken card.
 	if ( isLoading || ! isAvailable ) {
 		return null;
 	}

@@ -20,6 +20,9 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 } ) );
 
 // Stub heavy sub-components that aren't relevant to the branching test.
+jest.mock( 'components/ai-agent-access-control', () => () => (
+	<div data-testid="ai-agent-access-control" />
+) );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
 jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
 jest.mock( 'components/experience-selector', () => () => (
