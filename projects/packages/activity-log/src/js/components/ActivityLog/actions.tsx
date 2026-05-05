@@ -27,7 +27,7 @@ type UseActivityActionsOptions = {
 /**
  * Row actions for the DataViews table. The single primary action deep-
  * links into the Calypso Backup restore flow for the row's rewind point
- * (`https://wordpress.com/backup/{slug}/restore/{rewindId}`) and opens
+ * (`https://cloud.jetpack.com/backup/{slug}/restore/{rewindId}`) and opens
  * in a new tab. Eligibility requires `activityIsRewindable`, a
  * `rewindId`, and a `calypsoSlug` from Initial_State; rows missing any
  * of those don't render the action.
@@ -54,7 +54,7 @@ export function useActivityActions( {
 				if ( ! item?.rewindId || ! calypsoSlug ) {
 					return;
 				}
-				const url = `https://wordpress.com/backup/${ encodeURIComponent(
+				const url = `https://cloud.jetpack.com/backup/${ encodeURIComponent(
 					calypsoSlug
 				) }/restore/${ encodeURIComponent( item.rewindId ) }`;
 				tracks?.recordEvent( 'jetpack_activity_log_manage_backup_click', {
