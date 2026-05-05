@@ -284,7 +284,7 @@ class Search_Results_Render_Test extends TestCase {
 
 	/**
 	 * Helper: render the block with `is_initial_loading()` returning true by
-	 * seeding `$_GET` with a category filter. Resets the memoised cache
+	 * seeding `$_GET` with a category filter. Resets the memoized cache
 	 * before and after so the skeleton tests are isolated from one another
 	 * and from the non-skeleton tests above.
 	 *
