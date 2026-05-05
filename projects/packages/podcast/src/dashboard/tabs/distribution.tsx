@@ -24,7 +24,7 @@ import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import SubmitModal from '../components/submit-modal';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
-import { PODCAST_APPS, type PodcastApp } from '../podcast-apps';
+import { PODCAST_APPS } from '../podcast-apps';
 import { getPodcastScriptData } from '../script-data';
 import type { PodcatcherId } from '../types';
 import type { FocusEvent } from 'react';
@@ -69,34 +69,6 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 	);
 };
 
-interface AppRowProps {
-	app: PodcastApp;
-	isEnabled: boolean;
-	onSelect: ( id: PodcatcherId ) => void;
-}
-
-const AppRow = ( { app, isEnabled, onSelect }: AppRowProps ) => {
-	const handleClick = useCallback( () => {
-		onSelect( app.id );
-	}, [ app.id, onSelect ] );
-
-	const { Logo } = app;
-
-	return (
-		<HStack as="li" alignment="center" justify="space-between" className="podcast__directory-row">
-			<HStack alignment="center" spacing={ 4 } expanded={ false }>
-				<span aria-hidden="true">
-					<Logo />
-				</span>
-				<Text weight={ 500 }>{ app.name }</Text>
-			</HStack>
-			<Button variant="primary" size="compact" onClick={ handleClick } disabled={ ! isEnabled }>
-				{ __( 'Submit', 'jetpack-podcast' ) }
-			</Button>
-		</HStack>
-	);
-};
-
 const DistributionTab = () => {
 	const { data: settings } = usePodcastSettings();
 	const scriptData = getPodcastScriptData();
@@ -105,10 +77,6 @@ const DistributionTab = () => {
 
 	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
 	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
-
-	const handleSelect = useCallback( ( id: PodcatcherId ) => {
-		setActiveId( id );
-	}, [] );
 
 	const handleClose = useCallback( () => {
 		setActiveId( null );
@@ -166,14 +134,35 @@ const DistributionTab = () => {
 								</Text>
 							</VStack>
 							<VStack as="ul" spacing={ 0 } className="podcast__directory-list">
-								{ PODCAST_APPS.map( app => (
-									<AppRow
-										key={ app.id }
-										app={ app }
-										isEnabled={ isEnabled }
-										onSelect={ handleSelect }
-									/>
-								) ) }
+								{ PODCAST_APPS.map( app => {
+									const { Logo } = app;
+									return (
+										<HStack
+											as="li"
+											key={ app.id }
+											alignment="center"
+											justify="space-between"
+											className="podcast__directory-row"
+										>
+											<HStack alignment="center" spacing={ 4 } expanded={ false }>
+												<span aria-hidden="true">
+													<Logo />
+												</span>
+												<Text weight={ 500 }>{ app.name }</Text>
+											</HStack>
+											<Button
+												variant="primary"
+												size="compact"
+												// Fresh closure per row is fine — no memoized children downstream.
+												// eslint-disable-next-line react/jsx-no-bind
+												onClick={ () => setActiveId( app.id ) }
+												disabled={ ! isEnabled }
+											>
+												{ __( 'Submit', 'jetpack-podcast' ) }
+											</Button>
+										</HStack>
+									);
+								} ) }
 							</VStack>
 						</VStack>
 					</VStack>
