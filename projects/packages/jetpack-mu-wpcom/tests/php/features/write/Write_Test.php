@@ -572,4 +572,67 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		do_action( 'init' );
 		$this->assertSame( 1, (int) get_option( 'wpcom_write_rewrite_version' ) );
 	}
+
+	/**
+	 * Helper: call the write template_redirect handler directly, capturing the redirect URL.
+	 *
+	 * Calls wpcom_write_handle_template_redirect() directly (bypassing other hooks)
+	 * and intercepts wp_safe_redirect via the wp_redirect filter before header()/exit fire.
+	 *
+	 * @return string|null The captured redirect URL, or null if no redirect fired.
+	 */
+	private function capture_template_redirect_url() {
+		$redirect_url = null;
+		$filter       = function ( $url ) use ( &$redirect_url ) {
+			$redirect_url = $url;
+			throw new \Exception( 'redirect intercepted' );
+		};
+		add_filter( 'wp_redirect', $filter );
+
+		try {
+			wpcom_write_handle_template_redirect();
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- redirect throws to avoid exit; exception is the expected control flow.
+		} finally {
+			remove_filter( 'wp_redirect', $filter );
+		}
+
+		return $redirect_url;
+	}
+
+	/**
+	 * Test that unauthenticated visitors are redirected to the login page.
+	 */
+	public function test_template_redirect_unauthenticated_goes_to_login() {
+		global $wp_query;
+		$wp_query->query_vars['wpcom_write'] = 1;
+
+		// No current user set — visitor is logged out.
+		$url = $this->capture_template_redirect_url();
+
+		$wp_query->query_vars['wpcom_write'] = 0;
+
+		$this->assertNotNull( $url, 'Expected a redirect to fire.' );
+		$this->assertStringContainsString( 'wp-login.php', $url );
+		// Login URL should include a redirect_to back to /write/.
+		$this->assertStringContainsString( urlencode( home_url( '/write/' ) ), $url );
+	}
+
+	/**
+	 * Test that users without publish_posts capability are redirected to the admin dashboard.
+	 */
+	public function test_template_redirect_without_publish_posts_goes_to_admin() {
+		global $wp_query;
+		$wp_query->query_vars['wpcom_write'] = 1;
+
+		wp_set_current_user( $this->subscriber_id );
+
+		$url = $this->capture_template_redirect_url();
+
+		$wp_query->query_vars['wpcom_write'] = 0;
+
+		$this->assertNotNull( $url, 'Expected a redirect to fire.' );
+		$this->assertStringContainsString( 'wp-admin', $url );
+		$this->assertStringNotContainsString( 'wp-login.php', $url );
+		$this->assertStringNotContainsString( 'page=write', $url );
+	}
 }

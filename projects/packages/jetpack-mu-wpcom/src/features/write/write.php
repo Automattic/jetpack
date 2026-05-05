@@ -90,34 +90,32 @@ add_filter(
  * - Passes ?post=ID through for editing existing posts.
  * - Adds source=bookmarkable_url for Tracks attribution.
  */
-add_action(
-	'template_redirect',
-	function () {
-		if ( ! get_query_var( 'wpcom_write' ) ) {
-			return;
-		}
+function wpcom_write_handle_template_redirect() {
+	if ( ! get_query_var( 'wpcom_write' ) ) {
+		return;
+	}
 
-		$write_url = wpcom_write_url() . '&source=bookmarkable_url';
+	$write_url = wpcom_write_url() . '&source=bookmarkable_url';
 
-		if ( ! is_user_logged_in() ) {
-			wp_safe_redirect( wp_login_url( home_url( '/write/' ) ) );
-			exit;
-		}
-
-		if ( ! current_user_can( 'publish_posts' ) ) {
-			wp_safe_redirect( admin_url() );
-			exit;
-		}
-
-		// Pass through post ID for editing existing posts.
-		if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for routing.
-			$write_url .= '&post=' . absint( $_GET['post'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		}
-
-		wp_safe_redirect( $write_url );
+	if ( ! is_user_logged_in() ) {
+		wp_safe_redirect( wp_login_url( home_url( '/write/' ) ) );
 		exit;
 	}
-);
+
+	if ( ! current_user_can( 'publish_posts' ) ) {
+		wp_safe_redirect( admin_url() );
+		exit;
+	}
+
+	// Pass through post ID for editing existing posts.
+	if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for routing.
+		$write_url .= '&post=' . absint( $_GET['post'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	wp_safe_redirect( $write_url );
+	exit;
+}
+add_action( 'template_redirect', 'wpcom_write_handle_template_redirect' );
 
 /**
  * Register the script module on init.
