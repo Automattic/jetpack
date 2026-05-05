@@ -41,6 +41,15 @@ class Module_Control {
 	const JETPACK_SEARCH_MODULE_SLUG                      = 'search';
 	const SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY         = 'instant_search_enabled';
 	const SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY = 'swap_classic_to_inline_search';
+	const SEARCH_MODULE_EXPERIENCE_OPTION_KEY             = 'jetpack_search_experience';
+
+	/**
+	 * Valid experience values.
+	 */
+	const EXPERIENCE_OVERLAY  = 'overlay';
+	const EXPERIENCE_EMBEDDED = 'embedded';
+	const EXPERIENCE_CLASSIC  = 'classic';
+	const EXPERIENCE_OFF      = 'off';
 
 	/**
 	 * Contructor
@@ -168,6 +177,82 @@ class Module_Control {
 	 */
 	public function update_swap_classic_to_inline_search( bool $swap_classic_to_inline_search ) {
 		return update_option( self::SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY, $swap_classic_to_inline_search );
+	}
+
+	/**
+	 * Get the active search experience.
+	 *
+	 * Returns the persisted experience if one has been saved via update_experience(),
+	 * otherwise derives from the legacy module_active / instant_search_enabled booleans.
+	 *
+	 * @return string One of 'overlay', 'embedded', 'classic', 'off'.
+	 */
+	public function get_experience() {
+		$saved = get_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false );
+		if ( $saved ) {
+			return $saved;
+		}
+
+		// Derive from legacy booleans.
+		if ( ! $this->is_active() ) {
+			return self::EXPERIENCE_OFF;
+		}
+
+		if ( $this->is_instant_search_enabled() ) {
+			return self::EXPERIENCE_OVERLAY;
+		}
+
+		// Cannot distinguish embedded from classic without a saved value; default to classic.
+		return self::EXPERIENCE_CLASSIC;
+	}
+
+	/**
+	 * Update the search experience and keep legacy booleans in lockstep.
+	 *
+	 * @param string $experience One of 'overlay', 'embedded', 'classic', 'off'.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	public function update_experience( string $experience ) {
+		$valid_values = array( self::EXPERIENCE_OVERLAY, self::EXPERIENCE_EMBEDDED, self::EXPERIENCE_CLASSIC, self::EXPERIENCE_OFF );
+		if ( ! in_array( $experience, $valid_values, true ) ) {
+			return new WP_Error(
+				'invalid_experience',
+				esc_html__( 'Invalid experience value.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		switch ( $experience ) {
+			case self::EXPERIENCE_OVERLAY:
+				$result = $this->activate();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				$result = $this->enable_instant_search();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				break;
+
+			case self::EXPERIENCE_EMBEDDED:
+			case self::EXPERIENCE_CLASSIC:
+				$result = $this->activate();
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				$this->disable_instant_search();
+				break;
+
+			case self::EXPERIENCE_OFF:
+				// Only deactivate the module; leave instant_search_enabled unchanged so the
+				// user's overlay-vs-embedded preference is preserved if they re-enable later.
+				( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
+				break;
+		}
+
+		update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, $experience );
+
+		return true;
 	}
 
 	/**

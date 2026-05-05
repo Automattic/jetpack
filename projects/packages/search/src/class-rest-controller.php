@@ -246,11 +246,22 @@ class REST_Controller {
 		$module_active                 = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
 		$instant_search_enabled        = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
 		$swap_classic_to_inline_search = isset( $request_body['swap_classic_to_inline_search'] ) ? (bool) $request_body['swap_classic_to_inline_search'] : null;
+		$experience                    = isset( $request_body['experience'] ) ? sanitize_text_field( $request_body['experience'] ) : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search );
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
+		}
+
+		// If an experience value was provided, delegate to Module_Control::update_experience()
+		// which also writes the legacy booleans in lockstep.
+		if ( $experience !== null ) {
+			$result = $this->search_module->update_experience( $experience );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+			return rest_ensure_response( $this->get_settings() );
 		}
 
 		// Enabling instant search should enable the module too.
@@ -298,11 +309,16 @@ class REST_Controller {
 	/**
 	 * Validate $module_active and $instant_search_enabled. Returns an WP_Error instance if invalid.
 	 *
-	 * @param boolean $module_active - Module status.
-	 * @param boolean $instant_search_enabled - Instant Search status.
-	 * @param boolean $swap_classic_to_inline_search - New inline search status.
+	 * @param boolean      $module_active - Module status.
+	 * @param boolean      $instant_search_enabled - Instant Search status.
+	 * @param boolean      $swap_classic_to_inline_search - New inline search status.
+	 * @param string|null  $experience - Experience value.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null ) {
+		// An experience-only request is always valid; update_experience() validates the value.
+		if ( $experience !== null ) {
+			return true;
+		}
 		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search !== null ) {
 			// allow updating 'swap_classic_to_inline_search' without updating/validating other settings.
 			return true;
@@ -326,6 +342,7 @@ class REST_Controller {
 				'module_active'                 => $this->search_module->is_active(),
 				'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
 				'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
+				'last_saved_experience'         => $this->search_module->get_experience(),
 			)
 		);
 	}

@@ -168,6 +168,125 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Test get_experience() derivation from legacy booleans when no experience option is saved.
+	 */
+	public function test_get_experience_derived_off() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		// Module is inactive → 'off'.
+		$this->assertEquals( Module_Control::EXPERIENCE_OFF, static::$search_module->get_experience() );
+	}
+
+	/**
+	 * Test get_experience() derivation: module active + instant search enabled → 'overlay'.
+	 */
+	public function test_get_experience_derived_overlay() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
+		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+	}
+
+	/**
+	 * Test get_experience() derivation: module active + instant search disabled → 'classic'.
+	 */
+	public function test_get_experience_derived_classic() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, false );
+		$this->assertEquals( Module_Control::EXPERIENCE_CLASSIC, static::$search_module->get_experience() );
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+	}
+
+	/**
+	 * Test get_experience() returns persisted value over derived.
+	 */
+	public function test_get_experience_returns_persisted() {
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Test update_experience() with 'overlay'.
+	 */
+	public function test_update_experience_overlay() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		// Use the filter that includes search so that is_active() returns true during
+		// enable_instant_search(), which requires the module to be active.
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		static::$search_module->update_experience( Module_Control::EXPERIENCE_OVERLAY );
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+
+		$this->assertTrue( static::$search_module->is_instant_search_enabled() );
+		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Test update_experience() with 'embedded'.
+	 */
+	public function test_update_experience_embedded() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
+		static::$search_module->update_experience( Module_Control::EXPERIENCE_EMBEDDED );
+		$active_modules = get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() );
+		remove_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
+
+		$this->assertContains( Module_Control::JETPACK_SEARCH_MODULE_SLUG, $active_modules );
+		$this->assertFalse( static::$search_module->is_instant_search_enabled() );
+		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Test update_experience() with 'classic'.
+	 */
+	public function test_update_experience_classic() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
+		static::$search_module->update_experience( Module_Control::EXPERIENCE_CLASSIC );
+		$active_modules = get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() );
+		remove_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
+
+		$this->assertContains( Module_Control::JETPACK_SEARCH_MODULE_SLUG, $active_modules );
+		$this->assertFalse( static::$search_module->is_instant_search_enabled() );
+		$this->assertEquals( Module_Control::EXPERIENCE_CLASSIC, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Test update_experience() with 'off' deactivates module but preserves instant_search_enabled.
+	 */
+	public function test_update_experience_off_preserves_instant_search() {
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		// Start with module active and instant search enabled.
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+
+		static::$search_module->update_experience( Module_Control::EXPERIENCE_OFF );
+
+		$this->assertFalse( static::$search_module->is_active() );
+		// instant_search_enabled should remain true (preserved for later re-enable).
+		$this->assertTrue( (bool) get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
+		$this->assertEquals( Module_Control::EXPERIENCE_OFF, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+	}
+
+	/**
+	 * Test update_experience() with an invalid value returns WP_Error.
+	 */
+	public function test_update_experience_invalid_value() {
+		$result = static::$search_module->update_experience( 'invalid_value' );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'invalid_experience', $result->get_error_code() );
+	}
+
+	/**
 	 * Returns an empty array
 	 */
 	public function return_empty_array() {

@@ -119,13 +119,14 @@ class REST_Controller_Test extends Search_TestCase {
 			'instant_search_enabled'        => true,
 			'swap_classic_to_inline_search' => false,
 		);
+		$expected     = array_merge( $new_settings, array( 'last_saved_experience' => 'overlay' ) );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( $new_settings, $response->get_data() );
+		$this->assertEquals( $expected, $response->get_data() );
 	}
 
 	/**
@@ -170,13 +171,14 @@ class REST_Controller_Test extends Search_TestCase {
 			'instant_search_enabled'        => false,
 			'swap_classic_to_inline_search' => false,
 		);
+		$expected     = array_merge( $new_settings, array( 'last_saved_experience' => 'off' ) );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $new_settings, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( $new_settings, $response->get_data() );
+		$this->assertEquals( $expected, $response->get_data() );
 	}
 
 	/**
@@ -191,6 +193,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => false,
 			'instant_search_enabled'        => false,
 			'swap_classic_to_inline_search' => false,
+			'last_saved_experience'         => 'off',
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -213,6 +216,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => true,
 			'instant_search_enabled'        => true,
 			'swap_classic_to_inline_search' => false,
+			'last_saved_experience'         => 'overlay',
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -235,6 +239,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => false,
 			'instant_search_enabled'        => false,
 			'swap_classic_to_inline_search' => true,
+			'last_saved_experience'         => 'off',
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -257,6 +262,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active'                 => false,
 			'instant_search_enabled'        => false,
 			'swap_classic_to_inline_search' => false,
+			'last_saved_experience'         => 'off',
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -292,6 +298,7 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertArrayHasKey( 'module_active', $response->get_data() );
 		$this->assertArrayHasKey( 'instant_search_enabled', $response->get_data() );
+		$this->assertArrayHasKey( 'last_saved_experience', $response->get_data() );
 	}
 
 	/**
@@ -330,6 +337,115 @@ class REST_Controller_Test extends Search_TestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 6, $response->get_data()['total'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` with experience=overlay.
+	 */
+	public function test_update_settings_experience_overlay() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'experience' => 'overlay' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertTrue( $data['module_active'] );
+		$this->assertTrue( $data['instant_search_enabled'] );
+		$this->assertEquals( 'overlay', $data['last_saved_experience'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` with experience=embedded.
+	 */
+	public function test_update_settings_experience_embedded() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'experience' => 'embedded' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertTrue( $data['module_active'] );
+		$this->assertFalse( $data['instant_search_enabled'] );
+		$this->assertEquals( 'embedded', $data['last_saved_experience'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` with experience=classic.
+	 */
+	public function test_update_settings_experience_classic() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'experience' => 'classic' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertTrue( $data['module_active'] );
+		$this->assertFalse( $data['instant_search_enabled'] );
+		$this->assertEquals( 'classic', $data['last_saved_experience'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` with experience=off.
+	 */
+	public function test_update_settings_experience_off() {
+		wp_set_current_user( $this->admin_id );
+
+		// Pre-activate the module and enable instant search via the legacy path so we can verify
+		// that `experience=off` deactivates the module but preserves instant_search_enabled.
+		$activate_request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$activate_request->set_header( 'content-type', 'application/json' );
+		$activate_request->set_body( wp_json_encode( array( 'module_active' => true, 'instant_search_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$this->server->dispatch( $activate_request );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'experience' => 'off' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertFalse( $data['module_active'] );
+		$this->assertEquals( 'off', $data['last_saved_experience'] );
+		// instant_search_enabled should be preserved (not changed to false by deactivation).
+		$this->assertTrue( $data['instant_search_enabled'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` with an invalid experience value.
+	 */
+	public function test_update_settings_experience_invalid() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'experience' => 'invalid_value' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+	}
+
+	/**
+	 * Testing that the persisted experience is returned from `GET /jetpack/v4/search/settings`.
+	 */
+	public function test_get_settings_returns_persisted_experience() {
+		wp_set_current_user( $this->admin_id );
+
+		// Save experience=embedded.
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'experience' => 'embedded' ), JSON_UNESCAPED_SLASHES ) );
+		$this->server->dispatch( $request );
+
+		// Read back and check persisted value is returned.
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'embedded', $response->get_data()['last_saved_experience'] );
 	}
 
 	/**
