@@ -215,7 +215,11 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 						label={
 							mode === MODE_INCLUDE
 								? __( 'Post types to include', 'jetpack-search-pkg' )
-								: __( 'Post types to exclude', 'jetpack-search-pkg' )
+								: __(
+										'Post types to exclude',
+										'jetpack-search-pkg',
+										/* dummy arg to avoid bad minification */ 0
+								  )
 						}
 						value={ toTokens( postTypes, labelBySlug ) }
 						suggestions={ suggestionList }
