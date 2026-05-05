@@ -170,13 +170,7 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 		return;
 	}
 
-	$signature = wpcom_build_fatal_error_signature(
-		array(
-			'kind'    => (string) $plugin['kind'],
-			'slug'    => (string) $plugin['slug'],
-			'version' => isset( $plugin['version'] ) ? (string) $plugin['version'] : '',
-		)
-	);
+	$signature = wpcom_build_fatal_error_signature( wpcomsh_fatal_normalize_plugin_parts( $plugin ) );
 	if ( null === $signature ) {
 		return;
 	}
@@ -299,43 +293,167 @@ function wpcomsh_fatal_classify_plugin_path( $abs_file ) {
 }
 
 /**
+ * Coerce a plugin-info array (or null) into the canonical kind/slug/version
+ * triple, with missing keys defaulting to ''. Used wherever we need to feed
+ * those three fields into a signature, log, or template — so the empty-key
+ * handling stays in one place.
+ *
+ * @param array|null $plugin Extension info from wpcomsh_fatal_identify_plugin(), or null.
+ * @return array{kind:string,slug:string,version:string}
+ */
+function wpcomsh_fatal_normalize_plugin_parts( $plugin ) {
+	$plugin = is_array( $plugin ) ? $plugin : array();
+	return array(
+		'kind'    => isset( $plugin['kind'] ) ? (string) $plugin['kind'] : '',
+		'slug'    => isset( $plugin['slug'] ) ? (string) $plugin['slug'] : '',
+		'version' => isset( $plugin['version'] ) ? (string) $plugin['version'] : '',
+	);
+}
+
+/**
+ * Map an extension kind to the recovery-mode capability that gates it.
+ * Theme-origin fatals need `resume_themes`; everything else (plugins,
+ * mu-plugins, unknown) needs `resume_plugins`.
+ *
+ * @param string $kind Extension kind from wpcomsh_fatal_identify_plugin().
+ * @return string Core capability slug.
+ */
+function wpcomsh_fatal_recovery_cap_for_kind( $kind ) {
+	return 'themes' === $kind ? 'resume_themes' : 'resume_plugins';
+}
+
+/**
+ * Sign a payload bound to the current logged-in session.
+ *
+ * The HMAC covers `parts | exp | logged_in_cookie`, using AUTH_SALT. Binding
+ * to the cookie means a leaked URL/form can't be replayed across sessions
+ * (or after the admin logs out), and can't be forged without AUTH_SALT.
+ *
+ * Returns '' when prerequisites are missing (no AUTH_SALT, no cookie); the
+ * caller treats that as "can't sign right now" and skips rendering.
+ *
+ * Centralized here so the sign + verify sides can't diverge on payload
+ * shape — every part list passed in is the canonical input to the matching
+ * `wpcomsh_fatal_verify_signed_payload()` call.
+ *
+ * Cookie-host implication: the HMAC verifies only on requests where
+ * LOGGED_IN_COOKIE is sent. On installs where WP_SITEURL and WP_HOME are on
+ * different hosts (and no explicit COOKIE_DOMAIN is set), that cookie is
+ * host-only to wherever wp-login.php lives. Wrapper URLs/forms must target
+ * site_url(), not home_url(), or the verifier silently fails.
+ *
+ * @param string[] $parts Ordered string parts to bind into the signature.
+ * @param int      $exp   Absolute unix timestamp at which the signature expires.
+ * @return string Lowercase hex sha256 HMAC, or '' when unavailable.
+ */
+function wpcomsh_fatal_sign_payload( array $parts, $exp ) {
+	if ( ! defined( 'AUTH_SALT' ) || ! defined( 'LOGGED_IN_COOKIE' ) ) {
+		return '';
+	}
+	if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
+		return '';
+	}
+	// Per-session secret inside an HMAC we never output; needs the exact
+	// byte-for-byte cookie value to match at verify time.
+	$cookie_value = (string) wp_unslash( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$payload      = implode( '|', array_merge( $parts, array( (string) (int) $exp, $cookie_value ) ) );
+	return hash_hmac( 'sha256', $payload, (string) AUTH_SALT );
+}
+
+/**
+ * Verify an HMAC produced by wpcomsh_fatal_sign_payload().
+ *
+ * Bootstraps cookie constants because the signed-URL endpoints run at
+ * mu-plugin load time, before wp-settings.php defines them. Returns false on
+ * any failure — missing AUTH_SALT/cookie, expired timestamp, or HMAC
+ * mismatch — so callers can `if ( ! verify(...) ) return;` as a single gate.
+ *
+ * @param string   $sig   Signature from the request.
+ * @param string[] $parts Ordered string parts the URL claims to have signed.
+ * @param int      $exp   Expiry timestamp from the request.
+ * @return bool True iff the signature is valid for this session and unexpired.
+ */
+function wpcomsh_fatal_verify_signed_payload( $sig, array $parts, $exp ) {
+	if ( ! is_string( $sig ) || '' === $sig || (int) $exp < time() ) {
+		return false;
+	}
+	if ( ! defined( 'LOGGED_IN_COOKIE' ) && function_exists( 'wp_cookie_constants' ) ) {
+		wp_cookie_constants();
+	}
+	$expected = wpcomsh_fatal_sign_payload( $parts, (int) $exp );
+	return '' !== $expected && hash_equals( $expected, $sig );
+}
+
+/**
  * Build the form action + signed fields the fatal-plugin-deactivator endpoint
  * validates, without relying on pluggable functions or WP nonces.
  *
- * Signature: HMAC over (plugin, expiry, logged_in cookie) using AUTH_SALT.
- * Binding to the cookie ensures the request can't be replayed by another
- * user or after the admin logs out, and can't be forged without AUTH_SALT.
- *
  * Returned as form fields (rather than a signed URL) so the screen can submit
  * via POST — destructive actions should not live in a GET-able link.
+ *
+ * Posts to site_url() (admin/login host); see wpcomsh_fatal_sign_payload()
+ * for the cookie-host rationale.
  *
  * @param string $plugin_basename Plugin file relative to WP_PLUGIN_DIR (e.g. "akismet/akismet.php").
  * @return array{action:string,fields:array<string,string>}|null Form data, or null when prerequisites are missing.
  */
 function wpcomsh_fatal_build_deactivate_form( $plugin_basename ) {
-	if ( ! defined( 'AUTH_SALT' ) || ! defined( 'LOGGED_IN_COOKIE' ) ) {
+	$exp = time() + 5 * MINUTE_IN_SECONDS;
+	$sig = wpcomsh_fatal_sign_payload( array( $plugin_basename ), $exp );
+	if ( '' === $sig ) {
 		return null;
 	}
-	if ( empty( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-		return null;
-	}
-	// The cookie is used only as a per-session secret inside an HMAC we
-	// never output, so sanitization is irrelevant here — we need its exact
-	// byte-for-byte value to match at verification time.
-	$cookie_value = (string) wp_unslash( $_COOKIE[ LOGGED_IN_COOKIE ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$exp          = time() + 5 * MINUTE_IN_SECONDS;
-	$sig          = hash_hmac(
-		'sha256',
-		$plugin_basename . '|' . $exp . '|' . $cookie_value,
-		(string) AUTH_SALT
-	);
 	return array(
-		'action' => home_url( '/' ),
+		'action' => site_url( '/' ),
 		'fields' => array(
 			'wpcomsh_deactivate' => $plugin_basename,
 			'wpcomsh_exp'        => (string) $exp,
 			'wpcomsh_sig'        => $sig,
 		),
+	);
+}
+
+/**
+ * Build the wrapper URL the fatal screen renders for "Enter recovery mode".
+ *
+ * The link doesn't point at core's recovery URL directly. It points at a
+ * signed `site_url('/')` query that fatal-recovery-click.php intercepts at
+ * mu-plugin load time so we can log the click and *then* mint a fresh
+ * recovery URL on the redirect. Plugin metadata is embedded so the click
+ * endpoint can emit a per-extension signature event without re-identifying
+ * from disk.
+ *
+ * Targets site_url() (admin/login host); see wpcomsh_fatal_sign_payload()
+ * for the cookie-host rationale.
+ *
+ * Returns '' when prerequisites are missing (multisite, no cookie, no
+ * AUTH_SALT) — the template treats '' as "hide the link".
+ *
+ * @param array|null $plugin Extension info from wpcomsh_fatal_identify_plugin(), or null.
+ * @return string Wrapper URL, or '' when unavailable.
+ */
+function wpcomsh_fatal_build_recovery_link( $plugin ) {
+	if ( is_multisite() ) {
+		return '';
+	}
+	$parts = wpcomsh_fatal_normalize_plugin_parts( $plugin );
+	// Day-long TTL: navigation-only action; further bounded by LOGGED_IN_COOKIE.
+	$exp = time() + DAY_IN_SECONDS;
+	$sig = wpcomsh_fatal_sign_payload( array_values( $parts ), $exp );
+	if ( '' === $sig ) {
+		return '';
+	}
+
+	return add_query_arg(
+		array(
+			'wpcomsh_recovery'      => '1',
+			'wpcomsh_recovery_kind' => $parts['kind'],
+			'wpcomsh_recovery_slug' => $parts['slug'],
+			'wpcomsh_recovery_ver'  => $parts['version'],
+			'wpcomsh_recovery_exp'  => (string) $exp,
+			'wpcomsh_recovery_sig'  => $sig,
+		),
+		site_url( '/' )
 	);
 }
 

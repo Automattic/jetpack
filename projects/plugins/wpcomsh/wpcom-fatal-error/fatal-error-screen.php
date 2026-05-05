@@ -33,7 +33,7 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
 
 	// Identify only when used: admins need $plugin for the rendered
-	// notice; the anonymous path identifies once per (file, 5-min) for
+	// notice; the anonymous path identifies once per (file, hour) for
 	// telemetry. Signature-level dedup downstream catches duplicates
 	// this gate misses.
 	$plugin = null;
@@ -46,7 +46,7 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 		$do_log     = true;
 
 		try {
-			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS );
+			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', HOUR_IN_SECONDS );
 		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not silence telemetry.
 			// Fail open.
 		}
@@ -104,12 +104,7 @@ function wpcomsh_fatal_build_render_context( $error, $plugin = null, $user_id = 
 		&& ! empty( $plugin['basename'] )
 		&& user_can( $user_id, 'deactivate_plugin', $plugin['basename'] );
 
-	// Recovery-mode capability depends on the kind of extension that
-	// fataled: a theme-origin fatal needs `resume_themes`, everything
-	// else (plugins, mu-plugins, unknown) needs `resume_plugins`.
-	$recover_cap = ( $plugin && 'themes' === $plugin['kind'] )
-		? 'resume_themes'
-		: 'resume_plugins';
+	$recover_cap = wpcomsh_fatal_recovery_cap_for_kind( $plugin ? (string) $plugin['kind'] : '' );
 	$can_recover = $user_id && user_can( $user_id, $recover_cap );
 
 	return array(
@@ -117,7 +112,7 @@ function wpcomsh_fatal_build_render_context( $error, $plugin = null, $user_id = 
 		'plugin'          => $plugin,
 		'error_message'   => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
 		'deactivate_form' => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
-		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_url() : '',
+		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_link( $plugin ) : '',
 		'support_url'     => 'https://wordpress.com/help/contact',
 		'environment'     => $is_admin ? wpcomsh_fatal_get_environment_lines() : array(),
 	);
