@@ -114,6 +114,7 @@ class Settings {
 
 		if ( self::is_modernized() && self::is_newsletter_admin_request() ) {
 			self::load_wp_build();
+			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		}
 	}
 
@@ -415,6 +416,28 @@ class Settings {
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
 			)
 		);
+	}
+
+	/**
+	 * Alias the current screen ID to satisfy wp-build's auto-generated enqueue check.
+	 *
+	 * Wp-build's `<page>-wp-admin` enqueue callback enqueues only when the screen ID
+	 * matches the wp-build page slug (`jetpack-newsletter-dashboard`). Our wp-admin
+	 * menu slug stays `jetpack-newsletter`, so we mutate the screen object in place
+	 * to make the check pass without changing the user-facing URL.
+	 *
+	 * Hooked only when modernization is on AND we're on the Newsletter admin page,
+	 * so this never affects any other request.
+	 *
+	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build( $screen ) {
+		if ( ! is_object( $screen ) ) {
+			return;
+		}
+
+		$screen->id = 'jetpack-newsletter-dashboard';
 	}
 
 	/**
