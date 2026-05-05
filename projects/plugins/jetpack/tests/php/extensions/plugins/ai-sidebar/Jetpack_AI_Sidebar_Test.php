@@ -66,6 +66,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		wp_set_current_user( 0 );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		$GLOBALS['current_screen'] = $this->saved_screen;
@@ -236,6 +237,19 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_enqueue_am();
 
 		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
+	 * Dev-mode signals enable the review mediator flag by default.
+	 */
+	public function test_maybe_enqueue_am_exposes_review_mediator_enabled_in_dev_mode() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $this->get_agents_manager_inline_script() );
 	}
 
 	/**
