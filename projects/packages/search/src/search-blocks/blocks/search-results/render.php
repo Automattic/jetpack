@@ -52,7 +52,14 @@ $resolve_layout = static function ( $layout ) {
 };
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$layout        = ( (array) $attributes )['layout'] ?? 'expanded';
+$layout = ( (array) $attributes )['layout'] ?? 'expanded';
+// Pre-rename block markup used `card` for what is now `expanded`. Promote
+// the legacy value so saved content keeps rendering correctly instead of
+// falling through `$resolve_layout`'s unknown-layout fallback. Mirrors the
+// JS-side normalization in edit.js.
+if ( 'card' === $layout ) {
+	$layout = 'expanded';
+}
 $features      = $resolve_layout( $layout );
 $wrapper_class = 'jetpack-search-results--' . $features['modifier'];
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );
@@ -171,6 +178,7 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 					<?php if ( $features['show_rating'] ) : ?>
 						<div
 							class="jetpack-search-results__rating"
+							role="img"
 							data-wp-bind--hidden="!context.result.hasRating"
 							data-wp-bind--aria-label="context.result.ratingAriaLabel"
 						>
@@ -182,6 +190,7 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 							</span>
 							<span
 								class="jetpack-search-results__rating-count"
+								aria-hidden="true"
 								data-wp-text="context.result.reviewCountLabel"
 							></span>
 						</div>

@@ -364,6 +364,33 @@ describe( 'normalizeResult', () => {
 			expect( r.reviewCountLabel ).toBe( '' );
 			expect( r.ratingAriaLabel ).toBe( '' );
 		} );
+
+		it( 'composes a screen-reader label that includes both rating and review count', () => {
+			const r = normalizeResult( {
+				fields: {
+					'meta._wc_average_rating.double': 4.5,
+					'meta._wc_review_count.long': 42,
+				},
+			} );
+			expect( r.ratingAriaLabel ).toBe( '4.5 out of 5 stars based on 42 reviews' );
+		} );
+
+		it( 'uses the singular form when there is exactly one review', () => {
+			const r = normalizeResult( {
+				fields: {
+					'meta._wc_average_rating.double': 5,
+					'meta._wc_review_count.long': 1,
+				},
+			} );
+			expect( r.ratingAriaLabel ).toBe( '5 out of 5 stars based on 1 review' );
+		} );
+
+		it( 'omits the review count clause when reviewCount is zero but a rating exists', () => {
+			const r = normalizeResult( {
+				fields: { 'meta._wc_average_rating.double': 4 },
+			} );
+			expect( r.ratingAriaLabel ).toBe( '4 out of 5 stars' );
+		} );
 	} );
 
 	it( 'does not expose author data from the API response', () => {

@@ -116,4 +116,16 @@ class Search_Results_Render_Test extends TestCase {
 		$markup = $this->render( array( 'layout' => 'nonsense' ) );
 		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
 	}
+
+	/**
+	 * Pre-rename block markup used `card` for what is now called `expanded`.
+	 * Saved content with `{"layout":"card"}` should keep rendering as the
+	 * first-class expanded layout, not fall through the unknown-layout path.
+	 */
+	public function test_legacy_card_value_resolves_to_expanded() {
+		$markup = $this->render( array( 'layout' => 'card' ) );
+		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__path', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__image', $markup );
+	}
 }

@@ -79,7 +79,12 @@ const LAYOUT_OPTIONS = () => [
  */
 export default function SearchResultsEdit( { attributes, setAttributes } ) {
 	const stored = attributes?.layout ?? DEFAULT_LAYOUT;
-	const layout = LAYOUTS.includes( stored ) ? stored : DEFAULT_LAYOUT;
+	// Pre-rename block markup used `card` for what the picker now calls
+	// `expanded`. Promote the legacy value so saved content keeps its first-
+	// class layout binding instead of falling through to the unknown-layout
+	// fallback. Mirrors `$resolve_layout` in render.php.
+	const normalized = stored === 'card' ? 'expanded' : stored;
+	const layout = LAYOUTS.includes( normalized ) ? normalized : DEFAULT_LAYOUT;
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ layout }`,
 	} );
@@ -187,12 +192,15 @@ function renderProductPreview( products ) {
 									</ins>
 								</>
 							) : (
-								<span>{ product.formattedPrice }</span>
+								<span className="jetpack-search-results__price-current">
+									{ product.formattedPrice }
+								</span>
 							) }
 						</div>
 						<div
 							className="jetpack-search-results__rating"
-							aria-label={ `${ product.rating } / 5` }
+							role="img"
+							aria-label={ `${ product.rating } out of 5 stars based on ${ product.reviewCount } reviews` }
 						>
 							<span className="jetpack-search-results__rating-stars" aria-hidden="true">
 								<span

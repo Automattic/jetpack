@@ -3,6 +3,7 @@
  * Interactivity API templates consume. Extracted from store/index.js so they
  * can be unit-tested without bootstrapping the IAPI runtime.
  */
+import { __, _n, sprintf } from '@wordpress/i18n';
 
 const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
 const ANY_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
@@ -212,9 +213,44 @@ function normalizeProductFields( fields ) {
 		ratingPercent,
 		reviewCount,
 		reviewCountLabel: reviewCount > 0 ? `(${ reviewCount })` : '',
-		ratingAriaLabel: rating > 0 ? `${ rating } / 5` : '',
+		// Combined SR string for the rating row. The visible star bar and
+		// `(N)` count are aria-hidden, so this is the only signal screen
+		// readers get — needs both the rating and the review count to match
+		// instant-search's "Average rating … from N reviews" announcement.
+		ratingAriaLabel: buildRatingAriaLabel( rating, reviewCount ),
 		hasRating: rating > 0,
 	};
+}
+
+/**
+ * Compose the screen-reader announcement for the rating row.
+ *
+ * @param {number} rating      - 0–5 average rating.
+ * @param {number} reviewCount - Number of reviews backing the rating.
+ * @return {string} Localized aria-label, or '' when the row should be hidden.
+ */
+function buildRatingAriaLabel( rating, reviewCount ) {
+	if ( rating <= 0 ) {
+		return '';
+	}
+	if ( reviewCount <= 0 ) {
+		return sprintf(
+			/* translators: %s: average product rating. */
+			__( '%s out of 5 stars', 'jetpack-search-pkg' ),
+			rating
+		);
+	}
+	return sprintf(
+		/* translators: %1$s: average product rating; %2$d: number of reviews. */
+		_n(
+			'%1$s out of 5 stars based on %2$d review',
+			'%1$s out of 5 stars based on %2$d reviews',
+			reviewCount,
+			'jetpack-search-pkg'
+		),
+		rating,
+		reviewCount
+	);
 }
 
 /**
