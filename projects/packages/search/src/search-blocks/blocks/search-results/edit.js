@@ -113,13 +113,8 @@ function renderListPreview( results, features ) {
 						) }
 					</div>
 					{ features.showImage && (
-						<a
-							className="jetpack-search-results__image-link"
-							hidden
-							tabIndex={ -1 }
-							aria-hidden="true"
-						>
-							<img className="jetpack-search-results__image" alt="" />
+						<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true">
+							<span className="jetpack-search-results__image-placeholder" aria-hidden="true" />
 						</a>
 					) }
 				</li>
