@@ -139,7 +139,12 @@ function renderProductPreview( products ) {
 		<ul className="jetpack-search-results__list">
 			{ products.map( product => (
 				<li key={ product.title } className="jetpack-search-results__item">
-					<div className="jetpack-search-results__product-image" aria-hidden="true" />
+					<div className="jetpack-search-results__product-image-link" aria-hidden="true">
+						<span
+							className="jetpack-search-results__product-image-placeholder"
+							aria-hidden="true"
+						/>
+					</div>
 					<h3 className="jetpack-search-results__title">{ product.title }</h3>
 					<div className="jetpack-search-results__price">
 						{ product.hasSalePrice ? (
