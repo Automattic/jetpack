@@ -294,7 +294,7 @@ class Search_Results_Render_Test extends TestCase {
 	private function render_with_skeleton( array $attributes = array() ): string {
 		Search_Blocks::reset_initial_loading_cache();
 		$_GET['category'] = array( 'test' ); // triggers parse_url_filters() → is_initial_loading() === true
-		$markup            = $this->render( $attributes );
+		$markup           = $this->render( $attributes );
 		unset( $_GET['category'] );
 		Search_Blocks::reset_initial_loading_cache();
 		return $markup;
