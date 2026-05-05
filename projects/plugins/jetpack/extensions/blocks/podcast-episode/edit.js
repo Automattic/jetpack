@@ -275,14 +275,21 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, isSelec
 							render={ ( { open } ) =>
 								imageUrl ? (
 									<ToolbarButton
-										aria-label={ __( 'Select cover art', 'jetpack' ) }
+										aria-label={ __( 'Replace cover art', 'jetpack' ) }
 										onClick={ open }
-									>
-										{ __( 'Change cover art', 'jetpack' ) }
-									</ToolbarButton>
+										icon={
+											<img
+												src={ imageUrl }
+												alt=""
+												className="jetpack-podcast-episode__cover-thumbnail"
+											/>
+										}
+										showTooltip
+										label={ __( 'Replace cover art', 'jetpack' ) }
+									/>
 								) : (
 									<ToolbarButton
-										aria-label={ __( 'Select cover art', 'jetpack' ) }
+										aria-label={ __( 'Add cover art', 'jetpack' ) }
 										onClick={ open }
 									>
 										{ __( 'Add cover art', 'jetpack' ) }
@@ -542,7 +549,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, isSelec
 						className="jetpack-podcast-episode__title"
 						value={ title }
 						onChange={ value => setAttributes( { title: value } ) }
-						placeholder={ __( 'Episode title…', 'jetpack' ) }
+						placeholder={ __( 'Episode title', 'jetpack' ) }
 						allowedFormats={ [] }
 					/>
 
@@ -579,7 +586,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, isSelec
 						className="jetpack-podcast-episode__summary"
 						value={ summary }
 						onChange={ value => setAttributes( { summary: value } ) }
-						placeholder={ __( 'Short episode summary (one or two sentences)…', 'jetpack' ) }
+						placeholder={ __( 'Episode summary (one or two sentences)', 'jetpack' ) }
 						allowedFormats={ [] }
 					/>
 
@@ -588,7 +595,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, isSelec
 						className="jetpack-podcast-episode__description"
 						value={ description }
 						onChange={ value => setAttributes( { description: value } ) }
-						placeholder={ __( 'Episode show notes…', 'jetpack' ) }
+						placeholder={ __( 'Show notes: links, timestamps, guests', 'jetpack' ) }
 					/>
 				</div>
 			</article>

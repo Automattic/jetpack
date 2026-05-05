@@ -16,3 +16,11 @@
 		border-radius: 4px;
 	}
 }
+
+.jetpack-podcast-episode__cover-thumbnail {
+	width: 24px;
+	height: 24px;
+	object-fit: cover;
+	border-radius: 2px;
+	display: block;
+}
