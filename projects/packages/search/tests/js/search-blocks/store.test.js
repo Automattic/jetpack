@@ -222,6 +222,50 @@ describe( 'store actions', () => {
 		expect( state.results.map( r => r.title ) ).toContain( 'Recovered result' );
 	} );
 
+	it( 'clears the previous query results when search() errors out', async () => {
+		// Seed the store as if a successful query had just resolved, so we
+		// can prove the error path tears that data down. Without this, a
+		// subsequent failed search would render its `role="alert"` message
+		// underneath stale results and a stale "Found N results" count.
+		state.results = [ { id: 'old-1', title: 'Stale result' } ];
+		state.totalResults = 5;
+		state.pageHandle = 'old-page';
+		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
+		state.hasError = false;
+
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.hasError ).toBe( true );
+		expect( state.results ).toEqual( [] );
+		expect( state.totalResults ).toBe( 0 );
+		expect( state.pageHandle ).toBeNull();
+		expect( state.aggregations ).toEqual( {} );
+		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
+		// so an empty count string falls out for free — no extra wiring.
+		expect( state.resultsCountText ).toBe( '' );
+	} );
+
+	it( 'leaves the existing results in place when loadMore() errors out', async () => {
+		// loadMore failures must not clear the first-page results — they're
+		// still valid; only the *next* page failed to fetch. The success
+		// path of the first search seeded the list; loadMore's catch must
+		// not regress that.
+		state.results = [ { id: 'page1-1', title: 'Page 1 result' } ];
+		state.totalResults = 50;
+		state.pageHandle = 'next-page';
+		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
+
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.loadMore() );
+
+		expect( state.hasError ).toBe( true );
+		expect( state.results ).toHaveLength( 1 );
+		expect( state.results[ 0 ].title ).toBe( 'Page 1 result' );
+		expect( state.totalResults ).toBe( 50 );
+		expect( state.aggregations.category.buckets[ 0 ].key ).toBe( 'news' );
+	} );
+
 	it( 'drops load-more responses superseded by a new search', async () => {
 		const loadMoreResponse = createDeferredResponse();
 		global.fetch.mockReturnValueOnce( loadMoreResponse.promise ).mockResolvedValueOnce(
