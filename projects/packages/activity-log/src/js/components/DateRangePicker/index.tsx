@@ -41,6 +41,12 @@ type DateRangePickerProps = {
 		onStartBlur?: ( e: React.FocusEvent< HTMLInputElement > ) => void;
 		onEndBlur?: ( e: React.FocusEvent< HTMLInputElement > ) => void;
 	};
+	// When `disabled`, the toggle renders as a non-interactive button
+	// wrapped in `disabledTooltipText` (no Dropdown / popover). Lets the
+	// free-tier surface keep the picker visible as an upgrade cue
+	// without rebuilding the trigger markup elsewhere.
+	disabled?: boolean;
+	disabledTooltipText?: string;
 };
 
 /**
@@ -55,6 +61,8 @@ type DateRangePickerProps = {
  * @param root0.disableFuture
  * @param root0.defaultFallbackPreset
  * @param root0.inputsProps
+ * @param root0.disabled
+ * @param root0.disabledTooltipText
  */
 export function DateRangePicker( {
 	start,
@@ -66,6 +74,8 @@ export function DateRangePicker( {
 	disableFuture = true,
 	defaultFallbackPreset = 'last-7-days',
 	inputsProps,
+	disabled = false,
+	disabledTooltipText,
 }: DateRangePickerProps ) {
 	const isSmall = useMediaQuery( '(max-width: 600px)' );
 	const showTwoMonths = useMediaQuery( '(min-width: 900px)' );
@@ -81,6 +91,36 @@ export function DateRangePicker( {
 		timezoneString ?? '',
 		gmtOffset ?? '',
 	].join( '|' );
+
+	if ( disabled ) {
+		return (
+			<Tooltip
+				text={ disabledTooltipText ?? __( 'Select a date range', 'jetpack-activity-log' ) }
+				placement="top"
+			>
+				<div className="daterange-input__toggle">
+					<Button
+						type="button"
+						variant="tertiary"
+						disabled
+						accessibleWhenDisabled
+						aria-label={ sprintf(
+							/* translators: %s: date range label */
+							__( 'Date range: %s.', 'jetpack-activity-log' ),
+							label
+						) }
+						className="daterange-input__field"
+						icon={ calendar }
+						iconPosition="right"
+					>
+						<span aria-hidden="true" className="daterange-input__text">
+							{ label }
+						</span>
+					</Button>
+				</div>
+			</Tooltip>
+		);
+	}
 
 	return (
 		<Dropdown

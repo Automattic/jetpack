@@ -8,7 +8,7 @@
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { CheckboxControl, PanelBody, SelectControl, TextControl } from '@wordpress/components';
-import { createElement as h, Fragment, useId } from '@wordpress/element';
+import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 // Mirror Sort_Control::BASE_SORT_KEYS. Product-format keys rejoin in RSM-1082.
@@ -109,134 +109,132 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 		setAttributes( update );
 	};
 
-	const inspector = h(
-		InspectorControls,
-		null,
-		h(
-			PanelBody,
-			{ title: __( 'Sort Settings', 'jetpack-search-pkg' ) },
-			h( TextControl, {
-				__next40pxDefaultSize: true,
-				__nextHasNoMarginBottom: true,
-				label: __( 'Label', 'jetpack-search-pkg' ),
-				value: attributes?.label || '',
-				placeholder: __( 'Sort by', 'jetpack-search-pkg' ),
-				onChange: value => setAttributes( { label: value } ),
-				help: __( 'Leave empty to use the default translated label.', 'jetpack-search-pkg' ),
-			} ),
-			h( SelectControl, {
-				__next40pxDefaultSize: true,
-				__nextHasNoMarginBottom: true,
-				label: __( 'Default sort', 'jetpack-search-pkg' ),
-				// Use the `defaultSort` attribute when it's still in `available`
-				// so the <select> stays bound to its persisted value. When the
-				// author has just unchecked the current default from the list,
-				// fall back to the first available option so the control binds
-				// to something visible instead of rendering a blank selection.
-				value: available.includes( defaultSort ) ? defaultSort : available[ 0 ],
-				// Only offer keys the author has actually enabled. Showing the
-				// full list here would let the author pick a default that
-				// `availableSortOptions` excludes — the render callback already
-				// falls back gracefully, but the editor would misleadingly show
-				// a "saved default" the front end never honors.
-				options: available.map( key => ( { value: key, label: labels[ key ] } ) ),
-				onChange: value => setAttributes( { defaultSort: value } ),
-				help: __(
-					'Applied on first load when the URL carries no sort parameter.',
-					'jetpack-search-pkg'
-				),
-			} ),
-			h( SelectControl, {
-				__next40pxDefaultSize: true,
-				__nextHasNoMarginBottom: true,
-				label: __( 'Display as', 'jetpack-search-pkg' ),
-				value: displayAs,
-				options: [
-					{ value: 'select', label: __( 'Dropdown', 'jetpack-search-pkg' ) },
-					{ value: 'radio', label: __( 'Inline links', 'jetpack-search-pkg' ) },
-					{ value: 'popover', label: __( 'Popover', 'jetpack-search-pkg' ) },
-				],
-				onChange: value => setAttributes( { displayAs: value, display: undefined } ),
-			} )
-		),
-		h(
-			PanelBody,
-			{ title: __( 'Available options', 'jetpack-search-pkg' ) },
-			ALL_SORT_KEYS.map( key =>
-				h( CheckboxControl, {
-					key,
-					__nextHasNoMarginBottom: true,
-					label: labels[ key ],
-					checked: storedAvailable.includes( key ),
-					onChange: checked => toggleAvailable( key, checked ),
-				} )
-			)
-		)
+	const inspector = (
+		<InspectorControls>
+			<PanelBody title={ __( 'Sort Settings', 'jetpack-search-pkg' ) }>
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					label={ __( 'Label', 'jetpack-search-pkg' ) }
+					value={ attributes?.label || '' }
+					placeholder={ __( 'Sort by', 'jetpack-search-pkg' ) }
+					onChange={ value => setAttributes( { label: value } ) }
+					help={ __( 'Leave empty to use the default translated label.', 'jetpack-search-pkg' ) }
+				/>
+				<SelectControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					label={ __( 'Default sort', 'jetpack-search-pkg' ) }
+					// Use the `defaultSort` attribute when it's still in `available`
+					// so the <select> stays bound to its persisted value. When the
+					// author has just unchecked the current default from the list,
+					// fall back to the first available option so the control binds
+					// to something visible instead of rendering a blank selection.
+					value={ available.includes( defaultSort ) ? defaultSort : available[ 0 ] }
+					// Only offer keys the author has actually enabled. Showing the
+					// full list here would let the author pick a default that
+					// `availableSortOptions` excludes — the render callback already
+					// falls back gracefully, but the editor would misleadingly show
+					// a "saved default" the front end never honors.
+					options={ available.map( key => ( { value: key, label: labels[ key ] } ) ) }
+					onChange={ value => setAttributes( { defaultSort: value } ) }
+					help={ __(
+						'Applied on first load when the URL carries no sort parameter.',
+						'jetpack-search-pkg'
+					) }
+				/>
+				<SelectControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					label={ __( 'Display as', 'jetpack-search-pkg' ) }
+					value={ displayAs }
+					options={ [
+						{ value: 'select', label: __( 'Dropdown', 'jetpack-search-pkg' ) },
+						{ value: 'radio', label: __( 'Inline links', 'jetpack-search-pkg' ) },
+						{ value: 'popover', label: __( 'Popover', 'jetpack-search-pkg' ) },
+					] }
+					onChange={ value => setAttributes( { displayAs: value, display: undefined } ) }
+				/>
+			</PanelBody>
+			<PanelBody title={ __( 'Available options', 'jetpack-search-pkg' ) }>
+				{ ALL_SORT_KEYS.map( key => (
+					<CheckboxControl
+						key={ key }
+						__nextHasNoMarginBottom
+						label={ labels[ key ] }
+						checked={ storedAvailable.includes( key ) }
+						onChange={ checked => toggleAvailable( key, checked ) }
+					/>
+				) ) }
+			</PanelBody>
+		</InspectorControls>
 	);
 
 	let preview;
 	if ( 'popover' === displayAs ) {
-		preview = h(
-			'button',
-			{
-				type: 'button',
-				className: 'jetpack-search-sort__trigger',
-				'aria-haspopup': 'menu',
-				'aria-expanded': 'false',
-				disabled: true,
-			},
-			h(
-				'svg',
-				{
-					className: 'jetpack-search-sort__icon',
-					width: 18,
-					height: 18,
-					viewBox: '0 0 24 24',
-					'aria-hidden': 'true',
-					focusable: 'false',
-				},
-				h( 'path', {
-					fill: 'currentColor',
-					d: 'M8 4l-4 4h3v12h2V8h3L8 4zm8 16l4-4h-3V4h-2v12h-3l4 4z',
-				} )
-			),
-			h( 'span', { className: 'screen-reader-text' }, __( 'Sort results', 'jetpack-search-pkg' ) )
+		preview = (
+			<button
+				type="button"
+				className="jetpack-search-sort__trigger"
+				aria-haspopup="menu"
+				aria-expanded="false"
+				disabled
+			>
+				<svg
+					className="jetpack-search-sort__icon"
+					width={ 18 }
+					height={ 18 }
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<path fill="currentColor" d="M8 4l-4 4h3v12h2V8h3L8 4zm8 16l4-4h-3V4h-2v12h-3l4 4z" />
+				</svg>
+				<span className="screen-reader-text">{ __( 'Sort results', 'jetpack-search-pkg' ) }</span>
+			</button>
 		);
 	} else if ( 'radio' === displayAs ) {
-		preview = h(
-			'fieldset',
-			{ className: 'jetpack-search-sort-control__radio-group' },
-			h( 'legend', null, labelText ),
-			available.map( key => {
-				const radioId = `${ baseId }-${ key }`;
-				return h(
-					'div',
-					{ key, className: 'jetpack-search-sort-control__radio-item' },
-					h( 'input', {
-						type: 'radio',
-						id: radioId,
-						name: baseId,
-						value: key,
-						checked: previewSelected === key,
-						disabled: true,
-						readOnly: true,
-					} ),
-					h( 'label', { htmlFor: radioId }, labels[ key ] )
-				);
-			} )
+		preview = (
+			<fieldset className="jetpack-search-sort-control__radio-group">
+				<legend>{ labelText }</legend>
+				{ available.map( key => {
+					const radioId = `${ baseId }-${ key }`;
+					return (
+						<div key={ key } className="jetpack-search-sort-control__radio-item">
+							<input
+								type="radio"
+								id={ radioId }
+								name={ baseId }
+								value={ key }
+								checked={ previewSelected === key }
+								disabled
+								readOnly
+							/>
+							<label htmlFor={ radioId }>{ labels[ key ] }</label>
+						</div>
+					);
+				} ) }
+			</fieldset>
 		);
 	} else {
-		preview = h(
-			Fragment,
-			null,
-			h( 'label', { htmlFor: baseId }, labelText ),
-			h(
-				'select',
-				{ id: baseId, disabled: true, value: previewSelected, onChange: () => {} },
-				available.map( key => h( 'option', { key, value: key }, labels[ key ] ) )
-			)
+		preview = (
+			<>
+				<label htmlFor={ baseId }>{ labelText }</label>
+				<select id={ baseId } disabled value={ previewSelected } onChange={ () => {} }>
+					{ available.map( key => (
+						<option key={ key } value={ key }>
+							{ labels[ key ] }
+						</option>
+					) ) }
+				</select>
+			</>
 		);
 	}
 
-	return h( Fragment, null, inspector, h( 'div', blockProps, preview ) );
+	return (
+		<>
+			{ inspector }
+			<div { ...blockProps }>{ preview }</div>
+		</>
+	);
 }

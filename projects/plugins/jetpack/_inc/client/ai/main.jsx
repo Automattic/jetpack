@@ -20,7 +20,7 @@ import McpWrite from './mcp/write';
 const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 
 const VIEW_TITLES = {
-	hub: __( 'AI', 'jetpack' ),
+	hub: 'AI', // "AI" is a product name and should not be translated.
 	read: __( 'Read', 'jetpack' ),
 	write: __( 'Write', 'jetpack' ),
 	setup: __( 'Connect external AI agent', 'jetpack' ),
@@ -53,7 +53,8 @@ function Breadcrumbs( { view, onNavigate } ) {
 						onClick={ onNavigate }
 					>
 						<JetpackLogo showText={ false } height={ 20 } />
-						{ __( 'AI', 'jetpack' ) }
+						{ /** "AI" is a product name and should not be translated. */ }
+						AI
 					</button>
 				</li>
 				<li>

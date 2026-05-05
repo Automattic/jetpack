@@ -1,7 +1,7 @@
 import { firstValid, hardTruncation, shortEnough, stripHtmlTags, Formatter } from '../helpers';
 
 const TITLE_LENGTH = 1000;
-const DESCRIPTION_LENGTH = 400;
+const DESCRIPTION_LENGTH = 4096;
 
 /**
  * Visible body-text cap used by the preview component. Mirrors the

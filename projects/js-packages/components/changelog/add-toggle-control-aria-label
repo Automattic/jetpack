@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-ToggleControl: forward the `aria-label` prop to the underlying checkbox so consumers can label toggles that have no visible label.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: allow the Post Type Scope block to be inserted inside the Filters container.

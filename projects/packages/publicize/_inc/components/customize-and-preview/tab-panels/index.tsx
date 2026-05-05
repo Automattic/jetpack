@@ -2,6 +2,7 @@ import { TabPanel } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from 'react';
 import { usePerNetworkCustomization } from '../../../hooks/use-per-network-customization';
+import { useDriveRenderedMessagesFetch } from '../../../hooks/use-render-message-items';
 import { store as socialStore } from '../../../social-store';
 import { hasSocialPaidFeatures } from '../../../utils';
 import { CustomizationSection } from '../customization-section';
@@ -16,6 +17,11 @@ import { useConnectionTabs } from './use-connection-tabs';
  * @return - Tab Panel wrapper component.
  */
 export function TabPanelWrapper() {
+	// Mounted regardless of which tab (or none) is currently focused, so this is
+	// the right place to drive the rendered-messages fetch. Without it, switching
+	// to a disabled-connection tab would leave the resolver untriggered.
+	useDriveRenderedMessagesFetch();
+
 	const tabs = useConnectionTabs();
 
 	const { isEnabled: usingPerNetworkCustomization } = usePerNetworkCustomization();

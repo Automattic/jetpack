@@ -1,4 +1,5 @@
 import { stripHtmlTags } from '../../../helpers';
+import { ExpandableText } from '../../../shared/expandable-text';
 import { getMastodonAddressDetails, mastodonBody, mastodonUrl } from '../../helpers';
 import type { MastodonPreviewProps } from '../../types';
 
@@ -17,7 +18,13 @@ const MastonPostBody: React.FC< Props > = props => {
 	let bodyTxt;
 
 	if ( customText ) {
-		bodyTxt = <p>{ mastodonBody( customText, options ) }</p>;
+		bodyTxt = (
+			<p>
+				<ExpandableText text={ customText }>
+					{ visibleText => mastodonBody( visibleText, options ) }
+				</ExpandableText>
+			</p>
+		);
 	} else if ( description ) {
 		if ( title ) {
 			const renderedTitle = stripHtmlTags( title );
@@ -27,11 +34,21 @@ const MastonPostBody: React.FC< Props > = props => {
 			bodyTxt = (
 				<>
 					<p>{ renderedTitle }</p>
-					<p>{ mastodonBody( description, options ) }</p>
+					<p>
+						<ExpandableText text={ description }>
+							{ visibleText => mastodonBody( visibleText, options ) }
+						</ExpandableText>
+					</p>
 				</>
 			);
 		} else {
-			bodyTxt = <p>{ mastodonBody( description, options ) }</p>;
+			bodyTxt = (
+				<p>
+					<ExpandableText text={ description }>
+						{ visibleText => mastodonBody( visibleText, options ) }
+					</ExpandableText>
+				</p>
+			);
 		}
 	} else {
 		bodyTxt = <p>{ mastodonBody( title, options ) }</p>;

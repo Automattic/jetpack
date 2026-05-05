@@ -7,6 +7,7 @@ import {
 	getTitleFromDescription,
 	preparePreviewText,
 } from '../helpers';
+import { ExpandableText } from '../shared/expandable-text';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { FooterActions } from './footer-actions';
 import { ChevronIcon } from './icons/chevron-icon';
@@ -59,10 +60,14 @@ export function NextdoorPostPreview( {
 						{ description ? (
 							<div className="nextdoor-preview__caption">
 								<span>
-									{ preparePreviewText( description, {
-										platform: 'nextdoor',
-										maxChars: FEED_TEXT_MAX_LENGTH,
-									} ) }
+									<ExpandableText text={ description }>
+										{ visibleText =>
+											preparePreviewText( visibleText, {
+												platform: 'nextdoor',
+												maxChars: FEED_TEXT_MAX_LENGTH,
+											} )
+										}
+									</ExpandableText>
 								</span>
 								{ ! hasMedia && url && ! description.includes( url ) && (
 									<>

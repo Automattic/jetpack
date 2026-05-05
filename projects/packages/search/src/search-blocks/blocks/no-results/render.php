@@ -20,6 +20,7 @@ if ( '' === $message ) {
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-bind--hidden="!state.showNoResults"
+	hidden
 >
 	<p><?php echo esc_html( $message ); ?></p>
 </div>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a regression added on https://github.com/Automattic/jetpack/pull/48286

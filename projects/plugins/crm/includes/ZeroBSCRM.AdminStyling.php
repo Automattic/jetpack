@@ -71,7 +71,7 @@ function zeroBSCRM_improvedPostMsgsCustomers( $messages ) {
 		3  => __( 'Contact field deleted.', 'zero-bs-crm' ),
 		4  => __( 'Contact updated.', 'zero-bs-crm' ),
 		/* translators: %s: date and time of the revision */
-		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Contact restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Contact restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		6  => sprintf(
 			/* Translators: %s: link to the main Contacts page */
 			__( 'Contact added. <a href="%s">Back to Contacts</a>', 'zero-bs-crm' ),

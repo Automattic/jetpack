@@ -115,9 +115,6 @@ add_action(
 		if ( apply_filters( 'jetpack_crm_feature_flag_api_v4', false ) ) {
 			$controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller();
 			$controller->register_routes();
-
-			$automation_controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Workflows_Controller();
-			$automation_controller->register_routes();
 		}
 	}
 );
@@ -132,7 +129,7 @@ function zeroBSCRM_rest_getCompanies( WP_REST_Request $request ) {
 	}
 	$potentialID = -1;
 	if ( isset( $request['id'] ) ) {
-		$potentialID = (int) sanitize_text_field( $request['id'] );
+		$potentialID = (int) $request['id'];
 	}
 
 		// if id, pass back obj singular
@@ -165,7 +162,7 @@ function zeroBSCRM_rest_getContacts( WP_REST_Request $request ) {
 	}
 	$potentialID = -1;
 	if ( isset( $request['id'] ) ) {
-		$potentialID = (int) sanitize_text_field( $request['id'] );
+		$potentialID = (int) $request['id'];
 	}
 
 	// if id, pass back obj singular
@@ -200,11 +197,11 @@ function zeroBSCRM_rest_getConCom( WP_REST_Request $request ) {
 	}
 	$potentialID = -1;
 	if ( isset( $request['id'] ) ) {
-		$potentialID = (int) sanitize_text_field( $request['id'] );
+		$potentialID = (int) $request['id'];
 	}
 	$objectType = -1;
 	if ( isset( $request['obj_type'] ) ) {
-		$potentialID = (int) sanitize_text_field( $request['obj_type'] );
+		$potentialID = (int) $request['obj_type'];
 	}
 
 	// if id, pass back obj simpler, but now also take in objectType too.

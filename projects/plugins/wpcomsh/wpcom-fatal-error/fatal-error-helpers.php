@@ -112,33 +112,56 @@ function wpcomsh_fatal_identify_plugin( $error ) {
 }
 
 /**
- * Ship the offending extension's signature to wpcomsh logstash via
- * WPCOMSH_Log::unsafe_direct_log_logstash(), alongside the decoded parts
- * so dashboards can aggregate without decoding the signature.
+ * Log that an admin clicked the "Deactivate" button on the fatal-error screen.
+ * Identifies the extension from its basename so the deactivate event carries
+ * the same shape as the signature event; falls through silently if the plugin
+ * file is no longer on disk.
  *
- * Routed to the `/logstash` endpoint under feature
- * `atomic_extension_conflict` with severity `critical` so these surface
- * in their own Kibana bucket (the default `feature:automated_transfer`
- * stream is too noisy to alert on).
- *
- * Manual require: the fatal-error module loads from wpcomsh.php line
- * 1, before the autoloader runs. Direct requires with class_exists(
- * …, false ) skip the autoloader during fatal handling, where its
- * filesystem reads could compound a bad state.
- *
- * Best-effort: silently no-ops if either dependency is unreachable.
- * A logging failure must never escalate into a second fatal.
- *
- * @param array|null $plugin Extension metadata from wpcomsh_fatal_identify_plugin().
+ * @param string $plugin_basename Plugin basename relative to WP_PLUGIN_DIR (e.g. "akismet/akismet.php").
  * @return void
  */
-function wpcomsh_fatal_log_signature( $plugin ) {
+function wpcomsh_fatal_log_deactivate( $plugin_basename ) {
+	if ( ! is_string( $plugin_basename ) || '' === $plugin_basename ) {
+		return;
+	}
+
+	$plugin = wpcomsh_fatal_identify_plugin( array( 'file' => WP_PLUGIN_DIR . '/' . $plugin_basename ) );
+	if ( ! is_array( $plugin ) ) {
+		return;
+	}
+
+	wpcomsh_fatal_log_event( $plugin, 'wpcomsh_fatal_deactivate' );
+}
+
+/**
+ * Emit a fatal-error event via WPCOMSH_Log::unsafe_direct_log_logstash(),
+ * alongside the decoded signature parts so consumers don't have to decode
+ * the signature themselves.
+ *
+ * Callable from both the fatal-screen render path and the deactivator
+ * endpoint at mu-plugin load time. The deactivator path runs before
+ * constants.php, so we resolve the wpcomsh root via `dirname(__DIR__)`
+ * rather than WPCOMSH__PLUGIN_DIR_PATH.
+ *
+ * Manual require with `class_exists( …, false )` skips the autoloader during
+ * fatal handling, where its filesystem reads could compound a bad state.
+ *
+ * Best-effort: silently no-ops if either dependency is unreachable. A logging
+ * failure must never escalate into a second fatal.
+ *
+ * @param array|null $plugin  Extension metadata from wpcomsh_fatal_identify_plugin().
+ * @param string     $message Event message slug (e.g. `wpcomsh_fatal_signature`, `wpcomsh_fatal_deactivate`).
+ * @return void
+ */
+function wpcomsh_fatal_log_event( $plugin, $message ) {
 	if ( ! is_array( $plugin ) || empty( $plugin['slug'] ) || empty( $plugin['kind'] ) ) {
 		return;
 	}
 
-	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) && defined( 'WPCOMSH__PLUGIN_DIR_PATH' ) ) {
-		$helper = WPCOMSH__PLUGIN_DIR_PATH . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/common/fatal-error-signature.php';
+	$wpcomsh_root = dirname( __DIR__ );
+
+	if ( ! function_exists( 'wpcom_build_fatal_error_signature' ) ) {
+		$helper = $wpcomsh_root . '/jetpack_vendor/automattic/jetpack-mu-wpcom/src/common/fatal-error-signature.php';
 		if ( is_readable( $helper ) ) {
 			require_once $helper;
 		}
@@ -158,20 +181,21 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 		return;
 	}
 
-	// Dedup per signature for 5 min so a persistent fatal doesn't emit
-	// one logstash row + one outbound HTTP per visitor. Gated before
-	// the WPCOMSH_Log require so dedup hits skip the file load too.
-	$cache_key = 'wpcomsh_fatal_sig:' . hash( 'sha256', $signature );
+	// Dedup per (message, signature) for 1 hour so a persistent fatal doesn't
+	// emit one log row + one outbound HTTP per visitor. $message is part of
+	// the key so a deactivate event isn't suppressed by a recent signature
+	// event for the same extension.
+	$cache_key = 'wpcomsh_fatal_event:' . hash( 'sha256', $message . '|' . $signature );
 	try {
-		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS ) ) {
+		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', HOUR_IN_SECONDS ) ) {
 			return;
 		}
 	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not block telemetry.
 		// Fall through and log.
 	}
 
-	if ( ! class_exists( 'WPCOMSH_Log', false ) && defined( 'WPCOMSH__PLUGIN_DIR_PATH' ) ) {
-		$log_file = WPCOMSH__PLUGIN_DIR_PATH . '/class-wpcomsh-log.php';
+	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
+		$log_file = $wpcomsh_root . '/class-wpcomsh-log.php';
 		if ( is_readable( $log_file ) ) {
 			require_once $log_file;
 		}
@@ -191,6 +215,23 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 		// Fall through.
 	}
 
+	// Prefer the constant: it's set on Atomic and avoids the apply_filters()
+	// dispatch inside wpcomsh_get_atomic_site_id(). Fall back to the helper
+	// only when the constant isn't defined; guard the call because the helper
+	// runs the `wpcomsh_get_atomic_site_id` filter, and a misbehaving callback
+	// must not bubble out of this best-effort logger.
+	$atomic_site_id = defined( 'ATOMIC_SITE_ID' ) ? (int) ATOMIC_SITE_ID : 0;
+	if ( 0 === $atomic_site_id && function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
+		try {
+			$atomic_site_id = (int) wpcomsh_get_atomic_site_id();
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort; omit atomic_site_id if a filter misbehaves.
+			// Fall through.
+		}
+	}
+	if ( $atomic_site_id > 0 ) {
+		$properties['atomic_site_id'] = $atomic_site_id;
+	}
+
 	// Round-trip through the decoder so the logged parts always agree
 	// with the signature.
 	if ( function_exists( 'wpcom_decode_fatal_error_signature' ) ) {
@@ -207,7 +248,7 @@ function wpcomsh_fatal_log_signature( $plugin ) {
 	try {
 		\WPCOMSH_Log::unsafe_direct_log_logstash(
 			'atomic_extension_conflict',
-			'wpcomsh_fatal_signature',
+			$message,
 			array(
 				'severity'   => 'critical',
 				'properties' => $properties,

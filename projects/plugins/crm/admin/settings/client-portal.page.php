@@ -39,6 +39,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// check nonce
 	check_admin_referer( 'zbs-update-settings-clients' );
 
+	$updatedSettings = array();
+
 	$updatedSettings['portalusers'] = 0;
 	if ( isset( $_POST['wpzbscrm_portalusers'] ) && ! empty( $_POST['wpzbscrm_portalusers'] ) ) {
 		$updatedSettings['portalusers'] = 1;
@@ -46,7 +48,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 	$updatedSettings['portalpage'] = 0;
 	if ( isset( $_POST['wpzbscrm_portalpage'] ) && ! empty( $_POST['wpzbscrm_portalpage'] ) ) {
-		$updatedSettings['portalpage'] = (int) sanitize_text_field( $_POST['wpzbscrm_portalpage'] );
+		$updatedSettings['portalpage'] = (int) $_POST['wpzbscrm_portalpage'];
 	}
 
 	// any extra roles to assign?
@@ -113,7 +115,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// } 2.86 ms
 	$updatedSettings['portalpage'] = 0;
 	if ( isset( $_POST['wpzbscrm_portalpage'] ) && ! empty( $_POST['wpzbscrm_portalpage'] ) ) {
-		$updatedSettings['portalpage'] = (int) sanitize_text_field( $_POST['wpzbscrm_portalpage'] );
+		$updatedSettings['portalpage'] = (int) $_POST['wpzbscrm_portalpage'];
 	}
 
 	// } 3.0 - Easy Access Links (hash urls)

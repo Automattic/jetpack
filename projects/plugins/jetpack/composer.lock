@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f4ec822d399a46053e8c16b122223c0",
+    "content-hash": "a173a2dbd72bc84909485ad57af10e43",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1552,7 +1552,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "d26c78473d3f8539df229e462cee52296cb5577e"
+                "reference": "34daa35f1e14e7f3dce8c56ad7d4b25f0314ea89"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1588,7 +1588,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "7.20.x-dev"
+                    "dev-trunk": "7.21.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -2144,7 +2144,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "27a1a0b0ca6700aa6cd2173ea9eb95733bab5f35"
+                "reference": "4606faf70c1878c047c2a2b28fd8f1f209669943"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2182,7 +2182,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.35.x-dev"
+                    "dev-trunk": "5.36.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2839,7 +2839,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "8048f4eea1bdfdccb84621739d2656b6ad8d42b3"
+                "reference": "062f2bd74e70f547c2217dbad38315dbe39c0a29"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2870,7 +2870,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.78.x-dev"
+                    "dev-trunk": "0.79.x-dev"
                 }
             },
             "autoload": {
@@ -3029,12 +3029,75 @@
             }
         },
         {
+            "name": "automattic/jetpack-scan-page",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/scan",
+                "reference": "ca08ce79562afd951bcb234de3f16df4b5a3a589"
+            },
+            "require": {
+                "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-autoloader": "@dev",
+                "automattic/jetpack-composer-plugin": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-scan-page",
+                "textdomain": "jetpack-scan-page",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-package-version.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-scan-page/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Scan UI for the Jetpack plugin in wp-admin.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-search",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "a668ed6e366ed2b980f02b9ddd5ead603403f005"
+                "reference": "76552ed98d850c1cf0c5f071d9d6b24e8b13f365"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -3063,7 +3126,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.57.x-dev"
+                    "dev-trunk": "0.58.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -3116,7 +3179,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "927d43834de1e46b37cfba8bba95f4ddd7edf251"
+                "reference": "f7b4007f9f3aca13e1e2f24f45d4720fd1909cf4"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -3144,7 +3207,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.18.x-dev"
+                    "dev-trunk": "0.19.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },
@@ -3393,7 +3456,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "946cdc6936bc54e9b5d22f0129003c0f9c9e475b"
+                "reference": "76711591c7e3c5cc5c811fb7308d55b53f6052a5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -3426,7 +3489,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.36.x-dev"
+                    "dev-trunk": "4.37.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -3465,7 +3528,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "3cf80af16fff7392d877369083ca5b051350955f"
+                "reference": "70de574c28bdf70d98a748697cd7d191565d7eb1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3474,6 +3537,7 @@
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -5785,6 +5849,7 @@
         "automattic/jetpack-publicize": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
+        "automattic/jetpack-scan-page": 20,
         "automattic/jetpack-search": 20,
         "automattic/jetpack-stats": 20,
         "automattic/jetpack-stats-admin": 20,

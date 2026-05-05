@@ -139,7 +139,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 
 					$segment_id = -1;
 					if ( isset( $_POST['segment_id'] ) ) {
-						$segment_id = (int) sanitize_text_field( $_POST['segment_id'] );
+						$segment_id = (int) $_POST['segment_id'];
 					}
 
 					try {
