@@ -15,6 +15,7 @@ const TEMPLATE = [
 	[ 'jetpack/filter-checkbox', { filterType: 'author' } ],
 	[ 'jetpack/filter-checkbox', { filterType: 'post_type' } ],
 	[ 'jetpack/filter-date', { interval: 'year' } ],
+	[ 'jetpack/post-type-filter' ],
 ];
 
 const ALLOWED = [
