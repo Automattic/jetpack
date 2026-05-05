@@ -13,6 +13,7 @@ import type { ReactNode } from 'react';
 type Props = {
 	activeTab: DashboardTab;
 	children: ReactNode;
+	actions?: ReactNode;
 };
 
 const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'settings' ];
@@ -27,9 +28,11 @@ const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'settings' ];
  * @param props           - Component props.
  * @param props.activeTab - Currently active tab.
  * @param props.children  - Active tab's body content.
+ * @param props.actions   - Optional content rendered in the page header's
+ *                        top-right actions slot (e.g. a Save button).
  * @return The wrapped page element.
  */
-export default function DashboardLayout( { activeTab, children }: Props ) {
+export default function DashboardLayout( { activeTab, children, actions }: Props ) {
 	const navigate = useNavigate();
 
 	const onValueChange = useCallback(
@@ -46,6 +49,7 @@ export default function DashboardLayout( { activeTab, children }: Props ) {
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
 			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			actions={ actions }
 		>
 			<Tabs.Root value={ activeTab } onValueChange={ onValueChange }>
 				<DashboardTabs />
