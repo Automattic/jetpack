@@ -178,9 +178,15 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	public function test_query_posts_after_id_handles_reserved_keyword_columns() {
 		global $wpdb;
 
-		// Add a column whose name is a reserved SQL keyword.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->query( "ALTER TABLE {$wpdb->posts} ADD COLUMN `order` INT NULL" );
+		// Check whether the column already exists before adding it.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$column_existed = (bool) $wpdb->get_var( "SHOW COLUMNS FROM {$wpdb->posts} LIKE 'order'" );
+
+		if ( ! $column_existed ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query( "ALTER TABLE {$wpdb->posts} ADD COLUMN `order` INT NULL" );
+			$this->assertEmpty( $wpdb->last_error, 'ALTER TABLE to add `order` column failed.' );
+		}
 
 		try {
 			$post_id = self::factory()->post->create(
@@ -201,8 +207,11 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 			$ids = wp_list_pluck( $results, 'ID' );
 			$this->assertContains( (string) $post_id, array_map( 'strval', $ids ) );
 		} finally {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->query( "ALTER TABLE {$wpdb->posts} DROP COLUMN `order`" );
+			// Only drop the column if we added it — don't mutate a pre-existing schema.
+			if ( ! $column_existed ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->query( "ALTER TABLE {$wpdb->posts} DROP COLUMN `order`" );
+			}
 		}
 	}
 }

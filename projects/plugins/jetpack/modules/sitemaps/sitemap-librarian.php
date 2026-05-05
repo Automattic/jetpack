@@ -314,9 +314,7 @@ class Jetpack_Sitemap_Librarian {
 						AND ID>%d
 					ORDER BY ID ASC
 					LIMIT %d;",
-				...$columns['columns'],
-				$from_id,
-				$num_posts
+				...array_merge( $columns['columns'], array( $from_id, $num_posts ) )
 			)
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -458,9 +456,7 @@ class Jetpack_Sitemap_Librarian {
 						AND post_type IN ($post_types_list)
 					ORDER BY post_date DESC
 					LIMIT %d;",
-				...$columns['columns'],
-				$two_days_ago,
-				$num_posts
+				...array_merge( $columns['columns'], array( $two_days_ago, $num_posts ) )
 			)
 		);
 		// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
