@@ -58,6 +58,14 @@
 		}
 	}
 
+	// WP Admin's forms.css sets `margin: -4px 4px 0 0` on `input[type=radio]`
+	// (a quirk to align with adjacent label baselines in classic forms). That
+	// pushes the radio above the row's vertical centre when it sits next to
+	// the option icon — reset to 0 so the grid's `align-items: center` wins.
+	&__option-radio {
+		margin: 0;
+	}
+
 	&__option-icon {
 		flex: 0 0 auto;
 		fill: var(--wpds-color-fg-content-neutral);
