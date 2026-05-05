@@ -111,6 +111,10 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
+
+		if ( self::is_modernized() && self::is_newsletter_admin_request() ) {
+			self::load_wp_build();
+		}
 	}
 
 	/**
@@ -371,6 +375,32 @@ class Settings {
 			} );
 		</script>
 		<?php
+	}
+
+	/**
+	 * Load the wp-build entry file and register its polyfills.
+	 *
+	 * Only called on `?page=jetpack-newsletter` admin requests when the
+	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 *
+	 * @return void
+	 */
+	private static function load_wp_build() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
+		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+			'jetpack-newsletter',
+			array_merge(
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
 	}
 
 	/**
