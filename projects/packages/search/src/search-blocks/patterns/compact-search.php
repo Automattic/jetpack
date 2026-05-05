@@ -33,6 +33,7 @@ register_block_pattern(
 <!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
 <!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
 <!-- wp:jetpack/filter-checkbox {"filterType":"post_type"} /-->
+<!-- wp:jetpack/post-type-filter /-->
 <!-- /wp:jetpack/filter-popover -->
 <!-- wp:jetpack/sort-control {"displayAs":"popover"} /-->
 </div>
