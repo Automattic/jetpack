@@ -194,7 +194,7 @@ describe( 'experience actions', () => {
 	} );
 
 	describe( 'saveExperience', () => {
-		test( 'saveExperience yields update, success, then setLastSavedExperience + setPendingExperience(null)', () => {
+		test( 'on success, yields setLastSavedExperience then setPendingExperience(null)', () => {
 			const gen = saveExperience( 'overlay' );
 
 			// Yield 1: the inner updateJetpackSettings generator.
@@ -202,14 +202,26 @@ describe( 'experience actions', () => {
 			expect( yield1.done ).toBe( false );
 			expect( typeof yield1.value.next ).toBe( 'function' ); // inner generator
 
-			// Simulate the inner generator returning successfully.
-			const yield2 = gen.next( { ok: true } );
+			// Simulate the inner generator returning a success-notice action.
+			const yield2 = gen.next( { notice: { status: 'is-success' } } );
 			expect( yield2.value ).toEqual( setLastSavedExperience( 'overlay' ) );
 
 			const yield3 = gen.next();
 			expect( yield3.value ).toEqual( setPendingExperience( null ) );
 
 			expect( gen.next().done ).toBe( true );
+		} );
+
+		test( 'on failure, leaves pending in place and does not promote to last_saved', () => {
+			const gen = saveExperience( 'overlay' );
+
+			// Yield 1: inner generator; simulate it returning an error notice.
+			gen.next();
+			const next = gen.next( { notice: { status: 'is-error' } } );
+
+			// No further yields — pending stays so the user can retry.
+			expect( next.done ).toBe( true );
+			expect( next.value ).toBeUndefined();
 		} );
 
 		test( 'fires jetpack_search_experience_save with previous and new experience', () => {

@@ -97,9 +97,11 @@ export function setLastSavedExperience( experience ) {
 
 /**
  * Save the chosen experience by calling the existing updateJetpackSettings
- * generator, then promoting pending → last_saved on success. The inner
- * generator's optimistic-with-rollback handling covers the failure case
- * (we leave pending in place so the user can retry).
+ * generator, then promoting pending → last_saved only when the inner save
+ * actually succeeded. The inner generator catches its own errors and returns
+ * a notice action whose `status` distinguishes success from failure — that's
+ * the signal we read here. On failure we leave `pending_experience` in place
+ * so the user can retry without re-clicking.
  *
  * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
  * so we send only `{ experience }`. The back end translates that into whatever
@@ -120,7 +122,10 @@ export function* saveExperience( experience ) {
 		previous_experience: previousExperience,
 		new_experience: experience,
 	} );
-	yield updateJetpackSettings( { experience } );
+	const result = yield updateJetpackSettings( { experience } );
+	if ( result?.notice?.status !== 'is-success' ) {
+		return;
+	}
 	yield setLastSavedExperience( experience );
 	yield setPendingExperience( null );
 }
