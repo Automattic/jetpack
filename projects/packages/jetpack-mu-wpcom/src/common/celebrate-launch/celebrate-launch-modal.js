@@ -151,8 +151,13 @@ export default function CelebrateLaunchModal( {
 					</Tooltip>
 				</div>
 
-				<Button href={ siteUrl } target="_blank" className="launched__modal-view-site">
-					<Icon icon={ globe } size={ 18 } />
+				<Button
+					href={ siteUrl }
+					target="_blank"
+					className="launched__modal-view-site"
+					icon={ globe }
+					iconSize={ 18 }
+				>
 					<span className="launched__modal-view-site-text">
 						{ __( 'View site', 'jetpack-mu-wpcom' ) }
 					</span>
