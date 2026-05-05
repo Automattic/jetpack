@@ -71,4 +71,49 @@ class Search_Results_Render_Test extends TestCase {
 		$this->assertStringNotContainsString( 'jetpack-search-results__author', $markup );
 		$this->assertStringNotContainsString( 'context.result.author', $markup );
 	}
+
+	/**
+	 * Card is the default layout when no `layout` attribute is set, and it
+	 * opts into the path + image sections.
+	 */
+	public function test_card_layout_is_the_default_and_includes_path_and_image() {
+		$markup = $this->render();
+		$this->assertStringContainsString( 'jetpack-search-results--card', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__path', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__image', $markup );
+	}
+
+	/**
+	 * Compact omits the path and image sections — its row only carries a
+	 * title and a date.
+	 */
+	public function test_compact_layout_omits_path_and_image() {
+		$markup = $this->render( array( 'layout' => 'compact' ) );
+		$this->assertStringNotContainsString( 'jetpack-search-results__path', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results__image-link', $markup );
+	}
+
+	/**
+	 * Product layout renders price + rating bindings and omits the path /
+	 * date sections that aren't relevant for a WooCommerce grid card.
+	 */
+	public function test_product_layout_renders_price_and_rating_bindings() {
+		$markup = $this->render( array( 'layout' => 'product' ) );
+		$this->assertStringContainsString( 'jetpack-search-results--product', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__price', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results__rating', $markup );
+		$this->assertStringContainsString( 'context.result.formattedPrice', $markup );
+		$this->assertStringContainsString( 'context.result.ratingPercent', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results__path', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results__date', $markup );
+	}
+
+	/**
+	 * Unknown layout values fall back to the card defaults so a misconfigured
+	 * block never renders an empty list.
+	 */
+	public function test_unknown_layout_falls_back_to_card() {
+		$markup = $this->render( array( 'layout' => 'nonsense' ) );
+		$this->assertStringContainsString( 'jetpack-search-results--card', $markup );
+	}
 }

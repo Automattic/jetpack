@@ -149,6 +149,75 @@ export function tokenizeHighlight( highlight ) {
 }
 
 /**
+ * First non-empty scalar from a possibly-array field. The v1.3 API hands
+ * back single values as bare strings and multi-valued meta fields as arrays;
+ * call sites only ever need the first entry.
+ *
+ * @param {*} value - Scalar or array.
+ * @return {*} Scalar or undefined.
+ */
+function firstScalar( value ) {
+	return Array.isArray( value ) ? value[ 0 ] : value;
+}
+
+/**
+ * Coerce a possibly-array numeric field into a finite number. Returns 0 when
+ * the value is missing or unparseable so downstream `hasRating` / `>= 0`
+ * checks stay simple.
+ *
+ * @param {*} value - Scalar or array.
+ * @return {number} Finite number, or 0.
+ */
+function toNumber( value ) {
+	const n = Number( firstScalar( value ) );
+	return Number.isFinite( n ) ? n : 0;
+}
+
+/**
+ * Build product-layout fields from a raw result. Returns empty/zero values
+ * when the result isn't a WooCommerce product so the template's
+ * `data-wp-bind--hidden` checks still hide the price/rating row.
+ *
+ * @param {object} fields - `raw.fields` from the v1.3 API response.
+ * @return {object} Product fields.
+ */
+function normalizeProductFields( fields ) {
+	const formattedPrice = String( firstScalar( fields[ 'wc.formatted_price' ] ) ?? '' );
+	const formattedRegularPrice = String(
+		firstScalar( fields[ 'wc.formatted_regular_price' ] ) ?? ''
+	);
+	const formattedSalePrice = String( firstScalar( fields[ 'wc.formatted_sale_price' ] ) ?? '' );
+	const hasSalePrice =
+		formattedSalePrice !== '' &&
+		formattedRegularPrice !== '' &&
+		formattedSalePrice !== formattedRegularPrice;
+	const rating = Math.max(
+		0,
+		Math.min( 5, toNumber( fields[ 'meta._wc_average_rating.double' ] ) )
+	);
+	const reviewCount = Math.max(
+		0,
+		Math.trunc( toNumber( fields[ 'meta._wc_review_count.long' ] ) )
+	);
+	const ratingPercent = `${ Math.round( ( rating / 5 ) * 200 ) / 2 }%`;
+	return {
+		formattedPrice,
+		formattedRegularPrice,
+		formattedSalePrice,
+		hasSalePrice,
+		hasPrice: formattedPrice !== '' || formattedSalePrice !== '',
+		rating,
+		// Drives a CSS-only star bar via `data-wp-style--width`. Rounded to a
+		// half-star to match WC's display convention.
+		ratingPercent,
+		reviewCount,
+		reviewCountLabel: reviewCount > 0 ? `(${ reviewCount })` : '',
+		ratingAriaLabel: rating > 0 ? `${ rating } / 5` : '',
+		hasRating: rating > 0,
+	};
+}
+
+/**
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
  * Interactivity API templates.
  *
@@ -176,6 +245,11 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date, locale ),
 		imageUrl,
+		// Pre-built `url(...)` value so the product layout's CSS background
+		// image binds via `data-wp-style--background-image` without the
+		// template having to wrap a string at render time.
+		imageBackgroundImage: imageUrl ? `url(${ imageUrl })` : '',
+		...normalizeProductFields( fields ),
 	};
 }
 

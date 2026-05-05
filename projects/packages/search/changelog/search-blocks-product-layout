@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search Blocks: add 'product' layout to the search-results block, alongside an Inspector control to switch between card / compact / product.

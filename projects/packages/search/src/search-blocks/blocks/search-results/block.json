@@ -10,7 +10,7 @@
 	"attributes": {
 		"layout": {
 			"type": "string",
-			"enum": [ "card", "compact" ],
+			"enum": [ "card", "compact", "product" ],
 			"default": "card"
 		}
 	},

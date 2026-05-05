@@ -274,6 +274,95 @@ describe( 'normalizeResult', () => {
 			path: '',
 			dateLabel: '',
 			imageUrl: '',
+			imageBackgroundImage: '',
+			formattedPrice: '',
+			formattedRegularPrice: '',
+			formattedSalePrice: '',
+			hasSalePrice: false,
+			hasPrice: false,
+			rating: 0,
+			ratingPercent: '0%',
+			reviewCount: 0,
+			reviewCountLabel: '',
+			ratingAriaLabel: '',
+			hasRating: false,
+		} );
+	} );
+
+	it( 'exposes a CSS-ready url() for the product image', () => {
+		const r = normalizeResult( {
+			fields: { 'image.url.raw': 'cdn.example.com/p.jpg' },
+		} );
+		expect( r.imageBackgroundImage ).toBe( 'url(//cdn.example.com/p.jpg)' );
+	} );
+
+	describe( 'product fields', () => {
+		it( 'exposes formatted prices for non-sale items', () => {
+			const r = normalizeResult( {
+				fields: {
+					'wc.formatted_price': '$24.00',
+					'wc.formatted_regular_price': '$24.00',
+				},
+			} );
+			expect( r.formattedPrice ).toBe( '$24.00' );
+			expect( r.hasPrice ).toBe( true );
+			expect( r.hasSalePrice ).toBe( false );
+		} );
+
+		it( 'flags hasSalePrice when sale and regular prices differ', () => {
+			const r = normalizeResult( {
+				fields: {
+					'wc.formatted_price': '$19.99',
+					'wc.formatted_regular_price': '$30.00',
+					'wc.formatted_sale_price': '$19.99',
+				},
+			} );
+			expect( r.hasSalePrice ).toBe( true );
+			expect( r.formattedRegularPrice ).toBe( '$30.00' );
+			expect( r.formattedSalePrice ).toBe( '$19.99' );
+		} );
+
+		it( 'does not flag hasSalePrice when sale equals regular (display safety)', () => {
+			const r = normalizeResult( {
+				fields: {
+					'wc.formatted_regular_price': '$10.00',
+					'wc.formatted_sale_price': '$10.00',
+				},
+			} );
+			expect( r.hasSalePrice ).toBe( false );
+		} );
+
+		it( 'clamps rating to [0, 5] and converts to a percentage', () => {
+			expect(
+				normalizeResult( { fields: { 'meta._wc_average_rating.double': 4.5 } } ).ratingPercent
+			).toBe( '90%' );
+			expect(
+				normalizeResult( { fields: { 'meta._wc_average_rating.double': -1 } } ).ratingPercent
+			).toBe( '0%' );
+			expect(
+				normalizeResult( { fields: { 'meta._wc_average_rating.double': 9 } } ).ratingPercent
+			).toBe( '100%' );
+		} );
+
+		it( 'unwraps the first scalar from array-typed meta fields', () => {
+			const r = normalizeResult( {
+				fields: {
+					'meta._wc_average_rating.double': [ 4.0 ],
+					'meta._wc_review_count.long': [ 42 ],
+				},
+			} );
+			expect( r.rating ).toBe( 4 );
+			expect( r.reviewCount ).toBe( 42 );
+			expect( r.hasRating ).toBe( true );
+			expect( r.reviewCountLabel ).toBe( '(42)' );
+		} );
+
+		it( 'leaves rating fields zeroed when the field is missing', () => {
+			const r = normalizeResult( { fields: {} } );
+			expect( r.rating ).toBe( 0 );
+			expect( r.hasRating ).toBe( false );
+			expect( r.reviewCountLabel ).toBe( '' );
+			expect( r.ratingAriaLabel ).toBe( '' );
 		} );
 	} );
 

@@ -166,3 +166,151 @@
 		margin-top: 0;
 	}
 }
+
+.jetpack-search-results--product {
+
+	.jetpack-search-results__list {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		@media (min-width: 600px) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		@media (min-width: 960px) {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+	}
+
+	.jetpack-search-results__item {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.5rem;
+		padding: 0;
+	}
+
+	.jetpack-search-results__product-image-link {
+		display: block;
+		aspect-ratio: 1 / 1;
+		border-radius: 4px;
+		overflow: hidden;
+		background-color: color-mix(in sRGB, currentColor 8%, transparent);
+		text-decoration: none;
+	}
+
+	.jetpack-search-results__product-image,
+	.jetpack-search-results__product-image-placeholder {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		background-position: center;
+		background-size: cover;
+		background-repeat: no-repeat;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.jetpack-search-results__title {
+		font-size: 1.05rem;
+		font-weight: 600;
+		margin: 0;
+		line-height: 1.3;
+	}
+
+	.jetpack-search-results__price {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		font-size: 1rem;
+
+		&[hidden] {
+			display: none;
+		}
+
+		.jetpack-search-results__price-regular {
+			opacity: 0.6;
+			text-decoration: line-through;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+
+		.jetpack-search-results__price-sale {
+			font-weight: 700;
+			text-decoration: none;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+
+		.jetpack-search-results__price-current {
+			font-weight: 600;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+	}
+
+	.jetpack-search-results__rating {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__rating-stars {
+		position: relative;
+		display: inline-block;
+		// Five stars, each 1em wide. The track renders as muted glyphs and a
+		// width-bound overlay paints the filled portion on top.
+		inline-size: 5em;
+		block-size: 1em;
+		font-size: 1em;
+		line-height: 1;
+		color: color-mix(in sRGB, currentColor 25%, transparent);
+
+		&::before {
+			content: "★★★★★";
+			position: absolute;
+			inset: 0;
+			letter-spacing: 0;
+		}
+	}
+
+	.jetpack-search-results__rating-fill {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 0;
+		overflow: hidden;
+		color: #f7b500;
+		white-space: nowrap;
+
+		&::before {
+			content: "★★★★★";
+		}
+	}
+
+	.jetpack-search-results__rating-count {
+		opacity: 0.7;
+	}
+}

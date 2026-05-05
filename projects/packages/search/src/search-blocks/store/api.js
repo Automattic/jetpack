@@ -10,6 +10,11 @@ import { encode } from 'qss';
  * decorative (the surrounding anchor is `aria-hidden` with the title link as
  * the accessible target), so `alt=""` is correct and requesting alt text
  * would only add response bytes.
+ *
+ * The `wc.*` and `meta._wc_*` entries hydrate the product layout. Always
+ * requested rather than gated on layout because the store fetches once per
+ * page and any block can render a different layout — the response delta is
+ * a few hundred bytes per result.
  */
 export const SEARCH_FIELDS = [
 	'date',
@@ -18,6 +23,11 @@ export const SEARCH_FIELDS = [
 	'title.default',
 	'has.image',
 	'image.url.raw',
+	'wc.formatted_price',
+	'wc.formatted_regular_price',
+	'wc.formatted_sale_price',
+	'meta._wc_average_rating.double',
+	'meta._wc_review_count.long',
 ];
 
 export const HIGHLIGHT_FIELDS = [ 'title', 'content' ];
