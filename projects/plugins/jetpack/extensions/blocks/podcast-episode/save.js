@@ -2,7 +2,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 import clsx from 'clsx';
 
 export default function save( { attributes } ) {
-	const { mediaUrl, title } = attributes;
+	const { mediaUrl } = attributes;
 	if ( ! mediaUrl ) {
 		return null;
 	}
@@ -14,7 +14,7 @@ export default function save( { attributes } ) {
 			className={ clsx( blockProps.className, 'jetpack-podcast-episode__direct-link' ) }
 			href={ mediaUrl }
 		>
-			{ title || mediaUrl }
+			{ mediaUrl }
 		</a>
 	);
 }

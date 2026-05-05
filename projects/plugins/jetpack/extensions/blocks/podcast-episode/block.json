@@ -10,7 +10,6 @@
 	"category": "embed",
 	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M12 2a5 5 0 0 0-5 5v5a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5zm0 2a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3zm-7 8a1 1 0 0 1 1 1 6 6 0 0 0 12 0 1 1 0 1 1 2 0 8 8 0 0 1-7 7.93V22h3v2H8v-2h3v-1.07A8 8 0 0 1 4 13a1 1 0 0 1 1-1z'/></svg>",
 	"supports": {
-		"align": [ "wide", "full" ],
 		"spacing": {
 			"padding": true,
 			"margin": true
@@ -39,22 +38,6 @@
 		"mediaSize": {
 			"type": "integer"
 		},
-		"title": {
-			"type": "string",
-			"default": ""
-		},
-		"summary": {
-			"type": "string",
-			"default": ""
-		},
-		"description": {
-			"type": "string",
-			"default": ""
-		},
-		"author": {
-			"type": "string",
-			"default": ""
-		},
 		"episodeNumber": {
 			"type": "integer"
 		},
@@ -70,21 +53,12 @@
 			"type": "boolean",
 			"default": false
 		},
-		"publishDate": {
-			"type": "string"
-		},
 		"guid": {
 			"type": "string"
 		},
 		"duration": {
 			"type": "string",
 			"default": ""
-		},
-		"imageId": {
-			"type": "integer"
-		},
-		"imageUrl": {
-			"type": "string"
 		},
 		"transcriptUrl": {
 			"type": "string",
@@ -122,14 +96,10 @@
 	},
 	"example": {
 		"attributes": {
-			"title": "1. Welcome to the Jetpack Example Podcast",
-			"summary": "A short introduction to what this show is all about.",
-			"author": "Jetpack",
 			"episodeNumber": 1,
 			"seasonNumber": 1,
 			"episodeType": "full",
-			"duration": "11:25",
-			"imageUrl": "https://jetpackme.files.wordpress.com/2020/05/jetpack-example-podcast-cover.png?w=320"
+			"duration": "11:25"
 		}
 	}
 }

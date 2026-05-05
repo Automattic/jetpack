@@ -4,12 +4,6 @@
 
 .wp-block-jetpack-podcast-episode {
 
-	.jetpack-podcast-episode__title[contenteditable="true"]:empty::before,
-	.jetpack-podcast-episode__summary[contenteditable="true"]:empty::before,
-	.jetpack-podcast-episode__description[contenteditable="true"]:empty::before {
-		color: rgba(0, 0, 0, 0.4);
-	}
-
 	.jetpack-podcast-episode__person-editor {
 		padding: 12px;
 		border: 1px solid #ddd;

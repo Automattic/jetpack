@@ -42,6 +42,9 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Podcast Episode block render callback.
  *
+ * Pulls title, cover art, excerpt, and author from the surrounding post —
+ * the post is the episode. The block stores only audio + episode metadata.
+ *
  * @param array  $attributes Block attributes.
  * @param string $content    Inner content (fallback direct-link markup from save.js).
  * @return string
@@ -51,6 +54,12 @@ function render_block( $attributes, $content ) {
 	// simple and predictable.
 	if ( ! Request::is_frontend() ) {
 		return $content;
+	}
+
+	// The block only renders inside a singular post/page context, since it pulls
+	// title, cover art, and excerpt from the surrounding post.
+	if ( ! is_singular() ) {
+		return '';
 	}
 
 	if ( empty( $attributes['mediaUrl'] ) ) {
@@ -64,17 +73,11 @@ function render_block( $attributes, $content ) {
 
 	$media_type     = isset( $attributes['mediaType'] ) && 'video' === $attributes['mediaType'] ? 'video' : 'audio';
 	$mime_type      = isset( $attributes['mediaMimeType'] ) ? (string) $attributes['mediaMimeType'] : '';
-	$title          = isset( $attributes['title'] ) ? (string) $attributes['title'] : '';
-	$summary        = isset( $attributes['summary'] ) ? (string) $attributes['summary'] : '';
-	$description    = isset( $attributes['description'] ) ? (string) $attributes['description'] : '';
-	$author         = isset( $attributes['author'] ) ? (string) $attributes['author'] : '';
 	$episode_number = isset( $attributes['episodeNumber'] ) ? (int) $attributes['episodeNumber'] : 0;
 	$season_number  = isset( $attributes['seasonNumber'] ) ? (int) $attributes['seasonNumber'] : 0;
 	$episode_type   = isset( $attributes['episodeType'] ) ? (string) $attributes['episodeType'] : 'full';
 	$is_explicit    = ! empty( $attributes['explicit'] );
-	$publish_date   = isset( $attributes['publishDate'] ) ? (string) $attributes['publishDate'] : '';
 	$duration       = isset( $attributes['duration'] ) ? (string) $attributes['duration'] : '';
-	$image_url      = isset( $attributes['imageUrl'] ) ? esc_url_raw( $attributes['imageUrl'] ) : '';
 	$show_poster    = ! isset( $attributes['showPoster'] ) || ! empty( $attributes['showPoster'] );
 	$transcript_url = isset( $attributes['transcriptUrl'] ) ? esc_url_raw( $attributes['transcriptUrl'] ) : '';
 	$chapters_url   = isset( $attributes['chaptersUrl'] ) ? esc_url_raw( $attributes['chaptersUrl'] ) : '';
@@ -82,6 +85,13 @@ function render_block( $attributes, $content ) {
 	$license        = isset( $attributes['license'] ) ? (string) $attributes['license'] : '';
 	$license_url    = isset( $attributes['licenseUrl'] ) ? esc_url_raw( $attributes['licenseUrl'] ) : '';
 	$people         = isset( $attributes['people'] ) && is_array( $attributes['people'] ) ? $attributes['people'] : array();
+
+	// Pull display content from the surrounding post.
+	$title        = get_the_title();
+	$excerpt      = get_the_excerpt();
+	$author_name  = get_the_author();
+	$publish_date = get_the_date( 'c' );
+	$image_url    = $show_poster ? (string) get_the_post_thumbnail_url( null, 'large' ) : '';
 
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 	$wrapper_style      = ! empty( $wrapper_attributes['style'] ) ? $wrapper_attributes['style'] : '';
@@ -98,7 +108,7 @@ function render_block( $attributes, $content ) {
 			style="<?php echo esc_attr( $wrapper_style ); ?>"<?php endif; ?>
 	>
 		<article class="jetpack-podcast-episode" itemscope itemtype="https://schema.org/PodcastEpisode">
-			<?php if ( $show_poster && $image_url ) : ?>
+			<?php if ( $image_url ) : ?>
 				<figure class="jetpack-podcast-episode__poster">
 					<img
 						src="<?php echo esc_url( $image_url ); ?>"
@@ -143,10 +153,10 @@ function render_block( $attributes, $content ) {
 					<h3 class="jetpack-podcast-episode__title" itemprop="name"><?php echo esc_html( $title ); ?></h3>
 				<?php endif; ?>
 
-				<?php if ( $author || $publish_date || $duration ) : ?>
+				<?php if ( $author_name || $publish_date || $duration ) : ?>
 					<p class="jetpack-podcast-episode__byline">
-						<?php if ( $author ) : ?>
-							<span class="jetpack-podcast-episode__author" itemprop="author"><?php echo esc_html( $author ); ?></span>
+						<?php if ( $author_name ) : ?>
+							<span class="jetpack-podcast-episode__author" itemprop="author"><?php echo esc_html( $author_name ); ?></span>
 						<?php endif; ?>
 						<?php if ( $publish_date ) : ?>
 							<time
@@ -154,7 +164,7 @@ function render_block( $attributes, $content ) {
 								datetime="<?php echo esc_attr( $publish_date ); ?>"
 								itemprop="datePublished"
 							>
-								<?php echo esc_html( mysql2date( get_option( 'date_format' ), $publish_date ) ); ?>
+								<?php echo esc_html( get_the_date() ); ?>
 							</time>
 						<?php endif; ?>
 						<?php if ( $duration ) : ?>
@@ -171,7 +181,7 @@ function render_block( $attributes, $content ) {
 							preload="metadata"
 							src="<?php echo esc_url( $media_url ); ?>"
 							<?php
-							if ( $show_poster && $image_url ) :
+							if ( $image_url ) :
 								?>
 								poster="<?php echo esc_url( $image_url ); ?>"<?php endif; ?>
 							<?php
@@ -195,14 +205,8 @@ function render_block( $attributes, $content ) {
 					<?php endif; ?>
 				</div>
 
-				<?php if ( $summary ) : ?>
-					<p class="jetpack-podcast-episode__summary" itemprop="description"><?php echo esc_html( $summary ); ?></p>
-				<?php endif; ?>
-
-				<?php if ( $description ) : ?>
-					<div class="jetpack-podcast-episode__description">
-						<?php echo wp_kses_post( wpautop( $description ) ); ?>
-					</div>
+				<?php if ( $excerpt ) : ?>
+					<p class="jetpack-podcast-episode__summary" itemprop="description"><?php echo esc_html( $excerpt ); ?></p>
 				<?php endif; ?>
 
 				<?php if ( ! empty( $people ) ) : ?>
