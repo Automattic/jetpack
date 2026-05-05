@@ -46,8 +46,8 @@ const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
 			),
 			{
 				strong: <strong />,
-				tosLink: <Link slug="wpcom-tos" />,
-				shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+				tosLink: <TosLink slug="wpcom-tos" />,
+				shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 			}
 		);
 	}
@@ -58,8 +58,8 @@ const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
 			'jetpack-components'
 		),
 		{
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 };
@@ -76,8 +76,8 @@ const SingleButtonText = ( { agreeButtonLabel } ) =>
 		),
 		{
 			strong: <strong />,
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 
@@ -88,12 +88,12 @@ const TermsOfServiceTextOnly = () =>
 			'jetpack-components'
 		),
 		{
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 
-const Link: FC< { slug: string; children?: ReactNode } > = ( { slug, children } ) => (
+const TosLink: FC< { slug: string; children?: ReactNode } > = ( { slug, children } ) => (
 	<Link openInNewTab className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
 		{ children }
 	</Link>
