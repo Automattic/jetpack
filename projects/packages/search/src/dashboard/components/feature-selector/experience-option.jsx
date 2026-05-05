@@ -1,7 +1,7 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { Badge } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { STORE_ID } from 'store';
 import {
@@ -51,42 +51,52 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 
 	return (
 		<label htmlFor={ inputId } className={ className } title={ disabled ? upsellHint : undefined }>
-			<input
-				id={ inputId }
-				type="radio"
-				name="jp-search-experience"
-				className="jp-search-feature-selector__option-radio"
-				value={ experience }
-				checked={ isSelected }
-				disabled={ disabled }
-				onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
-			/>
-			<Icon
-				className="jp-search-feature-selector__option-icon"
-				icon={ getExperienceIcon( experience ) }
-			/>
-			<span className="jp-search-feature-selector__option-body">
-				<span className="jp-search-feature-selector__option-title">
-					{ getExperienceLabel( experience ) }
-					{ isRecommended && (
-						<Badge intent="informational" aria-label={ __( 'Recommended', 'jetpack-search-pkg' ) }>
-							{ __( 'Recommended', 'jetpack-search-pkg' ) }
-						</Badge>
-					) }
+			<Stack
+				direction="row"
+				gap="md"
+				align="center"
+				className="jp-search-feature-selector__option-stack"
+			>
+				<input
+					id={ inputId }
+					type="radio"
+					name="jp-search-experience"
+					className="jp-search-feature-selector__option-radio"
+					value={ experience }
+					checked={ isSelected }
+					disabled={ disabled }
+					onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
+				/>
+				<Icon
+					className="jp-search-feature-selector__option-icon"
+					icon={ getExperienceIcon( experience ) }
+				/>
+				<span className="jp-search-feature-selector__option-body">
+					<span className="jp-search-feature-selector__option-title">
+						{ getExperienceLabel( experience ) }
+						{ isRecommended && (
+							<Badge
+								intent="informational"
+								aria-label={ __( 'Recommended', 'jetpack-search-pkg' ) }
+							>
+								{ __( 'Recommended', 'jetpack-search-pkg' ) }
+							</Badge>
+						) }
+					</span>
+					<span className="jp-search-feature-selector__option-description">
+						{ getExperienceDescription( experience ) }
+					</span>
 				</span>
-				<span className="jp-search-feature-selector__option-description">
-					{ getExperienceDescription( experience ) }
-				</span>
-			</span>
-			{ isActive && (
-				<Badge
-					intent="stable"
-					className="jp-search-feature-selector__option-trailing"
-					aria-label={ __( 'Active', 'jetpack-search-pkg' ) }
-				>
-					{ __( 'Active', 'jetpack-search-pkg' ) }
-				</Badge>
-			) }
+				{ isActive && (
+					<Badge
+						intent="stable"
+						className="jp-search-feature-selector__option-trailing"
+						aria-label={ __( 'Active', 'jetpack-search-pkg' ) }
+					>
+						{ __( 'Active', 'jetpack-search-pkg' ) }
+					</Badge>
+				) }
+			</Stack>
 		</label>
 	);
 }
