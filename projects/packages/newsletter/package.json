@@ -76,5 +76,14 @@
 	"optionalDependencies": {
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
+	},
+	"wpPlugin": {
+		"name": "jetpack_newsletter",
+		"scriptGlobal": "jetpackNewsletter",
+		"packageNamespace": "jetpack-newsletter",
+		"handlePrefix": "jetpack-newsletter",
+		"pages": [
+			"jetpack-newsletter"
+		]
 	}
 }
