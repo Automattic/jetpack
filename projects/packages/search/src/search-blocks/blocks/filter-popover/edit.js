@@ -14,7 +14,7 @@ const TEMPLATE = [
 	[ 'jetpack/filter-checkbox', { filterType: 'post_type' } ],
 ];
 
-const ALLOWED = [ 'jetpack/filter-checkbox', 'jetpack/active-filters' ];
+const ALLOWED = [ 'jetpack/filter-checkbox', 'jetpack/active-filters', 'jetpack/post-type-filter' ];
 
 /**
  * Edit component for the filter-popover block.
