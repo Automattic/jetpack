@@ -84,13 +84,13 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
-$no_results_message = (string) ( $attrs['noResultsMessage'] ?? '' );
+// `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
+// still falls back to the default copy instead of rendering a blank message.
+$no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
 if ( '' === $no_results_message ) {
 	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
 }
 
-// `trim()` so a whitespace-only attribute (e.g. an author saved spaces)
-// still falls back to the default copy instead of rendering a blank alert.
 $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
 if ( '' === $error_message ) {
 	$error_message = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );

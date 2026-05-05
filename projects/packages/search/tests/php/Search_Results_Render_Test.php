@@ -201,6 +201,15 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
+	 * A whitespace-only `noResultsMessage` must fall back to the default so
+	 * an author who saved spaces still gets the intended copy.
+	 */
+	public function test_no_results_region_whitespace_falls_back_to_default() {
+		$markup = $this->render( array( 'noResultsMessage' => "  \t\n " ) );
+		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
+	}
+
+	/**
 	 * The block renders the error region with the default copy when no
 	 * custom message is provided. The region carries `role="alert"` so
 	 * assistive tech announces it the moment it becomes visible.
