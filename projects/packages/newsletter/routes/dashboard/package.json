@@ -9,6 +9,6 @@
 	},
 	"route": {
 		"path": "/",
-		"page": "jetpack-newsletter"
+		"page": "jetpack-newsletter-dashboard"
 	}
 }

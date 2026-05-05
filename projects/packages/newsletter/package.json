@@ -83,7 +83,7 @@
 		"packageNamespace": "jetpack-newsletter",
 		"handlePrefix": "jetpack-newsletter",
 		"pages": [
-			"jetpack-newsletter"
+			"jetpack-newsletter-dashboard"
 		]
 	}
 }
