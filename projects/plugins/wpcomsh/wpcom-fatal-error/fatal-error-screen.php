@@ -43,15 +43,7 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 		wpcomsh_fatal_log_event( $plugin, 'wpcomsh_fatal_signature' );
 	} elseif ( ! empty( $error['file'] ) ) {
 		$coarse_key = 'wpcomsh_fatal_file:' . hash( 'sha256', (string) $error['file'] );
-		$do_log     = true;
-
-		try {
-			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', HOUR_IN_SECONDS );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not silence telemetry.
-			// Fail open.
-		}
-
-		if ( $do_log ) {
+		if ( wpcomsh_fatal_dedup_acquire( $coarse_key, HOUR_IN_SECONDS ) ) {
 			wpcomsh_fatal_log_event( wpcomsh_fatal_identify_plugin( $error ), 'wpcomsh_fatal_signature' );
 		}
 	}
@@ -117,7 +109,16 @@ function wpcomsh_fatal_build_render_context( $error, $plugin = null, $user_id = 
 		'plugin'          => $plugin,
 		'error_message'   => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
 		'deactivate_form' => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
-		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_url() : '',
+		// Point at our signed redirect endpoint (fatal-recovery-redirect.php)
+		// rather than the bare core URL, so a successful click is, by
+		// construction, a screen click — the email always carries the core
+		// URL. The endpoint mints a fresh recovery URL only after verifying
+		// the signature, which keeps the recovery_keys option from
+		// accumulating a row per fatal-screen pageview and prevents a
+		// CSRF-style navigation from triggering key generation. The helper
+		// also gates multisite, since core's recovery flow doesn't
+		// initialize there.
+		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_redirect_url() : '',
 		'support_url'     => 'https://wordpress.com/help/contact',
 		'environment'     => $is_admin ? wpcomsh_fatal_get_environment_lines() : array(),
 	);
