@@ -2,37 +2,59 @@
  * External dependencies
  */
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import DashboardTabs, { type DashboardTab } from '../DashboardTabs';
+import { useNavigate } from '@wordpress/route';
+import { Tabs } from '@wordpress/ui';
+import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../DashboardTabs';
+import './style.scss';
 import type { ReactNode } from 'react';
-/**
- * Internal dependencies
- */
 
 type Props = {
 	activeTab: DashboardTab;
 	children: ReactNode;
 };
 
+const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'settings' ];
+
 /**
- * Shared chrome for every wp-build VideoPress dashboard tab. Wraps the
- * route's body in `AdminPage` (which renders the Jetpack header + footer)
- * and slots `DashboardTabs` into AdminPage's `tabs` prop so the tab strip
- * sits between the title and the body.
+ * Shared chrome for every wp-build VideoPress dashboard tab. Renders
+ * `AdminPage` (with header + JetpackFooter) and a `Tabs.Root` containing
+ * the strip and one `Tabs.Panel` per tab so the `@wordpress/ui` Tabs
+ * Tab/Panel pairing validator stays happy. Tab navigation between
+ * sibling routes happens via `@wordpress/route`'s useNavigate.
  *
  * @param props           - Component props.
  * @param props.activeTab - Currently active tab.
- * @param props.children  - Tab body content.
+ * @param props.children  - Active tab's body content.
  * @return The wrapped page element.
  */
 export default function DashboardLayout( { activeTab, children }: Props ) {
+	const navigate = useNavigate();
+
+	const onValueChange = useCallback(
+		( next: string ) => {
+			const target = TAB_PATHS[ next as DashboardTab ];
+			if ( target ) {
+				navigate( { href: target } );
+			}
+		},
+		[ navigate ]
+	);
+
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
 			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
-			tabs={ <DashboardTabs activeTab={ activeTab } /> }
 		>
-			{ children }
+			<Tabs.Root value={ activeTab } onValueChange={ onValueChange }>
+				<DashboardTabs />
+				{ TAB_VALUES.map( tab => (
+					<Tabs.Panel key={ tab } value={ tab }>
+						{ activeTab === tab ? children : null }
+					</Tabs.Panel>
+				) ) }
+			</Tabs.Root>
 		</AdminPage>
 	);
 }
