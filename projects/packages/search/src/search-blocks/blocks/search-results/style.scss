@@ -103,21 +103,45 @@
 
 	.jetpack-search-results__image-link {
 		flex: 0 0 auto;
+		display: block;
 		width: 200px;
 		max-width: 30%;
+		aspect-ratio: 16 / 10;
+		border-radius: 4px;
+		overflow: hidden;
+		background-color: color-mix(in sRGB, currentColor 8%, transparent);
+	}
+
+	.jetpack-search-results__image {
+		display: block;
+		width: 100%;
+		height: 100%;
+		aspect-ratio: 16 / 10;
+		object-fit: cover;
 
 		&[hidden] {
 			display: none;
 		}
 	}
 
-	.jetpack-search-results__image {
+	.jetpack-search-results__image-placeholder {
 		display: block;
 		width: 100%;
-		height: auto;
-		aspect-ratio: 16 / 10;
-		object-fit: cover;
-		border-radius: 4px;
+		height: 100%;
+		background-color: currentColor;
+		opacity: 0.3;
+		mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg>");
+		mask-repeat: no-repeat;
+		mask-position: center;
+		mask-size: 32%;
+		-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg>");
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		-webkit-mask-size: 32%;
+
+		&[hidden] {
+			display: none;
+		}
 	}
 }
 
@@ -164,5 +188,178 @@
 
 	.jetpack-search-results__date {
 		margin-top: 0;
+	}
+}
+
+.jetpack-search-results--product {
+
+	.jetpack-search-results__list {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		@media (min-width: 600px) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		@media (min-width: 960px) {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+	}
+
+	.jetpack-search-results__item {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.5rem;
+		padding: 0;
+	}
+
+	.jetpack-search-results__product-image-link {
+		display: block;
+		aspect-ratio: 1 / 1;
+		border-radius: 4px;
+		overflow: hidden;
+		background-color: color-mix(in sRGB, currentColor 8%, transparent);
+		text-decoration: none;
+	}
+
+	.jetpack-search-results__product-image,
+	.jetpack-search-results__product-image-placeholder {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		background-position: center;
+		background-size: cover;
+		background-repeat: no-repeat;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	// Centered SVG glyph (rectangle + sun + mountain — the standard "image"
+	// outline) painted via mask-image so it inherits currentColor at low
+	// opacity and works against any block-styled background.
+	.jetpack-search-results__product-image-placeholder {
+		background-color: currentColor;
+		opacity: 0.3;
+		mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg>");
+		mask-repeat: no-repeat;
+		mask-position: center;
+		mask-size: 40%;
+		-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg>");
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		-webkit-mask-size: 40%;
+	}
+
+	.jetpack-search-results__copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.jetpack-search-results__title {
+		font-size: 1.05rem;
+		font-weight: 600;
+		margin: 0;
+		line-height: 1.3;
+	}
+
+	.jetpack-search-results__price {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		font-size: 1rem;
+
+		&[hidden] {
+			display: none;
+		}
+
+		.jetpack-search-results__price-regular {
+			opacity: 0.6;
+			text-decoration: line-through;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+
+		.jetpack-search-results__price-sale {
+			font-weight: 700;
+			text-decoration: none;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+
+		.jetpack-search-results__price-current {
+			font-weight: 600;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+	}
+
+	.jetpack-search-results__rating {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__rating-stars {
+		position: relative;
+		display: inline-block;
+		// Five stars, each 1em wide. The track renders as muted glyphs and a
+		// width-bound overlay paints the filled portion on top.
+		inline-size: 5em;
+		block-size: 1em;
+		font-size: 1em;
+		line-height: 1;
+		color: color-mix(in sRGB, currentColor 25%, transparent);
+
+		&::before {
+			content: "★★★★★";
+			position: absolute;
+			inset: 0;
+			letter-spacing: 0;
+		}
+	}
+
+	.jetpack-search-results__rating-fill {
+		position: absolute;
+		inset-block: 0;
+		// Logical-property anchor: in LTR the filled stars start from the
+		// left edge; in RTL they start from the right. This intentionally
+		// mirrors so the visible "fill" reads in the page's natural
+		// direction. (Per AGENTS.md, this package uses logical properties
+		// for RTL-awareness; WC's own star CSS does the same in modern
+		// builds.)
+		inset-inline-start: 0;
+		overflow: hidden;
+		// Theme authors can override the filled-star color without a
+		// stylesheet override by setting `--jetpack-search-rating-color`
+		// on a parent block container. The default is the WC star yellow.
+		color: var(--jetpack-search-rating-color, #f7b500);
+		white-space: nowrap;
+
+		&::before {
+			content: "★★★★★";
+		}
+	}
+
+	.jetpack-search-results__rating-count {
+		opacity: 0.7;
 	}
 }

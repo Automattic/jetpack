@@ -2,6 +2,13 @@
  * Pure helpers for shaping v1.3 Jetpack Search results into the flat form the
  * Interactivity API templates consume. Extracted from store/index.js so they
  * can be unit-tested without bootstrapping the IAPI runtime.
+ *
+ * Note: this module is loaded inside the Interactivity API view bundle, where
+ * `@wordpress/i18n` is not available — the IAPI runtime rejects WP-script
+ * imports. Strings here are deliberately untranslated; the editor preview
+ * (edit.js) composes its own localized versions via wp.i18n. Localizing the
+ * frontend strings is tracked separately so it lands once the IAPI build
+ * pipeline gains wp.i18n support.
  */
 
 const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
@@ -149,6 +156,103 @@ export function tokenizeHighlight( highlight ) {
 }
 
 /**
+ * First non-empty scalar from a possibly-array field. The v1.3 API hands
+ * back single values as bare strings and multi-valued meta fields as arrays;
+ * call sites only ever need the first entry.
+ *
+ * @param {*} value - Scalar or array.
+ * @return {*} Scalar or undefined.
+ */
+function firstScalar( value ) {
+	return Array.isArray( value ) ? value[ 0 ] : value;
+}
+
+/**
+ * Coerce a possibly-array numeric field into a finite number. Returns 0 when
+ * the value is missing or unparseable so downstream `hasRating` / `>= 0`
+ * checks stay simple.
+ *
+ * @param {*} value - Scalar or array.
+ * @return {number} Finite number, or 0.
+ */
+function toNumber( value ) {
+	const n = Number( firstScalar( value ) );
+	return Number.isFinite( n ) ? n : 0;
+}
+
+/**
+ * Build product-layout fields from a raw result. Returns empty/zero values
+ * when the result isn't a WooCommerce product so the template's
+ * `data-wp-bind--hidden` checks still hide the price/rating row.
+ *
+ * @param {object} fields - `raw.fields` from the v1.3 API response.
+ * @return {object} Product fields.
+ */
+function normalizeProductFields( fields ) {
+	const formattedPrice = String( firstScalar( fields[ 'wc.formatted_price' ] ) ?? '' );
+	const formattedRegularPrice = String(
+		firstScalar( fields[ 'wc.formatted_regular_price' ] ) ?? ''
+	);
+	const formattedSalePrice = String( firstScalar( fields[ 'wc.formatted_sale_price' ] ) ?? '' );
+	const hasSalePrice =
+		formattedSalePrice !== '' &&
+		formattedRegularPrice !== '' &&
+		formattedSalePrice !== formattedRegularPrice;
+	const rating = Math.max(
+		0,
+		Math.min( 5, toNumber( fields[ 'meta._wc_average_rating.double' ] ) )
+	);
+	const reviewCount = Math.max(
+		0,
+		Math.trunc( toNumber( fields[ 'meta._wc_review_count.long' ] ) )
+	);
+	const ratingPercent = `${ Math.round( ( rating / 5 ) * 200 ) / 2 }%`;
+	return {
+		formattedPrice,
+		formattedRegularPrice,
+		formattedSalePrice,
+		hasSalePrice,
+		hasPrice: formattedPrice !== '' || formattedSalePrice !== '',
+		rating,
+		// Drives a CSS-only star bar via `data-wp-style--width`. Rounded to a
+		// half-star to match WC's display convention.
+		ratingPercent,
+		reviewCount,
+		reviewCountLabel: reviewCount > 0 ? `(${ reviewCount })` : '',
+		// Combined SR string for the rating row. The visible star bar and
+		// `(N)` count are aria-hidden, so this is the only signal screen
+		// readers get — needs both the rating and the review count to match
+		// instant-search's "Average rating … from N reviews" announcement.
+		ratingAriaLabel: buildRatingAriaLabel( rating, reviewCount ),
+		hasRating: rating > 0,
+	};
+}
+
+/**
+ * Compose the screen-reader announcement for the rating row.
+ *
+ * Strings are intentionally untranslated — see the file-level comment.
+ * Localization is tracked as a follow-up that needs IAPI build support
+ * for `@wordpress/i18n`.
+ *
+ * @param {number} rating      - 0–5 average rating.
+ * @param {number} reviewCount - Number of reviews backing the rating.
+ * @return {string} Aria-label, or '' when the row should be hidden.
+ */
+function buildRatingAriaLabel( rating, reviewCount ) {
+	if ( rating <= 0 ) {
+		return '';
+	}
+	if ( reviewCount <= 0 ) {
+		return `${ rating } out of 5 stars`;
+	}
+	if ( reviewCount === 1 ) {
+		return `${ rating } out of 5 stars based on 1 review`;
+	}
+	return `${ rating } out of 5 stars based on ${ reviewCount } reviews`;
+}
+
+/**
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
  * Interactivity API templates.
  *
@@ -176,6 +280,11 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date, locale ),
 		imageUrl,
+		// Pre-built `url(...)` value so the product layout's CSS background
+		// image binds via `data-wp-style--background-image` without the
+		// template having to wrap a string at render time.
+		imageBackgroundImage: imageUrl ? `url(${ imageUrl })` : '',
+		...normalizeProductFields( fields ),
 	};
 }
 

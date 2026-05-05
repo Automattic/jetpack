@@ -14,6 +14,18 @@ describe( 'SEARCH_FIELDS', () => {
 		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
 		expect( SEARCH_FIELDS ).not.toContain( 'author' );
 	} );
+
+	it( 'requests WooCommerce price and rating fields for the product layout', () => {
+		expect( SEARCH_FIELDS ).toEqual(
+			expect.arrayContaining( [
+				'wc.formatted_price',
+				'wc.formatted_regular_price',
+				'wc.formatted_sale_price',
+				'meta._wc_average_rating.double',
+				'meta._wc_review_count.long',
+			] )
+		);
+	} );
 } );
 
 describe( 'buildSearchUrl', () => {

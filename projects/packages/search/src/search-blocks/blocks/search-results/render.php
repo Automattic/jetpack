@@ -9,10 +9,59 @@ namespace Automattic\Jetpack\Search;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
+/**
+ * Per-layout feature flags driving the SSR template below. Edit.js renders
+ * each layout as its own explicit JSX template (no shared feature-flag
+ * map) — the JS preview prioritizes readability over DRY since each
+ * sample list is short. PHP keeps the flag-table form because the
+ * Interactivity-bound DOM is identical across layouts and only the
+ * `<?php if ?>` gates around image / path / price / rating / date
+ * sections differ.
+ *
+ * @param string $layout Layout key.
+ * @return array{modifier:string, show_image:bool, show_path:bool, show_date:bool, show_price:bool, show_rating:bool}
+ */
+$resolve_layout = static function ( $layout ) {
+	$map = array(
+		'compact'  => array(
+			'modifier'    => 'compact',
+			'show_image'  => false,
+			'show_path'   => false,
+			'show_date'   => true,
+			'show_price'  => false,
+			'show_rating' => false,
+		),
+		'expanded' => array(
+			'modifier'    => 'expanded',
+			'show_image'  => true,
+			'show_path'   => true,
+			'show_date'   => true,
+			'show_price'  => false,
+			'show_rating' => false,
+		),
+		'product'  => array(
+			'modifier'    => 'product',
+			'show_image'  => true,
+			'show_path'   => false,
+			'show_date'   => false,
+			'show_price'  => true,
+			'show_rating' => true,
+		),
+	);
+	return $map[ $layout ] ?? $map['expanded'];
+};
+
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$layout        = ( (array) $attributes )['layout'] ?? 'card';
-$is_compact    = 'compact' === $layout;
-$wrapper_class = $is_compact ? 'jetpack-search-results--compact' : 'jetpack-search-results--card';
+$layout = ( (array) $attributes )['layout'] ?? 'expanded';
+// Pre-rename block markup used `card` for what is now `expanded`. Promote
+// the legacy value so saved content keeps rendering correctly instead of
+// falling through `$resolve_layout`'s unknown-layout fallback. Mirrors the
+// JS-side normalization in edit.js.
+if ( 'card' === $layout ) {
+	$layout = 'expanded';
+}
+$features      = $resolve_layout( $layout );
+$wrapper_class = 'jetpack-search-results--' . $features['modifier'];
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );
 
 // Pre-hydration loading state. Skeleton items below render server-side only
@@ -21,7 +70,7 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 // /search/ page where no fetch ever fires. Once JS hydrates,
 // `data-wp-bind--hidden="state.skeletonHidden"` takes over visibility.
 $is_initial_loading = Search_Blocks::is_initial_loading();
-$skeleton_count     = $is_compact ? 6 : 4;
+$skeleton_count     = 'compact' === $layout ? 6 : 4;
 ?>
 <div
 	<?php echo wp_kses_data( $wrapper_attrs ); ?>
@@ -42,12 +91,12 @@ $skeleton_count     = $is_compact ? 6 : 4;
 				>
 					<div class="jetpack-search-results__copy">
 						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-						<?php if ( ! $is_compact ) : ?>
+						<?php if ( 'compact' !== $layout ) : ?>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
 						<?php endif; ?>
 					</div>
-					<?php if ( ! $is_compact ) : ?>
+					<?php if ( 'compact' !== $layout ) : ?>
 						<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
 					<?php endif; ?>
 				</li>
@@ -58,6 +107,24 @@ $skeleton_count     = $is_compact ? 6 : 4;
 			data-wp-key="context.result.id"
 		>
 			<li class="jetpack-search-results__item">
+				<?php if ( $features['show_image'] && 'product' === $layout ) : ?>
+					<a
+						class="jetpack-search-results__product-image-link"
+						data-wp-bind--href="context.result.permalink"
+						tabindex="-1"
+						aria-hidden="true"
+					>
+						<span
+							class="jetpack-search-results__product-image"
+							data-wp-bind--hidden="!context.result.imageUrl"
+							data-wp-style--background-image="context.result.imageBackgroundImage"
+						></span>
+						<span
+							class="jetpack-search-results__product-image-placeholder"
+							data-wp-bind--hidden="context.result.imageUrl"
+						></span>
+					</a>
+				<?php endif; ?>
 				<div class="jetpack-search-results__copy">
 					<h3 class="jetpack-search-results__title">
 						<a
@@ -79,34 +146,83 @@ $skeleton_count     = $is_compact ? 6 : 4;
 							</template>
 						</a>
 					</h3>
-					<?php if ( ! $is_compact ) : ?>
+					<?php if ( $features['show_path'] ) : ?>
 						<div
 							class="jetpack-search-results__path"
 							data-wp-bind--hidden="!context.result.path"
 							data-wp-text="context.result.path"
 						></div>
 					<?php endif; ?>
-					<div class="jetpack-search-results__meta">
-						<span
-							class="jetpack-search-results__date"
-							data-wp-bind--hidden="!context.result.dateLabel"
-							data-wp-text="context.result.dateLabel"
-						></span>
-					</div>
+					<?php if ( $features['show_price'] ) : ?>
+						<div
+							class="jetpack-search-results__price"
+							data-wp-bind--hidden="!context.result.hasPrice"
+						>
+							<del
+								class="jetpack-search-results__price-regular"
+								data-wp-bind--hidden="!context.result.hasSalePrice"
+								data-wp-text="context.result.formattedRegularPrice"
+							></del>
+							<ins
+								class="jetpack-search-results__price-sale"
+								data-wp-bind--hidden="!context.result.hasSalePrice"
+								data-wp-text="context.result.formattedSalePrice"
+							></ins>
+							<span
+								class="jetpack-search-results__price-current"
+								data-wp-bind--hidden="context.result.hasSalePrice"
+								data-wp-text="context.result.formattedPrice"
+							></span>
+						</div>
+					<?php endif; ?>
+					<?php if ( $features['show_rating'] ) : ?>
+						<div
+							class="jetpack-search-results__rating"
+							role="img"
+							data-wp-bind--hidden="!context.result.hasRating"
+							data-wp-bind--aria-label="context.result.ratingAriaLabel"
+						>
+							<span class="jetpack-search-results__rating-stars" aria-hidden="true">
+								<span
+									class="jetpack-search-results__rating-fill"
+									data-wp-style--width="context.result.ratingPercent"
+								></span>
+							</span>
+							<span
+								class="jetpack-search-results__rating-count"
+								aria-hidden="true"
+								data-wp-text="context.result.reviewCountLabel"
+							></span>
+						</div>
+					<?php endif; ?>
+					<?php if ( $features['show_date'] ) : ?>
+						<div class="jetpack-search-results__meta">
+							<span
+								class="jetpack-search-results__date"
+								data-wp-bind--hidden="!context.result.dateLabel"
+								data-wp-text="context.result.dateLabel"
+							></span>
+						</div>
+					<?php endif; ?>
 				</div>
-				<?php if ( ! $is_compact ) : ?>
+				<?php if ( $features['show_image'] && 'product' !== $layout ) : ?>
 					<a
 						class="jetpack-search-results__image-link"
 						data-wp-bind--href="context.result.permalink"
-						data-wp-bind--hidden="!context.result.imageUrl"
 						tabindex="-1"
 						aria-hidden="true"
 					>
 						<img
 							class="jetpack-search-results__image"
 							data-wp-bind--src="context.result.imageUrl"
+							data-wp-bind--hidden="!context.result.imageUrl"
 							alt=""
 						/>
+						<span
+							class="jetpack-search-results__image-placeholder"
+							data-wp-bind--hidden="context.result.imageUrl"
+							aria-hidden="true"
+						></span>
 					</a>
 				<?php endif; ?>
 			</li>

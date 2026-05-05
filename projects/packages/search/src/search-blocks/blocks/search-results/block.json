@@ -10,8 +10,8 @@
 	"attributes": {
 		"layout": {
 			"type": "string",
-			"enum": [ "card", "compact" ],
-			"default": "card"
+			"enum": [ "compact", "expanded", "product" ],
+			"default": "expanded"
 		}
 	},
 	"supports": {
