@@ -195,6 +195,19 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 							></span>
 						</div>
 					<?php endif; ?>
+					<?php if ( 'product' === $layout ) : ?>
+						<div
+							class="jetpack-search-results__match-hint"
+							data-wp-bind--hidden="!context.result.matchHint"
+						>
+							<span data-wp-bind--hidden="!context.result.matchHintIsComments">
+								<?php esc_html_e( 'Matches comments', 'jetpack-search-pkg' ); ?>
+							</span>
+							<span data-wp-bind--hidden="context.result.matchHintIsComments">
+								<?php esc_html_e( 'Matches content', 'jetpack-search-pkg' ); ?>
+							</span>
+						</div>
+					<?php endif; ?>
 					<?php if ( $features['show_date'] ) : ?>
 						<div class="jetpack-search-results__meta">
 							<span

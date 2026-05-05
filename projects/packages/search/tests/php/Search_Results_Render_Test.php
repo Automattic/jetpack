@@ -109,6 +109,34 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
+	 * Product layout renders the match-hint badge with Interactivity API bindings
+	 * for hiding when there is no hint and toggling between content / comments text.
+	 */
+	public function test_product_layout_renders_match_hint_badge() {
+		$markup = $this->render( array( 'layout' => 'product' ) );
+		$this->assertStringContainsString( 'jetpack-search-results__match-hint', $markup );
+		$this->assertStringContainsString( 'context.result.matchHint', $markup );
+		$this->assertStringContainsString( 'context.result.matchHintIsComments', $markup );
+		$this->assertStringContainsString( 'Matches content', $markup );
+		$this->assertStringContainsString( 'Matches comments', $markup );
+	}
+
+	/**
+	 * Non-product layouts (expanded, compact) must NOT render the match-hint
+	 * badge — it is gated strictly to the product layout.
+	 */
+	public function test_non_product_layouts_do_not_render_match_hint_badge() {
+		foreach ( array( 'expanded', 'compact' ) as $layout ) {
+			$markup = $this->render( array( 'layout' => $layout ) );
+			$this->assertStringNotContainsString(
+				'jetpack-search-results__match-hint',
+				$markup,
+				"Layout '$layout' should not contain the match-hint badge."
+			);
+		}
+	}
+
+	/**
 	 * Unknown layout values fall back to the expanded defaults so a
 	 * misconfigured block never renders an empty list.
 	 */
