@@ -157,6 +157,37 @@ function dateFilterItems( sharedState, filterKey, config ) {
 let searchToken = 0;
 
 /**
+ * Build the human-readable results-count string from the live store state.
+ * Returns "Searching…" while a search is in flight, "Found 42 results" once
+ * a query resolves with hits, or an empty string in every other case
+ * (pre-search, error, or zero hits — the no-results block owns the empty-
+ * state copy). Called by every action that mutates `isLoading` or
+ * `totalResults` so the seeded `state.resultsCountText` stays in lockstep
+ * with the counters; SSR resolves `data-wp-text` against that seeded value
+ * directly, so the string can't live on a JS getter.
+ *
+ * Exported so tests can verify the formatting in isolation without driving
+ * the full `actions.search()` lifecycle.
+ *
+ * @param {object} liveState - The IA store state.
+ * @return {string} Localized results-count or status string.
+ */
+export function computeResultsCountText( liveState ) {
+	if ( liveState.isLoading ) {
+		return liveState.strings?.searching ?? 'Searching…';
+	}
+	const total = liveState.totalResults;
+	if ( total === 0 ) {
+		return '';
+	}
+	const template =
+		total === 1
+			? liveState.strings?.resultsCountSingle ?? 'Found %d result'
+			: liveState.strings?.resultsCountPlural ?? 'Found %d results';
+	return template.replace( '%d', total );
+}
+
+/**
  * Request a page of results. Shared between the initial search and
  * subsequent load-more calls; the caller owns the loading flag and
  * decides how to merge the response into state.
@@ -202,42 +233,12 @@ const { state, actions } = store( NAMESPACE, {
 		// the currently checked option becomes the implicit default.
 		sortMenuFocusedKey: null,
 
-		/**
-		 * Short human-readable results count for display blocks. Doubles
-		 * as the loading indicator: returning the "searching" string
-		 * in-place keeps the results-count element populated across the
-		 * transition from one query to the next, so the flex row
-		 * containing it doesn't collapse and re-expand on every
-		 * keystroke-triggered search. There is no separate
-		 * spinner/skeleton — this text is the loading state, and the
-		 * search-results wrapper carries `aria-busy` for assistive tech.
-		 *
-		 * Strings are seeded from PHP via `wp_interactivity_state()`
-		 * (see `Search_Blocks::build_initial_strings()`) because the
-		 * view bundle can't import `@wordpress/i18n` — WP only registers
-		 * `@wordpress/interactivity` as a script module. Languages with
-		 * more than two plural forms degrade to "plural for all count
-		 * > 1" since the count is dynamic on the client.
-		 *
-		 * @return {string} Translated "Searching…" while a search is in
-		 * flight, "Found 42 results" once a query resolves with hits,
-		 * or an empty string in every other case — pre-search, error,
-		 * or zero hits. The no-results block owns the empty-state copy.
-		 */
-		get resultsCountText() {
-			if ( state.isLoading ) {
-				return state.strings?.searching ?? 'Searching…';
-			}
-			const total = state.totalResults;
-			if ( total === 0 ) {
-				return '';
-			}
-			const template =
-				total === 1
-					? state.strings?.resultsCountSingle ?? 'Found %d result'
-					: state.strings?.resultsCountPlural ?? 'Found %d results';
-			return template.replace( '%d', total );
-		},
+		// `resultsCountText` lives on the seeded state (PHP-side), not as a
+		// getter, so the IA SSR pass can resolve `data-wp-text="state.resultsCountText"`
+		// to the right initial string on a deep-link load. See
+		// `computeResultsCountText()` below for the full string-selection logic;
+		// every action that mutates `isLoading` / `totalResults` calls it to
+		// keep this value in lockstep with the underlying counters.
 
 		/**
 		 * `data-wp-bind` only evaluates simple property paths (with an
@@ -476,6 +477,7 @@ const { state, actions } = store( NAMESPACE, {
 			state.isLoading = true;
 			state.isLoadingMore = false;
 			state.hasError = false;
+			state.resultsCountText = computeResultsCountText( state );
 			try {
 				const data = yield* fetchResults( null );
 				// A newer `search()` started while this one was in-flight — its
@@ -498,6 +500,13 @@ const { state, actions } = store( NAMESPACE, {
 			} finally {
 				if ( myToken === searchToken ) {
 					state.isLoading = false;
+					state.resultsCountText = computeResultsCountText( state );
+					// First fetch (success or error) ends the pre-hydration window —
+					// guard the write so subsequent re-searches don't trigger an IA
+					// re-render of every skeleton-bound element.
+					if ( ! state.skeletonHidden ) {
+						state.skeletonHidden = true;
+					}
 				}
 			}
 		},
@@ -832,9 +841,29 @@ const { state, actions } = store( NAMESPACE, {
 				// priceRange is checked separately so `?min_price=10` still triggers an initial fetch.
 				actions.search( { syncUrl: false } );
 			} else if ( droppedAny ) {
-				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded spinner.
+				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded
+				// spinner and also drop the skeleton, since no fetch is coming.
 				state.isLoading = false;
+				state.skeletonHidden = true;
 			}
+		},
+
+		/**
+		 * Reactively syncs `context.wrapperHidden` for each filter-checkbox
+		 * block. Pre-hydration / first-fetch the wrapper stays visible so the
+		 * skeleton list inside has somewhere to render; once the first fetch
+		 * resolves it falls back to the legacy "hide empty filter sections"
+		 * behaviour. Runs in each block's local context, so this single
+		 * callback handles all filter blocks on the page.
+		 */
+		syncFilterWrapperVisibility() {
+			const ctx = getContext();
+			if ( ! state.skeletonHidden ) {
+				ctx.wrapperHidden = false;
+				return;
+			}
+			const buckets = state.aggregations?.[ ctx.filterKey ]?.buckets;
+			ctx.wrapperHidden = ! Array.isArray( buckets ) || buckets.length === 0;
 		},
 	},
 } );

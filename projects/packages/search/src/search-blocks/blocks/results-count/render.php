@@ -16,6 +16,12 @@ namespace Automattic\Jetpack\Search;
 // flow when there are no results would collapse that layout, snapping the
 // sort control to the left. An always-present (but text-empty) paragraph
 // keeps the two controls at the outer edges of the row.
+//
+// Pre-hydration text: `state.resultsCountText` is seeded with the localized
+// "Searching…" string when the URL is going to trigger an initial fetch
+// (see `Search_Blocks::build_initial_state()`), and the IA SSR pass writes
+// that string into the body via `data-wp-text` — so a deep link no longer
+// flashes a blank line before JS hydrates.
 ?>
 <p
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>

@@ -41,6 +41,13 @@ class Search_Blocks {
 		add_action( 'init', array( static::class, 'register_search_template' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		// FSE block-template rendering runs *before* `wp_head()` (see
+		// `wp-includes/template-canvas.php`), so blocks would resolve
+		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
+		// only hooked `wp_enqueue_scripts`. Seeding on `template_redirect`
+		// closes that gap; the second call from `wp_enqueue_scripts` is a
+		// deep-merge no-op and keeps classic-theme paths covered.
+		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 	}
@@ -478,42 +485,44 @@ class Search_Blocks {
 	 * @return array<string, mixed>
 	 */
 	public static function build_initial_state() {
-		$is_private     = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
-		$is_wpcom       = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
-		$site_id        = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
-		$search_query   = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
-		$active_filters = static::parse_url_filters();
-		$price_range    = static::parse_url_price_range();
+		$is_private         = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
+		$is_wpcom           = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
+		$site_id            = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
+		$search_query       = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		$active_filters     = static::parse_url_filters();
+		$price_range        = static::parse_url_price_range();
+		$is_initial_loading = static::is_initial_loading();
+		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
 		return array(
 			// Connection / routing config.
-			'siteId'        => $site_id,
-			'apiRoot'       => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'         => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite' => $is_private,
-			'isWpcom'       => $is_wpcom,
-			'homeUrl'       => function_exists( 'home_url' ) ? home_url() : '',
+			'siteId'           => $site_id,
+			'apiRoot'          => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'            => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite'    => $is_private,
+			'isWpcom'          => $is_wpcom,
+			'homeUrl'          => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'        => function_exists( 'get_locale' )
+			'locale'           => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'   => $search_query,
-			'sortOrder'     => static::parse_url_sort(),
-			'activeFilters' => $active_filters,
-			'priceRange'    => $price_range,
+			'searchQuery'      => $search_query,
+			'sortOrder'        => static::parse_url_sort(),
+			'activeFilters'    => $active_filters,
+			'priceRange'       => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
 			// taxonomy, label, showCount, maxItems } }.
-			'filterConfigs' => array(),
+			'filterConfigs'    => array(),
 
 			// Note: `staticPostTypes` (contributed by `jetpack/post-type-filter`)
 			// is intentionally NOT seeded here. FSE block templates can render
@@ -527,18 +536,31 @@ class Search_Blocks {
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'       => array(),
-			'aggregations'  => (object) array(),
-			'totalResults'  => 0,
-			'pageHandle'    => null,
+			'results'          => array(),
+			'aggregations'     => (object) array(),
+			'totalResults'     => 0,
+			'pageHandle'       => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the no-results block stays
 			// hidden between first paint and JS hydrating the initial fetch —
 			// otherwise a "No results found" flash appears on deep links.
-			'isLoading'     => '' !== $search_query || ! empty( $active_filters ) || null !== $price_range,
-			'isLoadingMore' => false,
-			'hasError'      => false,
+			'isLoading'        => $is_initial_loading,
+			'isLoadingMore'    => false,
+			'hasError'         => false,
+
+			// One-shot pre-hydration skeleton gate. The IA SSR pass evaluates
+			// `data-wp-bind--hidden` against literal seeded values (it can't
+			// run JS getters), so skeleton elements bind directly to this
+			// boolean. JS flips it to true once `actions.search()` resolves
+			// and never resets it — subsequent re-searches keep live results
+			// on screen without re-flashing placeholders.
+			'skeletonHidden'   => false,
+
+			// Seeded so the SSR pass can resolve `data-wp-text` to a real
+			// string on first paint; `actions.search()` keeps it in lockstep
+			// with `isLoading` / `totalResults` via `computeResultsCountText`.
+			'resultsCountText' => $is_initial_loading ? $searching_text : '',
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -547,7 +569,101 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'       => static::build_initial_strings(),
+			'strings'          => static::build_initial_strings(),
+		);
+	}
+
+	/**
+	 * Whether the page starts in a loading state — i.e. the URL carries a
+	 * search query, filter selection, or price range, so the JS store will
+	 * fire an initial fetch on hydration.
+	 *
+	 * Render.php callers branch on this to emit pre-hydration affordances
+	 * (skeleton placeholders, seeded "Searching…" text). The value is derived
+	 * from the request URL rather than read back through
+	 * `wp_interactivity_state()` because in block themes individual block
+	 * renders can run before `seed_interactivity_state()` finishes (FSE
+	 * pre-resolves template attributes by walking blocks before the
+	 * `wp_enqueue_scripts` hook fires) — so a state-read fallback would
+	 * silently return false on the very pages this helper is meant to flag.
+	 * The condition mirrors the `isLoading` value seeded into
+	 * `build_initial_state()` exactly so PHP-time and JS-side answers stay
+	 * in lockstep.
+	 *
+	 * @return bool
+	 */
+	public static function is_initial_loading(): bool {
+		// Memoize per-request: the URL doesn't change mid-request, and this
+		// helper is hit by every block render.php (one per filter block plus
+		// search-results, results-count, etc.) AND by `build_initial_state()`,
+		// each of which would otherwise re-parse `$_GET` independently.
+		static $cached = null;
+		if ( null !== $cached ) {
+			return $cached;
+		}
+		$search_query = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		if ( '' !== $search_query ) {
+			$cached = true;
+			return true;
+		}
+		if ( ! empty( static::parse_url_filters() ) ) {
+			$cached = true;
+			return true;
+		}
+		$cached = null !== static::parse_url_price_range();
+		return $cached;
+	}
+
+	/**
+	 * Pre-hydration view state for a filter block's wrapper. Centralizes the
+	 * seeded-state read shared by filter-checkbox and filter-date so each
+	 * render.php branches on a single struct rather than re-deriving the
+	 * same flags inline.
+	 *
+	 * @param string $filter_key The filter key (e.g. `category`, `post_type`).
+	 * @return array{has_buckets:bool,is_initial_loading:bool,show_wrapper:bool}
+	 */
+	public static function pre_hydration_filter_view( string $filter_key ): array {
+		if ( ! function_exists( 'wp_interactivity_state' ) ) {
+			return array(
+				'has_buckets'        => false,
+				'is_initial_loading' => false,
+				'show_wrapper'       => false,
+			);
+		}
+		// `aggregations` is seeded as `stdClass` when empty (so JS sees `{}`,
+		// not `[]`); cast before subscripting so the read works in either shape.
+		$state              = wp_interactivity_state( 'jetpack-search' );
+		$aggs               = (array) ( $state['aggregations'] ?? array() );
+		$has_buckets        = ! empty( $aggs[ $filter_key ]['buckets'] ?? array() );
+		$is_initial_loading = static::is_initial_loading();
+		return array(
+			'has_buckets'        => $has_buckets,
+			'is_initial_loading' => $is_initial_loading,
+			'show_wrapper'       => $has_buckets || $is_initial_loading,
+		);
+	}
+
+	/**
+	 * Emit the `data-wp-context` attribute for a filter block's wrapper. The
+	 * seeded `wrapperHidden` value is what the IA SSR pass evaluates
+	 * `data-wp-bind--hidden="context.wrapperHidden"` against, and what the
+	 * `syncFilterWrapperVisibility` callback updates after hydration.
+	 *
+	 * @param string $filter_key   The filter key.
+	 * @param bool   $show_wrapper Whether the wrapper should be visible on first paint.
+	 */
+	public static function emit_filter_wrapper_context( string $filter_key, bool $show_wrapper ): void {
+		if ( ! function_exists( 'wp_interactivity_data_wp_context' ) ) {
+			return;
+		}
+		echo wp_kses_data(
+			wp_interactivity_data_wp_context(
+				array(
+					'filterKey'     => $filter_key,
+					'wrapperHidden' => ! $show_wrapper,
+				)
+			)
 		);
 	}
 

@@ -30,18 +30,25 @@ wp_interactivity_state(
 	)
 );
 
+$view  = Search_Blocks::pre_hydration_filter_view( $filter_key );
 $label = $config['label'];
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
-	data-wp-bind--hidden="!state.hasFilterBuckets"
-	hidden
+	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
+	data-wp-bind--hidden="context.wrapperHidden"
+	data-wp-watch="callbacks.syncFilterWrapperVisibility"
+	<?php echo $view['show_wrapper'] ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
+	<?php
+	if ( $view['is_initial_loading'] ) {
+		require __DIR__ . '/../filter-skeleton-partial.php';
+	}
+	?>
 	<ul
 		class="jetpack-search-filter__list"
 		data-wp-bind--hidden="state.allBucketsSelected"

@@ -26,7 +26,12 @@ jest.mock(
 	{ virtual: true }
 );
 
-import { actions, gateActiveFilters, state } from '../../../src/search-blocks/store';
+import {
+	actions,
+	computeResultsCountText,
+	gateActiveFilters,
+	state,
+} from '../../../src/search-blocks/store';
 import { stateToUrlParams, urlParamsToState } from '../../../src/search-blocks/store/url-state';
 
 const originalActions = { ...actions };
@@ -164,6 +169,35 @@ describe( 'store actions', () => {
 			delete global.fetch;
 		}
 		jest.restoreAllMocks();
+	} );
+
+	it( 'flips skeletonHidden once the first search resolves (success or error)', async () => {
+		// `skeletonHidden` gates the pre-hydration placeholders. Once the
+		// first fetch completes, JS owns the DOM and the skeleton must
+		// disappear for the rest of the session — both the success path
+		// and the error path of `search()` need to flip the flag.
+		state.skeletonHidden = false;
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh hit' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {},
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( state.skeletonHidden ).toBe( true );
+		expect( state.isLoading ).toBe( false );
+
+		// Reset and confirm the error path also closes the skeleton —
+		// otherwise a connection failure would leave placeholders on screen
+		// indefinitely with no visible loading indicator.
+		state.skeletonHidden = false;
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( state.skeletonHidden ).toBe( true );
+		expect( state.hasError ).toBe( true );
+		expect( state.isLoading ).toBe( false );
 	} );
 
 	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {
@@ -361,18 +395,24 @@ describe( 'store getters', () => {
 	} );
 
 	it( 'formats the results count for loading, singular, plural, and empty states', () => {
+		// `resultsCountText` is now a regular state value updated by
+		// `actions.search()` rather than a getter — the SSR pass needs to
+		// read a literal string off the seeded state, and JS getters don't
+		// resolve server-side. Exercising `computeResultsCountText` directly
+		// keeps the formatting contract under test without driving the full
+		// fetch lifecycle.
 		state.isLoading = true;
-		expect( state.resultsCountText ).toBe( 'Looking…' );
+		expect( computeResultsCountText( state ) ).toBe( 'Looking…' );
 
 		state.isLoading = false;
 		state.totalResults = 1;
-		expect( state.resultsCountText ).toBe( 'Found 1 item' );
+		expect( computeResultsCountText( state ) ).toBe( 'Found 1 item' );
 
 		state.totalResults = 3;
-		expect( state.resultsCountText ).toBe( 'Found 3 items' );
+		expect( computeResultsCountText( state ) ).toBe( 'Found 3 items' );
 
 		state.totalResults = 0;
-		expect( state.resultsCountText ).toBe( '' );
+		expect( computeResultsCountText( state ) ).toBe( '' );
 	} );
 
 	it( 'derives result, load-more, and filter visibility flags', () => {
@@ -554,12 +594,17 @@ describe( 'store callbacks', () => {
 			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
 			fresh.state.activeFilters = { foo: [ 'bar' ] };
 			fresh.state.isLoading = true;
+			fresh.state.skeletonHidden = false;
 
 			captured.callbacks.initialize();
 
 			expect( fresh.state.activeFilters ).toEqual( {} );
 			expect( search ).not.toHaveBeenCalled();
 			expect( fresh.state.isLoading ).toBe( false );
+			// Skeleton flips closed even though no fetch fires — otherwise the
+			// pre-hydration placeholders would linger forever on a deep link
+			// whose only filter keys are stale and get gated out.
+			expect( fresh.state.skeletonHidden ).toBe( true );
 		} );
 	} );
 } );
