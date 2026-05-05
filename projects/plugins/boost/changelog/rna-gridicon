@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Replace Gridicon with Icon and named icon exports from `@wordpress/icons`.
