@@ -255,6 +255,9 @@ class Settings {
 	 * Load the admin scripts.
 	 */
 	public function load_admin_scripts() {
+		// This callback is registered via `admin_enqueue_scripts` from `admin_init`,
+		// which itself fires on `load-{$page_suffix}` in `add_wp_admin_menu()` — so it
+		// only fires on the Newsletter admin page; no need to re-check the page here.
 		if ( self::is_modernized() ) {
 			// wp-build manages its own enqueue pipeline. The legacy newsletter
 			// script, JetpackScriptData, and Tracks are intentionally skipped
