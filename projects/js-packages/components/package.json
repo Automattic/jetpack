@@ -23,6 +23,16 @@
 			"types": "./build/index.d.ts",
 			"default": "./build/index.js"
 		},
+		"./admin-page": {
+			"jetpack:src": "./components/admin-page/index.tsx",
+			"types": "./build/components/admin-page/index.d.ts",
+			"default": "./build/components/admin-page/index.js"
+		},
+		"./jetpack-footer": {
+			"jetpack:src": "./components/jetpack-footer/index.tsx",
+			"types": "./build/components/jetpack-footer/index.d.ts",
+			"default": "./build/components/jetpack-footer/index.js"
+		},
 		"./jetpack-logo": {
 			"jetpack:src": "./components/jetpack-logo/index.tsx",
 			"types": "./build/components/jetpack-logo/index.d.ts",

@@ -1,0 +1,16 @@
+// Canonical Jetpack settings layout: 660px wide, horizontally centered.
+// Pattern from Newsletter and AI dashboards — see
+// projects/packages/newsletter/src/settings/style.scss for the
+// "MSD and future JP settings pages are 660px wide" comment.
+// Direct children are forced to width: 100% because @wordpress/ui
+// Card.Root is `display: flex` and otherwise wouldn't fill the
+// 660px wrapper.
+.jp-videopress-settings {
+	max-width: 660px;
+	margin-inline: auto;
+	padding-block: 32px;
+}
+
+.jp-videopress-settings > * {
+	width: 100%;
+}
