@@ -1,3 +1,8 @@
+// NOTE: `'embedded'` is intentionally not derivable from booleans — the legacy
+// REST schema only exposes `module_active` / `instant_search_enabled`, which
+// can't distinguish Embedded from Theme search. Embedded can only enter the
+// store via `setLastSavedExperience()` within a session, or — once RSM-2291
+// lands — be seeded from the back end's persisted `experience` field.
 const deriveExperienceFromBooleans = state => {
 	if ( ! state.jetpackSettings.module_active ) {
 		return 'off';
