@@ -326,21 +326,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.8-beta - 2026-05-04
+### 15.8 - 2026-05-05
 #### Enhancements
 - Activity Log: Replace the external sidebar redirect with a native WP Admin page — search, activity type filter, sort, pagination, and a date-range picker.
+- Activity Log: Default the page to the Table layout, fix the free-tier upsell callout layout, and surface the disabled toolbar + disabled date-range picker on the free tier with upgrade tooltips.
 - Add MCP settings admin page and REST endpoint for managing external AI agent access to Jetpack AI.
-- Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings).
-- AI Assistant: Add Jetpack AI sidebar that loads Agents Manager from the widgets.wp.com CDN (gated by the `jetpack_ai_sidebar_enabled` filter that defaults to false).
-- AI MCP settings: Add activity log link and Tracks analytics events (jp_mcp_settings_viewed, jp_mcp_enabled_toggled, jp_mcp_allowlist_updated).
 - Forms: Add `jetpack_forms_email_show_actions` filter to hide action buttons in notification emails.
 - Forms: Support granular date filter in inbox.
-- Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection.
 - Make phone numbers in the Contact Info widget clickable on all devices, not just mobile.
 - Newsletter: Register Abilities API surface for module settings and subscriber stats on WP 6.9+.
 - Omnibar: Add wpcom/v2/admin-bar endpoint to fetch site's admin bar nodes.
-- Performance: Add early-return guard conditions to Gravatar Hovercards, Likes, Subscribe Floating Button, Subscribe Overlay, WooCommerce Analytics, and WordAds modules to skip loading scripts and styles on pages where they are not needed.
-- Remove the unused Title_Optimization_Ability stub.
+- Performance: Add early-return guard conditions to skip loading scripts and styles on pages where they are not needed.
 - REST API: Add `/sites/%s/plugins/replace` and `/sites/%s/themes/replace` endpoints for installing or overwriting a plugin/theme via zip upload.
 - Search: Add fallback image capability in expanded search.
 - Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator.
@@ -350,22 +346,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Top Posts block: Add `jetpack_top_posts_item_title` filter allowing customization of the posts' titles in the block.
 
 #### Improved compatibility
+- AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts.
 - Componentry: Use WordPress admin theme color variable instead of hardcoded color for text input focus state.
 - Tested up to WordPress 7.0.
+- Update purchases endpoint from v1.1 `/sites/$site/purchases` to v1.2 `/upgrades?site=$site`.
 
 #### Bug fixes
 - AI: Change admin page slug from 'ai' to 'jetpack-ai' to avoid conflicts with the WordPress core AI plugin.
-- AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts.
-- AI Site Logo extension: Fix static import of @wordpress/edit-post that caused the no-post-editor bundle to list wp-edit-post as a dependency, breaking the P2 frontend block inserter.
-- Comment: Improve author Gravatar URLs by converting email-based or no-login URLs to hashed versions.
+- AI Site Logo extension: Fix static import of @wordpress/edit-post that was breaking the P2 frontend block inserter.
 - Fix taxonomies endpoint returning error when number parameter exceeds 1000.
 - Forms: Fix the Form block not being usable when the Blocks module is inactive.
 - Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg.
+- oEmbed: Prevent PHP warnings when a registered provider is malformed.
 - PayPal Payments Button: Fix escaping issue for stacked payments buttons.
 - Paywall: Subscribers can now access tier-gated posts regardless of plan price.
 - Settings: Show an empty state when search returns no matching settings.
 - Subscriptions: Avoid conflicts in the block editor when editing custom post types.
+- Subscriptions: Prevent warning when $post global is malformed.
 - Sync: Increase lock time tolerance in tests.
+- WordAds: Prevent PHP warning when headers are already sent.
 
 --------
 
