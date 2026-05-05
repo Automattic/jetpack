@@ -286,6 +286,17 @@
 		gap: 0.25rem;
 	}
 
+	.jetpack-search-skeleton--product-image {
+		aspect-ratio: 1 / 1;
+		width: 100%;
+	}
+
+	.jetpack-search-skeleton--price {
+		height: 1.1rem;
+		width: 35%;
+		margin-top: 0.25rem;
+	}
+
 	.jetpack-search-results__title {
 		font-size: 1.05rem;
 		font-weight: 600;

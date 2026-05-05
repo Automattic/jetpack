@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: fix pre-hydration skeleton shape for the product layout — emit a square image placeholder first and a small price row, matching the actual item's column order and aspect ratio.

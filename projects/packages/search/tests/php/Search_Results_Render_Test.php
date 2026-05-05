@@ -281,4 +281,87 @@ class Search_Results_Render_Test extends TestCase {
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
 		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $markup );
 	}
+
+	/**
+	 * Helper: render the block with `is_initial_loading()` returning true by
+	 * seeding `$_GET` with a category filter. Resets the memoised cache
+	 * before and after so the skeleton tests are isolated from one another
+	 * and from the non-skeleton tests above.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string Rendered markup.
+	 */
+	private function render_with_skeleton( array $attributes = array() ): string {
+		Search_Blocks::reset_initial_loading_cache();
+		$_GET['category'] = array( 'test' ); // triggers parse_url_filters() → is_initial_loading() === true
+		$markup            = $this->render( $attributes );
+		unset( $_GET['category'] );
+		Search_Blocks::reset_initial_loading_cache();
+		return $markup;
+	}
+
+	/**
+	 * Under is_initial_loading, the product-layout skeleton places a square
+	 * image placeholder at the top of each item — before the copy block —
+	 * matching the actual product item's flex-direction:column / image-first
+	 * layout. No path or meta rows should appear (those belong to the
+	 * expanded layout only).
+	 */
+	public function test_product_layout_skeleton_has_square_image_first_and_no_path_or_meta() {
+		$markup = $this->render_with_skeleton( array( 'layout' => 'product' ) );
+
+		$this->assertStringContainsString( 'jetpack-search-results__item--skeleton', $markup );
+
+		// Square product-image placeholder must be present.
+		$this->assertStringContainsString( 'jetpack-search-skeleton--product-image', $markup );
+
+		// Standard 16/10 image skeleton must NOT be emitted for the product layout.
+		$this->assertStringNotContainsString( 'jetpack-search-skeleton--image', $markup );
+
+		// No path or meta skeletons — the product card does not show those.
+		$this->assertStringNotContainsString( 'jetpack-search-skeleton--path', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-skeleton--meta', $markup );
+
+		// Image placeholder comes before the copy block in DOM order.
+		$image_pos = strpos( $markup, 'jetpack-search-skeleton--product-image' );
+		$copy_pos  = strpos( $markup, 'jetpack-search-results__copy' );
+		$this->assertNotFalse( $image_pos, 'Product-image skeleton placeholder must be present.' );
+		$this->assertNotFalse( $copy_pos, 'Copy wrapper must be present in the skeleton item.' );
+		$this->assertLessThan( $copy_pos, $image_pos, 'Product-image placeholder must precede the copy block in DOM order.' );
+	}
+
+	/**
+	 * Under is_initial_loading, the product-layout skeleton includes a small
+	 * price placeholder in addition to the title skeleton.
+	 */
+	public function test_product_layout_skeleton_includes_price_placeholder() {
+		$markup = $this->render_with_skeleton( array( 'layout' => 'product' ) );
+
+		$this->assertStringContainsString( 'jetpack-search-skeleton--title', $markup );
+		$this->assertStringContainsString( 'jetpack-search-skeleton--price', $markup );
+	}
+
+	/**
+	 * Under is_initial_loading, the expanded layout keeps the existing
+	 * 16/10 image skeleton (no square product-image placeholder).
+	 */
+	public function test_expanded_layout_skeleton_uses_standard_image_skeleton() {
+		$markup = $this->render_with_skeleton( array( 'layout' => 'expanded' ) );
+
+		$this->assertStringContainsString( 'jetpack-search-skeleton--image', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-skeleton--product-image', $markup );
+		$this->assertStringContainsString( 'jetpack-search-skeleton--path', $markup );
+		$this->assertStringContainsString( 'jetpack-search-skeleton--meta', $markup );
+	}
+
+	/**
+	 * Under is_initial_loading, the compact layout emits no image skeleton
+	 * at all — not the standard 16/10 one and not the square product one.
+	 */
+	public function test_compact_layout_skeleton_has_no_image_placeholder() {
+		$markup = $this->render_with_skeleton( array( 'layout' => 'compact' ) );
+
+		$this->assertStringNotContainsString( 'jetpack-search-skeleton--image', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-skeleton--product-image', $markup );
+	}
 }
