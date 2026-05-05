@@ -74,13 +74,15 @@ const mockUpdateJetpackSettings = jest.fn();
 /**
  * Set up mocked store state for testing.
  *
- * @param {object}  root0                       - Options.
- * @param {boolean} root0.supportsInstantSearch - Whether the site supports instant search.
- * @param {boolean} root0.isFreePlan            - Whether the site is on a free plan.
- * @param {boolean} root0.isAiAnswersEnabled    - Whether AI Answers is enabled.
+ * @param {object}  root0                        - Options.
+ * @param {boolean} root0.supportsInstantSearch  - Whether the site supports instant search.
+ * @param {boolean} root0.isInstantSearchEnabled - Whether instant search is enabled.
+ * @param {boolean} root0.isFreePlan             - Whether the site is on a free plan.
+ * @param {boolean} root0.isAiAnswersEnabled     - Whether AI Answers is enabled.
  */
 function setupStore( {
 	supportsInstantSearch = true,
+	isInstantSearchEnabled = true,
 	isFreePlan = false,
 	isAiAnswersEnabled = false,
 } = {} ) {
@@ -90,6 +92,7 @@ function setupStore( {
 	useSelect.mockImplementation( fn =>
 		fn( () => ( {
 			supportsInstantSearch: () => supportsInstantSearch,
+			isInstantSearchEnabled: () => isInstantSearchEnabled,
 			isFreePlan: () => isFreePlan,
 			isAiAnswersEnabled: () => isAiAnswersEnabled,
 			getBlogId: () => 1,
@@ -143,5 +146,13 @@ describe( 'AiAnswersTab', () => {
 		await expect( screen.findByText( 'Enable AI Answers' ) ).resolves.toBeInTheDocument();
 		const gated = screen.getByTestId( 'ai-answers-settings' );
 		expect( gated ).toHaveClass( 'jp-search-ai-answers-tab__settings--gated' );
+	} );
+
+	it( 'shows warning when instant search is supported but not enabled', async () => {
+		setupStore( { supportsInstantSearch: true, isInstantSearchEnabled: false } );
+		render( <AiAnswersTab /> );
+		await expect(
+			screen.findByText( 'Instant Search must be enabled for AI Answers to work.' )
+		).resolves.toBeInTheDocument();
 	} );
 } );
