@@ -26,15 +26,12 @@
 		padding: 0;
 	}
 
-	// Three-column grid: radio | content | trailing badge. The content
-	// column stacks the headline (icon + title + recommended badge) above
-	// the description, so the radio and active badge stay vertically
-	// centered against the whole content block.
+	// Layout is handled by the outer `@wordpress/ui` Stack (radio | content
+	// | trailing badge). The middle child grows to fill remaining width
+	// (see `&__option-content` below); the radio and active badge stay
+	// vertically centred against the whole content block via Stack's
+	// `align="center"`.
 	&__option {
-		display: grid;
-		grid-template-columns: auto 1fr auto;
-		align-items: center;
-		gap: var(--wpds-dimension-gap-md);
 		padding: var(--wpds-dimension-padding-lg);
 		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 		border-radius: var(--wpds-border-radius-lg);
@@ -58,6 +55,13 @@
 				border-color: var(--wpds-color-stroke-surface-neutral);
 			}
 		}
+	}
+
+	// Fill the remaining horizontal space inside the option Stack so the
+	// description wraps full-width and the trailing Active badge sits at the
+	// far edge.
+	&__option-content {
+		flex: 1 1 auto;
 	}
 
 	&__option-icon {
@@ -90,9 +94,12 @@
 // specificity (0,1,1). Qualify our reset with `input[type="radio"]` so it
 // lands at (0,2,1) and reliably wins, letting the option grid's
 // `align-items: center` keep the radio vertically centred against the
-// option's full content block.
+// option's full content block. `flex-shrink: 0` keeps the radio at its
+// intrinsic width on narrow viewports — without it the description's
+// wrapping content squashed the radio inside the row Stack.
 input[type="radio"].jp-search-feature-selector__option-radio {
 	margin: 0;
+	flex-shrink: 0;
 }
 
 @include variables.for-phone-down {

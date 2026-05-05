@@ -55,7 +55,13 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	const upsellHint = __( 'Upgrade your plan to unlock this option.', 'jetpack-search-pkg' );
 
 	return (
-		<label htmlFor={ inputId } className={ className } title={ disabled ? upsellHint : undefined }>
+		<Stack
+			gap="lg"
+			align="center"
+			className={ className }
+			// eslint-disable-next-line jsx-a11y/label-has-associated-control -- Stack passes htmlFor onto the rendered <label> at runtime; the static analyzer can't see through render-prop indirection.
+			render={ <label htmlFor={ inputId } title={ disabled ? upsellHint : undefined } /> }
+		>
 			<input
 				id={ inputId }
 				type="radio"
@@ -95,6 +101,6 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					{ __( 'Active', 'jetpack-search-pkg' ) }
 				</Badge>
 			) }
-		</label>
+		</Stack>
 	);
 }
