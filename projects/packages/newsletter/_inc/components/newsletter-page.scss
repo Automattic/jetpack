@@ -101,5 +101,15 @@ body.jetpack_page_jetpack-newsletter {
 			flex: 1 1 auto;
 			min-block-size: 0;
 		}
+
+		// `.dataviews-no-results` centers within the area below the search /
+		// filters / view-options chrome — the chrome above adds visual weight
+		// that pulls the optical center down. Add bottom padding so the
+		// centering math accounts for that chrome and the empty state lands
+		// at the true visual middle. 4× the page inset keeps the rebalance
+		// tied to the existing 24px rhythm.
+		.dataviews-no-results {
+			padding-block-end: calc(#{$jetpack-newsletter-inset} * 4);
+		}
 	}
 }
