@@ -243,15 +243,13 @@ class Jetpack_AI_Sidebar {
 		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
 
 		$am_data = array(
-			'agentProviders'        => $agent_providers,
-			'useUnifiedExperience'  => false,
-			'isDevMode'             => self::is_dev_mode(),
-			'sectionName'           => $variant,
-			'currentUser'           => self::get_current_user_data(),
-			'site'                  => self::get_current_site(),
-			'helpCenterUrl'         => 'https://wordpress.com/help?help-center=home',
-			// Direct CDN-loader fallback; add_agents_manager_data covers platform-emitted AM data.
-			'reviewMediatorEnabled' => self::is_review_mediator_enabled(),
+			'agentProviders'       => $agent_providers,
+			'useUnifiedExperience' => false,
+			'isDevMode'            => self::is_dev_mode(),
+			'sectionName'          => $variant,
+			'currentUser'          => self::get_current_user_data(),
+			'site'                 => self::get_current_site(),
+			'helpCenterUrl'        => 'https://wordpress.com/help?help-center=home',
 		);
 
 		/**
@@ -260,7 +258,11 @@ class Jetpack_AI_Sidebar {
 		 * @param array $am_data Data encoded into `agentsManagerData`.
 		 */
 		$filtered = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', $am_data );
-		return is_array( $filtered ) ? $filtered : $am_data;
+		$am_data  = is_array( $filtered ) ? $filtered : $am_data;
+
+		// Direct CDN-loader fallback. Jetpack owns this flag; hosts can override via jetpack_ai_review_mediator_enabled.
+		$am_data['reviewMediatorEnabled'] = self::is_review_mediator_enabled();
+		return $am_data;
 	}
 
 	// ──────────────────────────────────────────────────
