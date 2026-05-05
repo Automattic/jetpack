@@ -495,7 +495,21 @@ const { state, actions } = store( NAMESPACE, {
 				}
 			} catch {
 				if ( myToken === searchToken ) {
+					// Clear the result-shape fields alongside `hasError` so a
+					// failed query doesn't leave the previous query's results,
+					// total count, or aggregation buckets visible underneath
+					// the error message — the page would otherwise show a
+					// "Found N results" count and stale filter buckets next to
+					// a `role="alert"` "Something went wrong" message, which
+					// reads as both successful and broken at the same time.
+					// `loadMore()` deliberately does NOT do this — its catch
+					// block leaves the existing pages alone since they're
+					// still valid; only the next page failed to fetch.
 					state.hasError = true;
+					state.results = [];
+					state.totalResults = 0;
+					state.pageHandle = null;
+					state.aggregations = {};
 				}
 			} finally {
 				if ( myToken === searchToken ) {
