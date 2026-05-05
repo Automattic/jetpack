@@ -1,16 +1,18 @@
 /**
  * Cover image picker for the podcast Settings tab.
  *
- * Wraps the wp-admin media frame (`wp.media`) so editors can pick an existing
+ * Wraps `@wordpress/media-utils`'s `MediaUpload` (the standalone wp-admin
+ * version, not the block-editor one) so editors can pick an existing
  * attachment or upload a new one. Apple Podcasts requires a square cover
  * between 1400×1400 and 3000×3000 — we surface that as a soft warning rather
  * than a hard block, since stock photo services often deliver close-but-not-
  * exactly-square assets.
  */
 
-import { Button, Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { Button } from '@wordpress/components';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { MediaUpload } from '@wordpress/media-utils';
 
 interface CoverImageControlProps {
 	imageUrl: string;
@@ -20,30 +22,17 @@ interface CoverImageControlProps {
 	disabled?: boolean;
 }
 
-interface MediaAttachment {
+interface MediaUploadAttachment {
 	id: number;
 	url: string;
 	width?: number;
 	height?: number;
 }
 
-interface MediaFrame {
-	on: ( event: string, handler: ( ...args: unknown[] ) => void ) => void;
-	open: () => void;
-	state: () => { get( key: 'selection' ): { first(): { toJSON(): MediaAttachment } } };
-}
-
-type WpMedia = ( opts: Record< string, unknown > ) => MediaFrame;
-
-const getWpMedia = (): WpMedia | undefined => {
-	const wp = ( window as unknown as { wp?: { media?: WpMedia } } ).wp;
-	return wp?.media;
-};
-
 const COVER_MIN = 1400;
 const COVER_MAX = 3000;
 
-const validate = ( att: MediaAttachment ): string | null => {
+const validate = ( att: MediaUploadAttachment ): string | null => {
 	if ( ! att.width || ! att.height ) {
 		return null;
 	}
@@ -69,33 +58,7 @@ const CoverImageControl = ( {
 	onRemove,
 	disabled,
 }: CoverImageControlProps ) => {
-	const [ frame, setFrame ] = useState< MediaFrame | null >( null );
 	const [ warning, setWarning ] = useState< string | null >( null );
-
-	useEffect( () => {
-		const wpMedia = getWpMedia();
-		if ( ! wpMedia ) {
-			return;
-		}
-		const mediaFrame = wpMedia( {
-			title: __( 'Select a podcast cover image', 'jetpack-podcast' ),
-			button: { text: __( 'Use this image', 'jetpack-podcast' ) },
-			library: { type: 'image' },
-			multiple: false,
-		} );
-
-		mediaFrame.on( 'select', () => {
-			const selection = mediaFrame.state().get( 'selection' ).first().toJSON();
-			setWarning( validate( selection ) );
-			onSelect( selection.id, selection.url );
-		} );
-
-		setFrame( mediaFrame );
-	}, [ onSelect ] );
-
-	const open = useCallback( () => {
-		frame?.open();
-	}, [ frame ] );
 
 	const hasImage = !! imageUrl || imageId > 0;
 
@@ -106,6 +69,24 @@ const CoverImageControl = ( {
 	const changeLabel = __( 'Change cover', 'jetpack-podcast' );
 	const setLabel = __( 'Set cover image', 'jetpack-podcast' );
 	const noImageLabel = __( 'No image set', 'jetpack-podcast' );
+	const triggerLabel = hasImage ? changeLabel : setLabel;
+
+	const handleSelect = useCallback(
+		( att: MediaUploadAttachment ) => {
+			setWarning( validate( att ) );
+			onSelect( att.id, att.url );
+		},
+		[ onSelect ]
+	);
+
+	const renderTrigger = useCallback(
+		( { open }: { open: () => void } ) => (
+			<Button variant="secondary" onClick={ open } disabled={ disabled }>
+				{ triggerLabel }
+			</Button>
+		),
+		[ disabled, triggerLabel ]
+	);
 
 	return (
 		<div className="podcast__cover-control">
@@ -113,13 +94,17 @@ const CoverImageControl = ( {
 				{ imageUrl ? (
 					<img src={ imageUrl } alt={ __( 'Podcast cover', 'jetpack-podcast' ) } />
 				) : (
-					<span className="podcast__cover-placeholder">{ frame ? noImageLabel : <Spinner /> }</span>
+					<span className="podcast__cover-placeholder">{ noImageLabel }</span>
 				) }
 			</div>
 			<div className="podcast__cover-actions">
-				<Button variant="secondary" onClick={ open } disabled={ disabled || ! frame }>
-					{ hasImage ? changeLabel : setLabel }
-				</Button>
+				<MediaUpload
+					title={ __( 'Select a podcast cover image', 'jetpack-podcast' ) }
+					allowedTypes={ [ 'image' ] }
+					value={ imageId || undefined }
+					onSelect={ handleSelect }
+					render={ renderTrigger }
+				/>
 				{ hasImage && (
 					<Button variant="tertiary" isDestructive onClick={ onRemove } disabled={ disabled }>
 						{ __( 'Remove', 'jetpack-podcast' ) }

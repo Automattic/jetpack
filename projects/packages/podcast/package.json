@@ -42,6 +42,7 @@
 		"@wordpress/html-entities": "4.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/icons": "12.2.0",
+		"@wordpress/media-utils": "5.44.0",
 		"@wordpress/notices": "5.44.0",
 		"@wordpress/ui": "0.11.0",
 		"@wordpress/url": "4.44.0"

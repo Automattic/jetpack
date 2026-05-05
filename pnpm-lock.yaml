@@ -3583,6 +3583,9 @@ importers:
       '@wordpress/icons':
         specifier: 12.2.0
         version: 12.2.0(react@18.3.1)
+      '@wordpress/media-utils':
+        specifier: 5.44.0
+        version: 5.44.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
       '@wordpress/notices':
         specifier: 5.44.0
         version: 5.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
