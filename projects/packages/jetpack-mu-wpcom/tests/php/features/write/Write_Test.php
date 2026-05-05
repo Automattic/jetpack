@@ -583,7 +583,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 */
 	private function capture_template_redirect_url() {
 		$redirect_url = null;
-		$filter       = function ( $url ) use ( &$redirect_url ) {
+		$filter       = /** @return never */ function ( $url ) use ( &$redirect_url ) {
 			$redirect_url = $url;
 			throw new \Exception( 'redirect intercepted' );
 		};
