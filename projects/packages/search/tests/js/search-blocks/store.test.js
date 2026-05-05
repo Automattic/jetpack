@@ -171,6 +171,35 @@ describe( 'store actions', () => {
 		jest.restoreAllMocks();
 	} );
 
+	it( 'flips skeletonHidden once the first search resolves (success or error)', async () => {
+		// `skeletonHidden` gates the pre-hydration placeholders. Once the
+		// first fetch completes, JS owns the DOM and the skeleton must
+		// disappear for the rest of the session — both the success path
+		// and the error path of `search()` need to flip the flag.
+		state.skeletonHidden = false;
+		global.fetch.mockResolvedValueOnce(
+			createResponse( {
+				results: [ createResult( 'Fresh hit' ) ],
+				total: 1,
+				page_handle: null,
+				aggregations: {},
+			} )
+		);
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( state.skeletonHidden ).toBe( true );
+		expect( state.isLoading ).toBe( false );
+
+		// Reset and confirm the error path also closes the skeleton —
+		// otherwise a connection failure would leave placeholders on screen
+		// indefinitely with no visible loading indicator.
+		state.skeletonHidden = false;
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( state.skeletonHidden ).toBe( true );
+		expect( state.hasError ).toBe( true );
+		expect( state.isLoading ).toBe( false );
+	} );
+
 	it( 'sets hasError on a failed loadMore and clears it on the next loadMore', async () => {
 		state.pageHandle = 'next-page';
 		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) ).mockResolvedValueOnce(
@@ -565,12 +594,17 @@ describe( 'store callbacks', () => {
 			fresh.state.filterConfigs = { category: { filterKey: 'category' } };
 			fresh.state.activeFilters = { foo: [ 'bar' ] };
 			fresh.state.isLoading = true;
+			fresh.state.skeletonHidden = false;
 
 			captured.callbacks.initialize();
 
 			expect( fresh.state.activeFilters ).toEqual( {} );
 			expect( search ).not.toHaveBeenCalled();
 			expect( fresh.state.isLoading ).toBe( false );
+			// Skeleton flips closed even though no fetch fires — otherwise the
+			// pre-hydration placeholders would linger forever on a deep link
+			// whose only filter keys are stale and get gated out.
+			expect( fresh.state.skeletonHidden ).toBe( true );
 		} );
 	} );
 } );

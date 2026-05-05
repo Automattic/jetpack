@@ -47,8 +47,10 @@ wp_interactivity_state(
 // empty before the first JS fetch — but on a deep-link load where a fetch
 // IS coming, we keep the wrapper visible so it can host a skeleton list
 // (otherwise the entire sidebar collapses to just the heading and pops in
-// when results arrive). JS-side `state.showFilterWrapper` mirrors the same
-// rule and takes over after hydration.
+// when results arrive). The `callbacks.syncFilterWrapperVisibility` watcher
+// (see `store/index.js`) keeps `context.wrapperHidden` in sync after JS
+// hydrates, so empty filter sections still hide once the first fetch
+// resolves with no buckets.
 $seeded_state = wp_interactivity_state( 'jetpack-search' );
 // aggregations is seeded as stdClass when empty (so JS sees `{}` not `[]`);
 // cast here so the nested subscript works in either shape.
