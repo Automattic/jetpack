@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { markdownToHtml } from '../lib/markdown';
+import AnimatedEllipsis from './animated-ellipsis';
 import './answers-panel.scss';
 
 const ExternalLinkIcon = () => (
@@ -128,7 +129,8 @@ export default function AnswersPanel( {
 			</h2>
 			{ status === 'loading' && (
 				<div className="jp-search-answers-panel__loading">
-					{ __( 'Finding an answer…', 'jetpack-search-pkg' ) }
+					{ __( 'Finding an answer', 'jetpack-search-pkg' ) }
+					<AnimatedEllipsis />
 				</div>
 			) }
 			{ ( status === 'streaming' || status === 'done' ) && (
@@ -159,7 +161,10 @@ export default function AnswersPanel( {
 				</div>
 			) }
 			{ onShowMore === null && loadingHint && (
-				<p className="jp-search-answers-panel__loading-hint">{ loadingHint }</p>
+				<p className="jp-search-answers-panel__loading-hint">
+					{ loadingHint.endsWith( '…' ) ? loadingHint.slice( 0, -1 ) : loadingHint }
+					<AnimatedEllipsis />
+				</p>
 			) }
 			{ isCollapsible && typeof onShowMore === 'function' && (
 				<button className="jp-search-answers-panel__toggle" onClick={ onShowMore }>

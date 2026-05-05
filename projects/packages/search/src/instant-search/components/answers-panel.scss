@@ -2,8 +2,8 @@
 @use "@wordpress/base-styles/mixins" as wp-mixins;
 
 .jp-search-answers-panel {
-	background: #fff;
-	border: 1px solid #dcdcde;
+	background: helper.$color-modal-background;
+	border: 1px solid helper.$color-border;
 	border-radius: 6px;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 	margin: 0 helper.$results-margin-lg 16px;
@@ -49,7 +49,7 @@
 }
 
 .jp-search-answers-panel--error {
-	border-color: #f0c0c0;
+	border-color: helper.$color-error-border;
 }
 
 .jp-search-answers-panel__error {
@@ -57,7 +57,7 @@
 }
 
 .jp-search-answers-panel__error-message {
-	color: #cc1818;
+	color: helper.$color-error;
 	font-size: 13px;
 	margin: 0 0 4px;
 }
@@ -70,7 +70,7 @@
 
 .jp-search-answers-panel__loading {
 	align-items: center;
-	color: #787c82;
+	color: helper.$color-text-lighter;
 	display: flex;
 	font-size: 13px;
 	gap: 8px;
@@ -78,7 +78,7 @@
 }
 
 .jp-search-answers-panel__loading-hint {
-	color: #787c82;
+	color: helper.$color-text-lighter;
 	font-size: 13px;
 	font-style: italic;
 	margin: 0;
@@ -95,7 +95,7 @@
 		position: relative;
 
 		&::after {
-			background: linear-gradient(transparent, #fff);
+			background: linear-gradient(transparent, helper.$color-modal-background);
 			bottom: 0;
 			content: "";
 			height: 2.5em;
@@ -151,7 +151,7 @@
 	align-items: center;
 	background: none;
 	border: none;
-	border-top: 1px solid #f0f0f0;
+	border-top: 1px solid helper.$color-surface-alt;
 	color: helper.$color-link;
 	cursor: pointer;
 	display: flex;
@@ -163,7 +163,7 @@
 	width: 100%;
 
 	&:hover {
-		background: #f9f9f9;
+		background: helper.$color-surface-alt;
 	}
 }
 
@@ -182,7 +182,7 @@
 }
 
 .jp-search-answers-panel__citations {
-	border-top: 1px solid #f0f0f0;
+	border-top: 1px solid helper.$color-surface-alt;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px 12px;

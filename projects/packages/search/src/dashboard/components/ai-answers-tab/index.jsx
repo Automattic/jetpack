@@ -1,11 +1,12 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Notice } from '@wordpress/ui';
 import useAiAnswersSettings, { DEFAULT_PERSONALITY } from 'hooks/use-ai-answers-settings';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
+import useSearchSettings from 'hooks/use-search-settings';
 import { STORE_ID } from 'store';
 import './style.scss';
 
@@ -19,16 +20,11 @@ export default function AiAnswersTab() {
 		select => select( STORE_ID ).supportsInstantSearch(),
 		[]
 	);
-	const isInstantSearchEnabled = useSelect(
-		select => select( STORE_ID ).isInstantSearchEnabled(),
-		[]
-	);
 	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan(), [] );
-	const isAiAnswersEnabled = useSelect( select => select( STORE_ID ).isAiAnswersEnabled(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 
-	const { updateJetpackSettings } = useDispatch( STORE_ID );
+	const { isAiAnswersEnabled, isInstantSearchEnabled, setAiAnswersEnabled } = useSearchSettings();
 
 	const { run: sendToCart } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
@@ -110,7 +106,7 @@ export default function AiAnswersTab() {
 							<ToggleControl
 								label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
 								checked={ isAiAnswersEnabled }
-								onChange={ value => updateJetpackSettings( { ai_answers_enabled: value } ) }
+								onChange={ setAiAnswersEnabled }
 								className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
 								disabled={ ! isInstantSearchEnabled }
 							/>
