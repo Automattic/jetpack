@@ -4,10 +4,6 @@
 import { Button, TextControl, Spinner, KeyboardShortcuts } from '@wordpress/components';
 import { RawHTML, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import { Link } from '@wordpress/ui';
 import CopyButton from './components/copy-button';
 import DisplayError from './components/display-error';
 import Feedback from './components/feedback';
@@ -166,9 +162,9 @@ export default function QuestionAnswer( {
 						<ul>
 							{ references.map( ( reference, index ) => (
 								<li key={ index }>
-									<Link openInNewTab href={ reference.url }>
+									<a href={ reference.url } target="_blank" rel="noopener noreferrer">
 										{ reference.title }
-									</Link>
+									</a>
 								</li>
 							) ) }
 						</ul>
