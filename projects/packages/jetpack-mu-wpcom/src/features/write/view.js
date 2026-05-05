@@ -1269,23 +1269,39 @@ function promoteGapAtCursor() {
 }
 
 /**
- * Focus the end of the content area. If the last child is already an
- * empty paragraph, place the cursor there; otherwise append a new one.
+ * Focus the end of the content area. Reuses an existing empty trailing
+ * element when possible; otherwise appends a new empty paragraph.
  *
  * @param {HTMLElement} content   - The .bw-content element.
  * @param {Element}     lastChild - The last child element in the content.
  */
 function focusEndOfContent( content, lastChild ) {
+	const isEmpty = ! lastChild.textContent || ! lastChild.textContent.trim();
 	let target;
 
-	// Don't stack empty paragraphs — reuse an existing empty trailing <p>.
-	if (
-		lastChild.tagName === 'P' &&
-		! lastChild.classList.contains( 'bw-block-gap' ) &&
-		( ! lastChild.textContent || ! lastChild.textContent.trim() )
-	) {
-		target = lastChild;
-	} else {
+	if ( isEmpty ) {
+		const tag = lastChild.tagName;
+
+		// Reuse an empty trailing paragraph (non-gap).
+		// Reuse an empty trailing heading — the user likely wants to
+		// type into it rather than create a new paragraph below.
+		if (
+			( tag === 'P' && ! lastChild.classList.contains( 'bw-block-gap' ) ) ||
+			tag === 'H2' ||
+			tag === 'H3'
+		) {
+			target = lastChild;
+		}
+
+		// Promote a trailing gap paragraph instead of stacking a
+		// second empty paragraph beneath it.
+		if ( tag === 'P' && lastChild.classList.contains( 'bw-block-gap' ) ) {
+			lastChild.classList.remove( 'bw-block-gap' );
+			target = lastChild;
+		}
+	}
+
+	if ( ! target ) {
 		target = document.createElement( 'p' );
 		target.innerHTML = '<br>';
 		content.appendChild( target );
@@ -1716,6 +1732,10 @@ const { state } = store( 'wpcom-write', {
 			const content = getContent();
 			if ( ! content ) return;
 
+			// Don't interfere with drag selections.
+			const sel = window.getSelection();
+			if ( sel && ! sel.isCollapsed ) return;
+
 			const lastChild = content.lastElementChild;
 			if ( ! lastChild ) return;
 
@@ -1729,6 +1749,10 @@ const { state } = store( 'wpcom-write', {
 		handleMainClick( event ) {
 			const content = getContent();
 			if ( ! content ) return;
+
+			// Don't interfere with drag selections.
+			const sel = window.getSelection();
+			if ( sel && ! sel.isCollapsed ) return;
 
 			// Only handle clicks directly on .bw-main or .bw-editor
 			// (the padding area below the content), not on child elements
