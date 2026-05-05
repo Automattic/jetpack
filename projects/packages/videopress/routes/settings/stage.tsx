@@ -16,7 +16,11 @@ const Stage = () => {
 	return (
 		<DashboardLayout
 			activeTab="settings"
-			actions={ <Button onClick={ onSave }>{ __( 'Save', 'jetpack-videopress-pkg' ) }</Button> }
+			actions={
+				<Button size="compact" onClick={ onSave }>
+					{ __( 'Save', 'jetpack-videopress-pkg' ) }
+				</Button>
+			}
 		>
 			<div className="jp-videopress-settings">
 				<Card.Root>
