@@ -31,8 +31,13 @@ import {
  * @return {import('react').Element} - The option row.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const selected = useSelect( select => select( STORE_ID ).getSelectedExperience(), [] );
-	const active = useSelect( select => select( STORE_ID ).getActiveExperience(), [] );
+	const { selected, active } = useSelect(
+		select => ( {
+			selected: select( STORE_ID ).getSelectedExperience(),
+			active: select( STORE_ID ).getActiveExperience(),
+		} ),
+		[]
+	);
 	const { setPendingExperience } = useDispatch( STORE_ID );
 
 	const isSelected = selected === experience;
