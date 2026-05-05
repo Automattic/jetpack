@@ -66,7 +66,7 @@ describe( '<FeatureSelector>', () => {
 	test( 'fieldset has an accessible group name', () => {
 		renderWith( baseSettings );
 		expect(
-			screen.getByRole( 'group', { name: /pick what visitors see when they search/i } )
+			screen.getByRole( 'group', { name: /select a search experience for your visitors/i } )
 		).toBeInTheDocument();
 	} );
 

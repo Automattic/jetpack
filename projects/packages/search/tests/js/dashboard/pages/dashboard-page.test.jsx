@@ -67,7 +67,7 @@ describe( '<DashboardPage> branch', () => {
 	test( 'renders FeatureSelector when searchBlocksEnabled is true', () => {
 		renderWith( { searchBlocksEnabled: true, jetpackSettings: settings } );
 		expect(
-			screen.getByRole( 'group', { name: /pick what visitors see when they search/i } )
+			screen.getByRole( 'group', { name: /select a search experience for your visitors/i } )
 		).toBeInTheDocument();
 	} );
 
