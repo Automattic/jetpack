@@ -769,7 +769,8 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * Tube test environments where the wpcom-side shadow blog is owned by a different account
 	 * than the locally-connected user. We confirmed both `as_user` (cap missing) and `as_blog`
 	 * (endpoint refuses blog tokens with "API call not allowed for this account") hit the same
-	 * gate. The real fix lives on the wpcom side.
+	 * gate. The real fix lives on the wpcom side — tracked at
+	 * https://linear.app/a8c/issue/NL-615.
 	 *
 	 * Returns null on success or a WP_Error describing the failure. If the wpcom error code is
 	 * in `$tolerable_errors`, the call is treated as a successful no-op (mirrors Calypso's
