@@ -94,11 +94,9 @@
 		font-size: var(--wpds-typography-font-size-md);
 	}
 
-	// Right-align the trailing Active badge inside the option flex row. The
-	// only Badge that's a direct child of the option label is the Active one
-	// — the Recommended badge is nested inside the title — so this targets it
-	// structurally without coupling layout to the badge's intent.
-	&__option > .jp-search-badge {
+	// Right-align the trailing Active badge inside the option flex row.
+	// Layout-only — the badge's appearance is handled by `@wordpress/ui` Badge.
+	&__option-trailing {
 		margin-inline-start: auto;
 	}
 
@@ -124,10 +122,10 @@
 
 		&__option {
 			flex-wrap: wrap;
+		}
 
-			> .jp-search-badge {
-				margin-inline-start: 0;
-			}
+		&__option-trailing {
+			margin-inline-start: 0;
 		}
 	}
 }

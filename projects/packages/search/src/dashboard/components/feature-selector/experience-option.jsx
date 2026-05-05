@@ -1,8 +1,8 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
 import clsx from 'clsx';
-import Badge from 'components/badge';
 import { STORE_ID } from 'store';
 import {
 	EXPERIENCE,
@@ -69,7 +69,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				<span className="jp-search-feature-selector__option-title">
 					{ getExperienceLabel( experience ) }
 					{ isRecommended && (
-						<Badge intent="informational" ariaLabel={ __( 'Recommended', 'jetpack-search-pkg' ) }>
+						<Badge intent="informational" aria-label={ __( 'Recommended', 'jetpack-search-pkg' ) }>
 							{ __( 'Recommended', 'jetpack-search-pkg' ) }
 						</Badge>
 					) }
@@ -79,7 +79,11 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				</span>
 			</span>
 			{ isActive && (
-				<Badge intent="success" ariaLabel={ __( 'Active', 'jetpack-search-pkg' ) }>
+				<Badge
+					intent="stable"
+					className="jp-search-feature-selector__option-trailing"
+					aria-label={ __( 'Active', 'jetpack-search-pkg' ) }
+				>
 					{ __( 'Active', 'jetpack-search-pkg' ) }
 				</Badge>
 			) }
