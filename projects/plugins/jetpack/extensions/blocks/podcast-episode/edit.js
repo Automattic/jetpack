@@ -20,7 +20,7 @@ import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import metadata from './block.json';
@@ -127,10 +127,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 
 	const { postId, postType } = context || {};
 
-	// Pull display content from the surrounding post via block context. This is
-	// the same pattern core's post-title / post-excerpt / post-featured-image
-	// blocks use, which means this block also works inside Query Loops and
-	// site-editor singular templates, not just the post editor.
 	const [ postTitle ] = useEntityProp( 'postType', postType, 'title', postId );
 	const [ postExcerpt ] = useEntityProp( 'postType', postType, 'excerpt', postId );
 	const [ featuredId ] = useEntityProp( 'postType', postType, 'featured_media', postId );
@@ -150,7 +146,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		[ featuredId, authorId ]
 	);
 
-	const blockProps = useBlockProps( { className: 'wp-block-jetpack-podcast-episode' } );
+	const blockProps = useBlockProps();
 	const [ uploadError, setUploadError ] = useState( null );
 
 	const onSelectMedia = async media => {
@@ -211,7 +207,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		}
 	};
 
-	if ( ! postId ) {
+	if ( ! postId || ! postType ) {
 		return (
 			<div { ...blockProps }>
 				<Placeholder
@@ -388,12 +384,10 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
-					<BaseControl
-						id="jetpack-podcast-episode-people"
-						label={ __( 'People', 'jetpack' ) }
-						help={ __( 'Hosts, guests, and other people featured in this episode.', 'jetpack' ) }
-						__nextHasNoMarginBottom
-					>
+					<BaseControl __nextHasNoMarginBottom>
+						<BaseControl.VisualLabel>
+							{ __( 'People', 'jetpack' ) }
+						</BaseControl.VisualLabel>
 						<PeopleEditor
 							people={ people }
 							onChange={ value => setAttributes( { people: value } ) }
@@ -405,7 +399,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 			<article className="jetpack-podcast-episode">
 				{ showPoster && thumbnailUrl && (
 					<figure className="jetpack-podcast-episode__poster">
-						<img src={ thumbnailUrl } alt={ postTitle || '' } />
+						<img src={ thumbnailUrl } alt="" />
 					</figure>
 				) }
 				<div className="jetpack-podcast-episode__body">
@@ -413,12 +407,14 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						<p className="jetpack-podcast-episode__meta-line">
 							{ seasonNumber ? (
 								<span className="jetpack-podcast-episode__season">
-									{ __( 'Season', 'jetpack' ) } { seasonNumber }
+									{ /* translators: %d: season number. */ }
+									{ sprintf( __( 'Season %d', 'jetpack' ), seasonNumber ) }
 								</span>
 							) : null }
 							{ episodeNumber ? (
 								<span className="jetpack-podcast-episode__episode-number">
-									{ __( 'Episode', 'jetpack' ) } { episodeNumber }
+									{ /* translators: %d: episode number. */ }
+									{ sprintf( __( 'Episode %d', 'jetpack' ), episodeNumber ) }
 								</span>
 							) : null }
 							{ episodeType === 'trailer' && (

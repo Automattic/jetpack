@@ -45,24 +45,37 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * Pulls title, cover art, excerpt, and author from the surrounding post —
  * the post is the episode. The block stores only audio + episode metadata.
  *
- * @param array  $attributes Block attributes.
- * @param string $content    Inner content (fallback direct-link markup from save.js).
+ * @param array     $attributes Block attributes.
+ * @param string    $content    Inner content (fallback direct-link markup from save.js).
+ * @param \WP_Block $block      The parsed block instance, used to read post context.
  * @return string
  */
-function render_block( $attributes, $content ) {
+function render_block( $attributes, $content, $block = null ) {
 	// Outside the frontend, fall back to the saved direct link so RSS / email / REST export stays
 	// simple and predictable.
 	if ( ! Request::is_frontend() ) {
 		return $content;
 	}
 
-	// The block only renders inside a singular post/page context, since it pulls
-	// title, cover art, and excerpt from the surrounding post.
-	if ( ! is_singular() ) {
+	if ( empty( $attributes['mediaUrl'] ) ) {
 		return '';
 	}
 
-	if ( empty( $attributes['mediaUrl'] ) ) {
+	// Resolve the post that backs this episode. Prefer block context (set by Query Loop / singular
+	// templates / post-bound block contexts) and fall back to the global loop for direct theme
+	// rendering. With no resolvable post, the block has nothing to display.
+	$post_id = 0;
+	if ( $block && isset( $block->context['postId'] ) ) {
+		$post_id = (int) $block->context['postId'];
+	}
+	if ( ! $post_id ) {
+		$post_id = (int) get_the_ID();
+	}
+	if ( ! $post_id ) {
+		return '';
+	}
+	$post = get_post( $post_id );
+	if ( ! $post ) {
 		return '';
 	}
 
@@ -86,12 +99,13 @@ function render_block( $attributes, $content ) {
 	$license_url    = isset( $attributes['licenseUrl'] ) ? esc_url_raw( $attributes['licenseUrl'] ) : '';
 	$people         = isset( $attributes['people'] ) && is_array( $attributes['people'] ) ? $attributes['people'] : array();
 
-	// Pull display content from the surrounding post.
-	$title        = get_the_title();
-	$excerpt      = get_the_excerpt();
-	$author_name  = get_the_author();
-	$publish_date = get_the_date( 'c' );
-	$image_url    = $show_poster ? (string) get_the_post_thumbnail_url( null, 'medium_large' ) : '';
+	// Pull display content from the resolved post (block context or global loop).
+	$title        = get_the_title( $post );
+	$excerpt      = get_the_excerpt( $post );
+	$author_name  = get_the_author_meta( 'display_name', $post->post_author );
+	$publish_date_iso = get_the_date( 'c', $post );
+	$publish_date     = get_the_date( '', $post );
+	$image_url    = $show_poster ? (string) get_the_post_thumbnail_url( $post, 'medium_large' ) : '';
 
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 	$wrapper_style      = ! empty( $wrapper_attributes['style'] ) ? $wrapper_attributes['style'] : '';
@@ -112,7 +126,7 @@ function render_block( $attributes, $content ) {
 				<figure class="jetpack-podcast-episode__poster">
 					<img
 						src="<?php echo esc_url( $image_url ); ?>"
-						alt="<?php echo esc_attr( $title ); ?>"
+						alt=""
 						itemprop="image"
 						loading="lazy"
 					/>
@@ -161,10 +175,10 @@ function render_block( $attributes, $content ) {
 						<?php if ( $publish_date ) : ?>
 							<time
 								class="jetpack-podcast-episode__date"
-								datetime="<?php echo esc_attr( $publish_date ); ?>"
+								datetime="<?php echo esc_attr( $publish_date_iso ); ?>"
 								itemprop="datePublished"
 							>
-								<?php echo esc_html( get_the_date() ); ?>
+								<?php echo esc_html( $publish_date ); ?>
 							</time>
 						<?php endif; ?>
 						<?php if ( $duration ) : ?>
