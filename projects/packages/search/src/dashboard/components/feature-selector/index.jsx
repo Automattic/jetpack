@@ -43,7 +43,7 @@ export default function FeatureSelector() {
 	return (
 		<>
 			<h2 id="jp-search-feature-selector-heading" className="jp-search-feature-selector__heading">
-				{ __( 'Pick what visitors see when they search', 'jetpack-search-pkg' ) }
+				{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
 			</h2>
 			<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
 				<fieldset
