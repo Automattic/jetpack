@@ -2,17 +2,19 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "jetpack/search-results",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"title": "Search Results",
 	"category": "jetpack-search",
 	"icon": "list-view",
-	"description": "Displays Jetpack Search results.",
+	"description": "Renders Jetpack Search results, plus the empty-state and error messages for the same region.",
 	"attributes": {
 		"layout": {
 			"type": "string",
 			"enum": [ "compact", "expanded", "product" ],
 			"default": "expanded"
-		}
+		},
+		"noResultsMessage": { "type": "string", "default": "" },
+		"errorMessage": { "type": "string", "default": "" }
 	},
 	"supports": {
 		"html": false,

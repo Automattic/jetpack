@@ -70,8 +70,9 @@ class Admin_UI {
 			: array( __CLASS__, 'plugin_settings_page' );
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
-			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
+			// "VideoPress" is a product name, do not translate.
+			'Jetpack VideoPress',
+			'VideoPress',
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
 			$callback,

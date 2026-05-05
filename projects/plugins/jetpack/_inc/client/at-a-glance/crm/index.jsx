@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import PluginDashItem from 'components/plugin-dash-item';
@@ -19,11 +19,7 @@ class DashCRM extends Component {
 	render() {
 		return (
 			<PluginDashItem
-				pluginName={ _x(
-					'CRM',
-					'The Jetpack CRM product name, without the Jetpack prefix',
-					'jetpack'
-				) }
+				pluginName="CRM" /* "CRM" is a product name, do not translate. */
 				pluginFiles={ CRM_PLUGIN_FILES }
 				pluginSlug={ CRM_PLUGIN_SLUG }
 				pluginLink={ this.props.siteAdminUrl + CRM_PLUGIN_DASH }

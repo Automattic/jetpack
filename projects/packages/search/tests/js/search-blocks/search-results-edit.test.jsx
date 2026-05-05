@@ -32,6 +32,21 @@ jest.mock( '@wordpress/components', () => ( {
 			} ) }
 		</fieldset>
 	),
+	TextControl: ( { label, value, onChange, placeholder } ) => {
+		const id = `text-${ String( label ).toLowerCase().replace( /\s+/g, '-' ) }`;
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="text"
+					value={ value || '' }
+					placeholder={ placeholder }
+					onChange={ event => onChange( event.target.value ) }
+				/>
+			</>
+		);
+	},
 } ) );
 
 jest.mock( '@wordpress/i18n', () => ( {
@@ -89,5 +104,55 @@ describe( 'SearchResultsEdit', () => {
 		expect( screen.getByText( '$24.00' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$30.00' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$19.99' ) ).toBeInTheDocument();
+	} );
+
+	it( 'exposes message controls for the empty and error states in the inspector', () => {
+		render( <SearchResultsEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'textbox', { name: 'No-results message' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'textbox', { name: 'Error message' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'updates the noResultsMessage attribute when the no-results control changes', () => {
+		const setAttributes = jest.fn();
+		render( <SearchResultsEdit attributes={ {} } setAttributes={ setAttributes } /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.change( screen.getByRole( 'textbox', { name: 'No-results message' } ), {
+			target: { value: 'Try a broader query.' },
+		} );
+		expect( setAttributes ).toHaveBeenCalledWith( { noResultsMessage: 'Try a broader query.' } );
+	} );
+
+	it( 'updates the errorMessage attribute when the error control changes', () => {
+		const setAttributes = jest.fn();
+		render( <SearchResultsEdit attributes={ {} } setAttributes={ setAttributes } /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.change( screen.getByRole( 'textbox', { name: 'Error message' } ), {
+			target: { value: 'Search is offline right now.' },
+		} );
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			errorMessage: 'Search is offline right now.',
+		} );
+	} );
+
+	it( 'keeps the empty and error copy out of the editor canvas', () => {
+		render(
+			<SearchResultsEdit
+				attributes={ {
+					layout: 'expanded',
+					noResultsMessage: 'Try a broader query.',
+					errorMessage: 'Search is offline right now.',
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		// The success-state preview is the only thing rendered on the canvas;
+		// the empty and error copy live in the Inspector controls only.
+		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Try a broader query.' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Search is offline right now.' ) ).not.toBeInTheDocument();
 	} );
 } );
