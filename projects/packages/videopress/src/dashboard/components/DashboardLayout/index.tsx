@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { AdminPage } from '@automattic/jetpack-components';
+import AdminPage from '@automattic/jetpack-components/admin-page';
 import { __ } from '@wordpress/i18n';
 import DashboardTabs, { type DashboardTab } from '../DashboardTabs';
 import type { ReactNode } from 'react';

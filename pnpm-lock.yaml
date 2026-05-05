@@ -4181,6 +4181,9 @@ importers:
       '@wordpress/api-fetch':
         specifier: 7.44.0
         version: 7.44.0
+      '@wordpress/base-styles':
+        specifier: 6.20.0
+        version: 6.20.0
       '@wordpress/blob':
         specifier: 4.44.0
         version: 4.44.0
@@ -4235,6 +4238,9 @@ importers:
       '@wordpress/route':
         specifier: 0.10.0
         version: 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
       '@wordpress/ui':
         specifier: 0.11.0
         version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
@@ -4331,7 +4337,7 @@ importers:
         version: 6.44.0
       '@wordpress/build':
         specifier: 0.13.0
-        version: 0.13.0(@babel/core@7.29.0)(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+        version: 0.13.0(@babel/core@7.29.0)(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(browserslist@4.28.2)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.10)
@@ -23683,7 +23689,7 @@ snapshots:
       - browserslist
       - supports-color
 
-  '@wordpress/build@0.13.0(@babel/core@7.29.0)(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+  '@wordpress/build@0.13.0(@babel/core@7.29.0)(@wordpress/route@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(browserslist@4.28.2)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       autoprefixer: 10.4.27(postcss@8.5.10)
@@ -23702,6 +23708,7 @@ snapshots:
       sass-embedded: 1.97.3
     optionalDependencies:
       '@wordpress/route': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
     transitivePeerDependencies:
       - '@babel/core'
       - browserslist
