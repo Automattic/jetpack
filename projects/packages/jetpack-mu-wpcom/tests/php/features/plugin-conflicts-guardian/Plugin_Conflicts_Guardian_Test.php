@@ -420,7 +420,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * A fatal at `WP_PLUGIN_DIR/something.php` must NOT be attributed to a
 	 * flat-file plugin in the batch via the prefix arm — that would
 	 * produce a false attribution because the dirname is the plugins root.
-	 * Falls back to first plugin in the batch.
+	 * Falls through to the undetermined branch (returns '').
 	 */
 	public function test_blame_does_not_false_match_flat_file_plugins_via_prefix() {
 		$paths = array(
@@ -436,7 +436,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			$paths
 		);
 
-		$this->assertSame( 'hello.php', $blamed );
+		$this->assertSame( '', $blamed );
 	}
 
 	/**
