@@ -97,17 +97,14 @@ const API_CATEGORY_TO_SUB_CATEGORY = {
 	billing: SUB_CATEGORIES.BILLING,
 };
 
-const TOOL_ID_TO_SUB_CATEGORY = {
-	list_menus: SUB_CATEGORIES.NAVIGATION,
-	get_menu: SUB_CATEGORIES.NAVIGATION,
-	list_menu_items: SUB_CATEGORIES.NAVIGATION,
-	get_menu_item: SUB_CATEGORIES.NAVIGATION,
-	list_navigation: SUB_CATEGORIES.NAVIGATION,
-	get_navigation: SUB_CATEGORIES.NAVIGATION,
-	create_navigation: SUB_CATEGORIES.NAVIGATION,
-	update_navigation: SUB_CATEGORIES.NAVIGATION,
-	delete_navigation: SUB_CATEGORIES.NAVIGATION,
-	list_themes: SUB_CATEGORIES.SITE_SETTINGS,
+// Sites-card tools that share the `sites` API category but belong in finer sub-groups.
+// Prefix matching mirrors the approach used in wp-calypso categories.ts.
+const SITES_TOOL_ID_PREFIX_TO_SUB_CATEGORY = {
+	'wpcom-mcp/navigation-': SUB_CATEGORIES.NAVIGATION,
+	'wpcom-mcp/menus-': SUB_CATEGORIES.NAVIGATION,
+	'wpcom-mcp/menu-items-': SUB_CATEGORIES.NAVIGATION,
+	'wpcom-mcp/themes-': SUB_CATEGORIES.SITE_SETTINGS,
+	'wpcom-mcp/theme-': SUB_CATEGORIES.SITE_SETTINGS,
 };
 
 /**
@@ -118,10 +115,19 @@ const TOOL_ID_TO_SUB_CATEGORY = {
  * @return {string | undefined} Sub-category display name, or undefined if none.
  */
 export function getSubCategory( toolId, ability ) {
-	if ( toolId && TOOL_ID_TO_SUB_CATEGORY[ toolId ] ) {
-		return TOOL_ID_TO_SUB_CATEGORY[ toolId ];
-	}
 	const apiCategory = ability?.category;
+
+	if ( apiCategory === 'sites' ) {
+		for ( const [ prefix, subCategory ] of Object.entries(
+			SITES_TOOL_ID_PREFIX_TO_SUB_CATEGORY
+		) ) {
+			if ( toolId.startsWith( prefix ) ) {
+				return subCategory;
+			}
+		}
+		return API_CATEGORY_TO_SUB_CATEGORY.sites;
+	}
+
 	if ( apiCategory ) {
 		return API_CATEGORY_TO_SUB_CATEGORY[ apiCategory ];
 	}
