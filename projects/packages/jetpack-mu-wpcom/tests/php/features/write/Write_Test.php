@@ -58,7 +58,6 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		wp_set_current_user( 0 );
-		delete_option( 'wpcom_write_rewrite_version' );
 		parent::tear_down();
 	}
 
@@ -529,59 +528,15 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that the wpcom_write query variable is registered.
-	 */
-	public function test_query_var_is_registered() {
-		$vars = apply_filters( 'query_vars', array() );
-		$this->assertContains( 'wpcom_write', $vars );
-	}
-
-	/**
-	 * Test that the init hook registers the /write rewrite rule.
-	 */
-	public function test_rewrite_rule_is_registered() {
-		// Verify the init callback calls add_rewrite_rule by checking
-		// the rule appears in the rewrite_rules_array filter output.
-		do_action( 'init' );
-
-		// add_rewrite_rule with 'top' prepends to extra_rules_top which
-		// merges into rewrite_rules_array. In WorDBless the full rewrite
-		// subsystem isn't active, so just verify the init action is hooked.
-		$this->assertGreaterThan(
-			0,
-			has_action( 'init' ),
-			'The init hook for registering the rewrite rule should be attached.'
-		);
-	}
-
-	/**
-	 * Test that the rewrite version option is set after init.
-	 */
-	public function test_rewrite_version_option_is_set() {
-		do_action( 'init' );
-		$this->assertSame( 1, (int) get_option( 'wpcom_write_rewrite_version' ) );
-	}
-
-	/**
-	 * Test that rewrite rules are only flushed when the version changes.
-	 */
-	public function test_rewrite_rules_not_flushed_when_version_matches() {
-		update_option( 'wpcom_write_rewrite_version', 1 );
-
-		// After init, the version should still be 1 (no flush needed).
-		do_action( 'init' );
-		$this->assertSame( 1, (int) get_option( 'wpcom_write_rewrite_version' ) );
-	}
-
-	/**
-	 * Helper: call the write template_redirect handler directly, capturing the redirect URL.
-	 *
-	 * Calls wpcom_write_handle_template_redirect() directly (bypassing other hooks)
-	 * and intercepts wp_safe_redirect via the wp_redirect filter before header()/exit fire.
+	 * Helper: call the write template_redirect handler with $wp->request set to 'write',
+	 * capturing the redirect URL via the wp_redirect filter before header()/exit fire.
 	 *
 	 * @return string|null The captured redirect URL, or null if no redirect fired.
 	 */
 	private function capture_template_redirect_url() {
+		global $wp;
+		$wp->request = 'write';
+
 		$redirect_url = null;
 		$filter       = /** @return never */ function ( $url ) use ( &$redirect_url ) {
 			$redirect_url = $url;
@@ -594,6 +549,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- redirect throws to avoid exit; exception is the expected control flow.
 		} finally {
 			remove_filter( 'wp_redirect', $filter );
+			$wp->request = '';
 		}
 
 		return $redirect_url;
@@ -603,13 +559,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * Test that unauthenticated visitors are redirected to the login page.
 	 */
 	public function test_template_redirect_unauthenticated_goes_to_login() {
-		global $wp_query;
-		$wp_query->query_vars['wpcom_write'] = 1;
-
-		// No current user set — visitor is logged out.
 		$url = $this->capture_template_redirect_url();
-
-		$wp_query->query_vars['wpcom_write'] = 0;
 
 		$this->assertNotNull( $url, 'Expected a redirect to fire.' );
 		$this->assertStringContainsString( 'wp-login.php', $url );
@@ -621,14 +571,9 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * Test that users without publish_posts capability are redirected to the admin dashboard.
 	 */
 	public function test_template_redirect_without_publish_posts_goes_to_admin() {
-		global $wp_query;
-		$wp_query->query_vars['wpcom_write'] = 1;
-
 		wp_set_current_user( $this->subscriber_id );
 
 		$url = $this->capture_template_redirect_url();
-
-		$wp_query->query_vars['wpcom_write'] = 0;
 
 		$this->assertNotNull( $url, 'Expected a redirect to fire.' );
 		$this->assertStringContainsString( 'wp-admin', $url );

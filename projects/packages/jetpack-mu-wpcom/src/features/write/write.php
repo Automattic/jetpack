@@ -53,37 +53,10 @@ function wpcom_write_url() {
 }
 
 /**
- * Register the /write rewrite rule and flush when version changes.
- *
- * Maps yoursite.com/write to the Write admin page via a front-end redirect.
- * Uses a version option to flush rewrite rules only when the rule changes.
- */
-add_action(
-	'init',
-	function () {
-		add_rewrite_rule( '^write/?$', 'index.php?wpcom_write=1', 'top' );
-
-		$current_version = 1;
-		if ( (int) get_option( 'wpcom_write_rewrite_version' ) !== $current_version ) {
-			flush_rewrite_rules();
-			update_option( 'wpcom_write_rewrite_version', $current_version );
-		}
-	}
-);
-
-/**
- * Register wpcom_write as a public query variable so WordPress recognises it.
- */
-add_filter(
-	'query_vars',
-	function ( $vars ) {
-		$vars[] = 'wpcom_write';
-		return $vars;
-	}
-);
-
-/**
  * Redirect /write to the Write admin page.
+ *
+ * Detects the /write path directly via $wp->request so the redirect works on
+ * the very first request without needing a rewrite rule flush.
  *
  * - Unauthenticated users are sent to the login page with a redirect back.
  * - Users without publish_posts are sent to the admin dashboard.
@@ -91,7 +64,8 @@ add_filter(
  * - Adds source=bookmarkable_url for Tracks attribution.
  */
 function wpcom_write_handle_template_redirect() {
-	if ( ! get_query_var( 'wpcom_write' ) ) {
+	global $wp;
+	if ( empty( $wp->request ) || 'write' !== trim( $wp->request, '/' ) ) {
 		return;
 	}
 
