@@ -39,8 +39,6 @@ interface SubmitModalProps {
 	onClose: () => void;
 }
 
-const COPIED_FEEDBACK_MS = 2000;
-
 const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProps ) => {
 	const [ storedUrl, setStoredUrl ] = usePodcatcherUrl( siteUrl, podcatcher.id );
 	const [ draftUrl, setDraftUrl ] = useState( storedUrl );
@@ -71,7 +69,7 @@ const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProp
 				if ( copyTimeoutRef.current ) {
 					clearTimeout( copyTimeoutRef.current );
 				}
-				copyTimeoutRef.current = setTimeout( () => setHasCopied( false ), COPIED_FEEDBACK_MS );
+				copyTimeoutRef.current = setTimeout( () => setHasCopied( false ), 2000 );
 			} )
 			.catch( () => {
 				// Clipboard write rejection is silent — user just keeps seeing the original button label.
