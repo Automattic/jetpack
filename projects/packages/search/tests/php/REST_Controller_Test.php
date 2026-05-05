@@ -372,6 +372,20 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint rejects empty JSON without a fatal.
+	 */
+	public function test_update_search_settings_rejects_empty_body() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'rest_invalid_arguments', $response->get_data()['code'] );
+	}
+
+	/**
 	 * Testing the `GET /jetpack/v4/search` endpoint with no logged-in user.
 	 */
 	public function test_get_search_results_unauthorized() {

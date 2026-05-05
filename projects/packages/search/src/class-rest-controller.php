@@ -242,6 +242,9 @@ class REST_Controller {
 	 */
 	public function update_settings( $request ) {
 		$request_body = $request->get_json_params();
+		if ( ! is_array( $request_body ) ) {
+			$request_body = array();
+		}
 
 		$module_active                 = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
 		$instant_search_enabled        = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
