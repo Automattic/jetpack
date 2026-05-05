@@ -82,6 +82,28 @@ class Settings_REST {
 	);
 
 	/**
+	 * Per-podcatcher host allowlist for `podcasting_show_urls`.
+	 *
+	 * Mirrors the wpcom mu-plugin's allowlist
+	 * (`Automattic_Podcasting_Settings_REST_API::SHOW_URL_HOSTS`) so the same
+	 * URL passes validation on both hosts. Hostnames are lowercased and
+	 * `www.` is stripped before comparison. Keep this in sync with the
+	 * directory IDs in `src/dashboard/tabs/distribution.tsx`.
+	 *
+	 * @var array<string, array<int, string>>
+	 */
+	private const SHOW_URL_HOSTS = array(
+		'pocketcasts'  => array( 'pca.st', 'pocketcasts.com' ),
+		'apple'        => array( 'podcasts.apple.com' ),
+		'spotify'      => array( 'open.spotify.com' ),
+		'youtube'      => array( 'youtube.com', 'm.youtube.com', 'youtu.be', 'music.youtube.com' ),
+		'amazon'       => array( 'music.amazon.com', 'music.amazon.co.uk', 'music.amazon.de', 'music.amazon.co.jp' ),
+		'podcastindex' => array( 'podcastindex.org' ),
+	);
+
+	private const SHOW_URL_MAX_LENGTH = 2048;
+
+	/**
 	 * Whether hooks have been registered.
 	 *
 	 * @var bool
@@ -149,6 +171,34 @@ class Settings_REST {
 
 			register_setting( 'general', $option, $args );
 		}
+
+		// Object-typed setting: per-podcatcher show URLs. Schema enumerates the
+		// known directory keys; sanitize_callback enforces the host allowlist
+		// and merges with the existing stored value (so partial patches don't
+		// blow away other directories' URLs on /wp/v2/settings, which doesn't
+		// merge by default).
+		$show_url_properties = array();
+		foreach ( array_keys( self::SHOW_URL_HOSTS ) as $key ) {
+			$show_url_properties[ $key ] = array( 'type' => 'string' );
+		}
+
+		register_setting(
+			'general',
+			'podcasting_show_urls',
+			array(
+				'type'              => 'object',
+				'default'           => array(),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_show_urls' ),
+				'show_in_rest'      => array(
+					'name'   => 'podcasting_show_urls',
+					'schema' => array(
+						'type'                 => 'object',
+						'properties'           => $show_url_properties,
+						'additionalProperties' => false,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -168,6 +218,10 @@ class Settings_REST {
 			}
 			$value               = get_option( $option, $schema['default'] );
 			$settings[ $option ] = 'integer' === $schema['type'] ? (int) $value : (string) $value;
+		}
+
+		if ( ! isset( $settings['podcasting_show_urls'] ) ) {
+			$settings['podcasting_show_urls'] = self::get_show_urls();
 		}
 
 		return $settings;
@@ -200,6 +254,150 @@ class Settings_REST {
 			$output[ $option ] = $value;
 		}
 
+		if ( isset( $unfiltered_input['podcasting_show_urls'] ) ) {
+			$merged = self::merge_show_urls( $unfiltered_input['podcasting_show_urls'] );
+			if ( null !== $merged ) {
+				$output['podcasting_show_urls'] = $merged;
+			} else {
+				// Nothing valid to apply — let the existing stored value stand.
+				unset( $output['podcasting_show_urls'] );
+			}
+		}
+
 		return $output;
+	}
+
+	/**
+	 * Read the stored show URLs and pad with empty strings for every known
+	 * podcatcher so the response always has a stable shape.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function get_show_urls() {
+		$stored = get_option( 'podcasting_show_urls', array() );
+		if ( ! is_array( $stored ) ) {
+			$stored = array();
+		}
+
+		$urls = array();
+		foreach ( array_keys( self::SHOW_URL_HOSTS ) as $key ) {
+			$urls[ $key ] = isset( $stored[ $key ] ) && is_string( $stored[ $key ] ) ? $stored[ $key ] : '';
+		}
+
+		return $urls;
+	}
+
+	/**
+	 * `register_setting()` sanitize callback for `podcasting_show_urls`.
+	 *
+	 * `/wp/v2/settings` writes the value WP-side via `update_option`, which
+	 * doesn't merge — it replaces. So we read the current option, merge the
+	 * incoming patch into it, and return the merged array. That way a client
+	 * sending `{ apple: 'url' }` doesn't wipe out `spotify`.
+	 *
+	 * @param mixed $input Incoming value from the REST request.
+	 * @return array<string, string>
+	 */
+	public static function sanitize_show_urls( $input ) {
+		$merged = self::merge_show_urls( $input );
+		if ( null !== $merged ) {
+			return $merged;
+		}
+
+		$stored = get_option( 'podcasting_show_urls', array() );
+		return is_array( $stored ) ? $stored : array();
+	}
+
+	/**
+	 * Merge a partial show_urls patch into the currently stored value.
+	 *
+	 * Empty string for a known key removes that entry. Unknown keys and URLs
+	 * that don't match the per-podcatcher host allowlist are dropped silently.
+	 * Returns the merged array, or null when the input is unusable / produces
+	 * no effective change.
+	 *
+	 * @param mixed $input Incoming patch.
+	 * @return array<string, string>|null
+	 */
+	private static function merge_show_urls( $input ) {
+		if ( ! is_array( $input ) ) {
+			return null;
+		}
+
+		// Strip the empty padding handle_get() adds so we only persist real entries.
+		$current = array_filter(
+			self::get_show_urls(),
+			static function ( $value ) {
+				return is_string( $value ) && '' !== $value;
+			}
+		);
+
+		$changed = false;
+
+		foreach ( $input as $key => $value ) {
+			if ( ! isset( self::SHOW_URL_HOSTS[ $key ] ) ) {
+				continue;
+			}
+
+			$value = is_string( $value ) ? trim( $value ) : '';
+
+			if ( '' === $value ) {
+				if ( isset( $current[ $key ] ) ) {
+					unset( $current[ $key ] );
+					$changed = true;
+				}
+				continue;
+			}
+
+			$cleaned = self::validate_show_url( $key, $value );
+			if ( null === $cleaned ) {
+				continue;
+			}
+
+			if ( ! isset( $current[ $key ] ) || $current[ $key ] !== $cleaned ) {
+				$current[ $key ] = $cleaned;
+				$changed         = true;
+			}
+		}
+
+		return $changed ? $current : null;
+	}
+
+	/**
+	 * Validate a URL against the host allowlist for a given podcatcher key.
+	 *
+	 * @param string $key Directory ID (e.g. 'apple').
+	 * @param mixed  $url Candidate URL.
+	 * @return string|null Cleaned URL on success, null on failure.
+	 */
+	private static function validate_show_url( $key, $url ) {
+		if ( ! isset( self::SHOW_URL_HOSTS[ $key ] ) ) {
+			return null;
+		}
+
+		if ( ! is_string( $url ) || strlen( $url ) > self::SHOW_URL_MAX_LENGTH ) {
+			return null;
+		}
+
+		$cleaned = esc_url_raw( $url, array( 'https' ) );
+		if ( '' === $cleaned ) {
+			return null;
+		}
+
+		if ( ! wp_http_validate_url( $cleaned ) ) {
+			return null;
+		}
+
+		$host = wp_parse_url( $cleaned, PHP_URL_HOST );
+		if ( ! is_string( $host ) || '' === $host ) {
+			return null;
+		}
+
+		$host = strtolower( $host );
+		if ( 0 === strpos( $host, 'www.' ) ) {
+			$host = substr( $host, 4 );
+		}
+
+		return in_array( $host, self::SHOW_URL_HOSTS[ $key ], true ) ? $cleaned : null;
 	}
 }

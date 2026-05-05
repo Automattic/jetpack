@@ -4,6 +4,16 @@
 
 export type ExplicitValue = 'no' | 'yes' | 'clean';
 
+export type PodcatcherId =
+	| 'pocketcasts'
+	| 'apple'
+	| 'spotify'
+	| 'youtube'
+	| 'amazon'
+	| 'podcastindex';
+
+export type PodcastShowUrls = Record< PodcatcherId, string >;
+
 export interface PodcastSettings {
 	podcasting_category_id: number;
 	podcasting_title: string;
@@ -17,7 +27,19 @@ export interface PodcastSettings {
 	podcasting_category_2: string;
 	podcasting_category_3: string;
 	podcasting_email: string;
+	podcasting_show_urls: PodcastShowUrls;
 }
+
+/**
+ * Shape accepted by `updateSettings()` / `useUpdatePodcastSettings().mutate()`.
+ * All keys are optional. `podcasting_show_urls` is `Partial<PodcastShowUrls>`
+ * because the server merges a patch into the stored map (so callers can send
+ * `{ apple: 'url' }` without touching `spotify`, etc.). Read responses keep
+ * the full `PodcastShowUrls` shape — the server pads missing keys with `''`.
+ */
+export type PodcastSettingsUpdate = Partial< Omit< PodcastSettings, 'podcasting_show_urls' > > & {
+	podcasting_show_urls?: Partial< PodcastShowUrls >;
+};
 
 export interface PodcastScriptData {
 	categoryId: number;

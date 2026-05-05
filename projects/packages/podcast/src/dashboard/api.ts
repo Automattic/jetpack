@@ -15,7 +15,14 @@
 import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import type { Episode, EpisodeStats, PodcastSettings } from './types';
+import type {
+	Episode,
+	EpisodeStats,
+	PodcastSettings,
+	PodcastSettingsUpdate,
+	PodcastShowUrls,
+	PodcatcherId,
+} from './types';
 
 export interface CategoryTerm {
 	id: number;
@@ -52,7 +59,30 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_category_2',
 	'podcasting_category_3',
 	'podcasting_email',
+	'podcasting_show_urls',
 ];
+
+// Keep this in sync with `PodcatcherId` in types.ts and `SHOW_URL_HOSTS`
+// in src/rest/class-settings-rest.php. Defines the canonical key order
+// and lets us pad missing keys with empty strings server-side or client-side.
+const PODCATCHER_IDS: readonly PodcatcherId[] = [
+	'pocketcasts',
+	'apple',
+	'spotify',
+	'youtube',
+	'amazon',
+	'podcastindex',
+] as const;
+
+const normalizeShowUrls = ( raw: unknown ): PodcastShowUrls => {
+	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
+	const out = {} as PodcastShowUrls;
+	for ( const id of PODCATCHER_IDS ) {
+		const value = source[ id ];
+		out[ id ] = typeof value === 'string' ? value : '';
+	}
+	return out;
+};
 
 const getBlogId = (): number => Number( getSiteData()?.wpcom?.blog_id ?? 0 );
 
@@ -77,6 +107,8 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 			out[ key ] = typeof value === 'number' ? value : Number( value ?? 0 ) || 0;
 		} else if ( key === 'podcasting_explicit' ) {
 			out[ key ] = value === 'yes' || value === 'clean' ? value : 'no';
+		} else if ( key === 'podcasting_show_urls' ) {
+			out[ key ] = normalizeShowUrls( value );
 		} else {
 			out[ key ] = toString( value );
 		}
@@ -113,9 +145,7 @@ export async function fetchSettings(): Promise< PodcastSettings > {
  * @param updates - Subset of PodcastSettings to write.
  * @return         The merged settings as the server now sees them.
  */
-export async function updateSettings(
-	updates: Partial< PodcastSettings >
-): Promise< PodcastSettings > {
+export async function updateSettings( updates: PodcastSettingsUpdate ): Promise< PodcastSettings > {
 	const blogId = getBlogId();
 
 	if ( isSimpleSite() && blogId ) {

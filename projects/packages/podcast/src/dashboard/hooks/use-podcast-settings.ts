@@ -7,7 +7,7 @@ import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { fetchSettings, updateSettings } from '../api';
-import type { PodcastSettings } from '../types';
+import type { PodcastSettings, PodcastSettingsUpdate } from '../types';
 
 const QUERY_KEY = [ 'jetpack-podcast', 'settings' ] as const;
 
@@ -37,7 +37,7 @@ export function useUpdatePodcastSettings() {
 	return useMutation<
 		PodcastSettings,
 		Error,
-		Partial< PodcastSettings >,
+		PodcastSettingsUpdate,
 		{ previous?: PodcastSettings }
 	>( {
 		mutationFn: updateSettings,
@@ -45,7 +45,18 @@ export function useUpdatePodcastSettings() {
 			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
 			const previous = queryClient.getQueryData< PodcastSettings >( QUERY_KEY );
 			if ( previous ) {
-				queryClient.setQueryData< PodcastSettings >( QUERY_KEY, { ...previous, ...updates } );
+				// Deep-merge `podcasting_show_urls` so a partial patch (e.g.
+				// { apple: 'url' }) doesn't blow away the other directories'
+				// URLs in the optimistic snapshot. Server merges the same way.
+				const optimistic: PodcastSettings = {
+					...previous,
+					...updates,
+					podcasting_show_urls: {
+						...previous.podcasting_show_urls,
+						...( updates.podcasting_show_urls ?? {} ),
+					},
+				};
+				queryClient.setQueryData< PodcastSettings >( QUERY_KEY, optimistic );
 			}
 			return { previous };
 		},

@@ -2,9 +2,9 @@
  * Three-step "submit your feed" modal launched from the Distribution tab.
  *
  * Ported from Calypso's `client/my-sites/podcast/components/submit-modal.tsx`,
- * minus the confetti animation (a Calypso-only component) and the Redux site-id
- * lookup (the Jetpack version uses the site URL from script data as a stable
- * key for localStorage).
+ * minus the confetti animation. The submitted-show URL is stored on the
+ * `podcasting_show_urls` site setting (validated server-side against a host
+ * allowlist per directory) rather than per-browser localStorage.
  */
 
 import {
@@ -23,11 +23,12 @@ import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, link } from '@wordpress/icons';
-import { usePodcatcherUrl } from '../hooks/use-podcatcher-url';
+import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
+import type { PodcatcherId } from '../types';
 import type { FormEvent } from 'react';
 
 export interface Podcatcher {
-	id: string;
+	id: PodcatcherId;
 	name: string;
 	submitUrl: string;
 	learnMoreUrl?: string;
@@ -35,13 +36,15 @@ export interface Podcatcher {
 
 interface SubmitModalProps {
 	feedUrl: string;
-	siteUrl: string;
 	podcatcher: Podcatcher;
 	onClose: () => void;
 }
 
-const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProps ) => {
-	const [ storedUrl, setStoredUrl ] = usePodcatcherUrl( siteUrl, podcatcher.id );
+const SubmitModal = ( { feedUrl, podcatcher, onClose }: SubmitModalProps ) => {
+	const { data: settings } = usePodcastSettings();
+	const { mutate: saveSettings, isPending: isSaving } = useUpdatePodcastSettings();
+
+	const storedUrl = settings?.podcasting_show_urls?.[ podcatcher.id ] ?? '';
 	const [ draftUrl, setDraftUrl ] = useState( storedUrl );
 	const [ hasCopied, setHasCopied ] = useState( false );
 
@@ -57,10 +60,13 @@ const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProp
 	const handleSave = useCallback(
 		( event: FormEvent< HTMLFormElement > ) => {
 			event.preventDefault();
-			setStoredUrl( draftUrl.trim() );
-			onClose();
+			// Send only the changed key — server merges with the stored map.
+			saveSettings(
+				{ podcasting_show_urls: { [ podcatcher.id ]: draftUrl.trim() } },
+				{ onSuccess: onClose }
+			);
 		},
-		[ draftUrl, setStoredUrl, onClose ]
+		[ draftUrl, podcatcher.id, saveSettings, onClose ]
 	);
 
 	const isUnchanged = draftUrl.trim() === storedUrl.trim();
@@ -209,7 +215,8 @@ const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProp
 								variant="primary"
 								__next40pxDefaultSize
 								type="submit"
-								disabled={ isUnchanged }
+								disabled={ isUnchanged || isSaving }
+								isBusy={ isSaving }
 								accessibleWhenDisabled
 							>
 								{ __( 'Save', 'jetpack-podcast' ) }

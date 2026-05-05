@@ -34,10 +34,11 @@ import {
 import SubmitModal from '../components/submit-modal';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { getPodcastScriptData } from '../script-data';
+import type { PodcatcherId } from '../types';
 import type { FocusEvent } from 'react';
 
 interface Directory {
-	id: string;
+	id: PodcatcherId;
 	name: string;
 	submitUrl: string;
 	learnMoreUrl?: string;
@@ -131,7 +132,7 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 interface DirectoryRowProps {
 	directory: Directory;
 	isEnabled: boolean;
-	onSelect: ( id: string ) => void;
+	onSelect: ( id: PodcatcherId ) => void;
 }
 
 const DirectoryRow = ( { directory, isEnabled, onSelect }: DirectoryRowProps ) => {
@@ -162,10 +163,10 @@ const DistributionTab = () => {
 	const feedUrl = scriptData.feedUrl;
 	const isEnabled = !! settings?.podcasting_category_id;
 
-	const [ activeId, setActiveId ] = useState< string | null >( null );
+	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
 	const activeDirectory = DIRECTORIES.find( d => d.id === activeId ) ?? null;
 
-	const handleSelect = useCallback( ( id: string ) => {
+	const handleSelect = useCallback( ( id: PodcatcherId ) => {
 		setActiveId( id );
 	}, [] );
 
@@ -240,7 +241,6 @@ const DistributionTab = () => {
 			{ activeDirectory && (
 				<SubmitModal
 					feedUrl={ feedUrl }
-					siteUrl={ scriptData.siteUrl }
 					podcatcher={ {
 						id: activeDirectory.id,
 						name: activeDirectory.name,
