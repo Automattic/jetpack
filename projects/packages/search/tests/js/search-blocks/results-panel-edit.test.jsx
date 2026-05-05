@@ -24,8 +24,6 @@ describe( 'ResultsPanelEdit', () => {
 				[ [ 'jetpack/results-count' ], [ 'jetpack/sort-control' ] ],
 			],
 			[ 'jetpack/search-results' ],
-			[ 'jetpack/search-error' ],
-			[ 'jetpack/no-results' ],
 			[ 'jetpack/load-more' ],
 		] );
 		expect( props.allowedBlocks ).toEqual( [
@@ -33,8 +31,6 @@ describe( 'ResultsPanelEdit', () => {
 			'jetpack/results-count',
 			'jetpack/sort-control',
 			'jetpack/search-results',
-			'jetpack/search-error',
-			'jetpack/no-results',
 			'jetpack/load-more',
 		] );
 	} );

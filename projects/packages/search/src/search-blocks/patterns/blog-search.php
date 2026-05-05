@@ -38,8 +38,6 @@ register_block_pattern(
 <!-- /wp:group -->
 
 <!-- wp:jetpack/search-results /-->
-<!-- wp:jetpack/search-error /-->
-<!-- wp:jetpack/no-results /-->
 <!-- wp:jetpack/load-more /-->
 </div>
 <!-- /wp:jetpack/results-panel -->

@@ -24,9 +24,17 @@ class Search_Results_Render_Test extends TestCase {
 			'jetpack/search-results',
 			array(
 				'attributes'      => array(
-					'layout' => array(
+					'layout'           => array(
 						'type'    => 'string',
 						'default' => 'expanded',
+					),
+					'noResultsMessage' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'errorMessage'     => array(
+						'type'    => 'string',
+						'default' => '',
 					),
 				),
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -127,5 +135,80 @@ class Search_Results_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
 		$this->assertStringContainsString( 'jetpack-search-results__path', $markup );
 		$this->assertStringContainsString( 'jetpack-search-results__image', $markup );
+	}
+
+	/**
+	 * The block renders the no-results region with the default copy when no
+	 * custom message is provided. The region is hidden by default and gated
+	 * by `state.showNoResults` on hydration.
+	 */
+	public function test_no_results_region_falls_back_to_default_message() {
+		$markup = $this->render();
+		$this->assertStringContainsString( 'jetpack-search-results__no-results', $markup );
+		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResults"', $markup );
+	}
+
+	/**
+	 * A custom `noResultsMessage` replaces the default empty-state copy.
+	 */
+	public function test_no_results_region_renders_custom_message() {
+		$markup = $this->render( array( 'noResultsMessage' => 'Nothing here, sorry.' ) );
+		$this->assertStringContainsString( 'Nothing here, sorry.', $markup );
+		$this->assertStringNotContainsString( 'No results found. Try a different search.', $markup );
+	}
+
+	/**
+	 * Both message attributes are user-controlled, so the template must
+	 * escape HTML to prevent stored XSS through a crafted attribute value.
+	 */
+	public function test_no_results_message_is_html_escaped() {
+		$markup = $this->render( array( 'noResultsMessage' => '<script>alert(1)</script>' ) );
+		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
+		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $markup );
+	}
+
+	/**
+	 * The block renders the error region with the default copy when no
+	 * custom message is provided. The region carries `role="alert"` so
+	 * assistive tech announces it the moment it becomes visible.
+	 */
+	public function test_error_region_falls_back_to_default_message() {
+		$markup = $this->render();
+		$this->assertStringContainsString( 'jetpack-search-results__error', $markup );
+		$this->assertStringContainsString( 'Something went wrong. Please try again.', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showError"', $markup );
+		$this->assertStringContainsString( 'role="alert"', $markup );
+	}
+
+	/**
+	 * A custom `errorMessage` replaces the default copy on the front end.
+	 */
+	public function test_error_region_renders_custom_message() {
+		$markup = $this->render( array( 'errorMessage' => 'Search is offline right now.' ) );
+		$this->assertStringContainsString( 'Search is offline right now.', $markup );
+		$this->assertStringNotContainsString( 'Something went wrong. Please try again.', $markup );
+	}
+
+	/**
+	 * A whitespace-only `errorMessage` must fall back to the default —
+	 * otherwise an author who typed spaces would ship a blank alert. The
+	 * Inspector help text already tells authors to leave the field empty
+	 * for the default; the fallback is the belt-and-suspenders for anyone
+	 * who misses that.
+	 */
+	public function test_error_region_whitespace_falls_back_to_default() {
+		$markup = $this->render( array( 'errorMessage' => "  \t\n " ) );
+		$this->assertStringContainsString( 'Something went wrong. Please try again.', $markup );
+	}
+
+	/**
+	 * Both message attributes are user-controlled, so the template must
+	 * escape HTML to prevent stored XSS through a crafted attribute value.
+	 */
+	public function test_error_message_is_html_escaped() {
+		$markup = $this->render( array( 'errorMessage' => '<script>alert(1)</script>' ) );
+		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
+		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $markup );
 	}
 }
