@@ -58,14 +58,6 @@
 		}
 	}
 
-	// WP Admin's forms.css sets `margin: -4px 4px 0 0` on `input[type=radio]`
-	// (a quirk to align with adjacent label baselines in classic forms). That
-	// pushes the radio above the row's vertical centre when it sits next to
-	// the option icon — reset to 0 so the grid's `align-items: center` wins.
-	&__option-radio {
-		margin: 0;
-	}
-
 	&__option-icon {
 		flex: 0 0 auto;
 		fill: var(--wpds-color-fg-content-neutral);
@@ -102,6 +94,16 @@
 		font-size: var(--wpds-typography-font-size-md);
 		margin: 0;
 	}
+}
+
+// WP Admin's forms.css sets `margin: -4px 4px 0 0` on `input[type=radio]`
+// (a quirk to align with adjacent label baselines in classic forms) at
+// specificity (0,1,1). Qualify our reset with `input[type="radio"]` so it
+// lands at (0,2,1) and reliably wins, letting the option grid's
+// `align-items: center` put the radio on the same vertical centre as the
+// icon.
+input[type="radio"].jp-search-feature-selector__option-radio {
+	margin: 0;
 }
 
 @include variables.for-phone-down {
