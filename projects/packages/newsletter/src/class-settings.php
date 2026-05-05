@@ -254,6 +254,13 @@ class Settings {
 	 * Load the admin scripts.
 	 */
 	public function load_admin_scripts() {
+		if ( self::is_modernized() ) {
+			// wp-build manages its own enqueue pipeline. The legacy newsletter
+			// script, JetpackScriptData, and Tracks are intentionally skipped
+			// for the wp-build dashboard.
+			return;
+		}
+
 		Assets::register_script(
 			'jetpack-newsletter',
 			'../build/newsletter.js',
