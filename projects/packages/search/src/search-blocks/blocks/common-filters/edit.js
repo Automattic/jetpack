@@ -17,7 +17,12 @@ const TEMPLATE = [
 	[ 'jetpack/filter-date', { interval: 'year' } ],
 ];
 
-const ALLOWED = [ 'jetpack/active-filters', 'jetpack/filter-checkbox', 'jetpack/filter-date' ];
+const ALLOWED = [
+	'jetpack/active-filters',
+	'jetpack/filter-checkbox',
+	'jetpack/filter-date',
+	'jetpack/post-type-filter',
+];
 
 /**
  * Edit component for the common-filters block.
