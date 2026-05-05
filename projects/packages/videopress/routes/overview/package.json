@@ -1,5 +1,5 @@
 {
-	"name": "_@jetpack-videopress/dashboard-route",
+	"name": "_@jetpack-videopress/overview-route",
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
