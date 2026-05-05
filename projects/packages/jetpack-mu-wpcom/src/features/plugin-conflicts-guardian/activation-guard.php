@@ -252,7 +252,7 @@ function pcg_guard_render_block_notice() {
 				</li>
 			<?php endforeach; ?>
 		</ul>
-		<p><?php esc_html_e( 'The plugin was not activated. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
+		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
 	</div>
 	<?php
 }
