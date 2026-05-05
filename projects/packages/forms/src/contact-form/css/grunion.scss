@@ -1285,8 +1285,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: var(--jetpack--contact-form--font-size);
 }
 
-.contact-form .is-style-list input.consent,
-.contact-form .is-style-list input.checkbox,
+.contact-form .grunion-field-consent-wrap input.consent,
+.contact-form .grunion-field-checkbox-wrap input.checkbox,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.radio {
 	position: relative;
@@ -1340,8 +1340,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 
-.contact-form .is-style-list input.consent,
-.contact-form .is-style-list input.checkbox,
+.contact-form .grunion-field-consent-wrap input.consent,
+.contact-form .grunion-field-checkbox-wrap input.checkbox,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple {
 
 	&:not(.is-style-button):checked {
@@ -1356,8 +1356,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: none;
 }
 
-.contact-form .is-style-list input.consent::before,
-.contact-form .is-style-list input.checkbox::before,
+.contact-form .grunion-field-consent-wrap input.consent::before,
+.contact-form .grunion-field-checkbox-wrap input.checkbox::before,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple::before {
 	position: absolute;
 	width: 0.25em;
@@ -1379,8 +1379,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	left: 0;
 }
 
-.contact-form .is-style-list input.consent:checked::before,
-.contact-form .is-style-list input.checkbox:checked::before,
+.contact-form .grunion-field-consent-wrap input.consent:checked::before,
+.contact-form .grunion-field-checkbox-wrap input.checkbox:checked::before,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked::before {
 	scale: 1;
 	opacity: 1;
