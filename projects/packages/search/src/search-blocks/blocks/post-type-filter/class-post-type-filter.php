@@ -8,45 +8,27 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helpers for the jetpack/post-type-filter hidden constraint block.
+ * Server-side helpers for jetpack/post-type-filter.
  *
- * The block renders nothing on the front end; it only contributes a
- * single-mode (`include` OR `exclude`, never both) post-type constraint to
- * the shared Interactivity store. The JS search-URL builder folds it into
- * the ES filter clause as `must.should` (include) or `bool.must_not` (exclude).
- *
- * The store slot stays the `{ include: [], exclude: [] }` shape that
- * `store/api.js`'s `buildStaticPostTypeClauses()` consumes — this PHP
- * helper just picks which side to populate from the block's `mode`
- * attribute. Multi-instance composition continues to union by side, so
- * multiple Include blocks broaden the include set and multiple Exclude
- * blocks broaden the exclude set.
+ * Single-mode block (`include` OR `exclude`); the helper translates the
+ * `{ mode, postTypes }` attributes into the `{ include, exclude }` shape
+ * `store/api.js`'s `buildStaticPostTypeClauses()` consumes.
  */
 class Post_Type_Filter {
 
 	/**
-	 * Per-request cache of slugs of post types registered with
-	 * `exclude_from_search => false`. Built lazily by
-	 * `searchable_post_type_slugs()` on first call. Tests reset this via
-	 * Reflection across `setUp`/`tearDown`; production code never mutates
-	 * it directly.
+	 * Per-request cache of slugs registered with `exclude_from_search => false`.
+	 * Tests reset this via Reflection.
 	 *
 	 * @var string[]|null
 	 */
 	private static $searchable_cache = null;
 
 	/**
-	 * Translate raw block attributes into the `{ include, exclude }` store
-	 * slot shape. Exactly one side will be non-empty (or both empty when
-	 * the block has no selection), matching the block's single-mode UX.
-	 *
-	 * Output guarantees:
-	 *  - Each value is a non-empty `sanitize_key`'d string.
-	 *  - Each value is a registered post type whose `exclude_from_search`
-	 *    flag is `false`. Anything else (typo, retired CPT, private type)
-	 *    is dropped silently so a stray slug can't collapse every search
-	 *    on the page to zero results by reaching ES.
-	 *  - Lists are deduplicated and re-indexed.
+	 * Translate block attributes into `{ include, exclude }`. Slugs are
+	 * sanitized and validated against the live searchable-post-type
+	 * registry — typos / retired CPTs / private types are dropped before
+	 * reaching ES.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @return array{include: string[], exclude: string[]}
@@ -65,14 +47,10 @@ class Post_Type_Filter {
 	}
 
 	/**
-	 * Coerce a raw attribute value into a sanitized, deduped, re-indexed
-	 * list of post-type slugs. Non-arrays, non-scalars, and empty values
-	 * are dropped silently so a malformed attribute can never reach the
-	 * ES filter clause. When `$allowed` is provided, slugs not present in
-	 * the allowlist are also dropped.
+	 * Sanitize, dedupe, optionally allowlist-filter a slug list.
 	 *
 	 * @param mixed         $raw     Raw attribute value.
-	 * @param string[]|null $allowed Optional allowlist of slugs to keep; null skips the check.
+	 * @param string[]|null $allowed Optional allowlist of slugs to keep.
 	 * @return string[]
 	 */
 	private static function sanitize_slug_list( $raw, ?array $allowed = null ): array {
@@ -97,13 +75,9 @@ class Post_Type_Filter {
 	}
 
 	/**
-	 * Slugs of post types that participate in search — i.e. registered with
-	 * `exclude_from_search => false`. Cached per-request so repeated lookups
-	 * (one per render call) don't re-walk the registry. Returns null when
-	 * `get_post_types` is unavailable so callers treat that as "no allowlist"
-	 * and skip the registry-membership check.
+	 * Searchable post-type slugs (lazy + cached per request).
 	 *
-	 * @return string[]|null
+	 * @return string[]|null Slug list, or null when get_post_types is unavailable.
 	 */
 	private static function searchable_post_type_slugs(): ?array {
 		if ( null !== static::$searchable_cache ) {
@@ -119,23 +93,16 @@ class Post_Type_Filter {
 	}
 
 	/**
-	 * Merge a block's contribution into the existing `staticPostTypes` shape
-	 * already on the Interactivity state. Composition rule: union both lists.
+	 * Union a block's contribution into the existing `staticPostTypes`
+	 * state slot. Multi-instance composition broadens (rather than
+	 * intersects) each side so stacked blocks cannot silently produce
+	 * zero results.
 	 *
-	 * Multiple instances of the block on the same page therefore broaden
-	 * each side rather than intersecting it — picking intersection here
-	 * would silently zero out results when an editor stacks two blocks
-	 * configured for non-overlapping post types.
-	 *
-	 * @param array{include?: mixed, exclude?: mixed}     $existing     Current state slot value.
+	 * @param array{include?: mixed, exclude?: mixed}     $existing     Current slot value.
 	 * @param array{include: string[], exclude: string[]} $contribution New block lists.
 	 * @return array{include: string[], exclude: string[]}
 	 */
 	public static function merge_state( array $existing, array $contribution ): array {
-		// Existing state may be malformed (forward-compat with a future
-		// shape change); sanitize_slug_list strips bad entries. The
-		// contribution itself was already passed through `build_constraint()`
-		// so it's clean at this point.
 		$existing_include = static::sanitize_slug_list( $existing['include'] ?? array() );
 		$existing_exclude = static::sanitize_slug_list( $existing['exclude'] ?? array() );
 

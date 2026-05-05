@@ -1,18 +1,5 @@
 /**
  * Editor preview for jetpack/post-type-filter.
- *
- * Hidden filter: the front-end render is empty by design — this block only
- * contributes a single-mode constraint (Include OR Exclude, never both) to
- * the shared search state. The editor preview is a small Placeholder card
- * so the editor can see and configure the block without it being invisible
- * in the canvas.
- *
- * Single-mode rather than two attribute lists: combining Include and
- * Exclude on one block is technically valid (Include narrows, Exclude
- * subtracts inside it), but it confuses authors — Exclude visibly does
- * "nothing" most of the time when Include is set, since the include set
- * is already restrictive. A toggle keeps the mental model simple: pick
- * one mode, then pick the post types that belong to it.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { FormTokenField, Icon, PanelBody, RadioControl } from '@wordpress/components';
@@ -25,12 +12,12 @@ const MODE_INCLUDE = 'include';
 const MODE_EXCLUDE = 'exclude';
 
 /**
- * sanitize_key() (PHP) approximation: lowercase + strip anything that is not
- * `[a-z0-9_-]`. Mirrors how the server normalizes attribute slugs so the
- * editor's stored attribute matches what eventually reaches ES.
+ * `sanitize_key()` (PHP) approximation: lowercase + strip everything that
+ * is not `[a-z0-9_-]`. Mirrors the server normalizer so editor-stored
+ * attributes match what eventually reaches ES.
  *
  * @param {string} value - Raw token string.
- * @return {string} Sanitized slug, or empty string when nothing remains.
+ * @return {string} Sanitized slug.
  */
 function sanitizeKey( value ) {
 	return String( value || '' )
@@ -39,14 +26,12 @@ function sanitizeKey( value ) {
 }
 
 /**
- * Build a unique-by-construction display label for each post type. When two
- * types share the same `singular_name` (a plugin can register an entirely
- * different CPT with the same human label as a built-in), append the slug
- * in parentheses so the FormTokenField suggestion list stays one-to-one
- * with the underlying slug.
+ * Append `(slug)` to any label that occurs more than once so each suggestion
+ * label maps 1:1 to a slug — without this the FormTokenField label→slug
+ * lookup picks an arbitrary winner when two CPTs share a `singular_name`.
  *
  * @param {Array<{value: string, label: string}>} options - Raw slug/label list.
- * @return {Array<{value: string, label: string}>} Same shape with disambiguated labels.
+ * @return {Array<{value: string, label: string}>} Disambiguated.
  */
 function disambiguateLabels( options ) {
 	const counts = new Map();
@@ -59,13 +44,11 @@ function disambiguateLabels( options ) {
 }
 
 /**
- * Map a list of post-type slugs to the labelled token shape FormTokenField
- * expects for displayed values, falling back to the raw slug when the type
- * isn't (yet) loaded by core-data.
+ * Map slugs to FormTokenField's `{value, title}` shape.
  *
  * @param {string[]} slugs       - Stored slug list.
- * @param {Map}      labelBySlug - slug -> singular label map.
- * @return {Array<{ value: string, title: string }>} Token shape for FormTokenField.
+ * @param {Map}      labelBySlug - slug → label.
+ * @return {Array<{ value: string, title: string }>} Token shape.
  */
 function toTokens( slugs, labelBySlug ) {
 	return ( slugs || [] ).map( slug => ( {
@@ -75,15 +58,12 @@ function toTokens( slugs, labelBySlug ) {
 }
 
 /**
- * Convert FormTokenField output back into a sanitized slug list. Tokens
- * may come back as strings (free entry or label picked from suggestions)
- * or as `{ value }` objects; both resolve to the slug we store on the
- * attribute. Free-typed values pass through `sanitizeKey` so the saved
- * attribute matches what the server normalizer will produce.
+ * Convert FormTokenField output back to a sanitized, deduped slug list.
+ * Free-typed values pass through `sanitizeKey` so editor and server agree.
  *
- * @param {Array<string|{value: string}>}         tokens  - Tokens emitted by onChange.
- * @param {Array<{value: string, label: string}>} options - Resolved post-type options for label→slug lookup.
- * @return {string[]} Deduped, non-empty, sanitize_key-equivalent slug list.
+ * @param {Array<string|{value: string}>}         tokens  - Tokens from onChange.
+ * @param {Array<{value: string, label: string}>} options - Resolved options for label→slug lookup.
+ * @return {string[]} Sanitized slugs.
  */
 function tokensToSlugs( tokens, options ) {
 	const out = [];
@@ -113,11 +93,9 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 		[ attributes?.postTypes ]
 	);
 
-	// `getPostTypes()` proxies getEntityRecords( 'root', 'postType' ); it
-	// returns null until resolved and a finite list once loaded. We further
-	// drop `attachment` and any type whose `viewable` flag is `false` here;
-	// the *server* normalizer (`Post_Type_Filter::build_constraint()`) is
-	// the canonical allowlist gate against `exclude_from_search => false`.
+	// `viewable !== false` filter is a UX nicety; the canonical allowlist
+	// (`exclude_from_search => false`) is enforced server-side because the
+	// REST endpoint does not expose that flag.
 	const registeredTypes = useSelect(
 		select => select( 'core' ).getPostTypes( { per_page: -1 } ),
 		[]
@@ -150,12 +128,8 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 
 	const previewState = describePreview( mode, postTypes, labelBySlug );
 
-	// Per-mode draft cache. Lets the author flip Exclude ⇄ Include, edit
-	// each side independently, and have the previously-typed list come back
-	// when they flip back. Only the active mode's `postTypes` is persisted
-	// to attributes — the inactive draft is local to this editor session
-	// and is discarded on save / reload (matching "only the saved mode
-	// survives a page refresh").
+	// Per-mode draft cache. Flipping back to a previously-used mode restores
+	// the typed list; only the active mode's `postTypes` is persisted.
 	const draftRef = useRef( null );
 	if ( draftRef.current === null ) {
 		draftRef.current = {
@@ -168,9 +142,6 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 		if ( nextMode === mode ) {
 			return;
 		}
-		// Stash the slugs the author had under the current mode, restore
-		// whatever they had previously typed under the new mode (or an
-		// empty list when this is the first switch into that mode).
 		draftRef.current = { ...draftRef.current, [ mode ]: postTypes };
 		setAttributes( {
 			mode: nextMode,
@@ -245,12 +216,6 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				{ /* Flat preview, no card chrome — matches the filter-checkbox
-				     and search-results editor previews (just an h3 + content,
-				     letting the editor's own selection outline frame it). The
-				     "Hidden on front end" eyebrow is the only addition: this
-				     block writes to interactivity state and emits no markup,
-				     and that is otherwise invisible in the canvas. */ }
 				<p
 					style={ {
 						display: 'flex',
@@ -281,14 +246,13 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 }
 
 /**
- * Translate a label string emitted by FormTokenField back to the matching
- * post-type slug. Labels are disambiguated upstream by `disambiguateLabels()`,
- * so each label in `options` resolves to exactly one slug.
+ * Reverse `disambiguateLabels()`: a picked-suggestion label resolves back
+ * to its slug.
  *
- * @param {string} token   - Token string from FormTokenField.
+ * @param {string} token   - Token from FormTokenField.
  * @param {Array}  options - { value, label } option list.
- * @return {string} Slug, or the original token if no match. Free-typed input is
- * left untouched here; `tokensToSlugs` runs it through `sanitizeKey` before saving.
+ * @return {string} Slug, or the original token (free-typed input is
+ * sanitized later in `tokensToSlugs`).
  */
 function labelFromTokenString( token, options ) {
 	if ( ! Array.isArray( options ) ) {
@@ -299,18 +263,14 @@ function labelFromTokenString( token, options ) {
 }
 
 /**
- * Build the canvas preview copy for the current mode + selection. Returns a
- * `{ label, value }` pair that the JSX renders as `<strong>{label}</strong> {value}`.
- *
- * Mode-specific labels keep the canvas text aligned with the Inspector
- * (Include/Exclude) instead of restating "Results limited to..."  copy that
- * has to be re-read every time. Empty selections render a clear "(none
- * selected)" so the unconfigured state is unambiguous.
+ * Build the canvas preview's `{ label, value }` for the current mode +
+ * selection. An empty selection renders "(none selected)" so the
+ * unconfigured state stays explicit.
  *
  * @param {string}   mode        - 'include' | 'exclude'.
  * @param {string[]} postTypes   - Selected slug list.
- * @param {Map}      labelBySlug - slug -> label map.
- * @return {{label: string, value: string}} Preview rows.
+ * @param {Map}      labelBySlug - slug → label.
+ * @return {{label: string, value: string}} Preview row.
  */
 function describePreview( mode, postTypes, labelBySlug ) {
 	const valueText =
@@ -319,16 +279,10 @@ function describePreview( mode, postTypes, labelBySlug ) {
 			: __( '(none selected)', 'jetpack-search-pkg' );
 
 	if ( mode === MODE_INCLUDE ) {
-		return {
-			label: __( 'Include only:', 'jetpack-search-pkg' ),
-			value: valueText,
-		};
+		return { label: __( 'Include only:', 'jetpack-search-pkg' ), value: valueText };
 	}
-	return {
-		label: __( 'Exclude:', 'jetpack-search-pkg' ),
-		value: valueText,
-	};
+	return { label: __( 'Exclude:', 'jetpack-search-pkg' ), value: valueText };
 }
 
-// Re-export internals for unit tests.
+// Unit-test re-exports.
 export { sanitizeKey, disambiguateLabels, tokensToSlugs, describePreview };
