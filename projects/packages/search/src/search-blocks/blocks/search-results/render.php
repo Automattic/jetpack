@@ -10,8 +10,13 @@ namespace Automattic\Jetpack\Search;
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 /**
- * Per-layout feature flags. Mirrors layout-features.js so editor preview and
- * frontend agree on which sections each layout opts into.
+ * Per-layout feature flags driving the SSR template below. Edit.js renders
+ * each layout as its own explicit JSX template (no shared feature-flag
+ * map) — the JS preview prioritizes readability over DRY since each
+ * sample list is short. PHP keeps the flag-table form because the
+ * Interactivity-bound DOM is identical across layouts and only the
+ * `<?php if ?>` gates around image / path / price / rating / date
+ * sections differ.
  *
  * @param string $layout Layout key.
  * @return array{modifier:string, show_image:bool, show_path:bool, show_date:bool, show_price:bool, show_rating:bool}

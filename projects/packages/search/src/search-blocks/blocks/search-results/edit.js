@@ -1,10 +1,19 @@
 /**
  * Editor preview for jetpack/search-results.
+ *
+ * Each layout has its own template function below. Duplication is intentional
+ * — the templates are short and rarely change, and keeping them separate
+ * means an edit to one layout never silently moves something in another. The
+ * conditional/feature-flag approach lived here briefly and was extracted in
+ * favor of explicit per-layout markup so reviewers can read each card design
+ * end-to-end without resolving flag names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, RadioControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { LAYOUTS, resolveLayout } from './layout-features';
+
+const LAYOUTS = [ 'compact', 'expanded', 'product' ];
+const DEFAULT_LAYOUT = 'expanded';
 
 const SAMPLE_RESULTS = [
 	{
@@ -69,10 +78,10 @@ const LAYOUT_OPTIONS = () => [
  * @return {object} Rendered element.
  */
 export default function SearchResultsEdit( { attributes, setAttributes } ) {
-	const layout = attributes?.layout ?? 'expanded';
-	const features = resolveLayout( layout );
+	const stored = attributes?.layout ?? DEFAULT_LAYOUT;
+	const layout = LAYOUTS.includes( stored ) ? stored : DEFAULT_LAYOUT;
 	const blockProps = useBlockProps( {
-		className: `jetpack-search-results--${ features.modifier }`,
+		className: `jetpack-search-results--${ layout }`,
 	} );
 	return (
 		<>
@@ -80,50 +89,38 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
 					<RadioControl
 						label={ __( 'Result format', 'jetpack-search-pkg' ) }
-						selected={ LAYOUTS.includes( layout ) ? layout : 'expanded' }
+						selected={ layout }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				{ layout === 'product'
-					? renderProductPreview( SAMPLE_PRODUCTS )
-					: renderListPreview( SAMPLE_RESULTS, features ) }
+				{ layout === 'compact' && renderCompactPreview( SAMPLE_RESULTS ) }
+				{ layout === 'expanded' && renderExpandedPreview( SAMPLE_RESULTS ) }
+				{ layout === 'product' && renderProductPreview( SAMPLE_PRODUCTS ) }
 			</div>
 		</>
 	);
 }
 
 /**
- * Card / compact preview list. The two layouts share the same DOM and only
- * vary in which sections render, so a single function handles both.
+ * Compact preview — title and date on a single dense row, no image or path.
  *
- * @param {Array}  results  - Sample rows.
- * @param {object} features - Resolved layout feature flags.
+ * @param {Array} results - Sample rows.
  * @return {object} Rendered element.
  */
-function renderListPreview( results, features ) {
+function renderCompactPreview( results ) {
 	return (
 		<ul className="jetpack-search-results__list">
 			{ results.map( result => (
 				<li key={ result.path } className="jetpack-search-results__item">
 					<div className="jetpack-search-results__copy">
 						<h3 className="jetpack-search-results__title">{ result.title }</h3>
-						{ features.showPath && (
-							<div className="jetpack-search-results__path">{ result.path }</div>
-						) }
-						{ features.showDate && (
-							<div className="jetpack-search-results__meta">
-								<span className="jetpack-search-results__date">{ result.date }</span>
-							</div>
-						) }
+						<div className="jetpack-search-results__meta">
+							<span className="jetpack-search-results__date">{ result.date }</span>
+						</div>
 					</div>
-					{ features.showImage && (
-						<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true">
-							<span className="jetpack-search-results__image-placeholder" aria-hidden="true" />
-						</a>
-					) }
 				</li>
 			) ) }
 		</ul>
@@ -131,7 +128,36 @@ function renderListPreview( results, features ) {
 }
 
 /**
- * Product preview grid.
+ * Expanded preview — title, breadcrumb path, date, and a side image. The
+ * default layout for blogs and content sites.
+ *
+ * @param {Array} results - Sample rows.
+ * @return {object} Rendered element.
+ */
+function renderExpandedPreview( results ) {
+	return (
+		<ul className="jetpack-search-results__list">
+			{ results.map( result => (
+				<li key={ result.path } className="jetpack-search-results__item">
+					<div className="jetpack-search-results__copy">
+						<h3 className="jetpack-search-results__title">{ result.title }</h3>
+						<div className="jetpack-search-results__path">{ result.path }</div>
+						<div className="jetpack-search-results__meta">
+							<span className="jetpack-search-results__date">{ result.date }</span>
+						</div>
+					</div>
+					<a className="jetpack-search-results__image-link" tabIndex={ -1 } aria-hidden="true">
+						<span className="jetpack-search-results__image-placeholder" aria-hidden="true" />
+					</a>
+				</li>
+			) ) }
+		</ul>
+	);
+}
+
+/**
+ * Product preview — image-on-top grid card with price (sale-aware) and a
+ * star rating bar. For WooCommerce stores.
  *
  * @param {Array} products - Sample product rows.
  * @return {object} Rendered element.
