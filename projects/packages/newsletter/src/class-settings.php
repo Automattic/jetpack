@@ -138,6 +138,10 @@ class Settings {
 		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when showing in menu.
 		$use_jetpack_menu = ! $host->is_woa_site() && $show_menu;
 
+		$callback = self::is_modernized() && function_exists( 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page' )
+			? 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page'
+			: array( $this, 'render' );
+
 		// Register menu item.
 		if ( $use_jetpack_menu ) {
 			$page_suffix = Admin_Menu::add_menu(
@@ -146,7 +150,7 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				array( $this, 'render' ),
+				$callback,
 				10
 			);
 		} else {
@@ -157,7 +161,7 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				array( $this, 'render' )
+				$callback
 			);
 		}
 
@@ -176,6 +180,9 @@ class Settings {
 	 */
 	public function add_wp_admin_submenu() {
 		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
+		$callback    = self::is_modernized() && function_exists( 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page' )
+			? 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page'
+			: array( $this, 'render' );
 		$page_suffix = add_submenu_page(
 			$parent_slug,
 			/** "Newsletter" is a product name, do not translate. */
@@ -183,7 +190,7 @@ class Settings {
 			'Newsletter',
 			'manage_options',
 			'jetpack-newsletter',
-			array( $this, 'render' )
+			$callback
 		);
 
 		if ( $page_suffix ) {
