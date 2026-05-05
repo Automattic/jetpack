@@ -539,7 +539,6 @@ class Search_Blocks {
 		$active_filters     = static::parse_url_filters();
 		$price_range        = static::parse_url_price_range();
 		$is_initial_loading = static::is_initial_loading();
-		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
 		return array(
 			// Connection / routing config.
@@ -611,10 +610,14 @@ class Search_Blocks {
 			// on screen without re-flashing placeholders.
 			'skeletonHidden'   => false,
 
-			// Seeded so the SSR pass can resolve `data-wp-text` to a real
-			// string on first paint; `actions.search()` keeps it in lockstep
-			// with `isLoading` / `totalResults` via `computeResultsCountText`.
-			'resultsCountText' => $is_initial_loading ? $searching_text : '',
+			// Seeded empty so the SSR pass can resolve `data-wp-text` to a
+			// real string on first paint; the loading affordance is owned by
+			// the skeleton bar inside the results-count block (gated by
+			// `state.skeletonHidden`), not by a "Searching…" text seed that
+			// would flicker to empty when the resolved count is zero.
+			// `actions.search()` keeps this value in lockstep with
+			// `totalResults` via `computeResultsCountText`.
+			'resultsCountText' => '',
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -747,14 +750,12 @@ class Search_Blocks {
 	protected static function build_initial_strings(): array {
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
-				'searching'          => 'Searching…',
 				'resultsCountSingle' => 'Found %d result',
 				'resultsCountPlural' => 'Found %d results',
 				'removeFilter'       => 'Remove %s',
 			);
 		}
 		return array(
-			'searching'          => __( 'Searching…', 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
 			'resultsCountSingle' => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */

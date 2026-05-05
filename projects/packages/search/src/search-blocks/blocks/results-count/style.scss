@@ -1,3 +1,5 @@
+@use "../skeleton" as skeleton;
+
 .wp-block-jetpack-results-count {
 	font-size: 0.85rem;
 	// Inherit the theme's text color so the block adapts to the site palette
@@ -5,4 +7,21 @@
 	color: inherit;
 	opacity: 0.7;
 	margin: 0;
+
+	@include skeleton.shimmer;
+
+	// Inline skeleton bar that paints during the initial load — sized to
+	// roughly match the resolved "Found N results" string at the wrapper's
+	// 0.85rem font-size, so the block doesn't change height when the text
+	// swaps in.
+	.jetpack-search-skeleton--count {
+		display: inline-block;
+		width: 8rem;
+		height: 1em;
+		vertical-align: middle;
+
+		&[hidden] {
+			display: none;
+		}
+	}
 }

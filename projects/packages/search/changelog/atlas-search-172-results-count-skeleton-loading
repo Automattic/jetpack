@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search blocks: replace the results-count "Searching…" text-swap loading state with a skeleton bar so the block no longer flickers from text to empty when a query returns zero results.

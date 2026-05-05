@@ -158,24 +158,24 @@ let searchToken = 0;
 
 /**
  * Build the human-readable results-count string from the live store state.
- * Returns "Searching…" while a search is in flight, "Found 42 results" once
- * a query resolves with hits, or an empty string in every other case
- * (pre-search, error, or zero hits — the empty-state region inside
- * `jetpack/search-results` owns that copy). Called by every action that mutates `isLoading` or
- * `totalResults` so the seeded `state.resultsCountText` stays in lockstep
- * with the counters; SSR resolves `data-wp-text` against that seeded value
- * directly, so the string can't live on a JS getter.
+ * Returns "Found 42 results" once a query resolves with hits, or an empty
+ * string in every other case (pre-search, loading, error, or zero hits —
+ * the empty-state region inside `jetpack/search-results` owns the empty
+ * copy, and the results-count block paints a skeleton bar gated by
+ * `state.skeletonHidden` for the loading affordance instead of a "Searching…"
+ * text swap that visibly flickers when the resolved count is empty).
+ * Called by every action that mutates `isLoading` or `totalResults` so the
+ * seeded `state.resultsCountText` stays in lockstep with the counters; SSR
+ * resolves `data-wp-text` against that seeded value directly, so the string
+ * can't live on a JS getter.
  *
  * Exported so tests can verify the formatting in isolation without driving
  * the full `actions.search()` lifecycle.
  *
  * @param {object} liveState - The IA store state.
- * @return {string} Localized results-count or status string.
+ * @return {string} Localized results-count string, or empty when there's nothing to count yet.
  */
 export function computeResultsCountText( liveState ) {
-	if ( liveState.isLoading ) {
-		return liveState.strings?.searching ?? 'Searching…';
-	}
 	const total = liveState.totalResults;
 	if ( total === 0 ) {
 		return '';

@@ -8,23 +8,33 @@
 namespace Automattic\Jetpack\Search;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-?>
-<?php
-// Intentionally render the element even when the count text is empty. The
-// Blog Search Page pattern places results-count and sort-control in a flex
-// group with `justifyContent: space-between`; removing the element from the
-// flow when there are no results would collapse that layout, snapping the
-// sort control to the left. An always-present (but text-empty) paragraph
-// keeps the two controls at the outer edges of the row.
+
+// The wrapper is intentionally rendered even when the count text is empty.
+// The Blog Search Page pattern places results-count and sort-control in a
+// flex group with `justifyContent: space-between`; removing the element
+// from the flow when there are no results would collapse that layout,
+// snapping the sort control to the left. An always-present (but text-empty)
+// element keeps the two controls at the outer edges of the row.
 //
-// Pre-hydration text: `state.resultsCountText` is seeded with the localized
-// "Searching…" string when the URL is going to trigger an initial fetch
-// (see `Search_Blocks::build_initial_state()`), and the IA SSR pass writes
-// that string into the body via `data-wp-text` — so a deep link no longer
-// flashes a blank line before JS hydrates.
+// Loading affordance: a skeleton bar paints while a fetch is in flight,
+// gated by `state.isLoading`. Replaces the previous "Searching…" text-swap
+// (same DOM node going from a localized word to an empty string), which
+// flickered visibly when the resolved count was zero. The text node is
+// gated by `!state.isLoading` so the two states never co-exist on screen.
+// `aria-busy` + `aria-live="polite"` give assistive tech a single
+// non-flickering loading→content announcement instead of "Searching…"
+// then a separate count.
 ?>
 <p
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	data-wp-text="state.resultsCountText"
-></p>
+	data-wp-bind--aria-busy="state.isLoading"
+	aria-live="polite"
+><span
+		class="jetpack-search-skeleton jetpack-search-skeleton--count"
+		data-wp-bind--hidden="!state.isLoading"
+		aria-hidden="true"
+	></span><span
+		data-wp-text="state.resultsCountText"
+		data-wp-bind--hidden="state.isLoading"
+	></span></p>

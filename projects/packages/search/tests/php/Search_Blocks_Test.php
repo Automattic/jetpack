@@ -67,14 +67,25 @@ class Search_Blocks_Test extends TestCase {
 		$state = Search_Blocks::build_initial_state();
 		$this->assertArrayHasKey( 'strings', $state );
 		$strings = $state['strings'];
-		$this->assertArrayHasKey( 'searching', $strings );
 		$this->assertArrayHasKey( 'resultsCountSingle', $strings );
 		$this->assertArrayHasKey( 'resultsCountPlural', $strings );
 		$this->assertArrayHasKey( 'removeFilter', $strings );
-		$this->assertNotSame( '', $strings['searching'] );
 		$this->assertStringContainsString( '%d', $strings['resultsCountSingle'] );
 		$this->assertStringContainsString( '%d', $strings['resultsCountPlural'] );
 		$this->assertStringContainsString( '%s', $strings['removeFilter'] );
+	}
+
+	/**
+	 * `resultsCountText` is seeded as an empty string regardless of whether
+	 * the URL is going to trigger an initial fetch — the loading affordance
+	 * lives in the results-count block's skeleton bar (gated by
+	 * `state.skeletonHidden`), not in a "Searching…" text seed that used to
+	 * flicker to empty when the resolved count was zero.
+	 */
+	public function test_build_initial_state_seeds_empty_results_count_text() {
+		$state = Search_Blocks::build_initial_state();
+		$this->assertArrayHasKey( 'resultsCountText', $state );
+		$this->assertSame( '', $state['resultsCountText'] );
 	}
 
 	/**

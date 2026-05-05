@@ -431,7 +431,6 @@ describe( 'store getters', () => {
 			aggregations: {},
 			sortOrder: 'relevance',
 			strings: {
-				searching: 'Looking…',
 				resultsCountSingle: 'Found %d item',
 				resultsCountPlural: 'Found %d items',
 			},
@@ -445,8 +444,15 @@ describe( 'store getters', () => {
 		// resolve server-side. Exercising `computeResultsCountText` directly
 		// keeps the formatting contract under test without driving the full
 		// fetch lifecycle.
+		//
+		// Loading deliberately returns the empty string — the results-count
+		// block paints a skeleton bar gated by `state.skeletonHidden` for
+		// the loading affordance instead of swapping a "Searching…" string
+		// into the same DOM node, which used to flicker to empty when the
+		// resolved count was zero.
 		state.isLoading = true;
-		expect( computeResultsCountText( state ) ).toBe( 'Looking…' );
+		state.totalResults = 0;
+		expect( computeResultsCountText( state ) ).toBe( '' );
 
 		state.isLoading = false;
 		state.totalResults = 1;
