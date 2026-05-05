@@ -1,6 +1,7 @@
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import { EXPERIENCE_ORDER } from './constants';
 import ExperienceOption from './experience-option';
@@ -56,7 +57,7 @@ export default function FeatureSelector() {
 					className="jp-search-feature-selector__fieldset"
 					aria-labelledby="jp-search-feature-selector-heading"
 				>
-					<div className="jp-search-feature-selector__options">
+					<Stack direction="column" gap="sm">
 						{ EXPERIENCE_ORDER.map( experience => (
 							<ExperienceOption
 								key={ experience }
@@ -64,7 +65,7 @@ export default function FeatureSelector() {
 								disabled={ isExperienceDisabled( experience ) }
 							/>
 						) ) }
-					</div>
+					</Stack>
 				</fieldset>
 				<div className="jp-search-feature-selector__footer" aria-live="polite">
 					<p className="jp-search-feature-selector__status">

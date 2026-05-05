@@ -25,12 +25,6 @@
 		padding: 0;
 	}
 
-	&__options {
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-sm);
-	}
-
 	&__option {
 		display: flex;
 		align-items: center;
