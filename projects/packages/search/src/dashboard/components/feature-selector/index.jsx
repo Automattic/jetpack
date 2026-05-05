@@ -67,7 +67,14 @@ export default function FeatureSelector() {
 						) ) }
 					</Stack>
 				</fieldset>
-				<div className="jp-search-feature-selector__footer" aria-live="polite">
+				<Stack
+					direction="row"
+					gap="md"
+					align="center"
+					justify="space-between"
+					className="jp-search-feature-selector__footer"
+					aria-live="polite"
+				>
 					<p className="jp-search-feature-selector__status">
 						{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
 					</p>
@@ -79,7 +86,7 @@ export default function FeatureSelector() {
 					>
 						{ __( 'Save', 'jetpack-search-pkg' ) }
 					</Button>
-				</div>
+				</Stack>
 			</form>
 		</>
 	);

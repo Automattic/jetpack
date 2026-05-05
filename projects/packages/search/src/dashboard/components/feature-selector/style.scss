@@ -57,17 +57,13 @@
 		fill: var(--wpds-color-fg-content-neutral);
 	}
 
+	// Body fills the remaining space inside the option Stack so the
+	// description can wrap full-width and the trailing badge sits at the edge.
 	&__option-body {
 		flex: 1 1 auto;
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-xs);
 	}
 
 	&__option-title {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--wpds-dimension-gap-sm);
 		font-weight: 600;
 		color: var(--wpds-color-fg-content-neutral);
 	}
@@ -84,10 +80,6 @@
 	}
 
 	&__footer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--wpds-dimension-gap-md);
 		margin-block-start: var(--wpds-dimension-gap-lg);
 	}
 

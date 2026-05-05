@@ -71,8 +71,13 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					className="jp-search-feature-selector__option-icon"
 					icon={ getExperienceIcon( experience ) }
 				/>
-				<span className="jp-search-feature-selector__option-body">
-					<span className="jp-search-feature-selector__option-title">
+				<Stack direction="column" gap="xs" className="jp-search-feature-selector__option-body">
+					<Stack
+						direction="row"
+						gap="sm"
+						align="center"
+						className="jp-search-feature-selector__option-title"
+					>
 						{ getExperienceLabel( experience ) }
 						{ isRecommended && (
 							<Badge
@@ -82,11 +87,11 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 								{ __( 'Recommended', 'jetpack-search-pkg' ) }
 							</Badge>
 						) }
-					</span>
+					</Stack>
 					<span className="jp-search-feature-selector__option-description">
 						{ getExperienceDescription( experience ) }
 					</span>
-				</span>
+				</Stack>
 				{ isActive && (
 					<Badge
 						intent="stable"
