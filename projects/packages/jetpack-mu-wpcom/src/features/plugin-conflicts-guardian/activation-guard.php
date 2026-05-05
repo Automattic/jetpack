@@ -123,9 +123,9 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 	// JSON body, or the captured `file` was outside any candidate's tree).
 	// Surface a batch-level message so we don't blame an arbitrary plugin.
 	$reason = sprintf(
-		/* translators: 1: comma-separated plugin basenames; 2: probe verdict reason. */
+		/* translators: 1: locale-formatted list of plugin basenames; 2: probe verdict reason. */
 		__( 'One of these plugins caused a fatal during the pre-flight check: %1$s. Reason: %2$s', 'jetpack-mu-wpcom' ),
-		implode( ', ', array_keys( $paths ) ),
+		wp_sprintf_l( '%l', array_keys( $paths ) ),
 		pcg_guard_format_block_reason( $result )
 	);
 	return array( '' => $reason );
