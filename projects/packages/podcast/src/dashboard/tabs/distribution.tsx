@@ -19,7 +19,8 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useRef, useState, type ComponentType } from '@wordpress/element';
+import { useCopyToClipboard } from '@wordpress/compose';
+import { useCallback, useState, type ComponentType } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import {
@@ -99,29 +100,11 @@ const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
 
 const FeedCopyField = ( { value }: { value: string } ) => {
 	const [ copied, setCopied ] = useState( false );
-	const timeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 
-	useEffect(
-		() => () => {
-			if ( timeoutRef.current ) {
-				clearTimeout( timeoutRef.current );
-			}
-		},
-		[]
-	);
-
-	const onCopy = useCallback( () => {
-		if ( ! value || ! navigator.clipboard?.writeText ) {
-			return;
-		}
-		navigator.clipboard.writeText( value ).then( () => {
-			setCopied( true );
-			if ( timeoutRef.current ) {
-				clearTimeout( timeoutRef.current );
-			}
-			timeoutRef.current = setTimeout( () => setCopied( false ), 2000 );
-		} );
-	}, [ value ] );
+	const copyRef = useCopyToClipboard< HTMLButtonElement >( value, () => {
+		setCopied( true );
+		setTimeout( () => setCopied( false ), 2000 );
+	} );
 
 	return (
 		<HStack alignment="center" spacing={ 2 } className="podcast__feed-copy">
@@ -134,9 +117,9 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 				aria-label={ __( 'Podcast RSS feed URL', 'jetpack-podcast' ) }
 			/>
 			<Button
+				ref={ copyRef }
 				variant="secondary"
 				icon={ copied ? check : copy }
-				onClick={ onCopy }
 				disabled={ ! value }
 			>
 				{ copied ? COPIED_LABEL : COPY_LINK_LABEL }

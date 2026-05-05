@@ -19,7 +19,8 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCopyToClipboard } from '@wordpress/compose';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, link } from '@wordpress/icons';
 import { usePodcatcherUrl } from '../hooks/use-podcatcher-url';
@@ -43,38 +44,15 @@ const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProp
 	const [ storedUrl, setStoredUrl ] = usePodcatcherUrl( siteUrl, podcatcher.id );
 	const [ draftUrl, setDraftUrl ] = useState( storedUrl );
 	const [ hasCopied, setHasCopied ] = useState( false );
-	const copyTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 
 	useEffect( () => {
 		setDraftUrl( storedUrl );
 	}, [ storedUrl ] );
 
-	useEffect(
-		() => () => {
-			if ( copyTimeoutRef.current ) {
-				clearTimeout( copyTimeoutRef.current );
-			}
-		},
-		[]
-	);
-
-	const handleCopy = useCallback( () => {
-		if ( ! feedUrl || ! navigator.clipboard?.writeText ) {
-			return;
-		}
-		navigator.clipboard
-			.writeText( feedUrl )
-			.then( () => {
-				setHasCopied( true );
-				if ( copyTimeoutRef.current ) {
-					clearTimeout( copyTimeoutRef.current );
-				}
-				copyTimeoutRef.current = setTimeout( () => setHasCopied( false ), 2000 );
-			} )
-			.catch( () => {
-				// Clipboard write rejection is silent — user just keeps seeing the original button label.
-			} );
-	}, [ feedUrl ] );
+	const copyRef = useCopyToClipboard< HTMLButtonElement >( feedUrl, () => {
+		setHasCopied( true );
+		setTimeout( () => setHasCopied( false ), 2000 );
+	} );
 
 	const handleSave = useCallback(
 		( event: FormEvent< HTMLFormElement > ) => {
@@ -127,12 +105,12 @@ const SubmitModal = ( { feedUrl, siteUrl, podcatcher, onClose }: SubmitModalProp
 					</Text>
 					{ feedUrl && (
 						<Button
+							ref={ copyRef }
 							className="podcast__submit-copy-button"
 							variant="secondary"
 							__next40pxDefaultSize
 							icon={ link }
 							iconPosition="left"
-							onClick={ handleCopy }
 						>
 							{ hasCopied ? copiedLabel : copyLinkLabel }
 						</Button>
