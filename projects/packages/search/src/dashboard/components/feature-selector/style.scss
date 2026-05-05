@@ -25,12 +25,13 @@
 		padding: 0;
 	}
 
-	// Two-column grid: radio in column 1 (vertically centered against the
-	// content), everything else in column 2. Inside column 2 the content can
-	// wrap freely on narrow viewports without bumping the radio off its row.
+	// Three-column grid: radio | content | trailing badge. The content
+	// column stacks the headline (icon + title + recommended badge) above
+	// the description, so the radio and active badge stay vertically
+	// centered against the whole content block.
 	&__option {
 		display: grid;
-		grid-template-columns: auto 1fr;
+		grid-template-columns: auto 1fr auto;
 		align-items: center;
 		gap: var(--wpds-dimension-gap-md);
 		padding: var(--wpds-dimension-padding-lg);
@@ -59,14 +60,7 @@
 	}
 
 	&__option-icon {
-		flex: 0 0 auto;
 		fill: var(--wpds-color-fg-content-neutral);
-	}
-
-	// Body fills the remaining space inside the option Stack so the
-	// description can wrap full-width and the trailing badge sits at the edge.
-	&__option-body {
-		flex: 1 1 auto;
 	}
 
 	&__option-title {
@@ -77,12 +71,6 @@
 	&__option-description {
 		color: var(--wpds-color-fg-content-neutral-weak);
 		font-size: var(--wpds-typography-font-size-md);
-	}
-
-	// Right-align the trailing Active badge inside the option flex row.
-	// Layout-only — the badge's appearance is handled by `@wordpress/ui` Badge.
-	&__option-trailing {
-		margin-inline-start: auto;
 	}
 
 	&__footer {
@@ -100,8 +88,8 @@
 // (a quirk to align with adjacent label baselines in classic forms) at
 // specificity (0,1,1). Qualify our reset with `input[type="radio"]` so it
 // lands at (0,2,1) and reliably wins, letting the option grid's
-// `align-items: center` put the radio on the same vertical centre as the
-// icon.
+// `align-items: center` keep the radio vertically centred against the
+// option's full content block.
 input[type="radio"].jp-search-feature-selector__option-radio {
 	margin: 0;
 }

@@ -66,42 +66,35 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				disabled={ disabled }
 				onChange={ disabled ? undefined : () => setPendingExperience( experience ) }
 			/>
-			<Stack gap="md" align="center" className="jp-search-feature-selector__option-content">
-				<Icon
-					className="jp-search-feature-selector__option-icon"
-					icon={ getExperienceIcon( experience ) }
-				/>
-				<Stack direction="column" gap="xs" className="jp-search-feature-selector__option-body">
-					<Stack
-						gap="sm"
-						align="center"
-						wrap="wrap"
-						className="jp-search-feature-selector__option-title"
-					>
+			<Stack direction="column" gap="xs" className="jp-search-feature-selector__option-content">
+				<Stack
+					gap="md"
+					align="center"
+					wrap="wrap"
+					className="jp-search-feature-selector__option-headline"
+				>
+					<Icon
+						className="jp-search-feature-selector__option-icon"
+						icon={ getExperienceIcon( experience ) }
+					/>
+					<span className="jp-search-feature-selector__option-title">
 						{ getExperienceLabel( experience ) }
-						{ isRecommended && (
-							<Badge
-								intent="informational"
-								aria-label={ __( 'Recommended', 'jetpack-search-pkg' ) }
-							>
-								{ __( 'Recommended', 'jetpack-search-pkg' ) }
-							</Badge>
-						) }
-					</Stack>
-					<span className="jp-search-feature-selector__option-description">
-						{ getExperienceDescription( experience ) }
 					</span>
+					{ isRecommended && (
+						<Badge intent="informational" aria-label={ __( 'Recommended', 'jetpack-search-pkg' ) }>
+							{ __( 'Recommended', 'jetpack-search-pkg' ) }
+						</Badge>
+					) }
 				</Stack>
-				{ isActive && (
-					<Badge
-						intent="stable"
-						className="jp-search-feature-selector__option-trailing"
-						aria-label={ __( 'Active', 'jetpack-search-pkg' ) }
-					>
-						{ __( 'Active', 'jetpack-search-pkg' ) }
-					</Badge>
-				) }
+				<span className="jp-search-feature-selector__option-description">
+					{ getExperienceDescription( experience ) }
+				</span>
 			</Stack>
+			{ isActive && (
+				<Badge intent="stable" aria-label={ __( 'Active', 'jetpack-search-pkg' ) }>
+					{ __( 'Active', 'jetpack-search-pkg' ) }
+				</Badge>
+			) }
 		</label>
 	);
 }
