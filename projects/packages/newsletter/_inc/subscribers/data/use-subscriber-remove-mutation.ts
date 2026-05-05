@@ -38,6 +38,21 @@ export function useSubscriberRemoveMutation() {
 	const queryClient = useQueryClient();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
+	const noticeFailureCount = ( count: number ) =>
+		createErrorNotice(
+			sprintf(
+				// translators: %d: number of subscribers that could not be removed.
+				_n(
+					'%d subscriber could not be removed.',
+					'%d subscribers could not be removed.',
+					count,
+					'jetpack-newsletter'
+				),
+				count
+			),
+			{ type: 'snackbar' }
+		);
+
 	return useMutation< Result, Error, Subscriber[], { snapshot: Snapshot } >( {
 		mutationFn: async ( subscribers: Subscriber[] ) => {
 			const targets = subscribers.slice( 0, MAX_BULK_REMOVE );
@@ -111,23 +126,7 @@ export function useSubscriberRemoveMutation() {
 				queryClient.setQueryData( queryKey, data );
 			} );
 			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
-
-			const count = vars?.length ?? 0;
-			createErrorNotice(
-				count === 1
-					? __( 'Could not remove subscriber.', 'jetpack-newsletter' )
-					: sprintf(
-							// translators: %d: number of subscribers that could not be removed.
-							_n(
-								'%d subscriber could not be removed.',
-								'%d subscribers could not be removed.',
-								count,
-								'jetpack-newsletter'
-							),
-							count
-					  ),
-				{ type: 'snackbar' }
-			);
+			noticeFailureCount( vars?.length ?? 0 );
 		},
 		onSuccess: result => {
 			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
@@ -166,19 +165,7 @@ export function useSubscriberRemoveMutation() {
 			}
 
 			if ( result.failures.length > 0 ) {
-				createErrorNotice(
-					sprintf(
-						// translators: %d: number of subscribers that could not be removed.
-						_n(
-							'%d subscriber could not be removed.',
-							'%d subscribers could not be removed.',
-							result.failures.length,
-							'jetpack-newsletter'
-						),
-						result.failures.length
-					),
-					{ type: 'snackbar' }
-				);
+				noticeFailureCount( result.failures.length );
 			}
 		},
 	} );

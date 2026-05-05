@@ -407,7 +407,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		// Tolerate idempotent "already gone" errors as success — Calypso treats `not_following`
 		// and `not_found` as a successful removal, since the subscriber was already detached.
-		$idempotent_errors = array( 'not_following', 'not_found', 'subscription_not_found' );
+		$idempotent_errors = array( 'not_following', 'not_found' );
 
 		foreach ( $paid_subscription_ids as $paid_id ) {
 			$paid_id = sanitize_text_field( (string) $paid_id );
@@ -759,15 +759,17 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	}
 
 	/**
-	 * Helper: POST to a v1.1 wpcom REST path as the current user.
+	 * Helper: POST to a v1.1 wpcom REST path as the current user. Mirrors Calypso, which uses
+	 * the user's wpcom session cookie.
 	 *
-	 * Note on caps: WP.com's followers / email-followers / memberships endpoints require the
-	 * calling user to have the `delete_followers` capability on the wpcom-side blog. That maps
-	 * 1:1 with the wpcom blog admin role, so this works on real Jetpack-connected sites where
-	 * the wp-admin admin user is also the wpcom-side blog admin. It does NOT work on environments
-	 * where the wpcom-side blog is owned by a different account than the locally-connected user
-	 * (e.g. some Jurassic Ninja test sites). We tried `as_blog` and forwarding as the connection
-	 * owner — both hit the same wpcom cap gate. The fix lives on the wpcom side, not here.
+	 * Caveat — wpcom cap gate: the followers / email-followers / memberships endpoints require
+	 * the calling user to have the `delete_followers` capability on the wpcom-side blog. That
+	 * maps 1:1 with the wpcom blog admin role, so this works on real Jetpack-connected sites
+	 * where the wp-admin admin is also the wpcom-side blog admin. It does NOT work on JN /
+	 * Tube test environments where the wpcom-side shadow blog is owned by a different account
+	 * than the locally-connected user. We confirmed both `as_user` (cap missing) and `as_blog`
+	 * (endpoint refuses blog tokens with "API call not allowed for this account") hit the same
+	 * gate. The real fix lives on the wpcom side.
 	 *
 	 * Returns null on success or a WP_Error describing the failure. If the wpcom error code is
 	 * in `$tolerable_errors`, the call is treated as a successful no-op (mirrors Calypso's
