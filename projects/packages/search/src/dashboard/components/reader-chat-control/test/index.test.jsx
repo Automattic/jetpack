@@ -38,6 +38,7 @@ const defaultProps = {
 	isAvailable: true,
 	isEnabled: false,
 	isSaving: false,
+	guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 	updateOptions: jest.fn(),
 };
 
@@ -64,8 +65,21 @@ describe( 'ReaderChatControl', () => {
 			screen.getByRole( 'link', {
 				name: /Set guidelines/i,
 			} )
-		).toHaveAttribute( 'href', 'options-general.php?page=guidelines-wp-admin' );
+		).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin'
+		);
 		expect( screen.getByTestId( 'external-link-icon' ) ).toBeInTheDocument();
+	} );
+
+	test( 'does not render the guidelines link when the guidelines page is unavailable', () => {
+		render( <ReaderChatControl { ...defaultProps } isEnabled guidelinesUrl="" /> );
+
+		expect(
+			screen.queryByRole( 'link', {
+				name: /Set guidelines/i,
+			} )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'renders the toggle as off when the stored value is false', () => {

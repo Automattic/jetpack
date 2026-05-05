@@ -38,6 +38,9 @@ export default function DashboardPage( { isLoading = false } ) {
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	const readerChatGuidelinesUrl = useSelect( select =>
+		select( STORE_ID ).getReaderChatGuidelinesUrl()
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
@@ -202,6 +205,7 @@ export default function DashboardPage( { isLoading = false } ) {
 								isAvailable={ isReaderChatAvailable }
 								isEnabled={ isReaderChatEnabled }
 								isSaving={ isSavingEitherOption }
+								guidelinesUrl={ readerChatGuidelinesUrl }
 								updateOptions={ updateOptions }
 							/>
 						</div>

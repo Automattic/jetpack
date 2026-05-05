@@ -7,7 +7,6 @@ const READER_CHAT_DESCRIPTION = __(
 	'Let readers ask your blog questions and get answers from your content.',
 	'jetpack-search-pkg'
 );
-const READER_CHAT_GUIDELINES_URL = 'options-general.php?page=guidelines-wp-admin';
 
 /**
  * Reader Chat opt-in control. Reads and writes the reader_chat option
@@ -20,10 +19,17 @@ const READER_CHAT_GUIDELINES_URL = 'options-general.php?page=guidelines-wp-admin
  * @param {boolean}  props.isAvailable   - Whether the reader_chat setting is available.
  * @param {boolean}  props.isEnabled     - Whether Reader Chat is enabled.
  * @param {boolean}  props.isSaving      - Whether settings are being saved.
+ * @param {string}   props.guidelinesUrl - Guidelines admin URL, when available.
  * @param {Function} props.updateOptions - Function to update settings.
  * @return {import('react').Component} Reader Chat settings component.
  */
-export default function ReaderChatControl( { isAvailable, isEnabled, isSaving, updateOptions } ) {
+export default function ReaderChatControl( {
+	isAvailable,
+	isEnabled,
+	isSaving,
+	guidelinesUrl,
+	updateOptions,
+} ) {
 	const toggle = useCallback(
 		next => {
 			updateOptions( { reader_chat: next } );
@@ -57,9 +63,9 @@ export default function ReaderChatControl( { isAvailable, isEnabled, isSaving, u
 								<p className="jp-form-search-settings-group__toggle-explanation">
 									{ READER_CHAT_DESCRIPTION }
 								</p>
-								{ isEnabled && (
+								{ isEnabled && guidelinesUrl && (
 									<p className="jp-form-search-settings-group__toggle-explanation">
-										<ExternalLink href={ READER_CHAT_GUIDELINES_URL }>
+										<ExternalLink href={ guidelinesUrl }>
 											{ __( 'Set guidelines', 'jetpack-search-pkg' ) }
 										</ExternalLink>
 									</p>
