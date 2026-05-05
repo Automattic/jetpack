@@ -225,9 +225,11 @@ function renderProductPreview( products ) {
 						</div>
 						{ product.matchHint && (
 							<div className="jetpack-search-results__match-hint">
-								{ product.matchHint === 'comments'
-									? __( 'Matches comments', 'jetpack-search-pkg' )
-									: __( 'Matches content', 'jetpack-search-pkg' ) }
+								<mark>
+									{ product.matchHint === 'comments'
+										? __( 'Matches comments', 'jetpack-search-pkg' )
+										: __( 'Matches content', 'jetpack-search-pkg' ) }
+								</mark>
 							</div>
 						) }
 					</div>
