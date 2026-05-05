@@ -2,6 +2,14 @@
 /**
  * Search Results block render.
  *
+ * Renders three sibling regions inside a single block wrapper:
+ *  - the results list (skeleton while loading, then live results),
+ *  - the empty-state message (gated by `state.showNoResults`),
+ *  - the error message (gated by `state.showError`).
+ *
+ * The store's existing visibility flags ensure exactly one message is
+ * visible at a time, so the regions can coexist without extra wiring.
+ *
  * @package automattic/jetpack-search
  */
 
@@ -52,7 +60,8 @@ $resolve_layout = static function ( $layout ) {
 };
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$layout = ( (array) $attributes )['layout'] ?? 'expanded';
+$attrs  = (array) $attributes;
+$layout = $attrs['layout'] ?? 'expanded';
 // Pre-rename block markup used `card` for what is now `expanded`. Promote
 // the legacy value so saved content keeps rendering correctly instead of
 // falling through `$resolve_layout`'s unknown-layout fallback. Mirrors the
@@ -71,6 +80,18 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 // `data-wp-bind--hidden="state.skeletonHidden"` takes over visibility.
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
+
+$no_results_message = (string) ( $attrs['noResultsMessage'] ?? '' );
+if ( '' === $no_results_message ) {
+	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+}
+
+// `trim()` so a whitespace-only attribute (e.g. an author saved spaces)
+// still falls back to the default copy instead of rendering a blank alert.
+$error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
+if ( '' === $error_message ) {
+	$error_message = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
+}
 ?>
 <div
 	<?php echo wp_kses_data( $wrapper_attrs ); ?>
@@ -228,4 +249,19 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 			</li>
 		</template>
 	</ul>
+	<div
+		class="jetpack-search-results__no-results"
+		data-wp-bind--hidden="!state.showNoResults"
+		hidden
+	>
+		<p><?php echo esc_html( $no_results_message ); ?></p>
+	</div>
+	<div
+		class="jetpack-search-results__error"
+		data-wp-bind--hidden="!state.showError"
+		role="alert"
+		hidden
+	>
+		<p><?php echo esc_html( $error_message ); ?></p>
+	</div>
 </div>

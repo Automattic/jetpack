@@ -595,9 +595,10 @@ class Search_Blocks {
 			'pageHandle'       => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
-			// search query or filter selection so the no-results block stays
-			// hidden between first paint and JS hydrating the initial fetch —
-			// otherwise a "No results found" flash appears on deep links.
+			// search query or filter selection so the empty-state region inside
+			// `jetpack/search-results` stays hidden between first paint and JS
+			// hydrating the initial fetch — otherwise a "No results found" flash
+			// appears on deep links.
 			'isLoading'        => $is_initial_loading,
 			'isLoadingMore'    => false,
 			'hasError'         => false,

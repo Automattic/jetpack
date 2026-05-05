@@ -1,15 +1,21 @@
 /**
  * Editor preview for jetpack/search-results.
  *
- * Each layout has its own template function below. Duplication is intentional
- * — the templates are short and rarely change, and keeping them separate
- * means an edit to one layout never silently moves something in another. The
- * conditional/feature-flag approach lived here briefly and was extracted in
- * favor of explicit per-layout markup so reviewers can read each card design
- * end-to-end without resolving flag names.
+ * The block owns three runtime states (results, empty, error) but the
+ * editor canvas always shows the success-state preview — the empty and
+ * error copy lives in the Inspector so authors can edit it without a
+ * dedicated preview mode.
+ *
+ * Each layout has its own template function below. Duplication is
+ * intentional — the templates are short and rarely change, and keeping
+ * them separate means an edit to one layout never silently moves
+ * something in another. The conditional/feature-flag approach lived here
+ * briefly and was extracted in favor of explicit per-layout markup so
+ * reviewers can read each card design end-to-end without resolving flag
+ * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, RadioControl } from '@wordpress/components';
+import { PanelBody, RadioControl, TextControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 const LAYOUTS = [ 'compact', 'expanded', 'product' ];
@@ -88,6 +94,8 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ layout }`,
 	} );
+	const noResultsDefault = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	const errorDefault = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
 	return (
 		<>
 			<InspectorControls>
@@ -97,6 +105,30 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 						selected={ layout }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'No-results message', 'jetpack-search-pkg' ) }
+						value={ attributes?.noResultsMessage || '' }
+						placeholder={ noResultsDefault }
+						onChange={ value => setAttributes( { noResultsMessage: value } ) }
+						help={ __(
+							'Shown when a search returns nothing. Leave empty for the default.',
+							'jetpack-search-pkg'
+						) }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Error message', 'jetpack-search-pkg' ) }
+						value={ attributes?.errorMessage || '' }
+						placeholder={ errorDefault }
+						onChange={ value => setAttributes( { errorMessage: value } ) }
+						help={ __(
+							'Shown when a search request fails. Leave empty for the default.',
+							'jetpack-search-pkg'
+						) }
 					/>
 				</PanelBody>
 			</InspectorControls>
