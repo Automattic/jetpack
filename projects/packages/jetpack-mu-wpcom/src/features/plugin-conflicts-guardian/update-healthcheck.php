@@ -45,6 +45,13 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
 	if ( ! is_plugin_active( $plugin_file ) ) {
 		return $return;
 	}
+	// Network-activated plugins on multisite affect every site in the
+	// network. Our probe runs against the current site only and our
+	// rollback flips a single plugin off — neither is the right shape
+	// for a network plugin, so bail before touching anything.
+	if ( is_multisite() && is_plugin_active_for_network( $plugin_file ) ) {
+		return $return;
+	}
 	PCG_Snapshot::capture( $plugin_file );
 	return $return;
 }
