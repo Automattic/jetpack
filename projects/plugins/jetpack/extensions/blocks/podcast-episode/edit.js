@@ -275,7 +275,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, isSelec
 							render={ ( { open } ) =>
 								imageUrl ? (
 									<ToolbarButton
-										aria-label={ __( 'Replace cover art', 'jetpack' ) }
 										onClick={ open }
 										icon={
 											<img
@@ -284,14 +283,10 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, isSelec
 												className="jetpack-podcast-episode__cover-thumbnail"
 											/>
 										}
-										showTooltip
 										label={ __( 'Replace cover art', 'jetpack' ) }
 									/>
 								) : (
-									<ToolbarButton
-										aria-label={ __( 'Add cover art', 'jetpack' ) }
-										onClick={ open }
-									>
+									<ToolbarButton onClick={ open }>
 										{ __( 'Add cover art', 'jetpack' ) }
 									</ToolbarButton>
 								)
