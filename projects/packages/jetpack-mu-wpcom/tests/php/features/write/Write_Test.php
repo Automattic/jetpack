@@ -580,4 +580,17 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( 'wp-login.php', $url );
 		$this->assertStringNotContainsString( 'page=write', $url );
 	}
+
+	/**
+	 * Test that authorized users are redirected to the Write editor.
+	 */
+	public function test_template_redirect_authorized_user_goes_to_write() {
+		wp_set_current_user( $this->admin_id );
+
+		$url = $this->capture_template_redirect_url();
+
+		$this->assertNotNull( $url, 'Expected a redirect to fire.' );
+		$this->assertStringContainsString( 'page=write', $url );
+		$this->assertStringContainsString( 'source=bookmarkable_url', $url );
+	}
 }
