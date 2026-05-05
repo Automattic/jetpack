@@ -26,11 +26,17 @@ type UseActivityActionsOptions = {
 
 /**
  * Row actions for the DataViews table. The single primary action deep-
- * links into the Calypso Backup restore flow for the row's rewind point
- * (`https://cloud.jetpack.com/backup/{slug}/restore/{rewindId}`) and opens
- * in a new tab. Eligibility requires `activityIsRewindable`, a
- * `rewindId`, and a `calypsoSlug` from Initial_State; rows missing any
- * of those don't render the action.
+ * links into the Jetpack Cloud Backup restore flow for the row's rewind
+ * point (`https://cloud.jetpack.com/backup/{slug}/restore/{rewindId}`)
+ * and opens in a new tab. Eligibility requires `activityIsRewindable`,
+ * a `rewindId`, and a `calypsoSlug` from Initial_State; rows missing
+ * any of those don't render the action.
+ *
+ * TEMPORARY: this off-site link is a stop-gap until the Backup wp-admin
+ * port (https://github.com/Automattic/jetpack/pull/48236) lands. Once
+ * that ships, every row action here should point at the in-admin
+ * Backup page instead of cloud.jetpack.com so users stay inside their
+ * own wp-admin for the restore flow.
  *
  * @param options           - Hook options.
  * @param options.isLoading - Whether the list is currently fetching. Kept
@@ -46,7 +52,7 @@ export function useActivityActions( {
 		const backupAction: Action< Activity > = {
 			id: 'backup',
 			isPrimary: true,
-			label: __( 'Manage backup', 'jetpack-activity-log' ),
+			label: __( 'Restore backup', 'jetpack-activity-log' ),
 			icon: <Icon icon={ backup } />,
 			isEligible: item => Boolean( item.activityIsRewindable && item.rewindId && calypsoSlug ),
 			callback: async items => {
@@ -57,7 +63,7 @@ export function useActivityActions( {
 				const url = `https://cloud.jetpack.com/backup/${ encodeURIComponent(
 					calypsoSlug
 				) }/restore/${ encodeURIComponent( item.rewindId ) }`;
-				tracks?.recordEvent( 'jetpack_activity_log_manage_backup_click', {
+				tracks?.recordEvent( 'jetpack_activity_log_restore_backup_click', {
 					rewind_id: item.rewindId,
 					activity_name: item.activityName,
 				} );
