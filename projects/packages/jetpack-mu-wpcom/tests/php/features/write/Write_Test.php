@@ -593,4 +593,19 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'page=write', $url );
 		$this->assertStringContainsString( 'source=bookmarkable_url', $url );
 	}
+
+	/**
+	 * Test that a post ID in the query string is forwarded to the Write editor URL.
+	 */
+	public function test_template_redirect_forwards_post_id() {
+		wp_set_current_user( $this->admin_id );
+		$_GET['post'] = '42';
+
+		$url = $this->capture_template_redirect_url();
+
+		unset( $_GET['post'] );
+
+		$this->assertNotNull( $url, 'Expected a redirect to fire.' );
+		$this->assertStringContainsString( 'post=42', $url );
+	}
 }
