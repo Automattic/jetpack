@@ -51,12 +51,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 
 	return (
 		<label htmlFor={ inputId } className={ className } title={ disabled ? upsellHint : undefined }>
-			<Stack
-				direction="row"
-				gap="md"
-				align="center"
-				className="jp-search-feature-selector__option-stack"
-			>
+			<Stack gap="md" align="center" className="jp-search-feature-selector__option-stack">
 				<input
 					id={ inputId }
 					type="radio"
@@ -72,12 +67,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					icon={ getExperienceIcon( experience ) }
 				/>
 				<Stack direction="column" gap="xs" className="jp-search-feature-selector__option-body">
-					<Stack
-						direction="row"
-						gap="sm"
-						align="center"
-						className="jp-search-feature-selector__option-title"
-					>
+					<Stack gap="sm" align="center" className="jp-search-feature-selector__option-title">
 						{ getExperienceLabel( experience ) }
 						{ isRecommended && (
 							<Badge

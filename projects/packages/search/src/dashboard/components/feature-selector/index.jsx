@@ -68,7 +68,6 @@ export default function FeatureSelector() {
 					</Stack>
 				</fieldset>
 				<Stack
-					direction="row"
 					gap="md"
 					align="center"
 					justify="space-between"
