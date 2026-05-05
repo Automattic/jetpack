@@ -27,15 +27,23 @@ const ExternalLinkIcon = () => (
 /**
  * AI Answers panel displayed above search results.
  *
- * @param {object}        props            - Component props.
- * @param {string}        props.status     - 'idle' | 'loading' | 'streaming' | 'done' | 'error'
- * @param {string}        props.text       - Accumulated answer text (markdown).
- * @param {Array}         props.citations  - Array of { title, url, excerpt } citation objects.
- * @param {object}        props.error      - Error info: { message, code, source } or null.
- * @param {Function|null} props.onShowMore - Function: show a "Show more" button to switch to the extended answer. null: extended mode active, render full content. undefined: standard overflow toggle.
+ * @param {object}        props             - Component props.
+ * @param {string}        props.status      - 'idle' | 'loading' | 'streaming' | 'done' | 'error'
+ * @param {string}        props.text        - Accumulated answer text (markdown).
+ * @param {Array}         props.citations   - Array of { title, url, excerpt } citation objects.
+ * @param {object}        props.error       - Error info: { message, code, source } or null.
+ * @param {string|null}   props.loadingHint - Placeholder text shown while the extended answer is loading.
+ * @param {Function|null} props.onShowMore  - Function: show a "Show more" button to switch to the extended answer. null: extended mode active, render full content. undefined: standard overflow toggle.
  * @return {React.ReactElement|null} The rendered panel or null.
  */
-export default function AnswersPanel( { status, text, citations = [], error = null, onShowMore } ) {
+export default function AnswersPanel( {
+	status,
+	text,
+	citations = [],
+	error = null,
+	loadingHint = null,
+	onShowMore,
+} ) {
 	const [ expanded, setExpanded ] = useState( false );
 	const [ overflows, setOverflows ] = useState( false );
 	const contentRef = useRef( null );
@@ -149,6 +157,9 @@ export default function AnswersPanel( { status, text, citations = [], error = nu
 						</ul>
 					) }
 				</div>
+			) }
+			{ onShowMore === null && loadingHint && (
+				<p className="jp-search-answers-panel__loading-hint">{ loadingHint }</p>
 			) }
 			{ isCollapsible && typeof onShowMore === 'function' && (
 				<button className="jp-search-answers-panel__toggle" onClick={ onShowMore }>

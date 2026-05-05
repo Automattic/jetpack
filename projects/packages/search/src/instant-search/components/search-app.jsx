@@ -1,4 +1,5 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { __ } from '@wordpress/i18n';
 import debounce from 'debounce';
 import stringify from 'fast-json-stable-stringify';
 import * as React from 'react';
@@ -70,6 +71,7 @@ class SearchApp extends Component {
 			aiExtendedText: '',
 			aiExtendedCitations: [],
 			aiExtendedError: null,
+			aiExtendedLoadingText: '',
 			// Which answer the panel is currently showing
 			aiShowExtended: false,
 		};
@@ -418,6 +420,7 @@ class SearchApp extends Component {
 			aiExtendedText: '',
 			aiExtendedCitations: [],
 			aiExtendedError: null,
+			aiExtendedLoadingText: '',
 			aiShowExtended: false,
 		};
 
@@ -438,13 +441,12 @@ class SearchApp extends Component {
 		}
 		if ( this.aiExtendedController ) {
 			this.aiExtendedController.abort();
+			this.aiExtendedController = null;
 		}
 		this.aiBriefController = new AbortController();
-		this.aiExtendedController = new AbortController();
 
 		this.setState( { aiShowExtended: false } );
 
-		// Fire both requests in parallel.
 		this.streamAiAnswer( {
 			agentId: 'jetpack-workflow-search_brief_summarizer',
 			controller: this.aiBriefController,
@@ -453,6 +455,38 @@ class SearchApp extends Component {
 			siteId,
 			options,
 		} );
+	};
+
+	handleShowMore = () => {
+		const query = this.props.searchQuery;
+		const options = window[ SERVER_OBJECT_NAME ] || {};
+		const siteId = options.aiAnswersSiteId || options.siteId;
+
+		const loadingMessages = [
+			__( 'Searching harder…', 'jetpack-search-pkg' ),
+			__( 'Looking deeper into this…', 'jetpack-search-pkg' ),
+			__( 'Finding a more complete answer…', 'jetpack-search-pkg' ),
+			__( 'Analyzing additional sources…', 'jetpack-search-pkg' ),
+			__( 'Gathering more details…', 'jetpack-search-pkg' ),
+			__( 'Pulling in more context…', 'jetpack-search-pkg' ),
+			__( 'Expanding the search…', 'jetpack-search-pkg' ),
+			__( 'Rolling up my virtual sleeves…', 'jetpack-search-pkg' ),
+			__( 'Digging through the archives…', 'jetpack-search-pkg' ),
+			__( 'Putting on my reading glasses…', 'jetpack-search-pkg' ),
+			__( 'Checking under the digital couch cushions…', 'jetpack-search-pkg' ),
+			__( 'Consulting the oracle…', 'jetpack-search-pkg' ),
+			__( 'Searching the known internet…', 'jetpack-search-pkg' ),
+			__( 'Asking a smarter algorithm…', 'jetpack-search-pkg' ),
+			__( 'Brewing a fresh batch of insights…', 'jetpack-search-pkg' ),
+			__( 'Unleashing the full power of search…', 'jetpack-search-pkg' ),
+			__( "One moment, I'm feeling inspired…", 'jetpack-search-pkg' ),
+			__( 'Turning it up to eleven…', 'jetpack-search-pkg' ),
+		];
+		const aiExtendedLoadingText =
+			loadingMessages[ Math.floor( Math.random() * loadingMessages.length ) ];
+
+		this.aiExtendedController = new AbortController();
+		this.setState( { aiShowExtended: true, aiExtendedLoadingText } );
 		this.streamAiAnswer( {
 			agentId: 'jetpack-workflow-search_summarizer',
 			controller: this.aiExtendedController,
@@ -461,10 +495,6 @@ class SearchApp extends Component {
 			siteId,
 			options,
 		} );
-	};
-
-	handleShowMore = () => {
-		this.setState( { aiShowExtended: true } );
 	};
 
 	updateOverlayOptions = ( newOverlayOptions, callback ) => {
@@ -492,6 +522,7 @@ class SearchApp extends Component {
 			aiExtendedText,
 			aiExtendedCitations,
 			aiExtendedError,
+			aiExtendedLoadingText,
 			aiShowExtended,
 		} = this.state;
 
@@ -519,6 +550,10 @@ class SearchApp extends Component {
 		}
 
 		const displayError = aiShowExtended ? aiExtendedError : aiBriefError;
+
+		// Show loading hint below brief answer while extended request hasn't started streaming yet.
+		const aiLoadingHint =
+			aiShowExtended && aiExtendedStatus === 'loading' ? aiExtendedLoadingText : null;
 
 		// null  = extended mode active — render full content without collapse
 		// fn    = brief is done and extended not yet shown — render "Show more" button
@@ -568,6 +603,7 @@ class SearchApp extends Component {
 							aiText={ displayText }
 							aiCitations={ displayCitations }
 							aiError={ displayError }
+							aiLoadingHint={ aiLoadingHint }
 							onShowMoreAiAnswer={ onShowMoreAiAnswer }
 							closeOverlay={ this.hideResults }
 							enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
