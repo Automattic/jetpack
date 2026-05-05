@@ -22,6 +22,17 @@ use Jetpack_Tracks_Client;
 class Settings {
 
 	const PACKAGE_VERSION = '0.8.6';
+
+	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
+
+	/**
+	 * Filter name that gates the wp-build–based dashboard.
+	 *
+	 * When this filter returns true, "Jetpack > Newsletter" renders the new
+	 * wp-build dashboard instead of the legacy Newsletter Settings React app.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
+
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -360,5 +371,31 @@ class Settings {
 			} );
 		</script>
 		<?php
+	}
+
+	/**
+	 * Returns true when the wp-build modernization filter is enabled.
+	 *
+	 * @return bool
+	 */
+	private static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the current request targets the Newsletter admin page.
+	 *
+	 * Used to scope wp-build loading to the one page that needs it. The
+	 * `$_GET['page']` value is populated by wp-admin/admin.php before any of
+	 * our hooks fire, so this check is reliable from `init_hooks()` onwards.
+	 *
+	 * @return bool
+	 */
+	private static function is_newsletter_admin_request() {
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === self::ADMIN_PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 }
