@@ -515,6 +515,15 @@ class Search_Blocks {
 			// taxonomy, label, showCount, maxItems } }.
 			'filterConfigs' => array(),
 
+			// Note: `staticPostTypes` (contributed by `jetpack/post-type-filter`)
+			// is intentionally NOT seeded here. FSE block templates can render
+			// before `wp_enqueue_scripts` fires (where this seed runs), so
+			// pre-seeding the slot with `{ include: [], exclude: [] }` would
+			// merge AFTER the block contribution and clobber it. Letting
+			// render.php own the slot keeps template-rendered blocks working;
+			// the JS reader treats `state.staticPostTypes` undefined as
+			// "no constraint" via Array.isArray() checks in store/api.js.
+
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
