@@ -36,6 +36,11 @@ jest.mock( '@wordpress/components', () => ( {
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
+	_n: ( single, plural, n ) => ( n === 1 ? single : plural ),
+	sprintf: ( fmt, ...args ) => {
+		let i = 0;
+		return String( fmt ).replace( /%(?:\d+\$)?[ds]/g, () => String( args[ i++ ] ) );
+	},
 } ) );
 
 describe( 'SearchResultsEdit', () => {

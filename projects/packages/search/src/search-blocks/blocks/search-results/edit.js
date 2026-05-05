@@ -10,7 +10,7 @@
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, RadioControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 
 const LAYOUTS = [ 'compact', 'expanded', 'product' ];
 const DEFAULT_LAYOUT = 'expanded';
@@ -200,7 +200,17 @@ function renderProductPreview( products ) {
 						<div
 							className="jetpack-search-results__rating"
 							role="img"
-							aria-label={ `${ product.rating } out of 5 stars based on ${ product.reviewCount } reviews` }
+							aria-label={ sprintf(
+								/* translators: %1$s: average product rating; %2$d: number of reviews. */
+								_n(
+									'%1$s out of 5 stars based on %2$d review',
+									'%1$s out of 5 stars based on %2$d reviews',
+									product.reviewCount,
+									'jetpack-search-pkg'
+								),
+								product.rating,
+								product.reviewCount
+							) }
 						>
 							<span className="jetpack-search-results__rating-stars" aria-hidden="true">
 								<span
@@ -208,7 +218,7 @@ function renderProductPreview( products ) {
 									style={ { width: product.ratingPercent } }
 								/>
 							</span>
-							<span className="jetpack-search-results__rating-count">
+							<span className="jetpack-search-results__rating-count" aria-hidden="true">
 								({ product.reviewCount })
 							</span>
 						</div>

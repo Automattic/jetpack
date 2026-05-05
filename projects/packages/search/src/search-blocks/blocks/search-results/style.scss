@@ -340,9 +340,18 @@
 	.jetpack-search-results__rating-fill {
 		position: absolute;
 		inset-block: 0;
+		// Logical-property anchor: in LTR the filled stars start from the
+		// left edge; in RTL they start from the right. This intentionally
+		// mirrors so the visible "fill" reads in the page's natural
+		// direction. (Per AGENTS.md, this package uses logical properties
+		// for RTL-awareness; WC's own star CSS does the same in modern
+		// builds.)
 		inset-inline-start: 0;
 		overflow: hidden;
-		color: #f7b500;
+		// Theme authors can override the filled-star color without a
+		// stylesheet override by setting `--jetpack-search-rating-color`
+		// on a parent block container. The default is the WC star yellow.
+		color: var(--jetpack-search-rating-color, #f7b500);
 		white-space: nowrap;
 
 		&::before {
