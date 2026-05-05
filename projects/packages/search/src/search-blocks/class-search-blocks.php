@@ -49,6 +49,18 @@ class Search_Blocks {
 	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
 
 	/**
+	 * Per-request memo backing `is_initial_loading()`. Lifted out of the
+	 * method's local `static` so tests can clear it between cases via
+	 * `reset_initial_loading_cache()` — function-local statics aren't
+	 * reachable from outside the function, so they'd otherwise leak the
+	 * first test's URL state into every subsequent test in the same
+	 * PHPUnit process.
+	 *
+	 * @var bool|null
+	 */
+	private static $is_initial_loading_cache = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * The caller (Initializer) is responsible for gating this behind the
@@ -638,21 +650,39 @@ class Search_Blocks {
 		// helper is hit by every block render.php (one per filter block plus
 		// search-results, results-count, etc.) AND by `build_initial_state()`,
 		// each of which would otherwise re-parse `$_GET` independently.
-		static $cached = null;
-		if ( null !== $cached ) {
-			return $cached;
+		if ( null !== self::$is_initial_loading_cache ) {
+			return self::$is_initial_loading_cache;
 		}
 		$search_query = static::parse_url_search_query();
 		if ( '' !== $search_query ) {
-			$cached = true;
+			self::$is_initial_loading_cache = true;
 			return true;
 		}
 		if ( ! empty( static::parse_url_filters() ) ) {
-			$cached = true;
+			self::$is_initial_loading_cache = true;
 			return true;
 		}
-		$cached = null !== static::parse_url_price_range();
-		return $cached;
+		self::$is_initial_loading_cache = null !== static::parse_url_price_range();
+		return self::$is_initial_loading_cache;
+	}
+
+	/**
+	 * Reset the `is_initial_loading()` memo. Test-only — production WP runs
+	 * a single request per process, so the memo never needs clearing there.
+	 * The PHPUnit harness reuses one process across every test method, so
+	 * without this hook a `$_GET` set by an earlier test would pin the
+	 * memoized value and silently override later tests' URL fixtures.
+	 *
+	 * Guarded so a misconfigured production caller can't accidentally drop
+	 * the cache mid-request: bail when running under WordPress (`ABSPATH`
+	 * defined) but not under PHPUnit (`PHPUNIT_COMPOSER_INSTALL` is set by
+	 * PHPUnit's composer-installed autoloader).
+	 */
+	public static function reset_initial_loading_cache(): void {
+		if ( defined( 'ABSPATH' ) && ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
+			return;
+		}
+		self::$is_initial_loading_cache = null;
 	}
 
 	/**

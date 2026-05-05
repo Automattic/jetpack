@@ -15,6 +15,18 @@ use PHPUnit\Framework\TestCase;
 class Search_Blocks_Test extends TestCase {
 
 	/**
+	 * Clear `Search_Blocks::is_initial_loading()`'s per-request memo between
+	 * tests. PHPUnit runs every test in a single process, so without this
+	 * the first test that exercises a query/filter/price URL would pin the
+	 * cached value and every later test that sets `$_GET` would silently
+	 * read stale state.
+	 */
+	protected function tearDown(): void {
+		Search_Blocks::reset_initial_loading_cache();
+		parent::tearDown();
+	}
+
+	/**
 	 * Verify that the keys required by the Interactivity API store are present.
 	 */
 	public function test_build_initial_state_shape() {
