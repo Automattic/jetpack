@@ -442,6 +442,10 @@ class Blaze_Abilities extends Registrar {
 			'text_snippet'  => isset( $args['text_snippet'] ) && '' !== (string) $args['text_snippet']
 				? (string) $args['text_snippet']
 				: $default_snippet,
+			// Default CTA varies by post type — products get a commerce-flavoured
+			// "Shop Now", everything else gets the neutral "Learn More". The widget
+			// requires a non-empty CTA to clear validation, so we always send one.
+			'cta_text'      => 'product' === (string) $post->post_type ? 'Shop Now' : 'Learn More',
 			'target_url'    => (string) get_permalink( $post ),
 			'budget'        => array(
 				'mode'     => 'total',
@@ -523,19 +527,16 @@ class Blaze_Abilities extends Registrar {
 	}
 
 	/**
-	 * Resolve the site's currency code. Uses the WooCommerce currency
-	 * when Woo is active (most relevant for our v1 audience), otherwise
-	 * falls back to USD — DSP defaults to USD too.
+	 * Currency code for the prefill payload.
+	 *
+	 * Always USD: the DSP only supports USD for billing, so reading the
+	 * Woo store currency would just produce a misleading number for
+	 * non-USD merchants (the DSP would re-interpret the amount as USD
+	 * regardless). Until the DSP gains multi-currency, normalize here.
 	 *
 	 * @return string ISO 4217 currency code.
 	 */
 	private static function get_site_currency(): string {
-		if ( function_exists( 'get_woocommerce_currency' ) ) {
-			$currency = (string) get_woocommerce_currency();
-			if ( '' !== $currency ) {
-				return $currency;
-			}
-		}
 		return 'USD';
 	}
 
