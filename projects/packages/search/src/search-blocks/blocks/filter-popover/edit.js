@@ -56,9 +56,4 @@ export default function FilterPopoverEdit() {
 	);
 }
 
-/**
- * Save component — only renders InnerBlocks.Content.
- *
- * @return {object} Rendered element.
- */
 export const save = () => <InnerBlocks.Content />;

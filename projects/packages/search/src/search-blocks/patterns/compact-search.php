@@ -40,11 +40,9 @@ register_block_pattern(
 <!-- /wp:group -->
 
 <!-- wp:jetpack/results-panel -->
-<div class="wp-block-jetpack-results-panel jetpack-search-results-panel">
 <!-- wp:jetpack/results-count /-->
 <!-- wp:jetpack/search-results {"layout":"compact"} /-->
 <!-- wp:jetpack/load-more /-->
-</div>
 <!-- /wp:jetpack/results-panel -->
 
 </div>

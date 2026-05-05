@@ -31,7 +31,11 @@ import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit from '../blocks/search-results/edit';
 import SortControlEdit from '../blocks/sort-control/edit';
 
-// Dynamic blocks — render.php produces all front-end markup, so save() is a no-op.
+// Default save for blocks that own no editor-side state — render.php is the
+// source of truth on the front end, so save returns null. Container blocks
+// that hold InnerBlocks pass their own `() => <InnerBlocks.Content />` save
+// instead, since `save: null` would self-close their delimiter and drop the
+// children on serialize.
 const save = () => null;
 
 const BLOCKS = [
