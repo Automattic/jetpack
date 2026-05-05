@@ -276,4 +276,153 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		// Foreign slug, default true (Woo's own) — should remain true.
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( true, 'woocommerce/list-products' ) );
 	}
+
+	// --- create_campaign: prefill payload + URL ---
+
+	/**
+	 * Helper: insert a test post and return its ID. Returns the
+	 * synthetic URN that callers should pass to create_campaign.
+	 */
+	private function make_test_post( array $overrides = array() ): array {
+		$post_id = wp_insert_post(
+			array_merge(
+				array(
+					'post_title'   => 'Test product page',
+					'post_excerpt' => 'A short summary about the product.',
+					'post_content' => 'Long-form content that would otherwise be the fallback snippet source.',
+					'post_status'  => 'publish',
+					'post_type'    => 'post',
+				),
+				$overrides
+			)
+		);
+		return array(
+			'post_id'    => (int) $post_id,
+			'target_urn' => sprintf( 'urn:wpcom:post:%d:%d', self::TEST_SITE_ID, (int) $post_id ),
+		);
+	}
+
+	/**
+	 * Invalid target_urn returns a WP_Error with status 400, not a partial draft.
+	 */
+	public function test_create_campaign_returns_error_for_invalid_target_urn() {
+		$result = Blaze_Abilities::create_campaign(
+			array(
+				'target_urn'    => 'not-a-urn',
+				'budget_total'  => 50,
+				'duration_days' => 7,
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'blaze_invalid_target_urn', $result->get_error_code() );
+		$data = $result->get_error_data();
+		$this->assertSame( 400, $data['status'] ?? null );
+	}
+
+	/**
+	 * URN that parses but references a missing post returns a 404 WP_Error.
+	 */
+	public function test_create_campaign_returns_error_for_missing_post() {
+		$result = Blaze_Abilities::create_campaign(
+			array(
+				'target_urn'    => sprintf( 'urn:wpcom:post:%d:9999999', self::TEST_SITE_ID ),
+				'budget_total'  => 50,
+				'duration_days' => 7,
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'blaze_post_not_found', $result->get_error_code() );
+		$data = $result->get_error_data();
+		$this->assertSame( 404, $data['status'] ?? null );
+	}
+
+	/**
+	 * Happy path: returns the canonical pending-review shape with
+	 * prefill_url + prefill payload, and the defaults are pulled from
+	 * the target post.
+	 */
+	public function test_create_campaign_returns_prefill_payload_and_url() {
+		$ctx = $this->make_test_post();
+
+		$result = Blaze_Abilities::create_campaign(
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 50,
+				'duration_days' => 14,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'pending_merchant_review', $result['status'] );
+		$this->assertNotEmpty( $result['prefill_url'] );
+		$this->assertStringContainsString( 'blaze_prefill=', $result['prefill_url'] );
+		$this->assertStringContainsString( $result['prefill_url'], $result['message'] );
+
+		$prefill = $result['prefill'];
+		$this->assertSame( $ctx['target_urn'], $prefill['target_urn'] );
+		$this->assertSame( 'post', $prefill['type'] );
+		$this->assertSame( 'Test product page', $prefill['site_name'] );
+		$this->assertSame( 'A short summary about the product.', $prefill['text_snippet'] );
+		$this->assertSame( 50.0, $prefill['budget']['amount'] );
+		$this->assertSame( 'total', $prefill['budget']['mode'] );
+		$this->assertSame( 14, $prefill['duration_days'] );
+		$this->assertTrue( $prefill['is_evergreen'] );
+		$this->assertSame( 'VIEWS', $prefill['objective'] );
+	}
+
+	/**
+	 * Caller overrides take precedence over post-derived defaults.
+	 */
+	public function test_create_campaign_caller_overrides_win() {
+		$ctx = $this->make_test_post();
+
+		$result = Blaze_Abilities::create_campaign(
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 100,
+				'duration_days' => 30,
+				'site_name'     => 'Custom heading',
+				'text_snippet'  => 'Custom ad copy.',
+				'objective'     => 'CLICKS',
+				'is_evergreen'  => false,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$prefill = $result['prefill'];
+		$this->assertSame( 'Custom heading', $prefill['site_name'] );
+		$this->assertSame( 'Custom ad copy.', $prefill['text_snippet'] );
+		$this->assertSame( 'CLICKS', $prefill['objective'] );
+		$this->assertFalse( $prefill['is_evergreen'] );
+	}
+
+	/**
+	 * When the post has no excerpt, the text_snippet falls back to the
+	 * stripped + truncated post content. This proves we don't return an
+	 * empty snippet (which the widget would surface as an empty heading).
+	 */
+	public function test_create_campaign_falls_back_to_stripped_content_when_no_excerpt() {
+		$ctx = $this->make_test_post(
+			array(
+				'post_excerpt' => '',
+				'post_content' => '<p><strong>Hello world.</strong></p> Long-form HTML body that should be stripped.',
+			)
+		);
+
+		$result = Blaze_Abilities::create_campaign(
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 50,
+				'duration_days' => 7,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$snippet = $result['prefill']['text_snippet'];
+		$this->assertNotEmpty( $snippet );
+		$this->assertStringContainsString( 'Hello world.', $snippet );
+		$this->assertStringNotContainsString( '<strong>', $snippet );
+	}
 }

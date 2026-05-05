@@ -217,7 +217,7 @@ class Blaze_Abilities extends Registrar {
 			),
 			self::ABILITY_CREATE_CAMPAIGN => array(
 				'label'               => __( 'Draft a new Blaze campaign', 'jetpack-blaze' ),
-				'description'         => __( 'Draft a new Blaze advertising campaign for an existing post or product on the site. The campaign is created in DRAFT state and requires the merchant to explicitly approve it in the Blaze UI before it goes live — the response includes a deep-link to that UI.', 'jetpack-blaze' ),
+				'description'         => __( 'Draft a Blaze advertising campaign for an existing post or product on the site. The ability does not write to the DSP itself — it derives sensible defaults from the target post (title, excerpt, featured image) and the caller\'s input (budget, duration, optional copy / objective overrides), bundles them into a prefill payload, and returns a deep-link the merchant clicks to land in the existing Blaze UI with every field already populated. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'target_urn', 'budget_total', 'duration_days' ),
@@ -239,30 +239,48 @@ class Blaze_Abilities extends Registrar {
 						),
 						'objective'     => array(
 							'type'        => 'string',
-							'description' => __( 'Campaign objective.', 'jetpack-blaze' ),
+							'description' => __( 'Campaign objective. Defaults to VIEWS.', 'jetpack-blaze' ),
 							'enum'        => array( 'VIEWS', 'CLICKS', 'SALES' ),
 							'default'     => 'VIEWS',
 						),
+						'is_evergreen'  => array(
+							'type'        => 'boolean',
+							'description' => __( 'Run until the merchant stops it. Defaults to true.', 'jetpack-blaze' ),
+							'default'     => true,
+						),
+						'site_name'     => array(
+							'type'        => 'string',
+							'description' => __( 'Optional ad heading override. Defaults to the post title.', 'jetpack-blaze' ),
+						),
+						'text_snippet'  => array(
+							'type'        => 'string',
+							'description' => __( 'Optional ad copy override. Defaults to the post excerpt (or first ~200 chars of content).', 'jetpack-blaze' ),
+						),
 					),
-					'additionalProperties' => true,
+					'additionalProperties' => false,
 				),
 				'output_schema'       => array(
 					'type'        => 'object',
-					'description' => __( 'Draft campaign reference plus a deep-link to the Blaze UI for merchant approval.', 'jetpack-blaze' ),
-					'required'    => array( 'campaign_id', 'status', 'approval_url' ),
+					'description' => __( 'Prefill payload plus a deep-link to the Blaze UI for the merchant to review and submit.', 'jetpack-blaze' ),
+					'required'    => array( 'status', 'prefill_url', 'prefill' ),
 					'properties'  => array(
-						'campaign_id'  => array(
+						'status'      => array(
 							'type'        => 'string',
-							'description' => __( 'The DSP-assigned ID of the draft campaign.', 'jetpack-blaze' ),
+							'description' => __( 'Always "pending_merchant_review" for the immediate response. The campaign is not yet on the DSP — it lands there only when the merchant submits from the Blaze UI.', 'jetpack-blaze' ),
+							'enum'        => array( 'pending_merchant_review' ),
 						),
-						'status'       => array(
+						'message'     => array(
 							'type'        => 'string',
-							'description' => __( 'Campaign status. Always "draft" for the immediate response.', 'jetpack-blaze' ),
+							'description' => __( 'Human-readable summary suitable for surfacing back to the merchant in chat. Includes the prefill_url verbatim so MCP clients that strip structured fields still surface the link.', 'jetpack-blaze' ),
 						),
-						'approval_url' => array(
+						'prefill_url' => array(
 							'type'        => 'string',
 							'format'      => 'uri',
-							'description' => __( 'Deep-link to the Blaze widget where the merchant previews and approves this draft.', 'jetpack-blaze' ),
+							'description' => __( 'Deep-link the merchant follows to land in the Blaze UI with the campaign form pre-populated. The prefill payload is encoded in the blaze_prefill query parameter.', 'jetpack-blaze' ),
+						),
+						'prefill'     => array(
+							'type'        => 'object',
+							'description' => __( 'The structured prefill payload — same data as encoded in prefill_url. Useful for the MCP client to surface a summary of what was drafted before the merchant clicks through.', 'jetpack-blaze' ),
 						),
 					),
 				),
@@ -332,76 +350,193 @@ class Blaze_Abilities extends Registrar {
 	}
 
 	/**
-	 * Draft a new Blaze campaign by delegating to the existing DSP create
-	 * route. Returns a draft reference plus a deep-link to the Blaze widget
-	 * for merchant approval — the campaign does not go live until the
-	 * merchant explicitly approves it there.
+	 * Draft a new Blaze campaign by deriving sensible defaults from the
+	 * target post and bundling them into a prefill payload. Returns a
+	 * deep-link the merchant clicks to land in the existing Blaze widget
+	 * with every field already populated; the merchant reviews, accepts
+	 * payment / T&C, and submits from inside the widget.
 	 *
-	 * Note: cross-cutting guardrails (TOS, payment, spend ceiling) run
-	 * *before* this method via the registration-time wrapper applied in
-	 * `wrap_write_path_execute_callback()`. This method only handles the
-	 * happy-path delegation.
+	 * Phase 2 v1 deliberately does NOT call the DSP create endpoint from
+	 * the agent path. The actual DSP write happens when the merchant
+	 * submits via the widget — we trust the existing flow for that.
+	 *
+	 * Cross-cutting guardrails (TOS / Blaze-eligibility) run before this
+	 * method via the wrapper installed in `wrap_write_path_execute_callback()`.
+	 *
+	 * The Blaze widget's prefill-from-URL behaviour is a separate piece
+	 * of work in `dsp-client` that this PR doesn't ship; until that
+	 * lands the merchant can still follow the link and edit manually.
 	 *
 	 * @param array $args Ability input — see `get_abilities()` input_schema.
 	 * @return array|\WP_Error
 	 */
 	public static function create_campaign( $args = array() ) {
-		$site_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return $site_id;
+		$args = is_array( $args ) ? $args : array();
+
+		$urn = isset( $args['target_urn'] ) ? (string) $args['target_urn'] : '';
+		if ( '' === $urn || ! preg_match( '/^urn:wpcom:post:\d+:(\d+)$/', $urn, $matches ) ) {
+			return new \WP_Error(
+				'blaze_invalid_target_urn',
+				/* translators: %s: the malformed URN value supplied by the caller. */
+				sprintf( __( 'Invalid target_urn %s. Expected format: urn:wpcom:post:<site_id>:<post_id>.', 'jetpack-blaze' ), $urn ),
+				array( 'status' => 400 )
+			);
 		}
 
-		$route   = sprintf( '/jetpack/v4/blaze-app/sites/%d/wordads/dsp/api/v1.1/campaigns', $site_id );
-		$request = new WP_REST_Request( 'POST', $route );
-		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) );
-
-		$response = rest_do_request( $request );
-		if ( $response->is_error() ) {
-			return $response->as_error();
+		$post = get_post( (int) $matches[1] );
+		if ( ! $post ) {
+			return new \WP_Error(
+				'blaze_post_not_found',
+				__( 'Post referenced by target_urn does not exist on this site.', 'jetpack-blaze' ),
+				array( 'status' => 404 )
+			);
 		}
 
-		$data = $response->get_data();
+		$prefill     = self::build_prefill_payload( $args, $post );
+		$prefill_url = self::build_prefill_url( $post->ID, $prefill );
 
 		return array(
-			'campaign_id'  => isset( $data['campaign_id'] ) ? (string) $data['campaign_id'] : ( isset( $data['id'] ) ? (string) $data['id'] : '' ),
-			'status'       => 'draft',
-			'approval_url' => self::get_approval_url( $args, $data ),
-			'campaign'     => $data,
+			'status'      => 'pending_merchant_review',
+			'message'     => sprintf(
+				/* translators: %s: deep-link URL that opens the Blaze widget pre-populated with the drafted campaign. */
+				__( 'Draft prepared. The merchant must open the Blaze UI to review, accept payment / T&C, and submit. Open here: %s', 'jetpack-blaze' ),
+				$prefill_url
+			),
+			'prefill_url' => $prefill_url,
+			'prefill'     => $prefill,
 		);
 	}
 
 	/**
-	 * Build the deep-link the merchant follows to preview and approve a
-	 * draft campaign.
+	 * Build the campaign prefill payload from the caller's MCP input and
+	 * the resolved target post. Pure function — no I/O — so it's easy to
+	 * test and easy for callers to inspect in the response.
 	 *
-	 * Phase 2 punts to the existing Blaze management URL family — that's
-	 * the SPA where drafts can be reviewed today. The exact in-SPA route
-	 * for "approve this specific draft" may need a follow-up with the
-	 * Calypso team; for now we land the merchant in the advertising
-	 * dashboard with the campaign visible.
+	 * Caller input (`site_name`, `text_snippet`, `objective`, `is_evergreen`)
+	 * overrides the post-derived defaults. Anything we can't pull from
+	 * the post or the input is left out — the widget will fill blanks
+	 * with its own defaults at submission time.
 	 *
-	 * @param array $args         Original ability input (used for target_urn fallback).
-	 * @param array $dsp_response Response payload from the DSP create route. Reserved for future use (campaign-id-based deep-link lookup).
+	 * @param array    $args MCP input.
+	 * @param \WP_Post $post The target post.
+	 * @return array
+	 */
+	private static function build_prefill_payload( array $args, $post ): array {
+		$featured_image_id   = (int) get_post_thumbnail_id( $post->ID );
+		$featured_image_url  = $featured_image_id > 0 ? wp_get_attachment_image_url( $featured_image_id, 'full' ) : '';
+		$featured_image_mime = $featured_image_id > 0 ? get_post_mime_type( $featured_image_id ) : '';
+
+		// Sensible default snippet: post excerpt, or first ~200 chars of content stripped of HTML.
+		$default_snippet = (string) get_the_excerpt( $post );
+		if ( '' === $default_snippet ) {
+			$stripped        = trim( wp_strip_all_tags( (string) $post->post_content ) );
+			$default_snippet = function_exists( 'mb_substr' ) ? mb_substr( $stripped, 0, 200 ) : substr( $stripped, 0, 200 );
+		}
+
+		$payload = array(
+			'target_urn'    => (string) $args['target_urn'],
+			'type'          => (string) $post->post_type,
+			'site_name'     => isset( $args['site_name'] ) && '' !== (string) $args['site_name']
+				? (string) $args['site_name']
+				: (string) get_the_title( $post ),
+			'text_snippet'  => isset( $args['text_snippet'] ) && '' !== (string) $args['text_snippet']
+				? (string) $args['text_snippet']
+				: $default_snippet,
+			'target_url'    => (string) get_permalink( $post ),
+			'budget'        => array(
+				'mode'     => 'total',
+				'amount'   => (float) ( $args['budget_total'] ?? 0 ),
+				'currency' => self::get_site_currency(),
+			),
+			'duration_days' => (int) ( $args['duration_days'] ?? 7 ),
+			'is_evergreen'  => isset( $args['is_evergreen'] ) ? (bool) $args['is_evergreen'] : true,
+			'objective'     => isset( $args['objective'] ) && '' !== (string) $args['objective']
+				? (string) $args['objective']
+				: 'VIEWS',
+		);
+
+		if ( '' !== $featured_image_url ) {
+			$payload['main_image'] = array(
+				'url'       => $featured_image_url,
+				'mime_type' => $featured_image_mime ? $featured_image_mime : 'image/jpeg',
+			);
+		}
+
+		return $payload;
+	}
+
+	/**
+	 * Build the deep-link the merchant follows to land in the Blaze
+	 * widget with the campaign form pre-populated.
+	 *
+	 * URL shape: `<admin>/tools.php?page=advertising&blaze_prefill=<base64-json>#!/advertising/posts/promote/post-<id>/<hostname>`.
+	 *
+	 * The base path comes from `Blaze::get_campaign_management_url()` so
+	 * we stay aligned with how Blaze opens the promote-post flow today;
+	 * the `blaze_prefill` query param is the Phase 2 addition the widget
+	 * will read on load. The param goes in the query string (not the
+	 * hash) so it reaches the SPA on initial bootstrap reliably.
+	 *
+	 * @param int   $post_id The target post ID.
+	 * @param array $prefill The prefill payload to encode.
 	 * @return string
 	 */
-	private static function get_approval_url( array $args, $dsp_response ) {
-		unset( $dsp_response );
-		// Try to extract a post ID from the target URN to leverage the
-		// existing `Blaze::get_campaign_management_url()` helper.
-		$post_id = 0;
-		$urn     = isset( $args['target_urn'] ) ? (string) $args['target_urn'] : '';
-		if ( $urn && preg_match( '/^urn:wpcom:post:\d+:(\d+)$/', $urn, $m ) ) {
-			$post_id = (int) $m[1];
-		}
-
-		if ( $post_id > 0 && class_exists( '\Automattic\Jetpack\Blaze' ) ) {
+	private static function build_prefill_url( int $post_id, array $prefill ): string {
+		$base = '';
+		if ( class_exists( '\Automattic\Jetpack\Blaze' ) && method_exists( '\Automattic\Jetpack\Blaze', 'get_campaign_management_url' ) ) {
 			$url_data = Blaze::get_campaign_management_url( $post_id );
-			return is_array( $url_data ) && isset( $url_data['link'] ) ? $url_data['link'] : '';
+			if ( is_array( $url_data ) && isset( $url_data['link'] ) ) {
+				$base = (string) $url_data['link'];
+			}
+		}
+		if ( '' === $base ) {
+			$base = admin_url( 'tools.php?page=advertising' );
 		}
 
-		// Fallback: the bare advertising dashboard.
-		return admin_url( 'tools.php?page=advertising' );
+		$encoded = self::base64url_encode( (string) wp_json_encode( $prefill, JSON_UNESCAPED_SLASHES ) );
+		$param   = 'blaze_prefill=' . rawurlencode( $encoded );
+
+		// Insert the param before the hash if there is one; otherwise append.
+		$hash_pos = strpos( $base, '#' );
+		if ( false === $hash_pos ) {
+			$separator = ( false !== strpos( $base, '?' ) ) ? '&' : '?';
+			return $base . $separator . $param;
+		}
+
+		$pre_hash  = substr( $base, 0, $hash_pos );
+		$hash      = substr( $base, $hash_pos );
+		$separator = ( false !== strpos( $pre_hash, '?' ) ) ? '&' : '?';
+
+		return $pre_hash . $separator . $param . $hash;
+	}
+
+	/**
+	 * URL-safe base64 encode (RFC 4648 §5). Avoids `+` and `/` characters
+	 * that would otherwise need percent-encoding inside a URL.
+	 *
+	 * @param string $input Bytes to encode.
+	 * @return string
+	 */
+	private static function base64url_encode( string $input ): string {
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Encoding a structured prefill payload, not obfuscation.
+		return rtrim( strtr( base64_encode( $input ), '+/', '-_' ), '=' );
+	}
+
+	/**
+	 * Resolve the site's currency code. Uses the WooCommerce currency
+	 * when Woo is active (most relevant for our v1 audience), otherwise
+	 * falls back to USD — DSP defaults to USD too.
+	 *
+	 * @return string ISO 4217 currency code.
+	 */
+	private static function get_site_currency(): string {
+		if ( function_exists( 'get_woocommerce_currency' ) ) {
+			$currency = (string) get_woocommerce_currency();
+			if ( '' !== $currency ) {
+				return $currency;
+			}
+		}
+		return 'USD';
 	}
 
 	/**
