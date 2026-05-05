@@ -34,7 +34,7 @@ export default function FeatureSelector() {
 
 	const onSubmit = event => {
 		event.preventDefault();
-		if ( isSaveDisabled || ! pendingExperience ) {
+		if ( isSaveDisabled ) {
 			return;
 		}
 		saveExperience( pendingExperience );
