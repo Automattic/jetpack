@@ -18,15 +18,7 @@ namespace Automattic\Jetpack\Search;
  */
 $resolve_layout = static function ( $layout ) {
 	$map = array(
-		'card'    => array(
-			'modifier'    => 'card',
-			'show_image'  => true,
-			'show_path'   => true,
-			'show_date'   => true,
-			'show_price'  => false,
-			'show_rating' => false,
-		),
-		'compact' => array(
+		'compact'  => array(
 			'modifier'    => 'compact',
 			'show_image'  => false,
 			'show_path'   => false,
@@ -34,7 +26,15 @@ $resolve_layout = static function ( $layout ) {
 			'show_price'  => false,
 			'show_rating' => false,
 		),
-		'product' => array(
+		'expanded' => array(
+			'modifier'    => 'expanded',
+			'show_image'  => true,
+			'show_path'   => true,
+			'show_date'   => true,
+			'show_price'  => false,
+			'show_rating' => false,
+		),
+		'product'  => array(
 			'modifier'    => 'product',
 			'show_image'  => true,
 			'show_path'   => false,
@@ -43,11 +43,11 @@ $resolve_layout = static function ( $layout ) {
 			'show_rating' => true,
 		),
 	);
-	return $map[ $layout ] ?? $map['card'];
+	return $map[ $layout ] ?? $map['expanded'];
 };
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$layout        = ( (array) $attributes )['layout'] ?? 'card';
+$layout        = ( (array) $attributes )['layout'] ?? 'expanded';
 $features      = $resolve_layout( $layout );
 $wrapper_class = 'jetpack-search-results--' . $features['modifier'];
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );

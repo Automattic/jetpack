@@ -52,10 +52,12 @@ describe( 'SearchResultsEdit', () => {
 	} );
 
 	it( 'renders the layout picker in the inspector', () => {
-		render( <SearchResultsEdit attributes={ { layout: 'card' } } setAttributes={ jest.fn() } /> );
+		render(
+			<SearchResultsEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } />
+		);
 
 		expect( screen.getByTestId( 'layout-picker' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'radio', { name: 'Card' } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: 'Expanded' } ) ).toBeChecked();
 		expect( screen.getByRole( 'radio', { name: 'Compact' } ) ).not.toBeChecked();
 		expect(
 			screen.getByRole( 'radio', { name: 'Product (for WooCommerce stores)' } )
@@ -65,7 +67,7 @@ describe( 'SearchResultsEdit', () => {
 	it( 'updates the layout attribute when the picker changes', () => {
 		const setAttributes = jest.fn();
 		render(
-			<SearchResultsEdit attributes={ { layout: 'card' } } setAttributes={ setAttributes } />
+			<SearchResultsEdit attributes={ { layout: 'expanded' } } setAttributes={ setAttributes } />
 		);
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.

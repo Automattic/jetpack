@@ -26,7 +26,7 @@ class Search_Results_Render_Test extends TestCase {
 				'attributes'      => array(
 					'layout' => array(
 						'type'    => 'string',
-						'default' => 'card',
+						'default' => 'expanded',
 					),
 				),
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -73,12 +73,12 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Card is the default layout when no `layout` attribute is set, and it
-	 * opts into the path + image sections.
+	 * Expanded is the default layout when no `layout` attribute is set, and
+	 * it opts into the path + image sections.
 	 */
-	public function test_card_layout_is_the_default_and_includes_path_and_image() {
+	public function test_expanded_layout_is_the_default_and_includes_path_and_image() {
 		$markup = $this->render();
-		$this->assertStringContainsString( 'jetpack-search-results--card', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
 		$this->assertStringContainsString( 'jetpack-search-results__path', $markup );
 		$this->assertStringContainsString( 'jetpack-search-results__image', $markup );
 	}
@@ -109,11 +109,11 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Unknown layout values fall back to the card defaults so a misconfigured
-	 * block never renders an empty list.
+	 * Unknown layout values fall back to the expanded defaults so a
+	 * misconfigured block never renders an empty list.
 	 */
-	public function test_unknown_layout_falls_back_to_card() {
+	public function test_unknown_layout_falls_back_to_expanded() {
 		$markup = $this->render( array( 'layout' => 'nonsense' ) );
-		$this->assertStringContainsString( 'jetpack-search-results--card', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
 	}
 }

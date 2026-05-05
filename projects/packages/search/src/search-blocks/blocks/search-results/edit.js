@@ -52,8 +52,8 @@ const SAMPLE_PRODUCTS = [
 // would be cached in the source locale on module init. Mirrors the same
 // pattern in `sort-control/edit.js`.
 const LAYOUT_OPTIONS = () => [
-	{ label: __( 'Card', 'jetpack-search-pkg' ), value: 'card' },
 	{ label: __( 'Compact', 'jetpack-search-pkg' ), value: 'compact' },
+	{ label: __( 'Expanded', 'jetpack-search-pkg' ), value: 'expanded' },
 	{ label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ), value: 'product' },
 ];
 
@@ -66,7 +66,7 @@ const LAYOUT_OPTIONS = () => [
  * @return {object} Rendered element.
  */
 export default function SearchResultsEdit( { attributes, setAttributes } ) {
-	const layout = attributes?.layout ?? 'card';
+	const layout = attributes?.layout ?? 'expanded';
 	const features = resolveLayout( layout );
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ features.modifier }`,
@@ -77,7 +77,7 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
 					<RadioControl
 						label={ __( 'Result format', 'jetpack-search-pkg' ) }
-						selected={ LAYOUTS.includes( layout ) ? layout : 'card' }
+						selected={ LAYOUTS.includes( layout ) ? layout : 'expanded' }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>

@@ -3,24 +3,24 @@
  *
  * One source of truth so editor preview, frontend render, and tests agree on
  * which sections each layout opts into. PHP mirrors the same map in
- * Layout_Features::for_layout (render.php).
+ * `render.php`.
  */
 
-export const LAYOUTS = [ 'card', 'compact', 'product' ];
+export const LAYOUTS = [ 'compact', 'expanded', 'product' ];
 
 const FEATURES = {
-	card: {
-		modifier: 'card',
-		showImage: true,
-		showPath: true,
-		showDate: true,
-		showPrice: false,
-		showRating: false,
-	},
 	compact: {
 		modifier: 'compact',
 		showImage: false,
 		showPath: false,
+		showDate: true,
+		showPrice: false,
+		showRating: false,
+	},
+	expanded: {
+		modifier: 'expanded',
+		showImage: true,
+		showPath: true,
 		showDate: true,
 		showPrice: false,
 		showRating: false,
@@ -37,11 +37,11 @@ const FEATURES = {
 
 /**
  * Resolve the feature flags for a given layout. Unknown layouts fall back to
- * `card` so a misconfigured block never renders an empty list.
+ * `expanded` so a misconfigured block never renders an empty list.
  *
  * @param {string} layout - Layout key.
  * @return {object} Feature flags.
  */
 export function resolveLayout( layout ) {
-	return FEATURES[ layout ] ?? FEATURES.card;
+	return FEATURES[ layout ] ?? FEATURES.expanded;
 }
