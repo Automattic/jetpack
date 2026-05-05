@@ -94,6 +94,13 @@ class Jetpack_Mu_Wpcom {
 		// Allow sites with the `enable-classic-block-inserter-support` blog sticker to insert the Classic block.
 		if ( wpcom_has_blog_sticker( 'enable-classic-block-inserter-support', get_wpcom_blog_id() ) ) {
 			add_filter( 'gutenberg_classic_block_supports_inserter', '__return_true' );
+
+			/*
+			 * Gutenberg uses the `gutenberg_` filter while the change is in the plugin.
+			 * Once the new Gutenberg version lands in Core, the filter will be renamed
+			 * to use the `wp_` prefix, and the `gutenberg_` filter can be removed.
+			 */
+			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
 		}
 
 		/**
