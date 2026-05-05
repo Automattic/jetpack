@@ -370,6 +370,43 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	// ──────────────────────────────────────────────────
+	// maybe_patch_review_mediator_flag() tests
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * When AM is enqueued by an external host (e.g. Big Sky on Atomic) and our
+	 * data filter never fires, the patch script sets reviewMediatorEnabled so
+	 * the client gating still works.
+	 */
+	public function test_patch_review_mediator_flag_sets_field_when_am_enqueued_externally() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		// Simulate external host (mu-wpcom / Big Sky) having enqueued AM and
+		// declared the upstream const.
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+		wp_add_inline_script( 'agents-manager', 'const agentsManagerData = { sectionName: "gutenberg" };', 'before' );
+
+		Jetpack_AI_Sidebar::maybe_patch_review_mediator_flag();
+
+		$this->assertStringContainsString(
+			'agentsManagerData.reviewMediatorEnabled = true',
+			$this->get_agents_manager_inline_script()
+		);
+	}
+
+	/**
+	 * When AM was not enqueued by anyone, the patch is a no-op.
+	 */
+	public function test_patch_review_mediator_flag_noop_when_am_not_enqueued() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		Jetpack_AI_Sidebar::maybe_patch_review_mediator_flag();
+
+		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
+	}
+
+	// ──────────────────────────────────────────────────
 	// maybe_enqueue_abilities_script() tests
 	// ──────────────────────────────────────────────────
 

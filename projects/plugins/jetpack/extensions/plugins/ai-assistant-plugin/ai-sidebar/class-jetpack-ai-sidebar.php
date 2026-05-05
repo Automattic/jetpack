@@ -68,6 +68,12 @@ class Jetpack_AI_Sidebar {
 		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or AM
 		// can discover regardless of which provider system is active.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
+
+		// Patch reviewMediatorEnabled into agentsManagerData when AM was
+		// enqueued by an external host (Big Sky on Atomic, etc.) and the
+		// jetpack_ai_sidebar_agents_manager_data filter never fired. Priority
+		// 250 runs after both mu-wpcom (101) and the CDN loader above (200).
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_patch_review_mediator_flag' ), 250 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -488,6 +494,51 @@ class Jetpack_AI_Sidebar {
 		// Jetpack owns this flag; hosts can override via jetpack_ai_review_mediator_enabled.
 		$data['reviewMediatorEnabled'] = self::is_review_mediator_enabled();
 		return $data;
+	}
+
+	/**
+	 * Inject reviewMediatorEnabled into an externally enqueued AM bundle.
+	 *
+	 * The design-intended hook is jetpack_ai_sidebar_agents_manager_data, applied
+	 * by jetpack-mu-wpcom Agents_Manager::enqueue_scripts(). On Atomic the bundled
+	 * mu-wpcom (via wpcomsh) lags this PR, so the filter never fires and the
+	 * client gets agentsManagerData without our flag. This `before` script runs
+	 * after the upstream `before` that declares the const (added earlier) but
+	 * before the AM bundle reads it, so the field is set when AM initialises.
+	 * Gives Atomic parity with Jurassic Ninja without depending on a wpcomsh
+	 * redeploy.
+	 *
+	 * Skipped on WordPress.com Simple — wpcom's data extension owns the predicate
+	 * there with stricter A8C+proxied checks.
+	 *
+	 * @return void
+	 */
+	public static function maybe_patch_review_mediator_flag(): void {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+		if ( ! self::is_block_editor() || ! self::has_ai_features() ) {
+			return;
+		}
+		// 'registered' rather than 'enqueued': wp_add_inline_script attaches to any
+		// registered handle and serializes correctly regardless of when the
+		// enqueue lands in the dependency graph.
+		if ( ! wp_script_is( 'agents-manager', 'registered' ) ) {
+			return;
+		}
+
+		$payload = wp_json_encode(
+			self::is_review_mediator_enabled(),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+
+		wp_add_inline_script(
+			'agents-manager',
+			'if ( typeof agentsManagerData === "object" && agentsManagerData !== null ) {'
+				. ' agentsManagerData.reviewMediatorEnabled = ' . $payload . ';'
+				. ' }',
+			'before'
+		);
 	}
 
 	/**
