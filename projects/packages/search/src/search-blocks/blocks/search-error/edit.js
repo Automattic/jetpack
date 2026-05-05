@@ -7,7 +7,6 @@
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl } from '@wordpress/components';
-import { createElement as h, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -21,26 +20,25 @@ import { __ } from '@wordpress/i18n';
 export default function SearchErrorEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	const defaultMessage = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
-	return h(
-		Fragment,
-		null,
-		h(
-			InspectorControls,
-			null,
-			h(
-				PanelBody,
-				{ title: __( 'Settings', 'jetpack-search-pkg' ) },
-				h( TextControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Message', 'jetpack-search-pkg' ),
-					value: attributes.message || '',
-					placeholder: defaultMessage,
-					onChange: value => setAttributes( { message: value } ),
-					help: __( 'Leave empty to use the default translated message.', 'jetpack-search-pkg' ),
-				} )
-			)
-		),
-		h( 'div', { ...blockProps, hidden: true, 'aria-hidden': 'true' } )
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Message', 'jetpack-search-pkg' ) }
+						value={ attributes.message || '' }
+						placeholder={ defaultMessage }
+						onChange={ value => setAttributes( { message: value } ) }
+						help={ __(
+							'Leave empty to use the default translated message.',
+							'jetpack-search-pkg'
+						) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<div { ...blockProps } hidden aria-hidden="true" />
+		</>
 	);
 }

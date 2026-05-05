@@ -3,8 +3,8 @@
  */
 import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { Button as WPButton } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -205,9 +205,14 @@ export default function ProductInterstitial( {
 			}
 			actions={
 				existingLicenseKeyUrl ? (
-					<WPButton size="compact" variant="secondary" href={ existingLicenseKeyUrl }>
+					<Button
+						size="compact"
+						variant="outline"
+						nativeButton={ false }
+						render={ <a href={ existingLicenseKeyUrl } /> }
+					>
 						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-					</WPButton>
+					</Button>
 				) : null
 			}
 		>

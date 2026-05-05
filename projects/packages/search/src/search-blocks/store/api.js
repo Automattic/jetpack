@@ -10,6 +10,11 @@ import { encode } from 'qss';
  * decorative (the surrounding anchor is `aria-hidden` with the title link as
  * the accessible target), so `alt=""` is correct and requesting alt text
  * would only add response bytes.
+ *
+ * The `wc.*` and `meta._wc_*` entries hydrate the product layout. Always
+ * requested rather than gated on layout because the store fetches once per
+ * page and any block can render a different layout — the response delta is
+ * a few hundred bytes per result.
  */
 export const SEARCH_FIELDS = [
 	'date',
@@ -18,6 +23,11 @@ export const SEARCH_FIELDS = [
 	'title.default',
 	'has.image',
 	'image.url.raw',
+	'wc.formatted_price',
+	'wc.formatted_regular_price',
+	'wc.formatted_sale_price',
+	'meta._wc_average_rating.double',
+	'meta._wc_review_count.long',
 ];
 
 export const HIGHLIGHT_FIELDS = [ 'title', 'content' ];
@@ -395,25 +405,73 @@ function getMonthLabelFormatter( locale ) {
 }
 
 /**
+ * Build the ES `bool.must` clauses contributed by the hidden
+ * `jetpack/post-type-filter` block. Returns an empty array when no constraint
+ * is configured so callers can spread the result unconditionally.
+ *
+ * Includes are wrapped in `bool.should` (OR within the include set), excludes
+ * in `bool.must_not` (negate every excluded slug). Both wrappers are pushed
+ * as separate `must` entries so the include and exclude semantics stay
+ * orthogonal in ES — same shape used by instant-search's `excludedPostTypes`.
+ *
+ * Asymmetry: a single-slug include emits a bare `{ term: { post_type: T } }`
+ * rather than wrapping it in `{ bool: { should: [...] } }`. Inside the outer
+ * `bool.must` array those are semantically identical (a single-clause
+ * `should` behaves like `must`), and the bare form keeps the URL shorter and
+ * the test assertions readable. A single-slug exclude *always* wraps in
+ * `bool.must_not` because ES has no bare-term equivalent for negation.
+ *
+ * @param {object|null} staticPostTypes - `{ include, exclude }` slug lists.
+ * @return {Array<object>} ES filter clauses, possibly empty.
+ */
+export function buildStaticPostTypeClauses( staticPostTypes ) {
+	if ( ! staticPostTypes ) {
+		return [];
+	}
+	const clauses = [];
+	const include = Array.isArray( staticPostTypes.include ) ? staticPostTypes.include : [];
+	const exclude = Array.isArray( staticPostTypes.exclude ) ? staticPostTypes.exclude : [];
+
+	if ( include.length > 0 ) {
+		const should = include.map( slug => ( { term: { post_type: slug } } ) );
+		clauses.push( should.length === 1 ? should[ 0 ] : { bool: { should } } );
+	}
+	if ( exclude.length > 0 ) {
+		clauses.push( {
+			bool: {
+				must_not: exclude.map( slug => ( { term: { post_type: slug } } ) ),
+			},
+		} );
+	}
+	return clauses;
+}
+
+/**
  * Build the full search API URL with query params.
  * Mirrors the 3-path routing in src/instant-search/lib/api.js.
  *
- * @param {object}      opts                 - Options.
- * @param {number}      opts.siteId          - Site ID.
- * @param {string}      opts.searchQuery     - Search query string.
- * @param {string}      opts.sortOrder       - 'relevance' | 'newest' | 'oldest'.
- * @param {string|null} opts.pageHandle      - Cursor for pagination.
- * @param {boolean}     opts.isPrivateSite   - Whether the site is private.
- * @param {boolean}     opts.isWpcom         - Whether the site runs on WordPress.com.
- * @param {string}      opts.apiRoot         - WordPress REST API root URL.
- * @param {object}      [opts.activeFilters] - { [filterKey]: string[] } selected filters.
- * @param {object}      [opts.filterConfigs] - { [filterKey]: FilterConfig } registered filters.
- * @param {string}      [opts.homeUrl]       - Home URL; required for private WPcom sites.
- * @param {object|null} [opts.priceRange]    - `{ min, max }` numeric range against the
- *                                           `wc.price` ES field. Either bound may be null
- *                                           for a half-open range. Read by future product
- *                                           filter blocks driven by `min_price` / `max_price`
- *                                           URL params.
+ * @param {object}      opts                   - Options.
+ * @param {number}      opts.siteId            - Site ID.
+ * @param {string}      opts.searchQuery       - Search query string.
+ * @param {string}      opts.sortOrder         - 'relevance' | 'newest' | 'oldest'.
+ * @param {string|null} opts.pageHandle        - Cursor for pagination.
+ * @param {boolean}     opts.isPrivateSite     - Whether the site is private.
+ * @param {boolean}     opts.isWpcom           - Whether the site runs on WordPress.com.
+ * @param {string}      opts.apiRoot           - WordPress REST API root URL.
+ * @param {object}      [opts.activeFilters]   - { [filterKey]: string[] } selected filters.
+ * @param {object}      [opts.filterConfigs]   - { [filterKey]: FilterConfig } registered filters.
+ * @param {string}      [opts.homeUrl]         - Home URL; required for private WPcom sites.
+ * @param {object|null} [opts.priceRange]      - `{ min, max }` numeric range against the
+ *                                             `wc.price` ES field. Either bound may be null
+ *                                             for a half-open range. Read by future product
+ *                                             filter blocks driven by `min_price` / `max_price`
+ *                                             URL params.
+ * @param {object|null} [opts.staticPostTypes] - `{ include, exclude }` post-type slug lists
+ *                                             contributed by `jetpack/post-type-filter`. Folded
+ *                                             into the ES filter clause as `bool.should` (include)
+ *                                             and `bool.must_not` (exclude). Hidden from visitors —
+ *                                             not represented in `activeFilters` and not surfaced
+ *                                             in the active-filters pill list.
  * @return {string} Full URL to call.
  */
 export function buildSearchUrl( {
@@ -428,6 +486,7 @@ export function buildSearchUrl( {
 	filterConfigs = {},
 	homeUrl = '',
 	priceRange = null,
+	staticPostTypes = null,
 } ) {
 	// `qss.encode()` runs `encodeURIComponent` on every value, so we pass the
 	// raw query here. The instant-search code double-encodes (pre-encodes
@@ -450,6 +509,12 @@ export function buildSearchUrl( {
 	// `buildFilterClause` returns either `{ bool: { must: [...] } }` or
 	// `undefined` — the spread below relies on that shape contract.
 	let filter = buildFilterClause( activeFilters, filterConfigs );
+	const staticPostTypeClauses = buildStaticPostTypeClauses( staticPostTypes );
+	if ( staticPostTypeClauses.length > 0 ) {
+		filter = filter
+			? { bool: { must: [ ...filter.bool.must, ...staticPostTypeClauses ] } }
+			: { bool: { must: [ ...staticPostTypeClauses ] } };
+	}
 	if ( priceRange && ( priceRange.min != null || priceRange.max != null ) ) {
 		const range = {};
 		if ( priceRange.min != null ) {

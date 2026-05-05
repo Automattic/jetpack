@@ -5,7 +5,6 @@
  * render a sample pill so designers can style the block in place.
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import { createElement as h } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -15,48 +14,30 @@ import { __ } from '@wordpress/i18n';
  */
 export default function ActiveFiltersEdit() {
 	const blockProps = useBlockProps();
-	return h(
-		'div',
-		blockProps,
-		h(
-			'span',
-			{ className: 'jetpack-search-active-filters__heading' },
-			__( 'Active filters:', 'jetpack-search-pkg' )
-		),
-		h(
-			'ul',
-			{ className: 'jetpack-search-active-filters__pills' },
-			h(
-				'li',
-				null,
-				h(
-					'button',
-					{
-						type: 'button',
-						className: 'wp-element-button jetpack-search-active-filters__pill',
-						disabled: true,
-					},
-					h(
-						'span',
-						{ className: 'jetpack-search-active-filters__pill-label' },
-						__( 'Example filter', 'jetpack-search-pkg' )
-					),
-					h(
-						'span',
-						{ className: 'jetpack-search-active-filters__pill-remove', 'aria-hidden': 'true' },
-						'×'
-					)
-				)
-			)
-		),
-		h(
-			'button',
-			{
-				type: 'button',
-				className: 'jetpack-search-active-filters__clear-all',
-				disabled: true,
-			},
-			__( 'Clear all', 'jetpack-search-pkg' )
-		)
+	return (
+		<div { ...blockProps }>
+			<span className="jetpack-search-active-filters__heading">
+				{ __( 'Active filters:', 'jetpack-search-pkg' ) }
+			</span>
+			<ul className="jetpack-search-active-filters__pills">
+				<li>
+					<button
+						type="button"
+						className="wp-element-button jetpack-search-active-filters__pill"
+						disabled
+					>
+						<span className="jetpack-search-active-filters__pill-label">
+							{ __( 'Example filter', 'jetpack-search-pkg' ) }
+						</span>
+						<span className="jetpack-search-active-filters__pill-remove" aria-hidden="true">
+							×
+						</span>
+					</button>
+				</li>
+			</ul>
+			<button type="button" className="jetpack-search-active-filters__clear-all" disabled>
+				{ __( 'Clear all', 'jetpack-search-pkg' ) }
+			</button>
+		</div>
 	);
 }

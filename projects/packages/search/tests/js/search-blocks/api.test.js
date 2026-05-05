@@ -4,6 +4,7 @@ import {
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
+	buildStaticPostTypeClauses,
 	formatDateBucketLabel,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
@@ -12,6 +13,18 @@ describe( 'SEARCH_FIELDS', () => {
 	it( 'does not request author fields for result cards', () => {
 		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
 		expect( SEARCH_FIELDS ).not.toContain( 'author' );
+	} );
+
+	it( 'requests WooCommerce price and rating fields for the product layout', () => {
+		expect( SEARCH_FIELDS ).toEqual(
+			expect.arrayContaining( [
+				'wc.formatted_price',
+				'wc.formatted_regular_price',
+				'wc.formatted_sale_price',
+				'meta._wc_average_rating.double',
+				'meta._wc_review_count.long',
+			] )
+		);
 	} );
 } );
 
@@ -669,6 +682,123 @@ describe( 'product-shaped filter helpers', () => {
 			const decoded = decodeURIComponent( url );
 			expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
 			expect( decoded ).toContain( 'filter[bool][must][1][range][wc.price][gte]=10' );
+		} );
+	} );
+
+	describe( 'buildStaticPostTypeClauses', () => {
+		it( 'returns an empty array for null / empty input', () => {
+			expect( buildStaticPostTypeClauses( null ) ).toEqual( [] );
+			expect( buildStaticPostTypeClauses( {} ) ).toEqual( [] );
+			expect( buildStaticPostTypeClauses( { include: [], exclude: [] } ) ).toEqual( [] );
+		} );
+
+		it( 'emits a bare `term` clause when include has a single slug', () => {
+			expect( buildStaticPostTypeClauses( { include: [ 'post' ] } ) ).toEqual( [
+				{ term: { post_type: 'post' } },
+			] );
+		} );
+
+		it( 'wraps multi-slug includes in a `bool.should`', () => {
+			expect( buildStaticPostTypeClauses( { include: [ 'post', 'page' ] } ) ).toEqual( [
+				{
+					bool: {
+						should: [ { term: { post_type: 'post' } }, { term: { post_type: 'page' } } ],
+					},
+				},
+			] );
+		} );
+
+		it( 'emits a `bool.must_not` for excludes regardless of length', () => {
+			expect( buildStaticPostTypeClauses( { exclude: [ 'jetpack-portfolio' ] } ) ).toEqual( [
+				{ bool: { must_not: [ { term: { post_type: 'jetpack-portfolio' } } ] } },
+			] );
+		} );
+
+		it( 'treats a non-array include as empty and skips the clause', () => {
+			// The defensive `Array.isArray` guard exists so a forward-compat
+			// state-shape change can not crash the URL builder. Locking it
+			// in via a test makes the contract explicit.
+			expect( buildStaticPostTypeClauses( { include: 'post', exclude: [] } ) ).toEqual( [] );
+			expect( buildStaticPostTypeClauses( { include: null, exclude: [ 'product' ] } ) ).toEqual( [
+				{ bool: { must_not: [ { term: { post_type: 'product' } } ] } },
+			] );
+		} );
+
+		it( 'treats a non-array exclude as empty and emits only the include clause', () => {
+			expect( buildStaticPostTypeClauses( { include: [ 'post' ], exclude: 'page' } ) ).toEqual( [
+				{ term: { post_type: 'post' } },
+			] );
+		} );
+
+		it( 'concatenates include and exclude clauses when both are set', () => {
+			expect(
+				buildStaticPostTypeClauses( { include: [ 'post', 'page' ], exclude: [ 'product' ] } )
+			).toEqual( [
+				{
+					bool: {
+						should: [ { term: { post_type: 'post' } }, { term: { post_type: 'page' } } ],
+					},
+				},
+				{ bool: { must_not: [ { term: { post_type: 'product' } } ] } },
+			] );
+		} );
+	} );
+
+	describe( 'buildSearchUrl: staticPostTypes', () => {
+		const baseOpts = {
+			siteId: 1,
+			searchQuery: '',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: '',
+		};
+
+		it( 'omits the static clause when both lists are empty', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				staticPostTypes: { include: [], exclude: [] },
+			} );
+			// `post_type` also appears as a result field, so assert against
+			// the filter clause specifically.
+			expect( decodeURIComponent( url ) ).not.toContain( 'filter[bool][must]' );
+		} );
+
+		it( 'restricts results to the include set', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				staticPostTypes: { include: [ 'post', 'page' ], exclude: [] },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][bool][should][0][term][post_type]=post' );
+			expect( decoded ).toContain( 'filter[bool][must][0][bool][should][1][term][post_type]=page' );
+		} );
+
+		it( 'subtracts the exclude set via must_not', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				staticPostTypes: { include: [], exclude: [ 'product' ] },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain(
+				'filter[bool][must][0][bool][must_not][0][term][post_type]=product'
+			);
+		} );
+
+		it( 'composes alongside an existing filter clause without overwriting it', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				activeFilters: { category: [ 'news' ] },
+				filterConfigs: { category: { filterType: 'taxonomy', taxonomy: 'category' } },
+				staticPostTypes: { include: [ 'post' ], exclude: [ 'product' ] },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+			expect( decoded ).toContain( 'filter[bool][must][1][term][post_type]=post' );
+			expect( decoded ).toContain(
+				'filter[bool][must][2][bool][must_not][0][term][post_type]=product'
+			);
 		} );
 	} );
 } );

@@ -23,6 +23,7 @@ if ( '' === $message ) {
 	data-wp-interactive="jetpack-search"
 	data-wp-bind--hidden="!state.showError"
 	role="alert"
+	hidden
 >
 	<p><?php echo esc_html( $message ); ?></p>
 </div>

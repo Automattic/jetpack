@@ -7,6 +7,7 @@
 		"eslint-changed": "eslint-changed",
 		"prettier": "prettier",
 		"semver": "semver",
+		"stylelint": "stylelint",
 		"validate-es": "validate-es"
 	},
 	"devDependencies": {

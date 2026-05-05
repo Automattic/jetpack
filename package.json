@@ -32,8 +32,7 @@
 	"devDependencies": {
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
-		"jetpack-js-tools": "workspace:*",
-		"stylelint": "17.7.0"
+		"jetpack-js-tools": "workspace:*"
 	},
 	"packageManager": "pnpm@10.28.2",
 	"engines": {

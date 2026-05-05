@@ -9,7 +9,6 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { createElement as h, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const SAMPLE_BUCKETS_YEAR = [
@@ -48,93 +47,82 @@ export default function FilterDateEdit( { attributes, setAttributes } ) {
 		: 'newest';
 	const sampleBuckets = interval === 'month' ? SAMPLE_BUCKETS_MONTH : SAMPLE_BUCKETS_YEAR;
 
-	return h(
-		Fragment,
-		null,
-		h(
-			InspectorControls,
-			null,
-			h(
-				PanelBody,
-				{ title: __( 'Settings', 'jetpack-search-pkg' ) },
-				h( SelectControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Interval', 'jetpack-search-pkg' ),
-					value: interval,
-					options: [
-						{ value: 'year', label: __( 'Year', 'jetpack-search-pkg' ) },
-						{ value: 'month', label: __( 'Month', 'jetpack-search-pkg' ) },
-					],
-					onChange: value => setAttributes( { interval: value === 'month' ? 'month' : 'year' } ),
-					help: __(
-						'Bucket size: yearly suits long-running blogs; monthly suits archive-heavy news sites.',
-						'jetpack-search-pkg'
-					),
-				} ),
-				h( TextControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Label', 'jetpack-search-pkg' ),
-					value: rawLabel,
-					placeholder: placeholderLabel,
-					onChange: value => setAttributes( { label: value } ),
-					help: __( 'Leave empty to use the default "Date" label.', 'jetpack-search-pkg' ),
-				} ),
-				h( ToggleControl, {
-					__nextHasNoMarginBottom: true,
-					label: __( 'Show result counts', 'jetpack-search-pkg' ),
-					checked: showCount,
-					onChange: value => setAttributes( { showCount: !! value } ),
-				} ),
-				h( RangeControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Maximum items', 'jetpack-search-pkg' ),
-					value: maxItems,
-					min: 1,
-					max: 50,
-					onChange: value => setAttributes( { maxItems: Math.max( 1, value || 1 ) } ),
-				} ),
-				h( SelectControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Sort order', 'jetpack-search-pkg' ),
-					value: bucketSortOrder,
-					options: [
-						{ value: 'newest', label: __( 'Most recent first', 'jetpack-search-pkg' ) },
-						{ value: 'oldest', label: __( 'Oldest first', 'jetpack-search-pkg' ) },
-						{ value: 'count', label: __( 'Most results first', 'jetpack-search-pkg' ) },
-					],
-					onChange: value => setAttributes( { bucketSortOrder: value } ),
-				} )
-			)
-		),
-		h(
-			'div',
-			blockProps,
-			h( 'h3', { className: 'jetpack-search-filter__title' }, previewLabel ),
-			h(
-				'ul',
-				{ className: 'jetpack-search-filter__list' },
-				sampleBuckets
-					.slice( 0, maxItems )
-					.map( item =>
-						h(
-							'li',
-							{ key: item.value, className: 'jetpack-search-filter__item' },
-							h(
-								'label',
-								null,
-								h( 'input', { type: 'checkbox', disabled: true } ),
-								h( 'span', { className: 'jetpack-search-filter__label' }, item.label ),
-								showCount
-									? h( 'span', { className: 'jetpack-search-filter__count' }, String( item.count ) )
-									: null
-							)
-						)
-					)
-			)
-		)
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Interval', 'jetpack-search-pkg' ) }
+						value={ interval }
+						options={ [
+							{ value: 'year', label: __( 'Year', 'jetpack-search-pkg' ) },
+							{ value: 'month', label: __( 'Month', 'jetpack-search-pkg' ) },
+						] }
+						onChange={ value =>
+							setAttributes( { interval: value === 'month' ? 'month' : 'year' } )
+						}
+						help={ __(
+							'Bucket size: yearly suits long-running blogs; monthly suits archive-heavy news sites.',
+							'jetpack-search-pkg'
+						) }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Label', 'jetpack-search-pkg' ) }
+						value={ rawLabel }
+						placeholder={ placeholderLabel }
+						onChange={ value => setAttributes( { label: value } ) }
+						help={ __( 'Leave empty to use the default "Date" label.', 'jetpack-search-pkg' ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Show result counts', 'jetpack-search-pkg' ) }
+						checked={ showCount }
+						onChange={ value => setAttributes( { showCount: !! value } ) }
+					/>
+					<RangeControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Maximum items', 'jetpack-search-pkg' ) }
+						value={ maxItems }
+						min={ 1 }
+						max={ 50 }
+						onChange={ value => setAttributes( { maxItems: Math.max( 1, value || 1 ) } ) }
+					/>
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Sort order', 'jetpack-search-pkg' ) }
+						value={ bucketSortOrder }
+						options={ [
+							{ value: 'newest', label: __( 'Most recent first', 'jetpack-search-pkg' ) },
+							{ value: 'oldest', label: __( 'Oldest first', 'jetpack-search-pkg' ) },
+							{ value: 'count', label: __( 'Most results first', 'jetpack-search-pkg' ) },
+						] }
+						onChange={ value => setAttributes( { bucketSortOrder: value } ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<div { ...blockProps }>
+				<h3 className="jetpack-search-filter__title">{ previewLabel }</h3>
+				<ul className="jetpack-search-filter__list">
+					{ sampleBuckets.slice( 0, maxItems ).map( item => (
+						<li key={ item.value } className="jetpack-search-filter__item">
+							{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- the input is a direct child, implicit HTML5 association applies; rule's nesting heuristic doesn't trace through sibling spans */ }
+							<label>
+								<input type="checkbox" disabled />
+								<span className="jetpack-search-filter__label">{ item.label }</span>
+								{ showCount && (
+									<span className="jetpack-search-filter__count">{ String( item.count ) }</span>
+								) }
+							</label>
+						</li>
+					) ) }
+				</ul>
+			</div>
+		</>
 	);
 }

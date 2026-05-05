@@ -24,11 +24,13 @@ describe( 'CommonFiltersEdit', () => {
 			[ 'jetpack/filter-checkbox', { filterType: 'author' } ],
 			[ 'jetpack/filter-checkbox', { filterType: 'post_type' } ],
 			[ 'jetpack/filter-date', { interval: 'year' } ],
+			[ 'jetpack/post-type-filter' ],
 		] );
 		expect( props.allowedBlocks ).toEqual( [
 			'jetpack/active-filters',
 			'jetpack/filter-checkbox',
 			'jetpack/filter-date',
+			'jetpack/post-type-filter',
 		] );
 	} );
 } );

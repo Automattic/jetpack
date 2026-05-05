@@ -64,6 +64,8 @@
 		"editor.formatOnSave": false,
 		"editor.defaultFormatter": "stylelint.vscode-stylelint"
 	},
+	// Use Stylelint from this path.
+	"stylelint.stylelintPath": "tools/js-tools/node_modules/stylelint",
 	"stylelint.validate": [ "css", "scss" ],
 	// Use Native TypeScript
 	"js/ts.experimental.useTsgo": true
