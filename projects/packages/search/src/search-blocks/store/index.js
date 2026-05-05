@@ -162,7 +162,7 @@ let searchToken = 0;
  * string in every other case (pre-search, loading, error, or zero hits —
  * the empty-state region inside `jetpack/search-results` owns the empty
  * copy, and the results-count block paints a skeleton bar gated by
- * `state.skeletonHidden` for the loading affordance instead of a "Searching…"
+ * `state.isLoading` for the loading affordance instead of a "Searching…"
  * text swap that visibly flickers when the resolved count is empty).
  * Called by every action that mutates `isLoading` or `totalResults` so the
  * seeded `state.resultsCountText` stays in lockstep with the counters; SSR

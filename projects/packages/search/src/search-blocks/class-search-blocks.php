@@ -613,7 +613,7 @@ class Search_Blocks {
 			// Seeded empty so the SSR pass can resolve `data-wp-text` to a
 			// real string on first paint; the loading affordance is owned by
 			// the skeleton bar inside the results-count block (gated by
-			// `state.skeletonHidden`), not by a "Searching…" text seed that
+			// `state.isLoading`), not by a "Searching…" text seed that
 			// would flicker to empty when the resolved count is zero.
 			// `actions.search()` keeps this value in lockstep with
 			// `totalResults` via `computeResultsCountText`.

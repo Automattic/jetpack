@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-use PHPUnit\Framework\TestCase;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Tests for the results-count block's render template.
@@ -99,11 +99,14 @@ class Results_Count_Render_Test extends TestCase {
 	 */
 	public function test_wrapper_does_not_carry_data_wp_text() {
 		$markup = $this->render();
-		// The match is anchored to the wrapper opening tag (the first `<p`
-		// in the markup). The inner span's `data-wp-text` is fine; what we
-		// guard against is the wrapper itself binding text.
-		$this->assertMatchesRegularExpression(
-			'/<p\b[^>]*>(?![^<]*data-wp-text)/',
+		// Asserts the opening `<p …>` tag's attribute list itself does not
+		// include `data-wp-text`. The inner text span is allowed to carry
+		// it; what we guard against is the wrapper rebinding text and
+		// reintroducing the flicker. Anchor inside the tag (between `<p`
+		// and the closing `>`) so a future regression on the wrapper would
+		// fail the assertion.
+		$this->assertDoesNotMatchRegularExpression(
+			'/<p\b[^>]*\bdata-wp-text\b[^>]*>/',
 			$markup,
 			'Wrapper <p> must not carry data-wp-text — that binding lives on the inner text span.'
 		);
