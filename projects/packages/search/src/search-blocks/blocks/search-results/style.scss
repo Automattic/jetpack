@@ -371,6 +371,11 @@
 			display: none;
 		}
 
+		mark {
+			background: none;
+			color: inherit;
+		}
+
 		span[hidden] {
 			display: none;
 		}

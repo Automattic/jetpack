@@ -117,6 +117,7 @@ class Search_Results_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'jetpack-search-results__match-hint', $markup );
 		$this->assertStringContainsString( 'context.result.matchHint', $markup );
 		$this->assertStringContainsString( 'context.result.matchHintIsComments', $markup );
+		$this->assertStringContainsString( '<mark>', $markup );
 		$this->assertStringContainsString( 'Matches content', $markup );
 		$this->assertStringContainsString( 'Matches comments', $markup );
 	}

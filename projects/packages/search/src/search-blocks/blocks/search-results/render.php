@@ -200,12 +200,14 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 							class="jetpack-search-results__match-hint"
 							data-wp-bind--hidden="!context.result.matchHint"
 						>
-							<span data-wp-bind--hidden="!context.result.matchHintIsComments">
-								<?php esc_html_e( 'Matches comments', 'jetpack-search-pkg' ); ?>
-							</span>
-							<span data-wp-bind--hidden="context.result.matchHintIsComments">
-								<?php esc_html_e( 'Matches content', 'jetpack-search-pkg' ); ?>
-							</span>
+							<mark>
+								<span data-wp-bind--hidden="!context.result.matchHintIsComments">
+									<?php esc_html_e( 'Matches comments', 'jetpack-search-pkg' ); ?>
+								</span>
+								<span data-wp-bind--hidden="context.result.matchHintIsComments">
+									<?php esc_html_e( 'Matches content', 'jetpack-search-pkg' ); ?>
+								</span>
+							</mark>
 						</div>
 					<?php endif; ?>
 					<?php if ( $features['show_date'] ) : ?>

@@ -277,6 +277,7 @@ export function deriveMatchHint( highlight, titlePieces ) {
 	const entries = Object.entries( highlight );
 	if (
 		entries.some(
+			// The v1.3 API uses 'comment' (singular), not 'comments'.
 			( [ key, value ] ) => key === 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
 		)
 	) {
