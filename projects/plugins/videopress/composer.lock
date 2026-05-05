@@ -1040,7 +1040,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "27a1a0b0ca6700aa6cd2173ea9eb95733bab5f35"
+                "reference": "4606faf70c1878c047c2a2b28fd8f1f209669943"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1078,7 +1078,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.35.x-dev"
+                    "dev-trunk": "5.36.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1622,7 +1622,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "946cdc6936bc54e9b5d22f0129003c0f9c9e475b"
+                "reference": "76711591c7e3c5cc5c811fb7308d55b53f6052a5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1655,7 +1655,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.36.x-dev"
+                    "dev-trunk": "4.37.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1694,7 +1694,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "3cf80af16fff7392d877369083ca5b051350955f"
+                "reference": "70de574c28bdf70d98a748697cd7d191565d7eb1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1703,6 +1703,7 @@
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -1762,6 +1763,64 @@
                 "GPL-2.0-or-later"
             ],
             "description": "VideoPress package",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-wp-build-polyfills",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/wp-build-polyfills",
+                "reference": "50a49082c2623dd4e295860c6a3d9b6be5b66f4c"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-wp-build-polyfills",
+                "textdomain": "jetpack-wp-build-polyfills",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Polyfills for WordPress Core packages not available in WP < 7.0",
             "transport-options": {
                 "relative": true
             }

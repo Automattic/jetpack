@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Dashboard: remove orphaned SCSS @use imports that were never referenced.

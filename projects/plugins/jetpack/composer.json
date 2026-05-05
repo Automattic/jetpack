@@ -14,6 +14,7 @@
 		"automattic/block-delimiter": "@dev",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-account-protection": "@dev",
+		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
@@ -48,6 +49,7 @@
 		"automattic/jetpack-publicize": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
+		"automattic/jetpack-scan-page": "@dev",
 		"automattic/jetpack-search": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
@@ -112,7 +114,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_8_a_7",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_8_beta",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

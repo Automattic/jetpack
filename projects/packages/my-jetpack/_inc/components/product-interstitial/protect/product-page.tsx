@@ -39,7 +39,7 @@ import styles from './style.module.scss';
  * @return {object} React component for the product page
  */
 export default function ProtectProductPage() {
-	const { onClickGoBack } = useGoBack( { slug: 'protect' } );
+	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: '/products' } );
 	const { detail, isLoading: isLoadingProduct } = useProduct( 'protect' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
@@ -87,13 +87,19 @@ export default function ProtectProductPage() {
 	const securityFeaturesUrl = getRedirectUrl( 'jetpack-security' );
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ true }>
+		<AdminPage
+			showBackground={ true }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ onClickGoBack }
+					to="/products"
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
+		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				{ /* Header Section */ }
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
-					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
-						<GoBackLink onClick={ onClickGoBack } reload={ false } />
-					</div>
 					<div
 						className={ clsx(
 							styles[ 'product-interstitial__section-wrapper-wide' ],

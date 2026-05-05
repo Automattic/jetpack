@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Improve sanitization and escaping of strings.

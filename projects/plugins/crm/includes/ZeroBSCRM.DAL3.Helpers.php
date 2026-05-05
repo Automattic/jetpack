@@ -352,7 +352,7 @@ function zeroBS_searchCustomers( $args = array(), $withMoneyData = false ) {
 function zeroBSCRM_customerPortalDisableEnable( $contact_id = -1, $enable_or_disable = 'disable' ) {
 	global $zbs;
 
-	if ( zeroBSCRM_permsCustomers() && ! empty( $contact_id ) ) {
+	if ( jpcrm_perms_manage_options() && ! empty( $contact_id ) ) {
 		// Verify this user can be changed.
 		// Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm.
 		$wp_user_id  = zeroBSCRM_getClientPortalUserID( $contact_id );
@@ -376,18 +376,19 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 	global $zbs;
 
-	if ( zeroBSCRM_permsCustomers() && ! empty( $contact_id ) ) {
+	if ( jpcrm_perms_manage_options() && ! empty( $contact_id ) ) {
 
 		$wp_user_id    = zeroBS_getCustomerWPID( $contact_id );
 		$contact       = $zbs->DAL->contacts->getContact( $contact_id );
 		$contact_email = $contact['email'];
-		$user_object   = get_userdata( $contact_email );
+		$user_object   = get_userdata( $wp_user_id );
 
 		if ( $wp_user_id > 0 && ! empty( $contact_email ) ) {
 
-			// Verify this user can be changed
-			// (Has to have singular role of `zerobs_customer`. This helps to avoid users resetting each others passwords via crm)
-			if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
+			// Verify this user can be changed.
+			// Has to have singular role of `zerobs_customer`. This helps to avoid
+			// users resetting each others passwords via the CRM.
+			if ( ! jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
 
 				return false;
 
@@ -451,7 +452,7 @@ function zeroBSCRM_customerPortalPWReset( $contact_id = -1 ) {
 
 			}
 
-			return $new_password;
+			return true;
 
 		} // if wpid
 
@@ -1059,11 +1060,11 @@ function zeroBS_getCustomerIcoLinked( $cID = -1, $incName = false, $extraClasses
 		$cName = zeroBS_getCustomerNameShort( $cID );
 
 		if ( ! empty( $cName ) ) {
-			$extraHTML = '<span class="">' . $cName . '</span>';
+			$extraHTML = '<span class="">' . esc_html( $cName ) . '</span>';
 		}
 	}
 
-	return '<div class="zbs-co-img' . $extraClasses . '"><a href = "' . jpcrm_esc_link( 'view', $cID, 'zerobs_customer' ) . '">' . zeroBS_customerAvatarHTML( $cID, -1, $maxSize ) . '</a>' . $extraHTML . '</div>';
+	return '<div class="zbs-co-img' . esc_attr( $extraClasses ) . '"><a href = "' . jpcrm_esc_link( 'view', $cID, 'zerobs_customer' ) . '">' . zeroBS_customerAvatarHTML( $cID, -1, $maxSize ) . '</a>' . $extraHTML . '</div>';
 }
 
 #} same as above but wrapped in contact view link + semantic ui label img link
@@ -1072,11 +1073,11 @@ function zeroBS_getCustomerIcoLinkedLabel( $cID = -1 ) {
 	$extraHTML = '';
 	$cName     = zeroBS_getCustomerNameShort( $cID );
 	if ( ! empty( $cName ) ) {
-		$extraHTML = '<span>' . $cName . '</span>';
+		$extraHTML = '<span>' . esc_html( $cName ) . '</span>';
 	} else {
 		$cEmail = zeroBS_customerEmail( $cID );
 		if ( ! empty( $cEmail ) ) {
-			$extraHTML = '<span>' . $cEmail . '</span>';
+			$extraHTML = '<span>' . esc_html( $cEmail ) . '</span>';
 		}
 	}
 
@@ -1091,11 +1092,11 @@ function zeroBS_getCustomerLinkedLabel( $cID = -1 ) {
 	$extraHTML = '';
 	$cName     = zeroBS_getCustomerNameShort( $cID );
 	if ( ! empty( $cName ) ) {
-		$extraHTML = '<span>' . $cName . '</span>';
+		$extraHTML = '<span>' . esc_html( $cName ) . '</span>';
 	} else {
 		$cEmail = zeroBS_customerEmail( $cID );
 		if ( ! empty( $cEmail ) ) {
-			$extraHTML = '<span>' . $cEmail . '</span>';
+			$extraHTML = '<span>' . esc_html( $cEmail ) . '</span>';
 		}
 	}
 	// for empties, add no
@@ -6007,7 +6008,7 @@ function zeroBSCRM_security_logRequest( $reqType = 'unknown', $reqHash = '', $re
 	if ( strlen( $reqHash ) > 128 ) {
 		$reqHash = '';
 	}
-	$reqID = (int) sanitize_text_field( $reqID );
+	$reqID = (int) $reqID;
 
 	if ( $wpdb->insert(
 		$ZBSCRM_t['security_log'],

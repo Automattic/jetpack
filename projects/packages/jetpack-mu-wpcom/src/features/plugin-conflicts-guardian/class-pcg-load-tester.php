@@ -15,6 +15,21 @@ class PCG_Load_Tester {
 	const TOKEN_LIFETIME = 30;
 
 	/**
+	 * Probe mode: file is currently inactive and the endpoint must
+	 * `require` it to exercise its load path. Used by the activation guard.
+	 */
+	const MODE_ACTIVATION = 'activation';
+
+	/**
+	 * Probe mode: file is already loaded by WP's normal bootstrap (it was
+	 * an active plugin before the just-completed update). The endpoint
+	 * must NOT re-`require` the file — doing so would fatal with "Cannot
+	 * redeclare class/function" — and instead just verifies that the
+	 * bootstrap completed cleanly with the new code.
+	 */
+	const MODE_UPDATE = 'update';
+
+	/**
 	 * Run the probe against a plugin main file.
 	 *
 	 * Fires two loopback requests in parallel: one against `home_url('/')`
@@ -24,9 +39,11 @@ class PCG_Load_Tester {
 	 * either probe wins; otherwise the front-end verdict is returned.
 	 *
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
+	 * @param string $mode        Probe mode: self::MODE_ACTIVATION (default) or
+	 *                            self::MODE_UPDATE. See class constants.
 	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int}
 	 */
-	public function test( $plugin_main ) {
+	public function test( $plugin_main, $mode = self::MODE_ACTIVATION ) {
 		if ( '' === (string) $plugin_main || ! is_file( $plugin_main ) ) {
 			return array(
 				'status' => 'error',
@@ -34,8 +51,8 @@ class PCG_Load_Tester {
 			);
 		}
 
-		$front = $this->prepare_probe( $plugin_main, home_url( '/' ), false );
-		$admin = $this->prepare_probe( $plugin_main, admin_url( 'index.php' ), true );
+		$front = $this->prepare_probe( $plugin_main, home_url( '/' ), false, $mode );
+		$admin = $this->prepare_probe( $plugin_main, admin_url( 'index.php' ), true, $mode );
 
 		try {
 			$responses = \WpOrg\Requests\Requests::request_multiple(
@@ -85,17 +102,36 @@ class PCG_Load_Tester {
 	}
 
 	/**
+	 * Build the transient payload that the probe endpoint will consume.
+	 *
+	 * Exposed for unit tests so they can assert the stash shape without
+	 * needing a live HTTP loopback. Not part of the public API.
+	 *
+	 * @internal
+	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
+	 * @param string $mode        Probe mode constant.
+	 * @return array{plugin:string,mode:string}
+	 */
+	public static function build_probe_payload( $plugin_main, $mode = self::MODE_ACTIVATION ) {
+		return array(
+			'plugin' => (string) $plugin_main,
+			'mode'   => self::MODE_UPDATE === $mode ? self::MODE_UPDATE : self::MODE_ACTIVATION,
+		);
+	}
+
+	/**
 	 * Stash a probe transient and build the request descriptor for
 	 * `Requests::request_multiple`.
 	 *
 	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
 	 * @param string $base_url    Base URL to probe (front-end or admin).
 	 * @param bool   $is_admin    Adds `pcg_admin=1` and forwards auth cookies.
+	 * @param string $mode        Probe mode constant.
 	 * @return array{token:string,request:array}
 	 */
-	protected function prepare_probe( $plugin_main, $base_url, $is_admin ) {
+	protected function prepare_probe( $plugin_main, $base_url, $is_admin, $mode = self::MODE_ACTIVATION ) {
 		$token = wp_generate_password( 32, false );
-		set_transient( self::transient_key( $token ), $plugin_main, self::TOKEN_LIFETIME );
+		set_transient( self::transient_key( $token ), self::build_probe_payload( $plugin_main, $mode ), self::TOKEN_LIFETIME );
 
 		$query   = array(
 			'pcg_probe' => '1',

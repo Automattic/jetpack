@@ -6,9 +6,10 @@
 
 import { AdminPage, JetpackLogo } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice, Stack } from '@wordpress/ui';
+import analytics from 'lib/analytics';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
@@ -16,10 +17,10 @@ import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
 
-const { blogId, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
+const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 
 const VIEW_TITLES = {
-	hub: __( 'AI', 'jetpack' ),
+	hub: 'AI', // "AI" is a product name and should not be translated.
 	read: __( 'Read', 'jetpack' ),
 	write: __( 'Write', 'jetpack' ),
 	setup: __( 'Connect external AI agent', 'jetpack' ),
@@ -52,7 +53,8 @@ function Breadcrumbs( { view, onNavigate } ) {
 						onClick={ onNavigate }
 					>
 						<JetpackLogo showText={ false } height={ 20 } />
-						{ __( 'AI', 'jetpack' ) }
+						{ /** "AI" is a product name and should not be translated. */ }
+						AI
 					</button>
 				</li>
 				<li>
@@ -73,6 +75,12 @@ export default function App() {
 	const [ saveError, setSaveError ] = useState( null );
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings();
+
+	useEffect( () => {
+		if ( ! isLoading && hasMcpAccess ) {
+			analytics.tracks.recordEvent( 'jetpack_mcp_settings_viewed' );
+		}
+	}, [ isLoading, hasMcpAccess ] );
 
 	const handleUpdate = useCallback(
 		update => {
@@ -138,6 +146,7 @@ export default function App() {
 							<McpHub
 								mcpAbilities={ mcpAbilities }
 								blogId={ blogId }
+								activityLogUrl={ activityLogUrl }
 								savingToolIds={ savingToolIds }
 								onNavigate={ setView }
 								onUpdate={ handleUpdate }

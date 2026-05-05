@@ -94,4 +94,13 @@ export type AdminPageProps = {
 	 * Hidden when `tabs` is used.
 	 */
 	showBottomBorder?: boolean;
+
+	/**
+	 * Render `children` directly inside the admin-ui Page, skipping the
+	 * default `<Container fluid horizontalSpacing={0}><Col>{children}</Col></Container>`
+	 * wrap. Use for full-bleed pages (DataViews-based admin surfaces, full-app
+	 * dashboards) that own their own scroll/layout model and don't want the
+	 * outer Container's grid to break their flex chain. Defaults to `false`.
+	 */
+	unwrapped?: boolean;
 };

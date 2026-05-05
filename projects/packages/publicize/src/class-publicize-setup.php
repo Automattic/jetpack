@@ -141,7 +141,7 @@ class Publicize_Setup {
 			REST_API\Share_Status_Controller::class,
 			REST_API\X_Usage_Controller::class,
 			REST_API\Social_Image_Generator_Controller::class,
-			REST_API\Render_Message_Controller::class,
+			REST_API\Render_Messages_Controller::class,
 			Jetpack_Social_Settings\Settings::class,
 		);
 

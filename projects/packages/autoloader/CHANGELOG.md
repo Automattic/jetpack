@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.17] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
 ## [5.0.16] - 2026-02-16
 ### Changed
 - Internal updates.
@@ -462,6 +466,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[5.0.17]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.16...v5.0.17
 [5.0.16]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.15...v5.0.16
 [5.0.15]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.14...v5.0.15
 [5.0.14]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.13...v5.0.14

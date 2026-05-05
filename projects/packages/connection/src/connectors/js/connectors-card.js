@@ -23,7 +23,7 @@ const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, useState, useRef } = window.wp.element;
+const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
 const { __ } = window.wp.i18n;
 const { Button, Modal } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
@@ -54,6 +54,7 @@ const CONNECTOR_LOGO = data.connectorLogoUrl
 	? createElement( 'img', { src: data.connectorLogoUrl, alt: '', width: 36, height: 36 } )
 	: null;
 const ssoStatus = data.ssoStatus ?? null;
+const isFirstConnection = Boolean( data.isFirstConnection );
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
@@ -203,6 +204,38 @@ function ErrorNotice( { message, onDismiss = null } ) {
 					__( 'Dismiss', 'jetpack-connection' )
 			  )
 			: null
+	);
+}
+
+/**
+ * Terms of Service and Privacy Policy notice for first-time connections.
+ *
+ * @return {object} React element.
+ */
+function TosNotice() {
+	const message = createInterpolateElement(
+		__(
+			'By connecting, you agree to our <tos>Terms of Service</tos> and have read our <privacy>Privacy Policy</privacy>.',
+			'jetpack-connection'
+		),
+		{
+			tos: createElement( 'a', {
+				href: 'https://wordpress.com/tos/',
+				target: '_blank',
+				rel: 'noopener noreferrer',
+			} ),
+			privacy: createElement( 'a', {
+				href: 'https://automattic.com/privacy/',
+				target: '_blank',
+				rel: 'noopener noreferrer',
+			} ),
+		}
+	);
+
+	return createElement(
+		Text,
+		{ variant: 'muted', size: 12, className: 'jetpack-connector__tos-notice' },
+		message
 	);
 }
 
@@ -620,12 +653,13 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 										ref: disconnectAccountRef,
 										variant: 'link',
 										isDestructive: true,
-										isBusy: isUnlinking,
 										disabled: isUnlinking || isDisconnecting,
 										onClick: handleUnlinkUser,
 										className: 'jetpack-connector__inline-action',
 									},
-									__( 'Disconnect account', 'jetpack-connection' )
+									isUnlinking
+										? __( 'Disconnecting…', 'jetpack-connection' )
+										: __( 'Disconnect account', 'jetpack-connection' )
 							  ),
 			  } )
 			: null,
@@ -743,6 +777,18 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
 
+	// Reset "Connecting…" state when the page is restored from bfcache
+	// (e.g. user hits Back after being redirected to the auth page).
+	useEffect( () => {
+		const onPageShow = e => {
+			if ( e.persisted ) {
+				setIsConnecting( false );
+			}
+		};
+		window.addEventListener( 'pageshow', onPageShow );
+		return () => window.removeEventListener( 'pageshow', onPageShow );
+	}, [] );
+
 	const handleConnect = async () => {
 		setIsConnecting( true );
 		setConnectError( null );
@@ -765,8 +811,8 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		const badgeProps = isConnected
 			? { label: __( 'Connected', 'jetpack-connection' ) }
 			: {
-					label: __( 'Site connected', 'jetpack-connection' ),
-					modifier: 'site-connected',
+					label: __( 'Site registered', 'jetpack-connection' ),
+					modifier: 'site-registered',
 			  };
 
 		actionArea = createElement(
@@ -835,7 +881,8 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 					message: connectError,
 					onDismiss: () => setConnectError( null ),
 			  } )
-			: null
+			: null,
+		isFirstConnection && ! isConnected && ! isSiteRegistered ? createElement( TosNotice ) : null
 	);
 }
 

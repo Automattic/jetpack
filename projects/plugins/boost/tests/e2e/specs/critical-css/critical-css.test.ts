@@ -63,7 +63,7 @@ test.describe.serial( 'Critical CSS module', () => {
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60 * 1000 } );
+		).toBeVisible( { timeout: 60000 } );
 	} );
 
 	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async ( {
@@ -77,7 +77,7 @@ test.describe.serial( 'Critical CSS module', () => {
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60 * 1000 } );
+		).toBeVisible( { timeout: 60000 } );
 	} );
 
 	test( 'Critical CSS should be available on the frontend when the module is active', async ( {
@@ -110,7 +110,7 @@ test.describe.serial( 'Critical CSS module', () => {
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60 * 1000 } );
+		).toBeVisible( { timeout: 60000 } );
 	} );
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async ( {
@@ -127,7 +127,7 @@ test.describe.serial( 'Critical CSS module', () => {
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60 * 1000 } );
+		).toBeVisible( { timeout: 60000 } );
 
 		await page.getByText( 'Advanced Recommendations' ).click();
 		await expect(
@@ -139,6 +139,6 @@ test.describe.serial( 'Critical CSS module', () => {
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
-		).toBeVisible( { timeout: 60 * 1000 } );
+		).toBeVisible( { timeout: 60000 } );
 	} );
 } );

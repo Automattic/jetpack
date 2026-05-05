@@ -19,9 +19,6 @@ function pcg_maybe_handle_probe() {
 	if ( '1' !== $probe_flag ) {
 		return;
 	}
-	if ( ! apply_filters( 'pcg_guard_activation', false ) ) {
-		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
-	}
 
 	// Mixed-case random tokens from `wp_generate_password`; we can't
 	// `sanitize_key` (which lowercases) and must validate with a regex.
@@ -31,13 +28,27 @@ function pcg_maybe_handle_probe() {
 		pcg_probe_bail_error( 'Missing or malformed probe token.', 400 );
 	}
 
-	$key         = PCG_Load_Tester::transient_key( $token );
-	$plugin_main = (string) get_transient( $key );
+	$key     = PCG_Load_Tester::transient_key( $token );
+	$payload = get_transient( $key );
 	delete_transient( $key );
 
-	if ( '' === $plugin_main ) {
+	if ( ! is_array( $payload ) || ! isset( $payload['plugin'] ) || ! isset( $payload['mode'] ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
 	}
+	$plugin_main = (string) $payload['plugin'];
+	$mode        = (string) $payload['mode'];
+	if ( '' === $plugin_main || ! in_array( $mode, array( PCG_Load_Tester::MODE_ACTIVATION, PCG_Load_Tester::MODE_UPDATE ), true ) ) {
+		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
+	}
+
+	// Gate per mode: activation probes need pcg_guard_activation, update
+	// probes need pcg_guard_updates. Otherwise enabling either flow would
+	// pull in the other as an unintended dependency.
+	$gate_filter = PCG_Load_Tester::MODE_UPDATE === $mode ? 'pcg_guard_updates' : 'pcg_guard_activation';
+	if ( ! apply_filters( $gate_filter, false ) ) {
+		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
+	}
+
 	if ( ! is_file( $plugin_main ) || ! is_readable( $plugin_main ) ) {
 		pcg_probe_bail_error( 'Probe target is no longer readable.', 404 );
 	}
@@ -52,18 +63,25 @@ function pcg_maybe_handle_probe() {
 
 	register_shutdown_function( 'pcg_probe_shutdown' );
 
-	try {
-		require $plugin_main;
-	} catch ( \Throwable $t ) {
-		pcg_probe_respond(
-			array(
-				'status'  => 'throwable',
-				'class'   => get_class( $t ),
-				'message' => $t->getMessage(),
-				'file'    => basename( $t->getFile() ),
-				'line'    => $t->getLine(),
-			)
-		);
+	// Activation mode: the plugin is inactive, so explicitly require it
+	// to exercise its load path. Update mode: the plugin is already loaded
+	// by WP's normal bootstrap (it was active before the update); we only
+	// need to verify that bootstrap completed cleanly with the new code,
+	// and re-requiring would fatal with "Cannot redeclare class/function".
+	if ( PCG_Load_Tester::MODE_ACTIVATION === $mode ) {
+		try {
+			require $plugin_main;
+		} catch ( \Throwable $t ) {
+			pcg_probe_respond(
+				array(
+					'status'  => 'throwable',
+					'class'   => get_class( $t ),
+					'message' => $t->getMessage(),
+					'file'    => basename( $t->getFile() ),
+					'line'    => $t->getLine(),
+				)
+			);
+		}
 	}
 
 	// Admin probe: defer until admin_init has fired so admin-time hook fatals

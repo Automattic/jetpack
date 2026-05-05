@@ -1413,6 +1413,7 @@ class Search extends Module {
 		'project-category',
 		'project-type',
 		'project_category',
+		'project_collection',
 		'project_tag',
 		'projects_category',
 		'projects_tag',

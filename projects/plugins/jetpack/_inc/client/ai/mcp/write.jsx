@@ -16,6 +16,7 @@ import {
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
+import analytics from 'lib/analytics';
 import {
 	CATEGORY_ORDER,
 	SUB_CATEGORY_ORDER,
@@ -123,6 +124,11 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {
+			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
+				tool_id: toolId,
+				enabled,
+				view: 'write',
+			} );
 			onUpdate( {
 				sites: [
 					{
@@ -137,6 +143,11 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 
 	const handleEnableAll = useCallback(
 		( categoryTools, enabled ) => {
+			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
+				enabled,
+				tool_count: categoryTools.length,
+				view: 'write',
+			} );
 			const overrides = {};
 			categoryTools.forEach( ( [ toolId ] ) => {
 				overrides[ toolId ] = enabled;

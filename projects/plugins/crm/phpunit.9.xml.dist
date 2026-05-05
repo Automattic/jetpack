@@ -13,9 +13,6 @@
 		<testsuite name="rest-api">
 			<directory suffix="Test.php">tests/php/rest-api</directory>
 		</testsuite>
-		<testsuite name="automation">
-			<directory suffix="Test.php">tests/php/automation</directory>
-		</testsuite>
 		<testsuite name="event-manager">
 			<directory suffix="Test.php">tests/php/event-manager</directory>
 		</testsuite>

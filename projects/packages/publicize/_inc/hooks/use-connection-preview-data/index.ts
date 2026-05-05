@@ -2,12 +2,13 @@ import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useMemo } from 'react';
+import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import { features, PREVIEW_BODY_CHAR_LIMITS } from '../../utils';
+import { features } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
 import { usePostMeta } from '../use-post-meta';
-import useRenderedMessage from '../use-rendered-message';
+import { useRenderMessageItems } from '../use-render-message-items';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
@@ -42,10 +43,6 @@ export function useConnectionPreviewData( connection: Connection ) {
 		( connection.media_source === 'sig' || globalMediaSource === 'sig' );
 
 	const sig = useSigPreview( generateSigPreview );
-
-	// Effective message to render: per-connection override when set, else global.
-	// Empty string tells the backend to use the per-network default template.
-	const effectiveMessage = ( connection.message ?? globalMessage ?? '' ).trim();
 
 	const isPerNetworkMode =
 		siteHasFeature( features.ENHANCED_PUBLISHING ) && usingPerNetworkCustomization;
@@ -88,14 +85,21 @@ export function useConnectionPreviewData( connection: Connection ) {
 	] );
 
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
-	const { rendered } = useRenderedMessage( {
-		enabled: templatesEnabled,
-		postId: postId ?? 0,
-		network: connection.service_name ?? '',
-		message: effectiveMessage,
-		isSocialPost: media.length > 0,
-		charLimit: PREVIEW_BODY_CHAR_LIMITS[ connection.service_name ?? '' ],
-	} );
+	const items = useRenderMessageItems();
+
+	const rendered = useSelect(
+		select => {
+			if ( ! templatesEnabled || ! postId ) {
+				return null;
+			}
+			// Calling getRenderedMessages via select() is what triggers the resolver
+			// (and the POST). Picking the per-connection slice off the returned batch
+			// keeps the call explicit instead of routing through a derived selector.
+			const batch = select( socialStore ).getRenderedMessages( postId, items );
+			return batch?.[ connection.connection_id ]?.rendered_message ?? null;
+		},
+		[ templatesEnabled, postId, items, connection.connection_id ]
+	);
 
 	return useMemo( () => {
 		const useRendered = templatesEnabled && typeof rendered === 'string';

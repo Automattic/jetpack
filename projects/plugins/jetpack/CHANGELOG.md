@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.8-beta - 2026-05-04
+### Enhancements
+- Activity Log: Replace the external sidebar redirect with a native WP Admin page — search, activity type filter, sort, pagination, and a date-range picker. [#48244]
+- AI MCP settings: Add activity log link and Tracks analytics events (jp_mcp_settings_viewed, jp_mcp_enabled_toggled, jp_mcp_allowlist_updated). [#48298]
+- Make phone numbers in the Contact Info widget clickable on all devices, not just mobile. [#48374]
+- Newsletter: Register Abilities API surface for module settings and subscriber stats on WP 6.9+. [#48356]
+- Omnibar: Add wpcom/v2/admin-bar endpoint to fetch site's admin bar nodes. [#48320]
+- Stats: Register abilities. [#48286]
+- REST API: Add `/sites/%s/plugins/replace` and `/sites/%s/themes/replace` endpoints for installing or overwriting a plugin/theme via zip upload. [#48293]
+
+### Bug fixes
+- AI: Change admin page slug from 'ai' to 'jetpack-ai' to avoid conflicts with the WordPress core AI plugin. [#48483]
+- Paywall: Subscribers can now access tier-gated posts regardless of plan price. [#48373]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Abilities API: Register `jetpack/get-modules` and `jetpack/set-module-status` for WP 6.9+. [#48278]
+- Activity Log: Default the page to the Table layout, fix the free-tier upsell callout layout, and surface the disabled toolbar + disabled date-range picker on the free tier with upgrade tooltips. [#48418]
+- Guidelines CPT: Whitelist _guideline_ meta keys for use on WordPress.com sites. [#48212]
+- Internal: Migrate the connection banner Notice to @wordpress/ui. [#48173]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Omnibar: Do not send response buffer from the admin-bar endpoint. [#48342]
+- Omnibar: Preserve original node ordering. [#48354]
+- Plugin Search Hints: Use Core colors. [#48470]
+- Remove New badges from the writing settings and recommendations screens. [#48174]
+- REST API: Defer loading of helper classes in Top Posts, Podcast Player, and Instagram Gallery endpoints until callbacks are invoked, reducing overhead on unrelated REST requests. [#48327]
+- REST API: Expose `apm_enabled` via the GET site endpoint's `?options=` query param. [#48366]
+- Unify loading indicators to use the WordPress Core Spinner across all contexts. [#47451]
+- Updated package dependencies. [#47102]
+
 ## 15.8-a.7 - 2026-04-27
 ### Enhancements
 - Add MCP settings admin page and REST endpoint for managing external AI agent access to Jetpack AI. [#48048]

@@ -160,7 +160,7 @@ function jpcrm_dash_setting() {
 		if ( in_array( $setting_key, $acceptable_setting_keys, true ) ) {
 
 			// default to checked
-			$is_checked = ( isset( $_POST['is_checked'] ) ? (int) sanitize_text_field( $_POST['is_checked'] ) : 1 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			$is_checked = ( isset( $_POST['is_checked'] ) ? (int) $_POST['is_checked'] : 1 );
 
 			// retrieve
 			$current_user_id = get_current_user_id();

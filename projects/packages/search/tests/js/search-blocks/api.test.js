@@ -1,8 +1,11 @@
 import {
 	SEARCH_FIELDS,
+	WC_RATING_RANGES,
 	buildAggregations,
 	buildFilterClause,
 	buildSearchUrl,
+	buildStaticPostTypeClauses,
+	formatDateBucketLabel,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
 
@@ -10,6 +13,18 @@ describe( 'SEARCH_FIELDS', () => {
 	it( 'does not request author fields for result cards', () => {
 		expect( SEARCH_FIELDS ).not.toContain( 'author.name' );
 		expect( SEARCH_FIELDS ).not.toContain( 'author' );
+	} );
+
+	it( 'requests WooCommerce price and rating fields for the product layout', () => {
+		expect( SEARCH_FIELDS ).toEqual(
+			expect.arrayContaining( [
+				'wc.formatted_price',
+				'wc.formatted_regular_price',
+				'wc.formatted_sale_price',
+				'meta._wc_average_rating.double',
+				'meta._wc_review_count.long',
+			] )
+		);
 	} );
 } );
 
@@ -234,6 +249,19 @@ describe( 'resolveFilterFields', () => {
 			bucketFormat: 'slash',
 		} );
 	} );
+
+	it( 'maps date filters to the WPCOM-whitelisted `date` field with bucketFormat=date', () => {
+		expect( resolveFilterFields( { filterType: 'date', interval: 'year' } ) ).toEqual( {
+			aggField: 'date',
+			filterField: 'date',
+			bucketFormat: 'date',
+		} );
+		expect( resolveFilterFields( { filterType: 'date', interval: 'month' } ) ).toEqual( {
+			aggField: 'date',
+			filterField: 'date',
+			bucketFormat: 'date',
+		} );
+	} );
 } );
 
 describe( 'buildAggregations', () => {
@@ -294,6 +322,56 @@ describe( 'buildAggregations', () => {
 		} );
 		expect( aggs.category.terms.order ).toEqual( { _count: 'desc' } );
 	} );
+
+	it( 'emits a date_histogram (not a terms agg) for date filters', () => {
+		const aggs = buildAggregations( {
+			post_date: {
+				filterType: 'date',
+				interval: 'year',
+				bucketSortOrder: 'newest',
+			},
+		} );
+		expect( aggs.post_date ).toEqual( {
+			date_histogram: {
+				field: 'date',
+				calendar_interval: 'year',
+				format: 'yyyy',
+				min_doc_count: 1,
+				order: { _key: 'desc' },
+			},
+		} );
+		expect( aggs.post_date.terms ).toBeUndefined();
+	} );
+
+	it( 'requests a yyyy-MM format for month-interval date filters', () => {
+		const aggs = buildAggregations( {
+			post_date: {
+				filterType: 'date',
+				interval: 'month',
+			},
+		} );
+		expect( aggs.post_date.date_histogram.calendar_interval ).toBe( 'month' );
+		expect( aggs.post_date.date_histogram.format ).toBe( 'yyyy-MM' );
+	} );
+
+	it( 'maps date bucketSortOrder values to ES order clauses', () => {
+		const cases = [
+			[ 'newest', { _key: 'desc' } ],
+			[ 'oldest', { _key: 'asc' } ],
+			[ 'count', { _count: 'desc' } ],
+			[ 'bogus', { _key: 'desc' } ],
+		];
+		for ( const [ input, expected ] of cases ) {
+			const aggs = buildAggregations( {
+				post_date: {
+					filterType: 'date',
+					interval: 'year',
+					bucketSortOrder: input,
+				},
+			} );
+			expect( aggs.post_date.date_histogram.order ).toEqual( expected );
+		}
+	} );
 } );
 
 describe( 'buildFilterClause', () => {
@@ -343,5 +421,384 @@ describe( 'buildFilterClause', () => {
 
 	it( 'returns undefined when no selections are active', () => {
 		expect( buildFilterClause( {}, {} ) ).toBeUndefined();
+	} );
+
+	it( 'emits a half-open `range` clause for a single year selection', () => {
+		const clause = buildFilterClause(
+			{ post_date: [ '2024' ] },
+			{ post_date: { filterType: 'date', interval: 'year' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [
+					{
+						range: {
+							date: { gte: '2024-01-01', lt: '2025-01-01' },
+						},
+					},
+				],
+			},
+		} );
+	} );
+
+	it( 'rolls month boundaries forward across year wrap', () => {
+		const clause = buildFilterClause(
+			{ post_date: [ '2024-12' ] },
+			{ post_date: { filterType: 'date', interval: 'month' } }
+		);
+		expect( clause.bool.must[ 0 ] ).toEqual( {
+			range: {
+				date: { gte: '2024-12-01', lt: '2025-01-01' },
+			},
+		} );
+	} );
+
+	it( 'wraps multi-value date selections in bool.should (OR within a date filter)', () => {
+		const clause = buildFilterClause(
+			{ post_date: [ '2024', '2023' ] },
+			{ post_date: { filterType: 'date', interval: 'year' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [
+					{
+						bool: {
+							should: [
+								{ range: { date: { gte: '2024-01-01', lt: '2025-01-01' } } },
+								{ range: { date: { gte: '2023-01-01', lt: '2024-01-01' } } },
+							],
+						},
+					},
+				],
+			},
+		} );
+	} );
+
+	it( 'drops malformed date slugs rather than passing them through to ES', () => {
+		const clause = buildFilterClause(
+			{ post_date: [ 'banana' ] },
+			{ post_date: { filterType: 'date', interval: 'year' } }
+		);
+		expect( clause ).toBeUndefined();
+	} );
+
+	it( 'keeps valid date selections when one of several values is malformed', () => {
+		const clause = buildFilterClause(
+			{ post_date: [ 'banana', '2024' ] },
+			{ post_date: { filterType: 'date', interval: 'year' } }
+		);
+		expect( clause ).toEqual( {
+			bool: {
+				must: [ { range: { date: { gte: '2024-01-01', lt: '2025-01-01' } } } ],
+			},
+		} );
+	} );
+} );
+
+describe( 'formatDateBucketLabel', () => {
+	it( 'returns year buckets verbatim — no locale chrome added', () => {
+		expect( formatDateBucketLabel( '2024', 'year' ) ).toBe( '2024' );
+		expect( formatDateBucketLabel( '1999', 'year', 'fr-FR' ) ).toBe( '1999' );
+	} );
+
+	it( 'formats month buckets with a localized full-month + year', () => {
+		// Intl.DateTimeFormat output varies by ICU version — match a substring.
+		const enUS = formatDateBucketLabel( '2024-03', 'month', 'en-US' );
+		expect( enUS ).toMatch( /^March 2024$|^March of 2024$/ );
+
+		const frFR = formatDateBucketLabel( '2024-03', 'month', 'fr-FR' );
+		expect( frFR ).toContain( '2024' );
+		expect( frFR.toLowerCase() ).toContain( 'mars' );
+	} );
+
+	it( 'falls back to the raw value for malformed slugs', () => {
+		expect( formatDateBucketLabel( '', 'month' ) ).toBe( '' );
+		expect( formatDateBucketLabel( 'not-a-date', 'month' ) ).toBe( 'not-a-date' );
+		expect( formatDateBucketLabel( '2024-13', 'month' ) ).toBe( '2024-13' );
+	} );
+
+	it( 'tolerates an invalid locale by returning the raw value', () => {
+		expect( formatDateBucketLabel( '2024-03', 'month', 'definitely-not-a-locale' ) ).toMatch(
+			/2024/
+		);
+	} );
+} );
+
+describe( 'product-shaped filter helpers', () => {
+	describe( 'resolveFilterFields', () => {
+		it( 'maps wc_stock_status to the indexed meta keyword field', () => {
+			expect( resolveFilterFields( { filterType: 'wc_stock_status' } ) ).toEqual( {
+				aggField: 'meta._stock_status.value.raw',
+				filterField: 'meta._stock_status.value.raw',
+				bucketFormat: 'plain',
+			} );
+		} );
+
+		it( 'maps wc_rating to the average-rating numeric field', () => {
+			expect( resolveFilterFields( { filterType: 'wc_rating' } ) ).toEqual( {
+				aggField: 'meta._wc_average_rating.double',
+				filterField: 'meta._wc_average_rating.double',
+				bucketFormat: 'plain',
+			} );
+		} );
+	} );
+
+	describe( 'buildAggregations', () => {
+		it( 'emits a terms agg for wc_stock_status', () => {
+			const aggs = buildAggregations( {
+				filter_stock_status: { filterType: 'wc_stock_status', maxItems: 10 },
+			} );
+			expect( aggs.filter_stock_status ).toEqual( {
+				terms: {
+					field: 'meta._stock_status.value.raw',
+					size: 10,
+					order: { _count: 'desc' },
+				},
+			} );
+		} );
+
+		it( 'emits a histogram (not terms) for wc_rating because range aggs are not whitelisted', () => {
+			const aggs = buildAggregations( { rating_filter: { filterType: 'wc_rating' } } );
+			expect( aggs.rating_filter ).toEqual( {
+				histogram: {
+					field: 'meta._wc_average_rating.double',
+					interval: 1,
+					offset: 0.5,
+					min_doc_count: 0,
+				},
+			} );
+		} );
+	} );
+
+	describe( 'buildFilterClause: wc_rating range branch', () => {
+		it( 'emits a single range clause for one star selection', () => {
+			const clause = buildFilterClause(
+				{ rating_filter: [ '5' ] },
+				{ rating_filter: { filterType: 'wc_rating' } }
+			);
+			expect( clause ).toEqual( {
+				bool: {
+					must: [ { range: { 'meta._wc_average_rating.double': { gte: 4.5 } } } ],
+				},
+			} );
+		} );
+
+		it( 'wraps multi-star selections in bool.should (OR within rating filter)', () => {
+			const clause = buildFilterClause(
+				{ rating_filter: [ '4', '5' ] },
+				{ rating_filter: { filterType: 'wc_rating' } }
+			);
+			expect( clause ).toEqual( {
+				bool: {
+					must: [
+						{
+							bool: {
+								should: [
+									{ range: { 'meta._wc_average_rating.double': { gte: 3.5, lt: 4.5 } } },
+									{ range: { 'meta._wc_average_rating.double': { gte: 4.5 } } },
+								],
+							},
+						},
+					],
+				},
+			} );
+		} );
+
+		it( 'gives star=5 an open upper bound (no `lt`) so 5.0 ratings count', () => {
+			const five = WC_RATING_RANGES.find( r => r.key === '5' );
+			expect( five.to ).toBeUndefined();
+			expect( five.from ).toBe( 4.5 );
+		} );
+
+		it( 'drops unknown star values', () => {
+			const clause = buildFilterClause(
+				{ rating_filter: [ '99' ] },
+				{ rating_filter: { filterType: 'wc_rating' } }
+			);
+			expect( clause ).toBeUndefined();
+		} );
+	} );
+
+	describe( 'buildFilterClause: wc_stock_status uses the standard term branch', () => {
+		it( 'OR-joins multiple stock-status selections within the filter', () => {
+			const clause = buildFilterClause(
+				{ filter_stock_status: [ 'instock', 'outofstock' ] },
+				{ filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' } }
+			);
+			expect( clause ).toEqual( {
+				bool: {
+					must: [
+						{
+							bool: {
+								should: [
+									{ term: { 'meta._stock_status.value.raw': 'instock' } },
+									{ term: { 'meta._stock_status.value.raw': 'outofstock' } },
+								],
+							},
+						},
+					],
+				},
+			} );
+		} );
+	} );
+
+	describe( 'buildSearchUrl: priceRange', () => {
+		const baseOpts = {
+			siteId: 1,
+			searchQuery: '',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: '',
+		};
+
+		it( 'omits price range when both bounds are null', () => {
+			const url = buildSearchUrl( { ...baseOpts, priceRange: { min: null, max: null } } );
+			expect( url ).not.toContain( 'wc.price' );
+		} );
+
+		it( 'emits a half-open `gte` range when only min is set', () => {
+			const url = buildSearchUrl( { ...baseOpts, priceRange: { min: 10, max: null } } );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][range][wc.price][gte]=10' );
+			expect( decoded ).not.toContain( '[lte]' );
+		} );
+
+		it( 'emits a closed range when both bounds are set', () => {
+			const url = buildSearchUrl( { ...baseOpts, priceRange: { min: 10, max: 50 } } );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][range][wc.price][gte]=10' );
+			expect( decoded ).toContain( 'filter[bool][must][0][range][wc.price][lte]=50' );
+		} );
+
+		it( 'appends price range alongside an existing filter clause without overwriting it', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				activeFilters: { category: [ 'news' ] },
+				filterConfigs: { category: { filterType: 'taxonomy', taxonomy: 'category' } },
+				priceRange: { min: 10, max: null },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+			expect( decoded ).toContain( 'filter[bool][must][1][range][wc.price][gte]=10' );
+		} );
+	} );
+
+	describe( 'buildStaticPostTypeClauses', () => {
+		it( 'returns an empty array for null / empty input', () => {
+			expect( buildStaticPostTypeClauses( null ) ).toEqual( [] );
+			expect( buildStaticPostTypeClauses( {} ) ).toEqual( [] );
+			expect( buildStaticPostTypeClauses( { include: [], exclude: [] } ) ).toEqual( [] );
+		} );
+
+		it( 'emits a bare `term` clause when include has a single slug', () => {
+			expect( buildStaticPostTypeClauses( { include: [ 'post' ] } ) ).toEqual( [
+				{ term: { post_type: 'post' } },
+			] );
+		} );
+
+		it( 'wraps multi-slug includes in a `bool.should`', () => {
+			expect( buildStaticPostTypeClauses( { include: [ 'post', 'page' ] } ) ).toEqual( [
+				{
+					bool: {
+						should: [ { term: { post_type: 'post' } }, { term: { post_type: 'page' } } ],
+					},
+				},
+			] );
+		} );
+
+		it( 'emits a `bool.must_not` for excludes regardless of length', () => {
+			expect( buildStaticPostTypeClauses( { exclude: [ 'jetpack-portfolio' ] } ) ).toEqual( [
+				{ bool: { must_not: [ { term: { post_type: 'jetpack-portfolio' } } ] } },
+			] );
+		} );
+
+		it( 'treats a non-array include as empty and skips the clause', () => {
+			// The defensive `Array.isArray` guard exists so a forward-compat
+			// state-shape change can not crash the URL builder. Locking it
+			// in via a test makes the contract explicit.
+			expect( buildStaticPostTypeClauses( { include: 'post', exclude: [] } ) ).toEqual( [] );
+			expect( buildStaticPostTypeClauses( { include: null, exclude: [ 'product' ] } ) ).toEqual( [
+				{ bool: { must_not: [ { term: { post_type: 'product' } } ] } },
+			] );
+		} );
+
+		it( 'treats a non-array exclude as empty and emits only the include clause', () => {
+			expect( buildStaticPostTypeClauses( { include: [ 'post' ], exclude: 'page' } ) ).toEqual( [
+				{ term: { post_type: 'post' } },
+			] );
+		} );
+
+		it( 'concatenates include and exclude clauses when both are set', () => {
+			expect(
+				buildStaticPostTypeClauses( { include: [ 'post', 'page' ], exclude: [ 'product' ] } )
+			).toEqual( [
+				{
+					bool: {
+						should: [ { term: { post_type: 'post' } }, { term: { post_type: 'page' } } ],
+					},
+				},
+				{ bool: { must_not: [ { term: { post_type: 'product' } } ] } },
+			] );
+		} );
+	} );
+
+	describe( 'buildSearchUrl: staticPostTypes', () => {
+		const baseOpts = {
+			siteId: 1,
+			searchQuery: '',
+			sortOrder: 'relevance',
+			pageHandle: null,
+			isPrivateSite: false,
+			isWpcom: false,
+			apiRoot: '',
+		};
+
+		it( 'omits the static clause when both lists are empty', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				staticPostTypes: { include: [], exclude: [] },
+			} );
+			// `post_type` also appears as a result field, so assert against
+			// the filter clause specifically.
+			expect( decodeURIComponent( url ) ).not.toContain( 'filter[bool][must]' );
+		} );
+
+		it( 'restricts results to the include set', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				staticPostTypes: { include: [ 'post', 'page' ], exclude: [] },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][bool][should][0][term][post_type]=post' );
+			expect( decoded ).toContain( 'filter[bool][must][0][bool][should][1][term][post_type]=page' );
+		} );
+
+		it( 'subtracts the exclude set via must_not', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				staticPostTypes: { include: [], exclude: [ 'product' ] },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain(
+				'filter[bool][must][0][bool][must_not][0][term][post_type]=product'
+			);
+		} );
+
+		it( 'composes alongside an existing filter clause without overwriting it', () => {
+			const url = buildSearchUrl( {
+				...baseOpts,
+				activeFilters: { category: [ 'news' ] },
+				filterConfigs: { category: { filterType: 'taxonomy', taxonomy: 'category' } },
+				staticPostTypes: { include: [ 'post' ], exclude: [ 'product' ] },
+			} );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+			expect( decoded ).toContain( 'filter[bool][must][1][term][post_type]=post' );
+			expect( decoded ).toContain(
+				'filter[bool][must][2][bool][must_not][0][term][post_type]=product'
+			);
+		} );
 	} );
 } );

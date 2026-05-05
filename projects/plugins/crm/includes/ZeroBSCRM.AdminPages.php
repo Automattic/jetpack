@@ -144,15 +144,6 @@ function zeroBSCRM_pages_admin_view_page_company( $id = -1 ) {
 	jpcrm_render_company_view_page( $id );
 }
 
-/**
- * Load the Automations admin page
- *
- * @return void
- */
-function jpcrm_pages_automations() {
-	jpcrm_load_admin_page( 'automations/main' );
-}
-
 /*
 ======================================================
 	/ Page loading
@@ -213,7 +204,7 @@ function zeroBSCRM_post_updated_messages( $messages ) {
 		3  => __( 'Custom field deleted.', 'zero-bs-crm' ),
 		4  => __( 'Task updated.', 'zero-bs-crm' ),
 		/* translators: %s: date and time of the revision */
-		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Task restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Task restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		6  => __( 'Task saved.', 'zero-bs-crm' ),
 		7  => __( 'Task saved.', 'zero-bs-crm' ),
 		8  => __( 'Task submitted.', 'zero-bs-crm' ),
@@ -704,7 +695,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 	if ( isset( $_GET['zbs_template_id'] ) && ! empty( $_GET['zbs_template_id'] ) ) {
 		$em_templates = 'active';
 		$rec_ac       = '';
-		$template_id  = (int) sanitize_text_field( $_GET['zbs_template_id'] );
+		$template_id  = (int) $_GET['zbs_template_id'];
 		$tem_set      = '';
 	} elseif ( isset( $_GET['zbs_template_editor'] ) && ! empty( $_GET['zbs_template_editor'] ) ) {
 		$em_templates = '';
@@ -899,7 +890,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 
 					if ( isset( $_GET['zbs_template_id'] ) ) {
 
-						$updateID = (int) sanitize_text_field( $_GET['zbs_template_id'] );
+						$updateID = (int) $_GET['zbs_template_id'];
 
 						// wh simplified for del methods
 						// zeroBSCRM_updateEmailTemplate($updateID,$zbsfromname,$zbsfromaddress,$zbsreplyto, $zbsccto, $zbsbccto,$zbssubject, $zbscontent );
@@ -913,7 +904,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 				if ( isset( $_GET['zbs_template_id'] ) && ! empty( $_GET['zbs_template_id'] ) ) {
 
 					// the tab number matches the template ID.
-					$emailtab = (int) sanitize_text_field( $_GET['zbs_template_id'] );
+					$emailtab = (int) $_GET['zbs_template_id'];
 
 					$form = '';
 
