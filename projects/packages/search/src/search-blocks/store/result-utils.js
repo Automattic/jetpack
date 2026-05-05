@@ -277,8 +277,7 @@ export function deriveMatchHint( highlight, titlePieces ) {
 	const entries = Object.entries( highlight );
 	if (
 		entries.some(
-			( [ key, value ] ) =>
-				key === 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
+			( [ key, value ] ) => key === 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
 		)
 	) {
 		return 'comments';
@@ -286,10 +285,7 @@ export function deriveMatchHint( highlight, titlePieces ) {
 	if (
 		entries.some(
 			( [ key, value ] ) =>
-				key !== 'title' &&
-				key !== 'comment' &&
-				Array.isArray( value ) &&
-				value[ 0 ]?.length > 0
+				key !== 'title' && key !== 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
 		)
 	) {
 		return 'content';
