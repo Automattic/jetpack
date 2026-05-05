@@ -302,18 +302,19 @@ class Jetpack_Sitemap_Librarian {
 		}
 		$post_types_list = implode( ',', $post_types );
 
-		$columns_list = $this->get_sanitized_post_columns( $wpdb );
+		$columns = $this->get_sanitized_post_columns( $wpdb );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT $columns_list
+				"SELECT {$columns['placeholders']}
 					FROM $wpdb->posts
 					WHERE post_status='publish'
 						AND post_type IN ($post_types_list)
 						AND ID>%d
 					ORDER BY ID ASC
 					LIMIT %d;",
+				...$columns['columns'],
 				$from_id,
 				$num_posts
 			)
@@ -445,18 +446,19 @@ class Jetpack_Sitemap_Librarian {
 
 		$post_types_list = implode( ',', $post_types );
 
-		$columns_list = $this->get_sanitized_post_columns( $wpdb );
+		$columns = $this->get_sanitized_post_columns( $wpdb );
 
 		// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT $columns_list
+				"SELECT {$columns['placeholders']}
 					FROM $wpdb->posts
 					WHERE post_status='publish'
 						AND post_date >= '%s'
 						AND post_type IN ($post_types_list)
 					ORDER BY post_date DESC
 					LIMIT %d;",
+				...$columns['columns'],
 				$two_days_ago,
 				$num_posts
 			)
@@ -465,21 +467,33 @@ class Jetpack_Sitemap_Librarian {
 	}
 
 	/**
-	 * Returns all columns from the posts table,
-	 * except post_content and post_content_filtered.
+	 * Returns all columns from the posts table, except post_content and post_content_filtered,
+	 * along with a matching list of %i placeholders for safe use in wpdb::prepare().
+	 *
+	 * Using %i identifier placeholders ensures column names are correctly backtick-quoted,
+	 * which avoids SQL errors when a column name happens to be a reserved keyword
+	 * (e.g. `order`, `key`, `group`).
 	 *
 	 * @param object $wpdb The WordPress database object.
-	 * @return string The sanitized post columns.
+	 * @return array {
+	 *     @type string   $placeholders Comma-separated list of %i placeholders, one per column.
+	 *     @type string[] $columns      The column names to feed into wpdb::prepare().
+	 * }
 	 */
 	private function get_sanitized_post_columns( $wpdb ) {
-		$columns = array_filter(
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->get_col( "SHOW COLUMNS FROM $wpdb->posts" ),
-			function ( $column ) {
-				return $column !== 'post_content' && $column !== 'post_content_filtered';
-			}
+		$columns = array_values(
+			array_filter(
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->get_col( "SHOW COLUMNS FROM $wpdb->posts" ),
+				function ( $column ) {
+					return $column !== 'post_content' && $column !== 'post_content_filtered';
+				}
+			)
 		);
 
-		return implode( ',', array_map( 'esc_sql', $columns ) );
+		return array(
+			'placeholders' => implode( ',', array_fill( 0, count( $columns ), '%i' ) ),
+			'columns'      => $columns,
+		);
 	}
 }
