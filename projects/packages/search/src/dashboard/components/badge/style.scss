@@ -11,12 +11,12 @@
 	padding-inline: var(--wpds-dimension-padding-sm);
 	border-radius: var(--wpds-border-radius-lg);
 
-	&--recommended {
+	&--informational {
 		background-color: var(--wpds-color-bg-surface-info);
 		color: var(--wpds-color-fg-content-info);
 	}
 
-	&--active {
+	&--success {
 		background-color: var(--wpds-color-bg-surface-success);
 		color: var(--wpds-color-fg-content-success);
 	}

@@ -1,20 +1,19 @@
 import './style.scss';
 
 /**
- * Small status pill used for short labels such as "RECOMMENDED" and "ACTIVE".
- * `@wordpress/components` does not yet ship a Badge primitive, so we keep a
- * minimal local one. The visible label is uppercased by CSS; the `aria-label`
- * passed in is what screen readers announce.
+ * Small status pill aligned with the WPDS Badge primitive's intent system.
+ * `@wordpress/components` does not yet ship a Badge of its own, so we keep
+ * a minimal local one with the same intent vocabulary.
  *
- * @param {object}                 props           - Component props.
- * @param {'recommended'|'active'} props.variant   - Color treatment.
- * @param {string}                 props.children  - Visible label text.
- * @param {string}                 props.ariaLabel - Screen-reader label.
+ * @param {object}                    props           - Component props.
+ * @param {'informational'|'success'} props.intent    - Color treatment, mirrors WPDS Badge intents.
+ * @param {string}                    props.children  - Visible label text.
+ * @param {string}                    props.ariaLabel - Screen-reader label.
  * @return {import('react').Element} - The badge element.
  */
-export default function Badge( { variant, children, ariaLabel } ) {
+export default function Badge( { intent, children, ariaLabel } ) {
 	return (
-		<span className={ `jp-search-badge jp-search-badge--${ variant }` } aria-label={ ariaLabel }>
+		<span className={ `jp-search-badge jp-search-badge--${ intent }` } aria-label={ ariaLabel }>
 			{ children }
 		</span>
 	);

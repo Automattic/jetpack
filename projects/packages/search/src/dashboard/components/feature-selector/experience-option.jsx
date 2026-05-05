@@ -69,7 +69,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				<span className="jp-search-feature-selector__option-title">
 					{ getExperienceLabel( experience ) }
 					{ isRecommended && (
-						<Badge variant="recommended" ariaLabel={ __( 'Recommended', 'jetpack-search-pkg' ) }>
+						<Badge intent="informational" ariaLabel={ __( 'Recommended', 'jetpack-search-pkg' ) }>
 							{ __( 'Recommended', 'jetpack-search-pkg' ) }
 						</Badge>
 					) }
@@ -79,7 +79,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				</span>
 			</span>
 			{ isActive && (
-				<Badge variant="active" ariaLabel={ __( 'Active', 'jetpack-search-pkg' ) }>
+				<Badge intent="success" ariaLabel={ __( 'Active', 'jetpack-search-pkg' ) }>
 					{ __( 'Active', 'jetpack-search-pkg' ) }
 				</Badge>
 			) }
