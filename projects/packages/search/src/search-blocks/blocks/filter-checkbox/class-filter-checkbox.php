@@ -84,6 +84,8 @@ class Filter_Checkbox {
 	 * @return array<string, mixed>
 	 */
 	public static function build_config( array $attributes, string $filter_key ): array {
+		$filter_type = (string) ( $attributes['filterType'] ?? '' );
+
 		$label = sanitize_text_field( (string) ( $attributes['label'] ?? '' ) );
 		if ( '' === $label ) {
 			$label = static::default_label( $attributes );
@@ -91,13 +93,48 @@ class Filter_Checkbox {
 
 		return array(
 			'filterKey'       => $filter_key,
-			'filterType'      => (string) ( $attributes['filterType'] ?? '' ),
+			'filterType'      => $filter_type,
 			'taxonomy'        => sanitize_key( (string) ( $attributes['taxonomy'] ?? '' ) ),
 			'label'           => $label,
 			'showCount'       => (bool) ( $attributes['showCount'] ?? true ),
 			'maxItems'        => max( 1, (int) ( $attributes['maxItems'] ?? 10 ) ),
 			'bucketSortOrder' => static::normalize_bucket_sort_order( $attributes['bucketSortOrder'] ?? null ),
+			// Pre-resolved value→label map used by the active-filters pill list
+			// and the checkbox list. Taxonomy and author aggregations use
+			// `slug_slash_name` keys, so the bucket already carries the label
+			// — JS post-slash-splits at render time. Post-type buckets are
+			// bare slugs (`post`, `page`), so without a lookup the pill would
+			// read "post" instead of "Post"; we seed the singular_name here.
+			'valueLabels'     => static::build_value_labels( $filter_type ),
 		);
+	}
+
+	/**
+	 * Build the value→label map for filter types whose aggregation buckets
+	 * don't carry a display name. Returns an empty array for taxonomy and
+	 * author filters because their `slug_slash_name` buckets already do.
+	 *
+	 * @param string $filter_type Block `filterType` attribute.
+	 * @return array<string, string>
+	 */
+	protected static function build_value_labels( string $filter_type ): array {
+		if ( 'post_type' !== $filter_type ) {
+			return array();
+		}
+		$labels = array();
+		// Match the aggregation scope: post types that opt into search are the
+		// only ones whose buckets can land in `post_types` aggregations.
+		$objects = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
+		foreach ( $objects as $slug => $object ) {
+			// `singular_name` is plugin/theme-supplied via register_post_type();
+			// run it through the same sanitizer as the block's `label` attribute
+			// so stray HTML or whitespace can never reach the rendered pill.
+			$singular = sanitize_text_field( (string) ( $object->labels->singular_name ?? '' ) );
+			if ( '' !== $singular ) {
+				$labels[ (string) $slug ] = $singular;
+			}
+		}
+		return $labels;
 	}
 
 	/**

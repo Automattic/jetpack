@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Drop the legacy Activity Log menu registration; the new activity-log package now owns that menu item.

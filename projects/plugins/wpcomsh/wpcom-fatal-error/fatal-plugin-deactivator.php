@@ -90,6 +90,10 @@ function wpcomsh_fatal_maybe_deactivate_plugin() {
 		return;
 	}
 
+	// Logged via WPCOMSH_Log's shutdown drain, which runs after the redirect's
+	// exit — the queued payload still ships.
+	wpcomsh_fatal_log_deactivate( $plugin );
+
 	// Persist + redirect immediately at mu-plugin load, before core enters the
 	// regular plugin-include pass. Deferring this to plugins_loaded would mean
 	// any *other* broken plugin in active_plugins fatals before our callback

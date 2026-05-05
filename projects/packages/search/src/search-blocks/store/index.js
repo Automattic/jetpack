@@ -1,5 +1,10 @@
-import { store, withSyncEvent as originalWithSyncEvent } from '@wordpress/interactivity';
-import { buildSearchUrl } from './api';
+import {
+	store,
+	getContext,
+	withSyncEvent as originalWithSyncEvent,
+} from '@wordpress/interactivity';
+import { buildSearchUrl, formatDateBucketLabel } from './api';
+import { bucketLabel, bucketValue } from './bucket-key';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
 import {
@@ -22,11 +27,165 @@ const withSyncEvent =
 	( cb =>
 		( ...args ) =>
 			cb( ...args ) );
+
+/**
+ * Drop activeFilters keys not present in filterConfigs.
+ *
+ * Uses `Object.hasOwn` rather than `allowedKeys[key]` so prototype-chain
+ * keys (`__proto__`, `constructor`, `toString`, …) can't survive the gate
+ * via inherited properties. Output uses a null prototype for the same
+ * reason — assigning `gated.__proto__` on a plain object would trigger
+ * the prototype setter instead of writing a regular property.
+ *
+ * @param {object} activeFilters - { [filterKey]: string[] } URL-seeded selections.
+ * @param {object} filterConfigs - { [filterKey]: FilterConfig } registered filters.
+ * @return {{ gated: object, droppedAny: boolean }} Filtered selections plus a drop flag.
+ */
+export function gateActiveFilters( activeFilters, filterConfigs ) {
+	const allowedKeys = filterConfigs ?? {};
+	const gated = Object.create( null );
+	let droppedAny = false;
+	for ( const [ key, values ] of Object.entries( activeFilters ?? {} ) ) {
+		if ( ! Object.hasOwn( allowedKeys, key ) ) {
+			droppedAny = true;
+			continue;
+		}
+		gated[ key ] = values;
+	}
+	return { gated, droppedAny };
+}
+
+/**
+ * Slug for a date_histogram bucket. Falls back to the numeric key when
+ * `key_as_string` is missing.
+ *
+ * @param {object} bucket - Aggregation bucket.
+ * @return {string} Bucket slug.
+ */
+function dateBucketSlug( bucket ) {
+	const ks = bucket?.key_as_string;
+	if ( typeof ks === 'string' && ks !== '' ) {
+		return ks;
+	}
+	return String( bucket?.key ?? '' );
+}
+
+/**
+ * filterItems for non-date filters. Handles both `slug/Name` keys (taxonomy,
+ * author) and bare-slug keys (post_type) via `bucketLabel`/`bucketValue`.
+ * Drops selected buckets — those appear in the active-filters block.
+ * Resorts by visible label when `bucketSortOrder === 'alpha'` since the
+ * ES `_key: asc` order is by slug, not display label.
+ *
+ * @param {object} sharedState - Live store state.
+ * @param {string} filterKey   - Filter key.
+ * @param {object} config      - filterConfigs entry.
+ * @return {Array<object>} Item descriptors.
+ */
+function checkboxFilterItems( sharedState, filterKey, config ) {
+	const buckets = sharedState.aggregations?.[ filterKey ]?.buckets;
+	if ( ! Array.isArray( buckets ) ) {
+		return [];
+	}
+	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
+	const showCount = config.showCount !== false;
+	const valueLabels = config.valueLabels;
+	const items = buckets.reduce( ( acc, bucket ) => {
+		const value = bucketValue( bucket.key );
+		if ( selected.includes( value ) ) {
+			return acc;
+		}
+		acc.push( {
+			value,
+			label: bucketLabel( bucket.key, valueLabels ),
+			showCount,
+			countLabel: String( bucket.doc_count ?? 0 ),
+		} );
+		return acc;
+	}, [] );
+	if ( config.bucketSortOrder === 'alpha' ) {
+		const locale = sharedState.locale || 'en-US';
+		items.sort( ( a, b ) => a.label.localeCompare( b.label, locale, { sensitivity: 'base' } ) );
+	}
+	return items;
+}
+
+/**
+ * filterItems for a `date` filter. Drops empty + selected buckets, then
+ * slices to `maxItems` (date_histogram has no ES `size`).
+ *
+ * @param {object} sharedState - Live store state.
+ * @param {string} filterKey   - Filter key.
+ * @param {object} config      - filterConfigs entry.
+ * @return {Array<object>} Item descriptors.
+ */
+function dateFilterItems( sharedState, filterKey, config ) {
+	const buckets = sharedState.aggregations?.[ filterKey ]?.buckets;
+	if ( ! Array.isArray( buckets ) ) {
+		return [];
+	}
+	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
+	const showCount = config.showCount !== false;
+	const interval = config.interval === 'month' ? 'month' : 'year';
+	const locale = sharedState.locale || 'en-US';
+	const limit = Math.max( 1, config.maxItems ?? 10 );
+	const items = [];
+	for ( const bucket of buckets ) {
+		if ( items.length >= limit ) {
+			break;
+		}
+		if ( ( bucket?.doc_count ?? 0 ) <= 0 ) {
+			continue;
+		}
+		const value = dateBucketSlug( bucket );
+		if ( ! value || selected.includes( value ) ) {
+			continue;
+		}
+		items.push( {
+			value,
+			label: formatDateBucketLabel( value, interval, locale ),
+			showCount,
+			countLabel: String( bucket.doc_count ),
+		} );
+	}
+	return items;
+}
 // Monotonic token used to drop stale async result responses. Incremented on
 // every new search; in-flight responses compare their token against the
 // latest before touching store state, so a slow request for an older query
 // can't overwrite fresh results when the user changes query or sort mid-fetch.
 let searchToken = 0;
+
+/**
+ * Build the human-readable results-count string from the live store state.
+ * Returns "Searching…" while a search is in flight, "Found 42 results" once
+ * a query resolves with hits, or an empty string in every other case
+ * (pre-search, error, or zero hits — the no-results block owns the empty-
+ * state copy). Called by every action that mutates `isLoading` or
+ * `totalResults` so the seeded `state.resultsCountText` stays in lockstep
+ * with the counters; SSR resolves `data-wp-text` against that seeded value
+ * directly, so the string can't live on a JS getter.
+ *
+ * Exported so tests can verify the formatting in isolation without driving
+ * the full `actions.search()` lifecycle.
+ *
+ * @param {object} liveState - The IA store state.
+ * @return {string} Localized results-count or status string.
+ */
+export function computeResultsCountText( liveState ) {
+	if ( liveState.isLoading ) {
+		return liveState.strings?.searching ?? 'Searching…';
+	}
+	const total = liveState.totalResults;
+	if ( total === 0 ) {
+		return '';
+	}
+	const template =
+		total === 1
+			? liveState.strings?.resultsCountSingle ?? 'Found %d result'
+			: liveState.strings?.resultsCountPlural ?? 'Found %d results';
+	return template.replace( '%d', total );
+}
 
 /**
  * Request a page of results. Shared between the initial search and
@@ -50,6 +209,7 @@ function* fetchResults( pageHandle ) {
 		activeFilters: state.activeFilters,
 		filterConfigs: state.filterConfigs,
 		priceRange: state.priceRange,
+		staticPostTypes: state.staticPostTypes,
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -73,42 +233,12 @@ const { state, actions } = store( NAMESPACE, {
 		// the currently checked option becomes the implicit default.
 		sortMenuFocusedKey: null,
 
-		/**
-		 * Short human-readable results count for display blocks. Doubles
-		 * as the loading indicator: returning the "searching" string
-		 * in-place keeps the results-count element populated across the
-		 * transition from one query to the next, so the flex row
-		 * containing it doesn't collapse and re-expand on every
-		 * keystroke-triggered search. There is no separate
-		 * spinner/skeleton — this text is the loading state, and the
-		 * search-results wrapper carries `aria-busy` for assistive tech.
-		 *
-		 * Strings are seeded from PHP via `wp_interactivity_state()`
-		 * (see `Search_Blocks::build_initial_strings()`) because the
-		 * view bundle can't import `@wordpress/i18n` — WP only registers
-		 * `@wordpress/interactivity` as a script module. Languages with
-		 * more than two plural forms degrade to "plural for all count
-		 * > 1" since the count is dynamic on the client.
-		 *
-		 * @return {string} Translated "Searching…" while a search is in
-		 * flight, "Found 42 results" once a query resolves with hits,
-		 * or an empty string in every other case — pre-search, error,
-		 * or zero hits. The no-results block owns the empty-state copy.
-		 */
-		get resultsCountText() {
-			if ( state.isLoading ) {
-				return state.strings?.searching ?? 'Searching…';
-			}
-			const total = state.totalResults;
-			if ( total === 0 ) {
-				return '';
-			}
-			const template =
-				total === 1
-					? state.strings?.resultsCountSingle ?? 'Found %d result'
-					: state.strings?.resultsCountPlural ?? 'Found %d results';
-			return template.replace( '%d', total );
-		},
+		// `resultsCountText` lives on the seeded state (PHP-side), not as a
+		// getter, so the IA SSR pass can resolve `data-wp-text="state.resultsCountText"`
+		// to the right initial string on a deep-link load. See
+		// `computeResultsCountText()` below for the full string-selection logic;
+		// every action that mutates `isLoading` / `totalResults` calls it to
+		// keep this value in lockstep with the underlying counters.
 
 		/**
 		 * `data-wp-bind` only evaluates simple property paths (with an
@@ -120,7 +250,8 @@ const { state, actions } = store( NAMESPACE, {
 		 * Gated on `searchQuery` (so the message doesn't flash on a bare
 		 * `/search/` page where the user hasn't typed) and on `!hasError`
 		 * (so "No results found" doesn't display when the fetch actually
-		 * failed — there is no dedicated error block yet).
+		 * failed — the dedicated `jetpack/search-error` block owns that
+		 * message instead).
 		 *
 		 * @return {boolean} True when the no-results message should show.
 		 */
@@ -128,6 +259,22 @@ const { state, actions } = store( NAMESPACE, {
 			return (
 				!! state.searchQuery && ! state.isLoading && ! state.hasError && state.results.length === 0
 			);
+		},
+
+		/**
+		 * Visibility flag for the `jetpack/search-error` block. Gated on
+		 * both `!isLoading` and `!isLoadingMore` so the message hides the
+		 * moment the user retries — covering the `loadMore()` failure path
+		 * (where `isLoading` stays false but `isLoadingMore` toggles)
+		 * symmetrically with the `search()` path. `hasError` itself is also
+		 * cleared at the start of each action, but binding through a single
+		 * getter keeps the template `data-wp-bind` simple (the Interactivity
+		 * API only evaluates simple property paths).
+		 *
+		 * @return {boolean} True when the error message should show.
+		 */
+		get showError() {
+			return !! state.hasError && ! state.isLoading && ! state.isLoadingMore;
 		},
 
 		/**
@@ -233,9 +380,84 @@ const { state, actions } = store( NAMESPACE, {
 		get isSortByOldest() {
 			return state.sortOrder === 'oldest';
 		},
+
+		/**
+		 * Bound to the wrapper's `hidden` attribute. Date filters require at
+		 * least one populated bucket (defence against response-shape changes
+		 * since `min_doc_count: 1` should already exclude empty buckets).
+		 *
+		 * @return {boolean} True when buckets are available.
+		 */
+		get hasFilterBuckets() {
+			const { filterKey } = getContext();
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				return buckets.some( bucket => ( bucket?.doc_count ?? 0 ) > 0 );
+			}
+			return true;
+		},
+
+		/**
+		 * True when every bucket is in activeFilters — block then shows
+		 * the "All filters applied" message instead of an empty list.
+		 *
+		 * @return {boolean} True when nothing is left to offer.
+		 */
+		get allBucketsSelected() {
+			const { filterKey } = getContext();
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const selected = state.activeFilters?.[ filterKey ] ?? [];
+			if ( selected.length === 0 ) {
+				return false;
+			}
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				const populated = buckets.filter( bucket => ( bucket?.doc_count ?? 0 ) > 0 );
+				if ( populated.length === 0 ) {
+					return false;
+				}
+				return populated.every( bucket => selected.includes( dateBucketSlug( bucket ) ) );
+			}
+			return buckets.every( bucket => selected.includes( bucketValue( bucket.key ) ) );
+		},
+
+		/**
+		 * `{ value, label, showCount, countLabel }` items for the current
+		 * filter block. Dispatches on `filterType`. Lives on the shared
+		 * namespace so per-block view bundles don't clobber siblings.
+		 *
+		 * @return {Array<object>} Item descriptors.
+		 */
+		get filterItems() {
+			const { filterKey } = getContext();
+			const config = state.filterConfigs?.[ filterKey ] ?? {};
+			if ( config.filterType === 'date' ) {
+				return dateFilterItems( state, filterKey, config );
+			}
+			return checkboxFilterItems( state, filterKey, config );
+		},
 	},
 
 	actions: {
+		/**
+		 * Toggle the filter value that owns the change event. Shared by
+		 * filter-checkbox and filter-date.
+		 *
+		 * @param {Event} event - Change event.
+		 * @yield {Promise} setFilter action.
+		 */
+		*onFilterChange( event ) {
+			const { filterKey } = getContext();
+			yield actions.setFilter( filterKey, event.target.value );
+		},
+
 		/**
 		 * Run a search and replace the result list.
 		 *
@@ -255,6 +477,7 @@ const { state, actions } = store( NAMESPACE, {
 			state.isLoading = true;
 			state.isLoadingMore = false;
 			state.hasError = false;
+			state.resultsCountText = computeResultsCountText( state );
 			try {
 				const data = yield* fetchResults( null );
 				// A newer `search()` started while this one was in-flight — its
@@ -277,6 +500,13 @@ const { state, actions } = store( NAMESPACE, {
 			} finally {
 				if ( myToken === searchToken ) {
 					state.isLoading = false;
+					state.resultsCountText = computeResultsCountText( state );
+					// First fetch (success or error) ends the pre-hydration window —
+					// guard the write so subsequent re-searches don't trigger an IA
+					// re-render of every skeleton-bound element.
+					if ( ! state.skeletonHidden ) {
+						state.skeletonHidden = true;
+					}
 				}
 			}
 		},
@@ -388,7 +618,11 @@ const { state, actions } = store( NAMESPACE, {
 			);
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;
-			state.activeFilters = activeFilters;
+			// urlParamsToState bypasses its own gate when filterConfigs is empty;
+			// re-gate here so popstate matches initialize() and stray URL keys
+			// can't round-trip back into pushStateToUrl on a page with no
+			// registered filters.
+			state.activeFilters = gateActiveFilters( activeFilters, state.filterConfigs ).gated;
 			state.priceRange = priceRange;
 			yield actions.search( { syncUrl: false } );
 		},
@@ -600,15 +834,38 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			initialized = true;
 			window.addEventListener( 'popstate', actions.handlePopState );
-			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
-				// The URL already carries this query — don't push a duplicate
-				// history entry on top of the browser's current one.
-				// `priceRange` is checked separately because `hasActiveFilters`
-				// only inspects `activeFilters`; without this gate a URL like
-				// `?min_price=10` would leave PHP's `isLoading: true` spinner
-				// stuck because no initial fetch ever fires.
-				actions.search( { syncUrl: false } );
+			const { gated, droppedAny } = gateActiveFilters( state.activeFilters, state.filterConfigs );
+			if ( droppedAny ) {
+				state.activeFilters = gated;
 			}
+			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
+				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
+				// priceRange is checked separately so `?min_price=10` still triggers an initial fetch.
+				actions.search( { syncUrl: false } );
+			} else if ( droppedAny ) {
+				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded
+				// spinner and also drop the skeleton, since no fetch is coming.
+				state.isLoading = false;
+				state.skeletonHidden = true;
+			}
+		},
+
+		/**
+		 * Reactively syncs `context.wrapperHidden` for each filter-checkbox
+		 * block. Pre-hydration / first-fetch the wrapper stays visible so the
+		 * skeleton list inside has somewhere to render; once the first fetch
+		 * resolves it falls back to the legacy "hide empty filter sections"
+		 * behaviour. Runs in each block's local context, so this single
+		 * callback handles all filter blocks on the page.
+		 */
+		syncFilterWrapperVisibility() {
+			const ctx = getContext();
+			if ( ! state.skeletonHidden ) {
+				ctx.wrapperHidden = false;
+				return;
+			}
+			const buckets = state.aggregations?.[ ctx.filterKey ]?.buckets;
+			ctx.wrapperHidden = ! Array.isArray( buckets ) || buckets.length === 0;
 		},
 	},
 } );

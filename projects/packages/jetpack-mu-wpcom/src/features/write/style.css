@@ -321,6 +321,11 @@
 	color: #1a1a1a;
 }
 
+.bw-tool:disabled {
+	opacity: 0.3;
+	pointer-events: none;
+}
+
 .bw-tool-divider {
 	width: 1px;
 	height: 20px;
@@ -972,9 +977,22 @@
 	padding-inline-start: 1.5em;
 }
 
+.bw-content ul {
+	list-style-type: disc;
+}
+
+.bw-content ol {
+	list-style-type: decimal;
+}
+
 .bw-content li {
 	margin-bottom: 0.25em;
 	line-height: inherit;
+}
+
+.bw-content li ul,
+.bw-content li ol {
+	margin-bottom: 0;
 }
 
 /* Images in content */

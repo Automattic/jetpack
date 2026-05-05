@@ -21,6 +21,7 @@ if ( '' === $button_label ) {
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-bind--hidden="!state.showLoadMore"
+	hidden
 >
 	<button
 		type="button"

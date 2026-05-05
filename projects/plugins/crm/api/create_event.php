@@ -30,7 +30,7 @@ if ( is_array( $potential_task ) ) {
 
 	$task_fields['customer'] = -1;
 	if ( isset( $potential_task['customer'] ) ) {
-		$task_fields['customer'] = (int) sanitize_text_field( $potential_task['customer'] );
+		$task_fields['customer'] = (int) $potential_task['customer'];
 	}
 
 	$task_fields['notes'] = '';

@@ -52,7 +52,7 @@ $customer_array = zeroBS_buildContactMeta( $new_customer, array(), '', 'zbsc_', 
 
 // this is needed for check below:
 if ( isset( $new_customer['id'] ) ) {
-	$contact_id = (int) sanitize_text_field( $new_customer['id'] );
+	$contact_id = (int) $new_customer['id'];
 }
 if ( isset( $customer_array['zbsc_email'] ) ) {
 	$email = $customer_array['zbsc_email'];

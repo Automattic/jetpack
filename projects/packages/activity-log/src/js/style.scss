@@ -1,5 +1,10 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "sass:meta";
+// Component styles are forwarded from this main entry rather than
+// imported via per-component side-effect imports in each .tsx file —
+// that way they live in the same emitted chunk as the wrapper rules
+// below and can't get dropped by chunk splitting.
+@use "./components/ActivityLog/upsell-callout";
 
 // DataViews is a bundled (not externalized) @wordpress package in
 // jetpack-webpack-config, so its stylesheet must be brought in alongside
@@ -23,8 +28,54 @@ body.jetpack_page_jetpack-activity-log {
 	flex: 1 1 auto;
 	padding: 0;
 
+	// Free-tier visual: a teaser of the table dissolves into the upsell
+	// card sitting directly below it. The mask gradient softens the
+	// bottom edge of the events list so the transition reads as a
+	// single connected surface (rather than a hard cut between table
+	// and card). `mask-image` is the standard property; the
+	// `-webkit-` prefix keeps Safari ≤ 15.4 in line. Capping the
+	// container height at a fixed pixel value prevents the table from
+	// claiming the full inner height and pushing the upsell off-screen.
+	&--free-tier .dataviews-layout__container {
+		max-height: 280px;
+		overflow: hidden;
+		mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+		-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+	}
+
+	// On free tier, let DataViews size to its content (so it doesn't
+	// claim the full inner height via its own `height: 100%`) and let
+	// the inner wrapper carry the page's local scroll surface for short
+	// viewports. The fade + cap above keeps the natural total below
+	// most viewports, so this scroll rarely fires.
+	&--free-tier .jp-activity-log__inner {
+		overflow: auto;
+
+		> .dataviews-wrapper {
+			height: auto;
+			flex: 0 0 auto;
+		}
+	}
+
+	// Visual + click-blocking half of the free-tier "overlay" approach:
+	// the effect in ActivityLog/index.tsx toggles `aria-disabled` and
+	// `tabindex="-1"` on DataViews' real `.dataviews__search` cluster
+	// (search input + filter toggle), and adds a `title` for the
+	// upgrade tooltip. This rule dims the cluster, shows a not-allowed
+	// cursor, and shuts off pointer events on the controls inside so
+	// clicks fall through to the cluster (keeping it hoverable for the
+	// browser-native title tooltip).
+	.dataviews__search[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+
+		> * {
+			pointer-events: none;
+		}
+	}
+
 	// DataViews renders its own surface; don't double-pad it.
-	> .dataviews-wrapper {
+	.dataviews-wrapper {
 		margin: 0;
 	}
 

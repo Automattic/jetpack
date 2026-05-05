@@ -12,7 +12,7 @@ const BlueskyPostBody: React.FC< Props > = ( { customText, url, children, append
 		<div className="bluesky-preview__body">
 			{ customText ? (
 				<>
-					<div>{ blueskyBody( customText ) }</div>
+					<div>{ blueskyBody( customText, { reserveUrlSpace: showUrl } ) }</div>
 					{ showUrl ? (
 						<>
 							<br />

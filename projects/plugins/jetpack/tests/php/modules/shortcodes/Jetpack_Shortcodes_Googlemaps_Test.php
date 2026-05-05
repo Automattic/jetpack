@@ -73,4 +73,22 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
+
+	/**
+	 * A URL-encoded ampersand (`%26`) inside a query value — e.g. a place
+	 * name like "Hotel & Spa" — must survive the shortcode round-trip
+	 * intact, otherwise Google's API treats the decoded `&` as a query
+	 * separator and the embed 400s.
+	 */
+	public function test_shortcodes_googlemaps_preserves_encoded_ampersand_in_value() {
+		$shortcode = '[googlemaps https://maps.google.com/maps?q=The%20Westin%20Doha%20Hotel%20%26%20Spa]';
+		$rendered  = do_shortcode( $shortcode );
+
+		$this->assertStringContainsString(
+			'src="https://maps.google.com/maps?q=The%20Westin%20Doha%20Hotel%20%26%20Spa"',
+			$rendered
+		);
+		$this->assertStringNotContainsString( 'Hotel%20&amp;%20Spa', $rendered );
+		$this->assertStringNotContainsString( 'Hotel & Spa', $rendered );
+	}
 }

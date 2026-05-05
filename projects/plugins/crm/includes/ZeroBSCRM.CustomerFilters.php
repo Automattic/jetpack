@@ -270,7 +270,7 @@ function zbs_customerFiltersGetApplied( $srcArr = 'usepost', $requireEmail = fal
 						if ( ! empty( $srcArr[ $fieldPrefix . $key ] ) ) {
 
 							// } Cast
-							$no = (int) sanitize_text_field( $srcArr[ $fieldPrefix . $key ] );
+							$no = (int) $srcArr[ $fieldPrefix . $key ];
 
 							// } add
 							$appliedFilters[ $key ] = $no;

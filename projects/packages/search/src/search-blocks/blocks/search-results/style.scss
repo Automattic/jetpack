@@ -1,4 +1,39 @@
+@use "../skeleton" as skeleton;
+
 .wp-block-jetpack-search-results {
+
+	@include skeleton.shimmer;
+
+	.jetpack-search-skeleton--title {
+		height: 1.5rem;
+		width: 65%;
+	}
+
+	.jetpack-search-skeleton--path {
+		height: 0.95rem;
+		width: 40%;
+		margin-top: 0.5rem;
+	}
+
+	.jetpack-search-skeleton--meta {
+		height: 0.9rem;
+		width: 25%;
+		margin-top: 1rem;
+	}
+
+	.jetpack-search-skeleton--image {
+		flex: 0 0 auto;
+		width: 200px;
+		max-width: 30%;
+		aspect-ratio: 16 / 10;
+	}
+
+	.jetpack-search-results__item--skeleton {
+
+		&[hidden] {
+			display: none;
+		}
+	}
 
 	.jetpack-search-results__list {
 		list-style: none;

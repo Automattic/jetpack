@@ -97,63 +97,36 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Only filter keys registered by a filter-checkbox block on the current
-	 * post may survive into the seeded state. An unrelated `?foo[]=bar`
-	 * param (e.g. from another plugin) must be dropped so it doesn't get
-	 * echoed back into subsequent search URLs.
+	 * Seeded `activeFilters` is the raw URL params — gating moved to
+	 * store/index.js's `initialize()` callback, which can apply it once
+	 * every filter block's render.php has contributed its filterConfig (and
+	 * the registry is complete). `build_seed_state()` must therefore pass
+	 * URL params through unchanged regardless of whether the matching filter
+	 * block was found in post content.
 	 */
-	public function test_gate_active_filters_keeps_only_registered_keys() {
-		$gated = Search_Blocks::gate_active_filters(
-			array(
-				'category'   => array( 'news' ),
-				'post_types' => array( 'post' ),
-				'foo'        => array( 'bar' ),
-			),
-			array(
-				'category'   => array( 'filterKey' => 'category' ),
-				'post_types' => array( 'filterKey' => 'post_types' ),
-			)
-		);
-		$this->assertSame(
-			array(
-				'category'   => array( 'news' ),
-				'post_types' => array( 'post' ),
-			),
-			$gated
-		);
-	}
-
-	/**
-	 * When no filter-checkbox blocks contribute a filterConfig (e.g. the
-	 * post uses a template part instead of the bundled pattern), leave
-	 * activeFilters alone — hydration may still register them client-side.
-	 */
-	public function test_gate_active_filters_passthrough_when_configs_empty() {
-		$input = array( 'category' => array( 'news' ) );
-		$this->assertSame( $input, Search_Blocks::gate_active_filters( $input, array() ) );
-	}
-
-	/**
-	 * When the URL carries only unregistered array params (e.g. from another
-	 * plugin) and no search query, gating drops them — and build_seed_state
-	 * must recompute isLoading so the JS store doesn't leave the loading
-	 * spinner stuck forever (JS initialize() only fires a search when
-	 * searchQuery or hasActiveFilters is truthy).
-	 */
-	public function test_build_seed_state_recomputes_is_loading_after_gating() {
+	public function test_build_seed_state_passes_url_filters_through() {
 		$original_get   = $_GET;
 		$original_query = $GLOBALS['wp_query'] ?? null;
-		$_GET           = array( 'foo' => array( 'bar' ) );
-		// Reset the WP_Query global so `get_search_query()` can't leak an `s`
-		// value from an earlier test and make isLoading look stuck on its own.
+		// post_date isn't in the filterConfigs passed to build_seed_state
+		// below — simulating a filter-date block placed in a template
+		// rather than post content. PHP must still seed it through; JS
+		// gates against the complete registry on hydration.
+		$_GET                = array(
+			'category'  => array( 'news' ),
+			'post_date' => array( '2024-08' ),
+		);
 		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => '' ) );
 		try {
 			$state = Search_Blocks::build_seed_state(
 				array( 'category' => array( 'filterKey' => 'category' ) )
 			);
-			$this->assertSame( '', $state['searchQuery'] );
-			$this->assertSame( array(), $state['activeFilters'] );
-			$this->assertFalse( $state['isLoading'] );
+			$this->assertSame(
+				array(
+					'category'  => array( 'news' ),
+					'post_date' => array( '2024-08' ),
+				),
+				$state['activeFilters']
+			);
 		} finally {
 			$_GET                = $original_get;
 			$GLOBALS['wp_query'] = $original_query;
@@ -161,10 +134,12 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * A URL carrying a registered filter must leave isLoading=true so the
-	 * JS store shows the spinner until the first fetch resolves.
+	 * A URL carrying a filter selection must leave isLoading=true so the JS
+	 * store shows the spinner until the first fetch resolves. JS-side gating
+	 * may later flip it back to false if every key gets dropped, but the
+	 * seed should default to true whenever activeFilters is non-empty.
 	 */
-	public function test_build_seed_state_keeps_is_loading_for_registered_filter() {
+	public function test_build_seed_state_keeps_is_loading_for_active_filter() {
 		$original_get        = $_GET;
 		$original_query      = $GLOBALS['wp_query'] ?? null;
 		$_GET                = array( 'category' => array( 'news' ) );

@@ -14,6 +14,14 @@ $layout        = ( (array) $attributes )['layout'] ?? 'card';
 $is_compact    = 'compact' === $layout;
 $wrapper_class = $is_compact ? 'jetpack-search-results--compact' : 'jetpack-search-results--card';
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );
+
+// Pre-hydration loading state. Skeleton items below render server-side only
+// when the URL carries a query/filter that will trigger an initial fetch on
+// hydration; otherwise emitting them would freeze placeholder rows on a bare
+// /search/ page where no fetch ever fires. Once JS hydrates,
+// `data-wp-bind--hidden="state.skeletonHidden"` takes over visibility.
+$is_initial_loading = Search_Blocks::is_initial_loading();
+$skeleton_count     = $is_compact ? 6 : 4;
 ?>
 <div
 	<?php echo wp_kses_data( $wrapper_attrs ); ?>
@@ -25,6 +33,26 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 		class="jetpack-search-results__list"
 		aria-live="polite"
 	>
+		<?php if ( $is_initial_loading ) : ?>
+			<?php for ( $i = 0; $i < $skeleton_count; $i++ ) : ?>
+				<li
+					class="jetpack-search-results__item jetpack-search-results__item--skeleton"
+					data-wp-bind--hidden="state.skeletonHidden"
+					aria-hidden="true"
+				>
+					<div class="jetpack-search-results__copy">
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+						<?php if ( ! $is_compact ) : ?>
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
+						<?php endif; ?>
+					</div>
+					<?php if ( ! $is_compact ) : ?>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
+					<?php endif; ?>
+				</li>
+			<?php endfor; ?>
+		<?php endif; ?>
 		<template
 			data-wp-each--result="state.results"
 			data-wp-key="context.result.id"

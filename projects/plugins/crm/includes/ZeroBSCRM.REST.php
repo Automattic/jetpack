@@ -129,7 +129,7 @@ function zeroBSCRM_rest_getCompanies( WP_REST_Request $request ) {
 	}
 	$potentialID = -1;
 	if ( isset( $request['id'] ) ) {
-		$potentialID = (int) sanitize_text_field( $request['id'] );
+		$potentialID = (int) $request['id'];
 	}
 
 		// if id, pass back obj singular
@@ -162,7 +162,7 @@ function zeroBSCRM_rest_getContacts( WP_REST_Request $request ) {
 	}
 	$potentialID = -1;
 	if ( isset( $request['id'] ) ) {
-		$potentialID = (int) sanitize_text_field( $request['id'] );
+		$potentialID = (int) $request['id'];
 	}
 
 	// if id, pass back obj singular
@@ -197,11 +197,11 @@ function zeroBSCRM_rest_getConCom( WP_REST_Request $request ) {
 	}
 	$potentialID = -1;
 	if ( isset( $request['id'] ) ) {
-		$potentialID = (int) sanitize_text_field( $request['id'] );
+		$potentialID = (int) $request['id'];
 	}
 	$objectType = -1;
 	if ( isset( $request['obj_type'] ) ) {
-		$potentialID = (int) sanitize_text_field( $request['obj_type'] );
+		$potentialID = (int) $request['obj_type'];
 	}
 
 	// if id, pass back obj simpler, but now also take in objectType too.

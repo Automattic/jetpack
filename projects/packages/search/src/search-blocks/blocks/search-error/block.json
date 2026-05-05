@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/search-error",
+	"version": "0.1.0",
+	"title": "Search Error",
+	"category": "jetpack-search",
+	"icon": "warning",
+	"description": "Message shown when a Jetpack Search request fails.",
+	"supports": { "html": false, "interactivity": true },
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/search-error.js",
+	"attributes": {
+		"message": { "type": "string", "default": "" }
+	}
+}

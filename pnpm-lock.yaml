@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-kvGxuhO5hzJVpfhTkeo4zv3s1CC4nIozwsgvl91BoFw=
+pnpmfileChecksum: sha256-KrBHPLv8FlPoa5OUGbvotku6TLmuhZiq22jdIe7yBHc=
 
 patchedDependencies:
   react-autosize-textarea:
@@ -18,9 +18,6 @@ importers:
 
   .:
     devDependencies:
-      eslint:
-        specifier: 9.39.4
-        version: 9.39.4
       husky:
         specifier: 9.1.7
         version: 9.1.7
@@ -4035,9 +4032,9 @@ importers:
       '@csstools/postcss-global-data':
         specifier: 4.0.0
         version: 4.0.0(postcss@8.5.10)
-      '@size-limit/preset-app':
-        specifier: 12.0.0
-        version: 12.0.0(size-limit@12.0.0)
+      '@size-limit/file':
+        specifier: ^12.1.0
+        version: 12.1.0(size-limit@12.1.0)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -4084,8 +4081,8 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
       size-limit:
-        specifier: 12.0.0
-        version: 12.0.0(@size-limit/preset-app@12.0.0)
+        specifier: 12.1.0
+        version: 12.1.0(@size-limit/file@12.1.0)
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -4278,6 +4275,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
@@ -4326,9 +4326,15 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.44.0
         version: 6.44.0
+      '@wordpress/build':
+        specifier: 0.13.0
+        version: 0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.10)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.2
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
@@ -8659,11 +8665,6 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.8
 
-  '@puppeteer/browsers@2.10.10':
-    resolution: {integrity: sha512-3ZG500+ZeLql8rE0hjfhkycJjDj0pI/btEh3L9IkWUYcOrgP0xCNRq3HbtbqOPbvDhFaAWD88pDFtlLv8ns8gA==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   '@puppeteer/browsers@2.13.0':
     resolution: {integrity: sha512-46BZJYJjc/WwmKjsvDFykHtXrtomsCIrwYQPOP7VfMJoZY2bsDF9oROBABR3paDjDcmkUye1Pb1BqdcdiipaWA==}
     engines: {node: '>=18'}
@@ -9315,26 +9316,11 @@ packages:
   '@sinonjs/fake-timers@15.3.2':
     resolution: {integrity: sha512-mrn35Jl2pCpns+mE3HaZa1yPN5EYCRgiMI+135COjr2hr8Cls9DXqIZ57vZe2cz7y2XVSq92tcs6kGQcT1J8Rw==}
 
-  '@sitespeed.io/tracium@0.3.3':
-    resolution: {integrity: sha512-dNZafjM93Y+F+sfwTO5gTpsGXlnc/0Q+c2+62ViqP3gkMWvHEMSKkaEHgVJLcLg3i/g19GSIPziiKpgyne07Bw==}
-    engines: {node: '>=8'}
-
-  '@size-limit/file@12.0.0':
-    resolution: {integrity: sha512-OzKYpDzWJ2jo6cAIzVsaPuvzZTmMLDoVCViEvsctmImxpXzwJZcuBEpPohFKKdgVdZuNTU8WstmvywPq55Njdw==}
+  '@size-limit/file@12.1.0':
+    resolution: {integrity: sha512-eGwDcIufnNnvJRzv3liDOn6MAOGgmOTUdpeGQ2KuRTlgIgO54AJH1ilvktlJc6PIjNfwpYY0dOGyap1QgM1swQ==}
     engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     peerDependencies:
-      size-limit: 12.0.0
-
-  '@size-limit/preset-app@12.0.0':
-    resolution: {integrity: sha512-Us6LL0OIvx3XuEzMu7ZfUoE/WscH2/+nTPhNAyCFiJZKrsDDMPAvdZBcWIYNpIAG3ADMi/wIQrUXLCRCsEUF4Q==}
-    peerDependencies:
-      size-limit: 12.0.0
-
-  '@size-limit/time@12.0.0':
-    resolution: {integrity: sha512-MAMr1OK1qEEoxbrYjA79cGzncY6KVhNRx6Hid4L1vZLbR6P+k0Cs8zREzCslS4XtOXqyxMtvIJfpq10MN+pAtg==}
-    engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
-    peerDependencies:
-      size-limit: 12.0.0
+      size-limit: 12.1.0
 
   '@slack/logger@4.0.1':
     resolution: {integrity: sha512-6cmdPrV/RYfd2U0mDGiMK8S7OJqpCTm7enMLRR3edccsPX8j7zXTLnaEF4fhxxJJTAIOil6+qZrnUPTuaLvwrQ==}
@@ -12735,11 +12721,6 @@ packages:
     resolution: {integrity: sha512-KmfKL3b6G+RXvP8N1vr3Tq1kL/oCFgn2NYXEtqP8/L3pKapUA4G8cFVaoF3SU323CD4XypR/ffioHmkti6/Tag==}
     engines: {node: '>=4.0'}
 
-  estimo@3.0.5:
-    resolution: {integrity: sha512-Q9asaAAM3KZc4Ckr8GMcJWYc3hNCf0KnmhkfzHuAWmqGoPssQoe5Mb8et1CYmmkeMfPTlUyeBHRi53Bedvnl1Q==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   estraverse@4.3.0:
     resolution: {integrity: sha512-39nnKffWz8xN1BU/2c79n9nB9HDzo0niYUqx6xyqUnyoAnQyyWpOTdZEeiCch8BBu515t4wp9ZmgVfVhn9EBpw==}
     engines: {node: '>=4.0'}
@@ -12909,10 +12890,6 @@ packages:
   find-cache-dir@3.3.2:
     resolution: {integrity: sha512-wXZV5emFEjrridIgED11OoUKLxiYjAcqot/NJdAkOhlJ+vGzwhOAfcG5OX1jP+S0PcjEn8bdMJv+g2jwQ3Onig==}
     engines: {node: '>=8'}
-
-  find-chrome-bin@2.0.4:
-    resolution: {integrity: sha512-iKiqIb7FsA0hwnq0vvDay4RsmHUFLvWVquTb59XVlxfHS68XaWZfEjriF2vTZ3k/plicyKZxMJLqxKt10kSOtQ==}
-    engines: {node: '>=18.0.0'}
 
   find-root@1.1.0:
     resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}
@@ -14749,11 +14726,6 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@5.1.7:
-    resolution: {integrity: sha512-ua3NDgISf6jdwezAheMOk4mbE1LXjm1DfMUDMuJf4AqxLFK3ccGpgWizwa5YV7Yz9EpXwEaWoRXSb/BnV0t5dQ==}
-    engines: {node: ^18 || >=20}
-    hasBin: true
-
   nanospinner@1.2.2:
     resolution: {integrity: sha512-Zt/AmG6qRU3e+WnzGGLuMCEAO/dAu45stNbHY223tUxldaDAeE+FxSPsd9Q+j+paejmm0ZbrNVs5Sraqy3dRxA==}
 
@@ -16451,15 +16423,15 @@ packages:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
 
-  size-limit@12.0.0:
-    resolution: {integrity: sha512-JBG8dioIs0m2kHOhs9jD6E/tZKD08vmbf2bfqj/rJyNWqJxk/ZcakixjhYtsqdbi+AKVbfPkt3g2RRZiKaizYA==}
+  size-limit@12.1.0:
+    resolution: {integrity: sha512-VnDS2fycANrJFVPQwjaD+h+hkISY7EB3LsPsYWje4lBCjQwwsZLxjwwRwVJKHrcj2ZqyG+DdXykWm9mbZklZrw==}
     engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
     peerDependencies:
-      '@size-limit/preset-app': '*'
+      '@size-limit/file': '*'
       jiti: ^2.0.0
     peerDependenciesMeta:
-      '@size-limit/preset-app':
+      '@size-limit/file':
         optional: true
       jiti:
         optional: true
@@ -21010,21 +20982,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@puppeteer/browsers@2.10.10':
-    dependencies:
-      debug: 4.4.3
-      extract-zip: 2.0.1
-      progress: 2.0.3
-      proxy-agent: 6.5.0
-      semver: 7.7.3
-      tar-fs: 3.1.2
-      yargs: 17.7.2
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - react-native-b4a
-      - supports-color
-
   '@puppeteer/browsers@2.13.0':
     dependencies:
       debug: 4.4.3
@@ -21766,40 +21723,9 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@sitespeed.io/tracium@0.3.3':
+  '@size-limit/file@12.1.0(size-limit@12.1.0)':
     dependencies:
-      debug: 4.4.3
-    transitivePeerDependencies:
-      - supports-color
-
-  '@size-limit/file@12.0.0(size-limit@12.0.0)':
-    dependencies:
-      size-limit: 12.0.0(@size-limit/preset-app@12.0.0)
-
-  '@size-limit/preset-app@12.0.0(size-limit@12.0.0)':
-    dependencies:
-      '@size-limit/file': 12.0.0(size-limit@12.0.0)
-      '@size-limit/time': 12.0.0(size-limit@12.0.0)
-      size-limit: 12.0.0(@size-limit/preset-app@12.0.0)
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - bufferutil
-      - react-native-b4a
-      - supports-color
-      - utf-8-validate
-
-  '@size-limit/time@12.0.0(size-limit@12.0.0)':
-    dependencies:
-      estimo: 3.0.5
-      size-limit: 12.0.0(@size-limit/preset-app@12.0.0)
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - bufferutil
-      - react-native-b4a
-      - supports-color
-      - utf-8-validate
+      size-limit: 12.1.0(@size-limit/file@12.1.0)
 
   '@slack/logger@4.0.1':
     dependencies:
@@ -23749,6 +23675,28 @@ snapshots:
     optionalDependencies:
       '@wordpress/boot': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
       '@wordpress/route': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - browserslist
+      - supports-color
+
+  '@wordpress/build@0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)':
+    dependencies:
+      '@emotion/babel-plugin': 11.13.5
+      autoprefixer: 10.4.27(postcss@8.5.10)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.4(postcss@8.5.10)
+      esbuild: 0.27.4
+      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.0)
+      esbuild-sass-plugin: 3.3.1(esbuild@0.27.4)(sass-embedded@1.97.3)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.10
+      postcss-modules: 6.0.1(postcss@8.5.10)
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
     transitivePeerDependencies:
       - '@babel/core'
       - browserslist
@@ -27780,21 +27728,6 @@ snapshots:
     dependencies:
       estraverse: 5.3.0
 
-  estimo@3.0.5:
-    dependencies:
-      '@sitespeed.io/tracium': 0.3.3
-      commander: 12.1.0
-      find-chrome-bin: 2.0.4
-      nanoid: 5.1.7
-      puppeteer-core: 24.40.0
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - bufferutil
-      - react-native-b4a
-      - supports-color
-      - utf-8-validate
-
   estraverse@4.3.0: {}
 
   estraverse@5.3.0: {}
@@ -28005,15 +27938,6 @@ snapshots:
       commondir: 1.0.1
       make-dir: 3.1.0
       pkg-dir: 4.2.0
-
-  find-chrome-bin@2.0.4:
-    dependencies:
-      '@puppeteer/browsers': 2.10.10
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - react-native-b4a
-      - supports-color
 
   find-root@1.1.0: {}
 
@@ -30289,8 +30213,6 @@ snapshots:
 
   nanoid@3.3.11: {}
 
-  nanoid@5.1.7: {}
-
   nanospinner@1.2.2:
     dependencies:
       picocolors: 1.1.1
@@ -32138,7 +32060,7 @@ snapshots:
       mrmime: 2.0.1
       totalist: 3.0.1
 
-  size-limit@12.0.0(@size-limit/preset-app@12.0.0):
+  size-limit@12.1.0(@size-limit/file@12.1.0):
     dependencies:
       bytes-iec: 3.1.1
       lilconfig: 3.1.3
@@ -32146,7 +32068,7 @@ snapshots:
       picocolors: 1.1.1
       tinyglobby: 0.2.16
     optionalDependencies:
-      '@size-limit/preset-app': 12.0.0(size-limit@12.0.0)
+      '@size-limit/file': 12.1.0(size-limit@12.1.0)
 
   slash@3.0.0: {}
 
