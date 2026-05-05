@@ -440,17 +440,18 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * With nothing on the verdict to attribute against, the first plugin
-	 * in the batch is returned — the batch is blocked as a unit either way.
+	 * With nothing on the verdict to attribute against, the helper returns
+	 * `''` so the caller can surface a batch-level message instead of
+	 * blaming an arbitrary plugin.
 	 */
-	public function test_blame_falls_back_to_first_plugin_when_unattributable() {
+	public function test_blame_returns_empty_when_unattributable() {
 		$paths = array(
 			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
 			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
 		);
 
 		$blamed = pcg_guard_get_blocked_plugin( array( 'status' => 'fatal' ), $paths );
-		$this->assertSame( 'foo/foo.php', $blamed );
+		$this->assertSame( '', $blamed );
 
 		$blamed = pcg_guard_get_blocked_plugin(
 			array(
@@ -459,7 +460,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			),
 			$paths
 		);
-		$this->assertSame( 'foo/foo.php', $blamed );
+		$this->assertSame( '', $blamed );
 	}
 
 	/**
