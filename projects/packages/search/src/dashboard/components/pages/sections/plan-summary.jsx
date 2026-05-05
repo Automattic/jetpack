@@ -8,6 +8,9 @@ const getPlanName = isFreePlan => {
 };
 
 const displayPeriodFromAPIData = apiData => {
+	if ( ! apiData.latestMonthRequests ) {
+		return '';
+	}
 	const startDate = new Date( apiData.latestMonthRequests.start_date );
 	const endDate = new Date( apiData.latestMonthRequests.end_date );
 
