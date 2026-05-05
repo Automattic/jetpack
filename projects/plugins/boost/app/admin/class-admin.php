@@ -49,7 +49,7 @@ class Admin {
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
-			'Jetpack Boost - Settings', // "Jetpack Boost" is a product name, do not translate.
+			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
 			$menu_label,
 			'manage_options',
 			JETPACK_BOOST_SLUG,
