@@ -307,26 +307,19 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					/>
 					<ToggleControl
 						label={ __( 'Show cover art', 'jetpack' ) }
-						help={ __(
-							'Display cover art alongside the player.',
-							'jetpack'
-						) }
+						help={ __( 'Display cover art alongside the player.', 'jetpack' ) }
 						checked={ !! showPoster }
 						onChange={ value => setAttributes( { showPoster: value } ) }
 						__nextHasNoMarginBottom
 					/>
 					{ showPoster && (
 						<BaseControl __nextHasNoMarginBottom>
-							<BaseControl.VisualLabel>
-								{ __( 'Cover art', 'jetpack' ) }
-							</BaseControl.VisualLabel>
+							<BaseControl.VisualLabel>{ __( 'Cover art', 'jetpack' ) }</BaseControl.VisualLabel>
 							<MediaUploadCheck>
 								<MediaUpload
 									onSelect={ media =>
 										setAttributes( {
-											coverArt: media?.url
-												? { id: media.id, url: media.url }
-												: {},
+											coverArt: media?.url ? { id: media.id, url: media.url } : {},
 										} )
 									}
 									allowedTypes={ [ 'image' ] }
@@ -341,9 +334,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 												/>
 											) }
 											<Button variant="secondary" onClick={ open }>
-												{ coverArt?.url
-													? __( 'Replace cover art', 'jetpack' )
-													: __( 'Set episode cover art', 'jetpack' ) }
+												{ coverArt?.url && __( 'Replace cover art', 'jetpack' ) }
+												{ ! coverArt?.url && __( 'Set episode cover art', 'jetpack' ) }
 											</Button>
 											{ coverArt?.url && (
 												<Button
@@ -430,9 +422,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__next40pxDefaultSize
 					/>
 					<BaseControl __nextHasNoMarginBottom>
-						<BaseControl.VisualLabel>
-							{ __( 'People', 'jetpack' ) }
-						</BaseControl.VisualLabel>
+						<BaseControl.VisualLabel>{ __( 'People', 'jetpack' ) }</BaseControl.VisualLabel>
 						<PeopleEditor
 							people={ people }
 							onChange={ value => setAttributes( { people: value } ) }
@@ -452,14 +442,20 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						<p className="jetpack-podcast-episode__meta-line">
 							{ seasonNumber ? (
 								<span className="jetpack-podcast-episode__season">
-									{ /* translators: %d: season number. */ }
-									{ sprintf( __( 'Season %d', 'jetpack' ), seasonNumber ) }
+									{ sprintf(
+										/* translators: %d: season number. */
+										__( 'Season %d', 'jetpack' ),
+										seasonNumber
+									) }
 								</span>
 							) : null }
 							{ episodeNumber ? (
 								<span className="jetpack-podcast-episode__episode-number">
-									{ /* translators: %d: episode number. */ }
-									{ sprintf( __( 'Episode %d', 'jetpack' ), episodeNumber ) }
+									{ sprintf(
+										/* translators: %d: episode number. */
+										__( 'Episode %d', 'jetpack' ),
+										episodeNumber
+									) }
 								</span>
 							) : null }
 							{ episodeType === 'trailer' && (

@@ -45,7 +45,10 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function enqueue_editor_data() {
 	$show_cover_url = (string) get_option( 'podcasting_image', '' );
-	$payload        = wp_json_encode( array( 'showCoverUrl' => $show_cover_url ) );
+	$payload        = wp_json_encode(
+		array( 'showCoverUrl' => $show_cover_url ),
+		JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+	);
 	wp_add_inline_script(
 		'wp-blocks',
 		'window.jetpackPodcastEpisodeData = ' . $payload . ';',
@@ -117,7 +120,7 @@ function render_block( $attributes, $content, $block = null ) {
 
 	// Pull display content from the resolved post (block context or global loop).
 	$title            = get_the_title( $post );
-	$author_name      = get_the_author_meta( 'display_name', $post->post_author );
+	$author_name      = get_the_author_meta( 'display_name', (int) $post->post_author );
 	$publish_date_iso = get_the_date( 'c', $post );
 	$publish_date     = get_the_date( '', $post );
 
