@@ -748,17 +748,21 @@ class Search_Blocks {
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
 				'searching'          => 'Searching…',
+				'searchError'        => 'Search error',
 				'resultsCountSingle' => 'Found %d result',
 				'resultsCountPlural' => 'Found %d results',
+				'resultsCountEmpty'  => 'No results',
 				'removeFilter'       => 'Remove %s',
 			);
 		}
 		return array(
 			'searching'          => __( 'Searching…', 'jetpack-search-pkg' ),
+			'searchError'        => __( 'Search error', 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
 			'resultsCountSingle' => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
 			'resultsCountPlural' => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
+			'resultsCountEmpty'  => __( 'No results', 'jetpack-search-pkg' ),
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
 			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
 		);

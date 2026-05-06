@@ -158,13 +158,18 @@ let searchToken = 0;
 
 /**
  * Build the human-readable results-count string from the live store state.
- * Returns "Searching…" while a search is in flight, "Found 42 results" once
- * a query resolves with hits, or an empty string in every other case
- * (pre-search, error, or zero hits — the empty-state region inside
- * `jetpack/search-results` owns that copy). Called by every action that mutates `isLoading` or
- * `totalResults` so the seeded `state.resultsCountText` stays in lockstep
- * with the counters; SSR resolves `data-wp-text` against that seeded value
- * directly, so the string can't live on a JS getter.
+ * Always returns a non-empty string once a search has been performed —
+ * "Searching…" while in flight, "Search error" when the fetch fails,
+ * "No results" when the query resolves with zero hits, and "Found N
+ * results" otherwise. The only case where this returns an empty string
+ * is the pre-search state (no query yet); after that, the count area
+ * always has text content so it can't visibly flicker text → empty as
+ * a fetch resolves with zero hits or fails.
+ *
+ * Called by every action that mutates `isLoading` / `totalResults` /
+ * `hasError` so the seeded `state.resultsCountText` stays in lockstep
+ * with the counters; SSR resolves `data-wp-text` against that seeded
+ * value directly, so the string can't live on a JS getter.
  *
  * Exported so tests can verify the formatting in isolation without driving
  * the full `actions.search()` lifecycle.
@@ -176,9 +181,19 @@ export function computeResultsCountText( liveState ) {
 	if ( liveState.isLoading ) {
 		return liveState.strings?.searching ?? 'Searching…';
 	}
+	if ( liveState.hasError ) {
+		return liveState.strings?.searchError ?? 'Search error';
+	}
 	const total = liveState.totalResults;
 	if ( total === 0 ) {
-		return '';
+		// Bare /search/ page with nothing typed yet — leave the count
+		// blank rather than announcing "No results" before the user has
+		// done anything. There's no flicker to worry about here because
+		// the text was empty all along.
+		if ( ! liveState.searchQuery ) {
+			return '';
+		}
+		return liveState.strings?.resultsCountEmpty ?? 'No results';
 	}
 	const template =
 		total === 1

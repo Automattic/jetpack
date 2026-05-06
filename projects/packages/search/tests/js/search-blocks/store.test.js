@@ -241,9 +241,11 @@ describe( 'store actions', () => {
 		expect( state.totalResults ).toBe( 0 );
 		expect( state.pageHandle ).toBeNull();
 		expect( state.aggregations ).toEqual( {} );
-		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
-		// so an empty count string falls out for free — no extra wiring.
-		expect( state.resultsCountText ).toBe( '' );
+		// `resultsCountText` resolves to the localized error string rather
+		// than the empty string — keeps the count area non-empty so the
+		// resolved text doesn't flicker from "Searching…" to a blank
+		// paragraph the moment the fetch fails.
+		expect( state.resultsCountText ).toBe( 'Search error' );
 	} );
 
 	it( 'leaves the existing results in place when loadMore() errors out', async () => {
@@ -432,13 +434,15 @@ describe( 'store getters', () => {
 			sortOrder: 'relevance',
 			strings: {
 				searching: 'Looking…',
+				searchError: 'Something broke',
 				resultsCountSingle: 'Found %d item',
 				resultsCountPlural: 'Found %d items',
+				resultsCountEmpty: 'Nothing matched',
 			},
 		} );
 	} );
 
-	it( 'formats the results count for loading, singular, plural, and empty states', () => {
+	it( 'formats the results count for loading, error, singular, plural, and empty states', () => {
 		// `resultsCountText` is now a regular state value updated by
 		// `actions.search()` rather than a getter — the SSR pass needs to
 		// read a literal string off the seeded state, and JS getters don't
@@ -448,14 +452,33 @@ describe( 'store getters', () => {
 		state.isLoading = true;
 		expect( computeResultsCountText( state ) ).toBe( 'Looking…' );
 
+		// Error path takes precedence over `totalResults`; an in-flight error
+		// has the loading text, and a resolved error has the error string —
+		// not the empty string the prior version would have produced once
+		// `actions.search()` reset `totalResults` to 0 in its catch block.
 		state.isLoading = false;
+		state.hasError = true;
+		state.totalResults = 0;
+		expect( computeResultsCountText( state ) ).toBe( 'Something broke' );
+
+		state.hasError = false;
 		state.totalResults = 1;
 		expect( computeResultsCountText( state ) ).toBe( 'Found 1 item' );
 
 		state.totalResults = 3;
 		expect( computeResultsCountText( state ) ).toBe( 'Found 3 items' );
 
+		// Zero hits with an active query: the count area announces the
+		// empty result rather than going to an empty string. The dedicated
+		// empty-state region inside `jetpack/search-results` still owns the
+		// longer-form "Try a different search." copy below.
+		state.searchQuery = 'react';
 		state.totalResults = 0;
+		expect( computeResultsCountText( state ) ).toBe( 'Nothing matched' );
+
+		// Pre-search state — no query yet, so the count stays empty. There's
+		// no flicker to worry about here because the text was always empty.
+		state.searchQuery = '';
 		expect( computeResultsCountText( state ) ).toBe( '' );
 	} );
 

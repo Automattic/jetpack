@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search blocks: results-count now stays non-empty across the loading, error, and zero-results paths so the text never visibly flickers from "Searching…" to a blank paragraph as a query resolves.

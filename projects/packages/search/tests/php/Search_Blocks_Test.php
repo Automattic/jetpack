@@ -68,10 +68,17 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertArrayHasKey( 'strings', $state );
 		$strings = $state['strings'];
 		$this->assertArrayHasKey( 'searching', $strings );
+		$this->assertArrayHasKey( 'searchError', $strings );
 		$this->assertArrayHasKey( 'resultsCountSingle', $strings );
 		$this->assertArrayHasKey( 'resultsCountPlural', $strings );
+		$this->assertArrayHasKey( 'resultsCountEmpty', $strings );
 		$this->assertArrayHasKey( 'removeFilter', $strings );
 		$this->assertNotSame( '', $strings['searching'] );
+		// `searchError` and `resultsCountEmpty` keep the count area non-empty
+		// across the error and zero-results paths so the resolved text never
+		// flickers from a localized status string to an empty paragraph.
+		$this->assertNotSame( '', $strings['searchError'] );
+		$this->assertNotSame( '', $strings['resultsCountEmpty'] );
 		$this->assertStringContainsString( '%d', $strings['resultsCountSingle'] );
 		$this->assertStringContainsString( '%d', $strings['resultsCountPlural'] );
 		$this->assertStringContainsString( '%s', $strings['removeFilter'] );
