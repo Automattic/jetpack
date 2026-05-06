@@ -167,6 +167,21 @@ $jp-breakpoint-mobile: 782px;
 	// ── <AdminPage> root ──────────────────────────────────────────────
 	// Neutralize the legacy -20px shift and make AdminPage a flex child
 	// that fills its parent column.
+
+	// `overflow: visible` is enforced here because consumers that drop a
+	// className with `overflow-x: hidden` on the <AdminPage> root (e.g. to
+	// clip a stray horizontal overflow) would silently turn `.jp-admin-page`
+	// into a scroll container: any unspecified `overflow-y: visible` on the
+	// same element gets promoted to `overflow-y: auto` by the browser when
+	// the other axis is `hidden`/`scroll`/`clip`. With `.jp-admin-page` as
+	// a scroll container, wheel events past the inner middle's end propagate
+	// to it and the entire page (header + middle + footer) shifts up under
+	// the fixed `#wpbody-content`, exposing blank space below the footer.
+	// The intended scroll surface is the inner middle (defined further
+	// down); the inner middle clips horizontal overflow with `overflow:
+	// auto` already, and `#wpbody-content` is the ultimate `overflow:
+	// hidden` boundary, so consumer-side horizontal clipping isn't needed
+	// at this level.
 	.jp-admin-page {
 		margin-left: 0;
 		display: flex;
@@ -174,6 +189,7 @@ $jp-breakpoint-mobile: 782px;
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
+		overflow: visible;
 	}
 
 	// ── admin-ui Page internals ───────────────────────────────────────

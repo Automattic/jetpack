@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: drop `overflow-x: hidden` on the `<AdminPage>` root. The rule was a vestigial guard against the old `100vw` breakouts (since restructured) and silently turned `.jp-admin-page` into a scroll container — when the inner middle reached its end, wheel events propagated up and shifted the entire page (header + middle + footer) under the fixed `#wpbody-content`, exposing blank space below the footer.
