@@ -32,7 +32,7 @@ export type MessageTemplateEditorProps = {
  * @param {MessageTemplateEditorProps} props - The component's props.
  * @return Element.
  */
-export default function MessageTemplateEditor( props: MessageTemplateEditorProps ) {
+export function MessageTemplateEditor( props: MessageTemplateEditorProps ) {
 	const { value, onChange, label, placeholder, helpText, disabled, rows = 4 } = props;
 	const resolvedLabel = label ?? __( 'Message template', 'jetpack-publicize-pkg' );
 

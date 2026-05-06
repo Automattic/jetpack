@@ -1,0 +1,10 @@
+.description {
+	grid-column: span 2;
+	max-width: 80ch;
+	text-wrap: balance;
+	text-wrap: pretty;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}

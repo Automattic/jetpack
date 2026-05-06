@@ -179,6 +179,7 @@ export type SocialSettingsFields = {
 	[ 'jetpack-social-note' ]: boolean;
 	jetpack_social_notes_config: SocialNotesConfig;
 	[ 'jetpack-social_show_pricing_page' ]: boolean;
+	jetpack_social_message_template: string;
 };
 
 export type ScheduledShare = {
