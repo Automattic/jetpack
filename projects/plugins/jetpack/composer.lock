@@ -3526,7 +3526,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "76711591c7e3c5cc5c811fb7308d55b53f6052a5"
+                "reference": "ecadd1253ce389c0e10fa3cda88520f28af55b9f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
