@@ -82,33 +82,18 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
  * @return void
  */
 function pcg_update_guard_log_blocked( $action, array $hook_extra, array $scan ) {
-	if ( ! function_exists( 'log2logstash' ) ) {
-		$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-		if ( ! is_readable( $log2logstash_path ) ) {
-			return;
-		}
-		require_once $log2logstash_path;
-	}
-
 	$first = $scan['errors'][0];
-	$slug  = (string) ( $hook_extra['plugin'] ?? ( $hook_extra['theme'] ?? '' ) );
 
-	log2logstash(
+	pcg_log_event(
+		'Update blocked',
 		array(
-			'feature' => 'plugin-conflicts-guardian',
-			'message' => 'Update blocked',
-			'extra'   => wp_json_encode(
-				array(
-					'action'      => (string) $action,
-					'slug'        => $slug,
-					// Basename only — absolute paths leak install layout.
-					'file'        => basename( (string) $first['file'] ),
-					'line'        => (int) $first['line'],
-					'reason'      => (string) $first['message'],
-					'error_count' => count( $scan['errors'] ),
-				),
-				JSON_UNESCAPED_SLASHES
-			),
+			'action'      => (string) $action,
+			'slug'        => (string) ( $hook_extra['plugin'] ?? ( $hook_extra['theme'] ?? '' ) ),
+			// Basename only — absolute paths leak install layout.
+			'file'        => basename( (string) $first['file'] ),
+			'line'        => (int) $first['line'],
+			'reason'      => (string) $first['message'],
+			'error_count' => count( $scan['errors'] ),
 		)
 	);
 }

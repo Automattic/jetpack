@@ -163,33 +163,19 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
  * @return void
  */
 function pcg_healthcheck_log_rollback( array $candidate, array $probe, array $rollback ) {
-	if ( ! function_exists( 'log2logstash' ) ) {
-		$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-		if ( ! is_readable( $log2logstash_path ) ) {
-			return;
-		}
-		require_once $log2logstash_path;
-	}
-
-	log2logstash(
+	pcg_log_event(
+		'Update rolled back',
 		array(
-			'feature' => 'plugin-conflicts-guardian',
-			'message' => 'Update rolled back',
-			'extra'   => wp_json_encode(
-				array(
-					'plugin'           => (string) $candidate['plugin_file'],
-					'new_version'      => (string) $candidate['new_version'],
-					'previous_version' => (string) ( $candidate['snapshot']['version'] ?? '' ),
-					'probe_status'     => (string) ( $probe['status'] ?? '' ),
-					// Basename only — absolute paths leak install layout.
-					'probe_file'       => isset( $probe['file'] ) ? basename( (string) $probe['file'] ) : '',
-					'probe_line'       => (int) ( $probe['line'] ?? 0 ),
-					'probe_reason'     => (string) ( $probe['message'] ?? '' ),
-					'rollback_status'  => (string) ( $rollback['status'] ?? '' ),
-					'restored_to'      => (string) ( $rollback['restored_to'] ?? '' ),
-				),
-				JSON_UNESCAPED_SLASHES
-			),
+			'plugin'           => (string) $candidate['plugin_file'],
+			'new_version'      => (string) $candidate['new_version'],
+			'previous_version' => (string) ( $candidate['snapshot']['version'] ?? '' ),
+			'probe_status'     => (string) ( $probe['status'] ?? '' ),
+			// Basename only — absolute paths leak install layout.
+			'probe_file'       => isset( $probe['file'] ) ? basename( (string) $probe['file'] ) : '',
+			'probe_line'       => (int) ( $probe['line'] ?? 0 ),
+			'probe_reason'     => (string) ( $probe['message'] ?? '' ),
+			'rollback_status'  => (string) ( $rollback['status'] ?? '' ),
+			'restored_to'      => (string) ( $rollback['restored_to'] ?? '' ),
 		)
 	);
 }

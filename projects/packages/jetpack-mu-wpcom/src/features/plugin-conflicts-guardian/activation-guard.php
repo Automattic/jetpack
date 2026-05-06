@@ -144,30 +144,16 @@ function pcg_guard_evaluate_plugins( $plugins ) {
  * @return void
  */
 function pcg_guard_log_blocked_activation( array $checked, array $blocked, array $result ) {
-	if ( ! function_exists( 'log2logstash' ) ) {
-		$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-		if ( ! is_readable( $log2logstash_path ) ) {
-			return;
-		}
-		require_once $log2logstash_path;
-	}
-
-	log2logstash(
+	pcg_log_event(
+		'Activation blocked',
 		array(
-			'feature' => 'plugin-conflicts-guardian',
-			'message' => 'Activation blocked',
-			'extra'   => wp_json_encode(
-				array(
-					'checked' => $checked,
-					'blocked' => array_keys( $blocked ),
-					'status'  => (string) ( $result['status'] ?? '' ),
-					// Basename only — absolute paths leak install layout.
-					'file'    => isset( $result['file'] ) ? basename( (string) $result['file'] ) : '',
-					'line'    => (int) ( $result['line'] ?? 0 ),
-					'reason'  => (string) ( $result['message'] ?? '' ),
-				),
-				JSON_UNESCAPED_SLASHES
-			),
+			'checked' => $checked,
+			'blocked' => array_keys( $blocked ),
+			'status'  => (string) ( $result['status'] ?? '' ),
+			// Basename only — absolute paths leak install layout.
+			'file'    => isset( $result['file'] ) ? basename( (string) $result['file'] ) : '',
+			'line'    => (int) ( $result['line'] ?? 0 ),
+			'reason'  => (string) ( $result['message'] ?? '' ),
 		)
 	);
 }
