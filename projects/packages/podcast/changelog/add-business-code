@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Move the Podcast business code (RSS feed customization, REST settings integration, and the wp-admin SPA covering Welcome / Settings / Episodes / Distribution) into the package. Replaces the wp-build placeholder dashboard from earlier in the untangle train; the SPA bundles via webpack alongside the wp-admin enqueue pipeline. Still gated behind the `jetpack_podcast_untangle` filter — Simple/Atomic only and no behavior change while the filter is off.

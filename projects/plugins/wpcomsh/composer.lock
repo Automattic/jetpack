@@ -1718,11 +1718,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "c7060e529dfe4b9e4835d392d4b140eeac7ac5ff"
+                "reference": "ce1f374b27b71a5a2a3fa891fa9e0ab1ce2db0c2"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-status": "@dev",
-                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -1767,6 +1768,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "typecheck": [
+                    "pnpm run typecheck"
                 ]
             },
             "license": [

@@ -1,0 +1,177 @@
+/**
+ * Distribution tab — copy-the-feed CTA + per-directory submit buttons.
+ *
+ * Each podcast directory ("podcast app") lives in its own self-contained
+ * file under `../podcast-apps/`. This tab just renders the registry and
+ * delegates the submission flow to either the default 3-step `SubmitModal`
+ * or, when an app sets `Modal`, that app's custom modal.
+ */
+
+import {
+	Button,
+	Card,
+	CardBody,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack,
+} from '@wordpress/components';
+import { useCopyToClipboard } from '@wordpress/compose';
+import { useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { check, copy } from '@wordpress/icons';
+import SubmitModal from '../components/submit-modal';
+import { usePodcastSettings } from '../hooks/use-podcast-settings';
+import { PODCAST_APPS } from '../podcast-apps';
+import { getPodcastScriptData } from '../script-data';
+import type { PodcatcherId } from '../types';
+import type { FocusEvent } from 'react';
+
+const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
+	event.currentTarget.select();
+};
+
+// Pre-resolved so the i18n-check-webpack-plugin validator sees two distinct
+// __() calls in the bundled output instead of __(cond?'a':'b'). Hoisted out of
+// the component since these strings don't depend on props or state.
+const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
+const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
+
+const FeedCopyField = ( { value }: { value: string } ) => {
+	const [ copied, setCopied ] = useState( false );
+
+	const copyRef = useCopyToClipboard< HTMLButtonElement >( value, () => {
+		setCopied( true );
+		setTimeout( () => setCopied( false ), 2000 );
+	} );
+
+	return (
+		<HStack alignment="center" spacing={ 2 } className="podcast__feed-copy">
+			<input
+				type="text"
+				className="podcast__feed-copy-input"
+				value={ value }
+				readOnly
+				onFocus={ selectOnFocus }
+				aria-label={ __( 'Podcast RSS feed URL', 'jetpack-podcast' ) }
+			/>
+			<Button
+				ref={ copyRef }
+				variant="secondary"
+				icon={ copied ? check : copy }
+				disabled={ ! value }
+			>
+				{ copied ? COPIED_LABEL : COPY_LINK_LABEL }
+			</Button>
+		</HStack>
+	);
+};
+
+const DistributionTab = () => {
+	const { data: settings } = usePodcastSettings();
+	const scriptData = getPodcastScriptData();
+	const feedUrl = scriptData.feedUrl;
+	const isEnabled = !! settings?.podcasting_category_id;
+
+	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
+	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
+
+	const handleClose = useCallback( () => {
+		setActiveId( null );
+	}, [] );
+
+	const ActiveModal = activeApp?.Modal ?? SubmitModal;
+
+	return (
+		<>
+			<header className="podcast__section-header">
+				<h2 className="podcast__section-heading">{ __( 'Distribution', 'jetpack-podcast' ) }</h2>
+				<p className="podcast__section-description">
+					{ __(
+						'Submit your feed to podcast directories and track where your show is listed.',
+						'jetpack-podcast'
+					) }
+				</p>
+			</header>
+
+			<Card className="podcast__card">
+				<CardBody>
+					<VStack spacing={ 8 }>
+						<VStack spacing={ 4 }>
+							<VStack spacing={ 1 }>
+								<h3 className="podcast__card-title">{ __( 'RSS feed', 'jetpack-podcast' ) }</h3>
+								<Text variant="muted">
+									{ __(
+										'Copy this URL, then submit it to each directory below to publish your podcast.',
+										'jetpack-podcast'
+									) }
+								</Text>
+							</VStack>
+							{ isEnabled && feedUrl ? (
+								<FeedCopyField value={ feedUrl } />
+							) : (
+								<Text variant="muted">
+									{ __(
+										'Set your podcast category to generate the feed URL you can submit to directories.',
+										'jetpack-podcast'
+									) }
+								</Text>
+							) }
+						</VStack>
+
+						<VStack spacing={ 4 }>
+							<VStack spacing={ 1 }>
+								<h3 className="podcast__card-title">
+									{ __( 'Podcast directories', 'jetpack-podcast' ) }
+								</h3>
+								<Text variant="muted">
+									{ __(
+										'Submit your podcast to the directories below where you want it to appear. Most take a few days to go live.',
+										'jetpack-podcast'
+									) }
+								</Text>
+							</VStack>
+							<VStack as="ul" spacing={ 0 } className="podcast__directory-list">
+								{ PODCAST_APPS.map( app => {
+									const { Logo } = app;
+									return (
+										<HStack
+											as="li"
+											key={ app.id }
+											alignment="center"
+											justify="space-between"
+											className="podcast__directory-row"
+										>
+											<HStack alignment="center" spacing={ 4 } expanded={ false }>
+												<span aria-hidden="true">
+													<Logo />
+												</span>
+												<Text weight={ 500 }>{ app.name }</Text>
+											</HStack>
+											<Button
+												variant="primary"
+												size="compact"
+												// Fresh closure per row is fine — no memoized children downstream.
+												// eslint-disable-next-line react/jsx-no-bind
+												onClick={ () => setActiveId( app.id ) }
+												disabled={ ! isEnabled }
+											>
+												{ __( 'Submit', 'jetpack-podcast' ) }
+											</Button>
+										</HStack>
+									);
+								} ) }
+							</VStack>
+						</VStack>
+					</VStack>
+				</CardBody>
+			</Card>
+
+			{ activeApp && <ActiveModal app={ activeApp } feedUrl={ feedUrl } onClose={ handleClose } /> }
+		</>
+	);
+};
+
+export default DistributionTab;
