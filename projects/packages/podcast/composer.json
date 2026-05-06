@@ -5,12 +5,17 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -49,6 +54,13 @@
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-podcast/compare/v${old}...v${new}"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true,
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

@@ -2574,9 +2574,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "acaddca67e3e73d705207800e2ca4172ad7d88a9"
+                "reference": "a576a9d13718887d7d506acd895bd1ade5b7eacd"
             },
             "require": {
+                "automattic/jetpack-autoloader": "@dev",
+                "automattic/jetpack-composer-plugin": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.2"
             },
@@ -2584,6 +2586,9 @@
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
