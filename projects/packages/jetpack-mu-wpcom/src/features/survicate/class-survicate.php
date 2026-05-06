@@ -61,7 +61,7 @@ class Survicate {
 		}
 
 		// Atomic powers Automattic's internal P2s; surveys must never reach them.
-		if ( wpcom_is_p2_site() ) {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_p2_site() ) {
 			return false;
 		}
 

@@ -219,19 +219,26 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that should_load returns false on a P2 site detected via stylesheet.
+	 *
+	 * Status\Host::is_p2_site() short-circuits to false unless get_wpcom_site_id()
+	 * returns a value, so define IS_WPCOM to route through get_current_blog_id().
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_should_load_returns_false_on_p2_site_via_stylesheet() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		add_filter( 'stylesheet', static fn () => 'pub/p2-2020' );
+
 		$this->set_admin_context();
 		$this->create_and_login_user();
 
-		$stylesheet_filter = static fn () => 'pub/p2-2020';
-		add_filter( 'stylesheet', $stylesheet_filter );
-
-		try {
-			$this->assertFalse( $this->call_private_method( 'should_load' ) );
-		} finally {
-			remove_filter( 'stylesheet', $stylesheet_filter );
-		}
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
 	}
 
 	/**
@@ -243,6 +250,10 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_should_load_returns_false_on_p2_site_via_wpforteams() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
 		require_once __DIR__ . '/fixtures/wpforteams-stub.php';
 
 		$this->set_admin_context();
