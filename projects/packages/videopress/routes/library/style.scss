@@ -6,7 +6,8 @@
 	&__viewport {
 		display: flex;
 		flex-direction: column;
-		min-height: calc(100vh - 220px);
+		flex: 1;
+		min-height: 0;
 
 		// DataViews's wrapper has `height: 100%`, so flex-grow it inside the
 		// viewport to push the pagination footer to the bottom.
@@ -135,11 +136,18 @@
 		white-space: nowrap;
 	}
 
-	// Table view: DataViews forces the thumbnail img to a fixed 32x32 inside
-	// `.dataviews-column-primary__media`. Suppress only the custom overlays —
-	// don't touch sizing, or the stock 32x32 thumbnail collapses. Status info
-	// moves into the title cell as a status pill (see `&__status-pill` below).
+	// Table view: DataViews gives a 32x32 cell slot but doesn't force the img,
+	// and its cell wrapper uses `align-items: center` — so an img with a non-
+	// square intrinsic ratio collapses the wrapper to its content height (e.g.
+	// 32x18 for 16:9), leaving white space above/below. Lock the wrapper to the
+	// 32x32 slot. Suppress overlays; status info moves into the title cell as a
+	// pill (see `&__status-pill` below).
 	.dataviews-view-table & {
+
+		&__thumbnail {
+			width: 32px;
+			height: 32px;
+		}
 
 		&__thumbnail-duration-badge,
 		&__placeholder,

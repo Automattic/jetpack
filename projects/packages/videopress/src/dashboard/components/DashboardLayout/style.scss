@@ -10,10 +10,22 @@ body.jetpack_page_jetpack-videopress {
 
 	@include jetpack-admin-page-layout;
 
-	// TODO (Phase 2.5): pin the DataViews pagination footer to the bottom of the
-	// visible page area for the Library tab. Earlier attempts propagated flex
-	// height through Tabs.Root + Tabs.Panel, but the chain breaks above Tabs.Root
-	// because the AdminPage wrapper isn't itself a flex container. Revisit with
-	// DevTools open to identify the exact ancestor that needs `display: flex` /
-	// `min-height: 100%`.
+	// Propagate the admin page's flex column through @wordpress/ui's Tabs
+	// primitives, which default to display:block and break the chain. Lets
+	// DataViews-based tabs (Library) flex-grow into the available area and
+	// pin their pagination to the visible bottom. Targeted via stable ARIA
+	// roles, not Base UI's obfuscated CSS-in-JS classnames.
+	:has(> [role="tabpanel"]) { // Tabs.Root
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 0;
+		min-height: 0;
+	}
+
+	[role="tabpanel"] {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 0;
+		min-height: 0;
+	}
 }
