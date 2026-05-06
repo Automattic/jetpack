@@ -76,6 +76,13 @@ class PCG_Load_Tester {
 		$front_result = $this->parse_response( $responses['front'], false );
 		$admin_result = $this->parse_response( $responses['admin'], true );
 
+		// Log transport-level errors (most often timeouts at PROBE_TIMEOUT)
+		// so we can see how often they fire before deciding whether to
+		// scale the timeout with batch size.
+		if ( $this->is_error( $front_result ) || $this->is_error( $admin_result ) ) {
+			$this->log_probe_error( $mode, $plugin_mains, $front_result, $admin_result );
+		}
+
 		// fatal/throwable wins; an inconclusive `error` from one probe must
 		// not shadow a real fatal from the other. Front-end is the canonical
 		// "site works" signal when neither probe captured a fatal.
@@ -97,6 +104,87 @@ class PCG_Load_Tester {
 	protected function is_block( $result ) {
 		$status = is_array( $result ) ? (string) ( $result['status'] ?? '' ) : '';
 		return 'fatal' === $status || 'throwable' === $status;
+	}
+
+	/**
+	 * Whether a verdict is a transport-level error (timeout, connection
+	 * failure, non-JSON body). Distinct from `is_block` — errors are
+	 * inconclusive and don't block activation, but are worth logging.
+	 *
+	 * @param array $result Probe verdict.
+	 * @return bool
+	 */
+	protected function is_error( $result ) {
+		$status = is_array( $result ) ? (string) ( $result['status'] ?? '' ) : '';
+		return 'error' === $status;
+	}
+
+	/**
+	 * Log a probe transport error to logstash whenever either probe came
+	 * back as `error` (timeout at PROBE_TIMEOUT, connection failure,
+	 * non-JSON body). Lets us measure timeout frequency vs. batch size
+	 * before deciding whether to scale `PROBE_TIMEOUT` with N. No-op
+	 * outside WordPress.com (no `log2logstash` available).
+	 *
+	 * @param string   $mode         Probe mode constant.
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @param array    $front_result Front-end probe verdict.
+	 * @param array    $admin_result Admin probe verdict.
+	 * @return void
+	 */
+	protected function log_probe_error( $mode, array $plugin_mains, array $front_result, array $admin_result ) {
+		if ( ! function_exists( 'log2logstash' ) ) {
+			$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+			if ( ! is_readable( $log2logstash_path ) ) {
+				return;
+			}
+			require_once $log2logstash_path;
+		}
+
+		log2logstash(
+			array(
+				'feature' => 'plugin-conflicts-guardian',
+				'message' => 'Probe transport error',
+				'extra'   => wp_json_encode(
+					array(
+						'mode'    => $mode,
+						'plugins' => $this->relative_basenames( $plugin_mains ),
+						'front'   => $this->probe_error_reason( $front_result ),
+						'admin'   => $this->probe_error_reason( $admin_result ),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+	}
+
+	/**
+	 * Strip `WP_PLUGIN_DIR/` from each absolute path so log entries carry
+	 * the canonical plugin basename (e.g. `akismet/akismet.php`).
+	 *
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @return string[]
+	 */
+	protected function relative_basenames( array $plugin_mains ) {
+		$prefix = WP_PLUGIN_DIR . '/';
+		$out    = array();
+		foreach ( $plugin_mains as $path ) {
+			$out[] = str_starts_with( (string) $path, $prefix )
+				? substr( (string) $path, strlen( $prefix ) )
+				: (string) $path;
+		}
+		return $out;
+	}
+
+	/**
+	 * One-line reason from a probe verdict — `reason` if set, else
+	 * `status`, else empty. Used for diagnostic logs.
+	 *
+	 * @param array $result Probe verdict.
+	 * @return string
+	 */
+	protected function probe_error_reason( array $result ) {
+		return (string) ( $result['reason'] ?? $result['status'] ?? '' );
 	}
 
 	/**
