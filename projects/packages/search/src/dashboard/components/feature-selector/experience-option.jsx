@@ -1,5 +1,5 @@
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -13,7 +13,6 @@ import {
 import './style.scss';
 
 // URL constants reused from the legacy ModuleControl.
-const RETURN_PATH = 'admin.php?page=jetpack-search';
 const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
 const WIDGETS_EDITOR_URL = 'widgets.php';
 
@@ -37,13 +36,12 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @return {import('react').Element} - The option row.
  */
 export default function ExperienceOption( { experience, disabled = false } ) {
-	const { selected, active, isUpdating, supportsInstantSearch, siteAdminUrl } = useSelect(
+	const { selected, active, isUpdating, supportsInstantSearch } = useSelect(
 		select => ( {
 			selected: select( STORE_ID ).getSelectedExperience(),
 			active: select( STORE_ID ).getActiveExperience(),
 			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
 			supportsInstantSearch: select( STORE_ID ).supportsInstantSearch(),
-			siteAdminUrl: select( STORE_ID ).getSiteAdminUrl(),
 		} ),
 		[]
 	);
@@ -56,7 +54,6 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 	// Show inline customization links only when Overlay is the saved/active
 	// experience — not while it is merely the pending (unsaved) selection.
 	const showOverlayActions = experience === EXPERIENCE.OVERLAY && isActive;
-	const returnUrl = ( siteAdminUrl ?? '' ) + RETURN_PATH;
 
 	const inputId = `jp-search-experience-${ experience }`;
 
@@ -114,11 +111,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 						{ supportsInstantSearch && (
 							<Button
 								variant="link"
-								href={
-									! isUpdating
-										? sprintf( SEARCH_CUSTOMIZE_URL, encodeURIComponent( returnUrl ) )
-										: undefined
-								}
+								href={ ! isUpdating ? SEARCH_CUSTOMIZE_URL : undefined }
 								disabled={ isUpdating }
 							>
 								{ __( 'Customize search results', 'jetpack-search-pkg' ) }
@@ -126,11 +119,7 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 						) }
 						<Button
 							variant="link"
-							href={
-								! isUpdating
-									? sprintf( WIDGETS_EDITOR_URL, encodeURIComponent( returnUrl ) )
-									: undefined
-							}
+							href={ ! isUpdating ? WIDGETS_EDITOR_URL : undefined }
 							disabled={ isUpdating }
 						>
 							{ __( 'Edit sidebar widgets', 'jetpack-search-pkg' ) }

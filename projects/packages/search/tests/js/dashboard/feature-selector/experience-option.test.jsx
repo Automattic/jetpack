@@ -98,31 +98,21 @@ describe( '<ExperienceOption>', () => {
 		};
 		const withInstantSearch = { sitePlan: { supports_instant_search: true } };
 		const withClassicOnly = { sitePlan: { supports_instant_search: false } };
-		const withSiteAdmin = { siteData: { adminUrl: 'https://example.com/wp-admin/' } };
 
 		test( 'shows both links when overlay is active and supportsInstantSearch is true', () => {
-			renderWith( overlaySettings, { experience: 'overlay' }, {
-				...withInstantSearch,
-				...withSiteAdmin,
-			} );
+			renderWith( overlaySettings, { experience: 'overlay' }, withInstantSearch );
 			expect( screen.getByRole( 'button', { name: /customize search results/i } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: /edit sidebar widgets/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'hides Customize link when supportsInstantSearch is false', () => {
-			renderWith( overlaySettings, { experience: 'overlay' }, {
-				...withClassicOnly,
-				...withSiteAdmin,
-			} );
+			renderWith( overlaySettings, { experience: 'overlay' }, withClassicOnly );
 			expect( screen.queryByRole( 'button', { name: /customize search results/i } ) ).not.toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: /edit sidebar widgets/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'does not show overlay links on non-overlay rows', () => {
-			renderWith( overlaySettings, { experience: 'embedded' }, {
-				...withInstantSearch,
-				...withSiteAdmin,
-			} );
+			renderWith( overlaySettings, { experience: 'embedded' }, withInstantSearch );
 			expect( screen.queryByRole( 'button', { name: /customize search results/i } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'button', { name: /edit sidebar widgets/i } ) ).not.toBeInTheDocument();
 		} );
@@ -138,7 +128,7 @@ describe( '<ExperienceOption>', () => {
 					experience: null,
 				},
 				{ experience: 'overlay' },
-				{ ...withInstantSearch, ...withSiteAdmin }
+				withInstantSearch
 			);
 			expect( screen.queryByRole( 'button', { name: /customize search results/i } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'button', { name: /edit sidebar widgets/i } ) ).not.toBeInTheDocument();
@@ -148,7 +138,7 @@ describe( '<ExperienceOption>', () => {
 			renderWith(
 				{ ...overlaySettings, is_updating: true },
 				{ experience: 'overlay' },
-				{ ...withInstantSearch, ...withSiteAdmin }
+				withInstantSearch
 			);
 			expect( screen.getByRole( 'button', { name: /customize search results/i } ) ).toHaveAttribute(
 				'aria-disabled',
@@ -161,10 +151,7 @@ describe( '<ExperienceOption>', () => {
 		} );
 
 		test( 'Customize link points to the search-configure admin page', () => {
-			renderWith( overlaySettings, { experience: 'overlay' }, {
-				...withInstantSearch,
-				...withSiteAdmin,
-			} );
+			renderWith( overlaySettings, { experience: 'overlay' }, withInstantSearch );
 			expect( screen.getByRole( 'button', { name: /customize search results/i } ) ).toHaveAttribute(
 				'href',
 				'admin.php?page=jetpack-search-configure'
@@ -172,10 +159,7 @@ describe( '<ExperienceOption>', () => {
 		} );
 
 		test( 'Widgets link points to widgets.php', () => {
-			renderWith( overlaySettings, { experience: 'overlay' }, {
-				...withInstantSearch,
-				...withSiteAdmin,
-			} );
+			renderWith( overlaySettings, { experience: 'overlay' }, withInstantSearch );
 			expect( screen.getByRole( 'button', { name: /edit sidebar widgets/i } ) ).toHaveAttribute(
 				'href',
 				'widgets.php'
