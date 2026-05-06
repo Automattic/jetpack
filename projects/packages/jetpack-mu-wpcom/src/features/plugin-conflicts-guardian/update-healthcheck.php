@@ -36,19 +36,14 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
 	if ( '' === $plugin_file ) {
 		return $return;
 	}
-	// Inactive plugins can't take the site down on load, so the
-	// post-update probe bails on them. Skip the snapshot entirely
-	// here too — otherwise we'd stage a backup we never consume.
+	// Skip inactive (probe ignores them) and network-active (probe is
+	// per-site, rollback flips one plugin — wrong shape for network).
 	if ( ! function_exists( 'is_plugin_active' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
 	if ( ! is_plugin_active( $plugin_file ) ) {
 		return $return;
 	}
-	// Network-activated plugins on multisite affect every site in the
-	// network. Our probe runs against the current site only and our
-	// rollback flips a single plugin off — neither is the right shape
-	// for a network plugin, so bail before touching anything.
 	if ( is_multisite() && is_plugin_active_for_network( $plugin_file ) ) {
 		return $return;
 	}
@@ -124,12 +119,12 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 		return;
 	}
 
-	// One probe for the whole batch. The plugin_main argument is just
-	// a target for the load tester to attribute fatals to in its
-	// diagnostics — the probe itself boots the full site.
-	$tester = new PCG_Load_Tester();
-	$result = $tester->test( $candidates[0]['plugin_main'], PCG_Load_Tester::MODE_UPDATE );
-	$status = (string) ( $result['status'] ?? '' );
+	// MODE_UPDATE skips require_once and just observes the bootstrap, so one
+	// probe suffices for the whole batch. The paths are only readability checks.
+	$tester       = new PCG_Load_Tester();
+	$plugin_mains = array_values( array_column( $candidates, 'plugin_main' ) );
+	$result       = $tester->test( $plugin_mains, PCG_Load_Tester::MODE_UPDATE );
+	$status       = (string) ( $result['status'] ?? '' );
 
 	// Anything other than a captured fatal is a no-op rollback-wise: ok =
 	// the update is fine; error = inconclusive transport failure we don't
