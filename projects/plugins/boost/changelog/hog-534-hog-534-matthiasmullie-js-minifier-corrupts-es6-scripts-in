@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS: Remove JS re-minification that corrupts ES6+ scripts containing template literals.
