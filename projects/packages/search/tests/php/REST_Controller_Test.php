@@ -374,20 +374,20 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/settings` with experience=classic.
+	 * Testing the `POST /jetpack/v4/search/settings` with experience=inline.
 	 */
-	public function test_update_settings_experience_classic() {
+	public function test_update_settings_experience_inline() {
 		wp_set_current_user( $this->admin_id );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'experience' => 'classic' ), JSON_UNESCAPED_SLASHES ) );
+		$request->set_body( wp_json_encode( array( 'experience' => 'inline' ), JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertTrue( $data['module_active'] );
 		$this->assertFalse( $data['instant_search_enabled'] );
-		$this->assertEquals( 'classic', $data['experience'] );
+		$this->assertEquals( 'inline', $data['experience'] );
 	}
 
 	/**

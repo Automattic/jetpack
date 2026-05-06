@@ -48,7 +48,7 @@ class Module_Control {
 	 */
 	const EXPERIENCE_OVERLAY  = 'overlay';
 	const EXPERIENCE_EMBEDDED = 'embedded';
-	const EXPERIENCE_CLASSIC  = 'classic';
+	const EXPERIENCE_INLINE   = 'inline';
 	const EXPERIENCE_OFF      = 'off';
 
 	/**
@@ -184,11 +184,11 @@ class Module_Control {
 	 *
 	 * The wire format always resolves to one of the four values, but storage is narrower:
 	 * `'off'` is read from the global Jetpack module-active state (not stored in this
-	 * package's option), and `'classic'` is the absence of an opt-in (the option is
-	 * deleted, not written as `'classic'`). Only `'embedded'` and `'overlay'` are
+	 * package's option), and `'inline'` is the absence of an opt-in (the option is
+	 * deleted, not written as `'inline'`). Only `'embedded'` and `'overlay'` are
 	 * actually written to `jetpack_search_experience`.
 	 *
-	 * @return string One of 'embedded', 'overlay', 'classic', 'off'.
+	 * @return string One of 'embedded', 'overlay', 'inline', 'off'.
 	 */
 	public function get_experience() {
 		if ( ! $this->is_active() ) {
@@ -204,31 +204,31 @@ class Module_Control {
 		}
 
 		// Legacy fallback for sites that have never saved via the new UI: a true
-		// `instant_search_enabled` boolean reads as overlay; otherwise classic.
+		// `instant_search_enabled` boolean reads as overlay; otherwise inline.
 		if ( $this->is_instant_search_enabled() ) {
 			return self::EXPERIENCE_OVERLAY;
 		}
 
-		return self::EXPERIENCE_CLASSIC;
+		return self::EXPERIENCE_INLINE;
 	}
 
 	/**
 	 * Update the search experience.
 	 *
 	 * Storage is narrower than the wire format: `'off'` only deactivates the global
-	 * module (no write to the experience option), and `'classic'` deletes the
-	 * experience option (the absence of an opt-in *is* classic). Only `'embedded'`
+	 * module (no write to the experience option), and `'inline'` deletes the
+	 * experience option (the absence of an opt-in *is* inline). Only `'embedded'`
 	 * and `'overlay'` write affirmative values.
 	 *
 	 * Legacy `module_active` / `instant_search_enabled` are kept in lockstep so
 	 * unmigrated readers (Initializer, Options, sidebar registration) continue to
 	 * see the right state until they're migrated to consult get_experience().
 	 *
-	 * @param string $experience One of 'embedded', 'overlay', 'classic', 'off'.
+	 * @param string $experience One of 'embedded', 'overlay', 'inline', 'off'.
 	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
 	public function update_experience( string $experience ) {
-		$valid_values = array( self::EXPERIENCE_OVERLAY, self::EXPERIENCE_EMBEDDED, self::EXPERIENCE_CLASSIC, self::EXPERIENCE_OFF );
+		$valid_values = array( self::EXPERIENCE_OVERLAY, self::EXPERIENCE_EMBEDDED, self::EXPERIENCE_INLINE, self::EXPERIENCE_OFF );
 		if ( ! in_array( $experience, $valid_values, true ) ) {
 			return new WP_Error(
 				'invalid_experience',
@@ -246,14 +246,14 @@ class Module_Control {
 				( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
 				return true;
 
-			case self::EXPERIENCE_CLASSIC:
+			case self::EXPERIENCE_INLINE:
 				$result = $this->activate();
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
 				$this->disable_instant_search();
-				// Classic is the absence of an opt-in — delete the option rather than
-				// writing 'classic'. Pre-existing sites that have never saved are
+				// Inline is the absence of an opt-in — delete the option rather than
+				// writing 'inline'. Pre-existing sites that have never saved are
 				// already in this state, so this also normalises after a switch.
 				delete_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 				return true;

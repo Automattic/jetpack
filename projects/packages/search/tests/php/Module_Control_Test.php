@@ -212,13 +212,13 @@ class Module_Control_Test extends Search_TestCase {
 
 	/**
 	 * Active module + instant_search_enabled=false with no saved value resolves to
-	 * 'classic' — classic is the absence of an opt-in.
+	 * 'inline' — inline is the absence of an opt-in.
 	 */
-	public function test_get_experience_classic_when_no_opt_in() {
+	public function test_get_experience_inline_when_no_opt_in() {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, false );
-		$this->assertEquals( Module_Control::EXPERIENCE_CLASSIC, static::$search_module->get_experience() );
+		$this->assertEquals( Module_Control::EXPERIENCE_INLINE, static::$search_module->get_experience() );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
@@ -257,14 +257,14 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Classic activates the module, disables instant search, and deletes the
-	 * experience option (classic is the absence of an opt-in).
+	 * Inline activates the module, disables instant search, and deletes the
+	 * experience option (inline is the absence of an opt-in).
 	 */
-	public function test_update_experience_classic_deletes_option() {
-		// Seed an existing 'embedded' to prove the switch to classic clears it.
+	public function test_update_experience_inline_deletes_option() {
+		// Seed an existing 'embedded' to prove the switch to inline clears it.
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
-		static::$search_module->update_experience( Module_Control::EXPERIENCE_CLASSIC );
+		static::$search_module->update_experience( Module_Control::EXPERIENCE_INLINE );
 		$active_modules = get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() );
 		remove_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
 
