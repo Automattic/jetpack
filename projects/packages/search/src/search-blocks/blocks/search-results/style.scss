@@ -10,7 +10,7 @@
 	}
 
 	.jetpack-search-skeleton--path {
-		height: 0.95rem;
+		height: 0.8125rem;
 		width: 40%;
 		margin-top: 0.5rem;
 	}
@@ -82,8 +82,9 @@
 	.jetpack-search-results__path {
 		margin-top: 0.25rem;
 		color: inherit;
-		opacity: 0.75;
-		font-size: 0.95rem;
+		opacity: 0.6;
+		font-size: 0.8125rem;
+		line-height: 1.4;
 
 		&[hidden] {
 			display: none;
@@ -92,10 +93,9 @@
 
 	.jetpack-search-results__content {
 		margin-top: 0.4rem;
-		font-size: 0.95rem;
-		line-height: 1.5;
+		font-size: 1rem;
+		line-height: 1.55;
 		color: inherit;
-		opacity: 0.85;
 
 		// Cap the snippet height so a very long excerpt doesn't push the
 		// metadata row far down. Three lines is enough to give the searcher
