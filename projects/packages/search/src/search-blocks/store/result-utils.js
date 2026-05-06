@@ -253,6 +253,48 @@ function buildRatingAriaLabel( rating, reviewCount ) {
 }
 
 /**
+ * Derive the match hint from the highlight object.
+ *
+ * Returns '' when the title itself carries a highlighted fragment (no badge
+ * needed), 'comments' when a comment field matched but the title didn't, or
+ * 'content' when another non-title field matched but the title didn't.
+ *
+ * Mirrors the badge logic in the instant-search `SearchResultProduct`
+ * component. The v1.3 API uses 'comment' (singular) as the comment-field key.
+ *
+ * @param {object} highlight   - `raw.highlight` from the API response.
+ * @param {Array}  titlePieces - Pre-computed title pieces from tokenizeHighlight.
+ * @return {'content'|'comments'|''} Match hint value.
+ */
+export function deriveMatchHint( highlight, titlePieces ) {
+	// If the title itself has a highlighted fragment, no badge is needed.
+	if ( titlePieces.some( p => p.isHighlight ) ) {
+		return '';
+	}
+	if ( typeof highlight !== 'object' || highlight === null ) {
+		return '';
+	}
+	const entries = Object.entries( highlight );
+	if (
+		entries.some(
+			// The v1.3 API uses 'comment' (singular), not 'comments'.
+			( [ key, value ] ) => key === 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
+		)
+	) {
+		return 'comments';
+	}
+	if (
+		entries.some(
+			( [ key, value ] ) =>
+				key !== 'title' && key !== 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
+		)
+	) {
+		return 'content';
+	}
+	return '';
+}
+
+/**
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
  * Interactivity API templates.
  *
@@ -269,6 +311,7 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 	const imageUrl = toSafeUrl( imageSrc );
 	const plainTitle = String( fields[ 'title.default' ] ?? fields.title ?? '' );
 	const titlePieces = tokenizeHighlight( highlight.title );
+	const matchHint = deriveMatchHint( highlight, titlePieces );
 	return {
 		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
 		title: plainTitle,
@@ -284,6 +327,11 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 		// image binds via `data-wp-style--background-image` without the
 		// template having to wrap a string at render time.
 		imageBackgroundImage: imageUrl ? `url(${ imageUrl })` : '',
+		// 'content' | 'comments' | '' — drives the "Matches content / Matches
+		// comments" hint badge shown on product cards when the title has no
+		// highlight but another field does.
+		matchHint,
+		matchHintIsComments: matchHint === 'comments',
 		...normalizeProductFields( fields ),
 	};
 }

@@ -216,6 +216,21 @@ if ( '' === $error_message ) {
 							></span>
 						</div>
 					<?php endif; ?>
+					<?php if ( 'product' === $layout ) : ?>
+						<div
+							class="jetpack-search-results__match-hint"
+							data-wp-bind--hidden="!context.result.matchHint"
+						>
+							<mark>
+								<span data-wp-bind--hidden="!context.result.matchHintIsComments">
+									<?php esc_html_e( 'Matches comments', 'jetpack-search-pkg' ); ?>
+								</span>
+								<span data-wp-bind--hidden="context.result.matchHintIsComments">
+									<?php esc_html_e( 'Matches content', 'jetpack-search-pkg' ); ?>
+								</span>
+							</mark>
+						</div>
+					<?php endif; ?>
 					<?php if ( $features['show_date'] ) : ?>
 						<div class="jetpack-search-results__meta">
 							<span

@@ -362,4 +362,22 @@
 	.jetpack-search-results__rating-count {
 		opacity: 0.7;
 	}
+
+	.jetpack-search-results__match-hint {
+		font-size: 0.8rem;
+		opacity: 0.75;
+
+		&[hidden] {
+			display: none;
+		}
+
+		mark {
+			background: none;
+			color: inherit;
+		}
+
+		span[hidden] {
+			display: none;
+		}
+	}
 }
