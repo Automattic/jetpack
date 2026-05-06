@@ -32,16 +32,18 @@ use WP_REST_Request;
  */
 class Blaze_Abilities extends Registrar {
 
-	const CATEGORY_SLUG           = 'blaze-ads';
-	const ABILITY_LIST_CAMPAIGNS  = 'blaze-ads/list-campaigns';
-	const ABILITY_CREATE_CAMPAIGN = 'blaze-ads/create-campaign';
+	const CATEGORY_SLUG                 = 'blaze-ads';
+	const ABILITY_LIST_CAMPAIGNS        = 'blaze-ads/list-campaigns';
+	const ABILITY_PREPARE_CAMPAIGN      = 'blaze-ads/prepare-campaign';
+	private const DEFAULT_BUDGET_TOTAL  = 50.0;
+	private const DEFAULT_DURATION_DAYS = 7;
 
 	/**
 	 * Slugs we own — used by `opt_into_woo_mcp` and the double-register guard.
 	 */
 	const OWNED_ABILITY_SLUGS = array(
 		self::ABILITY_LIST_CAMPAIGNS,
-		self::ABILITY_CREATE_CAMPAIGN,
+		self::ABILITY_PREPARE_CAMPAIGN,
 	);
 
 	/**
@@ -123,9 +125,9 @@ class Blaze_Abilities extends Registrar {
 
 		// Kill-switch: write abilities default to enabled but can be turned off
 		// centrally via filter without a release if abuse / errors emerge.
-		if ( self::ABILITY_CREATE_CAMPAIGN === $slug ) {
+		if ( self::ABILITY_PREPARE_CAMPAIGN === $slug ) {
 			/**
-			 * Filters whether the Blaze `create-campaign` write ability is registered.
+			 * Filters whether the Blaze `prepare-campaign` write ability is registered.
 			 *
 			 * Default true. Return false to keep the ability out of the registry —
 			 * MCP clients won't see it, REST callers get 404. Use as a kill-switch
@@ -134,9 +136,9 @@ class Blaze_Abilities extends Registrar {
 			 *
 			 * @since $$next-version$$
 			 *
-			 * @param bool $enabled Whether to register the create-campaign ability. Default true.
+			 * @param bool $enabled Whether to register the prepare-campaign ability. Default true.
 			 */
-			if ( ! apply_filters( 'blaze_abilities_create_campaign_enabled', true ) ) {
+			if ( ! apply_filters( 'blaze_abilities_prepare_campaign_enabled', true ) ) {
 				return false;
 			}
 		}
@@ -191,7 +193,7 @@ class Blaze_Abilities extends Registrar {
 	 */
 	public static function get_abilities(): array {
 		return array(
-			self::ABILITY_LIST_CAMPAIGNS  => array(
+			self::ABILITY_LIST_CAMPAIGNS   => array(
 				'label'               => __( 'List Blaze campaigns', 'jetpack-blaze' ),
 				'description'         => __( 'List the Blaze advertising campaigns associated with the current site, including status, schedule, spend, and performance metrics.', 'jetpack-blaze' ),
 				'input_schema'        => array(
@@ -215,48 +217,63 @@ class Blaze_Abilities extends Registrar {
 					),
 				),
 			),
-			self::ABILITY_CREATE_CAMPAIGN => array(
-				'label'               => __( 'Draft a new Blaze campaign', 'jetpack-blaze' ),
-				'description'         => __( 'Draft a Blaze advertising campaign for an existing post or product on the site. The ability does not write to the DSP itself — it derives sensible defaults from the target post (title, excerpt, featured image) and the caller\'s input (budget, duration, optional copy / objective overrides), bundles them into a prefill payload, and returns a deep-link the merchant clicks to land in the existing Blaze UI with every field already populated. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
+			self::ABILITY_PREPARE_CAMPAIGN => array(
+				'label'               => __( 'Prepare a Blaze campaign', 'jetpack-blaze' ),
+				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
-					'required'             => array( 'target_urn', 'budget_total', 'duration_days' ),
+					'required'             => array( 'target_urn' ),
 					'properties'           => array(
-						'target_urn'    => array(
+						'target_urn'           => array(
 							'type'        => 'string',
 							'description' => __( 'The URN of the post or product to promote (e.g. urn:wpcom:post:123456:42).', 'jetpack-blaze' ),
 						),
-						'budget_total'  => array(
+						'goal'                 => array(
+							'type'        => 'string',
+							'description' => __( 'Optional natural-language campaign goal or intent. Blaze uses this as context while still owning the DSP objective internally.', 'jetpack-blaze' ),
+						),
+						'budget_total'         => array(
 							'type'        => 'number',
-							'description' => __( 'Total budget for the campaign in the site\'s currency.', 'jetpack-blaze' ),
+							'description' => __( 'Optional total budget for the campaign in USD. If omitted, Blaze applies its default budget for this proposal.', 'jetpack-blaze' ),
 							'minimum'     => 1,
 						),
-						'duration_days' => array(
+						'duration_days'        => array(
 							'type'        => 'integer',
-							'description' => __( 'Number of days the campaign should run.', 'jetpack-blaze' ),
+							'description' => __( 'Optional number of days the campaign should run. If omitted, Blaze applies its default duration for this proposal.', 'jetpack-blaze' ),
 							'minimum'     => 1,
 							'maximum'     => 90,
 						),
-						'objective'     => array(
+						'revision_instruction' => array(
 							'type'        => 'string',
-							'description' => __( 'Campaign objective. Defaults to VIEWS.', 'jetpack-blaze' ),
-							'enum'        => array( 'VIEWS', 'CLICKS', 'SALES' ),
-							'default'     => 'VIEWS',
+							'description' => __( 'Optional natural-language instruction for revising a previous proposal, such as “make it less salesy”.', 'jetpack-blaze' ),
 						),
-						'is_evergreen'  => array(
+						'is_evergreen'         => array(
 							'type'        => 'boolean',
 							'description' => __( 'Run until the merchant stops it. Defaults to true.', 'jetpack-blaze' ),
 							'default'     => true,
 						),
-						'site_name'     => array(
+						'site_name'            => array(
 							'type'        => 'string',
 							'description' => __( 'Optional ad heading override. Defaults to the post title.', 'jetpack-blaze' ),
 						),
-						'text_snippet'  => array(
+						'text_snippet'         => array(
 							'type'        => 'string',
 							'description' => __( 'Optional ad copy override. Defaults to the post excerpt (or first ~200 chars of content).', 'jetpack-blaze' ),
 						),
-						'languages'     => array(
+						'cta_text'             => array(
+							'type'        => 'string',
+							'description' => __( 'Optional call-to-action text override. Defaults to a post-type-aware Blaze choice.', 'jetpack-blaze' ),
+						),
+						'main_image_url'       => array(
+							'type'        => 'string',
+							'format'      => 'uri',
+							'description' => __( 'Optional image URL override. Defaults to the target post featured image when available.', 'jetpack-blaze' ),
+						),
+						'main_image_mime_type' => array(
+							'type'        => 'string',
+							'description' => __( 'Optional MIME type for main_image_url. Defaults to image/jpeg when omitted.', 'jetpack-blaze' ),
+						),
+						'languages'            => array(
 							'type'        => 'array',
 							'description' => __( 'Optional ISO 639-1 language codes to target (e.g. ["en", "es"]). Defaults to all languages when omitted; pass a non-empty array to narrow targeting.', 'jetpack-blaze' ),
 							'items'       => array(
@@ -265,7 +282,7 @@ class Blaze_Abilities extends Registrar {
 								'maxLength' => 5,
 							),
 						),
-						'countries'     => array(
+						'countries'            => array(
 							'type'        => 'array',
 							'description' => __( 'Optional ISO 3166-1 alpha-2 country codes to target (e.g. ["US", "GB"]). Defaults to worldwide when omitted; pass a non-empty array to limit reach to those countries.', 'jetpack-blaze' ),
 							'items'       => array(
@@ -298,11 +315,11 @@ class Blaze_Abilities extends Registrar {
 						),
 						'prefill'     => array(
 							'type'        => 'object',
-							'description' => __( 'The structured prefill payload — same data as encoded in prefill_url. Useful for the MCP client to surface a summary of what was drafted before the merchant clicks through.', 'jetpack-blaze' ),
+							'description' => __( 'The structured prefill payload — same data as encoded in prefill_url. Useful for the MCP client to surface a summary of what was prepared before the merchant clicks through.', 'jetpack-blaze' ),
 						),
 					),
 				),
-				'execute_callback'    => array( __CLASS__, 'create_campaign' ),
+				'execute_callback'    => array( __CLASS__, 'prepare_campaign' ),
 				'permission_callback' => array( __CLASS__, 'permission_callback' ),
 				'meta'                => array(
 					'show_in_rest' => true,
@@ -368,7 +385,7 @@ class Blaze_Abilities extends Registrar {
 	}
 
 	/**
-	 * Draft a new Blaze campaign by deriving sensible defaults from the
+	 * Prepare a Blaze campaign proposal by deriving sensible defaults from the
 	 * target post and bundling them into a prefill payload. Returns a
 	 * deep-link the merchant clicks to land in the existing Blaze widget
 	 * with every field already populated; the merchant reviews, accepts
@@ -388,7 +405,7 @@ class Blaze_Abilities extends Registrar {
 	 * @param array $args Ability input — see `get_abilities()` input_schema.
 	 * @return array|\WP_Error
 	 */
-	public static function create_campaign( $args = array() ) {
+	public static function prepare_campaign( $args = array() ) {
 		$args = is_array( $args ) ? $args : array();
 
 		$urn = isset( $args['target_urn'] ) ? (string) $args['target_urn'] : '';
@@ -416,8 +433,8 @@ class Blaze_Abilities extends Registrar {
 		return array(
 			'status'      => 'pending_merchant_review',
 			'message'     => sprintf(
-				/* translators: %s: deep-link URL that opens the Blaze widget pre-populated with the drafted campaign. */
-				__( 'Draft prepared. The merchant must open the Blaze UI to review, accept payment / T&C, and submit. Open here: %s', 'jetpack-blaze' ),
+				/* translators: %s: deep-link URL that opens the Blaze widget pre-populated with the prepared campaign proposal. */
+				__( 'Campaign proposal prepared. The merchant must open the Blaze UI to review, accept payment / T&C, and submit. Open here: %s', 'jetpack-blaze' ),
 				$prefill_url
 			),
 			'prefill_url' => $prefill_url,
@@ -430,7 +447,7 @@ class Blaze_Abilities extends Registrar {
 	 * the resolved target post. Pure function — no I/O — so it's easy to
 	 * test and easy for callers to inspect in the response.
 	 *
-	 * Caller input (`site_name`, `text_snippet`, `objective`, `is_evergreen`)
+	 * Caller input (`site_name`, `text_snippet`, `cta_text`, `is_evergreen`)
 	 * overrides the post-derived defaults. Anything we can't pull from
 	 * the post or the input is left out — the widget will fill blanks
 	 * with its own defaults at submission time.
@@ -463,21 +480,35 @@ class Blaze_Abilities extends Registrar {
 			// Default CTA varies by post type — products get a commerce-flavoured
 			// "Shop Now", everything else gets the neutral "Learn More". The widget
 			// requires a non-empty CTA to clear validation, so we always send one.
-			'cta_text'      => 'product' === (string) $post->post_type ? 'Shop Now' : 'Learn More',
+			'cta_text'      => isset( $args['cta_text'] ) && '' !== (string) $args['cta_text']
+				? (string) $args['cta_text']
+				: ( 'product' === (string) $post->post_type ? 'Shop Now' : 'Learn More' ),
 			'target_url'    => (string) get_permalink( $post ),
 			'budget'        => array(
 				'mode'     => 'total',
-				'amount'   => (float) ( $args['budget_total'] ?? 0 ),
+				'amount'   => (float) ( $args['budget_total'] ?? self::DEFAULT_BUDGET_TOTAL ),
 				'currency' => self::get_site_currency(),
 			),
-			'duration_days' => (int) ( $args['duration_days'] ?? 7 ),
+			'duration_days' => (int) ( $args['duration_days'] ?? self::DEFAULT_DURATION_DAYS ),
 			'is_evergreen'  => isset( $args['is_evergreen'] ) ? (bool) $args['is_evergreen'] : true,
-			'objective'     => isset( $args['objective'] ) && '' !== (string) $args['objective']
-				? (string) $args['objective']
-				: 'VIEWS',
+			'objective'     => 'VIEWS',
 		);
 
-		if ( '' !== $featured_image_url ) {
+		if ( isset( $args['goal'] ) && '' !== (string) $args['goal'] ) {
+			$payload['goal'] = (string) $args['goal'];
+		}
+		if ( isset( $args['revision_instruction'] ) && '' !== (string) $args['revision_instruction'] ) {
+			$payload['revision_instruction'] = (string) $args['revision_instruction'];
+		}
+
+		if ( isset( $args['main_image_url'] ) && '' !== (string) $args['main_image_url'] ) {
+			$payload['main_image'] = array(
+				'url'       => (string) $args['main_image_url'],
+				'mime_type' => isset( $args['main_image_mime_type'] ) && '' !== (string) $args['main_image_mime_type']
+					? (string) $args['main_image_mime_type']
+					: 'image/jpeg',
+			);
+		} elseif ( '' !== $featured_image_url ) {
 			$payload['main_image'] = array(
 				'url'       => $featured_image_url,
 				'mime_type' => $featured_image_mime ? $featured_image_mime : 'image/jpeg',
