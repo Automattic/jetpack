@@ -5,16 +5,6 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"scripts": {
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"NODE_ENV=production BABEL_ENV=production pnpm run build"
-		],
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		],
 		"test-coverage": "pnpm run test-coverage",
 		"test-js": [
 			"pnpm run test"

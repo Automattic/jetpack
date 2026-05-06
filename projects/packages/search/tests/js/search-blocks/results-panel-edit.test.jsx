@@ -24,18 +24,16 @@ describe( 'ResultsPanelEdit', () => {
 				[ [ 'jetpack/results-count' ], [ 'jetpack/sort-control' ] ],
 			],
 			[ 'jetpack/search-results' ],
-			[ 'jetpack/search-error' ],
-			[ 'jetpack/no-results' ],
 			[ 'jetpack/load-more' ],
+			[ 'jetpack/powered-by' ],
 		] );
 		expect( props.allowedBlocks ).toEqual( [
 			'core/group',
 			'jetpack/results-count',
 			'jetpack/sort-control',
 			'jetpack/search-results',
-			'jetpack/search-error',
-			'jetpack/no-results',
 			'jetpack/load-more',
+			'jetpack/powered-by',
 		] );
 	} );
 } );

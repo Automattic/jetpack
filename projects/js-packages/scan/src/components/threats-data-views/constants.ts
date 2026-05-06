@@ -46,3 +46,4 @@ export const THREAT_FIELD_AUTO_FIX = 'auto-fix';
 export const THREAT_ACTION_FIX = 'fix';
 export const THREAT_ACTION_IGNORE = 'ignore';
 export const THREAT_ACTION_UNIGNORE = 'unignore';
+export const THREAT_ACTION_VIEW = 'view';

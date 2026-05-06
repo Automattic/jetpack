@@ -14,45 +14,43 @@ class PCG_Load_Tester {
 	const PROBE_TIMEOUT  = 15;
 	const TOKEN_LIFETIME = 30;
 
-	/**
-	 * Probe mode: file is currently inactive and the endpoint must
-	 * `require` it to exercise its load path. Used by the activation guard.
-	 */
+	/** Activation guard: plugins are inactive; endpoint require_once's each. */
 	const MODE_ACTIVATION = 'activation';
 
 	/**
-	 * Probe mode: file is already loaded by WP's normal bootstrap (it was
-	 * an active plugin before the just-completed update). The endpoint
-	 * must NOT re-`require` the file — doing so would fatal with "Cannot
-	 * redeclare class/function" — and instead just verifies that the
-	 * bootstrap completed cleanly with the new code.
+	 * Post-update healthcheck: plugins are already loaded by WP's bootstrap;
+	 * endpoint skips require_once (would fatal with "Cannot redeclare").
 	 */
 	const MODE_UPDATE = 'update';
 
 	/**
-	 * Run the probe against a plugin main file.
+	 * Probe a batch of plugin main files in one loopback request pair.
 	 *
-	 * Fires two loopback requests in parallel: one against `home_url('/')`
-	 * (front-end) and one against `admin_url('index.php')` (so `admin_init`
-	 * fires). The admin probe forwards the current admin's WP auth cookies
-	 * so the loopback can clear `auth_redirect()`. A captured fatal from
-	 * either probe wins; otherwise the front-end verdict is returned.
+	 * Fires front-end + admin probes in parallel; front-end auth cookies are
+	 * forwarded so admin_init can fire. Fatal from either wins; otherwise
+	 * front-end's verdict. On fatal/throwable, the verdict's `plugin` key
+	 * names the file the endpoint was loading at the time.
 	 *
-	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
-	 * @param string $mode        Probe mode: self::MODE_ACTIVATION (default) or
-	 *                            self::MODE_UPDATE. See class constants.
-	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int}
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @param string   $mode         self::MODE_ACTIVATION or self::MODE_UPDATE.
+	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int,plugin?:string}
 	 */
-	public function test( $plugin_main, $mode = self::MODE_ACTIVATION ) {
-		if ( '' === (string) $plugin_main || ! is_file( $plugin_main ) ) {
+	public function test( array $plugin_mains, $mode = self::MODE_ACTIVATION ) {
+		$plugin_mains = array_values(
+			array_filter(
+				array_map( static fn( $p ) => (string) $p, $plugin_mains ),
+				static fn( $p ) => '' !== $p && is_file( $p ) && is_readable( $p )
+			)
+		);
+		if ( empty( $plugin_mains ) ) {
 			return array(
 				'status' => 'error',
-				'reason' => 'Plugin main file not found for load probe.',
+				'reason' => 'No probable plugin main files supplied.',
 			);
 		}
 
-		$front = $this->prepare_probe( $plugin_main, home_url( '/' ), false, $mode );
-		$admin = $this->prepare_probe( $plugin_main, admin_url( 'index.php' ), true, $mode );
+		$front = $this->prepare_probe( $plugin_mains, home_url( '/' ), false, $mode );
+		$admin = $this->prepare_probe( $plugin_mains, admin_url( 'index.php' ), true, $mode );
 
 		try {
 			$responses = \WpOrg\Requests\Requests::request_multiple(
@@ -75,8 +73,15 @@ class PCG_Load_Tester {
 			delete_transient( self::transient_key( $admin['token'] ) );
 		}
 
-		$front_result = $this->parse_response( $responses['front'], $plugin_main, false );
-		$admin_result = $this->parse_response( $responses['admin'], $plugin_main, true );
+		$front_result = $this->parse_response( $responses['front'], false );
+		$admin_result = $this->parse_response( $responses['admin'], true );
+
+		// Log transport-level errors (most often timeouts at PROBE_TIMEOUT)
+		// so we can see how often they fire before deciding whether to
+		// scale the timeout with batch size.
+		if ( $this->is_error( $front_result ) || $this->is_error( $admin_result ) ) {
+			$this->log_probe_error( $mode, $plugin_mains, $front_result, $admin_result );
+		}
 
 		// fatal/throwable wins; an inconclusive `error` from one probe must
 		// not shadow a real fatal from the other. Front-end is the canonical
@@ -102,36 +107,117 @@ class PCG_Load_Tester {
 	}
 
 	/**
+	 * Whether a verdict is a transport-level error (timeout, connection
+	 * failure, non-JSON body). Distinct from `is_block` — errors are
+	 * inconclusive and don't block activation, but are worth logging.
+	 *
+	 * @param array $result Probe verdict.
+	 * @return bool
+	 */
+	protected function is_error( $result ) {
+		$status = is_array( $result ) ? (string) ( $result['status'] ?? '' ) : '';
+		return 'error' === $status;
+	}
+
+	/**
+	 * Log a probe transport error to logstash whenever either probe came
+	 * back as `error` (timeout at PROBE_TIMEOUT, connection failure,
+	 * non-JSON body). Lets us measure timeout frequency vs. batch size
+	 * before deciding whether to scale `PROBE_TIMEOUT` with N. No-op
+	 * outside WordPress.com (no `log2logstash` available).
+	 *
+	 * @param string   $mode         Probe mode constant.
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @param array    $front_result Front-end probe verdict.
+	 * @param array    $admin_result Admin probe verdict.
+	 * @return void
+	 */
+	protected function log_probe_error( $mode, array $plugin_mains, array $front_result, array $admin_result ) {
+		if ( ! function_exists( 'log2logstash' ) ) {
+			$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+			if ( ! is_readable( $log2logstash_path ) ) {
+				return;
+			}
+			require_once $log2logstash_path;
+		}
+
+		log2logstash(
+			array(
+				'feature' => 'plugin-conflicts-guardian',
+				'message' => 'Probe transport error',
+				'extra'   => wp_json_encode(
+					array(
+						'mode'    => $mode,
+						'plugins' => $this->relative_basenames( $plugin_mains ),
+						'front'   => $this->probe_error_reason( $front_result ),
+						'admin'   => $this->probe_error_reason( $admin_result ),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+	}
+
+	/**
+	 * Strip `WP_PLUGIN_DIR/` from each absolute path so log entries carry
+	 * the canonical plugin basename (e.g. `akismet/akismet.php`).
+	 *
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @return string[]
+	 */
+	protected function relative_basenames( array $plugin_mains ) {
+		$prefix = WP_PLUGIN_DIR . '/';
+		$out    = array();
+		foreach ( $plugin_mains as $path ) {
+			$out[] = str_starts_with( (string) $path, $prefix )
+				? substr( (string) $path, strlen( $prefix ) )
+				: (string) $path;
+		}
+		return $out;
+	}
+
+	/**
+	 * One-line reason from a probe verdict — `reason` if set, else
+	 * `status`, else empty. Used for diagnostic logs.
+	 *
+	 * @param array $result Probe verdict.
+	 * @return string
+	 */
+	protected function probe_error_reason( array $result ) {
+		return (string) ( $result['reason'] ?? $result['status'] ?? '' );
+	}
+
+	/**
 	 * Build the transient payload that the probe endpoint will consume.
 	 *
 	 * Exposed for unit tests so they can assert the stash shape without
 	 * needing a live HTTP loopback. Not part of the public API.
 	 *
 	 * @internal
-	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
-	 * @param string $mode        Probe mode constant.
-	 * @return array{plugin:string,mode:string}
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @param string   $mode         Probe mode constant.
+	 * @return array{plugins:string[],mode:string}
 	 */
-	public static function build_probe_payload( $plugin_main, $mode = self::MODE_ACTIVATION ) {
+	public static function build_probe_payload( array $plugin_mains, $mode = self::MODE_ACTIVATION ) {
 		return array(
-			'plugin' => (string) $plugin_main,
-			'mode'   => self::MODE_UPDATE === $mode ? self::MODE_UPDATE : self::MODE_ACTIVATION,
+			'plugins' => array_values( array_map( static fn( $p ) => (string) $p, $plugin_mains ) ),
+			'mode'    => self::MODE_UPDATE === $mode ? self::MODE_UPDATE : self::MODE_ACTIVATION,
 		);
 	}
 
 	/**
-	 * Stash a probe transient and build the request descriptor for
-	 * `Requests::request_multiple`.
+	 * Stash a probe transient and build the `Requests::request_multiple`
+	 * descriptor for one of the two parallel probes.
 	 *
-	 * @param string $plugin_main Absolute path to the plugin's main PHP file.
-	 * @param string $base_url    Base URL to probe (front-end or admin).
-	 * @param bool   $is_admin    Adds `pcg_admin=1` and forwards auth cookies.
-	 * @param string $mode        Probe mode constant.
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @param string   $base_url     Front-end or admin base URL.
+	 * @param bool     $is_admin     Adds `pcg_admin=1` and forwards auth cookies.
+	 * @param string   $mode         Probe mode constant.
 	 * @return array{token:string,request:array}
 	 */
-	protected function prepare_probe( $plugin_main, $base_url, $is_admin, $mode = self::MODE_ACTIVATION ) {
+	protected function prepare_probe( array $plugin_mains, $base_url, $is_admin, $mode = self::MODE_ACTIVATION ) {
 		$token = wp_generate_password( 32, false );
-		set_transient( self::transient_key( $token ), self::build_probe_payload( $plugin_main, $mode ), self::TOKEN_LIFETIME );
+		set_transient( self::transient_key( $token ), self::build_probe_payload( $plugin_mains, $mode ), self::TOKEN_LIFETIME );
 
 		$query   = array(
 			'pcg_probe' => '1',
@@ -159,13 +245,12 @@ class PCG_Load_Tester {
 	/**
 	 * Translate a `Requests::request_multiple` response into a probe verdict.
 	 *
-	 * @param mixed  $response    A `WpOrg\Requests\Response`, or an exception
-	 *                            thrown for that single request.
-	 * @param string $plugin_main Plugin main file (for fallback diagnostics).
-	 * @param bool   $is_admin    True when this was the admin probe.
-	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int}
+	 * @param mixed $response A `WpOrg\Requests\Response`, or an exception
+	 *                        thrown for that single request.
+	 * @param bool  $is_admin True when this was the admin probe.
+	 * @return array{status:string,reason?:string,errno?:int,class?:string,message?:string,file?:string,line?:int,plugin?:string}
 	 */
-	protected function parse_response( $response, $plugin_main, $is_admin ) {
+	protected function parse_response( $response, $is_admin ) {
 		if ( $response instanceof \Throwable ) {
 			return array(
 				'status' => 'error',
@@ -194,8 +279,6 @@ class PCG_Load_Tester {
 			return array(
 				'status'  => 'fatal',
 				'message' => 'Probe request returned HTTP 500 without a JSON verdict; the plugin likely fatals during load.',
-				'file'    => basename( $plugin_main ),
-				'line'    => 0,
 			);
 		}
 
@@ -206,11 +289,9 @@ class PCG_Load_Tester {
 			return array(
 				'status'  => 'fatal',
 				'message' => sprintf(
-					'Probe completed without a verdict (HTTP %d, non-JSON body). The plugin may have terminated the request during load, init, or admin_init.',
+					'Probe completed without a verdict (HTTP %d, non-JSON body). A plugin in the batch may have terminated the request during load, init, or admin_init.',
 					$code
 				),
-				'file'    => basename( $plugin_main ),
-				'line'    => 0,
 			);
 		}
 

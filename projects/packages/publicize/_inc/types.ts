@@ -41,6 +41,7 @@ export type SocialSettings = {
 	utmSettings: UtmSettingsConfig;
 	socialNotes: SocialNotesSettings;
 	showPricingPage: boolean;
+	messageTemplate: string;
 };
 
 export type PluginInfo = Record< 'social' | 'jetpack', { version: string | null } >;

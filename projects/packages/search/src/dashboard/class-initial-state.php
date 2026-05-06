@@ -58,26 +58,33 @@ class Initial_State {
 	public function get_initial_state() {
 		return array(
 			'siteData'        => array(
-				'WP_API_root'        => esc_url_raw( rest_url() ),
-				'wpcomOriginApiUrl'  => $this->get_wp_api_root(),
-				'WP_API_nonce'       => wp_create_nonce( 'wp_rest' ),
-				'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'purchaseToken'      => $this->get_purchase_token(),
+				'WP_API_root'         => esc_url_raw( rest_url() ),
+				'wpcomOriginApiUrl'   => $this->get_wp_api_root(),
+				'WP_API_nonce'        => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce'   => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'purchaseToken'       => $this->get_purchase_token(),
 				/**
 				 * Whether promotions are visible or not.
 				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
-				'showPromotions'     => apply_filters( 'jetpack_show_promotions', true ),
-				'adminUrl'           => esc_url( admin_url() ),
-				'blogId'             => Jetpack_Options::get_option( 'id', 0 ),
-				'version'            => Package::VERSION,
-				'calypsoSlug'        => ( new Status() )->get_site_suffix(),
-				'title'              => get_bloginfo( 'name' ),
-				'postTypes'          => $this->get_post_types_with_labels(),
-				'isWpcom'            => Helper::is_wpcom(),
+				'showPromotions'      => apply_filters( 'jetpack_show_promotions', true ),
+				'adminUrl'            => esc_url( admin_url() ),
+				'blogId'              => Jetpack_Options::get_option( 'id', 0 ),
+				'version'             => Package::VERSION,
+				'calypsoSlug'         => ( new Status() )->get_site_suffix(),
+				'title'               => get_bloginfo( 'name' ),
+				'postTypes'           => $this->get_post_types_with_labels(),
+				'isWpcom'             => Helper::is_wpcom(),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				'isPlanJustUpgraded' => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
+				'isPlanJustUpgraded'  => isset( $_GET['just_upgraded'] ) && wp_unslash( $_GET['just_upgraded'] ),
+				/**
+				 * Whether the Jetpack Search 3.0 Interactivity API blocks are enabled.
+				 * Mirrors the `jetpack_search_blocks_enabled` server-side filter so the
+				 * dashboard React app can gate the new feature-selection UI on the
+				 * same flag the back end uses to register the blocks themselves.
+				 */
+				'searchBlocksEnabled' => (bool) apply_filters( 'jetpack_search_blocks_enabled', false ),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),

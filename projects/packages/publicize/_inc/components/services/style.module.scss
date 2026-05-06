@@ -137,6 +137,12 @@
 	}
 }
 
+.service-connection-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
 .service-connection {
 	display: flex;
 	gap: 1rem;

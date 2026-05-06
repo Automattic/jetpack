@@ -14,6 +14,7 @@ import { store as socialStore } from '../../../../social-store';
 import { getRefreshPlanQuery, getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
 import { canToggleSocialModule } from '../../../../utils/misc';
 import ConnectionManagement from '../../../connection-management';
+import { MessageTemplateSection } from '../../message-template-section';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
@@ -106,6 +107,7 @@ const SocialModuleToggle: FC = () => {
 					) }
 				/>
 			) : null }
+			{ isModuleEnabled && <MessageTemplateSection disabled={ isUpdating } /> }
 			{ renderConnectionManagement() }
 		</ToggleSection>
 	);

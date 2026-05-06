@@ -40,13 +40,10 @@ register_block_pattern(
 <!-- /wp:group -->
 
 <!-- wp:jetpack/results-panel -->
-<div class="wp-block-jetpack-results-panel jetpack-search-results-panel">
 <!-- wp:jetpack/results-count /-->
 <!-- wp:jetpack/search-results {"layout":"compact"} /-->
-<!-- wp:jetpack/search-error /-->
-<!-- wp:jetpack/no-results /-->
 <!-- wp:jetpack/load-more /-->
-</div>
+<!-- wp:jetpack/powered-by /-->
 <!-- /wp:jetpack/results-panel -->
 
 </div>

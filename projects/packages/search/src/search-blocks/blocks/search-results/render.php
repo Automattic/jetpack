@@ -2,6 +2,14 @@
 /**
  * Search Results block render.
  *
+ * Renders three sibling regions inside a single block wrapper:
+ *  - the results list (skeleton while loading, then live results),
+ *  - the empty-state message (gated by `state.showNoResults`),
+ *  - the error message (gated by `state.showError`).
+ *
+ * The store's existing visibility flags ensure exactly one message is
+ * visible at a time, so the regions can coexist without extra wiring.
+ *
  * @package automattic/jetpack-search
  */
 
@@ -19,40 +27,44 @@ namespace Automattic\Jetpack\Search;
  * sections differ.
  *
  * @param string $layout Layout key.
- * @return array{modifier:string, show_image:bool, show_path:bool, show_date:bool, show_price:bool, show_rating:bool}
+ * @return array{modifier:string, show_content:bool, show_date:bool, show_image:bool, show_path:bool, show_price:bool, show_rating:bool}
  */
 $resolve_layout = static function ( $layout ) {
 	$map = array(
 		'compact'  => array(
-			'modifier'    => 'compact',
-			'show_image'  => false,
-			'show_path'   => false,
-			'show_date'   => true,
-			'show_price'  => false,
-			'show_rating' => false,
+			'modifier'     => 'compact',
+			'show_image'   => false,
+			'show_path'    => false,
+			'show_content' => false,
+			'show_date'    => true,
+			'show_price'   => false,
+			'show_rating'  => false,
 		),
 		'expanded' => array(
-			'modifier'    => 'expanded',
-			'show_image'  => true,
-			'show_path'   => true,
-			'show_date'   => true,
-			'show_price'  => false,
-			'show_rating' => false,
+			'modifier'     => 'expanded',
+			'show_image'   => true,
+			'show_path'    => true,
+			'show_content' => true,
+			'show_date'    => true,
+			'show_price'   => false,
+			'show_rating'  => false,
 		),
 		'product'  => array(
-			'modifier'    => 'product',
-			'show_image'  => true,
-			'show_path'   => false,
-			'show_date'   => false,
-			'show_price'  => true,
-			'show_rating' => true,
+			'modifier'     => 'product',
+			'show_image'   => true,
+			'show_path'    => false,
+			'show_content' => false,
+			'show_date'    => false,
+			'show_price'   => true,
+			'show_rating'  => true,
 		),
 	);
 	return $map[ $layout ] ?? $map['expanded'];
 };
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$layout = ( (array) $attributes )['layout'] ?? 'expanded';
+$attrs  = (array) $attributes;
+$layout = $attrs['layout'] ?? 'expanded';
 // Pre-rename block markup used `card` for what is now `expanded`. Promote
 // the legacy value so saved content keeps rendering correctly instead of
 // falling through `$resolve_layout`'s unknown-layout fallback. Mirrors the
@@ -71,6 +83,18 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 // `data-wp-bind--hidden="state.skeletonHidden"` takes over visibility.
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
+
+// `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
+// still falls back to the default copy instead of rendering a blank message.
+$no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
+if ( '' === $no_results_message ) {
+	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+}
+
+$error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
+if ( '' === $error_message ) {
+	$error_message = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
+}
 ?>
 <div
 	<?php echo wp_kses_data( $wrapper_attrs ); ?>
@@ -89,14 +113,22 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 					data-wp-bind--hidden="state.skeletonHidden"
 					aria-hidden="true"
 				>
-					<div class="jetpack-search-results__copy">
-						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-						<?php if ( 'compact' !== $layout ) : ?>
+					<?php if ( 'product' === $layout ) : ?>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--product-image"></div>
+						<div class="jetpack-search-results__copy">
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title-secondary"></div>
+						</div>
+					<?php elseif ( 'compact' === $layout ) : ?>
+						<div class="jetpack-search-results__copy">
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+						</div>
+					<?php else : ?>
+						<div class="jetpack-search-results__copy">
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
-						<?php endif; ?>
-					</div>
-					<?php if ( 'compact' !== $layout ) : ?>
+						</div>
 						<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
 					<?php endif; ?>
 				</li>
@@ -146,6 +178,22 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 							</template>
 						</a>
 					</h3>
+					<?php if ( $features['show_content'] ) : ?>
+						<div
+							class="jetpack-search-results__content"
+							data-wp-bind--hidden="!context.result.hasContentPieces"
+						>
+							<template
+								data-wp-each--piece="context.result.contentPieces"
+								data-wp-key="context.piece.index"
+							>
+								<span
+									data-wp-text="context.piece.text"
+									data-wp-class--jetpack-search-results__highlight="context.piece.isHighlight"
+								></span>
+							</template>
+						</div>
+					<?php endif; ?>
 					<?php if ( $features['show_path'] ) : ?>
 						<div
 							class="jetpack-search-results__path"
@@ -195,6 +243,21 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 							></span>
 						</div>
 					<?php endif; ?>
+					<?php if ( 'product' === $layout ) : ?>
+						<div
+							class="jetpack-search-results__match-hint"
+							data-wp-bind--hidden="!context.result.matchHint"
+						>
+							<mark>
+								<span data-wp-bind--hidden="!context.result.matchHintIsComments">
+									<?php esc_html_e( 'Matches comments', 'jetpack-search-pkg' ); ?>
+								</span>
+								<span data-wp-bind--hidden="context.result.matchHintIsComments">
+									<?php esc_html_e( 'Matches content', 'jetpack-search-pkg' ); ?>
+								</span>
+							</mark>
+						</div>
+					<?php endif; ?>
 					<?php if ( $features['show_date'] ) : ?>
 						<div class="jetpack-search-results__meta">
 							<span
@@ -228,4 +291,19 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 			</li>
 		</template>
 	</ul>
+	<div
+		class="jetpack-search-results__no-results"
+		data-wp-bind--hidden="!state.showNoResults"
+		hidden
+	>
+		<p><?php echo esc_html( $no_results_message ); ?></p>
+	</div>
+	<div
+		class="jetpack-search-results__error"
+		data-wp-bind--hidden="!state.showError"
+		role="alert"
+		hidden
+	>
+		<p><?php echo esc_html( $error_message ); ?></p>
+	</div>
 </div>

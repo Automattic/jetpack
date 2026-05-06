@@ -1,15 +1,21 @@
 /**
  * Editor preview for jetpack/search-results.
  *
- * Each layout has its own template function below. Duplication is intentional
- * — the templates are short and rarely change, and keeping them separate
- * means an edit to one layout never silently moves something in another. The
- * conditional/feature-flag approach lived here briefly and was extracted in
- * favor of explicit per-layout markup so reviewers can read each card design
- * end-to-end without resolving flag names.
+ * The block owns three runtime states (results, empty, error) but the
+ * editor canvas always shows the success-state preview — the empty and
+ * error copy lives in the Inspector so authors can edit it without a
+ * dedicated preview mode.
+ *
+ * Each layout has its own template function below. Duplication is
+ * intentional — the templates are short and rarely change, and keeping
+ * them separate means an edit to one layout never silently moves
+ * something in another. The conditional/feature-flag approach lived here
+ * briefly and was extracted in favor of explicit per-layout markup so
+ * reviewers can read each card design end-to-end without resolving flag
+ * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, RadioControl } from '@wordpress/components';
+import { PanelBody, RadioControl, TextControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 const LAYOUTS = [ 'compact', 'expanded', 'product' ];
@@ -18,16 +24,28 @@ const DEFAULT_LAYOUT = 'expanded';
 const SAMPLE_RESULTS = [
 	{
 		title: __( 'First sample result', 'jetpack-search-pkg' ),
+		contentSnippet: __(
+			'Matches content: this snippet shows the relevant passage that matched your search query.',
+			'jetpack-search-pkg'
+		),
 		path: 'example.com/articles/first',
 		date: 'Apr 1, 2026',
 	},
 	{
 		title: __( 'Another relevant post', 'jetpack-search-pkg' ),
+		contentSnippet: __(
+			'Matches content: a second excerpt demonstrating how content highlights appear in results.',
+			'jetpack-search-pkg'
+		),
 		path: 'example.com/guides/another',
 		date: 'Mar 22, 2026',
 	},
 	{
 		title: __( 'Older archived entry', 'jetpack-search-pkg' ),
+		contentSnippet: __(
+			'Matches content: an older post with a brief excerpt showing the matched text.',
+			'jetpack-search-pkg'
+		),
 		path: 'example.com/2025/older',
 		date: 'Dec 18, 2025',
 	},
@@ -49,6 +67,7 @@ const SAMPLE_PRODUCTS = [
 		rating: 3.5,
 		ratingPercent: '70%',
 		reviewCount: 12,
+		matchHint: 'content',
 	},
 	{
 		title: __( 'Third product', 'jetpack-search-pkg' ),
@@ -88,6 +107,8 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ layout }`,
 	} );
+	const noResultsDefault = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	const errorDefault = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
 	return (
 		<>
 			<InspectorControls>
@@ -97,6 +118,30 @@ export default function SearchResultsEdit( { attributes, setAttributes } ) {
 						selected={ layout }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'No-results message', 'jetpack-search-pkg' ) }
+						value={ attributes?.noResultsMessage || '' }
+						placeholder={ noResultsDefault }
+						onChange={ value => setAttributes( { noResultsMessage: value } ) }
+						help={ __(
+							'Shown when a search returns nothing. Leave empty for the default.',
+							'jetpack-search-pkg'
+						) }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Error message', 'jetpack-search-pkg' ) }
+						value={ attributes?.errorMessage || '' }
+						placeholder={ errorDefault }
+						onChange={ value => setAttributes( { errorMessage: value } ) }
+						help={ __(
+							'Shown when a search request fails. Leave empty for the default.',
+							'jetpack-search-pkg'
+						) }
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -146,6 +191,9 @@ function renderExpandedPreview( results ) {
 				<li key={ result.path } className="jetpack-search-results__item">
 					<div className="jetpack-search-results__copy">
 						<h3 className="jetpack-search-results__title">{ result.title }</h3>
+						{ result.contentSnippet && (
+							<div className="jetpack-search-results__content">{ result.contentSnippet }</div>
+						) }
 						<div className="jetpack-search-results__path">{ result.path }</div>
 						<div className="jetpack-search-results__meta">
 							<span className="jetpack-search-results__date">{ result.date }</span>
@@ -222,6 +270,15 @@ function renderProductPreview( products ) {
 								({ product.reviewCount })
 							</span>
 						</div>
+						{ product.matchHint && (
+							<div className="jetpack-search-results__match-hint">
+								<mark>
+									{ product.matchHint === 'comments'
+										? __( 'Matches comments', 'jetpack-search-pkg' )
+										: __( 'Matches content', 'jetpack-search-pkg' ) }
+								</mark>
+							</div>
+						) }
 					</div>
 				</li>
 			) ) }

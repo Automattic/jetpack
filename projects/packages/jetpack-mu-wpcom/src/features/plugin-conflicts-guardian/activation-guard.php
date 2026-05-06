@@ -74,15 +74,20 @@ function pcg_guard_maybe_block_activation() {
 }
 
 /**
- * Probe each plugin; return map of basename => reason for those that failed.
+ * Probe the requested plugins together in a single loopback request pair
+ * and return a map of basename => reason for any that fail.
+ *
+ * Eligible plugins (passes `validate_file`, not already active, file
+ * exists on disk) are passed to `PCG_Load_Tester::test()` as one batch,
+ * so probe cost is constant in N rather than 2N round-trips. As a side
+ * effect this also surfaces conflicts that only fire when two plugins
+ * load together (duplicate class, shared global, etc.).
  *
  * @param string[] $plugins Plugin basenames (e.g. "akismet/akismet.php").
  * @return array<string,string>
  */
 function pcg_guard_evaluate_plugins( $plugins ) {
-	$blocked = array();
-	$tester  = new PCG_Load_Tester();
-
+	$paths = array();
 	foreach ( $plugins as $plugin ) {
 		if ( 0 !== validate_file( $plugin ) ) {
 			continue;
@@ -94,14 +99,87 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 		if ( ! is_file( $path ) ) {
 			continue;
 		}
-		$result = $tester->test( $path );
-		$status = (string) ( $result['status'] ?? '' );
-		if ( 'fatal' === $status || 'throwable' === $status ) {
-			$blocked[ $plugin ] = pcg_guard_format_block_reason( $result );
+		$paths[ $plugin ] = $path;
+	}
+	if ( empty( $paths ) ) {
+		return array();
+	}
+
+	$tester = new PCG_Load_Tester();
+	$result = $tester->test( array_values( $paths ) );
+	$status = (string) ( $result['status'] ?? '' );
+	if ( 'fatal' !== $status && 'throwable' !== $status ) {
+		return array();
+	}
+
+	$blocked_plugin = pcg_guard_get_blocked_plugin( $result, $paths );
+	if ( '' !== $blocked_plugin ) {
+		return array(
+			$blocked_plugin => pcg_guard_format_block_reason( $result ),
+		);
+	}
+
+	// Verdict didn't pin a specific plugin (e.g. probe terminated without a
+	// JSON body, or the captured `file` was outside any candidate's tree).
+	// Surface a batch-level message so we don't blame an arbitrary plugin.
+	$reason = sprintf(
+		/* translators: 1: locale-formatted list of plugin basenames; 2: probe verdict reason. */
+		__( 'One of these plugins caused a fatal during the pre-flight check: %1$s. Reason: %2$s', 'jetpack-mu-wpcom' ),
+		wp_sprintf_l( '%l', array_keys( $paths ) ),
+		pcg_guard_format_block_reason( $result )
+	);
+	return array( '' => $reason );
+}
+
+/**
+ * Map a fatal/throwable verdict back to the plugin basename that caused
+ * it. Tries, in order: the explicit `plugin` field on the verdict (set
+ * when a `Throwable` was caught around `require`), an exact match of
+ * the captured `file` against a plugin's main file (covers flat-file
+ * plugins like `hello.php`), and a prefix match of the captured `file`
+ * against a plugin's own subdirectory under `WP_PLUGIN_DIR`.
+ *
+ * Returns `''` when none of those match (e.g. the verdict has no
+ * `file`/`plugin`, or `file` lies outside any candidate's tree). The
+ * caller is expected to surface a batch-level message in that case
+ * rather than guessing a plugin.
+ *
+ * @param array                $result A fatal/throwable probe verdict.
+ * @param array<string,string> $paths  Map of plugin basename => absolute main file path.
+ * @return string Plugin basename to attribute the failure to, or '' if undetermined.
+ */
+function pcg_guard_get_blocked_plugin( $result, $paths ) {
+	$explicit = (string) ( $result['plugin'] ?? '' );
+	if ( '' !== $explicit ) {
+		foreach ( $paths as $basename => $path ) {
+			if ( $path === $explicit ) {
+				return $basename;
+			}
 		}
 	}
 
-	return $blocked;
+	$fatal_file = (string) ( $result['file'] ?? '' );
+	if ( '' !== $fatal_file ) {
+		foreach ( $paths as $basename => $path ) {
+			if ( $path === $fatal_file ) {
+				return $basename;
+			}
+		}
+		// Subdirectory plugins only — a flat-file plugin's dirname is
+		// `WP_PLUGIN_DIR`, which would prefix-match every other plugin's
+		// files in the batch and produce false attributions.
+		foreach ( $paths as $basename => $path ) {
+			$plugin_dir = dirname( $path );
+			if ( WP_PLUGIN_DIR === $plugin_dir ) {
+				continue;
+			}
+			if ( str_starts_with( $fatal_file, $plugin_dir . '/' ) ) {
+				return $basename;
+			}
+		}
+	}
+
+	return '';
 }
 
 /**
@@ -165,10 +243,16 @@ function pcg_guard_render_block_notice() {
 		<p><strong><?php esc_html_e( 'WordPress.com blocked activation because the pre-flight check detected a fatal:', 'jetpack-mu-wpcom' ); ?></strong></p>
 		<ul style="list-style:disc;padding-inline-start:24px;">
 			<?php foreach ( $messages as $plugin => $reason ) : ?>
-				<li><code><?php echo esc_html( $plugin ); ?></code> — <?php echo esc_html( $reason ); ?></li>
+				<li>
+					<?php if ( '' !== (string) $plugin ) : ?>
+						<code><?php echo esc_html( $plugin ); ?></code> — <?php echo esc_html( $reason ); ?>
+					<?php else : ?>
+						<?php echo esc_html( $reason ); ?>
+					<?php endif; ?>
+				</li>
 			<?php endforeach; ?>
 		</ul>
-		<p><?php esc_html_e( 'The plugin was not activated. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
+		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
 	</div>
 	<?php
 }

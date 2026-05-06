@@ -39,9 +39,4 @@ export default function CommonFiltersEdit() {
 	);
 }
 
-/**
- * Save component — only renders InnerBlocks.Content.
- *
- * @return {object} Rendered element.
- */
 export const save = () => <InnerBlocks.Content />;

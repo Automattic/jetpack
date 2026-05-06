@@ -32,6 +32,21 @@ function wpcomsh_fatal_customize_recovery_email( $email, $url = '', $extension =
 	unset( $extension );
 
 	if ( empty( $email['to'] ) ) {
+		// Distinguish the two reasons `to` lands empty here so they're
+		// filterable downstream: `…_disabled` when the opt-out filter in
+		// functions.php (`wpcomsh_disable_fatal_error_emails`, priority 10)
+		// blanked it, vs `…_no_recipient` when core's
+		// `get_recovery_mode_email_address()` returned empty (no admin_email
+		// and no RECOVERY_MODE_EMAIL) — the latter is a real failure since
+		// the admin won't receive the recovery link.
+		$error_info = wpcomsh_fatal_get_last_error();
+		$plugin     = $error_info ? wpcomsh_fatal_identify_plugin( $error_info ) : null;
+		if ( is_array( $plugin ) ) {
+			$message = get_option( 'wpcomsh_disable_fatal_error_emails', false )
+				? 'wpcomsh_fatal_recovery_email_disabled'
+				: 'wpcomsh_fatal_recovery_email_no_recipient';
+			wpcomsh_fatal_log_event( $plugin, $message );
+		}
 		return $email;
 	}
 
@@ -43,6 +58,10 @@ function wpcomsh_fatal_customize_recovery_email( $email, $url = '', $extension =
 	$error_info  = wpcomsh_fatal_get_last_error();
 	$plugin      = $error_info ? wpcomsh_fatal_identify_plugin( $error_info ) : null;
 	$environment = wpcomsh_fatal_get_environment_lines();
+
+	if ( is_array( $plugin ) ) {
+		wpcomsh_fatal_log_event( $plugin, 'wpcomsh_fatal_recovery_email' );
+	}
 
 	$email['subject'] = wpcomsh_fatal_build_email_subject( $site_name, $plugin );
 	$email['message'] = wpcomsh_fatal_build_email_message( $site_url, (string) $url, $plugin, $error_info, $environment );

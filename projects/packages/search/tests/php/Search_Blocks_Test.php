@@ -15,6 +15,18 @@ use PHPUnit\Framework\TestCase;
 class Search_Blocks_Test extends TestCase {
 
 	/**
+	 * Clear `Search_Blocks::is_initial_loading()`'s per-request memo between
+	 * tests. PHPUnit runs every test in a single process, so without this
+	 * the first test that exercises a query/filter/price URL would pin the
+	 * cached value and every later test that sets `$_GET` would silently
+	 * read stale state.
+	 */
+	protected function tearDown(): void {
+		Search_Blocks::reset_initial_loading_cache();
+		parent::tearDown();
+	}
+
+	/**
 	 * Verify that the keys required by the Interactivity API store are present.
 	 */
 	public function test_build_initial_state_shape() {
@@ -27,6 +39,7 @@ class Search_Blocks_Test extends TestCase {
 			'homeUrl',
 			'locale',
 			'searchQuery',
+			'searchParamName',
 			'sortOrder',
 			'results',
 			'totalResults',
@@ -292,6 +305,133 @@ class Search_Blocks_Test extends TestCase {
 			$this->assertSame( 'jetpack-search', $this->invoke_protected( 'get_parent_plugin_slug' ) );
 		} finally {
 			update_option( 'active_plugins', $original );
+		}
+	}
+
+	/**
+	 * On the WP search route, the inline blocks must keep using the
+	 * canonical `s` URL key so they interoperate with core's search
+	 * routing, body classes, and any theme/plugin code keyed off `s`.
+	 */
+	public function test_get_search_param_name_uses_s_on_search_route() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+			$this->assertSame( 's', Search_Blocks::get_search_param_name() );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * On any non-search request (singular page, archive, front page),
+	 * the inline blocks must switch to `q` so a refresh of an inline-
+	 * search URL like `/about/?q=boots` doesn't trip core's
+	 * `WP_Query::get_posts()` AND'd `post_content LIKE` clause and
+	 * 404 the page (RSM-1754).
+	 */
+	public function test_get_search_param_name_uses_q_off_search_route() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query();
+			$this->assertSame( 'q', Search_Blocks::get_search_param_name() );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * On the WP search route, the seed must read `searchQuery` from
+	 * `?s=…` and tell the JS store the active key is `s` so subsequent
+	 * URL writes (debounced search keystrokes, `popstate`) stay on the
+	 * canonical key.
+	 */
+	public function test_build_initial_state_uses_s_on_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => 'boots' );
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( 'boots', $state['searchQuery'] );
+			$this->assertSame( 's', $state['searchParamName'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * On a non-search page (singular embed, archive, etc.), the seed
+	 * must read `searchQuery` from `?q=…` and ignore any stray `?s=…`
+	 * (which is the URL shape we deliberately stopped writing to
+	 * dodge the singular 404 path).
+	 */
+	public function test_build_initial_state_uses_q_off_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array(
+			'q' => 'boots',
+			's' => 'ignored',
+		);
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( 'boots', $state['searchQuery'] );
+			$this->assertSame( 'q', $state['searchParamName'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Off the search route, an `?s=boots` URL must NOT seed the inline
+	 * search — the active key is `q`. Without this, a stray `s` (from
+	 * a pre-existing shared link or an unrelated plugin) would still
+	 * hydrate the Interactivity store and re-emit `?s=` on the next
+	 * URL push, walking us back into the singular 404 path.
+	 */
+	public function test_build_initial_state_ignores_legacy_s_param_off_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => 'boots' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( '', $state['searchQuery'] );
+			$this->assertSame( 'q', $state['searchParamName'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Both URL keys the inline blocks may write (`s` on the search route,
+	 * `q` off it) must be reserved by `parse_url_filters()` so a hostile
+	 * or malformed `?s[]=…&q[]=…` can't smuggle the search query into
+	 * `activeFilters` (which would forward it to ES as a filter clause
+	 * and round-trip it back into the URL on every keystroke). The real
+	 * filter alongside them proves the rest of the parser is still
+	 * working — i.e. the reservation gate is surgical, not a side
+	 * effect of an unrelated rejection earlier in the loop.
+	 */
+	public function test_build_initial_state_reserves_both_s_and_q_from_active_filters() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array(
+			's'        => array( 'ignored' ),
+			'q'        => array( 'ignored' ),
+			'category' => array( 'news' ),
+		);
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array( 'category' => array( 'news' ) ), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
 		}
 	}
 

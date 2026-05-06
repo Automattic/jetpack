@@ -213,20 +213,20 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * the explicit mode argument when supplied.
 	 */
 	public function test_build_probe_payload_carries_mode() {
-		$default = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php' );
+		$default = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ) );
 		$this->assertSame(
 			array(
-				'plugin' => '/abs/foo/foo.php',
-				'mode'   => 'activation',
+				'plugins' => array( '/abs/foo/foo.php' ),
+				'mode'    => 'activation',
 			),
 			$default
 		);
 
-		$update = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php', PCG_Load_Tester::MODE_UPDATE );
+		$update = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php', '/abs/bar/bar.php' ), PCG_Load_Tester::MODE_UPDATE );
 		$this->assertSame(
 			array(
-				'plugin' => '/abs/foo/foo.php',
-				'mode'   => 'update',
+				'plugins' => array( '/abs/foo/foo.php', '/abs/bar/bar.php' ),
+				'mode'    => 'update',
 			),
 			$update
 		);
@@ -237,7 +237,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * the transient with a value the endpoint will reject.
 	 */
 	public function test_build_probe_payload_rejects_unknown_mode() {
-		$payload = PCG_Load_Tester::build_probe_payload( '/abs/foo/foo.php', 'bogus' );
+		$payload = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ), 'bogus' );
 		$this->assertSame( 'activation', $payload['mode'] );
 	}
 
@@ -312,6 +312,155 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	#[DataProvider( 'provide_block_reason_scenarios' )]
 	public function test_format_block_reason( array $result, string $expected ) {
 		$this->assertSame( $expected, pcg_guard_format_block_reason( $result ) );
+	}
+
+	/**
+	 * The load tester's `test()` rejects an empty / non-existent input list
+	 * before doing any HTTP work, returning an `error` verdict.
+	 */
+	public function test_load_tester_rejects_empty_plugin_list() {
+		$tester = new PCG_Load_Tester();
+
+		$verdict = $tester->test( array() );
+		$this->assertSame( 'error', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] ?? '' );
+
+		$verdict = $tester->test( array( '', '/no/such/file/pcg-missing.php' ) );
+		$this->assertSame( 'error', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] ?? '' );
+	}
+
+	/**
+	 * The explicit `plugin` field on a Throwable verdict wins when it
+	 * matches a known path in the batch.
+	 */
+	public function test_blame_uses_explicit_plugin_field() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'throwable',
+				'plugin' => WP_PLUGIN_DIR . '/bar/bar.php',
+				'file'   => WP_PLUGIN_DIR . '/bar/bar.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * When the explicit `plugin` field doesn't match anything in the batch,
+	 * attribution falls through to the captured `file`.
+	 */
+	public function test_blame_falls_back_to_file_when_explicit_plugin_unknown() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'throwable',
+				'plugin' => '/some/path/we/dont/recognise.php',
+				'file'   => WP_PLUGIN_DIR . '/bar/lib/helper.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * An exact-path match against a plugin's main file wins — covers
+	 * flat-file plugins where the prefix match would be unsafe.
+	 */
+	public function test_blame_matches_flat_file_plugin_exactly() {
+		$paths = array(
+			'hello.php'   => WP_PLUGIN_DIR . '/hello.php',
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/hello.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'hello.php', $blamed );
+	}
+
+	/**
+	 * A fatal in a file inside a plugin's own subdirectory is attributed
+	 * via prefix match.
+	 */
+	public function test_blame_matches_subdirectory_plugin_prefix() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/bar/lib/deeply/nested.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * A fatal at `WP_PLUGIN_DIR/something.php` must NOT be attributed to a
+	 * flat-file plugin in the batch via the prefix arm — that would
+	 * produce a false attribution because the dirname is the plugins root.
+	 * Falls through to the undetermined branch (returns '').
+	 */
+	public function test_blame_does_not_false_match_flat_file_plugins_via_prefix() {
+		$paths = array(
+			'hello.php' => WP_PLUGIN_DIR . '/hello.php',
+			'world.php' => WP_PLUGIN_DIR . '/world.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/something-unrelated.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( '', $blamed );
+	}
+
+	/**
+	 * With nothing on the verdict to attribute against, the helper returns
+	 * `''` so the caller can surface a batch-level message instead of
+	 * blaming an arbitrary plugin.
+	 */
+	public function test_blame_returns_empty_when_unattributable() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin( array( 'status' => 'fatal' ), $paths );
+		$this->assertSame( '', $blamed );
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => '/var/www/wp-includes/load.php',
+			),
+			$paths
+		);
+		$this->assertSame( '', $blamed );
 	}
 
 	/**

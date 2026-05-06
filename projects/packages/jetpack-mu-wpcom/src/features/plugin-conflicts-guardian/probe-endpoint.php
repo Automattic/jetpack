@@ -32,12 +32,17 @@ function pcg_maybe_handle_probe() {
 	$payload = get_transient( $key );
 	delete_transient( $key );
 
-	if ( ! is_array( $payload ) || ! isset( $payload['plugin'] ) || ! isset( $payload['mode'] ) ) {
+	if ( ! is_array( $payload ) || ! isset( $payload['plugins'] ) || ! isset( $payload['mode'] ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
 	}
-	$plugin_main = (string) $payload['plugin'];
-	$mode        = (string) $payload['mode'];
-	if ( '' === $plugin_main || ! in_array( $mode, array( PCG_Load_Tester::MODE_ACTIVATION, PCG_Load_Tester::MODE_UPDATE ), true ) ) {
+	$plugin_mains = is_array( $payload['plugins'] ) ? array_values(
+		array_filter(
+			array_map( static fn( $p ) => (string) $p, $payload['plugins'] ),
+			static fn( $p ) => '' !== $p
+		)
+	) : array();
+	$mode         = (string) $payload['mode'];
+	if ( empty( $plugin_mains ) || ! in_array( $mode, array( PCG_Load_Tester::MODE_ACTIVATION, PCG_Load_Tester::MODE_UPDATE ), true ) ) {
 		pcg_probe_bail_error( 'Invalid or expired probe token.', 403 );
 	}
 
@@ -49,8 +54,18 @@ function pcg_maybe_handle_probe() {
 		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
 	}
 
-	if ( ! is_file( $plugin_main ) || ! is_readable( $plugin_main ) ) {
-		pcg_probe_bail_error( 'Probe target is no longer readable.', 404 );
+	// Drop unreadable entries instead of bailing on the first one. Bailing
+	// would emit `error`, which the activation guard treats as a non-block
+	// and lets the activation through — masking a fatal in a later
+	// readable plugin. Only bail when nothing readable remains.
+	$plugin_mains = array_values(
+		array_filter(
+			$plugin_mains,
+			static fn( $p ) => is_file( $p ) && is_readable( $p )
+		)
+	);
+	if ( empty( $plugin_mains ) ) {
+		pcg_probe_bail_error( 'No probe targets are readable.', 404 );
 	}
 
 	// Tell WP's fatal handler to stand down so ours can emit JSON.
@@ -63,24 +78,25 @@ function pcg_maybe_handle_probe() {
 
 	register_shutdown_function( 'pcg_probe_shutdown' );
 
-	// Activation mode: the plugin is inactive, so explicitly require it
-	// to exercise its load path. Update mode: the plugin is already loaded
-	// by WP's normal bootstrap (it was active before the update); we only
-	// need to verify that bootstrap completed cleanly with the new code,
-	// and re-requiring would fatal with "Cannot redeclare class/function".
+	// Activation: load each plugin to exercise its load path. Update: skip;
+	// re-requiring an already-loaded plugin would fatal with
+	// "Cannot redeclare". The shutdown handler catches either way.
 	if ( PCG_Load_Tester::MODE_ACTIVATION === $mode ) {
-		try {
-			require $plugin_main;
-		} catch ( \Throwable $t ) {
-			pcg_probe_respond(
-				array(
-					'status'  => 'throwable',
-					'class'   => get_class( $t ),
-					'message' => $t->getMessage(),
-					'file'    => basename( $t->getFile() ),
-					'line'    => $t->getLine(),
-				)
-			);
+		foreach ( $plugin_mains as $plugin_main ) {
+			try {
+				require_once $plugin_main;
+			} catch ( \Throwable $t ) {
+				pcg_probe_respond(
+					array(
+						'status'  => 'throwable',
+						'plugin'  => $plugin_main,
+						'class'   => get_class( $t ),
+						'message' => $t->getMessage(),
+						'file'    => $t->getFile(),
+						'line'    => $t->getLine(),
+					)
+				);
+			}
 		}
 	}
 
@@ -114,7 +130,7 @@ function pcg_probe_shutdown() {
 			'status'  => 'fatal',
 			'errno'   => (int) $error['type'],
 			'message' => (string) $error['message'],
-			'file'    => basename( (string) $error['file'] ),
+			'file'    => (string) $error['file'],
 			'line'    => (int) $error['line'],
 		)
 	);

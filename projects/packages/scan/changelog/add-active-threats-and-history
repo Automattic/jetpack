@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Phase 1: wire WPCOM bridges for `/scan`, `/scan/history`, `/scan/counts`, and replace the Phase 0 placeholder with a tabbed Active threats / History overview backed by `ThreatsDataViews` from `@automattic/jetpack-scan`.
