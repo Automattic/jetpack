@@ -78,15 +78,19 @@
 		font-size: var(--wpds-typography-font-size-md);
 	}
 
-	// Detail panel rendered above the option rows. Shows the title +
-	// description for the currently selected experience and (Overlay only,
-	// once saved) a row of customization actions.
+	// Detail panel rendered above the option rows. Extends edge-to-edge with
+	// the form by reversing the form's padding via negative margins, so it
+	// reads as a banner/header rather than a nested card. Top corners follow
+	// the form's radius; a single bottom border separates it from the radios.
 	&__details {
+		margin-block-start: calc(-1 * var(--wpds-dimension-padding-2xl));
 		margin-block-end: var(--wpds-dimension-gap-lg);
-		padding: var(--wpds-dimension-padding-xl);
+		margin-inline: calc(-1 * var(--wpds-dimension-padding-2xl));
+		padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-2xl);
 		background: var(--wpds-color-bg-surface-neutral);
-		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-		border-radius: var(--wpds-border-radius-lg);
+		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-start-start-radius: var(--wpds-border-radius-lg);
+		border-start-end-radius: var(--wpds-border-radius-lg);
 	}
 
 	&__details-title {
