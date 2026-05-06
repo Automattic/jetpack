@@ -112,10 +112,32 @@ class Settings {
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
 
-		if ( self::is_modernized() && self::is_newsletter_admin_request() ) {
-			self::load_wp_build();
-			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		// Defer wp-build loading to admin_menu (priority 1, before add_wp_admin_menu
+		// at 999) so the modernization filter — which third parties typically
+		// register from a plugins_loaded callback — has been applied by the time we
+		// evaluate it. Settings::init() runs synchronously from load-jetpack.php at
+		// plugin-file-include time, which is before any plugins_loaded callback has
+		// fired, so an inline check here would always see the unfiltered default.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+	}
+
+	/**
+	 * Load wp-build for the Newsletter admin page when modernization is enabled.
+	 *
+	 * Hooked to `admin_menu` priority 1 so the modernization filter has been
+	 * registered by any opt-in code (mu-plugins, snippets, themes) before we
+	 * read it, and so the wp-build render function and enqueue hook are in
+	 * place before `add_wp_admin_menu` runs at priority 999.
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_modernized() || ! self::is_newsletter_admin_request() ) {
+			return;
 		}
+
+		self::load_wp_build();
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
