@@ -3,11 +3,11 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalConfirmDialog as ConfirmDialog,
 	Button,
-	ExternalLink,
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useReducer } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { Retry } from '../../share-status/retry';
 import { ScheduledActivityItem, SharedActivityItem, SharingActivityItem } from './types';
@@ -54,9 +54,9 @@ export function ActivityAction( { item }: ActivityActionProps ) {
 	if ( item.activityType === 'shared' && item.status === 'success' ) {
 		const sharedItem = item as SharedActivityItem;
 		return (
-			<ExternalLink href={ sharedItem.message } onClick={ handleViewClick }>
+			<Link openInNewTab href={ sharedItem.message } onClick={ handleViewClick }>
 				{ __( 'View', 'jetpack-publicize-pkg' ) }
-			</ExternalLink>
+			</Link>
 		);
 	}
 

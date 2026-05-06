@@ -1,7 +1,8 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { ExternalLink, Path, SVG } from '@wordpress/components';
+import { Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { DEFAULT_CURRENCY } from '../../constants';
 import edit from './edit';
 import save from './save';
@@ -34,9 +35,9 @@ const settings = {
 					'jetpack-paypal-payments'
 				) }
 			</p>
-			<ExternalLink href={ supportLink }>
+			<Link openInNewTab href={ supportLink }>
 				{ __( 'Support reference', 'jetpack-paypal-payments' ) }
-			</ExternalLink>
+			</Link>
 		</Fragment>
 	),
 

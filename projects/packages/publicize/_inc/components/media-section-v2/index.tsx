@@ -7,10 +7,11 @@ import { GeneralPurposeImage } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
-import { BaseControl, Button, ExternalLink } from '@wordpress/components';
+import { BaseControl, Button } from '@wordpress/components';
 import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -447,12 +448,13 @@ export default function MediaSectionV2( {
 						/>
 					) }
 					{ currentSource === 'media-library' && (
-						<ExternalLink
+						<Link
+							openInNewTab
 							href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }
 							className={ styles[ 'learn-more' ] }
 						>
 							{ __( 'Learn photo and video best practices', 'jetpack-publicize-pkg' ) }
-						</ExternalLink>
+						</Link>
 					) }
 				</BaseControl>
 			</div>

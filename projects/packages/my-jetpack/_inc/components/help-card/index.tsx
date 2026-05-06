@@ -1,4 +1,4 @@
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from './styles.module.scss';
 import type { ReactNode } from 'react';
@@ -33,9 +33,9 @@ export function HelpCard( {
 			{ icon ? <div className={ styles.icon }>{ icon }</div> : null }
 			<Heading className={ styles.heading }>
 				{ link ? (
-					<ExternalLink href={ link } onClick={ onClick }>
+					<Link openInNewTab href={ link } onClick={ onClick }>
 						{ title }
-					</ExternalLink>
+					</Link>
 				) : (
 					title
 				) }

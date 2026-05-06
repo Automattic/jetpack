@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { currencyDollar } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 
 const PaymentsPostPublish = () => {
 	const { tracks } = useAnalytics();
@@ -30,9 +30,9 @@ const PaymentsPostPublish = () => {
 				{ __( 'Insert the Payment Button or the Donations Form — no plugin required.', 'jetpack' ) }
 			</p>
 			<p>
-				<ExternalLink href={ paymentInfoUrl } onClick={ trackClick }>
+				<Link openInNewTab href={ paymentInfoUrl } onClick={ trackClick }>
 					{ __( 'Learn more about these blocks', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</p>
 		</PluginPostPublishPanel>
 	);

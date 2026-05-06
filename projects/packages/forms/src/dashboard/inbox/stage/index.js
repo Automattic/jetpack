@@ -4,7 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { ExternalLink, Modal } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
@@ -12,7 +12,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
+import { Badge, Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 /**
@@ -362,9 +362,9 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 									const previewLabel = __( 'Form preview', 'jetpack-forms' );
 									if ( item.preview_url ) {
 										return (
-											<ExternalLink href={ item.preview_url }>
+											<Link openInNewTab href={ item.preview_url }>
 												{ wrapperUnread( item.is_unread, previewLabel ) }
-											</ExternalLink>
+											</Link>
 										);
 									}
 									return wrapperUnread( item.is_unread, previewLabel );
@@ -373,12 +373,12 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 									return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
 								}
 								return (
-									<ExternalLink href={ item.entry_permalink }>
+									<Link openInNewTab href={ item.entry_permalink }>
 										{ wrapperUnread(
 											item.is_unread,
 											decodeEntities( item.entry_title ) || getPath( item )
 										) }
-									</ExternalLink>
+									</Link>
 								);
 							},
 							elements: [

@@ -5,9 +5,9 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
@@ -80,7 +80,8 @@ const SocialModuleToggle: FC = () => {
 							'jetpack-publicize-pkg'
 					  ) }
 				&nbsp;
-				<ExternalLink
+				<Link
+					openInNewTab
 					href={
 						is_wpcom
 							? getRedirectUrl( 'wpcom-social-plugin-publicize-support-admin-page' )
@@ -89,7 +90,7 @@ const SocialModuleToggle: FC = () => {
 					className={ styles.learn }
 				>
 					{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-				</ExternalLink>
+				</Link>
 			</Text>
 			{ ! isWpcomPlatformSite() && ! hasSocialPaidFeatures() ? (
 				<ContextualUpgradeTrigger
