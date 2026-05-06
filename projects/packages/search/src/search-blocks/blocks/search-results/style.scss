@@ -286,6 +286,24 @@
 		gap: 0.25rem;
 	}
 
+	.jetpack-search-skeleton--product-image {
+		aspect-ratio: 1 / 1;
+		width: 100%;
+	}
+
+	// Without these per-layout overrides the skeleton picks up the
+	// expanded layout's defaults (1.5rem × 65%) and the placeholder column
+	// ends up visibly shorter and narrower than the hydrated product card.
+	.jetpack-search-skeleton--title {
+		height: 1.4rem;
+		width: 95%;
+	}
+
+	.jetpack-search-skeleton--title-secondary {
+		height: 1.4rem;
+		width: 60%;
+	}
+
 	.jetpack-search-results__title {
 		font-size: 1.05rem;
 		font-weight: 600;

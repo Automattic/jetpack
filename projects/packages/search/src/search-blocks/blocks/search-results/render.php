@@ -113,14 +113,22 @@ if ( '' === $error_message ) {
 					data-wp-bind--hidden="state.skeletonHidden"
 					aria-hidden="true"
 				>
-					<div class="jetpack-search-results__copy">
-						<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
-						<?php if ( 'compact' !== $layout ) : ?>
+					<?php if ( 'product' === $layout ) : ?>
+						<div class="jetpack-search-skeleton jetpack-search-skeleton--product-image"></div>
+						<div class="jetpack-search-results__copy">
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title-secondary"></div>
+						</div>
+					<?php elseif ( 'compact' === $layout ) : ?>
+						<div class="jetpack-search-results__copy">
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+						</div>
+					<?php else : ?>
+						<div class="jetpack-search-results__copy">
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--path"></div>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--meta"></div>
-						<?php endif; ?>
-					</div>
-					<?php if ( 'compact' !== $layout ) : ?>
+						</div>
 						<div class="jetpack-search-skeleton jetpack-search-skeleton--image"></div>
 					<?php endif; ?>
 				</li>
