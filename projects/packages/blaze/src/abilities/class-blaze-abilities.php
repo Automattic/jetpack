@@ -218,7 +218,7 @@ class Blaze_Abilities extends Registrar {
 			),
 			self::ABILITY_PREPARE_CAMPAIGN => array(
 				'label'               => __( 'Prepare a Blaze campaign', 'jetpack-blaze' ),
-				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and limited audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. Public audience overrides are limited to country and language codes. Device targeting and interest/topic targeting are not public MCP inputs in v1 because they depend on DSP-supported device IDs and IAB category mappings; use the goal/copy fields for intent and let Blaze defaults or the review UI handle those settings. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
+				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and safe audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. Audience overrides must use stable codes or closed enums: supported language codes, ISO country codes, supported device values, and DSP/IAB interest category IDs. Unsupported or ambiguous targeting should be omitted and handled by Blaze defaults or the review UI. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'target_urn' ),
@@ -279,6 +279,7 @@ class Blaze_Abilities extends Registrar {
 								'type'      => 'string',
 								'minLength' => 2,
 								'maxLength' => 5,
+								'enum'      => array( 'zh', 'nl', 'en', 'fr', 'de', 'hi', 'id', 'it', 'ja', 'ko', 'pl', 'pt', 'ru', 'es', 'tr' ),
 							),
 						),
 						'countries'            => array(
@@ -288,6 +289,23 @@ class Blaze_Abilities extends Registrar {
 								'type'      => 'string',
 								'minLength' => 2,
 								'maxLength' => 2,
+							),
+						),
+						'devices'              => array(
+							'type'        => 'array',
+							'description' => __( 'Optional narrowed device targeting value. Supported values are "mobile" and "desktop"; omit to target all devices. Tablet is not exposed until Blaze widget prefill support is verified end-to-end.', 'jetpack-blaze' ),
+							'maxItems'    => 1,
+							'items'       => array(
+								'type' => 'string',
+								'enum' => array( 'mobile', 'desktop' ),
+							),
+						),
+						'interests'            => array(
+							'type'        => 'array',
+							'description' => __( 'Optional DSP page topic / IAB category IDs to target (e.g. ["IAB18", "IAB1_IAB2"]). Use only IDs discovered from the Blaze/DSP targeting options; do not send free-form interest names. Invalid or unsupported IDs are ignored.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type'    => 'string',
+								'pattern' => '^IAB\\d+(?:_IAB\\d+)*$',
 							),
 						),
 					),

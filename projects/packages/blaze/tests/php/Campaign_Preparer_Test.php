@@ -116,8 +116,10 @@ class Campaign_Preparer_Test extends BaseTestCase {
 				'revision_instruction' => 'Make it more direct.',
 				'main_image_url'       => 'https://example.com/custom.jpg',
 				'main_image_mime_type' => 'image/jpeg',
-				'languages'            => array( 'EN', '', 'es' ),
+				'languages'            => array( 'EN', '', 'es', 'xx' ),
 				'countries'            => array( 'gb', 'usa', 'FR' ),
+				'devices'              => array( 'mobile', 'tablet', 'spaceship' ),
+				'interests'            => array( 'IAB18', 'fashion', 'IAB1_IAB2', '0', 'IAB24' ),
 				'is_evergreen'         => false,
 			)
 		);
@@ -132,8 +134,29 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( 'https://example.com/custom.jpg', $prefill['main_image']['url'] );
 		$this->assertSame( array( 'en', 'es' ), $prefill['languages'] );
 		$this->assertSame( array( 'GB', 'FR' ), $prefill['countries'] );
+		$this->assertSame( array( 'mobile' ), $prefill['devices'] );
+		$this->assertSame( array( 'IAB18', 'IAB1_IAB2' ), $prefill['page_topics'] );
+		$this->assertArrayNotHasKey( 'interests', $prefill );
 		$this->assertFalse( $prefill['is_evergreen'] );
 		$this->assertSame( 'VIEWS', $prefill['objective'] );
+	}
+
+	/**
+	 * Asking for both supported narrowed device targets is equivalent to
+	 * targeting all devices, so the prefill payload omits the field.
+	 */
+	public function test_prepare_omits_device_prefill_when_all_supported_devices_are_requested() {
+		$ctx = $this->make_test_post();
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'target_urn' => $ctx['target_urn'],
+				'devices'    => array( 'mobile', 'desktop' ),
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertArrayNotHasKey( 'devices', $result['prefill'] );
 	}
 
 	/**

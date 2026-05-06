@@ -14,6 +14,8 @@ class Campaign_Preparer {
 
 	private const DEFAULT_BUDGET_TOTAL  = 50.0;
 	private const DEFAULT_DURATION_DAYS = 7;
+	private const SUPPORTED_LANGUAGES   = array( 'zh', 'nl', 'en', 'fr', 'de', 'hi', 'id', 'it', 'ja', 'ko', 'pl', 'pt', 'ru', 'es', 'tr' );
+	private const SUPPORTED_DEVICES     = array( 'mobile', 'desktop' );
 
 	/**
 	 * Prepare a Blaze campaign proposal from a target post and optional overrides.
@@ -118,7 +120,7 @@ class Campaign_Preparer {
 				array_filter(
 					array_map( 'strtolower', array_map( 'strval', $args['languages'] ) ),
 					static function ( $code ) {
-						return '' !== $code;
+						return in_array( $code, self::SUPPORTED_LANGUAGES, true );
 					}
 				)
 			);
@@ -137,6 +139,36 @@ class Campaign_Preparer {
 			);
 			if ( ! empty( $countries ) ) {
 				$payload['countries'] = $countries;
+			}
+		}
+		if ( isset( $args['devices'] ) && is_array( $args['devices'] ) ) {
+			$devices = array_values(
+				array_unique(
+					array_filter(
+						array_map( 'strtolower', array_map( 'strval', $args['devices'] ) ),
+						static function ( $device ) {
+							return in_array( $device, self::SUPPORTED_DEVICES, true );
+						}
+					)
+				)
+			);
+			if ( 1 === count( $devices ) ) {
+				$payload['devices'] = $devices;
+			}
+		}
+		if ( isset( $args['interests'] ) && is_array( $args['interests'] ) ) {
+			$page_topics = array_values(
+				array_unique(
+					array_filter(
+						array_map( 'strval', $args['interests'] ),
+						static function ( $topic ) {
+							return 1 === preg_match( '/^IAB\d+(?:_IAB\d+)*$/', $topic ) && 'IAB24' !== $topic;
+						}
+					)
+				)
+			);
+			if ( ! empty( $page_topics ) ) {
+				$payload['page_topics'] = $page_topics;
 			}
 		}
 
