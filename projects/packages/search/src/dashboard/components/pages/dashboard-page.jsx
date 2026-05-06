@@ -170,7 +170,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							/>
 						) }
 						<div className="jp-search-dashboard-bottom">
-							{ isSearchBlocksEnabled && (
+							{ isSearchBlocksEnabled ? (
 								<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
 									<div className="jp-search-dashboard-row">
 										<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
@@ -178,26 +178,23 @@ export default function DashboardPage( { isLoading = false } ) {
 										</div>
 									</div>
 								</div>
+							) : (
+								<ModuleControl
+									siteAdminUrl={ siteAdminUrl }
+									updateOptions={ updateOptions }
+									domain={ domain }
+									isDisabledFromOverLimit={ isOverLimit }
+									isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+									supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+									supportsSearch={ supportsSearch }
+									supportsInstantSearch={ supportsInstantSearch }
+									isModuleEnabled={ isModuleEnabled }
+									isInstantSearchEnabled={ isInstantSearchEnabled }
+									isSavingEitherOption={ isSavingEitherOption }
+									isTogglingModule={ isTogglingModule }
+									isTogglingInstantSearch={ isTogglingInstantSearch }
+								/>
 							) }
-							{ /* ModuleControl renders regardless of the feature flag for now —
-							     until the back-end `experience` field lands (RSM-2291), the new
-							     FeatureSelector can't actually persist changes. Keeping the legacy
-							     toggles visible lets admins continue managing Search settings. */ }
-							<ModuleControl
-								siteAdminUrl={ siteAdminUrl }
-								updateOptions={ updateOptions }
-								domain={ domain }
-								isDisabledFromOverLimit={ isOverLimit }
-								isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-								supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-								supportsSearch={ supportsSearch }
-								supportsInstantSearch={ supportsInstantSearch }
-								isModuleEnabled={ isModuleEnabled }
-								isInstantSearchEnabled={ isInstantSearchEnabled }
-								isSavingEitherOption={ isSavingEitherOption }
-								isTogglingModule={ isTogglingModule }
-								isTogglingInstantSearch={ isTogglingInstantSearch }
-							/>
 						</div>
 						<NoticesList
 							notices={ notices }

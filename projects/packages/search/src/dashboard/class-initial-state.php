@@ -92,6 +92,7 @@ class Initial_State {
 			'jetpackSettings' => array(
 				'search'                 => $this->module_control->is_active(),
 				'instant_search_enabled' => $this->module_control->is_instant_search_enabled(),
+				'experience'             => $this->module_control->get_experience(),
 			),
 			'features'        => array_map(
 				'sanitize_text_field',
