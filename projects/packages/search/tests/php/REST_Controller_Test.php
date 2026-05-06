@@ -437,6 +437,35 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Mixing `experience` with `module_active` or `instant_search_enabled` is rejected
+	 * so callers don't silently drop fields. `experience` writes the legacy booleans
+	 * in lockstep — there's no scenario where the caller needs both.
+	 */
+	public function test_update_settings_experience_rejects_mixed_legacy_fields() {
+		wp_set_current_user( $this->admin_id );
+
+		foreach (
+			array(
+				array(
+					'experience'    => 'overlay',
+					'module_active' => false,
+				),
+				array(
+					'experience'             => 'embedded',
+					'instant_search_enabled' => true,
+				),
+			) as $body
+		) {
+			$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+			$request->set_header( 'content-type', 'application/json' );
+			$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
+			$response = $this->server->dispatch( $request );
+			$this->assertEquals( 400, $response->get_status() );
+			$this->assertEquals( 'rest_invalid_arguments', $response->get_data()['code'] );
+		}
+	}
+
+	/**
 	 * Testing that the persisted experience is returned from `GET /jetpack/v4/search/settings`.
 	 */
 	public function test_get_settings_returns_persisted_experience() {

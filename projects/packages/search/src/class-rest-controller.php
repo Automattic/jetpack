@@ -255,7 +255,7 @@ class REST_Controller {
 		}
 
 		// If an experience value was provided, delegate to Module_Control::update_experience(),
-		// which encapsulates the storage shape (off → module deactivate, classic → delete option,
+		// which encapsulates the storage shape (off → module deactivate, inline → delete option,
 		// embedded/overlay → write affirmative value) and keeps the legacy booleans in lockstep.
 		if ( $experience !== null ) {
 			$result = $this->search_module->update_experience( $experience );
@@ -316,8 +316,17 @@ class REST_Controller {
 	 * @param string|null $experience - Experience value.
 	 */
 	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null ) {
-		// An experience-only request is always valid; update_experience() validates the value.
+		// `experience` is the canonical source of truth and writes the legacy booleans in lockstep.
+		// Reject requests that mix it with `module_active` / `instant_search_enabled` so callers
+		// don't silently lose those fields.
 		if ( $experience !== null ) {
+			if ( $module_active !== null || $instant_search_enabled !== null ) {
+				return new WP_Error(
+					'rest_invalid_arguments',
+					esc_html__( 'The `experience` field cannot be combined with `module_active` or `instant_search_enabled`.', 'jetpack-search-pkg' ),
+					array( 'status' => 400 )
+				);
+			}
 			return true;
 		}
 		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search !== null ) {

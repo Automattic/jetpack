@@ -279,8 +279,6 @@ class Module_Control {
 				update_option( self::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, self::EXPERIENCE_OVERLAY );
 				return true;
 		}
-
-		return true;
 	}
 
 	/**
