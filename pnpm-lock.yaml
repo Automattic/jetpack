@@ -2073,6 +2073,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
       '@babel/core':
         specifier: 7.29.0
         version: 7.29.0
@@ -2100,6 +2103,12 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.44.0
         version: 6.44.0
+      '@wordpress/build':
+        specifier: 0.13.0
+        version: 0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.2
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
@@ -24056,6 +24065,28 @@ snapshots:
     optionalDependencies:
       '@wordpress/route': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - browserslist
+      - supports-color
+
+  '@wordpress/build@0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)':
+    dependencies:
+      '@emotion/babel-plugin': 11.13.5
+      autoprefixer: 10.4.27(postcss@8.5.10)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.4(postcss@8.5.10)
+      esbuild: 0.27.4
+      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.0)
+      esbuild-sass-plugin: 3.3.1(esbuild@0.27.4)(sass-embedded@1.97.3)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.10
+      postcss-modules: 6.0.1(postcss@8.5.10)
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
     transitivePeerDependencies:
       - '@babel/core'
       - browserslist
