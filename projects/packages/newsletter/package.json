@@ -35,6 +35,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
@@ -46,9 +47,14 @@
 		"@wordpress/admin-ui": "1.12.0",
 		"@wordpress/api-fetch": "7.44.0",
 		"@wordpress/components": "32.6.0",
+		"@wordpress/compose": "7.44.0",
+		"@wordpress/data": "10.44.0",
 		"@wordpress/dataviews": "14.1.0",
+		"@wordpress/date": "5.44.0",
 		"@wordpress/element": "6.44.0",
+		"@wordpress/hooks": "4.44.0",
 		"@wordpress/i18n": "6.17.0",
+		"@wordpress/icons": "12.2.0",
 		"@wordpress/notices": "5.44.0",
 		"@wordpress/route": "0.10.0",
 		"@wordpress/theme": "0.11.0",
