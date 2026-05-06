@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-fix(ai): UI polish for MCP settings — fix browser Back button navigation, change setup instructions to unordered lists, fix 'All enabled' label vertical alignment, and tighten toggle help-text spacing
+Improved the MCP settings UI by fixing browser Back button navigation, changing setup instructions to unordered lists, correcting the 'All enabled' label vertical alignment, and tightening toggle help-text spacing.
