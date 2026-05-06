@@ -22,9 +22,9 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  * registration path covers both. Standalone Jetpack is excluded by the host
  * gate in `Podcast::init()`.
  *
- * The wp-build chassis is loaded inline from `maybe_load_wp_build()` and
- * routed onto our user-facing slug via `bridge_wp_build_enqueue()` —
- * mirroring `Automattic\Jetpack\Scan_Page\Jetpack_Scan`.
+ * The wp-build chassis is loaded inline from `init()` and routed onto our
+ * user-facing slug via `bridge_wp_build_enqueue()` — mirroring
+ * `Automattic\Jetpack\Scan_Page\Jetpack_Scan`.
  */
 class Admin_Page {
 
@@ -56,9 +56,11 @@ class Admin_Page {
 	 * `jetpack_podcast_untangle` filter and host gates have been satisfied.
 	 *
 	 * Menu registration itself is handled by `wpcom-admin-menu.php` calling
-	 * `add_wp_admin_submenu()` at `admin_menu` priority 999999. Here we only
-	 * arrange for the wp-build artifact to be loaded (and bridged to our
-	 * user-facing slug) before that callback runs.
+	 * `add_wp_admin_submenu()` at `admin_menu` priority 999999. Here we set
+	 * up the wp-build chassis at plugins_loaded time so:
+	 *   - `WP_Build_Polyfills::register()` registers BEFORE `wp_default_scripts`
+	 *     fires (otherwise `@wordpress/boot` never lands in the import map).
+	 *   - The wp-build render function is defined before the menu callback runs.
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -66,10 +68,9 @@ class Admin_Page {
 		}
 		self::$initialized = true;
 
-		// Defer wp-build loading to admin_menu (priority 1) so the wp-build
-		// render function is in place before the menu callback runs at
-		// priority 999999.
-		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+		self::load_wp_build();
+		self::bridge_wp_build_enqueue();
+		self::fix_boot_import_map_ordering();
 	}
 
 	/**
@@ -108,22 +109,6 @@ class Admin_Page {
 	 */
 	public static function admin_init() {
 		// Intentionally empty for now.
-	}
-
-	/**
-	 * Load the wp-build entry on Podcast admin requests when the untangle
-	 * filter is on. Hooked at `admin_menu` priority 1 so the render function
-	 * is defined before `add_wp_admin_submenu` registers the menu callback at
-	 * priority 999999.
-	 */
-	public static function maybe_load_wp_build() {
-		if ( ! self::is_enabled() || ! self::is_podcast_admin_request() ) {
-			return;
-		}
-
-		self::load_wp_build();
-		self::bridge_wp_build_enqueue();
-		self::fix_boot_import_map_ordering();
 	}
 
 	/**
@@ -255,10 +240,12 @@ class Admin_Page {
 	}
 
 	/**
-	 * Require the wp-build entry file and register its polyfills.
+	 * Register wp-build polyfills and require the wp-build entry file.
 	 *
-	 * Only called on `?page=jetpack-podcast` admin requests with the untangle
-	 * filter on, so wp-build stays out of every other request.
+	 * Called from `init()` at plugins_loaded time so polyfill registration
+	 * happens before `wp_default_scripts` fires (otherwise `@wordpress/boot`
+	 * never lands in the import map). The build entry only defines functions —
+	 * the actual enqueue is gated by `bridge_wp_build_enqueue()` to our page.
 	 */
 	private static function load_wp_build() {
 		WP_Build_Polyfills::register(
@@ -283,17 +270,4 @@ class Admin_Page {
 		return (bool) apply_filters( 'jetpack_podcast_untangle', false );
 	}
 
-	/**
-	 * Whether the current request targets the Podcast admin page.
-	 *
-	 * `$_GET['page']` is populated by `wp-admin/admin.php` before any of our
-	 * hooks fire, so this is reliable from `admin_menu` priority 1 onwards.
-	 */
-	private static function is_podcast_admin_request() {
-		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return false;
-		}
-
-		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === self::ADMIN_PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	}
 }
