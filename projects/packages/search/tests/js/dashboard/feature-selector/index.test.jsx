@@ -91,4 +91,28 @@ describe( '<FeatureSelector>', () => {
 		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeEnabled();
 		expect( screen.getByRole( 'radio', { name: /off/i } ) ).toBeEnabled();
 	} );
+
+	test( 'hides the Off row on WordPress.com (parity with legacy ModuleControl)', () => {
+		const registry = createRegistry();
+		const store = createReduxStore( STORE_ID, {
+			...storeConfig,
+			initialState: {
+				...( storeConfig.initialState || {} ),
+				jetpackSettings: baseSettings,
+				siteData: { isWpcom: true },
+			},
+		} );
+		registry.register( store );
+		render(
+			<RegistryProvider value={ registry }>
+				<FeatureSelector />
+			</RegistryProvider>
+		);
+		const radios = screen.getAllByRole( 'radio' );
+		expect( radios ).toHaveLength( 3 );
+		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: /overlay search/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'radio', { name: /^off$/i } ) ).not.toBeInTheDocument();
+	} );
 } );
