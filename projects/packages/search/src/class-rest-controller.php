@@ -246,7 +246,9 @@ class REST_Controller {
 		$module_active                 = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
 		$instant_search_enabled        = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
 		$swap_classic_to_inline_search = isset( $request_body['swap_classic_to_inline_search'] ) ? (bool) $request_body['swap_classic_to_inline_search'] : null;
-		$experience                    = isset( $request_body['experience'] ) ? sanitize_text_field( $request_body['experience'] ) : null;
+		$experience                    = isset( $request_body['experience'] ) && is_string( $request_body['experience'] )
+			? sanitize_text_field( $request_body['experience'] )
+			: null;
 
 		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience );
 
