@@ -454,6 +454,10 @@ class REST_Controller_Test extends Search_TestCase {
 					'experience'             => 'embedded',
 					'instant_search_enabled' => true,
 				),
+				array(
+					'experience'                    => 'inline',
+					'swap_classic_to_inline_search' => true,
+				),
 			) as $body
 		) {
 			$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );

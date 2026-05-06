@@ -319,13 +319,14 @@ class REST_Controller {
 	 */
 	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null ) {
 		// `experience` is the canonical source of truth and writes the legacy booleans in lockstep.
-		// Reject requests that mix it with `module_active` / `instant_search_enabled` so callers
-		// don't silently lose those fields.
+		// Reject requests that mix it with any other settings field so callers don't silently
+		// lose those fields — the `experience` branch in update_settings() early-returns and
+		// would otherwise drop them.
 		if ( $experience !== null ) {
-			if ( $module_active !== null || $instant_search_enabled !== null ) {
+			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null ) {
 				return new WP_Error(
 					'rest_invalid_arguments',
-					esc_html__( 'The `experience` field cannot be combined with `module_active` or `instant_search_enabled`.', 'jetpack-search-pkg' ),
+					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, or `swap_classic_to_inline_search`.', 'jetpack-search-pkg' ),
 					array( 'status' => 400 )
 				);
 			}
