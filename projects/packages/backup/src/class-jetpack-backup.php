@@ -123,12 +123,8 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
-
-		if ( self::is_modernized() && self::is_backup_admin_request() ) {
-			self::load_wp_build();
-			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		}
 
 		// Init Jetpack packages.
 		add_action(
@@ -856,6 +852,20 @@ class Jetpack_Backup {
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-backup' );
 		$manager->remove_connection();
+	}
+
+	/**
+	 * Load wp-build when modernization is enabled on the Backup admin page.
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_modernized() || ! self::is_backup_admin_request() ) {
+			return;
+		}
+
+		self::load_wp_build();
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
