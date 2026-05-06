@@ -491,7 +491,8 @@ class Jetpack_AI_Sidebar {
 			return $data;
 		}
 
-		// Jetpack owns this flag; hosts can override via jetpack_ai_review_mediator_enabled.
+		// Set Jetpack's default for externally emitted payloads. Hosts that need
+		// an intentional review-mediator override should use jetpack_ai_review_mediator_enabled.
 		$data['reviewMediatorEnabled'] = self::is_review_mediator_enabled();
 		return $data;
 	}

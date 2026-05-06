@@ -253,6 +253,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The review mediator-specific filter can suppress the flag even in dev mode.
+	 */
+	public function test_maybe_enqueue_am_allows_review_mediator_filter_to_disable_dev_mode() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'jetpack_ai_review_mediator_enabled', '__return_false' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertStringContainsString( '"reviewMediatorEnabled":false', $this->get_agents_manager_inline_script() );
+	}
+
+	/**
 	 * Platform-emitted Agents Manager data gets the review mediator flag.
 	 */
 	public function test_add_agents_manager_data_exposes_review_mediator_enabled() {
