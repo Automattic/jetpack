@@ -1,12 +1,17 @@
+import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import {
+	BaseControl,
+	Button,
 	PanelBody,
 	PanelRow,
 	SelectControl,
 	TextControl,
 	TextareaControl,
 	ToggleControl,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar, store as editorStore } from '@wordpress/editor';
@@ -52,6 +57,51 @@ const PodcastSettingsSidebar = () => {
 	const setAudioMime = useMetaSetter( meta, setMeta, META_PODCAST_AUDIO_MIME );
 	const setAudioSize = useIntMetaSetter( meta, setMeta, META_PODCAST_AUDIO_SIZE );
 	const setDuration = useMetaSetter( meta, setMeta, META_PODCAST_DURATION );
+
+	const onSelectAudio = useCallback(
+		media => {
+			if ( ! media?.url ) {
+				return;
+			}
+			setMeta( {
+				...meta,
+				[ META_PODCAST_AUDIO_URL ]: media.url,
+				[ META_PODCAST_AUDIO_MIME ]: media.mime || media.mime_type || '',
+				[ META_PODCAST_AUDIO_SIZE ]: media.filesizeInBytes
+					? parseInt( media.filesizeInBytes, 10 )
+					: 0,
+			} );
+		},
+		[ meta, setMeta ]
+	);
+
+	const onRemoveAudio = useCallback( () => {
+		setMeta( {
+			...meta,
+			[ META_PODCAST_AUDIO_URL ]: '',
+			[ META_PODCAST_AUDIO_MIME ]: '',
+			[ META_PODCAST_AUDIO_SIZE ]: 0,
+		} );
+	}, [ meta, setMeta ] );
+
+	const audioUrl = meta[ META_PODCAST_AUDIO_URL ] || '';
+	const audioFileId = useInstanceId( PodcastSettingsSidebar, 'jetpack-podcast-audio-file' );
+
+	const renderMediaButton = useCallback(
+		( { open } ) => (
+			<HStack wrap>
+				<Button variant="secondary" onClick={ open }>
+					{ audioUrl ? __( 'Replace audio', 'jetpack' ) : __( 'Select audio', 'jetpack' ) }
+				</Button>
+				{ audioUrl && (
+					<Button variant="tertiary" isDestructive onClick={ onRemoveAudio }>
+						{ __( 'Remove', 'jetpack' ) }
+					</Button>
+				) }
+			</HStack>
+		),
+		[ audioUrl, onRemoveAudio ]
+	);
 	const setEpisodeTitle = useMetaSetter( meta, setMeta, META_PODCAST_EPISODE_TITLE );
 	const setEpisodeSummary = useMetaSetter( meta, setMeta, META_PODCAST_EPISODE_SUMMARY );
 	const setSeasonNumber = useIntMetaSetter( meta, setMeta, META_PODCAST_SEASON_NUMBER );
@@ -69,11 +119,32 @@ const PodcastSettingsSidebar = () => {
 		>
 			<PanelBody title={ __( 'Audio', 'jetpack' ) } initialOpen={ true }>
 				<PanelRow>
+					<BaseControl
+						__nextHasNoMarginBottom
+						id={ audioFileId }
+						label={ __( 'Audio file', 'jetpack' ) }
+						help={
+							audioUrl
+								? audioUrl
+								: __( 'Upload, choose from the media library, or paste a URL below.', 'jetpack' )
+						}
+					>
+						<MediaUploadCheck>
+							<MediaUpload
+								onSelect={ onSelectAudio }
+								allowedTypes={ [ 'audio' ] }
+								value={ audioUrl }
+								render={ renderMediaButton }
+							/>
+						</MediaUploadCheck>
+					</BaseControl>
+				</PanelRow>
+				<PanelRow>
 					<TextControl
 						label={ __( 'Audio file URL', 'jetpack' ) }
-						help={ __( 'Direct link to the episode audio file (MP3, M4A, etc.).', 'jetpack' ) }
+						help={ __( 'Or paste a direct link to an MP3 / M4A hosted elsewhere.', 'jetpack' ) }
 						type="url"
-						value={ meta[ META_PODCAST_AUDIO_URL ] || '' }
+						value={ audioUrl }
 						onChange={ setAudioUrl }
 						__nextHasNoMarginBottom
 					/>
