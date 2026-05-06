@@ -163,7 +163,7 @@ describe( 'MediaSectionV2', () => {
 			] );
 		} );
 
-		it( 'should show "no image" description when no media source is selected', () => {
+		it( 'should show no-image warning when no fallback image is available', () => {
 			render( <MediaSectionV2 /> );
 
 			expect( screen.getByText( "Your post won't show an image." ) ).toBeInTheDocument();
@@ -323,10 +323,8 @@ describe( 'MediaSectionV2', () => {
 		} );
 	} );
 
-	describe( 'Remove media via No media option', () => {
+	describe( 'Switch to Default option', () => {
 		beforeEach( () => {
-			// Set up state with no featured image so "No media" option appears
-			( useFeaturedImage as jest.Mock ).mockReturnValue( null );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: true },
@@ -336,7 +334,6 @@ describe( 'MediaSectionV2', () => {
 		} );
 
 		afterEach( () => {
-			( useFeaturedImage as jest.Mock ).mockReturnValue( 123 );
 			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
 				imageGeneratorSettings: { enabled: false },
@@ -345,25 +342,31 @@ describe( 'MediaSectionV2', () => {
 			} );
 		} );
 
-		it( 'should clear media and record event when No media is selected', async () => {
+		it( 'should reset media to Default and disable SIG when Default is selected', async () => {
 			const user = userEvent.setup();
 
-			render( <MediaSectionV2 analyticsData={ { test: 'data' } } /> );
+			render(
+				<MediaSectionV2
+					analyticsData={ { test: 'data' } }
+					attachmentToggleMode="hidden"
+					onMediaChange={ mockUpdateJetpackSocialOptions }
+				/>
+			);
 
 			// Open dropdown
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
-			// Click No media
-			await user.click( screen.getByRole( 'menuitem', { name: 'No media' } ) );
+			// Click Default
+			await user.click( screen.getByRole( 'menuitem', { name: 'Default' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
-				media_source: undefined,
+				media_source: 'none',
 				attached_media: [],
 				image_generator_settings: { enabled: false },
 			} );
-			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_removed', {
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {
 				test: 'data',
-				source: 'sig',
+				source: null,
 			} );
 		} );
 	} );

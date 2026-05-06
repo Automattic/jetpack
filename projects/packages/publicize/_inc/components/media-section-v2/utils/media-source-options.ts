@@ -3,7 +3,7 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import { postFeaturedImage, mediaAndText, media as mediaIcon } from '@wordpress/icons';
+import { postFeaturedImage, mediaAndText, media as mediaIcon, link } from '@wordpress/icons';
 import { getSocialScriptData } from '../../../utils';
 import sparkle from '../icons/sparkle';
 import { MediaSourceOption, MediaSourceType } from '../types';
@@ -18,6 +18,13 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 	const { plugin_info } = getSocialScriptData();
 
 	return [
+		{
+			id: null,
+			label: __( 'Default', 'jetpack-publicize-pkg' ),
+			description: __( "You are using the post's link preview image.", 'jetpack-publicize-pkg' ),
+			icon: link,
+			group: 'link-preview',
+		},
 		{
 			id: 'sig',
 			label: __( 'Social image template', 'jetpack-publicize-pkg' ),
@@ -65,6 +72,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 
 interface MediaSourceContext {
 	featuredImageId?: number;
+	sigEnabled?: boolean;
 }
 
 /**
@@ -80,12 +88,17 @@ export function getMediaSourceDescription(
 ): string {
 	const noImageMessage = __( "Your post won't show an image.", 'jetpack-publicize-pkg' );
 
-	if ( ! sourceType ) {
+	// If featured image is selected but doesn't exist, show "no image" message
+	if ( sourceType === 'featured-image' && context && ! context.featuredImageId ) {
 		return noImageMessage;
 	}
 
-	// If featured image is selected but doesn't exist, show "no image" message
-	if ( sourceType === 'featured-image' && context && ! context.featuredImageId ) {
+	/*
+	 * Default mode (sourceType === null) relies on the post-level OG image. If neither SIG
+	 * is globally enabled nor a featured image exists, there is no link preview image to
+	 * inherit, so warn the user instead of promising one.
+	 */
+	if ( sourceType === null && context && ! context.sigEnabled && ! context.featuredImageId ) {
 		return noImageMessage;
 	}
 

@@ -20,13 +20,33 @@ jest.mock( '../../../utils', () => ( {
 } ) );
 
 describe( 'getMediaSourceDescription', () => {
-	it( 'should return default message when sourceType is null', () => {
-		expect( getMediaSourceDescription( null ) ).toBe( "Your post won't show an image." );
+	it( 'should return Default description when sourceType is null and a featured image exists', () => {
+		expect( getMediaSourceDescription( null, { featuredImageId: 123 } ) ).toBe(
+			"You are using the post's link preview image."
+		);
+	} );
+
+	it( 'should return Default description when sourceType is null and SIG is enabled globally', () => {
+		expect( getMediaSourceDescription( null, { sigEnabled: true } ) ).toBe(
+			"You are using the post's link preview image."
+		);
+	} );
+
+	it( 'should return no-image warning when sourceType is null and no fallback is available', () => {
+		expect(
+			getMediaSourceDescription( null, { featuredImageId: undefined, sigEnabled: false } )
+		).toBe( "Your post won't show an image." );
 	} );
 
 	it( 'should return featured image description', () => {
 		expect( getMediaSourceDescription( 'featured-image' ) ).toBe(
 			'You are using your post featured image.'
+		);
+	} );
+
+	it( 'should return no-image fallback when featured-image is selected without a featured image', () => {
+		expect( getMediaSourceDescription( 'featured-image', { featuredImageId: undefined } ) ).toBe(
+			"Your post won't show an image."
 		);
 	} );
 
@@ -42,7 +62,6 @@ describe( 'getMediaSourceDescription', () => {
 describe( 'MediaSourceMenu', () => {
 	const mockOnSelect = jest.fn();
 	const mockOnMediaLibraryClick = jest.fn();
-	const mockOnRemove = jest.fn();
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -82,6 +101,7 @@ describe( 'MediaSourceMenu', () => {
 				onSelect={ mockOnSelect }
 				onMediaLibraryClick={ mockOnMediaLibraryClick }
 				featuredImageId={ 123 }
+				includeDefaultOption
 			/>
 		);
 
@@ -92,9 +112,27 @@ describe( 'MediaSourceMenu', () => {
 		expect( screen.getByText( 'Attachment' ) ).toBeInTheDocument();
 
 		// Check that menu items are rendered
+		expect( screen.getByRole( 'menuitem', { name: 'Default' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'menuitem', { name: 'Featured image' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'menuitem', { name: 'Social image template' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'menuitem', { name: 'From Media Library' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'should hide Default option by default (global mode)', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<MediaSourceMenu
+				currentSource={ null }
+				onSelect={ mockOnSelect }
+				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				featuredImageId={ 123 }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
+
+		expect( screen.queryByRole( 'menuitem', { name: 'Default' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should call onSelect when Featured image is clicked', async () => {
@@ -223,24 +261,35 @@ describe( 'MediaSourceMenu', () => {
 		expect( screen.queryByRole( 'menuitem', { name: 'Featured image' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'should show No media option when no featured image exists', async () => {
+	it( 'should show Default option regardless of featured image presence when opted in', async () => {
 		const user = userEvent.setup();
 
-		render(
+		const { rerender } = render(
 			<MediaSourceMenu
 				currentSource={ null }
 				onSelect={ mockOnSelect }
 				onMediaLibraryClick={ mockOnMediaLibraryClick }
-				onRemove={ mockOnRemove }
+				includeDefaultOption
 			/>
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
+		expect( screen.getByRole( 'menuitem', { name: 'Default' } ) ).toBeInTheDocument();
 
-		expect( screen.getByRole( 'menuitem', { name: 'No media' } ) ).toBeInTheDocument();
+		rerender(
+			<MediaSourceMenu
+				currentSource={ null }
+				onSelect={ mockOnSelect }
+				onMediaLibraryClick={ mockOnMediaLibraryClick }
+				featuredImageId={ 123 }
+				includeDefaultOption
+			/>
+		);
+
+		expect( screen.getByRole( 'menuitem', { name: 'Default' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'should call onRemove when No media is clicked', async () => {
+	it( 'should call onSelect with null when Default is clicked', async () => {
 		const user = userEvent.setup();
 
 		render(
@@ -248,31 +297,13 @@ describe( 'MediaSourceMenu', () => {
 				currentSource="sig"
 				onSelect={ mockOnSelect }
 				onMediaLibraryClick={ mockOnMediaLibraryClick }
-				onRemove={ mockOnRemove }
+				includeDefaultOption
 			/>
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'No media' } ) );
+		await user.click( screen.getByRole( 'menuitem', { name: 'Default' } ) );
 
-		expect( mockOnRemove ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'should not show No media option when featured image exists', async () => {
-		const user = userEvent.setup();
-
-		render(
-			<MediaSourceMenu
-				currentSource={ null }
-				onSelect={ mockOnSelect }
-				onMediaLibraryClick={ mockOnMediaLibraryClick }
-				onRemove={ mockOnRemove }
-				featuredImageId={ 123 }
-			/>
-		);
-
-		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-
-		expect( screen.queryByRole( 'menuitem', { name: 'No media' } ) ).not.toBeInTheDocument();
+		expect( mockOnSelect ).toHaveBeenCalledWith( null );
 	} );
 } );

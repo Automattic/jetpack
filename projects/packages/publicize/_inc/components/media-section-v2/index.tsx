@@ -40,8 +40,9 @@ export default function MediaSectionV2( {
 	imageGeneratorSettings: imageGeneratorSettingsProp,
 	mediaSource: mediaSourceProp,
 	onMediaChange,
-	forceAsAttachment,
+	attachmentToggleMode = 'visible',
 }: MediaSectionV2Props ) {
+	const isAttachmentToggleHidden = attachmentToggleMode === 'hidden';
 	const { recordEvent } = useAnalytics();
 	const featuredImageId = useFeaturedImage();
 	const { isEnabled: sigEnabled } = useImageGeneratorConfig();
@@ -100,10 +101,13 @@ export default function MediaSectionV2( {
 		return detectMediaSource( attachedMedia, featuredImageId, sigEnabled );
 	}, [ mediaSource, attachedMedia, featuredImageId, sigEnabled ] );
 
-	// Attachment mode:
-	// - When attachedMedia has items, this reflects the backend behavior (attached_media is set).
-	// - When forceAsAttachment is true, attachment mode is forced on at the UI level, even if attachedMedia is empty.
-	const isShareAsAttachment = forceAsAttachment || attachedMedia?.length > 0;
+	/*
+	 * Attachment mode:
+	 * - When attachedMedia has items, this reflects the backend behavior (attached_media is set).
+	 * - When the attachment toggle is hidden (per-network mode), attachment mode is implicit:
+	 *   the dropdown alone decides — non-Default sources always attach.
+	 */
+	const isShareAsAttachment = isAttachmentToggleHidden || attachedMedia?.length > 0;
 
 	// Get media ID for preview
 	const mediaId = useMemo( () => {
@@ -294,23 +298,6 @@ export default function MediaSectionV2( {
 		return null;
 	}, [] );
 
-	// Handle remove - reset to automatic detection (allows featured image fallback)
-	const handleRemove = useCallback( () => {
-		// Reset to allow automatic detection and inheritance:
-		// - media_source: undefined allows fallback detection in global mode
-		// - attached_media: [] clears explicit attachment, triggering forced attachment logic in per-network mode
-		updateMediaOptions( {
-			media_source: undefined,
-			attached_media: [],
-			image_generator_settings: { ...imageGeneratorSettings, enabled: false },
-		} );
-
-		recordEvent( 'jetpack_social_media_removed', {
-			...analyticsData,
-			source: currentSource,
-		} );
-	}, [ updateMediaOptions, imageGeneratorSettings, recordEvent, analyticsData, currentSource ] );
-
 	// Determine the effective source - for featured image fallback (currentSource is null),
 	// treat it as 'featured-image' when there's preview data from featured image
 	const effectiveSource = useMemo( () => {
@@ -384,7 +371,10 @@ export default function MediaSectionV2( {
 						{ __( 'Media', 'jetpack-publicize-pkg' ) }
 					</BaseControl.VisualLabel>
 					<p className={ styles.description }>
-						{ getMediaSourceDescription( currentSource, { featuredImageId } ) }
+						{ getMediaSourceDescription( currentSource, {
+							featuredImageId,
+							sigEnabled,
+						} ) }
 					</p>
 
 					{ /* MediaUpload component - rendered once, open function stored in ref */ }
@@ -410,7 +400,7 @@ export default function MediaSectionV2( {
 									onAiImageClick={ handleAiImageClick }
 									disabled={ disabled }
 									featuredImageId={ featuredImageId }
-									onRemove={ handleRemove }
+									includeDefaultOption={ isAttachmentToggleHidden }
 								/>
 								{ currentSource === 'sig' && (
 									<div className={ styles.action }>
@@ -426,12 +416,14 @@ export default function MediaSectionV2( {
 									</div>
 								) }
 							</div>
-							<CustomMediaToggle
-								source={ effectiveSource }
-								checked={ isShareAsAttachment }
-								onChange={ handleAttachmentToggle }
-								disabled={ forceAsAttachment || disabled }
-							/>
+							{ ! isAttachmentToggleHidden && (
+								<CustomMediaToggle
+									source={ effectiveSource }
+									checked={ isShareAsAttachment }
+									onChange={ handleAttachmentToggle }
+									disabled={ disabled }
+								/>
+							) }
 						</>
 					) }
 
@@ -444,7 +436,7 @@ export default function MediaSectionV2( {
 							onAiImageClick={ handleAiImageClick }
 							disabled={ disabled }
 							featuredImageId={ featuredImageId }
-							onRemove={ handleRemove }
+							includeDefaultOption={ isAttachmentToggleHidden }
 						/>
 					) }
 					{ currentSource === 'media-library' && (

@@ -3,45 +3,13 @@
  * Displays a dropdown menu with grouped media source options
  */
 
-import { Button, Dropdown, MenuGroup, MenuItem } from '@wordpress/components';
+import { Button, Dropdown, MenuGroup } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import MediaSourceMenuItem from './media-source-menu-item';
 import styles from './styles.module.scss';
 import { MediaSourceMenuProps } from './types';
 import { getMediaSourceOptions } from './utils/media-source-options';
-
-/**
- * Menu item for clearing media selection.
- *
- * @param {object}   root0            - Component props.
- * @param {boolean}  root0.isSelected - Whether this option is currently active.
- * @param {Function} root0.onRemove   - Callback to clear media.
- * @param {Function} root0.onClose    - Callback to close the dropdown.
- * @return {JSX.Element} NoMediaMenuItem component.
- */
-function NoMediaMenuItem( {
-	isSelected,
-	onRemove,
-	onClose,
-}: {
-	isSelected: boolean;
-	onRemove?: () => void;
-	onClose: () => void;
-} ) {
-	const handleClick = useCallback( () => {
-		onRemove?.();
-		onClose();
-	}, [ onRemove, onClose ] );
-
-	return (
-		<MenuGroup>
-			<MenuItem isSelected={ isSelected } onClick={ handleClick }>
-				{ __( 'No media', 'jetpack-publicize-pkg' ) }
-			</MenuItem>
-		</MenuGroup>
-	);
-}
 
 /**
  * MediaSourceMenu component
@@ -56,19 +24,25 @@ export default function MediaSourceMenu( {
 	onAiImageClick,
 	disabled = false,
 	featuredImageId,
-	onRemove,
+	includeDefaultOption = false,
 	children,
 }: MediaSourceMenuProps ) {
 	// Get options from function to ensure translations are loaded
 	const options = useMemo( () => getMediaSourceOptions(), [] );
 
-	// Group options by category, hiding "Featured image" when no featured image exists
+	/*
+	 * Group options by category. Hide "Featured image" when no featured image exists.
+	 * Hide "Default" unless the caller opts in (per-network customization only).
+	 */
 	const linkPreviewOptions = useMemo(
 		() =>
-			options.filter(
-				opt => opt.group === 'link-preview' && ( opt.id !== 'featured-image' || featuredImageId )
-			),
-		[ options, featuredImageId ]
+			options.filter( opt => {
+				if ( opt.group !== 'link-preview' ) return false;
+				if ( opt.id === 'featured-image' && ! featuredImageId ) return false;
+				if ( opt.id === null && ! includeDefaultOption ) return false;
+				return true;
+			} ),
+		[ options, featuredImageId, includeDefaultOption ]
 	);
 	const attachmentOptions = useMemo(
 		() => options.filter( opt => opt.group === 'attachment' ),
@@ -108,7 +82,7 @@ export default function MediaSourceMenu( {
 				>
 					{ linkPreviewOptions.map( option => (
 						<MediaSourceMenuItem
-							key={ option.id }
+							key={ option.id ?? 'default' }
 							option={ option }
 							isSelected={ currentSource === option.id }
 							onSelect={ onSelect }
@@ -126,7 +100,7 @@ export default function MediaSourceMenu( {
 				>
 					{ attachmentOptions.map( option => (
 						<MediaSourceMenuItem
-							key={ option.id }
+							key={ option.id ?? 'default' }
 							option={ option }
 							isSelected={ currentSource === option.id }
 							onSelect={ onSelect }
@@ -136,24 +110,15 @@ export default function MediaSourceMenu( {
 						/>
 					) ) }
 				</MenuGroup>
-				{ ! featuredImageId && (
-					<NoMediaMenuItem
-						isSelected={ ! currentSource }
-						onRemove={ onRemove }
-						onClose={ onClose }
-					/>
-				) }
 			</>
 		),
 		[
 			linkPreviewOptions,
 			attachmentOptions,
 			currentSource,
-			featuredImageId,
 			onSelect,
 			onMediaLibraryClick,
 			onAiImageClick,
-			onRemove,
 		]
 	);
 

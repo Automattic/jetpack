@@ -165,7 +165,7 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 			attachedMedia={ attachedMedia }
 			onMediaChange={ handleMediaChange }
 			mediaSource={ mediaSource }
-			forceMediaAsAttachment
+			attachmentToggleMode="hidden"
 		/>
 	);
 }
