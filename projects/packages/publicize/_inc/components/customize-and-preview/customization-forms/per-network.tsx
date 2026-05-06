@@ -1,11 +1,15 @@
-import { useDispatch } from '@wordpress/data';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import useFeaturedImage from '../../../hooks/use-featured-image';
 import useMediaDetails from '../../../hooks/use-media-details';
 import { computeAttachedMediaForSource } from '../../../hooks/use-per-network-customization/utils';
 import { usePostMeta } from '../../../hooks/use-post-meta';
 import { store as socialStore } from '../../../social-store';
+import { DEFAULT_MESSAGE_TEMPLATE } from '../../../social-store/constants';
 import { Connection } from '../../../social-store/types';
+import { features } from '../../../utils/constants';
 import { SharePostForm, SharePostFormProps } from '../../form/share-post-form';
 
 type PerNetworkCustomizationFormProps = {
@@ -20,11 +24,16 @@ type PerNetworkCustomizationFormProps = {
  */
 export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomizationFormProps ) {
 	const { customizeConnectionById } = useDispatch( socialStore );
+	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 	const {
 		attachedMedia: globalAttachedMedia,
 		shareMessage: globalMessage,
 		mediaSource: globalMediaSource,
 	} = usePostMeta();
+	const globalMessageTemplate = useSelect(
+		select => select( socialStore ).getSocialSettings().messageTemplate,
+		[]
+	);
 
 	// Get featured image details for forced attachment
 	const featuredImageId = useFeaturedImage();
@@ -32,7 +41,30 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 	const featuredImageUrl = featuredImageDetails?.mediaData?.sourceUrl;
 	const featuredImageMime = featuredImageDetails?.metaData?.mime ?? 'image/jpeg';
 
-	const message = connection.message ?? globalMessage ?? '';
+	const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
+	const hasConnectionTemplate = Boolean( connection.template );
+	const hasCustomGlobalTemplate =
+		Boolean( globalMessageTemplate ) && globalMessageTemplate !== DEFAULT_MESSAGE_TEMPLATE;
+
+	let message = connection.message ?? globalMessage ?? '';
+	let fallbackHelp: string | undefined;
+
+	if ( templatesEnabled ) {
+		message = hasConnectionMessage
+			? connection.message ?? ''
+			: connection.template ?? globalMessage ?? '';
+
+		if ( hasConnectionTemplate ) {
+			fallbackHelp = __( 'Connection template will be used if empty.', 'jetpack-publicize-pkg' );
+		} else if ( hasCustomGlobalTemplate ) {
+			fallbackHelp = __( 'Global template will be used if empty.', 'jetpack-publicize-pkg' );
+		} else {
+			fallbackHelp = __(
+				'The default network template will be used if empty.',
+				'jetpack-publicize-pkg'
+			);
+		}
+	}
 
 	// Don't default to 'none' - let undefined trigger featured image fallback detection
 	const mediaSource = connection.media_source ?? globalMediaSource;
@@ -120,6 +152,7 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 			isInsideNavigatorModal
 			disabled={ ! connection.enabled }
 			message={ message }
+			messageHelp={ fallbackHelp }
 			onMessageChange={ handleMessageChange }
 			attachedMedia={ attachedMedia }
 			onMediaChange={ handleMediaChange }

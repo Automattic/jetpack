@@ -5,6 +5,7 @@ export const SOCIAL_NOTES_ENABLED_KEY = 'jetpack-social-note';
 export const SOCIAL_NOTES_CONFIG_KEY = 'jetpack_social_notes_config';
 export const SHOW_PRICING_PAGE_KEY = 'jetpack-social_show_pricing_page';
 export const MESSAGE_TEMPLATE_KEY = 'jetpack_social_message_template';
+export const DEFAULT_MESSAGE_TEMPLATE = '{title}\n\n{excerpt}\n\n{url}';
 
 export const CUSTOMIZE_PER_NETWORK_KEY = '_wpas_customize_per_network';
 
