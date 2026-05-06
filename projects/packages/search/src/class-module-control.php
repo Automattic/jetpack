@@ -225,7 +225,10 @@ class Module_Control {
 	 * see the right state until they're migrated to consult get_experience().
 	 *
 	 * @param string $experience One of 'embedded', 'overlay', 'inline', 'off'.
-	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 * @return bool|WP_Error WP_Error on failure; true on success for the affirmative
+	 *                      branches; the bool from Modules::deactivate() for `'off'`
+	 *                      (false signals the module was already inactive — a benign
+	 *                      no-op the REST controller treats as success).
 	 */
 	public function update_experience( string $experience ) {
 		$valid_values = array( self::EXPERIENCE_OVERLAY, self::EXPERIENCE_EMBEDDED, self::EXPERIENCE_INLINE, self::EXPERIENCE_OFF );
@@ -243,8 +246,7 @@ class Module_Control {
 				// package's experience option. Leave instant_search_enabled and the
 				// experience option untouched so re-enabling later restores the user's
 				// prior preference (matches legacy ModuleControl behaviour).
-				( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
-				return true;
+				return ( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
 
 			case self::EXPERIENCE_INLINE:
 				$result = $this->activate();

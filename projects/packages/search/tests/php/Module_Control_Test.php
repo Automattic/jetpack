@@ -287,12 +287,14 @@ class Module_Control_Test extends Search_TestCase {
 		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
 		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 
-		static::$search_module->update_experience( Module_Control::EXPERIENCE_OFF );
+		$result = static::$search_module->update_experience( Module_Control::EXPERIENCE_OFF );
 
 		// Read the actual option (not via the filter) to prove deactivate() ran.
 		$active_modules = get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 
+		// Propagated from Modules::deactivate(): true when the module was actually removed.
+		$this->assertTrue( $result );
 		$this->assertNotContains( Module_Control::JETPACK_SEARCH_MODULE_SLUG, $active_modules );
 		// experience option preserved (still 'overlay' for later re-enable).
 		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
@@ -300,6 +302,20 @@ class Module_Control_Test extends Search_TestCase {
 		$this->assertTrue( (bool) get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+	}
+
+	/**
+	 * When the module is already inactive, Modules::deactivate() is a no-op and
+	 * returns false. update_experience('off') propagates that bool — it's not an
+	 * error, just a signal that nothing changed. The REST controller (which only
+	 * branches on is_wp_error()) still treats it as success.
+	 */
+	public function test_update_experience_off_when_module_already_inactive_returns_false() {
+		// No filter installed → active modules option is empty → deactivate is a no-op.
+		$result = static::$search_module->update_experience( Module_Control::EXPERIENCE_OFF );
+
+		$this->assertFalse( $result );
+		$this->assertNotInstanceOf( \WP_Error::class, $result );
 	}
 
 	/**
