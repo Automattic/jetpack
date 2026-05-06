@@ -297,9 +297,16 @@ function convertToBlocks( html ) {
 		if ( node.nodeType !== Node.ELEMENT_NODE ) continue;
 
 		const tag = node.tagName.toLowerCase();
-		const inner = node.innerHTML.trim();
+		// Strip lone <br> placeholders left by contentEditable so empty
+		// blocks are not serialized with stale markup.
+		const inner = node.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
 
-		if ( ! inner && ! [ 'figure', 'img', 'hr' ].includes( tag ) ) continue;
+		if (
+			! inner &&
+			! [ 'figure', 'img', 'hr', 'blockquote', 'ul', 'ol' ].includes( tag ) &&
+			! /^h[1-6]$/.test( tag )
+		)
+			continue;
 
 		// Check for text alignment.
 		const align = node.style && node.style.textAlign;
@@ -359,11 +366,15 @@ function convertToBlocks( html ) {
 			);
 		} else if ( tag === 'ul' || tag === 'ol' ) {
 			// Wrap each <li> in wp:list-item block comments.
-			const listItems = Array.from( node.querySelectorAll( ':scope > li' ) )
-				.map(
-					li => `<!-- wp:list-item -->\n<li>${ li.innerHTML.trim() }</li>\n<!-- /wp:list-item -->`
-				)
-				.join( '\n' );
+			const liNodes = Array.from( node.querySelectorAll( ':scope > li' ) );
+			const listItems = liNodes.length
+				? liNodes
+						.map(
+							li =>
+								`<!-- wp:list-item -->\n<li>${ li.innerHTML.trim() }</li>\n<!-- /wp:list-item -->`
+						)
+						.join( '\n' )
+				: '<!-- wp:list-item -->\n<li></li>\n<!-- /wp:list-item -->';
 			const listTag = tag === 'ol' ? 'ol' : 'ul';
 			const attrs = tag === 'ol' ? ' {"ordered":true}' : '';
 			blocks.push(
