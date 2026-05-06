@@ -331,14 +331,16 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Under is_initial_loading, the product-layout skeleton includes a small
-	 * price placeholder in addition to the title skeleton.
+	 * Under is_initial_loading, the product-layout skeleton includes title,
+	 * price, and rating placeholders so each card matches the live shape
+	 * (image + title + price + rating) instead of vanishing the rating row.
 	 */
-	public function test_product_layout_skeleton_includes_price_placeholder() {
+	public function test_product_layout_skeleton_includes_title_price_and_rating_placeholders() {
 		$markup = $this->render_with_skeleton( array( 'layout' => 'product' ) );
 
 		$this->assertStringContainsString( 'jetpack-search-skeleton--title', $markup );
 		$this->assertStringContainsString( 'jetpack-search-skeleton--price', $markup );
+		$this->assertStringContainsString( 'jetpack-search-skeleton--rating', $markup );
 	}
 
 	/**
@@ -366,18 +368,20 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Under is_initial_loading, the title skeleton row in the product-layout
-	 * copy block must come before the price skeleton row — matching the
-	 * visual card's own title-then-price vertical order.
+	 * Under is_initial_loading, the product-layout copy block must order the
+	 * skeleton rows as title → price → rating, matching the live card.
 	 */
-	public function test_product_layout_skeleton_title_precedes_price_in_copy_block() {
+	public function test_product_layout_skeleton_title_price_rating_dom_order() {
 		$markup = $this->render_with_skeleton( array( 'layout' => 'product' ) );
 
-		$title_pos = strpos( $markup, 'jetpack-search-skeleton--title' );
-		$price_pos = strpos( $markup, 'jetpack-search-skeleton--price' );
+		$title_pos  = strpos( $markup, 'jetpack-search-skeleton--title' );
+		$price_pos  = strpos( $markup, 'jetpack-search-skeleton--price' );
+		$rating_pos = strpos( $markup, 'jetpack-search-skeleton--rating' );
 		$this->assertNotFalse( $title_pos, 'Title skeleton must be present.' );
 		$this->assertNotFalse( $price_pos, 'Price skeleton must be present.' );
+		$this->assertNotFalse( $rating_pos, 'Rating skeleton must be present.' );
 		$this->assertLessThan( $price_pos, $title_pos, 'Title skeleton must precede the price skeleton in DOM order.' );
+		$this->assertLessThan( $rating_pos, $price_pos, 'Price skeleton must precede the rating skeleton in DOM order.' );
 	}
 
 	/**
@@ -395,6 +399,7 @@ class Search_Results_Render_Test extends TestCase {
 			$this->assertStringContainsString( 'jetpack-search-skeleton--image', $markup, "Layout '{$layout}': image skeleton expected." );
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--product-image', $markup, "Layout '{$layout}': product-image skeleton must be absent." );
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--price', $markup, "Layout '{$layout}': price skeleton must be absent." );
+			$this->assertStringNotContainsString( 'jetpack-search-skeleton--rating', $markup, "Layout '{$layout}': rating skeleton must be absent." );
 		}
 	}
 }
