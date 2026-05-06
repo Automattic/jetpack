@@ -149,8 +149,8 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 	 * return an empty string rather than crash.
 	 */
 	public function test_no_post_context_returns_empty_string() {
-		$original_post    = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
-		$GLOBALS['post']  = null;
+		$original_post   = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$GLOBALS['post'] = null;
 
 		$result = \Automattic\Jetpack\Extensions\Podcast_Episode\render_block(
 			$this->default_attrs,

@@ -134,17 +134,12 @@ function render_block( $attributes, $content, $block = null ) {
 		}
 	}
 
-	$block_classname    = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes );
-	$wrapper_attributes = get_block_wrapper_attributes(
-		array(
-			'class' => $block_classname,
-		)
-	);
-	$is_amp             = Blocks::is_amp_request();
+	$block_classname = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes );
+	$is_amp          = Blocks::is_amp_request();
 
 	ob_start();
 	?>
-	<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>>
+	<div class="<?php echo esc_attr( $block_classname ); ?>">
 		<article class="jetpack-podcast-episode" itemscope itemtype="https://schema.org/PodcastEpisode">
 			<?php if ( $image_url ) : ?>
 				<figure class="jetpack-podcast-episode__poster">
