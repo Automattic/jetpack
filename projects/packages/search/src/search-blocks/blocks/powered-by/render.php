@@ -14,7 +14,7 @@ namespace Automattic\Jetpack\Search;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-$is_free_plan = ( new Plan() )->is_free_plan();
+$is_free_plan = Search_Blocks::is_free_plan();
 $hide         = ! empty( $attributes['hide'] );
 if ( ! $is_free_plan && $hide ) {
 	return;

@@ -24,7 +24,7 @@ namespace Automattic\Jetpack\Search;
 
 $panel_content = $content; // @phan-suppress-current-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
 
-if ( ( new Plan() )->is_free_plan() && false === strpos( $panel_content, 'wp-block-jetpack-powered-by' ) ) {
+if ( Search_Blocks::is_free_plan() && false === strpos( $panel_content, 'wp-block-jetpack-powered-by' ) ) {
 	$panel_content .= render_block(
 		array(
 			'blockName' => 'jetpack/powered-by',
