@@ -372,7 +372,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$abilities = Blaze_Abilities::get_abilities();
 
 		$this->assertArrayHasKey( 'blaze-ads/prepare-campaign', $abilities );
-		$this->assertStringContainsString( 'Device targeting and interest/topic targeting are not public MCP inputs in v1', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
+		$this->assertStringContainsString( 'Audience overrides must use stable codes or closed enums', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
 
 		$schema     = $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['input_schema'];
 		$properties = $schema['properties'];
@@ -389,12 +389,17 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'main_image_url', $properties );
 		$this->assertArrayHasKey( 'languages', $properties );
 		$this->assertArrayHasKey( 'countries', $properties );
+		$this->assertArrayHasKey( 'devices', $properties );
+		$this->assertArrayHasKey( 'interests', $properties );
 		$this->assertArrayNotHasKey( 'objective', $properties );
-		$this->assertArrayNotHasKey( 'devices', $properties );
-		$this->assertArrayNotHasKey( 'interests', $properties );
 		$this->assertArrayNotHasKey( 'page_topics', $properties );
 		$this->assertStringContainsString( 'ISO 639-1', $properties['languages']['description'] );
 		$this->assertStringContainsString( 'ISO 3166-1 alpha-2', $properties['countries']['description'] );
+		$this->assertSame( array( 'zh', 'nl', 'en', 'fr', 'de', 'hi', 'id', 'it', 'ja', 'ko', 'pl', 'pt', 'ru', 'es', 'tr' ), $properties['languages']['items']['enum'] );
+		$this->assertSame( 1, $properties['devices']['maxItems'] );
+		$this->assertSame( array( 'mobile', 'desktop' ), $properties['devices']['items']['enum'] );
+		$this->assertStringContainsString( 'Tablet is not exposed', $properties['devices']['description'] );
+		$this->assertStringContainsString( 'IAB category IDs', $properties['interests']['description'] );
 	}
 
 	// --- prepare_campaign: prefill payload + URL ---
