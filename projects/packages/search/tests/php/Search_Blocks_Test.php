@@ -57,6 +57,67 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * `build_locale_data_payload()` must return the Jed-shaped
+	 * `{ "": header, msgid: [translations] }` map that
+	 * `wp.i18n.setLocaleData()` consumes. This is the only non-trivial
+	 * data transform in the i18n-runtime path; a regression here would
+	 * silently produce untranslated strings on non-English locales with
+	 * no other test failure.
+	 */
+	public function test_build_locale_data_payload_shapes_translations_for_setLocaleData() {
+		$translations          = new \stdClass();
+		$translations->headers = array( 'Plural-Forms' => 'nplurals=2; plural=(n != 1);' );
+		// Use anonymous classes for the entries so `key()` is a real method
+		// — `Translation_Entry::key()` returns the msgctxt-prefixed msgid,
+		// which is what the JS side uses to look up translations.
+		$singular_entry        = new class() {
+			public $key          = 'Searching…';
+			public $translations = array( 'Recherche…' );
+			public function key() {
+				return $this->key;
+			}
+		};
+		$plural_entry          = new class() {
+			public $key          = "Found %d result\u{0000}Found %d results";
+			public $translations = array(
+				'%d résultat trouvé',
+				'%d résultats trouvés',
+			);
+			public function key() {
+				return $this->key;
+			}
+		};
+		$translations->entries = array(
+			$singular_entry->key => $singular_entry,
+			$plural_entry->key   => $plural_entry,
+		);
+
+		$payload = Search_Blocks::build_locale_data_payload( $translations, 'jetpack-search-pkg' );
+
+		$this->assertArrayHasKey( '', $payload );
+		$this->assertSame( 'jetpack-search-pkg', $payload['']['domain'] );
+		$this->assertSame( 'nplurals=2; plural=(n != 1);', $payload['']['plural-forms'] );
+		$this->assertSame( array( 'Recherche…' ), $payload['Searching…'] );
+		$this->assertSame(
+			array( '%d résultat trouvé', '%d résultats trouvés' ),
+			$payload["Found %d result\u{0000}Found %d results"]
+		);
+	}
+
+	/**
+	 * Headers without an explicit `Plural-Forms` entry must fall back to the
+	 * Western 2-form rule so plural translations still pick the right index
+	 * even on translation files that omit the header.
+	 */
+	public function test_build_locale_data_payload_supplies_default_plural_forms() {
+		$translations          = new \stdClass();
+		$translations->headers = array();
+		$translations->entries = array();
+		$payload               = Search_Blocks::build_locale_data_payload( $translations, 'jetpack-search-pkg' );
+		$this->assertSame( 'nplurals=2; plural=(n != 1);', $payload['']['plural-forms'] );
+	}
+
+	/**
 	 * A known `orderby` in the URL must seed sortOrder so SSR pre-fetches
 	 * the correct ordering. Values must stay aligned with the UI keys in
 	 * src/instant-search/lib/constants.js SORT_OPTIONS.

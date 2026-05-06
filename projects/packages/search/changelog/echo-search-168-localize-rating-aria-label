@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: fixed
 
-Search Blocks: enable @wordpress/i18n imports in the Interactivity API view bundle so block strings (rating aria-label, results count, filter pill remove) translate on the front end via the page locale.
+Search Blocks: localize the front-end product-rating aria-label (and other Interactivity API view-bundle strings) via @wordpress/i18n on the page locale, so screen readers no longer hear English on translated stores.

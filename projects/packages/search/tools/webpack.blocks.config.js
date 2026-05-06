@@ -104,15 +104,20 @@ module.exports = {
 				// only registers `@wordpress/interactivity` (and a11y / router)
 				// as script modules today.
 				requestToExternalModule( request ) {
-					if ( request === '@wordpress/i18n' ) {
-						// `module` (not `import`) so webpack emits a hoisted
-						// static `import * from '@wordpress/i18n'` instead of
-						// a dynamic `import()` Promise. Same pattern DEP uses
-						// for `@wordpress/interactivity` itself: we need
-						// synchronous bindings for `__()` / `_n()` / `sprintf()`
-						// calls in the view bundle's pure helpers.
-						return 'module @wordpress/i18n';
+					if ( request !== '@wordpress/i18n' ) {
+						// Returning undefined here lets DEP fall through to its
+						// own defaults for every other `@wordpress/*` request,
+						// which is what we want — only `@wordpress/i18n` needs
+						// our custom module-mode handling today.
+						return;
 					}
+					// `module` (not `import`) so webpack emits a hoisted
+					// static `import * from '@wordpress/i18n'` instead of
+					// a dynamic `import()` Promise. Same pattern DEP uses
+					// for `@wordpress/interactivity` itself: we need
+					// synchronous bindings for `__()` / `_n()` / `sprintf()`
+					// calls in the view bundle's pure helpers.
+					return 'module @wordpress/i18n';
 				},
 			},
 			// I18nLoaderPlugin tries to inject @wordpress/jp-i18n-loader as an

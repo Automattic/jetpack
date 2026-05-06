@@ -177,9 +177,16 @@ class Search_Blocks {
 	 * WP core only registers `@wordpress/interactivity` (and recently a11y /
 	 * router) as script modules, so importing `@wordpress/i18n` from a view
 	 * bundle would otherwise fail at load time with an unresolved import.
-	 * Registering our own module under the canonical `@wordpress/i18n` ID
-	 * means the resolver finds it first, and any future core registration
-	 * supersedes ours via `wp_register_script_module`'s first-wins behavior.
+	 *
+	 * `wp_register_script_module()` is first-registered-wins: a second call
+	 * for the same ID is silently dropped. We hook on `init` priority 10, so
+	 * our shim wins for the duration of this workaround. **Maintenance hazard:**
+	 * if WP core later registers `@wordpress/i18n` natively at the same or
+	 * higher priority, our registration would still win and quietly mask the
+	 * native module — at which point this method should be removed (or
+	 * deregister-then-register) to let core take over. Until then, the shim
+	 * delegating to `window.wp.i18n` produces equivalent behavior to a native
+	 * registration, so the dual-source state is functionally safe.
 	 */
 	public static function register_i18n_module() {
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
@@ -272,6 +279,24 @@ class Search_Blocks {
 		if ( empty( $translations->entries ) ) {
 			return null;
 		}
+		return static::build_locale_data_payload( $translations, $domain );
+	}
+
+	/**
+	 * Pure data-shape transform from a Pomo `Translations` object to the Jed
+	 * locale-data shape `wp.i18n.setLocaleData()` expects.
+	 *
+	 * Split out from `collect_locale_data()` so it can be unit-tested without
+	 * standing up the WP textdomain registry: callers can construct a fake
+	 * `Translations` (anything with `->headers` and `->entries`, where each
+	 * entry has `->key()` and `->translations`) and assert the shape directly.
+	 *
+	 * @param object $translations Pomo `Translations` (or compatible duck type)
+	 *                             with `headers` array and iterable `entries`.
+	 * @param string $domain       Text domain.
+	 * @return array<string, mixed>
+	 */
+	public static function build_locale_data_payload( $translations, string $domain ): array {
 		$plural_forms = $translations->headers['Plural-Forms'] ?? 'nplurals=2; plural=(n != 1);';
 		$locale_data  = array(
 			'' => array(
