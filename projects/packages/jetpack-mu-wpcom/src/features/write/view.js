@@ -2966,6 +2966,13 @@ async function savePost( postStatus, isAutosave = false ) {
 			state.isSaving = false;
 			// Clear autosave reference — user explicitly saved.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+
+			window._tkq = window._tkq || [];
+			window._tkq.push( [
+				'recordEvent',
+				'wpcom_write_editor_draft_saved',
+				{ is_new_post: ! isEditing, post_id: post.id },
+			] );
 			setTimeout( () => {
 				state.message = '';
 			}, 2500 );
