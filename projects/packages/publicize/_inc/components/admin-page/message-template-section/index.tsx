@@ -7,9 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../../social-store';
 import { features } from '../../../utils/constants';
 import { MessageTemplateEditor } from '../../message-template-editor';
-import ToggleSection from '../toggles/toggle-section';
 import styles from './styles.module.scss';
-import type { FC } from 'react';
 
 type MessageTemplateSectionProps = {
 	/**
@@ -18,24 +16,25 @@ type MessageTemplateSectionProps = {
 	disabled?: boolean;
 };
 
-const SAVE_DEBOUNCE_MS = 600;
-
-// ToggleSection requires `onChange` even when the toggle is hidden. The
-// hoisted noop avoids `react/jsx-no-bind` complaints from inline arrows.
-const noopOnChange = () => undefined;
+const SAVE_DEBOUNCE_MS = 1000;
 
 /**
  * Global message template editor section on the Social admin page.
  *
- * Renders only when the current site has the `social-message-templates`
- * feature and the user has `manage_options`. Auto-saves the textarea
- * value via the WP `/wp/v2/settings` REST endpoint after the user pauses
- * typing.
+ * Renders inline within the SocialModuleToggle's grid (right column on wide
+ * viewports) so it sits between the upgrade trigger and the connections
+ * list without introducing a nested ToggleSection grid context. Visible
+ * only when the site has the `social-message-templates` feature and the
+ * user has `manage_options`.
+ *
+ * Auto-saves the textarea value via the WP `/wp/v2/settings` REST endpoint
+ * after the user pauses typing.
  *
  * @param {MessageTemplateSectionProps} props - The component's props.
  * @return The rendered section, or `null` when gated out.
  */
-export const MessageTemplateSection: FC< MessageTemplateSectionProps > = ( { disabled } ) => {
+export function MessageTemplateSection( props: MessageTemplateSectionProps ) {
+	const { disabled } = props;
 	const canManageOptions = currentUserCan( 'manage_options' );
 	const featureEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 
@@ -51,8 +50,7 @@ export const MessageTemplateSection: FC< MessageTemplateSectionProps > = ( { dis
 	const [ draft, setDraft ] = useState( savedTemplate );
 
 	// Sync draft when the saved value changes from outside (initial hydration,
-	// concurrent edits in another tab, etc.) — but only when we're not in the
-	// middle of an in-flight save the user just kicked off.
+	// concurrent edits in another tab, etc.).
 	useEffect( () => {
 		setDraft( savedTemplate );
 	}, [ savedTemplate ] );
@@ -72,20 +70,19 @@ export const MessageTemplateSection: FC< MessageTemplateSectionProps > = ( { dis
 	}
 
 	return (
-		<ToggleSection
-			hideToggle
-			title={ __( 'Default share message', 'jetpack-publicize-pkg' ) }
-			disabled={ disabled || isUpdating }
-			checked={ false }
-			onChange={ noopOnChange }
-		>
+		<div className={ styles.section }>
+			<h4 className={ styles.title }>{ __( 'Default share message', 'jetpack-publicize-pkg' ) }</h4>
 			<Text className={ styles.description }>
 				{ __(
 					'Set a default message format used when sharing posts to social networks. Use placeholders to insert post details automatically.',
 					'jetpack-publicize-pkg'
 				) }
 			</Text>
-			<MessageTemplateEditor value={ draft } onChange={ handleChange } disabled={ disabled } />
-		</ToggleSection>
+			<MessageTemplateEditor
+				value={ draft }
+				onChange={ handleChange }
+				disabled={ disabled || isUpdating }
+			/>
+		</div>
 	);
-};
+}

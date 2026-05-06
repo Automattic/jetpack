@@ -98,7 +98,7 @@ export default function MessageBoxControl( {
 	const help = templatesEnabled
 		? createInterpolateElement(
 				__(
-					'Supports placeholders like <title/> and <url/>. See the list below for all options.',
+					'Supports placeholders like <title/> and <url/>. See the list below for all the options.',
 					'jetpack-publicize-pkg'
 				),
 				{

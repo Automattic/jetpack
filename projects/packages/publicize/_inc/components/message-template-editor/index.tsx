@@ -1,5 +1,6 @@
 import { TextareaControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import PlaceholdersHelp from '../placeholders-help';
 import styles from './styles.module.scss';
 import type { ReactNode } from 'react';
@@ -13,13 +14,36 @@ export type MessageTemplateEditorProps = {
 	label?: string;
 	/** Override the textarea placeholder. */
 	placeholder?: string;
-	/** Optional help text rendered below the textarea. */
+	/** Override the help text rendered below the textarea. */
 	helpText?: ReactNode;
 	/** Whether the editor is disabled. */
 	disabled?: boolean;
 	/** Number of textarea rows. Defaults to 4. */
 	rows?: number;
 };
+
+const getDefaultPlaceholder = () =>
+	sprintf(
+		/* translators: %1$s and %2$s are placeholder tokens, e.g. {title} and {url}. */
+		__(
+			'Write a default share message. Use placeholders like %1$s or %2$s — they’re filled in when posts are shared.',
+			'jetpack-publicize-pkg'
+		),
+		'{title}',
+		'{url}'
+	);
+
+const getDefaultHelpText = () =>
+	createInterpolateElement(
+		__(
+			'Supports placeholders like <title/> and <url/>. See the list below for all the options.',
+			'jetpack-publicize-pkg'
+		),
+		{
+			title: <code>{ '{title}' }</code>,
+			url: <code>{ '{url}' }</code>,
+		}
+	);
 
 /**
  * Shared editor for Publicize message templates.
@@ -35,6 +59,8 @@ export type MessageTemplateEditorProps = {
 export function MessageTemplateEditor( props: MessageTemplateEditorProps ) {
 	const { value, onChange, label, placeholder, helpText, disabled, rows = 4 } = props;
 	const resolvedLabel = label ?? __( 'Message template', 'jetpack-publicize-pkg' );
+	const resolvedPlaceholder = placeholder ?? getDefaultPlaceholder();
+	const resolvedHelpText = helpText ?? getDefaultHelpText();
 
 	return (
 		<div className={ styles[ 'message-template-editor' ] }>
@@ -43,9 +69,9 @@ export function MessageTemplateEditor( props: MessageTemplateEditorProps ) {
 				label={ resolvedLabel }
 				onChange={ onChange }
 				disabled={ disabled }
-				placeholder={ placeholder }
+				placeholder={ resolvedPlaceholder }
 				rows={ rows }
-				help={ helpText }
+				help={ resolvedHelpText }
 				__nextHasNoMarginBottom={ true }
 			/>
 			<PlaceholdersHelp />
