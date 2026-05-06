@@ -71,6 +71,10 @@ if ( is_admin() ) {
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
+// Initialize the Podcast package (Simple + Atomic only, gated behind the
+// `jetpack_podcast_untangle` filter — see Automattic\Jetpack\Podcast\Podcast).
+\Automattic\Jetpack\Podcast\Podcast::init();
+
 // Play nice with https://wp-cli.org/.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php';

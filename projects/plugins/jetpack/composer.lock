@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a173a2dbd72bc84909485ad57af10e43",
+    "content-hash": "fd56c7a169c5b040c1ca00923d60e8db",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2564,6 +2564,60 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Handle installation of plugins from WP.org",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-podcast",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/podcast",
+                "reference": "acaddca67e3e73d705207800e2ca4172ad7d88a9"
+            },
+            "require": {
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autorelease": true,
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-podcast",
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-podcast",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-podcast.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-podcast/compare/v${old}...v${new}"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Podcast functionality (Simple and Atomic only).",
             "transport-options": {
                 "relative": true
             }
@@ -5855,6 +5909,7 @@
         "automattic/jetpack-newsletter": 20,
         "automattic/jetpack-paypal-payments": 20,
         "automattic/jetpack-plugins-installer": 20,
+        "automattic/jetpack-podcast": 20,
         "automattic/jetpack-post-list": 20,
         "automattic/jetpack-post-media": 20,
         "automattic/jetpack-publicize": 20,
