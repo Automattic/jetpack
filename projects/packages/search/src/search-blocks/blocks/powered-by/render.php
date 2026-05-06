@@ -2,23 +2,16 @@
 /**
  * Powered by Jetpack block render.
  *
- * Free-plan sites always render this attribution — the `hide` attribute is
- * intentionally ignored. On paid plans, the saved `hide` attribute gates
- * rendering so authors can keep the block in the editor while suppressing
- * it on the public page.
+ * Renders the Jetpack attribution colophon. The block has no plan gate
+ * here — paid-plan authors who want the colophon gone delete the block
+ * from the panel. Free-plan attribution is enforced by results-panel's
+ * auto-inject (see `results-panel/render.php`), which renders this
+ * block server-side when it's missing from `$content`.
  *
  * @package automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
-
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-
-$is_free_plan = Search_Blocks::is_free_plan();
-$hide         = ! empty( $attributes['hide'] );
-if ( ! $is_free_plan && $hide ) {
-	return;
-}
 
 $wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'jetpack-search-powered-by' ) );
 

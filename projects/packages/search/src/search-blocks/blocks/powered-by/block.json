@@ -6,7 +6,7 @@
 	"title": "Powered by Jetpack",
 	"category": "jetpack-search",
 	"icon": "wordpress",
-	"description": "Attribution link to jetpack.com. Free-plan sites always display this; paid sites can hide it from the front end.",
+	"description": "Attribution link to jetpack.com. Free-plan sites always display this; paid sites can remove the block to hide it.",
 	"keywords": [ "search", "jetpack", "powered by", "colophon" ],
 	"supports": {
 		"html": false,
@@ -26,9 +26,6 @@
 		}
 	},
 	"textdomain": "jetpack-search-pkg",
-	"attributes": {
-		"hide": { "type": "boolean", "default": false }
-	},
 	"render": "file:./render.php",
 	"style": "file:../../../../build/search-blocks/powered-by.css"
 }
