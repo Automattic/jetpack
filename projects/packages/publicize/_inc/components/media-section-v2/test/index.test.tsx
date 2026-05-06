@@ -342,13 +342,15 @@ describe( 'MediaSectionV2', () => {
 			} );
 		} );
 
-		it( 'should reset media to Default and disable SIG when Default is selected', async () => {
+		it( 'should unset media_source and attached_media when Default is selected', async () => {
 			const user = userEvent.setup();
 
 			render(
 				<MediaSectionV2
 					analyticsData={ { test: 'data' } }
 					attachmentToggleMode="hidden"
+					mediaSource="sig"
+					imageGeneratorSettings={ { enabled: true } }
 					onMediaChange={ mockUpdateJetpackSocialOptions }
 				/>
 			);
@@ -360,8 +362,8 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'menuitem', { name: 'Default' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
-				media_source: 'none',
-				attached_media: [],
+				media_source: undefined,
+				attached_media: undefined,
 				image_generator_settings: { enabled: false },
 			} );
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {

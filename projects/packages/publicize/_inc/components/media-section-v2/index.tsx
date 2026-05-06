@@ -91,15 +91,24 @@ export default function MediaSectionV2( {
 	// State for AI image generation modal
 	const [ showAiImageModal, toggleShowAiImageModal ] = useReducer( state => ! state, false );
 
-	// Determine current media source
-	// Priority 1: Explicit user choice (if media_source is set)
-	// Priority 2: Detect from existing data (backward compatibility)
+	/*
+	 * Determine current media source.
+	 * Priority 1: Explicit user choice (if media_source is set).
+	 * Priority 2 (global mode only): detect from existing data (backward compatibility).
+	 * In per-network mode (toggle hidden), no explicit source means Default (null) — we
+	 * skip auto-detection so the dropdown doesn't show e.g. "Featured image" for a
+	 * connection whose attached_media is empty (which would mislead the user into
+	 * thinking the image is attached when it isn't).
+	 */
 	const currentSource = useMemo( () => {
 		if ( mediaSource !== undefined ) {
 			return mediaSource === 'none' ? null : ( mediaSource as MediaSourceType );
 		}
+		if ( isAttachmentToggleHidden ) {
+			return null;
+		}
 		return detectMediaSource( attachedMedia, featuredImageId, sigEnabled );
-	}, [ mediaSource, attachedMedia, featuredImageId, sigEnabled ] );
+	}, [ mediaSource, isAttachmentToggleHidden, attachedMedia, featuredImageId, sigEnabled ] );
 
 	/*
 	 * Attachment mode:
@@ -150,9 +159,18 @@ export default function MediaSectionV2( {
 		}
 
 		if ( ! mediaId || ! mediaDetails?.mediaData ) {
-			// Fallback to featured image when no explicit media and source is undefined/null
-			if ( ! currentSource && featuredImageData ) {
-				return featuredImageData;
+			/*
+			 * Default mode (no explicit source) — mirror the post-level OG resolution
+			 * priority so the preview matches what the destination network will actually
+			 * serve: SIG (if globally enabled) → featured image → nothing.
+			 */
+			if ( ! currentSource ) {
+				if ( sigEnabled ) {
+					return { id: 0, url: sigPreviewUrl || '', type: 'image' };
+				}
+				if ( featuredImageData ) {
+					return featuredImageData;
+				}
 			}
 			return null;
 		}
@@ -165,7 +183,10 @@ export default function MediaSectionV2( {
 			url: sourceUrl,
 			type: mime?.startsWith( 'video/' ) ? 'video' : 'image',
 		};
-	}, [ currentSource, mediaId, mediaDetails, sigPreviewUrl, featuredImageData ] );
+	}, [ currentSource, mediaId, mediaDetails, sigEnabled, sigPreviewUrl, featuredImageData ] );
+
+	// Preview will render the SIG image whenever SIG is the explicit source or the OG fallback in Default mode.
+	const isPreviewingSig = currentSource === 'sig' || ( ! currentSource && sigEnabled );
 
 	// Handle media source selection from dropdown
 	const handleSourceSelect = useCallback(
@@ -174,6 +195,25 @@ export default function MediaSectionV2( {
 				...analyticsData,
 				source,
 			} );
+
+			/*
+			 * Default (source === null) means "no per-connection override" — unset both fields
+			 * so the saved override entry doesn't carry a media_source. The REST layer drops
+			 * fields whose value is undefined (isset() check), and wpcom's Extractor treats a
+			 * missing media_source as 'none' anyway, so this cleans up the persisted shape
+			 * without changing runtime behavior.
+			 */
+			if ( source === null ) {
+				updateMediaOptions( {
+					media_source: undefined,
+					attached_media: undefined,
+					image_generator_settings: {
+						...imageGeneratorSettings,
+						enabled: false,
+					},
+				} );
+				return;
+			}
 
 			// Determine attached_media based on source and current attachment state
 			let attachedMediaUpdate: Array< { id: number; url: string; type: string } > = [];
@@ -192,7 +232,7 @@ export default function MediaSectionV2( {
 
 			// Single batch update with explicit media_source and all related fields
 			updateMediaOptions( {
-				media_source: source || 'none',
+				media_source: source,
 				attached_media: attachedMediaUpdate,
 				image_generator_settings: {
 					...imageGeneratorSettings,
@@ -388,10 +428,7 @@ export default function MediaSectionV2( {
 					{ /* Show preview + dropdown when there's media */ }
 					{ previewData && (
 						<>
-							<MediaPreview
-								media={ previewData }
-								isLoading={ currentSource === 'sig' && sigIsLoading }
-							/>
+							<MediaPreview media={ previewData } isLoading={ isPreviewingSig && sigIsLoading } />
 							<div className={ styles.actions }>
 								<MediaSourceMenu
 									currentSource={ currentSource }
