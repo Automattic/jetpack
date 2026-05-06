@@ -1,10 +1,9 @@
 import { ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useQuery } from '@tanstack/react-query';
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { Button, Spinner, __experimentalVStack as VStack } from '@wordpress/components';
-/* eslint-enable @wordpress/no-unsafe-wp-apis */
+import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Button, Stack } from '@wordpress/ui';
 import { siteScanQuery } from '../../data/query-options';
 import { useTrackEvent } from '../../data/use-track-event';
 import { useSetHeaderActions } from '../../header-actions-context';
@@ -67,9 +66,9 @@ const ActiveThreats: FC = () => {
 	useEffect( () => {
 		setHeaderActions(
 			<>
-				<ScanNowButton variant="secondary" disabled={ isScanRunning } />
+				<ScanNowButton disabled={ isScanRunning } />
 				{ fixableCount > 0 && ! isScanRunning && (
-					<Button variant="primary" onClick={ openBulkFix } __next40pxDefaultSize>
+					<Button variant="solid" onClick={ openBulkFix }>
 						{ sprintf(
 							/* translators: %d is the count of threats Jetpack Scan can auto-fix. */
 							_n( 'Auto-fix %d threat', 'Auto-fix %d threats', fixableCount, 'jetpack-scan-page' ),
@@ -84,9 +83,9 @@ const ActiveThreats: FC = () => {
 
 	if ( isLoading ) {
 		return (
-			<VStack alignment="center" style={ { minHeight: 360 } }>
+			<Stack align="center" justify="center" style={ { minHeight: 360 } }>
 				<Spinner />
-			</VStack>
+			</Stack>
 		);
 	}
 

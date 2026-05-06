@@ -4,6 +4,8 @@
 	"private": true,
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-scan": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@tanstack/react-query": "5.90.8",

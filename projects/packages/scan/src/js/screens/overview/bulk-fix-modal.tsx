@@ -1,10 +1,8 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { type Threat } from '@automattic/jetpack-scan';
-import { Notice, __experimentalText as Text } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Dialog, Stack } from '@wordpress/ui';
+import { Button, Dialog, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isFixComplete, useFixThreatsStatusQuery } from '../../data/use-fix-threats-status';
 import { useFixThreatsMutation } from '../../data/use-threat-mutations';
@@ -155,9 +153,11 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 				) }
 			</Text>
 			{ fixable.length < threats.length && (
-				<Notice status="info" isDismissible={ false }>
-					{ __( 'Threats that cannot be auto-fixed will be skipped.', 'jetpack-scan-page' ) }
-				</Notice>
+				<Notice.Root intent="info">
+					<Notice.Description>
+						{ __( 'Threats that cannot be auto-fixed will be skipped.', 'jetpack-scan-page' ) }
+					</Notice.Description>
+				</Notice.Root>
 			) }
 			<ul style={ { margin: 0, paddingInlineStart: '20px' } }>
 				{ fixable.map( threat => (

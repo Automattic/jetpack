@@ -1,30 +1,11 @@
-$jetpack-scan-inset: var(--wpds-dimension-padding-2xl, 24px);
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
+// Apply the shared Jetpack admin-page layout mixin so `<AdminPage>` controls
+// the full content area (fixed header, scrollable middle, pinned footer) and
+// the `.jp-admin-page-tabs` strip gets its sticky positioning, hairline, and
+// header-aligned inline padding.
 body.jetpack_page_jetpack-scan,
 body.toplevel_page_jetpack-scan {
 
-	.admin-ui-page {
-		background: #fcfcfc;
-	}
-
-	.admin-ui-page__header {
-		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-		border-bottom: 0;
-		padding-block-end: var(--wpds-dimension-padding-sm, 8px);
-
-		> *:first-child {
-			min-block-size: 40px;
-		}
-	}
-
-	.jetpack-scan-page__tabs-row {
-		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
-		box-sizing: border-box;
-		padding-inline: $jetpack-scan-inset;
-		position: sticky;
-		top: var(--jetpack-scan-page-header-height, 96px);
-		width: 100%;
-		z-index: 9;
-	}
+	@include jetpack-admin-page-layout;
 }
