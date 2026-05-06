@@ -43,6 +43,7 @@ register_block_pattern(
 <!-- wp:jetpack/results-count /-->
 <!-- wp:jetpack/search-results {"layout":"compact"} /-->
 <!-- wp:jetpack/load-more /-->
+<!-- wp:jetpack/powered-by /-->
 <!-- /wp:jetpack/results-panel -->
 
 </div>

@@ -61,6 +61,19 @@ class Search_Blocks {
 	private static $is_initial_loading_cache = null;
 
 	/**
+	 * Per-request memo backing `is_free_plan()`. Block render callbacks
+	 * (`results-panel`, `powered-by`) call into the plan gate on every
+	 * inner render, including the auto-injected colophon path. WP's option
+	 * cache absorbs the redundancy in steady state, but on a cold cache
+	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
+	 * memoizing here fences that hazard to a single well-known site per
+	 * request.
+	 *
+	 * @var bool|null
+	 */
+	private static $is_free_plan_cache = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * The caller (Initializer) is responsible for gating this behind the
@@ -80,6 +93,31 @@ class Search_Blocks {
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+	}
+
+	/**
+	 * Per-request memoized read of `Plan::is_free_plan()`. Use from any
+	 * block render callback that needs the plan gate — avoids paying the
+	 * `get_option()` array-parse cost on every block, and ensures the
+	 * cold-cache WPCOM round-trip in `Plan::get_plan_info()` happens at
+	 * most once per request even when several blocks ask.
+	 *
+	 * @return bool
+	 */
+	public static function is_free_plan(): bool {
+		if ( null === self::$is_free_plan_cache ) {
+			self::$is_free_plan_cache = ( new Plan() )->is_free_plan();
+		}
+		return self::$is_free_plan_cache;
+	}
+
+	/**
+	 * Reset the `is_free_plan()` memo. Tests only — production callers
+	 * should never need this; the boolean state of the site's plan
+	 * doesn't change inside a single request.
+	 */
+	public static function reset_is_free_plan_cache() {
+		self::$is_free_plan_cache = null;
 	}
 
 	/**

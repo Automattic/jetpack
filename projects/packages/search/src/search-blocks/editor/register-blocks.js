@@ -25,6 +25,7 @@ import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPopoverEdit, { save as filterPopoverSave } from '../blocks/filter-popover/edit';
 import LoadMoreEdit from '../blocks/load-more/edit';
 import PostTypeFilterEdit from '../blocks/post-type-filter/edit';
+import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import ResultsPanelEdit, { save as resultsPanelSave } from '../blocks/results-panel/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
@@ -51,6 +52,7 @@ const BLOCKS = [
 	[ 'jetpack/results-count', ResultsCountEdit ],
 	[ 'jetpack/load-more', LoadMoreEdit ],
 	[ 'jetpack/results-panel', ResultsPanelEdit, resultsPanelSave ],
+	[ 'jetpack/powered-by', PoweredByEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /

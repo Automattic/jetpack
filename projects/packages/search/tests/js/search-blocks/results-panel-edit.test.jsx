@@ -25,6 +25,7 @@ describe( 'ResultsPanelEdit', () => {
 			],
 			[ 'jetpack/search-results' ],
 			[ 'jetpack/load-more' ],
+			[ 'jetpack/powered-by' ],
 		] );
 		expect( props.allowedBlocks ).toEqual( [
 			'core/group',
@@ -32,6 +33,7 @@ describe( 'ResultsPanelEdit', () => {
 			'jetpack/sort-control',
 			'jetpack/search-results',
 			'jetpack/load-more',
+			'jetpack/powered-by',
 		] );
 	} );
 } );

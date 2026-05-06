@@ -38,6 +38,7 @@ register_block_pattern(
 
 <!-- wp:jetpack/search-results /-->
 <!-- wp:jetpack/load-more /-->
+<!-- wp:jetpack/powered-by /-->
 <!-- /wp:jetpack/results-panel -->
 </div>
 <!-- /wp:column -->
