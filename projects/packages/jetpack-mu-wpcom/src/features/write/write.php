@@ -243,6 +243,96 @@ function wpcom_write_convert_video_embeds( $content ) {
 }
 
 /**
+ * Detect whether a post contains features the Write editor cannot preserve.
+ *
+ * Checks for block comments in the content:
+ *  - No block comments → classic content; saving converts to blocks.
+ *  - Has block comments → allowlist check on block types, embed providers,
+ *    and styling attributes.
+ *
+ * Write-created posts produce block markup with only supported blocks, so
+ * they pass the allowlist check cleanly (no false warning).
+ *
+ * @param string $content Raw post_content (block markup).
+ * @return string|false 'classic' or 'block-editor' indicating the warning
+ *                      type, or false when no warning is needed.
+ */
+function wpcom_write_detect_unsupported_content( $content ) {
+	if ( empty( $content ) ) {
+		return false;
+	}
+
+	if ( ! has_blocks( $content ) ) {
+		return 'classic';
+	}
+
+	// --- Block content: allowlist check ---
+	// Applies to posts from the block editor OR the Write editor (both
+	// produce block markup).  Write-created posts use only supported
+	// blocks, so they pass cleanly.
+
+	// Block types that convertToBlocks() can round-trip.
+	$supported_types = array(
+		'paragraph',
+		'heading',
+		'image',
+		'embed',
+		'quote',
+		'list',
+		'list-item',
+		'separator',
+	);
+
+	// 1. Unsupported block types.
+	if ( preg_match_all( '/<!-- wp:(?:[a-z0-9-]+\/)?([a-z0-9-]+)/', $content, $matches ) ) {
+		foreach ( $matches[1] as $type ) {
+			if ( ! in_array( $type, $supported_types, true ) ) {
+				return 'block-editor';
+			}
+		}
+	}
+
+	// 2. Embed blocks: only YouTube and Vimeo video embeds round-trip.
+	if ( preg_match_all( '/<!-- wp:embed\s+(\{[^>]+?\})\s+-->/s', $content, $embed_matches ) ) {
+		foreach ( $embed_matches[1] as $json ) {
+			$attrs = json_decode( $json, true );
+			if ( ! is_array( $attrs ) ) {
+				return 'block-editor';
+			}
+			$type     = $attrs['type'] ?? '';
+			$provider = $attrs['providerNameSlug'] ?? '';
+			if ( 'video' !== $type || ! in_array( $provider, array( 'youtube', 'vimeo' ), true ) ) {
+				return 'block-editor';
+			}
+		}
+	}
+
+	// 3. Styling attributes in block JSON that Write strips on save.
+	$style_indicators = array(
+		'"textColor"',
+		'"backgroundColor"',
+		'"gradient"',
+		'"fontSize"',
+		'"style":{"color"',
+		'"style":{"typography"',
+		'"style":{"spacing"',
+		'"style":{"border"',
+	);
+	foreach ( $style_indicators as $indicator ) {
+		if ( strpos( $content, $indicator ) !== false ) {
+			return 'block-editor';
+		}
+	}
+
+	// 4. Inline color classes from the block editor's rich-text color picker.
+	if ( strpos( $content, 'has-inline-color' ) !== false || strpos( $content, 'has-text-color' ) !== false ) {
+		return 'block-editor';
+	}
+
+	return false;
+}
+
+/**
  * Render the Write admin page.
  *
  * Called by add_submenu_page as the page callback. Runs inside wp-admin's
@@ -258,6 +348,7 @@ function wpcom_write_render_admin_page() {
 	$post_status        = 'new';
 	$edit_featured_id   = 0;
 	$video_placeholders = array();
+	$unsupported_type   = false;
 
 	if ( $edit_post_id ) {
 		$edit_post = get_post( $edit_post_id );
@@ -272,9 +363,18 @@ function wpcom_write_render_admin_page() {
 			$video_placeholders = $video_result['placeholders'];
 			$post_status        = $edit_post->post_status;
 			$edit_featured_id   = (int) get_post_thumbnail_id( $edit_post_id );
+			$unsupported_type   = wpcom_write_detect_unsupported_content( $edit_post->post_content );
 		} else {
 			$edit_post_id = 0;
 		}
+	}
+
+	if ( 'classic' === $unsupported_type ) {
+		$editor_url = admin_url( 'post.php?post=' . $edit_post_id . '&action=edit&classic-editor' );
+	} elseif ( 'block-editor' === $unsupported_type ) {
+		$editor_url = admin_url( 'post.php?post=' . $edit_post_id . '&action=edit&classic-editor__forget' );
+	} else {
+		$editor_url = '';
 	}
 
 	// Determine how the user arrived at the Write editor.
@@ -404,6 +504,8 @@ function wpcom_write_render_admin_page() {
 			'formatUList'         => false,
 			'insideList'          => false,
 			'showRecoveryBanner'  => false,
+			'unsupportedWarning'  => $unsupported_type ? $unsupported_type : false,
+			'editorUrl'           => $editor_url,
 		)
 	);
 
@@ -686,6 +788,20 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				<button class="bw-leave-cancel" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Cancel', 'jetpack-mu-wpcom' ); ?></button>
 				<button class="bw-leave-confirm" data-wp-on--click="actions.confirmLeave"><?php echo esc_html__( "Don't save", 'jetpack-mu-wpcom' ); ?></button>
 				<button class="bw-leave-save" data-wp-on--click="actions.saveAndLeave"><?php echo esc_html__( 'Save', 'jetpack-mu-wpcom' ); ?></button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Unsupported content warning -->
+	<div class="bw-unsupported-overlay" hidden data-wp-bind--hidden="!state.unsupportedWarning" data-wp-on--keydown="actions.handleUnsupportedKeyDown">
+		<div class="bw-unsupported-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Unsupported formatting', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
+			<p class="bw-unsupported-title"><?php echo esc_html__( 'This post has formatting that Write can\'t preserve', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-unsupported-desc" hidden data-wp-bind--hidden="!state.isClassicWarning"><?php echo esc_html__( 'This post was created in the classic editor. Editing in Write would convert it to the block format, which may change some formatting.', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-unsupported-desc" hidden data-wp-bind--hidden="!state.isBlockEditorWarning"><?php echo esc_html__( 'This post uses block editor features that the Write editor doesn\'t support. Editing here could lose some of that formatting.', 'jetpack-mu-wpcom' ); ?></p>
+			<div class="bw-unsupported-actions">
+				<button class="bw-unsupported-back" data-wp-on--click="actions.goBack"><?php echo esc_html__( 'Go back', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isClassicWarning" data-wp-on--click="actions.openEditor"><?php echo esc_html__( 'Open in Classic Editor', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isBlockEditorWarning" data-wp-on--click="actions.openEditor"><?php echo esc_html__( 'Open in Block Editor', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</div>
