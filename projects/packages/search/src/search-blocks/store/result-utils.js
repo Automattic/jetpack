@@ -154,10 +154,20 @@ function safeFromCodePoint( n ) {
  * @return {string} Input with all tags removed and supported entities decoded.
  */
 export function stripTags( s ) {
+	if ( typeof s !== 'string' || s === '' ) {
+		return s;
+	}
 	let prev;
 	let out = s;
 	do {
 		prev = out;
+		// The strip regex on its own is "incomplete multi-character
+		// sanitization" — `<<script>script>` collapses to `<script>` after a
+		// single pass, which CodeQL flags. The loop runs the strip+decode
+		// pair until the output stabilizes, so the security guarantee holds
+		// across nested or entity-encoded tags. The `keeps stripping until
+		// the output is free of tag-like markup` test in result-utils.test.js
+		// pins this behavior.
 		out = decodeEntities( out ).replace( STRIP_TAGS_PATTERN, '' );
 	} while ( out !== prev );
 	return out;

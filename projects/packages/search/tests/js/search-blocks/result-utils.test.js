@@ -180,6 +180,14 @@ describe( 'stripTags', () => {
 		expect( stripTags( '' ) ).toBe( '' );
 	} );
 
+	it( 'returns non-string input unchanged', () => {
+		// Call sites pre-convert via `String(...) ?? ''`, but defending the
+		// helper itself avoids a stray `.replace` throw if a future caller
+		// skips the conversion.
+		expect( stripTags( null ) ).toBeNull();
+		expect( stripTags( undefined ) ).toBeUndefined();
+	} );
+
 	it( 'flattens an HTML-formatted WC price into plain text', () => {
 		const wcPrice =
 			'<span class="woocommerce-Price-amount amount">' +
