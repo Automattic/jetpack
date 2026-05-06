@@ -2,7 +2,7 @@ import { Text } from '@automattic/jetpack-components';
 import { currentUserCan, siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../../social-store';
 import { features } from '../../../utils/constants';
@@ -38,24 +38,36 @@ export function MessageTemplateSection( props: MessageTemplateSectionProps ) {
 	const canManageOptions = currentUserCan( 'manage_options' );
 	const featureEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 
-	const { savedTemplate, isUpdating } = useSelect( select => {
-		return {
-			savedTemplate: select( socialStore ).getSocialSettings().messageTemplate,
-			isUpdating: select( socialStore ).isSavingSiteSettings(),
-		};
-	}, [] );
+	const savedTemplate = useSelect(
+		select => select( socialStore ).getSocialSettings().messageTemplate,
+		[]
+	);
 
 	const { setMessageTemplate } = useDispatch( socialStore );
 
 	const [ draft, setDraft ] = useState( savedTemplate );
 
-	// Sync draft when the saved value changes from outside (initial hydration,
-	// concurrent edits in another tab, etc.).
+	// Track the last value we sent to core. We only want to overwrite the
+	// draft from `savedTemplate` when the saved value changes for a reason
+	// other than our own in-flight save resolving — otherwise a slow save
+	// can race with a still-typing user and clobber their edits.
+	const lastSentRef = useRef( savedTemplate );
+
 	useEffect( () => {
-		setDraft( savedTemplate );
+		if ( savedTemplate !== lastSentRef.current ) {
+			setDraft( savedTemplate );
+		}
 	}, [ savedTemplate ] );
 
-	const debouncedSave = useDebounce( setMessageTemplate, SAVE_DEBOUNCE_MS );
+	const persist = useCallback(
+		( value: string ) => {
+			lastSentRef.current = value;
+			setMessageTemplate( value );
+		},
+		[ setMessageTemplate ]
+	);
+
+	const debouncedSave = useDebounce( persist, SAVE_DEBOUNCE_MS );
 
 	const handleChange = useCallback(
 		( value: string ) => {
@@ -78,11 +90,7 @@ export function MessageTemplateSection( props: MessageTemplateSectionProps ) {
 					'jetpack-publicize-pkg'
 				) }
 			</Text>
-			<MessageTemplateEditor
-				value={ draft }
-				onChange={ handleChange }
-				disabled={ disabled || isUpdating }
-			/>
+			<MessageTemplateEditor value={ draft } onChange={ handleChange } disabled={ disabled } />
 		</div>
 	);
 }

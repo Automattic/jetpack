@@ -2,7 +2,7 @@
 	grid-column: span 2;
 	display: flex;
 	flex-direction: column;
-	gap: calc(var(--spacing-base) * 1);
+	gap: var(--spacing-base);
 	max-width: 80ch;
 
 	@media ( min-width: 600px ) {
