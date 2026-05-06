@@ -60,7 +60,12 @@ export default function PoweredByEdit( { attributes, setAttributes } ) {
 				>
 					<span className="jetpack-search-powered-by__logo" aria-hidden="true">
 						{ /* Brand mark — `fill` stays Jetpack Green regardless of the block's color supports. */ }
-						<svg width="12" height="12" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+						<svg
+							viewBox="0 0 32 32"
+							xmlns="http://www.w3.org/2000/svg"
+							aria-hidden="true"
+							focusable="false"
+						>
 							<path
 								fill="#069E08"
 								d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
