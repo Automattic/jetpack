@@ -98,6 +98,17 @@ class Settings {
 			20
 		);
 
+		// Defer wp-build loading to admin_menu (priority 1) on every host. The
+		// modernization filter — which third parties typically register from a
+		// plugins_loaded callback — needs to have been applied before we read it,
+		// and the wp-build render function needs to be defined before any menu
+		// callback runs (priority 999 on standalone Jetpack, priority 999999 on
+		// wpcom Simple via wpcom-admin-menu.php's call to add_wp_admin_submenu).
+		// Settings::init() runs synchronously from load-jetpack.php at
+		// plugin-file-include time — before any plugins_loaded callback fires —
+		// so an inline check here would always see the unfiltered default.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
 		$host = new Host();
 
 		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
@@ -111,14 +122,6 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
-
-		// Defer wp-build loading to admin_menu (priority 1, before add_wp_admin_menu
-		// at 999) so the modernization filter — which third parties typically
-		// register from a plugins_loaded callback — has been applied by the time we
-		// evaluate it. Settings::init() runs synchronously from load-jetpack.php at
-		// plugin-file-include time, which is before any plugins_loaded callback has
-		// fired, so an inline check here would always see the unfiltered default.
-		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 	}
 
 	/**
