@@ -211,9 +211,9 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
  * fatal handling, where its filesystem reads could compound a bad state.
  *
  * Both the per-extension event path (`wpcomsh_fatal_log_event`) and the
- * recovery-mode entry path (`wpcomsh_fatal_log_recovery`) funnel through
- * here so the shared bucket / severity / site identifiers stay in one place.
- * Caller-supplied properties win on key collision.
+ * recovery-redirect endpoint funnel through here so the shared bucket /
+ * severity / site identifiers stay in one place. Caller-supplied
+ * properties win on key collision.
  *
  * Best-effort: silently no-ops if WPCOMSH_Log is unreachable, and never lets
  * a dispatch failure bubble out.
@@ -317,25 +317,20 @@ function wpcomsh_fatal_classify_plugin_path( $abs_file ) {
 }
 
 /**
- * Mint a `(exp, sig)` payload that one of the fatal-error endpoints
- * (deactivator, recovery-redirect) will verify before acting.
+ * Mint a `(exp, sig)` payload that the deactivator endpoint verifies
+ * before acting.
  *
  * Signature: HMAC over (`$payload_prefix`, expiry, logged_in cookie) using
  * AUTH_SALT. Binding to the cookie means the payload is tied to the admin's
  * active session — it can't be replayed after logout, can't be replayed by
  * another user, and can't be forged without AUTH_SALT. Nonces aren't usable
- * here because the verifying endpoints run before pluggable.php loads.
+ * here because the verifying endpoint runs before pluggable.php loads.
  *
  * `$payload_prefix` is a domain separator so a signature minted for one
- * action (e.g. plugin deactivate, where the prefix is the basename) can't
- * be replayed against another (e.g. recovery redirect, which uses
- * `'recover'`).
+ * action can't be replayed against another.
  *
  * Default TTL is short (five minutes) because the deactivator action is
- * destructive and we want fresh intent. Callers minting links for
- * non-destructive actions should pass a longer `$ttl` so the URL doesn't
- * silently expire while the admin is still on the same fatal screen — see
- * `wpcomsh_fatal_build_recovery_redirect_url()` for the recovery case.
+ * destructive and we want fresh intent.
  *
  * @param string $payload_prefix Action-specific prefix mixed into the HMAC.
  * @param int    $ttl            Validity window in seconds.
@@ -453,72 +448,94 @@ function wpcomsh_fatal_build_deactivate_form( $plugin_basename ) {
 }
 
 /**
- * Build the signed redirect URL the fatal-error screen renders behind its
- * "Enter recovery mode" link. The endpoint at fatal-recovery-redirect.php
- * verifies the signature, then 302s to a freshly-generated core recovery
- * URL — so the recovery key store doesn't pick up a row per fatal-screen
- * pageview, only per actual click.
+ * Build the URL the fatal-error screen renders behind its "Enter
+ * recovery mode" link. The endpoint at fatal-recovery-redirect.php
+ * verifies the nonce + capability, then 302s to a freshly-generated
+ * core recovery URL — so the recovery key store doesn't pick up a row
+ * per fatal-screen pageview, only per actual click.
  *
- * Returned as a URL (not a form payload like the deactivator) because the
- * link is non-destructive — it only mints a recovery key and redirects —
- * and rendering as `<a href>` keeps the "What you can try next" copy
- * readable.
+ * The nonce binds the URL to (action, user_id, session_token, tick)
+ * via `wp_create_nonce()`, so a CSRF-style navigation can't reach the
+ * endpoint without first extracting the nonce from the rendered
+ * screen. The deactivator endpoint keeps its custom HMAC because it
+ * runs at mu-plugin file-load time, before pluggable.php loads and
+ * `wp_create_nonce` / `wp_verify_nonce` are callable.
  *
- * Validity window mirrors core's `recovery_mode_email_link_ttl` filter
- * (default `DAY_IN_SECONDS`) so a host customizing recovery-link TTL
- * customizes ours in lockstep — and so the screen link doesn't silently
- * expire while the admin is still looking at the fatal page. The
- * deactivator's tighter five-minute window is deliberate there because
- * deactivation is destructive.
- *
- * @return string Signed URL, or '' when prerequisites are missing.
+ * @param int $user_id Cookie-resolved user the link is being rendered for. Pinning
+ *                     `$current_user` to this id before minting the nonce makes
+ *                     sure verification (which sets the same id) sees a
+ *                     matching signature — without it, an ambient `$current_user`
+ *                     that differs from the cookie-bound admin (e.g. a request
+ *                     that called `wp_set_current_user( 0 )` earlier) would mint
+ *                     a nonce for the wrong user and the click would silently
+ *                     no-op.
+ * @return string Redirect URL, or '' when prerequisites are missing.
  */
-function wpcomsh_fatal_build_recovery_redirect_url() {
-	if ( is_multisite() ) {
+function wpcomsh_fatal_build_recovery_redirect_url( $user_id ) {
+	if ( is_multisite() || ! $user_id ) {
 		return '';
 	}
-	// Mirror `WP_Recovery_Mode::get_link_ttl()`: rate_limit floor → link_ttl
-	// starts from that floor → final TTL is max of both. Each filter is
-	// guarded because callbacks may belong to the fataling extension; a
-	// throw must not turn the recovery-link render into a second fatal —
-	// fall back to the value we passed in.
-	$apply_filter_safe = static function ( $hook, $fallback ) {
-		try {
-			return (int) apply_filters( $hook, $fallback );
-		} catch ( \Throwable $e ) {
-			return $fallback;
-		}
-	};
-	/** This filter is documented in wp-includes/class-wp-recovery-mode.php */
-	$rate_limit = $apply_filter_safe( 'recovery_mode_email_rate_limit', DAY_IN_SECONDS );
-	/** This filter is documented in wp-includes/class-wp-recovery-mode.php */
-	$valid_for = $apply_filter_safe( 'recovery_mode_email_link_ttl', $rate_limit );
-	$signed    = wpcomsh_fatal_sign_payload( 'recover', max( $valid_for, $rate_limit ) );
-	if ( null === $signed ) {
-		return '';
-	}
-	// Build on `site_url()` rather than `home_url()`: verification at the
-	// endpoint requires LOGGED_IN_COOKIE, which on host-only cookie setups
-	// (no COOKIE_DOMAIN) is bound to the host where wp-login.php ran — i.e.
+	// Build on `site_url()` rather than `home_url()`: the recovery flow
+	// requires LOGGED_IN_COOKIE, which on host-only cookie setups (no
+	// COOKIE_DOMAIN) is bound to the host where wp-login.php ran — i.e.
 	// `site_url()`'s host. A wrapper URL on `home_url()` would arrive
-	// without the cookie on installs where the two hosts differ, and verify
-	// would silently reject the click.
+	// without the cookie on installs where the two hosts differ, and the
+	// endpoint would silently reject the click.
 	//
-	// `site_url()` runs the `site_url` / `option_siteurl` filters; a
-	// callback belonging to the fataling extension could throw and re-fatal
-	// the screen — drop the link rather than escalate.
+	// `site_url()` runs the `site_url` / `option_siteurl` filters and
+	// `wp_set_current_user()` fires the `set_current_user` action; a
+	// callback belonging to the fataling extension could throw and
+	// re-fatal the screen — drop the link rather than escalate.
 	try {
+		wp_set_current_user( $user_id );
+		wpcomsh_fatal_pin_recover_nonce_life();
 		return add_query_arg(
 			array(
 				'wpcomsh_recover' => '1',
-				'wpcomsh_exp'     => (string) $signed['exp'],
-				'wpcomsh_sig'     => $signed['sig'],
+				'_wpnonce'        => wp_create_nonce( 'wpcomsh_recover' ),
 			),
 			site_url( '/' )
 		);
 	} catch ( \Throwable $e ) {
 		return '';
 	}
+}
+
+/**
+ * Register a `nonce_life` filter at `PHP_INT_MAX` that pins `DAY_IN_SECONDS`
+ * for the `wpcomsh_recover` action only, so the tick used at mint time
+ * (screen render, after plugins load) and verify time (mu-plugin file load,
+ * before plugins iterate) always agrees. Without this, a regular plugin
+ * that unconditionally filters `nonce_life` at default priority would
+ * shift the mint-side tick but not the verify-side tick (its callback
+ * isn't registered yet at mu-plugin time), and the click would silently
+ * fail verification.
+ *
+ * Idempotent (named callback) so call sites can invoke this lazily, just
+ * before `wp_create_nonce` / `wp_verify_nonce` — keeps the filter out of
+ * `nonce_life` dispatch on requests that don't touch the recovery flow.
+ *
+ * @return void
+ */
+function wpcomsh_fatal_pin_recover_nonce_life() {
+	add_filter( 'nonce_life', '_wpcomsh_fatal_recover_nonce_life', PHP_INT_MAX, 2 );
+}
+
+/**
+ * Filter callback for `wpcomsh_fatal_pin_recover_nonce_life()`. Returns
+ * `DAY_IN_SECONDS` for the `wpcomsh_recover` action and the upstream
+ * value for everything else.
+ *
+ * `$action = null` so a one-arg `apply_filters( 'nonce_life', $life )` from
+ * plugin code (allowed by the public filter contract) doesn't trip an
+ * ArgumentCountError under PHP 8+.
+ *
+ * @param int         $life   Upstream nonce lifetime.
+ * @param string|null $action Action passed to `wp_nonce_tick()`.
+ * @return int
+ */
+function _wpcomsh_fatal_recover_nonce_life( $life, $action = null ) {
+	return 'wpcomsh_recover' === $action ? DAY_IN_SECONDS : $life;
 }
 
 /**

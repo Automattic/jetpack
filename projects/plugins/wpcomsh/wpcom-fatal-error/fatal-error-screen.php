@@ -109,16 +109,11 @@ function wpcomsh_fatal_build_render_context( $error, $plugin = null, $user_id = 
 		'plugin'          => $plugin,
 		'error_message'   => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
 		'deactivate_form' => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
-		// Point at our signed redirect endpoint (fatal-recovery-redirect.php)
-		// rather than the bare core URL, so a successful click is, by
-		// construction, a screen click — the email always carries the core
-		// URL. The endpoint mints a fresh recovery URL only after verifying
-		// the signature, which keeps the recovery_keys option from
-		// accumulating a row per fatal-screen pageview and prevents a
-		// CSRF-style navigation from triggering key generation. The helper
-		// also gates multisite, since core's recovery flow doesn't
-		// initialize there.
-		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_redirect_url() : '',
+		// Endpoint-mediated link so the recovery key is minted on click
+		// (one row in the `recovery_keys` option per click, not per
+		// render) and we can log the click. Helper gates multisite. See
+		// fatal-recovery-redirect.php for the auth model.
+		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_redirect_url( $user_id ) : '',
 		'support_url'     => 'https://wordpress.com/help/contact',
 		'environment'     => $is_admin ? wpcomsh_fatal_get_environment_lines() : array(),
 	);
