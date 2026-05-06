@@ -65,7 +65,7 @@ function wpcomsh_fatal_maybe_handle_recovery_click() {
 	// $_SERVER['QUERY_STRING'] (no host can be smuggled in there), with
 	// the recovery args stripped via `remove_query_arg` (which accepts a
 	// query-only string and re-encodes via WP's standard `build_query`).
-	$bail_clean = static function () {
+	$bail_clean = static function (): never {
 		$base_path = '/';
 		try {
 			$path = wp_parse_url( site_url( '/' ), PHP_URL_PATH );
