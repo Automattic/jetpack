@@ -912,6 +912,21 @@ if ( typeof MutationObserver !== 'undefined' ) {
 }
 
 /**
+ * Reset the image modal's URL and alt text inputs to empty.
+ *
+ * Reactive state alone may not update the displayed value of inputs the user
+ * has interacted with, so we reset the .value property explicitly.
+ */
+function resetImageModalInputs() {
+	const modal = document.querySelector( '.bw-image-overlay .bw-image-modal' );
+	if ( ! modal ) return;
+	const urlInput = modal.querySelector( 'input[type="url"]' );
+	if ( urlInput ) urlInput.value = '';
+	const altInput = modal.querySelector( 'input[type="text"]' );
+	if ( altInput ) altInput.value = '';
+}
+
+/**
  * Reset the image upload zone to its default state.
  */
 function resetUploadZone() {
@@ -2444,6 +2459,7 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.imageUrl = '';
 			state.imageAlt = '';
+			resetImageModalInputs();
 			state.setAsFeatured = false;
 			state.uploadedMediaId = 0;
 			resetUploadZone();
@@ -2580,8 +2596,11 @@ const { state } = store( 'wpcom-write', {
 			clearSlashText();
 			state.showSlashMenu = false;
 			saveSelection();
-			state.showImageModal = true;
 			state.imageUrl = '';
+			state.imageAlt = '';
+			resetImageModalInputs();
+			resetUploadZone();
+			state.showImageModal = true;
 			focusModalInput();
 		},
 
