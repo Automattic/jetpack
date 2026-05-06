@@ -16,6 +16,19 @@ type PerNetworkCustomizationFormProps = {
 	connection: Connection;
 };
 
+const CONNECTION_TEMPLATE_HELP = __(
+	'Connection template will be used if empty.',
+	'jetpack-publicize-pkg'
+);
+const GLOBAL_TEMPLATE_HELP = __(
+	'Global template will be used if empty.',
+	'jetpack-publicize-pkg'
+);
+const DEFAULT_NETWORK_TEMPLATE_HELP = __(
+	'The default network template will be used if empty.',
+	'jetpack-publicize-pkg'
+);
+
 /**
  * Per-Network Customization Form component.
  *
@@ -55,14 +68,11 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 			: connection.template ?? globalMessage ?? '';
 
 		if ( hasConnectionTemplate ) {
-			fallbackHelp = __( 'Connection template will be used if empty.', 'jetpack-publicize-pkg' );
+			fallbackHelp = CONNECTION_TEMPLATE_HELP;
 		} else if ( hasCustomGlobalTemplate ) {
-			fallbackHelp = __( 'Global template will be used if empty.', 'jetpack-publicize-pkg' );
+			fallbackHelp = GLOBAL_TEMPLATE_HELP;
 		} else {
-			fallbackHelp = __(
-				'The default network template will be used if empty.',
-				'jetpack-publicize-pkg'
-			);
+			fallbackHelp = DEFAULT_NETWORK_TEMPLATE_HELP;
 		}
 	}
 
