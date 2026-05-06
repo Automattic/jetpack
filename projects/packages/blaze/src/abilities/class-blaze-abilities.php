@@ -493,7 +493,9 @@ class Blaze_Abilities extends Registrar {
 			$languages = array_values(
 				array_filter(
 					array_map( 'strtolower', array_map( 'strval', $args['languages'] ) ),
-					static fn( $code ) => '' !== $code
+					static function ( $code ) {
+						return '' !== $code;
+					}
 				)
 			);
 			if ( ! empty( $languages ) ) {
@@ -504,7 +506,9 @@ class Blaze_Abilities extends Registrar {
 			$countries = array_values(
 				array_filter(
 					array_map( 'strtoupper', array_map( 'strval', $args['countries'] ) ),
-					static fn( $code ) => 2 === strlen( $code )
+					static function ( $code ) {
+						return 2 === strlen( $code );
+					}
 				)
 			);
 			if ( ! empty( $countries ) ) {
