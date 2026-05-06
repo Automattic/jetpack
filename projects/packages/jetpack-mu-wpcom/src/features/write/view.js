@@ -2444,6 +2444,16 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.imageUrl = '';
 			state.imageAlt = '';
+			// Explicitly reset the .value property so user-typed values are
+			// cleared — reactive state alone may not update the displayed value
+			// of inputs the user has interacted with.
+			const modal = document.querySelector( '.bw-image-modal' );
+			if ( modal ) {
+				const urlInput = modal.querySelector( 'input[type="url"]' );
+				if ( urlInput ) urlInput.value = '';
+				const altInput = modal.querySelector( 'input[type="text"]' );
+				if ( altInput ) altInput.value = '';
+			}
 			state.setAsFeatured = false;
 			state.uploadedMediaId = 0;
 			resetUploadZone();
@@ -2580,8 +2590,17 @@ const { state } = store( 'wpcom-write', {
 			clearSlashText();
 			state.showSlashMenu = false;
 			saveSelection();
-			state.showImageModal = true;
 			state.imageUrl = '';
+			state.imageAlt = '';
+			const modal = document.querySelector( '.bw-image-modal' );
+			if ( modal ) {
+				const urlInput = modal.querySelector( 'input[type="url"]' );
+				if ( urlInput ) urlInput.value = '';
+				const altInput = modal.querySelector( 'input[type="text"]' );
+				if ( altInput ) altInput.value = '';
+			}
+			resetUploadZone();
+			state.showImageModal = true;
 			focusModalInput();
 		},
 
