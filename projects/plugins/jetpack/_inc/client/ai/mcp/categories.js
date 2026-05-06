@@ -151,11 +151,10 @@ export function getSubCategory( toolId, ability ) {
 				return subCategory;
 			}
 		}
-		// 'sites'-category tools with no Design prefix stay in the Sites card's sub-group.
-		if ( apiCategory === 'sites' ) {
-			return API_CATEGORY_TO_SUB_CATEGORY.sites;
-		}
-		return undefined;
+		// Tools in these API categories should still be rendered even when their
+		// IDs do not match a known Design prefix, so fall back to the category's
+		// default sub-category instead of returning undefined.
+		return API_CATEGORY_TO_SUB_CATEGORY[ apiCategory ];
 	}
 
 	if ( apiCategory ) {
