@@ -311,7 +311,12 @@ class Module_Control_Test extends Search_TestCase {
 	 * branches on is_wp_error()) still treats it as success.
 	 */
 	public function test_update_experience_off_when_module_already_inactive_returns_false() {
-		// No filter installed → active modules option is empty → deactivate is a no-op.
+		// Earlier tests in this class activate the search module via update_experience()
+		// and persist 'search' into the real jetpack_active_modules option. Set it to an
+		// empty array so deactivate() really is a no-op (`update_option` with the same
+		// value returns false).
+		update_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() );
+
 		$result = static::$search_module->update_experience( Module_Control::EXPERIENCE_OFF );
 
 		$this->assertFalse( $result );
