@@ -191,15 +191,17 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `init()` must always register the block-level hooks (so blocks remain
-	 * insertable in the editor and the category appears in the inserter)
-	 * regardless of which experience the site has saved.
+	 * `init()` must always register the block-level hooks AND the IA state
+	 * seeding regardless of which experience the site has saved — admins can
+	 * insert Search blocks anywhere blocks are configurable, and those blocks
+	 * need the seeded base state to hydrate.
 	 */
-	public function test_init_always_registers_block_hooks() {
+	public function test_init_always_registers_block_and_seed_hooks() {
 		$this->reset_search_blocks_hooks();
 		$this->set_module_active( true );
 		// No experience opt-in saved — get_experience() falls back to 'inline'
 		// (or 'overlay' if instant_search_enabled is true). Either way, not embedded.
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 
 		Search_Blocks::init();
 
@@ -215,10 +217,19 @@ class Search_Blocks_Test extends TestCase {
 			has_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) ),
 			'enqueue_editor_assets must always hook into enqueue_block_editor_assets'
 		);
+		$this->assertNotFalse(
+			has_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
+			'seed_interactivity_state must always hook into template_redirect (blocks may be on any page)'
+		);
+		$this->assertNotFalse(
+			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
+			'seed_interactivity_state must always hook into wp_enqueue_scripts (blocks may be on any page)'
+		);
 	}
 
 	/**
-	 * Off the Embedded experience, the template-takeover hooks must NOT be
+	 * Off the Embedded experience, the template-takeover hooks
+	 * (`register_search_template` / `prepend_search_template`) must NOT be
 	 * registered — `/?s=…` should resolve to the theme's `search.html`, not
 	 * the Jetpack Search template.
 	 */
@@ -237,14 +248,6 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertFalse(
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
 			'prepend_search_template must not hook into search_template_hierarchy when not embedded'
-		);
-		$this->assertFalse(
-			has_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
-			'seed_interactivity_state must not hook into template_redirect when not embedded'
-		);
-		$this->assertFalse(
-			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
-			'seed_interactivity_state must not hook into wp_enqueue_scripts when not embedded'
 		);
 	}
 
@@ -268,14 +271,6 @@ class Search_Blocks_Test extends TestCase {
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
 			'prepend_search_template must hook into search_template_hierarchy on embedded'
 		);
-		$this->assertNotFalse(
-			has_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
-			'seed_interactivity_state must hook into template_redirect on embedded'
-		);
-		$this->assertNotFalse(
-			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
-			'seed_interactivity_state must hook into wp_enqueue_scripts on embedded'
-		);
 
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
@@ -284,7 +279,8 @@ class Search_Blocks_Test extends TestCase {
 	 * If the module isn't active, the experience is `'off'` regardless of any
 	 * stale value in the experience option, so the template-takeover hooks
 	 * must not register. Guards against a leftover `'embedded'` value on a
-	 * site that's been deactivated.
+	 * site that's been deactivated. The block-level and seed hooks still
+	 * register so any post-content Search block continues to hydrate.
 	 */
 	public function test_init_does_not_register_template_hooks_when_module_inactive() {
 		$this->reset_search_blocks_hooks();
@@ -298,6 +294,13 @@ class Search_Blocks_Test extends TestCase {
 		);
 		$this->assertFalse(
 			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) )
+		);
+		// Block + seed hooks still register, since blocks may be on any page.
+		$this->assertNotFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_blocks' ) )
+		);
+		$this->assertNotFalse(
+			has_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) )
 		);
 
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
