@@ -1,7 +1,7 @@
 // Defence-in-depth fallback for the case where the back end hasn't been
 // updated to send `experience` yet (or a unit test stubs only the legacy
 // fields). `'embedded'` isn't derivable from booleans alone — the legacy
-// schema can't distinguish Embedded from Theme search — so derived classic
+// schema can't distinguish Embedded from Theme search — so derived inline
 // is the right default in that case; once the back end ships, the seeded
 // `experience` value takes precedence.
 const deriveExperienceFromBooleans = state => {
@@ -11,7 +11,7 @@ const deriveExperienceFromBooleans = state => {
 	if ( state.jetpackSettings.instant_search_enabled ) {
 		return 'overlay';
 	}
-	return 'classic';
+	return 'inline';
 };
 
 const jetpackSettingSelectors = {

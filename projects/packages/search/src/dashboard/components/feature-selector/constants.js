@@ -14,7 +14,7 @@ import { grid, navigationOverlay, trendingUp, notAllowed } from '@wordpress/icon
 export const EXPERIENCE = Object.freeze( {
 	EMBEDDED: 'embedded',
 	OVERLAY: 'overlay',
-	CLASSIC: 'classic',
+	INLINE: 'inline',
 	OFF: 'off',
 } );
 
@@ -24,7 +24,7 @@ export const EXPERIENCE = Object.freeze( {
 export const EXPERIENCE_ORDER = [
 	EXPERIENCE.EMBEDDED,
 	EXPERIENCE.OVERLAY,
-	EXPERIENCE.CLASSIC,
+	EXPERIENCE.INLINE,
 	EXPERIENCE.OFF,
 ];
 
@@ -43,7 +43,7 @@ export function getExperienceLabel( experience ) {
 			return __( 'Embedded search', 'jetpack-search-pkg' );
 		case EXPERIENCE.OVERLAY:
 			return __( 'Overlay search', 'jetpack-search-pkg' );
-		case EXPERIENCE.CLASSIC:
+		case EXPERIENCE.INLINE:
 			return __( 'Theme search', 'jetpack-search-pkg' );
 		case EXPERIENCE.OFF:
 			return _x( 'Off', 'Jetpack Search disabled', 'jetpack-search-pkg' );
@@ -70,7 +70,7 @@ export function getExperienceDescription( experience ) {
 			);
 		case EXPERIENCE.OVERLAY:
 			return __( 'A search-as-you-type overlay (formerly Instant Search).', 'jetpack-search-pkg' );
-		case EXPERIENCE.CLASSIC:
+		case EXPERIENCE.INLINE:
 			return __( "Your theme's search layout, with faster results.", 'jetpack-search-pkg' );
 		case EXPERIENCE.OFF:
 			return __( 'WordPress default search.', 'jetpack-search-pkg' );
@@ -91,7 +91,7 @@ export function getExperienceIcon( experience ) {
 			return grid;
 		case EXPERIENCE.OVERLAY:
 			return navigationOverlay;
-		case EXPERIENCE.CLASSIC:
+		case EXPERIENCE.INLINE:
 			return trendingUp;
 		case EXPERIENCE.OFF:
 			return notAllowed;

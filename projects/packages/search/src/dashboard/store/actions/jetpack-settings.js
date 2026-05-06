@@ -110,7 +110,7 @@ export function setActiveExperience( experience ) {
  *
  * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
  * so we send only `{ experience }`. The back end resolves the storage shape —
- * `'off'` deactivates the module, `'classic'` deletes the experience option,
+ * `'off'` deactivates the module, `'inline'` deletes the experience option,
  * `'embedded'` / `'overlay'` write affirmative values — and resolves the
  * payload's active `experience` value the same way on read.
  *

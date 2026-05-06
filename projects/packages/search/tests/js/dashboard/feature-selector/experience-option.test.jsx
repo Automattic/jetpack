@@ -59,17 +59,17 @@ describe( '<ExperienceOption>', () => {
 	} );
 
 	test( 'does not show ACTIVE badge on non-active rows', () => {
-		renderWith( baseSettings, { experience: 'classic' } );
+		renderWith( baseSettings, { experience: 'inline' } );
 		expect( screen.queryByLabelText( 'Active' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'radio is checked when experience matches selected', () => {
-		renderWith( { ...baseSettings, pending_experience: 'classic' }, { experience: 'classic' } );
+		renderWith( { ...baseSettings, pending_experience: 'inline' }, { experience: 'inline' } );
 		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeChecked();
 	} );
 
 	test( 'clicking the row dispatches setPendingExperience', () => {
-		renderWith( baseSettings, { experience: 'classic' } );
+		renderWith( baseSettings, { experience: 'inline' } );
 		fireEvent.click( screen.getByRole( 'radio', { name: /theme search/i } ) );
 		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeChecked();
 	} );

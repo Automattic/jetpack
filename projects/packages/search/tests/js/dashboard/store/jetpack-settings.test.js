@@ -62,10 +62,10 @@ describe( 'experience selectors', () => {
 			).toBe( 'overlay' );
 		} );
 
-		test( 'falls back to derived "classic" when module is active without instant search', () => {
+		test( 'falls back to derived "inline" when module is active without instant search', () => {
 			expect(
 				getActiveExperience( buildState( { module_active: true, instant_search_enabled: false } ) )
-			).toBe( 'classic' );
+			).toBe( 'inline' );
 		} );
 
 		test( 'prefers seeded `experience` over the derivable booleans', () => {
@@ -101,10 +101,10 @@ describe( 'experience selectors', () => {
 					buildState( {
 						module_active: true,
 						instant_search_enabled: true,
-						pending_experience: 'classic',
+						pending_experience: 'inline',
 					} )
 				)
-			).toBe( 'classic' );
+			).toBe( 'inline' );
 		} );
 
 		test( 'returns active when pending is null', () => {
