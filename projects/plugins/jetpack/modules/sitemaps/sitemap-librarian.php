@@ -480,6 +480,6 @@ class Jetpack_Sitemap_Librarian {
 			}
 		);
 
-		return implode( ',', array_map( 'esc_sql', $columns ) );
+		return '`' . implode( '`,`', array_map( 'esc_sql', $columns ) ) . '`';
 	}
 }

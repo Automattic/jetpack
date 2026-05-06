@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: wrap column names in backticks in get_sanitized_post_columns() to prevent SQL errors when custom post table columns use reserved keywords.
