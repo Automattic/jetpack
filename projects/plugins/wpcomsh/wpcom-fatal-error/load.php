@@ -13,6 +13,9 @@
  *                                 the admin notification copy.
  *   fatal-plugin-deactivator.php  Early-running endpoint that honors the
  *                                 signed deactivation URL the screen renders.
+ *   fatal-recovery-login.php      `wp_login` hook that logs when a user
+ *                                 authenticates inside a recovery-mode
+ *                                 session.
  *
  * @package wpcomsh
  */
@@ -22,3 +25,4 @@ require_once __DIR__ . '/fatal-error-helpers.php';
 require_once __DIR__ . '/fatal-error-screen.php';
 require_once __DIR__ . '/fatal-error-email.php';
 require_once __DIR__ . '/fatal-plugin-deactivator.php';
+require_once __DIR__ . '/fatal-recovery-login.php';
