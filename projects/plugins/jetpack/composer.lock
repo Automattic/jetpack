@@ -2574,7 +2574,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "a576a9d13718887d7d506acd895bd1ade5b7eacd"
+                "reference": "bea82a1c466885b59bed270e55dbd6f6989121a5"
             },
             "require": {
                 "automattic/jetpack-autoloader": "@dev",

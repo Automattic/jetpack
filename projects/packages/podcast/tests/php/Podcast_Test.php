@@ -18,10 +18,12 @@ use WorDBless\BaseTestCase;
 class Podcast_Test extends BaseTestCase {
 
 	/**
-	 * `init()` is a no-op when the `jetpack_podcast_untangle` filter is off
-	 * (the default). Running it should not raise or leave any side effects.
+	 * `init()` should run cleanly on every host. In test environments (and on
+	 * any non-Simple/non-Atomic site in production), the host gate
+	 * short-circuits before the filter is evaluated, so this exercises the
+	 * most common no-op path.
 	 */
-	public function test_init_is_a_noop_when_filter_is_off() {
+	public function test_init_returns_cleanly_on_non_wpcom_host() {
 		Podcast::init();
 		$this->expectNotToPerformAssertions();
 	}
