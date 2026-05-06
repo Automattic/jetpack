@@ -269,5 +269,4 @@ class Admin_Page {
 		/** This filter is documented in src/class-podcast.php. */
 		return (bool) apply_filters( 'jetpack_podcast_untangle', false );
 	}
-
 }
