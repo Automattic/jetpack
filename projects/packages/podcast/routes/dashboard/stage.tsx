@@ -27,7 +27,6 @@ const Stage = () => {
 
 	return (
 		<div className="wrap">
-			{ /* "Podcast" is a product name, do not translate. */ }
 			<h1>Podcast</h1>
 			<p>
 				{ __( 'Publish a podcast and reach your fans, anywhere they listen.', 'jetpack-podcast' ) }
