@@ -213,3 +213,20 @@ function wpcom_has_blog_sticker( $blog_sticker, $blog_id ) {
 	}
 	return false;
 }
+
+/**
+ * Whether the current site is a P2.
+ *
+ * @return bool
+ */
+function wpcom_is_p2_site() {
+	if ( str_contains( get_stylesheet(), 'pub/p2' ) ) {
+		return true;
+	}
+
+	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) ) {
+		return \WPForTeams\is_wpforteams_site( get_current_blog_id() );
+	}
+
+	return false;
+}

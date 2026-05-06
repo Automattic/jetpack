@@ -218,6 +218,40 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that should_load returns false on a P2 site detected via stylesheet.
+	 */
+	public function test_should_load_returns_false_on_p2_site_via_stylesheet() {
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$stylesheet_filter = static fn () => 'pub/p2-2020';
+		add_filter( 'stylesheet', $stylesheet_filter );
+
+		try {
+			$this->assertFalse( $this->call_private_method( 'should_load' ) );
+		} finally {
+			remove_filter( 'stylesheet', $stylesheet_filter );
+		}
+	}
+
+	/**
+	 * Tests that should_load returns false when WPForTeams reports a P2 site.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_load_returns_false_on_p2_site_via_wpforteams() {
+		require_once __DIR__ . '/fixtures/wpforteams-stub.php';
+
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
 	 * Data provider for English locale variant tests.
 	 *
 	 * @return \Iterator
@@ -314,6 +348,62 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 		$traits = $this->call_private_method( 'get_visitor_traits' );
 
 		$this->assertSame( 'atomic', $traits['site_type'] );
+	}
+
+	/**
+	 * Tests that get_visitor_traits returns is_big_sky_site = 'false' when neither sticker is set.
+	 */
+	public function test_get_visitor_traits_returns_is_big_sky_site_false_by_default() {
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( 'false', $traits['is_big_sky_site'] );
+	}
+
+	/**
+	 * Tests that get_visitor_traits returns is_big_sky_site = 'true' when the big-sky-enabled sticker is set.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_enabled_sticker() {
+		require_once __DIR__ . '/fixtures/big-sky-enabled-sticker-stub.php';
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( 'true', $traits['is_big_sky_site'] );
+	}
+
+	/**
+	 * Tests that get_visitor_traits returns is_big_sky_site = 'true' when the big-sky-free-trial sticker is set.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_visitor_traits_returns_is_big_sky_site_true_for_big_sky_free_trial_sticker() {
+		require_once __DIR__ . '/fixtures/big-sky-free-trial-sticker-stub.php';
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( 'true', $traits['is_big_sky_site'] );
 	}
 
 	// ---- enqueue_scripts() tests ----
