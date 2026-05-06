@@ -117,6 +117,7 @@ if ( '' === $error_message ) {
 						<div class="jetpack-search-skeleton jetpack-search-skeleton--product-image"></div>
 						<div class="jetpack-search-results__copy">
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--title"></div>
+							<div class="jetpack-search-skeleton jetpack-search-skeleton--title-secondary"></div>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--price"></div>
 							<div class="jetpack-search-skeleton jetpack-search-skeleton--rating"></div>
 						</div>

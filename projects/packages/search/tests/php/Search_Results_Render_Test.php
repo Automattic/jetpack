@@ -331,14 +331,15 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Under is_initial_loading, the product-layout skeleton includes title,
-	 * price, and rating placeholders so each card matches the live shape
-	 * (image + title + price + rating) instead of vanishing the rating row.
+	 * Under is_initial_loading, the product-layout skeleton emits two title
+	 * rows, a price row, and a rating row so each card matches the live
+	 * card's vertical extent (product titles usually wrap to two lines).
 	 */
-	public function test_product_layout_skeleton_includes_title_price_and_rating_placeholders() {
+	public function test_product_layout_skeleton_includes_two_title_rows_price_and_rating() {
 		$markup = $this->render_with_skeleton( array( 'layout' => 'product' ) );
 
 		$this->assertStringContainsString( 'jetpack-search-skeleton--title', $markup );
+		$this->assertStringContainsString( 'jetpack-search-skeleton--title-secondary', $markup );
 		$this->assertStringContainsString( 'jetpack-search-skeleton--price', $markup );
 		$this->assertStringContainsString( 'jetpack-search-skeleton--rating', $markup );
 	}
@@ -400,6 +401,7 @@ class Search_Results_Render_Test extends TestCase {
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--product-image', $markup, "Layout '{$layout}': product-image skeleton must be absent." );
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--price', $markup, "Layout '{$layout}': price skeleton must be absent." );
 			$this->assertStringNotContainsString( 'jetpack-search-skeleton--rating', $markup, "Layout '{$layout}': rating skeleton must be absent." );
+			$this->assertStringNotContainsString( 'jetpack-search-skeleton--title-secondary', $markup, "Layout '{$layout}': title-secondary skeleton must be absent." );
 		}
 	}
 }

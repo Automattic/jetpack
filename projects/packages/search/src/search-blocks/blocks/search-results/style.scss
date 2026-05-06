@@ -291,13 +291,26 @@
 		width: 100%;
 	}
 
+	// Without these per-layout overrides the skeleton picks up the
+	// expanded layout's defaults (1.5rem × 65%) and the placeholder column
+	// ends up visibly shorter and narrower than the hydrated product card.
+	.jetpack-search-skeleton--title {
+		height: 1.4rem;
+		width: 95%;
+	}
+
+	.jetpack-search-skeleton--title-secondary {
+		height: 1.4rem;
+		width: 60%;
+	}
+
 	.jetpack-search-skeleton--price {
-		height: 1.1rem;
+		height: 1.4rem;
 		width: 35%;
 	}
 
 	.jetpack-search-skeleton--rating {
-		height: 1rem;
+		height: 0.875rem;
 		width: 7rem;
 	}
 
