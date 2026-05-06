@@ -136,18 +136,11 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 }
 
 /**
- * Emit a logstash event for an activation we just blocked, so we can
- * measure how often the activation guard catches a real fatal in the
- * wild. Mirrors the transport-error event in PCG_Load_Tester — same
- * `feature` slug, same JSON-encoded `extra` shape — so consumers can
- * filter both classes of events from one bucket. No-op outside
- * WordPress.com (no `log2logstash` available) and best-effort: a
- * logging failure must never escalate into a fatal of its own, since
- * this runs on the activation request path.
+ * Log an activation block to logstash. Best-effort; no-op off WordPress.com.
  *
- * @param string[]             $checked Plugin basenames that went into the probe batch.
- * @param array<string,string> $blocked Map of basename => human-readable reason being shown to the admin. The empty-string key is the batch-level fallback when a specific plugin couldn't be pinned.
- * @param array                $result  Raw probe verdict from PCG_Load_Tester::test().
+ * @param string[]             $checked Probe batch as basenames.
+ * @param array<string,string> $blocked Map of basename => admin-notice reason. Empty-string key = batch-level fallback.
+ * @param array                $result  Probe verdict from PCG_Load_Tester::test().
  * @return void
  */
 function pcg_guard_log_blocked_activation( array $checked, array $blocked, array $result ) {
@@ -168,11 +161,9 @@ function pcg_guard_log_blocked_activation( array $checked, array $blocked, array
 					'checked' => $checked,
 					'blocked' => array_keys( $blocked ),
 					'status'  => (string) ( $result['status'] ?? '' ),
-					// Send the basename only — absolute paths leak install layout.
+					// Basename only — absolute paths leak install layout.
 					'file'    => isset( $result['file'] ) ? basename( (string) $result['file'] ) : '',
 					'line'    => (int) ( $result['line'] ?? 0 ),
-					// Probe verdict message (the PHP error string), not the
-					// localized admin-notice copy we built from it.
 					'reason'  => (string) ( $result['message'] ?? '' ),
 				),
 				JSON_UNESCAPED_SLASHES

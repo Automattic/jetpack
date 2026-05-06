@@ -155,19 +155,11 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 }
 
 /**
- * Emit a logstash event for a post-update rollback we just performed, so we
- * can measure how often the post-install probe catches a fatal that the
- * pre-install parse-error gate (`update-guard.php`) couldn't see — and
- * separately track rollback success vs `rollback_failed` /
- * `rollback_unavailable`. Mirrors the activation/install-block events —
- * same `feature` slug, same JSON-encoded `extra` shape. No-op outside
- * WordPress.com (no `log2logstash` available) and best-effort: a logging
- * failure must never escalate into a second fatal on a request path that
- * just rolled back from one.
+ * Log a post-update rollback to logstash. Best-effort; no-op off WordPress.com.
  *
- * @param array $candidate Per-plugin context built in `pcg_healthcheck_after_update()`: `plugin_file`, `plugin_name`, `new_version`, `snapshot`, `plugin_main`.
- * @param array $probe     Shared probe verdict from `PCG_Load_Tester::test()` for the whole batch.
- * @param array $rollback  Per-plugin rollback result from `PCG_Rollback::to_snapshot()`.
+ * @param array $candidate Per-plugin context built in `pcg_healthcheck_after_update()`.
+ * @param array $probe     Shared probe verdict from `PCG_Load_Tester::test()`.
+ * @param array $rollback  Result from `PCG_Rollback::to_snapshot()`.
  * @return void
  */
 function pcg_healthcheck_log_rollback( array $candidate, array $probe, array $rollback ) {
@@ -188,13 +180,11 @@ function pcg_healthcheck_log_rollback( array $candidate, array $probe, array $ro
 					'plugin'           => (string) $candidate['plugin_file'],
 					'new_version'      => (string) $candidate['new_version'],
 					'previous_version' => (string) ( $candidate['snapshot']['version'] ?? '' ),
-					// Probe verdict that triggered rollback.
 					'probe_status'     => (string) ( $probe['status'] ?? '' ),
+					// Basename only — absolute paths leak install layout.
 					'probe_file'       => isset( $probe['file'] ) ? basename( (string) $probe['file'] ) : '',
 					'probe_line'       => (int) ( $probe['line'] ?? 0 ),
 					'probe_reason'     => (string) ( $probe['message'] ?? '' ),
-					// Rollback outcome — distinguishes "we restored cleanly" from
-					// "we tried and failed; site still on the broken version."
 					'rollback_status'  => (string) ( $rollback['status'] ?? '' ),
 					'restored_to'      => (string) ( $rollback['restored_to'] ?? '' ),
 				),
