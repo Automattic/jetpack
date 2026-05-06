@@ -193,6 +193,11 @@
 		}
 	}
 
+	// wp-admin resets list-style globally; restore bullets.
+	ul.jetpack-ai-mcp-setup__steps {
+		list-style: disc;
+	}
+
 	&__code {
 		font-size: 12px;
 		background: var(--color-neutral-5, #f0f0f1);
