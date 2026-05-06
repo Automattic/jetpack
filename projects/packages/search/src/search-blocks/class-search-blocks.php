@@ -82,6 +82,7 @@ class Search_Blocks {
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
 		add_action( 'init', array( static::class, 'register_search_template' ) );
+		add_action( 'init', array( static::class, 'register_i18n_module' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
 		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		// FSE block-template rendering runs *before* `wp_head()` (see
@@ -92,6 +93,7 @@ class Search_Blocks {
 		// deep-merge no-op and keeps classic-theme paths covered.
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
+		add_action( 'wp_enqueue_scripts', array( static::class, 'enqueue_i18n_runtime' ) );
 		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 	}
 
@@ -165,6 +167,126 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+	}
+
+	/**
+	 * Register `@wordpress/i18n` as a script module pointing at the package's
+	 * shim. The shim re-exports `window.wp.i18n`, letting the IAPI view bundle
+	 * use `import { __, _n, sprintf } from '@wordpress/i18n'` natively.
+	 *
+	 * WP core only registers `@wordpress/interactivity` (and recently a11y /
+	 * router) as script modules, so importing `@wordpress/i18n` from a view
+	 * bundle would otherwise fail at load time with an unresolved import.
+	 * Registering our own module under the canonical `@wordpress/i18n` ID
+	 * means the resolver finds it first, and any future core registration
+	 * supersedes ours via `wp_register_script_module`'s first-wins behavior.
+	 */
+	public static function register_i18n_module() {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+		$base_path  = Package::get_installed_path() . 'build/search-blocks/store/';
+		$shim_path  = $base_path . 'i18n-shim.js';
+		$asset_file = $base_path . 'i18n-shim.asset.php';
+		if ( ! file_exists( $shim_path ) || ! file_exists( $asset_file ) ) {
+			return;
+		}
+		$asset    = require $asset_file;
+		$shim_url = plugins_url( 'i18n-shim.js', $shim_path );
+		wp_register_script_module(
+			'@wordpress/i18n',
+			$shim_url,
+			array(),
+			$asset['version'] ?? false
+		);
+	}
+
+	/**
+	 * Enqueue the classic `wp-i18n` script and emit an inline `setLocaleData()`
+	 * call carrying the `jetpack-search-pkg` text domain's translations. This
+	 * populates `window.wp.i18n` synchronously before any deferred script
+	 * module evaluates, so the i18n shim's exports resolve to translated
+	 * strings on first paint.
+	 *
+	 * Translations are pulled from PHP's already-loaded gettext entries via
+	 * `get_translations_for_domain()`; if the domain isn't loaded (e.g. en_US
+	 * site with no .mo file), we still enqueue `wp-i18n` so the shim's
+	 * fallbacks work and `__()` returns the source string unchanged.
+	 */
+	public static function enqueue_i18n_runtime() {
+		if ( ! function_exists( 'wp_enqueue_script' ) ) {
+			return;
+		}
+		wp_enqueue_script( 'wp-i18n' );
+
+		$locale_data = static::collect_locale_data( 'jetpack-search-pkg' );
+		if ( null === $locale_data ) {
+			return;
+		}
+		// JSON_HEX_* flags neutralize a `</script>` (or quote/ampersand) appearing
+		// inside a translation, which would otherwise close the inline tag and
+		// turn an inert string into HTML. Same hardening WP core uses when it
+		// inlines `setLocaleData` from `wp_set_script_translations()`.
+		$json_flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+		$payload    = wp_json_encode( $locale_data, $json_flags );
+		if ( false === $payload ) {
+			return;
+		}
+		// IIFE so `$payload` is parsed once into a local variable; the guard
+		// avoids a TypeError if `wp.i18n` somehow failed to load before this
+		// inline runs (e.g. another plugin de-registered the wp-i18n handle).
+		wp_add_inline_script(
+			'wp-i18n',
+			sprintf(
+				'( function() { var d = %s; if ( window.wp && window.wp.i18n ) { wp.i18n.setLocaleData( d, %s ); } } )();',
+				$payload,
+				wp_json_encode( 'jetpack-search-pkg', $json_flags )
+			),
+			'after'
+		);
+	}
+
+	/**
+	 * Build the `setLocaleData()` payload for a text domain by walking PHP's
+	 * already-loaded gettext entries. Returns the same `{ "": header, msgid:
+	 * [translations] }` shape that `wp_set_script_translations()` would inline
+	 * — letting us seed the wp-i18n runtime without depending on per-handle
+	 * .json files (which Jetpack's translation pipeline doesn't generate for
+	 * script-module bundles today).
+	 *
+	 * Returns null when the domain has no translations (en_US sites, missing
+	 * .mo files). Callers skip the inline emission in that case so the page
+	 * still renders English source strings unchanged.
+	 *
+	 * @param string $domain Text domain.
+	 * @return array<string, mixed>|null
+	 */
+	protected static function collect_locale_data( string $domain ): ?array {
+		if ( ! function_exists( 'is_textdomain_loaded' ) || ! is_textdomain_loaded( $domain ) ) {
+			return null;
+		}
+		if ( ! function_exists( 'get_translations_for_domain' ) ) {
+			return null;
+		}
+		$translations = get_translations_for_domain( $domain );
+		if ( empty( $translations->entries ) ) {
+			return null;
+		}
+		$plural_forms = $translations->headers['Plural-Forms'] ?? 'nplurals=2; plural=(n != 1);';
+		$locale_data  = array(
+			'' => array(
+				'domain'       => $domain,
+				'lang'         => function_exists( 'determine_locale' ) ? determine_locale() : '',
+				'plural-forms' => $plural_forms,
+			),
+		);
+		foreach ( $translations->entries as $entry ) {
+			// `entries` is keyed by msgctxt-prefixed msgid; `Translation_Entry::key()`
+			// reproduces the same key shape `wp.i18n` expects on the JS side.
+			$key                 = $entry->key();
+			$locale_data[ $key ] = $entry->translations;
+		}
+		return $locale_data;
 	}
 
 	/**
@@ -653,15 +775,6 @@ class Search_Blocks {
 			// string on first paint; `actions.search()` keeps it in lockstep
 			// with `isLoading` / `totalResults` via `computeResultsCountText`.
 			'resultsCountText' => $is_initial_loading ? $searching_text : '',
-
-			// Translated view-bundle strings. The Interactivity API view bundle
-			// can't import @wordpress/i18n (only @wordpress/interactivity is
-			// registered as a script module), so any JS-produced text is seeded
-			// here and read via state.strings.* on the client. Both _n() forms
-			// are seeded so the client can pick based on the live totalResults
-			// without a round trip; languages with more than two plural forms
-			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'          => static::build_initial_strings(),
 		);
 	}
 
@@ -774,31 +887,6 @@ class Search_Blocks {
 					'wrapperHidden' => ! $show_wrapper,
 				)
 			)
-		);
-	}
-
-	/**
-	 * Seed translated view-bundle strings for the Interactivity API store.
-	 *
-	 * @return array<string, string>
-	 */
-	protected static function build_initial_strings(): array {
-		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
-			return array(
-				'searching'          => 'Searching…',
-				'resultsCountSingle' => 'Found %d result',
-				'resultsCountPlural' => 'Found %d results',
-				'removeFilter'       => 'Remove %s',
-			);
-		}
-		return array(
-			'searching'          => __( 'Searching…', 'jetpack-search-pkg' ),
-			/* translators: %d: number of results. */
-			'resultsCountSingle' => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
-			/* translators: %d: number of results. */
-			'resultsCountPlural' => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
-			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
-			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
 		);
 	}
 

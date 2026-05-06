@@ -1,3 +1,4 @@
+import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	store,
 	getContext,
@@ -174,17 +175,17 @@ let searchToken = 0;
  */
 export function computeResultsCountText( liveState ) {
 	if ( liveState.isLoading ) {
-		return liveState.strings?.searching ?? 'Searching…';
+		return __( 'Searching…', 'jetpack-search-pkg' );
 	}
 	const total = liveState.totalResults;
 	if ( total === 0 ) {
 		return '';
 	}
-	const template =
-		total === 1
-			? liveState.strings?.resultsCountSingle ?? 'Found %d result'
-			: liveState.strings?.resultsCountPlural ?? 'Found %d results';
-	return template.replace( '%d', total );
+	return sprintf(
+		/* translators: %d: number of results. */
+		_n( 'Found %d result', 'Found %d results', total, 'jetpack-search-pkg' ),
+		total
+	);
 }
 
 /**

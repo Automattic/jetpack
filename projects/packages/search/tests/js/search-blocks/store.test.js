@@ -430,11 +430,6 @@ describe( 'store getters', () => {
 			activeFilters: {},
 			aggregations: {},
 			sortOrder: 'relevance',
-			strings: {
-				searching: 'Looking…',
-				resultsCountSingle: 'Found %d item',
-				resultsCountPlural: 'Found %d items',
-			},
 		} );
 	} );
 
@@ -445,15 +440,20 @@ describe( 'store getters', () => {
 		// resolve server-side. Exercising `computeResultsCountText` directly
 		// keeps the formatting contract under test without driving the full
 		// fetch lifecycle.
+		//
+		// Strings come from `@wordpress/i18n` via the package's i18n shim;
+		// in the Jest env that resolves to the unmocked npm package, so
+		// `__()` returns the source string and `_n()` picks the singular/
+		// plural form by `count`.
 		state.isLoading = true;
-		expect( computeResultsCountText( state ) ).toBe( 'Looking…' );
+		expect( computeResultsCountText( state ) ).toBe( 'Searching…' );
 
 		state.isLoading = false;
 		state.totalResults = 1;
-		expect( computeResultsCountText( state ) ).toBe( 'Found 1 item' );
+		expect( computeResultsCountText( state ) ).toBe( 'Found 1 result' );
 
 		state.totalResults = 3;
-		expect( computeResultsCountText( state ) ).toBe( 'Found 3 items' );
+		expect( computeResultsCountText( state ) ).toBe( 'Found 3 results' );
 
 		state.totalResults = 0;
 		expect( computeResultsCountText( state ) ).toBe( '' );

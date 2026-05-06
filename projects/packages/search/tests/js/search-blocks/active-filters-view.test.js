@@ -41,7 +41,6 @@ describe( 'active-filters view store — activePills label resolution', () => {
 		captured.state.activeFilters = {};
 		captured.state.aggregations = {};
 		captured.state.filterConfigs = {};
-		captured.state.strings = { removeFilter: 'Remove %s' };
 		contextRef.current = { pill: null };
 	} );
 
@@ -101,11 +100,13 @@ describe( 'active-filters view store — activePills label resolution', () => {
 		expect( captured.state.activePills[ 0 ].label ).toBe( 'Post Type: Media file' );
 	} );
 
-	it( 'uses removeFilter format string for the aria-label', () => {
-		captured.state.strings.removeFilter = 'Remove %s filter';
+	it( 'composes the aria-label via @wordpress/i18n with the resolved label', () => {
+		// Strings flow through `__()` + `sprintf()` from `@wordpress/i18n`;
+		// in the Jest env that's the unmocked npm package, so the source
+		// "Remove %s" string round-trips with the label substituted in.
 		captured.state.activeFilters = { category: [ 'news' ] };
 		captured.state.aggregations = { category: { buckets: [ { key: 'news/News' } ] } };
 		captured.state.filterConfigs = { category: { label: 'Category', valueLabels: {} } };
-		expect( captured.state.activePills[ 0 ].ariaLabel ).toBe( 'Remove Category: News filter' );
+		expect( captured.state.activePills[ 0 ].ariaLabel ).toBe( 'Remove Category: News' );
 	} );
 } );

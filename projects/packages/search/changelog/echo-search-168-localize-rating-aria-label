@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: enable @wordpress/i18n imports in the Interactivity API view bundle so block strings (rating aria-label, results count, filter pill remove) translate on the front end via the page locale.
