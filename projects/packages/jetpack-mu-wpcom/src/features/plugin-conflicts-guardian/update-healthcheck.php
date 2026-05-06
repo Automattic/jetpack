@@ -140,6 +140,7 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 	foreach ( $candidates as $candidate ) {
 		$rollback = PCG_Rollback::to_snapshot( $candidate['snapshot'] );
 		pcg_healthcheck_stash_notice( $candidate['plugin_file'], $result, $rollback, $candidate['plugin_name'], $candidate['new_version'] );
+		pcg_healthcheck_log_rollback( $candidate, $result, $rollback );
 
 		/**
 		 * Fires after a post-update probe fails and rollback has been attempted.
@@ -151,6 +152,56 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 		 */
 		do_action( 'pcg_post_update_diagnosis', $candidate['plugin_file'], $result, $rollback, $candidate['snapshot'] );
 	}
+}
+
+/**
+ * Emit a logstash event for a post-update rollback we just performed, so we
+ * can measure how often the post-install probe catches a fatal that the
+ * pre-install parse-error gate (`update-guard.php`) couldn't see — and
+ * separately track rollback success vs `rollback_failed` /
+ * `rollback_unavailable`. Mirrors the activation/install-block events —
+ * same `feature` slug, same JSON-encoded `extra` shape. No-op outside
+ * WordPress.com (no `log2logstash` available) and best-effort: a logging
+ * failure must never escalate into a second fatal on a request path that
+ * just rolled back from one.
+ *
+ * @param array $candidate Per-plugin context built in `pcg_healthcheck_after_update()`: `plugin_file`, `plugin_name`, `new_version`, `snapshot`, `plugin_main`.
+ * @param array $probe     Shared probe verdict from `PCG_Load_Tester::test()` for the whole batch.
+ * @param array $rollback  Per-plugin rollback result from `PCG_Rollback::to_snapshot()`.
+ * @return void
+ */
+function pcg_healthcheck_log_rollback( array $candidate, array $probe, array $rollback ) {
+	if ( ! function_exists( 'log2logstash' ) ) {
+		$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+		if ( ! is_readable( $log2logstash_path ) ) {
+			return;
+		}
+		require_once $log2logstash_path;
+	}
+
+	log2logstash(
+		array(
+			'feature' => 'plugin-conflicts-guardian',
+			'message' => 'Update rolled back',
+			'extra'   => wp_json_encode(
+				array(
+					'plugin'           => (string) $candidate['plugin_file'],
+					'new_version'      => (string) $candidate['new_version'],
+					'previous_version' => (string) ( $candidate['snapshot']['version'] ?? '' ),
+					// Probe verdict that triggered rollback.
+					'probe_status'     => (string) ( $probe['status'] ?? '' ),
+					'probe_file'       => isset( $probe['file'] ) ? basename( (string) $probe['file'] ) : '',
+					'probe_line'       => (int) ( $probe['line'] ?? 0 ),
+					'probe_reason'     => (string) ( $probe['message'] ?? '' ),
+					// Rollback outcome — distinguishes "we restored cleanly" from
+					// "we tried and failed; site still on the broken version."
+					'rollback_status'  => (string) ( $rollback['status'] ?? '' ),
+					'restored_to'      => (string) ( $rollback['restored_to'] ?? '' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+		)
+	);
 }
 
 /**
