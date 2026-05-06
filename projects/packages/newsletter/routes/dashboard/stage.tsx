@@ -1,6 +1,10 @@
+import { Page } from '@wordpress/admin-ui';
+
 const Stage = () => {
-	// "Newsletter" is a product name, do not translate.
-	return <h1>Newsletter</h1>;
+	return (
+		// "Newsletter" is a product name, do not translate.
+		<Page title="Newsletter" />
+	);
 };
 
 export { Stage as stage };
