@@ -94,11 +94,31 @@ export function useMockLibrary() {
 		};
 	}, [] );
 
-	const runUpload = useCallback( ( id: string, isPromote: boolean ) => {
+	const sessionCounterRef = useRef( 0 );
+	const forcedFailIdsRef = useRef< Set< string > >( new Set() );
+
+	const runUpload = useCallback( ( id: string, isPromote: boolean, isRetry = false ) => {
 		const tickIncrement = ( 100 * MOCK_UPLOAD_TICK_MS ) / MOCK_UPLOAD_DURATION_MS;
 		let progress = 0;
+		let willFail = false;
+		if ( ! isRetry ) {
+			sessionCounterRef.current += 1;
+			if ( sessionCounterRef.current % 5 === 0 ) {
+				willFail = true;
+				forcedFailIdsRef.current.add( id );
+			}
+		} else {
+			forcedFailIdsRef.current.delete( id );
+		}
+
 		const interval = setInterval( () => {
 			progress = Math.min( 100, progress + tickIncrement );
+			if ( willFail && progress >= 60 ) {
+				clearInterval( interval );
+				intervalsRef.current.delete( id );
+				dispatch( { type: 'patchUpload', id, status: 'failed', progress: 60 } );
+				return;
+			}
 			if ( progress >= 100 ) {
 				clearInterval( interval );
 				intervalsRef.current.delete( id );
@@ -157,16 +177,27 @@ export function useMockLibrary() {
 		dispatch( { type: 'patchPrivacy', id, privacy } );
 	}, [] );
 
+	const retryUpload = useCallback(
+		( id: string ) => {
+			const target = items.find( item => item.id === id );
+			const isPromote = target?.type === 'local' || forcedFailIdsRef.current.has( id );
+			dispatch( { type: 'patchUpload', id, status: 'uploading', progress: 0 } );
+			runUpload( id, isPromote, true );
+		},
+		[ items, runUpload ]
+	);
+
 	return useMemo(
 		() => ( {
 			items,
 			isLoading,
 			startUpload,
 			promoteLocal,
+			retryUpload,
 			deleteItems,
 			setPrivacy,
 		} ),
-		[ items, isLoading, startUpload, promoteLocal, deleteItems, setPrivacy ]
+		[ items, isLoading, startUpload, promoteLocal, retryUpload, deleteItems, setPrivacy ]
 	);
 }
 
