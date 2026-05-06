@@ -39,9 +39,9 @@ const withInstantSearch = { supports_instant_search: true };
 const withClassicOnly = { supports_instant_search: false };
 
 describe( '<ExperienceDetails>', () => {
-	test( 'shows Instant Search title and description when Overlay is selected', () => {
+	test( 'shows Overlay search title and description when Overlay is selected', () => {
 		renderWith( overlayActive, withInstantSearch );
-		expect( screen.getByRole( 'heading', { name: 'Instant Search' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Overlay search' } ) ).toBeInTheDocument();
 		expect( screen.getByText( /search-as-you-type overlay that opens/i ) ).toBeInTheDocument();
 	} );
 
@@ -67,7 +67,7 @@ describe( '<ExperienceDetails>', () => {
 		// fall back to a real <button> so the library's disabled styling lands
 		// and AT users aren't told a non-functional element is a link.
 		renderWith( { ...inlineActive, pending_experience: 'overlay' }, withInstantSearch );
-		expect( screen.getByRole( 'heading', { name: 'Instant Search' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Overlay search' } ) ).toBeInTheDocument();
 		const customize = screen.getByRole( 'button', { name: /customize/i } );
 		const widgets = screen.getByRole( 'button', { name: /edit widgets/i } );
 		expect( customize.tagName ).toBe( 'BUTTON' );

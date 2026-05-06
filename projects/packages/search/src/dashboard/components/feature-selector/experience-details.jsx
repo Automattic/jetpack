@@ -43,7 +43,7 @@ export default function ExperienceDetails() {
 	const actionsDisabled = isUpdating || active !== EXPERIENCE.OVERLAY;
 
 	const title = isOverlay
-		? __( 'Instant Search', 'jetpack-search-pkg' )
+		? __( 'Overlay search', 'jetpack-search-pkg' )
 		: getExperienceLabel( selected );
 
 	return (
@@ -67,7 +67,7 @@ export default function ExperienceDetails() {
 				{ isOverlay && (
 					<Stack
 						direction="row"
-						gap="lg"
+						gap="xl"
 						align="center"
 						wrap="wrap"
 						className="jp-search-feature-selector__details-actions"
@@ -84,7 +84,7 @@ export default function ExperienceDetails() {
 						<DetailAction
 							title={ __( 'Sidebar widgets', 'jetpack-search-pkg' ) }
 							description={ __(
-								'Choose what filters appear in the overlay.',
+								'Choose which filters appear in the overlay.',
 								'jetpack-search-pkg'
 							) }
 							linkLabel={ __( 'Edit widgets', 'jetpack-search-pkg' ) }
