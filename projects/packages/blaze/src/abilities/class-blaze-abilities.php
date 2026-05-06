@@ -629,7 +629,7 @@ class Blaze_Abilities extends Registrar {
 			return $args;
 		}
 
-		$original_callback = isset( $args['execute_callback'] ) ? $args['execute_callback'] : null;
+		$original_callback = $args['execute_callback'] ?? null;
 		if ( ! is_callable( $original_callback ) ) {
 			return $args;
 		}
