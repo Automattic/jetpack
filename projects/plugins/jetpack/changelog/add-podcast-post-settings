@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: enhancement
 
 Podcast: add a Jetpack Podcast sidebar to the post editor for setting per-episode metadata (audio URL, duration, season/episode number, episode type, explicit, summary). Values are stored as post meta and injected into the RSS feed via the iTunes namespace.

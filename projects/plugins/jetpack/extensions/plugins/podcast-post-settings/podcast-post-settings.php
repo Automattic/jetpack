@@ -152,10 +152,10 @@ function rss2_item_tags() {
 		printf( "\t\t<itunes:duration>%s</itunes:duration>\n", esc_html( $duration ) );
 	}
 	if ( $episode > 0 ) {
-		printf( "\t\t<itunes:episode>%d</itunes:episode>\n", (int) $episode );
+		printf( "\t\t<itunes:episode>%s</itunes:episode>\n", esc_html( (string) $episode ) );
 	}
 	if ( $season > 0 ) {
-		printf( "\t\t<itunes:season>%d</itunes:season>\n", (int) $season );
+		printf( "\t\t<itunes:season>%s</itunes:season>\n", esc_html( (string) $season ) );
 	}
 	if ( ! empty( $type ) ) {
 		printf( "\t\t<itunes:episodeType>%s</itunes:episodeType>\n", esc_attr( $type ) );

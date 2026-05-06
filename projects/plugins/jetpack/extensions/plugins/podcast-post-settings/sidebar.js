@@ -63,7 +63,7 @@ const PodcastSettingsSidebar = () => {
 	return (
 		<PluginSidebar
 			name={ SIDEBAR_NAME }
-			title={ __( 'Jetpack Podcast', 'jetpack' ) }
+			title={ __( 'Podcast', 'jetpack' ) }
 			icon={ <MicrophoneIcon /> }
 			className="jetpack-podcast-settings-sidebar"
 		>
