@@ -227,6 +227,16 @@ function focusModalInput() {
 }
 
 /**
+ * Escape a string for safe interpolation into an HTML attribute value.
+ *
+ * @param {string} str - Raw string value.
+ * @return {string} HTML-attribute-safe string.
+ */
+function escapeAttr( str ) {
+	return str.replace( /&/g, '&amp;' ).replace( /"/g, '&quot;' );
+}
+
+/**
  * Normalize color markup from contentEditable before block serialization.
  *
  * The foreColor command creates <font color="..."> (legacy) or
@@ -334,7 +344,9 @@ function convertToBlocks( html ) {
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
 			blocks.push(
-				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ alt }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ escapeAttr(
+					alt
+				) }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// inner may already contain <p> tags from contentEditable.
