@@ -218,7 +218,7 @@ class Blaze_Abilities extends Registrar {
 			),
 			self::ABILITY_PREPARE_CAMPAIGN => array(
 				'label'               => __( 'Prepare a Blaze campaign', 'jetpack-blaze' ),
-				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
+				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and limited audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. Public audience overrides are limited to country and language codes. Device targeting and interest/topic targeting are not public MCP inputs in v1 because they depend on DSP-supported device IDs and IAB category mappings; use the goal/copy fields for intent and let Blaze defaults or the review UI handle those settings. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'target_urn' ),
@@ -274,7 +274,7 @@ class Blaze_Abilities extends Registrar {
 						),
 						'languages'            => array(
 							'type'        => 'array',
-							'description' => __( 'Optional ISO 639-1 language codes to target (e.g. ["en", "es"]). Defaults to all languages when omitted; pass a non-empty array to narrow targeting.', 'jetpack-blaze' ),
+							'description' => __( 'Optional ISO 639-1 language codes supported by Blaze/DSP (e.g. ["en", "es"]). Infer from the user\'s natural language request when clear, but omit when unsure or unsupported. Defaults to all languages when omitted; the merchant can adjust language targeting in the Blaze review UI.', 'jetpack-blaze' ),
 							'items'       => array(
 								'type'      => 'string',
 								'minLength' => 2,
@@ -283,7 +283,7 @@ class Blaze_Abilities extends Registrar {
 						),
 						'countries'            => array(
 							'type'        => 'array',
-							'description' => __( 'Optional ISO 3166-1 alpha-2 country codes to target (e.g. ["US", "GB"]). Defaults to worldwide when omitted; pass a non-empty array to limit reach to those countries.', 'jetpack-blaze' ),
+							'description' => __( 'Optional ISO 3166-1 alpha-2 country codes to target (e.g. ["US", "GB"]). Infer from the user\'s natural-language location request, but emit country codes rather than localized country names. Defaults to worldwide when omitted; pass a non-empty array to limit reach to those countries.', 'jetpack-blaze' ),
 							'items'       => array(
 								'type'      => 'string',
 								'minLength' => 2,
