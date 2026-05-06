@@ -2700,7 +2700,14 @@ const { state } = store( 'wpcom-write', {
 
 			const wrapper = document.createElement( 'figure' );
 			wrapper.className = 'bw-video-figure';
-			wrapper.innerHTML = `<div class="bw-video-wrap"><iframe src="${ embedUrl }" frameborder="0" allowfullscreen></iframe></div>`;
+			const videoWrap = document.createElement( 'div' );
+			videoWrap.className = 'bw-video-wrap';
+			const iframe = document.createElement( 'iframe' );
+			iframe.setAttribute( 'src', embedUrl );
+			iframe.setAttribute( 'frameborder', '0' );
+			iframe.setAttribute( 'allowfullscreen', '' );
+			videoWrap.appendChild( iframe );
+			wrapper.appendChild( videoWrap );
 
 			const p = insertMediaBlock( wrapper );
 			if ( p ) {
