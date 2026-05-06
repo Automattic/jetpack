@@ -61,7 +61,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		Jetpack_Options::delete_option( 'id' );
 		remove_all_filters( 'wp_register_ability_args' );
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
-		remove_all_filters( 'blaze_abilities_create_campaign_enabled' );
+		remove_all_filters( 'blaze_abilities_prepare_campaign_enabled' );
 		remove_all_actions( 'wp_after_execute_ability' );
 	}
 
@@ -110,7 +110,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			'meta' => array( 'annotations' => array( 'readonly' => false ) ),
 		);
 
-		$result = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_CREATE_CAMPAIGN );
+		$result = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
 
 		$this->assertSame( $args, $result, 'Missing callback should leave args untouched.' );
 	}
@@ -128,7 +128,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
 		);
 
-		$result = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_CREATE_CAMPAIGN );
+		$result = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
 
 		$this->assertNotSame( $callback, $result['execute_callback'], 'Write-ability callback must be wrapped.' );
 		$this->assertIsCallable( $result['execute_callback'] );
@@ -157,7 +157,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
 		);
 
-		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_CREATE_CAMPAIGN );
+		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
 		$result  = call_user_func( $wrapped['execute_callback'], array( 'budget_total' => 50 ) );
 
 		$this->assertSame( array( 'campaign_id' => 'abc-123' ), $result, 'Original callback result should pass through unchanged.' );
@@ -188,7 +188,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
 		);
 
-		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_CREATE_CAMPAIGN );
+		$wrapped = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
 		$result  = call_user_func( $wrapped['execute_callback'], array( 'budget_total' => 50 ) );
 
 		$this->assertFalse( $called, 'Original callback must not run when TOS check fails.' );
@@ -220,45 +220,45 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	public function test_inheritance_documented_via_owned_slugs_constant() {
 		$owned = Blaze_Abilities::OWNED_ABILITY_SLUGS;
 		$this->assertContains( Blaze_Abilities::ABILITY_LIST_CAMPAIGNS, $owned );
-		$this->assertContains( Blaze_Abilities::ABILITY_CREATE_CAMPAIGN, $owned );
+		$this->assertContains( Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN, $owned );
 
 		// Sanity: anything in OWNED_ABILITY_SLUGS that's a write ability gets
-		// wrapped. We exercise create-campaign here as the canonical write slug.
+		// wrapped. We exercise prepare-campaign here as the canonical write slug.
 		$args = array(
 			'execute_callback' => static function () {
 				return 'x';
 			},
 			'meta'             => array( 'annotations' => array( 'readonly' => false ) ),
 		);
-		$out  = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_CREATE_CAMPAIGN );
+		$out  = Blaze_Abilities::wrap_write_path_execute_callback( $args, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
 		$this->assertNotSame( $args['execute_callback'], $out['execute_callback'] );
 	}
 
 	// --- Kill-switch ---
 
 	/**
-	 * Filter returning false on `blaze_abilities_create_campaign_enabled`
+	 * Filter returning false on `blaze_abilities_prepare_campaign_enabled`
 	 * makes the double-register guard refuse to register the slug —
 	 * MCP clients won't see the tool, REST callers get 404.
 	 */
-	public function test_kill_switch_drops_create_campaign_registration() {
-		add_filter( 'blaze_abilities_create_campaign_enabled', '__return_false' );
+	public function test_kill_switch_drops_prepare_campaign_registration() {
+		add_filter( 'blaze_abilities_prepare_campaign_enabled', '__return_false' );
 
-		$enabled = Blaze_Abilities::guard_against_double_register( true, 'ability', Blaze_Abilities::ABILITY_CREATE_CAMPAIGN );
+		$enabled = Blaze_Abilities::guard_against_double_register( true, 'ability', Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN );
 
-		$this->assertFalse( $enabled, 'Kill-switch must drop create-campaign registration when set to false.' );
+		$this->assertFalse( $enabled, 'Kill-switch must drop prepare-campaign registration when set to false.' );
 	}
 
 	/**
-	 * Kill-switch is scoped to create-campaign — the read-only
+	 * Kill-switch is scoped to prepare-campaign — the read-only
 	 * list-campaigns ability is unaffected.
 	 */
 	public function test_kill_switch_does_not_affect_list_campaigns() {
-		add_filter( 'blaze_abilities_create_campaign_enabled', '__return_false' );
+		add_filter( 'blaze_abilities_prepare_campaign_enabled', '__return_false' );
 
 		$enabled = Blaze_Abilities::guard_against_double_register( true, 'ability', Blaze_Abilities::ABILITY_LIST_CAMPAIGNS );
 
-		$this->assertTrue( $enabled, 'Kill-switch must only affect create-campaign.' );
+		$this->assertTrue( $enabled, 'Kill-switch must only affect prepare-campaign.' );
 	}
 
 	// --- Woo MCP opt-in ---
@@ -269,7 +269,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	 */
 	public function test_opt_into_woo_mcp_for_owned_slugs() {
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_LIST_CAMPAIGNS ) );
-		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_CREATE_CAMPAIGN ) );
+		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( false, Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ) );
 
 		// Foreign slug, default false — should remain false (we don't toggle other people's abilities on).
 		$this->assertFalse( Blaze_Abilities::opt_into_woo_mcp( false, 'jetpack-forms/get-responses' ) );
@@ -277,11 +277,41 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertTrue( Blaze_Abilities::opt_into_woo_mcp( true, 'woocommerce/list-products' ) );
 	}
 
-	// --- create_campaign: prefill payload + URL ---
+	// --- prepare-campaign public schema ---
+
+	/**
+	 * The public write ability is prepare-campaign and its MCP-facing
+	 * input contract requires only the target. Budget/duration are
+	 * optional hints, and the raw DSP objective stays server-owned.
+	 */
+	public function test_prepare_campaign_schema_is_minimal_and_renamed() {
+		$abilities = Blaze_Abilities::get_abilities();
+
+		$this->assertArrayHasKey( 'blaze-ads/prepare-campaign', $abilities );
+
+		$schema     = $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['input_schema'];
+		$properties = $schema['properties'];
+
+		$this->assertSame( array( 'target_urn' ), $schema['required'] );
+		$this->assertFalse( $schema['additionalProperties'] );
+		$this->assertArrayHasKey( 'goal', $properties );
+		$this->assertArrayHasKey( 'budget_total', $properties );
+		$this->assertArrayHasKey( 'duration_days', $properties );
+		$this->assertArrayHasKey( 'revision_instruction', $properties );
+		$this->assertArrayHasKey( 'site_name', $properties );
+		$this->assertArrayHasKey( 'text_snippet', $properties );
+		$this->assertArrayHasKey( 'cta_text', $properties );
+		$this->assertArrayHasKey( 'main_image_url', $properties );
+		$this->assertArrayHasKey( 'languages', $properties );
+		$this->assertArrayHasKey( 'countries', $properties );
+		$this->assertArrayNotHasKey( 'objective', $properties );
+	}
+
+	// --- prepare_campaign: prefill payload + URL ---
 
 	/**
 	 * Helper: insert a test post and return its ID. Returns the
-	 * synthetic URN that callers should pass to create_campaign.
+	 * synthetic URN that callers should pass to prepare_campaign.
 	 */
 	private function make_test_post( array $overrides = array() ): array {
 		$post_id = wp_insert_post(
@@ -303,14 +333,12 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Invalid target_urn returns a WP_Error with status 400, not a partial draft.
+	 * Invalid target_urn returns a WP_Error with status 400, not a partial proposal.
 	 */
-	public function test_create_campaign_returns_error_for_invalid_target_urn() {
-		$result = Blaze_Abilities::create_campaign(
+	public function test_prepare_campaign_returns_error_for_invalid_target_urn() {
+		$result = Blaze_Abilities::prepare_campaign(
 			array(
-				'target_urn'    => 'not-a-urn',
-				'budget_total'  => 50,
-				'duration_days' => 7,
+				'target_urn' => 'not-a-urn',
 			)
 		);
 
@@ -323,12 +351,10 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	/**
 	 * URN that parses but references a missing post returns a 404 WP_Error.
 	 */
-	public function test_create_campaign_returns_error_for_missing_post() {
-		$result = Blaze_Abilities::create_campaign(
+	public function test_prepare_campaign_returns_error_for_missing_post() {
+		$result = Blaze_Abilities::prepare_campaign(
 			array(
-				'target_urn'    => sprintf( 'urn:wpcom:post:%d:9999999', self::TEST_SITE_ID ),
-				'budget_total'  => 50,
-				'duration_days' => 7,
+				'target_urn' => sprintf( 'urn:wpcom:post:%d:9999999', self::TEST_SITE_ID ),
 			)
 		);
 
@@ -343,10 +369,10 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	 * prefill_url + prefill payload, and the defaults are pulled from
 	 * the target post.
 	 */
-	public function test_create_campaign_returns_prefill_payload_and_url() {
+	public function test_prepare_campaign_returns_prefill_payload_and_url() {
 		$ctx = $this->make_test_post();
 
-		$result = Blaze_Abilities::create_campaign(
+		$result = Blaze_Abilities::prepare_campaign(
 			array(
 				'target_urn'    => $ctx['target_urn'],
 				'budget_total'  => 50,
@@ -373,20 +399,44 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Caller overrides take precedence over post-derived defaults.
+	 * Minimal input is enough to prepare a proposal. Budget/duration
+	 * defaults stay server-owned for this slice.
 	 */
-	public function test_create_campaign_caller_overrides_win() {
+	public function test_prepare_campaign_accepts_minimal_input() {
 		$ctx = $this->make_test_post();
 
-		$result = Blaze_Abilities::create_campaign(
+		$result = Blaze_Abilities::prepare_campaign(
 			array(
-				'target_urn'    => $ctx['target_urn'],
-				'budget_total'  => 100,
-				'duration_days' => 30,
-				'site_name'     => 'Custom heading',
-				'text_snippet'  => 'Custom ad copy.',
-				'objective'     => 'CLICKS',
-				'is_evergreen'  => false,
+				'target_urn' => $ctx['target_urn'],
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$prefill = $result['prefill'];
+		$this->assertSame( 50.0, $prefill['budget']['amount'] );
+		$this->assertSame( 7, $prefill['duration_days'] );
+		$this->assertSame( 'VIEWS', $prefill['objective'] );
+	}
+
+	/**
+	 * Caller overrides take precedence over post-derived defaults.
+	 */
+	public function test_prepare_campaign_caller_overrides_win() {
+		$ctx = $this->make_test_post();
+
+		$result = Blaze_Abilities::prepare_campaign(
+			array(
+				'target_urn'           => $ctx['target_urn'],
+				'budget_total'         => 100,
+				'duration_days'        => 30,
+				'site_name'            => 'Custom heading',
+				'text_snippet'         => 'Custom ad copy.',
+				'cta_text'             => 'Buy now',
+				'goal'                 => 'Drive sales for a spring promotion.',
+				'revision_instruction' => 'Make it less salesy.',
+				'main_image_url'       => 'https://example.com/custom.jpg',
+				'main_image_mime_type' => 'image/jpeg',
+				'is_evergreen'         => false,
 			)
 		);
 
@@ -394,7 +444,11 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$prefill = $result['prefill'];
 		$this->assertSame( 'Custom heading', $prefill['site_name'] );
 		$this->assertSame( 'Custom ad copy.', $prefill['text_snippet'] );
-		$this->assertSame( 'CLICKS', $prefill['objective'] );
+		$this->assertSame( 'Buy now', $prefill['cta_text'] );
+		$this->assertSame( 'Drive sales for a spring promotion.', $prefill['goal'] );
+		$this->assertSame( 'Make it less salesy.', $prefill['revision_instruction'] );
+		$this->assertSame( 'https://example.com/custom.jpg', $prefill['main_image']['url'] );
+		$this->assertSame( 'VIEWS', $prefill['objective'], 'DSP objective is server-owned and not overridden by public input.' );
 		$this->assertFalse( $prefill['is_evergreen'] );
 	}
 
@@ -403,7 +457,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 	 * stripped + truncated post content. This proves we don't return an
 	 * empty snippet (which the widget would surface as an empty heading).
 	 */
-	public function test_create_campaign_falls_back_to_stripped_content_when_no_excerpt() {
+	public function test_prepare_campaign_falls_back_to_stripped_content_when_no_excerpt() {
 		$ctx = $this->make_test_post(
 			array(
 				'post_excerpt' => '',
@@ -411,7 +465,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			)
 		);
 
-		$result = Blaze_Abilities::create_campaign(
+		$result = Blaze_Abilities::prepare_campaign(
 			array(
 				'target_urn'    => $ctx['target_urn'],
 				'budget_total'  => 50,
