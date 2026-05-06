@@ -90,7 +90,7 @@ class Posts extends Module {
 	/**
 	 * Post type name for Activity Log custom entries.
 	 */
-	const ACTIVITY_LOG_CPT = 'jp_act_log_entry';
+	const ACTIVITY_LOG_CPT = 'jp_act_log_event';
 
 	/**
 	 * Sync module name.
@@ -486,18 +486,41 @@ class Posts extends Module {
 		}
 
 		if ( self::ACTIVITY_LOG_CPT === $post->post_type ) {
-			// Write-once
-			$previous_status = isset( $previous_state['previous_status'] ) ? $previous_state['previous_status'] : '';
-			if ( 'publish' !== $post->post_status || 'publish' === $previous_status ) {
-				return false;
-			}
-			$data = json_decode( $post->post_content, true );
-			if ( ! is_array( $data ) || empty( $data['source'] ) || empty( $data['title'] ) || empty( $data['content'] ) ) {
+			return false;
+		}
+
+		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+	}
+
+	/**
+	 * Checks that an Activity Log custom event has the minimum payload shape before enqueueing it for sync,
+	 * in case data bypasses the jetpack_activity_log_event helper function.
+	 *
+	 * @param \WP_Post $post Activity Log post.
+	 * @return bool
+	 */
+	private function is_valid_activity_log_post( $post ) {
+		$data = json_decode( $post->post_content, true );
+		if ( ! is_array( $data ) ) {
+			$data = json_decode( wp_unslash( $post->post_content ), true );
+		}
+
+		if ( ! is_array( $data ) ) {
+			return false;
+		}
+
+		foreach ( array( 'source', 'title', 'content' ) as $field ) {
+			if (
+				! isset( $data[ $field ] )
+				|| is_array( $data[ $field ] )
+				|| is_object( $data[ $field ] )
+				|| '' === trim( (string) $data[ $field ] )
+			) {
 				return false;
 			}
 		}
 
-		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+		return true;
 	}
 
 	/**
@@ -518,8 +541,7 @@ class Posts extends Module {
 
 		list( $post_id, $flags, $post ) = $args;
 
-		// Activity log entries are not editorial content; suppress the published_post event.
-		if ( self::ACTIVITY_LOG_CPT === $post->post_type ) {
+		if ( self::ACTIVITY_LOG_CPT === $post->post_type && ! $this->is_valid_activity_log_post( $post ) ) {
 			return false;
 		}
 
