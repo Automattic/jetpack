@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace the wp-build placeholder with page chrome (title, tagline) plus tab navigation (Welcome, Settings, Episodes, Distribution). Each tab panel is still empty — PR 4 in the untangle train fills them in.
