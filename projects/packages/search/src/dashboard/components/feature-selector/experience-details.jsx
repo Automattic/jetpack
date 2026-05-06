@@ -15,10 +15,13 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  *
  * Switches its content based on the currently *selected* (radio-checked)
  * experience, so the user can preview each option as they tab through. The
- * customization actions inside the Overlay panel only appear when Overlay is
- * also the *active* (saved) experience — the linked pages act on live overlay
- * configuration and would be misleading on a site that hasn't actually saved
- * Overlay yet.
+ * customization actions inside the Overlay panel are always rendered when
+ * Overlay is selected so users can see what's available, but they only become
+ * functional once Overlay is the *active* (saved) experience — the linked
+ * pages act on live overlay configuration and would be misleading on a site
+ * that hasn't actually saved Overlay yet. While disabled the links omit
+ * `href` (so AT users aren't told a non-functional link is a link) and gain
+ * `aria-disabled="true"` via the underlying base-ui Button.
  *
  * Non-Overlay experiences currently render only a title; richer per-experience
  * content is a follow-up.
@@ -37,7 +40,7 @@ export default function ExperienceDetails() {
 	);
 
 	const isOverlay = selected === EXPERIENCE.OVERLAY;
-	const showActions = isOverlay && active === EXPERIENCE.OVERLAY;
+	const actionsDisabled = isUpdating || active !== EXPERIENCE.OVERLAY;
 
 	const title = isOverlay
 		? __( 'Instant Search', 'jetpack-search-pkg' )
@@ -61,7 +64,7 @@ export default function ExperienceDetails() {
 						</p>
 					) }
 				</Stack>
-				{ showActions && (
+				{ isOverlay && (
 					<Stack
 						direction="row"
 						gap="lg"
@@ -75,7 +78,7 @@ export default function ExperienceDetails() {
 								description={ __( 'Colors, layout, sort options, sidebar.', 'jetpack-search-pkg' ) }
 								linkLabel={ __( 'Customize', 'jetpack-search-pkg' ) }
 								href={ SEARCH_CUSTOMIZE_URL }
-								disabled={ isUpdating }
+								disabled={ actionsDisabled }
 							/>
 						) }
 						<DetailAction
@@ -86,7 +89,7 @@ export default function ExperienceDetails() {
 							) }
 							linkLabel={ __( 'Edit widgets', 'jetpack-search-pkg' ) }
 							href={ WIDGETS_EDITOR_URL }
-							disabled={ isUpdating }
+							disabled={ actionsDisabled }
 						/>
 					</Stack>
 				) }
@@ -111,17 +114,21 @@ const DetailAction = ( { title, description, linkLabel, href, disabled } ) => (
 			</span>
 		</Stack>
 		<Button
-			variant="minimal"
+			variant="outline"
 			tone="brand"
-			// @wordpress/ui Button is built on @base-ui/react. Passing `render={ <a /> }`
-			// swaps the underlying <button> for an <a> so `href` actually navigates —
-			// `href` on a <button> is ignored, which silently breaks the click.
-			render={ <a href={ disabled ? undefined : href } /> }
-			nativeButton={ false }
 			disabled={ disabled }
+			// When enabled, render as <a> so cmd/middle-click work and the URL is
+			// visible on hover. wp-admin sets a global `a { color }` rule that
+			// would clobber a `tone="neutral"` Button rendered as <a>, but the
+			// brand-blue admin colour happens to match outline+brand's text
+			// colour, so there's no visible leak. When disabled we fall back to
+			// the default <button> render — the library's data-disabled styling
+			// only lands correctly on a real <button>.
+			render={ disabled ? undefined : <a href={ href } /> }
+			nativeButton={ disabled }
 			className="jp-search-feature-selector__details-action-link"
 		>
-			{ linkLabel } →
+			{ linkLabel }
 		</Button>
 	</Stack>
 );

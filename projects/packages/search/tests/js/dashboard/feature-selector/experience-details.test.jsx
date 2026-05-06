@@ -45,16 +45,14 @@ describe( '<ExperienceDetails>', () => {
 		expect( screen.getByText( /search-as-you-type overlay that opens/i ) ).toBeInTheDocument();
 	} );
 
-	test( 'shows Customize and Edit widgets actions when Overlay is the active experience', () => {
+	test( 'renders Customize and Edit widgets as anchors with the correct hrefs when Overlay is active', () => {
 		renderWith( overlayActive, withInstantSearch );
-		expect( screen.getByRole( 'button', { name: /customize/i } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=jetpack-search-configure'
-		);
-		expect( screen.getByRole( 'button', { name: /edit widgets/i } ) ).toHaveAttribute(
-			'href',
-			'widgets.php'
-		);
+		const customize = screen.getByRole( 'button', { name: /customize/i } );
+		const widgets = screen.getByRole( 'button', { name: /edit widgets/i } );
+		expect( customize.tagName ).toBe( 'A' );
+		expect( customize ).toHaveAttribute( 'href', 'admin.php?page=jetpack-search-configure' );
+		expect( widgets.tagName ).toBe( 'A' );
+		expect( widgets ).toHaveAttribute( 'href', 'widgets.php' );
 	} );
 
 	test( 'hides Customize action when supportsInstantSearch is false', () => {
@@ -63,13 +61,19 @@ describe( '<ExperienceDetails>', () => {
 		expect( screen.getByRole( 'button', { name: /edit widgets/i } ) ).toBeInTheDocument();
 	} );
 
-	test( 'hides actions when Overlay is selected but not yet the active experience', () => {
+	test( 'renders actions as disabled buttons (no href) when Overlay is selected but not yet active', () => {
 		// Active is 'inline'; pending_experience='overlay' → selected = overlay,
-		// active = inline. Description should still render but actions must not.
+		// active = inline. Actions render so users see what's coming, but they
+		// fall back to a real <button> so the library's disabled styling lands
+		// and AT users aren't told a non-functional element is a link.
 		renderWith( { ...inlineActive, pending_experience: 'overlay' }, withInstantSearch );
 		expect( screen.getByRole( 'heading', { name: 'Instant Search' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /customize/i } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
+		const customize = screen.getByRole( 'button', { name: /customize/i } );
+		const widgets = screen.getByRole( 'button', { name: /edit widgets/i } );
+		expect( customize.tagName ).toBe( 'BUTTON' );
+		expect( customize ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( widgets.tagName ).toBe( 'BUTTON' );
+		expect( widgets ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
 	test( 'shows only the title for non-Overlay experiences', () => {
@@ -82,13 +86,15 @@ describe( '<ExperienceDetails>', () => {
 		expect( screen.queryByRole( 'button', { name: /edit widgets/i } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'actions are aria-disabled and have no href while settings are saving', () => {
+	test( 'actions are aria-disabled while settings are saving', () => {
 		renderWith( { ...overlayActive, is_updating: true }, withInstantSearch );
-		const customize = screen.getByRole( 'button', { name: /customize/i } );
-		const widgets = screen.getByRole( 'button', { name: /edit widgets/i } );
-		expect( customize ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( customize ).not.toHaveAttribute( 'href' );
-		expect( widgets ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( widgets ).not.toHaveAttribute( 'href' );
+		expect( screen.getByRole( 'button', { name: /customize/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: /edit widgets/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 } );
