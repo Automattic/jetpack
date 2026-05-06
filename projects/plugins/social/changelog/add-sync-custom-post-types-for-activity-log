@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync: Allow an Activity Log specific custom post type, plus a helper function to simplify adding entries. 
