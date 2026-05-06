@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Modules: Auto-activate default modules that do not require a connection on unconnected sites, including Forms.
