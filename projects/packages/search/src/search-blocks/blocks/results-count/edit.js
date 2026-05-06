@@ -6,7 +6,6 @@
  * style on the front end.
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import { createElement as h } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -16,5 +15,5 @@ import { __ } from '@wordpress/i18n';
  */
 export default function ResultsCountEdit() {
 	const blockProps = useBlockProps();
-	return h( 'p', blockProps, __( '42 results', 'jetpack-search-pkg' ) );
+	return <p { ...blockProps }>{ __( '42 results', 'jetpack-search-pkg' ) }</p>;
 }

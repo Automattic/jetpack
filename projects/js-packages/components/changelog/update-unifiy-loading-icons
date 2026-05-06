@@ -1,4 +1,0 @@
-Significance: patch
-Type: deprecated
-
-Mark the Spinner component as deprecated in favor of the WordPress Core Spinner from @wordpress/components.

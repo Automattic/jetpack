@@ -33,7 +33,7 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
 
 	// Identify only when used: admins need $plugin for the rendered
-	// notice; the anonymous path identifies once per (file, 5-min) for
+	// notice; the anonymous path identifies once per (file, 1-hour) for
 	// telemetry. Signature-level dedup downstream catches duplicates
 	// this gate misses.
 	$plugin = null;
@@ -46,7 +46,7 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 		$do_log     = true;
 
 		try {
-			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS );
+			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', HOUR_IN_SECONDS );
 		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not silence telemetry.
 			// Fail open.
 		}

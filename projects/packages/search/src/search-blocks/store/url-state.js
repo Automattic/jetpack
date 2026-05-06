@@ -2,9 +2,16 @@
 const VALID_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
 const DEFAULT_SORT_ORDER = 'relevance';
 
+// Default search-query URL key. Used when no per-request name is threaded
+// through (tests, callers that don't care about the singular-page case).
+// Mirrors `Search_Blocks::get_search_param_name()` on the PHP side: `s` on
+// the WP search route, `q` on non-search pages.
+const DEFAULT_SEARCH_PARAM = 's';
+
 // Reserved query params — not treated as filter keys on parse. Mirrors the
-// allow-list on the PHP side in Search_Blocks::parse_url_filters().
-const RESERVED_PARAMS = new Set( [ 's', 'orderby', 'min_price', 'max_price' ] );
+// allow-list on the PHP side in Search_Blocks::parse_url_filters(). Includes
+// both possible search-query keys so neither leaks into `activeFilters`.
+const RESERVED_PARAMS = new Set( [ 's', 'q', 'orderby', 'min_price', 'max_price' ] );
 
 /**
  * Parse a `min_price` / `max_price` URL value into a finite number.
@@ -32,11 +39,14 @@ function parsePriceBound( raw ) {
  * matching the shape instant-search already writes so deep links are
  * interchangeable between the two surfaces.
  *
- * @param {object}      state                 - Store state slice.
- * @param {string}      state.searchQuery     - Current search query.
- * @param {string}      state.sortOrder       - Current sort order.
- * @param {object}      [state.activeFilters] - { [filterKey]: string[] } selected filters.
- * @param {object|null} [state.priceRange]    - { min, max } price range; either bound may be null.
+ * @param {object}      state                   - Store state slice.
+ * @param {string}      state.searchQuery       - Current search query.
+ * @param {string}      state.sortOrder         - Current sort order.
+ * @param {object}      [state.activeFilters]   - { [filterKey]: string[] } selected filters.
+ * @param {object|null} [state.priceRange]      - { min, max } price range; either bound may be null.
+ * @param {string}      [state.searchParamName] - URL key the search query is written under
+ *                                              (`s` on the WP search route, `q`
+ *                                              on non-search pages). Defaults to `s`.
  * @return {URLSearchParams} URL-ready params.
  */
 export function stateToUrlParams( {
@@ -44,13 +54,16 @@ export function stateToUrlParams( {
 	sortOrder,
 	activeFilters = {},
 	priceRange = null,
+	searchParamName = DEFAULT_SEARCH_PARAM,
 } ) {
 	const params = new URLSearchParams();
 
-	// Always emit `s` (even empty) so a refresh keeps WP routed to the
-	// search template. Dropping the param entirely when the user clears
-	// the input would push the page back to the front-page route.
-	params.set( 's', searchQuery ?? '' );
+	// Always emit the search key (even empty) so a refresh keeps WP routed
+	// to the search template (or the singular host page on non-search pages).
+	// Dropping the param entirely when the user clears the input would push
+	// the page back to the front-page route on `/?s=` and silently change
+	// URL shape on `/about/?q=`.
+	params.set( searchParamName, searchQuery ?? '' );
 
 	if ( sortOrder && sortOrder !== DEFAULT_SORT_ORDER && VALID_SORT_ORDERS.includes( sortOrder ) ) {
 		params.set( 'orderby', sortOrder );
@@ -84,11 +97,17 @@ export function stateToUrlParams( {
  * forwarded to ES with no matching config, so they'd silently drop but still
  * round-trip through the browser URL on every keystroke.
  *
- * @param {URLSearchParams} params          - URL search params.
- * @param {object}          [filterConfigs] - { [filterKey]: FilterConfig } map used to validate filter keys.
+ * @param {URLSearchParams} params            - URL search params.
+ * @param {object}          [filterConfigs]   - { [filterKey]: FilterConfig } map used to validate filter keys.
+ * @param {string}          [searchParamName] - URL key to read the search query from
+ *                                            (`s` or `q`). Defaults to `s`.
  * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: object|null }} Partial state.
  */
-export function urlParamsToState( params, filterConfigs = {} ) {
+export function urlParamsToState(
+	params,
+	filterConfigs = {},
+	searchParamName = DEFAULT_SEARCH_PARAM
+) {
 	const rawOrderby = params.get( 'orderby' );
 	const activeFilters = {};
 
@@ -159,7 +178,7 @@ export function urlParamsToState( params, filterConfigs = {} ) {
 			: null;
 
 	return {
-		searchQuery: params.get( 's' ) ?? '',
+		searchQuery: params.get( searchParamName ) ?? '',
 		sortOrder: VALID_SORT_ORDERS.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER,
 		activeFilters,
 		priceRange,
@@ -184,9 +203,15 @@ export function pushStateToUrl( state ) {
 /**
  * Read initial state from the current URL.
  *
- * @param {object} [filterConfigs] - { [filterKey]: FilterConfig } map used to validate filter keys.
+ * @param {object} [filterConfigs]   - { [filterKey]: FilterConfig } map used to validate filter keys.
+ * @param {string} [searchParamName] - URL key the search query lives under (`s` or
+ *                                   `q`). Defaults to `s`.
  * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: object|null }} Partial state.
  */
-export function readStateFromUrl( filterConfigs = {} ) {
-	return urlParamsToState( new URLSearchParams( window.location.search ), filterConfigs );
+export function readStateFromUrl( filterConfigs = {}, searchParamName = DEFAULT_SEARCH_PARAM ) {
+	return urlParamsToState(
+		new URLSearchParams( window.location.search ),
+		filterConfigs,
+		searchParamName
+	);
 }

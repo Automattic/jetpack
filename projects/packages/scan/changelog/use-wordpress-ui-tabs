@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Switch the Scan overview's Active threats / History tab nav from `@wordpress/components` `TabPanel` to the new `@wordpress/ui` `Tabs.Root` / `Tabs.List` / `Tabs.Panel` pattern (matches Newsletter's unified page in #48420 phase 3 — minimal underline variant + sliding active-tab indicator).

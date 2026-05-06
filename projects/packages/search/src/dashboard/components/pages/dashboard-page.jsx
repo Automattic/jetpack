@@ -8,6 +8,7 @@ import {
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import FeatureSelector from 'components/feature-selector';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -86,6 +87,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	const isTogglingInstantSearch = useSelect( select =>
 		select( STORE_ID ).isTogglingInstantSearch()
 	);
+	const isSearchBlocksEnabled = useSelect( select => select( STORE_ID ).isSearchBlocksEnabled() );
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
@@ -168,6 +170,19 @@ export default function DashboardPage( { isLoading = false } ) {
 							/>
 						) }
 						<div className="jp-search-dashboard-bottom">
+							{ isSearchBlocksEnabled && (
+								<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
+									<div className="jp-search-dashboard-row">
+										<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+											<FeatureSelector />
+										</div>
+									</div>
+								</div>
+							) }
+							{ /* ModuleControl renders regardless of the feature flag for now —
+							     until the back-end `experience` field lands (RSM-2291), the new
+							     FeatureSelector can't actually persist changes. Keeping the legacy
+							     toggles visible lets admins continue managing Search settings. */ }
 							<ModuleControl
 								siteAdminUrl={ siteAdminUrl }
 								updateOptions={ updateOptions }

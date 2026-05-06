@@ -11,6 +11,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/activation-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-guard.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-snapshot.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-rollback.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-healthcheck.php';
 
 /**
  * Exercises the pure / near-pure helpers: transient keying, error-reason
@@ -41,7 +44,138 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'load-update.php', 'pcg_guard_maybe_block_activation', 0 );
 		remove_action( 'admin_notices', 'pcg_guard_render_block_notice' );
 		remove_all_filters( 'pcg_guard_activation' );
+		remove_all_filters( 'pcg_guard_updates' );
+		remove_all_filters( 'pcg_backup_root' );
 		parent::tear_down();
+	}
+
+	/**
+	 * PCG_Snapshot::transient_key is deterministic and namespaced.
+	 */
+	public function test_snapshot_transient_key_is_deterministic_and_namespaced() {
+		$file = 'akismet/akismet.php';
+		$this->assertSame( 'pcg_snap_' . md5( $file ), PCG_Snapshot::transient_key( $file ) );
+		$this->assertSame( PCG_Snapshot::transient_key( $file ), PCG_Snapshot::transient_key( $file ) );
+		$this->assertNotSame( PCG_Snapshot::transient_key( $file ), PCG_Snapshot::transient_key( 'other/file.php' ) );
+	}
+
+	/**
+	 * Scenarios for PCG_Snapshot::slug_from_file.
+	 *
+	 * @return array<string,array{0:string,1:string}>
+	 */
+	public static function provide_slug_from_file(): array {
+		return array(
+			'subdirectory plugin' => array( 'akismet/akismet.php', 'akismet' ),
+			'nested path'         => array( 'woocommerce/includes/main.php', 'woocommerce/includes' ),
+			'single-file plugin'  => array( 'hello.php', 'hello' ),
+			'empty'               => array( '', '' ),
+		);
+	}
+
+	/**
+	 * PCG_Snapshot::slug_from_file derives the directory (or stem for single-file plugins).
+	 *
+	 * @param string $plugin_file Input.
+	 * @param string $expected    Expected slug.
+	 * @dataProvider provide_slug_from_file
+	 */
+	#[DataProvider( 'provide_slug_from_file' )]
+	public function test_snapshot_slug_from_file( string $plugin_file, string $expected ) {
+		$this->assertSame( $expected, PCG_Snapshot::slug_from_file( $plugin_file ) );
+	}
+
+	/**
+	 * Scenarios for PCG_Rollback::build_download_url.
+	 *
+	 * @return array<string,array{0:string,1:string,2:string}>
+	 */
+	public static function provide_rollback_url_scenarios(): array {
+		return array(
+			'valid slug + semver'        => array( 'akismet', '5.3.1', 'https://downloads.wordpress.org/plugin/akismet.5.3.1.zip' ),
+			'valid slug + hyphen tag'    => array( 'jetpack', '14.0-beta1', 'https://downloads.wordpress.org/plugin/jetpack.14.0-beta1.zip' ),
+			'empty slug'                 => array( '', '1.0', '' ),
+			'empty version'              => array( 'akismet', '', '' ),
+			'slug with invalid chars'    => array( 'bad slug!', '1.0', '' ),
+			'version with space'         => array( 'akismet', '1.0 0', '' ),
+			'version starting non-digit' => array( 'akismet', 'v1.0', '' ),
+		);
+	}
+
+	/**
+	 * PCG_Rollback::build_download_url produces a WP.org versioned URL or ''.
+	 *
+	 * @param string $slug     Plugin slug.
+	 * @param string $version  Version string.
+	 * @param string $expected Expected URL.
+	 * @dataProvider provide_rollback_url_scenarios
+	 */
+	#[DataProvider( 'provide_rollback_url_scenarios' )]
+	public function test_rollback_build_download_url( string $slug, string $version, string $expected ) {
+		$this->assertSame( $expected, PCG_Rollback::build_download_url( $slug, $version ) );
+	}
+
+	/**
+	 * Pcg_healthcheck_is_plugin_update only fires for type=plugin + action=update.
+	 */
+	public function test_healthcheck_is_plugin_update_predicate() {
+		$this->assertTrue(
+			pcg_healthcheck_is_plugin_update(
+				array(
+					'type'   => 'plugin',
+					'action' => 'update',
+				)
+			)
+		);
+		$this->assertFalse(
+			pcg_healthcheck_is_plugin_update(
+				array(
+					'type'   => 'plugin',
+					'action' => 'install',
+				)
+			)
+		);
+		$this->assertFalse(
+			pcg_healthcheck_is_plugin_update(
+				array(
+					'type'   => 'theme',
+					'action' => 'update',
+				)
+			)
+		);
+		$this->assertFalse( pcg_healthcheck_is_plugin_update( array() ) );
+	}
+
+	/**
+	 * Pcg_healthcheck_describe_rollback returns a human-readable summary per status.
+	 */
+	public function test_healthcheck_describe_rollback() {
+		$this->assertStringContainsString(
+			'reactivated',
+			pcg_healthcheck_describe_rollback(
+				array(
+					'status'      => 'reactivated',
+					'restored_to' => '1.2.3',
+				)
+			)
+		);
+		$this->assertStringContainsString(
+			'deactivated',
+			pcg_healthcheck_describe_rollback(
+				array(
+					'status'      => 'restored',
+					'restored_to' => '1.2.3',
+				)
+			)
+		);
+		$this->assertStringContainsString(
+			'unavailable',
+			pcg_healthcheck_describe_rollback( array( 'status' => 'rollback_unavailable' ) )
+		);
+		$this->assertStringContainsString(
+			'failed',
+			pcg_healthcheck_describe_rollback( array( 'status' => 'rollback_failed' ) )
+		);
 	}
 
 	/**
@@ -63,6 +197,48 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			PCG_Load_Tester::transient_key( 'aaa' ),
 			PCG_Load_Tester::transient_key( 'bbb' )
 		);
+	}
+
+	/**
+	 * Mode constants have the documented values; the endpoint relies on
+	 * these specific strings, so a rename here is a wire-protocol change.
+	 */
+	public function test_load_tester_mode_constant_values() {
+		$this->assertSame( 'activation', PCG_Load_Tester::MODE_ACTIVATION );
+		$this->assertSame( 'update', PCG_Load_Tester::MODE_UPDATE );
+	}
+
+	/**
+	 * `build_probe_payload` defaults to activation mode and round-trips
+	 * the explicit mode argument when supplied.
+	 */
+	public function test_build_probe_payload_carries_mode() {
+		$default = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ) );
+		$this->assertSame(
+			array(
+				'plugins' => array( '/abs/foo/foo.php' ),
+				'mode'    => 'activation',
+			),
+			$default
+		);
+
+		$update = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php', '/abs/bar/bar.php' ), PCG_Load_Tester::MODE_UPDATE );
+		$this->assertSame(
+			array(
+				'plugins' => array( '/abs/foo/foo.php', '/abs/bar/bar.php' ),
+				'mode'    => 'update',
+			),
+			$update
+		);
+	}
+
+	/**
+	 * Unknown mode strings fall back to activation rather than poisoning
+	 * the transient with a value the endpoint will reject.
+	 */
+	public function test_build_probe_payload_rejects_unknown_mode() {
+		$payload = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ), 'bogus' );
+		$this->assertSame( 'activation', $payload['mode'] );
 	}
 
 	/**
@@ -136,6 +312,155 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	#[DataProvider( 'provide_block_reason_scenarios' )]
 	public function test_format_block_reason( array $result, string $expected ) {
 		$this->assertSame( $expected, pcg_guard_format_block_reason( $result ) );
+	}
+
+	/**
+	 * The load tester's `test()` rejects an empty / non-existent input list
+	 * before doing any HTTP work, returning an `error` verdict.
+	 */
+	public function test_load_tester_rejects_empty_plugin_list() {
+		$tester = new PCG_Load_Tester();
+
+		$verdict = $tester->test( array() );
+		$this->assertSame( 'error', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] ?? '' );
+
+		$verdict = $tester->test( array( '', '/no/such/file/pcg-missing.php' ) );
+		$this->assertSame( 'error', $verdict['status'] );
+		$this->assertNotEmpty( $verdict['reason'] ?? '' );
+	}
+
+	/**
+	 * The explicit `plugin` field on a Throwable verdict wins when it
+	 * matches a known path in the batch.
+	 */
+	public function test_blame_uses_explicit_plugin_field() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'throwable',
+				'plugin' => WP_PLUGIN_DIR . '/bar/bar.php',
+				'file'   => WP_PLUGIN_DIR . '/bar/bar.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * When the explicit `plugin` field doesn't match anything in the batch,
+	 * attribution falls through to the captured `file`.
+	 */
+	public function test_blame_falls_back_to_file_when_explicit_plugin_unknown() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'throwable',
+				'plugin' => '/some/path/we/dont/recognise.php',
+				'file'   => WP_PLUGIN_DIR . '/bar/lib/helper.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * An exact-path match against a plugin's main file wins — covers
+	 * flat-file plugins where the prefix match would be unsafe.
+	 */
+	public function test_blame_matches_flat_file_plugin_exactly() {
+		$paths = array(
+			'hello.php'   => WP_PLUGIN_DIR . '/hello.php',
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/hello.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'hello.php', $blamed );
+	}
+
+	/**
+	 * A fatal in a file inside a plugin's own subdirectory is attributed
+	 * via prefix match.
+	 */
+	public function test_blame_matches_subdirectory_plugin_prefix() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/bar/lib/deeply/nested.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( 'bar/bar.php', $blamed );
+	}
+
+	/**
+	 * A fatal at `WP_PLUGIN_DIR/something.php` must NOT be attributed to a
+	 * flat-file plugin in the batch via the prefix arm — that would
+	 * produce a false attribution because the dirname is the plugins root.
+	 * Falls through to the undetermined branch (returns '').
+	 */
+	public function test_blame_does_not_false_match_flat_file_plugins_via_prefix() {
+		$paths = array(
+			'hello.php' => WP_PLUGIN_DIR . '/hello.php',
+			'world.php' => WP_PLUGIN_DIR . '/world.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => WP_PLUGIN_DIR . '/something-unrelated.php',
+			),
+			$paths
+		);
+
+		$this->assertSame( '', $blamed );
+	}
+
+	/**
+	 * With nothing on the verdict to attribute against, the helper returns
+	 * `''` so the caller can surface a batch-level message instead of
+	 * blaming an arbitrary plugin.
+	 */
+	public function test_blame_returns_empty_when_unattributable() {
+		$paths = array(
+			'foo/foo.php' => WP_PLUGIN_DIR . '/foo/foo.php',
+			'bar/bar.php' => WP_PLUGIN_DIR . '/bar/bar.php',
+		);
+
+		$blamed = pcg_guard_get_blocked_plugin( array( 'status' => 'fatal' ), $paths );
+		$this->assertSame( '', $blamed );
+
+		$blamed = pcg_guard_get_blocked_plugin(
+			array(
+				'status' => 'fatal',
+				'file'   => '/var/www/wp-includes/load.php',
+			),
+			$paths
+		);
+		$this->assertSame( '', $blamed );
 	}
 
 	/**
@@ -312,6 +637,47 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( $incoming, $result );
+	}
+
+	/**
+	 * Sweep_stale_backups deletes md5-named subdirs older than the TTL,
+	 * leaves recent ones, and ignores entries that don't match our naming.
+	 */
+	public function test_snapshot_sweep_stale_backups_drops_orphaned_dirs() {
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			$this->markTestSkipped( 'WP_Filesystem unavailable in this test env.' );
+		}
+
+		$root = $this->make_tmp_dir();
+		add_filter(
+			'pcg_backup_root',
+			static function () use ( $root ) {
+				return $root;
+			}
+		);
+
+		$stale     = $root . '/' . md5( 'stale' );
+		$fresh     = $root . '/' . md5( 'fresh' );
+		$unrelated = $root . '/not-ours';
+		mkdir( $stale, 0777, true );
+		mkdir( $fresh, 0777, true );
+		mkdir( $unrelated, 0777, true );
+		file_put_contents( $unrelated . '/keep.txt', 'keep' );
+
+		$past = time() - ( 2 * HOUR_IN_SECONDS );
+		touch( $stale, $past );
+		touch( $unrelated, $past );
+
+		PCG_Snapshot::sweep_stale_backups();
+
+		$this->assertFalse( is_dir( $stale ), 'Stale md5-named backup should be deleted.' );
+		$this->assertTrue( is_dir( $fresh ), 'Recent md5-named backup should be preserved.' );
+		$this->assertTrue( is_dir( $unrelated ), 'Non-matching entries must be left alone.' );
 	}
 
 	/**

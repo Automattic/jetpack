@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: Add "Matches content" / "Matches comments" hint badge to the product layout result card when a non-title field matches but the title does not.

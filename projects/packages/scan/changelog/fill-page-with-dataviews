@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fix the DataViews table collapsing to content height (leaving an empty gray strip below the page footer) by passing `unwrapped` to `AdminPage` to skip its default `<Container><Col>` wrappers, and forcing the flex chain from `.admin-ui-page` down through `Tabs.Root` and the active `[role="tabpanel"]` so DataViews' built-in `flex-grow: 1` no-results body centers in the available vertical space.

@@ -15,7 +15,7 @@
  *   Jetpack_Spinner::render();
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 15.8
  */
 
 /**
@@ -30,7 +30,7 @@ class Jetpack_Spinner {
 	 * Uses <animateTransform> for CSS-free animation, making it safe for
 	 * frontend contexts where wp-admin styles are not enqueued.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.8
 	 *
 	 * @param int $size Width and height in pixels. Default 24.
 	 * @return string SVG markup.

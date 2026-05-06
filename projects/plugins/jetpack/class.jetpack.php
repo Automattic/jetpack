@@ -32,7 +32,9 @@ use Automattic\Jetpack\Newsletter\Reader_Link;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Podcast\Podcast as Podcast_Init;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Scan_Page\Jetpack_Scan as Scan_Page_Init;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -871,6 +873,8 @@ class Jetpack {
 		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
 		Activity_Log_Init::initialize();
+		Scan_Page_Init::initialize();
+		Podcast_Init::init();
 
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-dashboard' );

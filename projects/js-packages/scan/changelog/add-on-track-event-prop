@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+`ThreatsDataViews`: add `onTrackEvent?: ( event: string, properties?: Record< string, unknown > ) => void` prop. When supplied, the component fires DataViews-canonical event names on view transitions (`search` with `{ has_query }`, `layout_changed` with `{ layout }`, `page_change` with `{ page }`, `filter_change`, and a generic `view_change`) by diffing the previous view against the next one in `onChangeView`. Consumers add their own prefix (e.g. `jetpack_scan_*`, `jetpack_protect_*`) and forward to their analytics client. Backwards compatible — when `onTrackEvent` is omitted no events fire.

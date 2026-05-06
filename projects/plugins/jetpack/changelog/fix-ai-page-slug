@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI: Change admin page slug from 'ai' to 'jetpack-ai' to avoid conflicts with the WordPress core AI plugin.

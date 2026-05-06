@@ -24,7 +24,7 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { createElement as h, Fragment, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const SAMPLE_FILTER_ITEMS = [
@@ -225,147 +225,136 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 				/* dummy arg to avoid bad minification */ 0
 		  );
 
-	return h(
-		Fragment,
-		null,
-		h(
-			InspectorControls,
-			null,
-			h(
-				PanelBody,
-				{ title: __( 'Settings', 'jetpack-search-pkg' ) },
-				h( SelectControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Filter type', 'jetpack-search-pkg' ),
-					value: currentVariation,
-					options: [
-						{ value: VARIATION_CATEGORY, label: __( 'Category', 'jetpack-search-pkg' ) },
-						{ value: VARIATION_POST_TAG, label: __( 'Tag', 'jetpack-search-pkg' ) },
-						{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
-						{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
-						{
-							value: VARIATION_CUSTOM_TAXONOMY,
-							label: __( 'Custom taxonomy', 'jetpack-search-pkg' ),
-						},
-					],
-					onChange: onVariationChange,
-					help: __(
-						'What this filter groups results by. Switch without deleting the block.',
-						'jetpack-search-pkg'
-					),
-				} ),
-				isCustomTaxonomy &&
-					h( SelectControl, {
-						__next40pxDefaultSize: true,
-						__nextHasNoMarginBottom: true,
-						label: __( 'Taxonomy', 'jetpack-search-pkg' ),
-						value: taxonomy,
-						disabled: hasNoCustomTaxonomies,
-						options: [
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Filter type', 'jetpack-search-pkg' ) }
+						value={ currentVariation }
+						options={ [
+							{ value: VARIATION_CATEGORY, label: __( 'Category', 'jetpack-search-pkg' ) },
+							{ value: VARIATION_POST_TAG, label: __( 'Tag', 'jetpack-search-pkg' ) },
+							{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
+							{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
 							{
-								value: '',
-								label: isLoadingTaxonomies
-									? __( 'Loading taxonomies…', 'jetpack-search-pkg' )
+								value: VARIATION_CUSTOM_TAXONOMY,
+								label: __( 'Custom taxonomy', 'jetpack-search-pkg' ),
+							},
+						] }
+						onChange={ onVariationChange }
+						help={ __(
+							'What this filter groups results by. Switch without deleting the block.',
+							'jetpack-search-pkg'
+						) }
+					/>
+					{ isCustomTaxonomy && (
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Taxonomy', 'jetpack-search-pkg' ) }
+							value={ taxonomy }
+							disabled={ hasNoCustomTaxonomies }
+							options={ [
+								{
+									value: '',
+									label: isLoadingTaxonomies
+										? __( 'Loading taxonomies…', 'jetpack-search-pkg' )
+										: __(
+												'Select a taxonomy',
+												'jetpack-search-pkg',
+												/* dummy arg to avoid bad minification */ 0
+										  ),
+									disabled: true,
+								},
+								...( taxonomyOptions || [] ),
+							] }
+							onChange={ value => setAttributes( { taxonomy: value } ) }
+							help={
+								hasNoCustomTaxonomies
+									? __(
+											'No custom taxonomies registered on this site. Register one with register_taxonomy() and it will appear here.',
+											'jetpack-search-pkg'
+									  )
 									: __(
-											'Select a taxonomy',
+											'Pick which registered taxonomy this filter targets. Built-in Category and Tag have their own dedicated filters in the inserter.',
 											'jetpack-search-pkg',
 											/* dummy arg to avoid bad minification */ 0
-									  ),
-								disabled: true,
-							},
-							...( taxonomyOptions || [] ),
-						],
-						onChange: value => setAttributes( { taxonomy: value } ),
-						help: hasNoCustomTaxonomies
-							? __(
-									'No custom taxonomies registered on this site. Register one with register_taxonomy() and it will appear here.',
-									'jetpack-search-pkg'
-							  )
-							: __(
-									'Pick which registered taxonomy this filter targets. Built-in Category and Tag have their own dedicated filters in the inserter.',
-									'jetpack-search-pkg',
-									/* dummy arg to avoid bad minification */ 0
-							  ),
-					} ),
-				h( TextControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Label', 'jetpack-search-pkg' ),
-					value: rawLabel,
-					placeholder: placeholderLabel,
-					onChange: value => setAttributes( { label: value } ),
-					help: labelHelp,
-				} ),
-				h( ToggleControl, {
-					__nextHasNoMarginBottom: true,
-					label: __( 'Show result counts', 'jetpack-search-pkg' ),
-					checked: showCount,
-					onChange: value => setAttributes( { showCount: !! value } ),
-				} ),
-				h( RangeControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Maximum items', 'jetpack-search-pkg' ),
-					value: maxItems,
-					min: 1,
-					max: 50,
-					onChange: value => setAttributes( { maxItems: Math.max( 1, value || 1 ) } ),
-				} ),
-				h( SelectControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Sort order', 'jetpack-search-pkg' ),
-					value: bucketSortOrder,
-					options: [
-						{ value: 'count', label: __( 'Most results first', 'jetpack-search-pkg' ) },
-						{ value: 'alpha', label: __( 'Alphabetical', 'jetpack-search-pkg' ) },
-					],
-					onChange: value =>
-						setAttributes( { bucketSortOrder: value === 'alpha' ? 'alpha' : 'count' } ),
-				} )
-			)
-		),
-		h(
-			'div',
-			blockProps,
-			needsTaxonomyChoice
-				? h( Placeholder, {
-						icon: 'filter',
-						label: __( 'Custom Taxonomy Filter', 'jetpack-search-pkg' ),
-						instructions: __(
+									  )
+							}
+						/>
+					) }
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Label', 'jetpack-search-pkg' ) }
+						value={ rawLabel }
+						placeholder={ placeholderLabel }
+						onChange={ value => setAttributes( { label: value } ) }
+						help={ labelHelp }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Show result counts', 'jetpack-search-pkg' ) }
+						checked={ showCount }
+						onChange={ value => setAttributes( { showCount: !! value } ) }
+					/>
+					<RangeControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Maximum items', 'jetpack-search-pkg' ) }
+						value={ maxItems }
+						min={ 1 }
+						max={ 50 }
+						onChange={ value => setAttributes( { maxItems: Math.max( 1, value || 1 ) } ) }
+					/>
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Sort order', 'jetpack-search-pkg' ) }
+						value={ bucketSortOrder }
+						options={ [
+							{ value: 'count', label: __( 'Most results first', 'jetpack-search-pkg' ) },
+							{ value: 'alpha', label: __( 'Alphabetical', 'jetpack-search-pkg' ) },
+						] }
+						onChange={ value =>
+							setAttributes( { bucketSortOrder: value === 'alpha' ? 'alpha' : 'count' } )
+						}
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<div { ...blockProps }>
+				{ needsTaxonomyChoice ? (
+					<Placeholder
+						icon="filter"
+						label={ __( 'Custom Taxonomy Filter', 'jetpack-search-pkg' ) }
+						instructions={ __(
 							'Choose a taxonomy in the block settings to enable this filter. Until a taxonomy is set, this block renders nothing on the front end.',
 							'jetpack-search-pkg'
-						),
-				  } )
-				: h(
-						Fragment,
-						null,
-						h( 'h3', { className: 'jetpack-search-filter__title' }, previewLabel ),
-						h(
-							'ul',
-							{ className: 'jetpack-search-filter__list' },
-							SAMPLE_FILTER_ITEMS.slice( 0, maxItems ).map( item =>
-								h(
-									'li',
-									{ key: item.value, className: 'jetpack-search-filter__item' },
-									h(
-										'label',
-										null,
-										h( 'input', { type: 'checkbox', disabled: true } ),
-										h( 'span', { className: 'jetpack-search-filter__label' }, item.label ),
-										showCount
-											? h(
-													'span',
-													{ className: 'jetpack-search-filter__count' },
-													String( item.count )
-											  )
-											: null
-									)
-								)
-							)
-						)
-				  )
-		)
+						) }
+					/>
+				) : (
+					<>
+						<h3 className="jetpack-search-filter__title">{ previewLabel }</h3>
+						<ul className="jetpack-search-filter__list">
+							{ SAMPLE_FILTER_ITEMS.slice( 0, maxItems ).map( item => (
+								<li key={ item.value } className="jetpack-search-filter__item">
+									{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- the input is a direct child, implicit HTML5 association applies; rule's nesting heuristic doesn't trace through sibling spans */ }
+									<label>
+										<input type="checkbox" disabled />
+										<span className="jetpack-search-filter__label">{ item.label }</span>
+										{ showCount && (
+											<span className="jetpack-search-filter__count">{ String( item.count ) }</span>
+										) }
+									</label>
+								</li>
+							) ) }
+						</ul>
+					</>
+				) }
+			</div>
+		</>
 	);
 }

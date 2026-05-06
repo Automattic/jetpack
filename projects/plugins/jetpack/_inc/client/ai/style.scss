@@ -1,14 +1,8 @@
-// phpcs:ignore -- SCSS selector, not a PHP file
-.jetpack_page_ai .admin-ui-page {
-	// Fill the viewport height minus the fixed 32px WP admin bar,
-	// so the footer sits at the bottom of the visible screen area.
-	min-height: calc(100vh - 32px);
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
-	// The fluid container (2nd direct child, between header and footer) should
-	// grow to fill available space, pushing the footer to the bottom.
-	> div:nth-child(2) {
-		flex: 1;
-	}
+body.jetpack_page_ai {
+
+	@include jetpack-admin-page-layout;
 }
 
 .jetpack-ai-admin {

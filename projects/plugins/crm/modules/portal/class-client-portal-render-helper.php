@@ -25,11 +25,10 @@ class Client_Portal_Render_Helper {
 	 * Shows an object load error and dies.
 	 */
 	function show_single_obj_error_and_die() {
-		$err  = '<center>';
-		$err .= '<h3>' . __( 'Error loading object', 'zero-bs-crm' ) . '</h3>';
-		$err .= __( 'Either this object does not exist or you do not have permission to view it.', 'zero-bs-crm' );
-		$err .= '</center>';
-		echo $err;
+		echo '<center>';
+		echo '<h3>' . esc_html__( 'Error loading object', 'zero-bs-crm' ) . '</h3>';
+		echo esc_html__( 'Either this object does not exist or you do not have permission to view it.', 'zero-bs-crm' );
+		echo '</center>';
 		die( 0 );
 	}
 
@@ -117,11 +116,11 @@ class Client_Portal_Render_Helper {
 			if ( $endpoint->hide_from_menu ) {
 				continue;
 			}
-			$link  = $endpoint->slug == 'dashboard' ? esc_url( $portal_root_url ) : esc_url( $portal_root_url . $endpoint->slug );
-			$class = $endpoint->slug == $selected_item ? 'active' : '';
+			$link  = $endpoint->slug === 'dashboard' ? $portal_root_url : $portal_root_url . $endpoint->slug;
+			$class = $endpoint->slug === $selected_item ? 'active' : '';
 			// produce the menu from the array of menu items (easier to extend :-) ).
 			// WH: this assumes icon, otehrwise it'll break! :o
-			$nav_html .= "<li class='" . $class . "'><a href='" . $link . "'><i class='fa " . $endpoint->icon . "'></i>" . $endpoint->name . '</a></li>';
+			$nav_html .= "<li class='" . esc_attr( $class ) . "'><a href='" . esc_url( $link ) . "'><i class='fa " . esc_attr( $endpoint->icon ) . "'></i>" . esc_html( $endpoint->name ) . '</a></li>';
 		}
 
 		$zbs_logout_text = __( 'Log out', 'zero-bs-crm' );
@@ -130,7 +129,7 @@ class Client_Portal_Render_Helper {
 		$zbs_logout_icon = 'fa-sign-out';
 		$zbs_logout_icon = apply_filters( 'zbs_portal_logout_icon', $zbs_logout_icon );
 
-		$nav_html .= "<li><a href='" . wp_logout_url( $dash_link ) . "'><i class='fa " . $zbs_logout_icon . "' aria-hidden='true'></i>" . $zbs_logout_text . '</a></li>';
+		$nav_html .= "<li><a href='" . esc_url( wp_logout_url( $dash_link ) ) . "'><i class='fa " . esc_attr( $zbs_logout_icon ) . "' aria-hidden='true'></i>" . esc_html( $zbs_logout_text ) . '</a></li>';
 		$nav_html .= '</ul>';
 
 		// echo or return nav HTML depending on flag; defaults to echo (legacy support)

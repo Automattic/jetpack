@@ -129,9 +129,9 @@ function zbscrmJS_customFields_buildLineFiles( area, namestr ) {
 	let html = '<tr class="zbscrm-cf"><td class="">';
 	html +=
 		'<input type="text" class="form-control" name="wpzbscrm_cf[' +
-		area +
+		jpcrm.esc_attr( area ) +
 		'][name][]" value="' +
-		namestr +
+		jpcrm.esc_attr( namestr ) +
 		'" placeholder="' +
 		zeroBSCRMJS_settingsLang( 'fileboxname', 'File Box Name' ) +
 		'" /><br />';
@@ -185,14 +185,14 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder = 
 	let html = '<tr class="zbscrm-cf"><td class="zbscrm-cf-n">';
 	html +=
 		'<input type="text" class="form-control" name="wpzbscrm_cf[' +
-		area +
+		jpcrm.esc_attr( area ) +
 		'][name][]" value="' +
-		namestr +
+		jpcrm.esc_attr( namestr ) +
 		'" placeholder="' +
 		zeroBSCRMJS_settingsLang( 'fieldname', 'Field Name' ) +
 		'" />';
 	if ( slug !== '' ) {
-		html += '<div class="ui tiny label teal">' + slug + '</div>';
+		html += '<div class="ui tiny label teal">' + jpcrm.esc_html( slug ) + '</div>';
 	}
 	html +=
 		'<div style="margin-top:.5em"><button type="button" class="zbscrm-remove button" style="margin:5px;">Remove</button></div></td><td>';

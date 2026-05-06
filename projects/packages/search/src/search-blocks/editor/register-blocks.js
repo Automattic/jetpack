@@ -24,14 +24,19 @@ import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPopoverEdit, { save as filterPopoverSave } from '../blocks/filter-popover/edit';
 import LoadMoreEdit from '../blocks/load-more/edit';
-import NoResultsEdit from '../blocks/no-results/edit';
+import PostTypeFilterEdit from '../blocks/post-type-filter/edit';
+import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
-import SearchErrorEdit from '../blocks/search-error/edit';
+import ResultsPanelEdit, { save as resultsPanelSave } from '../blocks/results-panel/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit from '../blocks/search-results/edit';
 import SortControlEdit from '../blocks/sort-control/edit';
 
-// Dynamic blocks — render.php produces all front-end markup, so save() is a no-op.
+// Default save for blocks that own no editor-side state — render.php is the
+// source of truth on the front end, so save returns null. Container blocks
+// that hold InnerBlocks pass their own `() => <InnerBlocks.Content />` save
+// instead, since `save: null` would self-close their delimiter and drop the
+// children on serialize.
 const save = () => null;
 
 const BLOCKS = [
@@ -40,13 +45,14 @@ const BLOCKS = [
 	[ 'jetpack/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack/filter-date', FilterDateEdit ],
 	[ 'jetpack/active-filters', ActiveFiltersEdit ],
+	[ 'jetpack/post-type-filter', PostTypeFilterEdit ],
 	[ 'jetpack/common-filters', CommonFiltersEdit, commonFiltersSave ],
 	[ 'jetpack/filter-popover', FilterPopoverEdit, filterPopoverSave ],
 	[ 'jetpack/sort-control', SortControlEdit ],
 	[ 'jetpack/results-count', ResultsCountEdit ],
-	[ 'jetpack/no-results', NoResultsEdit ],
-	[ 'jetpack/search-error', SearchErrorEdit ],
 	[ 'jetpack/load-more', LoadMoreEdit ],
+	[ 'jetpack/results-panel', ResultsPanelEdit, resultsPanelSave ],
+	[ 'jetpack/powered-by', PoweredByEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /

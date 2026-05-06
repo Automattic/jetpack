@@ -9,7 +9,6 @@
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl } from '@wordpress/components';
-import { createElement as h, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -27,43 +26,33 @@ export default function LoadMoreEdit( { attributes, setAttributes } ) {
 	// in the preview so the editor mirrors the front-end behaviour the
 	// "Leave empty…" help text describes. The raw input is still stored.
 	const buttonLabel = ( attributes?.buttonLabel || '' ).trim() || defaultLabel;
-	return h(
-		Fragment,
-		null,
-		h(
-			InspectorControls,
-			null,
-			h(
-				PanelBody,
-				{ title: __( 'Settings', 'jetpack-search-pkg' ) },
-				h( TextControl, {
-					__next40pxDefaultSize: true,
-					__nextHasNoMarginBottom: true,
-					label: __( 'Button label', 'jetpack-search-pkg' ),
-					value: attributes?.buttonLabel || '',
-					placeholder: defaultLabel,
-					onChange: value => setAttributes( { buttonLabel: value } ),
-					help: __( 'Leave empty to use the default translated label.', 'jetpack-search-pkg' ),
-				} )
-			)
-		),
-		h(
-			'div',
-			blockProps,
-			h(
-				'button',
-				{
-					type: 'button',
-					className: 'wp-element-button jetpack-search-load-more__button',
-					disabled: true,
-				},
-				buttonLabel
-			),
-			h(
-				'span',
-				{ className: 'jetpack-search-load-more__spinner', hidden: true },
-				__( 'Loading…', 'jetpack-search-pkg' )
-			)
-		)
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Button label', 'jetpack-search-pkg' ) }
+						value={ attributes?.buttonLabel || '' }
+						placeholder={ defaultLabel }
+						onChange={ value => setAttributes( { buttonLabel: value } ) }
+						help={ __( 'Leave empty to use the default translated label.', 'jetpack-search-pkg' ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<div { ...blockProps }>
+				<button
+					type="button"
+					className="wp-element-button jetpack-search-load-more__button"
+					disabled
+				>
+					{ buttonLabel }
+				</button>
+				<span className="jetpack-search-load-more__spinner" hidden>
+					{ __( 'Loading…', 'jetpack-search-pkg' ) }
+				</span>
+			</div>
+		</>
 	);
 }

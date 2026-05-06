@@ -1,0 +1,10 @@
+Significance: patch
+Type: fixed
+
+Address P2 review feedback on #48458:
+
+- REST controller: site-level reads (`/scan`, `/scan/history`, `/scan/counts`) and the `/scan/enqueue` mutation now sign with `wpcom_json_api_request_as_blog()` instead of `as_user()`, matching Protect plugin's `Threats::*` contract for those endpoints. Alert / fix-status routes keep user auth so per-user permissions on threat mutations carry through. `proxy_get` / `proxy_post` gain an `$as_blog` flag (default false) so backwards compatibility with existing callers is preserved.
+
+- `FixThreatModal`: handle `useFixThreatsStatusQuery`'s `isError` state — previously a poll error left `isFixing` stuck true and stranded the modal at "Fixing threat…". Now an error closes the modal, fires `jetpack_scan_fix_threat_failed`, and surfaces a snackbar.
+
+- `BulkFixModal`: on initial fix-mutation rejection, close the modal instead of advancing to the `done` step — the previous behaviour rendered "Auto-fix complete" with "0 of 0 threats fixed" alongside the error snackbar. Same `statusQuery.isError` guard added for poll failures during bulk progress.

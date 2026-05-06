@@ -181,13 +181,13 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 		return;
 	}
 
-	// Dedup per (message, signature) for 5 min so a persistent fatal doesn't
+	// Dedup per (message, signature) for 1 hour so a persistent fatal doesn't
 	// emit one log row + one outbound HTTP per visitor. $message is part of
 	// the key so a deactivate event isn't suppressed by a recent signature
 	// event for the same extension.
 	$cache_key = 'wpcomsh_fatal_event:' . hash( 'sha256', $message . '|' . $signature );
 	try {
-		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', 5 * MINUTE_IN_SECONDS ) ) {
+		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', HOUR_IN_SECONDS ) ) {
 			return;
 		}
 	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not block telemetry.

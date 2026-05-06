@@ -25,6 +25,7 @@ export type Connection = Partial< EditorConnection > & {
 	service_name: ConnectionService[ 'id' ];
 	shared: boolean;
 	status: ConnectionStatus;
+	template?: string;
 	wpcom_user_id: number;
 };
 
@@ -178,6 +179,7 @@ export type SocialSettingsFields = {
 	[ 'jetpack-social-note' ]: boolean;
 	jetpack_social_notes_config: SocialNotesConfig;
 	[ 'jetpack-social_show_pricing_page' ]: boolean;
+	jetpack_social_message_template: string;
 };
 
 export type ScheduledShare = {

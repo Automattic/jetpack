@@ -19,9 +19,13 @@ $placeholder = trim( (string) ( $attributes['placeholder'] ?? '' ) );
 if ( '' === $placeholder ) {
 	$placeholder = __( 'Search…', 'jetpack-search-pkg' );
 }
-$show_icon     = (bool) ( $attributes['showIcon'] ?? true );
-$submit_only   = ! empty( $attributes['submitOnly'] );
-$initial_query = (string) get_search_query();
+$show_icon   = (bool) ( $attributes['showIcon'] ?? true );
+$submit_only = ! empty( $attributes['submitOnly'] );
+// Read the URL-derived query through the shared helper so the SSR
+// `value=` matches the Interactivity store's seeded `searchQuery`.
+// The helper picks `s` vs `q` based on `is_search()` and applies the
+// same sanitize_text_field + trim WP would have applied to `s`.
+$initial_query = Search_Blocks::parse_url_search_query();
 $input_id      = wp_unique_id( 'jetpack-search-input-' );
 ?>
 <div

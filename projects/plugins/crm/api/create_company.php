@@ -31,7 +31,7 @@ $company_array = zeroBS_buildObjArr( $new_company, array(), '', $field_prefix, $
 
 // this is needed for check below:
 if ( isset( $new_company['id'] ) ) {
-	$company_id = (int) sanitize_text_field( $new_company['id'] );
+	$company_id = (int) $new_company['id'];
 }
 if ( isset( $company_array[ $field_prefix . 'email' ] ) ) {
 	$email = $company_array[ $field_prefix . 'email' ];

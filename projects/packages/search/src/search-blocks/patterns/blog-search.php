@@ -28,6 +28,7 @@ register_block_pattern(
 
 <!-- wp:column -->
 <div class="wp-block-column">
+<!-- wp:jetpack/results-panel -->
 <!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
 <div class="wp-block-group">
 <!-- wp:jetpack/results-count /-->
@@ -36,9 +37,9 @@ register_block_pattern(
 <!-- /wp:group -->
 
 <!-- wp:jetpack/search-results /-->
-<!-- wp:jetpack/search-error /-->
-<!-- wp:jetpack/no-results /-->
 <!-- wp:jetpack/load-more /-->
+<!-- wp:jetpack/powered-by /-->
+<!-- /wp:jetpack/results-panel -->
 </div>
 <!-- /wp:column -->
 
@@ -51,6 +52,7 @@ register_block_pattern(
 <!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
 <!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
 <!-- wp:jetpack/filter-checkbox {"filterType":"post_type"} /-->
+<!-- wp:jetpack/post-type-filter /-->
 </div>
 <!-- /wp:column -->
 

@@ -1,8 +1,13 @@
+@use "../skeleton" as skeleton;
+
 .wp-block-jetpack-filter-date {
 
 	&[hidden] {
 		display: none;
 	}
+
+	@include skeleton.shimmer;
+	@include skeleton.filter-rows;
 
 	.jetpack-search-filter__title {
 		font-size: 0.85rem;

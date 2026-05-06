@@ -42,25 +42,19 @@ wp_interactivity_state(
 	)
 );
 
-// Render `hidden` on first paint when no aggregation buckets are available
-// for this filter. Seeded `state.aggregations` is empty before the first JS
-// fetch, so on the server we default to hidden — otherwise an empty filter
-// title would occupy the top of the sidebar during the load and misalign
-// with the adjacent results column. JS unhides once buckets arrive.
-$seeded_state = wp_interactivity_state( 'jetpack-search' );
-// aggregations is seeded as stdClass when empty (so JS sees `{}` not `[]`);
-// cast here so the nested subscript works in either shape.
-$seeded_aggs       = (array) ( $seeded_state['aggregations'] ?? array() );
-$seeded_filter_agg = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
-$seeded_buckets    = $seeded_filter_agg['buckets'] ?? null;
-$has_buckets       = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
+$view = Search_Blocks::pre_hydration_filter_view( $filter_key );
 
-// First-paint "all selected" flag: mirrors the `allBucketsSelected` state
-// getter so the list and the fallback message come out pre-hidden correctly
-// and there's no flicker during hydration.
-$seeded_selected       = (array) ( ( (array) ( $seeded_state['activeFilters'] ?? array() ) )[ $filter_key ] ?? array() );
+// `allBucketsSelected` first-paint mirror: read the same seeded buckets +
+// activeFilters the JS getter consults so the list and the fallback message
+// come out pre-hidden in the right state and don't flicker on hydration.
+// `aggregations` is seeded as `stdClass` when empty — cast before subscripting.
+$seeded_state          = wp_interactivity_state( 'jetpack-search' );
+$seeded_aggs           = (array) ( $seeded_state['aggregations'] ?? array() );
+$seeded_buckets        = (array) ( $seeded_aggs[ $filter_key ]['buckets'] ?? array() );
+$seeded_active_filters = (array) ( $seeded_state['activeFilters'] ?? array() );
+$seeded_selected       = (array) ( $seeded_active_filters[ $filter_key ] ?? array() );
 $all_selected_on_paint = false;
-if ( $has_buckets && ! empty( $seeded_selected ) ) {
+if ( $view['has_buckets'] && ! empty( $seeded_selected ) ) {
 	$all_selected_on_paint = true;
 	foreach ( $seeded_buckets as $bucket ) {
 		$raw_key   = (string) ( $bucket['key'] ?? '' );
@@ -78,13 +72,19 @@ $label = $config['label'];
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
-	data-wp-bind--hidden="!state.hasFilterBuckets"
-	<?php echo $has_buckets ? '' : 'hidden'; ?>
+	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
+	data-wp-bind--hidden="context.wrapperHidden"
+	data-wp-watch="callbacks.syncFilterWrapperVisibility"
+	<?php echo $view['show_wrapper'] ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
+	<?php
+	if ( $view['is_initial_loading'] ) {
+		require __DIR__ . '/../filter-skeleton-partial.php';
+	}
+	?>
 	<ul
 		class="jetpack-search-filter__list"
 		data-wp-bind--hidden="state.allBucketsSelected"

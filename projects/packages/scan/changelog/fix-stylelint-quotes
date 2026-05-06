@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use double quotes in the `[role="tabpanel"]` selector to satisfy `@stylistic/string-quotes`.
