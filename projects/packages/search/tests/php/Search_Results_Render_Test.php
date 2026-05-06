@@ -331,17 +331,18 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Under is_initial_loading, the product-layout skeleton emits two title
-	 * rows, a price row, and a rating row so each card matches the live
-	 * card's vertical extent (product titles usually wrap to two lines).
+	 * Under is_initial_loading, the product-layout skeleton emits the image
+	 * placeholder and two title rows (no price or rating placeholder rows —
+	 * those are intentionally omitted to keep the skeleton minimal). Title
+	 * rows match the live card's typical two-line title.
 	 */
-	public function test_product_layout_skeleton_includes_two_title_rows_price_and_rating() {
+	public function test_product_layout_skeleton_includes_two_title_rows_only() {
 		$markup = $this->render_with_skeleton( array( 'layout' => 'product' ) );
 
 		$this->assertStringContainsString( 'jetpack-search-skeleton--title', $markup );
 		$this->assertStringContainsString( 'jetpack-search-skeleton--title-secondary', $markup );
-		$this->assertStringContainsString( 'jetpack-search-skeleton--price', $markup );
-		$this->assertStringContainsString( 'jetpack-search-skeleton--rating', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-skeleton--price', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-skeleton--rating', $markup );
 	}
 
 	/**
@@ -369,20 +370,18 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Under is_initial_loading, the product-layout copy block must order the
-	 * skeleton rows as title → price → rating, matching the live card.
+	 * Under is_initial_loading, the product-layout copy block must place the
+	 * primary title row before the secondary one so the wider line-1
+	 * placeholder reads above the narrower line-2 placeholder.
 	 */
-	public function test_product_layout_skeleton_title_price_rating_dom_order() {
+	public function test_product_layout_skeleton_title_rows_in_dom_order() {
 		$markup = $this->render_with_skeleton( array( 'layout' => 'product' ) );
 
-		$title_pos  = strpos( $markup, 'jetpack-search-skeleton--title' );
-		$price_pos  = strpos( $markup, 'jetpack-search-skeleton--price' );
-		$rating_pos = strpos( $markup, 'jetpack-search-skeleton--rating' );
+		$title_pos     = strpos( $markup, 'jetpack-search-skeleton--title"' );
+		$secondary_pos = strpos( $markup, 'jetpack-search-skeleton--title-secondary' );
 		$this->assertNotFalse( $title_pos, 'Title skeleton must be present.' );
-		$this->assertNotFalse( $price_pos, 'Price skeleton must be present.' );
-		$this->assertNotFalse( $rating_pos, 'Rating skeleton must be present.' );
-		$this->assertLessThan( $price_pos, $title_pos, 'Title skeleton must precede the price skeleton in DOM order.' );
-		$this->assertLessThan( $rating_pos, $price_pos, 'Price skeleton must precede the rating skeleton in DOM order.' );
+		$this->assertNotFalse( $secondary_pos, 'Title-secondary skeleton must be present.' );
+		$this->assertLessThan( $secondary_pos, $title_pos, 'Title skeleton must precede the title-secondary skeleton in DOM order.' );
 	}
 
 	/**
