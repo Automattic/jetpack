@@ -119,7 +119,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 				'languages'            => array( 'EN', '', 'es', 'xx' ),
 				'countries'            => array( 'gb', 'usa', 'FR' ),
 				'devices'              => array( 'mobile', 'tablet', 'spaceship' ),
-				'interests'            => array( 'IAB18', 'fashion', 'IAB1_IAB2', '0', 'IAB24' ),
+				'interests'            => array( 'IAB18', 'fashion', 'IAB1_IAB2', '0', 'IAB24', 'IAB9_IAB22' ),
 				'is_evergreen'         => false,
 			)
 		);
@@ -135,7 +135,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( array( 'en', 'es' ), $prefill['languages'] );
 		$this->assertSame( array( 'GB', 'FR' ), $prefill['countries'] );
 		$this->assertSame( array( 'mobile' ), $prefill['devices'] );
-		$this->assertSame( array( 'IAB18', 'IAB1_IAB2' ), $prefill['page_topics'] );
+		$this->assertSame( array( 'IAB8_IAB18', 'IAB9_IAB22' ), $prefill['page_topics'] );
 		$this->assertArrayNotHasKey( 'interests', $prefill );
 		$this->assertFalse( $prefill['is_evergreen'] );
 		$this->assertSame( 'VIEWS', $prefill['objective'] );

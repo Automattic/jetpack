@@ -399,7 +399,9 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 1, $properties['devices']['maxItems'] );
 		$this->assertSame( array( 'mobile', 'desktop' ), $properties['devices']['items']['enum'] );
 		$this->assertStringContainsString( 'Tablet is not exposed', $properties['devices']['description'] );
-		$this->assertStringContainsString( 'IAB category IDs', $properties['interests']['description'] );
+		$this->assertStringContainsString( 'Blaze public page topic IDs', $properties['interests']['description'] );
+		$this->assertContains( 'IAB8_IAB18', $properties['interests']['items']['enum'] );
+		$this->assertNotContains( 'IAB18', $properties['interests']['items']['enum'] );
 	}
 
 	// --- prepare_campaign: prefill payload + URL ---
