@@ -1,5 +1,6 @@
 import {
 	countActiveFilters,
+	deriveMatchHint,
 	formatDate,
 	formatPath,
 	normalizeResult,
@@ -192,6 +193,55 @@ describe( 'tokenizeHighlight', () => {
 	} );
 } );
 
+describe( 'deriveMatchHint', () => {
+	it( 'returns empty string when there are no highlights at all', () => {
+		expect( deriveMatchHint( {}, [] ) ).toBe( '' );
+	} );
+
+	it( 'returns empty string when the title itself is highlighted', () => {
+		const titlePieces = [ { index: 0, text: 'Hello', isHighlight: true } ];
+		const highlight = { title: '<mark>Hello</mark>', content: [ 'match here' ] };
+		expect( deriveMatchHint( highlight, titlePieces ) ).toBe( '' );
+	} );
+
+	it( 'returns "content" when a non-title field is highlighted and title is not', () => {
+		const titlePieces = [ { index: 0, text: 'Hello', isHighlight: false } ];
+		const highlight = { title: 'Hello', content: [ 'some <mark>match</mark>' ] };
+		expect( deriveMatchHint( highlight, titlePieces ) ).toBe( 'content' );
+	} );
+
+	it( 'returns "comments" when the comment field is highlighted and title is not', () => {
+		const titlePieces = [ { index: 0, text: 'Hello', isHighlight: false } ];
+		const highlight = { comment: [ 'comment <mark>match</mark>' ] };
+		expect( deriveMatchHint( highlight, titlePieces ) ).toBe( 'comments' );
+	} );
+
+	it( 'returns "comments" (not "content") when both comment and content are highlighted but title is not', () => {
+		const titlePieces = [];
+		const highlight = {
+			content: [ 'body <mark>word</mark>' ],
+			comment: [ 'comment <mark>word</mark>' ],
+		};
+		expect( deriveMatchHint( highlight, titlePieces ) ).toBe( 'comments' );
+	} );
+
+	it( 'returns empty string when highlight values are empty arrays', () => {
+		expect( deriveMatchHint( { content: [] }, [] ) ).toBe( '' );
+	} );
+
+	it( 'returns empty string when highlight values are arrays with empty first entry', () => {
+		expect( deriveMatchHint( { content: [ '' ] }, [] ) ).toBe( '' );
+	} );
+
+	it( 'returns empty string when highlight is null', () => {
+		expect( deriveMatchHint( null, [] ) ).toBe( '' );
+	} );
+
+	it( 'returns empty string when titlePieces is empty and no non-title highlights exist', () => {
+		expect( deriveMatchHint( { title: '<mark>Hello</mark>' }, [] ) ).toBe( '' );
+	} );
+} );
+
 describe( 'normalizeResult', () => {
 	const RAW = {
 		result_id: 'r-42',
@@ -320,6 +370,8 @@ describe( 'normalizeResult', () => {
 			dateLabel: '',
 			imageUrl: '',
 			imageBackgroundImage: '',
+			matchHint: '',
+			matchHintIsComments: false,
 			formattedPrice: '',
 			formattedRegularPrice: '',
 			formattedSalePrice: '',
@@ -448,6 +500,41 @@ describe( 'normalizeResult', () => {
 			},
 		};
 		expect( normalizeResult( raw ) ).not.toHaveProperty( 'author' );
+	} );
+
+	it( 'exposes matchHint="content" when a non-title field is highlighted but the title is not', () => {
+		const r = normalizeResult( {
+			fields: { 'title.default': 'Hello' },
+			highlight: {
+				title: 'Hello',
+				content: [ 'some <mark>match</mark>' ],
+			},
+		} );
+		expect( r.matchHint ).toBe( 'content' );
+		expect( r.matchHintIsComments ).toBe( false );
+	} );
+
+	it( 'exposes matchHint="comments" when the comment field is highlighted but the title is not', () => {
+		const r = normalizeResult( {
+			fields: { 'title.default': 'Hello' },
+			highlight: {
+				comment: [ 'a <mark>match</mark> in comments' ],
+			},
+		} );
+		expect( r.matchHint ).toBe( 'comments' );
+		expect( r.matchHintIsComments ).toBe( true );
+	} );
+
+	it( 'exposes matchHint="" when the title itself is highlighted', () => {
+		const r = normalizeResult( {
+			fields: { 'title.default': 'Hello' },
+			highlight: {
+				title: '<mark>Hello</mark>',
+				content: [ 'also <mark>here</mark>' ],
+			},
+		} );
+		expect( r.matchHint ).toBe( '' );
+		expect( r.matchHintIsComments ).toBe( false );
 	} );
 } );
 

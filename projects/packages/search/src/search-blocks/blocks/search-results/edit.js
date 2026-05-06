@@ -67,6 +67,7 @@ const SAMPLE_PRODUCTS = [
 		rating: 3.5,
 		ratingPercent: '70%',
 		reviewCount: 12,
+		matchHint: 'content',
 	},
 	{
 		title: __( 'Third product', 'jetpack-search-pkg' ),
@@ -269,6 +270,15 @@ function renderProductPreview( products ) {
 								({ product.reviewCount })
 							</span>
 						</div>
+						{ product.matchHint && (
+							<div className="jetpack-search-results__match-hint">
+								<mark>
+									{ product.matchHint === 'comments'
+										? __( 'Matches comments', 'jetpack-search-pkg' )
+										: __( 'Matches content', 'jetpack-search-pkg' ) }
+								</mark>
+							</div>
+						) }
 					</div>
 				</li>
 			) ) }
