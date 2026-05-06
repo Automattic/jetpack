@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+wpcom-admin-menu: when the `jetpack_podcast_untangle` filter is on, register the new in-admin "Jetpack > Podcast" page from the jetpack-podcast package instead of the legacy Calypso "Podcasting" link. Default behavior (filter off) is unchanged.

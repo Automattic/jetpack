@@ -2574,10 +2574,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "acaddca67e3e73d705207800e2ca4172ad7d88a9"
+                "reference": "c7060e529dfe4b9e4835d392d4b140eeac7ac5ff"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -2607,6 +2608,16 @@
                 ]
             },
             "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],

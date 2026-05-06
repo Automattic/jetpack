@@ -401,15 +401,21 @@ function wpcom_add_jetpack_submenu() {
 		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
-	// Jetpack > Podcasting
-	add_submenu_page(
-		'jetpack',
-		__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/settings/podcasting/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	// Jetpack > Podcast(ing). When the `jetpack_podcast_untangle` filter is on,
+	// the new in-admin page from the jetpack-podcast package owns the submenu.
+	// Otherwise we keep the legacy Calypso link unchanged.
+	if ( apply_filters( 'jetpack_podcast_untangle', false ) ) {
+		\Automattic\Jetpack\Podcast\Settings::add_wp_admin_submenu();
+	} else {
+		add_submenu_page(
+			'jetpack',
+			__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			__( 'Podcasting', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/settings/podcasting/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
@@ -459,6 +465,7 @@ function wpcom_add_jetpack_submenu() {
 			'search',
 			'subscribers',
 			'newsletter',
+			'jetpack-podcast',
 			'podcasting',
 			'traffic',
 			'jetpack#/settings',

@@ -62,6 +62,12 @@ class Podcast {
 			return;
 		}
 
-		// Subsequent PRs in the untangle train wire the new package up here.
+		// Wire the wp-admin entry point. Settings::init() registers the
+		// "Jetpack > Podcast" submenu and stages the wp-build dashboard.
+		// On Simple sites, wpcom-admin-menu.php drives the menu directly via
+		// Settings::add_wp_admin_submenu() at priority 999999.
+		if ( is_admin() ) {
+			Settings::init();
+		}
 	}
 }
