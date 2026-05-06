@@ -1,4 +1,4 @@
-import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
+import { MediaPlaceholder, MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import {
 	BaseControl,
 	Button,
@@ -53,7 +53,6 @@ const PodcastSettingsSidebar = () => {
 	const [ rawMeta, setMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const meta = useMemo( () => rawMeta || {}, [ rawMeta ] );
 
-	const setAudioUrl = useMetaSetter( meta, setMeta, META_PODCAST_AUDIO_URL );
 	const setAudioMime = useMetaSetter( meta, setMeta, META_PODCAST_AUDIO_MIME );
 	const setAudioSize = useIntMetaSetter( meta, setMeta, META_PODCAST_AUDIO_SIZE );
 	const setDuration = useMetaSetter( meta, setMeta, META_PODCAST_DURATION );
@@ -75,6 +74,16 @@ const PodcastSettingsSidebar = () => {
 		[ meta, setMeta ]
 	);
 
+	const onSelectAudioUrl = useCallback(
+		url => {
+			setMeta( {
+				...meta,
+				[ META_PODCAST_AUDIO_URL ]: url,
+			} );
+		},
+		[ meta, setMeta ]
+	);
+
 	const onRemoveAudio = useCallback( () => {
 		setMeta( {
 			...meta,
@@ -87,20 +96,13 @@ const PodcastSettingsSidebar = () => {
 	const audioUrl = meta[ META_PODCAST_AUDIO_URL ] || '';
 	const audioFileId = useInstanceId( PodcastSettingsSidebar, 'jetpack-podcast-audio-file' );
 
-	const renderMediaButton = useCallback(
+	const renderReplaceButton = useCallback(
 		( { open } ) => (
-			<HStack wrap>
-				<Button variant="secondary" onClick={ open }>
-					{ audioUrl ? __( 'Replace audio', 'jetpack' ) : __( 'Select audio', 'jetpack', 0 ) }
-				</Button>
-				{ audioUrl && (
-					<Button variant="tertiary" isDestructive onClick={ onRemoveAudio }>
-						{ __( 'Remove', 'jetpack' ) }
-					</Button>
-				) }
-			</HStack>
+			<Button variant="secondary" onClick={ open }>
+				{ __( 'Replace audio', 'jetpack' ) }
+			</Button>
 		),
-		[ audioUrl, onRemoveAudio ]
+		[]
 	);
 	const setEpisodeTitle = useMetaSetter( meta, setMeta, META_PODCAST_EPISODE_TITLE );
 	const setEpisodeSummary = useMetaSetter( meta, setMeta, META_PODCAST_EPISODE_SUMMARY );
@@ -119,35 +121,43 @@ const PodcastSettingsSidebar = () => {
 		>
 			<PanelBody title={ __( 'Audio', 'jetpack' ) } initialOpen={ true }>
 				<PanelRow>
-					<BaseControl
-						__nextHasNoMarginBottom
-						id={ audioFileId }
-						label={ __( 'Audio file', 'jetpack' ) }
-						help={
-							audioUrl
-								? audioUrl
-								: __( 'Upload, choose from the media library, or paste a URL below.', 'jetpack' )
-						}
-					>
-						<MediaUploadCheck>
-							<MediaUpload
-								onSelect={ onSelectAudio }
-								allowedTypes={ [ 'audio' ] }
-								value={ audioUrl }
-								render={ renderMediaButton }
-							/>
-						</MediaUploadCheck>
-					</BaseControl>
-				</PanelRow>
-				<PanelRow>
-					<TextControl
-						label={ __( 'Audio file URL', 'jetpack' ) }
-						help={ __( 'Or paste a direct link to an MP3 / M4A hosted elsewhere.', 'jetpack' ) }
-						type="url"
-						value={ audioUrl }
-						onChange={ setAudioUrl }
-						__nextHasNoMarginBottom
-					/>
+					{ audioUrl ? (
+						<BaseControl
+							__nextHasNoMarginBottom
+							id={ audioFileId }
+							label={ __( 'Audio file', 'jetpack' ) }
+							help={ audioUrl }
+						>
+							<HStack wrap>
+								<MediaUploadCheck>
+									<MediaUpload
+										onSelect={ onSelectAudio }
+										allowedTypes={ [ 'audio' ] }
+										value={ audioUrl }
+										render={ renderReplaceButton }
+									/>
+								</MediaUploadCheck>
+								<Button variant="tertiary" isDestructive onClick={ onRemoveAudio }>
+									{ __( 'Remove', 'jetpack' ) }
+								</Button>
+							</HStack>
+						</BaseControl>
+					) : (
+						<MediaPlaceholder
+							labels={ {
+								title: __( 'Audio file', 'jetpack' ),
+								instructions: __(
+									'Upload an audio file, choose one from the media library, or insert a URL.',
+									'jetpack'
+								),
+							} }
+							onSelect={ onSelectAudio }
+							onSelectURL={ onSelectAudioUrl }
+							accept="audio/*"
+							allowedTypes={ [ 'audio' ] }
+							value={ { src: audioUrl } }
+						/>
+					) }
 				</PanelRow>
 				<PanelRow>
 					<TextControl
