@@ -314,12 +314,6 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 			}
 			$output .= "$buf";
 		} else {
-			// If filename indicates it's already minified, don't minify it again.
-			if ( ! preg_match( '/\.min\.js$/', $fullpath ) ) {
-				// Minify JS
-				$buf = Minify::js( $buf );
-			}
-
 			$output .= "$buf;\n";
 		}
 	}
