@@ -8,23 +8,23 @@
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v2.0.5",
+            "version": "v2.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "c512aa27b2c33aee33bc024177c17f2745c52dfa"
+                "reference": "b3920eb6e94594aadb0c678f6c8328191091a9be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/c512aa27b2c33aee33bc024177c17f2745c52dfa",
-                "reference": "c512aa27b2c33aee33bc024177c17f2745c52dfa",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/b3920eb6e94594aadb0c678f6c8328191091a9be",
+                "reference": "b3920eb6e94594aadb0c678f6c8328191091a9be",
                 "shasum": ""
             },
             "type": "wordpress-plugin",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2025-11-24T21:07:37+00:00"
+            "time": "2026-04-24T20:01:37+00:00"
         },
         {
             "name": "automattic/block-delimiter",
@@ -416,7 +416,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "441a3689be7e956db950f27520952b81a249fedd"
+                "reference": "93cafa9e6c56ec953c559eb2e93c44f46a312d03"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -426,6 +426,7 @@
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-abilities": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -2398,6 +2399,65 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-wp-abilities",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/wp-abilities",
+                "reference": "d38d63604cbefe504f12a74a956502a648fdf521"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-wp-abilities",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-wp-abilities/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-wp-abilities",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-registrar.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared utilities for registering abilities with the WordPress Abilities API from Jetpack packages and plugins.",
             "transport-options": {
                 "relative": true
             }
