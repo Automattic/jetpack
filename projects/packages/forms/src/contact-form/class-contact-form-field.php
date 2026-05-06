@@ -1478,8 +1478,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
 		$field  = "<div class='contact-form__checkbox-wrap' style='" . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "' >";
-		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
+		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= wp_kses_post( $label ) . ( $required && $required_indicator ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
