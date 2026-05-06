@@ -85,28 +85,34 @@ export function setPendingExperience( experience ) {
 }
 
 /**
- * Promote a successfully saved experience selection so the ACTIVE badge can
- * stay on the user's choice (Embedded vs. Classic) for the rest of the session.
+ * Promote a successfully saved experience selection into `experience` so the
+ * ACTIVE badge stays on the user's choice for the rest of the session.
+ *
+ * Defence-in-depth alongside the post-save `fetchJetpackSettings` round-trip
+ * in `updateJetpackSettings` — that fetch already seeds the new value, but
+ * writing it explicitly here keeps the UI correct even if the response is
+ * shaped slightly differently in development or against an older back end.
  *
  * @param {string} experience - One of the experience IDs.
  * @return {object} - an action object.
  */
-export function setLastSavedExperience( experience ) {
-	return setJetpackSettings( { last_saved_experience: experience } );
+export function setActiveExperience( experience ) {
+	return setJetpackSettings( { experience } );
 }
 
 /**
  * Save the chosen experience by calling the existing updateJetpackSettings
- * generator, then promoting pending → last_saved only when the inner save
+ * generator, then promoting pending → experience only when the inner save
  * actually succeeded. The inner generator catches its own errors and returns
  * a notice action whose `status` distinguishes success from failure — that's
  * the signal we read here. On failure we leave `pending_experience` in place
  * so the user can retry without re-clicking.
  *
  * The whole feature-selector UI is gated behind `jetpack_search_blocks_enabled`,
- * so we send only `{ experience }`. The back end translates that into whatever
- * it persists, and migrates any pre-existing `module_active` /
- * `instant_search_enabled` booleans on first read.
+ * so we send only `{ experience }`. The back end resolves the storage shape —
+ * `'off'` deactivates the module, `'classic'` deletes the experience option,
+ * `'embedded'` / `'overlay'` write affirmative values — and resolves the
+ * payload's active `experience` value the same way on read.
  *
  * Records a single `jetpack_search_experience_save` analytics event at the
  * point of submit. The event fires regardless of save outcome — same behavior
@@ -126,7 +132,7 @@ export function* saveExperience( experience ) {
 	if ( result?.notice?.status !== 'is-success' ) {
 		return;
 	}
-	yield setLastSavedExperience( experience );
+	yield setActiveExperience( experience );
 	yield setPendingExperience( null );
 }
 
@@ -134,6 +140,6 @@ export default {
 	updateJetpackSettings,
 	setJetpackSettings,
 	setPendingExperience,
-	setLastSavedExperience,
+	setActiveExperience,
 	saveExperience,
 };

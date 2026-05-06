@@ -22,7 +22,7 @@ const baseSettings = {
 	module_active: true,
 	instant_search_enabled: true,
 	pending_experience: null,
-	last_saved_experience: null,
+	experience: null,
 	is_updating: false,
 };
 

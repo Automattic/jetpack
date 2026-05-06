@@ -59,7 +59,7 @@ const settings = {
 	module_active: true,
 	instant_search_enabled: false,
 	pending_experience: null,
-	last_saved_experience: null,
+	experience: null,
 	is_updating: false,
 };
 

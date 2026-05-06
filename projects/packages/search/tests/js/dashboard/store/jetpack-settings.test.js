@@ -26,69 +26,59 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 import analytics from '@automattic/jetpack-analytics';
 import {
 	setPendingExperience,
-	setLastSavedExperience,
+	setActiveExperience,
 	saveExperience,
 } from '../../../../src/dashboard/store/actions/jetpack-settings';
 import jetpackSettingSelectors from '../../../../src/dashboard/store/selectors/jetpack-settings';
 
-const {
-	getActiveExperience,
-	getPendingExperience,
-	getSelectedExperience,
-	getLastSavedExperience,
-	isDirty,
-} = jetpackSettingSelectors;
+const { getActiveExperience, getPendingExperience, getSelectedExperience, isDirty } =
+	jetpackSettingSelectors;
 
 const buildState = ( overrides = {} ) => ( {
 	jetpackSettings: {
 		module_active: false,
 		instant_search_enabled: false,
 		pending_experience: null,
-		last_saved_experience: null,
+		experience: null,
 		...overrides,
 	},
 } );
 
 describe( 'experience selectors', () => {
 	describe( 'getActiveExperience', () => {
-		test( 'returns "off" when module_active is false', () => {
+		test( 'returns the seeded `experience` value when present', () => {
+			expect(
+				getActiveExperience( buildState( { module_active: true, experience: 'embedded' } ) )
+			).toBe( 'embedded' );
+		} );
+
+		test( 'falls back to derived "off" when module_active is false', () => {
 			expect( getActiveExperience( buildState( { module_active: false } ) ) ).toBe( 'off' );
 		} );
 
-		test( 'returns "overlay" when instant_search_enabled is true', () => {
+		test( 'falls back to derived "overlay" when instant_search_enabled is true', () => {
 			expect(
 				getActiveExperience( buildState( { module_active: true, instant_search_enabled: true } ) )
 			).toBe( 'overlay' );
 		} );
 
-		test( 'returns "classic" when module is active without instant search', () => {
+		test( 'falls back to derived "classic" when module is active without instant search', () => {
 			expect(
 				getActiveExperience( buildState( { module_active: true, instant_search_enabled: false } ) )
 			).toBe( 'classic' );
 		} );
 
-		test( 'prefers last_saved_experience over derived value', () => {
-			expect(
-				getActiveExperience(
-					buildState( {
-						module_active: true,
-						instant_search_enabled: false,
-						last_saved_experience: 'embedded',
-					} )
-				)
-			).toBe( 'embedded' );
-		} );
-
-		test( 'falls back to derived value when last_saved_experience is null', () => {
+		test( 'prefers seeded `experience` over the derivable booleans', () => {
+			// instant_search_enabled would derive to 'overlay', but the seeded value wins.
 			expect(
 				getActiveExperience(
 					buildState( {
 						module_active: true,
 						instant_search_enabled: true,
-						last_saved_experience: null,
+						experience: 'embedded',
 					} )
 				)
-			).toBe( 'overlay' );
+			).toBe( 'embedded' );
 		} );
 	} );
 
@@ -101,18 +91,6 @@ describe( 'experience selectors', () => {
 
 		test( 'returns null when no pending value is set', () => {
 			expect( getPendingExperience( buildState() ) ).toBeNull();
-		} );
-	} );
-
-	describe( 'getLastSavedExperience', () => {
-		test( 'returns the last_saved value', () => {
-			expect( getLastSavedExperience( buildState( { last_saved_experience: 'embedded' } ) ) ).toBe(
-				'embedded'
-			);
-		} );
-
-		test( 'returns null when no last_saved value is set', () => {
-			expect( getLastSavedExperience( buildState() ) ).toBeNull();
 		} );
 	} );
 
@@ -184,17 +162,17 @@ describe( 'experience actions', () => {
 		} );
 	} );
 
-	describe( 'setLastSavedExperience', () => {
-		test( 'returns SET_JETPACK_SETTINGS with last_saved_experience', () => {
-			expect( setLastSavedExperience( 'embedded' ) ).toEqual( {
+	describe( 'setActiveExperience', () => {
+		test( 'returns SET_JETPACK_SETTINGS with the experience field', () => {
+			expect( setActiveExperience( 'embedded' ) ).toEqual( {
 				type: 'SET_JETPACK_SETTINGS',
-				options: { last_saved_experience: 'embedded' },
+				options: { experience: 'embedded' },
 			} );
 		} );
 	} );
 
 	describe( 'saveExperience', () => {
-		test( 'on success, yields setLastSavedExperience then setPendingExperience(null)', () => {
+		test( 'on success, yields setActiveExperience then setPendingExperience(null)', () => {
 			const gen = saveExperience( 'overlay' );
 
 			// Yield 1: the inner updateJetpackSettings generator.
@@ -204,7 +182,7 @@ describe( 'experience actions', () => {
 
 			// Simulate the inner generator returning a success-notice action.
 			const yield2 = gen.next( { notice: { status: 'is-success' } } );
-			expect( yield2.value ).toEqual( setLastSavedExperience( 'overlay' ) );
+			expect( yield2.value ).toEqual( setActiveExperience( 'overlay' ) );
 
 			const yield3 = gen.next();
 			expect( yield3.value ).toEqual( setPendingExperience( null ) );
@@ -212,7 +190,7 @@ describe( 'experience actions', () => {
 			expect( gen.next().done ).toBe( true );
 		} );
 
-		test( 'on failure, leaves pending in place and does not promote to last_saved', () => {
+		test( 'on failure, leaves pending in place and does not promote to active', () => {
 			const gen = saveExperience( 'overlay' );
 
 			// Yield 1: inner generator; simulate it returning an error notice.
