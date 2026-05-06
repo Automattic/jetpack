@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Search: Add backend support for the `experience` field in the search settings REST endpoint. The `POST /jetpack/v4/search/settings` endpoint now accepts `experience` (`embedded`, `overlay`, `classic`, or `off`) and persists it. The `GET /jetpack/v4/search/settings` response now includes `last_saved_experience`, derived from legacy settings for sites that have not yet saved via the new UI.
+Search: Add backend support for the `experience` field in the search settings REST endpoint. `POST /jetpack/v4/search/settings` accepts `experience` (`embedded`, `overlay`, `classic`, or `off`) and updates the package state in lockstep. `GET /jetpack/v4/search/settings` returns the active `experience`, derived from the legacy settings for sites that have not yet saved via the new UI.

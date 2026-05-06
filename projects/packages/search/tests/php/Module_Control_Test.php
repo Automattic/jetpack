@@ -168,18 +168,40 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Test get_experience() derivation from legacy booleans when no experience option is saved.
+	 * Inactive module always reads as 'off' regardless of any saved experience
+	 * option — off lives in jetpack_active_modules, not in the package's option.
 	 */
-	public function test_get_experience_derived_off() {
+	public function test_get_experience_off_when_module_inactive() {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-		// Module is inactive → 'off'.
 		$this->assertEquals( Module_Control::EXPERIENCE_OFF, static::$search_module->get_experience() );
+
+		// Even with a stale 'embedded' value in the option, an inactive module is off.
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+		$this->assertEquals( Module_Control::EXPERIENCE_OFF, static::$search_module->get_experience() );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 	}
 
 	/**
-	 * Test get_experience() derivation: module active + instant search enabled → 'overlay'.
+	 * Saved 'embedded' / 'overlay' values are returned when the module is active.
 	 */
-	public function test_get_experience_derived_overlay() {
+	public function test_get_experience_returns_saved_value() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
+
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
+		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, static::$search_module->get_experience() );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Legacy fallback: active module + instant_search_enabled=true with no saved
+	 * value resolves to 'overlay'.
+	 */
+	public function test_get_experience_legacy_fallback_overlay() {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
@@ -189,9 +211,10 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Test get_experience() derivation: module active + instant search disabled → 'classic'.
+	 * Active module + instant_search_enabled=false with no saved value resolves to
+	 * 'classic' — classic is the absence of an opt-in.
 	 */
-	public function test_get_experience_derived_classic() {
+	public function test_get_experience_classic_when_no_opt_in() {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, false );
@@ -201,21 +224,12 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Test get_experience() returns persisted value over derived.
-	 */
-	public function test_get_experience_returns_persisted() {
-		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
-		$this->assertEquals( Module_Control::EXPERIENCE_EMBEDDED, static::$search_module->get_experience() );
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-	}
-
-	/**
-	 * Test update_experience() with 'overlay'.
+	 * Overlay activates the module, enables instant search, and writes 'overlay'
+	 * to the experience option.
 	 */
 	public function test_update_experience_overlay() {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-		// Use the filter that includes search so that is_active() returns true during
-		// enable_instant_search(), which requires the module to be active.
+		// is_active() needs to return true during enable_instant_search().
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		static::$search_module->update_experience( Module_Control::EXPERIENCE_OVERLAY );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
@@ -226,7 +240,8 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Test update_experience() with 'embedded'.
+	 * Embedded activates the module, disables instant search, and writes
+	 * 'embedded' to the experience option.
 	 */
 	public function test_update_experience_embedded() {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
@@ -242,10 +257,12 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Test update_experience() with 'classic'.
+	 * Classic activates the module, disables instant search, and deletes the
+	 * experience option (classic is the absence of an opt-in).
 	 */
-	public function test_update_experience_classic() {
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	public function test_update_experience_classic_deletes_option() {
+		// Seed an existing 'embedded' to prove the switch to classic clears it.
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
 		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
 		static::$search_module->update_experience( Module_Control::EXPERIENCE_CLASSIC );
 		$active_modules = get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() );
@@ -253,32 +270,34 @@ class Module_Control_Test extends Search_TestCase {
 
 		$this->assertContains( Module_Control::JETPACK_SEARCH_MODULE_SLUG, $active_modules );
 		$this->assertFalse( static::$search_module->is_instant_search_enabled() );
-		$this->assertEquals( Module_Control::EXPERIENCE_CLASSIC, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false ) );
 	}
 
 	/**
-	 * Test update_experience() with 'off' deactivates module but preserves instant_search_enabled.
+	 * Off deactivates the module and leaves the experience option and
+	 * instant_search_enabled untouched, so re-enabling later restores the user's
+	 * prior preference.
 	 */
-	public function test_update_experience_off_preserves_instant_search() {
-		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
-		// Start with module active and instant search enabled.
+	public function test_update_experience_off_preserves_other_state() {
+		// Start with module active, overlay saved, instant search on.
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_OVERLAY );
 		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 
 		static::$search_module->update_experience( Module_Control::EXPERIENCE_OFF );
 
 		$this->assertFalse( static::$search_module->is_active() );
-		// instant_search_enabled should remain true (preserved for later re-enable).
+		// experience option preserved (still 'overlay' for later re-enable).
+		$this->assertEquals( Module_Control::EXPERIENCE_OVERLAY, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
+		// instant_search_enabled preserved.
 		$this->assertTrue( (bool) get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
-		$this->assertEquals( Module_Control::EXPERIENCE_OFF, get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) );
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
 
 	/**
-	 * Test update_experience() with an invalid value returns WP_Error.
+	 * Invalid input returns WP_Error.
 	 */
 	public function test_update_experience_invalid_value() {
 		$result = static::$search_module->update_experience( 'invalid_value' );

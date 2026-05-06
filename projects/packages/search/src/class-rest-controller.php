@@ -254,8 +254,9 @@ class REST_Controller {
 			return $error;
 		}
 
-		// If an experience value was provided, delegate to Module_Control::update_experience()
-		// which also writes the legacy booleans in lockstep.
+		// If an experience value was provided, delegate to Module_Control::update_experience(),
+		// which encapsulates the storage shape (off → module deactivate, classic → delete option,
+		// embedded/overlay → write affirmative value) and keeps the legacy booleans in lockstep.
 		if ( $experience !== null ) {
 			$result = $this->search_module->update_experience( $experience );
 			if ( is_wp_error( $result ) ) {
@@ -309,10 +310,10 @@ class REST_Controller {
 	/**
 	 * Validate $module_active and $instant_search_enabled. Returns an WP_Error instance if invalid.
 	 *
-	 * @param boolean      $module_active - Module status.
-	 * @param boolean      $instant_search_enabled - Instant Search status.
-	 * @param boolean      $swap_classic_to_inline_search - New inline search status.
-	 * @param string|null  $experience - Experience value.
+	 * @param boolean     $module_active - Module status.
+	 * @param boolean     $instant_search_enabled - Instant Search status.
+	 * @param boolean     $swap_classic_to_inline_search - New inline search status.
+	 * @param string|null $experience - Experience value.
 	 */
 	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null ) {
 		// An experience-only request is always valid; update_experience() validates the value.
@@ -342,7 +343,7 @@ class REST_Controller {
 				'module_active'                 => $this->search_module->is_active(),
 				'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
 				'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
-				'last_saved_experience'         => $this->search_module->get_experience(),
+				'experience'                    => $this->search_module->get_experience(),
 			)
 		);
 	}
