@@ -40,10 +40,26 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Expose the show-level cover art URL to the block editor so the preview can
+ * fall back to it when no episode-specific cover art is set.
+ */
+function enqueue_editor_data() {
+	$show_cover_url = (string) get_option( 'podcasting_image', '' );
+	$payload        = wp_json_encode( array( 'showCoverUrl' => $show_cover_url ) );
+	wp_add_inline_script(
+		'wp-blocks',
+		'window.jetpackPodcastEpisodeData = ' . $payload . ';',
+		'before'
+	);
+}
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_editor_data' );
+
+/**
  * Podcast Episode block render callback.
  *
- * Pulls title, cover art, excerpt, and author from the surrounding post —
- * the post is the episode. The block stores only audio + episode metadata.
+ * Pulls title, author, and date from the surrounding post — the post is the
+ * episode. Cover art falls back to the show-level podcasting_image option when
+ * the block has no episode-specific override.
  *
  * @param array     $attributes Block attributes.
  * @param string    $content    Inner content (fallback direct-link markup from save.js).
@@ -100,12 +116,20 @@ function render_block( $attributes, $content, $block = null ) {
 	$people         = isset( $attributes['people'] ) && is_array( $attributes['people'] ) ? $attributes['people'] : array();
 
 	// Pull display content from the resolved post (block context or global loop).
-	$title        = get_the_title( $post );
-	$excerpt      = get_the_excerpt( $post );
-	$author_name  = get_the_author_meta( 'display_name', $post->post_author );
+	$title            = get_the_title( $post );
+	$author_name      = get_the_author_meta( 'display_name', $post->post_author );
 	$publish_date_iso = get_the_date( 'c', $post );
 	$publish_date     = get_the_date( '', $post );
-	$image_url    = $show_poster ? (string) get_the_post_thumbnail_url( $post, 'medium_large' ) : '';
+
+	// Cover art: episode-specific override → show-level podcasting_image option → none.
+	$image_url = '';
+	if ( $show_poster ) {
+		if ( ! empty( $attributes['coverArt']['url'] ) ) {
+			$image_url = esc_url_raw( $attributes['coverArt']['url'] );
+		} else {
+			$image_url = (string) get_option( 'podcasting_image', '' );
+		}
+	}
 
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 	$wrapper_style      = ! empty( $wrapper_attributes['style'] ) ? $wrapper_attributes['style'] : '';
@@ -218,10 +242,6 @@ function render_block( $attributes, $content, $block = null ) {
 						></audio>
 					<?php endif; ?>
 				</div>
-
-				<?php if ( $excerpt ) : ?>
-					<p class="jetpack-podcast-episode__summary" itemprop="description"><?php echo esc_html( $excerpt ); ?></p>
-				<?php endif; ?>
 
 				<?php if ( ! empty( $people ) ) : ?>
 					<ul class="jetpack-podcast-episode__people">

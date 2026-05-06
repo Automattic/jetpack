@@ -9,4 +9,24 @@
 		border: 1px solid #ddd;
 		border-radius: 4px;
 	}
+
+	.jetpack-podcast-episode__notes-hint {
+		margin-top: 12px;
+		color: #757575;
+		font-style: italic;
+		font-size: 13px;
+	}
+
+	.jetpack-podcast-episode__cover-picker {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin-bottom: 8px;
+	}
+
+	.jetpack-podcast-episode__cover-preview {
+		max-width: 120px;
+		height: auto;
+		border-radius: 4px;
+	}
 }

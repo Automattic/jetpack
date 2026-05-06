@@ -54,9 +54,6 @@
 			"type": "boolean",
 			"default": false
 		},
-		"guid": {
-			"type": "string"
-		},
 		"duration": {
 			"type": "string",
 			"default": ""
@@ -93,6 +90,10 @@
 		"showPoster": {
 			"type": "boolean",
 			"default": true
+		},
+		"coverArt": {
+			"type": "object",
+			"default": {}
 		}
 	},
 	"example": {

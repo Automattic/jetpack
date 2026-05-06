@@ -4,6 +4,8 @@ import {
 	InspectorControls,
 	MediaPlaceholder,
 	MediaReplaceFlow,
+	MediaUpload,
+	MediaUploadCheck,
 	useBlockProps,
 } from '@wordpress/block-editor';
 import {
@@ -113,7 +115,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		seasonNumber,
 		episodeType,
 		explicit,
-		guid,
 		duration,
 		transcriptUrl,
 		transcriptType,
@@ -123,28 +124,26 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 		licenseUrl,
 		people,
 		showPoster,
+		coverArt,
 	} = validated;
 
 	const { postId, postType } = context || {};
 
 	const [ postTitle ] = useEntityProp( 'postType', postType, 'title', postId );
-	const [ postExcerpt ] = useEntityProp( 'postType', postType, 'excerpt', postId );
-	const [ featuredId ] = useEntityProp( 'postType', postType, 'featured_media', postId );
 	const [ postDate ] = useEntityProp( 'postType', postType, 'date', postId );
 	const [ authorId ] = useEntityProp( 'postType', postType, 'author', postId );
 
-	const { thumbnailUrl, postAuthor } = useSelect(
+	const postAuthor = useSelect(
 		select => {
-			const core = select( coreStore );
-			const media = featuredId ? core.getMedia( featuredId ) : null;
-			const author = authorId ? core.getUser( authorId ) : null;
-			return {
-				thumbnailUrl: media?.source_url || '',
-				postAuthor: author?.name || '',
-			};
+			const author = authorId ? select( coreStore ).getUser( authorId ) : null;
+			return author?.name || '';
 		},
-		[ featuredId, authorId ]
+		[ authorId ]
 	);
+
+	const showCoverUrl =
+		( typeof window !== 'undefined' && window.jetpackPodcastEpisodeData?.showCoverUrl ) || '';
+	const coverArtUrl = coverArt?.url || showCoverUrl;
 
 	const blockProps = useBlockProps();
 	const [ uploadError, setUploadError ] = useState( null );
@@ -214,7 +213,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					icon={ microphone }
 					label={ __( 'Podcast Episode', 'jetpack' ) }
 					instructions={ __(
-						'This block reads the title, cover art, excerpt, and author from the post it lives in. Drop it inside a podcast post or singular template.',
+						'This block reads the title, author, and date from the post it lives in. Drop it inside a podcast post or singular template.',
 						'jetpack'
 					) }
 				/>
@@ -308,11 +307,65 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					/>
 					<ToggleControl
 						label={ __( 'Show cover art', 'jetpack' ) }
-						help={ __( 'Use the post’s featured image as cover art.', 'jetpack' ) }
+						help={ __(
+							'Display cover art alongside the player.',
+							'jetpack'
+						) }
 						checked={ !! showPoster }
 						onChange={ value => setAttributes( { showPoster: value } ) }
 						__nextHasNoMarginBottom
 					/>
+					{ showPoster && (
+						<BaseControl __nextHasNoMarginBottom>
+							<BaseControl.VisualLabel>
+								{ __( 'Cover art', 'jetpack' ) }
+							</BaseControl.VisualLabel>
+							<MediaUploadCheck>
+								<MediaUpload
+									onSelect={ media =>
+										setAttributes( {
+											coverArt: media?.url
+												? { id: media.id, url: media.url }
+												: {},
+										} )
+									}
+									allowedTypes={ [ 'image' ] }
+									value={ coverArt?.id }
+									render={ ( { open } ) => (
+										<div className="jetpack-podcast-episode__cover-picker">
+											{ coverArtUrl && (
+												<img
+													src={ coverArtUrl }
+													alt=""
+													className="jetpack-podcast-episode__cover-preview"
+												/>
+											) }
+											<Button variant="secondary" onClick={ open }>
+												{ coverArt?.url
+													? __( 'Replace cover art', 'jetpack' )
+													: __( 'Set episode cover art', 'jetpack' ) }
+											</Button>
+											{ coverArt?.url && (
+												<Button
+													variant="link"
+													isDestructive
+													onClick={ () => setAttributes( { coverArt: {} } ) }
+												>
+													{ __( 'Use show cover art', 'jetpack' ) }
+												</Button>
+											) }
+										</div>
+									) }
+								/>
+							</MediaUploadCheck>
+							<p className="components-base-control__help">
+								{ __(
+									'Defaults to the show cover art set in Settings → Writing → Podcasting.',
+									'jetpack'
+								) }
+							</p>
+						</BaseControl>
+					) }
 				</PanelBody>
 
 				<PanelBody title={ __( 'Audio', 'jetpack' ) }>
@@ -321,14 +374,6 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						help={ __( 'Formatted as HH:MM:SS or MM:SS.', 'jetpack' ) }
 						value={ duration }
 						onChange={ value => setAttributes( { duration: value } ) }
-						__nextHasNoMarginBottom
-						__next40pxDefaultSize
-					/>
-					<TextControl
-						label={ __( 'Episode GUID', 'jetpack' ) }
-						help={ __( 'Optional permanent identifier for this episode.', 'jetpack' ) }
-						value={ guid || '' }
-						onChange={ value => setAttributes( { guid: value } ) }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
@@ -397,9 +442,9 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 			</InspectorControls>
 
 			<article className="jetpack-podcast-episode">
-				{ showPoster && thumbnailUrl && (
+				{ showPoster && coverArtUrl && (
 					<figure className="jetpack-podcast-episode__poster">
-						<img src={ thumbnailUrl } alt="" />
+						<img src={ coverArtUrl } alt="" />
 					</figure>
 				) }
 				<div className="jetpack-podcast-episode__body">
@@ -464,7 +509,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 								src={ mediaUrl }
 								controls
 								preload="metadata"
-								poster={ showPoster ? thumbnailUrl : undefined }
+								poster={ showPoster ? coverArtUrl : undefined }
 								data-mime={ mediaMimeType || undefined }
 							/>
 						) : (
@@ -472,9 +517,9 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						) }
 					</div>
 
-					{ postExcerpt && (
-						<p className="jetpack-podcast-episode__summary">{ postExcerpt }</p>
-					) }
+					<p className="jetpack-podcast-episode__notes-hint">
+						{ __( 'Add episode show notes in the post content below.', 'jetpack' ) }
+					</p>
 				</div>
 			</article>
 		</div>
