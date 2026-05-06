@@ -91,7 +91,7 @@ const PodcastSettingsSidebar = () => {
 		( { open } ) => (
 			<HStack wrap>
 				<Button variant="secondary" onClick={ open }>
-					{ audioUrl ? __( 'Replace audio', 'jetpack' ) : __( 'Select audio', 'jetpack' ) }
+					{ audioUrl ? __( 'Replace audio', 'jetpack' ) : __( 'Select audio', 'jetpack', 0 ) }
 				</Button>
 				{ audioUrl && (
 					<Button variant="tertiary" isDestructive onClick={ onRemoveAudio }>
