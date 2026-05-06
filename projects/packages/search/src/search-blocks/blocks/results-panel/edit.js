@@ -18,6 +18,7 @@ const TEMPLATE = [
 	],
 	[ 'jetpack/search-results' ],
 	[ 'jetpack/load-more' ],
+	[ 'jetpack/powered-by' ],
 ];
 
 const ALLOWED = [
@@ -26,6 +27,7 @@ const ALLOWED = [
 	'jetpack/sort-control',
 	'jetpack/search-results',
 	'jetpack/load-more',
+	'jetpack/powered-by',
 ];
 
 /**

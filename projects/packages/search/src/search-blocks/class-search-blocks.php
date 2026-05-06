@@ -127,6 +127,20 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+
+		// Surface the plan flag to editor blocks (powered-by uses it to gate
+		// its inspector toggle). The front-end render gate is enforced
+		// server-side in each block's render.php; this is editor-only.
+		wp_add_inline_script(
+			'jetpack-search-blocks-register',
+			'window.JetpackSearchBlocksConfig = ' . wp_json_encode(
+				array(
+					'isFreePlan' => ( new Plan() )->is_free_plan(),
+				),
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+			) . ';',
+			'before'
+		);
 	}
 
 	/**

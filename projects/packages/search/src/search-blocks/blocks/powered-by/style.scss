@@ -1,0 +1,36 @@
+.wp-block-jetpack-powered-by {
+	margin-block: var(--wp--style--block-gap, 1.5em);
+	text-align: center;
+}
+
+.jetpack-search-powered-by__link {
+	align-items: center;
+	color: inherit;
+	display: inline-flex;
+	text-decoration: none;
+}
+
+.jetpack-search-powered-by__logo {
+	display: inline-flex;
+	width: 16px;
+	height: 16px;
+
+	svg {
+		display: block;
+	}
+}
+
+.jetpack-search-powered-by__text {
+	font-size: 0.7em;
+	font-weight: 500;
+	padding-inline-start: 12px;
+	line-height: 16px;
+}
+
+.jetpack-search-powered-by__free-plan-note {
+	color: var(--wp-components-color-foreground, currentColor);
+	font-size: 12px;
+	line-height: 1.4;
+	margin: 0;
+	opacity: 0.75;
+}

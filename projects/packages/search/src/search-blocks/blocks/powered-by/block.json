@@ -1,0 +1,34 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/powered-by",
+	"version": "0.1.0",
+	"title": "Powered by Jetpack",
+	"category": "jetpack-search",
+	"icon": "wordpress",
+	"description": "Attribution link to jetpack.com. Free-plan sites always display this; paid sites can hide it from the front end.",
+	"keywords": [ "search", "jetpack", "powered by", "colophon" ],
+	"supports": {
+		"html": false,
+		"color": {
+			"background": true,
+			"text": true,
+			"link": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"fontFamily": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"hide": { "type": "boolean", "default": false }
+	},
+	"render": "file:./render.php",
+	"style": "file:../../../../build/search-blocks/powered-by.css"
+}
