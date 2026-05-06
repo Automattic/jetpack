@@ -7,7 +7,6 @@ import useMediaDetails from '../../../hooks/use-media-details';
 import { computeAttachedMediaForSource } from '../../../hooks/use-per-network-customization/utils';
 import { usePostMeta } from '../../../hooks/use-post-meta';
 import { store as socialStore } from '../../../social-store';
-import { DEFAULT_MESSAGE_TEMPLATE } from '../../../social-store/constants';
 import { Connection } from '../../../social-store/types';
 import { features } from '../../../utils/constants';
 import { SharePostForm, SharePostFormProps } from '../../form/share-post-form';
@@ -56,8 +55,7 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 
 	const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
 	const hasConnectionTemplate = Boolean( connection.template );
-	const hasCustomGlobalTemplate =
-		Boolean( globalMessageTemplate ) && globalMessageTemplate !== DEFAULT_MESSAGE_TEMPLATE;
+	const hasGlobalMessageTemplate = Boolean( globalMessageTemplate );
 
 	let message = connection.message ?? globalMessage ?? '';
 	let fallbackHelp: string | undefined;
@@ -69,7 +67,7 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 
 		if ( hasConnectionTemplate ) {
 			fallbackHelp = CONNECTION_TEMPLATE_HELP;
-		} else if ( hasCustomGlobalTemplate ) {
+		} else if ( hasGlobalMessageTemplate ) {
 			fallbackHelp = GLOBAL_TEMPLATE_HELP;
 		} else {
 			fallbackHelp = DEFAULT_NETWORK_TEMPLATE_HELP;

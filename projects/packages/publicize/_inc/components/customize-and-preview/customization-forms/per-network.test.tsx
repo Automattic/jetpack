@@ -1,7 +1,6 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { render } from '@testing-library/react';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { DEFAULT_MESSAGE_TEMPLATE } from '../../../social-store/constants';
 import { PerNetworkCustomizationForm } from './per-network';
 import type { Connection } from '../../../social-store/types';
 
@@ -64,10 +63,6 @@ const baseConnection: Connection = {
 };
 
 /**
- *
- * @param connectionOverrides
- */
-/**
  * Render the form and return the props passed to SharePostForm.
  *
  * @param {Partial< Connection >} connectionOverrides - Partial connection values for the test case.
@@ -82,14 +77,14 @@ function getSharePostFormProps( connectionOverrides: Partial< Connection > = {} 
 describe( 'PerNetworkCustomizationForm', () => {
 	const mockCustomizeConnectionById = jest.fn();
 	let globalMessage = '';
-	let globalTemplate = DEFAULT_MESSAGE_TEMPLATE;
+	let globalTemplate = 'Saved global template';
 	let templatesEnabled = true;
 
 	beforeEach( () => {
 		jest.clearAllMocks();
 
 		globalMessage = '';
-		globalTemplate = DEFAULT_MESSAGE_TEMPLATE;
+		globalTemplate = 'Saved global template';
 		templatesEnabled = true;
 
 		mockUseDispatch.mockReturnValue( {
@@ -145,7 +140,9 @@ describe( 'PerNetworkCustomizationForm', () => {
 		expect( sharePostFormProps.messageHelp ).toBe( 'Global template will be used if empty.' );
 	} );
 
-	it( 'shows default-template helper text when global template is still default', () => {
+	it( 'shows default-template helper text when global template is empty', () => {
+		globalTemplate = '';
+
 		const sharePostFormProps = getSharePostFormProps( {
 			message: '',
 			template: '',
