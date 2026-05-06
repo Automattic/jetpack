@@ -119,12 +119,10 @@ class Search_Blocks {
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
 
-		if ( Module_Control::EXPERIENCE_EMBEDDED !== ( new Module_Control() )->get_experience() ) {
-			return;
+		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
+			add_action( 'init', array( static::class, 'register_search_template' ) );
+			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 		}
-
-		add_action( 'init', array( static::class, 'register_search_template' ) );
-		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
 	}
 
 	/**
