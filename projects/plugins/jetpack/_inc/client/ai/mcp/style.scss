@@ -83,9 +83,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 4px;
-		// Collapse line-height descender space so the flex container sits flush
-		// with the badge's padding-block rather than drifting off-baseline.
-		line-height: 1;
+		vertical-align: center;
 	}
 
 	&__category-header-row {
