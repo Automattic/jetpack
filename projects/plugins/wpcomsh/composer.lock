@@ -2300,7 +2300,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "946cdc6936bc54e9b5d22f0129003c0f9c9e475b"
+                "reference": "6ce4a49e629b593fd618306c2c7df5e32f9a3f17"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2345,6 +2345,9 @@
             "autoload": {
                 "classmap": [
                     "src/"
+                ],
+                "files": [
+                    "src/functions-activity-log.php"
                 ]
             },
             "scripts": {
@@ -3613,16 +3616,16 @@
         },
         {
             "name": "wp-php-toolkit/reprint-exporter",
-            "version": "v0.1.44",
+            "version": "v0.1.46",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-php-toolkit/reprint-exporter.git",
-                "reference": "80f0e0b6cd809ac81f45a13af627681bb46a3557"
+                "reference": "679f2ba88278ec8646593cc1389b2511c9c7d33d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-exporter/zipball/80f0e0b6cd809ac81f45a13af627681bb46a3557",
-                "reference": "80f0e0b6cd809ac81f45a13af627681bb46a3557",
+                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-exporter/zipball/679f2ba88278ec8646593cc1389b2511c9c7d33d",
+                "reference": "679f2ba88278ec8646593cc1389b2511c9c7d33d",
                 "shasum": ""
             },
             "require": {
@@ -3656,22 +3659,22 @@
             "description": "Streaming export engine used by the Reprint Exporter WordPress plugin",
             "support": {
                 "issues": "https://github.com/wp-php-toolkit/reprint-exporter/issues",
-                "source": "https://github.com/wp-php-toolkit/reprint-exporter/tree/v0.1.44"
+                "source": "https://github.com/wp-php-toolkit/reprint-exporter/tree/v0.1.46"
             },
-            "time": "2026-04-16T16:07:42+00:00"
+            "time": "2026-04-17T22:11:46+00:00"
         },
         {
             "name": "wp-php-toolkit/reprint-importer",
-            "version": "v0.1.44",
+            "version": "v0.1.46",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-php-toolkit/reprint-importer.git",
-                "reference": "9aa2108c7fa7050f5f589cd61887e50c70c00763"
+                "reference": "6e3cd11f879178d044d6af41a556531836e84a85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-importer/zipball/9aa2108c7fa7050f5f589cd61887e50c70c00763",
-                "reference": "9aa2108c7fa7050f5f589cd61887e50c70c00763",
+                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-importer/zipball/6e3cd11f879178d044d6af41a556531836e84a85",
+                "reference": "6e3cd11f879178d044d6af41a556531836e84a85",
                 "shasum": ""
             },
             "require": {
@@ -3693,9 +3696,9 @@
             "description": "Streaming site importer with CLI and PHAR distribution support",
             "support": {
                 "issues": "https://github.com/wp-php-toolkit/reprint-importer/issues",
-                "source": "https://github.com/wp-php-toolkit/reprint-importer/tree/v0.1.44"
+                "source": "https://github.com/wp-php-toolkit/reprint-importer/tree/v0.1.46"
             },
-            "time": "2026-04-16T14:19:55+00:00"
+            "time": "2026-04-25T16:15:46+00:00"
         },
         {
             "name": "wp-php-toolkit/xml",

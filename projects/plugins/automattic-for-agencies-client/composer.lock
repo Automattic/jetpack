@@ -905,7 +905,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "946cdc6936bc54e9b5d22f0129003c0f9c9e475b"
+                "reference": "6ce4a49e629b593fd618306c2c7df5e32f9a3f17"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -950,6 +950,9 @@
             "autoload": {
                 "classmap": [
                     "src/"
+                ],
+                "files": [
+                    "src/functions-activity-log.php"
                 ]
             },
             "scripts": {
