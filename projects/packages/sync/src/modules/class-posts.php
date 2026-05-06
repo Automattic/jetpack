@@ -88,6 +88,11 @@ class Posts extends Module {
 	const DEFAULT_PREVIOUS_STATE = 'new';
 
 	/**
+	 * Post type name for Activity Log custom entries.
+	 */
+	const ACTIVITY_LOG_CPT = 'jp_act_log_entry';
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -480,6 +485,18 @@ class Posts extends Module {
 			return false;
 		}
 
+		if ( self::ACTIVITY_LOG_CPT === $post->post_type ) {
+			// Write-once
+			$previous_status = isset( $previous_state['previous_status'] ) ? $previous_state['previous_status'] : '';
+			if ( 'publish' !== $post->post_status || 'publish' === $previous_status ) {
+				return false;
+			}
+			$data = json_decode( $post->post_content, true );
+			if ( ! is_array( $data ) || empty( $data['source'] ) || empty( $data['title'] ) || empty( $data['content'] ) ) {
+				return false;
+			}
+		}
+
 		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
@@ -500,6 +517,12 @@ class Posts extends Module {
 		}
 
 		list( $post_id, $flags, $post ) = $args;
+
+		// Activity log entries are not editorial content; suppress the published_post event.
+		if ( self::ACTIVITY_LOG_CPT === $post->post_type ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
@@ -516,6 +539,11 @@ class Posts extends Module {
 		// deleted_post is called after the SQL delete but before cache cleanup.
 		// There is the potential we can't detect post_type at this point.
 		if ( ! $this->is_post_type_allowed( $args[0] ) ) {
+			return false;
+		}
+
+		// Activity log entries are write-once on WPcom; local deletions are not propagated.
+		if ( self::ACTIVITY_LOG_CPT === get_post_type( (int) $args[0] ) ) {
 			return false;
 		}
 
