@@ -219,6 +219,39 @@ describe( 'useRenderMessageItems', () => {
 		expect( result.current[ 0 ].message ).toBe( 'second' );
 	} );
 
+	it( 'does not flush a pending message change on unrelated re-renders', () => {
+		mockUseSelect.mockReturnValue( [ conn( { message: 'first' } ) ] );
+
+		const { result, rerender } = renderHook( () => useRenderMessageItems() );
+
+		act( () => {
+			jest.runOnlyPendingTimers();
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		mockUseSelect.mockReturnValue( [ conn( { message: 'second' } ) ] );
+		rerender();
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		mockUseSocialPreviewPostData.mockReturnValue( {
+			media: [ { url: 'https://example.com/m.jpg', type: 'image/jpeg' } ],
+		} );
+		mockUseSelect.mockReturnValue( [ conn( { message: 'second' } ) ] );
+		rerender();
+
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		act( () => {
+			jest.advanceTimersByTime( 1499 );
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		act( () => {
+			jest.advanceTimersByTime( 1 );
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'second' );
+	} );
+
 	it( 'updates immediately when only non-message inputs change', () => {
 		mockUseSelect.mockReturnValue( [ conn( { message: 'same' } ) ] );
 

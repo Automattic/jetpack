@@ -1,3 +1,4 @@
+import { MessageSkeleton } from '../shared/message-skeleton';
 import { Card } from './card';
 import { Footer } from './footer';
 import { Header } from './header';
@@ -22,9 +23,17 @@ export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 	title,
 	tweetUrl,
 	cardType,
+	isLoading,
 	url,
 } ) => {
 	const hasMedia = !! media?.length;
+	let textContent = null;
+
+	if ( isLoading ) {
+		textContent = <MessageSkeleton className="twitter-preview__text" />;
+	} else if ( text ) {
+		textContent = <Text text={ text } />;
+	}
 
 	return (
 		<div className="twitter-preview__wrapper">
@@ -33,7 +42,7 @@ export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 				<div className="twitter-preview__main">
 					<Header name={ name } screenName={ screenName } date={ date } />
 					<div className="twitter-preview__content">
-						{ text ? <Text text={ text } /> : null }
+						{ textContent }
 						{ hasMedia ? <Media media={ media } /> : null }
 						{ tweetUrl ? <QuoteTweet tweetUrl={ tweetUrl } /> : null }
 						{ ! hasMedia && url && (

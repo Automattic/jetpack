@@ -86,37 +86,74 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 	const items = useRenderMessageItems();
+	const baseMessage = (
+		isPerNetworkMode ? connection.message ?? globalMessage : globalMessage
+	).trim();
+	const currentRenderItem = items.find( item => item.id === connection.connection_id );
 
-	const rendered = useSelect(
+	const { rendered, isResolvingRenderedMessages, hasFinishedRenderingMessages } = useSelect(
 		select => {
 			if ( ! templatesEnabled || ! postId ) {
-				return null;
+				return {
+					rendered: null,
+					isResolvingRenderedMessages: false,
+					hasFinishedRenderingMessages: true,
+				};
 			}
-			// Calling getRenderedMessages via select() is what triggers the resolver
-			// (and the POST). Picking the per-connection slice off the returned batch
-			// keeps the call explicit instead of routing through a derived selector.
-			const batch = select( socialStore ).getRenderedMessages( postId, items );
-			return batch?.[ connection.connection_id ]?.rendered_message ?? null;
+			// Read from the cache-only selector so this hook does not trigger requests.
+			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`, which keeps
+			// request timing debounced while still exposing loading state here.
+			const social = select( socialStore );
+			const batch = social.getCachedRenderedMessages( postId, items );
+
+			return {
+				rendered: batch?.[ connection.connection_id ]?.rendered_message ?? null,
+				isResolvingRenderedMessages: social.isResolving( 'getRenderedMessages', [ postId, items ] ),
+				hasFinishedRenderingMessages: social.hasFinishedResolution( 'getRenderedMessages', [
+					postId,
+					items,
+				] ),
+			};
 		},
 		[ templatesEnabled, postId, items, connection.connection_id ]
 	);
 
 	return useMemo( () => {
 		const useRendered = templatesEnabled && typeof rendered === 'string';
-		const baseMessage = isPerNetworkMode
-			? ( connection.message ?? globalMessage ).trim()
-			: globalMessage.trim();
+		const hasCurrentRenderItem = currentRenderItem?.message !== undefined;
+		const isDebouncingRenderedMessage =
+			templatesEnabled &&
+			baseMessage.length > 0 &&
+			hasCurrentRenderItem &&
+			currentRenderItem.message !== baseMessage;
+		const isWaitingForRenderedMessage =
+			templatesEnabled &&
+			baseMessage.length > 0 &&
+			hasCurrentRenderItem &&
+			currentRenderItem.message === baseMessage &&
+			! useRendered &&
+			! hasFinishedRenderingMessages;
+		const isLoading =
+			templatesEnabled &&
+			!! postId &&
+			baseMessage.length > 0 &&
+			items.length > 0 &&
+			( isResolvingRenderedMessages || isDebouncingRenderedMessage || isWaitingForRenderedMessage );
 
 		return {
 			...postData,
 			message: useRendered ? rendered : baseMessage,
 			media,
+			isLoading,
 		};
 	}, [
-		connection.message,
-		globalMessage,
-		isPerNetworkMode,
+		baseMessage,
+		currentRenderItem?.message,
+		hasFinishedRenderingMessages,
+		isResolvingRenderedMessages,
+		items.length,
 		media,
+		postId,
 		postData,
 		rendered,
 		templatesEnabled,

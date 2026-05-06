@@ -1,5 +1,6 @@
 import { stripHtmlTags } from '../../../helpers';
 import { ExpandableText } from '../../../shared/expandable-text';
+import { MessageSkeleton } from '../../../shared/message-skeleton';
 import { getMastodonAddressDetails, mastodonBody, mastodonUrl } from '../../helpers';
 import type { MastodonPreviewProps } from '../../types';
 
@@ -8,7 +9,7 @@ import './styles.scss';
 type Props = MastodonPreviewProps & { children?: React.ReactNode };
 
 const MastonPostBody: React.FC< Props > = props => {
-	const { title, description, customText, url, user, children } = props;
+	const { title, description, customText, url, user, children, isLoading } = props;
 	const instance = user?.address ? getMastodonAddressDetails( user.address ).instance : '';
 	const options = {
 		instance,
@@ -17,7 +18,9 @@ const MastonPostBody: React.FC< Props > = props => {
 
 	let bodyTxt;
 
-	if ( customText ) {
+	if ( isLoading ) {
+		bodyTxt = <MessageSkeleton lines={ 2 } />;
+	} else if ( customText ) {
 		bodyTxt = (
 			<p>
 				<ExpandableText text={ customText }>

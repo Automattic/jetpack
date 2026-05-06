@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: Pass preview loading state so message templates render with skeletons instead of flashing placeholders.

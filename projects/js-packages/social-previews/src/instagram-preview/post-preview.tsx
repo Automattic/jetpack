@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { preparePreviewText } from '../helpers';
 import { ExpandableText } from '../shared/expandable-text';
+import { MessageSkeleton } from '../shared/message-skeleton';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { Bookmark as BookmarkIcon } from './icons/bookmark';
 import { Comment as CommentIcon } from './icons/comment';
@@ -24,11 +25,44 @@ export function InstagramPostPreview( {
 	name,
 	profileImage,
 	caption,
+	isLoading,
 	url,
 }: InstagramPreviewProps ) {
 	const username = name || 'username';
 
 	const mediaItem = media?.[ 0 ];
+	let captionContent = null;
+
+	if ( isLoading ) {
+		captionContent = (
+			<div className="instagram-preview__content--text-skeleton">
+				<MessageSkeleton />
+			</div>
+		);
+	} else if ( caption ) {
+		captionContent = (
+			<>
+				{ ' ' }
+				<div className="instagram-preview__content--text">
+					<ExpandableText text={ caption }>
+						{ visibleText =>
+							preparePreviewText( visibleText, {
+								platform: 'instagram',
+								maxChars: FEED_TEXT_MAX_LENGTH,
+							} )
+						}
+					</ExpandableText>
+					{ media && url && ! caption.includes( url ) && (
+						<>
+							<br />
+							<br />
+							{ url }
+						</>
+					) }
+				</div>
+			</>
+		);
+	}
 
 	return (
 		<div className="instagram-preview__wrapper">
@@ -72,26 +106,7 @@ export function InstagramPostPreview( {
 					</section>
 					<div className="instagram-preview__content--body">
 						<div className="instagram-preview__content--name">{ username }</div>
-						&nbsp;
-						{ caption ? (
-							<div className="instagram-preview__content--text">
-								<ExpandableText text={ caption }>
-									{ visibleText =>
-										preparePreviewText( visibleText, {
-											platform: 'instagram',
-											maxChars: FEED_TEXT_MAX_LENGTH,
-										} )
-									}
-								</ExpandableText>
-								{ media && url && ! caption.includes( url ) && (
-									<>
-										<br />
-										<br />
-										{ url }
-									</>
-								) }
-							</div>
-						) : null }
+						{ captionContent }
 					</div>
 					<div className="instagram-preview__content--footer">
 						<span>{ __( 'View one comment', 'social-previews' ) }</span>

@@ -117,16 +117,26 @@ const defaultPostData = {
  * Mock the chained useSelect calls inside the hook so each one returns its expected
  * shape: postId, featuredImageId, then the rendered slice.
  *
- * @param opts          - Per-test overrides.
- * @param opts.postId   - Post id returned to the editor-store useSelect.
- * @param opts.rendered - String returned for the rendered slice, or null to signal "no slice yet".
+ * @param opts             - Per-test overrides.
+ * @param opts.postId      - Post id returned to the editor-store useSelect.
+ * @param opts.rendered    - String returned for the rendered slice, or null to signal "no slice yet".
+ * @param opts.isResolving - Whether rendered messages are being resolved.
+ * @param opts.hasFinished - Whether the rendered messages resolution has finished.
  */
-function mockSelectCalls( opts: { postId?: number; rendered?: string | null } = {} ) {
-	const { postId = 42, rendered = null } = opts;
-	mockUseSelect
-		.mockReturnValueOnce( postId )
-		.mockReturnValueOnce( 0 )
-		.mockReturnValueOnce( rendered );
+function mockSelectCalls(
+	opts: {
+		postId?: number;
+		rendered?: string | null;
+		isResolving?: boolean;
+		hasFinished?: boolean;
+	} = {}
+) {
+	const { postId = 42, rendered = null, isResolving = false, hasFinished = true } = opts;
+	mockUseSelect.mockReturnValueOnce( postId ).mockReturnValueOnce( 0 ).mockReturnValueOnce( {
+		rendered,
+		isResolvingRenderedMessages: isResolving,
+		hasFinishedRenderingMessages: hasFinished,
+	} );
 }
 
 describe( 'useConnectionPreviewData', () => {
@@ -161,6 +171,7 @@ describe( 'useConnectionPreviewData', () => {
 
 		expect( result.current ).toEqual( {
 			...defaultPostData,
+			isLoading: false,
 			message: 'Global message',
 		} );
 	} );
@@ -306,15 +317,70 @@ describe( 'useConnectionPreviewData', () => {
 		expect( result.current.message ).toBe( 'Global message' );
 	} );
 
+	it( 'shows loading while the live template message is waiting for debounce', () => {
+		mockSelectCalls( { rendered: null, isResolving: false } );
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseRenderMessageItems.mockReturnValue( [
+			{
+				id: '123',
+				network: 'tumblr',
+				message: 'Old template',
+				is_social_post: false,
+			},
+		] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'New template {excerpt}',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+
+		const connection = createMockConnection();
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'keeps loading after debounce until the render request finishes', () => {
+		mockSelectCalls( { rendered: null, isResolving: false, hasFinished: false } );
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseRenderMessageItems.mockReturnValue( [
+			{
+				id: '123',
+				network: 'tumblr',
+				message: 'New template {excerpt}',
+				is_social_post: false,
+			},
+		] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'New template {excerpt}',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+
+		const connection = createMockConnection();
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
 	it( 'ignores rendered message when MESSAGE_TEMPLATES feature is off', () => {
-		mockSelectCalls( { rendered: 'Should not be used' } );
+		mockSelectCalls( { rendered: 'Should not be used', isResolving: true, hasFinished: false } );
 		mockSiteHasFeature.mockImplementation(
 			( feature: string ) => feature !== 'social-message-templates'
 		);
+		mockUseRenderMessageItems.mockReturnValue( [
+			{
+				id: '123',
+				network: 'tumblr',
+				message: 'Different debounced template',
+				is_social_post: false,
+			},
+		] );
 
 		const connection = createMockConnection();
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.message ).toBe( 'Global message' );
+		expect( result.current.isLoading ).toBe( false );
 	} );
 } );

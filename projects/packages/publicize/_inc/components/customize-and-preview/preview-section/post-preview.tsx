@@ -54,7 +54,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		[ connection ]
 	);
 
-	const { image, media, title, description, url, excerpt, message } =
+	const { image, media, title, description, url, excerpt, message, isLoading } =
 		useConnectionPreviewData( connection );
 
 	const commonProps = useMemo(
@@ -88,6 +88,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<BlueskyPostPreview
 					{ ...commonProps }
 					description={ decodeEntities( excerpt ) }
+					isLoading={ isLoading }
 					user={ {
 						avatarUrl: user.profileImage,
 						address: user.externalName,
@@ -114,6 +115,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<FacebookPostPreview
 					{ ...commonProps }
 					type="article"
+					isLoading={ isLoading }
 					customText={ customText }
 					user={ {
 						...user,
@@ -124,6 +126,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<FacebookLinkPreview
 					{ ...commonProps }
 					type="article"
+					isLoading={ isLoading }
 					customText={ customText }
 					user={ {
 						...user,
@@ -150,6 +153,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<InstagramPostPreview
 					{ ...commonProps }
 					image={ media?.[ 0 ]?.url || image }
+					isLoading={ isLoading }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 					caption={ instagramCaption }
@@ -169,6 +173,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			return (
 				<LinkedInPostPreview
 					{ ...commonProps }
+					isLoading={ isLoading }
 					jobTitle={ __( 'Job Title (Company Name)', 'jetpack-publicize-pkg' ) }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
@@ -192,6 +197,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<MastodonPostPreview
 					{ ...commonProps }
 					description={ excerpt }
+					isLoading={ isLoading }
 					siteName={ siteName }
 					user={ {
 						avatarUrl: user.profileImage,
@@ -217,6 +223,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<NextdoorPostPreview
 					{ ...commonProps }
 					description={ nextdoorDescription }
+					isLoading={ isLoading }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 				/>
@@ -240,6 +247,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<ThreadsPostPreview
 					{ ...commonProps }
 					caption={ caption }
+					isLoading={ isLoading }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 				/>
@@ -252,6 +260,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			return (
 				<TumblrPostPreview
 					{ ...commonProps }
+					isLoading={ isLoading }
 					title={ message ? '' : title }
 					description={ desc }
 					user={ { displayName: user.displayName, avatarUrl: user.profileImage } }
@@ -276,6 +285,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<TwitterPostPreview
 					{ ...commonProps }
 					description={ description }
+					isLoading={ isLoading }
 					text={ text }
 					screenName={ user.externalName }
 					name={ user.displayName }

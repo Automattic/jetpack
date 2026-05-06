@@ -27,6 +27,24 @@ export function getRenderedMessages(
 	postId: number,
 	items: RenderItem[]
 ): RenderedMessageBatch | undefined {
+	return getCachedRenderedMessages( state, postId, items );
+}
+
+/**
+ * Read the rendered-messages cache without triggering the resolver.
+ *
+ * Use this selector in UI consumers that should not initiate network fetches.
+ *
+ * @param state  - State object.
+ * @param postId - Post being previewed.
+ * @param items  - The render items.
+ * @return The cached batch (id → result), or undefined if absent.
+ */
+export function getCachedRenderedMessages(
+	state: SocialStoreState,
+	postId: number,
+	items: RenderItem[]
+): RenderedMessageBatch | undefined {
 	if ( ! postId || items.length === 0 ) {
 		return undefined;
 	}

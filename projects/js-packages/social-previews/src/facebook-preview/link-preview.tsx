@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { TYPE_ARTICLE, PORTRAIT_MODE } from '../constants';
 import { baseDomain } from '../helpers';
+import { MessageSkeleton } from '../shared/message-skeleton';
 import CustomText from './custom-text';
 import { facebookTitle, facebookDescription } from './helpers';
 import useImage from './hooks/use-image-hook';
@@ -22,6 +23,7 @@ export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 	image,
 	user,
 	customText,
+	isLoading,
 	type,
 	imageMode,
 	compactDescription,
@@ -35,7 +37,11 @@ export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 		<div className="facebook-preview__post">
 			<FacebookPostHeader user={ user } />
 			<div className="facebook-preview__content">
-				{ customText && <CustomText text={ customText } url={ url } /> }
+				{ isLoading ? (
+					<MessageSkeleton className="facebook-preview__custom-text" />
+				) : (
+					customText && <CustomText text={ customText } url={ url } />
+				) }
 				<div
 					className={ `facebook-preview__body ${ modeClass } ${
 						image && isLoadingImage ? 'is-loading' : ''

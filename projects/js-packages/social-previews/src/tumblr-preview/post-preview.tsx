@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { preparePreviewText } from '../helpers';
 import { ExpandableText } from '../shared/expandable-text';
+import { MessageSkeleton } from '../shared/message-skeleton';
 import { tumblrTitle, tumblrDescription } from './helpers';
 import TumblrPostActions from './post/actions';
 import TumblrPostHeader from './post/header';
@@ -15,6 +16,7 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 	user,
 	url,
 	media,
+	isLoading,
 } ) => {
 	const avatarUrl = user?.avatarUrl;
 
@@ -26,17 +28,25 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 			<div className="tumblr-preview__card">
 				<TumblrPostHeader user={ user } />
 				<div className="tumblr-preview__body">
-					{ title ? <div className="tumblr-preview__title">{ tumblrTitle( title ) }</div> : null }
-					{ description && (
-						<div className="tumblr-preview__description">
-							<ExpandableText text={ description }>
-								{ visibleText =>
-									preparePreviewText( tumblrDescription( visibleText ), {
-										platform: 'tumblr',
-									} )
-								}
-							</ExpandableText>
-						</div>
+					{ isLoading ? (
+						<MessageSkeleton className="tumblr-preview__custom-text" lines={ 3 } />
+					) : (
+						<>
+							{ title ? (
+								<div className="tumblr-preview__title">{ tumblrTitle( title ) }</div>
+							) : null }
+							{ description && (
+								<div className="tumblr-preview__description">
+									<ExpandableText text={ description }>
+										{ visibleText =>
+											preparePreviewText( tumblrDescription( visibleText ), {
+												platform: 'tumblr',
+											} )
+										}
+									</ExpandableText>
+								</div>
+							) }
+						</>
 					) }
 					{ mediaItem ? (
 						<div className="tumblr-preview__media-item">

@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { baseDomain, getTitleFromDescription, preparePreviewText } from '../helpers';
 import { ExpandableText } from '../shared/expandable-text';
+import { MessageSkeleton } from '../shared/message-skeleton';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { LinkedInPreviewProps } from './types';
 import './style.scss';
@@ -22,9 +23,38 @@ export function LinkedInPostPreview( {
 	description,
 	media,
 	title,
+	isLoading,
 	url,
 }: LinkedInPreviewProps ) {
 	const hasMedia = !! media?.length;
+	let captionContent = null;
+
+	if ( isLoading ) {
+		captionContent = <MessageSkeleton className="linkedin-preview__caption" />;
+	} else if ( description ) {
+		captionContent = (
+			<div className="linkedin-preview__caption">
+				<span>
+					<ExpandableText text={ description }>
+						{ visibleText =>
+							preparePreviewText( visibleText, {
+								platform: 'linkedin',
+								maxChars: FEED_TEXT_MAX_LENGTH,
+							} )
+						}
+					</ExpandableText>
+				</span>
+				{ hasMedia && url && ! description.includes( url ) && (
+					<>
+						{ ' - ' }
+						<a href={ url } rel="nofollow noopener noreferrer" target="_blank">
+							{ url }
+						</a>
+					</>
+				) }
+			</div>
+		);
+	}
 
 	return (
 		<div className="linkedin-preview__wrapper">
@@ -65,28 +95,7 @@ export function LinkedInPostPreview( {
 					</div>
 				</div>
 				<div className="linkedin-preview__content">
-					{ description ? (
-						<div className="linkedin-preview__caption">
-							<span>
-								<ExpandableText text={ description }>
-									{ visibleText =>
-										preparePreviewText( visibleText, {
-											platform: 'linkedin',
-											maxChars: FEED_TEXT_MAX_LENGTH,
-										} )
-									}
-								</ExpandableText>
-							</span>
-							{ hasMedia && url && ! description.includes( url ) && (
-								<>
-									{ ' - ' }
-									<a href={ url } rel="nofollow noopener noreferrer" target="_blank">
-										{ url }
-									</a>
-								</>
-							) }
-						</div>
-					) : null }
+					{ captionContent }
 					{ hasMedia ? (
 						<div className="linkedin-preview__media">
 							{ media.map( ( mediaItem, index ) => (

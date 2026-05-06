@@ -6,6 +6,7 @@ import { fireEvent, render } from '@testing-library/react';
 import * as React from 'react';
 import {
 	FacebookLinkPreview as Facebook,
+	FacebookPostPreview as FacebookPost,
 	TwitterPostPreview as Twitter,
 	TwitterPreviews,
 	GoogleSearchPreview as Search,
@@ -17,6 +18,10 @@ import { formatTweetDate } from '../src/helpers';
 const mockReact = React;
 jest.mock( '@wordpress/components', () => {
 	return {
+		Animate: ( { children }: { children: ( args: { className: string } ) => React.ReactNode } ) =>
+			children( { className: 'is-animating' } ),
+		Button: ( props: React.ButtonHTMLAttributes< HTMLButtonElement > ) =>
+			mockReact.createElement( 'button', props ),
 		SandBox: ( { html, title }: { html: string; title: string } ) => {
 			const iframeRef = mockReact.useRef< HTMLIFrameElement >( null );
 
@@ -127,6 +132,38 @@ describe( 'Facebook previews', () => {
 			expect( urlEl ).not.toHaveTextContent( /\|/ );
 		} );
 	} );
+
+	it( 'shows skeleton for custom text while loading', () => {
+		const { container } = render(
+			<FacebookPost
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText="Loading text"
+				isLoading
+				user={ { displayName: 'WordPress' } }
+			/>
+		);
+
+		expect( container.querySelector( '.social-preview__message-skeleton' ) ).toBeInTheDocument();
+		expect( container ).not.toHaveTextContent( 'Loading text' );
+	} );
+
+	it( 'renders custom text when loading is false', () => {
+		const { container } = render(
+			<FacebookPost
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText="Ready text"
+				isLoading={ false }
+				user={ { displayName: 'WordPress' } }
+			/>
+		);
+
+		expect(
+			container.querySelector( '.social-preview__message-skeleton' )
+		).not.toBeInTheDocument();
+		expect( container ).toHaveTextContent( 'Ready text' );
+	} );
 } );
 
 describe( 'Twitter previews', () => {
@@ -233,6 +270,24 @@ describe( 'Twitter previews', () => {
 
 		expect( urlEl ).toBeVisible();
 		expect( urlEl ).toHaveTextContent( 'wordpress.com' );
+	} );
+
+	it( 'shows skeleton for text while loading', () => {
+		const { container } = render( <Twitter { ...dummyProps } text="Loading text" isLoading /> );
+
+		expect( container.querySelector( '.social-preview__message-skeleton' ) ).toBeInTheDocument();
+		expect( container ).not.toHaveTextContent( 'Loading text' );
+	} );
+
+	it( 'renders text when loading is false', () => {
+		const { container } = render(
+			<Twitter { ...dummyProps } text="Ready text" isLoading={ false } />
+		);
+
+		expect(
+			container.querySelector( '.social-preview__message-skeleton' )
+		).not.toBeInTheDocument();
+		expect( container ).toHaveTextContent( 'Ready text' );
 	} );
 
 	describe( 'Styling hooks', () => {
