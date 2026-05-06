@@ -4,18 +4,19 @@
  *
  * The Interactivity API view bundle imports `@wordpress/i18n`; webpack
  * externalizes that import as a script-module reference (see
- * `requestToExternalModule` in `tools/webpack.blocks.config.js`); WP resolves
- * the module ID to this file via `wp_register_script_module()` in
- * `class-search-blocks.php`. The shim then re-exports the methods on
- * `window.wp.i18n`, which the classic `wp-i18n` script populates synchronously
- * before any deferred module evaluates.
+ * `requestToExternalModule` in `tools/webpack.blocks.config.js`); WP
+ * resolves the canonical `@wordpress/i18n` ID to this file via
+ * `wp_register_script_module()` in `class-search-blocks.php`. The shim
+ * re-exports the live functions on `window.wp.i18n`, which the classic
+ * `wp-i18n` script populates synchronously before any deferred module
+ * evaluates.
  *
- * Translations land on `window.wp.i18n` via an inline `setLocaleData()` call
- * emitted alongside `wp-i18n` in `Search_Blocks::enqueue_i18n_runtime()`, so by
- * the time this module's exports are read, calls like `__( 'Foo', 'jetpack-search-pkg' )`
- * resolve through the page locale's translations. If `wp-i18n` was not enqueued
- * (e.g. the page renders no Jetpack Search blocks), the identity fallbacks keep
- * the page rendering English source strings instead of throwing.
+ * Translations land on `window.wp.i18n` via `wp.jpI18nLoader.downloadI18n()`
+ * (the standard async fetcher kicked off by `store/i18n-bootstrap.js`),
+ * so non-English locales pick up translated strings on the next
+ * reactivity tick. If `wp-i18n` was not enqueued (e.g. the page renders
+ * no Jetpack Search blocks), the identity fallbacks below keep the page
+ * rendering English source strings instead of throwing.
  */
 
 const i18n = ( typeof window !== 'undefined' && window.wp && window.wp.i18n ) || {};

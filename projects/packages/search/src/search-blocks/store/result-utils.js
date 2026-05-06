@@ -3,10 +3,12 @@
  * Interactivity API templates consume. Extracted from store/index.js so they
  * can be unit-tested without bootstrapping the IAPI runtime.
  *
- * `@wordpress/i18n` resolves through the package's i18n shim (registered as
- * the `@wordpress/i18n` script module by `Search_Blocks::register_i18n_module()`),
- * which re-exports `window.wp.i18n`. See `tools/webpack.blocks.config.js`'s
- * `requestToExternalModule` for the build-side wiring.
+ * `@wordpress/i18n` calls go through DEP's `var wp.i18n` external (configured
+ * in `tools/webpack.blocks.config.js`), so the import below compiles to a
+ * `window.wp.i18n` global read at runtime — same convention DEP uses in
+ * classic-script bundles. Translations land via `wp.jpI18nLoader.downloadI18n`
+ * (kicked off by `store/i18n-bootstrap.js`), so non-English locales pick up
+ * translated strings on the next reactivity tick.
  */
 import { __, _n, sprintf } from '@wordpress/i18n';
 

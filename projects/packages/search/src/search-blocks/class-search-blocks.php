@@ -171,22 +171,19 @@ class Search_Blocks {
 
 	/**
 	 * Register `@wordpress/i18n` as a script module pointing at the package's
-	 * shim. The shim re-exports `window.wp.i18n`, letting the IAPI view bundle
-	 * use `import { __, _n, sprintf } from '@wordpress/i18n'` natively.
+	 * shim. The shim re-exports the live functions on `window.wp.i18n`,
+	 * letting the IAPI view bundle use `import { __, _n, sprintf } from
+	 * '@wordpress/i18n'` natively while sharing the same translation runtime
+	 * the classic `wp-i18n` script provides — and that
+	 * `wp.jpI18nLoader.downloadI18n()` populates with per-bundle translations.
 	 *
 	 * WP core only registers `@wordpress/interactivity` (and recently a11y /
-	 * router) as script modules, so importing `@wordpress/i18n` from a view
-	 * bundle would otherwise fail at load time with an unresolved import.
-	 *
-	 * `wp_register_script_module()` is first-registered-wins: a second call
-	 * for the same ID is silently dropped. We hook on `init` priority 10, so
-	 * our shim wins for the duration of this workaround. **Maintenance hazard:**
-	 * if WP core later registers `@wordpress/i18n` natively at the same or
-	 * higher priority, our registration would still win and quietly mask the
-	 * native module — at which point this method should be removed (or
-	 * deregister-then-register) to let core take over. Until then, the shim
-	 * delegating to `window.wp.i18n` produces equivalent behavior to a native
-	 * registration, so the dual-source state is functionally safe.
+	 * router) as script modules, so the canonical `@wordpress/i18n` ID is
+	 * unclaimed today; we register the shim under that ID so any future
+	 * cross-package converger can find it. `wp_register_script_module()` is
+	 * first-registered-wins, so if WP core later ships a native `@wordpress/i18n`
+	 * module at the same priority this method should be removed (or
+	 * deregister-then-register) to let core take over.
 	 */
 	public static function register_i18n_module() {
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
@@ -209,109 +206,22 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Enqueue the classic `wp-i18n` script and emit an inline `setLocaleData()`
-	 * call carrying the `jetpack-search-pkg` text domain's translations. This
-	 * populates `window.wp.i18n` synchronously before any deferred script
-	 * module evaluates, so the i18n shim's exports resolve to translated
-	 * strings on first paint.
-	 *
-	 * Translations are pulled from PHP's already-loaded gettext entries via
-	 * `get_translations_for_domain()`; if the domain isn't loaded (e.g. en_US
-	 * site with no .mo file), we still enqueue `wp-i18n` so the shim's
-	 * fallbacks work and `__()` returns the source string unchanged.
+	 * Enqueue the classic `wp-i18n` script and the `wp-jp-i18n-loader` runtime
+	 * (registered by `Automattic\Jetpack\Assets`) on every page. The shim
+	 * registered by `register_i18n_module()` re-exports `wp.i18n` from the
+	 * classic script, and `wp.jpI18nLoader.downloadI18n( bundlePath,
+	 * 'jetpack-search-pkg', 'plugin' )` (called from `store/i18n-bootstrap.js`)
+	 * fetches and `setLocaleData()`s the per-bundle translation .json — the
+	 * same path `@automattic/i18n-loader-webpack-plugin` injects into
+	 * classic-script bundles. We're just opting our front-end view bundles
+	 * into the existing pipeline.
 	 */
 	public static function enqueue_i18n_runtime() {
 		if ( ! function_exists( 'wp_enqueue_script' ) ) {
 			return;
 		}
 		wp_enqueue_script( 'wp-i18n' );
-
-		$locale_data = static::collect_locale_data( 'jetpack-search-pkg' );
-		if ( null === $locale_data ) {
-			return;
-		}
-		// JSON_HEX_* flags neutralize a `</script>` (or quote/ampersand) appearing
-		// inside a translation, which would otherwise close the inline tag and
-		// turn an inert string into HTML. Same hardening WP core uses when it
-		// inlines `setLocaleData` from `wp_set_script_translations()`.
-		$json_flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
-		$payload    = wp_json_encode( $locale_data, $json_flags );
-		if ( false === $payload ) {
-			return;
-		}
-		// IIFE so `$payload` is parsed once into a local variable; the guard
-		// avoids a TypeError if `wp.i18n` somehow failed to load before this
-		// inline runs (e.g. another plugin de-registered the wp-i18n handle).
-		wp_add_inline_script(
-			'wp-i18n',
-			sprintf(
-				'( function() { var d = %s; if ( window.wp && window.wp.i18n ) { wp.i18n.setLocaleData( d, %s ); } } )();',
-				$payload,
-				wp_json_encode( 'jetpack-search-pkg', $json_flags )
-			),
-			'after'
-		);
-	}
-
-	/**
-	 * Build the `setLocaleData()` payload for a text domain by walking PHP's
-	 * already-loaded gettext entries. Returns the same `{ "": header, msgid:
-	 * [translations] }` shape that `wp_set_script_translations()` would inline
-	 * — letting us seed the wp-i18n runtime without depending on per-handle
-	 * .json files (which Jetpack's translation pipeline doesn't generate for
-	 * script-module bundles today).
-	 *
-	 * Returns null when the domain has no translations (en_US sites, missing
-	 * .mo files). Callers skip the inline emission in that case so the page
-	 * still renders English source strings unchanged.
-	 *
-	 * @param string $domain Text domain.
-	 * @return array<string, mixed>|null
-	 */
-	protected static function collect_locale_data( string $domain ): ?array {
-		if ( ! function_exists( 'is_textdomain_loaded' ) || ! is_textdomain_loaded( $domain ) ) {
-			return null;
-		}
-		if ( ! function_exists( 'get_translations_for_domain' ) ) {
-			return null;
-		}
-		$translations = get_translations_for_domain( $domain );
-		if ( empty( $translations->entries ) ) {
-			return null;
-		}
-		return static::build_locale_data_payload( $translations, $domain );
-	}
-
-	/**
-	 * Pure data-shape transform from a Pomo `Translations` object to the Jed
-	 * locale-data shape `wp.i18n.setLocaleData()` expects.
-	 *
-	 * Split out from `collect_locale_data()` so it can be unit-tested without
-	 * standing up the WP textdomain registry: callers can construct a fake
-	 * `Translations` (anything with `->headers` and `->entries`, where each
-	 * entry has `->key()` and `->translations`) and assert the shape directly.
-	 *
-	 * @param object $translations Pomo `Translations` (or compatible duck type)
-	 *                             with `headers` array and iterable `entries`.
-	 * @param string $domain       Text domain.
-	 * @return array<string, mixed>
-	 */
-	public static function build_locale_data_payload( $translations, string $domain ): array {
-		$plural_forms = $translations->headers['Plural-Forms'] ?? 'nplurals=2; plural=(n != 1);';
-		$locale_data  = array(
-			'' => array(
-				'domain'       => $domain,
-				'lang'         => function_exists( 'determine_locale' ) ? determine_locale() : '',
-				'plural-forms' => $plural_forms,
-			),
-		);
-		foreach ( $translations->entries as $entry ) {
-			// `entries` is keyed by msgctxt-prefixed msgid; `Translation_Entry::key()`
-			// reproduces the same key shape `wp.i18n` expects on the JS side.
-			$key                 = $entry->key();
-			$locale_data[ $key ] = $entry->translations;
-		}
-		return $locale_data;
+		wp_enqueue_script( 'wp-jp-i18n-loader' );
 	}
 
 	/**

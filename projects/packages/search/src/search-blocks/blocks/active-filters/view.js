@@ -3,7 +3,14 @@ import { store, getContext } from '@wordpress/interactivity';
 import { formatDateBucketLabel } from '../../store/api';
 import '../../store';
 import { bucketLabel, bucketValue } from '../../store/bucket-key';
+import { bootstrapI18n } from '../../store/i18n-bootstrap';
 import './style.scss';
+
+// Fetch translations for *this* bundle. The store module bootstraps for
+// its own filename, so result-utils strings load via that path; this one
+// covers the `__('Remove %s', ...)` call below, which lives in the
+// active-filters bundle's .json file rather than the store's.
+bootstrapI18n( 'active-filters.js' );
 
 const NAMESPACE = 'jetpack-search';
 

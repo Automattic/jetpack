@@ -31,11 +31,11 @@ const blockViewEntries = readBlockViewEntries();
 const storeIndexPath = path.join( __dirname, '../src/search-blocks/store/index.js' );
 const storeEntries = fs.existsSync( storeIndexPath ) ? { 'store/index': storeIndexPath } : {};
 
-// The i18n shim is the runtime the `@wordpress/i18n` import resolves to in the
-// IAPI module bundle (see `requestToExternalModule` below). It re-exports
-// `window.wp.i18n` so the front-end view bundle can use `__()` / `_n()` /
-// `sprintf()` natively, with translations seeded by the inline `setLocaleData`
-// call emitted in `Search_Blocks::enqueue_i18n_runtime()`.
+// The i18n shim is the runtime that `@wordpress/i18n` resolves to in the IAPI
+// module bundle (see `requestToExternalModule` below). It re-exports the
+// classic `wp-i18n` script's live `window.wp.i18n` functions, so calls go
+// through the shared runtime that `wp.jpI18nLoader.downloadI18n()` populates
+// translations into via `setLocaleData()`.
 const i18nShimPath = path.join( __dirname, '../src/search-blocks/store/i18n-shim.js' );
 const i18nShimEntry = fs.existsSync( i18nShimPath ) ? { 'store/i18n-shim': i18nShimPath } : {};
 
@@ -94,35 +94,32 @@ module.exports = {
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
 				injectPolyfill: false,
-				// Externalize `@wordpress/i18n` to a script-module reference so
-				// view bundles can `import { __, _n, sprintf } from '@wordpress/i18n'`
-				// natively. The `@wordpress/i18n` script module is registered
-				// by `Search_Blocks::register_i18n_module()` and points to
-				// `store/i18n-shim.js`, which re-exports `window.wp.i18n`.
-				// Without this, DEP's default `requestToExternalModule` throws
-				// "Attempted to use WordPress script in a module" because core
-				// only registers `@wordpress/interactivity` (and a11y / router)
-				// as script modules today.
+				// Externalize `@wordpress/i18n` as a real script-module
+				// reference so the dependency name in .asset.php is a valid
+				// module ID — the package registers a matching shim under
+				// the same ID via `Search_Blocks::register_i18n_module()`.
+				// (We can't externalize to `var wp.i18n` here: DEP records
+				// the *external value* in module mode, which would put
+				// `wp.i18n` into asset.php's deps array; WP then silently
+				// refuses to enqueue any view bundle whose declared deps
+				// include an unresolvable script-module ID.)
 				requestToExternalModule( request ) {
-					if ( request !== '@wordpress/i18n' ) {
-						// Returning undefined here lets DEP fall through to its
-						// own defaults for every other `@wordpress/*` request,
-						// which is what we want — only `@wordpress/i18n` needs
-						// our custom module-mode handling today.
-						return;
+					if ( request === '@wordpress/i18n' ) {
+						// `module` (not `import`) so webpack emits a hoisted
+						// static `import * from '@wordpress/i18n'` rather
+						// than a dynamic `import()` Promise — same pattern
+						// DEP uses for `@wordpress/interactivity`.
+						return 'module @wordpress/i18n';
 					}
-					// `module` (not `import`) so webpack emits a hoisted
-					// static `import * from '@wordpress/i18n'` instead of
-					// a dynamic `import()` Promise. Same pattern DEP uses
-					// for `@wordpress/interactivity` itself: we need
-					// synchronous bindings for `__()` / `_n()` / `sprintf()`
-					// calls in the view bundle's pure helpers.
-					return 'module @wordpress/i18n';
 				},
 			},
 			// I18nLoaderPlugin tries to inject @wordpress/jp-i18n-loader as an
 			// import, which isn't supported by the DependencyExtractionPlugin
-			// in ESM/module output mode. Disable for this build.
+			// in ESM/module output mode. Disable for this build — translation
+			// loading runs through an explicit `wp.jpI18nLoader.downloadI18n()`
+			// call from `store/i18n-bootstrap.js` instead, which works in
+			// module mode because we read jp-i18n-loader off the global
+			// rather than as an import.
 			I18nLoaderPlugin: false,
 		} ),
 	],

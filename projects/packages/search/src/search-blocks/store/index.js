@@ -6,6 +6,7 @@ import {
 } from '@wordpress/interactivity';
 import { buildSearchUrl, formatDateBucketLabel } from './api';
 import { bucketLabel, bucketValue } from './bucket-key';
+import { bootstrapI18n } from './i18n-bootstrap';
 import { isEventInsidePopoverRoot } from './popover-events';
 import { countActiveFilters, normalizeResult } from './result-utils';
 import {
@@ -14,6 +15,14 @@ import {
 	getSortMenuOptionKeysFromTrigger,
 } from './sort-menu-dom';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
+
+// Trigger the per-bundle translation fetch as soon as the store module
+// loads. Every view-bundle entry imports the store, so this runs once per
+// page; the bootstrap dedupes so repeat imports are harmless. View bundles
+// with their own `__()`/`_n()` calls (e.g. active-filters/view.js) call
+// `bootstrapI18n` with their own filename so each entry's per-bundle .json
+// gets fetched.
+bootstrapI18n( 'store/index.js' );
 
 const NAMESPACE = 'jetpack-search';
 let initialized = false;
