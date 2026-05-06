@@ -1,5 +1,6 @@
 import {
 	countActiveFilters,
+	decodeEntities,
 	deriveMatchHint,
 	formatDate,
 	formatPath,
@@ -112,6 +113,47 @@ describe( 'formatPath', () => {
 	} );
 } );
 
+describe( 'decodeEntities', () => {
+	it( 'decodes numeric entities', () => {
+		expect( decodeEntities( '&#036;' ) ).toBe( '$' );
+		expect( decodeEntities( '&#8217;' ) ).toBe( '’' );
+	} );
+
+	it( 'decodes hex entities (case-insensitive)', () => {
+		expect( decodeEntities( '&#x24;' ) ).toBe( '$' );
+		expect( decodeEntities( '&#X2019;' ) ).toBe( '’' );
+	} );
+
+	it( 'decodes the supported named entities', () => {
+		expect( decodeEntities( '&amp;' ) ).toBe( '&' );
+		expect( decodeEntities( '&lt;' ) ).toBe( '<' );
+		expect( decodeEntities( '&gt;' ) ).toBe( '>' );
+		expect( decodeEntities( '&quot;' ) ).toBe( '"' );
+		expect( decodeEntities( '&apos;' ) ).toBe( "'" );
+		expect( decodeEntities( '&nbsp;' ) ).toBe( ' ' );
+	} );
+
+	it( 'leaves unknown named entities untouched', () => {
+		// `&copy;` and friends aren't mapped — better to leave the raw entity
+		// than to silently drop it.
+		expect( decodeEntities( '&copy; 2026' ) ).toBe( '&copy; 2026' );
+	} );
+
+	it( 'drops invalid numeric code points instead of throwing', () => {
+		expect( decodeEntities( '&#9999999999;' ) ).toBe( '' );
+	} );
+
+	it( 'leaves plain text untouched', () => {
+		expect( decodeEntities( 'hello world' ) ).toBe( 'hello world' );
+	} );
+
+	it( 'returns non-string input unchanged', () => {
+		expect( decodeEntities( '' ) ).toBe( '' );
+		expect( decodeEntities( null ) ).toBeNull();
+		expect( decodeEntities( undefined ) ).toBeUndefined();
+	} );
+} );
+
 describe( 'stripTags', () => {
 	it( 'removes simple tags', () => {
 		expect( stripTags( '<p>hello</p>' ) ).toBe( 'hello' );
@@ -136,6 +178,32 @@ describe( 'stripTags', () => {
 
 	it( 'handles empty string', () => {
 		expect( stripTags( '' ) ).toBe( '' );
+	} );
+
+	it( 'returns non-string input unchanged', () => {
+		// Call sites pre-convert via `String(...) ?? ''`, but defending the
+		// helper itself avoids a stray `.replace` throw if a future caller
+		// skips the conversion.
+		expect( stripTags( null ) ).toBeNull();
+		expect( stripTags( undefined ) ).toBeUndefined();
+	} );
+
+	it( 'flattens an HTML-formatted WC price into plain text', () => {
+		const wcPrice =
+			'<span class="woocommerce-Price-amount amount">' +
+			'<span class="woocommerce-Price-currencySymbol">&#036;</span>11.05</span>';
+		expect( stripTags( wcPrice ) ).toBe( '$11.05' );
+	} );
+
+	it( 'decodes entities while stripping tags', () => {
+		expect( stripTags( 'Joe&#039;s &amp; Co' ) ).toBe( "Joe's & Co" );
+	} );
+
+	it( 'strips entity-encoded tags via the decode → strip loop', () => {
+		// `&lt;script&gt;…&lt;/script&gt;` would survive a single tag-strip pass;
+		// the loop decodes the entities into real `<script>` tags first, then
+		// strips them on the next iteration.
+		expect( stripTags( '&lt;script&gt;alert(1)&lt;/script&gt;' ) ).toBe( 'alert(1)' );
 	} );
 } );
 
@@ -337,6 +405,15 @@ describe( 'normalizeResult', () => {
 		expect( normalizeResult( { fields: {} } ).title ).toBe( '' );
 	} );
 
+	it( 'flattens HTML/entities in the fallback title', () => {
+		// `data-wp-text` would otherwise render the raw markup. Post titles
+		// most commonly carry numeric entities for curly punctuation.
+		const r = normalizeResult( {
+			fields: { 'title.default': 'Joe&#8217;s &amp; <em>Co</em>' },
+		} );
+		expect( r.title ).toBe( 'Joe’s & Co' );
+	} );
+
 	it( 'takes the first image when image.url.raw is an array', () => {
 		const r = normalizeResult( {
 			fields: { 'image.url.raw': [ 'cdn.example.com/a.jpg', 'cdn.example.com/b.jpg' ] },
@@ -404,6 +481,30 @@ describe( 'normalizeResult', () => {
 			expect( r.formattedPrice ).toBe( '$24.00' );
 			expect( r.hasPrice ).toBe( true );
 			expect( r.hasSalePrice ).toBe( false );
+		} );
+
+		it( 'flattens HTML-formatted prices the WPCOM API returns for WC products', () => {
+			// WPCOM's `wc.formatted_price` field is the HTML fragment WC renders
+			// in the storefront — it leaks into the result card unless we strip
+			// the tags and decode `&#036;` / `&nbsp;` before binding via
+			// `data-wp-text`.
+			const r = normalizeResult( {
+				fields: {
+					'wc.formatted_price':
+						'<span class="woocommerce-Price-amount amount">' +
+						'<span class="woocommerce-Price-currencySymbol">&#036;</span>11.05</span>',
+					'wc.formatted_regular_price':
+						'<span class="woocommerce-Price-amount amount">' +
+						'<span class="woocommerce-Price-currencySymbol">&#036;</span>20.00</span>',
+					'wc.formatted_sale_price':
+						'<span class="woocommerce-Price-amount amount">' +
+						'<span class="woocommerce-Price-currencySymbol">&#036;</span>11.05</span>',
+				},
+			} );
+			expect( r.formattedPrice ).toBe( '$11.05' );
+			expect( r.formattedRegularPrice ).toBe( '$20.00' );
+			expect( r.formattedSalePrice ).toBe( '$11.05' );
+			expect( r.hasSalePrice ).toBe( true );
 		} );
 
 		it( 'flags hasSalePrice when sale and regular prices differ', () => {
