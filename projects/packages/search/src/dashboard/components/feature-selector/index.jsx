@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
 import { EXPERIENCE, EXPERIENCE_ORDER } from './constants';
+import ExperienceDetails from './experience-details';
 import ExperienceOption from './experience-option';
 import './style.scss';
 
@@ -57,6 +58,7 @@ export default function FeatureSelector() {
 				{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
 			</h2>
 			<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
+				<ExperienceDetails />
 				<fieldset
 					className="jp-search-feature-selector__fieldset"
 					aria-labelledby="jp-search-feature-selector-heading"

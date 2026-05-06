@@ -78,6 +78,55 @@
 		font-size: var(--wpds-typography-font-size-md);
 	}
 
+	// Detail panel rendered above the option rows. Shows the title +
+	// description for the currently selected experience and (Overlay only,
+	// once saved) a row of customization actions.
+	&__details {
+		margin-block-end: var(--wpds-dimension-gap-lg);
+		padding: var(--wpds-dimension-padding-xl);
+		background: var(--wpds-color-bg-surface-neutral);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+	}
+
+	&__details-title {
+		margin: 0;
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-md);
+		color: var(--wpds-color-fg-content-neutral);
+	}
+
+	&__details-description {
+		margin: 0;
+		color: var(--wpds-color-fg-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-md);
+	}
+
+	// The customization actions sit inside their own subdued surface so
+	// they read as a secondary affordance, not part of the primary copy.
+	&__details-actions {
+		padding: var(--wpds-dimension-padding-lg);
+		background: var(--wpds-color-bg-surface-neutral-strong);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-md);
+	}
+
+	// Each action is a flexible item that wraps onto its own row when the
+	// panel is narrow, so titles never truncate against the trailing link.
+	&__details-action {
+		flex: 1 1 240px;
+	}
+
+	&__details-action-title {
+		font-weight: 600;
+		color: var(--wpds-color-fg-content-neutral);
+	}
+
+	&__details-action-description {
+		color: var(--wpds-color-fg-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-sm);
+	}
+
 	&__footer {
 		margin-block-start: var(--wpds-dimension-gap-lg);
 	}
