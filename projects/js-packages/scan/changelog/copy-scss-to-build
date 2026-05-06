@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Copy `*.scss` / `*.css` files from `src/` into `build/` during the package build (mirroring `@automattic/jetpack-components`). Required for `@wordpress/build`-based consumers (Scan page, future Protect refresh) whose esbuild pipeline resolves `import styles from './styles.module.scss'` against the package's compiled output rather than the source tree. Webpack-based consumers (current Protect) keep working because their loader resolves the same relative paths through `node_modules` either way.
