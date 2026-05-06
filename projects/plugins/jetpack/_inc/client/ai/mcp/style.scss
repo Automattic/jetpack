@@ -83,9 +83,9 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 4px;
-		// inline-flex aligns to the text baseline by default, which shifts the
-		// container down relative to the badge's line box — middle centres it.
-		vertical-align: middle;
+		// Collapse line-height descender space so the flex container sits flush
+		// with the badge's padding-block rather than drifting off-baseline.
+		line-height: 1;
 	}
 
 	&__category-header-row {
