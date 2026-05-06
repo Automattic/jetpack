@@ -114,21 +114,71 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 
 	$blocked_plugin = pcg_guard_get_blocked_plugin( $result, $paths );
 	if ( '' !== $blocked_plugin ) {
-		return array(
+		$blocked = array(
 			$blocked_plugin => pcg_guard_format_block_reason( $result ),
 		);
+	} else {
+		// Verdict didn't pin a specific plugin (e.g. probe terminated without a
+		// JSON body, or the captured `file` was outside any candidate's tree).
+		// Surface a batch-level message so we don't blame an arbitrary plugin.
+		$reason = sprintf(
+			/* translators: 1: locale-formatted list of plugin basenames; 2: probe verdict reason. */
+			__( 'One of these plugins caused a fatal during the pre-flight check: %1$s. Reason: %2$s', 'jetpack-mu-wpcom' ),
+			wp_sprintf_l( '%l', array_keys( $paths ) ),
+			pcg_guard_format_block_reason( $result )
+		);
+		$blocked = array( '' => $reason );
 	}
 
-	// Verdict didn't pin a specific plugin (e.g. probe terminated without a
-	// JSON body, or the captured `file` was outside any candidate's tree).
-	// Surface a batch-level message so we don't blame an arbitrary plugin.
-	$reason = sprintf(
-		/* translators: 1: locale-formatted list of plugin basenames; 2: probe verdict reason. */
-		__( 'One of these plugins caused a fatal during the pre-flight check: %1$s. Reason: %2$s', 'jetpack-mu-wpcom' ),
-		wp_sprintf_l( '%l', array_keys( $paths ) ),
-		pcg_guard_format_block_reason( $result )
+	pcg_guard_log_blocked_activation( array_keys( $paths ), $blocked, $result );
+
+	return $blocked;
+}
+
+/**
+ * Emit a logstash event for an activation we just blocked, so we can
+ * measure how often the activation guard catches a real fatal in the
+ * wild. Mirrors the transport-error event in PCG_Load_Tester — same
+ * `feature` slug, same JSON-encoded `extra` shape — so consumers can
+ * filter both classes of events from one bucket. No-op outside
+ * WordPress.com (no `log2logstash` available) and best-effort: a
+ * logging failure must never escalate into a fatal of its own, since
+ * this runs on the activation request path.
+ *
+ * @param string[]             $checked Plugin basenames that went into the probe batch.
+ * @param array<string,string> $blocked Map of basename => human-readable reason being shown to the admin. The empty-string key is the batch-level fallback when a specific plugin couldn't be pinned.
+ * @param array                $result  Raw probe verdict from PCG_Load_Tester::test().
+ * @return void
+ */
+function pcg_guard_log_blocked_activation( array $checked, array $blocked, array $result ) {
+	if ( ! function_exists( 'log2logstash' ) ) {
+		$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+		if ( ! is_readable( $log2logstash_path ) ) {
+			return;
+		}
+		require_once $log2logstash_path;
+	}
+
+	log2logstash(
+		array(
+			'feature' => 'plugin-conflicts-guardian',
+			'message' => 'Activation blocked',
+			'extra'   => wp_json_encode(
+				array(
+					'checked' => $checked,
+					'blocked' => array_keys( $blocked ),
+					'status'  => (string) ( $result['status'] ?? '' ),
+					// Send the basename only — absolute paths leak install layout.
+					'file'    => isset( $result['file'] ) ? basename( (string) $result['file'] ) : '',
+					'line'    => (int) ( $result['line'] ?? 0 ),
+					// Probe verdict message (the PHP error string), not the
+					// localized admin-notice copy we built from it.
+					'reason'  => (string) ( $result['message'] ?? '' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+		)
 	);
-	return array( '' => $reason );
 }
 
 /**

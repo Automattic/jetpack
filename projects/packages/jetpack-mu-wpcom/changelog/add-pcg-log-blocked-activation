@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Plugin Conflicts Guardian: emit an `Activation blocked` logstash event when the activation guard refuses an activation, so we can measure how often the pre-flight check catches a real fatal in the wild.
