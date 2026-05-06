@@ -37,10 +37,10 @@ const EPISODE_TYPE_OPTIONS = [
 ];
 
 const TRANSCRIPT_TYPE_OPTIONS = [
-	{ label: 'WebVTT (text/vtt)', value: 'text/vtt' },
-	{ label: 'HTML (text/html)', value: 'text/html' },
-	{ label: 'SRT (application/srt)', value: 'application/srt' },
-	{ label: 'JSON (application/json)', value: 'application/json' },
+	{ label: __( 'WebVTT (text/vtt)', 'jetpack' ), value: 'text/vtt' },
+	{ label: __( 'HTML (text/html)', 'jetpack' ), value: 'text/html' },
+	{ label: __( 'SRT (application/srt)', 'jetpack' ), value: 'application/srt' },
+	{ label: __( 'JSON (application/json)', 'jetpack' ), value: 'application/json' },
 ];
 
 const PERSON_ROW_STYLE = { marginBottom: '1em' };

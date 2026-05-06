@@ -127,7 +127,7 @@ function render_block( $attributes, $content, $block = null ) {
 	// Cover art: episode-specific override → show-level podcasting_image option → none.
 	$image_url = '';
 	if ( $show_poster ) {
-		if ( ! empty( $attributes['coverArt']['url'] ) ) {
+		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
 			$image_url = esc_url_raw( $attributes['coverArt']['url'] );
 		} else {
 			$image_url = (string) get_option( 'podcasting_image', '' );
