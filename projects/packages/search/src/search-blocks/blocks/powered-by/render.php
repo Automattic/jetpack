@@ -22,9 +22,10 @@ if ( ! $is_free_plan && $hide ) {
 
 $wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'jetpack-search-powered-by' ) );
 
+// WP locales use underscores (en_US, de_DE, pt_BR), not hyphens — split on `_`.
 $locale_prefix = '';
 if ( function_exists( 'determine_locale' ) ) {
-	$parts         = explode( '-', determine_locale(), 2 );
+	$parts         = explode( '_', determine_locale(), 2 );
 	$locale_prefix = strtolower( (string) $parts[0] );
 }
 $url = ( '' !== $locale_prefix && 'en' !== $locale_prefix )
@@ -39,6 +40,7 @@ $url = ( '' !== $locale_prefix && 'en' !== $locale_prefix )
 		target="_blank"
 	>
 		<span class="jetpack-search-powered-by__logo" aria-hidden="true">
+			<?php // Brand mark — `fill` stays Jetpack Green regardless of the block's color supports. ?>
 			<svg width="12" height="12" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
 				<path fill="#069E08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z" />
 				<polygon fill="#FFFFFF" points="15,19 7,19 15,3 " />

@@ -59,6 +59,7 @@ export default function PoweredByEdit( { attributes, setAttributes } ) {
 					onClick={ e => e.preventDefault() }
 				>
 					<span className="jetpack-search-powered-by__logo" aria-hidden="true">
+						{ /* Brand mark — `fill` stays Jetpack Green regardless of the block's color supports. */ }
 						<svg width="12" height="12" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
 							<path
 								fill="#069E08"
