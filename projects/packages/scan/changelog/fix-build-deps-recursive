@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Make the wp-build pipeline build cleanly from a fresh checkout. The previous `build:deps` step only built the two direct workspace deps (`@automattic/jetpack-components`, `@automattic/jetpack-scan`), but `jetpack-components` itself depends on workspace packages whose outputs are also missing on a fresh checkout (`@automattic/jetpack-boost-score-api`, `social-logos`, `@automattic/number-formatters`, etc.). Switch the filter to `pnpm --filter '@automattic/jetpack-scan-page...' --filter '!@automattic/jetpack-scan-page' run build`, which walks the full transitive workspace dependency graph in topological order and excludes the package itself (the outer `pnpm run build` already covers it). Also adds `"name": "@automattic/jetpack-scan-page"` to the package's `package.json` so the filter selector resolves.

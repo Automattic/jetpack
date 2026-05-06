@@ -3034,7 +3034,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scan",
-                "reference": "ca08ce79562afd951bcb234de3f16df4b5a3a589"
+                "reference": "1c06f353d803e20ce0b3e665cbffb0bd0af6bf85"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3042,11 +3042,15 @@
                 "automattic/jetpack-autoloader": "@dev",
                 "automattic/jetpack-composer-plugin": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev"
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -3077,6 +3081,12 @@
                 ],
                 "build-production": [
                     "pnpm run build-production"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",

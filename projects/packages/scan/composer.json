@@ -10,10 +10,14 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "@dev",
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -29,6 +33,12 @@
 		],
 		"build-production": [
 			"pnpm run build-production"
+		],
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
