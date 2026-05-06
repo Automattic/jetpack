@@ -93,56 +93,18 @@ export default function ActivityLog() {
 	const { tracks } = useAnalytics();
 	const wrapperRef = useRef< HTMLDivElement >( null );
 
-	// DataViews' `Action` API doesn't expose a tooltip prop, so the
-	// disabled "Manage backup" stub renders without any hint as to *why*
-	// it can't be clicked. Attach a `title` to those buttons after each
-	// render so users hovering get the "Coming soon" context — and
-	// screen readers pick it up too. The MutationObserver re-runs on
-	// pagination / filter changes, when DataViews swaps the row DOM.
-	//
-	// TODO(#48236): drop this whole effect. Once the Backup wp-admin
-	// page lands the action stops being a stub and the row will render
-	// as an enabled link, so this textContent-matching DOM hack — which
-	// is fragile across translations and re-fires on every DataViews
-	// mutation — won't be needed at all.
-	useEffect( () => {
-		const wrapper = wrapperRef.current;
-		if ( ! wrapper ) {
-			return;
-		}
-		const manageBackupLabel = __( 'Manage backup', 'jetpack-activity-log' );
-		const tooltipText = __( 'Coming soon', 'jetpack-activity-log' );
-		const apply = ( root: ParentNode ) => {
-			const buttons = root.querySelectorAll< HTMLButtonElement >(
-				'.dataviews-item-actions button[disabled]'
-			);
-			buttons.forEach( btn => {
-				if (
-					btn.textContent?.trim() === manageBackupLabel &&
-					btn.getAttribute( 'title' ) !== tooltipText
-				) {
-					btn.setAttribute( 'title', tooltipText );
-				}
-			} );
-		};
-		apply( wrapper );
-		const observer = new MutationObserver( () => apply( wrapper ) );
-		observer.observe( wrapper, { subtree: true, childList: true } );
-		return () => observer.disconnect();
-	}, [] );
-
 	// On free tier, neutralize DataViews' real search + filter cluster
 	// (the `.dataviews__search` Stack rendered by `DataViews`'s default
 	// UI). We let DataViews ship its own toolbar so the page tracks
-	// upstream changes for free, then attach: `aria-disabled` for
-	// assistive tech, a `title` attribute that surfaces the upgrade
-	// nudge as a native browser tooltip on hover, and `tabindex="-1"`
-	// on every focusable descendant so the cluster is unreachable via
-	// keyboard. Pointer-event blocking on the children is handled in
-	// CSS via the `[aria-disabled="true"]` rule.
-	// `MutationObserver` re-applies after DataViews remounts the
-	// toolbar / re-renders the input (e.g., on initial fetch resolution
-	// or layout switch) so React's render doesn't strip the attributes.
+	// upstream changes for free, then mark the cluster `inert` — which
+	// blocks pointer + keyboard interaction and removes descendants from
+	// the a11y tree in one shot — and add a `title` attribute that
+	// surfaces the upgrade nudge as a native browser tooltip on hover.
+	// Tradeoff: Firefox suppresses `title` tooltips inside an inert
+	// subtree, so the nudge doesn't appear there; accepted per #48527.
+	// `MutationObserver` re-applies after DataViews remounts the toolbar
+	// / re-renders the input (e.g., on initial fetch resolution or
+	// layout switch) so React's render doesn't strip the attributes.
 	useEffect( () => {
 		if ( hasActivityLogsAccess ) {
 			return;
@@ -157,20 +119,12 @@ export default function ActivityLog() {
 
 		const apply = ( root: ParentNode ) => {
 			const cluster = root.querySelector< HTMLElement >( '.dataviews__search' );
-			if ( ! cluster ) {
+			if ( ! cluster || cluster.hasAttribute( 'inert' ) ) {
 				return;
 			}
 
-			if ( cluster.getAttribute( 'aria-disabled' ) !== 'true' ) {
-				cluster.setAttribute( 'aria-disabled', 'true' );
-				cluster.setAttribute( 'title', tooltipText );
-			}
-
-			cluster.querySelectorAll< HTMLElement >( 'input, button, [tabindex]' ).forEach( el => {
-				if ( el.getAttribute( 'tabindex' ) !== '-1' ) {
-					el.setAttribute( 'tabindex', '-1' );
-				}
-			} );
+			cluster.setAttribute( 'inert', '' );
+			cluster.setAttribute( 'title', tooltipText );
 		};
 
 		apply( wrapper );
@@ -282,7 +236,7 @@ export default function ActivityLog() {
 		activityLogTypes: groupCountsData?.groups,
 	} );
 
-	const actions = useActivityActions( { isLoading: isFetching } );
+	const actions = useActivityActions( { isLoading: isFetching, tracks } );
 
 	const onChangeView = useCallback(
 		( next: View ) => {
