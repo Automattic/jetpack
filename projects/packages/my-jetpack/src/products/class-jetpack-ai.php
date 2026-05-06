@@ -244,7 +244,7 @@ class Jetpack_Ai extends Product {
 		);
 		$tiered_description = __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
 
-		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : $tiered_description;
+		return isset( $long_descriptions[ (int) $tier ] ) ? $long_descriptions[ (int) $tier ] : $tiered_description;
 	}
 
 	/**
