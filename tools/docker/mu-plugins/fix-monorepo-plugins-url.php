@@ -86,7 +86,7 @@ function jetpack_docker_resolve_composer_name( $package_dir ) {
 	$composer_path = $package_dir . '/composer.json';
 	if ( is_readable( $composer_path ) ) {
 		$contents = json_decode( file_get_contents( $composer_path ), true );
-		if ( is_array( $contents ) && isset( $contents['name'] ) && is_string( $contents['name'] ) ) {
+		if ( ! empty( $contents['name'] ) && is_string( $contents['name'] ) ) {
 			$name = $contents['name'];
 		}
 	}
