@@ -1,5 +1,5 @@
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './ThumbnailField';
 import type { MockLibraryItem } from '../../types/library';
@@ -18,6 +18,38 @@ const privacyLabel = ( privacy: MockLibraryItem[ 'privacy' ] ): string => {
 	}
 };
 
+const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
+	const { upload, type, title } = item;
+	let pill: { className: string; label: string } | null = null;
+	if ( upload.status === 'uploading' ) {
+		pill = {
+			className: 'vp-library__status-pill vp-library__status-pill--uploading',
+			label: sprintf(
+				/* translators: %d: upload progress percentage */
+				__( 'Uploading %d%%', 'jetpack-videopress-pkg' ),
+				Math.round( upload.progress )
+			),
+		};
+	} else if ( upload.status === 'failed' ) {
+		pill = {
+			className: 'vp-library__status-pill vp-library__status-pill--failed',
+			label: __( 'Upload failed', 'jetpack-videopress-pkg' ),
+		};
+	} else if ( type === 'local' ) {
+		pill = {
+			className: 'vp-library__status-pill vp-library__status-pill--local',
+			label: __( 'Local', 'jetpack-videopress-pkg' ),
+		};
+	}
+
+	return (
+		<>
+			{ title }
+			{ pill ? <span className={ pill.className }>{ pill.label }</span> : null }
+		</>
+	);
+};
+
 export const libraryFields: Field< MockLibraryItem >[] = [
 	{
 		id: 'thumbnail',
@@ -31,7 +63,7 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		id: 'title',
 		label: __( 'Title', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.title,
-		render: ( { item } ) => item.title,
+		render: TitleCell,
 		enableSorting: true,
 	},
 	{

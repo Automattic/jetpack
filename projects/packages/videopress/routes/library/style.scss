@@ -1,4 +1,30 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
 .vp-library {
+
+	&__viewport {
+		display: flex;
+		flex-direction: column;
+		min-height: calc(100vh - 220px);
+
+		// DataViews's wrapper has `height: 100%`, so flex-grow it inside the
+		// viewport to push the pagination footer to the bottom.
+		> .dataviews-wrapper {
+			flex: 1;
+			min-height: 0;
+		}
+	}
+
+	// Override wp-build's `.boot-layout-container .boot-layout img` reset
+	// (which forces `height: auto`, specificity 0,2,1) so our thumbnail img can
+	// fill its parent in both grid (large) and table (32x32) cells.
+	.boot-layout-container .boot-layout &__thumbnail-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
 
 	&__thumbnail {
 		position: relative;
@@ -6,6 +32,7 @@
 		height: 100%;
 		overflow: hidden;
 		background: #1e1e1e;
+		container-type: inline-size;
 
 		&-image {
 			width: 100%;
@@ -25,6 +52,10 @@
 			font-size: 11px;
 			font-variant-numeric: tabular-nums;
 			line-height: 1.4;
+
+			@container (max-width: 120px) {
+				display: none;
+			}
 		}
 	}
 
@@ -67,11 +98,12 @@
 		align-items: center;
 		justify-content: center;
 		gap: 8px;
-		background: rgba(0, 0, 0, 0.55);
-		color: #fff;
+		background: rgba(255, 255, 255, 0.92);
+		color: #1e1e1e;
 
 		&-percent {
 			font-size: 16px;
+			font-weight: 600;
 			font-variant-numeric: tabular-nums;
 		}
 
@@ -101,5 +133,55 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	// Table view: DataViews forces the thumbnail img to a fixed 32x32 inside
+	// `.dataviews-column-primary__media`. Suppress only the custom overlays —
+	// don't touch sizing, or the stock 32x32 thumbnail collapses. Status info
+	// moves into the title cell as a status pill (see `&__status-pill` below).
+	.dataviews-view-table & {
+
+		&__thumbnail-duration-badge,
+		&__placeholder,
+		&__hover-action,
+		&__progress,
+		&__failed {
+			display: none;
+		}
+	}
+
+	// Status pill (Local / Uploading 47% / Upload failed) renders in the title
+	// cell. Only show in the table view — in the grid view, the per-card overlays
+	// already convey the same information more visibly.
+	.dataviews-view-grid &__status-pill {
+		display: none;
+	}
+
+	&__status-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin-left: 8px;
+		padding: 1px 6px;
+		border-radius: 3px;
+		font-size: 11px;
+		font-weight: 500;
+		background: #f0f0f0;
+		color: #1e1e1e;
+
+		&--uploading {
+			background: rgba(56, 88, 233, 0.12);
+			color: #3858e9;
+		}
+
+		&--failed {
+			background: rgba(204, 24, 24, 0.12);
+			color: #cc1818;
+		}
+
+		&--local {
+			background: #f0f0f0;
+			color: #757575;
+		}
 	}
 }

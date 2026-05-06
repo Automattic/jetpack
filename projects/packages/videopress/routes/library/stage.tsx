@@ -1,7 +1,7 @@
-import { Button } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/DashboardLayout';
 import { buildLibraryActions } from '../../src/dashboard/components/Library/actions';
 import { libraryFields } from '../../src/dashboard/components/Library/fields';
@@ -12,13 +12,16 @@ import type { MockLibraryItem } from '../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
 
+const GRID_VISIBLE_FIELDS = [ 'filename' ];
+const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'fileSize', 'uploadDate', 'privacy' ];
+
 const DEFAULT_VIEW: View = {
 	type: 'grid',
 	page: 1,
 	perPage: 12,
 	titleField: 'title',
 	mediaField: 'thumbnail',
-	fields: [ 'filename' ],
+	fields: GRID_VISIBLE_FIELDS,
 	layout: { previewSize: 220, density: 'comfortable' },
 	sort: { field: 'uploadDate', direction: 'desc' },
 	filters: [],
@@ -36,6 +39,18 @@ const Stage = () => {
 
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const [ selection, setSelection ] = useState< string[] >( [] );
+
+	const onChangeView = useCallback( ( next: View ) => {
+		setView( current => {
+			if ( next.type === current.type ) {
+				return next;
+			}
+			return {
+				...next,
+				fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
+			};
+		} );
+	}, [] );
 
 	const filePickerRef = useRef< HTMLInputElement >( null );
 	const onClickHeaderUpload = useCallback( () => {
@@ -148,26 +163,28 @@ const Stage = () => {
 						style={ { display: 'none' } }
 						onChange={ onFilePicked }
 					/>
-					<Button variant="primary" onClick={ onClickHeaderUpload }>
+					<Button size="compact" onClick={ onClickHeaderUpload }>
 						{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</>
 			}
 		>
 			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
-				<DataViews< MockLibraryItem >
-					data={ pagedData }
-					fields={ libraryFields }
-					actions={ actions }
-					view={ view }
-					onChangeView={ setView }
-					selection={ selection }
-					onChangeSelection={ setSelection }
-					getItemId={ getItemId }
-					paginationInfo={ paginationInfo }
-					isLoading={ isLoading }
-					defaultLayouts={ defaultLayouts }
-				/>
+				<div className="vp-library__viewport">
+					<DataViews< MockLibraryItem >
+						data={ pagedData }
+						fields={ libraryFields }
+						actions={ actions }
+						view={ view }
+						onChangeView={ onChangeView }
+						selection={ selection }
+						onChangeSelection={ setSelection }
+						getItemId={ getItemId }
+						paginationInfo={ paginationInfo }
+						isLoading={ isLoading }
+						defaultLayouts={ defaultLayouts }
+					/>
+				</div>
 			</UploadActionsProvider>
 		</DashboardLayout>
 	);

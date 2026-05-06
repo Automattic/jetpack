@@ -9,4 +9,11 @@
 body.jetpack_page_jetpack-videopress {
 
 	@include jetpack-admin-page-layout;
+
+	// TODO (Phase 2.5): pin the DataViews pagination footer to the bottom of the
+	// visible page area for the Library tab. Earlier attempts propagated flex
+	// height through Tabs.Root + Tabs.Panel, but the chain breaks above Tabs.Root
+	// because the AdminPage wrapper isn't itself a flex container. Revisit with
+	// DevTools open to identify the exact ancestor that needs `display: flex` /
+	// `min-height: 100%`.
 }
