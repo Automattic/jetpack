@@ -266,8 +266,10 @@ describe( 'normalizeResult', () => {
 			path: '2026 › 04 › 20 › hi',
 			imageUrl: '//cdn.example.com/img.jpg',
 			hasTitlePieces: true,
+			hasContentPieces: false,
 		} );
 		expect( r.titlePieces ).toEqual( [ { index: 0, text: 'Hello', isHighlight: true } ] );
+		expect( r.contentPieces ).toEqual( [] );
 		expect( r.dateLabel ).toMatch( /Apr 20, 2026/ );
 	} );
 
@@ -288,6 +290,47 @@ describe( 'normalizeResult', () => {
 		// The template should render titlePieces whenever the API returns
 		// highlight title tokens, even when none of them contain <mark>.
 		expect( r.hasTitlePieces ).toBe( true );
+	} );
+
+	it( 'exposes contentPieces from highlight.content', () => {
+		const r = normalizeResult( {
+			...RAW,
+			highlight: {
+				title: '<mark>Hello</mark>',
+				content: 'The quick <mark>brown fox</mark> jumped.',
+			},
+		} );
+		expect( r.hasContentPieces ).toBe( true );
+		expect( r.contentPieces ).toEqual( [
+			{ index: 0, text: 'The quick ', isHighlight: false },
+			{ index: 1, text: 'brown fox', isHighlight: true },
+			{ index: 2, text: ' jumped.', isHighlight: false },
+		] );
+	} );
+
+	it( 'joins array content snippets into a single tokenized sequence', () => {
+		const r = normalizeResult( {
+			fields: {},
+			highlight: {
+				content: [ 'First <mark>match</mark>', 'second snippet' ],
+			},
+		} );
+		expect( r.hasContentPieces ).toBe( true );
+		expect( r.contentPieces.map( p => p.text ) ).toEqual( [
+			'First ',
+			'match',
+			' second snippet',
+		] );
+		// Verify the highlight flag is preserved across the joined snippets.
+		expect( r.contentPieces[ 1 ].isHighlight ).toBe( true );
+		expect( r.contentPieces[ 0 ].isHighlight ).toBe( false );
+		expect( r.contentPieces[ 2 ].isHighlight ).toBe( false );
+	} );
+
+	it( 'hasContentPieces is false when highlight.content is missing', () => {
+		const r = normalizeResult( { ...RAW, highlight: { title: '<mark>Hello</mark>' } } );
+		expect( r.hasContentPieces ).toBe( false );
+		expect( r.contentPieces ).toEqual( [] );
 	} );
 
 	it( 'defaults to empty title when both title.default and title are missing', () => {
@@ -320,6 +363,8 @@ describe( 'normalizeResult', () => {
 			title: '',
 			titlePieces: [],
 			hasTitlePieces: false,
+			contentPieces: [],
+			hasContentPieces: false,
 			permalink: '',
 			path: '',
 			dateLabel: '',

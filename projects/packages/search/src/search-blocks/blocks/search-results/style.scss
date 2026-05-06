@@ -90,6 +90,29 @@
 		}
 	}
 
+	.jetpack-search-results__content {
+		margin-top: 0.4rem;
+		font-size: 0.95rem;
+		line-height: 1.5;
+		color: inherit;
+		opacity: 0.85;
+
+		// Cap the snippet height so a very long excerpt doesn't push the
+		// metadata row far down. Three lines is enough to give the searcher
+		// context without dominating the result.
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+		// Standard property for forward compatibility; prefixed version
+		// covers browsers that don't yet support the unprefixed form.
+		line-clamp: 3;
+		overflow: hidden;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
 	.jetpack-search-results__date {
 		margin-top: 1rem;
 		color: inherit;

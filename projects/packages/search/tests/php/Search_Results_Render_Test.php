@@ -167,6 +167,38 @@ class Search_Results_Render_Test extends TestCase {
 	}
 
 	/**
+	 * Expanded layout emits the content-snippet section wired to
+	 * `context.result.hasContentPieces` / `context.result.contentPieces`
+	 * so highlighted passages from the API surface under the title.
+	 */
+	public function test_expanded_layout_renders_content_snippet_bindings() {
+		$markup = $this->render( array( 'layout' => 'expanded' ) );
+		$this->assertStringContainsString( 'jetpack-search-results__content', $markup );
+		$this->assertStringContainsString( 'context.result.hasContentPieces', $markup );
+		$this->assertStringContainsString( 'context.result.contentPieces', $markup );
+	}
+
+	/**
+	 * Compact layout should NOT render the content-snippet section — the
+	 * dense single-line row only carries a title and a date.
+	 */
+	public function test_compact_layout_omits_content_snippet() {
+		$markup = $this->render( array( 'layout' => 'compact' ) );
+		$this->assertStringNotContainsString( 'jetpack-search-results__content', $markup );
+		$this->assertStringNotContainsString( 'context.result.contentPieces', $markup );
+	}
+
+	/**
+	 * Product layout should NOT render the content-snippet section — product
+	 * cards show price and rating instead of an editorial excerpt.
+	 */
+	public function test_product_layout_omits_content_snippet() {
+		$markup = $this->render( array( 'layout' => 'product' ) );
+		$this->assertStringNotContainsString( 'jetpack-search-results__content', $markup );
+		$this->assertStringNotContainsString( 'context.result.contentPieces', $markup );
+	}
+
+	/**
 	 * The block renders the no-results region with the default copy when no
 	 * custom message is provided. The region is hidden by default and gated
 	 * by `state.showNoResults` on hydration.
@@ -195,6 +227,15 @@ class Search_Results_Render_Test extends TestCase {
 		$markup = $this->render( array( 'noResultsMessage' => '<script>alert(1)</script>' ) );
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
 		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $markup );
+	}
+
+	/**
+	 * A whitespace-only `noResultsMessage` must fall back to the default so
+	 * an author who saved spaces still gets the intended copy.
+	 */
+	public function test_no_results_region_whitespace_falls_back_to_default() {
+		$markup = $this->render( array( 'noResultsMessage' => "  \t\n " ) );
+		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
 	}
 
 	/**

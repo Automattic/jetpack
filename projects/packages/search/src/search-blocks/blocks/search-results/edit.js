@@ -24,16 +24,28 @@ const DEFAULT_LAYOUT = 'expanded';
 const SAMPLE_RESULTS = [
 	{
 		title: __( 'First sample result', 'jetpack-search-pkg' ),
+		contentSnippet: __(
+			'Matches content: this snippet shows the relevant passage that matched your search query.',
+			'jetpack-search-pkg'
+		),
 		path: 'example.com/articles/first',
 		date: 'Apr 1, 2026',
 	},
 	{
 		title: __( 'Another relevant post', 'jetpack-search-pkg' ),
+		contentSnippet: __(
+			'Matches content: a second excerpt demonstrating how content highlights appear in results.',
+			'jetpack-search-pkg'
+		),
 		path: 'example.com/guides/another',
 		date: 'Mar 22, 2026',
 	},
 	{
 		title: __( 'Older archived entry', 'jetpack-search-pkg' ),
+		contentSnippet: __(
+			'Matches content: an older post with a brief excerpt showing the matched text.',
+			'jetpack-search-pkg'
+		),
 		path: 'example.com/2025/older',
 		date: 'Dec 18, 2025',
 	},
@@ -179,6 +191,9 @@ function renderExpandedPreview( results ) {
 				<li key={ result.path } className="jetpack-search-results__item">
 					<div className="jetpack-search-results__copy">
 						<h3 className="jetpack-search-results__title">{ result.title }</h3>
+						{ result.contentSnippet && (
+							<div className="jetpack-search-results__content">{ result.contentSnippet }</div>
+						) }
 						<div className="jetpack-search-results__path">{ result.path }</div>
 						<div className="jetpack-search-results__meta">
 							<span className="jetpack-search-results__date">{ result.date }</span>

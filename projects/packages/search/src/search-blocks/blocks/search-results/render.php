@@ -27,33 +27,36 @@ namespace Automattic\Jetpack\Search;
  * sections differ.
  *
  * @param string $layout Layout key.
- * @return array{modifier:string, show_image:bool, show_path:bool, show_date:bool, show_price:bool, show_rating:bool}
+ * @return array{modifier:string, show_content:bool, show_date:bool, show_image:bool, show_path:bool, show_price:bool, show_rating:bool}
  */
 $resolve_layout = static function ( $layout ) {
 	$map = array(
 		'compact'  => array(
-			'modifier'    => 'compact',
-			'show_image'  => false,
-			'show_path'   => false,
-			'show_date'   => true,
-			'show_price'  => false,
-			'show_rating' => false,
+			'modifier'     => 'compact',
+			'show_image'   => false,
+			'show_path'    => false,
+			'show_content' => false,
+			'show_date'    => true,
+			'show_price'   => false,
+			'show_rating'  => false,
 		),
 		'expanded' => array(
-			'modifier'    => 'expanded',
-			'show_image'  => true,
-			'show_path'   => true,
-			'show_date'   => true,
-			'show_price'  => false,
-			'show_rating' => false,
+			'modifier'     => 'expanded',
+			'show_image'   => true,
+			'show_path'    => true,
+			'show_content' => true,
+			'show_date'    => true,
+			'show_price'   => false,
+			'show_rating'  => false,
 		),
 		'product'  => array(
-			'modifier'    => 'product',
-			'show_image'  => true,
-			'show_path'   => false,
-			'show_date'   => false,
-			'show_price'  => true,
-			'show_rating' => true,
+			'modifier'     => 'product',
+			'show_image'   => true,
+			'show_path'    => false,
+			'show_content' => false,
+			'show_date'    => false,
+			'show_price'   => true,
+			'show_rating'  => true,
 		),
 	);
 	return $map[ $layout ] ?? $map['expanded'];
@@ -81,13 +84,13 @@ $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class 
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
-$no_results_message = (string) ( $attrs['noResultsMessage'] ?? '' );
+// `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
+// still falls back to the default copy instead of rendering a blank message.
+$no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
 if ( '' === $no_results_message ) {
 	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
 }
 
-// `trim()` so a whitespace-only attribute (e.g. an author saved spaces)
-// still falls back to the default copy instead of rendering a blank alert.
 $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
 if ( '' === $error_message ) {
 	$error_message = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
@@ -167,6 +170,22 @@ if ( '' === $error_message ) {
 							</template>
 						</a>
 					</h3>
+					<?php if ( $features['show_content'] ) : ?>
+						<div
+							class="jetpack-search-results__content"
+							data-wp-bind--hidden="!context.result.hasContentPieces"
+						>
+							<template
+								data-wp-each--piece="context.result.contentPieces"
+								data-wp-key="context.piece.index"
+							>
+								<span
+									data-wp-text="context.piece.text"
+									data-wp-class--jetpack-search-results__highlight="context.piece.isHighlight"
+								></span>
+							</template>
+						</div>
+					<?php endif; ?>
 					<?php if ( $features['show_path'] ) : ?>
 						<div
 							class="jetpack-search-results__path"
