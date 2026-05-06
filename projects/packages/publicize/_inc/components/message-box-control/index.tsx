@@ -5,7 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useRef } from 'react';
 import { features } from '../../utils/constants';
-import PlaceholdersHelp from './placeholders-help';
+import PlaceholdersHelp from '../placeholders-help';
 import styles from './styles.module.scss';
 
 export const getPlaceholderText = () =>
@@ -98,7 +98,7 @@ export default function MessageBoxControl( {
 	const help = templatesEnabled
 		? createInterpolateElement(
 				__(
-					'Supports placeholders like <title/> and <url/>. See the list below for all options.',
+					'Supports placeholders like <title/> and <url/>. See the list below for all the options.',
 					'jetpack-publicize-pkg'
 				),
 				{

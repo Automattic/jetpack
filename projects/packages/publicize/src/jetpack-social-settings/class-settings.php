@@ -296,6 +296,15 @@ class Settings {
 	}
 
 	/**
+	 * Get the global message template.
+	 *
+	 * @return string
+	 */
+	public function get_message_template() {
+		return (string) get_option( self::OPTION_PREFIX . self::MESSAGE_TEMPLATE, self::DEFAULT_MESSAGE_TEMPLATE );
+	}
+
+	/**
 	 * Get the social notes config.
 	 *
 	 * @return array The social notes config.
