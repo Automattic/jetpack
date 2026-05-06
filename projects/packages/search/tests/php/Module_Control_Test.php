@@ -312,6 +312,58 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Each experience that calls activate() must propagate its WP_Error rather than
+	 * fall through and write the experience option in an inconsistent state.
+	 *
+	 * @param string $experience One of 'inline', 'embedded', 'overlay'.
+	 * @dataProvider experiences_requiring_activation
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'experiences_requiring_activation' )]
+	public function test_update_experience_propagates_activate_error( $experience ) {
+		$plan = $this->createStub( Plan::class );
+		$plan->method( 'supports_search' )->willReturn( false );
+		$plan->method( 'supports_instant_search' )->willReturn( false );
+		$module = new Module_Control( $plan );
+
+		$result = $module->update_experience( $experience );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'not_supported', $result->get_error_code() );
+		// On failure, the experience option must not be written.
+		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false ) );
+	}
+
+	/**
+	 * @return array<array<string>>
+	 */
+	public static function experiences_requiring_activation() {
+		return array(
+			'inline'   => array( Module_Control::EXPERIENCE_INLINE ),
+			'embedded' => array( Module_Control::EXPERIENCE_EMBEDDED ),
+			'overlay'  => array( Module_Control::EXPERIENCE_OVERLAY ),
+		);
+	}
+
+	/**
+	 * Overlay propagates the WP_Error from enable_instant_search() (e.g. plan
+	 * doesn't support instant search) and does not write the experience option.
+	 */
+	public function test_update_experience_overlay_propagates_enable_instant_search_error() {
+		// $search_module_no_instant has supports_search=true but supports_instant_search=false,
+		// so activate() succeeds and enable_instant_search() returns 'not_supported'.
+		// Filter is on so is_active() returns true inside enable_instant_search().
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+
+		$result = static::$search_module_no_instant->update_experience( Module_Control::EXPERIENCE_OVERLAY );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'not_supported', $result->get_error_code() );
+		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, false ) );
+	}
+
+	/**
 	 * Returns an empty array
 	 */
 	public function return_empty_array() {
