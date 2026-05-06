@@ -16,6 +16,20 @@ class Campaign_Preparer {
 	private const DEFAULT_DURATION_DAYS = 7;
 	private const SUPPORTED_LANGUAGES   = array( 'zh', 'nl', 'en', 'fr', 'de', 'hi', 'id', 'it', 'ja', 'ko', 'pl', 'pt', 'ru', 'es', 'tr' );
 	private const SUPPORTED_DEVICES     = array( 'mobile', 'desktop' );
+	private const SUPPORTED_PAGE_TOPICS = array(
+		'IAB1',
+		'IAB8_IAB18',
+		'IAB19',
+		'IAB5_IAB15',
+		'IAB6_IAB7_IAB16',
+		'IAB3_IAB4_IAB13',
+		'IAB11_IAB12',
+		'IAB14_IAB23',
+		'IAB17',
+		'IAB2_IAB20',
+		'IAB10_IAB21_IAB13',
+		'IAB9_IAB22',
+	);
 
 	/**
 	 * Prepare a Blaze campaign proposal from a target post and optional overrides.
@@ -160,10 +174,7 @@ class Campaign_Preparer {
 			$page_topics = array_values(
 				array_unique(
 					array_filter(
-						array_map( 'strval', $args['interests'] ),
-						static function ( $topic ) {
-							return 1 === preg_match( '/^IAB\d+(?:_IAB\d+)*$/', $topic ) && 'IAB24' !== $topic;
-						}
+						array_map( array( self::class, 'normalize_page_topic' ), $args['interests'] )
 					)
 				)
 			);
@@ -173,6 +184,34 @@ class Campaign_Preparer {
 		}
 
 		return $payload;
+	}
+
+	/**
+	 * Normalize an MCP-supplied interest code to a public Blaze page topic.
+	 *
+	 * Blaze's public targeting endpoint exposes a compact set of custom topic
+	 * IDs, some of which group several IAB categories. If an agent supplies a
+	 * bare IAB category that belongs to a public group, emit the supported group
+	 * ID so the widget can display and submit it correctly.
+	 *
+	 * @param mixed $topic Raw topic value.
+	 * @return string|null Supported public page topic ID, or null to drop it.
+	 */
+	private static function normalize_page_topic( $topic ): ?string {
+		$topic = strtoupper( (string) $topic );
+		if ( in_array( $topic, self::SUPPORTED_PAGE_TOPICS, true ) ) {
+			return $topic;
+		}
+		if ( 1 !== preg_match( '/^IAB\d+$/', $topic ) ) {
+			return null;
+		}
+		foreach ( self::SUPPORTED_PAGE_TOPICS as $supported_topic ) {
+			$parts = explode( '_', $supported_topic );
+			if ( in_array( $topic, $parts, true ) ) {
+				return $supported_topic;
+			}
+		}
+		return null;
 	}
 
 	/**

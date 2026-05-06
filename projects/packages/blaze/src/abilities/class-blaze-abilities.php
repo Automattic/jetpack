@@ -218,7 +218,7 @@ class Blaze_Abilities extends Registrar {
 			),
 			self::ABILITY_PREPARE_CAMPAIGN => array(
 				'label'               => __( 'Prepare a Blaze campaign', 'jetpack-blaze' ),
-				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and safe audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. Audience overrides must use stable codes or closed enums: supported language codes, ISO country codes, supported device values, and DSP/IAB interest category IDs. Unsupported or ambiguous targeting should be omitted and handled by Blaze defaults or the review UI. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
+				'description'         => __( 'Prepare a Blaze advertising campaign proposal for an existing post or product on the site. The ability does not write to the DSP itself. It takes a target plus optional natural-language goal, budget, duration, copy, image, and safe audience overrides; derives sensible defaults from the target post; bundles the result into a prefill payload; and returns a deep-link the merchant clicks to review and submit in the existing Blaze UI. Audience overrides must use stable codes or closed enums: supported language codes, ISO country codes, supported device values, and Blaze public page topic IDs. Unsupported or ambiguous targeting should be omitted and handled by Blaze defaults or the review UI. The merchant reviews, accepts payment / T&C, and submits from inside the Blaze UI — that\'s where the actual DSP write happens.', 'jetpack-blaze' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'required'             => array( 'target_urn' ),
@@ -302,10 +302,10 @@ class Blaze_Abilities extends Registrar {
 						),
 						'interests'            => array(
 							'type'        => 'array',
-							'description' => __( 'Optional DSP page topic / IAB category IDs to target (e.g. ["IAB18", "IAB1_IAB2"]). Use only IDs discovered from the Blaze/DSP targeting options; do not send free-form interest names. Invalid or unsupported IDs are ignored.', 'jetpack-blaze' ),
+							'description' => __( 'Optional Blaze public page topic IDs to target. Supported IDs are the public DSP topic groups: IAB1, IAB8_IAB18, IAB19, IAB5_IAB15, IAB6_IAB7_IAB16, IAB3_IAB4_IAB13, IAB11_IAB12, IAB14_IAB23, IAB17, IAB2_IAB20, IAB10_IAB21_IAB13, and IAB9_IAB22. If a user asks for a bare included IAB category such as fashion (IAB18), use the matching public group ID, e.g. IAB8_IAB18. Do not send free-form interest names. Invalid or unsupported IDs are ignored.', 'jetpack-blaze' ),
 							'items'       => array(
-								'type'    => 'string',
-								'pattern' => '^IAB\\d+(?:_IAB\\d+)*$',
+								'type' => 'string',
+								'enum' => array( 'IAB1', 'IAB8_IAB18', 'IAB19', 'IAB5_IAB15', 'IAB6_IAB7_IAB16', 'IAB3_IAB4_IAB13', 'IAB11_IAB12', 'IAB14_IAB23', 'IAB17', 'IAB2_IAB20', 'IAB10_IAB21_IAB13', 'IAB9_IAB22' ),
 							),
 						),
 					),
