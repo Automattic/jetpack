@@ -25,6 +25,7 @@ export type Connection = Partial< EditorConnection > & {
 	service_name: ConnectionService[ 'id' ];
 	shared: boolean;
 	status: ConnectionStatus;
+	template?: string;
 	wpcom_user_id: number;
 };
 
