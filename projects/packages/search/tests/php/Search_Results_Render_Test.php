@@ -364,4 +364,37 @@ class Search_Results_Render_Test extends TestCase {
 		$this->assertStringNotContainsString( 'jetpack-search-skeleton--image', $markup );
 		$this->assertStringNotContainsString( 'jetpack-search-skeleton--product-image', $markup );
 	}
+
+	/**
+	 * Under is_initial_loading, the title skeleton row in the product-layout
+	 * copy block must come before the price skeleton row — matching the
+	 * visual card's own title-then-price vertical order.
+	 */
+	public function test_product_layout_skeleton_title_precedes_price_in_copy_block() {
+		$markup = $this->render_with_skeleton( array( 'layout' => 'product' ) );
+
+		$title_pos = strpos( $markup, 'jetpack-search-skeleton--title' );
+		$price_pos = strpos( $markup, 'jetpack-search-skeleton--price' );
+		$this->assertNotFalse( $title_pos, 'Title skeleton must be present.' );
+		$this->assertNotFalse( $price_pos, 'Price skeleton must be present.' );
+		$this->assertLessThan( $price_pos, $title_pos, 'Title skeleton must precede the price skeleton in DOM order.' );
+	}
+
+	/**
+	 * Under is_initial_loading, both the legacy `card` value and any other
+	 * unrecognised layout fall through to the expanded skeleton (title + path
+	 * + meta + image) — no product-image or price rows.
+	 */
+	public function test_unknown_and_legacy_layouts_use_expanded_skeleton() {
+		foreach ( array( 'card', 'nonsense' ) as $layout ) {
+			$markup = $this->render_with_skeleton( array( 'layout' => $layout ) );
+
+			$this->assertStringContainsString( 'jetpack-search-skeleton--title', $markup, "Layout '{$layout}': title skeleton expected." );
+			$this->assertStringContainsString( 'jetpack-search-skeleton--path', $markup, "Layout '{$layout}': path skeleton expected." );
+			$this->assertStringContainsString( 'jetpack-search-skeleton--meta', $markup, "Layout '{$layout}': meta skeleton expected." );
+			$this->assertStringContainsString( 'jetpack-search-skeleton--image', $markup, "Layout '{$layout}': image skeleton expected." );
+			$this->assertStringNotContainsString( 'jetpack-search-skeleton--product-image', $markup, "Layout '{$layout}': product-image skeleton must be absent." );
+			$this->assertStringNotContainsString( 'jetpack-search-skeleton--price', $markup, "Layout '{$layout}': price skeleton must be absent." );
+		}
+	}
 }
