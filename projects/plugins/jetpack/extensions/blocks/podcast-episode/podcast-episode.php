@@ -144,7 +144,7 @@ function render_block( $attributes, $content, $block = null ) {
 
 	ob_start();
 	?>
-	<div <?php echo $wrapper_attributes; ?>>
+	<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>>
 		<article class="jetpack-podcast-episode" itemscope itemtype="https://schema.org/PodcastEpisode">
 			<?php if ( $image_url ) : ?>
 				<figure class="jetpack-podcast-episode__poster">
