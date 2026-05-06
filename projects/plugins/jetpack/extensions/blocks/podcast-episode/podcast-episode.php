@@ -134,20 +134,17 @@ function render_block( $attributes, $content, $block = null ) {
 		}
 	}
 
-	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
-	$wrapper_style      = ! empty( $wrapper_attributes['style'] ) ? $wrapper_attributes['style'] : '';
 	$block_classname    = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes );
+	$wrapper_attributes = get_block_wrapper_attributes(
+		array(
+			'class' => $block_classname,
+		)
+	);
 	$is_amp             = Blocks::is_amp_request();
 
 	ob_start();
 	?>
-	<div
-		class="<?php echo esc_attr( $block_classname ); ?>"
-		<?php
-		if ( $wrapper_style ) :
-			?>
-			style="<?php echo esc_attr( $wrapper_style ); ?>"<?php endif; ?>
-	>
+	<div <?php echo $wrapper_attributes; ?>>
 		<article class="jetpack-podcast-episode" itemscope itemtype="https://schema.org/PodcastEpisode">
 			<?php if ( $image_url ) : ?>
 				<figure class="jetpack-podcast-episode__poster">
