@@ -53,39 +53,41 @@ export default function FeatureSelector() {
 	};
 
 	return (
-		<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
-			<ExperienceDetails />
+		<>
 			<h2 id="jp-search-feature-selector-heading" className="jp-search-feature-selector__heading">
 				{ __( 'Select a search experience for your visitors', 'jetpack-search-pkg' ) }
 			</h2>
-			<fieldset
-				className="jp-search-feature-selector__fieldset"
-				aria-labelledby="jp-search-feature-selector-heading"
-			>
-				<Stack direction="column" gap="sm">
-					{ visibleExperiences.map( experience => (
-						<ExperienceOption
-							key={ experience }
-							experience={ experience }
-							disabled={ isExperienceDisabled( experience ) }
-						/>
-					) ) }
+			<form className="jp-search-feature-selector" onSubmit={ onSubmit }>
+				<ExperienceDetails />
+				<fieldset
+					className="jp-search-feature-selector__fieldset"
+					aria-labelledby="jp-search-feature-selector-heading"
+				>
+					<Stack direction="column" gap="sm">
+						{ visibleExperiences.map( experience => (
+							<ExperienceOption
+								key={ experience }
+								experience={ experience }
+								disabled={ isExperienceDisabled( experience ) }
+							/>
+						) ) }
+					</Stack>
+				</fieldset>
+				<Stack
+					gap="md"
+					align="center"
+					justify="space-between"
+					className="jp-search-feature-selector__footer"
+					aria-live="polite"
+				>
+					<p className="jp-search-feature-selector__status">
+						{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
+					</p>
+					<Button type="submit" disabled={ isSaveDisabled } loading={ isUpdating }>
+						{ __( 'Save', 'jetpack-search-pkg' ) }
+					</Button>
 				</Stack>
-			</fieldset>
-			<Stack
-				gap="md"
-				align="center"
-				justify="space-between"
-				className="jp-search-feature-selector__footer"
-				aria-live="polite"
-			>
-				<p className="jp-search-feature-selector__status">
-					{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
-				</p>
-				<Button type="submit" disabled={ isSaveDisabled } loading={ isUpdating }>
-					{ __( 'Save', 'jetpack-search-pkg' ) }
-				</Button>
-			</Stack>
-		</form>
+			</form>
+		</>
 	);
 }
