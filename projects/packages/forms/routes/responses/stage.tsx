@@ -8,7 +8,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	ExternalLink,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -17,7 +16,7 @@ import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge, Link, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -548,7 +547,9 @@ function StageInner() {
 						const previewLabel = __( 'Form preview', 'jetpack-forms' );
 						if ( item.preview_url ) {
 							return styleUnreadValue(
-								<ExternalLink href={ item.preview_url }>{ previewLabel }</ExternalLink>,
+								<Link openInNewTab href={ item.preview_url }>
+									{ previewLabel }
+								</Link>,
 								item.is_unread
 							);
 						}
@@ -560,7 +561,9 @@ function StageInner() {
 						__( '(no title)', 'jetpack-forms' );
 					if ( item.entry_permalink ) {
 						return styleUnreadValue(
-							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							<Link openInNewTab href={ item.entry_permalink }>
+								{ source }
+							</Link>,
 							item.is_unread
 						);
 					}

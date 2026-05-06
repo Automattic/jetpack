@@ -6,11 +6,10 @@ import {
 	AdminSectionHero,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import { Notice } from '@wordpress/ui';
+import { Notice, Link } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
 import useToggleAccountProtectionMutation from '../../data/account-protection/use-toggle-account-protection-module-mutation';
@@ -106,7 +105,7 @@ const SettingsPage = () => {
 							'jetpack-protect'
 						),
 						{
-							link: <ExternalLink href={ getRedirectUrl( 'jetpack-account-protection' ) } />,
+							link: <Link openInNewTab href={ getRedirectUrl( 'jetpack-account-protection' ) } />,
 						}
 					) }
 				</Text>
@@ -126,7 +125,10 @@ const SettingsPage = () => {
 							),
 							{
 								link: (
-									<ExternalLink href={ getRedirectUrl( 'jetpack-account-protection-risks' ) } />
+									<Link
+										openInNewTab
+										href={ getRedirectUrl( 'jetpack-account-protection-risks' ) }
+									/>
 								),
 							}
 						) }

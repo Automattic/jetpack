@@ -1,7 +1,7 @@
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useSocialUserPreferences } from '../../hooks/use-social-user-preferences';
 import { useAutoSaveAndRedirect } from '../form/use-auto-save-and-redirect';
 import { AtLimitNotice } from './at-limit-notice';
@@ -61,7 +61,6 @@ export function XUsageContent( {
 	return (
 		<section className={ styles[ 'x-usage-content' ] } aria-label={ label }>
 			<h3 className={ styles[ 'x-usage-label' ] }>{ label }</h3>
-
 			{ /* Show counter + progress bar when not at limit, or when at limit and dismissed */ }
 			{ ( ! isAtLimit || isDismissed ) && (
 				<>
@@ -77,15 +76,12 @@ export function XUsageContent( {
 					</progress>
 				</>
 			) }
-
 			{ /* At-limit notice for free plan */ }
 			{ isAtLimit && ! isPaid && ! isDismissed && (
 				<AtLimitNotice onDismiss={ handleDismiss } onUpgrade={ autosaveAndRedirect } />
 			) }
-
 			{ /* At-limit notice for paid plan */ }
 			{ isAtLimit && isPaid && ! isDismissed && <PaidAtLimitNotice onDismiss={ handleDismiss } /> }
-
 			{ /* Near-limit warning for free plan (not at limit) */ }
 			{ isNearLimit && ! isAtLimit && ! isPaid && (
 				<p className={ styles[ 'x-usage-warning-text' ] }>
@@ -96,17 +92,16 @@ export function XUsageContent( {
 					) }
 					&nbsp;
 					{ ! isSimpleSite() && (
-						<ExternalLink href={ getUpgradeUrl() }>
+						<Link openInNewTab href={ getUpgradeUrl() }>
 							{ sprintf(
 								/* translators: %d: paid plan share limit */
 								__( 'Unlock %d shares per month with a paid plan', 'jetpack-publicize-pkg' ),
 								PAID_PLAN_LIMIT
 							) }
-						</ExternalLink>
+						</Link>
 					) }
 				</p>
 			) }
-
 			{ /* At-limit inline text for free plan (when notice is dismissed) */ }
 			{ isAtLimit && ! isPaid && isDismissed && (
 				<p className={ styles[ 'x-usage-warning-text' ] }>
@@ -117,17 +112,16 @@ export function XUsageContent( {
 					) }
 					&nbsp;
 					{ ! isSimpleSite() && (
-						<ExternalLink href={ getUpgradeUrl() }>
+						<Link openInNewTab href={ getUpgradeUrl() }>
 							{ sprintf(
 								/* translators: %d: paid plan share limit */
 								__( 'Unlock %d shares per month with a paid plan', 'jetpack-publicize-pkg' ),
 								PAID_PLAN_LIMIT
 							) }
-						</ExternalLink>
+						</Link>
 					) }
 				</p>
 			) }
-
 			{ /* Reset date for paid plan */ }
 			{ isPaid && resetDate && (
 				<p className={ styles[ 'x-usage-reset-text' ] }>
@@ -147,7 +141,6 @@ export function XUsageContent( {
 						  ) }
 				</p>
 			) }
-
 			{ /* Bottom text when at limit (free plan, notice shown) */ }
 			{ isAtLimit && ! isPaid && ! isDismissed && (
 				<p className={ styles[ 'x-usage-reassurance-text' ] }>

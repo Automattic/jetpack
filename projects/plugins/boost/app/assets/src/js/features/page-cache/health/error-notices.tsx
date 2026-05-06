@@ -2,10 +2,9 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import styles from './health.module.scss';
 import { __, sprintf } from '@wordpress/i18n';
+import { Notice, Link } from '@wordpress/ui';
 import { PageCacheError } from '$lib/stores/page-cache';
 import { ReactNode } from 'react';
-import { ExternalLink } from '@wordpress/components';
-import { Notice } from '@wordpress/ui';
 
 type NoticeProps = {
 	onClose: () => void;
@@ -29,7 +28,7 @@ export const FailedSettingsWriteNotice = ( { onClose }: NoticeProps ) => {
 							'jetpack-boost'
 						),
 						{
-							link: <ExternalLink href={ cacheIssuesLink( 'failed-settings-write' ) } />,
+							link: <Link openInNewTab href={ cacheIssuesLink( 'failed-settings-write' ) } />,
 						}
 					) }
 				</p>
@@ -62,7 +61,7 @@ export const WPContentNotWritableNotice = ( { onClose }: NoticeProps ) => {
 						),
 						{
 							code: <code className={ styles.nowrap } />,
-							link: <ExternalLink href={ cacheIssuesLink( 'wp-content-not-writable' ) } />,
+							link: <Link openInNewTab href={ cacheIssuesLink( 'wp-content-not-writable' ) } />,
 						}
 					) }
 				</p>
@@ -84,7 +83,7 @@ export const NotUsingPermalinksNotice = ( { onClose }: NoticeProps ) => {
 							'jetpack-boost'
 						),
 						{
-							link: <ExternalLink href={ cacheIssuesLink( 'not-using-permalinks' ) } />,
+							link: <Link openInNewTab href={ cacheIssuesLink( 'not-using-permalinks' ) } />,
 						}
 					) }
 				</p>
@@ -106,7 +105,7 @@ export const AdvancedCacheIncompatibleNotice = ( { onClose }: NoticeProps ) => {
 							'jetpack-boost'
 						),
 						{
-							link: <ExternalLink href={ cacheIssuesLink( 'advanced-cache-incompatible' ) } />,
+							link: <Link openInNewTab href={ cacheIssuesLink( 'advanced-cache-incompatible' ) } />,
 						}
 					) }
 				</p>
@@ -136,7 +135,9 @@ export const AdvancedCacheForSuperCacheNotice = ( {
 						),
 						{
 							code: <code className={ styles.nowrap } />,
-							link: <ExternalLink href={ cacheIssuesLink( 'advanced-cache-for-super-cache' ) } />,
+							link: (
+								<Link openInNewTab href={ cacheIssuesLink( 'advanced-cache-for-super-cache' ) } />
+							),
 						}
 					) }
 				</p>
@@ -160,7 +161,10 @@ export const UnableToWriteToAdvancedCacheNotice = ( { onClose }: NoticeProps ) =
 						),
 						{
 							link: (
-								<ExternalLink href={ cacheIssuesLink( 'unable-to-write-to-advanced-cache' ) } />
+								<Link
+									openInNewTab
+									href={ cacheIssuesLink( 'unable-to-write-to-advanced-cache' ) }
+								/>
 							),
 						}
 					) }
@@ -191,7 +195,7 @@ export const WPCacheDefinedNotTrueNotice = ( { onClose }: NoticeProps ) => {
 						),
 						{
 							code: <code className={ styles.nowrap } />,
-							link: <ExternalLink href={ cacheIssuesLink( 'wp-cache-defined-not-true' ) } />,
+							link: <Link openInNewTab href={ cacheIssuesLink( 'wp-cache-defined-not-true' ) } />,
 						}
 					) }
 				</p>
@@ -248,7 +252,7 @@ export const WPConfigNotWritableNotice = ( { onClose }: NoticeProps ) => {
 						),
 						{
 							code: <code className={ styles.nowrap } />,
-							link: <ExternalLink href={ cacheIssuesLink( 'wp-config-not-writable' ) } />,
+							link: <Link openInNewTab href={ cacheIssuesLink( 'wp-config-not-writable' ) } />,
 						}
 					) }
 				</p>
