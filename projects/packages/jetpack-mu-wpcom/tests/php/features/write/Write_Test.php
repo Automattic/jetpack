@@ -1108,29 +1108,15 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that _last_editor_used_jetpack is registered for REST API access.
+	 * Test that wpcom_editor_used REST field is registered for posts.
 	 */
-	public function test_last_editor_meta_registered_for_rest() {
-		do_action( 'init' );
-		$registered = registered_meta_key_exists( 'post', '_last_editor_used_jetpack', 'post' );
-		$this->assertTrue( $registered, '_last_editor_used_jetpack should be registered for the post type.' );
-	}
+	public function test_editor_used_rest_field_registered() {
+		do_action( 'rest_api_init' );
 
-	/**
-	 * Test that _last_editor_used_jetpack sanitizes HTML on save.
-	 */
-	public function test_last_editor_meta_sanitizes_html_on_save() {
-		do_action( 'init' );
+		$post_type  = get_post_type_object( 'post' );
+		$controller = new \WP_REST_Posts_Controller( $post_type->name );
+		$schema     = $controller->get_item_schema();
 
-		$post_id = wp_insert_post(
-			array(
-				'post_title'  => 'Test Post',
-				'post_status' => 'publish',
-				'post_author' => $this->admin_id,
-			)
-		);
-
-		update_post_meta( $post_id, '_last_editor_used_jetpack', '<script>alert(1)</script>' );
-		$this->assertStringNotContainsString( '<script>', get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
+		$this->assertArrayHasKey( 'wpcom_editor_used', $schema['properties'], 'wpcom_editor_used should be registered as a REST field.' );
 	}
 }

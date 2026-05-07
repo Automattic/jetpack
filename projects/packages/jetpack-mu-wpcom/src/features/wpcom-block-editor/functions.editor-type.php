@@ -49,30 +49,29 @@ function remember_block_editor( $editor_settings, $post ) {
 }
 
 /**
- * Register _last_editor_used_jetpack for REST API access so editors (e.g. the
- * Write editor) can set it via the meta field in save requests. Follows the same
- * pattern used by other Jetpack meta keys (e.g. _jetpack_newsletter_access).
+ * Register a write-only REST field so editors (e.g. the Write editor) can set
+ * the last-editor attribution via save requests. The underlying
+ * _last_editor_used_jetpack meta key is never exposed in REST responses.
  */
 \add_action(
-	'init',
+	'rest_api_init',
 	function () {
-		\register_post_meta(
+		\register_rest_field(
 			'post',
-			'_last_editor_used_jetpack',
+			'wpcom_editor_used',
 			array(
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'    => 'string',
-						'enum'    => array( 'classic-editor', 'block-editor', 'write-editor' ),
-						'context' => array( 'edit' ),
-					),
-				),
-				'single'            => true,
-				'type'              => 'string',
-				'auth_callback'     => function ( $allowed, $meta_key, $object_id ) {
-					return current_user_can( 'edit_post', $object_id );
+				'get_callback'    => null,
+				'update_callback' => function ( $value, $post ) {
+					if ( ! \current_user_can( 'edit_post', $post->ID ) ) {
+						return;
+					}
+					remember_editor( $post->ID, $value );
 				},
-				'sanitize_callback' => 'sanitize_text_field',
+				'schema'          => array(
+					'type'        => 'string',
+					'description' => __( 'Editor used to produce this revision.', 'jetpack-mu-wpcom' ),
+					'enum'        => array( 'classic-editor', 'block-editor', 'write-editor' ),
+				),
 			)
 		);
 	}
