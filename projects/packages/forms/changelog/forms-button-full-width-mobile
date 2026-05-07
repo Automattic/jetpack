@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: submit button stretches to full width on mobile in horizontal layout
