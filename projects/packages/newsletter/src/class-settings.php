@@ -284,9 +284,14 @@ class Settings {
 		// This callback is registered via `admin_enqueue_scripts` from `admin_init`,
 		// which itself fires on `load-{$page_suffix}` in `add_wp_admin_menu()` — so it
 		// only fires on the Newsletter admin page; no need to re-check the page here.
+		// The Tracks transport is required on both surfaces — `analytics.initialize`
+		// only queues events into `window._tkq`; without `jp-tracks` loaded, no
+		// pixel.gif requests fire and the queue grows forever.
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+
 		if ( self::is_modernized() ) {
-			// wp-build manages its own enqueue pipeline. The legacy newsletter
-			// script, JetpackScriptData, and Tracks are intentionally skipped
+			// wp-build manages the rest of its enqueue pipeline. The legacy
+			// newsletter script and JetpackScriptData are intentionally skipped
 			// for the wp-build dashboard.
 			return;
 		}
@@ -302,9 +307,6 @@ class Settings {
 				'dependencies' => array( 'jetpack-script-data' ),
 			)
 		);
-
-		// Enqueue the Tracks script for analytics.
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
