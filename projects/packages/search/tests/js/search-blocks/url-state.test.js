@@ -56,6 +56,38 @@ describe( 'stateToUrlParams', () => {
 		expect( params.getAll( 'post_types[]' ) ).toEqual( [ 'post' ] );
 	} );
 
+	it( 'writes scalar-format filters as a single comma-joined value', () => {
+		// WooCommerce-shaped filters (e.g. `?filter_stock_status=instock,outofstock`)
+		// must round-trip in their native shape. Without honoring filterConfigs
+		// on the writer side, syncToUrl would rewrite the WC URL into the array
+		// form on the first hydration and break catalog deep links.
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: { filter_stock_status: [ 'instock', 'outofstock' ] },
+			filterConfigs: { filter_stock_status: { urlFormat: 'scalar' } },
+		} );
+		expect( params.get( 'filter_stock_status' ) ).toBe( 'instock,outofstock' );
+		expect( params.has( 'filter_stock_status[]' ) ).toBe( false );
+	} );
+
+	it( 'mixes scalar and array filters within the same params instance', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			activeFilters: {
+				category: [ 'news' ],
+				filter_stock_status: [ 'instock' ],
+			},
+			filterConfigs: {
+				category: { filterKey: 'category' },
+				filter_stock_status: { urlFormat: 'scalar' },
+			},
+		} );
+		expect( params.getAll( 'category[]' ) ).toEqual( [ 'news' ] );
+		expect( params.get( 'filter_stock_status' ) ).toBe( 'instock' );
+	} );
+
 	it( 'skips filters with empty value arrays', () => {
 		const params = stateToUrlParams( {
 			searchQuery: '',
