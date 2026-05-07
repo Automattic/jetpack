@@ -243,7 +243,12 @@ class Settings {
 	 * @return array<string, string>
 	 */
 	public static function sanitize_show_urls( $input ) {
-		$current = self::stored_podcatcher_map( 'podcasting_show_urls' );
+		$current = array_filter(
+			array_intersect_key( (array) get_option( 'podcasting_show_urls', array() ), self::SHOW_URL_HOSTS ),
+			static function ( $value ) {
+				return is_string( $value ) && '' !== $value;
+			}
+		);
 
 		if ( ! is_array( $input ) ) {
 			return $current;
@@ -274,7 +279,12 @@ class Settings {
 	 * @return array<string, string>
 	 */
 	public static function sanitize_show_states( $input ) {
-		$current = self::stored_podcatcher_map( 'podcasting_show_states' );
+		$current = array_filter(
+			array_intersect_key( (array) get_option( 'podcasting_show_states', array() ), self::SHOW_URL_HOSTS ),
+			static function ( $value ) {
+				return is_string( $value ) && '' !== $value;
+			}
+		);
 
 		if ( ! is_array( $input ) ) {
 			return $current;
@@ -291,28 +301,6 @@ class Settings {
 		}
 
 		return $current;
-	}
-
-	/**
-	 * Read a podcatcher-keyed option, dropping any entries that aren't
-	 * non-empty strings or whose key isn't a known podcatcher.
-	 *
-	 * @param string $option_name `podcasting_show_urls` or `podcasting_show_states`.
-	 * @return array<string, string>
-	 */
-	private static function stored_podcatcher_map( $option_name ) {
-		$stored = get_option( $option_name, array() );
-		if ( ! is_array( $stored ) ) {
-			return array();
-		}
-
-		$out = array();
-		foreach ( array_keys( self::SHOW_URL_HOSTS ) as $key ) {
-			if ( isset( $stored[ $key ] ) && is_string( $stored[ $key ] ) && '' !== $stored[ $key ] ) {
-				$out[ $key ] = $stored[ $key ];
-			}
-		}
-		return $out;
 	}
 
 	/**
