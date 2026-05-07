@@ -52,6 +52,8 @@ class Activity_Log_Event {
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
+		add_filter( 'wp_insert_post_empty_content', array( __CLASS__, 'prevent_invalid_post_insert' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( __CLASS__, 'normalize_post_data' ), 10, 2 );
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize' ), 10, 2 );
 		add_filter( 'jetpack_sitemap_post_types', array( __CLASS__, 'filter_sitemap_post_types' ) );
 	}
@@ -111,12 +113,17 @@ class Activity_Log_Event {
 			self::register_post_type();
 		}
 
+		$post_content = wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		if ( false === $post_content ) {
+			return false;
+		}
+
 		$post_id = wp_insert_post(
 			wp_slash(
 				array(
 					'post_type'    => self::POST_TYPE,
 					'post_title'   => $payload['title'],
-					'post_content' => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+					'post_content' => $post_content,
 					'post_status'  => 'publish',
 				)
 			),
@@ -138,16 +145,51 @@ class Activity_Log_Event {
 			return false;
 		}
 
-		$data = json_decode( $post->post_content, true );
-		if ( ! is_array( $data ) ) {
-			$data = json_decode( wp_unslash( $post->post_content ), true );
+		// Build a sanitized candidate to validate the payload contract without mutating the stored post.
+		return false !== self::build_payload_from_post_content( $post->post_content );
+	}
+
+	/**
+	 * Prevents invalid Activity Log event posts from being inserted or updated via wp_insert_post().
+	 *
+	 * @param bool  $maybe_empty Whether the post should be considered empty.
+	 * @param array $postarr     Post data passed to wp_insert_post().
+	 * @return bool
+	 */
+	public static function prevent_invalid_post_insert( $maybe_empty, $postarr ) {
+		if ( ! is_array( $postarr ) || self::POST_TYPE !== self::get_postarr_post_type( $postarr ) ) {
+			return $maybe_empty;
 		}
 
-		if ( ! is_array( $data ) ) {
-			return false;
+		return false === self::build_payload_from_post_content( $postarr['post_content'] ?? '' );
+	}
+
+	/**
+	 * Normalizes Activity Log event posts before they are inserted or updated via wp_insert_post().
+	 *
+	 * @param array $data    Slashed, sanitized post data.
+	 * @param array $postarr Post data passed to wp_insert_post().
+	 * @return array
+	 */
+	public static function normalize_post_data( $data, $postarr ) {
+		if ( ! is_array( $data ) || ! is_array( $postarr ) || self::POST_TYPE !== self::get_postarr_post_type( $postarr ) ) {
+			return $data;
 		}
 
-		return false !== self::build_payload( $data );
+		$payload = self::build_payload_from_post_content( $data['post_content'] ?? '' );
+		if ( false === $payload ) {
+			return $data;
+		}
+
+		$post_content = wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		if ( false === $post_content ) {
+			return $data;
+		}
+
+		$data['post_title']   = wp_slash( $payload['title'] );
+		$data['post_content'] = wp_slash( $post_content );
+
+		return $data;
 	}
 
 	/**
@@ -204,6 +246,54 @@ class Activity_Log_Event {
 		}
 
 		return $payload;
+	}
+
+	/**
+	 * Builds an Activity Log event payload from post content.
+	 *
+	 * @param mixed $post_content Raw post content.
+	 * @return array|false Sanitized payload, or false if validation fails.
+	 */
+	private static function build_payload_from_post_content( $post_content ) {
+		$data = self::decode_payload( $post_content );
+		if ( ! is_array( $data ) ) {
+			return false;
+		}
+
+		return self::build_payload( $data );
+	}
+
+	/**
+	 * Decodes an Activity Log event payload from post content.
+	 *
+	 * @param mixed $post_content Raw post content.
+	 * @return array|false
+	 */
+	private static function decode_payload( $post_content ) {
+		$data = json_decode( (string) $post_content, true );
+		if ( ! is_array( $data ) ) {
+			$data = json_decode( wp_unslash( (string) $post_content ), true );
+		}
+
+		return is_array( $data ) ? $data : false;
+	}
+
+	/**
+	 * Gets the post type from wp_insert_post() input.
+	 *
+	 * @param array $postarr Post data passed to wp_insert_post().
+	 * @return string
+	 */
+	private static function get_postarr_post_type( array $postarr ) {
+		if ( isset( $postarr['post_type'] ) ) {
+			return (string) $postarr['post_type'];
+		}
+
+		if ( ! empty( $postarr['ID'] ) ) {
+			return (string) get_post_type( (int) $postarr['ID'] );
+		}
+
+		return '';
 	}
 
 	/**

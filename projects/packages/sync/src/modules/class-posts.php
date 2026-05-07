@@ -481,6 +481,10 @@ class Posts extends Module {
 			return false;
 		}
 
+		if ( Activity_Log_Event::POST_TYPE === $post->post_type && ! Activity_Log_Event::is_valid_post( $post ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 

@@ -147,6 +147,75 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that Activity Log event post data is normalized before insertion.
+	 */
+	public function test_activity_log_event_normalizes_post_data() {
+		$data = wp_slash(
+			array(
+				'post_type'    => Activity_Log_Event::POST_TYPE,
+				'post_title'   => 'Direct insert title',
+				'post_content' => wp_json_encode(
+					array(
+						'title'    => ' <strong>Cache flushed</strong> ',
+						'content'  => "Plain <em>text</em>\nnote.",
+						'source'   => ' <code>mc</code> ',
+						'severity' => ' WARNING ',
+						'link'     => 'https://example.com/logs/123',
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				),
+				'post_status'  => 'publish',
+			)
+		);
+
+		$normalized = Activity_Log_Event::normalize_post_data( $data, $data );
+
+		$this->assertSame( 'Cache flushed', wp_unslash( $normalized['post_title'] ) );
+
+		$payload = json_decode( wp_unslash( $normalized['post_content'] ), true );
+
+		$this->assertIsArray( $payload );
+
+		$this->assertSame( 'Cache flushed', $payload['title'] );
+		$this->assertSame( 'Plain text note.', $payload['content'] );
+		$this->assertSame( 'mc', $payload['source'] );
+		$this->assertSame( 'warning', $payload['severity'] );
+		$this->assertArrayNotHasKey( 'link', $payload );
+	}
+
+	/**
+	 * Tests that the core insert hook rejects invalid Activity Log event payloads.
+	 */
+	public function test_activity_log_event_insert_validation_rejects_invalid_payload() {
+		$this->add_activity_log_post_insert_filters();
+
+		try {
+			$post_id = wp_insert_post(
+				wp_slash(
+					array(
+						'post_type'    => Activity_Log_Event::POST_TYPE,
+						'post_title'   => 'Direct insert',
+						'post_content' => wp_json_encode(
+							array(
+								'title'    => 'Cache flushed',
+								'content'  => 'Plain text note.',
+								'severity' => 'critical',
+							),
+							JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+						),
+						'post_status'  => 'publish',
+					)
+				),
+				true
+			);
+		} finally {
+			$this->remove_activity_log_post_insert_filters();
+		}
+
+		$this->assertInstanceOf( \WP_Error::class, $post_id );
+	}
+
+	/**
 	 * Tests that helper-created events pass Sync published-post enqueue validation.
 	 */
 	public function test_activity_log_event_passes_sync_published_post_enqueue_validation() {
@@ -184,6 +253,24 @@ class Activity_Log_Event_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( \WP_Post::class, $post );
 		$this->assertIsArray( $this->filter_activity_log_sync_save_post( $post_id, $post ) );
+	}
+
+	/**
+	 * Tests that direct CPT inserts with invalid payloads fail Sync save-post enqueue validation.
+	 */
+	public function test_activity_log_sync_save_post_validation_rejects_invalid_payload() {
+		$post_id = $this->insert_activity_log_post(
+			array(
+				'title'    => 'Cache flushed',
+				'content'  => 'Plain text note.',
+				'severity' => 'critical',
+			)
+		);
+
+		$post = get_post( $post_id );
+
+		$this->assertInstanceOf( \WP_Post::class, $post );
+		$this->assertFalse( $this->filter_activity_log_sync_save_post( $post_id, $post ) );
 	}
 
 	/**
@@ -301,7 +388,10 @@ class Activity_Log_Event_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( \WP_Post::class, $post );
 
-		$payload = json_decode( wp_unslash( $post->post_content ), true );
+		$payload = json_decode( $post->post_content, true );
+		if ( ! is_array( $payload ) ) {
+			$payload = json_decode( wp_unslash( $post->post_content ), true );
+		}
 
 		$this->assertIsArray( $payload );
 
@@ -349,6 +439,22 @@ class Activity_Log_Event_Test extends BaseTestCase {
 				$post,
 			)
 		);
+	}
+
+	/**
+	 * Adds Activity Log event insert filters for tests.
+	 */
+	private function add_activity_log_post_insert_filters() {
+		add_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ), 10, 2 );
+	}
+
+	/**
+	 * Removes Activity Log event insert filters for tests.
+	 */
+	private function remove_activity_log_post_insert_filters() {
+		remove_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ), 10 );
+		remove_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ), 10 );
 	}
 
 	/**
