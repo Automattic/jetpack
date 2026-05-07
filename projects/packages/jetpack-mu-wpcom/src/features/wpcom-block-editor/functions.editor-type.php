@@ -69,8 +69,8 @@ function remember_block_editor( $editor_settings, $post ) {
 				),
 				'single'            => true,
 				'type'              => 'string',
-				'auth_callback'     => function () {
-					return current_user_can( 'edit_posts' );
+				'auth_callback'     => function ( $allowed, $meta_key, $object_id ) {
+					return current_user_can( 'edit_post', $object_id );
 				},
 				'sanitize_callback' => 'sanitize_text_field',
 			)
