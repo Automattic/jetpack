@@ -176,7 +176,7 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 						placeholder={ previewLabel }
 						onChange={ value => setAttributes( { label: value } ) }
 						help={ __(
-							'Heading shown above the options. Leave empty to use the attribute's name.',
+							"Heading shown above the options. Leave empty to use the attribute's name.",
 							'jetpack-search-pkg'
 						) }
 					/>
