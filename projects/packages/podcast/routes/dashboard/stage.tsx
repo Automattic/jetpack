@@ -2,6 +2,7 @@ import AdminPage from '@automattic/jetpack-components/admin-page';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
+import './route.scss';
 
 const TAB_VALUES = [ 'settings', 'episodes', 'distribution', 'stats' ] as const;
 type TabName = ( typeof TAB_VALUES )[ number ];
@@ -28,12 +29,14 @@ const Stage = () => {
 					'jetpack-podcast'
 				) }
 				tabs={
-					<Tabs.List>
-						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
-						<Tabs.Tab value="episodes">{ __( 'Episodes', 'jetpack-podcast' ) }</Tabs.Tab>
-						<Tabs.Tab value="distribution">{ __( 'Distribution', 'jetpack-podcast' ) }</Tabs.Tab>
-						<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-podcast' ) }</Tabs.Tab>
-					</Tabs.List>
+					<div className="jp-admin-page-tabs">
+						<Tabs.List>
+							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
+							<Tabs.Tab value="episodes">{ __( 'Episodes', 'jetpack-podcast' ) }</Tabs.Tab>
+							<Tabs.Tab value="distribution">{ __( 'Distribution', 'jetpack-podcast' ) }</Tabs.Tab>
+							<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-podcast' ) }</Tabs.Tab>
+						</Tabs.List>
+					</div>
 				}
 			>
 				<Tabs.Panel value="settings">
