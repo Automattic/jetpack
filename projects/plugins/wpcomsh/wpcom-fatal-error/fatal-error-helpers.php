@@ -149,10 +149,20 @@ function wpcomsh_fatal_log_deactivate( $plugin_basename ) {
  * @return array{kind:string,path:string,method:string}
  */
 function wpcomsh_fatal_request_context() {
-	$req_uri  = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
+	// REQUEST_URI is fed only to wp_parse_url for path extraction; the raw
+	// value is never echoed, rendered, or stored. sanitize_text_field would
+	// strip characters that are legitimate path content — wp_check_invalid_utf8
+	// can drop a raw-encoded UTF-8 slug to '', and the percent-encoded form
+	// would lose case in the unicode round-trip — so we skip text-field
+	// sanitization here and let wp_parse_url do the structural validation.
+	$req_uri  = wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- path-only extraction; see comment.
 	$raw_path = (string) wp_parse_url( $req_uri, PHP_URL_PATH );
 	$path     = rtrim( $raw_path, '/' );
-	$method   = strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) );
+
+	// Whitelist HTTP method to a closed set so request_method on the row is
+	// a small fixed-cardinality enum, not an arbitrary header value.
+	$method_raw = strtoupper( (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- whitelisted below.
+	$method     = in_array( $method_raw, array( 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS' ), true ) ? $method_raw : 'UNKNOWN';
 
 	$kind = 'other';
 	if ( ( defined( 'DOING_CRON' ) && DOING_CRON ) || str_ends_with( $path, '/wp-cron.php' ) ) {
@@ -182,7 +192,7 @@ function wpcomsh_fatal_request_context() {
 	return array(
 		'kind'   => $kind,
 		'path'   => '' === $path ? '/' : $path,
-		'method' => '' === $method ? 'UNKNOWN' : $method,
+		'method' => $method,
 	);
 }
 
