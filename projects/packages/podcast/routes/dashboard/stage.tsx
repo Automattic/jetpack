@@ -38,9 +38,7 @@ const Stage = () => {
 				<Tabs.List>
 					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
 					<Tabs.Tab value="episodes">{ __( 'Episodes', 'jetpack-podcast' ) }</Tabs.Tab>
-					<Tabs.Tab value="distribution">
-						{ __( 'Distribution', 'jetpack-podcast' ) }
-					</Tabs.Tab>
+					<Tabs.Tab value="distribution">{ __( 'Distribution', 'jetpack-podcast' ) }</Tabs.Tab>
 					<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-podcast' ) }</Tabs.Tab>
 				</Tabs.List>
 				<Tabs.Panel value="settings">

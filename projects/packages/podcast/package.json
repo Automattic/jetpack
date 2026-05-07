@@ -34,6 +34,7 @@
 		"@wordpress/ui": "0.11.0"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.0",
 		"@babel/runtime": "7.29.2",
 		"@types/react": "18.3.28",

@@ -36,7 +36,7 @@ class Admin_Page {
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
-	 * wp-build page slug emitted by `@wordpress/build` (`wpPlugin.pages[0]`).
+	 * The wp-build page slug emitted by `@wordpress/build` (`wpPlugin.pages[0]`).
 	 * The auto-generated enqueue callback only fires when `$screen->id`
 	 * matches this value, so we alias the screen id via `current_screen`
 	 * on our admin page without changing the user-facing slug.
