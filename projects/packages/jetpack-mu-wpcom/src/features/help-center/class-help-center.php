@@ -300,6 +300,7 @@ class Help_Center {
 							'display_name' => $display_name,
 							'avatar_URL'   => $avatar_url,
 							'email'        => $user_email,
+							'is_a11n'      => function_exists( '\is_automattician' ) && \is_automattician( $user_id ),
 						),
 						'site'             => $this->get_current_site(),
 						'locale'           => self::determine_iso_639_locale(),

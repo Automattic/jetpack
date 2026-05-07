@@ -114,21 +114,48 @@ function pcg_guard_evaluate_plugins( $plugins ) {
 
 	$blocked_plugin = pcg_guard_get_blocked_plugin( $result, $paths );
 	if ( '' !== $blocked_plugin ) {
-		return array(
+		$blocked = array(
 			$blocked_plugin => pcg_guard_format_block_reason( $result ),
 		);
+	} else {
+		// Verdict didn't pin a specific plugin (e.g. probe terminated without a
+		// JSON body, or the captured `file` was outside any candidate's tree).
+		// Surface a batch-level message so we don't blame an arbitrary plugin.
+		$reason = sprintf(
+			/* translators: 1: locale-formatted list of plugin basenames; 2: probe verdict reason. */
+			__( 'One of these plugins caused a fatal during the pre-flight check: %1$s. Reason: %2$s', 'jetpack-mu-wpcom' ),
+			wp_sprintf_l( '%l', array_keys( $paths ) ),
+			pcg_guard_format_block_reason( $result )
+		);
+		$blocked = array( '' => $reason );
 	}
 
-	// Verdict didn't pin a specific plugin (e.g. probe terminated without a
-	// JSON body, or the captured `file` was outside any candidate's tree).
-	// Surface a batch-level message so we don't blame an arbitrary plugin.
-	$reason = sprintf(
-		/* translators: 1: locale-formatted list of plugin basenames; 2: probe verdict reason. */
-		__( 'One of these plugins caused a fatal during the pre-flight check: %1$s. Reason: %2$s', 'jetpack-mu-wpcom' ),
-		wp_sprintf_l( '%l', array_keys( $paths ) ),
-		pcg_guard_format_block_reason( $result )
+	pcg_guard_log_blocked_activation( array_keys( $paths ), $blocked, $result );
+
+	return $blocked;
+}
+
+/**
+ * Log an activation block to logstash. Best-effort; no-op off WordPress.com.
+ *
+ * @param string[]             $checked Probe batch as basenames.
+ * @param array<string,string> $blocked Map of basename => admin-notice reason. Empty-string key = batch-level fallback.
+ * @param array                $result  Probe verdict from PCG_Load_Tester::test().
+ * @return void
+ */
+function pcg_guard_log_blocked_activation( array $checked, array $blocked, array $result ) {
+	pcg_log_event(
+		'Activation blocked',
+		array(
+			'checked' => $checked,
+			'blocked' => array_keys( $blocked ),
+			'status'  => (string) ( $result['status'] ?? '' ),
+			// Basename only — absolute paths leak install layout.
+			'file'    => isset( $result['file'] ) ? basename( (string) $result['file'] ) : '',
+			'line'    => (int) ( $result['line'] ?? 0 ),
+			'reason'  => (string) ( $result['message'] ?? '' ),
+		)
 	);
-	return array( '' => $reason );
 }
 
 /**

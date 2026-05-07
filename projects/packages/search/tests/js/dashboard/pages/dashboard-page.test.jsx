@@ -64,17 +64,15 @@ const settings = {
 };
 
 describe( '<DashboardPage> branch', () => {
-	test( 'renders FeatureSelector and ModuleControl when searchBlocksEnabled is true', () => {
+	test( 'renders FeatureSelector when searchBlocksEnabled is true', () => {
 		renderWith( { searchBlocksEnabled: true, jetpackSettings: settings } );
 		expect(
 			screen.getByRole( 'group', { name: /select a search experience for your visitors/i } )
 		).toBeInTheDocument();
-		// ModuleControl renders unconditionally so admins can still change
-		// settings until the back-end `experience` field lands.
-		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'renders only ModuleControl when searchBlocksEnabled is false', () => {
+	test( 'renders ModuleControl when searchBlocksEnabled is false', () => {
 		renderWith( { searchBlocksEnabled: false, jetpackSettings: settings } );
 		expect(
 			screen.queryByRole( 'group', { name: /select a search experience for your visitors/i } )

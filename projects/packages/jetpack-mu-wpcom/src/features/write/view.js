@@ -227,6 +227,16 @@ function focusModalInput() {
 }
 
 /**
+ * Escape a string for safe interpolation into an HTML attribute value.
+ *
+ * @param {string} str - Raw string value.
+ * @return {string} HTML-attribute-safe string.
+ */
+function escapeAttr( str ) {
+	return str.replace( /&/g, '&amp;' ).replace( /"/g, '&quot;' );
+}
+
+/**
  * Normalize color markup from contentEditable before block serialization.
  *
  * The foreColor command creates <font color="..."> (legacy) or
@@ -287,9 +297,16 @@ function convertToBlocks( html ) {
 		if ( node.nodeType !== Node.ELEMENT_NODE ) continue;
 
 		const tag = node.tagName.toLowerCase();
-		const inner = node.innerHTML.trim();
+		// Strip lone <br> placeholders left by contentEditable so empty
+		// blocks are not serialized with stale markup.
+		const inner = node.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
 
-		if ( ! inner && ! [ 'figure', 'img', 'hr' ].includes( tag ) ) continue;
+		if (
+			! inner &&
+			! [ 'figure', 'img', 'hr', 'blockquote', 'ul', 'ol' ].includes( tag ) &&
+			! /^h[1-6]$/.test( tag )
+		)
+			continue;
 
 		// Check for text alignment.
 		const align = node.style && node.style.textAlign;
@@ -334,7 +351,9 @@ function convertToBlocks( html ) {
 				? `<figcaption class="wp-element-caption">${ figcaption.innerHTML }</figcaption>`
 				: '';
 			blocks.push(
-				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ src }" alt="${ alt }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
+				`<!-- wp:image -->\n<figure class="wp-block-image"><img src="${ escapeAttr(
+					src
+				) }" alt="${ escapeAttr( alt ) }"/>${ captionHtml }</figure>\n<!-- /wp:image -->`
 			);
 		} else if ( tag === 'blockquote' ) {
 			// inner may already contain <p> tags from contentEditable.
@@ -347,11 +366,15 @@ function convertToBlocks( html ) {
 			);
 		} else if ( tag === 'ul' || tag === 'ol' ) {
 			// Wrap each <li> in wp:list-item block comments.
-			const listItems = Array.from( node.querySelectorAll( ':scope > li' ) )
-				.map(
-					li => `<!-- wp:list-item -->\n<li>${ li.innerHTML.trim() }</li>\n<!-- /wp:list-item -->`
-				)
-				.join( '\n' );
+			const liNodes = Array.from( node.querySelectorAll( ':scope > li' ) );
+			const listItems = liNodes.length
+				? liNodes
+						.map(
+							li =>
+								`<!-- wp:list-item -->\n<li>${ li.innerHTML.trim() }</li>\n<!-- /wp:list-item -->`
+						)
+						.join( '\n' )
+				: '<!-- wp:list-item -->\n<li></li>\n<!-- /wp:list-item -->';
 			const listTag = tag === 'ol' ? 'ol' : 'ul';
 			const attrs = tag === 'ol' ? ' {"ordered":true}' : '';
 			blocks.push(
@@ -909,6 +932,21 @@ if ( typeof MutationObserver !== 'undefined' ) {
 			}
 		} );
 	}, 200 );
+}
+
+/**
+ * Reset the image modal's URL and alt text inputs to empty.
+ *
+ * Reactive state alone may not update the displayed value of inputs the user
+ * has interacted with, so we reset the .value property explicitly.
+ */
+function resetImageModalInputs() {
+	const modal = document.querySelector( '.bw-image-overlay .bw-image-modal' );
+	if ( ! modal ) return;
+	const urlInput = modal.querySelector( 'input[type="url"]' );
+	if ( urlInput ) urlInput.value = '';
+	const altInput = modal.querySelector( 'input[type="text"]' );
+	if ( altInput ) altInput.value = '';
 }
 
 /**
@@ -2444,6 +2482,7 @@ const { state } = store( 'wpcom-write', {
 			saveSelection();
 			state.imageUrl = '';
 			state.imageAlt = '';
+			resetImageModalInputs();
 			state.setAsFeatured = false;
 			state.uploadedMediaId = 0;
 			resetUploadZone();
@@ -2580,8 +2619,11 @@ const { state } = store( 'wpcom-write', {
 			clearSlashText();
 			state.showSlashMenu = false;
 			saveSelection();
-			state.showImageModal = true;
 			state.imageUrl = '';
+			state.imageAlt = '';
+			resetImageModalInputs();
+			resetUploadZone();
+			state.showImageModal = true;
 			focusModalInput();
 		},
 
@@ -2669,7 +2711,14 @@ const { state } = store( 'wpcom-write', {
 
 			const wrapper = document.createElement( 'figure' );
 			wrapper.className = 'bw-video-figure';
-			wrapper.innerHTML = `<div class="bw-video-wrap"><iframe src="${ embedUrl }" frameborder="0" allowfullscreen></iframe></div>`;
+			const videoWrap = document.createElement( 'div' );
+			videoWrap.className = 'bw-video-wrap';
+			const iframe = document.createElement( 'iframe' );
+			iframe.setAttribute( 'src', embedUrl );
+			iframe.setAttribute( 'frameborder', '0' );
+			iframe.setAttribute( 'allowfullscreen', '' );
+			videoWrap.appendChild( iframe );
+			wrapper.appendChild( videoWrap );
 
 			const p = insertMediaBlock( wrapper );
 			if ( p ) {
@@ -2947,6 +2996,13 @@ async function savePost( postStatus, isAutosave = false ) {
 			state.isSaving = false;
 			// Clear autosave reference — user explicitly saved.
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
+
+			window._tkq = window._tkq || [];
+			window._tkq.push( [
+				'recordEvent',
+				'wpcom_write_editor_draft_saved',
+				{ is_new_post: ! isEditing, post_id: post.id },
+			] );
 			setTimeout( () => {
 				state.message = '';
 			}, 2500 );

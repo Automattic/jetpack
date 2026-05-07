@@ -305,7 +305,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'Get more views for your new page.', 'jetpack' ),
 				description: __(
-					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%.<br/><br/> Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
+					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%.<br/><br/> Make your site blazing fast with <Link>Jetpack Boost’s</Link> simple dashboard and acceleration tool:',
 					'jetpack'
 				),
 				descriptionList: [
@@ -321,7 +321,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				progressValue: '76',
 				question: __( 'Would you like to turn site visitors into subscribers?', 'jetpack' ),
 				description: __(
-					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
+					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <Link>Learn more</Link>',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-support-jetpack-blocks-newsletter-sign-up' ),
@@ -333,7 +333,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				progressValue: '70',
 				question: __( 'Send subscribers your latest blog posts via email?', 'jetpack' ),
 				description: __(
-					'With Jetpack Newsletter you can keep your audience engaged by automatically sending your content via email. <ExternalLink>Learn more</ExternalLink>',
+					'With Jetpack Newsletter you can keep your audience engaged by automatically sending your content via email. <Link>Learn more</Link>',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-newsletter-landing' ),
@@ -348,7 +348,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				description: __(
-					'If your site ever goes down, Downtime Monitoring will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
+					'If your site ever goes down, Downtime Monitoring will send you an email or push notitification to let you know. <Link>Learn more</Link>',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-support-monitor' ),
@@ -363,7 +363,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				description: __(
-					'Displaying Related Posts at the end of your content keeps visitors engaged and on your site. <ExternalLink>Learn more</ExternalLink>',
+					'Displaying Related Posts at the end of your content keeps visitors engaged and on your site. <Link>Learn more</Link>',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-support-related-posts' ),
@@ -375,7 +375,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				progressValue: '88',
 				question: __( 'Would you like your site to load faster?', 'jetpack' ),
 				description: __(
-					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
+					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <Link>Learn more</Link>',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-support-site-accelerator' ),
@@ -389,7 +389,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				description: __(
-					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms. Best of all, it’s free. <ExternalLink>Learn more</ExternalLink>',
+					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms. Best of all, it’s free. <Link>Learn more</Link>',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
@@ -399,7 +399,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'With more plugins comes more responsibility.', 'jetpack' ),
 				description: __(
-					'As you add plugins to your site, you have to start thinking about vulnerabilities.<br /><br /><strong>Jetpack Protect</strong> is a free security solution for WordPress that runs automated scans on your site and warns you about vulnerabilities.<br /><br />Focus on running your business while we protect your site with Jetpack Protect. <ExternalLink>Learn More</ExternalLink>.',
+					'As you add plugins to your site, you have to start thinking about vulnerabilities.<br /><br /><strong>Jetpack Protect</strong> is a free security solution for WordPress that runs automated scans on your site and warns you about vulnerabilities.<br /><br />Focus on running your business while we protect your site with Jetpack Protect. <Link>Learn More</Link>.',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-protect-assistant-recommendation' ),
@@ -423,7 +423,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				description: __(
-					'No matter your business, adding videos to your site is essential for success. Jetpack VideoPress offers HD, ad-free video hosting, so you can keep the focus on your content. Try it for free or upgrade for more space. <ExternalLink>Learn more</ExternalLink>',
+					'No matter your business, adding videos to your site is essential for success. Jetpack VideoPress offers HD, ad-free video hosting, so you can keep the focus on your content. Try it for free or upgrade for more space. <Link>Learn more</Link>',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-videopress' ),
@@ -434,7 +434,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				progressValue: '40',
 				question: __( 'Would you like WooCommerce to power your store?', 'jetpack' ),
 				description: __(
-					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <ExternalLink>Learn more</ExternalLink>',
+					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <Link>Learn more</Link>',
 					'jetpack'
 				),
 				descriptionLink: getRedirectUrl( 'woocommerce-features-landing' ),

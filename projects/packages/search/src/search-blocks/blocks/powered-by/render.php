@@ -4,9 +4,9 @@
  *
  * Renders the Jetpack attribution colophon. The block has no plan gate
  * here — paid-plan authors who want the colophon gone delete the block
- * from the panel. Free-plan attribution is enforced by results-panel's
- * auto-inject (see `results-panel/render.php`), which renders this
- * block server-side when it's missing from `$content`.
+ * from the panel. Free-plan attribution is enforced by the search-results
+ * container's auto-inject (see `search-results/render.php`), which renders
+ * this block server-side when it's missing from `$content`.
  *
  * @package automattic/jetpack-search
  */

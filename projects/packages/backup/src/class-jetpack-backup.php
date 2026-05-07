@@ -103,6 +103,14 @@ class Jetpack_Backup {
 	const JETPACK_BACKUP_DB_VERSION = '2';
 
 	/**
+	 * Filter name that gates the wp-build–based dashboard.
+	 *
+	 * When this filter returns true, "Jetpack > Backup" renders the new
+	 * wp-build dashboard instead of the legacy React app.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
+
+	/**
 	 * Constructor.
 	 */
 	public static function initialize() {
@@ -115,6 +123,7 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
 
 		// Init Jetpack packages.
@@ -156,12 +165,16 @@ class Jetpack_Backup {
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
+		$callback = self::is_modernized() && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' )
+			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
+			: array( __CLASS__, 'plugin_settings_page' );
+
 		$page_suffix = Admin_Menu::add_menu(
 			'Jetpack Backup',
 			'Backup', // Product name, do not translate.
 			'manage_options',
-			'jetpack-backup',
-			array( __CLASS__, 'plugin_settings_page' ),
+			self::JETPACK_BACKUP_SLUG,
+			$callback,
 			7
 		);
 
@@ -204,6 +217,15 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
+		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
+		// so it only fires on the Backup admin page — no need to re-check the page here.
+		if ( self::is_modernized() ) {
+			// wp-build manages its own enqueue pipeline. The legacy script,
+			// initial state, and tracking are intentionally skipped for the
+			// wp-build dashboard.
+			return;
+		}
+
 		Assets::register_script(
 			'jetpack-backup',
 			'../build/index.js',
@@ -830,5 +852,93 @@ class Jetpack_Backup {
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-backup' );
 		$manager->remove_connection();
+	}
+
+	/**
+	 * Load wp-build when modernization is enabled on the Backup admin page.
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_modernized() || ! self::is_backup_admin_request() ) {
+			return;
+		}
+
+		self::load_wp_build();
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+	}
+
+	/**
+	 * Load the wp-build entry file and register its polyfills.
+	 *
+	 * Only called on `?page=jetpack-backup` admin requests when the
+	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 *
+	 * @return void
+	 */
+	private static function load_wp_build() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
+		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+			'jetpack-backup',
+			array_merge(
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+	}
+
+	/**
+	 * Alias the current screen ID to satisfy wp-build's auto-generated enqueue check.
+	 *
+	 * Wp-build's `<page>-wp-admin` enqueue callback enqueues only when the screen ID
+	 * matches the wp-build page slug (`jetpack-backup-dashboard`). Our WP-admin
+	 * menu slug stays `jetpack-backup`, so we mutate the screen object in place
+	 * to make the check pass without changing the user-facing URL.
+	 *
+	 * Hooked only when modernization is on AND we're on the Backup admin page,
+	 * so this never affects any other request.
+	 *
+	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build( $screen ) {
+		if ( ! is_object( $screen ) ) {
+			return;
+		}
+
+		$screen->id = 'jetpack-backup-dashboard';
+	}
+
+	/**
+	 * Returns true when the wp-build modernization filter is enabled.
+	 *
+	 * @return bool
+	 */
+	private static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the current request targets the Backup admin page.
+	 *
+	 * Used to scope wp-build loading to the one page that needs it. The
+	 * `$_GET['page']` value is populated by wp-admin/admin.php before any of
+	 * our hooks fire, so this check is reliable from `initialize()` onwards.
+	 *
+	 * @return bool
+	 */
+	private static function is_backup_admin_request() {
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === self::JETPACK_BACKUP_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 }

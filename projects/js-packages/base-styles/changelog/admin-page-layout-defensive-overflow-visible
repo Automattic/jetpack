@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+admin-page-layout mixin: explicitly set `overflow: visible` on `.jp-admin-page` so consumers that drop a className with `overflow-x: hidden` on the `<AdminPage>` root don't silently turn it into a scroll container (browsers promote unset `overflow-y: visible` to `auto` when the other axis is `hidden`/`scroll`/`clip`, which would shift the entire page under the fixed `#wpbody-content` once the inner middle reaches its scroll end).

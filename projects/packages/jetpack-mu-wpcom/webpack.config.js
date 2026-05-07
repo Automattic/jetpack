@@ -125,6 +125,9 @@ module.exports = async () => {
 						includeNodeModules: [ '@automattic/' ],
 					} ),
 
+					// Workarounds for non-extracted `@wordpress/*` packages.
+					...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 					// Handle CSS.
 					jetpackWebpackConfig.CssRule( {
 						extensions: [ 'css', 'scss' ],

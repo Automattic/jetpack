@@ -10,10 +10,11 @@ import {
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
-import { Button, Card, ExternalLink } from '@wordpress/components';
+import { Button, Card } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import { useCallback, useState, useEffect } from 'react';
@@ -526,9 +527,9 @@ export default function () {
 								'Help us improving the accuracy of our results and feel free to give us ideas for future implementations and improvements.',
 								'jetpack-my-jetpack'
 							) }{ ' ' }
-							<ExternalLink href={ feedbackURL }>
+							<Link openInNewTab href={ feedbackURL }>
 								{ __( 'Share your feedback!', 'jetpack-my-jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</p>
 					</div>
 				</Col>

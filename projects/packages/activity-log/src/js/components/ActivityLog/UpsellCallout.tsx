@@ -78,7 +78,7 @@ export function UpsellCallout() {
 		<div className="jp-activity-log__upsell-callout">
 			<div className="jp-activity-log__upsell-callout-content">
 				<h2 className="jp-activity-log__upsell-callout-title">
-					{ __( 'Track every action with Activity logs', 'jetpack-activity-log' ) }
+					{ __( 'Track every action with activity logs', 'jetpack-activity-log' ) }
 				</h2>
 				<Text as="p" variant="muted">
 					{ __(

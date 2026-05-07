@@ -56,6 +56,9 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 	}
 
 	$first = $scan['errors'][0];
+
+	pcg_update_guard_log_blocked( $action, $hook_extra, $scan, (string) $source );
+
 	return new WP_Error(
 		'pcg_update_parse_error',
 		sprintf(
@@ -67,6 +70,38 @@ function pcg_update_guard_check( $source, $remote_source, $upgrader, $hook_extra
 			(string) $first['message']
 		),
 		array( 'errors' => $scan['errors'] )
+	);
+}
+
+/**
+ * Log a refused install/update to logstash. Best-effort; no-op off WordPress.com.
+ *
+ * @param string $action     `install` or `update`.
+ * @param array  $hook_extra Hook payload from `upgrader_source_selection`.
+ * @param array  $scan       Result from `pcg_update_guard_scan_for_parse_errors()`.
+ * @param string $source     Extracted package directory (fallback slug source on installs,
+ *                           since `Plugin_Upgrader::install()` doesn't populate `hook_extra['plugin']`).
+ * @return void
+ */
+function pcg_update_guard_log_blocked( $action, array $hook_extra, array $scan, $source = '' ) {
+	$first = $scan['errors'][0];
+
+	$slug = (string) ( $hook_extra['plugin'] ?? ( $hook_extra['theme'] ?? '' ) );
+	if ( '' === $slug && '' !== $source ) {
+		$slug = basename( untrailingslashit( $source ) );
+	}
+
+	pcg_log_event(
+		'Update blocked',
+		array(
+			'action'      => (string) $action,
+			'slug'        => $slug,
+			// Basename only — absolute paths leak install layout.
+			'file'        => basename( (string) $first['file'] ),
+			'line'        => (int) $first['line'],
+			'reason'      => (string) $first['message'],
+			'error_count' => count( $scan['errors'] ),
+		)
 	);
 }
 

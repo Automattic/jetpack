@@ -406,7 +406,7 @@ function getMonthLabelFormatter( locale ) {
 
 /**
  * Build the ES `bool.must` clauses contributed by the hidden
- * `jetpack/post-type-filter` block. Returns an empty array when no constraint
+ * `jetpack-search/filter-post-type` block. Returns an empty array when no constraint
  * is configured so callers can spread the result unconditionally.
  *
  * Includes are wrapped in `bool.should` (OR within the include set), excludes
@@ -467,7 +467,7 @@ export function buildStaticPostTypeClauses( staticPostTypes ) {
  *                                             filter blocks driven by `min_price` / `max_price`
  *                                             URL params.
  * @param {object|null} [opts.staticPostTypes] - `{ include, exclude }` post-type slug lists
- *                                             contributed by `jetpack/post-type-filter`. Folded
+ *                                             contributed by `jetpack-search/filter-post-type`. Folded
  *                                             into the ES filter clause as `bool.should` (include)
  *                                             and `bool.must_not` (exclude). Hidden from visitors —
  *                                             not represented in `activeFilters` and not surfaced
