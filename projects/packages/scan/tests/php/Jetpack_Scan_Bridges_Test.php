@@ -24,6 +24,7 @@ use function do_action;
 use function remove_all_actions;
 use function remove_filter;
 use function rest_get_server;
+use function user_can;
 use function wp_insert_user;
 use function wp_set_current_user;
 
@@ -204,14 +205,28 @@ class Jetpack_Scan_Bridges_Test extends TestCase {
 	 *
 	 * Without this gate, Client::wpcom_json_api_request_as_user falls back
 	 * to blog auth and writes are silently mis-attributed.
+	 *
+	 * The two pre-dispatch assertions pin which gate fires: the admin
+	 * cap gate must pass (so we know the 403 is the user-connection
+	 * gate, not `permissions_check`), and the user-connection predicate
+	 * must be false (so we know the gate has something to reject on).
 	 */
 	public function test_mutation_routes_require_user_connection() {
 		// Admin user, but no Jetpack user connection.
 		wp_set_current_user( $this->admin_id );
 
-		// Sanity: the user-connection gate predicate is false here.
+		// Pre-dispatch invariant 1: admin cap gate would pass.
+		$this->assertTrue(
+			user_can( $this->admin_id, 'manage_options' ),
+			'Admin user must have manage_options capability so we know it is the user-connection gate (not the cap gate) firing the 403.'
+		);
+
+		// Pre-dispatch invariant 2: the user-connection gate predicate is false.
 		$connection = new \Automattic\Jetpack\Connection\Manager();
-		$this->assertFalse( $connection->is_user_connected( $this->admin_id ) );
+		$this->assertFalse(
+			$connection->is_user_connected( $this->admin_id ),
+			'Test environment must report no user connection so the gate has something to reject.'
+		);
 
 		$request  = new WP_REST_Request( 'POST', '/jetpack/v4/site/scan/threat/123/ignore' );
 		$response = $this->server->dispatch( $request );
