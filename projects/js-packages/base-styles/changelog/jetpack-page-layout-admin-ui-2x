@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+admin-page-layout mixin: anchor selectors to the new `.jp-admin-page__page` className and the rendered `<header>` element, replacing the `.admin-ui-page*` global classes that admin-ui 2.0.0 dropped when it moved to CSS Modules. Restores the viewport-fitted scroll chain on every consumer (Boost, Protect, VideoPress, Search, Newsletter, Publicize, Backup, Jetpack network admin).
