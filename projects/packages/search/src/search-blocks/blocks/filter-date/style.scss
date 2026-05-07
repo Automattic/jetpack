@@ -50,16 +50,4 @@
 			display: none;
 		}
 	}
-
-	.jetpack-search-filter__all-selected {
-		margin: 0;
-		font-size: 0.75rem;
-		color: inherit;
-		opacity: 0.7;
-		font-style: italic;
-
-		&[hidden] {
-			display: none;
-		}
-	}
 }
