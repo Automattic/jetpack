@@ -189,6 +189,32 @@ class REST_Controller {
 	}
 
 	/**
+	 * Permission callback for mutation routes. Same admin gate as
+	 * `permissions_check()` plus an explicit user-connection check so
+	 * `Client::wpcom_json_api_request_as_user` can't silently fall back
+	 * to blog auth and mis-attribute writes.
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function permissions_check_user() {
+		$admin = self::permissions_check();
+		if ( is_wp_error( $admin ) ) {
+			return $admin;
+		}
+
+		$connection = new \Automattic\Jetpack\Connection\Manager();
+		if ( ! $connection->is_user_connected() ) {
+			return new WP_Error(
+				'rest_no_user_connection',
+				esc_html__( 'You must connect your WordPress.com account to perform this action.', 'jetpack-scan-page' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * GET /site/scan — current scan state + active threats.
 	 *
 	 * Proxies WPCOM `/sites/:siteId/scan` with blog auth (matches Protect
