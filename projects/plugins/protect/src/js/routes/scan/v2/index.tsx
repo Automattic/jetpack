@@ -1,6 +1,9 @@
 /**
  * Protect Scan v2 — root route.
  *
+ * The route relies on the QueryClientProvider mounted higher up in
+ * `src/js/index.tsx`. We do not declare a sub-client here.
+ *
  * Stage 1 of the migration spelled out in
  * `projects/plugins/protect/docs/scan-v2/design.md`.
  *
