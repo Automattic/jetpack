@@ -180,4 +180,28 @@ describe( 'filter-checkbox view store — filterItems', () => {
 			'Post',
 		] );
 	} );
+
+	it( 'date variant: keeps selected date buckets in the list and marks them checked', () => {
+		// Mirrors the checkbox-variant `checked` assertion above for the
+		// `filterType: 'date'` branch of filterItems / dateFilterItems.
+		contextRef.current = { filterKey: 'post_date' };
+		captured.state.activeFilters = { post_date: [ '2024-01-01' ] };
+		captured.state.aggregations = {
+			post_date: {
+				buckets: [
+					{ key_as_string: '2024-01-01', key: 1704067200000, doc_count: 5 },
+					{ key_as_string: '2025-01-01', key: 1735689600000, doc_count: 3 },
+				],
+			},
+		};
+		captured.state.filterConfigs = {
+			post_date: { filterType: 'date', interval: 'year', maxItems: 10, showCount: true },
+		};
+		expect(
+			captured.state.filterItems.map( i => ( { value: i.value, checked: i.checked } ) )
+		).toEqual( [
+			{ value: '2024-01-01', checked: true },
+			{ value: '2025-01-01', checked: false },
+		] );
+	} );
 } );
