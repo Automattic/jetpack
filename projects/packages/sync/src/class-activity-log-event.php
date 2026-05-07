@@ -88,6 +88,8 @@ class Activity_Log_Event {
 	/**
 	 * Logs a custom event to the Jetpack Activity Log.
 	 *
+	 * Call this on or after the `init` action so the Activity Log post type and Sync listeners are registered.
+	 *
 	 * @param array $args {
 	 *     Activity log event arguments.
 	 *
@@ -174,7 +176,7 @@ class Activity_Log_Event {
 	 * @return string[]
 	 */
 	public static function filter_sitemap_post_types( $types ) {
-		return array_diff( (array) $types, array( self::POST_TYPE ) );
+		return array_values( array_diff( (array) $types, array( self::POST_TYPE ) ) );
 	}
 
 	/**

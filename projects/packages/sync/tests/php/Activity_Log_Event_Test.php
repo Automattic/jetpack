@@ -31,7 +31,7 @@ class Activity_Log_Event_Test extends BaseTestCase {
 		$post_id = Activity_Log_Event::create(
 			array(
 				'title'       => ' <strong>Cache flushed</strong> ',
-				'content'     => "First <em>line</em>\nSecond line",
+				'content'     => "First <script>alert( 'x' );</script><em>line</em>\nSecond line",
 				'source'      => ' <code>mc</code> ',
 				'severity'    => ' SUCCESS ',
 				'external_id' => " <b>sync-run-123</b>\x00 ",
@@ -165,6 +165,40 @@ class Activity_Log_Event_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( \WP_Post::class, $post );
 		$this->assertIsArray( $this->filter_activity_log_sync_save_post( $post_id, $post ) );
+	}
+
+	/**
+	 * Tests that Activity Log events cannot be publicized.
+	 */
+	public function test_activity_log_event_prevents_publicize() {
+		$post_id = Activity_Log_Event::create(
+			array(
+				'title'   => 'Cache flushed',
+				'content' => 'Plain text note.',
+			)
+		);
+
+		$this->assertIsInt( $post_id );
+
+		$post = get_post( $post_id );
+
+		$this->assertInstanceOf( \WP_Post::class, $post );
+		$this->assertFalse( Activity_Log_Event::prevent_publicize( true, $post ) );
+	}
+
+	/**
+	 * Tests that Activity Log events are removed from Jetpack sitemap post types.
+	 */
+	public function test_activity_log_event_filters_sitemap_post_types() {
+		$post_types = Activity_Log_Event::filter_sitemap_post_types(
+			array(
+				'post',
+				Activity_Log_Event::POST_TYPE,
+				'page',
+			)
+		);
+
+		$this->assertSame( array( 'post', 'page' ), $post_types );
 	}
 
 	/**
