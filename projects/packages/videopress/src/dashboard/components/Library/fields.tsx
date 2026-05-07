@@ -1,11 +1,14 @@
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { Badge, Stack } from '@wordpress/ui';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './ThumbnailField';
 import type { MockLibraryItem } from '../../types/library';
 import type { Field, Operator } from '@wordpress/dataviews';
 
 const dateSettings = getDateSettings();
+
+type BadgeIntent = React.ComponentProps< typeof Badge >[ 'intent' ];
 
 const privacyLabel = ( privacy: MockLibraryItem[ 'privacy' ] ): string => {
 	switch ( privacy ) {
@@ -20,10 +23,10 @@ const privacyLabel = ( privacy: MockLibraryItem[ 'privacy' ] ): string => {
 
 const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
 	const { upload, type, title } = item;
-	let pill: { className: string; label: string } | null = null;
+	let pill: { intent: BadgeIntent; label: string } | null = null;
 	if ( upload.status === 'uploading' ) {
 		pill = {
-			className: 'vp-library__status-pill vp-library__status-pill--uploading',
+			intent: 'informational',
 			label: sprintf(
 				/* translators: %d: upload progress percentage */
 				__( 'Uploading %d%%', 'jetpack-videopress-pkg' ),
@@ -32,21 +35,24 @@ const TitleCell = ( { item }: { item: MockLibraryItem } ) => {
 		};
 	} else if ( upload.status === 'failed' ) {
 		pill = {
-			className: 'vp-library__status-pill vp-library__status-pill--failed',
+			intent: 'high',
 			label: __( 'Upload failed', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( type === 'local' ) {
 		pill = {
-			className: 'vp-library__status-pill vp-library__status-pill--local',
+			intent: 'none',
 			label: __( 'Local', 'jetpack-videopress-pkg' ),
 		};
 	}
 
+	if ( ! pill ) {
+		return <>{ title }</>;
+	}
 	return (
-		<>
-			{ title }
-			{ pill ? <span className={ pill.className }>{ pill.label }</span> : null }
-		</>
+		<Stack direction="row" gap="sm" align="center" className="vp-library__title-cell">
+			<span>{ title }</span>
+			<Badge intent={ pill.intent }>{ pill.label }</Badge>
+		</Stack>
 	);
 };
 

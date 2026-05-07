@@ -158,38 +158,11 @@
 		}
 	}
 
-	// Status pill (Local / Uploading 47% / Upload failed) renders in the title
-	// cell. Only show in the table view — in the grid view, the per-card overlays
-	// already convey the same information more visibly.
-	&__viewport--grid &__status-pill {
+	// Status info (Local / Uploading 47% / Upload failed) renders as a Badge
+	// alongside the title. Hide it in grid view — the per-card overlays already
+	// convey the same information more visibly. Targets the second child of the
+	// title-cell Stack so the title stays visible.
+	&__viewport--grid &__title-cell > :not(:first-child) {
 		display: none;
-	}
-
-	&__status-pill {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		margin-left: 8px;
-		padding: 1px 6px;
-		border-radius: 3px;
-		font-size: 11px;
-		font-weight: 500;
-		background: #f0f0f0;
-		color: #1e1e1e;
-
-		&--uploading {
-			background: rgba(56, 88, 233, 0.12);
-			color: #3858e9;
-		}
-
-		&--failed {
-			background: rgba(204, 24, 24, 0.12);
-			color: #cc1818;
-		}
-
-		&--local {
-			background: #f0f0f0;
-			color: #757575;
-		}
 	}
 }
