@@ -12,7 +12,6 @@ use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 
@@ -389,21 +388,11 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Subscribers.
-	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
-		add_submenu_page(
-			'jetpack',
-			__( 'Subscribers', 'jetpack-mu-wpcom' ),
-			__( 'Subscribers', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/subscribers/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-	} else {
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard->add_wp_admin_submenu();
-	}
+	// "Jetpack > Subscribers" / standalone "Subscribers" wp-admin pages were
+	// retired alongside the Newsletter modernization umbrella (#48530); the
+	// Newsletter page now owns the Subscribers tab. Keep the Calypso link
+	// hidden in case some other layer adds it back.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
 	if ( Podcast::is_enabled() ) {
 		Podcast_Admin_Page::add_wp_admin_submenu();
@@ -468,7 +457,6 @@ function wpcom_add_jetpack_submenu() {
 			'forms',
 			'earn',
 			'search',
-			'subscribers',
 			'newsletter',
 			'podcast',
 			'podcasting',

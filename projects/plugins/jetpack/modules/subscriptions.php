@@ -15,14 +15,8 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -144,9 +138,6 @@ class Jetpack_Subscriptions {
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 		add_action( 'transition_post_status', array( $this, 'maybe_set_first_published_status' ), 10, 3 );
 
-		// Add Subscribers menu to Jetpack navigation.
-		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
-
 		// Customize the configuration URL to lead to the Subscriptions settings.
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
@@ -157,8 +148,6 @@ class Jetpack_Subscriptions {
 
 		// Track categories created through the category editor page
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard::init();
 
 		$newsletter_settings = new Newsletter_Settings();
 		$newsletter_settings::init();
@@ -1018,64 +1007,6 @@ class Jetpack_Subscriptions {
 		);
 
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
-	}
-
-	/**
-	 * Create a Subscribers menu displayed on self-hosted sites.
-	 *
-	 * - It is not displayed on WordPress.com sites.
-	 * - It directs you to Calypso to the existing Subscribers page.
-	 *
-	 * @return void
-	 */
-	public function add_subscribers_menu() {
-		/**
-		 * Enables the new in development subscribers in wp-admin dashboard.
-		 *
-		 * @since 9.5.0
-		 *
-		 * @param bool If the new dashboard is enabled. Default false.
-		 */
-		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-			return;
-		}
-
-		/*
-		 * Do not display any menu on WoA and WordPress.com Simple sites (unless Classic wp-admin is enabled).
-		 * They already get a menu item under Users via nav-unification.
-		 */
-		if ( ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-			return;
-		}
-
-		$status = new Status();
-
-		/*
-		 * Do not display if we're in Offline mode,
-		 * or if the user is not connected.
-		 */
-		if (
-			$status->is_offline_mode()
-			|| ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
-		) {
-			return;
-		}
-
-		$blog_id = Connection_Manager::get_site_id( true );
-
-		$link = Redirect::get_url(
-			'jetpack-menu-jetpack-manage-subscribers',
-			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
-		);
-
-		Admin_Menu::add_menu(
-			__( 'Subscribers', 'jetpack' ),
-			__( 'Subscribers', 'jetpack' ) . ' <span aria-hidden="true">↗</span>',
-			'manage_options',
-			esc_url( $link ),
-			null,
-			15
-		);
 	}
 
 	/**
