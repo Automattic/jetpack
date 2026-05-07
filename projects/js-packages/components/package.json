@@ -28,6 +28,11 @@
 			"types": "./build/components/admin-page/index.d.ts",
 			"default": "./build/components/admin-page/index.js"
 		},
+		"./global-notices": {
+			"jetpack:src": "./components/global-notices/index.ts",
+			"types": "./build/components/global-notices/index.d.ts",
+			"default": "./build/components/global-notices/index.js"
+		},
 		"./gravatar": {
 			"jetpack:src": "./components/gravatar/index.tsx",
 			"types": "./build/components/gravatar/index.d.ts",

@@ -1,6 +1,7 @@
+import { GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/DashboardLayout';
 import { buildLibraryActions } from '../../src/dashboard/components/Library/actions';
@@ -8,9 +9,15 @@ import { libraryFields } from '../../src/dashboard/components/Library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/Library/upload-actions-context';
 import { useMockLibrary } from '../../src/dashboard/hooks/use-mock-library';
 import './style.scss';
-import type { MockLibraryItem } from '../../src/dashboard/types/library';
+import type { LibraryItemPrivacy, MockLibraryItem } from '../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
+
+const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
+	public: __( 'Public', 'jetpack-videopress-pkg' ),
+	private: __( 'Private', 'jetpack-videopress-pkg' ),
+	'site-default': __( 'Site default', 'jetpack-videopress-pkg' ),
+};
 
 const GRID_VISIBLE_FIELDS = [ 'filename' ];
 const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'fileSize', 'uploadDate', 'privacy' ];
@@ -71,16 +78,36 @@ const Stage = () => {
 		// Phase 4 will route to the details screen.
 	}, [] );
 
+	const { createSuccessNotice } = useGlobalNotices();
+
 	const actions = useMemo(
 		() =>
 			buildLibraryActions( {
 				promoteLocal,
 				retryUpload,
-				deleteItems,
-				setPrivacy,
 				openVideoDetails,
+				deleteItems: ids => {
+					deleteItems( ids );
+					createSuccessNotice(
+						sprintf(
+							/* translators: %d: number of deleted videos. */
+							_n( '%d video deleted.', '%d videos deleted.', ids.length, 'jetpack-videopress-pkg' ),
+							ids.length
+						)
+					);
+				},
+				setPrivacy: ( id, privacy ) => {
+					setPrivacy( id, privacy );
+					createSuccessNotice(
+						sprintf(
+							/* translators: %s: new privacy label, e.g. "Public". */
+							__( 'Privacy updated to %s.', 'jetpack-videopress-pkg' ),
+							PRIVACY_LABELS[ privacy ]
+						)
+					);
+				},
 			} ),
-		[ promoteLocal, retryUpload, deleteItems, setPrivacy, openVideoDetails ]
+		[ promoteLocal, retryUpload, deleteItems, setPrivacy, openVideoDetails, createSuccessNotice ]
 	);
 
 	const filteredData = useMemo< MockLibraryItem[] >( () => {
@@ -186,6 +213,7 @@ const Stage = () => {
 					/>
 				</div>
 			</UploadActionsProvider>
+			<GlobalNotices />
 		</DashboardLayout>
 	);
 };
