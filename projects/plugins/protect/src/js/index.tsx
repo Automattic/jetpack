@@ -12,7 +12,7 @@ import { NoticeProvider } from './hooks/use-notices';
 import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
 import { CheckoutProvider } from './hooks/use-plan';
 import FirewallRoute from './routes/firewall';
-import ScanRoute from './routes/scan';
+import ScanDispatchRoute from './routes/scan/dispatch';
 import ScanHistoryRoute from './routes/scan/history';
 import SettingsRoute from './routes/settings';
 import SetupRoute from './routes/setup';
@@ -60,7 +60,7 @@ function render() {
 									<Routes>
 										<Route path="/setup" element={ <SetupRoute /> } />
 										<Route path="/*" element={ <ProtectApp /> }>
-											<Route path="scan" element={ <ScanRoute /> } />
+											<Route path="scan" element={ <ScanDispatchRoute /> } />
 											<Route
 												path="scan/history"
 												element={
