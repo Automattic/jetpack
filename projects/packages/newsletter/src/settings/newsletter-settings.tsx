@@ -419,11 +419,11 @@ export function NewsletterSettingsBody( {
 				isDisabled={ ! hasConnectedOwner }
 				className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }
 			>
-				<Stack gap="md" direction="column" className="newsletter-settings">
+				<Stack gap="xl" direction="column" className="newsletter-settings">
 					<NewsletterSection data={ data } onChange={ handleAutoSave } />
 
 					<Disabled isDisabled={ ! data.subscriptions }>
-						<Stack gap="md" direction="column">
+						<Stack gap="xl" direction="column">
 							<SubscriptionsSection
 								data={ data }
 								onChange={ handleSubscriptionChange }
