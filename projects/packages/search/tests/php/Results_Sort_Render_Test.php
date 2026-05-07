@@ -1,6 +1,6 @@
 <?php
 /**
- * Sort Control block render.php tests.
+ * Results Sort block render.php tests.
  *
  * @package automattic/jetpack-search
  */
@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Search;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
- * Integration tests for the sort-control block's render template.
+ * Integration tests for the results-sort block's render template.
  *
  * Each test renders through `do_blocks()` so WordPress wires up the block
  * context `get_block_wrapper_attributes()` needs — exercising the same path
@@ -19,7 +19,7 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 class Results_Sort_Render_Test extends TestCase {
 
 	/**
-	 * Register the sort-control block inline so `do_blocks()` can resolve it
+	 * Register the results-sort block inline so `do_blocks()` can resolve it
 	 * without requiring the `build/` artifacts referenced by block.json's
 	 * `viewScriptModule` and `style` entries. The render callback forwards
 	 * `$attributes` to the render.php under test.
@@ -80,7 +80,7 @@ class Results_Sort_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Render the sort-control block with the given attributes via `do_blocks`.
+	 * Render the results-sort block with the given attributes via `do_blocks`.
 	 *
 	 * @param array $attributes Block attributes (JSON-encoded into the comment delimiter).
 	 * @return string Rendered markup.

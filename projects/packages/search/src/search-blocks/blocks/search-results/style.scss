@@ -1,8 +1,4 @@
-// Manual wrapper class kept as `-panel` rather than slug-matching
-// `jetpack-search-search-results` to avoid the double-"search" segment.
-// The auto-derived `.wp-block-jetpack-search-search-results` already covers
-// slug-derived selection; this class is a clean internal hook.
-.jetpack-search-results-panel {
+.jetpack-search-search-results {
 	display: flex;
 	flex-direction: column;
 	// Default inter-block spacing. Themes / block supports override this via

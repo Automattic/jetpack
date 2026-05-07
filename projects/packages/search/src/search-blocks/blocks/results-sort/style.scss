@@ -28,7 +28,7 @@
 	// block would render a bordered box around the radio group, which doesn't
 	// match the inline look of the select variant and surprises theme authors
 	// who style the block as a single row.
-	.jetpack-search-sort-control__radio-group {
+	.jetpack-search-results-sort__radio-group {
 		display: flex;
 		align-items: center;
 		flex-wrap: wrap;
@@ -59,7 +59,7 @@
 	// navigation across the group) and the label carries the click target.
 	// Selection is cued with weight + full opacity so the active option rides
 	// the site palette instead of pinning to a fixed accent color.
-	.jetpack-search-sort-control__radio-item {
+	.jetpack-search-results-sort__radio-item {
 		display: flex;
 		align-items: center;
 		// Anchor the absolutely-positioned visually-hidden radio to its own

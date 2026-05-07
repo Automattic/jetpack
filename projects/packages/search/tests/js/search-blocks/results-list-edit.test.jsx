@@ -86,7 +86,7 @@ describe( 'ResultsListEdit', () => {
 			<ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ setAttributes } />
 		);
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
 		fireEvent.click( screen.getByRole( 'radio', { name: 'Product (for WooCommerce stores)' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { layout: 'product' } );
 	} );
@@ -111,7 +111,7 @@ describe( 'ResultsListEdit', () => {
 		const setAttributes = jest.fn();
 		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
 		fireEvent.change( screen.getByRole( 'textbox', { name: 'No-results message' } ), {
 			target: { value: 'Try a broader query.' },
 		} );
@@ -122,7 +122,7 @@ describe( 'ResultsListEdit', () => {
 		const setAttributes = jest.fn();
 		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
 		fireEvent.change( screen.getByRole( 'textbox', { name: 'Error message' } ), {
 			target: { value: 'Search is offline right now.' },
 		} );

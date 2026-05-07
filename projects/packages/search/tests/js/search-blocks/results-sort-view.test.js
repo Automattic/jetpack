@@ -39,7 +39,7 @@ jest.mock( '../../../src/search-blocks/blocks/results-sort/style.scss', () => ( 
 
 require( '../../../src/search-blocks/blocks/results-sort/view' );
 
-describe( 'sort-control view store', () => {
+describe( 'results-sort view store', () => {
 	beforeEach( () => {
 		captured.state.sortOrder = 'relevance';
 		captured.state.sortMenuFocusedKey = null;

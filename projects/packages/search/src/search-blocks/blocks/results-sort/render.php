@@ -132,12 +132,12 @@ $checked_getters = array(
 			<?php
 			// Shared `name` groups the radios so the browser enforces single-
 			// selection semantics across the whole block instance. The wrapper's
-			// uniquely generated id doubles as the group name -- two sort-control
+			// uniquely generated id doubles as the group name -- two results-sort
 			// blocks on the same page therefore get distinct names and don't
 			// interfere with each other.
 			$group_name = $select_id;
 			?>
-			<fieldset class="jetpack-search-sort-control__radio-group">
+			<fieldset class="jetpack-search-results-sort__radio-group">
 				<legend><?php echo esc_html( $label ); ?></legend>
 				<?php foreach ( $options as $sort_key ) : ?>
 					<?php
@@ -145,7 +145,7 @@ $checked_getters = array(
 					$radio_id     = $select_id . '-' . sanitize_key( $sort_key );
 					?>
 					<div
-						class="jetpack-search-sort-control__radio-item"
+						class="jetpack-search-results-sort__radio-item"
 						<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'sortKey' => $sort_key ) ) ); ?>
 					>
 						<input

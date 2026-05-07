@@ -81,7 +81,7 @@ const SAMPLE_PRODUCTS = [
 // Declared as a function (rather than a module-level constant) so the `__()`
 // calls run after the block editor's i18n is loaded — otherwise the strings
 // would be cached in the source locale on module init. Mirrors the same
-// pattern in `sort-control/edit.js`.
+// pattern in `results-sort/edit.js`.
 const LAYOUT_OPTIONS = () => [
 	{ label: __( 'Compact', 'jetpack-search-pkg' ), value: 'compact' },
 	{ label: __( 'Expanded', 'jetpack-search-pkg' ), value: 'expanded' },

@@ -1,6 +1,6 @@
 <?php
 /**
- * Search Results block render.php tests.
+ * Results List block render.php tests.
  *
  * @package automattic/jetpack-search
  */
@@ -10,12 +10,12 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Integration tests for the search-results block render template.
+ * Integration tests for the results-list block render template.
  */
 class Results_List_Render_Test extends TestCase {
 
 	/**
-	 * Register the search-results block inline so `do_blocks()` can resolve it
+	 * Register the results-list block inline so `do_blocks()` can resolve it
 	 * without depending on built artifacts.
 	 */
 	public static function setUpBeforeClass(): void {
@@ -57,7 +57,7 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Render the search-results block with the given attributes via `do_blocks`.
+	 * Render the results-list block with the given attributes via `do_blocks`.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @return string Rendered markup.

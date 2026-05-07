@@ -1,7 +1,7 @@
 /**
  * Tests for the sort-popover ARIA-menu keyboard navigation actions in the
  * shared `jetpack-search` store. The store is exercised through the same
- * `@wordpress/interactivity` mock used by `sort-control-view.test.js`: the
+ * `@wordpress/interactivity` mock used by `results-sort-view.test.js`: the
  * mocked `store()` collects the registered state/actions, and the tests
  * drive the captured actions directly with synthetic events.
  */

@@ -34,7 +34,7 @@ if ( Search_Blocks::is_free_plan() && false === strpos( $panel_content, 'wp-bloc
 	);
 }
 ?>
-<div <?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-results-panel' ) ) ); ?>>
+<div <?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-search-results' ) ) ); ?>>
 	<?php
 	echo $panel_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer; auto-injected powered-by output is rendered through render_block() and escaped by its own renderer.
 	?>

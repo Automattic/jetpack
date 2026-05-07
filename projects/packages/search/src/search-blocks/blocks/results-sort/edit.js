@@ -48,7 +48,7 @@ function resolveAvailable( stored ) {
 }
 
 /**
- * Edit component for the sort-control block.
+ * Edit component for the results-sort block.
  *
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Saved block attributes.
@@ -195,12 +195,12 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 		);
 	} else if ( 'radio' === displayAs ) {
 		preview = (
-			<fieldset className="jetpack-search-sort-control__radio-group">
+			<fieldset className="jetpack-search-results-sort__radio-group">
 				<legend>{ labelText }</legend>
 				{ available.map( key => {
 					const radioId = `${ baseId }-${ key }`;
 					return (
-						<div key={ key } className="jetpack-search-sort-control__radio-item">
+						<div key={ key } className="jetpack-search-results-sort__radio-item">
 							<input
 								type="radio"
 								id={ radioId }

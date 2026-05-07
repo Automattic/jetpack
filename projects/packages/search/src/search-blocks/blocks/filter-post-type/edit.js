@@ -199,7 +199,7 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 						onChange={ handlePostTypesChange }
 					/>
 					<p
-						className="jetpack-search-post-type-filter__hint"
+						className="jetpack-search-filter-post-type__hint"
 						style={ {
 							color: 'rgba(30, 30, 30, 0.62)',
 							fontSize: '12px',
@@ -232,7 +232,7 @@ export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
 					<span>{ __( 'Hidden on the front end', 'jetpack-search-pkg' ) }</span>
 				</p>
 				<h3
-					className="jetpack-search-post-type-filter__title"
+					className="jetpack-search-filter-post-type__title"
 					style={ { margin: '0 0 4px', fontSize: '14px', fontWeight: 600 } }
 				>
 					{ __( 'Post Type Scope', 'jetpack-search-pkg' ) }

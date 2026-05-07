@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\Search;
 $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-popover' ) ) ); ?>
+	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filters-popover' ) ) ); ?>
 	data-wp-interactive="jetpack-search"
 	data-jetpack-search-popover-root
 	data-wp-on-window--click="actions.onWindowClickClosePopovers"
@@ -24,7 +24,7 @@ $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 >
 	<button
 		type="button"
-		class="jetpack-search-filter-popover__trigger"
+		class="jetpack-search-filters-popover__trigger"
 		aria-haspopup="dialog"
 		aria-expanded="false"
 		data-wp-bind--aria-expanded="state.isFilterPopoverOpen"
@@ -33,24 +33,24 @@ $panel_id = wp_unique_id( 'jetpack-search-filter-panel-' );
 		aria-controls="<?php echo esc_attr( $panel_id ); ?>"
 		data-wp-on--click="actions.toggleFilterPopover"
 	>
-		<svg class="jetpack-search-filter-popover__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+		<svg class="jetpack-search-filters-popover__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 			<path fill="currentColor" d="M3 6h18v2H3V6Zm3 5h12v2H6v-2Zm3 5h6v2H9v-2Z"/>
 		</svg>
 		<span class="screen-reader-text"><?php esc_html_e( 'Filter results', 'jetpack-search-pkg' ); ?></span>
 		<span
-			class="jetpack-search-filter-popover__badge"
+			class="jetpack-search-filters-popover__badge"
 			data-wp-bind--hidden="!state.activeFilterCount"
 			hidden
 		>
 			<span
-				class="jetpack-search-filter-popover__badge-count"
+				class="jetpack-search-filters-popover__badge-count"
 				data-wp-text="state.activeFilterCount"
 			></span>
 		</span>
 	</button>
 	<div
 		id="<?php echo esc_attr( $panel_id ); ?>"
-		class="jetpack-search-filter-popover__panel"
+		class="jetpack-search-filters-popover__panel"
 		role="dialog"
 		aria-label="<?php esc_attr_e( 'Filters', 'jetpack-search-pkg' ); ?>"
 		data-wp-bind--hidden="!state.isFilterPopoverOpen"

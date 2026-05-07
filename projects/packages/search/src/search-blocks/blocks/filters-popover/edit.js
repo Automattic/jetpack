@@ -26,18 +26,18 @@ const ALLOWED = [
  * @return {object} Rendered element.
  */
 export default function FiltersPopoverEdit() {
-	const blockProps = useBlockProps( { className: 'jetpack-search-filter-popover' } );
+	const blockProps = useBlockProps( { className: 'jetpack-search-filters-popover' } );
 	return (
 		<div { ...blockProps }>
 			<button
 				type="button"
-				className="jetpack-search-filter-popover__trigger"
+				className="jetpack-search-filters-popover__trigger"
 				aria-haspopup="dialog"
 				aria-expanded="false"
 				disabled
 			>
 				<svg
-					className="jetpack-search-filter-popover__icon"
+					className="jetpack-search-filters-popover__icon"
 					width={ 18 }
 					height={ 18 }
 					viewBox="0 0 24 24"
@@ -49,7 +49,7 @@ export default function FiltersPopoverEdit() {
 				<span className="screen-reader-text">{ __( 'Filter results', 'jetpack-search-pkg' ) }</span>
 			</button>
 			<div
-				className="jetpack-search-filter-popover__panel jetpack-search-filter-popover__panel--editor"
+				className="jetpack-search-filters-popover__panel jetpack-search-filters-popover__panel--editor"
 				role="dialog"
 				aria-label={ __( 'Filters', 'jetpack-search-pkg' ) }
 				hidden

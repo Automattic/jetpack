@@ -305,7 +305,7 @@ const { state, actions } = store( NAMESPACE, {
 
 		/**
 		 * Total selected filter values across all filter keys. Used by the
-		 * filter-popover trigger to render a count badge.
+		 * filters-popover trigger to render a count badge.
 		 *
 		 * @return {number} Count of selected filter values.
 		 */
@@ -314,7 +314,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when the filter-popover trigger should be disabled: there are
+		 * True when the filters-popover trigger should be disabled: there are
 		 * no aggregation buckets to filter on AND no active filters to clear.
 		 * Opening the popover in that state would show an empty panel, so we
 		 * gate the affordance itself. Remains enabled while any filter is

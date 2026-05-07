@@ -36,7 +36,7 @@ const ALLOWED = [
  * @return {object} Rendered element.
  */
 export default function SearchResultsEdit() {
-	const blockProps = useBlockProps( { className: 'jetpack-search-results-panel' } );
+	const blockProps = useBlockProps( { className: 'jetpack-search-search-results' } );
 	return (
 		<div { ...blockProps }>
 			<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />
