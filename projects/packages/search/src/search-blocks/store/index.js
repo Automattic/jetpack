@@ -472,9 +472,11 @@ const { state, actions } = store( NAMESPACE, {
 		 * True when the filters-popover trigger should be disabled: there are
 		 * no aggregation buckets to filter on AND no active filters to clear.
 		 * Opening the popover in that state would show an empty panel, so we
-		 * gate the affordance itself. Remains enabled while any filter is
-		 * active so users can still open the popover to remove pills even
-		 * when the current query returns no results.
+		 * gate the affordance itself. Remains enabled whenever
+		 * `hasActiveFilters` is true (which now includes a `priceRange`
+		 * selection) so users can still open the popover to layer additional
+		 * facets on top of a price-only deep link, even when the current
+		 * query returns no results.
 		 *
 		 * @return {boolean} Whether the filter trigger is disabled.
 		 */

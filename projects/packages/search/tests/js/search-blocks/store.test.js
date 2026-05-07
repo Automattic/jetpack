@@ -332,6 +332,16 @@ describe( 'store actions', () => {
 		await runGenerator( actions.clearFilters() );
 		expect( state.priceRange ).toBeNull();
 		expect( search ).toHaveBeenCalledTimes( 2 );
+
+		// Combined state — both checkbox selections and a price range — must
+		// reset in a single call, since the active-filters "Clear all" button
+		// is the only affordance that clears price selections in this PR.
+		state.activeFilters = { tag: [ 'react' ] };
+		state.priceRange = { min: 10, max: 50 };
+		await runGenerator( actions.clearFilters() );
+		expect( state.activeFilters ).toEqual( {} );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 3 );
 	} );
 
 	it( 'setPriceRange validates bounds, no-ops on identity, and clears on null/null', async () => {
