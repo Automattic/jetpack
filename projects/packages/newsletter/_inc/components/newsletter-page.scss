@@ -25,6 +25,7 @@ body.jetpack_page_jetpack-newsletter {
 	.admin-ui-page__header {
 		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: 0;
+		padding-block-end: var(--wpds-dimension-padding-xs, 4px);
 
 		> *:first-child {
 			min-block-size: 36px;
