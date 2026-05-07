@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Sync\Activity_Log_Event;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -86,11 +87,6 @@ class Posts extends Module {
 	 * @var string
 	 */
 	const DEFAULT_PREVIOUS_STATE = 'new';
-
-	/**
-	 * Post type name for Activity Log custom entries.
-	 */
-	const ACTIVITY_LOG_CPT = 'jp_act_log_event';
 
 	/**
 	 * Sync module name.
@@ -485,42 +481,7 @@ class Posts extends Module {
 			return false;
 		}
 
-		if ( self::ACTIVITY_LOG_CPT === $post->post_type ) {
-			return false;
-		}
-
 		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
-	}
-
-	/**
-	 * Checks that an Activity Log custom event has the minimum payload shape before enqueueing it for sync,
-	 * in case data bypasses the jetpack_activity_log_event helper function.
-	 *
-	 * @param \WP_Post $post Activity Log post.
-	 * @return bool
-	 */
-	private function is_valid_activity_log_post( $post ) {
-		$data = json_decode( $post->post_content, true );
-		if ( ! is_array( $data ) ) {
-			$data = json_decode( wp_unslash( $post->post_content ), true );
-		}
-
-		if ( ! is_array( $data ) ) {
-			return false;
-		}
-
-		foreach ( array( 'source', 'title', 'content' ) as $field ) {
-			if (
-				! isset( $data[ $field ] )
-				|| is_array( $data[ $field ] )
-				|| is_object( $data[ $field ] )
-				|| '' === trim( (string) $data[ $field ] )
-			) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -541,7 +502,7 @@ class Posts extends Module {
 
 		list( $post_id, $flags, $post ) = $args;
 
-		if ( self::ACTIVITY_LOG_CPT === $post->post_type && ! $this->is_valid_activity_log_post( $post ) ) {
+		if ( Activity_Log_Event::POST_TYPE === $post->post_type && ! Activity_Log_Event::is_valid_post( $post ) ) {
 			return false;
 		}
 
@@ -561,11 +522,6 @@ class Posts extends Module {
 		// deleted_post is called after the SQL delete but before cache cleanup.
 		// There is the potential we can't detect post_type at this point.
 		if ( ! $this->is_post_type_allowed( $args[0] ) ) {
-			return false;
-		}
-
-		// Activity log entries are write-once on WPcom; local deletions are not propagated.
-		if ( self::ACTIVITY_LOG_CPT === get_post_type( (int) $args[0] ) ) {
 			return false;
 		}
 

@@ -126,6 +126,9 @@ class Actions {
 		// Sync connected user role changes to WordPress.com.
 		Users::init();
 
+		// Activity Log custom events.
+		Activity_Log_Event::init();
+
 		// Publicize filter to prevent publicizing blacklisted post types.
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
 
