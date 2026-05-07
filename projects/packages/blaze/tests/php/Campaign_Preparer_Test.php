@@ -193,21 +193,21 @@ class Campaign_Preparer_Test extends BaseTestCase {
 			)
 		);
 
-			$this->assertIsArray( $result );
-			$this->assertIsArray( $captured_body );
-			$captured_body = is_array( $captured_body ) ? $captured_body : array();
-			$this->assertSame(
-				array(
-					'time_zone',
-					'start_date',
-					'end_date',
-					'total_budget',
-					'is_evergreen',
-					'is_tsp_eligible',
-					'targeting',
-				),
-				array_keys( $captured_body )
-			);
+		$this->assertIsArray( $result );
+		$this->assertIsArray( $captured_body );
+		$captured_body = is_array( $captured_body ) ? $captured_body : array();
+		$this->assertSame(
+			array(
+				'time_zone',
+				'start_date',
+				'end_date',
+				'total_budget',
+				'is_evergreen',
+				'is_tsp_eligible',
+				'targeting',
+			),
+			array_keys( $captured_body )
+		);
 		$this->assertSame( 80, $captured_body['total_budget'] );
 		$this->assertSame( gmdate( 'Y-m-d' ), $captured_body['start_date'] );
 		$this->assertSame( gmdate( 'Y-m-d', strtotime( '+7 days' ) ), $captured_body['end_date'] );
