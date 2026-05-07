@@ -2942,8 +2942,7 @@ const { state } = store( 'wpcom-write', {
 			state.showHelp = ! state.showHelp;
 			if ( state.showHelp ) {
 				const close = e => {
-					if ( e.target.closest( '.bw-help-popover' ) || e.target.closest( '.bw-help-toggle' ) )
-						return;
+					if ( e.target.closest( '.bw-help-wrap' ) ) return;
 					state.showHelp = false;
 					document.removeEventListener( 'click', close );
 				};
@@ -2955,13 +2954,13 @@ const { state } = store( 'wpcom-write', {
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
 				state.showHelp = false;
-				event.currentTarget.previousElementSibling?.focus();
+				event.currentTarget.querySelector( '.bw-help-toggle' )?.focus();
 			}
 		},
 
 		handleHelpFocusOut( event ) {
-			const popover = event.currentTarget;
-			if ( ! popover.contains( event.relatedTarget ) ) {
+			const wrap = event.currentTarget;
+			if ( ! wrap.contains( event.relatedTarget ) ) {
 				state.showHelp = false;
 			}
 		},
