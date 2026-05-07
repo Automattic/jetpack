@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -7,7 +8,7 @@ import Card from 'components/card';
 import { STORE_ID } from 'store';
 
 const AI_AGENT_ACCESS_DESCRIPTION = __(
-	'Let AI assistants like Claude and ChatGPT answer questions from your blog\u2019s content on behalf of WordPress.com users who have opted in.',
+	'Let AI assistants like Claude and ChatGPT answer questions from your blog’s content on behalf of WordPress.com users who have opted in.',
 	'jetpack-search-pkg'
 );
 const AI_AGENT_ACCESS_LEARN_MORE_URL = 'https://jetpack.com/support/ai-agent-access/';
@@ -58,7 +59,17 @@ export default function AIAgentAccessControl() {
 				data: isWpcom ? { enabled: next } : { jetpack_ai_agents_enabled: next },
 			} )
 				.then( settings => {
-					setIsEnabled( Boolean( settings?.[ settingsKey ] ) );
+					const updatedEnabled = Boolean( settings?.[ settingsKey ] );
+
+					setIsEnabled( updatedEnabled );
+					if ( updatedEnabled !== isEnabled ) {
+						analytics.tracks.recordEvent( 'jetpack_search_ai_agent_access_toggle', {
+							enabled: updatedEnabled,
+							previous_enabled: isEnabled,
+							is_wpcom: isWpcom,
+							surface: 'jetpack_search_dashboard',
+						} );
+					}
 					storeDispatch.removeUpdatingNotice();
 					storeDispatch.successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 				} )
@@ -73,7 +84,7 @@ export default function AIAgentAccessControl() {
 					setIsSaving( false );
 				} );
 		},
-		[ isWpcom, settingsKey, settingsPath, storeDispatch ]
+		[ isEnabled, isWpcom, settingsKey, settingsPath, storeDispatch ]
 	);
 
 	if ( isLoading || ! isAvailable ) {
