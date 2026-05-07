@@ -9,4 +9,3 @@ export { useZeroValueDisplay } from './use-zero-value-display';
 export { useDataWithPercentages } from './use-data-with-percentages';
 export { useInteractiveLegendData } from './use-interactive-legend-data';
 export { usePrefersReducedMotion } from './use-prefers-reduced-motion';
-export { useTooltipPortalRelocator } from './use-tooltip-portal-relocator';
