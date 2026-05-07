@@ -30,10 +30,40 @@ function pcg_log_event( $message, array $extra ) {
 			array(
 				'feature' => 'plugin-conflicts-guardian',
 				'message' => (string) $message,
-				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
+				'extra'   => wp_json_encode( pcg_log_redact_paths( $extra ), JSON_UNESCAPED_SLASHES ),
 			)
 		);
 	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must not escalate on activation / install / update request paths.
 		unset( $e );
 	}
+}
+
+/**
+ * Recursively replace `ABSPATH` and `WP_CONTENT_DIR` prefixes inside string
+ * values with `.../` so log lines don't leak the install layout. Keeps the
+ * relative tail (`plugins/foo/bar.php`), which is the useful part for triage.
+ *
+ * @param mixed $value Scalar or array.
+ * @return mixed
+ */
+function pcg_log_redact_paths( $value ) {
+	if ( is_array( $value ) ) {
+		return array_map( 'pcg_log_redact_paths', $value );
+	}
+	if ( ! is_string( $value ) || '' === $value ) {
+		return $value;
+	}
+	// WP_CONTENT_DIR first — it's a longer prefix that's typically *under*
+	// ABSPATH on standard installs, so swapping ABSPATH first would shadow it.
+	$replacements = array();
+	if ( defined( 'WP_CONTENT_DIR' ) && '' !== WP_CONTENT_DIR ) {
+		$replacements[ rtrim( WP_CONTENT_DIR, '/' ) . '/' ] = '.../';
+	}
+	if ( defined( 'ABSPATH' ) && '' !== ABSPATH ) {
+		$replacements[ rtrim( ABSPATH, '/' ) . '/' ] = '.../';
+	}
+	if ( empty( $replacements ) ) {
+		return $value;
+	}
+	return strtr( $value, $replacements );
 }
