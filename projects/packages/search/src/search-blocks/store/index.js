@@ -305,6 +305,24 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * True when *any* facet is active — selected filter values or a
+		 * price range. The active-filters pill row, the standalone clear-
+		 * filters block, and the filter-popover trigger all key off this
+		 * rather than `hasActiveFilters` (which is `activeFilters`-only).
+		 * Without the priceRange branch, a price-only selection leaves
+		 * the pill wrapper hidden even though the user has a chip to clear.
+		 *
+		 * @return {boolean} Whether any filter or the price range is active.
+		 */
+		get hasAnyActiveFilters() {
+			if ( state.hasActiveFilters ) {
+				return true;
+			}
+			const range = state.priceRange;
+			return !! range && ( range.min != null || range.max != null );
+		},
+
+		/**
 		 * Total selected filter values across all filter keys. Used by the
 		 * filters-popover trigger to render a count badge.
 		 *
@@ -569,15 +587,59 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Clear all active filters and re-run the search.
+		 * Clear every facet and re-run the search. Resets `activeFilters`
+		 * AND `priceRange` so a single clear-all affordance wipes both
+		 * checkbox-shaped selections and the half-open price range.
 		 *
 		 * @yield {Promise} search action.
 		 */
 		*clearFilters() {
-			if ( Object.keys( state.activeFilters ?? {} ).length === 0 ) {
+			const hadFilters = Object.keys( state.activeFilters ?? {} ).length > 0;
+			const hadPriceRange = state.priceRange !== null && state.priceRange !== undefined;
+			if ( ! hadFilters && ! hadPriceRange ) {
 				return;
 			}
 			state.activeFilters = {};
+			state.priceRange = null;
+			yield actions.search();
+		},
+
+		/**
+		 * Update the price range and re-run the search if it changed. Either
+		 * bound may be null for a half-open range; passing both as null clears
+		 * the range. No-ops when the new range matches the current one so a
+		 * blur from an unchanged input doesn't trigger an identical re-fetch.
+		 *
+		 * @param {number|null} min - Lower bound, inclusive.
+		 * @param {number|null} max - Upper bound, inclusive.
+		 * @yield {Promise} search action.
+		 */
+		*setPriceRange( min, max ) {
+			const normalize = v => ( v === null || v === undefined || v === '' ? null : Number( v ) );
+			const nextMin = normalize( min );
+			const nextMax = normalize( max );
+			// Reject NaN bounds so a typo'd input doesn't poison the ES range
+			// clause. Mirrors the parsePriceBound() guard in url-state.js so
+			// the action and the URL reader agree on what "no bound" means.
+			const validMin = nextMin === null || ( Number.isFinite( nextMin ) && nextMin >= 0 );
+			const validMax = nextMax === null || ( Number.isFinite( nextMax ) && nextMax >= 0 );
+			if ( ! validMin || ! validMax ) {
+				return;
+			}
+			// Inverted bounds (min > max) build a guaranteed-empty ES clause.
+			// Drop the call rather than pushing a bad URL or zeroing results.
+			if ( nextMin !== null && nextMax !== null && nextMin > nextMax ) {
+				return;
+			}
+			const next = nextMin === null && nextMax === null ? null : { min: nextMin, max: nextMax };
+			const prev = state.priceRange;
+			const same =
+				( prev === null && next === null ) ||
+				( prev !== null && next !== null && prev.min === next.min && prev.max === next.max );
+			if ( same ) {
+				return;
+			}
+			state.priceRange = next;
 			yield actions.search();
 		},
 
@@ -590,6 +652,7 @@ const { state, actions } = store( NAMESPACE, {
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
 				priceRange: state.priceRange,
+				filterConfigs: state.filterConfigs,
 				searchParamName: state.searchParamName,
 			} );
 		},

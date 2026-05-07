@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: foundation data-plane additions for the upcoming WC product filter blocks. Adds `actions.setPriceRange(min, max)` (rejects invalid/inverted bounds, no-ops on identity, clears the range when both bounds are null) and updates `actions.clearFilters` to also clear `priceRange` so a single clear-all wipes every facet. Adds `state.hasAnyActiveFilters` (covers `activeFilters` + `priceRange`) and rewires the active-filters wrapper visibility to use it — fixes a latent issue where a price-only deep link kept the wrapper hidden after hydration. Threads `filterConfigs` through `syncToUrl` so the writer side honors `urlFormat: 'scalar'` and product-shape filters round-trip with WooCommerce's native URL contract. Tracked under epic [RSM-1929].

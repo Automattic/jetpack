@@ -314,7 +314,7 @@ describe( 'store actions', () => {
 		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
-	it( 'clears filters only when filters are active', async () => {
+	it( 'clears every facet only when something is active', async () => {
 		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
 
 		await runGenerator( actions.clearFilters() );
@@ -322,9 +322,51 @@ describe( 'store actions', () => {
 
 		state.activeFilters = { tag: [ 'react' ] };
 		await runGenerator( actions.clearFilters() );
-
 		expect( state.activeFilters ).toEqual( {} );
 		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Price-only state still triggers a clear — covers half-open ranges
+		// like `{ min: 10, max: null }` so a "clear all" affordance wipes
+		// every facet, not just the checkbox-shaped ones.
+		state.priceRange = { min: 10, max: null };
+		await runGenerator( actions.clearFilters() );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'setPriceRange validates bounds, no-ops on identity, and clears on null/null', async () => {
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = null;
+
+		// NaN / negative bounds drop the call rather than poisoning ES.
+		await runGenerator( actions.setPriceRange( 'abc', 50 ) );
+		await runGenerator( actions.setPriceRange( -1, 50 ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+
+		// Inverted bounds (min > max) build an empty clause — drop too.
+		await runGenerator( actions.setPriceRange( 100, 10 ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+
+		// Closed range writes and searches.
+		await runGenerator( actions.setPriceRange( 10, 50 ) );
+		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Identity no-op — same bounds shouldn't refetch.
+		await runGenerator( actions.setPriceRange( 10, 50 ) );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Half-open range (one bound null) is allowed.
+		await runGenerator( actions.setPriceRange( 25, null ) );
+		expect( state.priceRange ).toEqual( { min: 25, max: null } );
+		expect( search ).toHaveBeenCalledTimes( 2 );
+
+		// Both null clears the range.
+		await runGenerator( actions.setPriceRange( null, null ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 3 );
 	} );
 
 	it( 'keeps filter and sort popovers mutually exclusive', () => {
@@ -493,6 +535,27 @@ describe( 'store getters', () => {
 		state.activeFilters = { category: [ 'news', 'updates' ] };
 		expect( state.hasActiveFilters ).toBe( true );
 		expect( state.activeFilterCount ).toBe( 2 );
+	} );
+
+	it( 'hasAnyActiveFilters covers activeFilters and the priceRange (including half-open)', () => {
+		state.activeFilters = {};
+		state.priceRange = null;
+		expect( state.hasAnyActiveFilters ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.hasAnyActiveFilters ).toBe( true );
+
+		state.activeFilters = {};
+		state.priceRange = { min: 10, max: 50 };
+		expect( state.hasAnyActiveFilters ).toBe( true );
+
+		// Half-open range still counts — without this branch a price-only
+		// deep link leaves the active-filters wrapper hidden after hydration.
+		state.priceRange = { min: null, max: 50 };
+		expect( state.hasAnyActiveFilters ).toBe( true );
+
+		state.priceRange = { min: null, max: null };
+		expect( state.hasAnyActiveFilters ).toBe( false );
 	} );
 
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {
