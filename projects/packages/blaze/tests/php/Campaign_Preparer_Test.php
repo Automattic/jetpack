@@ -11,6 +11,8 @@ use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Server;
 
 /**
  * @covers \Automattic\Jetpack\Blaze\Campaign_Preparer
@@ -30,6 +32,9 @@ class Campaign_Preparer_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		Jetpack_Options::update_option( 'id', self::TEST_SITE_ID );
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
 	}
 
 	/**
@@ -37,6 +42,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Jetpack_Options::delete_option( 'id' );
+		unset( $GLOBALS['wp_rest_server'] );
 	}
 
 	/**
@@ -62,6 +68,23 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		return array(
 			'post_id'    => (int) $post_id,
 			'target_urn' => sprintf( 'urn:wpcom:post:%d:%d', self::TEST_SITE_ID, (int) $post_id ),
+		);
+	}
+
+	/**
+	 * Register a test forecast route that captures the preparer's proxied DSP request.
+	 *
+	 * @param callable $callback Route callback.
+	 */
+	private function register_forecast_route( callable $callback ) {
+		register_rest_route(
+			'jetpack/v4/blaze-app',
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/forecast', self::TEST_SITE_ID ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => $callback,
+				'permission_callback' => '__return_true',
+			)
 		);
 	}
 
@@ -136,6 +159,127 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( 150.0, $higher['budget']['amount'] );
 		$this->assertStringContainsString( 'more reach', strtolower( $higher['rationale'] ) );
 		$this->assertStringContainsString( 'product', implode( ' ', $result['assumptions'] ) );
+	}
+
+	/**
+	 * Forecast requests use the DSP v1.1 forecast body shape and ecommerce
+	 * responses emphasize clicks before visibility.
+	 */
+	public function test_prepare_adds_click_first_forecast_for_ecommerce_intent() {
+		$ctx           = $this->make_test_post( array( 'post_type' => 'product' ) );
+		$captured_body = null;
+		$this->register_forecast_route(
+			static function ( WP_REST_Request $request ) use ( &$captured_body ) {
+				$captured_body = json_decode( $request->get_body(), true );
+				return array(
+					'total_impressions_min'     => 1200,
+					'total_impressions_max'     => 2400,
+					'total_clicks_min'          => 30,
+					'total_clicks_max'          => 60,
+					'total_tsp_impressions_min' => 100,
+					'total_tsp_impressions_max' => 200,
+				);
+			}
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 80,
+				'duration_days' => 8,
+				'languages'     => array( 'en' ),
+				'devices'       => array( 'mobile' ),
+				'interests'     => array( 'IAB8_IAB18' ),
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame(
+			array(
+				'time_zone',
+				'start_date',
+				'end_date',
+				'total_budget',
+				'is_evergreen',
+				'is_tsp_eligible',
+				'targeting',
+			),
+			array_keys( $captured_body )
+		);
+		$this->assertSame( 80, $captured_body['total_budget'] );
+		$this->assertSame( gmdate( 'Y-m-d' ), $captured_body['start_date'] );
+		$this->assertSame( gmdate( 'Y-m-d', strtotime( '+7 days' ) ), $captured_body['end_date'] );
+		$this->assertSame(
+			array(
+				'locations'   => array(),
+				'languages'   => array( 'en' ),
+				'devices'     => array( 'mobile' ),
+				'page_topics' => array( 'IAB8_IAB18' ),
+			),
+			$captured_body['targeting']
+		);
+
+		$this->assertSame( 'available', $result['forecast']['status'] );
+		$this->assertSame( 'clicks', $result['forecast']['primary_metric'] );
+		$this->assertSame( 'views', $result['forecast']['secondary_metric'] );
+		$this->assertSame( array( 'min' => 30, 'max' => 60 ), $result['forecast']['clicks'] );
+		$this->assertSame( array( 'min' => 1200, 'max' => 2400 ), $result['forecast']['views'] );
+		$this->assertSame( array( 'min' => 1200, 'max' => 2400 ), $result['forecast']['impressions'] );
+	}
+
+	/**
+	 * Content forecasts put visibility first and clicks second.
+	 */
+	public function test_prepare_adds_view_first_forecast_for_content_intent() {
+		$ctx = $this->make_test_post( array( 'post_type' => 'post' ) );
+		$this->register_forecast_route(
+			static function () {
+				return array(
+					'total_impressions_min'     => 5000,
+					'total_impressions_max'     => 8000,
+					'total_clicks_min'          => 20,
+					'total_clicks_max'          => 35,
+					'total_tsp_impressions_min' => 0,
+					'total_tsp_impressions_max' => 0,
+				);
+			}
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'target_urn' => $ctx['target_urn'],
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'content', $result['intent'] );
+		$this->assertSame( 'available', $result['forecast']['status'] );
+		$this->assertSame( 'views', $result['forecast']['primary_metric'] );
+		$this->assertSame( 'clicks', $result['forecast']['secondary_metric'] );
+	}
+
+	/**
+	 * Forecast failure does not block the proposal or review URL.
+	 */
+	public function test_prepare_degrades_gracefully_when_forecast_fails() {
+		$ctx = $this->make_test_post();
+		$this->register_forecast_route(
+			static function () {
+				return new WP_Error( 'forecast_unavailable', 'Forecast failed.', array( 'status' => 500 ) );
+			}
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'target_urn' => $ctx['target_urn'],
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'pending_merchant_review', $result['status'] );
+		$this->assertStringContainsString( 'blaze_prefill=', $result['prefill_url'] );
+		$this->assertSame( 'unavailable', $result['forecast']['status'] );
+		$this->assertSame( 'forecast_unavailable', $result['forecast']['reason'] );
 	}
 
 	/**
