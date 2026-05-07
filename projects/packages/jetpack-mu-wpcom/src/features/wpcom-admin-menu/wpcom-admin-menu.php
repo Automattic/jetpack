@@ -466,8 +466,7 @@ function wpcom_add_jetpack_submenu() {
 			'search',
 			'subscribers',
 			'newsletter',
-			'jetpack-podcast',
-			'podcasting',
+			'podcast',
 			'traffic',
 			'jetpack#/settings',
 		)
