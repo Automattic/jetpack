@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Search 3.0: adds the `jetpack-search/filter-wc-stock-status` block — a fixed three-option list (in stock / out of stock / on backorder) that filters by WooCommerce stock status. Uses the `wc_stock_status` filterType against the `meta._stock_status.value.raw` ES field and writes the standard array-form URL (`?filter_stock_status[]=instock&filter_stock_status[]=outofstock`) for consistency with the other Search 3.0 filter blocks. Tracked under epic [RSM-1929].
+Search 3.0: Add `jetpack-search/filter-wc-stock-status` block for filtering products by WooCommerce stock status.
