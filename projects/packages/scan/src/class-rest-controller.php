@@ -204,6 +204,12 @@ class REST_Controller {
 
 		$connection = new \Automattic\Jetpack\Connection\Manager();
 		if ( ! $connection->is_user_connected() ) {
+			// 403 matches the convention `activity-log` already uses for the
+			// same case (admin authenticated, but no user-level WPCOM
+			// connection — `Client::wpcom_json_api_request_as_user` would
+			// otherwise fall back to blog auth). 401 would be defensible
+			// (RFC 7235 "missing credential"), but Activity Log is the
+			// closest in-monorepo precedent, so we mirror it.
 			return new WP_Error(
 				'rest_no_user_connection',
 				esc_html__( 'You must connect your WordPress.com account to perform this action.', 'jetpack-scan-page' ),
