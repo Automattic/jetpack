@@ -128,5 +128,64 @@ describe( 'threat mutations', () => {
 
 		await waitFor( () => expect( result.current.isError ).toBe( true ) );
 		expect( spy ).not.toHaveBeenCalledWith( { queryKey: SCAN_QUERY_PREFIX } );
+		expect( result.current.error ).toBeInstanceOf( Error );
+		expect( result.current.error?.message ).toBe( 'boom' );
+	} );
+
+	it( 'useIgnoreThreatMutation surfaces the rejected error message', async () => {
+		( fetchers.ignoreThreat as jest.Mock ).mockRejectedValue( new Error( 'boom' ) );
+		const client = freshClient();
+		const spy = jest.spyOn( client, 'invalidateQueries' );
+
+		const { result } = renderHook( () => useIgnoreThreatMutation(), {
+			wrapper: wrapper( client ),
+		} );
+
+		await act( async () => {
+			await expect( result.current.mutateAsync( 'threat-a' ) ).rejects.toThrow( 'boom' );
+		} );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( spy ).not.toHaveBeenCalledWith( { queryKey: SCAN_QUERY_PREFIX } );
+		expect( result.current.error ).toBeInstanceOf( Error );
+		expect( result.current.error?.message ).toBe( 'boom' );
+	} );
+
+	it( 'useUnignoreThreatMutation surfaces the rejected error message', async () => {
+		( fetchers.unignoreThreat as jest.Mock ).mockRejectedValue( new Error( 'boom' ) );
+		const client = freshClient();
+		const spy = jest.spyOn( client, 'invalidateQueries' );
+
+		const { result } = renderHook( () => useUnignoreThreatMutation(), {
+			wrapper: wrapper( client ),
+		} );
+
+		await act( async () => {
+			await expect( result.current.mutateAsync( 'threat-b' ) ).rejects.toThrow( 'boom' );
+		} );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( spy ).not.toHaveBeenCalledWith( { queryKey: SCAN_QUERY_PREFIX } );
+		expect( result.current.error ).toBeInstanceOf( Error );
+		expect( result.current.error?.message ).toBe( 'boom' );
+	} );
+
+	it( 'useEnqueueScanMutation surfaces the rejected error message', async () => {
+		( fetchers.enqueueScan as jest.Mock ).mockRejectedValue( new Error( 'boom' ) );
+		const client = freshClient();
+		const spy = jest.spyOn( client, 'invalidateQueries' );
+
+		const { result } = renderHook( () => useEnqueueScanMutation(), {
+			wrapper: wrapper( client ),
+		} );
+
+		await act( async () => {
+			await expect( result.current.mutateAsync() ).rejects.toThrow( 'boom' );
+		} );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( spy ).not.toHaveBeenCalledWith( { queryKey: SCAN_QUERY_PREFIX } );
+		expect( result.current.error ).toBeInstanceOf( Error );
+		expect( result.current.error?.message ).toBe( 'boom' );
 	} );
 } );
