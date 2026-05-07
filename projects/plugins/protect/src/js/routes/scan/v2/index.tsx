@@ -15,6 +15,7 @@
  * keep this file focused on the new shell.
  */
 import { useEffect } from 'react';
+import MockBanner from './mock-banner';
 import NoticesList from './notices-list';
 import ThreatsScreen from './screens/threats';
 
@@ -33,6 +34,7 @@ export default function ScanV2Route() {
 
 	return (
 		<>
+			<MockBanner />
 			<ThreatsScreen />
 			<NoticesList />
 		</>
