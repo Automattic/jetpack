@@ -337,6 +337,20 @@ export function useActivityFields( {
 				elements: activityLogTypeElements,
 				isVisible: () => false,
 				filterBy: { operators: [ 'isAny' as Operator ] },
+			},
+			{
+				// Hidden field that powers the "Performed by" filter dropdown.
+				// `getValue` returns 'mcp' for MCP-driven events so the
+				// `isAny` filter matches when the user picks "MCP Agent".
+				// Rows performed by humans/CLI/Happiness return an empty
+				// string and are hidden whenever any element is selected.
+				id: 'actor_source',
+				type: 'text',
+				label: __( 'Performed by', 'jetpack-activity-log' ),
+				getValue: ( { item } ) => ( item.activityActor?.isMcpAgent ? 'mcp' : '' ),
+				elements: [ { value: 'mcp', label: __( 'MCP Agent', 'jetpack-activity-log' ) } ],
+				isVisible: () => false,
+				filterBy: { operators: [ 'isAny' as Operator ] },
 			}
 		);
 

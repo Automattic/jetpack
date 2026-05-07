@@ -21,7 +21,7 @@ import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { useActivityFields } from './fields';
-import { extractActivityLogTypeValues } from './filters';
+import { extractActivityLogTypeValues, extractActorSourceValues } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
 import type { Activity, ActivityLogParams } from './types';
 import type { Field, Filter, View } from '@wordpress/dataviews';
@@ -153,6 +153,11 @@ export default function ActivityLog() {
 		return extractActivityLogTypeValues( filters );
 	}, [ view.filters ] );
 
+	const actorSourceValues = useMemo( () => {
+		const filters = ( view.filters as Filter[] | undefined ) ?? [];
+		return extractActorSourceValues( filters );
+	}, [ view.filters ] );
+
 	const searchTerm = view.search?.trim() ?? '';
 
 	// The picker hands us start-of-day / end-of-day Dates at local-midnight
@@ -268,11 +273,12 @@ export default function ActivityLog() {
 				} );
 			}
 			if ( filtersChanged ) {
-				const activityTypes = extractActivityLogTypeValues(
-					( next.filters as Filter[] | undefined ) ?? []
-				);
+				const nextFilters = ( next.filters as Filter[] | undefined ) ?? [];
+				const activityTypes = extractActivityLogTypeValues( nextFilters );
+				const actorSources = extractActorSourceValues( nextFilters );
 				const eventProps: Record< string, boolean | number > = {
 					num_groups_selected: activityTypes.length,
+					mcp_agent_filter_selected: actorSources.includes( 'mcp' ),
 				};
 				let totalActivitiesSelected = 0;
 				Object.entries( groupCountsData?.groups ?? {} ).forEach( ( [ groupKey, { count } ] ) => {
@@ -327,7 +333,18 @@ export default function ActivityLog() {
 
 	const getItemId = useCallback( ( item: Activity ) => item.activityId.toString(), [] );
 
-	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
+	// "Performed by" is filtered client-side on the current page. The list
+	// query stays server-paginated, so selecting "MCP Agent" only hides
+	// non-MCP rows in the rows already fetched — paginationInfo and the
+	// total counts are intentionally left untouched.
+	const logData = useMemo( () => {
+		const items = ( activityLogData?.activityLogs ?? [] ) as Activity[];
+		if ( actorSourceValues.length === 0 ) {
+			return items;
+		}
+		const wantsMcp = actorSourceValues.includes( 'mcp' );
+		return items.filter( item => wantsMcp && Boolean( item.activityActor?.isMcpAgent ) );
+	}, [ activityLogData?.activityLogs, actorSourceValues ] );
 
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's

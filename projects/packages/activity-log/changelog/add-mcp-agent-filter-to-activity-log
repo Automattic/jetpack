@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Activity Log: add a "Performed by" filter to isolate events recorded by MCP agents on the current page.
