@@ -82,7 +82,7 @@ class Filter_Wc_Attribute {
 		// admin would see if the taxonomy had no label registered yet.
 		$bare = preg_replace( '/^' . preg_quote( self::ATTRIBUTE_PREFIX, '/' ) . '/', '', $slug );
 		$bare = (string) str_replace( '_', ' ', (string) $bare );
-		return function_exists( 'ucwords' ) ? ucwords( $bare ) : $bare;
+		return ucwords( $bare );
 	}
 
 	/**
@@ -115,6 +115,7 @@ class Filter_Wc_Attribute {
 			'bucketSortOrder' => Filter_Checkbox::normalize_bucket_sort_order(
 				$attributes['bucketSortOrder'] ?? null
 			),
+			'valueLabels'     => array(),
 		);
 	}
 }

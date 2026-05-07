@@ -47,16 +47,15 @@ class Filter_Wc_Attribute_Test extends TestCase {
 		);
 	}
 
-	public function test_derive_filter_key_rejects_reserved_query_param() {
-		// `s`, `orderby`, `min_price`, `max_price` are RESERVED_QUERY_PARAMS.
-		// A `pa_*` taxonomy can't collide with them, but the guard is the
-		// same shared one Filter_Checkbox uses, so verify it's wired up.
-		$this->assertSame(
-			'',
-			Filter_Wc_Attribute::derive_filter_key(
-				array( 'attributeTaxonomy' => 'orderby' )
-			)
-		);
+	public function test_derive_filter_key_rejects_non_pa_prefix_including_reserved_params() {
+		// Reserved params (`s`, `orderby`, etc.) don't start with `pa_`, so
+		// the prefix guard fires first. The reserved-param check is a secondary
+		// safety net that can't be triggered in practice for this block (no
+		// reserved param starts with `pa_`), but the prefix guard rejects
+		// anything outside the `pa_*` namespace, which covers the intent.
+		$this->assertSame( '', Filter_Wc_Attribute::derive_filter_key( array( 'attributeTaxonomy' => 'orderby' ) ) );
+		$this->assertSame( '', Filter_Wc_Attribute::derive_filter_key( array( 'attributeTaxonomy' => 's' ) ) );
+		$this->assertSame( '', Filter_Wc_Attribute::derive_filter_key( array( 'attributeTaxonomy' => 'min_price' ) ) );
 	}
 
 	public function test_build_config_shapes_filter_type_as_taxonomy() {
@@ -81,6 +80,7 @@ class Filter_Wc_Attribute_Test extends TestCase {
 		$this->assertTrue( $config['showCount'] );
 		$this->assertSame( 15, $config['maxItems'] );
 		$this->assertSame( 'alpha', $config['bucketSortOrder'] );
+		$this->assertSame( array(), $config['valueLabels'] );
 	}
 
 	public function test_build_config_falls_back_to_default_label_when_attribute_label_empty() {
@@ -102,6 +102,17 @@ class Filter_Wc_Attribute_Test extends TestCase {
 			array(
 				'attributeTaxonomy' => 'pa_color',
 				'maxItems'          => -3,
+			),
+			'pa_color'
+		);
+		$this->assertSame( 1, $config['maxItems'] );
+	}
+
+	public function test_build_config_clamps_zero_max_items_to_one() {
+		$config = Filter_Wc_Attribute::build_config(
+			array(
+				'attributeTaxonomy' => 'pa_color',
+				'maxItems'          => 0,
 			),
 			'pa_color'
 		);

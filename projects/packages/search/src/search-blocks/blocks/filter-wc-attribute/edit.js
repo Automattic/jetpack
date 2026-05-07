@@ -106,17 +106,19 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 							{ value: '', label: __( '— Select an attribute —', 'jetpack-search-pkg' ) },
 							...( attributeOptions ?? [] ),
 						] }
-						disabled={ ! hasAttributes }
+						disabled={ isLoading || ! hasAttributes }
 						help={
-							hasAttributes
-								? __(
-										'Pick which WooCommerce product attribute drives this filter.',
-										'jetpack-search-pkg'
-								  )
-								: __(
-										'No WooCommerce product attributes were found on this site.',
-										'jetpack-search-pkg'
-								  )
+							isLoading
+								? __( 'Loading product attributes…', 'jetpack-search-pkg' )
+								: hasAttributes
+								  ? __(
+											'Pick which WooCommerce product attribute drives this filter.',
+											'jetpack-search-pkg'
+								    )
+								  : __(
+											'No WooCommerce product attributes were found on this site.',
+											'jetpack-search-pkg'
+								    )
 						}
 					/>
 					<TextControl
@@ -164,15 +166,17 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 					<Placeholder
 						label={ __( 'Filter by Attribute', 'jetpack-search-pkg' ) }
 						instructions={
-							hasAttributes
-								? __(
-										'Pick a WooCommerce product attribute in the block sidebar to enable this filter.',
-										'jetpack-search-pkg'
-								  )
-								: __(
-										'No WooCommerce product attributes are registered on this site, so this block has nothing to filter on.',
-										'jetpack-search-pkg'
-								  )
+							isLoading
+								? __( 'Loading product attributes…', 'jetpack-search-pkg' )
+								: hasAttributes
+								  ? __(
+											'Pick a WooCommerce product attribute in the block sidebar to enable this filter.',
+											'jetpack-search-pkg'
+								    )
+								  : __(
+											'No WooCommerce product attributes are registered on this site, so this block has nothing to filter on.',
+											'jetpack-search-pkg'
+								    )
 						}
 					/>
 				</div>

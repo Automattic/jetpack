@@ -89,6 +89,7 @@ $label = (string) $config['label'];
 					<input
 						type="checkbox"
 						data-wp-bind--value="context.item.value"
+						data-wp-bind--checked="context.item.checked"
 						data-wp-on--change="actions.onFilterChange"
 					/>
 					<span
