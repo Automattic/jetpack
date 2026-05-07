@@ -53,4 +53,17 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertArrayHasKey( 'aiAnswersSiteId', $state );
 		$this->assertIsInt( $state['aiAnswersSiteId'] );
 	}
+
+	public function test_get_behavior_instructions_returns_empty_when_no_posts() {
+		$this->assertSame( '', AI_Answers::get_behavior_instructions() );
+	}
+
+	public function test_register_behavior_meta_skips_when_post_type_not_registered() {
+		// wp_guideline is not registered in the bare test environment.
+		// Calling register_behavior_meta should silently return without error.
+		$ai = new AI_Answers();
+		$ai->register_behavior_meta();
+		// If we get here without a fatal, the early-return guard worked.
+		$this->assertTrue( true );
+	}
 }
