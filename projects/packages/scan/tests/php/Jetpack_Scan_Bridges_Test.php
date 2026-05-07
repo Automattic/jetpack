@@ -23,7 +23,6 @@ use function add_filter;
 use function do_action;
 use function has_action;
 use function remove_action;
-use function remove_all_actions;
 use function remove_filter;
 use function rest_get_server;
 use function user_can;
@@ -134,18 +133,21 @@ class Jetpack_Scan_Bridges_Test extends TestCase {
 	 * admin-UI filter on.
 	 */
 	public function test_routes_register_when_filter_is_off() {
-		add_filter( 'rsm_jetpack_ui_modernization_scan', '__return_false' );
+		add_filter( Jetpack_Scan::MODERNIZATION_FILTER, '__return_false' );
 
 		// Re-trigger initialization for the assertion. The first
 		// bootstrap may have already fired with the test default.
-		remove_all_actions( 'rest_api_init' );
+		// Scope the removal to the action `setUp()` registered — a
+		// blanket `remove_all_actions( 'rest_api_init' )` would also
+		// strip unrelated subscribers other packages add at init time.
+		remove_action( 'rest_api_init', array( REST_Controller::class, 'register_rest_routes' ) );
 		Jetpack_Scan::register_rest_routes();
 
 		$routes = rest_get_server()->get_routes();
 		$this->assertArrayHasKey( '/jetpack/v4/site/scan', $routes );
 		$this->assertArrayHasKey( '/jetpack/v4/site/scan/history', $routes );
 
-		remove_filter( 'rsm_jetpack_ui_modernization_scan', '__return_false' );
+		remove_filter( Jetpack_Scan::MODERNIZATION_FILTER, '__return_false' );
 	}
 
 	/**
