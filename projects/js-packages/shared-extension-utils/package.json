@@ -18,6 +18,7 @@
 			"default": "./index.js"
 		},
 		"./components": "./src/components/index.js",
+		"./components/wpcom-support-link": "./src/components/wpcom-support-link.jsx",
 		"./icons": "./src/icons.js",
 		"./site-type-utils": "./src/site-type-utils.js",
 		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
