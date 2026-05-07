@@ -289,6 +289,7 @@ class Blaze_Abilities extends Registrar {
 								'type'      => 'string',
 								'minLength' => 2,
 								'maxLength' => 2,
+								'pattern'   => '^[A-Z]{2}$',
 							),
 						),
 						'devices'              => array(
@@ -314,27 +315,65 @@ class Blaze_Abilities extends Registrar {
 				'output_schema'       => array(
 					'type'        => 'object',
 					'description' => __( 'Prefill payload plus a deep-link to the Blaze UI for the merchant to review and submit.', 'jetpack-blaze' ),
-					'required'    => array( 'status', 'intent', 'forecast', 'assumptions', 'recommendations', 'prefill_url', 'prefill' ),
+					'required'    => array( 'status', 'message', 'campaign_preview', 'forecast_summary', 'intent', 'forecast', 'assumptions', 'recommendations', 'prefill_url', 'prefill' ),
 					'properties'  => array(
-						'status'          => array(
+						'status'           => array(
 							'type'        => 'string',
 							'description' => __( 'Always "pending_merchant_review" for the immediate response. The campaign is not yet on the DSP — it lands there only when the merchant submits from the Blaze UI.', 'jetpack-blaze' ),
 							'enum'        => array( 'pending_merchant_review' ),
 						),
-						'message'         => array(
+						'message'          => array(
 							'type'        => 'string',
 							'description' => __( 'Human-readable summary suitable for surfacing back to the merchant in chat. Includes the prefill_url verbatim so MCP clients that strip structured fields still surface the link.', 'jetpack-blaze' ),
 						),
-						'intent'          => array(
+						'campaign_preview' => array(
+							'type'        => 'object',
+							'description' => __( 'Structured campaign preview rows used by the MCP adapter to render the merchant-readable table.', 'jetpack-blaze' ),
+							'required'    => array( 'ad_heading', 'ad_copy', 'call_to_action', 'objective', 'budget', 'duration', 'schedule', 'audience', 'landing_page' ),
+							'properties'  => array(
+								'ad_heading'     => array(
+									'type' => 'string',
+								),
+								'ad_copy'        => array(
+									'type' => 'string',
+								),
+								'call_to_action' => array(
+									'type' => 'string',
+								),
+								'objective'      => array(
+									'type' => 'string',
+								),
+								'budget'         => array(
+									'type' => 'string',
+								),
+								'duration'       => array(
+									'type' => 'string',
+								),
+								'schedule'       => array(
+									'type' => 'string',
+								),
+								'audience'       => array(
+									'type' => 'string',
+								),
+								'landing_page'   => array(
+									'type' => 'string',
+								),
+							),
+						),
+						'forecast_summary' => array(
+							'type'        => 'string',
+							'description' => __( 'Human-readable forecast summary for the recommended option, or a fallback note when forecasts are unavailable.', 'jetpack-blaze' ),
+						),
+						'intent'           => array(
 							'type'        => 'string',
 							'description' => __( 'Inferred campaign intent used to choose server-owned defaults.', 'jetpack-blaze' ),
 							'enum'        => array( 'ecommerce', 'content', 'unknown' ),
 						),
-						'forecast'        => array(
+						'forecast'         => array(
 							'type'        => 'object',
 							'description' => __( 'Forecast estimates for the recommended option. Available forecasts include views/impressions and clicks ranges; unavailable forecasts do not block the review URL.', 'jetpack-blaze' ),
 						),
-						'assumptions'     => array(
+						'assumptions'      => array(
 							'type'        => 'array',
 							'description' => __( 'Plain-language assumptions used while preparing the recommended campaign.', 'jetpack-blaze' ),
 							'items'       => array(
@@ -348,7 +387,7 @@ class Blaze_Abilities extends Registrar {
 								'type' => 'string',
 							),
 						),
-						'budget_options'  => array(
+						'budget_options'   => array(
 							'type'        => 'array',
 							'description' => __( 'Lower, recommended, and higher budget options returned when budget or duration is omitted. The recommended option is encoded in prefill_url.', 'jetpack-blaze' ),
 							'items'       => array(
@@ -376,12 +415,12 @@ class Blaze_Abilities extends Registrar {
 								),
 							),
 						),
-						'prefill_url'      => array(
+						'prefill_url'       => array(
 							'type'        => 'string',
 							'format'      => 'uri',
 							'description' => __( 'Deep-link the merchant follows to land in the Blaze UI with the campaign form pre-populated. The prefill payload is encoded in the blaze_prefill query parameter.', 'jetpack-blaze' ),
 						),
-						'prefill'          => array(
+						'prefill'           => array(
 							'type'        => 'object',
 							'description' => __( 'The structured prefill payload — same data as encoded in prefill_url. Useful for the MCP client to surface a summary of what was prepared before the merchant clicks through.', 'jetpack-blaze' ),
 						),
@@ -484,13 +523,302 @@ class Blaze_Abilities extends Registrar {
 		return array_merge(
 			$proposal,
 			array(
-				'message' => sprintf(
-					/* translators: %s: deep-link URL that opens the Blaze widget pre-populated with the prepared campaign proposal. */
-					__( 'Campaign proposal prepared. The merchant must open the Blaze UI to review, accept payment / T&C, and submit. Open here: %s', 'jetpack-blaze' ),
-					$proposal['prefill_url']
-				),
+				'campaign_preview' => self::build_campaign_preview( $proposal ),
+				'forecast_summary' => self::build_forecast_summary( $proposal ),
+				'message'          => self::format_prepare_campaign_message( $proposal ),
 			)
 		);
+	}
+
+	/**
+	 * Build structured preview values for clients that do not want to parse the
+	 * raw widget prefill payload.
+	 *
+	 * @param array $proposal Structured campaign proposal.
+	 * @return array
+	 */
+	private static function build_campaign_preview( array $proposal ): array {
+		$prefill = isset( $proposal['prefill'] ) && is_array( $proposal['prefill'] ) ? $proposal['prefill'] : array();
+		$budget  = isset( $prefill['budget'] ) && is_array( $prefill['budget'] ) ? $prefill['budget'] : array();
+
+		$budget_amount   = isset( $budget['amount'] ) ? (float) $budget['amount'] : 0.0;
+		$budget_currency = isset( $budget['currency'] ) ? (string) $budget['currency'] : 'USD';
+		$duration_days   = isset( $prefill['duration_days'] ) ? max( 1, (int) $prefill['duration_days'] ) : 1;
+
+		return array(
+			'ad_heading'     => isset( $prefill['site_name'] ) ? (string) $prefill['site_name'] : '',
+			'ad_copy'        => isset( $prefill['text_snippet'] ) ? (string) $prefill['text_snippet'] : '',
+			'call_to_action' => isset( $prefill['cta_text'] ) ? (string) $prefill['cta_text'] : '',
+			'objective'      => self::format_objective( isset( $prefill['objective'] ) ? (string) $prefill['objective'] : '' ),
+			'budget'         => sprintf(
+				/* translators: 1: formatted currency amount, 2: formatted daily currency amount. */
+				__( '%1$s total (%2$s/day)', 'jetpack-blaze' ),
+				self::format_currency_amount( $budget_amount, $budget_currency ),
+				self::format_currency_amount( $budget_amount / $duration_days, $budget_currency )
+			),
+			'duration'       => self::format_days( $duration_days ),
+			'schedule'       => ! isset( $prefill['is_evergreen'] ) || (bool) $prefill['is_evergreen']
+				? __( 'Run until the merchant stops it', 'jetpack-blaze' )
+				: __( 'Run for the selected duration', 'jetpack-blaze' ),
+			'audience'       => self::format_audience_summary( $prefill ),
+			'landing_page'   => isset( $prefill['target_url'] ) ? (string) $prefill['target_url'] : '',
+		);
+	}
+
+	/**
+	 * Format the prepare-campaign response as adapter-owned Markdown for chat
+	 * clients.
+	 *
+	 * @param array $proposal Structured campaign proposal.
+	 * @return string
+	 */
+	private static function format_prepare_campaign_message( array $proposal ): string {
+		$preview          = self::build_campaign_preview( $proposal );
+		$forecast_summary = self::build_forecast_summary( $proposal );
+		$message          = __( 'Campaign proposal prepared for review in Blaze.', 'jetpack-blaze' ) . "\n\n";
+
+		$message .= '| ' . __( 'Campaign preview', 'jetpack-blaze' ) . ' | ' . __( 'Prepared value', 'jetpack-blaze' ) . " |\n";
+		$message .= "| --- | --- |\n";
+
+		$rows = array(
+			array(
+				'label' => __( 'Ad heading', 'jetpack-blaze' ),
+				'value' => $preview['ad_heading'],
+			),
+			array(
+				'label' => __( 'Ad copy', 'jetpack-blaze' ),
+				'value' => $preview['ad_copy'],
+			),
+			array(
+				'label' => __( 'Call to action', 'jetpack-blaze' ),
+				'value' => $preview['call_to_action'],
+			),
+			array(
+				'label' => __( 'Objective', 'jetpack-blaze' ),
+				'value' => $preview['objective'],
+			),
+			array(
+				'label' => __( 'Budget', 'jetpack-blaze' ),
+				'value' => $preview['budget'],
+			),
+			array(
+				'label' => __( 'Duration', 'jetpack-blaze' ),
+				'value' => $preview['duration'],
+			),
+			array(
+				'label' => __( 'Schedule', 'jetpack-blaze' ),
+				'value' => $preview['schedule'],
+			),
+			array(
+				'label' => __( 'Audience', 'jetpack-blaze' ),
+				'value' => $preview['audience'],
+			),
+			array(
+				'label' => __( 'Landing page', 'jetpack-blaze' ),
+				'value' => $preview['landing_page'],
+			),
+		);
+
+		foreach ( $rows as $row ) {
+			$message .= '| ' . self::format_markdown_table_cell( $row['label'] ) . ' | ' . self::format_markdown_table_cell( $row['value'] ) . " |\n";
+		}
+
+		$message .= "\n" . __( 'Forecast:', 'jetpack-blaze' ) . ' ' . $forecast_summary . "\n";
+
+		if ( ! empty( $proposal['budget_options'] ) && is_array( $proposal['budget_options'] ) ) {
+			$message .= "\n" . __( 'Budget options:', 'jetpack-blaze' ) . "\n";
+			$message .= '| ' . __( 'Option', 'jetpack-blaze' ) . ' | ' . __( 'Total budget', 'jetpack-blaze' ) . ' | ' . __( 'Daily budget', 'jetpack-blaze' ) . ' | ' . __( 'Duration', 'jetpack-blaze' ) . ' | ' . __( 'Recommendation', 'jetpack-blaze' ) . " |\n";
+			$message .= "| --- | --- | --- | --- | --- |\n";
+
+			foreach ( $proposal['budget_options'] as $option ) {
+				if ( ! is_array( $option ) ) {
+					continue;
+				}
+
+				$budget         = isset( $option['budget'] ) && is_array( $option['budget'] ) ? $option['budget'] : array();
+				$daily_budget   = isset( $option['daily_budget'] ) && is_array( $option['daily_budget'] ) ? $option['daily_budget'] : array();
+				$currency       = isset( $budget['currency'] ) ? (string) $budget['currency'] : 'USD';
+				$daily_currency = isset( $daily_budget['currency'] ) ? (string) $daily_budget['currency'] : $currency;
+
+				$message .= '| ' . self::format_markdown_table_cell( $option['label'] ?? '' );
+				$message .= ' | ' . self::format_markdown_table_cell( self::format_currency_amount( isset( $budget['amount'] ) ? (float) $budget['amount'] : 0.0, $currency ) );
+				$message .= ' | ' . self::format_markdown_table_cell( self::format_currency_amount( isset( $daily_budget['amount'] ) ? (float) $daily_budget['amount'] : 0.0, $daily_currency ) );
+				$message .= ' | ' . self::format_markdown_table_cell( self::format_days( isset( $option['duration_days'] ) ? (int) $option['duration_days'] : 1 ) );
+				$message .= ' | ' . self::format_markdown_table_cell( $option['rationale'] ?? '' ) . " |\n";
+			}
+		}
+
+		$message .= self::format_text_list( __( 'Assumptions:', 'jetpack-blaze' ), $proposal['assumptions'] ?? array() );
+		$message .= self::format_text_list( __( 'Recommendations:', 'jetpack-blaze' ), $proposal['recommendations'] ?? array() );
+		$message .= "\n" . __( 'Review URL:', 'jetpack-blaze' ) . ' ' . (string) ( $proposal['prefill_url'] ?? '' );
+
+		return $message;
+	}
+
+	/**
+	 * Build a compact human-readable forecast sentence.
+	 *
+	 * @param array $proposal Structured campaign proposal.
+	 * @return string
+	 */
+	private static function build_forecast_summary( array $proposal ): string {
+		$forecast = isset( $proposal['forecast'] ) && is_array( $proposal['forecast'] ) ? $proposal['forecast'] : array();
+		if ( 'available' !== ( $forecast['status'] ?? '' ) ) {
+			return isset( $forecast['message'] ) && '' !== (string) $forecast['message']
+				? (string) $forecast['message']
+				: __( 'Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', 'jetpack-blaze' );
+		}
+
+		$primary_metric   = isset( $forecast['primary_metric'] ) ? (string) $forecast['primary_metric'] : 'views';
+		$secondary_metric = isset( $forecast['secondary_metric'] ) ? (string) $forecast['secondary_metric'] : 'clicks';
+
+		return sprintf(
+			/* translators: 1: primary metric range, 2: primary metric label, 3: secondary metric range, 4: secondary metric label. */
+			__( 'Estimated %1$s %2$s and %3$s %4$s for the recommended option.', 'jetpack-blaze' ),
+			self::format_metric_range( isset( $forecast[ $primary_metric ] ) && is_array( $forecast[ $primary_metric ] ) ? $forecast[ $primary_metric ] : array() ),
+			self::format_metric_label( $primary_metric ),
+			self::format_metric_range( isset( $forecast[ $secondary_metric ] ) && is_array( $forecast[ $secondary_metric ] ) ? $forecast[ $secondary_metric ] : array() ),
+			self::format_metric_label( $secondary_metric )
+		);
+	}
+
+	/**
+	 * Format an array of natural-language strings as a Markdown list.
+	 *
+	 * @param string $heading List heading.
+	 * @param mixed  $items   List items.
+	 * @return string
+	 */
+	private static function format_text_list( string $heading, $items ): string {
+		if ( empty( $items ) || ! is_array( $items ) ) {
+			return '';
+		}
+
+		$message = "\n\n" . $heading . "\n";
+		foreach ( $items as $item ) {
+			$message .= '- ' . str_replace( array( "\r\n", "\r", "\n" ), ' ', (string) $item ) . "\n";
+		}
+
+		return rtrim( $message, "\n" );
+	}
+
+	/**
+	 * Format a value for safe use inside a Markdown table cell.
+	 *
+	 * @param mixed $value Cell value.
+	 * @return string
+	 */
+	private static function format_markdown_table_cell( $value ): string {
+		$value = str_replace( array( "\r\n", "\r", "\n" ), ' ', (string) $value );
+		return str_replace( '|', '\\|', $value );
+	}
+
+	/**
+	 * Format a currency amount.
+	 *
+	 * @param float  $amount   Amount.
+	 * @param string $currency ISO 4217 currency code.
+	 * @return string
+	 */
+	private static function format_currency_amount( float $amount, string $currency ): string {
+		return sprintf( '%s %s', strtoupper( $currency ), number_format_i18n( $amount, 2 ) );
+	}
+
+	/**
+	 * Format campaign duration.
+	 *
+	 * @param int $days Duration in days.
+	 * @return string
+	 */
+	private static function format_days( int $days ): string {
+		$days = max( 1, $days );
+		return sprintf(
+			/* translators: %d: number of campaign days. */
+			_n( '%d day', '%d days', $days, 'jetpack-blaze' ),
+			$days
+		);
+	}
+
+	/**
+	 * Format the server-owned objective for display.
+	 *
+	 * @param string $objective DSP objective code.
+	 * @return string
+	 */
+	private static function format_objective( string $objective ): string {
+		if ( 'CLICKS' === strtoupper( $objective ) ) {
+			return __( 'Clicks', 'jetpack-blaze' );
+		}
+		if ( 'VIEWS' === strtoupper( $objective ) ) {
+			return __( 'Views', 'jetpack-blaze' );
+		}
+		return '' === $objective ? __( 'Not specified', 'jetpack-blaze' ) : $objective;
+	}
+
+	/**
+	 * Format a forecast metric range.
+	 *
+	 * @param array $range Metric range with min/max values.
+	 * @return string
+	 */
+	private static function format_metric_range( array $range ): string {
+		$min = isset( $range['min'] ) ? (int) $range['min'] : 0;
+		$max = isset( $range['max'] ) ? (int) $range['max'] : $min;
+
+		if ( $min === $max ) {
+			return number_format_i18n( $min );
+		}
+
+		return number_format_i18n( $min ) . '-' . number_format_i18n( $max );
+	}
+
+	/**
+	 * Format a forecast metric label.
+	 *
+	 * @param string $metric Metric code.
+	 * @return string
+	 */
+	private static function format_metric_label( string $metric ): string {
+		if ( 'clicks' === $metric ) {
+			return __( 'clicks', 'jetpack-blaze' );
+		}
+		return __( 'views', 'jetpack-blaze' );
+	}
+
+	/**
+	 * Summarize audience overrides without exposing implementation-shaped JSON.
+	 *
+	 * @param array $prefill Prefill payload.
+	 * @return string
+	 */
+	private static function format_audience_summary( array $prefill ): string {
+		$parts = array();
+
+		$parts[] = empty( $prefill['countries'] ) ? __( 'all locations', 'jetpack-blaze' ) : sprintf(
+			/* translators: %s: comma-separated country codes. */
+			__( 'countries: %s', 'jetpack-blaze' ),
+			implode( ', ', array_map( 'strval', (array) $prefill['countries'] ) )
+		);
+		$parts[] = empty( $prefill['languages'] ) ? __( 'all languages', 'jetpack-blaze' ) : sprintf(
+			/* translators: %s: comma-separated language codes. */
+			__( 'languages: %s', 'jetpack-blaze' ),
+			implode( ', ', array_map( 'strval', (array) $prefill['languages'] ) )
+		);
+		$parts[] = empty( $prefill['devices'] ) ? __( 'all devices', 'jetpack-blaze' ) : sprintf(
+			/* translators: %s: comma-separated device codes. */
+			__( 'devices: %s', 'jetpack-blaze' ),
+			implode( ', ', array_map( 'strval', (array) $prefill['devices'] ) )
+		);
+
+		if ( ! empty( $prefill['page_topics'] ) ) {
+			$parts[] = sprintf(
+				/* translators: %s: comma-separated page topic codes. */
+				__( 'topics: %s', 'jetpack-blaze' ),
+				implode( ', ', array_map( 'strval', (array) $prefill['page_topics'] ) )
+			);
+		}
+
+		return implode( '; ', $parts );
 	}
 
 	/**
