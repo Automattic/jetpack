@@ -118,7 +118,9 @@ export function useRenderMessageItems(): RenderItem[] {
 
 	const items = useMemo< RenderItem[] >( () => {
 		return connections.map( connection => {
-			const message = ( connection.message ?? globalMessage ?? '' ).trim();
+			const message = (
+				isPerNetworkMode ? connection.message ?? globalMessage : globalMessage
+			).trim();
 			return {
 				id: connection.connection_id,
 				network: connection.service_name ?? '',
@@ -126,7 +128,7 @@ export function useRenderMessageItems(): RenderItem[] {
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
-	}, [ connections, globalMessage, ctx ] );
+	}, [ connections, globalMessage, isPerNetworkMode, ctx ] );
 
 	return useDebouncedItems( items );
 }

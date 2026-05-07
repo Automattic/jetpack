@@ -8,7 +8,6 @@ import {
 	preparePreviewText,
 } from '../helpers';
 import { ExpandableText } from '../shared/expandable-text';
-import { MessageSkeleton } from '../shared/message-skeleton';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { FooterActions } from './footer-actions';
 import { ChevronIcon } from './icons/chevron-icon';
@@ -31,39 +30,9 @@ export function NextdoorPostPreview( {
 	neighborhood,
 	media,
 	title,
-	isLoading,
 	url,
 }: NextdoorPreviewProps ) {
 	const hasMedia = !! media?.length;
-	let captionContent = null;
-
-	if ( isLoading ) {
-		captionContent = <MessageSkeleton className="nextdoor-preview__caption" />;
-	} else if ( description ) {
-		captionContent = (
-			<div className="nextdoor-preview__caption">
-				<span>
-					<ExpandableText text={ description }>
-						{ visibleText =>
-							preparePreviewText( visibleText, {
-								platform: 'nextdoor',
-								maxChars: FEED_TEXT_MAX_LENGTH,
-							} )
-						}
-					</ExpandableText>
-				</span>
-				{ ! hasMedia && url && ! description.includes( url ) && (
-					<>
-						<br />
-						<br />
-						<a href={ url } rel="nofollow noopener noreferrer" target="_blank">
-							{ url }
-						</a>
-					</>
-				) }
-			</div>
-		);
-	}
 
 	return (
 		<div className="nextdoor-preview__wrapper">
@@ -88,7 +57,29 @@ export function NextdoorPostPreview( {
 						</div>
 					</div>
 					<div className="nextdoor-preview__body">
-						{ captionContent }
+						{ description ? (
+							<div className="nextdoor-preview__caption">
+								<span>
+									<ExpandableText text={ description }>
+										{ visibleText =>
+											preparePreviewText( visibleText, {
+												platform: 'nextdoor',
+												maxChars: FEED_TEXT_MAX_LENGTH,
+											} )
+										}
+									</ExpandableText>
+								</span>
+								{ ! hasMedia && url && ! description.includes( url ) && (
+									<>
+										<br />
+										<br />
+										<a href={ url } rel="nofollow noopener noreferrer" target="_blank">
+											{ url }
+										</a>
+									</>
+								) }
+							</div>
+						) : null }
 						{ hasMedia ? (
 							<div className="nextdoor-preview__media">
 								{ media.map( ( mediaItem, index ) => {

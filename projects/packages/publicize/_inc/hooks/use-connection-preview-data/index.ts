@@ -3,7 +3,6 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useMemo } from 'react';
 import { store as socialStore } from '../../social-store';
-import { Connection } from '../../social-store/types';
 import { features } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
@@ -12,7 +11,13 @@ import { useRenderMessageItems } from '../use-render-message-items';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
-import { PostPreviewData } from '../use-social-preview-post-data/types';
+import type { Connection } from '../../social-store/types';
+import type { PostPreviewData } from '../use-social-preview-post-data/types';
+
+export type ConnectionPreviewData = PostPreviewData & {
+	message: string;
+	isLoading: boolean;
+};
 
 /**
  * Returns the post data needed for the preview of a specific connection.
@@ -20,7 +25,7 @@ import { PostPreviewData } from '../use-social-preview-post-data/types';
  * @param {Connection} connection - The connection.
  * @return The post data.
  */
-export function useConnectionPreviewData( connection: Connection ) {
+export function useConnectionPreviewData( connection: Connection ): ConnectionPreviewData {
 	const { isEnabled: usingPerNetworkCustomization } = usePerNetworkCustomization();
 	const { mediaSource: globalMediaSource } = usePostMeta();
 

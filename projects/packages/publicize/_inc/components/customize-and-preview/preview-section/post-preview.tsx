@@ -15,12 +15,13 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { useConnectionPreviewData } from '../../../hooks/use-connection-preview-data';
-import { Connection } from '../../../social-store/types';
 import { InstagramNoMediaNotice } from '../../form/instagram-no-media-notice';
+import type { ConnectionPreviewData } from '../../../hooks/use-connection-preview-data';
+import type { Connection } from '../../../social-store/types';
 
 export type PostPreviewProps = {
 	connection: Connection;
+	previewData: ConnectionPreviewData;
 };
 
 /**
@@ -44,7 +45,7 @@ function getCombinedText( title: string, excerpt: string ): string {
  *
  * @return - Post preview component.
  */
-export function PostPreview( { connection }: PostPreviewProps ) {
+export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 	const user = useMemo(
 		() => ( {
 			displayName: connection.display_name,
@@ -54,8 +55,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		[ connection ]
 	);
 
-	const { image, media, title, description, url, excerpt, message, isLoading } =
-		useConnectionPreviewData( connection );
+	const { image, media, title, description, url, excerpt, message } = previewData;
 
 	const commonProps = useMemo(
 		() => ( {
@@ -88,7 +88,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<BlueskyPostPreview
 					{ ...commonProps }
 					description={ decodeEntities( excerpt ) }
-					isLoading={ isLoading }
 					user={ {
 						avatarUrl: user.profileImage,
 						address: user.externalName,
@@ -115,7 +114,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<FacebookPostPreview
 					{ ...commonProps }
 					type="article"
-					isLoading={ isLoading }
 					customText={ customText }
 					user={ {
 						...user,
@@ -126,7 +124,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<FacebookLinkPreview
 					{ ...commonProps }
 					type="article"
-					isLoading={ isLoading }
 					customText={ customText }
 					user={ {
 						...user,
@@ -153,7 +150,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<InstagramPostPreview
 					{ ...commonProps }
 					image={ media?.[ 0 ]?.url || image }
-					isLoading={ isLoading }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 					caption={ instagramCaption }
@@ -173,7 +169,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			return (
 				<LinkedInPostPreview
 					{ ...commonProps }
-					isLoading={ isLoading }
 					jobTitle={ __( 'Job Title (Company Name)', 'jetpack-publicize-pkg' ) }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
@@ -197,7 +192,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<MastodonPostPreview
 					{ ...commonProps }
 					description={ excerpt }
-					isLoading={ isLoading }
 					siteName={ siteName }
 					user={ {
 						avatarUrl: user.profileImage,
@@ -223,7 +217,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<NextdoorPostPreview
 					{ ...commonProps }
 					description={ nextdoorDescription }
-					isLoading={ isLoading }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 				/>
@@ -247,7 +240,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<ThreadsPostPreview
 					{ ...commonProps }
 					caption={ caption }
-					isLoading={ isLoading }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 				/>
@@ -260,7 +252,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			return (
 				<TumblrPostPreview
 					{ ...commonProps }
-					isLoading={ isLoading }
 					title={ message ? '' : title }
 					description={ desc }
 					user={ { displayName: user.displayName, avatarUrl: user.profileImage } }
@@ -285,7 +276,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<TwitterPostPreview
 					{ ...commonProps }
 					description={ description }
-					isLoading={ isLoading }
 					text={ text }
 					screenName={ user.externalName }
 					name={ user.displayName }

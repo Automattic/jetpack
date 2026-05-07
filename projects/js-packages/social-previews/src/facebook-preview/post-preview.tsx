@@ -1,5 +1,4 @@
 import { PORTRAIT_MODE } from '../constants';
-import { MessageSkeleton } from '../shared/message-skeleton';
 import CustomText from './custom-text';
 import useImage from './hooks/use-image-hook';
 import FacebookPostActions from './post/actions';
@@ -13,7 +12,6 @@ export const FacebookPostPreview: React.FC< FacebookPreviewProps > = ( {
 	user,
 	customText,
 	media,
-	isLoading,
 	imageMode,
 } ) => {
 	const [ mode ] = useImage( { mode: imageMode } );
@@ -23,11 +21,7 @@ export const FacebookPostPreview: React.FC< FacebookPreviewProps > = ( {
 		<div className="facebook-preview__post">
 			<FacebookPostHeader user={ user } />
 			<div className="facebook-preview__content">
-				{ isLoading ? (
-					<MessageSkeleton className="facebook-preview__custom-text" />
-				) : (
-					customText && <CustomText text={ customText } url={ url } forceUrlDisplay />
-				) }
+				{ customText && <CustomText text={ customText } url={ url } forceUrlDisplay /> }
 				<div className="facebook-preview__body">
 					{ media ? (
 						<div className={ `facebook-preview__media ${ modeClass }` }>

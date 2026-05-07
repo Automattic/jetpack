@@ -30,11 +30,6 @@ export interface SocialPreviewBaseProps {
 	 * The caption.
 	 */
 	caption?: string;
-
-	/**
-	 * Whether to show a loading skeleton in place of message text.
-	 */
-	isLoading?: boolean;
 }
 
 export interface SocialPreviewsBaseProps {

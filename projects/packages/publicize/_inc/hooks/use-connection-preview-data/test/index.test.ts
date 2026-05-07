@@ -340,6 +340,25 @@ describe( 'useConnectionPreviewData', () => {
 		expect( result.current.isLoading ).toBe( true );
 	} );
 
+	it( 'does not show loading in global mode when the render item matches the global message', () => {
+		mockSelectCalls( { rendered: 'Rendered global template', isResolving: false } );
+		mockSiteHasFeature.mockReturnValue( true );
+		mockUseRenderMessageItems.mockReturnValue( [
+			{
+				id: '123',
+				network: 'tumblr',
+				message: 'Global message',
+				is_social_post: false,
+			},
+		] );
+
+		const connection = createMockConnection( { message: 'Per-network message' } );
+		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
+
+		expect( result.current.message ).toBe( 'Rendered global template' );
+		expect( result.current.isLoading ).toBe( false );
+	} );
+
 	it( 'keeps loading after debounce until the render request finishes', () => {
 		mockSelectCalls( { rendered: null, isResolving: false, hasFinished: false } );
 		mockSiteHasFeature.mockReturnValue( true );
