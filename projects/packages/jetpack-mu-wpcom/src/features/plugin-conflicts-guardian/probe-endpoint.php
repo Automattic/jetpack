@@ -51,8 +51,7 @@ function pcg_maybe_handle_probe() {
 	// pull in the other as an unintended dependency.
 	$is_update_mode = PCG_Load_Tester::MODE_UPDATE === $mode;
 	$gate_filter    = $is_update_mode ? 'pcg_guard_updates' : 'pcg_guard_activation';
-	$gate_default   = ! $is_update_mode;
-	if ( ! apply_filters( $gate_filter, $gate_default ) ) {
+	if ( ! apply_filters( $gate_filter, true ) ) {
 		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
 	}
 
