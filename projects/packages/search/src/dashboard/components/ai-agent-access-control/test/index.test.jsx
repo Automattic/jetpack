@@ -35,6 +35,11 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 } ) );
 
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
+
 jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-plugin-test' } ), { virtual: true } );
 
 jest.mock(
@@ -44,6 +49,7 @@ jest.mock(
 );
 
 /* eslint-disable import/order -- mocks above must hoist before imports */
+import analytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
@@ -140,6 +146,17 @@ describe( 'AIAgentAccessControl', () => {
 			} );
 		} );
 
+		await waitFor( () =>
+			expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+				'jetpack_search_ai_agent_access_toggle',
+				{
+					enabled: true,
+					previous_enabled: false,
+					is_wpcom: false,
+					surface: 'jetpack_search_dashboard',
+				}
+			)
+		);
 		expect( dispatchSpies.updatingNotice ).toHaveBeenCalled();
 		expect( dispatchSpies.removeUpdatingNotice ).toHaveBeenCalled();
 		expect( dispatchSpies.successNotice ).toHaveBeenCalled();
@@ -178,6 +195,17 @@ describe( 'AIAgentAccessControl', () => {
 			} );
 		} );
 
+		await waitFor( () =>
+			expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+				'jetpack_search_ai_agent_access_toggle',
+				{
+					enabled: true,
+					previous_enabled: false,
+					is_wpcom: true,
+					surface: 'jetpack_search_dashboard',
+				}
+			)
+		);
 		expect( dispatchSpies.successNotice ).toHaveBeenCalled();
 		expect( dispatchSpies.errorNotice ).not.toHaveBeenCalled();
 	} );
@@ -198,6 +226,7 @@ describe( 'AIAgentAccessControl', () => {
 			expect( dispatchSpies.errorNotice ).toHaveBeenCalled();
 		} );
 		expect( dispatchSpies.successNotice ).not.toHaveBeenCalled();
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		// Toggle should remain in its initial unchecked state since the
 		// save failed.
 		expect( toggle ).not.toBeChecked();
