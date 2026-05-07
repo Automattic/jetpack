@@ -430,13 +430,41 @@ function enterKeyboardNav() {
 			() => {
 				keyboardNavListenerActive = false;
 				menu.classList.remove( 'bw-slash-menu--keyboard' );
-				menu
-					.querySelectorAll( '.bw-slash-item-active' )
-					.forEach( el => el.classList.remove( 'bw-slash-item-active' ) );
+				clearSlashActive();
 			},
 			{ once: true }
 		);
 	}
+}
+
+/**
+ * Set the active slash menu item, updating aria-selected and aria-activedescendant.
+ *
+ * Clears aria-selected on every item, then marks the given item as selected and
+ * updates state.slashActiveId so the content area's aria-activedescendant reflects
+ * the highlighted option for screen readers.
+ *
+ * @param {Element|null} item - The slash menu item to activate, or null to clear.
+ */
+function setSlashActiveItem( item ) {
+	document.querySelectorAll( '.bw-slash-item' ).forEach( el => {
+		el.setAttribute( 'aria-selected', 'false' );
+		el.classList.remove( 'bw-slash-item-active' );
+	} );
+	if ( item ) {
+		item.setAttribute( 'aria-selected', 'true' );
+		item.classList.add( 'bw-slash-item-active' );
+		state.slashActiveId = item.id || '';
+	} else {
+		state.slashActiveId = '';
+	}
+}
+
+/**
+ * Clear the slash menu active item and reset aria state.
+ */
+function clearSlashActive() {
+	setSlashActiveItem( null );
 }
 
 /**
@@ -1084,6 +1112,7 @@ function insertNewBlock( tag ) {
 	// Place cursor inside the new element.
 	placeCursorAt( newEl );
 
+	clearSlashActive();
 	state.showSlashMenu = false;
 }
 
@@ -1124,6 +1153,7 @@ function insertNewList( listTag ) {
 
 	placeCursorAt( li );
 
+	clearSlashActive();
 	state.showSlashMenu = false;
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
@@ -1876,6 +1906,7 @@ const { state } = store( 'wpcom-write', {
 					keyboardNavListenerActive = false;
 					const menu = document.querySelector( '.bw-slash-menu' );
 					if ( menu ) menu.classList.remove( 'bw-slash-menu--keyboard' );
+					clearSlashActive();
 					state.showSlashMenu = false;
 					return;
 				}
@@ -1891,18 +1922,16 @@ const { state } = store( 'wpcom-write', {
 
 				if ( event.key === 'ArrowDown' || ( event.key === 'Tab' && ! event.shiftKey ) ) {
 					event.preventDefault();
-					if ( active ) active.classList.remove( 'bw-slash-item-active' );
 					idx = ( idx + 1 ) % visible.length;
-					visible[ idx ].classList.add( 'bw-slash-item-active' );
+					setSlashActiveItem( visible[ idx ] );
 					enterKeyboardNav();
 					return;
 				}
 
 				if ( event.key === 'ArrowUp' || ( event.key === 'Tab' && event.shiftKey ) ) {
 					event.preventDefault();
-					if ( active ) active.classList.remove( 'bw-slash-item-active' );
 					idx = idx <= 0 ? visible.length - 1 : idx - 1;
-					visible[ idx ].classList.add( 'bw-slash-item-active' );
+					setSlashActiveItem( visible[ idx ] );
 					enterKeyboardNav();
 					return;
 				}
@@ -2065,12 +2094,14 @@ const { state } = store( 'wpcom-write', {
 		checkSlashCommand() {
 			const sel = window.getSelection();
 			if ( ! sel.rangeCount ) {
+				if ( state.showSlashMenu ) clearSlashActive();
 				state.showSlashMenu = false;
 				return;
 			}
 
 			const node = sel.anchorNode;
 			if ( ! node || node.nodeType !== Node.TEXT_NODE ) {
+				if ( state.showSlashMenu ) clearSlashActive();
 				state.showSlashMenu = false;
 				return;
 			}
@@ -2103,7 +2134,6 @@ const { state } = store( 'wpcom-write', {
 				const items = document.querySelectorAll( '.bw-slash-item' );
 				let firstVisible = null;
 				items.forEach( item => {
-					if ( filterChanged ) item.classList.remove( 'bw-slash-item-active' );
 					const label = item.querySelector( 'strong' ).textContent.toLowerCase();
 					const show = label.includes( state.slashFilter );
 					item.style.display = show ? '' : 'none';
@@ -2111,14 +2141,16 @@ const { state } = store( 'wpcom-write', {
 				} );
 				// Close the menu when no items match the filter.
 				if ( ! firstVisible ) {
+					clearSlashActive();
 					state.showSlashMenu = false;
 					return;
 				}
 				// Auto-highlight the first visible item only when filter changes.
-				if ( filterChanged ) firstVisible.classList.add( 'bw-slash-item-active' );
+				if ( filterChanged ) setSlashActiveItem( firstVisible );
 			} else {
 				slashMenuEscaped = false;
 				prevSlashFilter = null;
+				clearSlashActive();
 				state.showSlashMenu = false;
 			}
 		},
@@ -2512,7 +2544,7 @@ const { state } = store( 'wpcom-write', {
 				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
 				if ( ! modal ) return;
 				const focusable = modal.querySelectorAll(
-					'input:not([hidden]):not([type="file"]), button, [tabindex]:not([tabindex="-1"])'
+					'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])'
 				);
 				if ( ! focusable.length ) return;
 				const first = focusable[ 0 ];
@@ -2617,6 +2649,7 @@ const { state } = store( 'wpcom-write', {
 
 		insertImage() {
 			clearSlashText();
+			clearSlashActive();
 			state.showSlashMenu = false;
 			saveSelection();
 			state.imageUrl = '';
@@ -2641,6 +2674,7 @@ const { state } = store( 'wpcom-write', {
 
 		insertVideo() {
 			clearSlashText();
+			clearSlashActive();
 			state.showSlashMenu = false;
 			saveSelection();
 			state.showVideoModal = true;
@@ -2666,7 +2700,7 @@ const { state } = store( 'wpcom-write', {
 				const modal = event.currentTarget.querySelector( '.bw-image-modal' );
 				if ( ! modal ) return;
 				const focusable = modal.querySelectorAll(
-					'input:not([hidden]):not([type="file"]), button, [tabindex]:not([tabindex="-1"])'
+					'input:not([hidden]), button, [tabindex]:not([tabindex="-1"])'
 				);
 				if ( ! focusable.length ) return;
 				const first = focusable[ 0 ];
@@ -2758,6 +2792,7 @@ const { state } = store( 'wpcom-write', {
 					placeCursorAt( p );
 				}
 			}
+			clearSlashActive();
 			state.showSlashMenu = false;
 		},
 
