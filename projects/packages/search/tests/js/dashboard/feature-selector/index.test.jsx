@@ -113,6 +113,6 @@ describe( '<FeatureSelector>', () => {
 		expect( screen.getByRole( 'radio', { name: /embedded search/i } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'radio', { name: /overlay search/i } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'radio', { name: /theme search/i } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'radio', { name: /^off$/i } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'radio', { name: /off/i } ) ).not.toBeInTheDocument();
 	} );
 } );

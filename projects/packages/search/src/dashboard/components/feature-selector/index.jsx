@@ -18,17 +18,20 @@ import './style.scss';
  * @return {import('react').Element} - The selector.
  */
 export default function FeatureSelector() {
-	const isDirty = useSelect( select => select( STORE_ID ).isDirty(), [] );
-	const isUpdating = useSelect( select => select( STORE_ID ).isUpdatingJetpackSettings(), [] );
-	const pendingExperience = useSelect( select => select( STORE_ID ).getPendingExperience(), [] );
-	const supportsOnlyClassicSearch = useSelect(
-		select => select( STORE_ID ).supportsOnlyClassicSearch(),
+	// On WordPress.com Simple sites (where `IS_WPCOM` is defined), search
+	// activation is managed from the .com side, so we hide the Off row here to
+	// mirror the legacy `<ModuleControl>`'s `! isWpcom` gate around the
+	// "Enable Jetpack Search" toggle.
+	const { isDirty, isUpdating, pendingExperience, supportsOnlyClassicSearch, isWpcom } = useSelect(
+		select => ( {
+			isDirty: select( STORE_ID ).isDirty(),
+			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
+			pendingExperience: select( STORE_ID ).getPendingExperience(),
+			supportsOnlyClassicSearch: select( STORE_ID ).supportsOnlyClassicSearch(),
+			isWpcom: select( STORE_ID ).isWpcom(),
+		} ),
 		[]
 	);
-	// On WordPress.com, search activation is managed from the .com side, so we
-	// hide the Off row here to mirror the legacy `<ModuleControl>`'s
-	// `! isWpcom` gate around the "Enable Jetpack Search" toggle.
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 	const { saveExperience } = useDispatch( STORE_ID );
 
 	const visibleExperiences = isWpcom
