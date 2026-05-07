@@ -19,7 +19,11 @@ use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
 use function add_action;
+use function add_filter;
 use function do_action;
+use function remove_all_actions;
+use function remove_filter;
+use function rest_get_server;
 use function wp_insert_user;
 use function wp_set_current_user;
 
@@ -117,6 +121,28 @@ class Jetpack_Scan_Bridges_Test extends TestCase {
 		);
 		$this->assertArrayHasKey( '/jetpack/v4/site/scan/threats/fix', $routes );
 		$this->assertArrayHasKey( '/jetpack/v4/site/scan/threats/fix-status', $routes );
+	}
+
+	/**
+	 * Routes register even when the modernization filter is off.
+	 *
+	 * Protect calls /jetpack/v4/site/scan/* via the same bridges; ungating
+	 * REST registration is what lets that work without flipping the
+	 * admin-UI filter on.
+	 */
+	public function test_routes_register_when_filter_is_off() {
+		add_filter( 'rsm_jetpack_ui_modernization_scan', '__return_false' );
+
+		// Re-trigger initialization for the assertion. The first
+		// bootstrap may have already fired with the test default.
+		remove_all_actions( 'rest_api_init' );
+		Jetpack_Scan::register_rest_routes();
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey( '/jetpack/v4/site/scan', $routes );
+		$this->assertArrayHasKey( '/jetpack/v4/site/scan/history', $routes );
+
+		remove_filter( 'rsm_jetpack_ui_modernization_scan', '__return_false' );
 	}
 
 	/**
