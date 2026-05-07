@@ -623,7 +623,7 @@ describe( 'product-shaped filter helpers', () => {
 		it( 'OR-joins multiple stock-status selections within the filter', () => {
 			const clause = buildFilterClause(
 				{ filter_stock_status: [ 'instock', 'outofstock' ] },
-				{ filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' } }
+				{ filter_stock_status: { filterType: 'wc_stock_status' } }
 			);
 			expect( clause ).toEqual( {
 				bool: {

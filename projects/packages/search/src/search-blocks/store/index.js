@@ -438,15 +438,24 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when any filter has at least one selected value. Used by
-		 * active-filters to decide whether to render the pills wrapper.
+		 * True when any facet is active — selected filter values or a
+		 * price range. Drives the active-filters pill wrapper, the standalone
+		 * clear-filters block, and the filter-popover trigger. priceRange
+		 * counts as a filter here so a price-only selection (including a
+		 * half-open range like `?min_price=10`) doesn't leave the pill
+		 * wrapper hidden when the user has a chip to clear.
 		 *
 		 * @return {boolean} Whether any filter is active.
 		 */
 		get hasActiveFilters() {
-			return Object.values( state.activeFilters ?? {} ).some(
+			const hasSelections = Object.values( state.activeFilters ?? {} ).some(
 				v => Array.isArray( v ) && v.length > 0
 			);
+			if ( hasSelections ) {
+				return true;
+			}
+			const range = state.priceRange;
+			return !! range && ( range.min != null || range.max != null );
 		},
 
 		/**
@@ -463,9 +472,11 @@ const { state, actions } = store( NAMESPACE, {
 		 * True when the filters-popover trigger should be disabled: there are
 		 * no aggregation buckets to filter on AND no active filters to clear.
 		 * Opening the popover in that state would show an empty panel, so we
-		 * gate the affordance itself. Remains enabled while any filter is
-		 * active so users can still open the popover to remove pills even
-		 * when the current query returns no results.
+		 * gate the affordance itself. Remains enabled whenever
+		 * `hasActiveFilters` is true (which now includes a `priceRange`
+		 * selection) so users can still open the popover to layer additional
+		 * facets on top of a price-only deep link, even when the current
+		 * query returns no results.
 		 *
 		 * @return {boolean} Whether the filter trigger is disabled.
 		 */
@@ -722,15 +733,57 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Clear all active filters and re-run the search.
+		 * Clear every facet and re-run the search. Resets `activeFilters`
+		 * AND `priceRange` so a single clear-all affordance wipes both
+		 * checkbox-shaped selections and the half-open price range.
 		 *
 		 * @yield {Promise} search action.
 		 */
 		*clearFilters() {
-			if ( Object.keys( state.activeFilters ?? {} ).length === 0 ) {
+			if ( ! state.hasActiveFilters ) {
 				return;
 			}
 			state.activeFilters = {};
+			state.priceRange = null;
+			yield actions.search();
+		},
+
+		/**
+		 * Update the price range and re-run the search if it changed. Either
+		 * bound may be null for a half-open range; passing both as null clears
+		 * the range. No-ops when the new range matches the current one so a
+		 * blur from an unchanged input doesn't trigger an identical re-fetch.
+		 *
+		 * @param {number|null} min - Lower bound, inclusive.
+		 * @param {number|null} max - Upper bound, inclusive.
+		 * @yield {Promise} search action.
+		 */
+		*setPriceRange( min, max ) {
+			const normalize = v => ( v === null || v === undefined || v === '' ? null : Number( v ) );
+			const nextMin = normalize( min );
+			const nextMax = normalize( max );
+			// Reject NaN bounds so a typo'd input doesn't poison the ES range
+			// clause. Mirrors the parsePriceBound() guard in url-state.js so
+			// the action and the URL reader agree on what "no bound" means.
+			const validMin = nextMin === null || ( Number.isFinite( nextMin ) && nextMin >= 0 );
+			const validMax = nextMax === null || ( Number.isFinite( nextMax ) && nextMax >= 0 );
+			if ( ! validMin || ! validMax ) {
+				return;
+			}
+			// Inverted bounds (min > max) build a guaranteed-empty ES clause.
+			// Drop the call rather than pushing a bad URL or zeroing results.
+			if ( nextMin !== null && nextMax !== null && nextMin > nextMax ) {
+				return;
+			}
+			const next = nextMin === null && nextMax === null ? null : { min: nextMin, max: nextMax };
+			const prev = state.priceRange;
+			const same =
+				( prev === null && next === null ) ||
+				( prev !== null && next !== null && prev.min === next.min && prev.max === next.max );
+			if ( same ) {
+				return;
+			}
+			state.priceRange = next;
 			yield actions.search();
 		},
 
@@ -979,9 +1032,8 @@ const { state, actions } = store( NAMESPACE, {
 			if ( droppedAny ) {
 				state.activeFilters = gated;
 			}
-			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
+			if ( state.searchQuery || state.hasActiveFilters ) {
 				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
-				// priceRange is checked separately so `?min_price=10` still triggers an initial fetch.
 				actions.search( { syncUrl: false } );
 			} else if ( droppedAny ) {
 				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded
