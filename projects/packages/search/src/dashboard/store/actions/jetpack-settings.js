@@ -16,6 +16,9 @@ import {
 export const SET_JETPACK_SETTINGS = 'SET_JETPACK_SETTINGS';
 export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
 
+const hasOwnSetting = ( settings, settingName ) =>
+	Object.prototype.hasOwnProperty.call( settings ?? {}, settingName );
+
 /**
  * Yield actions to update Search Settings
  *
@@ -23,7 +26,13 @@ export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
  * @yield {object} - an action object.
  * @return {object} - an action object.
  */
-export function* updateJetpackSettings( settings ) {
+export function* updateJetpackSettings( settings = {} ) {
+	const shouldTrackReaderChat = hasOwnSetting( settings, 'reader_chat' );
+	const previousReaderChatEnabled = shouldTrackReaderChat
+		? Boolean( select( STORE_ID ).isReaderChatEnabled() )
+		: null;
+	const isWpcom = shouldTrackReaderChat ? Boolean( select( STORE_ID ).isWpcom() ) : false;
+
 	try {
 		yield updatingNotice();
 		yield setUpdatingJetpackSettings();
@@ -31,6 +40,20 @@ export function* updateJetpackSettings( settings ) {
 		yield updateJetpackSettingsControl( settings );
 		const updatedSettings = yield fetchJetpackSettings();
 		yield setJetpackSettings( updatedSettings );
+		if ( shouldTrackReaderChat ) {
+			const updatedReaderChatEnabled = hasOwnSetting( updatedSettings, 'reader_chat' )
+				? Boolean( updatedSettings.reader_chat )
+				: Boolean( settings.reader_chat );
+
+			if ( updatedReaderChatEnabled !== previousReaderChatEnabled ) {
+				analytics.tracks.recordEvent( 'jetpack_reader_chat_toggle', {
+					enabled: updatedReaderChatEnabled,
+					previous_enabled: previousReaderChatEnabled,
+					is_wpcom: isWpcom,
+					surface: 'jetpack_search_dashboard',
+				} );
+			}
+		}
 		return successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 	} catch {
 		const oldSettings = Object.fromEntries(
