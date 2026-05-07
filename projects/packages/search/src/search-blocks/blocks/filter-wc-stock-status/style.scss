@@ -1,0 +1,19 @@
+/**
+ * Search product filter — stock status.
+ *
+ * Inherits the shared `.jetpack-search-filter__list/__item/__label/__count`
+ * styles from the generic filter-checkbox block (loaded as part of the
+ * package CSS), so this file only adds product-filter-specific tweaks.
+ * The parent wrapper class is here so the editor preview and the front-end
+ * markup share the same hook.
+ */
+.jetpack-search-filter-wc-stock-status {
+	// Keep the option list compact when the parent wrapper sets a tight
+	// blockGap — vertical option lists shouldn't inherit the parent's
+	// inter-section spacing as item-to-item spacing.
+	.jetpack-search-filter__list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+}

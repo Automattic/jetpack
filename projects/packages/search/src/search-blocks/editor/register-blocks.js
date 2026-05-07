@@ -24,6 +24,7 @@ import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
 import FilterWcPriceEdit from '../blocks/filter-wc-price/edit';
 import FilterWcRatingEdit from '../blocks/filter-wc-rating/edit';
+import FilterWcStockStatusEdit from '../blocks/filter-wc-stock-status/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersStackEdit, { save as filtersStackSave } from '../blocks/filters-stack/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
@@ -57,6 +58,7 @@ const BLOCKS = [
 	[ 'jetpack-search/search-results', SearchResultsEdit, searchResultsSave ],
 	[ 'jetpack-search/powered-by', PoweredByEdit ],
 	[ 'jetpack-search/filter-wc-price', FilterWcPriceEdit ],
+	[ 'jetpack-search/filter-wc-stock-status', FilterWcStockStatusEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /
