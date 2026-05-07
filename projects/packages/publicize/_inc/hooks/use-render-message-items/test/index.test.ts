@@ -136,7 +136,7 @@ describe( 'useRenderMessageItems', () => {
 
 	it( 'builds one item per connection in global mode, keyed by connection_id', () => {
 		mockUseSelect.mockReturnValue( [
-			conn( { connection_id: 'a', service_name: 'x', message: 'A' } ),
+			conn( { connection_id: 'a', service_name: 'x' } ),
 			conn( { connection_id: 'b', service_name: 'facebook' } ),
 		] );
 
@@ -198,7 +198,7 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'debounces 1500ms when a message string changes', () => {
-		mockUseSelect.mockReturnValue( [ conn( { message: 'Ignored per-network message' } ) ] );
+		mockUseSelect.mockReturnValue( [ conn() ] );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'first',
 			updateMessage: jest.fn(),
@@ -231,7 +231,7 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'does not flush a pending message change on unrelated re-renders', () => {
-		mockUseSelect.mockReturnValue( [ conn( { message: 'Ignored per-network message' } ) ] );
+		mockUseSelect.mockReturnValue( [ conn() ] );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'first',
 			updateMessage: jest.fn(),
@@ -272,7 +272,7 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'updates immediately when only non-message inputs change', () => {
-		mockUseSelect.mockReturnValue( [ conn( { message: 'Ignored per-network message' } ) ] );
+		mockUseSelect.mockReturnValue( [ conn() ] );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'same',
 			updateMessage: jest.fn(),
