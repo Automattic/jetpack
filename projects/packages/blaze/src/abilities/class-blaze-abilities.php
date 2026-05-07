@@ -314,23 +314,70 @@ class Blaze_Abilities extends Registrar {
 				'output_schema'       => array(
 					'type'        => 'object',
 					'description' => __( 'Prefill payload plus a deep-link to the Blaze UI for the merchant to review and submit.', 'jetpack-blaze' ),
-					'required'    => array( 'status', 'prefill_url', 'prefill' ),
+					'required'    => array( 'status', 'intent', 'assumptions', 'recommendations', 'prefill_url', 'prefill' ),
 					'properties'  => array(
-						'status'      => array(
+						'status'          => array(
 							'type'        => 'string',
 							'description' => __( 'Always "pending_merchant_review" for the immediate response. The campaign is not yet on the DSP — it lands there only when the merchant submits from the Blaze UI.', 'jetpack-blaze' ),
 							'enum'        => array( 'pending_merchant_review' ),
 						),
-						'message'     => array(
+						'message'         => array(
 							'type'        => 'string',
 							'description' => __( 'Human-readable summary suitable for surfacing back to the merchant in chat. Includes the prefill_url verbatim so MCP clients that strip structured fields still surface the link.', 'jetpack-blaze' ),
 						),
-						'prefill_url' => array(
+						'intent'          => array(
+							'type'        => 'string',
+							'description' => __( 'Inferred campaign intent used to choose server-owned defaults.', 'jetpack-blaze' ),
+							'enum'        => array( 'ecommerce', 'content', 'unknown' ),
+						),
+						'assumptions'     => array(
+							'type'        => 'array',
+							'description' => __( 'Plain-language assumptions used while preparing the recommended campaign.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type' => 'string',
+							),
+						),
+						'recommendations' => array(
+							'type'        => 'array',
+							'description' => __( 'Plain-language guidance for reviewing the prepared campaign.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type' => 'string',
+							),
+						),
+						'budget_options'  => array(
+							'type'        => 'array',
+							'description' => __( 'Lower, recommended, and higher budget options returned when budget or duration is omitted. The recommended option is encoded in prefill_url.', 'jetpack-blaze' ),
+							'items'       => array(
+								'type'       => 'object',
+								'properties' => array(
+									'key'           => array(
+										'type' => 'string',
+										'enum' => array( 'lower', 'recommended', 'higher' ),
+									),
+									'label'         => array(
+										'type' => 'string',
+									),
+									'budget'        => array(
+										'type' => 'object',
+									),
+									'daily_budget'  => array(
+										'type' => 'object',
+									),
+									'duration_days' => array(
+										'type' => 'integer',
+									),
+									'rationale'     => array(
+										'type' => 'string',
+									),
+								),
+							),
+						),
+						'prefill_url'     => array(
 							'type'        => 'string',
 							'format'      => 'uri',
 							'description' => __( 'Deep-link the merchant follows to land in the Blaze UI with the campaign form pre-populated. The prefill payload is encoded in the blaze_prefill query parameter.', 'jetpack-blaze' ),
 						),
-						'prefill'     => array(
+						'prefill'         => array(
 							'type'        => 'object',
 							'description' => __( 'The structured prefill payload — same data as encoded in prefill_url. Useful for the MCP client to surface a summary of what was prepared before the merchant clicks through.', 'jetpack-blaze' ),
 						),
