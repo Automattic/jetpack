@@ -561,25 +561,25 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
-	it( 'hasAnyActiveFilters covers activeFilters and the priceRange (including half-open)', () => {
+	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {
 		state.activeFilters = {};
 		state.priceRange = null;
-		expect( state.hasAnyActiveFilters ).toBe( false );
+		expect( state.hasActiveFilters ).toBe( false );
 
 		state.activeFilters = { category: [ 'news' ] };
-		expect( state.hasAnyActiveFilters ).toBe( true );
+		expect( state.hasActiveFilters ).toBe( true );
 
 		state.activeFilters = {};
 		state.priceRange = { min: 10, max: 50 };
-		expect( state.hasAnyActiveFilters ).toBe( true );
+		expect( state.hasActiveFilters ).toBe( true );
 
 		// Half-open range still counts — without this branch a price-only
 		// deep link leaves the active-filters wrapper hidden after hydration.
 		state.priceRange = { min: null, max: 50 };
-		expect( state.hasAnyActiveFilters ).toBe( true );
+		expect( state.hasActiveFilters ).toBe( true );
 
 		state.priceRange = { min: null, max: null };
-		expect( state.hasAnyActiveFilters ).toBe( false );
+		expect( state.hasActiveFilters ).toBe( false );
 	} );
 
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {
@@ -676,8 +676,9 @@ describe( 'store callbacks', () => {
 	it( 'initializes popstate handling and runs one URL-seeded search', () => {
 		// Also covers the price-only URL case: `?min_price=10` with no text
 		// query and no checkbox filters seeds isLoading=true on the PHP side,
-		// so initialize() must fire a fetch for `priceRange` alone, not just
-		// for `searchQuery || hasActiveFilters`.
+		// so initialize() must fire a fetch — hasActiveFilters counts the
+		// priceRange, so the existing `searchQuery || hasActiveFilters` gate
+		// is enough.
 		const addEventListener = jest.spyOn( window, 'addEventListener' );
 		Object.assign( actions, originalActions );
 		jest.spyOn( actions, 'handlePopState' ).mockImplementation();

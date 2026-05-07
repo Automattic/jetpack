@@ -438,29 +438,20 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when any filter has at least one selected value. Used by
-		 * active-filters to decide whether to render the pills wrapper.
+		 * True when any facet is active — selected filter values or a
+		 * price range. Drives the active-filters pill wrapper, the standalone
+		 * clear-filters block, and the filter-popover trigger. priceRange
+		 * counts as a filter here so a price-only selection (including a
+		 * half-open range like `?min_price=10`) doesn't leave the pill
+		 * wrapper hidden when the user has a chip to clear.
 		 *
 		 * @return {boolean} Whether any filter is active.
 		 */
 		get hasActiveFilters() {
-			return Object.values( state.activeFilters ?? {} ).some(
+			const hasSelections = Object.values( state.activeFilters ?? {} ).some(
 				v => Array.isArray( v ) && v.length > 0
 			);
-		},
-
-		/**
-		 * True when *any* facet is active — selected filter values or a
-		 * price range. The active-filters pill row, the standalone clear-
-		 * filters block, and the filter-popover trigger all key off this
-		 * rather than `hasActiveFilters` (which is `activeFilters`-only).
-		 * Without the priceRange branch, a price-only selection leaves
-		 * the pill wrapper hidden even though the user has a chip to clear.
-		 *
-		 * @return {boolean} Whether any filter or the price range is active.
-		 */
-		get hasAnyActiveFilters() {
-			if ( state.hasActiveFilters ) {
+			if ( hasSelections ) {
 				return true;
 			}
 			const range = state.priceRange;
@@ -747,7 +738,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*clearFilters() {
-			if ( ! state.hasAnyActiveFilters ) {
+			if ( ! state.hasActiveFilters ) {
 				return;
 			}
 			state.activeFilters = {};
@@ -1040,9 +1031,8 @@ const { state, actions } = store( NAMESPACE, {
 			if ( droppedAny ) {
 				state.activeFilters = gated;
 			}
-			if ( state.searchQuery || state.hasActiveFilters || state.priceRange ) {
+			if ( state.searchQuery || state.hasActiveFilters ) {
 				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
-				// priceRange is checked separately so `?min_price=10` still triggers an initial fetch.
 				actions.search( { syncUrl: false } );
 			} else if ( droppedAny ) {
 				// Gate emptied activeFilters and no fetch will fire — clear the PHP-seeded
