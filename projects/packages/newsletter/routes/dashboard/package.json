@@ -5,8 +5,10 @@
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@tanstack/react-query": "5.90.8",
 		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "1.12.0",
@@ -21,7 +23,8 @@
 		"@wordpress/notices": "5.44.0",
 		"@wordpress/route": "0.10.0",
 		"@wordpress/theme": "0.11.0",
-		"@wordpress/ui": "0.11.0"
+		"@wordpress/ui": "0.11.0",
+		"@wordpress/url": "4.44.0"
 	},
 	"route": {
 		"path": "/",
