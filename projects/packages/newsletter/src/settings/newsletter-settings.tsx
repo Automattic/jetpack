@@ -433,6 +433,7 @@ export function NewsletterSettingsBody( {
 								onSave={ saveSubscriptionSettings }
 								isSaving={ isSavingSubscriptions }
 								hasChanges={ hasSubscriptionChanges }
+								changedKeys={ Object.keys( subscriptionChanges ) }
 								isNewsletterEnabled={ data.subscriptions }
 							/>
 
@@ -460,6 +461,7 @@ export function NewsletterSettingsBody( {
 								onSave={ saveSenderName }
 								isSaving={ isSavingSenderName }
 								hasChanges={ hasSenderNameChanges }
+								changedKeys={ Object.keys( senderNameChanges ) }
 								isNewsletterEnabled={ data.subscriptions }
 							/>
 
@@ -475,6 +477,7 @@ export function NewsletterSettingsBody( {
 								onSave={ saveWelcomeEmail }
 								isSaving={ isSavingWelcomeEmail }
 								hasChanges={ hasWelcomeEmailChanges }
+								changedKeys={ Object.keys( welcomeEmailChanges ) }
 								isNewsletterEnabled={ data.subscriptions }
 							/>
 
@@ -484,6 +487,7 @@ export function NewsletterSettingsBody( {
 								onSave={ saveNewsletterCategories }
 								isSaving={ isSavingNewsletterCategories }
 								hasChanges={ hasNewsletterCategoriesChanges }
+								changedKeys={ Object.keys( newsletterCategoriesChanges ) }
 								isNewsletterEnabled={ data.subscriptions }
 							/>
 						</Stack>
