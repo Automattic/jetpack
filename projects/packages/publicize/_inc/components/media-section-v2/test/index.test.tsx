@@ -266,7 +266,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Social image template' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'sig',
@@ -290,7 +290,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select Use featured image
-			await user.click( screen.getByRole( 'menuitem', { name: 'Featured image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Featured image' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: 'featured-image',
@@ -314,7 +314,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Select SIG
-			await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Social image template' } ) );
 
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_source_changed', {
 				test: 'data',
@@ -359,7 +359,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Default
-			await user.click( screen.getByRole( 'menuitem', { name: 'Default' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Default' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
 				media_source: undefined,
@@ -428,7 +428,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Generate image option
-			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Generate image' } ) );
 
 			// The GeneralPurposeImage modal should now be rendered
 			expect( screen.getByTestId( 'ai-image-modal' ) ).toBeInTheDocument();
@@ -445,7 +445,7 @@ describe( 'MediaSectionV2', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
 			// Click Generate image option
-			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Generate image' } ) );
 
 			expect( mockCustomHandler ).toHaveBeenCalled();
 		} );

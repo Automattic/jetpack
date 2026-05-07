@@ -112,10 +112,14 @@ describe( 'MediaSourceMenu', () => {
 		expect( screen.getByText( 'Attachment' ) ).toBeInTheDocument();
 
 		// Check that menu items are rendered
-		expect( screen.getByRole( 'menuitem', { name: 'Default' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'menuitem', { name: 'Featured image' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'menuitem', { name: 'Social image template' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'menuitem', { name: 'From Media Library' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Default' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Featured image' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'Social image template' } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'From Media Library' } )
+		).toBeInTheDocument();
 	} );
 
 	it( 'should hide Default option by default (global mode)', async () => {
@@ -148,7 +152,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'Featured image' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Featured image' } ) );
 
 		expect( mockOnSelect ).toHaveBeenCalledWith( 'featured-image' );
 	} );
@@ -165,7 +169,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'Social image template' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Social image template' } ) );
 
 		expect( mockOnSelect ).toHaveBeenCalledWith( 'sig' );
 	} );
@@ -182,7 +186,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'From Media Library' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'From Media Library' } ) );
 
 		expect( mockOnMediaLibraryClick ).toHaveBeenCalledTimes( 1 );
 		expect( mockOnSelect ).not.toHaveBeenCalled();
@@ -221,7 +225,7 @@ describe( 'MediaSourceMenu', () => {
 		expect( screen.getByText( 'Link preview' ) ).toBeInTheDocument();
 	} );
 
-	it( 'should disable the current source item', async () => {
+	it( 'should mark the current source as the radio-checked item and not re-fire onSelect', async () => {
 		const user = userEvent.setup();
 
 		render(
@@ -235,12 +239,11 @@ describe( 'MediaSourceMenu', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
 
-		// Verify the menu renders with the current source item disabled
-		const featuredImageItem = screen.getByRole( 'menuitem', { name: 'Featured image' } );
+		const featuredImageItem = screen.getByRole( 'menuitemradio', { name: 'Featured image' } );
 		expect( featuredImageItem ).toBeInTheDocument();
-		expect( featuredImageItem ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( featuredImageItem ).toBeChecked();
 
-		// Verify clicking the disabled item does not trigger onSelect
+		// Re-clicking the active option must not call onSelect (it's a no-op).
 		await user.click( featuredImageItem );
 		expect( mockOnSelect ).not.toHaveBeenCalled();
 	} );
@@ -274,7 +277,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		expect( screen.getByRole( 'menuitem', { name: 'Default' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Default' } ) ).toBeInTheDocument();
 
 		rerender(
 			<MediaSourceMenu
@@ -286,7 +289,7 @@ describe( 'MediaSourceMenu', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'menuitem', { name: 'Default' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'menuitemradio', { name: 'Default' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'should call onSelect with null when Default is clicked', async () => {
@@ -302,7 +305,7 @@ describe( 'MediaSourceMenu', () => {
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Select' } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: 'Default' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Default' } ) );
 
 		expect( mockOnSelect ).toHaveBeenCalledWith( null );
 	} );

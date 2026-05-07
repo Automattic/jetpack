@@ -31,22 +31,36 @@ export default function MediaSourceMenu( {
 	const options = useMemo( () => getMediaSourceOptions(), [] );
 
 	/*
-	 * Group options by category. Hide "Featured image" when no featured image exists.
-	 * Hide "Default" unless the caller opts in (per-network customization only).
+	 * Group options for display:
+	 * - Hide "Featured image" when no featured image exists.
+	 * - Hide "Default" unless the caller opts in (per-network customization only).
+	 * - In per-network mode, SIG and Featured image are always attached (no toggle to make
+	 *   them link-preview-only), so they're surfaced under "Attachment". Default is the only
+	 *   link-preview option.
 	 */
 	const linkPreviewOptions = useMemo(
 		() =>
 			options.filter( opt => {
-				if ( opt.group !== 'link-preview' ) return false;
 				if ( opt.id === 'featured-image' && ! featuredImageId ) return false;
-				if ( opt.id === null && ! includeDefaultOption ) return false;
-				return true;
+				if ( includeDefaultOption ) {
+					return opt.id === null;
+				}
+				if ( opt.id === null ) return false;
+				return opt.group === 'link-preview';
 			} ),
 		[ options, featuredImageId, includeDefaultOption ]
 	);
 	const attachmentOptions = useMemo(
-		() => options.filter( opt => opt.group === 'attachment' ),
-		[ options ]
+		() =>
+			options.filter( opt => {
+				if ( opt.id === null ) return false;
+				if ( opt.id === 'featured-image' && ! featuredImageId ) return false;
+				if ( includeDefaultOption ) {
+					return true;
+				}
+				return opt.group === 'attachment';
+			} ),
+		[ options, featuredImageId, includeDefaultOption ]
 	);
 
 	const renderToggle = useCallback(
@@ -87,7 +101,6 @@ export default function MediaSourceMenu( {
 							isSelected={ currentSource === option.id }
 							onSelect={ onSelect }
 							onClose={ onClose }
-							disabled={ currentSource === option.id }
 						/>
 					) ) }
 				</MenuGroup>
