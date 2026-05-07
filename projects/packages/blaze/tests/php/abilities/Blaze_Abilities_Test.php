@@ -14,6 +14,7 @@ use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_Error;
+use WP_REST_Server;
 
 /**
  * @covers \Automattic\Jetpack\Blaze\Abilities\Blaze_Abilities
@@ -51,6 +52,9 @@ class Blaze_Abilities_Test extends BaseTestCase {
 			array( 'approved' => true ),
 			DAY_IN_SECONDS
 		);
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
 	}
 
 	/**
@@ -63,6 +67,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_wp_abilities_should_register' );
 		remove_all_filters( 'blaze_abilities_prepare_campaign_enabled' );
 		remove_all_actions( 'wp_after_execute_ability' );
+		unset( $GLOBALS['wp_rest_server'] );
 	}
 
 	// --- list-campaigns read ability ---
@@ -397,6 +402,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'ISO 639-1', $properties['languages']['description'] );
 		$this->assertStringContainsString( 'ISO 3166-1 alpha-2', $properties['countries']['description'] );
 		$this->assertSame( array( 'zh', 'nl', 'en', 'fr', 'de', 'hi', 'id', 'it', 'ja', 'ko', 'pl', 'pt', 'ru', 'es', 'tr' ), $properties['languages']['items']['enum'] );
+		$this->assertSame( '^[A-Z]{2}$', $properties['countries']['items']['pattern'] );
 		$this->assertSame( 1, $properties['devices']['maxItems'] );
 		$this->assertSame( array( 'mobile', 'desktop' ), $properties['devices']['items']['enum'] );
 		$this->assertStringContainsString( 'Tablet is not exposed', $properties['devices']['description'] );
@@ -405,6 +411,14 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertNotContains( 'IAB18', $properties['interests']['items']['enum'] );
 
 		$output_properties = $ability['output_schema']['properties'];
+		$this->assertContains( 'message', $ability['output_schema']['required'] );
+		$this->assertContains( 'campaign_preview', $ability['output_schema']['required'] );
+		$this->assertContains( 'forecast_summary', $ability['output_schema']['required'] );
+		$this->assertArrayHasKey( 'message', $output_properties );
+		$this->assertArrayHasKey( 'campaign_preview', $output_properties );
+		$this->assertArrayHasKey( 'forecast_summary', $output_properties );
+		$this->assertContains( 'ad_heading', $output_properties['campaign_preview']['required'] );
+		$this->assertArrayHasKey( 'landing_page', $output_properties['campaign_preview']['properties'] );
 		$this->assertArrayHasKey( 'intent', $output_properties );
 		$this->assertArrayHasKey( 'forecast', $output_properties );
 		$this->assertArrayHasKey( 'assumptions', $output_properties );
@@ -434,6 +448,23 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		return array(
 			'post_id'    => (int) $post_id,
 			'target_urn' => sprintf( 'urn:wpcom:post:%d:%d', self::TEST_SITE_ID, (int) $post_id ),
+		);
+	}
+
+	/**
+	 * Register a test forecast route for the preparer's proxied DSP request.
+	 *
+	 * @param callable $callback Route callback.
+	 */
+	private function register_forecast_route( callable $callback ) {
+		register_rest_route(
+			'jetpack/v4/blaze-app',
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/forecast', self::TEST_SITE_ID ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => $callback,
+				'permission_callback' => '__return_true',
+			)
 		);
 	}
 
@@ -490,6 +521,19 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertNotEmpty( $result['prefill_url'] );
 		$this->assertStringContainsString( 'blaze_prefill=', $result['prefill_url'] );
 		$this->assertStringContainsString( $result['prefill_url'], $result['message'] );
+		$this->assertArrayNotHasKey( 'budget_options', $result );
+		$this->assertSame( 'unavailable', $result['forecast']['status'] );
+		$this->assertSame( 'Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', $result['forecast_summary'] );
+		$this->assertSame( 'Test product page', $result['campaign_preview']['ad_heading'] );
+		$this->assertSame( 'USD 50.00 total (USD 3.57/day)', $result['campaign_preview']['budget'] );
+		$this->assertStringContainsString( '| Campaign preview | Prepared value |', $result['message'] );
+		$this->assertStringContainsString( '| Ad heading | Test product page |', $result['message'] );
+		$this->assertStringContainsString( '| Budget | USD 50.00 total (USD 3.57/day) |', $result['message'] );
+		$this->assertStringContainsString( 'Forecast: Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', $result['message'] );
+		$this->assertStringContainsString( 'Assumptions:', $result['message'] );
+		$this->assertStringContainsString( 'Recommendations:', $result['message'] );
+		$this->assertStringContainsString( 'Review URL: ' . $result['prefill_url'], $result['message'] );
+		$this->assertStringNotContainsString( 'Budget options:', $result['message'] );
 
 		$prefill = $result['prefill'];
 		$this->assertSame( $ctx['target_urn'], $prefill['target_urn'] );
@@ -524,6 +568,73 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'content', $result['intent'] );
 		$this->assertSame( 'unavailable', $result['forecast']['status'] );
 		$this->assertCount( 3, $result['budget_options'] );
+		$this->assertStringContainsString( 'Budget options:', $result['message'] );
+		$this->assertStringContainsString( '| Lower | USD 25.00 | USD 3.57 | 7 days |', $result['message'] );
+		$this->assertStringContainsString( '| Recommended | USD 50.00 | USD 7.14 | 7 days |', $result['message'] );
+		$this->assertStringContainsString( '| Higher | USD 150.00 | USD 21.43 | 7 days |', $result['message'] );
+	}
+
+	/**
+	 * Available DSP forecasts are summarized in the chat-facing message while
+	 * the structured forecast remains available.
+	 */
+	public function test_prepare_campaign_message_includes_forecast_summary_when_available() {
+		$ctx = $this->make_test_post();
+		$this->register_forecast_route(
+			static function () {
+				return array(
+					'total_impressions_min'     => 1200,
+					'total_impressions_max'     => 2400,
+					'total_clicks_min'          => 30,
+					'total_clicks_max'          => 60,
+					'total_tsp_impressions_min' => 0,
+					'total_tsp_impressions_max' => 0,
+				);
+			}
+		);
+
+		$result = Blaze_Abilities::prepare_campaign(
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 50,
+				'duration_days' => 14,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'available', $result['forecast']['status'] );
+		$this->assertSame( 'views', $result['forecast']['primary_metric'] );
+		$this->assertSame( 'Estimated 1,200-2,400 views and 30-60 clicks for the recommended option.', $result['forecast_summary'] );
+		$this->assertStringContainsString( 'Forecast: Estimated 1,200-2,400 views and 30-60 clicks for the recommended option.', $result['message'] );
+		$this->assertStringContainsString( 'Review URL: ' . $result['prefill_url'], $result['message'] );
+	}
+
+	/**
+	 * Forecast failures should produce a useful fallback instead of hiding the
+	 * review URL or structured proposal.
+	 */
+	public function test_prepare_campaign_message_includes_forecast_fallback() {
+		$ctx = $this->make_test_post();
+		$this->register_forecast_route(
+			static function () {
+				return new WP_Error( 'forecast_unavailable', 'Forecast failed.', array( 'status' => 500 ) );
+			}
+		);
+
+		$result = Blaze_Abilities::prepare_campaign(
+			array(
+				'target_urn'    => $ctx['target_urn'],
+				'budget_total'  => 50,
+				'duration_days' => 14,
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'unavailable', $result['forecast']['status'] );
+		$this->assertSame( 'forecast_unavailable', $result['forecast']['reason'] );
+		$this->assertSame( 'Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', $result['forecast_summary'] );
+		$this->assertStringContainsString( 'Forecast: Forecast estimates are unavailable, but the campaign proposal can still be reviewed in Blaze.', $result['message'] );
+		$this->assertStringContainsString( 'Review URL: ' . $result['prefill_url'], $result['message'] );
 	}
 
 	/**
