@@ -134,10 +134,84 @@ function wpcomsh_fatal_log_deactivate( $plugin_basename ) {
 }
 
 /**
+ * Bucket the in-flight HTTP request into a coarse kind for telemetry,
+ * along with the path and method. Kind drives dedup; path and method
+ * ride on the row for drill-down.
+ *
+ * Buckets, in priority order: `cron`, `ajax`, `rest`, `wp-login`,
+ * `wp-admin`, `home`, `other`. Order matters because `admin-ajax.php`
+ * lives under `/wp-admin/`, so the more-specific buckets win first.
+ *
+ * Best-effort: option lookups (`admin_url()`, `home_url()`) are wrapped
+ * in try/catch so a misbehaving filter can't bubble out of the fatal
+ * handler.
+ *
+ * @return array{kind:string,path:string,method:string}
+ */
+function wpcomsh_fatal_request_context() {
+	static $cached = null;
+	if ( null !== $cached ) {
+		return $cached;
+	}
+
+	// REQUEST_URI is fed only to wp_parse_url for path extraction; the raw
+	// value is never echoed, rendered, or stored. sanitize_text_field would
+	// drop legitimate path bytes via wp_check_invalid_utf8.
+	$req_uri  = wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- path-only extraction; see comment.
+	$raw_path = (string) wp_parse_url( $req_uri, PHP_URL_PATH );
+	$path     = rtrim( $raw_path, '/' );
+
+	static $allowed_methods = array( 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS' );
+	$method_raw             = strtoupper( (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- whitelisted below.
+	$method                 = in_array( $method_raw, $allowed_methods, true ) ? $method_raw : 'UNKNOWN';
+
+	// Bucket priority: cron / ajax / rest / wp-login win before wp-admin
+	// because admin-ajax.php lives under /wp-admin/. Constants (not the
+	// `wp_doing_cron` / `wp_doing_ajax` wrappers) are checked because the
+	// wrappers run filters — a callback registered by the fataling code, or
+	// by a plugin coincidentally loaded on this request, must not bubble out
+	// of the fatal handler and prevent the recovery screen from rendering.
+	// Path suffixes catch the early-fatal case where the constant hasn't
+	// been defined yet (e.g. a plugin-load fatal on /wp-cron.php before
+	// wp-cron.php sets DOING_CRON).
+	$kind = 'other';
+	if ( ( defined( 'DOING_CRON' ) && DOING_CRON ) || str_ends_with( $path, '/wp-cron.php' ) ) {
+		$kind = 'cron';
+	} elseif ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || str_ends_with( $path, '/admin-ajax.php' ) ) {
+		$kind = 'ajax';
+	} elseif ( ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || str_contains( $path, '/wp-json/' ) || str_ends_with( $path, '/wp-json' ) ) {
+		$kind = 'rest';
+	} elseif ( str_ends_with( $path, '/wp-login.php' ) ) {
+		$kind = 'wp-login';
+	} else {
+		try {
+			$admin_path = rtrim( (string) wp_parse_url( admin_url(), PHP_URL_PATH ), '/' );
+			if ( '' !== $admin_path && str_starts_with( $path . '/', $admin_path . '/' ) ) {
+				$kind = 'wp-admin';
+			} else {
+				$home_path = rtrim( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ), '/' );
+				if ( $home_path === $path ) {
+					$kind = 'home';
+				}
+			}
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: option lookup must not bubble during fatal handling.
+			// Fall through with $kind = 'other'.
+		}
+	}
+
+	$cached = array(
+		'kind'   => $kind,
+		'path'   => '' === $path ? '/' : $path,
+		'method' => $method,
+	);
+	return $cached;
+}
+
+/**
  * Emit a fatal-error event keyed on a suspected extension. Builds the
- * signature, dedups per (message, signature) for 1 hour, and routes
- * through `wpcomsh_fatal_emit_logstash` so the recovery-login event can
- * share the same dispatch tail.
+ * signature, dedups per (message, signature, request_kind) for 1 hour,
+ * and routes through `wpcomsh_fatal_emit_logstash` so the recovery-login
+ * event can share the same dispatch tail.
  *
  * @param array|null $plugin  Extension metadata from wpcomsh_fatal_identify_plugin().
  * @param string     $message Event message slug (e.g. `wpcomsh_fatal_signature`, `wpcomsh_fatal_deactivate`).
@@ -169,18 +243,24 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 		return;
 	}
 
-	// Dedup per (message, signature) for 1 hour so a persistent fatal doesn't
-	// emit one log row + one outbound HTTP per visitor. $message is part of
-	// the key so a deactivate event isn't suppressed by a recent signature
-	// event for the same extension. The TTL stays short of core's 24h
-	// `recovery_mode_email_rate_limit` so a legitimate re-send — e.g. the
-	// admin exits recovery mode and the site fatals again — surfaces rather
-	// than getting silently swallowed.
-	if ( ! wpcomsh_fatal_dedup_acquire( 'wpcomsh_fatal_event:' . hash( 'sha256', $message . '|' . $signature ), HOUR_IN_SECONDS ) ) {
+	$context = wpcomsh_fatal_request_context();
+
+	// Dedup per (message, signature, request_kind) for 1 hour. $message keeps
+	// a deactivate event from being suppressed by a recent signature event for
+	// the same extension. request_kind splits site-wide breakage (multiple
+	// kinds per signature) from a single broken endpoint (one kind), which the
+	// in-request handler can't otherwise tell. TTL stays short of core's 24h
+	// `recovery_mode_email_rate_limit` so a legitimate re-send surfaces.
+	if ( ! wpcomsh_fatal_dedup_acquire( 'wpcomsh_fatal_event:' . hash( 'sha256', $message . '|' . $signature . '|' . $context['kind'] ), HOUR_IN_SECONDS ) ) {
 		return;
 	}
 
-	$properties = array( 'signature' => $signature );
+	$properties = array(
+		'signature'      => $signature,
+		'request_kind'   => $context['kind'],
+		'request_path'   => $context['path'],
+		'request_method' => $context['method'],
+	);
 
 	// Round-trip through the decoder so the logged parts always agree
 	// with the signature.

@@ -33,16 +33,20 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
 
 	// Identify only when used: admins need $plugin for the rendered
-	// notice; the anonymous path identifies once per (file, 1-hour) for
-	// telemetry. Signature-level dedup downstream catches duplicates
-	// this gate misses.
+	// notice; anonymous viewers don't render plugin info but still emit
+	// a signature event for telemetry. The anonymous path gates on
+	// (error file, request_kind) before paying the plugin-header read so
+	// a fatal storm doesn't compound filesystem work on a sick site —
+	// kind is in the key so wp-admin / home / rest variance still reaches
+	// the downstream (message, signature, request_kind) dedup.
 	$plugin = null;
 
 	if ( $is_admin ) {
 		$plugin = wpcomsh_fatal_identify_plugin( $error );
 		wpcomsh_fatal_log_event( $plugin, 'wpcomsh_fatal_signature' );
 	} elseif ( ! empty( $error['file'] ) ) {
-		$coarse_key = 'wpcomsh_fatal_file:' . hash( 'sha256', (string) $error['file'] );
+		$req_kind   = wpcomsh_fatal_request_context()['kind'];
+		$coarse_key = 'wpcomsh_fatal_file_kind:' . hash( 'sha256', (string) $error['file'] . '|' . $req_kind );
 		if ( wpcomsh_fatal_dedup_acquire( $coarse_key, HOUR_IN_SECONDS ) ) {
 			wpcomsh_fatal_log_event( wpcomsh_fatal_identify_plugin( $error ), 'wpcomsh_fatal_signature' );
 		}

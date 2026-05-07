@@ -3,7 +3,6 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useMemo } from 'react';
 import { store as socialStore } from '../../social-store';
-import { Connection } from '../../social-store/types';
 import { features } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
@@ -12,7 +11,13 @@ import { useRenderMessageItems } from '../use-render-message-items';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
-import { PostPreviewData } from '../use-social-preview-post-data/types';
+import type { Connection } from '../../social-store/types';
+import type { PostPreviewData } from '../use-social-preview-post-data/types';
+
+export type ConnectionPreviewData = PostPreviewData & {
+	message: string;
+	isLoading: boolean;
+};
 
 /**
  * Returns the post data needed for the preview of a specific connection.
@@ -20,7 +25,7 @@ import { PostPreviewData } from '../use-social-preview-post-data/types';
  * @param {Connection} connection - The connection.
  * @return The post data.
  */
-export function useConnectionPreviewData( connection: Connection ) {
+export function useConnectionPreviewData( connection: Connection ): ConnectionPreviewData {
 	const { isEnabled: usingPerNetworkCustomization } = usePerNetworkCustomization();
 	const { mediaSource: globalMediaSource } = usePostMeta();
 
@@ -86,36 +91,63 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 	const items = useRenderMessageItems();
+	const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
+	let baseMessage: string;
+	if ( isPerNetworkMode ) {
+		if ( hasConnectionMessage ) {
+			baseMessage = connection.message ?? '';
+		} else if ( templatesEnabled && connection.template ) {
+			baseMessage = connection.template;
+		} else {
+			baseMessage = globalMessage;
+		}
+	} else {
+		baseMessage = globalMessage;
+	}
+	baseMessage = baseMessage.trim();
+	const currentRenderItem = items.find( item => item.id === connection.connection_id );
 
-	const rendered = useSelect(
+	const { rendered, isLoadingRendered } = useSelect(
 		select => {
 			if ( ! templatesEnabled || ! postId ) {
-				return null;
+				return { rendered: null, isLoadingRendered: false };
 			}
-			// Calling getRenderedMessages via select() is what triggers the resolver
-			// (and the POST). Picking the per-connection slice off the returned batch
-			// keeps the call explicit instead of routing through a derived selector.
-			const batch = select( socialStore ).getRenderedMessages( postId, items );
-			return batch?.[ connection.connection_id ]?.rendered_message ?? null;
+			// Read from the cache-only selector so this hook does not trigger requests.
+			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`.
+			const social = select( socialStore );
+			const batch = social.getCachedRenderedMessages( postId, items );
+
+			return {
+				rendered: batch?.[ connection.connection_id ]?.rendered_message ?? null,
+				isLoadingRendered: social.isLoadingRenderedMessages( postId, items ),
+			};
 		},
 		[ templatesEnabled, postId, items, connection.connection_id ]
 	);
 
+	// True while the user has typed but the debounced items array hasn't caught
+	// up yet — the store doesn't see edits until items are committed, so the
+	// consumer has to compute this itself.
+	const isDebouncingRenderedMessage =
+		templatesEnabled &&
+		baseMessage.length > 0 &&
+		currentRenderItem?.message !== undefined &&
+		currentRenderItem.message !== baseMessage;
+
 	return useMemo( () => {
 		const useRendered = templatesEnabled && typeof rendered === 'string';
-		const baseMessage = isPerNetworkMode
-			? ( connection.message ?? globalMessage ).trim()
-			: globalMessage.trim();
+		const isLoading = templatesEnabled && ( isDebouncingRenderedMessage || isLoadingRendered );
 
 		return {
 			...postData,
 			message: useRendered ? rendered : baseMessage,
 			media,
+			isLoading,
 		};
 	}, [
-		connection.message,
-		globalMessage,
-		isPerNetworkMode,
+		baseMessage,
+		isDebouncingRenderedMessage,
+		isLoadingRendered,
 		media,
 		postData,
 		rendered,
