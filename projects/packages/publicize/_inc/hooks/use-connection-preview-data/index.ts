@@ -107,54 +107,36 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	baseMessage = baseMessage.trim();
 	const currentRenderItem = items.find( item => item.id === connection.connection_id );
 
-	const { rendered, isResolvingRenderedMessages, hasFinishedRenderingMessages } = useSelect(
+	const { rendered, isLoadingRendered } = useSelect(
 		select => {
 			if ( ! templatesEnabled || ! postId ) {
-				return {
-					rendered: null,
-					isResolvingRenderedMessages: false,
-					hasFinishedRenderingMessages: true,
-				};
+				return { rendered: null, isLoadingRendered: false };
 			}
 			// Read from the cache-only selector so this hook does not trigger requests.
-			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`, which keeps
-			// request timing debounced while still exposing loading state here.
+			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`.
 			const social = select( socialStore );
 			const batch = social.getCachedRenderedMessages( postId, items );
 
 			return {
 				rendered: batch?.[ connection.connection_id ]?.rendered_message ?? null,
-				isResolvingRenderedMessages: social.isResolving( 'getRenderedMessages', [ postId, items ] ),
-				hasFinishedRenderingMessages: social.hasFinishedResolution( 'getRenderedMessages', [
-					postId,
-					items,
-				] ),
+				isLoadingRendered: social.isLoadingRenderedMessages( postId, items ),
 			};
 		},
 		[ templatesEnabled, postId, items, connection.connection_id ]
 	);
 
+	// True while the user has typed but the debounced items array hasn't caught
+	// up yet — the store doesn't see edits until items are committed, so the
+	// consumer has to compute this itself.
+	const isDebouncingRenderedMessage =
+		templatesEnabled &&
+		baseMessage.length > 0 &&
+		currentRenderItem?.message !== undefined &&
+		currentRenderItem.message !== baseMessage;
+
 	return useMemo( () => {
 		const useRendered = templatesEnabled && typeof rendered === 'string';
-		const hasCurrentRenderItem = currentRenderItem?.message !== undefined;
-		const isDebouncingRenderedMessage =
-			templatesEnabled &&
-			baseMessage.length > 0 &&
-			hasCurrentRenderItem &&
-			currentRenderItem.message !== baseMessage;
-		const isWaitingForRenderedMessage =
-			templatesEnabled &&
-			baseMessage.length > 0 &&
-			hasCurrentRenderItem &&
-			currentRenderItem.message === baseMessage &&
-			! useRendered &&
-			! hasFinishedRenderingMessages;
-		const isLoading =
-			templatesEnabled &&
-			!! postId &&
-			baseMessage.length > 0 &&
-			items.length > 0 &&
-			( isResolvingRenderedMessages || isDebouncingRenderedMessage || isWaitingForRenderedMessage );
+		const isLoading = templatesEnabled && ( isDebouncingRenderedMessage || isLoadingRendered );
 
 		return {
 			...postData,
@@ -164,12 +146,9 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		};
 	}, [
 		baseMessage,
-		currentRenderItem?.message,
-		hasFinishedRenderingMessages,
-		isResolvingRenderedMessages,
-		items.length,
+		isDebouncingRenderedMessage,
+		isLoadingRendered,
 		media,
-		postId,
 		postData,
 		rendered,
 		templatesEnabled,

@@ -1,16 +1,5 @@
-import { hashRenderItems, type RenderItem } from '../../utils/render-messages';
+import { renderMessagesCacheKey, type RenderItem } from '../../utils/render-messages';
 import type { RenderedMessageBatch, SocialStoreState } from '../types';
-
-/**
- * Compute the cache slot key for a given (postId, items) batch.
- *
- * @param postId - Post being previewed.
- * @param items  - The render items.
- * @return Cache key string.
- */
-function cacheKeyFor( postId: number, items: RenderItem[] ): string {
-	return `${ postId }|${ hashRenderItems( items ) }`;
-}
 
 /**
  * The whole batch for a given (postId, items). Pairs with the
@@ -48,5 +37,32 @@ export function getCachedRenderedMessages(
 	if ( ! postId || items.length === 0 ) {
 		return undefined;
 	}
-	return state.renderedMessages?.[ cacheKeyFor( postId, items ) ];
+	return state.renderedMessages?.[ renderMessagesCacheKey( postId, items ) ]?.items;
+}
+
+/**
+ * Whether the batch for these items is currently being fetched. Returns true
+ * either when the resolver has explicitly marked the slot loading, or when no
+ * entry exists yet — that "no entry yet" window covers the gap between an
+ * items-array commit and the resolver dispatching `start`, so the preview
+ * doesn't flash the raw baseMessage in between.
+ *
+ * The resolver's `finish` action keeps the entry around with `isLoading: false`
+ * on error, so the failure path still falls back to baseMessage cleanly.
+ *
+ * @param state  - State object.
+ * @param postId - Post being previewed.
+ * @param items  - The render items.
+ * @return Loading flag for the matching cache slot.
+ */
+export function isLoadingRenderedMessages(
+	state: SocialStoreState,
+	postId: number,
+	items: RenderItem[]
+): boolean {
+	if ( ! postId || items.length === 0 ) {
+		return false;
+	}
+	const entry = state.renderedMessages?.[ renderMessagesCacheKey( postId, items ) ];
+	return entry === undefined || entry.isLoading;
 }

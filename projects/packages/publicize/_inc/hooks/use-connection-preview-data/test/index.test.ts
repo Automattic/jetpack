@@ -117,26 +117,23 @@ const defaultPostData = {
  * Mock the chained useSelect calls inside the hook so each one returns its expected
  * shape: postId, featuredImageId, then the rendered slice.
  *
- * @param opts             - Per-test overrides.
- * @param opts.postId      - Post id returned to the editor-store useSelect.
- * @param opts.rendered    - String returned for the rendered slice, or null to signal "no slice yet".
- * @param opts.isResolving - Whether rendered messages are being resolved.
- * @param opts.hasFinished - Whether the rendered messages resolution has finished.
+ * @param opts                   - Per-test overrides.
+ * @param opts.postId            - Post id returned to the editor-store useSelect.
+ * @param opts.rendered          - String returned for the rendered slice, or null to signal "no slice yet".
+ * @param opts.isLoadingRendered - Whether the rendered-messages cache slot is currently in-flight.
  */
 function mockSelectCalls(
 	opts: {
 		postId?: number;
 		rendered?: string | null;
-		isResolving?: boolean;
-		hasFinished?: boolean;
+		isLoadingRendered?: boolean;
 	} = {}
 ) {
-	const { postId = 42, rendered = null, isResolving = false, hasFinished = true } = opts;
-	mockUseSelect.mockReturnValueOnce( postId ).mockReturnValueOnce( 0 ).mockReturnValueOnce( {
-		rendered,
-		isResolvingRenderedMessages: isResolving,
-		hasFinishedRenderingMessages: hasFinished,
-	} );
+	const { postId = 42, rendered = null, isLoadingRendered = false } = opts;
+	mockUseSelect
+		.mockReturnValueOnce( postId )
+		.mockReturnValueOnce( 0 )
+		.mockReturnValueOnce( { rendered, isLoadingRendered } );
 }
 
 describe( 'useConnectionPreviewData', () => {
@@ -318,7 +315,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'shows loading while the live template message is waiting for debounce', () => {
-		mockSelectCalls( { rendered: null, isResolving: false } );
+		mockSelectCalls( { rendered: null } );
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUseRenderMessageItems.mockReturnValue( [
 			{
@@ -341,7 +338,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'does not show loading in global mode when the render item matches the global message', () => {
-		mockSelectCalls( { rendered: 'Rendered global template', isResolving: false } );
+		mockSelectCalls( { rendered: 'Rendered global template' } );
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUseRenderMessageItems.mockReturnValue( [
 			{
@@ -360,7 +357,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'keeps loading after debounce until the render request finishes', () => {
-		mockSelectCalls( { rendered: null, isResolving: false, hasFinished: false } );
+		mockSelectCalls( { rendered: null, isLoadingRendered: true } );
 		mockSiteHasFeature.mockReturnValue( true );
 		mockUseRenderMessageItems.mockReturnValue( [
 			{
@@ -383,7 +380,7 @@ describe( 'useConnectionPreviewData', () => {
 	} );
 
 	it( 'ignores rendered message when MESSAGE_TEMPLATES feature is off', () => {
-		mockSelectCalls( { rendered: 'Should not be used', isResolving: true, hasFinished: false } );
+		mockSelectCalls( { rendered: 'Should not be used', isLoadingRendered: true } );
 		mockSiteHasFeature.mockImplementation(
 			( feature: string ) => feature !== 'social-message-templates'
 		);
