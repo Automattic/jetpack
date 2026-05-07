@@ -11,16 +11,17 @@ const AI_AGENT_ACCESS_DESCRIPTION = __(
 	'Let AI assistants like Claude and ChatGPT answer questions from your blog’s content on behalf of WordPress.com users who have opted in.',
 	'jetpack-search-pkg'
 );
-const AI_AGENT_ACCESS_LEARN_MORE_URL = 'https://jetpack.com/support/ai-agent-access/';
 const WP_SETTINGS_PATH = '/wp/v2/settings';
 const WPCOM_AI_AGENTS_SETTINGS_PATH = '/wpcom/v2/ai-agents-settings';
 
 /**
  * AI Agent Access opt-in control.
  *
+ * @param {object} props               - Component properties.
+ * @param {string} props.guidelinesUrl - Guidelines admin URL, when available.
  * @return {import('react').Component} AI Agent Access settings component.
  */
-export default function AIAgentAccessControl() {
+export default function AIAgentAccessControl( { guidelinesUrl } ) {
 	const [ isEnabled, setIsEnabled ] = useState( false );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isSaving, setIsSaving ] = useState( false );
@@ -111,11 +112,13 @@ export default function AIAgentAccessControl() {
 								<p className="jp-form-search-settings-group__toggle-explanation">
 									{ AI_AGENT_ACCESS_DESCRIPTION }
 								</p>
-								<p className="jp-form-search-settings-group__toggle-explanation">
-									<ExternalLink href={ AI_AGENT_ACCESS_LEARN_MORE_URL }>
-										{ __( 'Learn more', 'jetpack-search-pkg' ) }
-									</ExternalLink>
-								</p>
+								{ isEnabled && guidelinesUrl && (
+									<p className="jp-form-search-settings-group__toggle-explanation">
+										<ExternalLink href={ guidelinesUrl }>
+											{ __( 'Set guidelines', 'jetpack-search-pkg' ) }
+										</ExternalLink>
+									</p>
+								) }
 							</div>
 						</div>
 					</div>

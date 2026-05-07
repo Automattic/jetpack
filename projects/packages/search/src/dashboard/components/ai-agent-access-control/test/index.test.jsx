@@ -59,6 +59,8 @@ import AIAgentAccessControl from '../index.jsx';
 describe( 'AIAgentAccessControl', () => {
 	let dispatchSpies;
 
+	const guidelinesUrl = 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin';
+
 	const mockIsWpcom = isWpcom => {
 		useSelect.mockImplementation( callback =>
 			callback( () => ( {
@@ -100,7 +102,7 @@ describe( 'AIAgentAccessControl', () => {
 	test( 'renders the toggle reflecting the current stored value (true)', async () => {
 		apiFetch.mockResolvedValueOnce( { jetpack_ai_agents_enabled: true } );
 
-		render( <AIAgentAccessControl /> );
+		render( <AIAgentAccessControl guidelinesUrl={ guidelinesUrl } /> );
 
 		const toggle = await screen.findByRole( 'checkbox', {
 			name: /Enable AI Agent Access/i,
@@ -108,9 +110,14 @@ describe( 'AIAgentAccessControl', () => {
 		expect( toggle ).toBeChecked();
 		expect(
 			screen.getByRole( 'link', {
+				name: /Set guidelines/i,
+			} )
+		).toHaveAttribute( 'href', guidelinesUrl );
+		expect(
+			screen.queryByRole( 'link', {
 				name: /Learn more/i,
 			} )
-		).toHaveAttribute( 'href', 'https://jetpack.com/support/ai-agent-access/' );
+		).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'external-link-icon' ) ).toBeInTheDocument();
 		expect( apiFetch ).toHaveBeenCalledWith( { path: '/wp/v2/settings' } );
 	} );
@@ -124,6 +131,28 @@ describe( 'AIAgentAccessControl', () => {
 			name: /Enable AI Agent Access/i,
 		} );
 		expect( toggle ).not.toBeChecked();
+		expect(
+			screen.queryByRole( 'link', {
+				name: /Set guidelines/i,
+			} )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'does not render the guidelines link when the guidelines page is unavailable', async () => {
+		apiFetch.mockResolvedValueOnce( { jetpack_ai_agents_enabled: true } );
+
+		render( <AIAgentAccessControl guidelinesUrl="" /> );
+
+		await expect(
+			screen.findByRole( 'checkbox', {
+				name: /Enable AI Agent Access/i,
+			} )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', {
+				name: /Set guidelines/i,
+			} )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'posts the new value and dispatches success notice when toggled', async () => {

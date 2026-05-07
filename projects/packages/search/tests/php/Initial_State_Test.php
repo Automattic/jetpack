@@ -64,6 +64,31 @@ class Initial_State_Test extends Search_TestCase {
 	 * Test that the Reader Chat guidelines URL is included when the page is available.
 	 */
 	public function test_reader_chat_guidelines_url_is_included_when_page_is_available() {
+		$this->assert_guidelines_url_is_included( 'readerChatGuidelinesUrl' );
+	}
+
+	/**
+	 * Test that the AI Agent Access guidelines URL is empty when the page is unavailable.
+	 */
+	public function test_ai_agent_access_guidelines_url_is_empty_when_page_is_unavailable() {
+		$state = ( new Initial_State() )->get_initial_state();
+
+		$this->assertSame( '', $state['siteData']['aiAgentAccessGuidelinesUrl'] );
+	}
+
+	/**
+	 * Test that the AI Agent Access guidelines URL is included when the page is available.
+	 */
+	public function test_ai_agent_access_guidelines_url_is_included_when_page_is_available() {
+		$this->assert_guidelines_url_is_included( 'aiAgentAccessGuidelinesUrl' );
+	}
+
+	/**
+	 * Assert that a guidelines URL is included when the page is available.
+	 *
+	 * @param string $state_key Site data key to assert.
+	 */
+	private function assert_guidelines_url_is_included( $state_key ) {
 		wp_set_current_user( $this->admin_id );
 		add_options_page(
 			'Guidelines',
@@ -77,7 +102,7 @@ class Initial_State_Test extends Search_TestCase {
 
 		$this->assertSame(
 			admin_url( 'options-general.php?page=guidelines-wp-admin' ),
-			$state['siteData']['readerChatGuidelinesUrl']
+			$state['siteData'][ $state_key ]
 		);
 	}
 

@@ -5,6 +5,7 @@ const siteDataSelectors = {
 	getRegistrationNonce: state => state.siteData?.registrationNonce ?? null,
 	getSiteAdminUrl: state => state.siteData?.adminUrl ?? null,
 	getReaderChatGuidelinesUrl: state => state.siteData?.readerChatGuidelinesUrl ?? '',
+	getAIAgentAccessGuidelinesUrl: state => state.siteData?.aiAgentAccessGuidelinesUrl ?? '',
 	isInstantSearchPromotionActive: state => state.siteData?.showPromotions ?? true,
 	getBlogId: state => state.siteData?.blogId ?? 0,
 	getVersion: state => state.siteData?.version ?? 'development',
