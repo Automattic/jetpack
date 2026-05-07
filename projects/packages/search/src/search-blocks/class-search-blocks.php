@@ -212,24 +212,35 @@ class Search_Blocks {
 			}
 		}
 
-		static::register_variations();
+		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
 		static::register_patterns();
 	}
 
 	/**
-	 * Register named block variations for the filter-checkbox block.
+	 * Inject named block variations for the filter-checkbox block.
 	 *
-	 * PHP-side registration keeps the editor-only JS bundle out of the ESM
-	 * pipeline. Variation names and default `taxonomy` / `filterType`
-	 * attributes intentionally mirror the filter types exposed by the
-	 * instant-search overlay so the two surfaces describe the same filters.
+	 * Hooks `get_block_type_variations` (WP 6.5+) rather than calling
+	 * `register_block_variation()` because the latter is a JS-only API; no
+	 * matching PHP function exists in WordPress core. Filtering on the block
+	 * type's own variations getter is the supported PHP-side path and keeps
+	 * the editor-only JS bundle out of the ESM pipeline. On WP < 6.5 the
+	 * filter doesn't fire and no variations are registered — same end-state
+	 * as the prior code path, so this is not a version regression.
+	 *
+	 * Variation names and default `taxonomy` / `filterType` attributes
+	 * intentionally mirror the filter types exposed by the instant-search
+	 * overlay so the two surfaces describe the same filters.
+	 *
+	 * @param array          $variations Variations registered on the block type.
+	 * @param \WP_Block_Type $block_type Block type the filter is being applied to.
+	 * @return array
 	 */
-	protected static function register_variations() {
-		if ( ! function_exists( 'register_block_variation' ) ) {
-			return;
+	public static function inject_filter_checkbox_variations( $variations, $block_type ) {
+		if ( ! isset( $block_type->name ) || 'jetpack-search/filter-checkbox' !== $block_type->name ) {
+			return $variations;
 		}
 
-		$variations = array(
+		$additions = array(
 			array(
 				'name'        => 'category',
 				'title'       => __( 'Filter by Category', 'jetpack-search-pkg' ),
@@ -292,10 +303,18 @@ class Search_Blocks {
 			),
 		);
 
-		foreach ( $variations as $variation ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above; stub missing from wordpress-stubs.
-			register_block_variation( 'jetpack-search/filter-checkbox', $variation );
+		// Merge by `name` so a variation already registered upstream (block.json
+		// or a higher-priority filter) wins over our preset of the same name —
+		// `array_merge` would otherwise append duplicates and the inserter
+		// would render two cards for the same variation.
+		$variations    = (array) $variations;
+		$existing_keys = array_flip( array_column( $variations, 'name' ) );
+		foreach ( $additions as $variation ) {
+			if ( ! isset( $existing_keys[ $variation['name'] ] ) ) {
+				$variations[] = $variation;
+			}
 		}
+		return $variations;
 	}
 
 	/**

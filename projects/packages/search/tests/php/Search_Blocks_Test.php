@@ -436,6 +436,131 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The filter-checkbox inserter cards come from
+	 * Search_Blocks::inject_filter_checkbox_variations(); if these names or
+	 * seeded attributes drift, the editor stops offering the expected filter
+	 * presets or inserts them with the wrong defaults.
+	 */
+	public function test_inject_filter_checkbox_variations_adds_expected_shapes() {
+		$variations = Search_Blocks::inject_filter_checkbox_variations(
+			array(
+				array(
+					'name'  => 'existing',
+					'title' => 'Existing variation',
+				),
+			),
+			new \WP_Block_Type( 'jetpack-search/filter-checkbox' )
+		);
+
+		$variations_by_name = array_column( $variations, null, 'name' );
+
+		$this->assertArrayHasKey( 'existing', $variations_by_name );
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'category',
+				'label'      => 'Category',
+			),
+			$variations_by_name['category']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['category']['isActive'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'post_tag',
+				'label'      => 'Tag',
+			),
+			$variations_by_name['post_tag']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['post_tag']['isActive'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'post_type',
+				'label'      => 'Post Type',
+			),
+			$variations_by_name['post_type']['attributes']
+		);
+		$this->assertSame( array( 'filterType' ), $variations_by_name['post_type']['isActive'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'author',
+				'label'      => 'Author',
+			),
+			$variations_by_name['author']['attributes']
+		);
+		$this->assertSame( array( 'filterType' ), $variations_by_name['author']['isActive'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => '',
+				'label'      => '',
+			),
+			$variations_by_name['custom_taxonomy']['attributes']
+		);
+		$this->assertSame( array( 'filterType' ), $variations_by_name['custom_taxonomy']['isActive'] );
+	}
+
+	/**
+	 * The injector must be scoped to jetpack-search/filter-checkbox so it
+	 * can't leak Search-specific presets onto unrelated blocks.
+	 */
+	public function test_inject_filter_checkbox_variations_ignores_other_block_types() {
+		$variations = array(
+			array(
+				'name'  => 'existing',
+				'title' => 'Existing variation',
+			),
+		);
+
+		$this->assertSame(
+			$variations,
+			Search_Blocks::inject_filter_checkbox_variations( $variations, new \WP_Block_Type( 'core/paragraph' ) )
+		);
+	}
+
+	/**
+	 * If a variation with one of our preset names is already registered (via
+	 * block.json or a higher-priority filter), the existing entry must win —
+	 * otherwise `array_merge` would emit two inserter cards under the same
+	 * variation name and the editor would resolve `isActive` ambiguously.
+	 */
+	public function test_inject_filter_checkbox_variations_skips_name_collisions() {
+		$existing_category = array(
+			'name'       => 'category',
+			'title'      => 'Site-customized Category filter',
+			'attributes' => array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'category',
+				'label'      => 'Topics',
+			),
+		);
+		$variations        = Search_Blocks::inject_filter_checkbox_variations(
+			array( $existing_category ),
+			new \WP_Block_Type( 'jetpack-search/filter-checkbox' )
+		);
+
+		$category_entries = array();
+		foreach ( $variations as $v ) {
+			if ( 'category' === $v['name'] ) {
+				$category_entries[] = $v;
+			}
+		}
+		$this->assertCount( 1, $category_entries );
+
+		$by_name = array_column( $variations, null, 'name' );
+		$this->assertSame( 'Site-customized Category filter', $by_name['category']['title'] );
+		// Other presets are still added, only the colliding name is skipped.
+		$this->assertArrayHasKey( 'post_tag', $by_name );
+		$this->assertArrayHasKey( 'post_type', $by_name );
+		$this->assertArrayHasKey( 'author', $by_name );
+		$this->assertArrayHasKey( 'custom_taxonomy', $by_name );
+	}
+
+	/**
 	 * Invoke a protected static on Search_Blocks from test code. Reflection
 	 * is the cheapest way to cover this logic without leaking visibility
 	 * just for testability.
