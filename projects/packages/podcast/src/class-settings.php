@@ -105,160 +105,129 @@ class Settings {
 	 * `register_setting()` calls. Hooked on `admin_init` and `rest_api_init`.
 	 */
 	public static function register_settings() {
+		$media_settings = array(
+			array( 'podcasting_category_id', 'integer', 0, 'absint' ),
+			array( 'podcasting_title', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_talent_name', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_summary', 'string', '', 'sanitize_textarea_field' ),
+			array( 'podcasting_copyright', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_category_1', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_category_2', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_category_3', 'string', '', 'sanitize_text_field' ),
+		);
+
+		foreach ( $media_settings as list( $name, $type, $default, $sanitize ) ) {
+			register_setting(
+				self::MEDIA_GROUP,
+				$name,
+				array(
+					'type'              => $type,
+					'default'           => $default,
+					'sanitize_callback' => $sanitize,
+					'show_in_rest'      => true,
+				)
+			);
+		}
+
+		register_setting(
+			self::MEDIA_GROUP,
+			'podcasting_image',
+			array(
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'esc_url_raw',
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'    => 'string',
+						'default' => '',
+						'format'  => 'uri',
+					),
+				),
+			)
+		);
+
+		register_setting(
+			self::MEDIA_GROUP,
+			'podcasting_explicit',
+			array(
+				'type'              => 'boolean',
+				'default'           => false,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
+				'show_in_rest'      => true,
+			)
+		);
+
+		register_setting(
+			self::OPTIONS_GROUP,
+			'podcasting_email',
+			array(
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_email',
+				'show_in_rest'      => true,
+			)
+		);
+
+		register_setting(
+			self::OPTIONS_GROUP,
+			'podcasting_image_id',
+			array(
+				'type'              => 'integer',
+				'default'           => 0,
+				'sanitize_callback' => 'absint',
+				'show_in_rest'      => true,
+			)
+		);
+
 		$podcatcher_keys = array_keys( self::SHOW_URL_HOSTS );
 		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
 
-		foreach ( self::OPTION_NAMES as $name ) {
-			switch ( $name ) {
-				case 'podcasting_category_id':
-					register_setting(
-						self::MEDIA_GROUP,
-						$name,
-						array(
-							'type'              => 'integer',
-							'default'           => 0,
-							'sanitize_callback' => 'absint',
-							'show_in_rest'      => true,
-						)
-					);
-					break;
+		register_setting(
+			self::OPTIONS_GROUP,
+			'podcasting_show_urls',
+			array(
+				'type'              => 'object',
+				'default'           => array(),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_show_urls' ),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'       => 'object',
+						'default'    => $empty_map,
+						'properties' => array_fill_keys(
+							$podcatcher_keys,
+							array(
+								'type'      => 'string',
+								'format'    => 'uri',
+								'maxLength' => self::SHOW_URL_MAX_LENGTH,
+							)
+						),
+					),
+				),
+			)
+		);
 
-				case 'podcasting_image_id':
-					register_setting(
-						self::OPTIONS_GROUP,
-						$name,
-						array(
-							'type'              => 'integer',
-							'default'           => 0,
-							'sanitize_callback' => 'absint',
-							'show_in_rest'      => true,
-						)
-					);
-					break;
-
-				case 'podcasting_summary':
-					register_setting(
-						self::MEDIA_GROUP,
-						$name,
-						array(
-							'type'              => 'string',
-							'default'           => '',
-							'sanitize_callback' => 'sanitize_textarea_field',
-							'show_in_rest'      => true,
-						)
-					);
-					break;
-
-				case 'podcasting_email':
-					register_setting(
-						self::OPTIONS_GROUP,
-						$name,
-						array(
-							'type'              => 'string',
-							'default'           => '',
-							'sanitize_callback' => 'sanitize_email',
-							'show_in_rest'      => true,
-						)
-					);
-					break;
-
-				case 'podcasting_image':
-					register_setting(
-						self::MEDIA_GROUP,
-						$name,
-						array(
-							'type'              => 'string',
-							'default'           => '',
-							'sanitize_callback' => 'esc_url_raw',
-							'show_in_rest'      => array(
-								'schema' => array(
-									'type'    => 'string',
-									'default' => '',
-									'format'  => 'uri',
-								),
-							),
-						)
-					);
-					break;
-
-				case 'podcasting_explicit':
-					register_setting(
-						self::MEDIA_GROUP,
-						$name,
-						array(
-							'type'              => 'boolean',
-							'default'           => false,
-							'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
-							'show_in_rest'      => true,
-						)
-					);
-					break;
-
-				case 'podcasting_show_urls':
-					register_setting(
-						self::OPTIONS_GROUP,
-						$name,
-						array(
-							'type'              => 'object',
-							'default'           => array(),
-							'sanitize_callback' => array( __CLASS__, 'sanitize_show_urls' ),
-							'show_in_rest'      => array(
-								'schema' => array(
-									'type'       => 'object',
-									'default'    => $empty_map,
-									'properties' => array_fill_keys(
-										$podcatcher_keys,
-										array(
-											'type'      => 'string',
-											'format'    => 'uri',
-											'maxLength' => self::SHOW_URL_MAX_LENGTH,
-										)
-									),
-								),
-							),
-						)
-					);
-					break;
-
-				case 'podcasting_show_states':
-					register_setting(
-						self::OPTIONS_GROUP,
-						$name,
-						array(
-							'type'              => 'object',
-							'default'           => array(),
-							'sanitize_callback' => array( __CLASS__, 'sanitize_show_states' ),
-							'show_in_rest'      => array(
-								'schema' => array(
-									'type'       => 'object',
-									'default'    => $empty_map,
-									'properties' => array_fill_keys(
-										$podcatcher_keys,
-										array(
-											'type' => 'string',
-											'enum' => array( '', 'pending', 'active' ),
-										)
-									),
-								),
-							),
-						)
-					);
-					break;
-
-				default:
-					// Plain MEDIA_GROUP strings: title, talent_name, copyright, category_1/2/3.
-					register_setting(
-						self::MEDIA_GROUP,
-						$name,
-						array(
-							'type'              => 'string',
-							'default'           => '',
-							'sanitize_callback' => 'sanitize_text_field',
-							'show_in_rest'      => true,
-						)
-					);
-			}
-		}
+		register_setting(
+			self::OPTIONS_GROUP,
+			'podcasting_show_states',
+			array(
+				'type'              => 'object',
+				'default'           => array(),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_show_states' ),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'       => 'object',
+						'default'    => $empty_map,
+						'properties' => array_fill_keys(
+							$podcatcher_keys,
+							array(
+								'type' => 'string',
+								'enum' => array( '', 'pending', 'active' ),
+							)
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**

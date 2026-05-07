@@ -36,6 +36,29 @@ class Settings_Test extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * Catches drift between `OPTION_NAMES` (which drives sync) and the set of
+	 * options actually wired up in `register_settings()`.
+	 */
+	public function test_option_names_constant_matches_registered_settings() {
+		Settings::register_settings();
+
+		$registered = array_values(
+			array_filter(
+				array_keys( get_registered_settings() ),
+				static function ( $name ) {
+					return 0 === strpos( $name, 'podcasting_' );
+				}
+			)
+		);
+
+		$expected = Settings::OPTION_NAMES;
+		sort( $expected );
+		sort( $registered );
+
+		$this->assertSame( $expected, $registered );
+	}
+
 	public function test_sanitize_explicit_normalizes_to_boolean() {
 		$this->assertTrue( Settings::sanitize_explicit( true ) );
 		$this->assertTrue( Settings::sanitize_explicit( 'yes' ) );
