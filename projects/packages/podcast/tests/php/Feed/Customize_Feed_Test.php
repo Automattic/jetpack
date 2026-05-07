@@ -8,6 +8,8 @@ namespace Automattic\Jetpack\Podcast\Tests\Feed;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
+use WP_Post;
+use WP_Term;
 
 /**
  * @covers \Automattic\Jetpack\Podcast\Feed\Customize_Feed
@@ -15,11 +17,24 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Customize_Feed::class )]
 class Customize_Feed_Test extends BaseTestCase {
 
+	protected function setUp(): void {
+		parent::setUp();
+		// WorDBless doesn't run `create_initial_taxonomies`, so register
+		// `category` ourselves — `get_term_by()` short-circuits on
+		// `! taxonomy_exists( 'category' )`.
+		if ( ! taxonomy_exists( 'category' ) ) {
+			register_taxonomy( 'category', 'post', array( 'hierarchical' => true ) );
+		}
+	}
+
 	protected function tearDown(): void {
 		delete_option( 'podcasting_explicit' );
 		delete_option( 'podcasting_summary' );
 		delete_option( 'podcasting_title' );
 		delete_option( 'podcasting_category_id' );
+		delete_option( 'podcasting_archive' );
+		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
+		remove_all_filters( 'jetpack_podcast_enable_stats_url' );
 		parent::tearDown();
 	}
 
@@ -92,5 +107,91 @@ class Customize_Feed_Test extends BaseTestCase {
 	public function test_pass_through_empty_excerpt_returns_empty_when_post_has_none() {
 		// `get_the_excerpt()` returns '' when no global $post is set.
 		$this->assertSame( '', Customize_Feed::pass_through_empty_excerpt( 'Some auto-generated excerpt' ) );
+	}
+
+	public function test_resolve_category_id_returns_zero_when_nothing_configured() {
+		$this->assertSame( 0, Customize_Feed::resolve_category_id() );
+	}
+
+	/**
+	 * Sites pre-dating numeric category storage only have `podcasting_archive`
+	 * (slug). Failing to fall back here would silently break their feed —
+	 * `is_category()` would never match in `maybe_register_feed_hooks()`.
+	 */
+	public function test_resolve_category_id_falls_back_to_archive_slug() {
+		$expected_term_id = 4242;
+
+		// Short-circuit `WP_Term_Query` to return our fake term without
+		// touching the DB layer — `get_term_by()` returns the first match
+		// from this query.
+		$callback = static function ( $terms, $query ) use ( $expected_term_id ) {
+			if ( isset( $query->query_vars['slug'] )
+				&& 'podcast-archive-test' === $query->query_vars['slug'][0]
+			) {
+				return array(
+					new WP_Term(
+						(object) array(
+							'term_id'  => $expected_term_id,
+							'slug'     => 'podcast-archive-test',
+							'name'     => 'Podcast',
+							'taxonomy' => 'category',
+						)
+					),
+				);
+			}
+			return $terms;
+		};
+		add_filter( 'terms_pre_query', $callback, 10, 2 );
+
+		update_option( 'podcasting_archive', 'podcast-archive-test' );
+
+		$this->assertSame( $expected_term_id, Customize_Feed::resolve_category_id() );
+
+		remove_filter( 'terms_pre_query', $callback, 10 );
+	}
+
+	/**
+	 * Back-compat: WPCOM's `private-podcasts.php` opts out of URL rewriting
+	 * via the legacy filter for token-gated feeds. Renaming the filter without
+	 * an alias would silently start serving public stats URLs in proxied
+	 * private feeds — security-adjacent, so we keep both filter names hot.
+	 */
+	public function test_legacy_filter_can_disable_stats_url_rewrite() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'         => 123,
+				'post_type'  => 'post',
+				'post_title' => 'Test Episode',
+			)
+		);
+
+		add_filter( 'wpcom_podcasting_enable_play_tracking', '__return_false' );
+
+		$original = '<enclosure url="https://example.com/episode.mp3" length="12345" type="audio/mpeg" />';
+		$result   = Customize_Feed::rewrite_enclosure( $original );
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', $result );
+		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
+
+		unset( $GLOBALS['post'] );
+	}
+
+	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {
+		update_option( 'podcasting_category_id', 17 );
+		update_option( 'podcasting_archive', 'unrelated-slug' );
+
+		// Should NOT trigger any get_term_by call — fail loudly if it does.
+		$called = false;
+		add_filter(
+			'get_term_by',
+			static function ( $term ) use ( &$called ) {
+				$called = true;
+				return $term;
+			}
+		);
+
+		$this->assertSame( 17, Customize_Feed::resolve_category_id() );
+		$this->assertFalse( $called, 'Slug fallback should be skipped when numeric ID is set.' );
 	}
 }

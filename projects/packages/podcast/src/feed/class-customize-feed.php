@@ -49,7 +49,7 @@ class Customize_Feed {
 		if ( ! is_feed() ) {
 			return;
 		}
-		$category_id = (int) get_option( 'podcasting_category_id', 0 );
+		$category_id = self::resolve_category_id();
 		if ( 0 === $category_id || ! is_category( $category_id ) ) {
 			return;
 		}
@@ -86,7 +86,7 @@ class Customize_Feed {
 			return $override;
 		}
 
-		$category = get_category( (int) get_option( 'podcasting_category_id', 0 ) );
+		$category = get_category( self::resolve_category_id() );
 		if ( $category && ! is_wp_error( $category ) ) {
 			return get_bloginfo( 'name' ) . ' &#187; ' . $category->name;
 		}
@@ -205,23 +205,43 @@ class Customize_Feed {
 		$post_obj     = $post instanceof WP_Post ? $post : null;
 
 		/**
-		 * Whether to rewrite the enclosure through the WPCOM stats endpoint.
-		 * Token-gated feeds opt out — the stats URL is a deterministic public
-		 * endpoint and would bypass any token gating on the feed itself.
+		 * Legacy alias of `jetpack_podcast_enable_stats_url`. Kept hot so
+		 * existing consumers (notably WPCOM's `private-podcasts.php`, which
+		 * opts out for token-gated feeds) keep working unchanged.
 		 *
 		 * @param bool         $enable Default true.
-		 * @param WP_Post|null $post   The post being rendered, or null when no global post is set.
+		 * @param WP_Post|null $post   The post being rendered.
 		 */
-		if ( null !== $post_obj && apply_filters( 'jetpack_podcast_enable_stats_url', true, $post_obj ) ) {
+		$enable_legacy = (bool) apply_filters( 'wpcom_podcasting_enable_play_tracking', true, $post_obj );
+
+		/**
+		 * Whether to rewrite the enclosure through the WPCOM stats endpoint.
+		 * Receives the result of `wpcom_podcasting_enable_play_tracking` as
+		 * its default — either filter returning false suppresses the rewrite.
+		 *
+		 * @param bool         $enable Result of legacy filter (default true).
+		 * @param WP_Post|null $post   The post being rendered.
+		 */
+		$enable = (bool) apply_filters( 'jetpack_podcast_enable_stats_url', $enable_legacy, $post_obj );
+
+		if ( null !== $post_obj && $enable ) {
+			/**
+			 * Legacy alias of `jetpack_podcast_stats_blog_id`.
+			 *
+			 * @param int     $blog_id Default current blog ID.
+			 * @param WP_Post $post    The post being rendered.
+			 */
+			$blog_id_legacy = (int) apply_filters( 'wpcom_podcasting_tracked_blog_id', get_current_blog_id(), $post_obj );
+
 			/**
 			 * Override the blog ID baked into the stats URL. Atomic / non-Simple
 			 * sites should return the WPCOM shadow ID so the public-api endpoint
-			 * routes to the right blog. Default is `get_current_blog_id()`.
+			 * routes to the right blog.
 			 *
-			 * @param int     $blog_id Current blog ID.
+			 * @param int     $blog_id Result of legacy filter (default current blog ID).
 			 * @param WP_Post $post    The post being rendered.
 			 */
-			$blog_id   = (int) apply_filters( 'jetpack_podcast_stats_blog_id', get_current_blog_id(), $post_obj );
+			$blog_id   = (int) apply_filters( 'jetpack_podcast_stats_blog_id', $blog_id_legacy, $post_obj );
 			$ext       = Stats_Url::get_audio_extension( $original_url );
 			$stats_url = Stats_Url::generate_url( $blog_id, (int) $post_obj->ID, $ext );
 			$enclosure = preg_replace_callback(
@@ -273,14 +293,15 @@ class Customize_Feed {
 
 	/**
 	 * Show-level cover image URL. Prefers `podcasting_image_id` (resolves to
-	 * an attachment URL), falls back to the raw `podcasting_image` URL.
-	 * Routes through Photon at 3000×3000 when available.
+	 * an attachment URL) when it points at an actual image attachment, falls
+	 * back to the raw `podcasting_image` URL. Routes through Photon at
+	 * 3000×3000 when available.
 	 *
 	 * @return string
 	 */
 	private static function show_image_url(): string {
 		$image_id = (int) get_option( 'podcasting_image_id', 0 );
-		if ( $image_id > 0 ) {
+		if ( $image_id > 0 && wp_attachment_is_image( $image_id ) ) {
 			$url = wp_get_attachment_url( $image_id );
 			if ( false !== $url ) {
 				return self::maybe_photon( $url );
@@ -288,6 +309,32 @@ class Customize_Feed {
 		}
 		$url = (string) get_option( 'podcasting_image', '' );
 		return '' === $url ? '' : self::maybe_photon( $url );
+	}
+
+	/**
+	 * Resolve the configured podcast category ID. Prefers the numeric
+	 * `podcasting_category_id`, falling back to a slug lookup against the
+	 * legacy `podcasting_archive` option — older sites pre-date numeric
+	 * storage and only have the slug. Returns 0 when neither resolves.
+	 *
+	 * Mirrors `Automattic_Podcasting::podcasting_get_podcasting_category_id`
+	 * in the wpcom mu-plugin.
+	 *
+	 * @return int
+	 */
+	public static function resolve_category_id(): int {
+		$category_id = (int) get_option( 'podcasting_category_id', 0 );
+		if ( $category_id > 0 ) {
+			return $category_id;
+		}
+
+		$slug = (string) get_option( 'podcasting_archive', '' );
+		if ( '' === $slug ) {
+			return 0;
+		}
+
+		$term = get_term_by( 'slug', $slug, 'category' );
+		return ( $term && ! is_wp_error( $term ) && isset( $term->term_id ) ) ? (int) $term->term_id : 0;
 	}
 
 	/**
