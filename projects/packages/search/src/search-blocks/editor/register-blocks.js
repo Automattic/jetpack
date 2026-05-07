@@ -22,6 +22,7 @@ import ActiveFiltersEdit from '../blocks/active-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
+import FilterWcTaxonomyEdit from '../blocks/filter-wc-taxonomy/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersStackEdit, { save as filtersStackSave } from '../blocks/filters-stack/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
@@ -30,7 +31,6 @@ import ResultsListEdit from '../blocks/results-list/edit';
 import ResultsLoadMoreEdit from '../blocks/results-load-more/edit';
 import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
-import FilterWcTaxonomyEdit from '../blocks/filter-wc-taxonomy/edit';
 import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
 
 // Default save for blocks that own no editor-side state — render.php is the

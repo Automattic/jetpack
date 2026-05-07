@@ -101,16 +101,17 @@ export default function FilterWcTaxonomyEdit( { attributes, setAttributes } ) {
 						value={ sortOrder }
 						onChange={ value => setAttributes( { bucketSortOrder: value } ) }
 						options={ [
-							{ value: 'count', label: __( 'By count (most matches first)', 'jetpack-search-pkg' ) },
+							{
+								value: 'count',
+								label: __( 'By count (most matches first)', 'jetpack-search-pkg' ),
+							},
 							{ value: 'alpha', label: __( 'Alphabetical', 'jetpack-search-pkg' ) },
 						] }
 					/>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				{ previewLabel && (
-					<h3 className="jetpack-search-filter__title">{ previewLabel }</h3>
-				) }
+				{ previewLabel && <h3 className="jetpack-search-filter__title">{ previewLabel }</h3> }
 				<ul className="jetpack-search-filter__list">
 					{ SAMPLE_FILTER_ITEMS.map( item => (
 						<li key={ item.value } className="jetpack-search-filter__item">

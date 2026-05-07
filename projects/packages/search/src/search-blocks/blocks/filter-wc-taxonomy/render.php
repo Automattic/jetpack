@@ -1,12 +1,11 @@
 <?php
 /**
- * Search product filter — product taxonomy render.
+ * Search product filter — WooCommerce product taxonomy render.
  *
  * Renders one block instance per chosen product taxonomy (`product_cat`,
  * `product_tag`, `product_brand`). DOM and Interactivity bindings mirror
- * filter-checkbox / search-product-filter-attribute — same
- * `state.filterItems` / `actions.onFilterChange` getters drive every
- * checkbox-shaped product filter block.
+ * filter-checkbox — same `state.filterItems` / `actions.onFilterChange`
+ * getters drive every checkbox-shaped product filter block.
  *
  * @package automattic/jetpack-search
  */
@@ -33,44 +32,21 @@ wp_interactivity_state(
 	)
 );
 
-$seeded_state      = wp_interactivity_state( 'jetpack-search' );
-$seeded_aggs       = (array) ( $seeded_state['aggregations'] ?? array() );
-$seeded_filter_agg = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
-$seeded_buckets    = $seeded_filter_agg['buckets'] ?? null;
-$has_buckets       = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
-
-$seeded_selected       = (array) ( ( (array) ( $seeded_state['activeFilters'] ?? array() ) )[ $filter_key ] ?? array() );
-$all_selected_on_paint = false;
-if ( $has_buckets && ! empty( $seeded_selected ) ) {
-	$all_selected_on_paint = true;
-	foreach ( $seeded_buckets as $bucket ) {
-		$raw_key   = (string) ( $bucket['key'] ?? '' );
-		$slash_idx = strpos( $raw_key, '/' );
-		$value     = false === $slash_idx ? $raw_key : substr( $raw_key, 0, $slash_idx );
-		if ( ! in_array( $value, $seeded_selected, true ) ) {
-			$all_selected_on_paint = false;
-			break;
-		}
-	}
-}
-
+$view  = Search_Blocks::pre_hydration_filter_view( $filter_key );
 $label = (string) $config['label'];
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-wc-taxonomy' ) ) ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
-	data-wp-bind--hidden="!state.hasFilterBuckets"
-	<?php echo $has_buckets ? '' : 'hidden'; ?>
+	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
+	data-wp-bind--hidden="context.wrapperHidden"
+	data-wp-watch="callbacks.syncFilterWrapperVisibility"
+	<?php echo $view['show_wrapper'] ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
-	<ul
-		class="jetpack-search-filter__list"
-		data-wp-bind--hidden="state.allBucketsSelected"
-		<?php echo $all_selected_on_paint ? 'hidden' : ''; ?>
-	>
+	<ul class="jetpack-search-filter__list">
 		<template
 			data-wp-each--item="state.filterItems"
 			data-wp-each-key="context.item.value"
@@ -80,6 +56,7 @@ $label = (string) $config['label'];
 					<input
 						type="checkbox"
 						data-wp-bind--value="context.item.value"
+						data-wp-bind--checked="context.item.checked"
 						data-wp-on--change="actions.onFilterChange"
 					/>
 					<span
@@ -95,11 +72,4 @@ $label = (string) $config['label'];
 			</li>
 		</template>
 	</ul>
-	<p
-		class="jetpack-search-filter__all-selected"
-		data-wp-bind--hidden="!state.allBucketsSelected"
-		<?php echo $all_selected_on_paint ? '' : 'hidden'; ?>
-	>
-		<?php esc_html_e( 'All filters applied', 'jetpack-search-pkg' ); ?>
-	</p>
 </div>
