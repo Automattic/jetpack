@@ -23,9 +23,9 @@ import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
 	EmailBylineSection,
+	EmailDefaultsSection,
 	EmailSenderSettingsSection,
 	EmailReplyToSettingsSection,
-	NewsletterSection,
 	NewsletterCategoriesSection,
 	PaidNewsletterSection,
 	SubscriptionsSection,
@@ -420,10 +420,13 @@ export function NewsletterSettingsBody( {
 				className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }
 			>
 				<Stack gap="xl" direction="column" className="newsletter-settings">
-					<NewsletterSection data={ data } onChange={ handleAutoSave } />
-
 					<Disabled isDisabled={ ! data.subscriptions }>
 						<Stack gap="xl" direction="column">
+							<PaidNewsletterSection
+								isNewsletterEnabled={ data.subscriptions }
+								hasActivePlan={ data.newsletter_has_active_plan }
+							/>
+
 							<SubscriptionsSection
 								data={ data }
 								onChange={ handleSubscriptionChange }
@@ -433,17 +436,9 @@ export function NewsletterSettingsBody( {
 								isNewsletterEnabled={ data.subscriptions }
 							/>
 
-							<PaidNewsletterSection
-								isNewsletterEnabled={ data.subscriptions }
-								hasActivePlan={ data.newsletter_has_active_plan }
-							/>
-
-							<NewsletterCategoriesSection
+							<EmailDefaultsSection
 								data={ data }
-								onChange={ handleNewsletterCategoriesChange }
-								onSave={ saveNewsletterCategories }
-								isSaving={ isSavingNewsletterCategories }
-								hasChanges={ hasNewsletterCategoriesChanges }
+								onChange={ handleAutoSave }
 								isNewsletterEnabled={ data.subscriptions }
 							/>
 
@@ -480,6 +475,15 @@ export function NewsletterSettingsBody( {
 								onSave={ saveWelcomeEmail }
 								isSaving={ isSavingWelcomeEmail }
 								hasChanges={ hasWelcomeEmailChanges }
+								isNewsletterEnabled={ data.subscriptions }
+							/>
+
+							<NewsletterCategoriesSection
+								data={ data }
+								onChange={ handleNewsletterCategoriesChange }
+								onSave={ saveNewsletterCategories }
+								isSaving={ isSavingNewsletterCategories }
+								hasChanges={ hasNewsletterCategoriesChanges }
 								isNewsletterEnabled={ data.subscriptions }
 							/>
 						</Stack>
