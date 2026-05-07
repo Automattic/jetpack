@@ -119,11 +119,20 @@ export function useRenderMessageItems(): RenderItem[] {
 	const items = useMemo< RenderItem[] >( () => {
 		return connections.map( connection => {
 			const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
+			// Mirror the rule in `useConnectionPreviewData` exactly — per-connection
+			// message and template only apply in per-network mode. If they leak into
+			// global mode here, the consumer's `baseMessage` (globalMessage) won't
+			// match this items array's message and `isDebouncingRenderedMessage` stays
+			// stuck true after the user toggles per-network → global.
 			let raw: string;
-			if ( hasConnectionMessage ) {
-				raw = connection.message ?? '';
-			} else if ( ctx.isPerNetworkMode ) {
-				raw = connection.template ?? globalMessage ?? '';
+			if ( ctx.isPerNetworkMode ) {
+				if ( hasConnectionMessage ) {
+					raw = connection.message ?? '';
+				} else if ( templatesEnabled && connection.template ) {
+					raw = connection.template;
+				} else {
+					raw = globalMessage ?? '';
+				}
 			} else {
 				raw = globalMessage ?? '';
 			}
@@ -134,7 +143,7 @@ export function useRenderMessageItems(): RenderItem[] {
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
-	}, [ connections, globalMessage, ctx ] );
+	}, [ connections, globalMessage, ctx, templatesEnabled ] );
 
 	return useDebouncedItems( items );
 }
