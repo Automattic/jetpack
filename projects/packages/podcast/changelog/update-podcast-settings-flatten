@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Settings: refactor `register_settings()` to match the conventional Jetpack pattern (cf. `automattic/jetpack-search`'s `Settings` class) — flat positional list + foreach for the simple options, inline `register_setting()` calls for the four with non-trivial schemas. Drops the closure helpers that obscured the per-option REST schema, and switches the registration hook from `init` to `admin_init` so front-end pageviews skip the work.

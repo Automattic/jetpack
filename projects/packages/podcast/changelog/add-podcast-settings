@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Settings: register `podcasting_*` option schema with REST exposure on `/wp/v2/settings`, gated behind the `jetpack_podcast_untangle` filter. Mirrors the WPCOM site-settings filters that remain authoritative on Simple via the wpcom mu-plugin.
+Settings: register the `podcasting_*` option schema with REST exposure, gated behind the `jetpack_podcast_untangle` filter.

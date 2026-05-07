@@ -24,13 +24,13 @@ namespace Automattic\Jetpack\Podcast;
 class Settings {
 
 	/**
-	 * Settings group passed to `register_setting()`. Group is essentially
-	 * decorative for REST exposure (which keys off `show_in_rest` regardless
-	 * of group) but keeps these out of the core option groups.
+	 * Settings group passed to `register_setting()`. The group is decorative
+	 * for our REST-only use (no Settings API forms to bind), so we use the
+	 * generic core `'options'` group — same choice as `jetpack-search`.
 	 *
 	 * @var string
 	 */
-	const OPTION_GROUP = 'jetpack-podcast';
+	const OPTION_GROUP = 'options';
 
 	/**
 	 * Hostname allowlist per podcatcher for `podcasting_show_urls` entries.
