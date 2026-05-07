@@ -7,6 +7,8 @@
 
 namespace A8C\FSE;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Class WPCOM_Smart_Dictation
  */
@@ -66,7 +68,12 @@ class WPCOM_Smart_Dictation {
 	 * Enqueue the Smart Dictation assets.
 	 */
 	public static function enqueue_scripts() {
-		$asset_file = self::get_assets_json( 'widgets.wp.com/wpcom-smart-dictation/wpcom-smart-dictation.asset.json?' );
+		$is_simple_site = ( new Host() )->is_wpcom_simple();
+		if ( ! $is_simple_site ) {
+			return;
+		}
+
+		$asset_file = self::get_assets_json( 'widgets.wp.com/wpcom-smart-dictation/wpcom-smart-dictation.asset.json' );
 		$is_proxied = self::is_proxied();
 		$is_a11n    = function_exists( '\is_automattician' ) && \is_automattician();
 
