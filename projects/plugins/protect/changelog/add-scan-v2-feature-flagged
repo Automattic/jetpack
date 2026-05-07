@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+New Scan UI based on the dataviews component, available behind the JETPACK_PROTECT_SCAN_V2 PHP constant or the ?protect-scan-v2=1 URL flag. Stage 1 of a two-stage migration; legacy UI remains the default. No changes for users who don't enable the flag.

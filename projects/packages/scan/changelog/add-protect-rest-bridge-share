@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+REST routes register regardless of the modernization filter so other consumers (e.g. Protect) can call them. Mutation routes now also require a user connection, returning 403 instead of silently falling back to blog auth.
