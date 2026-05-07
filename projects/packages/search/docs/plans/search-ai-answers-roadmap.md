@@ -2,11 +2,16 @@
 
 ## Content Guidelines Integration
 
-The `jp_search_behavior` CPT is a temporary holding place for site-level AI instructions. Once WordPress Content Guidelines ships as a core feature, `jp_search_behavior` will migrate to `wp_content_guidelines` and the separate CPT will be retired.
+AI Answers already uses the Gutenberg Content Guidelines experiment (`wp_guideline` CPT) rather than a plugin-specific CPT. The feature is therefore coupled to the experiment's stability and eventual path to WordPress core.
 
-### Background
+### Current implementation
 
-Content Guidelines is a Gutenberg experiment that provides a standard way for site owners to express how AI tools should represent their site — tone, topics, restrictions, and other behavioral instructions. By storing this in a core CPT rather than a plugin-specific one, any AI feature (search answers, editor assistant, etc.) can read the same instructions without duplication.
+- **CPT**: `wp_guideline` (registered by Gutenberg, not by this plugin)
+- **Meta key**: `_guideline_block_jetpack_search-ai-summary` (registered in `src/class-ai-answers.php`)
+- **REST endpoint**: `/wp/v2/guidelines`
+- **Data path**: `guideline_categories.blocks['jetpack/search-ai-summary'].guidelines`
+- `class-ai-answers.php` registers the meta key on `wp_guideline` and guards with `post_type_exists('wp_guideline')` so sites without the Gutenberg experiment active get `isUnavailable: true` in the AI Answers tab
+- `use-ai-answers-settings.js` reads and writes via the `/wp/v2/guidelines` REST endpoint
 
 Relevant discussions:
 - [Content guidelines for AI-generated content (original proposal)](https://github.com/WordPress/gutenberg/issues/75258)
@@ -14,16 +19,26 @@ Relevant discussions:
 - [Core CPT implementation tracking](https://github.com/WordPress/gutenberg/issues/77230)
 - [AI feature discoverability and shared context](https://github.com/WordPress/gutenberg/issues/75171)
 
-### Migration plan
+### Stabilization plan
 
-When `wp_content_guidelines` ships in WordPress core:
+If the Gutenberg experiment **ships to core unchanged** (same CPT slug, same `guideline_categories` data structure):
 
-1. The AI agent on the wpcom side already reads `wp_content_guidelines` at request time if it exists for the site. No agent change needed.
-2. The `jp_search_behavior` CPT registration will be removed from `class-ai-answers.php`.
-3. The Behavior tab in the Search dashboard will either be retired (if core provides its own UI) or updated to write to `wp_content_guidelines` instead.
-4. Sync module whitelist entries for `jp_search_behavior` will be removed; `wp_content_guidelines` sync is handled separately by the core sync surface.
+1. Remove the `register_post_meta` call from `class-ai-answers.php` — core will own meta registration.
+2. No REST path or data shape changes needed.
+3. The AI Answers tab may be retired or simplified if core ships its own guidelines editing UI.
 
-Until then, both CPTs coexist: `jp_search_behavior` takes precedence if set, with `wp_content_guidelines` as a fallback (handled on the wpcom agent side).
+If the **CPT slug or data structure changes** during the experiment:
+
+1. Update the `post_type_exists` guard and `register_post_meta` call in `class-ai-answers.php`.
+2. Update `REST_BASE` in `use-ai-answers-settings.js` and the `guideline_categories` read/write paths.
+3. Decide whether to migrate existing `wp_guideline` posts or start fresh.
+
+If the **experiment is abandoned**:
+
+1. Replace `wp_guideline` with a plugin-owned CPT (e.g. `jp_search_behavior`).
+2. Register it in `class-ai-answers.php` and add it to the sync whitelist.
+3. Update `use-ai-answers-settings.js` to target the new REST base.
+4. Add a data migration for any sites that already saved guidelines via `wp_guideline`.
 
 ---
 
