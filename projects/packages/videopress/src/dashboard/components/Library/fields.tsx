@@ -1,6 +1,6 @@
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge, Stack, Text } from '@wordpress/ui';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './ThumbnailField';
 import type { MockLibraryItem } from '../../types/library';
@@ -76,7 +76,11 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		id: 'filename',
 		label: __( 'Filename', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.filename,
-		render: ( { item } ) => <span className="vp-library__filename">{ item.filename }</span>,
+		render: ( { item } ) => (
+			<Text variant="body-sm" className="vp-library__filename">
+				{ item.filename }
+			</Text>
+		),
 		enableSorting: false,
 	},
 	{

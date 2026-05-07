@@ -1,6 +1,6 @@
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { formatDuration } from '../../utils/format';
 import { useUploadActions } from './upload-actions-context';
 import type { MockLibraryItem } from '../../types/library';
@@ -36,31 +36,53 @@ export default function ThumbnailField( { item }: Props ) {
 
 			{ type === 'local' && upload.status === 'idle' ? (
 				<>
-					<div className="vp-library__placeholder">
-						<span>{ __( 'Local video', 'jetpack-videopress-pkg' ) }</span>
-					</div>
-					<div className="vp-library__hover-action">
+					<Stack
+						direction="column"
+						align="center"
+						justify="center"
+						className="vp-library__placeholder"
+					>
+						<Text>{ __( 'Local video', 'jetpack-videopress-pkg' ) }</Text>
+					</Stack>
+					<Stack
+						direction="row"
+						align="center"
+						justify="center"
+						className="vp-library__hover-action"
+					>
 						<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
 							{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
 						</Button>
-					</div>
+					</Stack>
 				</>
 			) : null }
 
 			{ upload.status === 'uploading' ? (
-				<div className="vp-library__progress">
-					<span className="vp-library__progress-percent">{ Math.round( upload.progress ) }%</span>
+				<Stack
+					direction="column"
+					gap="sm"
+					align="center"
+					justify="center"
+					className="vp-library__progress"
+				>
+					<Text className="vp-library__progress-percent">{ Math.round( upload.progress ) }%</Text>
 					<ProgressBar className="vp-library__progress-bar" value={ upload.progress } />
-				</div>
+				</Stack>
 			) : null }
 
 			{ upload.status === 'failed' ? (
-				<div className="vp-library__failed">
-					<span>{ __( 'Upload failed', 'jetpack-videopress-pkg' ) }</span>
+				<Stack
+					direction="column"
+					gap="xs"
+					align="center"
+					justify="center"
+					className="vp-library__failed"
+				>
+					<Text>{ __( 'Upload failed', 'jetpack-videopress-pkg' ) }</Text>
 					<Button size="compact" onClick={ () => retryUpload( id ) }>
 						{ __( 'Retry', 'jetpack-videopress-pkg' ) }
 					</Button>
-				</div>
+				</Stack>
 			) : null }
 		</div>
 	);
