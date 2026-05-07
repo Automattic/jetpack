@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -29,6 +30,10 @@ class Initial_State_Test extends Search_TestCase {
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'jetpack_search_blocks_enabled' );
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		Constants::clear_single_constant( 'A8C_PROXIED_REQUEST' );
+		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
 		$this->unregister_guidelines_page();
 		parent::tearDown();
 	}
@@ -104,6 +109,27 @@ class Initial_State_Test extends Search_TestCase {
 			admin_url( 'options-general.php?page=guidelines-wp-admin' ),
 			$state['siteData'][ $state_key ]
 		);
+	}
+
+	/**
+	 * Test that the AI Agent Access toggle is unavailable outside proxied rollout contexts.
+	 */
+	public function test_ai_agent_access_available_defaults_false() {
+		$state = ( new Initial_State() )->get_initial_state();
+
+		$this->assertArrayHasKey( 'aiAgentAccessAvailable', $state['siteData'] );
+		$this->assertFalse( $state['siteData']['aiAgentAccessAvailable'] );
+	}
+
+	/**
+	 * Test that the AI Agent Access toggle is available on proxied rollout requests.
+	 */
+	public function test_ai_agent_access_available_reflects_proxied_request() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$state = ( new Initial_State() )->get_initial_state();
+
+		$this->assertTrue( $state['siteData']['aiAgentAccessAvailable'] );
 	}
 
 	/**

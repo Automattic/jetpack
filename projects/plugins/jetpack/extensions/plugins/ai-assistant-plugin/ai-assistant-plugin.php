@@ -62,6 +62,10 @@ Jetpack_Reader_Chat::init();
  * @return void
  */
 function register_ai_agents_setting() {
+	if ( ! is_proxied_request() ) {
+		return;
+	}
+
 	$show_in_rest = ! ( new Host() )->is_wpcom_simple();
 
 	register_setting(
@@ -77,6 +81,22 @@ function register_ai_agents_setting() {
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
+
+/**
+ * Check whether the current request is coming from a proxied Automattic context.
+ *
+ * This gates the AI Agent Access toggle during rollout so regular site owners
+ * and non-proxied staff do not see unfinished controls.
+ *
+ * IMPORTANT: Only use for feature gating, not for authorization.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_proxied_request(): bool {
+	return ( new Status() )->is_automattic_proxied_request();
+}
 
 /**
  * Add the AI Agent Access setting to Jetpack Sync's option whitelist.

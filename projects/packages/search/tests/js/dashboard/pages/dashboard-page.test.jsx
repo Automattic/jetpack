@@ -6,22 +6,47 @@ import { storeConfig, STORE_ID } from '../../../../src/dashboard/store';
 
 // jetpack-components and connection components reach into globals; mock the
 // surface we don't care about for this test.
-jest.mock( '@automattic/jetpack-components', () => ( {
-	AdminPage: ( { children } ) => <div data-testid="admin-page">{ children }</div>,
-	Button: ( { children, ...rest } ) => <button { ...rest }>{ children }</button>,
-	Container: ( { children } ) => <div>{ children }</div>,
-	Col: ( { children } ) => <div>{ children }</div>,
-	getProductCheckoutUrl: () => '#',
-} ) );
-jest.mock( '@automattic/jetpack-connection', () => ( {
-	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
-	useConnection: () => ( {} ),
-	ConnectionError: () => null,
-} ) );
+jest.mock(
+	'@automattic/jetpack-components',
+	() => ( {
+		AdminPage: ( { children } ) => <div data-testid="admin-page">{ children }</div>,
+		Button: ( { children, ...rest } ) => <button { ...rest }>{ children }</button>,
+		Container: ( { children } ) => <div>{ children }</div>,
+		Col: ( { children } ) => <div>{ children }</div>,
+		ContextualUpgradeTrigger: ( { children } ) => <div>{ children }</div>,
+		DonutMeter: () => <div data-testid="donut-meter" />,
+		Gridicon: () => <span data-testid="gridicon" />,
+		IconTooltip: ( { children } ) => <div>{ children }</div>,
+		IndeterminateProgressBar: () => <div data-testid="indeterminate-progress-bar" />,
+		ThemeProvider: ( { children } ) => <>{ children }</>,
+		getProductCheckoutUrl: () => '#',
+	} ),
+	{ virtual: true }
+);
+jest.mock(
+	'@automattic/jetpack-connection',
+	() => ( {
+		useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
+		useConnection: () => ( {} ),
+		ConnectionError: () => null,
+	} ),
+	{ virtual: true }
+);
+jest.mock(
+	'@automattic/number-formatters',
+	() => ( {
+		formatNumber: value => String( value ),
+	} ),
+	{ virtual: true }
+);
 
 // Stub heavy sub-components that aren't relevant to the branching test.
-jest.mock( 'components/ai-agent-access-control', () => ( { guidelinesUrl } ) => (
-	<div data-guidelines-url={ guidelinesUrl } data-testid="ai-agent-access-control" />
+jest.mock( 'components/ai-agent-access-control', () => ( { guidelinesUrl, isAvailable } ) => (
+	<div
+		data-guidelines-url={ guidelinesUrl }
+		data-is-available={ isAvailable }
+		data-testid="ai-agent-access-control"
+	/>
 ) );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
 jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
@@ -34,6 +59,7 @@ jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
 
 const renderWith = ( {
+	aiAgentAccessAvailable = true,
 	aiAgentAccessGuidelinesUrl = '',
 	searchBlocksEnabled,
 	jetpackSettings,
@@ -45,6 +71,7 @@ const renderWith = ( {
 			...( storeConfig.initialState || {} ),
 			siteData: {
 				...( storeConfig.initialState?.siteData || {} ),
+				aiAgentAccessAvailable,
 				aiAgentAccessGuidelinesUrl,
 				searchBlocksEnabled,
 			},
@@ -111,6 +138,19 @@ describe( '<DashboardPage> branch', () => {
 		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toHaveAttribute(
 			'data-guidelines-url',
 			aiAgentAccessGuidelinesUrl
+		);
+	} );
+
+	test( 'passes the AI Agent Access availability to the AI Agent Access control', () => {
+		renderWith( {
+			aiAgentAccessAvailable: false,
+			searchBlocksEnabled: false,
+			jetpackSettings: settings,
+		} );
+
+		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toHaveAttribute(
+			'data-is-available',
+			'false'
 		);
 	} );
 } );

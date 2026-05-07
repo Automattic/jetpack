@@ -21,16 +21,33 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		unregister_setting( 'general', 'jetpack_ai_agents_enabled' );
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		Constants::clear_single_constant( 'A8C_PROXIED_REQUEST' );
+		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		parent::tear_down();
 	}
 
 	/**
-	 * Test that the AI Agent Access setting is exposed as a REST-writable boolean outside WPCOM Simple.
+	 * Test that the AI Agent Access setting is not exposed outside proxied rollout contexts.
 	 */
-	public function test_register_ai_agents_setting_registers_rest_boolean_option_outside_wpcom_simple() {
+	public function test_register_ai_agents_setting_does_not_register_outside_proxied_requests() {
 		global $wp_registered_settings;
+
+		AiAssistantPlugin\register_ai_agents_setting();
+
+		$this->assertArrayNotHasKey( 'jetpack_ai_agents_enabled', $wp_registered_settings );
+	}
+
+	/**
+	 * Test that the AI Agent Access setting is exposed as a REST-writable boolean on proxied non-WPCOM Simple requests.
+	 */
+	public function test_register_ai_agents_setting_registers_rest_boolean_option_on_proxied_requests() {
+		global $wp_registered_settings;
+
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		AiAssistantPlugin\register_ai_agents_setting();
 
@@ -51,12 +68,42 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	public function test_register_ai_agents_setting_hides_rest_option_on_wpcom_simple() {
 		global $wp_registered_settings;
 
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		AiAssistantPlugin\register_ai_agents_setting();
 
 		$this->assertArrayHasKey( 'jetpack_ai_agents_enabled', $wp_registered_settings );
 		$this->assertFalse( $wp_registered_settings['jetpack_ai_agents_enabled']['show_in_rest'] );
+	}
+
+	/**
+	 * Test that the AI Agent Access proxy check accepts the A8C proxy constant.
+	 */
+	public function test_is_proxied_request_accepts_a8c_proxy_constant() {
+		Constants::set_constant( 'A8C_PROXIED_REQUEST', true );
+
+		$this->assertTrue( AiAssistantPlugin\is_proxied_request() );
+	}
+
+	/**
+	 * Test that the AI Agent Access proxy check accepts allowed Atomic proxy clients.
+	 */
+	public function test_is_proxied_request_accepts_allowed_atomic_proxy_client() {
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
+
+		$this->assertTrue( AiAssistantPlugin\is_proxied_request() );
+	}
+
+	/**
+	 * Test that the AI Agent Access proxy check rejects unknown Atomic proxy clients.
+	 */
+	public function test_is_proxied_request_rejects_unknown_atomic_proxy_client() {
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 999 );
+
+		$this->assertFalse( AiAssistantPlugin\is_proxied_request() );
 	}
 
 	/**

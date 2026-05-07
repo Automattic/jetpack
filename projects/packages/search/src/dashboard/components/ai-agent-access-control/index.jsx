@@ -17,38 +17,44 @@ const WPCOM_AI_AGENTS_SETTINGS_PATH = '/wpcom/v2/ai-agents-settings';
 /**
  * AI Agent Access opt-in control.
  *
- * @param {object} props               - Component properties.
- * @param {string} props.guidelinesUrl - Guidelines admin URL, when available.
+ * @param {object}  props               - Component properties.
+ * @param {string}  props.guidelinesUrl - Guidelines admin URL, when available.
+ * @param {boolean} props.isAvailable   - Whether the control is available in this rollout context.
  * @return {import('react').Component} AI Agent Access settings component.
  */
-export default function AIAgentAccessControl( { guidelinesUrl } ) {
+export default function AIAgentAccessControl( { guidelinesUrl, isAvailable = true } ) {
 	const [ isEnabled, setIsEnabled ] = useState( false );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
-	const [ isAvailable, setIsAvailable ] = useState( true );
+	const [ isSettingAvailable, setIsSettingAvailable ] = useState( true );
 	const storeDispatch = useDispatch( STORE_ID );
 	const settingsPath = isWpcom ? WPCOM_AI_AGENTS_SETTINGS_PATH : WP_SETTINGS_PATH;
 	const settingsKey = isWpcom ? 'enabled' : 'jetpack_ai_agents_enabled';
 
 	useEffect( () => {
+		if ( ! isAvailable ) {
+			setIsLoading( false );
+			return;
+		}
+
 		apiFetch( { path: settingsPath } )
 			.then( settings => {
 				if ( settings && Object.prototype.hasOwnProperty.call( settings, settingsKey ) ) {
 					setIsEnabled( Boolean( settings[ settingsKey ] ) );
-					setIsAvailable( true );
+					setIsSettingAvailable( true );
 				} else {
-					setIsAvailable( false );
+					setIsSettingAvailable( false );
 				}
 			} )
 			.catch( () => {
 				// Hide the card on unsupported older builds or REST failures.
-				setIsAvailable( false );
+				setIsSettingAvailable( false );
 			} )
 			.finally( () => {
 				setIsLoading( false );
 			} );
-	}, [ settingsKey, settingsPath ] );
+	}, [ isAvailable, settingsKey, settingsPath ] );
 
 	const toggle = useCallback(
 		next => {
@@ -88,7 +94,7 @@ export default function AIAgentAccessControl( { guidelinesUrl } ) {
 		[ isEnabled, isWpcom, settingsKey, settingsPath, storeDispatch ]
 	);
 
-	if ( isLoading || ! isAvailable ) {
+	if ( ! isAvailable || isLoading || ! isSettingAvailable ) {
 		return null;
 	}
 

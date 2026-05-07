@@ -71,6 +71,7 @@ class Initial_State {
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
 				'adminUrl'                   => esc_url( admin_url() ),
 				'readerChatGuidelinesUrl'    => $this->get_reader_chat_guidelines_url(),
+				'aiAgentAccessAvailable'     => $this->is_ai_agent_access_available(),
 				'aiAgentAccessGuidelinesUrl' => $this->get_ai_agent_access_guidelines_url(),
 				'blogId'                     => Jetpack_Options::get_option( 'id', 0 ),
 				'version'                    => Package::VERSION,
@@ -158,6 +159,20 @@ class Initial_State {
 		}
 
 		return esc_url_raw( menu_page_url( 'guidelines-wp-admin', false ) );
+	}
+
+	/**
+	 * Check whether the AI Agent Access toggle should be available.
+	 *
+	 * The feature is rollout-gated to proxied Automattic contexts so regular
+	 * site owners and non-proxied staff do not see unfinished controls.
+	 *
+	 * IMPORTANT: Only use for feature gating, not for authorization.
+	 *
+	 * @return bool
+	 */
+	protected function is_ai_agent_access_available() {
+		return ( new Status() )->is_automattic_proxied_request();
 	}
 
 	/**

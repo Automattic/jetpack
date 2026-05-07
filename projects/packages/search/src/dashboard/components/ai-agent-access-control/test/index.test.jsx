@@ -90,6 +90,13 @@ describe( 'AIAgentAccessControl', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	test( 'renders nothing and skips fetching settings when unavailable in this rollout context', () => {
+		const { container } = render( <AIAgentAccessControl isAvailable={ false } /> );
+
+		expect( container ).toBeEmptyDOMElement();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
 	test( 'renders nothing when the setting is not exposed by the REST API', async () => {
 		apiFetch.mockResolvedValueOnce( { title: 'Site', description: 'desc' } );
 
