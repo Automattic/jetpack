@@ -72,6 +72,10 @@ let keyboardNavListenerActive = false;
 // preventing the keyup event from immediately reopening it.
 let slashMenuEscaped = false;
 
+// Track which toolbar button currently holds tabindex="0" for roving tabindex.
+// Focus memory persists across Tab-in / Tab-out cycles.
+let lastFocusedToolbarButton = null;
+
 // Track the figure currently "selected" by the first Backspace/Delete press.
 // A second press on the same figure deletes it.
 let selectedFigure = null;
@@ -186,6 +190,20 @@ function restoreSelection() {
 	const sel = window.getSelection();
 	sel.removeAllRanges();
 	sel.addRange( savedRange );
+}
+
+/**
+ * Move roving tabindex to a toolbar button and focus it.
+ *
+ * @param {HTMLElement} button - The toolbar button to focus.
+ */
+function setToolbarFocus( button ) {
+	if ( lastFocusedToolbarButton ) {
+		lastFocusedToolbarButton.tabIndex = -1;
+	}
+	button.tabIndex = 0;
+	button.focus();
+	lastFocusedToolbarButton = button;
 }
 
 /**
@@ -1775,6 +1793,10 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		checkFormatting() {
+			// Keep savedRange current so toolbar keyboard activation always has a
+			// fresh selection, regardless of focusout timing.
+			saveSelection();
+
 			// Dismiss the recovery banner once the user starts editing.
 			if ( state.showRecoveryBanner ) {
 				localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
@@ -1853,6 +1875,11 @@ const { state } = store( 'wpcom-write', {
 		},
 
 		handleKeyDown( event ) {
+			// Keep savedRange current before any key changes the selection.
+			if ( ! state.showImageModal && ! state.showVideoModal ) {
+				saveSelection();
+			}
+
 			// Block all keystrokes while a modal overlay is open.
 			if ( state.showImageModal || state.showVideoModal ) {
 				if ( event.key === 'Escape' ) {
@@ -1868,6 +1895,19 @@ const { state } = store( 'wpcom-write', {
 					return;
 				}
 				event.preventDefault();
+				return;
+			}
+
+			// Shift+Tab / Alt+F10: jump focus directly to the toolbar.
+			// Shift+Tab bypasses the title textarea (which clears window.getSelection()
+			// en route, losing the saved range before the toolbar is reached).
+			if ( ( event.key === 'Tab' && event.shiftKey ) || ( event.altKey && event.key === 'F10' ) ) {
+				event.preventDefault();
+				saveSelection();
+				const target =
+					lastFocusedToolbarButton ||
+					document.querySelector( '.bw-toolbar .bw-tool-heading-toggle' );
+				if ( target ) target.focus();
 				return;
 			}
 
@@ -2160,6 +2200,106 @@ const { state } = store( 'wpcom-write', {
 			// but allow normal interaction with form inputs (text selection, cursor).
 			if ( event.target.closest( 'input, textarea' ) ) return;
 			event.preventDefault();
+		},
+
+		// --- Toolbar keyboard navigation (WAI-ARIA toolbar pattern) ---
+
+		handleToolbarKeyDown( event ) {
+			const toolbar = event.currentTarget;
+			const focused = toolbar.ownerDocument.activeElement;
+
+			// When focus is inside a submenu, arrow navigation is handled by
+			// handleSubmenuKeyDown — don't also move the toolbar focus.
+			const insideSubmenu = focused?.closest( '.bw-heading-menu, .bw-color-menu' );
+
+			if ( event.key === 'ArrowRight' || event.key === 'ArrowLeft' ) {
+				if ( insideSubmenu ) return;
+				event.preventDefault();
+				const buttons = [
+					...toolbar.querySelectorAll( ':scope .bw-tool, :scope .bw-tool-heading-toggle' ),
+				].filter( btn => ! btn.closest( '.bw-heading-menu, .bw-color-menu' ) && ! btn.disabled );
+				const idx = buttons.indexOf( focused );
+				const delta = event.key === 'ArrowRight' ? 1 : -1;
+				setToolbarFocus( buttons[ ( idx + delta + buttons.length ) % buttons.length ] );
+				return;
+			}
+
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showHeadingMenu = false;
+				state.showTextColorMenu = false;
+				getContent()?.focus();
+				restoreSelection();
+				return;
+			}
+
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				if ( ! focused || ! toolbar.contains( focused ) ) return;
+				// Submenu toggles: open the menu and focus its first item.
+				const isHeadingToggle = focused.classList.contains( 'bw-tool-heading-toggle' );
+				const isColorToggle =
+					focused.getAttribute( 'data-wp-on--click' ) === 'actions.toggleTextColorMenu';
+				if ( isHeadingToggle || isColorToggle ) {
+					// Let the existing click handler open the menu.
+					event.preventDefault();
+					focused.click();
+					requestAnimationFrame( () => {
+						const menuSelector = isHeadingToggle ? '.bw-heading-menu' : '.bw-color-menu';
+						const menu = toolbar.querySelector( menuSelector );
+						const firstItem = menu?.querySelector( '[role="menuitem"]' );
+						if ( firstItem ) firstItem.focus();
+					} );
+					return;
+				}
+				// Link button: restore selection, fire click — toggleLinkInput handles focus.
+				const isLink = focused.getAttribute( 'data-wp-on--click' ) === 'actions.toggleLinkInput';
+				if ( isLink ) {
+					event.preventDefault();
+					getContent()?.focus();
+					restoreSelection();
+					focused.click();
+					return;
+				}
+				// All other buttons: focus editor first so execCommand has an active
+				// editable context, then restore selection, then fire the action.
+				event.preventDefault();
+				getContent()?.focus();
+				restoreSelection();
+				focused.click();
+			}
+		},
+
+		handleSubmenuKeyDown( event ) {
+			const menu = event.currentTarget;
+			const focused = menu.ownerDocument.activeElement;
+
+			if ( event.key === 'ArrowDown' || event.key === 'ArrowUp' ) {
+				event.preventDefault();
+				const items = [ ...menu.querySelectorAll( '[role="menuitem"]' ) ].filter(
+					item => ! item.disabled
+				);
+				const idx = items.indexOf( focused );
+				const delta = event.key === 'ArrowDown' ? 1 : -1;
+				items[ ( idx + delta + items.length ) % items.length ]?.focus();
+				return;
+			}
+
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				getContent()?.focus();
+				restoreSelection();
+				focused.click();
+				return;
+			}
+
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showHeadingMenu = false;
+				state.showTextColorMenu = false;
+				// Return focus to the toggle button that opened this menu.
+				const toggle = menu.previousElementSibling;
+				if ( toggle ) toggle.focus();
+			}
 		},
 
 		// --- Inline formatting ---
