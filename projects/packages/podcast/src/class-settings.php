@@ -24,13 +24,15 @@ namespace Automattic\Jetpack\Podcast;
 class Settings {
 
 	/**
-	 * Settings group passed to `register_setting()`. The group is decorative
-	 * for our REST-only use (no Settings API forms to bind), so we use the
-	 * generic core `'options'` group — same choice as `jetpack-search`.
+	 * Settings group passed to `register_setting()`. Matches the legacy WPCOM
+	 * `Automattic_Podcasting` group so the Media Settings page form keeps
+	 * accepting these options during the untangle transition — WPCOM's UI
+	 * (and `register_setting('media', ...)`) still runs alongside the SPA
+	 * until the legacy code is removed in a later step.
 	 *
 	 * @var string
 	 */
-	const OPTION_GROUP = 'options';
+	const OPTION_GROUP = 'media';
 
 	/**
 	 * Hostname allowlist per podcatcher for `podcasting_show_urls` entries.
