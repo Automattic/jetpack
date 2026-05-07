@@ -60,7 +60,13 @@ function remember_block_editor( $editor_settings, $post ) {
 			'post',
 			'_last_editor_used_jetpack',
 			array(
-				'show_in_rest'      => true,
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'    => 'string',
+						'enum'    => array( 'classic-editor', 'block-editor', 'write-editor' ),
+						'context' => array( 'edit' ),
+					),
+				),
 				'single'            => true,
 				'type'              => 'string',
 				'auth_callback'     => function () {
