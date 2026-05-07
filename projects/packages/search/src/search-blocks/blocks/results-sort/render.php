@@ -15,17 +15,17 @@ namespace Automattic\Jetpack\Search;
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable -- WP always supplies $attributes.
 $attrs         = (array) $attributes;
-$options       = Sort_Control::resolve_available_options( $attrs );
-$option_labels = Sort_Control::get_option_labels();
-$default_sort  = Sort_Control::normalize_default_sort( $attrs );
-$display_as    = Sort_Control::normalize_display_as( $attrs );
-$label         = Sort_Control::resolve_label( $attrs );
+$options       = Results_Sort::resolve_available_options( $attrs );
+$option_labels = Results_Sort::get_option_labels();
+$default_sort  = Results_Sort::normalize_default_sort( $attrs );
+$display_as    = Results_Sort::normalize_display_as( $attrs );
+$label         = Results_Sort::resolve_label( $attrs );
 
 // Determine the effective sort for first paint and hydration. A URL
 // `?orderby=...` always wins so deep links keep their meaning -- same
 // precedence as the instant-search overlay. When no URL sort is present,
 // fall back to the block's `defaultSort` attribute.
-$url_sort       = Sort_Control::parse_url_sort( $options );
+$url_sort       = Results_Sort::parse_url_sort( $options );
 $effective_sort = $url_sort ?? $default_sort;
 if ( ! in_array( $effective_sort, $options, true ) ) {
 	// `defaultSort` may land outside `availableSortOptions` (e.g. an
@@ -59,8 +59,8 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 	wp_interactivity_state( 'jetpack-search', array( 'sortOrder' => $effective_sort ) );
 }
 
-$select_id = wp_unique_id( 'jetpack-search-sort-' );
-$menu_id   = wp_unique_id( 'jetpack-search-sort-menu-' );
+$select_id = wp_unique_id( 'jetpack-search-results-sort-' );
+$menu_id   = wp_unique_id( 'jetpack-search-results-sort-menu-' );
 
 $checked_getters = array(
 	'relevance' => 'state.isSortByRelevance',
@@ -70,7 +70,7 @@ $checked_getters = array(
 ?>
 <?php if ( 'popover' === $display_as ) : ?>
 	<div
-		<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-sort--popover' ) ) ); ?>
+		<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-results-sort--popover' ) ) ); ?>
 		data-wp-interactive="jetpack-search"
 		data-jetpack-search-popover-root
 		data-wp-on-window--click="actions.onWindowClickClosePopovers"
@@ -78,7 +78,7 @@ $checked_getters = array(
 	>
 		<button
 			type="button"
-			class="jetpack-search-sort__trigger"
+			class="jetpack-search-results-sort__trigger"
 			aria-haspopup="menu"
 			aria-expanded="false"
 			data-wp-bind--aria-expanded="state.isSortPopoverOpen"
@@ -88,14 +88,14 @@ $checked_getters = array(
 			data-wp-on--click="actions.toggleSortPopover"
 			data-wp-on--keydown="actions.onSortTriggerKeydown"
 		>
-			<svg class="jetpack-search-sort__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+			<svg class="jetpack-search-results-sort__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 				<path fill="currentColor" d="M8 4l-4 4h3v12h2V8h3L8 4zm8 16l4-4h-3V4h-2v12h-3l4 4z"/>
 			</svg>
 			<span class="screen-reader-text"><?php esc_html_e( 'Sort results', 'jetpack-search-pkg' ); ?></span>
 		</button>
 		<div
 			id="<?php echo esc_attr( $menu_id ); ?>"
-			class="jetpack-search-sort__menu"
+			class="jetpack-search-results-sort__menu"
 			role="menu"
 			data-wp-bind--hidden="!state.isSortPopoverOpen"
 			hidden
@@ -108,7 +108,7 @@ $checked_getters = array(
 				<button
 					type="button"
 					role="menuitemradio"
-					class="jetpack-search-sort__menu-item"
+					class="jetpack-search-results-sort__menu-item"
 					value="<?php echo esc_attr( $sort_key ); ?>"
 					tabindex="-1"
 					data-wp-context='<?php echo esc_attr( wp_json_encode( array( 'sortKey' => $sort_key ), JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ); ?>'

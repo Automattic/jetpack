@@ -11,7 +11,7 @@ import { CheckboxControl, PanelBody, SelectControl, TextControl } from '@wordpre
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-// Mirror Sort_Control::BASE_SORT_KEYS. Product-format keys rejoin in RSM-1082.
+// Mirror Results_Sort::BASE_SORT_KEYS. Product-format keys rejoin in RSM-1082.
 const ALL_SORT_KEYS = [ 'relevance', 'newest', 'oldest' ];
 
 /**
@@ -32,7 +32,7 @@ function getSortLabels() {
 
 /**
  * Resolve the effective list of sort keys to render. Mirrors
- * `Sort_Control::resolve_available_options()` on the PHP side: unknown keys
+ * `Results_Sort::resolve_available_options()` on the PHP side: unknown keys
  * drop, canonical order wins, and an empty list falls back to the full set
  * so a misconfigured block never shows a control with zero options.
  *
@@ -71,7 +71,7 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 		displayAs = 'popover';
 	}
 	const blockProps = useBlockProps( {
-		className: 'popover' === displayAs ? 'jetpack-search-sort--popover' : undefined,
+		className: 'popover' === displayAs ? 'jetpack-search-results-sort--popover' : undefined,
 	} );
 	const storedAvailable = Array.isArray( attributes?.availableSortOptions )
 		? attributes.availableSortOptions
@@ -175,13 +175,13 @@ export default function SortControlEdit( { attributes, setAttributes } ) {
 		preview = (
 			<button
 				type="button"
-				className="jetpack-search-sort__trigger"
+				className="jetpack-search-results-sort__trigger"
 				aria-haspopup="menu"
 				aria-expanded="false"
 				disabled
 			>
 				<svg
-					className="jetpack-search-sort__icon"
+					className="jetpack-search-results-sort__icon"
 					width={ 18 }
 					height={ 18 }
 					viewBox="0 0 24 24"

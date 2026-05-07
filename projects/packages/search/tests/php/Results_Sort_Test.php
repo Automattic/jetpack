@@ -1,6 +1,6 @@
 <?php
 /**
- * Sort_Control helper tests.
+ * Results_Sort helper tests.
  *
  * @package automattic/jetpack-search
  */
@@ -10,18 +10,18 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the Sort_Control helper class used by the jetpack-search/results-sort
+ * Tests for the Results_Sort helper class used by the jetpack-search/results-sort
  * block. Covers attribute normalization so render.php can trust the inputs
  * it receives regardless of what a garbage block attribute carries.
  */
-class Sort_Control_Test extends TestCase {
+class Results_Sort_Test extends TestCase {
 
 	/**
 	 * A missing `defaultSort` attribute must fall back to `relevance` — the
 	 * same default `parse_url_sort()` returns when the URL has no `orderby`.
 	 */
 	public function test_normalize_default_sort_falls_back_when_missing() {
-		$this->assertSame( 'relevance', Sort_Control::normalize_default_sort( array() ) );
+		$this->assertSame( 'relevance', Results_Sort::normalize_default_sort( array() ) );
 	}
 
 	/**
@@ -29,12 +29,12 @@ class Sort_Control_Test extends TestCase {
 	 * stable across renders.
 	 */
 	public function test_normalize_default_sort_accepts_known_key() {
-		$this->assertSame( 'newest', Sort_Control::normalize_default_sort( array( 'defaultSort' => 'newest' ) ) );
+		$this->assertSame( 'newest', Results_Sort::normalize_default_sort( array( 'defaultSort' => 'newest' ) ) );
 	}
 
 	/** Product-format keys are deferred to RSM-1082. */
 	public function test_normalize_default_sort_rejects_product_key_until_woocommerce_integration() {
-		$this->assertSame( 'relevance', Sort_Control::normalize_default_sort( array( 'defaultSort' => 'price_asc' ) ) );
+		$this->assertSame( 'relevance', Results_Sort::normalize_default_sort( array( 'defaultSort' => 'price_asc' ) ) );
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Sort_Control_Test extends TestCase {
 	 * into the rendered control or the seeded Interactivity state.
 	 */
 	public function test_normalize_default_sort_rejects_unknown_key() {
-		$this->assertSame( 'relevance', Sort_Control::normalize_default_sort( array( 'defaultSort' => 'drop-tables' ) ) );
+		$this->assertSame( 'relevance', Results_Sort::normalize_default_sort( array( 'defaultSort' => 'drop-tables' ) ) );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Sort_Control_Test extends TestCase {
 	public function test_resolve_available_options_defaults_to_full_list() {
 		$this->assertSame(
 			array( 'relevance', 'newest', 'oldest' ),
-			Sort_Control::resolve_available_options( array() )
+			Results_Sort::resolve_available_options( array() )
 		);
 	}
 
@@ -64,7 +64,7 @@ class Sort_Control_Test extends TestCase {
 	public function test_resolve_available_options_preserves_canonical_order() {
 		$this->assertSame(
 			array( 'relevance', 'oldest' ),
-			Sort_Control::resolve_available_options(
+			Results_Sort::resolve_available_options(
 				array( 'availableSortOptions' => array( 'oldest', 'relevance' ) )
 			)
 		);
@@ -78,7 +78,7 @@ class Sort_Control_Test extends TestCase {
 	public function test_resolve_available_options_drops_unknown_keys() {
 		$this->assertSame(
 			array( 'relevance', 'newest' ),
-			Sort_Control::resolve_available_options(
+			Results_Sort::resolve_available_options(
 				array( 'availableSortOptions' => array( 'relevance', 'newest', 'bogus' ) )
 			)
 		);
@@ -91,8 +91,8 @@ class Sort_Control_Test extends TestCase {
 	 */
 	public function test_resolve_available_options_empty_falls_back_to_all() {
 		$this->assertSame(
-			Sort_Control::get_all_option_keys(),
-			Sort_Control::resolve_available_options( array( 'availableSortOptions' => array() ) )
+			Results_Sort::get_all_option_keys(),
+			Results_Sort::resolve_available_options( array( 'availableSortOptions' => array() ) )
 		);
 	}
 
@@ -102,8 +102,8 @@ class Sort_Control_Test extends TestCase {
 	 */
 	public function test_resolve_available_options_non_array_falls_back_to_all() {
 		$this->assertSame(
-			Sort_Control::get_all_option_keys(),
-			Sort_Control::resolve_available_options( array( 'availableSortOptions' => 'relevance' ) )
+			Results_Sort::get_all_option_keys(),
+			Results_Sort::resolve_available_options( array( 'availableSortOptions' => 'relevance' ) )
 		);
 	}
 
@@ -112,28 +112,28 @@ class Sort_Control_Test extends TestCase {
 	 * attribute existed) keep rendering a dropdown.
 	 */
 	public function test_normalize_display_as_defaults_to_select() {
-		$this->assertSame( 'select', Sort_Control::normalize_display_as( array() ) );
+		$this->assertSame( 'select', Results_Sort::normalize_display_as( array() ) );
 	}
 
 	/**
 	 * `radio` and `popover` are the supported non-default presentations.
 	 */
 	public function test_normalize_display_as_accepts_radio() {
-		$this->assertSame( 'radio', Sort_Control::normalize_display_as( array( 'displayAs' => 'radio' ) ) );
+		$this->assertSame( 'radio', Results_Sort::normalize_display_as( array( 'displayAs' => 'radio' ) ) );
 	}
 
 	/**
 	 * `popover` uses the compact toolbar icon trigger and menu.
 	 */
 	public function test_normalize_display_as_accepts_popover() {
-		$this->assertSame( 'popover', Sort_Control::normalize_display_as( array( 'displayAs' => 'popover' ) ) );
+		$this->assertSame( 'popover', Results_Sort::normalize_display_as( array( 'displayAs' => 'popover' ) ) );
 	}
 
 	/**
 	 * `display=popover` was used before this block adopted `displayAs`.
 	 */
 	public function test_normalize_display_as_accepts_legacy_display_popover() {
-		$this->assertSame( 'popover', Sort_Control::normalize_display_as( array( 'display' => 'popover' ) ) );
+		$this->assertSame( 'popover', Results_Sort::normalize_display_as( array( 'display' => 'popover' ) ) );
 	}
 
 	/**
@@ -141,7 +141,7 @@ class Sort_Control_Test extends TestCase {
 	 * produce markup the view script doesn't know how to bind against.
 	 */
 	public function test_normalize_display_as_rejects_unknown_value() {
-		$this->assertSame( 'select', Sort_Control::normalize_display_as( array( 'displayAs' => 'grid' ) ) );
+		$this->assertSame( 'select', Results_Sort::normalize_display_as( array( 'displayAs' => 'grid' ) ) );
 	}
 
 	/**
@@ -149,8 +149,8 @@ class Sort_Control_Test extends TestCase {
 	 * posts keep the original "Sort by" copy.
 	 */
 	public function test_resolve_label_falls_back_when_empty() {
-		$this->assertSame( 'Sort by', Sort_Control::resolve_label( array() ) );
-		$this->assertSame( 'Sort by', Sort_Control::resolve_label( array( 'label' => '' ) ) );
+		$this->assertSame( 'Sort by', Results_Sort::resolve_label( array() ) );
+		$this->assertSame( 'Sort by', Results_Sort::resolve_label( array( 'label' => '' ) ) );
 	}
 
 	/**
@@ -159,13 +159,13 @@ class Sort_Control_Test extends TestCase {
 	 * value shouldn't render a visually empty label.
 	 */
 	public function test_resolve_label_treats_whitespace_as_empty() {
-		$this->assertSame( 'Sort by', Sort_Control::resolve_label( array( 'label' => '   ' ) ) );
+		$this->assertSame( 'Sort by', Results_Sort::resolve_label( array( 'label' => '   ' ) ) );
 	}
 
 	/**
 	 * A user-supplied label passes through (trimmed) unchanged.
 	 */
 	public function test_resolve_label_returns_user_value() {
-		$this->assertSame( 'Order by', Sort_Control::resolve_label( array( 'label' => '  Order by  ' ) ) );
+		$this->assertSame( 'Order by', Results_Sort::resolve_label( array( 'label' => '  Order by  ' ) ) );
 	}
 }

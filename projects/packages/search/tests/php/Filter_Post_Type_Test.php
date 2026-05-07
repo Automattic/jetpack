@@ -1,6 +1,6 @@
 <?php
 /**
- * Post_Type_Filter helper tests.
+ * Filter_Post_Type helper tests.
  *
  * @package automattic/jetpack-search
  */
@@ -10,10 +10,10 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for Post_Type_Filter helpers — single-mode constraint building,
+ * Tests for Filter_Post_Type helpers — single-mode constraint building,
  * registry-allowlist enforcement, and multi-instance state merging.
  */
-class Post_Type_Filter_Test extends TestCase {
+class Filter_Post_Type_Test extends TestCase {
 
 	/**
 	 * Register the fixture post types each test relies on. `product` and
@@ -71,7 +71,7 @@ class Post_Type_Filter_Test extends TestCase {
 		// statics via Reflection; PHP 8.1 made the call a no-op and 8.5
 		// emits a deprecation. Gate on the version so the package's full
 		// CI matrix (PHP 7.2 through 8.5) stays green.
-		$prop = ( new \ReflectionClass( Post_Type_Filter::class ) )->getProperty( 'searchable_cache' );
+		$prop = ( new \ReflectionClass( Filter_Post_Type::class ) )->getProperty( 'searchable_cache' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$prop->setAccessible( true );
 		}
@@ -88,7 +88,7 @@ class Post_Type_Filter_Test extends TestCase {
 				'include' => array(),
 				'exclude' => array(),
 			),
-			Post_Type_Filter::build_constraint( array() )
+			Filter_Post_Type::build_constraint( array() )
 		);
 	}
 
@@ -98,7 +98,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 * `postTypes` set populates the `exclude` side.
 	 */
 	public function test_build_constraint_defaults_to_exclude_mode() {
-		$constraint = Post_Type_Filter::build_constraint(
+		$constraint = Filter_Post_Type::build_constraint(
 			array( 'postTypes' => array( 'product' ) )
 		);
 		$this->assertSame( array(), $constraint['include'] );
@@ -110,7 +110,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 * empty — single-mode UX guarantees only one side is ever set per block.
 	 */
 	public function test_build_constraint_include_mode_populates_include_only() {
-		$constraint = Post_Type_Filter::build_constraint(
+		$constraint = Filter_Post_Type::build_constraint(
 			array(
 				'mode'      => 'include',
 				'postTypes' => array( 'post', 'page' ),
@@ -124,7 +124,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 * `mode: exclude` populates the `exclude` side and leaves `include` empty.
 	 */
 	public function test_build_constraint_exclude_mode_populates_exclude_only() {
-		$constraint = Post_Type_Filter::build_constraint(
+		$constraint = Filter_Post_Type::build_constraint(
 			array(
 				'mode'      => 'exclude',
 				'postTypes' => array( 'product' ),
@@ -140,7 +140,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 * Exclude into Include and broaden results in the wrong direction.
 	 */
 	public function test_build_constraint_unknown_mode_falls_back_to_exclude() {
-		$constraint = Post_Type_Filter::build_constraint(
+		$constraint = Filter_Post_Type::build_constraint(
 			array(
 				'mode'      => 'something-else',
 				'postTypes' => array( 'product' ),
@@ -157,7 +157,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 * collapse every search to zero results by reaching ES.
 	 */
 	public function test_build_constraint_sanitizes_dedupes_and_validates_slugs() {
-		$constraint = Post_Type_Filter::build_constraint(
+		$constraint = Filter_Post_Type::build_constraint(
 			array(
 				'mode'      => 'include',
 				'postTypes' => array( 'Post', 'page', 'page', '<bad>', '', 'unregistered_cpt' ),
@@ -175,7 +175,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 * to search); in exclude mode it would be a no-op (already absent).
 	 */
 	public function test_build_constraint_drops_search_excluded_post_types() {
-		$exclude_constraint = Post_Type_Filter::build_constraint(
+		$exclude_constraint = Filter_Post_Type::build_constraint(
 			array(
 				'mode'      => 'exclude',
 				'postTypes' => array( 'private_doc', 'product' ),
@@ -183,7 +183,7 @@ class Post_Type_Filter_Test extends TestCase {
 		);
 		$this->assertSame( array( 'product' ), $exclude_constraint['exclude'] );
 
-		$include_constraint = Post_Type_Filter::build_constraint(
+		$include_constraint = Filter_Post_Type::build_constraint(
 			array(
 				'mode'      => 'include',
 				'postTypes' => array( 'post', 'private_doc' ),
@@ -199,12 +199,12 @@ class Post_Type_Filter_Test extends TestCase {
 	 * input is contained.
 	 */
 	public function test_build_constraint_drops_non_scalar_values() {
-		$string_input = Post_Type_Filter::build_constraint(
+		$string_input = Filter_Post_Type::build_constraint(
 			array( 'postTypes' => 'not-an-array' )
 		);
 		$this->assertSame( array(), $string_input['exclude'] );
 
-		$mixed_input = Post_Type_Filter::build_constraint(
+		$mixed_input = Filter_Post_Type::build_constraint(
 			array( 'postTypes' => array( 'page', array( 'nested' ), null, false, 'product' ) )
 		);
 		$this->assertSame( array( 'page', 'product' ), $mixed_input['exclude'] );
@@ -216,7 +216,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 * two blocks configured for non-overlapping post types.
 	 */
 	public function test_merge_state_unions_lists_across_instances() {
-		$merged = Post_Type_Filter::merge_state(
+		$merged = Filter_Post_Type::merge_state(
 			array(
 				'include' => array( 'post' ),
 				'exclude' => array( 'product' ),
@@ -239,7 +239,7 @@ class Post_Type_Filter_Test extends TestCase {
 	 * own `build_constraint()` call).
 	 */
 	public function test_merge_state_sanitizes_existing_state() {
-		$merged = Post_Type_Filter::merge_state(
+		$merged = Filter_Post_Type::merge_state(
 			array(
 				'include' => 'malformed',
 				'exclude' => array( 'product', 42 ),

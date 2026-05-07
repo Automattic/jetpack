@@ -11,7 +11,7 @@ import {
 	focusSortTrigger,
 	getSortMenuOptionKeysFromItem,
 	getSortMenuOptionKeysFromTrigger,
-} from './sort-menu-dom';
+} from './results-sort-menu-dom';
 import { pushStateToUrl, readStateFromUrl } from './url-state';
 
 const NAMESPACE = 'jetpack-search';

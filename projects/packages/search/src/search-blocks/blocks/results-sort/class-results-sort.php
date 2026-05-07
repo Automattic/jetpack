@@ -1,6 +1,6 @@
 <?php
 /**
- * Sort-control block helpers.
+ * Results-sort block helpers.
  *
  * @package automattic/jetpack-search
  */
@@ -18,7 +18,7 @@ namespace Automattic\Jetpack\Search;
  * are intentionally deferred to the WooCommerce integration tracked under
  * RSM-1082.
  */
-class Sort_Control {
+class Results_Sort {
 
 	/** Product-format keys (rating/price) land in RSM-1082. */
 	const BASE_SORT_KEYS = array( 'relevance', 'newest', 'oldest' );

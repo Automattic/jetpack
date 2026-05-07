@@ -1,6 +1,6 @@
 <?php
 /**
- * Post-type-filter block render: writes a `staticPostTypes` constraint to
+ * Filter-post-type block render: writes a `staticPostTypes` constraint to
  * the Interactivity store and emits no markup.
  *
  * @package automattic/jetpack-search
@@ -15,7 +15,7 @@ if ( ! function_exists( 'wp_interactivity_state' ) ) {
 }
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$constraint = Post_Type_Filter::build_constraint( (array) $attributes );
+$constraint = Filter_Post_Type::build_constraint( (array) $attributes );
 
 if ( empty( $constraint['include'] ) && empty( $constraint['exclude'] ) ) {
 	return;
@@ -23,6 +23,6 @@ if ( empty( $constraint['include'] ) && empty( $constraint['exclude'] ) ) {
 
 $current         = wp_interactivity_state( 'jetpack-search' );
 $existing_static = (array) ( $current['staticPostTypes'] ?? array() );
-$merged          = Post_Type_Filter::merge_state( $existing_static, $constraint );
+$merged          = Filter_Post_Type::merge_state( $existing_static, $constraint );
 
 wp_interactivity_state( 'jetpack-search', array( 'staticPostTypes' => $merged ) );

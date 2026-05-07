@@ -113,11 +113,11 @@
 	}
 }
 
-.jetpack-search-sort--popover {
+.jetpack-search-results-sort--popover {
 	position: relative;
 	display: inline-block;
 
-	.jetpack-search-sort__trigger {
+	.jetpack-search-results-sort__trigger {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -142,7 +142,7 @@
 		}
 	}
 
-	.jetpack-search-sort__menu {
+	.jetpack-search-results-sort__menu {
 		position: absolute;
 		inset-inline-end: 0;
 		inset-block-start: calc(100% + 4px);
@@ -169,7 +169,7 @@
 		}
 	}
 
-	.jetpack-search-sort__menu-item {
+	.jetpack-search-results-sort__menu-item {
 		appearance: none;
 		border: none;
 		background: transparent;

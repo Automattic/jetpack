@@ -49,19 +49,19 @@ require( '../../../src/search-blocks/store' );
 function buildPopoverDom() {
 	document.body.innerHTML = `
 		<div data-jetpack-search-popover-root>
-			<button class="jetpack-search-sort__trigger" type="button"></button>
-			<div class="jetpack-search-sort__menu" role="menu">
-				<button class="jetpack-search-sort__menu-item" type="button" value="relevance"></button>
-				<button class="jetpack-search-sort__menu-item" type="button" value="newest"></button>
-				<button class="jetpack-search-sort__menu-item" type="button" value="oldest"></button>
+			<button class="jetpack-search-results-sort__trigger" type="button"></button>
+			<div class="jetpack-search-results-sort__menu" role="menu">
+				<button class="jetpack-search-results-sort__menu-item" type="button" value="relevance"></button>
+				<button class="jetpack-search-results-sort__menu-item" type="button" value="newest"></button>
+				<button class="jetpack-search-results-sort__menu-item" type="button" value="oldest"></button>
 			</div>
 		</div>
 	`;
 	const root = document.querySelector( '[data-jetpack-search-popover-root]' );
 	return {
 		root,
-		trigger: root.querySelector( '.jetpack-search-sort__trigger' ),
-		items: Array.from( root.querySelectorAll( '.jetpack-search-sort__menu-item' ) ),
+		trigger: root.querySelector( '.jetpack-search-results-sort__trigger' ),
+		items: Array.from( root.querySelectorAll( '.jetpack-search-results-sort__menu-item' ) ),
 	};
 }
 

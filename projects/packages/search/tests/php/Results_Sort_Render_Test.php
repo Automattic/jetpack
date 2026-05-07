@@ -113,7 +113,7 @@ class Results_Sort_Render_Test extends TestCase {
 	/** `displayAs=popover` emits the compact icon trigger and menu. */
 	public function test_display_as_popover_renders_menu() {
 		$markup = $this->render( array( 'displayAs' => 'popover' ) );
-		$this->assertStringContainsString( 'jetpack-search-sort--popover', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results-sort--popover', $markup );
 		$this->assertStringContainsString( 'aria-haspopup="menu"', $markup );
 		$this->assertStringContainsString( 'role="menu"', $markup );
 		$this->assertStringNotContainsString( '<select', $markup );
@@ -125,7 +125,7 @@ class Results_Sort_Render_Test extends TestCase {
 	 */
 	public function test_legacy_display_popover_renders_menu() {
 		$markup = $this->render( array( 'display' => 'popover' ) );
-		$this->assertStringContainsString( 'jetpack-search-sort--popover', $markup );
+		$this->assertStringContainsString( 'jetpack-search-results-sort--popover', $markup );
 		$this->assertStringContainsString( 'aria-haspopup="menu"', $markup );
 		$this->assertStringContainsString( 'role="menu"', $markup );
 		$this->assertStringNotContainsString( '<select', $markup );
@@ -144,7 +144,7 @@ class Results_Sort_Render_Test extends TestCase {
 
 		// Trigger handles ArrowDown/ArrowUp/Enter/Space to open the menu.
 		$this->assertMatchesRegularExpression(
-			'/class="jetpack-search-sort__trigger"[^>]*data-wp-on--keydown="actions\.onSortTriggerKeydown"/s',
+			'/class="jetpack-search-results-sort__trigger"[^>]*data-wp-on--keydown="actions\.onSortTriggerKeydown"/s',
 			$markup
 		);
 
@@ -152,7 +152,7 @@ class Results_Sort_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'data-wp-bind--tabindex="state.sortMenuItemTabIndex"', $markup );
 		$this->assertStringContainsString( 'data-wp-on--keydown="actions.onSortMenuKeydown"', $markup );
 		$this->assertMatchesRegularExpression(
-			'/class="jetpack-search-sort__menu-item"[^>]*tabindex="-1"/s',
+			'/class="jetpack-search-results-sort__menu-item"[^>]*tabindex="-1"/s',
 			$markup
 		);
 

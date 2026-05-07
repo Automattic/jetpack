@@ -9,9 +9,9 @@
  * sort block which already drives selection from the DOM (`event.currentTarget.value`).
  */
 
-const MENU_SELECTOR = '.jetpack-search-sort__menu';
-const ITEM_SELECTOR = '.jetpack-search-sort__menu-item';
-const TRIGGER_SELECTOR = '.jetpack-search-sort__trigger';
+const MENU_SELECTOR = '.jetpack-search-results-sort__menu';
+const ITEM_SELECTOR = '.jetpack-search-results-sort__menu-item';
+const TRIGGER_SELECTOR = '.jetpack-search-results-sort__trigger';
 const POPOVER_ROOT_SELECTOR = '[data-jetpack-search-popover-root]';
 
 /**

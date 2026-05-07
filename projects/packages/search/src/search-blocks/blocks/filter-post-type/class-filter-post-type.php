@@ -1,6 +1,6 @@
 <?php
 /**
- * Post-type-filter block helpers.
+ * Filter-post-type block helpers.
  *
  * @package automattic/jetpack-search
  */
@@ -14,7 +14,7 @@ namespace Automattic\Jetpack\Search;
  * `{ mode, postTypes }` attributes into the `{ include, exclude }` shape
  * `store/api.js`'s `buildStaticPostTypeClauses()` consumes.
  */
-class Post_Type_Filter {
+class Filter_Post_Type {
 
 	/**
 	 * Per-request cache of slugs registered with `exclude_from_search => false`.
