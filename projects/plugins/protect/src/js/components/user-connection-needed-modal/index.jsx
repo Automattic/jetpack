@@ -8,6 +8,7 @@ import styles from './styles.module.scss';
 const UserConnectionNeededModal = () => {
 	const { setModal } = useModal();
 	const { userIsConnecting, handleConnectUser } = useConnection( {
+		from: 'protect',
 		redirectUri: 'admin.php?page=jetpack-protect',
 	} );
 

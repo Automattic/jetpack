@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: pass `from: 'protect'` when launching the user-connection flow from the user-connection-needed modal so the wpcom authorize page can attribute these connections to Protect rather than `[unknown]`.
