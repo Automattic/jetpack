@@ -78,11 +78,9 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		label: __( 'Type', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.type,
 		render: ( { item } ) =>
-			item.type === 'videopress'
-				? __( 'VideoPress', 'jetpack-videopress-pkg' )
-				: __( 'Local', 'jetpack-videopress-pkg' ),
+			item.type === 'videopress' ? 'VideoPress' : __( 'Local', 'jetpack-videopress-pkg' ),
 		elements: [
-			{ value: 'videopress', label: __( 'VideoPress', 'jetpack-videopress-pkg' ) },
+			{ value: 'videopress', label: 'VideoPress' },
 			{ value: 'local', label: __( 'Local', 'jetpack-videopress-pkg' ) },
 		],
 		filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
