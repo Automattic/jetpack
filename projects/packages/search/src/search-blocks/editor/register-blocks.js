@@ -19,6 +19,7 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { getCategories, registerBlockType, setCategories } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
+import ClearFiltersEdit from '../blocks/clear-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
@@ -61,6 +62,7 @@ const BLOCKS = [
 	[ 'jetpack-search/filter-wc-attribute', FilterWcAttributeEdit ],
 	[ 'jetpack-search/filter-wc-price', FilterWcPriceEdit ],
 	[ 'jetpack-search/filter-wc-stock-status', FilterWcStockStatusEdit ],
+	[ 'jetpack-search/clear-filters', ClearFiltersEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /

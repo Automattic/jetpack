@@ -45,18 +45,4 @@
 		line-height: 1;
 	}
 
-	// Clear-all keeps its outlined / secondary look so it stays visually
-	// distinct from the filled pills. Core's `is-style-outline` only
-	// applies inside a `.wp-block-button` wrapper, so use theme-aware
-	// CSS-wide values (`currentColor`, `inherit`, transparent) here.
-	.jetpack-search-active-filters__clear-all {
-		background: transparent;
-		border: 1px solid currentColor;
-		color: inherit;
-		border-radius: 4px;
-		padding: 0.2rem 0.5rem;
-		font-size: 0.8rem;
-		line-height: 1.2;
-		cursor: pointer;
-	}
 }
