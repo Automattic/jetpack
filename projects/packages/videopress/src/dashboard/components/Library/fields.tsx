@@ -1,4 +1,4 @@
-import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './ThumbnailField';
@@ -91,7 +91,7 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 		label: __( 'Uploaded', 'jetpack-videopress-pkg' ),
 		type: 'datetime',
 		getValue: ( { item } ) => item.uploadDate,
-		render: ( { item } ) => dateI18n( dateSettings.formats.date, item.uploadDate ),
+		format: { datetime: dateSettings.formats.date },
 		enableSorting: true,
 	},
 	{
