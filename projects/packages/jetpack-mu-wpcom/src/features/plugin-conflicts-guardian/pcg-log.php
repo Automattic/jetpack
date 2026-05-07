@@ -17,19 +17,23 @@
  * @return void
  */
 function pcg_log_event( $message, array $extra ) {
-	if ( ! function_exists( 'log2logstash' ) ) {
-		$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-		if ( ! is_readable( $log2logstash_path ) ) {
-			return;
+	try {
+		if ( ! function_exists( 'log2logstash' ) ) {
+			$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+			if ( ! is_readable( $log2logstash_path ) ) {
+				return;
+			}
+			require_once $log2logstash_path;
 		}
-		require_once $log2logstash_path;
-	}
 
-	log2logstash(
-		array(
-			'feature' => 'plugin-conflicts-guardian',
-			'message' => (string) $message,
-			'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
-		)
-	);
+		log2logstash(
+			array(
+				'feature' => 'plugin-conflicts-guardian',
+				'message' => (string) $message,
+				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
+			)
+		);
+	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: a logging failure must not escalate on activation / install / update request paths.
+		unset( $e );
+	}
 }
