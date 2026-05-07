@@ -61,13 +61,25 @@ export function gateActiveFilters( activeFilters, filterConfigs ) {
  * visibility — without the retained / selection check a narrower query
  * could hide the section that holds the user's own selection.
  *
+ * Date filters bail out before the retention / selection clauses: they
+ * don't accumulate retained options (mergeRetainedFilterOptions skips
+ * them) and dateFilterItems doesn't render selected values that aren't
+ * in the current aggregation, so an empty bucket list means an empty
+ * <ul> and the wrapper should hide. Selections still surface via the
+ * active-filters pills.
+ *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
  * @return {boolean} True when the wrapper has something to show.
  */
 function filterHasContent( sharedState, filterKey ) {
+	if ( ( sharedState.aggregations?.[ filterKey ]?.buckets?.length ?? 0 ) > 0 ) {
+		return true;
+	}
+	if ( sharedState.filterConfigs?.[ filterKey ]?.filterType === 'date' ) {
+		return false;
+	}
 	return (
-		( sharedState.aggregations?.[ filterKey ]?.buckets?.length ?? 0 ) > 0 ||
 		( sharedState.retainedFilterOptions?.[ filterKey ]?.length ?? 0 ) > 0 ||
 		( sharedState.activeFilters?.[ filterKey ]?.length ?? 0 ) > 0
 	);
@@ -536,9 +548,12 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * `{ value, label, showCount, countLabel }` items for the current
-		 * filter block. Dispatches on `filterType`. Lives on the shared
-		 * namespace so per-block view bundles don't clobber siblings.
+		 * Item descriptors for the current filter block. Dispatches on
+		 * `filterType`. Lives on the shared namespace so per-block view
+		 * bundles don't clobber siblings. Each item carries `value`,
+		 * `label`, `count`, `countLabel`, `showCount`, and `checked`;
+		 * `checkboxFilterItems` also folds retained options and URL-seeded
+		 * selections into the list (see its JSDoc).
 		 *
 		 * @return {Array<object>} Item descriptors.
 		 */

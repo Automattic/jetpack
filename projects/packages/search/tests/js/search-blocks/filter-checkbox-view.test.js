@@ -371,6 +371,7 @@ describe( 'syncFilterWrapperVisibility callback', () => {
 		captured.state.activeFilters = {};
 		captured.state.aggregations = {};
 		captured.state.retainedFilterOptions = {};
+		captured.state.filterConfigs = {};
 		captured.state.skeletonHidden = true;
 		contextRef.current = { filterKey: 'category', wrapperHidden: true };
 	} );
@@ -412,6 +413,19 @@ describe( 'syncFilterWrapperVisibility callback', () => {
 		captured.state.aggregations = { category: { buckets: [] } };
 		captured.state.retainedFilterOptions = {};
 		captured.state.activeFilters = {};
+		run();
+		expect( contextRef.current.wrapperHidden ).toBe( true );
+	} );
+
+	it( 'hides the date-filter wrapper when buckets are empty even with an active selection', () => {
+		// dateFilterItems doesn't render selected values that aren't in the
+		// current aggregation, so an active date selection alone shouldn't
+		// keep an otherwise-empty wrapper visible — the active-filters pills
+		// are the affordance for removing the selection in that state.
+		contextRef.current = { filterKey: 'post_date', wrapperHidden: false };
+		captured.state.filterConfigs = { post_date: { filterType: 'date' } };
+		captured.state.aggregations = { post_date: { buckets: [] } };
+		captured.state.activeFilters = { post_date: [ '2023-01-01' ] };
 		run();
 		expect( contextRef.current.wrapperHidden ).toBe( true );
 	} );
