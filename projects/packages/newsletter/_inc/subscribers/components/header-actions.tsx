@@ -51,7 +51,7 @@ export default function HeaderActions( { blogId, onAddSubscribers }: Props ): JS
 							const url = blogId ? getCsvDownloadUrl( blogId ) : null;
 							if ( url ) {
 								recordTracksEvent( 'jetpack_subscribers_export_downloaded' );
-								window.open( url, '_blank' );
+								window.open( url, '_blank', 'noopener,noreferrer' );
 							}
 						},
 						isDisabled: ! blogId,
