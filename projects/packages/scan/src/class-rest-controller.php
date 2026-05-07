@@ -93,7 +93,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'post_threat_ignore' ),
-				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check_user' ),
 				'args'                => array(
 					'id' => array(
 						'type'              => 'string',
@@ -110,7 +110,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'post_threat_unignore' ),
-				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check_user' ),
 				'args'                => array(
 					'id' => array(
 						'type'              => 'string',
@@ -127,7 +127,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'post_threats_fix' ),
-				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check_user' ),
 				'args'                => array(
 					'threat_ids' => array(
 						'type'     => 'array',
@@ -146,7 +146,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'post_scan_enqueue' ),
-				'permission_callback' => array( __CLASS__, 'permissions_check' ),
+				'permission_callback' => array( __CLASS__, 'permissions_check_user' ),
 			)
 		);
 
