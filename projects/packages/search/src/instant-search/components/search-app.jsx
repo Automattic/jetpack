@@ -74,6 +74,8 @@ class SearchApp extends Component {
 			aiExtendedLoadingText: '',
 			// Which answer the panel is currently showing
 			aiShowExtended: false,
+			// Session ID returned by the brief request, reused for the extended request
+			aiSessionId: null,
 		};
 
 		this.getResults = debounce( this.getResults, 200 );
@@ -268,14 +270,25 @@ class SearchApp extends Component {
 	 * Stream a single AI answer request and write results into the given state slice.
 	 *
 	 * @param {object}          args             - Arguments.
-	 * @param {string}          args.agentId     - The AI agent workflow ID to call.
 	 * @param {AbortController} args.controller  - AbortController for this request.
 	 * @param {string}          args.statePrefix - 'aiBrief' or 'aiExtended'.
 	 * @param {string}          args.query       - The search query.
 	 * @param {string}          args.siteId      - The site ID.
 	 * @param {object}          args.options     - The server options object.
+	 * @param {string}          args.format      - 'brief' or 'extended'.
+	 * @param {string|null}     args.sessionId   - Session ID from the brief request, for extended.
+	 * @param {Function|null}   args.onSessionId - Callback invoked with the session ID when received.
 	 */
-	streamAiAnswer = ( { agentId, controller, statePrefix, query, siteId, options } ) => {
+	streamAiAnswer = ( {
+		controller,
+		statePrefix,
+		query,
+		siteId,
+		options,
+		format,
+		sessionId = null,
+		onSessionId = null,
+	} ) => {
 		const keys = {
 			status: statePrefix + 'Status',
 			text: statePrefix + 'Text',
@@ -290,7 +303,8 @@ class SearchApp extends Component {
 			[ keys.error ]: null,
 		} );
 
-		const url = `https://public-api.wordpress.com/wpcom/v2/ai/agent/${ agentId }`;
+		const url =
+			'https://public-api.wordpress.com/wpcom/v2/ai/agent/jetpack-workflow-search_summarizer';
 
 		const HTTP_STATUS_NAMES = {
 			400: 'Bad Request',
@@ -314,10 +328,11 @@ class SearchApp extends Component {
 			},
 			body: JSON.stringify( {
 				jsonrpc: '2.0',
-				id: `req-${ Date.now() }`,
+				id: `req-${ format }`,
 				method: 'message/stream',
 				constructor_arguments: {},
 				params: {
+					...( sessionId ? { sessionId } : {} ),
 					message: {
 						role: 'user',
 						parts: [
@@ -330,13 +345,14 @@ class SearchApp extends Component {
 										site_url: options.homeUrl || '',
 										filters: this.props.filters,
 										locale: options.locale || 'en',
+										aiAnswersFormat: format,
 									},
 								},
 								metadata: {},
 							},
 						],
 						kind: 'message',
-						messageId: `msg-${ Date.now() }`,
+						messageId: `msg-${ format }`,
 					},
 				},
 				tokenStreaming: true,
@@ -355,6 +371,9 @@ class SearchApp extends Component {
 			onmessage: event => {
 				try {
 					const data = JSON.parse( event.data );
+					if ( data.result?.sessionId && onSessionId ) {
+						onSessionId( data.result.sessionId );
+					}
 					if ( data.method === 'message/delta' && data.params?.delta?.deltaType === 'content' ) {
 						// flushSync forces a synchronous render for each token so the
 						// text streams visibly rather than batching into one update
@@ -422,6 +441,7 @@ class SearchApp extends Component {
 			aiExtendedError: null,
 			aiExtendedLoadingText: '',
 			aiShowExtended: false,
+			aiSessionId: null,
 		};
 
 		if ( ! query || query.length < 3 ) {
@@ -448,12 +468,13 @@ class SearchApp extends Component {
 		this.setState( { aiShowExtended: false } );
 
 		this.streamAiAnswer( {
-			agentId: 'jetpack-workflow-search_brief_summarizer',
 			controller: this.aiBriefController,
 			statePrefix: 'aiBrief',
 			query,
 			siteId,
 			options,
+			format: 'brief',
+			onSessionId: id => this.setState( { aiSessionId: id } ),
 		} );
 	};
 
@@ -488,12 +509,13 @@ class SearchApp extends Component {
 		this.aiExtendedController = new AbortController();
 		this.setState( { aiShowExtended: true, aiExtendedLoadingText } );
 		this.streamAiAnswer( {
-			agentId: 'jetpack-workflow-search_summarizer',
 			controller: this.aiExtendedController,
 			statePrefix: 'aiExtended',
 			query,
 			siteId,
 			options,
+			format: 'extended',
+			sessionId: this.state.aiSessionId,
 		} );
 	};
 
