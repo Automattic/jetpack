@@ -489,10 +489,10 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div
 				class="bw-content<?php echo $edit_content ? '' : ' bw-is-empty'; ?>"
 				contenteditable="true"
-				role="textbox"
-				aria-multiline="true"
+				role="combobox"
 				aria-label="<?php echo esc_attr__( 'Post content', 'jetpack-mu-wpcom' ); ?>"
 				aria-autocomplete="list"
+				aria-haspopup="listbox"
 				aria-expanded="false"
 				aria-controls="bw-slash-menu"
 				data-wp-bind--aria-expanded="state.showSlashMenu"
