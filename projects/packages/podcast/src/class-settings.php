@@ -90,117 +90,105 @@ class Settings {
 		}
 		self::$registered = true;
 
-		add_action( 'init', array( __CLASS__, 'register_settings' ) );
+		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_settings' ) );
 	}
 
 	/**
-	 * `register_setting()` loop. Hooked on both `init` and `rest_api_init` so
-	 * the schema is in place whether the request is an admin page load or a
-	 * direct REST hit. `register_setting()` is idempotent — duplicate calls
-	 * just overwrite the prior args with the same args.
+	 * `register_setting()` calls. Hooked on `admin_init` and `rest_api_init`
+	 * so the schema is in place for whichever request type is firing — and
+	 * skipped on front-end pageviews where the registration isn't needed.
+	 * `register_setting()` is idempotent.
 	 */
 	public static function register_settings() {
-		foreach ( self::schema() as $option_name => $config ) {
+		// Plain options: name, type, default, sanitize_callback. WP infers
+		// the REST schema from `type` when `show_in_rest` is `true`.
+		$simple = array(
+			array( 'podcasting_category_id', 'integer', 0, 'absint' ),
+			array( 'podcasting_image_id', 'integer', 0, 'absint' ),
+			array( 'podcasting_title', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_talent_name', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_summary', 'string', '', 'sanitize_textarea_field' ),
+			array( 'podcasting_copyright', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_category_1', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_category_2', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_category_3', 'string', '', 'sanitize_text_field' ),
+			array( 'podcasting_email', 'string', '', 'sanitize_email' ),
+		);
+
+		foreach ( $simple as list( $name, $type, $default, $sanitize ) ) {
 			register_setting(
 				self::OPTION_GROUP,
-				$option_name,
+				$name,
 				array(
-					'type'              => $config['type'],
-					'default'           => $config['default'],
-					'sanitize_callback' => $config['sanitize_callback'],
-					'show_in_rest'      => array(
-						'schema' => $config['rest_schema'],
-					),
+					'type'              => $type,
+					'default'           => $default,
+					'sanitize_callback' => $sanitize,
+					'show_in_rest'      => true,
 				)
 			);
 		}
-	}
 
-	/**
-	 * Canonical option definitions. Each entry drives both `register_setting()`
-	 * and the REST schema exposed at `/wp/v2/settings`.
-	 *
-	 * @return array<string, array{type:string,default:mixed,sanitize_callback:callable|string,rest_schema:array<string,mixed>}>
-	 */
-	private static function schema() {
-		$string_option = static function ( $sanitize = 'sanitize_text_field' ) {
-			return array(
-				'type'              => 'string',
-				'default'           => '',
-				'sanitize_callback' => $sanitize,
-				'rest_schema'       => array(
-					'type'    => 'string',
-					'default' => '',
-				),
-			);
-		};
-
-		$int_option = array(
-			'type'              => 'integer',
-			'default'           => 0,
-			'sanitize_callback' => 'absint',
-			'rest_schema'       => array(
-				'type'    => 'integer',
-				'default' => 0,
-			),
-		);
-
-		return array(
-			'podcasting_category_id' => $int_option,
-			'podcasting_image_id'    => $int_option,
-
-			'podcasting_title'       => $string_option(),
-			'podcasting_talent_name' => $string_option(),
-			'podcasting_summary'     => $string_option( 'sanitize_textarea_field' ),
-			'podcasting_copyright'   => $string_option(),
-			'podcasting_category_1'  => $string_option(),
-			'podcasting_category_2'  => $string_option(),
-			'podcasting_category_3'  => $string_option(),
-			'podcasting_email'       => $string_option( 'sanitize_email' ),
-
-			'podcasting_image'       => array(
+		register_setting(
+			self::OPTION_GROUP,
+			'podcasting_image',
+			array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
-				'rest_schema'       => array(
-					'type'    => 'string',
-					'default' => '',
-					'format'  => 'uri',
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'    => 'string',
+						'default' => '',
+						'format'  => 'uri',
+					),
 				),
-			),
+			)
+		);
 
-			'podcasting_explicit'    => array(
+		register_setting(
+			self::OPTION_GROUP,
+			'podcasting_explicit',
+			array(
 				'type'              => 'boolean',
 				'default'           => false,
 				'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
-				'rest_schema'       => array(
-					'type'    => 'boolean',
-					'default' => false,
-				),
-			),
+				'show_in_rest'      => true,
+			)
+		);
 
-			'podcasting_show_urls'   => array(
+		register_setting(
+			self::OPTION_GROUP,
+			'podcasting_show_urls',
+			array(
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_urls' ),
-				'rest_schema'       => array(
-					'type'       => 'object',
-					'default'    => self::empty_podcatcher_map(),
-					'properties' => self::show_urls_properties_schema(),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'       => 'object',
+						'default'    => self::empty_podcatcher_map(),
+						'properties' => self::show_urls_properties_schema(),
+					),
 				),
-			),
+			)
+		);
 
-			'podcasting_show_states' => array(
+		register_setting(
+			self::OPTION_GROUP,
+			'podcasting_show_states',
+			array(
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_states' ),
-				'rest_schema'       => array(
-					'type'       => 'object',
-					'default'    => self::empty_podcatcher_map(),
-					'properties' => self::show_states_properties_schema(),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'       => 'object',
+						'default'    => self::empty_podcatcher_map(),
+						'properties' => self::show_states_properties_schema(),
+					),
 				),
-			),
+			)
 		);
 	}
 
