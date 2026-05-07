@@ -118,11 +118,14 @@ export function useRenderMessageItems(): RenderItem[] {
 
 	const items = useMemo< RenderItem[] >( () => {
 		return connections.map( connection => {
-			const message = ( connection.message ?? globalMessage ?? '' ).trim();
+			const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
+			const raw = hasConnectionMessage
+				? connection.message ?? ''
+				: connection.template ?? globalMessage ?? '';
 			return {
 				id: connection.connection_id,
 				network: connection.service_name ?? '',
-				message,
+				message: raw.trim(),
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
