@@ -21,7 +21,10 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 		{
 			id: null,
 			label: __( 'Default', 'jetpack-publicize-pkg' ),
-			description: __( "You are using the post's link preview image.", 'jetpack-publicize-pkg' ),
+			description: __(
+				"You are using the post's Open Graph image for the link preview.",
+				'jetpack-publicize-pkg'
+			),
 			icon: link,
 			group: 'link-preview',
 		},
@@ -94,11 +97,23 @@ export function getMediaSourceDescription(
 	}
 
 	/*
-	 * Default mode (sourceType === null) relies on the post-level OG image. If neither SIG
-	 * is globally enabled nor a featured image exists, there is no link preview image to
-	 * inherit, so warn the user instead of promising one.
+	 * Default mode (sourceType === null): describe what the link preview will actually
+	 * resolve to, mirroring the OG resolution priority — SIG (if globally enabled) →
+	 * featured image → no image.
 	 */
-	if ( sourceType === null && context && ! context.sigEnabled && ! context.featuredImageId ) {
+	if ( sourceType === null ) {
+		if ( context?.sigEnabled ) {
+			return __(
+				'You are using the social image template for the link preview.',
+				'jetpack-publicize-pkg'
+			);
+		}
+		if ( context?.featuredImageId ) {
+			return __(
+				'You are using the featured image for the link preview.',
+				'jetpack-publicize-pkg'
+			);
+		}
 		return noImageMessage;
 	}
 

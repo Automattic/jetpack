@@ -20,15 +20,21 @@ jest.mock( '../../../utils', () => ( {
 } ) );
 
 describe( 'getMediaSourceDescription', () => {
-	it( 'should return Default description when sourceType is null and a featured image exists', () => {
+	it( 'should describe Default as featured image when sourceType is null and a featured image exists', () => {
 		expect( getMediaSourceDescription( null, { featuredImageId: 123 } ) ).toBe(
-			"You are using the post's link preview image."
+			'You are using the featured image for the link preview.'
 		);
 	} );
 
-	it( 'should return Default description when sourceType is null and SIG is enabled globally', () => {
+	it( 'should describe Default as social image template when sourceType is null and SIG is enabled', () => {
 		expect( getMediaSourceDescription( null, { sigEnabled: true } ) ).toBe(
-			"You are using the post's link preview image."
+			'You are using the social image template for the link preview.'
+		);
+	} );
+
+	it( 'should prefer SIG over featured image when both are available in Default mode', () => {
+		expect( getMediaSourceDescription( null, { sigEnabled: true, featuredImageId: 123 } ) ).toBe(
+			'You are using the social image template for the link preview.'
 		);
 	} );
 
