@@ -86,6 +86,30 @@ class Settings {
 	const SHOW_STATES = array( 'pending', 'active' );
 
 	/**
+	 * Canonical list of every option this class manages. Drives the Jetpack
+	 * Sync opt-in (`add_to_sync_whitelist()`) and serves as a drift-detection
+	 * anchor against `register_settings()`.
+	 *
+	 * @var string[]
+	 */
+	const OPTION_NAMES = array(
+		'podcasting_category_id',
+		'podcasting_title',
+		'podcasting_talent_name',
+		'podcasting_summary',
+		'podcasting_copyright',
+		'podcasting_explicit',
+		'podcasting_image',
+		'podcasting_image_id',
+		'podcasting_category_1',
+		'podcasting_category_2',
+		'podcasting_category_3',
+		'podcasting_email',
+		'podcasting_show_urls',
+		'podcasting_show_states',
+	);
+
+	/**
 	 * Whether `register()` has wired its hooks.
 	 *
 	 * @var bool
@@ -93,8 +117,8 @@ class Settings {
 	private static $registered = false;
 
 	/**
-	 * Wire the option registrations. Idempotent; safe to call from
-	 * `Podcast::init()` regardless of which hook is firing.
+	 * Wire the option registrations and the Jetpack Sync opt-in. Idempotent;
+	 * safe to call from `Podcast::init()` regardless of which hook is firing.
 	 */
 	public static function register() {
 		if ( self::$registered ) {
@@ -104,6 +128,14 @@ class Settings {
 
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_settings' ) );
+
+		// Opt the `podcasting_*` options into Jetpack Sync so values flow from
+		// Atomic to WPCOM (where stats / distribution / future cross-site
+		// features can read them). No-op on Simple — sync sender doesn't run
+		// there. Gated implicitly: this hook only fires when `register()` is
+		// called, which only happens after `Podcast::init()`'s untangle filter
+		// passes.
+		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'add_to_sync_whitelist' ) );
 	}
 
 	/**
@@ -244,6 +276,16 @@ class Settings {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Merge the `podcasting_*` options into the Jetpack Sync options whitelist.
+	 *
+	 * @param array $options Existing whitelist from `jetpack_sync_options_whitelist`.
+	 * @return array
+	 */
+	public static function add_to_sync_whitelist( $options ) {
+		return array_merge( (array) $options, self::OPTION_NAMES );
 	}
 
 	/**

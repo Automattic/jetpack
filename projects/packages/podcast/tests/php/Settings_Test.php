@@ -51,6 +51,52 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * `add_to_sync_whitelist()` merges every `podcasting_*` option into the
+	 * sync options whitelist so values flow from Atomic to WPCOM.
+	 */
+	public function test_add_to_sync_whitelist_includes_every_option() {
+		$result = Settings::add_to_sync_whitelist( array() );
+
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$this->assertContains( $name, $result, "$name should be in the sync whitelist" );
+		}
+	}
+
+	/**
+	 * The sync whitelist filter must preserve existing entries — it appends,
+	 * never replaces.
+	 */
+	public function test_add_to_sync_whitelist_preserves_existing_entries() {
+		$result = Settings::add_to_sync_whitelist( array( 'siteurl', 'blogname' ) );
+
+		$this->assertContains( 'siteurl', $result );
+		$this->assertContains( 'blogname', $result );
+	}
+
+	/**
+	 * `OPTION_NAMES` is the canonical list driving sync opt-in. It must stay
+	 * aligned with the options actually registered in `register_settings()`,
+	 * or sync and the registered schema will drift apart silently.
+	 */
+	public function test_option_names_constant_matches_registered_settings() {
+		Settings::register_settings();
+
+		$registered_podcast_options = array_filter(
+			array_keys( get_registered_settings() ),
+			static function ( $name ) {
+				return 0 === strpos( $name, 'podcasting_' );
+			}
+		);
+
+		$expected = Settings::OPTION_NAMES;
+		sort( $expected );
+		$actual = array_values( $registered_podcast_options );
+		sort( $actual );
+
+		$this->assertSame( $expected, $actual );
+	}
+
+	/**
 	 * `sanitize_explicit` returns a boolean. Booleans pass through; legacy
 	 * `'yes'` strings (including any case) become true; legacy `'no'` and
 	 * `'clean'` — and anything else — become false.
