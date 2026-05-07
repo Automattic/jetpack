@@ -24,15 +24,25 @@ namespace Automattic\Jetpack\Podcast;
 class Settings {
 
 	/**
-	 * Settings group passed to `register_setting()`. Matches the legacy WPCOM
-	 * `Automattic_Podcasting` group so the Media Settings page form keeps
-	 * accepting these options during the untangle transition — WPCOM's UI
-	 * (and `register_setting('media', ...)`) still runs alongside the SPA
-	 * until the legacy code is removed in a later step.
+	 * Settings group for the options that have UI fields on the legacy
+	 * Media Settings page — matches `register_setting('media', ...)` in
+	 * WPCOM's `Automattic_Podcasting` so that legacy form keeps accepting
+	 * these during the untangle transition.
 	 *
 	 * @var string
 	 */
-	const OPTION_GROUP = 'media';
+	const MEDIA_GROUP = 'media';
+
+	/**
+	 * Settings group for the options that are *not* on the Media Settings
+	 * page — `email`, `image_id`, `show_urls`, `show_states`. WPCOM exposes
+	 * these via its `site_settings_endpoint_get` filter (REST-only, no WP
+	 * Settings API registration), so we use the generic `'options'` group
+	 * here to avoid falsely claiming they belong to Media.
+	 *
+	 * @var string
+	 */
+	const OPTIONS_GROUP = 'options';
 
 	/**
 	 * Hostname allowlist per podcatcher for `podcasting_show_urls` entries.
@@ -103,11 +113,10 @@ class Settings {
 	 * `register_setting()` is idempotent.
 	 */
 	public static function register_settings() {
-		// Plain options: name, type, default, sanitize_callback. WP infers
-		// the REST schema from `type` when `show_in_rest` is `true`.
-		$simple = array(
+		// Settings that have UI fields on the legacy Media Settings page.
+		// Group is `MEDIA_GROUP` to match WPCOM's `register_setting('media', ...)`.
+		$media_settings = array(
 			array( 'podcasting_category_id', 'integer', 0, 'absint' ),
-			array( 'podcasting_image_id', 'integer', 0, 'absint' ),
 			array( 'podcasting_title', 'string', '', 'sanitize_text_field' ),
 			array( 'podcasting_talent_name', 'string', '', 'sanitize_text_field' ),
 			array( 'podcasting_summary', 'string', '', 'sanitize_textarea_field' ),
@@ -115,12 +124,11 @@ class Settings {
 			array( 'podcasting_category_1', 'string', '', 'sanitize_text_field' ),
 			array( 'podcasting_category_2', 'string', '', 'sanitize_text_field' ),
 			array( 'podcasting_category_3', 'string', '', 'sanitize_text_field' ),
-			array( 'podcasting_email', 'string', '', 'sanitize_email' ),
 		);
 
-		foreach ( $simple as list( $name, $type, $default, $sanitize ) ) {
+		foreach ( $media_settings as list( $name, $type, $default, $sanitize ) ) {
 			register_setting(
-				self::OPTION_GROUP,
+				self::MEDIA_GROUP,
 				$name,
 				array(
 					'type'              => $type,
@@ -132,7 +140,7 @@ class Settings {
 		}
 
 		register_setting(
-			self::OPTION_GROUP,
+			self::MEDIA_GROUP,
 			'podcasting_image',
 			array(
 				'type'              => 'string',
@@ -149,12 +157,37 @@ class Settings {
 		);
 
 		register_setting(
-			self::OPTION_GROUP,
+			self::MEDIA_GROUP,
 			'podcasting_explicit',
 			array(
 				'type'              => 'boolean',
 				'default'           => false,
 				'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
+				'show_in_rest'      => true,
+			)
+		);
+
+		// Plain options that WPCOM doesn't put on the Media Settings page —
+		// only exposed REST-side via WPCOM's site-settings filter on Simple,
+		// or here via `OPTIONS_GROUP` + `show_in_rest` on Atomic.
+		register_setting(
+			self::OPTIONS_GROUP,
+			'podcasting_email',
+			array(
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_email',
+				'show_in_rest'      => true,
+			)
+		);
+
+		register_setting(
+			self::OPTIONS_GROUP,
+			'podcasting_image_id',
+			array(
+				'type'              => 'integer',
+				'default'           => 0,
+				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
 			)
 		);
@@ -166,7 +199,7 @@ class Settings {
 		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
 
 		register_setting(
-			self::OPTION_GROUP,
+			self::OPTIONS_GROUP,
 			'podcasting_show_urls',
 			array(
 				'type'              => 'object',
@@ -190,7 +223,7 @@ class Settings {
 		);
 
 		register_setting(
-			self::OPTION_GROUP,
+			self::OPTIONS_GROUP,
 			'podcasting_show_states',
 			array(
 				'type'              => 'object',
