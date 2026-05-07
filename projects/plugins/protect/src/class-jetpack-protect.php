@@ -65,6 +65,13 @@ class Jetpack_Protect {
 	const JETPACK_PROTECT_ACTIVATION_OPTION          = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
+	 * PHP-side feature flag for the Stage 1 Protect Scan v2 rollout.
+	 * Setting this to `true` (e.g. via `wp-config.php`) makes /scan
+	 * mount the new dataviews-based UI by default. Defaults to `false`.
+	 */
+	const SCAN_V2_CONSTANT = 'JETPACK_PROTECT_SCAN_V2';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -221,6 +228,7 @@ class Jetpack_Protect {
 		$initial_state = array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
+			'scanV2Enabled'      => defined( self::SCAN_V2_CONSTANT ) && constant( self::SCAN_V2_CONSTANT ) === true,
 			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'credentials'        => Credentials::get_credential_array(),
 			'status'             => $status,
