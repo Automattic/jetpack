@@ -6,20 +6,8 @@ import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useIgnoreThreatMutation } from '../data/use-threat-mutations';
 import { useTrackEvent } from '../data/use-track-event';
+import type { RenderModalProps } from './types';
 import type { Threat } from '../data/types';
-
-/**
- * Local mirror of `@wordpress/dataviews`' `RenderModalProps` shape. The
- * Protect plugin doesn't depend on `@wordpress/dataviews` directly —
- * `ThreatsDataViews` from `@automattic/jetpack-scan` owns that
- * dependency and supplies these props at render time. Inlining the
- * shape keeps Protect's plugin-level deps lean.
- */
-interface RenderModalProps< Item > {
-	items: Item[];
-	closeModal?: () => void;
-	onActionPerformed?: ( items: Item[] ) => void;
-}
 
 /**
  * Single-threat ignore-confirmation modal — wired into `ThreatsDataViews`'

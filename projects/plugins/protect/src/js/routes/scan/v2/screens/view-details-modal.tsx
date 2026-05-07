@@ -2,19 +2,7 @@ import { ThreatSeverityBadge, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-
-/**
- * Local mirror of `@wordpress/dataviews`' `RenderModalProps` shape. The
- * Protect plugin doesn't depend on `@wordpress/dataviews` directly —
- * `ThreatsDataViews` from `@automattic/jetpack-scan` owns that
- * dependency and supplies these props at render time. Inlining the
- * shape keeps Protect's plugin-level deps lean.
- */
-interface RenderModalProps< Item > {
-	items: Item[];
-	closeModal?: () => void;
-	onActionPerformed?: ( items: Item[] ) => void;
-}
+import type { RenderModalProps } from './types';
 
 const codeBlockStyle = {
 	backgroundColor: 'var(--wpds-color-bg-surface-neutral-weak, #f6f7f7)',
