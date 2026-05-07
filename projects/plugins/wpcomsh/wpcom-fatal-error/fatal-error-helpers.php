@@ -149,10 +149,10 @@ function wpcomsh_fatal_log_deactivate( $plugin_basename ) {
  * @return array{kind:string,path:string,method:string}
  */
 function wpcomsh_fatal_request_context() {
-	$req_uri  = wp_unslash( $_SERVER['REQUEST_URI'] ?? '' );
+	$req_uri  = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
 	$raw_path = (string) wp_parse_url( $req_uri, PHP_URL_PATH );
 	$path     = rtrim( $raw_path, '/' );
-	$method   = strtoupper( (string) ( $_SERVER['REQUEST_METHOD'] ?? '' ) );
+	$method   = strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) );
 
 	$kind = 'other';
 	if ( ( defined( 'DOING_CRON' ) && DOING_CRON ) || str_ends_with( $path, '/wp-cron.php' ) ) {

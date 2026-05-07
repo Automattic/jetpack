@@ -33,27 +33,18 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
 
 	// Identify only when used: admins need $plugin for the rendered
-	// notice; the anonymous path identifies once per (file, 1-hour) for
-	// telemetry. Signature-level dedup downstream catches duplicates
-	// this gate misses.
+	// notice; anonymous viewers don't render plugin info but still emit
+	// a signature event for telemetry. Volume is bounded downstream by
+	// wpcomsh_fatal_log_event's (message, signature, request_kind) dedup,
+	// so a coarser file-keyed gate here would only collapse kind variance
+	// (the very signal the row is meant to surface).
 	$plugin = null;
 
 	if ( $is_admin ) {
 		$plugin = wpcomsh_fatal_identify_plugin( $error );
 		wpcomsh_fatal_log_event( $plugin, 'wpcomsh_fatal_signature' );
 	} elseif ( ! empty( $error['file'] ) ) {
-		$coarse_key = 'wpcomsh_fatal_file:' . hash( 'sha256', (string) $error['file'] );
-		$do_log     = true;
-
-		try {
-			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', HOUR_IN_SECONDS );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not silence telemetry.
-			// Fail open.
-		}
-
-		if ( $do_log ) {
-			wpcomsh_fatal_log_event( wpcomsh_fatal_identify_plugin( $error ), 'wpcomsh_fatal_signature' );
-		}
+		wpcomsh_fatal_log_event( wpcomsh_fatal_identify_plugin( $error ), 'wpcomsh_fatal_signature' );
 	}
 
 	$context = wpcomsh_fatal_build_render_context( $error, $plugin, $user_id, $is_admin );
