@@ -1771,6 +1771,7 @@ class Search extends Module {
 		'jetpack_search_enable_sort',
 		'jetpack_search_inf_scroll',
 		'jetpack_search_show_powered_by',
+		'jetpack_search_experience',
 		'instant_search_enabled',
 	); // end options.
 

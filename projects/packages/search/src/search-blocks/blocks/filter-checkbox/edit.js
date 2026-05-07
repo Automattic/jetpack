@@ -1,5 +1,5 @@
 /**
- * Editor preview for jetpack/filter-checkbox.
+ * Editor preview for jetpack-search/filter-checkbox.
  *
  * Shows a labeled list of sample checkbox options mirroring the runtime DOM
  * shape so designers can style the filter list in place. The inspector

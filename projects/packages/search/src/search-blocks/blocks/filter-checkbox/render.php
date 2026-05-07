@@ -42,31 +42,7 @@ wp_interactivity_state(
 	)
 );
 
-$view = Search_Blocks::pre_hydration_filter_view( $filter_key );
-
-// `allBucketsSelected` first-paint mirror: read the same seeded buckets +
-// activeFilters the JS getter consults so the list and the fallback message
-// come out pre-hidden in the right state and don't flicker on hydration.
-// `aggregations` is seeded as `stdClass` when empty — cast before subscripting.
-$seeded_state          = wp_interactivity_state( 'jetpack-search' );
-$seeded_aggs           = (array) ( $seeded_state['aggregations'] ?? array() );
-$seeded_buckets        = (array) ( $seeded_aggs[ $filter_key ]['buckets'] ?? array() );
-$seeded_active_filters = (array) ( $seeded_state['activeFilters'] ?? array() );
-$seeded_selected       = (array) ( $seeded_active_filters[ $filter_key ] ?? array() );
-$all_selected_on_paint = false;
-if ( $view['has_buckets'] && ! empty( $seeded_selected ) ) {
-	$all_selected_on_paint = true;
-	foreach ( $seeded_buckets as $bucket ) {
-		$raw_key   = (string) ( $bucket['key'] ?? '' );
-		$slash_idx = strpos( $raw_key, '/' );
-		$value     = false === $slash_idx ? $raw_key : substr( $raw_key, 0, $slash_idx );
-		if ( ! in_array( $value, $seeded_selected, true ) ) {
-			$all_selected_on_paint = false;
-			break;
-		}
-	}
-}
-
+$view  = Search_Blocks::pre_hydration_filter_view( $filter_key );
 $label = $config['label'];
 ?>
 <div
@@ -85,11 +61,7 @@ $label = $config['label'];
 		require __DIR__ . '/../filter-skeleton-partial.php';
 	}
 	?>
-	<ul
-		class="jetpack-search-filter__list"
-		data-wp-bind--hidden="state.allBucketsSelected"
-		<?php echo $all_selected_on_paint ? 'hidden' : ''; ?>
-	>
+	<ul class="jetpack-search-filter__list">
 		<template
 			data-wp-each--item="state.filterItems"
 			data-wp-each-key="context.item.value"
@@ -101,6 +73,7 @@ $label = $config['label'];
 					<input
 						type="checkbox"
 						data-wp-bind--value="context.item.value"
+						data-wp-bind--checked="context.item.checked"
 						data-wp-on--change="actions.onFilterChange"
 					/>
 					<span
@@ -116,11 +89,4 @@ $label = $config['label'];
 			</li>
 		</template>
 	</ul>
-	<p
-		class="jetpack-search-filter__all-selected"
-		data-wp-bind--hidden="!state.allBucketsSelected"
-		<?php echo $all_selected_on_paint ? '' : 'hidden'; ?>
-	>
-		<?php esc_html_e( 'All filters applied', 'jetpack-search-pkg' ); ?>
-	</p>
 </div>

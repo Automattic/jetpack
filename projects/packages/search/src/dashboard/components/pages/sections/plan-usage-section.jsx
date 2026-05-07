@@ -1,7 +1,7 @@
 import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useState, useCallback, useMemo } from 'react';
 import DonutMeterContainer, { formatNumber } from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
@@ -405,7 +405,8 @@ const AboutPlanLimits = () => {
 				),
 				{
 					jpPlanLimits: (
-						<ExternalLink
+						<Link
+							openInNewTab
 							href="https://jetpack.com/support/search/"
 							rel="noopener noreferrer"
 							target="_blank"

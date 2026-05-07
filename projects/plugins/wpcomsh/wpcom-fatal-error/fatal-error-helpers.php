@@ -134,17 +134,10 @@ function wpcomsh_fatal_log_deactivate( $plugin_basename ) {
 }
 
 /**
- * Emit a fatal-error event for an identified extension via
- * `wpcomsh_fatal_emit_logstash_event()`, alongside the decoded signature
- * parts so consumers don't have to decode the signature themselves.
- *
- * Callable from both the fatal-screen render path and the deactivator
- * endpoint at mu-plugin load time. The deactivator path runs before
- * constants.php, so the helper resolves the wpcomsh root via
- * `dirname(__DIR__)` rather than WPCOMSH__PLUGIN_DIR_PATH.
- *
- * Best-effort: silently no-ops if dependencies are unreachable. A logging
- * failure must never escalate into a second fatal.
+ * Emit a fatal-error event keyed on a suspected extension. Builds the
+ * signature, dedups per (message, signature) for 1 hour, and routes
+ * through `wpcomsh_fatal_emit_logstash` so the recovery-login event can
+ * share the same dispatch tail.
  *
  * @param array|null $plugin  Extension metadata from wpcomsh_fatal_identify_plugin().
  * @param string     $message Event message slug (e.g. `wpcomsh_fatal_signature`, `wpcomsh_fatal_deactivate`).
@@ -179,7 +172,10 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 	// Dedup per (message, signature) for 1 hour so a persistent fatal doesn't
 	// emit one log row + one outbound HTTP per visitor. $message is part of
 	// the key so a deactivate event isn't suppressed by a recent signature
-	// event for the same extension.
+	// event for the same extension. The TTL stays short of core's 24h
+	// `recovery_mode_email_rate_limit` so a legitimate re-send — e.g. the
+	// admin exits recovery mode and the site fatals again — surfaces rather
+	// than getting silently swallowed.
 	if ( ! wpcomsh_fatal_dedup_acquire( 'wpcomsh_fatal_event:' . hash( 'sha256', $message . '|' . $signature ), HOUR_IN_SECONDS ) ) {
 		return;
 	}
@@ -199,30 +195,29 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 		}
 	}
 
-	wpcomsh_fatal_emit_logstash_event( $message, $properties );
+	wpcomsh_fatal_emit_logstash( $message, $properties );
 }
 
 /**
  * Dispatch a fatal-flow event to the `atomic_extension_conflict` logstash
- * bucket, merging in shared site identifiers (`site_url`, `atomic_site_id`)
- * and loading WPCOMSH_Log on demand.
+ * bucket, after merging in the shared site identifiers (`site_url`,
+ * `atomic_site_id`) callers always want attached.
  *
- * Manual require with `class_exists( …, false )` skips the autoloader during
- * fatal handling, where its filesystem reads could compound a bad state.
+ * Manual require with `class_exists( …, false )` skips the autoloader
+ * during fatal handling, where its filesystem reads could compound a bad
+ * state. Resolves the wpcomsh root via `dirname(__DIR__)` so the
+ * deactivator endpoint can call this at mu-plugin file-load time, before
+ * constants.php has run.
  *
- * Both the per-extension event path (`wpcomsh_fatal_log_event`) and the
- * recovery-redirect endpoint funnel through here so the shared bucket /
- * severity / site identifiers stay in one place. Caller-supplied
- * properties win on key collision.
+ * Best-effort: silently no-ops when WPCOMSH_Log is unreachable, and never
+ * lets a dispatch failure bubble out — telemetry must not escalate a
+ * recovery flow into a second fatal.
  *
- * Best-effort: silently no-ops if WPCOMSH_Log is unreachable, and never lets
- * a dispatch failure bubble out.
- *
- * @param string               $message    Event message slug.
- * @param array<string,scalar> $properties Event-specific properties merged ahead of site identifiers.
+ * @param string                    $message    Event message slug.
+ * @param array<string,scalar|null> $properties Event-specific properties; site_url + atomic_site_id are added when missing.
  * @return void
  */
-function wpcomsh_fatal_emit_logstash_event( $message, $properties = array() ) {
+function wpcomsh_fatal_emit_logstash( $message, $properties = array() ) {
 	if ( ! class_exists( 'WPCOMSH_Log', false ) ) {
 		$log_file = dirname( __DIR__ ) . '/class-wpcomsh-log.php';
 		if ( is_readable( $log_file ) ) {
@@ -234,8 +229,8 @@ function wpcomsh_fatal_emit_logstash_event( $message, $properties = array() ) {
 	}
 
 	// `get_site_url()` runs the `site_url` / `option_siteurl` filters, so a
-	// misbehaving filter could throw — guard so the rest of the event still
-	// makes it to logstash.
+	// misbehaving filter could throw — keep the lookup in its own guard so
+	// the rest of the event still makes it to logstash.
 	if ( ! isset( $properties['site_url'] ) ) {
 		try {
 			$properties['site_url'] = get_site_url();
@@ -248,7 +243,7 @@ function wpcomsh_fatal_emit_logstash_event( $message, $properties = array() ) {
 	// dispatch inside wpcomsh_get_atomic_site_id(). Fall back to the helper
 	// only when the constant isn't defined; guard the call because the helper
 	// runs the `wpcomsh_get_atomic_site_id` filter, and a misbehaving callback
-	// must not bubble out of this best-effort logger.
+	// must not bubble out.
 	if ( ! isset( $properties['atomic_site_id'] ) ) {
 		$atomic_site_id = defined( 'ATOMIC_SITE_ID' ) ? (int) ATOMIC_SITE_ID : 0;
 		if ( 0 === $atomic_site_id && function_exists( 'wpcomsh_get_atomic_site_id' ) ) {

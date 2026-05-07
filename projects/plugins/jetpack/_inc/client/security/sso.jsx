@@ -1,8 +1,9 @@
 import { getRedirectUrl, Gridicon } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button, ExternalLink, ToggleControl } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import * as cookie from 'cookie';
 import { useState, Component } from 'react';
 import ReactDOM from 'react-dom';
@@ -231,7 +232,8 @@ export const SSO = withModuleSettingsFormHelpers(
 													),
 													{
 														link: (
-															<ExternalLink
+															<Link
+																openInNewTab
 																href={ getRedirectUrl( 'jetpack-support-force-2fa' ) }
 															/>
 														),

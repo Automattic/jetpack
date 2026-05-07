@@ -1,7 +1,8 @@
 import { InspectorControls } from '@wordpress/block-editor';
-import { ExternalLink, PanelBody, TextControl } from '@wordpress/components';
+import { PanelBody, TextControl } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import {
 	NOTIFICATION_PROCESSING,
 	NOTIFICATION_SUCCESS,
@@ -95,9 +96,9 @@ export const MailChimpBlockControls = ( {
 						} );
 					} }
 				/>
-				<ExternalLink href="https://mailchimp.com/help/send-groups-audience/">
+				<Link openInNewTab href="https://mailchimp.com/help/send-groups-audience/">
 					{ __( 'Learn about groups', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelBody>
 			<PanelBody title={ __( 'Signup Location Tracking', 'jetpack' ) }>
 				<TextControl
@@ -116,12 +117,14 @@ export const MailChimpBlockControls = ( {
 					value={ signupFieldValue }
 					onChange={ value => setAttributes( { signupFieldValue: value } ) }
 				/>
-				<ExternalLink href="https://mailchimp.com/help/determine-webpage-signup-location/">
+				<Link openInNewTab href="https://mailchimp.com/help/determine-webpage-signup-location/">
 					{ __( 'Learn about signup location tracking', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelBody>
 			<PanelBody title={ __( 'Mailchimp Connection', 'jetpack' ) }>
-				<ExternalLink href={ connectURL }>{ __( 'Manage Connection', 'jetpack' ) }</ExternalLink>
+				<Link openInNewTab href={ connectURL }>
+					{ __( 'Manage Connection', 'jetpack' ) }
+				</Link>
 			</PanelBody>
 		</>
 	);

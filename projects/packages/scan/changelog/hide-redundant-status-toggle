@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pass `showStatusFilter={ false }` to `ThreatsDataViews` on both panels. The page-level "Active threats / History" tabs already filter the dataset by threat status, so the in-table "Active threats (N) / History (N)" toggle was duplicate UI for the same dimension.

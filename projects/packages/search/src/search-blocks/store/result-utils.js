@@ -14,6 +14,23 @@
 const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
 const ANY_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
 const STRIP_TAGS_PATTERN = /<[^>]*>/g;
+const NUMERIC_ENTITY_PATTERN = /&#(\d+);/g;
+const HEX_ENTITY_PATTERN = /&#x([0-9a-f]+);/gi;
+const NAMED_ENTITY_PATTERN = /&([a-z][a-z0-9]*);/gi;
+// Minimum entity coverage needed to render API-supplied prices/titles as plain
+// text — WPCOM hands back HTML-formatted prices like `<span>&#036;</span>11.05`
+// where `$` arrives as a numeric entity and `&nbsp;` is common between currency
+// and amount. Anything outside this map (e.g. `&copy;`) is left intact so it
+// stays visible as a question for whoever sees it, rather than silently
+// disappearing.
+const NAMED_ENTITY_MAP = {
+	amp: '&',
+	lt: '<',
+	gt: '>',
+	quot: '"',
+	apos: "'",
+	nbsp: ' ',
+};
 
 /**
  * Ensure a URL is a browser-safe http(s)/protocol-relative reference. The
@@ -88,19 +105,70 @@ export function formatPath( permalink ) {
 }
 
 /**
- * Strip HTML tags from a string. Runs the regex repeatedly until the output
- * is stable so nested tag constructions (e.g. `<<script>script>`, which a
- * single pass would leave as `<script>`) can't smuggle a tag through.
+ * Decode the small set of HTML entities the v1.3 API can place in
+ * text-rendered fields. WPCOM hands back WC-formatted prices and post titles
+ * with numeric entities (e.g. `&#036;` for `$`) and a handful of named ones
+ * (`&amp;`, `&nbsp;`); everything else is left untouched.
  *
  * @param {string} s - Input string.
- * @return {string} Input with all `<...>` tags removed.
+ * @return {string} Input with the supported entities replaced.
+ */
+export function decodeEntities( s ) {
+	if ( typeof s !== 'string' || s === '' ) {
+		return s;
+	}
+	return s
+		.replace( NUMERIC_ENTITY_PATTERN, ( _, n ) => safeFromCodePoint( Number( n ) ) )
+		.replace( HEX_ENTITY_PATTERN, ( _, h ) => safeFromCodePoint( parseInt( h, 16 ) ) )
+		.replace( NAMED_ENTITY_PATTERN, ( m, name ) => {
+			const value = NAMED_ENTITY_MAP[ name.toLowerCase() ];
+			return value === undefined ? m : value;
+		} );
+}
+
+/**
+ * `String.fromCodePoint` throws on out-of-range integers; swallow the throw so
+ * a malformed numeric entity drops the bad bytes instead of crashing the whole
+ * sanitization pass.
+ *
+ * @param {number} n - Code point.
+ * @return {string} The character, or '' if the code point is invalid.
+ */
+function safeFromCodePoint( n ) {
+	try {
+		return String.fromCodePoint( n );
+	} catch {
+		return '';
+	}
+}
+
+/**
+ * Strip HTML tags from a string and decode any HTML entities the API may have
+ * encoded around them. Runs the strip+decode pair in a loop until the output
+ * is stable so nested tag constructions (e.g. `<<script>script>`, which a
+ * single strip pass would leave as `<script>`) and entity-encoded tags
+ * (`&lt;script&gt;`, which would survive a single strip pass) can't smuggle
+ * a tag through.
+ *
+ * @param {string} s - Input string.
+ * @return {string} Input with all tags removed and supported entities decoded.
  */
 export function stripTags( s ) {
+	if ( typeof s !== 'string' || s === '' ) {
+		return s;
+	}
 	let prev;
 	let out = s;
 	do {
 		prev = out;
-		out = out.replace( STRIP_TAGS_PATTERN, '' );
+		// The strip regex on its own is "incomplete multi-character
+		// sanitization" — `<<script>script>` collapses to `<script>` after a
+		// single pass, which CodeQL flags. The loop runs the strip+decode
+		// pair until the output stabilizes, so the security guarantee holds
+		// across nested or entity-encoded tags. The `keeps stripping until
+		// the output is free of tag-like markup` test in result-utils.test.js
+		// pins this behavior.
+		out = decodeEntities( out ).replace( STRIP_TAGS_PATTERN, '' );
 	} while ( out !== prev );
 	return out;
 }
@@ -189,11 +257,19 @@ function toNumber( value ) {
  * @return {object} Product fields.
  */
 function normalizeProductFields( fields ) {
-	const formattedPrice = String( firstScalar( fields[ 'wc.formatted_price' ] ) ?? '' );
-	const formattedRegularPrice = String(
-		firstScalar( fields[ 'wc.formatted_regular_price' ] ) ?? ''
+	// WPCOM returns WC prices as HTML fragments (e.g.
+	// `<span class="woocommerce-Price-amount"><span class="…-currencySymbol">&#036;</span>11.05</span>`)
+	// because the legacy instant-search overlay renders them via
+	// `dangerouslySetInnerHTML`. Search Blocks bind these via `data-wp-text`,
+	// so the markup has to be flattened to plain text up front or the result
+	// card prints the raw `<span>` tags and `&#036;` entity to the page.
+	const formattedPrice = stripTags( String( firstScalar( fields[ 'wc.formatted_price' ] ) ?? '' ) );
+	const formattedRegularPrice = stripTags(
+		String( firstScalar( fields[ 'wc.formatted_regular_price' ] ) ?? '' )
 	);
-	const formattedSalePrice = String( firstScalar( fields[ 'wc.formatted_sale_price' ] ) ?? '' );
+	const formattedSalePrice = stripTags(
+		String( firstScalar( fields[ 'wc.formatted_sale_price' ] ) ?? '' )
+	);
 	const hasSalePrice =
 		formattedSalePrice !== '' &&
 		formattedRegularPrice !== '' &&
@@ -253,6 +329,48 @@ function buildRatingAriaLabel( rating, reviewCount ) {
 }
 
 /**
+ * Derive the match hint from the highlight object.
+ *
+ * Returns '' when the title itself carries a highlighted fragment (no badge
+ * needed), 'comments' when a comment field matched but the title didn't, or
+ * 'content' when another non-title field matched but the title didn't.
+ *
+ * Mirrors the badge logic in the instant-search `SearchResultProduct`
+ * component. The v1.3 API uses 'comment' (singular) as the comment-field key.
+ *
+ * @param {object} highlight   - `raw.highlight` from the API response.
+ * @param {Array}  titlePieces - Pre-computed title pieces from tokenizeHighlight.
+ * @return {'content'|'comments'|''} Match hint value.
+ */
+export function deriveMatchHint( highlight, titlePieces ) {
+	// If the title itself has a highlighted fragment, no badge is needed.
+	if ( titlePieces.some( p => p.isHighlight ) ) {
+		return '';
+	}
+	if ( typeof highlight !== 'object' || highlight === null ) {
+		return '';
+	}
+	const entries = Object.entries( highlight );
+	if (
+		entries.some(
+			// The v1.3 API uses 'comment' (singular), not 'comments'.
+			( [ key, value ] ) => key === 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
+		)
+	) {
+		return 'comments';
+	}
+	if (
+		entries.some(
+			( [ key, value ] ) =>
+				key !== 'title' && key !== 'comment' && Array.isArray( value ) && value[ 0 ]?.length > 0
+		)
+	) {
+		return 'content';
+	}
+	return '';
+}
+
+/**
  * Normalize a v1.3 Jetpack Search result into the flat shape expected by the
  * Interactivity API templates.
  *
@@ -267,8 +385,14 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 	const rawImage = fields[ 'image.url.raw' ];
 	const imageSrc = Array.isArray( rawImage ) ? rawImage[ 0 ] : rawImage;
 	const imageUrl = toSafeUrl( imageSrc );
-	const plainTitle = String( fields[ 'title.default' ] ?? fields.title ?? '' );
+	// The fallback title is rendered via `data-wp-text`, so any HTML or HTML
+	// entities the API returns (post titles can contain `&amp;`, `&#8217;`,
+	// etc.) need to be flattened the same way the highlight pieces are —
+	// otherwise the raw entity markup leaks onto the result card.
+	const plainTitle = stripTags( String( fields[ 'title.default' ] ?? fields.title ?? '' ) );
 	const titlePieces = tokenizeHighlight( highlight.title );
+	const contentPieces = tokenizeHighlight( highlight.content );
+	const matchHint = deriveMatchHint( highlight, titlePieces );
 	return {
 		id: String( raw?.result_id ?? fields.post_id ?? permalink ),
 		title: plainTitle,
@@ -276,6 +400,10 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 		// falls back to `title` when this is empty.
 		titlePieces,
 		hasTitlePieces: titlePieces.length > 0,
+		// Rendered when the API returns a highlighted content snippet;
+		// hidden when empty so the layout does not gain an empty gap.
+		contentPieces,
+		hasContentPieces: contentPieces.length > 0,
 		permalink,
 		path: formatPath( permalink ),
 		dateLabel: formatDate( fields.date, locale ),
@@ -284,6 +412,11 @@ export function normalizeResult( raw, locale = 'en-US' ) {
 		// image binds via `data-wp-style--background-image` without the
 		// template having to wrap a string at render time.
 		imageBackgroundImage: imageUrl ? `url(${ imageUrl })` : '',
+		// 'content' | 'comments' | '' — drives the "Matches content / Matches
+		// comments" hint badge shown on product cards when the title has no
+		// highlight but another field does.
+		matchHint,
+		matchHintIsComments: matchHint === 'comments',
 		...normalizeProductFields( fields ),
 	};
 }

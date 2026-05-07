@@ -95,6 +95,32 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'min_price' ) ).toBe( false );
 		expect( params.has( 'max_price' ) ).toBe( false );
 	} );
+
+	it( 'writes the search query under the configured param name (q on non-search pages)', () => {
+		// Off the WP search route the inline blocks switch to `q`
+		// so a refresh of `/about/?q=boots` doesn't trigger core's
+		// singular 404 path. This verifies the URL writer honours the seed.
+		const params = stateToUrlParams( {
+			searchQuery: 'boots',
+			sortOrder: 'relevance',
+			searchParamName: 'q',
+		} );
+		expect( params.get( 'q' ) ).toBe( 'boots' );
+		expect( params.has( 's' ) ).toBe( false );
+	} );
+
+	it( 'preserves empty search param so a refresh keeps the inline-search URL shape', () => {
+		// Same rationale as the empty-`s` case: dropping the param entirely
+		// when the user clears the input would drop the visible URL marker
+		// that says "this page is hosting an inline search".
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			searchParamName: 'q',
+		} );
+		expect( params.has( 'q' ) ).toBe( true );
+		expect( params.get( 'q' ) ).toBe( '' );
+	} );
 } );
 
 describe( 'urlParamsToState', () => {
@@ -164,6 +190,25 @@ describe( 'urlParamsToState', () => {
 		params.append( 'orderby[]', 'newest' );
 		const state = urlParamsToState( params );
 		expect( state.activeFilters ).toEqual( {} );
+	} );
+
+	it( 'rejects array-shaped `s` and `q` even when a real filter sits alongside them', () => {
+		// Both URL keys the inline blocks may use (`s` on the search route,
+		// `q` off it) must be reserved on the JS side so a hostile or
+		// malformed `?s[]=…&q[]=…` can't smuggle the search query into
+		// `activeFilters` (where it would be re-emitted as a filter clause
+		// to the API and round-tripped back into the URL on every keystroke).
+		// The real filter alongside them proves the rest of the parser is
+		// still working — i.e. the reservation gate is surgical, not a
+		// side effect of an unrelated rejection earlier in the loop.
+		const params = new URLSearchParams();
+		params.append( 's[]', 'ignored' );
+		params.append( 'q[]', 'ignored' );
+		params.append( 'category[]', 'news' );
+		const state = urlParamsToState( params, {
+			category: { filterType: 'taxonomy', taxonomy: 'category' },
+		} );
+		expect( state.activeFilters ).toEqual( { category: [ 'news' ] } );
 	} );
 
 	it( 'drops empty and whitespace-only filter values', () => {

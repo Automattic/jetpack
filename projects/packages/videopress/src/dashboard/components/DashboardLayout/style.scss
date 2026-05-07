@@ -1,0 +1,12 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Apply the shared Jetpack admin-page layout mixin so `<AdminPage>` controls
+// the full content area (fixed header, scrollable middle, pinned footer) and
+// the `.jp-admin-page-tabs` strip gets its sticky positioning, hairline, and
+// header-aligned inline padding. The legacy entry that used to invoke this
+// (`src/client/admin/style.module.scss`) is intentionally skipped on the
+// wp-build path, so the shared chrome owns the invocation here.
+body.jetpack_page_jetpack-videopress {
+
+	@include jetpack-admin-page-layout;
+}

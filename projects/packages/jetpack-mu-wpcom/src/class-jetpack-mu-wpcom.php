@@ -385,6 +385,12 @@ class Jetpack_Mu_Wpcom {
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
 		\Automattic\Jetpack\Newsletter\Settings::init();
 
+		// Initialize the Podcast package on Simple sites (where late_initialization
+		// in class.jetpack.php doesn't run). Gated by `jetpack_podcast_untangle`
+		// inside Podcast::init() so the legacy podcasting code keeps running
+		// until the flag flips.
+		\Automattic\Jetpack\Podcast\Podcast::init();
+
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.

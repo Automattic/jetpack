@@ -28,7 +28,7 @@ class Search_Input_Render_Test extends TestCase {
 	 */
 	public static function setUpBeforeClass(): void {
 		\register_block_type(
-			'jetpack/search-input',
+			'jetpack-search/search-input',
 			array(
 				'attributes'      => array(
 					'placeholder' => array(
@@ -61,7 +61,7 @@ class Search_Input_Render_Test extends TestCase {
 	 * Unregister the block so other test classes start from a clean slate.
 	 */
 	public static function tearDownAfterClass(): void {
-		\unregister_block_type( 'jetpack/search-input' );
+		\unregister_block_type( 'jetpack-search/search-input' );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Search_Input_Render_Test extends TestCase {
 		$json = empty( $attributes )
 			? ''
 			: wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES );
-		return do_blocks( '<!-- wp:jetpack/search-input ' . $json . ' /-->' );
+		return do_blocks( '<!-- wp:jetpack-search/search-input ' . $json . ' /-->' );
 	}
 
 	/**

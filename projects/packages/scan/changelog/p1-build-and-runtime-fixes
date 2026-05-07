@@ -1,0 +1,8 @@
+Significance: patch
+Type: fixed
+
+Address P1 review feedback on the wp-build migration:
+
+- `composer.json`'s `build-production` hook called `pnpm run build-production-concurrently`, which was deleted alongside the webpack pipeline. Switch to `pnpm run build-production` (matches Newsletter / Forms) so `composer run-script build-production` no longer fails with `ERR_PNPM_NO_SCRIPT`.
+- `pnpm run build` now pre-builds `@automattic/jetpack-components` and `@automattic/jetpack-scan` via `pnpm --filter ... run build` before invoking `wp-build`. Without this, a clean checkout fails because esbuild resolves workspace packages through their `default` export (`./build/index.js`) rather than the `jetpack:src` source condition, so the route bundle errors on missing dependency outputs.
+- Drop the `useConnection`/`@automattic/jetpack-connection` store read from `gates.tsx`. The store is no longer registered in the wp-build chassis (the package's runtime registration was removed when we replaced the component-package imports), so `Object.keys( undefined ).length` was throwing during render and stranding the page on a blank screen. Connection gating happens server-side in `Jetpack_Scan::is_available()` already — by the time the page mounts the user is, by definition, connected. Removes `src/js/hooks/use-connection.ts`.

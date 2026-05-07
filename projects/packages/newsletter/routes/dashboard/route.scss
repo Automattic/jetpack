@@ -1,0 +1,74 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/admin-ui/build-style/style.css");
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Subscriber identity cell.
+// TODO: drop the manual color override once a design-system "muted text" tone
+// lands on `Text` (see https://github.com/WordPress/gutenberg/issues/77391).
+.jetpack-newsletter__identity-email {
+	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+}
+
+// Inline avatar in the identity cell — keep it circular and prevent the
+// design-system Stack from squashing it inside narrow rows.
+.jetpack-newsletter__identity-avatar {
+	flex-shrink: 0;
+}
+
+// Inspector panel chrome.
+.jetpack-newsletter__panel-header {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #f0f0f1);
+	padding: var(--wpds-dimension-padding-sm, 8px) var(--wpds-dimension-padding-lg, 16px);
+}
+
+.jetpack-newsletter__panel-body {
+	flex-grow: 1;
+	overflow-y: auto;
+	padding: var(--wpds-dimension-padding-2xl, 24px);
+}
+
+// Subscriber detail layout.
+.jetpack-newsletter__detail-loading {
+	min-height: 240px;
+}
+
+.jetpack-newsletter__detail-avatar {
+	border-radius: 50%;
+	display: block;
+	flex-shrink: 0;
+}
+
+// TODO: replace with `Text` "muted" tone once available
+// (see https://github.com/WordPress/gutenberg/issues/77391).
+.jetpack-newsletter__detail-email {
+	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+}
+
+// Stat row — Emails sent / Open rate / Click rate.
+.jetpack-newsletter__detail-stats > * {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+// Card defaults `--wp-ui-card-padding` to padding-2xl (24px). That
+// reads as too generous in the inspector column; drop one rung to
+// padding-lg (16px).
+.jetpack-newsletter__detail-stat,
+.jetpack-newsletter__detail-section {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg, 16px);
+}
+
+.jetpack-newsletter__detail-stat-value {
+	display: block;
+	margin-top: var(--wpds-dimension-gap-sm, 8px);
+}
+
+// Grouped sections — Card already provides the outer border, so rows just sit
+// in a column with the design-system gap.
+.jetpack-newsletter__detail-row-label {
+	color: var(--wpds-color-fg-content-neutral-weak, #50575e);
+}
+
+.jetpack-newsletter__detail-link {
+	word-break: break-all;
+}

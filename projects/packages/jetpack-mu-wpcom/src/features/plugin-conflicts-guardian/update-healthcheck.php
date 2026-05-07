@@ -36,19 +36,14 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
 	if ( '' === $plugin_file ) {
 		return $return;
 	}
-	// Inactive plugins can't take the site down on load, so the
-	// post-update probe bails on them. Skip the snapshot entirely
-	// here too — otherwise we'd stage a backup we never consume.
+	// Skip inactive (probe ignores them) and network-active (probe is
+	// per-site, rollback flips one plugin — wrong shape for network).
 	if ( ! function_exists( 'is_plugin_active' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
 	if ( ! is_plugin_active( $plugin_file ) ) {
 		return $return;
 	}
-	// Network-activated plugins on multisite affect every site in the
-	// network. Our probe runs against the current site only and our
-	// rollback flips a single plugin off — neither is the right shape
-	// for a network plugin, so bail before touching anything.
 	if ( is_multisite() && is_plugin_active_for_network( $plugin_file ) ) {
 		return $return;
 	}
@@ -124,12 +119,12 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 		return;
 	}
 
-	// One probe for the whole batch. The plugin_main argument is just
-	// a target for the load tester to attribute fatals to in its
-	// diagnostics — the probe itself boots the full site.
-	$tester = new PCG_Load_Tester();
-	$result = $tester->test( $candidates[0]['plugin_main'], PCG_Load_Tester::MODE_UPDATE );
-	$status = (string) ( $result['status'] ?? '' );
+	// MODE_UPDATE skips require_once and just observes the bootstrap, so one
+	// probe suffices for the whole batch. The paths are only readability checks.
+	$tester       = new PCG_Load_Tester();
+	$plugin_mains = array_values( array_column( $candidates, 'plugin_main' ) );
+	$result       = $tester->test( $plugin_mains, PCG_Load_Tester::MODE_UPDATE );
+	$status       = (string) ( $result['status'] ?? '' );
 
 	// Anything other than a captured fatal is a no-op rollback-wise: ok =
 	// the update is fine; error = inconclusive transport failure we don't
@@ -145,6 +140,7 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 	foreach ( $candidates as $candidate ) {
 		$rollback = PCG_Rollback::to_snapshot( $candidate['snapshot'] );
 		pcg_healthcheck_stash_notice( $candidate['plugin_file'], $result, $rollback, $candidate['plugin_name'], $candidate['new_version'] );
+		pcg_healthcheck_log_rollback( $candidate, $result, $rollback );
 
 		/**
 		 * Fires after a post-update probe fails and rollback has been attempted.
@@ -156,6 +152,32 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 		 */
 		do_action( 'pcg_post_update_diagnosis', $candidate['plugin_file'], $result, $rollback, $candidate['snapshot'] );
 	}
+}
+
+/**
+ * Log a post-update rollback to logstash. Best-effort; no-op off WordPress.com.
+ *
+ * @param array $candidate Per-plugin context built in `pcg_healthcheck_after_update()`.
+ * @param array $probe     Shared probe verdict from `PCG_Load_Tester::test()`.
+ * @param array $rollback  Result from `PCG_Rollback::to_snapshot()`.
+ * @return void
+ */
+function pcg_healthcheck_log_rollback( array $candidate, array $probe, array $rollback ) {
+	pcg_log_event(
+		'Update rolled back',
+		array(
+			'plugin'           => (string) $candidate['plugin_file'],
+			'new_version'      => (string) $candidate['new_version'],
+			'previous_version' => (string) ( $candidate['snapshot']['version'] ?? '' ),
+			'probe_status'     => (string) ( $probe['status'] ?? '' ),
+			// Basename only — absolute paths leak install layout.
+			'probe_file'       => isset( $probe['file'] ) ? basename( (string) $probe['file'] ) : '',
+			'probe_line'       => (int) ( $probe['line'] ?? 0 ),
+			'probe_reason'     => (string) ( $probe['message'] ?? '' ),
+			'rollback_status'  => (string) ( $rollback['status'] ?? '' ),
+			'restored_to'      => (string) ( $rollback['restored_to'] ?? '' ),
+		)
+	);
 }
 
 /**

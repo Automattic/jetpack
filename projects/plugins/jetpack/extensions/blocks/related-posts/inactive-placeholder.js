@@ -1,9 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics, getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink, Placeholder } from '@wordpress/components';
+import { Button, Placeholder } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import metadata from './block.json';
 
 const icon = getBlockIconComponent( metadata );
@@ -65,9 +66,9 @@ export const InactiveRelatedPostsPlaceholder = ( {
 						  ) }
 				</Button>
 				<div className="components-placeholder__learn-more">
-					<ExternalLink href={ supportLink }>
+					<Link openInNewTab href={ supportLink }>
 						{ __( 'Learn more about the Related Posts feature.', 'jetpack' ) }
-					</ExternalLink>
+					</Link>
 				</div>
 			</Placeholder>
 		</div>

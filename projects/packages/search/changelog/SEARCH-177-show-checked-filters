@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Search Blocks: filter-checkbox and filter-date now keep selected buckets visible in the list with their checkbox in the checked state, so visitors can untick them in the same place they ticked them. The active-filters chip row continues to show the same selections as removable pills.

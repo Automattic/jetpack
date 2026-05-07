@@ -59,6 +59,7 @@
 		"@wordpress/icons": "12.2.0",
 		"@wordpress/interactivity": "6.44.0",
 		"@wordpress/server-side-render": "6.20.0",
+		"@wordpress/ui": "0.12.0",
 		"@wordpress/url": "4.44.0",
 		"@wordpress/viewport": "6.44.0",
 		"clsx": "2.1.1",

@@ -22,6 +22,17 @@ use Jetpack_Tracks_Client;
 class Settings {
 
 	const PACKAGE_VERSION = '0.8.6';
+
+	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
+
+	/**
+	 * Filter name that gates the wp-build–based dashboard.
+	 *
+	 * When this filter returns true, "Jetpack > Newsletter" renders the new
+	 * wp-build dashboard instead of the legacy Newsletter Settings React app.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
+
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -87,6 +98,17 @@ class Settings {
 			20
 		);
 
+		// Defer wp-build loading to admin_menu (priority 1) on every host. The
+		// modernization filter — which third parties typically register from a
+		// plugins_loaded callback — needs to have been applied before we read it,
+		// and the wp-build render function needs to be defined before any menu
+		// callback runs (priority 999 on standalone Jetpack, priority 999999 on
+		// wpcom Simple via wpcom-admin-menu.php's call to add_wp_admin_submenu).
+		// Settings::init() runs synchronously from load-jetpack.php at
+		// plugin-file-include time — before any plugins_loaded callback fires —
+		// so an inline check here would always see the unfiltered default.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
 		$host = new Host();
 
 		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
@@ -100,6 +122,25 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
+	}
+
+	/**
+	 * Load wp-build for the Newsletter admin page when modernization is enabled.
+	 *
+	 * Hooked to `admin_menu` priority 1 so the modernization filter has been
+	 * registered by any opt-in code (mu-plugins, snippets, themes) before we
+	 * read it, and so the wp-build render function and enqueue hook are in
+	 * place before `add_wp_admin_menu` runs at priority 999.
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_modernized() || ! self::is_newsletter_admin_request() ) {
+			return;
+		}
+
+		self::load_wp_build();
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
@@ -123,6 +164,10 @@ class Settings {
 		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when showing in menu.
 		$use_jetpack_menu = ! $host->is_woa_site() && $show_menu;
 
+		$callback = self::is_modernized() && function_exists( 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page' )
+			? 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page'
+			: array( $this, 'render' );
+
 		// Register menu item.
 		if ( $use_jetpack_menu ) {
 			$page_suffix = Admin_Menu::add_menu(
@@ -131,7 +176,7 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				array( $this, 'render' ),
+				$callback,
 				10
 			);
 		} else {
@@ -142,7 +187,7 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				array( $this, 'render' )
+				$callback
 			);
 		}
 
@@ -161,6 +206,9 @@ class Settings {
 	 */
 	public function add_wp_admin_submenu() {
 		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
+		$callback    = self::is_modernized() && function_exists( 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page' )
+			? 'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_render_page'
+			: array( $this, 'render' );
 		$page_suffix = add_submenu_page(
 			$parent_slug,
 			/** "Newsletter" is a product name, do not translate. */
@@ -168,7 +216,7 @@ class Settings {
 			'Newsletter',
 			'manage_options',
 			'jetpack-newsletter',
-			array( $this, 'render' )
+			$callback
 		);
 
 		if ( $page_suffix ) {
@@ -232,6 +280,16 @@ class Settings {
 	 * Load the admin scripts.
 	 */
 	public function load_admin_scripts() {
+		// This callback is registered via `admin_enqueue_scripts` from `admin_init`,
+		// which itself fires on `load-{$page_suffix}` in `add_wp_admin_menu()` — so it
+		// only fires on the Newsletter admin page; no need to re-check the page here.
+		if ( self::is_modernized() ) {
+			// wp-build manages its own enqueue pipeline. The legacy newsletter
+			// script, JetpackScriptData, and Tracks are intentionally skipped
+			// for the wp-build dashboard.
+			return;
+		}
+
 		Assets::register_script(
 			'jetpack-newsletter',
 			'../build/newsletter.js',
@@ -360,5 +418,79 @@ class Settings {
 			} );
 		</script>
 		<?php
+	}
+
+	/**
+	 * Load the wp-build entry file and register its polyfills.
+	 *
+	 * Only called on `?page=jetpack-newsletter` admin requests when the
+	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 *
+	 * @return void
+	 */
+	private static function load_wp_build() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
+		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+			'jetpack-newsletter',
+			array_merge(
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+	}
+
+	/**
+	 * Alias the current screen ID to satisfy wp-build's auto-generated enqueue check.
+	 *
+	 * Wp-build's `<page>-wp-admin` enqueue callback enqueues only when the screen ID
+	 * matches the wp-build page slug (`jetpack-newsletter-dashboard`). Our wp-admin
+	 * menu slug stays `jetpack-newsletter`, so we mutate the screen object in place
+	 * to make the check pass without changing the user-facing URL.
+	 *
+	 * Hooked only when modernization is on AND we're on the Newsletter admin page,
+	 * so this never affects any other request.
+	 *
+	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build( $screen ) {
+		if ( ! is_object( $screen ) ) {
+			return;
+		}
+
+		$screen->id = 'jetpack-newsletter-dashboard';
+	}
+
+	/**
+	 * Returns true when the wp-build modernization filter is enabled.
+	 *
+	 * @return bool
+	 */
+	private static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the current request targets the Newsletter admin page.
+	 *
+	 * Used to scope wp-build loading to the one page that needs it. The
+	 * `$_GET['page']` value is populated by wp-admin/admin.php before any of
+	 * our hooks fire, so this check is reliable from `init_hooks()` onwards.
+	 *
+	 * @return bool
+	 */
+	private static function is_newsletter_admin_request() {
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === self::ADMIN_PAGE_SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 }

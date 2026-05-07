@@ -147,7 +147,7 @@ function wpcomsh_fatal_maybe_handle_recovery_click() {
 	// keying is enough because the cap check above already constrains
 	// callers to admins on this site.
 	if ( wpcomsh_fatal_dedup_acquire( 'wpcomsh_fatal_event:recovery:' . $user_id ) ) {
-		wpcomsh_fatal_emit_logstash_event( 'wpcomsh_fatal_recovery' );
+		wpcomsh_fatal_emit_logstash( 'wpcomsh_fatal_recovery' );
 	}
 
 	// `wp_redirect()` rather than `wp_safe_redirect()`: on split-host installs

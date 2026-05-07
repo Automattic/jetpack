@@ -1,5 +1,5 @@
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 
 const Preview = props => {
 	const {
@@ -20,9 +20,9 @@ const Preview = props => {
 						{ __( 'This Google Document is private.', 'jetpack' ) }
 						<br />
 						<br />
-						<ExternalLink href={ url }>
+						<Link openInNewTab href={ url }>
 							{ __( 'Click here to open this document.', 'jetpack' ) }
-						</ExternalLink>
+						</Link>
 					</p>
 				</div>
 			) : (

@@ -16,6 +16,9 @@
  *   fatal-recovery-redirect.php   Early-running endpoint behind the screen's
  *                                 "Enter recovery mode" link: logs the click
  *                                 and 302s to a fresh core recovery URL.
+ *   fatal-recovery-login.php      `wp_login` hook that logs when a user
+ *                                 authenticates inside a recovery-mode
+ *                                 session.
  *
  * @package wpcomsh
  */
@@ -26,3 +29,4 @@ require_once __DIR__ . '/fatal-error-screen.php';
 require_once __DIR__ . '/fatal-error-email.php';
 require_once __DIR__ . '/fatal-plugin-deactivator.php';
 require_once __DIR__ . '/fatal-recovery-redirect.php';
+require_once __DIR__ . '/fatal-recovery-login.php';

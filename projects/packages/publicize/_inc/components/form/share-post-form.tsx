@@ -2,7 +2,7 @@ import { Disabled, useNavigator } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, type FC } from 'react';
+import { useCallback, type FC, type ReactNode } from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { store as socialStore } from '../../social-store';
 import { hasSocialPaidFeatures } from '../../utils';
@@ -36,6 +36,16 @@ export type SharePostFormProps = {
 	 * updating via the internal store.
 	 */
 	onMessageChange?: ( message: string ) => void;
+
+	/**
+	 * Optional placeholder for the message field.
+	 */
+	messagePlaceholder?: string;
+
+	/**
+	 * Optional help text for the message field.
+	 */
+	messageHelp?: ReactNode;
 
 	/**
 	 * Optional attached media array. In controlled mode (when `onMediaChange` is provided),
@@ -88,6 +98,8 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	isInsideNavigatorModal,
 	message: messageProp,
 	onMessageChange,
+	messagePlaceholder,
+	messageHelp,
 	attachedMedia,
 	imageGeneratorSettings,
 	mediaSource,
@@ -134,6 +146,8 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 						maxLength={ maxLength }
 						onChange={ updateMessage }
 						message={ message }
+						placeholder={ messagePlaceholder }
+						help={ messageHelp }
 						analyticsData={ analyticsData }
 						disabled={ disabled }
 					/>
