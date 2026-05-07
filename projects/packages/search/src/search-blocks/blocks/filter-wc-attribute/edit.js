@@ -32,11 +32,26 @@ const SAMPLE_FILTER_ITEMS = [
 	{ value: 'green', label: __( 'Green', 'jetpack-search-pkg' ), count: 3 },
 ];
 
-const LOADING_TEXT = __( 'Loading product attributes…', 'jetpack-search-pkg' );
-const PICKER_HELP = __( 'Pick which WooCommerce product attribute drives this filter.', 'jetpack-search-pkg' );
-const NO_ATTRIBUTES_HELP = __( 'No WooCommerce product attributes were found on this site.', 'jetpack-search-pkg' );
-const PLACEHOLDER_PICK = __( 'Pick a WooCommerce product attribute in the block sidebar to enable this filter.', 'jetpack-search-pkg' );
-const PLACEHOLDER_EMPTY = __( 'No WooCommerce product attributes are registered on this site, so this block has nothing to filter on.', 'jetpack-search-pkg' );
+const LOADING_TEXT = __(
+	'Loading product attributes…',
+	'jetpack-search-pkg'
+);
+const PICKER_HELP = __(
+	'Pick which WooCommerce product attribute drives this filter.',
+	'jetpack-search-pkg'
+);
+const NO_ATTRIBUTES_HELP = __(
+	'No WooCommerce product attributes were found on this site.',
+	'jetpack-search-pkg'
+);
+const PLACEHOLDER_PICK = __(
+	'Pick a WooCommerce product attribute in the block sidebar to enable this filter.',
+	'jetpack-search-pkg'
+);
+const PLACEHOLDER_EMPTY = __(
+	'No WooCommerce product attributes are registered on this site, so this block has nothing to filter on.',
+	'jetpack-search-pkg'
+);
 
 /**
  * Strip the `pa_` prefix and humanize the remainder so a fallback label
@@ -53,6 +68,41 @@ function humanizeAttributeSlug( slug ) {
 		.filter( Boolean )
 		.map( word => word.charAt( 0 ).toUpperCase() + word.slice( 1 ) )
 		.join( ' ' );
+}
+
+/**
+ * Resolve the appropriate help text for the attribute picker, avoiding nested
+ * ternaries which are forbidden by the ESLint `no-nested-ternary` rule.
+ *
+ * @param {boolean} isLoading     - True while taxonomies are being fetched.
+ * @param {boolean} hasAttributes - True when at least one `pa_*` attribute is registered.
+ * @return {string} Help text.
+ */
+function resolvePickerHelp( isLoading, hasAttributes ) {
+	if ( isLoading ) {
+		return LOADING_TEXT;
+	}
+	if ( hasAttributes ) {
+		return PICKER_HELP;
+	}
+	return NO_ATTRIBUTES_HELP;
+}
+
+/**
+ * Resolve the Placeholder instructions text, avoiding nested ternaries.
+ *
+ * @param {boolean} isLoading     - True while taxonomies are being fetched.
+ * @param {boolean} hasAttributes - True when at least one `pa_*` attribute is registered.
+ * @return {string} Instructions text.
+ */
+function resolvePlaceholderInstructions( isLoading, hasAttributes ) {
+	if ( isLoading ) {
+		return LOADING_TEXT;
+	}
+	if ( hasAttributes ) {
+		return PLACEHOLDER_PICK;
+	}
+	return PLACEHOLDER_EMPTY;
 }
 
 /**
@@ -98,10 +148,8 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 	const selectedOption = hasAttributes ? attributeOptions.find( opt => opt.value === slug ) : null;
 	const previewLabel = rawLabel || ( selectedOption ? selectedOption.label : '' );
 
-	// Compute help text and placeholder instructions outside JSX so the
-	// i18n extractor sees each __() call with a static string literal.
-	const pickerHelp = isLoading ? LOADING_TEXT : hasAttributes ? PICKER_HELP : NO_ATTRIBUTES_HELP;
-	const placeholderInstructions = isLoading ? LOADING_TEXT : hasAttributes ? PLACEHOLDER_PICK : PLACEHOLDER_EMPTY;
+	const pickerHelp = resolvePickerHelp( isLoading, hasAttributes );
+	const placeholderInstructions = resolvePlaceholderInstructions( isLoading, hasAttributes );
 
 	return (
 		<>
@@ -128,7 +176,7 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 						placeholder={ previewLabel }
 						onChange={ value => setAttributes( { label: value } ) }
 						help={ __(
-							'Heading shown above the options. Leave empty to use the attribute’s name.',
+							'Heading shown above the options. Leave empty to use the attribute's name.',
 							'jetpack-search-pkg'
 						) }
 					/>
@@ -154,7 +202,10 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 						value={ sortOrder }
 						onChange={ value => setAttributes( { bucketSortOrder: value } ) }
 						options={ [
-							{ value: 'count', label: __( 'By count (most matches first)', 'jetpack-search-pkg' ) },
+							{
+								value: 'count',
+								label: __( 'By count (most matches first)', 'jetpack-search-pkg' ),
+							},
 							{ value: 'alpha', label: __( 'Alphabetical', 'jetpack-search-pkg' ) },
 						] }
 					/>
@@ -169,9 +220,7 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 				</div>
 			) : (
 				<div { ...blockProps }>
-					{ previewLabel && (
-						<h3 className="jetpack-search-filter__title">{ previewLabel }</h3>
-					) }
+					{ previewLabel && <h3 className="jetpack-search-filter__title">{ previewLabel }</h3> }
 					<ul className="jetpack-search-filter__list">
 						{ SAMPLE_FILTER_ITEMS.map( item => (
 							<li key={ item.value } className="jetpack-search-filter__item">
