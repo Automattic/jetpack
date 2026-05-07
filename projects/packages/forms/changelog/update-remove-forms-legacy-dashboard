@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove legacy hash-router admin dashboard; the wp-build dashboard is now the only variant. Old ?page=jetpack-forms-admin URLs redirect to it.

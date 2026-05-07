@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Drop the jetpack_forms_alpha override; the legacy Forms admin dashboard is gone, so the filter no longer has an effect.
