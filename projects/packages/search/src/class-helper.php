@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
@@ -970,7 +971,22 @@ class Helper {
 			 * @param bool $disable_tracking Whether to disable tracking. Default false.
 			 */
 			'disableTracking'             => self::is_tracking_disabled() || apply_filters( 'jetpack_instant_search_disable_tracking', false ),
+			'aiAnswersEnabled'            => AI_Answers::is_enabled(),
 		);
+
+		// AI Answers: embed site-level hourly HMAC token for anonymous visitors.
+		if ( AI_Answers::is_enabled() ) {
+			$blog_token = ( new Tokens() )->get_access_token();
+			if ( $blog_token && ! empty( $blog_token->secret ) ) {
+				$site_id                    = \Jetpack_Options::get_option( 'id', 0 );
+				$options['aiAnswersToken']  = hash_hmac(
+					'sha256',
+					'search-answers:' . $site_id . ':' . floor( time() / 3600 ),
+					$blog_token->secret
+				);
+				$options['aiAnswersSiteId'] = (int) $site_id;
+			}
+		}
 
 		/**
 		 * Customize Instant Search Options.

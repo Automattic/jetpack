@@ -21,9 +21,11 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 // Stub heavy sub-components that aren't relevant to the branching test.
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
 jest.mock( 'components/module-control', () => () => <div data-testid="module-control" /> );
+jest.mock( 'components/feature-selector', () => () => <div data-testid="feature-selector" /> );
 jest.mock( 'components/record-meter', () => () => <div data-testid="record-meter" /> );
 jest.mock( 'components/global-notices', () => () => null );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
+jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
 
 const renderWith = ( { searchBlocksEnabled, jetpackSettings } ) => {
 	const registry = createRegistry();
@@ -64,19 +66,21 @@ const settings = {
 };
 
 describe( '<DashboardPage> branch', () => {
+	test( 'renders Plan & Usage and AI Answers tabs', () => {
+		renderWith( { searchBlocksEnabled: false, jetpackSettings: settings } );
+		expect( screen.getByRole( 'tab', { name: /plan & usage/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'tab', { name: /ai answers/i } ) ).toBeInTheDocument();
+	} );
+
 	test( 'renders FeatureSelector when searchBlocksEnabled is true', () => {
 		renderWith( { searchBlocksEnabled: true, jetpackSettings: settings } );
-		expect(
-			screen.getByRole( 'group', { name: /select a search experience for your visitors/i } )
-		).toBeInTheDocument();
+		expect( screen.getByTestId( 'feature-selector' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'renders ModuleControl when searchBlocksEnabled is false', () => {
 		renderWith( { searchBlocksEnabled: false, jetpackSettings: settings } );
-		expect(
-			screen.queryByRole( 'group', { name: /select a search experience for your visitors/i } )
-		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'feature-selector' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
 	} );
 } );

@@ -1,0 +1,57 @@
+# Jetpack Search AI Answers — Roadmap
+
+## Content Guidelines Integration
+
+The `jp_search_behavior` CPT is a temporary holding place for site-level AI instructions. Once WordPress Content Guidelines ships as a core feature, `jp_search_behavior` will migrate to `wp_content_guidelines` and the separate CPT will be retired.
+
+### Background
+
+Content Guidelines is a Gutenberg experiment that provides a standard way for site owners to express how AI tools should represent their site — tone, topics, restrictions, and other behavioral instructions. By storing this in a core CPT rather than a plugin-specific one, any AI feature (search answers, editor assistant, etc.) can read the same instructions without duplication.
+
+Relevant discussions:
+- [Content guidelines for AI-generated content (original proposal)](https://github.com/WordPress/gutenberg/issues/75258)
+- [Content Guidelines: a Gutenberg experiment (Make WordPress AI)](https://make.wordpress.org/ai/2026/02/03/content-guidelines-a-gutenberg-experiment/)
+- [Core CPT implementation tracking](https://github.com/WordPress/gutenberg/issues/77230)
+- [AI feature discoverability and shared context](https://github.com/WordPress/gutenberg/issues/75171)
+
+### Migration plan
+
+When `wp_content_guidelines` ships in WordPress core:
+
+1. The AI agent on the wpcom side already reads `wp_content_guidelines` at request time if it exists for the site. No agent change needed.
+2. The `jp_search_behavior` CPT registration will be removed from `class-ai-answers.php`.
+3. The Behavior tab in the Search dashboard will either be retired (if core provides its own UI) or updated to write to `wp_content_guidelines` instead.
+4. Sync module whitelist entries for `jp_search_behavior` will be removed; `wp_content_guidelines` sync is handled separately by the core sync surface.
+
+Until then, both CPTs coexist: `jp_search_behavior` takes precedence if set, with `wp_content_guidelines` as a fallback (handled on the wpcom agent side).
+
+---
+
+## Plan Eligibility
+
+Currently the feature is gated only by the `jetpack_search_ai_answers_enabled` option with a flat 500-request/month quota for all plans. Before general availability, we need to decide:
+
+- **Which plans get access?** Likely Search paid plans only (not free tier). The wpcom quota API already tracks usage per site; enforcement would happen there before any LLM call is made.
+- **Quota tiers by plan?** Free Search could get a lower limit (or none), paid Search gets a higher limit, with the option to upgrade for more.
+- **How does the plugin know the site's plan?** Options: read from the existing `jetpack_search_subscription_plan` option (or equivalent) already synced to the plugin; or gate entirely on the wpcom side and have the agent return `error` with `code: plan_not_eligible` so the overlay can show an upgrade prompt rather than silently hiding.
+- **UI treatment for ineligible sites?** The Behavior and Topics tabs may still be useful to show (so site owners can configure in advance), but the overlay panel should be hidden and replaced with an upsell if the plan doesn't include AI Answers.
+
+Open questions to resolve before GA:
+- [ ] Confirm which plan tiers include AI Answers
+- [ ] Define quota limits per tier
+- [ ] Decide whether plan gating lives on the wpcom side only (simpler) or also in the plugin (faster UI feedback)
+- [ ] Design the upgrade/upsell flow for ineligible sites
+
+---
+
+## Analytics Tab
+
+A future **Analytics** tab will be added to the Search dashboard tab bar and will become the default tab. The current Overview content (billing/usage) will remain but yield the default position to Analytics.
+
+The Analytics tab will surface top search queries, click-through rates, and zero-result queries — with a "Create Topic" shortcut on low-CTR queries to seed the AI Answers topic library directly from real search data.
+
+---
+
+## Jetpack Search 3.0 (Interactivity API)
+
+When Jetpack Search 3.0 ships (Interactivity API block platform), the AI answers feature will be extracted into a `jetpack/search-answers` block that subscribes to the shared `jetpack-search` Interactivity API store's `query` state. The HMAC token auth, CPT sync, and wpcom agent endpoint are all block-agnostic and carry forward unchanged.
