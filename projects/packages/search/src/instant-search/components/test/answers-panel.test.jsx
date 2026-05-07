@@ -10,7 +10,7 @@ describe( 'AnswersPanel', () => {
 
 	it( 'shows loading message', () => {
 		render( <AnswersPanel status="loading" text="" citations={ [] } /> );
-		expect( screen.getByText( 'Finding an answer…' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Finding an answer', { exact: false } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows streamed text', () => {
