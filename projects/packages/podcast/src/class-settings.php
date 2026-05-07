@@ -74,13 +74,6 @@ class Settings {
 	const SHOW_STATES = array( 'pending', 'active' );
 
 	/**
-	 * Allowed `podcasting_explicit` values.
-	 *
-	 * @var string[]
-	 */
-	const EXPLICIT_VALUES = array( 'no', 'yes', 'clean' );
-
-	/**
 	 * Whether `register()` has wired its hooks.
 	 *
 	 * @var bool
@@ -178,13 +171,12 @@ class Settings {
 			),
 
 			'podcasting_explicit'    => array(
-				'type'              => 'string',
-				'default'           => 'no',
+				'type'              => 'boolean',
+				'default'           => false,
 				'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
 				'rest_schema'       => array(
-					'type'    => 'string',
-					'default' => 'no',
-					'enum'    => self::EXPLICIT_VALUES,
+					'type'    => 'boolean',
+					'default' => false,
 				),
 			),
 
@@ -260,14 +252,22 @@ class Settings {
 	}
 
 	/**
-	 * Sanitize `podcasting_explicit`. Anything outside the allowed set falls
-	 * back to `'no'`.
+	 * Sanitize `podcasting_explicit` to a boolean.
+	 *
+	 * The feed only emits `<itunes:explicit>` as `true`/`false`. The legacy
+	 * `'yes'`/`'no'`/`'clean'` storage is normalized: `'yes'` becomes true,
+	 * everything else (including `'clean'`, which the WPCOM feed builder
+	 * already treats as not-explicit) becomes false. Conservative on garbage
+	 * input — unrecognized values resolve to false rather than `(bool) $value`.
 	 *
 	 * @param mixed $value Raw input.
-	 * @return string
+	 * @return bool
 	 */
 	public static function sanitize_explicit( $value ) {
-		return is_string( $value ) && in_array( $value, self::EXPLICIT_VALUES, true ) ? $value : 'no';
+		if ( is_string( $value ) ) {
+			return in_array( strtolower( $value ), array( 'yes', 'true', '1' ), true );
+		}
+		return true === $value || 1 === $value;
 	}
 
 	/**

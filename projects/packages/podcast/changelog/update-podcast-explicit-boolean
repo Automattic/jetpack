@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: store `podcasting_explicit` as a boolean. The legacy `'yes'`/`'no'`/`'clean'` string trio collapses to `true`/`false` to match what the feed actually emits — Apple's iTunes spec deprecated `'clean'` as a distinct state, and the WPCOM feed builder already treats it identically to `'no'`. Existing `'yes'` values normalize to true on the next read; everything else (`'no'`, `'clean'`, garbage) normalizes to false.

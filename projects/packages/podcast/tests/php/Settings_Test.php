@@ -51,19 +51,24 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `sanitize_explicit` should pass through allowed values and fall back
-	 * to `'no'` for anything else (including non-strings).
+	 * `sanitize_explicit` returns a boolean. Booleans pass through; legacy
+	 * `'yes'` strings (including any case) become true; legacy `'no'` and
+	 * `'clean'` — and anything else — become false.
 	 */
-	public function test_sanitize_explicit_filters_to_allowed_set() {
-		$this->assertSame( 'no', Settings::sanitize_explicit( 'no' ) );
-		$this->assertSame( 'yes', Settings::sanitize_explicit( 'yes' ) );
-		$this->assertSame( 'clean', Settings::sanitize_explicit( 'clean' ) );
+	public function test_sanitize_explicit_normalizes_to_boolean() {
+		$this->assertTrue( Settings::sanitize_explicit( true ) );
+		$this->assertTrue( Settings::sanitize_explicit( 'yes' ) );
+		$this->assertTrue( Settings::sanitize_explicit( 'YES' ) );
+		$this->assertTrue( Settings::sanitize_explicit( 'true' ) );
+		$this->assertTrue( Settings::sanitize_explicit( '1' ) );
+		$this->assertTrue( Settings::sanitize_explicit( 1 ) );
 
-		$this->assertSame( 'no', Settings::sanitize_explicit( 'maybe' ) );
-		$this->assertSame( 'no', Settings::sanitize_explicit( '' ) );
-		$this->assertSame( 'no', Settings::sanitize_explicit( null ) );
-		$this->assertSame( 'no', Settings::sanitize_explicit( 1 ) );
-		$this->assertSame( 'no', Settings::sanitize_explicit( array( 'yes' ) ) );
+		$this->assertFalse( Settings::sanitize_explicit( false ) );
+		$this->assertFalse( Settings::sanitize_explicit( 'no' ) );
+		$this->assertFalse( Settings::sanitize_explicit( 'clean' ) );
+		$this->assertFalse( Settings::sanitize_explicit( 'maybe' ) );
+		$this->assertFalse( Settings::sanitize_explicit( '' ) );
+		$this->assertFalse( Settings::sanitize_explicit( null ) );
 	}
 
 	/**
