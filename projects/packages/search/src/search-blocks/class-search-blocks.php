@@ -767,7 +767,54 @@ class Search_Blocks {
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
 			'strings'               => static::build_initial_strings(),
+
+			// Currency symbol displayed inside the price filter pill rendered
+			// by the active-filters block. Defaults to `$`; the price block's
+			// render.php overrides this with the author's currencySymbol
+			// attribute so a single chip on the page reflects whatever symbol
+			// the price input itself uses. The stored numeric value stays
+			// locale-agnostic — only the display string carries the symbol.
+			'priceCurrencySymbol'   => '$',
+
+			// Display labels for `wc_stock_status` selections, keyed by slug.
+			// Seeded from the status block's static option list so an active-
+			// filters chip for "instock" reads "In stock" rather than the raw
+			// slug. RSM-1932 will swap this with WC's translated labels so
+			// non-English locales render correctly; the map shape stays the
+			// same.
+			'wcStockStatusLabels'   => static::build_stock_status_labels(),
 		);
+	}
+
+	/**
+	 * Slug → display label map for `wc_stock_status` selections, used by the
+	 * active-filters block to render product-aware chips.
+	 *
+	 * Sourced from the status block's `get_options()` so there's one source of
+	 * truth for the label set; in RSM-1932 we'll switch to WC's translated
+	 * labels (`wc_get_product_stock_status_options()`) without changing this
+	 * shape. Returns an empty array when the status helper class isn't loaded
+	 * — defensive for environments that pull the search package in isolation
+	 * (tests, partial installs, or sites where the status block PR hasn't
+	 * landed yet).
+	 *
+	 * @return array<string, string>
+	 */
+	protected static function build_stock_status_labels(): array {
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- status block class is optional; class_exists() guards the reference.
+		if ( ! class_exists( Search_Product_Filter_Status::class ) ) {
+			return array();
+		}
+		$labels = array();
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists() above.
+		foreach ( Search_Product_Filter_Status::get_options() as $option ) {
+			$value = (string) ( $option['value'] ?? '' );
+			if ( '' === $value ) {
+				continue;
+			}
+			$labels[ $value ] = (string) ( $option['label'] ?? $value );
+		}
+		return $labels;
 	}
 
 	/**
@@ -894,6 +941,12 @@ class Search_Blocks {
 				'resultsCountSingle' => 'Found %d result',
 				'resultsCountPlural' => 'Found %d results',
 				'removeFilter'       => 'Remove %s',
+				'ratingStarsSingle'  => '%d star',
+				'ratingStarsPlural'  => '%d stars',
+				'priceRangeFromTo'   => '%1$s – %2$s',
+				'priceRangeFrom'     => 'From %s',
+				'priceRangeUpTo'     => 'Up to %s',
+				'priceLabel'         => 'Price',
 			);
 		}
 		return array(
@@ -904,6 +957,18 @@ class Search_Blocks {
 			'resultsCountPlural' => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
 			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
+			/* translators: %d: number of stars (singular form, used for 1). */
+			'ratingStarsSingle'  => _n( '%d star', '%d stars', 1, 'jetpack-search-pkg' ),
+			/* translators: %d: number of stars (plural form). */
+			'ratingStarsPlural'  => _n( '%d star', '%d stars', 2, 'jetpack-search-pkg' ),
+			/* translators: 1: minimum price (already includes the currency symbol). 2: maximum price (already includes the currency symbol). Renders an active "Price: $10 – $50" filter pill. */
+			'priceRangeFromTo'   => __( '%1$s – %2$s', 'jetpack-search-pkg' ),
+			/* translators: %s: minimum price (already includes the currency symbol). Renders an active "Price: From $10" filter pill (no upper bound). */
+			'priceRangeFrom'     => __( 'From %s', 'jetpack-search-pkg' ),
+			/* translators: %s: maximum price (already includes the currency symbol). Renders an active "Price: Up to $50" filter pill (no lower bound). */
+			'priceRangeUpTo'     => __( 'Up to %s', 'jetpack-search-pkg' ),
+			/* translators: Group label for the price filter pill ("Price: $10 – $50"). Mirrors the price block's default heading; falls back to this when no price block is on the page. */
+			'priceLabel'         => __( 'Price', 'jetpack-search-pkg' ),
 		);
 	}
 
