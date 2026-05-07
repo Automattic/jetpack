@@ -406,6 +406,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 
 		$output_properties = $ability['output_schema']['properties'];
 		$this->assertArrayHasKey( 'intent', $output_properties );
+		$this->assertArrayHasKey( 'forecast', $output_properties );
 		$this->assertArrayHasKey( 'assumptions', $output_properties );
 		$this->assertArrayHasKey( 'recommendations', $output_properties );
 		$this->assertArrayHasKey( 'budget_options', $output_properties );
@@ -521,6 +522,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 7, $prefill['duration_days'] );
 		$this->assertSame( 'VIEWS', $prefill['objective'] );
 		$this->assertSame( 'content', $result['intent'] );
+		$this->assertSame( 'unavailable', $result['forecast']['status'] );
 		$this->assertCount( 3, $result['budget_options'] );
 	}
 

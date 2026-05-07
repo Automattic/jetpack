@@ -171,6 +171,16 @@ class Dashboard_REST_Controller {
 
 		register_rest_route(
 			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1.1/forecast', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_dsp_forecast' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		register_rest_route(
+			static::$namespace,
 			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -1238,6 +1248,16 @@ class Dashboard_REST_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Redirect POST request to WordAds DSP Forecast endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function create_dsp_forecast( $req ) {
+		return $this->edit_dsp_generic( 'v1.1/forecast', $req, array( 'timeout' => 20 ) );
 	}
 
 	/**
