@@ -1,0 +1,14 @@
+{
+	"name": "_@jetpack-backup/dashboard-route",
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@types/react": "18.3.28",
+		"@wordpress/element": "6.44.0",
+		"@wordpress/i18n": "6.17.0"
+	},
+	"route": {
+		"path": "/",
+		"page": "jetpack-backup-dashboard"
+	}
+}
