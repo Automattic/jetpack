@@ -14,47 +14,27 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  * `jetpack_podcast_untangle` filter is enabled. Until that filter flips, every
  * entry point here is a no-op so the legacy podcasting experience keeps
  * running unchanged.
- *
- * Menu registration is owned by `wpcom-admin-menu.php` (in the
- * `jetpack-mu-wpcom` package), which calls `add_wp_admin_submenu()` at
- * `admin_menu` priority 999999 — late enough that the Jetpack parent menu
- * already exists. wpcom-admin-menu runs on both Simple and Atomic, so a single
- * registration path covers both. Standalone Jetpack is excluded by the host
- * gate in `Podcast::init()`.
- *
- * Mirrors `Automattic\Jetpack\Backup\V0005\Jetpack_Backup` — wp-build's
- * polyfills + auto-generated render/enqueue functions do the heavy lifting;
- * we just alias `$screen->id` so the auto-enqueue check passes for our slug.
  */
 class Admin_Page {
 
-	/**
-	 * URL-facing menu slug.
-	 *
-	 * @var string
-	 */
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
-	 * The wp-build page slug emitted by `@wordpress/build` (`wpPlugin.pages[0]`).
-	 * The auto-generated enqueue callback only fires when `$screen->id`
-	 * matches this value, so we alias the screen id via `current_screen`
-	 * on our admin page without changing the user-facing slug.
-	 *
-	 * @var string
+	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
+	 * callback only fires when `$screen->id` matches this value, so we alias
+	 * the screen id via `current_screen` without changing the user-facing URL.
 	 */
 	const WP_BUILD_SLUG = 'jetpack-podcast-dashboard';
 
 	/**
-	 * Whether the class has already wired its admin hooks.
+	 * Whether `init()` has already wired its hooks.
 	 *
 	 * @var bool
 	 */
 	private static $initialized = false;
 
 	/**
-	 * Wire the admin hooks. Called from `Podcast::init()` once the
-	 * `jetpack_podcast_untangle` filter and host gates have been satisfied.
+	 * Wire admin hooks. Idempotent.
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -69,8 +49,7 @@ class Admin_Page {
 	 * Register the Podcast submenu under Jetpack on Simple and Atomic.
 	 *
 	 * Called from `wpcom-admin-menu.php` at priority 999999 once the Jetpack
-	 * parent menu exists. Bails when the untangle filter is off so the legacy
-	 * "Podcasting" Calypso link in `wpcom-admin-menu.php` keeps rendering.
+	 * parent menu exists.
 	 */
 	public static function add_wp_admin_submenu() {
 		if ( ! self::is_enabled() ) {
@@ -99,23 +78,15 @@ class Admin_Page {
 
 	/**
 	 * Wire admin-init actions once we know the Podcast page is loading.
-	 *
-	 * Subsequent PRs in the untangle train layer script-data + Tracks here.
-	 * The wp-build dashboard manages its own enqueue pipeline.
 	 */
 	public static function admin_init() {
 		// Intentionally empty for now.
 	}
 
 	/**
-	 * Load wp-build only on the Podcast admin page, then alias `$screen->id`
-	 * so wp-build's auto-generated enqueue callback fires for our slug.
-	 *
 	 * Hooked at admin_menu priority 1 so polyfills register before
 	 * `wp_default_scripts` fires and the wp-build render function is defined
 	 * before `add_wp_admin_submenu()` runs at priority 999999.
-	 *
-	 * Mirrors `Automattic\Jetpack\Backup\V0005\Jetpack_Backup::maybe_load_wp_build`.
 	 */
 	public static function maybe_load_wp_build() {
 		if ( ! self::is_enabled() || ! self::is_podcast_admin_request() ) {
@@ -127,8 +98,6 @@ class Admin_Page {
 	}
 
 	/**
-	 * Require the wp-build entry file and register its polyfills.
-	 *
 	 * The build artifact may be absent on a fresh checkout before
 	 * `pnpm build` has run; in that case `add_wp_admin_submenu()` falls back
 	 * to `render()` so the page still loads (just without the React app).
@@ -149,10 +118,7 @@ class Admin_Page {
 	}
 
 	/**
-	 * Alias `$screen->id` to wp-build's expected page slug so its
-	 * auto-generated `<page>-wp-admin` enqueue callback fires on our
-	 * `?page=jetpack-podcast` URL. Only hooked when we're already on the
-	 * Podcast admin page, so this never affects any other request.
+	 * Alias the current screen id to wp-build's expected slug.
 	 *
 	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
 	 */
@@ -165,8 +131,7 @@ class Admin_Page {
 	}
 
 	/**
-	 * Default render callback. Used as a fallback when the wp-build artifact is
-	 * missing — for example, on a fresh checkout before `pnpm build` has run.
+	 * Fallback render used when the wp-build artifact is missing.
 	 */
 	public static function render() {
 		?>
@@ -177,9 +142,7 @@ class Admin_Page {
 	}
 
 	/**
-	 * Whether the Podcast untangle is enabled. Mirrors the gate in
-	 * `Podcast::init()` so callbacks invoked outside that flow (e.g.
-	 * `add_wp_admin_submenu()` from wpcom-admin-menu.php) still bail.
+	 * Whether the Podcast untangle is enabled.
 	 */
 	private static function is_enabled() {
 		/** This filter is documented in src/class-podcast.php. */
@@ -188,9 +151,6 @@ class Admin_Page {
 
 	/**
 	 * Whether the current request targets the Podcast admin page.
-	 *
-	 * `$_GET['page']` is populated by `wp-admin/admin.php` before any of our
-	 * hooks fire, so this check is reliable from `admin_menu` onwards.
 	 */
 	private static function is_podcast_admin_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended

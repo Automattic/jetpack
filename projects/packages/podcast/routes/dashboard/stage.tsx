@@ -1,10 +1,3 @@
-/**
- * Podcast dashboard stage: page chrome + tab navigation.
- *
- * Placeholder scaffolding only — each tab panel renders a stub. PR 4 in the
- * untangle train fills in the real tab contents.
- */
-
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
