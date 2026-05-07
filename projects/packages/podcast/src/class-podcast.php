@@ -62,6 +62,12 @@ class Podcast {
 			return;
 		}
 
+		// Register the `podcasting_*` option schema so the SPA can read/write
+		// via `/wp/v2/settings`. On Simple, the legacy WPCOM site-settings
+		// filters in the wpcom mu-plugin remain authoritative for
+		// `/rest/v1.4/sites/{id}/settings`; this is the non-Simple equivalent.
+		Settings::register();
+
 		// Wire the wp-admin entry point. Admin_Page::init() stages the wp-build
 		// dashboard; menu registration itself runs from wpcom-admin-menu.php
 		// via Admin_Page::add_wp_admin_submenu() at admin_menu priority 999999.

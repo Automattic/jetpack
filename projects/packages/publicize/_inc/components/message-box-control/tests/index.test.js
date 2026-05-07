@@ -151,6 +151,21 @@ describe( 'MessageBoxControl', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	it( 'uses explicit help text when provided', () => {
+		render(
+			<MessageBoxControl
+				message={ mockMessage }
+				onChange={ mockOnChange }
+				maxLength={ mockMaxLength }
+				help="Custom help text"
+			/>
+		);
+
+		expect( screen.getByText( 'Custom help text' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /characters remaining/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /character remaining/ ) ).not.toBeInTheDocument();
+	} );
+
 	describe( 'when templates feature is on', () => {
 		beforeEach( () => {
 			siteHasFeature.mockReturnValue( true );
@@ -226,6 +241,19 @@ describe( 'MessageBoxControl', () => {
 
 			expect( screen.queryByText( /characters remaining/ ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( /character remaining/ ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'uses explicit help text when provided', () => {
+			render(
+				<MessageBoxControl
+					message={ mockMessage }
+					onChange={ mockOnChange }
+					maxLength={ mockMaxLength }
+					help="Custom help text"
+				/>
+			);
+
+			expect( screen.getByText( 'Custom help text' ) ).toBeInTheDocument();
 		} );
 	} );
 } );

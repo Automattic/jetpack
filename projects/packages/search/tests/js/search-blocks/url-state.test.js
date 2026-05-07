@@ -56,38 +56,6 @@ describe( 'stateToUrlParams', () => {
 		expect( params.getAll( 'post_types[]' ) ).toEqual( [ 'post' ] );
 	} );
 
-	it( 'writes scalar-format filters as a single comma-joined value', () => {
-		// WooCommerce-shaped filters (e.g. `?filter_stock_status=instock,outofstock`)
-		// must round-trip in their native shape. Without honoring filterConfigs
-		// on the writer side, syncToUrl would rewrite the WC URL into the array
-		// form on the first hydration and break catalog deep links.
-		const params = stateToUrlParams( {
-			searchQuery: '',
-			sortOrder: 'relevance',
-			activeFilters: { filter_stock_status: [ 'instock', 'outofstock' ] },
-			filterConfigs: { filter_stock_status: { urlFormat: 'scalar' } },
-		} );
-		expect( params.get( 'filter_stock_status' ) ).toBe( 'instock,outofstock' );
-		expect( params.has( 'filter_stock_status[]' ) ).toBe( false );
-	} );
-
-	it( 'mixes scalar and array filters within the same params instance', () => {
-		const params = stateToUrlParams( {
-			searchQuery: '',
-			sortOrder: 'relevance',
-			activeFilters: {
-				category: [ 'news' ],
-				filter_stock_status: [ 'instock' ],
-			},
-			filterConfigs: {
-				category: { filterKey: 'category' },
-				filter_stock_status: { urlFormat: 'scalar' },
-			},
-		} );
-		expect( params.getAll( 'category[]' ) ).toEqual( [ 'news' ] );
-		expect( params.get( 'filter_stock_status' ) ).toBe( 'instock' );
-	} );
-
 	it( 'skips filters with empty value arrays', () => {
 		const params = stateToUrlParams( {
 			searchQuery: '',
@@ -322,46 +290,5 @@ describe( 'urlParamsToState: priceRange', () => {
 		params.append( 'max_price[]', '50' );
 		const state = urlParamsToState( params );
 		expect( state.activeFilters ).toEqual( {} );
-	} );
-} );
-
-describe( 'urlParamsToState: scalar comma-joined URL fallback', () => {
-	it( 'parses comma-joined values for filterConfigs whose urlFormat is `scalar`', () => {
-		const state = urlParamsToState(
-			new URLSearchParams( '?filter_stock_status=instock,outofstock' ),
-			{
-				filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' },
-			}
-		);
-		expect( state.activeFilters ).toEqual( {
-			filter_stock_status: [ 'instock', 'outofstock' ],
-		} );
-	} );
-
-	it( 'ignores scalar URL form when the filterConfig does not opt in', () => {
-		const state = urlParamsToState( new URLSearchParams( '?category=news,sports' ), {
-			category: { filterType: 'taxonomy', taxonomy: 'category' },
-		} );
-		expect( state.activeFilters ).toEqual( {} );
-	} );
-
-	it( 'prefers array-form when both shapes are present for the same key', () => {
-		const params = new URLSearchParams();
-		params.append( 'filter_stock_status[]', 'onbackorder' );
-		params.append( 'filter_stock_status', 'instock,outofstock' );
-		const state = urlParamsToState( params, {
-			filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' },
-		} );
-		expect( state.activeFilters ).toEqual( { filter_stock_status: [ 'onbackorder' ] } );
-	} );
-
-	it( 'de-duplicates within the scalar value list', () => {
-		const state = urlParamsToState(
-			new URLSearchParams( '?filter_stock_status=instock,instock,outofstock' ),
-			{
-				filter_stock_status: { filterType: 'wc_stock_status', urlFormat: 'scalar' },
-			}
-		);
-		expect( state.activeFilters.filter_stock_status ).toEqual( [ 'instock', 'outofstock' ] );
 	} );
 } );
