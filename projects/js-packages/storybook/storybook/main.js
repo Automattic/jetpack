@@ -83,7 +83,9 @@ const sbconfig = {
 					name: 'search-dashboard-modules',
 					async resolveId( id, importer ) {
 						if (
-							id.startsWith( 'components/' ) &&
+							( id.startsWith( 'components/' ) ||
+								id === 'store' ||
+								id.startsWith( 'store/' ) ) &&
 							importer?.includes( '/search/src/dashboard/' )
 						) {
 							const dummyFile = path.join(
