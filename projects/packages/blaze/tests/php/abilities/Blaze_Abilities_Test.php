@@ -290,7 +290,8 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'blaze-ads/prepare-campaign', $abilities );
 		$this->assertStringContainsString( 'Audience overrides must use stable codes or closed enums', $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['description'] );
 
-		$schema     = $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ]['input_schema'];
+		$ability    = $abilities[ Blaze_Abilities::ABILITY_PREPARE_CAMPAIGN ];
+		$schema     = $ability['input_schema'];
 		$properties = $schema['properties'];
 
 		$this->assertSame( array( 'target_urn' ), $schema['required'] );
@@ -318,6 +319,12 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Blaze public page topic IDs', $properties['interests']['description'] );
 		$this->assertContains( 'IAB8_IAB18', $properties['interests']['items']['enum'] );
 		$this->assertNotContains( 'IAB18', $properties['interests']['items']['enum'] );
+
+		$output_properties = $ability['output_schema']['properties'];
+		$this->assertArrayHasKey( 'intent', $output_properties );
+		$this->assertArrayHasKey( 'assumptions', $output_properties );
+		$this->assertArrayHasKey( 'recommendations', $output_properties );
+		$this->assertArrayHasKey( 'budget_options', $output_properties );
 	}
 
 	// --- prepare_campaign: prefill payload + URL ---
@@ -429,6 +436,8 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 50.0, $prefill['budget']['amount'] );
 		$this->assertSame( 7, $prefill['duration_days'] );
 		$this->assertSame( 'VIEWS', $prefill['objective'] );
+		$this->assertSame( 'content', $result['intent'] );
+		$this->assertCount( 3, $result['budget_options'] );
 	}
 
 	/**
@@ -461,8 +470,9 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'Drive sales for a spring promotion.', $prefill['goal'] );
 		$this->assertSame( 'Make it less salesy.', $prefill['revision_instruction'] );
 		$this->assertSame( 'https://example.com/custom.jpg', $prefill['main_image']['url'] );
-		$this->assertSame( 'VIEWS', $prefill['objective'], 'DSP objective is server-owned and not overridden by public input.' );
+		$this->assertSame( 'CLICKS', $prefill['objective'], 'DSP objective is server-owned and inferred from public intent.' );
 		$this->assertFalse( $prefill['is_evergreen'] );
+		$this->assertArrayNotHasKey( 'budget_options', $result );
 	}
 
 	/**

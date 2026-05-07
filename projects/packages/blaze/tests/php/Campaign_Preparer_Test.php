@@ -93,6 +93,131 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( 'A short summary about the product.', $prefill['text_snippet'] );
 		$this->assertSame( 75.0, $prefill['budget']['amount'] );
 		$this->assertSame( 10, $prefill['duration_days'] );
+		$this->assertSame( 'content', $result['intent'] );
+		$this->assertArrayHasKey( 'assumptions', $result );
+		$this->assertArrayHasKey( 'recommendations', $result );
+		$this->assertArrayNotHasKey( 'budget_options', $result );
+	}
+
+	/**
+	 * Product targets get ecommerce-oriented defaults and conservative budget
+	 * options when budget or duration is omitted.
+	 */
+	public function test_prepare_infers_ecommerce_intent_and_budget_options_for_products() {
+		$ctx = $this->make_test_post(
+			array(
+				'post_type' => 'product',
+			)
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'target_urn' => $ctx['target_urn'],
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'ecommerce', $result['intent'] );
+		$this->assertSame( 'CLICKS', $result['prefill']['objective'] );
+		$this->assertSame( 50.0, $result['prefill']['budget']['amount'] );
+		$this->assertSame( 7, $result['prefill']['duration_days'] );
+		$this->assertArrayHasKey( 'budget_options', $result );
+		$this->assertCount( 3, $result['budget_options'] );
+		$this->assertSame( array( 'lower', 'recommended', 'higher' ), wp_list_pluck( $result['budget_options'], 'key' ) );
+
+		$recommended = $result['budget_options'][1];
+		$this->assertSame( 'recommended', $recommended['key'] );
+		$this->assertSame( 50.0, $recommended['budget']['amount'] );
+		$this->assertSame( 7.14, $recommended['daily_budget']['amount'] );
+		$this->assertSame( 7, $recommended['duration_days'] );
+		$this->assertStringContainsString( 'conservative', strtolower( $recommended['rationale'] ) );
+
+		$higher = $result['budget_options'][2];
+		$this->assertSame( 150.0, $higher['budget']['amount'] );
+		$this->assertStringContainsString( 'more reach', strtolower( $higher['rationale'] ) );
+		$this->assertStringContainsString( 'product', implode( ' ', $result['assumptions'] ) );
+	}
+
+	/**
+	 * Content targets retain visibility-oriented defaults.
+	 */
+	public function test_prepare_infers_content_intent_for_posts_and_pages() {
+		$post = $this->make_test_post(
+			array(
+				'post_type' => 'post',
+			)
+		);
+		$page = $this->make_test_post(
+			array(
+				'post_type' => 'page',
+			)
+		);
+
+		$post_result = Campaign_Preparer::prepare(
+			array(
+				'target_urn' => $post['target_urn'],
+			)
+		);
+		$page_result = Campaign_Preparer::prepare(
+			array(
+				'target_urn' => $page['target_urn'],
+			)
+		);
+
+		$this->assertSame( 'content', $post_result['intent'] );
+		$this->assertSame( 'content', $page_result['intent'] );
+		$this->assertSame( 'VIEWS', $post_result['prefill']['objective'] );
+		$this->assertSame( 'VIEWS', $page_result['prefill']['objective'] );
+	}
+
+	/**
+	 * Unknown target types stay explicit so future intelligence can handle them
+	 * without pretending the preparer knows more than it does.
+	 */
+	public function test_prepare_infers_unknown_intent_for_custom_post_types() {
+		$ctx = $this->make_test_post(
+			array(
+				'post_type' => 'portfolio_item',
+			)
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'target_urn' => $ctx['target_urn'],
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'unknown', $result['intent'] );
+		$this->assertSame( 'VIEWS', $result['prefill']['objective'] );
+		$this->assertStringContainsString( 'portfolio_item', implode( ' ', $result['assumptions'] ) );
+	}
+
+	/**
+	 * Natural-language goals can steer the inferred intent, and revision notes
+	 * remain visible as preparation assumptions.
+	 */
+	public function test_prepare_uses_goal_and_revision_instruction_in_assumptions() {
+		$ctx = $this->make_test_post(
+			array(
+				'post_type' => 'post',
+			)
+		);
+
+		$result = Campaign_Preparer::prepare(
+			array(
+				'target_urn'           => $ctx['target_urn'],
+				'goal'                 => 'Drive sales for a weekend offer.',
+				'revision_instruction' => 'Make the copy less salesy.',
+			)
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'ecommerce', $result['intent'] );
+		$this->assertSame( 'CLICKS', $result['prefill']['objective'] );
+		$this->assertStringContainsString( 'goal', strtolower( implode( ' ', $result['assumptions'] ) ) );
+		$this->assertStringContainsString( 'Drive sales for a weekend offer.', implode( ' ', $result['assumptions'] ) );
+		$this->assertStringContainsString( 'Make the copy less salesy.', implode( ' ', $result['assumptions'] ) );
 	}
 
 	/**
@@ -138,7 +263,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( array( 'IAB8_IAB18', 'IAB9_IAB22' ), $prefill['page_topics'] );
 		$this->assertArrayNotHasKey( 'interests', $prefill );
 		$this->assertFalse( $prefill['is_evergreen'] );
-		$this->assertSame( 'VIEWS', $prefill['objective'] );
+		$this->assertSame( 'CLICKS', $prefill['objective'] );
 	}
 
 	/**
