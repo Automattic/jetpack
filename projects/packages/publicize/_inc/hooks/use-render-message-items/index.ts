@@ -119,9 +119,14 @@ export function useRenderMessageItems(): RenderItem[] {
 	const items = useMemo< RenderItem[] >( () => {
 		return connections.map( connection => {
 			const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
-			const raw = hasConnectionMessage
-				? connection.message ?? ''
-				: connection.template ?? globalMessage ?? '';
+			let raw: string;
+			if ( hasConnectionMessage ) {
+				raw = connection.message ?? '';
+			} else if ( ctx.isPerNetworkMode ) {
+				raw = connection.template ?? globalMessage ?? '';
+			} else {
+				raw = globalMessage ?? '';
+			}
 			return {
 				id: connection.connection_id,
 				network: connection.service_name ?? '',
