@@ -1,5 +1,6 @@
-import { Button, ProgressBar } from '@wordpress/components';
+import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { formatDuration } from '../../utils/format';
 import { useUploadActions } from './upload-actions-context';
 import type { MockLibraryItem } from '../../types/library';
@@ -39,7 +40,7 @@ export default function ThumbnailField( { item }: Props ) {
 						<span>{ __( 'Local video', 'jetpack-videopress-pkg' ) }</span>
 					</div>
 					<div className="vp-library__hover-action">
-						<Button variant="secondary" size="compact" onClick={ () => promoteLocal( id ) }>
+						<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
 							{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
 						</Button>
 					</div>
@@ -56,7 +57,7 @@ export default function ThumbnailField( { item }: Props ) {
 			{ upload.status === 'failed' ? (
 				<div className="vp-library__failed">
 					<span>{ __( 'Upload failed', 'jetpack-videopress-pkg' ) }</span>
-					<Button variant="primary" size="compact" onClick={ () => retryUpload( id ) }>
+					<Button size="compact" onClick={ () => retryUpload( id ) }>
 						{ __( 'Retry', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</div>
