@@ -4,7 +4,7 @@
 .jp-search-answers-panel {
 	background: helper.$color-modal-background;
 	border: 1px solid helper.$color-border;
-	border-radius: 6px;
+	border-radius: helper.$border-radius-panel;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 	margin: 0 helper.$results-margin-lg 16px;
 	overflow: hidden;

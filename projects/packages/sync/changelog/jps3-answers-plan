@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Sync: sync jp_search_behavior and jetpack_search_topic CPTs when Jetpack Search AI Answers is enabled.

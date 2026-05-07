@@ -1826,12 +1826,9 @@ class Search extends Module {
 		return $list;
 	}
 
-	/**
-	//
 	// Indexing functions for wp.com.
 
 	/**
-	 *
 	 * Check whether a postmeta or taxonomy 'key' is in the indexable
 	 * list. This is called by the indexing code on wp.com to decide
 	 * whether to include something in the index.

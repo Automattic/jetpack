@@ -59,6 +59,21 @@ Open questions to resolve before GA:
 
 ---
 
+## Overlay CSS: Theme Compatibility
+
+The instant-search overlay (and the AI answers panel within it) ships high-specificity hardcoded styles for colors, typography, and spacing. These override or ignore the host site's global styles, which creates two problems:
+
+1. **Site maintainers can't easily restyle the overlay** to match their theme — overriding requires even higher specificity or `!important`.
+2. **The AI answers panel looks disconnected** from the rest of the site, especially on sites with distinctive typography or color schemes.
+
+The right fix is to audit the overlay's CSS and replace hardcoded values with CSS custom properties that have sensible defaults but can be overridden at the `:root` or theme level. Font properties (`font-family`, `font-size`) should likely `inherit` from the document rather than being set at all.
+
+This is a whole-overlay concern, not specific to the answers panel. It should be scoped as a standalone refactor — changing the answers panel CSS in isolation would create inconsistency with the surrounding overlay.
+
+Relevant areas: `src/instant-search/lib/styles/_variables.scss`, `src/instant-search/components/*.scss`.
+
+---
+
 ## Analytics Tab
 
 A future **Analytics** tab will be added to the Search dashboard tab bar and will become the default tab. The current Overview content (billing/usage) will remain but yield the default position to Analytics.
