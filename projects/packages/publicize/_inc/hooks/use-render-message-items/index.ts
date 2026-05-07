@@ -1,5 +1,5 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { useSelect } from '@wordpress/data';
+import { useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
@@ -119,11 +119,20 @@ export function useRenderMessageItems(): RenderItem[] {
 	const items = useMemo< RenderItem[] >( () => {
 		return connections.map( connection => {
 			const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
+			// Mirror the rule in `useConnectionPreviewData` exactly — per-connection
+			// message and template only apply in per-network mode. If they leak into
+			// global mode here, the consumer's `baseMessage` (globalMessage) won't
+			// match this items array's message and `isDebouncingRenderedMessage` stays
+			// stuck true after the user toggles per-network → global.
 			let raw: string;
-			if ( hasConnectionMessage ) {
-				raw = connection.message ?? '';
-			} else if ( ctx.isPerNetworkMode ) {
-				raw = connection.template ?? globalMessage ?? '';
+			if ( ctx.isPerNetworkMode ) {
+				if ( hasConnectionMessage ) {
+					raw = connection.message ?? '';
+				} else if ( templatesEnabled && connection.template ) {
+					raw = connection.template;
+				} else {
+					raw = globalMessage ?? '';
+				}
 			} else {
 				raw = globalMessage ?? '';
 			}
@@ -134,7 +143,7 @@ export function useRenderMessageItems(): RenderItem[] {
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
-	}, [ connections, globalMessage, ctx ] );
+	}, [ connections, globalMessage, ctx, templatesEnabled ] );
 
 	return useDebouncedItems( items );
 }
@@ -151,20 +160,23 @@ export function useRenderMessageItems(): RenderItem[] {
  */
 export function useDriveRenderedMessagesFetch(): void {
 	const items = useRenderMessageItems();
+	const registry = useRegistry();
 	const postId = useSelect(
 		select => select( editorStore ).getCurrentPostId() as number | undefined,
 		[]
 	);
 
-	useSelect(
-		select => {
-			if ( ! postId || items.length === 0 ) {
-				return null;
-			}
-			return select( socialStore ).getRenderedMessages( postId, items );
-		},
-		[ postId, items ]
-	);
+	useEffect( () => {
+		if ( ! postId || items.length === 0 ) {
+			return;
+		}
+
+		void registry
+			.resolveSelect( socialStore )
+			.getRenderedMessages( postId, items )
+			// Errors are intentionally swallowed to preserve existing UI behavior.
+			.catch( () => {} );
+	}, [ items, postId, registry ] );
 }
 
 /**
@@ -188,12 +200,17 @@ function hashMessages( items: RenderItem[] ): string {
  */
 function useDebouncedItems( items: RenderItem[] ): RenderItem[] {
 	const [ debounced, setDebounced ] = useState( items );
-	const prevMessagesRef = useRef( hashMessages( items ) );
+	const committedMessagesRef = useRef( hashMessages( items ) );
+
+	useEffect( () => {
+		// Track the last committed (emitted) message fingerprint, not the latest input.
+		// This avoids flushing pending message edits early on unrelated re-renders.
+		committedMessagesRef.current = hashMessages( debounced );
+	}, [ debounced ] );
 
 	useEffect( () => {
 		const currentMessages = hashMessages( items );
-		const hasMessageChange = currentMessages !== prevMessagesRef.current;
-		prevMessagesRef.current = currentMessages;
+		const hasMessageChange = currentMessages !== committedMessagesRef.current;
 
 		if ( ! hasMessageChange ) {
 			setDebounced( items );
