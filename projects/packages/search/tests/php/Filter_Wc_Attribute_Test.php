@@ -118,4 +118,23 @@ class Filter_Wc_Attribute_Test extends TestCase {
 		);
 		$this->assertSame( 1, $config['maxItems'] );
 	}
+
+	public function test_default_label_returns_empty_for_non_pa_prefixed_slug() {
+		// Mirrors the prefix guard in derive_filter_key() so a future caller
+		// that skips build_config() can't coerce a non-WC taxonomy slug into
+		// a humanized label this block doesn't represent.
+		$this->assertSame( '', Filter_Wc_Attribute::default_label( array( 'attributeTaxonomy' => 'category' ) ) );
+		$this->assertSame( '', Filter_Wc_Attribute::default_label( array( 'attributeTaxonomy' => '' ) ) );
+	}
+
+	public function test_build_config_defaults_bucket_sort_order_to_count() {
+		// When the attribute is omitted, normalize_bucket_sort_order() falls
+		// through to the 'count' default. Locks the wired-up default so a
+		// future refactor to that helper can't silently flip the order.
+		$config = Filter_Wc_Attribute::build_config(
+			array( 'attributeTaxonomy' => 'pa_color' ),
+			'pa_color'
+		);
+		$this->assertSame( 'count', $config['bucketSortOrder'] );
+	}
 }

@@ -68,7 +68,11 @@ class Filter_Wc_Attribute {
 	 */
 	public static function default_label( array $attributes ): string {
 		$slug = sanitize_key( (string) ( $attributes['attributeTaxonomy'] ?? '' ) );
-		if ( '' === $slug ) {
+		// Mirror the prefix guard from derive_filter_key() so a non-`pa_*` slug
+		// reaching this method directly (a future caller skipping build_config)
+		// still resolves to '' rather than producing a humanized label for a
+		// taxonomy this block doesn't represent.
+		if ( '' === $slug || 0 !== strpos( $slug, self::ATTRIBUTE_PREFIX ) ) {
 			return '';
 		}
 		if ( function_exists( 'get_taxonomy' ) ) {

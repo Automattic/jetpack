@@ -53,6 +53,10 @@ $all_selected_on_paint = false;
 if ( $has_buckets && ! empty( $seeded_selected ) ) {
 	$all_selected_on_paint = true;
 	foreach ( $seeded_buckets as $bucket ) {
+		// Keep this `slug/Name` → `slug` extraction in lockstep with
+		// bucketValue() in store/bucket-key.js. The JS getter that powers
+		// hydration uses the same split; if either delimiter changes the
+		// other has to follow.
 		$raw_key   = (string) ( $bucket['key'] ?? '' );
 		$slash_idx = strpos( $raw_key, '/' );
 		$value     = false === $slash_idx ? $raw_key : substr( $raw_key, 0, $slash_idx );
