@@ -3695,7 +3695,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				categories: selectedCats,
 				...tagData,
 				featured_media: state.featuredMediaId || 0,
-				wpcom_editor_used: 'write-editor',
+				wpcom_write_editor_used: true,
 			},
 		} );
 

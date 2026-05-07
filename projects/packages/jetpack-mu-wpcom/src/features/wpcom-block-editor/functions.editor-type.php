@@ -49,28 +49,25 @@ function remember_block_editor( $editor_settings, $post ) {
 }
 
 /**
- * Register a write-only REST field so editors (e.g. the Write editor) can set
- * the last-editor attribution via save requests. The underlying
- * _last_editor_used_jetpack meta key is never exposed in REST responses.
+ * Register a write-only REST field so the Write editor can signal that it
+ * produced a save. The update callback calls remember_editor() to set the
+ * internal _last_editor_used_jetpack meta, which is never exposed in responses.
  */
 \add_action(
 	'rest_api_init',
 	function () {
 		\register_rest_field(
 			'post',
-			'wpcom_editor_used',
+			'wpcom_write_editor_used',
 			array(
 				'get_callback'    => null,
 				'update_callback' => function ( $value, $post ) {
-					if ( ! \current_user_can( 'edit_post', $post->ID ) ) {
-						return;
+					if ( $value && \current_user_can( 'edit_post', $post->ID ) ) {
+						remember_editor( $post->ID, 'write-editor' );
 					}
-					remember_editor( $post->ID, $value );
 				},
 				'schema'          => array(
-					'type'        => 'string',
-					'description' => __( 'Editor used to produce this revision.', 'jetpack-mu-wpcom' ),
-					'enum'        => array( 'classic-editor', 'block-editor', 'write-editor' ),
+					'type' => 'boolean',
 				),
 			)
 		);
