@@ -32,10 +32,7 @@ const SAMPLE_FILTER_ITEMS = [
 	{ value: 'green', label: __( 'Green', 'jetpack-search-pkg' ), count: 3 },
 ];
 
-const LOADING_TEXT = __(
-	'Loading product attributes…',
-	'jetpack-search-pkg'
-);
+const LOADING_TEXT = __( 'Loading product attributes…', 'jetpack-search-pkg' );
 const PICKER_HELP = __(
 	'Pick which WooCommerce product attribute drives this filter.',
 	'jetpack-search-pkg'
