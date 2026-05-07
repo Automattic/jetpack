@@ -28,4 +28,22 @@ body.jetpack_page_jetpack-videopress {
 		flex: 1 1 0;
 		min-height: 0;
 	}
+
+	// Match the design-system default-variant Tabs (Storybook reference).
+	// We pair `<Tabs.List>` (no variant) with the canonical 16px per-tab inline
+	// padding — `admin-page-layout` would otherwise bump it to 24px to line the
+	// first tab up with the page-title edge. To keep that alignment, offset the
+	// tablist itself by the missing 8px so the first tab's text still starts at
+	// the page-header inline padding (8px tablist + 16px tab = 24px). The
+	// hairline lives on `.jp-admin-page-tabs` and still spans the full width.
+	.jp-admin-page-tabs {
+
+		[role="tablist"] {
+			padding-inline-start: 8px;
+		}
+
+		[role="tab"] {
+			padding-inline: var(--wpds-dimension-padding-lg);
+		}
+	}
 }
