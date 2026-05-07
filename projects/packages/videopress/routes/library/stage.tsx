@@ -170,7 +170,7 @@ const Stage = () => {
 			}
 		>
 			<UploadActionsProvider value={ { promoteLocal, retryUpload } }>
-				<div className="vp-library__viewport">
+				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
 					<DataViews< MockLibraryItem >
 						data={ pagedData }
 						fields={ libraryFields }
