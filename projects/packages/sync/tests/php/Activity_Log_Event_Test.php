@@ -57,13 +57,32 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that create registers the Activity Log post type if it is missing.
+	 */
+	public function test_activity_log_event_registers_post_type_before_insert() {
+		unregister_post_type( Activity_Log_Event::POST_TYPE );
+
+		$this->assertFalse( post_type_exists( Activity_Log_Event::POST_TYPE ) );
+
+		$post_id = Activity_Log_Event::create(
+			array(
+				'title'   => 'Cache flushed',
+				'content' => 'Plain text note.',
+			)
+		);
+
+		$this->assertIsInt( $post_id );
+		$this->assertTrue( post_type_exists( Activity_Log_Event::POST_TYPE ) );
+	}
+
+	/**
 	 * Tests that source is optional.
 	 */
 	public function test_activity_log_event_allows_missing_source() {
 		$post_id = Activity_Log_Event::create(
 			array(
 				'title'   => 'Cache flushed',
-				'content' => 'Plain text note.',
+				'content' => "Plain text\nnote.",
 			)
 		);
 
@@ -227,6 +246,41 @@ class Activity_Log_Event_Test extends BaseTestCase {
 				'title'   => array( 'Cache flushed' ),
 				'content' => 'Plain text note.',
 				'source'  => 'mc',
+			)
+		);
+
+		$post = get_post( $post_id );
+
+		$this->assertInstanceOf( \WP_Post::class, $post );
+		$this->assertFalse( $this->filter_activity_log_sync_published_post( $post_id, $post ) );
+	}
+
+	/**
+	 * Tests that direct CPT inserts with invalid severity fail Sync published-post enqueue validation.
+	 */
+	public function test_activity_log_sync_published_post_validation_rejects_invalid_severity() {
+		$post_id = $this->insert_activity_log_post(
+			array(
+				'title'    => 'Cache flushed',
+				'content'  => 'Plain text note.',
+				'severity' => 'critical',
+			)
+		);
+
+		$post = get_post( $post_id );
+
+		$this->assertInstanceOf( \WP_Post::class, $post );
+		$this->assertFalse( $this->filter_activity_log_sync_published_post( $post_id, $post ) );
+	}
+
+	/**
+	 * Tests that direct CPT inserts with content that sanitizes to empty fail Sync published-post enqueue validation.
+	 */
+	public function test_activity_log_sync_published_post_validation_rejects_content_that_sanitizes_to_empty() {
+		$post_id = $this->insert_activity_log_post(
+			array(
+				'title'   => 'Cache flushed',
+				'content' => "<strong> </strong>\n\t",
 			)
 		);
 

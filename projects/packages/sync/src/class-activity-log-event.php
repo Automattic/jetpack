@@ -88,7 +88,8 @@ class Activity_Log_Event {
 	/**
 	 * Logs a custom event to the Jetpack Activity Log.
 	 *
-	 * Call this on or after the `init` action so the Activity Log post type and Sync listeners are registered.
+	 * Prefer calling this on or after the `init` action so Sync listeners are registered.
+	 * The Activity Log post type is registered defensively if needed before insert.
 	 *
 	 * @param array $args {
 	 *     Activity log event arguments.
@@ -104,6 +105,10 @@ class Activity_Log_Event {
 		$payload = self::build_payload( $args );
 		if ( false === $payload ) {
 			return false;
+		}
+
+		if ( ! post_type_exists( self::POST_TYPE ) ) {
+			self::register_post_type();
 		}
 
 		$post_id = wp_insert_post(
@@ -122,7 +127,7 @@ class Activity_Log_Event {
 	}
 
 	/**
-	 * Checks that an Activity Log custom event has the minimum payload shape before enqueueing it for sync,
+	 * Checks that an Activity Log custom event has a valid payload before enqueueing it for sync,
 	 * in case data bypasses the Activity_Log_Event::create() helper.
 	 *
 	 * @param \WP_Post $post Activity Log post.
@@ -142,18 +147,7 @@ class Activity_Log_Event {
 			return false;
 		}
 
-		foreach ( array( 'title', 'content' ) as $field ) {
-			if (
-				! isset( $data[ $field ] )
-				|| is_array( $data[ $field ] )
-				|| is_object( $data[ $field ] )
-				|| '' === trim( (string) $data[ $field ] )
-			) {
-				return false;
-			}
-		}
-
-		return true;
+		return false !== self::build_payload( $data );
 	}
 
 	/**
@@ -225,7 +219,12 @@ class Activity_Log_Event {
 		}
 
 		$value = wp_strip_all_tags( (string) $value, true );
-		$value = trim( preg_replace( '/[^\P{C}\t\r\n]/u', '', $value ) );
+		$value = preg_replace( '/\s+/', ' ', $value );
+		if ( null === $value ) {
+			return '';
+		}
+
+		$value = trim( $value );
 
 		if ( function_exists( 'mb_substr' ) ) {
 			return mb_substr( $value, 0, $max );
