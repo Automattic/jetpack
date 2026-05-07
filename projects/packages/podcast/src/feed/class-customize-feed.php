@@ -246,7 +246,14 @@ class Customize_Feed {
 			$stats_url = Stats_Url::generate_url( $blog_id, (int) $post_obj->ID, $ext );
 			$enclosure = preg_replace_callback(
 				'/url="[^"]*"/i',
-				static function () use ( $stats_url ) {
+				/**
+				 * Replace the matched `url="…"` attribute with the stats URL.
+				 *
+				 * @param array $matches Regex matches (unused — we always emit the same stats URL).
+				 * @return string
+				 */
+				static function ( array $matches ) use ( $stats_url ) {
+					unset( $matches );
 					return 'url="' . esc_url( $stats_url ) . '"';
 				},
 				$enclosure,
