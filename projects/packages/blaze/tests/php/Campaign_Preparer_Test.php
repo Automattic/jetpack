@@ -194,6 +194,7 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		);
 
 		$this->assertIsArray( $result );
+		$this->assertIsArray( $captured_body );
 		$this->assertSame(
 			array(
 				'time_zone',
@@ -222,9 +223,27 @@ class Campaign_Preparer_Test extends BaseTestCase {
 		$this->assertSame( 'available', $result['forecast']['status'] );
 		$this->assertSame( 'clicks', $result['forecast']['primary_metric'] );
 		$this->assertSame( 'views', $result['forecast']['secondary_metric'] );
-		$this->assertSame( array( 'min' => 30, 'max' => 60 ), $result['forecast']['clicks'] );
-		$this->assertSame( array( 'min' => 1200, 'max' => 2400 ), $result['forecast']['views'] );
-		$this->assertSame( array( 'min' => 1200, 'max' => 2400 ), $result['forecast']['impressions'] );
+		$this->assertSame(
+			array(
+				'min' => 30,
+				'max' => 60,
+			),
+			$result['forecast']['clicks']
+		);
+		$this->assertSame(
+			array(
+				'min' => 1200,
+				'max' => 2400,
+			),
+			$result['forecast']['views']
+		);
+		$this->assertSame(
+			array(
+				'min' => 1200,
+				'max' => 2400,
+			),
+			$result['forecast']['impressions']
+		);
 	}
 
 	/**

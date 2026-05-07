@@ -380,7 +380,7 @@ class Blaze_Abilities extends Registrar {
 								'type' => 'string',
 							),
 						),
-						'recommendations' => array(
+						'recommendations'  => array(
 							'type'        => 'array',
 							'description' => __( 'Plain-language guidance for reviewing the prepared campaign.', 'jetpack-blaze' ),
 							'items'       => array(
@@ -415,12 +415,12 @@ class Blaze_Abilities extends Registrar {
 								),
 							),
 						),
-						'prefill_url'       => array(
+						'prefill_url'      => array(
 							'type'        => 'string',
 							'format'      => 'uri',
 							'description' => __( 'Deep-link the merchant follows to land in the Blaze UI with the campaign form pre-populated. The prefill payload is encoded in the blaze_prefill query parameter.', 'jetpack-blaze' ),
 						),
-						'prefill'           => array(
+						'prefill'          => array(
 							'type'        => 'object',
 							'description' => __( 'The structured prefill payload — same data as encoded in prefill_url. Useful for the MCP client to surface a summary of what was prepared before the merchant clicks through.', 'jetpack-blaze' ),
 						),
