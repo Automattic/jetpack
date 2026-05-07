@@ -100,4 +100,56 @@ describe( 'useScanThreatsQuery', () => {
 		expect( result.current.data ).toHaveLength( 1 );
 		expect( result.current.data[ 0 ].title ).toBe( 'Active X' );
 	} );
+
+	it( 'resolves with an empty array when both queries return empty arrays', async () => {
+		( fetchers.fetchSiteScan as jest.Mock ).mockResolvedValue( {
+			state: 'idle',
+			threats: [],
+		} );
+		( fetchers.fetchSiteScanHistory as jest.Mock ).mockResolvedValue( { threats: [] } );
+
+		const client = freshClient();
+		const { result } = renderHook( () => useScanThreatsQuery(), {
+			wrapper: wrapper( client ),
+		} );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( result.current.data ).toEqual( [] );
+		expect( result.current.activeError ).toBeNull();
+		expect( result.current.historyError ).toBeNull();
+	} );
+
+	it( 'reflects active rows during the active-before-history race, then merges once history resolves', async () => {
+		// Active resolves immediately; history is delayed so we can observe the
+		// "active-resolved, history-pending" intermediate state.
+		( fetchers.fetchSiteScan as jest.Mock ).mockResolvedValue( {
+			state: 'idle',
+			threats: [ { id: 'a', status: 'current', title: 'Active A' } ],
+		} );
+		let resolveHistory: ( ( value: { threats: unknown[] } ) => void ) | undefined;
+		( fetchers.fetchSiteScanHistory as jest.Mock ).mockImplementation(
+			() =>
+				new Promise( resolve => {
+					resolveHistory = resolve;
+				} )
+		);
+
+		const client = freshClient();
+		const { result } = renderHook( () => useScanThreatsQuery(), {
+			wrapper: wrapper( client ),
+		} );
+
+		// Intermediate state: active settled, history still pending — `data`
+		// should already include the active row even though `isLoading` is true.
+		await waitFor( () => expect( result.current.data.map( t => t.id ) ).toEqual( [ 'a' ] ) );
+		expect( result.current.activeError ).toBeNull();
+
+		// Now let history resolve and verify the merged shape.
+		resolveHistory?.( {
+			threats: [ { id: 'b', status: 'fixed', title: 'History B' } ],
+		} );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( result.current.data.map( t => t.id ) ).toEqual( [ 'a', 'b' ] );
+		expect( result.current.historyError ).toBeNull();
+	} );
 } );
