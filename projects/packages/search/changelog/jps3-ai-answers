@@ -2,4 +2,3 @@ Significance: major
 Type: added
 
 Search: AI Answers — add streaming ai answers panel in the instant-search overlay. The AI can be customized from a new AI Answers dashboard. The feature is availabe for all paid plans.
-Sync: sync wp_guideline CPT when Jetpack Search AI Answers is enabled.
