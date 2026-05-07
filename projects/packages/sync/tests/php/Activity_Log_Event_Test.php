@@ -49,7 +49,7 @@ class Activity_Log_Event_Test extends BaseTestCase {
 		$payload = $this->get_activity_log_payload( $post_id );
 
 		$this->assertSame( 'Cache flushed', $payload['title'] );
-		$this->assertSame( "First line\nSecond line", $payload['content'] );
+		$this->assertSame( 'First line Second line', $payload['content'] );
 		$this->assertSame( 'mc', $payload['source'] );
 		$this->assertSame( 'success', $payload['severity'] );
 		$this->assertArrayNotHasKey( 'external_id', $payload );

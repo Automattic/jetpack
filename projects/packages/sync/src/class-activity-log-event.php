@@ -185,7 +185,7 @@ class Activity_Log_Event {
 	 */
 	private static function build_payload( array $args ) {
 		$title   = self::sanitize_string( $args['title'] ?? '', self::MAX_TITLE_LENGTH );
-		$content = self::sanitize_string( $args['content'] ?? '', self::MAX_CONTENT_LENGTH, true );
+		$content = self::sanitize_string( $args['content'] ?? '', self::MAX_CONTENT_LENGTH );
 
 		if ( '' === $title || '' === $content ) {
 			return false;
@@ -213,17 +213,16 @@ class Activity_Log_Event {
 	/**
 	 * Strips HTML/PHP from a value and truncates it to a maximum character length, multibyte-safe.
 	 *
-	 * @param mixed $value                Raw value.
-	 * @param int   $max                  Maximum length in characters.
-	 * @param bool  $preserve_line_breaks Whether to preserve line breaks.
+	 * @param mixed $value Raw value.
+	 * @param int   $max   Maximum length in characters.
 	 * @return string
 	 */
-	private static function sanitize_string( $value, $max, $preserve_line_breaks = false ) {
+	private static function sanitize_string( $value, $max ) {
 		if ( is_array( $value ) || is_object( $value ) ) {
 			return '';
 		}
 
-		$value = wp_strip_all_tags( (string) $value, ! $preserve_line_breaks );
+		$value = wp_strip_all_tags( (string) $value, true );
 		$value = trim( preg_replace( '/[^\P{C}\t\r\n]/u', '', $value ) );
 
 		if ( function_exists( 'mb_substr' ) ) {
