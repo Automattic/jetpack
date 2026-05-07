@@ -2951,6 +2951,21 @@ const { state } = store( 'wpcom-write', {
 			}
 		},
 
+		handleHelpKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showHelp = false;
+				event.currentTarget.previousElementSibling?.focus();
+			}
+		},
+
+		handleHelpFocusOut( event ) {
+			const popover = event.currentTarget;
+			if ( ! popover.contains( event.relatedTarget ) ) {
+				state.showHelp = false;
+			}
+		},
+
 		toggleCatPicker( event ) {
 			event.stopPropagation();
 			state.showCatPicker = ! state.showCatPicker;
