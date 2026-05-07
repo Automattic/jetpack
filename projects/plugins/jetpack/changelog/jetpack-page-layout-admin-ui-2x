@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: compat
 
 Settings and AI pages: replace the `.admin-ui-page` selector hook (gone in admin-ui 2.0.0) with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides.
