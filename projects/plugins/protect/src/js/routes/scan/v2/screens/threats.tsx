@@ -58,7 +58,7 @@ export default function ThreatsScreen() {
 	return (
 		<ThreatsDataViews
 			data={ data }
-			showStatusFilter={ true }
+			showStatusFilter={ false }
 			filters={ [ { field: 'status', operator: 'isAny', value: [ 'current' ] } ] }
 			persistKey={ PERSIST_KEY }
 			isThreatEligibleForFix={ isFixable }
