@@ -105,12 +105,11 @@ export default function NewsletterPage( {
 				return;
 			}
 			navigate( {
-				search: ( prev: Record< string, unknown > ) => ( {
-					...prev,
+				search: {
 					tab: next === 'settings' ? 'settings' : undefined,
 					subscriber: undefined,
 					u: undefined,
-				} ),
+				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
 		[ navigate ]

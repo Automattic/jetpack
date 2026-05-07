@@ -33,7 +33,14 @@ const Stage = () => {
 		strict: false,
 	} ) as StageSearch;
 
-	const activeTab: NewsletterTab = search.tab === 'settings' ? 'settings' : 'subscribers';
+	// When `jetpack_wp_admin_subscriber_management_enabled` is filtered to
+	// false on the server, the page is Settings-only — pin `activeTab`
+	// there so we never try to render the Subscribers body.
+	const subscribersEnabled = getNewsletterScriptData()?.subscriberManagementEnabled !== false;
+	let activeTab: NewsletterTab = 'subscribers';
+	if ( ! subscribersEnabled || search.tab === 'settings' ) {
+		activeTab = 'settings';
+	}
 
 	// Initialize analytics once for the entire page so future tab/section
 	// events fire regardless of which tab a visitor lands on. Mirrors the
@@ -54,12 +61,18 @@ const Stage = () => {
 						actions={ activeTab === 'subscribers' ? actions : undefined }
 						contentHasPadding={ activeTab === 'settings' }
 					>
-						<Tabs.Panel value="subscribers" focusable={ false }>
-							{ activeTab === 'subscribers' ? body : null }
-						</Tabs.Panel>
-						<Tabs.Panel value="settings" focusable={ false }>
-							{ activeTab === 'settings' ? <NewsletterSettingsBody /> : null }
-						</Tabs.Panel>
+						{ subscribersEnabled ? (
+							<>
+								<Tabs.Panel value="subscribers" focusable={ false }>
+									{ activeTab === 'subscribers' ? body : null }
+								</Tabs.Panel>
+								<Tabs.Panel value="settings" focusable={ false }>
+									{ activeTab === 'settings' ? <NewsletterSettingsBody /> : null }
+								</Tabs.Panel>
+							</>
+						) : (
+							<NewsletterSettingsBody />
+						) }
 					</NewsletterPage>
 				) }
 			</SubscribersBody>
