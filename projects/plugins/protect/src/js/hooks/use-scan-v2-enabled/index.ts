@@ -25,6 +25,6 @@ export default function useScanV2Enabled(): boolean {
 	}
 
 	const fromConstant = Boolean( window.jetpackProtectInitialState?.scanV2Enabled );
-	const fromUrl = new URLSearchParams( window.location.search ).has( 'protect-scan-v2' );
+	const fromUrl = new URLSearchParams( window.location.search ).get( 'protect-scan-v2' ) === '1';
 	return fromConstant || fromUrl;
 }
