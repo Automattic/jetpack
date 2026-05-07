@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the Sort_Control helper class used by the jetpack/sort-control
+ * Tests for the Sort_Control helper class used by the jetpack-search/results-sort
  * block. Covers attribute normalization so render.php can trust the inputs
  * it receives regardless of what a garbage block attribute carries.
  */

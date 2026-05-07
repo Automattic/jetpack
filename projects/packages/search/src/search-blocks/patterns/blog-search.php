@@ -21,25 +21,25 @@ register_block_pattern(
 		),
 		'content'     => '<!-- wp:group {"style":{"spacing":{"blockGap":"1.5rem"}}} -->
 <div class="wp-block-group">
-<!-- wp:jetpack/search-input /-->
+<!-- wp:jetpack-search/search-input /-->
 
 <!-- wp:columns {"style":{"spacing":{"blockGap":"2rem"}}} -->
 <div class="wp-block-columns">
 
 <!-- wp:column -->
 <div class="wp-block-column">
-<!-- wp:jetpack/results-panel -->
+<!-- wp:jetpack-search/search-results -->
 <!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
 <div class="wp-block-group">
-<!-- wp:jetpack/results-count /-->
-<!-- wp:jetpack/sort-control /-->
+<!-- wp:jetpack-search/results-count /-->
+<!-- wp:jetpack-search/results-sort /-->
 </div>
 <!-- /wp:group -->
 
-<!-- wp:jetpack/search-results /-->
-<!-- wp:jetpack/load-more /-->
-<!-- wp:jetpack/powered-by /-->
-<!-- /wp:jetpack/results-panel -->
+<!-- wp:jetpack-search/results-list /-->
+<!-- wp:jetpack-search/results-load-more /-->
+<!-- wp:jetpack-search/powered-by /-->
+<!-- /wp:jetpack-search/search-results -->
 </div>
 <!-- /wp:column -->
 
@@ -48,11 +48,11 @@ register_block_pattern(
 <!-- wp:heading {"level":2,"style":{"typography":{"fontSize":"1.25rem"}}} -->
 <h2 class="wp-block-heading" style="font-size:1.25rem">' . esc_html__( 'Filter options', 'jetpack-search-pkg' ) . '</h2>
 <!-- /wp:heading -->
-<!-- wp:jetpack/active-filters /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
-<!-- wp:jetpack/filter-checkbox {"filterType":"post_type"} /-->
-<!-- wp:jetpack/post-type-filter /-->
+<!-- wp:jetpack-search/active-filters /-->
+<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
+<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
+<!-- wp:jetpack-search/filter-checkbox {"filterType":"post_type"} /-->
+<!-- wp:jetpack-search/filter-post-type /-->
 </div>
 <!-- /wp:column -->
 

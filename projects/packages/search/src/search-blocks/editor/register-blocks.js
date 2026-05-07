@@ -19,18 +19,18 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { getCategories, registerBlockType, setCategories } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
-import CommonFiltersEdit, { save as commonFiltersSave } from '../blocks/common-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
-import FilterPopoverEdit, { save as filterPopoverSave } from '../blocks/filter-popover/edit';
-import LoadMoreEdit from '../blocks/load-more/edit';
-import PostTypeFilterEdit from '../blocks/post-type-filter/edit';
+import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
+import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
+import FiltersStackEdit, { save as filtersStackSave } from '../blocks/filters-stack/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
-import ResultsPanelEdit, { save as resultsPanelSave } from '../blocks/results-panel/edit';
+import ResultsListEdit from '../blocks/results-list/edit';
+import ResultsLoadMoreEdit from '../blocks/results-load-more/edit';
+import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
-import SearchResultsEdit from '../blocks/search-results/edit';
-import SortControlEdit from '../blocks/sort-control/edit';
+import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
 
 // Default save for blocks that own no editor-side state — render.php is the
 // source of truth on the front end, so save returns null. Container blocks
@@ -40,19 +40,19 @@ import SortControlEdit from '../blocks/sort-control/edit';
 const save = () => null;
 
 const BLOCKS = [
-	[ 'jetpack/search-input', SearchInputEdit ],
-	[ 'jetpack/search-results', SearchResultsEdit ],
-	[ 'jetpack/filter-checkbox', FilterCheckboxEdit ],
-	[ 'jetpack/filter-date', FilterDateEdit ],
-	[ 'jetpack/active-filters', ActiveFiltersEdit ],
-	[ 'jetpack/post-type-filter', PostTypeFilterEdit ],
-	[ 'jetpack/common-filters', CommonFiltersEdit, commonFiltersSave ],
-	[ 'jetpack/filter-popover', FilterPopoverEdit, filterPopoverSave ],
-	[ 'jetpack/sort-control', SortControlEdit ],
-	[ 'jetpack/results-count', ResultsCountEdit ],
-	[ 'jetpack/load-more', LoadMoreEdit ],
-	[ 'jetpack/results-panel', ResultsPanelEdit, resultsPanelSave ],
-	[ 'jetpack/powered-by', PoweredByEdit ],
+	[ 'jetpack-search/search-input', SearchInputEdit ],
+	[ 'jetpack-search/results-list', ResultsListEdit ],
+	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
+	[ 'jetpack-search/filter-date', FilterDateEdit ],
+	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
+	[ 'jetpack-search/filter-post-type', FilterPostTypeEdit ],
+	[ 'jetpack-search/filters-stack', FiltersStackEdit, filtersStackSave ],
+	[ 'jetpack-search/filters-popover', FiltersPopoverEdit, filtersPopoverSave ],
+	[ 'jetpack-search/results-sort', ResultsSortEdit ],
+	[ 'jetpack-search/results-count', ResultsCountEdit ],
+	[ 'jetpack-search/results-load-more', ResultsLoadMoreEdit ],
+	[ 'jetpack-search/search-results', SearchResultsEdit, searchResultsSave ],
+	[ 'jetpack-search/powered-by', PoweredByEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /

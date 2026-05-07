@@ -219,8 +219,8 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertSame( 'Jetpack Search Results', $registered->title );
 		// Core blocks that make up the layout — guards against an accidental
 		// empty-file read or a placeholder substitution that blows away the body.
-		$this->assertStringContainsString( '<!-- wp:jetpack/search-results /-->', $registered->content );
-		$this->assertStringContainsString( '<!-- wp:jetpack/filter-checkbox', $registered->content );
+		$this->assertStringContainsString( '<!-- wp:jetpack-search/results-list /-->', $registered->content );
+		$this->assertStringContainsString( '<!-- wp:jetpack-search/filter-checkbox', $registered->content );
 		// The `{{FILTER_HEADING}}` placeholder must have been substituted —
 		// if it leaks into the registry, the heading renders as `{{FILTER_HEADING}}`
 		// on the front end.

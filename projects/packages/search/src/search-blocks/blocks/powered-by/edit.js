@@ -1,5 +1,5 @@
 /**
- * Editor preview for jetpack/powered-by.
+ * Editor preview for jetpack-search/powered-by.
  *
  * Mirrors the front-end DOM render.php produces. The block has no
  * custom attributes — paid-plan authors who want the colophon gone

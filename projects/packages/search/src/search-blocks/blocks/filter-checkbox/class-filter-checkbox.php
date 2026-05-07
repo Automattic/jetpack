@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helper methods for the jetpack/filter-checkbox block.
+ * Helper methods for the jetpack-search/filter-checkbox block.
  *
  * Keeps filter-key derivation and default labels out of render.php so both
  * the SSR fetch (which needs to know the filterKey to read the URL-seeded

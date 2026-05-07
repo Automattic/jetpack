@@ -161,7 +161,7 @@ let searchToken = 0;
  * Returns "Searching…" while a search is in flight, "Found 42 results" once
  * a query resolves with hits, or an empty string in every other case
  * (pre-search, error, or zero hits — the empty-state region inside
- * `jetpack/search-results` owns that copy). Called by every action that mutates `isLoading` or
+ * `jetpack-search/results-list` owns that copy). Called by every action that mutates `isLoading` or
  * `totalResults` so the seeded `state.resultsCountText` stays in lockstep
  * with the counters; SSR resolves `data-wp-text` against that seeded value
  * directly, so the string can't live on a JS getter.
@@ -250,7 +250,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * Gated on `searchQuery` (so the message doesn't flash on a bare
 		 * `/search/` page where the user hasn't typed) and on `!hasError`
 		 * (so "No results found" doesn't display when the fetch actually
-		 * failed — the error region inside `jetpack/search-results` owns
+		 * failed — the error region inside `jetpack-search/results-list` owns
 		 * that message instead).
 		 *
 		 * @return {boolean} True when the no-results message should show.
@@ -262,7 +262,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Visibility flag for the error region inside `jetpack/search-results`.
+		 * Visibility flag for the error region inside `jetpack-search/results-list`.
 		 * Gated on both `!isLoading` and `!isLoadingMore` so the message hides
 		 * the moment the user retries — covering the `loadMore()` failure path
 		 * (where `isLoading` stays false but `isLoadingMore` toggles)

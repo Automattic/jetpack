@@ -1,0 +1,424 @@
+@use "../skeleton" as skeleton;
+
+.wp-block-jetpack-search-results-list {
+
+	@include skeleton.shimmer;
+
+	.jetpack-search-skeleton--title {
+		height: 1.5rem;
+		width: 65%;
+	}
+
+	.jetpack-search-skeleton--path {
+		height: 0.8125rem;
+		width: 40%;
+		margin-top: 0.5rem;
+	}
+
+	.jetpack-search-skeleton--meta {
+		height: 0.9rem;
+		width: 25%;
+		margin-top: 1rem;
+	}
+
+	.jetpack-search-skeleton--image {
+		flex: 0 0 auto;
+		width: 200px;
+		max-width: 30%;
+		aspect-ratio: 16 / 10;
+	}
+
+	.jetpack-search-results__item--skeleton {
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.jetpack-search-results__item {
+		display: flex;
+		align-items: flex-start;
+		gap: 1.5rem;
+		padding: 1.5rem 0;
+	}
+
+	.jetpack-search-results__copy {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.jetpack-search-results__title {
+		margin: 0 0 0.25rem;
+		font-size: 1.5rem;
+		font-weight: 700;
+		line-height: 1.25;
+	}
+
+	.jetpack-search-results__title-link {
+		color: inherit;
+		text-decoration: none;
+
+		&:hover,
+		&:focus-visible {
+			text-decoration: underline;
+		}
+
+		span[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__highlight {
+		background: var(--jetpack-search-highlight-background, color-mix(in sRGB, currentColor 18%, transparent));
+		font-weight: 700;
+	}
+
+	.jetpack-search-results__path {
+		margin-top: 0.25rem;
+		color: inherit;
+		opacity: 0.6;
+		font-size: 0.8125rem;
+		line-height: 1.4;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__content {
+		margin-top: 0.4rem;
+		font-size: 1rem;
+		line-height: 1.55;
+		color: inherit;
+
+		// Cap the snippet height so a very long excerpt doesn't push the
+		// metadata row far down. Three lines is enough to give the searcher
+		// context without dominating the result.
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+		// Standard property for forward compatibility; prefixed version
+		// covers browsers that don't yet support the unprefixed form.
+		line-clamp: 3;
+		overflow: hidden;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__date {
+		margin-top: 1rem;
+		color: inherit;
+		opacity: 0.6;
+		font-size: 0.9rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__image-link {
+		flex: 0 0 auto;
+		display: block;
+		width: 200px;
+		max-width: 30%;
+		aspect-ratio: 16 / 10;
+		border-radius: 4px;
+		overflow: hidden;
+		background-color: color-mix(in sRGB, currentColor 8%, transparent);
+	}
+
+	.jetpack-search-results__image {
+		display: block;
+		width: 100%;
+		height: 100%;
+		aspect-ratio: 16 / 10;
+		object-fit: cover;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__image-placeholder {
+		display: block;
+		width: 100%;
+		height: 100%;
+		background-color: currentColor;
+		opacity: 0.3;
+		mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg>");
+		mask-repeat: no-repeat;
+		mask-position: center;
+		mask-size: 32%;
+		-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg>");
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		-webkit-mask-size: 32%;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+}
+
+.jetpack-search-results--compact {
+
+	.jetpack-search-results__list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.jetpack-search-results__item {
+		padding: 0.5rem 0;
+		border-top: 1px solid;
+		border-color: color-mix(in sRGB, currentColor 15%, transparent);
+
+		&:first-child {
+			border-top: none;
+		}
+	}
+
+	.jetpack-search-results__copy {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.25rem 0.75rem;
+	}
+
+	.jetpack-search-results__title {
+		font-size: 1rem;
+		font-weight: 500;
+		margin: 0;
+	}
+
+	.jetpack-search-results__meta {
+		display: flex;
+		gap: 0.75rem;
+		font-size: 0.875em;
+		opacity: 0.75;
+	}
+
+	.jetpack-search-results__date {
+		margin-top: 0;
+	}
+}
+
+.jetpack-search-results--product {
+
+	.jetpack-search-results__list {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		@media (min-width: 600px) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		@media (min-width: 960px) {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+	}
+
+	.jetpack-search-results__item {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.5rem;
+		padding: 0;
+	}
+
+	.jetpack-search-results__product-image-link {
+		display: block;
+		aspect-ratio: 1 / 1;
+		border-radius: 4px;
+		overflow: hidden;
+		background-color: color-mix(in sRGB, currentColor 8%, transparent);
+		text-decoration: none;
+	}
+
+	.jetpack-search-results__product-image,
+	.jetpack-search-results__product-image-placeholder {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		background-position: center;
+		background-size: cover;
+		background-repeat: no-repeat;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	// Centered SVG glyph (rectangle + sun + mountain — the standard "image"
+	// outline) painted via mask-image so it inherits currentColor at low
+	// opacity and works against any block-styled background.
+	.jetpack-search-results__product-image-placeholder {
+		background-color: currentColor;
+		opacity: 0.3;
+		mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg>");
+		mask-repeat: no-repeat;
+		mask-position: center;
+		mask-size: 40%;
+		-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><path d='m21 15-5-5L5 21'/></svg>");
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		-webkit-mask-size: 40%;
+	}
+
+	.jetpack-search-results__copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.jetpack-search-skeleton--product-image {
+		aspect-ratio: 1 / 1;
+		width: 100%;
+	}
+
+	// Without these per-layout overrides the skeleton picks up the
+	// expanded layout's defaults (1.5rem × 65%) and the placeholder column
+	// ends up visibly shorter and narrower than the hydrated product card.
+	.jetpack-search-skeleton--title {
+		height: 1.4rem;
+		width: 95%;
+	}
+
+	.jetpack-search-skeleton--title-secondary {
+		height: 1.4rem;
+		width: 60%;
+	}
+
+	.jetpack-search-results__title {
+		font-size: 1.05rem;
+		font-weight: 600;
+		margin: 0;
+		line-height: 1.3;
+	}
+
+	.jetpack-search-results__price {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		font-size: 1rem;
+
+		&[hidden] {
+			display: none;
+		}
+
+		.jetpack-search-results__price-regular {
+			opacity: 0.6;
+			text-decoration: line-through;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+
+		.jetpack-search-results__price-sale {
+			font-weight: 700;
+			text-decoration: none;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+
+		.jetpack-search-results__price-current {
+			font-weight: 600;
+
+			&[hidden] {
+				display: none;
+			}
+		}
+	}
+
+	.jetpack-search-results__rating {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.jetpack-search-results__rating-stars {
+		position: relative;
+		display: inline-block;
+		// Five stars, each 1em wide. The track renders as muted glyphs and a
+		// width-bound overlay paints the filled portion on top.
+		inline-size: 5em;
+		block-size: 1em;
+		font-size: 1em;
+		line-height: 1;
+		color: color-mix(in sRGB, currentColor 25%, transparent);
+
+		&::before {
+			content: "★★★★★";
+			position: absolute;
+			inset: 0;
+			letter-spacing: 0;
+		}
+	}
+
+	.jetpack-search-results__rating-fill {
+		position: absolute;
+		inset-block: 0;
+		// Logical-property anchor: in LTR the filled stars start from the
+		// left edge; in RTL they start from the right. This intentionally
+		// mirrors so the visible "fill" reads in the page's natural
+		// direction. (Per AGENTS.md, this package uses logical properties
+		// for RTL-awareness; WC's own star CSS does the same in modern
+		// builds.)
+		inset-inline-start: 0;
+		overflow: hidden;
+		// Theme authors can override the filled-star color without a
+		// stylesheet override by setting `--jetpack-search-rating-color`
+		// on a parent block container. The default is the WC star yellow.
+		color: var(--jetpack-search-rating-color, #f7b500);
+		white-space: nowrap;
+
+		&::before {
+			content: "★★★★★";
+		}
+	}
+
+	.jetpack-search-results__rating-count {
+		opacity: 0.7;
+	}
+
+	.jetpack-search-results__match-hint {
+		font-size: 0.8rem;
+		opacity: 0.75;
+
+		&[hidden] {
+			display: none;
+		}
+
+		mark {
+			background: none;
+			color: inherit;
+		}
+
+		span[hidden] {
+			display: none;
+		}
+	}
+}
