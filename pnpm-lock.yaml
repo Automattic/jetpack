@@ -3616,12 +3616,9 @@ importers:
 
   projects/packages/podcast:
     dependencies:
-      '@wordpress/admin-ui':
-        specifier: 1.12.0
-        version: 1.12.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/components':
-        specifier: 32.6.0
-        version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
@@ -3632,6 +3629,9 @@ importers:
         specifier: 0.11.0
         version: 0.11.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
       '@automattic/jetpack-wp-build-polyfills':
         specifier: workspace:*
         version: link:../wp-build-polyfills
@@ -3644,12 +3644,18 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@wordpress/base-styles':
+        specifier: 6.20.0
+        version: 6.20.0
       '@wordpress/browserslist-config':
         specifier: 6.44.0
         version: 6.44.0
       '@wordpress/build':
         specifier: 0.13.0
-        version: 0.13.0(@babel/core@7.29.0)(browserslist@4.28.2)
+        version: 0.13.0(@babel/core@7.29.0)(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)
+      '@wordpress/theme':
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.2
@@ -24140,6 +24146,30 @@ snapshots:
       sass-embedded: 1.97.3
     optionalDependencies:
       '@wordpress/route': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - browserslist
+      - supports-color
+
+  '@wordpress/build@0.13.0(@babel/core@7.29.0)(@wordpress/theme@0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.2)':
+    dependencies:
+      '@emotion/babel-plugin': 11.13.5
+      autoprefixer: 10.4.27(postcss@8.5.10)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.2)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.4(postcss@8.5.10)
+      esbuild: 0.27.4
+      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.0)
+      esbuild-sass-plugin: 3.3.1(esbuild@0.27.4)(sass-embedded@1.97.3)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.10
+      postcss-modules: 6.0.1(postcss@8.5.10)
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
+    optionalDependencies:
       '@wordpress/theme': 0.11.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@babel/core'

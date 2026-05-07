@@ -5,7 +5,7 @@
  * untangle train fills in the real tab contents.
  */
 
-import { Page } from '@wordpress/admin-ui';
+import AdminPage from '@automattic/jetpack-components/admin-page';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
@@ -27,20 +27,22 @@ const Stage = () => {
 
 	return (
 		<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-			<Page
+			<AdminPage
 				/* "Podcast" is a product name, do not translate. */
 				title="Podcast"
 				subTitle={ __(
 					'Publish a podcast and reach your fans, anywhere they listen.',
 					'jetpack-podcast'
 				) }
+				tabs={
+					<Tabs.List>
+						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
+						<Tabs.Tab value="episodes">{ __( 'Episodes', 'jetpack-podcast' ) }</Tabs.Tab>
+						<Tabs.Tab value="distribution">{ __( 'Distribution', 'jetpack-podcast' ) }</Tabs.Tab>
+						<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-podcast' ) }</Tabs.Tab>
+					</Tabs.List>
+				}
 			>
-				<Tabs.List>
-					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
-					<Tabs.Tab value="episodes">{ __( 'Episodes', 'jetpack-podcast' ) }</Tabs.Tab>
-					<Tabs.Tab value="distribution">{ __( 'Distribution', 'jetpack-podcast' ) }</Tabs.Tab>
-					<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-podcast' ) }</Tabs.Tab>
-				</Tabs.List>
 				<Tabs.Panel value="settings">
 					<p>{ __( 'Settings — placeholder.', 'jetpack-podcast' ) }</p>
 				</Tabs.Panel>
@@ -53,7 +55,7 @@ const Stage = () => {
 				<Tabs.Panel value="stats">
 					<p>{ __( 'Stats — placeholder.', 'jetpack-podcast' ) }</p>
 				</Tabs.Panel>
-			</Page>
+			</AdminPage>
 		</Tabs.Root>
 	);
 };
