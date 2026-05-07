@@ -76,14 +76,40 @@ class Search_Blocks {
 	/**
 	 * Register block types and hook into WordPress.
 	 *
-	 * The caller (Initializer) is responsible for gating this behind the
-	 * `jetpack_search_blocks_enabled` feature flag.
+	 * Two gates apply:
+	 *
+	 * 1. The caller (Initializer) gates the whole method behind the
+	 *    `jetpack_search_blocks_enabled` feature flag — when off, the blocks
+	 *    don't exist at all.
+	 * 2. Within this method, only the *template-takeover* surface (registering
+	 *    the Jetpack Search block template and prepending it to
+	 *    `search_template_hierarchy`) is additionally gated on the saved
+	 *    experience being `'embedded'`. Everything else — block registration,
+	 *    editor assets, and Interactivity API state seeding — runs whenever
+	 *    the feature flag is on, since admins can insert Search blocks
+	 *    anywhere blocks are configurable (post content, sidebar widgets,
+	 *    custom templates) regardless of which experience the dashboard has
+	 *    saved. Those blocks need the seeded base state (`apiRoot`, `nonce`,
+	 *    URL-derived `searchQuery` / `activeFilters`, `filterConfigs` slot,
+	 *    etc.) to hydrate; per-block `render.php` files only contribute their
+	 *    own config and rely on the global seed for the base.
+	 *
+	 * Why the template gate: with four experiences (`embedded` / `overlay` /
+	 * `inline` / `off`), only Embedded should override the theme's
+	 * `search.html`. A site that saves Overlay or Inline still expects
+	 * `/?s=…` to resolve through the theme — the Jetpack template is the
+	 * right answer only when the user has explicitly opted into the
+	 * block-built search page.
+	 *
+	 * `Module_Control::get_experience()` reads `get_option( 'jetpack_search_experience' )`
+	 * (object-cached) and falls back to deriving from the legacy booleans, so
+	 * this is cheap on every request. `update_experience()` writes the option
+	 * synchronously, so the next request after a save sees the new gate.
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
-		add_action( 'init', array( static::class, 'register_search_template' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
-		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 		// FSE block-template rendering runs *before* `wp_head()` (see
 		// `wp-includes/template-canvas.php`), so blocks would resolve
 		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
@@ -92,7 +118,11 @@ class Search_Blocks {
 		// deep-merge no-op and keeps classic-theme paths covered.
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
-		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+
+		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
+			add_action( 'init', array( static::class, 'register_search_template' ) );
+			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		}
 	}
 
 	/**
