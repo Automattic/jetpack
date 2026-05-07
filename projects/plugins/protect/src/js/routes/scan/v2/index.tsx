@@ -15,6 +15,7 @@
  * keep this file focused on the new shell.
  */
 import { useEffect } from 'react';
+import NoticesList from './notices-list';
 import ThreatsScreen from './screens/threats';
 
 /**
@@ -30,5 +31,10 @@ export default function ScanV2Route() {
 		console.log( '[Protect] Scan v2 route mounted.' );
 	}, [] );
 
-	return <ThreatsScreen />;
+	return (
+		<>
+			<ThreatsScreen />
+			<NoticesList />
+		</>
+	);
 }
