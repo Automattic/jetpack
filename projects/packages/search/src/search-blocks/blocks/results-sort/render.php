@@ -1,6 +1,6 @@
 <?php
 /**
- * Sort Control block render.
+ * Results Sort block render.
  *
  * WordPress passes `$attributes` in at runtime; VariableAnalysis can't see
  * that because this file is include()'d rather than declared as a callback

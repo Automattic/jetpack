@@ -55,9 +55,9 @@ function resolveAvailable( stored ) {
  * @param {Function} props.setAttributes - Attribute setter.
  * @return {object} Rendered element.
  */
-export default function SortControlEdit( { attributes, setAttributes } ) {
+export default function ResultsSortEdit( { attributes, setAttributes } ) {
 	// Per-instance id keeps the label→control association valid when the
-	// editor renders more than one Sort Control on the same canvas.
+	// editor renders more than one Results Sort on the same canvas.
 	const baseId = useId();
 
 	const labels = getSortLabels();

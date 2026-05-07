@@ -85,7 +85,7 @@ function tokensToSlugs( tokens, options ) {
  * @param {Function} props.setAttributes - Attribute setter.
  * @return {object} Rendered element.
  */
-export default function PostTypeFilterEdit( { attributes, setAttributes } ) {
+export default function FilterPostTypeEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	const mode = attributes?.mode === MODE_INCLUDE ? MODE_INCLUDE : MODE_EXCLUDE;
 	const postTypes = useMemo(

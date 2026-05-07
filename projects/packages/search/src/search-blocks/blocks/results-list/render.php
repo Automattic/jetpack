@@ -1,6 +1,6 @@
 <?php
 /**
- * Search Results block render.
+ * Results List block render.
  *
  * Renders three sibling regions inside a single block wrapper:
  *  - the results list (skeleton while loading, then live results),
