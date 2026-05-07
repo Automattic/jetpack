@@ -157,6 +157,12 @@ class Settings {
 			)
 		);
 
+		// Both `podcasting_show_urls` and `podcasting_show_states` fan a
+		// single per-key schema across every podcatcher, defaulting to an
+		// empty-string map so consumers always see every known key.
+		$podcatcher_keys = array_keys( self::SHOW_URL_HOSTS );
+		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
+
 		register_setting(
 			self::OPTION_GROUP,
 			'podcasting_show_urls',
@@ -167,8 +173,15 @@ class Settings {
 				'show_in_rest'      => array(
 					'schema' => array(
 						'type'       => 'object',
-						'default'    => self::empty_podcatcher_map(),
-						'properties' => self::show_urls_properties_schema(),
+						'default'    => $empty_map,
+						'properties' => array_fill_keys(
+							$podcatcher_keys,
+							array(
+								'type'      => 'string',
+								'format'    => 'uri',
+								'maxLength' => self::SHOW_URL_MAX_LENGTH,
+							)
+						),
 					),
 				),
 			)
@@ -184,59 +197,18 @@ class Settings {
 				'show_in_rest'      => array(
 					'schema' => array(
 						'type'       => 'object',
-						'default'    => self::empty_podcatcher_map(),
-						'properties' => self::show_states_properties_schema(),
+						'default'    => $empty_map,
+						'properties' => array_fill_keys(
+							$podcatcher_keys,
+							array(
+								'type' => 'string',
+								'enum' => array_merge( array( '' ), self::SHOW_STATES ),
+							)
+						),
 					),
 				),
 			)
 		);
-	}
-
-	/**
-	 * REST schema for each podcatcher key inside `podcasting_show_urls`.
-	 *
-	 * @return array<string, array<string, mixed>>
-	 */
-	private static function show_urls_properties_schema() {
-		$props = array();
-		foreach ( array_keys( self::SHOW_URL_HOSTS ) as $key ) {
-			$props[ $key ] = array(
-				'type'      => 'string',
-				'format'    => 'uri',
-				'maxLength' => self::SHOW_URL_MAX_LENGTH,
-			);
-		}
-		return $props;
-	}
-
-	/**
-	 * REST schema for each podcatcher key inside `podcasting_show_states`.
-	 *
-	 * @return array<string, array<string, mixed>>
-	 */
-	private static function show_states_properties_schema() {
-		$props = array();
-		foreach ( array_keys( self::SHOW_URL_HOSTS ) as $key ) {
-			$props[ $key ] = array(
-				'type' => 'string',
-				'enum' => array_merge( array( '' ), self::SHOW_STATES ),
-			);
-		}
-		return $props;
-	}
-
-	/**
-	 * `{ podcatcher_id => '' }` shape used as the REST default for the array
-	 * options, so callers always see every known key.
-	 *
-	 * @return array<string, string>
-	 */
-	private static function empty_podcatcher_map() {
-		$out = array();
-		foreach ( array_keys( self::SHOW_URL_HOSTS ) as $key ) {
-			$out[ $key ] = '';
-		}
-		return $out;
 	}
 
 	/**
