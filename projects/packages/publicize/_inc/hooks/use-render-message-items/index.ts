@@ -85,6 +85,12 @@ export function useRenderMessageItems(): RenderItem[] {
 		[ templatesEnabled ]
 	);
 
+	const messageTemplate = useSelect(
+		select =>
+			templatesEnabled ? select( socialStore ).getSocialSettings().messageTemplate ?? '' : '',
+		[ templatesEnabled ]
+	);
+
 	const { isEnabled: isPerNetworkMode } = usePerNetworkCustomization();
 	const { mediaSource: globalMediaSource } = usePostMeta();
 	const postData = useSocialPreviewPostData();
@@ -124,6 +130,11 @@ export function useRenderMessageItems(): RenderItem[] {
 			// global mode here, the consumer's `baseMessage` (globalMessage) won't
 			// match this items array's message and `isDebouncingRenderedMessage` stays
 			// stuck true after the user toggles per-network → global.
+			// Falls back to the admin-page main template (`messageTemplate`) when no
+			// per-post message is set, so a site-wide template configured on the social
+			// admin page is reflected in the editor preview.
+			const globalFallback = globalMessage || messageTemplate || '';
+
 			let raw: string;
 			if ( ctx.isPerNetworkMode ) {
 				if ( hasConnectionMessage ) {
@@ -131,10 +142,10 @@ export function useRenderMessageItems(): RenderItem[] {
 				} else if ( templatesEnabled && connection.template ) {
 					raw = connection.template;
 				} else {
-					raw = globalMessage ?? '';
+					raw = globalFallback;
 				}
 			} else {
-				raw = globalMessage ?? '';
+				raw = globalFallback;
 			}
 			return {
 				id: connection.connection_id,
@@ -143,7 +154,7 @@ export function useRenderMessageItems(): RenderItem[] {
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
-	}, [ connections, globalMessage, ctx, templatesEnabled ] );
+	}, [ connections, globalMessage, messageTemplate, ctx, templatesEnabled ] );
 
 	return useDebouncedItems( items );
 }
