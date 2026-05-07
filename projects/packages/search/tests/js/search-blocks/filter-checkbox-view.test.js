@@ -58,8 +58,8 @@ describe( 'filter-checkbox view store — filterItems', () => {
 			},
 		};
 		expect( captured.state.filterItems ).toEqual( [
-			{ value: 'post', label: 'Post', showCount: true, countLabel: '12' },
-			{ value: 'page', label: 'Page', showCount: true, countLabel: '4' },
+			{ value: 'post', label: 'Post', checked: false, showCount: true, countLabel: '12' },
+			{ value: 'page', label: 'Page', checked: false, showCount: true, countLabel: '4' },
 		] );
 	} );
 
@@ -80,7 +80,10 @@ describe( 'filter-checkbox view store — filterItems', () => {
 		expect( labels ).toEqual( [ 'News', 'Reviews' ] );
 	} );
 
-	it( 'omits buckets already in activeFilters', () => {
+	it( 'keeps selected buckets in the list and marks them checked', () => {
+		// Selected buckets stay visible so the checkbox itself is the toggle
+		// affordance — the active-filters chip row is a complementary view,
+		// not the only place to remove a selection.
 		contextRef.current = { filterKey: 'category' };
 		captured.state.activeFilters = { category: [ 'news' ] };
 		captured.state.aggregations = {
@@ -94,7 +97,12 @@ describe( 'filter-checkbox view store — filterItems', () => {
 		captured.state.filterConfigs = {
 			category: { showCount: true, bucketSortOrder: 'count', valueLabels: {} },
 		};
-		expect( captured.state.filterItems.map( i => i.value ) ).toEqual( [ 'reviews' ] );
+		expect(
+			captured.state.filterItems.map( i => ( { value: i.value, checked: i.checked } ) )
+		).toEqual( [
+			{ value: 'news', checked: true },
+			{ value: 'reviews', checked: false },
+		] );
 	} );
 
 	it( 'preserves the API order when bucketSortOrder is `count`', () => {
@@ -171,17 +179,5 @@ describe( 'filter-checkbox view store — filterItems', () => {
 			'Page',
 			'Post',
 		] );
-	} );
-
-	it( 'allBucketsSelected is true once activeFilters covers every bucket value', () => {
-		contextRef.current = { filterKey: 'post_types' };
-		captured.state.activeFilters = { post_types: [ 'post', 'page' ] };
-		captured.state.aggregations = {
-			post_types: { buckets: [ { key: 'post' }, { key: 'page' } ] },
-		};
-		expect( captured.state.allBucketsSelected ).toBe( true );
-
-		captured.state.activeFilters = { post_types: [ 'post' ] };
-		expect( captured.state.allBucketsSelected ).toBe( false );
 	} );
 } );

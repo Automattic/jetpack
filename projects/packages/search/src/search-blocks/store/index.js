@@ -73,9 +73,11 @@ function dateBucketSlug( bucket ) {
 /**
  * filterItems for non-date filters. Handles both `slug/Name` keys (taxonomy,
  * author) and bare-slug keys (post_type) via `bucketLabel`/`bucketValue`.
- * Drops selected buckets — those appear in the active-filters block.
- * Resorts by visible label when `bucketSortOrder === 'alpha'` since the
- * ES `_key: asc` order is by slug, not display label.
+ * Selected buckets stay in the list and surface their selection through
+ * `checked`; the active-filters block renders the same selections as a
+ * removable chip row above the filters. Resorts by visible label when
+ * `bucketSortOrder === 'alpha'` since the ES `_key: asc` order is by slug,
+ * not display label.
  *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
@@ -90,19 +92,16 @@ function checkboxFilterItems( sharedState, filterKey, config ) {
 	const selected = sharedState.activeFilters?.[ filterKey ] ?? [];
 	const showCount = config.showCount !== false;
 	const valueLabels = config.valueLabels;
-	const items = buckets.reduce( ( acc, bucket ) => {
+	const items = buckets.map( bucket => {
 		const value = bucketValue( bucket.key );
-		if ( selected.includes( value ) ) {
-			return acc;
-		}
-		acc.push( {
+		return {
 			value,
 			label: bucketLabel( bucket.key, valueLabels ),
+			checked: selected.includes( value ),
 			showCount,
 			countLabel: String( bucket.doc_count ?? 0 ),
-		} );
-		return acc;
-	}, [] );
+		};
+	} );
 	if ( config.bucketSortOrder === 'alpha' ) {
 		const locale = sharedState.locale || 'en-US';
 		items.sort( ( a, b ) => a.label.localeCompare( b.label, locale, { sensitivity: 'base' } ) );
@@ -111,8 +110,9 @@ function checkboxFilterItems( sharedState, filterKey, config ) {
 }
 
 /**
- * filterItems for a `date` filter. Drops empty + selected buckets, then
- * slices to `maxItems` (date_histogram has no ES `size`).
+ * filterItems for a `date` filter. Drops empty buckets, then slices to
+ * `maxItems` (date_histogram has no ES `size`). Selected buckets stay in
+ * the list and surface their state via `checked`.
  *
  * @param {object} sharedState - Live store state.
  * @param {string} filterKey   - Filter key.
@@ -138,12 +138,13 @@ function dateFilterItems( sharedState, filterKey, config ) {
 			continue;
 		}
 		const value = dateBucketSlug( bucket );
-		if ( ! value || selected.includes( value ) ) {
+		if ( ! value ) {
 			continue;
 		}
 		items.push( {
 			value,
 			label: formatDateBucketLabel( value, interval, locale ),
+			checked: selected.includes( value ),
 			showCount,
 			countLabel: String( bucket.doc_count ),
 		} );
@@ -402,34 +403,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * True when every bucket is in activeFilters — block then shows
-		 * the "All filters applied" message instead of an empty list.
-		 *
-		 * @return {boolean} True when nothing is left to offer.
-		 */
-		get allBucketsSelected() {
-			const { filterKey } = getContext();
-			const buckets = state.aggregations?.[ filterKey ]?.buckets;
-			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
-				return false;
-			}
-			const selected = state.activeFilters?.[ filterKey ] ?? [];
-			if ( selected.length === 0 ) {
-				return false;
-			}
-			const config = state.filterConfigs?.[ filterKey ] ?? {};
-			if ( config.filterType === 'date' ) {
-				const populated = buckets.filter( bucket => ( bucket?.doc_count ?? 0 ) > 0 );
-				if ( populated.length === 0 ) {
-					return false;
-				}
-				return populated.every( bucket => selected.includes( dateBucketSlug( bucket ) ) );
-			}
-			return buckets.every( bucket => selected.includes( bucketValue( bucket.key ) ) );
-		},
-
-		/**
-		 * `{ value, label, showCount, countLabel }` items for the current
+		 * `{ value, label, checked, showCount, countLabel }` items for the current
 		 * filter block. Dispatches on `filterType`. Lives on the shared
 		 * namespace so per-block view bundles don't clobber siblings.
 		 *

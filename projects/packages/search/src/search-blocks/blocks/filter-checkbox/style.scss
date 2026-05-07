@@ -56,18 +56,4 @@
 			display: none;
 		}
 	}
-
-	.jetpack-search-filter__all-selected {
-		margin: 0;
-		font-size: 0.75rem;
-		// Inherit the theme's text color; opacity keeps the muted look
-		// across light and dark themes.
-		color: inherit;
-		opacity: 0.7;
-		font-style: italic;
-
-		&[hidden] {
-			display: none;
-		}
-	}
 }
