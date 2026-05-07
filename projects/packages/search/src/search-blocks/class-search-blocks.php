@@ -223,7 +223,9 @@ class Search_Blocks {
 	 * `register_block_variation()` because the latter is a JS-only API; no
 	 * matching PHP function exists in WordPress core. Filtering on the block
 	 * type's own variations getter is the supported PHP-side path and keeps
-	 * the editor-only JS bundle out of the ESM pipeline.
+	 * the editor-only JS bundle out of the ESM pipeline. On WP < 6.5 the
+	 * filter doesn't fire and no variations are registered — same end-state
+	 * as the prior code path, so this is not a version regression.
 	 *
 	 * Variation names and default `taxonomy` / `filterType` attributes
 	 * intentionally mirror the filter types exposed by the instant-search
