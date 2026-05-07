@@ -149,27 +149,37 @@ function wpcomsh_fatal_log_deactivate( $plugin_basename ) {
  * @return array{kind:string,path:string,method:string}
  */
 function wpcomsh_fatal_request_context() {
+	static $cached = null;
+	if ( null !== $cached ) {
+		return $cached;
+	}
+
 	// REQUEST_URI is fed only to wp_parse_url for path extraction; the raw
 	// value is never echoed, rendered, or stored. sanitize_text_field would
-	// strip characters that are legitimate path content — wp_check_invalid_utf8
-	// can drop a raw-encoded UTF-8 slug to '', and the percent-encoded form
-	// would lose case in the unicode round-trip — so we skip text-field
-	// sanitization here and let wp_parse_url do the structural validation.
+	// drop legitimate path bytes via wp_check_invalid_utf8.
 	$req_uri  = wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- path-only extraction; see comment.
 	$raw_path = (string) wp_parse_url( $req_uri, PHP_URL_PATH );
 	$path     = rtrim( $raw_path, '/' );
 
-	// Whitelist HTTP method to a closed set so request_method on the row is
-	// a small fixed-cardinality enum, not an arbitrary header value.
-	$method_raw = strtoupper( (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- whitelisted below.
-	$method     = in_array( $method_raw, array( 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS' ), true ) ? $method_raw : 'UNKNOWN';
+	static $allowed_methods = array( 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS' );
+	$method_raw             = strtoupper( (string) wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- whitelisted below.
+	$method                 = in_array( $method_raw, $allowed_methods, true ) ? $method_raw : 'UNKNOWN';
 
+	// Bucket priority: cron / ajax / rest / wp-login win before wp-admin
+	// because admin-ajax.php lives under /wp-admin/. Constants (not the
+	// `wp_doing_cron` / `wp_doing_ajax` wrappers) are checked because the
+	// wrappers run filters — a callback registered by the fataling code, or
+	// by a plugin coincidentally loaded on this request, must not bubble out
+	// of the fatal handler and prevent the recovery screen from rendering.
+	// Path suffixes catch the early-fatal case where the constant hasn't
+	// been defined yet (e.g. a plugin-load fatal on /wp-cron.php before
+	// wp-cron.php sets DOING_CRON).
 	$kind = 'other';
 	if ( ( defined( 'DOING_CRON' ) && DOING_CRON ) || str_ends_with( $path, '/wp-cron.php' ) ) {
 		$kind = 'cron';
 	} elseif ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || str_ends_with( $path, '/admin-ajax.php' ) ) {
 		$kind = 'ajax';
-	} elseif ( ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || str_contains( $path, '/wp-json' ) ) {
+	} elseif ( ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || str_contains( $path, '/wp-json/' ) || str_ends_with( $path, '/wp-json' ) ) {
 		$kind = 'rest';
 	} elseif ( str_ends_with( $path, '/wp-login.php' ) ) {
 		$kind = 'wp-login';
@@ -189,11 +199,12 @@ function wpcomsh_fatal_request_context() {
 		}
 	}
 
-	return array(
+	$cached = array(
 		'kind'   => $kind,
 		'path'   => '' === $path ? '/' : $path,
 		'method' => $method,
 	);
+	return $cached;
 }
 
 /**
@@ -234,16 +245,12 @@ function wpcomsh_fatal_log_event( $plugin, $message ) {
 
 	$context = wpcomsh_fatal_request_context();
 
-	// Dedup per (message, signature, request_kind) for 1 hour so a persistent
-	// fatal doesn't emit one log row + one outbound HTTP per visitor. $message
-	// is part of the key so a deactivate event isn't suppressed by a recent
-	// signature event for the same extension. request_kind is part of the key
-	// so a fatal that hits both wp-admin and a front-end URL surfaces as two
-	// rows — that's the signal that distinguishes site-wide breakage from a
-	// single endpoint, which the in-request handler can't otherwise tell.
-	// The TTL stays short of core's 24h `recovery_mode_email_rate_limit` so a
-	// legitimate re-send — e.g. the admin exits recovery mode and the site
-	// fatals again — surfaces rather than getting silently swallowed.
+	// Dedup per (message, signature, request_kind) for 1 hour. $message keeps
+	// a deactivate event from being suppressed by a recent signature event for
+	// the same extension. request_kind splits site-wide breakage (multiple
+	// kinds per signature) from a single broken endpoint (one kind), which the
+	// in-request handler can't otherwise tell. TTL stays short of core's 24h
+	// `recovery_mode_email_rate_limit` so a legitimate re-send surfaces.
 	$cache_key = 'wpcomsh_fatal_event:' . hash( 'sha256', $message . '|' . $signature . '|' . $context['kind'] );
 	try {
 		if ( ! wp_cache_add( $cache_key, 1, 'wpcomsh', HOUR_IN_SECONDS ) ) {
