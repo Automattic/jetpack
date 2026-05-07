@@ -3,14 +3,19 @@
  *
  * Renders the upstream `<ThreatsDataViews />` against Protect's merged
  * active+history dataset from `useScanThreatsQuery`. Eligibility predicates
- * gate the per-row Fix / Ignore / Unignore actions; the action handlers and
- * `Render*Modal` props arrive in Phase 3. The empty slot is wired in Phase 6,
- * and the scan-status takeover lands in Phase 5.
+ * gate the per-row Fix / Ignore / Unignore actions, and the four `Render*Modal`
+ * props supply Protect's body-only modal contents (the upstream
+ * `ThreatsDataViews` provides the `<Modal>` wrapper). The empty slot is wired
+ * in Phase 6, and the scan-status takeover lands in Phase 5.
  */
 import { ThreatsDataViews } from '@automattic/jetpack-scan';
 import { useCallback } from '@wordpress/element';
 import { useScanThreatsQuery } from '../data/use-scan-threats-query';
 import { useTrackEvent } from '../data/use-track-event';
+import FixThreatModal from './fix-threat-modal';
+import IgnoreThreatModal from './ignore-threat-modal';
+import UnignoreThreatModal from './unignore-threat-modal';
+import ViewDetailsModal from './view-details-modal';
 import type { Threat } from '../data/types';
 
 const PERSIST_KEY = 'jetpack-protect:scan:view';
@@ -59,6 +64,10 @@ export default function ThreatsScreen() {
 			isThreatEligibleForFix={ isFixable }
 			isThreatEligibleForIgnore={ isCurrent }
 			isThreatEligibleForUnignore={ isIgnored }
+			RenderFixModal={ FixThreatModal }
+			RenderIgnoreModal={ IgnoreThreatModal }
+			RenderUnignoreModal={ UnignoreThreatModal }
+			RenderViewModal={ ViewDetailsModal }
 			onTrackEvent={ handleTrackEvent }
 		/>
 	);
