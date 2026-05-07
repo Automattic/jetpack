@@ -57,7 +57,14 @@ test.describe( 'Search Dashboard', () => {
 			await expect( instantSearchToggle, 'Instant search toggle should be visible' ).toBeVisible();
 
 			await expect(
-				page.getByRole( 'img', { name: 'Jetpack Logo' } ),
+				// admin-ui 2.0's <Page> wraps the visual slot in an
+				// `aria-hidden="true"` decorative container, so the logo no
+				// longer surfaces in the accessibility tree by role.
+				// `includeHidden: true` keeps the role-based query while
+				// still asserting the SVG is rendered (and `toBeVisible()`
+				// continues to verify it's painted, not hidden via display
+				// or visibility).
+				page.getByRole( 'img', { name: 'Jetpack Logo', includeHidden: true } ),
 				'Jetpack header logo should be visible'
 			).toBeVisible();
 
