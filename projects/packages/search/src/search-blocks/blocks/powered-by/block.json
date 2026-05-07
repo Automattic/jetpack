@@ -1,7 +1,7 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "jetpack/powered-by",
+	"name": "jetpack-search/powered-by",
 	"version": "0.1.0",
 	"title": "Powered by Jetpack",
 	"category": "jetpack-search",

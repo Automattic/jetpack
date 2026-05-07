@@ -62,7 +62,7 @@ class Search_Blocks {
 
 	/**
 	 * Per-request memo backing `is_free_plan()`. Block render callbacks
-	 * (`results-panel`, `powered-by`) call into the plan gate on every
+	 * (`search-results`, `powered-by`) call into the plan gate on every
 	 * inner render, including the auto-injected colophon path. WP's option
 	 * cache absorbs the redundancy in steady state, but on a cold cache
 	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
@@ -294,7 +294,7 @@ class Search_Blocks {
 
 		foreach ( $variations as $variation ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above; stub missing from wordpress-stubs.
-			register_block_variation( 'jetpack/filter-checkbox', $variation );
+			register_block_variation( 'jetpack-search/filter-checkbox', $variation );
 		}
 	}
 
@@ -492,7 +492,7 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Walk the current post's block tree for jetpack/filter-checkbox blocks
+	 * Walk the current post's block tree for jetpack-search/filter-checkbox blocks
 	 * and build the matching filterConfigs map.
 	 *
 	 * Covers the common case where a page uses the Blog Search Page pattern
@@ -530,8 +530,8 @@ class Search_Blocks {
 	 */
 	protected static function filter_block_helpers(): array {
 		return array(
-			'jetpack/filter-checkbox' => Filter_Checkbox::class,
-			'jetpack/filter-date'     => Filter_Date::class,
+			'jetpack-search/filter-checkbox' => Filter_Checkbox::class,
+			'jetpack-search/filter-date'     => Filter_Date::class,
 		);
 	}
 
@@ -615,7 +615,7 @@ class Search_Blocks {
 			// taxonomy, label, showCount, maxItems } }.
 			'filterConfigs'    => array(),
 
-			// Note: `staticPostTypes` (contributed by `jetpack/post-type-filter`)
+			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
 			// is intentionally NOT seeded here. FSE block templates can render
 			// before `wp_enqueue_scripts` fires (where this seed runs), so
 			// pre-seeding the slot with `{ include: [], exclude: [] }` would
@@ -634,7 +634,7 @@ class Search_Blocks {
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the empty-state region inside
-			// `jetpack/search-results` stays hidden between first paint and JS
+			// `jetpack-search/results-list` stays hidden between first paint and JS
 			// hydrating the initial fetch — otherwise a "No results found" flash
 			// appears on deep links.
 			'isLoading'        => $is_initial_loading,

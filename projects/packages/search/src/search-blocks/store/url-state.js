@@ -1,4 +1,4 @@
-// Mirror `Sort_Control::get_all_option_keys()`. Product-format keys rejoin in RSM-1082.
+// Mirror `Results_Sort::get_all_option_keys()`. Product-format keys rejoin in RSM-1082.
 const VALID_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
 const DEFAULT_SORT_ORDER = 'relevance';
 
