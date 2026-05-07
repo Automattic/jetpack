@@ -49,8 +49,10 @@ function pcg_maybe_handle_probe() {
 	// Gate per mode: activation probes need pcg_guard_activation, update
 	// probes need pcg_guard_updates. Otherwise enabling either flow would
 	// pull in the other as an unintended dependency.
-	$gate_filter = PCG_Load_Tester::MODE_UPDATE === $mode ? 'pcg_guard_updates' : 'pcg_guard_activation';
-	if ( ! apply_filters( $gate_filter, false ) ) {
+	$is_update_mode = PCG_Load_Tester::MODE_UPDATE === $mode;
+	$gate_filter    = $is_update_mode ? 'pcg_guard_updates' : 'pcg_guard_activation';
+	$gate_default   = ! $is_update_mode;
+	if ( ! apply_filters( $gate_filter, $gate_default ) ) {
 		pcg_probe_bail_error( 'Plugin Conflicts Guardian is disabled.', 403 );
 	}
 

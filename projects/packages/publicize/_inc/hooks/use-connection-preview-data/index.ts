@@ -91,9 +91,20 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 	const items = useRenderMessageItems();
-	const baseMessage = (
-		isPerNetworkMode ? connection.message ?? globalMessage : globalMessage
-	).trim();
+	const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
+	let baseMessage: string;
+	if ( isPerNetworkMode ) {
+		if ( hasConnectionMessage ) {
+			baseMessage = connection.message ?? '';
+		} else if ( templatesEnabled && connection.template ) {
+			baseMessage = connection.template;
+		} else {
+			baseMessage = globalMessage;
+		}
+	} else {
+		baseMessage = globalMessage;
+	}
+	baseMessage = baseMessage.trim();
 	const currentRenderItem = items.find( item => item.id === connection.connection_id );
 
 	const { rendered, isResolvingRenderedMessages, hasFinishedRenderingMessages } = useSelect(
