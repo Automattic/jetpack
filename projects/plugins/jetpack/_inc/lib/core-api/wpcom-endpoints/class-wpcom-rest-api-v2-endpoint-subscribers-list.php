@@ -37,8 +37,16 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 	/**
 	 * Register routes.
+	 *
+	 * Gated behind the same `rsm_jetpack_ui_modernization_newsletter` filter the dashboard UI uses
+	 * (mirrors `Automattic\Jetpack\Newsletter\Settings::MODERNIZATION_FILTER`). Checked here, on
+	 * `rest_api_init`, so theme-added filters have a chance to land before the gate evaluates.
 	 */
 	public function register_routes() {
+		if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+			return;
+		}
+
 		register_rest_route(
 			$this->namespace,
 			'/subscribers/add',
