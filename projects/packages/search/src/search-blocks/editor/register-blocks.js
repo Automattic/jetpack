@@ -22,6 +22,7 @@ import ActiveFiltersEdit from '../blocks/active-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
+import FilterWcRatingEdit from '../blocks/filter-wc-rating/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersStackEdit, { save as filtersStackSave } from '../blocks/filters-stack/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
@@ -53,6 +54,7 @@ const BLOCKS = [
 	[ 'jetpack-search/results-load-more', ResultsLoadMoreEdit ],
 	[ 'jetpack-search/search-results', SearchResultsEdit, searchResultsSave ],
 	[ 'jetpack-search/powered-by', PoweredByEdit ],
+	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /

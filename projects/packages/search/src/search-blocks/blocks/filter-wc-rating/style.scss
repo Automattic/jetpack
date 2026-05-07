@@ -1,0 +1,34 @@
+/**
+ * Filter by WC rating.
+ *
+ * Inherits the shared `.jetpack-search-filter__list/__item/__label/__count`
+ * styles from the generic filter-checkbox block. This file adds the
+ * filled vs. empty star coloring so the row is visually scannable without
+ * relying on icon assets.
+ */
+.jetpack-search-filter-wc-rating {
+
+	.jetpack-search-filter__list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	// Stars are inline-rendered text glyphs (★) styled with color so the
+	// markup stays SVG-free and survives WP's content-export pipeline.
+	// Matches WC's color cues — gold for filled, muted gray for empty —
+	// without pulling in WC's icon asset.
+	.jetpack-search-filter-rating__star {
+		display: inline-block;
+		font-size: 1.05em;
+		line-height: 1;
+
+		&.is-filled {
+			color: #f0b800;
+		}
+
+		&.is-empty {
+			color: #c8c8c8;
+		}
+	}
+}
