@@ -2,7 +2,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import { STORE_ID } from 'store';
-import { EXPERIENCE_ORDER } from './constants';
+import { EXPERIENCE, EXPERIENCE_ORDER } from './constants';
 import ExperienceOption from './experience-option';
 import './style.scss';
 
@@ -18,14 +18,25 @@ import './style.scss';
  * @return {import('react').Element} - The selector.
  */
 export default function FeatureSelector() {
-	const isDirty = useSelect( select => select( STORE_ID ).isDirty(), [] );
-	const isUpdating = useSelect( select => select( STORE_ID ).isUpdatingJetpackSettings(), [] );
-	const pendingExperience = useSelect( select => select( STORE_ID ).getPendingExperience(), [] );
-	const supportsOnlyClassicSearch = useSelect(
-		select => select( STORE_ID ).supportsOnlyClassicSearch(),
+	// On WordPress.com Simple sites (where `IS_WPCOM` is defined), search
+	// activation is managed from the .com side, so we hide the Off row here to
+	// mirror the legacy `<ModuleControl>`'s `! isWpcom` gate around the
+	// "Enable Jetpack Search" toggle.
+	const { isDirty, isUpdating, pendingExperience, supportsOnlyClassicSearch, isWpcom } = useSelect(
+		select => ( {
+			isDirty: select( STORE_ID ).isDirty(),
+			isUpdating: select( STORE_ID ).isUpdatingJetpackSettings(),
+			pendingExperience: select( STORE_ID ).getPendingExperience(),
+			supportsOnlyClassicSearch: select( STORE_ID ).supportsOnlyClassicSearch(),
+			isWpcom: select( STORE_ID ).isWpcom(),
+		} ),
 		[]
 	);
 	const { saveExperience } = useDispatch( STORE_ID );
+
+	const visibleExperiences = isWpcom
+		? EXPERIENCE_ORDER.filter( experience => experience !== EXPERIENCE.OFF )
+		: EXPERIENCE_ORDER;
 
 	const isExperienceDisabled = experience =>
 		supportsOnlyClassicSearch && ( experience === 'embedded' || experience === 'overlay' );
@@ -51,7 +62,7 @@ export default function FeatureSelector() {
 					aria-labelledby="jp-search-feature-selector-heading"
 				>
 					<Stack direction="column" gap="sm">
-						{ EXPERIENCE_ORDER.map( experience => (
+						{ visibleExperiences.map( experience => (
 							<ExperienceOption
 								key={ experience }
 								experience={ experience }

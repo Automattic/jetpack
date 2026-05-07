@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search dashboard: hide the Off row of the new feature-selector on WordPress.com, matching the legacy module control's behaviour.
