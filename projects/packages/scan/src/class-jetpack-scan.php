@@ -77,17 +77,19 @@ class Jetpack_Scan {
 			return;
 		}
 
-		if ( ! (bool) apply_filters( self::MODERNIZATION_FILTER, false ) ) {
-			return;
-		}
-
-		self::load_wp_build();
-		self::fix_boot_import_map_ordering();
-		self::bridge_wp_build_enqueue();
-
-		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ) );
+		// REST routes register unconditionally — they're pure WPCOM proxies and
+		// the Jetpack Protect plugin (and any future modernization consumer)
+		// needs them regardless of the admin-UI flag.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
-		add_filter( 'jetpack_package_versions', array( Package_Version::class, 'send_package_version_to_tracker' ) );
+
+		// The new wp-admin Scan page is gated by the modernization filter.
+		if ( (bool) apply_filters( self::MODERNIZATION_FILTER, false ) ) {
+			self::load_wp_build();
+			self::fix_boot_import_map_ordering();
+			self::bridge_wp_build_enqueue();
+			add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ) );
+			add_filter( 'jetpack_package_versions', array( Package_Version::class, 'send_package_version_to_tracker' ) );
+		}
 
 		/**
 		 * Fires once the Jetpack Scan package has wired its hooks.
