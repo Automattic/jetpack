@@ -358,15 +358,21 @@ describe( 'store actions', () => {
 		await runGenerator( actions.setPriceRange( 10, 50 ) );
 		expect( search ).toHaveBeenCalledTimes( 1 );
 
-		// Half-open range (one bound null) is allowed.
+		// Half-open range (one bound null) is allowed — both min-only and
+		// max-only shapes round-trip the matching null through to state so the
+		// URL writer and ES range clause see the same "no bound" sentinel.
 		await runGenerator( actions.setPriceRange( 25, null ) );
 		expect( state.priceRange ).toEqual( { min: 25, max: null } );
 		expect( search ).toHaveBeenCalledTimes( 2 );
 
+		await runGenerator( actions.setPriceRange( null, 50 ) );
+		expect( state.priceRange ).toEqual( { min: null, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 3 );
+
 		// Both null clears the range.
 		await runGenerator( actions.setPriceRange( null, null ) );
 		expect( state.priceRange ).toBeNull();
-		expect( search ).toHaveBeenCalledTimes( 3 );
+		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
 	it( 'keeps filter and sort popovers mutually exclusive', () => {
@@ -444,6 +450,24 @@ describe( 'store actions', () => {
 		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
 		expect( writtenUrl ).toContain( 'min_price=10' );
 		expect( writtenUrl ).toContain( 'max_price=50' );
+	} );
+
+	it( 'syncToUrl threads filterConfigs through so scalar-shaped filters keep their WC URL contract', () => {
+		// Without honoring `urlFormat: 'scalar'` on the writer side, the first
+		// post-hydration search would rewrite `?filter_stock_status=instock`
+		// into `?filter_stock_status[]=instock`, breaking shareable WC catalog
+		// URLs and round-tripping the visitor onto a different URL shape than
+		// they arrived on.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = '';
+		state.activeFilters = { filter_stock_status: [ 'instock', 'outofstock' ] };
+		state.filterConfigs = { filter_stock_status: { urlFormat: 'scalar' } };
+
+		actions.syncToUrl();
+
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).toContain( 'filter_stock_status=instock%2Coutofstock' );
+		expect( writtenUrl ).not.toContain( 'filter_stock_status%5B%5D' );
 	} );
 
 	it( 'closes open popovers on Escape only', () => {

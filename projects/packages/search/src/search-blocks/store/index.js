@@ -594,9 +594,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise} search action.
 		 */
 		*clearFilters() {
-			const hadFilters = Object.keys( state.activeFilters ?? {} ).length > 0;
-			const hadPriceRange = state.priceRange !== null && state.priceRange !== undefined;
-			if ( ! hadFilters && ! hadPriceRange ) {
+			if ( ! state.hasAnyActiveFilters ) {
 				return;
 			}
 			state.activeFilters = {};
