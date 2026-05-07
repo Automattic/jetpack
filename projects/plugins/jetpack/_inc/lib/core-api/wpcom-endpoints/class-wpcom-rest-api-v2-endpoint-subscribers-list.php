@@ -43,7 +43,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * `rest_api_init`, so theme-added filters have a chance to land before the gate evaluates.
 	 */
 	public function register_routes() {
-		if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+		if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 			return;
 		}
 
