@@ -554,6 +554,9 @@ importers:
       '@babel/runtime':
         specifier: ^7
         version: 7.29.2
+      '@gravatar-com/hovercards':
+        specifier: 0.16.0
+        version: 0.16.0
       '@wordpress/admin-ui':
         specifier: 1.12.0
         version: 1.12.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -593,6 +596,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      js-sha256:
+        specifier: 0.11.1
+        version: 0.11.1
       prop-types:
         specifier: ^15.7.2
         version: 15.8.1
@@ -2522,9 +2528,6 @@ importers:
       '@automattic/request-external-access':
         specifier: 1.0.1
         version: 1.0.1
-      '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
       '@wordpress/admin-ui':
         specifier: 1.12.0
         version: 1.12.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2621,9 +2624,6 @@ importers:
       gridicons:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
-      js-sha256:
-        specifier: 0.11.1
-        version: 0.11.1
       libphonenumber-js:
         specifier: 1.12.42
         version: 1.12.42
@@ -3299,6 +3299,9 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
+      '@automattic/format-currency':
+        specifier: 1.0.1
+        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3332,15 +3335,30 @@ importers:
       '@wordpress/components':
         specifier: 32.6.0
         version: 32.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose':
+        specifier: 7.44.0
+        version: 7.44.0(react@18.3.1)
+      '@wordpress/data':
+        specifier: 10.44.0
+        version: 10.44.0(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 14.1.0
         version: 14.1.0(@types/react@18.3.28)(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.44.0
+        version: 5.44.0
       '@wordpress/element':
         specifier: 6.44.0
         version: 6.44.0
+      '@wordpress/hooks':
+        specifier: 4.44.0
+        version: 4.44.0
       '@wordpress/i18n':
         specifier: 6.17.0
         version: 6.17.0
+      '@wordpress/icons':
+        specifier: 12.2.0
+        version: 12.2.0(react@18.3.1)
       '@wordpress/notices':
         specifier: 5.44.0
         version: 5.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -24191,13 +24209,13 @@ snapshots:
   '@wordpress/compose@7.44.0(react@18.3.1)':
     dependencies:
       '@types/mousetrap': 1.6.15
-      '@wordpress/deprecated': 4.44.0
+      '@wordpress/deprecated': 4.45.0
       '@wordpress/dom': 4.44.0
       '@wordpress/element': 6.44.0
-      '@wordpress/is-shallow-equal': 5.44.0
+      '@wordpress/is-shallow-equal': 5.45.0
       '@wordpress/keycodes': 4.44.0
-      '@wordpress/priority-queue': 3.44.0
-      '@wordpress/undo-manager': 1.44.0
+      '@wordpress/priority-queue': 3.45.0
+      '@wordpress/undo-manager': 1.45.0
       change-case: 4.1.2
       mousetrap: 1.6.5
       react: 18.3.1
@@ -24324,10 +24342,10 @@ snapshots:
   '@wordpress/data@10.44.0(react@18.3.1)':
     dependencies:
       '@wordpress/compose': 7.44.0(react@18.3.1)
-      '@wordpress/deprecated': 4.44.0
+      '@wordpress/deprecated': 4.45.0
       '@wordpress/element': 6.44.0
-      '@wordpress/is-shallow-equal': 5.44.0
-      '@wordpress/priority-queue': 3.44.0
+      '@wordpress/is-shallow-equal': 5.45.0
+      '@wordpress/priority-queue': 3.45.0
       '@wordpress/private-apis': 1.44.0
       '@wordpress/redux-routine': 5.44.0(redux@5.0.1)
       deepmerge: 4.3.1
@@ -24443,7 +24461,7 @@ snapshots:
 
   '@wordpress/date@5.44.0':
     dependencies:
-      '@wordpress/deprecated': 4.44.0
+      '@wordpress/deprecated': 4.45.0
       moment: 2.30.1
       moment-timezone: 0.5.48
 

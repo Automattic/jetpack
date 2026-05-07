@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
@@ -23,7 +24,6 @@ import * as React from 'react';
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
-import Gravatar from '../../src/dashboard/components/gravatar';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';

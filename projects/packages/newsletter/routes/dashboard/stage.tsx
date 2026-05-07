@@ -2,8 +2,11 @@ import analytics from '@automattic/jetpack-analytics';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Page } from '@wordpress/admin-ui';
 import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import SubscribersBody from '../../_inc/subscribers/components/subscribers-body';
 import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
+import './route.scss';
 
 const Stage = () => {
 	// Initialize analytics once for the entire page so future tab/section
@@ -18,8 +21,19 @@ const Stage = () => {
 
 	return (
 		<QueryClientProvider client={ queryClient }>
-			{ /* "Newsletter" is a product name, do not translate. */ }
-			<Page title="Newsletter" />
+			<SubscribersBody>
+				{ ( { body, actions } ) => (
+					<Page
+						/* "Newsletter" is a product name, do not translate. */
+						title="Newsletter"
+						subTitle={ __( 'Manage everyone subscribed to your site.', 'jetpack-newsletter' ) }
+						actions={ actions }
+						hasPadding={ false }
+					>
+						{ body }
+					</Page>
+				) }
+			</SubscribersBody>
 		</QueryClientProvider>
 	);
 };
