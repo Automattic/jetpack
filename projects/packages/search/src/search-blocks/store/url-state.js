@@ -35,21 +35,16 @@ function parsePriceBound( raw ) {
 /**
  * Serialize store state to URLSearchParams.
  *
- * Filter keys default to flat top-level array params (`?category[]=news`),
- * matching the shape instant-search already writes so deep links are
- * interchangeable between the two surfaces. Keys whose `filterConfigs`
- * entry sets `urlFormat: 'scalar'` instead write a single comma-joined
- * value (`?filter_stock_status=instock,outofstock`) so WooCommerce-shaped
- * URLs round-trip without being rewritten on the next `syncToUrl`.
+ * Filter keys are written as flat top-level array params
+ * (`?category[]=news`), matching the shape instant-search already writes
+ * so deep links are interchangeable between the two surfaces and the
+ * PHP-side `parse_url_filters()` reads the same contract.
  *
  * @param {object}      state                   - Store state slice.
  * @param {string}      state.searchQuery       - Current search query.
  * @param {string}      state.sortOrder         - Current sort order.
  * @param {object}      [state.activeFilters]   - { [filterKey]: string[] } selected filters.
  * @param {object|null} [state.priceRange]      - { min, max } price range; either bound may be null.
- * @param {object}      [state.filterConfigs]   - { [filterKey]: FilterConfig } map; an entry with
- *                                              `urlFormat: 'scalar'` switches that key to the
- *                                              comma-joined writer shape.
  * @param {string}      [state.searchParamName] - URL key the search query is written under
  *                                              (`s` on the WP search route, `q`
  *                                              on non-search pages). Defaults to `s`.
@@ -60,7 +55,6 @@ export function stateToUrlParams( {
 	sortOrder,
 	activeFilters = {},
 	priceRange = null,
-	filterConfigs = {},
 	searchParamName = DEFAULT_SEARCH_PARAM,
 } ) {
 	const params = new URLSearchParams();
@@ -80,11 +74,7 @@ export function stateToUrlParams( {
 		if ( ! Array.isArray( values ) || values.length === 0 ) {
 			continue;
 		}
-		if ( filterConfigs?.[ key ]?.urlFormat === 'scalar' ) {
-			params.set( key, values.join( ',' ) );
-		} else {
-			values.forEach( value => params.append( `${ key }[]`, value ) );
-		}
+		values.forEach( value => params.append( `${ key }[]`, value ) );
 	}
 
 	if ( priceRange?.min != null ) {
@@ -153,27 +143,6 @@ export function urlParamsToState(
 			continue;
 		}
 		activeFilters[ filterKey ].push( normalized );
-	}
-
-	// Scalar comma-joined fallback for filterConfigs whose `urlFormat` is
-	// `scalar` (e.g. `?filter_stock_status=instock,outofstock`). Used by
-	// product filters whose URL contract is a single key with comma-joined
-	// values rather than the array-form `?key[]=v` default.
-	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
-		if ( config?.urlFormat !== 'scalar' || activeFilters[ filterKey ] ) {
-			continue;
-		}
-		const raw = params.get( filterKey );
-		if ( ! raw ) {
-			continue;
-		}
-		const values = String( raw )
-			.split( ',' )
-			.map( v => v.trim() )
-			.filter( Boolean );
-		if ( values.length > 0 ) {
-			activeFilters[ filterKey ] = Array.from( new Set( values ) );
-		}
 	}
 
 	const minPrice = parsePriceBound( params.get( 'min_price' ) );
