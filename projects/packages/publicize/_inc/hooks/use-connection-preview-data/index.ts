@@ -103,17 +103,28 @@ export function useConnectionPreviewData( connection: Connection ) {
 
 	return useMemo( () => {
 		const useRendered = templatesEnabled && typeof rendered === 'string';
-		const baseMessage = isPerNetworkMode
-			? ( connection.message ?? globalMessage ).trim()
-			: globalMessage.trim();
+		const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
+		let baseMessage: string;
+		if ( isPerNetworkMode ) {
+			if ( hasConnectionMessage ) {
+				baseMessage = connection.message ?? '';
+			} else if ( templatesEnabled && connection.template ) {
+				baseMessage = connection.template;
+			} else {
+				baseMessage = globalMessage;
+			}
+		} else {
+			baseMessage = globalMessage;
+		}
 
 		return {
 			...postData,
-			message: useRendered ? rendered : baseMessage,
+			message: useRendered ? rendered : baseMessage.trim(),
 			media,
 		};
 	}, [
 		connection.message,
+		connection.template,
 		globalMessage,
 		isPerNetworkMode,
 		media,
