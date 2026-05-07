@@ -4,7 +4,7 @@
  * Mirrors the front-end DOM render.php produces. The block has no
  * custom attributes — paid-plan authors who want the colophon gone
  * just delete the block from the panel; free-plan authors can't
- * remove it (results-panel/render.php auto-injects it back, see that
+ * remove it (search-results/render.php auto-injects it back, see that
  * file for the gate).
  */
 import { useBlockProps } from '@wordpress/block-editor';

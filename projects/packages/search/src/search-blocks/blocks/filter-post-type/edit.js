@@ -78,7 +78,7 @@ function tokensToSlugs( tokens, options ) {
 }
 
 /**
- * Edit component for the post-type-filter block.
+ * Edit component for the filter-post-type block.
  *
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Saved block attributes.

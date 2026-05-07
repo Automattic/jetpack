@@ -31,7 +31,7 @@ const ALLOWED = [
  * @return {object} Rendered element.
  */
 export default function FiltersStackEdit() {
-	const blockProps = useBlockProps( { className: 'jetpack-search-common-filters' } );
+	const blockProps = useBlockProps( { className: 'jetpack-search-filters-stack' } );
 	return (
 		<div { ...blockProps }>
 			<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />

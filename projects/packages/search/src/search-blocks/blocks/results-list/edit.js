@@ -89,14 +89,14 @@ const LAYOUT_OPTIONS = () => [
 ];
 
 /**
- * Editor preview for the search-results block.
+ * Editor preview for the results-list block.
  *
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Attribute setter.
  * @return {object} Rendered element.
  */
-export default function SearchResultsEdit( { attributes, setAttributes } ) {
+export default function ResultsListEdit( { attributes, setAttributes } ) {
 	const stored = attributes?.layout ?? DEFAULT_LAYOUT;
 	// Pre-rename block markup used `card` for what the picker now calls
 	// `expanded`. Promote the legacy value so saved content keeps its first-

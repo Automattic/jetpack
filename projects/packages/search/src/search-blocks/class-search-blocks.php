@@ -62,7 +62,7 @@ class Search_Blocks {
 
 	/**
 	 * Per-request memo backing `is_free_plan()`. Block render callbacks
-	 * (`results-panel`, `powered-by`) call into the plan gate on every
+	 * (`search-results`, `powered-by`) call into the plan gate on every
 	 * inner render, including the auto-injected colophon path. WP's option
 	 * cache absorbs the redundancy in steady state, but on a cold cache
 	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
