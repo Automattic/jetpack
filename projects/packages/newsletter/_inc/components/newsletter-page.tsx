@@ -1,8 +1,9 @@
+import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { Stack, Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
 import './newsletter-page.scss';
 import type { ReactNode } from 'react';
@@ -91,10 +92,20 @@ export default function NewsletterPage( {
 		? 'jetpack-newsletter-page__content jetpack-newsletter-page__content--padded'
 		: 'jetpack-newsletter-page__content';
 
+	// Render the Jetpack mark alongside the product name in the page header,
+	// matching the title convention other modernized Jetpack products
+	// (Forms, Backup, VideoPress) use on the wp-build chassis.
+	const title = (
+		<Stack direction="row" align="center" gap="sm">
+			<JetpackLogo height={ 20 } showText={ false } />
+			{ /* "Newsletter" is a product name, do not translate. */ }
+			<span>{ PRODUCT_NAME }</span>
+		</Stack>
+	);
+
 	return (
 		<Page
-			/* "Newsletter" is a product name, do not translate. */
-			title={ PRODUCT_NAME }
+			title={ title }
 			ariaLabel={ PRODUCT_NAME }
 			subTitle={ SUBTITLES[ activeTab ]() }
 			actions={ actions }
