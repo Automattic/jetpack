@@ -60,14 +60,17 @@ body.jetpack_page_jetpack-newsletter {
 		margin-block-end: var(--wpds-dimension-gap-lg, 24px);
 	}
 
-	.components-card__body > p:first-child {
-		margin-top: 0;
-	}
-
 	.newsletter-card-footer {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-between;
 		gap: 8px;
+		justify-content: flex-end;
+		margin-block-start: var(--wpds-dimension-gap-lg, 16px);
+
+		// Two-element footer (NewsletterSection's privacy + manage links)
+		// brackets each child to opposite ends instead of stacking right.
+		&:has(> :nth-child(2)) {
+			justify-content: space-between;
+		}
 	}
 }

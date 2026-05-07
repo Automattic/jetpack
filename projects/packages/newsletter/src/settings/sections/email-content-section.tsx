@@ -1,15 +1,10 @@
 /**
  * External dependencies
  */
-import {
-	Card,
-	CardHeader,
-	CardBody,
-	Notice,
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -66,11 +61,11 @@ export function EmailContentSection( {
 	];
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Email content', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Email content', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<fieldset disabled={ ! isNewsletterEnabled }>
 					{ ! isSitePublic && (
 						<Notice status="warning" isDismissible={ false }>
@@ -94,7 +89,7 @@ export function EmailContentSection( {
 						onChange={ onChange }
 					/>
 				</fieldset>
-			</CardBody>
-		</Card>
+			</Card.Content>
+		</Card.Root>
 	);
 }

@@ -3,18 +3,11 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import {
-	Button,
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -103,11 +96,11 @@ export function WelcomeEmailSection( {
 	);
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Welcome email message', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Welcome email message', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<p>
 					<Text>
 						{ __(
@@ -130,17 +123,18 @@ export function WelcomeEmailSection( {
 						onChange={ handleDataFormChange }
 					/>
 				</fieldset>
-			</CardBody>
-			<CardFooter>
-				<Button
-					variant="primary"
-					onClick={ handleSave }
-					disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-					isBusy={ isSaving }
-				>
-					{ isSaving ? savingText : saveText }
-				</Button>
-			</CardFooter>
-		</Card>
+				<div className="newsletter-card-footer">
+					<Button
+						__next40pxDefaultSize
+						variant="primary"
+						onClick={ handleSave }
+						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+						isBusy={ isSaving }
+					>
+						{ isSaving ? savingText : saveText }
+					</Button>
+				</div>
+			</Card.Content>
+		</Card.Root>
 	);
 }

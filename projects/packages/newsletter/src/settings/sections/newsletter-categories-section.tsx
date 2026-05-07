@@ -9,20 +9,11 @@ import {
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
-import {
-	Button,
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	Notice,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Card, Link, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -166,11 +157,11 @@ export function NewsletterCategoriesSection( {
 	);
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading level={ 4 }>{ __( 'Newsletter categories', 'jetpack-newsletter' ) }</Heading>
-			</CardHeader>
-			<CardBody>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{ __( 'Newsletter categories', 'jetpack-newsletter' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
 				<p>
 					<Text>
 						{ createInterpolateElement(
@@ -211,23 +202,24 @@ export function NewsletterCategoriesSection( {
 						</p>
 					) }
 				</fieldset>
-			</CardBody>
-			<CardFooter>
-				<Button
-					variant="primary"
-					onClick={ handleSave }
-					disabled={
-						! isNewsletterEnabled ||
-						isSaving ||
-						! hasChanges ||
-						isFetchingCategories ||
-						( data.wpcom_newsletter_categories_enabled && ! isValid )
-					}
-					isBusy={ isSaving }
-				>
-					{ isSaving ? savingText : saveText }
-				</Button>
-			</CardFooter>
-		</Card>
+				<div className="newsletter-card-footer">
+					<Button
+						__next40pxDefaultSize
+						variant="primary"
+						onClick={ handleSave }
+						disabled={
+							! isNewsletterEnabled ||
+							isSaving ||
+							! hasChanges ||
+							isFetchingCategories ||
+							( data.wpcom_newsletter_categories_enabled && ! isValid )
+						}
+						isBusy={ isSaving }
+					>
+						{ isSaving ? savingText : saveText }
+					</Button>
+				</div>
+			</Card.Content>
+		</Card.Root>
 	);
 }
