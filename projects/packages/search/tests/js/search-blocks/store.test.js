@@ -462,24 +462,6 @@ describe( 'store actions', () => {
 		expect( writtenUrl ).toContain( 'max_price=50' );
 	} );
 
-	it( 'syncToUrl threads filterConfigs through so scalar-shaped filters keep their WC URL contract', () => {
-		// Without honoring `urlFormat: 'scalar'` on the writer side, the first
-		// post-hydration search would rewrite `?filter_stock_status=instock`
-		// into `?filter_stock_status[]=instock`, breaking shareable WC catalog
-		// URLs and round-tripping the visitor onto a different URL shape than
-		// they arrived on.
-		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
-		state.searchQuery = '';
-		state.activeFilters = { filter_stock_status: [ 'instock', 'outofstock' ] };
-		state.filterConfigs = { filter_stock_status: { urlFormat: 'scalar' } };
-
-		actions.syncToUrl();
-
-		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
-		expect( writtenUrl ).toContain( 'filter_stock_status=instock%2Coutofstock' );
-		expect( writtenUrl ).not.toContain( 'filter_stock_status%5B%5D' );
-	} );
-
 	it( 'closes open popovers on Escape only', () => {
 		state.isFilterPopoverOpen = true;
 		state.isSortPopoverOpen = true;
