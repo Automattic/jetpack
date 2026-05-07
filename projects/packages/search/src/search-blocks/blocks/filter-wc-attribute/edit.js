@@ -32,6 +32,12 @@ const SAMPLE_FILTER_ITEMS = [
 	{ value: 'green', label: __( 'Green', 'jetpack-search-pkg' ), count: 3 },
 ];
 
+const LOADING_TEXT = __( 'Loading product attributes…', 'jetpack-search-pkg' );
+const PICKER_HELP = __( 'Pick which WooCommerce product attribute drives this filter.', 'jetpack-search-pkg' );
+const NO_ATTRIBUTES_HELP = __( 'No WooCommerce product attributes were found on this site.', 'jetpack-search-pkg' );
+const PLACEHOLDER_PICK = __( 'Pick a WooCommerce product attribute in the block sidebar to enable this filter.', 'jetpack-search-pkg' );
+const PLACEHOLDER_EMPTY = __( 'No WooCommerce product attributes are registered on this site, so this block has nothing to filter on.', 'jetpack-search-pkg' );
+
 /**
  * Strip the `pa_` prefix and humanize the remainder so a fallback label
  * reads naturally ("pa_screen_size" → "Screen Size") when the registered
@@ -92,6 +98,11 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 	const selectedOption = hasAttributes ? attributeOptions.find( opt => opt.value === slug ) : null;
 	const previewLabel = rawLabel || ( selectedOption ? selectedOption.label : '' );
 
+	// Compute help text and placeholder instructions outside JSX so the
+	// i18n extractor sees each __() call with a static string literal.
+	const pickerHelp = isLoading ? LOADING_TEXT : hasAttributes ? PICKER_HELP : NO_ATTRIBUTES_HELP;
+	const placeholderInstructions = isLoading ? LOADING_TEXT : hasAttributes ? PLACEHOLDER_PICK : PLACEHOLDER_EMPTY;
+
 	return (
 		<>
 			<InspectorControls>
@@ -107,19 +118,7 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 							...( attributeOptions ?? [] ),
 						] }
 						disabled={ isLoading || ! hasAttributes }
-						help={
-							isLoading
-								? __( 'Loading product attributes…', 'jetpack-search-pkg' )
-								: hasAttributes
-								  ? __(
-											'Pick which WooCommerce product attribute drives this filter.',
-											'jetpack-search-pkg'
-								    )
-								  : __(
-											'No WooCommerce product attributes were found on this site.',
-											'jetpack-search-pkg'
-								    )
-						}
+						help={ pickerHelp }
 					/>
 					<TextControl
 						__next40pxDefaultSize
@@ -165,19 +164,7 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 				<div { ...blockProps }>
 					<Placeholder
 						label={ __( 'Filter by Attribute', 'jetpack-search-pkg' ) }
-						instructions={
-							isLoading
-								? __( 'Loading product attributes…', 'jetpack-search-pkg' )
-								: hasAttributes
-								  ? __(
-											'Pick a WooCommerce product attribute in the block sidebar to enable this filter.',
-											'jetpack-search-pkg'
-								    )
-								  : __(
-											'No WooCommerce product attributes are registered on this site, so this block has nothing to filter on.',
-											'jetpack-search-pkg'
-								    )
-						}
+						instructions={ placeholderInstructions }
 					/>
 				</div>
 			) : (
