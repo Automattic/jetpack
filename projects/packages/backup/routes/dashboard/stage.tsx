@@ -1,7 +1,6 @@
-import { __ } from '@wordpress/i18n';
-
 const Stage = () => {
-	return <h1>{ __( 'Backup', 'jetpack-backup-pkg' ) }</h1>;
+	// "Backup" is a product name, do not translate.
+	return <h1>Backup</h1>;
 };
 
 export { Stage as stage };
