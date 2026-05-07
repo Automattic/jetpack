@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Docs only: design + Stage 1 implementation plan for Scan v2 added under `projects/plugins/protect/docs/scan-v2/`. No user-facing change.
