@@ -523,6 +523,44 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * If a variation with one of our preset names is already registered (via
+	 * block.json or a higher-priority filter), the existing entry must win —
+	 * otherwise `array_merge` would emit two inserter cards under the same
+	 * variation name and the editor would resolve `isActive` ambiguously.
+	 */
+	public function test_inject_filter_checkbox_variations_skips_name_collisions() {
+		$existing_category = array(
+			'name'       => 'category',
+			'title'      => 'Site-customized Category filter',
+			'attributes' => array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'category',
+				'label'      => 'Topics',
+			),
+		);
+		$variations        = Search_Blocks::inject_filter_checkbox_variations(
+			array( $existing_category ),
+			new \WP_Block_Type( 'jetpack-search/filter-checkbox' )
+		);
+
+		$category_entries = array();
+		foreach ( $variations as $v ) {
+			if ( 'category' === $v['name'] ) {
+				$category_entries[] = $v;
+			}
+		}
+		$this->assertCount( 1, $category_entries );
+
+		$by_name = array_column( $variations, null, 'name' );
+		$this->assertSame( 'Site-customized Category filter', $by_name['category']['title'] );
+		// Other presets are still added, only the colliding name is skipped.
+		$this->assertArrayHasKey( 'post_tag', $by_name );
+		$this->assertArrayHasKey( 'post_type', $by_name );
+		$this->assertArrayHasKey( 'author', $by_name );
+		$this->assertArrayHasKey( 'custom_taxonomy', $by_name );
+	}
+
+	/**
 	 * Invoke a protected static on Search_Blocks from test code. Reflection
 	 * is the cheapest way to cover this logic without leaking visibility
 	 * just for testability.

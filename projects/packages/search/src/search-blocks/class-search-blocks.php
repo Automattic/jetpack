@@ -301,7 +301,18 @@ class Search_Blocks {
 			),
 		);
 
-		return array_merge( (array) $variations, $additions );
+		// Merge by `name` so a variation already registered upstream (block.json
+		// or a higher-priority filter) wins over our preset of the same name —
+		// `array_merge` would otherwise append duplicates and the inserter
+		// would render two cards for the same variation.
+		$variations    = (array) $variations;
+		$existing_keys = array_flip( array_column( $variations, 'name' ) );
+		foreach ( $additions as $variation ) {
+			if ( ! isset( $existing_keys[ $variation['name'] ] ) ) {
+				$variations[] = $variation;
+			}
+		}
+		return $variations;
 	}
 
 	/**
