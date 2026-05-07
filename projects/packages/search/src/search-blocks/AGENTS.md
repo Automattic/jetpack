@@ -27,4 +27,4 @@ Filters round-trip through the URL in Jetpack Search's array shape: `?<filterKey
 
 Don't add a comma-joined / WC-style scalar shape (`?filter_stock_status=in,out`) for new product filters either. Stick to `?filter_stock_status[]=in&filter_stock_status[]=out` so deep links stay interchangeable with instant-search and the PHP parser doesn't need a per-filter URL-format opt-in.
 
-`min_price` / `max_price` are the only scalar URL params, and they're singletons (not filter selections), so they sit outside `activeFilters` in store state.
+Price is the one exception, and only because its shape doesn't fit. `activeFilters` is typed `{ [filterKey]: string[] }` — discrete, OR-able selections that build a `terms` ES clause. `priceRange` is `{ min, max }`, builds a `range` clause, and writes scalar `min_price` / `max_price` URL params. It lives as a sibling on store state rather than getting shoehorned into `activeFilters` with a sentinel encoding.
