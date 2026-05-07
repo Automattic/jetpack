@@ -1,7 +1,7 @@
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
-import ExperienceOption from '../experience-option';
 import { storeConfig, STORE_ID } from '../../../store';
 import { EXPERIENCE } from '../constants';
+import ExperienceOption from '../experience-option';
 
 export default {
 	title: 'Packages/Search/FeatureSelector/ExperienceOption',
