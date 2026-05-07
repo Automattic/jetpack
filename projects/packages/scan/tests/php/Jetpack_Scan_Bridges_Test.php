@@ -21,6 +21,8 @@ use WP_REST_Server;
 use function add_action;
 use function add_filter;
 use function do_action;
+use function has_action;
+use function remove_action;
 use function remove_all_actions;
 use function remove_filter;
 use function rest_get_server;
@@ -144,6 +146,51 @@ class Jetpack_Scan_Bridges_Test extends TestCase {
 		$this->assertArrayHasKey( '/jetpack/v4/site/scan/history', $routes );
 
 		remove_filter( 'rsm_jetpack_ui_modernization_scan', '__return_false' );
+	}
+
+	/**
+	 * The `rest_api_init` hook is wired by `Jetpack_Scan::initialize()`
+	 * regardless of the modernization filter.
+	 *
+	 * The neighbour `test_routes_register_when_filter_is_off` only proves
+	 * the registration callback works when invoked directly. This case
+	 * proves the hook subscription itself isn't gated by the filter — a
+	 * regression that moved the `add_action( 'rest_api_init', ... )`
+	 * line inside the modernization-only branch would silently break
+	 * Protect's bridge consumption while still passing the direct-call
+	 * test above.
+	 *
+	 * Note: `initialize()` registers its own static method
+	 * `Jetpack_Scan::register_rest_routes` (which delegates to
+	 * `REST_Controller::register_rest_routes`), so we assert against
+	 * that callable, not the underlying controller method.
+	 */
+	public function test_routes_register_via_rest_api_init_when_filter_is_off() {
+		add_filter( Jetpack_Scan::MODERNIZATION_FILTER, '__return_false' );
+
+		$callback = array( Jetpack_Scan::class, 'register_rest_routes' );
+
+		// `setUp` registers `REST_Controller::register_rest_routes` inline (not
+		// via `Jetpack_Scan::initialize()`), so the callable we care about
+		// here — `Jetpack_Scan::register_rest_routes` — should not be wired
+		// yet on a fresh harness.
+		$this->assertFalse(
+			has_action( 'rest_api_init', $callback ),
+			'Pre-condition: Jetpack_Scan::register_rest_routes should not be wired before initialize() runs.'
+		);
+
+		Jetpack_Scan::initialize();
+
+		$this->assertNotFalse(
+			has_action( 'rest_api_init', $callback ),
+			'Jetpack_Scan::initialize() must wire `rest_api_init` regardless of the modernization filter so Protect can call /jetpack/v4/site/scan/*.'
+		);
+
+		// Leave the harness as we found it: drop the action this test
+		// added, so subsequent `do_action( 'rest_api_init' )` calls don't
+		// double-register.
+		remove_action( 'rest_api_init', $callback );
+		remove_filter( Jetpack_Scan::MODERNIZATION_FILTER, '__return_false' );
 	}
 
 	/**
