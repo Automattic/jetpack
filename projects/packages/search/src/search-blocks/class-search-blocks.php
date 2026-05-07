@@ -600,39 +600,39 @@ class Search_Blocks {
 
 		return array(
 			// Connection / routing config.
-			'siteId'           => $site_id,
-			'apiRoot'          => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'            => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite'    => $is_private,
-			'isWpcom'          => $is_wpcom,
-			'homeUrl'          => function_exists( 'home_url' ) ? home_url() : '',
+			'siteId'                => $site_id,
+			'apiRoot'               => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'                 => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite'         => $is_private,
+			'isWpcom'               => $is_wpcom,
+			'homeUrl'               => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'           => function_exists( 'get_locale' )
+			'locale'                => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'      => $search_query,
+			'searchQuery'           => $search_query,
 			// URL key the JS store uses to read/write the search query. `s`
 			// on the WP search route, `q` on non-search pages — see
 			// `get_search_param_name()`. Threaded through the seed so the JS
 			// store reads from the same key the seed pulled `searchQuery`
 			// from.
-			'searchParamName'  => static::get_search_param_name(),
-			'sortOrder'        => static::parse_url_sort(),
-			'activeFilters'    => $active_filters,
-			'priceRange'       => $price_range,
+			'searchParamName'       => static::get_search_param_name(),
+			'sortOrder'             => static::parse_url_sort(),
+			'activeFilters'         => $active_filters,
+			'priceRange'            => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
 			// taxonomy, label, showCount, maxItems } }.
-			'filterConfigs'    => array(),
+			'filterConfigs'         => array(),
 
 			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
 			// is intentionally NOT seeded here. FSE block templates can render
@@ -646,19 +646,24 @@ class Search_Blocks {
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'          => array(),
-			'aggregations'     => (object) array(),
-			'totalResults'     => 0,
-			'pageHandle'       => null,
+			'results'               => array(),
+			'aggregations'          => (object) array(),
+			// Per-filter union of values seen across the session's aggregation
+			// responses. The JS store appends to this on each successful fetch
+			// so checkbox-filter lists can keep options visible even after a
+			// narrower query drops them from ES results.
+			'retainedFilterOptions' => (object) array(),
+			'totalResults'          => 0,
+			'pageHandle'            => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
 			// search query or filter selection so the empty-state region inside
 			// `jetpack-search/results-list` stays hidden between first paint and JS
 			// hydrating the initial fetch — otherwise a "No results found" flash
 			// appears on deep links.
-			'isLoading'        => $is_initial_loading,
-			'isLoadingMore'    => false,
-			'hasError'         => false,
+			'isLoading'             => $is_initial_loading,
+			'isLoadingMore'         => false,
+			'hasError'              => false,
 
 			// One-shot pre-hydration skeleton gate. The IA SSR pass evaluates
 			// `data-wp-bind--hidden` against literal seeded values (it can't
@@ -666,12 +671,12 @@ class Search_Blocks {
 			// boolean. JS flips it to true once `actions.search()` resolves
 			// and never resets it — subsequent re-searches keep live results
 			// on screen without re-flashing placeholders.
-			'skeletonHidden'   => false,
+			'skeletonHidden'        => false,
 
 			// Seeded so the SSR pass can resolve `data-wp-text` to a real
 			// string on first paint; `actions.search()` keeps it in lockstep
 			// with `isLoading` / `totalResults` via `computeResultsCountText`.
-			'resultsCountText' => $is_initial_loading ? $searching_text : '',
+			'resultsCountText'      => $is_initial_loading ? $searching_text : '',
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -680,7 +685,7 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'          => static::build_initial_strings(),
+			'strings'               => static::build_initial_strings(),
 		);
 	}
 
