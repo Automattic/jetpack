@@ -18,10 +18,17 @@ body.jetpack_page_jetpack-newsletter {
 
 	// Page header keeps its existing sticky behaviour but drops its bottom
 	// rule — the tab row owns the separator now, so the two never stack a
-	// double border.
+	// double border. Pin the title row to the action-button height so the
+	// header stays the same size whether the active tab supplies actions
+	// (Subscribers ships an "Add subscribers" button) or not (Settings); the
+	// tab bar would otherwise jump 8px when switching between them.
 	.admin-ui-page__header {
 		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: 0;
+
+		> *:first-child {
+			min-block-size: 36px;
+		}
 	}
 
 	// Tabs row: sticks at the top of the body wrapper (which itself starts
