@@ -22,9 +22,11 @@ const DEFAULT_LABEL = __( 'Clear filters', 'jetpack-search-pkg' );
  */
 export default function ClearFiltersEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps( { className: 'jetpack-search-clear-filters' } );
-	const rawLabel = attributes?.label || '';
-	const previewLabel = rawLabel || DEFAULT_LABEL;
-	const hideWhenInactive = attributes?.hideWhenInactive !== false;
+	const rawLabel = attributes.label || '';
+	// Match render.php's sanitize_text_field() trim so a whitespace-only label
+	// previews the default copy instead of a visually empty button.
+	const previewLabel = rawLabel.trim() || DEFAULT_LABEL;
+	const hideWhenInactive = attributes.hideWhenInactive !== false;
 
 	return (
 		<>

@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Search 3.0: extracts the "Clear filters" affordance from `jetpack-search/active-filters` into a standalone `jetpack-search/clear-filters` block. The `active-filters` block no longer renders an inline Clear all button — sites that want one must explicitly insert `jetpack-search/clear-filters`. Visibility ties to `state.hasAnyActiveFilters` so the button hides when no facet is active. Tracked under epic [RSM-1929].
+Search 3.0: extract the "Clear filters" affordance from `jetpack-search/active-filters` into a standalone `jetpack-search/clear-filters` block. The `active-filters` block no longer renders an inline Clear all button — sites that want one must explicitly insert `jetpack-search/clear-filters`. Visibility ties to `state.hasActiveFilters` so the button hides when no facet is active. Tracked under epic [RSM-1929].

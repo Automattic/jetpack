@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Search;
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 // Render `hidden` on first paint when no facet is active. JS unhides once
-// `state.hasAnyActiveFilters` flips — relying only on data-wp-bind--hidden
+// `state.hasActiveFilters` flips — relying only on data-wp-bind--hidden
 // leaves the "Active filters:" label visible on the server-rendered HTML
 // until hydration, which pushes sibling filter blocks ~30px down and
 // misaligns the sidebar with the adjacent results column. Reads activeFilters
@@ -41,7 +41,7 @@ if ( ! $has_active_on_paint && is_array( $seeded_price_range ) ) {
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	data-wp-bind--hidden="!state.hasAnyActiveFilters"
+	data-wp-bind--hidden="!state.hasActiveFilters"
 	<?php echo $has_active_on_paint ? '' : 'hidden'; ?>
 >
 	<span class="jetpack-search-active-filters__heading">

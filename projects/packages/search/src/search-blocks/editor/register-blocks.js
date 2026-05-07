@@ -50,6 +50,7 @@ const BLOCKS = [
 	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
+	[ 'jetpack-search/clear-filters', ClearFiltersEdit ],
 	[ 'jetpack-search/filter-post-type', FilterPostTypeEdit ],
 	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
 	[ 'jetpack-search/filters-stack', FiltersStackEdit, filtersStackSave ],
@@ -62,7 +63,6 @@ const BLOCKS = [
 	[ 'jetpack-search/filter-wc-attribute', FilterWcAttributeEdit ],
 	[ 'jetpack-search/filter-wc-price', FilterWcPriceEdit ],
 	[ 'jetpack-search/filter-wc-stock-status', FilterWcStockStatusEdit ],
-	[ 'jetpack-search/clear-filters', ClearFiltersEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /

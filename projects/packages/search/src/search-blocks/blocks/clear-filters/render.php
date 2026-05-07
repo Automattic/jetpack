@@ -29,7 +29,7 @@ if ( '' === $label ) {
 	$label = __( 'Clear filters', 'jetpack-search-pkg' );
 }
 
-// Mirror `state.hasAnyActiveFilters` on the server so the button paints
+// Mirror `state.hasActiveFilters` on the server so the button paints
 // pre-hidden on a fresh URL — otherwise a flash of the button appears
 // before JS hydrates and applies the data-wp-bind--hidden binding.
 $seeded_state   = function_exists( 'wp_interactivity_state' )
@@ -47,17 +47,15 @@ foreach ( $seeded_active as $values ) {
 if ( ! $has_any_active && is_array( $seeded_price ) ) {
 	$has_any_active = ( $seeded_price['min'] ?? null ) !== null || ( $seeded_price['max'] ?? null ) !== null;
 }
-
-$initial_hidden_attr = $hide_when_inactive && ! $has_any_active ? 'hidden' : '';
-$bind_hidden_attr    = $hide_when_inactive
-	? 'data-wp-bind--hidden="!state.hasAnyActiveFilters"'
-	: '';
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-clear-filters' ) ) ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php echo wp_kses_data( $bind_hidden_attr ); ?>
-	<?php echo esc_attr( $initial_hidden_attr ); ?>
+	<?php
+	if ( $hide_when_inactive ) :
+		?>
+		data-wp-bind--hidden="!state.hasActiveFilters"<?php endif; ?>
+	<?php echo $hide_when_inactive && ! $has_any_active ? 'hidden' : ''; ?>
 >
 	<button
 		type="button"
