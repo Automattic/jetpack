@@ -200,6 +200,27 @@ class Jetpack_Scan_Bridges_Test extends TestCase {
 	}
 
 	/**
+	 * Mutation routes 403 when the current admin has no user connection.
+	 *
+	 * Without this gate, Client::wpcom_json_api_request_as_user falls back
+	 * to blog auth and writes are silently mis-attributed.
+	 */
+	public function test_mutation_routes_require_user_connection() {
+		// Admin user, but no Jetpack user connection.
+		wp_set_current_user( $this->admin_id );
+
+		// Sanity: the user-connection gate predicate is false here.
+		$connection = new \Automattic\Jetpack\Connection\Manager();
+		$this->assertFalse( $connection->is_user_connected( $this->admin_id ) );
+
+		$request  = new WP_REST_Request( 'POST', '/jetpack/v4/site/scan/threat/123/ignore' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_no_user_connection', $response->get_data()['code'] );
+	}
+
+	/**
 	 * Routes the admin-passes-permission check exercises.
 	 *
 	 * @return array<string, array{string, string}>
