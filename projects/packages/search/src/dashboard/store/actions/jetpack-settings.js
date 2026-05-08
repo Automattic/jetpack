@@ -19,6 +19,17 @@ export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
 const hasOwnSetting = ( settings, settingName ) =>
 	Object.prototype.hasOwnProperty.call( settings ?? {}, settingName );
 
+const getRollbackSettings = settings =>
+	Object.fromEntries(
+		Object.entries( settings ?? {} ).filter(
+			( [ k ] ) =>
+				k === 'module_active' ||
+				k === 'instant_search_enabled' ||
+				k === 'experience' ||
+				k === 'reader_chat'
+		)
+	);
+
 /**
  * Yield actions to update Search Settings
  *
@@ -27,15 +38,18 @@ const hasOwnSetting = ( settings, settingName ) =>
  * @return {object} - an action object.
  */
 export function* updateJetpackSettings( settings = {} ) {
+	const store = select( STORE_ID );
 	const shouldTrackReaderChat = hasOwnSetting( settings, 'reader_chat' );
 	const previousReaderChatEnabled = shouldTrackReaderChat
-		? Boolean( select( STORE_ID ).isReaderChatEnabled() )
+		? Boolean( store.isReaderChatEnabled() )
 		: null;
-	const isWpcom = shouldTrackReaderChat ? Boolean( select( STORE_ID ).isWpcom() ) : false;
+	const isWpcom = shouldTrackReaderChat ? Boolean( store.isWpcom() ) : false;
+	let previousSettings;
 
 	try {
 		yield updatingNotice();
 		yield setUpdatingJetpackSettings();
+		previousSettings = getRollbackSettings( store.getSearchModuleStatus() );
 		yield setJetpackSettings( settings );
 		yield updateJetpackSettingsControl( settings );
 		const updatedSettings = yield fetchJetpackSettings();
@@ -56,16 +70,7 @@ export function* updateJetpackSettings( settings = {} ) {
 		}
 		return successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 	} catch {
-		const oldSettings = Object.fromEntries(
-			Object.entries( select( STORE_ID ).getSearchModuleStatus() ).filter(
-				( [ k ] ) =>
-					k === 'module_active' ||
-					k === 'instant_search_enabled' ||
-					k === 'experience' ||
-					k === 'reader_chat'
-			)
-		);
-		yield setJetpackSettings( oldSettings );
+		yield setJetpackSettings( previousSettings ?? {} );
 		return errorNotice( __( 'Error Update settings…', 'jetpack-search-pkg' ) );
 	} finally {
 		yield removeUpdatingNotice();

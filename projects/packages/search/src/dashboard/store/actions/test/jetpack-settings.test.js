@@ -100,8 +100,22 @@ describe( 'Jetpack Settings updateJetpackSettings action', () => {
 		expect( action.next().value.type ).toBe( 'SET_JETPACK_SETTINGS' );
 		// Post new settings to API.
 		expect( action.next().value.type ).toBe( 'UPDATE_JETPACK_SETTINGS' );
+		selectors.getSearchModuleStatus.mockReturnValue( {
+			module_active: true,
+			instant_search_enabled: true,
+			experience: 'overlay',
+			reader_chat: true,
+		} );
 		// Restore previous settings after the failed save.
-		expect( action.throw( new Error( 'Save failed' ) ).value.type ).toBe( 'SET_JETPACK_SETTINGS' );
+		expect( action.throw( new Error( 'Save failed' ) ).value ).toEqual( {
+			type: 'SET_JETPACK_SETTINGS',
+			options: {
+				module_active: true,
+				instant_search_enabled: true,
+				experience: 'overlay',
+				reader_chat: false,
+			},
+		} );
 
 		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 	} );
