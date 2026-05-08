@@ -59,7 +59,10 @@ const createStoreWithSettings = ( jetpackSettings, sitePlan = {}, siteData = {} 
 		initialState: {
 			...( storeConfig.initialState || {} ),
 			jetpackSettings,
-			sitePlan,
+			// Default `supports_instant_search: true` so the Overlay detail panel
+			// renders both customization actions ("Customize" + "Edit widgets").
+			// Stories that need a plan without instant search override via the arg.
+			sitePlan: { supports_instant_search: true, ...sitePlan },
 			siteData,
 		},
 	} );
