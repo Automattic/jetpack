@@ -142,6 +142,7 @@ add_action(
 			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
 			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
 			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
+			'untitled'             => __( 'Untitled', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
@@ -439,7 +440,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div class="bw-help-row"><kbd>#tag</kbd><span><?php echo esc_html__( 'A line containing only #tags assigns them to the post on save', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		</div><!-- /.bw-help-wrap -->
-		<span class="bw-status" data-wp-text="state.message"></span>
+		<span class="bw-status" data-wp-text="state.displayStatus"></span>
 		<div class="bw-topbar-actions">
 			<button
 				class="bw-btn bw-btn-draft"
