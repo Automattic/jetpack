@@ -83,7 +83,7 @@ export default function ChaptersHelpModal( { isOpen, onClose }: Props ): ReactEl
 				<p>02:38 Coming back home</p>
 				<p>03:04 Credits</p>
 				<Dialog.Footer>
-					<Dialog.Action render={ <Button variant="primary" /> }>
+					<Dialog.Action render={ <Button /> }>
 						{ __( 'Got it, thanks', 'jetpack-videopress-pkg' ) }
 					</Dialog.Action>
 				</Dialog.Footer>
