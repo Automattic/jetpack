@@ -191,6 +191,150 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * `init()` must always register the block-level hooks AND the IA state
+	 * seeding regardless of which experience the site has saved — admins can
+	 * insert Search blocks anywhere blocks are configurable, and those blocks
+	 * need the seeded base state to hydrate.
+	 */
+	public function test_init_always_registers_block_and_seed_hooks() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		// No experience opt-in saved — get_experience() falls back to 'inline'
+		// (or 'overlay' if instant_search_enabled is true). Either way, not embedded.
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_blocks' ) ),
+			'register_blocks must always hook into init'
+		);
+		$this->assertNotFalse(
+			has_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) ),
+			'register_block_category must always hook into block_categories_all'
+		);
+		$this->assertNotFalse(
+			has_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) ),
+			'enqueue_editor_assets must always hook into enqueue_block_editor_assets'
+		);
+		$this->assertNotFalse(
+			has_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
+			'seed_interactivity_state must always hook into template_redirect (blocks may be on any page)'
+		);
+		$this->assertNotFalse(
+			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
+			'seed_interactivity_state must always hook into wp_enqueue_scripts (blocks may be on any page)'
+		);
+	}
+
+	/**
+	 * Off the Embedded experience, the template-takeover hooks
+	 * (`register_search_template` / `prepend_search_template`) must NOT be
+	 * registered — `/?s=…` should resolve to the theme's `search.html`, not
+	 * the Jetpack Search template.
+	 */
+	public function test_init_does_not_register_template_hooks_when_not_embedded() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		// Inline = no opt-in saved. Overlay and Off are likewise non-embedded.
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		Search_Blocks::init();
+
+		$this->assertFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
+			'register_search_template must not hook into init when experience is not embedded'
+		);
+		$this->assertFalse(
+			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
+			'prepend_search_template must not hook into search_template_hierarchy when not embedded'
+		);
+	}
+
+	/**
+	 * On the Embedded experience, the template-takeover hooks must be
+	 * registered so `/?s=…` resolves to the Jetpack Search template instead
+	 * of the theme's `search.html`.
+	 */
+	public function test_init_registers_template_hooks_when_embedded() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
+			'register_search_template must hook into init on embedded'
+		);
+		$this->assertNotFalse(
+			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
+			'prepend_search_template must hook into search_template_hierarchy on embedded'
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * If the module isn't active, the experience is `'off'` regardless of any
+	 * stale value in the experience option, so the template-takeover hooks
+	 * must not register. Guards against a leftover `'embedded'` value on a
+	 * site that's been deactivated. The block-level and seed hooks still
+	 * register so any post-content Search block continues to hydrate.
+	 */
+	public function test_init_does_not_register_template_hooks_when_module_inactive() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( false );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		Search_Blocks::init();
+
+		$this->assertFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) )
+		);
+		$this->assertFalse(
+			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) )
+		);
+		// Block + seed hooks still register, since blocks may be on any page.
+		$this->assertNotFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_blocks' ) )
+		);
+		$this->assertNotFalse(
+			has_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) )
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Remove every hook this class registers, so each `init()` test starts
+	 * from a known-empty state.
+	 */
+	private function reset_search_blocks_hooks(): void {
+		remove_action( 'init', array( Search_Blocks::class, 'register_blocks' ) );
+		remove_action( 'init', array( Search_Blocks::class, 'register_search_template' ) );
+		remove_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) );
+		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) );
+		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
+		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
+		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
+	}
+
+	/**
+	 * Toggle whether the Search module reads as active by writing the
+	 * `jetpack_active_modules` option directly.
+	 *
+	 * @param bool $active True to add `'search'` to the option, false to remove it.
+	 */
+	private function set_module_active( bool $active ): void {
+		if ( $active ) {
+			update_option( 'jetpack_active_modules', array( 'search' ) );
+		} else {
+			update_option( 'jetpack_active_modules', array() );
+		}
+	}
+
+	/**
 	 * `register_search_template()` must push the template into
 	 * WP_Block_Templates_Registry (so it shows up in the Site Editor's
 	 * Templates list) and the stored content must reference the Jetpack
@@ -502,6 +646,76 @@ class Search_Blocks_Test extends TestCase {
 			$variations_by_name['custom_taxonomy']['attributes']
 		);
 		$this->assertSame( array( 'filterType' ), $variations_by_name['custom_taxonomy']['isActive'] );
+
+		// WC product taxonomies — product_cat / product_tag are unconditional
+		// (WooCommerce always registers them); product_brand is gated below
+		// in test_inject_filter_checkbox_variations_gates_product_brand_on_taxonomy_existence.
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'product_cat',
+				'label'      => 'Product Category',
+			),
+			$variations_by_name['product_cat']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_cat']['isActive'] );
+		$this->assertSame( 'category', $variations_by_name['product_cat']['icon'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'product_tag',
+				'label'      => 'Product Tag',
+			),
+			$variations_by_name['product_tag']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_tag']['isActive'] );
+		$this->assertSame( 'tag', $variations_by_name['product_tag']['icon'] );
+
+		// product_brand is gated on `taxonomy_exists( 'product_brand' )`. In a
+		// bare phpunit run no taxonomies are registered, so it must NOT appear.
+		$this->assertArrayNotHasKey( 'product_brand', $variations_by_name );
+	}
+
+	/**
+	 * `product_brand` isn't a core WC taxonomy — it's added by extensions
+	 * (WC Brands, Perfect Brands, recent bundled WC versions). The variation
+	 * is registered only when the taxonomy is present so authors don't see
+	 * a silently-empty filter on sites without a brands extension.
+	 */
+	public function test_inject_filter_checkbox_variations_gates_product_brand_on_taxonomy_existence() {
+		register_taxonomy( 'product_brand', 'post' );
+
+		$variations         = Search_Blocks::inject_filter_checkbox_variations(
+			array(),
+			new \WP_Block_Type( 'jetpack-search/filter-checkbox' )
+		);
+		$variations_by_name = array_column( $variations, null, 'name' );
+
+		$this->assertArrayHasKey( 'product_brand', $variations_by_name );
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'product_brand',
+				'label'      => 'Product Brand',
+			),
+			$variations_by_name['product_brand']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_brand']['isActive'] );
+		$this->assertSame( 'awards', $variations_by_name['product_brand']['icon'] );
+
+		// Inserter cards render in the order the variations are returned, so
+		// product_brand must precede custom_taxonomy to keep the three
+		// product variations grouped together rather than splitting around
+		// Custom Taxonomy.
+		$names           = array_column( $variations, 'name' );
+		$brand_position  = array_search( 'product_brand', $names, true );
+		$custom_position = array_search( 'custom_taxonomy', $names, true );
+		$this->assertNotFalse( $brand_position );
+		$this->assertNotFalse( $custom_position );
+		$this->assertLessThan( $custom_position, $brand_position );
+
+		unregister_taxonomy( 'product_brand' );
 	}
 
 	/**

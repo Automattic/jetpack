@@ -76,14 +76,40 @@ class Search_Blocks {
 	/**
 	 * Register block types and hook into WordPress.
 	 *
-	 * The caller (Initializer) is responsible for gating this behind the
-	 * `jetpack_search_blocks_enabled` feature flag.
+	 * Two gates apply:
+	 *
+	 * 1. The caller (Initializer) gates the whole method behind the
+	 *    `jetpack_search_blocks_enabled` feature flag — when off, the blocks
+	 *    don't exist at all.
+	 * 2. Within this method, only the *template-takeover* surface (registering
+	 *    the Jetpack Search block template and prepending it to
+	 *    `search_template_hierarchy`) is additionally gated on the saved
+	 *    experience being `'embedded'`. Everything else — block registration,
+	 *    editor assets, and Interactivity API state seeding — runs whenever
+	 *    the feature flag is on, since admins can insert Search blocks
+	 *    anywhere blocks are configurable (post content, sidebar widgets,
+	 *    custom templates) regardless of which experience the dashboard has
+	 *    saved. Those blocks need the seeded base state (`apiRoot`, `nonce`,
+	 *    URL-derived `searchQuery` / `activeFilters`, `filterConfigs` slot,
+	 *    etc.) to hydrate; per-block `render.php` files only contribute their
+	 *    own config and rely on the global seed for the base.
+	 *
+	 * Why the template gate: with four experiences (`embedded` / `overlay` /
+	 * `inline` / `off`), only Embedded should override the theme's
+	 * `search.html`. A site that saves Overlay or Inline still expects
+	 * `/?s=…` to resolve through the theme — the Jetpack template is the
+	 * right answer only when the user has explicitly opted into the
+	 * block-built search page.
+	 *
+	 * `Module_Control::get_experience()` reads `get_option( 'jetpack_search_experience' )`
+	 * (object-cached) and falls back to deriving from the legacy booleans, so
+	 * this is cheap on every request. `update_experience()` writes the option
+	 * synchronously, so the next request after a save sees the new gate.
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
-		add_action( 'init', array( static::class, 'register_search_template' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
-		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 		// FSE block-template rendering runs *before* `wp_head()` (see
 		// `wp-includes/template-canvas.php`), so blocks would resolve
 		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
@@ -92,7 +118,11 @@ class Search_Blocks {
 		// deep-merge no-op and keeps classic-theme paths covered.
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
-		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+
+		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
+			add_action( 'init', array( static::class, 'register_search_template' ) );
+			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		}
 	}
 
 	/**
@@ -219,13 +249,12 @@ class Search_Blocks {
 	/**
 	 * Inject named block variations for the filter-checkbox block.
 	 *
-	 * Hooks `get_block_type_variations` (WP 6.5+) rather than calling
+	 * Hooks `get_block_type_variations` (added in WP 6.5) rather than calling
 	 * `register_block_variation()` because the latter is a JS-only API; no
 	 * matching PHP function exists in WordPress core. Filtering on the block
 	 * type's own variations getter is the supported PHP-side path and keeps
-	 * the editor-only JS bundle out of the ESM pipeline. On WP < 6.5 the
-	 * filter doesn't fire and no variations are registered — same end-state
-	 * as the prior code path, so this is not a version regression.
+	 * the editor-only JS bundle out of the ESM pipeline. Jetpack already
+	 * requires WP 6.8+, so the hook is always live in supported environments.
 	 *
 	 * Variation names and default `taxonomy` / `filterType` attributes
 	 * intentionally mirror the filter types exposed by the instant-search
@@ -284,23 +313,71 @@ class Search_Blocks {
 				'isActive'    => array( 'filterType' ),
 			),
 			array(
-				'name'        => 'custom_taxonomy',
-				'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
-				'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
+				'name'        => 'product_cat',
+				'title'       => __( 'Filter by Product Category', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product category checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'category',
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
-					'taxonomy'   => '',
-					'label'      => '',
+					'taxonomy'   => 'product_cat',
+					'label'      => __( 'Product Category', 'jetpack-search-pkg' ),
 				),
-				// Match on filterType only (no taxonomy comparison) so the
-				// variation identity survives once the author picks a slug
-				// via the inspector. The Category and Tag variations both
-				// pin `taxonomy` in their isActive arrays, so WP's
-				// most-specific-match resolution still routes those slugs
-				// to their dedicated variations — Custom Taxonomy claims
-				// every other registered taxonomy.
-				'isActive'    => array( 'filterType' ),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
 			),
+			array(
+				'name'        => 'product_tag',
+				'title'       => __( 'Filter by Product Tag', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'tag',
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_tag',
+					'label'      => __( 'Product Tag', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			),
+		);
+
+		// `product_brand` isn't a core WooCommerce taxonomy — it's added by
+		// extensions (WC Brands, Perfect Brands, recent bundled WC versions).
+		// Registering the variation unconditionally would surface "Filter by
+		// Product Brand" in the inserter on sites without it, where the block
+		// renders no buckets and the failure is silent. Gate on the taxonomy's
+		// presence so authors only see the option when it can actually work.
+		// Inserted before `custom_taxonomy` below so the three product
+		// variations stay grouped in the inserter when the gate fires.
+		if ( taxonomy_exists( 'product_brand' ) ) {
+			$additions[] = array(
+				'name'        => 'product_brand',
+				'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product brand checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'awards',
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_brand',
+					'label'      => __( 'Product Brand', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			);
+		}
+
+		$additions[] = array(
+			'name'        => 'custom_taxonomy',
+			'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
+			'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
+			'attributes'  => array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => '',
+				'label'      => '',
+			),
+			// Match on filterType only (no taxonomy comparison) so the
+			// variation identity survives once the author picks a slug
+			// via the inspector. Category, Tag, and the product taxonomy
+			// variations all pin `taxonomy` in their isActive arrays, so
+			// WP's most-specific-match resolution still routes those
+			// slugs to their dedicated variations — Custom Taxonomy
+			// claims every other registered taxonomy.
+			'isActive'    => array( 'filterType' ),
 		);
 
 		// Merge by `name` so a variation already registered upstream (block.json
@@ -549,8 +626,11 @@ class Search_Blocks {
 	 */
 	protected static function filter_block_helpers(): array {
 		return array(
-			'jetpack-search/filter-checkbox' => Filter_Checkbox::class,
-			'jetpack-search/filter-date'     => Filter_Date::class,
+			'jetpack-search/filter-checkbox'        => Filter_Checkbox::class,
+			'jetpack-search/filter-date'            => Filter_Date::class,
+			'jetpack-search/filter-wc-rating'       => Filter_Wc_Rating::class,
+			'jetpack-search/filter-wc-attribute'    => Filter_Wc_Attribute::class,
+			'jetpack-search/filter-wc-stock-status' => Search_Product_Filter_Status::class,
 		);
 	}
 
@@ -577,6 +657,7 @@ class Search_Blocks {
 					$configs[ $key ] = $helper::build_config( $attrs, $key );
 				}
 			}
+
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 				static::walk_blocks_for_filter_configs( $block['innerBlocks'], $configs );
 			}

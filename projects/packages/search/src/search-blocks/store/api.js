@@ -112,17 +112,22 @@ export function resolveFilterFields( config ) {
 				bucketFormat: 'slash',
 			};
 		case 'wc_stock_status':
-			// Reads WooCommerce-populated postmeta indexed under
-			// `meta._stock_status.value` with a `.raw` keyword subfield via
-			// the `meta_str_template` dynamic mapping. The terms-aggs
-			// whitelist (`meta\..*\.value\.raw` in
-			// class-wpcom-search-engine.php) admits this exact path. The
-			// `wc_*` prefix on the filterType marks the dependency on
-			// WC-populated meta even though no WC-side code is involved at
-			// query time.
+			// Stock status reads from the WC `product_visibility` taxonomy:
+			// WC tags out-of-stock products with the `outofstock` term;
+			// absence of that term means in-stock. The taxonomy has no
+			// `instock` or `onbackorder` term, so this filter is two-state
+			// only — backorder lives exclusively in the `_stock_status`
+			// postmeta which the WPCOM-side ES indexer doesn't currently
+			// carry (sync sends it, the indexer drops it; tracked as a
+			// separate followup). `buildAggregations` and `buildFilterClause`
+			// special-case this filterType because the agg needs an
+			// `include: ['outofstock']` filter (the taxonomy holds many
+			// unrelated terms — `featured`, `rated-N`, etc.) and the
+			// in-stock selection emits a `must_not` clause rather than a
+			// `term`.
 			return {
-				aggField: 'meta._stock_status.value.raw',
-				filterField: 'meta._stock_status.value.raw',
+				aggField: 'taxonomy.product_visibility.slug',
+				filterField: 'taxonomy.product_visibility.slug',
 				bucketFormat: 'plain',
 			};
 		case 'wc_rating':
@@ -149,30 +154,28 @@ export function resolveFilterFields( config ) {
 }
 
 /**
- * Star buckets for `wc_rating` filter clauses. Mirrors WC's
- * `ROUND(avg_rating, 0)` semantics: star=5 covers avg ∈ [4.5, ∞),
- * star=4 covers [3.5, 4.5), down to star=1 covering [0.5, 1.5).
+ * Threshold lower bounds for the `wc_rating` filter — `?rating_filter[]=N`
+ * matches `_wc_average_rating ≥ N - 0.5`, i.e. avg values that round to
+ * N stars or higher under WC's `ROUND(avg_rating, 0)` rule. Half-integer
+ * boundaries are deliberate: `4★ & up` includes products with avg ≥ 3.5
+ * (which round to 4 or 5), so the row is a true "and up" superset of the
+ * higher-star rows.
+ *
+ * Single-bound by design — there is no upper cap, mirroring the dominant
+ * shopper-facing rating filter on Amazon/Etsy/Wayfair/Walmart/eBay where
+ * picking "3★ & up" returns everything from 3 stars to perfect.
  *
  * Products with `_wc_average_rating` < 0.5 fall into a histogram
  * bucket at -0.5 with no corresponding star entry — they're returned
- * in unfiltered results but cannot be selected via the rating filter.
- * This matches WC's own `ROUND(avg_rating, 0)` filter UI which has
- * no "0-star" option either; when the front-end filter block lands
- * (DSGWOO-equivalent on the Search 3.0 side) it will surface only the
- * 1–5 entries here.
- *
- * Aggregation uses a histogram (range aggs aren't whitelisted on the
- * WPCOM v1.3 search API). `histogramKey` is the bucket key the
- * histogram emits for that star band when called with `interval: 1`
- * and `offset: 0.5` — useful for response-side bucket → star
- * projection.
+ * in unfiltered results but cannot be selected via the rating filter,
+ * matching WC's own filter UI which has no "0-star" option.
  */
 export const WC_RATING_RANGES = [
-	{ key: '1', from: 0.5, to: 1.5, histogramKey: 0.5 },
-	{ key: '2', from: 1.5, to: 2.5, histogramKey: 1.5 },
-	{ key: '3', from: 2.5, to: 3.5, histogramKey: 2.5 },
-	{ key: '4', from: 3.5, to: 4.5, histogramKey: 3.5 },
-	{ key: '5', from: 4.5, histogramKey: 4.5 },
+	{ key: '1', from: 0.5 },
+	{ key: '2', from: 1.5 },
+	{ key: '3', from: 2.5 },
+	{ key: '4', from: 3.5 },
+	{ key: '5', from: 4.5 },
 ];
 
 /**
@@ -204,6 +207,23 @@ export function buildAggregations( filterConfigs ) {
 					interval: 1,
 					offset: 0.5,
 					min_doc_count: 0,
+				},
+			};
+			continue;
+		}
+
+		// Stock status: probe only the `outofstock` term on
+		// `product_visibility` — the in-stock count is derived as
+		// `total - outofstock` on the read side. The `include` keeps
+		// unrelated terms in the taxonomy (`featured`, `rated-N`,
+		// `exclude-from-catalog`) out of the response.
+		if ( config?.filterType === 'wc_stock_status' ) {
+			const { aggField: stockField } = resolveFilterFields( config );
+			aggregations[ filterKey ] = {
+				terms: {
+					field: stockField,
+					include: [ 'outofstock' ],
+					size: 1,
 				},
 			};
 			continue;
@@ -299,20 +319,37 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 		}
 		const config = filterConfigs?.[ filterKey ];
 
-		// Rating: each selected star level maps to a range clause on
-		// the rating field resolved from the config; multiple selections OR.
+		// Stock status: two-state filter against the `outofstock` term on
+		// `product_visibility`. `outofstock` selection narrows to products
+		// carrying that term; `instock` excludes them via `must_not`;
+		// selecting both is equivalent to no constraint, so the clause is
+		// dropped (otherwise the term + must_not term contradict and ES
+		// would return zero results).
+		if ( config?.filterType === 'wc_stock_status' ) {
+			const set = new Set( values.map( v => String( v ) ) );
+			const wantsOut = set.has( 'outofstock' );
+			const wantsIn = set.has( 'instock' );
+			if ( wantsOut === wantsIn ) {
+				continue;
+			}
+			const { filterField: stockField } = resolveFilterFields( config );
+			const term = { term: { [ stockField ]: 'outofstock' } };
+			must.push( wantsOut ? term : { bool: { must_not: [ term ] } } );
+			continue;
+		}
+
+		// Rating: each selected star level maps to a `≥ N - 0.5` range
+		// clause. The block is single-select so `values` is normally one
+		// entry; tolerate multi-value URLs by OR-ing, which under threshold
+		// semantics collapses to the lowest selected threshold (a no-op
+		// vs. picking just that one) — harmless and keeps stale deep links
+		// functional.
 		if ( config?.filterType === 'wc_rating' ) {
 			const { filterField: ratingField } = resolveFilterFields( config );
 			const ranges = values
 				.map( value => WC_RATING_RANGES.find( r => r.key === String( value ) ) )
 				.filter( Boolean )
-				.map( r => {
-					const range = { gte: r.from };
-					if ( r.to !== undefined ) {
-						range.lt = r.to;
-					}
-					return { range: { [ ratingField ]: range } };
-				} );
+				.map( r => ( { range: { [ ratingField ]: { gte: r.from } } } ) );
 			if ( ranges.length === 0 ) {
 				continue;
 			}

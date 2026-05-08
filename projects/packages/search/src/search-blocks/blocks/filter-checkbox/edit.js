@@ -5,8 +5,9 @@
  * shape so designers can style the filter list in place. The inspector
  * exposes the user-tunable attributes (filter type, label, showCount,
  * maxItems, bucketSortOrder). The filter-type control lets authors swap
- * between the Category / Tag / Post Type / Author / Custom Taxonomy
- * variations without deleting and re-inserting the block.
+ * between the Category / Tag / Post Type / Author / Product Category /
+ * Product Tag / Product Brand / Custom Taxonomy variations without
+ * deleting and re-inserting the block.
  *
  * Custom Taxonomy is the one variation whose target isn't fixed by the
  * inserter choice: its variation seeds `taxonomy=''` so the inspector
@@ -34,24 +35,33 @@ const SAMPLE_FILTER_ITEMS = [
 ];
 
 // Built-in taxonomies that have their own filter-checkbox variations
-// (Category / Tag). Excluded from the custom-taxonomy picker so site builders
-// reach for the dedicated variation rather than re-creating it via the
-// generic Custom Taxonomy entry.
-const BUILT_IN_TAXONOMY_SLUGS = [ 'category', 'post_tag' ];
+// (Category / Tag plus the three WooCommerce product taxonomies). Excluded
+// from the custom-taxonomy picker so site builders reach for the dedicated
+// variation rather than re-creating it via the generic Custom Taxonomy entry.
+const BUILT_IN_TAXONOMY_SLUGS = [
+	'category',
+	'post_tag',
+	'product_cat',
+	'product_tag',
+	'product_brand',
+];
 
 // Variation identifiers mirror the variation `name`s registered in
-// Search_Blocks::register_variations() so the inspector picker and the
-// block-inserter picker describe the same set of filter schemas.
+// Search_Blocks::inject_filter_checkbox_variations() so the inspector picker
+// and the block-inserter picker describe the same set of filter schemas.
 export const VARIATION_CATEGORY = 'category';
 export const VARIATION_POST_TAG = 'post_tag';
 export const VARIATION_POST_TYPE = 'post_type';
 export const VARIATION_AUTHOR = 'author';
+export const VARIATION_PRODUCT_CAT = 'product_cat';
+export const VARIATION_PRODUCT_TAG = 'product_tag';
+export const VARIATION_PRODUCT_BRAND = 'product_brand';
 export const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
 
 /**
  * Identify which built-in variation the current (filterType, taxonomy) pair
- * matches. Any taxonomy-family block that isn't `category` or `post_tag` is
- * treated as a custom taxonomy so the slug input reveals itself.
+ * matches. Any taxonomy-family block whose slug isn't a recognized built-in
+ * is treated as a custom taxonomy so the slug input reveals itself.
  *
  * @param {object} attributes - Block attributes.
  * @return {string} Variation identifier.
@@ -71,6 +81,15 @@ export function deriveVariation( attributes ) {
 	if ( taxonomy === 'post_tag' ) {
 		return VARIATION_POST_TAG;
 	}
+	if ( taxonomy === 'product_cat' ) {
+		return VARIATION_PRODUCT_CAT;
+	}
+	if ( taxonomy === 'product_tag' ) {
+		return VARIATION_PRODUCT_TAG;
+	}
+	if ( taxonomy === 'product_brand' ) {
+		return VARIATION_PRODUCT_BRAND;
+	}
 	return VARIATION_CUSTOM_TAXONOMY;
 }
 
@@ -84,10 +103,11 @@ export function deriveVariation( attributes ) {
  * whenever `filterType` isn't 'taxonomy', so the preserved value is purely
  * UI state and never reaches the aggregation request.
  *
- * Category and Tag overwrite `taxonomy` with their built-in slugs, which
- * means a Custom → Category → Custom round-trip *will* clear the slug.
- * On the return trip we deliberately drop 'category' and 'post_tag' so the
- * Taxonomy picker doesn't surface them as custom-typed slugs.
+ * Category, Tag, and the three product variations overwrite `taxonomy`
+ * with their built-in slugs, which means a Custom → Category → Custom
+ * round-trip *will* clear the slug. On the return trip we deliberately
+ * drop those built-in slugs so the Taxonomy picker doesn't surface them
+ * as custom-typed slugs.
  *
  * @param {string} variation        - Target variation identifier.
  * @param {string} previousTaxonomy - Current taxonomy attribute value.
@@ -99,14 +119,21 @@ export function variationToAttributes( variation, previousTaxonomy ) {
 			return { filterType: 'taxonomy', taxonomy: 'category' };
 		case VARIATION_POST_TAG:
 			return { filterType: 'taxonomy', taxonomy: 'post_tag' };
+		case VARIATION_PRODUCT_CAT:
+			return { filterType: 'taxonomy', taxonomy: 'product_cat' };
+		case VARIATION_PRODUCT_TAG:
+			return { filterType: 'taxonomy', taxonomy: 'product_tag' };
+		case VARIATION_PRODUCT_BRAND:
+			return { filterType: 'taxonomy', taxonomy: 'product_brand' };
 		case VARIATION_POST_TYPE:
 			return { filterType: 'post_type', taxonomy: previousTaxonomy || '' };
 		case VARIATION_AUTHOR:
 			return { filterType: 'author', taxonomy: previousTaxonomy || '' };
 		case VARIATION_CUSTOM_TAXONOMY:
 		default: {
-			const preserved =
-				previousTaxonomy === 'category' || previousTaxonomy === 'post_tag' ? '' : previousTaxonomy;
+			const preserved = BUILT_IN_TAXONOMY_SLUGS.includes( previousTaxonomy )
+				? ''
+				: previousTaxonomy;
 			return { filterType: 'taxonomy', taxonomy: preserved };
 		}
 	}
@@ -116,6 +143,10 @@ export function variationToAttributes( variation, previousTaxonomy ) {
  * Mirror of Filter_Checkbox::default_label(): resolve the variation-specific
  * fallback label for the inspector placeholder. Returns '' for custom
  * taxonomies (caller should then fall back to the generic "Filter").
+ *
+ * Product taxonomies get distinct "Product X" defaults so an author using
+ * both "Filter by Category" and "Filter by Product Category" on the same
+ * page sees two clearly different headings.
  *
  * Keep in sync with Filter_Checkbox::default_label() in
  * src/search-blocks/blocks/filter-checkbox/class-filter-checkbox.php — both
@@ -140,6 +171,15 @@ export function variationDefaultLabel( attributes ) {
 		}
 		if ( taxonomy === 'post_tag' ) {
 			return __( 'Tag', 'jetpack-search-pkg' );
+		}
+		if ( taxonomy === 'product_cat' ) {
+			return __( 'Product Category', 'jetpack-search-pkg' );
+		}
+		if ( taxonomy === 'product_tag' ) {
+			return __( 'Product Tag', 'jetpack-search-pkg' );
+		}
+		if ( taxonomy === 'product_brand' ) {
+			return __( 'Product Brand', 'jetpack-search-pkg' );
 		}
 	}
 	return '';
@@ -240,6 +280,18 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
 							{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
 							{
+								value: VARIATION_PRODUCT_CAT,
+								label: __( 'Product Category', 'jetpack-search-pkg' ),
+							},
+							{
+								value: VARIATION_PRODUCT_TAG,
+								label: __( 'Product Tag', 'jetpack-search-pkg' ),
+							},
+							{
+								value: VARIATION_PRODUCT_BRAND,
+								label: __( 'Product Brand', 'jetpack-search-pkg' ),
+							},
+							{
 								value: VARIATION_CUSTOM_TAXONOMY,
 								label: __( 'Custom taxonomy', 'jetpack-search-pkg' ),
 							},
@@ -279,7 +331,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 											'jetpack-search-pkg'
 									  )
 									: __(
-											'Pick which registered taxonomy this filter targets. Built-in Category and Tag have their own dedicated filters in the inserter.',
+											'Pick which registered taxonomy this filter targets. Built-in Category, Tag, and the WooCommerce product taxonomies have their own dedicated filters in the inserter.',
 											'jetpack-search-pkg',
 											/* dummy arg to avoid bad minification */ 0
 									  )

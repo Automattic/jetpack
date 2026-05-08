@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-sidebar/class-jetpack-ai-sidebar.php';
 
@@ -38,19 +39,33 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	private $saved_screen;
 
 	/**
+	 * Saved current user ID.
+	 *
+	 * @var int
+	 */
+	private $saved_current_user_id;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
 		parent::set_up();
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		update_option( 'jetpack_offline_mode', '0' );
+		Status_Cache::clear();
 		delete_transient( AiAssistantPlugin\AM_ASSET_TRANSIENT );
 		delete_transient( AiAssistantPlugin\AM_ASSET_DC_TRANSIENT );
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
-		$this->saved_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
-		$this->saved_wp_styles  = $GLOBALS['wp_styles'] ?? null;
-		$GLOBALS['wp_scripts']  = new WP_Scripts();
-		$GLOBALS['wp_styles']   = new WP_Styles();
-		$this->saved_screen     = $GLOBALS['current_screen'] ?? null;
+		$this->saved_wp_scripts      = $GLOBALS['wp_scripts'] ?? null;
+		$this->saved_wp_styles       = $GLOBALS['wp_styles'] ?? null;
+		$GLOBALS['wp_scripts']       = new WP_Scripts();
+		$GLOBALS['wp_styles']        = new WP_Styles();
+		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
+		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
+		// Ensure Big Sky is disabled by default so tests aren't affected by the
+		// Big_Sky class persisting across tests once it is declared.
+		update_option( 'big_sky_enable', '0' );
 	}
 
 	/**
@@ -64,7 +79,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		Status_Cache::clear();
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		delete_option( 'jetpack_offline_mode' );
+		delete_option( 'big_sky_enable' );
+		wp_set_current_user( $this->saved_current_user_id );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
@@ -78,6 +98,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+		wp_set_current_user( $user_id );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 	}
 
@@ -97,6 +118,16 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Simulate the Big_Sky class existing.
+	 */
+	private function simulate_big_sky_class() {
+		if ( ! class_exists( 'Big_Sky' ) ) {
+			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
+			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
+		}
+	}
+
+	/**
 	 * Cache AI sidebar asset data so register_provider succeeds.
 	 *
 	 * @param array|null $data Asset data to cache.
@@ -109,6 +140,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			);
 		}
 		set_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT, $data, HOUR_IN_SECONDS );
+		$this->mock_asset_request( 'jetpack-ai-sidebar.asset.json', $data );
 	}
 
 	/**
@@ -128,6 +160,38 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			? AiAssistantPlugin\AM_ASSET_DC_TRANSIENT
 			: AiAssistantPlugin\AM_ASSET_TRANSIENT;
 		set_transient( $transient, $data, HOUR_IN_SECONDS );
+		$this->mock_asset_request( "agents-manager-{$variant}.asset.json", $data );
+	}
+
+	/**
+	 * Mock a CDN asset manifest response for tests that run with SCRIPT_DEBUG.
+	 *
+	 * @param string $filename Asset manifest filename.
+	 * @param array  $data     Asset data.
+	 */
+	private function mock_asset_request( $filename, $data ) {
+		add_filter(
+			'pre_http_request',
+			static function ( $preempt, $parsed_args, $url ) use ( $filename, $data ) {
+				if ( ! is_string( $url ) || substr( $url, -strlen( $filename ) ) !== $filename ) {
+					return $preempt;
+				}
+
+				return array(
+					'headers'  => array(
+						'content-type' => 'application/json',
+					),
+					'body'     => wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP ),
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'cookies'  => array(),
+				);
+			},
+			10,
+			3
+		);
 	}
 
 	// ──────────────────────────────────────────────────
@@ -187,6 +251,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that maybe_enqueue_am enqueues scripts in the block editor.
 	 */
 	public function test_maybe_enqueue_am_enqueues_in_block_editor() {
+		$this->set_block_editor_screen();
+		$this->cache_am_asset_data();
+
+		Jetpack_AI_Sidebar::maybe_enqueue_am();
+
+		$this->assertTrue( wp_script_is( 'agents-manager', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that maybe_enqueue_am enqueues when Big Sky exists but is disabled.
+	 */
+	public function test_maybe_enqueue_am_enqueues_when_big_sky_is_disabled() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
 		$this->set_block_editor_screen();
 		$this->cache_am_asset_data();
 
@@ -332,6 +410,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that AI sidebar asset data is cached and used when enqueueing.
 	 */
 	public function test_sidebar_asset_data_is_cached() {
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			$this->markTestSkipped( 'Asset manifest transients are bypassed when SCRIPT_DEBUG is enabled.' );
+		}
+
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data(
 			array(

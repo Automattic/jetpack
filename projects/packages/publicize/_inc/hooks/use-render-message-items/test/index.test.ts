@@ -106,6 +106,7 @@ let mockPostIntent: {
 	excerpt: string;
 	content: string;
 };
+let mockMessageTemplate: string;
 
 describe( 'useRenderMessageItems', () => {
 	beforeEach( () => {
@@ -118,11 +119,13 @@ describe( 'useRenderMessageItems', () => {
 			excerpt: 'Edited excerpt',
 			content: 'Edited content',
 		};
+		mockMessageTemplate = '';
 		mockUseSelect.mockImplementation( mapSelect => {
 			const result = mapSelect( store => {
 				if ( store === socialStore ) {
 					return {
 						getConnections: () => mockConnections,
+						getSocialSettings: () => ( { messageTemplate: mockMessageTemplate } ),
 					};
 				}
 

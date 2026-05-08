@@ -35,9 +35,10 @@ function parsePriceBound( raw ) {
 /**
  * Serialize store state to URLSearchParams.
  *
- * Filter keys are written as flat top-level array params (`?category[]=news`),
- * matching the shape instant-search already writes so deep links are
- * interchangeable between the two surfaces.
+ * Filter keys are written as flat top-level array params
+ * (`?category[]=news`), matching the shape instant-search already writes
+ * so deep links are interchangeable between the two surfaces and the
+ * PHP-side `parse_url_filters()` reads the same contract.
  *
  * @param {object}      state                   - Store state slice.
  * @param {string}      state.searchQuery       - Current search query.
@@ -142,27 +143,6 @@ export function urlParamsToState(
 			continue;
 		}
 		activeFilters[ filterKey ].push( normalized );
-	}
-
-	// Scalar comma-joined fallback for filterConfigs whose `urlFormat` is
-	// `scalar` (e.g. `?filter_stock_status=instock,outofstock`). Used by
-	// product filters whose URL contract is a single key with comma-joined
-	// values rather than the array-form `?key[]=v` default.
-	for ( const [ filterKey, config ] of Object.entries( filterConfigs ?? {} ) ) {
-		if ( config?.urlFormat !== 'scalar' || activeFilters[ filterKey ] ) {
-			continue;
-		}
-		const raw = params.get( filterKey );
-		if ( ! raw ) {
-			continue;
-		}
-		const values = String( raw )
-			.split( ',' )
-			.map( v => v.trim() )
-			.filter( Boolean );
-		if ( values.length > 0 ) {
-			activeFilters[ filterKey ] = Array.from( new Set( values ) );
-		}
 	}
 
 	const minPrice = parsePriceBound( params.get( 'min_price' ) );

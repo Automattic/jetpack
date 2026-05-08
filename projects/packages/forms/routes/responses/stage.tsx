@@ -660,6 +660,7 @@ function StageInner() {
 		badges,
 		subtitle,
 		title,
+		visual,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -682,6 +683,7 @@ function StageInner() {
 
 	return (
 		<Page
+			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
 			title={ title }

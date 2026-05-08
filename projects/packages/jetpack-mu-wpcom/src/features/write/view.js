@@ -2865,7 +2865,7 @@ async function savePost( postStatus, isAutosave = false ) {
 	}
 
 	const isEditing = state.editPostId > 0;
-	const isUpdate = isEditing && postStatus === 'publish';
+	const isUpdate = isEditing && state.postStatus === 'publish';
 
 	state.isSaving = true;
 	if ( ! isAutosave ) {

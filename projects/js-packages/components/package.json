@@ -69,7 +69,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "^7",
 		"@gravatar-com/hovercards": "0.16.0",
-		"@wordpress/admin-ui": "1.12.0",
+		"@wordpress/admin-ui": "2.0.0",
 		"@wordpress/browserslist-config": "6.44.0",
 		"@wordpress/components": "32.6.0",
 		"@wordpress/compose": "7.44.0",
