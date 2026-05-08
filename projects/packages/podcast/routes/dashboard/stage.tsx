@@ -126,8 +126,8 @@ const PodcastApp = () => {
 					'jetpack-podcast'
 				) }
 				tabs={
-					<div className="jp-admin-page-tabs podcast__tabs-bar">
-						<Tabs.List className="podcast__tabs">
+					<div className="jp-admin-page-tabs">
+						<Tabs.List variant="minimal">
 							<Tabs.Tab value="welcome">{ __( 'Welcome', 'jetpack-podcast' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
 							<Tabs.Tab value="episodes" disabled={ ! isSetUp }>
