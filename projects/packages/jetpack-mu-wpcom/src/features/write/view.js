@@ -2273,13 +2273,18 @@ const { state } = store( 'wpcom-write', {
 			const menu = event.currentTarget;
 			const focused = menu.ownerDocument.activeElement;
 
-			if ( event.key === 'ArrowDown' || event.key === 'ArrowUp' ) {
+			if (
+				event.key === 'ArrowDown' ||
+				event.key === 'ArrowUp' ||
+				event.key === 'ArrowRight' ||
+				event.key === 'ArrowLeft'
+			) {
 				event.preventDefault();
 				const items = [ ...menu.querySelectorAll( '[role="menuitem"]' ) ].filter(
 					item => ! item.disabled
 				);
 				const idx = items.indexOf( focused );
-				const delta = event.key === 'ArrowDown' ? 1 : -1;
+				const delta = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1 : -1;
 				items[ ( idx + delta + items.length ) % items.length ]?.focus();
 				return;
 			}

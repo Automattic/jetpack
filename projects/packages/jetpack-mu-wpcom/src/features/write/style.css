@@ -818,6 +818,11 @@
 	transform: scale(1.05);
 }
 
+.bw-cat-fab:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
 .bw-cat-fab-icon {
 	font-size: 20px;
 	width: 20px;
@@ -1261,7 +1266,8 @@
 }
 
 .bw-upload-zone:hover,
-.bw-upload-zone.bw-drag-over {
+.bw-upload-zone.bw-drag-over,
+.bw-upload-zone:focus-within {
 	border-color: #2171b1;
 	color: #2171b1;
 }
