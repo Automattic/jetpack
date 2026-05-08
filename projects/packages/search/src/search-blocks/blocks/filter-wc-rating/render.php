@@ -69,6 +69,8 @@ foreach ( $seeded_buckets as $bucket ) {
 
 $label      = (string) $config['label'];
 $show_count = (bool) $config['showCount'];
+// @phan-suppress-next-line PhanUndeclaredGlobalVariable
+$enabled_stars = Filter_Wc_Rating::get_enabled_stars( (array) $attributes );
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-wc-rating' ) ) ); ?>
@@ -87,16 +89,24 @@ $show_count = (bool) $config['showCount'];
 	}
 	?>
 	<ul class="jetpack-search-filter__list">
-		<?php foreach ( Filter_Wc_Rating::get_star_values() as $star ) : ?>
+		<?php foreach ( $enabled_stars as $star ) : ?>
 			<?php
 			$value      = (string) $star;
 			$is_checked = in_array( $value, $seeded_selected, true );
 			$option_cnt = $counts_by_star[ $value ] ?? 0;
-			$aria_label = sprintf(
-				/* translators: %d is the rating threshold (1-5). The row applies a "rating ≥ N stars" filter. */
-				_n( '%d star and up', '%d stars and up', $star, 'jetpack-search-pkg' ),
-				$star
-			);
+			// The 5★ row matches `avg ≥ 4.5` — semantically "exactly
+			// 5 stars" since there's no higher rating — so the "& up"
+			// affordance is dropped on that row only.
+			$is_top = ( 5 === $star );
+			if ( $is_top ) {
+				$aria_label = __( '5 stars', 'jetpack-search-pkg' );
+			} else {
+				$aria_label = sprintf(
+					/* translators: %d is the rating threshold (1-4). The row applies a "rating ≥ N stars" filter. */
+					_n( '%d star and up', '%d stars and up', $star, 'jetpack-search-pkg' ),
+					$star
+				);
+			}
 			?>
 			<li
 				class="jetpack-search-filter__item"
@@ -123,9 +133,11 @@ $show_count = (bool) $config['showCount'];
 								>★</span>
 							<?php endfor; ?>
 						</span>
-						<span class="jetpack-search-filter-rating__threshold-suffix" aria-hidden="true">
-							<?php echo esc_html_x( '& up', 'rating filter row, e.g. "★★★★ & up"', 'jetpack-search-pkg' ); ?>
-						</span>
+						<?php if ( ! $is_top ) : ?>
+							<span class="jetpack-search-filter-rating__threshold-suffix" aria-hidden="true">
+								<?php echo esc_html_x( '& up', 'rating filter row, e.g. "★★★★ & up"', 'jetpack-search-pkg' ); ?>
+							</span>
+						<?php endif; ?>
 					</span>
 					<?php if ( $show_count ) : ?>
 						<span

@@ -93,4 +93,51 @@ class Filter_Wc_Rating_Test extends TestCase {
 		);
 		$this->assertSame( 'Stars extra', $config['label'] );
 	}
+
+	/**
+	 * Missing / unset enabledStars defaults to all five rows.
+	 */
+	public function test_get_enabled_stars_defaults_to_all_when_unset() {
+		$this->assertSame( array( 5, 4, 3, 2, 1 ), Filter_Wc_Rating::get_enabled_stars( array() ) );
+	}
+
+	/**
+	 * Author-picked subset is preserved and sorted high-to-low.
+	 */
+	public function test_get_enabled_stars_preserves_subset_and_sorts() {
+		$this->assertSame(
+			array( 4, 2 ),
+			Filter_Wc_Rating::get_enabled_stars( array( 'enabledStars' => array( 2, 4 ) ) )
+		);
+	}
+
+	/**
+	 * Out-of-range and duplicate values are filtered out, never producing
+	 * a row outside 1..5 — protects render.php's projection map.
+	 */
+	public function test_get_enabled_stars_filters_invalid_and_duplicates() {
+		$this->assertSame(
+			array( 5, 3, 1 ),
+			Filter_Wc_Rating::get_enabled_stars(
+				array( 'enabledStars' => array( 0, 5, 6, 3, '1', 1, 'bogus', -2 ) )
+			)
+		);
+	}
+
+	/**
+	 * Empty list (after sanitization) falls back to all five — better than
+	 * rendering an empty `<ul>` from a stale attribute.
+	 */
+	public function test_get_enabled_stars_falls_back_when_all_invalid() {
+		$this->assertSame(
+			array( 5, 4, 3, 2, 1 ),
+			Filter_Wc_Rating::get_enabled_stars(
+				array( 'enabledStars' => array( 0, 6, 'no' ) )
+			)
+		);
+		$this->assertSame(
+			array( 5, 4, 3, 2, 1 ),
+			Filter_Wc_Rating::get_enabled_stars( array( 'enabledStars' => array() ) )
+		);
+	}
 }

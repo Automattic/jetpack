@@ -1,12 +1,19 @@
 /**
  * Editor preview for jetpack-search/filter-wc-rating.
  *
- * Mirrors the runtime DOM shape — labeled list with five star rows and
- * optional count badges — so designers can style the rating filter in
- * place. Inspector exposes the user-tunable attributes (label, showCount).
+ * Mirrors the runtime DOM shape — labeled list with up to five star rows
+ * and optional count badges — so designers can style the rating filter
+ * in place. Inspector exposes the user-tunable attributes (label,
+ * showCount, enabledStars).
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import {
+	BaseControl,
+	CheckboxControl,
+	PanelBody,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 
 const STAR_VALUES = [ 5, 4, 3, 2, 1 ];
@@ -40,6 +47,31 @@ function renderStars( filled ) {
 }
 
 /**
+ * Normalize the `enabledStars` attribute. An unset / empty / malformed
+ * value falls back to all five rows so a stale block instance can't
+ * render an empty list. Mirrors PHP's `Filter_Wc_Rating::get_enabled_stars`.
+ *
+ * @param {unknown} raw - Raw attribute value.
+ * @return {number[]} Star ints, deduplicated, high-to-low.
+ */
+function normalizeEnabledStars( raw ) {
+	if ( ! Array.isArray( raw ) || raw.length === 0 ) {
+		return [ ...STAR_VALUES ];
+	}
+	const set = new Set();
+	for ( const v of raw ) {
+		const n = Number( v );
+		if ( Number.isFinite( n ) && n >= 1 && n <= 5 ) {
+			set.add( Math.trunc( n ) );
+		}
+	}
+	if ( set.size === 0 ) {
+		return [ ...STAR_VALUES ];
+	}
+	return [ ...set ].sort( ( a, b ) => b - a );
+}
+
+/**
  * Edit component for the filter-wc-rating block.
  *
  * @param {object}   props               - Block props.
@@ -52,6 +84,36 @@ export default function FilterWcRatingEdit( { attributes, setAttributes } ) {
 	const rawLabel = attributes?.label || '';
 	const previewLabel = rawLabel || DEFAULT_LABEL;
 	const showCount = attributes?.showCount !== false;
+	const enabledStars = normalizeEnabledStars( attributes?.enabledStars );
+	const enabledSet = new Set( enabledStars );
+
+	const toggleStar = ( star, on ) => {
+		const next = new Set( enabledSet );
+		if ( on ) {
+			next.add( star );
+		} else {
+			// Don't let the author save an empty list — the block would
+			// render nothing on the front end. Force at least one row to
+			// stay enabled by rejecting the un-toggle when this is the
+			// last selected row.
+			if ( next.size <= 1 ) {
+				return;
+			}
+			next.delete( star );
+		}
+		setAttributes( { enabledStars: [ ...next ].sort( ( a, b ) => b - a ) } );
+	};
+
+	const labelForStar = star =>
+		star === 5
+			? __( '5 stars', 'jetpack-search-pkg' )
+			: sprintf(
+					/* translators: %d is the rating threshold (1-4). */
+					_n( '%d star and up', '%d stars and up', star, 'jetpack-search-pkg' ),
+					star
+			  );
+
+	const previewStars = STAR_VALUES.filter( s => enabledSet.has( s ) );
 
 	return (
 		<>
@@ -75,17 +137,33 @@ export default function FilterWcRatingEdit( { attributes, setAttributes } ) {
 						checked={ showCount }
 						onChange={ value => setAttributes( { showCount: !! value } ) }
 					/>
+					<BaseControl
+						__nextHasNoMarginBottom
+						id="filter-wc-rating-enabled-stars"
+						label={ __( 'Visible rows', 'jetpack-search-pkg' ) }
+						help={ __(
+							'Hide rows you don’t want shoppers to pick. At least one row must stay visible.',
+							'jetpack-search-pkg'
+						) }
+					>
+						{ STAR_VALUES.map( star => (
+							<CheckboxControl
+								key={ star }
+								__nextHasNoMarginBottom
+								label={ labelForStar( star ) }
+								checked={ enabledSet.has( star ) }
+								onChange={ on => toggleStar( star, on ) }
+							/>
+						) ) }
+					</BaseControl>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
 				<h3 className="jetpack-search-filter__title">{ previewLabel }</h3>
 				<ul className="jetpack-search-filter__list">
-					{ STAR_VALUES.map( star => {
-						const aria = sprintf(
-							/* translators: %d is the rating threshold (1-5). The row applies a "rating ≥ N stars" filter. */
-							_n( '%d star and up', '%d stars and up', star, 'jetpack-search-pkg' ),
-							star
-						);
+					{ previewStars.map( star => {
+						const isTop = star === 5;
+						const aria = labelForStar( star );
 						return (
 							<li key={ star } className="jetpack-search-filter__item">
 								{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- the input is a direct child, implicit HTML5 association applies; rule's nesting heuristic doesn't trace through sibling spans */ }
@@ -95,12 +173,18 @@ export default function FilterWcRatingEdit( { attributes, setAttributes } ) {
 										<span className="jetpack-search-filter-rating__stars" aria-hidden="true">
 											{ renderStars( star ) }
 										</span>
-										<span
-											className="jetpack-search-filter-rating__threshold-suffix"
-											aria-hidden="true"
-										>
-											{ _x( '& up', 'rating filter row, e.g. "★★★★ & up"', 'jetpack-search-pkg' ) }
-										</span>
+										{ ! isTop && (
+											<span
+												className="jetpack-search-filter-rating__threshold-suffix"
+												aria-hidden="true"
+											>
+												{ _x(
+													'& up',
+													'rating filter row, e.g. "★★★★ & up"',
+													'jetpack-search-pkg'
+												) }
+											</span>
+										) }
 									</span>
 									{ showCount && (
 										<span className="jetpack-search-filter__count">
