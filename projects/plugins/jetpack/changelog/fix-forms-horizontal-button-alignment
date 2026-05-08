@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Forms: align submit button with input field in horizontal layouts.
+Forms: default new horizontal forms to bottom-aligned items so the submit button lines up with input fields.
