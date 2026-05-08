@@ -31,11 +31,18 @@ class App_Detection_Test extends BaseTestCase {
 		$cases = array(
 			'iTunes/12.5 (Macintosh; OS X 10.11.6) AppleWebKit/603.1.30' => 'apple',
 			'AppleCoreMedia/1.0.0.20F71 (iPhone; U; CPU OS 16_5_1 like Mac OS X)' => 'apple',
-			'Spotify/8.7.0 iOS/16.4'          => 'spotify',
-			'Pocket Casts/7.45.0/iOS/16.4'    => 'pocketcasts',
-			'AmazonMusic/16.13.0; Android/13' => 'amazon',
+			'AirPodcasts/1.0 (HomePod; OS 16.5)' => 'apple',
+			'Spotify/8.7.0 iOS/16.4'             => 'spotify',
+			'Pocket Casts/7.45.0/iOS/16.4'       => 'pocketcasts',
+			'AmazonMusic/16.13.0; Android/13'    => 'amazon',
+			// Amazon's actual feed crawler (with spaces) — distinct from the listening app.
+			'Amazon Music Podcast/1.0'           => 'amazon',
 			'Mozilla/5.0 (compatible; Podcastindex.org/1.0)' => 'podcastindex',
-			'Google-Podcast-Crawler/1.0'      => 'youtube',
+			'PodcastIndexer/2.1 (+https://podcastindex.org/)' => 'podcastindex',
+			'PodcastIndexManager/1.0'            => 'podcastindex',
+			'Google-Podcast-Crawler/1.0'         => 'youtube',
+			'GooglePodcasts/1.0 iOS/16.4'        => 'youtube',
+			'YouTubeMusic/5.34.51'               => 'youtube',
 			'Overcast/2023.10 (+http://overcast.fm/; iOS podcast app)' => 'overcast',
 		);
 
