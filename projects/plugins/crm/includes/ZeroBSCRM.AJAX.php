@@ -2355,96 +2355,105 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$page_number = 0;
 				}
 
-					// make ARGS
-					$args = array(
+				// If using pagination, get total count
+				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-						'searchPhrase'     => $possibleSearchTerm,
-						'inCompany'        => $possibleCoID,
-						'inArr'            => $inArray,
-						'quickFilters'     => $possibleQuickFilters,
-						'isTagged'         => $possibleTagIDs,
-						'ownedBy'          => false,
+					$count_args = array(
 
-						'withCustomFields' => true,
-						'withQuotes'       => $withQuotes,
-						'withInvoices'     => false,
-						'withTransactions' => $withTransactions,
-						'withLogs'         => false,
-						'withLastLog'      => $latestLog,
-						'withTags'         => $withTags,
-						'withOwner'        => $withAssigned,
-						'withValues'       => $withValues,
+						'searchPhrase' => $possibleSearchTerm,
+						'inCompany'    => $possibleCoID,
+						'inArr'        => $inArray,
+						'quickFilters' => $possibleQuickFilters,
+						'isTagged'     => $possibleTagIDs,
 
-						'sortByField'      => $sortField,
-						'sortOrder'        => $sortOrder,
-						'page'             => $page_number,
-						'perPage'          => $per_page,
+						// just count
+						'count'        => true,
 
-						'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
+						'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
 
 					);
 
-					$customers = $zbs->DAL->contacts->getContacts( $args );
+					$res['objectcount'] = (int) $zbs->DAL->contacts->getContacts( $count_args );
 
-					$customers = jpcrm_inject_contacts( $customers, $args );
-
-					// } If using pagination, also return total count
-					if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
-
-						// make count arguments
-						$args = array(
-
-							'searchPhrase' => $possibleSearchTerm,
-							'inCompany'    => $possibleCoID,
-							'inArr'        => $inArray,
-							'quickFilters' => $possibleQuickFilters,
-							'isTagged'     => $possibleTagIDs,
-
-							// just count
-							'count'        => true,
-
-							'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
-
-						);
-
-						$res['objectcount'] = (int) $zbs->DAL->contacts->getContacts( $args );
-
-					}
-
-					// with total
-					if ( $with_total_group_value ) {
-
-						// redo call for total valuesS
-						$args = array(
-
-							'searchPhrase'  => $possibleSearchTerm,
-							'inCompany'     => $possibleCoID,
-							'inArr'         => $inArray,
-							'quickFilters'  => $possibleQuickFilters,
-							'isTagged'      => $possibleTagIDs,
-							'ownedBy'       => false,
-							'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
-
-							'onlyObjTotals' => true,
-
-						);
-
-						$res['totals'] = $zbs->DAL->contacts->getContacts( $args );
-
-					}
-
-					// } Tidy
-
-					// glob as used below. not pretty
-					global $companyNameCache;
-					$companyNameCache = array();
-
-					if ( count( $customers ) > 0 ) {
-						foreach ( $customers as $customer ) {
-							// DAL3 now processes these in the OBJ class (starting to centralise properly.)
-							$res['objects'][] = $zbs->DAL->contacts->listViewObj( $customer, $columnsRequired );
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number = $last_valid_page;
 						}
 					}
+				}
+
+				$res['paged'] = $page_number;
+
+				// make ARGS
+				$args = array(
+
+					'searchPhrase'     => $possibleSearchTerm,
+					'inCompany'        => $possibleCoID,
+					'inArr'            => $inArray,
+					'quickFilters'     => $possibleQuickFilters,
+					'isTagged'         => $possibleTagIDs,
+					'ownedBy'          => false,
+
+					'withCustomFields' => true,
+					'withQuotes'       => $withQuotes,
+					'withInvoices'     => false,
+					'withTransactions' => $withTransactions,
+					'withLogs'         => false,
+					'withLastLog'      => $latestLog,
+					'withTags'         => $withTags,
+					'withOwner'        => $withAssigned,
+					'withValues'       => $withValues,
+
+					'sortByField'      => $sortField,
+					'sortOrder'        => $sortOrder,
+					'page'             => $page_number,
+					'perPage'          => $per_page,
+
+					'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
+
+				);
+
+				$customers = $zbs->DAL->contacts->getContacts( $args );
+
+				$customers = jpcrm_inject_contacts( $customers, $args );
+
+				// with total
+				if ( $with_total_group_value ) {
+
+					// redo call for total valuesS
+					$args = array(
+
+						'searchPhrase'  => $possibleSearchTerm,
+						'inCompany'     => $possibleCoID,
+						'inArr'         => $inArray,
+						'quickFilters'  => $possibleQuickFilters,
+						'isTagged'      => $possibleTagIDs,
+						'ownedBy'       => false,
+						'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
+
+						'onlyObjTotals' => true,
+
+					);
+
+					$res['totals'] = $zbs->DAL->contacts->getContacts( $args );
+
+				}
+
+				// } Tidy
+
+				// glob as used below. not pretty
+				global $companyNameCache;
+				$companyNameCache = array();
+
+				if ( count( $customers ) > 0 ) {
+					foreach ( $customers as $customer ) {
+						// DAL3 now processes these in the OBJ class (starting to centralise properly.)
+						$res['objects'][] = $zbs->DAL->contacts->listViewObj( $customer, $columnsRequired );
+					}
+				}
 				break;
 
 			/*
