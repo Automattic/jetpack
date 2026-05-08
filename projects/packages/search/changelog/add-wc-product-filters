@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search 3.0: adds the `jetpack-search/wc-product-filters` parent block — a composable `<InnerBlocks>` wrapper that groups the WC product filter children (stock-status, rating, price, attribute, taxonomy, clear-filters) into one column / spacing context. Layout container only — no view module, no Interactivity bindings, no client-side state. Default template seeds a useful starter set (stock-status + rating + price); authors can add, reorder, or delete children freely. The capstone PR for the WC product filter epic ([RSM-1929](https://linear.app/a8c/issue/RSM-1929)).

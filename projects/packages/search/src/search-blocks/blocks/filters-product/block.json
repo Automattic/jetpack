@@ -1,7 +1,7 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "jetpack-search/wc-product-filters",
+	"name": "jetpack-search/filters-product",
 	"version": "0.1.0",
 	"title": "Product Filters",
 	"category": "jetpack-search",
@@ -27,5 +27,5 @@
 	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",
-	"style": "file:../../../../build/search-blocks/wc-product-filters.css"
+	"style": "file:../../../../build/search-blocks/filters-product.css"
 }

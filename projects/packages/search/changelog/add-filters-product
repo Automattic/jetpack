@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: adds the `jetpack-search/filters-product` parent block — a composable `<InnerBlocks>` wrapper that groups the product filter children (post-type scope, stock-status, rating, price, attribute, plus generic checkbox / date and the active-filters region) into one column / spacing context. Layout container only — no view module, no Interactivity bindings, no client-side state. Default template seeds a starter set scoped to products (post-type-scope locked to `product` + stock-status + rating + price); authors can add, reorder, or delete children freely. The capstone PR for the WC product filter epic ([RSM-1929](https://linear.app/a8c/issue/RSM-1929)).

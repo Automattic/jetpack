@@ -27,6 +27,7 @@ import FilterWcPriceEdit from '../blocks/filter-wc-price/edit';
 import FilterWcRatingEdit from '../blocks/filter-wc-rating/edit';
 import FilterWcStockStatusEdit from '../blocks/filter-wc-stock-status/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
+import FiltersProductEdit, { save as filtersProductSave } from '../blocks/filters-product/edit';
 import FiltersStackEdit, { save as filtersStackSave } from '../blocks/filters-stack/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
@@ -35,9 +36,6 @@ import ResultsLoadMoreEdit from '../blocks/results-load-more/edit';
 import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
-import WcProductFiltersEdit, {
-	save as wcProductFiltersSave,
-} from '../blocks/wc-product-filters/edit';
 
 // Default save for blocks that own no editor-side state — render.php is the
 // source of truth on the front end, so save returns null. Container blocks
@@ -64,7 +62,7 @@ const BLOCKS = [
 	[ 'jetpack-search/filter-wc-attribute', FilterWcAttributeEdit ],
 	[ 'jetpack-search/filter-wc-price', FilterWcPriceEdit ],
 	[ 'jetpack-search/filter-wc-stock-status', FilterWcStockStatusEdit ],
-	[ 'jetpack-search/wc-product-filters', WcProductFiltersEdit, wcProductFiltersSave ],
+	[ 'jetpack-search/filters-product', FiltersProductEdit, filtersProductSave ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /
