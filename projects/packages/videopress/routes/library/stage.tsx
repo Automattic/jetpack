@@ -1,4 +1,4 @@
-import { GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -219,7 +219,6 @@ const Stage = () => {
 					/>
 				</div>
 			</UploadActionsProvider>
-			<GlobalNotices />
 		</DashboardLayout>
 	);
 };
