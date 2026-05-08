@@ -1,6 +1,5 @@
 import {
 	AdminPage,
-	JetpackFooter,
 	Button,
 	Container,
 	Col,
@@ -9,6 +8,7 @@ import {
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import FeatureSelector from 'components/feature-selector';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -87,6 +87,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	const isTogglingInstantSearch = useSelect( select =>
 		select( STORE_ID ).isTogglingInstantSearch()
 	);
+	const isSearchBlocksEnabled = useSelect( select => select( STORE_ID ).isSearchBlocksEnabled() );
 
 	// Record Meter data
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
@@ -125,7 +126,6 @@ export default function DashboardPage( { isLoading = false } ) {
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
-				showFooter={ false }
 			>
 				<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 					{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
@@ -170,23 +170,32 @@ export default function DashboardPage( { isLoading = false } ) {
 							/>
 						) }
 						<div className="jp-search-dashboard-bottom">
-							<ModuleControl
-								siteAdminUrl={ siteAdminUrl }
-								updateOptions={ updateOptions }
-								domain={ domain }
-								isDisabledFromOverLimit={ isOverLimit }
-								isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-								supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-								supportsSearch={ supportsSearch }
-								supportsInstantSearch={ supportsInstantSearch }
-								isModuleEnabled={ isModuleEnabled }
-								isInstantSearchEnabled={ isInstantSearchEnabled }
-								isSavingEitherOption={ isSavingEitherOption }
-								isTogglingModule={ isTogglingModule }
-								isTogglingInstantSearch={ isTogglingInstantSearch }
-							/>
+							{ isSearchBlocksEnabled ? (
+								<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
+									<div className="jp-search-dashboard-row">
+										<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+											<FeatureSelector />
+										</div>
+									</div>
+								</div>
+							) : (
+								<ModuleControl
+									siteAdminUrl={ siteAdminUrl }
+									updateOptions={ updateOptions }
+									domain={ domain }
+									isDisabledFromOverLimit={ isOverLimit }
+									isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+									supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+									supportsSearch={ supportsSearch }
+									supportsInstantSearch={ supportsInstantSearch }
+									isModuleEnabled={ isModuleEnabled }
+									isInstantSearchEnabled={ isInstantSearchEnabled }
+									isSavingEitherOption={ isSavingEitherOption }
+									isTogglingModule={ isTogglingModule }
+									isTogglingInstantSearch={ isTogglingInstantSearch }
+								/>
+							) }
 						</div>
-						<JetpackFooter />
 						<NoticesList
 							notices={ notices }
 							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }

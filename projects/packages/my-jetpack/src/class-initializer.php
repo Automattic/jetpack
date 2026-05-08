@@ -39,7 +39,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.34.3';
+	const PACKAGE_VERSION = '5.36.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -103,9 +103,6 @@ class Initializer {
 
 		// Sets up JITMS.
 		JITM::configure();
-
-		// Add "Activity Log" menu item.
-		Activitylog::init();
 
 		// Add "Jetpack Manage" menu item.
 		Jetpack_Manage::init();
@@ -326,6 +323,7 @@ class Initializer {
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
+				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
 			)
 		);

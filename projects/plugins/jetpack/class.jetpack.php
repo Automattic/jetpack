@@ -7,6 +7,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log as Activity_Log_Init;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
@@ -32,6 +33,7 @@ use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Scan_Page\Jetpack_Scan as Scan_Page_Init;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -753,6 +755,9 @@ class Jetpack {
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
 		add_action( 'init', array( Deprecate::class, 'instance' ) );
+
+		// Register Jetpack module management abilities (WordPress Abilities API, WP 6.9+).
+		\Automattic\Jetpack\Plugin\Abilities\Modules_Abilities::init();
 	}
 
 	/**
@@ -866,6 +871,8 @@ class Jetpack {
 	public function late_initialization() {
 		add_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ), -2 );
 		My_Jetpack_Initializer::init();
+		Activity_Log_Init::initialize();
+		Scan_Page_Init::initialize();
 
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-dashboard' );

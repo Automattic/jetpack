@@ -1413,6 +1413,7 @@ class Search extends Module {
 		'project-category',
 		'project-type',
 		'project_category',
+		'project_collection',
 		'project_tag',
 		'projects_category',
 		'projects_tag',
@@ -1770,6 +1771,7 @@ class Search extends Module {
 		'jetpack_search_enable_sort',
 		'jetpack_search_inf_scroll',
 		'jetpack_search_show_powered_by',
+		'jetpack_search_experience',
 		'instant_search_enabled',
 	); // end options.
 

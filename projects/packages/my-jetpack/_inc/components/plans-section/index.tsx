@@ -1,9 +1,9 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -235,9 +235,9 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		<ul className={ styles[ 'actions-list' ] }>
 			{ numberOfPurchases > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<ExternalLink onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
+					<Link openInNewTab onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
 						{ planManageDescription }
-					</ExternalLink>
+					</Link>
 				</li>
 			) }
 			{ numberOfPurchases > 0 && (
@@ -265,7 +265,6 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 					</Button>
 				</li>
 			) }
-
 			{ ! hasComplete && loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Button

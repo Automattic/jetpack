@@ -1,0 +1,11 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Apply the shared Jetpack admin-page layout mixin so `<AdminPage>` controls
+// the full content area (fixed header, scrollable middle, pinned footer) and
+// the `.jp-admin-page-tabs` strip gets its sticky positioning, hairline, and
+// header-aligned inline padding.
+body.jetpack_page_jetpack-scan,
+body.toplevel_page_jetpack-scan {
+
+	@include jetpack-admin-page-layout;
+}

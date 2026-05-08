@@ -178,9 +178,9 @@ describe( 'Twitter previews', () => {
 
 		expect( descEl ).toBeVisible();
 		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
+			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical; About binomial theorem I'm teeming with a lot o' new…"
 		);
-		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 200 );
+		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 280 );
 	} );
 
 	it( 'should strip html tags from the description', () => {
@@ -196,7 +196,7 @@ describe( 'Twitter previews', () => {
 
 		expect( descEl ).toBeVisible();
 		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
+			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical; About binomial theorem I'm teeming with a lot o' new…"
 		);
 	} );
 

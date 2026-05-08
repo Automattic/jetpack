@@ -346,6 +346,8 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts registers the script and includes expected inline JS.
 	 */
 	public function test_enqueue_scripts_registers_script_with_expected_inline_js() {
+		global $wp_scripts;
+
 		$this->enqueue_survicate_scripts();
 
 		$this->assertTrue( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
@@ -357,6 +359,10 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'SurvicateReady', $inline_script );
 		$this->assertStringContainsString( 'setVisitorTraits', $inline_script );
 		$this->assertStringContainsString( 'test@example.com', $inline_script );
+		$this->assertStringContainsString( 'automattic/help-center', $inline_script );
+		$this->assertStringContainsString( 'survey_displayed', $inline_script );
+
+		$this->assertContains( 'wp-data', $wp_scripts->registered['wpcom-survicate']->deps );
 	}
 
 	// ---- Singleton tests ----

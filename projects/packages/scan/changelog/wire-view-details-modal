@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Phase 4: port the read-only view-details modal from Calypso. New `view-details-modal.tsx` renders the threat title + severity + signature + description, plus the file path / context block / extension version / first-detected / fixed-on metadata when present, and a fix-description summary tailored to the threat's `fixable.fixer` (`update`, `replace`, `delete`, or non-fixable). Wired into both panels via `RenderViewModal` on the upstream `ThreatsDataViews` (always-eligible row action), and fires `jetpack_scan_view_details_modal_open` on mount.

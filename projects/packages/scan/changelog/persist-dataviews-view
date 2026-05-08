@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Persist the DataViews view state across reloads on both panels. Active threats and Scan history each pass their own `persistKey` to `ThreatsDataViews` (`jetpack-scan:active-threats:view`, `jetpack-scan:scan-history:view`), so filters, sort direction, search query, page, and layout (table vs list) round-trip across page reloads, tab switches, and drill-ins. Closes the last unfinished bullet in Phase 1 of #48456.

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-wp-build-polyfills",
-	"version": "0.1.4",
+	"version": "0.1.6",
 	"private": true,
 	"description": "Polyfills for WordPress Core packages not available in WP < 7.0",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-build-polyfills/#readme",
@@ -23,7 +23,7 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/a11y": "^4.40.0",
-		"@wordpress/admin-ui": "^1.9.0",
+		"@wordpress/admin-ui": "2.0.0",
 		"@wordpress/boot": "^0.11.0",
 		"@wordpress/icons": "^12.0.0",
 		"@wordpress/lazy-editor": "^1.6.1",
@@ -31,7 +31,7 @@
 		"@wordpress/private-apis": "^1.43.0",
 		"@wordpress/route": "^0.10.0",
 		"@wordpress/theme": "^0.11.0",
-		"@wordpress/ui": "^0.10.0",
+		"@wordpress/ui": "^0.11.0",
 		"webpack": "^5.104.1",
 		"webpack-cli": "^6.0.1"
 	},
@@ -40,6 +40,6 @@
 		"react-dom": "18.3.1"
 	},
 	"dependencies": {
-		"@wordpress/views": "~1.10.0"
+		"@wordpress/views": "~1.11.0"
 	}
 }

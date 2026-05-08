@@ -1,4 +1,11 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 :global {
+
+	body.jetpack_page_jetpack-protect {
+
+		@include jetpack-admin-page-layout;
+	}
 
 	* {
 		box-sizing: border-box;

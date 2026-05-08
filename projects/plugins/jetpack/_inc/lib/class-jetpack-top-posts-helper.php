@@ -108,7 +108,7 @@ class Jetpack_Top_Posts_Helper {
 			}
 
 			if ( $post['public'] ) {
-				$top_posts[] = array(
+				$top_post = array(
 					'id'        => $post_id,
 					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ), // @phan-suppress-current-line PhanTypeMismatchArgument @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 					'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
@@ -120,6 +120,23 @@ class Jetpack_Top_Posts_Helper {
 					'views'     => isset( $post['views'] ) ? $post['views'] : 0,
 					'thumbnail' => $thumbnail,
 				);
+
+				/**
+				 * Allows modifying the title of each individual post returned by the Top Posts helper.
+				 *
+				 * Applies to both the Top Posts block's front-end output and the REST
+				 * response used by the block editor preview.
+				 *
+				 * @module stats
+				 *
+				 * @since 15.8
+				 *
+				 * @param string $post_title Post title.
+				 * @param array  $top_post   Information about the post.
+				 */
+				$top_post['title'] = apply_filters( 'jetpack_top_posts_item_title', $top_post['title'], $top_post );
+
+				$top_posts[] = $top_post;
 			}
 		}
 

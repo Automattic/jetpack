@@ -4,4 +4,10 @@
 @use "main/wp-admin";
 @use "main/dashboard";
 @use "main/common";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+body.jetpack_page_jetpack-boost {
+
+	@include jetpack-admin-page-layout;
+}
 

@@ -171,6 +171,31 @@ export async function handler( argv ) {
 		);
 	}
 
+	// Add `changelogger install` task, so the "centralized" binary is available before any project build.
+	if ( argv.forMirrors ) {
+		for ( const [ k, v ] of dependencies ) {
+			// Skip pnpm.
+			if ( k !== 'pnpm install' ) {
+				v.add( 'changelogger install' );
+			}
+		}
+		dependencies.set( 'changelogger install', new Set() );
+		listr.add(
+			createBuildTask( 'changelogger install', argv, `Install changelogger`, async t => {
+				await t.setStatus( 'installing' );
+				await t.execa(
+					'composer',
+					await getInstallArgs( 'packages/changelogger', 'composer', argv ),
+					{
+						cwd: projectDir( 'packages/changelogger' ),
+						stdio: [ 'ignore', 'inherit', 'inherit' ],
+						buffer: false,
+					}
+				);
+			} )
+		);
+	}
+
 	// Add build tasks.
 	for ( const project of buildOrder ) {
 		listr.add( createBuildTask( project, argv, `Build ${ project }`, buildProject ) );
@@ -595,12 +620,7 @@ async function buildProject( t ) {
 	);
 
 	// Update the changelog, if applicable.
-	if (
-		t.argv.forMirrors &&
-		( t.project === 'packages/changelogger' ||
-			composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
-			composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ] )
-	) {
+	if ( t.argv.forMirrors ) {
 		const changelogger = npath.resolve( 'projects/packages/changelogger/vendor/bin/changelogger' );
 		const changesDir = npath.resolve(
 			t.cwd,
@@ -613,15 +633,6 @@ async function buildProject( t ) {
 				() => false
 			)
 		) {
-			// If we're building changelogger itself, we need to install before we can run it.
-			if ( t.project === 'packages/changelogger' ) {
-				await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-					cwd: t.cwd,
-					stdio: [ 'ignore', 'inherit', 'inherit' ],
-					buffer: false,
-				} );
-			}
-
 			let prerelease = 'alpha';
 			if ( composerJson.extra?.[ 'dev-releases' ] ) {
 				const m = (
@@ -693,13 +704,9 @@ async function buildProject( t ) {
 	}
 
 	// We don't need to `composer install` if it's a CI build of a non-plugin with no build script. Except for changelogger.
-	const skipInstall =
-		t.argv.forMirrors &&
-		script === null &&
-		! t.project.startsWith( 'plugins/' ) &&
-		t.project !== 'packages/changelogger';
+	const skipInstall = t.argv.forMirrors && script === null && ! t.project.startsWith( 'plugins/' );
 
-	if ( t.argv.forMirrors && ! skipInstall ) {
+	if ( t.argv.forMirrors ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..
 		const idx = composerJson.repositories?.findIndex( r => r.options?.monorepo );
 		if ( typeof idx === 'number' && idx >= 0 ) {
@@ -748,8 +755,8 @@ async function buildProject( t ) {
 					JSON.stringify( composerJson, null, '\t' ) + '\n',
 					{ encoding: 'utf8' }
 				);
-				// Update composer.lock too, if any.
-				if ( await fsExists( `${ t.cwd }/composer.lock` ) ) {
+				// Update composer.lock too, if any and if we're installing.
+				if ( ! skipInstall && ( await fsExists( `${ t.cwd }/composer.lock` ) ) ) {
 					await t.execa( 'composer', [ 'update', '--no-install', ...Object.keys( versions ) ], {
 						cwd: t.cwd,
 						stdio: [ 'ignore', 'inherit', 'inherit' ],
@@ -804,6 +811,7 @@ async function buildProject( t ) {
 
 	// Copy standard .github.
 	await copyDirectory( '.github/files/mirror-.github', npath.join( buildDir, '.github' ) );
+	await fs.unlink( npath.join( buildDir, '.github/.gitkeep' ) );
 
 	// Copy autotagger, autorelease, wp-svn-autopublish, and/or npmjs-autopublisher if enabled.
 	if ( composerJson.extra?.autotagger ) {

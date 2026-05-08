@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Sidebar: Surface a Review Mediator UI feature flag and an extension filter for the agentsManagerData payload.

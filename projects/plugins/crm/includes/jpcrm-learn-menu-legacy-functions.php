@@ -449,7 +449,7 @@ function jpcrm_segmentedit_learn_menu( $learn_menu ) {
 function jpcrm_settings_learn_menu( $learn_menu ) {
 	global $zbs;
 
-	if ( current_user_can( 'admin_zerobs_manage_options' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
+	if ( jpcrm_perms_manage_options() ) {
 		$learn_menu['right_buttons'] = ' <a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '" class="jpcrm-button white-bg font-14px" id="manage-features">' . __( 'Manage modules', 'zero-bs-crm' ) . '</a>';
 	}
 

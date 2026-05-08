@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Listview: Handle out-of-range page requests gracefully.

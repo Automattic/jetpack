@@ -2,7 +2,7 @@
  * Jetpack CRM
  * https://jetpackcrm.com
  */
-/* global ajaxurl, zeroBSCRMJS_globViewLang, zbsViewSettings, swal */
+/* global ajaxurl, zeroBSCRMJS_globViewLang, zbsViewSettings, swal, jpcrm */
 jQuery( function () {
 	// init if settings there (not on non-listview pages)
 	if ( typeof window.zbsViewSettings !== 'undefined' ) {
@@ -280,7 +280,7 @@ function jpcrm_remove_unsubscribe_flag() {
 	request.fail( function () {
 		// error
 		swal( {
-			title: zeroBSCRMJS_globViewLang( 'error' ),
+			titleText: zeroBSCRMJS_globViewLang( 'error' ),
 			type: 'error',
 		} );
 	} );
@@ -289,15 +289,17 @@ function jpcrm_remove_unsubscribe_flag() {
 // confirmation popup for unsubscribe flag removal
 function jpcrm_confirm_remove_unsubscribe_flag() {
 	swal( {
-		title: zeroBSCRMJS_globViewLang( 'remove_unsubscribe_title' ),
+		titleText: zeroBSCRMJS_globViewLang( 'remove_unsubscribe_title' ),
 		text: zeroBSCRMJS_globViewLang( 'remove_unsubscribe_message' ),
 		type: 'warning',
 		showCancelButton: true,
 		confirmButtonColor: '#000',
 		cancelButtonColor: '#fff',
 		cancelButtonText:
-			'<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
-		confirmButtonText: zeroBSCRMJS_globViewLang( 'remove_unsubscribe_yes' ),
+			'<span style="color: #000">' +
+			jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'cancel' ) ) +
+			'</span>',
+		confirmButtonText: jpcrm.esc_html( zeroBSCRMJS_globViewLang( 'remove_unsubscribe_yes' ) ),
 	} ).then( function ( result ) {
 		if ( result.value ) {
 			jpcrm_remove_unsubscribe_flag();

@@ -39,7 +39,7 @@
 	}
 }
 
-.form-toggle__label-content {
+.jp-search-dashboard-toggle .components-toggle-control__label {
 	font-size: 1.5em;
 	line-height: 1.167;
 	font-weight: 600;
@@ -47,6 +47,10 @@
 	span {
 		font-weight: 400;
 	}
+}
+
+.jp-search-dashboard-toggle .components-h-stack {
+	align-items: baseline;
 }
 
 .jp-form-search-settings-group__toggle-description {

@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Extensions\ImageStudio;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
@@ -50,6 +52,13 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	private $saved_wp_styles;
 
 	/**
+	 * Saved siteurl option for restoration in tear_down.
+	 *
+	 * @var string
+	 */
+	private $saved_siteurl;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -64,7 +73,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		// Ensure Big Sky is disabled by default so tests aren't affected by the
 		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
 		update_option( 'big_sky_enable', '0' );
-		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
+		$this->saved_screen  = $GLOBALS['current_screen'] ?? null;
+		$this->saved_siteurl = get_option( 'siteurl' );
 	}
 
 	/**
@@ -73,11 +83,13 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
+		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'big_sky_enable' );
+		update_option( 'siteurl', $this->saved_siteurl );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
@@ -502,6 +514,160 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			}
 		}
 		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script includes isDevMode property.
+	 */
+	public function test_inline_script_includes_is_dev_mode() {
+		$this->enable_and_enqueue_block_editor();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$this->assertIsArray( $inline );
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"isDevMode":', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script includes canGenerateVideoClips property.
+	 */
+	public function test_inline_script_includes_can_generate_video_clips() {
+		$this->enable_and_enqueue_block_editor();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$this->assertIsArray( $inline );
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"canGenerateVideoClips":', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script reflects canGenerateVideoClips = true when forced via filter.
+	 */
+	public function test_inline_script_can_generate_video_clips_true_via_filter() {
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->enable_and_enqueue_block_editor();
+
+		$inline  = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+		$matched = false;
+		foreach ( (array) $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$matched = true;
+				$this->assertStringContainsString( '"canGenerateVideoClips":true', $line );
+			}
+		}
+		$this->assertTrue( $matched, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script reflects canGenerateVideoClips = false when forced via filter.
+	 */
+	public function test_inline_script_can_generate_video_clips_false_via_filter() {
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->enable_and_enqueue_block_editor();
+
+		$inline  = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+		$matched = false;
+		foreach ( (array) $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$matched = true;
+				$this->assertStringContainsString( '"canGenerateVideoClips":false', $line );
+			}
+		}
+		$this->assertTrue( $matched, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test that image_studio_can_generate_video_clips() honors the override filter.
+	 */
+	public function test_can_generate_video_clips_filter_override() {
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+
+		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_false' );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that the helper returns true when wpcom_site_can_upload_videos() reports true.
+	 *
+	 * Runs in a separate process so we can stub wpcom_site_can_upload_videos
+	 * without leaking the definition into the main test process. Skipped in
+	 * environments where the helper is already defined (e.g. WPCOMSH job)
+	 * since we cannot redefine an existing function.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_true_when_wpcom_helper_true() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that the helper returns false when wpcom_site_can_upload_videos() reports false.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_false_when_wpcom_helper_false() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos already defined; cannot stub.' );
+		}
+
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
+		eval( 'function wpcom_site_can_upload_videos( $blog_id = 0 ) { return false; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that off WPCOM (no wpcom_site_can_upload_videos) the helper returns
+	 * true so the entry point is not gated on environments where we have no
+	 * way to determine capability up-front. The server is the source of truth
+	 * in that case.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_can_generate_video_clips_true_off_wpcom() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+
+		if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+			$this->markTestSkipped( 'wpcom_site_can_upload_videos defined; cannot exercise off-WPCOM branch.' );
+		}
+
+		$this->assertTrue( ImageStudio\image_studio_can_generate_video_clips() );
 	}
 
 	/**

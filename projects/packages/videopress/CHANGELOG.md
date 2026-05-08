@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.7] - 2026-05-04
+### Changed
+- Components: migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+### Fixed
+- Avoid undefined property warning when video info has no privacy_setting. [#48379]
+- Fix corrupt resumable uploads triggering a fatal error. [#48332]
+- Fix runaway render loop on the admin library page when paginating on WordPress 7.0. [#48411]
+
+## [0.36.6] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+- VideoPress: Refine how the embedded post context is resolved when requesting playback tokens. [#48204]
+
+### Fixed
+- Fix PHP warning when video info lookup returns false on WordPress.com. [#48226]
+- Fix upsell incorrectly shown to legacy Jetpack Security plan customers who have unlimited (not 1TB) VideoPress storage. [#48295]
+
+## [0.36.5] - 2026-04-20
+### Changed
+- Admin dashboard: Migrate video storage meter and video thumbnail upload progress to @wordpress/components ProgressBar; drop unused progressBarClassName prop. [#48191]
+- Adopt the shared Jetpack admin-page-layout mixin on the VideoPress admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Swap the site-settings Video Privacy toggle to WordPress CheckboxControl for native rendering and accessibility. [#48175]
+- Update package dependencies. [#48106] [#48126] [#48141]
+- Video Thumbnail: Remove Jetpack color override on loading spinner. [#47317]
+
+### Removed
+- Remove unused custom Checkbox component and the hidden per-row selection UI that relied on it. [#48175]
+
+### Fixed
+- VideoPress Admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library. [#48131]
+
 ## [0.36.4] - 2026-04-16
 ### Fixed
 - Fix block editor errors when used with Gutenberg 23.0.0+, where the SandBox component no longer defaults to same-origin. [#48117]
@@ -1914,6 +1947,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.6...v0.36.7
+[0.36.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.5...v0.36.6
+[0.36.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.4...v0.36.5
 [0.36.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.3...v0.36.4
 [0.36.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.2...v0.36.3
 [0.36.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.1...v0.36.2

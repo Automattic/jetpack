@@ -268,6 +268,7 @@ class Helpers {
 				'login',
 				'jetpack-sso',
 				'jetpack_json_api_authorization',
+				'entered_recovery_mode',
 			)
 		);
 		return in_array( $action, $allowed_actions_for_sso, true );

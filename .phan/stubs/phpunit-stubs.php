@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.21
+ * Stubs automatically generated from PHPUnit 12.5.24
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -389,6 +389,9 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
      * @throws UnknownEventTypeException
      */
     public function testRegisteredComparator(string $className): void
+    {
+    }
+    public function testUsedCustomMethodInvocation(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $customTestMethodInvocation): void
     {
     }
     /**
@@ -871,6 +874,7 @@ interface Emitter
      * @param class-string<\SebastianBergmann\Comparator\Comparator> $className
      */
     public function testRegisteredComparator(string $className): void;
+    public function testUsedCustomMethodInvocation(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $customTestMethodInvocation): void;
     /**
      * @param class-string $className
      */
@@ -2213,6 +2217,39 @@ final readonly class ComparatorRegistered implements \PHPUnit\Event\Event
 interface ComparatorRegisteredSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\Test\ComparatorRegistered $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class CustomTestMethodInvocationUsed implements \PHPUnit\Event\Event
+{
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $customTestMethodInvocation)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
+    public function customTestMethodInvocation(): \PHPUnit\Event\Code\ClassMethod
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface CustomTestMethodInvocationUsedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\CustomTestMethodInvocationUsed $event): void;
 }
 /**
  * @immutable
@@ -10976,6 +11013,12 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     {
     }
     /**
+     * @param array<mixed> $testArguments
+     */
+    protected function invokeTestMethod(string $methodName, array $testArguments): mixed
+    {
+    }
+    /**
      * Returns a builder object to create test stubs using a fluent interface.
      *
      * @template RealInstanceType of object
@@ -11037,7 +11080,10 @@ final readonly class ChildProcessResultProcessor
     public function __construct(\PHPUnit\Event\Facade $eventFacade, \PHPUnit\Event\Emitter $emitter, \PHPUnit\TestRunner\TestResult\PassedTests $passedTests, \PHPUnit\Runner\CodeCoverage $codeCoverage)
     {
     }
-    public function process(\PHPUnit\Framework\Test $test, string $serializedProcessResult, string $stderr): void
+    /**
+     * @param ?non-empty-string $processResultNonce
+     */
+    public function process(\PHPUnit\Framework\Test $test, string $serializedProcessResult, string $stderr, ?string $processResultNonce = null): void
     {
     }
 }
@@ -14022,10 +14068,12 @@ final class MockBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuilder
     /**
      * Creates a mock object using a fluent interface.
      *
+     * @throws Generator\ClassIsAnonymousException
      * @throws Generator\ClassIsEnumerationException
      * @throws Generator\ClassIsFinalException
      * @throws Generator\DuplicateMethodException
      * @throws \PHPUnit\Framework\InvalidArgumentException
+     * @throws Generator\InvalidClassNameException
      * @throws Generator\InvalidMethodNameException
      * @throws Generator\NameAlreadyInUseException
      * @throws Generator\ReflectionException
@@ -14695,9 +14743,11 @@ final class TestStubBuilder extends \PHPUnit\Framework\MockObject\TestDoubleBuil
     /**
      * Creates a test stub using a fluent interface.
      *
+     * @throws Generator\ClassIsAnonymousException
      * @throws Generator\ClassIsEnumerationException
      * @throws Generator\ClassIsFinalException
      * @throws Generator\DuplicateMethodException
+     * @throws Generator\InvalidClassNameException
      * @throws Generator\InvalidMethodNameException
      * @throws Generator\NameAlreadyInUseException
      * @throws Generator\ReflectionException
@@ -14827,6 +14877,17 @@ final class DoubledMethodSet
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class ClassIsAnonymousException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
+{
+    public function __construct(string $className)
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final class ClassIsEnumerationException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
     public function __construct(string $className)
@@ -14865,6 +14926,17 @@ final class DuplicateMethodException extends \PHPUnit\Framework\Exception implem
  */
 interface Exception extends \PHPUnit\Framework\MockObject\Exception
 {
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvalidClassNameException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
+{
+    public function __construct(string $className)
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -14953,9 +15025,11 @@ final class Generator
      * @param ?list<non-empty-string> $methods
      * @param array<mixed>            $arguments
      *
+     * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws DuplicateMethodException
+     * @throws InvalidClassNameException
      * @throws InvalidMethodNameException
      * @throws NameAlreadyInUseException
      * @throws ReflectionException
@@ -14978,6 +15052,7 @@ final class Generator
      * @param class-string            $type
      * @param ?list<non-empty-string> $methods
      *
+     * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws ReflectionException
@@ -16694,6 +16769,48 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\Tea
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationErroredSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationFailedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationFailed $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestPreparationStartedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparationStartedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationStarted $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
 {
     public function notify(\PHPUnit\Event\Test\Prepared $event): void
@@ -16736,6 +16853,20 @@ final readonly class TestSuiteBeforeFirstTestMethodErroredSubscriber extends \PH
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestSuiteBeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Logging\TeamCity\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
     {
     }
 }
@@ -16791,7 +16922,16 @@ final class TeamCityLogger
     public function testSuiteFinished(\PHPUnit\Event\TestSuite\Finished $event): void
     {
     }
-    public function testPrepared(\PHPUnit\Event\Test\Prepared $event): void
+    public function testPreparationStarted(\PHPUnit\Event\Test\PreparationStarted $event): void
+    {
+    }
+    public function testPreparationErrored(): void
+    {
+    }
+    public function testPreparationFailed(): void
+    {
+    }
+    public function testPrepared(): void
     {
     }
     /**
@@ -16816,6 +16956,12 @@ final class TeamCityLogger
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function beforeFirstTestMethodErrored(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function beforeFirstTestMethodFailed(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
     {
     }
     /**
@@ -21662,7 +21808,7 @@ final readonly class TestResult
     {
     }
     /**
-     * @return list<\PHPUnit\Event\Test\Failed>
+     * @return list<\PHPUnit\Event\Test\AfterLastTestMethodFailed|\PHPUnit\Event\Test\BeforeFirstTestMethodFailed|\PHPUnit\Event\Test\Failed>
      */
     public function testFailedEvents(): array
     {
@@ -28244,20 +28390,6 @@ final class PhpProcessException extends \RuntimeException implements \PHPUnit\Ut
 {
 }
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class DefaultJobRunner extends \PHPUnit\Util\PHP\JobRunner
-{
-    /**
-     * @throws PhpProcessException
-     */
-    public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result
-    {
-    }
-}
-/**
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -28338,18 +28470,24 @@ final readonly class Job
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-abstract readonly class JobRunner
+final readonly class JobRunner
 {
     public function __construct(\PHPUnit\Framework\ChildProcessResultProcessor $processor)
     {
     }
     /**
-     * @param non-empty-string $processResultFile
+     * @param non-empty-string  $processResultFile
+     * @param ?non-empty-string $processResultNonce
      */
-    final public function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test): void
+    public function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test, ?string $processResultNonce = null): void
     {
     }
-    abstract public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result;
+    /**
+     * @throws PhpProcessException
+     */
+    public function run(\PHPUnit\Util\PHP\Job $job): \PHPUnit\Util\PHP\Result
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -28362,9 +28500,10 @@ final class JobRunnerRegistry
     {
     }
     /**
-     * @param non-empty-string $processResultFile
+     * @param non-empty-string  $processResultFile
+     * @param ?non-empty-string $processResultNonce
      */
-    public static function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test): void
+    public static function runTestJob(\PHPUnit\Util\PHP\Job $job, string $processResultFile, \PHPUnit\Framework\Test $test, ?string $processResultNonce = null): void
     {
     }
     public static function set(\PHPUnit\Util\PHP\JobRunner $runner): void

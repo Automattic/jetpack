@@ -30,7 +30,7 @@ if ( is_array( $potential_task ) ) {
 
 	$task_fields['customer'] = -1;
 	if ( isset( $potential_task['customer'] ) ) {
-		$task_fields['customer'] = (int) sanitize_text_field( $potential_task['customer'] );
+		$task_fields['customer'] = (int) $potential_task['customer'];
 	}
 
 	$task_fields['notes'] = '';
@@ -108,11 +108,11 @@ if ( ! empty( $task_result ) && $task_result !== -1 ) {
 	}
 
 	// return
-	wp_send_json( $return_params );
+	wp_send_json( $return_params, 200, JSON_UNESCAPED_SLASHES );
 
 } else {
 
 	// fail.
-	wp_send_json( array( 'error' => 100 ) );
+	wp_send_json( array( 'error' => 100 ), 200, JSON_UNESCAPED_SLASHES );
 
 }

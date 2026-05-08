@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.10.0] - 2026-05-04
+### Added
+- AdminPage: Add `unwrapped` prop to render children directly inside the admin-ui Page, skipping the default Container/Col grid wrap. Use for full-bleed pages (DataViews-based admin surfaces) that own their own scroll/layout model. [#48244]
+- ToggleControl: Forward the `aria-label` prop to the underlying checkbox so consumers can label toggles that have no visible label. [#48277]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove "new" style variant from the Chip component. [#48174]
+
+### Deprecated
+- Mark the Spinner component as deprecated in favor of the WordPress Core Spinner from @wordpress/components. [#47451]
+
+## [1.9.0] - 2026-04-27
+### Deprecated
+- Componentry: Deprecate the Chip component. Use Badge from @wordpress/ui instead — map type="new" to intent="stable". [#48162]
+
+## [1.8.3] - 2026-04-20
+### Changed
+- AdminPage: Add a stable, non-hashed `jp-admin-page` class on the component root so shared SCSS mixins and global stylesheets can target AdminPage without coupling to the hashed CSS-Modules className. [#48109]
+- Button, ToggleControl: Remove Jetpack color overrides on core WordPress components. [#47317]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+### Removed
+- Remove internal Badge component in favor of @wordpress/ui. [#48156]
+
+### Fixed
+- Navigator modal: Allow overlay closing when users click it. [#48121]
+
 ## [1.8.2] - 2026-04-15
 ### Changed
 - Update package dependencies. [#47907]
@@ -1736,6 +1764,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.10.0]: https://github.com/Automattic/jetpack-components/compare/1.9.0...1.10.0
+[1.9.0]: https://github.com/Automattic/jetpack-components/compare/1.8.3...1.9.0
+[1.8.3]: https://github.com/Automattic/jetpack-components/compare/1.8.2...1.8.3
 [1.8.2]: https://github.com/Automattic/jetpack-components/compare/1.8.1...1.8.2
 [1.8.1]: https://github.com/Automattic/jetpack-components/compare/1.8.0...1.8.1
 [1.8.0]: https://github.com/Automattic/jetpack-components/compare/1.7.0...1.8.0

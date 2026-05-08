@@ -159,6 +159,7 @@ class Publicize_Script_Data {
 				'config'  => $settings->get_social_notes_config(),
 			),
 			'showPricingPage'      => $settings->should_show_pricing_page(),
+			'messageTemplate'      => $settings->get_message_template(),
 		);
 	}
 

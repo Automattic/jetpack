@@ -18,22 +18,18 @@ import {
 	ConnectionError,
 } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../../state';
-import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import { useDashboardVideos } from '../../hooks/use-dashboard-videos';
 import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
-import { useSearchParams } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
-import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import PricingSection from '../pricing-section';
 import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
@@ -41,120 +37,6 @@ import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
-
-const useDashboardVideos = () => {
-	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
-	const {
-		items,
-		uploadErrors,
-		uploading,
-		uploadedVideoCount,
-		isFetching,
-		search,
-		page,
-		itemsPerPage,
-		total,
-	} = useVideos();
-	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
-	const { hasVideoPressPurchase } = usePlan();
-
-	// Use a tempPage to catch changes in page from store and not URL
-	const tempPage = useRef( page );
-
-	/** Get the page number from the search parameters and set it to the state when the state is outdated */
-	const searchParams = useSearchParams();
-	const pageFromSearchParam = parseInt( searchParams.getParam( 'page', '1' ) );
-	const searchFromSearchParam = searchParams.getParam( 'q', '' );
-	const totalOfPages = Math.ceil( total / itemsPerPage );
-
-	useEffect( () => {
-		// when there are no search results, ensure that the current page number is 1
-		if ( total === 0 && pageFromSearchParam !== 1 ) {
-			// go back to page 1
-			searchParams.deleteParam( 'page' );
-			searchParams.update();
-			return;
-		}
-
-		// when there are search results, ensure that the current page is between 1 and totalOfPages, inclusive
-		if ( total > 0 && ( pageFromSearchParam < 1 || pageFromSearchParam > totalOfPages ) ) {
-			// go back to page 1
-			searchParams.deleteParam( 'page' );
-			searchParams.update();
-			return;
-		}
-
-		// react to a page param change
-		if ( page !== pageFromSearchParam ) {
-			// store changed and not url
-			// update url to match store update
-			if ( page !== tempPage.current ) {
-				tempPage.current = page;
-				searchParams.setParam( 'page', page );
-				searchParams.update();
-			} else {
-				tempPage.current = pageFromSearchParam;
-				setVideosQuery( {
-					page: pageFromSearchParam,
-				} );
-			}
-
-			return;
-		}
-
-		// react to a search param change
-		if ( search !== searchFromSearchParam ) {
-			setVideosQuery( {
-				search: searchFromSearchParam,
-			} );
-		}
-	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam, tempPage.current ] );
-
-	// Do not show uploading videos if not in the first page or searching
-	let videos = page > 1 || Boolean( search ) ? items : [ ...uploadErrors, ...uploading, ...items ];
-
-	const hasVideos =
-		uploadedVideoCount > 0 || isFetching || uploading?.length > 0 || uploadErrors?.length > 0;
-	const hasLocalVideos = uploadedLocalVideoCount > 0;
-
-	const handleFilesUpload = ( files: File[] ) => {
-		if ( hasVideoPressPurchase ) {
-			files.forEach( file => {
-				uploadVideo( file );
-			} );
-		} else if ( files.length > 0 ) {
-			uploadVideo( files[ 0 ] );
-		}
-	};
-
-	const handleLocalVideoUpload = file => {
-		uploadVideoFromLibrary( file );
-	};
-
-	// Fill with empty videos if loading
-	if ( isFetching ) {
-		const numPlaceholders = Math.max(
-			1, // at least one placeholder
-			Math.min( itemsPerPage, uploadedVideoCount - itemsPerPage * ( page - 1 ) ) // at most the number of videos in the page without query
-		);
-		// Use generated ID to work with React Key
-		videos = new Array( numPlaceholders ).fill( {} ).map( () => ( { id: uid() } ) );
-	}
-
-	return {
-		videos,
-		localVideos,
-		uploadedVideoCount,
-		uploadedLocalVideoCount,
-		hasVideos,
-		hasLocalVideos,
-		handleFilesUpload,
-		handleLocalVideoUpload,
-		loading: isFetching,
-		uploading: uploading?.length > 0 || uploadErrors?.length > 0,
-		hasVideoPressPurchase,
-	};
-};
 
 const Admin = () => {
 	const {
@@ -248,10 +130,7 @@ const Admin = () => {
 								</Text>
 
 								{ hasVideoPressPurchase && (
-									<ConnectVideoStorageMeter
-										className={ styles[ 'storage-meter' ] }
-										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
-									/>
+									<ConnectVideoStorageMeter className={ styles[ 'storage-meter' ] } />
 								) }
 
 								{ hasVideos ? (

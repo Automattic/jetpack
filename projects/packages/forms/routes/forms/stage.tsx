@@ -569,7 +569,7 @@ function StageInner() {
 
 	const {
 		title,
-		ariaLabel,
+		visual,
 		breadcrumbs,
 		subtitle,
 		actions: headerActions,
@@ -595,9 +595,9 @@ function StageInner() {
 
 	return (
 		<Page
+			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			title={ title }
-			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }

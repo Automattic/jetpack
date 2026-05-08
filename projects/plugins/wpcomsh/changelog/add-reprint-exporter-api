@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add ?reprint-api export endpoint and /wpcomsh/v1/reprint/rotate-export-secret REST route for site export authorization.

@@ -158,7 +158,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 		// } AJAX nonce, rest is dealt with in the admin global js :)
 		?>
-			<script type="text/javascript">var zbscrmjs_topMenuSecToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce-topmenu' ) ); ?>';</script>
+			<script type="text/javascript">var zbscrmjs_topMenuSecToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce-topmenu' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 			<?php
 
 			// } Menu hidden? - maybe we can cookie this? for now this is slick.

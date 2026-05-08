@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.18] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.6.17] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+
+### Fixed
+- Remove previous work that introduced an error. [#48322]
+
+## [0.6.16] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
 ## [0.6.15] - 2026-04-15
 ### Security
 - Hide the creator email of the Simple Payments block from the REST endpoints. [#48090]
@@ -205,6 +220,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.6.18]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.17...v0.6.18
+[0.6.17]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.16...v0.6.17
+[0.6.16]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.15...v0.6.16
 [0.6.15]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.14...v0.6.15
 [0.6.14]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.13...v0.6.14
 [0.6.13]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.12...v0.6.13

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Phase 4: surface an "Auto-fix N threats" header CTA on the Active threats tab and add a bulk-fix modal that confirms the list, kicks `useFixThreatsMutation`, polls `useFixThreatsStatusQuery` every 2 s until every threat reaches a terminal state, and emits a summary snackbar when the fixer settles.

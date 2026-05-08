@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: foundation data-plane primitives for the upcoming WC product filter blocks. Adds `actions.setPriceRange(min, max)`, extends `actions.clearFilters` to also clear the price range, and folds `priceRange` into `state.hasActiveFilters` so the active-filters wrapper stays visible on a price-only deep link.

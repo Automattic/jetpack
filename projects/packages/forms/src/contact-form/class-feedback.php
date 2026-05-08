@@ -43,6 +43,16 @@ class Feedback {
 	public const SOURCE_META_KEY = '_feedback_source_post_id';
 
 	/**
+	 * Post meta key flagging a feedback entry as a test submission (from a
+	 * form preview). Stored as `1` when `Feedback_Source::is_test()` is true
+	 * so collections can filter test responses at the database level without
+	 * parsing the serialized source.
+	 *
+	 * @var string
+	 */
+	public const IS_TEST_META_KEY = '_feedback_is_test';
+
+	/**
 	 * Cache key for the source post IDs list.
 	 *
 	 * @var string
@@ -125,7 +135,7 @@ class Feedback {
 	 * Matches feedback with the _feedback_source_post_id meta set, or falls back
 	 * to post_parent for old feedback that doesn't have the meta yet.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.19.0
 	 *
 	 * @param int $source_id The source post ID to filter by.
 	 * @return array{join: string, where: string} SQL fragments.
@@ -413,7 +423,8 @@ class Feedback {
 			$parsed_content['entry_title'] ?? '',
 			$parsed_content['entry_page'] ?? 1,
 			$parsed_content['source_type'] ?? 'single',
-			$parsed_content['request_url'] ?? ''
+			$parsed_content['request_url'] ?? '',
+			! empty( $parsed_content['is_test'] )
 		);
 
 		$this->ip_address   = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
@@ -1481,6 +1492,25 @@ class Feedback {
 	public function get_entry_short_permalink() {
 		return $this->source->get_relative_permalink();
 	}
+
+	/**
+	 * Whether this feedback was submitted from a form preview (test submission).
+	 *
+	 * @return bool
+	 */
+	public function is_test() {
+		return $this->source->is_test();
+	}
+
+	/**
+	 * Flag this feedback as a test submission from form preview.
+	 *
+	 * @return void
+	 */
+	public function mark_as_test() {
+		$this->source->set_is_test( true );
+	}
+
 	/**
 	 * Save the feedback entry to the database.
 	 *
@@ -1506,6 +1536,12 @@ class Feedback {
 		if ( is_numeric( $post_id ) && (int) $post_id > 0 && is_numeric( $source_id ) && (int) $source_id > 0 ) {
 			add_post_meta( $post_id, self::SOURCE_META_KEY, (int) $source_id, true );
 			wp_cache_delete( self::SOURCE_IDS_CACHE_KEY, self::CACHE_GROUP );
+		}
+
+		// Flag test submissions with a post meta so the REST collection can
+		// filter them via meta_query without unpacking the serialized source.
+		if ( is_numeric( $post_id ) && (int) $post_id > 0 && $this->source->is_test() ) {
+			add_post_meta( $post_id, self::IS_TEST_META_KEY, 1, true );
 		}
 
 		// If this feedback does not have a jetpack_form parent,

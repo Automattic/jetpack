@@ -187,6 +187,8 @@ class SearchResults extends Component {
 								searchQuery={ this.props.searchQuery }
 								isMultiSite={ isMultiSite }
 								showPostDate={ this.props.showPostDate }
+								enableFallbackImage={ this.props.enableFallbackImage }
+								fallbackImageUrl={ this.props.fallbackImageUrl }
 								showProductPrice={ this.props.showProductPrice }
 							/>
 						) ) }

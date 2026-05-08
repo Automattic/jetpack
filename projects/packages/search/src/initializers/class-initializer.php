@@ -102,6 +102,29 @@ class Initializer {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		// The dashboard has to be initialized before connection.
 		( new Dashboard() )->init_hooks();
+		// Register the Interactivity API search blocks. These register
+		// server-side (block types, patterns, variations) regardless of
+		// connection/plan/module state so the blocks appear in the editor on
+		// any site that has the package loaded; runtime queries still require
+		// a connected site with a Search plan.
+		//
+		// Gated behind the `jetpack_search_blocks_enabled` filter, which
+		// defaults to false. This is the feature flag for Phase 1 of Search
+		// 3.0: the blocks, pattern, and shared Interactivity API store only
+		// register when a site has explicitly opted in.
+		/**
+		 * Filter whether the Jetpack Search 3.0 Interactivity API blocks are enabled.
+		 *
+		 * Returning true registers the blocks, the "Jetpack Search" block +
+		 * pattern categories, the "Blog Search Page" pattern, and seeds the
+		 * Interactivity API store on the front end. Default is false until
+		 * Search 3.0 ships.
+		 *
+		 * @param bool $enabled Default false.
+		 */
+		if ( apply_filters( 'jetpack_search_blocks_enabled', false ) ) {
+			Search_Blocks::init();
+		}
 	}
 
 	/**

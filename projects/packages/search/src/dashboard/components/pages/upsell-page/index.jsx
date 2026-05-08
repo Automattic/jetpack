@@ -108,16 +108,29 @@ export default function UpsellPage( { isLoading = false } ) {
 						)
 					}
 				>
-					<AdminSectionHero>
-						{ isNewPricing ? (
-							<NewPricingComponent
-								sendToCartPaid={ sendToCartPaid }
-								sendToCartFree={ sendToCartFree }
-							/>
-						) : (
-							<OldPricingComponent sendToCart={ sendToCartPaid } />
-						) }
-					</AdminSectionHero>
+					{ /*
+					 * `<AdminSectionHero>` has `overflow: hidden` (BFC for margin
+					 * collapse), which under the shared admin-page-layout mixin's
+					 * flex chain resolves its `min-height: auto` to 0 and lets
+					 * flex shrink it past its content — clipping the pricing rows
+					 * at the footer line and starving the middle's `overflow:
+					 * auto` of any overflow to engage. The block-level wrapper
+					 * exits the flex chain so the inner content sizes to its
+					 * natural height. See `.jp-search-upsell-page-content` rule
+					 * + comment in styles.scss for full reasoning.
+					 */ }
+					<div className="jp-search-upsell-page-content">
+						<AdminSectionHero>
+							{ isNewPricing ? (
+								<NewPricingComponent
+									sendToCartPaid={ sendToCartPaid }
+									sendToCartFree={ sendToCartFree }
+								/>
+							) : (
+								<OldPricingComponent sendToCart={ sendToCartPaid } />
+							) }
+						</AdminSectionHero>
+					</div>
 				</AdminPage>
 			) }
 		</>
@@ -200,7 +213,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	} ).format( unitQuantityRaw );
 
 	return (
-		<Container horizontalSpacing={ 8 }>
+		<Container horizontalSpacing={ 8 } className="jp-search-upsell-container">
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
 					<ConnectionError />
