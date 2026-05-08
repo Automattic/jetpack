@@ -352,18 +352,10 @@ class Tracks {
 		}
 
 		// `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic.
-		$plan_slug = '';
-		if ( class_exists( '\WPCOM_Store_API' ) ) {
-			$current_plan = \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() );
-			if ( ! empty( $current_plan['product_slug'] ) ) {
-				$plan_slug = (string) $current_plan['product_slug'];
-			}
-		} elseif ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ) {
-			$current_plan = \Automattic\Jetpack\Current_Plan::get();
-			if ( ! empty( $current_plan['product_slug'] ) ) {
-				$plan_slug = (string) $current_plan['product_slug'];
-			}
-		}
+		$plan = class_exists( '\WPCOM_Store_API' )
+			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
+			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
+		$plan_slug = (string) ( $plan['product_slug'] ?? '' );
 
 		self::record_event(
 			wp_get_current_user(),
@@ -402,22 +394,11 @@ class Tracks {
 	 * @return array<string, mixed>
 	 */
 	private static function read_settings_state(): array {
-		return array(
-			'podcasting_category_id' => Customize_Feed::resolve_category_id(),
-			'podcasting_title'       => (string) get_option( 'podcasting_title', '' ),
-			'podcasting_talent_name' => (string) get_option( 'podcasting_talent_name', '' ),
-			'podcasting_summary'     => (string) get_option( 'podcasting_summary', '' ),
-			'podcasting_copyright'   => (string) get_option( 'podcasting_copyright', '' ),
-			'podcasting_explicit'    => Settings::sanitize_explicit( get_option( 'podcasting_explicit', false ) ) ? 'yes' : 'no',
-			'podcasting_image'       => (string) get_option( 'podcasting_image', '' ),
-			'podcasting_image_id'    => (int) get_option( 'podcasting_image_id', 0 ),
-			'podcasting_category_1'  => (string) get_option( 'podcasting_category_1', '' ),
-			'podcasting_category_2'  => (string) get_option( 'podcasting_category_2', '' ),
-			'podcasting_category_3'  => (string) get_option( 'podcasting_category_3', '' ),
-			'podcasting_email'       => (string) get_option( 'podcasting_email', '' ),
-			'podcasting_show_urls'   => (array) get_option( 'podcasting_show_urls', array() ),
-			'podcasting_show_states' => (array) get_option( 'podcasting_show_states', array() ),
-		);
+		$state = array();
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$state[ $name ] = get_option( $name, '' );
+		}
+		return $state;
 	}
 
 	/**
@@ -434,87 +415,13 @@ class Tracks {
 	}
 
 	/**
-	 * The host check filters out third-party players (SoundCloud, Spotify
-	 * embeds, RSS-imported audio links) — those produced a flood of false
-	 * positives historically. Classic-editor attachments skip the host
-	 * check via the `WP_Query` lookup at the bottom.
+	 * Filters out posts that sit in the podcast category but aren't
+	 * actually episodes — block-editor `core/audio` and classic-editor
+	 * attached audio cover the supported authoring paths.
 	 */
 	private static function has_podcast_media( WP_Post $post ): bool {
-		$content      = (string) $post->post_content;
-		$baseurl      = (string) ( wp_upload_dir()['baseurl'] ?? '' );
-		$home_host    = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-		$baseurl_host = (string) wp_parse_url( $baseurl, PHP_URL_HOST );
-		$hosts        = array_values( array_unique( array_filter( array( $home_host, $baseurl_host ) ) ) );
-
-		if (
-			has_block( 'core/audio', $post )
-			&& self::has_site_hosted_audio_block( parse_blocks( $content ), $baseurl, $hosts )
-		) {
-			return true;
-		}
-
-		$extensions = implode( '|', array_map( 'preg_quote', wp_get_audio_extensions() ) );
-		if ( '' !== $extensions && preg_match_all( '#https?://\S+?\.(' . $extensions . ')\b#i', $content, $matches ) ) {
-			foreach ( $matches[0] as $url ) {
-				if ( self::is_site_hosted_url( $url, $baseurl, $hosts ) ) {
-					return true;
-				}
-			}
-		}
-
-		$attached = new WP_Query(
-			array(
-				'post_parent'            => (int) $post->ID,
-				'post_type'              => 'attachment',
-				'post_mime_type'         => 'audio',
-				'posts_per_page'         => 1,
-				'fields'                 => 'ids',
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-				'suppress_filters'       => true,
-			)
-		);
-		return ! empty( $attached->posts );
-	}
-
-	private static function has_site_hosted_audio_block( array $blocks, string $baseurl, array $hosts ): bool {
-		foreach ( $blocks as $block ) {
-			if ( 'core/audio' === ( $block['blockName'] ?? '' ) ) {
-				$src = (string) ( $block['attrs']['src'] ?? '' );
-				if ( '' !== $src && self::is_site_hosted_url( $src, $baseurl, $hosts ) ) {
-					return true;
-				}
-			}
-			if (
-				! empty( $block['innerBlocks'] )
-				&& self::has_site_hosted_audio_block( $block['innerBlocks'], $baseurl, $hosts )
-			) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Baseurl prefix is the precise check; the host fallbacks cover the
-	 * site's primary URL host and the uploads host itself, so older
-	 * uploads outside the current month's baseurl path still match.
-	 */
-	private static function is_site_hosted_url( string $url, string $baseurl, array $hosts ): bool {
-		if ( '' !== $baseurl && 0 === strpos( $url, $baseurl ) ) {
-			return true;
-		}
-		$url_host = (string) wp_parse_url( $url, PHP_URL_HOST );
-		if ( '' === $url_host ) {
-			return false;
-		}
-		foreach ( $hosts as $allowed_host ) {
-			if ( 0 === strcasecmp( $url_host, $allowed_host ) ) {
-				return true;
-			}
-		}
-		return false;
+		return has_block( 'core/audio', $post )
+			|| ! empty( get_attached_media( 'audio', $post->ID ) );
 	}
 
 	private static function is_first_episode_for_site( int $category_id, int $current_post_id ): bool {

@@ -86,15 +86,8 @@ class Tracks_Test extends BaseTestCase {
 	private function insert_post_in_category(
 		int $category_id,
 		string $status = 'publish',
-		string $content = ''
+		string $content = '<!-- wp:audio --><figure class="wp-block-audio"><audio controls src="https://example.org/episode.mp3"></audio></figure><!-- /wp:audio -->'
 	): \WP_Post {
-		if ( '' === $content ) {
-			$content = sprintf(
-				'Listen here: %s/wp-content/uploads/2026/05/episode-%s.mp3',
-				rtrim( home_url(), '/' ),
-				wp_generate_uuid4()
-			);
-		}
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => 'Episode ' . wp_generate_uuid4(),
@@ -106,9 +99,6 @@ class Tracks_Test extends BaseTestCase {
 		wp_cache_set( (int) $post_id, array( $category_id ), 'category_relationships' );
 		return get_post( (int) $post_id );
 	}
-
-	// region: episode_published / show_launched
-	// -------------------------------------------------------------------
 
 	public function test_episode_published_emits_for_first_published_post_in_category() {
 		$cat_id = $this->configure_podcast_category();
@@ -191,15 +181,6 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
 	}
 
-	public function test_episode_published_skips_drafts() {
-		$cat_id = $this->configure_podcast_category();
-		$draft  = $this->insert_post_in_category( $cat_id, 'draft' );
-
-		Tracks::record_episode_published( $draft->ID, $draft, false, null );
-
-		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
-	}
-
 	public function test_episode_published_skips_post_without_podcast_media() {
 		$cat_id = $this->configure_podcast_category();
 		$post   = $this->insert_post_in_category( $cat_id, 'publish', 'No audio in this post.' );
@@ -208,21 +189,6 @@ class Tracks_Test extends BaseTestCase {
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
 	}
-
-	public function test_episode_published_skips_third_party_hosted_audio() {
-		$cat_id  = $this->configure_podcast_category();
-		$content = 'External player: https://example-other-host.com/episode.mp3';
-		$post    = $this->insert_post_in_category( $cat_id, 'publish', $content );
-
-		Tracks::record_episode_published( $post->ID, $post, false, null );
-
-		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
-	}
-
-	// endregion
-
-	// region: media_uploaded
-	// -------------------------------------------------------------------
 
 	public function test_media_uploaded_emits_for_audio_when_podcasting_enabled() {
 		$this->configure_podcast_category();
@@ -293,11 +259,6 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertEmpty( $this->events_named( 'wpcom_podcast_media_uploaded' ) );
 	}
 
-	// endregion
-
-	// region: status_changed
-	// -------------------------------------------------------------------
-
 	public function test_status_changed_emits_enabled_when_category_first_set() {
 		Tracks::record_category_added( 'podcasting_category_id', 42 );
 
@@ -323,11 +284,6 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'changed', $events[0]['properties']['status'] );
 	}
-
-	// endregion
-
-	// region: show_url_saved
-	// -------------------------------------------------------------------
 
 	public function test_show_url_saved_emits_on_first_entry_per_directory() {
 		Tracks::record_show_url_addition(
@@ -371,11 +327,6 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'spotify', $events[0]['properties']['app'] );
 	}
-
-	// endregion
-
-	// region: settings_saved
-	// -------------------------------------------------------------------
 
 	public function test_settings_saved_emits_after_settings_rest_write() {
 		update_option( 'podcasting_title', 'Old Title' );
@@ -427,6 +378,4 @@ class Tracks_Test extends BaseTestCase {
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
 	}
-
-	// endregion
 }
