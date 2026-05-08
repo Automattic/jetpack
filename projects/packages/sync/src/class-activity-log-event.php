@@ -83,6 +83,10 @@ class Activity_Log_Event {
 	 * to front-end queries, RSS, search, sitemaps, and exports.
 	 */
 	public static function register_post_type() {
+		if ( post_type_exists( self::POST_TYPE ) ) {
+			return;
+		}
+
 		register_post_type(
 			self::POST_TYPE,
 			array(
@@ -189,14 +193,14 @@ class Activity_Log_Event {
 	}
 
 	/**
-	 * Prevents invalid Activity Log event posts from being inserted or updated via wp_insert_post().
+	 * Prevents invalid Activity Log event posts from being inserted via wp_insert_post().
 	 *
 	 * @param bool  $maybe_empty Whether the post should be considered empty.
 	 * @param array $postarr     Post data passed to wp_insert_post().
 	 * @return bool
 	 */
 	public static function prevent_invalid_post_insert( $maybe_empty, $postarr ) {
-		if ( ! is_array( $postarr ) || self::POST_TYPE !== self::get_postarr_post_type( $postarr ) ) {
+		if ( ! is_array( $postarr ) || self::POST_TYPE !== ( $postarr['post_type'] ?? '' ) ) {
 			return $maybe_empty;
 		}
 
@@ -206,7 +210,7 @@ class Activity_Log_Event {
 	/**
 	 * Restricts the core REST CPT route to trusted Activity Log event writers/readers.
 	 *
-	 * Core REST post collection reads are public by default, even for this private CPT,
+	 * Core REST post collection reads are public by default, even for this non-public CPT,
 	 * so explicitly gate this route when it is exposed via show_in_rest.
 	 *
 	 * @param mixed            $response Current REST response.
@@ -219,8 +223,7 @@ class Activity_Log_Event {
 			return $response;
 		}
 
-		$route = $request->get_route();
-		if ( ! preg_match( '#^/wp/v2/' . preg_quote( self::REST_BASE, '#' ) . '(?:/|$)#', $route ) ) {
+		if ( ! self::is_activity_log_event_rest_route( $request ) ) {
 			return $response;
 		}
 
@@ -232,6 +235,43 @@ class Activity_Log_Event {
 			'invalid_user_permission_activity_log_event',
 			esc_html__( 'You do not have the correct user permissions to access Activity Log events.', 'jetpack-sync' ),
 			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Checks whether a REST route targets Activity Log event posts.
+	 *
+	 * Supports both normal site-local routes and WordPress.com public API site routes.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return bool
+	 */
+	private static function is_activity_log_event_rest_route( $request ) {
+		if ( ! $request instanceof \WP_REST_Request ) {
+			return false;
+		}
+
+		$route     = $request->get_route();
+		$rest_base = self::REST_BASE;
+
+		if ( false === strpos( $route, $rest_base ) ) {
+			return false;
+		}
+
+		if ( '/wp/v2/' . $rest_base === $route || 0 === strpos( $route, '/wp/v2/' . $rest_base . '/' ) ) {
+			return true;
+		}
+
+		$parts = explode( '/', trim( $route, '/' ) );
+		if ( count( $parts ) < 5 ) {
+			return false;
+		}
+
+		return (
+			'wp' === $parts[0]
+			&& 'v2' === $parts[1]
+			&& 'sites' === $parts[2]
+			&& $rest_base === $parts[4]
 		);
 	}
 
@@ -281,14 +321,14 @@ class Activity_Log_Event {
 	}
 
 	/**
-	 * Normalizes Activity Log event posts before they are inserted or updated via wp_insert_post().
+	 * Normalizes Activity Log event posts before they are inserted via wp_insert_post().
 	 *
 	 * @param array $data    Slashed, sanitized post data.
 	 * @param array $postarr Post data passed to wp_insert_post().
 	 * @return array
 	 */
 	public static function normalize_post_data( $data, $postarr ) {
-		if ( ! is_array( $data ) || ! is_array( $postarr ) || self::POST_TYPE !== self::get_postarr_post_type( $postarr ) ) {
+		if ( ! is_array( $data ) || ! is_array( $postarr ) || self::POST_TYPE !== ( $postarr['post_type'] ?? '' ) ) {
 			return $data;
 		}
 
@@ -392,24 +432,6 @@ class Activity_Log_Event {
 		}
 
 		return is_array( $data ) ? $data : false;
-	}
-
-	/**
-	 * Gets the post type from wp_insert_post() input.
-	 *
-	 * @param array $postarr Post data passed to wp_insert_post().
-	 * @return string
-	 */
-	private static function get_postarr_post_type( array $postarr ) {
-		if ( isset( $postarr['post_type'] ) ) {
-			return (string) $postarr['post_type'];
-		}
-
-		if ( ! empty( $postarr['ID'] ) ) {
-			return (string) get_post_type( (int) $postarr['ID'] );
-		}
-
-		return '';
 	}
 
 	/**

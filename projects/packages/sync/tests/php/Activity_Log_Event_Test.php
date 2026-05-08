@@ -46,6 +46,18 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that repeated Activity Log event post type registration is harmless.
+	 */
+	public function test_activity_log_event_register_post_type_is_idempotent() {
+		Activity_Log_Event::register_post_type();
+
+		$post_type = get_post_type_object( Activity_Log_Event::POST_TYPE );
+
+		$this->assertInstanceOf( \WP_Post_Type::class, $post_type );
+		$this->assertSame( Activity_Log_Event::REST_BASE, $post_type->rest_base );
+	}
+
+	/**
 	 * Tests that Activity Log event REST capabilities are create-only.
 	 */
 	public function test_activity_log_event_registers_create_only_rest_capabilities() {
@@ -109,6 +121,37 @@ class Activity_Log_Event_Test extends BaseTestCase {
 
 		$this->assertSame( 10, has_action( 'init', array( Activity_Log_Event::class, 'register_post_type' ) ) );
 		$this->assertSame( 10, has_filter( 'rest_pre_insert_' . Activity_Log_Event::POST_TYPE, array( Activity_Log_Event::class, 'normalize_rest_post' ) ) );
+	}
+
+	/**
+	 * Tests that the REST auth gate handles WordPress.com public API site routes.
+	 */
+	public function test_activity_log_event_rest_auth_gate_handles_wpcom_site_routes() {
+		$request  = new \WP_REST_Request( 'GET', '/wp/v2/sites/179267513/activity-log-events' );
+		$response = Activity_Log_Event::authorize_rest_request( null, array(), $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'invalid_user_permission_activity_log_event', $response->get_error_code() );
+	}
+
+	/**
+	 * Tests that the REST auth gate ignores adjacent route names.
+	 */
+	public function test_activity_log_event_rest_auth_gate_ignores_adjacent_routes() {
+		$this->assertNull(
+			Activity_Log_Event::authorize_rest_request(
+				null,
+				array(),
+				new \WP_REST_Request( 'GET', '/wp/v2/activity-log-events-archive' )
+			)
+		);
+		$this->assertNull(
+			Activity_Log_Event::authorize_rest_request(
+				null,
+				array(),
+				new \WP_REST_Request( 'GET', '/wp/v2/sites/179267513/activity-log-events-archive' )
+			)
+		);
 	}
 
 	/**
