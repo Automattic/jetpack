@@ -81,6 +81,7 @@ domReady( function () {
 					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
+					const success_message = form.querySelector( 'input[name=success_message]' )?.value ?? '';
 					const selected_newsletter_categories =
 						form.querySelector( 'input[name=selected_newsletter_categories]' )?.value ?? '';
 
@@ -92,6 +93,7 @@ domReady( function () {
 						plan: 'newsletter',
 						source: 'jetpack_subscribe',
 						app_source,
+						success_message,
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
 						selected_newsletter_categories,

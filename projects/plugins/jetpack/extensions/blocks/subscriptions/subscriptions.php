@@ -865,6 +865,7 @@ function render_for_website( $data, $classes, $styles ) {
 							<input type="hidden" name="app_source" value="<?php echo esc_attr( $data['app_source'] ); ?>"/>
 							<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 							<input type="hidden" name="lang" value="<?php echo esc_attr( $lang ); ?>"/>
+							<input type="hidden" name="success_message" value="<?php echo esc_attr( $data['success_message'] ); ?>"/>
 							<?php
 							wp_nonce_field( 'blogsub_subscribe_' . $blog_id );
 
