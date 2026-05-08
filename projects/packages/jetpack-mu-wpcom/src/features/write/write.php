@@ -405,6 +405,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div class="bw-help-row"><kbd>Ctrl+K</kbd><span><?php echo esc_html__( 'Insert link', 'jetpack-mu-wpcom' ); ?></span></div>
 			<div class="bw-help-row"><kbd>Tab</kbd><span><?php echo esc_html__( 'Navigate slash menu options', 'jetpack-mu-wpcom' ); ?></span></div>
 			<div class="bw-help-row"><kbd>Shift+Tab</kbd><span><?php echo esc_html__( 'Focus formatting toolbar', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>#tag</kbd><span><?php echo esc_html__( 'A line containing only #tags assigns them to the post on save', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		</div><!-- /.bw-help-wrap -->
 		<span class="bw-status" data-wp-text="state.message"></span>
