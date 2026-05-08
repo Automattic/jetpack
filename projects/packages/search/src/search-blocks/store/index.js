@@ -559,6 +559,26 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * True when every aggregation bucket for the current filter block is
+		 * already selected. Used by the `filter-wc-attribute` block to hide
+		 * the list and show an "All filters applied" message.
+		 *
+		 * @return {boolean} True when all buckets are selected.
+		 */
+		get allBucketsSelected() {
+			const { filterKey } = getContext();
+			const buckets = state.aggregations?.[ filterKey ]?.buckets;
+			if ( ! Array.isArray( buckets ) || buckets.length === 0 ) {
+				return false;
+			}
+			const selected = state.activeFilters?.[ filterKey ] ?? [];
+			if ( selected.length === 0 ) {
+				return false;
+			}
+			return buckets.every( bucket => selected.includes( bucketValue( bucket.key ) ) );
+		},
+
+		/**
 		 * Item descriptors for the current filter block. Dispatches on
 		 * `filterType`. Lives on the shared namespace so per-block view
 		 * bundles don't clobber siblings. Each item carries `value`,

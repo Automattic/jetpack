@@ -22,6 +22,7 @@ import ActiveFiltersEdit from '../blocks/active-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
+import FilterWcAttributeEdit from '../blocks/filter-wc-attribute/edit';
 import FilterWcPriceEdit from '../blocks/filter-wc-price/edit';
 import FilterWcRatingEdit from '../blocks/filter-wc-rating/edit';
 import FilterWcStockStatusEdit from '../blocks/filter-wc-stock-status/edit';
@@ -57,6 +58,7 @@ const BLOCKS = [
 	[ 'jetpack-search/results-load-more', ResultsLoadMoreEdit ],
 	[ 'jetpack-search/search-results', SearchResultsEdit, searchResultsSave ],
 	[ 'jetpack-search/powered-by', PoweredByEdit ],
+	[ 'jetpack-search/filter-wc-attribute', FilterWcAttributeEdit ],
 	[ 'jetpack-search/filter-wc-price', FilterWcPriceEdit ],
 	[ 'jetpack-search/filter-wc-stock-status', FilterWcStockStatusEdit ],
 ];
