@@ -1991,8 +1991,10 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox {
 
 										// postbag!
 										var data = {
-										'action': 'addAlias',
-										'cid': <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
+											'action': 'addAlias',
+											'cid': <?php echo ( ! empty( $contact['id'] ) && $contact['id'] > 0 ) ? (int) $contact['id'] : -1; ?>,
+											'aka': v,
+											'sec': window.zbscrmjs_secToken,
 										};
 
 										// Send it Pat :D
