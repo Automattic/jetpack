@@ -5,8 +5,8 @@
  * Pure layout container: emits a wrapper around the inner blocks so the
  * product filter children (post-type scope, stock-status, rating, price,
  * attribute, …) share one column / spacing context. All search-side behavior
- * lives in the children — this block has no Interactivity bindings, no view
- * module, and no client-side state of its own.
+ * lives in the children — this block has no Interactivity bindings and no
+ * client-side state of its own (the view module is a CSS-only entry point).
  *
  * @package automattic/jetpack-search
  */
