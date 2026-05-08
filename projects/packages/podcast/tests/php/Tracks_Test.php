@@ -52,7 +52,9 @@ class Tracks_Test extends BaseTestCase {
 		return array_values(
 			array_filter(
 				$GLOBALS['jetpack_podcast_test_captured_events'],
-				static fn ( array $event ) => $event['event_name'] === $event_name
+				static function ( array $event ) use ( $event_name ) {
+					return $event['event_name'] === $event_name;
+				}
 			)
 		);
 	}
