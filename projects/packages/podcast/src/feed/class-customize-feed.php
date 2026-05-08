@@ -274,7 +274,7 @@ class Customize_Feed {
 			);
 		}
 
-		$attachment_id = self::lookup_attachment_id( $original_url );
+		$attachment_id = attachment_url_to_postid( $original_url );
 		if ( 0 === $attachment_id ) {
 			return $enclosure;
 		}
@@ -337,29 +337,6 @@ class Customize_Feed {
 		}
 		$url = (string) get_option( 'podcasting_image', '' );
 		return '' === $url ? '' : self::maybe_photon( $url );
-	}
-
-	/**
-	 * Resolve an enclosure URL to its attachment ID, cached per-URL.
-	 *
-	 * `attachment_url_to_postid()` issues an unindexed `guid` lookup on
-	 * `wp_posts` — once per item per feed render. We persist the result in the
-	 * object cache so repeat renders (and crawlers hitting paginated pages of
-	 * the same feed) hit Memcached instead. Negative results (`0`) are cached
-	 * too: if a URL doesn't resolve once, it won't resolve next time either.
-	 *
-	 * @param string $url Enclosure URL.
-	 * @return int Attachment ID, or 0 if none.
-	 */
-	private static function lookup_attachment_id( string $url ): int {
-		$cache_key = md5( $url );
-		$cached    = wp_cache_get( $cache_key, 'jetpack_podcast_enclosure' );
-		if ( false !== $cached ) {
-			return (int) $cached;
-		}
-		$attachment_id = (int) attachment_url_to_postid( $url );
-		wp_cache_set( $cache_key, $attachment_id, 'jetpack_podcast_enclosure', HOUR_IN_SECONDS );
-		return $attachment_id;
 	}
 
 	/**
