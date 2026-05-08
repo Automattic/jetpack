@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack AI: route the MCP "Upgrade plan" CTA through the standard checkout workflow so non-WordPress.com hosts (Pressable, self-hosted) reach a valid destination instead of a "you don't have access to that site" page, and remove WordPress.com-specific copy from the upsell.

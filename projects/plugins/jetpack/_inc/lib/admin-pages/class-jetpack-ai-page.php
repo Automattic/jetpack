@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -104,6 +105,12 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
 
+		// Expose `JP_CONNECTION_INITIAL_STATE` so `useProductCheckoutWorkflow`
+		// (used by the MCP upsell) can read the site's siteSuffix,
+		// registrationNonce, apiRoot, and apiNonce without each consumer
+		// having to thread them through manually.
+		Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+
 		wp_add_inline_script(
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
@@ -114,7 +121,6 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					'apiRoot'        => esc_url_raw( rest_url() ),
 					'apiNonce'       => wp_create_nonce( 'wp_rest' ),
 					'pluginUrl'      => plugins_url( '', JETPACK__PLUGIN_FILE ),
-					'upgradeUrl'     => 'https://wordpress.com/plans/' . rawurlencode( wp_parse_url( home_url(), PHP_URL_HOST ) ?? '' ),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
