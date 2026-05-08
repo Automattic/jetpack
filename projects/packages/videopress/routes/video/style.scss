@@ -10,3 +10,16 @@
 	padding: 48px 24px;
 	text-align: center;
 }
+
+.vp-video-details__thumbnail {
+	width: 240px;
+	height: 135px;
+	object-fit: cover;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+.vp-video-details__thumbnail-meta {
+	flex: 1;
+	min-width: 0;
+}

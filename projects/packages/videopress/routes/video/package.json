@@ -7,6 +7,7 @@
 		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "2.0.0",
 		"@wordpress/components": "32.6.0",
+		"@wordpress/date": "5.44.0",
 		"@wordpress/element": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
 		"@wordpress/icons": "12.2.0",

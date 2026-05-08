@@ -55,7 +55,6 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 							<Stack direction="row" gap="sm" align="center">
 								<Text>{ link }</Text>
 								<ClipboardButton
-									variant="tertiary"
 									text={ link }
 									onCopy={ () => setLinkCopied( true ) }
 									onFinishCopy={ () => setLinkCopied( false ) }
@@ -74,7 +73,6 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 									<code>{ video.shortcode }</code>
 								</Text>
 								<ClipboardButton
-									variant="tertiary"
 									text={ video.shortcode }
 									onCopy={ () => setShortcodeCopied( true ) }
 									onFinishCopy={ () => setShortcodeCopied( false ) }
