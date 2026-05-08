@@ -48,7 +48,7 @@ jest.mock( '../../use-sig-preview', () => ( {
 } ) );
 
 jest.mock( '../../use-render-message-items', () => ( {
-	useRenderMessageItems: jest.fn(),
+	useRenderMessageInputs: jest.fn(),
 } ) );
 
 jest.mock( '../../use-post-meta', () => ( {
@@ -61,7 +61,7 @@ import { useConnectionPreviewData } from '../';
 import useMediaDetails from '../../use-media-details';
 import { usePerNetworkCustomization } from '../../use-per-network-customization';
 import { usePostMeta } from '../../use-post-meta';
-import { useRenderMessageItems } from '../../use-render-message-items';
+import { useRenderMessageInputs } from '../../use-render-message-items';
 import useSigPreview from '../../use-sig-preview';
 import useSocialMediaMessage from '../../use-social-media-message';
 import { useSocialPreviewPostData } from '../../use-social-preview-post-data';
@@ -81,8 +81,8 @@ const mockUseSocialPreviewPostData = useSocialPreviewPostData as jest.MockedFunc
 >;
 const mockUseMediaDetails = useMediaDetails as jest.MockedFunction< typeof useMediaDetails >;
 const mockUseSigPreview = useSigPreview as jest.MockedFunction< typeof useSigPreview >;
-const mockUseRenderMessageItems = useRenderMessageItems as jest.MockedFunction<
-	typeof useRenderMessageItems
+const mockUseRenderMessageInputs = useRenderMessageInputs as jest.MockedFunction<
+	typeof useRenderMessageInputs
 >;
 const mockUsePostMeta = usePostMeta as jest.MockedFunction< typeof usePostMeta >;
 
@@ -150,7 +150,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUseSocialPreviewPostData.mockReturnValue( defaultPostData );
 		mockUseMediaDetails.mockReturnValue( [ null, false ] );
 		mockUseSigPreview.mockReturnValue( { url: null, isLoading: false } );
-		mockUseRenderMessageItems.mockReturnValue( [] );
+		mockUseRenderMessageInputs.mockReturnValue( { items: [], postIntent: {} } );
 		mockUsePostMeta.mockReturnValue( {
 			mediaSource: undefined,
 		} as ReturnType< typeof usePostMeta > );
@@ -317,14 +317,17 @@ describe( 'useConnectionPreviewData', () => {
 	it( 'shows loading while the live template message is waiting for debounce', () => {
 		mockSelectCalls( { rendered: null } );
 		mockSiteHasFeature.mockReturnValue( true );
-		mockUseRenderMessageItems.mockReturnValue( [
-			{
-				id: '123',
-				network: 'tumblr',
-				message: 'Old template',
-				is_social_post: false,
-			},
-		] );
+		mockUseRenderMessageInputs.mockReturnValue( {
+			items: [
+				{
+					id: '123',
+					network: 'tumblr',
+					message: 'Old template',
+					is_social_post: false,
+				},
+			],
+			postIntent: {},
+		} );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'New template {excerpt}',
 			updateMessage: jest.fn(),
@@ -340,14 +343,17 @@ describe( 'useConnectionPreviewData', () => {
 	it( 'does not show loading in global mode when the render item matches the global message', () => {
 		mockSelectCalls( { rendered: 'Rendered global template' } );
 		mockSiteHasFeature.mockReturnValue( true );
-		mockUseRenderMessageItems.mockReturnValue( [
-			{
-				id: '123',
-				network: 'tumblr',
-				message: 'Global message',
-				is_social_post: false,
-			},
-		] );
+		mockUseRenderMessageInputs.mockReturnValue( {
+			items: [
+				{
+					id: '123',
+					network: 'tumblr',
+					message: 'Global message',
+					is_social_post: false,
+				},
+			],
+			postIntent: {},
+		} );
 
 		const connection = createMockConnection( { message: 'Per-network message' } );
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
@@ -359,14 +365,17 @@ describe( 'useConnectionPreviewData', () => {
 	it( 'keeps loading after debounce until the render request finishes', () => {
 		mockSelectCalls( { rendered: null, isLoadingRendered: true } );
 		mockSiteHasFeature.mockReturnValue( true );
-		mockUseRenderMessageItems.mockReturnValue( [
-			{
-				id: '123',
-				network: 'tumblr',
-				message: 'New template {excerpt}',
-				is_social_post: false,
-			},
-		] );
+		mockUseRenderMessageInputs.mockReturnValue( {
+			items: [
+				{
+					id: '123',
+					network: 'tumblr',
+					message: 'New template {excerpt}',
+					is_social_post: false,
+				},
+			],
+			postIntent: {},
+		} );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: 'New template {excerpt}',
 			updateMessage: jest.fn(),
@@ -384,14 +393,17 @@ describe( 'useConnectionPreviewData', () => {
 		mockSiteHasFeature.mockImplementation(
 			( feature: string ) => feature !== 'social-message-templates'
 		);
-		mockUseRenderMessageItems.mockReturnValue( [
-			{
-				id: '123',
-				network: 'tumblr',
-				message: 'Different debounced template',
-				is_social_post: false,
-			},
-		] );
+		mockUseRenderMessageInputs.mockReturnValue( {
+			items: [
+				{
+					id: '123',
+					network: 'tumblr',
+					message: 'Different debounced template',
+					is_social_post: false,
+				},
+			],
+			postIntent: {},
+		} );
 
 		const connection = createMockConnection();
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );

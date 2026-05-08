@@ -7,7 +7,7 @@ import { features } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
 import { usePostMeta } from '../use-post-meta';
-import { useRenderMessageItems } from '../use-render-message-items';
+import { useRenderMessageInputs } from '../use-render-message-items';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
@@ -90,7 +90,6 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	] );
 
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
-	const items = useRenderMessageItems();
 	const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
 	let baseMessage: string;
 	if ( isPerNetworkMode ) {
@@ -105,6 +104,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		baseMessage = globalMessage;
 	}
 	baseMessage = baseMessage.trim();
+	const { items, postIntent } = useRenderMessageInputs();
 	const currentRenderItem = items.find( item => item.id === connection.connection_id );
 
 	const { rendered, isLoadingRendered } = useSelect(
@@ -115,14 +115,14 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 			// Read from the cache-only selector so this hook does not trigger requests.
 			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`.
 			const social = select( socialStore );
-			const batch = social.getCachedRenderedMessages( postId, items );
+			const batch = social.getCachedRenderedMessages( postId, items, postIntent );
 
 			return {
 				rendered: batch?.[ connection.connection_id ]?.rendered_message ?? null,
-				isLoadingRendered: social.isLoadingRenderedMessages( postId, items ),
+				isLoadingRendered: social.isLoadingRenderedMessages( postId, items, postIntent ),
 			};
 		},
-		[ templatesEnabled, postId, items, connection.connection_id ]
+		[ templatesEnabled, postId, items, postIntent, connection.connection_id ]
 	);
 
 	// True while the user has typed but the debounced items array hasn't caught
