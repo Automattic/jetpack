@@ -74,7 +74,7 @@ add_filter(
 	function ( $admin_title, $title ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
 		if ( empty( $title ) && isset( $_GET['page'] ) && 'write' === $_GET['page'] ) {
-			return __( 'Write editor', 'jetpack-mu-wpcom' ) . ltrim( $admin_title );
+			return __( 'Write editor', 'jetpack-mu-wpcom' ) . $admin_title;
 		}
 		return $admin_title;
 	},

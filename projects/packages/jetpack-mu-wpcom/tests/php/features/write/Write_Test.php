@@ -536,7 +536,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$result       = apply_filters( 'admin_title', ' &#8249; Test Site &#8212; WordPress', '' );
 		unset( $_GET['page'] );
 
-		$this->assertStringStartsWith( 'Write editor', $result );
+		$this->assertStringStartsWith( 'Write editor ', $result );
 	}
 
 	/**
