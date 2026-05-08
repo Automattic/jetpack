@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Admin Menu: add additive `group_id` + `signal` fields per item and a top-level `groups[]` array to the `/wpcom/v2/admin-menu` endpoint, sourced from the public `wp-admin-sidebar` plugin's classifier when loaded. Non-WPCOM Jetpack installs see no shape change.

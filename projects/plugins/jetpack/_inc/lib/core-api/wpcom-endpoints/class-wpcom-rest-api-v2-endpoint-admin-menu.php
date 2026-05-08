@@ -40,6 +40,25 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private $dashicon_list;
 
 	/**
+	 * Lazily-built map of `menu_slug => nav-model entry`, populated from the
+	 * `Sidebar_Classifier` nav model when the public `wp-admin-sidebar` plugin
+	 * is loaded on the host. `null` means we have not yet attempted to build
+	 * the index for this request; an empty array means the classifier ran but
+	 * produced no items (e.g., gating denied).
+	 *
+	 * @var array<string, array>|null
+	 */
+	private $sidebar_nav_index = null;
+
+	/**
+	 * Group rows from the classifier nav model, keyed by group id. Sibling to
+	 * `$sidebar_nav_index`; `null` when not built, empty array when no groups.
+	 *
+	 * @var array<string, array>|null
+	 */
+	private $sidebar_nav_groups = null;
+
+	/**
 	 * WPCOM_REST_API_V2_Endpoint_Admin_Menu constructor.
 	 */
 	public function __construct() {
@@ -119,6 +138,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	public function prepare_menu_for_response( array $menu ) {
 		global $submenu;
 
+		// Best-effort hydration of the classifier nav model. Safe no-op when the
+		// public `wp-admin-sidebar` plugin is not installed (non-WPCOM Jetpack).
+		$this->maybe_build_sidebar_nav_index();
+
 		$data = array();
 
 		/**
@@ -153,7 +176,168 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 		}
 
-		return array_filter( $data );
+		$data = array_values( array_filter( $data ) );
+
+		// When the public `wp-admin-sidebar` plugin is loaded (WPCOM and any
+		// host that opts in), the response carries a sibling `groups[]` array
+		// describing the synthetic group rows the classifier emitted. Wrapping
+		// only happens when classifier data is available so non-WPCOM Jetpack
+		// installs continue to receive the legacy flat-array shape.
+		if ( null !== $this->sidebar_nav_groups ) {
+			return array(
+				'menu'   => $data,
+				'groups' => $this->prepare_groups_for_response(),
+			);
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Hydrate the classifier-driven nav index from the public
+	 * `wp-admin-sidebar` plugin. No-op when the plugin is not installed or
+	 * gating denied building a model on this request.
+	 */
+	private function maybe_build_sidebar_nav_index() {
+		if ( null !== $this->sidebar_nav_index ) {
+			return;
+		}
+
+		if ( ! class_exists( 'Sidebar_Classifier' ) || ! class_exists( 'Sidebar_Signals' ) ) {
+			return;
+		}
+
+		// Trigger a build if the classifier hasn't run yet on this request.
+		// The classifier short-circuits when `wp_admin_sidebar_enabled` is
+		// false, which is the default for any host that hasn't opted in.
+		if ( null === Sidebar_Classifier::get_nav_model() ) {
+			Sidebar_Classifier::build_nav_model();
+		}
+
+		$nav_model = Sidebar_Classifier::get_nav_model();
+		if ( ! is_array( $nav_model ) ) {
+			return;
+		}
+
+		$index = array();
+		$collect = static function ( array $items ) use ( &$index, &$collect ) {
+			foreach ( $items as $item ) {
+				if ( isset( $item['menuSlug'] ) && '' !== $item['menuSlug'] ) {
+					$index[ $item['menuSlug'] ] = $item;
+				}
+				if ( ! empty( $item['children'] ) && is_array( $item['children'] ) ) {
+					$collect( $item['children'] );
+				}
+			}
+		};
+
+		if ( ! empty( $nav_model['top_level'] ) && is_array( $nav_model['top_level'] ) ) {
+			$collect( $nav_model['top_level'] );
+		}
+		if ( ! empty( $nav_model['groups'] ) && is_array( $nav_model['groups'] ) ) {
+			foreach ( $nav_model['groups'] as $group ) {
+				if ( ! empty( $group['children'] ) && is_array( $group['children'] ) ) {
+					$collect( $group['children'] );
+				}
+			}
+		}
+
+		$this->sidebar_nav_index  = $index;
+		$this->sidebar_nav_groups = ! empty( $nav_model['groups'] ) && is_array( $nav_model['groups'] )
+			? $nav_model['groups']
+			: array();
+	}
+
+	/**
+	 * Look up the classifier nav-model entry for a given menu slug.
+	 *
+	 * @param string $menu_slug Menu slug as registered in `$menu` / `$submenu`.
+	 * @return array|null Nav-model entry or null if the slug is not in the index.
+	 */
+	private function get_sidebar_nav_entry( $menu_slug ) {
+		if ( null === $this->sidebar_nav_index || '' === $menu_slug ) {
+			return null;
+		}
+		return isset( $this->sidebar_nav_index[ $menu_slug ] ) ? $this->sidebar_nav_index[ $menu_slug ] : null;
+	}
+
+	/**
+	 * Build the schema-shaped `signal` subobject for an item from a classifier
+	 * nav-model entry. Returns null when the entry has no signal data.
+	 *
+	 * The returned shape is fixed (all keys present, missing fields null) so
+	 * Calypso can read it without optional-chaining gymnastics.
+	 *
+	 * @param array $nav_entry Classifier nav-model entry.
+	 * @return array|null
+	 */
+	private function map_signal_from_nav_entry( array $nav_entry ) {
+		if ( empty( $nav_entry['signal'] ) || ! is_array( $nav_entry['signal'] ) ) {
+			return null;
+		}
+		$signal = $nav_entry['signal'];
+		return array(
+			'count'         => isset( $signal['count'] ) ? $signal['count'] : null,
+			'numeric_badge' => isset( $signal['numeric_badge'] ) ? $signal['numeric_badge'] : null,
+			'badge'         => isset( $signal['badge'] ) ? $signal['badge'] : null,
+			'inline_text'   => isset( $signal['inline_text'] ) ? $signal['inline_text'] : null,
+			'inline_icon'   => isset( $signal['inline_icon'] ) ? $signal['inline_icon'] : null,
+			'attention'     => ! empty( $signal['attention'] ),
+		);
+	}
+
+	/**
+	 * Attach classifier-derived `group_id` + `signal` fields to a prepared item.
+	 * No-op when the classifier index is not available or the slug isn't found.
+	 *
+	 * @param array  $item      Prepared item (top-level or submenu).
+	 * @param string $menu_slug Raw menu slug used to look up the nav entry.
+	 * @return array Item with fields possibly added.
+	 */
+	private function attach_sidebar_fields( array $item, $menu_slug ) {
+		$nav_entry = $this->get_sidebar_nav_entry( $menu_slug );
+		if ( null === $nav_entry ) {
+			return $item;
+		}
+
+		// `default_group` in the classifier maps to `group_id` on the wire.
+		$item['group_id'] = isset( $nav_entry['default_group'] ) ? $nav_entry['default_group'] : null;
+		$item['signal']   = $this->map_signal_from_nav_entry( $nav_entry );
+
+		return $item;
+	}
+
+	/**
+	 * Build the response-shape `groups[]` array from the cached classifier rows.
+	 *
+	 * Each element carries the group's stable id, label, default expansion
+	 * state (always true; see `default_expanded` in the schema contract) and
+	 * the aggregated signal that the classifier already computed.
+	 *
+	 * @return array
+	 */
+	private function prepare_groups_for_response() {
+		if ( empty( $this->sidebar_nav_groups ) ) {
+			return array();
+		}
+
+		$groups = array();
+		foreach ( $this->sidebar_nav_groups as $group ) {
+			if ( empty( $group['id'] ) ) {
+				continue;
+			}
+			$signal = isset( $group['signal'] ) && is_array( $group['signal'] ) ? $group['signal'] : array();
+			$groups[] = array(
+				'id'               => (string) $group['id'],
+				'label'            => isset( $group['title'] ) ? (string) $group['title'] : '',
+				'default_expanded' => true,
+				'signal'           => array(
+					'attention' => ! empty( $signal['attention'] ),
+					'count'     => isset( $signal['count'] ) ? (int) $signal['count'] : 0,
+				),
+			);
+		}
+		return $groups;
 	}
 
 	/**
@@ -167,6 +351,24 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array Item schema data.
 	 */
 	public function get_item_schema() {
+		// Shape of the optional `signal` subobject attached to each item by the
+		// public `wp-admin-sidebar` classifier (when loaded). Mirrors the snake
+		// case shape produced by `Sidebar_Signals::map_to_nav` so Calypso can
+		// consume one canonical field set end-to-end. All keys are present and
+		// nullable; consumers don't need optional-chaining.
+		$signal_schema = array(
+			'description' => 'Per-item attention/count/badge data emitted by the wp-admin-sidebar classifier. Null when no signal data was extracted.',
+			'type'        => array( 'object', 'null' ),
+			'properties'  => array(
+				'count'         => array( 'type' => array( 'integer', 'null' ) ),
+				'numeric_badge' => array( 'type' => array( 'integer', 'null' ) ),
+				'badge'         => array( 'type' => array( 'string', 'null' ) ),
+				'inline_text'   => array( 'type' => array( 'string', 'null' ) ),
+				'inline_icon'   => array( 'type' => array( 'string', 'null' ) ),
+				'attention'     => array( 'type' => 'boolean' ),
+			),
+		);
+
 		return array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'Admin Menu',
@@ -197,27 +399,32 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				),
 				'children'   => array(
 					'items' => array(
-						'count'  => array(
+						'count'    => array(
 							'description' => 'Core/Plugin/Theme update count or unread comments count.',
 							'type'        => 'integer',
 						),
-						'parent' => array(
+						'parent'   => array(
 							'type' => 'string',
 						),
-						'slug'   => array(
+						'slug'     => array(
 							'type' => 'string',
 						),
-						'title'  => array(
+						'title'    => array(
 							'type' => 'string',
 						),
-						'type'   => array(
+						'type'     => array(
 							'enum' => array( 'submenu-item' ),
 							'type' => 'string',
 						),
-						'url'    => array(
+						'url'      => array(
 							'format' => 'uri',
 							'type'   => 'string',
 						),
+						'group_id' => array(
+							'description' => 'Group this submenu belongs to (e.g., "plugins"). Null for non-grouped items. Only present when the wp-admin-sidebar classifier is loaded.',
+							'type'        => array( 'string', 'null' ),
+						),
+						'signal'   => $signal_schema,
 					),
 					'type'  => 'array',
 				),
@@ -231,6 +438,39 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				'url'        => array(
 					'format' => 'uri',
 					'type'   => 'string',
+				),
+				'group_id'   => array(
+					'description' => 'Group this top-level item belongs to (e.g., "plugins"). Null for non-grouped items. Only present when the wp-admin-sidebar classifier is loaded.',
+					'type'        => array( 'string', 'null' ),
+				),
+				'signal'     => $signal_schema,
+				// When the public `wp-admin-sidebar` plugin is loaded the
+				// response wraps the existing per-item array in `menu` and
+				// adds a sibling `groups` array. The wrapper is omitted on
+				// hosts where the classifier is not installed; consumers
+				// that ignore the new keys see the legacy flat-array shape.
+				'menu'       => array(
+					'description' => 'Top-level menu items (only present when the wp-admin-sidebar classifier is loaded; otherwise the response root itself is the menu list).',
+					'type'        => 'array',
+				),
+				'groups'     => array(
+					'description' => 'Synthetic group rows describing the sidebar grouping shape. Only present when the wp-admin-sidebar classifier is loaded; empty array if no plugin items grouped.',
+					'type'        => 'array',
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'               => array( 'type' => 'string' ),
+							'label'            => array( 'type' => 'string' ),
+							'default_expanded' => array( 'type' => 'boolean' ),
+							'signal'           => array(
+								'type'       => 'object',
+								'properties' => array(
+									'attention' => array( 'type' => 'boolean' ),
+									'count'     => array( 'type' => 'integer' ),
+								),
+							),
+						),
+					),
 				),
 			),
 		);
@@ -300,6 +540,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$item = array_merge( $item, $parsed_item );
 		}
 
+		// Additive: classifier-derived `group_id` + `signal` for the redesigned
+		// sidebar. Match key is the raw menu slug (`$menu_item[2]`), which is
+		// what the public plugin's `Sidebar_Classifier` keys nav items by.
+		$item = $this->attach_sidebar_fields( $item, $menu_item[2] );
+
 		return $item;
 	}
 
@@ -333,6 +578,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if ( ! empty( $parsed_item ) ) {
 			$item = array_merge( $item, $parsed_item );
 		}
+
+		// Additive: classifier-derived fields. Same lookup contract as the
+		// top-level branch above; submenu rows live under their own `menuSlug`
+		// in the nav model.
+		$item = $this->attach_sidebar_fields( $item, $submenu_item[2] );
 
 		return $item;
 	}

@@ -696,4 +696,165 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			),
 		);
 	}
+
+	/**
+	 * Without the public `wp-admin-sidebar` plugin loaded the response
+	 * preserves the legacy flat-array shape and items do not carry the
+	 * additive `group_id` / `signal` fields. This is the contract for
+	 * non-WPCOM Jetpack installs.
+	 *
+	 * @depends test_successful_request
+	 *
+	 * @param WP_REST_Response $response Admin Menu API response.
+	 */
+	#[Depends( 'test_successful_request' )]
+	public function test_response_is_legacy_shape_without_classifier( WP_REST_Response $response ) {
+		// Only meaningful when the classifier is genuinely absent. Skip on
+		// hosts that load the public plugin (e.g., a fully wired WPCOM env).
+		if ( class_exists( 'Sidebar_Classifier' ) ) {
+			$this->markTestSkipped( 'Sidebar_Classifier is loaded; legacy-shape contract does not apply on this host.' );
+		}
+
+		$data = $response->get_data();
+
+		$this->assertIsArray( $data );
+		// Legacy shape: list keyed by integer indexes, not an associative
+		// `{ menu, groups }` envelope.
+		$this->assertArrayNotHasKey( 'menu', $data );
+		$this->assertArrayNotHasKey( 'groups', $data );
+
+		foreach ( $data as $item ) {
+			$this->assertArrayNotHasKey( 'group_id', $item );
+			$this->assertArrayNotHasKey( 'signal', $item );
+		}
+	}
+
+	/**
+	 * When stub classifier + signals classes are visible to the endpoint, the
+	 * response wraps the menu in `{ menu, groups }`, attaches `group_id` +
+	 * `signal` to matched items by slug, and emits the synthetic `groups[]`
+	 * row(s) the classifier built.
+	 *
+	 * The stub classes mirror the public plugin's API surface (the two
+	 * static methods + nav-model shape the endpoint actually consumes) so
+	 * the test runs offline without depending on `wp-admin-sidebar`.
+	 */
+	public function test_response_carries_group_fields_when_classifier_is_loaded() {
+		if ( ! class_exists( 'Sidebar_Classifier' ) ) {
+			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged
+				'class Sidebar_Classifier {
+					private static $model = null;
+					public static function set_model( $model ) { self::$model = $model; }
+					public static function build_nav_model(): void {}
+					public static function get_nav_model(): ?array { return self::$model; }
+				}'
+			);
+		}
+		if ( ! class_exists( 'Sidebar_Signals' ) ) {
+			eval( // phpcs:ignore Squiz.PHP.Eval.Discouraged
+				'class Sidebar_Signals {}'
+			);
+		}
+
+		// Skip when a real classifier is present — we don't want to clobber
+		// the host's classifier state from a Jetpack unit test.
+		if ( ! method_exists( 'Sidebar_Classifier', 'set_model' ) ) {
+			$this->markTestSkipped( 'Real Sidebar_Classifier is loaded; stub-driven test is not applicable.' );
+		}
+
+		Sidebar_Classifier::set_model(
+			array(
+				'version'      => 1,
+				'generated_at' => 0,
+				'site_id'      => 1,
+				'user_id'      => 1,
+				'top_level'    => array(
+					array(
+						'menuSlug'      => 'index.php',
+						'default_group' => null,
+						'signal'        => array(
+							'count'         => null,
+							'numeric_badge' => null,
+							'badge'         => null,
+							'inline_text'   => null,
+							'inline_icon'   => null,
+							'attention'     => false,
+						),
+					),
+				),
+				'groups'       => array(
+					array(
+						'id'       => 'plugins',
+						'title'    => 'My Plugins',
+						'icon'     => null,
+						'children' => array(
+							array(
+								'menuSlug'      => 'jetpack',
+								'default_group' => 'plugins',
+								'signal'        => array(
+									'count'         => 3,
+									'numeric_badge' => null,
+									'badge'         => '3',
+									'inline_text'   => null,
+									'inline_icon'   => null,
+									'attention'     => true,
+								),
+							),
+						),
+						'signal'   => array(
+							'attention' => true,
+							'count'     => 3,
+						),
+					),
+				),
+			)
+		);
+
+		// Drive the response through `prepare_menu_for_response` directly so
+		// the test isn't coupled to the live $menu/$submenu globals built by
+		// `wp-admin/menu.php`.
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Admin_Menu();
+
+		// `index.php` matches the stub's top-level entry; `jetpack` matches
+		// the grouped child.
+		$menu = array(
+			array( 'Dashboard', 'read', 'index.php', '', 'menu-top', 'menu-dashboard', 'dashicons-dashboard' ),
+			array( 'Jetpack', 'read', 'jetpack', '', 'menu-top', 'menu-jetpack', 'dashicons-admin-plugins' ),
+		);
+
+		$response = $endpoint->prepare_menu_for_response( $menu );
+
+		// Reset stub state for any subsequent tests.
+		Sidebar_Classifier::set_model( null );
+
+		$this->assertIsArray( $response );
+		$this->assertArrayHasKey( 'menu', $response );
+		$this->assertArrayHasKey( 'groups', $response );
+
+		$by_slug = array();
+		foreach ( $response['menu'] as $item ) {
+			$by_slug[ $item['slug'] ] = $item;
+		}
+
+		$this->assertArrayHasKey( 'index-php', $by_slug );
+		$this->assertArrayHasKey( 'jetpack', $by_slug );
+
+		// Top-level core item: matched, no group, signal attached but inert.
+		$this->assertNull( $by_slug['index-php']['group_id'] );
+		$this->assertSame( false, $by_slug['index-php']['signal']['attention'] );
+
+		// Grouped plugin item: group_id set, attention signal flowed through.
+		$this->assertSame( 'plugins', $by_slug['jetpack']['group_id'] );
+		$this->assertSame( 3, $by_slug['jetpack']['signal']['count'] );
+		$this->assertTrue( $by_slug['jetpack']['signal']['attention'] );
+
+		// Top-level groups row mirrors the classifier's group shape.
+		$this->assertCount( 1, $response['groups'] );
+		$group = $response['groups'][0];
+		$this->assertSame( 'plugins', $group['id'] );
+		$this->assertSame( 'My Plugins', $group['label'] );
+		$this->assertTrue( $group['default_expanded'] );
+		$this->assertTrue( $group['signal']['attention'] );
+		$this->assertSame( 3, $group['signal']['count'] );
+	}
 }
