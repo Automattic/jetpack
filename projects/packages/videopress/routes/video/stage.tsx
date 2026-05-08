@@ -1,5 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -113,7 +113,6 @@ const Editor = ( {
 				<RatingCard value={ values.rating } onChange={ next => update( { rating: next } ) } />
 			</div>
 			<ChaptersHelpModal isOpen={ chaptersOpen } onClose={ () => setChaptersOpen( false ) } />
-			<GlobalNotices />
 		</AdminPage>
 	);
 };
