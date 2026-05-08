@@ -2,26 +2,26 @@
 /**
  * Podcast Episode Block render tests.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-podcast
  */
 
-require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/podcast-episode/podcast-episode.php';
+namespace Automattic\Jetpack\Podcast\Tests;
 
-use PHPUnit\Framework\Attributes\CoversFunction;
+use Automattic\Jetpack\Podcast\Podcast_Episode_Block;
+use PHPUnit\Framework\Attributes\CoversClass;
+use WorDBless\BaseTestCase;
 
 /**
- * Podcast Episode Block render tests.
+ * Render-path coverage for Podcast_Episode_Block::render_block.
  *
- * These tests verify the render_block function works correctly across the key
- * branching paths: non-frontend passthrough, empty/invalid mediaUrl, missing
- * post context, and the cover art fallback chain (episode override vs show-level
- * podcasting_image option).
+ * Exercises the key branching paths: non-frontend passthrough, empty/invalid
+ * mediaUrl, missing post context, and the cover art fallback chain (episode
+ * override vs show-level `podcasting_image` option).
  *
- * @covers ::Automattic\Jetpack\Extensions\Podcast_Episode\render_block
+ * @covers \Automattic\Jetpack\Podcast\Podcast_Episode_Block
  */
-#[CoversFunction( 'Automattic\Jetpack\Extensions\Podcast_Episode\render_block' )]
-class Podcast_Episode_Block_Test extends WP_UnitTestCase {
-	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+#[CoversClass( Podcast_Episode_Block::class )]
+class Podcast_Episode_Block_Test extends BaseTestCase {
 
 	/**
 	 * Default valid attributes used across multiple tests.
@@ -50,12 +50,8 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
-	// -------------------------------------------------------------------------
-	// Helpers
-	// -------------------------------------------------------------------------
-
 	/**
-	 * Create and return a published post ID for use as episode context.
+	 * Create a published post and return its ID for use as episode context.
 	 *
 	 * @param string $title Optional post title.
 	 * @return int
@@ -82,10 +78,6 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		);
 	}
 
-	// -------------------------------------------------------------------------
-	// Non-frontend passthrough
-	// -------------------------------------------------------------------------
-
 	/**
 	 * When the request is not a frontend request (e.g. REST export, RSS, email),
 	 * render_block must return the raw $content unchanged.
@@ -95,7 +87,7 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_is_frontend', '__return_true' );
 		add_filter( 'jetpack_is_frontend', '__return_false' );
 
-		$result = \Automattic\Jetpack\Extensions\Podcast_Episode\render_block(
+		$result = Podcast_Episode_Block::render_block(
 			array(),
 			'<a href="https://example.com/episode.mp3">Listen</a>'
 		);
@@ -106,15 +98,11 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		$this->assertSame( '<a href="https://example.com/episode.mp3">Listen</a>', $result );
 	}
 
-	// -------------------------------------------------------------------------
-	// mediaUrl validation
-	// -------------------------------------------------------------------------
-
 	/**
 	 * An empty mediaUrl should short-circuit to an empty string on the frontend.
 	 */
 	public function test_empty_media_url_returns_empty_string() {
-		$result = \Automattic\Jetpack\Extensions\Podcast_Episode\render_block(
+		$result = Podcast_Episode_Block::render_block(
 			array( 'mediaUrl' => '' ),
 			'fallback'
 		);
@@ -129,7 +117,7 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 	public function test_invalid_media_url_returns_empty_string() {
 		$post_id = $this->create_episode_post();
 
-		$result = \Automattic\Jetpack\Extensions\Podcast_Episode\render_block(
+		$result = Podcast_Episode_Block::render_block(
 			array( 'mediaUrl' => 'not-a-valid-url' ),
 			'fallback',
 			$this->make_block_context( $post_id )
@@ -140,10 +128,6 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		$this->assertSame( '', $result );
 	}
 
-	// -------------------------------------------------------------------------
-	// Post context resolution
-	// -------------------------------------------------------------------------
-
 	/**
 	 * Without a block context and without a global post, render_block should
 	 * return an empty string rather than crash.
@@ -152,7 +136,7 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		$original_post   = $GLOBALS['post'] ?? null;
 		$GLOBALS['post'] = null;
 
-		$result = \Automattic\Jetpack\Extensions\Podcast_Episode\render_block(
+		$result = Podcast_Episode_Block::render_block(
 			$this->default_attrs,
 			'fallback'
 		);
@@ -162,10 +146,6 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		$this->assertSame( '', $result );
 	}
 
-	// -------------------------------------------------------------------------
-	// Cover art fallback chain
-	// -------------------------------------------------------------------------
-
 	/**
 	 * When coverArt has a URL, that URL should appear in the rendered markup and
 	 * the show-level cover should not.
@@ -174,7 +154,7 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		update_option( 'podcasting_image', 'https://example.com/show-cover.jpg' );
 
 		$post_id = $this->create_episode_post();
-		$result  = \Automattic\Jetpack\Extensions\Podcast_Episode\render_block(
+		$result  = Podcast_Episode_Block::render_block(
 			array_merge(
 				$this->default_attrs,
 				array(
@@ -201,7 +181,7 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		update_option( 'podcasting_image', 'https://example.com/show-cover.jpg' );
 
 		$post_id = $this->create_episode_post();
-		$result  = \Automattic\Jetpack\Extensions\Podcast_Episode\render_block(
+		$result  = Podcast_Episode_Block::render_block(
 			$this->default_attrs,
 			'',
 			$this->make_block_context( $post_id )
@@ -220,7 +200,7 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		update_option( 'podcasting_image', 'https://example.com/show-cover.jpg' );
 
 		$post_id = $this->create_episode_post();
-		$result  = \Automattic\Jetpack\Extensions\Podcast_Episode\render_block(
+		$result  = Podcast_Episode_Block::render_block(
 			array_merge(
 				$this->default_attrs,
 				array( 'coverArt' => 'malformed-string-value' )
@@ -230,7 +210,6 @@ class Podcast_Episode_Block_Test extends WP_UnitTestCase {
 		);
 		wp_delete_post( $post_id, true );
 
-		// Must fall back gracefully without PHP warnings/errors.
 		$this->assertStringContainsString( 'https://example.com/show-cover.jpg', $result );
 	}
 }

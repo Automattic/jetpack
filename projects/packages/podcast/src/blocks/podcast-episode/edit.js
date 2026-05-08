@@ -23,24 +23,24 @@ import { useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import metadata from './block.json';
-import { microphone } from './icons';
+import { microphone } from './icons/index.js';
+import { getValidatedAttributes } from './util/get-validated-attributes.js';
+import { convertSecondsToTimeCode } from './util/time-code.js';
 
 const AUDIO_VIDEO_MIME_TYPES = [ 'audio', 'video' ];
 
 const EPISODE_TYPE_OPTIONS = [
-	{ label: __( 'Full', 'jetpack' ), value: 'full' },
-	{ label: __( 'Trailer', 'jetpack' ), value: 'trailer' },
-	{ label: __( 'Bonus', 'jetpack' ), value: 'bonus' },
+	{ label: __( 'Full', 'jetpack-podcast' ), value: 'full' },
+	{ label: __( 'Trailer', 'jetpack-podcast' ), value: 'trailer' },
+	{ label: __( 'Bonus', 'jetpack-podcast' ), value: 'bonus' },
 ];
 
 const TRANSCRIPT_TYPE_OPTIONS = [
-	{ label: __( 'WebVTT (text/vtt)', 'jetpack' ), value: 'text/vtt' },
-	{ label: __( 'HTML (text/html)', 'jetpack' ), value: 'text/html' },
-	{ label: __( 'SRT (application/srt)', 'jetpack' ), value: 'application/srt' },
-	{ label: __( 'JSON (application/json)', 'jetpack' ), value: 'application/json' },
+	{ label: __( 'WebVTT (text/vtt)', 'jetpack-podcast' ), value: 'text/vtt' },
+	{ label: __( 'HTML (text/html)', 'jetpack-podcast' ), value: 'text/html' },
+	{ label: __( 'SRT (application/srt)', 'jetpack-podcast' ), value: 'application/srt' },
+	{ label: __( 'JSON (application/json)', 'jetpack-podcast' ), value: 'application/json' },
 ];
 
 const PERSON_ROW_STYLE = { marginBottom: '1em' };
@@ -62,22 +62,22 @@ function PeopleEditor( { people, onChange } ) {
 					style={ PERSON_ROW_STYLE }
 				>
 					<TextControl
-						label={ __( 'Name', 'jetpack' ) }
+						label={ __( 'Name', 'jetpack-podcast' ) }
 						value={ person.name || '' }
 						onChange={ name => updatePerson( index, { name } ) }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
 					<TextControl
-						label={ __( 'Role', 'jetpack' ) }
-						help={ __( 'e.g. host, guest, producer.', 'jetpack' ) }
+						label={ __( 'Role', 'jetpack-podcast' ) }
+						help={ __( 'e.g. host, guest, producer.', 'jetpack-podcast' ) }
 						value={ person.role || '' }
 						onChange={ role => updatePerson( index, { role } ) }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
 					<TextControl
-						label={ __( 'Profile URL', 'jetpack' ) }
+						label={ __( 'Profile URL', 'jetpack-podcast' ) }
 						type="url"
 						value={ person.href || '' }
 						onChange={ href => updatePerson( index, { href } ) }
@@ -85,7 +85,7 @@ function PeopleEditor( { people, onChange } ) {
 						__next40pxDefaultSize
 					/>
 					<TextControl
-						label={ __( 'Image URL', 'jetpack' ) }
+						label={ __( 'Image URL', 'jetpack-podcast' ) }
 						type="url"
 						value={ person.img || '' }
 						onChange={ img => updatePerson( index, { img } ) }
@@ -93,12 +93,12 @@ function PeopleEditor( { people, onChange } ) {
 						__next40pxDefaultSize
 					/>
 					<Button variant="link" isDestructive onClick={ () => removePerson( index ) }>
-						{ __( 'Remove person', 'jetpack' ) }
+						{ __( 'Remove person', 'jetpack-podcast' ) }
 					</Button>
 				</div>
 			) ) }
 			<Button variant="secondary" onClick={ addPerson }>
-				{ __( 'Add person', 'jetpack' ) }
+				{ __( 'Add person', 'jetpack-podcast' ) }
 			</Button>
 		</>
 	);
@@ -211,10 +211,10 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 			<div { ...blockProps }>
 				<Placeholder
 					icon={ microphone }
-					label={ __( 'Podcast Episode', 'jetpack' ) }
+					label={ __( 'Podcast Episode', 'jetpack-podcast' ) }
 					instructions={ __(
 						'This block reads the title, author, and date from the post it lives in. Drop it inside a podcast post or singular template.',
-						'jetpack'
+						'jetpack-podcast'
 					) }
 				/>
 			</div>
@@ -227,10 +227,10 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 				<MediaPlaceholder
 					icon={ microphone }
 					labels={ {
-						title: __( 'Podcast Episode', 'jetpack' ),
+						title: __( 'Podcast Episode', 'jetpack-podcast' ),
 						instructions: __(
 							'Upload an audio or video file, or pick one from the media library, to use as the episode audio.',
-							'jetpack'
+							'jetpack-podcast'
 						),
 					} }
 					accept="audio/*,video/*"
@@ -258,15 +258,15 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						accept="audio/*,video/*"
 						onSelect={ onSelectMedia }
 						onError={ message => setUploadError( message ) }
-						name={ __( 'Replace audio/video', 'jetpack' ) }
+						name={ __( 'Replace audio/video', 'jetpack-podcast' ) }
 					/>
 				</ToolbarGroup>
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Episode', 'jetpack' ) }>
+				<PanelBody title={ __( 'Episode', 'jetpack-podcast' ) }>
 					<TextControl
-						label={ __( 'Season number', 'jetpack' ) }
+						label={ __( 'Season number', 'jetpack-podcast' ) }
 						type="number"
 						min={ 0 }
 						value={ seasonNumber ?? '' }
@@ -279,7 +279,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__next40pxDefaultSize
 					/>
 					<TextControl
-						label={ __( 'Episode number', 'jetpack' ) }
+						label={ __( 'Episode number', 'jetpack-podcast' ) }
 						type="number"
 						min={ 0 }
 						value={ episodeNumber ?? '' }
@@ -292,7 +292,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__next40pxDefaultSize
 					/>
 					<SelectControl
-						label={ __( 'Episode type', 'jetpack' ) }
+						label={ __( 'Episode type', 'jetpack-podcast' ) }
 						value={ episodeType }
 						options={ EPISODE_TYPE_OPTIONS }
 						onChange={ value => setAttributes( { episodeType: value } ) }
@@ -300,21 +300,23 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__next40pxDefaultSize
 					/>
 					<ToggleControl
-						label={ __( 'Explicit content', 'jetpack' ) }
+						label={ __( 'Explicit content', 'jetpack-podcast' ) }
 						checked={ !! explicit }
 						onChange={ value => setAttributes( { explicit: value } ) }
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
-						label={ __( 'Show cover art', 'jetpack' ) }
-						help={ __( 'Display cover art alongside the player.', 'jetpack' ) }
+						label={ __( 'Show cover art', 'jetpack-podcast' ) }
+						help={ __( 'Display cover art alongside the player.', 'jetpack-podcast' ) }
 						checked={ !! showPoster }
 						onChange={ value => setAttributes( { showPoster: value } ) }
 						__nextHasNoMarginBottom
 					/>
 					{ showPoster && (
 						<BaseControl __nextHasNoMarginBottom>
-							<BaseControl.VisualLabel>{ __( 'Cover art', 'jetpack' ) }</BaseControl.VisualLabel>
+							<BaseControl.VisualLabel>
+								{ __( 'Cover art', 'jetpack-podcast' ) }
+							</BaseControl.VisualLabel>
 							<MediaUploadCheck>
 								<MediaUpload
 									onSelect={ media =>
@@ -334,8 +336,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 												/>
 											) }
 											<Button variant="secondary" onClick={ open }>
-												{ coverArt?.url && __( 'Replace cover art', 'jetpack' ) }
-												{ ! coverArt?.url && __( 'Set episode cover art', 'jetpack' ) }
+												{ coverArt?.url && __( 'Replace cover art', 'jetpack-podcast' ) }
+												{ ! coverArt?.url && __( 'Set episode cover art', 'jetpack-podcast' ) }
 											</Button>
 											{ coverArt?.url && (
 												<Button
@@ -343,7 +345,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 													isDestructive
 													onClick={ () => setAttributes( { coverArt: {} } ) }
 												>
-													{ __( 'Use show cover art', 'jetpack' ) }
+													{ __( 'Use show cover art', 'jetpack-podcast' ) }
 												</Button>
 											) }
 										</div>
@@ -353,17 +355,17 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 							<p className="components-base-control__help">
 								{ __(
 									'Defaults to the show cover art set in Settings → Writing → Podcasting.',
-									'jetpack'
+									'jetpack-podcast'
 								) }
 							</p>
 						</BaseControl>
 					) }
 				</PanelBody>
 
-				<PanelBody title={ __( 'Audio', 'jetpack' ) }>
+				<PanelBody title={ __( 'Audio', 'jetpack-podcast' ) }>
 					<TextControl
-						label={ __( 'Duration', 'jetpack' ) }
-						help={ __( 'Formatted as HH:MM:SS or MM:SS.', 'jetpack' ) }
+						label={ __( 'Duration', 'jetpack-podcast' ) }
+						help={ __( 'Formatted as HH:MM:SS or MM:SS.', 'jetpack-podcast' ) }
 						value={ duration }
 						onChange={ value => setAttributes( { duration: value } ) }
 						__nextHasNoMarginBottom
@@ -371,9 +373,9 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					/>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Podcasting 2.0', 'jetpack' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'Podcasting 2.0', 'jetpack-podcast' ) } initialOpen={ false }>
 					<TextControl
-						label={ __( 'Transcript URL', 'jetpack' ) }
+						label={ __( 'Transcript URL', 'jetpack-podcast' ) }
 						type="url"
 						value={ transcriptUrl }
 						onChange={ value => setAttributes( { transcriptUrl: value } ) }
@@ -381,7 +383,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__next40pxDefaultSize
 					/>
 					<SelectControl
-						label={ __( 'Transcript format', 'jetpack' ) }
+						label={ __( 'Transcript format', 'jetpack-podcast' ) }
 						value={ transcriptType }
 						options={ TRANSCRIPT_TYPE_OPTIONS }
 						onChange={ value => setAttributes( { transcriptType: value } ) }
@@ -389,8 +391,8 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__next40pxDefaultSize
 					/>
 					<TextControl
-						label={ __( 'Chapters URL', 'jetpack' ) }
-						help={ __( 'Link to a JSON chapters file (podcast:chapters).', 'jetpack' ) }
+						label={ __( 'Chapters URL', 'jetpack-podcast' ) }
+						help={ __( 'Link to a JSON chapters file (podcast:chapters).', 'jetpack-podcast' ) }
 						type="url"
 						value={ chaptersUrl }
 						onChange={ value => setAttributes( { chaptersUrl: value } ) }
@@ -398,23 +400,26 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__next40pxDefaultSize
 					/>
 					<TextControl
-						label={ __( 'Location', 'jetpack' ) }
-						help={ __( 'Human-readable location associated with this episode.', 'jetpack' ) }
+						label={ __( 'Location', 'jetpack-podcast' ) }
+						help={ __(
+							'Human-readable location associated with this episode.',
+							'jetpack-podcast'
+						) }
 						value={ locationName }
 						onChange={ value => setAttributes( { locationName: value } ) }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
 					<TextControl
-						label={ __( 'License', 'jetpack' ) }
-						help={ __( 'e.g. CC-BY-4.0 or all rights reserved.', 'jetpack' ) }
+						label={ __( 'License', 'jetpack-podcast' ) }
+						help={ __( 'e.g. CC-BY-4.0 or all rights reserved.', 'jetpack-podcast' ) }
 						value={ license }
 						onChange={ value => setAttributes( { license: value } ) }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 					/>
 					<TextControl
-						label={ __( 'License URL', 'jetpack' ) }
+						label={ __( 'License URL', 'jetpack-podcast' ) }
 						type="url"
 						value={ licenseUrl }
 						onChange={ value => setAttributes( { licenseUrl: value } ) }
@@ -422,7 +427,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						__next40pxDefaultSize
 					/>
 					<BaseControl __nextHasNoMarginBottom>
-						<BaseControl.VisualLabel>{ __( 'People', 'jetpack' ) }</BaseControl.VisualLabel>
+						<BaseControl.VisualLabel>{ __( 'People', 'jetpack-podcast' ) }</BaseControl.VisualLabel>
 						<PeopleEditor
 							people={ people }
 							onChange={ value => setAttributes( { people: value } ) }
@@ -444,7 +449,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 								<span className="jetpack-podcast-episode__season">
 									{ sprintf(
 										/* translators: %d: season number. */
-										__( 'Season %d', 'jetpack' ),
+										__( 'Season %d', 'jetpack-podcast' ),
 										seasonNumber
 									) }
 								</span>
@@ -453,34 +458,34 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 								<span className="jetpack-podcast-episode__episode-number">
 									{ sprintf(
 										/* translators: %d: episode number. */
-										__( 'Episode %d', 'jetpack' ),
+										__( 'Episode %d', 'jetpack-podcast' ),
 										episodeNumber
 									) }
 								</span>
 							) : null }
 							{ episodeType === 'trailer' && (
 								<span className="jetpack-podcast-episode__badge jetpack-podcast-episode__badge--trailer">
-									{ __( 'Trailer', 'jetpack' ) }
+									{ __( 'Trailer', 'jetpack-podcast' ) }
 								</span>
 							) }
 							{ episodeType === 'bonus' && (
 								<span className="jetpack-podcast-episode__badge jetpack-podcast-episode__badge--bonus">
-									{ __( 'Bonus', 'jetpack' ) }
+									{ __( 'Bonus', 'jetpack-podcast' ) }
 								</span>
 							) }
 							{ explicit && (
 								<span
 									className="jetpack-podcast-episode__badge jetpack-podcast-episode__badge--explicit"
-									title={ __( 'Explicit content', 'jetpack' ) }
+									title={ __( 'Explicit content', 'jetpack-podcast' ) }
 								>
-									{ __( 'E', 'jetpack' ) }
+									{ __( 'E', 'jetpack-podcast' ) }
 								</span>
 							) }
 						</p>
 					) }
 
 					<h3 className="jetpack-podcast-episode__title">
-						{ postTitle || __( 'Untitled episode', 'jetpack' ) }
+						{ postTitle || __( 'Untitled episode', 'jetpack-podcast' ) }
 					</h3>
 
 					{ ( postAuthor || postDate || duration ) && (
@@ -514,7 +519,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 					</div>
 
 					<p className="jetpack-podcast-episode__notes-hint">
-						{ __( 'Add episode show notes in the post content below.', 'jetpack' ) }
+						{ __( 'Add episode show notes in the post content below.', 'jetpack-podcast' ) }
 					</p>
 				</div>
 			</article>

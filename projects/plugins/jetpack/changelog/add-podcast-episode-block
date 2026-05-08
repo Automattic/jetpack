@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Add Podcast Episode block to embed a single podcast episode from an audio or video file with Podcasting 2.0 metadata.
+Podcast: pull in the Podcast Episode block from the jetpack-podcast package. Has no runtime effect unless the `jetpack_podcast_untangle` filter is enabled.
