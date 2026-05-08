@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Editor: replace the generic "Please connect" snackbar with a contextual warning notice that explains why a WordPress.com connection is needed and provides a "Connect account" action link, shown when a local user (not connected to WordPress.com) opens the block editor on a Jetpack site.
