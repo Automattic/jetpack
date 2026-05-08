@@ -208,6 +208,65 @@ describe( 'Social store actions: connectionData', () => {
 		} );
 	} );
 
+	describe( 'updateConnectionById', () => {
+		const connectionId = connections[ 0 ].connection_id;
+
+		it( 'should track the connection as updating by default', async () => {
+			let resolveFetch;
+
+			apiFetch.setFetchHandler(
+				() =>
+					new Promise( resolve => {
+						resolveFetch = resolve;
+					} )
+			);
+
+			const registry = createRegistryWithStores();
+
+			const updatePromise = registry.dispatch( socialStore ).updateConnectionById( connectionId, {
+				shared: true,
+			} );
+
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [ connectionId ] );
+
+			resolveFetch();
+			await updatePromise;
+
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [] );
+		} );
+
+		it( 'should skip updating tracking when trackUpdating is false', async () => {
+			let resolveFetch;
+
+			apiFetch.setFetchHandler(
+				() =>
+					new Promise( resolve => {
+						resolveFetch = resolve;
+					} )
+			);
+
+			const registry = createRegistryWithStores();
+
+			const updatePromise = registry.dispatch( socialStore ).updateConnectionById(
+				connectionId,
+				{
+					template: 'Custom template',
+				},
+				{
+					trackUpdating: false,
+					showSuccessNotice: false,
+				}
+			);
+
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [] );
+
+			resolveFetch();
+			await updatePromise;
+
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [] );
+		} );
+	} );
+
 	describe( 'refreshConnectionTestResults', () => {
 		const refreshConnections = '/wpcom/v2/publicize/connection-test-results';
 		beforeAll( () => {
