@@ -34,7 +34,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
-		remove_all_filters( 'jetpack_podcast_enable_stats_url' );
+		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		parent::tearDown();
 	}
 
@@ -148,6 +148,61 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( $expected_term_id, Customize_Feed::resolve_category_id() );
 
 		remove_filter( 'terms_pre_query', $callback, 10 );
+	}
+
+	public function test_rewrite_enclosure_replaces_url_with_canonical_stats_endpoint() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'         => 42,
+				'post_type'  => 'post',
+				'post_title' => 'Test Episode',
+			)
+		);
+
+		add_filter(
+			'wpcom_podcasting_tracked_blog_id',
+			static function () {
+				return 12345;
+			}
+		);
+
+		$original = '<enclosure url="https://example.com/path/episode.M4A?v=1" length="123" type="audio/m4a" />';
+		$result   = Customize_Feed::rewrite_enclosure( $original );
+
+		$this->assertStringContainsString(
+			'url="https://public-api.wordpress.com/wpcom/v2/sites/12345/podcast-play/42.m4a"',
+			$result
+		);
+
+		unset( $GLOBALS['post'] );
+	}
+
+	public function test_rewrite_enclosure_falls_back_to_mp3_for_unknown_extension() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 7,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter(
+			'wpcom_podcasting_tracked_blog_id',
+			static function () {
+				return 99;
+			}
+		);
+
+		$original = '<enclosure url="https://example.com/episode.exe" length="1" type="audio/mpeg" />';
+		$result   = Customize_Feed::rewrite_enclosure( $original );
+
+		$this->assertStringContainsString(
+			'url="https://public-api.wordpress.com/wpcom/v2/sites/99/podcast-play/7.mp3"',
+			$result
+		);
+
+		unset( $GLOBALS['post'] );
 	}
 
 	/**

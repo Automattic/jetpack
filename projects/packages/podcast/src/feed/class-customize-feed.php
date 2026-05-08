@@ -246,8 +246,7 @@ class Customize_Feed {
 			 * @param WP_Post $post    The post being rendered.
 			 */
 			$blog_id   = (int) apply_filters( 'wpcom_podcasting_tracked_blog_id', get_current_blog_id(), $post_obj );
-			$ext       = Stats_Url::get_audio_extension( $original_url );
-			$stats_url = Stats_Url::generate_url( $blog_id, (int) $post_obj->ID, $ext );
+			$stats_url = self::build_stats_url( $blog_id, (int) $post_obj->ID, $original_url );
 			$enclosure = preg_replace_callback(
 				'/url="[^"]*"/i',
 				/**
@@ -320,6 +319,33 @@ class Customize_Feed {
 		}
 		$url = (string) get_option( 'podcasting_image', '' );
 		return '' === $url ? '' : self::maybe_photon( $url );
+	}
+
+	/**
+	 * Build the WPCOM stats URL for a given episode. The endpoint redirects
+	 * to the audio file after recording the play — the package never serves
+	 * it, only points at it. Audio extensions outside the recognized set
+	 * fall back to `mp3` to keep the URL shape uniform (matches the Podtrac
+	 * / Megaphone / Art19 convention).
+	 *
+	 * @param int    $blog_id      WPCOM blog ID (Atomic should override via the
+	 *                             `wpcom_podcasting_tracked_blog_id` filter).
+	 * @param int    $post_id      Episode post ID.
+	 * @param string $original_url Original enclosure URL — extension is pulled from here.
+	 * @return string
+	 */
+	private static function build_stats_url( int $blog_id, int $post_id, string $original_url ): string {
+		$path = (string) wp_parse_url( $original_url, PHP_URL_PATH );
+		$ext  = (string) preg_replace( '/[^a-z0-9]/', '', strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) ) );
+		if ( ! in_array( $ext, array( 'mp3', 'm4a', 'm4b', 'mp4', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac' ), true ) ) {
+			$ext = 'mp3';
+		}
+		return sprintf(
+			'https://public-api.wordpress.com/wpcom/v2/sites/%d/podcast-play/%d.%s',
+			$blog_id,
+			$post_id,
+			$ext
+		);
 	}
 
 	/**
