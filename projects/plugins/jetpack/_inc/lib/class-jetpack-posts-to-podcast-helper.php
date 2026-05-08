@@ -49,8 +49,21 @@ class Jetpack_Posts_To_Podcast_Helper {
 	}
 
 	/**
-	 * Resolve the configured voice presets that the wpcom endpoint accepts.
-	 * Single source of truth for the admin UI's dropdown options.
+	 * Permission callback for the local proxy REST endpoint. Mirrors the AI helper's
+	 * permission check so the same per-user capability gate applies.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function get_status_permission_check( $request ) {
+		return Jetpack_AI_Helper::get_status_permission_check( $request );
+	}
+
+	/**
+	 * Resolve the configured voice presets that the wpcom endpoint will accept.
+	 * Kept here as a single source of truth so the admin UI and the proxy
+	 * validator agree on the available list.
 	 *
 	 * @return array<int, array{ id: string, label: string }>
 	 */

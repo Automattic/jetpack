@@ -1,4 +1,4 @@
 Significance: minor
 Type: other
 
-Added a Posts to Podcast admin page that calls the wpcom endpoint directly via wpcom-proxy-request.
+Added a Posts to Podcast admin page that forwards to the wpcom endpoint via the site's blog token.
