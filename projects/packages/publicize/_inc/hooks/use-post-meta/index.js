@@ -1,7 +1,8 @@
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
-import { useShareMessageMaxLength } from '../../utils';
+import { features, useShareMessageMaxLength } from '../../utils';
 
 /**
  * This is to avoid creating a new empty array each time the value is requested.
@@ -33,10 +34,11 @@ export function usePostMeta() {
 			const mediaSource = jetpackSocialOptions.media_source;
 			const isPostAlreadyShared = meta.jetpack_social_post_already_shared ?? false;
 
-			const shareMessage = `${ meta.jetpack_publicize_message || '' }`.substring(
-				0,
-				maxCharacterLength
-			);
+			let shareMessage = meta.jetpack_publicize_message || '';
+
+			if ( ! siteHasFeature( features.MESSAGE_TEMPLATES ) ) {
+				shareMessage = shareMessage.substring( 0, maxCharacterLength );
+			}
 
 			return {
 				isPublicizeEnabled,
