@@ -1,7 +1,7 @@
 /**
  * Editor preview for jetpack-search/filter-wc-stock-status.
  *
- * Mirrors the runtime DOM shape — labeled list with three checkbox options
+ * Mirrors the runtime DOM shape — labeled list with one checkbox option
  * and optional count badges — so designers can style the filter list in
  * place. Inspector exposes the user-tunable attributes (label, showCount).
  */
