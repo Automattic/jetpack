@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
+import { Icon, desktop, mobile } from '@wordpress/icons';
 import clsx from 'clsx';
-import Gridicon from '../gridicon/index.tsx';
 import type { BoostScoreBarProps } from './types.ts';
 import type { FunctionComponent } from 'react';
 
@@ -25,10 +25,10 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 
 	const getIcon = () => {
 		if ( scoreBarType === 'desktop' ) {
-			return <Gridicon icon="computer" size={ 24 } />;
+			return <Icon icon={ desktop } size={ 24 } />;
 		}
 
-		return <Gridicon icon="phone" size={ 24 } />;
+		return <Icon icon={ mobile } size={ 24 } />;
 	};
 
 	const getFillColor = () => {

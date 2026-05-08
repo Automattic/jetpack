@@ -1,7 +1,8 @@
-import { BoostScoreGraph, Button, Gridicon, Popover } from '@automattic/jetpack-components';
+import { BoostScoreGraph, Button, Popover } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
-import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { __ } from '@wordpress/i18n';
+import { Icon, lock, check } from '@wordpress/icons';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import styles from './graph-component.module.scss';
 import { PerformanceHistoryData } from '../lib/types';
 
@@ -46,7 +47,7 @@ const GraphComponent = ( {
 		return (
 			<DummyGraph>
 				<Popover
-					icon={ <Gridicon icon="lock" /> }
+					icon={ <Icon icon={ lock } /> }
 					action={
 						<InterstitialModalCTA
 							identifier="historical-performance"
@@ -71,7 +72,7 @@ const GraphComponent = ( {
 		return (
 			<DummyGraph>
 				<Popover
-					icon={ <Gridicon icon="checkmark" /> }
+					icon={ <Icon icon={ check } /> }
 					action={
 						<Button onClick={ handleDismissFreshStart }>
 							{ __( 'Okay, got it!', 'jetpack-boost' ) }

@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove Gridicon component. Use Icon and named icon exports from `@wordpress/icons` instead.
