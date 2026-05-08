@@ -1,14 +1,8 @@
-/**
- * Podcast dashboard stage: page chrome + tab navigation.
- *
- * Placeholder scaffolding only — each tab panel renders a stub. PR 4 in the
- * untangle train wires the full AdminPage + jetpack-components integration
- * along with the real tab contents.
- */
-
+import AdminPage from '@automattic/jetpack-components/admin-page';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
+import './route.scss';
 
 const TAB_VALUES = [ 'settings', 'episodes', 'distribution', 'stats' ] as const;
 type TabName = ( typeof TAB_VALUES )[ number ];
@@ -26,19 +20,25 @@ const Stage = () => {
 	}, [] );
 
 	return (
-		<div className="wrap">
-			<h1>Podcast</h1>
-			<p>
-				{ __( 'Publish a podcast and reach your fans, anywhere they listen.', 'jetpack-podcast' ) }
-			</p>
-
-			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-				<Tabs.List>
-					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
-					<Tabs.Tab value="episodes">{ __( 'Episodes', 'jetpack-podcast' ) }</Tabs.Tab>
-					<Tabs.Tab value="distribution">{ __( 'Distribution', 'jetpack-podcast' ) }</Tabs.Tab>
-					<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-podcast' ) }</Tabs.Tab>
-				</Tabs.List>
+		<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
+			<AdminPage
+				/* "Podcast" is a product name, do not translate. */
+				title="Podcast"
+				subTitle={ __(
+					'Publish a podcast and reach your fans, anywhere they listen.',
+					'jetpack-podcast'
+				) }
+				tabs={
+					<div className="jp-admin-page-tabs">
+						<Tabs.List>
+							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
+							<Tabs.Tab value="episodes">{ __( 'Episodes', 'jetpack-podcast' ) }</Tabs.Tab>
+							<Tabs.Tab value="distribution">{ __( 'Distribution', 'jetpack-podcast' ) }</Tabs.Tab>
+							<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-podcast' ) }</Tabs.Tab>
+						</Tabs.List>
+					</div>
+				}
+			>
 				<Tabs.Panel value="settings">
 					<p>{ __( 'Settings — placeholder.', 'jetpack-podcast' ) }</p>
 				</Tabs.Panel>
@@ -51,8 +51,8 @@ const Stage = () => {
 				<Tabs.Panel value="stats">
 					<p>{ __( 'Stats — placeholder.', 'jetpack-podcast' ) }</p>
 				</Tabs.Panel>
-			</Tabs.Root>
-		</div>
+			</AdminPage>
+		</Tabs.Root>
 	);
 };
 
