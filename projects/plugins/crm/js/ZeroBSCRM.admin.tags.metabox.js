@@ -344,7 +344,6 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 
 						const data = {
 							action: 'zbs_delete_tag',
-							// don't need, is unique id 'objtype': <?php echo $this->typeInt; ?>,
 							tagid: lTagID,
 							sec: window.zbscrmjs_secToken,
 						};

@@ -11,12 +11,12 @@ return [
     // # Issue statistics:
     // PhanUndeclaredVariable : 930+ occurrences
     // PhanTypeArraySuspiciousNullable : 550+ occurrences
-    // PhanRedundantCondition : 400+ occurrences
+    // PhanRedundantCondition : 410+ occurrences
     // PhanTypeMismatchReturn : 330+ occurrences
     // PhanUnextractableAnnotationElementName : 200+ occurrences
-    // PhanTypeMismatchArgument : 160+ occurrences
     // PhanPossiblyUndeclaredVariable : 150+ occurrences
     // PhanPluginUnreachableCode : 140+ occurrences
+    // PhanTypeMismatchArgument : 140+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 120+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 110+ occurrences
     // PhanSuspiciousValueComparison : 100+ occurrences
@@ -185,8 +185,8 @@ return [
         'includes/ZeroBSCRM.DAL3.php' => ['PhanAccessMethodPrivate', 'PhanCommentParamWithoutRealParam', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginRedundantAssignment', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanSuspiciousWeakTypeComparison', 'PhanSuspiciousWeakTypeComparisonInLoop', 'PhanTypeArraySuspiciousNull', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonFromArray', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchForeach', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType', 'PhanUndeclaredVariable', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
         'includes/ZeroBSCRM.DataIOValidation.php' => ['PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.Database.php' => ['PhanRedundantCondition', 'PhanSuspiciousValueComparison'],
-        'includes/ZeroBSCRM.Delete.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
-        'includes/ZeroBSCRM.Edit.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
+        'includes/ZeroBSCRM.Delete.php' => ['PhanTypeMismatchArgument'],
+        'includes/ZeroBSCRM.Edit.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.Encryption.php' => ['PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.ExternalSources.php' => ['PhanPluginMixedKeyNoKey', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspiciousNullable'],
         'includes/ZeroBSCRM.FileUploads.php' => ['PhanTypeMismatchDimFetch'],
@@ -221,7 +221,7 @@ return [
         'includes/ZeroBSCRM.ScreenOptions.php' => ['PhanRedundantCondition', 'PhanSuspiciousValueComparison'],
         'includes/ZeroBSCRM.SemanticUIHelpers.php' => ['PhanPluginUnreachableCode'],
         'includes/ZeroBSCRM.Social.php' => ['PhanMisspelledAnnotation', 'PhanTypeArraySuspiciousNullable', 'PhanTypeSuspiciousStringExpression'],
-        'includes/ZeroBSCRM.TagManager.php' => ['PhanEmptyForeach', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanUndeclaredProperty'],
+        'includes/ZeroBSCRM.TagManager.php' => ['PhanEmptyForeach', 'PhanRedundantCondition', 'PhanUndeclaredProperty'],
         'includes/class-encryption.php' => ['PhanTypeMismatchArgumentInternal'],
         'includes/class-learn-menu.php' => ['PhanPluginDuplicateExpressionBinaryOp', 'PhanRedundantCondition', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchDefault'],
         'includes/class-oauth-handler.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClassCatch', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeReturnType', 'PhanUndeclaredVariable'],

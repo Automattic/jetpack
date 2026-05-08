@@ -461,6 +461,32 @@ if ( $sbupdated ) {
 
 	</form>
 
+	<?php
+	$jpcrm_settings_lang = array(
+		'customfield'      => __( 'Custom Field', 'zero-bs-crm' ),
+		'remove'           => __( 'Remove', 'zero-bs-crm' ),
+		'tel'              => __( 'Telephone', 'zero-bs-crm' ),
+		'numbdec'          => __( 'Numeric (Decimals)', 'zero-bs-crm' ),
+		'numb'             => __( 'Numeric', 'zero-bs-crm' ),
+		'placeholder'      => __( 'Placeholder', 'zero-bs-crm' ),
+		'csvopt'           => __( "CSV of Options (e.g. 'a,b,c')", 'zero-bs-crm' ),
+		'fieldname'        => __( 'Field Name', 'zero-bs-crm' ),
+		'fieldplacehold'   => __( 'Field Placeholder Text', 'zero-bs-crm' ),
+		'fileboxname'      => __( 'File Box Name', 'zero-bs-crm' ),
+		'password'         => __( 'Password', 'zero-bs-crm' ),
+		'encryptedtext'    => __( 'Encrypted Text', 'zero-bs-crm' ),
+		'radiobuttons'     => __( 'Radio Buttons', 'zero-bs-crm' ),
+		'prefix'           => __( 'Prefix', 'zero-bs-crm' ),
+		'nextnumber'       => __( 'Next Number', 'zero-bs-crm' ),
+		'suffix'           => __( 'Suffix', 'zero-bs-crm' ),
+		'prefixe'          => __( '(e.g. ABC-)', 'zero-bs-crm' ),
+		'nextnumbere'      => __( '(e.g. 1)', 'zero-bs-crm' ),
+		'suffixe'          => __( '(e.g. -FINI)', 'zero-bs-crm' ),
+		'fieldtype'        => __( 'Field Type:', 'zero-bs-crm' ),
+		'autonumberformat' => __( 'Autonumber Format', 'zero-bs-crm' ),
+		'autonumberguide'  => __( 'Autonumber Guide', 'zero-bs-crm' ),
+	);
+	?>
 	<script type="text/javascript">
 
 		// all custom js moved to admin.settings.js 12/3/19 :)
@@ -468,37 +494,8 @@ if ( $sbupdated ) {
 		var wpzbscrmCustomFields = <?php echo wp_json_encode( $current_custom_fields, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		var wpzbscrmAcceptableTypes = <?php echo wp_json_encode( $acceptableCFTypes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		var wpzbscrm_settings_page = 'customfields'; // this fires init js in admin.settings.min.js
-		var wpzbscrm_settings_lang = {
-
-			customfield:'<?php zeroBSCRM_slashOut( __( 'Custom Field', 'zero-bs-crm' ) ); ?>',
-			remove:     '<?php zeroBSCRM_slashOut( __( 'Remove', 'zero-bs-crm' ) ); ?>',
-			tel:        '<?php zeroBSCRM_slashOut( __( 'Telephone', 'zero-bs-crm' ) ); ?>',
-			numbdec:    '<?php zeroBSCRM_slashOut( __( 'Numeric (Decimals)', 'zero-bs-crm' ) ); ?>',
-			numb:       '<?php zeroBSCRM_slashOut( __( 'Numeric', 'zero-bs-crm' ) ); ?>',
-			placeholder:'<?php zeroBSCRM_slashOut( __( 'Placeholder', 'zero-bs-crm' ) ); ?>',
-			csvopt:     '<?php zeroBSCRM_slashOut( __( "CSV of Options (e.g. 'a,b,c')", 'zero-bs-crm' ) ); ?>',
-			fieldname:  '<?php zeroBSCRM_slashOut( __( 'Field Name', 'zero-bs-crm' ) ); ?>',
-			fieldplacehold:'<?php zeroBSCRM_slashOut( __( 'Field Placeholder Text', 'zero-bs-crm' ) ); ?>',
-			fileboxname: '<?php zeroBSCRM_slashOut( __( 'File Box Name', 'zero-bs-crm' ) ); ?>',
-			password:   '<?php zeroBSCRM_slashOut( __( 'Password', 'zero-bs-crm' ) ); ?>',
-			encryptedtext: '<?php zeroBSCRM_slashOut( __( 'Encrypted Text', 'zero-bs-crm' ) ); ?>',
-			radiobuttons: '<?php zeroBSCRM_slashOut( __( 'Radio Buttons', 'zero-bs-crm' ) ); ?>',
-			prefix:     '<?php zeroBSCRM_slashOut( __( 'Prefix', 'zero-bs-crm' ) ); ?>',
-			nextnumber: '<?php zeroBSCRM_slashOut( __( 'Next Number', 'zero-bs-crm' ) ); ?>',
-			suffix:     '<?php zeroBSCRM_slashOut( __( 'Suffix', 'zero-bs-crm' ) ); ?>',
-			prefixe:     '<?php zeroBSCRM_slashOut( __( '(e.g. ABC-)', 'zero-bs-crm' ) ); ?>',
-			nextnumbere: '<?php zeroBSCRM_slashOut( __( '(e.g. 1)', 'zero-bs-crm' ) ); ?>',
-			suffixe:     '<?php zeroBSCRM_slashOut( __( '(e.g. -FINI)', 'zero-bs-crm' ) ); ?>',
-			fieldtype:   '<?php zeroBSCRM_slashOut( __( 'Field Type:', 'zero-bs-crm' ) ); ?>',
-			autonumberformat:   '<?php zeroBSCRM_slashOut( __( 'Autonumber Format', 'zero-bs-crm' ) ); ?>',
-			autonumberguide:   '<?php zeroBSCRM_slashOut( __( 'Autonumber Guide', 'zero-bs-crm' ) ); ?>',
-
-		};
-		var wpzbscrm_settings_urls = {
-
-			autonumberhelp: '<?php echo esc_html( $zbs->urls['autonumberhelp'] ); ?>'
-
-		};
+		var wpzbscrm_settings_lang = <?php echo wp_json_encode( $jpcrm_settings_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+		var wpzbscrm_settings_urls = <?php echo wp_json_encode( array( 'autonumberhelp' => $zbs->urls['autonumberhelp'] ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 	</script>
 

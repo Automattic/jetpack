@@ -514,6 +514,33 @@ class zeroBSCRM_list {
 
 			);
 
+			switch ( $this->postType ) {
+				case 'zerobs_customer':
+					$zbs_list_view_obj_name = __( 'Contact', 'zero-bs-crm' );
+					break;
+				case 'zerobs_company':
+					$zbs_list_view_obj_name = jpcrm_label_company();
+					break;
+				case 'zerobs_quote':
+					$zbs_list_view_obj_name = __( 'Quote', 'zero-bs-crm' );
+					break;
+				case 'zerobs_invoice':
+					$zbs_list_view_obj_name = __( 'Invoice', 'zero-bs-crm' );
+					break;
+				case 'zerobs_transaction':
+					$zbs_list_view_obj_name = __( 'Transaction', 'zero-bs-crm' );
+					break;
+				case 'zerobs_form':
+					$zbs_list_view_obj_name = __( 'Form', 'zero-bs-crm' );
+					break;
+				case 'zerobs_quotetemplate':
+					$zbs_list_view_obj_name = __( 'Quote Template', 'zero-bs-crm' );
+					break;
+				default:
+					$zbs_list_view_obj_name = __( 'Item', 'zero-bs-crm' );
+					break;
+			}
+
 			?>
 
 			// General options for listview
@@ -522,112 +549,40 @@ class zeroBSCRM_list {
 			// Vars for zbs list view drawer
 			var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-			var zbsSortables = [
-			<?php
-
-				$c = 0; if ( count( $this->sortables ) > 0 ) {
-				foreach ( $this->sortables as $sortableStr ) {
-
-					if ( $c > 0 ) {
-						echo ',';
-					}
-
-							echo "'" . esc_html( $sortableStr ) . "'";
-
-							++$c;
-
-				}
-				}
-
-				?>
-				]; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
-			var zbsBulkActions = [
-			<?php
-			$bulkCount = 0; if ( count( $this->bulkActions ) > 0 ) {
-				foreach ( $this->bulkActions as $bulkActionStr ) {
-
-					if ( $bulkCount > 0 ) {
-						echo ',';
-					}
-
-						echo "'" . esc_html( $bulkActionStr ) . "'";
-
-						++$bulkCount;
-
-				}
-			}
-			?>
-			]; // :D
+			var zbsSortables = <?php echo wp_json_encode( $this->sortables, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
+			var zbsBulkActions = <?php echo wp_json_encode( $this->bulkActions, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>; // :D
 			var zbsListViewData = []; var zbsListViewCount = 0;
 			var zbsDrawListViewBlocker = false;
 			var zbsDrawListViewAJAXBlocker = false;
 			var zbsDrawListViewColUpdateBlocker = false;
 			var zbsDrawListViewColUpdateAJAXBlocker = false;
 
-			var zbsObjectEmailLinkPrefix = '<?php echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true ); /* this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol) */ ?>';
-			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
-			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
-			var zbsObjectViewLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
-			var zbsObjectViewLinkPrefixInvoice = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ); ?>';
-			var zbsObjectViewLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ); ?>';
-			var zbsObjectViewLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ); ?>';
-			var zbsObjectViewLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ); ?>';
-			var zbsObjectViewLinkPrefixTask = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_TASK, true ); ?>';
+			var zbsObjectEmailLinkPrefix = <?php echo wp_json_encode( jpcrm_esc_link( 'email', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>; /* this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol) */
+			var zbsObjectViewLinkPrefixCustomer = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixCompany = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'zerobs_company', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixQuote = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixInvoice = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixTransaction = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixForm = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixSegment = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectViewLinkPrefixTask = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_TASK, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-			var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
-			var zbsObjectEditLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_company', true ); ?>';
-			var zbsObjectEditLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
-			var zbsObjectEditLinkPrefixQuoteTemplate = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quo_template', true ); ?>';
-			var zbsObjectEditLinkPrefixInvoice = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ); ?>';
-			var zbsObjectEditLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ); ?>';
-			var zbsObjectEditLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ); ?>';
-			var zbsObjectEditLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ); ?>';
+			var zbsObjectEditLinkPrefixCustomer = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixCompany = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_company', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixQuote = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixQuoteTemplate = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_quo_template', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixInvoice = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_invoice', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixTransaction = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'zerobs_transaction', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixForm = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_FORM, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsObjectEditLinkPrefixSegment = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, ZBS_TYPE_SEGMENT, true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-			var jpcrm_segment_export_url_prefix = '<?php echo jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' ); ?>';
+			var jpcrm_segment_export_url_prefix = <?php echo wp_json_encode( jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-						var zbsListViewLink = '<?php echo esc_url( admin_url( 'admin.php?page=' . $this->postPage ) ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>';
-			var zbsExportPostURL = '<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>';
-						var zbsTagSkipLinkPrefix = zbsListViewLink + '&zbs_tag=';
-			var zbsListViewObjName = '<?php
-
-			switch ( $this->postType ) {
-
-				case 'zerobs_customer':
-					zeroBSCRM_slashOut( __( 'Contact', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_company':
-					zeroBSCRM_slashOut( jpcrm_label_company() );
-					break;
-
-				case 'zerobs_quote':
-					zeroBSCRM_slashOut( __( 'Quote', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_invoice':
-					zeroBSCRM_slashOut( __( 'Invoice', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_transaction':
-					zeroBSCRM_slashOut( __( 'Transaction', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_form':
-					zeroBSCRM_slashOut( __( 'Form', 'zero-bs-crm' ) );
-					break;
-
-				case 'zerobs_quotetemplate':
-					zeroBSCRM_slashOut( __( 'Quote Template', 'zero-bs-crm' ) );
-					break;
-
-				default:
-					zeroBSCRM_slashOut( __( 'Item', 'zero-bs-crm' ) );
-					break;
-
-			}
-
-			?>';
-			var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting( 'clicktocalltype' ) ); ?>');
+						var zbsListViewLink = <?php echo wp_json_encode( esc_url( admin_url( 'admin.php?page=' . $this->postPage ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>;
+			var zbsExportPostURL = <?php echo wp_json_encode( esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+			var zbsTagSkipLinkPrefix = zbsListViewLink + '&zbs_tag=';
+			var zbsClick2CallType = <?php echo (int) zeroBSCRM_getSetting( 'clicktocalltype' ); ?>;
+			var zbsListViewObjName = <?php echo wp_json_encode( $zbs_list_view_obj_name, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 			<?php
 			$jpcrm_listview_lang_labels = array();
@@ -640,70 +595,48 @@ class zeroBSCRM_list {
 			}
 			?>
 			var zbsListViewLangLabels = <?php echo wp_json_encode( $jpcrm_listview_lang_labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
-			var zbsTagsForBulkActions = 
 			<?php
-				$tags = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					array(
-						'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						'withCount'    => true,
-						'excludeEmpty' => false,
-						'ignoreowner'  => true,
-					)
-				);
+			$tags = $zbs->DAL->getTagsForObjType(
+				array(
+					'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					'withCount'    => true,
+					'excludeEmpty' => false,
+					'ignoreowner'  => true,
+				)
+			);
 
-				// make simplified
-				$simple_tags = array();
-				if ( is_array( $tags ) && count( $tags ) > 0 ) {
-					foreach ( $tags as $t ) {
-						$simple_tags[] = array(
-							'id'   => $t['id'],
-							'name' => $t['name'],
-							'slug' => $t['slug'],
-						);
-					}
+			// make simplified
+			$simple_tags = array();
+			if ( is_array( $tags ) ) {
+				foreach ( $tags as $t ) {
+					$simple_tags[] = array(
+						'id'   => $t['id'],
+						'name' => $t['name'],
+						'slug' => $t['slug'],
+					);
 				}
-
-				$zbs_tags_for_bulk_actions = wp_json_encode( $simple_tags, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-				echo ( $zbs_tags_for_bulk_actions ? $zbs_tags_for_bulk_actions : '[]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-			?>;
+			}
+			?>
+			var zbsTagsForBulkActions = <?php echo wp_json_encode( $simple_tags, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var zbsListViewIcos = {};
+				<?php
+				// MUST be a better way than this to get customer statuses...
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				global $zbsCustomerFields;
+				$zbs_customer_statuses = is_array( $zbsCustomerFields['status'][3] ) ? $zbsCustomerFields['status'][3] : array();
+				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// hardcoded customer perms atm
+				$zbs_possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
+				$zbs_possible_owners = is_array( $zbs_possible_owners ) ? $zbs_possible_owners : array();
+				$zbs_inline_edit     = array(
+					'customer' => array( 'statuses' => $zbs_customer_statuses ),
+					'owners'   => $zbs_possible_owners,
+				);
+				?>
 				// gives data used by inline editor
-				var zbsListViewInlineEdit = {
-
-					// for now just put contacts in here
-					customer: {
-						statuses: 
-						<?php
-							// MUST be a better way than this to get customer statuses...
-							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-							global $zbsCustomerFields;
-							if ( is_array( $zbsCustomerFields['status'][3] ) ) {
-								echo wp_json_encode( $zbsCustomerFields['status'][3], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-							} else {
-								echo '[]';
-							}
-							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						?>
-					},
-
-					owners: 
+				var zbsListViewInlineEdit = <?php echo wp_json_encode( $zbs_inline_edit, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+					var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 					<?php
-
-						// hardcoded customer perms atm
-						$possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
-						if ( ! is_array( $possible_owners ) ) {
-						echo wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-					} else {
-						echo wp_json_encode( $possible_owners, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-					}
-
-					?>
-
-					};
-					<?php
-					// Nonce for AJAX
-					echo 'var zbscrmjs_secToken = "' . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . '";';
 
 					// any last JS?
 					if ( isset( $this->extraJS ) && ! empty( $this->extraJS ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
