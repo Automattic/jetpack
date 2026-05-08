@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-use Automattic\Jetpack\Connection\Rest_Authentication;
-
 /**
  * Handles Activity Log custom event creation and validation.
  */
@@ -213,7 +211,7 @@ class Activity_Log_Event {
 			return $response;
 		}
 
-		if ( current_user_can( 'manage_options' ) || Rest_Authentication::is_signed_with_blog_token() ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			return $response;
 		}
 

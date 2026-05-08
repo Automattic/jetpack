@@ -459,24 +459,26 @@ class REST_Endpoints_Test extends TestCase {
 		$user = wp_get_current_user();
 		$user->add_cap( 'manage_options' );
 
-		$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events' );
-		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body(
-			wp_json_encode(
-				array(
-					'title'    => ' <strong>Cache flushed</strong> ',
-					'content'  => "Plain <em>text</em>\nnote.",
-					'source'   => ' <code>mc</code> ',
-					'severity' => ' WARNING ',
-				),
-				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-			)
-		);
+		try {
+			$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events' );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body(
+				wp_json_encode(
+					array(
+						'title'    => ' <strong>Cache flushed</strong> ',
+						'content'  => "Plain <em>text</em>\nnote.",
+						'source'   => ' <code>mc</code> ',
+						'severity' => ' WARNING ',
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				)
+			);
 
-		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
-
-		$user->remove_cap( 'manage_options' );
+			$response = $this->server->dispatch( $request );
+			$data     = $response->get_data();
+		} finally {
+			$user->remove_cap( 'manage_options' );
+		}
 
 		$this->assertEquals( 201, $response->get_status() );
 		$this->assertIsInt( $data['id'] );
@@ -503,22 +505,24 @@ class REST_Endpoints_Test extends TestCase {
 		$user = wp_get_current_user();
 		$user->add_cap( 'manage_options' );
 
-		$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events' );
-		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body(
-			wp_json_encode(
-				array(
-					'title'    => 'Cache flushed',
-					'content'  => 'Plain text note.',
-					'severity' => 'critical',
-				),
-				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-			)
-		);
+		try {
+			$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events' );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body(
+				wp_json_encode(
+					array(
+						'title'    => 'Cache flushed',
+						'content'  => 'Plain text note.',
+						'severity' => 'critical',
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				)
+			);
 
-		$response = $this->server->dispatch( $request );
-
-		$user->remove_cap( 'manage_options' );
+			$response = $this->server->dispatch( $request );
+		} finally {
+			$user->remove_cap( 'manage_options' );
+		}
 
 		$this->assertEquals( 400, $response->get_status() );
 	}
@@ -561,30 +565,32 @@ class REST_Endpoints_Test extends TestCase {
 		$user = wp_get_current_user();
 		$user->add_cap( 'manage_options' );
 
-		$post_id = Activity_Log_Event::create(
-			array(
-				'title'   => 'Cache flushed',
-				'content' => 'Plain text note.',
-			)
-		);
-
-		$this->assertIsInt( $post_id );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events/' . $post_id );
-		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body(
-			wp_json_encode(
+		try {
+			$post_id = Activity_Log_Event::create(
 				array(
-					'title'   => 'Updated title',
-					'content' => 'Updated content.',
-				),
-				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-			)
-		);
+					'title'   => 'Cache flushed',
+					'content' => 'Plain text note.',
+				)
+			);
 
-		$response = $this->server->dispatch( $request );
+			$this->assertIsInt( $post_id );
 
-		$user->remove_cap( 'manage_options' );
+			$request = new WP_REST_Request( 'POST', '/wp/v2/activity-log-events/' . $post_id );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body(
+				wp_json_encode(
+					array(
+						'title'   => 'Updated title',
+						'content' => 'Updated content.',
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				)
+			);
+
+			$response = $this->server->dispatch( $request );
+		} finally {
+			$user->remove_cap( 'manage_options' );
+		}
 
 		$this->assertContains( $response->get_status(), array( 401, 403 ) );
 
@@ -603,19 +609,21 @@ class REST_Endpoints_Test extends TestCase {
 		$user = wp_get_current_user();
 		$user->add_cap( 'manage_options' );
 
-		$post_id = Activity_Log_Event::create(
-			array(
-				'title'   => 'Cache flushed',
-				'content' => 'Plain text note.',
-			)
-		);
+		try {
+			$post_id = Activity_Log_Event::create(
+				array(
+					'title'   => 'Cache flushed',
+					'content' => 'Plain text note.',
+				)
+			);
 
-		$this->assertIsInt( $post_id );
+			$this->assertIsInt( $post_id );
 
-		$request  = new WP_REST_Request( 'DELETE', '/wp/v2/activity-log-events/' . $post_id );
-		$response = $this->server->dispatch( $request );
-
-		$user->remove_cap( 'manage_options' );
+			$request  = new WP_REST_Request( 'DELETE', '/wp/v2/activity-log-events/' . $post_id );
+			$response = $this->server->dispatch( $request );
+		} finally {
+			$user->remove_cap( 'manage_options' );
+		}
 
 		$this->assertContains( $response->get_status(), array( 401, 403 ) );
 		$this->assertInstanceOf( \WP_Post::class, get_post( $post_id ) );
