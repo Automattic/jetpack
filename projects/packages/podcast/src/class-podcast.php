@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Podcast;
 
-use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -68,10 +67,6 @@ class Podcast {
 		// filters in the wpcom mu-plugin remain authoritative for
 		// `/rest/v1.4/sites/{id}/settings`; this is the non-Simple equivalent.
 		Settings::register();
-
-		// Wire the RSS feed customizations (`<itunes:*>`, `<googleplay:*>`,
-		// stats-tracked enclosure URLs) for the configured podcast category.
-		Customize_Feed::init();
 
 		// Wire the wp-admin entry point. Admin_Page::init() stages the wp-build
 		// dashboard; menu registration itself runs from wpcom-admin-menu.php
