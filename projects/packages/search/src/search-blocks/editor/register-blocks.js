@@ -47,6 +47,7 @@ const BLOCKS = [
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
 	[ 'jetpack-search/filter-post-type', FilterPostTypeEdit ],
+	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
 	[ 'jetpack-search/filters-stack', FiltersStackEdit, filtersStackSave ],
 	[ 'jetpack-search/filters-popover', FiltersPopoverEdit, filtersPopoverSave ],
 	[ 'jetpack-search/results-sort', ResultsSortEdit ],
@@ -54,7 +55,6 @@ const BLOCKS = [
 	[ 'jetpack-search/results-load-more', ResultsLoadMoreEdit ],
 	[ 'jetpack-search/search-results', SearchResultsEdit, searchResultsSave ],
 	[ 'jetpack-search/powered-by', PoweredByEdit ],
-	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
 ];
 
 // Shape the "Jetpack Search" block category to match the Forms / Monetize /
