@@ -200,6 +200,10 @@ class Customize_Feed {
 			echo "<googleplay:image href='" . esc_url( $episode_image ) . "' />\n";
 		}
 
+		// Re-applying `the_excerpt_rss` here is intentional: `get_the_excerpt()`
+		// doesn't run the filter chain itself, so this gets the same trimmed +
+		// `pass_through_empty_excerpt`-suppressed value WP would emit in the
+		// item's `<description>`.
 		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_html( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
@@ -251,12 +255,11 @@ class Customize_Feed {
 				'/url="[^"]*"/i',
 				/**
 				 * Replace the matched `url="…"` attribute with the stats URL.
+				 * Match data ignored — we always emit the same value.
 				 *
-				 * @param array $matches Regex matches (unused — we always emit the same stats URL).
 				 * @return string
 				 */
-				static function ( array $matches ) use ( $stats_url ) {
-					unset( $matches );
+				static function () use ( $stats_url ) {
 					return 'url="' . esc_url( $stats_url ) . '"';
 				},
 				$enclosure,

@@ -35,6 +35,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_archive' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
+		unset( $GLOBALS['post'] );
 		parent::tearDown();
 	}
 
@@ -174,8 +175,6 @@ class Customize_Feed_Test extends BaseTestCase {
 			'url="https://public-api.wordpress.com/wpcom/v2/sites/12345/podcast-play/42.m4a"',
 			$result
 		);
-
-		unset( $GLOBALS['post'] );
 	}
 
 	public function test_rewrite_enclosure_falls_back_to_mp3_for_unknown_extension() {
@@ -201,8 +200,6 @@ class Customize_Feed_Test extends BaseTestCase {
 			'url="https://public-api.wordpress.com/wpcom/v2/sites/99/podcast-play/7.mp3"',
 			$result
 		);
-
-		unset( $GLOBALS['post'] );
 	}
 
 	/**
@@ -228,8 +225,6 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', $result );
 		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
-
-		unset( $GLOBALS['post'] );
 	}
 
 	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {

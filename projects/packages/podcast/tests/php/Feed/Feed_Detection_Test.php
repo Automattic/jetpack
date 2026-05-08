@@ -70,13 +70,23 @@ class Feed_Detection_Test extends BaseTestCase {
 		update_option( 'podcasting_show_states', array( 'spotify' => 'active' ) );
 		$_SERVER['HTTP_USER_AGENT'] = 'Spotify/8.7.0 iOS/16.4';
 
-		// If it tried to write, it would call update_option which sanitize_callback
-		// runs through Settings::sanitize_show_states — which we don't want firing
-		// here. The test passes if no observable change happens.
+		// Count actual write attempts via the pre-update filter — asserting
+		// state-equals-active alone wouldn't distinguish "early-returned" from
+		// "wrote the same value back".
+		$write_attempts = 0;
+		add_filter(
+			'pre_update_option_podcasting_show_states',
+			static function ( $value ) use ( &$write_attempts ) {
+				++$write_attempts;
+				return $value;
+			}
+		);
+
 		Feed_Detection::detect_and_record();
 
-		$states = get_option( 'podcasting_show_states', array() );
-		$this->assertSame( 'active', $states['spotify'] );
+		$this->assertSame( 0, $write_attempts );
+
+		remove_all_filters( 'pre_update_option_podcasting_show_states' );
 	}
 
 	public function test_no_op_for_missing_user_agent() {
