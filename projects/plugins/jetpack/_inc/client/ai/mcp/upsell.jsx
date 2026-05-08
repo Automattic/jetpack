@@ -11,7 +11,7 @@
 import { UpsellBanner } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import analytics from 'lib/analytics';
 
 const PRODUCT_SLUG = 'jetpack_ai_yearly';
@@ -28,6 +28,16 @@ export default function McpUpsell() {
 		redirectUrl: typeof window !== 'undefined' ? window.location.href : '',
 		from: UPSELL_SOURCE,
 	} );
+
+	// Fire once when the upsell first renders. The parent in main.jsx only
+	// mounts <McpUpsell> when the site lacks MCP access, so component
+	// lifecycle is the right place to record the impression — no extra
+	// gating needed here.
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_mcp_upsell_viewed', {
+			product_slug: PRODUCT_SLUG,
+		} );
+	}, [] );
 
 	const onClickUpgrade = useCallback(
 		event => {
