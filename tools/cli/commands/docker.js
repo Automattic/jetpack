@@ -164,14 +164,18 @@ const setEnv = () => {
 };
 
 /**
- * Decides which source instance to clone the DB from, if any.
+ * Decides which source instance to clone the DB from when bringing up a dev container, if any.
  *
  * Purely argv-driven; whether the chosen source is actually running is checked by the caller.
+ * Always returns null for non-dev container types — the e2e framework manages its own DB.
  *
  * @param {object} argv - Yargs
  * @return {{source: string, explicit: boolean} | null} Source compose project name and whether the user asked for it by name, or null to skip cloning.
  */
-export const resolveCloneSource = argv => {
+export const resolveDevCloneSource = argv => {
+	if ( argv.type !== 'dev' ) {
+		return null;
+	}
 	if ( argv.cloneFrom ) {
 		return { source: 'jetpack_' + argv.cloneFrom, explicit: true };
 	}
@@ -620,9 +624,10 @@ const defaultDockerCmdHandler = async argv => {
 	// Gate on the target actually being up rather than on `--detached`: in foreground
 	// mode `composeExecutor` blocks until the user exits compose, at which point the
 	// target is stopped and there's nothing to clone into. Skipping silently in that
-	// case is friendlier than hard-requiring `-d`.
-	if ( argv.type === 'dev' && argv._[ 1 ] === 'up' ) {
-		const cloneReq = resolveCloneSource( argv );
+	// case is friendlier than hard-requiring `-d`. The `type === 'dev'` gate lives
+	// inside resolveDevCloneSource so the function is correct on its own terms.
+	if ( argv._[ 1 ] === 'up' ) {
+		const cloneReq = resolveDevCloneSource( argv );
 		if ( cloneReq ) {
 			const target = getProjectName( argv );
 			if ( ! isProjectRunning( target ) ) {

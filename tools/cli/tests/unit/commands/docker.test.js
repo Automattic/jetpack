@@ -13,7 +13,7 @@ jest.unstable_mockModule( 'fs', () => ( {
 	...fsStub,
 } ) );
 
-const { getProjectName, buildEnv, resolveCloneSource, normalizeProjectShortName } = await import(
+const { getProjectName, buildEnv, resolveDevCloneSource, normalizeProjectShortName } = await import(
 	'../../../commands/docker.js'
 );
 
@@ -84,30 +84,35 @@ describe( 'buildEnv', () => {
 	} );
 } );
 
-describe( 'resolveCloneSource', () => {
+describe( 'resolveDevCloneSource', () => {
 	test( 'returns null when --name is not set (primary dev instance path)', () => {
-		expect( resolveCloneSource( { type: 'dev', clone: true } ) ).toBeNull();
+		expect( resolveDevCloneSource( { type: 'dev', clone: true } ) ).toBeNull();
+	} );
+
+	test( 'returns null for type=e2e regardless of other flags', () => {
+		expect( resolveDevCloneSource( { type: 'e2e', name: 'foo', clone: true } ) ).toBeNull();
+		expect( resolveDevCloneSource( { type: 'e2e', name: 'foo', cloneFrom: 'dev' } ) ).toBeNull();
 	} );
 
 	test( 'auto-picks jetpack_dev when --name is set', () => {
-		expect( resolveCloneSource( { type: 'dev', name: 'feature', clone: true } ) ).toEqual( {
+		expect( resolveDevCloneSource( { type: 'dev', name: 'feature', clone: true } ) ).toEqual( {
 			source: 'jetpack_dev',
 			explicit: false,
 		} );
 	} );
 
 	test( '--no-clone (clone=false) short-circuits auto-clone', () => {
-		expect( resolveCloneSource( { type: 'dev', name: 'feature', clone: false } ) ).toBeNull();
+		expect( resolveDevCloneSource( { type: 'dev', name: 'feature', clone: false } ) ).toBeNull();
 	} );
 
 	test( '--clone-from wins over --no-clone', () => {
 		expect(
-			resolveCloneSource( { type: 'dev', name: 'feature', clone: false, cloneFrom: 'other' } )
+			resolveDevCloneSource( { type: 'dev', name: 'feature', clone: false, cloneFrom: 'other' } )
 		).toEqual( { source: 'jetpack_other', explicit: true } );
 	} );
 
 	test( '--clone-from works without --name (explicit wins over auto gating)', () => {
-		expect( resolveCloneSource( { type: 'dev', clone: true, cloneFrom: 'other' } ) ).toEqual( {
+		expect( resolveDevCloneSource( { type: 'dev', clone: true, cloneFrom: 'other' } ) ).toEqual( {
 			source: 'jetpack_other',
 			explicit: true,
 		} );
@@ -115,12 +120,12 @@ describe( 'resolveCloneSource', () => {
 
 	test( '--clone-from normalizes short name to full project name', () => {
 		expect(
-			resolveCloneSource( { type: 'dev', name: 'feature', clone: true, cloneFrom: 'scratch' } )
+			resolveDevCloneSource( { type: 'dev', name: 'feature', clone: true, cloneFrom: 'scratch' } )
 		).toEqual( { source: 'jetpack_scratch', explicit: true } );
 	} );
 
 	test( 'returns null when target would be the same as source (--name dev)', () => {
-		expect( resolveCloneSource( { type: 'dev', name: 'dev', clone: true } ) ).toBeNull();
+		expect( resolveDevCloneSource( { type: 'dev', name: 'dev', clone: true } ) ).toBeNull();
 	} );
 } );
 
