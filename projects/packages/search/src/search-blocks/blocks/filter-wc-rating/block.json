@@ -19,7 +19,12 @@
 	"textdomain": "jetpack-search-pkg",
 	"attributes": {
 		"label": { "type": "string", "default": "" },
-		"showCount": { "type": "boolean", "default": true }
+		"showCount": { "type": "boolean", "default": true },
+		"enabledStars": {
+			"type": "array",
+			"default": [ 5, 4, 3, 2, 1 ],
+			"items": { "type": "number" }
+		}
 	},
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/filter-wc-rating.js",

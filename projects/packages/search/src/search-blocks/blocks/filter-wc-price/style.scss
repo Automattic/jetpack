@@ -1,0 +1,75 @@
+/**
+ * Search product filter — price.
+ *
+ * Side-by-side number inputs joined by an em-dash separator. Currency
+ * symbol sits as a non-interactive adornment inside each field's box so
+ * the visual padding aligns with the input edge regardless of typed
+ * value width.
+ */
+.jetpack-search-filter-wc-price {
+
+	&__inputs {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	&__field {
+		position: relative;
+		display: flex;
+		align-items: center;
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+	&__symbol {
+		position: absolute;
+		inset-inline-start: 0.5rem;
+		color: color-mix(in sRGB, currentColor 50%, transparent);
+		font-size: 0.95em;
+		pointer-events: none;
+	}
+
+	// When WooCommerce's price format puts the symbol after the amount
+	// (e.g. `100 kr`) we mirror that — anchor the adornment to the input's
+	// trailing edge and shift the typed-value padding to match.
+	&__field--right &__symbol {
+		inset-inline-start: auto;
+		inset-inline-end: 0.5rem;
+	}
+
+	&__input {
+		width: 100%;
+		min-width: 0;
+		padding-block: 0.4rem;
+		padding-inline: 1.9rem 0.5rem;
+		border: 1px solid color-mix(in sRGB, currentColor 20%, transparent);
+		border-radius: 4px;
+		font: inherit;
+
+		// Drop the spinner buttons. They're unhelpful on price inputs —
+		// shoppers know how to type. Keeping the input as type="number"
+		// for the keyboard hint and validation, but removing the visual
+		// affordance avoids the "tiny up/down arrows" awkwardness.
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		// Firefox / standard equivalent.
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
+
+	&__field--right &__input {
+		padding-inline: 0.5rem 1.9rem;
+	}
+
+	&__separator {
+		flex: 0 0 auto;
+		color: color-mix(in sRGB, currentColor 50%, transparent);
+		font-size: 1.1em;
+		line-height: 1;
+	}
+}

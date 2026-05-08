@@ -570,22 +570,33 @@ describe( 'product-shaped filter helpers', () => {
 		} );
 	} );
 
-	describe( 'buildFilterClause: wc_rating range branch', () => {
-		it( 'emits a single range clause for one star selection', () => {
+	describe( 'buildFilterClause: wc_rating threshold branch', () => {
+		it( 'emits a single `gte` range clause for the picked star (no upper bound)', () => {
 			const clause = buildFilterClause(
-				{ rating_filter: [ '5' ] },
+				{ rating_filter: [ '4' ] },
 				{ rating_filter: { filterType: 'wc_rating' } }
 			);
 			expect( clause ).toEqual( {
 				bool: {
-					must: [ { range: { 'meta._wc_average_rating.double': { gte: 4.5 } } } ],
+					must: [ { range: { 'meta._wc_average_rating.double': { gte: 3.5 } } } ],
 				},
 			} );
 		} );
 
-		it( 'wraps multi-star selections in bool.should (OR within rating filter)', () => {
+		it( 'all star thresholds are single-bound (gte only) — no `lt` cap', () => {
+			for ( const r of WC_RATING_RANGES ) {
+				expect( r.to ).toBeUndefined();
+				expect( typeof r.from ).toBe( 'number' );
+			}
+		} );
+
+		it( 'tolerates a stale multi-value URL by OR-ing the thresholds', () => {
+			// Block UI is single-select, but a deep link from the prior
+			// exact-bucket era could still carry two values. OR-ing them
+			// collapses to the lowest threshold under "& up" semantics —
+			// harmless and avoids breaking old bookmarks.
 			const clause = buildFilterClause(
-				{ rating_filter: [ '4', '5' ] },
+				{ rating_filter: [ '3', '5' ] },
 				{ rating_filter: { filterType: 'wc_rating' } }
 			);
 			expect( clause ).toEqual( {
@@ -594,7 +605,7 @@ describe( 'product-shaped filter helpers', () => {
 						{
 							bool: {
 								should: [
-									{ range: { 'meta._wc_average_rating.double': { gte: 3.5, lt: 4.5 } } },
+									{ range: { 'meta._wc_average_rating.double': { gte: 2.5 } } },
 									{ range: { 'meta._wc_average_rating.double': { gte: 4.5 } } },
 								],
 							},
@@ -602,12 +613,6 @@ describe( 'product-shaped filter helpers', () => {
 					],
 				},
 			} );
-		} );
-
-		it( 'gives star=5 an open upper bound (no `lt`) so 5.0 ratings count', () => {
-			const five = WC_RATING_RANGES.find( r => r.key === '5' );
-			expect( five.to ).toBeUndefined();
-			expect( five.from ).toBe( 4.5 );
 		} );
 
 		it( 'drops unknown star values', () => {

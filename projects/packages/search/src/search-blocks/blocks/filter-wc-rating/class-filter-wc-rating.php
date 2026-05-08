@@ -30,16 +30,44 @@ class Filter_Wc_Rating {
 
 	/**
 	 * Stable star option list for rendering. Highest first matches the
-	 * conventional e-commerce "4 stars & up, 3 stars & up, …" ordering;
-	 * since the underlying ES range clauses are non-overlapping (star=4
-	 * means avg ∈ [3.5, 4.5), not "≥ 3.5"), the visible label may say
-	 * "& up" but the selection semantics are exact buckets — multi-select
-	 * to OR adjacent stars together.
+	 * conventional e-commerce "4 stars & up, 3 stars & up, …" ordering.
+	 * Each row applies a `≥ N - 0.5` threshold filter; the 5★ row is
+	 * the only one without an "& up" affordance since it has no higher
+	 * tier to roll up into.
 	 *
 	 * @return int[] Star values 5..1.
 	 */
 	public static function get_star_values(): array {
 		return array( 5, 4, 3, 2, 1 );
+	}
+
+	/**
+	 * Resolve the author-configured subset of star rows to render. Empty
+	 * / malformed `enabledStars` falls back to all five rows so a stale
+	 * attribute can't render the block as an empty `<ul>`. Sanitized to
+	 * the 1..5 range, deduplicated, and re-sorted high-to-low to match
+	 * the canonical render order.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return int[]
+	 */
+	public static function get_enabled_stars( array $attributes ): array {
+		$raw = $attributes['enabledStars'] ?? null;
+		if ( ! is_array( $raw ) || empty( $raw ) ) {
+			return static::get_star_values();
+		}
+		$clean = array();
+		foreach ( $raw as $value ) {
+			$int = (int) $value;
+			if ( $int >= 1 && $int <= 5 ) {
+				$clean[ $int ] = $int;
+			}
+		}
+		if ( empty( $clean ) ) {
+			return static::get_star_values();
+		}
+		krsort( $clean );
+		return array_values( $clean );
 	}
 
 	/**
