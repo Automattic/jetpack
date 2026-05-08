@@ -15,8 +15,7 @@
 			"default": {
 				"type": "flex",
 				"orientation": "vertical",
-				"flexWrap": "nowrap",
-				"justifyContent": "stretch"
+				"flexWrap": "nowrap"
 			},
 			"allowEditing": false
 		},
