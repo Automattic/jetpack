@@ -1,15 +1,8 @@
 /**
- * Host-aware API layer for Jetpack Podcast.
- *
- * On wpcom Simple sites, the local `/wp/v2/settings` endpoint isn't authoritative
- * for the `podcasting_*` options — those live in the wpcom site-settings store and
- * are exposed via `/rest/v1.4/sites/{id}/settings`. On Atomic, `/wp/v2/settings`
- * works via `register_setting()` schema injection.
- *
- * Episode stats are served by `/wpcom/v2/sites/{id}/podcast-stats/episode-totals`,
- * which exists on both Simple and Atomic (proxied via the Jetpack connection on
- * Atomic). We always call it through `apiFetch` so the caller doesn't need to
- * care which path it's on.
+ * On Simple, `podcasting_*` options live in the wpcom site-settings store —
+ * `/wp/v2/settings` isn't authoritative there. On Atomic, `register_setting()`
+ * schema injection makes `/wp/v2/settings` work. Each fetcher swizzles paths
+ * accordingly so callers don't have to care.
  */
 
 import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
@@ -62,9 +55,7 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_show_urls',
 ];
 
-// Keep this in sync with `PodcatcherId` in types.ts and `SHOW_URL_HOSTS`
-// in src/rest/class-settings-rest.php. Defines the canonical key order
-// and lets us pad missing keys with empty strings server-side or client-side.
+// Keep in sync with `SHOW_URL_HOSTS` in src/class-settings.php.
 const PODCATCHER_IDS: readonly PodcatcherId[] = [
 	'pocketcasts',
 	'apple',
@@ -117,9 +108,9 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 };
 
 /**
- * Fetch the podcasting_* options from the right host's settings endpoint.
+ * Fetch the `podcasting_*` options from the active host's settings endpoint.
  *
- * @return The current settings, with all PodcastSettings keys present.
+ * @return Resolved settings with all PodcastSettings keys present.
  */
 export async function fetchSettings(): Promise< PodcastSettings > {
 	const blogId = getBlogId();
@@ -140,10 +131,10 @@ export async function fetchSettings(): Promise< PodcastSettings > {
 }
 
 /**
- * Persist a partial settings update.
+ * Persist a partial settings update; the server merges it into stored values.
  *
  * @param updates - Subset of PodcastSettings to write.
- * @return         The merged settings as the server now sees them.
+ * @return         Merged settings as the server now sees them.
  */
 export async function updateSettings( updates: PodcastSettingsUpdate ): Promise< PodcastSettings > {
 	const blogId = getBlogId();
@@ -219,7 +210,7 @@ export async function fetchCategories(): Promise< CategoryTerm[] > {
  * Create a new category term.
  *
  * @param name - Display name for the new category.
- * @return      The created term (id, name, slug).
+ * @return      The created term.
  */
 export async function createCategory( name: string ): Promise< CategoryTerm > {
 	const blogId = getBlogId();
@@ -245,7 +236,7 @@ export async function createCategory( name: string ): Promise< CategoryTerm > {
  * Fetch a page of posts in the podcast category.
  *
  * @param args - Pagination, sort, search, and status filter args.
- * @return      The posts for the requested page plus pagination metadata.
+ * @return      The page of episodes plus pagination metadata.
  */
 export async function fetchEpisodes( args: EpisodesQueryArgs ): Promise< EpisodesPage > {
 	const {

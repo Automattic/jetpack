@@ -1,12 +1,3 @@
-/**
- * Distribution tab — copy-the-feed CTA + per-directory submit buttons.
- *
- * Each podcast directory ("podcast app") lives in its own self-contained
- * file under `../podcast-apps/`. This tab just renders the registry and
- * delegates the submission flow to either the default 3-step `SubmitModal`
- * or, when an app sets `Modal`, that app's custom modal.
- */
-
 import {
 	Button,
 	Card,
@@ -35,9 +26,8 @@ const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 	event.currentTarget.select();
 };
 
-// Pre-resolved so the i18n-check-webpack-plugin validator sees two distinct
-// __() calls in the bundled output instead of __(cond?'a':'b'). Hoisted out of
-// the component since these strings don't depend on props or state.
+// Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check
+// validator rejects that shape.
 const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
 const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
 
@@ -81,8 +71,7 @@ const DistributionTab = () => {
 	const scriptData = getPodcastScriptData();
 	const feedUrl = scriptData.feedUrl;
 	const isEnabled = !! settings?.podcasting_category_id;
-	// Block submission while loading too — otherwise the buttons flash enabled
-	// before issues resolve and a user can click into a half-set-up flow.
+	// Includes isLoading so the buttons don't flash enabled before issues resolve.
 	const isSubmitBlocked = ! isEnabled || ! isReady || isLoading;
 
 	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
@@ -167,7 +156,6 @@ const DistributionTab = () => {
 											<Button
 												variant="primary"
 												size="compact"
-												// Fresh closure per row is fine — no memoized children downstream.
 												// eslint-disable-next-line react/jsx-no-bind
 												onClick={ () => setActiveId( app.id ) }
 												disabled={ isSubmitBlocked }

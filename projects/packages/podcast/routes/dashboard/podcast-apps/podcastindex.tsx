@@ -1,7 +1,3 @@
-/**
- * Podcast Index directory entry.
- */
-
 import type { PodcastApp } from './types';
 
 const PodcastIndexLogo = () => (

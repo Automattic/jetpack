@@ -1,11 +1,3 @@
-/**
- * Pocket Casts directory entry.
- *
- * Carries a `step2Extra` slot reminding listeners to choose the Public option
- * during submission. When the one-click API submission lands, swap the
- * `Modal` field in to replace the default 3-step flow entirely.
- */
-
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 import { __experimentalText as Text } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';

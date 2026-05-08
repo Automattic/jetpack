@@ -1,7 +1,3 @@
-/**
- * TanStack Query hook for fetching and mutating podcast settings.
- */
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -12,7 +8,7 @@ import type { PodcastSettings, PodcastSettingsUpdate } from '../types';
 const QUERY_KEY = [ 'jetpack-podcast', 'settings' ] as const;
 
 /**
- * Read the current podcasting_* options as a single TanStack Query object.
+ * Read the current `podcasting_*` options as a single TanStack Query.
  *
  * @return Query result; `data` is the resolved settings once loaded.
  */
@@ -25,9 +21,8 @@ export function usePodcastSettings() {
 }
 
 /**
- * Mutation for persisting a partial settings update with optimistic UI:
- * the cache is patched immediately, rolled back on error, and a snackbar
- * notice (success or failure) is dispatched.
+ * Mutation that patches settings with optimistic UI: cache patched immediately,
+ * rolled back on error, snackbar dispatched either way.
  *
  * @return TanStack mutation; call `mutate(partial)` to save.
  */
@@ -45,9 +40,8 @@ export function useUpdatePodcastSettings() {
 			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
 			const previous = queryClient.getQueryData< PodcastSettings >( QUERY_KEY );
 			if ( previous ) {
-				// Deep-merge `podcasting_show_urls` so a partial patch (e.g.
-				// { apple: 'url' }) doesn't blow away the other directories'
-				// URLs in the optimistic snapshot. Server merges the same way.
+				// Deep-merge `podcasting_show_urls` so a partial patch doesn't
+				// blow away sibling directories. Server merges the same way.
 				const optimistic: PodcastSettings = {
 					...previous,
 					...updates,

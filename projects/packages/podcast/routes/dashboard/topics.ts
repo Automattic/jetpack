@@ -1,19 +1,5 @@
-/**
- * Apple Podcasts category list, used by the Settings tab.
- *
- * Source: https://help.apple.com/itc/podcasts_connect/#/itc9267a2f12. Stored
- * value format is `"Primary"` for top-level only or `"Primary,Subtopic"` so it
- * matches what the wpcom mu-plugin and at-pressable-podcasting bridge already
- * expect when generating <itunes:category> tags.
- *
- * Resolved once at module load — `_x()` calls are evaluated when this module
- * is first imported (after `wp-i18n` is initialized via WP's enqueue chain),
- * so consumers can read TOPICS directly without re-running translations on
- * every render.
- *
- * Each label is a string-literal call to `_x()` because `@wordpress/i18n`'s
- * extraction tooling parses source statically and can't follow a helper.
- */
+// Apple Podcasts category list. Source: https://help.apple.com/itc/podcasts_connect/#/itc9267a2f12.
+// Stored as `"Primary"` or `"Primary,Subtopic"` to match `<itunes:category>` emission.
 
 import { _x } from '@wordpress/i18n';
 

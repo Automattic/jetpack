@@ -1,7 +1,3 @@
-/**
- * TanStack Query hook for fetching all category terms.
- */
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createCategory, fetchCategories, type CategoryTerm } from '../api';
 

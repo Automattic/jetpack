@@ -1,7 +1,3 @@
-/**
- * Shared types for the Jetpack Podcast SPA.
- */
-
 export type ExplicitValue = 'no' | 'yes' | 'clean';
 
 export type PodcatcherId =
@@ -30,13 +26,8 @@ export interface PodcastSettings {
 	podcasting_show_urls: PodcastShowUrls;
 }
 
-/**
- * Shape accepted by `updateSettings()` / `useUpdatePodcastSettings().mutate()`.
- * All keys are optional. `podcasting_show_urls` is `Partial<PodcastShowUrls>`
- * because the server merges a patch into the stored map (so callers can send
- * `{ apple: 'url' }` without touching `spotify`, etc.). Read responses keep
- * the full `PodcastShowUrls` shape — the server pads missing keys with `''`.
- */
+// `podcasting_show_urls` is Partial because the server merges patches into the
+// stored map — callers can send `{ apple: 'url' }` without touching siblings.
 export type PodcastSettingsUpdate = Partial< Omit< PodcastSettings, 'podcasting_show_urls' > > & {
 	podcasting_show_urls?: Partial< PodcastShowUrls >;
 };

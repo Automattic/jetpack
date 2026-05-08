@@ -1,20 +1,16 @@
-/**
- * Validation rules for the podcast feed — the same checklist Apple Podcasts,
- * Spotify, and Pocket Casts apply at submission. Used both inline in the
- * Settings tab (against the unsaved draft) and as a gate on Distribution
- * Submit buttons (against the saved settings).
- */
+// Apple/Spotify/Pocket Casts submission requirements. The pure form is used
+// against the unsaved draft in Settings; the hook variant reads the saved
+// settings query for the Distribution gate.
 
 import { __ } from '@wordpress/i18n';
 import { usePodcastSettings } from './use-podcast-settings';
 import type { PodcastSettings } from '../types';
 
 /**
- * Pure rule check. Pass `undefined` for "not loaded yet" — returns an empty
- * array so callers can treat "no issues" and "no data" identically.
+ * Pure rule check; returns user-facing issue strings in stable order.
  *
- * @param settings - Settings to validate, or undefined.
- * @return          User-facing issue strings, in stable order.
+ * @param settings - Settings to validate, or undefined for "not loaded yet".
+ * @return          Empty array when settings are missing or all rules pass.
  */
 export const getValidationIssues = ( settings: PodcastSettings | undefined ): string[] => {
 	if ( ! settings ) {
@@ -50,14 +46,13 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 };
 
 /**
- * Hook variant that reads from the saved settings query. Suppresses issues
- * while the query is loading so the UI doesn't flash a misleading "no
- * episodes / missing title" state on first paint.
+ * Validation state for the saved settings — Distribution gates Submit on this.
  *
- * @return Validation state for the saved (server) settings.
+ * @return `{ issues, isReady, isLoading }` — issues suppressed during load.
  */
 export function useValidationIssues() {
 	const { data: settings, isLoading } = usePodcastSettings();
+	// Suppress issues during load so the UI doesn't flash a false-positive banner.
 	const issues = isLoading ? [] : getValidationIssues( settings );
 	return {
 		issues,

@@ -1,10 +1,5 @@
-/**
- * Episodes tab — DataViews list of posts in the configured podcast category.
- *
- * Server-side ordering covers `date` and `title`; duration and plays come from
- * the wpcom `podcast-stats/episode-totals` endpoint and are merged client-side,
- * so those columns are display-only (not sortable).
- */
+// Duration and plays come from the wpcom episode-totals endpoint and are
+// merged client-side, so those columns are display-only (not sortable).
 
 import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
 import { useMemo, useState } from '@wordpress/element';
@@ -97,9 +92,7 @@ const EpisodesTab = () => {
 	}, [ categoryId, view ] );
 
 	const { data: episodesPage, isLoading } = useEpisodesQuery( queryArgs );
-	// Wrap in useMemo so the array identity is stable when episodesPage hasn't
-	// changed — otherwise the `?? []` fallback creates a new array on every
-	// render and invalidates dependent useMemos below.
+	// Memoised so the `?? []` fallback doesn't churn dependent useMemos.
 	const posts = useMemo( () => episodesPage?.episodes ?? [], [ episodesPage ] );
 
 	const postIds = useMemo( () => posts.map( p => p.id ), [ posts ] );

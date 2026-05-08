@@ -1,12 +1,5 @@
-/**
- * Podcast directory app registry.
- *
- * Each entry is a `PodcastApp` config that combines the directory's metadata
- * with its logo and any per-app UI overrides (extra step content, full modal
- * replacement, etc.). Entries are ordered as they appear in the Distribution
- * tab — alphabetical except Pocket Casts surfaces first since it's
- * historically the smoothest one-click submit on wpcom.
- */
+// Order is the rendering order in the Distribution tab. Pocket Casts first
+// since it's historically the smoothest one-click submit on wpcom.
 
 import { amazon } from './amazon';
 import { apple } from './apple';

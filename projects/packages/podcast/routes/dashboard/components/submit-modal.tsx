@@ -1,16 +1,5 @@
-/**
- * Default 3-step "submit your feed" modal launched from the Distribution tab.
- *
- * Conforms to `PodcastAppModalProps` so an app's `Modal` field can swap in a
- * custom flow without distribution.tsx caring. Apps that fit this pattern
- * leave `Modal` unset and ride this default; ones with diverging flows (e.g.
- * one-click API submission) ship their own component instead.
- *
- * The submitted-show URL is persisted on the `podcasting_show_urls` site
- * setting. The host allowlist is enforced server-side; we mirror it here
- * (PodcastApp.showHosts) so we can fail-fast on the client and surface an
- * inline error rather than silently dropping the user's input.
- */
+// Default 3-step modal. Apps with diverging flows (one-click API submission,
+// etc.) set their own `Modal` on the PodcastApp to bypass this.
 
 import {
 	Button,
@@ -36,17 +25,14 @@ import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podca
 import type { PodcastAppModalProps } from '../podcast-apps';
 import type { FormEvent } from 'react';
 
-// Mirrors SHOW_URL_MAX_LENGTH in src/rest/class-settings-rest.php.
+// Mirrors SHOW_URL_MAX_LENGTH in src/class-settings.php.
 const SHOW_URL_MAX_LENGTH = 2048;
 
-// `prependHTTPS` adds the scheme for bare hosts but leaves an existing
-// `http://` alone — the backend rejects non-https, so upgrade ourselves.
+// `prependHTTPS` leaves an existing `http://` alone, but the backend rejects
+// non-https — upgrade ourselves.
 const normalizeShowUrl = ( raw: string ): string =>
 	prependHTTPS( raw.trim() ).replace( /^http:\/\//i, 'https://' );
 
-// Mirrors the per-podcatcher allowlist + esc_url_raw + wp_http_validate_url
-// gauntlet the backend runs each save through. Empty input is rejected here
-// so the modal never silently deletes a stored entry by clearing the field.
 const isValidShowUrl = ( url: string, allowedHosts: readonly string[] ): boolean => {
 	if ( url === '' || url.length > SHOW_URL_MAX_LENGTH ) {
 		return false;
@@ -74,14 +60,11 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ saveError, setSaveError ] = useState< string | null >( null );
 	const inputContainerRef = useRef< HTMLDivElement >( null );
-	// `storedUrl` may be empty on mount if settings haven't hydrated yet;
-	// once it lands, mirror it into the draft. Flipped to true the moment
-	// the draft is touched (sync, typing, or Replace) so late hydration
-	// can never clobber input the user has already started.
+	// Flipped true the moment the draft is touched so a late settings hydration
+	// can't clobber input the user has already started.
 	const hasInitializedDraft = useRef( !! storedUrl );
-	// Set when Replace is clicked so the post-render effect knows to focus
-	// the now-mounted input. Don't trigger on every isEditing flip — typing
-	// also flips it, and stealing focus mid-keystroke is disruptive.
+	// Only true when Replace was clicked, so typing (which also flips isEditing)
+	// doesn't steal focus mid-keystroke.
 	const shouldFocusInputRef = useRef( false );
 
 	useEffect( () => {
@@ -116,8 +99,8 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 
 	const handleDraftChange = useCallback( ( value: string ) => {
 		hasInitializedDraft.current = true;
-		// Pin the form open so a late `storedUrl` hydration can't swap us
-		// back to the saved/read-only view mid-keystroke.
+		// Pin the form open so a late hydration can't swap to the saved view
+		// mid-keystroke.
 		setIsEditing( true );
 		setDraftUrl( value );
 		setSaveError( null );
@@ -146,11 +129,9 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 				{ podcasting_show_urls: { [ app.id ]: normalizedDraft } },
 				{
 					onSuccess: result => {
-						// Defend against silent drops: the wpcom site-settings endpoint
-						// returns 200 even when `wp_http_validate_url` rejects the value,
-						// just with the stored field unchanged. Compare round-tripped
-						// value against what we sent so we don't optimistically close
-						// the modal on a no-op save.
+						// The wpcom endpoint returns 200 even when `wp_http_validate_url`
+						// rejects the value (stored field stays unchanged). Round-trip the
+						// value to catch silent drops.
 						const persisted = result.podcasting_show_urls?.[ app.id ] ?? '';
 						if ( persisted !== normalizedDraft ) {
 							setSaveError(
@@ -180,8 +161,8 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 		[ normalizedDraft, app.showHosts, app.id, app.name, saveSettings, onClose ]
 	);
 
-	// Pre-resolve so the i18n-check-webpack-plugin validator sees two distinct
-	// __() calls in the bundled output instead of __(cond?'a':'b').
+	// Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check
+	// validator rejects that shape.
 	const copiedLabel = __( 'Copied!', 'jetpack-podcast' );
 	const copyLinkLabel = __( 'Copy link', 'jetpack-podcast' );
 

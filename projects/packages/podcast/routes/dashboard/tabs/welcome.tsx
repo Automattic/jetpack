@@ -1,13 +1,3 @@
-/**
- * Welcome tab — onboarding hero, benefits, and "how it works" steps.
- *
- * Ported from `client/my-sites/podcast/components/welcome.tsx` in Calypso. The
- * WordPress.com pricing cards have been dropped: this page is gated to Simple
- * and Atomic, so the user already has access. If a plan-tier upsell becomes
- * necessary later, drop a `ContextualUpgradeTrigger` in below the hero rather
- * than restoring the pricing cards.
- */
-
 import {
 	Button,
 	Card,
@@ -26,9 +16,6 @@ interface WelcomeTabProps {
 	onGetStarted: () => void;
 }
 
-// Resolved once at module load (this whole module is itself lazy-loaded, so
-// the `__()` calls run after wp-i18n is initialised). Hoisting avoids
-// re-allocating the array + re-running translations on every render.
 const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string } > = [
 	{
 		icon: <Icon icon={ megaphone } />,

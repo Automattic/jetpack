@@ -1,13 +1,3 @@
-/**
- * Settings tab — podcast metadata form.
- *
- * Mirrors `client/my-sites/podcast/components/settings.tsx` from Calypso, but
- * persists through `usePodcastSettings`/`useUpdatePodcastSettings` (TanStack
- * Query) instead of the Calypso `wrapSettingsForm` HOC. Validation matches
- * the Apple Podcasts requirements: title, summary, talent name, owner email,
- * primary topic, and a 1400–3000px square cover image.
- */
-
 import { getSiteData } from '@automattic/jetpack-script-data';
 import {
 	BaseControl,
@@ -44,11 +34,8 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: ExplicitValue } > = [
 const TOPICS_FIELD_ID = 'jetpack-podcast-topics';
 
 const splitStored = ( stored: string ): { primary: string; sub: string } => {
-	// Legacy WPCOM podcast data is HTML-entity encoded ("Fashion &amp; Beauty"),
-	// while topics.ts catalog keys are raw ("Fashion & Beauty"). Decode here so
-	// the dropdown finds a matching option for both legacy-encoded and SPA-raw
-	// stored values. On save we always write raw, so re-saving migrates the
-	// stored value to canonical form.
+	// Decode entities so legacy WPCOM-encoded values ("Fashion &amp; Beauty")
+	// match topics.ts catalog keys (raw form). Re-saving migrates to canonical.
 	const [ primary = '', sub = '' ] = stored.split( ',' ).map( s => decodeEntities( s.trim() ) );
 	return { primary, sub };
 };
@@ -129,10 +116,8 @@ const SettingsTab = () => {
 
 	useEffect( () => {
 		if ( settings && ! draft ) {
-			// Pre-fill the title with the site's blogname for sites that haven't
-			// been set up yet — saves the user a step and gives them a sensible
-			// default to edit. Skipped if the site already has a podcast configured
-			// so we don't undo a deliberate empty title.
+			// Pre-fill title from blogname for sites that haven't been set up yet.
+			// Guarded so a deliberate empty title on a configured podcast is preserved.
 			const isFreshSetup = ! settings.podcasting_category_id && ! settings.podcasting_title;
 			if ( isFreshSetup ) {
 				const siteName = getSiteData()?.title?.trim() ?? '';
@@ -156,9 +141,6 @@ const SettingsTab = () => {
 		[]
 	);
 
-	// Per-field stable handlers — `useCallback`'d once with `setField` as the
-	// only dep so they can be passed straight to JSX without re-allocating
-	// every render.
 	const onCategoryIdChange = useCallback(
 		( value: string ) => setField( 'podcasting_category_id', Number( value ) || 0 ),
 		[ setField ]
@@ -247,8 +229,7 @@ const SettingsTab = () => {
 	const onDisablePodcasting = useCallback( () => {
 		setField( 'podcasting_category_id', 0 );
 		setConfirmDisable( false );
-		// Push the disable through immediately rather than waiting for a manual save click —
-		// the user explicitly confirmed.
+		// Save immediately — the user already confirmed in the dialog.
 		saveSettings( { podcasting_category_id: 0 } );
 	}, [ setField, saveSettings ] );
 

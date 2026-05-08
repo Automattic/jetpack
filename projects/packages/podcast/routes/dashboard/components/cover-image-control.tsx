@@ -1,13 +1,6 @@
-/**
- * Cover image picker for the podcast Settings tab.
- *
- * Wraps `@wordpress/media-utils`'s `MediaUpload` (the standalone wp-admin
- * version, not the block-editor one) so editors can pick an existing
- * attachment or upload a new one. Apple Podcasts requires a square cover
- * between 1400×1400 and 3000×3000 — we surface that as a soft warning rather
- * than a hard block, since stock photo services often deliver close-but-not-
- * exactly-square assets.
- */
+// Apple Podcasts requires a square cover between 1400×1400 and 3000×3000.
+// Surfaced as a soft warning, not a hard block — stock services often deliver
+// close-but-not-exactly-square assets.
 
 import { Button } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -62,10 +55,8 @@ const CoverImageControl = ( {
 
 	const hasImage = !! imageUrl || imageId > 0;
 
-	// Pre-resolve the two button labels separately so the i18n-check-webpack-plugin
-	// validator sees two distinct __() calls in the bundled output. Inlining the
-	// ternary inside __() (or even between two __() calls in JSX) lets terser fold
-	// them into __(cond?'a':'b'), which the validator rejects.
+	// Hoisted out of JSX so terser can't fold them into __(cond?'a':'b') —
+	// the i18n-check validator rejects that shape.
 	const changeLabel = __( 'Change cover', 'jetpack-podcast' );
 	const setLabel = __( 'Set cover image', 'jetpack-podcast' );
 	const noImageLabel = __( 'No image set', 'jetpack-podcast' );

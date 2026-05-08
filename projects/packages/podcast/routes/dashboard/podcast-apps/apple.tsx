@@ -1,7 +1,3 @@
-/**
- * Apple Podcasts directory entry.
- */
-
 import { useId } from '@wordpress/element';
 import type { PodcastApp } from './types';
 
