@@ -1417,15 +1417,19 @@ function jpcrm_wordpress_version( $operator = '>', $version = '4.0' ) {
  */
 function jpcrm_create_and_secure_dir_from_external_access( $directory_path = '', $include_htaccess = true ) {
 
-	$safe = true;
-
-	// Creates the directory if it doesn't exist
-	if ( ! is_dir( $directory_path ) ) {
-		// Attempt to create
-		mkdir( $directory_path, 0755, true );
-		// Force perms
-		chmod( $directory_path, 0755 );
+	if ( empty( $directory_path ) ) {
+		return false;
 	}
+
+	// Create the directory if it doesn't exist. Bail if creation fails.
+	if ( ! is_dir( $directory_path ) ) {
+		if ( ! wp_mkdir_p( $directory_path ) ) {
+			return false;
+		}
+		chmod( $directory_path, 0755 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
+	}
+
+	$safe = true;
 
 	$files = array(
 		array(
