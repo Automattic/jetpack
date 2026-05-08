@@ -527,4 +527,25 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'youtube.com/embed/dQw4w9WgXcQ', $output );
 		$this->assertStringContainsString( 'bw-video-figure', $output );
 	}
+
+	/**
+	 * Test that the admin_title filter sets the browser tab title on the Write page.
+	 */
+	public function test_admin_title_filter_sets_title_on_write_page() {
+		$_GET['page'] = 'write';
+		$result       = apply_filters( 'admin_title', ' &#8249; Test Site &#8212; WordPress', '' );
+		unset( $_GET['page'] );
+
+		$this->assertStringStartsWith( 'Write editor', $result );
+	}
+
+	/**
+	 * Test that the admin_title filter does not affect other admin pages.
+	 */
+	public function test_admin_title_filter_does_not_affect_other_pages() {
+		$original = 'Dashboard &#8249; Test Site &#8212; WordPress';
+		$result   = apply_filters( 'admin_title', $original, 'Dashboard' );
+
+		$this->assertSame( $original, $result );
+	}
 }
