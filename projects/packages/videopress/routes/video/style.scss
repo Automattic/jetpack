@@ -1,9 +1,15 @@
+// Browsers clip margin-bottom on the last child of a scroll container,
+// so a `margin: 24px auto` here loses the bottom 24px gap when the page
+// scrolls all the way down (Rating card ends up flush against the
+// JetpackFooter). Using vertical padding instead keeps that 24px inside
+// `.vp-video-details`'s clientHeight, which the scroll container honors.
 .vp-video-details {
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
 	max-width: 880px;
-	margin: 24px auto;
+	margin-inline: auto;
+	padding-block: 24px;
 }
 
 .vp-video-details__not-found {

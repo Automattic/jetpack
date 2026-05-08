@@ -1,6 +1,7 @@
+import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useCopyToClipboard } from '@wordpress/compose';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
 import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
 import type { MockLibraryItem } from '../../types/library';
@@ -16,29 +17,42 @@ const dateSettings = getDateSettings();
 const linkForVideo = ( video: MockLibraryItem ): string => `https://videopress.com/v/${ video.id }`;
 
 /**
- * Icon-only button that copies its `text` prop to the clipboard. Renders the
- * Gutenberg `copy` icon and surfaces a transient "Copied" tooltip via its
- * accessible label, with no inline state in the parent.
+ * Icon-only button that copies its `text` prop to the clipboard. Uses
+ * `@wordpress/compose`'s `useCopyToClipboard` (clipboard.js under the hood)
+ * so it falls back to `document.execCommand('copy')` on non-secure origins —
+ * the native `navigator.clipboard` API is undefined on plain HTTP, which
+ * the dev environments here run on. Posts a success snackbar via the
+ * dashboard's GlobalNotices store on every successful copy.
  *
- * @param props      - Component props.
- * @param props.text - The string to write to the clipboard on click.
+ * @param props            - Component props.
+ * @param props.text       - The string to write to the clipboard on click.
+ * @param props.fieldLabel - Human-readable name of the field being copied,
+ *                         used in the success snackbar.
  * @return The icon-button element.
  */
-const CopyIconButton = ( { text }: { text: string } ): ReactElement => {
-	const [ copied, setCopied ] = useState( false );
-	const onClick = async () => {
-		await navigator.clipboard.writeText( text );
-		setCopied( true );
-		window.setTimeout( () => setCopied( false ), 2000 );
-	};
+const CopyIconButton = ( {
+	text,
+	fieldLabel,
+}: {
+	text: string;
+	fieldLabel: string;
+} ): ReactElement => {
+	const { createSuccessNotice } = useGlobalNotices();
+	const ref = useCopyToClipboard( text, () =>
+		createSuccessNotice(
+			sprintf(
+				/* translators: %s: name of the copied field, e.g. "Link to video". */
+				__( '%s copied to clipboard.', 'jetpack-videopress-pkg' ),
+				fieldLabel
+			)
+		)
+	);
 	return (
 		<IconButton
-			label={
-				copied ? __( 'Copied', 'jetpack-videopress-pkg' ) : __( 'Copy', 'jetpack-videopress-pkg' )
-			}
+			ref={ ref }
+			label={ __( 'Copy', 'jetpack-videopress-pkg' ) }
 			icon={ copy }
 			variant="minimal"
-			onClick={ onClick }
 		/>
 	);
 };
@@ -83,14 +97,24 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 							label={ __( 'Link to video', 'jetpack-videopress-pkg' ) }
 							value={ link }
 							readOnly
-							suffix={ <CopyIconButton text={ link } /> }
+							suffix={
+								<CopyIconButton
+									text={ link }
+									fieldLabel={ __( 'Link to video', 'jetpack-videopress-pkg' ) }
+								/>
+							}
 						/>
 
 						<InputControl
 							label={ __( 'Shortcode', 'jetpack-videopress-pkg' ) }
 							value={ video.shortcode }
 							readOnly
-							suffix={ <CopyIconButton text={ video.shortcode } /> }
+							suffix={
+								<CopyIconButton
+									text={ video.shortcode }
+									fieldLabel={ __( 'Shortcode', 'jetpack-videopress-pkg' ) }
+								/>
+							}
 						/>
 
 						<Stack direction="column" gap="xs">
