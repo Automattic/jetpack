@@ -207,32 +207,6 @@ export async function fetchCategories(): Promise< CategoryTerm[] > {
 }
 
 /**
- * Create a new category term.
- *
- * @param name - Display name for the new category.
- * @return      The created term.
- */
-export async function createCategory( name: string ): Promise< CategoryTerm > {
-	const blogId = getBlogId();
-
-	if ( isSimpleSite() && blogId ) {
-		const result = ( await apiFetch( {
-			path: `/rest/v1.1/sites/${ blogId }/taxonomies/category/new`,
-			method: 'POST',
-			data: { name },
-		} ) ) as { ID: number; name: string; slug: string };
-		return { id: result.ID, name: result.name, slug: result.slug };
-	}
-
-	const result = ( await apiFetch( {
-		path: '/wp/v2/categories',
-		method: 'POST',
-		data: { name },
-	} ) ) as { id: number; name: string; slug: string };
-	return { id: result.id, name: result.name, slug: result.slug };
-}
-
-/**
  * Fetch a page of posts in the podcast category.
  *
  * @param args - Pagination, sort, search, and status filter args.

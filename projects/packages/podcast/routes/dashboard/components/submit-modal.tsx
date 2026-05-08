@@ -25,16 +25,13 @@ import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podca
 import type { PodcastAppModalProps } from '../podcast-apps';
 import type { FormEvent } from 'react';
 
-// Mirrors SHOW_URL_MAX_LENGTH in src/class-settings.php.
-const SHOW_URL_MAX_LENGTH = 2048;
-
 // `prependHTTPS` leaves an existing `http://` alone, but the backend rejects
 // non-https — upgrade ourselves.
 const normalizeShowUrl = ( raw: string ): string =>
 	prependHTTPS( raw.trim() ).replace( /^http:\/\//i, 'https://' );
 
 const isValidShowUrl = ( url: string, allowedHosts: readonly string[] ): boolean => {
-	if ( url === '' || url.length > SHOW_URL_MAX_LENGTH ) {
+	if ( ! url ) {
 		return false;
 	}
 	let parsed: URL;

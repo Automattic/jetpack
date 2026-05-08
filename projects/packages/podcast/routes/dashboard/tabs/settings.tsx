@@ -1,4 +1,4 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getSiteData } from '@automattic/jetpack-script-data';
 import {
 	BaseControl,
 	Button,
@@ -18,8 +18,9 @@ import {
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import CoverImageControl from '../components/cover-image-control';
-import { useCategoriesQuery, useCreateCategory } from '../hooks/use-categories-query';
+import { useCategoriesQuery } from '../hooks/use-categories-query';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
 import { TOPICS, type Topic } from '../topics';
@@ -110,8 +111,6 @@ const SettingsTab = () => {
 	const { mutate: saveSettings, isPending: isSaving } = useUpdatePodcastSettings();
 
 	const [ draft, setDraft ] = useState< PodcastSettings | null >( null );
-	const [ isCreatingCategory, setIsCreatingCategory ] = useState( false );
-	const [ newCategoryName, setNewCategoryName ] = useState( '' );
 	const [ confirmDisable, setConfirmDisable ] = useState( false );
 
 	useEffect( () => {
@@ -131,8 +130,6 @@ const SettingsTab = () => {
 	}, [ settings, draft ] );
 
 	const { data: categories = [] } = useCategoriesQuery();
-	const { mutateAsync: createCategoryAsync, isPending: isCreatingCategoryPending } =
-		useCreateCategory();
 
 	const setField = useCallback(
 		< K extends keyof PodcastSettings >( key: K, value: PodcastSettings[ K ] ) => {
@@ -192,8 +189,6 @@ const SettingsTab = () => {
 		setDraft( prev => ( prev ? { ...prev, podcasting_image: '', podcasting_image_id: 0 } : prev ) );
 	}, [] );
 
-	const openCreateCategory = useCallback( () => setIsCreatingCategory( true ), [] );
-	const closeCreateCategory = useCallback( () => setIsCreatingCategory( false ), [] );
 	const openConfirmDisable = useCallback( () => setConfirmDisable( true ), [] );
 	const closeConfirmDisable = useCallback( () => setConfirmDisable( false ), [] );
 
@@ -214,17 +209,6 @@ const SettingsTab = () => {
 		}
 		saveSettings( draft );
 	}, [ draft, saveSettings ] );
-
-	const onCreateCategory = useCallback( async () => {
-		const name = newCategoryName.trim();
-		if ( ! name ) {
-			return;
-		}
-		const term = await createCategoryAsync( name );
-		setField( 'podcasting_category_id', term.id );
-		setNewCategoryName( '' );
-		setIsCreatingCategory( false );
-	}, [ newCategoryName, createCategoryAsync, setField ] );
 
 	const onDisablePodcasting = useCallback( () => {
 		setField( 'podcasting_category_id', 0 );
@@ -257,7 +241,7 @@ const SettingsTab = () => {
 					</h2>
 				</CardHeader>
 				<CardBody>
-					<HStack alignment="flex-end" spacing={ 3 }>
+					<VStack spacing={ 2 }>
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
@@ -273,10 +257,14 @@ const SettingsTab = () => {
 								...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 							] }
 						/>
-						<Button variant="secondary" onClick={ openCreateCategory }>
-							{ __( 'New category', 'jetpack-podcast' ) }
-						</Button>
-					</HStack>
+						<Link
+							openInNewTab
+							href={ getAdminUrl( 'edit-tags.php?taxonomy=category' ) }
+							children={ null }
+						>
+							{ __( 'Add a new category', 'jetpack-podcast' ) }
+						</Link>
+					</VStack>
 				</CardBody>
 			</Card>
 
@@ -416,36 +404,6 @@ const SettingsTab = () => {
 					{ __( 'Save changes', 'jetpack-podcast' ) }
 				</Button>
 			</HStack>
-
-			{ isCreatingCategory && (
-				<Modal
-					title={ __( 'Add a new category', 'jetpack-podcast' ) }
-					onRequestClose={ closeCreateCategory }
-				>
-					<VStack spacing={ 4 }>
-						<TextControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'Category name', 'jetpack-podcast' ) }
-							value={ newCategoryName }
-							onChange={ setNewCategoryName }
-						/>
-						<HStack justify="flex-end" spacing={ 3 }>
-							<Button variant="tertiary" onClick={ closeCreateCategory }>
-								{ __( 'Cancel', 'jetpack-podcast' ) }
-							</Button>
-							<Button
-								variant="primary"
-								onClick={ onCreateCategory }
-								isBusy={ isCreatingCategoryPending }
-								disabled={ isCreatingCategoryPending || ! newCategoryName.trim() }
-							>
-								{ __( 'Create category', 'jetpack-podcast' ) }
-							</Button>
-						</HStack>
-					</VStack>
-				</Modal>
-			) }
 
 			{ confirmDisable && (
 				<Modal
