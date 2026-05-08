@@ -133,7 +133,7 @@ class Activity_Log_Event {
 	/**
 	 * Logs a custom event to the Jetpack Activity Log.
 	 *
-	 * Prefer calling this on or after the `init` action so Sync listeners are registered.
+	 * Call create() on or after the WordPress `init` action so Sync listeners are registered.
 	 * The Activity Log post type is registered defensively if needed before insert.
 	 *
 	 * @param array $args {
@@ -223,7 +223,7 @@ class Activity_Log_Event {
 			return $response;
 		}
 
-		if ( ! self::is_activity_log_event_rest_route( $request ) ) {
+		if ( ! self::is_activity_log_event_rest_route( $request->get_route() ) ) {
 			return $response;
 		}
 
@@ -243,15 +243,14 @@ class Activity_Log_Event {
 	 *
 	 * Supports both normal site-local routes and WordPress.com public API site routes.
 	 *
-	 * @param \WP_REST_Request $request REST request.
+	 * @param string $route REST route.
 	 * @return bool
 	 */
-	private static function is_activity_log_event_rest_route( $request ) {
-		if ( ! $request instanceof \WP_REST_Request ) {
+	private static function is_activity_log_event_rest_route( $route ) {
+		if ( ! is_string( $route ) ) {
 			return false;
 		}
 
-		$route     = $request->get_route();
 		$rest_base = self::REST_BASE;
 
 		if ( false === strpos( $route, $rest_base ) ) {
@@ -357,7 +356,11 @@ class Activity_Log_Event {
 	 * @return bool
 	 */
 	public static function prevent_publicize( $should_publicize, $post ) {
-		return ( $post && self::POST_TYPE === $post->post_type ) ? false : $should_publicize;
+		if ( ! $post instanceof \WP_Post ) {
+			return $should_publicize;
+		}
+
+		return self::POST_TYPE === $post->post_type ? false : $should_publicize;
 	}
 
 	/**
@@ -368,7 +371,13 @@ class Activity_Log_Event {
 	 * @return string[]
 	 */
 	public static function filter_sitemap_post_types( $types ) {
-		return array_values( array_diff( (array) $types, array( self::POST_TYPE ) ) );
+		$types = (array) $types;
+
+		if ( ! in_array( self::POST_TYPE, $types, true ) ) {
+			return $types;
+		}
+
+		return array_values( array_diff( $types, array( self::POST_TYPE ) ) );
 	}
 
 	/**
@@ -378,15 +387,15 @@ class Activity_Log_Event {
 	 * @return array|false Sanitized payload, or false if validation fails.
 	 */
 	private static function build_payload( array $args ) {
+		$severity = self::sanitize_severity( $args['severity'] ?? self::DEFAULT_SEVERITY );
+		if ( false === $severity ) {
+			return false;
+		}
+
 		$title   = self::sanitize_string( $args['title'] ?? '', self::MAX_TITLE_LENGTH );
 		$content = self::sanitize_string( $args['content'] ?? '', self::MAX_CONTENT_LENGTH );
 
 		if ( '' === $title || '' === $content ) {
-			return false;
-		}
-
-		$severity = self::sanitize_severity( $args['severity'] ?? self::DEFAULT_SEVERITY );
-		if ( false === $severity ) {
 			return false;
 		}
 
@@ -396,9 +405,11 @@ class Activity_Log_Event {
 			'severity' => $severity,
 		);
 
-		$source = self::sanitize_string( $args['source'] ?? '', self::MAX_SOURCE_LENGTH );
-		if ( '' !== $source ) {
-			$payload['source'] = $source;
+		if ( isset( $args['source'] ) ) {
+			$source = self::sanitize_string( $args['source'], self::MAX_SOURCE_LENGTH );
+			if ( '' !== $source ) {
+				$payload['source'] = $source;
+			}
 		}
 
 		return $payload;
