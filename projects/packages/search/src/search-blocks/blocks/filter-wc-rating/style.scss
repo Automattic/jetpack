@@ -40,6 +40,20 @@
 
 	.jetpack-search-filter__label {
 		flex: 1;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+
+	.jetpack-search-filter-rating__stars {
+		display: inline-flex;
+		gap: 0.05em;
+		line-height: 1;
+	}
+
+	.jetpack-search-filter-rating__threshold-suffix {
+		font-size: 0.85rem;
+		opacity: 0.75;
 	}
 
 	.jetpack-search-filter__count {
