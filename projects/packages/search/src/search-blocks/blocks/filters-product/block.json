@@ -27,5 +27,6 @@
 	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filters-product.js",
 	"style": "file:../../../../build/search-blocks/filters-product.css"
 }
