@@ -260,22 +260,24 @@ export const getProducts =
 
 			if ( error?.code === 'rest_unauthorized' && ! isSimpleSite() ) {
 				const connectUrl = getUserConnectionUrl( { from: 'editor' } );
-				registry.dispatch( noticesStore ).createNotice(
-					'warning',
-					__(
-						'To use publishing features like subscriptions and paid memberships, connect your WordPress.com account.',
-						'jetpack'
-					),
-					{
-						id: 'jetpack-memberships-user-connection-required',
-						actions: [
-							{
-								label: __( 'Connect account', 'jetpack' ),
-								url: connectUrl,
-							},
-						],
-					}
-				);
+				registry
+					.dispatch( noticesStore )
+					.createNotice(
+						'warning',
+						__(
+							'To use publishing features like subscriptions and paid memberships, connect your WordPress.com account.',
+							'jetpack'
+						),
+						{
+							id: 'jetpack-memberships-user-connection-required',
+							actions: [
+								{
+									label: __( 'Connect account', 'jetpack' ),
+									url: connectUrl,
+								},
+							],
+						}
+					);
 			} else {
 				onError( error.message, registry );
 			}

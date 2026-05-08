@@ -1,6 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
 import executionLock from '../../../shared/execution-lock';
-import { setApiState, setConnectUrl, setPostEmailSentState, setTotalEmailsSentCount } from '../actions';
+import {
+	setApiState,
+	setConnectUrl,
+	setPostEmailSentState,
+	setTotalEmailsSentCount,
+} from '../actions';
 import { API_STATE_NOTCONNECTED } from '../constants';
 import { getPostEmailSentState, getProducts, getTotalEmailsSentCount } from '../resolvers';
 import * as utils from '../utils';
@@ -10,7 +15,9 @@ const mockNoticesDispatch = jest.fn( () => ( { createNotice: mockCreateNotice } 
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@automattic/jetpack-connection', () => ( {
-	getUserConnectionUrl: jest.fn( () => 'https://example.com/wp-admin/admin.php?connect_url_redirect=1' ),
+	getUserConnectionUrl: jest.fn(
+		() => 'https://example.com/wp-admin/admin.php?connect_url_redirect=1'
+	),
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: jest.fn( () => true ),
@@ -156,9 +163,12 @@ describe( 'Membership Products Resolvers', () => {
 		} );
 
 		test( 'rest_unauthorized on non-simple site: shows warning notice with connect URL', async () => {
-			const unauthorizedError = Object.assign( new Error( 'Please connect your user account to WordPress.com' ), {
-				code: 'rest_unauthorized',
-			} );
+			const unauthorizedError = Object.assign(
+				new Error( 'Please connect your user account to WordPress.com' ),
+				{
+					code: 'rest_unauthorized',
+				}
+			);
 			apiFetch.mockRejectedValue( unauthorizedError );
 
 			const thunk = getProducts();
@@ -185,9 +195,12 @@ describe( 'Membership Products Resolvers', () => {
 
 		test( 'rest_unauthorized on simple site: falls through to generic onError', async () => {
 			isSimpleSite.mockReturnValue( true );
-			const unauthorizedError = Object.assign( new Error( 'Please connect your user account to WordPress.com' ), {
-				code: 'rest_unauthorized',
-			} );
+			const unauthorizedError = Object.assign(
+				new Error( 'Please connect your user account to WordPress.com' ),
+				{
+					code: 'rest_unauthorized',
+				}
+			);
 			apiFetch.mockRejectedValue( unauthorizedError );
 
 			const thunk = getProducts();
