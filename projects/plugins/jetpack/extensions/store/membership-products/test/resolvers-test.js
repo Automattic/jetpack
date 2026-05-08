@@ -1,17 +1,27 @@
 import apiFetch from '@wordpress/api-fetch';
 import executionLock from '../../../shared/execution-lock';
-import { setPostEmailSentState, setTotalEmailsSentCount } from '../actions';
-import { getPostEmailSentState, getTotalEmailsSentCount } from '../resolvers';
+import { setApiState, setConnectUrl, setPostEmailSentState, setTotalEmailsSentCount } from '../actions';
+import { API_STATE_NOTCONNECTED } from '../constants';
+import { getPostEmailSentState, getProducts, getTotalEmailsSentCount } from '../resolvers';
 import * as utils from '../utils';
 
+const mockCreateNotice = jest.fn();
+const mockNoticesDispatch = jest.fn( () => ( { createNotice: mockCreateNotice } ) );
+
 jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	getUserConnectionUrl: jest.fn( () => 'https://example.com/wp-admin/admin.php?connect_url_redirect=1' ),
+} ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: jest.fn( () => true ),
+} ) );
+jest.mock( '@wordpress/notices', () => ( {
+	store: 'core/notices',
 } ) );
 
 describe( 'Membership Products Resolvers', () => {
 	const mockDispatch = jest.fn();
-	const mockRegistry = {};
+	const mockRegistry = { dispatch: mockNoticesDispatch };
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -134,6 +144,67 @@ describe( 'Membership Products Resolvers', () => {
 				'cURL error 28: Operation timed out'
 			);
 			warnSpy.mockRestore();
+		} );
+	} );
+
+	describe( 'getProducts', () => {
+		const { isSimpleSite } = require( '@automattic/jetpack-script-data' );
+		const mockSelect = { getProductsNoResolver: jest.fn( () => [] ) };
+
+		beforeEach( () => {
+			isSimpleSite.mockReturnValue( false );
+		} );
+
+		test( 'rest_unauthorized on non-simple site: shows warning notice with connect URL', async () => {
+			const unauthorizedError = Object.assign( new Error( 'Please connect your user account to WordPress.com' ), {
+				code: 'rest_unauthorized',
+			} );
+			apiFetch.mockRejectedValue( unauthorizedError );
+
+			const thunk = getProducts();
+			await thunk( { dispatch: mockDispatch, registry: mockRegistry, select: mockSelect } );
+
+			expect( mockDispatch ).toHaveBeenCalledWith( setConnectUrl( null ) );
+			expect( mockDispatch ).toHaveBeenCalledWith( setApiState( API_STATE_NOTCONNECTED ) );
+			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockNoticesDispatch ).toHaveBeenCalledWith( 'core/notices' );
+			expect( mockCreateNotice ).toHaveBeenCalledWith(
+				'warning',
+				expect.stringContaining( 'connect your WordPress.com account' ),
+				expect.objectContaining( {
+					id: 'jetpack-memberships-user-connection-required',
+					actions: expect.arrayContaining( [
+						expect.objectContaining( {
+							label: expect.any( String ),
+							url: expect.stringContaining( 'connect_url_redirect' ),
+						} ),
+					] ),
+				} )
+			);
+		} );
+
+		test( 'rest_unauthorized on simple site: falls through to generic onError', async () => {
+			isSimpleSite.mockReturnValue( true );
+			const unauthorizedError = Object.assign( new Error( 'Please connect your user account to WordPress.com' ), {
+				code: 'rest_unauthorized',
+			} );
+			apiFetch.mockRejectedValue( unauthorizedError );
+
+			const thunk = getProducts();
+			await thunk( { dispatch: mockDispatch, registry: mockRegistry, select: mockSelect } );
+
+			expect( utils.onError ).toHaveBeenCalled();
+			expect( mockCreateNotice ).not.toHaveBeenCalled();
+		} );
+
+		test( 'other error: calls onError with the error message', async () => {
+			apiFetch.mockRejectedValue( new Error( 'Something went wrong' ) );
+
+			const thunk = getProducts();
+			await thunk( { dispatch: mockDispatch, registry: mockRegistry, select: mockSelect } );
+
+			expect( utils.onError ).toHaveBeenCalledWith( 'Something went wrong', mockRegistry );
+			expect( mockCreateNotice ).not.toHaveBeenCalled();
 		} );
 	} );
 } );

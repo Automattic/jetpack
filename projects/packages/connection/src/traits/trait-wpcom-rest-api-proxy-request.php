@@ -83,7 +83,10 @@ trait WPCOM_REST_API_Proxy_Request {
 		$response = new WP_Error(
 			'rest_unauthorized',
 			__( 'Please connect your user account to WordPress.com', 'jetpack-connection' ),
-			array( 'status' => rest_authorization_required_code() )
+			array(
+				'status'      => rest_authorization_required_code(),
+				'connect_url' => $manager->get_authorization_url( wp_get_current_user() ),
+			)
 		);
 
 		if ( 'user' === $context ) {

@@ -1,6 +1,9 @@
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
@@ -254,7 +257,28 @@ export const getProducts =
 		} catch ( error ) {
 			dispatch( setConnectUrl( null ) );
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			onError( error.message, registry );
+
+			if ( error?.code === 'rest_unauthorized' && ! isSimpleSite() ) {
+				const connectUrl = getUserConnectionUrl( { from: 'editor' } );
+				registry.dispatch( noticesStore ).createNotice(
+					'warning',
+					__(
+						'To use publishing features like subscriptions and paid memberships, connect your WordPress.com account.',
+						'jetpack'
+					),
+					{
+						id: 'jetpack-memberships-user-connection-required',
+						actions: [
+							{
+								label: __( 'Connect account', 'jetpack' ),
+								url: connectUrl,
+							},
+						],
+					}
+				);
+			} else {
+				onError( error.message, registry );
+			}
 		} finally {
 			executionLock.release( lock );
 		}
