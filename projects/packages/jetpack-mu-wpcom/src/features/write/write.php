@@ -125,6 +125,8 @@ add_action(
 			'heading2'             => __( 'Heading 2', 'jetpack-mu-wpcom' ),
 			'heading3'             => __( 'Heading 3', 'jetpack-mu-wpcom' ),
 			'preview'              => __( 'Preview', 'jetpack-mu-wpcom' ),
+			// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
+			'writingIn'            => __( 'Writing in %s', 'jetpack-mu-wpcom' ),
 		);
 		wp_print_inline_script_tag(
 			'window.wpcomWriteStrings = ' . wp_json_encode( $write_strings, JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
@@ -293,14 +295,8 @@ function wpcom_write_render_admin_page() {
 	}
 
 	// Build categories list for the UI (only categories that have posts).
-	$all_cats      = get_categories( array( 'hide_empty' => true ) );
-	$selected_cats = $edit_post_id ? wp_get_post_categories( $edit_post_id ) : array();
-
-	// Fall back to the site's default category so the label is never empty.
-	if ( empty( $selected_cats ) ) {
-		$selected_cats = array( (int) get_option( 'default_category' ) );
-	}
-
+	$all_cats        = get_categories( array( 'hide_empty' => true ) );
+	$selected_cats   = $edit_post_id ? wp_get_post_categories( $edit_post_id ) : array();
 	$categories_data = array();
 	foreach ( $all_cats as $cat ) {
 		$categories_data[] = array(
@@ -308,6 +304,18 @@ function wpcom_write_render_admin_page() {
 			'name'     => $cat->name,
 			'selected' => in_array( $cat->term_id, $selected_cats, true ),
 		);
+	}
+
+	// For new posts, pre-select the default category if it's in the used-categories list,
+	// otherwise the first available used category, so the label is never empty.
+	if ( ! $edit_post_id && ! empty( $categories_data ) ) {
+		$has_selection = ! empty( array_filter( $categories_data, fn( $c ) => $c['selected'] ) );
+		if ( ! $has_selection ) {
+			$default_id                                 = (int) get_option( 'default_category' );
+			$default_idx                                = array_search( $default_id, array_column( $categories_data, 'id' ), true );
+			$select_idx                                 = false !== $default_idx ? $default_idx : 0;
+			$categories_data[ $select_idx ]['selected'] = true;
+		}
 	}
 
 	// Show the category row only when the site has 2+ used categories.
@@ -320,7 +328,11 @@ function wpcom_write_render_admin_page() {
 			array_filter( $categories_data, fn( $c ) => $c['selected'] )
 		)
 	);
-	$cat_label          = empty( $selected_cat_names ) ? '' : implode( ', ', $selected_cat_names );
+	// translators: %s is a comma-separated list of category names, e.g. "Travel, Food".
+	$writing_in_fmt = __( 'Writing in %s', 'jetpack-mu-wpcom' );
+	$cat_label      = empty( $selected_cat_names )
+		? ''
+		: sprintf( $writing_in_fmt, implode( ', ', $selected_cat_names ) );
 
 	// Seed Interactivity API state.
 	wp_interactivity_state(
@@ -386,7 +398,7 @@ function wpcom_write_render_admin_page() {
  * @param string $post_status         The post status ('new', 'draft', 'publish', etc.).
  * @param array  $video_placeholders  Map of comment tokens to iframe HTML for video embeds.
  * @param bool   $show_cat_row        Whether to show the category row (2+ used categories).
- * @param string $cat_label           Initial "in X, Y" label text; empty string if none selected.
+ * @param string $cat_label           Full "Writing in X, Y" label text; empty string if none selected.
  */
 function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_id = 0, $categories_data = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '' ) {
 	?>
@@ -518,9 +530,9 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 					data-wp-on--click="actions.toggleCatDropdown"
 					data-wp-on--keydown="actions.handleCatBtnKeyDown"
 				>
-					<span class="bw-meta-cat-prefix"><?php echo esc_html__( 'Writing in', 'jetpack-mu-wpcom' ); ?></span>
 					<span
 						class="bw-meta-cat-label"
+						data-placeholder="<?php echo esc_attr__( 'Select a category', 'jetpack-mu-wpcom' ); ?>"
 						data-wp-text="state.catLabel"
 					><?php echo esc_html( $cat_label ); ?></span>
 					<span class="bw-meta-cat-caret" aria-hidden="true">&#9662;</span>

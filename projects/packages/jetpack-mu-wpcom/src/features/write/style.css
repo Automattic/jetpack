@@ -581,15 +581,9 @@
 	font-family: inherit;
 }
 
-.bw-meta-cat-prefix {
-	font-size: 13px;
-	color: #bbb;
-}
-
 .bw-meta-cat-label {
 	font-size: 13px;
-	color: #555;
-	font-weight: 500;
+	color: #888;
 }
 
 .bw-meta-cat-label:empty::before {
@@ -602,13 +596,9 @@
 	color: #999;
 }
 
-.bw-meta-cat-btn:hover .bw-meta-cat-prefix,
+.bw-meta-cat-btn:hover .bw-meta-cat-label,
 .bw-meta-cat-btn:hover .bw-meta-cat-caret {
-	color: #888;
-}
-
-.bw-meta-cat-btn:hover .bw-meta-cat-label {
-	color: #333;
+	color: #444;
 }
 
 .bw-meta-dropdown {

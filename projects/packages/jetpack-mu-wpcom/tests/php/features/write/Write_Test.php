@@ -340,10 +340,10 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	public function test_category_row_shown_when_show_cat_row_true() {
 		wp_set_current_user( $this->admin_id );
 
-		$output = $this->render_template( '', '', 0, array(), 'new', array(), true, 'Uncategorized' );
+		$output = $this->render_template( '', '', 0, array(), 'new', array(), true, 'Writing in Uncategorized' );
 
 		$this->assertStringContainsString( 'bw-meta-cat-btn', $output );
-		$this->assertStringContainsString( 'Writing in', $output );
+		$this->assertStringContainsString( 'Writing in Uncategorized', $output );
 		$this->assertStringContainsString( 'bw-meta-cat-label', $output );
 	}
 
@@ -353,9 +353,9 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	public function test_cat_label_seeded_in_template() {
 		wp_set_current_user( $this->admin_id );
 
-		$output = $this->render_template( '', '', 0, array(), 'new', array(), true, 'Travel' );
+		$output = $this->render_template( '', '', 0, array(), 'new', array(), true, 'Writing in Travel' );
 
-		$this->assertStringContainsString( 'Travel', $output );
+		$this->assertStringContainsString( 'Writing in Travel', $output );
 	}
 
 	/**

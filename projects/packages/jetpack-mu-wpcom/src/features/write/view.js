@@ -1669,11 +1669,13 @@ function insertMediaBlock( mediaEl ) {
 
 /**
  * Recompute state.catLabel from the currently selected categories.
- * Sets "in X, Y" when categories are selected, or empty string for none.
+ * Uses the translatable "Writing in %s" format string from i18n.
  */
 function updateCatLabel() {
 	const selected = state.categories.filter( c => c.selected );
-	state.catLabel = selected.map( c => c.name ).join( ', ' );
+	const names = selected.map( c => c.name ).join( ', ' );
+	const fmt = i18n.writingIn || 'Writing in %s';
+	state.catLabel = names ? fmt.replace( '%s', names ) : '';
 }
 
 /**
