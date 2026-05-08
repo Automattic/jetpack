@@ -320,7 +320,7 @@ class Search_Blocks {
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => 'product_cat',
-					'label'      => __( 'Category', 'jetpack-search-pkg' ),
+					'label'      => __( 'Product Category', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
 			),
@@ -332,7 +332,7 @@ class Search_Blocks {
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => 'product_tag',
-					'label'      => __( 'Tag', 'jetpack-search-pkg' ),
+					'label'      => __( 'Product Tag', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
 			),
@@ -371,7 +371,7 @@ class Search_Blocks {
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => 'product_brand',
-					'label'      => __( 'Brand', 'jetpack-search-pkg' ),
+					'label'      => __( 'Product Brand', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
 			);

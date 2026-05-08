@@ -109,11 +109,10 @@ class Filter_Checkbox_Test extends TestCase {
 		);
 		$this->assertSame( 'Post Type', Filter_Checkbox::default_label( array( 'filterType' => 'post_type' ) ) );
 		$this->assertSame( 'Author', Filter_Checkbox::default_label( array( 'filterType' => 'author' ) ) );
-		// Product taxonomies fall back to per-slug English labels when the WC
-		// taxonomies aren't loaded (phpunit, fresh install). Production WC
-		// sites override via the get_taxonomy()->labels->singular_name branch.
+		// Product taxonomies get distinct "Product X" defaults so they don't
+		// collide visually with the post-taxonomy variations on the same page.
 		$this->assertSame(
-			'Category',
+			'Product Category',
 			Filter_Checkbox::default_label(
 				array(
 					'filterType' => 'taxonomy',
@@ -122,7 +121,7 @@ class Filter_Checkbox_Test extends TestCase {
 			)
 		);
 		$this->assertSame(
-			'Tag',
+			'Product Tag',
 			Filter_Checkbox::default_label(
 				array(
 					'filterType' => 'taxonomy',
@@ -131,7 +130,7 @@ class Filter_Checkbox_Test extends TestCase {
 			)
 		);
 		$this->assertSame(
-			'Brand',
+			'Product Brand',
 			Filter_Checkbox::default_label(
 				array(
 					'filterType' => 'taxonomy',

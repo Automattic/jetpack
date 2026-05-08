@@ -70,26 +70,21 @@ class Filter_Checkbox {
 			if ( 'post_tag' === $taxonomy ) {
 				return __( 'Tag', 'jetpack-search-pkg' );
 			}
-			if ( in_array( $taxonomy, array( 'product_cat', 'product_tag', 'product_brand' ), true ) ) {
-				// WC localizes its taxonomy labels at runtime — prefer the
-				// registered singular_name so a French shop reads "Catégorie",
-				// "Étiquette", "Marque" rather than the English fallback. When
-				// the taxonomy isn't registered (no WooCommerce, or a phpunit
-				// run with no WC loaded), get_taxonomy() returns false; the
-				// per-slug fallback below keeps the heading meaningful.
-				$tax = get_taxonomy( $taxonomy );
-				if ( $tax && ! empty( $tax->labels->singular_name ) ) {
-					return (string) $tax->labels->singular_name;
-				}
-				if ( 'product_cat' === $taxonomy ) {
-					return __( 'Category', 'jetpack-search-pkg' );
-				}
-				if ( 'product_tag' === $taxonomy ) {
-					return __( 'Tag', 'jetpack-search-pkg' );
-				}
-				if ( 'product_brand' === $taxonomy ) {
-					return __( 'Brand', 'jetpack-search-pkg' );
-				}
+			// Product taxonomies get distinct, prefixed defaults so an author
+			// using both "Filter by Category" (post taxonomy) and "Filter by
+			// Product Category" on the same page sees two clearly different
+			// headings. Skipping `get_taxonomy()->labels->singular_name`
+			// here is intentional — that lookup would collapse the product
+			// label back to the same "Category" / "Tag" / "Brand" string WC
+			// uses for its own admin and break the differentiation.
+			if ( 'product_cat' === $taxonomy ) {
+				return __( 'Product Category', 'jetpack-search-pkg' );
+			}
+			if ( 'product_tag' === $taxonomy ) {
+				return __( 'Product Tag', 'jetpack-search-pkg' );
+			}
+			if ( 'product_brand' === $taxonomy ) {
+				return __( 'Product Brand', 'jetpack-search-pkg' );
 			}
 		}
 		return '';

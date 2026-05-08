@@ -175,15 +175,18 @@ describe( 'variationDefaultLabel', () => {
 		expect( variationDefaultLabel( { filterType: 'author' } ) ).toBe( 'Author' );
 	} );
 
-	it( 'returns the per-slug label for the three product variations', () => {
+	it( 'returns distinct "Product X" labels for the three product variations', () => {
+		// Product taxonomies must read differently from the post-taxonomy
+		// variations so an author with both Category and Product Category
+		// on the same page sees two distinct headings by default.
 		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
-			'Category'
+			'Product Category'
 		);
 		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'product_tag' } ) ).toBe(
-			'Tag'
+			'Product Tag'
 		);
 		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'product_brand' } ) ).toBe(
-			'Brand'
+			'Product Brand'
 		);
 	} );
 

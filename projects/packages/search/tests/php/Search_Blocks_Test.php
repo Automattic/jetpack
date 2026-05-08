@@ -654,7 +654,7 @@ class Search_Blocks_Test extends TestCase {
 			array(
 				'filterType' => 'taxonomy',
 				'taxonomy'   => 'product_cat',
-				'label'      => 'Category',
+				'label'      => 'Product Category',
 			),
 			$variations_by_name['product_cat']['attributes']
 		);
@@ -665,7 +665,7 @@ class Search_Blocks_Test extends TestCase {
 			array(
 				'filterType' => 'taxonomy',
 				'taxonomy'   => 'product_tag',
-				'label'      => 'Tag',
+				'label'      => 'Product Tag',
 			),
 			$variations_by_name['product_tag']['attributes']
 		);
@@ -697,7 +697,7 @@ class Search_Blocks_Test extends TestCase {
 			array(
 				'filterType' => 'taxonomy',
 				'taxonomy'   => 'product_brand',
-				'label'      => 'Brand',
+				'label'      => 'Product Brand',
 			),
 			$variations_by_name['product_brand']['attributes']
 		);

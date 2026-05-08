@@ -144,16 +144,14 @@ export function variationToAttributes( variation, previousTaxonomy ) {
  * fallback label for the inspector placeholder. Returns '' for custom
  * taxonomies (caller should then fall back to the generic "Filter").
  *
+ * Product taxonomies get distinct "Product X" defaults so an author using
+ * both "Filter by Category" and "Filter by Product Category" on the same
+ * page sees two clearly different headings.
+ *
  * Keep in sync with Filter_Checkbox::default_label() in
  * src/search-blocks/blocks/filter-checkbox/class-filter-checkbox.php — both
  * must recognize the same (filterType, taxonomy) pairs or the empty-label
  * preview heading will disagree with the server-rendered front end.
- *
- * Non-English WC sites: the editor preview shows the English fallback here
- * while the server-rendered heading prefers `get_taxonomy()->labels->singular_name`
- * (e.g. "Catégorie"). The browser has no path to the PHP-registered taxonomy
- * labels at editor time, so this divergence is intentional — authors who care
- * about the localized label can override via the inspector's Label field.
  *
  * @param {object} attributes - Block attributes.
  * @return {string} Variation default label, or '' when not a built-in variation.
@@ -168,14 +166,20 @@ export function variationDefaultLabel( attributes ) {
 	}
 	if ( filterType === 'taxonomy' ) {
 		const taxonomy = attributes?.taxonomy || '';
-		if ( taxonomy === 'category' || taxonomy === 'product_cat' ) {
+		if ( taxonomy === 'category' ) {
 			return __( 'Category', 'jetpack-search-pkg' );
 		}
-		if ( taxonomy === 'post_tag' || taxonomy === 'product_tag' ) {
+		if ( taxonomy === 'post_tag' ) {
 			return __( 'Tag', 'jetpack-search-pkg' );
 		}
+		if ( taxonomy === 'product_cat' ) {
+			return __( 'Product Category', 'jetpack-search-pkg' );
+		}
+		if ( taxonomy === 'product_tag' ) {
+			return __( 'Product Tag', 'jetpack-search-pkg' );
+		}
 		if ( taxonomy === 'product_brand' ) {
-			return __( 'Brand', 'jetpack-search-pkg' );
+			return __( 'Product Brand', 'jetpack-search-pkg' );
 		}
 	}
 	return '';
