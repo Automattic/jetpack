@@ -96,6 +96,7 @@ import wpcomRequest from 'wpcom-proxy-request';
 			path: `${ sitePath }/jobs/${ encodeURIComponent( jobId ) }`,
 			method: 'GET',
 			apiNamespace: 'wpcom/v2',
+			apiVersion: '2',
 		} )
 			.then( record => {
 				if ( record.status === 'pending' || record.status === 'unknown' ) {
@@ -153,6 +154,7 @@ import wpcomRequest from 'wpcom-proxy-request';
 			path: sitePath,
 			method: 'POST',
 			apiNamespace: 'wpcom/v2',
+			apiVersion: '2',
 			body: {
 				window: win,
 				length: $( 'jp-p2p-length' ).value,
