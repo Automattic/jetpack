@@ -39,8 +39,8 @@ class Tracks {
 		add_action( 'add_option_podcasting_category_id', array( __CLASS__, 'record_category_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_category_id', array( __CLASS__, 'record_category_updated' ), 10, 3 );
 
-		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_addition' ), 10, 2 );
-		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_addition' ), 10, 2 );
+		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
+		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
 
 		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'record_settings_saved' ), 10, 3 );
 	}
@@ -74,6 +74,7 @@ class Tracks {
 				return;
 			}
 
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom Simple-only; guarded above.
 			if ( function_exists( 'is_headstart_post' ) && is_headstart_post( $post ) ) {
 				return;
 			}
@@ -135,6 +136,7 @@ class Tracks {
 			}
 
 			$attachment = get_post( (int) $attachment_id );
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom Simple-only; guarded above.
 			if ( $attachment && function_exists( 'is_headstart_post' ) && is_headstart_post( $attachment ) ) {
 				return;
 			}
@@ -199,21 +201,40 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_show_url_saved` for the first podcatcher key that
-	 * transitions from absent/empty to a non-empty string.
+	 * `add_option_podcasting_show_urls` callback. No prior row exists, so
+	 * every entry is a first-time entry.
 	 *
-	 * Bound to both `add_option_*` (signature: option, value) and
-	 * `update_option_*` (signature: old_value, value, option). The first arg
-	 * is either the option name or the previous array; `is_array()` picks
-	 * them apart.
+	 * @param string $option    Option name.
+	 * @param mixed  $new_value Newly stored value.
+	 */
+	public static function record_show_url_added( $option, $new_value ): void {
+		unset( $option );
+		self::maybe_record_show_url_addition( array(), $new_value );
+	}
+
+	/**
+	 * `update_option_podcasting_show_urls` callback. Compare the new value
+	 * against the prior array to find the first directory that transitioned
+	 * from absent/empty to a non-empty URL.
 	 *
-	 * @param mixed $first_arg Option name or previous value.
+	 * @param mixed  $old_value Previous stored value (expected: array).
+	 * @param mixed  $new_value Newly stored value.
+	 * @param string $option    Option name.
+	 */
+	public static function record_show_url_updated( $old_value, $new_value, $option ): void {
+		unset( $option );
+		self::maybe_record_show_url_addition( is_array( $old_value ) ? $old_value : array(), $new_value );
+	}
+
+	/**
+	 * Emit `wpcom_podcasting_show_url_saved` for the first podcatcher key
+	 * that transitions from absent/empty to a non-empty string.
+	 *
+	 * @param array $old_value Previous map of directory => url.
 	 * @param mixed $new_value Newly stored value.
 	 */
-	public static function record_show_url_addition( $first_arg, $new_value ): void {
+	private static function maybe_record_show_url_addition( array $old_value, $new_value ): void {
 		try {
-			$old_value = is_array( $first_arg ) ? $first_arg : array();
-
 			if ( ! is_array( $new_value ) ) {
 				return;
 			}
@@ -268,8 +289,13 @@ class Tracks {
 				return $response;
 			}
 
+			// Skip user-supplied free-text fields — keep PII out of tracks.
+			$pii   = array( 'podcasting_email', 'podcasting_talent_name' );
 			$state = array();
 			foreach ( Settings::OPTION_NAMES as $name ) {
+				if ( in_array( $name, $pii, true ) ) {
+					continue;
+				}
 				$state[ $name ] = get_option( $name, '' );
 			}
 			self::record_event( 'wpcom_podcasting_settings_saved', $state );
@@ -389,6 +415,7 @@ class Tracks {
 			$properties['blog_id'] = (int) get_current_blog_id();
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom Simple-only; guarded above.
 				require_lib( 'tracks/client' );
 			}
 

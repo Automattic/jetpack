@@ -40,6 +40,9 @@ class Tracks_Test extends BaseTestCase {
 		delete_option( 'podcasting_archive' );
 		delete_option( 'podcasting_show_urls' );
 		delete_option( 'podcasting_show_states' );
+		delete_option( 'podcasting_title' );
+		delete_option( 'podcasting_email' );
+		delete_option( 'podcasting_talent_name' );
 		delete_option( 'podcast_show_launched_tracked' );
 		wp_cache_flush();
 		WorDBless_Posts::init()->clear_all_posts();
@@ -258,9 +261,9 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertSame( 'changed', $events[0]['properties']['status'] );
 	}
 
-	public function test_show_url_saved_emits_on_first_entry_per_directory() {
-		Tracks::record_show_url_addition(
-			array(),
+	public function test_show_url_added_emits_on_first_entry_per_directory() {
+		Tracks::record_show_url_added(
+			'podcasting_show_urls',
 			array( 'apple' => 'https://podcasts.apple.com/show/123' )
 		);
 
@@ -269,18 +272,19 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertSame( 'apple', $events[0]['properties']['app'] );
 	}
 
-	public function test_show_url_saved_skips_when_directory_already_had_url() {
-		Tracks::record_show_url_addition(
+	public function test_show_url_updated_skips_when_directory_already_had_url() {
+		Tracks::record_show_url_updated(
 			array( 'apple' => 'https://podcasts.apple.com/show/old' ),
-			array( 'apple' => 'https://podcasts.apple.com/show/new' )
+			array( 'apple' => 'https://podcasts.apple.com/show/new' ),
+			'podcasting_show_urls'
 		);
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
 	}
 
-	public function test_show_url_saved_emits_only_once_for_first_new_directory() {
-		Tracks::record_show_url_addition(
-			array(),
+	public function test_show_url_added_emits_only_once_for_first_new_directory() {
+		Tracks::record_show_url_added(
+			'podcasting_show_urls',
 			array(
 				'apple'   => 'https://podcasts.apple.com/show/123',
 				'spotify' => 'https://open.spotify.com/show/456',
@@ -290,19 +294,10 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
 	}
 
-	public function test_show_url_addition_handles_add_option_signature() {
-		Tracks::record_show_url_addition(
-			'podcasting_show_urls',
-			array( 'spotify' => 'https://open.spotify.com/show/789' )
-		);
-
-		$events = $this->events_named( 'wpcom_podcasting_show_url_saved' );
-		$this->assertCount( 1, $events );
-		$this->assertSame( 'spotify', $events[0]['properties']['app'] );
-	}
-
 	public function test_settings_saved_emits_after_settings_rest_write() {
 		update_option( 'podcasting_title', 'New Title' );
+		update_option( 'podcasting_email', 'host@example.com' );
+		update_option( 'podcasting_talent_name', 'Jane Host' );
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
 		$request->set_param( 'podcasting_title', 'New Title' );
@@ -312,6 +307,9 @@ class Tracks_Test extends BaseTestCase {
 		$events = $this->events_named( 'wpcom_podcasting_settings_saved' );
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'New Title', $events[0]['properties']['podcasting_title'] );
+		// PII is redacted from the payload.
+		$this->assertArrayNotHasKey( 'podcasting_email', $events[0]['properties'] );
+		$this->assertArrayNotHasKey( 'podcasting_talent_name', $events[0]['properties'] );
 	}
 
 	public function test_settings_saved_skips_settings_writes_without_podcasting_fields() {
