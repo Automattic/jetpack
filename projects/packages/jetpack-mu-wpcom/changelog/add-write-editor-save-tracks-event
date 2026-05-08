@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add Tracks event wpcom_write_editor_draft_saved when a draft is successfully saved in the Write editor, with is_new_post and post_id properties.

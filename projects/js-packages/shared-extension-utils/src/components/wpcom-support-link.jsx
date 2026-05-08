@@ -1,5 +1,5 @@
-import { ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
+import { Link } from '@wordpress/ui';
 import { forwardRef } from 'react';
 
 /**
@@ -36,9 +36,9 @@ export const WpcomSupportLink = forwardRef(
 			);
 		}
 		return (
-			<ExternalLink href={ supportLink } onClick={ onClick } style={ style } ref={ ref }>
+			<Link openInNewTab href={ supportLink } onClick={ onClick } style={ style } ref={ ref }>
 				{ children }
-			</ExternalLink>
+			</Link>
 		);
 	}
 );

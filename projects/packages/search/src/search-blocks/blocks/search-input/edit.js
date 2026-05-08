@@ -1,5 +1,5 @@
 /**
- * Editor preview for jetpack/search-input.
+ * Editor preview for jetpack-search/search-input.
  *
  * Mirrors render.php's full structure — screen-reader label, icon, input,
  * and the (initially hidden) clear button — so designers can target every

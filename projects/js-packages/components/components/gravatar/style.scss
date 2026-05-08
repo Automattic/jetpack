@@ -1,0 +1,7 @@
+.jetpack-components-gravatar {
+	background-color: var(--jp-gray-5, #dcdcde);
+	border-radius: 50%;
+	display: block;
+	flex-shrink: 0; // Prevent shrinking when Gravatar is inside flex containers.
+	overflow: hidden;
+}

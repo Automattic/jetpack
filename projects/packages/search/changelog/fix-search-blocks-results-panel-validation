@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: fix block-validation error on results-panel, filter-popover, and common-filters when inserted via patterns

@@ -1,6 +1,5 @@
 import { BlockAlignmentToolbar, PanelColorSettings } from '@wordpress/block-editor';
 import {
-	ExternalLink,
 	PanelBody,
 	TextControl,
 	ToggleControl,
@@ -19,6 +18,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import Locations from './locations';
 
 const markerIcon = (
@@ -173,9 +173,9 @@ export default ( {
 							'wpcom' === apiKeySource && (
 								<>
 									{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{ ' ' }
-									<ExternalLink href="https://account.mapbox.com/access-tokens/">
+									<Link openInNewTab href="https://account.mapbox.com/access-tokens/">
 										{ __( 'Find it on Mapbox', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</>
 							)
 						}

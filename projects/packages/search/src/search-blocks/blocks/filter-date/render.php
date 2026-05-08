@@ -49,10 +49,7 @@ $label = $config['label'];
 		require __DIR__ . '/../filter-skeleton-partial.php';
 	}
 	?>
-	<ul
-		class="jetpack-search-filter__list"
-		data-wp-bind--hidden="state.allBucketsSelected"
-	>
+	<ul class="jetpack-search-filter__list">
 		<template
 			data-wp-each--item="state.filterItems"
 			data-wp-each-key="context.item.value"
@@ -64,6 +61,7 @@ $label = $config['label'];
 					<input
 						type="checkbox"
 						data-wp-bind--value="context.item.value"
+						data-wp-bind--checked="context.item.checked"
 						data-wp-on--change="actions.onFilterChange"
 					/>
 					<span
@@ -79,11 +77,4 @@ $label = $config['label'];
 			</li>
 		</template>
 	</ul>
-	<p
-		class="jetpack-search-filter__all-selected"
-		data-wp-bind--hidden="!state.allBucketsSelected"
-		hidden
-	>
-		<?php esc_html_e( 'All filters applied', 'jetpack-search-pkg' ); ?>
-	</p>
 </div>

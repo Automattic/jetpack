@@ -12,11 +12,14 @@ import {
 	VARIATION_POST_TAG,
 	VARIATION_POST_TYPE,
 	VARIATION_AUTHOR,
+	VARIATION_PRODUCT_CAT,
+	VARIATION_PRODUCT_TAG,
+	VARIATION_PRODUCT_BRAND,
 	VARIATION_CUSTOM_TAXONOMY,
 } from '../../../src/search-blocks/blocks/filter-checkbox/edit.js';
 
 describe( 'deriveVariation', () => {
-	it( 'maps the four built-in (filterType, taxonomy) pairs to their variation ids', () => {
+	it( 'maps the built-in (filterType, taxonomy) pairs to their variation ids', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'category' } ) ).toBe(
 			VARIATION_CATEGORY
 		);
@@ -27,11 +30,20 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'author' } ) ).toBe( VARIATION_AUTHOR );
 	} );
 
+	it( 'maps the WC product taxonomy slugs to their dedicated variations', () => {
+		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
+			VARIATION_PRODUCT_CAT
+		);
+		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_tag' } ) ).toBe(
+			VARIATION_PRODUCT_TAG
+		);
+		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_brand' } ) ).toBe(
+			VARIATION_PRODUCT_BRAND
+		);
+	} );
+
 	it( 'treats any non-built-in taxonomy slug as Custom Taxonomy', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toBe(
-			VARIATION_CUSTOM_TAXONOMY
-		);
-		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
 			VARIATION_CUSTOM_TAXONOMY
 		);
 	} );
@@ -67,13 +79,28 @@ describe( 'variationToAttributes', () => {
 			filterType: 'post_type',
 			taxonomy: 'genre',
 		} );
-		expect( variationToAttributes( VARIATION_AUTHOR, 'product_cat' ) ).toEqual( {
+		expect( variationToAttributes( VARIATION_AUTHOR, 'genre' ) ).toEqual( {
 			filterType: 'author',
-			taxonomy: 'product_cat',
+			taxonomy: 'genre',
 		} );
 		expect( variationToAttributes( VARIATION_AUTHOR, '' ) ).toEqual( {
 			filterType: 'author',
 			taxonomy: '',
+		} );
+	} );
+
+	it( 'pins the slug for the three product variations', () => {
+		expect( variationToAttributes( VARIATION_PRODUCT_CAT, '' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: 'product_cat',
+		} );
+		expect( variationToAttributes( VARIATION_PRODUCT_TAG, 'genre' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: 'product_tag',
+		} );
+		expect( variationToAttributes( VARIATION_PRODUCT_BRAND, 'category' ) ).toEqual( {
+			filterType: 'taxonomy',
+			taxonomy: 'product_brand',
 		} );
 	} );
 
@@ -84,16 +111,14 @@ describe( 'variationToAttributes', () => {
 		} );
 	} );
 
-	it( 'drops built-in `category` / `post_tag` when switching to Custom Taxonomy', () => {
+	it( 'drops every built-in slug when switching to Custom Taxonomy', () => {
 		// Otherwise these would surface as user-typed slugs in the Taxonomy
 		// slug input, which would be wrong: they're built-in variations.
-		expect( variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'category' ) ).toEqual( {
-			filterType: 'taxonomy',
-			taxonomy: '',
-		} );
-		expect( variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'post_tag' ) ).toEqual( {
-			filterType: 'taxonomy',
-			taxonomy: '',
+		[ 'category', 'post_tag', 'product_cat', 'product_tag', 'product_brand' ].forEach( slug => {
+			expect( variationToAttributes( VARIATION_CUSTOM_TAXONOMY, slug ) ).toEqual( {
+				filterType: 'taxonomy',
+				taxonomy: '',
+			} );
 		} );
 	} );
 
@@ -114,10 +139,10 @@ describe( 'variationToAttributes', () => {
 	} );
 
 	it( 'preserves a custom slug across Custom → Post Type → Custom', () => {
-		const step1 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'product_cat' );
+		const step1 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'genre' );
 		const step2 = variationToAttributes( VARIATION_POST_TYPE, step1.taxonomy );
 		const step3 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, step2.taxonomy );
-		expect( step3.taxonomy ).toBe( 'product_cat' );
+		expect( step3.taxonomy ).toBe( 'genre' );
 	} );
 
 	it( 'intentionally clears the slug across Custom → Category → Custom', () => {
@@ -126,6 +151,13 @@ describe( 'variationToAttributes', () => {
 		// as a custom-typed slug. Documented behavior, not a regression.
 		const step1 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'genre' );
 		const step2 = variationToAttributes( VARIATION_CATEGORY, step1.taxonomy );
+		const step3 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, step2.taxonomy );
+		expect( step3.taxonomy ).toBe( '' );
+	} );
+
+	it( 'intentionally clears the slug across Custom → Product Category → Custom', () => {
+		const step1 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, 'genre' );
+		const step2 = variationToAttributes( VARIATION_PRODUCT_CAT, step1.taxonomy );
 		const step3 = variationToAttributes( VARIATION_CUSTOM_TAXONOMY, step2.taxonomy );
 		expect( step3.taxonomy ).toBe( '' );
 	} );
@@ -141,6 +173,21 @@ describe( 'variationDefaultLabel', () => {
 		);
 		expect( variationDefaultLabel( { filterType: 'post_type' } ) ).toBe( 'Post Type' );
 		expect( variationDefaultLabel( { filterType: 'author' } ) ).toBe( 'Author' );
+	} );
+
+	it( 'returns distinct "Product X" labels for the three product variations', () => {
+		// Product taxonomies must read differently from the post-taxonomy
+		// variations so an author with both Category and Product Category
+		// on the same page sees two distinct headings by default.
+		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
+			'Product Category'
+		);
+		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'product_tag' } ) ).toBe(
+			'Product Tag'
+		);
+		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'product_brand' } ) ).toBe(
+			'Product Brand'
+		);
 	} );
 
 	it( 'returns empty string for custom taxonomies so the caller falls back to the generic placeholder', () => {

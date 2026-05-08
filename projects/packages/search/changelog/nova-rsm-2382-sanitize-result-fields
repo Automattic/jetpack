@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search Blocks: render WC formatted prices and post titles as plain text by stripping HTML markup and decoding entities so result cards never expose the raw API HTML.

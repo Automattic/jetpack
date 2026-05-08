@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helper for the jetpack/filter-date block. Mirrors Filter_Checkbox so the
+ * Helper for the jetpack-search/filter-date block. Mirrors Filter_Checkbox so the
  * page-level filterConfig seed walk and render.php share one source of truth.
  */
 class Filter_Date {

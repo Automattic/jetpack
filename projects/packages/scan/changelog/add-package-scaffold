@@ -1,3 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
-Comment: Initial scaffold — empty wp-build dashboard gated behind the rsm_jetpack_ui_modernization_scan filter; no user-visible change unless the flag is enabled.
+
+Initial release of the Scan package: hosts the in-wp-admin Scan UI shell, data-layer skeleton, and REST namespace placeholder.

@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Empty wp-build dashboard scaffold gated behind a feature flag; no user-visible change unless the flag is enabled.
+
+

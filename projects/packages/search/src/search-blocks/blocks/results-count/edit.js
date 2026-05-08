@@ -1,5 +1,5 @@
 /**
- * Editor preview for jetpack/results-count.
+ * Editor preview for jetpack-search/results-count.
  *
  * Matches the copy the live store emits via `state.resultsCountText`
  * (see store/index.js) so the preview reflects the same string designers

@@ -1,10 +1,10 @@
 import { Text } from '@automattic/jetpack-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
+import { SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, Link } from '@wordpress/ui';
 import { useState } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import ToggleSection from '../toggle-section';
@@ -105,7 +105,6 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 					'jetpack-publicize-pkg'
 				) }
 			</Text>
-
 			<Button
 				className={ styles.button }
 				variant="outline"
@@ -114,7 +113,6 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 			>
 				{ __( 'Create a note', 'jetpack-publicize-pkg' ) }
 			</Button>
-
 			{ isEnabled ? (
 				<div className={ styles[ 'notes-options-wrapper' ] }>
 					<ToggleControl
@@ -150,9 +148,12 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 										'jetpack-publicize-pkg'
 									) }
 									&nbsp;
-									<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-social-notes-link-format">
+									<Link
+										openInNewTab
+										href="https://jetpack.com/redirect/?source=jetpack-social-notes-link-format"
+									>
 										{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-									</ExternalLink>
+									</Link>
 								</span>
 							}
 							__nextHasNoMarginBottom={ true }

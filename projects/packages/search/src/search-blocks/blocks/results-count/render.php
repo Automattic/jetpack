@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Search;
 ?>
 <?php
 // Intentionally render the element even when the count text is empty. The
-// Blog Search Page pattern places results-count and sort-control in a flex
+// Blog Search Page pattern places results-count and results-sort in a flex
 // group with `justifyContent: space-between`; removing the element from the
 // flow when there are no results would collapse that layout, snapping the
 // sort control to the left. An always-present (but text-empty) paragraph

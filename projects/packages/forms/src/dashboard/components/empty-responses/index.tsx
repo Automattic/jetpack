@@ -4,13 +4,13 @@
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	Button,
-	ExternalLink,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -91,7 +91,7 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 			'jetpack-forms'
 		),
 		{
-			moreInfoLink: <ExternalLink href="https://akismet.com/" children={ null } />,
+			moreInfoLink: <Link openInNewTab href="https://akismet.com/" children={ null } />,
 		}
 	);
 

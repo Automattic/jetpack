@@ -5,6 +5,7 @@ const captured = {
 	state: {},
 	actions: {},
 	callbacks: {},
+	context: {},
 };
 const originalFetch = global.fetch;
 
@@ -22,6 +23,7 @@ jest.mock(
 			}
 			return { state: captured.state, actions: captured.actions };
 		},
+		getContext: () => captured.context,
 	} ),
 	{ virtual: true }
 );
@@ -222,6 +224,50 @@ describe( 'store actions', () => {
 		expect( state.results.map( r => r.title ) ).toContain( 'Recovered result' );
 	} );
 
+	it( 'clears the previous query results when search() errors out', async () => {
+		// Seed the store as if a successful query had just resolved, so we
+		// can prove the error path tears that data down. Without this, a
+		// subsequent failed search would render its `role="alert"` message
+		// underneath stale results and a stale "Found N results" count.
+		state.results = [ { id: 'old-1', title: 'Stale result' } ];
+		state.totalResults = 5;
+		state.pageHandle = 'old-page';
+		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
+		state.hasError = false;
+
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+
+		expect( state.hasError ).toBe( true );
+		expect( state.results ).toEqual( [] );
+		expect( state.totalResults ).toBe( 0 );
+		expect( state.pageHandle ).toBeNull();
+		expect( state.aggregations ).toEqual( {} );
+		// `resultsCountText` reads from `totalResults` via `computeResultsCountText`,
+		// so an empty count string falls out for free — no extra wiring.
+		expect( state.resultsCountText ).toBe( '' );
+	} );
+
+	it( 'leaves the existing results in place when loadMore() errors out', async () => {
+		// loadMore failures must not clear the first-page results — they're
+		// still valid; only the *next* page failed to fetch. The success
+		// path of the first search seeded the list; loadMore's catch must
+		// not regress that.
+		state.results = [ { id: 'page1-1', title: 'Page 1 result' } ];
+		state.totalResults = 50;
+		state.pageHandle = 'next-page';
+		state.aggregations = { category: { buckets: [ { key: 'news', doc_count: 3 } ] } };
+
+		global.fetch.mockRejectedValueOnce( new Error( 'network down' ) );
+		await runGenerator( actions.loadMore() );
+
+		expect( state.hasError ).toBe( true );
+		expect( state.results ).toHaveLength( 1 );
+		expect( state.results[ 0 ].title ).toBe( 'Page 1 result' );
+		expect( state.totalResults ).toBe( 50 );
+		expect( state.aggregations.category.buckets[ 0 ].key ).toBe( 'news' );
+	} );
+
 	it( 'drops load-more responses superseded by a new search', async () => {
 		const loadMoreResponse = createDeferredResponse();
 		global.fetch.mockReturnValueOnce( loadMoreResponse.promise ).mockResolvedValueOnce(
@@ -270,7 +316,7 @@ describe( 'store actions', () => {
 		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
-	it( 'clears filters only when filters are active', async () => {
+	it( 'clears every facet only when something is active', async () => {
 		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
 
 		await runGenerator( actions.clearFilters() );
@@ -278,9 +324,67 @@ describe( 'store actions', () => {
 
 		state.activeFilters = { tag: [ 'react' ] };
 		await runGenerator( actions.clearFilters() );
-
 		expect( state.activeFilters ).toEqual( {} );
 		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Price-only state still triggers a clear — covers half-open ranges
+		// like `{ min: 10, max: null }` so a "clear all" affordance wipes
+		// every facet, not just the checkbox-shaped ones.
+		state.priceRange = { min: 10, max: null };
+		await runGenerator( actions.clearFilters() );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 2 );
+
+		// Combined state — both checkbox selections and a price range — must
+		// reset in a single call, since the active-filters "Clear all" button
+		// is the only affordance that clears price selections in this PR.
+		state.activeFilters = { tag: [ 'react' ] };
+		state.priceRange = { min: 10, max: 50 };
+		await runGenerator( actions.clearFilters() );
+		expect( state.activeFilters ).toEqual( {} );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 3 );
+	} );
+
+	it( 'setPriceRange validates bounds, no-ops on identity, and clears on null/null', async () => {
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = null;
+
+		// NaN / negative bounds drop the call rather than poisoning ES.
+		await runGenerator( actions.setPriceRange( 'abc', 50 ) );
+		await runGenerator( actions.setPriceRange( -1, 50 ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+
+		// Inverted bounds (min > max) build an empty clause — drop too.
+		await runGenerator( actions.setPriceRange( 100, 10 ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+
+		// Closed range writes and searches.
+		await runGenerator( actions.setPriceRange( 10, 50 ) );
+		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Identity no-op — same bounds shouldn't refetch.
+		await runGenerator( actions.setPriceRange( 10, 50 ) );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Half-open range (one bound null) is allowed — both min-only and
+		// max-only shapes round-trip the matching null through to state so the
+		// URL writer and ES range clause see the same "no bound" sentinel.
+		await runGenerator( actions.setPriceRange( 25, null ) );
+		expect( state.priceRange ).toEqual( { min: 25, max: null } );
+		expect( search ).toHaveBeenCalledTimes( 2 );
+
+		await runGenerator( actions.setPriceRange( null, 50 ) );
+		expect( state.priceRange ).toEqual( { min: null, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 3 );
+
+		// Both null clears the range.
+		await runGenerator( actions.setPriceRange( null, null ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
 	it( 'keeps filter and sort popovers mutually exclusive', () => {
@@ -451,6 +555,27 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
+	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {
+		state.activeFilters = {};
+		state.priceRange = null;
+		expect( state.hasActiveFilters ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		state.activeFilters = {};
+		state.priceRange = { min: 10, max: 50 };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		// Half-open range still counts — without this branch a price-only
+		// deep link leaves the active-filters wrapper hidden after hydration.
+		state.priceRange = { min: null, max: 50 };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		state.priceRange = { min: null, max: null };
+		expect( state.hasActiveFilters ).toBe( false );
+	} );
+
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {
 		expect( state.isFilterTriggerDisabled ).toBe( true );
 
@@ -472,6 +597,26 @@ describe( 'store getters', () => {
 
 		state.sortOrder = 'oldest';
 		expect( state.isSortByOldest ).toBe( true );
+	} );
+
+	it( 'allBucketsSelected returns true only when every bucket is in activeFilters', () => {
+		captured.context = { filterKey: 'pa_color' };
+
+		state.aggregations = {};
+		state.activeFilters = {};
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.aggregations = { pa_color: { buckets: [ { key: 'red' }, { key: 'blue' } ] } };
+		state.activeFilters = {};
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { pa_color: [ 'red' ] };
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { pa_color: [ 'red', 'blue' ] };
+		expect( state.allBucketsSelected ).toBe( true );
+
+		captured.context = {};
 	} );
 } );
 
@@ -545,8 +690,9 @@ describe( 'store callbacks', () => {
 	it( 'initializes popstate handling and runs one URL-seeded search', () => {
 		// Also covers the price-only URL case: `?min_price=10` with no text
 		// query and no checkbox filters seeds isLoading=true on the PHP side,
-		// so initialize() must fire a fetch for `priceRange` alone, not just
-		// for `searchQuery || hasActiveFilters`.
+		// so initialize() must fire a fetch — hasActiveFilters counts the
+		// priceRange, so the existing `searchQuery || hasActiveFilters` gate
+		// is enough.
 		const addEventListener = jest.spyOn( window, 'addEventListener' );
 		Object.assign( actions, originalActions );
 		jest.spyOn( actions, 'handlePopState' ).mockImplementation();

@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 /**
- * Helper methods for the jetpack/filter-checkbox block.
+ * Helper methods for the jetpack-search/filter-checkbox block.
  *
  * Keeps filter-key derivation and default labels out of render.php so both
  * the SSR fetch (which needs to know the filterKey to read the URL-seeded
@@ -69,6 +69,22 @@ class Filter_Checkbox {
 			}
 			if ( 'post_tag' === $taxonomy ) {
 				return __( 'Tag', 'jetpack-search-pkg' );
+			}
+			// Product taxonomies get distinct, prefixed defaults so an author
+			// using both "Filter by Category" (post taxonomy) and "Filter by
+			// Product Category" on the same page sees two clearly different
+			// headings. Skipping `get_taxonomy()->labels->singular_name`
+			// here is intentional — that lookup would collapse the product
+			// label back to the same "Category" / "Tag" / "Brand" string WC
+			// uses for its own admin and break the differentiation.
+			if ( 'product_cat' === $taxonomy ) {
+				return __( 'Product Category', 'jetpack-search-pkg' );
+			}
+			if ( 'product_tag' === $taxonomy ) {
+				return __( 'Product Tag', 'jetpack-search-pkg' );
+			}
+			if ( 'product_brand' === $taxonomy ) {
+				return __( 'Product Brand', 'jetpack-search-pkg' );
 			}
 		}
 		return '';

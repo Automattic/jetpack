@@ -27,6 +27,8 @@ export { default as AutomatticForAgenciesLogo } from './components/automattic-fo
 export { default as JetpackFooter } from './components/jetpack-footer/index.tsx';
 /** @deprecated Use `Spinner` from `@wordpress/components` instead. */
 export { default as Spinner } from './components/spinner/index.tsx';
+export { default as Gravatar } from './components/gravatar/index.tsx';
+export type { GravatarProps } from './components/gravatar/index.tsx';
 export { default as Gridicon } from './components/gridicon/index.tsx';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
 export { default as ActionButton } from './components/action-button/index.tsx';

@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filter-wc-price",
+	"version": "0.1.0",
+	"title": "Filter by Price",
+	"category": "jetpack-search",
+	"icon": "money-alt",
+	"description": "Let shoppers filter products by minimum and maximum price. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true,
+			"blockGap": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"label": { "type": "string", "default": "" },
+		"currencySymbol": { "type": "string", "default": "" },
+		"currencySymbolPosition": { "type": "string", "default": "" }
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-wc-price.js",
+	"style": "file:../../../../build/search-blocks/filter-wc-price.css"
+}

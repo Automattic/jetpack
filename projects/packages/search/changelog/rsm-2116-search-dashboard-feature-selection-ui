@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search dashboard: new feature-selection UI gated behind the jetpack_search_blocks_enabled filter.

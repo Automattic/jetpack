@@ -1,7 +1,8 @@
 import { useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { Warning } from '@wordpress/block-editor';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 
 import './style.scss';
@@ -54,9 +55,9 @@ export default function BlockNudge( {
 							{ readMoreUrl && (
 								<>
 									<br />
-									<ExternalLink href={ readMoreUrl }>
+									<Link openInNewTab href={ readMoreUrl }>
 										{ __( 'Learn more about the block and fees', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</>
 							) }
 						</span>
