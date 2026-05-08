@@ -9,7 +9,7 @@ import {
 	ActivityEventIcon,
 	ActivityEventTitle,
 } from './ActivityEvent';
-import type { Activity, ActivityLogGroupCountResponse } from './types';
+import type { Activity, ActivityLogGroupCountResponse, ActorSummary } from './types';
 import type { Field, Operator } from '@wordpress/dataviews';
 
 export type ActivityLogTypeOption = {
@@ -21,6 +21,7 @@ type UseActivityFieldsArgs = {
 	timezoneString?: string;
 	gmtOffset?: number;
 	activityLogTypes?: ActivityLogGroupCountResponse[ 'groups' ] | undefined;
+	actors?: ActorSummary[];
 };
 
 /**
@@ -159,18 +160,21 @@ const formatDateCell = ( {
  * Build the DataViews `fields` array for the Activity Log table: the
  * Date & time column (optionally paired with a UTC column when the site
  * isn't already on UTC), the Event cell, the User cell, and the hidden
- * `activity_type` field that powers the filter dropdown.
+ * `activity_type` / `actor` fields that power the filter dropdowns.
  *
  * @param args                  - Hook options.
  * @param args.timezoneString   - IANA timezone (e.g. "Europe/London").
  * @param args.gmtOffset        - Decimal hour offset from UTC.
  * @param args.activityLogTypes - Group map from /activity-log/count/group.
+ * @param args.actors           - Distinct actors from /activity-log/actors,
+ *                              used to populate the "Performed by" dropdown.
  * @return The fields array passed to `<DataViews fields=… />`.
  */
 export function useActivityFields( {
 	timezoneString,
 	gmtOffset,
 	activityLogTypes,
+	actors,
 }: UseActivityFieldsArgs ): Field< Activity >[] {
 	const isLargeScreen = useViewportMatch( 'huge', '>=' );
 	const dateTimeLabel = getDateTimeLabel( { timezoneString, gmtOffset, isLargeScreen } );
@@ -187,6 +191,20 @@ export function useActivityFields( {
 			} ) )
 			.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 	}, [ activityLogTypes ] );
+
+	const actorElements = useMemo< ActivityLogTypeOption[] >( () => {
+		if ( ! actors || actors.length === 0 ) {
+			return [];
+		}
+		return actors
+			.filter( actor => actor.id )
+			.map( actor => {
+				const name = actor.name || actor.id;
+				const label = typeof actor.count === 'number' ? `${ name } (${ actor.count })` : name;
+				return { value: actor.id, label };
+			} )
+			.sort( ( a, b ) => a.label.localeCompare( b.label ) );
+	}, [ actors ] );
 
 	return useMemo( () => {
 		const fields: Field< Activity >[] = [
@@ -339,16 +357,17 @@ export function useActivityFields( {
 				filterBy: { operators: [ 'isAny' as Operator ] },
 			},
 			{
-				// Hidden field that powers the "Performed by" filter dropdown.
-				// `getValue` returns 'mcp' for MCP-driven events so the
-				// `isAny` filter matches when the user picks "MCP Agent".
-				// Rows performed by humans/CLI/Happiness return an empty
-				// string and are hidden whenever any element is selected.
-				id: 'actor_source',
+				// Hidden field that powers the "Performed by" filter
+				// dropdown. Elements are seeded from /activity-log/actors,
+				// so each entry matches a distinct actor across the date
+				// window. The actual filtering happens server-side via
+				// `actor[]` on the list endpoint — `getValue` is wired up
+				// only so the filter pill can render the selected label.
+				id: 'actor',
 				type: 'text',
 				label: __( 'Performed by', 'jetpack-activity-log' ),
-				getValue: ( { item } ) => ( item.activityActor?.isMcpAgent ? 'mcp' : '' ),
-				elements: [ { value: 'mcp', label: __( 'MCP Agent', 'jetpack-activity-log' ) } ],
+				getValue: ( { item } ) => item.activityActor?.actorId ?? '',
+				elements: actorElements,
 				isVisible: () => false,
 				filterBy: { operators: [ 'isAny' as Operator ] },
 			}
@@ -361,6 +380,7 @@ export function useActivityFields( {
 		dateTimeLabel,
 		activityLogTypeElements,
 		activityLogTypes,
+		actorElements,
 		localIsUTC,
 	] );
 }

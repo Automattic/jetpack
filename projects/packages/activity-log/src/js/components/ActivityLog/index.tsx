@@ -12,7 +12,11 @@ import { DataViews } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { activityLogQuery, activityLogGroupCountsQuery } from '../../hooks/use-activity-log';
+import {
+	activityLogQuery,
+	activityLogGroupCountsQuery,
+	activityLogActorsQuery,
+} from '../../hooks/use-activity-log';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
 import { DateRangePicker } from '../DateRangePicker';
@@ -21,7 +25,7 @@ import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { useActivityFields } from './fields';
-import { extractActivityLogTypeValues, extractActorSourceValues } from './filters';
+import { extractActivityLogTypeValues, extractActorIdValues } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
 import type { Activity, ActivityLogParams } from './types';
 import type { Field, Filter, View } from '@wordpress/dataviews';
@@ -153,9 +157,9 @@ export default function ActivityLog() {
 		return extractActivityLogTypeValues( filters );
 	}, [ view.filters ] );
 
-	const actorSourceValues = useMemo( () => {
+	const actorIdValues = useMemo( () => {
 		const filters = ( view.filters as Filter[] | undefined ) ?? [];
-		return extractActorSourceValues( filters );
+		return extractActorIdValues( filters );
 	}, [ view.filters ] );
 
 	const searchTerm = view.search?.trim() ?? '';
@@ -189,6 +193,9 @@ export default function ActivityLog() {
 		if ( activityLogTypeValues.length ) {
 			params.group = activityLogTypeValues;
 		}
+		if ( actorIdValues.length ) {
+			params.actor = actorIdValues;
+		}
 		return params;
 	}, [
 		view.sort?.direction,
@@ -196,6 +203,7 @@ export default function ActivityLog() {
 		view.page,
 		searchTerm,
 		activityLogTypeValues,
+		actorIdValues,
 		afterIso,
 		beforeIso,
 	] );
@@ -224,7 +232,19 @@ export default function ActivityLog() {
 		} )
 	);
 
-	const isFetching = isFetchingData || isFetchingFilters;
+	// Actors query feeds the "Performed by" dropdown. Same date window as
+	// the list / counts queries so the available options match what's on
+	// screen, and intentionally independent of the current filter state so
+	// selections don't shrink the dropdown to themselves.
+	const { data: actorsData, isFetching: isFetchingActors } = useQuery(
+		activityLogActorsQuery( {
+			number: 1000,
+			after: afterIso,
+			before: beforeIso,
+		} )
+	);
+
+	const isFetching = isFetchingData || isFetchingFilters || isFetchingActors;
 
 	const paginationInfo = {
 		totalItems: activityLogData?.totalItems ?? 0,
@@ -239,6 +259,7 @@ export default function ActivityLog() {
 		gmtOffset,
 		timezoneString,
 		activityLogTypes: groupCountsData?.groups,
+		actors: actorsData?.actors,
 	} );
 
 	const actions = useActivityActions( { isLoading: isFetching, tracks } );
@@ -275,10 +296,11 @@ export default function ActivityLog() {
 			if ( filtersChanged ) {
 				const nextFilters = ( next.filters as Filter[] | undefined ) ?? [];
 				const activityTypes = extractActivityLogTypeValues( nextFilters );
-				const actorSources = extractActorSourceValues( nextFilters );
+				const actorIds = extractActorIdValues( nextFilters );
 				const eventProps: Record< string, boolean | number > = {
 					num_groups_selected: activityTypes.length,
-					mcp_agent_filter_selected: actorSources.includes( 'mcp' ),
+					num_actors_selected: actorIds.length,
+					actor_filter_includes_mcp: actorIds.some( id => id.startsWith( 'mcp:' ) ),
 				};
 				let totalActivitiesSelected = 0;
 				Object.entries( groupCountsData?.groups ?? {} ).forEach( ( [ groupKey, { count } ] ) => {
@@ -333,18 +355,7 @@ export default function ActivityLog() {
 
 	const getItemId = useCallback( ( item: Activity ) => item.activityId.toString(), [] );
 
-	// "Performed by" is filtered client-side on the current page. The list
-	// query stays server-paginated, so selecting "MCP Agent" only hides
-	// non-MCP rows in the rows already fetched — paginationInfo and the
-	// total counts are intentionally left untouched.
-	const logData = useMemo( () => {
-		const items = ( activityLogData?.activityLogs ?? [] ) as Activity[];
-		if ( actorSourceValues.length === 0 ) {
-			return items;
-		}
-		const wantsMcp = actorSourceValues.includes( 'mcp' );
-		return items.filter( item => wantsMcp && Boolean( item.activityActor?.isMcpAgent ) );
-	}, [ activityLogData?.activityLogs, actorSourceValues ] );
+	const logData = ( activityLogData?.activityLogs ?? [] ) as Activity[];
 
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's

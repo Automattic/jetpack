@@ -15,8 +15,8 @@ export const extractActivityLogTypeValues = ( filters: Filter[] ): string[] => {
 	return [];
 };
 
-export const extractActorSourceValues = ( filters: Filter[] ): string[] => {
-	const filter = filters.find( item => item.field === 'actor_source' );
+export const extractActorIdValues = ( filters: Filter[] ): string[] => {
+	const filter = filters.find( item => item.field === 'actor' );
 	if ( ! filter ) {
 		return [];
 	}

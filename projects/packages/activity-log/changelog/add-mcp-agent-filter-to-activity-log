@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Activity Log: add a "Performed by" filter to isolate events recorded by MCP agents on the current page.
+Activity Log: add a "Performed by" filter that lists every actor with at least one event in the selected date range, including MCP agents. Filtering applies server-side so totals and pagination stay correct.
