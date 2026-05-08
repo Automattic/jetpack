@@ -27,6 +27,13 @@ jest.mock( 'store', () => ( {
 } ) );
 
 jest.mock( 'components/global-notices', () => () => <div data-testid="notices-list" /> );
+jest.mock( 'components/ai-agent-access-control', () => props => (
+	<div
+		data-guidelines-url={ props.guidelinesUrl }
+		data-is-available={ props.isAvailable }
+		data-testid="ai-agent-access-control"
+	/>
+) );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );
 jest.mock( 'components/ai-answers-tab', () => () => <div data-testid="ai-answers-tab" /> );
@@ -72,6 +79,9 @@ const createSelectMethods = () => ( {
 	getReaderChatGuidelinesUrl: jest.fn(
 		() => 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin'
 	),
+	getAIAgentAccessGuidelinesUrl: jest.fn(
+		() => 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin'
+	),
 	getSearchModuleStatus: jest.fn(),
 	getSearchPlanInfo: jest.fn(),
 	getSearchStats: jest.fn(),
@@ -86,6 +96,7 @@ const createSelectMethods = () => ( {
 	isNewPricing202208: jest.fn( () => false ),
 	isOverLimit: jest.fn( () => false ),
 	isPlanJustUpgraded: jest.fn( () => false ),
+	isAIAgentAccessAvailable: jest.fn( () => true ),
 	isReaderChatAvailable: jest.fn( () => true ),
 	isReaderChatEnabled: jest.fn( () => true ),
 	isResolving: jest.fn( () => false ),

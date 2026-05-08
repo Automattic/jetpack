@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -95,7 +96,40 @@ add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
  * @return bool
  */
 function is_proxied_request(): bool {
-	return ( new Status() )->is_automattic_proxied_request();
+	if ( function_exists( 'is_automattician' ) && \is_automattician( \get_current_user_id() ) ) {
+		return true;
+	}
+
+	return is_automattic_proxied_request();
+}
+
+/**
+ * Check whether the current request is coming from a proxied Automattic context.
+ *
+ * Keep this check local to the rollout gate so WPCOM environments with older
+ * vendored Jetpack packages do not fatal during bootstrap.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_automattic_proxied_request(): bool {
+	if ( function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request() ) {
+		return true;
+	}
+
+	if (
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- boolean check only.
+		( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
+		( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
+	) {
+		return true;
+	}
+
+	return defined( 'AT_PROXIED_REQUEST' ) &&
+		AT_PROXIED_REQUEST &&
+		defined( 'ATOMIC_CLIENT_ID' ) &&
+		in_array( (int) ATOMIC_CLIENT_ID, array( 1, 2, 3, 32, 118 ), true );
 }
 
 /**

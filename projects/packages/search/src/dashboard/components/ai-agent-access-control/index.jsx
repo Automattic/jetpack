@@ -81,7 +81,6 @@ export default function AIAgentAccessControl( { guidelinesUrl, isAvailable = tru
 					storeDispatch.successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 				} )
 				.catch( () => {
-					setIsEnabled( previous => previous );
 					storeDispatch.removeUpdatingNotice();
 					storeDispatch.errorNotice(
 						__( 'Error updating AI Agent Access settings.', 'jetpack-search-pkg' )
