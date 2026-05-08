@@ -226,43 +226,26 @@ class Customize_Feed {
 		$post_obj     = $post instanceof WP_Post ? $post : null;
 
 		/**
-		 * Legacy alias of `jetpack_podcast_enable_stats_url`. Kept hot so
-		 * existing consumers (notably WPCOM's `private-podcasts.php`, which
-		 * opts out for token-gated feeds) keep working unchanged.
+		 * Whether to rewrite the enclosure through the WPCOM stats endpoint.
+		 * Token-gated feeds (notably WPCOM's `private-podcasts.php`) opt out
+		 * — the stats URL is a deterministic public endpoint that would
+		 * bypass any token gating on the feed itself.
 		 *
 		 * @param bool         $enable Default true.
 		 * @param WP_Post|null $post   The post being rendered.
 		 */
-		$enable_legacy = (bool) apply_filters( 'wpcom_podcasting_enable_play_tracking', true, $post_obj );
-
-		/**
-		 * Whether to rewrite the enclosure through the WPCOM stats endpoint.
-		 * Receives the result of `wpcom_podcasting_enable_play_tracking` as
-		 * its default — either filter returning false suppresses the rewrite.
-		 *
-		 * @param bool         $enable Result of legacy filter (default true).
-		 * @param WP_Post|null $post   The post being rendered.
-		 */
-		$enable = (bool) apply_filters( 'jetpack_podcast_enable_stats_url', $enable_legacy, $post_obj );
+		$enable = (bool) apply_filters( 'wpcom_podcasting_enable_play_tracking', true, $post_obj );
 
 		if ( null !== $post_obj && $enable ) {
-			/**
-			 * Legacy alias of `jetpack_podcast_stats_blog_id`.
-			 *
-			 * @param int     $blog_id Default current blog ID.
-			 * @param WP_Post $post    The post being rendered.
-			 */
-			$blog_id_legacy = (int) apply_filters( 'wpcom_podcasting_tracked_blog_id', get_current_blog_id(), $post_obj );
-
 			/**
 			 * Override the blog ID baked into the stats URL. Atomic / non-Simple
 			 * sites should return the WPCOM shadow ID so the public-api endpoint
 			 * routes to the right blog.
 			 *
-			 * @param int     $blog_id Result of legacy filter (default current blog ID).
+			 * @param int     $blog_id Default current blog ID.
 			 * @param WP_Post $post    The post being rendered.
 			 */
-			$blog_id   = (int) apply_filters( 'jetpack_podcast_stats_blog_id', $blog_id_legacy, $post_obj );
+			$blog_id   = (int) apply_filters( 'wpcom_podcasting_tracked_blog_id', get_current_blog_id(), $post_obj );
 			$ext       = Stats_Url::get_audio_extension( $original_url );
 			$stats_url = Stats_Url::generate_url( $blog_id, (int) $post_obj->ID, $ext );
 			$enclosure = preg_replace_callback(
