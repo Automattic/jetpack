@@ -1,6 +1,6 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { render } from '@testing-library/react';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { PerNetworkCustomizationForm } from './per-network';
 import type { Connection } from '../../../social-store/types';
 
@@ -16,7 +16,6 @@ jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
 	const mocks = {
 		useDispatch: jest.fn(),
-		useSelect: jest.fn(),
 	};
 
 	return new Proxy( actual, {
@@ -43,7 +42,6 @@ jest.mock( '../../form/share-post-form', () => ( {
 } ) );
 
 const mockUseDispatch = useDispatch as jest.Mock;
-const mockUseSelect = useSelect as jest.Mock;
 const mockSiteHasFeature = siteHasFeature as jest.Mock;
 
 const baseConnection: Connection = {
@@ -77,14 +75,12 @@ function getSharePostFormProps( connectionOverrides: Partial< Connection > = {} 
 describe( 'PerNetworkCustomizationForm', () => {
 	const mockCustomizeConnectionById = jest.fn();
 	let globalMessage = '';
-	let globalTemplate = 'Saved global template';
 	let templatesEnabled = true;
 
 	beforeEach( () => {
 		jest.clearAllMocks();
 
 		globalMessage = '';
-		globalTemplate = 'Saved global template';
 		templatesEnabled = true;
 
 		mockUseDispatch.mockReturnValue( {
@@ -97,64 +93,44 @@ describe( 'PerNetworkCustomizationForm', () => {
 			mediaSource: undefined,
 		} ) );
 
-		mockUseSelect.mockImplementation( selector => {
-			return selector( () => ( {
-				getSocialSettings: () => ( { messageTemplate: globalTemplate } ),
-			} ) );
-		} );
-
 		mockSiteHasFeature.mockImplementation( flag => {
 			return flag === 'social-message-templates' ? templatesEnabled : false;
 		} );
 	} );
 
-	it( 'uses the per-connection message when it is non-empty', () => {
+	it( 'displays connection.message verbatim when it is set', () => {
 		const sharePostFormProps = getSharePostFormProps( {
 			message: 'Manual per-post override',
 			template: '{title} {url}',
 		} );
 
 		expect( sharePostFormProps.message ).toBe( 'Manual per-post override' );
-		expect( sharePostFormProps.messageHelp ).toBe( 'Connection template will be used if empty.' );
+		expect( sharePostFormProps.messageHelp ).toBe( 'A template will be used if this is empty.' );
 	} );
 
-	it( 'prefills with the connection template when message is empty', () => {
+	it( 'preserves an explicitly empty connection.message (no template snap-back)', () => {
 		const sharePostFormProps = getSharePostFormProps( {
 			message: '',
 			template: '{title} {url}',
 		} );
 
-		expect( sharePostFormProps.message ).toBe( '{title} {url}' );
-		expect( sharePostFormProps.messageHelp ).toBe( 'Connection template will be used if empty.' );
+		expect( sharePostFormProps.message ).toBe( '' );
+		expect( sharePostFormProps.messageHelp ).toBe( 'A template will be used if this is empty.' );
 	} );
 
-	it( 'shows global-template helper text when there is no connection message or template', () => {
-		globalTemplate = 'Custom global template: {title}';
+	it( 'falls back to the post-level globalMessage when connection.message is unset', () => {
+		globalMessage = 'Global custom message';
 
 		const sharePostFormProps = getSharePostFormProps( {
-			message: '',
+			message: undefined,
 			template: '',
 		} );
 
-		expect( sharePostFormProps.message ).toBe( '' );
-		expect( sharePostFormProps.messageHelp ).toBe( 'Global template will be used if empty.' );
+		expect( sharePostFormProps.message ).toBe( 'Global custom message' );
+		expect( sharePostFormProps.messageHelp ).toBe( 'A template will be used if this is empty.' );
 	} );
 
-	it( 'shows default-template helper text when global template is empty', () => {
-		globalTemplate = '';
-
-		const sharePostFormProps = getSharePostFormProps( {
-			message: '',
-			template: '',
-		} );
-
-		expect( sharePostFormProps.message ).toBe( '' );
-		expect( sharePostFormProps.messageHelp ).toBe(
-			'The default network template will be used if empty.'
-		);
-	} );
-
-	it( 'keeps current behavior when message templates feature is off', () => {
+	it( 'omits the helper text when message templates feature is off', () => {
 		templatesEnabled = false;
 		globalMessage = 'Global custom message';
 

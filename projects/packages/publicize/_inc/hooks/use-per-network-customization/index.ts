@@ -39,32 +39,34 @@ export function usePerNetworkCustomization() {
 		// Copy global settings to each connection.
 		// Per-network mode forces attachment, so we need to populate attached_media for all sources.
 		connections.forEach( connection => {
-			// Only copy if no existing customization.
-			if ( connection.message === undefined ) {
-				const effectiveSource = getEffectiveMediaSource( postMeta.mediaSource, featuredImageId );
-				const attachedMedia = computeAttachedMediaForSource( {
-					mediaSource: postMeta.mediaSource,
-					globalAttachedMedia: postMeta.attachedMedia,
-					featuredImageId,
-					featuredImageUrl,
-					featuredImageMime,
-				} );
-
-				/*
-				 * Skip writing `message` when the connection has its own template — leaving
-				 * `connection.message` undefined lets the editor and preview fall back to the
-				 * connection template instead of overwriting it with the global share message.
-				 */
-				const updates: Parameters< typeof customizeConnectionById >[ 1 ] = {
-					attached_media: attachedMedia,
-					media_source: effectiveSource,
-				};
-				if ( ! connection.template ) {
-					updates.message = postMeta.shareMessage || '';
-				}
-
-				customizeConnectionById( connection.connection_id, updates );
+			/*
+			 * Use `media_source` as the "uncustomized" signal — `connection.message`
+			 */
+			if ( connection.media_source !== undefined ) {
+				return;
 			}
+
+			const effectiveSource = getEffectiveMediaSource( postMeta.mediaSource, featuredImageId );
+			const attachedMedia = computeAttachedMediaForSource( {
+				mediaSource: postMeta.mediaSource,
+				globalAttachedMedia: postMeta.attachedMedia,
+				featuredImageId,
+				featuredImageUrl,
+				featuredImageMime,
+			} );
+
+			const updates: Parameters< typeof customizeConnectionById >[ 1 ] = {
+				attached_media: attachedMedia,
+				media_source: effectiveSource,
+			};
+			/*
+			 * Skip writing `message` when the connection has its own template
+			 */
+			if ( ! connection.template ) {
+				updates.message = postMeta.shareMessage || '';
+			}
+
+			customizeConnectionById( connection.connection_id, updates );
 		} );
 	}, [
 		connections,

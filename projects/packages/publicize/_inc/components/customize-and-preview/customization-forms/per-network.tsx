@@ -1,5 +1,5 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { usePostMeta } from '../../../hooks/use-post-meta';
@@ -12,16 +12,8 @@ type PerNetworkCustomizationFormProps = {
 	connection: Connection;
 };
 
-const CONNECTION_TEMPLATE_HELP = __(
-	'Connection template will be used if empty.',
-	'jetpack-publicize-pkg'
-);
-const GLOBAL_TEMPLATE_HELP = __(
-	'Global template will be used if empty.',
-	'jetpack-publicize-pkg'
-);
-const DEFAULT_NETWORK_TEMPLATE_HELP = __(
-	'The default network template will be used if empty.',
+const FALLBACK_TEMPLATE_HELP = __(
+	'A template will be used if this is empty.',
 	'jetpack-publicize-pkg'
 );
 
@@ -35,31 +27,9 @@ export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomiza
 	const { customizeConnectionById } = useDispatch( socialStore );
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 	const { shareMessage: globalMessage } = usePostMeta();
-	const globalMessageTemplate = useSelect(
-		select => select( socialStore ).getSocialSettings().messageTemplate,
-		[]
-	);
 
-	const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
-	const hasConnectionTemplate = Boolean( connection.template );
-	const hasGlobalMessageTemplate = Boolean( globalMessageTemplate );
-
-	let message = connection.message ?? globalMessage ?? '';
-	let fallbackHelp: string | undefined;
-
-	if ( templatesEnabled ) {
-		message = hasConnectionMessage
-			? connection.message ?? ''
-			: connection.template ?? globalMessage ?? '';
-
-		if ( hasConnectionTemplate ) {
-			fallbackHelp = CONNECTION_TEMPLATE_HELP;
-		} else if ( hasGlobalMessageTemplate ) {
-			fallbackHelp = GLOBAL_TEMPLATE_HELP;
-		} else {
-			fallbackHelp = DEFAULT_NETWORK_TEMPLATE_HELP;
-		}
-	}
+	const message = connection.message ?? globalMessage ?? '';
+	const fallbackHelp = templatesEnabled ? FALLBACK_TEMPLATE_HELP : undefined;
 
 	/*
 	 * Per-network values come strictly from the connection. We don't fall back to global
