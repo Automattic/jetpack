@@ -1,4 +1,4 @@
-import { spawnSync } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import fs from 'fs';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
@@ -209,6 +209,56 @@ const isProjectRunning = project => {
 };
 
 /**
+ * Pipe `wp db export` from a source container into `wp db import` on a target container,
+ * surfacing failures from either side independently.
+ *
+ * Replaces an earlier `bash -c '… | …'` invocation that masked source-side failures: with
+ * default bash, the pipe's exit status is the importer's only, so a broken `wp db export`
+ * could go unnoticed while the importer happily consumed partial/empty bytes and exited 0.
+ * Going node-native gives each side its own exit code.
+ *
+ * @param {string} sourceContainer - Source WP container name (e.g. 'jetpack_dev-wordpress-1').
+ * @param {string} targetContainer - Target WP container name (e.g. 'jetpack_foo-wordpress-1').
+ * @param {string} wpPath          - WP install path inside both containers (e.g. '/var/www/html').
+ * @return {Promise<void>} Resolves only when both processes exit 0; rejects with attribution otherwise.
+ */
+export const pipeDbDump = async ( sourceContainer, targetContainer, wpPath ) => {
+	const source = spawn(
+		'docker',
+		[ 'exec', sourceContainer, 'wp', 'db', 'export', '-', `--path=${ wpPath }` ],
+		{ stdio: [ 'ignore', 'pipe', 'inherit' ] }
+	);
+	const target = spawn(
+		'docker',
+		[ 'exec', '-i', targetContainer, 'wp', 'db', 'import', '-', `--path=${ wpPath }` ],
+		{ stdio: [ 'pipe', 'inherit', 'inherit' ] }
+	);
+	source.stdout.pipe( target.stdin );
+
+	const exitOf = proc =>
+		new Promise( ( resolve, reject ) => {
+			proc.on( 'exit', code => resolve( code ) );
+			proc.on( 'error', err => reject( err ) );
+		} );
+
+	const [ sourceCode, targetCode ] = await Promise.all( [ exitOf( source ), exitOf( target ) ] );
+
+	if ( sourceCode !== 0 && targetCode !== 0 ) {
+		throw new Error(
+			`db dump pipeline failed: source 'wp db export' exit ${ sourceCode }; target 'wp db import' exit ${ targetCode }.`
+		);
+	}
+	if ( sourceCode !== 0 ) {
+		throw new Error(
+			`source 'wp db export' failed (exit ${ sourceCode }). Target import is unreliable; aborting clone.`
+		);
+	}
+	if ( targetCode !== 0 ) {
+		throw new Error( `target 'wp db import' failed (exit ${ targetCode }).` );
+	}
+};
+
+/**
  * Clone the database of a running source instance into a freshly-started target instance.
  *
  * Waits for the target's WordPress container to be ready, then skips if the target is already
@@ -292,19 +342,12 @@ const cloneDatabase = async ( argv, source, target, targetEnv ) => {
 	);
 
 	console.log( chalk.cyan( 'Dumping source DB and importing into target…' ) );
-	const pipe = spawnSync(
-		'bash',
-		[
-			'-c',
-			'docker exec "$1" wp db export - --path="$3" | docker exec -i "$2" wp db import - --path="$3"',
-			'--',
-			sourceWp,
-			targetWp,
-			wpPath,
-		],
-		{ stdio: 'inherit' }
-	);
-	checkProcessResult( pipe );
+	try {
+		await pipeDbDump( sourceWp, targetWp, wpPath );
+	} catch ( err ) {
+		console.error( chalk.red( err.message ) );
+		process.exit( 1 );
+	}
 
 	if ( sourceSiteUrl !== targetSiteUrl ) {
 		console.log( chalk.cyan( `Rewriting URLs: ${ sourceSiteUrl } → ${ targetSiteUrl }` ) );

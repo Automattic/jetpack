@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+import { Readable, Writable } from 'stream';
 import { jest } from '@jest/globals';
 
 const fsStub = {
@@ -13,9 +15,56 @@ jest.unstable_mockModule( 'fs', () => ( {
 	...fsStub,
 } ) );
 
-const { getProjectName, buildEnv, resolveDevCloneSource, normalizeProjectShortName } = await import(
-	'../../../commands/docker.js'
-);
+const cpStub = {
+	spawn: jest.fn(),
+	spawnSync: jest.fn( () => ( { status: 0, stdout: '', stderr: '' } ) ),
+};
+jest.unstable_mockModule( 'child_process', () => ( {
+	default: cpStub,
+	...cpStub,
+} ) );
+
+const { getProjectName, buildEnv, resolveDevCloneSource, normalizeProjectShortName, pipeDbDump } =
+	await import( '../../../commands/docker.js' );
+
+/**
+ * Build a minimum-viable mock child_process. Emits `exit` (and `close`) on the next tick
+ * with the configured exit code; `stdout` ends with the optional payload; `stdin` is a
+ * sink so `source.stdout.pipe(target.stdin)` doesn't backpressure the test.
+ *
+ * @param {object} opts                 - Mock-process options.
+ * @param {number} [opts.exitCode=0]    - Exit code to emit.
+ * @param {string} [opts.stdoutData=''] - Bytes to push on stdout before EOF.
+ * @param {Error}  [opts.error]         - If set, emit 'error' before exit.
+ * @return {EventEmitter} Mock process with .stdout / .stdin streams attached.
+ */
+const makeMockProc = ( { exitCode = 0, stdoutData = '', error = null } = {} ) => {
+	const proc = new EventEmitter();
+	proc.stdout = new Readable( { read() {} } );
+	proc.stdin = new Writable( {
+		write( _chunk, _enc, cb ) {
+			cb();
+		},
+	} );
+	setImmediate( () => {
+		if ( error ) {
+			proc.emit( 'error', error );
+		}
+		if ( stdoutData ) {
+			proc.stdout.push( stdoutData );
+		}
+		proc.stdout.push( null );
+		proc.emit( 'exit', exitCode );
+		proc.emit( 'close', exitCode );
+	} );
+	return proc;
+};
+
+beforeEach( () => {
+	cpStub.spawn.mockReset();
+	cpStub.spawnSync.mockReset();
+	cpStub.spawnSync.mockReturnValue( { status: 0, stdout: '', stderr: '' } );
+} );
 
 describe( 'getProjectName', () => {
 	test( 'defaults to jetpack_dev for dev type with no name', () => {
@@ -152,6 +201,56 @@ describe( 'normalizeProjectShortName', () => {
 		expect( () => normalizeProjectShortName( '-leading-dash' ) ).toThrow( /Invalid project name/ );
 		expect( () => normalizeProjectShortName( '_leading-underscore' ) ).toThrow(
 			/Invalid project name/
+		);
+	} );
+} );
+
+describe( 'pipeDbDump', () => {
+	test( 'resolves when both source and target exit 0', async () => {
+		cpStub.spawn
+			.mockReturnValueOnce( makeMockProc( { exitCode: 0, stdoutData: 'INSERT INTO ...' } ) )
+			.mockReturnValueOnce( makeMockProc( { exitCode: 0 } ) );
+		await expect( pipeDbDump( 'src-wp-1', 'tgt-wp-1', '/var/www/html' ) ).resolves.toBeUndefined();
+		expect( cpStub.spawn ).toHaveBeenCalledTimes( 2 );
+		const sourceCall = cpStub.spawn.mock.calls[ 0 ];
+		const targetCall = cpStub.spawn.mock.calls[ 1 ];
+		expect( sourceCall[ 0 ] ).toBe( 'docker' );
+		expect( sourceCall[ 1 ] ).toEqual(
+			expect.arrayContaining( [ 'exec', 'src-wp-1', 'wp', 'db', 'export' ] )
+		);
+		expect( targetCall[ 0 ] ).toBe( 'docker' );
+		expect( targetCall[ 1 ] ).toEqual(
+			expect.arrayContaining( [ 'exec', '-i', 'tgt-wp-1', 'wp', 'db', 'import' ] )
+		);
+	} );
+
+	test( 'rejects with source attribution when source export fails (target import "succeeds")', async () => {
+		// This is the silent-failure scenario the bash version masked: source exits 1 but
+		// the importer happily consumed whatever bytes it got and exits 0. The pipe used
+		// to report success because pipefail wasn't set.
+		cpStub.spawn
+			.mockReturnValueOnce( makeMockProc( { exitCode: 1, stdoutData: '' } ) )
+			.mockReturnValueOnce( makeMockProc( { exitCode: 0 } ) );
+		await expect( pipeDbDump( 'src-wp-1', 'tgt-wp-1', '/var/www/html' ) ).rejects.toThrow(
+			/source.*wp db export.*exit 1/i
+		);
+	} );
+
+	test( 'rejects with target attribution when target import fails', async () => {
+		cpStub.spawn
+			.mockReturnValueOnce( makeMockProc( { exitCode: 0, stdoutData: 'INSERT...' } ) )
+			.mockReturnValueOnce( makeMockProc( { exitCode: 2 } ) );
+		await expect( pipeDbDump( 'src-wp-1', 'tgt-wp-1', '/var/www/html' ) ).rejects.toThrow(
+			/target.*wp db import.*exit 2/i
+		);
+	} );
+
+	test( 'rejects mentioning both sides when both fail', async () => {
+		cpStub.spawn
+			.mockReturnValueOnce( makeMockProc( { exitCode: 1 } ) )
+			.mockReturnValueOnce( makeMockProc( { exitCode: 3 } ) );
+		await expect( pipeDbDump( 'src-wp-1', 'tgt-wp-1', '/var/www/html' ) ).rejects.toThrow(
+			/source.*exit 1.*target.*exit 3/is
 		);
 	} );
 } );
