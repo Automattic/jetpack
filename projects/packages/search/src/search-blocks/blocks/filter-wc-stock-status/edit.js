@@ -11,11 +11,9 @@ import { __ } from '@wordpress/i18n';
 
 // Mirror Search_Product_Filter_Status::get_options() — same value/label
 // pairs so the editor preview matches the front-end render shape exactly.
-// Sample counts are illustrative; the live block renders real ES counts.
+// Sample count is illustrative; the live block renders real ES counts.
 const SAMPLE_OPTIONS = [
 	{ value: 'instock', label: __( 'In stock', 'jetpack-search-pkg' ), count: 24 },
-	{ value: 'outofstock', label: __( 'Out of stock', 'jetpack-search-pkg' ), count: 3 },
-	{ value: 'onbackorder', label: __( 'On backorder', 'jetpack-search-pkg' ), count: 1 },
 ];
 
 const DEFAULT_LABEL = __( 'Stock status', 'jetpack-search-pkg' );

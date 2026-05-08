@@ -5,36 +5,37 @@ import './style.scss';
 const NAMESPACE = 'jetpack-search';
 
 /**
- * Build a slug → count map from a histogram-or-terms aggregation's buckets.
- * Returns a plain object so the per-option getter can do a constant-time
- * lookup and avoid re-scanning the bucket array for every render.
+ * Read the `outofstock` bucket's count from a terms-aggregation response.
+ * The aggregation is built with `include: ['outofstock']` so at most one
+ * bucket can come back; the helper returns 0 when the bucket is absent
+ * (no out-of-stock products in the current scope, or pre-hydration state
+ * with no aggregation yet).
  *
  * @param {Array<{key: string, doc_count: number}>} buckets - Aggregation buckets.
- * @return {object} Slug-keyed count map.
+ * @return {number} Out-of-stock count, or 0 when none.
  */
-function bucketsToCountMap( buckets ) {
+function readOutOfStockCount( buckets ) {
 	if ( ! Array.isArray( buckets ) ) {
-		return {};
+		return 0;
 	}
-	const map = {};
 	for ( const bucket of buckets ) {
-		const key = String( bucket?.key ?? '' );
-		if ( ! key ) {
-			continue;
+		if ( String( bucket?.key ?? '' ) === 'outofstock' ) {
+			return Number( bucket?.doc_count ?? 0 );
 		}
-		map[ key ] = Number( bucket?.doc_count ?? 0 );
 	}
-	return map;
+	return 0;
 }
 
 store( NAMESPACE, {
 	state: {
 		/**
-		 * `data-wp-bind--checked` per-option. Reads the input's `value`
-		 * attribute via `getElement().attributes.value` so the same getter
-		 * serves all three options without per-option context. Falls back
-		 * to false when the filter has no selections so unchecking the
-		 * last box re-renders cleanly.
+		 * `data-wp-bind--checked` for the in-stock toggle. Reads the
+		 * input's `value` attribute via `getElement().attributes.value`
+		 * so the getter stays generic (the option list comes from
+		 * `Search_Product_Filter_Status::get_options()` and may grow
+		 * back to multiple entries once the WPCOM-side ES indexer carries
+		 * `_stock_status` again). Falls back to false when the filter
+		 * has no selections so unchecking re-renders cleanly.
 		 *
 		 * @return {boolean} Whether this option's slug is in activeFilters.
 		 */
@@ -50,31 +51,24 @@ store( NAMESPACE, {
 		},
 
 		/**
-		 * `data-wp-text` per-option count badge. Reads the option's slug
-		 * from the option's `<input value=…>` (the count badge sits next
-		 * to the input inside the same `<label>`), then looks the slug up
-		 * in the aggregation. Falls back to "0" when the filter has no
-		 * matches in the current scope — convention for "always show all
-		 * options" facet UIs.
+		 * `data-wp-text` count badge for the single "In stock" option.
+		 * The aggregation carries only the `outofstock` bucket count
+		 * against `product_visibility` (the taxonomy has no positive
+		 * `instock` term), so the in-stock count is derived as
+		 * `state.totalResults - outOfStock`. Counts reflect the current
+		 * filter scope: when the toggle is on, the filter excludes
+		 * out-of-stock and the bucket count is `0`, leaving the in-stock
+		 * count equal to the (already narrowed) `totalResults`. Falls
+		 * back to "0" pre-hydration.
 		 *
 		 * @return {string} Count as a string for the badge text node.
 		 */
 		get statusOptionCount() {
-			// The count <span> sits as a sibling of the <input> inside the
-			// shared <label>. Walk up to the label, then find the input
-			// to read its `value` attribute — the slug we look up below.
-			const el = getElement()?.ref;
-			const label = el?.closest?.( 'label' );
-			const input = label?.querySelector?.( 'input[type="checkbox"]' );
-			const value = input?.getAttribute?.( 'value' );
-			if ( ! value ) {
-				return '0';
-			}
 			const { state } = store( NAMESPACE );
 			const { filterKey } = getContext();
-			const buckets = state.aggregations?.[ filterKey ]?.buckets;
-			const counts = bucketsToCountMap( buckets );
-			return String( counts[ value ] ?? 0 );
+			const outOfStock = readOutOfStockCount( state.aggregations?.[ filterKey ]?.buckets );
+			const total = Number( state.totalResults ?? 0 );
+			return String( Math.max( 0, total - outOfStock ) );
 		},
 	},
 

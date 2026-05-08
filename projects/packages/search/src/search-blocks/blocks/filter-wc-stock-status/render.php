@@ -2,18 +2,19 @@
 /**
  * Search product filter — stock status render.
  *
- * Emits a fixed three-option list (in stock / out of stock / on backorder)
- * and registers the filterConfig with the shared `jetpack-search`
- * Interactivity store. Counts are looked up at render time from
- * URL-seeded `state.aggregations.filter_stock_status.buckets` so direct
- * URL hits show count badges before JS hydrates; bindings update them
- * once the first JS-driven fetch completes.
+ * V1 surfaces a single "In stock" toggle and registers the filterConfig
+ * with the shared `jetpack-search` Interactivity store. The data plane
+ * routes through the WC `product_visibility` taxonomy (`outofstock`
+ * term ⇒ out of stock; absence ⇒ in stock); see store/api.js for the
+ * agg / clause shape and class-search-product-filter-status.php for why
+ * the option list is shaped this way today.
  *
- * Unlike the generic filter-checkbox block, the option list is fixed
- * (WC's `wc_get_product_stock_status_options()` keys) and renders even
- * when the aggregation has zero buckets — the e-commerce facet UX
- * convention is "always show every option, even at count 0," which
- * mirrors WC's own filter and matches what shoppers expect.
+ * Counts on first paint come from URL-seeded
+ * `state.aggregations.filter_stock_status.buckets` so direct URL hits
+ * have a count badge before JS hydrates; bindings update once the first
+ * JS-driven fetch completes. The in-stock count is derived as
+ * `totalResults - outofstock_bucket` because the taxonomy has no
+ * positive `instock` term.
  *
  * @package automattic/jetpack-search
  */
@@ -45,17 +46,24 @@ $seeded_aggs     = (array) ( $seeded_state['aggregations'] ?? array() );
 $seeded_buckets  = (array) ( ( (array) ( $seeded_aggs[ Search_Product_Filter_Status::FILTER_KEY ] ?? array() ) )['buckets'] ?? array() );
 $seeded_active   = (array) ( $seeded_state['activeFilters'] ?? array() );
 $seeded_selected = (array) ( $seeded_active[ Search_Product_Filter_Status::FILTER_KEY ] ?? array() );
+$seeded_total    = (int) ( $seeded_state['totalResults'] ?? 0 );
 
-// Build a slug → count map from the aggregation buckets so the static
-// option list can render count badges on first paint.
-$counts = array();
+// Pre-hydration count map. The aggregation only carries the
+// `outofstock` bucket; the in-stock count is derived as
+// `totalResults - outofstock` since the `product_visibility` taxonomy
+// has no positive `instock` term. Both fall back to 0 before any
+// search has run so the badge has something to render.
+$out_of_stock = 0;
 foreach ( $seeded_buckets as $bucket ) {
-	$key = (string) ( $bucket['key'] ?? '' );
-	if ( '' === $key ) {
-		continue;
+	if ( 'outofstock' === (string) ( $bucket['key'] ?? '' ) ) {
+		$out_of_stock = (int) ( $bucket['doc_count'] ?? 0 );
+		break;
 	}
-	$counts[ $key ] = (int) ( $bucket['doc_count'] ?? 0 );
 }
+$counts = array(
+	'instock'    => max( 0, $seeded_total - $out_of_stock ),
+	'outofstock' => $out_of_stock,
+);
 
 $label      = (string) $config['label'];
 $show_count = (bool) $config['showCount'];

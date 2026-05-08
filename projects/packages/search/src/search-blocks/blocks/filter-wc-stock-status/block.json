@@ -6,7 +6,7 @@
 	"title": "Filter by Stock Status",
 	"category": "jetpack-search",
 	"icon": "tag",
-	"description": "Let shoppers filter products by stock status (in stock, out of stock, on backorder). Powered by Jetpack Search.",
+	"description": "Let shoppers narrow product results to in-stock items. Powered by Jetpack Search.",
 	"supports": {
 		"html": false,
 		"interactivity": true,

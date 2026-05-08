@@ -26,10 +26,17 @@ class Search_Product_Filter_Status {
 	const FILTER_KEY = 'filter_stock_status';
 
 	/**
-	 * Fixed option set for the filter. Matches the keys
-	 * `wc_get_product_stock_status_options()` returns; v1 ships hardcoded
-	 * English labels (RSM-1932 will server-render the WC translations into
-	 * `wp_interactivity_state` so locales other than en-US render correctly).
+	 * Fixed option set for the filter. v1 surfaces a single "In stock"
+	 * toggle: the data plane reads from the `product_visibility` taxonomy
+	 * where only `outofstock` exists — backorder lives solely in the
+	 * `_stock_status` postmeta which the WPCOM-side ES indexer doesn't
+	 * currently retain, and an explicit "Out of stock" option rarely makes
+	 * sense on a shop UI. When the indexer adds `_stock_status`, the full
+	 * three-option list (`instock` / `outofstock` / `onbackorder`) can be
+	 * restored here and the data-plane wiring in `store/api.js` reverted
+	 * to the meta path. Hardcoded English labels for now (RSM-1932 will
+	 * server-render the WC translations into `wp_interactivity_state` so
+	 * non-en-US locales render correctly).
 	 *
 	 * @return array<int, array{value: string, label: string}>
 	 */
@@ -38,14 +45,6 @@ class Search_Product_Filter_Status {
 			array(
 				'value' => 'instock',
 				'label' => 'In stock',
-			),
-			array(
-				'value' => 'outofstock',
-				'label' => 'Out of stock',
-			),
-			array(
-				'value' => 'onbackorder',
-				'label' => 'On backorder',
 			),
 		);
 	}
@@ -77,7 +76,8 @@ class Search_Product_Filter_Status {
 	/**
 	 * Build the filterConfig entry this block contributes to the shared
 	 * Interactivity state. JS reads filterType to dispatch onto the
-	 * `meta._stock_status.value.raw` ES path.
+	 * `taxonomy.product_visibility.slug` ES path with `outofstock`-include
+	 * agg and `term` / `must_not term` clauses.
 	 *
 	 * @param array  $attributes Block attributes.
 	 * @param string $_filter_key Resolved filter key (unused; present for interface parity).
