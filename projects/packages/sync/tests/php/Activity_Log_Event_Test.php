@@ -25,6 +25,16 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Runs after every test in this class.
+	 */
+	public function tear_down() {
+		$this->remove_activity_log_event_hooks();
+		$this->reset_activity_log_event_initialized();
+
+		parent::tear_down();
+	}
+
+	/**
 	 * Tests that the Activity Log event post type is exposed under the intended REST base.
 	 */
 	public function test_activity_log_event_registers_rest_post_type_shape() {
@@ -66,6 +76,7 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	 */
 	public function test_activity_log_event_init_runs_when_sync_is_not_allowed() {
 		$this->remove_activity_log_event_hooks();
+		$this->reset_activity_log_event_initialized();
 		$previous_sync_disabled = Settings::get_setting( 'disable' );
 		Settings::update_settings( array( 'disable' => 1 ) );
 
@@ -81,8 +92,23 @@ class Activity_Log_Event_Test extends BaseTestCase {
 		} finally {
 			Settings::update_settings( array( 'disable' => $previous_sync_disabled ) );
 			$this->remove_activity_log_event_hooks();
+			$this->reset_activity_log_event_initialized();
+		}
+	}
+
+	/**
+	 * Tests that Activity Log event init is safe to call more than once.
+	 */
+	public function test_activity_log_event_init_is_idempotent() {
+		$this->remove_activity_log_event_hooks();
+		$this->reset_activity_log_event_initialized();
+
+		for ( $i = 0; $i < 2; ++$i ) {
 			Activity_Log_Event::init();
 		}
+
+		$this->assertSame( 10, has_action( 'init', array( Activity_Log_Event::class, 'register_post_type' ) ) );
+		$this->assertSame( 10, has_filter( 'rest_pre_insert_' . Activity_Log_Event::POST_TYPE, array( Activity_Log_Event::class, 'normalize_rest_post' ) ) );
 	}
 
 	/**
@@ -529,6 +555,17 @@ class Activity_Log_Event_Test extends BaseTestCase {
 		remove_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ), 10 );
 		remove_filter( 'publicize_should_publicize_published_post', array( Activity_Log_Event::class, 'prevent_publicize' ), 10 );
 		remove_filter( 'jetpack_sitemap_post_types', array( Activity_Log_Event::class, 'filter_sitemap_post_types' ), 10 );
+	}
+
+	/**
+	 * Resets Activity Log event initialization state for tests.
+	 */
+	private function reset_activity_log_event_initialized() {
+		$reflection = new \ReflectionProperty( Activity_Log_Event::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
+		$reflection->setValue( null, false );
 	}
 
 	/**

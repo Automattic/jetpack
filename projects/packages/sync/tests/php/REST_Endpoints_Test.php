@@ -43,6 +43,7 @@ class REST_Endpoints_Test extends TestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
+		$this->reset_activity_log_event_initialized();
 		Sync_Main::configure();
 		Activity_Log_Event::register_post_type();
 		$this->add_activity_log_event_filters();
@@ -69,6 +70,7 @@ class REST_Endpoints_Test extends TestCase {
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 
 		$this->remove_activity_log_event_filters();
+		$this->reset_activity_log_event_initialized();
 
 		WorDBless_Options::init()->clear_options();
 	}
@@ -476,26 +478,26 @@ class REST_Endpoints_Test extends TestCase {
 
 			$response = $this->server->dispatch( $request );
 			$data     = $response->get_data();
+
+			$this->assertEquals( 201, $response->get_status() );
+			$this->assertIsInt( $data['id'] );
+
+			$post = get_post( $data['id'] );
+
+			$this->assertInstanceOf( \WP_Post::class, $post );
+			$this->assertSame( Activity_Log_Event::POST_TYPE, $post->post_type );
+			$this->assertSame( 'publish', $post->post_status );
+			$this->assertSame( 'Cache flushed', $post->post_title );
+
+			$payload = $this->get_activity_log_payload( $post );
+
+			$this->assertSame( 'Cache flushed', $payload['title'] );
+			$this->assertSame( 'Plain text note.', $payload['content'] );
+			$this->assertSame( 'mc', $payload['source'] );
+			$this->assertSame( 'warning', $payload['severity'] );
 		} finally {
 			$user->remove_cap( 'manage_options' );
 		}
-
-		$this->assertEquals( 201, $response->get_status() );
-		$this->assertIsInt( $data['id'] );
-
-		$post = get_post( $data['id'] );
-
-		$this->assertInstanceOf( \WP_Post::class, $post );
-		$this->assertSame( Activity_Log_Event::POST_TYPE, $post->post_type );
-		$this->assertSame( 'publish', $post->post_status );
-		$this->assertSame( 'Cache flushed', $post->post_title );
-
-		$payload = $this->get_activity_log_payload( $post );
-
-		$this->assertSame( 'Cache flushed', $payload['title'] );
-		$this->assertSame( 'Plain text note.', $payload['content'] );
-		$this->assertSame( 'mc', $payload['source'] );
-		$this->assertSame( 'warning', $payload['severity'] );
 	}
 
 	/**
@@ -520,11 +522,11 @@ class REST_Endpoints_Test extends TestCase {
 			);
 
 			$response = $this->server->dispatch( $request );
+
+			$this->assertEquals( 400, $response->get_status() );
 		} finally {
 			$user->remove_cap( 'manage_options' );
 		}
-
-		$this->assertEquals( 400, $response->get_status() );
 	}
 
 	/**
@@ -588,18 +590,18 @@ class REST_Endpoints_Test extends TestCase {
 			);
 
 			$response = $this->server->dispatch( $request );
+
+			$this->assertContains( $response->get_status(), array( 401, 403 ) );
+
+			$post = get_post( $post_id );
+			$this->assertInstanceOf( \WP_Post::class, $post );
+			$this->assertSame( 'Cache flushed', $post->post_title );
+
+			$payload = $this->get_activity_log_payload( $post );
+			$this->assertSame( 'Plain text note.', $payload['content'] );
 		} finally {
 			$user->remove_cap( 'manage_options' );
 		}
-
-		$this->assertContains( $response->get_status(), array( 401, 403 ) );
-
-		$post = get_post( $post_id );
-		$this->assertInstanceOf( \WP_Post::class, $post );
-		$this->assertSame( 'Cache flushed', $post->post_title );
-
-		$payload = $this->get_activity_log_payload( $post );
-		$this->assertSame( 'Plain text note.', $payload['content'] );
 	}
 
 	/**
@@ -621,12 +623,12 @@ class REST_Endpoints_Test extends TestCase {
 
 			$request  = new WP_REST_Request( 'DELETE', '/wp/v2/activity-log-events/' . $post_id );
 			$response = $this->server->dispatch( $request );
+
+			$this->assertContains( $response->get_status(), array( 401, 403 ) );
+			$this->assertInstanceOf( \WP_Post::class, get_post( $post_id ) );
 		} finally {
 			$user->remove_cap( 'manage_options' );
 		}
-
-		$this->assertContains( $response->get_status(), array( 401, 403 ) );
-		$this->assertInstanceOf( \WP_Post::class, get_post( $post_id ) );
 	}
 
 	/**
@@ -664,6 +666,17 @@ class REST_Endpoints_Test extends TestCase {
 		remove_filter( 'rest_pre_insert_' . Activity_Log_Event::POST_TYPE, array( Activity_Log_Event::class, 'normalize_rest_post' ), 10 );
 		remove_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ), 10 );
 		remove_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ), 10 );
+	}
+
+	/**
+	 * Resets Activity Log event initialization state for tests.
+	 */
+	private function reset_activity_log_event_initialized() {
+		$reflection = new \ReflectionProperty( Activity_Log_Event::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
+		$reflection->setValue( null, false );
 	}
 
 	/**

@@ -53,9 +53,22 @@ class Activity_Log_Event {
 	const MAX_SOURCE_LENGTH = 100;
 
 	/**
+	 * Whether Activity Log custom event hooks have been initialized.
+	 *
+	 * @var bool
+	 */
+	private static $initialized = false;
+
+	/**
 	 * Initialize Activity Log custom event hooks.
 	 */
 	public static function init() {
+		if ( self::$initialized ) {
+			return;
+		}
+
+		self::$initialized = true;
+
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'authorize_rest_request' ), 10, 3 );
 		add_filter( 'rest_pre_insert_' . self::POST_TYPE, array( __CLASS__, 'normalize_rest_post' ), 10, 2 );
