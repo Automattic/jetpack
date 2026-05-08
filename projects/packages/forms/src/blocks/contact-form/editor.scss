@@ -73,17 +73,6 @@
 		}
 	}
 
-	.jetpack-contact-form.is-horizontal,
-	[class*="wp-block-jetpack-field-option"].is-horizontal {
-
-		.wp-block {
-			&.wp-block-button,
-			&.wp-block-jetpack-button {
-				align-self: flex-end;
-			}
-		}
-	}
-
 	.jetpack-contact-form,
 	[class*="wp-block-jetpack-field-option"] {
 
