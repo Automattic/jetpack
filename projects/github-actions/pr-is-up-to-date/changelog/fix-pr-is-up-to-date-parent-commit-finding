@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix detection of parent commits in shallow handling.
