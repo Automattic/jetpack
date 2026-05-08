@@ -26,6 +26,9 @@ use WP_User;
  */
 class Tracks {
 
+	/**
+	 * Wire the recorder hooks.
+	 */
 	public static function init(): void {
 		// `wp_after_insert_post` runs after terms + meta are saved — required
 		// because Gutenberg/REST publishes set terms after `transition_post_status`.
@@ -43,6 +46,9 @@ class Tracks {
 	}
 
 	/**
+	 * Emit `wpcom_podcast_episode_published` (and `wpcom_podcast_show_launched`
+	 * once per site) when a podcast-category post enters `publish`.
+	 *
 	 * @param int          $post_id     Post ID.
 	 * @param WP_Post|null $post        Post object.
 	 * @param bool         $update      Whether this is an update.
@@ -111,12 +117,15 @@ class Tracks {
 					self::identity_for_post( $post )
 				);
 			}
-		} catch ( Throwable $e ) {
-			self::log_failure( 'episode-published-failed', $e );
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort — never break a publish.
 		}
 	}
 
 	/**
+	 * Emit `wpcom_podcast_media_uploaded` for audio/video attachments on a
+	 * podcasting-enabled site.
+	 *
 	 * @param int $attachment_id Attachment post ID.
 	 */
 	public static function record_media_uploaded( $attachment_id ): void {
@@ -149,12 +158,15 @@ class Tracks {
 					'mime_type'     => $mime_type,
 				)
 			);
-		} catch ( Throwable $e ) {
-			self::log_failure( 'media-uploaded-failed', $e );
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort.
 		}
 	}
 
 	/**
+	 * `add_option_podcasting_category_id` callback — first-ever write of the
+	 * option (previous value treated as 0).
+	 *
 	 * @param string $option Option name.
 	 * @param mixed  $value  Newly stored value.
 	 */
@@ -163,12 +175,15 @@ class Tracks {
 
 		try {
 			self::maybe_record_status_change( 0, (int) $value );
-		} catch ( Throwable $e ) {
-			self::log_failure( 'category-added-failed', $e );
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort.
 		}
 	}
 
 	/**
+	 * `update_option_podcasting_category_id` callback — every change to an
+	 * existing row.
+	 *
 	 * @param mixed  $old_value Previous stored value.
 	 * @param mixed  $value     Newly stored value.
 	 * @param string $option    Option name.
@@ -178,12 +193,15 @@ class Tracks {
 
 		try {
 			self::maybe_record_status_change( (int) $old_value, (int) $value );
-		} catch ( Throwable $e ) {
-			self::log_failure( 'category-updated-failed', $e );
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort.
 		}
 	}
 
 	/**
+	 * Emit `wpcom_podcasting_show_url_saved` for the first podcatcher key that
+	 * transitions from absent/empty to a non-empty string.
+	 *
 	 * Bound to both `add_option_*` (signature: option, value) and
 	 * `update_option_*` (signature: old_value, value, option). The first arg
 	 * is either the option name or the previous array; `is_array()` picks
@@ -216,12 +234,15 @@ class Tracks {
 				);
 				return;
 			}
-		} catch ( Throwable $e ) {
-			self::log_failure( 'show-url-record-failed', $e );
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort.
 		}
 	}
 
 	/**
+	 * Emit `wpcom_podcasting_settings_saved` when a `/wp/v2/settings` write
+	 * touches any podcasting option. Pass-through filter on the response.
+	 *
 	 * @param mixed                 $response Pass-through.
 	 * @param array                 $handler  Route handler.
 	 * @param WP_REST_Request|mixed $request  Request object.
@@ -252,14 +273,17 @@ class Tracks {
 				$state[ $name ] = get_option( $name, '' );
 			}
 			self::record_event( 'wpcom_podcasting_settings_saved', $state );
-		} catch ( Throwable $e ) {
-			self::log_failure( 'settings-saved-failed', $e );
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort.
 		}
 
 		return $response;
 	}
 
 	/**
+	 * Emit `wpcom_podcasting_status_changed` (enabled / disabled / changed)
+	 * when the `podcasting_category_id` option transitions.
+	 *
 	 * @param int $old_value Previous category ID (0 == disabled).
 	 * @param int $new_value New category ID (0 == disabled).
 	 */
@@ -301,7 +325,10 @@ class Tracks {
 	}
 
 	/**
-	 * Scheduled/cron publishes have no logged-in user — fall back to author.
+	 * Identity for the publish event. Scheduled/cron publishes have no
+	 * logged-in user — fall back to the post author.
+	 *
+	 * @param WP_Post $post Post being published.
 	 */
 	private static function identity_for_post( WP_Post $post ): WP_User {
 		if ( ! empty( $post->post_author ) ) {
@@ -314,15 +341,23 @@ class Tracks {
 	}
 
 	/**
-	 * Filters out posts that sit in the podcast category but aren't
-	 * actually episodes — block-editor `core/audio` and classic-editor
-	 * attached audio cover the supported authoring paths.
+	 * Filters out posts in the podcast category that aren't actually episodes.
+	 * `core/audio` block + classic-editor attached audio cover the supported
+	 * authoring paths.
+	 *
+	 * @param WP_Post $post Post being checked.
 	 */
 	private static function has_podcast_media( WP_Post $post ): bool {
 		return has_block( 'core/audio', $post )
 			|| ! empty( get_attached_media( 'audio', $post->ID ) );
 	}
 
+	/**
+	 * True when no other published post exists in the podcast category.
+	 *
+	 * @param int $category_id     Configured podcast category ID.
+	 * @param int $current_post_id Post being published (excluded from the check).
+	 */
 	private static function is_first_episode_for_site( int $category_id, int $current_post_id ): bool {
 		$existing = new WP_Query(
 			array(
@@ -341,8 +376,8 @@ class Tracks {
 	}
 
 	/**
-	 * Auto-injects `blog_id` and defaults `$user` to the current user — the
-	 * shape every event needs, kept out of the call sites.
+	 * Dispatch a tracks event. Auto-injects `blog_id` and defaults `$user`
+	 * to the current user.
 	 *
 	 * @param string       $event_name Tracks event name.
 	 * @param array        $properties Event properties.
@@ -367,36 +402,10 @@ class Tracks {
 			if ( class_exists( '\Automattic\Jetpack\Tracking' ) ) {
 				return ( new \Automattic\Jetpack\Tracking() )->tracks_record_event( $user, $event_name, $properties );
 			}
-		} catch ( Throwable $e ) {
-			self::log_failure( 'dispatcher-failed', $e, array( 'event_name' => $event_name ) );
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort.
 		}
 
 		return null;
-	}
-
-	/**
-	 * @param string    $message    Short failure tag.
-	 * @param Throwable $error      Throwable that triggered the log.
-	 * @param array     $properties Extra context.
-	 */
-	private static function log_failure( string $message, Throwable $error, array $properties = array() ): void {
-		if ( ! function_exists( 'log2logstash' ) ) {
-			return;
-		}
-
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
-		log2logstash(
-			array(
-				'feature'  => 'jetpack-podcast-tracks',
-				'message'  => $message,
-				'severity' => 'error',
-				'blog_id'  => (int) get_current_blog_id(),
-				'extra'    => array(
-					'error_message' => $error->getMessage(),
-					'error_file'    => $error->getFile() . ':' . $error->getLine(),
-					'properties'    => $properties,
-				),
-			)
-		);
 	}
 }

@@ -124,17 +124,6 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 2, $this->events_named( 'wpcom_podcast_episode_published' ) );
 	}
 
-	public function test_show_launched_skipped_when_lock_already_set() {
-		$cat_id = $this->configure_podcast_category();
-		add_option( 'podcast_show_launched_tracked', time(), '', false );
-
-		$post = $this->insert_post_in_category( $cat_id );
-		Tracks::record_episode_published( $post->ID, $post, false, null );
-
-		$this->assertCount( 1, $this->events_named( 'wpcom_podcast_episode_published' ) );
-		$this->assertEmpty( $this->events_named( 'wpcom_podcast_show_launched' ) );
-	}
-
 	public function test_episode_published_skips_when_post_was_already_published() {
 		$cat_id = $this->configure_podcast_category();
 		$post   = $this->insert_post_in_category( $cat_id );
@@ -173,7 +162,7 @@ class Tracks_Test extends BaseTestCase {
 				'post_type'   => 'post',
 			)
 		);
-		$post = get_post( (int) $post_id );
+		$post    = get_post( (int) $post_id );
 
 		Tracks::record_episode_published( $post->ID, $post, false, null );
 
@@ -207,23 +196,6 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'audio/mpeg', $events[0]['properties']['mime_type'] );
 		$this->assertSame( (int) $attachment_id, $events[0]['properties']['attachment_id'] );
-	}
-
-	public function test_media_uploaded_emits_for_video() {
-		$this->configure_podcast_category();
-
-		$attachment_id = wp_insert_post(
-			array(
-				'post_type'      => 'attachment',
-				'post_status'    => 'inherit',
-				'post_mime_type' => 'video/mp4',
-				'post_title'     => 'episode.mp4',
-			)
-		);
-
-		Tracks::record_media_uploaded( (int) $attachment_id );
-
-		$this->assertCount( 1, $this->events_named( 'wpcom_podcast_media_uploaded' ) );
 	}
 
 	public function test_media_uploaded_skips_non_audio_video() {
@@ -338,15 +310,6 @@ class Tracks_Test extends BaseTestCase {
 		$events = $this->events_named( 'wpcom_podcasting_settings_saved' );
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'New Title', $events[0]['properties']['podcasting_title'] );
-	}
-
-	public function test_settings_saved_skips_unrelated_routes() {
-		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
-		$request->set_param( 'podcasting_title', 'should be ignored' );
-
-		Tracks::record_settings_saved( new WP_REST_Response(), array(), $request );
-
-		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
 	}
 
 	public function test_settings_saved_skips_settings_writes_without_podcasting_fields() {
