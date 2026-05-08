@@ -2620,6 +2620,33 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+				// If using pagination, get total count
+				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
+
+					$count_args = array(
+						'searchPhrase' => $possibleSearchTerm,
+						'quickFilters' => $possibleQuickFilters,
+						'isTagged'     => $possibleTagIDs,
+						// just count
+						'count'        => true,
+						'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
+					);
+
+					$res['objectcount'] = (int) $zbs->DAL->companies->getCompanies( $count_args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number = $last_valid_page;
+						}
+					}
+				}
+
+				$res['paged'] = $page_number;
+
 				// make ARGS
 				$args = array(
 					'searchPhrase'     => $possibleSearchTerm,
@@ -2641,22 +2668,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				);
 
 				$companies = $zbs->DAL->companies->getCompanies( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-
-				// If using pagination, also return total count
-				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
-
-					// make count arguments
-					$args               = array(
-						'searchPhrase' => $possibleSearchTerm,
-						'quickFilters' => $possibleQuickFilters,
-						'isTagged'     => $possibleTagIDs,
-						// just count
-						'count'        => true,
-						'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
-					);
-					$res['objectcount'] = (int) $zbs->DAL->companies->getCompanies( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				}
 
 					// } Tidy
 				if ( count( $companies ) > 0 ) {
@@ -2776,18 +2788,27 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-					// } Retrieve data
-					// $withFullDetails=false,$perPage=10,$page=0,$withCustomerDeets=false,$searchPhrase='',$inArray=array(),$sortByField='',$sortOrder='DESC',$quickFilters=array()
-					$quotes = zeroBS_getQuotes( true, $per_page, $page_number, true, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
-
-					// } If using pagination, also return total count
+					// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
 					$res['objectcount'] = zeroBS_getQuotesCountIncParams( true, $per_page, $page_number, true, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
 
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number = $last_valid_page;
+						}
+					}
 				}
 
-					// } Tidy
+				$res['paged'] = $page_number;
+
+				// Retrieve data
+				$quotes = zeroBS_getQuotes( true, $per_page, $page_number, true, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
+
+				// Tidy
 				if ( count( $quotes ) > 0 ) {
 					foreach ( $quotes as $quote ) {
 
@@ -2905,19 +2926,27 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-					// } Retrieve data
-					// MS: $invoices = zeroBS_getInvoicesv2(true,$per_page,$page_number,true,$possibleSearchTerm,$possibleTagIDs,$inArray,$possibleQuickFilters);
-					// WH: Moved back to original
-					$invoices = zeroBS_getInvoices( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
-
-					// } If using pagination, also return total count
+					// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
 					$res['objectcount'] = zeroBS_getInvoicesCountIncParams( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
 
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number = $last_valid_page;
+						}
+					}
 				}
 
-					// } Tidy
+				$res['paged'] = $page_number;
+
+				// Retrieve data
+				$invoices = zeroBS_getInvoices( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
+
+				// Tidy
 				if ( count( $invoices ) > 0 ) {
 					foreach ( $invoices as $invoice ) {
 
@@ -3046,17 +3075,27 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-					// Retrieve data
-					$transactions = zeroBS_getTransactions( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $possibleTagIDs, $inArray, $sortField, $sortOrder, $withTags, $possibleQuickFilters, $external_source_uid );
-
-					// If using pagination, also return total count
+				// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
 					$res['objectcount'] = zeroBS_getTransactionsCountIncParams( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $possibleTagIDs, $inArray, $sortField, $sortOrder, $withTags, $possibleQuickFilters );
 
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number = $last_valid_page;
+						}
+					}
 				}
 
-					// Tidy
+				$res['paged'] = $page_number;
+
+				// Retrieve data
+				$transactions = zeroBS_getTransactions( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $possibleTagIDs, $inArray, $sortField, $sortOrder, $withTags, $possibleQuickFilters, $external_source_uid );
+
+				// Tidy
 				if ( count( $transactions ) > 0 ) {
 					foreach ( $transactions as $transaction ) {
 
@@ -3161,24 +3200,24 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-				// } Retrieve data
-				// ($withFullDetails=false,$perPage=10,$page=0,$withQuotes=false,$searchPhrase='',$withTransactions=false,$argsOverride=false,$companyID=false, $hasTagIDs='', $inArr = '')
-
-				// } Retrieve data
-				// old
-				// $withFullDetails=false,$perPage=10,$page=0,$withCustomerDeets=false, $possibleSearchTerm,$possibleTagIDs,$inArray,$possibleQuickFilters
-
-				// new
-				//
-
-				$forms = zeroBS_getForms( false, $per_page, $page_number, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
-
-				// } If using pagination, also return total count
+				// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
 					$res['objectcount'] = zeroBS_getFormsCountIncParams( false, $per_page, $page_number, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
 
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number = $last_valid_page;
+						}
+					}
 				}
+
+				$res['paged'] = $page_number;
+
+				$forms = zeroBS_getForms( false, $per_page, $page_number, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
 
 				// } Tidy
 				if ( count( $forms ) > 0 ) {
@@ -3284,34 +3323,27 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-					// } Retrieve data
-					$segments = $zbs->DAL->segments->getSegments( $ownerID, $per_page, $page_number, false, $possibleSearchTerm, $inArray, $sortField, $sortOrder );
-
-					// } If using pagination, also return total count
+				// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$res['objectcount'] = (int) $zbs->DAL->segments->getSegmentsCountIncParams( $ownerID, $per_page, $page_number, false, $possibleSearchTerm, $inArray, $sortField, $sortOrder );
 
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number = $last_valid_page;
+						}
+					}
 				}
 
-					// } No need to tidy from our straight-from-db stuff
-					// actually I do, to simplify ui
+				$res['paged'] = $page_number;
 
-					/*
-				MOVED THIS INTO DAL
-					#} Tidy
-					if (count($segments) > 0) foreach ($segments as $segment) {
-					$resArr = array();
-					$resArr['id'] = $segment->zbssegid;
-					$resArr['created'] = $segment->zbsseg_created;
-					$resArr['lastupdated'] = $segment->zbsseg_lastupdated;
-					$resArr['lastcompiled'] = $segment->zbsseg_lastcompiled;
-					$resArr['name'] = $segment->zbsseg_name;
-					$res['objects'][] = $resArr;
+				// } Retrieve data
+				$segments = $zbs->DAL->segments->getSegments( $ownerID, $per_page, $page_number, false, $possibleSearchTerm, $inArray, $sortField, $sortOrder );
 
-					} */
-
-					$res['objects'] = $segments;
+				$res['objects'] = $segments;
 
 				break;
 
@@ -3385,15 +3417,25 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-				// } Retrieve data
-				$quote_templates = zeroBS_getQuoteTemplates( false, $per_page, $page_number, $possibleSearchTerm );// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-				// } If using pagination, also return total count
+				// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
 					$res['objectcount'] = zeroBS_getQuoteTemplatesCountIncParams( false, $per_page, $page_number, $possibleSearchTerm );
 
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number = $last_valid_page;
+						}
+					}
 				}
+
+				$res['paged'] = $page_number;
+
+				// Retrieve data
+				$quote_templates = zeroBS_getQuoteTemplates( false, $per_page, $page_number, $possibleSearchTerm );// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// } Tidy
 				if ( count( $quote_templates ) > 0 ) {
@@ -3576,19 +3618,30 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-				$tasks = $zbs->DAL->events->getEvents( $args );
-
-				// } If using pagination, also return total count
+				// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-					// get count
-					$args['count']   = true;
-					$args['page']    = -1;
-					$args['perPage'] = -1;
+					$count_args            = $args;
+					$count_args['count']   = true;
+					$count_args['page']    = -1;
+					$count_args['perPage'] = -1;
 
-					$res['objectcount'] = $zbs->DAL->events->getEvents( $args );
+					$res['objectcount'] = $zbs->DAL->events->getEvents( $count_args );
 
+					// If the page requested is out of range (e.g. after a bulk action emptied the
+					// last page), use the last valid page instead.
+					if ( $res['objectcount'] > 0 && $page_number > 1 ) {
+						$last_valid_page = max( 1, (int) ceil( $res['objectcount'] / $per_page ) );
+						if ( $page_number > $last_valid_page ) {
+							$page_number  = $last_valid_page;
+							$args['page'] = $page_number;
+						}
+					}
 				}
+
+				$res['paged'] = $page_number;
+
+				$tasks = $zbs->DAL->events->getEvents( $args );
 
 				// } Tidy
 				if ( count( $tasks ) > 0 ) {
