@@ -115,27 +115,25 @@ const defaultPostData = {
 
 /**
  * Mock the chained useSelect calls inside the hook so each one returns its expected
- * shape: postId, featuredImageId, messageTemplate, then the rendered slice.
+ * shape: postId, featuredImageId, then the rendered slice. (The hook no longer
+ * reads `messageTemplate` directly — see commit message for context.)
  *
  * @param opts                   - Per-test overrides.
  * @param opts.postId            - Post id returned to the editor-store useSelect.
- * @param opts.messageTemplate   - The site-wide social message template from `getSocialSettings()`.
  * @param opts.rendered          - String returned for the rendered slice, or null to signal "no slice yet".
  * @param opts.isLoadingRendered - Whether the rendered-messages cache slot is currently in-flight.
  */
 function mockSelectCalls(
 	opts: {
 		postId?: number;
-		messageTemplate?: string;
 		rendered?: string | null;
 		isLoadingRendered?: boolean;
 	} = {}
 ) {
-	const { postId = 42, messageTemplate = '', rendered = null, isLoadingRendered = false } = opts;
+	const { postId = 42, rendered = null, isLoadingRendered = false } = opts;
 	mockUseSelect
 		.mockReturnValueOnce( postId )
 		.mockReturnValueOnce( 0 )
-		.mockReturnValueOnce( messageTemplate )
 		.mockReturnValueOnce( { rendered, isLoadingRendered } );
 }
 

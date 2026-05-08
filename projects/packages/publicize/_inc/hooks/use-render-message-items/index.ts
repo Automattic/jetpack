@@ -85,12 +85,6 @@ export function useRenderMessageItems(): RenderItem[] {
 		[ templatesEnabled ]
 	);
 
-	const messageTemplate = useSelect(
-		select =>
-			templatesEnabled ? select( socialStore ).getSocialSettings().messageTemplate ?? '' : '',
-		[ templatesEnabled ]
-	);
-
 	const { isEnabled: isPerNetworkMode } = usePerNetworkCustomization();
 	const { mediaSource: globalMediaSource } = usePostMeta();
 	const postData = useSocialPreviewPostData();
@@ -124,29 +118,14 @@ export function useRenderMessageItems(): RenderItem[] {
 
 	const items = useMemo< RenderItem[] >( () => {
 		return connections.map( connection => {
-			const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
-			// Mirror the rule in `useConnectionPreviewData` exactly — per-connection
-			// message and template only apply in per-network mode. If they leak into
-			// global mode here, the consumer's `baseMessage` (globalMessage) won't
-			// match this items array's message and `isDebouncingRenderedMessage` stays
-			// stuck true after the user toggles per-network → global.
-			// Falls back to the admin-page main template (`messageTemplate`) when no
-			// per-post message is set, so a site-wide template configured on the social
-			// admin page is reflected in the editor preview.
-			const globalFallback = globalMessage || messageTemplate || '';
-
-			let raw: string;
-			if ( ctx.isPerNetworkMode ) {
-				if ( hasConnectionMessage ) {
-					raw = connection.message ?? '';
-				} else if ( templatesEnabled && connection.template ) {
-					raw = connection.template;
-				} else {
-					raw = globalFallback;
-				}
-			} else {
-				raw = globalFallback;
-			}
+			/*
+			 * Mirror the consumer's rule in `useConnectionPreviewData`: per-connection
+			 * message only applies in per-network mode. The server already defaults
+			 * `connection.message` to its connection template (when set) and
+			 * `globalMessage` to the saved global template, so this hook just chooses
+			 * which to send to the renderer based on mode.
+			 */
+			const raw = ctx.isPerNetworkMode ? connection.message ?? globalMessage : globalMessage;
 			return {
 				id: connection.connection_id,
 				network: connection.service_name ?? '',
@@ -154,7 +133,7 @@ export function useRenderMessageItems(): RenderItem[] {
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
-	}, [ connections, globalMessage, messageTemplate, ctx, templatesEnabled ] );
+	}, [ connections, globalMessage, ctx ] );
 
 	return useDebouncedItems( items );
 }
