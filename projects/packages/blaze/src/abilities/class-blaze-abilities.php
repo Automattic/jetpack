@@ -324,7 +324,7 @@ class Blaze_Abilities extends Registrar {
 						),
 						'message'          => array(
 							'type'        => 'string',
-							'description' => __( 'Human-readable summary suitable for surfacing back to the merchant in chat. Includes the prefill_url verbatim so MCP clients that strip structured fields still surface the link.', 'jetpack-blaze' ),
+							'description' => __( 'Primary human-readable response for the MCP client to show to the merchant. Display this Markdown field verbatim in chat before the review link; it includes a campaign preview table and the prefill_url verbatim so MCP clients that strip structured fields still surface the link.', 'jetpack-blaze' ),
 						),
 						'campaign_preview' => array(
 							'type'        => 'object',
@@ -520,14 +520,12 @@ class Blaze_Abilities extends Registrar {
 			return $proposal;
 		}
 
-		return array_merge(
-			$proposal,
-			array(
-				'campaign_preview' => self::build_campaign_preview( $proposal ),
-				'forecast_summary' => self::build_forecast_summary( $proposal ),
-				'message'          => self::format_prepare_campaign_message( $proposal ),
-			)
-		);
+		return array(
+			'status'           => $proposal['status'],
+			'message'          => self::format_prepare_campaign_message( $proposal ),
+			'campaign_preview' => self::build_campaign_preview( $proposal ),
+			'forecast_summary' => self::build_forecast_summary( $proposal ),
+		) + $proposal;
 	}
 
 	/**
