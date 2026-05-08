@@ -5,8 +5,8 @@ import { lazy, Suspense, useCallback, useEffect, useState } from '@wordpress/ele
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
-import './route.scss';
 import { getPodcastScriptData } from './script-data';
+import './style.scss';
 import type { TabName } from './types';
 
 const WelcomeTab = lazy( () => import( './tabs/welcome' ) );
@@ -158,10 +158,10 @@ const PodcastApp = () => {
 	);
 };
 
-const Stage = () => (
+const App = () => (
 	<QueryClientProvider client={ queryClient }>
 		<PodcastApp />
 	</QueryClientProvider>
 );
 
-export { Stage as stage };
+export default App;
