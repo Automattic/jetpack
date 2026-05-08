@@ -1108,15 +1108,55 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that wpcom_write_editor_used REST field is registered for posts.
+	 * Test that saving a post via REST with wpcom_write_editor_used sets last-editor meta.
 	 */
-	public function test_write_editor_used_rest_field_registered() {
-		do_action( 'rest_api_init' );
+	public function test_rest_save_with_write_editor_signal_sets_meta() {
+		wp_set_current_user( $this->admin_id );
 
-		$post_type  = get_post_type_object( 'post' );
-		$controller = new \WP_REST_Posts_Controller( $post_type->name );
-		$schema     = $controller->get_item_schema();
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'REST Signal Test',
+				'post_status' => 'draft',
+				'post_author' => $this->admin_id,
+			)
+		);
 
-		$this->assertArrayHasKey( 'wpcom_write_editor_used', $schema['properties'], 'wpcom_write_editor_used should be registered as a REST field.' );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $post_id ) );
+		$request->set_body_params(
+			array(
+				'title'                   => 'Updated via Write',
+				'wpcom_write_editor_used' => true,
+			)
+		);
+
+		rest_get_server()->dispatch( $request );
+
+		$this->assertEquals( 'write-editor', get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
+	}
+
+	/**
+	 * Test that saving a post via REST without the signal does not set last-editor meta.
+	 */
+	public function test_rest_save_without_write_editor_signal_does_not_set_meta() {
+		wp_set_current_user( $this->admin_id );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'REST No Signal Test',
+				'post_status' => 'draft',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $post_id ) );
+		$request->set_body_params(
+			array(
+				'title' => 'Updated without Write',
+			)
+		);
+
+		rest_get_server()->dispatch( $request );
+
+		$this->assertEmpty( get_post_meta( $post_id, '_last_editor_used_jetpack', true ) );
 	}
 }
