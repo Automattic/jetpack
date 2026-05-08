@@ -95,18 +95,22 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * Render the Write template with wp_head/wp_footer hooks removed to avoid
 	 * side effects from other features (e.g. missing build assets).
 	 *
-	 * @param string $title      Post title.
-	 * @param string $content    Post content.
-	 * @param int    $post_id    Post ID (0 for new).
-	 * @param array  $categories Categories data.
+	 * @param string $title             Post title.
+	 * @param string $content           Post content.
+	 * @param int    $post_id           Post ID (0 for new).
+	 * @param array  $categories        Categories data.
+	 * @param string $post_status       Post status.
+	 * @param array  $video_placeholders Video placeholder tokens.
+	 * @param bool   $show_cat_row      Whether to show the category row.
+	 * @param string $cat_label         Initial category label text.
 	 * @return string The rendered HTML.
 	 */
-	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array(), $post_status = 'new', $video_placeholders = array() ) {
+	private function render_template( $title = '', $content = '', $post_id = 0, $categories = array(), $post_status = 'new', $video_placeholders = array(), $show_cat_row = false, $cat_label = '' ) {
 		remove_all_actions( 'wp_head' );
 		remove_all_actions( 'wp_footer' );
 
 		ob_start();
-		wpcom_write_template( $title, $content, $post_id, $categories, $post_status, $video_placeholders );
+		wpcom_write_template( $title, $content, $post_id, $categories, $post_status, $video_placeholders, $show_cat_row, $cat_label );
 		return ob_get_clean();
 	}
 
@@ -308,6 +312,62 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertArrayHasKey( 'formatAlignRight', $state );
 		$this->assertArrayHasKey( 'formatOList', $state );
 		$this->assertArrayHasKey( 'formatUList', $state );
+
+		// Category selector state.
+		$this->assertArrayHasKey( 'catLabel', $state );
+		$this->assertArrayHasKey( 'showCatDropdown', $state );
+		$this->assertFalse( $state['showCatDropdown'] );
+
+		// Old category picker key should not exist.
+		$this->assertArrayNotHasKey( 'showCatPicker', $state );
+	}
+
+	/**
+	 * Test that the category row is not rendered when show_cat_row is false.
+	 */
+	public function test_category_row_hidden_when_show_cat_row_false() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template( '', '', 0, array(), 'new', array(), false, '' );
+
+		$this->assertStringNotContainsString( 'bw-meta-cat-btn', $output );
+		$this->assertStringNotContainsString( 'Writing in', $output );
+	}
+
+	/**
+	 * Test that the category row is rendered when show_cat_row is true.
+	 */
+	public function test_category_row_shown_when_show_cat_row_true() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template( '', '', 0, array(), 'new', array(), true, 'Uncategorized' );
+
+		$this->assertStringContainsString( 'bw-meta-cat-btn', $output );
+		$this->assertStringContainsString( 'Writing in', $output );
+		$this->assertStringContainsString( 'bw-meta-cat-label', $output );
+	}
+
+	/**
+	 * Test that the category label is seeded into the template output.
+	 */
+	public function test_cat_label_seeded_in_template() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template( '', '', 0, array(), 'new', array(), true, 'Travel' );
+
+		$this->assertStringContainsString( 'Travel', $output );
+	}
+
+	/**
+	 * Test that the help modal contains the #tag tip.
+	 */
+	public function test_help_modal_contains_hashtag_tip() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( '#tag', $output );
+		$this->assertStringContainsString( 'assigns them to the post on save', $output );
 	}
 
 	/**
