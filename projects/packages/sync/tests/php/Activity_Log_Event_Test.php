@@ -66,6 +66,7 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	 */
 	public function test_activity_log_event_init_runs_when_sync_is_not_allowed() {
 		$this->remove_activity_log_event_hooks();
+		$previous_sync_disabled = Settings::get_setting( 'disable' );
 		Settings::update_settings( array( 'disable' => 1 ) );
 
 		try {
@@ -78,7 +79,7 @@ class Activity_Log_Event_Test extends BaseTestCase {
 			$this->assertSame( 10, has_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ) ) );
 			$this->assertSame( 10, has_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ) ) );
 		} finally {
-			Settings::update_settings( array( 'disable' => 0 ) );
+			Settings::update_settings( array( 'disable' => $previous_sync_disabled ) );
 			$this->remove_activity_log_event_hooks();
 			Activity_Log_Event::init();
 		}

@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add Activity Log custom event support with a private custom post type and class API for creating entries.
+Add Activity Log custom event support with a non-public custom post type, guarded REST route, and class API for creating entries.

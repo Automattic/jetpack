@@ -587,6 +587,13 @@ class REST_Endpoints_Test extends TestCase {
 		$user->remove_cap( 'manage_options' );
 
 		$this->assertContains( $response->get_status(), array( 401, 403 ) );
+
+		$post = get_post( $post_id );
+		$this->assertInstanceOf( \WP_Post::class, $post );
+		$this->assertSame( 'Cache flushed', $post->post_title );
+
+		$payload = $this->get_activity_log_payload( $post );
+		$this->assertSame( 'Plain text note.', $payload['content'] );
 	}
 
 	/**

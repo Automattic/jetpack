@@ -204,7 +204,12 @@ class Activity_Log_Event {
 	 * @return mixed|\WP_Error
 	 */
 	public static function authorize_rest_request( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( null !== $response || ! $request instanceof \WP_REST_Request || 0 !== strpos( $request->get_route(), '/wp/v2/' . self::REST_BASE ) ) {
+		if ( null !== $response || ! $request instanceof \WP_REST_Request ) {
+			return $response;
+		}
+
+		$route = $request->get_route();
+		if ( ! preg_match( '#^/wp/v2/' . preg_quote( self::REST_BASE, '#' ) . '(?:/|$)#', $route ) ) {
 			return $response;
 		}
 
