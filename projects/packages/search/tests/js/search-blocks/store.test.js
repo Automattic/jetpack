@@ -5,6 +5,7 @@ const captured = {
 	state: {},
 	actions: {},
 	callbacks: {},
+	context: {},
 };
 const originalFetch = global.fetch;
 
@@ -22,6 +23,7 @@ jest.mock(
 			}
 			return { state: captured.state, actions: captured.actions };
 		},
+		getContext: () => captured.context,
 	} ),
 	{ virtual: true }
 );
@@ -595,6 +597,26 @@ describe( 'store getters', () => {
 
 		state.sortOrder = 'oldest';
 		expect( state.isSortByOldest ).toBe( true );
+	} );
+
+	it( 'allBucketsSelected returns true only when every bucket is in activeFilters', () => {
+		captured.context = { filterKey: 'pa_color' };
+
+		state.aggregations = {};
+		state.activeFilters = {};
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.aggregations = { pa_color: { buckets: [ { key: 'red' }, { key: 'blue' } ] } };
+		state.activeFilters = {};
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { pa_color: [ 'red' ] };
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { pa_color: [ 'red', 'blue' ] };
+		expect( state.allBucketsSelected ).toBe( true );
+
+		captured.context = {};
 	} );
 } );
 
