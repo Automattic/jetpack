@@ -95,9 +95,12 @@ export interface MediaSectionV2Props {
 	onMediaChange?: ( updates: Partial< JetpackSocialOptions > ) => void;
 
 	/**
-	 * Whether to force media as attachment.
+	 * Controls the "Share as attachment" toggle.
+	 * 'visible' (default): toggle is rendered and user-controlled.
+	 * 'hidden': toggle is not rendered; attachment mode is implied by the selected source.
+	 * Per-network customization passes 'hidden' so the dropdown alone decides media behavior.
 	 */
-	forceAsAttachment?: boolean;
+	attachmentToggleMode?: 'visible' | 'hidden';
 }
 
 /**
@@ -135,9 +138,11 @@ export interface MediaSourceMenuProps {
 	featuredImageId?: number;
 
 	/**
-	 * Callback when "No media" is selected (removes media)
+	 * Whether to surface the "Default" option in the dropdown. Only used by per-network
+	 * customization, where the attachment toggle is hidden and the dropdown alone decides
+	 * media behavior — Default is the link-preview-only choice.
 	 */
-	onRemove?: () => void;
+	includeDefaultOption?: boolean;
 
 	/**
 	 * Optional children render function that receives open function

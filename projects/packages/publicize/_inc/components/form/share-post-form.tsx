@@ -77,9 +77,12 @@ export type SharePostFormProps = {
 	disabled?: boolean;
 
 	/**
-	 * Whether to force media as attachment.
+	 * Controls the "Share as attachment" toggle inside the media section.
+	 * 'visible' (default): toggle is rendered and user-controlled.
+	 * 'hidden': toggle is not rendered; attachment mode is implied by the selected source.
+	 * Per-network customization passes 'hidden' so the dropdown alone decides media behavior.
 	 */
-	forceMediaAsAttachment?: boolean;
+	attachmentToggleMode?: 'visible' | 'hidden';
 
 	/**
 	 * Optional upgrade notice depending on where the form is rendered.
@@ -105,7 +108,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 	mediaSource,
 	onMediaChange,
 	disabled = false,
-	forceMediaAsAttachment,
+	attachmentToggleMode,
 	upgradeNotice,
 } ) => {
 	const {
@@ -163,12 +166,12 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 						<MediaSectionV2
 							analyticsData={ analyticsData }
 							onEditTemplate={ onEditTemplate }
+							attachmentToggleMode={ attachmentToggleMode }
 							{ ...( isMediaControlled && {
 								attachedMedia,
 								imageGeneratorSettings,
 								mediaSource,
 								onMediaChange,
-								forceAsAttachment: forceMediaAsAttachment,
 							} ) }
 						/>
 					) }

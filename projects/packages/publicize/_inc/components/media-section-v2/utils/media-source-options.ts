@@ -3,7 +3,7 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import { postFeaturedImage, mediaAndText, media as mediaIcon } from '@wordpress/icons';
+import { postFeaturedImage, mediaAndText, media as mediaIcon, link } from '@wordpress/icons';
 import { getSocialScriptData } from '../../../utils';
 import sparkle from '../icons/sparkle';
 import { MediaSourceOption, MediaSourceType } from '../types';
@@ -18,6 +18,16 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 	const { plugin_info } = getSocialScriptData();
 
 	return [
+		{
+			id: null,
+			label: __( 'Default', 'jetpack-publicize-pkg' ),
+			description: __(
+				"You are using the post's Open Graph image for the link preview.",
+				'jetpack-publicize-pkg'
+			),
+			icon: link,
+			group: 'link-preview',
+		},
 		{
 			id: 'sig',
 			label: __( 'Social image template', 'jetpack-publicize-pkg' ),
@@ -65,6 +75,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 
 interface MediaSourceContext {
 	featuredImageId?: number;
+	sigEnabled?: boolean;
 }
 
 /**
@@ -80,12 +91,29 @@ export function getMediaSourceDescription(
 ): string {
 	const noImageMessage = __( "Your post won't show an image.", 'jetpack-publicize-pkg' );
 
-	if ( ! sourceType ) {
+	// If featured image is selected but doesn't exist, show "no image" message
+	if ( sourceType === 'featured-image' && context && ! context.featuredImageId ) {
 		return noImageMessage;
 	}
 
-	// If featured image is selected but doesn't exist, show "no image" message
-	if ( sourceType === 'featured-image' && context && ! context.featuredImageId ) {
+	/*
+	 * Default mode (sourceType === null): describe what the link preview will actually
+	 * resolve to, mirroring the OG resolution priority — SIG (if globally enabled) →
+	 * featured image → no image.
+	 */
+	if ( sourceType === null ) {
+		if ( context?.sigEnabled ) {
+			return __(
+				'You are using the social image template for the link preview.',
+				'jetpack-publicize-pkg'
+			);
+		}
+		if ( context?.featuredImageId ) {
+			return __(
+				'You are using the featured image for the link preview.',
+				'jetpack-publicize-pkg'
+			);
+		}
 		return noImageMessage;
 	}
 
