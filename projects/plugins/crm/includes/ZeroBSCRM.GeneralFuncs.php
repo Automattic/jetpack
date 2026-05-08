@@ -1429,6 +1429,11 @@ function jpcrm_create_and_secure_dir_from_external_access( $directory_path = '',
 		chmod( $directory_path, 0755 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
 	}
 
+	// Bail if the directory exists but is not writable.
+	if ( ! wp_is_writable( $directory_path ) ) {
+		return false;
+	}
+
 	$safe = true;
 
 	$files = array(
