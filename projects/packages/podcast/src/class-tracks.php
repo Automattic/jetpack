@@ -103,7 +103,7 @@ class Tracks {
 				'wpcom_podcast_episode_published',
 				array(
 					'post_id'                   => (int) $post->ID,
-					'is_first_episode_for_site' => (bool) $is_first,
+					'is_first_episode_for_site' => $is_first,
 				),
 				self::identity_for_post( $post )
 			);
@@ -304,6 +304,7 @@ class Tracks {
 		// pattern as `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
 		$plan = class_exists( '\WPCOM_Store_API' )
 			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Provided by the connection package on Atomic; not a hard dep.
 			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
 
 		self::record_event(
@@ -318,10 +319,8 @@ class Tracks {
 			)
 		);
 
-		if ( function_exists( 'bump_stats_extras' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
-			bump_stats_extras( 'wpcom-podcasting-status', $status );
-		}
+		/** This action is documented in projects/packages/forms/src/contact-form/class-util.php */
+		do_action( 'jetpack_bump_stats_extras', 'wpcom-podcasting-status', $status );
 	}
 
 	/**
@@ -390,16 +389,15 @@ class Tracks {
 			$properties['blog_id'] = (int) get_current_blog_id();
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
 				require_lib( 'tracks/client' );
 			}
 
 			if ( function_exists( 'tracks_record_event' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
 				return tracks_record_event( $user, $event_name, $properties );
 			}
 
 			if ( class_exists( '\Automattic\Jetpack\Tracking' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredClassMethod -- Provided by the connection package on Atomic; not a hard dep.
 				return ( new \Automattic\Jetpack\Tracking() )->tracks_record_event( $user, $event_name, $properties );
 			}
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
