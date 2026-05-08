@@ -64,6 +64,20 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( 'Other value', Customize_Feed::feed_description( 'Other value', 'name' ) );
 	}
 
+	/**
+	 * `bloginfo_rss()` echoes the filter return directly, so any markup in
+	 * `podcasting_summary` would land unescaped in `<description>` without this.
+	 */
+	public function test_feed_description_strips_and_escapes_markup() {
+		update_option( 'podcasting_summary', 'A <script>alert(1)</script> & "weekly" show.' );
+
+		$result = Customize_Feed::feed_description( 'irrelevant', 'description' );
+
+		$this->assertStringNotContainsString( '<script>', $result );
+		$this->assertStringNotContainsString( '"', $result );
+		$this->assertStringContainsString( '&amp;', $result );
+	}
+
 	public function test_feed_title_uses_override_when_set() {
 		update_option( 'podcasting_title', 'My Podcast Show' );
 
@@ -104,9 +118,41 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( "<itunes:category text='Tech News' />", $xml );
 	}
 
-	public function test_pass_through_empty_excerpt_returns_empty_when_post_has_none() {
-		// `get_the_excerpt()` returns '' when no global $post is set.
-		$this->assertSame( '', Customize_Feed::pass_through_empty_excerpt( 'Some auto-generated excerpt' ) );
+	/**
+	 * The auto-generated `wp_trim_excerpt` fallback is exactly what we want to
+	 * suppress — when `post_excerpt` is blank, return `''` regardless of what
+	 * upstream filters built from `post_content`.
+	 */
+	public function test_pass_through_empty_excerpt_suppresses_auto_generated_fallback() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'           => 1,
+				'post_excerpt' => '',
+				'post_content' => 'Long body text that wp_trim_excerpt would normally summarize.',
+			)
+		);
+
+		$this->assertSame( '', Customize_Feed::pass_through_empty_excerpt( 'Auto-generated from content...' ) );
+	}
+
+	public function test_pass_through_empty_excerpt_keeps_explicit_excerpt() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'           => 1,
+				'post_excerpt' => 'Hand-written summary.',
+				'post_content' => 'Body content.',
+			)
+		);
+
+		$this->assertSame( 'Hand-written summary.', Customize_Feed::pass_through_empty_excerpt( 'Hand-written summary.' ) );
+	}
+
+	public function test_pass_through_empty_excerpt_passes_through_when_no_post_global() {
+		// Without `$post`, we can't tell if the excerpt was authored or
+		// auto-generated, so leave the upstream value alone.
+		$this->assertSame( 'something', Customize_Feed::pass_through_empty_excerpt( 'something' ) );
 	}
 
 	public function test_resolve_category_id_returns_zero_when_nothing_configured() {

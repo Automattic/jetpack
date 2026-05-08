@@ -96,6 +96,10 @@ class Customize_Feed {
 	/**
 	 * Replace the `bloginfo_rss('description')` value with `podcasting_summary`.
 	 *
+	 * `bloginfo_rss()` echoes the filter return value directly, so we strip and
+	 * escape here — matches the channel-level `<itunes:summary>` treatment and
+	 * keeps stray markup in the option from leaking into `<description>`.
+	 *
 	 * @param string $value Existing value.
 	 * @param string $field Field being requested.
 	 * @return string
@@ -104,7 +108,7 @@ class Customize_Feed {
 		if ( 'description' !== $field ) {
 			return $value;
 		}
-		return (string) get_option( 'podcasting_summary', '' );
+		return esc_html( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
 	}
 
 	/**
@@ -190,9 +194,9 @@ class Customize_Feed {
 			echo '<googleplay:author>' . esc_html( wp_strip_all_tags( $author ) ) . "</googleplay:author>\n";
 		}
 
-		$explicit = self::explicit_string();
-		echo '<itunes:explicit>' . esc_html( $explicit ) . "</itunes:explicit>\n";
-		echo '<googleplay:explicit>' . esc_html( $explicit ) . "</googleplay:explicit>\n";
+		// Per Apple / Google Play spec, the channel-level `<itunes:explicit>`
+		// applies to every item by default. We don't store a per-episode
+		// override, so emitting it here would just be redundant XML.
 
 		$episode_image = self::episode_image_url( $post->ID );
 		if ( '' !== $episode_image ) {
@@ -270,7 +274,7 @@ class Customize_Feed {
 			);
 		}
 
-		$attachment_id = attachment_url_to_postid( $original_url );
+		$attachment_id = self::lookup_attachment_id( $original_url );
 		if ( 0 === $attachment_id ) {
 			return $enclosure;
 		}
@@ -284,16 +288,24 @@ class Customize_Feed {
 	}
 
 	/**
-	 * The_excerpt_rss runs at priority 1000 to suppress the auto-generated
-	 * excerpt fallback when the post itself has none. WP's default behavior is
-	 * to derive an excerpt from `post_content`, which produces noise in the
-	 * podcast feed; users expect empty when they didn't write one.
+	 * Suppress the auto-generated excerpt fallback when the post itself has
+	 * none. WP's default behavior is to derive an excerpt from `post_content`
+	 * via `wp_trim_excerpt`, which produces noise in the podcast feed; users
+	 * expect empty when they didn't write one.
+	 *
+	 * Inspect `$post->post_excerpt` directly — `get_the_excerpt()` would have
+	 * already run the auto-generation chain by the time we ask, so it's never
+	 * `''` for any post that has content.
 	 *
 	 * @param string $output Existing excerpt.
 	 * @return string
 	 */
 	public static function pass_through_empty_excerpt( $output ) {
-		return '' === get_the_excerpt() ? '' : $output;
+		global $post;
+		if ( $post instanceof WP_Post && '' === trim( (string) $post->post_excerpt ) ) {
+			return '';
+		}
+		return $output;
 	}
 
 	/**
@@ -325,6 +337,29 @@ class Customize_Feed {
 		}
 		$url = (string) get_option( 'podcasting_image', '' );
 		return '' === $url ? '' : self::maybe_photon( $url );
+	}
+
+	/**
+	 * Resolve an enclosure URL to its attachment ID, cached per-URL.
+	 *
+	 * `attachment_url_to_postid()` issues an unindexed `guid` lookup on
+	 * `wp_posts` — once per item per feed render. We persist the result in the
+	 * object cache so repeat renders (and crawlers hitting paginated pages of
+	 * the same feed) hit Memcached instead. Negative results (`0`) are cached
+	 * too: if a URL doesn't resolve once, it won't resolve next time either.
+	 *
+	 * @param string $url Enclosure URL.
+	 * @return int Attachment ID, or 0 if none.
+	 */
+	private static function lookup_attachment_id( string $url ): int {
+		$cache_key = md5( $url );
+		$cached    = wp_cache_get( $cache_key, 'jetpack_podcast_enclosure' );
+		if ( false !== $cached ) {
+			return (int) $cached;
+		}
+		$attachment_id = (int) attachment_url_to_postid( $url );
+		wp_cache_set( $cache_key, $attachment_id, 'jetpack_podcast_enclosure', HOUR_IN_SECONDS );
+		return $attachment_id;
 	}
 
 	/**
