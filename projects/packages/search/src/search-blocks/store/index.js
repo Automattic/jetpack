@@ -816,7 +816,6 @@ const { state, actions } = store( NAMESPACE, {
 				sortOrder: state.sortOrder,
 				activeFilters: state.activeFilters,
 				priceRange: state.priceRange,
-				filterConfigs: state.filterConfigs,
 				searchParamName: state.searchParamName,
 			} );
 		},
