@@ -37,12 +37,20 @@ const createStoreWithSettings = jetpackSettings => {
 	return registry;
 };
 
+// Pick a default `active` that won't accidentally match the rendered row,
+// so baseline stories render as unselected/inactive unless `activeExperience`
+// is set explicitly. Without this, the legacy boolean fallback in the
+// `getActiveExperience` selector derives `'overlay'` from
+// `instant_search_enabled: true` and contaminates every Overlay story.
+const defaultActiveFor = experience =>
+	experience === EXPERIENCE.EMBEDDED ? EXPERIENCE.INLINE : EXPERIENCE.EMBEDDED;
+
 const Template = args => {
 	const baseSettings = {
 		module_active: true,
 		instant_search_enabled: true,
-		pending_experience: args.pendingExperience || null,
-		experience: args.activeExperience || null,
+		pending_experience: args.pendingExperience ?? null,
+		experience: args.activeExperience ?? defaultActiveFor( args.experience ),
 	};
 	const registry = createStoreWithSettings( baseSettings );
 	return (
