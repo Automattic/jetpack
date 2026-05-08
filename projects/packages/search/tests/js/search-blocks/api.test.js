@@ -526,10 +526,14 @@ describe( 'formatDateBucketLabel', () => {
 
 describe( 'product-shaped filter helpers', () => {
 	describe( 'resolveFilterFields', () => {
-		it( 'maps wc_stock_status to the indexed meta keyword field', () => {
+		it( 'maps wc_stock_status to the product_visibility taxonomy slug', () => {
+			// `_stock_status` postmeta isn't carried by the WPCOM-side ES
+			// indexer (sync sends it, the indexer drops it). The
+			// `outofstock` term on `product_visibility` IS carried, so
+			// stock-status filters route through that taxonomy instead.
 			expect( resolveFilterFields( { filterType: 'wc_stock_status' } ) ).toEqual( {
-				aggField: 'meta._stock_status.value.raw',
-				filterField: 'meta._stock_status.value.raw',
+				aggField: 'taxonomy.product_visibility.slug',
+				filterField: 'taxonomy.product_visibility.slug',
 				bucketFormat: 'plain',
 			} );
 		} );
@@ -544,15 +548,19 @@ describe( 'product-shaped filter helpers', () => {
 	} );
 
 	describe( 'buildAggregations', () => {
-		it( 'emits a terms agg for wc_stock_status', () => {
+		it( 'probes only the outofstock bucket on product_visibility for wc_stock_status', () => {
+			// The taxonomy carries other unrelated terms (`featured`,
+			// `rated-N`, `exclude-from-catalog`); `include` keeps them out
+			// of the response so the read side only has to look at one
+			// bucket. `size: 1` matches the include cardinality.
 			const aggs = buildAggregations( {
 				filter_stock_status: { filterType: 'wc_stock_status', maxItems: 10 },
 			} );
 			expect( aggs.filter_stock_status ).toEqual( {
 				terms: {
-					field: 'meta._stock_status.value.raw',
-					size: 10,
-					order: { _count: 'desc' },
+					field: 'taxonomy.product_visibility.slug',
+					include: [ 'outofstock' ],
+					size: 1,
 				},
 			} );
 		} );
@@ -624,26 +632,30 @@ describe( 'product-shaped filter helpers', () => {
 		} );
 	} );
 
-	describe( 'buildFilterClause: wc_stock_status uses the standard term branch', () => {
-		it( 'OR-joins multiple stock-status selections within the filter', () => {
-			const clause = buildFilterClause(
-				{ filter_stock_status: [ 'instock', 'outofstock' ] },
-				{ filter_stock_status: { filterType: 'wc_stock_status' } }
-			);
-			expect( clause ).toEqual( {
-				bool: {
-					must: [
-						{
-							bool: {
-								should: [
-									{ term: { 'meta._stock_status.value.raw': 'instock' } },
-									{ term: { 'meta._stock_status.value.raw': 'outofstock' } },
-								],
-							},
-						},
-					],
-				},
+	describe( 'buildFilterClause: wc_stock_status routes through product_visibility', () => {
+		const config = { filter_stock_status: { filterType: 'wc_stock_status' } };
+		const term = { term: { 'taxonomy.product_visibility.slug': 'outofstock' } };
+
+		it( 'emits a positive term clause when only outofstock is selected', () => {
+			expect( buildFilterClause( { filter_stock_status: [ 'outofstock' ] }, config ) ).toEqual( {
+				bool: { must: [ term ] },
 			} );
+		} );
+
+		it( 'emits a must_not clause when only instock is selected (taxonomy has no positive in-stock term)', () => {
+			expect( buildFilterClause( { filter_stock_status: [ 'instock' ] }, config ) ).toEqual( {
+				bool: { must: [ { bool: { must_not: [ term ] } } ] },
+			} );
+		} );
+
+		it( 'drops the clause when both options are selected — they would otherwise contradict and zero the result set', () => {
+			expect(
+				buildFilterClause( { filter_stock_status: [ 'instock', 'outofstock' ] }, config )
+			).toBeUndefined();
+		} );
+
+		it( 'ignores unknown stock-status slugs', () => {
+			expect( buildFilterClause( { filter_stock_status: [ 'mystery' ] }, config ) ).toBeUndefined();
 		} );
 	} );
 
