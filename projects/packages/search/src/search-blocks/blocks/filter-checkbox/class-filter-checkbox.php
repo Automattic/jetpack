@@ -70,18 +70,16 @@ class Filter_Checkbox {
 			if ( 'post_tag' === $taxonomy ) {
 				return __( 'Tag', 'jetpack-search-pkg' );
 			}
-			if ( '' !== $taxonomy && in_array( $taxonomy, array( 'product_cat', 'product_tag', 'product_brand' ), true ) ) {
+			if ( in_array( $taxonomy, array( 'product_cat', 'product_tag', 'product_brand' ), true ) ) {
 				// WC localizes its taxonomy labels at runtime — prefer the
 				// registered singular_name so a French shop reads "Catégorie",
-				// "Étiquette", "Marque" rather than the English fallback. For
-				// fresh installs (or a phpunit run with no WC loaded),
-				// get_taxonomy() returns false; the per-slug fallback below
-				// keeps the heading meaningful in that case.
-				if ( function_exists( 'get_taxonomy' ) ) {
-					$tax = get_taxonomy( $taxonomy );
-					if ( $tax && ! empty( $tax->labels->singular_name ) ) {
-						return (string) $tax->labels->singular_name;
-					}
+				// "Étiquette", "Marque" rather than the English fallback. When
+				// the taxonomy isn't registered (no WooCommerce, or a phpunit
+				// run with no WC loaded), get_taxonomy() returns false; the
+				// per-slug fallback below keeps the heading meaningful.
+				$tax = get_taxonomy( $taxonomy );
+				if ( $tax && ! empty( $tax->labels->singular_name ) ) {
+					return (string) $tax->labels->singular_name;
 				}
 				if ( 'product_cat' === $taxonomy ) {
 					return __( 'Category', 'jetpack-search-pkg' );

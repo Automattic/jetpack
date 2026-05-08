@@ -149,6 +149,12 @@ export function variationToAttributes( variation, previousTaxonomy ) {
  * must recognize the same (filterType, taxonomy) pairs or the empty-label
  * preview heading will disagree with the server-rendered front end.
  *
+ * Non-English WC sites: the editor preview shows the English fallback here
+ * while the server-rendered heading prefers `get_taxonomy()->labels->singular_name`
+ * (e.g. "Catégorie"). The browser has no path to the PHP-registered taxonomy
+ * labels at editor time, so this divergence is intentional — authors who care
+ * about the localized label can override via the inspector's Label field.
+ *
  * @param {object} attributes - Block attributes.
  * @return {string} Variation default label, or '' when not a built-in variation.
  */

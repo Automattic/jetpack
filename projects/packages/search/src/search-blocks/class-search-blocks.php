@@ -249,13 +249,12 @@ class Search_Blocks {
 	/**
 	 * Inject named block variations for the filter-checkbox block.
 	 *
-	 * Hooks `get_block_type_variations` (WP 6.5+) rather than calling
+	 * Hooks `get_block_type_variations` (added in WP 6.5) rather than calling
 	 * `register_block_variation()` because the latter is a JS-only API; no
 	 * matching PHP function exists in WordPress core. Filtering on the block
 	 * type's own variations getter is the supported PHP-side path and keeps
-	 * the editor-only JS bundle out of the ESM pipeline. On WP < 6.5 the
-	 * filter doesn't fire and no variations are registered — same end-state
-	 * as the prior code path, so this is not a version regression.
+	 * the editor-only JS bundle out of the ESM pipeline. Jetpack already
+	 * requires WP 6.8+, so the hook is always live in supported environments.
 	 *
 	 * Variation names and default `taxonomy` / `filterType` attributes
 	 * intentionally mirror the filter types exposed by the instant-search
@@ -329,23 +328,11 @@ class Search_Blocks {
 				'name'        => 'product_tag',
 				'title'       => __( 'Filter by Product Tag', 'jetpack-search-pkg' ),
 				'description' => __( 'Show product tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
-				'icon'        => 'category',
+				'icon'        => 'tag',
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
 					'taxonomy'   => 'product_tag',
 					'label'      => __( 'Tag', 'jetpack-search-pkg' ),
-				),
-				'isActive'    => array( 'filterType', 'taxonomy' ),
-			),
-			array(
-				'name'        => 'product_brand',
-				'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
-				'description' => __( 'Show product brand checkboxes with live result counts. Requires a registered `product_brand` taxonomy.', 'jetpack-search-pkg' ),
-				'icon'        => 'category',
-				'attributes'  => array(
-					'filterType' => 'taxonomy',
-					'taxonomy'   => 'product_brand',
-					'label'      => __( 'Brand', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
 			),
@@ -360,14 +347,35 @@ class Search_Blocks {
 				),
 				// Match on filterType only (no taxonomy comparison) so the
 				// variation identity survives once the author picks a slug
-				// via the inspector. Category, Tag, and the three product
-				// taxonomies all pin `taxonomy` in their isActive arrays, so
+				// via the inspector. Category, Tag, and the product taxonomy
+				// variations all pin `taxonomy` in their isActive arrays, so
 				// WP's most-specific-match resolution still routes those
 				// slugs to their dedicated variations — Custom Taxonomy
 				// claims every other registered taxonomy.
 				'isActive'    => array( 'filterType' ),
 			),
 		);
+
+		// `product_brand` isn't a core WooCommerce taxonomy — it's added by
+		// extensions (WC Brands, Perfect Brands, recent bundled WC versions).
+		// Registering the variation unconditionally would surface "Filter by
+		// Product Brand" in the inserter on sites without it, where the block
+		// renders no buckets and the failure is silent. Gate on the taxonomy's
+		// presence so authors only see the option when it can actually work.
+		if ( taxonomy_exists( 'product_brand' ) ) {
+			$additions[] = array(
+				'name'        => 'product_brand',
+				'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product brand checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'awards',
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_brand',
+					'label'      => __( 'Brand', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			);
+		}
 
 		// Merge by `name` so a variation already registered upstream (block.json
 		// or a higher-priority filter) wins over our preset of the same name —
