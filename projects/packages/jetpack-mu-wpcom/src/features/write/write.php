@@ -530,7 +530,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</main>
 
 	<!-- Image modal -->
-	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showImageModal" data-wp-on--click="actions.closeImageModal" data-wp-on--keydown="actions.handleImageModalKeyDown" data-wp-on--dragover="actions.handleOverlayDragOver" data-wp-on--drop="actions.handleOverlayDrop">
+	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showImageModal" data-wp-on--pointerdown="actions.handleOverlayPointerDown" data-wp-on--keydown="actions.handleImageModalKeyDown" data-wp-on--dragover="actions.handleOverlayDragOver" data-wp-on--drop="actions.handleOverlayDrop">
 		<div class="bw-image-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Add an image', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation" data-wp-on--dragover="actions.handleOverlayDragOver" data-wp-on--drop="actions.handleOverlayDrop">
 			<h3><?php echo esc_html__( 'Add an image', 'jetpack-mu-wpcom' ); ?></h3>
 			<label class="bw-upload-zone" id="bw-upload-zone" data-wp-on--dragover="actions.handleDragOver" data-wp-on--dragleave="actions.handleDragLeave" data-wp-on--drop="actions.handleDrop">
@@ -607,7 +607,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</div>
 
 	<!-- Video modal -->
-	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showVideoModal" data-wp-on--click="actions.closeVideoModal" data-wp-on--keydown="actions.handleVideoModalKeyDown">
+	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showVideoModal" data-wp-on--pointerdown="actions.handleOverlayPointerDown" data-wp-on--keydown="actions.handleVideoModalKeyDown">
 		<div class="bw-image-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Embed a video', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
 			<h3><?php echo esc_html__( 'Embed a video', 'jetpack-mu-wpcom' ); ?></h3>
 			<input
