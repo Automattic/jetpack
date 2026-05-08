@@ -8,7 +8,7 @@
 /* eslint-disable @wordpress/no-global-get-selection -- Write serves a full page, not an iframe or shadow DOM. */
 
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
-import { store, getElement, getContext } from '@wordpress/interactivity';
+import { store, getElement } from '@wordpress/interactivity';
 
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
@@ -1665,6 +1665,29 @@ function insertMediaBlock( mediaEl ) {
 	return p;
 }
 
+// --- Inline category meta helpers ---
+
+/**
+ * Recompute state.catLabel from the currently selected categories.
+ * Sets "in X, Y" when categories are selected, or empty string for none.
+ */
+function updateCatLabel() {
+	const selected = state.categories.filter( c => c.selected );
+	state.catLabel = selected.map( c => c.name ).join( ', ' );
+}
+
+/**
+ * Sync the visual selected state of each dropdown item with state.categories.
+ */
+function syncCatDropdownItems() {
+	document.querySelectorAll( '#bw-cat-dropdown .bw-meta-dropdown-item' ).forEach( item => {
+		const idx = parseInt( item.dataset.catIndex, 10 );
+		const selected = !! state.categories[ idx ]?.selected;
+		item.classList.toggle( 'bw-meta-dropdown-item--selected', selected );
+		item.setAttribute( 'aria-selected', selected ? 'true' : 'false' );
+	} );
+}
+
 const { state } = store( 'wpcom-write', {
 	state: {
 		formatBold: false,
@@ -2991,39 +3014,70 @@ const { state } = store( 'wpcom-write', {
 			}
 		},
 
-		toggleCatPicker( event ) {
-			event.stopPropagation();
-			state.showCatPicker = ! state.showCatPicker;
+		// --- Inline category meta ---
 
-			if ( state.showCatPicker ) {
-				const close = e => {
-					if ( e.target.closest( '.bw-cat-popover' ) || e.target.closest( '.bw-cat-fab' ) ) return;
-					state.showCatPicker = false;
-					document.removeEventListener( 'click', close );
-				};
-				// Delay so the current click doesn't immediately close it.
-				setTimeout( () => document.addEventListener( 'click', close ), 0 );
+		toggleCatDropdown( event ) {
+			event.stopPropagation();
+			state.showCatDropdown = ! state.showCatDropdown;
+			if ( state.showCatDropdown ) {
+				syncCatDropdownItems();
 			}
 		},
 
-		handleCatKeyDown( event ) {
-			if ( event.key === 'Escape' ) {
+		handleCatBtnKeyDown( event ) {
+			if ( event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
-				state.showCatPicker = false;
-				event.currentTarget.querySelector( '.bw-cat-fab' )?.focus();
+				if ( ! state.showCatDropdown ) {
+					state.showCatDropdown = true;
+					syncCatDropdownItems();
+				}
+				// Focus first item once the dropdown is visible.
+				requestAnimationFrame( () => {
+					const first = document.querySelector( '#bw-cat-dropdown .bw-meta-dropdown-item' );
+					if ( first ) first.focus();
+				} );
+			} else if ( event.key === 'Escape' ) {
+				state.showCatDropdown = false;
+			}
+		},
+
+		handleCatDropdownKeyDown( event ) {
+			const dropdown = event.currentTarget;
+			const focused = dropdown.ownerDocument.activeElement;
+			const items = [ ...dropdown.querySelectorAll( '.bw-meta-dropdown-item' ) ];
+
+			if ( event.key === 'ArrowDown' || event.key === 'ArrowUp' ) {
+				event.preventDefault();
+				const idx = items.indexOf( focused );
+				const delta = event.key === 'ArrowDown' ? 1 : -1;
+				items[ ( idx + delta + items.length ) % items.length ]?.focus();
+			} else if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				focused.click();
+			} else if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showCatDropdown = false;
+				document.querySelector( '.bw-meta-cat-btn' )?.focus();
 			}
 		},
 
 		handleCatFocusOut( event ) {
 			if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
-				state.showCatPicker = false;
+				state.showCatDropdown = false;
 			}
 		},
 
-		toggleCategory() {
-			const ctx = getContext();
-			ctx.catSelected = ! ctx.catSelected;
-			state.categories[ ctx.catIndex ].selected = ctx.catSelected;
+		handleCatDropdownClick( event ) {
+			const item = event.target.closest( '.bw-meta-dropdown-item' );
+			if ( ! item ) {
+				return;
+			}
+			const idx = parseInt( item.dataset.catIndex, 10 );
+			if ( ! isNaN( idx ) && state.categories[ idx ] ) {
+				state.categories[ idx ].selected = ! state.categories[ idx ].selected;
+				syncCatDropdownItems();
+				updateCatLabel();
+			}
 		},
 
 		async publish() {
@@ -3171,10 +3225,32 @@ async function savePost( postStatus, isAutosave = false ) {
 	// the submitted content, not whatever the DOM contains when the request resolves.
 	const submittedSnapshot = getContentSnapshot();
 
+	// Extract #tags from lines that contain only hashtag tokens (e.g. "#travel #food").
+	// Those paragraphs are metadata, not body text — strip them from the saved content.
+	const tagNames = [];
+	clone.querySelectorAll( ':scope > p' ).forEach( p => {
+		const text = p.textContent.trim();
+		if ( /^(#[\w-]+\s*)+$/.test( text ) ) {
+			text.match( /#([\w-]+)/g ).forEach( t => tagNames.push( t.slice( 1 ) ) );
+			p.remove();
+		}
+	} );
+
 	const blockMarkup = convertToBlocks( clone.innerHTML );
 
 	// Collect selected category IDs.
 	const selectedCats = state.categories.filter( c => c.selected ).map( c => c.id );
+
+	// Resolve extracted tag names to WP term IDs, creating new tags as needed.
+	// WordPress returns a term_exists error (with the existing ID) for duplicates.
+	const allTagIds = await Promise.all(
+		tagNames.map( name =>
+			window.wp
+				.apiFetch( { path: '/wp/v2/tags', method: 'POST', data: { name } } )
+				.then( tag => tag.id )
+				.catch( err => err?.data?.term_id ?? null )
+		)
+	).then( ids => ids.filter( Boolean ) );
 
 	// If editing, PUT to the existing post. If new, POST to create.
 	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
@@ -3188,6 +3264,7 @@ async function savePost( postStatus, isAutosave = false ) {
 				content: blockMarkup,
 				status: postStatus,
 				categories: selectedCats,
+				tags: allTagIds,
 				featured_media: state.featuredMediaId || 0,
 			},
 		} );
