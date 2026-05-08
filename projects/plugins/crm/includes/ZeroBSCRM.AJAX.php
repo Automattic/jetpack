@@ -2349,8 +2349,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$sortField = 'ID';
 				}
 
-					// legacy from dal1
-					$page_number = $page_number;
 				if ( $page_number < 0 ) {
 					$page_number = 0;
 				}
