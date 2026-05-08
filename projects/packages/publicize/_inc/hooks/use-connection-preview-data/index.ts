@@ -91,17 +91,21 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 	const items = useRenderMessageItems();
+	const siteMessageTemplate = useSelect(
+		select =>
+			templatesEnabled ? select( socialStore ).getSocialSettings().messageTemplate ?? '' : '',
+		[ templatesEnabled ]
+	);
 	/*
-	 * `connection.message` is server-side defaulted to the connection's own
-	 * template, and `globalMessage` to the saved global template, so the
-	 * editor-side fallback chain collapses to just "use connection.message in
-	 * per-network mode, otherwise globalMessage", with a final `?? globalMessage`
-	 * for connections that have neither override nor template. Must mirror
-	 * `useRenderMessageItems` exactly so `currentRenderItem.message` matches
-	 * `baseMessage` and `isDebouncingRenderedMessage` doesn't stay stuck true.
+	 * Mirror `useRenderMessageItems` exactly: in per-network mode fall back to
+	 * the saved site template (not `globalMessage`) when the connection has no
+	 * per-post override; in global mode use `globalMessage`. Keeping this
+	 * identical to the items array's rule ensures `currentRenderItem.message`
+	 * matches `baseMessage` and `isDebouncingRenderedMessage` doesn't stay
+	 * stuck true.
 	 */
 	const baseMessage = (
-		isPerNetworkMode ? connection.message ?? globalMessage : globalMessage
+		isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage
 	).trim();
 	const currentRenderItem = items.find( item => item.id === connection.connection_id );
 

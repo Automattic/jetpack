@@ -2,7 +2,6 @@ import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { usePostMeta } from '../../../hooks/use-post-meta';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
 import { features } from '../../../utils/constants';
@@ -26,9 +25,11 @@ const FALLBACK_TEMPLATE_HELP = __(
 export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomizationFormProps ) {
 	const { customizeConnectionById } = useDispatch( socialStore );
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
-	const { shareMessage: globalMessage } = usePostMeta();
 
-	const message = connection.message ?? globalMessage ?? '';
+	/*
+	 * The message field is bound strictly to `connection.message`.
+	 */
+	const message = connection.message ?? '';
 	const fallbackHelp = templatesEnabled ? FALLBACK_TEMPLATE_HELP : undefined;
 
 	/*

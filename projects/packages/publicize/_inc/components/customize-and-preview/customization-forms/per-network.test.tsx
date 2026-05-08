@@ -118,7 +118,7 @@ describe( 'PerNetworkCustomizationForm', () => {
 		expect( sharePostFormProps.messageHelp ).toBe( 'A template will be used if this is empty.' );
 	} );
 
-	it( 'falls back to the post-level globalMessage when connection.message is unset', () => {
+	it( 'shows empty when connection.message is unset (no globalMessage fallback in the form)', () => {
 		globalMessage = 'Global custom message';
 
 		const sharePostFormProps = getSharePostFormProps( {
@@ -126,7 +126,7 @@ describe( 'PerNetworkCustomizationForm', () => {
 			template: '',
 		} );
 
-		expect( sharePostFormProps.message ).toBe( 'Global custom message' );
+		expect( sharePostFormProps.message ).toBe( '' );
 		expect( sharePostFormProps.messageHelp ).toBe( 'A template will be used if this is empty.' );
 	} );
 
@@ -139,7 +139,7 @@ describe( 'PerNetworkCustomizationForm', () => {
 			template: '{title} {url}',
 		} );
 
-		expect( sharePostFormProps.message ).toBe( 'Global custom message' );
+		expect( sharePostFormProps.message ).toBe( '' );
 		expect( sharePostFormProps.messageHelp ).toBeUndefined();
 	} );
 } );

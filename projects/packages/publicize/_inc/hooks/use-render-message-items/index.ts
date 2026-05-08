@@ -80,8 +80,17 @@ export function useRenderMessageItems(): RenderItem[] {
 	// a disabled connection's message must still update the items array. Including
 	// disabled connections also keeps their preview cached for instant display when
 	// the user re-enables them.
-	const connections = useSelect(
-		select => ( templatesEnabled ? select( socialStore ).getConnections() : [] ),
+	const { connections, siteMessageTemplate } = useSelect(
+		select => {
+			if ( ! templatesEnabled ) {
+				return { connections: [], siteMessageTemplate: '' };
+			}
+			const store = select( socialStore );
+			return {
+				connections: store.getConnections(),
+				siteMessageTemplate: store.getSocialSettings().messageTemplate ?? '',
+			};
+		},
 		[ templatesEnabled ]
 	);
 
@@ -119,13 +128,12 @@ export function useRenderMessageItems(): RenderItem[] {
 	const items = useMemo< RenderItem[] >( () => {
 		return connections.map( connection => {
 			/*
-			 * Mirror the consumer's rule in `useConnectionPreviewData`: per-connection
-			 * message only applies in per-network mode. The server already defaults
-			 * `connection.message` to its connection template (when set) and
-			 * `globalMessage` to the saved global template, so this hook just chooses
-			 * which to send to the renderer based on mode.
+			 * Mirror the form's rule in `per-network.tsx`: in per-network mode,
+			 * fall back to the saved site template (not `globalMessage` /
+			 * `_wpas_mess`) when the connection has no per-post override and
+			 * no connection-template default.
 			 */
-			const raw = ctx.isPerNetworkMode ? connection.message ?? globalMessage : globalMessage;
+			const raw = ctx.isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage;
 			return {
 				id: connection.connection_id,
 				network: connection.service_name ?? '',
@@ -133,7 +141,7 @@ export function useRenderMessageItems(): RenderItem[] {
 				is_social_post: connectionHasMedia( connection, ctx ),
 			};
 		} );
-	}, [ connections, globalMessage, ctx ] );
+	}, [ connections, globalMessage, siteMessageTemplate, ctx ] );
 
 	return useDebouncedItems( items );
 }
