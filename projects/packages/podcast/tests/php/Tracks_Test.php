@@ -44,7 +44,6 @@ class Tracks_Test extends BaseTestCase {
 		wp_cache_flush();
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
-		Tracks::reset_for_tests();
 		unset( $GLOBALS['jetpack_podcast_test_captured_events'] );
 		parent::tearDown();
 	}
@@ -329,29 +328,22 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	public function test_settings_saved_emits_after_settings_rest_write() {
-		update_option( 'podcasting_title', 'Old Title' );
+		update_option( 'podcasting_title', 'New Title' );
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
 		$request->set_param( 'podcasting_title', 'New Title' );
 
-		Tracks::snapshot_settings_before_write( null, array(), $request );
-
-		update_option( 'podcasting_title', 'New Title' );
-
-		$response = new WP_REST_Response( array(), 200 );
-		Tracks::record_settings_saved( $response, array(), $request );
+		Tracks::record_settings_saved( new WP_REST_Response( array(), 200 ), array(), $request );
 
 		$events = $this->events_named( 'wpcom_podcasting_settings_saved' );
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'New Title', $events[0]['properties']['podcasting_title'] );
-		$this->assertSame( 'Old Title', $events[0]['properties']['previous_podcasting_title'] );
 	}
 
 	public function test_settings_saved_skips_unrelated_routes() {
 		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
 		$request->set_param( 'podcasting_title', 'should be ignored' );
 
-		Tracks::snapshot_settings_before_write( null, array(), $request );
 		Tracks::record_settings_saved( new WP_REST_Response(), array(), $request );
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
@@ -361,7 +353,6 @@ class Tracks_Test extends BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
 		$request->set_param( 'title', 'New Site Title' );
 
-		Tracks::snapshot_settings_before_write( null, array(), $request );
 		Tracks::record_settings_saved( new WP_REST_Response(), array(), $request );
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
@@ -371,10 +362,11 @@ class Tracks_Test extends BaseTestCase {
 		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
 		$request->set_param( 'podcasting_title', 'New Title' );
 
-		Tracks::snapshot_settings_before_write( null, array(), $request );
-
-		$error_response = new WP_REST_Response( array( 'code' => 'rest_forbidden' ), 403 );
-		Tracks::record_settings_saved( $error_response, array(), $request );
+		Tracks::record_settings_saved(
+			new WP_REST_Response( array( 'code' => 'rest_forbidden' ), 403 ),
+			array(),
+			$request
+		);
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
 	}

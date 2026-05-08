@@ -26,27 +26,7 @@ use WP_User;
  */
 class Tracks {
 
-	private static $registered = false;
-
-	/**
-	 * @var \Automattic\Jetpack\Tracking|null
-	 */
-	private static $jetpack_tracking = null;
-
-	/**
-	 * Per-request snapshot taken before a `/wp/v2/settings` write so the
-	 * emitted event can include `previous_*` keys. Keyed by request hash.
-	 *
-	 * @var array<string, array<string, mixed>>
-	 */
-	private static $settings_snapshots = array();
-
 	public static function init(): void {
-		if ( self::$registered ) {
-			return;
-		}
-		self::$registered = true;
-
 		// `wp_after_insert_post` runs after terms + meta are saved — required
 		// because Gutenberg/REST publishes set terms after `transition_post_status`.
 		add_action( 'wp_after_insert_post', array( __CLASS__, 'record_episode_published' ), 10, 4 );
@@ -59,14 +39,7 @@ class Tracks {
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_addition' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_addition' ), 10, 2 );
 
-		add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'snapshot_settings_before_write' ), 10, 3 );
 		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'record_settings_saved' ), 10, 3 );
-	}
-
-	public static function reset_for_tests(): void {
-		self::$registered         = false;
-		self::$jetpack_tracking   = null;
-		self::$settings_snapshots = array();
 	}
 
 	/**
@@ -113,34 +86,29 @@ class Tracks {
 			}
 
 			// Match the RSS feed's definition of an episode — must carry
-			// site-hosted audio, not just sit in the podcast category.
+			// audio, not just sit in the podcast category.
 			if ( ! self::has_podcast_media( $post ) ) {
 				return;
 			}
 
 			$is_first = self::is_first_episode_for_site( $category_id, (int) $post->ID );
-			$identity = self::identity_for_post( $post );
 
 			self::record_event(
-				$identity,
 				'wpcom_podcast_episode_published',
 				array(
-					'blog_id'                   => (int) get_current_blog_id(),
 					'post_id'                   => (int) $post->ID,
 					'is_first_episode_for_site' => (bool) $is_first,
-				)
+				),
+				self::identity_for_post( $post )
 			);
 
 			// Atomic INSERT — only one concurrent caller per site wins, so
 			// `show_launched` fires exactly once per site.
 			if ( $is_first && add_option( 'podcast_show_launched_tracked', time(), '', false ) ) {
 				self::record_event(
-					$identity,
 					'wpcom_podcast_show_launched',
-					array(
-						'blog_id' => (int) get_current_blog_id(),
-						'post_id' => (int) $post->ID,
-					)
+					array( 'post_id' => (int) $post->ID ),
+					self::identity_for_post( $post )
 				);
 			}
 		} catch ( Throwable $e ) {
@@ -175,10 +143,8 @@ class Tracks {
 			}
 
 			self::record_event(
-				wp_get_current_user(),
 				'wpcom_podcast_media_uploaded',
 				array(
-					'blog_id'       => (int) get_current_blog_id(),
 					'attachment_id' => (int) $attachment_id,
 					'mime_type'     => $mime_type,
 				)
@@ -245,12 +211,8 @@ class Tracks {
 				}
 
 				self::record_event(
-					wp_get_current_user(),
 					'wpcom_podcasting_show_url_saved',
-					array(
-						'blog_id' => (int) get_current_blog_id(),
-						'app'     => (string) $app,
-					)
+					array( 'app' => (string) $app )
 				);
 				return;
 			}
@@ -265,68 +227,31 @@ class Tracks {
 	 * @param WP_REST_Request|mixed $request  Request object.
 	 * @return mixed
 	 */
-	public static function snapshot_settings_before_write( $response, $handler, $request ) {
-		unset( $handler );
-
-		try {
-			if ( ! self::is_settings_write( $request ) ) {
-				return $response;
-			}
-
-			$params = $request->get_params();
-			if ( ! is_array( $params ) ) {
-				return $response;
-			}
-
-			$touched = array_intersect_key( $params, array_flip( Settings::OPTION_NAMES ) );
-			if ( empty( $touched ) ) {
-				return $response;
-			}
-
-			self::$settings_snapshots[ spl_object_hash( $request ) ] = self::read_settings_state();
-		} catch ( Throwable $e ) {
-			self::log_failure( 'settings-snapshot-failed', $e );
-		}
-
-		return $response;
-	}
-
-	/**
-	 * @param mixed                 $response Pass-through.
-	 * @param array                 $handler  Route handler.
-	 * @param WP_REST_Request|mixed $request  Request object.
-	 * @return mixed
-	 */
 	public static function record_settings_saved( $response, $handler, $request ) {
 		unset( $handler );
 
 		try {
-			if ( ! $request instanceof WP_REST_Request ) {
+			if ( ! $request instanceof WP_REST_Request || '/wp/v2/settings' !== $request->get_route() ) {
+				return $response;
+			}
+			if ( ! in_array( $request->get_method(), array( 'POST', 'PUT', 'PATCH' ), true ) ) {
 				return $response;
 			}
 
-			$key = spl_object_hash( $request );
-			if ( ! isset( self::$settings_snapshots[ $key ] ) ) {
+			$params = (array) $request->get_params();
+			if ( empty( array_intersect_key( $params, array_flip( Settings::OPTION_NAMES ) ) ) ) {
 				return $response;
 			}
-
-			$previous = self::$settings_snapshots[ $key ];
-			unset( self::$settings_snapshots[ $key ] );
 
 			if ( $response instanceof WP_REST_Response && $response->is_error() ) {
 				return $response;
 			}
 
-			$event_props = self::read_settings_state();
-			foreach ( $previous as $field => $value ) {
-				$event_props[ 'previous_' . $field ] = $value;
+			$state = array();
+			foreach ( Settings::OPTION_NAMES as $name ) {
+				$state[ $name ] = get_option( $name, '' );
 			}
-
-			self::record_event(
-				wp_get_current_user(),
-				'wpcom_podcasting_settings_saved',
-				$event_props
-			);
+			self::record_event( 'wpcom_podcasting_settings_saved', $state );
 		} catch ( Throwable $e ) {
 			self::log_failure( 'settings-saved-failed', $e );
 		}
@@ -351,23 +276,21 @@ class Tracks {
 			$status = 'changed';
 		}
 
-		// `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic.
+		// `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic — same dual
+		// pattern as `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
 		$plan = class_exists( '\WPCOM_Store_API' )
 			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
 			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
-		$plan_slug = (string) ( $plan['product_slug'] ?? '' );
 
 		self::record_event(
-			wp_get_current_user(),
 			'wpcom_podcasting_status_changed',
 			array(
-				'blog_id'              => (int) get_current_blog_id(),
 				'status'               => $status,
 				'surface'              => 'option_write',
-				'previous_category_id' => (int) $old_value,
-				'new_category_id'      => (int) $new_value,
+				'previous_category_id' => $old_value,
+				'new_category_id'      => $new_value,
 				'user_id'              => (int) get_current_user_id(),
-				'product_slug'         => $plan_slug,
+				'product_slug'         => (string) ( $plan['product_slug'] ?? '' ),
 			)
 		);
 
@@ -375,30 +298,6 @@ class Tracks {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
 			bump_stats_extras( 'wpcom-podcasting-status', $status );
 		}
-	}
-
-	/**
-	 * @param mixed $request Request object.
-	 */
-	private static function is_settings_write( $request ): bool {
-		if ( ! $request instanceof WP_REST_Request ) {
-			return false;
-		}
-		if ( '/wp/v2/settings' !== $request->get_route() ) {
-			return false;
-		}
-		return in_array( $request->get_method(), array( 'POST', 'PUT', 'PATCH' ), true );
-	}
-
-	/**
-	 * @return array<string, mixed>
-	 */
-	private static function read_settings_state(): array {
-		$state = array();
-		foreach ( Settings::OPTION_NAMES as $name ) {
-			$state[ $name ] = get_option( $name, '' );
-		}
-		return $state;
 	}
 
 	/**
@@ -442,20 +341,18 @@ class Tracks {
 	}
 
 	/**
-	 * @param mixed  $user       Username, user ID, or `WP_User` object.
-	 * @param string $event_name Tracks event name.
-	 * @param array  $properties Event properties.
+	 * Auto-injects `blog_id` and defaults `$user` to the current user — the
+	 * shape every event needs, kept out of the call sites.
+	 *
+	 * @param string       $event_name Tracks event name.
+	 * @param array        $properties Event properties.
+	 * @param WP_User|null $user       Identity override; defaults to current user.
 	 * @return mixed
 	 */
-	private static function record_event( $user, string $event_name, array $properties ) {
+	private static function record_event( string $event_name, array $properties, ?WP_User $user = null ) {
 		try {
-			if ( is_numeric( $user ) ) {
-				$user = get_userdata( (int) $user );
-			}
-
-			if ( ! $user instanceof WP_User ) {
-				$user = wp_get_current_user();
-			}
+			$user                  = $user ?? wp_get_current_user();
+			$properties['blog_id'] = (int) get_current_blog_id();
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
@@ -468,10 +365,7 @@ class Tracks {
 			}
 
 			if ( class_exists( '\Automattic\Jetpack\Tracking' ) ) {
-				if ( null === self::$jetpack_tracking ) {
-					self::$jetpack_tracking = new \Automattic\Jetpack\Tracking();
-				}
-				return self::$jetpack_tracking->tracks_record_event( $user, $event_name, $properties );
+				return ( new \Automattic\Jetpack\Tracking() )->tracks_record_event( $user, $event_name, $properties );
 			}
 		} catch ( Throwable $e ) {
 			self::log_failure( 'dispatcher-failed', $e, array( 'event_name' => $event_name ) );
