@@ -2985,6 +2985,20 @@ const { state } = store( 'wpcom-write', {
 			}
 		},
 
+		handleCatKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				state.showCatPicker = false;
+				event.currentTarget.querySelector( '.bw-cat-fab' )?.focus();
+			}
+		},
+
+		handleCatFocusOut( event ) {
+			if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
+				state.showCatPicker = false;
+			}
+		},
+
 		toggleCategory() {
 			const ctx = getContext();
 			ctx.catSelected = ! ctx.catSelected;

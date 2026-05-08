@@ -819,8 +819,8 @@
 }
 
 .bw-cat-fab:focus-visible {
-	outline: 2px solid #fff;
-	outline-offset: 2px;
+	outline: 3px solid #2171b1;
+	outline-offset: 3px;
 }
 
 .bw-cat-fab-icon {

@@ -623,6 +623,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 	</div>
 
 	<!-- Floating category picker -->
+	<div class="bw-cat-wrap" data-wp-on--keydown="actions.handleCatKeyDown" data-wp-on--focusout="actions.handleCatFocusOut">
 	<button class="bw-cat-fab" aria-label="<?php echo esc_attr__( 'Categories', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.toggleCatPicker">
 		<span class="bw-cat-fab-icon dashicons dashicons-tag" aria-hidden="true"></span>
 	</button>
@@ -650,6 +651,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<?php endforeach; ?>
 		</div>
 	</div>
+	</div><!-- /.bw-cat-wrap -->
 
 </div>
 	<?php
