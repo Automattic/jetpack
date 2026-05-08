@@ -158,6 +158,7 @@ module.exports = [
 			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
 			'network-admin': path.join( __dirname, '../_inc/client', 'network-admin.tsx' ),
+			'posts-to-podcast': path.join( __dirname, '../_inc/client/posts-to-podcast', 'index.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

@@ -1,4 +1,4 @@
 Significance: minor
 Type: other
 
-Added a post to podcast base feature
+Added a Posts to Podcast admin page that calls the wpcom endpoint directly via wpcom-proxy-request.

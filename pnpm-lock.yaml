@@ -5255,6 +5255,9 @@ importers:
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.105.2)
+      wpcom-proxy-request:
+        specifier: 7.0.7
+        version: 7.0.7
     devDependencies:
       '@automattic/color-studio':
         specifier: 4.1.0

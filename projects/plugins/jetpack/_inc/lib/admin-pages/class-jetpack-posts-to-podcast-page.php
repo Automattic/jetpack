@@ -3,13 +3,9 @@
  * Jetpack Posts to Podcast admin page.
  *
  * Registers the "Posts to Podcast" submenu under Jetpack and renders a
- * three-control form that POSTs to the local proxy endpoint, polls until the
- * upstream wpcom job completes, and writes the resulting markdown script as a
- * draft post via wp.apiFetch.
- *
- * Phase A: vanilla HTML form + inline script using wp.apiFetch — no build step.
- * Phase B can move this to a built React app under _inc/client/ if/when the
- * UX needs more than three controls.
+ * three-control form. The bundled JS calls public-api.wordpress.com directly
+ * via wpcom-proxy-request, polls the wpcom job, and navigates to the editUrl
+ * that wpcom returns when the draft post is ready.
  *
  * @package automattic/jetpack
  */
@@ -68,49 +64,61 @@ class Jetpack_Posts_To_Podcast_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Enqueue scripts for the admin page. Phase A relies on wp.apiFetch which is
-	 * registered globally; we add a small inline initialiser bound to the page's
-	 * #jetpack-posts-to-podcast-app container.
+	 * Enqueue the bundled JS and seed the bootstrap object that drives it.
 	 */
 	public function page_admin_scripts() {
-		wp_enqueue_script( 'wp-api-fetch' );
-		wp_enqueue_script( 'wp-i18n' );
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( $blog_id < 1 ) {
+			return;
+		}
+
+		$script_path    = JETPACK__PLUGIN_DIR . '_inc/build/posts-to-podcast.asset.php';
+		$script_deps    = array( 'wp-polyfill' );
+		$script_version = JETPACK__VERSION;
+		if ( file_exists( $script_path ) ) {
+			$asset_manifest = include $script_path;
+			$script_deps    = $asset_manifest['dependencies'];
+			$script_version = $asset_manifest['version'];
+		}
+
+		wp_enqueue_script(
+			'jetpack-posts-to-podcast',
+			plugins_url( '_inc/build/posts-to-podcast.js', JETPACK__PLUGIN_FILE ),
+			$script_deps,
+			$script_version,
+			true
+		);
+
+		wp_set_script_translations( 'jetpack-posts-to-podcast', 'jetpack' );
 
 		$bootstrap = array(
-			'apiPath'        => '/wpcom/v2/posts-to-podcast',
-			'jobsPath'       => '/wpcom/v2/posts-to-podcast/jobs/',
-			'voicePresets'   => Jetpack_Posts_To_Podcast_Helper::get_voice_presets(),
-			'lengthPresets'  => Jetpack_Posts_To_Podcast_Helper::get_length_presets(),
-			'windowPresets'  => Jetpack_Posts_To_Podcast_Helper::get_window_presets(),
-			'pollFastMs'     => 3000,
-			'pollSlowMs'     => 10000,
-			'pollSwitchMs'   => 30000,
-			'pollTimeoutMs'  => 5 * 60 * 1000,
-			'newPostBaseUrl' => admin_url( 'post-new.php' ),
-			'editPostUrl'    => admin_url( 'post.php' ),
-			'i18n'           => array(
-				'generate'             => __( 'Generate', 'jetpack' ),
-				'generating'           => __( 'Generating…', 'jetpack' ),
-				'queueFailed'          => __( 'Failed to queue the generation. Please try again.', 'jetpack' ),
-				'pollFailed'           => __( 'Failed to read job status. Please try again.', 'jetpack' ),
+			'blogId'        => $blog_id,
+			'voicePresets'  => Jetpack_Posts_To_Podcast_Helper::get_voice_presets(),
+			'lengthPresets' => Jetpack_Posts_To_Podcast_Helper::get_length_presets(),
+			'windowPresets' => Jetpack_Posts_To_Podcast_Helper::get_window_presets(),
+			'pollFastMs'    => 3000,
+			'pollSlowMs'    => 10000,
+			'pollSwitchMs'  => 30000,
+			'pollTimeoutMs' => 5 * 60 * 1000,
+			'editPostUrl'   => admin_url( 'post.php' ),
+			'i18n'          => array(
+				'generate'          => __( 'Generate', 'jetpack' ),
+				'generating'        => __( 'Generating…', 'jetpack' ),
+				'queueFailed'       => __( 'Failed to queue the generation. Please try again.', 'jetpack' ),
+				'pollFailed'        => __( 'Failed to read job status. Please try again.', 'jetpack' ),
 				/* translators: %s: error message returned by the generation pipeline. */
-				'jobFailed'            => __( 'Generation failed: %s', 'jetpack' ),
-				'noContentNoPosts'     => __( 'No posts published in this window — try a longer one.', 'jetpack' ),
-				'noContentNoThreshold' => __( 'Posts in this window did not pass the relevance threshold. Try a longer window.', 'jetpack' ),
-				'draftCreated'         => __( 'Draft created. Opening the editor…', 'jetpack' ),
-				'draftCreateFailed'    => __( 'Generation completed but the draft post could not be created.', 'jetpack' ),
-				'pendingStatus'        => __( 'Pending — your job is queued.', 'jetpack' ),
-				'runningStatus'        => __( 'Running — generating your script. This usually takes 30–90 seconds.', 'jetpack' ),
+				'jobFailed'         => __( 'Generation failed: %s', 'jetpack' ),
+				'draftCreated'      => __( 'Draft created. Opening the editor…', 'jetpack' ),
+				'draftCreateFailed' => __( 'Generation completed but the draft post could not be opened.', 'jetpack' ),
+				'pendingStatus'     => __( 'Pending — your job is queued. This usually takes 30–90 seconds.', 'jetpack' ),
 			),
 		);
 
 		wp_add_inline_script(
-			'wp-api-fetch',
+			'jetpack-posts-to-podcast',
 			'window.jetpackPostsToPodcast = ' . wp_json_encode( $bootstrap, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
-			'after'
+			'before'
 		);
-
-		wp_add_inline_script( 'wp-api-fetch', $this->get_inline_app_script(), 'after' );
 	}
 
 	/**
@@ -159,174 +167,5 @@ class Jetpack_Posts_To_Podcast_Page extends Jetpack_Admin_Page {
 			<div id="jp-p2p-status" role="status" aria-live="polite" style="margin-top:16px;"></div>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Inline JS that drives the form: builds the request body, POSTs to the local
-	 * proxy, polls until terminal state, and writes a draft post on success.
-	 *
-	 * Kept as a heredoc so Phase A doesn't need a build pipeline. Phase B can
-	 * move this into a real React app and an asset manifest.
-	 *
-	 * @return string
-	 */
-	private function get_inline_app_script() {
-		// phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired -- heredoc is intentional.
-		return <<<'JS'
-( function () {
-	if ( ! window.wp || ! window.wp.apiFetch ) {
-		return;
-	}
-	if ( ! window.jetpackPostsToPodcast ) {
-		return;
-	}
-
-	var settings = window.jetpackPostsToPodcast;
-	var apiFetch = window.wp.apiFetch;
-
-	function $( id ) { return document.getElementById( id ); }
-
-	function buildWindow() {
-		var presetId = $( 'jp-p2p-window' ).value;
-		var preset = ( settings.windowPresets || [] ).find( function ( p ) { return p.id === presetId; } );
-		if ( ! preset ) {
-			return null;
-		}
-		return { unit: preset.unit, n: preset.n };
-	}
-
-	function setStatus( html ) {
-		$( 'jp-p2p-status' ).innerHTML = html;
-	}
-
-	function setBusy( busy ) {
-		var btn = $( 'jp-p2p-generate' );
-		btn.disabled = !! busy;
-		btn.textContent = busy ? settings.i18n.generating : settings.i18n.generate;
-		[ 'jp-p2p-window', 'jp-p2p-length', 'jp-p2p-voice' ].forEach( function ( id ) {
-			$( id ).disabled = !! busy;
-		} );
-	}
-
-	function pollJob( jobId, startedAt ) {
-		var elapsed = Date.now() - startedAt;
-		if ( elapsed > settings.pollTimeoutMs ) {
-			setStatus( '<p>' + settings.i18n.pollFailed + '</p>' );
-			setBusy( false );
-			return;
-		}
-		var nextDelay = elapsed < settings.pollSwitchMs ? settings.pollFastMs : settings.pollSlowMs;
-		apiFetch( { path: settings.jobsPath + encodeURIComponent( jobId ) } )
-			.then( function ( record ) {
-				if ( record.status === 'pending' ) {
-					setStatus( '<p>' + settings.i18n.pendingStatus + '</p>' );
-					setTimeout( function () { pollJob( jobId, startedAt ); }, nextDelay );
-					return;
-				}
-				if ( record.status === 'running' ) {
-					setStatus( '<p>' + settings.i18n.runningStatus + '</p>' );
-					setTimeout( function () { pollJob( jobId, startedAt ); }, nextDelay );
-					return;
-				}
-				if ( record.status === 'failed' ) {
-					var msg = record.errorMessage || record.errorCode || 'unknown';
-					setStatus( '<p>' + settings.i18n.jobFailed.replace( '%s', msg ) + '</p>' );
-					setBusy( false );
-					return;
-				}
-				if ( record.status === 'complete' ) {
-					if ( ! record.script ) {
-						var reason = record.metadata && record.metadata.noContentReason;
-						var message = reason === 'no-items-above-threshold'
-							? settings.i18n.noContentNoThreshold
-							: settings.i18n.noContentNoPosts;
-						setStatus( '<p>' + message + '</p>' );
-						setBusy( false );
-						return;
-					}
-					createDraft( record );
-					return;
-				}
-				setStatus( '<p>' + settings.i18n.pollFailed + '</p>' );
-				setBusy( false );
-			} )
-			.catch( function () {
-				setStatus( '<p>' + settings.i18n.pollFailed + '</p>' );
-				setBusy( false );
-			} );
-	}
-
-	function buildPostMeta( record ) {
-		var m = record.metadata || {};
-		return {
-			'_p2p_format':          m.format || 'two-voice-dialogue',
-			'_p2p_voices':          m.voices || [],
-			'_p2p_themes':          m.themes || [],
-			'_p2p_source_post_ids': m.sourcePostIds || [],
-			'_p2p_window':          m.window || record.window || {},
-			'_p2p_generated_at':    m.generatedAt || record.completedAt || '',
-			'_p2p_warnings':        ( m.warnings && m.warnings.length ) ? m.warnings : undefined,
-		};
-	}
-
-	function createDraft( record ) {
-		var m = record.metadata || {};
-		var body = {
-			status:  'draft',
-			title:   m.title || 'Posts to Podcast — episode',
-			content: record.script,
-			meta:    buildPostMeta( record ),
-		};
-		apiFetch( { path: '/wp/v2/posts', method: 'POST', data: body } )
-			.then( function ( draft ) {
-				setStatus( '<p>' + settings.i18n.draftCreated + '</p>' );
-				var url = settings.editPostUrl + '?action=edit&post=' + encodeURIComponent( draft.id );
-				window.location.href = url;
-			} )
-			.catch( function () {
-				setStatus( '<p>' + settings.i18n.draftCreateFailed + '</p>' );
-				setBusy( false );
-			} );
-	}
-
-	function onGenerate() {
-		setBusy( true );
-		setStatus( '' );
-		var win = buildWindow();
-		if ( ! win ) {
-			setStatus( '<p>' + settings.i18n.queueFailed + '</p>' );
-			setBusy( false );
-			return;
-		}
-		var body = {
-			window:      win,
-			length:      $( 'jp-p2p-length' ).value,
-			voicePreset: $( 'jp-p2p-voice' ).value,
-		};
-		apiFetch( { path: settings.apiPath, method: 'POST', data: body } )
-			.then( function ( resp ) {
-				if ( ! resp || ! resp.jobId ) {
-					setStatus( '<p>' + settings.i18n.queueFailed + '</p>' );
-					setBusy( false );
-					return;
-				}
-				setStatus( '<p>' + settings.i18n.pendingStatus + '</p>' );
-				pollJob( resp.jobId, Date.now() );
-			} )
-			.catch( function () {
-				setStatus( '<p>' + settings.i18n.queueFailed + '</p>' );
-				setBusy( false );
-			} );
-	}
-
-	document.addEventListener( 'DOMContentLoaded', function () {
-		var btn = document.getElementById( 'jp-p2p-generate' );
-		if ( btn ) {
-			btn.addEventListener( 'click', onGenerate );
-		}
-	} );
-} )();
-JS;
-		// phpcs:enable
 	}
 }
