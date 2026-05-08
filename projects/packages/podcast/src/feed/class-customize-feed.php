@@ -255,11 +255,14 @@ class Customize_Feed {
 				'/url="[^"]*"/i',
 				/**
 				 * Replace the matched `url="…"` attribute with the stats URL.
-				 * Match data ignored — we always emit the same value.
+				 * `$matches` is required by `preg_replace_callback`'s callable
+				 * signature but ignored — we always emit the same value.
 				 *
+				 * @param array $matches Regex matches.
 				 * @return string
 				 */
-				static function () use ( $stats_url ) {
+				static function ( array $matches ) use ( $stats_url ) {
+					unset( $matches );
 					return 'url="' . esc_url( $stats_url ) . '"';
 				},
 				$enclosure,
