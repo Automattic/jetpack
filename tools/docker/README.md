@@ -191,6 +191,7 @@ The auto-clone is only triggered when all of the following are true:
 * `jetpack_dev` has at least one running container.
 * `--no-clone` was not passed.
 * The target doesn't already have an installed WordPress (re-running `up` on an existing instance is a safe no-op).
+* The target instance is actually running by the time the clone step fires, which in practice means `-d` / `--detached` was passed. If you run `up` in the foreground (no `-d`), compose blocks until you exit it, the parallel target stops, and the auto-clone is silently skipped (there's nowhere to write into). For any persistent parallel instance — including the `/work-on` flow — always pass `-d`.
 
 The clone runs `wp db export | wp db import` between the source and target containers, then `wp search-replace` on the target to rewrite the siteurl to `http://localhost:<target-port>`. `guid` columns are skipped as WP-CLI recommends.
 
