@@ -314,6 +314,42 @@ class Search_Blocks {
 				'isActive'    => array( 'filterType' ),
 			),
 			array(
+				'name'        => 'product_cat',
+				'title'       => __( 'Filter by Product Category', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product category checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'category',
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_cat',
+					'label'      => __( 'Category', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			),
+			array(
+				'name'        => 'product_tag',
+				'title'       => __( 'Filter by Product Tag', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'category',
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_tag',
+					'label'      => __( 'Tag', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			),
+			array(
+				'name'        => 'product_brand',
+				'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product brand checkboxes with live result counts. Requires a registered `product_brand` taxonomy.', 'jetpack-search-pkg' ),
+				'icon'        => 'category',
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_brand',
+					'label'      => __( 'Brand', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			),
+			array(
 				'name'        => 'custom_taxonomy',
 				'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
 				'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
@@ -324,11 +360,11 @@ class Search_Blocks {
 				),
 				// Match on filterType only (no taxonomy comparison) so the
 				// variation identity survives once the author picks a slug
-				// via the inspector. The Category and Tag variations both
-				// pin `taxonomy` in their isActive arrays, so WP's
-				// most-specific-match resolution still routes those slugs
-				// to their dedicated variations — Custom Taxonomy claims
-				// every other registered taxonomy.
+				// via the inspector. Category, Tag, and the three product
+				// taxonomies all pin `taxonomy` in their isActive arrays, so
+				// WP's most-specific-match resolution still routes those
+				// slugs to their dedicated variations — Custom Taxonomy
+				// claims every other registered taxonomy.
 				'isActive'    => array( 'filterType' ),
 			),
 		);
