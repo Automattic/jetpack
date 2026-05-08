@@ -30,6 +30,32 @@ class Feed_Detection_Test extends BaseTestCase {
 		$this->assertSame( 'active', $states['pocketcasts'] );
 	}
 
+	/**
+	 * One representative UA per directory we track — mainly a regression
+	 * net for the opawg sync (Amazon's spaced bot UA, the broadened
+	 * `PodcastIndex` substring, etc.).
+	 */
+	public function test_recognizes_each_tracked_directory() {
+		$cases = array(
+			'AppleCoreMedia/1.0.0.20F71 (iPhone; U; CPU OS 16_5_1)' => 'apple',
+			'Spotify/8.7.0 iOS/16.4'       => 'spotify',
+			'Pocket Casts/7.45.0/iOS/16.4' => 'pocketcasts',
+			'Amazon Music Podcast/1.0'     => 'amazon',
+			'PodcastIndexer/2.1 (+https://podcastindex.org/)' => 'podcastindex',
+			'GooglePodcasts/1.0 iOS/16.4'  => 'youtube',
+		);
+
+		foreach ( $cases as $ua => $expected_slug ) {
+			delete_option( 'podcasting_show_states' );
+			$_SERVER['HTTP_USER_AGENT'] = $ua;
+
+			Feed_Detection::detect_and_record();
+
+			$states = get_option( 'podcasting_show_states', array() );
+			$this->assertSame( 'active', $states[ $expected_slug ] ?? null, "UA: $ua" );
+		}
+	}
+
 	public function test_promotes_pending_to_active() {
 		update_option( 'podcasting_show_states', array( 'apple' => 'pending' ) );
 		$_SERVER['HTTP_USER_AGENT'] = 'AppleCoreMedia/1.0.0.20F71';

@@ -18,16 +18,72 @@ use Automattic\Jetpack\Podcast\Settings;
 class Feed_Detection {
 
 	/**
-	 * Inspect the current request's User-Agent and, if it's a tracked
-	 * podcatcher, mark its state `'active'`. No-op if the UA is missing or
-	 * not in the directory allowlist.
+	 * UA needle → podcatcher slug. First match wins, so order matters: more
+	 * specific brand needles (e.g. `GooglePodcasts`, `YouTubeMusic`) come
+	 * before generic ones (e.g. Apple's `Podcasts/`) that they share a
+	 * substring with.
+	 *
+	 * Cross-referenced against opawg/user-agents-v2 (the OPAWG community
+	 * dataset used by Podtrac, Megaphone, Art19, Chartable). When directories
+	 * change UAs or new ones emerge, sync the relevant entries here:
+	 *   https://github.com/opawg/user-agents-v2/blob/master/src/{apps,bots}.json
+	 *
+	 * @var array<string, string>
+	 */
+	private const NEEDLES = array(
+		// YouTube / Google Podcasts — listed first so `GooglePodcasts/`
+		// doesn't get caught by Apple's broader `Podcasts/` needle below.
+		'Google-Podcast'       => 'youtube',
+		'YouTube-Podcast'      => 'youtube',
+		'GooglePodcasts'       => 'youtube',
+		'GoogleChirp'          => 'youtube',
+		'YouTubeMusic'         => 'youtube',
+
+		// Apple Podcasts (iOS app, Mac app, automated checks, HomePod, Apple TV).
+		'iTMS'                 => 'apple',
+		'AppleCoreMedia'       => 'apple',
+		'Podcasts/'            => 'apple',
+		'iTunes'               => 'apple',
+		'AirPodcasts/'         => 'apple',
+
+		// Spotify — substring catches `Spotify/…`, `spotify-rss-…`, all variants.
+		'Spotify'              => 'spotify',
+
+		// Pocket Casts.
+		'Pocket Casts'         => 'pocketcasts',
+		'PocketCasts'          => 'pocketcasts',
+
+		// Amazon — `AmazonMusic` is the listening app; `Amazon Music Podcast`
+		// (with spaces) is the actual feed crawler. Keep both.
+		'AmazonMusic'          => 'amazon',
+		'Amazon Music Podcast' => 'amazon',
+
+		// Podcast Index — substring `PodcastIndex` catches `Podcastindex.org/`,
+		// `PodcastIndexer/`, `PodcastIndexManager/`, `PodcastIndex Classifier/`.
+		'PodcastIndex'         => 'podcastindex',
+	);
+
+	/**
+	 * Inspect the current request's User-Agent and, if it's a directory
+	 * crawler, mark its state `'active'`. No-op if the UA is missing or not
+	 * in the directory allowlist.
 	 */
 	public static function detect_and_record(): void {
 		$ua = isset( $_SERVER['HTTP_USER_AGENT'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) )
 			: '';
+		if ( '' === $ua ) {
+			return;
+		}
 
-		$slug = App_Detection::detect_slug( $ua );
+		$slug = null;
+		foreach ( self::NEEDLES as $needle => $candidate ) {
+			if ( false !== stripos( $ua, $needle ) ) {
+				$slug = $candidate;
+				break;
+			}
+		}
+
 		if ( null === $slug || ! isset( Settings::SHOW_URL_HOSTS[ $slug ] ) ) {
 			return;
 		}
