@@ -57,9 +57,13 @@ function remember_block_editor( $editor_settings, $post ) {
 \add_action(
 	'rest_after_insert_post',
 	function ( $post, $request ) {
-		if ( true === $request['wpcom_write_editor_used'] && \current_user_can( 'edit_post', $post->ID ) ) {
-			remember_editor( $post->ID, 'write-editor' );
+		if ( true !== $request['wpcom_write_editor_used'] ) {
+			return;
 		}
+		if ( ! \current_user_can( 'edit_post', $post->ID ) ) {
+			return;
+		}
+		remember_editor( $post->ID, 'write-editor' );
 	},
 	10,
 	2
