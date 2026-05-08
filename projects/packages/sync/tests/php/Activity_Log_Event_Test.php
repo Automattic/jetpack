@@ -25,6 +25,66 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the Activity Log event post type is exposed under the intended REST base.
+	 */
+	public function test_activity_log_event_registers_rest_post_type_shape() {
+		$post_type = get_post_type_object( Activity_Log_Event::POST_TYPE );
+
+		$this->assertInstanceOf( \WP_Post_Type::class, $post_type );
+		$this->assertTrue( $post_type->show_in_rest );
+		$this->assertSame( Activity_Log_Event::REST_BASE, $post_type->rest_base );
+	}
+
+	/**
+	 * Tests that Activity Log event REST capabilities are create-only.
+	 */
+	public function test_activity_log_event_registers_create_only_rest_capabilities() {
+		$post_type = get_post_type_object( Activity_Log_Event::POST_TYPE );
+
+		$this->assertInstanceOf( \WP_Post_Type::class, $post_type );
+		$this->assertSame( 'activity_log_event', $post_type->capability_type );
+		$this->assertTrue( $post_type->map_meta_cap );
+		$this->assertSame( 'manage_options', $post_type->cap->read );
+		$this->assertSame( 'manage_options', $post_type->cap->read_private_posts );
+		$this->assertSame( 'manage_options', $post_type->cap->create_posts );
+		$this->assertSame( 'manage_options', $post_type->cap->publish_posts );
+		$this->assertSame( 'do_not_allow', $post_type->cap->edit_posts );
+		$this->assertSame( 'do_not_allow', $post_type->cap->edit_others_posts );
+		$this->assertSame( 'do_not_allow', $post_type->cap->edit_private_posts );
+		$this->assertSame( 'do_not_allow', $post_type->cap->edit_published_posts );
+		$this->assertSame( 'do_not_allow', $post_type->cap->delete_posts );
+		$this->assertSame( 'do_not_allow', $post_type->cap->delete_others_posts );
+		$this->assertSame( 'do_not_allow', $post_type->cap->delete_private_posts );
+		$this->assertSame( 'do_not_allow', $post_type->cap->delete_published_posts );
+		$this->assertSame( 'read_activity_log_event', $post_type->cap->read_post );
+		$this->assertSame( 'edit_activity_log_event', $post_type->cap->edit_post );
+		$this->assertSame( 'delete_activity_log_event', $post_type->cap->delete_post );
+	}
+
+	/**
+	 * Tests that Activity Log event hooks are registered even when Sync is disabled.
+	 */
+	public function test_activity_log_event_init_runs_when_sync_is_not_allowed() {
+		$this->remove_activity_log_event_hooks();
+		Settings::update_settings( array( 'disable' => 1 ) );
+
+		try {
+			$this->assertFalse( Actions::sync_allowed() );
+
+			Main::configure();
+
+			$this->assertSame( 10, has_action( 'init', array( Activity_Log_Event::class, 'register_post_type' ) ) );
+			$this->assertSame( 10, has_filter( 'rest_pre_insert_' . Activity_Log_Event::POST_TYPE, array( Activity_Log_Event::class, 'normalize_rest_post' ) ) );
+			$this->assertSame( 10, has_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ) ) );
+			$this->assertSame( 10, has_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ) ) );
+		} finally {
+			Settings::update_settings( array( 'disable' => 0 ) );
+			$this->remove_activity_log_event_hooks();
+			Activity_Log_Event::init();
+		}
+	}
+
+	/**
 	 * Tests that valid helper input is sanitized before being stored.
 	 */
 	public function test_activity_log_event_sanitizes_payload() {
@@ -455,6 +515,19 @@ class Activity_Log_Event_Test extends BaseTestCase {
 	private function remove_activity_log_post_insert_filters() {
 		remove_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ), 10 );
 		remove_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ), 10 );
+	}
+
+	/**
+	 * Removes Activity Log event hooks for tests.
+	 */
+	private function remove_activity_log_event_hooks() {
+		remove_action( 'init', array( Activity_Log_Event::class, 'register_post_type' ), 10 );
+		remove_filter( 'rest_request_before_callbacks', array( Activity_Log_Event::class, 'authorize_rest_request' ), 10 );
+		remove_filter( 'rest_pre_insert_' . Activity_Log_Event::POST_TYPE, array( Activity_Log_Event::class, 'normalize_rest_post' ), 10 );
+		remove_filter( 'wp_insert_post_empty_content', array( Activity_Log_Event::class, 'prevent_invalid_post_insert' ), 10 );
+		remove_filter( 'wp_insert_post_data', array( Activity_Log_Event::class, 'normalize_post_data' ), 10 );
+		remove_filter( 'publicize_should_publicize_published_post', array( Activity_Log_Event::class, 'prevent_publicize' ), 10 );
+		remove_filter( 'jetpack_sitemap_post_types', array( Activity_Log_Event::class, 'filter_sitemap_post_types' ), 10 );
 	}
 
 	/**

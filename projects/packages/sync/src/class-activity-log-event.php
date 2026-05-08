@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
+
 /**
  * Handles Activity Log custom event creation and validation.
  */
@@ -16,6 +18,11 @@ class Activity_Log_Event {
 	 * Post type name for Activity Log custom entries.
 	 */
 	const POST_TYPE = 'jp_act_log_event';
+
+	/**
+	 * REST base for the Activity Log event post type.
+	 */
+	const REST_BASE = 'activity-log-events';
 
 	/**
 	 * Default event severity.
@@ -52,6 +59,8 @@ class Activity_Log_Event {
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
+		add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'authorize_rest_request' ), 10, 3 );
+		add_filter( 'rest_pre_insert_' . self::POST_TYPE, array( __CLASS__, 'normalize_rest_post' ), 10, 2 );
 		add_filter( 'wp_insert_post_empty_content', array( __CLASS__, 'prevent_invalid_post_insert' ), 10, 2 );
 		add_filter( 'wp_insert_post_data', array( __CLASS__, 'normalize_post_data' ), 10, 2 );
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize' ), 10, 2 );
@@ -60,7 +69,7 @@ class Activity_Log_Event {
 
 	/**
 	 * Registers the Activity Log CPT with hardened defaults that prevent leakage
-	 * to front-end queries, RSS, REST, search, sitemaps, and exports.
+	 * to front-end queries, RSS, search, sitemaps, and exports.
 	 */
 	public static function register_post_type() {
 		register_post_type(
@@ -75,13 +84,32 @@ class Activity_Log_Event {
 				'show_ui'             => false,
 				'show_in_menu'        => false,
 				'show_in_nav_menus'   => false,
-				'show_in_rest'        => false,
+				'show_in_rest'        => true,
+				'rest_base'           => self::REST_BASE,
 				'show_in_admin_bar'   => false,
 				'exclude_from_search' => true,
 				'has_archive'         => false,
 				'rewrite'             => false,
 				'query_var'           => false,
 				'can_export'          => false,
+				'capability_type'     => array( 'activity_log_event', 'activity_log_events' ),
+				'map_meta_cap'        => true,
+				'capabilities'        => array(
+					'read'                   => 'manage_options',
+					'read_private_posts'     => 'manage_options',
+					'create_posts'           => 'manage_options',
+					'publish_posts'          => 'manage_options',
+
+					'edit_posts'             => 'do_not_allow',
+					'edit_others_posts'      => 'do_not_allow',
+					'edit_private_posts'     => 'do_not_allow',
+					'edit_published_posts'   => 'do_not_allow',
+
+					'delete_posts'           => 'do_not_allow',
+					'delete_others_posts'    => 'do_not_allow',
+					'delete_private_posts'   => 'do_not_allow',
+					'delete_published_posts' => 'do_not_allow',
+				),
 				'supports'            => array( 'title', 'editor' ),
 			)
 		);
@@ -162,6 +190,78 @@ class Activity_Log_Event {
 		}
 
 		return false === self::build_payload_from_post_content( $postarr['post_content'] ?? '' );
+	}
+
+	/**
+	 * Restricts the core REST CPT route to trusted Activity Log event writers/readers.
+	 *
+	 * Core REST post collection reads are public by default, even for this private CPT,
+	 * so explicitly gate this route when it is exposed via show_in_rest.
+	 *
+	 * @param mixed            $response Current REST response.
+	 * @param array            $handler  Route handler.
+	 * @param \WP_REST_Request $request  REST request.
+	 * @return mixed|\WP_Error
+	 */
+	public static function authorize_rest_request( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( null !== $response || ! $request instanceof \WP_REST_Request || 0 !== strpos( $request->get_route(), '/wp/v2/' . self::REST_BASE ) ) {
+			return $response;
+		}
+
+		if ( current_user_can( 'manage_options' ) || Rest_Authentication::is_signed_with_blog_token() ) {
+			return $response;
+		}
+
+		return new \WP_Error(
+			'invalid_user_permission_activity_log_event',
+			esc_html__( 'You do not have the correct user permissions to access Activity Log events.', 'jetpack-sync' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Normalizes Activity Log event REST requests before they are inserted.
+	 *
+	 * @param object           $prepared_post Prepared post object.
+	 * @param \WP_REST_Request $request       REST request.
+	 * @return object|\WP_Error
+	 */
+	public static function normalize_rest_post( $prepared_post, $request ) {
+		if ( ! is_object( $prepared_post ) || ! $request instanceof \WP_REST_Request ) {
+			return $prepared_post;
+		}
+
+		$payload = self::build_payload(
+			array(
+				'title'    => self::get_rest_request_value( $request, 'title', $prepared_post->post_title ?? '' ),
+				'content'  => self::get_rest_request_value( $request, 'content', $prepared_post->post_content ?? '' ),
+				'source'   => $request->get_param( 'source' ),
+				'severity' => $request->get_param( 'severity' ),
+			)
+		);
+
+		if ( false === $payload ) {
+			return new \WP_Error(
+				'invalid_activity_log_event',
+				esc_html__( 'Invalid Activity Log event payload.', 'jetpack-sync' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$post_content = wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		if ( false === $post_content ) {
+			return new \WP_Error(
+				'invalid_activity_log_event',
+				esc_html__( 'Invalid Activity Log event payload.', 'jetpack-sync' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$prepared_post->post_title   = $payload['title'];
+		$prepared_post->post_content = $post_content;
+		$prepared_post->post_status  = 'publish';
+
+		return $prepared_post;
 	}
 
 	/**
@@ -294,6 +394,31 @@ class Activity_Log_Event {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Gets a string-like value from a REST request field.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @param string           $field   Request field name.
+	 * @param mixed            $default Default value.
+	 * @return mixed
+	 */
+	private static function get_rest_request_value( $request, $field, $default = '' ) {
+		$value = $request->get_param( $field );
+		if ( null === $value ) {
+			return $default;
+		}
+
+		if ( is_array( $value ) && isset( $value['raw'] ) ) {
+			return $value['raw'];
+		}
+
+		if ( is_array( $value ) && isset( $value['rendered'] ) ) {
+			return $value['rendered'];
+		}
+
+		return $value;
 	}
 
 	/**
