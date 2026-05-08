@@ -1,14 +1,8 @@
-@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
-
-// Apply the shared Jetpack admin-page layout mixin so `<AdminPage>` controls
-// the full content area (fixed header, scrollable middle, pinned footer) and
-// the `.jp-admin-page-tabs` strip gets its sticky positioning, hairline, and
-// header-aligned inline padding. The legacy entry that used to invoke this
-// (`src/client/admin/style.module.scss`) is intentionally skipped on the
-// wp-build path, so the shared chrome owns the invocation here.
+// Tab-specific overrides on top of the page-level admin-page-layout
+// invocation that lives in `src/dashboard/admin-shell.scss` (enqueued as
+// a separate stylesheet by class-admin-ui.php, so every route gets the
+// scrollable chrome regardless of whether it uses DashboardLayout).
 body.jetpack_page_jetpack-videopress {
-
-	@include jetpack-admin-page-layout;
 
 	// Propagate the admin page's flex column through @wordpress/ui's Tabs
 	// primitives, which default to display:block and break the chain. Lets

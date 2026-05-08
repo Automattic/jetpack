@@ -1,0 +1,14 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Page-level invocation of the shared admin-page layout. Enqueued by
+// class-admin-ui.php on the modernized VideoPress dashboard page so
+// every route inherits the proper scrollable chrome (fixed-position
+// `#wpbody-content`, scrollable middle, pinned footer) regardless of
+// whether the route uses DashboardLayout. See class-admin-ui.php's
+// `enqueue_admin_scripts()` for the enqueue, and the route stylesheets
+// (e.g. routes/video/style.scss) for the route-local rules that build
+// on top of this shell.
+body.jetpack_page_jetpack-videopress {
+
+	@include jetpack-admin-page-layout;
+}

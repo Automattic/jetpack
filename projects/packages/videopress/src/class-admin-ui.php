@@ -161,9 +161,28 @@ class Admin_UI {
 		// This callback is registered via `load-{$page_suffix}` in `enable_menu()`,
 		// so it only fires on the VideoPress admin page — no need to re-check the page here.
 		if ( self::is_modernized() ) {
-			// wp-build manages its own enqueue pipeline. The legacy script,
-			// initial state, tracking, and media-library bootstrap are all
-			// intentionally skipped for the wp-build dashboard.
+			// Page-level shell stylesheet: scopes the shared `jetpack-admin-page-layout`
+			// mixin to the dashboard body so every route inherits the proper
+			// scrollable chrome (fixed `#wpbody-content`, scrollable middle, pinned
+			// footer) regardless of whether it uses DashboardLayout. Without this,
+			// non-tabbed routes (e.g. Video details) would only get the layout
+			// after a sibling route's chunk happened to inject the same CSS.
+			$shell_css = dirname( __DIR__ ) . '/build/dashboard-shell/index.css';
+			if ( file_exists( $shell_css ) ) {
+				wp_register_style(
+					'jetpack-videopress-dashboard-shell',
+					plugins_url( 'build/dashboard-shell/index.css', __DIR__ ),
+					array(),
+					(string) filemtime( $shell_css )
+				);
+				wp_style_add_data( 'jetpack-videopress-dashboard-shell', 'rtl', 'replace' );
+				wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
+			}
+
+			// Beyond the shell stylesheet, wp-build manages its own enqueue
+			// pipeline. The legacy script, initial state, tracking, and
+			// media-library bootstrap are all intentionally skipped for the
+			// wp-build dashboard.
 			return;
 		}
 
