@@ -2791,7 +2791,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-					$res['objectcount'] = zeroBS_getQuotesCountIncParams( true, $per_page, $page_number, true, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
+					$res['objectcount'] = (int) zeroBS_getQuotesCountIncParams( true, $per_page, $page_number, true, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
 
 					// If the page requested is out of range (e.g. after a bulk action emptied the
 					// last page), use the last valid page instead.
@@ -2929,7 +2929,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-					$res['objectcount'] = zeroBS_getInvoicesCountIncParams( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
+					$res['objectcount'] = (int) zeroBS_getInvoicesCountIncParams( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
 
 					// If the page requested is out of range (e.g. after a bulk action emptied the
 					// last page), use the last valid page instead.
@@ -3078,7 +3078,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-					$res['objectcount'] = zeroBS_getTransactionsCountIncParams( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $possibleTagIDs, $inArray, $sortField, $sortOrder, $withTags, $possibleQuickFilters );
+					$res['objectcount'] = (int) zeroBS_getTransactionsCountIncParams( true, $per_page, $page_number, $withCustomer, $possibleSearchTerm, $possibleTagIDs, $inArray, $sortField, $sortOrder, $withTags, $possibleQuickFilters );
 
 					// If the page requested is out of range (e.g. after a bulk action emptied the
 					// last page), use the last valid page instead.
@@ -3203,7 +3203,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-					$res['objectcount'] = zeroBS_getFormsCountIncParams( false, $per_page, $page_number, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
+					$res['objectcount'] = (int) zeroBS_getFormsCountIncParams( false, $per_page, $page_number, $possibleSearchTerm, $inArray, $sortField, $sortOrder, $possibleQuickFilters, $possibleTagIDs );
 
 					// If the page requested is out of range (e.g. after a bulk action emptied the
 					// last page), use the last valid page instead.
@@ -3420,7 +3420,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// If using pagination, get total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-					$res['objectcount'] = zeroBS_getQuoteTemplatesCountIncParams( false, $per_page, $page_number, $possibleSearchTerm );
+					$res['objectcount'] = (int) zeroBS_getQuoteTemplatesCountIncParams( false, $per_page, $page_number, $possibleSearchTerm );
 
 					// If the page requested is out of range (e.g. after a bulk action emptied the
 					// last page), use the last valid page instead.
@@ -3626,7 +3626,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$count_args['page']    = -1;
 					$count_args['perPage'] = -1;
 
-					$res['objectcount'] = $zbs->DAL->events->getEvents( $count_args );
+					$res['objectcount'] = (int) $zbs->DAL->events->getEvents( $count_args );
 
 					// If the page requested is out of range (e.g. after a bulk action emptied the
 					// last page), use the last valid page instead.
