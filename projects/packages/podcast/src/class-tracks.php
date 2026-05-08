@@ -18,78 +18,51 @@ use WP_REST_Response;
 use WP_User;
 
 /**
- * Records the lifecycle events that drive podcast funnel reporting:
- * episode publishes, the per-site first-episode milestone, audio/video
- * uploads, podcatcher show-URL submissions, podcasting on/off transitions,
- * and `/wp/v2/settings` writes that touch any `podcasting_*` option.
- *
- * Mirrors the wpcom mu-plugin's `Automattic_Podcasting_Tracks`. Event names
- * stay `wpcom_*` so analytics queries cover Simple, Atomic, and Jetpack feeds
- * without a rewrite. Dispatch tries the wpcom-loadable `tracks_record_event`
- * first and falls back to `\Automattic\Jetpack\Tracking::tracks_record_event`
- * — neither is a hard dep, so the package degrades to silent no-op when
- * neither is reachable.
+ * Records podcast lifecycle events. Event names stay `wpcom_*` so analytics
+ * queries cover Simple, Atomic, and self-hosted Jetpack feeds without a rewrite.
+ * Dispatch tries `tracks_record_event` (Simple) and falls back to
+ * `\Automattic\Jetpack\Tracking::tracks_record_event` (Atomic). Neither is a
+ * hard dep — silently no-ops when neither is reachable.
  */
 class Tracks {
 
-	/**
-	 * Whether `init()` has wired its hooks.
-	 *
-	 * @var bool
-	 */
 	private static $registered = false;
 
 	/**
-	 * Cached Jetpack Tracking instance, lazily created on first Atomic dispatch.
-	 *
 	 * @var \Automattic\Jetpack\Tracking|null
 	 */
 	private static $jetpack_tracking = null;
 
 	/**
-	 * Snapshot of `podcasting_*` option values captured at the start of a
-	 * `/wp/v2/settings` REST write, keyed by request object hash. Read back
-	 * after the write completes so the emitted event can include both new
-	 * and `previous_*` values per the wpcom shape.
+	 * Per-request snapshot taken before a `/wp/v2/settings` write so the
+	 * emitted event can include `previous_*` keys. Keyed by request hash.
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
 	private static $settings_snapshots = array();
 
-	/**
-	 * Wire the tracks hooks. Idempotent.
-	 */
 	public static function init(): void {
 		if ( self::$registered ) {
 			return;
 		}
 		self::$registered = true;
 
-		// `wp_after_insert_post` fires after post + terms + meta are saved. Required for
-		// Gutenberg/REST publishes where `transition_post_status` runs before terms are set.
+		// `wp_after_insert_post` runs after terms + meta are saved — required
+		// because Gutenberg/REST publishes set terms after `transition_post_status`.
 		add_action( 'wp_after_insert_post', array( __CLASS__, 'record_episode_published' ), 10, 4 );
 
 		add_action( 'add_attachment', array( __CLASS__, 'record_media_uploaded' ) );
 
-		// Catch every `podcasting_category_id` write — REST, WP-CLI, direct `update_option()`.
-		// `add_option` fires when no row exists yet; `update_option` covers subsequent writes.
 		add_action( 'add_option_podcasting_category_id', array( __CLASS__, 'record_category_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_category_id', array( __CLASS__, 'record_category_updated' ), 10, 3 );
 
-		// Catch every `podcasting_show_urls` write. Both hooks point at the same method;
-		// it detects which fired by the first arg type (string on add, array on update).
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_addition' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_addition' ), 10, 2 );
 
-		// `/wp/v2/settings` PATCH — snapshot before, emit after, mirroring wpcom's
-		// `rest_api_update_site_settings`-driven `wpcom_podcasting_settings_saved`.
 		add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'snapshot_settings_before_write' ), 10, 3 );
 		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'record_settings_saved' ), 10, 3 );
 	}
 
-	/**
-	 * Reset internal state. Test-only — production never re-initializes.
-	 */
 	public static function reset_for_tests(): void {
 		self::$registered         = false;
 		self::$jetpack_tracking   = null;
@@ -97,14 +70,10 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcast_episode_published` (and, on the very first episode
-	 * for the site, `wpcom_podcast_show_launched`) when a podcast-category
-	 * post enters `publish` for the first time.
-	 *
 	 * @param int          $post_id     Post ID.
 	 * @param WP_Post|null $post        Post object.
 	 * @param bool         $update      Whether this is an update.
-	 * @param WP_Post|null $post_before Previous post state (or null on insert).
+	 * @param WP_Post|null $post_before Previous post state.
 	 */
 	public static function record_episode_published( $post_id, $post, $update, $post_before ): void {
 		unset( $post_id, $update );
@@ -126,8 +95,6 @@ class Tracks {
 				return;
 			}
 
-			// `is_headstart_post` is a wpcom Simple helper that flags pre-populated
-			// demo content; on Atomic the function is absent and the guard short-circuits.
 			if ( function_exists( 'is_headstart_post' ) && is_headstart_post( $post ) ) {
 				return;
 			}
@@ -145,10 +112,8 @@ class Tracks {
 				return;
 			}
 
-			// Match the RSS feed's definition of an episode: must carry a site-hosted
-			// audio or video enclosure. Without this, a post merely categorized into
-			// the podcasting category would fire even when it has no media — top
-			// offenders pre-filter were posting 50+/day of non-podcast content.
+			// Match the RSS feed's definition of an episode — must carry
+			// site-hosted audio, not just sit in the podcast category.
 			if ( ! self::has_podcast_media( $post ) ) {
 				return;
 			}
@@ -166,8 +131,8 @@ class Tracks {
 				)
 			);
 
-			// `add_option()` is atomic — only one concurrent caller per site wins the INSERT,
-			// so `wpcom_podcast_show_launched` fires exactly once per site.
+			// Atomic INSERT — only one concurrent caller per site wins, so
+			// `show_launched` fires exactly once per site.
 			if ( $is_first && add_option( 'podcast_show_launched_tracked', time(), '', false ) ) {
 				self::record_event(
 					$identity,
@@ -184,9 +149,6 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcast_media_uploaded` when an audio/video attachment is
-	 * uploaded on a podcasting-enabled site.
-	 *
 	 * @param int $attachment_id Attachment post ID.
 	 */
 	public static function record_media_uploaded( $attachment_id ): void {
@@ -195,7 +157,6 @@ class Tracks {
 				return;
 			}
 
-			// Skip Headstart demo-content uploads — wpcom Simple-only helper.
 			$attachment = get_post( (int) $attachment_id );
 			if ( $attachment && function_exists( 'is_headstart_post' ) && is_headstart_post( $attachment ) ) {
 				return;
@@ -228,9 +189,6 @@ class Tracks {
 	}
 
 	/**
-	 * `add_option_podcasting_category_id` callback — first-ever write of the
-	 * option. Treats the previous value as 0 (option absent == disabled).
-	 *
 	 * @param string $option Option name.
 	 * @param mixed  $value  Newly stored value.
 	 */
@@ -245,10 +203,6 @@ class Tracks {
 	}
 
 	/**
-	 * `update_option_podcasting_category_id` callback — every change to an
-	 * existing row. WP short-circuits identical writes upstream, so
-	 * `$old_value !== $value` is guaranteed here.
-	 *
 	 * @param mixed  $old_value Previous stored value.
 	 * @param mixed  $value     Newly stored value.
 	 * @param string $option    Option name.
@@ -264,15 +218,10 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_show_url_saved` for the first podcatcher key
-	 * that transitions from absent/empty to a non-empty string. Each save
-	 * patches one URL by design, so we emit at most one event per write.
-	 *
-	 * Bound to both `add_option_podcasting_show_urls` (signature: option,
-	 * value) and `update_option_podcasting_show_urls` (signature: old_value,
-	 * value, option). The first arg is either the option name (string, on
-	 * add) or the previous stored value (array, on update); `is_array()`
-	 * picks them apart.
+	 * Bound to both `add_option_*` (signature: option, value) and
+	 * `update_option_*` (signature: old_value, value, option). The first arg
+	 * is either the option name or the previous array; `is_array()` picks
+	 * them apart.
 	 *
 	 * @param mixed $first_arg Option name or previous value.
 	 * @param mixed $new_value Newly stored value.
@@ -311,11 +260,7 @@ class Tracks {
 	}
 
 	/**
-	 * Capture a snapshot of all `podcasting_*` option values before a
-	 * `/wp/v2/settings` write completes — only when the request body
-	 * actually touches at least one of those options. Pass-through filter.
-	 *
-	 * @param mixed                 $response Response (passed through unchanged).
+	 * @param mixed                 $response Pass-through.
 	 * @param array                 $handler  Route handler.
 	 * @param WP_REST_Request|mixed $request  Request object.
 	 * @return mixed
@@ -347,11 +292,7 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_settings_saved` once per `/wp/v2/settings`
-	 * write that touched any podcasting option, with `previous_*` keys for
-	 * every podcasting field the GET response would normally expose.
-	 *
-	 * @param mixed                 $response Response (passed through unchanged).
+	 * @param mixed                 $response Pass-through.
 	 * @param array                 $handler  Route handler.
 	 * @param WP_REST_Request|mixed $request  Request object.
 	 * @return mixed
@@ -372,14 +313,11 @@ class Tracks {
 			$previous = self::$settings_snapshots[ $key ];
 			unset( self::$settings_snapshots[ $key ] );
 
-			// Don't emit if the write errored — the response would carry an error
-			// status and the option values wouldn't have changed.
 			if ( $response instanceof WP_REST_Response && $response->is_error() ) {
 				return $response;
 			}
 
-			$current   = self::read_settings_state();
-			$event_props = $current;
+			$event_props = self::read_settings_state();
 			foreach ( $previous as $field => $value ) {
 				$event_props[ 'previous_' . $field ] = $value;
 			}
@@ -397,9 +335,6 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_status_changed` when the on/off state or
-	 * assigned category transitions.
-	 *
 	 * @param int $old_value Previous category ID (0 == disabled).
 	 * @param int $new_value New category ID (0 == disabled).
 	 */
@@ -416,9 +351,7 @@ class Tracks {
 			$status = 'changed';
 		}
 
-		// Resolve the plan slug from whichever plan API is loaded. WPCOM_Store_API
-		// on Simple, Jetpack's Current_Plan on Atomic; either may be absent in
-		// unusual contexts, in which case we record an empty slug rather than fatal.
+		// `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic.
 		$plan_slug = '';
 		if ( class_exists( '\WPCOM_Store_API' ) ) {
 			$current_plan = \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() );
@@ -446,19 +379,14 @@ class Tracks {
 			)
 		);
 
-		// Preserve the legacy mc.a8c.com counter the previous REST-side helper
-		// bumped. Wrapped because `bump_stats_extras()` is wpcom Simple-only.
 		if ( function_exists( 'bump_stats_extras' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by wpcom Simple at runtime; guarded by `function_exists` above.
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
 			bump_stats_extras( 'wpcom-podcasting-status', $status );
 		}
 	}
 
 	/**
-	 * True if the request looks like a write to the `/wp/v2/settings` route.
-	 *
 	 * @param mixed $request Request object.
-	 * @return bool
 	 */
 	private static function is_settings_write( $request ): bool {
 		if ( ! $request instanceof WP_REST_Request ) {
@@ -471,10 +399,6 @@ class Tracks {
 	}
 
 	/**
-	 * Read the full set of podcasting-related option values that the wpcom
-	 * settings GET previously exposed. Mirrors that response shape so the
-	 * emitted event keeps schema parity with the wpcom version.
-	 *
 	 * @return array<string, mixed>
 	 */
 	private static function read_settings_state(): array {
@@ -497,11 +421,7 @@ class Tracks {
 	}
 
 	/**
-	 * Identity to attribute the publish event to. Scheduled/cron publishes
-	 * have no logged-in user — fall back to the post author.
-	 *
-	 * @param WP_Post $post Post being published.
-	 * @return WP_User
+	 * Scheduled/cron publishes have no logged-in user — fall back to author.
 	 */
 	private static function identity_for_post( WP_Post $post ): WP_User {
 		if ( ! empty( $post->post_author ) ) {
@@ -514,14 +434,10 @@ class Tracks {
 	}
 
 	/**
-	 * True if the post embeds site-hosted audio. The host check filters out
-	 * posts that merely embed third-party players (SoundCloud, Spotify,
-	 * RSS-imported audio links) — those flooded analytics pre-filter on
-	 * wpcom. Classic-editor attachments are site-hosted by definition and
-	 * skip the host check via the `WP_Query` lookup below.
-	 *
-	 * @param WP_Post $post Post being checked.
-	 * @return bool
+	 * The host check filters out third-party players (SoundCloud, Spotify
+	 * embeds, RSS-imported audio links) — those produced a flood of false
+	 * positives historically. Classic-editor attachments skip the host
+	 * check via the `WP_Query` lookup at the bottom.
 	 */
 	private static function has_podcast_media( WP_Post $post ): bool {
 		$content      = (string) $post->post_content;
@@ -562,15 +478,6 @@ class Tracks {
 		return ! empty( $attached->posts );
 	}
 
-	/**
-	 * Walk parsed blocks recursively looking for a `core/audio` block whose
-	 * `src` attribute points at site-hosted media.
-	 *
-	 * @param array  $blocks  Parsed blocks.
-	 * @param string $baseurl Site uploads baseurl.
-	 * @param array  $hosts   Allowed hostnames.
-	 * @return bool
-	 */
 	private static function has_site_hosted_audio_block( array $blocks, string $baseurl, array $hosts ): bool {
 		foreach ( $blocks as $block ) {
 			if ( 'core/audio' === ( $block['blockName'] ?? '' ) ) {
@@ -590,16 +497,9 @@ class Tracks {
 	}
 
 	/**
-	 * Baseurl prefix is the precise check. The host fallbacks cover (a) the
-	 * site's primary URL host and (b) the uploads host itself — on wpcom
-	 * multisite, `*.files.wordpress.com` subdomains are 1:1 per site, so
-	 * older uploads outside the current month's baseurl path still match
-	 * safely.
-	 *
-	 * @param string $url     Candidate URL.
-	 * @param string $baseurl Site uploads baseurl.
-	 * @param array  $hosts   Allowed hostnames.
-	 * @return bool
+	 * Baseurl prefix is the precise check; the host fallbacks cover the
+	 * site's primary URL host and the uploads host itself, so older
+	 * uploads outside the current month's baseurl path still match.
 	 */
 	private static function is_site_hosted_url( string $url, string $baseurl, array $hosts ): bool {
 		if ( '' !== $baseurl && 0 === strpos( $url, $baseurl ) ) {
@@ -617,13 +517,6 @@ class Tracks {
 		return false;
 	}
 
-	/**
-	 * True when no other published post exists in the podcast category.
-	 *
-	 * @param int $category_id     Configured podcast category ID.
-	 * @param int $current_post_id Post being published (excluded from the check).
-	 * @return bool
-	 */
 	private static function is_first_episode_for_site( int $category_id, int $current_post_id ): bool {
 		$existing = new WP_Query(
 			array(
@@ -642,15 +535,10 @@ class Tracks {
 	}
 
 	/**
-	 * Dispatch a tracks event. Prefers wpcom's `tracks_record_event` (Simple)
-	 * and falls back to Jetpack's `Tracking::tracks_record_event` (Atomic).
-	 * Returns silently when neither is reachable, or when the dispatcher
-	 * itself throws.
-	 *
 	 * @param mixed  $user       Username, user ID, or `WP_User` object.
 	 * @param string $event_name Tracks event name.
 	 * @param array  $properties Event properties.
-	 * @return mixed Dispatcher return value, or null on failure / no-op.
+	 * @return mixed
 	 */
 	private static function record_event( $user, string $event_name, array $properties ) {
 		try {
@@ -663,12 +551,12 @@ class Tracks {
 			}
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by wpcom Simple at runtime; guarded by `function_exists` above.
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
 				require_lib( 'tracks/client' );
 			}
 
 			if ( function_exists( 'tracks_record_event' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by wpcom Simple at runtime; guarded by `function_exists` above.
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
 				return tracks_record_event( $user, $event_name, $properties );
 			}
 
@@ -686,12 +574,8 @@ class Tracks {
 	}
 
 	/**
-	 * Best-effort error logging via `log2logstash` when available. Keeps the
-	 * package free of a hard logging dep — Atomic environments without the
-	 * lib silently skip.
-	 *
 	 * @param string    $message    Short failure tag.
-	 * @param Throwable $error      Throwable that triggered the log call.
+	 * @param Throwable $error      Throwable that triggered the log.
 	 * @param array     $properties Extra context.
 	 */
 	private static function log_failure( string $message, Throwable $error, array $properties = array() ): void {
@@ -702,11 +586,11 @@ class Tracks {
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by `function_exists` above.
 		log2logstash(
 			array(
-				'feature'    => 'jetpack-podcast-tracks',
-				'message'    => $message,
-				'severity'   => 'error',
-				'blog_id'    => (int) get_current_blog_id(),
-				'extra'      => array(
+				'feature'  => 'jetpack-podcast-tracks',
+				'message'  => $message,
+				'severity' => 'error',
+				'blog_id'  => (int) get_current_blog_id(),
+				'extra'    => array(
 					'error_message' => $error->getMessage(),
 					'error_file'    => $error->getFile() . ':' . $error->getLine(),
 					'properties'    => $properties,

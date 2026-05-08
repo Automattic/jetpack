@@ -73,9 +73,6 @@ class Podcast {
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
 
-		// Wire tracks instrumentation (publish, media upload, status change,
-		// show-URL submission, settings save). Names mirror wpcom so analytics
-		// queries cover Simple, Atomic, and Jetpack feeds without a rewrite.
 		Tracks::init();
 
 		// Wire the wp-admin entry point. Admin_Page::init() stages the wp-build

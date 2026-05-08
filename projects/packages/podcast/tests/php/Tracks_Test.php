@@ -15,13 +15,9 @@ use WP_REST_Response;
 use WP_Term;
 
 /**
- * `Tracks::record_event()` is exercised end-to-end against the
- * `tracks_record_event` shim defined in bootstrap.php; the shim captures
- * dispatched events into `$GLOBALS['jetpack_podcast_test_captured_events']`.
- *
- * Tracks::init() is intentionally NOT called — these tests invoke the
- * recorder methods directly so creating a fixture post via wp_insert_post()
- * doesn't double-fire `wp_after_insert_post` and pollute the buffer.
+ * Recorder methods are invoked directly so creating a fixture post via
+ * `wp_insert_post()` doesn't double-fire `wp_after_insert_post`. Captured
+ * events are read out of the bootstrap shim's global buffer.
  *
  * @covers \Automattic\Jetpack\Podcast\Tracks
  */
@@ -31,8 +27,7 @@ class Tracks_Test extends BaseTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		// WorDBless skips `create_initial_taxonomies` — `is_first_episode_for_site`
-		// would assert against an unregistered `category` taxonomy without this.
+		// WorDBless skips `create_initial_taxonomies`.
 		if ( ! taxonomy_exists( 'category' ) ) {
 			register_taxonomy( 'category', 'post', array( 'hierarchical' => true ) );
 		}
@@ -54,12 +49,6 @@ class Tracks_Test extends BaseTestCase {
 		parent::tearDown();
 	}
 
-	/**
-	 * Helper: pull events of a given name out of the captured buffer.
-	 *
-	 * @param string $event_name Tracks event name to filter by.
-	 * @return array<int, array<string, mixed>>
-	 */
 	private function events_named( string $event_name ): array {
 		return array_values(
 			array_filter(
@@ -70,10 +59,9 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Stand up a fake `category` term that `get_term()` can return. WorDBless
-	 * lacks term-taxonomy plumbing, so seed the `terms` object cache with a
-	 * fully-formed `WP_Term` directly — `get_term()` short-circuits to that
-	 * before falling through to its DB query.
+	 * WorDBless lacks term-taxonomy plumbing, so seed the `terms` object cache
+	 * with a fully-formed `WP_Term` directly — `get_term()` short-circuits
+	 * to that before falling through to its DB query.
 	 */
 	private function configure_podcast_category( int $id = 42 ): int {
 		$term = new WP_Term(
@@ -91,15 +79,9 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Build a publish-ready episode post. WorDBless skips the term-relationships
-	 * table, so `wp_set_post_categories` is a no-op and `in_category` would never
-	 * find the term — pre-populate the `category_relationships` object cache
-	 * directly. Default content includes a site-hosted `.mp3` URL so the post
-	 * passes `has_podcast_media()`.
-	 *
-	 * @param int    $category_id Category to attach.
-	 * @param string $status      Post status (`publish`, `draft`, etc.).
-	 * @param string $content     Optional content override.
+	 * `wp_set_post_categories` is a no-op under WorDBless (no term-relationships
+	 * table), so prime the `category_relationships` cache directly. Default
+	 * content includes a site-hosted `.mp3` URL so `has_podcast_media()` accepts.
 	 */
 	private function insert_post_in_category(
 		int $category_id,
@@ -146,9 +128,6 @@ class Tracks_Test extends BaseTestCase {
 		$first = $this->insert_post_in_category( $cat_id );
 		Tracks::record_episode_published( $first->ID, $first, false, null );
 
-		// Second episode in the same category — the per-site `add_option` lock
-		// on `podcast_show_launched_tracked` is what guarantees `show_launched`
-		// fires exactly once even when the first-episode query is unreliable.
 		$second = $this->insert_post_in_category( $cat_id );
 		Tracks::record_episode_published( $second->ID, $second, false, null );
 
@@ -158,7 +137,6 @@ class Tracks_Test extends BaseTestCase {
 
 	public function test_show_launched_skipped_when_lock_already_set() {
 		$cat_id = $this->configure_podcast_category();
-		// Simulate a prior site that has already had its first episode tracked.
 		add_option( 'podcast_show_launched_tracked', time(), '', false );
 
 		$post = $this->insert_post_in_category( $cat_id );
@@ -172,7 +150,6 @@ class Tracks_Test extends BaseTestCase {
 		$cat_id = $this->configure_podcast_category();
 		$post   = $this->insert_post_in_category( $cat_id );
 
-		// Editing an already-published post — the `$post_before` guard suppresses re-emission.
 		$before              = clone $post;
 		$before->post_status = 'publish';
 		Tracks::record_episode_published( $post->ID, $post, true, $before );
@@ -223,10 +200,6 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
 	}
 
-	/**
-	 * Filters out the noise wpcom saw pre-`has_podcast_media`: posts merely
-	 * tagged into the podcast category but carrying no audio.
-	 */
 	public function test_episode_published_skips_post_without_podcast_media() {
 		$cat_id = $this->configure_podcast_category();
 		$post   = $this->insert_post_in_category( $cat_id, 'publish', 'No audio in this post.' );
@@ -236,10 +209,6 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
 	}
 
-	/**
-	 * Third-party-hosted audio (SoundCloud, Spotify embeds, RSS-imported
-	 * external links) doesn't count as an episode.
-	 */
 	public function test_episode_published_skips_third_party_hosted_audio() {
 		$cat_id  = $this->configure_podcast_category();
 		$content = 'External player: https://example-other-host.com/episode.mp3';
@@ -381,8 +350,6 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	public function test_show_url_saved_emits_only_once_for_first_new_directory() {
-		// Two new keys at once — wpcom emits exactly one event for the first one
-		// it sees, since saves are designed to patch one key at a time.
 		Tracks::record_show_url_addition(
 			array(),
 			array(
@@ -395,8 +362,6 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	public function test_show_url_addition_handles_add_option_signature() {
-		// `add_option_*` passes ($option_name, $value) — the option name is a
-		// string, which `is_array()` correctly rejects as the previous value.
 		Tracks::record_show_url_addition(
 			'podcasting_show_urls',
 			array( 'spotify' => 'https://open.spotify.com/show/789' )
@@ -420,7 +385,6 @@ class Tracks_Test extends BaseTestCase {
 
 		Tracks::snapshot_settings_before_write( null, array(), $request );
 
-		// Simulate the actual write the REST endpoint would perform.
 		update_option( 'podcasting_title', 'New Title' );
 
 		$response = new WP_REST_Response( array(), 200 );
