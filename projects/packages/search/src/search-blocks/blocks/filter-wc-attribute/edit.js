@@ -2,15 +2,18 @@
  * Editor preview for jetpack-search/filter-wc-attribute.
  *
  * One block instance targets one WC product attribute taxonomy (`pa_color`,
- * `pa_size`, …). The picker is seeded from `/wp/v2/taxonomies` via
- * `core-data` and constrained to the `pa_` prefix so site builders only see
- * actual WC product attributes — non-WC sites get an empty list and a
- * Placeholder explaining the block can't render.
+ * `pa_size`, …). The picker is seeded from the WC Store API
+ * (`/wc/store/v1/products/attributes`) rather than `/wp/v2/taxonomies`
+ * because WooCommerce registers `pa_*` taxonomies without `show_in_rest`,
+ * so they never appear in the core taxonomies endpoint. The Store API is
+ * public and ships with WC Blocks (always-on in modern WC), so non-WC
+ * sites simply 404 and we render the "no attributes" Placeholder.
  *
  * Once an attribute is chosen, the preview mirrors filter-checkbox: a
  * labeled list with sample buckets so designers can style the list in
  * place.
  */
+import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -20,8 +23,7 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const ATTRIBUTE_PREFIX = 'pa_';
@@ -118,27 +120,39 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 	const sortOrder = attributes?.bucketSortOrder === 'alpha' ? 'alpha' : 'count';
 	const slug = attributes?.attributeTaxonomy || '';
 
-	// Pull registered taxonomies via core-data. `null` while the request is
-	// in flight, an array once resolved. We keep the request unconditional
-	// because the picker is the block's primary affordance — paying for the
-	// REST call once per editor session is fine.
-	const taxonomies = useSelect( select => select( 'core' ).getTaxonomies( { per_page: -1 } ), [] );
-
-	// Filter to `pa_*` and project into SelectControl options. A non-WC site
-	// resolves to an empty list, so the Placeholder branch below renders the
-	// "no attributes registered" message instead of an empty <select>.
-	const attributeOptions = useMemo( () => {
-		if ( ! Array.isArray( taxonomies ) ) {
-			return null;
-		}
-		return taxonomies
-			.filter( tax => typeof tax?.slug === 'string' && tax.slug.startsWith( ATTRIBUTE_PREFIX ) )
-			.map( tax => ( {
-				value: tax.slug,
-				label: tax?.labels?.singular_name || tax?.name || humanizeAttributeSlug( tax.slug ),
-			} ) )
-			.sort( ( a, b ) => a.label.localeCompare( b.label ) );
-	}, [ taxonomies ] );
+	// `null` while in flight, array once resolved (empty on non-WC sites or
+	// when the Store API 404s). Project into SelectControl options up front
+	// so the render path below stays declarative.
+	const [ attributeOptions, setAttributeOptions ] = useState( null );
+	useEffect( () => {
+		let cancelled = false;
+		apiFetch( { path: '/wc/store/v1/products/attributes' } )
+			.then( attrs => {
+				if ( cancelled ) {
+					return;
+				}
+				const list = Array.isArray( attrs ) ? attrs : [];
+				const options = list
+					.filter(
+						attr =>
+							typeof attr?.taxonomy === 'string' && attr.taxonomy.startsWith( ATTRIBUTE_PREFIX )
+					)
+					.map( attr => ( {
+						value: attr.taxonomy,
+						label: attr?.name || humanizeAttributeSlug( attr.taxonomy ),
+					} ) )
+					.sort( ( a, b ) => a.label.localeCompare( b.label ) );
+				setAttributeOptions( options );
+			} )
+			.catch( () => {
+				if ( ! cancelled ) {
+					setAttributeOptions( [] );
+				}
+			} );
+		return () => {
+			cancelled = true;
+		};
+	}, [] );
 
 	const isLoading = attributeOptions === null;
 	const hasAttributes = ! isLoading && attributeOptions.length > 0;
