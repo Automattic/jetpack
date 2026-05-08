@@ -22,6 +22,7 @@ import ActiveFiltersEdit from '../blocks/active-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
+import FilterWcRatingEdit from '../blocks/filter-wc-rating/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersStackEdit, { save as filtersStackSave } from '../blocks/filters-stack/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
@@ -46,6 +47,7 @@ const BLOCKS = [
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
 	[ 'jetpack-search/filter-post-type', FilterPostTypeEdit ],
+	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
 	[ 'jetpack-search/filters-stack', FiltersStackEdit, filtersStackSave ],
 	[ 'jetpack-search/filters-popover', FiltersPopoverEdit, filtersPopoverSave ],
 	[ 'jetpack-search/results-sort', ResultsSortEdit ],

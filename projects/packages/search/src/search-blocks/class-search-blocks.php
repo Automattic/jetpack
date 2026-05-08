@@ -579,8 +579,9 @@ class Search_Blocks {
 	 */
 	protected static function filter_block_helpers(): array {
 		return array(
-			'jetpack-search/filter-checkbox' => Filter_Checkbox::class,
-			'jetpack-search/filter-date'     => Filter_Date::class,
+			'jetpack-search/filter-checkbox'  => Filter_Checkbox::class,
+			'jetpack-search/filter-date'      => Filter_Date::class,
+			'jetpack-search/filter-wc-rating' => Filter_Wc_Rating::class,
 		);
 	}
 
