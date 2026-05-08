@@ -23,7 +23,7 @@ export const TAB_PATHS: Record< DashboardTab, string > = {
 export default function DashboardTabs() {
 	return (
 		<div className="jp-admin-page-tabs">
-			<Tabs.List variant="minimal">
+			<Tabs.List>
 				<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
 				<Tabs.Tab value="library">{ __( 'Library', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
 				<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-videopress-pkg' ) }</Tabs.Tab>

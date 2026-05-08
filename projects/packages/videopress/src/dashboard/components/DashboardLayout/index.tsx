@@ -14,6 +14,7 @@ type Props = {
 	activeTab: DashboardTab;
 	children: ReactNode;
 	actions?: ReactNode;
+	hideFooter?: boolean;
 };
 
 const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'settings' ];
@@ -25,14 +26,16 @@ const TAB_VALUES: DashboardTab[] = [ 'overview', 'library', 'settings' ];
  * Tab/Panel pairing validator stays happy. Tab navigation between
  * sibling routes happens via `@wordpress/route`'s useNavigate.
  *
- * @param props           - Component props.
- * @param props.activeTab - Currently active tab.
- * @param props.children  - Active tab's body content.
- * @param props.actions   - Optional content rendered in the page header's
- *                        top-right actions slot (e.g. a Save button).
+ * @param props            - Component props.
+ * @param props.activeTab  - Currently active tab.
+ * @param props.children   - Active tab's body content.
+ * @param props.actions    - Optional content rendered in the page header's
+ *                         top-right actions slot (e.g. a Save button).
+ * @param props.hideFooter - When true, suppresses the JetpackFooter rendered by
+ *                         AdminPage. Used by DataViews-centric tabs (e.g. Library).
  * @return The wrapped page element.
  */
-export default function DashboardLayout( { activeTab, children, actions }: Props ) {
+export default function DashboardLayout( { activeTab, children, actions, hideFooter }: Props ) {
 	const navigate = useNavigate();
 
 	const onValueChange = useCallback(
@@ -50,6 +53,7 @@ export default function DashboardLayout( { activeTab, children, actions }: Props
 			title={ 'VideoPress' /* product name; not translated */ }
 			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
 			actions={ actions }
+			showFooter={ ! hideFooter }
 		>
 			<Tabs.Root value={ activeTab } onValueChange={ onValueChange }>
 				<DashboardTabs />
