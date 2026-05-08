@@ -3,9 +3,10 @@
  * Local Jetpack-side REST endpoint for the Posts to Podcast feature.
  *
  * The Jetpack admin form calls this local endpoint via wp.apiFetch; the endpoint
- * forwards the request to the wpcom-side endpoint at public-api.wordpress.com using
- * the site's Jetpack-blog-token via Connection\Client. This indirection keeps Simple,
- * Atomic, and Jetpack-connected self-hosted sites on the same client-side path.
+ * forwards the request to the wpcom-side endpoint at public-api.wordpress.com as
+ * the current user via Connection\Client::wpcom_json_api_request_as_user. The
+ * upstream endpoint requires `is_automattician()`, so the user-token form is
+ * needed — a blog-token call has no user identity and would 401.
  *
  * @package automattic/jetpack
  */
@@ -135,7 +136,7 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 			'voicePreset' => $request->get_param( 'voicePreset' ),
 		);
 
-		$response = Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/posts-to-podcast', $blog_id ),
 			2,
 			array(
@@ -165,7 +166,7 @@ class WPCOM_REST_API_V2_Endpoint_Posts_To_Podcast extends WP_REST_Controller {
 
 		$job_id = (int) $request['job_id'];
 
-		$response = Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/posts-to-podcast/jobs/%d', $blog_id, $job_id ),
 			2,
 			array(
