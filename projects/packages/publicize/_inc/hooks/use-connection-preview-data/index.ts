@@ -91,7 +91,17 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 
 	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 	const items = useRenderMessageItems();
+	const messageTemplate = useSelect(
+		select =>
+			templatesEnabled ? select( socialStore ).getSocialSettings().messageTemplate ?? '' : '',
+		[ templatesEnabled ]
+	);
 	const hasConnectionMessage = connection.message !== undefined && connection.message !== '';
+	// Falls back to the admin-page main template (`messageTemplate`) when no
+	// per-post message is set. Mirrors the rule in `useRenderMessageItems` so the
+	// consumer's view of `baseMessage` matches what the resolver was sent.
+	const globalFallback = globalMessage || messageTemplate || '';
+
 	let baseMessage: string;
 	if ( isPerNetworkMode ) {
 		if ( hasConnectionMessage ) {
@@ -99,10 +109,10 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		} else if ( templatesEnabled && connection.template ) {
 			baseMessage = connection.template;
 		} else {
-			baseMessage = globalMessage;
+			baseMessage = globalFallback;
 		}
 	} else {
-		baseMessage = globalMessage;
+		baseMessage = globalFallback;
 	}
 	baseMessage = baseMessage.trim();
 	const currentRenderItem = items.find( item => item.id === connection.connection_id );

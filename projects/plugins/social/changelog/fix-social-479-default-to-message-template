@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fall back to the site-wide social message template when no per-post share message is set.
