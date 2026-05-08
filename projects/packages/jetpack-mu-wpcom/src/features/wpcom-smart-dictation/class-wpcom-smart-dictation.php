@@ -135,18 +135,18 @@ class WPCOM_Smart_Dictation {
 	 * @return array|null Decoded manifest, or null when JSON is invalid or empty.
 	 */
 	private static function get_assets_json( $filepath ) {
-		$cache_key = 'jetpack_mu_wpcom_sd_asset_' . md5( $filepath );
-		$cached    = get_transient( $cache_key );
-
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-
 		$local_path = ABSPATH . $filepath;
 
 		if ( file_exists( $local_path ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local file, not a remote URL.
 			return json_decode( file_get_contents( $local_path ), true );
+		}
+
+		$cache_key = 'jetpack_mu_wpcom_sd_asset_' . md5( $filepath );
+		$cached    = get_transient( $cache_key );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
 		}
 
 		$request = wp_remote_get(
