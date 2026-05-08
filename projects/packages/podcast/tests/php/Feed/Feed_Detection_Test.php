@@ -21,19 +21,10 @@ class Feed_Detection_Test extends BaseTestCase {
 		parent::tearDown();
 	}
 
-	public function test_records_active_state_for_known_podcatcher_first_visit() {
-		$_SERVER['HTTP_USER_AGENT'] = 'Pocket Casts/7.45.0/iOS/16.4';
-
-		Feed_Detection::detect_and_record();
-
-		$states = get_option( 'podcasting_show_states', array() );
-		$this->assertSame( 'active', $states['pocketcasts'] );
-	}
-
 	/**
-	 * One representative UA per directory we track — mainly a regression
-	 * net for the opawg sync (Amazon's spaced bot UA, the broadened
-	 * `PodcastIndex` substring, etc.).
+	 * One representative UA per directory we track — also serves as the
+	 * regression net for the opawg sync (Amazon's spaced bot UA, the
+	 * broadened `PodcastIndex` substring, etc.).
 	 */
 	public function test_recognizes_each_tracked_directory() {
 		$cases = array(

@@ -39,22 +39,21 @@ class Customize_Feed_Test extends BaseTestCase {
 		parent::tearDown();
 	}
 
-	public function test_explicit_string_handles_boolean_storage() {
+	/**
+	 * The bool/string conversion to the iTunes spec's `'true'`/`'false'`
+	 * literal — the underlying truthy coercion is covered by `Settings_Test`.
+	 */
+	public function test_explicit_string_emits_apple_spec_literal() {
 		update_option( 'podcasting_explicit', true );
+		$this->assertSame( 'true', Customize_Feed::explicit_string() );
+
+		update_option( 'podcasting_explicit', 'yes' ); // Legacy storage.
 		$this->assertSame( 'true', Customize_Feed::explicit_string() );
 
 		update_option( 'podcasting_explicit', false );
 		$this->assertSame( 'false', Customize_Feed::explicit_string() );
-	}
 
-	public function test_explicit_string_handles_legacy_string_storage() {
-		update_option( 'podcasting_explicit', 'yes' );
-		$this->assertSame( 'true', Customize_Feed::explicit_string() );
-
-		update_option( 'podcasting_explicit', 'no' );
-		$this->assertSame( 'false', Customize_Feed::explicit_string() );
-
-		update_option( 'podcasting_explicit', 'clean' );
+		update_option( 'podcasting_explicit', 'clean' ); // Legacy → not explicit.
 		$this->assertSame( 'false', Customize_Feed::explicit_string() );
 	}
 
@@ -231,17 +230,9 @@ class Customize_Feed_Test extends BaseTestCase {
 		update_option( 'podcasting_category_id', 17 );
 		update_option( 'podcasting_archive', 'unrelated-slug' );
 
-		// Should NOT trigger any get_term_by call — fail loudly if it does.
-		$called = false;
-		add_filter(
-			'get_term_by',
-			static function ( $term ) use ( &$called ) {
-				$called = true;
-				return $term;
-			}
-		);
-
+		// If the numeric path were skipped, slug lookup would hit the DB,
+		// find no term, and return 0 — so the assertion below covers both
+		// "right answer" and "took the right code path".
 		$this->assertSame( 17, Customize_Feed::resolve_category_id() );
-		$this->assertFalse( $called, 'Slug fallback should be skipped when numeric ID is set.' );
 	}
 }
