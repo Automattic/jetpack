@@ -2,6 +2,7 @@ import { GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components/
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/DashboardLayout';
 import { buildLibraryActions } from '../../src/dashboard/components/Library/actions';
@@ -74,9 +75,14 @@ const Stage = () => {
 		[ startUpload ]
 	);
 
-	const openVideoDetails = useCallback( () => {
-		// Phase 4 will route to the details screen.
-	}, [] );
+	const navigate = useNavigate();
+
+	const openVideoDetails = useCallback(
+		( id: string ) => {
+			navigate( { href: `/video/${ id }` } );
+		},
+		[ navigate ]
+	);
 
 	const { createSuccessNotice } = useGlobalNotices();
 

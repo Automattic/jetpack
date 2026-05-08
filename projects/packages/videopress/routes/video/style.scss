@@ -1,0 +1,12 @@
+.vp-video-details {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	max-width: 880px;
+	margin: 24px auto 0;
+}
+
+.vp-video-details__not-found {
+	padding: 48px 24px;
+	text-align: center;
+}
