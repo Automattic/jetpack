@@ -13,7 +13,7 @@ const Sidebar = props => {
 					{ props.citations.map( ( citation, i ) => (
 						<a
 							key={ i }
-							href={ citation.url }
+							href={ /^https?:\/\//i.test( citation.url ) ? citation.url : '#' }
 							className="jetpack-instant-search__sidebar-citation-card"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -22,7 +22,13 @@ const Sidebar = props => {
 								{ citation.title }
 							</span>
 							<span className="jetpack-instant-search__sidebar-citation-url">
-								{ new URL( citation.url ).hostname }
+								{ ( () => {
+									try {
+										return new URL( citation.url ).hostname;
+									} catch {
+										return '';
+									}
+								} )() }
 							</span>
 						</a>
 					) ) }

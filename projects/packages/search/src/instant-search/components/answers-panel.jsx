@@ -150,7 +150,11 @@ export default function AnswersPanel( {
 						<ul className="jp-search-answers-panel__citations">
 							{ citations.map( ( { title, url }, i ) => (
 								<li key={ i }>
-									<a href={ url } target="_blank" rel="noopener noreferrer">
+									<a
+										href={ /^https?:\/\//i.test( url ) ? url : '#' }
+										target="_blank"
+										rel="noopener noreferrer"
+									>
 										{ title }
 										<ExternalLinkIcon />
 									</a>
