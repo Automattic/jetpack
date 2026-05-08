@@ -1,4 +1,4 @@
-import { DropdownMenu } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { download, moreVertical, trash } from '@wordpress/icons';
 import { Button, Stack } from '@wordpress/ui';
@@ -14,7 +14,9 @@ type Props = {
 /**
  * Actions slot for the AdminPage header on the Video details screen.
  * Renders the primary Save button and the ⋯ menu (Download file / Delete
- * video). Save is disabled when the form is clean.
+ * video). Save is disabled when the form is clean. Delete uses MenuItem's
+ * built-in `isDestructive` flag so the design-system surfaces the
+ * red destructive treatment without a CSS override.
  *
  * @param props            - Component props.
  * @param props.canSave    - Whether the form has unsaved changes.
@@ -31,25 +33,34 @@ export default function HeaderActions( {
 }: Props ): ReactElement {
 	return (
 		<Stack direction="row" gap="sm" align="center">
-			<Button variant="primary" disabled={ ! canSave } onClick={ onSave }>
+			<Button disabled={ ! canSave } onClick={ onSave }>
 				{ __( 'Save', 'jetpack-videopress-pkg' ) }
 			</Button>
-			<DropdownMenu
-				icon={ moreVertical }
-				label={ __( 'More actions', 'jetpack-videopress-pkg' ) }
-				controls={ [
-					{
-						title: __( 'Download file', 'jetpack-videopress-pkg' ),
-						icon: download,
-						onClick: onDownload,
-					},
-					{
-						title: __( 'Delete video', 'jetpack-videopress-pkg' ),
-						icon: trash,
-						onClick: onDelete,
-					},
-				] }
-			/>
+			<DropdownMenu icon={ moreVertical } label={ __( 'More actions', 'jetpack-videopress-pkg' ) }>
+				{ ( { onClose } ) => (
+					<MenuGroup>
+						<MenuItem
+							icon={ download }
+							onClick={ () => {
+								onDownload();
+								onClose();
+							} }
+						>
+							{ __( 'Download file', 'jetpack-videopress-pkg' ) }
+						</MenuItem>
+						<MenuItem
+							isDestructive
+							icon={ trash }
+							onClick={ () => {
+								onDelete();
+								onClose();
+							} }
+						>
+							{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+						</MenuItem>
+					</MenuGroup>
+				) }
+			</DropdownMenu>
 		</Stack>
 	);
 }
