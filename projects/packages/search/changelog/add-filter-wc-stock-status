@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Search 3.0: Add `jetpack-search/filter-wc-stock-status` block — a single "In stock" toggle that excludes WooCommerce out-of-stock products. Routes through the `product_visibility` taxonomy (the `_stock_status` postmeta isn't currently retained on the WPCOM-side ES indexer; tracked separately).
+Search 3.0: Add `jetpack-search/filter-wc-stock-status` block — a single "In stock" toggle that excludes WooCommerce out-of-stock products via the `product_visibility` taxonomy.

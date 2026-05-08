@@ -51,15 +51,21 @@ store( NAMESPACE, {
 		},
 
 		/**
-		 * `data-wp-text` count badge for the single "In stock" option.
-		 * The aggregation carries only the `outofstock` bucket count
-		 * against `product_visibility` (the taxonomy has no positive
-		 * `instock` term), so the in-stock count is derived as
+		 * `data-wp-text` count badge for the in-stock option. The
+		 * aggregation only carries the `outofstock` bucket against
+		 * `product_visibility` (the taxonomy has no positive `instock`
+		 * term), so in-stock is derived as
 		 * `state.totalResults - outOfStock`. Counts reflect the current
 		 * filter scope: when the toggle is on, the filter excludes
 		 * out-of-stock and the bucket count is `0`, leaving the in-stock
 		 * count equal to the (already narrowed) `totalResults`. Falls
 		 * back to "0" pre-hydration.
+		 *
+		 * Single-option scope: this getter assumes the only rendered
+		 * checkbox is `instock`. If `Search_Product_Filter_Status::get_options()`
+		 * ever grows back to multiple entries (once the WPCOM-side ES
+		 * indexer carries `_stock_status`), this getter needs to dispatch
+		 * on the input's `value` like `isStatusOptionSelected` does.
 		 *
 		 * @return {string} Count as a string for the badge text node.
 		 */

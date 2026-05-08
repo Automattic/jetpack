@@ -48,11 +48,11 @@ $seeded_active   = (array) ( $seeded_state['activeFilters'] ?? array() );
 $seeded_selected = (array) ( $seeded_active[ Search_Product_Filter_Status::FILTER_KEY ] ?? array() );
 $seeded_total    = (int) ( $seeded_state['totalResults'] ?? 0 );
 
-// Pre-hydration count map. The aggregation only carries the
-// `outofstock` bucket; the in-stock count is derived as
-// `totalResults - outofstock` since the `product_visibility` taxonomy
-// has no positive `instock` term. Both fall back to 0 before any
-// search has run so the badge has something to render.
+// Pre-hydration count for the in-stock option. The aggregation only
+// carries the `outofstock` bucket; the in-stock count is derived as
+// `totalResults - outofstock` because the `product_visibility`
+// taxonomy has no positive `instock` term. Falls back to 0 before any
+// search has run so the badge always has something to render.
 $out_of_stock = 0;
 foreach ( $seeded_buckets as $bucket ) {
 	if ( 'outofstock' === (string) ( $bucket['key'] ?? '' ) ) {
@@ -61,21 +61,28 @@ foreach ( $seeded_buckets as $bucket ) {
 	}
 }
 $counts = array(
-	'instock'    => max( 0, $seeded_total - $out_of_stock ),
-	'outofstock' => $out_of_stock,
+	'instock' => max( 0, $seeded_total - $out_of_stock ),
 );
 
 $label      = (string) $config['label'];
 $show_count = (bool) $config['showCount'];
+?>
+<?php
+// Wrapper visibility note: filter-checkbox / filter-date hide their
+// wrapper via `pre_hydration_filter_view` + `wrapperHidden` while
+// aggregations are loading because their option list is bucket-driven.
+// This block has a fixed option list, so there's nothing to wait for —
+// the wrapper stays visible whenever the block is on the page. The
+// data-plane caveat (out-of-stock count derived from `totalResults -
+// outofstock`) is documented at the top of this file.
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-wc-stock-status' ) ) ); ?>
 	data-wp-interactive="jetpack-search"
 	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => Search_Product_Filter_Status::FILTER_KEY ) ) ); ?>
 >
-	<?php if ( '' !== $label ) : ?>
-		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
-	<?php endif; ?>
+	<?php /* `build_config()` always falls back to default_label() so $label is non-empty. */ ?>
+	<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<ul class="jetpack-search-filter__list">
 		<?php foreach ( Search_Product_Filter_Status::get_options() as $option ) : ?>
 			<?php
