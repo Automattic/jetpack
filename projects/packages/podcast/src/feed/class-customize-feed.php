@@ -337,7 +337,7 @@ class Customize_Feed {
 	private static function build_stats_url( int $blog_id, int $post_id, string $original_url ): string {
 		$path = (string) wp_parse_url( $original_url, PHP_URL_PATH );
 		$ext  = (string) preg_replace( '/[^a-z0-9]/', '', strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) ) );
-		if ( ! in_array( $ext, array( 'mp3', 'm4a', 'm4b', 'mp4', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac' ), true ) ) {
+		if ( ! in_array( $ext, array( 'mp3', 'm4a', 'm4b', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac', 'mp4', 'm4v', 'mov' ), true ) ) {
 			$ext = 'mp3';
 		}
 		return sprintf(
