@@ -73,6 +73,7 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
       <li>
         <span
           class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing _08e8a2e44959f892__outset-ring--focus d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
+          role="button"
           tabindex="0"
           title=""
         >
