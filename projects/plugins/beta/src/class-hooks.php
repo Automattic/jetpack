@@ -58,7 +58,7 @@ class Hooks {
 
 		add_filter( 'all_plugins', array( $this, 'update_all_plugins' ) );
 
-		add_filter( 'deleted_plugin', array( $this, 'maybe_delete_dev_plugin_too' ), 10, 2 );
+		add_action( 'deleted_plugin', array( $this, 'maybe_delete_dev_plugin_too' ), 10, 2 );
 
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 
