@@ -1,6 +1,6 @@
 @use "../skeleton" as skeleton;
 
-.wp-block-jetpack-filter-date {
+.wp-block-jetpack-search-filter-date {
 
 	&[hidden] {
 		display: none;
@@ -45,18 +45,6 @@
 		background: color-mix(in sRGB, currentColor 12%, transparent);
 		border-radius: 10px;
 		padding: 0 0.4rem;
-
-		&[hidden] {
-			display: none;
-		}
-	}
-
-	.jetpack-search-filter__all-selected {
-		margin: 0;
-		font-size: 0.75rem;
-		color: inherit;
-		opacity: 0.7;
-		font-style: italic;
 
 		&[hidden] {
 			display: none;

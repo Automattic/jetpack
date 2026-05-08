@@ -15,6 +15,18 @@ use PHPUnit\Framework\TestCase;
 class Search_Blocks_Test extends TestCase {
 
 	/**
+	 * Clear `Search_Blocks::is_initial_loading()`'s per-request memo between
+	 * tests. PHPUnit runs every test in a single process, so without this
+	 * the first test that exercises a query/filter/price URL would pin the
+	 * cached value and every later test that sets `$_GET` would silently
+	 * read stale state.
+	 */
+	protected function tearDown(): void {
+		Search_Blocks::reset_initial_loading_cache();
+		parent::tearDown();
+	}
+
+	/**
 	 * Verify that the keys required by the Interactivity API store are present.
 	 */
 	public function test_build_initial_state_shape() {
@@ -27,6 +39,7 @@ class Search_Blocks_Test extends TestCase {
 			'homeUrl',
 			'locale',
 			'searchQuery',
+			'searchParamName',
 			'sortOrder',
 			'results',
 			'totalResults',
@@ -178,6 +191,150 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * `init()` must always register the block-level hooks AND the IA state
+	 * seeding regardless of which experience the site has saved — admins can
+	 * insert Search blocks anywhere blocks are configurable, and those blocks
+	 * need the seeded base state to hydrate.
+	 */
+	public function test_init_always_registers_block_and_seed_hooks() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		// No experience opt-in saved — get_experience() falls back to 'inline'
+		// (or 'overlay' if instant_search_enabled is true). Either way, not embedded.
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_blocks' ) ),
+			'register_blocks must always hook into init'
+		);
+		$this->assertNotFalse(
+			has_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) ),
+			'register_block_category must always hook into block_categories_all'
+		);
+		$this->assertNotFalse(
+			has_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) ),
+			'enqueue_editor_assets must always hook into enqueue_block_editor_assets'
+		);
+		$this->assertNotFalse(
+			has_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
+			'seed_interactivity_state must always hook into template_redirect (blocks may be on any page)'
+		);
+		$this->assertNotFalse(
+			has_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) ),
+			'seed_interactivity_state must always hook into wp_enqueue_scripts (blocks may be on any page)'
+		);
+	}
+
+	/**
+	 * Off the Embedded experience, the template-takeover hooks
+	 * (`register_search_template` / `prepend_search_template`) must NOT be
+	 * registered — `/?s=…` should resolve to the theme's `search.html`, not
+	 * the Jetpack Search template.
+	 */
+	public function test_init_does_not_register_template_hooks_when_not_embedded() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		// Inline = no opt-in saved. Overlay and Off are likewise non-embedded.
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		Search_Blocks::init();
+
+		$this->assertFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
+			'register_search_template must not hook into init when experience is not embedded'
+		);
+		$this->assertFalse(
+			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
+			'prepend_search_template must not hook into search_template_hierarchy when not embedded'
+		);
+	}
+
+	/**
+	 * On the Embedded experience, the template-takeover hooks must be
+	 * registered so `/?s=…` resolves to the Jetpack Search template instead
+	 * of the theme's `search.html`.
+	 */
+	public function test_init_registers_template_hooks_when_embedded() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( true );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) ),
+			'register_search_template must hook into init on embedded'
+		);
+		$this->assertNotFalse(
+			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) ),
+			'prepend_search_template must hook into search_template_hierarchy on embedded'
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * If the module isn't active, the experience is `'off'` regardless of any
+	 * stale value in the experience option, so the template-takeover hooks
+	 * must not register. Guards against a leftover `'embedded'` value on a
+	 * site that's been deactivated. The block-level and seed hooks still
+	 * register so any post-content Search block continues to hydrate.
+	 */
+	public function test_init_does_not_register_template_hooks_when_module_inactive() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( false );
+		update_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY, Module_Control::EXPERIENCE_EMBEDDED );
+
+		Search_Blocks::init();
+
+		$this->assertFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_search_template' ) )
+		);
+		$this->assertFalse(
+			has_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) )
+		);
+		// Block + seed hooks still register, since blocks may be on any page.
+		$this->assertNotFalse(
+			has_action( 'init', array( Search_Blocks::class, 'register_blocks' ) )
+		);
+		$this->assertNotFalse(
+			has_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) )
+		);
+
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+	}
+
+	/**
+	 * Remove every hook this class registers, so each `init()` test starts
+	 * from a known-empty state.
+	 */
+	private function reset_search_blocks_hooks(): void {
+		remove_action( 'init', array( Search_Blocks::class, 'register_blocks' ) );
+		remove_action( 'init', array( Search_Blocks::class, 'register_search_template' ) );
+		remove_filter( 'block_categories_all', array( Search_Blocks::class, 'register_block_category' ) );
+		remove_filter( 'search_template_hierarchy', array( Search_Blocks::class, 'prepend_search_template' ) );
+		remove_action( 'template_redirect', array( Search_Blocks::class, 'seed_interactivity_state' ) );
+		remove_action( 'wp_enqueue_scripts', array( Search_Blocks::class, 'seed_interactivity_state' ) );
+		remove_action( 'enqueue_block_editor_assets', array( Search_Blocks::class, 'enqueue_editor_assets' ) );
+	}
+
+	/**
+	 * Toggle whether the Search module reads as active by writing the
+	 * `jetpack_active_modules` option directly.
+	 *
+	 * @param bool $active True to add `'search'` to the option, false to remove it.
+	 */
+	private function set_module_active( bool $active ): void {
+		if ( $active ) {
+			update_option( 'jetpack_active_modules', array( 'search' ) );
+		} else {
+			update_option( 'jetpack_active_modules', array() );
+		}
+	}
+
+	/**
 	 * `register_search_template()` must push the template into
 	 * WP_Block_Templates_Registry (so it shows up in the Site Editor's
 	 * Templates list) and the stored content must reference the Jetpack
@@ -206,8 +363,8 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertSame( 'Jetpack Search Results', $registered->title );
 		// Core blocks that make up the layout — guards against an accidental
 		// empty-file read or a placeholder substitution that blows away the body.
-		$this->assertStringContainsString( '<!-- wp:jetpack/search-results /-->', $registered->content );
-		$this->assertStringContainsString( '<!-- wp:jetpack/filter-checkbox', $registered->content );
+		$this->assertStringContainsString( '<!-- wp:jetpack-search/results-list /-->', $registered->content );
+		$this->assertStringContainsString( '<!-- wp:jetpack-search/filter-checkbox', $registered->content );
 		// The `{{FILTER_HEADING}}` placeholder must have been substituted —
 		// if it leaks into the registry, the heading renders as `{{FILTER_HEADING}}`
 		// on the front end.
@@ -293,6 +450,328 @@ class Search_Blocks_Test extends TestCase {
 		} finally {
 			update_option( 'active_plugins', $original );
 		}
+	}
+
+	/**
+	 * On the WP search route, the inline blocks must keep using the
+	 * canonical `s` URL key so they interoperate with core's search
+	 * routing, body classes, and any theme/plugin code keyed off `s`.
+	 */
+	public function test_get_search_param_name_uses_s_on_search_route() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+			$this->assertSame( 's', Search_Blocks::get_search_param_name() );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * On any non-search request (singular page, archive, front page),
+	 * the inline blocks must switch to `q` so a refresh of an inline-
+	 * search URL like `/about/?q=boots` doesn't trip core's
+	 * `WP_Query::get_posts()` AND'd `post_content LIKE` clause and
+	 * 404 the page (RSM-1754).
+	 */
+	public function test_get_search_param_name_uses_q_off_search_route() {
+		$original_query = $GLOBALS['wp_query'] ?? null;
+		try {
+			$GLOBALS['wp_query'] = new \WP_Query();
+			$this->assertSame( 'q', Search_Blocks::get_search_param_name() );
+		} finally {
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * On the WP search route, the seed must read `searchQuery` from
+	 * `?s=…` and tell the JS store the active key is `s` so subsequent
+	 * URL writes (debounced search keystrokes, `popstate`) stay on the
+	 * canonical key.
+	 */
+	public function test_build_initial_state_uses_s_on_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => 'boots' );
+		$GLOBALS['wp_query'] = new \WP_Query( array( 's' => 'boots' ) );
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( 'boots', $state['searchQuery'] );
+			$this->assertSame( 's', $state['searchParamName'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * On a non-search page (singular embed, archive, etc.), the seed
+	 * must read `searchQuery` from `?q=…` and ignore any stray `?s=…`
+	 * (which is the URL shape we deliberately stopped writing to
+	 * dodge the singular 404 path).
+	 */
+	public function test_build_initial_state_uses_q_off_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array(
+			'q' => 'boots',
+			's' => 'ignored',
+		);
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( 'boots', $state['searchQuery'] );
+			$this->assertSame( 'q', $state['searchParamName'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Off the search route, an `?s=boots` URL must NOT seed the inline
+	 * search — the active key is `q`. Without this, a stray `s` (from
+	 * a pre-existing shared link or an unrelated plugin) would still
+	 * hydrate the Interactivity store and re-emit `?s=` on the next
+	 * URL push, walking us back into the singular 404 path.
+	 */
+	public function test_build_initial_state_ignores_legacy_s_param_off_search_route() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array( 's' => 'boots' );
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( '', $state['searchQuery'] );
+			$this->assertSame( 'q', $state['searchParamName'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * Both URL keys the inline blocks may write (`s` on the search route,
+	 * `q` off it) must be reserved by `parse_url_filters()` so a hostile
+	 * or malformed `?s[]=…&q[]=…` can't smuggle the search query into
+	 * `activeFilters` (which would forward it to ES as a filter clause
+	 * and round-trip it back into the URL on every keystroke). The real
+	 * filter alongside them proves the rest of the parser is still
+	 * working — i.e. the reservation gate is surgical, not a side
+	 * effect of an unrelated rejection earlier in the loop.
+	 */
+	public function test_build_initial_state_reserves_both_s_and_q_from_active_filters() {
+		$original_get        = $_GET;
+		$original_query      = $GLOBALS['wp_query'] ?? null;
+		$_GET                = array(
+			's'        => array( 'ignored' ),
+			'q'        => array( 'ignored' ),
+			'category' => array( 'news' ),
+		);
+		$GLOBALS['wp_query'] = new \WP_Query();
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( array( 'category' => array( 'news' ) ), $state['activeFilters'] );
+		} finally {
+			$_GET                = $original_get;
+			$GLOBALS['wp_query'] = $original_query;
+		}
+	}
+
+	/**
+	 * The filter-checkbox inserter cards come from
+	 * Search_Blocks::inject_filter_checkbox_variations(); if these names or
+	 * seeded attributes drift, the editor stops offering the expected filter
+	 * presets or inserts them with the wrong defaults.
+	 */
+	public function test_inject_filter_checkbox_variations_adds_expected_shapes() {
+		$variations = Search_Blocks::inject_filter_checkbox_variations(
+			array(
+				array(
+					'name'  => 'existing',
+					'title' => 'Existing variation',
+				),
+			),
+			new \WP_Block_Type( 'jetpack-search/filter-checkbox' )
+		);
+
+		$variations_by_name = array_column( $variations, null, 'name' );
+
+		$this->assertArrayHasKey( 'existing', $variations_by_name );
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'category',
+				'label'      => 'Category',
+			),
+			$variations_by_name['category']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['category']['isActive'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'post_tag',
+				'label'      => 'Tag',
+			),
+			$variations_by_name['post_tag']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['post_tag']['isActive'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'post_type',
+				'label'      => 'Post Type',
+			),
+			$variations_by_name['post_type']['attributes']
+		);
+		$this->assertSame( array( 'filterType' ), $variations_by_name['post_type']['isActive'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'author',
+				'label'      => 'Author',
+			),
+			$variations_by_name['author']['attributes']
+		);
+		$this->assertSame( array( 'filterType' ), $variations_by_name['author']['isActive'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => '',
+				'label'      => '',
+			),
+			$variations_by_name['custom_taxonomy']['attributes']
+		);
+		$this->assertSame( array( 'filterType' ), $variations_by_name['custom_taxonomy']['isActive'] );
+
+		// WC product taxonomies — product_cat / product_tag are unconditional
+		// (WooCommerce always registers them); product_brand is gated below
+		// in test_inject_filter_checkbox_variations_gates_product_brand_on_taxonomy_existence.
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'product_cat',
+				'label'      => 'Product Category',
+			),
+			$variations_by_name['product_cat']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_cat']['isActive'] );
+		$this->assertSame( 'category', $variations_by_name['product_cat']['icon'] );
+
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'product_tag',
+				'label'      => 'Product Tag',
+			),
+			$variations_by_name['product_tag']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_tag']['isActive'] );
+		$this->assertSame( 'tag', $variations_by_name['product_tag']['icon'] );
+
+		// product_brand is gated on `taxonomy_exists( 'product_brand' )`. In a
+		// bare phpunit run no taxonomies are registered, so it must NOT appear.
+		$this->assertArrayNotHasKey( 'product_brand', $variations_by_name );
+	}
+
+	/**
+	 * `product_brand` isn't a core WC taxonomy — it's added by extensions
+	 * (WC Brands, Perfect Brands, recent bundled WC versions). The variation
+	 * is registered only when the taxonomy is present so authors don't see
+	 * a silently-empty filter on sites without a brands extension.
+	 */
+	public function test_inject_filter_checkbox_variations_gates_product_brand_on_taxonomy_existence() {
+		register_taxonomy( 'product_brand', 'post' );
+
+		$variations         = Search_Blocks::inject_filter_checkbox_variations(
+			array(),
+			new \WP_Block_Type( 'jetpack-search/filter-checkbox' )
+		);
+		$variations_by_name = array_column( $variations, null, 'name' );
+
+		$this->assertArrayHasKey( 'product_brand', $variations_by_name );
+		$this->assertSame(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'product_brand',
+				'label'      => 'Product Brand',
+			),
+			$variations_by_name['product_brand']['attributes']
+		);
+		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_brand']['isActive'] );
+		$this->assertSame( 'awards', $variations_by_name['product_brand']['icon'] );
+
+		// Inserter cards render in the order the variations are returned, so
+		// product_brand must precede custom_taxonomy to keep the three
+		// product variations grouped together rather than splitting around
+		// Custom Taxonomy.
+		$names           = array_column( $variations, 'name' );
+		$brand_position  = array_search( 'product_brand', $names, true );
+		$custom_position = array_search( 'custom_taxonomy', $names, true );
+		$this->assertNotFalse( $brand_position );
+		$this->assertNotFalse( $custom_position );
+		$this->assertLessThan( $custom_position, $brand_position );
+
+		unregister_taxonomy( 'product_brand' );
+	}
+
+	/**
+	 * The injector must be scoped to jetpack-search/filter-checkbox so it
+	 * can't leak Search-specific presets onto unrelated blocks.
+	 */
+	public function test_inject_filter_checkbox_variations_ignores_other_block_types() {
+		$variations = array(
+			array(
+				'name'  => 'existing',
+				'title' => 'Existing variation',
+			),
+		);
+
+		$this->assertSame(
+			$variations,
+			Search_Blocks::inject_filter_checkbox_variations( $variations, new \WP_Block_Type( 'core/paragraph' ) )
+		);
+	}
+
+	/**
+	 * If a variation with one of our preset names is already registered (via
+	 * block.json or a higher-priority filter), the existing entry must win —
+	 * otherwise `array_merge` would emit two inserter cards under the same
+	 * variation name and the editor would resolve `isActive` ambiguously.
+	 */
+	public function test_inject_filter_checkbox_variations_skips_name_collisions() {
+		$existing_category = array(
+			'name'       => 'category',
+			'title'      => 'Site-customized Category filter',
+			'attributes' => array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'category',
+				'label'      => 'Topics',
+			),
+		);
+		$variations        = Search_Blocks::inject_filter_checkbox_variations(
+			array( $existing_category ),
+			new \WP_Block_Type( 'jetpack-search/filter-checkbox' )
+		);
+
+		$category_entries = array();
+		foreach ( $variations as $v ) {
+			if ( 'category' === $v['name'] ) {
+				$category_entries[] = $v;
+			}
+		}
+		$this->assertCount( 1, $category_entries );
+
+		$by_name = array_column( $variations, null, 'name' );
+		$this->assertSame( 'Site-customized Category filter', $by_name['category']['title'] );
+		// Other presets are still added, only the colliding name is skipped.
+		$this->assertArrayHasKey( 'post_tag', $by_name );
+		$this->assertArrayHasKey( 'post_type', $by_name );
+		$this->assertArrayHasKey( 'author', $by_name );
+		$this->assertArrayHasKey( 'custom_taxonomy', $by_name );
 	}
 
 	/**

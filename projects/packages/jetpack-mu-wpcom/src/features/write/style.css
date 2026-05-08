@@ -1,5 +1,18 @@
 /* Write — Distraction-free writing */
 
+/* Visually hidden but accessible to screen readers */
+.bw-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
 /* ===== Reset for the writing page ===== */
 .bw-app {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
@@ -787,6 +800,8 @@
 	z-index: 200;
 	width: 44px;
 	height: 44px;
+	border: none;
+	padding: 0;
 	border-radius: 50%;
 	background: #1e1e1e;
 	color: #fff;
@@ -801,6 +816,11 @@
 .bw-cat-fab:hover {
 	background: #333;
 	transform: scale(1.05);
+}
+
+.bw-cat-fab:focus-visible {
+	outline: 3px solid #2171b1;
+	outline-offset: 3px;
 }
 
 .bw-cat-fab-icon {
@@ -1032,12 +1052,14 @@
 	z-index: 5;
 }
 
-.bw-img-controls:hover .bw-img-delete {
+.bw-img-controls:hover .bw-img-delete,
+.bw-img-controls:focus-within .bw-img-delete {
 	opacity: 1;
 	transform: scale(1);
 }
 
-.bw-video-figure:hover .bw-img-delete {
+.bw-video-figure:hover .bw-img-delete,
+.bw-video-figure:focus-within .bw-img-delete {
 	opacity: 1;
 	transform: scale(1);
 }
@@ -1067,7 +1089,8 @@
 	z-index: 5;
 }
 
-.bw-img-controls:hover .bw-img-alt {
+.bw-img-controls:hover .bw-img-alt,
+.bw-img-controls:focus-within .bw-img-alt {
 	opacity: 1;
 	transform: scale(1);
 }
@@ -1120,7 +1143,8 @@
 	z-index: 5;
 }
 
-.bw-img-controls:hover .bw-img-caption-btn {
+.bw-img-controls:hover .bw-img-caption-btn,
+.bw-img-controls:focus-within .bw-img-caption-btn {
 	opacity: 1;
 	transform: scale(1);
 }
@@ -1246,7 +1270,8 @@
 }
 
 .bw-upload-zone:hover,
-.bw-upload-zone.bw-drag-over {
+.bw-upload-zone.bw-drag-over,
+.bw-upload-zone:focus-within {
 	border-color: #2171b1;
 	color: #2171b1;
 }

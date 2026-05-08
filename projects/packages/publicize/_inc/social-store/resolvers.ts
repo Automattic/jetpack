@@ -1,9 +1,13 @@
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
-import { hashRenderItems, type RenderItem, type RenderResult } from '../utils/render-messages';
+import { type RenderItem, type RenderResult } from '../utils/render-messages';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
-import { receiveRenderedMessages } from './actions/rendered-messages';
+import {
+	finishRenderingMessages,
+	receiveRenderedMessages,
+	startRenderingMessages,
+} from './actions/rendered-messages';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
 import { PostShareStatus, RenderedMessageBatch } from './types';
 
@@ -90,7 +94,7 @@ export function getRenderedMessages( postId: number, items: RenderItem[] ) {
 			return;
 		}
 
-		const cacheKey = `${ postId }|${ hashRenderItems( items ) }`;
+		dispatch( startRenderingMessages( postId, items ) );
 
 		try {
 			const records = await apiFetch< RenderResult[] >( {
@@ -111,10 +115,11 @@ export function getRenderedMessages( postId: number, items: RenderItem[] ) {
 				batch[ record.id ] = slot;
 			}
 
-			dispatch( receiveRenderedMessages( cacheKey, batch ) );
+			dispatch( receiveRenderedMessages( postId, items, batch ) );
 		} catch {
-			// Keep the previous batch on error — preserves the "no flash on failure"
-			// behavior callers expect.
+			// Keep the previous batch on error — clear loading without overwriting
+			// items so the consumer keeps showing whatever it had.
+			dispatch( finishRenderingMessages( postId, items ) );
 		}
 	};
 }

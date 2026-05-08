@@ -20,6 +20,7 @@ These filters control behavior and are used by other plugins (like Big Sky) to i
 | `agents_manager_use_unified_experience` | Enable unified experience UI | `false` |
 | `agents_manager_enabled_in_ciab` | Enable/disable in CIAB | `true` |
 | `agents_manager_enabled_in_block_editor` | Enable/disable in block editor | `false` |
+| `jetpack_ai_sidebar_agents_manager_data` | Add host-specific data to `agentsManagerData` | `current inline data` |
 
 ## Pitfalls
 

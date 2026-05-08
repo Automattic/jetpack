@@ -1,5 +1,7 @@
 import {
 	countActiveFilters,
+	decodeEntities,
+	deriveMatchHint,
 	formatDate,
 	formatPath,
 	normalizeResult,
@@ -111,6 +113,47 @@ describe( 'formatPath', () => {
 	} );
 } );
 
+describe( 'decodeEntities', () => {
+	it( 'decodes numeric entities', () => {
+		expect( decodeEntities( '&#036;' ) ).toBe( '$' );
+		expect( decodeEntities( '&#8217;' ) ).toBe( '’' );
+	} );
+
+	it( 'decodes hex entities (case-insensitive)', () => {
+		expect( decodeEntities( '&#x24;' ) ).toBe( '$' );
+		expect( decodeEntities( '&#X2019;' ) ).toBe( '’' );
+	} );
+
+	it( 'decodes the supported named entities', () => {
+		expect( decodeEntities( '&amp;' ) ).toBe( '&' );
+		expect( decodeEntities( '&lt;' ) ).toBe( '<' );
+		expect( decodeEntities( '&gt;' ) ).toBe( '>' );
+		expect( decodeEntities( '&quot;' ) ).toBe( '"' );
+		expect( decodeEntities( '&apos;' ) ).toBe( "'" );
+		expect( decodeEntities( '&nbsp;' ) ).toBe( ' ' );
+	} );
+
+	it( 'leaves unknown named entities untouched', () => {
+		// `&copy;` and friends aren't mapped — better to leave the raw entity
+		// than to silently drop it.
+		expect( decodeEntities( '&copy; 2026' ) ).toBe( '&copy; 2026' );
+	} );
+
+	it( 'drops invalid numeric code points instead of throwing', () => {
+		expect( decodeEntities( '&#9999999999;' ) ).toBe( '' );
+	} );
+
+	it( 'leaves plain text untouched', () => {
+		expect( decodeEntities( 'hello world' ) ).toBe( 'hello world' );
+	} );
+
+	it( 'returns non-string input unchanged', () => {
+		expect( decodeEntities( '' ) ).toBe( '' );
+		expect( decodeEntities( null ) ).toBeNull();
+		expect( decodeEntities( undefined ) ).toBeUndefined();
+	} );
+} );
+
 describe( 'stripTags', () => {
 	it( 'removes simple tags', () => {
 		expect( stripTags( '<p>hello</p>' ) ).toBe( 'hello' );
@@ -135,6 +178,32 @@ describe( 'stripTags', () => {
 
 	it( 'handles empty string', () => {
 		expect( stripTags( '' ) ).toBe( '' );
+	} );
+
+	it( 'returns non-string input unchanged', () => {
+		// Call sites pre-convert via `String(...) ?? ''`, but defending the
+		// helper itself avoids a stray `.replace` throw if a future caller
+		// skips the conversion.
+		expect( stripTags( null ) ).toBeNull();
+		expect( stripTags( undefined ) ).toBeUndefined();
+	} );
+
+	it( 'flattens an HTML-formatted WC price into plain text', () => {
+		const wcPrice =
+			'<span class="woocommerce-Price-amount amount">' +
+			'<span class="woocommerce-Price-currencySymbol">&#036;</span>11.05</span>';
+		expect( stripTags( wcPrice ) ).toBe( '$11.05' );
+	} );
+
+	it( 'decodes entities while stripping tags', () => {
+		expect( stripTags( 'Joe&#039;s &amp; Co' ) ).toBe( "Joe's & Co" );
+	} );
+
+	it( 'strips entity-encoded tags via the decode → strip loop', () => {
+		// `&lt;script&gt;…&lt;/script&gt;` would survive a single tag-strip pass;
+		// the loop decodes the entities into real `<script>` tags first, then
+		// strips them on the next iteration.
+		expect( stripTags( '&lt;script&gt;alert(1)&lt;/script&gt;' ) ).toBe( 'alert(1)' );
 	} );
 } );
 
@@ -192,6 +261,55 @@ describe( 'tokenizeHighlight', () => {
 	} );
 } );
 
+describe( 'deriveMatchHint', () => {
+	it( 'returns empty string when there are no highlights at all', () => {
+		expect( deriveMatchHint( {}, [] ) ).toBe( '' );
+	} );
+
+	it( 'returns empty string when the title itself is highlighted', () => {
+		const titlePieces = [ { index: 0, text: 'Hello', isHighlight: true } ];
+		const highlight = { title: '<mark>Hello</mark>', content: [ 'match here' ] };
+		expect( deriveMatchHint( highlight, titlePieces ) ).toBe( '' );
+	} );
+
+	it( 'returns "content" when a non-title field is highlighted and title is not', () => {
+		const titlePieces = [ { index: 0, text: 'Hello', isHighlight: false } ];
+		const highlight = { title: 'Hello', content: [ 'some <mark>match</mark>' ] };
+		expect( deriveMatchHint( highlight, titlePieces ) ).toBe( 'content' );
+	} );
+
+	it( 'returns "comments" when the comment field is highlighted and title is not', () => {
+		const titlePieces = [ { index: 0, text: 'Hello', isHighlight: false } ];
+		const highlight = { comment: [ 'comment <mark>match</mark>' ] };
+		expect( deriveMatchHint( highlight, titlePieces ) ).toBe( 'comments' );
+	} );
+
+	it( 'returns "comments" (not "content") when both comment and content are highlighted but title is not', () => {
+		const titlePieces = [];
+		const highlight = {
+			content: [ 'body <mark>word</mark>' ],
+			comment: [ 'comment <mark>word</mark>' ],
+		};
+		expect( deriveMatchHint( highlight, titlePieces ) ).toBe( 'comments' );
+	} );
+
+	it( 'returns empty string when highlight values are empty arrays', () => {
+		expect( deriveMatchHint( { content: [] }, [] ) ).toBe( '' );
+	} );
+
+	it( 'returns empty string when highlight values are arrays with empty first entry', () => {
+		expect( deriveMatchHint( { content: [ '' ] }, [] ) ).toBe( '' );
+	} );
+
+	it( 'returns empty string when highlight is null', () => {
+		expect( deriveMatchHint( null, [] ) ).toBe( '' );
+	} );
+
+	it( 'returns empty string when titlePieces is empty and no non-title highlights exist', () => {
+		expect( deriveMatchHint( { title: '<mark>Hello</mark>' }, [] ) ).toBe( '' );
+	} );
+} );
+
 describe( 'normalizeResult', () => {
 	const RAW = {
 		result_id: 'r-42',
@@ -216,8 +334,10 @@ describe( 'normalizeResult', () => {
 			path: '2026 › 04 › 20 › hi',
 			imageUrl: '//cdn.example.com/img.jpg',
 			hasTitlePieces: true,
+			hasContentPieces: false,
 		} );
 		expect( r.titlePieces ).toEqual( [ { index: 0, text: 'Hello', isHighlight: true } ] );
+		expect( r.contentPieces ).toEqual( [] );
 		expect( r.dateLabel ).toMatch( /Apr 20, 2026/ );
 	} );
 
@@ -240,8 +360,58 @@ describe( 'normalizeResult', () => {
 		expect( r.hasTitlePieces ).toBe( true );
 	} );
 
+	it( 'exposes contentPieces from highlight.content', () => {
+		const r = normalizeResult( {
+			...RAW,
+			highlight: {
+				title: '<mark>Hello</mark>',
+				content: 'The quick <mark>brown fox</mark> jumped.',
+			},
+		} );
+		expect( r.hasContentPieces ).toBe( true );
+		expect( r.contentPieces ).toEqual( [
+			{ index: 0, text: 'The quick ', isHighlight: false },
+			{ index: 1, text: 'brown fox', isHighlight: true },
+			{ index: 2, text: ' jumped.', isHighlight: false },
+		] );
+	} );
+
+	it( 'joins array content snippets into a single tokenized sequence', () => {
+		const r = normalizeResult( {
+			fields: {},
+			highlight: {
+				content: [ 'First <mark>match</mark>', 'second snippet' ],
+			},
+		} );
+		expect( r.hasContentPieces ).toBe( true );
+		expect( r.contentPieces.map( p => p.text ) ).toEqual( [
+			'First ',
+			'match',
+			' second snippet',
+		] );
+		// Verify the highlight flag is preserved across the joined snippets.
+		expect( r.contentPieces[ 1 ].isHighlight ).toBe( true );
+		expect( r.contentPieces[ 0 ].isHighlight ).toBe( false );
+		expect( r.contentPieces[ 2 ].isHighlight ).toBe( false );
+	} );
+
+	it( 'hasContentPieces is false when highlight.content is missing', () => {
+		const r = normalizeResult( { ...RAW, highlight: { title: '<mark>Hello</mark>' } } );
+		expect( r.hasContentPieces ).toBe( false );
+		expect( r.contentPieces ).toEqual( [] );
+	} );
+
 	it( 'defaults to empty title when both title.default and title are missing', () => {
 		expect( normalizeResult( { fields: {} } ).title ).toBe( '' );
+	} );
+
+	it( 'flattens HTML/entities in the fallback title', () => {
+		// `data-wp-text` would otherwise render the raw markup. Post titles
+		// most commonly carry numeric entities for curly punctuation.
+		const r = normalizeResult( {
+			fields: { 'title.default': 'Joe&#8217;s &amp; <em>Co</em>' },
+		} );
+		expect( r.title ).toBe( 'Joe’s & Co' );
 	} );
 
 	it( 'takes the first image when image.url.raw is an array', () => {
@@ -270,11 +440,15 @@ describe( 'normalizeResult', () => {
 			title: '',
 			titlePieces: [],
 			hasTitlePieces: false,
+			contentPieces: [],
+			hasContentPieces: false,
 			permalink: '',
 			path: '',
 			dateLabel: '',
 			imageUrl: '',
 			imageBackgroundImage: '',
+			matchHint: '',
+			matchHintIsComments: false,
 			formattedPrice: '',
 			formattedRegularPrice: '',
 			formattedSalePrice: '',
@@ -307,6 +481,30 @@ describe( 'normalizeResult', () => {
 			expect( r.formattedPrice ).toBe( '$24.00' );
 			expect( r.hasPrice ).toBe( true );
 			expect( r.hasSalePrice ).toBe( false );
+		} );
+
+		it( 'flattens HTML-formatted prices the WPCOM API returns for WC products', () => {
+			// WPCOM's `wc.formatted_price` field is the HTML fragment WC renders
+			// in the storefront — it leaks into the result card unless we strip
+			// the tags and decode `&#036;` / `&nbsp;` before binding via
+			// `data-wp-text`.
+			const r = normalizeResult( {
+				fields: {
+					'wc.formatted_price':
+						'<span class="woocommerce-Price-amount amount">' +
+						'<span class="woocommerce-Price-currencySymbol">&#036;</span>11.05</span>',
+					'wc.formatted_regular_price':
+						'<span class="woocommerce-Price-amount amount">' +
+						'<span class="woocommerce-Price-currencySymbol">&#036;</span>20.00</span>',
+					'wc.formatted_sale_price':
+						'<span class="woocommerce-Price-amount amount">' +
+						'<span class="woocommerce-Price-currencySymbol">&#036;</span>11.05</span>',
+				},
+			} );
+			expect( r.formattedPrice ).toBe( '$11.05' );
+			expect( r.formattedRegularPrice ).toBe( '$20.00' );
+			expect( r.formattedSalePrice ).toBe( '$11.05' );
+			expect( r.hasSalePrice ).toBe( true );
 		} );
 
 		it( 'flags hasSalePrice when sale and regular prices differ', () => {
@@ -403,6 +601,41 @@ describe( 'normalizeResult', () => {
 			},
 		};
 		expect( normalizeResult( raw ) ).not.toHaveProperty( 'author' );
+	} );
+
+	it( 'exposes matchHint="content" when a non-title field is highlighted but the title is not', () => {
+		const r = normalizeResult( {
+			fields: { 'title.default': 'Hello' },
+			highlight: {
+				title: 'Hello',
+				content: [ 'some <mark>match</mark>' ],
+			},
+		} );
+		expect( r.matchHint ).toBe( 'content' );
+		expect( r.matchHintIsComments ).toBe( false );
+	} );
+
+	it( 'exposes matchHint="comments" when the comment field is highlighted but the title is not', () => {
+		const r = normalizeResult( {
+			fields: { 'title.default': 'Hello' },
+			highlight: {
+				comment: [ 'a <mark>match</mark> in comments' ],
+			},
+		} );
+		expect( r.matchHint ).toBe( 'comments' );
+		expect( r.matchHintIsComments ).toBe( true );
+	} );
+
+	it( 'exposes matchHint="" when the title itself is highlighted', () => {
+		const r = normalizeResult( {
+			fields: { 'title.default': 'Hello' },
+			highlight: {
+				title: '<mark>Hello</mark>',
+				content: [ 'also <mark>here</mark>' ],
+			},
+		} );
+		expect( r.matchHint ).toBe( '' );
+		expect( r.matchHintIsComments ).toBe( false );
 	} );
 } );
 

@@ -1,5 +1,5 @@
-import { hashRenderItems, type RenderItem } from '../../../utils/render-messages';
-import { getRenderedMessages } from '../rendered-messages';
+import { renderMessagesCacheKey, type RenderItem } from '../../../utils/render-messages';
+import { getRenderedMessages, isLoadingRenderedMessages } from '../rendered-messages';
 import type { RenderedMessages, SocialStoreState } from '../../types';
 
 const item = ( id: string, message = '' ): RenderItem => ( {
@@ -23,10 +23,11 @@ describe( 'getRenderedMessages', () => {
 
 	it( 'reads the batch stored under the cache key for these items', () => {
 		const items = [ item( 'a' ), item( 'b' ) ];
-		const cacheKey = `42|${ hashRenderItems( items ) }`;
 		const batch = { a: { rendered_message: 'A' }, b: { rendered_message: 'B' } };
 
-		const state = stateWith( { [ cacheKey ]: batch } );
+		const state = stateWith( {
+			[ renderMessagesCacheKey( 42, items ) ]: { isLoading: false, items: batch },
+		} );
 
 		expect( getRenderedMessages( state, 42, items ) ).toBe( batch );
 	} );
@@ -38,13 +39,52 @@ describe( 'getRenderedMessages', () => {
 		const itemsB = [ item( 'a', 'B' ) ];
 
 		const state = stateWith( {
-			[ `42|${ hashRenderItems( itemsA ) }` ]: { a: { rendered_message: 'rendered-A' } },
-			[ `42|${ hashRenderItems( itemsB ) }` ]: { a: { rendered_message: 'rendered-B' } },
+			[ renderMessagesCacheKey( 42, itemsA ) ]: {
+				isLoading: false,
+				items: { a: { rendered_message: 'rendered-A' } },
+			},
+			[ renderMessagesCacheKey( 42, itemsB ) ]: {
+				isLoading: false,
+				items: { a: { rendered_message: 'rendered-B' } },
+			},
 		} );
 
 		expect( getRenderedMessages( state, 42, itemsA )?.a.rendered_message ).toBe( 'rendered-A' );
 		expect( getRenderedMessages( state, 42, itemsB )?.a.rendered_message ).toBe( 'rendered-B' );
 		// Reverting reads the original — no collision.
 		expect( getRenderedMessages( state, 42, itemsA )?.a.rendered_message ).toBe( 'rendered-A' );
+	} );
+} );
+
+describe( 'isLoadingRenderedMessages', () => {
+	it( 'returns false when postId is missing', () => {
+		expect( isLoadingRenderedMessages( stateWith( {} ), 0, [ item( 'a' ) ] ) ).toBe( false );
+	} );
+
+	it( 'returns false when items is empty', () => {
+		expect( isLoadingRenderedMessages( stateWith( {} ), 42, [] ) ).toBe( false );
+	} );
+
+	it( 'returns true when no entry exists yet — closes the flash window before the resolver dispatches start', () => {
+		expect( isLoadingRenderedMessages( stateWith( {} ), 42, [ item( 'a' ) ] ) ).toBe( true );
+	} );
+
+	it( 'returns true while the resolver has marked the cache slot as loading', () => {
+		const items = [ item( 'a' ) ];
+		const state = stateWith( {
+			[ renderMessagesCacheKey( 42, items ) ]: { isLoading: true },
+		} );
+		expect( isLoadingRenderedMessages( state, 42, items ) ).toBe( true );
+	} );
+
+	it( 'returns false once the resolver clears loading', () => {
+		const items = [ item( 'a' ) ];
+		const state = stateWith( {
+			[ renderMessagesCacheKey( 42, items ) ]: {
+				isLoading: false,
+				items: { a: { rendered_message: 'A' } },
+			},
+		} );
+		expect( isLoadingRenderedMessages( state, 42, items ) ).toBe( false );
 	} );
 } );

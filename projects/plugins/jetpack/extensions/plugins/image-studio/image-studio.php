@@ -106,6 +106,41 @@ function has_jetpack_ai_features() {
 }
 
 /**
+ * Check whether the video clip generation flow can run on the current site.
+ *
+ * Mirrors the WordPress.com server-side gate: defers to
+ * `wpcom_site_can_upload_videos()` when available so the client and server
+ * agree on capability. Off-WPCOM (self-hosted Jetpack, standalone VideoPress,
+ * dev environments) the helper isn't loaded; we don't gate the entry point in
+ * those contexts and let the server respond if generation is unsupported.
+ *
+ * @return bool
+ */
+function image_studio_can_generate_video_clips() {
+	/**
+	 * Filter the video clip generation capability determination.
+	 *
+	 * Return null to fall through to the default capability detection;
+	 * return a boolean to override. Useful for environments that need to
+	 * force the answer (custom hosts, integration tests, etc.).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool|null $override Override value, or null to use default detection.
+	 */
+	$override = apply_filters( 'jetpack_image_studio_can_generate_video_clips', null );
+	if ( null !== $override ) {
+		return (bool) $override;
+	}
+
+	if ( function_exists( 'wpcom_site_can_upload_videos' ) ) {
+		return (bool) wpcom_site_can_upload_videos();
+	}
+
+	return true;
+}
+
+/**
  * Check if the current screen is a block editor (Post Editor or Site Editor).
  *
  * @return bool
@@ -275,9 +310,10 @@ function do_enqueue_assets() {
 	);
 
 	$image_studio_data = array(
-		'enabled'   => true,
-		'version'   => '1.0',
-		'isDevMode' => jetpack_is_internal_testing_environment(),
+		'enabled'               => true,
+		'version'               => '1.0',
+		'isDevMode'             => jetpack_is_internal_testing_environment(),
+		'canGenerateVideoClips' => image_studio_can_generate_video_clips(),
 	);
 
 	wp_add_inline_script(

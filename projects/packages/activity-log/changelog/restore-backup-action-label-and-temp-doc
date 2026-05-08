@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Activity Log: rename the row action to "Restore backup" so the label matches what clicking it actually does — open the restore flow.

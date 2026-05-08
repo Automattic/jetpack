@@ -50,11 +50,20 @@ export function usePerNetworkCustomization() {
 					featuredImageMime,
 				} );
 
-				customizeConnectionById( connection.connection_id, {
-					message: postMeta.shareMessage || '',
+				/*
+				 * Skip writing `message` when the connection has its own template — leaving
+				 * `connection.message` undefined lets the editor and preview fall back to the
+				 * connection template instead of overwriting it with the global share message.
+				 */
+				const updates: Parameters< typeof customizeConnectionById >[ 1 ] = {
 					attached_media: attachedMedia,
 					media_source: effectiveSource,
-				} );
+				};
+				if ( ! connection.template ) {
+					updates.message = postMeta.shareMessage || '';
+				}
+
+				customizeConnectionById( connection.connection_id, updates );
 			}
 		} );
 	}, [

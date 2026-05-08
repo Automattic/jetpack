@@ -109,6 +109,35 @@ class Filter_Checkbox_Test extends TestCase {
 		);
 		$this->assertSame( 'Post Type', Filter_Checkbox::default_label( array( 'filterType' => 'post_type' ) ) );
 		$this->assertSame( 'Author', Filter_Checkbox::default_label( array( 'filterType' => 'author' ) ) );
+		// Product taxonomies get distinct "Product X" defaults so they don't
+		// collide visually with the post-taxonomy variations on the same page.
+		$this->assertSame(
+			'Product Category',
+			Filter_Checkbox::default_label(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_cat',
+				)
+			)
+		);
+		$this->assertSame(
+			'Product Tag',
+			Filter_Checkbox::default_label(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_tag',
+				)
+			)
+		);
+		$this->assertSame(
+			'Product Brand',
+			Filter_Checkbox::default_label(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_brand',
+				)
+			)
+		);
 		// Custom taxonomies get no fallback — the editor user is expected to
 		// provide a meaningful label.
 		$this->assertSame(

@@ -1,4 +1,4 @@
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
@@ -61,14 +61,15 @@ const FeatureSummaryComponent = props => {
 			{ props.isFeatureActive ? (
 				<>
 					{ configLinkIsExternal ? (
-						<ExternalLink
+						<Link
+							openInNewTab
 							type="button"
 							className="dops-button is-rna"
 							href={ configLink }
 							onClick={ onConfigureClick }
 						>
 							{ configureButtonLabel }
-						</ExternalLink>
+						</Link>
 					) : (
 						<Button rna href={ configLink } onClick={ onConfigureClick }>
 							{ configureButtonLabel }

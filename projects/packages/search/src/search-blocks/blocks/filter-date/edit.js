@@ -1,5 +1,5 @@
 /**
- * Editor preview for jetpack/filter-date.
+ * Editor preview for jetpack-search/filter-date.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {

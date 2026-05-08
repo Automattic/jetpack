@@ -69,12 +69,12 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 					return (
 						<li key={ item.label }>
 							<Text
-								variant="body-sm"
+								variant="body-md"
 								className="jetpack-footer__menu-item"
 								render={
 									isButton ? (
 										<Link
-											render={ <Text variant="body-md" render={ <span /> } /> }
+											render={ <span /> }
 											tone="neutral"
 											variant="default"
 											role={ item.role }
@@ -84,7 +84,6 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 										/>
 									) : (
 										<Link
-											render={ <Text variant="body-md" render={ <a /> } /> }
 											tone="neutral"
 											variant="default"
 											href={ item.href || '' }

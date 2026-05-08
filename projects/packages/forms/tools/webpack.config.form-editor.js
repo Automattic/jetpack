@@ -25,15 +25,6 @@ export default {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
-			'@wordpress/admin-ui/build-style/style.css': path.join(
-				__dirname,
-				'..',
-				'node_modules',
-				'@wordpress',
-				'admin-ui',
-				'build-style',
-				'style.css'
-			),
 		},
 	},
 	externals: {
@@ -53,6 +44,9 @@ export default {
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [ '@automattic/', 'debug/' ],
 			} ),
+
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {

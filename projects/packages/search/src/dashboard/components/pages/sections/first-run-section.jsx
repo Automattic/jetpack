@@ -56,7 +56,6 @@ const NoticeWrapper = () => {
 			isCompact={ false }
 			status={ 'is-info' }
 			className={ noticeBoxClassName }
-			icon={ 'info-outline' }
 			showDismiss={ false }
 		>
 			<h3 className="dops-notice__header">{ header }</h3>

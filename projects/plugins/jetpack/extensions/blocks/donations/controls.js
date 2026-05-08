@@ -4,7 +4,6 @@ import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Dashicon,
 	Dropdown,
-	ExternalLink,
 	MenuGroup,
 	MenuItem,
 	PanelBody,
@@ -15,6 +14,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
+import { Link } from '@wordpress/ui';
 import {
 	getDefaultDonationAmountsForCurrency,
 	SUPPORTED_CURRENCIES,
@@ -126,9 +126,9 @@ const Controls = props => {
 						label={ __( 'Show custom amount option', 'jetpack' ) }
 						__nextHasNoMarginBottom={ true }
 					/>
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
+					<Link openInNewTab href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
 						{ __( 'View donation earnings', 'jetpack' ) }
-					</ExternalLink>
+					</Link>
 				</PanelBody>
 			</InspectorControls>
 		</>

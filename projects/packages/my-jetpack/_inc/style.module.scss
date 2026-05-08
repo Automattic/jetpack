@@ -7,12 +7,16 @@
 	// viewport bottom) matches Boost / Protect / VideoPress / Search /
 	// Newsletter / Publicize / Backup / Jetpack network admin / AI.
 
-	// Excluded: My Jetpack's `.jetpack-admin-full-screen` interstitial mode,
-	// which hides the admin bar and takes over the whole viewport; its
-	// existing rules (further down in this file) override wp-admin chrome
-	// directly and should keep doing so. The `:has(.jetpack-admin-full-screen)`
-	// selector scopes the mixin to the regular dashboard view only.
-	body.jetpack_page_my-jetpack:not(:has(.jetpack-admin-full-screen)) {
+	// Excluded: My Jetpack's `.jetpack-admin-full-screen` interstitial mode
+	// (e.g. the `step=onboarding` "Supercharge my site" screen), which hides
+	// the admin bar and takes over the whole viewport; its existing rules
+	// (further down in this file) override wp-admin chrome directly and
+	// should keep doing so. The class lives on `<body>` itself — added
+	// server-side via `admin_body_class` for `step=onboarding` and
+	// client-side by the `useFullScreen` hook for other full-screen routes —
+	// so the opt-out matches it as a sibling class on `<body>`, not as a
+	// descendant via `:has()`.
+	body.jetpack_page_my-jetpack:not(.jetpack-admin-full-screen) {
 
 		@include jetpack-admin-page-layout;
 	}

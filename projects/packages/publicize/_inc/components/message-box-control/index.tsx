@@ -5,8 +5,9 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useRef } from 'react';
 import { features } from '../../utils/constants';
-import PlaceholdersHelp from './placeholders-help';
+import PlaceholdersHelp from '../placeholders-help';
 import styles from './styles.module.scss';
+import type { ReactNode } from 'react';
 
 export const getPlaceholderText = () =>
 	__(
@@ -33,6 +34,9 @@ export type MessageBoxControlProps = {
 
 	/** The placeholder text for the message box */
 	placeholder?: string;
+
+	/** Optional help text override */
+	help?: ReactNode;
 
 	/** The message to display */
 	message: string;
@@ -63,6 +67,7 @@ export type MessageBoxControlProps = {
 export default function MessageBoxControl( {
 	label = getDefaultLabel(),
 	placeholder,
+	help: helpProp,
 	message = '',
 	onChange,
 	disabled,
@@ -95,27 +100,29 @@ export default function MessageBoxControl( {
 	// Skip both the maxLength cap and the "characters remaining" counter, and instead
 	// wire the help slot to a placeholder-aware description that screen readers will
 	// announce via aria-describedby (which BaseControl sets on the textarea).
-	const help = templatesEnabled
-		? createInterpolateElement(
-				__(
-					'Supports placeholders like <title/> and <url/>. See the list below for all options.',
-					'jetpack-publicize-pkg'
-				),
-				{
-					title: <code>{ '{title}' }</code>,
-					url: <code>{ '{url}' }</code>,
-				}
-		  )
-		: sprintf(
-				/* translators: %d: the number of characters remaining. */
-				_n(
-					'%d character remaining',
-					'%d characters remaining',
-					charactersRemaining,
-					'jetpack-publicize-pkg'
-				),
-				charactersRemaining
-		  );
+	const help =
+		helpProp ??
+		( templatesEnabled
+			? createInterpolateElement(
+					__(
+						'Supports placeholders like <title/> and <url/>. See the list below for all the options.',
+						'jetpack-publicize-pkg'
+					),
+					{
+						title: <code>{ '{title}' }</code>,
+						url: <code>{ '{url}' }</code>,
+					}
+			  )
+			: sprintf(
+					/* translators: %d: the number of characters remaining. */
+					_n(
+						'%d character remaining',
+						'%d characters remaining',
+						charactersRemaining,
+						'jetpack-publicize-pkg'
+					),
+					charactersRemaining
+			  ) );
 
 	return (
 		<div className={ styles[ 'message-box-control' ] }>

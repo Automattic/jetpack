@@ -12,6 +12,7 @@ const siteDataSelectors = {
 	getSiteTitle: state => state.siteData?.title || '',
 	isWpcom: state => state.siteData?.isWpcom ?? false,
 	isPlanJustUpgraded: state => state.siteData?.isPlanJustUpgraded ?? false,
+	isSearchBlocksEnabled: state => state.siteData?.searchBlocksEnabled ?? false,
 };
 
 export default siteDataSelectors;

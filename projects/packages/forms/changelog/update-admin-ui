@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Update to @wordpress/admin-ui 2.0.0 and use the Page component's new `visual` prop for the Jetpack logo.

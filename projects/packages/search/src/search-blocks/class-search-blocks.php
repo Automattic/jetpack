@@ -17,8 +17,26 @@ class Search_Blocks {
 	/**
 	 * Reserved query params that must not be parsed as filter keys. Mirrors
 	 * `RESERVED_PARAMS` in store/url-state.js.
+	 *
+	 * Includes both `s` (used on the WP search route) and `q` (used by the
+	 * inline blocks on non-search pages, see `get_search_param_name()`) so
+	 * neither name can be misread as a filter key.
 	 */
-	const RESERVED_QUERY_PARAMS = array( 's', 'orderby', 'min_price', 'max_price' );
+	const RESERVED_QUERY_PARAMS = array( 's', 'q', 'orderby', 'min_price', 'max_price' );
+
+	/**
+	 * URL param the inline search blocks use to carry the query string when
+	 * embedded on a non-search page (e.g. `/about/?q=boots`). On the WP
+	 * search route (`is_search()`) the canonical `s` key is used instead.
+	 *
+	 * The non-`s` name on singular pages is what dodges core's
+	 * `WP_Query::get_posts()` AND'ing a `post_content LIKE` clause into the
+	 * singular page lookup and 404'ing the page on refresh. `q` matches the
+	 * de-facto search-URL convention (Google, GitHub, Wikipedia, etc.) so
+	 * shared links read naturally. See
+	 * `docs/explorations/embedded-search-refresh-404.md` (RSM-1754).
+	 */
+	const NON_SEARCH_QUERY_PARAM = 'q';
 
 	/**
 	 * Template slug used for the Jetpack Search page template.
@@ -31,16 +49,67 @@ class Search_Blocks {
 	const SEARCH_TEMPLATE_SLUG = 'jetpack-search';
 
 	/**
+	 * Per-request memo backing `is_initial_loading()`. Lifted out of the
+	 * method's local `static` so tests can clear it between cases via
+	 * `reset_initial_loading_cache()` — function-local statics aren't
+	 * reachable from outside the function, so they'd otherwise leak the
+	 * first test's URL state into every subsequent test in the same
+	 * PHPUnit process.
+	 *
+	 * @var bool|null
+	 */
+	private static $is_initial_loading_cache = null;
+
+	/**
+	 * Per-request memo backing `is_free_plan()`. Block render callbacks
+	 * (`search-results`, `powered-by`) call into the plan gate on every
+	 * inner render, including the auto-injected colophon path. WP's option
+	 * cache absorbs the redundancy in steady state, but on a cold cache
+	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
+	 * memoizing here fences that hazard to a single well-known site per
+	 * request.
+	 *
+	 * @var bool|null
+	 */
+	private static $is_free_plan_cache = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
-	 * The caller (Initializer) is responsible for gating this behind the
-	 * `jetpack_search_blocks_enabled` feature flag.
+	 * Two gates apply:
+	 *
+	 * 1. The caller (Initializer) gates the whole method behind the
+	 *    `jetpack_search_blocks_enabled` feature flag — when off, the blocks
+	 *    don't exist at all.
+	 * 2. Within this method, only the *template-takeover* surface (registering
+	 *    the Jetpack Search block template and prepending it to
+	 *    `search_template_hierarchy`) is additionally gated on the saved
+	 *    experience being `'embedded'`. Everything else — block registration,
+	 *    editor assets, and Interactivity API state seeding — runs whenever
+	 *    the feature flag is on, since admins can insert Search blocks
+	 *    anywhere blocks are configurable (post content, sidebar widgets,
+	 *    custom templates) regardless of which experience the dashboard has
+	 *    saved. Those blocks need the seeded base state (`apiRoot`, `nonce`,
+	 *    URL-derived `searchQuery` / `activeFilters`, `filterConfigs` slot,
+	 *    etc.) to hydrate; per-block `render.php` files only contribute their
+	 *    own config and rely on the global seed for the base.
+	 *
+	 * Why the template gate: with four experiences (`embedded` / `overlay` /
+	 * `inline` / `off`), only Embedded should override the theme's
+	 * `search.html`. A site that saves Overlay or Inline still expects
+	 * `/?s=…` to resolve through the theme — the Jetpack template is the
+	 * right answer only when the user has explicitly opted into the
+	 * block-built search page.
+	 *
+	 * `Module_Control::get_experience()` reads `get_option( 'jetpack_search_experience' )`
+	 * (object-cached) and falls back to deriving from the legacy booleans, so
+	 * this is cheap on every request. `update_experience()` writes the option
+	 * synchronously, so the next request after a save sees the new gate.
 	 */
 	public static function init() {
 		add_action( 'init', array( static::class, 'register_blocks' ) );
-		add_action( 'init', array( static::class, 'register_search_template' ) );
 		add_filter( 'block_categories_all', array( static::class, 'register_block_category' ) );
-		add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
 		// FSE block-template rendering runs *before* `wp_head()` (see
 		// `wp-includes/template-canvas.php`), so blocks would resolve
 		// `data-wp-bind` / `data-wp-text` against an unseeded IA store if we
@@ -49,7 +118,53 @@ class Search_Blocks {
 		// deep-merge no-op and keeps classic-theme paths covered.
 		add_action( 'template_redirect', array( static::class, 'seed_interactivity_state' ) );
 		add_action( 'wp_enqueue_scripts', array( static::class, 'seed_interactivity_state' ) );
-		add_action( 'enqueue_block_editor_assets', array( static::class, 'enqueue_editor_assets' ) );
+
+		if ( Module_Control::EXPERIENCE_EMBEDDED === ( new Module_Control() )->get_experience() ) {
+			add_action( 'init', array( static::class, 'register_search_template' ) );
+			add_filter( 'search_template_hierarchy', array( static::class, 'prepend_search_template' ) );
+		}
+	}
+
+	/**
+	 * Per-request memoized read of `Plan::is_free_plan()`. Use from any
+	 * block render callback that needs the plan gate — avoids paying the
+	 * `get_option()` array-parse cost on every block, and ensures the
+	 * cold-cache WPCOM round-trip in `Plan::get_plan_info()` happens at
+	 * most once per request even when several blocks ask.
+	 *
+	 * @return bool
+	 */
+	public static function is_free_plan(): bool {
+		if ( null === self::$is_free_plan_cache ) {
+			self::$is_free_plan_cache = ( new Plan() )->is_free_plan();
+		}
+		return self::$is_free_plan_cache;
+	}
+
+	/**
+	 * Reset the `is_free_plan()` memo. Tests only — production callers
+	 * should never need this; the boolean state of the site's plan
+	 * doesn't change inside a single request.
+	 */
+	public static function reset_is_free_plan_cache() {
+		self::$is_free_plan_cache = null;
+	}
+
+	/**
+	 * URL param key the inline search experience uses for the current request.
+	 *
+	 * On WP's search route (`is_search()`) the canonical `s` key is used so
+	 * the blocks interoperate with core's search routing, body classes, and
+	 * any theme/plugin code keyed off `s`. On non-search pages — singular
+	 * permalinks, archives, the front page — the blocks switch to
+	 * `NON_SEARCH_QUERY_PARAM` (`q`) so a refresh of an inline-search URL
+	 * like `/about/?q=boots` doesn't trip core's `WP_Query::get_posts()`
+	 * `post_content LIKE` AND clause and 404 the page.
+	 *
+	 * @return string
+	 */
+	public static function get_search_param_name(): string {
+		return function_exists( 'is_search' ) && is_search() ? 's' : self::NON_SEARCH_QUERY_PARAM;
 	}
 
 	/**
@@ -127,24 +242,34 @@ class Search_Blocks {
 			}
 		}
 
-		static::register_variations();
+		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
 		static::register_patterns();
 	}
 
 	/**
-	 * Register named block variations for the filter-checkbox block.
+	 * Inject named block variations for the filter-checkbox block.
 	 *
-	 * PHP-side registration keeps the editor-only JS bundle out of the ESM
-	 * pipeline. Variation names and default `taxonomy` / `filterType`
-	 * attributes intentionally mirror the filter types exposed by the
-	 * instant-search overlay so the two surfaces describe the same filters.
+	 * Hooks `get_block_type_variations` (added in WP 6.5) rather than calling
+	 * `register_block_variation()` because the latter is a JS-only API; no
+	 * matching PHP function exists in WordPress core. Filtering on the block
+	 * type's own variations getter is the supported PHP-side path and keeps
+	 * the editor-only JS bundle out of the ESM pipeline. Jetpack already
+	 * requires WP 6.8+, so the hook is always live in supported environments.
+	 *
+	 * Variation names and default `taxonomy` / `filterType` attributes
+	 * intentionally mirror the filter types exposed by the instant-search
+	 * overlay so the two surfaces describe the same filters.
+	 *
+	 * @param array          $variations Variations registered on the block type.
+	 * @param \WP_Block_Type $block_type Block type the filter is being applied to.
+	 * @return array
 	 */
-	protected static function register_variations() {
-		if ( ! function_exists( 'register_block_variation' ) ) {
-			return;
+	public static function inject_filter_checkbox_variations( $variations, $block_type ) {
+		if ( ! isset( $block_type->name ) || 'jetpack-search/filter-checkbox' !== $block_type->name ) {
+			return $variations;
 		}
 
-		$variations = array(
+		$additions = array(
 			array(
 				'name'        => 'category',
 				'title'       => __( 'Filter by Category', 'jetpack-search-pkg' ),
@@ -188,29 +313,85 @@ class Search_Blocks {
 				'isActive'    => array( 'filterType' ),
 			),
 			array(
-				'name'        => 'custom_taxonomy',
-				'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
-				'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
+				'name'        => 'product_cat',
+				'title'       => __( 'Filter by Product Category', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product category checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'category',
 				'attributes'  => array(
 					'filterType' => 'taxonomy',
-					'taxonomy'   => '',
-					'label'      => '',
+					'taxonomy'   => 'product_cat',
+					'label'      => __( 'Product Category', 'jetpack-search-pkg' ),
 				),
-				// Match on filterType only (no taxonomy comparison) so the
-				// variation identity survives once the author picks a slug
-				// via the inspector. The Category and Tag variations both
-				// pin `taxonomy` in their isActive arrays, so WP's
-				// most-specific-match resolution still routes those slugs
-				// to their dedicated variations — Custom Taxonomy claims
-				// every other registered taxonomy.
-				'isActive'    => array( 'filterType' ),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			),
+			array(
+				'name'        => 'product_tag',
+				'title'       => __( 'Filter by Product Tag', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'tag',
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_tag',
+					'label'      => __( 'Product Tag', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
 			),
 		);
 
-		foreach ( $variations as $variation ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above; stub missing from wordpress-stubs.
-			register_block_variation( 'jetpack/filter-checkbox', $variation );
+		// `product_brand` isn't a core WooCommerce taxonomy — it's added by
+		// extensions (WC Brands, Perfect Brands, recent bundled WC versions).
+		// Registering the variation unconditionally would surface "Filter by
+		// Product Brand" in the inserter on sites without it, where the block
+		// renders no buckets and the failure is silent. Gate on the taxonomy's
+		// presence so authors only see the option when it can actually work.
+		// Inserted before `custom_taxonomy` below so the three product
+		// variations stay grouped in the inserter when the gate fires.
+		if ( taxonomy_exists( 'product_brand' ) ) {
+			$additions[] = array(
+				'name'        => 'product_brand',
+				'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
+				'description' => __( 'Show product brand checkboxes with live result counts.', 'jetpack-search-pkg' ),
+				'icon'        => 'awards',
+				'attributes'  => array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_brand',
+					'label'      => __( 'Product Brand', 'jetpack-search-pkg' ),
+				),
+				'isActive'    => array( 'filterType', 'taxonomy' ),
+			);
 		}
+
+		$additions[] = array(
+			'name'        => 'custom_taxonomy',
+			'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
+			'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
+			'attributes'  => array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => '',
+				'label'      => '',
+			),
+			// Match on filterType only (no taxonomy comparison) so the
+			// variation identity survives once the author picks a slug
+			// via the inspector. Category, Tag, and the product taxonomy
+			// variations all pin `taxonomy` in their isActive arrays, so
+			// WP's most-specific-match resolution still routes those
+			// slugs to their dedicated variations — Custom Taxonomy
+			// claims every other registered taxonomy.
+			'isActive'    => array( 'filterType' ),
+		);
+
+		// Merge by `name` so a variation already registered upstream (block.json
+		// or a higher-priority filter) wins over our preset of the same name —
+		// `array_merge` would otherwise append duplicates and the inserter
+		// would render two cards for the same variation.
+		$variations    = (array) $variations;
+		$existing_keys = array_flip( array_column( $variations, 'name' ) );
+		foreach ( $additions as $variation ) {
+			if ( ! isset( $existing_keys[ $variation['name'] ] ) ) {
+				$variations[] = $variation;
+			}
+		}
+		return $variations;
 	}
 
 	/**
@@ -407,7 +588,7 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Walk the current post's block tree for jetpack/filter-checkbox blocks
+	 * Walk the current post's block tree for jetpack-search/filter-checkbox blocks
 	 * and build the matching filterConfigs map.
 	 *
 	 * Covers the common case where a page uses the Blog Search Page pattern
@@ -445,8 +626,11 @@ class Search_Blocks {
 	 */
 	protected static function filter_block_helpers(): array {
 		return array(
-			'jetpack/filter-checkbox' => Filter_Checkbox::class,
-			'jetpack/filter-date'     => Filter_Date::class,
+			'jetpack-search/filter-checkbox'        => Filter_Checkbox::class,
+			'jetpack-search/filter-date'            => Filter_Date::class,
+			'jetpack-search/filter-wc-rating'       => Filter_Wc_Rating::class,
+			'jetpack-search/filter-wc-attribute'    => Filter_Wc_Attribute::class,
+			'jetpack-search/filter-wc-stock-status' => Search_Product_Filter_Status::class,
 		);
 	}
 
@@ -473,6 +657,7 @@ class Search_Blocks {
 					$configs[ $key ] = $helper::build_config( $attrs, $key );
 				}
 			}
+
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 				static::walk_blocks_for_filter_configs( $block['innerBlocks'], $configs );
 			}
@@ -488,7 +673,7 @@ class Search_Blocks {
 		$is_private         = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
 		$is_wpcom           = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
 		$site_id            = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
-		$search_query       = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		$search_query       = static::parse_url_search_query();
 		$active_filters     = static::parse_url_filters();
 		$price_range        = static::parse_url_price_range();
 		$is_initial_loading = static::is_initial_loading();
@@ -496,35 +681,41 @@ class Search_Blocks {
 
 		return array(
 			// Connection / routing config.
-			'siteId'           => $site_id,
-			'apiRoot'          => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
-			'nonce'            => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
-			'isPrivateSite'    => $is_private,
-			'isWpcom'          => $is_wpcom,
-			'homeUrl'          => function_exists( 'home_url' ) ? home_url() : '',
+			'siteId'                => $site_id,
+			'apiRoot'               => function_exists( 'rest_url' ) ? esc_url_raw( rest_url() ) : '',
+			'nonce'                 => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
+			'isPrivateSite'         => $is_private,
+			'isWpcom'               => $is_wpcom,
+			'homeUrl'               => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
 			// locale (site setting) rather than the viewer's user-profile
 			// locale so formatting is consistent for logged-out visitors
 			// hitting a search page.
-			'locale'           => function_exists( 'get_locale' )
+			'locale'                => function_exists( 'get_locale' )
 				? str_replace( '_', '-', get_locale() )
 				: 'en-US',
 
 			// Search state, seeded from the URL so a deep link like
 			// /?s=boots&orderby=newest&category[]=news renders correctly on
 			// first paint.
-			'searchQuery'      => $search_query,
-			'sortOrder'        => static::parse_url_sort(),
-			'activeFilters'    => $active_filters,
-			'priceRange'       => $price_range,
+			'searchQuery'           => $search_query,
+			// URL key the JS store uses to read/write the search query. `s`
+			// on the WP search route, `q` on non-search pages — see
+			// `get_search_param_name()`. Threaded through the seed so the JS
+			// store reads from the same key the seed pulled `searchQuery`
+			// from.
+			'searchParamName'       => static::get_search_param_name(),
+			'sortOrder'             => static::parse_url_sort(),
+			'activeFilters'         => $active_filters,
+			'priceRange'            => $price_range,
 
 			// filterConfigs: each filter-checkbox block's render.php merges its
 			// own entry here. Shape: { [filterKey]: { filterKey, filterType,
 			// taxonomy, label, showCount, maxItems } }.
-			'filterConfigs'    => array(),
+			'filterConfigs'         => array(),
 
-			// Note: `staticPostTypes` (contributed by `jetpack/post-type-filter`)
+			// Note: `staticPostTypes` (contributed by `jetpack-search/filter-post-type`)
 			// is intentionally NOT seeded here. FSE block templates can render
 			// before `wp_enqueue_scripts` fires (where this seed runs), so
 			// pre-seeding the slot with `{ include: [], exclude: [] }` would
@@ -536,18 +727,24 @@ class Search_Blocks {
 			// Results + aggregations are populated by the JS store on hydration —
 			// seed empty defaults so template bindings always have a shape to read.
 			// `aggregations` is a stdClass so JS sees `{}`, not `[]`.
-			'results'          => array(),
-			'aggregations'     => (object) array(),
-			'totalResults'     => 0,
-			'pageHandle'       => null,
+			'results'               => array(),
+			'aggregations'          => (object) array(),
+			// Per-filter union of values seen across the session's aggregation
+			// responses. The JS store appends to this on each successful fetch
+			// so checkbox-filter lists can keep options visible even after a
+			// narrower query drops them from ES results.
+			'retainedFilterOptions' => (object) array(),
+			'totalResults'          => 0,
+			'pageHandle'            => null,
 
 			// UI state. `isLoading` is seeded true when the URL carries a
-			// search query or filter selection so the no-results block stays
-			// hidden between first paint and JS hydrating the initial fetch —
-			// otherwise a "No results found" flash appears on deep links.
-			'isLoading'        => $is_initial_loading,
-			'isLoadingMore'    => false,
-			'hasError'         => false,
+			// search query or filter selection so the empty-state region inside
+			// `jetpack-search/results-list` stays hidden between first paint and JS
+			// hydrating the initial fetch — otherwise a "No results found" flash
+			// appears on deep links.
+			'isLoading'             => $is_initial_loading,
+			'isLoadingMore'         => false,
+			'hasError'              => false,
 
 			// One-shot pre-hydration skeleton gate. The IA SSR pass evaluates
 			// `data-wp-bind--hidden` against literal seeded values (it can't
@@ -555,12 +752,12 @@ class Search_Blocks {
 			// boolean. JS flips it to true once `actions.search()` resolves
 			// and never resets it — subsequent re-searches keep live results
 			// on screen without re-flashing placeholders.
-			'skeletonHidden'   => false,
+			'skeletonHidden'        => false,
 
 			// Seeded so the SSR pass can resolve `data-wp-text` to a real
 			// string on first paint; `actions.search()` keeps it in lockstep
 			// with `isLoading` / `totalResults` via `computeResultsCountText`.
-			'resultsCountText' => $is_initial_loading ? $searching_text : '',
+			'resultsCountText'      => $is_initial_loading ? $searching_text : '',
 
 			// Translated view-bundle strings. The Interactivity API view bundle
 			// can't import @wordpress/i18n (only @wordpress/interactivity is
@@ -569,7 +766,7 @@ class Search_Blocks {
 			// are seeded so the client can pick based on the live totalResults
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
-			'strings'          => static::build_initial_strings(),
+			'strings'               => static::build_initial_strings(),
 		);
 	}
 
@@ -597,21 +794,39 @@ class Search_Blocks {
 		// helper is hit by every block render.php (one per filter block plus
 		// search-results, results-count, etc.) AND by `build_initial_state()`,
 		// each of which would otherwise re-parse `$_GET` independently.
-		static $cached = null;
-		if ( null !== $cached ) {
-			return $cached;
+		if ( null !== self::$is_initial_loading_cache ) {
+			return self::$is_initial_loading_cache;
 		}
-		$search_query = function_exists( 'get_search_query' ) ? (string) get_search_query() : '';
+		$search_query = static::parse_url_search_query();
 		if ( '' !== $search_query ) {
-			$cached = true;
+			self::$is_initial_loading_cache = true;
 			return true;
 		}
 		if ( ! empty( static::parse_url_filters() ) ) {
-			$cached = true;
+			self::$is_initial_loading_cache = true;
 			return true;
 		}
-		$cached = null !== static::parse_url_price_range();
-		return $cached;
+		self::$is_initial_loading_cache = null !== static::parse_url_price_range();
+		return self::$is_initial_loading_cache;
+	}
+
+	/**
+	 * Reset the `is_initial_loading()` memo. Test-only — production WP runs
+	 * a single request per process, so the memo never needs clearing there.
+	 * The PHPUnit harness reuses one process across every test method, so
+	 * without this hook a `$_GET` set by an earlier test would pin the
+	 * memoized value and silently override later tests' URL fixtures.
+	 *
+	 * Guarded so a misconfigured production caller can't accidentally drop
+	 * the cache mid-request: bail when running under WordPress (`ABSPATH`
+	 * defined) but not under PHPUnit (`PHPUNIT_COMPOSER_INSTALL` is set by
+	 * PHPUnit's composer-installed autoloader).
+	 */
+	public static function reset_initial_loading_cache(): void {
+		if ( defined( 'ABSPATH' ) && ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) ) {
+			return;
+		}
+		self::$is_initial_loading_cache = null;
 	}
 
 	/**
@@ -690,6 +905,28 @@ class Search_Blocks {
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
 			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
 		);
+	}
+
+	/**
+	 * Parse the search query from the URL, reading whichever key
+	 * `get_search_param_name()` says is active for this request (`s` on
+	 * the WP search route, `q` everywhere else). Sanitization mirrors
+	 * what WP would have done for `s` (sanitize_text_field + trim).
+	 *
+	 * Public so block render templates (e.g. `search-input/render.php`)
+	 * can seed their initial `value=` from the same source the
+	 * Interactivity store seeds `searchQuery` from.
+	 *
+	 * @return string
+	 */
+	public static function parse_url_search_query(): string {
+		$key = self::get_search_param_name();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to string + sanitize_text_field( wp_unslash( ... ) ) on the next line.
+		$raw = $_GET[ $key ] ?? '';
+		if ( ! is_scalar( $raw ) ) {
+			return '';
+		}
+		return trim( sanitize_text_field( wp_unslash( (string) $raw ) ) );
 	}
 
 	/**

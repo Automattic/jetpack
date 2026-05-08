@@ -57,21 +57,15 @@ body.jetpack_page_jetpack-activity-log {
 		}
 	}
 
-	// Visual + click-blocking half of the free-tier "overlay" approach:
-	// the effect in ActivityLog/index.tsx toggles `aria-disabled` and
-	// `tabindex="-1"` on DataViews' real `.dataviews__search` cluster
-	// (search input + filter toggle), and adds a `title` for the
-	// upgrade tooltip. This rule dims the cluster, shows a not-allowed
-	// cursor, and shuts off pointer events on the controls inside so
-	// clicks fall through to the cluster (keeping it hoverable for the
-	// browser-native title tooltip).
-	.dataviews__search[aria-disabled="true"] {
+	// Visual half of the free-tier "overlay" approach: the effect in
+	// ActivityLog/index.tsx marks DataViews' real `.dataviews__search`
+	// cluster (search input + filter toggle) `inert` and adds a `title`
+	// for the upgrade tooltip. `inert` natively blocks pointer +
+	// keyboard interaction and hides descendants from a11y, so this
+	// rule only carries the visual disabled state.
+	.dataviews__search[inert] {
 		opacity: 0.5;
 		cursor: not-allowed;
-
-		> * {
-			pointer-events: none;
-		}
 	}
 
 	// DataViews renders its own surface; don't double-pad it.

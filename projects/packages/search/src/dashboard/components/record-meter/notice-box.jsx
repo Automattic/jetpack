@@ -1,5 +1,6 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
+import { info } from '@wordpress/icons';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
 
@@ -105,7 +106,7 @@ export function NoticeBox( props ) {
 			isCompact={ false }
 			status={ 'is-info' }
 			className={ noticeBoxClassName }
-			icon={ 'info-outline' }
+			icon={ info }
 			showDismiss={ false }
 		>
 			{ notice.header && <h3 className="dops-notice__header">{ notice.header }</h3> }
