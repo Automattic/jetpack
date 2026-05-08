@@ -5,9 +5,10 @@
  * a useful starter set scoped to products (post-type scope locked to
  * `product` + stock-status + rating + price); authors can add, reorder, or
  * delete children freely. The allowedBlocks list restricts insertion to the
- * filter family — WC-specific filters first, then generic filters and the
- * active-filters pill region — so unrelated blocks (paragraph, image, …)
- * don't end up in the sidebar by accident.
+ * filter family in deliberate order — scope-setter, then the active-filters
+ * pill region, then the curated WC filters, then generic extension points —
+ * so unrelated blocks (paragraph, image, …) don't end up in the sidebar by
+ * accident.
  *
  * Children are *also* registered without an `ancestor` constraint in their
  * own block.json, so an author can drop e.g. `jetpack-search/filter-wc-stock-
