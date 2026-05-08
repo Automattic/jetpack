@@ -7,10 +7,13 @@
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 
 const STAR_VALUES = [ 5, 4, 3, 2, 1 ];
-const SAMPLE_COUNTS = { 5: 18, 4: 12, 3: 5, 2: 1, 1: 0 };
+// Cumulative "& up" counts — each row's count is the threshold-superset
+// of the rows below it, matching the runtime projection so designers see
+// the right shape in the editor.
+const SAMPLE_COUNTS = { 5: 8, 4: 22, 3: 29, 2: 31, 1: 32 };
 const DEFAULT_LABEL = __( 'Rating', 'jetpack-search-pkg' );
 
 /**
@@ -28,7 +31,6 @@ function renderStars( filled ) {
 				className={
 					'jetpack-search-filter-rating__star ' + ( i <= filled ? 'is-filled' : 'is-empty' )
 				}
-				aria-hidden="true"
 			>
 				★
 			</span>
@@ -79,15 +81,26 @@ export default function FilterWcRatingEdit( { attributes, setAttributes } ) {
 				<h3 className="jetpack-search-filter__title">{ previewLabel }</h3>
 				<ul className="jetpack-search-filter__list">
 					{ STAR_VALUES.map( star => {
-						/* translators: %d: number of stars (1-5). */
-						const aria = sprintf( _n( '%d star', '%d stars', star, 'jetpack-search-pkg' ), star );
+						const aria = sprintf(
+							/* translators: %d is the rating threshold (1-5). The row applies a "rating ≥ N stars" filter. */
+							_n( '%d star and up', '%d stars and up', star, 'jetpack-search-pkg' ),
+							star
+						);
 						return (
 							<li key={ star } className="jetpack-search-filter__item">
 								{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- the input is a direct child, implicit HTML5 association applies; rule's nesting heuristic doesn't trace through sibling spans */ }
 								<label>
 									<input type="checkbox" disabled />
 									<span className="jetpack-search-filter__label" aria-label={ aria }>
-										{ renderStars( star ) }
+										<span className="jetpack-search-filter-rating__stars" aria-hidden="true">
+											{ renderStars( star ) }
+										</span>
+										<span
+											className="jetpack-search-filter-rating__threshold-suffix"
+											aria-hidden="true"
+										>
+											{ _x( '& up', 'rating filter row, e.g. "★★★★ & up"', 'jetpack-search-pkg' ) }
+										</span>
 									</span>
 									{ showCount && (
 										<span className="jetpack-search-filter__count">
