@@ -225,7 +225,7 @@ export default function FilterWcAttributeEdit( { attributes, setAttributes } ) {
 			{ ! slug ? (
 				<div { ...blockProps }>
 					<Placeholder
-						label={ __( 'Filter by Attribute', 'jetpack-search-pkg' ) }
+						label={ __( 'Filter by Product Attribute', 'jetpack-search-pkg' ) }
 						instructions={ placeholderInstructions }
 					/>
 				</div>
