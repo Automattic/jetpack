@@ -369,9 +369,11 @@ class Customize_Feed {
 	 * @return string
 	 */
 	private static function maybe_photon( string $url ): string {
-		return function_exists( 'jetpack_photon_url' )
-			? (string) jetpack_photon_url( $url, array( 'fit' => '3000,3000' ), 'https' )
-			: $url;
+		if ( ! function_exists( 'jetpack_photon_url' ) ) {
+			return $url;
+		}
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by Jetpack's Photon module at runtime; guarded by `function_exists` above.
+		return (string) jetpack_photon_url( $url, array( 'fit' => '3000,3000' ), 'https' );
 	}
 
 	/**
