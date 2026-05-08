@@ -704,6 +704,17 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertSame( array( 'filterType', 'taxonomy' ), $variations_by_name['product_brand']['isActive'] );
 		$this->assertSame( 'awards', $variations_by_name['product_brand']['icon'] );
 
+		// Inserter cards render in the order the variations are returned, so
+		// product_brand must precede custom_taxonomy to keep the three
+		// product variations grouped together rather than splitting around
+		// Custom Taxonomy.
+		$names           = array_column( $variations, 'name' );
+		$brand_position  = array_search( 'product_brand', $names, true );
+		$custom_position = array_search( 'custom_taxonomy', $names, true );
+		$this->assertNotFalse( $brand_position );
+		$this->assertNotFalse( $custom_position );
+		$this->assertLessThan( $custom_position, $brand_position );
+
 		unregister_taxonomy( 'product_brand' );
 	}
 

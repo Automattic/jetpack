@@ -336,24 +336,6 @@ class Search_Blocks {
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
 			),
-			array(
-				'name'        => 'custom_taxonomy',
-				'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
-				'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
-				'attributes'  => array(
-					'filterType' => 'taxonomy',
-					'taxonomy'   => '',
-					'label'      => '',
-				),
-				// Match on filterType only (no taxonomy comparison) so the
-				// variation identity survives once the author picks a slug
-				// via the inspector. Category, Tag, and the product taxonomy
-				// variations all pin `taxonomy` in their isActive arrays, so
-				// WP's most-specific-match resolution still routes those
-				// slugs to their dedicated variations — Custom Taxonomy
-				// claims every other registered taxonomy.
-				'isActive'    => array( 'filterType' ),
-			),
 		);
 
 		// `product_brand` isn't a core WooCommerce taxonomy — it's added by
@@ -362,6 +344,8 @@ class Search_Blocks {
 		// Product Brand" in the inserter on sites without it, where the block
 		// renders no buckets and the failure is silent. Gate on the taxonomy's
 		// presence so authors only see the option when it can actually work.
+		// Inserted before `custom_taxonomy` below so the three product
+		// variations stay grouped in the inserter when the gate fires.
 		if ( taxonomy_exists( 'product_brand' ) ) {
 			$additions[] = array(
 				'name'        => 'product_brand',
@@ -376,6 +360,25 @@ class Search_Blocks {
 				'isActive'    => array( 'filterType', 'taxonomy' ),
 			);
 		}
+
+		$additions[] = array(
+			'name'        => 'custom_taxonomy',
+			'title'       => __( 'Filter by Custom Taxonomy', 'jetpack-search-pkg' ),
+			'description' => __( 'Show checkboxes for a custom taxonomy. Pick which taxonomy in the block settings after inserting.', 'jetpack-search-pkg' ),
+			'attributes'  => array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => '',
+				'label'      => '',
+			),
+			// Match on filterType only (no taxonomy comparison) so the
+			// variation identity survives once the author picks a slug
+			// via the inspector. Category, Tag, and the product taxonomy
+			// variations all pin `taxonomy` in their isActive arrays, so
+			// WP's most-specific-match resolution still routes those
+			// slugs to their dedicated variations — Custom Taxonomy
+			// claims every other registered taxonomy.
+			'isActive'    => array( 'filterType' ),
+		);
 
 		// Merge by `name` so a variation already registered upstream (block.json
 		// or a higher-priority filter) wins over our preset of the same name —
