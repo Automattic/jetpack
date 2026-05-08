@@ -433,6 +433,7 @@ class Blaze_Abilities_Test extends BaseTestCase {
 		);
 
 		$this->assertIsArray( $result );
+		$this->assertSame( array( 'status', 'message' ), array_slice( array_keys( $result ), 0, 2 ) );
 		$this->assertSame( 'pending_merchant_review', $result['status'] );
 		$this->assertNotEmpty( $result['prefill_url'] );
 		$this->assertStringContainsString( 'blaze_prefill=', $result['prefill_url'] );
