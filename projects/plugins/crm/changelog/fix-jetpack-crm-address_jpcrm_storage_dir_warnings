@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Storage: Prevent PHP errors when storage dir is not writable.
