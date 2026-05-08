@@ -1,4 +1,4 @@
-# Automattic Charts
+# Automattic Charts Library
 
 A comprehensive charting library for displaying interactive data visualizations within Automattic products. Built on top of modern libraries like `@visx/xychart` and designed for accessibility, responsiveness, and ease of use.
 
