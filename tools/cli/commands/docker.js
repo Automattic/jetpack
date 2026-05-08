@@ -98,6 +98,12 @@ const defaultOpts = yargs =>
 			describe:
 				'Auto-clone the database from jetpack_dev when spinning up a parallel instance with --name. Use --no-clone to opt out and get a fresh install instead.',
 		} )
+		.option( 'update-env', {
+			type: 'boolean',
+			default: false,
+			describe:
+				"When `up` flag values conflict with the worktree's tools/docker/.env, rewrite the conflicting keys in .env to match the flags. Without this, the flag wins for the current run and a warning is printed; .env is left untouched.",
+		} )
 		.option( 'ngrok', {
 			type: 'boolean',
 			describe: 'Flag to launch ngrok process',
@@ -161,6 +167,180 @@ export const buildEnv = argv => {
  */
 const setEnv = () => {
 	fs.closeSync( fs.openSync( `${ dockerFolder }/.env`, 'a' ) );
+};
+
+/**
+ * Keys the CLI manages in tools/docker/.env when spinning up a parallel instance.
+ * The CLI reads them as a base layer (flags still override) and may append the missing
+ * ones on `up --name <slug>`. Lines outside this set are never modified.
+ */
+export const PARALLEL_ENV_KEYS = [
+	'COMPOSE_PROJECT_NAME',
+	'PORT_WORDPRESS',
+	'PORT_PHPMY',
+	'PORT_INBOX',
+	'PORT_SMTP',
+	'PORT_SFTP',
+];
+
+const parallelEnvPath = () => `${ dockerFolder }/.env`;
+
+/**
+ * Read and parse the worktree's tools/docker/.env file.
+ *
+ * @param {string} [filePath] - Override path (mostly for tests).
+ * @return {object} Parsed key→value map. Empty object when the file is missing.
+ */
+export const readEnvFile = ( filePath = parallelEnvPath() ) => {
+	if ( ! fs.existsSync( filePath ) ) {
+		return {};
+	}
+	return envfile.parse( fs.readFileSync( filePath, 'utf8' ) );
+};
+
+/**
+ * Snapshot the parallel-instance argv values that came from CLI flags, so a later
+ * conflict check can distinguish flag-given values from .env-fill-in values.
+ *
+ * @param {object} argv - Yargs argv (post coerce, pre-augment).
+ * @return {object} Plain snapshot of parallel-relevant flag values.
+ */
+export const snapshotFlagArgv = argv => ( {
+	name: argv.name,
+	port: argv.port,
+	portPhpmy: argv.portPhpmy,
+	portInbox: argv.portInbox,
+	portSmtp: argv.portSmtp,
+	portSftp: argv.portSftp,
+} );
+
+/**
+ * Fill in argv defaults from the parsed .env file, but only for fields the user
+ * did not pass via flags. This lets a worktree configured by a previous
+ * `up --name foo --port 8080` "just work" with bare `jp docker up` afterwards.
+ *
+ * COMPOSE_PROJECT_NAME → argv.name only when it parses as `jetpack_<x>` and
+ * <x> is neither 'dev' nor 'e2e' — guards against the main checkout's .env
+ * silently redirecting the dev container.
+ *
+ * @param {object} argv    - Yargs argv (mutated in place).
+ * @param {object} fileEnv - Parsed .env contents (use readEnvFile()).
+ */
+export const augmentArgvFromEnvFile = ( argv, fileEnv ) => {
+	if ( ! argv.name && typeof fileEnv.COMPOSE_PROJECT_NAME === 'string' ) {
+		const match = fileEnv.COMPOSE_PROJECT_NAME.match( /^jetpack_(.+)$/ );
+		if ( match && match[ 1 ] !== 'dev' && match[ 1 ] !== 'e2e' ) {
+			argv.name = match[ 1 ];
+		}
+	}
+	if ( argv.port === undefined && fileEnv.PORT_WORDPRESS ) {
+		argv.port = Number( fileEnv.PORT_WORDPRESS );
+	}
+	if ( argv.portPhpmy === undefined && fileEnv.PORT_PHPMY ) {
+		argv.portPhpmy = Number( fileEnv.PORT_PHPMY );
+	}
+	if ( argv.portInbox === undefined && fileEnv.PORT_INBOX ) {
+		argv.portInbox = Number( fileEnv.PORT_INBOX );
+	}
+	if ( argv.portSmtp === undefined && fileEnv.PORT_SMTP ) {
+		argv.portSmtp = Number( fileEnv.PORT_SMTP );
+	}
+	if ( argv.portSftp === undefined && fileEnv.PORT_SFTP ) {
+		argv.portSftp = Number( fileEnv.PORT_SFTP );
+	}
+};
+
+/**
+ * Identify keys where the user passed a flag value that contradicts an existing
+ * .env entry. The flag wins for the current invocation; .env is left untouched
+ * unless --update-env was passed.
+ *
+ * @param {object} flagArgv - Snapshot of pre-augment flag values (from snapshotFlagArgv).
+ * @param {object} fileEnv  - Parsed .env contents.
+ * @return {Array<{key: string, fileValue: string, flagValue: string}>} Conflicting keys.
+ */
+export const detectEnvConflicts = ( flagArgv, fileEnv ) => {
+	const conflicts = [];
+	const check = ( key, flagValue ) => {
+		if ( flagValue === undefined || flagValue === null || flagValue === '' ) return;
+		const fileValue = fileEnv[ key ];
+		if ( fileValue === undefined ) return;
+		if ( String( fileValue ) !== String( flagValue ) ) {
+			conflicts.push( {
+				key,
+				fileValue: String( fileValue ),
+				flagValue: String( flagValue ),
+			} );
+		}
+	};
+	if ( flagArgv.name !== undefined ) {
+		check( 'COMPOSE_PROJECT_NAME', `jetpack_${ flagArgv.name }` );
+	}
+	check( 'PORT_WORDPRESS', flagArgv.port );
+	check( 'PORT_PHPMY', flagArgv.portPhpmy );
+	check( 'PORT_INBOX', flagArgv.portInbox );
+	check( 'PORT_SMTP', flagArgv.portSmtp );
+	check( 'PORT_SFTP', flagArgv.portSftp );
+	return conflicts;
+};
+
+/**
+ * Append the parallel-instance keys to .env when they are not already there.
+ * Strategy B: never modify lines that already exist; only append the keys we own
+ * that are missing. Idempotent — safe to run on every `up`.
+ *
+ * @param {object} envOpts    - Built env (from buildEnv) — provides the values to write.
+ * @param {string} [filePath] - Target .env path (mostly for tests).
+ * @return {string[]} Keys that were written. Empty when no-op.
+ */
+export const persistParallelEnv = ( envOpts, filePath = parallelEnvPath() ) => {
+	const existing = fs.existsSync( filePath )
+		? envfile.parse( fs.readFileSync( filePath, 'utf8' ) )
+		: {};
+	const toWrite = [];
+	for ( const key of PARALLEL_ENV_KEYS ) {
+		if ( envOpts[ key ] === undefined || envOpts[ key ] === '' ) continue;
+		if ( existing[ key ] !== undefined ) continue;
+		toWrite.push( key );
+	}
+	if ( toWrite.length === 0 ) return [];
+	const header =
+		"\n# Parallel-instance config (managed by `jp docker up --name`). Edit by hand at any\n# time; the CLI only appends keys that don't already exist.\n";
+	const block = toWrite.map( key => `${ key }=${ envOpts[ key ] }` ).join( '\n' ) + '\n';
+	fs.appendFileSync( filePath, header + block );
+	return toWrite;
+};
+
+/**
+ * Replace specific keys in .env in place, preserving every other line verbatim.
+ * Used by --update-env to reconcile flags with the persisted file.
+ *
+ * @param {string}                                  filePath  - Target .env path.
+ * @param {Array<{key: string, flagValue: string}>} conflicts - Conflicts from detectEnvConflicts.
+ * @return {string[]} Keys that were updated.
+ */
+export const applyUpdateEnv = ( filePath, conflicts ) => {
+	if ( conflicts.length === 0 ) return [];
+	const text = fs.existsSync( filePath ) ? fs.readFileSync( filePath, 'utf8' ) : '';
+	const lines = text.split( /\r?\n/ );
+	const updated = [];
+	for ( const { key, flagValue } of conflicts ) {
+		let replaced = false;
+		for ( let i = 0; i < lines.length; i++ ) {
+			const m = lines[ i ].match( /^(\s*)([A-Za-z_][A-Za-z0-9_]*)\s*=/ );
+			if ( m && m[ 2 ] === key ) {
+				lines[ i ] = `${ m[ 1 ] }${ key }=${ flagValue }`;
+				replaced = true;
+				break;
+			}
+		}
+		if ( ! replaced ) {
+			lines.push( `${ key }=${ flagValue }` );
+		}
+		updated.push( key );
+	}
+	fs.writeFileSync( filePath, lines.join( '\n' ) );
+	return updated;
 };
 
 /**
@@ -626,6 +806,33 @@ async function retry( action, { times, delay = 5000 } ) {
 const defaultDockerCmdHandler = async argv => {
 	printPreCmdMsg( argv );
 
+	// Hybrid .env handling for `up`: read .env as a base layer (flags still win),
+	// surface conflicts as warnings (or rewrite when --update-env is set), and persist
+	// parallel-instance keys after a successful `up --name`. See tools/docker/README.md
+	// § "Parallel development environments" for the full precedence + semantics.
+	if ( argv._[ 1 ] === 'up' ) {
+		const flagSnapshot = snapshotFlagArgv( argv );
+		const fileEnv = readEnvFile();
+		augmentArgvFromEnvFile( argv, fileEnv );
+		const conflicts = detectEnvConflicts( flagSnapshot, fileEnv );
+		if ( conflicts.length ) {
+			if ( argv.updateEnv ) {
+				const updated = applyUpdateEnv( parallelEnvPath(), conflicts );
+				console.log(
+					chalk.cyan( `Updated tools/docker/.env keys to match flags: ${ updated.join( ', ' ) }.` )
+				);
+			} else {
+				for ( const c of conflicts ) {
+					console.warn(
+						chalk.yellow(
+							`⚠ ${ c.key }: flag value '${ c.flagValue }' differs from .env value '${ c.fileValue }'. Using flag for this run; pass --update-env to persist, or drop the flag to use .env.`
+						)
+					);
+				}
+			}
+		}
+	}
+
 	executor( argv, setEnv );
 	executor( argv, setConfig );
 
@@ -690,6 +897,23 @@ const defaultDockerCmdHandler = async argv => {
 			}
 		}
 	}
+
+	// Persist parallel-instance config to .env on `up --name`. Idempotent: only appends
+	// keys that aren't already in the file (Strategy B). Skipped for the primary
+	// `jetpack_dev` flow (no --name) so the main checkout's .env is never written to.
+	if ( argv._[ 1 ] === 'up' && argv.name ) {
+		const written = persistParallelEnv( envOpts );
+		if ( written.length ) {
+			console.log(
+				chalk.cyan(
+					`Persisted to tools/docker/.env: ${ written.join(
+						', '
+					) }. Subsequent \`jp docker up\` from this worktree will use these values.`
+				)
+			);
+		}
+	}
+
 	printPostCmdMsg( argv );
 };
 

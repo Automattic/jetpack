@@ -3,12 +3,13 @@ import { Readable, Writable } from 'stream';
 import { jest } from '@jest/globals';
 
 const fsStub = {
-	readFileSync: () => '',
-	writeFileSync: () => {},
-	existsSync: () => false,
-	mkdirSync: () => {},
-	closeSync: () => {},
-	openSync: () => 0,
+	readFileSync: jest.fn( () => '' ),
+	writeFileSync: jest.fn(),
+	appendFileSync: jest.fn(),
+	existsSync: jest.fn( () => false ),
+	mkdirSync: jest.fn(),
+	closeSync: jest.fn(),
+	openSync: jest.fn( () => 0 ),
 };
 jest.unstable_mockModule( 'fs', () => ( {
 	default: fsStub,
@@ -24,8 +25,20 @@ jest.unstable_mockModule( 'child_process', () => ( {
 	...cpStub,
 } ) );
 
-const { getProjectName, buildEnv, resolveDevCloneSource, normalizeProjectShortName, pipeDbDump } =
-	await import( '../../../commands/docker.js' );
+const {
+	getProjectName,
+	buildEnv,
+	resolveDevCloneSource,
+	normalizeProjectShortName,
+	pipeDbDump,
+	readEnvFile,
+	snapshotFlagArgv,
+	augmentArgvFromEnvFile,
+	detectEnvConflicts,
+	persistParallelEnv,
+	applyUpdateEnv,
+	PARALLEL_ENV_KEYS,
+} = await import( '../../../commands/docker.js' );
 
 /**
  * Build a minimum-viable mock child_process. Emits `exit` (and `close`) on the next tick
@@ -61,6 +74,12 @@ const makeMockProc = ( { exitCode = 0, stdoutData = '', error = null } = {} ) =>
 };
 
 beforeEach( () => {
+	fsStub.readFileSync.mockReset();
+	fsStub.writeFileSync.mockReset();
+	fsStub.appendFileSync.mockReset();
+	fsStub.existsSync.mockReset();
+	fsStub.readFileSync.mockReturnValue( '' );
+	fsStub.existsSync.mockReturnValue( false );
 	cpStub.spawn.mockReset();
 	cpStub.spawnSync.mockReset();
 	cpStub.spawnSync.mockReturnValue( { status: 0, stdout: '', stderr: '' } );
@@ -202,6 +221,328 @@ describe( 'normalizeProjectShortName', () => {
 		expect( () => normalizeProjectShortName( '_leading-underscore' ) ).toThrow(
 			/Invalid project name/
 		);
+	} );
+} );
+
+describe( 'PARALLEL_ENV_KEYS', () => {
+	test( 'covers the full parallel-instance key set', () => {
+		expect( PARALLEL_ENV_KEYS ).toEqual( [
+			'COMPOSE_PROJECT_NAME',
+			'PORT_WORDPRESS',
+			'PORT_PHPMY',
+			'PORT_INBOX',
+			'PORT_SMTP',
+			'PORT_SFTP',
+		] );
+	} );
+} );
+
+describe( 'readEnvFile', () => {
+	test( 'returns {} when the file does not exist', () => {
+		fsStub.existsSync.mockReturnValue( false );
+		expect( readEnvFile( '/tmp/missing.env' ) ).toEqual( {} );
+	} );
+
+	test( 'parses key=value pairs from the file', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue(
+			'COMPOSE_PROJECT_NAME=jetpack_foo\nPORT_WORDPRESS=8080\n'
+		);
+		expect( readEnvFile( '/tmp/.env' ) ).toEqual( {
+			COMPOSE_PROJECT_NAME: 'jetpack_foo',
+			PORT_WORDPRESS: '8080',
+		} );
+	} );
+
+	test( 'tolerates blank lines and comments', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue(
+			'# A comment\n\nWP_ADMIN_USER=cg\n# another\nPORT_INBOX=1180\n'
+		);
+		const parsed = readEnvFile( '/tmp/.env' );
+		expect( parsed.WP_ADMIN_USER ).toBe( 'cg' );
+		expect( parsed.PORT_INBOX ).toBe( '1180' );
+	} );
+} );
+
+describe( 'snapshotFlagArgv', () => {
+	test( 'extracts only parallel-instance flag fields', () => {
+		const argv = {
+			name: 'foo',
+			port: 8080,
+			portPhpmy: 8281,
+			portInbox: 1180,
+			portSmtp: 2525,
+			portSftp: 1122,
+			type: 'dev',
+			updateEnv: true,
+		};
+		expect( snapshotFlagArgv( argv ) ).toEqual( {
+			name: 'foo',
+			port: 8080,
+			portPhpmy: 8281,
+			portInbox: 1180,
+			portSmtp: 2525,
+			portSftp: 1122,
+		} );
+	} );
+
+	test( 'snapshot does not change when the source argv is mutated later', () => {
+		const argv = { name: undefined, port: undefined };
+		const snap = snapshotFlagArgv( argv );
+		argv.name = 'augmented';
+		argv.port = 8090;
+		expect( snap.name ).toBeUndefined();
+		expect( snap.port ).toBeUndefined();
+	} );
+} );
+
+describe( 'augmentArgvFromEnvFile', () => {
+	test( 'leaves argv alone when fileEnv is empty', () => {
+		const argv = { type: 'dev' };
+		augmentArgvFromEnvFile( argv, {} );
+		expect( argv ).toEqual( { type: 'dev' } );
+	} );
+
+	test( 'fills argv.port from PORT_WORDPRESS when --port not passed', () => {
+		const argv = { type: 'dev' };
+		augmentArgvFromEnvFile( argv, { PORT_WORDPRESS: '8080' } );
+		expect( argv.port ).toBe( 8080 );
+	} );
+
+	test( 'does NOT overwrite argv.port when --port was passed', () => {
+		const argv = { type: 'dev', port: 8090 };
+		augmentArgvFromEnvFile( argv, { PORT_WORDPRESS: '8080' } );
+		expect( argv.port ).toBe( 8090 );
+	} );
+
+	test( 'infers argv.name from COMPOSE_PROJECT_NAME=jetpack_foo', () => {
+		const argv = { type: 'dev' };
+		augmentArgvFromEnvFile( argv, { COMPOSE_PROJECT_NAME: 'jetpack_foo' } );
+		expect( argv.name ).toBe( 'foo' );
+	} );
+
+	test( 'does NOT infer argv.name from COMPOSE_PROJECT_NAME=jetpack_dev', () => {
+		const argv = { type: 'dev' };
+		augmentArgvFromEnvFile( argv, { COMPOSE_PROJECT_NAME: 'jetpack_dev' } );
+		expect( argv.name ).toBeUndefined();
+	} );
+
+	test( 'does NOT infer argv.name from COMPOSE_PROJECT_NAME=jetpack_e2e', () => {
+		const argv = { type: 'e2e' };
+		augmentArgvFromEnvFile( argv, { COMPOSE_PROJECT_NAME: 'jetpack_e2e' } );
+		expect( argv.name ).toBeUndefined();
+	} );
+
+	test( 'ignores malformed COMPOSE_PROJECT_NAME values', () => {
+		const argv = { type: 'dev' };
+		augmentArgvFromEnvFile( argv, { COMPOSE_PROJECT_NAME: 'something_else' } );
+		expect( argv.name ).toBeUndefined();
+	} );
+
+	test( 'fills all five auxiliary ports when corresponding flag is undefined', () => {
+		const argv = { type: 'dev' };
+		augmentArgvFromEnvFile( argv, {
+			PORT_PHPMY: '8281',
+			PORT_INBOX: '1180',
+			PORT_SMTP: '2525',
+			PORT_SFTP: '1122',
+		} );
+		expect( argv.portPhpmy ).toBe( 8281 );
+		expect( argv.portInbox ).toBe( 1180 );
+		expect( argv.portSmtp ).toBe( 2525 );
+		expect( argv.portSftp ).toBe( 1122 );
+	} );
+
+	test( 'flags-set fields take precedence per-key, .env fills in the rest', () => {
+		const argv = { type: 'dev', port: 9999 };
+		augmentArgvFromEnvFile( argv, { PORT_WORDPRESS: '8080', PORT_PHPMY: '8281' } );
+		expect( argv.port ).toBe( 9999 );
+		expect( argv.portPhpmy ).toBe( 8281 );
+	} );
+} );
+
+describe( 'detectEnvConflicts', () => {
+	test( 'returns [] when fileEnv is empty', () => {
+		expect( detectEnvConflicts( { name: 'foo', port: 8080 }, {} ) ).toEqual( [] );
+	} );
+
+	test( 'returns [] when flag and .env values agree', () => {
+		expect(
+			detectEnvConflicts(
+				{ name: 'foo', port: 8080 },
+				{ COMPOSE_PROJECT_NAME: 'jetpack_foo', PORT_WORDPRESS: '8080' }
+			)
+		).toEqual( [] );
+	} );
+
+	test( 'flags PORT_WORDPRESS conflict', () => {
+		expect( detectEnvConflicts( { port: 8090 }, { PORT_WORDPRESS: '8080' } ) ).toEqual( [
+			{ key: 'PORT_WORDPRESS', fileValue: '8080', flagValue: '8090' },
+		] );
+	} );
+
+	test( 'flags COMPOSE_PROJECT_NAME conflict', () => {
+		expect(
+			detectEnvConflicts( { name: 'bar' }, { COMPOSE_PROJECT_NAME: 'jetpack_foo' } )
+		).toEqual( [
+			{ key: 'COMPOSE_PROJECT_NAME', fileValue: 'jetpack_foo', flagValue: 'jetpack_bar' },
+		] );
+	} );
+
+	test( 'aggregates multiple conflicts', () => {
+		const conflicts = detectEnvConflicts(
+			{ name: 'bar', port: 8090, portInbox: 1280 },
+			{
+				COMPOSE_PROJECT_NAME: 'jetpack_foo',
+				PORT_WORDPRESS: '8080',
+				PORT_INBOX: '1280', // matches — should not appear
+			}
+		);
+		expect( conflicts ).toHaveLength( 2 );
+		expect( conflicts.map( c => c.key ) ).toEqual( [ 'COMPOSE_PROJECT_NAME', 'PORT_WORDPRESS' ] );
+	} );
+
+	test( 'does not flag a conflict when only .env has a value (no flag passed)', () => {
+		expect( detectEnvConflicts( {}, { PORT_WORDPRESS: '8080' } ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'persistParallelEnv', () => {
+	test( 'no-op when no parallel keys are present in envOpts', () => {
+		const written = persistParallelEnv( {}, '/tmp/.env' );
+		expect( written ).toEqual( [] );
+		expect( fsStub.appendFileSync ).not.toHaveBeenCalled();
+	} );
+
+	test( 'writes all six keys when .env is empty', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue( '' );
+		const envOpts = {
+			COMPOSE_PROJECT_NAME: 'jetpack_foo',
+			PORT_WORDPRESS: 8080,
+			PORT_PHPMY: 8281,
+			PORT_INBOX: 1180,
+			PORT_SMTP: 2525,
+			PORT_SFTP: 1122,
+		};
+		const written = persistParallelEnv( envOpts, '/tmp/.env' );
+		expect( written ).toEqual( PARALLEL_ENV_KEYS );
+		expect( fsStub.appendFileSync ).toHaveBeenCalledTimes( 1 );
+		const [ path, content ] = fsStub.appendFileSync.mock.calls[ 0 ];
+		expect( path ).toBe( '/tmp/.env' );
+		for ( const key of PARALLEL_ENV_KEYS ) {
+			expect( content ).toContain( `${ key }=${ envOpts[ key ] }` );
+		}
+	} );
+
+	test( 'skips keys already present in .env (Strategy B)', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue(
+			'WP_ADMIN_USER=cg\nPORT_WORDPRESS=8080\nCOMPOSE_PROJECT_NAME=jetpack_foo\n'
+		);
+		const envOpts = {
+			COMPOSE_PROJECT_NAME: 'jetpack_foo',
+			PORT_WORDPRESS: 8080,
+			PORT_PHPMY: 8281,
+			PORT_INBOX: 1180,
+		};
+		const written = persistParallelEnv( envOpts, '/tmp/.env' );
+		expect( written ).toEqual( [ 'PORT_PHPMY', 'PORT_INBOX' ] );
+		const [ , content ] = fsStub.appendFileSync.mock.calls[ 0 ];
+		expect( content ).toContain( 'PORT_PHPMY=8281' );
+		expect( content ).toContain( 'PORT_INBOX=1180' );
+		expect( content ).not.toContain( 'PORT_WORDPRESS=' );
+		expect( content ).not.toContain( 'COMPOSE_PROJECT_NAME=' );
+	} );
+
+	test( 'fully no-op when every parallel key is already in .env', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue(
+			[
+				'COMPOSE_PROJECT_NAME=jetpack_foo',
+				'PORT_WORDPRESS=8080',
+				'PORT_PHPMY=8281',
+				'PORT_INBOX=1180',
+				'PORT_SMTP=2525',
+				'PORT_SFTP=1122',
+			].join( '\n' )
+		);
+		const written = persistParallelEnv(
+			{
+				COMPOSE_PROJECT_NAME: 'jetpack_foo',
+				PORT_WORDPRESS: 8080,
+				PORT_PHPMY: 8281,
+				PORT_INBOX: 1180,
+				PORT_SMTP: 2525,
+				PORT_SFTP: 1122,
+			},
+			'/tmp/.env'
+		);
+		expect( written ).toEqual( [] );
+		expect( fsStub.appendFileSync ).not.toHaveBeenCalled();
+	} );
+
+	test( 'never modifies non-parallel keys', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue( 'WP_ADMIN_USER=cg\nWP_ADMIN_PASSWORD=secret\n' );
+		persistParallelEnv(
+			{ COMPOSE_PROJECT_NAME: 'jetpack_foo', PORT_WORDPRESS: 8080 },
+			'/tmp/.env'
+		);
+		expect( fsStub.writeFileSync ).not.toHaveBeenCalled();
+		const [ , content ] = fsStub.appendFileSync.mock.calls[ 0 ];
+		expect( content ).not.toContain( 'WP_ADMIN_USER' );
+		expect( content ).not.toContain( 'WP_ADMIN_PASSWORD' );
+	} );
+} );
+
+describe( 'applyUpdateEnv', () => {
+	test( 'no-op when conflicts is empty', () => {
+		const updated = applyUpdateEnv( '/tmp/.env', [] );
+		expect( updated ).toEqual( [] );
+		expect( fsStub.writeFileSync ).not.toHaveBeenCalled();
+	} );
+
+	test( 'replaces a single conflicting line, leaves rest verbatim', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue(
+			'WP_ADMIN_USER=cg\nPORT_WORDPRESS=8080\nWP_DOMAIN=localhost\n'
+		);
+		applyUpdateEnv( '/tmp/.env', [
+			{ key: 'PORT_WORDPRESS', fileValue: '8080', flagValue: '8090' },
+		] );
+		const [ , content ] = fsStub.writeFileSync.mock.calls[ 0 ];
+		expect( content ).toContain( 'WP_ADMIN_USER=cg' );
+		expect( content ).toContain( 'PORT_WORDPRESS=8090' );
+		expect( content ).not.toContain( 'PORT_WORDPRESS=8080' );
+		expect( content ).toContain( 'WP_DOMAIN=localhost' );
+	} );
+
+	test( 'replaces multiple conflicts in one pass', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue(
+			'COMPOSE_PROJECT_NAME=jetpack_foo\nPORT_WORDPRESS=8080\nPORT_PHPMY=8281\n'
+		);
+		const updated = applyUpdateEnv( '/tmp/.env', [
+			{ key: 'COMPOSE_PROJECT_NAME', fileValue: 'jetpack_foo', flagValue: 'jetpack_bar' },
+			{ key: 'PORT_PHPMY', fileValue: '8281', flagValue: '8381' },
+		] );
+		expect( updated ).toEqual( [ 'COMPOSE_PROJECT_NAME', 'PORT_PHPMY' ] );
+		const [ , content ] = fsStub.writeFileSync.mock.calls[ 0 ];
+		expect( content ).toContain( 'COMPOSE_PROJECT_NAME=jetpack_bar' );
+		expect( content ).toContain( 'PORT_PHPMY=8381' );
+		expect( content ).toContain( 'PORT_WORDPRESS=8080' );
+	} );
+
+	test( 'preserves indentation when present', () => {
+		fsStub.existsSync.mockReturnValue( true );
+		fsStub.readFileSync.mockReturnValue( '  PORT_WORDPRESS=8080\n' );
+		applyUpdateEnv( '/tmp/.env', [
+			{ key: 'PORT_WORDPRESS', fileValue: '8080', flagValue: '8090' },
+		] );
+		const [ , content ] = fsStub.writeFileSync.mock.calls[ 0 ];
+		expect( content ).toContain( '  PORT_WORDPRESS=8090' );
 	} );
 } );
 
