@@ -16,19 +16,6 @@ namespace Automattic\Jetpack\Podcast\Feed;
  */
 class Stats_Url {
 
-	const REST_NAMESPACE          = 'wpcom/v2';
-	const REST_BASE               = 'podcast-play';
-	const DEFAULT_AUDIO_EXTENSION = 'mp3';
-
-	/**
-	 * Audio extensions WPCOM's redirect endpoint recognizes. URLs with anything
-	 * else fall back to `DEFAULT_AUDIO_EXTENSION` so the URL shape stays uniform —
-	 * matches the convention used by Podtrac, Art19, Megaphone, etc.
-	 *
-	 * @var string[]
-	 */
-	const KNOWN_AUDIO_EXTENSIONS = array( 'mp3', 'm4a', 'm4b', 'mp4', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac' );
-
 	/**
 	 * Build the public-api stats URL for a given episode.
 	 *
@@ -39,12 +26,10 @@ class Stats_Url {
 	 * @param string $ext     Audio file extension; normalized to a known value or `mp3`.
 	 * @return string
 	 */
-	public static function generate_url( int $blog_id, int $post_id, string $ext = self::DEFAULT_AUDIO_EXTENSION ): string {
+	public static function generate_url( int $blog_id, int $post_id, string $ext = 'mp3' ): string {
 		return sprintf(
-			'https://public-api.wordpress.com/%s/sites/%d/%s/%d.%s',
-			self::REST_NAMESPACE,
+			'https://public-api.wordpress.com/wpcom/v2/sites/%d/podcast-play/%d.%s',
 			$blog_id,
-			self::REST_BASE,
 			$post_id,
 			self::normalize_extension( $ext )
 		);
@@ -63,14 +48,17 @@ class Stats_Url {
 	}
 
 	/**
-	 * Lowercase, strip non-alphanumerics, fall back to `DEFAULT_AUDIO_EXTENSION`
-	 * if the result isn't in `KNOWN_AUDIO_EXTENSIONS`.
+	 * Lowercase, strip non-alphanumerics, fall back to `mp3` if unknown.
+	 * Matches the convention used by Podtrac, Art19, Megaphone — keeps the
+	 * URL shape uniform regardless of the source filename.
 	 *
 	 * @param string $ext Raw extension.
 	 * @return string
 	 */
 	private static function normalize_extension( string $ext ): string {
 		$ext = (string) preg_replace( '/[^a-z0-9]/', '', strtolower( $ext ) );
-		return in_array( $ext, self::KNOWN_AUDIO_EXTENSIONS, true ) ? $ext : self::DEFAULT_AUDIO_EXTENSION;
+		return in_array( $ext, array( 'mp3', 'm4a', 'm4b', 'mp4', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac' ), true )
+			? $ext
+			: 'mp3';
 	}
 }
