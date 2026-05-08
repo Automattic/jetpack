@@ -93,7 +93,7 @@ export const libraryFields: Field< MockLibraryItem >[] = [
 			{ value: 'videopress', label: 'VideoPress' },
 			{ value: 'local', label: __( 'Local', 'jetpack-videopress-pkg' ) },
 		],
-		filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
+		filterBy: { operators: [ 'is' ] as Operator[] },
 		enableSorting: false,
 	},
 	{
