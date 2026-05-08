@@ -1,8 +1,8 @@
-import { ClipboardButton } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { copy } from '@wordpress/icons';
+import { Button, Card, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
 import type { MockLibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -16,20 +16,45 @@ const dateSettings = getDateSettings();
 const linkForVideo = ( video: MockLibraryItem ): string => `https://videopress.com/v/${ video.id }`;
 
 /**
+ * Icon-only button that copies its `text` prop to the clipboard. Renders the
+ * Gutenberg `copy` icon and surfaces a transient "Copied" tooltip via its
+ * accessible label, with no inline state in the parent.
+ *
+ * @param props      - Component props.
+ * @param props.text - The string to write to the clipboard on click.
+ * @return The icon-button element.
+ */
+const CopyIconButton = ( { text }: { text: string } ): ReactElement => {
+	const [ copied, setCopied ] = useState( false );
+	const onClick = async () => {
+		await navigator.clipboard.writeText( text );
+		setCopied( true );
+		window.setTimeout( () => setCopied( false ), 2000 );
+	};
+	return (
+		<IconButton
+			label={
+				copied ? __( 'Copied', 'jetpack-videopress-pkg' ) : __( 'Copy', 'jetpack-videopress-pkg' )
+			}
+			icon={ copy }
+			variant="minimal"
+			onClick={ onClick }
+		/>
+	);
+};
+
+/**
  * Top-of-page card on the Video details screen. Renders the thumbnail,
- * the primary "Add video to new post" action, two read-only copy fields
- * (Link to video, Shortcode), and two readonly metadata rows (Filename,
- * Uploaded on).
+ * the "Add video to new post" outlined action, two read-only copy fields
+ * (Link to video, Shortcode) using InputControl + IconButton suffix, and
+ * two metadata rows (File name, Uploaded on).
  *
  * @param props                - Component props.
  * @param props.video          - The current video record.
- * @param props.onAddToNewPost - Click handler for the primary action.
+ * @param props.onAddToNewPost - Click handler for the secondary action.
  * @return The card element.
  */
 export default function ThumbnailCard( { video, onAddToNewPost }: Props ): ReactElement {
-	const [ linkCopied, setLinkCopied ] = useState( false );
-	const [ shortcodeCopied, setShortcodeCopied ] = useState( false );
-
 	const link = linkForVideo( video );
 
 	return (
@@ -46,51 +71,39 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 						/>
 					) }
 					<Stack direction="column" gap="md" className="vp-video-details__thumbnail-meta">
-						<Button variant="primary" onClick={ onAddToNewPost }>
+						<Button
+							variant="outline"
+							onClick={ onAddToNewPost }
+							className="vp-video-details__primary-action"
+						>
 							{ __( 'Add video to new post', 'jetpack-videopress-pkg' ) }
 						</Button>
 
-						<Stack direction="column" gap="xs">
-							<Text variant="caption">{ __( 'Link to video', 'jetpack-videopress-pkg' ) }</Text>
-							<Stack direction="row" gap="sm" align="center">
-								<Text>{ link }</Text>
-								<ClipboardButton
-									text={ link }
-									onCopy={ () => setLinkCopied( true ) }
-									onFinishCopy={ () => setLinkCopied( false ) }
-								>
-									{ linkCopied
-										? __( 'Copied', 'jetpack-videopress-pkg' )
-										: __( 'Copy', 'jetpack-videopress-pkg' ) }
-								</ClipboardButton>
-							</Stack>
-						</Stack>
+						<InputControl
+							label={ __( 'Link to video', 'jetpack-videopress-pkg' ) }
+							value={ link }
+							readOnly
+							suffix={ <CopyIconButton text={ link } /> }
+						/>
+
+						<InputControl
+							label={ __( 'Shortcode', 'jetpack-videopress-pkg' ) }
+							value={ video.shortcode }
+							readOnly
+							suffix={ <CopyIconButton text={ video.shortcode } /> }
+						/>
 
 						<Stack direction="column" gap="xs">
-							<Text variant="caption">{ __( 'Shortcode', 'jetpack-videopress-pkg' ) }</Text>
-							<Stack direction="row" gap="sm" align="center">
-								<Text>
-									<code>{ video.shortcode }</code>
-								</Text>
-								<ClipboardButton
-									text={ video.shortcode }
-									onCopy={ () => setShortcodeCopied( true ) }
-									onFinishCopy={ () => setShortcodeCopied( false ) }
-								>
-									{ shortcodeCopied
-										? __( 'Copied', 'jetpack-videopress-pkg' )
-										: __( 'Copy', 'jetpack-videopress-pkg' ) }
-								</ClipboardButton>
-							</Stack>
-						</Stack>
-
-						<Stack direction="column" gap="xs">
-							<Text variant="caption">{ __( 'File name', 'jetpack-videopress-pkg' ) }</Text>
+							<Text variant="body-sm" className="vp-video-details__meta-label">
+								{ __( 'File name', 'jetpack-videopress-pkg' ) }
+							</Text>
 							<Text>{ video.filename }</Text>
 						</Stack>
 
 						<Stack direction="column" gap="xs">
-							<Text variant="caption">{ __( 'Uploaded on', 'jetpack-videopress-pkg' ) }</Text>
+							<Text variant="body-sm" className="vp-video-details__meta-label">
+								{ __( 'Uploaded on', 'jetpack-videopress-pkg' ) }
+							</Text>
 							<Text>{ dateI18n( dateSettings.formats.date, video.uploadDate ) }</Text>
 						</Stack>
 					</Stack>

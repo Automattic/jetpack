@@ -1,7 +1,7 @@
 import { TextareaControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, InputControl, Stack } from '@wordpress/ui';
+import { Card, InputControl, Link, Stack } from '@wordpress/ui';
 import type { ReactElement } from 'react';
 
 type Props = {
@@ -47,14 +47,22 @@ export default function VideoDetailsCard( {
 						onChange={ next => onChange( { description: next } ) }
 						rows={ 5 }
 					/>
-					<p>
+					<p className="vp-video-details__chapters-hint">
 						{ createInterpolateElement(
 							__(
 								'Did you know you can now add Chapters to your videos? <link>Learn how</link>',
 								'jetpack-videopress-pkg'
 							),
 							{
-								link: <Button variant="link" onClick={ onOpenChapters } />,
+								link: (
+									<Link
+										href="#"
+										onClick={ event => {
+											event.preventDefault();
+											onOpenChapters();
+										} }
+									/>
+								),
 							}
 						) }
 					</p>

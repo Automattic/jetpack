@@ -3,7 +3,7 @@
 	flex-direction: column;
 	gap: 24px;
 	max-width: 880px;
-	margin: 24px auto 0;
+	margin: 24px auto;
 }
 
 .vp-video-details__not-found {
@@ -22,4 +22,25 @@
 .vp-video-details__thumbnail-meta {
 	flex: 1;
 	min-width: 0;
+}
+
+// Outlined "Add video to new post" should size to its content,
+// not stretch across the column flex parent.
+.vp-video-details__primary-action {
+	align-self: flex-start;
+}
+
+// "FILE NAME" / "UPLOADED ON" caption labels (Figma uses uppercase
+// with subdued color so they read as field labels, not body text).
+.vp-video-details__meta-label {
+	color: var(--jp-gray-50, #646970);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-size: 11px;
+}
+
+// Chapters helper hint reads as supporting copy, not body text.
+.vp-video-details__chapters-hint {
+	color: var(--jp-gray-50, #646970);
+	margin: 0;
 }
