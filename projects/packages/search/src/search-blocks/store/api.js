@@ -112,17 +112,22 @@ export function resolveFilterFields( config ) {
 				bucketFormat: 'slash',
 			};
 		case 'wc_stock_status':
-			// Reads WooCommerce-populated postmeta indexed under
-			// `meta._stock_status.value` with a `.raw` keyword subfield via
-			// the `meta_str_template` dynamic mapping. The terms-aggs
-			// whitelist (`meta\..*\.value\.raw` in
-			// class-wpcom-search-engine.php) admits this exact path. The
-			// `wc_*` prefix on the filterType marks the dependency on
-			// WC-populated meta even though no WC-side code is involved at
-			// query time.
+			// Stock status reads from the WC `product_visibility` taxonomy:
+			// WC tags out-of-stock products with the `outofstock` term;
+			// absence of that term means in-stock. The taxonomy has no
+			// `instock` or `onbackorder` term, so this filter is two-state
+			// only — backorder lives exclusively in the `_stock_status`
+			// postmeta which the WPCOM-side ES indexer doesn't currently
+			// carry (sync sends it, the indexer drops it; tracked as a
+			// separate followup). `buildAggregations` and `buildFilterClause`
+			// special-case this filterType because the agg needs an
+			// `include: ['outofstock']` filter (the taxonomy holds many
+			// unrelated terms — `featured`, `rated-N`, etc.) and the
+			// in-stock selection emits a `must_not` clause rather than a
+			// `term`.
 			return {
-				aggField: 'meta._stock_status.value.raw',
-				filterField: 'meta._stock_status.value.raw',
+				aggField: 'taxonomy.product_visibility.slug',
+				filterField: 'taxonomy.product_visibility.slug',
 				bucketFormat: 'plain',
 			};
 		case 'wc_rating':
@@ -202,6 +207,23 @@ export function buildAggregations( filterConfigs ) {
 					interval: 1,
 					offset: 0.5,
 					min_doc_count: 0,
+				},
+			};
+			continue;
+		}
+
+		// Stock status: probe only the `outofstock` term on
+		// `product_visibility` — the in-stock count is derived as
+		// `total - outofstock` on the read side. The `include` keeps
+		// unrelated terms in the taxonomy (`featured`, `rated-N`,
+		// `exclude-from-catalog`) out of the response.
+		if ( config?.filterType === 'wc_stock_status' ) {
+			const { aggField: stockField } = resolveFilterFields( config );
+			aggregations[ filterKey ] = {
+				terms: {
+					field: stockField,
+					include: [ 'outofstock' ],
+					size: 1,
 				},
 			};
 			continue;
@@ -296,6 +318,25 @@ export function buildFilterClause( activeFilters, filterConfigs ) {
 			continue;
 		}
 		const config = filterConfigs?.[ filterKey ];
+
+		// Stock status: two-state filter against the `outofstock` term on
+		// `product_visibility`. `outofstock` selection narrows to products
+		// carrying that term; `instock` excludes them via `must_not`;
+		// selecting both is equivalent to no constraint, so the clause is
+		// dropped (otherwise the term + must_not term contradict and ES
+		// would return zero results).
+		if ( config?.filterType === 'wc_stock_status' ) {
+			const set = new Set( values.map( v => String( v ) ) );
+			const wantsOut = set.has( 'outofstock' );
+			const wantsIn = set.has( 'instock' );
+			if ( wantsOut === wantsIn ) {
+				continue;
+			}
+			const { filterField: stockField } = resolveFilterFields( config );
+			const term = { term: { [ stockField ]: 'outofstock' } };
+			must.push( wantsOut ? term : { bool: { must_not: [ term ] } } );
+			continue;
+		}
 
 		// Rating: each selected star level maps to a `≥ N - 0.5` range
 		// clause. The block is single-select so `values` is normally one
