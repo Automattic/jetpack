@@ -9,6 +9,7 @@ import type { LegendShape } from '@visx/legend/lib/types';
 const defaultShapeByChartType: Partial<
 	Record< ChartType, Extract< LegendShape< unknown, unknown >, string > >
 > = {
+	area: 'rect',
 	line: 'line',
 	bar: 'rect',
 	pie: 'circle',

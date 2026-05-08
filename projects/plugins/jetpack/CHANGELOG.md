@@ -2,57 +2,79 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.8-a.5 - 2026-04-20
+## 15.8 - 2026-05-05
 ### Enhancements
-- Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings). [#48109]
-- AI Assistant: Add Jetpack AI sidebar that loads Agents Manager from the widgets.wp.com CDN (gated by the `jetpack_ai_sidebar_enabled` filter that defaults to false). [#47730]
-- Remove the unused Title_Optimization_Ability stub. [#47730]
-- Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection. [#48084]
+- Activity Log: Replace the external sidebar redirect with a native WP Admin page — search, activity type filter, sort, pagination, and a date-range picker. [#48244]
+- Activity Log: Default the page to the Table layout, fix the free-tier upsell callout layout, and surface the disabled toolbar + disabled date-range picker on the free tier with upgrade tooltips. [#48418]
+- Add MCP settings admin page and REST endpoint for managing external AI agent access to Jetpack AI. [#48048]
+- Forms: Add `jetpack_forms_email_show_actions` filter to hide action buttons in notification emails. [#48262]
+- Forms: Support granular date filter in inbox. [#46760]
+- Make phone numbers in the Contact Info widget clickable on all devices, not just mobile. [#48374]
+- Newsletter: Register Abilities API surface for module settings and subscriber stats on WP 6.9+. [#48356]
+- Omnibar: Add wpcom/v2/admin-bar endpoint to fetch site's admin bar nodes. [#48320]
+- Performance: Add early-return guard conditions to skip loading scripts and styles on pages where they are not needed. [#47495]
+- REST API: Add `/sites/%s/plugins/replace` and `/sites/%s/themes/replace` endpoints for installing or overwriting a plugin/theme via zip upload. [#48293]
+- Search: Add fallback image capability in expanded search. [#44657]
+- Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator. [#47940]
+- Sites endpoint: Expose `jetpack_recovery_mode_status` option so callers can read recovery-mode state from WordPress.com. [#48254]
+- Stats: Register abilities. [#48286]
+- Subscriptions: Check email preview content with Akismet before sending to protect the mailer pipeline. [#48241]
+- Top Posts block: Add `jetpack_top_posts_item_title` filter allowing customization of the posts' titles in the block. [#48209]
 
 ### Improved compatibility
+- AI settings: Bundle WordPress private-apis and theme packages in the admin script so dependencies enqueue reliably on all hosts. [#48048]
 - Componentry: Use WordPress admin theme color variable instead of hardcoded color for text input focus state. [#47317]
 - Tested up to WordPress 7.0. [#48114]
+- Update purchases endpoint from v1.1 `/sites/$site/purchases` to v1.2 `/upgrades?site=$site`. [#48035]
 
 ### Bug fixes
-- Settings: Show an empty state when search returns no matching settings. [#48102]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Assistant: Disable the "Correct spelling and grammar" toolbar option by default. It can be re-enabled via the `ai_correct_spelling_enabled` filter. [#47916]
-- Discussion Settings: Import ToggleControl directly from @wordpress/components. [#48190]
-- Newsletter: Remove the old Jetpack Settings newsletter UI and redirect old route to the new Jetpack > Newsletter settings page. [#48092]
-- Settings: Import RadioControl and ToggleControl directly from @wordpress/components. [#48170] [#48177] [#48179] [#48186] [#48189]
-- Update dependencies. [#48138]
-- Update package dependencies. [#48106] [#48141]
-- VideoPress storage meters: Replace custom Jetpack ProgressBar with @wordpress/components ProgressBar. [#48191]
-
-## 15.8-a.3 - 2026-04-15
-### Enhancements
-- Forms: Support granular date filter in inbox. [#46760]
-- Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator. [#47940]
-
-### Bug fixes
+- AI: Change admin page slug from 'ai' to 'jetpack-ai' to avoid conflicts with the WordPress core AI plugin. [#48483]
+- AI Site Logo extension: Fix static import of @wordpress/edit-post that was breaking the P2 frontend block inserter. [#47987]
 - Fix taxonomies endpoint returning error when number parameter exceeds 1000. [#48070]
 - Forms: Fix the Form block not being usable when the Blocks module is inactive. [#48037]
-- Sync: Increase lock time tolerance in tests. [#48078]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg. [#48002]
 - oEmbed: Prevent PHP warnings when a registered provider is malformed. [#48077]
+- PayPal Payments Button: Fix escaping issue for stacked payments buttons. [#47761]
+- Paywall: Subscribers can now access tier-gated posts regardless of plan price. [#48373]
+- Settings: Show an empty state when search returns no matching settings. [#48102]
+- Subscriptions: Avoid conflicts in the block editor when editing custom post types. [#47876]
 - Subscriptions: Prevent warning when $post global is malformed. [#48074]
-- Update Forms e2e test to use explicit inner blocks for compatibility with Central Forms Management. [#47826]
-- Update package dependencies. [#47907] [#48064]
-- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+- Sync: Increase lock time tolerance in tests. [#48078]
 - WordAds: Prevent PHP warning when headers are already sent. [#48073]
 
-## 15.8-a.1 - 2026-04-13
-### Bug fixes
-- AI Site Logo extension: Fix static import of @wordpress/edit-post that caused the no-post-editor bundle to list wp-edit-post as a dependency, breaking the P2 frontend block inserter. [#47987]
-- Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg. [#48002]
-- PayPal Payments Button: Fix escaping issue for stacked payments buttons. [#47761]
-- Subscriptions: Avoid conflicts in the block editor when editing custom post types. [#47876]
-
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Abilities API: Register `jetpack/get-modules` and `jetpack/set-module-status` for WP 6.9+. [#48278]
+- Adopt the shared Jetpack `admin-page-layout` on the Jetpack Network Admin pages (Sites and Settings). [#48109]
 - AI Assistant: Add an "Update on Write Brief (Beta)" link in the sidebar when Write Brief is disabled. [#47947]
-- Update package dependencies. [#47890] [#47998]
+- AI Assistant: Disable the "Correct spelling and grammar" toolbar option by default. It can be re-enabled via the `ai_correct_spelling_enabled` filter. [#47916]
+- AI Assistant: Add Jetpack AI sidebar that loads Agents Manager from the widgets.wp.com CDN (gated by the `jetpack_ai_sidebar_enabled` filter that defaults to false). [#47730]
+- AI MCP settings: Add activity log link and Tracks analytics events (jp_mcp_settings_viewed, jp_mcp_enabled_toggled, jp_mcp_allowlist_updated). [#48298]
+- Componentry: Replace Chip and custom Recommendations "New" pill with Badge from @wordpress/ui. [#48162]
+- Discussion Settings: Import ToggleControl directly from @wordpress/components. [#48190]
+- Email Preview: Avoid unconditional require_once and file loading in the REST API endpoint to prevent unnecessary file loading and hook registration on every request. [#48316]
+- Google Fonts: Update module description to note native WordPress support. [#48216]
+- Guidelines CPT: Whitelist _guideline_ meta keys for use on WordPress.com sites. [#48212]
+- Image Studio: Add isDevMode property to imageStudioData for dev/test environment detection. [#48084]
+- Improve author Gravatar URLs by converting email-based or no-login URLs to hashed versions. [#48309]
+- Internal: Migrate the connection banner Notice to @wordpress/ui. [#48173]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- ModuleToggle: Import ToggleControl from @wordpress/components instead of @automattic/jetpack-components. [#48197]
+- Monetize settings: Import ToggleControl from @wordpress/components instead of @automattic/jetpack-components. [#48207]
+- Newsletter: Remove the old Jetpack Settings newsletter UI and redirect old route to the new Jetpack > Newsletter settings page. [#48092]
+- Omnibar: Do not send response buffer from the admin-bar endpoint. [#48342]
+- Omnibar: Preserve original node ordering. [#48354]
+- Plugin Search Hints: Use Core colors. [#48470]
+- Remove New badges from the writing settings and recommendations screens. [#48174]
+- Remove the unused Title_Optimization_Ability stub. [#47730]
+- REST API: Defer loading of helper classes in Top Posts, Podcast Player, and Instagram Gallery endpoints until callbacks are invoked, reducing overhead on unrelated REST requests. [#48327]
+- REST API: Expose `apm_enabled` via the GET site endpoint's `?options=` query param. [#48366]
+- SAL: Add `has_password` field to post API response. [#47938]
+- Settings: Import RadioControl and ToggleControl directly from @wordpress/components. [#48170] [#48177] [#48179] [#48186] [#48189]
+- Unify loading indicators to use the WordPress Core Spinner across all contexts. [#47451]
+- Update dependencies. [#48138]
+- Update Forms e2e test to use explicit inner blocks for compatibility with Central Forms Management. [#47826]
+- Update package dependencies. [#47102] [#47890] [#47998] [#47907] [#48064] [#48106] [#48141] [#48302]
+- VideoPress storage meters: Replace custom Jetpack ProgressBar with @wordpress/components ProgressBar. [#48191]
 
 ## 15.7 - 2026-04-08
 ### Major Enhancements

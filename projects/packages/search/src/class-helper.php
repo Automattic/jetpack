@@ -917,6 +917,10 @@ class Helper {
 				// These options require kicking off a new search.
 				'defaultSort'                 => get_option( $prefix . 'default_sort', 'relevance' ),
 				'excludedPostTypes'           => $excluded_post_types,
+
+				// Fallback image options
+				'fallbackImageUrl'            => get_option( $prefix . 'fallback_image_url', '' ),
+				'enableFallbackImage'         => get_option( $prefix . 'enable_fallback_image', '0' ) === '1',
 			),
 
 			// core config.

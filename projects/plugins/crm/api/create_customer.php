@@ -21,7 +21,9 @@ if ( ! is_array( $new_customer ) ) {
 		array(
 			'error'   => true,
 			'message' => 'Invalid JSON data',
-		)
+		),
+		200,
+		JSON_UNESCAPED_SLASHES
 	);
 }
 
@@ -50,7 +52,7 @@ $customer_array = zeroBS_buildContactMeta( $new_customer, array(), '', 'zbsc_', 
 
 // this is needed for check below:
 if ( isset( $new_customer['id'] ) ) {
-	$contact_id = (int) sanitize_text_field( $new_customer['id'] );
+	$contact_id = (int) $new_customer['id'];
 }
 if ( isset( $customer_array['zbsc_email'] ) ) {
 	$email = $customer_array['zbsc_email'];
@@ -238,9 +240,6 @@ if (
 		zeroBS_setOwner( $new_contact, $assign, ZBS_TYPE_CONTACT );
 	}
 
-	// old way just returned what was sent...
-	// wp_send_json($json_params); //sends back to Zapier the customer that's been sent to it.
-
 	// thorough much? lol.
 	if ( ! empty( $new_contact ) && $new_contact !== -1 ) {
 
@@ -254,14 +253,14 @@ if (
 		}
 
 		// return
-		wp_send_json( $return_params );
+		wp_send_json( $return_params, 200, JSON_UNESCAPED_SLASHES );
 
 	} else {
 
 		// fail.
-		wp_send_json( array( 'error' => 100 ) );
+		wp_send_json( array( 'error' => 100 ), 200, JSON_UNESCAPED_SLASHES );
 
 	}
 }
 
-wp_send_json( array( 'errors' => 1 ) );
+wp_send_json( array( 'errors' => 1 ), 200, JSON_UNESCAPED_SLASHES );

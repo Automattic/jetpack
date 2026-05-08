@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { ExternalLink, Button } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -126,9 +127,9 @@ export default function Message( {
  */
 function LearnMoreLink(): ReactElement {
 	return (
-		<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
+		<Link openInNewTab href="https://jetpack.com/redirect/?source=ai-guidelines">
 			{ __( 'Learn more', 'jetpack-ai-client' ) }
-		</ExternalLink>
+		</Link>
 	);
 }
 
@@ -169,7 +170,8 @@ export function FairUsageLimitMessage(): ReactElement {
 	);
 	const element = createInterpolateElement( message, {
 		link: (
-			<ExternalLink
+			<Link
+				openInNewTab
 				href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
 				children={ null }
 			/>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search blocks: convert createElement/h calls to JSX in editor preview components for readability.

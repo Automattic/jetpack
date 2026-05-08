@@ -238,6 +238,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_excluded_extensions'                  => 'pineapple',
 			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
+			'jetpack_social_message_template'              => array(),
 			'jetpack_social_notes_config'                  => array(),
 			'jetpack_social_utm_settings'                  => array(),
 			'jetpack_social_settings'                      => array( 'image' => true ),

@@ -1,7 +1,8 @@
 import { getRedirectUrl, Status } from '@automattic/jetpack-components';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -259,12 +260,13 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy. <Link>Learn more</Link> <hr /> <Link>Privacy Information</Link>',
 										'jetpack'
 									),
 									{
-										ExternalLink: (
-											<ExternalLink
+										Link: (
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
 											/>
 										),
@@ -297,12 +299,13 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy. <Link>Learn more</Link> <hr /> <Link>Privacy Information</Link>',
 										'jetpack'
 									),
 									{
-										ExternalLink: (
-											<ExternalLink
+										Link: (
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
 											/>
 										),
@@ -497,9 +500,8 @@ export const Waf = class extends Component {
 				>
 					<ModuleToggle
 						slug="waf"
-						disabled={ unavailableInOfflineMode }
+						disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'waf' ) }
 						activated={ isWafActive }
-						toggling={ this.props.isSavingAnyOption( 'waf' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

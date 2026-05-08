@@ -1,0 +1,69 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+body.jetpack_page_ai {
+
+	@include jetpack-admin-page-layout;
+}
+
+.jetpack-ai-admin {
+
+	// Content wrapper inside AdminPage's fluid container.
+	// Use border-box so the 24px padding is included in the 100% width,
+	// preventing horizontal overflow from content-box sizing.
+	// max-width matches the Figma design constraint.
+	&__content {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 660px;
+		margin: 0 auto;
+		padding: 24px;
+	}
+
+	&__breadcrumbs {
+		// admin-ui sets list-style:none but no flex layout — add it here.
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		min-height: auto;
+		padding: 0;
+		margin: 0;
+
+		li {
+			display: flex;
+			align-items: center;
+			margin-bottom: 0;
+		}
+	}
+
+	&__breadcrumb-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		color: inherit;
+		font-size: inherit;
+		font-weight: inherit;
+		line-height: inherit;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	&__breadcrumb-current {
+		font-size: inherit;
+		font-weight: inherit;
+		line-height: inherit;
+		margin: 0;
+	}
+
+	&__loading {
+		display: flex;
+		justify-content: center;
+		padding: 48px 0;
+	}
+}

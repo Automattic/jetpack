@@ -25,6 +25,7 @@ export type Connection = Partial< EditorConnection > & {
 	service_name: ConnectionService[ 'id' ];
 	shared: boolean;
 	status: ConnectionStatus;
+	template?: string;
 	wpcom_user_id: number;
 };
 
@@ -104,6 +105,34 @@ export type UnifiedModalState = {
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
 
+/**
+ * One rendered batch, indexed by per-connection result. The batch is wrapped in
+ * a `RenderedMessageEntry` and keyed in `RenderedMessages` by
+ * `${postId}|${hashRenderItems(items)}` so each unique input shape gets its
+ * own slot — reverting to a previously-seen shape reads back the original
+ * response without refetching.
+ */
+export type RenderedMessageBatch = {
+	[ ConnectionId: string ]: {
+		rendered_message?: string;
+		error?: { code: string; message: string };
+	};
+};
+
+/**
+ * Per-cache-key entry. `isLoading` is set true by the resolver before the fetch
+ * fires and cleared on either success (with `items` populated) or failure
+ * (preserving any prior `items`).
+ */
+export type RenderedMessageEntry = {
+	isLoading: boolean;
+	items?: RenderedMessageBatch;
+};
+
+export type RenderedMessages = {
+	[ Key: string ]: RenderedMessageEntry;
+};
+
 export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
@@ -111,6 +140,7 @@ export type SocialStoreState = {
 	scheduledShares?: ScheduledShares;
 	unifiedModal?: UnifiedModalState;
 	renderCount?: RenderCount;
+	renderedMessages?: RenderedMessages;
 };
 
 export interface KeyringAdditionalUser {
@@ -160,6 +190,7 @@ export type SocialSettingsFields = {
 	[ 'jetpack-social-note' ]: boolean;
 	jetpack_social_notes_config: SocialNotesConfig;
 	[ 'jetpack-social_show_pricing_page' ]: boolean;
+	jetpack_social_message_template: string;
 };
 
 export type ScheduledShare = {

@@ -158,6 +158,11 @@ class Jetpack_Subscribe_Floating_Button {
 			return false;
 		}
 
+		// No content to subscribe to on 404 pages.
+		if ( is_404() ) {
+			return false;
+		}
+
 		// Needed because Elementor editor makes is_admin() return false
 		// See https://coreysalzano.com/wordpress/why-elementor-disobeys-is_admin/
 		// Ignore nonce warning as just checking if is set

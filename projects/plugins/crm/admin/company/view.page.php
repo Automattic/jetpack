@@ -939,14 +939,13 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 			</div>
 		  
 				<script type="text/javascript">
-				
 				// Nonce
-				var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';
+				var zbscrmjs_secToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 				// moved to singleview.js
 				var zbsViewSettings = {
-					objid: <?php echo esc_html( $id ); ?>,
-					objdbname: 'company' <?php // echo $this->objType; ?>
+					objid: <?php echo (int) $id; ?>,
+					objdbname: 'company',
 				};
 
 				</script>

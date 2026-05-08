@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add new jpcrm_perms_manage_options() function.

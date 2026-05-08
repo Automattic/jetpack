@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Search Blocks: checkbox filters retain previously-seen options across searches and keep selected values visible (and uncheckable) even when the current result set no longer surfaces them. Zero-result options sink to the bottom of the list unless they're checked.

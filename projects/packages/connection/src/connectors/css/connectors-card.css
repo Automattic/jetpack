@@ -11,6 +11,7 @@
  */
 
 .jetpack-connector__description-padded {
+	display: block;
 	padding-inline-end: 40px;
 }
 
@@ -36,7 +37,7 @@
 	background-color: #eff8f0;
 }
 
-.jetpack-connector__status-badge--site-connected {
+.jetpack-connector__status-badge--site-registered {
 	color: #1e4c5e;
 	background-color: #e9f0f5;
 }
@@ -168,4 +169,12 @@
 .jetpack-connector__error .components-button {
 	color: #cc1818;
 	flex-shrink: 0;
+}
+
+.jetpack-connector__tos-notice {
+	margin-block-start: 8px;
+}
+
+.jetpack-connector__tos-notice a {
+	color: inherit;
 }

@@ -1,9 +1,15 @@
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
+import { type RenderItem, type RenderResult } from '../utils/render-messages';
 import { normalizeShareStatus } from '../utils/share-status';
 import { setConnections } from './actions/connection-data';
+import {
+	finishRenderingMessages,
+	receiveRenderedMessages,
+	startRenderingMessages,
+} from './actions/rendered-messages';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
-import { PostShareStatus } from './types';
+import { PostShareStatus, RenderedMessageBatch } from './types';
 
 /**
  * Resolves the connections from the post.
@@ -69,7 +75,57 @@ export function getPostShareStatus( _postId ) {
 	};
 }
 
+/**
+ * Resolver for `getRenderedMessages`. Fires a single POST per unique
+ * `(postId, items)` combination. WP data dedupes by selector args, so multiple
+ * `useConnectionPreviewData` consumers reading the same args share one fetch.
+ *
+ * Failures are swallowed so the consumer keeps showing whatever it had — same
+ * "don't flash on error" behavior the per-network hook used to provide.
+ *
+ * @param  postId - Post being previewed.
+ * @param  items  - The render items.
+ *
+ * @return {Function} Resolver
+ */
+export function getRenderedMessages( postId: number, items: RenderItem[] ) {
+	return async ( { dispatch } ) => {
+		if ( ! postId || items.length === 0 ) {
+			return;
+		}
+
+		dispatch( startRenderingMessages( postId, items ) );
+
+		try {
+			const records = await apiFetch< RenderResult[] >( {
+				path: '/wpcom/v2/publicize/render-messages',
+				method: 'POST',
+				data: { post_id: postId, items },
+			} );
+
+			const batch: RenderedMessageBatch = {};
+			for ( const record of records ?? [] ) {
+				const slot: RenderedMessageBatch[ string ] = {};
+				if ( typeof record.rendered_message === 'string' ) {
+					slot.rendered_message = record.rendered_message;
+				}
+				if ( record.error ) {
+					slot.error = record.error;
+				}
+				batch[ record.id ] = slot;
+			}
+
+			dispatch( receiveRenderedMessages( postId, items, batch ) );
+		} catch {
+			// Keep the previous batch on error — clear loading without overwriting
+			// items so the consumer keeps showing whatever it had.
+			dispatch( finishRenderingMessages( postId, items ) );
+		}
+	};
+}
+
 export default {
 	getConnections,
 	getPostShareStatus,
+	getRenderedMessages,
 };

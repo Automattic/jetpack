@@ -1,10 +1,11 @@
-import { IconTooltip, Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { IconTooltip, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
-import { ExternalLink } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { createContext, useState, useCallback, useContext, useMemo } from 'react';
 import { PAID_PLUGIN_SUPPORT_URL } from '../../constants';
@@ -79,7 +80,8 @@ const renderFixerStatus = ( isActiveFixInProgress, isStaleFixInProgress ) => {
 						),
 						{
 							supportLink: (
-								<ExternalLink
+								<Link
+									openInNewTab
 									className={ styles[ 'support-link' ] }
 									href={ PAID_PLUGIN_SUPPORT_URL }
 								/>
@@ -92,7 +94,7 @@ const renderFixerStatus = ( isActiveFixInProgress, isStaleFixInProgress ) => {
 	}
 
 	if ( isActiveFixInProgress ) {
-		return <Spinner color="black" />;
+		return <Spinner />;
 	}
 
 	return <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />;

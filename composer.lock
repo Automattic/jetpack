@@ -13,13 +13,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "e0e842588dc62a52434f21e62bcb05d4334835ee"
+                "reference": "0ddb32aaf9528db45b8326af39d23a4a731aed0e"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -64,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "7f8033ce6eaaae94001a6cb7f1c4d75db7a0516c"
+                "reference": "a9d419e3af6211cb8961e76e7f70c11b8e402c91"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -77,7 +76,6 @@
                 "wp-coding-standards/wpcs": "^3.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -140,14 +138,13 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
-                "reference": "41ee6b642234ab827f816fbd22b9eecbb1b0fd20"
+                "reference": "f074345ade28fa4f977b115b845840138675d28e"
             },
             "require": {
                 "phan/phan": "5.5.2",
                 "php": ">=8.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -198,7 +195,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "b7208ae78cf0a31da783170a8a9cb47c7a94f4d2"
+                "reference": "a239179e2ea8112242a2681c56fd8b0e7141cf80"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -206,7 +203,6 @@
                 "squizlabs/php_codesniffer": "^3.6.1 || ^4.0.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },

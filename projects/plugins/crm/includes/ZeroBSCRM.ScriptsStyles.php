@@ -585,17 +585,6 @@ function zeroBSCRM_enqueue_libs_js_momentdatepicker() {
 	#} CSS is wrapped into main plugin css
 }
 
-	#} Customer Filters
-function zeroBSCRM_load_libs_js_customerfilters() {
-	add_action( 'admin_enqueue_scripts', 'zeroBSCRM_enqueue_libs_js_customerfilters' );
-}
-function zeroBSCRM_enqueue_libs_js_customerfilters() {
-
-	global $zbs;
-	#} Customer Filters
-	wp_enqueue_script( 'zbs-js-customerfilters-v1', ZEROBSCRM_URL . '/js/ZeroBSCRM.admin.customerfilters' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
-}
-
 	#} Media Manager
 function zeroBSCRM_enqueue_media_manager() {
 	wp_enqueue_media();
@@ -659,7 +648,7 @@ function zeroBSCRM_mailTemplatesEnqueue() {
 		'code-editor',
 		sprintf(
 			'jQuery( function() { wp.codeEditor.initialize( "zbstemplatehtml", %s ); } );',
-			wp_json_encode( $settings )
+			wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 		)
 	);
 }

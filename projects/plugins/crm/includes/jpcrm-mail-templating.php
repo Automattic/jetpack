@@ -233,7 +233,7 @@ function zeroBSCRM_preview_email_template() {
 	if ( isset( $_GET['zbsmail-template-preview'] ) && $_GET['zbsmail-template-preview'] == 1 ) {
 
 		// if rights
-		if ( current_user_can( 'admin_zerobs_manage_options' ) ) {
+		if ( jpcrm_perms_manage_options() ) {
 
 			$html = '';
 

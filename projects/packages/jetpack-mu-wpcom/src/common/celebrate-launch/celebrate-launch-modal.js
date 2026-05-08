@@ -1,9 +1,8 @@
-import { Gridicon } from '@automattic/jetpack-components';
 import { Button, Modal, Tooltip } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, copy } from '@wordpress/icons';
+import { Icon, copy, globe } from '@wordpress/icons';
 import { wpcomTrackEvent } from '../tracks';
 import ConfettiAnimation from './confetti-animation';
 
@@ -152,8 +151,13 @@ export default function CelebrateLaunchModal( {
 					</Tooltip>
 				</div>
 
-				<Button href={ siteUrl } target="_blank" className="launched__modal-view-site">
-					<Gridicon icon="domains" size={ 18 } />
+				<Button
+					href={ siteUrl }
+					target="_blank"
+					className="launched__modal-view-site"
+					icon={ globe }
+					iconSize={ 18 }
+				>
 					<span className="launched__modal-view-site-text">
 						{ __( 'View site', 'jetpack-mu-wpcom' ) }
 					</span>

@@ -229,7 +229,7 @@ if ( $sbupdated ) {
 		jQuery('#wpzbscrm_invoicelogourlAdd').on( 'click', function(e) {
 			e.preventDefault();
 			var image = wp.media({
-				title: '<?php esc_html_e( 'Upload Image', 'zero-bs-crm' ); ?>',
+				title: <?php echo wp_json_encode( __( 'Upload Image', 'zero-bs-crm' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 				// mutiple: true if you want to upload multiple files at once
 				multiple: false
 			}).open()

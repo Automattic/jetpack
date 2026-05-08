@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+`ThreatsDataViews`: add `RenderViewModal?: ( props: RenderModalProps< Threat > ) => ReactElement` prop. Unlike the existing `RenderFixModal` / `RenderIgnoreModal` / `RenderUnignoreModal`, the resulting "View details" row action is always eligible (not gated by `fixable` / `status`) so the user can drill into any row regardless of state. Renders inside a `large` DataViews modal.

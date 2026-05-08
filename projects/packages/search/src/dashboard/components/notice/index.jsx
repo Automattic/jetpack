@@ -1,4 +1,4 @@
-import { Gridicon } from '@automattic/jetpack-components';
+import { Icon, info, check, caution, close } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
@@ -28,7 +28,7 @@ export default class SimpleNotice extends Component {
 			PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 			PropTypes.arrayOf( PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ) ),
 		] ),
-		icon: PropTypes.string,
+		icon: PropTypes.object,
 		onDismissClick: PropTypes.func,
 		className: PropTypes.string,
 	};
@@ -48,27 +48,16 @@ export default class SimpleNotice extends Component {
 	}
 
 	getIcon = () => {
-		let icon;
-
 		switch ( this.props.status ) {
-			case 'is-info':
-				icon = 'info';
-				break;
 			case 'is-success':
-				icon = 'checkmark';
-				break;
+				return check;
 			case 'is-error':
-				icon = 'notice';
-				break;
 			case 'is-warning':
-				icon = 'notice';
-				break;
+				return caution;
+			case 'is-info':
 			default:
-				icon = 'info';
-				break;
+				return info;
 		}
-
-		return icon;
 	};
 
 	clearText = text => {
@@ -104,7 +93,7 @@ export default class SimpleNotice extends Component {
 		return (
 			<div className={ classes }>
 				<span className="dops-notice__icon-wrapper">
-					<Gridicon className="dops-notice__icon" icon={ icon || this.getIcon() } size={ 24 } />
+					<Icon className="dops-notice__icon" icon={ icon || this.getIcon() } size={ 24 } />
 				</span>
 				<span className="dops-notice__content">
 					<span className="dops-notice__text">{ text ? this.clearText( text ) : children }</span>
@@ -118,7 +107,7 @@ export default class SimpleNotice extends Component {
 						className="dops-notice__dismiss"
 						onClick={ onDismissClick }
 					>
-						<Gridicon icon="cross" size={ 24 } />
+						<Icon icon={ close } size={ 24 } />
 						<span className="dops-notice__screen-reader-text screen-reader-text">
 							{ dismissText }
 						</span>

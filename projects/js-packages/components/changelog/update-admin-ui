@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AdminPage: Update to @wordpress/admin-ui 2.0.0 and use the new `visual` prop to render the Jetpack logo alongside the page title.

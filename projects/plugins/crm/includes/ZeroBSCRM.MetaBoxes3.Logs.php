@@ -356,7 +356,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 			}
 
 			?>
-			<script type="text/javascript">var zbscrmjs_logsSecToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce-logs' ) ); ?>';</script>
+			<script type="text/javascript">var zbscrmjs_logsSecToken = <?php echo wp_json_encode( wp_create_nonce( 'zbscrmjs-ajax-nonce-logs' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 
 				<table class="form-table wh-metatab wptbp" id="wptbpMetaBoxLogs">
 					
@@ -492,18 +492,15 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 					display:none;
 				}
 			</style>
+			<?php
+			$jpcrm_log_perms = array(
+				'addedit' => zeroBSCRM_permsLogsAddEdit(),
+				'delete'  => zeroBSCRM_permsLogsDelete(),
+			);
+			?>
 			<script type="text/javascript">
 
-				var zbsLogPerms = 
-				<?php
-				echo json_encode(
-					array(
-						'addedit' => zeroBSCRM_permsLogsAddEdit(),
-						'delete'  => zeroBSCRM_permsLogsDelete(),
-					)
-				);
-				?>
-									;
+				var zbsLogPerms = <?php echo wp_json_encode( $jpcrm_log_perms, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 				var zbsLogAgainstID = <?php echo esc_html( $objid ); ?>; var zbsLogProcessingBlocker = false;
 
@@ -527,7 +524,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 						}
 					}
 				}
-				echo 'var zbsLogsLocked = ' . json_encode( $lockedLogs ) . ';';
+				echo 'var zbsLogsLocked = ' . wp_json_encode( $lockedLogs, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 
 				/*
 				var zbsLogsLocked = {
@@ -541,35 +538,24 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
 				if ( isset( $zeroBSCRM_logTypes[ $this->postType ] ) && count( $zeroBSCRM_logTypes[ $this->postType ] ) > 0 ) {
 
-					echo 'var zbsLogTypes = ' . json_encode( $zeroBSCRM_logTypes[ $this->postType ] ) . ';';
+					echo 'var zbsLogTypes = ' . wp_json_encode( $zeroBSCRM_logTypes[ $this->postType ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 
 				}
 				?>
 
-				var zbsLogIndex = 
 				<?php
-
-				#} Array or empty
-				if ( count( $zbsLogs ) > 0 && is_array( $zbsLogs ) ) {
-
-					$zbsLogsExpose = array();
-					foreach ( $zbsLogs as $zbsLog ) {
-
-						$retLine = $zbsLog;
-						if ( isset( $retLine ) && isset( $retLine['longdesc'] ) ) {
-							$retLine['longdesc'] = wp_kses( html_entity_decode( $retLine['longdesc'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $zbs->acceptable_restricted_html );
+				$jpcrm_logs_index = array();
+				if ( is_array( $zbsLogs ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					foreach ( $zbsLogs as $zbs_log ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$return_line = $zbs_log;
+						if ( isset( $return_line['longdesc'] ) ) {
+							$return_line['longdesc'] = wp_kses( html_entity_decode( $return_line['longdesc'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $zbs->acceptable_restricted_html );
 						}
-
-						$zbsLogsExpose[] = $retLine;
-
+						$jpcrm_logs_index[] = $return_line;
 					}
-
-					echo json_encode( $zbsLogsExpose );
-				} else {
-					echo json_encode( array() );
 				}
 				?>
-				;
+				var zbsLogIndex = <?php echo wp_json_encode( $jpcrm_logs_index, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 				var zbsLogEditing = -1;
 

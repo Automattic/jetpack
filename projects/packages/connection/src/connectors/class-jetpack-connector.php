@@ -146,6 +146,7 @@ class Jetpack_Connector {
 
 		$data['isConnected']          = $is_connected;
 		$data['isRegistered']         = $is_registered;
+		$data['isFirstConnection']    = ! $is_registered && ! (bool) \Jetpack_Options::get_option( 'id' );
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
@@ -153,9 +154,10 @@ class Jetpack_Connector {
 		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
+		$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
+
 		if ( $is_registered ) {
-			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
-			$data['siteDetails']      = array(
+			$data['siteDetails'] = array(
 				'blogId'  => (int) \Jetpack_Options::get_option( 'id' ),
 				'siteUrl' => site_url(),
 				'homeUrl' => home_url(),
@@ -417,7 +419,7 @@ class Jetpack_Connector {
 	 * 3. A4A only                        → jetpack-connect-a8c.svg
 	 * 4. Default (Jetpack only or other) → jetpack-connect.svg
 	 *
-	 * @since $$next-version$$
+	 * @since 8.3.2
 	 *
 	 * @return string Logo URL.
 	 */
@@ -463,7 +465,7 @@ class Jetpack_Connector {
 	 * plugins can register their own logo. Only SVG URLs are accepted
 	 * to keep the icons sharp at every display density.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.3.2
 	 *
 	 * @param string $slug Plugin slug.
 	 * @return string|null Logo URL or null.
@@ -496,7 +498,7 @@ class Jetpack_Connector {
 		 *         return $logos;
 		 *     } );
 		 *
-		 * @since $$next-version$$
+		 * @since 8.3.2
 		 *
 		 * @param array<string,string> $logos Map of plugin slug to SVG URL.
 		 */

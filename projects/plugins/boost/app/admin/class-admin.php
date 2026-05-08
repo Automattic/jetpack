@@ -43,7 +43,7 @@ class Admin {
 		 * @since   1.0.0
 		 */
 		$total_problems = apply_filters( 'jetpack_boost_total_problem_count', 0 );
-		$menu_label     = _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack-boost' );
+		$menu_label     = 'Boost'; // "Boost" is a product name, do not translate.
 		if ( $total_problems ) {
 			$menu_label .= sprintf( ' <span class="menu-counter count-%d"><span class="count">%d</span></span>', $total_problems, $total_problems );
 		}

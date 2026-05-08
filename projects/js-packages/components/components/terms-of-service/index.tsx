@@ -1,6 +1,6 @@
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { getRedirectUrl } from '../../index.ts';
 import Text from '../text/index.tsx';
@@ -46,8 +46,8 @@ const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
 			),
 			{
 				strong: <strong />,
-				tosLink: <Link slug="wpcom-tos" />,
-				shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+				tosLink: <TosLink slug="wpcom-tos" />,
+				shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 			}
 		);
 	}
@@ -58,8 +58,8 @@ const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
 			'jetpack-components'
 		),
 		{
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 };
@@ -76,8 +76,8 @@ const SingleButtonText = ( { agreeButtonLabel } ) =>
 		),
 		{
 			strong: <strong />,
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 
@@ -88,15 +88,15 @@ const TermsOfServiceTextOnly = () =>
 			'jetpack-components'
 		),
 		{
-			tosLink: <Link slug="wpcom-tos" />,
-			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			tosLink: <TosLink slug="wpcom-tos" />,
+			shareDetailsLink: <TosLink slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
 
-const Link: FC< { slug: string; children?: ReactNode } > = ( { slug, children } ) => (
-	<ExternalLink className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
+const TosLink: FC< { slug: string; children?: ReactNode } > = ( { slug, children } ) => (
+	<Link openInNewTab className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
 		{ children }
-	</ExternalLink>
+	</Link>
 );
 
 export default TermsOfService;

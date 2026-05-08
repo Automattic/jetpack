@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Phase 6: silence the standard wp-admin notice channels (`admin_notices` and `all_admin_notices`) on the Scan page so JITMs and plugin-update messages don't reflow the focused layout mid-scan or while a fix modal is open. Mirrors the same Forms-style pattern Jetpack Forms uses on its dashboard.

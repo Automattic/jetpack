@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use proper escaping functions on strings.

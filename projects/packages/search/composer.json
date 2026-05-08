@@ -14,7 +14,6 @@
 		"automattic/jetpack-sync": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
@@ -72,7 +71,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.56.x-dev"
+			"dev-trunk": "0.58.x-dev"
 		},
 		"version-constants": {
 			"::VERSION": "src/class-package.php"

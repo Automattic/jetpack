@@ -14,9 +14,6 @@
 		"composer/semver": "3.4.3",
 		"erusev/parsedown": "1.7.4"
 	},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"scripts": {},
 	"autoload": {
 		"classmap": [

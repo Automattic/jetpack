@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.7] - 2026-05-04
+### Changed
+- Components: migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+### Fixed
+- Avoid undefined property warning when video info has no privacy_setting. [#48379]
+- Fix corrupt resumable uploads triggering a fatal error. [#48332]
+- Fix runaway render loop on the admin library page when paginating on WordPress 7.0. [#48411]
+
+## [0.36.6] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+- VideoPress: Refine how the embedded post context is resolved when requesting playback tokens. [#48204]
+
+### Fixed
+- Fix PHP warning when video info lookup returns false on WordPress.com. [#48226]
+- Fix upsell incorrectly shown to legacy Jetpack Security plan customers who have unlimited (not 1TB) VideoPress storage. [#48295]
+
 ## [0.36.5] - 2026-04-20
 ### Changed
 - Admin dashboard: Migrate video storage meter and video thumbnail upload progress to @wordpress/components ProgressBar; drop unused progressBarClassName prop. [#48191]
@@ -1928,6 +1947,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.6...v0.36.7
+[0.36.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.5...v0.36.6
 [0.36.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.4...v0.36.5
 [0.36.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.3...v0.36.4
 [0.36.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.2...v0.36.3

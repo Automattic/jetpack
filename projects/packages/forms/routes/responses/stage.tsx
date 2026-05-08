@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import Gravatar from '@automattic/jetpack-components/gravatar';
 import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
@@ -8,7 +9,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	ExternalLink,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -17,14 +17,13 @@ import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Badge, Stack } from '@wordpress/ui';
+import { Badge, Link, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
-import Gravatar from '../../src/dashboard/components/gravatar';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
@@ -548,7 +547,9 @@ function StageInner() {
 						const previewLabel = __( 'Form preview', 'jetpack-forms' );
 						if ( item.preview_url ) {
 							return styleUnreadValue(
-								<ExternalLink href={ item.preview_url }>{ previewLabel }</ExternalLink>,
+								<Link openInNewTab href={ item.preview_url }>
+									{ previewLabel }
+								</Link>,
 								item.is_unread
 							);
 						}
@@ -560,7 +561,9 @@ function StageInner() {
 						__( '(no title)', 'jetpack-forms' );
 					if ( item.entry_permalink ) {
 						return styleUnreadValue(
-							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							<Link openInNewTab href={ item.entry_permalink }>
+								{ source }
+							</Link>,
 							item.is_unread
 						);
 					}
@@ -657,6 +660,7 @@ function StageInner() {
 		badges,
 		subtitle,
 		title,
+		visual,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -679,6 +683,7 @@ function StageInner() {
 
 	return (
 		<Page
+			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
 			title={ title }

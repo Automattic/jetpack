@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: fix pre-hydration skeleton shape for the product layout — emit a square image placeholder first, then two title rows sized to the live card's typical wrapped title.
