@@ -684,10 +684,22 @@ if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
-if ! jq -e --arg v "pnpm@$PNPM_VERSION" '.packageManager == $v' package.json &>/dev/null; then
+if jq -e 'has( "packageManager" )' package.json &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["packageManager"] then input_line_number - 1 else empty end' package.json)
-	echo "::error file=package.json,line=$LINE::Version in package.json packageManager must be \"pnpm@$PNPM_VERSION\", to match .github/versions.sh."
+	echo "::error file=package.json,line=$LINE::package.json .packageManager is replaced by .devEngines.packageManager. Please do not re-add it."
+fi
+if ! jq -e --arg v "^$PNPM_VERSION" '.devEngines.packageManager.name == "pnpm" and .devEngines.packageManager.version' package.json &>/dev/null; then
+	EXIT=1
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["devEngines","packageManager"] then input_line_number - 1 else empty end' package.json)
+	echo "::error file=package.json,line=$LINE::package.json .devEngines.packageManager should be set to a pnpm version compatible with \"$PNPM_VERSION\"."
+else
+	RANGE="$(jq -r '.devEngines.packageManager.version' package.json)"
+	if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["devEngines","packageManager"] then input_line_number - 1 else empty end' package.json)
+		echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
+	fi
 fi
 
 # - Check for incorrect next-version tokens.
@@ -770,6 +782,13 @@ fi
 # - Obsolete pnpm trustPolicyExclude.
 debug "Checking for obsolete pnpm trustPolicyExclude"
 "$BASE/tools/js-tools/check-obsolete-pnpm-trust-policy-exclude.mjs" || EXIT=1
+
+# - pnpm lockfile bug: https://github.com/pnpm/pnpm/issues/12228
+debug "Checking for pnpm lockfile bug https://github.com/pnpm/pnpm/issues/12228"
+if grep -q '@pnpm/exe' "$BASE/pnpm-lock.yaml"; then
+	EXIT=1
+	echo '::error file=pnpm-lock.yaml::Please regenerate the pnpm lockfile (e.g. `git checkout $( git merge-base HEAD trunk ) pnpm-lock.yaml && pnpm dedupe`) to avoid [a bug in pnpm](https://href.li/?https://github.com/pnpm/pnpm/issues/12228).'
+fi
 
 debug "Finished"
 

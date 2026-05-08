@@ -9,8 +9,11 @@ packages:
   - .github/files/coverage-munger
 
 engineStrict: true
-managePackageManagerVersions: false
+pmOnFail: ignore
 preferWorkspacePackages: true
+
+# Variable for js-packages/webpack-config
+jetpackWebpackConfigResolveConditions: jetpack:src
 
 # Be strict about peer deps
 autoInstallPeers: false

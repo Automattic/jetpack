@@ -4,15 +4,11 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-Z6nPet4IPGE77EfdLdM8K4vzVEmz9WrMZe/voBJ5sTM=
+pnpmfileChecksum: sha256-3HjsUgCs5psqC/8vGSdDW68rU4EO0epBHL5+GhkaUZc=
 
 patchedDependencies:
-  react-autosize-textarea:
-    hash: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
-    path: .pnpm-patches/react-autosize-textarea.patch
-  uuid@<11:
-    hash: 87a713b75995ed86c0ecd0cadfd1b9f85092ca16fdff7132ff98b62fc3cf2db0
-    path: .pnpm-patches/uuid.patch
+  react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
+  uuid@<11: 87a713b75995ed86c0ecd0cadfd1b9f85092ca16fdff7132ff98b62fc3cf2db0
 
 importers:
 
@@ -13075,6 +13071,7 @@ packages:
 
   eslint-plugin-package-json@1.2.0:
     resolution: {integrity: sha512-3BszsD7XVddaUNbMfK+1lF1Qg8ck0nO3bNT/7IjXP8wrGzPThHZpkhm5UnbY1Nb/s3o6DUNgHI4aEqQV/t83fw==}
+    engines: {node: ^22.22.2 || >=24.15.0}
     peerDependencies:
       '@eslint/json': '>=1.0.0'
       eslint: '>=9.0.0'
