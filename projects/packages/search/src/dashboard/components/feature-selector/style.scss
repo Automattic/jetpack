@@ -85,7 +85,7 @@
 	// the form's radius; a single bottom border separates it from the radios.
 	&__details {
 		margin-block-start: calc(-1 * var(--wpds-dimension-padding-3xl));
-		margin-block-end: var(--wpds-dimension-gap-lg);
+		margin-block-end: var(--wpds-dimension-padding-3xl);
 		margin-inline: calc(-1 * var(--wpds-dimension-padding-3xl));
 		padding: var(--wpds-dimension-padding-3xl);
 		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
