@@ -11,6 +11,8 @@
 import { UpsellBanner } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
+import analytics from 'lib/analytics';
 
 const PRODUCT_SLUG = 'jetpack_ai_yearly';
 const UPSELL_SOURCE = 'jetpack-ai-mcp-upsell';
@@ -27,6 +29,16 @@ export default function McpUpsell() {
 		from: UPSELL_SOURCE,
 	} );
 
+	const onClickUpgrade = useCallback(
+		event => {
+			analytics.tracks.recordEvent( 'jetpack_mcp_upsell_cta_click', {
+				product_slug: PRODUCT_SLUG,
+			} );
+			run( event );
+		},
+		[ run ]
+	);
+
 	return (
 		<UpsellBanner
 			title={ __( 'Your dream site is just a prompt away', 'jetpack' ) }
@@ -40,7 +52,7 @@ export default function McpUpsell() {
 			// fallback. UpsellBanner requires `primaryCtaURL` to render the
 			// button, hence the placeholder.
 			primaryCtaURL="#"
-			primaryCtaOnClick={ run }
+			primaryCtaOnClick={ onClickUpgrade }
 		/>
 	);
 }
