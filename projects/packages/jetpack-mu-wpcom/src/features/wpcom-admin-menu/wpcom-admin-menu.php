@@ -276,11 +276,13 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 	$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
 	$ordered_submenu = array();
 
-	// Re-add submenu items in the desired order.
+	// Re-add submenu items in the desired order. Dedupe because slugs in
+	// $desired_order can be substrings of one another (e.g. 'podcast' /
+	// 'podcasting'), which would otherwise match the same item twice.
 	foreach ( $desired_order as $submenu_slug ) {
 		foreach ( $submenu[ $menu_slug ] as $item ) {
 			$clean_url = str_replace( $domain, '', $item[2] );
-			if ( str_contains( $clean_url, $submenu_slug ) ) {
+			if ( str_contains( $clean_url, $submenu_slug ) && ! in_array( $item, $ordered_submenu, true ) ) {
 				$ordered_submenu[] = $item;
 			}
 		}
