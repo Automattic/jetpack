@@ -397,7 +397,14 @@ class Jetpack_Mu_Wpcom {
 
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
-		\Automattic\Jetpack\Newsletter\Settings::init();
+		// Guarded with class_exists since mu-wpcom no longer composer-requires
+		// the jetpack-newsletter package: the class is provided by the standalone
+		// Jetpack plugin on Atomic, or by the wpcom platform's bundled Jetpack
+		// source on Simple.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Settings::init();
+		}
 
 		// Initialize the Podcast package on Simple sites (where late_initialization
 		// in class.jetpack.php doesn't run). Gated by `jetpack_podcast_untangle`
