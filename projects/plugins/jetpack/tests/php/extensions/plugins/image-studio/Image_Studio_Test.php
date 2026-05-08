@@ -1779,7 +1779,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		// Re-run the registration explicitly so the test isn't sensitive to setup order.
 		ImageStudio\register_feature_clip_post_meta();
 
-		$registered = get_registered_meta_keys( 'post' );
+		$registered = get_registered_meta_keys( 'post', 'post' );
 		$this->assertArrayHasKey( ImageStudio\FEATURE_CLIP_META_KEY, $registered );
 
 		$schema = $registered[ ImageStudio\FEATURE_CLIP_META_KEY ];
@@ -1843,7 +1843,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		ImageStudio\register_feature_clip_post_meta();
 
-		$registered = get_registered_meta_keys( 'post' );
+		$registered = get_registered_meta_keys( 'post', 'post' );
 		$this->assertArrayNotHasKey( ImageStudio\FEATURE_CLIP_META_KEY, $registered );
 
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
