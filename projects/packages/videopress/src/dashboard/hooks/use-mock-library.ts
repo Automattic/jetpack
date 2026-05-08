@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from '@wordpress/element';
 import { generateMockLibrary } from '../fixtures/library';
-import type { LibraryItemPrivacy, MockLibraryItem, UploadStatus } from '../types/library';
+import type {
+	LibraryItemPrivacy,
+	MockLibraryItem,
+	UploadStatus,
+	VideoDetailsPatch,
+} from '../types/library';
 
 const MOCK_INITIAL_LOAD_MS = 1_000;
 const MOCK_UPLOAD_DURATION_MS = 10_000;
@@ -20,7 +25,8 @@ type Action =
 			thumbnailUrl?: string | null;
 			flipToVideoPress?: boolean;
 	  }
-	| { type: 'patchPrivacy'; id: string; privacy: LibraryItemPrivacy };
+	| { type: 'patchPrivacy'; id: string; privacy: LibraryItemPrivacy }
+	| { type: 'patchVideoDetails'; id: string; patch: VideoDetailsPatch };
 
 const PROMOTED_THUMBNAIL = ( () => {
 	const svg =
@@ -63,6 +69,8 @@ function reducer( state: MockLibraryItem[], action: Action ): MockLibraryItem[] 
 			return state.map( item =>
 				item.id === action.id ? { ...item, privacy: action.privacy } : item
 			);
+		case 'patchVideoDetails':
+			return state.map( item => ( item.id === action.id ? { ...item, ...action.patch } : item ) );
 		default:
 			return state;
 	}
@@ -154,6 +162,11 @@ export function useMockLibrary() {
 				privacy: 'site-default',
 				fileSizeBytes: sizeBytes,
 				upload: { status: 'uploading', progress: 0 },
+				description: '',
+				rating: 'G',
+				allowSharing: false,
+				allowDownloads: false,
+				shortcode: `[videopress ${ id }]`,
 			};
 			dispatch( { type: 'prepend', item } );
 			runUpload( id, true );
@@ -177,6 +190,10 @@ export function useMockLibrary() {
 		dispatch( { type: 'patchPrivacy', id, privacy } );
 	}, [] );
 
+	const updateVideoDetails = useCallback( ( id: string, patch: VideoDetailsPatch ) => {
+		dispatch( { type: 'patchVideoDetails', id, patch } );
+	}, [] );
+
 	const retryUpload = useCallback(
 		( id: string ) => {
 			const target = items.find( item => item.id === id );
@@ -196,8 +213,18 @@ export function useMockLibrary() {
 			retryUpload,
 			deleteItems,
 			setPrivacy,
+			updateVideoDetails,
 		} ),
-		[ items, isLoading, startUpload, promoteLocal, retryUpload, deleteItems, setPrivacy ]
+		[
+			items,
+			isLoading,
+			startUpload,
+			promoteLocal,
+			retryUpload,
+			deleteItems,
+			setPrivacy,
+			updateVideoDetails,
+		]
 	);
 }
 
