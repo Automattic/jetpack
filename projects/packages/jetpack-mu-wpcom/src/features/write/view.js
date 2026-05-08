@@ -1901,7 +1901,15 @@ const { state } = store( 'wpcom-write', {
 			// Shift+Tab / Alt+F10: jump focus directly to the toolbar.
 			// Shift+Tab bypasses the title textarea (which clears window.getSelection()
 			// en route, losing the saved range before the toolbar is reached).
+			// Exception: if focus is inside a figure, let the browser navigate
+			// naturally between the figure's action buttons.
 			if ( ( event.key === 'Tab' && event.shiftKey ) || ( event.altKey && event.key === 'F10' ) ) {
+				if (
+					event.key === 'Tab' &&
+					event.target.closest( 'figure, .bw-image-figure, .bw-video-figure' )
+				) {
+					return;
+				}
 				event.preventDefault();
 				saveSelection();
 				const target =
