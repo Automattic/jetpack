@@ -118,15 +118,19 @@
 		-webkit-appearance: none;
 		appearance: none;
 
-		// Position each input so the thumb's vertical center aligns with the
-		// 4px track's midline (y=2). With `height: 0` and `top: 50%` the input
-		// sits exactly on the midline; the native thumb pseudo-element centers
-		// on the input's vertical center, so the thumb lands on the track.
+		// Make the input as tall as the thumb (18px visual = 14 + 2*2 border)
+		// and vertically center it on the 4px track. With `height: 18px` and
+		// `top: calc(50% - 9px)` the input's vertical midline lands on the
+		// track's midline; the native thumb pseudo-element centers on the
+		// input's content box, so the thumb sits exactly on the track. A
+		// 0-height input made the thumb anchor to the input's TOP edge in
+		// Chromium and float above the track — giving the input a real height
+		// puts the rendering on the standard centered path.
 		position: absolute;
 		left: 0;
-		top: 50%;
+		top: calc(50% - 9px);
 		width: 100%;
-		height: 0;
+		height: 18px;
 		display: block;
 		pointer-events: none;
 		z-index: 10;
