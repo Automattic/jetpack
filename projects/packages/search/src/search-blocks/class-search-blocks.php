@@ -801,12 +801,10 @@ class Search_Blocks {
 	 * @return array<string, string>
 	 */
 	protected static function build_stock_status_labels(): array {
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- status block class is optional; class_exists() guards the reference.
 		if ( ! class_exists( Search_Product_Filter_Status::class ) ) {
 			return array();
 		}
 		$labels = array();
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists() above.
 		foreach ( Search_Product_Filter_Status::get_options() as $option ) {
 			$value = (string) ( $option['value'] ?? '' );
 			if ( '' === $value ) {
