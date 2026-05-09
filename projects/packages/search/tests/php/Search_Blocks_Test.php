@@ -23,6 +23,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	protected function tearDown(): void {
 		Search_Blocks::reset_initial_loading_cache();
+		Search_Blocks::reset_is_woocommerce_active_cache();
 		parent::tearDown();
 	}
 
@@ -36,6 +37,7 @@ class Search_Blocks_Test extends TestCase {
 			'nonce',
 			'isPrivateSite',
 			'isWpcom',
+			'isWooCommerceActive',
 			'homeUrl',
 			'locale',
 			'searchQuery',
@@ -105,6 +107,44 @@ class Search_Blocks_Test extends TestCase {
 			$this->assertSame( 'relevance', $state['sortOrder'] );
 		} finally {
 			$_GET = $original_get;
+		}
+	}
+
+	/**
+	 * Product-format `?orderby` values seed `relevance` on non-Woo sites so
+	 * a deep link to a sort the API can't honour can't reach the
+	 * Elasticsearch query (RSM-1082).
+	 */
+	public function test_build_initial_state_rejects_product_sort_when_woocommerce_inactive() {
+		$original_get = $_GET;
+		$_GET         = array( 'orderby' => 'price_asc' );
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame( 'relevance', $state['sortOrder'] );
+			$this->assertFalse( $state['isWooCommerceActive'] );
+		} finally {
+			$_GET = $original_get;
+		}
+	}
+
+	/**
+	 * On Woo sites the same product-format `?orderby` values must seed the
+	 * matching sort and surface `isWooCommerceActive=true` on the IA store
+	 * so the JS-side url-state gate accepts them too (RSM-1082).
+	 */
+	public function test_build_initial_state_accepts_product_sort_when_woocommerce_active() {
+		$original_get = $_GET;
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		try {
+			foreach ( array( 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+				$_GET  = array( 'orderby' => $key );
+				$state = Search_Blocks::build_initial_state();
+				$this->assertSame( $key, $state['sortOrder'], "Expected $key to seed sortOrder when WC is active." );
+				$this->assertTrue( $state['isWooCommerceActive'] );
+			}
+		} finally {
+			$_GET = $original_get;
+			Search_Blocks::set_is_woocommerce_active_for_testing( null );
 		}
 	}
 

@@ -11,8 +11,35 @@ import { CheckboxControl, PanelBody, SelectControl, TextControl } from '@wordpre
 import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-// Mirror Results_Sort::BASE_SORT_KEYS. Product-format keys rejoin in RSM-1082.
-const ALL_SORT_KEYS = [ 'relevance', 'newest', 'oldest' ];
+// Mirror Results_Sort::BASE_SORT_KEYS / PRODUCT_SORT_KEYS. The product
+// keys only surface in the inspector when WooCommerce is active on this
+// site (see `isWooCommerceActive` below).
+const BASE_SORT_KEYS = [ 'relevance', 'newest', 'oldest' ];
+const PRODUCT_SORT_KEYS = [ 'rating_desc', 'price_asc', 'price_desc' ];
+
+/**
+ * Whether the product-format sort keys should appear in the inspector.
+ * Read at module-load from the editor-localized config (see
+ * `Search_Blocks::enqueue_editor_assets()`); defaults to `false` so an
+ * unconfigured environment (tests, headless editor previews) renders the
+ * non-Woo experience.
+ *
+ * @return {boolean} True when WooCommerce is active.
+ */
+function isWooCommerceActive() {
+	return Boolean( globalThis?.JetpackSearchBlocksConfig?.isWooCommerceActive );
+}
+
+/**
+ * Sort keys this block may render. Mirrors `Results_Sort::get_all_option_keys()`
+ * on the PHP side: base keys always, product keys only when WooCommerce is
+ * active.
+ *
+ * @return {string[]} Ordered sort keys available in this environment.
+ */
+function getAllSortKeys() {
+	return isWooCommerceActive() ? [ ...BASE_SORT_KEYS, ...PRODUCT_SORT_KEYS ] : BASE_SORT_KEYS;
+}
 
 /**
  * Translated human-readable labels for each sort key. Declared as a function
@@ -27,6 +54,9 @@ function getSortLabels() {
 		relevance: __( 'Relevance', 'jetpack-search-pkg' ),
 		newest: __( 'Newest', 'jetpack-search-pkg' ),
 		oldest: __( 'Oldest', 'jetpack-search-pkg' ),
+		rating_desc: __( 'Rating', 'jetpack-search-pkg' ),
+		price_asc: __( 'Price: low to high', 'jetpack-search-pkg' ),
+		price_desc: __( 'Price: high to low', 'jetpack-search-pkg' ),
 	};
 }
 
@@ -37,14 +67,15 @@ function getSortLabels() {
  * so a misconfigured block never shows a control with zero options.
  *
  * @param {string[]|undefined} stored - Saved `availableSortOptions` value.
+ * @param {string[]}           all    - Sort keys this environment exposes.
  * @return {string[]} Ordered sort keys to render.
  */
-function resolveAvailable( stored ) {
+function resolveAvailable( stored, all ) {
 	if ( ! Array.isArray( stored ) ) {
-		return ALL_SORT_KEYS;
+		return all;
 	}
-	const filtered = ALL_SORT_KEYS.filter( key => stored.includes( key ) );
-	return filtered.length === 0 ? ALL_SORT_KEYS : filtered;
+	const filtered = all.filter( key => stored.includes( key ) );
+	return filtered.length === 0 ? all : filtered;
 }
 
 /**
@@ -60,8 +91,9 @@ export default function ResultsSortEdit( { attributes, setAttributes } ) {
 	// editor renders more than one Results Sort on the same canvas.
 	const baseId = useId();
 
+	const allSortKeys = getAllSortKeys();
 	const labels = getSortLabels();
-	const defaultSort = ALL_SORT_KEYS.includes( attributes?.defaultSort )
+	const defaultSort = allSortKeys.includes( attributes?.defaultSort )
 		? attributes.defaultSort
 		: 'relevance';
 	let displayAs = 'select';
@@ -75,8 +107,8 @@ export default function ResultsSortEdit( { attributes, setAttributes } ) {
 	} );
 	const storedAvailable = Array.isArray( attributes?.availableSortOptions )
 		? attributes.availableSortOptions
-		: ALL_SORT_KEYS;
-	const available = resolveAvailable( storedAvailable );
+		: allSortKeys;
+	const available = resolveAvailable( storedAvailable, allSortKeys );
 	const labelText = ( attributes?.label || '' ).trim() || __( 'Sort by', 'jetpack-search-pkg' );
 
 	// If the saved default no longer appears in `availableSortOptions` (e.g.
@@ -86,7 +118,7 @@ export default function ResultsSortEdit( { attributes, setAttributes } ) {
 
 	const toggleAvailable = ( sortKey, checked ) => {
 		const next = checked
-			? ALL_SORT_KEYS.filter( key => key === sortKey || storedAvailable.includes( key ) )
+			? allSortKeys.filter( key => key === sortKey || storedAvailable.includes( key ) )
 			: storedAvailable.filter( key => key !== sortKey );
 		// Persisting `[]` would make the preview fall back to "all options"
 		// (matching `resolveAvailable()` and the PHP renderer) while every
@@ -94,7 +126,7 @@ export default function ResultsSortEdit( { attributes, setAttributes } ) {
 		// authors can't easily reason about. Snap the empty case back to the
 		// canonical full set so the saved attribute always matches what
 		// renders.
-		const normalizedNext = next.length === 0 ? ALL_SORT_KEYS : next;
+		const normalizedNext = next.length === 0 ? allSortKeys : next;
 		// If the author just unchecked the current `defaultSort` AND it's no
 		// longer in the saved set, move the attribute onto the first still-
 		// available key in the same setAttributes call. Without this,
@@ -157,7 +189,7 @@ export default function ResultsSortEdit( { attributes, setAttributes } ) {
 				/>
 			</PanelBody>
 			<PanelBody title={ __( 'Available options', 'jetpack-search-pkg' ) }>
-				{ ALL_SORT_KEYS.map( key => (
+				{ allSortKeys.map( key => (
 					<CheckboxControl
 						key={ key }
 						__nextHasNoMarginBottom

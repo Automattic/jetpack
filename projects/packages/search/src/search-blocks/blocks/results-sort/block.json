@@ -13,14 +13,14 @@
 		"defaultSort": {
 			"type": "string",
 			"default": "relevance",
-			"enum": [ "relevance", "newest", "oldest" ]
+			"enum": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ]
 		},
 		"availableSortOptions": {
 			"type": "array",
 			"default": [ "relevance", "newest", "oldest" ],
 			"items": {
 				"type": "string",
-				"enum": [ "relevance", "newest", "oldest" ]
+				"enum": [ "relevance", "newest", "oldest", "rating_desc", "price_asc", "price_desc" ]
 			}
 		},
 		"label": { "type": "string", "default": "" },
