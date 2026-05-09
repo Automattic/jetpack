@@ -112,8 +112,8 @@ if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
 		// Floor the floor and ceiling the ceiling so the slider snaps to whole
 		// numbers — `$24.95` becomes a `24` floor / `95` ceiling, which reads
 		// cleaner in the value labels and avoids fractional thumb positions.
-		$min_attr = (float) floor( (float) $cached_range['min'] );
-		$max_attr = (float) ceil( (float) $cached_range['max'] );
+		$min_attr = floor( (float) $cached_range['min'] );
+		$max_attr = ceil( (float) $cached_range['max'] );
 	}
 }
 
