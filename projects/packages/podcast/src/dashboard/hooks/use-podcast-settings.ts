@@ -1,7 +1,5 @@
-import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import apiFetch from '@wordpress/api-fetch';
-import { dispatch } from '@wordpress/data';
+import { useEntityRecord, store as coreStore } from '@wordpress/core-data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import type {
@@ -10,8 +8,6 @@ import type {
 	PodcastShowUrls,
 	PodcatcherId,
 } from '../types';
-
-const QUERY_KEY = [ 'jetpack-podcast', 'settings' ] as const;
 
 const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_category_id',
@@ -79,104 +75,67 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-// Simple sites store podcasting_* in the wpcom site-settings store, not in
-// `wp_options`. The `/rest/v1.4` path is the authoritative read/write surface
-// there; on Atomic, `register_setting()` makes `/wp/v2/settings` work.
-const fetchSettings = async (): Promise< PodcastSettings > => {
-	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-	if ( isSimpleSite() && blogId ) {
-		const result = ( await apiFetch( {
-			path: `/rest/v1.4/sites/${ blogId }/settings`,
-			method: 'GET',
-		} ) ) as { settings?: Record< string, unknown > };
-		return pickPodcastFields( ( result.settings || result ) as Record< string, unknown > );
-	}
-	const result = ( await apiFetch( {
-		path: '/wp/v2/settings',
-		method: 'GET',
-	} ) ) as Record< string, unknown >;
-	return pickPodcastFields( result );
-};
-
-const updateSettings = async ( updates: PodcastSettingsUpdate ): Promise< PodcastSettings > => {
-	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-	if ( isSimpleSite() && blogId ) {
-		const result = ( await apiFetch( {
-			path: `/rest/v1.4/sites/${ blogId }/settings`,
-			method: 'POST',
-			data: updates,
-		} ) ) as { updated?: Record< string, unknown > };
-		return pickPodcastFields( ( result.updated || result ) as Record< string, unknown > );
-	}
-	const result = ( await apiFetch( {
-		path: '/wp/v2/settings',
-		method: 'POST',
-		data: updates,
-	} ) ) as Record< string, unknown >;
-	return pickPodcastFields( result );
-};
-
-/**
- * Read the current `podcasting_*` options as a single TanStack Query.
- *
- * @return Query result; `data` is the resolved settings once loaded.
- */
-export function usePodcastSettings() {
-	return useQuery< PodcastSettings >( {
-		queryKey: QUERY_KEY,
-		queryFn: fetchSettings,
-		staleTime: 60_000,
-	} );
+interface MutateCallbacks {
+	onSuccess?: ( result: PodcastSettings ) => void;
+	onError?: ( error: unknown ) => void;
 }
 
 /**
- * Mutation that patches settings with optimistic UI: cache patched immediately,
- * rolled back on error, snackbar dispatched either way.
+ * Read the current `podcasting_*` options out of the core-data 'site' entity.
  *
- * @return TanStack mutation; call `mutate(partial)` to save.
+ * @return `{ data, isLoading }` matching the prior TanStack-shaped contract.
  */
-export function useUpdatePodcastSettings() {
-	const queryClient = useQueryClient();
+export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoading: boolean } {
+	const { record, hasResolved } = useEntityRecord< Record< string, unknown > >( 'root', 'site' );
+	const data = record ? pickPodcastFields( record ) : undefined;
+	return { data, isLoading: ! hasResolved };
+}
 
-	return useMutation<
-		PodcastSettings,
-		Error,
-		PodcastSettingsUpdate,
-		{ previous?: PodcastSettings }
-	>( {
-		mutationFn: updateSettings,
-		onMutate: async updates => {
-			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
-			const previous = queryClient.getQueryData< PodcastSettings >( QUERY_KEY );
-			if ( previous ) {
-				// Deep-merge `podcasting_show_urls` so a partial patch doesn't
-				// blow away sibling directories. Server merges the same way.
-				const optimistic: PodcastSettings = {
-					...previous,
-					...updates,
-					podcasting_show_urls: {
-						...previous.podcasting_show_urls,
-						...( updates.podcasting_show_urls ?? {} ),
-					},
-				};
-				queryClient.setQueryData< PodcastSettings >( QUERY_KEY, optimistic );
-			}
-			return { previous };
-		},
-		onError: ( _error, _updates, context ) => {
-			if ( context?.previous ) {
-				queryClient.setQueryData( QUERY_KEY, context.previous );
-			}
-			dispatch( noticesStore ).createErrorNotice(
-				__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-				{ type: 'snackbar' }
-			);
-		},
-		onSuccess: data => {
-			queryClient.setQueryData< PodcastSettings >( QUERY_KEY, data );
-			dispatch( noticesStore ).createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
-				type: 'snackbar',
+/**
+ * Save a partial settings update through core-data.
+ *
+ * The server merges the patch into the stored settings and returns the full
+ * record, which core-data uses to refresh the cache. Snackbars are dispatched
+ * here so callers don't have to wire them up.
+ *
+ * @return `{ mutate, isPending }` matching the prior TanStack-shaped contract.
+ */
+export function useUpdatePodcastSettings(): {
+	mutate: ( updates: PodcastSettingsUpdate, callbacks?: MutateCallbacks ) => void;
+	isPending: boolean;
+} {
+	const { saveEntityRecord } = useDispatch( coreStore );
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const isPending = useSelect(
+		select => !! select( coreStore ).isSavingEntityRecord( 'root', 'site', undefined ),
+		[]
+	);
+
+	const mutate = (
+		updates: PodcastSettingsUpdate,
+		{ onSuccess, onError }: MutateCallbacks = {}
+	) => {
+		saveEntityRecord( 'root', 'site', updates as Record< string, unknown > )
+			.then( record => {
+				if ( ! record ) {
+					onError?.( new Error( 'save returned no record' ) );
+					createErrorNotice(
+						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
+						{ type: 'snackbar' }
+					);
+					return;
+				}
+				onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
+				createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), { type: 'snackbar' } );
+			} )
+			.catch( error => {
+				onError?.( error );
+				createErrorNotice(
+					__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
+					{ type: 'snackbar' }
+				);
 			} );
-		},
-	} );
+	};
+
+	return { mutate, isPending };
 }

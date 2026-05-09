@@ -3622,9 +3622,6 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
-      '@tanstack/react-query':
-        specifier: 5.96.1
-        version: 5.96.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.44.0
         version: 7.44.0
@@ -3634,6 +3631,9 @@ importers:
       '@wordpress/compose':
         specifier: 7.44.0
         version: 7.44.0(react@18.3.1)
+      '@wordpress/core-data':
+        specifier: 7.44.0
+        version: 7.44.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.44.0
         version: 10.44.0(react@18.3.1)
@@ -24481,17 +24481,17 @@ snapshots:
       '@wordpress/blocks': 15.17.0(react@18.3.1)
       '@wordpress/compose': 7.44.0(react@18.3.1)
       '@wordpress/data': 10.44.0(react@18.3.1)
-      '@wordpress/deprecated': 4.44.0
+      '@wordpress/deprecated': 4.45.0
       '@wordpress/element': 6.44.0
       '@wordpress/html-entities': 4.44.0
       '@wordpress/i18n': 6.17.0
-      '@wordpress/is-shallow-equal': 5.44.0
+      '@wordpress/is-shallow-equal': 5.45.0
       '@wordpress/private-apis': 1.44.0
       '@wordpress/rich-text': 7.44.0(react@18.3.1)
       '@wordpress/sync': 1.44.0
-      '@wordpress/undo-manager': 1.44.0
+      '@wordpress/undo-manager': 1.45.0
       '@wordpress/url': 4.44.0
-      '@wordpress/warning': 3.44.0
+      '@wordpress/warning': 3.45.0
       change-case: 4.1.2
       equivalent-key-map: 0.2.2
       fast-deep-equal: 3.1.3
@@ -24513,17 +24513,17 @@ snapshots:
       '@wordpress/blocks': 15.17.0(react@18.3.1)
       '@wordpress/compose': 7.44.0(react@18.3.1)
       '@wordpress/data': 10.44.0(react@18.3.1)
-      '@wordpress/deprecated': 4.44.0
+      '@wordpress/deprecated': 4.45.0
       '@wordpress/element': 6.44.0
       '@wordpress/html-entities': 4.44.0
       '@wordpress/i18n': 6.17.0
-      '@wordpress/is-shallow-equal': 5.44.0
+      '@wordpress/is-shallow-equal': 5.45.0
       '@wordpress/private-apis': 1.44.0
       '@wordpress/rich-text': 7.44.0(react@18.3.1)
       '@wordpress/sync': 1.44.0
-      '@wordpress/undo-manager': 1.44.0
+      '@wordpress/undo-manager': 1.45.0
       '@wordpress/url': 4.44.0
-      '@wordpress/warning': 3.44.0
+      '@wordpress/warning': 3.45.0
       change-case: 4.1.2
       equivalent-key-map: 0.2.2
       fast-deep-equal: 3.1.3
@@ -24545,17 +24545,17 @@ snapshots:
       '@wordpress/blocks': 15.17.0(react@18.3.1)
       '@wordpress/compose': 7.44.0(react@18.3.1)
       '@wordpress/data': 10.44.0(react@18.3.1)
-      '@wordpress/deprecated': 4.44.0
+      '@wordpress/deprecated': 4.45.0
       '@wordpress/element': 6.44.0
       '@wordpress/html-entities': 4.44.0
       '@wordpress/i18n': 6.17.0
-      '@wordpress/is-shallow-equal': 5.44.0
+      '@wordpress/is-shallow-equal': 5.45.0
       '@wordpress/private-apis': 1.44.0
       '@wordpress/rich-text': 7.44.0(react@18.3.1)
       '@wordpress/sync': 1.44.0
-      '@wordpress/undo-manager': 1.44.0
+      '@wordpress/undo-manager': 1.45.0
       '@wordpress/url': 4.44.0
-      '@wordpress/warning': 3.44.0
+      '@wordpress/warning': 3.45.0
       change-case: 4.1.2
       equivalent-key-map: 0.2.2
       fast-deep-equal: 3.1.3
@@ -26259,7 +26259,7 @@ snapshots:
 
   '@wordpress/undo-manager@1.44.0':
     dependencies:
-      '@wordpress/is-shallow-equal': 5.44.0
+      '@wordpress/is-shallow-equal': 5.45.0
 
   '@wordpress/undo-manager@1.45.0':
     dependencies:

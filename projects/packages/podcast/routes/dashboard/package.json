@@ -5,11 +5,11 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@tanstack/react-query": "5.96.1",
 		"@types/react": "18.3.28",
 		"@wordpress/api-fetch": "7.44.0",
 		"@wordpress/components": "32.6.0",
 		"@wordpress/compose": "7.44.0",
+		"@wordpress/core-data": "7.44.0",
 		"@wordpress/data": "10.44.0",
 		"@wordpress/dataviews": "14.1.0",
 		"@wordpress/element": "6.44.0",

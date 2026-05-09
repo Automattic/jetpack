@@ -1,5 +1,4 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -33,17 +32,7 @@ const resolveInitialTab = ( isSetUp: boolean ): TabName => {
 	return isSetUp ? 'settings' : 'welcome';
 };
 
-const queryClient = new QueryClient( {
-	defaultOptions: {
-		queries: {
-			refetchOnWindowFocus: false,
-			retry: 1,
-			staleTime: 30_000,
-		},
-	},
-} );
-
-const PodcastApp = () => {
+const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	// scriptData.categoryId resolves the legacy `podcasting_archive` slug to a
 	// term id in PHP. Sites pre-dating `podcasting_category_id` only have the
@@ -157,11 +146,5 @@ const PodcastApp = () => {
 		</Tabs.Root>
 	);
 };
-
-const App = () => (
-	<QueryClientProvider client={ queryClient }>
-		<PodcastApp />
-	</QueryClientProvider>
-);
 
 export default App;
