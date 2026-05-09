@@ -9,7 +9,13 @@
  * aggregation is deferred to a follow-up.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { Notice, PanelBody, SelectControl, TextControl } from '@wordpress/components';
+import {
+	Notice,
+	PanelBody,
+	SelectControl,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const DEFAULT_LABEL = __( 'Price', 'jetpack-search-pkg' );
@@ -48,6 +54,7 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 	const min = Number.isFinite( attributes?.min ) ? attributes.min : 0;
 	const max = Number.isFinite( attributes?.max ) ? attributes.max : 1000;
 	const step = Number.isFinite( attributes?.step ) && attributes.step > 0 ? attributes.step : 1;
+	const autoBounds = attributes?.autoBounds !== false;
 	const formatBound = value =>
 		effectivePosition === 'right'
 			? `${ value }${ effectiveSymbol }`
@@ -95,7 +102,17 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Slider range', 'jetpack-search-pkg' ) }>
-					{ min >= max && (
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Auto-detect range from store', 'jetpack-search-pkg' ) }
+						checked={ autoBounds }
+						onChange={ value => setAttributes( { autoBounds: !! value } ) }
+						help={ __(
+							'When enabled, the slider bounds match the store’s actual minimum and maximum product price. Disable to set the range manually.',
+							'jetpack-search-pkg'
+						) }
+					/>
+					{ ! autoBounds && min >= max && (
 						<Notice status="warning" isDismissible={ false }>
 							{ __(
 								'Minimum must be less than maximum for the slider to render correctly.',
@@ -110,6 +127,7 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 						min={ 0 }
 						label={ __( 'Minimum', 'jetpack-search-pkg' ) }
 						value={ String( min ) }
+						disabled={ autoBounds }
 						onChange={ value => setAttributes( { min: Number( value ) || 0 } ) }
 					/>
 					<TextControl
@@ -119,6 +137,7 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 						min={ 0 }
 						label={ __( 'Maximum', 'jetpack-search-pkg' ) }
 						value={ String( max ) }
+						disabled={ autoBounds }
 						onChange={ value => setAttributes( { max: Number( value ) || 0 } ) }
 					/>
 					<TextControl

@@ -118,8 +118,13 @@
 		-webkit-appearance: none;
 		appearance: none;
 
+		// Position each input so the thumb's vertical center aligns with the
+		// 4px track's midline (y=2). With `height: 0` and `top: 50%` the input
+		// sits exactly on the midline; the native thumb pseudo-element centers
+		// on the input's vertical center, so the thumb lands on the track.
 		position: absolute;
-		inset: 0;
+		left: 0;
+		top: 50%;
 		width: 100%;
 		height: 0;
 		display: block;

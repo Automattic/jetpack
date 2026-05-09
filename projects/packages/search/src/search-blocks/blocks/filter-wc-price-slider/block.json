@@ -23,7 +23,8 @@
 		"currencySymbolPosition": { "type": "string", "default": "" },
 		"min": { "type": "number", "default": 0 },
 		"max": { "type": "number", "default": 1000 },
-		"step": { "type": "number", "default": 1 }
+		"step": { "type": "number", "default": 1 },
+		"autoBounds": { "type": "boolean", "default": true }
 	},
 	"render": "file:./render.php",
 	"viewScriptModule": "file:../../../../build/search-blocks/filter-wc-price-slider.js",

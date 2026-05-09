@@ -42,13 +42,67 @@ if ( ! function_exists( 'wp_interactivity_state' ) ) {
 }
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$attrs    = (array) $attributes;
-$label    = sanitize_text_field( (string) ( $attrs['label'] ?? '' ) );
-$symbol   = sanitize_text_field( (string) ( $attrs['currencySymbol'] ?? '' ) );
-$position = sanitize_text_field( (string) ( $attrs['currencySymbolPosition'] ?? '' ) );
-$min_attr = isset( $attrs['min'] ) ? (float) $attrs['min'] : 0.0;
-$max_attr = isset( $attrs['max'] ) ? (float) $attrs['max'] : 1000.0;
-$step     = isset( $attrs['step'] ) && (float) $attrs['step'] > 0 ? (float) $attrs['step'] : 1.0;
+$attrs       = (array) $attributes;
+$label       = sanitize_text_field( (string) ( $attrs['label'] ?? '' ) );
+$symbol      = sanitize_text_field( (string) ( $attrs['currencySymbol'] ?? '' ) );
+$position    = sanitize_text_field( (string) ( $attrs['currencySymbolPosition'] ?? '' ) );
+$min_attr    = isset( $attrs['min'] ) ? (float) $attrs['min'] : 0.0;
+$max_attr    = isset( $attrs['max'] ) ? (float) $attrs['max'] : 1000.0;
+$step        = isset( $attrs['step'] ) && (float) $attrs['step'] > 0 ? (float) $attrs['step'] : 1.0;
+$auto_bounds = ! isset( $attrs['autoBounds'] ) || (bool) $attrs['autoBounds'];
+
+// Auto-bound the slider to the store's actual price extents when WooCommerce
+// is active and the author hasn't opted out. We pull min/max directly from
+// `wp_postmeta._price` rather than going through a search-API aggregation
+// because WPCOM v1.3's whitelist excludes `range`/`stats` aggs (see the comments
+// in `store/api.js` for the rating filter's histogram workaround). A 5-minute
+// transient absorbs the cost of the SQL across page loads — this is a per-page
+// "what's the store's price range?" lookup, not a per-search filter clause.
+if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
+	$cached_range = function_exists( 'get_transient' ) ? get_transient( 'jetpack_search_wc_price_extents' ) : false;
+	if ( false === $cached_range ) {
+		global $wpdb;
+		$cached_range = array(
+			'min' => null,
+			'max' => null,
+		);
+		if ( isset( $wpdb ) ) {
+			// `_price` is the canonical WC postmeta key — it's the computed
+			// price WC uses for both filtering and sorting. Cast to DECIMAL so
+			// MIN/MAX compare numerically (the underlying meta_value column is
+			// LONGTEXT). Empty / non-numeric rows are filtered out so a "Call
+			// for price" product doesn't poison the bounds. Caching is handled
+			// by the surrounding transient — the phpcs caching warning fires
+			// because the call site doesn't use wp_cache_*, but the transient
+			// already provides the same effect across page loads.
+			$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				"SELECT
+					MIN(CAST(meta_value AS DECIMAL(20,6))) AS min_price,
+					MAX(CAST(meta_value AS DECIMAL(20,6))) AS max_price
+				FROM {$wpdb->postmeta}
+				WHERE meta_key = '_price'
+					AND meta_value <> ''
+					AND meta_value REGEXP '^[0-9]+(\\\\.[0-9]+)?$'"
+			);
+			if ( $row && null !== $row->min_price && null !== $row->max_price ) {
+				$cached_range = array(
+					'min' => (float) $row->min_price,
+					'max' => (float) $row->max_price,
+				);
+			}
+		}
+		if ( function_exists( 'set_transient' ) ) {
+			set_transient( 'jetpack_search_wc_price_extents', $cached_range, 5 * MINUTE_IN_SECONDS );
+		}
+	}
+	if ( is_array( $cached_range ) && null !== ( $cached_range['min'] ?? null ) && null !== ( $cached_range['max'] ?? null ) ) {
+		// Floor the floor and ceiling the ceiling so the slider snaps to whole
+		// numbers — `$24.95` becomes a `24` floor / `95` ceiling, which reads
+		// cleaner in the value labels and avoids fractional thumb positions.
+		$min_attr = (float) floor( (float) $cached_range['min'] );
+		$max_attr = (float) ceil( (float) $cached_range['max'] );
+	}
+}
 
 if ( '' === $label ) {
 	$label = __( 'Price', 'jetpack-search-pkg' );
