@@ -767,7 +767,52 @@ class Search_Blocks {
 			// without a round trip; languages with more than two plural forms
 			// degrade to "plural for all count > 1" as an accepted tradeoff.
 			'strings'               => static::build_initial_strings(),
+
+			// Currency symbol displayed inside the price filter pill rendered
+			// by the active-filters block. Defaults to `$`; the price block's
+			// render.php overrides this with the author's currencySymbol
+			// attribute so a single chip on the page reflects whatever symbol
+			// the price input itself uses. The stored numeric value stays
+			// locale-agnostic — only the display string carries the symbol.
+			'priceCurrencySymbol'   => '$',
+
+			// Display labels for `wc_stock_status` selections, keyed by slug.
+			// Seeded from the status block's static option list so an active-
+			// filters chip for "instock" reads "In stock" rather than the raw
+			// slug. RSM-1932 will swap this with WC's translated labels so
+			// non-English locales render correctly; the map shape stays the
+			// same.
+			'wcStockStatusLabels'   => static::build_stock_status_labels(),
 		);
+	}
+
+	/**
+	 * Slug → display label map for `wc_stock_status` selections, used by the
+	 * active-filters block to render product-aware chips.
+	 *
+	 * Sourced from the status block's `get_options()` so there's one source of
+	 * truth for the label set; in RSM-1932 we'll switch to WC's translated
+	 * labels (`wc_get_product_stock_status_options()`) without changing this
+	 * shape. Returns an empty array when the status helper class isn't loaded
+	 * — defensive for environments that pull the search package in isolation
+	 * (tests, partial installs, or sites where the status block PR hasn't
+	 * landed yet).
+	 *
+	 * @return array<string, string>
+	 */
+	protected static function build_stock_status_labels(): array {
+		if ( ! class_exists( Search_Product_Filter_Status::class ) ) {
+			return array();
+		}
+		$labels = array();
+		foreach ( Search_Product_Filter_Status::get_options() as $option ) {
+			$value = (string) ( $option['value'] ?? '' );
+			if ( '' === $value ) {
+				continue;
+			}
+			$labels[ $value ] = (string) ( $option['label'] ?? $value );
+		}
+		return $labels;
 	}
 
 	/**
@@ -890,20 +935,41 @@ class Search_Blocks {
 	protected static function build_initial_strings(): array {
 		if ( ! function_exists( '__' ) || ! function_exists( '_n' ) ) {
 			return array(
-				'searching'          => 'Searching…',
-				'resultsCountSingle' => 'Found %d result',
-				'resultsCountPlural' => 'Found %d results',
-				'removeFilter'       => 'Remove %s',
+				'searching'              => 'Searching…',
+				'resultsCountSingle'     => 'Found %d result',
+				'resultsCountPlural'     => 'Found %d results',
+				'removeFilter'           => 'Remove %s',
+				'ratingStarsTop'         => '5 stars',
+				'ratingStarsAndUpSingle' => '%d star and up',
+				'ratingStarsAndUpPlural' => '%d stars and up',
+				'priceRangeFromTo'       => '%1$s – %2$s',
+				'priceRangeFrom'         => '%s+',
+				'priceRangeUpTo'         => 'Under %s',
+				'priceLabel'             => 'Price',
 			);
 		}
 		return array(
-			'searching'          => __( 'Searching…', 'jetpack-search-pkg' ),
+			'searching'              => __( 'Searching…', 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountSingle' => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
+			'resultsCountSingle'     => _n( 'Found %d result', 'Found %d results', 1, 'jetpack-search-pkg' ),
 			/* translators: %d: number of results. */
-			'resultsCountPlural' => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
+			'resultsCountPlural'     => _n( 'Found %d result', 'Found %d results', 2, 'jetpack-search-pkg' ),
 			/* translators: %s: filter label (e.g. "Category: News"). Announced by screen readers when focus lands on a filter pill's remove button. */
-			'removeFilter'       => __( 'Remove %s', 'jetpack-search-pkg' ),
+			'removeFilter'           => __( 'Remove %s', 'jetpack-search-pkg' ),
+			/* translators: Active-filter chip label for the 5-star row. The 5-star row is "exactly 5 stars" — no "& up" affordance — because there is no higher rating. Mirrors the row's aria-label in filter-wc-rating/render.php. */
+			'ratingStarsTop'         => __( '5 stars', 'jetpack-search-pkg' ),
+			/* translators: %d: rating threshold (singular form, i.e. 1). Active-filter chip label for the "1 star and up" threshold row. Mirrors the row's aria-label in filter-wc-rating/render.php. */
+			'ratingStarsAndUpSingle' => _n( '%d star and up', '%d stars and up', 1, 'jetpack-search-pkg' ),
+			/* translators: %d: rating threshold (plural form, i.e. 2-4). Active-filter chip label for the "X stars and up" threshold rows. Mirrors the row's aria-label in filter-wc-rating/render.php. */
+			'ratingStarsAndUpPlural' => _n( '%d star and up', '%d stars and up', 2, 'jetpack-search-pkg' ),
+			/* translators: 1: minimum price (already includes the currency symbol). 2: maximum price (already includes the currency symbol). Renders an active "Price: $10 – $50" filter pill. */
+			'priceRangeFromTo'       => __( '%1$s – %2$s', 'jetpack-search-pkg' ),
+			/* translators: %s: minimum price (already includes the currency symbol). Renders an active "Price: $10+" filter pill (no upper bound) — compact "and above" form aligned with mainstream e-commerce filter chips. */
+			'priceRangeFrom'         => __( '%s+', 'jetpack-search-pkg' ),
+			/* translators: %s: maximum price (already includes the currency symbol). Renders an active "Price: Under $50" filter pill (no lower bound) — mirrors Amazon/eBay/Walmart's "Under $X" convention. */
+			'priceRangeUpTo'         => __( 'Under %s', 'jetpack-search-pkg' ),
+			/* translators: Group label for the price filter pill ("Price: $10 – $50"). Mirrors the price block's default heading; falls back to this when no price block is on the page. */
+			'priceLabel'             => __( 'Price', 'jetpack-search-pkg' ),
 		);
 	}
 
