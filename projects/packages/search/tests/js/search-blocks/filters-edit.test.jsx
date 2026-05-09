@@ -1,21 +1,21 @@
 import { render, screen } from '@testing-library/react';
 import { InnerBlocks } from '@wordpress/block-editor';
-import FiltersStackEdit from '../../../src/search-blocks/blocks/filters-stack/edit';
+import FiltersEdit from '../../../src/search-blocks/blocks/filters/edit';
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: props => ( { ...props, className: props?.className } ),
-	InnerBlocks: jest.fn( () => <div data-testid="filters-stack-inner-blocks" /> ),
+	InnerBlocks: jest.fn( () => <div data-testid="filters-inner-blocks" /> ),
 } ) );
 
-describe( 'FiltersStackEdit', () => {
+describe( 'FiltersEdit', () => {
 	beforeEach( () => {
 		InnerBlocks.mockClear();
 	} );
 
 	it( 'renders InnerBlocks with the default filter template + allowedBlocks contract', () => {
-		render( <FiltersStackEdit /> );
+		render( <FiltersEdit /> );
 
-		expect( screen.getByTestId( 'filters-stack-inner-blocks' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'filters-inner-blocks' ) ).toBeInTheDocument();
 		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
 		expect( props.template ).toEqual( [
 			[ 'jetpack-search/active-filters' ],

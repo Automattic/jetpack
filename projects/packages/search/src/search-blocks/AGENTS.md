@@ -9,7 +9,7 @@ All blocks use the `jetpack-search/*` namespace (mirrors the composer package `a
 Current slug shapes — match one if it fits, but new shapes are fine when nothing here covers it:
 
 - **Filters:** `filter-{kind}` (e.g. `filter-checkbox`, `filter-date`, `filter-post-type`). Visitor-facing titles read "Filter by X". Author-configured filters with no front-end UI take a distinct title (e.g. "Post Type Scope") so they don't collide with visitor-facing variations of the same dimension.
-- **Filter compositions:** `filters-{layout}` (e.g. `filters-stack`, `filters-popover`).
+- **Filter compositions:** `filters` for the default vertical stack; layout-suffixed `filters-{layout}` for variants (e.g. `filters-popover`, `filters-product`).
 - **Results region:** `search-results` for the container; `results-{role}` for atoms inside it (`results-list`, `results-count`, `results-sort`, `results-load-more`).
 - **Standalone:** bare role slug (`search-input`, `powered-by`, `active-filters`).
 
