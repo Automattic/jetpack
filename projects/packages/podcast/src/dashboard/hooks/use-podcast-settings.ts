@@ -1,11 +1,120 @@
+import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { fetchSettings, updateSettings } from '../api';
-import type { PodcastSettings, PodcastSettingsUpdate } from '../types';
+import type {
+	PodcastSettings,
+	PodcastSettingsUpdate,
+	PodcastShowUrls,
+	PodcatcherId,
+} from '../types';
 
 const QUERY_KEY = [ 'jetpack-podcast', 'settings' ] as const;
+
+const PODCAST_KEYS: Array< keyof PodcastSettings > = [
+	'podcasting_category_id',
+	'podcasting_title',
+	'podcasting_talent_name',
+	'podcasting_summary',
+	'podcasting_copyright',
+	'podcasting_explicit',
+	'podcasting_image',
+	'podcasting_image_id',
+	'podcasting_category_1',
+	'podcasting_category_2',
+	'podcasting_category_3',
+	'podcasting_email',
+	'podcasting_show_urls',
+];
+
+// Keep in sync with `SHOW_URL_HOSTS` in src/class-settings.php.
+const PODCATCHER_IDS: readonly PodcatcherId[] = [
+	'pocketcasts',
+	'apple',
+	'spotify',
+	'youtube',
+	'amazon',
+	'podcastindex',
+] as const;
+
+const normalizeShowUrls = ( raw: unknown ): PodcastShowUrls => {
+	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
+	const out = {} as PodcastShowUrls;
+	for ( const id of PODCATCHER_IDS ) {
+		const value = source[ id ];
+		out[ id ] = typeof value === 'string' ? value : '';
+	}
+	return out;
+};
+
+const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings => {
+	const numericKey = ( key: keyof PodcastSettings ) =>
+		key === 'podcasting_category_id' || key === 'podcasting_image_id';
+
+	const toString = ( value: unknown ): string => {
+		if ( typeof value === 'string' ) {
+			return value;
+		}
+		if ( value == null ) {
+			return '';
+		}
+		return String( value );
+	};
+
+	const out: Record< string, unknown > = {};
+	for ( const key of PODCAST_KEYS ) {
+		const value = raw[ key ];
+		if ( numericKey( key ) ) {
+			out[ key ] = typeof value === 'number' ? value : Number( value ?? 0 ) || 0;
+		} else if ( key === 'podcasting_explicit' ) {
+			out[ key ] = value === 'yes' || value === 'clean' ? value : 'no';
+		} else if ( key === 'podcasting_show_urls' ) {
+			out[ key ] = normalizeShowUrls( value );
+		} else {
+			out[ key ] = toString( value );
+		}
+	}
+	return out as unknown as PodcastSettings;
+};
+
+// Simple sites store podcasting_* in the wpcom site-settings store, not in
+// `wp_options`. The `/rest/v1.4` path is the authoritative read/write surface
+// there; on Atomic, `register_setting()` makes `/wp/v2/settings` work.
+const fetchSettings = async (): Promise< PodcastSettings > => {
+	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
+	if ( isSimpleSite() && blogId ) {
+		const result = ( await apiFetch( {
+			path: `/rest/v1.4/sites/${ blogId }/settings`,
+			method: 'GET',
+		} ) ) as { settings?: Record< string, unknown > };
+		return pickPodcastFields( ( result.settings || result ) as Record< string, unknown > );
+	}
+	const result = ( await apiFetch( {
+		path: '/wp/v2/settings',
+		method: 'GET',
+	} ) ) as Record< string, unknown >;
+	return pickPodcastFields( result );
+};
+
+const updateSettings = async ( updates: PodcastSettingsUpdate ): Promise< PodcastSettings > => {
+	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
+	if ( isSimpleSite() && blogId ) {
+		const result = ( await apiFetch( {
+			path: `/rest/v1.4/sites/${ blogId }/settings`,
+			method: 'POST',
+			data: updates,
+		} ) ) as { updated?: Record< string, unknown > };
+		return pickPodcastFields( ( result.updated || result ) as Record< string, unknown > );
+	}
+	const result = ( await apiFetch( {
+		path: '/wp/v2/settings',
+		method: 'POST',
+		data: updates,
+	} ) ) as Record< string, unknown >;
+	return pickPodcastFields( result );
+};
 
 /**
  * Read the current `podcasting_*` options as a single TanStack Query.
