@@ -171,12 +171,14 @@ function wpcom_better_footer_links( $footer ) {
 		preg_quote( __( 'Design by', 'wpcomsh' ), '#' )
 	);
 
-	if ( preg_match( "#$designer_match#i", $footer ) ) {
-		$footer = preg_replace( "#$designer_match#i", '', $footer, 1 );
-	}
+	if ( ! empty( $theme->name ) ) {
+		if ( preg_match( "#$designer_match#i", $footer ) ) {
+			$footer = preg_replace( "#$designer_match#i", '', $footer, 1 );
+		}
 
-	if ( preg_match( "#$theme_match#i", $footer ) ) {
-		$footer = preg_replace( "#$theme_match#i", '', $footer, 1 );
+		if ( preg_match( "#$theme_match#i", $footer ) ) {
+			$footer = preg_replace( "#$theme_match#i", '', $footer, 1 );
+		}
 	}
 
 	if ( preg_match( "#$design_by#i", $footer ) ) {

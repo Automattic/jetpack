@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevents empty string replacement for the first instance of the word "theme" if a theme has an empty or invalid style.css where the theme name can't be detected. 
