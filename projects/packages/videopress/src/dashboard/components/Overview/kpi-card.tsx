@@ -52,10 +52,10 @@ export default function KpiCard( { label, value, summary, isLoading }: Props ): 
 		<Card.Root>
 			<Card.Content>
 				<Stack direction="column" gap="xs">
-					<Text size="small" className="vp-overview__kpi-label">
+					<Text variant="body-sm" className="vp-overview__kpi-label">
 						{ label }
 					</Text>
-					<Text size="title" weight="bold">
+					<Text variant="heading-2xl" className="vp-overview__kpi-value">
 						{ isLoading ? '—' : value }
 					</Text>
 					{ delta !== null && (
