@@ -17,7 +17,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
@@ -27,7 +27,6 @@ import './style.scss';
 import { TOPICS } from './topics';
 import { useCategoriesQuery } from './use-categories-query';
 import type { PodcastSettings, PodcastSettingsUpdate } from '../types';
-import type { FocusEvent } from 'react';
 
 const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'No', 'jetpack-podcast' ), value: 'no' },
@@ -130,7 +129,7 @@ const SettingsTab = () => {
 		() => commit( { podcasting_image: '', podcasting_image_id: 0 } ),
 		[ commit ]
 	);
-	const storedTopics = useMemo(
+	const topicValue = useMemo(
 		() =>
 			[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
 				.map( storage => ( storage ? TOPIC_DISPLAY_BY_STORAGE.get( storage ) ?? storage : '' ) )
@@ -138,45 +137,28 @@ const SettingsTab = () => {
 		[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
 	);
 
-	// Local copy so adding/removing a token doesn't commit (and remount the
-	// dropdown) on every click. Resyncs when the saved values change externally.
-	const [ topicLocal, setTopicLocal ] = useState< string[] >( storedTopics );
-	useEffect( () => {
-		setTopicLocal( storedTopics );
-	}, [ storedTopics ] );
+	// Calypso renders three native selects, one per slot, so each pick closes
+	// its dropdown and saves discretely. We use a single `FormTokenField` but
+	// match that UX: save on every change, then blur the input so the
+	// suggestions list closes before the save's re-render lands. Without the
+	// blur, the open list visibly flickers when the field receives a fresh
+	// `value` prop.
+	const topicFieldRef = useRef< HTMLDivElement >( null );
 
-	const handleTopicsChange = useCallback( ( values: ( string | { value: string } )[] ) => {
-		setTopicLocal( values.slice( 0, 3 ).map( v => ( typeof v === 'string' ? v : v.value ) ) );
-	}, [] );
-
-	const handleTopicsBlur = useCallback(
-		( event: FocusEvent< HTMLDivElement > ) => {
-			// Ignore focus moves that stay inside the field (e.g. clicking a suggestion).
-			if ( event.currentTarget.contains( event.relatedTarget as Node | null ) ) {
-				return;
-			}
-			const stored = topicLocal.map( display => TOPIC_STORAGE_BY_DISPLAY.get( display ) ?? '' );
-			const next = {
+	const handleTopicsChange = useCallback(
+		( values: ( string | { value: string } )[] ) => {
+			const stored = values
+				.slice( 0, 3 )
+				.map( v => ( typeof v === 'string' ? v : v.value ) )
+				.map( display => TOPIC_STORAGE_BY_DISPLAY.get( display ) ?? '' );
+			commit( {
 				podcasting_category_1: stored[ 0 ] ?? '',
 				podcasting_category_2: stored[ 1 ] ?? '',
 				podcasting_category_3: stored[ 2 ] ?? '',
-			};
-			if (
-				next.podcasting_category_1 === ( draft?.podcasting_category_1 ?? '' ) &&
-				next.podcasting_category_2 === ( draft?.podcasting_category_2 ?? '' ) &&
-				next.podcasting_category_3 === ( draft?.podcasting_category_3 ?? '' )
-			) {
-				return;
-			}
-			commit( next );
+			} );
+			topicFieldRef.current?.querySelector< HTMLInputElement >( 'input' )?.blur();
 		},
-		[
-			topicLocal,
-			draft?.podcasting_category_1,
-			draft?.podcasting_category_2,
-			draft?.podcasting_category_3,
-			commit,
-		]
+		[ commit ]
 	);
 
 	const issues = useMemo( () => getValidationIssues( draft ?? settings ), [ draft, settings ] );
@@ -297,13 +279,13 @@ const SettingsTab = () => {
 							) }
 						</Text>
 						<VStack spacing={ 1 }>
-							<div onBlur={ handleTopicsBlur }>
+							<div ref={ topicFieldRef }>
 								<FormTokenField
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
 									__experimentalExpandOnFocus
 									label={ __( 'Podcast topics', 'jetpack-podcast' ) }
-									value={ topicLocal }
+									value={ topicValue }
 									suggestions={ TOPIC_SUGGESTIONS }
 									onChange={ handleTopicsChange }
 									maxLength={ 3 }
