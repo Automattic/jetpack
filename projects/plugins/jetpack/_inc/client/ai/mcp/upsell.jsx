@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
 import analytics from 'lib/analytics';
 import illustrationUrl from '../../../../images/products/product-jetpack-ai.svg';
+import './style.scss';
 
 const PRODUCT_SLUG = 'jetpack_ai_yearly';
 const UPSELL_SOURCE = 'jetpack-ai-mcp-upsell';

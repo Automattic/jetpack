@@ -144,20 +144,21 @@
 
 	// Free-tier upsell rendered when the site has no MCP-capable plan.
 	// Layout mirrors Activity Log's UpsellCallout: bordered card with copy
-	// on the left and the illustration on the right; column-reverse on
-	// mobile so the image moves below the copy.
+	// on the left and the illustration on the right; stacks on narrow
+	// viewports. The breakpoint is tuned to the AI page's 660px content
+	// cap (style.scss → .jetpack-ai-admin__content max-width) so the row
+	// layout fires inside that container, not the wider page.
 	&__upsell-callout {
 		display: flex;
 		flex-direction: column;
 		gap: 24px;
 		margin: 24px auto 0;
-		max-width: 960px;
 		padding: 24px;
 		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
 		border-radius: 4px;
 		background-color: var(--wpds-color-bg-surface-neutral, #fff);
 
-		@media (min-width: 782px) {
+		@media (min-width: 600px) {
 			flex-direction: row;
 			align-items: center;
 			gap: 32px;
@@ -195,11 +196,13 @@
 		margin-top: 8px;
 	}
 
+	// product-jetpack-ai.svg is a 128x128 brand icon, not a hero
+	// illustration — render it at its intrinsic size so it doesn't
+	// balloon to fill the column.
 	&__upsell-callout-image {
 		display: block;
-		width: 100%;
-		max-width: 360px;
-		height: auto;
+		width: 128px;
+		height: 128px;
 		flex-shrink: 0;
 		align-self: center;
 	}
