@@ -1,6 +1,3 @@
-// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-import { __experimentalText as Text } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import type { PodcastApp } from './types';
 
 const PocketCastsLogo = () => (
@@ -29,12 +26,4 @@ export const pocketcasts: PodcastApp = {
 	submitUrl: 'https://pocketcasts.com/submit',
 	learnMoreUrl: 'https://support.pocketcasts.com/knowledge-base/submitting-podcasts/',
 	showHosts: [ 'pca.st', 'pocketcasts.com' ],
-	step2Extra: (
-		<Text as="p" variant="muted">
-			{ __(
-				'Choose the Public option, since this feed is for your listeners.',
-				'jetpack-podcast'
-			) }
-		</Text>
-	),
 };

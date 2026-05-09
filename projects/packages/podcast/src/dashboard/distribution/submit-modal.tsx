@@ -232,7 +232,6 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 							</ExternalLink>
 						</Text>
 					) }
-					{ app.step2Extra }
 					<Button
 						variant="secondary"
 						__next40pxDefaultSize
