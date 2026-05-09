@@ -1,4 +1,4 @@
-import { getAdminUrl, getSiteData } from '@automattic/jetpack-script-data';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -27,6 +27,7 @@ import './style.scss';
 import { TOPICS } from './topics';
 import { useCategoriesQuery } from './use-categories-query';
 import type { PodcastSettings, PodcastSettingsUpdate } from '../types';
+import type { FocusEvent } from 'react';
 
 const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'No', 'jetpack-podcast' ), value: 'no' },
@@ -45,7 +46,7 @@ for ( const topic of TOPICS ) {
 	TOPIC_STORAGE_BY_DISPLAY.set( topic.label, topic.key );
 	TOPIC_DISPLAY_BY_STORAGE.set( topic.key, topic.label );
 	for ( const sub of topic.subtopics ) {
-		const display = `${ topic.label } › ${ sub.label }`;
+		const display = `${ topic.label } » ${ sub.label }`;
 		const storage = `${ topic.key },${ sub.key }`;
 		TOPIC_SUGGESTIONS.push( display );
 		TOPIC_STORAGE_BY_DISPLAY.set( display, storage );
@@ -70,16 +71,6 @@ const SettingsTab = () => {
 
 	useEffect( () => {
 		if ( settings && ! draft ) {
-			// Pre-fill title from blogname for sites that haven't been set up yet.
-			// Guarded so a deliberate empty title on a configured podcast is preserved.
-			const isFreshSetup = ! settings.podcasting_category_id && ! settings.podcasting_title;
-			if ( isFreshSetup ) {
-				const siteName = getSiteData()?.title?.trim() ?? '';
-				if ( siteName ) {
-					setDraft( { ...settings, podcasting_title: siteName } );
-					return;
-				}
-			}
 			setDraft( settings );
 		}
 	}, [ settings, draft ] );
@@ -139,27 +130,53 @@ const SettingsTab = () => {
 		() => commit( { podcasting_image: '', podcasting_image_id: 0 } ),
 		[ commit ]
 	);
-	const handleTopicsChange = useCallback(
-		( values: ( string | { value: string } )[] ) => {
-			const stored = values
-				.slice( 0, 3 )
-				.map( v => ( typeof v === 'string' ? v : v.value ) )
-				.map( display => TOPIC_STORAGE_BY_DISPLAY.get( display ) ?? '' );
-			commit( {
-				podcasting_category_1: stored[ 0 ] ?? '',
-				podcasting_category_2: stored[ 1 ] ?? '',
-				podcasting_category_3: stored[ 2 ] ?? '',
-			} );
-		},
-		[ commit ]
-	);
-
-	const topicValue = useMemo(
+	const storedTopics = useMemo(
 		() =>
 			[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
 				.map( storage => ( storage ? TOPIC_DISPLAY_BY_STORAGE.get( storage ) ?? storage : '' ) )
 				.filter( ( v ): v is string => !! v ),
 		[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
+	);
+
+	// Local copy so adding/removing a token doesn't commit (and remount the
+	// dropdown) on every click. Resyncs when the saved values change externally.
+	const [ topicLocal, setTopicLocal ] = useState< string[] >( storedTopics );
+	useEffect( () => {
+		setTopicLocal( storedTopics );
+	}, [ storedTopics ] );
+
+	const handleTopicsChange = useCallback( ( values: ( string | { value: string } )[] ) => {
+		setTopicLocal( values.slice( 0, 3 ).map( v => ( typeof v === 'string' ? v : v.value ) ) );
+	}, [] );
+
+	const handleTopicsBlur = useCallback(
+		( event: FocusEvent< HTMLDivElement > ) => {
+			// Ignore focus moves that stay inside the field (e.g. clicking a suggestion).
+			if ( event.currentTarget.contains( event.relatedTarget as Node | null ) ) {
+				return;
+			}
+			const stored = topicLocal.map( display => TOPIC_STORAGE_BY_DISPLAY.get( display ) ?? '' );
+			const next = {
+				podcasting_category_1: stored[ 0 ] ?? '',
+				podcasting_category_2: stored[ 1 ] ?? '',
+				podcasting_category_3: stored[ 2 ] ?? '',
+			};
+			if (
+				next.podcasting_category_1 === ( draft?.podcasting_category_1 ?? '' ) &&
+				next.podcasting_category_2 === ( draft?.podcasting_category_2 ?? '' ) &&
+				next.podcasting_category_3 === ( draft?.podcasting_category_3 ?? '' )
+			) {
+				return;
+			}
+			commit( next );
+		},
+		[
+			topicLocal,
+			draft?.podcasting_category_1,
+			draft?.podcasting_category_2,
+			draft?.podcasting_category_3,
+			commit,
+		]
 	);
 
 	const issues = useMemo( () => getValidationIssues( draft ?? settings ), [ draft, settings ] );
@@ -195,15 +212,18 @@ const SettingsTab = () => {
 					</h2>
 				</CardHeader>
 				<CardBody>
-					<VStack spacing={ 2 }>
+					<VStack spacing={ 3 }>
+						<Text variant="muted">
+							{ __(
+								'Posts in this category are treated as podcast episodes. Add an audio or video block to each one so listeners have something to play.',
+								'jetpack-podcast'
+							) }
+						</Text>
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
-							label={ __( 'Category for podcast feed', 'jetpack-podcast' ) }
-							help={ __(
-								'Posts in this category appear in your podcast feed and become episodes.',
-								'jetpack-podcast'
-							) }
+							label={ __( 'Podcast category', 'jetpack-podcast' ) }
+							hideLabelFromVision
 							value={ String( draft.podcasting_category_id || '' ) }
 							onChange={ handleCategoryChange }
 							options={ [
@@ -212,7 +232,7 @@ const SettingsTab = () => {
 							] }
 						/>
 						<Link openInNewTab href={ getAdminUrl( 'edit-tags.php?taxonomy=category' ) }>
-							{ __( 'Add a new category', 'jetpack-podcast' ) }
+							{ __( 'Create a new category', 'jetpack-podcast' ) }
 						</Link>
 					</VStack>
 				</CardBody>
@@ -224,6 +244,12 @@ const SettingsTab = () => {
 				</CardHeader>
 				<CardBody>
 					<VStack spacing={ 4 }>
+						<Text variant="muted">
+							{ __(
+								'This information appears in podcast apps like Apple Podcasts and Spotify.',
+								'jetpack-podcast'
+							) }
+						</Text>
 						<CoverImageControl
 							imageUrl={ draft.podcasting_image }
 							imageId={ draft.podcasting_image_id }
@@ -233,23 +259,19 @@ const SettingsTab = () => {
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
-							label={ __( 'Podcast title', 'jetpack-podcast' ) }
+							label={ __( 'Title', 'jetpack-podcast' ) }
 							{ ...titleField }
 						/>
 						<TextareaControl
 							__nextHasNoMarginBottom
-							label={ __( 'Podcast summary', 'jetpack-podcast' ) }
-							help={ __(
-								'A short description shown in podcast directories. 4000 characters max.',
-								'jetpack-podcast'
-							) }
+							label={ __( 'Summary/Description', 'jetpack-podcast' ) }
 							rows={ 4 }
 							{ ...summaryField }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
-							label={ __( 'Hosts, artist, or producer', 'jetpack-podcast' ) }
+							label={ __( 'Hosts/Artist/Producer', 'jetpack-podcast' ) }
 							{ ...talentNameField }
 						/>
 						<TextControl
@@ -268,20 +290,28 @@ const SettingsTab = () => {
 				</CardHeader>
 				<CardBody>
 					<VStack spacing={ 4 }>
+						<Text variant="muted">
+							{ __(
+								'Configure how your podcast appears in directories and apps.',
+								'jetpack-podcast'
+							) }
+						</Text>
 						<VStack spacing={ 1 }>
-							<FormTokenField
-								__next40pxDefaultSize
-								__nextHasNoMarginBottom
-								__experimentalExpandOnFocus
-								label={ __( 'Apple Podcasts categories', 'jetpack-podcast' ) }
-								value={ topicValue }
-								suggestions={ TOPIC_SUGGESTIONS }
-								onChange={ handleTopicsChange }
-								maxLength={ 3 }
-							/>
+							<div onBlur={ handleTopicsBlur }>
+								<FormTokenField
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									__experimentalExpandOnFocus
+									label={ __( 'Podcast topics', 'jetpack-podcast' ) }
+									value={ topicLocal }
+									suggestions={ TOPIC_SUGGESTIONS }
+									onChange={ handleTopicsChange }
+									maxLength={ 3 }
+								/>
+							</div>
 							<Text variant="muted">
 								{ __(
-									'Pick up to three. The first is your primary category and counts most for ranking.',
+									'Choose how your podcast should be categorized within Apple Podcasts and other podcasting services. Pick up to three.',
 									'jetpack-podcast'
 								) }
 							</Text>
@@ -298,9 +328,9 @@ const SettingsTab = () => {
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							type="email"
-							label={ __( 'Owner email', 'jetpack-podcast' ) }
+							label={ __( 'Email address', 'jetpack-podcast' ) }
 							help={ __(
-								'Apple Podcasts and other directories use this address to verify ownership.',
+								'Included in your feed so podcast directories can verify ownership. Most require it for submission.',
 								'jetpack-podcast'
 							) }
 							{ ...emailField }
@@ -310,11 +340,26 @@ const SettingsTab = () => {
 			</Card>
 
 			{ draft.podcasting_category_id > 0 && (
-				<HStack justify="flex-end">
-					<Button variant="link" isDestructive onClick={ openConfirmDisable }>
-						{ __( 'Disable podcasting', 'jetpack-podcast' ) }
-					</Button>
-				</HStack>
+				<Card>
+					<CardHeader>
+						<h2 className="podcast__section-heading">
+							{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+						</h2>
+					</CardHeader>
+					<CardBody>
+						<VStack spacing={ 3 } alignment="flex-start">
+							<Text variant="muted">
+								{ __(
+									'Stops publishing your podcast feed. Your show details stay saved, so you can set it up again later.',
+									'jetpack-podcast'
+								) }
+							</Text>
+							<Button variant="secondary" isDestructive onClick={ openConfirmDisable }>
+								{ __( 'Disable', 'jetpack-podcast' ) }
+							</Button>
+						</VStack>
+					</CardBody>
+				</Card>
 			) }
 
 			{ confirmDisable && (

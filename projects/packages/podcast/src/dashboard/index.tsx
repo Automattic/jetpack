@@ -1,9 +1,10 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import { getSiteData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
-import { usePodcastSettings } from './hooks/use-podcast-settings';
+import { usePodcastSettings, useUpdatePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
 
@@ -31,6 +32,7 @@ const PAGE_SUBTITLE = __(
 
 const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
+	const { mutate: saveSettings } = useUpdatePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 	// A user landing with a valid tab hash has already opted past the gateway,
 	// so we honor the deep link instead of bouncing them to Welcome.
@@ -71,10 +73,20 @@ const App = () => {
 		}
 	}, [] );
 
+	// Mirrors the legacy /podcasting toggle: pre-fills the title from the site
+	// name on first enable so users land on Settings with a sensible default.
+	// Side effect: switch to Settings so the user can pick a category.
 	const handleEnable = useCallback( () => {
+		const currentTitle = settings?.podcasting_title ?? '';
+		if ( ! currentTitle ) {
+			const siteName = getSiteData()?.title?.trim() ?? '';
+			if ( siteName ) {
+				saveSettings( { podcasting_title: siteName } );
+			}
+		}
 		setHasEnabled( true );
 		setActiveTab( 'settings' );
-	}, [] );
+	}, [ settings?.podcasting_title, saveSettings ] );
 
 	const goToSettings = useCallback( () => {
 		setActiveTab( 'settings' );
@@ -93,34 +105,31 @@ const App = () => {
 	if ( showWelcome ) {
 		return (
 			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
-				<Suspense fallback={ <TabFallback /> }>
-					<Welcome onEnable={ handleEnable } />
-				</Suspense>
+				<div className="podcast__tab-content podcast__tab-content--wide">
+					<Suspense fallback={ <TabFallback /> }>
+						<Welcome onEnable={ handleEnable } />
+					</Suspense>
+				</div>
 			</AdminPage>
 		);
 	}
 
 	return (
-		<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
-			<AdminPage
-				title={ PAGE_TITLE }
-				subTitle={ PAGE_SUBTITLE }
-				tabs={
-					<div className="jp-admin-page-tabs">
-						<Tabs.List variant="minimal">
-							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
-							<Tabs.Tab value="episodes" disabled={ ! isSetUp }>
-								{ __( 'Episodes', 'jetpack-podcast' ) }
-							</Tabs.Tab>
-							<Tabs.Tab value="distribution" disabled={ ! isSetUp }>
-								{ __( 'Distribution', 'jetpack-podcast' ) }
-							</Tabs.Tab>
-						</Tabs.List>
-					</div>
-				}
-			>
+		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
+			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
+				<div className="jp-admin-page-tabs">
+					<Tabs.List variant="minimal">
+						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
+						<Tabs.Tab value="episodes" disabled={ ! isSetUp }>
+							{ __( 'Episodes', 'jetpack-podcast' ) }
+						</Tabs.Tab>
+						<Tabs.Tab value="distribution" disabled={ ! isSetUp }>
+							{ __( 'Distribution', 'jetpack-podcast' ) }
+						</Tabs.Tab>
+					</Tabs.List>
+				</div>
 				<Tabs.Panel value="settings">
-					<div className="podcast__tab-content">
+					<div className="podcast__tab-content podcast__tab-content--narrow">
 						<Suspense fallback={ <TabFallback /> }>
 							<SettingsTab />
 						</Suspense>
@@ -134,14 +143,14 @@ const App = () => {
 					</div>
 				</Tabs.Panel>
 				<Tabs.Panel value="distribution">
-					<div className="podcast__tab-content">
+					<div className="podcast__tab-content podcast__tab-content--narrow">
 						<Suspense fallback={ <TabFallback /> }>
 							<DistributionTab onEditSettings={ goToSettings } />
 						</Suspense>
 					</div>
 				</Tabs.Panel>
-			</AdminPage>
-		</Tabs.Root>
+			</Tabs.Root>
+		</AdminPage>
 	);
 };
 

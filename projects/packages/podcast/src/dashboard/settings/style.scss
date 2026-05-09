@@ -1,5 +1,17 @@
 .podcast__settings {
-	max-inline-size: 680px;
+
+	// Match the Calypso /podcasting field-label style: small, uppercase,
+	// medium-weight, neutral grey — applied to TextControl, TextareaControl,
+	// SelectControl and FormTokenField labels.
+	.components-base-control__label,
+	.components-input-control__label,
+	.components-form-token-field__label {
+		text-transform: uppercase;
+		font-size: 11px;
+		font-weight: 500;
+		letter-spacing: 0.5px;
+		color: #1e1e1e;
+	}
 }
 
 .podcast__cover-control {
