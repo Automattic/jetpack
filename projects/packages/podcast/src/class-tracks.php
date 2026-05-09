@@ -415,7 +415,6 @@ class Tracks {
 			$properties['blog_id'] = (int) get_current_blog_id();
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom Simple-only; guarded above.
 				require_lib( 'tracks/client' );
 			}
 

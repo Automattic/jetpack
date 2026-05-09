@@ -2,6 +2,11 @@
 /**
  * Bootstrap.
  *
+ * Shadows the wpcom Simple `tracks_record_event` from wpcom-stubs at test
+ * runtime so dispatched events land in a per-test buffer.
+ *
+ * @phan-file-suppress PhanRedefineFunction
+ *
  * @package automattic/jetpack-podcast
  */
 
@@ -11,7 +16,6 @@ define( 'WP_DEBUG', true );
 
 \Automattic\Jetpack\Test_Environment::init();
 
-// Capture tracks events into a per-test buffer instead of dispatching them.
 if ( ! function_exists( 'tracks_record_event' ) ) {
 	function tracks_record_event( $user, $event_name, $properties = array() ) {
 		$GLOBALS['jetpack_podcast_test_captured_events'][] = array(
