@@ -77,56 +77,31 @@ const SettingsTab = () => {
 		[]
 	);
 
-	const onCategoryIdChange = useCallback(
-		( value: string ) => setField( 'podcasting_category_id', Number( value ) || 0 ),
+	// One memoised bag of stable handlers — passed directly into JSX props
+	// without re-allocating each render and without 10× useCallback boilerplate.
+	const handle = useMemo(
+		() => ( {
+			category: ( value: string ) => setField( 'podcasting_category_id', Number( value ) || 0 ),
+			title: ( value: string ) => setField( 'podcasting_title', value ),
+			summary: ( value: string ) => setField( 'podcasting_summary', value ),
+			talentName: ( value: string ) => setField( 'podcasting_talent_name', value ),
+			copyright: ( value: string ) => setField( 'podcasting_copyright', value ),
+			explicit: ( value: string ) => setField( 'podcasting_explicit', value === 'yes' ),
+			email: ( value: string ) => setField( 'podcasting_email', value ),
+			topic1: ( value: string ) => setField( 'podcasting_category_1', value ),
+			topic2: ( value: string ) => setField( 'podcasting_category_2', value ),
+			topic3: ( value: string ) => setField( 'podcasting_category_3', value ),
+			coverImageSelect: ( id: number, url: string ) =>
+				setDraft( prev =>
+					prev ? { ...prev, podcasting_image: url, podcasting_image_id: id } : prev
+				),
+			coverImageRemove: () =>
+				setDraft( prev =>
+					prev ? { ...prev, podcasting_image: '', podcasting_image_id: 0 } : prev
+				),
+		} ),
 		[ setField ]
 	);
-	const onTitleChange = useCallback(
-		( value: string ) => setField( 'podcasting_title', value ),
-		[ setField ]
-	);
-	const onSummaryChange = useCallback(
-		( value: string ) => setField( 'podcasting_summary', value ),
-		[ setField ]
-	);
-	const onTalentNameChange = useCallback(
-		( value: string ) => setField( 'podcasting_talent_name', value ),
-		[ setField ]
-	);
-	const onCopyrightChange = useCallback(
-		( value: string ) => setField( 'podcasting_copyright', value ),
-		[ setField ]
-	);
-	const onExplicitChange = useCallback(
-		( value: string ) => setField( 'podcasting_explicit', value === 'yes' ),
-		[ setField ]
-	);
-	const onEmailChange = useCallback(
-		( value: string ) => setField( 'podcasting_email', value ),
-		[ setField ]
-	);
-	const onTopic1Change = useCallback(
-		( value: string ) => setField( 'podcasting_category_1', value ),
-		[ setField ]
-	);
-	const onTopic2Change = useCallback(
-		( value: string ) => setField( 'podcasting_category_2', value ),
-		[ setField ]
-	);
-	const onTopic3Change = useCallback(
-		( value: string ) => setField( 'podcasting_category_3', value ),
-		[ setField ]
-	);
-
-	const onCoverImageSelect = useCallback( ( id: number, url: string ) => {
-		setDraft( prev =>
-			prev ? { ...prev, podcasting_image: url, podcasting_image_id: id } : prev
-		);
-	}, [] );
-
-	const onCoverImageRemove = useCallback( () => {
-		setDraft( prev => ( prev ? { ...prev, podcasting_image: '', podcasting_image_id: 0 } : prev ) );
-	}, [] );
 
 	const openConfirmDisable = useCallback( () => setConfirmDisable( true ), [] );
 	const closeConfirmDisable = useCallback( () => setConfirmDisable( false ), [] );
@@ -193,7 +168,7 @@ const SettingsTab = () => {
 								'jetpack-podcast'
 							) }
 							value={ String( draft.podcasting_category_id || '' ) }
-							onChange={ onCategoryIdChange }
+							onChange={ handle.category }
 							options={ [
 								{ label: __( '— Select a category —', 'jetpack-podcast' ), value: '' },
 								...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
@@ -215,8 +190,8 @@ const SettingsTab = () => {
 						<CoverImageControl
 							imageUrl={ draft.podcasting_image }
 							imageId={ draft.podcasting_image_id }
-							onSelect={ onCoverImageSelect }
-							onRemove={ onCoverImageRemove }
+							onSelect={ handle.coverImageSelect }
+							onRemove={ handle.coverImageRemove }
 							disabled={ isSaving }
 						/>
 						<TextControl
@@ -224,7 +199,7 @@ const SettingsTab = () => {
 							__nextHasNoMarginBottom
 							label={ __( 'Podcast title', 'jetpack-podcast' ) }
 							value={ draft.podcasting_title }
-							onChange={ onTitleChange }
+							onChange={ handle.title }
 						/>
 						<TextareaControl
 							__nextHasNoMarginBottom
@@ -234,7 +209,7 @@ const SettingsTab = () => {
 								'jetpack-podcast'
 							) }
 							value={ draft.podcasting_summary }
-							onChange={ onSummaryChange }
+							onChange={ handle.summary }
 							rows={ 4 }
 						/>
 						<TextControl
@@ -242,14 +217,14 @@ const SettingsTab = () => {
 							__nextHasNoMarginBottom
 							label={ __( 'Hosts, artist, or producer', 'jetpack-podcast' ) }
 							value={ draft.podcasting_talent_name }
-							onChange={ onTalentNameChange }
+							onChange={ handle.talentName }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Copyright', 'jetpack-podcast' ) }
 							value={ draft.podcasting_copyright }
-							onChange={ onCopyrightChange }
+							onChange={ handle.copyright }
 						/>
 					</VStack>
 				</CardBody>
@@ -282,7 +257,7 @@ const SettingsTab = () => {
 									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
 									tree={ TOPIC_TREE }
 									selectedId={ draft.podcasting_category_1 }
-									onChange={ onTopic1Change }
+									onChange={ handle.topic1 }
 									disabled={ isSaving }
 								/>
 								<TreeSelect
@@ -296,7 +271,7 @@ const SettingsTab = () => {
 									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
 									tree={ TOPIC_TREE }
 									selectedId={ draft.podcasting_category_2 }
-									onChange={ onTopic2Change }
+									onChange={ handle.topic2 }
 									disabled={ isSaving }
 								/>
 								<TreeSelect
@@ -310,7 +285,7 @@ const SettingsTab = () => {
 									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
 									tree={ TOPIC_TREE }
 									selectedId={ draft.podcasting_category_3 }
-									onChange={ onTopic3Change }
+									onChange={ handle.topic3 }
 									disabled={ isSaving }
 								/>
 							</VStack>
@@ -320,7 +295,7 @@ const SettingsTab = () => {
 							__nextHasNoMarginBottom
 							label={ __( 'Explicit content', 'jetpack-podcast' ) }
 							value={ draft.podcasting_explicit ? 'yes' : 'no' }
-							onChange={ onExplicitChange }
+							onChange={ handle.explicit }
 							options={ EXPLICIT_OPTIONS }
 						/>
 						<TextControl
@@ -333,7 +308,7 @@ const SettingsTab = () => {
 								'jetpack-podcast'
 							) }
 							value={ draft.podcasting_email }
-							onChange={ onEmailChange }
+							onChange={ handle.email }
 						/>
 					</VStack>
 				</CardBody>
