@@ -3,12 +3,12 @@
  *
  * Pure layout container with an InnerBlocks slot. The default template seeds
  * a useful starter set scoped to products (post-type scope locked to
- * `product` + stock-status + rating + price); authors can add, reorder, or
- * delete children freely. The allowedBlocks list restricts insertion to the
- * filter family in deliberate order — scope-setter, then the active-filters
- * pill region, then the curated WC filters, then generic extension points —
- * so unrelated blocks (paragraph, image, …) don't end up in the sidebar by
- * accident.
+ * `product` + a bulk clear-all + stock-status + rating + price); authors can
+ * add, reorder, or delete children freely. The allowedBlocks list restricts
+ * insertion to the filter family in deliberate order — scope-setter, then the
+ * active-filters pill region (with its companion clear-all), then the curated
+ * WC filters, then generic extension points — so unrelated blocks (paragraph,
+ * image, …) don't end up in the sidebar by accident.
  *
  * Children are *also* registered without an `ancestor` constraint in their
  * own block.json, so an author can drop e.g. `jetpack-search/filter-wc-stock-
@@ -19,6 +19,7 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 const TEMPLATE = [
 	[ 'jetpack-search/filter-post-type', { mode: 'include', postTypes: [ 'product' ] } ],
+	[ 'jetpack-search/clear-filters' ],
 	[ 'jetpack-search/filter-wc-stock-status' ],
 	[ 'jetpack-search/filter-wc-rating' ],
 	[ 'jetpack-search/filter-wc-price' ],
@@ -29,8 +30,9 @@ const ALLOWED = [
 	// constrains; renders nothing on the front end.
 	'jetpack-search/filter-post-type',
 
-	// Visitor-facing summary of active selections.
+	// Visitor-facing summary of active selections + bulk-clear affordance.
 	'jetpack-search/active-filters',
+	'jetpack-search/clear-filters',
 
 	// WC-specific filters (the curated set this composition exists for).
 	'jetpack-search/filter-wc-stock-status',
