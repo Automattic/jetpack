@@ -10,20 +10,20 @@ import {
 	SelectControl,
 	TextControl,
 	TextareaControl,
+	TreeSelect,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
 import CoverImageControl from './cover-image-control';
 import './style.scss';
-import { TOPICS, type Topic } from './topics';
+import { TOPICS } from './topics';
 import { useCategoriesQuery } from './use-categories-query';
 import type { PodcastSettings } from '../types';
 
@@ -34,77 +34,16 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 
 const TOPICS_FIELD_ID = 'jetpack-podcast-topics';
 
-const splitStored = ( stored: string ): { primary: string; sub: string } => {
-	// Decode entities so legacy WPCOM-encoded values ("Fashion &amp; Beauty")
-	// match topics.ts catalog keys (raw form). Re-saving migrates to canonical.
-	const [ primary = '', sub = '' ] = stored.split( ',' ).map( s => decodeEntities( s.trim() ) );
-	return { primary, sub };
-};
-
-const joinStored = ( primary: string, sub: string ): string => {
-	if ( ! primary ) {
-		return '';
-	}
-	return sub ? `${ primary },${ sub }` : primary;
-};
-
-interface TopicPickerProps {
-	value: string;
-	onChange: ( next: string ) => void;
-	label: string;
-	disabled?: boolean;
-}
-
-const TopicPicker = ( { value, onChange, label, disabled }: TopicPickerProps ) => {
-	const { primary, sub } = splitStored( value );
-	const selectedTopic = TOPICS.find( ( t: Topic ) => t.key === primary );
-	const subOptions = selectedTopic?.subtopics ?? [];
-
-	const onPrimaryChange = useCallback(
-		( next: string ) => {
-			onChange( joinStored( next, '' ) );
-		},
-		[ onChange ]
-	);
-
-	const onSubChange = useCallback(
-		( next: string ) => {
-			onChange( joinStored( primary, next ) );
-		},
-		[ onChange, primary ]
-	);
-
-	return (
-		<HStack alignment="flex-end" spacing={ 3 }>
-			<SelectControl
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
-				label={ label }
-				value={ primary }
-				disabled={ disabled }
-				onChange={ onPrimaryChange }
-				options={ [
-					{ label: __( '— Select category —', 'jetpack-podcast' ), value: '' },
-					...TOPICS.map( ( topic: Topic ) => ( { label: topic.label, value: topic.key } ) ),
-				] }
-			/>
-			{ subOptions.length > 0 && (
-				<SelectControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					label={ __( 'Subcategory', 'jetpack-podcast' ) }
-					value={ sub }
-					disabled={ disabled }
-					onChange={ onSubChange }
-					options={ [
-						{ label: __( '— Optional —', 'jetpack-podcast' ), value: '' },
-						...subOptions.map( s => ( { label: s.label, value: s.key } ) ),
-					] }
-				/>
-			) }
-		</HStack>
-	);
-};
+// Each subtopic id is `"Primary,Subtopic"` so it round-trips with the stored
+// `<itunes:category>` format directly — no parse/join helpers needed.
+const TOPIC_TREE = TOPICS.map( topic => ( {
+	id: topic.key,
+	name: topic.label,
+	children: topic.subtopics.map( sub => ( {
+		id: `${ topic.key },${ sub.key }`,
+		name: sub.label,
+	} ) ),
+} ) );
 
 const SettingsTab = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
@@ -333,34 +272,46 @@ const SettingsTab = () => {
 							) }
 						>
 							<VStack spacing={ 3 }>
-								<TopicPicker
-									value={ draft.podcasting_category_1 }
-									onChange={ onTopic1Change }
+								<TreeSelect
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
 									label={ sprintf(
 										/* translators: %d is the slot number (1-3). */
 										__( 'Category %d', 'jetpack-podcast' ),
 										1
 									) }
+									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
+									tree={ TOPIC_TREE }
+									selectedId={ draft.podcasting_category_1 }
+									onChange={ onTopic1Change }
 									disabled={ isSaving }
 								/>
-								<TopicPicker
-									value={ draft.podcasting_category_2 }
-									onChange={ onTopic2Change }
+								<TreeSelect
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
 									label={ sprintf(
 										/* translators: %d is the slot number (1-3). */
 										__( 'Category %d', 'jetpack-podcast' ),
 										2
 									) }
+									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
+									tree={ TOPIC_TREE }
+									selectedId={ draft.podcasting_category_2 }
+									onChange={ onTopic2Change }
 									disabled={ isSaving }
 								/>
-								<TopicPicker
-									value={ draft.podcasting_category_3 }
-									onChange={ onTopic3Change }
+								<TreeSelect
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
 									label={ sprintf(
 										/* translators: %d is the slot number (1-3). */
 										__( 'Category %d', 'jetpack-podcast' ),
 										3
 									) }
+									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
+									tree={ TOPIC_TREE }
+									selectedId={ draft.podcasting_category_3 }
+									onChange={ onTopic3Change }
 									disabled={ isSaving }
 								/>
 							</VStack>

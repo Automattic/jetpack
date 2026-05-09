@@ -1,5 +1,6 @@
 import { useEntityRecord, store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import type {
@@ -68,6 +69,15 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 			out[ key ] = Boolean( value );
 		} else if ( key === 'podcasting_show_urls' ) {
 			out[ key ] = normalizeShowUrls( value );
+		} else if (
+			key === 'podcasting_category_1' ||
+			key === 'podcasting_category_2' ||
+			key === 'podcasting_category_3'
+		) {
+			// Legacy WPCOM stored Apple categories HTML-entity encoded
+			// ("Fashion &amp; Beauty"); decode so the value matches the raw
+			// catalog keys in topics.ts and TreeSelect's selectedId.
+			out[ key ] = decodeEntities( toString( value ) );
 		} else {
 			out[ key ] = toString( value );
 		}
