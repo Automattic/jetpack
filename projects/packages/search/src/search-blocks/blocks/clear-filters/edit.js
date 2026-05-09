@@ -53,13 +53,11 @@ export default function ClearFiltersEdit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<button
-					type="button"
-					className="wp-element-button jetpack-search-clear-filters__button"
-					disabled
-				>
-					{ previewLabel }
-				</button>
+				<div className="wp-block-button is-style-outline has-custom-font-size has-small-font-size">
+					<button type="button" className="wp-block-button__link wp-element-button" disabled>
+						{ previewLabel }
+					</button>
+				</div>
 			</div>
 		</>
 	);

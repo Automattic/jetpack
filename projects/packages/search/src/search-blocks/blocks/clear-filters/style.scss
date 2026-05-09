@@ -4,20 +4,4 @@
 	&[hidden] {
 		display: none;
 	}
-
-	&__button {
-		// Inherit the theme's ghost/secondary button look; a quieter affordance
-		// keeps the filter sidebar visually balanced.
-		background: transparent;
-		border: 1px solid currentColor;
-		color: inherit;
-		cursor: pointer;
-		font: inherit;
-		padding: 0.5em 1em;
-
-		&:hover,
-		&:focus-visible {
-			background: rgba(0, 0, 0, 0.05);
-		}
-	}
 }

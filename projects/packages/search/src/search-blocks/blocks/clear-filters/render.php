@@ -57,11 +57,13 @@ if ( ! $has_any_active && is_array( $seeded_price ) ) {
 		data-wp-bind--hidden="!state.hasActiveFilters"<?php endif; ?>
 	<?php echo $hide_when_inactive && ! $has_any_active ? 'hidden' : ''; ?>
 >
-	<button
-		type="button"
-		class="wp-element-button jetpack-search-clear-filters__button"
-		data-wp-on--click="actions.clearFilters"
-	>
-		<?php echo esc_html( $label ); ?>
-	</button>
+	<div class="wp-block-button is-style-outline has-custom-font-size has-small-font-size">
+		<button
+			type="button"
+			class="wp-block-button__link wp-element-button"
+			data-wp-on--click="actions.clearFilters"
+		>
+			<?php echo esc_html( $label ); ?>
+		</button>
+	</div>
 </div>
