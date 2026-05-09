@@ -97,6 +97,27 @@ describe( 'buildSearchUrl', () => {
 		expect( url ).toContain( 'sort=date_asc' );
 	} );
 
+	it.each( [ 'rating_desc', 'price_asc', 'price_desc' ] )(
+		'passes the product-format sort key %s through to the API verbatim (RSM-1082)',
+		key => {
+			// Mirrors instant-search/lib/api.js → mapSortToApiValue: the v1.3
+			// API accepts these three keys unchanged. Without the pass-through
+			// they'd hit the SORT_QUERY_MAP fallback and silently sort by
+			// relevance, leaving deep links broken on WC sites.
+			const url = buildSearchUrl( {
+				siteId: 12345,
+				searchQuery: 'shirt',
+				sortOrder: key,
+				pageHandle: null,
+				isPrivateSite: false,
+				isWpcom: false,
+				apiRoot: 'https://example.com/wp-json/',
+			} );
+			expect( url ).toContain( 'sort=' + key );
+			expect( url ).not.toContain( 'sort=score_default' );
+		}
+	);
+
 	it( 'single-encodes special characters in the search query', () => {
 		// `qss.encode` already runs encodeURIComponent, so the string we pass
 		// in must be raw. Double-encoding would turn `&` into `%2526` and
