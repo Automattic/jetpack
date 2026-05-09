@@ -38,7 +38,7 @@ export default function VideoDetailsCard( {
 					<InputControl
 						label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 						value={ title }
-						onChange={ next => onChange( { title: next ?? '' } ) }
+						onValueChange={ next => onChange( { title: next } ) }
 					/>
 					<TextareaControl
 						__nextHasNoMarginBottom
