@@ -13,6 +13,7 @@ import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
+import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
@@ -37,6 +38,9 @@ export default function DashboardPage( { isLoading = false } ) {
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	const readerChatGuidelinesUrl = useSelect( select =>
+		select( STORE_ID ).getReaderChatGuidelinesUrl()
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
@@ -80,6 +84,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
 	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
 	const isInstantSearchEnabled = useSelect( select => select( STORE_ID ).isInstantSearchEnabled() );
+	const isReaderChatAvailable = useSelect( select => select( STORE_ID ).isReaderChatAvailable() );
+	const isReaderChatEnabled = useSelect( select => select( STORE_ID ).isReaderChatEnabled() );
 	const isSavingEitherOption = useSelect( select =>
 		select( STORE_ID ).isUpdatingJetpackSettings()
 	);
@@ -195,6 +201,13 @@ export default function DashboardPage( { isLoading = false } ) {
 									isTogglingInstantSearch={ isTogglingInstantSearch }
 								/>
 							) }
+							<ReaderChatControl
+								isAvailable={ isReaderChatAvailable }
+								isEnabled={ isReaderChatEnabled }
+								isSaving={ isSavingEitherOption }
+								guidelinesUrl={ readerChatGuidelinesUrl }
+								updateOptions={ updateOptions }
+							/>
 						</div>
 						<NoticesList
 							notices={ notices }

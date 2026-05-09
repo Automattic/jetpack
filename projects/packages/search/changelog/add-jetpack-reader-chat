@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search: Add Reader Chat opt-in card to the dashboard so site owners can enable or disable Reader Chat without writing PHP.

@@ -272,6 +272,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_verbum_subscription_modal'            => true,
 			'jetpack_blocks_disabled'                      => false,
 			'wpcom_ai_site_prompt'                         => '',
+			'reader_chat'                                  => false,
 			'wpcom_classic_early_release'                  => true,
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
