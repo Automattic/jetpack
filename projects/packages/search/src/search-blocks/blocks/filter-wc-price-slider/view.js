@@ -184,8 +184,13 @@ store( NAMESPACE, {
 			const { state } = store( NAMESPACE );
 			const { sliderMin, sliderMax } = readSliderBounds( wrapper );
 			const priceRange = state.priceRange;
-			const minVal = priceRange?.min ?? sliderMin;
-			const maxVal = priceRange?.max ?? sliderMax;
+			// Clamp to slider bounds — a deep-linked URL can carry an
+			// out-of-range `min_price` / `max_price`, in which case the native
+			// range input clamps its `.value` but the label / aria-valuetext
+			// would still announce the unclamped figure.
+			const clamp = v => Math.min( sliderMax, Math.max( sliderMin, Number( v ) ) );
+			const minVal = priceRange?.min != null ? clamp( priceRange.min ) : sliderMin;
+			const maxVal = priceRange?.max != null ? clamp( priceRange.max ) : sliderMax;
 			const symbol = state.priceCurrencySymbol || '';
 			const position = state.priceCurrencySymbolPosition || 'left';
 

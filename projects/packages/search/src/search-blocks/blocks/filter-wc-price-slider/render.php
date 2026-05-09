@@ -9,7 +9,10 @@
  * paint the colored "active range" between the thumbs.
  *
  * Drag / commit split: `input` events update state for live visual feedback
- * without searching; `change` (fired on release) commits via `actions.search`.
+ * without searching; `change` (fired on release) commits via
+ * `actions.setPriceRange` — which itself searches when the bounds actually
+ * changed, with a fallthrough `actions.search` for the no-op case where the
+ * drag handler had pre-written the same value.
  *
  * @package automattic/jetpack-search
  */
@@ -23,12 +26,15 @@ if ( ! function_exists( 'wp_interactivity_state' ) ) {
 }
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$attrs       = (array) $attributes;
-$label       = sanitize_text_field( (string) ( $attrs['label'] ?? '' ) );
-$symbol      = sanitize_text_field( (string) ( $attrs['currencySymbol'] ?? '' ) );
-$position    = sanitize_text_field( (string) ( $attrs['currencySymbolPosition'] ?? '' ) );
-$min_attr    = isset( $attrs['min'] ) ? (float) $attrs['min'] : 0.0;
-$max_attr    = isset( $attrs['max'] ) ? (float) $attrs['max'] : 1000.0;
+$attrs    = (array) $attributes;
+$label    = sanitize_text_field( (string) ( $attrs['label'] ?? '' ) );
+$symbol   = sanitize_text_field( (string) ( $attrs['currencySymbol'] ?? '' ) );
+$position = sanitize_text_field( (string) ( $attrs['currencySymbolPosition'] ?? '' ) );
+// Clamp author bounds to >= 0 — the JS `parseBound()` and store
+// `setPriceRange()` both reject negative values, so a negative attr would
+// produce a slider that visually allows a range it can never commit.
+$min_attr    = isset( $attrs['min'] ) ? max( 0.0, (float) $attrs['min'] ) : 0.0;
+$max_attr    = isset( $attrs['max'] ) ? max( 0.0, (float) $attrs['max'] ) : 1000.0;
 $step        = isset( $attrs['step'] ) && (float) $attrs['step'] > 0 ? (float) $attrs['step'] : 1.0;
 $auto_bounds = ! isset( $attrs['autoBounds'] ) || (bool) $attrs['autoBounds'];
 

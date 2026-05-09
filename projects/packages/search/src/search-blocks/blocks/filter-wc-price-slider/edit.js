@@ -128,7 +128,7 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 						label={ __( 'Minimum', 'jetpack-search-pkg' ) }
 						value={ String( min ) }
 						disabled={ autoBounds }
-						onChange={ value => setAttributes( { min: Number( value ) || 0 } ) }
+						onChange={ value => setAttributes( { min: Math.max( 0, Number( value ) || 0 ) } ) }
 					/>
 					<TextControl
 						__next40pxDefaultSize
@@ -138,7 +138,7 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 						label={ __( 'Maximum', 'jetpack-search-pkg' ) }
 						value={ String( max ) }
 						disabled={ autoBounds }
-						onChange={ value => setAttributes( { max: Number( value ) || 0 } ) }
+						onChange={ value => setAttributes( { max: Math.max( 0, Number( value ) || 0 ) } ) }
 					/>
 					<TextControl
 						__next40pxDefaultSize
