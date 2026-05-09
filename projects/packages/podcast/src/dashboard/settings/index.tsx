@@ -1,23 +1,24 @@
 import { getAdminUrl, getSiteData } from '@automattic/jetpack-script-data';
 import {
-	BaseControl,
 	Button,
 	Card,
 	CardBody,
 	CardHeader,
+	FormTokenField,
 	Modal,
 	Notice,
 	SelectControl,
 	TextControl,
 	TextareaControl,
-	TreeSelect,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
@@ -32,18 +33,25 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'Yes', 'jetpack-podcast' ), value: 'yes' },
 ];
 
-const TOPICS_FIELD_ID = 'jetpack-podcast-topics';
-
-// Each subtopic id is `"Primary,Subtopic"` so it round-trips with the stored
-// `<itunes:category>` format directly — no parse/join helpers needed.
-const TOPIC_TREE = TOPICS.map( topic => ( {
-	id: topic.key,
-	name: topic.label,
-	children: topic.subtopics.map( sub => ( {
-		id: `${ topic.key },${ sub.key }`,
-		name: sub.label,
-	} ) ),
-} ) );
+// Flatten the Apple Podcasts topic tree into one searchable token list for
+// `FormTokenField`. Display strings use `Primary › Subtopic`; storage strings
+// use the legacy `Primary,Subtopic` shape (kept for `<itunes:category>` round-
+// tripping). Two maps cover the bidirectional translation at save/read time.
+const TOPIC_SUGGESTIONS: string[] = [];
+const TOPIC_STORAGE_BY_DISPLAY = new Map< string, string >();
+const TOPIC_DISPLAY_BY_STORAGE = new Map< string, string >();
+for ( const topic of TOPICS ) {
+	TOPIC_SUGGESTIONS.push( topic.label );
+	TOPIC_STORAGE_BY_DISPLAY.set( topic.label, topic.key );
+	TOPIC_DISPLAY_BY_STORAGE.set( topic.key, topic.label );
+	for ( const sub of topic.subtopics ) {
+		const display = `${ topic.label } › ${ sub.label }`;
+		const storage = `${ topic.key },${ sub.key }`;
+		TOPIC_SUGGESTIONS.push( display );
+		TOPIC_STORAGE_BY_DISPLAY.set( display, storage );
+		TOPIC_DISPLAY_BY_STORAGE.set( storage, display );
+	}
+}
 
 const SettingsTab = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
@@ -78,7 +86,7 @@ const SettingsTab = () => {
 	);
 
 	// One memoised bag of stable handlers — passed directly into JSX props
-	// without re-allocating each render and without 10× useCallback boilerplate.
+	// without re-allocating each render and without per-field useCallback boilerplate.
 	const handle = useMemo(
 		() => ( {
 			category: ( value: string ) => setField( 'podcasting_category_id', Number( value ) || 0 ),
@@ -88,9 +96,24 @@ const SettingsTab = () => {
 			copyright: ( value: string ) => setField( 'podcasting_copyright', value ),
 			explicit: ( value: string ) => setField( 'podcasting_explicit', value === 'yes' ),
 			email: ( value: string ) => setField( 'podcasting_email', value ),
-			topic1: ( value: string ) => setField( 'podcasting_category_1', value ),
-			topic2: ( value: string ) => setField( 'podcasting_category_2', value ),
-			topic3: ( value: string ) => setField( 'podcasting_category_3', value ),
+			topics: ( values: ( string | { value: string } )[] ) => {
+				// Tokens come back as plain strings or `{ value }` wrappers depending on
+				// how they were added; normalise + map display → storage; drop unknowns.
+				const stored = values
+					.slice( 0, 3 )
+					.map( v => ( typeof v === 'string' ? v : v.value ) )
+					.map( display => TOPIC_STORAGE_BY_DISPLAY.get( display ) ?? '' );
+				setDraft( prev =>
+					prev
+						? {
+								...prev,
+								podcasting_category_1: stored[ 0 ] ?? '',
+								podcasting_category_2: stored[ 1 ] ?? '',
+								podcasting_category_3: stored[ 2 ] ?? '',
+						  }
+						: prev
+				);
+			},
 			coverImageSelect: ( id: number, url: string ) =>
 				setDraft( prev =>
 					prev ? { ...prev, podcasting_image: url, podcasting_image_id: id } : prev
@@ -101,6 +124,14 @@ const SettingsTab = () => {
 				),
 		} ),
 		[ setField ]
+	);
+
+	const topicValue = useMemo(
+		() =>
+			[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
+				.map( storage => ( storage ? TOPIC_DISPLAY_BY_STORAGE.get( storage ) ?? storage : '' ) )
+				.filter( ( v ): v is string => !! v ),
+		[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
 	);
 
 	const openConfirmDisable = useCallback( () => setConfirmDisable( true ), [] );
@@ -236,60 +267,25 @@ const SettingsTab = () => {
 				</CardHeader>
 				<CardBody>
 					<VStack spacing={ 4 }>
-						<BaseControl
-							id={ TOPICS_FIELD_ID }
-							__nextHasNoMarginBottom
-							label={ __( 'Apple Podcasts categories', 'jetpack-podcast' ) }
-							help={ __(
-								'Pick up to three. The first is your primary category and counts most for ranking.',
-								'jetpack-podcast'
-							) }
-						>
-							<VStack spacing={ 3 }>
-								<TreeSelect
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									label={ sprintf(
-										/* translators: %d is the slot number (1-3). */
-										__( 'Category %d', 'jetpack-podcast' ),
-										1
-									) }
-									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
-									tree={ TOPIC_TREE }
-									selectedId={ draft.podcasting_category_1 }
-									onChange={ handle.topic1 }
-									disabled={ isSaving }
-								/>
-								<TreeSelect
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									label={ sprintf(
-										/* translators: %d is the slot number (1-3). */
-										__( 'Category %d', 'jetpack-podcast' ),
-										2
-									) }
-									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
-									tree={ TOPIC_TREE }
-									selectedId={ draft.podcasting_category_2 }
-									onChange={ handle.topic2 }
-									disabled={ isSaving }
-								/>
-								<TreeSelect
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									label={ sprintf(
-										/* translators: %d is the slot number (1-3). */
-										__( 'Category %d', 'jetpack-podcast' ),
-										3
-									) }
-									noOptionLabel={ __( '— Select category —', 'jetpack-podcast' ) }
-									tree={ TOPIC_TREE }
-									selectedId={ draft.podcasting_category_3 }
-									onChange={ handle.topic3 }
-									disabled={ isSaving }
-								/>
-							</VStack>
-						</BaseControl>
+						<VStack spacing={ 1 }>
+							<FormTokenField
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								__experimentalExpandOnFocus
+								label={ __( 'Apple Podcasts categories', 'jetpack-podcast' ) }
+								value={ topicValue }
+								suggestions={ TOPIC_SUGGESTIONS }
+								onChange={ handle.topics }
+								maxLength={ 3 }
+								disabled={ isSaving }
+							/>
+							<Text variant="muted">
+								{ __(
+									'Pick up to three. The first is your primary category and counts most for ranking.',
+									'jetpack-podcast'
+								) }
+							</Text>
+						</VStack>
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
