@@ -7,7 +7,7 @@ import { usePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
 
-const WelcomeTab = lazy( () => import( './welcome' ) );
+const Welcome = lazy( () => import( './welcome' ) );
 const SettingsTab = lazy( () => import( './settings' ) );
 const EpisodesTab = lazy( () => import( './episodes' ) );
 const DistributionTab = lazy( () => import( './distribution' ) );
@@ -18,48 +18,47 @@ const TabFallback = () => (
 	</div>
 );
 
-const VALID_TABS: readonly TabName[] = [ 'welcome', 'settings', 'episodes', 'distribution' ];
+const VALID_TABS: readonly TabName[] = [ 'settings', 'episodes', 'distribution' ];
 
 const isValidTab = ( value: string | null ): value is TabName =>
 	!! value && ( VALID_TABS as readonly string[] ).includes( value );
 
-const resolveInitialTab = ( isSetUp: boolean ): TabName => {
-	const hash = typeof window !== 'undefined' ? window.location.hash.replace( /^#/, '' ) : '';
-	if ( isValidTab( hash ) ) {
-		return hash;
-	}
-	return isSetUp ? 'settings' : 'welcome';
-};
+const PAGE_TITLE = 'Podcast'; /* product name; not translated */
+const PAGE_SUBTITLE = __(
+	'Publish a podcast and reach your fans, anywhere they listen.',
+	'jetpack-podcast'
+);
 
 const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
+	// A user landing with a valid tab hash has already opted past the gateway,
+	// so we honor the deep link instead of bouncing them to Welcome.
+	const initialHash = isValidTab( window.location.hash.replace( /^#/, '' ) );
+	const [ hasEnabled, setHasEnabled ] = useState( initialHash );
+	const showWelcome = ! isSetUp && ! hasEnabled;
 
-	const [ activeTab, setActiveTab ] = useState< TabName >( () => resolveInitialTab( false ) );
-
-	useEffect( () => {
-		if ( isLoading ) {
-			return;
-		}
+	const [ activeTab, setActiveTab ] = useState< TabName >( () => {
 		const hash = window.location.hash.replace( /^#/, '' );
-		if ( isValidTab( hash ) ) {
-			return;
-		}
-		setActiveTab( isSetUp ? 'settings' : 'welcome' );
-	}, [ isLoading, isSetUp ] );
+		return isValidTab( hash ) ? hash : 'settings';
+	} );
 
 	useEffect( () => {
+		if ( showWelcome ) {
+			return;
+		}
 		const next = `#${ activeTab }`;
 		if ( window.location.hash !== next ) {
 			window.history.replaceState( null, '', next );
 		}
-	}, [ activeTab ] );
+	}, [ activeTab, showWelcome ] );
 
 	useEffect( () => {
 		const onHashChange = () => {
 			const hash = window.location.hash.replace( /^#/, '' );
 			if ( isValidTab( hash ) ) {
 				setActiveTab( hash );
+				setHasEnabled( true );
 			}
 		};
 		window.addEventListener( 'hashchange', onHashChange );
@@ -72,23 +71,43 @@ const App = () => {
 		}
 	}, [] );
 
+	const handleEnable = useCallback( () => {
+		setHasEnabled( true );
+		setActiveTab( 'settings' );
+	}, [] );
+
 	const goToSettings = useCallback( () => {
 		setActiveTab( 'settings' );
 	}, [] );
 
+	if ( isLoading ) {
+		return (
+			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
+				<div className="podcast__loading">
+					<Spinner />
+				</div>
+			</AdminPage>
+		);
+	}
+
+	if ( showWelcome ) {
+		return (
+			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
+				<Suspense fallback={ <TabFallback /> }>
+					<Welcome onEnable={ handleEnable } />
+				</Suspense>
+			</AdminPage>
+		);
+	}
+
 	return (
 		<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 			<AdminPage
-				/* "Podcast" is a product name, do not translate. */
-				title="Podcast"
-				subTitle={ __(
-					'Publish a podcast and reach your fans, anywhere they listen.',
-					'jetpack-podcast'
-				) }
+				title={ PAGE_TITLE }
+				subTitle={ PAGE_SUBTITLE }
 				tabs={
 					<div className="jp-admin-page-tabs">
 						<Tabs.List variant="minimal">
-							<Tabs.Tab value="welcome">{ __( 'Welcome', 'jetpack-podcast' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-podcast' ) }</Tabs.Tab>
 							<Tabs.Tab value="episodes" disabled={ ! isSetUp }>
 								{ __( 'Episodes', 'jetpack-podcast' ) }
@@ -100,42 +119,27 @@ const App = () => {
 					</div>
 				}
 			>
-				{ isLoading ? (
-					<div className="podcast__loading">
-						<Spinner />
+				<Tabs.Panel value="settings">
+					<div className="podcast__tab-content">
+						<Suspense fallback={ <TabFallback /> }>
+							<SettingsTab />
+						</Suspense>
 					</div>
-				) : (
-					<>
-						<Tabs.Panel value="welcome">
-							<div className="podcast__tab-content">
-								<Suspense fallback={ <TabFallback /> }>
-									<WelcomeTab onGetStarted={ goToSettings } />
-								</Suspense>
-							</div>
-						</Tabs.Panel>
-						<Tabs.Panel value="settings">
-							<div className="podcast__tab-content">
-								<Suspense fallback={ <TabFallback /> }>
-									<SettingsTab />
-								</Suspense>
-							</div>
-						</Tabs.Panel>
-						<Tabs.Panel value="episodes">
-							<div className="podcast__tab-content">
-								<Suspense fallback={ <TabFallback /> }>
-									<EpisodesTab />
-								</Suspense>
-							</div>
-						</Tabs.Panel>
-						<Tabs.Panel value="distribution">
-							<div className="podcast__tab-content">
-								<Suspense fallback={ <TabFallback /> }>
-									<DistributionTab onEditSettings={ goToSettings } />
-								</Suspense>
-							</div>
-						</Tabs.Panel>
-					</>
-				) }
+				</Tabs.Panel>
+				<Tabs.Panel value="episodes">
+					<div className="podcast__tab-content">
+						<Suspense fallback={ <TabFallback /> }>
+							<EpisodesTab />
+						</Suspense>
+					</div>
+				</Tabs.Panel>
+				<Tabs.Panel value="distribution">
+					<div className="podcast__tab-content">
+						<Suspense fallback={ <TabFallback /> }>
+							<DistributionTab onEditSettings={ goToSettings } />
+						</Suspense>
+					</div>
+				</Tabs.Panel>
 			</AdminPage>
 		</Tabs.Root>
 	);

@@ -13,8 +13,8 @@ import { __ } from '@wordpress/i18n';
 import { Icon, audio, layout, megaphone } from '@wordpress/icons';
 import './style.scss';
 
-interface WelcomeTabProps {
-	onGetStarted: () => void;
+interface WelcomeProps {
+	onEnable: () => void;
 }
 
 const BENEFITS: ReadonlyArray< { icon: JSX.Element; title: string; body: string } > = [
@@ -68,7 +68,7 @@ const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = 
 	},
 ];
 
-const WelcomeTab = ( { onGetStarted }: WelcomeTabProps ) => (
+const Welcome = ( { onEnable }: WelcomeProps ) => (
 	<VStack spacing={ 8 } className="podcast__welcome">
 		<section className="podcast__welcome-hero">
 			<VStack spacing={ 4 } className="podcast__welcome-hero-copy">
@@ -82,7 +82,7 @@ const WelcomeTab = ( { onGetStarted }: WelcomeTabProps ) => (
 					) }
 				</Text>
 				<HStack justify="flex-start" expanded={ false }>
-					<Button variant="primary" onClick={ onGetStarted }>
+					<Button variant="primary" onClick={ onEnable }>
 						{ __( 'Enable podcasting', 'jetpack-podcast' ) }
 					</Button>
 				</HStack>
@@ -128,4 +128,4 @@ const WelcomeTab = ( { onGetStarted }: WelcomeTabProps ) => (
 	</VStack>
 );
 
-export default WelcomeTab;
+export default Welcome;
