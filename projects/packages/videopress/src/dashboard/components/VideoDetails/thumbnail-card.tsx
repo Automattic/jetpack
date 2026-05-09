@@ -74,7 +74,7 @@ export default function ThumbnailCard( { video, onAddToNewPost }: Props ): React
 	return (
 		<Card.Root>
 			<Card.Content>
-				<Stack direction="row" gap="md" align="start">
+				<Stack direction="row" gap="md" align="start" className="vp-video-details__thumbnail-row">
 					{ video.thumbnailUrl && (
 						<img
 							src={ video.thumbnailUrl }

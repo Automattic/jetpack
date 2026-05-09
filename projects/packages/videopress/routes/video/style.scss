@@ -50,3 +50,22 @@
 	color: var(--jp-gray-50, #646970);
 	margin: 0;
 }
+
+// Mobile: stack the Thumbnail card's two columns vertically. With the
+// thumbnail fixed at 240px and the meta column hosting full-width copy
+// fields + the primary action, anything narrower than ~600px squashes
+// the meta into a barely-readable strip. The thumbnail goes full-width
+// with a 16/9 aspect ratio so it stays the right shape for any column
+// width below the desktop layout.
+@media (max-width: 600px) {
+
+	.vp-video-details__thumbnail-row {
+		flex-direction: column !important;
+	}
+
+	.vp-video-details__thumbnail {
+		width: 100%;
+		height: auto;
+		aspect-ratio: 16 / 9;
+	}
+}
