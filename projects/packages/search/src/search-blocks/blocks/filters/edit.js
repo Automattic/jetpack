@@ -1,5 +1,5 @@
 /**
- * Editor preview for jetpack-search/filters-stack.
+ * Editor preview for jetpack-search/filters.
  *
  * Renders an InnerBlocks region pre-populated with the most common Jetpack
  * Search filters. The container itself owns no behavior — it's a Group-like
@@ -28,12 +28,12 @@ const ALLOWED = [
 ];
 
 /**
- * Edit component for the filters-stack block.
+ * Edit component for the filters block.
  *
  * @return {object} Rendered element.
  */
-export default function FiltersStackEdit() {
-	const blockProps = useBlockProps( { className: 'jetpack-search-filters-stack' } );
+export default function FiltersEdit() {
+	const blockProps = useBlockProps( { className: 'jetpack-search-filters' } );
 	return (
 		<div { ...blockProps }>
 			<InnerBlocks template={ TEMPLATE } allowedBlocks={ ALLOWED } />

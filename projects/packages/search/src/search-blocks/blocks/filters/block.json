@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "jetpack-search/filters-stack",
+	"name": "jetpack-search/filters",
 	"version": "0.1.0",
-	"title": "Filters Stack",
+	"title": "Filters",
 	"category": "jetpack-search",
 	"icon": "filter",
 	"description": "Vertical stack of Jetpack Search filter blocks. Pre-populated with the most common filters; rearrange, remove, or add more from the inserter.",
@@ -34,6 +34,6 @@
 	},
 	"textdomain": "jetpack-search-pkg",
 	"render": "file:./render.php",
-	"viewScriptModule": "file:../../../../build/search-blocks/filters-stack.js",
-	"style": "file:../../../../build/search-blocks/filters-stack.css"
+	"viewScriptModule": "file:../../../../build/search-blocks/filters.js",
+	"style": "file:../../../../build/search-blocks/filters.css"
 }

@@ -27,9 +27,9 @@ import FilterWcAttributeEdit from '../blocks/filter-wc-attribute/edit';
 import FilterWcPriceEdit from '../blocks/filter-wc-price/edit';
 import FilterWcRatingEdit from '../blocks/filter-wc-rating/edit';
 import FilterWcStockStatusEdit from '../blocks/filter-wc-stock-status/edit';
+import FiltersEdit, { save as filtersSave } from '../blocks/filters/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersProductEdit, { save as filtersProductSave } from '../blocks/filters-product/edit';
-import FiltersStackEdit, { save as filtersStackSave } from '../blocks/filters-stack/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import ResultsListEdit from '../blocks/results-list/edit';
@@ -54,7 +54,7 @@ const BLOCKS = [
 	[ 'jetpack-search/clear-filters', ClearFiltersEdit ],
 	[ 'jetpack-search/filter-post-type', FilterPostTypeEdit ],
 	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
-	[ 'jetpack-search/filters-stack', FiltersStackEdit, filtersStackSave ],
+	[ 'jetpack-search/filters', FiltersEdit, filtersSave ],
 	[ 'jetpack-search/filters-popover', FiltersPopoverEdit, filtersPopoverSave ],
 	[ 'jetpack-search/results-sort', ResultsSortEdit ],
 	[ 'jetpack-search/results-count', ResultsCountEdit ],
