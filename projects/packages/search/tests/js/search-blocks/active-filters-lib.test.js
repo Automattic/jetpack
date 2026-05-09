@@ -38,8 +38,9 @@ describe( 'resolveProductValueLabel', () => {
 			onbackorder: 'On backorder',
 		},
 		strings: {
-			ratingStarsSingle: '%d star',
-			ratingStarsPlural: '%d stars',
+			ratingStarsTop: '5 stars',
+			ratingStarsAndUpSingle: '%d star and up',
+			ratingStarsAndUpPlural: '%d stars and up',
 		},
 	};
 
@@ -60,11 +61,22 @@ describe( 'resolveProductValueLabel', () => {
 		);
 	} );
 
-	it( 'formats wc_rating values via the singular template at count = 1', () => {
-		expect( resolveProductValueLabel( state, { filterType: 'wc_rating' }, '1' ) ).toBe( '1 star' );
+	it( 'formats the 1-star wc_rating value via the singular "and up" template', () => {
+		expect( resolveProductValueLabel( state, { filterType: 'wc_rating' }, '1' ) ).toBe(
+			'1 star and up'
+		);
 	} );
 
-	it( 'formats wc_rating values via the plural template at count > 1', () => {
+	it( 'formats 2-4 wc_rating values via the plural "and up" template', () => {
+		expect( resolveProductValueLabel( state, { filterType: 'wc_rating' }, '4' ) ).toBe(
+			'4 stars and up'
+		);
+	} );
+
+	it( 'formats the 5-star wc_rating value via the top template (no "and up" suffix)', () => {
+		// The 5-star row matches `avg ≥ 4.5` — semantically "exactly 5
+		// stars" since there is no higher rating — so the chip drops the
+		// "and up" affordance to mirror filter-wc-rating's row aria-label.
 		expect( resolveProductValueLabel( state, { filterType: 'wc_rating' }, '5' ) ).toBe( '5 stars' );
 	} );
 
@@ -111,8 +123,8 @@ describe( 'formatPriceRangeChip', () => {
 		priceCurrencySymbol: '$',
 		strings: {
 			priceRangeFromTo: '%1$s – %2$s',
-			priceRangeFrom: 'From %s',
-			priceRangeUpTo: 'Up to %s',
+			priceRangeFrom: '%s+',
+			priceRangeUpTo: 'Under %s',
 		},
 	};
 
@@ -120,12 +132,12 @@ describe( 'formatPriceRangeChip', () => {
 		expect( formatPriceRangeChip( state, { min: 10, max: 50 } ) ).toBe( '$10 – $50' );
 	} );
 
-	it( 'formats a min-only range as "From <min>"', () => {
-		expect( formatPriceRangeChip( state, { min: 10, max: null } ) ).toBe( 'From $10' );
+	it( 'formats a min-only range with the compact "<min>+" suffix', () => {
+		expect( formatPriceRangeChip( state, { min: 10, max: null } ) ).toBe( '$10+' );
 	} );
 
-	it( 'formats a max-only range as "Up to <max>"', () => {
-		expect( formatPriceRangeChip( state, { min: null, max: 50 } ) ).toBe( 'Up to $50' );
+	it( 'formats a max-only range as "Under <max>"', () => {
+		expect( formatPriceRangeChip( state, { min: null, max: 50 } ) ).toBe( 'Under $50' );
 	} );
 
 	it( 'returns the empty string when both bounds are null', () => {
@@ -144,11 +156,12 @@ describe( 'buildActivePills', () => {
 	const baseState = {
 		strings: {
 			removeFilter: 'Remove %s',
-			ratingStarsSingle: '%d star',
-			ratingStarsPlural: '%d stars',
+			ratingStarsTop: '5 stars',
+			ratingStarsAndUpSingle: '%d star and up',
+			ratingStarsAndUpPlural: '%d stars and up',
 			priceRangeFromTo: '%1$s – %2$s',
-			priceRangeFrom: 'From %s',
-			priceRangeUpTo: 'Up to %s',
+			priceRangeFrom: '%s+',
+			priceRangeUpTo: 'Under %s',
 			priceLabel: 'Price',
 		},
 		wcStockStatusLabels: {
@@ -198,15 +211,19 @@ describe( 'buildActivePills', () => {
 		expect( pills[ 0 ].label ).toBe( 'Stock status: In stock' );
 	} );
 
-	it( 'resolves wc_rating pills via the singular/plural templates', () => {
+	it( 'resolves wc_rating pills via the threshold "and up" templates, with 5★ as the literal exception', () => {
 		const state = {
 			...baseState,
-			activeFilters: { rating_filter: [ '1', '5' ] },
+			activeFilters: { rating_filter: [ '1', '4', '5' ] },
 			filterConfigs: { rating_filter: { label: 'Rating', filterType: 'wc_rating' } },
 			aggregations: {},
 		};
 		const pills = buildActivePills( state );
-		expect( pills.map( p => p.label ) ).toEqual( [ 'Rating: 1 star', 'Rating: 5 stars' ] );
+		expect( pills.map( p => p.label ) ).toEqual( [
+			'Rating: 1 star and up',
+			'Rating: 4 stars and up',
+			'Rating: 5 stars',
+		] );
 	} );
 
 	it( 'appends a single price-range pill at the end with kind "priceRange"', () => {

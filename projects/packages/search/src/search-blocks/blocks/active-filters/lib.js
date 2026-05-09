@@ -48,12 +48,14 @@ export function resolveBucketValueLabel( state, filterKey, filterValue ) {
  * config's `interval` (year or month).
  * For `wc_stock_status`, the slug is looked up in
  * `state.wcStockStatusLabels`, seeded from the status block's option list.
- * For `wc_rating`, the value is formatted via seeded singular / plural
- * templates (`state.strings.ratingStarsSingle` / `…Plural`); the view
- * bundle can't import `\@wordpress/i18n`, so plural selection happens
- * here with a `count === 1` test (degraded plural for languages with
- * >2 forms — accepted tradeoff). Anything else returns null so the
- * caller can fall back to the bucket-based generic resolver.
+ * For `wc_rating`, the value is formatted via three seeded templates —
+ * `ratingStarsTop` for 5 (the row is "exactly 5 stars", no "& up"
+ * affordance), and `ratingStarsAndUpSingle` / `…Plural` for the 1-4
+ * threshold rows. The view bundle can't import `\@wordpress/i18n`, so
+ * plural selection happens here with a `count === 1` test (degraded
+ * plural for languages with >2 forms — accepted tradeoff). Anything
+ * else returns null so the caller can fall back to the bucket-based
+ * generic resolver.
  *
  * @param {object} state       - Store state slice.
  * @param {object} config      - FilterConfig entry (or undefined).
@@ -78,10 +80,13 @@ export function resolveProductValueLabel( state, config, filterValue ) {
 		if ( ! Number.isFinite( stars ) || stars < 1 || stars > 5 ) {
 			return filterValue;
 		}
+		if ( stars === 5 ) {
+			return state?.strings?.ratingStarsTop ?? '5 stars';
+		}
 		const template =
 			stars === 1
-				? state?.strings?.ratingStarsSingle ?? '%d star'
-				: state?.strings?.ratingStarsPlural ?? '%d stars';
+				? state?.strings?.ratingStarsAndUpSingle ?? '%d star and up'
+				: state?.strings?.ratingStarsAndUpPlural ?? '%d stars and up';
 		return template.replace( '%d', String( stars ) );
 	}
 	return null;
@@ -92,8 +97,8 @@ export function resolveProductValueLabel( state, config, filterValue ) {
  *
  * Picks one of three templates by which bound(s) are set:
  * - both: "$10 – $50"
- * - min only: "From $10"
- * - max only: "Up to $50"
+ * - min only: "$10+"   (compact "and above" form — common across mainstream e-commerce filters)
+ * - max only: "Under $50"   (mirrors Amazon / eBay / Walmart's max-only convention)
  *
  * Currency symbol comes from `state.priceCurrencySymbol` (seeded by the
  * price block's render.php from its currencySymbol attribute, falling back
@@ -119,11 +124,11 @@ export function formatPriceRangeChip( state, range ) {
 			.replace( '%2$s', `${ symbol }${ max }` );
 	}
 	if ( hasMin ) {
-		const template = state?.strings?.priceRangeFrom ?? 'From %s';
+		const template = state?.strings?.priceRangeFrom ?? '%s+';
 		return template.replace( '%s', `${ symbol }${ min }` );
 	}
 	if ( hasMax ) {
-		const template = state?.strings?.priceRangeUpTo ?? 'Up to %s';
+		const template = state?.strings?.priceRangeUpTo ?? 'Under %s';
 		return template.replace( '%s', `${ symbol }${ max }` );
 	}
 	return '';
