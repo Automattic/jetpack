@@ -74,6 +74,18 @@ class Search_Blocks {
 	private static $is_free_plan_cache = null;
 
 	/**
+	 * Per-request memo backing `is_woocommerce_active()`. Centralized here
+	 * (rather than inside any one WC-aware block helper) so every gate that
+	 * needs the answer — block-registration filters that hide WC-only blocks
+	 * on non-Woo sites, render callbacks that drop product-format sort keys,
+	 * the editor-side localized config, the Interactivity store seed —
+	 * shares the same `class_exists()` probe.
+	 *
+	 * @var bool|null
+	 */
+	private static $is_woocommerce_active_cache = null;
+
+	/**
 	 * Register block types and hook into WordPress.
 	 *
 	 * Two gates apply:
@@ -151,6 +163,56 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Whether WooCommerce is loaded on this site. Use from any gate that
+	 * needs to skip a WC-only feature (block registration of `filter-wc-*`
+	 * blocks, the product-format sort keys on `results-sort`, etc.). The
+	 * result is memoized per-request so adding a new caller doesn't
+	 * multiply autoloader probes.
+	 *
+	 * **Load-order contract:** must be called at or after `plugins_loaded`.
+	 * WooCommerce includes its main `WooCommerce` class only when its plugin
+	 * file runs (during `plugins_loaded`), so an earlier call would return
+	 * false on a WC site. Every existing caller fires from a hook later than
+	 * that — `enqueue_block_editor_assets`, `template_redirect`,
+	 * `wp_enqueue_scripts`, or block render — so the contract is naturally
+	 * satisfied. New callers earlier in the request lifecycle should defer
+	 * the probe to a `plugins_loaded`-or-later hook.
+	 *
+	 * @return bool
+	 */
+	public static function is_woocommerce_active(): bool {
+		if ( null === self::$is_woocommerce_active_cache ) {
+			// Pass `false` so a missing class doesn't fire the autoloader
+			// on non-Woo sites — the gate is hit on every request, and
+			// any upstream autoloader work is wasted when the answer is "no".
+			self::$is_woocommerce_active_cache = class_exists( 'WooCommerce', false );
+		}
+		return self::$is_woocommerce_active_cache;
+	}
+
+	/**
+	 * Force the `is_woocommerce_active()` answer to a specific boolean —
+	 * tests only. Pass `null` to clear the override and revive the real
+	 * `class_exists()` probe (also done by `reset_is_woocommerce_active_cache()`).
+	 *
+	 * @internal
+	 *
+	 * @param bool|null $value Forced answer or null to clear.
+	 */
+	public static function set_is_woocommerce_active_for_testing( ?bool $value ): void {
+		self::$is_woocommerce_active_cache = $value;
+	}
+
+	/**
+	 * Reset the `is_woocommerce_active()` memo. Tests only.
+	 *
+	 * @internal
+	 */
+	public static function reset_is_woocommerce_active_cache(): void {
+		self::$is_woocommerce_active_cache = null;
+	}
+
+	/**
 	 * URL param key the inline search experience uses for the current request.
 	 *
 	 * On WP's search route (`is_search()`) the canonical `s` key is used so
@@ -194,6 +256,23 @@ class Search_Blocks {
 			$asset['dependencies'] ?? array(),
 			$asset['version'] ?? false,
 			true
+		);
+
+		// Surface the WC-active flag to edit.js so the results-sort inspector
+		// can hide the product-format checkboxes on non-WooCommerce sites
+		// instead of offering options the renderer would silently drop.
+		// `wp_add_inline_script` (rather than `wp_localize_script`) per
+		// core ticket #25280 — the latter HTML-encodes ampersands inside
+		// nested values.
+		wp_add_inline_script(
+			'jetpack-search-blocks-register',
+			'window.JetpackSearchBlocksConfig = ' . wp_json_encode(
+				array(
+					'isWooCommerceActive' => self::is_woocommerce_active(),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) . ';',
+			'before'
 		);
 	}
 
@@ -686,6 +765,12 @@ class Search_Blocks {
 			'nonce'                 => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
 			'isPrivateSite'         => $is_private,
 			'isWpcom'               => $is_wpcom,
+			// Whether the product-format sort keys (rating, price asc/desc)
+			// are valid on this site, plus a JS-side gate any WC-only block
+			// can read. The store threads it into url-state so a
+			// `?orderby=price_asc` deep link round-trips on Woo sites and
+			// collapses to relevance everywhere else.
+			'isWooCommerceActive'   => self::is_woocommerce_active(),
 			'homeUrl'               => function_exists( 'home_url' ) ? home_url() : '',
 			// BCP47-ish locale (e.g. `en-US`) for Intl.DateTimeFormat on the
 			// client. Converts WP's `en_US` underscore form. Uses the blog
@@ -997,15 +1082,26 @@ class Search_Blocks {
 
 	/**
 	 * Parse the sort order from the URL, defaulting to 'relevance'. Valid
-	 * values mirror the UI keys in src/instant-search/lib/constants.js
-	 * SORT_OPTIONS so deep links work across both surfaces.
+	 * values come from `Results_Sort::get_all_option_keys()` so the seeded
+	 * sort matches what the results-sort block would render — including the
+	 * product-format keys when WooCommerce is active. On non-Woo sites a
+	 * `?orderby=price_asc` deep link collapses to `relevance`, mirroring the
+	 * JS-side gate in store/url-state.js.
 	 *
 	 * @return string
 	 */
 	protected static function parse_url_sort(): string {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only URL state.
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : '';
-		return in_array( $orderby, array( 'newest', 'oldest' ), true ) ? $orderby : 'relevance';
+		$allowed = array_values(
+			array_filter(
+				Results_Sort::get_all_option_keys(),
+				static function ( $key ) {
+					return 'relevance' !== $key;
+				}
+			)
+		);
+		return in_array( $orderby, $allowed, true ) ? $orderby : 'relevance';
 	}
 
 	/**

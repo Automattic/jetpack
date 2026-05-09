@@ -1,6 +1,22 @@
-// Mirror `Results_Sort::get_all_option_keys()`. Product-format keys rejoin in RSM-1082.
-const VALID_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
+// Mirror `Results_Sort::BASE_SORT_KEYS` / `PRODUCT_SORT_KEYS`. Product
+// keys are gated on WooCommerce — only accepted when the caller threads
+// `isWooCommerceActive=true` through, so a `?orderby=price_asc` deep link
+// on a non-Woo site collapses to relevance instead of being forwarded to
+// an API surface that can't honour it.
+const BASE_SORT_ORDERS = [ 'relevance', 'newest', 'oldest' ];
+const PRODUCT_SORT_ORDERS = [ 'rating_desc', 'price_asc', 'price_desc' ];
 const DEFAULT_SORT_ORDER = 'relevance';
+
+/**
+ * Sort keys this environment will accept. Mirrors
+ * `Results_Sort::get_all_option_keys()` on the PHP side.
+ *
+ * @param {boolean} isWooCommerceActive - True when WooCommerce is loaded.
+ * @return {string[]} Ordered sort keys.
+ */
+function validSortOrders( isWooCommerceActive ) {
+	return isWooCommerceActive ? [ ...BASE_SORT_ORDERS, ...PRODUCT_SORT_ORDERS ] : BASE_SORT_ORDERS;
+}
 
 // Default search-query URL key. Used when no per-request name is threaded
 // through (tests, callers that don't care about the singular-page case).
@@ -40,14 +56,15 @@ function parsePriceBound( raw ) {
  * so deep links are interchangeable between the two surfaces and the
  * PHP-side `parse_url_filters()` reads the same contract.
  *
- * @param {object}      state                   - Store state slice.
- * @param {string}      state.searchQuery       - Current search query.
- * @param {string}      state.sortOrder         - Current sort order.
- * @param {object}      [state.activeFilters]   - { [filterKey]: string[] } selected filters.
- * @param {object|null} [state.priceRange]      - { min, max } price range; either bound may be null.
- * @param {string}      [state.searchParamName] - URL key the search query is written under
- *                                              (`s` on the WP search route, `q`
- *                                              on non-search pages). Defaults to `s`.
+ * @param {object}      state                       - Store state slice.
+ * @param {string}      state.searchQuery           - Current search query.
+ * @param {string}      state.sortOrder             - Current sort order.
+ * @param {object}      [state.activeFilters]       - { [filterKey]: string[] } selected filters.
+ * @param {object|null} [state.priceRange]          - { min, max } price range; either bound may be null.
+ * @param {string}      [state.searchParamName]     - URL key the search query is written under
+ *                                                  (`s` on the WP search route, `q`
+ *                                                  on non-search pages). Defaults to `s`.
+ * @param {boolean}     [state.isWooCommerceActive] - Gate for product-format sort keys.
  * @return {URLSearchParams} URL-ready params.
  */
 export function stateToUrlParams( {
@@ -56,6 +73,7 @@ export function stateToUrlParams( {
 	activeFilters = {},
 	priceRange = null,
 	searchParamName = DEFAULT_SEARCH_PARAM,
+	isWooCommerceActive = false,
 } ) {
 	const params = new URLSearchParams();
 
@@ -66,7 +84,8 @@ export function stateToUrlParams( {
 	// URL shape on `/about/?q=`.
 	params.set( searchParamName, searchQuery ?? '' );
 
-	if ( sortOrder && sortOrder !== DEFAULT_SORT_ORDER && VALID_SORT_ORDERS.includes( sortOrder ) ) {
+	const allowedSorts = validSortOrders( isWooCommerceActive );
+	if ( sortOrder && sortOrder !== DEFAULT_SORT_ORDER && allowedSorts.includes( sortOrder ) ) {
 		params.set( 'orderby', sortOrder );
 	}
 
@@ -98,18 +117,21 @@ export function stateToUrlParams( {
  * forwarded to ES with no matching config, so they'd silently drop but still
  * round-trip through the browser URL on every keystroke.
  *
- * @param {URLSearchParams} params            - URL search params.
- * @param {object}          [filterConfigs]   - { [filterKey]: FilterConfig } map used to validate filter keys.
- * @param {string}          [searchParamName] - URL key to read the search query from
- *                                            (`s` or `q`). Defaults to `s`.
+ * @param {URLSearchParams} params                - URL search params.
+ * @param {object}          [filterConfigs]       - { [filterKey]: FilterConfig } map used to validate filter keys.
+ * @param {string}          [searchParamName]     - URL key to read the search query from
+ *                                                (`s` or `q`). Defaults to `s`.
+ * @param {boolean}         [isWooCommerceActive] - Gate for product-format sort keys.
  * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: object|null }} Partial state.
  */
 export function urlParamsToState(
 	params,
 	filterConfigs = {},
-	searchParamName = DEFAULT_SEARCH_PARAM
+	searchParamName = DEFAULT_SEARCH_PARAM,
+	isWooCommerceActive = false
 ) {
 	const rawOrderby = params.get( 'orderby' );
+	const allowedSorts = validSortOrders( isWooCommerceActive );
 	const activeFilters = {};
 
 	for ( const [ rawKey, value ] of params.entries() ) {
@@ -159,7 +181,7 @@ export function urlParamsToState(
 
 	return {
 		searchQuery: params.get( searchParamName ) ?? '',
-		sortOrder: VALID_SORT_ORDERS.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER,
+		sortOrder: allowedSorts.includes( rawOrderby ) ? rawOrderby : DEFAULT_SORT_ORDER,
 		activeFilters,
 		priceRange,
 	};
@@ -183,15 +205,21 @@ export function pushStateToUrl( state ) {
 /**
  * Read initial state from the current URL.
  *
- * @param {object} [filterConfigs]   - { [filterKey]: FilterConfig } map used to validate filter keys.
- * @param {string} [searchParamName] - URL key the search query lives under (`s` or
- *                                   `q`). Defaults to `s`.
+ * @param {object}  [filterConfigs]       - { [filterKey]: FilterConfig } map used to validate filter keys.
+ * @param {string}  [searchParamName]     - URL key the search query lives under (`s` or
+ *                                        `q`). Defaults to `s`.
+ * @param {boolean} [isWooCommerceActive] - Gate for product-format sort keys.
  * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: object|null }} Partial state.
  */
-export function readStateFromUrl( filterConfigs = {}, searchParamName = DEFAULT_SEARCH_PARAM ) {
+export function readStateFromUrl(
+	filterConfigs = {},
+	searchParamName = DEFAULT_SEARCH_PARAM,
+	isWooCommerceActive = false
+) {
 	return urlParamsToState(
 		new URLSearchParams( window.location.search ),
 		filterConfigs,
-		searchParamName
+		searchParamName,
+		isWooCommerceActive
 	);
 }

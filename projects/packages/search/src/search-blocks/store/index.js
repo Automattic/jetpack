@@ -817,6 +817,7 @@ const { state, actions } = store( NAMESPACE, {
 				activeFilters: state.activeFilters,
 				priceRange: state.priceRange,
 				searchParamName: state.searchParamName,
+				isWooCommerceActive: state.isWooCommerceActive,
 			} );
 		},
 
@@ -828,7 +829,8 @@ const { state, actions } = store( NAMESPACE, {
 		*handlePopState() {
 			const { searchQuery, sortOrder, activeFilters, priceRange } = readStateFromUrl(
 				state.filterConfigs,
-				state.searchParamName
+				state.searchParamName,
+				state.isWooCommerceActive
 			);
 			state.searchQuery = searchQuery;
 			state.sortOrder = sortOrder;

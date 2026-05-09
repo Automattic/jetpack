@@ -36,13 +36,33 @@ describe( 'stateToUrlParams', () => {
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
-	it( 'omits product-format sort orders until WooCommerce integration lands (RSM-1082)', () => {
+	it( 'omits product-format sort orders on non-WooCommerce sites (RSM-1082)', () => {
 		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'price_asc' } );
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
+	it( 'serializes product-format sort orders when isWooCommerceActive is true (RSM-1082)', () => {
+		for ( const key of [ 'rating_desc', 'price_asc', 'price_desc' ] ) {
+			const params = stateToUrlParams( {
+				searchQuery: '',
+				sortOrder: key,
+				isWooCommerceActive: true,
+			} );
+			expect( params.get( 'orderby' ) ).toBe( key );
+		}
+	} );
+
 	it( 'omits unknown sort orders', () => {
 		const params = stateToUrlParams( { searchQuery: '', sortOrder: 'bogus' } );
+		expect( params.has( 'orderby' ) ).toBe( false );
+	} );
+
+	it( 'still rejects unknown sort orders even when isWooCommerceActive is true', () => {
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'bogus',
+			isWooCommerceActive: true,
+		} );
 		expect( params.has( 'orderby' ) ).toBe( false );
 	} );
 
@@ -139,8 +159,20 @@ describe( 'urlParamsToState', () => {
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 
-	it( 'collapses product-format URL sort to relevance until WooCommerce integration lands (RSM-1082)', () => {
+	it( 'collapses product-format URL sort to relevance on non-WooCommerce sites (RSM-1082)', () => {
 		const state = urlParamsToState( new URLSearchParams( 'orderby=price_asc' ) );
+		expect( state.sortOrder ).toBe( 'relevance' );
+	} );
+
+	it( 'admits product-format URL sort when isWooCommerceActive is true (RSM-1082)', () => {
+		for ( const key of [ 'rating_desc', 'price_asc', 'price_desc' ] ) {
+			const state = urlParamsToState( new URLSearchParams( `orderby=${ key }` ), {}, 's', true );
+			expect( state.sortOrder ).toBe( key );
+		}
+	} );
+
+	it( 'still collapses unknown sort to relevance even when isWooCommerceActive is true', () => {
+		const state = urlParamsToState( new URLSearchParams( 'orderby=bogus' ), {}, 's', true );
 		expect( state.sortOrder ).toBe( 'relevance' );
 	} );
 
