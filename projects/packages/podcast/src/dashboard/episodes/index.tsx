@@ -5,10 +5,11 @@ import { DataViews, type Action, type View, type ViewTable } from '@wordpress/da
 import { useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { useEpisodeStatsQuery } from '../hooks/use-episode-stats-query';
-import { useEpisodesQuery } from '../hooks/use-episodes-query';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { getPodcastScriptData } from '../script-data';
+import './style.scss';
+import { useEpisodeStatsQuery } from './use-episode-stats-query';
+import { useEpisodesQuery } from './use-episodes-query';
 import type { EpisodeStats } from '../types';
 
 interface EpisodeRow {

@@ -9,10 +9,10 @@ import { getPodcastScriptData } from './script-data';
 import './style.scss';
 import type { TabName } from './types';
 
-const WelcomeTab = lazy( () => import( './tabs/welcome' ) );
-const SettingsTab = lazy( () => import( './tabs/settings' ) );
-const EpisodesTab = lazy( () => import( './tabs/episodes' ) );
-const DistributionTab = lazy( () => import( './tabs/distribution' ) );
+const WelcomeTab = lazy( () => import( './welcome' ) );
+const SettingsTab = lazy( () => import( './settings' ) );
+const EpisodesTab = lazy( () => import( './episodes' ) );
+const DistributionTab = lazy( () => import( './distribution' ) );
 
 const TabFallback = () => (
 	<div className="podcast__loading">

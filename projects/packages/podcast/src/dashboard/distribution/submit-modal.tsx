@@ -22,7 +22,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { check, external, link } from '@wordpress/icons';
 import { prependHTTPS } from '@wordpress/url';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
-import type { PodcastAppModalProps } from '../podcast-apps';
+import type { PodcastAppModalProps } from './podcast-apps';
 import type { FormEvent } from 'react';
 
 // `prependHTTPS` leaves an existing `http://` alone, but the backend rejects

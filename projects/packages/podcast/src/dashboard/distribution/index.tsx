@@ -14,11 +14,12 @@ import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
-import SubmitModal from '../components/submit-modal';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { useValidationIssues } from '../hooks/use-validation-issues';
-import { PODCAST_APPS } from '../podcast-apps';
 import { getPodcastScriptData } from '../script-data';
+import { PODCAST_APPS } from './podcast-apps';
+import './style.scss';
+import SubmitModal from './submit-modal';
 import type { PodcatcherId } from '../types';
 import type { FocusEvent } from 'react';
 

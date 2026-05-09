@@ -1,0 +1,113 @@
+.podcast__card-title {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.podcast__directory-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.podcast__directory-row {
+	padding-block: 12px;
+	border-block-end: 1px solid #dcdcde;
+
+	&:last-child {
+		border-block-end: none;
+	}
+}
+
+.podcast__feed-copy {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.podcast__feed-copy-input {
+	flex: 1;
+	min-width: 0;
+	padding: 6px 10px;
+	font-family: ui-monospace, SFMono-Regular, monospace;
+	font-size: 13px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #f6f7f7;
+	color: #1e1e1e;
+}
+
+.podcast__submit-modal .components-modal__content {
+	max-width: 520px;
+}
+
+.podcast__submit-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.podcast__submit-step {
+	padding: 16px;
+	background: #f6f7f7;
+	border-radius: 8px;
+}
+
+.podcast__submit-step-title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.podcast__submit-step-row {
+
+	@media ( max-width: 600px ) {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+
+.podcast__submit-step-field {
+	flex: 1;
+	min-width: 0;
+}
+
+.podcast__submit-copy-button {
+	min-inline-size: 8rem;
+	align-self: flex-start;
+	justify-content: flex-start;
+}
+
+.podcast__submit-step-notice {
+	margin-block: 8px 0;
+	margin-inline: 0;
+}
+
+.podcast__submit-step-saved {
+	flex: 1;
+	min-width: 0;
+	padding: 8px 12px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.podcast__submit-step-saved-icon {
+	flex-shrink: 0;
+	color: #007a3d;
+
+	// Gutenberg's Icon paths use fill="currentColor"; force any stray fill="none"
+	// or hard-coded colors to inherit so the success token actually wins.
+	svg {
+		fill: currentColor;
+	}
+}
+
+.podcast__submit-step-saved-url {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+}

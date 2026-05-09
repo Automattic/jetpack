@@ -19,11 +19,12 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import CoverImageControl from '../components/cover-image-control';
-import { useCategoriesQuery } from '../hooks/use-categories-query';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
-import { TOPICS, type Topic } from '../topics';
+import CoverImageControl from './cover-image-control';
+import './style.scss';
+import { TOPICS, type Topic } from './topics';
+import { useCategoriesQuery } from './use-categories-query';
 import type { PodcastSettings, ExplicitValue } from '../types';
 
 const EXPLICIT_OPTIONS: Array< { label: string; value: ExplicitValue } > = [

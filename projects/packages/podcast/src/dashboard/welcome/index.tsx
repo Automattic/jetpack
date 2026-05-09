@@ -11,6 +11,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, audio, layout, megaphone } from '@wordpress/icons';
+import './style.scss';
 
 interface WelcomeTabProps {
 	onGetStarted: () => void;
