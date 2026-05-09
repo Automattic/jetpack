@@ -1786,8 +1786,23 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertSame( 'integer', $schema['type'] );
 		$this->assertTrue( $schema['single'] );
 		$this->assertTrue( $schema['show_in_rest'] );
+		$this->assertSame( 0, $schema['default'] );
 		$this->assertSame( 'absint', $schema['sanitize_callback'] );
 		$this->assertIsCallable( $schema['auth_callback'] );
+	}
+
+	/**
+	 * Test that the registered default surfaces as `0` from `get_post_meta()`
+	 * for posts without an explicit value, so REST clients always see a
+	 * deterministic integer instead of `null` or an empty string.
+	 */
+	public function test_feature_clip_meta_default_value_is_zero() {
+		ImageStudio\register_feature_clip_post_meta();
+
+		$post_id = self::factory()->post->create();
+		$value   = get_post_meta( $post_id, ImageStudio\FEATURE_CLIP_META_KEY, true );
+
+		$this->assertSame( 0, $value );
 	}
 
 	/**

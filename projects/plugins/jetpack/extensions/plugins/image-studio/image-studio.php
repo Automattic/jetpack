@@ -187,7 +187,9 @@ function register_plugin() {
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin' );
 
 /**
- * Permission check for writing the feature clip meta on a given post.
+ * Permission check for reading or writing the feature clip meta on a given
+ * post. WordPress runs `auth_callback` for both REST GET and POST against the
+ * meta key, so this gate determines visibility as well as mutability.
  *
  * @param bool   $allowed   Whether the user is allowed (unused — recomputed here).
  * @param string $meta_key  Meta key being checked.
@@ -220,6 +222,7 @@ function register_feature_clip_post_meta() {
 			'type'              => 'integer',
 			'description'       => 'Attachment ID of the generated video clip designated as this post\'s feature clip.',
 			'single'            => true,
+			'default'           => 0,
 			'show_in_rest'      => true,
 			'sanitize_callback' => 'absint',
 			'auth_callback'     => __NAMESPACE__ . '\feature_clip_meta_auth_callback',
