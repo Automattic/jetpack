@@ -62,11 +62,11 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 	);
 };
 
-const goToSettingsTab = () => {
-	window.location.hash = '#settings';
-};
+interface DistributionTabProps {
+	onEditSettings: () => void;
+}
 
-const DistributionTab = () => {
+const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const { data: settings } = usePodcastSettings();
 	const { issues, isReady, isLoading } = useValidationIssues();
 	const scriptData = getPodcastScriptData();
@@ -94,7 +94,7 @@ const DistributionTab = () => {
 							<li key={ issue }>{ issue }</li>
 						) ) }
 					</ul>
-					<Button variant="link" onClick={ goToSettingsTab }>
+					<Button variant="link" onClick={ onEditSettings }>
 						{ __( 'Edit settings', 'jetpack-podcast' ) }
 					</Button>
 				</Notice>

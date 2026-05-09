@@ -78,7 +78,7 @@ const App = () => {
 		}
 	}, [] );
 
-	const handleWelcomeGetStarted = useCallback( () => {
+	const goToSettings = useCallback( () => {
 		setActiveTab( 'settings' );
 	}, [] );
 
@@ -115,7 +115,7 @@ const App = () => {
 						<Tabs.Panel value="welcome">
 							<div className="podcast__tab-content">
 								<Suspense fallback={ <TabFallback /> }>
-									<WelcomeTab onGetStarted={ handleWelcomeGetStarted } />
+									<WelcomeTab onGetStarted={ goToSettings } />
 								</Suspense>
 							</div>
 						</Tabs.Panel>
@@ -136,7 +136,7 @@ const App = () => {
 						<Tabs.Panel value="distribution">
 							<div className="podcast__tab-content">
 								<Suspense fallback={ <TabFallback /> }>
-									<DistributionTab />
+									<DistributionTab onEditSettings={ goToSettings } />
 								</Suspense>
 							</div>
 						</Tabs.Panel>
