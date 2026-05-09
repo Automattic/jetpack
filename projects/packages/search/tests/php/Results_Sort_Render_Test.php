@@ -285,6 +285,36 @@ class Results_Sort_Render_Test extends TestCase {
 		}
 	}
 
+	/**
+	 * Every popover menu item — base or product — must bind `aria-checked`
+	 * to the shared `state.isSortOptionSelected` getter (which reads back
+	 * through `data-wp-context.sortKey`). Using a per-key getter map would
+	 * leave product keys falling through to a literal `"false"` binding,
+	 * which the Interactivity API resolves as `state.false` (undefined),
+	 * leaving screen reader users without a "currently selected" signal.
+	 */
+	public function test_display_as_popover_aria_checked_uses_shared_getter_for_all_keys() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		try {
+			$markup = $this->render(
+				array(
+					'displayAs'            => 'popover',
+					'availableSortOptions' => array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ),
+				)
+			);
+			foreach ( array( 'relevance', 'newest', 'oldest', 'rating_desc', 'price_asc', 'price_desc' ) as $key ) {
+				$this->assertMatchesRegularExpression(
+					'/data-wp-context=\'[^\']*' . preg_quote( $key, '/' ) . '[^\']*\'\s+data-wp-bind--aria-checked="state\.isSortOptionSelected"/s',
+					$markup,
+					"Expected $key menu item to bind aria-checked to state.isSortOptionSelected."
+				);
+			}
+			$this->assertStringNotContainsString( 'data-wp-bind--aria-checked="false"', $markup );
+		} finally {
+			Search_Blocks::set_is_woocommerce_active_for_testing( null );
+		}
+	}
+
 	/** Label is user-controlled; must be HTML-escaped to block stored XSS. */
 	public function test_label_is_html_escaped() {
 		$markup = $this->render( array( 'label' => '<script>alert(1)</script>' ) );

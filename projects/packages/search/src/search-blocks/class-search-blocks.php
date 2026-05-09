@@ -173,7 +173,10 @@ class Search_Blocks {
 	 */
 	public static function is_woocommerce_active(): bool {
 		if ( null === self::$is_woocommerce_active_cache ) {
-			self::$is_woocommerce_active_cache = class_exists( 'WooCommerce' );
+			// Pass `false` so a missing class doesn't fire the autoloader
+			// on non-Woo sites — the gate is hit on every request, and
+			// any upstream autoloader work is wasted when the answer is "no".
+			self::$is_woocommerce_active_cache = class_exists( 'WooCommerce', false );
 		}
 		return self::$is_woocommerce_active_cache;
 	}
@@ -183,6 +186,8 @@ class Search_Blocks {
 	 * tests only. Pass `null` to clear the override and revive the real
 	 * `class_exists()` probe (also done by `reset_is_woocommerce_active_cache()`).
 	 *
+	 * @internal
+	 *
 	 * @param bool|null $value Forced answer or null to clear.
 	 */
 	public static function set_is_woocommerce_active_for_testing( ?bool $value ): void {
@@ -191,6 +196,8 @@ class Search_Blocks {
 
 	/**
 	 * Reset the `is_woocommerce_active()` memo. Tests only.
+	 *
+	 * @internal
 	 */
 	public static function reset_is_woocommerce_active_cache(): void {
 		self::$is_woocommerce_active_cache = null;
