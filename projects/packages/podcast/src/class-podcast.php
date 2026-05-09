@@ -73,6 +73,8 @@ class Podcast {
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
 
+		Tracks::init();
+
 		// Wire the wp-admin entry point. Admin_Page::init() stages the wp-build
 		// dashboard; menu registration itself runs from wpcom-admin-menu.php
 		// via Admin_Page::add_wp_admin_submenu() at admin_menu priority 999999.
