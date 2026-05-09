@@ -1,14 +1,5 @@
-// Renders the filter-wc-price-slider editor component and asserts on the
-// visible markup + inspector controls. Mirrors how filter-checkbox-edit.test.js
-// pins behavior: a thin shim around `@wordpress/components` so we can drive
-// each field with plain DOM events without standing up the full Gutenberg
-// runtime.
-//
-// `fireEvent.change` over `userEvent.type` is deliberate — the controls are
-// thin mocks, the package doesn't depend on `@testing-library/user-event`, and
-// `change` matches how `TextControl`/`SelectControl`/`ToggleControl` actually
-// fire `onChange` in production (one event per committed value, not per
-// keystroke). The lint warning is suppressed for the same reason.
+// Mirrors filter-checkbox-edit.test.js: thin shims around `@wordpress/components`
+// so each inspector control is drivable with plain DOM events.
 /* eslint-disable testing-library/prefer-user-event */
 
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -19,11 +10,8 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 jest.mock( '@wordpress/block-editor', () => ( {
-	useBlockProps: props => ( {
-		className: props?.className || '',
-		'data-testid': 'block-wrapper',
-	} ),
-	InspectorControls: ( { children } ) => <div data-testid="inspector">{ children }</div>,
+	useBlockProps: props => ( { className: props?.className || '' } ),
+	InspectorControls: ( { children } ) => <div>{ children }</div>,
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
@@ -32,11 +20,7 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</div>
 	),
-	PanelBody: ( { title, children } ) => (
-		<section data-testid="panel" data-title={ title }>
-			{ children }
-		</section>
-	),
+	PanelBody: ( { children } ) => <section>{ children }</section>,
 	SelectControl: ( { label, value, onChange, options } ) => (
 		<select aria-label={ label } value={ value } onChange={ e => onChange( e.target.value ) }>
 			{ options.map( opt => (
@@ -46,29 +30,22 @@ jest.mock( '@wordpress/components', () => ( {
 			) ) }
 		</select>
 	),
-	TextControl: ( { label, value, onChange, type, disabled, placeholder, help } ) => (
-		<>
-			<input
-				aria-label={ label }
-				type={ type || 'text' }
-				value={ value }
-				disabled={ !! disabled }
-				placeholder={ placeholder || '' }
-				onChange={ e => onChange( e.target.value ) }
-			/>
-			{ help && <span data-testid="help">{ help }</span> }
-		</>
+	TextControl: ( { label, value, onChange, type, disabled } ) => (
+		<input
+			aria-label={ label }
+			type={ type || 'text' }
+			value={ value }
+			disabled={ !! disabled }
+			onChange={ e => onChange( e.target.value ) }
+		/>
 	),
-	ToggleControl: ( { label, checked, onChange, help } ) => (
-		<>
-			<input
-				type="checkbox"
-				aria-label={ label }
-				checked={ !! checked }
-				onChange={ e => onChange( e.target.checked ) }
-			/>
-			{ help && <span data-testid="help">{ help }</span> }
-		</>
+	ToggleControl: ( { label, checked, onChange } ) => (
+		<input
+			type="checkbox"
+			aria-label={ label }
+			checked={ !! checked }
+			onChange={ e => onChange( e.target.checked ) }
+		/>
 	),
 } ) );
 
@@ -77,7 +54,7 @@ jest.mock( '@wordpress/components', () => ( {
  *
  * @param {object}   [attributes]    - Block attributes to seed.
  * @param {Function} [setAttributes] - Spy override; defaults to a fresh `jest.fn()`.
- * @return {object} Testing-library render result with `setAttributes` attached.
+ * @return {object} Render result with `setAttributes` attached.
  */
 function renderEdit( attributes = {}, setAttributes = jest.fn() ) {
 	return {
@@ -90,12 +67,11 @@ function renderEdit( attributes = {}, setAttributes = jest.fn() ) {
 
 describe( 'FilterWcPriceSliderEdit', () => {
 	const originalWcSettings = global.window.wcSettings;
-
 	afterEach( () => {
 		global.window.wcSettings = originalWcSettings;
 	} );
 
-	it( 'default render: "Price" label, $0/$1000 endpoints, autoBounds toggle on, Min/Max disabled', () => {
+	it( 'default render: "Price" label, $0/$1000 endpoints, autoBounds on, Min/Max disabled', () => {
 		global.window.wcSettings = undefined;
 		renderEdit();
 
@@ -107,7 +83,7 @@ describe( 'FilterWcPriceSliderEdit', () => {
 		expect( screen.getByLabelText( 'Maximum' ) ).toBeDisabled();
 	} );
 
-	it( 'reads currency symbol + position from window.wcSettings (right_space → suffix)', () => {
+	it( 'reads currency from window.wcSettings (right_space → suffix)', () => {
 		global.window.wcSettings = { currency: { symbol: '€', position: 'right_space' } };
 		renderEdit( { min: 5, max: 25 } );
 

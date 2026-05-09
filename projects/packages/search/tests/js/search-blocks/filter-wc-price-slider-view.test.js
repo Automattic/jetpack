@@ -7,7 +7,6 @@ const captured = {
 	callbacks: {},
 };
 const elementRef = { current: { ref: null } };
-const contextRef = { current: null };
 
 jest.mock(
 	'@wordpress/interactivity',
@@ -29,12 +28,6 @@ jest.mock(
 			return { state: captured.state, actions: captured.actions };
 		},
 		getElement: () => elementRef.current,
-		getContext: () => {
-			if ( contextRef.current === null ) {
-				throw new Error( 'getContext called outside Interactivity scope' );
-			}
-			return contextRef.current;
-		},
 	} ),
 	{ virtual: true }
 );
@@ -106,7 +99,6 @@ describe( 'filter-wc-price-slider view — drag updates state without searching'
 		captured.state.priceCurrencySymbol = '$';
 		captured.state.priceCurrencySymbolPosition = 'left';
 		document.body.innerHTML = '';
-		contextRef.current = null;
 	} );
 
 	it( 'input events write to state.priceRange but never trigger a search', () => {
@@ -148,7 +140,6 @@ describe( 'filter-wc-price-slider view — change commits via setPriceRange', ()
 		captured.actions.search = searchSpy;
 		captured.state.priceRange = null;
 		document.body.innerHTML = '';
-		contextRef.current = null;
 	} );
 
 	it( 'a single change event after a drag dispatches setPriceRange exactly once with the final values', async () => {
@@ -273,13 +264,11 @@ describe( 'filter-wc-price-slider view — updatePriceSliderUi callback', () => 
 		captured.state.priceRange = null;
 		captured.state.priceCurrencySymbol = '$';
 		captured.state.priceCurrencySymbolPosition = 'left';
-		contextRef.current = null;
 	} );
 
-	it( 'updates --low / --high and label text from state.priceRange + slider bounds context', () => {
+	it( 'updates --low / --high and label text from state.priceRange + input min/max', () => {
 		const { wrapper, range, minLabel, maxLabel } = mountFullSliderDom();
 		elementRef.current = { ref: wrapper };
-		contextRef.current = { sliderMin: 0, sliderMax: 100 };
 
 		captured.state.priceRange = { min: 25, max: 80 };
 		captured.callbacks.updatePriceSliderUi();
@@ -290,10 +279,11 @@ describe( 'filter-wc-price-slider view — updatePriceSliderUi callback', () => 
 		expect( maxLabel ).toHaveTextContent( '$80' );
 	} );
 
-	it( 'falls back to slider bounds when no priceRange is set — labels show the slider min / max', () => {
-		const { wrapper, range, minLabel, maxLabel } = mountFullSliderDom();
+	it( 'falls back to input min/max when no priceRange is set', () => {
+		const { wrapper, range, minLabel, maxLabel, minInput, maxInput } = mountFullSliderDom();
+		minInput.setAttribute( 'max', '200' );
+		maxInput.setAttribute( 'max', '200' );
 		elementRef.current = { ref: wrapper };
-		contextRef.current = { sliderMin: 0, sliderMax: 200 };
 
 		captured.state.priceRange = null;
 		captured.callbacks.updatePriceSliderUi();
@@ -307,7 +297,6 @@ describe( 'filter-wc-price-slider view — updatePriceSliderUi callback', () => 
 	it( 'sets aria-valuetext on the inputs to the currency-formatted label so screen readers match the visible value', () => {
 		const { wrapper, minInput, maxInput } = mountFullSliderDom();
 		elementRef.current = { ref: wrapper };
-		contextRef.current = { sliderMin: 0, sliderMax: 100 };
 
 		captured.state.priceRange = { min: 25, max: 80 };
 		captured.callbacks.updatePriceSliderUi();

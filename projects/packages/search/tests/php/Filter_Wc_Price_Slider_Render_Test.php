@@ -1,6 +1,7 @@
 <?php
 /**
- * Filter_Wc_Price_Slider block render.php tests.
+ * Filter_Wc_Price_Slider block render.php tests — pins the non-obvious
+ * server-side behaviors (the rest is JS-driven post-hydration).
  *
  * @package automattic/jetpack-search
  */
@@ -10,19 +11,14 @@ namespace Automattic\Jetpack\Search;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the filter-wc-price-slider block's render template — pinning the
- * non-obvious server-side behaviors only (mirrors how `Search_Input_Render_Test`
- * focuses on visible-from-the-template attributes rather than markup shape).
- *
- * WooCommerce isn't available in this PHPUnit environment, so the
- * `function_exists( 'wc_get_product' )`-gated auto-bounds branch isn't
- * exercised here — that path runs on the front end with WC loaded.
+ * Mirrors `Search_Input_Render_Test`. WooCommerce isn't loaded in this PHPUnit
+ * environment, so the auto-bounds SQL branch isn't exercised here — that runs
+ * on the front end with WC.
  */
 class Filter_Wc_Price_Slider_Render_Test extends TestCase {
 
 	/**
-	 * Register the block inline. The render callback delegates to render.php
-	 * so phpunit's coverage instrumentation tracks that file directly.
+	 * Register the block inline so `do_blocks()` resolves render.php directly.
 	 */
 	public static function setUpBeforeClass(): void {
 		\register_block_type(
@@ -58,8 +54,6 @@ class Filter_Wc_Price_Slider_Render_Test extends TestCase {
 						'default' => true,
 					),
 				),
-				// $attributes is consumed by the included render.php via the
-				// closure's local scope — phpcs can't see that, hence the disable.
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				'render_callback' => static function ( $attributes ) {
 					ob_start();
@@ -71,9 +65,6 @@ class Filter_Wc_Price_Slider_Render_Test extends TestCase {
 		);
 	}
 
-	/**
-	 * Unregister so other test classes start clean.
-	 */
 	public static function tearDownAfterClass(): void {
 		\unregister_block_type( 'jetpack-search/filter-wc-price-slider' );
 	}
@@ -93,7 +84,7 @@ class Filter_Wc_Price_Slider_Render_Test extends TestCase {
 
 	/**
 	 * Inverted bounds (min > max) coerce to an ascending pair so the slider
-	 * stays usable rather than emitting unrenderable markup.
+	 * stays renderable.
 	 */
 	public function test_inverted_bounds_are_swapped() {
 		$markup = $this->render(
@@ -106,33 +97,6 @@ class Filter_Wc_Price_Slider_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'min="10"', $markup );
 		$this->assertStringContainsString( 'max="100"', $markup );
 		$this->assertStringNotContainsString( 'min="100"', $markup );
-	}
-
-	/**
-	 * Symbols longer than two characters get trimmed by `mb_substr` so an
-	 * oversized author input can't overflow the value adornment.
-	 */
-	public function test_oversized_symbol_is_trimmed_to_two_chars() {
-		$markup = $this->render( array( 'currencySymbol' => 'KRX' ) );
-		$this->assertStringContainsString( 'KR0', $markup );
-		$this->assertStringNotContainsString( 'KRX', $markup );
-	}
-
-	/**
-	 * `aria-valuetext` carries the currency-formatted label so screen readers
-	 * announce "$25" instead of the bare numeric `value` ("25"). Pre-hydration
-	 * seed; the JS watcher refreshes it reactively.
-	 */
-	public function test_aria_valuetext_carries_currency_formatted_label() {
-		$markup = $this->render(
-			array(
-				'currencySymbol' => '$',
-				'min'            => 0,
-				'max'            => 250,
-			)
-		);
-		$this->assertStringContainsString( 'aria-valuetext="$0"', $markup );
-		$this->assertStringContainsString( 'aria-valuetext="$250"', $markup );
 	}
 
 	/**

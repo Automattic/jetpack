@@ -1,13 +1,11 @@
-import { store, getElement, getContext } from '@wordpress/interactivity';
+import { store, getElement } from '@wordpress/interactivity';
 import '../../store';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
 
 /**
- * Resolve the min and max range inputs that share a parent block wrapper with
- * `el`. Used by the input/change handlers to read both bounds when either
- * thumb moves (the store action takes both bounds together).
+ * Resolve the min and max range inputs sharing a wrapper with `el`.
  *
  * @param {HTMLElement} el - The input that fired the event.
  * @return {{min: HTMLInputElement|null, max: HTMLInputElement|null}} Sibling inputs.
@@ -24,12 +22,11 @@ function findSliderInputs( el ) {
 }
 
 /**
- * Coerce an input's `.value` string into a numeric bound. Returns null for
- * empty / NaN / negative inputs, mirroring `parsePriceBound` in url-state.js so
- * the slider and the URL reader treat "no bound" the same way.
+ * Coerce an input's `.value` to a numeric bound (mirrors `parsePriceBound`
+ * in url-state.js so the slider and URL reader agree on "no bound").
  *
  * @param {string|null|undefined} raw - Input value.
- * @return {number|null} Parsed bound or null.
+ * @return {number|null} Parsed bound or null for empty / NaN / negative.
  */
 function parseBound( raw ) {
 	if ( raw === null || raw === undefined || raw === '' ) {
@@ -40,11 +37,8 @@ function parseBound( raw ) {
 }
 
 /**
- * Read the parsed pair, pinning the lower thumb to the upper value when they
- * cross. Native `<input type="range">` lets a user drag past its sibling, but
- * we want them to clamp at the meeting point so the dispatched bounds always
- * satisfy `min <= max` and the visible thumb position matches the committed
- * value.
+ * Pin the parsed pair so `min <= max` — native range inputs let a user drag
+ * past their sibling.
  *
  * @param {HTMLInputElement|null} minEl - Min slider element.
  * @param {HTMLInputElement|null} maxEl - Max slider element.
@@ -54,11 +48,8 @@ function clampPair( minEl, maxEl ) {
 	let minVal = parseBound( minEl?.value );
 	let maxVal = parseBound( maxEl?.value );
 	if ( minVal !== null && maxVal !== null && minVal > maxVal ) {
-		// Pick the side that didn't just move by checking activeElement on
-		// the input's owner document — dragging the min thumb past max should
-		// pin min to max, dragging max below min should pin max to min. Falls
-		// back to clamping min when activeElement isn't one of the inputs
-		// (e.g. programmatic dispatch).
+		// Snap the side that just moved (whichever input has focus) — clamping
+		// the stationary thumb instead would drag both thumbs together.
 		const ownerDoc = ( minEl ?? maxEl )?.ownerDocument;
 		if ( ownerDoc && ownerDoc.activeElement === maxEl ) {
 			maxVal = minVal;
@@ -76,10 +67,9 @@ function clampPair( minEl, maxEl ) {
 }
 
 /**
- * Format a numeric bound for the value-label span. Renders integers — the
- * underlying input value carries the author-set step's precision, but the
- * visible label rounds to a whole number so a 4-pixel drag doesn't churn
- * "$24.96 / $25.04 / $25.12".
+ * Format a numeric bound for the value-label span as a rounded integer with
+ * the currency symbol — drops sub-unit precision so a few-pixel drag doesn't
+ * churn "$24.96 / $25.04 / $25.12".
  *
  * @param {number|null|undefined} value    - Numeric bound.
  * @param {string}                symbol   - Currency symbol (≤ 2 chars).
@@ -95,35 +85,15 @@ function formatBoundLabel( value, symbol, position ) {
 }
 
 /**
- * Read the slider's track bounds from the wrapper's Interactivity context.
- * These describe the store's full catalogue range (computed server-side from
- * `wp_postmeta._price`) and stay fixed for the page's lifetime — applying
- * other filters narrows the result set but does not shrink the slider, so the
- * user can always drag back out. Mirrors WooCommerce's price slider: stable
- * track, only thumb positions move with filters.
- *
- * Falls through to the input element's `min`/`max` attributes when context
- * isn't available (e.g. inside a unit test running view.js directly).
+ * Read the slider's track bounds from the input elements' `min` / `max` HTML
+ * attributes. These describe the store's full catalogue range (server-rendered
+ * by render.php) and stay fixed for the page's lifetime — applying other
+ * filters narrows the result set but does not shrink the slider, mirroring WC.
  *
  * @param {HTMLElement|null} wrapper - Slider wrapper element.
  * @return {{sliderMin: number, sliderMax: number}} Track bounds.
  */
 function readSliderBounds( wrapper ) {
-	try {
-		const ctx = getContext();
-		if (
-			ctx &&
-			Number.isFinite( Number( ctx.sliderMin ) ) &&
-			Number.isFinite( Number( ctx.sliderMax ) )
-		) {
-			return {
-				sliderMin: Number( ctx.sliderMin ),
-				sliderMax: Number( ctx.sliderMax ),
-			};
-		}
-	} catch {
-		// getContext() throws outside an Interactivity scope (e.g. tests). Fall through.
-	}
 	const minEl = wrapper?.querySelector?.( '.jetpack-search-filter-wc-price-slider__input--min' );
 	const maxEl = wrapper?.querySelector?.( '.jetpack-search-filter-wc-price-slider__input--max' );
 	return {
@@ -135,14 +105,9 @@ function readSliderBounds( wrapper ) {
 store( NAMESPACE, {
 	actions: {
 		/**
-		 * Live drag handler. `<input type="range">` fires `input` continuously
-		 * while the user drags — at 60fps that's ~60 events/second. We update
-		 * `state.priceRange` immediately so the colored fill (driven by the
-		 * `updatePriceSliderUi` watcher) and the value labels follow the thumb
-		 * in real time, but we **do not** trigger a search here. The commit /
-		 * search dispatch lives in `onPriceSliderChange`, bound to the native
-		 * `change` event which fires once on release — same split WC Blocks
-		 * uses for its dual-thumb price slider.
+		 * Live drag handler. `input` fires ~60×/s while the user drags;
+		 * we update `state.priceRange` so the watcher repaints the fill and
+		 * labels, but defer the search to `onPriceSliderChange` (release).
 		 */
 		onPriceSliderInput() {
 			const el = getElement()?.ref;
@@ -163,19 +128,13 @@ store( NAMESPACE, {
 		},
 
 		/**
-		 * Release handler. `<input type="range">` fires `change` on mouseup /
-		 * keyup / touchend — the natural "I'm done dragging" signal. Commits
-		 * the current bounds via `actions.setPriceRange`, which validates,
-		 * pushes the URL, and fetches results.
-		 *
-		 * `setPriceRange` searches internally when it actually writes new state.
-		 * The pointer drag path pre-writes state via `onPriceSliderInput`, so
-		 * `setPriceRange` no-ops there and the URL/results stay stale unless we
-		 * trigger our own search. Capture the no-op status _before_ calling
-		 * `setPriceRange` (afterwards `state.priceRange` always matches `bounds`,
-		 * which would mask whether a write happened) so keyboard-only changes —
-		 * which fire `change` without a preceding `input` — get exactly one
-		 * search from `setPriceRange` and not a duplicate from us.
+		 * Release handler (`change` event). Commits the current bounds via
+		 * `setPriceRange`. That action searches internally only when state
+		 * actually changes; the drag path pre-wrote state, so it no-ops and
+		 * we trigger an explicit search. Capture `willNoOp` _before_ calling
+		 * `setPriceRange` — afterwards `state.priceRange` always matches
+		 * `bounds`, masking whether a write happened. This avoids the
+		 * double-search keyboard-only changes would otherwise produce.
 		 *
 		 * @yield {Promise} setPriceRange / search action.
 		 */
@@ -200,17 +159,9 @@ store( NAMESPACE, {
 
 	callbacks: {
 		/**
-		 * Reactive watcher attached to the slider wrapper via `data-wp-watch`.
-		 * Re-runs whenever any reactive read inside it changes — primarily
-		 * `state.priceRange`. Updates two pieces of UI for this slider instance:
-		 * the `--low` / `--high` CSS custom properties on the `__range` track
-		 * (so the colored active-range gradient grows / shrinks with the thumbs)
-		 * and the text content of the `__value--min` / `__value--max` spans (so
-		 * the visible labels track the current bounds).
-		 *
-		 * Both updates run together so a single drag + release commits a single
-		 * paint frame's worth of UI changes. Pre-hydration the labels are
-		 * already correct from render.php's seeded text.
+		 * Reactive watcher attached via `data-wp-watch`. Re-runs on every
+		 * `state.priceRange` change to update the `--low` / `--high` track
+		 * gradient, value-label text, input values, and aria-valuetext.
 		 */
 		updatePriceSliderUi() {
 			const wrapper = getElement()?.ref;
@@ -238,10 +189,8 @@ store( NAMESPACE, {
 			const symbol = state.priceCurrencySymbol || '';
 			const position = state.priceCurrencySymbolPosition || 'left';
 
-			// Sync input values with state so external changes (popstate, a
-			// clear-filters action) move the thumbs. Skip the input the user is
-			// currently dragging — overwriting its own value mid-drag would jitter
-			// the thumb against the user's pointer.
+			// Skip the actively-dragged input — overwriting its own value
+			// mid-drag would jitter the thumb against the user's pointer.
 			const active = wrapper.ownerDocument?.activeElement;
 			if ( minInput && minInput !== active ) {
 				const next = String( minVal );
@@ -278,8 +227,8 @@ store( NAMESPACE, {
 				maxLabel.textContent = maxText;
 			}
 
-			// Keep `aria-valuetext` aligned with the visible label so screen
-			// readers announce "$25" instead of the raw numeric `value` ("25").
+			// `aria-valuetext` mirrors the visible label so screen readers
+			// announce "$25" instead of the raw numeric value.
 			if ( minInput ) {
 				minInput.setAttribute( 'aria-valuetext', minText );
 			}

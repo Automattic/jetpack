@@ -2,35 +2,14 @@
 /**
  * Search product filter — price slider render.
  *
- * Single shared track with two thumbs (lower thumb = min, upper thumb = max)
- * — the dual-thumb pattern WooCommerce Blocks ships. Two `<input type="range">`
- * elements overlay each other on the same wrapper: CSS sets
- * `pointer-events: none` on the inputs and re-enables it only on the thumb
- * pseudo-elements, so the wrapper reads as one bar with two draggable handles.
- * A `linear-gradient` driven by `--low` / `--high` CSS custom properties (set
- * reactively by `callbacks.updatePriceSliderUi` when state.priceRange
- * changes) paints the colored "active range" between the thumbs.
+ * Dual-thumb single-track slider mirroring WooCommerce Blocks: two overlaid
+ * `<input type="range">` elements share one wrapper, with `pointer-events`
+ * routed so the wrapper reads as a single bar with two draggable handles.
+ * `--low` / `--high` CSS custom properties (set by `callbacks.updatePriceSliderUi`)
+ * paint the colored "active range" between the thumbs.
  *
- * Peer of the number-input price block: different control surface, identical
- * data plane — same `setPriceRange` action, same `min_price` / `max_price`
- * URL contract, same `priceCurrencySymbol` / `priceLabel` seed shape so a
- * downstream consumer (e.g. the active-filters chip block) reads the seed
- * regardless of which price block the author dropped on the page.
- *
- * Author bounds the slider via `min` / `max` / `step` block attrs; with
- * `autoBounds` (the default), `min` / `max` are auto-derived from the catalog's
- * `wp_postmeta._price` extents (transient-cached) and override the author's
- * values, so the slider matches the store's actual price range out of the box.
- *
- * First-paint values are seeded from `state.priceRange` (which the PHP
- * state-builder parses from the URL) so a deep link like
- * `/?s=&min_price=25&max_price=80` shows the thumbs in the right places —
- * and the colored fill in the right span — before JS hydrates.
- *
- * Drag / commit split mirrors WC's: `input` events update state for live
- * visual feedback (track fill follows the thumb) without triggering a search;
- * `change` (which native range inputs fire on release) commits via
- * `actions.search` to update the URL and refetch results.
+ * Drag / commit split: `input` events update state for live visual feedback
+ * without searching; `change` (fired on release) commits via `actions.search`.
  *
  * @package automattic/jetpack-search
  */
@@ -53,18 +32,10 @@ $max_attr    = isset( $attrs['max'] ) ? (float) $attrs['max'] : 1000.0;
 $step        = isset( $attrs['step'] ) && (float) $attrs['step'] > 0 ? (float) $attrs['step'] : 1.0;
 $auto_bounds = ! isset( $attrs['autoBounds'] ) || (bool) $attrs['autoBounds'];
 
-// Auto-bound the slider to the store's actual price extents when WooCommerce
-// is active and the author hasn't opted out. We pull min/max directly from
-// `wp_postmeta._price` rather than going through a search-API aggregation
-// because WPCOM v1.3's whitelist excludes `range`/`stats` aggs (see the comments
-// in `store/api.js` for the rating filter's histogram workaround). A 5-minute
-// transient absorbs the cost of the SQL across page loads — this is a per-page
-// "what's the store's price range?" lookup, not a per-search filter clause.
-//
-// Bounds are stable for the page's lifetime: they describe the store's full
-// catalogue, not the currently visible result set. WC's price slider works the
-// same way — applying other filters narrows the products but the slider track
-// stays at the catalogue range, so the user can always drag back out.
+// Auto-bound to the catalog's `_price` extents when WC is loaded. Bounds are
+// stable for the page (mirrors WC's slider — applying other filters narrows
+// products without shrinking the track, so the user can always drag back out).
+// 5-min transient absorbs the SQL cost across page loads.
 if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
 	$cached_range = function_exists( 'get_transient' ) ? get_transient( 'jetpack_search_wc_price_extents' ) : false;
 	if ( false === $cached_range ) {
@@ -74,17 +45,11 @@ if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
 			'max' => null,
 		);
 		if ( isset( $wpdb ) ) {
-			// `_price` is the canonical WC postmeta key — it's the computed
-			// price WC uses for both filtering and sorting. Cast to DECIMAL so
-			// MIN/MAX compare numerically (the underlying meta_value column is
-			// LONGTEXT). Empty / non-numeric rows are filtered out so a "Call
-			// for price" product doesn't poison the bounds. Joined to wp_posts
-			// to constrain to published products — drafts, trashed, and
-			// auto-drafts would otherwise leak into the slider extents (a
-			// trashed `$9999` test product would push the max way out). Caching
-			// is handled by the surrounding transient — the phpcs caching
-			// warning fires because the call site doesn't use wp_cache_*, but
-			// the transient already provides the same effect across page loads.
+			// `_price` is the canonical WC postmeta key. Joined to wp_posts to
+			// constrain to published products / variations — drafts and trashed
+			// posts would otherwise leak into the extents. The phpcs caching
+			// warning fires because the call site doesn't use wp_cache_*; the
+			// transient already provides that effect.
 			$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				"SELECT
 					MIN(CAST(pm.meta_value AS DECIMAL(20,6))) AS min_price,
@@ -109,9 +74,7 @@ if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
 		}
 	}
 	if ( is_array( $cached_range ) && null !== ( $cached_range['min'] ?? null ) && null !== ( $cached_range['max'] ?? null ) ) {
-		// Floor the floor and ceiling the ceiling so the slider snaps to whole
-		// numbers — `$24.95` becomes a `24` floor / `95` ceiling, which reads
-		// cleaner in the value labels and avoids fractional thumb positions.
+		// Floor / ceil to whole numbers so labels read cleanly.
 		$min_attr = floor( (float) $cached_range['min'] );
 		$max_attr = ceil( (float) $cached_range['max'] );
 	}
@@ -121,17 +84,12 @@ if ( '' === $label ) {
 	$label = __( 'Price', 'jetpack-search-pkg' );
 }
 
-// Empty author values fall through to the active WooCommerce settings so a
-// site running AUD gets `A$` adornments out-of-the-box. WC bridges via the
-// public-facing helper / option, both safe to call when WC isn't loaded
-// (the function_exists guard handles that). The `$` / `left` fallbacks keep
-// the block usable on a plain WP install while the author wires WC up.
+// Empty author values fall through to the active WC settings.
 if ( '' === $symbol && function_exists( 'get_woocommerce_currency_symbol' ) ) {
 	// @phan-suppress-next-line PhanUndeclaredFunction
 	$wc_symbol = (string) get_woocommerce_currency_symbol();
-	// WC returns symbols as HTML entities (e.g. `&#36;`, `&euro;`). Decode once
-	// so the downstream `mb_substr` operates on a single character instead of
-	// half an entity, and so `esc_html` at output produces a single round-trip.
+	// WC returns symbols as HTML entities (`&#36;`, `&euro;`); decode once so
+	// `mb_substr` operates on a single character.
 	$symbol = html_entity_decode( $wc_symbol, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 }
 if ( '' === $symbol ) {
@@ -145,38 +103,18 @@ if ( ! in_array( $position, array( 'left', 'right' ), true ) ) {
 	$position = 'left';
 }
 
-// Trim to two characters so an oversized symbol can't overflow the value
-// adornment slot above the thumb.
+// Trim oversized symbols so the value adornment can't overflow.
 $symbol_short = function_exists( 'mb_substr' ) ? mb_substr( $symbol, 0, 2 ) : substr( $symbol, 0, 2 );
 
-// Inverted bounds (min > max) would render an unusable slider; coerce to a
-// safe ascending pair rather than emitting broken markup.
+// Coerce inverted bounds (min > max) so the slider stays renderable.
 if ( $min_attr > $max_attr ) {
 	$tmp      = $min_attr;
 	$min_attr = $max_attr;
 	$max_attr = $tmp;
 }
 
-$seeded_state = wp_interactivity_state( 'jetpack-search' );
-$seeded_price = $seeded_state['priceRange'] ?? null;
-$seeded_min   = is_array( $seeded_price ) && null !== ( $seeded_price['min'] ?? null )
-	? (float) $seeded_price['min']
-	: $min_attr;
-$seeded_max   = is_array( $seeded_price ) && null !== ( $seeded_price['max'] ?? null )
-	? (float) $seeded_price['max']
-	: $max_attr;
-
-// First-paint --low / --high so the colored active-range fill renders before
-// JS hydrates. Guard against zero span (author misconfigured min === max).
-$span     = $max_attr - $min_attr;
-$low_pct  = $span > 0 ? max( 0.0, min( 100.0, ( ( $seeded_min - $min_attr ) / $span ) * 100.0 ) ) : 0.0;
-$high_pct = $span > 0 ? max( 0.0, min( 100.0, ( ( $seeded_max - $min_attr ) / $span ) * 100.0 ) ) : 100.0;
-
-// Push the block author's chosen currency symbol and group label into the
-// shared store. Same contract the number-input price block writes, so an
-// active-filters chip rendered downstream sees the same shape regardless of
-// which price block the author dropped on the page. wp_interactivity_state
-// deep-merges, so writing here doesn't disturb other state branches.
+// Share currency + label with downstream blocks (e.g. active-filters chip)
+// via the Interactivity store. Same shape the number-input price block writes.
 wp_interactivity_state(
 	'jetpack-search',
 	array(
@@ -190,71 +128,18 @@ wp_interactivity_state(
 
 $min_id = wp_unique_id( 'jetpack-search-filter-wc-price-slider-min-' );
 $max_id = wp_unique_id( 'jetpack-search-filter-wc-price-slider-max-' );
-
-$format_value = static function ( $value ) use ( $symbol_short, $position ) {
-	return 'right' === $position
-		? esc_html( $value ) . esc_html( $symbol_short )
-		: esc_html( $symbol_short ) . esc_html( $value );
-};
-
-// Slider value labels render as integers — author-set step controls precision
-// of the underlying input value, but the visible label rounds to a whole
-// number so a 4-pixel drag doesn't churn "$24.96 / $25.04 / $25.12".
-$seeded_min_label = (string) ( (int) round( $seeded_min ) );
-$seeded_max_label = (string) ( (int) round( $seeded_max ) );
-
-// Currency-formatted variants drive `aria-valuetext` so screen readers hear
-// "$25" / "25 kr" instead of the bare numeric `value` ("25"), keeping their
-// announcement aligned with the visible label. The watcher updates these
-// reactively on the JS side; this is the pre-hydration seed. Built unescaped
-// (unlike `$format_value`, which double-escapes through esc_attr) so a symbol
-// like `€` lands in the attribute as the raw character, not `&amp;euro;`.
-$plain_value_text      = static function ( $value ) use ( $symbol_short, $position ) {
-	return 'right' === $position ? $value . $symbol_short : $symbol_short . $value;
-};
-$seeded_min_value_text = $plain_value_text( $seeded_min_label );
-$seeded_max_value_text = $plain_value_text( $seeded_max_label );
-
-// Format --low / --high without trailing zeros so the inline style stays tidy.
-$fmt_pct = static function ( $value ) {
-	$out = number_format( $value, 4, '.', '' );
-	$out = rtrim( $out, '0' );
-	return rtrim( $out, '.' );
-};
-
-$track_style = sprintf(
-	'--low:%s%%;--high:%s%%',
-	$fmt_pct( $low_pct ),
-	$fmt_pct( $high_pct )
-);
-
-// Per-slider range bounds threaded into the Interactivity context so the
-// `updatePriceSliderUi` callback can compute --low/--high without
-// reading them off the input DOM nodes (cleaner; survives state-only updates
-// where the inputs haven't yet been touched). JSON-encode for inline output.
-$context_payload = wp_json_encode(
-	array(
-		'sliderMin' => $min_attr,
-		'sliderMax' => $max_attr,
-	),
-	JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS
-);
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-wc-price-slider' ) ) ); ?>
 	data-wp-interactive="jetpack-search"
-	data-wp-context="<?php echo esc_attr( (string) $context_payload ); ?>"
 	data-wp-watch="callbacks.updatePriceSliderUi"
 >
 	<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<div class="jetpack-search-filter-wc-price-slider__content">
 		<div class="jetpack-search-filter-wc-price-slider__left">
-			<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--min"><?php echo $format_value( $seeded_min_label ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $format_value escapes both pieces. ?></span>
+			<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--min"></span>
 		</div>
-		<div
-			class="jetpack-search-filter-wc-price-slider__range"
-			style="<?php echo esc_attr( $track_style ); ?>"
-		>
+		<div class="jetpack-search-filter-wc-price-slider__range">
 			<div class="jetpack-search-filter-wc-price-slider__range-bar"></div>
 			<label class="screen-reader-text" for="<?php echo esc_attr( $min_id ); ?>">
 				<?php esc_html_e( 'Minimum price', 'jetpack-search-pkg' ); ?>
@@ -266,8 +151,7 @@ $context_payload = wp_json_encode(
 				min="<?php echo esc_attr( (string) $min_attr ); ?>"
 				max="<?php echo esc_attr( (string) $max_attr ); ?>"
 				step="<?php echo esc_attr( (string) $step ); ?>"
-				value="<?php echo esc_attr( (string) $seeded_min ); ?>"
-				aria-valuetext="<?php echo esc_attr( $seeded_min_value_text ); ?>"
+				value="<?php echo esc_attr( (string) $min_attr ); ?>"
 				data-wp-on--input="actions.onPriceSliderInput"
 				data-wp-on--change="actions.onPriceSliderChange"
 			/>
@@ -281,14 +165,13 @@ $context_payload = wp_json_encode(
 				min="<?php echo esc_attr( (string) $min_attr ); ?>"
 				max="<?php echo esc_attr( (string) $max_attr ); ?>"
 				step="<?php echo esc_attr( (string) $step ); ?>"
-				value="<?php echo esc_attr( (string) $seeded_max ); ?>"
-				aria-valuetext="<?php echo esc_attr( $seeded_max_value_text ); ?>"
+				value="<?php echo esc_attr( (string) $max_attr ); ?>"
 				data-wp-on--input="actions.onPriceSliderInput"
 				data-wp-on--change="actions.onPriceSliderChange"
 			/>
 		</div>
 		<div class="jetpack-search-filter-wc-price-slider__right">
-			<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--max"><?php echo $format_value( $seeded_max_label ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $format_value escapes both pieces. ?></span>
+			<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--max"></span>
 		</div>
 	</div>
 </div>
