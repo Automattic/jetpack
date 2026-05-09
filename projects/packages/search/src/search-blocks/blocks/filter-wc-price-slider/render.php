@@ -17,8 +17,10 @@
  * downstream consumer (e.g. the active-filters chip block) reads the seed
  * regardless of which price block the author dropped on the page.
  *
- * Author bounds the slider via `min` / `max` / `step` block attrs; sizing the
- * slider from a live aggregation is deferred to a follow-up.
+ * Author bounds the slider via `min` / `max` / `step` block attrs; with
+ * `autoBounds` (the default), `min` / `max` are auto-derived from the catalog's
+ * `wp_postmeta._price` extents (transient-cached) and override the author's
+ * values, so the slider matches the store's actual price range out of the box.
  *
  * First-paint values are seeded from `state.priceRange` (which the PHP
  * state-builder parses from the URL) so a deep link like
@@ -201,6 +203,18 @@ $format_value = static function ( $value ) use ( $symbol_short, $position ) {
 $seeded_min_label = (string) ( (int) round( $seeded_min ) );
 $seeded_max_label = (string) ( (int) round( $seeded_max ) );
 
+// Currency-formatted variants drive `aria-valuetext` so screen readers hear
+// "$25" / "25 kr" instead of the bare numeric `value` ("25"), keeping their
+// announcement aligned with the visible label. The watcher updates these
+// reactively on the JS side; this is the pre-hydration seed. Built unescaped
+// (unlike `$format_value`, which double-escapes through esc_attr) so a symbol
+// like `€` lands in the attribute as the raw character, not `&amp;euro;`.
+$plain_value_text      = static function ( $value ) use ( $symbol_short, $position ) {
+	return 'right' === $position ? $value . $symbol_short : $symbol_short . $value;
+};
+$seeded_min_value_text = $plain_value_text( $seeded_min_label );
+$seeded_max_value_text = $plain_value_text( $seeded_max_label );
+
 // Format --low / --high without trailing zeros so the inline style stays tidy.
 $fmt_pct = static function ( $value ) {
 	$out = number_format( $value, 4, '.', '' );
@@ -253,6 +267,7 @@ $context_payload = wp_json_encode(
 				max="<?php echo esc_attr( (string) $max_attr ); ?>"
 				step="<?php echo esc_attr( (string) $step ); ?>"
 				value="<?php echo esc_attr( (string) $seeded_min ); ?>"
+				aria-valuetext="<?php echo esc_attr( $seeded_min_value_text ); ?>"
 				data-wp-on--input="actions.onPriceSliderInput"
 				data-wp-on--change="actions.onPriceSliderChange"
 			/>
@@ -267,6 +282,7 @@ $context_payload = wp_json_encode(
 				max="<?php echo esc_attr( (string) $max_attr ); ?>"
 				step="<?php echo esc_attr( (string) $step ); ?>"
 				value="<?php echo esc_attr( (string) $seeded_max ); ?>"
+				aria-valuetext="<?php echo esc_attr( $seeded_max_value_text ); ?>"
 				data-wp-on--input="actions.onPriceSliderInput"
 				data-wp-on--change="actions.onPriceSliderChange"
 			/>

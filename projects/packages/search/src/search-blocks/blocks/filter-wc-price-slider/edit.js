@@ -3,10 +3,10 @@
  *
  * Mirrors the runtime DOM shape — single shared track, two overlaid disabled
  * `<input type="range">` thumbs (lower = min, upper = max), value labels
- * flanking the track — so designers can style the slider in place. The author
- * bounds the slider via `min` / `max` / `step` attrs so the visual range fits
- * the store's actual price distribution; sizing the slider from a live
- * aggregation is deferred to a follow-up.
+ * flanking the track — so designers can style the slider in place. Slider
+ * bounds default to the published catalog's `_price` extents (computed
+ * server-side); authors can opt out via the inspector's "Auto-bounds" toggle
+ * and supply their own `min` / `max` / `step`.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {

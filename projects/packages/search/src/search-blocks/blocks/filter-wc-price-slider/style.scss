@@ -86,6 +86,15 @@
 		--high: 100%;
 		--range-color: currentColor;
 
+		// Force LTR rendering so the slider's "low on the left, high on the
+		// right" axis stays consistent on RTL pages too — matches how most
+		// dual-thumb sliders (Material, Reach, WC Blocks) behave. Without this,
+		// browsers mirror the native range thumb visually but `--low`/`--high`
+		// (computed as percentages from physical-left) and the colored fill
+		// gradient stay LTR, producing a track where the thumbs and the fill
+		// disagree on direction.
+		direction: ltr;
+
 		position: relative;
 		// Wrapper height = thumb visual height so the thumbs never clip.
 		height: 18px;
@@ -97,8 +106,7 @@
 			content: "";
 			position: absolute;
 			top: 50%;
-			left: 0;
-			right: 0;
+			inset-inline: 0;
 			transform: translateY(-50%);
 			height: 4px;
 			background: var(--range-color);
@@ -114,8 +122,7 @@
 	&__range-bar {
 		position: absolute;
 		top: 50%;
-		left: 0;
-		right: 0;
+		inset-inline: 0;
 		transform: translateY(-50%);
 		height: 4px;
 		border-radius: 4px;
@@ -139,8 +146,8 @@
 		appearance: none;
 
 		position: absolute;
-		top: 0;
-		left: 0;
+		inset-block-start: 0;
+		inset-inline-start: 0;
 		width: 100%;
 		height: 18px;
 		display: block;

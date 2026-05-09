@@ -133,34 +133,6 @@ function readSliderBounds( wrapper ) {
 }
 
 store( NAMESPACE, {
-	state: {
-		/**
-		 * `data-wp-bind--value` for the min slider. Returns the current
-		 * `priceRange.min` as a string, or empty when no bound is set so the
-		 * input falls back to its static `value` attribute (seeded by render.php
-		 * to the slider's lower bound).
-		 *
-		 * @return {string} Min value as a string.
-		 */
-		get priceSliderMinValue() {
-			const { state } = store( NAMESPACE );
-			const min = state.priceRange?.min;
-			return min === null || min === undefined ? '' : String( min );
-		},
-
-		/**
-		 * `data-wp-bind--value` for the max slider. Same null-safe pattern as
-		 * `priceSliderMinValue`.
-		 *
-		 * @return {string} Max value as a string.
-		 */
-		get priceSliderMaxValue() {
-			const { state } = store( NAMESPACE );
-			const max = state.priceRange?.max;
-			return max === null || max === undefined ? '' : String( max );
-		},
-	},
-
 	actions: {
 		/**
 		 * Live drag handler. `<input type="range">` fires `input` continuously
@@ -297,11 +269,22 @@ store( NAMESPACE, {
 				}
 			}
 
+			const minText = formatBoundLabel( minVal, symbol, position );
+			const maxText = formatBoundLabel( maxVal, symbol, position );
 			if ( minLabel ) {
-				minLabel.textContent = formatBoundLabel( minVal, symbol, position );
+				minLabel.textContent = minText;
 			}
 			if ( maxLabel ) {
-				maxLabel.textContent = formatBoundLabel( maxVal, symbol, position );
+				maxLabel.textContent = maxText;
+			}
+
+			// Keep `aria-valuetext` aligned with the visible label so screen
+			// readers announce "$25" instead of the raw numeric `value` ("25").
+			if ( minInput ) {
+				minInput.setAttribute( 'aria-valuetext', minText );
+			}
+			if ( maxInput ) {
+				maxInput.setAttribute( 'aria-valuetext', maxText );
 			}
 		},
 	},
