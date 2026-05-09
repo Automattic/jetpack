@@ -147,7 +147,7 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 						min={ 0 }
 						label={ __( 'Step', 'jetpack-search-pkg' ) }
 						value={ String( step ) }
-						onChange={ value => setAttributes( { step: Number( value ) || 1 } ) }
+						onChange={ value => setAttributes( { step: Math.max( 0, Number( value ) || 1 ) } ) }
 						help={ __( 'Slider granularity.', 'jetpack-search-pkg' ) }
 					/>
 				</PanelBody>
