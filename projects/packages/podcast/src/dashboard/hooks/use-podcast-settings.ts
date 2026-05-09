@@ -65,7 +65,7 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 		if ( numericKey( key ) ) {
 			out[ key ] = typeof value === 'number' ? value : Number( value ?? 0 ) || 0;
 		} else if ( key === 'podcasting_explicit' ) {
-			out[ key ] = value === 'yes' || value === 'clean' ? value : 'no';
+			out[ key ] = Boolean( value );
 		} else if ( key === 'podcasting_show_urls' ) {
 			out[ key ] = normalizeShowUrls( value );
 		} else {

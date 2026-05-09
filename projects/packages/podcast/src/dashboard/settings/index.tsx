@@ -25,12 +25,11 @@ import CoverImageControl from './cover-image-control';
 import './style.scss';
 import { TOPICS, type Topic } from './topics';
 import { useCategoriesQuery } from './use-categories-query';
-import type { PodcastSettings, ExplicitValue } from '../types';
+import type { PodcastSettings } from '../types';
 
-const EXPLICIT_OPTIONS: Array< { label: string; value: ExplicitValue } > = [
+const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'No', 'jetpack-podcast' ), value: 'no' },
 	{ label: __( 'Yes', 'jetpack-podcast' ), value: 'yes' },
-	{ label: __( 'Clean', 'jetpack-podcast' ), value: 'clean' },
 ];
 
 const TOPICS_FIELD_ID = 'jetpack-podcast-topics';
@@ -160,7 +159,7 @@ const SettingsTab = () => {
 		[ setField ]
 	);
 	const onExplicitChange = useCallback(
-		( value: string ) => setField( 'podcasting_explicit', value as ExplicitValue ),
+		( value: string ) => setField( 'podcasting_explicit', value === 'yes' ),
 		[ setField ]
 	);
 	const onEmailChange = useCallback(
@@ -370,7 +369,7 @@ const SettingsTab = () => {
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Explicit content', 'jetpack-podcast' ) }
-							value={ draft.podcasting_explicit }
+							value={ draft.podcasting_explicit ? 'yes' : 'no' }
 							onChange={ onExplicitChange }
 							options={ EXPLICIT_OPTIONS }
 						/>

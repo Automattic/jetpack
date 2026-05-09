@@ -1,5 +1,3 @@
-export type ExplicitValue = 'no' | 'yes' | 'clean';
-
 export type PodcatcherId =
 	| 'pocketcasts'
 	| 'apple'
@@ -16,7 +14,7 @@ export interface PodcastSettings {
 	podcasting_talent_name: string;
 	podcasting_summary: string;
 	podcasting_copyright: string;
-	podcasting_explicit: ExplicitValue;
+	podcasting_explicit: boolean;
 	podcasting_image: string;
 	podcasting_image_id: number;
 	podcasting_category_1: string;
