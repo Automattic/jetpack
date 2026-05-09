@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filter-wc-price-slider",
+	"version": "0.1.0",
+	"title": "Filter by Price (Slider)",
+	"category": "jetpack-search",
+	"icon": "money-alt",
+	"description": "Let shoppers filter products by price using a draggable range slider. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true,
+			"blockGap": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"label": { "type": "string", "default": "" },
+		"currencySymbol": { "type": "string", "default": "" },
+		"currencySymbolPosition": { "type": "string", "default": "" },
+		"min": { "type": "number", "default": 0 },
+		"max": { "type": "number", "default": 1000 },
+		"step": { "type": "number", "default": 1 }
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-wc-price-slider.js",
+	"style": "file:../../../../build/search-blocks/filter-wc-price-slider.css"
+}

@@ -1,0 +1,40 @@
+/**
+ * Search product filter — price slider.
+ *
+ * Two stacked native `<input type="range">` thumbs (min and max) flanked by
+ * value labels. Native styling keeps the control accessible (Tab focus, arrow
+ * keys, screen reader landmarks) without pulling in a JS slider library; the
+ * `accent-color: currentColor` rule lets the host theme tint the track and
+ * thumb to match the surrounding text color.
+ */
+.jetpack-search-filter-wc-price-slider {
+
+	&__values {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 0.5rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__value {
+		font-size: 0.95em;
+		color: color-mix(in sRGB, currentColor 75%, transparent);
+	}
+
+	&__track {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		margin-block-start: 0.5rem;
+	}
+
+	&__input {
+		width: 100%;
+		// Keep the rendering on the standard form control rather than a
+		// custom track. Inheriting the surrounding text color via accent-color
+		// is the path of least resistance for theme support — host CSS tweaks
+		// `color` and the slider track follows.
+		accent-color: currentColor;
+	}
+}

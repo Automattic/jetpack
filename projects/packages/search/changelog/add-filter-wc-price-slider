@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: adds the `jetpack-search/filter-wc-price-slider` block — a slider variant of the price filter that drives the same `actions.setPriceRange(min, max)` and writes the same `min_price` / `max_price` URL params as `filter-wc-price`, so deep links and the active-filters chip stay interchangeable. Authors set the slider's bounds via `min` / `max` / `step` block attributes, and a 300ms debounce on the slider's input/change events coalesces a drag into a single search. Tracked under epic [RSM-1929].
