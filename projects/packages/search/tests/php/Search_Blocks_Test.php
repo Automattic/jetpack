@@ -883,6 +883,12 @@ class Search_Blocks_Test extends TestCase {
 		try {
 			$state = Search_Blocks::build_initial_state();
 			$this->assertNull( $state['priceRange'] );
+			// `isLoading` is derived from `is_initial_loading()`, which
+			// pivots on `parse_url_price_range()`. With the price gate
+			// dropped on non-Woo sites, a `?min_price=…` URL must not
+			// flip the page into the loading state — there's no fetch
+			// to wait on. End-to-end coverage for the WC-off branch.
+			$this->assertFalse( $state['isLoading'] );
 		} finally {
 			$_GET = $original_get;
 		}
