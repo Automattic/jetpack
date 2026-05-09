@@ -117,7 +117,7 @@ export default function ViewsTrendsCard( {
 			</Card.Header>
 			<Card.Content>
 				<div className="vp-overview__chart-frame" style={ { height: CHART_HEIGHT } }>
-					{ ! isLoading && <LineChart data={ chartData } showLegend /> }
+					{ ! isLoading && <LineChart data={ chartData } showLegend withGradientFill={ false } /> }
 				</div>
 			</Card.Content>
 		</Card.Root>

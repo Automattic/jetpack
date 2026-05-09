@@ -1,0 +1,117 @@
+.vp-overview {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	max-width: 1200px;
+	margin-inline: auto;
+	padding-block: 24px;
+
+	&__kpi-row {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 24px;
+
+		@media (max-width: 600px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__kpi-label {
+		color: var(--jp-gray-50, #646970);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 11px;
+	}
+
+	// Up / down delta indicator. @wordpress/ui Badge's `intent` vocabulary
+	// (low/medium/high/...) doesn't include success/error semantics, so
+	// the green/red palette lives here.
+	&__kpi-delta {
+		display: inline-flex;
+		align-items: center;
+		gap: 2px;
+		padding: 2px 6px;
+		border-radius: 2px;
+		font-size: 12px;
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+		width: fit-content;
+
+		&--up {
+			color: #006100;
+			background: #e6f4ea;
+		}
+
+		&--down {
+			color: #b32d2e;
+			background: #fce8e6;
+		}
+	}
+
+	&__row--bottom {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 24px;
+
+		@media (max-width: 782px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__chart-frame {
+		width: 100%;
+	}
+
+	&__ranking-table {
+		width: 100%;
+		border-collapse: collapse;
+
+		th {
+			text-align: left;
+			color: var(--jp-gray-50, #646970);
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			font-size: 11px;
+			font-weight: 600;
+			padding: 8px 12px;
+		}
+
+		td {
+			padding: 10px 12px;
+			border-radius: 4px;
+		}
+
+		.vp-overview__ranking-views {
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+		}
+
+		// Hover row highlight matches the Figma's filled rows.
+		.vp-overview__ranking-row:hover td {
+			background: #f0f0f4;
+		}
+	}
+
+	&__flag {
+		margin-right: 8px;
+		font-size: 18px;
+		line-height: 1;
+	}
+
+	&__ranking-footer {
+		margin-top: 8px;
+	}
+
+	// Loading-state placeholder block. No animation — quiet until data arrives.
+	&__skeleton-block {
+		display: inline-block;
+		background: #f0f0f0;
+		width: 60%;
+		height: 1em;
+		border-radius: 2px;
+
+		&--narrow {
+			width: 40%;
+		}
+	}
+}

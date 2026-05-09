@@ -3,11 +3,15 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
+		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@types/react": "18.3.28",
+		"@wordpress/components": "32.6.0",
 		"@wordpress/element": "6.44.0",
 		"@wordpress/i18n": "6.17.0",
+		"@wordpress/icons": "12.2.0",
 		"@wordpress/route": "0.10.0",
+		"@wordpress/theme": "0.11.0",
 		"@wordpress/ui": "0.11.0"
 	},
 	"route": {
