@@ -4,70 +4,51 @@ import { useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import type { EpisodeStats } from '../types';
 
-// Module-level cache so re-mounts (e.g. tab switches) don't refetch. Stays
-// alive for the page session — the wpcom endpoint already caches 5 minutes
-// server-side, so the duplicated state is bounded.
-const cache = new Map< string, EpisodeStats[] >();
-
-// Chunked to 50 IDs to match the wpcom endpoint's max page size.
-const fetchEpisodeStats = async ( postIds: number[] ): Promise< EpisodeStats[] > => {
-	if ( postIds.length === 0 ) {
-		return [];
-	}
-	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-	if ( ! blogId ) {
-		return [];
-	}
-
-	const out: EpisodeStats[] = [];
-	for ( let i = 0; i < postIds.length; i += 50 ) {
-		const chunk = postIds.slice( i, i + 50 );
-		const result = ( await apiFetch( {
-			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/episode-totals`, {
-				post_ids: chunk.join( ',' ),
-			} ),
-			method: 'GET',
-		} ) ) as { episodes?: EpisodeStats[] } | EpisodeStats[];
-
-		if ( Array.isArray( result ) ) {
-			out.push( ...result );
-		} else if ( result.episodes ) {
-			out.push( ...result.episodes );
-		}
-	}
-	return out;
-};
-
 /**
- * Read plays + duration for a set of episode post IDs. Custom endpoint, so
- * core-data has no entity for it — hand-rolled cache by sorted-id key.
+ * Read plays + duration for a set of episode post IDs. Custom wpcom endpoint
+ * (no core-data entity), so a thin `apiFetch` + `useState` wrapper. Server
+ * caches 5 minutes; refetching on remount is cheap.
  *
  * @param postIds - Episode post IDs (from the visible page of the table).
  * @return         `{ data }` matching the prior TanStack-shaped contract.
  */
 export function useEpisodeStatsQuery( postIds: number[] ): { data: EpisodeStats[] } {
-	// Sort so the cache key is stable regardless of incoming order.
+	const [ data, setData ] = useState< EpisodeStats[] >( [] );
+	// Sort so the effect dep is stable regardless of incoming order.
 	const key = [ ...postIds ].sort( ( a, b ) => a - b ).join( ',' );
-	const [ data, setData ] = useState< EpisodeStats[] >( () => cache.get( key ) ?? [] );
 
 	useEffect( () => {
 		if ( ! key ) {
 			setData( [] );
 			return;
 		}
-		const cached = cache.get( key );
-		if ( cached ) {
-			setData( cached );
+		const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
+		if ( ! blogId ) {
 			return;
 		}
-		let cancelled = false;
 		const ids = key.split( ',' ).map( Number );
-		fetchEpisodeStats( ids ).then( result => {
-			if ( ! cancelled ) {
-				cache.set( key, result );
-				setData( result );
+		let cancelled = false;
+		( async () => {
+			const out: EpisodeStats[] = [];
+			// Chunked to 50 IDs to match the wpcom endpoint's max page size.
+			for ( let i = 0; i < ids.length; i += 50 ) {
+				const chunk = ids.slice( i, i + 50 );
+				const result = ( await apiFetch( {
+					path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/episode-totals`, {
+						post_ids: chunk.join( ',' ),
+					} ),
+					method: 'GET',
+				} ) ) as { episodes?: EpisodeStats[] } | EpisodeStats[];
+				if ( Array.isArray( result ) ) {
+					out.push( ...result );
+				} else if ( result.episodes ) {
+					out.push( ...result.episodes );
+				}
 			}
-		} );
+			if ( ! cancelled ) {
+				setData( out );
+			}
+		} )();
 		return () => {
 			cancelled = true;
 		};

@@ -56,8 +56,6 @@ const defaultView: ViewTable = {
 	},
 };
 
-const getEpisodeRowId = ( item: EpisodeRow ) => String( item.id );
-
 const STATUS_LABELS: Record< string, string > = {
 	publish: __( 'Published', 'jetpack-podcast' ),
 	future: __( 'Scheduled', 'jetpack-podcast' ),
@@ -251,7 +249,7 @@ const EpisodesTab = () => {
 					totalItems: episodesPage?.total ?? 0,
 					totalPages: episodesPage?.totalPages ?? 0,
 				} }
-				getItemId={ getEpisodeRowId }
+				getItemId={ item => String( item.id ) }
 				isLoading={ isLoading }
 				defaultLayouts={ { table: {} } }
 				search
