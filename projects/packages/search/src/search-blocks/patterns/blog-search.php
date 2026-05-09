@@ -49,6 +49,7 @@ register_block_pattern(
 <h2 class="wp-block-heading" style="font-size:1.25rem">' . esc_html__( 'Filter options', 'jetpack-search-pkg' ) . '</h2>
 <!-- /wp:heading -->
 <!-- wp:jetpack-search/active-filters /-->
+<!-- wp:jetpack-search/clear-filters /-->
 <!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
 <!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"post_tag"} /-->
 <!-- wp:jetpack-search/filter-checkbox {"filterType":"post_type"} /-->

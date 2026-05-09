@@ -10,6 +10,7 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 const TEMPLATE = [
 	[ 'jetpack-search/active-filters' ],
+	[ 'jetpack-search/clear-filters' ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'category' } ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'post_tag' } ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'author' } ],
@@ -20,6 +21,7 @@ const TEMPLATE = [
 
 const ALLOWED = [
 	'jetpack-search/active-filters',
+	'jetpack-search/clear-filters',
 	'jetpack-search/filter-checkbox',
 	'jetpack-search/filter-date',
 	'jetpack-search/filter-post-type',
