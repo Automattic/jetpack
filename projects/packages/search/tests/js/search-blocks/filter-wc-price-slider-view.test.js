@@ -185,6 +185,22 @@ describe( 'filter-wc-price-slider view — change commits via setPriceRange', ()
 		expect( searchSpy ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'does not double-search on the keyboard-only path (change without preceding input)', async () => {
+		const { max } = mountSliderDom( { minValue: '0', maxValue: '50' } );
+		elementRef.current = { ref: max };
+
+		// Keyboard arrows / programmatic change can fire `change` without a prior
+		// `input`, so state.priceRange hasn't been pre-written by the drag handler.
+		// In this path setPriceRange triggers its own internal search; the view
+		// must not also fall through to actions.search.
+		captured.state.priceRange = null;
+		max.value = '50';
+		await runGenerator( captured.actions.onPriceSliderChange() );
+
+		expect( setPriceRangeSpy ).toHaveBeenCalledWith( 0, 50 );
+		expect( searchSpy ).not.toHaveBeenCalled();
+	} );
+
 	it( 'pins the min thumb to the max value when dragged past the upper bound', () => {
 		const { min, max } = mountSliderDom( { minValue: '20', maxValue: '40' } );
 		// activeElement defaults to body unless we focus a slider; explicitly

@@ -8,7 +8,7 @@
  * `pointer-events: none` on the inputs and re-enables it only on the thumb
  * pseudo-elements, so the wrapper reads as one bar with two draggable handles.
  * A `linear-gradient` driven by `--low` / `--high` CSS custom properties (set
- * reactively by `callbacks.updatePriceSliderRangeFill` when state.priceRange
+ * reactively by `callbacks.updatePriceSliderUi` when state.priceRange
  * changes) paints the colored "active range" between the thumbs.
  *
  * Peer of the number-input price block: different control surface, identical
@@ -58,6 +58,11 @@ $auto_bounds = ! isset( $attrs['autoBounds'] ) || (bool) $attrs['autoBounds'];
 // in `store/api.js` for the rating filter's histogram workaround). A 5-minute
 // transient absorbs the cost of the SQL across page loads — this is a per-page
 // "what's the store's price range?" lookup, not a per-search filter clause.
+//
+// Bounds are stable for the page's lifetime: they describe the store's full
+// catalogue, not the currently visible result set. WC's price slider works the
+// same way — applying other filters narrows the products but the slider track
+// stays at the catalogue range, so the user can always drag back out.
 if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
 	$cached_range = function_exists( 'get_transient' ) ? get_transient( 'jetpack_search_wc_price_extents' ) : false;
 	if ( false === $cached_range ) {
@@ -71,18 +76,24 @@ if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
 			// price WC uses for both filtering and sorting. Cast to DECIMAL so
 			// MIN/MAX compare numerically (the underlying meta_value column is
 			// LONGTEXT). Empty / non-numeric rows are filtered out so a "Call
-			// for price" product doesn't poison the bounds. Caching is handled
-			// by the surrounding transient — the phpcs caching warning fires
-			// because the call site doesn't use wp_cache_*, but the transient
-			// already provides the same effect across page loads.
+			// for price" product doesn't poison the bounds. Joined to wp_posts
+			// to constrain to published products — drafts, trashed, and
+			// auto-drafts would otherwise leak into the slider extents (a
+			// trashed `$9999` test product would push the max way out). Caching
+			// is handled by the surrounding transient — the phpcs caching
+			// warning fires because the call site doesn't use wp_cache_*, but
+			// the transient already provides the same effect across page loads.
 			$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				"SELECT
-					MIN(CAST(meta_value AS DECIMAL(20,6))) AS min_price,
-					MAX(CAST(meta_value AS DECIMAL(20,6))) AS max_price
-				FROM {$wpdb->postmeta}
-				WHERE meta_key = '_price'
-					AND meta_value <> ''
-					AND meta_value REGEXP '^[0-9]+(\\\\.[0-9]+)?$'"
+					MIN(CAST(pm.meta_value AS DECIMAL(20,6))) AS min_price,
+					MAX(CAST(pm.meta_value AS DECIMAL(20,6))) AS max_price
+				FROM {$wpdb->postmeta} pm
+				INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+				WHERE pm.meta_key = '_price'
+					AND p.post_status = 'publish'
+					AND p.post_type IN ( 'product', 'product_variation' )
+					AND pm.meta_value <> ''
+					AND pm.meta_value REGEXP '^[0-9]+(\\\\.[0-9]+)?$'"
 			);
 			if ( $row && null !== $row->min_price && null !== $row->max_price ) {
 				$cached_range = array(
@@ -204,7 +215,7 @@ $track_style = sprintf(
 );
 
 // Per-slider range bounds threaded into the Interactivity context so the
-// `updatePriceSliderRangeFill` callback can compute --low/--high without
+// `updatePriceSliderUi` callback can compute --low/--high without
 // reading them off the input DOM nodes (cleaner; survives state-only updates
 // where the inputs haven't yet been touched). JSON-encode for inline output.
 $context_payload = wp_json_encode(

@@ -23,7 +23,6 @@ export const SEARCH_FIELDS = [
 	'title.default',
 	'has.image',
 	'image.url.raw',
-	'wc.price',
 	'wc.formatted_price',
 	'wc.formatted_regular_price',
 	'wc.formatted_sale_price',

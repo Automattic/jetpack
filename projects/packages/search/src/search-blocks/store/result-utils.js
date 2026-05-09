@@ -283,21 +283,12 @@ function normalizeProductFields( fields ) {
 		Math.trunc( toNumber( fields[ 'meta._wc_review_count.long' ] ) )
 	);
 	const ratingPercent = `${ Math.round( ( rating / 5 ) * 200 ) / 2 }%`;
-	// Numeric price, surfaced separately from the WC-formatted HTML so the
-	// price-slider block can derive its bounds from the response without
-	// re-parsing currency markup. `null` when WC didn't index a price for this
-	// post (non-product hits, "Call for price" products) so consumers can
-	// distinguish "no price" from "free / $0".
-	const rawPrice = firstScalar( fields[ 'wc.price' ] );
-	const price =
-		rawPrice === undefined || rawPrice === null || rawPrice === '' ? null : toNumber( rawPrice );
 	return {
 		formattedPrice,
 		formattedRegularPrice,
 		formattedSalePrice,
 		hasSalePrice,
 		hasPrice: formattedPrice !== '' || formattedSalePrice !== '',
-		price: price !== null && Number.isFinite( price ) ? price : null,
 		rating,
 		// Drives a CSS-only star bar via `data-wp-style--width`. Rounded to a
 		// half-star to match WC's display convention.

@@ -95,18 +95,20 @@ function formatBoundLabel( value, symbol, position ) {
 }
 
 /**
- * Read the slider's authored bounds from the wrapper's Interactivity context.
- * These are the **fallback** values used when the search response hasn't yet
- * arrived (or has zero priced products). Once a search lands, the live bounds
- * come from `deriveSliderBoundsFromResults`.
+ * Read the slider's track bounds from the wrapper's Interactivity context.
+ * These describe the store's full catalogue range (computed server-side from
+ * `wp_postmeta._price`) and stay fixed for the page's lifetime — applying
+ * other filters narrows the result set but does not shrink the slider, so the
+ * user can always drag back out. Mirrors WooCommerce's price slider: stable
+ * track, only thumb positions move with filters.
  *
  * Falls through to the input element's `min`/`max` attributes when context
  * isn't available (e.g. inside a unit test running view.js directly).
  *
  * @param {HTMLElement|null} wrapper - Slider wrapper element.
- * @return {{sliderMin: number, sliderMax: number}} Authored fallback bounds.
+ * @return {{sliderMin: number, sliderMax: number}} Track bounds.
  */
-function readAuthoredBounds( wrapper ) {
+function readSliderBounds( wrapper ) {
 	try {
 		const ctx = getContext();
 		if (
@@ -128,68 +130,6 @@ function readAuthoredBounds( wrapper ) {
 		sliderMin: Number( minEl?.min ) || 0,
 		sliderMax: Number( maxEl?.max ) || 100,
 	};
-}
-
-/**
- * Derive the slider's bounds from the price extents of the **currently visible
- * search results**, with a small buffer on each side so the cheapest and most
- * expensive products don't sit flush at the slider's extremes (where the user
- * can't drag past them to "include" them in the range).
- *
- * The bounds come from the response, not the URL filter — picking a min/max in
- * the URL narrows the result set, and the slider then shifts to fit the
- * narrower price range, just like WC's price slider rebases as filters tighten.
- *
- * Buffer rule: 5% of the price span (rounded outward to whole numbers), with a
- * minimum 1-unit buffer so a degenerate `min === max` set still leaves room
- * for the thumbs.
- *
- * @param {Array<object>} results - Normalized result list (`state.results`).
- * @return {{sliderMin: number, sliderMax: number}|null} Bounds, or null when the response has no priced products.
- */
-function deriveSliderBoundsFromResults( results ) {
-	if ( ! Array.isArray( results ) || results.length === 0 ) {
-		return null;
-	}
-	let minPrice = Infinity;
-	let maxPrice = -Infinity;
-	for ( const r of results ) {
-		const p = r?.price;
-		if ( typeof p === 'number' && Number.isFinite( p ) ) {
-			if ( p < minPrice ) {
-				minPrice = p;
-			}
-			if ( p > maxPrice ) {
-				maxPrice = p;
-			}
-		}
-	}
-	if ( ! Number.isFinite( minPrice ) || ! Number.isFinite( maxPrice ) ) {
-		return null;
-	}
-	const span = Math.max( maxPrice - minPrice, 1 );
-	const buffer = Math.max( 1, Math.ceil( span * 0.05 ) );
-	return {
-		sliderMin: Math.max( 0, Math.floor( minPrice - buffer ) ),
-		sliderMax: Math.ceil( maxPrice + buffer ),
-	};
-}
-
-/**
- * Pick the effective slider bounds for the current render: live bounds from
- * the search response (preferred — they reflect the actual products visible to
- * the user), falling through to the authored fallback bounds.
- *
- * @param {HTMLElement|null} wrapper - Slider wrapper element.
- * @param {Array<object>}    results - Normalized result list.
- * @return {{sliderMin: number, sliderMax: number}} Effective bounds.
- */
-function effectiveSliderBounds( wrapper, results ) {
-	const live = deriveSliderBoundsFromResults( results );
-	if ( live && live.sliderMin < live.sliderMax ) {
-		return live;
-	}
-	return readAuthoredBounds( wrapper );
 }
 
 store( NAMESPACE, {
@@ -254,10 +194,16 @@ store( NAMESPACE, {
 		 * Release handler. `<input type="range">` fires `change` on mouseup /
 		 * keyup / touchend — the natural "I'm done dragging" signal. Commits
 		 * the current bounds via `actions.setPriceRange`, which validates,
-		 * pushes the URL, and fetches results. The drag handler has already
-		 * written interim state, so identity guards inside `setPriceRange` may
-		 * no-op the state write — the search still runs because we trigger it
-		 * directly.
+		 * pushes the URL, and fetches results.
+		 *
+		 * `setPriceRange` searches internally when it actually writes new state.
+		 * The pointer drag path pre-writes state via `onPriceSliderInput`, so
+		 * `setPriceRange` no-ops there and the URL/results stay stale unless we
+		 * trigger our own search. Capture the no-op status _before_ calling
+		 * `setPriceRange` (afterwards `state.priceRange` always matches `bounds`,
+		 * which would mask whether a write happened) so keyboard-only changes —
+		 * which fire `change` without a preceding `input` — get exactly one
+		 * search from `setPriceRange` and not a duplicate from us.
 		 *
 		 * @yield {Promise} setPriceRange / search action.
 		 */
@@ -268,17 +214,13 @@ store( NAMESPACE, {
 				return;
 			}
 			const bounds = clampPair( min, max );
-			yield store( NAMESPACE ).actions.setPriceRange( bounds.min, bounds.max );
-			// `setPriceRange` no-ops when bounds match what the live drag handler
-			// already wrote into state. Force a search in that case so the URL
-			// (which the drag handler doesn't push) catches up to the displayed
-			// thumbs and the results refetch with the committed range.
 			const { state } = store( NAMESPACE );
-			if (
+			const willNoOp =
 				state.priceRange &&
 				state.priceRange.min === bounds.min &&
-				state.priceRange.max === bounds.max
-			) {
+				state.priceRange.max === bounds.max;
+			yield store( NAMESPACE ).actions.setPriceRange( bounds.min, bounds.max );
+			if ( willNoOp ) {
 				yield store( NAMESPACE ).actions.search();
 			}
 		},
@@ -317,38 +259,12 @@ store( NAMESPACE, {
 				'.jetpack-search-filter-wc-price-slider__value--max'
 			);
 			const { state } = store( NAMESPACE );
-			const { sliderMin, sliderMax } = effectiveSliderBounds( wrapper, state.results );
+			const { sliderMin, sliderMax } = readSliderBounds( wrapper );
 			const priceRange = state.priceRange;
 			const minVal = priceRange?.min ?? sliderMin;
 			const maxVal = priceRange?.max ?? sliderMax;
 			const symbol = state.priceCurrencySymbol || '';
 			const position = state.priceCurrencySymbolPosition || 'left';
-
-			// Push the live bounds onto the input's `min`/`max` attrs so the
-			// native range control physically clamps thumb movement to the
-			// available product price range. Skip writes when the value matches
-			// to avoid churn when the search response landed but bounds didn't
-			// move.
-			if ( minInput ) {
-				const nextMin = String( sliderMin );
-				const nextMax = String( sliderMax );
-				if ( minInput.min !== nextMin ) {
-					minInput.min = nextMin;
-				}
-				if ( minInput.max !== nextMax ) {
-					minInput.max = nextMax;
-				}
-			}
-			if ( maxInput ) {
-				const nextMin = String( sliderMin );
-				const nextMax = String( sliderMax );
-				if ( maxInput.min !== nextMin ) {
-					maxInput.min = nextMin;
-				}
-				if ( maxInput.max !== nextMax ) {
-					maxInput.max = nextMax;
-				}
-			}
 
 			// Sync input values with state so external changes (popstate, a
 			// clear-filters action) move the thumbs. Skip the input the user is
