@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Search 3.0: gate every WooCommerce-only feature in src/search-blocks/ behind a single canonical WC-active probe so non-WooCommerce sites stop seeing WC-only blocks, variations, layouts, and URL params they can't use.

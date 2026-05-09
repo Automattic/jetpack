@@ -86,11 +86,12 @@ describe( 'stateToUrlParams', () => {
 		expect( params.getAll( 'authors[]' ) ).toEqual( [ 'jane' ] );
 	} );
 
-	it( 'serializes priceRange bounds to min_price/max_price', () => {
+	it( 'serializes priceRange bounds to min_price/max_price on Woo sites', () => {
 		const params = stateToUrlParams( {
 			searchQuery: 'shoes',
 			sortOrder: 'relevance',
 			priceRange: { min: 10, max: 50 },
+			isWooCommerceActive: true,
 		} );
 		expect( params.get( 'min_price' ) ).toBe( '10' );
 		expect( params.get( 'max_price' ) ).toBe( '50' );
@@ -101,6 +102,7 @@ describe( 'stateToUrlParams', () => {
 			searchQuery: '',
 			sortOrder: 'relevance',
 			priceRange: { min: 10, max: null },
+			isWooCommerceActive: true,
 		} );
 		expect( params.get( 'min_price' ) ).toBe( '10' );
 		expect( params.has( 'max_price' ) ).toBe( false );
@@ -111,6 +113,23 @@ describe( 'stateToUrlParams', () => {
 			searchQuery: '',
 			sortOrder: 'relevance',
 			priceRange: null,
+			isWooCommerceActive: true,
+		} );
+		expect( params.has( 'min_price' ) ).toBe( false );
+		expect( params.has( 'max_price' ) ).toBe( false );
+	} );
+
+	it( 'omits min_price/max_price entirely on non-Woo sites (RSM-2805)', () => {
+		// `filter-wc-price` isn't registered on non-Woo sites, so a stray
+		// `priceRange` in store state must not leak into the URL — otherwise
+		// the next API request would carry a `range` clause for a field the
+		// index doesn't have. Mirrors the PHP-side gate in
+		// Search_Blocks::parse_url_price_range().
+		const params = stateToUrlParams( {
+			searchQuery: '',
+			sortOrder: 'relevance',
+			priceRange: { min: 10, max: 50 },
+			isWooCommerceActive: false,
 		} );
 		expect( params.has( 'min_price' ) ).toBe( false );
 		expect( params.has( 'max_price' ) ).toBe( false );
@@ -273,23 +292,29 @@ describe( 'urlParamsToState', () => {
 } );
 
 describe( 'urlParamsToState: priceRange', () => {
+	// All priceRange-parsing tests opt into `isWooCommerceActive=true` to
+	// exercise the parsing logic; the WC-off behaviour (price params are
+	// dropped entirely) is covered separately in the next describe block.
+	const wcOn = ( params, filterConfigs = {} ) =>
+		urlParamsToState( params, filterConfigs, 's', true );
+
 	it( 'returns null priceRange when neither bound is set', () => {
-		const state = urlParamsToState( new URLSearchParams() );
+		const state = wcOn( new URLSearchParams() );
 		expect( state.priceRange ).toBeNull();
 	} );
 
 	it( 'parses min and max into a numeric priceRange', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=10&max_price=50' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=10&max_price=50' ) );
 		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
 	} );
 
 	it( 'allows a half-open range when only one bound is set', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=10' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=10' ) );
 		expect( state.priceRange ).toEqual( { min: 10, max: null } );
 	} );
 
 	it( 'rejects garbage URL values so a bad URL cannot zero out results', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=abc&max_price=-5' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=abc&max_price=-5' ) );
 		expect( state.priceRange ).toBeNull();
 	} );
 
@@ -297,22 +322,22 @@ describe( 'urlParamsToState: priceRange', () => {
 		// `(float)"1.5.3"` is 1.5 in PHP but `Number("1.5.3")` is NaN in JS;
 		// without the explicit numeric gate on both sides the PHP initial
 		// render and the JS hydration would disagree on the parsed value.
-		const state = urlParamsToState( new URLSearchParams( '?min_price=1.5.3' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=1.5.3' ) );
 		expect( state.priceRange ).toBeNull();
 	} );
 
 	it( 'rejects inverted bounds (min > max) so an empty ES range clause is never sent', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=100&max_price=10' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=100&max_price=10' ) );
 		expect( state.priceRange ).toBeNull();
 	} );
 
 	it( 'accepts equal bounds (min === max) as a single-value range', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=42&max_price=42' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=42&max_price=42' ) );
 		expect( state.priceRange ).toEqual( { min: 42, max: 42 } );
 	} );
 
 	it( 'accepts min_price=0 (free products are a valid lower bound)', () => {
-		const state = urlParamsToState( new URLSearchParams( '?min_price=0' ) );
+		const state = wcOn( new URLSearchParams( '?min_price=0' ) );
 		expect( state.priceRange ).toEqual( { min: 0, max: null } );
 	} );
 
@@ -320,7 +345,29 @@ describe( 'urlParamsToState: priceRange', () => {
 		const params = new URLSearchParams();
 		params.append( 'min_price[]', '10' );
 		params.append( 'max_price[]', '50' );
-		const state = urlParamsToState( params );
+		const state = wcOn( params );
 		expect( state.activeFilters ).toEqual( {} );
+	} );
+} );
+
+describe( 'urlParamsToState: priceRange WooCommerce gate (RSM-2805)', () => {
+	it( 'drops min_price/max_price entirely on non-Woo sites', () => {
+		// A stray `?min_price=10&max_price=50` deep link must not seed the
+		// `priceRange` slice on a non-Woo site — `filter-wc-price` isn't
+		// registered there, so admitting the params would build a `range`
+		// clause against an index field that doesn't exist, *and* round-
+		// trip the params back into the URL on every URL push.
+		const state = urlParamsToState( new URLSearchParams( '?min_price=10&max_price=50' ) );
+		expect( state.priceRange ).toBeNull();
+	} );
+
+	it( 'still admits price params when isWooCommerceActive is true', () => {
+		const state = urlParamsToState(
+			new URLSearchParams( '?min_price=10&max_price=50' ),
+			{},
+			's',
+			true
+		);
+		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
 	} );
 } );

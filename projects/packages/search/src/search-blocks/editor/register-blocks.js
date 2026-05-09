@@ -86,6 +86,28 @@ setCategories(
 	)
 );
 
+// On a non-Woo site PHP skips the server-side `register_block_type()`
+// call for every WC-only block (see `Search_Blocks::register_blocks()`),
+// so the editor must skip the matching client-side `registerBlockType()`
+// too — registering without a server-side counterpart would produce a
+// "Block JSON file not found" warning and a broken inserter card.
+//
+// The list of WC-only block names is localized from
+// `Search_Blocks::woocommerce_only_block_names()` onto
+// `window.JetpackSearchBlocksConfig.woocommerceOnlyBlocks` so PHP and JS
+// stay in lockstep — adding a new WC-only block on the PHP side
+// auto-applies here. Missing/malformed config defaults to "no blocks
+// gated out" — defensive against the bundle being loaded outside its
+// enqueue path (e.g. test harness), which can't happen in production.
+const config = ( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig ) || {};
+const isWooCommerceActive = config.isWooCommerceActive === true;
+const wcOnlyBlocks = new Set(
+	Array.isArray( config.woocommerceOnlyBlocks ) ? config.woocommerceOnlyBlocks : []
+);
+
 BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
+	if ( ! isWooCommerceActive && wcOnlyBlocks.has( name ) ) {
+		return;
+	}
 	registerBlockType( name, { edit, save: blockSave ?? save } );
 } );

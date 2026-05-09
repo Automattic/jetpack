@@ -451,9 +451,12 @@ describe( 'store actions', () => {
 		// Regression: omitting priceRange from pushStateToUrl meant the
 		// first search after JS hydrated rewrote `?min_price=10` away,
 		// breaking shareable URLs and back-button behavior.
+		// `isWooCommerceActive` must be true — `min_price`/`max_price` are
+		// WC-only and `pushStateToUrl` drops them otherwise (RSM-2805).
 		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
 		state.searchQuery = 'shoes';
 		state.priceRange = { min: 10, max: 50 };
+		state.isWooCommerceActive = true;
 
 		actions.syncToUrl();
 
@@ -461,6 +464,24 @@ describe( 'store actions', () => {
 		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
 		expect( writtenUrl ).toContain( 'min_price=10' );
 		expect( writtenUrl ).toContain( 'max_price=50' );
+	} );
+
+	it( 'syncToUrl drops priceRange on non-Woo sites so a stray range cannot leak into the URL (RSM-2805)', () => {
+		// `filter-wc-price` isn't registered on non-Woo sites, but a stale
+		// `state.priceRange` (e.g. seeded from a deep link before the JS
+		// gate caught up, or set by an unrelated callback) must never round-
+		// trip into the URL — the next API request would otherwise carry a
+		// `range` clause for a field the index doesn't have.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = 'shoes';
+		state.priceRange = { min: 10, max: 50 };
+		state.isWooCommerceActive = false;
+
+		actions.syncToUrl();
+
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).not.toContain( 'min_price' );
+		expect( writtenUrl ).not.toContain( 'max_price' );
 	} );
 
 	it( 'closes open popovers on Escape only', () => {

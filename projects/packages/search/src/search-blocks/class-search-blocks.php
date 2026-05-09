@@ -213,6 +213,50 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Canonical list of WooCommerce-only block names. Single source of
+	 * truth for the WC-only gate applied to block registration
+	 * (`register_blocks()`), the `filter_block_helpers()` map, and the
+	 * editor's `register-blocks.js` bundle (read after being localized
+	 * onto `window.JetpackSearchBlocksConfig.woocommerceOnlyBlocks` in
+	 * `enqueue_editor_assets()`).
+	 *
+	 * Add a new WC-only block by appending one entry — every gate picks
+	 * it up automatically. Names are full namespaced names (not bare
+	 * slugs) so the list reads identically to what `BLOCKS` contains in
+	 * `register-blocks.js` and what `filter_block_helpers()` keys against.
+	 *
+	 * @return string[]
+	 */
+	public static function woocommerce_only_block_names(): array {
+		return array(
+			'jetpack-search/filter-wc-attribute',
+			'jetpack-search/filter-wc-price',
+			'jetpack-search/filter-wc-rating',
+			'jetpack-search/filter-wc-stock-status',
+			'jetpack-search/filters-product',
+		);
+	}
+
+	/**
+	 * Whether a block name (or block-directory basename) belongs to a
+	 * WooCommerce-only block. Membership is decided by exact match against
+	 * `woocommerce_only_block_names()`; either form (full namespaced name
+	 * or bare directory basename) works because `register_blocks()` walks
+	 * directory basenames while the helpers map and editor bundle hold
+	 * full names.
+	 *
+	 * @param string $block_name Full block name (`jetpack-search/filter-wc-rating`)
+	 *                           or bare directory basename (`filter-wc-rating`).
+	 * @return bool
+	 */
+	public static function is_woocommerce_only_block( string $block_name ): bool {
+		$candidate = false === strpos( $block_name, '/' )
+			? 'jetpack-search/' . $block_name
+			: $block_name;
+		return in_array( $candidate, self::woocommerce_only_block_names(), true );
+	}
+
+	/**
 	 * URL param key the inline search experience uses for the current request.
 	 *
 	 * On WP's search route (`is_search()`) the canonical `s` key is used so
@@ -258,9 +302,15 @@ class Search_Blocks {
 			true
 		);
 
-		// Surface the WC-active flag to edit.js so the results-sort inspector
-		// can hide the product-format checkboxes on non-WooCommerce sites
-		// instead of offering options the renderer would silently drop.
+		// Surface the WC gate to the editor bundle. `isWooCommerceActive`
+		// drives per-component branches (e.g. the results-sort inspector
+		// hiding product-format checkboxes, the results-list inspector
+		// hiding the Product layout) and the `register-blocks.js`
+		// registration loop. `woocommerceOnlyBlocks` is the canonical
+		// list the registration loop intersects with — keeping it
+		// localized (rather than duplicated in JS) means
+		// `Search_Blocks::woocommerce_only_block_names()` is the single
+		// source of truth across the PHP and JS sides.
 		// `wp_add_inline_script` (rather than `wp_localize_script`) per
 		// core ticket #25280 — the latter HTML-encodes ampersands inside
 		// nested values.
@@ -268,7 +318,8 @@ class Search_Blocks {
 			'jetpack-search-blocks-register',
 			'window.JetpackSearchBlocksConfig = ' . wp_json_encode(
 				array(
-					'isWooCommerceActive' => self::is_woocommerce_active(),
+					'isWooCommerceActive'   => self::is_woocommerce_active(),
+					'woocommerceOnlyBlocks' => self::woocommerce_only_block_names(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -315,10 +366,15 @@ class Search_Blocks {
 			return;
 		}
 
+		$is_wc = self::is_woocommerce_active();
 		foreach ( $block_dirs as $block_dir ) {
-			if ( file_exists( $block_dir . '/block.json' ) ) {
-				register_block_type( $block_dir );
+			if ( ! file_exists( $block_dir . '/block.json' ) ) {
+				continue;
 			}
+			if ( ! $is_wc && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
+				continue;
+			}
+			register_block_type( $block_dir );
 		}
 
 		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );
@@ -391,7 +447,19 @@ class Search_Blocks {
 				),
 				'isActive'    => array( 'filterType' ),
 			),
-			array(
+		);
+
+		// WC-only product taxonomies. Gated on `is_woocommerce_active()` so
+		// they don't appear in the inserter on non-Woo sites where the
+		// taxonomies happen to exist via another plugin (or a previous WC
+		// install that left them registered). `product_brand` layers an
+		// extra `taxonomy_exists()` probe on top because it isn't a core WC
+		// taxonomy — extensions like WC Brands / Perfect Brands / recent
+		// bundled WC versions provide it. The three product variations stay
+		// grouped before `custom_taxonomy` below so the inserter renders
+		// them as a contiguous cluster.
+		if ( self::is_woocommerce_active() ) {
+			$additions[] = array(
 				'name'        => 'product_cat',
 				'title'       => __( 'Filter by Product Category', 'jetpack-search-pkg' ),
 				'description' => __( 'Show product category checkboxes with live result counts.', 'jetpack-search-pkg' ),
@@ -402,8 +470,8 @@ class Search_Blocks {
 					'label'      => __( 'Product Category', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
-			),
-			array(
+			);
+			$additions[] = array(
 				'name'        => 'product_tag',
 				'title'       => __( 'Filter by Product Tag', 'jetpack-search-pkg' ),
 				'description' => __( 'Show product tag checkboxes with live result counts.', 'jetpack-search-pkg' ),
@@ -414,30 +482,21 @@ class Search_Blocks {
 					'label'      => __( 'Product Tag', 'jetpack-search-pkg' ),
 				),
 				'isActive'    => array( 'filterType', 'taxonomy' ),
-			),
-		);
-
-		// `product_brand` isn't a core WooCommerce taxonomy — it's added by
-		// extensions (WC Brands, Perfect Brands, recent bundled WC versions).
-		// Registering the variation unconditionally would surface "Filter by
-		// Product Brand" in the inserter on sites without it, where the block
-		// renders no buckets and the failure is silent. Gate on the taxonomy's
-		// presence so authors only see the option when it can actually work.
-		// Inserted before `custom_taxonomy` below so the three product
-		// variations stay grouped in the inserter when the gate fires.
-		if ( taxonomy_exists( 'product_brand' ) ) {
-			$additions[] = array(
-				'name'        => 'product_brand',
-				'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
-				'description' => __( 'Show product brand checkboxes with live result counts.', 'jetpack-search-pkg' ),
-				'icon'        => 'awards',
-				'attributes'  => array(
-					'filterType' => 'taxonomy',
-					'taxonomy'   => 'product_brand',
-					'label'      => __( 'Product Brand', 'jetpack-search-pkg' ),
-				),
-				'isActive'    => array( 'filterType', 'taxonomy' ),
 			);
+			if ( taxonomy_exists( 'product_brand' ) ) {
+				$additions[] = array(
+					'name'        => 'product_brand',
+					'title'       => __( 'Filter by Product Brand', 'jetpack-search-pkg' ),
+					'description' => __( 'Show product brand checkboxes with live result counts.', 'jetpack-search-pkg' ),
+					'icon'        => 'awards',
+					'attributes'  => array(
+						'filterType' => 'taxonomy',
+						'taxonomy'   => 'product_brand',
+						'label'      => __( 'Product Brand', 'jetpack-search-pkg' ),
+					),
+					'isActive'    => array( 'filterType', 'taxonomy' ),
+				);
+			}
 		}
 
 		$additions[] = array(
@@ -475,6 +534,11 @@ class Search_Blocks {
 
 	/**
 	 * Register block patterns.
+	 *
+	 * Convention: a pattern file whose basename starts with `wc-` composes
+	 * WooCommerce-only blocks and is loaded only when WC is active. Mirrors
+	 * the `filter-wc-*` block-slug convention so a new WC-only pattern
+	 * auto-enrolls in the gate without an extra registration step.
 	 */
 	protected static function register_patterns() {
 		$patterns_dir = __DIR__ . '/patterns';
@@ -485,7 +549,11 @@ class Search_Blocks {
 		if ( ! $pattern_files ) {
 			return;
 		}
+		$is_wc = self::is_woocommerce_active();
 		foreach ( $pattern_files as $pattern_file ) {
+			if ( ! $is_wc && str_starts_with( basename( $pattern_file ), 'wc-' ) ) {
+				continue;
+			}
 			require_once $pattern_file;
 		}
 	}
@@ -704,13 +772,26 @@ class Search_Blocks {
 	 * @return array<string, class-string>
 	 */
 	protected static function filter_block_helpers(): array {
-		return array(
+		$helpers = array(
 			'jetpack-search/filter-checkbox'        => Filter_Checkbox::class,
 			'jetpack-search/filter-date'            => Filter_Date::class,
 			'jetpack-search/filter-wc-rating'       => Filter_Wc_Rating::class,
 			'jetpack-search/filter-wc-attribute'    => Filter_Wc_Attribute::class,
 			'jetpack-search/filter-wc-stock-status' => Search_Product_Filter_Status::class,
 		);
+		if ( self::is_woocommerce_active() ) {
+			return $helpers;
+		}
+		// On non-Woo sites the WC-only blocks aren't registered (see
+		// `register_blocks()`), so any saved instance in post content has no
+		// renderer. Drop them from the helper map too — that keeps the
+		// filter-config walk symmetrical with what the inserter offers.
+		foreach ( array_keys( $helpers ) as $name ) {
+			if ( self::is_woocommerce_only_block( $name ) ) {
+				unset( $helpers[ $name ] );
+			}
+		}
+		return $helpers;
 	}
 
 	/**
@@ -1111,11 +1192,18 @@ class Search_Blocks {
 	 * garbage URL can't drive the API into producing zero results.
 	 *
 	 * Returns null when neither bound is set, so callers can early-out
-	 * without checking individual fields.
+	 * without checking individual fields. Also returns null on non-Woo
+	 * sites — `min_price` / `max_price` are WC-only and the price filter
+	 * block (`filter-wc-price`) isn't registered there, so a stray
+	 * `?min_price=10` in the URL can't drive the API into building a
+	 * `range` clause for a field the index doesn't have.
 	 *
 	 * @return array{min: float|null, max: float|null}|null
 	 */
 	protected static function parse_url_price_range(): ?array {
+		if ( ! self::is_woocommerce_active() ) {
+			return null;
+		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- read-only URL state; coerced to float in parse_price_bound() which discards any non-numeric input.
 		$min = self::parse_price_bound( $_GET['min_price'] ?? null );
 		$max = self::parse_price_bound( $_GET['max_price'] ?? null );

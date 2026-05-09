@@ -96,11 +96,18 @@ export function stateToUrlParams( {
 		values.forEach( value => params.append( `${ key }[]`, value ) );
 	}
 
-	if ( priceRange?.min != null ) {
-		params.set( 'min_price', String( priceRange.min ) );
-	}
-	if ( priceRange?.max != null ) {
-		params.set( 'max_price', String( priceRange.max ) );
+	// `min_price` / `max_price` are WC-only; the price filter block
+	// (`filter-wc-price`) isn't registered on non-Woo sites. Skip the
+	// write so a stray `priceRange` in store state can't leak into the
+	// URL and round-trip back into the next API request as a `range`
+	// clause for a field the index doesn't have.
+	if ( isWooCommerceActive ) {
+		if ( priceRange?.min != null ) {
+			params.set( 'min_price', String( priceRange.min ) );
+		}
+		if ( priceRange?.max != null ) {
+			params.set( 'max_price', String( priceRange.max ) );
+		}
 	}
 
 	return params;
@@ -167,8 +174,12 @@ export function urlParamsToState(
 		activeFilters[ filterKey ].push( normalized );
 	}
 
-	const minPrice = parsePriceBound( params.get( 'min_price' ) );
-	const maxPrice = parsePriceBound( params.get( 'max_price' ) );
+	// Mirror `Search_Blocks::parse_url_price_range()`: drop `min_price` /
+	// `max_price` entirely on non-Woo sites so a stray deep link can't
+	// hydrate `priceRange` into the store and re-emit the params on the
+	// next URL push.
+	const minPrice = isWooCommerceActive ? parsePriceBound( params.get( 'min_price' ) ) : null;
+	const maxPrice = isWooCommerceActive ? parsePriceBound( params.get( 'max_price' ) ) : null;
 	// Inverted bounds (min > max) build an ES range clause that always
 	// matches zero documents, so a URL like `?min_price=100&max_price=10`
 	// would render an empty page. Treat that as garbage and drop the range
