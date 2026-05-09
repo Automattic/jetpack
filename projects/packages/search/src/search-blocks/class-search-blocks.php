@@ -169,6 +169,15 @@ class Search_Blocks {
 	 * result is memoized per-request so adding a new caller doesn't
 	 * multiply autoloader probes.
 	 *
+	 * **Load-order contract:** must be called at or after `plugins_loaded`.
+	 * WooCommerce includes its main `WooCommerce` class only when its plugin
+	 * file runs (during `plugins_loaded`), so an earlier call would return
+	 * false on a WC site. Every existing caller fires from a hook later than
+	 * that — `enqueue_block_editor_assets`, `template_redirect`,
+	 * `wp_enqueue_scripts`, or block render — so the contract is naturally
+	 * satisfied. New callers earlier in the request lifecycle should defer
+	 * the probe to a `plugins_loaded`-or-later hook.
+	 *
 	 * @return bool
 	 */
 	public static function is_woocommerce_active(): bool {
