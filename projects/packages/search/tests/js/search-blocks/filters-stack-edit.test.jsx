@@ -19,6 +19,7 @@ describe( 'FiltersStackEdit', () => {
 		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
 		expect( props.template ).toEqual( [
 			[ 'jetpack-search/active-filters' ],
+			[ 'jetpack-search/clear-filters' ],
 			[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'category' } ],
 			[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'post_tag' } ],
 			[ 'jetpack-search/filter-checkbox', { filterType: 'author' } ],
@@ -28,6 +29,7 @@ describe( 'FiltersStackEdit', () => {
 		] );
 		expect( props.allowedBlocks ).toEqual( [
 			'jetpack-search/active-filters',
+			'jetpack-search/clear-filters',
 			'jetpack-search/filter-checkbox',
 			'jetpack-search/filter-date',
 			'jetpack-search/filter-post-type',

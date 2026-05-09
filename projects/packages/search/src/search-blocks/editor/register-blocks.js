@@ -19,6 +19,7 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { getCategories, registerBlockType, setCategories } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
+import ClearFiltersEdit from '../blocks/clear-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
 import FilterDateEdit from '../blocks/filter-date/edit';
 import FilterPostTypeEdit from '../blocks/filter-post-type/edit';
@@ -50,6 +51,7 @@ const BLOCKS = [
 	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
+	[ 'jetpack-search/clear-filters', ClearFiltersEdit ],
 	[ 'jetpack-search/filter-post-type', FilterPostTypeEdit ],
 	[ 'jetpack-search/filter-wc-rating', FilterWcRatingEdit ],
 	[ 'jetpack-search/filters-stack', FiltersStackEdit, filtersStackSave ],

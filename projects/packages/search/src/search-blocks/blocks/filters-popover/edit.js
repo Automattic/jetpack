@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 
 const TEMPLATE = [
 	[ 'jetpack-search/active-filters' ],
+	[ 'jetpack-search/clear-filters' ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'category' } ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'taxonomy', taxonomy: 'post_tag' } ],
 	[ 'jetpack-search/filter-checkbox', { filterType: 'post_type' } ],
@@ -17,6 +18,7 @@ const TEMPLATE = [
 const ALLOWED = [
 	'jetpack-search/filter-checkbox',
 	'jetpack-search/active-filters',
+	'jetpack-search/clear-filters',
 	'jetpack-search/filter-post-type',
 ];
 
