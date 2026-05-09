@@ -454,6 +454,7 @@ describe( 'normalizeResult', () => {
 			formattedSalePrice: '',
 			hasSalePrice: false,
 			hasPrice: false,
+			price: null,
 			rating: 0,
 			ratingPercent: '0%',
 			reviewCount: 0,

@@ -692,8 +692,13 @@ describe( 'product-shaped filter helpers', () => {
 		};
 
 		it( 'omits price range when both bounds are null', () => {
+			// `wc.price` shows up in `fields[]=wc.price` (it's in SEARCH_FIELDS so
+			// the response carries the numeric price for the slider's bounds
+			// derivation). The price-range *filter clause* is what should be
+			// absent, not the field reference — assert on the clause shape.
 			const url = buildSearchUrl( { ...baseOpts, priceRange: { min: null, max: null } } );
-			expect( url ).not.toContain( 'wc.price' );
+			const decoded = decodeURIComponent( url );
+			expect( decoded ).not.toContain( '[range][wc.price]' );
 		} );
 
 		it( 'emits a half-open `gte` range when only min is set', () => {

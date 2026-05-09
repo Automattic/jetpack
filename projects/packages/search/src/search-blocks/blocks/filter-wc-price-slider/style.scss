@@ -7,8 +7,16 @@
  * the inputs themselves and `pointer-events: auto` on the thumb pseudo-element
  * gives a single visual bar with two draggable handles.
  *
+ * Layout: the wrapper is `18px` tall (= thumb visual size) so the thumbs have
+ * room without overflow clipping. The visible 4px track and the colored
+ * active-range fill are both vertically centered overlays on the wrapper. Each
+ * `<input type="range">` fills the wrapper top-to-bottom, and its
+ * `::-webkit-slider-runnable-track` is also stretched to the input's full
+ * height so the native thumb pseudo-element auto-centers on the wrapper
+ * midline — no margin tweaks, no offset math, the browser does the work.
+ *
  * `--low` and `--high` CSS custom properties (set by the
- * `updatePriceSliderRangeFill` callback when state changes) drive a horizontal
+ * `updatePriceSliderUi` callback when state changes) drive a horizontal
  * `linear-gradient` so the colored "active range" fill grows / shrinks in
  * lockstep with the thumbs.
  */
@@ -29,10 +37,15 @@
 	appearance: none;
 }
 
-@mixin price-slider-track {
-	height: 1px;
+@mixin price-slider-runnable-track {
+	// Match the input's full height so the native thumb pseudo-element
+	// auto-centers on the input's vertical midline instead of anchoring to
+	// the bottom (Chromium's default for short runnable-tracks inside a
+	// taller input).
+	height: 18px;
+	background: transparent;
+	border: 0;
 	cursor: default;
-	outline: 0;
 	-webkit-appearance: none;
 	appearance: none;
 }
@@ -42,7 +55,7 @@
 	&__content {
 		display: grid;
 		// Slider on top, value labels on the row below — left value flush left,
-		// right value flush right. Mirror's WC's default (non-inline) layout.
+		// right value flush right. Mirrors WC's default (non-inline) layout.
 		grid-template-areas:
 			"price-slider price-slider price-slider"
 			"left-input   middle-input right-input";
@@ -74,20 +87,25 @@
 		--range-color: currentColor;
 
 		position: relative;
-		height: 4px;
-		margin: 15px 0;
+		// Wrapper height = thumb visual height so the thumbs never clip.
+		height: 18px;
+		margin: 8px 0;
 		background: transparent;
-		border-radius: 4px;
-		clear: both;
 
-		// Inactive rail: full-width muted bar behind everything else.
+		// Inactive rail: 4px-tall muted bar vertically centered on the wrapper.
 		&::before {
 			content: "";
 			position: absolute;
-			inset: 0;
+			top: 50%;
+			left: 0;
+			right: 0;
+			transform: translateY(-50%);
+			height: 4px;
 			background: var(--range-color);
 			opacity: 0.25;
-			border-radius: inherit;
+			border-radius: 4px;
+			pointer-events: none;
+			z-index: 0;
 		}
 	}
 
@@ -95,18 +113,20 @@
 	// inactive rail, below the input thumbs.
 	&__range-bar {
 		position: absolute;
-		inset: 0;
-		border-radius: inherit;
+		top: 50%;
+		left: 0;
+		right: 0;
+		transform: translateY(-50%);
+		height: 4px;
+		border-radius: 4px;
 		background: linear-gradient(to right, transparent var(--low), var(--range-color) var(--low), var(--range-color) var(--high), transparent var(--high));
-		opacity: 0.85;
 		pointer-events: none;
 		z-index: 1;
 	}
 
-	// Both inputs absolutely positioned over the same track. The inputs as a
-	// whole are click-through; only the thumbs (pseudo-elements) capture
-	// pointer events. This is what makes the overlapping inputs behave as a
-	// single visual control with two handles.
+	// Both inputs absolutely positioned over the same wrapper, full height.
+	// The inputs as a whole are click-through; only the thumb pseudo-elements
+	// capture pointer events.
 	&__input {
 		// Reset everything browsers add by default — !important fights theme
 		// styles that try to re-style native inputs.
@@ -118,17 +138,9 @@
 		-webkit-appearance: none;
 		appearance: none;
 
-		// Make the input as tall as the thumb (18px visual = 14 + 2*2 border)
-		// and vertically center it on the 4px track. With `height: 18px` and
-		// `top: calc(50% - 9px)` the input's vertical midline lands on the
-		// track's midline; the native thumb pseudo-element centers on the
-		// input's content box, so the thumb sits exactly on the track. A
-		// 0-height input made the thumb anchor to the input's TOP edge in
-		// Chromium and float above the track — giving the input a real height
-		// puts the rendering on the standard centered path.
 		position: absolute;
+		top: 0;
 		left: 0;
-		top: calc(50% - 9px);
 		width: 100%;
 		height: 18px;
 		display: block;
@@ -147,12 +159,12 @@
 
 		&::-webkit-slider-runnable-track {
 
-			@include price-slider-track;
+			@include price-slider-runnable-track;
 		}
 
 		&::-moz-range-track {
 
-			@include price-slider-track;
+			@include price-slider-runnable-track;
 		}
 
 		&:focus {
@@ -167,17 +179,6 @@
 				background: var(--range-color);
 				border-color: var(--wp--preset--color--background, #fff);
 			}
-		}
-
-		// Nudge the two thumbs slightly apart at the meeting point so the user
-		// can always grab whichever one they want even when the range collapses
-		// to a single point.
-		&--min::-webkit-slider-thumb {
-			margin-inline-start: -2px;
-		}
-
-		&--max::-webkit-slider-thumb {
-			margin-inline-start: 2px;
 		}
 	}
 }
