@@ -146,14 +146,17 @@ const SettingsTab = () => {
 		if ( ! draft ) {
 			return;
 		}
-		saveSettings( draft );
+		// Resync draft from the server response so isDirty falls back to false
+		// (especially for `podcasting_show_urls` where the server returns a
+		// fresh object reference each save).
+		saveSettings( draft, { onSuccess: setDraft } );
 	}, [ draft, saveSettings ] );
 
 	const onDisablePodcasting = useCallback( () => {
 		setField( 'podcasting_category_id', 0 );
 		setConfirmDisable( false );
 		// Save immediately — the user already confirmed in the dialog.
-		saveSettings( { podcasting_category_id: 0 } );
+		saveSettings( { podcasting_category_id: 0 }, { onSuccess: setDraft } );
 	}, [ setField, saveSettings ] );
 
 	if ( isLoading || ! draft ) {
@@ -196,11 +199,7 @@ const SettingsTab = () => {
 								...categories.map( cat => ( { label: cat.name, value: String( cat.id ) } ) ),
 							] }
 						/>
-						<Link
-							openInNewTab
-							href={ getAdminUrl( 'edit-tags.php?taxonomy=category' ) }
-							children={ null }
-						>
+						<Link openInNewTab href={ getAdminUrl( 'edit-tags.php?taxonomy=category' ) }>
 							{ __( 'Add a new category', 'jetpack-podcast' ) }
 						</Link>
 					</VStack>

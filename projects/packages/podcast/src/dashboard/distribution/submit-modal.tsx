@@ -81,10 +81,15 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 		input?.select();
 	}, [ isEditing ] );
 
-	const copyRef = useCopyToClipboard< HTMLButtonElement >( feedUrl, () => {
-		setHasCopied( true );
-		setTimeout( () => setHasCopied( false ), 2000 );
-	} );
+	const copyRef = useCopyToClipboard< HTMLButtonElement >( feedUrl, () => setHasCopied( true ) );
+
+	useEffect( () => {
+		if ( ! hasCopied ) {
+			return;
+		}
+		const timer = setTimeout( () => setHasCopied( false ), 2000 );
+		return () => clearTimeout( timer );
+	}, [ hasCopied ] );
 
 	const handleReplace = useCallback( () => {
 		hasInitializedDraft.current = true;
@@ -305,7 +310,7 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 							</Button>
 						</HStack>
 					) : (
-						<form className="podcast__submit-step-form" onSubmit={ handleSave }>
+						<form onSubmit={ handleSave }>
 							<HStack spacing={ 2 } alignment="center" className="podcast__submit-step-row">
 								<div className="podcast__submit-step-field" ref={ inputContainerRef }>
 									<TextControl

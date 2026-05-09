@@ -1,5 +1,6 @@
 import { useEntityRecord, store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -97,7 +98,10 @@ interface MutateCallbacks {
  */
 export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoading: boolean } {
 	const { record, hasResolved } = useEntityRecord< Record< string, unknown > >( 'root', 'site' );
-	const data = record ? pickPodcastFields( record ) : undefined;
+	// Memoised so the derived object identity is stable across renders. Without
+	// this, every render builds a new `data` object, breaking reference checks
+	// downstream (Settings' isDirty was permanently true on `podcasting_show_urls`).
+	const data = useMemo( () => ( record ? pickPodcastFields( record ) : undefined ), [ record ] );
 	return { data, isLoading: ! hasResolved };
 }
 
@@ -121,31 +125,31 @@ export function useUpdatePodcastSettings(): {
 		[]
 	);
 
-	const mutate = (
-		updates: PodcastSettingsUpdate,
-		{ onSuccess, onError }: MutateCallbacks = {}
-	) => {
-		saveEntityRecord( 'root', 'site', updates as Record< string, unknown > )
-			.then( record => {
-				if ( ! record ) {
-					onError?.( new Error( 'save returned no record' ) );
+	const mutate = useCallback(
+		( updates: PodcastSettingsUpdate, { onSuccess, onError }: MutateCallbacks = {} ) => {
+			saveEntityRecord( 'root', 'site', updates as Record< string, unknown > )
+				.then( record => {
+					if ( ! record ) {
+						onError?.( new Error( 'save returned no record' ) );
+						createErrorNotice(
+							__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
+							{ type: 'snackbar' }
+						);
+						return;
+					}
+					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
+					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), { type: 'snackbar' } );
+				} )
+				.catch( error => {
+					onError?.( error );
 					createErrorNotice(
 						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
 						{ type: 'snackbar' }
 					);
-					return;
-				}
-				onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
-				createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), { type: 'snackbar' } );
-			} )
-			.catch( error => {
-				onError?.( error );
-				createErrorNotice(
-					__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-					{ type: 'snackbar' }
-				);
-			} );
-	};
+				} );
+		},
+		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]
+	);
 
 	return { mutate, isPending };
 }

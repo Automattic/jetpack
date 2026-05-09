@@ -12,7 +12,7 @@ import {
 } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useEntityRecord } from '@wordpress/core-data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
@@ -35,10 +35,15 @@ const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
 const FeedCopyField = ( { value }: { value: string } ) => {
 	const [ copied, setCopied ] = useState( false );
 
-	const copyRef = useCopyToClipboard< HTMLButtonElement >( value, () => {
-		setCopied( true );
-		setTimeout( () => setCopied( false ), 2000 );
-	} );
+	const copyRef = useCopyToClipboard< HTMLButtonElement >( value, () => setCopied( true ) );
+
+	useEffect( () => {
+		if ( ! copied ) {
+			return;
+		}
+		const timer = setTimeout( () => setCopied( false ), 2000 );
+		return () => clearTimeout( timer );
+	}, [ copied ] );
 
 	return (
 		<HStack alignment="center" spacing={ 2 } className="podcast__feed-copy">
@@ -108,7 +113,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 				</Notice>
 			) }
 
-			<Card className="podcast__card">
+			<Card>
 				<CardBody>
 					<VStack spacing={ 8 }>
 						<VStack spacing={ 4 }>

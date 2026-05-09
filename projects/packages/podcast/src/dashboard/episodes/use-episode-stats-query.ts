@@ -1,6 +1,6 @@
 import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import type { EpisodeStats } from '../types';
 
@@ -15,7 +15,7 @@ import type { EpisodeStats } from '../types';
 export function useEpisodeStatsQuery( postIds: number[] ): { data: EpisodeStats[] } {
 	const [ data, setData ] = useState< EpisodeStats[] >( [] );
 	// Sort so the effect dep is stable regardless of incoming order.
-	const key = [ ...postIds ].sort( ( a, b ) => a - b ).join( ',' );
+	const key = useMemo( () => [ ...postIds ].sort( ( a, b ) => a - b ).join( ',' ), [ postIds ] );
 
 	useEffect( () => {
 		if ( ! key ) {
@@ -32,6 +32,9 @@ export function useEpisodeStatsQuery( postIds: number[] ): { data: EpisodeStats[
 			const out: EpisodeStats[] = [];
 			// Chunked to 50 IDs to match the wpcom endpoint's max page size.
 			for ( let i = 0; i < ids.length; i += 50 ) {
+				if ( cancelled ) {
+					return;
+				}
 				const chunk = ids.slice( i, i + 50 );
 				const result = ( await apiFetch( {
 					path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/podcast-stats/episode-totals`, {

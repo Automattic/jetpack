@@ -69,7 +69,7 @@ const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = 
 ];
 
 const Welcome = ( { onEnable }: WelcomeProps ) => (
-	<VStack spacing={ 8 } className="podcast__welcome">
+	<VStack spacing={ 8 }>
 		<section className="podcast__welcome-hero">
 			<VStack spacing={ 4 } className="podcast__welcome-hero-copy">
 				<h2 className="podcast__welcome-title">
@@ -91,7 +91,7 @@ const Welcome = ( { onEnable }: WelcomeProps ) => (
 
 		<HStack alignment="stretch" spacing={ 4 } wrap>
 			{ BENEFITS.map( b => (
-				<Card key={ b.title } className="podcast__welcome-benefit" style={ { flex: '1 1 280px' } }>
+				<Card key={ b.title } style={ { flex: '1 1 280px' } }>
 					<CardBody>
 						<VStack spacing={ 3 }>
 							<span className="podcast__welcome-benefit-icon" aria-hidden="true">

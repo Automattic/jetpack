@@ -12,8 +12,10 @@ import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
 import type { EpisodeStats } from '../types';
 
+const ADMIN_URL = getSiteData()?.admin_url ?? '/wp-admin/';
+
 const editPostUrl = ( postId: number ): string =>
-	`${ getSiteData()?.admin_url ?? '/wp-admin/' }post.php?action=edit&post=${ postId }`;
+	`${ ADMIN_URL }post.php?action=edit&post=${ postId }`;
 
 interface EpisodeRow {
 	id: number;
@@ -242,23 +244,21 @@ const EpisodesTab = () => {
 	}
 
 	return (
-		<div className="podcast__episodes">
-			<DataViews< EpisodeRow >
-				data={ rows }
-				fields={ fields }
-				view={ view }
-				onChangeView={ setView }
-				actions={ actions }
-				paginationInfo={ {
-					totalItems: episodesPage?.total ?? 0,
-					totalPages: episodesPage?.totalPages ?? 0,
-				} }
-				getItemId={ getEpisodeRowId }
-				isLoading={ isLoading }
-				defaultLayouts={ { table: {} } }
-				search
-			/>
-		</div>
+		<DataViews< EpisodeRow >
+			data={ rows }
+			fields={ fields }
+			view={ view }
+			onChangeView={ setView }
+			actions={ actions }
+			paginationInfo={ {
+				totalItems: episodesPage?.total ?? 0,
+				totalPages: episodesPage?.totalPages ?? 0,
+			} }
+			getItemId={ getEpisodeRowId }
+			isLoading={ isLoading }
+			defaultLayouts={ { table: {} } }
+			search
+		/>
 	);
 };
 
