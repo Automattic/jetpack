@@ -1,16 +1,19 @@
 // Duration and plays come from the wpcom episode-totals endpoint and are
 // merged client-side, so those columns are display-only (not sortable).
 
+import { getSiteData } from '@automattic/jetpack-script-data';
 import { DataViews, type Action, type View, type ViewTable } from '@wordpress/dataviews';
 import { useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
-import { getPodcastScriptData } from '../script-data';
 import './style.scss';
 import { useEpisodeStatsQuery } from './use-episode-stats-query';
 import { useEpisodesQuery } from './use-episodes-query';
 import type { EpisodeStats } from '../types';
+
+const editPostUrl = ( postId: number ): string =>
+	`${ getSiteData()?.admin_url ?? '/wp-admin/' }post.php?action=edit&post=${ postId }`;
 
 interface EpisodeRow {
 	id: number;
@@ -69,7 +72,6 @@ const STATUS_LABELS: Record< string, string > = {
 const EpisodesTab = () => {
 	const { data: settings } = usePodcastSettings();
 	const categoryId = settings?.podcasting_category_id ?? 0;
-	const scriptData = getPodcastScriptData();
 
 	const [ view, setView ] = useState< View >( defaultView );
 
@@ -150,7 +152,7 @@ const EpisodesTab = () => {
 				label: __( 'Title', 'jetpack-podcast' ),
 				getValue: ( { item }: { item: EpisodeRow } ) => item.title,
 				render: ( { item }: { item: EpisodeRow } ) => (
-					<a href={ `${ scriptData.editPostUrlBase }${ item.id }` }>
+					<a href={ editPostUrl( item.id ) }>
 						{ item.title || __( '(Untitled)', 'jetpack-podcast' ) }
 					</a>
 				),
@@ -194,7 +196,7 @@ const EpisodesTab = () => {
 				enableSorting: true,
 			},
 		],
-		[ scriptData.editPostUrlBase ]
+		[]
 	);
 
 	const actions = useMemo< Action< EpisodeRow >[] >(
@@ -205,7 +207,7 @@ const EpisodesTab = () => {
 				callback: ( items: EpisodeRow[] ) => {
 					const item = items[ 0 ];
 					if ( item ) {
-						window.location.href = `${ scriptData.editPostUrlBase }${ item.id }`;
+						window.location.href = editPostUrl( item.id );
 					}
 				},
 			},
@@ -220,7 +222,7 @@ const EpisodesTab = () => {
 				},
 			},
 		],
-		[ scriptData.editPostUrlBase ]
+		[]
 	);
 
 	if ( ! categoryId ) {

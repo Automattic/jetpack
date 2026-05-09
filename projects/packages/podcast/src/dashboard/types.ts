@@ -30,18 +30,6 @@ export type PodcastSettingsUpdate = Partial< Omit< PodcastSettings, 'podcasting_
 	podcasting_show_urls?: Partial< PodcastShowUrls >;
 };
 
-export interface PodcastScriptData {
-	categoryId: number;
-	feedUrl: string;
-	siteUrl: string;
-	adminUrl: string;
-	editPostUrlBase: string;
-	newPostUrl: string;
-	mediaLibraryUrl: string;
-	userEmail: string;
-	dateFormat: string;
-}
-
 export interface Episode {
 	id: number;
 	date: string;

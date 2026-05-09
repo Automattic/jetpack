@@ -4,7 +4,6 @@ import { lazy, Suspense, useCallback, useEffect, useState } from '@wordpress/ele
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
-import { getPodcastScriptData } from './script-data';
 import './style.scss';
 import type { TabName } from './types';
 
@@ -34,12 +33,7 @@ const resolveInitialTab = ( isSetUp: boolean ): TabName => {
 
 const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
-	// scriptData.categoryId resolves the legacy `podcasting_archive` slug to a
-	// term id in PHP. Sites pre-dating `podcasting_category_id` only have the
-	// slug — without this fallback they'd land on Welcome despite being set up.
-	const scriptData = getPodcastScriptData();
-	const isSetUp =
-		( !! settings && settings.podcasting_category_id > 0 ) || scriptData.categoryId > 0;
+	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 
 	const [ activeTab, setActiveTab ] = useState< TabName >( () => resolveInitialTab( false ) );
 
