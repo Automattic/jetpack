@@ -306,6 +306,7 @@ class Jetpack_Sitemap_Librarian {
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Sniff is confused by both the interpolation of `$columns['placeholders']` and the spread.
 			$wpdb->prepare(
 				"SELECT {$columns['placeholders']}
 					FROM $wpdb->posts
@@ -448,6 +449,7 @@ class Jetpack_Sitemap_Librarian {
 
 		// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Sniff is confused by both the interpolation of `$columns['placeholders']` and the spread.
 			$wpdb->prepare(
 				"SELECT {$columns['placeholders']}
 					FROM $wpdb->posts
