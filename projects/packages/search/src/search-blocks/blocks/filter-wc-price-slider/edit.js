@@ -9,7 +9,7 @@
  * aggregation is deferred to a follow-up.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
+import { Notice, PanelBody, SelectControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const DEFAULT_LABEL = __( 'Price', 'jetpack-search-pkg' );
@@ -95,6 +95,14 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Slider range', 'jetpack-search-pkg' ) }>
+					{ min >= max && (
+						<Notice status="warning" isDismissible={ false }>
+							{ __(
+								'Minimum must be less than maximum for the slider to render correctly.',
+								'jetpack-search-pkg'
+							) }
+						</Notice>
+					) }
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom

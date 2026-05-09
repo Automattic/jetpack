@@ -200,6 +200,22 @@ describe( 'filter-wc-price-slider view — change commits via setPriceRange', ()
 		expect( min.value ).toBe( '40' );
 		expect( max.value ).toBe( '40' );
 	} );
+
+	it( 'pins the max thumb to the min value when dragged below the lower bound', () => {
+		const { min, max } = mountSliderDom( { minValue: '40', maxValue: '60' } );
+		// User is dragging the max thumb — focus it so the clampPair guard
+		// snaps the side that actually moved (not the stationary min thumb).
+		elementRef.current = { ref: max };
+		max.focus();
+
+		max.value = '20';
+		captured.actions.onPriceSliderInput();
+
+		expect( captured.state.priceRange ).toEqual( { min: 40, max: 40 } );
+		expect( max.value ).toBe( '40' );
+		// Min element untouched — only the crossing thumb snaps.
+		expect( min.value ).toBe( '40' );
+	} );
 } );
 
 describe( 'filter-wc-price-slider view — input value getters', () => {
