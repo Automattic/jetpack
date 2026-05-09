@@ -2,21 +2,33 @@
 /**
  * Search product filter — price slider render.
  *
- * Two stacked `<input type="range">` thumbs (min, max) bound to the shared
- * store's `priceRange` slice. Peer of the number-input price block:
- * different control surface, identical data plane — same `setPriceRange`
- * action, same `min_price` / `max_price` URL contract, same
- * `priceCurrencySymbol` / `priceLabel` seed shape so a downstream consumer
- * (e.g. the active-filters chip block) can read the seed regardless of
- * which price block the author dropped on the page.
+ * Single shared track with two thumbs (lower thumb = min, upper thumb = max)
+ * — the dual-thumb pattern WooCommerce Blocks ships. Two `<input type="range">`
+ * elements overlay each other on the same wrapper: CSS sets
+ * `pointer-events: none` on the inputs and re-enables it only on the thumb
+ * pseudo-elements, so the wrapper reads as one bar with two draggable handles.
+ * A `linear-gradient` driven by `--low` / `--high` CSS custom properties (set
+ * reactively by `callbacks.updatePriceSliderRangeFill` when state.priceRange
+ * changes) paints the colored "active range" between the thumbs.
  *
- * Author bounds the slider via `min` / `max` / `step` block attrs; sizing
- * the slider from a live aggregation is deferred to a follow-up.
+ * Peer of the number-input price block: different control surface, identical
+ * data plane — same `setPriceRange` action, same `min_price` / `max_price`
+ * URL contract, same `priceCurrencySymbol` / `priceLabel` seed shape so a
+ * downstream consumer (e.g. the active-filters chip block) reads the seed
+ * regardless of which price block the author dropped on the page.
+ *
+ * Author bounds the slider via `min` / `max` / `step` block attrs; sizing the
+ * slider from a live aggregation is deferred to a follow-up.
  *
  * First-paint values are seeded from `state.priceRange` (which the PHP
  * state-builder parses from the URL) so a deep link like
- * `/?s=&min_price=25&max_price=80` shows the thumbs in the right places
- * before JS hydrates.
+ * `/?s=&min_price=25&max_price=80` shows the thumbs in the right places —
+ * and the colored fill in the right span — before JS hydrates.
+ *
+ * Drag / commit split mirrors WC's: `input` events update state for live
+ * visual feedback (track fill follows the thumb) without triggering a search;
+ * `change` (which native range inputs fire on release) commits via
+ * `actions.search` to update the URL and refetch results.
  *
  * @package automattic/jetpack-search
  */
@@ -81,11 +93,17 @@ if ( $min_attr > $max_attr ) {
 $seeded_state = wp_interactivity_state( 'jetpack-search' );
 $seeded_price = $seeded_state['priceRange'] ?? null;
 $seeded_min   = is_array( $seeded_price ) && null !== ( $seeded_price['min'] ?? null )
-	? (string) $seeded_price['min']
-	: (string) $min_attr;
+	? (float) $seeded_price['min']
+	: $min_attr;
 $seeded_max   = is_array( $seeded_price ) && null !== ( $seeded_price['max'] ?? null )
-	? (string) $seeded_price['max']
-	: (string) $max_attr;
+	? (float) $seeded_price['max']
+	: $max_attr;
+
+// First-paint --low / --high so the colored active-range fill renders before
+// JS hydrates. Guard against zero span (author misconfigured min === max).
+$span     = $max_attr - $min_attr;
+$low_pct  = $span > 0 ? max( 0.0, min( 100.0, ( ( $seeded_min - $min_attr ) / $span ) * 100.0 ) ) : 0.0;
+$high_pct = $span > 0 ? max( 0.0, min( 100.0, ( ( $seeded_max - $min_attr ) / $span ) * 100.0 ) ) : 100.0;
 
 // Push the block author's chosen currency symbol and group label into the
 // shared store. Same contract the number-input price block writes, so an
@@ -111,50 +129,85 @@ $format_value = static function ( $value ) use ( $symbol_short, $position ) {
 		? esc_html( $value ) . esc_html( $symbol_short )
 		: esc_html( $symbol_short ) . esc_html( $value );
 };
+
+// Slider value labels render as integers — author-set step controls precision
+// of the underlying input value, but the visible label rounds to a whole
+// number so a 4-pixel drag doesn't churn "$24.96 / $25.04 / $25.12".
+$seeded_min_label = (string) ( (int) round( $seeded_min ) );
+$seeded_max_label = (string) ( (int) round( $seeded_max ) );
+
+// Format --low / --high without trailing zeros so the inline style stays tidy.
+$fmt_pct = static function ( $value ) {
+	$out = number_format( $value, 4, '.', '' );
+	$out = rtrim( $out, '0' );
+	return rtrim( $out, '.' );
+};
+
+$track_style = sprintf(
+	'--low:%s%%;--high:%s%%',
+	$fmt_pct( $low_pct ),
+	$fmt_pct( $high_pct )
+);
+
+// Per-slider range bounds threaded into the Interactivity context so the
+// `updatePriceSliderRangeFill` callback can compute --low/--high without
+// reading them off the input DOM nodes (cleaner; survives state-only updates
+// where the inputs haven't yet been touched). JSON-encode for inline output.
+$context_payload = wp_json_encode(
+	array(
+		'sliderMin' => $min_attr,
+		'sliderMax' => $max_attr,
+	),
+	JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS
+);
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-wc-price-slider' ) ) ); ?>
 	data-wp-interactive="jetpack-search"
+	data-wp-context="<?php echo esc_attr( (string) $context_payload ); ?>"
+	data-wp-watch="callbacks.updatePriceSliderUi"
 >
 	<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
-	<div class="jetpack-search-filter-wc-price-slider__values" aria-hidden="true">
-		<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--min">
-			<?php echo $format_value( $seeded_min ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $format_value escapes both pieces. ?>
-		</span>
-		<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--max">
-			<?php echo $format_value( $seeded_max ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $format_value escapes both pieces. ?>
-		</span>
-	</div>
-	<div class="jetpack-search-filter-wc-price-slider__track">
-		<label class="screen-reader-text" for="<?php echo esc_attr( $min_id ); ?>">
-			<?php esc_html_e( 'Minimum price', 'jetpack-search-pkg' ); ?>
-		</label>
-		<input
-			id="<?php echo esc_attr( $min_id ); ?>"
-			class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--min"
-			type="range"
-			min="<?php echo esc_attr( (string) $min_attr ); ?>"
-			max="<?php echo esc_attr( (string) $max_attr ); ?>"
-			step="<?php echo esc_attr( (string) $step ); ?>"
-			value="<?php echo esc_attr( $seeded_min ); ?>"
-			data-wp-bind--value="state.priceSliderMinValue"
-			data-wp-on--input="actions.onPriceSliderInput"
-			data-wp-on--change="actions.onPriceSliderInput"
-		/>
-		<label class="screen-reader-text" for="<?php echo esc_attr( $max_id ); ?>">
-			<?php esc_html_e( 'Maximum price', 'jetpack-search-pkg' ); ?>
-		</label>
-		<input
-			id="<?php echo esc_attr( $max_id ); ?>"
-			class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--max"
-			type="range"
-			min="<?php echo esc_attr( (string) $min_attr ); ?>"
-			max="<?php echo esc_attr( (string) $max_attr ); ?>"
-			step="<?php echo esc_attr( (string) $step ); ?>"
-			value="<?php echo esc_attr( $seeded_max ); ?>"
-			data-wp-bind--value="state.priceSliderMaxValue"
-			data-wp-on--input="actions.onPriceSliderInput"
-			data-wp-on--change="actions.onPriceSliderInput"
-		/>
+	<div class="jetpack-search-filter-wc-price-slider__content">
+		<div class="jetpack-search-filter-wc-price-slider__left">
+			<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--min"><?php echo $format_value( $seeded_min_label ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $format_value escapes both pieces. ?></span>
+		</div>
+		<div
+			class="jetpack-search-filter-wc-price-slider__range"
+			style="<?php echo esc_attr( $track_style ); ?>"
+		>
+			<div class="jetpack-search-filter-wc-price-slider__range-bar"></div>
+			<label class="screen-reader-text" for="<?php echo esc_attr( $min_id ); ?>">
+				<?php esc_html_e( 'Minimum price', 'jetpack-search-pkg' ); ?>
+			</label>
+			<input
+				id="<?php echo esc_attr( $min_id ); ?>"
+				class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--min"
+				type="range"
+				min="<?php echo esc_attr( (string) $min_attr ); ?>"
+				max="<?php echo esc_attr( (string) $max_attr ); ?>"
+				step="<?php echo esc_attr( (string) $step ); ?>"
+				value="<?php echo esc_attr( (string) $seeded_min ); ?>"
+				data-wp-on--input="actions.onPriceSliderInput"
+				data-wp-on--change="actions.onPriceSliderChange"
+			/>
+			<label class="screen-reader-text" for="<?php echo esc_attr( $max_id ); ?>">
+				<?php esc_html_e( 'Maximum price', 'jetpack-search-pkg' ); ?>
+			</label>
+			<input
+				id="<?php echo esc_attr( $max_id ); ?>"
+				class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--max"
+				type="range"
+				min="<?php echo esc_attr( (string) $min_attr ); ?>"
+				max="<?php echo esc_attr( (string) $max_attr ); ?>"
+				step="<?php echo esc_attr( (string) $step ); ?>"
+				value="<?php echo esc_attr( (string) $seeded_max ); ?>"
+				data-wp-on--input="actions.onPriceSliderInput"
+				data-wp-on--change="actions.onPriceSliderChange"
+			/>
+		</div>
+		<div class="jetpack-search-filter-wc-price-slider__right">
+			<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--max"><?php echo $format_value( $seeded_max_label ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $format_value escapes both pieces. ?></span>
+		</div>
 	</div>
 </div>

@@ -1,23 +1,13 @@
-import { store, getElement } from '@wordpress/interactivity';
+import { store, getElement, getContext } from '@wordpress/interactivity';
 import '../../store';
 import './style.scss';
 
 const NAMESPACE = 'jetpack-search';
 
-// Debounce window for setPriceRange dispatches. `<input type="range">` fires
-// `input` continuously while dragging — at 60fps that's ~60 events/second. The
-// shared `actions.setPriceRange` action triggers a search, so without a wait
-// the user would burn the search-token counter on every pixel of drag. 300ms
-// is long enough that hold-and-drag coalesces into a single search yet short
-// enough that release feels instant.
-export const DEBOUNCE_MS = 300;
-
-let pendingTimer = null;
-
 /**
  * Resolve the min and max range inputs that share a parent block wrapper with
- * `el`. Used by the input handler to read both bounds when either thumb moves
- * (the store action takes both bounds together).
+ * `el`. Used by the input/change handlers to read both bounds when either
+ * thumb moves (the store action takes both bounds together).
  *
  * @param {HTMLElement} el - The input that fired the event.
  * @return {{min: HTMLInputElement|null, max: HTMLInputElement|null}} Sibling inputs.
@@ -34,9 +24,9 @@ function findSliderInputs( el ) {
 }
 
 /**
- * Coerce an input's `.value` string into the shape the store action expects:
- * empty → null, numeric → its Number, anything else → null. Mirrors the
- * existing number-input price block so both blocks treat "no bound" identically.
+ * Coerce an input's `.value` string into a numeric bound. Returns null for
+ * empty / NaN / negative inputs, mirroring `parsePriceBound` in url-state.js so
+ * the slider and the URL reader treat "no bound" the same way.
  *
  * @param {string|null|undefined} raw - Input value.
  * @return {number|null} Parsed bound or null.
@@ -50,10 +40,11 @@ function parseBound( raw ) {
 }
 
 /**
- * Clamp the min/max pair so a user can't drag the lower thumb past the upper
- * one. Mutates the lower DOM input's value to match the upper value when they
- * cross — the store-side guard would silently drop an inverted range, so this
- * keeps the visible thumb in sync with the dispatched bounds.
+ * Read the parsed pair, pinning the lower thumb to the upper value when they
+ * cross. Native `<input type="range">` lets a user drag past its sibling, but
+ * we want them to clamp at the meeting point so the dispatched bounds always
+ * satisfy `min <= max` and the visible thumb position matches the committed
+ * value.
  *
  * @param {HTMLInputElement|null} minEl - Min slider element.
  * @param {HTMLInputElement|null} maxEl - Max slider element.
@@ -61,35 +52,78 @@ function parseBound( raw ) {
  */
 function clampPair( minEl, maxEl ) {
 	let minVal = parseBound( minEl?.value );
-	const maxVal = parseBound( maxEl?.value );
+	let maxVal = parseBound( maxEl?.value );
 	if ( minVal !== null && maxVal !== null && minVal > maxVal ) {
-		minVal = maxVal;
-		if ( minEl ) {
-			minEl.value = String( maxVal );
+		// Pick the side that didn't just move by checking activeElement on
+		// the input's owner document — dragging the min thumb past max should
+		// pin min to max, dragging max below min should pin max to min. Falls
+		// back to clamping min when activeElement isn't one of the inputs
+		// (e.g. programmatic dispatch).
+		const ownerDoc = ( minEl ?? maxEl )?.ownerDocument;
+		if ( ownerDoc && ownerDoc.activeElement === maxEl ) {
+			maxVal = minVal;
+			if ( maxEl ) {
+				maxEl.value = String( minVal );
+			}
+		} else {
+			minVal = maxVal;
+			if ( minEl ) {
+				minEl.value = String( maxVal );
+			}
 		}
 	}
 	return { min: minVal, max: maxVal };
 }
 
 /**
- * Drive an Interactivity API generator action to completion. The runtime
- * auto-drives generators reached via `data-wp-on--*`, but a debounced dispatch
- * runs in a `setTimeout` callback — outside that loop — so the iterator has to
- * be advanced by hand. Mirrors the `runGenerator` test helper pattern.
+ * Format a numeric bound for the value-label span. Renders integers — the
+ * underlying input value carries the author-set step's precision, but the
+ * visible label rounds to a whole number so a 4-pixel drag doesn't churn
+ * "$24.96 / $25.04 / $25.12".
  *
- * @param {Generator} generator - Action generator.
- * @return {Promise<*>} Final return value.
+ * @param {number|null|undefined} value    - Numeric bound.
+ * @param {string}                symbol   - Currency symbol (≤ 2 chars).
+ * @param {'left'|'right'}        position - Symbol position.
+ * @return {string} Formatted label, e.g. "$25" or "25 kr".
  */
-async function runGenerator( generator ) {
-	let step = generator.next();
-	while ( ! step.done ) {
-		try {
-			step = generator.next( await step.value );
-		} catch ( err ) {
-			step = generator.throw( err );
-		}
+function formatBoundLabel( value, symbol, position ) {
+	if ( value === null || value === undefined || ! Number.isFinite( value ) ) {
+		return '';
 	}
-	return step.value;
+	const rounded = String( Math.round( value ) );
+	return position === 'right' ? `${ rounded }${ symbol }` : `${ symbol }${ rounded }`;
+}
+
+/**
+ * Read the slider's authored bounds from the wrapper's Interactivity context.
+ * Falls through to the input element's `min`/`max` attributes when context
+ * isn't available (e.g. inside a unit test running view.js directly).
+ *
+ * @param {HTMLElement|null} wrapper - Slider wrapper element.
+ * @return {{sliderMin: number, sliderMax: number}} Authored bounds.
+ */
+function readSliderBounds( wrapper ) {
+	try {
+		const ctx = getContext();
+		if (
+			ctx &&
+			Number.isFinite( Number( ctx.sliderMin ) ) &&
+			Number.isFinite( Number( ctx.sliderMax ) )
+		) {
+			return {
+				sliderMin: Number( ctx.sliderMin ),
+				sliderMax: Number( ctx.sliderMax ),
+			};
+		}
+	} catch {
+		// getContext() throws outside an Interactivity scope (e.g. tests). Fall through.
+	}
+	const minEl = wrapper?.querySelector?.( '.jetpack-search-filter-wc-price-slider__input--min' );
+	const maxEl = wrapper?.querySelector?.( '.jetpack-search-filter-wc-price-slider__input--max' );
+	return {
+		sliderMin: Number( minEl?.min ) || 0,
+		sliderMax: Number( maxEl?.max ) || 100,
+	};
 }
 
 store( NAMESPACE, {
@@ -123,27 +157,144 @@ store( NAMESPACE, {
 
 	actions: {
 		/**
-		 * Coalesce slider drag events into a single setPriceRange call. Native
-		 * `<input type="range">` fires `input` continuously while dragging and
-		 * `change` on release — both wire here, both reset the same pending
-		 * timer, so a drag-then-release commits exactly one search after the
-		 * debounce window.
-		 *
-		 * Reads sibling inputs from the DOM rather than tracking each thumb's
-		 * value in store state so user-drag interim values aren't published to
-		 * other listeners until they actually commit (timer fires).
+		 * Live drag handler. `<input type="range">` fires `input` continuously
+		 * while the user drags — at 60fps that's ~60 events/second. We update
+		 * `state.priceRange` immediately so the colored fill (driven by the
+		 * `updatePriceSliderUi` watcher) and the value labels follow the thumb
+		 * in real time, but we **do not** trigger a search here. The commit /
+		 * search dispatch lives in `onPriceSliderChange`, bound to the native
+		 * `change` event which fires once on release — same split WC Blocks
+		 * uses for its dual-thumb price slider.
 		 */
 		onPriceSliderInput() {
 			const el = getElement()?.ref;
 			const { min, max } = findSliderInputs( el );
-			if ( pendingTimer !== null ) {
-				clearTimeout( pendingTimer );
+			if ( ! min || ! max ) {
+				return;
 			}
-			pendingTimer = setTimeout( () => {
-				pendingTimer = null;
-				const bounds = clampPair( min, max );
-				runGenerator( store( NAMESPACE ).actions.setPriceRange( bounds.min, bounds.max ) );
-			}, DEBOUNCE_MS );
+			const bounds = clampPair( min, max );
+			if ( bounds.min === null || bounds.max === null ) {
+				return;
+			}
+			const { state } = store( NAMESPACE );
+			const prev = state.priceRange;
+			if ( prev && prev.min === bounds.min && prev.max === bounds.max ) {
+				return;
+			}
+			state.priceRange = { min: bounds.min, max: bounds.max };
+		},
+
+		/**
+		 * Release handler. `<input type="range">` fires `change` on mouseup /
+		 * keyup / touchend — the natural "I'm done dragging" signal. Commits
+		 * the current bounds via `actions.setPriceRange`, which validates,
+		 * pushes the URL, and fetches results. The drag handler has already
+		 * written interim state, so identity guards inside `setPriceRange` may
+		 * no-op the state write — the search still runs because we trigger it
+		 * directly.
+		 *
+		 * @yield {Promise} setPriceRange / search action.
+		 */
+		*onPriceSliderChange() {
+			const el = getElement()?.ref;
+			const { min, max } = findSliderInputs( el );
+			if ( ! min || ! max ) {
+				return;
+			}
+			const bounds = clampPair( min, max );
+			yield store( NAMESPACE ).actions.setPriceRange( bounds.min, bounds.max );
+			// `setPriceRange` no-ops when bounds match what the live drag handler
+			// already wrote into state. Force a search in that case so the URL
+			// (which the drag handler doesn't push) catches up to the displayed
+			// thumbs and the results refetch with the committed range.
+			const { state } = store( NAMESPACE );
+			if (
+				state.priceRange &&
+				state.priceRange.min === bounds.min &&
+				state.priceRange.max === bounds.max
+			) {
+				yield store( NAMESPACE ).actions.search();
+			}
+		},
+	},
+
+	callbacks: {
+		/**
+		 * Reactive watcher attached to the slider wrapper via `data-wp-watch`.
+		 * Re-runs whenever any reactive read inside it changes — primarily
+		 * `state.priceRange`. Updates two pieces of UI for this slider instance:
+		 * the `--low` / `--high` CSS custom properties on the `__range` track
+		 * (so the colored active-range gradient grows / shrinks with the thumbs)
+		 * and the text content of the `__value--min` / `__value--max` spans (so
+		 * the visible labels track the current bounds).
+		 *
+		 * Both updates run together so a single drag + release commits a single
+		 * paint frame's worth of UI changes. Pre-hydration the labels are
+		 * already correct from render.php's seeded text.
+		 */
+		updatePriceSliderUi() {
+			const wrapper = getElement()?.ref;
+			if ( ! wrapper ) {
+				return;
+			}
+			const range = wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__range' );
+			const minInput = wrapper.querySelector(
+				'.jetpack-search-filter-wc-price-slider__input--min'
+			);
+			const maxInput = wrapper.querySelector(
+				'.jetpack-search-filter-wc-price-slider__input--max'
+			);
+			const minLabel = wrapper.querySelector(
+				'.jetpack-search-filter-wc-price-slider__value--min'
+			);
+			const maxLabel = wrapper.querySelector(
+				'.jetpack-search-filter-wc-price-slider__value--max'
+			);
+			const { sliderMin, sliderMax } = readSliderBounds( wrapper );
+			const { state } = store( NAMESPACE );
+			const priceRange = state.priceRange;
+			const minVal = priceRange?.min ?? sliderMin;
+			const maxVal = priceRange?.max ?? sliderMax;
+			const symbol = state.priceCurrencySymbol || '';
+			const position = state.priceCurrencySymbolPosition || 'left';
+
+			// Sync input values with state so external changes (popstate, a
+			// clear-filters action) move the thumbs. Skip the input the user is
+			// currently dragging — overwriting its own value mid-drag would jitter
+			// the thumb against the user's pointer.
+			const active = wrapper.ownerDocument?.activeElement;
+			if ( minInput && minInput !== active ) {
+				const next = String( minVal );
+				if ( minInput.value !== next ) {
+					minInput.value = next;
+				}
+			}
+			if ( maxInput && maxInput !== active ) {
+				const next = String( maxVal );
+				if ( maxInput.value !== next ) {
+					maxInput.value = next;
+				}
+			}
+
+			if ( range ) {
+				const span = sliderMax - sliderMin;
+				if ( ! Number.isFinite( span ) || span <= 0 ) {
+					range.style.setProperty( '--low', '0%' );
+					range.style.setProperty( '--high', '100%' );
+				} else {
+					const low = Math.max( 0, Math.min( 100, ( ( minVal - sliderMin ) / span ) * 100 ) );
+					const high = Math.max( 0, Math.min( 100, ( ( maxVal - sliderMin ) / span ) * 100 ) );
+					range.style.setProperty( '--low', `${ low }%` );
+					range.style.setProperty( '--high', `${ high }%` );
+				}
+			}
+
+			if ( minLabel ) {
+				minLabel.textContent = formatBoundLabel( minVal, symbol, position );
+			}
+			if ( maxLabel ) {
+				maxLabel.textContent = formatBoundLabel( maxVal, symbol, position );
+			}
 		},
 	},
 } );

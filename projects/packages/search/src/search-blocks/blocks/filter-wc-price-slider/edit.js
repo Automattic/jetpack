@@ -1,11 +1,12 @@
 /**
  * Editor preview for jetpack-search/filter-wc-price-slider.
  *
- * Mirrors the runtime DOM shape — two stacked disabled `<input type="range">`
- * thumbs joined by value labels — so designers can style the slider in place.
- * The author bounds the slider via `min` / `max` / `step` attrs so the visual
- * range fits the store's actual price distribution; fetching live aggregations
- * to size the slider is deferred (see RSM-1948).
+ * Mirrors the runtime DOM shape — single shared track, two overlaid disabled
+ * `<input type="range">` thumbs (lower = min, upper = max), value labels
+ * flanking the track — so designers can style the slider in place. The author
+ * bounds the slider via `min` / `max` / `step` attrs so the visual range fits
+ * the store's actual price distribution; sizing the slider from a live
+ * aggregation is deferred to a follow-up.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
@@ -126,33 +127,41 @@ export default function FilterWcPriceSliderEdit( { attributes, setAttributes } )
 			</InspectorControls>
 			<div { ...blockProps }>
 				<h3 className="jetpack-search-filter__title">{ previewLabel }</h3>
-				<div className="jetpack-search-filter-wc-price-slider__values" aria-hidden="true">
-					<span className="jetpack-search-filter-wc-price-slider__value">
-						{ formatBound( min ) }
-					</span>
-					<span className="jetpack-search-filter-wc-price-slider__value">
-						{ formatBound( max ) }
-					</span>
-				</div>
-				<div className="jetpack-search-filter-wc-price-slider__track">
-					<input
-						className="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--min"
-						type="range"
-						min={ min }
-						max={ max }
-						step={ step }
-						defaultValue={ min }
-						disabled
-					/>
-					<input
-						className="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--max"
-						type="range"
-						min={ min }
-						max={ max }
-						step={ step }
-						defaultValue={ max }
-						disabled
-					/>
+				<div className="jetpack-search-filter-wc-price-slider__content">
+					<div className="jetpack-search-filter-wc-price-slider__left">
+						<span className="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--min">
+							{ formatBound( min ) }
+						</span>
+					</div>
+					<div
+						className="jetpack-search-filter-wc-price-slider__range"
+						style={ { '--low': '0%', '--high': '100%' } }
+					>
+						<div className="jetpack-search-filter-wc-price-slider__range-bar" />
+						<input
+							className="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--min"
+							type="range"
+							min={ min }
+							max={ max }
+							step={ step }
+							defaultValue={ min }
+							disabled
+						/>
+						<input
+							className="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--max"
+							type="range"
+							min={ min }
+							max={ max }
+							step={ step }
+							defaultValue={ max }
+							disabled
+						/>
+					</div>
+					<div className="jetpack-search-filter-wc-price-slider__right">
+						<span className="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--max">
+							{ formatBound( max ) }
+						</span>
+					</div>
 				</div>
 			</div>
 		</>
