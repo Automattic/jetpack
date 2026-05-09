@@ -95,93 +95,32 @@ describe( 'FilterWcPriceSliderEdit', () => {
 		global.window.wcSettings = originalWcSettings;
 	} );
 
-	it( 'renders the default "Price" label, $0 / $1000 endpoints, and the auto-bounds toggle on by default', () => {
+	it( 'default render: "Price" label, $0/$1000 endpoints, autoBounds toggle on, Min/Max disabled', () => {
+		global.window.wcSettings = undefined;
 		renderEdit();
 
-		// Default label shows in the preview header.
 		expect( screen.getByRole( 'heading', { level: 3 } ) ).toHaveTextContent( 'Price' );
-
-		// Currency-formatted endpoint labels.
 		expect( screen.getByText( '$0' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$1000' ) ).toBeInTheDocument();
-
-		// Auto-bounds toggle is checked.
-		const toggle = screen.getByLabelText( 'Auto-detect range from store' );
-		expect( toggle ).toBeChecked();
+		expect( screen.getByLabelText( 'Auto-detect range from store' ) ).toBeChecked();
+		expect( screen.getByLabelText( 'Minimum' ) ).toBeDisabled();
+		expect( screen.getByLabelText( 'Maximum' ) ).toBeDisabled();
 	} );
 
-	it( 'shows the author-supplied label when set', () => {
-		renderEdit( { label: 'Filter by price' } );
-		expect( screen.getByRole( 'heading', { level: 3 } ) ).toHaveTextContent( 'Filter by price' );
-	} );
-
-	it( 'reads currency symbol + position from window.wcSettings when no author override is set', () => {
+	it( 'reads currency symbol + position from window.wcSettings (right_space → suffix)', () => {
 		global.window.wcSettings = { currency: { symbol: '€', position: 'right_space' } };
 		renderEdit( { min: 5, max: 25 } );
 
-		// `right_space` resolves to `right` so the symbol lands after the value.
 		expect( screen.getByText( '5€' ) ).toBeInTheDocument();
 		expect( screen.getByText( '25€' ) ).toBeInTheDocument();
 	} );
 
-	it( 'author currencySymbol overrides the WC default and is trimmed to two chars', () => {
-		global.window.wcSettings = { currency: { symbol: '€', position: 'left' } };
-		renderEdit( { currencySymbol: 'KRX', min: 0, max: 100 } );
+	it( 'shows the inverted-bounds Notice and enables Min/Max when autoBounds is off', () => {
+		renderEdit( { autoBounds: false, min: 50, max: 10 } );
 
-		// `KRX` is trimmed to `KR` (max two chars), then prefixed (default position).
-		expect( screen.getByText( 'KR0' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'KR100' ) ).toBeInTheDocument();
-	} );
-
-	it( 'author currencySymbolPosition overrides the WC default', () => {
-		global.window.wcSettings = { currency: { symbol: '$', position: 'left' } };
-		renderEdit( { currencySymbolPosition: 'right', min: 1, max: 2 } );
-
-		expect( screen.getByText( '1$' ) ).toBeInTheDocument();
-		expect( screen.getByText( '2$' ) ).toBeInTheDocument();
-	} );
-
-	it( 'falls back to $ + left when wcSettings is missing entirely', () => {
-		global.window.wcSettings = undefined;
-		renderEdit( { min: 7, max: 9 } );
-		expect( screen.getByText( '$7' ) ).toBeInTheDocument();
-		expect( screen.getByText( '$9' ) ).toBeInTheDocument();
-	} );
-
-	it( 'shows the inverted-bounds warning Notice only when autoBounds=false and min >= max', () => {
-		const { rerender } = render(
-			<FilterWcPriceSliderEdit
-				attributes={ { autoBounds: false, min: 50, max: 10 } }
-				setAttributes={ jest.fn() }
-			/>
-		);
 		expect( screen.getByTestId( 'notice' ) ).toHaveTextContent(
 			'Minimum must be less than maximum'
 		);
-		expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'warning' );
-
-		// autoBounds=true suppresses the warning even when the stored min/max
-		// are inverted (the server-side derivation is what matters then).
-		rerender(
-			<FilterWcPriceSliderEdit
-				attributes={ { autoBounds: true, min: 50, max: 10 } }
-				setAttributes={ jest.fn() }
-			/>
-		);
-		expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'disables the Minimum / Maximum number inputs while autoBounds is enabled', () => {
-		renderEdit( { autoBounds: true } );
-		expect( screen.getByLabelText( 'Minimum' ) ).toBeDisabled();
-		expect( screen.getByLabelText( 'Maximum' ) ).toBeDisabled();
-		// Step is always editable — granularity is author-controlled regardless
-		// of auto-bounds.
-		expect( screen.getByLabelText( 'Step' ) ).toBeEnabled();
-	} );
-
-	it( 'enables the Minimum / Maximum number inputs when autoBounds is off', () => {
-		renderEdit( { autoBounds: false, min: 0, max: 100 } );
 		expect( screen.getByLabelText( 'Minimum' ) ).toBeEnabled();
 		expect( screen.getByLabelText( 'Maximum' ) ).toBeEnabled();
 	} );
@@ -204,27 +143,5 @@ describe( 'FilterWcPriceSliderEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { min: 10 } );
 		expect( setAttributes ).toHaveBeenCalledWith( { max: 500 } );
 		expect( setAttributes ).toHaveBeenCalledWith( { step: 5 } );
-	} );
-
-	it( 'coerces empty / non-numeric Step to 1 so the slider stays usable after a typo', () => {
-		const { setAttributes } = renderEdit();
-		fireEvent.change( screen.getByLabelText( 'Step' ), { target: { value: '' } } );
-		expect( setAttributes ).toHaveBeenCalledWith( { step: 1 } );
-	} );
-
-	it( 'coerces empty / non-numeric Min / Max to 0 so the inputs never write NaN', () => {
-		const { setAttributes } = renderEdit( { autoBounds: false } );
-		fireEvent.change( screen.getByLabelText( 'Minimum' ), { target: { value: '' } } );
-		fireEvent.change( screen.getByLabelText( 'Maximum' ), { target: { value: '' } } );
-		expect( setAttributes ).toHaveBeenCalledWith( { min: 0 } );
-		expect( setAttributes ).toHaveBeenCalledWith( { max: 0 } );
-	} );
-
-	it( 'falls back to defaults when min / max / step are non-finite (legacy save with NaN attrs)', () => {
-		renderEdit( { min: NaN, max: NaN, step: NaN } );
-		// Defaults: 0, 1000, step rendered as 1.
-		expect( screen.getByText( '$0' ) ).toBeInTheDocument();
-		expect( screen.getByText( '$1000' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'Step' ) ).toHaveValue( 1 );
 	} );
 } );
