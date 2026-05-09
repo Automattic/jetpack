@@ -6,13 +6,17 @@
  * land on `wordpress.com/checkout/{siteSuffix}/jetpack_ai_yearly` with a
  * return URL back to this admin page. The previous implementation hardcoded
  * `wordpress.com/plans/<host>`, which 403'd for non-.com sites (AIINT-404).
+ *
+ * Visual layout mirrors Activity Log's `UpsellCallout` (copy on the left,
+ * illustration on the right; column-reverse on mobile).
  */
 
-import { UpsellBanner } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
 import analytics from 'lib/analytics';
+import illustrationUrl from '../../../../images/products/product-jetpack-ai.svg';
 
 const PRODUCT_SLUG = 'jetpack_ai_yearly';
 const UPSELL_SOURCE = 'jetpack-ai-mcp-upsell';
@@ -23,7 +27,7 @@ const UPSELL_SOURCE = 'jetpack-ai-mcp-upsell';
  * @return {object} Component markup.
  */
 export default function McpUpsell() {
-	const { run } = useProductCheckoutWorkflow( {
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: PRODUCT_SLUG,
 		redirectUrl: typeof window !== 'undefined' ? window.location.href : '',
 		from: UPSELL_SOURCE,
@@ -39,30 +43,43 @@ export default function McpUpsell() {
 		} );
 	}, [] );
 
-	const onClickUpgrade = useCallback(
-		event => {
-			analytics.tracks.recordEvent( 'jetpack_mcp_upsell_cta_click', {
-				product_slug: PRODUCT_SLUG,
-			} );
-			run( event );
-		},
-		[ run ]
-	);
+	const onClickUpgrade = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_mcp_upsell_cta_click', {
+			product_slug: PRODUCT_SLUG,
+		} );
+		run();
+	}, [ run ] );
 
 	return (
-		<UpsellBanner
-			title={ __( 'Your dream site is just a prompt away', 'jetpack' ) }
-			description={ __(
-				'Get AI-powered assistance to help you build, edit, and redesign your site with ease. Upgrade your plan to give external AI agents access to your site.',
-				'jetpack'
-			) }
-			primaryCtaLabel={ __( 'Upgrade plan', 'jetpack' ) }
-			// `run` calls `event.preventDefault()` then navigates to the
-			// checkout URL itself, so the `#` href is only ever a no-op
-			// fallback. UpsellBanner requires `primaryCtaURL` to render the
-			// button, hence the placeholder.
-			primaryCtaURL="#"
-			primaryCtaOnClick={ onClickUpgrade }
-		/>
+		<div className="jetpack-ai-mcp__upsell-callout">
+			<div className="jetpack-ai-mcp__upsell-callout-content">
+				<h2 className="jetpack-ai-mcp__upsell-callout-title">
+					{ __( 'Your dream site is just a prompt away', 'jetpack' ) }
+				</h2>
+				<p className="jetpack-ai-mcp__upsell-callout-description">
+					{ __(
+						'Get AI-powered assistance to help you build, edit, and redesign your site with ease.',
+						'jetpack'
+					) }
+				</p>
+				<p className="jetpack-ai-mcp__upsell-callout-description">
+					{ __( 'Upgrade your plan to give external AI agents access to your site.', 'jetpack' ) }
+				</p>
+				<Button
+					variant="primary"
+					onClick={ onClickUpgrade }
+					isBusy={ hasCheckoutStarted }
+					disabled={ hasCheckoutStarted }
+				>
+					{ __( 'Upgrade plan', 'jetpack' ) }
+				</Button>
+			</div>
+			<img
+				className="jetpack-ai-mcp__upsell-callout-image"
+				src={ illustrationUrl }
+				alt=""
+				role="presentation"
+			/>
+		</div>
 	);
 }
