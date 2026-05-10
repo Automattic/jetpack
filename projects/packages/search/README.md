@@ -8,6 +8,10 @@ This package currently supports three modes:
 - Inline Search – Uses the 1.3 API. Like Classic Search, it integrates via standard hooks to replace the backend logic without altering the theme’s front-end output.
 - Instant Search – Uses the 1.3 API and provides a dynamic, standalone UI with search-as-you-type functionality.
 
+## Block editor integration
+
+Jetpack Search ships a set of WordPress blocks for the block editor. See the [Search Blocks documentation](./src/search-blocks/blocks/README.md) for a full list of blocks, their attributes, InnerBlocks relationships, and example markup.
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.

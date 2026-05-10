@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add per-block README.md documentation for all 14 non-WooCommerce Jetpack Search blocks and a blocks index in src/search-blocks/blocks/README.md.
