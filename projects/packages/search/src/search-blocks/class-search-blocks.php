@@ -1118,6 +1118,27 @@ class Search_Blocks {
 	}
 
 	/**
+	 * Normalize the `displayStyle` attribute shared by the bucket-driven
+	 * filter blocks (`filter-checkbox`, `filter-date`, `filter-wc-attribute`)
+	 * so render wrappers always emit one of the two supported CSS variants.
+	 * Per-block classes delegate here so every adopting block applies the
+	 * same fallback rule.
+	 *
+	 * `filter-wc-stock-status` (single option) and `filter-wc-rating` (star
+	 * rows + "& up" suffix + count badge) deliberately don't ship a chip
+	 * variant — see the PR thread for the discussion — so they don't call
+	 * this helper today. Adding them later is a one-attribute change in
+	 * their respective `block.json` / `render.php` / `edit.js`; the helper
+	 * doesn't need updating.
+	 *
+	 * @param mixed $value Raw attribute value (string, null, or unexpected type).
+	 * @return string Either 'checkbox-list' or 'chips'.
+	 */
+	public static function normalize_display_style( $value ): string {
+		return 'chips' === $value ? 'chips' : 'checkbox-list';
+	}
+
+	/**
 	 * Seed translated view-bundle strings for the Interactivity API store.
 	 *
 	 * @return array<string, string>

@@ -1060,6 +1060,24 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The shared display-style normalizer powers the bucket-driven filter
+	 * blocks that opt into chips today (filter-checkbox, filter-date,
+	 * filter-wc-attribute). Per-block delegations are exercised in their
+	 * own tests; this case pins the source-of-truth contract so a `'chips'`
+	 * literal never gains a third synonym (`'chip'`, `'CHIPS'`, …) without
+	 * an explicit test update.
+	 */
+	public function test_normalize_display_style_pins_enum() {
+		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( null ) );
+		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( '' ) );
+		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( 'checkbox-list' ) );
+		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( 'bogus' ) );
+		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( 'CHIPS' ) );
+		$this->assertSame( 'checkbox-list', Search_Blocks::normalize_display_style( 0 ) );
+		$this->assertSame( 'chips', Search_Blocks::normalize_display_style( 'chips' ) );
+	}
+
+	/**
 	 * Invoke a protected static on Search_Blocks from test code. Reflection
 	 * is the cheapest way to cover this logic without leaking visibility
 	 * just for testability.

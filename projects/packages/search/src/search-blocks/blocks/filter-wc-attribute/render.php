@@ -72,9 +72,20 @@ if ( $view['has_buckets'] ) {
 		}
 	}
 }
+
+$display_style = Search_Blocks::normalize_display_style( $attributes['displayStyle'] ?? null );
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-wc-attribute' ) ) ); ?>
+	<?php
+	echo wp_kses_data(
+		get_block_wrapper_attributes(
+			array(
+				'class'              => 'jetpack-search-filter-wc-attribute',
+				'data-display-style' => $display_style,
+			)
+		)
+	);
+	?>
 	data-wp-interactive="jetpack-search"
 	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
 	data-wp-bind--hidden="context.wrapperHidden"

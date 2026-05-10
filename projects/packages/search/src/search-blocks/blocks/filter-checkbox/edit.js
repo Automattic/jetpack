@@ -31,6 +31,12 @@ import {
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { normalizeDisplayStyle } from '../display-style.js';
+
+// Re-export the shared helper under the same name this module has always
+// exposed so existing imports (notably the edit-side unit tests) keep
+// resolving without churn.
+export { normalizeDisplayStyle };
 
 const SAMPLE_FILTER_ITEMS = [
 	{ value: 'one', label: __( 'First option', 'jetpack-search-pkg' ), count: 24 },
@@ -234,17 +240,6 @@ export function variationDefaultLabel( attributes ) {
 		}
 	}
 	return '';
-}
-
-/**
- * Coerce saved displayStyle values to the supported enum so inspector UI and
- * editor preview always render from a valid CSS variant.
- *
- * @param {string} value - Raw display style attribute.
- * @return {string} Either `checkbox-list` or `chips`.
- */
-export function normalizeDisplayStyle( value ) {
-	return value === 'chips' ? 'chips' : 'checkbox-list';
 }
 
 /**

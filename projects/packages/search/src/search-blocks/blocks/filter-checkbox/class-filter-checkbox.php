@@ -168,12 +168,20 @@ class Filter_Checkbox {
 
 	/**
 	 * Normalize display style attribute so render wrappers always emit one of
-	 * the supported CSS variants.
+	 * the supported CSS variants. Thin pass-through to the shared
+	 * `Search_Blocks::normalize_display_style()` so the four sibling filter
+	 * blocks (`filter-date`, `filter-wc-attribute`, `filter-wc-rating`,
+	 * `filter-wc-stock-status`) and this one all share one implementation.
+	 *
+	 * Kept as a delegating wrapper rather than dropped so older
+	 * `Filter_Checkbox::normalize_display_style()` callers (and the existing
+	 * unit test that pins the contract) keep working — the API surface is
+	 * identical to before, just sourced from the shared helper.
 	 *
 	 * @param mixed $value Raw attribute value.
 	 * @return string Either 'checkbox-list' or 'chips'.
 	 */
 	public static function normalize_display_style( $value ): string {
-		return 'chips' === $value ? 'chips' : 'checkbox-list';
+		return Search_Blocks::normalize_display_style( $value );
 	}
 }
