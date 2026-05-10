@@ -1,5 +1,7 @@
 import { LineChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 import { SelectControl } from '@wordpress/components';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
 import type { ChartCompare, Granularity, StatsSeriesPoint } from '../../types/stats';
@@ -88,7 +90,12 @@ export default function ViewsTrendsCard( {
 	onChangeCompare,
 	onChangeGranularity,
 }: Props ): ReactElement {
-	const chartData = buildSeriesData( series, compare );
+	// Memoize data so the chart doesn't see new array/object identities on
+	// every parent render — that re-triggers the chart's internal hooks
+	// (legend registration, scale computation, …), which feeds back as
+	// further parent renders and visibly grows the y-axis until the lines
+	// flatten to invisibility.
+	const chartData = useMemo( () => buildSeriesData( series, compare ), [ series, compare ] );
 
 	return (
 		<Card.Root>
@@ -117,7 +124,14 @@ export default function ViewsTrendsCard( {
 			</Card.Header>
 			<Card.Content>
 				<div className="vp-overview__chart-frame" style={ { height: CHART_HEIGHT } }>
-					{ ! isLoading && <LineChart data={ chartData } showLegend withGradientFill={ false } /> }
+					{ ! isLoading && (
+						<LineChart
+							data={ chartData }
+							showLegend
+							withGradientFill={ false }
+							height={ CHART_HEIGHT }
+						/>
+					) }
 				</div>
 			</Card.Content>
 		</Card.Root>
