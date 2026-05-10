@@ -78,53 +78,57 @@
 		width: 100%;
 	}
 
-	&__ranking-table {
-		width: 100%;
-		border-collapse: collapse;
+	// Ranking list shared by Most viewed and Top locations. Div-based so
+	// each row can host a percentage-width background bar (gradient
+	// stops at `--vp-row-bar`, defaulting to 100%) with rounded corners
+	// — neither <tr> backgrounds nor td radii give us both.
+	&__ranking {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
 
-		th {
-			text-align: left;
-			color: var(--jp-gray-50, #646970);
-			text-transform: uppercase;
-			letter-spacing: 0.04em;
-			font-size: 11px;
-			font-weight: 600;
-			padding: 8px 12px;
-		}
+	&__ranking-head {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		padding: 0 12px 4px;
+		color: #646970;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: 11px;
+		font-weight: 600;
+	}
 
-		td {
-			padding: 10px 12px;
-			background: #f0f4ff;
-		}
+	&__ranking-row {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		gap: 12px;
+		min-height: 32px;
+		line-height: 20px;
+		padding: 6px 12px;
+		border-radius: 4px;
+		background: linear-gradient(to right, #f0f4ff 0, #f0f4ff var(--vp-row-bar, 100%), transparent var(--vp-row-bar, 100%), transparent 100%);
 
-		// Round the row's outer corners by targeting the first/last td.
-		// Border-radius on a tr doesn't apply (tr has no box) and
-		// border-collapse: collapse + border-radius on td creates the
-		// pill-shaped row look from the Figma.
-		.vp-overview__ranking-row td:first-child {
-			border-top-left-radius: 4px;
-			border-bottom-left-radius: 4px;
-		}
-
-		.vp-overview__ranking-row td:last-child {
-			border-top-right-radius: 4px;
-			border-bottom-right-radius: 4px;
-		}
-
-		.vp-overview__ranking-views {
-			text-align: right;
-			font-variant-numeric: tabular-nums;
-		}
-
-		.vp-overview__ranking-row:hover td {
-			background: #e0e7ff;
+		&:hover {
+			background: linear-gradient(to right, #e0e7ff 0, #e0e7ff var(--vp-row-bar, 100%), transparent var(--vp-row-bar, 100%), transparent 100%);
 		}
 	}
 
+	&__ranking-views {
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+
+	// Pinned to text size + line-height: 1 + vertical-align so the flag
+	// glyph doesn't push the row's line box taller than Most viewed's
+	// text-only rows.
 	&__flag {
 		margin-right: 8px;
-		font-size: 18px;
+		font-size: 16px;
 		line-height: 1;
+		display: inline-block;
+		vertical-align: middle;
 	}
 
 	&__ranking-footer {
