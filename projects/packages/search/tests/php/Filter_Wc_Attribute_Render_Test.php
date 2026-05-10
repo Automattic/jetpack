@@ -66,7 +66,7 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 	 * Unregister the block so other test classes start from a clean slate.
 	 */
 	public static function tearDownAfterClass(): void {
-		if ( function_exists( 'unregister_block_type' ) ) {
+		if ( function_exists( 'unregister_block_type' ) && \WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack-search/filter-wc-attribute' ) ) {
 			\unregister_block_type( 'jetpack-search/filter-wc-attribute' );
 		}
 		parent::tearDownAfterClass();
@@ -134,8 +134,10 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'jetpack-search-filter__list--skeleton', $markup );
 		$this->assertStringNotContainsString( 'jetpack-search-filter__item--skeleton', $markup );
-		// Wrapper must be hidden when there are no buckets and no initial load.
-		$this->assertStringContainsString( 'hidden', $markup );
+		// Wrapper must carry a bare `hidden` attribute when there are no buckets and no initial load.
+		// `data-wp-bind--hidden` is always present, so a substring check would pass even if the
+		// static attribute were dropped — match the wrapper element directly instead.
+		$this->assertSame( 1, preg_match( '/<div[^>]*\bhidden\b[^>]*>/', $markup ) );
 	}
 
 	/**
@@ -150,8 +152,10 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 
 		$this->assertStringContainsString( 'jetpack-search-filter__list--skeleton', $markup );
 		$this->assertStringContainsString( 'jetpack-search-filter__item--skeleton', $markup );
-		// Wrapper must be visible (not hidden) while the skeleton is up.
-		$this->assertStringNotContainsString( ' hidden', $markup );
+		// Wrapper must be visible (no bare `hidden` attribute) while the skeleton is up.
+		// The template emits `hidden` preceded by a tab, so a ` hidden` substring check would
+		// trivially pass — match the wrapper element directly instead.
+		$this->assertSame( 0, preg_match( '/<div[^>]*\bhidden\b[^>]*>/', $markup ) );
 	}
 
 	/**
