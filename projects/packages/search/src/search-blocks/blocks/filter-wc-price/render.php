@@ -37,34 +37,9 @@ if ( '' === $label ) {
 	$label = __( 'Price', 'jetpack-search-pkg' );
 }
 
-// Empty author values fall through to the active WooCommerce settings so a
-// site running AUD gets `A$` adornments out-of-the-box. WC bridges via the
-// public-facing helper / option, both safe to call when WC isn't loaded
-// (the function_exists guard handles that). The `$` / `left` fallbacks
-// keep the block usable on a plain WP install while the author wires WC up.
-if ( '' === $symbol && function_exists( 'get_woocommerce_currency_symbol' ) ) {
-	// @phan-suppress-next-line PhanUndeclaredFunction
-	$wc_symbol = (string) get_woocommerce_currency_symbol();
-	// WC returns symbols as HTML entities (e.g. `&#36;`, `&euro;`). Decode
-	// once so the downstream `mb_substr` operates on a single character
-	// instead of half an entity, and so `esc_html` at output produces a
-	// single round-trip — not double-encoded text.
-	$symbol = html_entity_decode( $wc_symbol, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-}
-if ( '' === $symbol ) {
-	$symbol = '$';
-}
-if ( '' === $position ) {
-	$wc_pos   = (string) get_option( 'woocommerce_currency_pos', 'left' );
-	$position = ( 'right' === $wc_pos || 'right_space' === $wc_pos ) ? 'right' : 'left';
-}
-if ( ! in_array( $position, array( 'left', 'right' ), true ) ) {
-	$position = 'left';
-}
-
-// Trim to two characters so an oversized symbol can't overflow the
-// adornment slot in the input.
-$symbol_short = function_exists( 'mb_substr' ) ? mb_substr( $symbol, 0, 2 ) : substr( $symbol, 0, 2 );
+$currency     = Wc_Block_Helpers::get_currency_display( $symbol, $position );
+$symbol_short = $currency['symbol'];
+$position     = $currency['position'];
 
 $seeded_state = wp_interactivity_state( 'jetpack-search' );
 $seeded_price = $seeded_state['priceRange'] ?? null;

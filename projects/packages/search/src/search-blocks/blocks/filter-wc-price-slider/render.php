@@ -38,44 +38,12 @@ $max_attr    = isset( $attrs['max'] ) ? max( 0.0, (float) $attrs['max'] ) : 1000
 $step        = isset( $attrs['step'] ) && (float) $attrs['step'] > 0 ? (float) $attrs['step'] : 1.0;
 $auto_bounds = ! isset( $attrs['autoBounds'] ) || (bool) $attrs['autoBounds'];
 
-// Auto-bound to the catalog's `_price` extents when WC is loaded. Bounds are
-// stable for the page (mirrors WC's slider — applying other filters narrows
-// products without shrinking the track, so the user can always drag back out).
-// 5-min transient absorbs the SQL cost across page loads.
-if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
-	$cached_range = function_exists( 'get_transient' ) ? get_transient( 'jetpack_search_wc_price_extents' ) : false;
-	if ( false === $cached_range ) {
-		global $wpdb;
-		$cached_range = array(
-			'min' => null,
-			'max' => null,
-		);
-		if ( isset( $wpdb ) && ! empty( $wpdb->wc_product_meta_lookup ) ) {
-			// `wc_product_meta_lookup` is WC's denormalized one-row-per-product
-			// table with indexed DECIMAL `min_price` / `max_price` columns. It
-			// is the same source WC's own price-slider, classic widget, and
-			// Store API hit — and scales linearly with product count, unlike a
-			// REGEXP scan of `postmeta`. The phpcs caching warning fires because
-			// the call site doesn't use wp_cache_*; the transient covers that.
-			$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				"SELECT MIN(min_price) AS min_price, MAX(max_price) AS max_price
-				FROM {$wpdb->wc_product_meta_lookup}"
-			);
-			if ( $row && null !== $row->min_price && null !== $row->max_price ) {
-				$cached_range = array(
-					'min' => (float) $row->min_price,
-					'max' => (float) $row->max_price,
-				);
-			}
-		}
-		if ( function_exists( 'set_transient' ) ) {
-			set_transient( 'jetpack_search_wc_price_extents', $cached_range, 5 * MINUTE_IN_SECONDS );
-		}
-	}
-	if ( is_array( $cached_range ) && null !== ( $cached_range['min'] ?? null ) && null !== ( $cached_range['max'] ?? null ) ) {
+if ( $auto_bounds ) {
+	$extents = Wc_Block_Helpers::get_catalog_price_extents();
+	if ( null !== $extents['min'] && null !== $extents['max'] ) {
 		// Floor / ceil to whole numbers so labels read cleanly.
-		$min_attr = floor( (float) $cached_range['min'] );
-		$max_attr = ceil( (float) $cached_range['max'] );
+		$min_attr = floor( $extents['min'] );
+		$max_attr = ceil( $extents['max'] );
 	}
 }
 
@@ -83,27 +51,9 @@ if ( '' === $label ) {
 	$label = __( 'Price', 'jetpack-search-pkg' );
 }
 
-// Empty author values fall through to the active WC settings.
-if ( '' === $symbol && function_exists( 'get_woocommerce_currency_symbol' ) ) {
-	// @phan-suppress-next-line PhanUndeclaredFunction
-	$wc_symbol = (string) get_woocommerce_currency_symbol();
-	// WC returns symbols as HTML entities (`&#36;`, `&euro;`); decode once so
-	// `mb_substr` operates on a single character.
-	$symbol = html_entity_decode( $wc_symbol, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-}
-if ( '' === $symbol ) {
-	$symbol = '$';
-}
-if ( '' === $position ) {
-	$wc_pos   = (string) get_option( 'woocommerce_currency_pos', 'left' );
-	$position = ( 'right' === $wc_pos || 'right_space' === $wc_pos ) ? 'right' : 'left';
-}
-if ( ! in_array( $position, array( 'left', 'right' ), true ) ) {
-	$position = 'left';
-}
-
-// Trim oversized symbols so the value adornment can't overflow.
-$symbol_short = function_exists( 'mb_substr' ) ? mb_substr( $symbol, 0, 2 ) : substr( $symbol, 0, 2 );
+$currency     = Wc_Block_Helpers::get_currency_display( $symbol, $position );
+$symbol_short = $currency['symbol'];
+$position     = $currency['position'];
 
 // Coerce inverted bounds (min > max) so the slider stays renderable.
 if ( $min_attr > $max_attr ) {
