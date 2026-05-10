@@ -31,75 +31,123 @@ If you only need to **silently restrict** which post types are searchable (no vi
 
 ### Filter by Category
 
-| Editor preview | Settings panel | Front-end view |
-|---|---|---|
-| ![Filter by Category in the editor.](../.docs-assets/filter-by-category.png) | ![Filter by Category settings.](../.docs-assets/editor-filter-by-category-inspector.png) | ![Filter by Category on the front end.](../.docs-assets/fe-filter-by-category.png) |
-
 Lets visitors narrow results by the built-in WordPress **Category** taxonomy. Default heading: "Category". This is the most commonly added filter for blogs and content sites.
+
+**Editor preview:**
+
+![Filter by Category in the editor.](../.docs-assets/filter-by-category.png)
+
+**Settings panel:**
+
+![Filter by Category settings.](../.docs-assets/editor-filter-by-category-inspector.png)
+
+**Front-end view:**
+
+![Filter by Category on the front end.](../.docs-assets/fe-filter-by-category.png)
 
 ### Filter by Tag
 
-| Editor preview | Settings panel | Front-end view |
-|---|---|---|
-| ![Filter by Tag in the editor.](../.docs-assets/filter-by-tag.png) | ![Filter by Tag settings.](../.docs-assets/editor-filter-by-tag-inspector.png) | ![Filter by Tag on the front end.](../.docs-assets/fe-filter-by-tag.png) |
-
 Lets visitors narrow results by the built-in WordPress **Tag** taxonomy. Default heading: "Tag". Pair with Category for the classic two-axis content filter.
+
+**Editor preview:**
+
+![Filter by Tag in the editor.](../.docs-assets/filter-by-tag.png)
+
+**Settings panel:**
+
+![Filter by Tag settings.](../.docs-assets/editor-filter-by-tag-inspector.png)
+
+**Front-end view:**
+
+![Filter by Tag on the front end.](../.docs-assets/fe-filter-by-tag.png)
 
 ### Filter by Post Type
 
-| Editor preview | Settings panel | Front-end view |
-|---|---|---|
-| ![Filter by Post Type in the editor.](../.docs-assets/filter-by-post-type.png) | ![Filter by Post Type settings.](../.docs-assets/editor-filter-by-post-type-inspector.png) | ![Filter by Post Type on the front end.](../.docs-assets/fe-filter-by-post-type.png) |
-
 Lets visitors choose which **content types** to include — for example, Posts, Pages, or custom post types like "Documentation" or "Product". Default heading: "Post Type". Use this when the same search page should return mixed content and visitors should pick what kinds of result they care about.
+
+**Editor preview:**
+
+![Filter by Post Type in the editor.](../.docs-assets/filter-by-post-type.png)
+
+**Settings panel:**
+
+![Filter by Post Type settings.](../.docs-assets/editor-filter-by-post-type-inspector.png)
+
+**Front-end view:**
+
+![Filter by Post Type on the front end.](../.docs-assets/fe-filter-by-post-type.png)
 
 ### Filter by Author
 
-| Editor preview | Settings panel | Front-end view |
-|---|---|---|
-| ![Filter by Author in the editor.](../.docs-assets/filter-by-author.png) | ![Filter by Author settings.](../.docs-assets/editor-filter-by-author-inspector.png) | ![Filter by Author on the front end.](../.docs-assets/fe-filter-by-author.png) |
-
 Lets visitors narrow results by **post author**. Default heading: "Author". Useful for multi-author blogs and editorial sites.
+
+**Editor preview:**
+
+![Filter by Author in the editor.](../.docs-assets/filter-by-author.png)
+
+**Settings panel:**
+
+![Filter by Author settings.](../.docs-assets/editor-filter-by-author-inspector.png)
+
+**Front-end view:**
+
+![Filter by Author on the front end.](../.docs-assets/fe-filter-by-author.png)
 
 ### Filter by Product Category
 
-| Editor preview | Settings panel |
-|---|---|
-| ![Filter by Product Category in the editor.](../.docs-assets/filter-by-product-category.png) | ![Filter by Product Category settings.](../.docs-assets/editor-filter-by-product-category-inspector.png) |
+Lets visitors narrow results by the WooCommerce **Product Category** (`product_cat`) taxonomy. Default heading: "Product Category". Only meaningful on sites that use WooCommerce.
+
+**Editor preview:**
+
+![Filter by Product Category in the editor.](../.docs-assets/filter-by-product-category.png)
+
+**Settings panel:**
+
+![Filter by Product Category settings.](../.docs-assets/editor-filter-by-product-category-inspector.png)
 
 > Front-end view requires WooCommerce + product-category data; not shown here.
 
-Lets visitors narrow results by the WooCommerce **Product Category** (`product_cat`) taxonomy. Default heading: "Product Category". Only meaningful on sites that use WooCommerce.
-
 ### Filter by Product Tag
-
-| Editor preview | Settings panel |
-|---|---|
-| ![Filter by Product Tag in the editor.](../.docs-assets/filter-by-product-tag.png) | ![Filter by Product Tag settings.](../.docs-assets/editor-filter-by-product-tag-inspector.png) |
-
-> Front-end view requires WooCommerce + product-tag data; not shown here.
 
 Lets visitors narrow results by the WooCommerce **Product Tag** (`product_tag`) taxonomy. Default heading: "Product Tag".
 
+**Editor preview:**
+
+![Filter by Product Tag in the editor.](../.docs-assets/filter-by-product-tag.png)
+
+**Settings panel:**
+
+![Filter by Product Tag settings.](../.docs-assets/editor-filter-by-product-tag-inspector.png)
+
+> Front-end view requires WooCommerce + product-tag data; not shown here.
+
 ### Filter by Product Brand
-
-| Editor preview | Settings panel |
-|---|---|
-| ![Filter by Product Brand in the editor.](../.docs-assets/filter-by-product-brand.png) | ![Filter by Product Brand settings.](../.docs-assets/editor-filter-by-product-brand-inspector.png) |
-
-> Front-end view requires the `product_brand` taxonomy + branded product data; not shown here.
 
 Lets visitors narrow results by the **Product Brand** (`product_brand`) taxonomy. Default heading: "Product Brand". This variation only appears in the inserter when a `product_brand` taxonomy is actually registered on the site (provided by WooCommerce Brands, Perfect Brands, or recent bundled WooCommerce versions). On sites without it, the option is hidden so authors don't accidentally drop in a filter that renders nothing.
 
+**Editor preview:**
+
+![Filter by Product Brand in the editor.](../.docs-assets/filter-by-product-brand.png)
+
+**Settings panel:**
+
+![Filter by Product Brand settings.](../.docs-assets/editor-filter-by-product-brand-inspector.png)
+
+> Front-end view requires the `product_brand` taxonomy + branded product data; not shown here.
+
 ### Filter by Custom Taxonomy
 
-| Editor preview (placeholder, before pick) | Settings panel (after pick) |
-|---|---|
-| ![Filter by Custom Taxonomy placeholder in the editor — prompts the author to pick a taxonomy.](../.docs-assets/filter-by-custom-taxonomy.png) | ![Filter by Custom Taxonomy settings panel showing a Taxonomy picker with "Genre" selected.](../.docs-assets/editor-filter-by-custom-taxonomy-inspector.png) |
+A generic version that lets you target **any other registered taxonomy** — for example, "Genre", "Series", or a plugin-provided taxonomy. Default heading: empty (the inspector requires you to enter one).
+
+**Editor preview (placeholder, before a taxonomy is picked):**
+
+![Filter by Custom Taxonomy placeholder in the editor — prompts the author to pick a taxonomy.](../.docs-assets/filter-by-custom-taxonomy.png)
+
+**Settings panel (after pick — Genre selected):**
+
+![Filter by Custom Taxonomy settings panel showing a Taxonomy picker with "Genre" selected.](../.docs-assets/editor-filter-by-custom-taxonomy-inspector.png)
 
 > Once an author picks a taxonomy and types a label, the front-end view is identical to any built-in variation (a labelled checkbox list).
-
-A generic version that lets you target **any other registered taxonomy** — for example, "Genre", "Series", or a plugin-provided taxonomy. Default heading: empty (the inspector requires you to enter one).
 
 When you first insert this variation, the block shows a placeholder asking you to pick a taxonomy in the block settings. Until you do, **nothing is rendered on the front end**. After picking a taxonomy and (recommended) typing a heading, the filter behaves exactly like the built-in variations.
 
@@ -129,10 +177,10 @@ The maximum number of checkbox options to display. Defaults to 10. Lower this (e
 
 ### Sort order
 
-| Option | Description |
-|--------|-------------|
-| **Most results first** (default) | Counts descending — surfaces the most popular options at the top |
-| **Alphabetical** | Options listed A–Z — predictable for visitors who know what they're looking for |
+| Option                           | Description                                                                     |
+|----------------------------------|---------------------------------------------------------------------------------|
+| **Most results first** (default) | Counts descending — surfaces the most popular options at the top                |
+| **Alphabetical**                 | Options listed A–Z — predictable for visitors who know what they're looking for |
 
 ## Tips
 
