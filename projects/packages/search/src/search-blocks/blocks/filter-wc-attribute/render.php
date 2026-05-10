@@ -50,11 +50,11 @@ $label = (string) $config['label'];
 // none yet).
 $all_selected_on_paint = false;
 if ( $view['has_buckets'] ) {
-	$seeded_state          = wp_interactivity_state( 'jetpack-search' );
-	$seeded_aggs           = (array) ( $seeded_state['aggregations'] ?? array() );
-	$seeded_filter_agg     = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
-	$seeded_buckets        = (array) ( $seeded_filter_agg['buckets'] ?? array() );
-	$seeded_selected       = (array) ( ( (array) ( $seeded_state['activeFilters'] ?? array() ) )[ $filter_key ] ?? array() );
+	$seeded_state      = wp_interactivity_state( 'jetpack-search' );
+	$seeded_aggs       = (array) ( $seeded_state['aggregations'] ?? array() );
+	$seeded_filter_agg = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
+	$seeded_buckets    = (array) ( $seeded_filter_agg['buckets'] ?? array() );
+	$seeded_selected   = (array) ( ( (array) ( $seeded_state['activeFilters'] ?? array() ) )[ $filter_key ] ?? array() );
 	if ( ! empty( $seeded_selected ) ) {
 		$all_selected_on_paint = true;
 		foreach ( $seeded_buckets as $bucket ) {
