@@ -2,7 +2,7 @@
 
 The Search Input block adds the search box to your page. Visitors type their query here and results update automatically as they type.
 
-<!-- screenshot placeholder -->
+![Search Input block in the editor.](../.docs-assets/search-input.png)
 
 ## When to use this block
 
@@ -19,9 +19,10 @@ The text displayed inside the empty search box before a visitor types anything. 
 Toggle the magnifying-glass icon inside the input on or off. Enabled by default. Turn it off if the design of your page already makes the input's purpose clear.
 
 ### Search on submit only
-By default results update as the visitor types (live search). Enable **Search on submit only** to only trigger a search when the visitor presses Enter or clicks a submit button. Useful when your page layout is not designed for rapid updates, or when you want to reduce the number of search requests.
+By default results update as the visitor types (live search). Enable **Search on submit only** to only trigger a search when the visitor presses Enter or clicks a submit button. Useful when your page layout is not designed for rapid updates, when you want to reduce the number of search requests, or for accessibility scenarios where rapid live updates can be disorienting for assistive-tech users.
 
 ## Tips
 
 - The block automatically picks up a search query from the URL (e.g. `?s=wordpress`) when the page loads, so visitors arriving from a search engine or a link will see the correct query pre-filled.
 - You can style the input using the block's color, spacing, typography, and border settings in the editor sidebar.
+- Only one Search Input is needed per page — additional inputs all drive the same shared query state, which can confuse visitors.

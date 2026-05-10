@@ -2,7 +2,7 @@
 
 The Powered by Jetpack block displays a small "Powered by Jetpack" attribution link at the bottom of your search results area.
 
-<!-- screenshot placeholder -->
+![Powered by Jetpack attribution in the editor.](../.docs-assets/powered-by.png)
 
 ## When to use this block
 

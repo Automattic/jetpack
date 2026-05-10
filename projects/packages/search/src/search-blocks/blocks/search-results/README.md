@@ -2,7 +2,7 @@
 
 The Search Results block is the main results container. When you insert it, it automatically comes pre-built with everything you need to display results: a result count, sort control, the results list, a "load more" button, and an attribution link.
 
-<!-- screenshot placeholder -->
+![Default Search Results block in the editor — count + sort row, results list, load more, attribution.](../.docs-assets/search-results-default.png)
 
 ## When to use this block
 

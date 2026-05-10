@@ -1,8 +1,8 @@
 # Filters
 
-The Filters block is a vertical container that holds filter blocks in a sidebar-style layout. Visitors use the filters inside to narrow search results by category, tag, date, author, post type, or any custom taxonomy.
+The Filters block is a vertical container that holds individual filter blocks in a sidebar-style layout. Visitors use the filters inside to narrow search results — by category, tag, date, author, post type, or any custom taxonomy.
 
-<!-- screenshot placeholder -->
+![Default Filters block in the editor — Active Filters, Clear, Category, Tag, Author, Post Type, Date, Post Type Scope.](../.docs-assets/filters-default.png)
 
 ## When to use this block
 
@@ -12,30 +12,30 @@ If you need a more compact option — for example, a search bar in a page header
 
 ## What's included by default
 
-When you first add this block it contains:
+When you first add this block it contains the following inner blocks (each can be removed, rearranged, or duplicated):
 
-- **Active Filters** — shows the currently applied filters as dismissible pills
-- **Clear Filters** — a button to remove all active filters at once
-- **Category** filter — checkbox list for post categories
-- **Tag** filter — checkbox list for post tags
-- **Author** filter — checkbox list for post authors
-- **Post Type** filter — checkbox list for post types
-- **Date** filter — list of years to filter by
-- **Post Type Scope** — a silent constraint block (hidden from visitors)
+| Default inner block | What it is |
+|---------------------|------------|
+| [Active Filters](../active-filters/README.md) | Pills showing currently applied filters; clicking one removes it. |
+| [Clear Filters](../clear-filters/README.md) | Button that removes all active filters at once. |
+| [Filter by Category](../filter-checkbox/README.md#filter-by-category) | Checkbox list for the WordPress Category taxonomy. |
+| [Filter by Tag](../filter-checkbox/README.md#filter-by-tag) | Checkbox list for the WordPress Tag taxonomy. |
+| [Filter by Author](../filter-checkbox/README.md#filter-by-author) | Checkbox list of post authors. |
+| [Filter by Post Type](../filter-checkbox/README.md#filter-by-post-type) | Checkbox list of content types. |
+| [Filter by Date](../filter-date/README.md) | Year-based date buckets (configurable to month). |
+| [Post Type Scope](../filter-post-type/README.md) | Silent constraint — limits which post types are searchable; renders nothing for visitors. |
 
-You can remove any of these, rearrange them, or add more filter blocks from the block inserter.
+## Adding more filters
 
-## Adding and removing filters
+Click the **+** icon at the bottom of the Filters block to insert any of these:
 
-To add a new filter, click the **+** icon at the bottom of the Filters block and choose from:
+- Any [Checkbox Filter](../filter-checkbox/README.md) variation — Category, Tag, Post Type, Author, Product Category, Product Tag, Product Brand, or Custom Taxonomy. Each appears as its own card in the inserter.
+- [Filter by Date](../filter-date/README.md)
+- [Active Filters](../active-filters/README.md)
+- [Clear Filters](../clear-filters/README.md)
+- [Post Type Scope](../filter-post-type/README.md)
 
-- **Checkbox Filter** — for categories, tags, authors, post types, or custom taxonomies
-- **Filter by Date** — for yearly or monthly date ranges
-- **Active Filters** — to show currently selected filters
-- **Clear Filters** — to add a reset button
-- **Post Type Scope** — to silently restrict which post types appear
-
-To remove a filter, select it and press Delete or use the block options menu.
+To remove a filter, select it and press Delete or use the block options menu. You can add multiple Checkbox Filter variations — for example, Category + Tag + Author all in the same panel.
 
 ## Styling
 
@@ -44,5 +44,5 @@ Use the standard block styling controls in the editor sidebar (color, spacing, b
 ## Tips
 
 - Place the Filters block in a sidebar column next to the **Search Results** block for the classic two-column search layout.
-- Put **Active Filters** and **Clear Filters** at the top of the block so visitors can easily see and remove what they've applied.
-- Add multiple **Checkbox Filter** blocks to let visitors filter by different dimensions at the same time.
+- Put **Active Filters** and **Clear Filters** at the top so visitors can see and remove what they've applied without scrolling past the controls.
+- Don't pile in every Checkbox Filter variation just because you can — pick the two or three dimensions visitors actually need. A long filter panel hurts mobile UX more than it helps discovery.

@@ -2,7 +2,7 @@
 
 The Post Type Scope block is an invisible editorial control that limits which types of content Jetpack Search returns. It has no visible output for site visitors — it works silently behind the scenes.
 
-<!-- screenshot placeholder -->
+![Post Type Scope block in the editor — visible to the author, hidden on the front end.](../.docs-assets/filter-post-type.png)
 
 ## When to use this block
 
@@ -18,12 +18,12 @@ Use this block when you want to restrict the search results to specific content 
 
 ### Mode
 
-Choose whether the post types list works as an allowlist or a denylist:
+Choose whether the post types list works as a denylist or an allowlist:
 
 | Mode | Description |
 |------|-------------|
+| **Exclude** (default) | The selected post types are removed from results. Everything else is included. |
 | **Include** | Only the selected post types will appear in results. Everything else is excluded. |
-| **Exclude** | The selected post types are removed from results. Everything else is included. |
 
 ### Post types
 
@@ -35,7 +35,7 @@ Select the post type slugs to include or exclude. Common post types:
 | `page` | Pages |
 | `attachment` | Media uploads |
 
-Custom post types registered by themes or plugins will also appear here.
+Custom post types registered by themes or plugins also appear here. The block remembers a separate selection for each mode, so flipping between Include and Exclude doesn't lose your typed list.
 
 ## Examples
 
@@ -43,10 +43,11 @@ Custom post types registered by themes or plugins will also appear here.
 Add this block, set mode to **Include**, and select `post` and `page`.
 
 **Hide media attachments from results:**
-Add this block, set mode to **Exclude**, and select `attachment`.
+Add this block (default mode is Exclude), and select `attachment`.
 
 ## Tips
 
 - If the block is added but no post types are selected, it has no effect.
 - You can add multiple Post Type Scope blocks — their constraints are combined automatically.
 - This is the right choice when the content type restriction is an editorial decision, not something visitors should control.
+- Post types whose own registration sets `exclude_from_search => false` are filtered out server-side regardless of this block, so adding `attachment` to an **Include** list won't expose attachments unless the post type itself is searchable.

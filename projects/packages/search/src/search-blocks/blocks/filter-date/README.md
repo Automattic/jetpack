@@ -2,7 +2,7 @@
 
 The Filter by Date block lets visitors narrow search results to a specific year or month. It shows a list of date periods with the number of matching results for each.
 
-<!-- screenshot placeholder -->
+![Filter by Date block in the editor, showing a year-based bucket list.](../.docs-assets/filter-date.png)
 
 ## When to use this block
 

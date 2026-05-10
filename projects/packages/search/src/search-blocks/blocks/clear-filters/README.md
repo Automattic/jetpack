@@ -2,7 +2,7 @@
 
 The Clear Filters block adds a button that removes all active filters at once, returning search results to their unfiltered state.
 
-<!-- screenshot placeholder -->
+![Clear Filters button in the editor.](../.docs-assets/clear-filters.png)
 
 ## When to use this block
 

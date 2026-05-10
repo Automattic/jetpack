@@ -2,7 +2,7 @@
 
 The Active Filters block shows visitors which filters they have currently applied, displayed as dismissible pills. Clicking a pill removes that specific filter.
 
-<!-- screenshot placeholder -->
+![Active Filters block in the editor.](../.docs-assets/active-filters.png)
 
 ## When to use this block
 

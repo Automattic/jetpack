@@ -2,7 +2,7 @@
 
 The Load More block adds a button that appends the next page of results to the list when clicked — without reloading the page.
 
-<!-- screenshot placeholder -->
+![Load More button in the editor.](../.docs-assets/results-load-more.png)
 
 ## When to use this block
 

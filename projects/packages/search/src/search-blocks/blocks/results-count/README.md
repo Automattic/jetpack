@@ -2,7 +2,7 @@
 
 The Results Count block shows visitors how many results were found for their search — for example, "1,234 results for 'wordpress'".
 
-<!-- screenshot placeholder -->
+![Results Count placeholder in the editor.](../.docs-assets/results-count.png)
 
 ## When to use this block
 

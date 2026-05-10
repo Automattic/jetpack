@@ -2,7 +2,7 @@
 
 The Sort By block lets visitors change the order in which search results are displayed. You choose which sort options to offer and which one is selected by default.
 
-<!-- screenshot placeholder -->
+![Sort By block in the editor.](../.docs-assets/results-sort.png)
 
 ## When to use this block
 
