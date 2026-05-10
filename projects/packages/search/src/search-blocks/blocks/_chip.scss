@@ -14,7 +14,7 @@
 			display: inline-flex;
 			align-items: center;
 			gap: 0.35rem;
-			border: 1px solid color-mix(in sRGB, currentColor 24%, transparent);
+			border: 1px solid currentColor;
 			border-radius: 9999px;
 			padding: 0.35rem 0.7rem;
 			transition:
@@ -22,9 +22,18 @@
 				border-color 0.2s ease,
 				box-shadow 0.2s ease;
 
+			@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+				border-color: color-mix(in sRGB, currentColor 24%, transparent);
+			}
+
 			&:hover {
-				background: color-mix(in sRGB, currentColor 8%, transparent);
-				border-color: color-mix(in sRGB, currentColor 32%, transparent);
+				background: transparent;
+				border-color: currentColor;
+
+				@supports (background: color-mix(in sRGB, black 50%, white)) {
+					background: color-mix(in sRGB, currentColor 8%, transparent);
+					border-color: color-mix(in sRGB, currentColor 32%, transparent);
+				}
 			}
 
 			&:focus-within {
@@ -32,17 +41,26 @@
 			}
 
 			&:has(input:checked) {
-				background: color-mix(in sRGB, currentColor 14%, transparent);
-				border-color: color-mix(in sRGB, currentColor 38%, transparent);
+				background: transparent;
+				border-color: currentColor;
+
+				@supports (background: color-mix(in sRGB, black 50%, white)) {
+					background: color-mix(in sRGB, currentColor 14%, transparent);
+					border-color: color-mix(in sRGB, currentColor 38%, transparent);
+				}
 			}
 		}
 
 		input[type="checkbox"] {
 			position: absolute;
+			border: 0;
+			clip-path: inset(50%);
 			inline-size: 1px;
 			block-size: 1px;
-			opacity: 0;
-			pointer-events: none;
+			margin: -1px;
+			overflow: hidden;
+			padding: 0;
+			white-space: nowrap;
 		}
 	}
 

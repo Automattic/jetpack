@@ -374,7 +374,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							{ value: 'checkbox-list', label: __( 'Checkbox list', 'jetpack-search-pkg' ) },
 							{ value: 'chips', label: __( 'Chips', 'jetpack-search-pkg' ) },
 						] }
-						onChange={ value => setAttributes( { displayStyle: normalizeDisplayStyle( value ) } ) }
+						onChange={ value => setAttributes( { displayStyle: value } ) }
 					/>
 					<RangeControl
 						__next40pxDefaultSize

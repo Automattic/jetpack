@@ -32,6 +32,10 @@ jest.mock( '@wordpress/block-editor', () => ( {
 let controlIdCounter = 0;
 const nextControlId = () => `mock-control-${ ++controlIdCounter }`;
 
+beforeEach( () => {
+	controlIdCounter = 0;
+} );
+
 jest.mock( '@wordpress/components', () => ( {
 	PanelBody: ( { children } ) => <div>{ children }</div>,
 	Placeholder: ( { children } ) => <div>{ children }</div>,
