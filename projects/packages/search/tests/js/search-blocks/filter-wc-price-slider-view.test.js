@@ -227,34 +227,33 @@ describe( 'filter-wc-price-slider view — change commits via setPriceRange', ()
 
 describe( 'filter-wc-price-slider view — updatePriceSliderUi callback', () => {
 	/**
-	 * Build the wrapper with the range track and value labels — closer to the
-	 * shape render.php produces, since the wrapper-level callback walks all
-	 * three pieces of UI together.
+	 * Build the wrapper close to the shape `render.php` produces: the range
+	 * track with its two thumbs at the top, then the `[min] – [max]` number-
+	 * input row below. The watcher reads `state.priceRange`, paints the
+	 * `--low` / `--high` gradient, syncs the range thumbs, and sets
+	 * `aria-valuetext`. The number inputs sync via `data-wp-bind--value` —
+	 * not via this callback — so we don't assert on their value here.
 	 *
-	 * @return {{wrapper: HTMLElement, range: HTMLElement, minLabel: HTMLElement, maxLabel: HTMLElement}} Mounted nodes.
+	 * @return {{wrapper: HTMLElement, range: HTMLElement, minInput: HTMLInputElement, maxInput: HTMLInputElement}} Mounted nodes.
 	 */
 	function mountFullSliderDom() {
 		document.body.innerHTML = '';
 		const wrapper = document.createElement( 'div' );
 		wrapper.className = 'jetpack-search-filter-wc-price-slider';
 		wrapper.innerHTML = `
-			<div class="jetpack-search-filter-wc-price-slider__left">
-				<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--min"></span>
-			</div>
 			<div class="jetpack-search-filter-wc-price-slider__range">
 				<input class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--min" type="range" min="0" max="100" step="1" value="0" />
 				<input class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--max" type="range" min="0" max="100" step="1" value="100" />
 			</div>
-			<div class="jetpack-search-filter-wc-price-slider__right">
-				<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--max"></span>
+			<div class="jetpack-search-filter-wc-price-slider__inputs">
+				<input class="jetpack-search-filter-wc-price-slider__number-input jetpack-search-filter-wc-price-slider__number-input--min" type="number" />
+				<input class="jetpack-search-filter-wc-price-slider__number-input jetpack-search-filter-wc-price-slider__number-input--max" type="number" />
 			</div>
 		`;
 		document.body.appendChild( wrapper );
 		return {
 			wrapper,
 			range: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__range' ),
-			minLabel: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__value--min' ),
-			maxLabel: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__value--max' ),
 			minInput: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__input--min' ),
 			maxInput: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__input--max' ),
 		};
@@ -266,8 +265,8 @@ describe( 'filter-wc-price-slider view — updatePriceSliderUi callback', () => 
 		captured.state.priceCurrencySymbolPosition = 'left';
 	} );
 
-	it( 'updates --low / --high and label text from state.priceRange + input min/max', () => {
-		const { wrapper, range, minLabel, maxLabel } = mountFullSliderDom();
+	it( 'updates --low / --high from state.priceRange against the slider track bounds', () => {
+		const { wrapper, range } = mountFullSliderDom();
 		elementRef.current = { ref: wrapper };
 
 		captured.state.priceRange = { min: 25, max: 80 };
@@ -275,12 +274,10 @@ describe( 'filter-wc-price-slider view — updatePriceSliderUi callback', () => 
 
 		expect( range.style.getPropertyValue( '--low' ) ).toBe( '25%' );
 		expect( range.style.getPropertyValue( '--high' ) ).toBe( '80%' );
-		expect( minLabel ).toHaveTextContent( '$25' );
-		expect( maxLabel ).toHaveTextContent( '$80' );
 	} );
 
 	it( 'falls back to input min/max when no priceRange is set', () => {
-		const { wrapper, range, minLabel, maxLabel, minInput, maxInput } = mountFullSliderDom();
+		const { wrapper, range, minInput, maxInput } = mountFullSliderDom();
 		minInput.setAttribute( 'max', '200' );
 		maxInput.setAttribute( 'max', '200' );
 		elementRef.current = { ref: wrapper };
@@ -290,11 +287,9 @@ describe( 'filter-wc-price-slider view — updatePriceSliderUi callback', () => 
 
 		expect( range.style.getPropertyValue( '--low' ) ).toBe( '0%' );
 		expect( range.style.getPropertyValue( '--high' ) ).toBe( '100%' );
-		expect( minLabel ).toHaveTextContent( '$0' );
-		expect( maxLabel ).toHaveTextContent( '$200' );
 	} );
 
-	it( 'sets aria-valuetext on the inputs to the currency-formatted label so screen readers match the visible value', () => {
+	it( 'sets aria-valuetext on the range thumbs to the currency-formatted label so screen readers announce "$25" instead of the raw numeric value', () => {
 		const { wrapper, minInput, maxInput } = mountFullSliderDom();
 		elementRef.current = { ref: wrapper };
 
@@ -303,5 +298,110 @@ describe( 'filter-wc-price-slider view — updatePriceSliderUi callback', () => 
 
 		expect( minInput ).toHaveAttribute( 'aria-valuetext', '$25' );
 		expect( maxInput ).toHaveAttribute( 'aria-valuetext', '$80' );
+	} );
+} );
+
+describe( 'filter-wc-price-slider view — number-input commit handlers', () => {
+	let setPriceRangeSpy;
+
+	/**
+	 * Build the wrapper with just the two number inputs (the row that sits
+	 * below the slider track). The `change` handler only reads these.
+	 *
+	 * @param {{min?: string, max?: string}} [opts] - Optional initial values.
+	 * @return {{wrapper: HTMLElement, min: HTMLInputElement, max: HTMLInputElement}} Mounted nodes.
+	 */
+	function mountNumberInputDom( { min = '', max = '' } = {} ) {
+		document.body.innerHTML = '';
+		const wrapper = document.createElement( 'div' );
+		wrapper.className = 'jetpack-search-filter-wc-price-slider';
+		wrapper.innerHTML = `
+			<input class="jetpack-search-filter-wc-price-slider__number-input jetpack-search-filter-wc-price-slider__number-input--min" type="number" value="${ min }" />
+			<input class="jetpack-search-filter-wc-price-slider__number-input jetpack-search-filter-wc-price-slider__number-input--max" type="number" value="${ max }" />
+		`;
+		document.body.appendChild( wrapper );
+		return {
+			wrapper,
+			min: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__number-input--min' ),
+			max: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__number-input--max' ),
+		};
+	}
+
+	beforeEach( () => {
+		setPriceRangeSpy = jest.fn( function* () {} );
+		captured.actions.setPriceRange = setPriceRangeSpy;
+		captured.state.priceRange = null;
+	} );
+
+	it( 'reads both inputs and dispatches setPriceRange with the parsed pair on change', async () => {
+		const { min } = mountNumberInputDom( { min: '15', max: '95' } );
+		elementRef.current = { ref: min };
+
+		await runGenerator( captured.actions.onPriceSliderNumberInputChange() );
+
+		expect( setPriceRangeSpy ).toHaveBeenCalledTimes( 1 );
+		expect( setPriceRangeSpy ).toHaveBeenCalledWith( 15, 95 );
+	} );
+
+	it( 'normalises empty inputs to null bounds so the store action drops them cleanly', async () => {
+		const { min } = mountNumberInputDom( { min: '', max: '50' } );
+		elementRef.current = { ref: min };
+
+		await runGenerator( captured.actions.onPriceSliderNumberInputChange() );
+
+		expect( setPriceRangeSpy ).toHaveBeenCalledWith( null, 50 );
+	} );
+
+	it( 'Enter blurs the active input and prevents the default submit so the change event commits without a page nav', () => {
+		const { min } = mountNumberInputDom();
+		min.focus();
+		const preventDefault = jest.fn();
+		const blur = jest.spyOn( min, 'blur' );
+
+		captured.actions.onPriceSliderNumberInputKeydown( {
+			key: 'Enter',
+			target: min,
+			preventDefault,
+		} );
+
+		expect( preventDefault ).toHaveBeenCalled();
+		expect( blur ).toHaveBeenCalled();
+	} );
+
+	it( 'non-Enter keystrokes pass through untouched so typing remains uninterrupted', () => {
+		const { min } = mountNumberInputDom();
+		const preventDefault = jest.fn();
+
+		captured.actions.onPriceSliderNumberInputKeydown( {
+			key: '5',
+			target: min,
+			preventDefault,
+		} );
+
+		expect( preventDefault ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'filter-wc-price-slider view — input-value getters', () => {
+	beforeEach( () => {
+		captured.state.priceRange = null;
+	} );
+
+	it( 'returns empty strings when no priceRange is set so the inputs render blank rather than "null"', () => {
+		captured.state.priceRange = null;
+		expect( captured.state.priceRangeMinInputValue ).toBe( '' );
+		expect( captured.state.priceRangeMaxInputValue ).toBe( '' );
+	} );
+
+	it( 'stringifies present bounds so data-wp-bind--value can apply them directly to the input', () => {
+		captured.state.priceRange = { min: 10, max: 250 };
+		expect( captured.state.priceRangeMinInputValue ).toBe( '10' );
+		expect( captured.state.priceRangeMaxInputValue ).toBe( '250' );
+	} );
+
+	it( 'returns empty for an explicitly-null bound on the half-open range case (e.g. only max set)', () => {
+		captured.state.priceRange = { min: null, max: 50 };
+		expect( captured.state.priceRangeMinInputValue ).toBe( '' );
+		expect( captured.state.priceRangeMaxInputValue ).toBe( '50' );
 	} );
 } );

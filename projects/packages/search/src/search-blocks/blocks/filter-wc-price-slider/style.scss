@@ -1,24 +1,24 @@
 /**
  * Search product filter — price slider.
  *
- * Single shared track with two thumbs (lower thumb = min, upper thumb = max)
- * — the dual-thumb pattern WooCommerce Blocks ships. Two `<input type="range">`
+ * Single shared track with two thumbs (lower thumb = min, upper thumb = max),
+ * mirroring WooCommerce Blocks' price slider, with a `[min] – [max]` number-
+ * input row sitting below for direct keyboard entry. Two `<input type="range">`
  * elements overlay each other on the same wrapper: `pointer-events: none` on
  * the inputs themselves and `pointer-events: auto` on the thumb pseudo-element
  * gives a single visual bar with two draggable handles.
  *
- * Layout: the wrapper is `18px` tall (= thumb visual size) so the thumbs have
- * room without overflow clipping. The visible 4px track and the colored
- * active-range fill are both vertically centered overlays on the wrapper. Each
- * `<input type="range">` fills the wrapper top-to-bottom, and its
- * `::-webkit-slider-runnable-track` is also stretched to the input's full
+ * Track layout: the range wrapper is `18px` tall (= thumb visual size) so the
+ * thumbs have room without overflow clipping. The visible 4px track and the
+ * colored active-range fill are both vertically centered overlays on the
+ * wrapper. Each `<input type="range">` fills the wrapper top-to-bottom, and
+ * its `::-webkit-slider-runnable-track` is also stretched to the input's full
  * height so the native thumb pseudo-element auto-centers on the wrapper
  * midline — no margin tweaks, no offset math, the browser does the work.
  *
- * `--low` and `--high` CSS custom properties (set by the
- * `updatePriceSliderUi` callback when state changes) drive a horizontal
- * `linear-gradient` so the colored "active range" fill grows / shrinks in
- * lockstep with the thumbs.
+ * `--low` and `--high` CSS custom properties (set by `updatePriceSliderUi`)
+ * drive a horizontal `linear-gradient` so the colored "active range" fill
+ * grows / shrinks in lockstep with the thumbs.
  */
 
 @mixin price-slider-thumb {
@@ -52,39 +52,11 @@
 
 .jetpack-search-filter-wc-price-slider {
 
-	&__content {
-		display: grid;
-		// Slider on top, value labels on the row below — left value flush left,
-		// right value flush right. Mirrors WC's default (non-inline) layout.
-		grid-template-areas:
-			"price-slider price-slider price-slider"
-			"left-input   middle-input right-input";
-		grid-template-columns: auto 1fr auto;
-		column-gap: 0.5rem;
-		align-items: center;
-		margin-block-start: 0.5rem;
-	}
-
-	&__left {
-		grid-area: left-input;
-	}
-
-	&__right {
-		grid-area: right-input;
-		justify-self: end;
-	}
-
-	&__value {
-		font-size: 0.95em;
-		font-variant-numeric: tabular-nums;
-		color: color-mix(in sRGB, currentColor 75%, transparent);
-	}
-
 	&__range {
-		grid-area: price-slider;
 		--low: 0%;
 		--high: 100%;
 		--range-color: currentColor;
+		margin-block-start: 0.5rem;
 
 		// Force LTR rendering so the slider's "low on the left, high on the
 		// right" axis stays consistent on RTL pages too — matches how most
@@ -187,5 +159,70 @@
 				border-color: var(--wp--preset--color--background, #fff);
 			}
 		}
+	}
+
+	// Number-input row below the slider — mirrors the inputs-only price
+	// block's layout so a slider and an inputs-only block on the same page
+	// read as siblings. Currency symbol sits as a non-interactive adornment
+	// inside each field's box so its visual padding aligns regardless of
+	// typed value width.
+	&__inputs {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-block-start: 0.75rem;
+	}
+
+	&__field {
+		position: relative;
+		display: flex;
+		align-items: center;
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+	&__symbol {
+		position: absolute;
+		inset-inline-start: 0.5rem;
+		color: color-mix(in sRGB, currentColor 50%, transparent);
+		font-size: 0.95em;
+		pointer-events: none;
+	}
+
+	&__field--right &__symbol {
+		inset-inline-start: auto;
+		inset-inline-end: 0.5rem;
+	}
+
+	&__number-input {
+		width: 100%;
+		min-width: 0;
+		padding-block: 0.4rem;
+		padding-inline: 1.9rem 0.5rem;
+		border: 1px solid color-mix(in sRGB, currentColor 20%, transparent);
+		border-radius: 4px;
+		font: inherit;
+
+		// Drop the spinner buttons — shoppers type the value. Keeping
+		// type="number" for the keyboard hint and validation.
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
+
+	&__field--right &__number-input {
+		padding-inline: 0.5rem 1.9rem;
+	}
+
+	&__separator {
+		flex: 0 0 auto;
+		color: color-mix(in sRGB, currentColor 50%, transparent);
+		font-size: 1.1em;
+		line-height: 1;
 	}
 }

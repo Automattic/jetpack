@@ -67,9 +67,9 @@ function clampPair( minEl, maxEl ) {
 }
 
 /**
- * Format a numeric bound for the value-label span as a rounded integer with
- * the currency symbol — drops sub-unit precision so a few-pixel drag doesn't
- * churn "$24.96 / $25.04 / $25.12".
+ * Format a numeric bound for the screen-reader `aria-valuetext` as a rounded
+ * integer with the currency symbol — drops sub-unit precision so a few-pixel
+ * drag doesn't churn "$24.96 / $25.04 / $25.12" announcements.
  *
  * @param {number|null|undefined} value    - Numeric bound.
  * @param {string}                symbol   - Currency symbol (≤ 2 chars).
@@ -82,6 +82,25 @@ function formatBoundLabel( value, symbol, position ) {
 	}
 	const rounded = String( Math.round( value ) );
 	return position === 'right' ? `${ rounded }${ symbol }` : `${ symbol }${ rounded }`;
+}
+
+/**
+ * Resolve the slider's two number-input fields (sitting below the track) from
+ * the input that fired the event. Mirrors `findSliderInputs` but for the
+ * `__number-input` pair, not the range thumbs.
+ *
+ * @param {HTMLElement} el - The input that fired the event.
+ * @return {{min: HTMLInputElement|null, max: HTMLInputElement|null}} Number inputs.
+ */
+function findNumberInputs( el ) {
+	const wrapper = el?.closest?.( '.jetpack-search-filter-wc-price-slider' );
+	if ( ! wrapper ) {
+		return { min: null, max: null };
+	}
+	return {
+		min: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__number-input--min' ),
+		max: wrapper.querySelector( '.jetpack-search-filter-wc-price-slider__number-input--max' ),
+	};
 }
 
 /**
@@ -103,6 +122,36 @@ function readSliderBounds( wrapper ) {
 }
 
 store( NAMESPACE, {
+	state: {
+		/**
+		 * `data-wp-bind--value` for the number-input below the slider. Returns
+		 * an empty string when no bound is set so the input renders blank
+		 * rather than "null". Mirrors the getter the inputs-only price block
+		 * exposes — defined here too so the slider is self-contained when
+		 * inserted without the sibling block. The Interactivity API merges
+		 * duplicate getter definitions; same body, no conflict.
+		 *
+		 * @return {string} Min value as a string for the input.
+		 */
+		get priceRangeMinInputValue() {
+			const { state } = store( NAMESPACE );
+			const min = state.priceRange?.min;
+			return min === null || min === undefined ? '' : String( min );
+		},
+
+		/**
+		 * Companion getter for the max number-input. Same null-safe pattern as
+		 * `priceRangeMinInputValue`.
+		 *
+		 * @return {string} Max value as a string for the input.
+		 */
+		get priceRangeMaxInputValue() {
+			const { state } = store( NAMESPACE );
+			const max = state.priceRange?.max;
+			return max === null || max === undefined ? '' : String( max );
+		},
+	},
+
 	actions: {
 		/**
 		 * Live drag handler. `input` fires ~60×/s while the user drags;
@@ -155,13 +204,48 @@ store( NAMESPACE, {
 				yield store( NAMESPACE ).actions.search();
 			}
 		},
+
+		/**
+		 * Commit handler for the number inputs below the slider. Reads both
+		 * sibling inputs from the DOM rather than tracking each value in store
+		 * state so user typing isn't published until they actually commit
+		 * (blur / Enter / native `change`). The watcher then writes the new
+		 * `state.priceRange` back into the range thumbs.
+		 *
+		 * @yield {Promise} setPriceRange action.
+		 */
+		*onPriceSliderNumberInputChange() {
+			const el = getElement()?.ref;
+			const { min, max } = findNumberInputs( el );
+			yield store( NAMESPACE ).actions.setPriceRange(
+				parseBound( min?.value ),
+				parseBound( max?.value )
+			);
+		},
+
+		/**
+		 * Submit-on-Enter for the number inputs. Blurs the field so the
+		 * native `change` event fires and `onPriceSliderNumberInputChange`
+		 * commits — without waiting for the user to tab away.
+		 *
+		 * @param {KeyboardEvent} event - Keydown event.
+		 */
+		onPriceSliderNumberInputKeydown( event ) {
+			if ( event?.key !== 'Enter' ) {
+				return;
+			}
+			event.preventDefault();
+			event.target?.blur?.();
+		},
 	},
 
 	callbacks: {
 		/**
 		 * Reactive watcher attached via `data-wp-watch`. Re-runs on every
 		 * `state.priceRange` change to update the `--low` / `--high` track
-		 * gradient, value-label text, input values, and aria-valuetext.
+		 * gradient, sync the range thumbs, and refresh `aria-valuetext`. The
+		 * number inputs below the slider sync automatically via their
+		 * `data-wp-bind--value` getter — no manual write needed here.
 		 */
 		updatePriceSliderUi() {
 			const wrapper = getElement()?.ref;
@@ -175,19 +259,13 @@ store( NAMESPACE, {
 			const maxInput = wrapper.querySelector(
 				'.jetpack-search-filter-wc-price-slider__input--max'
 			);
-			const minLabel = wrapper.querySelector(
-				'.jetpack-search-filter-wc-price-slider__value--min'
-			);
-			const maxLabel = wrapper.querySelector(
-				'.jetpack-search-filter-wc-price-slider__value--max'
-			);
 			const { state } = store( NAMESPACE );
 			const { sliderMin, sliderMax } = readSliderBounds( wrapper );
 			const priceRange = state.priceRange;
 			// Clamp to slider bounds — a deep-linked URL can carry an
 			// out-of-range `min_price` / `max_price`, in which case the native
-			// range input clamps its `.value` but the label / aria-valuetext
-			// would still announce the unclamped figure.
+			// range input clamps its `.value` but aria-valuetext would still
+			// announce the unclamped figure.
 			const clamp = v => Math.min( sliderMax, Math.max( sliderMin, Number( v ) ) );
 			const minVal = priceRange?.min != null ? clamp( priceRange.min ) : sliderMin;
 			const maxVal = priceRange?.max != null ? clamp( priceRange.max ) : sliderMax;
@@ -223,22 +301,13 @@ store( NAMESPACE, {
 				}
 			}
 
-			const minText = formatBoundLabel( minVal, symbol, position );
-			const maxText = formatBoundLabel( maxVal, symbol, position );
-			if ( minLabel ) {
-				minLabel.textContent = minText;
-			}
-			if ( maxLabel ) {
-				maxLabel.textContent = maxText;
-			}
-
-			// `aria-valuetext` mirrors the visible label so screen readers
-			// announce "$25" instead of the raw numeric value.
+			// `aria-valuetext` gives screen readers a currency-formatted
+			// announcement ("$25") instead of the raw numeric value.
 			if ( minInput ) {
-				minInput.setAttribute( 'aria-valuetext', minText );
+				minInput.setAttribute( 'aria-valuetext', formatBoundLabel( minVal, symbol, position ) );
 			}
 			if ( maxInput ) {
-				maxInput.setAttribute( 'aria-valuetext', maxText );
+				maxInput.setAttribute( 'aria-valuetext', formatBoundLabel( maxVal, symbol, position ) );
 			}
 		},
 	},

@@ -107,4 +107,20 @@ class Filter_Wc_Price_Slider_Render_Test extends TestCase {
 		$markup = $this->render( array( 'label' => '<script>alert(1)</script>' ) );
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
 	}
+
+	/**
+	 * The block renders the `[min] – [max]` number-input row below the slider
+	 * track. Both inputs need `data-wp-bind--value` (so the slider drag → state
+	 * change syncs into them automatically) and `data-wp-on--change` (so user
+	 * commits flow back through the change handler).
+	 */
+	public function test_number_inputs_are_rendered_and_wired() {
+		$markup = $this->render( array( 'autoBounds' => false ) );
+		$this->assertStringContainsString( '__number-input--min', $markup );
+		$this->assertStringContainsString( '__number-input--max', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--value="state.priceRangeMinInputValue"', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--value="state.priceRangeMaxInputValue"', $markup );
+		$this->assertStringContainsString( 'data-wp-on--change="actions.onPriceSliderNumberInputChange"', $markup );
+		$this->assertStringContainsString( 'data-wp-on--keydown="actions.onPriceSliderNumberInputKeydown"', $markup );
+	}
 }

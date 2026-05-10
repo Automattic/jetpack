@@ -2,17 +2,25 @@
 /**
  * Search product filter — price slider render.
  *
- * Dual-thumb single-track slider mirroring WooCommerce Blocks: two overlaid
- * `<input type="range">` elements share one wrapper, with `pointer-events`
- * routed so the wrapper reads as a single bar with two draggable handles.
- * `--low` / `--high` CSS custom properties (set by `callbacks.updatePriceSliderUi`)
- * paint the colored "active range" between the thumbs.
+ * Dual-thumb single-track slider mirroring WooCommerce Blocks, paired with a
+ * `[min input] – [max input]` row below for direct keyboard entry. Two
+ * overlaid `<input type="range">` elements share the track wrapper, with
+ * `pointer-events` routed so the wrapper reads as a single bar with two
+ * draggable handles. `--low` / `--high` CSS custom properties (set by
+ * `callbacks.updatePriceSliderUi`) paint the colored "active range" between
+ * the thumbs.
  *
- * Drag / commit split: `input` events update state for live visual feedback
- * without searching; `change` (fired on release) commits via
+ * Slider drag / commit split: `input` events update state for live visual
+ * feedback without searching; `change` (fired on release) commits via
  * `actions.setPriceRange` — which itself searches when the bounds actually
  * changed, with a fallthrough `actions.search` for the no-op case where the
  * drag handler had pre-written the same value.
+ *
+ * Number inputs commit on `change` (blur or Enter) via
+ * `actions.onPriceSliderNumberInputChange`, which writes to the same
+ * `state.priceRange` slice — the watcher then syncs the range thumbs.
+ * `data-wp-bind--value` keeps the inputs in lockstep with state in the
+ * other direction (slider drag → state → input).
  *
  * @package automattic/jetpack-search
  */
@@ -75,8 +83,10 @@ wp_interactivity_state(
 	)
 );
 
-$min_id = wp_unique_id( 'jetpack-search-filter-wc-price-slider-min-' );
-$max_id = wp_unique_id( 'jetpack-search-filter-wc-price-slider-max-' );
+$min_id       = wp_unique_id( 'jetpack-search-filter-wc-price-slider-min-' );
+$max_id       = wp_unique_id( 'jetpack-search-filter-wc-price-slider-max-' );
+$min_input_id = wp_unique_id( 'jetpack-search-filter-wc-price-slider-min-input-' );
+$max_input_id = wp_unique_id( 'jetpack-search-filter-wc-price-slider-max-input-' );
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-wc-price-slider' ) ) ); ?>
@@ -84,43 +94,78 @@ $max_id = wp_unique_id( 'jetpack-search-filter-wc-price-slider-max-' );
 	data-wp-watch="callbacks.updatePriceSliderUi"
 >
 	<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
-	<div class="jetpack-search-filter-wc-price-slider__content">
-		<div class="jetpack-search-filter-wc-price-slider__left">
-			<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--min"></span>
-		</div>
-		<div class="jetpack-search-filter-wc-price-slider__range">
-			<div class="jetpack-search-filter-wc-price-slider__range-bar"></div>
-			<label class="screen-reader-text" for="<?php echo esc_attr( $min_id ); ?>">
+	<div class="jetpack-search-filter-wc-price-slider__range">
+		<div class="jetpack-search-filter-wc-price-slider__range-bar"></div>
+		<label class="screen-reader-text" for="<?php echo esc_attr( $min_id ); ?>">
+			<?php esc_html_e( 'Minimum price', 'jetpack-search-pkg' ); ?>
+		</label>
+		<input
+			id="<?php echo esc_attr( $min_id ); ?>"
+			class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--min"
+			type="range"
+			min="<?php echo esc_attr( (string) $min_attr ); ?>"
+			max="<?php echo esc_attr( (string) $max_attr ); ?>"
+			step="<?php echo esc_attr( (string) $step ); ?>"
+			value="<?php echo esc_attr( (string) $min_attr ); ?>"
+			data-wp-on--input="actions.onPriceSliderInput"
+			data-wp-on--change="actions.onPriceSliderChange"
+		/>
+		<label class="screen-reader-text" for="<?php echo esc_attr( $max_id ); ?>">
+			<?php esc_html_e( 'Maximum price', 'jetpack-search-pkg' ); ?>
+		</label>
+		<input
+			id="<?php echo esc_attr( $max_id ); ?>"
+			class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--max"
+			type="range"
+			min="<?php echo esc_attr( (string) $min_attr ); ?>"
+			max="<?php echo esc_attr( (string) $max_attr ); ?>"
+			step="<?php echo esc_attr( (string) $step ); ?>"
+			value="<?php echo esc_attr( (string) $max_attr ); ?>"
+			data-wp-on--input="actions.onPriceSliderInput"
+			data-wp-on--change="actions.onPriceSliderChange"
+		/>
+	</div>
+	<div class="jetpack-search-filter-wc-price-slider__inputs">
+		<div class="jetpack-search-filter-wc-price-slider__field jetpack-search-filter-wc-price-slider__field--<?php echo esc_attr( $position ); ?>">
+			<label class="screen-reader-text" for="<?php echo esc_attr( $min_input_id ); ?>">
 				<?php esc_html_e( 'Minimum price', 'jetpack-search-pkg' ); ?>
 			</label>
+			<span class="jetpack-search-filter-wc-price-slider__symbol" aria-hidden="true">
+				<?php echo esc_html( $symbol_short ); ?>
+			</span>
 			<input
-				id="<?php echo esc_attr( $min_id ); ?>"
-				class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--min"
-				type="range"
-				min="<?php echo esc_attr( (string) $min_attr ); ?>"
-				max="<?php echo esc_attr( (string) $max_attr ); ?>"
-				step="<?php echo esc_attr( (string) $step ); ?>"
-				value="<?php echo esc_attr( (string) $min_attr ); ?>"
-				data-wp-on--input="actions.onPriceSliderInput"
-				data-wp-on--change="actions.onPriceSliderChange"
-			/>
-			<label class="screen-reader-text" for="<?php echo esc_attr( $max_id ); ?>">
-				<?php esc_html_e( 'Maximum price', 'jetpack-search-pkg' ); ?>
-			</label>
-			<input
-				id="<?php echo esc_attr( $max_id ); ?>"
-				class="jetpack-search-filter-wc-price-slider__input jetpack-search-filter-wc-price-slider__input--max"
-				type="range"
-				min="<?php echo esc_attr( (string) $min_attr ); ?>"
-				max="<?php echo esc_attr( (string) $max_attr ); ?>"
-				step="<?php echo esc_attr( (string) $step ); ?>"
-				value="<?php echo esc_attr( (string) $max_attr ); ?>"
-				data-wp-on--input="actions.onPriceSliderInput"
-				data-wp-on--change="actions.onPriceSliderChange"
+				id="<?php echo esc_attr( $min_input_id ); ?>"
+				class="jetpack-search-filter-wc-price-slider__number-input jetpack-search-filter-wc-price-slider__number-input--min"
+				type="number"
+				inputmode="decimal"
+				min="0"
+				step="any"
+				placeholder="<?php esc_attr_e( 'Min', 'jetpack-search-pkg' ); ?>"
+				data-wp-bind--value="state.priceRangeMinInputValue"
+				data-wp-on--change="actions.onPriceSliderNumberInputChange"
+				data-wp-on--keydown="actions.onPriceSliderNumberInputKeydown"
 			/>
 		</div>
-		<div class="jetpack-search-filter-wc-price-slider__right">
-			<span class="jetpack-search-filter-wc-price-slider__value jetpack-search-filter-wc-price-slider__value--max"></span>
+		<span class="jetpack-search-filter-wc-price-slider__separator" aria-hidden="true">–</span>
+		<div class="jetpack-search-filter-wc-price-slider__field jetpack-search-filter-wc-price-slider__field--<?php echo esc_attr( $position ); ?>">
+			<label class="screen-reader-text" for="<?php echo esc_attr( $max_input_id ); ?>">
+				<?php esc_html_e( 'Maximum price', 'jetpack-search-pkg' ); ?>
+			</label>
+			<span class="jetpack-search-filter-wc-price-slider__symbol" aria-hidden="true">
+				<?php echo esc_html( $symbol_short ); ?>
+			</span>
+			<input
+				id="<?php echo esc_attr( $max_input_id ); ?>"
+				class="jetpack-search-filter-wc-price-slider__number-input jetpack-search-filter-wc-price-slider__number-input--max"
+				type="number"
+				inputmode="decimal"
+				min="0"
+				step="any"
+				placeholder="<?php esc_attr_e( 'Max', 'jetpack-search-pkg' ); ?>"
+				data-wp-bind--value="state.priceRangeMaxInputValue"
+				data-wp-on--change="actions.onPriceSliderNumberInputChange"
+				data-wp-on--keydown="actions.onPriceSliderNumberInputKeydown"
+			/>
 		</div>
 	</div>
 </div>
