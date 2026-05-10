@@ -58,4 +58,4 @@ Add this block (default mode is Exclude), and select `attachment`.
 - If the block is added but no post types are selected, it has no effect.
 - You can add multiple Post Type Scope blocks — their constraints are combined automatically.
 - This is the right choice when the content type restriction is an editorial decision, not something visitors should control.
-- Post types whose own registration sets `exclude_from_search => false` are filtered out server-side regardless of this block, so adding `attachment` to an **Include** list won't expose attachments unless the post type itself is searchable.
+- Post types whose own registration sets `exclude_from_search => true` are not searchable at all — the Post Type Scope block cannot override that restriction. WordPress registers `attachment` with `exclude_from_search => true` by default, so adding `attachment` to an **Include** list still won't expose attachments unless the post type's own `exclude_from_search` is flipped to `false` first.

@@ -81,7 +81,7 @@ The Checkbox Filter ships as a family of named filters — each one shows up as 
 
 **Use Collapsible Filters** when you have a compact layout (e.g. a header search bar) and want filters available without permanently occupying space.
 
-Both layouts support the same set of filter blocks inside them.
+Both layouts support the same Checkbox Filter variations. Note that the **Filter by Date** block is not available inside Collapsible Filters — if you need date filtering, use the Filters block.
 
 ## Free plan vs paid plan
 
