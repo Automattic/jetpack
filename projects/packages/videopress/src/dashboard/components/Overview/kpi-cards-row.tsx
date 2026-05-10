@@ -1,6 +1,8 @@
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { formatWatchTime } from '../../utils/format';
 import KpiCard from './kpi-card';
-import type { OverviewStats } from '../../types/stats';
+import type { ActiveMetric, OverviewStats } from '../../types/stats';
 import type { ReactElement } from 'react';
 
 type Props = {
@@ -8,6 +10,8 @@ type Props = {
 	visitors: OverviewStats[ 'visitors' ];
 	watchTimeSeconds: OverviewStats[ 'watchTimeSeconds' ];
 	isLoading: boolean;
+	activeMetric: ActiveMetric;
+	onChangeActiveMetric: ( next: ActiveMetric ) => void;
 };
 
 const NUMBER_FORMATTER = new Intl.NumberFormat();
@@ -23,34 +27,18 @@ function formatNumber( n: number ): string {
 }
 
 /**
- * Formats a watch-time duration in the largest unit that yields a value
- * ≥ 1, picking from hours / minutes / seconds. Hours show one decimal
- * place ("1.1 h") to match the Figma; smaller units are integers.
- *
- * @param seconds - Total seconds.
- * @return Compact human-readable duration.
- */
-function formatWatchTime( seconds: number ): string {
-	if ( seconds >= 3_600 ) {
-		const hours = seconds / 3_600;
-		return `${ hours.toFixed( 1 ) } h`;
-	}
-	if ( seconds >= 60 ) {
-		return `${ Math.round( seconds / 60 ) } min`;
-	}
-	return `${ Math.round( seconds ) } s`;
-}
-
-/**
  * Three KPI cards (Views, Visitors, Watch time) in a responsive grid.
- * Layout grid is owned by the parent `.vp-overview__kpi-row` rule in
- * `routes/overview/style.scss`.
+ * Each card acts as a tab that selects which metric the Views trends
+ * chart plots. Layout grid is owned by the parent `.vp-overview__kpi-row`
+ * rule in `routes/overview/style.scss`.
  *
- * @param props                  - Component props.
- * @param props.views            - Views summary.
- * @param props.visitors         - Visitors summary.
- * @param props.watchTimeSeconds - Watch-time summary in seconds.
- * @param props.isLoading        - When true, KPI values render as em dashes.
+ * @param props                      - Component props.
+ * @param props.views                - Views summary.
+ * @param props.visitors             - Visitors summary.
+ * @param props.watchTimeSeconds     - Watch-time summary in seconds.
+ * @param props.isLoading            - When true, KPI values render as em dashes.
+ * @param props.activeMetric         - Currently selected chart metric.
+ * @param props.onChangeActiveMetric - Called with the next metric when a card is activated.
  * @return The row element.
  */
 export default function KpiCardsRow( {
@@ -58,7 +46,22 @@ export default function KpiCardsRow( {
 	visitors,
 	watchTimeSeconds,
 	isLoading,
+	activeMetric,
+	onChangeActiveMetric,
 }: Props ): ReactElement {
+	const onSelectViews = useCallback(
+		() => onChangeActiveMetric( 'views' ),
+		[ onChangeActiveMetric ]
+	);
+	const onSelectVisitors = useCallback(
+		() => onChangeActiveMetric( 'visitors' ),
+		[ onChangeActiveMetric ]
+	);
+	const onSelectWatchTime = useCallback(
+		() => onChangeActiveMetric( 'watch_time' ),
+		[ onChangeActiveMetric ]
+	);
+
 	return (
 		<div className="vp-overview__kpi-row">
 			<KpiCard
@@ -66,18 +69,24 @@ export default function KpiCardsRow( {
 				value={ formatNumber( views.current ) }
 				summary={ views }
 				isLoading={ isLoading }
+				isActive={ activeMetric === 'views' }
+				onSelect={ onSelectViews }
 			/>
 			<KpiCard
 				label={ __( 'VISITORS', 'jetpack-videopress-pkg' ) }
 				value={ formatNumber( visitors.current ) }
 				summary={ visitors }
 				isLoading={ isLoading }
+				isActive={ activeMetric === 'visitors' }
+				onSelect={ onSelectVisitors }
 			/>
 			<KpiCard
 				label={ __( 'WATCH TIME', 'jetpack-videopress-pkg' ) }
 				value={ formatWatchTime( watchTimeSeconds.current ) }
 				summary={ watchTimeSeconds }
 				isLoading={ isLoading }
+				isActive={ activeMetric === 'watch_time' }
+				onSelect={ onSelectWatchTime }
 			/>
 		</div>
 	);

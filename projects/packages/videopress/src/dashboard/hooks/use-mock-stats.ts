@@ -1,12 +1,19 @@
 import { useSyncExternalStore } from '@wordpress/element';
 import { generateMockStats } from '../fixtures/stats';
-import type { ChartCompare, DateRange, Granularity, OverviewStats } from '../types/stats';
+import type {
+	ActiveMetric,
+	ChartCompare,
+	DateRange,
+	Granularity,
+	OverviewStats,
+} from '../types/stats';
 
 const MOCK_INITIAL_LOAD_MS = 1_000;
 
 type Settings = {
 	dateRange: DateRange;
 	granularity: Granularity;
+	activeMetric: ActiveMetric;
 	compare: ChartCompare;
 };
 
@@ -29,8 +36,14 @@ const STORE_KEY = '__jetpackVideopressMockStats' as const;
 const DEFAULT_SETTINGS: Settings = {
 	dateRange: 'last_30_days',
 	granularity: 'days',
-	compare: 'visitors_and_previous_period',
+	activeMetric: 'views',
+	compare: 'secondary_and_previous_period',
 };
+
+// Watch Time has no other metric to compare against (different unit),
+// so any compare that depends on a "secondary" metric collapses to
+// `previous_period` when Watch Time becomes active.
+const COMPARE_FALLBACK_FOR_WATCH_TIME: ChartCompare = 'previous_period';
 
 /**
  * Lazily creates and returns the window-attached singleton stats
@@ -97,6 +110,15 @@ const setDateRange = ( next: DateRange ): void => applySettings( { dateRange: ne
 const setGranularity = ( next: Granularity ): void => applySettings( { granularity: next } );
 const setCompare = ( next: ChartCompare ): void => applySettings( { compare: next } );
 
+const setActiveMetric = ( next: ActiveMetric ): void => {
+	const store = getStore();
+	const compare =
+		next === 'watch_time' && store.settings.compare !== 'previous_period'
+			? COMPARE_FALLBACK_FOR_WATCH_TIME
+			: store.settings.compare;
+	applySettings( { activeMetric: next, compare } );
+};
+
 const subscribe = ( cb: () => void ): ( () => void ) => {
 	const store = getStore();
 	store.subscribers.add( cb );
@@ -126,9 +148,11 @@ export function useMockStats() {
 		isLoading,
 		dateRange: settings.dateRange,
 		granularity: settings.granularity,
+		activeMetric: settings.activeMetric,
 		compare: settings.compare,
 		setDateRange,
 		setGranularity,
+		setActiveMetric,
 		setCompare,
 	};
 }

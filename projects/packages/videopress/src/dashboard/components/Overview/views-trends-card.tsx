@@ -1,14 +1,16 @@
 import { LineChart } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { SelectControl } from '@wordpress/components';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
-import type { ChartCompare, Granularity, StatsSeriesPoint } from '../../types/stats';
+import { formatWatchTime } from '../../utils/format';
+import type { ActiveMetric, ChartCompare, Granularity, StatsSeriesPoint } from '../../types/stats';
 import type { ReactElement } from 'react';
 
 type Props = {
 	series: StatsSeriesPoint[];
+	activeMetric: ActiveMetric;
 	compare: ChartCompare;
 	granularity: Granularity;
 	isLoading: boolean;
@@ -18,14 +20,65 @@ type Props = {
 
 const CHART_HEIGHT = 240;
 
-const COMPARE_OPTIONS: { label: string; value: ChartCompare }[] = [
-	{ label: __( 'vs visitors', 'jetpack-videopress-pkg' ), value: 'visitors' },
-	{ label: __( 'vs previous period', 'jetpack-videopress-pkg' ), value: 'previous_period' },
-	{
-		label: __( 'vs visitors / previous period', 'jetpack-videopress-pkg' ),
-		value: 'visitors_and_previous_period',
+type MetricConfig = {
+	title: string;
+	primaryLabel: string;
+	primaryField: keyof Pick< StatsSeriesPoint, 'views' | 'visitors' | 'watchTimeSeconds' >;
+	primaryPrevField: keyof Pick<
+		StatsSeriesPoint,
+		'previousPeriodViews' | 'previousPeriodVisitors' | 'previousPeriodWatchTimeSeconds'
+	>;
+	secondary: { label: string; field: 'views' | 'visitors' } | null;
+	yTickFormat?: ( value: number ) => string;
+};
+
+const METRIC_CONFIG: Record< ActiveMetric, MetricConfig > = {
+	views: {
+		title: __( 'Views trends', 'jetpack-videopress-pkg' ),
+		primaryLabel: __( 'Views', 'jetpack-videopress-pkg' ),
+		primaryField: 'views',
+		primaryPrevField: 'previousPeriodViews',
+		secondary: { label: __( 'Visitors', 'jetpack-videopress-pkg' ), field: 'visitors' },
 	},
-];
+	visitors: {
+		title: __( 'Visitors trends', 'jetpack-videopress-pkg' ),
+		primaryLabel: __( 'Visitors', 'jetpack-videopress-pkg' ),
+		primaryField: 'visitors',
+		primaryPrevField: 'previousPeriodVisitors',
+		secondary: { label: __( 'Views', 'jetpack-videopress-pkg' ), field: 'views' },
+	},
+	watch_time: {
+		title: __( 'Watch time trends', 'jetpack-videopress-pkg' ),
+		primaryLabel: __( 'Watch time', 'jetpack-videopress-pkg' ),
+		primaryField: 'watchTimeSeconds',
+		primaryPrevField: 'previousPeriodWatchTimeSeconds',
+		secondary: null,
+		yTickFormat: formatWatchTime,
+	},
+};
+
+const COMPARE_OPTIONS_BY_METRIC: Record< ActiveMetric, { label: string; value: ChartCompare }[] > =
+	{
+		views: [
+			{ label: __( 'vs visitors', 'jetpack-videopress-pkg' ), value: 'secondary' },
+			{ label: __( 'vs previous period', 'jetpack-videopress-pkg' ), value: 'previous_period' },
+			{
+				label: __( 'vs visitors / previous period', 'jetpack-videopress-pkg' ),
+				value: 'secondary_and_previous_period',
+			},
+		],
+		visitors: [
+			{ label: __( 'vs views', 'jetpack-videopress-pkg' ), value: 'secondary' },
+			{ label: __( 'vs previous period', 'jetpack-videopress-pkg' ), value: 'previous_period' },
+			{
+				label: __( 'vs views / previous period', 'jetpack-videopress-pkg' ),
+				value: 'secondary_and_previous_period',
+			},
+		],
+		watch_time: [
+			{ label: __( 'vs previous period', 'jetpack-videopress-pkg' ), value: 'previous_period' },
+		],
+	};
 
 const GRANULARITY_OPTIONS: { label: string; value: Granularity }[] = [
 	{ label: __( 'Days', 'jetpack-videopress-pkg' ), value: 'days' },
@@ -36,45 +89,64 @@ const GRANULARITY_OPTIONS: { label: string; value: Granularity }[] = [
 type ChartSeries = { label: string; data: { date: Date; value: number }[] };
 
 /**
- * Build the chart's series list from the active stats series and the
- * compare selection. "Views" is always present; "Visitors" appears
- * unless compare is `previous_period`; "Previous period" appears unless
- * compare is `visitors`.
+ * Build the chart's series list from the active stats series, the
+ * active metric, and the compare selection. The active metric's primary
+ * series is always present; the secondary metric's series appears when
+ * `compare` includes it (and only for metrics that have a secondary);
+ * the active metric's previous-period series appears when `compare`
+ * includes it.
  *
- * @param series  - Active range's series points.
- * @param compare - Active compare selection.
+ * @param series       - Active range's series points.
+ * @param activeMetric - Currently selected chart metric.
+ * @param compare      - Active compare selection.
  * @return Series list consumable by `@automattic/charts` LineChart.
  */
-function buildSeriesData( series: StatsSeriesPoint[], compare: ChartCompare ): ChartSeries[] {
+function buildSeriesData(
+	series: StatsSeriesPoint[],
+	activeMetric: ActiveMetric,
+	compare: ChartCompare
+): ChartSeries[] {
+	const config = METRIC_CONFIG[ activeMetric ];
 	const out: ChartSeries[] = [
 		{
-			label: __( 'Views', 'jetpack-videopress-pkg' ),
-			data: series.map( p => ( { date: new Date( p.date ), value: p.views } ) ),
+			label: config.primaryLabel,
+			data: series.map( p => ( {
+				date: new Date( p.date ),
+				value: p[ config.primaryField ],
+			} ) ),
 		},
 	];
-	if ( compare !== 'previous_period' ) {
+	if ( config.secondary && compare !== 'previous_period' ) {
+		const secondary = config.secondary;
 		out.push( {
-			label: __( 'Visitors', 'jetpack-videopress-pkg' ),
-			data: series.map( p => ( { date: new Date( p.date ), value: p.visitors } ) ),
+			label: secondary.label,
+			data: series.map( p => ( {
+				date: new Date( p.date ),
+				value: p[ secondary.field ],
+			} ) ),
 		} );
 	}
-	if ( compare !== 'visitors' ) {
+	if ( compare !== 'secondary' ) {
 		out.push( {
 			label: __( 'Previous period', 'jetpack-videopress-pkg' ),
-			data: series.map( p => ( { date: new Date( p.date ), value: p.previousPeriodViews } ) ),
+			data: series.map( p => ( {
+				date: new Date( p.date ),
+				value: p[ config.primaryPrevField ],
+			} ) ),
 		} );
 	}
 	return out;
 }
 
 /**
- * "Views trends" card: title + two right-aligned SelectControls + a
- * `@automattic/charts` LineChart. The chart auto-wraps with
- * GlobalChartsProvider when not already in one, so no explicit
- * ThemeProvider is needed here.
+ * Trends card for the metric selected in the KPI row. Renders the
+ * card title, optional compare and granularity selectors, and a
+ * `@automattic/charts` LineChart whose primary series, comparison
+ * options, and y-axis formatting all derive from `activeMetric`.
  *
  * @param props                     - Component props.
  * @param props.series              - Series points for the active range.
+ * @param props.activeMetric        - Currently selected chart metric.
  * @param props.compare             - Currently selected compare.
  * @param props.granularity         - Currently selected granularity.
  * @param props.isLoading           - When true, the chart canvas is left blank but reserves height so the page does not reflow when data arrives.
@@ -84,40 +156,63 @@ function buildSeriesData( series: StatsSeriesPoint[], compare: ChartCompare ): C
  */
 export default function ViewsTrendsCard( {
 	series,
+	activeMetric,
 	compare,
 	granularity,
 	isLoading,
 	onChangeCompare,
 	onChangeGranularity,
 }: Props ): ReactElement {
+	const config = METRIC_CONFIG[ activeMetric ];
+	const compareOptions = COMPARE_OPTIONS_BY_METRIC[ activeMetric ];
+
 	// Memoize data so the chart doesn't see new array/object identities on
 	// every parent render — that re-triggers the chart's internal hooks
 	// (legend registration, scale computation, …), which feeds back as
 	// further parent renders and visibly grows the y-axis until the lines
 	// flatten to invisibility.
-	const chartData = useMemo( () => buildSeriesData( series, compare ), [ series, compare ] );
+	const chartData = useMemo(
+		() => buildSeriesData( series, activeMetric, compare ),
+		[ series, activeMetric, compare ]
+	);
+
+	const chartOptions = useMemo(
+		() => ( config.yTickFormat ? { axis: { y: { tickFormat: config.yTickFormat } } } : undefined ),
+		[ config.yTickFormat ]
+	);
+
+	const onCompareSelect = useCallback(
+		( next: string ) => onChangeCompare( next as ChartCompare ),
+		[ onChangeCompare ]
+	);
+	const onGranularitySelect = useCallback(
+		( next: string ) => onChangeGranularity( next as Granularity ),
+		[ onChangeGranularity ]
+	);
 
 	return (
 		<Card.Root>
 			<Card.Header>
 				<Stack direction="row" justify="space-between" align="center" expanded>
-					<Card.Title>{ __( 'Views trends', 'jetpack-videopress-pkg' ) }</Card.Title>
+					<Card.Title>{ config.title }</Card.Title>
 					<Stack direction="row" gap="sm">
-						<SelectControl
-							__nextHasNoMarginBottom
-							label={ __( 'Compare', 'jetpack-videopress-pkg' ) }
-							hideLabelFromVision
-							value={ compare }
-							options={ COMPARE_OPTIONS }
-							onChange={ next => onChangeCompare( next as ChartCompare ) }
-						/>
+						{ compareOptions.length > 1 && (
+							<SelectControl
+								__nextHasNoMarginBottom
+								label={ __( 'Compare', 'jetpack-videopress-pkg' ) }
+								hideLabelFromVision
+								value={ compare }
+								options={ compareOptions }
+								onChange={ onCompareSelect }
+							/>
+						) }
 						<SelectControl
 							__nextHasNoMarginBottom
 							label={ __( 'Granularity', 'jetpack-videopress-pkg' ) }
 							hideLabelFromVision
 							value={ granularity }
 							options={ GRANULARITY_OPTIONS }
-							onChange={ next => onChangeGranularity( next as Granularity ) }
+							onChange={ onGranularitySelect }
 						/>
 					</Stack>
 				</Stack>
@@ -130,6 +225,7 @@ export default function ViewsTrendsCard( {
 							showLegend
 							withGradientFill={ false }
 							height={ CHART_HEIGHT }
+							options={ chartOptions }
 						/>
 					) }
 				</div>

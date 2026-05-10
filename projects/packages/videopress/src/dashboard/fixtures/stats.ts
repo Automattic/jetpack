@@ -168,13 +168,19 @@ function buildSeries( rangeDays: number, granularity: Granularity ): StatsSeries
 		if ( existing ) {
 			existing.views += point.views;
 			existing.visitors += point.visitors;
+			existing.watchTimeSeconds += point.watchSeconds;
 			existing.previousPeriodViews += priorPoint?.views ?? 0;
+			existing.previousPeriodVisitors += priorPoint?.visitors ?? 0;
+			existing.previousPeriodWatchTimeSeconds += priorPoint?.watchSeconds ?? 0;
 		} else {
 			buckets.set( key, {
 				date: key,
 				views: point.views,
 				visitors: point.visitors,
+				watchTimeSeconds: point.watchSeconds,
 				previousPeriodViews: priorPoint?.views ?? 0,
+				previousPeriodVisitors: priorPoint?.visitors ?? 0,
+				previousPeriodWatchTimeSeconds: priorPoint?.watchSeconds ?? 0,
 			} );
 		}
 	}

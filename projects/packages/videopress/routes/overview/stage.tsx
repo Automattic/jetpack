@@ -15,6 +15,8 @@ const Stage = () => {
 		setDateRange,
 		granularity,
 		setGranularity,
+		activeMetric,
+		setActiveMetric,
 		compare,
 		setCompare,
 	} = useMockStats();
@@ -30,9 +32,12 @@ const Stage = () => {
 					visitors={ stats.visitors }
 					watchTimeSeconds={ stats.watchTimeSeconds }
 					isLoading={ isLoading }
+					activeMetric={ activeMetric }
+					onChangeActiveMetric={ setActiveMetric }
 				/>
 				<ViewsTrendsCard
 					series={ stats.series }
+					activeMetric={ activeMetric }
 					compare={ compare }
 					granularity={ granularity }
 					isLoading={ isLoading }

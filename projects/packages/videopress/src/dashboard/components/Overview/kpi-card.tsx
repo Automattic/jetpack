@@ -1,13 +1,16 @@
+import { useCallback } from '@wordpress/element';
 import { Icon, arrowUp, arrowDown } from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
 import type { KpiSummary } from '../../types/stats';
-import type { ReactElement, ReactNode } from 'react';
+import type { KeyboardEvent, ReactElement, ReactNode } from 'react';
 
 type Props = {
 	label: string;
 	value: ReactNode;
 	summary: KpiSummary;
 	isLoading: boolean;
+	isActive: boolean;
+	onSelect: () => void;
 };
 
 /**
@@ -29,27 +32,56 @@ function deltaPercent( summary: KpiSummary ): number | null {
 
 /**
  * One stat card: caps label + large value + signed delta indicator.
- * Used in the Overview KPI row (Views, Visitors, Watch time). The delta
- * indicator is a custom span (the `@wordpress/ui` Badge `intent`
- * vocabulary doesn't include success / error semantics — `low / medium
- * / high / …` is a different axis).
+ * Used in the Overview KPI row (Views, Visitors, Watch time). The card
+ * acts as a tab — clicking it changes the active metric on the Views
+ * trends chart. Visual treatment for the active state lands in Phase 5
+ * UI work; for now `aria-pressed` carries the semantic.
+ *
+ * The delta indicator is a custom span (the `@wordpress/ui` Badge
+ * `intent` vocabulary doesn't include success / error semantics —
+ * `low / medium / high / …` is a different axis).
  *
  * @param props           - Component props.
  * @param props.label     - Uppercase label, e.g. "VIEWS".
  * @param props.value     - Pre-formatted value, e.g. "789" or "1.1 h".
  * @param props.summary   - Current + previous-period totals.
  * @param props.isLoading - When true, value is replaced by an em dash and the badge is hidden.
+ * @param props.isActive  - True when this card represents the active chart metric.
+ * @param props.onSelect  - Called when the card is activated (click or Enter / Space).
  * @return The card element.
  */
-export default function KpiCard( { label, value, summary, isLoading }: Props ): ReactElement {
+export default function KpiCard( {
+	label,
+	value,
+	summary,
+	isLoading,
+	isActive,
+	onSelect,
+}: Props ): ReactElement {
 	const delta = isLoading ? null : deltaPercent( summary );
 	let direction: 'up' | 'down' | null = null;
 	if ( delta !== null ) {
 		direction = delta >= 0 ? 'up' : 'down';
 	}
 
+	const onKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLDivElement > ) => {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				onSelect();
+			}
+		},
+		[ onSelect ]
+	);
+
 	return (
-		<Card.Root>
+		<Card.Root
+			role="button"
+			tabIndex={ 0 }
+			aria-pressed={ isActive }
+			onClick={ onSelect }
+			onKeyDown={ onKeyDown }
+		>
 			<Card.Content>
 				<Stack direction="column" gap="xs">
 					<Text variant="body-sm" className="vp-overview__kpi-label">
