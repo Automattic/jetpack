@@ -6,6 +6,12 @@
 	margin-inline: auto;
 	padding-block: 24px;
 
+	// Match the wp-admin / Library tab edge inset on narrow viewports
+	// where the page no longer has its own surrounding gutter.
+	@media (max-width: 782px) {
+		padding-inline: 24px;
+	}
+
 	&__kpi-row {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
