@@ -33,8 +33,8 @@
 	}
 }
 
-// Filter-specific skeleton shapes. Pulled in by both filter-checkbox and
-// filter-date so the placeholder rows render at the same dimensions.
+// Filter-specific skeleton shapes. Pulled in by filter-wc-attribute so the
+// placeholder rows render at consistent dimensions during pre-hydration.
 @mixin filter-rows {
 
 	.jetpack-search-skeleton--filter-row {

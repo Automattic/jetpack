@@ -30,25 +30,28 @@ wp_interactivity_state(
 	)
 );
 
-$view  = Search_Blocks::pre_hydration_filter_view( $filter_key );
+// Default-hide the wrapper on first paint when no aggregation buckets are
+// seeded for this filter — `state.aggregations` is empty until the JS-side
+// first fetch resolves. The `!state.hasFilterBuckets` binding flips it back
+// to visible once buckets arrive.
+$seeded_state      = wp_interactivity_state( 'jetpack-search' );
+$seeded_aggs       = (array) ( $seeded_state['aggregations'] ?? array() );
+$seeded_filter_agg = (array) ( $seeded_aggs[ $filter_key ] ?? array() );
+$seeded_buckets    = $seeded_filter_agg['buckets'] ?? null;
+$has_buckets       = is_array( $seeded_buckets ) && ! empty( $seeded_buckets );
+
 $label = $config['label'];
 ?>
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
-	data-wp-bind--hidden="context.wrapperHidden"
-	data-wp-watch="callbacks.syncFilterWrapperVisibility"
-	<?php echo $view['show_wrapper'] ? '' : 'hidden'; ?>
+	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => $filter_key ) ) ); ?>
+	data-wp-bind--hidden="!state.hasFilterBuckets"
+	<?php echo $has_buckets ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
-	<?php
-	if ( $view['is_initial_loading'] ) {
-		require __DIR__ . '/../filter-skeleton-partial.php';
-	}
-	?>
 	<ul class="jetpack-search-filter__list">
 		<template
 			data-wp-each--item="state.filterItems"
