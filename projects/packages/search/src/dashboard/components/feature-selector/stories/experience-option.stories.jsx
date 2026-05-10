@@ -1,7 +1,11 @@
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
 import { storeConfig, STORE_ID } from '../../../store';
-import { EXPERIENCE } from '../constants';
+import { EXPERIENCE, EXPERIENCE_ORDER, getExperienceLabel } from '../constants';
 import ExperienceOption from '../experience-option';
+
+const experienceLabels = Object.fromEntries(
+	EXPERIENCE_ORDER.map( experience => [ experience, getExperienceLabel( experience ) ] )
+);
 
 export default {
 	title: 'Packages/Search/FeatureSelector/ExperienceOption',
@@ -19,10 +23,21 @@ export default {
 	argTypes: {
 		experience: {
 			control: 'select',
-			options: [ 'embedded', 'overlay', 'inline', 'off' ],
+			options: EXPERIENCE_ORDER,
+			labels: experienceLabels,
 		},
 		disabled: {
 			control: 'boolean',
+		},
+		pendingExperience: {
+			control: 'select',
+			options: EXPERIENCE_ORDER,
+			labels: experienceLabels,
+		},
+		activeExperience: {
+			control: 'select',
+			options: EXPERIENCE_ORDER,
+			labels: experienceLabels,
 		},
 	},
 };
