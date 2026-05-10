@@ -50,23 +50,16 @@ if ( $auto_bounds && function_exists( 'wc_get_product' ) ) {
 			'min' => null,
 			'max' => null,
 		);
-		if ( isset( $wpdb ) ) {
-			// `_price` is the canonical WC postmeta key. Joined to wp_posts to
-			// constrain to published products / variations — drafts and trashed
-			// posts would otherwise leak into the extents. The phpcs caching
-			// warning fires because the call site doesn't use wp_cache_*; the
-			// transient already provides that effect.
+		if ( isset( $wpdb ) && ! empty( $wpdb->wc_product_meta_lookup ) ) {
+			// `wc_product_meta_lookup` is WC's denormalized one-row-per-product
+			// table with indexed DECIMAL `min_price` / `max_price` columns. It
+			// is the same source WC's own price-slider, classic widget, and
+			// Store API hit — and scales linearly with product count, unlike a
+			// REGEXP scan of `postmeta`. The phpcs caching warning fires because
+			// the call site doesn't use wp_cache_*; the transient covers that.
 			$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				"SELECT
-					MIN(CAST(pm.meta_value AS DECIMAL(20,6))) AS min_price,
-					MAX(CAST(pm.meta_value AS DECIMAL(20,6))) AS max_price
-				FROM {$wpdb->postmeta} pm
-				INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-				WHERE pm.meta_key = '_price'
-					AND p.post_status = 'publish'
-					AND p.post_type IN ( 'product', 'product_variation' )
-					AND pm.meta_value <> ''
-					AND pm.meta_value REGEXP '^[0-9]+(\\\\.[0-9]+)?$'"
+				"SELECT MIN(min_price) AS min_price, MAX(max_price) AS max_price
+				FROM {$wpdb->wc_product_meta_lookup}"
 			);
 			if ( $row && null !== $row->min_price && null !== $row->max_price ) {
 				$cached_range = array(
