@@ -64,9 +64,16 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 
 	/**
 	 * Unregister the block so other test classes start from a clean slate.
+	 * Guard on the registry so the early-return path in setUpBeforeClass doesn't
+	 * leave us calling unregister on a block that was never registered — that
+	 * triggers a "Block type … is not registered" notice and fails under
+	 * failOnNotice.
 	 */
 	public static function tearDownAfterClass(): void {
-		if ( function_exists( 'unregister_block_type' ) ) {
+		if (
+			class_exists( '\WP_Block_Type_Registry' )
+			&& \WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack-search/filter-wc-attribute' )
+		) {
 			\unregister_block_type( 'jetpack-search/filter-wc-attribute' );
 		}
 		parent::tearDownAfterClass();
@@ -134,8 +141,12 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'jetpack-search-filter__list--skeleton', $markup );
 		$this->assertStringNotContainsString( 'jetpack-search-filter__item--skeleton', $markup );
-		// Wrapper must be hidden when there are no buckets and no initial load.
-		$this->assertStringContainsString( 'hidden', $markup );
+		// Wrapper must carry the static `hidden` attribute when there are no
+		// buckets and no initial load. Match `hidden` only as a standalone
+		// attribute on the opening div (preceded by whitespace, followed by
+		// whitespace / `>` / `=`) so the assertion can't be satisfied by
+		// `data-wp-bind--hidden`, `aria-hidden`, or `wrapperHidden` substrings.
+		$this->assertSame( 1, preg_match( '/<div[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
 	}
 
 	/**
@@ -150,8 +161,11 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 
 		$this->assertStringContainsString( 'jetpack-search-filter__list--skeleton', $markup );
 		$this->assertStringContainsString( 'jetpack-search-filter__item--skeleton', $markup );
-		// Wrapper must be visible (not hidden) while the skeleton is up.
-		$this->assertStringNotContainsString( ' hidden', $markup );
+		// Wrapper must be visible while the skeleton is up — no static `hidden`
+		// attribute on the opening div. Matches `hidden` only as a standalone
+		// attribute so the indirect bindings (`data-wp-bind--hidden`,
+		// `aria-hidden`, `wrapperHidden`) don't false-positive.
+		$this->assertSame( 0, preg_match( '/<div[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
 	}
 
 	/**
