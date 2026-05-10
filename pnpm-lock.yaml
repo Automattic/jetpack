@@ -4380,6 +4380,9 @@ importers:
       size-limit:
         specifier: 12.1.0
         version: 12.1.0(@size-limit/file@12.1.0)
+      storybook:
+        specifier: 10.3.5
+        version: 10.3.5(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)

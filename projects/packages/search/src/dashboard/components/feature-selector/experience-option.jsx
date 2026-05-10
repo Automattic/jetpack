@@ -10,6 +10,7 @@ import {
 	getExperienceDescription,
 	getExperienceIcon,
 } from './constants';
+import './style.scss';
 
 /**
  * One row in the feature selector — a styled <label> wrapping a native radio
