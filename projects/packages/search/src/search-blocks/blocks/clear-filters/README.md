@@ -16,11 +16,11 @@ This block is included automatically in both the **Filters** and **Collapsible F
 
 The text displayed on the clear button. Defaults to "Clear filters" if left blank. Customise this to match your site's style — for example, "Reset", "Remove all filters", or "Start over".
 
-### Always show button
+### Hide when no filter is active
 
-By default the button is hidden when no filters are active, and only appears once a visitor selects a filter. Turn on **Always show button** to keep it visible at all times.
+Checked by default — the button only appears once a visitor applies a filter. Uncheck this to keep the button visible at all times.
 
-Most sites should leave this off — showing a "Clear filters" button when there is nothing to clear can confuse visitors.
+Most sites should leave this checked — showing a "Clear filters" button when there is nothing to clear can confuse visitors.
 
 ## Tips
 

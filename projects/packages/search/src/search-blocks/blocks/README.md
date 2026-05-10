@@ -98,4 +98,4 @@ Frontend rendering is interactive (uses the WordPress Interactivity API) — cli
 
 ---
 
-> WooCommerce-specific filter blocks (`filter-wc-attribute`, `filter-wc-price`, `filter-wc-rating`, `filter-wc-stock-status`, `filters-product`) are documented separately. The WooCommerce-flavoured Checkbox Filter variations (`Filter by Product Category`, `Filter by Product Tag`, `Filter by Product Brand`) live with the rest of the Checkbox Filter family above because they share its block type and configuration.
+> WooCommerce-specific filter blocks (`filter-wc-attribute`, `filter-wc-price`, `filter-wc-rating`, `filter-wc-stock-status`, `filters-product`) are documented separately. The WooCommerce-flavoured Checkbox Filter variations (`Filter by Product Category`, `Filter by Product Tag`, `Filter by Product Brand`) live with the rest of the Checkbox Filter family above because they share the `jetpack-search/filter-checkbox` block type — they're variations of one block, not separate WC-only blocks.

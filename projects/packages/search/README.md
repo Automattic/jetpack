@@ -10,7 +10,7 @@ This package currently supports three modes:
 
 ## Block editor integration
 
-Jetpack Search ships a set of WordPress blocks for the block editor. See the [Search Blocks documentation](./src/search-blocks/blocks/README.md) for a full list of blocks, their attributes, InnerBlocks relationships, and example markup.
+Jetpack Search ships a set of WordPress blocks for the block editor. See the [Search Blocks documentation](./src/search-blocks/blocks/README.md) for a full list of blocks, their settings, and guidance on building a search page.
 
 ## Using this package in your WordPress plugin
 
