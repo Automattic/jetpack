@@ -204,9 +204,9 @@ class Search_Blocks_Test extends TestCase {
 		};
 		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
 		try {
-			Search_Blocks::is_woocommerce_active();
-			Search_Blocks::is_woocommerce_active();
-			Search_Blocks::is_woocommerce_active();
+			for ( $i = 0; $i < 3; $i++ ) {
+				Search_Blocks::is_woocommerce_active();
+			}
 			$this->assertSame( 1, $call_count, 'Filter ran once; subsequent calls served from cache.' );
 		} finally {
 			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
