@@ -8,6 +8,7 @@ import {
 	deriveVariation,
 	variationToAttributes,
 	variationDefaultLabel,
+	variationOptions,
 	VARIATION_CATEGORY,
 	VARIATION_POST_TAG,
 	VARIATION_POST_TYPE,
@@ -19,6 +20,10 @@ import {
 } from '../../../src/search-blocks/blocks/filter-checkbox/edit.js';
 
 describe( 'deriveVariation', () => {
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
 	it( 'maps the built-in (filterType, taxonomy) pairs to their variation ids', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'category' } ) ).toBe(
 			VARIATION_CATEGORY
@@ -30,7 +35,8 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'author' } ) ).toBe( VARIATION_AUTHOR );
 	} );
 
-	it( 'maps the WC product taxonomy slugs to their dedicated variations', () => {
+	it( 'maps the WC product taxonomy slugs to their dedicated variations on Woo sites', () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_cat' } ) ).toBe(
 			VARIATION_PRODUCT_CAT
 		);
@@ -40,6 +46,19 @@ describe( 'deriveVariation', () => {
 		expect( deriveVariation( { filterType: 'taxonomy', taxonomy: 'product_brand' } ) ).toBe(
 			VARIATION_PRODUCT_BRAND
 		);
+	} );
+
+	it( 'collapses saved WC product slugs to Custom Taxonomy when WooCommerce is inactive', () => {
+		// Mirrors the dormant-attribute pattern in results-list: the saved
+		// attribute stays (re-activating WC restores the dedicated variation
+		// next render), but the inspector picker collapses to a value that
+		// still exists in `variationOptions()` so the SelectControl doesn't
+		// try to render an option that isn't there.
+		[ 'product_cat', 'product_tag', 'product_brand' ].forEach( taxonomy => {
+			expect( deriveVariation( { filterType: 'taxonomy', taxonomy } ) ).toBe(
+				VARIATION_CUSTOM_TAXONOMY
+			);
+		} );
 	} );
 
 	it( 'treats any non-built-in taxonomy slug as Custom Taxonomy', () => {
@@ -56,6 +75,44 @@ describe( 'deriveVariation', () => {
 		// recover, instead of misclassifying as a built-in variation.
 		expect( deriveVariation( {} ) ).toBe( VARIATION_CUSTOM_TAXONOMY );
 		expect( deriveVariation( { filterType: '', taxonomy: '' } ) ).toBe( VARIATION_CUSTOM_TAXONOMY );
+	} );
+} );
+
+describe( 'variationOptions', () => {
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
+	it( 'lists all eight variations when WooCommerce is active', () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: true };
+		expect( variationOptions().map( o => o.value ) ).toEqual( [
+			VARIATION_CATEGORY,
+			VARIATION_POST_TAG,
+			VARIATION_POST_TYPE,
+			VARIATION_AUTHOR,
+			VARIATION_PRODUCT_CAT,
+			VARIATION_PRODUCT_TAG,
+			VARIATION_PRODUCT_BRAND,
+			VARIATION_CUSTOM_TAXONOMY,
+		] );
+	} );
+
+	it( 'drops the three product variations when WooCommerce is inactive', () => {
+		expect( variationOptions().map( o => o.value ) ).toEqual( [
+			VARIATION_CATEGORY,
+			VARIATION_POST_TAG,
+			VARIATION_POST_TYPE,
+			VARIATION_AUTHOR,
+			VARIATION_CUSTOM_TAXONOMY,
+		] );
+	} );
+
+	it( 'drops the three product variations when the gate is explicitly false', () => {
+		globalThis.JetpackSearchBlocksConfig = { isWooCommerceActive: false };
+		const values = variationOptions().map( o => o.value );
+		expect( values ).not.toContain( VARIATION_PRODUCT_CAT );
+		expect( values ).not.toContain( VARIATION_PRODUCT_TAG );
+		expect( values ).not.toContain( VARIATION_PRODUCT_BRAND );
 	} );
 } );
 
