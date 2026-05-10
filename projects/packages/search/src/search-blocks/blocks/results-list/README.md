@@ -2,7 +2,17 @@
 
 The Results List block displays the individual search result items returned by Jetpack Search. It also shows a message when a search finds nothing, and an error message if something goes wrong.
 
+**Editor preview:**
+
 ![Results List block in the editor showing the default expanded layout.](../.docs-assets/results-list.png)
+
+**Settings panel:**
+
+![Results List block settings panel.](../.docs-assets/editor-results-list-inspector.png)
+
+**Front-end view:**
+
+![Results List on the front end showing real result items with titles and metadata.](../.docs-assets/fe-results-list.png)
 
 ## When to use this block
 

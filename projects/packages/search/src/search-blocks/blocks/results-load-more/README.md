@@ -2,7 +2,17 @@
 
 The Load More block adds a button that appends the next page of results to the list when clicked — without reloading the page.
 
+**Editor preview:**
+
 ![Load More button in the editor.](../.docs-assets/results-load-more.png)
+
+**Settings panel:**
+
+![Load More block settings panel.](../.docs-assets/editor-results-load-more-inspector.png)
+
+**Front-end view:**
+
+![Load more results button on the front end.](../.docs-assets/fe-results-load-more.png)
 
 ## When to use this block
 

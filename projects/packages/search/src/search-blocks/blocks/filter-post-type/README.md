@@ -2,7 +2,15 @@
 
 The Post Type Scope block is an invisible editorial control that limits which types of content Jetpack Search returns. It has no visible output for site visitors — it works silently behind the scenes.
 
+**Editor preview:**
+
 ![Post Type Scope block in the editor — visible to the author, hidden on the front end.](../.docs-assets/filter-post-type.png)
+
+**Settings panel:**
+
+![Post Type Scope block settings panel showing Mode and Post Types selectors.](../.docs-assets/editor-filter-post-type-inspector.png)
+
+> This block has no front-end view — it only constrains which post types Jetpack Search returns.
 
 ## When to use this block
 

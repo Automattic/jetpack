@@ -2,9 +2,25 @@
 
 The Collapsible Filters block renders a compact button that opens a popover panel containing filter blocks. It keeps the filter interface out of the way until a visitor needs it.
 
+**Editor preview (collapsed trigger):**
+
 ![Collapsible Filters trigger button in the editor — collapsed default state.](../.docs-assets/filters-popover-trigger.png)
 
-![Open Collapsible Filters panel showing Active Filters, Clear, Category, Tag, and Post Type.](../.docs-assets/filters-popover-open.png)
+**Editor preview (open panel):**
+
+![Open Collapsible Filters panel in the editor showing Active Filters, Clear, Category, Tag, and Post Type.](../.docs-assets/filters-popover-open.png)
+
+**Settings panel:**
+
+![Collapsible Filters block settings panel.](../.docs-assets/editor-filters-popover-inspector.png)
+
+**Front-end view (closed, with active-filter badge):**
+
+![Collapsible Filters trigger on the front end with a badge showing one active filter.](../.docs-assets/fe-filters-popover-trigger.png)
+
+**Front-end view (open):**
+
+![Open Collapsible Filters panel on the front end with populated buckets and an active filter pill.](../.docs-assets/fe-filters-popover-open.png)
 
 ## When to use this block
 

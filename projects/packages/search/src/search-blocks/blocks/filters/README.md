@@ -2,7 +2,17 @@
 
 The Filters block is a vertical container that holds individual filter blocks in a sidebar-style layout. Visitors use the filters inside to narrow search results — by category, tag, date, author, post type, or any custom taxonomy.
 
+**Editor preview (default template):**
+
 ![Default Filters block in the editor — Active Filters, Clear, Category, Tag, Author, Post Type, Date, Post Type Scope.](../.docs-assets/filters-default.png)
+
+**Settings panel:**
+
+![Filters block settings panel.](../.docs-assets/editor-filters-inspector.png)
+
+**Front-end view (with one filter applied):**
+
+![Filters block on the front end with populated buckets and an active filter pill.](../.docs-assets/fe-filters.png)
 
 ## When to use this block
 

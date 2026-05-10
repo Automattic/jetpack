@@ -2,7 +2,17 @@
 
 The Clear Filters block adds a button that removes all active filters at once, returning search results to their unfiltered state.
 
+**Editor preview:**
+
 ![Clear Filters button in the editor.](../.docs-assets/clear-filters.png)
+
+**Settings panel:**
+
+![Clear Filters block settings panel.](../.docs-assets/editor-clear-filters-inspector.png)
+
+**Front-end view (when a filter is active):**
+
+![Clear filters button on the front end.](../.docs-assets/fe-clear-filters.png)
 
 ## When to use this block
 

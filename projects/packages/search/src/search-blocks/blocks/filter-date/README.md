@@ -2,7 +2,17 @@
 
 The Filter by Date block lets visitors narrow search results to a specific year or month. It shows a list of date periods with the number of matching results for each.
 
+**Editor preview:**
+
 ![Filter by Date block in the editor, showing a year-based bucket list.](../.docs-assets/filter-date.png)
+
+**Settings panel:**
+
+![Filter by Date block settings panel.](../.docs-assets/editor-filter-date-inspector.png)
+
+**Front-end view:**
+
+![Filter by Date on the front end.](../.docs-assets/fe-filter-date.png)
 
 ## When to use this block
 

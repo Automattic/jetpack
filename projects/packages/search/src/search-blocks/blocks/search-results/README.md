@@ -2,7 +2,17 @@
 
 The Search Results block is the main results container. When you insert it, it automatically comes pre-built with everything you need to display results: a result count, sort control, the results list, a "load more" button, and an attribution link.
 
+**Editor preview (default template):**
+
 ![Default Search Results block in the editor — count + sort row, results list, load more, attribution.](../.docs-assets/search-results-default.png)
+
+**Settings panel:**
+
+![Search Results block settings panel.](../.docs-assets/editor-search-results-inspector.png)
+
+**Front-end view (after a search returns results):**
+
+![Search Results on the front end with sort, real results, and attribution.](../.docs-assets/fe-search-results.png)
 
 ## When to use this block
 

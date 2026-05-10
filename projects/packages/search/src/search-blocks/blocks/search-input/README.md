@@ -2,7 +2,17 @@
 
 The Search Input block adds the search box to your page. Visitors type their query here and results update automatically as they type.
 
+**Editor preview:**
+
 ![Search Input block in the editor.](../.docs-assets/search-input.png)
+
+**Settings panel:**
+
+![Search Input block settings panel.](../.docs-assets/editor-search-input-inspector.png)
+
+**Front-end view:**
+
+![Search Input on the front end.](../.docs-assets/fe-search-input.png)
 
 ## When to use this block
 

@@ -2,7 +2,17 @@
 
 The Powered by Jetpack block displays a small "Powered by Jetpack" attribution link at the bottom of your search results area.
 
+**Editor preview:**
+
 ![Powered by Jetpack attribution in the editor.](../.docs-assets/powered-by.png)
+
+**Settings panel:** This block has no configurable options.
+
+![Powered by Jetpack block info panel.](../.docs-assets/editor-powered-by-inspector.png)
+
+**Front-end view:**
+
+![Powered by Jetpack on the front end.](../.docs-assets/fe-powered-by.png)
 
 ## When to use this block
 

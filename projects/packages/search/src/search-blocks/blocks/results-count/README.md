@@ -2,7 +2,17 @@
 
 The Results Count block shows visitors how many results were found for their search — for example, "1,234 results for 'wordpress'".
 
+**Editor preview:**
+
 ![Results Count placeholder in the editor.](../.docs-assets/results-count.png)
+
+**Settings panel:** This block has no configurable options.
+
+![Results Count block info panel.](../.docs-assets/editor-results-count-inspector.png)
+
+**Front-end view (after a search returns results):**
+
+![Results Count on the front end showing total result count.](../.docs-assets/fe-results-count.png)
 
 ## When to use this block
 
