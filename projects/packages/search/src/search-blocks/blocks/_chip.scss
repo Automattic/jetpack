@@ -17,6 +17,10 @@
 			border: 1px solid currentColor;
 			border-radius: 9999px;
 			padding: 0.35rem 0.7rem;
+			// The chip selector has higher specificity than the base
+			// `.jetpack-search-filter__item label` rule in style.scss, so the
+			// base `cursor: pointer` is shadowed unless re-declared here.
+			cursor: pointer;
 			transition:
 				background-color 0.2s ease,
 				border-color 0.2s ease,
@@ -36,8 +40,15 @@
 				}
 			}
 
+			// Solid-color focus ring so keyboard users on browsers without
+			// color-mix (Safari < 16.2) still get a visible affordance.
+			// color-mix support gets the translucent ring instead.
 			&:focus-within {
-				box-shadow: 0 0 0 2px color-mix(in sRGB, currentColor 28%, transparent);
+				box-shadow: 0 0 0 2px currentColor;
+
+				@supports (box-shadow: 0 0 0 2px color-mix(in sRGB, black 50%, white)) {
+					box-shadow: 0 0 0 2px color-mix(in sRGB, currentColor 28%, transparent);
+				}
 			}
 
 			&:has(input:checked) {
