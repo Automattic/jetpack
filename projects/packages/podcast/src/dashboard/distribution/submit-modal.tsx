@@ -54,11 +54,16 @@ const isValidShowUrl = ( url: string, allowedHosts: readonly string[] ): boolean
 	return allowedHosts.includes( host );
 };
 
-const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
+const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalProps ) => {
 	const { data: settings } = usePodcastSettings();
 	const { mutate: saveSettings, isPending: isSaving } = useUpdatePodcastSettings();
 
 	const storedUrl = settings?.podcasting_show_urls?.[ app.id ] ?? '';
+	// `null` until settings hydrate; skip confetti rather than guess.
+	const allStoredUrls = settings?.podcasting_show_urls;
+	const hadAnyStoredUrl = allStoredUrls
+		? Object.values( allStoredUrls ).some( ( url ): url is string => !! url )
+		: null;
 	const [ draftUrl, setDraftUrl ] = useState( storedUrl );
 	const [ hasCopied, setHasCopied ] = useState( false );
 	const [ isEditing, setIsEditing ] = useState( false );
@@ -140,11 +145,10 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 				return;
 			}
 			setSaveError( null );
-			// Snapshot before the save lands — `storedUrl` flips to the new value
-			// once the cache resolves, which would mis-mark a first save as a
-			// replace if we read it after.
+			// Snapshot — `storedUrl` flips post-save and would mis-classify.
 			const isReplace = !! storedUrl;
 			const isFirstSave = ! storedUrl;
+			const isFirstEverSave = hadAnyStoredUrl === null ? false : ! hadAnyStoredUrl;
 			saveSettings(
 				{ podcasting_show_urls: { [ app.id ]: normalizedDraft } },
 				{
@@ -168,6 +172,9 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 							is_first_save: isFirstSave,
 							is_replace: isReplace,
 						} );
+						if ( isFirstEverSave ) {
+							onFirstSave?.();
+						}
 						setIsEditing( false );
 						onClose();
 					},
@@ -183,7 +190,17 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 				}
 			);
 		},
-		[ normalizedDraft, app.showHosts, app.id, app.name, saveSettings, storedUrl, onClose ]
+		[
+			normalizedDraft,
+			app.showHosts,
+			app.id,
+			app.name,
+			saveSettings,
+			storedUrl,
+			hadAnyStoredUrl,
+			onFirstSave,
+			onClose,
+		]
 	);
 
 	// Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check

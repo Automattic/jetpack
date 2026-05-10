@@ -44,9 +44,11 @@
 		"@wordpress/notices": "5.44.0",
 		"@wordpress/route": "0.10.0",
 		"@wordpress/ui": "0.11.0",
-		"@wordpress/url": "4.44.0"
+		"@wordpress/url": "4.44.0",
+		"canvas-confetti": "1.9.4"
 	},
 	"devDependencies": {
+		"@types/canvas-confetti": "1.9.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.0",

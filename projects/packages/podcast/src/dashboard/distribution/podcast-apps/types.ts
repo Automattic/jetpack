@@ -17,4 +17,7 @@ export interface PodcastAppModalProps {
 	app: PodcastApp;
 	feedUrl: string;
 	onClose: () => void;
+	// Called once a save lands on the very first show URL stored across all
+	// directories. Used by Distribution to fire a confetti celebration.
+	onFirstSave?: () => void;
 }

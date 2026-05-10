@@ -1,7 +1,6 @@
-// Apple / Spotify / Pocket Casts submission requirements. The pure form is
-// used against the unsaved draft in Settings; the hook variant reads saved
-// settings + the cover image media record + an episode-presence query for
-// the Distribution gate.
+// Submission readiness for podcast directories. Pure helper for the Settings
+// draft; hook variant adds cover-media + episode-presence checks for the
+// Distribution Submit gate.
 
 import { useEntityRecord, useEntityRecords } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
@@ -53,15 +52,12 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 };
 
 /**
- * Stricter rules for the Distribution gate. Adds checks that depend on
- * server-side state (cover image media record, presence of a published
- * episode in the configured category) on top of `getValidationIssues`.
+ * `getValidationIssues` plus cover MIME/dimension/square + episode-presence.
  *
  * @param settings            - Saved settings, or undefined for "not loaded".
  * @param cover               - Cover image media record, or undefined.
- * @param hasPublishedEpisode - True/false once the episode probe resolves;
- *                            undefined while it's still in flight.
- * @return                       Issue strings in stable, user-facing order.
+ * @param hasPublishedEpisode - True/false when the probe resolves; undefined while in flight.
+ * @return                      Issue strings in stable order.
  */
 const getDistributionIssues = (
 	settings: PodcastSettings | undefined,
@@ -95,10 +91,8 @@ const getDistributionIssues = (
 };
 
 /**
- * Validation state for the saved settings — Distribution gates Submit on this.
- * Reads cover image media + episode presence in addition to the saved
- * settings. Both subqueries are gated via core-data's `enabled` option so
- * they don't fire when their inputs aren't ready.
+ * Distribution Submit gate. Reads cover media + an episode probe alongside
+ * saved settings; both subqueries are `enabled`-gated.
  *
  * @return `{ issues, isReady, isLoading }` — issues suppressed during load.
  */

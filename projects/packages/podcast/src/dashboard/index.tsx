@@ -39,13 +39,11 @@ const App = () => {
 	const { mutate: saveSettings } = useUpdatePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
 
-	// Active tab is owned by the URL — `?tab=` query param via the wp-build
-	// router. Default (no `tab`) is Settings. Mirrors Scan/Newsletter's pattern.
+	// `?tab=` owns the active tab; default (no `tab`) is Settings.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
 	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : 'settings';
 
-	// A user landing with a non-default `?tab=` has already opted past the
-	// gateway, so we honor the deep link instead of bouncing them to Welcome.
+	// A `?tab=` deep link opts past the Welcome gate.
 	const [ hasEnabled, setHasEnabled ] = useState( () => isValidTab( search.tab ) );
 	const showWelcome = ! isSetUp && ! hasEnabled;
 
@@ -59,7 +57,7 @@ const App = () => {
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
-					// Default tab keeps a clean URL — only set `tab` for non-defaults.
+					// Default tab keeps a clean URL.
 					tab: next === 'settings' ? undefined : next,
 				} ),
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
@@ -68,8 +66,7 @@ const App = () => {
 	);
 
 	// Mirrors the legacy /podcasting toggle: pre-fills the title from the site
-	// name on first enable so users land on Settings with a sensible default.
-	// Side effect: switch to Settings so the user can pick a category.
+	// name on first enable, then jumps to Settings.
 	const handleEnable = useCallback( () => {
 		const currentTitle = settings?.podcasting_title ?? '';
 		if ( ! currentTitle ) {

@@ -18,11 +18,15 @@ import { __, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { useValidationIssues } from '../hooks/use-validation-issues';
+import ConfettiAnimation from './confetti';
 import { PODCAST_APPS } from './podcast-apps';
 import './style.scss';
 import SubmitModal from './submit-modal';
 import type { PodcatcherId } from '../types';
 import type { FocusEvent } from 'react';
+
+const prefersReducedMotion = (): boolean =>
+	typeof window !== 'undefined' && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 
 const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 	event.currentTarget.select();
@@ -90,6 +94,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const isSubmitBlocked = ! isEnabled || ! isReady || isLoading;
 
 	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
+	const [ showConfetti, setShowConfetti ] = useState( false );
 	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
 
 	const handleSubmitClick = useCallback( ( id: PodcatcherId ) => {
@@ -101,6 +106,10 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 
 	const handleClose = useCallback( () => {
 		setActiveId( null );
+	}, [] );
+
+	const handleFirstSave = useCallback( () => {
+		setShowConfetti( true );
 	}, [] );
 
 	const ActiveModal = activeApp?.Modal ?? SubmitModal;
@@ -206,7 +215,15 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 				</CardBody>
 			</Card>
 
-			{ activeApp && <ActiveModal app={ activeApp } feedUrl={ feedUrl } onClose={ handleClose } /> }
+			{ activeApp && (
+				<ActiveModal
+					app={ activeApp }
+					feedUrl={ feedUrl }
+					onClose={ handleClose }
+					onFirstSave={ handleFirstSave }
+				/>
+			) }
+			{ showConfetti && <ConfettiAnimation trigger={ ! prefersReducedMotion() } delay={ 300 } /> }
 		</>
 	);
 };
