@@ -14,7 +14,7 @@ import { useVideoDetailsForm } from '../../src/dashboard/components/VideoDetails
 import VideoDetailsCard from '../../src/dashboard/components/VideoDetails/video-details-card';
 import { useMockLibrary } from '../../src/dashboard/hooks/use-mock-library';
 import './style.scss';
-import type { MockLibraryItem } from '../../src/dashboard/types/library';
+import type { MockLibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
 const isEditable = ( item: MockLibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
@@ -60,6 +60,21 @@ const Editor = ( {
 }: EditorProps ) => {
 	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
 
+	const openChapters = useCallback( () => {
+		setChaptersOpen( true );
+	}, [ setChaptersOpen ] );
+
+	const closeChapters = useCallback( () => {
+		setChaptersOpen( false );
+	}, [ setChaptersOpen ] );
+
+	const onRatingChange = useCallback(
+		( next: VideoRating ) => {
+			update( { rating: next } );
+		},
+		[ update ]
+	);
+
 	const onSave = useCallback( () => {
 		updateVideoDetails( video.id, values );
 		createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
@@ -102,7 +117,7 @@ const Editor = ( {
 					title={ values.title }
 					description={ values.description }
 					onChange={ update }
-					onOpenChapters={ () => setChaptersOpen( true ) }
+					onOpenChapters={ openChapters }
 				/>
 				<PrivacySharingCard
 					privacy={ values.privacy }
@@ -110,9 +125,9 @@ const Editor = ( {
 					allowDownloads={ values.allowDownloads }
 					onChange={ update }
 				/>
-				<RatingCard value={ values.rating } onChange={ next => update( { rating: next } ) } />
+				<RatingCard value={ values.rating } onChange={ onRatingChange } />
 			</div>
-			<ChaptersHelpModal isOpen={ chaptersOpen } onClose={ () => setChaptersOpen( false ) } />
+			<ChaptersHelpModal isOpen={ chaptersOpen } onClose={ closeChapters } />
 		</AdminPage>
 	);
 };
