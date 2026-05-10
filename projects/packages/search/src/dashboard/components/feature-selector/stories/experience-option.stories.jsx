@@ -176,12 +176,3 @@ Disabled.args = {
 	pendingExperience: null,
 	activeExperience: null,
 };
-
-// Unselected state
-export const Unselected = Template.bind( {} );
-Unselected.args = {
-	experience: EXPERIENCE.INLINE,
-	disabled: false,
-	pendingExperience: EXPERIENCE.EMBEDDED,
-	activeExperience: null,
-};
