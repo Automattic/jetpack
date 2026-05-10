@@ -149,6 +149,89 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * `jetpack_search_blocks_is_woocommerce_active` lets a site force the
+	 * gate true on a non-Woo install — useful for staging previews of
+	 * WC-only Search blocks. The filter result must be cached, so a
+	 * subsequent call returns the override even after the filter is
+	 * removed.
+	 */
+	public function test_is_woocommerce_active_filter_can_force_true() {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_true' );
+		try {
+			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
+		} finally {
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_true' );
+		}
+	}
+
+	/**
+	 * Symmetry: the filter must also be able to force the gate false. We
+	 * can't construct a "WC is loaded" PHPUnit env without polluting the
+	 * global namespace with a `WooCommerce` stub class, so instead the
+	 * test pins the *contract*: the filter receives the probed bool and
+	 * its return value is what the function returns. The cast-to-bool
+	 * test below covers the related "filter result wins over probe" path
+	 * for non-bool returns.
+	 */
+	public function test_is_woocommerce_active_filter_receives_probe_and_return_wins() {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		$received_value = null;
+		$callback       = function ( $value ) use ( &$received_value ) {
+			$received_value = $value;
+			return false;
+		};
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		try {
+			$this->assertFalse( Search_Blocks::is_woocommerce_active() );
+			$this->assertIsBool( $received_value, 'Filter received a bool from the probe.' );
+		} finally {
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		}
+	}
+
+	/**
+	 * Pins the docblock promise: the filter fires once per request and
+	 * the result is cached, so a callback that probes the database or
+	 * reads an option pays its cost once even on a hot path.
+	 */
+	public function test_is_woocommerce_active_filter_only_fires_once_per_request() {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		$call_count = 0;
+		$callback   = function ( $value ) use ( &$call_count ) {
+			++$call_count;
+			return $value;
+		};
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		try {
+			for ( $i = 0; $i < 3; $i++ ) {
+				Search_Blocks::is_woocommerce_active();
+			}
+			$this->assertSame( 1, $call_count, 'Filter ran once; subsequent calls served from cache.' );
+		} finally {
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		}
+	}
+
+	/**
+	 * A filter callback returning a truthy non-bool (`'1'`, `1`, etc.)
+	 * must not poison the strictly-typed `bool` cache. The function casts
+	 * before storing so callers using `===` against `true` still match.
+	 */
+	public function test_is_woocommerce_active_filter_casts_truthy_non_bool_to_true() {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		$callback = static function () {
+			return '1';
+		};
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		try {
+			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
+		} finally {
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		}
+	}
+
+	/**
 	 * Seeded `activeFilters` is the raw URL params — gating moved to
 	 * store/index.js's `initialize()` callback, which can apply it once
 	 * every filter block's render.php has contributed its filterConfig (and
@@ -626,6 +709,10 @@ class Search_Blocks_Test extends TestCase {
 	 * presets or inserts them with the wrong defaults.
 	 */
 	public function test_inject_filter_checkbox_variations_adds_expected_shapes() {
+		// Product variations are WC-gated; flip the probe so this matrix
+		// can assert their full shape. The non-Woo case is covered by
+		// `test_inject_filter_checkbox_variations_drops_product_when_woocommerce_inactive`.
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
 		$variations = Search_Blocks::inject_filter_checkbox_variations(
 			array(
 				array(
@@ -724,6 +811,7 @@ class Search_Blocks_Test extends TestCase {
 	 * a silently-empty filter on sites without a brands extension.
 	 */
 	public function test_inject_filter_checkbox_variations_gates_product_brand_on_taxonomy_existence() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
 		register_taxonomy( 'product_brand', 'post' );
 
 		$variations         = Search_Blocks::inject_filter_checkbox_variations(
@@ -756,6 +844,163 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertLessThan( $custom_position, $brand_position );
 
 		unregister_taxonomy( 'product_brand' );
+	}
+
+	/**
+	 * On non-Woo sites the three product taxonomy variations (product_cat,
+	 * product_tag, product_brand) must NOT appear in the inserter — the
+	 * underlying taxonomies don't exist there, so the variations would
+	 * render silently-empty filters. The non-WC variations stay registered.
+	 */
+	public function test_inject_filter_checkbox_variations_drops_product_when_woocommerce_inactive() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		register_taxonomy( 'product_brand', 'post' );
+		try {
+			$variations         = Search_Blocks::inject_filter_checkbox_variations(
+				array(),
+				new \WP_Block_Type( 'jetpack-search/filter-checkbox' )
+			);
+			$variations_by_name = array_column( $variations, null, 'name' );
+
+			$this->assertArrayNotHasKey( 'product_cat', $variations_by_name );
+			$this->assertArrayNotHasKey( 'product_tag', $variations_by_name );
+			$this->assertArrayNotHasKey( 'product_brand', $variations_by_name );
+			// Non-WC presets are unaffected.
+			$this->assertArrayHasKey( 'category', $variations_by_name );
+			$this->assertArrayHasKey( 'post_tag', $variations_by_name );
+			$this->assertArrayHasKey( 'post_type', $variations_by_name );
+			$this->assertArrayHasKey( 'author', $variations_by_name );
+			$this->assertArrayHasKey( 'custom_taxonomy', $variations_by_name );
+		} finally {
+			unregister_taxonomy( 'product_brand' );
+		}
+	}
+
+	/**
+	 * `is_woocommerce_only_block()` is the canonical predicate that drives
+	 * the three coupled gates — `register_blocks()` registration loop, the
+	 * `filter_block_helpers()` map, and the editor's `register-blocks.js`
+	 * bundle (after the localized list). Membership is decided by exact
+	 * match against `woocommerce_only_block_names()`, so adding a name to
+	 * that list auto-enrolls every gate without further plumbing.
+	 */
+	public function test_is_woocommerce_only_block_matches_canonical_list() {
+		// Every entry on the canonical list resolves to true under both
+		// the full namespaced form and the bare directory basename form
+		// (`register_blocks()` walks dir basenames; the helpers map and
+		// editor bundle hold full names).
+		foreach ( Search_Blocks::woocommerce_only_block_names() as $full_name ) {
+			$this->assertTrue(
+				Search_Blocks::is_woocommerce_only_block( $full_name ),
+				"Expected $full_name to be recognized as WC-only."
+			);
+			$bare = substr( $full_name, (int) strrpos( $full_name, '/' ) + 1 );
+			$this->assertTrue(
+				Search_Blocks::is_woocommerce_only_block( $bare ),
+				"Expected bare basename $bare to be recognized as WC-only."
+			);
+		}
+
+		// `filters-product` lives on the canonical list — it's the WC-specific
+		// filter container — and is caught despite not sharing the
+		// `filter-wc-` prefix the four filter blocks use.
+		$this->assertTrue( Search_Blocks::is_woocommerce_only_block( 'jetpack-search/filters-product' ) );
+		$this->assertTrue( Search_Blocks::is_woocommerce_only_block( 'filters-product' ) );
+
+		// Non-WC blocks must not be caught.
+		$this->assertFalse( Search_Blocks::is_woocommerce_only_block( 'jetpack-search/filter-checkbox' ) );
+		$this->assertFalse( Search_Blocks::is_woocommerce_only_block( 'jetpack-search/results-list' ) );
+		$this->assertFalse( Search_Blocks::is_woocommerce_only_block( 'jetpack-search/filters' ) );
+		$this->assertFalse( Search_Blocks::is_woocommerce_only_block( 'filter-date' ) );
+		// A made-up `filter-wc-foo` that isn't on the canonical list must
+		// not be caught — the gate is a list, not a name pattern.
+		$this->assertFalse( Search_Blocks::is_woocommerce_only_block( 'jetpack-search/filter-wc-bogus' ) );
+	}
+
+	/**
+	 * `filter_block_helpers()` underwrites both `walk_blocks_for_filter_configs()`
+	 * (which reads block trees in post content) and any future caller that
+	 * needs to know whether a block name is filter-shaped. On non-Woo sites
+	 * the WC-only blocks aren't registered, so they must drop out of the
+	 * helper map too — keeping the registry symmetric with what the inserter
+	 * offered.
+	 */
+	public function test_filter_block_helpers_drops_wc_helpers_when_woocommerce_inactive() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		$helpers = $this->invoke_protected( 'filter_block_helpers' );
+
+		$this->assertArrayHasKey( 'jetpack-search/filter-checkbox', $helpers );
+		$this->assertArrayHasKey( 'jetpack-search/filter-date', $helpers );
+		$this->assertArrayNotHasKey( 'jetpack-search/filter-wc-rating', $helpers );
+		$this->assertArrayNotHasKey( 'jetpack-search/filter-wc-attribute', $helpers );
+		$this->assertArrayNotHasKey( 'jetpack-search/filter-wc-stock-status', $helpers );
+	}
+
+	/**
+	 * On Woo sites the helper map must include every WC-only block so
+	 * filter-config collection covers the full filter surface.
+	 */
+	public function test_filter_block_helpers_includes_wc_helpers_when_woocommerce_active() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		$helpers = $this->invoke_protected( 'filter_block_helpers' );
+
+		$this->assertArrayHasKey( 'jetpack-search/filter-wc-rating', $helpers );
+		$this->assertArrayHasKey( 'jetpack-search/filter-wc-attribute', $helpers );
+		$this->assertArrayHasKey( 'jetpack-search/filter-wc-stock-status', $helpers );
+	}
+
+	/**
+	 * `min_price` / `max_price` are WC-only; `filter-wc-price` isn't
+	 * registered on non-Woo sites. A stray deep link must not seed the
+	 * `priceRange` slice — otherwise the JS store would re-emit the params
+	 * on the next URL push and the API request would carry a `range` clause
+	 * for a field the index doesn't have.
+	 */
+	public function test_build_initial_state_drops_price_range_when_woocommerce_inactive() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+		$original_get = $_GET;
+		$_GET         = array(
+			'min_price' => '10',
+			'max_price' => '50',
+		);
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertNull( $state['priceRange'] );
+			// `isLoading` is derived from `is_initial_loading()`, which
+			// pivots on `parse_url_price_range()`. With the price gate
+			// dropped on non-Woo sites, a `?min_price=…` URL must not
+			// flip the page into the loading state — there's no fetch
+			// to wait on. End-to-end coverage for the WC-off branch.
+			$this->assertFalse( $state['isLoading'] );
+		} finally {
+			$_GET = $original_get;
+		}
+	}
+
+	/**
+	 * The same deep link on a Woo site must round-trip into `priceRange`
+	 * so the API request fires with the matching `range` clause on first
+	 * paint — this is the same contract `filter-wc-price` writes to URL.
+	 */
+	public function test_build_initial_state_seeds_price_range_when_woocommerce_active() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		$original_get = $_GET;
+		$_GET         = array(
+			'min_price' => '10',
+			'max_price' => '50',
+		);
+		try {
+			$state = Search_Blocks::build_initial_state();
+			$this->assertSame(
+				array(
+					'min' => 10.0,
+					'max' => 50.0,
+				),
+				$state['priceRange']
+			);
+		} finally {
+			$_GET = $original_get;
+		}
 	}
 
 	/**

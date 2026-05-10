@@ -62,6 +62,13 @@ export const VARIATION_PRODUCT_TAG = 'product_tag';
 export const VARIATION_PRODUCT_BRAND = 'product_brand';
 export const VARIATION_CUSTOM_TAXONOMY = 'custom_taxonomy';
 
+// `window.JetpackSearchBlocksConfig.isWooCommerceActive` is the canonical
+// editor-side gate, localized by `Search_Blocks::enqueue_editor_assets()`.
+// Read at call time (not module init) so tests can flip the gate per case
+// and the editor responds to a runtime change in the localized config.
+const isWooCommerceActive = () =>
+	typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.isWooCommerceActive === true;
+
 /**
  * Identify which built-in variation the current (filterType, taxonomy) pair
  * matches. Any taxonomy-family block whose slug isn't a recognized built-in
@@ -85,16 +92,56 @@ export function deriveVariation( attributes ) {
 	if ( taxonomy === 'post_tag' ) {
 		return VARIATION_POST_TAG;
 	}
-	if ( taxonomy === 'product_cat' ) {
+	// Product taxonomies map to their dedicated variations only when WC is
+	// active. On non-Woo sites the dedicated variations don't exist in the
+	// inspector picker, so a saved `product_cat` block surfaces as Custom
+	// Taxonomy with the slug preserved — author can still edit the block,
+	// and re-activating WC restores the dedicated variation on the next
+	// render. Mirrors the dormant-attribute pattern used by results-list.
+	if ( taxonomy === 'product_cat' && isWooCommerceActive() ) {
 		return VARIATION_PRODUCT_CAT;
 	}
-	if ( taxonomy === 'product_tag' ) {
+	if ( taxonomy === 'product_tag' && isWooCommerceActive() ) {
 		return VARIATION_PRODUCT_TAG;
 	}
-	if ( taxonomy === 'product_brand' ) {
+	if ( taxonomy === 'product_brand' && isWooCommerceActive() ) {
 		return VARIATION_PRODUCT_BRAND;
 	}
 	return VARIATION_CUSTOM_TAXONOMY;
+}
+
+/**
+ * Build the inspector "Filter type" picker options. Mirrors the variations
+ * registered server-side by `Search_Blocks::inject_filter_checkbox_variations()`
+ * — Product Category / Tag / Brand are dropped on non-Woo sites in lockstep
+ * with the inserter so the picker doesn't offer a variation that has no
+ * matching server-side schema.
+ *
+ * Declared as a function (not a module-level constant) so the `__()` calls
+ * run after the editor's i18n is loaded and so each render re-evaluates the
+ * WC gate. Mirrors the same pattern in `results-list/edit.js`.
+ *
+ * @return {Array} SelectControl options.
+ */
+export function variationOptions() {
+	const options = [
+		{ value: VARIATION_CATEGORY, label: __( 'Category', 'jetpack-search-pkg' ) },
+		{ value: VARIATION_POST_TAG, label: __( 'Tag', 'jetpack-search-pkg' ) },
+		{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
+		{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
+	];
+	if ( isWooCommerceActive() ) {
+		options.push(
+			{ value: VARIATION_PRODUCT_CAT, label: __( 'Product Category', 'jetpack-search-pkg' ) },
+			{ value: VARIATION_PRODUCT_TAG, label: __( 'Product Tag', 'jetpack-search-pkg' ) },
+			{ value: VARIATION_PRODUCT_BRAND, label: __( 'Product Brand', 'jetpack-search-pkg' ) }
+		);
+	}
+	options.push( {
+		value: VARIATION_CUSTOM_TAXONOMY,
+		label: __( 'Custom taxonomy', 'jetpack-search-pkg' ),
+	} );
+	return options;
 }
 
 /**
@@ -290,28 +337,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 						__nextHasNoMarginBottom
 						label={ __( 'Filter type', 'jetpack-search-pkg' ) }
 						value={ currentVariation }
-						options={ [
-							{ value: VARIATION_CATEGORY, label: __( 'Category', 'jetpack-search-pkg' ) },
-							{ value: VARIATION_POST_TAG, label: __( 'Tag', 'jetpack-search-pkg' ) },
-							{ value: VARIATION_POST_TYPE, label: __( 'Post Type', 'jetpack-search-pkg' ) },
-							{ value: VARIATION_AUTHOR, label: __( 'Author', 'jetpack-search-pkg' ) },
-							{
-								value: VARIATION_PRODUCT_CAT,
-								label: __( 'Product Category', 'jetpack-search-pkg' ),
-							},
-							{
-								value: VARIATION_PRODUCT_TAG,
-								label: __( 'Product Tag', 'jetpack-search-pkg' ),
-							},
-							{
-								value: VARIATION_PRODUCT_BRAND,
-								label: __( 'Product Brand', 'jetpack-search-pkg' ),
-							},
-							{
-								value: VARIATION_CUSTOM_TAXONOMY,
-								label: __( 'Custom taxonomy', 'jetpack-search-pkg' ),
-							},
-						] }
+						options={ variationOptions() }
 						onChange={ onVariationChange }
 						help={ __(
 							'What this filter groups results by. Switch without deleting the block.',

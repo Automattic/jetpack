@@ -18,7 +18,17 @@ import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, RadioControl, TextControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
-const LAYOUTS = [ 'compact', 'expanded', 'product' ];
+// `product` is WC-only. On non-Woo sites it's pruned from the picker and a
+// saved `product` value collapses to `expanded` — the renderer applies the
+// same fallback in `render.php`, so the editor preview stays in lockstep.
+// `window.JetpackSearchBlocksConfig.isWooCommerceActive` is the canonical
+// editor-side gate, localized by `Search_Blocks::enqueue_editor_assets()`.
+// Read at call time (not module init) so the editor responds to a runtime
+// change in the localized config, and so tests can flip the gate per case.
+const isWooCommerceActive = () =>
+	typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.isWooCommerceActive === true;
+const allowedLayouts = () =>
+	isWooCommerceActive() ? [ 'compact', 'expanded', 'product' ] : [ 'compact', 'expanded' ];
 const DEFAULT_LAYOUT = 'expanded';
 
 const SAMPLE_RESULTS = [
@@ -82,11 +92,19 @@ const SAMPLE_PRODUCTS = [
 // calls run after the block editor's i18n is loaded — otherwise the strings
 // would be cached in the source locale on module init. Mirrors the same
 // pattern in `results-sort/edit.js`.
-const LAYOUT_OPTIONS = () => [
-	{ label: __( 'Compact', 'jetpack-search-pkg' ), value: 'compact' },
-	{ label: __( 'Expanded', 'jetpack-search-pkg' ), value: 'expanded' },
-	{ label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ), value: 'product' },
-];
+const LAYOUT_OPTIONS = () => {
+	const options = [
+		{ label: __( 'Compact', 'jetpack-search-pkg' ), value: 'compact' },
+		{ label: __( 'Expanded', 'jetpack-search-pkg' ), value: 'expanded' },
+	];
+	if ( isWooCommerceActive() ) {
+		options.push( {
+			label: __( 'Product (for WooCommerce stores)', 'jetpack-search-pkg' ),
+			value: 'product',
+		} );
+	}
+	return options;
+};
 
 /**
  * Editor preview for the results-list block.
@@ -103,7 +121,7 @@ export default function ResultsListEdit( { attributes, setAttributes } ) {
 	// class layout binding instead of falling through to the unknown-layout
 	// fallback. Mirrors `$resolve_layout` in render.php.
 	const normalized = stored === 'card' ? 'expanded' : stored;
-	const layout = LAYOUTS.includes( normalized ) ? normalized : DEFAULT_LAYOUT;
+	const layout = allowedLayouts().includes( normalized ) ? normalized : DEFAULT_LAYOUT;
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ layout }`,
 	} );

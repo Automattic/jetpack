@@ -72,6 +72,15 @@ $layout = $attrs['layout'] ?? 'expanded';
 if ( 'card' === $layout ) {
 	$layout = 'expanded';
 }
+// The product layout reads WC-shaped fields (price, sale price, rating)
+// off each result. On a non-Woo site those fields don't exist, so
+// rendering would emit empty price/rating regions. Collapse to the
+// neutral `expanded` layout so an author who saved `product` on a Woo
+// site that later deactivates WC still sees a sensible result page.
+// Mirrors the inspector-side gate in edit.js.
+if ( 'product' === $layout && ! Search_Blocks::is_woocommerce_active() ) {
+	$layout = 'expanded';
+}
 $features      = $resolve_layout( $layout );
 $wrapper_class = 'jetpack-search-results--' . $features['modifier'];
 $wrapper_attrs = get_block_wrapper_attributes( array( 'class' => $wrapper_class ) );

@@ -57,6 +57,25 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
+	 * The product layout is WC-only and `render.php` collapses it to
+	 * `expanded` on non-Woo sites (RSM-2805). Most tests in this class
+	 * exercise the product layout; flip the WC gate on for every case so
+	 * the renderer emits product-shaped markup, then clear it in tearDown.
+	 * Non-Woo collapse is covered separately in
+	 * `test_product_layout_collapses_to_expanded_when_woocommerce_inactive`.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+	}
+
+	protected function tearDown(): void {
+		Search_Blocks::set_is_woocommerce_active_for_testing( null );
+		Search_Blocks::reset_initial_loading_cache();
+		parent::tearDown();
+	}
+
+	/**
 	 * Render the results-list block with the given attributes via `do_blocks`.
 	 *
 	 * @param array $attributes Block attributes.
@@ -99,6 +118,27 @@ class Results_List_Render_Test extends TestCase {
 		$markup = $this->render( array( 'layout' => 'compact' ) );
 		$this->assertStringNotContainsString( 'jetpack-search-results__path', $markup );
 		$this->assertStringNotContainsString( 'jetpack-search-results__image-link', $markup );
+	}
+
+	/**
+	 * On non-Woo sites the `product` layout collapses to `expanded` —
+	 * product-shaped fields (price, sale price, rating) don't exist on
+	 * non-product results, so leaving the WC-aware render path live
+	 * would emit empty price/rating regions. Authors who saved `product`
+	 * on a Woo site that later deactivates WC still see a sensible page.
+	 */
+	public function test_product_layout_collapses_to_expanded_when_woocommerce_inactive() {
+		Search_Blocks::set_is_woocommerce_active_for_testing( false );
+
+		$markup = $this->render( array( 'layout' => 'product' ) );
+
+		$this->assertStringContainsString( 'jetpack-search-results--expanded', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results--product', $markup );
+		// The product-only rating + price + match-hint regions must not
+		// reach the rendered markup.
+		$this->assertStringNotContainsString( 'jetpack-search-results__rating', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results__price', $markup );
+		$this->assertStringNotContainsString( 'jetpack-search-results__match-hint', $markup );
 	}
 
 	/**
