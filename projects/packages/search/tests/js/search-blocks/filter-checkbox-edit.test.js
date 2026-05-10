@@ -4,8 +4,11 @@
 // because subtle changes (e.g. dropping `previousTaxonomy` for Author) have
 // silently broken slug round-trips in the past.
 
+import { render, screen } from '@testing-library/react';
 import {
+	default as FilterCheckboxEdit,
 	deriveVariation,
+	normalizeDisplayStyle,
 	variationToAttributes,
 	variationDefaultLabel,
 	VARIATION_CATEGORY,
@@ -17,6 +20,111 @@ import {
 	VARIATION_PRODUCT_BRAND,
 	VARIATION_CUSTOM_TAXONOMY,
 } from '../../../src/search-blocks/blocks/filter-checkbox/edit.js';
+
+jest.mock( '@wordpress/block-editor', () => ( {
+	useBlockProps: props => ( {
+		className: 'wp-block-jetpack-search-filter-checkbox',
+		...props,
+	} ),
+	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
+} ) );
+
+let controlIdCounter = 0;
+const nextControlId = () => `mock-control-${ ++controlIdCounter }`;
+
+beforeEach( () => {
+	controlIdCounter = 0;
+} );
+
+jest.mock( '@wordpress/components', () => ( {
+	PanelBody: ( { children } ) => <div>{ children }</div>,
+	Placeholder: ( { children } ) => <div>{ children }</div>,
+	SelectControl: ( { label, value, options = [], onChange } ) => {
+		const id = nextControlId();
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<select
+					id={ id }
+					value={ value || '' }
+					onChange={ event => onChange( event.target.value ) }
+				>
+					{ options.map( option => (
+						<option key={ option.value } value={ option.value } disabled={ !! option.disabled }>
+							{ option.label }
+						</option>
+					) ) }
+				</select>
+			</>
+		);
+	},
+	RangeControl: ( { label, value, onChange, min = 0, max = 100 } ) => {
+		const id = nextControlId();
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="range"
+					min={ min }
+					max={ max }
+					value={ value }
+					onChange={ event => onChange( Number( event.target.value ) ) }
+				/>
+			</>
+		);
+	},
+	TextControl: ( { label, value, onChange } ) => {
+		const id = nextControlId();
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="text"
+					value={ value || '' }
+					onChange={ event => onChange( event.target.value ) }
+				/>
+			</>
+		);
+	},
+	ToggleControl: ( { label, checked, onChange } ) => {
+		const id = nextControlId();
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="checkbox"
+					checked={ !! checked }
+					onChange={ event => onChange( event.target.checked ) }
+				/>
+			</>
+		);
+	},
+	// Minimal stub for the __experimentalToggleGroupControl family — renders
+	// label + children so existing preview snapshot tests run; the picker UX
+	// itself isn't exercised in this file.
+	__experimentalToggleGroupControl: ( { label, children } ) => (
+		<fieldset aria-label={ label }>
+			<legend>{ label }</legend>
+			{ children }
+		</fieldset>
+	),
+	__experimentalToggleGroupControlOption: ( { label, value } ) => (
+		<button type="button" data-value={ value }>
+			{ label }
+		</button>
+	),
+} ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: jest.fn( () => null ),
+} ) );
+
+jest.mock( '@wordpress/i18n', () => ( {
+	__: text => text,
+} ) );
 
 describe( 'deriveVariation', () => {
 	it( 'maps the built-in (filterType, taxonomy) pairs to their variation ids', () => {
@@ -193,5 +301,79 @@ describe( 'variationDefaultLabel', () => {
 	it( 'returns empty string for custom taxonomies so the caller falls back to the generic placeholder', () => {
 		expect( variationDefaultLabel( { filterType: 'taxonomy', taxonomy: 'genre' } ) ).toBe( '' );
 		expect( variationDefaultLabel( {} ) ).toBe( '' );
+	} );
+} );
+
+describe( 'normalizeDisplayStyle', () => {
+	it( 'defaults to checkbox-list for missing or unknown values', () => {
+		expect( normalizeDisplayStyle() ).toBe( 'checkbox-list' );
+		expect( normalizeDisplayStyle( 'bogus' ) ).toBe( 'checkbox-list' );
+		expect( normalizeDisplayStyle( 'checkbox-list' ) ).toBe( 'checkbox-list' );
+	} );
+
+	it( 'accepts chips', () => {
+		expect( normalizeDisplayStyle( 'chips' ) ).toBe( 'chips' );
+	} );
+} );
+
+describe( 'FilterCheckboxEdit display style preview', () => {
+	it( 'renders the chip-mode preview DOM shape', () => {
+		render(
+			<FilterCheckboxEdit
+				attributes={ {
+					filterType: 'taxonomy',
+					taxonomy: 'category',
+					displayStyle: 'chips',
+					showCount: true,
+					maxItems: 2,
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getAllByRole( 'listitem' ) ).toMatchInlineSnapshot( `
+			[
+			  <li
+			    class="jetpack-search-filter__item"
+			  >
+			    <label>
+			      <input
+			        disabled=""
+			        type="checkbox"
+			      />
+			      <span
+			        class="jetpack-search-filter__label"
+			      >
+			        First option
+			      </span>
+			      <span
+			        class="jetpack-search-filter__count"
+			      >
+			        24
+			      </span>
+			    </label>
+			  </li>,
+			  <li
+			    class="jetpack-search-filter__item"
+			  >
+			    <label>
+			      <input
+			        disabled=""
+			        type="checkbox"
+			      />
+			      <span
+			        class="jetpack-search-filter__label"
+			      >
+			        Second option
+			      </span>
+			      <span
+			        class="jetpack-search-filter__count"
+			      >
+			        12
+			      </span>
+			    </label>
+			  </li>,
+			]
+		` );
 	} );
 } );

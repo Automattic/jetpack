@@ -4,10 +4,10 @@
  * Shows a labeled list of sample checkbox options mirroring the runtime DOM
  * shape so designers can style the filter list in place. The inspector
  * exposes the user-tunable attributes (filter type, label, showCount,
- * maxItems, bucketSortOrder). The filter-type control lets authors swap
- * between the Category / Tag / Post Type / Author / Product Category /
- * Product Tag / Product Brand / Custom Taxonomy variations without
- * deleting and re-inserting the block.
+ * maxItems, bucketSortOrder, displayStyle). The filter-type control lets
+ * authors swap between the Category / Tag / Post Type / Author / Product
+ * Category / Product Tag / Product Brand / Custom Taxonomy variations
+ * without deleting and re-inserting the block.
  *
  * Custom Taxonomy is the one variation whose target isn't fixed by the
  * inserter choice: its variation seeds `taxonomy=''` so the inspector
@@ -23,6 +23,10 @@ import {
 	RangeControl,
 	TextControl,
 	ToggleControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -186,6 +190,17 @@ export function variationDefaultLabel( attributes ) {
 }
 
 /**
+ * Coerce saved displayStyle values to the supported enum so inspector UI and
+ * editor preview always render from a valid CSS variant.
+ *
+ * @param {string} value - Raw display style attribute.
+ * @return {string} Either `checkbox-list` or `chips`.
+ */
+export function normalizeDisplayStyle( value ) {
+	return value === 'chips' ? 'chips' : 'checkbox-list';
+}
+
+/**
  * Edit component for the filter-checkbox block.
  *
  * @param {object}   props               - Block props.
@@ -194,7 +209,8 @@ export function variationDefaultLabel( attributes ) {
  * @return {object} Rendered element.
  */
 export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
-	const blockProps = useBlockProps();
+	const displayStyle = normalizeDisplayStyle( attributes?.displayStyle );
+	const blockProps = useBlockProps( { 'data-display-style': displayStyle } );
 	const currentVariation = deriveVariation( attributes );
 	const isCustomTaxonomy = currentVariation === VARIATION_CUSTOM_TAXONOMY;
 	const taxonomy = attributes?.taxonomy || '';
@@ -353,6 +369,20 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 						checked={ showCount }
 						onChange={ value => setAttributes( { showCount: !! value } ) }
 					/>
+					<ToggleGroupControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						isBlock
+						label={ __( 'Display style', 'jetpack-search-pkg' ) }
+						value={ displayStyle }
+						onChange={ value => setAttributes( { displayStyle: normalizeDisplayStyle( value ) } ) }
+					>
+						<ToggleGroupControlOption
+							value="checkbox-list"
+							label={ __( 'Checkbox list', 'jetpack-search-pkg' ) }
+						/>
+						<ToggleGroupControlOption value="chips" label={ __( 'Chips', 'jetpack-search-pkg' ) } />
+					</ToggleGroupControl>
 					<RangeControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
