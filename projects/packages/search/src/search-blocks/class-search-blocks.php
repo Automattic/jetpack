@@ -551,7 +551,7 @@ class Search_Blocks {
 		}
 		$is_wc = self::is_woocommerce_active();
 		foreach ( $pattern_files as $pattern_file ) {
-			if ( ! $is_wc && str_starts_with( basename( $pattern_file ), 'wc-' ) ) {
+			if ( ! $is_wc && 0 === strpos( basename( $pattern_file ), 'wc-' ) ) {
 				continue;
 			}
 			require_once $pattern_file;
