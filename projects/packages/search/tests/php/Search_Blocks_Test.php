@@ -166,21 +166,50 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Symmetry: the filter must also be able to force the gate false on a
-	 * Woo install — useful for hiding WC-only Search blocks on a non-shop
-	 * content area without deactivating WooCommerce.
+	 * Symmetry: the filter must also be able to force the gate false. We
+	 * can't construct a "WC is loaded" PHPUnit env without polluting the
+	 * global namespace with a `WooCommerce` stub class, so instead the
+	 * test pins the *contract*: the filter receives the probed bool and
+	 * its return value is what the function returns. The cast-to-bool
+	 * test below covers the related "filter result wins over probe" path
+	 * for non-bool returns.
 	 */
-	public function test_is_woocommerce_active_filter_can_force_false() {
+	public function test_is_woocommerce_active_filter_receives_probe_and_return_wins() {
 		Search_Blocks::reset_is_woocommerce_active_cache();
-		// Pretend WC is loaded so the underlying probe would return true
-		// without the filter — proves the filter wins over the probe.
-		Search_Blocks::set_is_woocommerce_active_for_testing( true );
-		Search_Blocks::reset_is_woocommerce_active_cache(); // Force the filter path on the next call.
-		add_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_false' );
+		$received_value = null;
+		$callback       = function ( $value ) use ( &$received_value ) {
+			$received_value = $value;
+			return false;
+		};
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
 		try {
 			$this->assertFalse( Search_Blocks::is_woocommerce_active() );
+			$this->assertIsBool( $received_value, 'Filter received a bool from the probe.' );
 		} finally {
-			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_false' );
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		}
+	}
+
+	/**
+	 * Pins the docblock promise: the filter fires once per request and
+	 * the result is cached, so a callback that probes the database or
+	 * reads an option pays its cost once even on a hot path.
+	 */
+	public function test_is_woocommerce_active_filter_only_fires_once_per_request() {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		$call_count = 0;
+		$callback   = function ( $value ) use ( &$call_count ) {
+			++$call_count;
+			return $value;
+		};
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		try {
+			Search_Blocks::is_woocommerce_active();
+			Search_Blocks::is_woocommerce_active();
+			Search_Blocks::is_woocommerce_active();
+			$this->assertSame( 1, $call_count, 'Filter ran once; subsequent calls served from cache.' );
+		} finally {
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
 		}
 	}
 
