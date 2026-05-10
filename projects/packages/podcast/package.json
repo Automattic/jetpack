@@ -48,11 +48,11 @@
 		"canvas-confetti": "1.9.4"
 	},
 	"devDependencies": {
-		"@types/canvas-confetti": "1.9.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.0",
 		"@babel/runtime": "7.29.2",
+		"@types/canvas-confetti": "1.9.0",
 		"@types/react": "18.3.28",
 		"@wordpress/base-styles": "6.20.0",
 		"@wordpress/browserslist-config": "6.44.0",
