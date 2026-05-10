@@ -1,49 +1,50 @@
-# Filter by Date — `jetpack-search/filter-date`
+# Filter by Date
 
-> Group Jetpack Search results into yearly or monthly time buckets.
+The Filter by Date block lets visitors narrow search results to a specific year or month. It shows a list of date periods with the number of matching results for each.
 
 <!-- screenshot placeholder -->
 
-The Filter by Date block renders a list of date-range checkboxes that let visitors scope a search to a single year or month. Buckets are aggregated by Jetpack Search and sorted by the configured order. Each bucket label shows the year or year–month and optionally the result count.
+## When to use this block
 
-The block is server-rendered (`render.php`) and hydrated by `view.js`.
+Add this block inside a **Filters** container when your content is date-sensitive and visitors are likely to search within a specific time period — for example, on a news site, a blog with a long archive, or a documentation site with versioned releases.
 
----
+## Available settings
 
-## Attributes
+### Date grouping
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `interval` | `string` (`"year"` \| `"month"`) | `"year"` | Granularity of date buckets: yearly or monthly. |
-| `label` | `string` | `""` | Heading displayed above the date list. Defaults to a translated string (e.g. "Date") when empty. |
-| `showCount` | `boolean` | `true` | Whether to display result counts beside each date option. |
-| `maxItems` | `integer` | `10` | Maximum number of date buckets to display (1–50). |
-| `bucketSortOrder` | `string` (`"newest"` \| `"oldest"` \| `"count"`) | `"newest"` | How to order the date buckets: most recent first, oldest first, or by result count descending. |
+Choose the granularity of the date buckets:
 
----
+| Option | Description |
+|--------|-------------|
+| **Year** (default) | Results grouped by year (e.g. 2024, 2023, 2022) |
+| **Month** | Results grouped by year and month (e.g. December 2024, November 2024) |
 
-## Block relationships
+Use **Year** for broad archives. Use **Month** for sites that publish frequently and where recent content matters.
 
-Intended child of `jetpack-search/filters`. Has no InnerBlocks of its own. Multiple instances may coexist (e.g. one for yearly, one for monthly buckets).
+### Filter heading
 
----
+The label shown above the date list. Defaults to "Date" if left blank. Customise it for your context — for example, "Publication year" or "Release date".
 
-## Minimum example markup
+### Show result counts
 
-```html
-<!-- wp:jetpack-search/filter-date /-->
-```
+Shows the number of results next to each date option (e.g. "2024 (87)"). Enabled by default.
 
-Monthly buckets, limited to 6, ordered by count:
+### Maximum number of options
 
-```html
-<!-- wp:jetpack-search/filter-date {"interval":"month","maxItems":6,"bucketSortOrder":"count"} /-->
-```
+The maximum number of date periods to display. Defaults to 10. Lower this if you only want to show recent years, or raise it to expose a longer archive.
 
----
+### Order dates by
 
-## Rendering notes
+Controls the order in which date options are listed:
 
-- **Server-rendered** via `render.php`. The PHP renderer derives a unique `filterKey` from `(interval)` via `Filter_Date::derive_filter_key()` and registers the filter's configuration into the shared `jetpack-search` Interactivity state via `wp_interactivity_state()`.
-- Requires `wp_interactivity_state()` (available since WP 6.5); renders nothing on older cores.
-- Deep-linked date selections are pre-checked server-side via `Search_Blocks::pre_hydration_filter_view()`.
+| Option | Description |
+|--------|-------------|
+| **Newest first** (default) | Most recent periods at the top |
+| **Oldest first** | Earliest periods at the top |
+| **Count** | Periods with the most results at the top |
+
+## Tips
+
+- For most content sites, **Newest first** is the right default — visitors usually want recent content.
+- Use **Month** granularity only if your site publishes often enough that year buckets would contain too many results to be useful.
+- Combine the date filter with a **Checkbox Filter** for category or tag to let visitors narrow results by both topic and time period.

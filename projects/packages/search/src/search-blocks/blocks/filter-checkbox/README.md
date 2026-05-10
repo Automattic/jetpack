@@ -1,80 +1,56 @@
-# Checkbox Filter — `jetpack-search/filter-checkbox`
+# Checkbox Filter
 
-> Checkbox filter for Jetpack Search — group results by taxonomy, post type, or author.
+The Checkbox Filter block lets visitors narrow search results by selecting one or more values from a list — for example, filtering by Category, Tag, Author, or Post Type. Each selected checkbox updates results immediately.
 
 <!-- screenshot placeholder -->
 
-The Checkbox Filter block renders a titled list of checkbox options that let visitors narrow search results by a chosen dimension (taxonomy term, post type, or author). Eight **variations** are registered in the inserter, each pre-seeded for a specific filter type, so authors reach for "Filter by Category" rather than configuring the generic block manually. The variation can be changed later in the block inspector without deleting and re-inserting the block.
+## When to use this block
 
-The block is server-rendered (`render.php`) and hydrated by `view.js`.
+Add this block inside a **Filters** or **Collapsible Filters** container. You can add multiple Checkbox Filter blocks to let visitors filter by different dimensions at the same time.
 
----
+## Choosing what to filter by
 
-## Attributes
+When you insert this block, the editor offers ready-made variations for the most common filter types. Pick the one you need:
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `filterType` | `string` (`"taxonomy"` \| `"post_type"` \| `"author"`) | `"taxonomy"` | The primary dimension this filter operates on. |
-| `taxonomy` | `string` | `"category"` | When `filterType` is `"taxonomy"`, the slug of the taxonomy to filter by (e.g. `"category"`, `"post_tag"`, or any custom taxonomy slug). Ignored when `filterType` is `"post_type"` or `"author"`. |
-| `label` | `string` | `""` | Heading displayed above the checkbox list. Defaults to the variation-specific label (see table below) when empty. |
-| `showCount` | `boolean` | `true` | Whether to display result counts beside each option. |
-| `maxItems` | `integer` | `10` | Maximum number of options to display (1–50). |
-| `bucketSortOrder` | `string` (`"count"` \| `"alpha"`) | `"count"` | How to order the options: by result count descending (`"count"`) or alphabetically (`"alpha"`). |
+| Variation | What it filters |
+|-----------|----------------|
+| **Category** | WordPress post categories |
+| **Tag** | WordPress post tags |
+| **Post Type** | Content types (posts, pages, etc.) |
+| **Author** | Post authors |
+| **Product Category** | WooCommerce product categories |
+| **Product Tag** | WooCommerce product tags |
+| **Product Brand** | WooCommerce product brands |
+| **Custom taxonomy** | Any other taxonomy registered on your site |
 
----
+You can change the filter type later in the block settings panel without deleting and re-inserting the block.
 
-## Variations
+## Available settings
 
-| Variation name | `filterType` | `taxonomy` | Default label |
-|----------------|-------------|-----------|---------------|
-| `category` | `taxonomy` | `category` | "Category" |
-| `post_tag` | `taxonomy` | `post_tag` | "Tag" |
-| `post_type` | `post_type` | — | "Post Type" |
-| `author` | `author` | — | "Author" |
-| `product_cat` | `taxonomy` | `product_cat` | "Product Category" |
-| `product_tag` | `taxonomy` | `product_tag` | "Product Tag" |
-| `product_brand` | `taxonomy` | `product_brand` | "Product Brand" |
-| `custom_taxonomy` | `taxonomy` | `""` | *(label required)* |
+### Filter heading
 
-> Variations are registered server-side in `Search_Blocks::inject_filter_checkbox_variations()`.
+The label shown above the checkbox list. Each variation has a sensible default (e.g. "Category", "Tag"). Customise it to match your site's terminology — for example, rename "Tag" to "Topic" or "Category" to "Department".
 
----
+### Show result counts
 
-## Block relationships
+Shows the number of results next to each option (e.g. "Technology (42)"). Enabled by default. Turn this off for a cleaner look if counts aren't useful to your visitors.
 
-Intended child of `jetpack-search/filters` or `jetpack-search/filters-popover`. Has no InnerBlocks of its own. Multiple instances of this block may coexist in the same parent with different configurations.
+### Maximum number of options
 
----
+The maximum number of checkbox options to display. Defaults to 10. Set this lower (e.g. 5) to keep the filter panel short, or higher (up to 50) to expose more choices.
 
-## Minimum example markup
+### Sort options by
 
-```html
-<!-- wp:jetpack-search/filter-checkbox /-->
-```
+Controls the order in which options appear:
 
-Category variation:
+| Option | Description |
+|--------|-------------|
+| **Count** (default) | Most results first — puts the most popular options at the top |
+| **Alphabetical** | Options listed A–Z — predictable for visitors who know what they're looking for |
 
-```html
-<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
-```
+## Tips
 
-Author variation with custom label, counts hidden, alphabetical sort, max 5 items:
-
-```html
-<!-- wp:jetpack-search/filter-checkbox {"filterType":"author","label":"By author","showCount":false,"maxItems":5,"bucketSortOrder":"alpha"} /-->
-```
-
-Custom taxonomy:
-
-```html
-<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"genre","label":"Genre"} /-->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The PHP renderer derives a unique `filterKey` from `(filterType, taxonomy)` via `Filter_Checkbox::derive_filter_key()`, registers the filter's configuration into the shared `jetpack-search` Interactivity state via `wp_interactivity_state()`, then emits the checkbox list DOM.
-- The block renders nothing (early return) when the `filterKey` is empty (e.g. a custom taxonomy with no slug set) or when `wp_interactivity_state()` is unavailable (WP < 6.5).
-- Deep-linked filter selections (from the URL) are pre-checked server-side via `Search_Blocks::pre_hydration_filter_view()` so the page is meaningful before JavaScript hydrates.
-- The `Custom taxonomy` variation surfaces a `<SelectControl>` in the editor inspector populated from registered non-built-in taxonomies via the `core` data store. Built-in taxonomies (`category`, `post_tag`, `product_cat`, `product_tag`, `product_brand`) are excluded from this picker since they have dedicated variations.
+- Add a **Category** and **Tag** filter to most content sites — these are the dimensions visitors most commonly want to filter by.
+- Use **Alphabetical** sorting when your taxonomy terms have roughly equal counts and visitors know the names they're looking for (e.g. country names, product brands).
+- Use **Count** sorting when you want to surface the most content-rich categories first.
+- If your site has a custom taxonomy (e.g. "Genre", "Series", "Department"), use the **Custom taxonomy** variation and select it from the settings panel.

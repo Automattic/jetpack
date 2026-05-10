@@ -1,37 +1,22 @@
-# Powered by Jetpack — `jetpack-search/powered-by`
+# Powered by Jetpack
 
-> Attribution link to jetpack.com.
+The Powered by Jetpack block displays a small "Powered by Jetpack" attribution link at the bottom of your search results area.
 
 <!-- screenshot placeholder -->
 
-The Powered by Jetpack block renders a small colophon linking to the Jetpack Search upgrade page. **Free-plan sites must always display this attribution**; `jetpack-search/search-results` enforces this by automatically appending the block if it is missing from the panel at render time. Paid-plan authors can remove or hide the block freely.
+## When to use this block
 
-The block is server-rendered (`render.php`) and has no JavaScript view module.
+This block is included automatically when you insert the **Search Results** container.
 
----
+**Free plan:** This attribution is required on the free Jetpack Search plan. If you remove this block from the results area, it will be added back automatically when the page renders.
 
-## Attributes
+**Paid plan:** You can remove or reposition this block freely. Removing it entirely will not cause it to reappear.
 
-This block exposes no custom attributes. Styling is controlled through the standard block-supports UI (color, spacing, typography).
+## Settings
 
----
+This block has no configurable options beyond standard styling controls (color, typography, spacing) in the editor sidebar.
 
-## Block relationships
+## Tips
 
-Intended child of `jetpack-search/search-results`. Typically placed at the bottom of the results panel. If absent from the serialised inner block HTML on a free-plan site, `search-results/render.php` appends a server-rendered instance automatically.
-
----
-
-## Minimum example markup
-
-```html
-<!-- wp:jetpack-search/powered-by /-->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. No JavaScript view module — the block outputs static HTML only.
-- The attribution URL is locale-aware: for non-English locales, the URL prefix is set to the two-letter language code (e.g., `https://fr.jetpack.com/upgrade/search?utm_source=poweredby`).
-- The Jetpack logo SVG uses a hard-coded brand-green fill (`#069E08`) regardless of any color-support overrides applied to the block.
+- If you are on a paid plan and want to remove the attribution, simply select the block inside **Search Results** and delete it.
+- You can move this block to the top of the results area or elsewhere in the container using the block mover controls.

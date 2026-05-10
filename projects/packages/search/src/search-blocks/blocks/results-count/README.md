@@ -1,37 +1,24 @@
-# Results Count — `jetpack-search/results-count`
+# Results Count
 
-> Displays the Jetpack Search results count.
+The Results Count block shows visitors how many results were found for their search — for example, "1,234 results for 'wordpress'".
 
 <!-- screenshot placeholder -->
 
-The Results Count block renders a `<p>` element whose text content is bound to the `state.resultsCountText` property in the shared `jetpack-search` Interactivity API store. On first paint the element displays a localised "Searching…" string (seeded server-side when a URL-triggered initial fetch is expected); after hydration the store replaces it with the live count (e.g., "1,234 results for 'wordpress'").
+## When to use this block
 
-The block is server-rendered (`render.php`) and hydrated by `view.js`.
+This block is included automatically when you insert the **Search Results** container. It's typically placed beside the **Sort By** block so the count and sort control appear at opposite ends of a row above the results list.
 
----
+## Settings
 
-## Attributes
+This block has no configurable options. Use the standard block styling controls in the editor sidebar (color, typography, spacing) to adjust how the count text looks.
 
-This block exposes no custom attributes.
+## What visitors see
 
----
+- Before a search is typed: the count area is empty.
+- When a search is in progress: shows "Searching…"
+- After results load: shows the total result count, e.g. "42 results for 'headless'".
 
-## Block relationships
+## Tips
 
-Intended child of `jetpack-search/search-results`. Typically placed beside `jetpack-search/results-sort` in a `core/group` (flex, space-between) so the two controls sit at opposite ends of a row.
-
----
-
-## Minimum example markup
-
-```html
-<!-- wp:jetpack-search/results-count /-->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The PHP renderer emits an empty `<p>` with a `data-wp-text="state.resultsCountText"` directive; the actual count text is injected by the Interactivity API on hydration.
-- The element is always rendered (even before a query produces results) so that a flex layout placing `results-count` and `results-sort` at the two ends of a row does not collapse when count text is absent.
-- When the URL carries a search query, `Search_Blocks::build_initial_state()` seeds `state.resultsCountText` with a localised "Searching…" string via `wp_interactivity_state()`, preventing a blank flash before JS hydrates.
+- You can remove this block from the **Search Results** container if you prefer not to show a count.
+- Pair it with the **Sort By** block in a flex-row group to create a clean header row above the results.

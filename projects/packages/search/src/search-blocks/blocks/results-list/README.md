@@ -1,53 +1,35 @@
-# Results List — `jetpack-search/results-list`
+# Results List
 
-> Renders Jetpack Search results, plus the empty-state and error messages for the same region.
+The Results List block displays the individual search result items returned by Jetpack Search. It also shows a message when a search finds nothing, and an error message if something goes wrong.
 
 <!-- screenshot placeholder -->
 
-The Results List block renders three sibling regions inside a single block wrapper:
+## When to use this block
 
-1. **Results list** — a skeleton placeholder on first paint, replaced by live search results after hydration.
-2. **Empty-state message** — shown when a query returns no results (`state.showNoResults`).
-3. **Error message** — shown when the search request fails (`state.showError`).
+This block is included automatically when you insert the **Search Results** container. You generally don't need to add it separately, but you can remove it and re-add it from the inserter if you need to reposition it within the container.
 
-The active region is controlled by Interactivity API store flags so exactly one message is visible at a time. The block supports three result layouts: `compact`, `expanded` (default), and `product`.
+## Available settings
 
-The block is server-rendered (`render.php`) and hydrated by `view.js`.
+### Layout
 
----
+Choose how much detail each result shows:
 
-## Attributes
+| Layout | What it displays |
+|--------|-----------------|
+| **Expanded** (default) | Thumbnail image, title, excerpt, URL path, and date |
+| **Compact** | Title and date only — good for dense results lists or sidebars |
+| **Product** | Thumbnail image, title, price, and star rating — designed for WooCommerce shops |
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `layout` | `string` (`"compact"` \| `"expanded"` \| `"product"`) | `"expanded"` | Controls the visual density and which metadata fields are rendered per result. `compact` — title + date; `expanded` — image + title + excerpt + path + date; `product` — image + title + price + star rating. |
-| `noResultsMessage` | `string` | `""` | Message displayed when the search returns zero results. Defaults to a translated string when empty. |
-| `errorMessage` | `string` | `""` | Message displayed when the search request fails. Defaults to a translated string when empty. |
+### No results message
 
----
+The text shown when a visitor's search returns zero results. Defaults to a translated "No results found" message if left blank. Customise this to match your site's tone — for example, "We couldn't find anything for that search. Try different keywords."
 
-## Block relationships
+### Error message
 
-Intended child of `jetpack-search/search-results`. Has no InnerBlocks of its own.
+The text shown if a search request fails (for example, due to a network issue). Defaults to a translated error string if left blank.
 
----
+## Tips
 
-## Minimum example markup
-
-```html
-<!-- wp:jetpack-search/results-list /-->
-```
-
-With all attributes:
-
-```html
-<!-- wp:jetpack-search/results-list {"layout":"compact","noResultsMessage":"Nothing found.","errorMessage":"Something went wrong."} /-->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The PHP renderer resolves layout-specific feature flags (whether to show image, path, excerpt, date, price, rating) using an internal `$resolve_layout` closure.
-- Each result item is wrapped in Interactivity API directives (`data-wp-each`, `data-wp-bind`, etc.) that are hydrated from `state.results` in the `jetpack-search` store.
-- The skeleton placeholder (`data-wp-bind--hidden="!state.isLoading"`) is always present in the DOM but hidden outside the initial load so cumulative layout shift is minimised.
+- Use the **Compact** layout when results appear in a narrow sidebar or a space-constrained area.
+- Use the **Product** layout for WooCommerce stores where visitors expect to see prices and ratings at a glance.
+- Keep your "no results" message friendly and actionable — suggest broadening the search or checking spelling.

@@ -1,63 +1,42 @@
-# Collapsible Filters — `jetpack-search/filters-popover`
+# Collapsible Filters
 
-> Compact filter trigger that opens a popover containing filter checkboxes.
+The Collapsible Filters block renders a compact button that opens a popover panel containing filter blocks. It keeps the filter interface out of the way until a visitor needs it.
 
 <!-- screenshot placeholder -->
 
-The Collapsible Filters block renders a compact icon button that opens a popover dialog containing filter blocks. It is the alternative to the sidebar `jetpack-search/filters` layout when screen real estate is limited. Popover open/close state is owned by the shared `jetpack-search` Interactivity API store (`state.isFilterPopoverOpen`). An active-filter badge on the trigger button shows the count of currently selected filters.
+## When to use this block
 
-The block is a **container (InnerBlocks)** block, server-rendered (`render.php`), and hydrated by `view.js`.
+Use the Collapsible Filters block when you need filters in a compact layout — for example, a search bar in a page header or a narrow content area where a full sidebar won't fit.
 
----
+When one or more filters are active, a badge on the button shows how many are currently applied, so visitors always know filters are in use even when the panel is closed.
 
-## Attributes
+If you have space for a permanent sidebar, use the [Filters](../filters/README.md) block instead.
 
-This block exposes no custom attributes.
+## What's included by default
 
----
+When you first add this block it contains:
 
-## Default template
+- **Active Filters** — shows selected filters as dismissible pills inside the panel
+- **Clear Filters** — a button to remove all active filters
+- **Category** filter
+- **Tag** filter
+- **Post Type** filter
 
-When first inserted the block is pre-populated with:
+You can remove, rearrange, or add more filter blocks inside the popover from the block inserter.
 
-```
-jetpack-search/active-filters
-jetpack-search/clear-filters
-jetpack-search/filter-checkbox  (taxonomy=category)
-jetpack-search/filter-checkbox  (taxonomy=post_tag)
-jetpack-search/filter-checkbox  (filterType=post_type)
-```
+## What visitors see
 
----
+- A small filter icon button in your layout.
+- Clicking the button opens a popover panel with the filter blocks inside.
+- Clicking outside the panel or pressing Escape closes it.
+- When filters are active, a count badge on the button shows how many are applied.
 
-## Allowed inner blocks
+## Styling
 
-- `jetpack-search/filter-checkbox`
-- `jetpack-search/active-filters`
-- `jetpack-search/clear-filters`
-- `jetpack-search/filter-post-type`
+This block has no custom style settings beyond the standard block controls. Style the individual filter blocks inside the popover as needed.
 
----
+## Tips
 
-## Block relationships
-
-No required parent block. Typically placed near the `jetpack-search/search-input` block in a compact search layout.
-
----
-
-## Minimum example markup
-
-```html
-<!-- wp:jetpack-search/filters-popover -->
-<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
-<!-- /wp:jetpack-search/filters-popover -->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The PHP renderer emits a trigger button and a popover `<div role="dialog">`. The trigger button carries `data-wp-bind--aria-expanded` and `data-wp-on--click` directives; the window receives `data-wp-on-window--click` and `data-wp-on-window--keydown` listeners to close the popover on outside click or Escape key.
-- A `<span class="jetpack-search-filters-popover__badge">` showing the active filter count is revealed only when `state.activeFilterCount` is non-zero.
-- The `save` function returns `<InnerBlocks.Content />` (not `null`) so inner block delimiters survive serialisation.
-- Each inner block still runs its own Interactivity API logic; the popover wrapper is a layout shell only.
+- Keep the number of filters inside the popover manageable — too many makes the popover tall and hard to use on mobile.
+- Place **Active Filters** and **Clear Filters** at the top of the popover so visitors can quickly see and remove applied filters without scrolling.
+- Pair this block with the **Search Input** block in a row for a compact search-bar layout.

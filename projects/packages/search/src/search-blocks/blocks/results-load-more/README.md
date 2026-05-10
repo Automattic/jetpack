@@ -1,45 +1,26 @@
-# Load More — `jetpack-search/results-load-more`
+# Load More
 
-> Loads the next page of Jetpack Search results.
+The Load More block adds a button that appends the next page of results to the list when clicked — without reloading the page.
 
 <!-- screenshot placeholder -->
 
-The Load More block renders a button that appends the next page of results to the current list when clicked. It is hidden while no search has been performed or when all results have been loaded, and shows a spinner while the next page is being fetched.
+## When to use this block
 
-The block is server-rendered (`render.php`) and hydrated by `view.js`.
+This block is included automatically when you insert the **Search Results** container. It's placed at the bottom of the results list.
 
----
+## Available settings
 
-## Attributes
+### Button label
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `buttonLabel` | `string` | `""` | The button label text. When empty (or whitespace-only) the translated string `"Load more results"` is used at render time. |
+The text shown on the load more button. Defaults to "Load more results" if left blank. Customise this to match your site's style — for example, "Show more", "See more results", or "Load next page".
 
----
+## What visitors see
 
-## Block relationships
+- When there are no more results: the button is hidden.
+- While a page of results is loading: the button is replaced with a spinner.
+- When more results are available: the button is visible and clickable.
 
-Intended child of `jetpack-search/search-results`. Has no InnerBlocks of its own.
+## Tips
 
----
-
-## Minimum example markup
-
-```html
-<!-- wp:jetpack-search/results-load-more /-->
-```
-
-With a custom label:
-
-```html
-<!-- wp:jetpack-search/results-load-more {"buttonLabel":"Show more"} /-->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The wrapper `<div>` is rendered with `hidden` on first paint and is revealed only when `state.showLoadMore` becomes `true` (i.e., there is at least one more page of results), via a `data-wp-bind--hidden` directive.
-- The button is hidden while `state.isLoadingMore` is `true` and a spinner is shown in its place, giving instant visual feedback during the next-page fetch.
-- The Interactivity API action bound to the button is `actions.loadMore`.
+- You can remove this block if you prefer not to have pagination (all results will load at once, which may be slow for broad queries).
+- Keep the button label short — "Load more" or "Show more" is enough.

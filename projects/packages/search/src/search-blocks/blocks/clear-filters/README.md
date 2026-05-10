@@ -1,46 +1,28 @@
-# Clear Filters — `jetpack-search/clear-filters`
+# Clear Filters
 
-> A button that clears every active filter.
+The Clear Filters block adds a button that removes all active filters at once, returning search results to their unfiltered state.
 
 <!-- screenshot placeholder -->
 
-The Clear Filters block renders a button that resets all active Jetpack Search filters (both discrete taxonomy/post-type filters in `state.activeFilters` and the WooCommerce price range in `state.priceRange`) in a single click. By default the button is hidden when no filter is active, showing itself only after a visitor selects a filter. Authors can pin the button visible with the `hideWhenInactive` attribute.
+## When to use this block
 
-The block is server-rendered (`render.php`) and hydrated by `view.js`.
+Add this block inside your **Filters** or **Collapsible Filters** container, near the top alongside the **Active Filters** block. Together they give visitors full control over their filter selections — removing filters one at a time (via Active Filters pills) or all at once.
 
----
+This block is included automatically in both the **Filters** and **Collapsible Filters** default templates.
 
-## Attributes
+## Available settings
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `label` | `string` | `""` | Button label text. Defaults to the translated string `"Clear filters"` when empty. |
-| `hideWhenInactive` | `boolean` | `true` | When `true` (default) the button is hidden while no filter is active. Set to `false` to keep the button always visible. |
+### Button label
 
----
+The text displayed on the clear button. Defaults to "Clear filters" if left blank. Customise this to match your site's style — for example, "Reset", "Remove all filters", or "Start over".
 
-## Block relationships
+### Always show button
 
-Typically placed as an early child of `jetpack-search/filters` or `jetpack-search/filters-popover`, after `jetpack-search/active-filters`. Has no InnerBlocks of its own.
+By default the button is hidden when no filters are active, and only appears once a visitor selects a filter. Turn on **Always show button** to keep it visible at all times.
 
----
+Most sites should leave this off — showing a "Clear filters" button when there is nothing to clear can confuse visitors.
 
-## Minimum example markup
+## Tips
 
-```html
-<!-- wp:jetpack-search/clear-filters /-->
-```
-
-With all attributes:
-
-```html
-<!-- wp:jetpack-search/clear-filters {"label":"Reset","hideWhenInactive":false} /-->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The PHP renderer mirrors `state.hasActiveFilters` on the server: it reads `state.activeFilters` and `state.priceRange` from the seeded Interactivity state to determine whether to render the button pre-hidden. This prevents a flash of the button on a fresh URL (no active filters) before JS hydrates.
-- The Interactivity API action bound to the button is `actions.clearFilters`, which resets both `activeFilters` and `priceRange` in one shot.
-- When `hideWhenInactive` is `false` the button is always rendered visible; clicks while no filter is active are no-ops.
+- Keep the default "hide when inactive" behaviour on for a cleaner experience — the button only appears when it does something useful.
+- Place the Clear Filters block directly after the **Active Filters** block so both controls appear together at the top of your filter panel.

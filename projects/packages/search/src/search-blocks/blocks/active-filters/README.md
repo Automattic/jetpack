@@ -1,37 +1,26 @@
-# Active Filters — `jetpack-search/active-filters`
+# Active Filters
 
-> Pills showing the currently selected Jetpack Search filters.
+The Active Filters block shows visitors which filters they have currently applied, displayed as dismissible pills. Clicking a pill removes that specific filter.
 
 <!-- screenshot placeholder -->
 
-The Active Filters block renders a row of dismissible pill elements, one per selected filter value. Each pill shows the filter name and value; clicking it removes that filter from the active selection. The wrapper is hidden on first paint when no filter is active, avoiding layout shift before JavaScript hydrates.
+## When to use this block
 
-The block is server-rendered (`render.php`) and hydrated by `view.js`.
+Add this block at the top of your **Filters** or **Collapsible Filters** container so visitors can easily see what filters are in effect and remove individual ones without having to scroll back to the filter controls.
 
----
+This block is included automatically in both the **Filters** and **Collapsible Filters** default templates.
 
-## Attributes
+## Settings
 
-This block exposes no custom attributes.
+This block has no configurable options. It automatically reflects whatever filters are currently active.
 
----
+## What visitors see
 
-## Block relationships
+- When no filters are applied: this block is hidden.
+- When one or more filters are active: a row of pills appears, one per selected filter value (for example, "Category: News" or "Author: Jane").
+- Clicking a pill removes that filter and updates the results immediately.
 
-Commonly placed as the first child of `jetpack-search/filters` or `jetpack-search/filters-popover`, above the individual filter blocks. Has no InnerBlocks of its own.
+## Tips
 
----
-
-## Minimum example markup
-
-```html
-<!-- wp:jetpack-search/active-filters /-->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The PHP renderer reads the seeded Interactivity API state (`state.activeFilters`, `state.priceRange`) to determine whether any filter is active on first paint. If active, the wrapper is rendered without the `hidden` attribute so it is visible before hydration; otherwise it starts hidden and is revealed by a `data-wp-bind--hidden="!state.hasActiveFilters"` directive once JS hydrates.
-- The block inspects both `activeFilters` (discrete taxonomy / post-type selections) and `priceRange` (WooCommerce price range) so a price-only deep link does not keep the wrapper hidden after hydration.
-- Individual pills are rendered client-side via `data-wp-each` iterating over `state.activeFiltersList`.
+- Place this block before your filter controls (category, date, etc.) so visitors see their selections at a glance without scanning down the full filter list.
+- Pair it with the **Clear Filters** block to give visitors both fine-grained (remove one filter at a time) and bulk (remove all) control.

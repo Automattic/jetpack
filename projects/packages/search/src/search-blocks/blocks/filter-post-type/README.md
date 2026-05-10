@@ -1,55 +1,52 @@
-# Post Type Scope — `jetpack-search/filter-post-type`
+# Post Type Scope
 
-> Author-configured filter that constrains Jetpack Search results to a fixed set of post types — or removes specific post types. Configured in the editor; renders nothing on the front end.
+The Post Type Scope block is an invisible editorial control that limits which types of content Jetpack Search returns. It has no visible output for site visitors — it works silently behind the scenes.
 
 <!-- screenshot placeholder -->
 
-The Post Type Scope block is a **silent constraint** block. It has no visible front-end output. Instead, `render.php` writes an `include`/`exclude` constraint into the shared `jetpack-search` Interactivity API state (`state.staticPostTypes`). Every search request the store issues will respect this constraint, filtering the result set to only (or away from) the configured post types before displaying results.
+## When to use this block
 
-This block is distinct from using the `post_type` variation of `jetpack-search/filter-checkbox`, which surfaces post-type filtering as a visitor-facing checkbox list. Use `filter-post-type` when you want to silently limit or exclude post types without exposing the filter to visitors.
+Use this block when you want to restrict the search results to specific content types without exposing the filter to visitors. For example:
 
-The block is server-rendered (`render.php`) and has no visible front-end markup.
+- A documentation site that only wants search to return pages (not posts or media).
+- A blog that wants to exclude media attachments from results.
+- A membership site that wants to surface only certain post types to all visitors.
 
----
+> **Looking for a visitor-facing post type filter?** Use the [Checkbox Filter](../filter-checkbox/README.md) block with the **Post Type** variation instead. That block shows visitors a checkbox list to filter by post type themselves.
 
-## Attributes
+## Available settings
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `mode` | `string` (`"include"` \| `"exclude"`) | `"exclude"` | Whether the `postTypes` list is an allowlist (`include` — only these post types appear) or a denylist (`exclude` — these post types are hidden). |
-| `postTypes` | `string[]` | `[]` | Array of post-type slugs to include or exclude. When empty, the block has no effect. |
+### Mode
 
----
+Choose whether the post types list works as an allowlist or a denylist:
 
-## Block relationships
+| Mode | Description |
+|------|-------------|
+| **Include** | Only the selected post types will appear in results. Everything else is excluded. |
+| **Exclude** | The selected post types are removed from results. Everything else is included. |
 
-Intended child of `jetpack-search/filters`. Multiple instances of this block can coexist; `Filter_Post_Type::merge_state()` merges their constraints into a single `staticPostTypes` object in the store. Has no InnerBlocks of its own.
+### Post types
 
----
+Select the post type slugs to include or exclude. Common post types:
 
-## Minimum example markup
+| Slug | Content type |
+|------|-------------|
+| `post` | Blog posts |
+| `page` | Pages |
+| `attachment` | Media uploads |
 
-```html
-<!-- wp:jetpack-search/filter-post-type /-->
-```
+Custom post types registered by themes or plugins will also appear here.
 
-Include only `post` and `page`:
+## Examples
 
-```html
-<!-- wp:jetpack-search/filter-post-type {"mode":"include","postTypes":["post","page"]} /-->
-```
+**Show only blog posts and pages:**
+Add this block, set mode to **Include**, and select `post` and `page`.
 
-Exclude `attachment`:
+**Hide media attachments from results:**
+Add this block, set mode to **Exclude**, and select `attachment`.
 
-```html
-<!-- wp:jetpack-search/filter-post-type {"mode":"exclude","postTypes":["attachment"]} /-->
-```
+## Tips
 
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The renderer calls `Filter_Post_Type::build_constraint()` to derive an `{ include: string[], exclude: string[] }` object, then calls `wp_interactivity_state()` to write or deep-merge it into `state.staticPostTypes`.
-- **No markup is emitted.** The block's sole job is to inject store state; the results store reads `staticPostTypes` when building Elasticsearch query filters.
-- Requires `wp_interactivity_state()` (available since WP 6.5); skips silently on older cores.
-- When both `include` and `exclude` are empty the block exits without touching the store state.
+- If the block is added but no post types are selected, it has no effect.
+- You can add multiple Post Type Scope blocks — their constraints are combined automatically.
+- This is the right choice when the content type restriction is an editorial decision, not something visitors should control.

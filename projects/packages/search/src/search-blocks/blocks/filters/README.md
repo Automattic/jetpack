@@ -1,67 +1,48 @@
-# Filters — `jetpack-search/filters`
+# Filters
 
-> Vertical stack of Jetpack Search filter blocks.
+The Filters block is a vertical container that holds filter blocks in a sidebar-style layout. Visitors use the filters inside to narrow search results by category, tag, date, author, post type, or any custom taxonomy.
 
 <!-- screenshot placeholder -->
 
-The Filters block (internally `jetpack-search/filters`) is a **container (InnerBlocks)** block that arranges filter blocks in a vertical stack — the canonical sidebar-style layout. It is pre-populated with the most common filters; authors can rearrange, remove, or add more from the inserter. The container itself contributes only a styled wrapper `<div>`; each inner filter block handles its own markup and Interactivity API wiring.
+## When to use this block
 
-The block is server-rendered (`render.php`) and serialises inner blocks via `save: () => <InnerBlocks.Content />`.
+Use the Filters block when you have a sidebar column or a dedicated filter area that should always be visible alongside results. It works best in wide layouts where there is enough space to show the filters permanently.
 
-> **Note:** In the issue description and some documentation this block is referred to as `filters-stack`. The actual block name is `jetpack-search/filters` and its directory is `src/search-blocks/blocks/filters/`.
+If you need a more compact option — for example, a search bar in a page header — use the [Collapsible Filters](../filters-popover/README.md) block instead.
 
----
+## What's included by default
 
-## Attributes
+When you first add this block it contains:
 
-This block exposes no custom attributes. Styling is controlled through the standard block-supports UI (color, spacing, border, typography).
+- **Active Filters** — shows the currently applied filters as dismissible pills
+- **Clear Filters** — a button to remove all active filters at once
+- **Category** filter — checkbox list for post categories
+- **Tag** filter — checkbox list for post tags
+- **Author** filter — checkbox list for post authors
+- **Post Type** filter — checkbox list for post types
+- **Date** filter — list of years to filter by
+- **Post Type Scope** — a silent constraint block (hidden from visitors)
 
----
+You can remove any of these, rearrange them, or add more filter blocks from the block inserter.
 
-## Default template
+## Adding and removing filters
 
-When first inserted the block is pre-populated with:
+To add a new filter, click the **+** icon at the bottom of the Filters block and choose from:
 
-```
-jetpack-search/active-filters
-jetpack-search/clear-filters
-jetpack-search/filter-checkbox  (taxonomy=category)
-jetpack-search/filter-checkbox  (taxonomy=post_tag)
-jetpack-search/filter-checkbox  (filterType=author)
-jetpack-search/filter-checkbox  (filterType=post_type)
-jetpack-search/filter-date      (interval=year)
-jetpack-search/filter-post-type
-```
+- **Checkbox Filter** — for categories, tags, authors, post types, or custom taxonomies
+- **Filter by Date** — for yearly or monthly date ranges
+- **Active Filters** — to show currently selected filters
+- **Clear Filters** — to add a reset button
+- **Post Type Scope** — to silently restrict which post types appear
 
----
+To remove a filter, select it and press Delete or use the block options menu.
 
-## Allowed inner blocks
+## Styling
 
-- `jetpack-search/active-filters`
-- `jetpack-search/clear-filters`
-- `jetpack-search/filter-checkbox`
-- `jetpack-search/filter-date`
-- `jetpack-search/filter-post-type`
+Use the standard block styling controls in the editor sidebar (color, spacing, border, typography) to style the filter panel's wrapper. Each inner filter block can also be styled individually.
 
----
+## Tips
 
-## Block relationships
-
-No required parent block. Usually placed in a sidebar column or above/below the `jetpack-search/search-results` container.
-
----
-
-## Minimum example markup
-
-```html
-<!-- wp:jetpack-search/filters -->
-<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->
-<!-- /wp:jetpack-search/filters -->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The PHP renderer receives `$content` (serialised inner block HTML) and wraps it in a `<div class="jetpack-search-filters">` with `get_block_wrapper_attributes()`.
-- The `save` function returns `<InnerBlocks.Content />` (not `null`) so inner block delimiters survive serialisation.
+- Place the Filters block in a sidebar column next to the **Search Results** block for the classic two-column search layout.
+- Put **Active Filters** and **Clear Filters** at the top of the block so visitors can easily see and remove what they've applied.
+- Add multiple **Checkbox Filter** blocks to let visitors filter by different dimensions at the same time.

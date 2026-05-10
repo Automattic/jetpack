@@ -1,47 +1,27 @@
-# Search Input — `jetpack-search/search-input`
+# Search Input
 
-> Text input that drives Jetpack Search results.
+The Search Input block adds the search box to your page. Visitors type their query here and results update automatically as they type.
 
 <!-- screenshot placeholder -->
 
-The Search Input block renders a query text field that is wired to the shared Jetpack Search [Interactivity API](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-interactivity/) store. Typing in the field issues a new search request and updates all other blocks (`results-list`, `results-count`, `results-sort`, etc.) on the page without a full reload.
+## When to use this block
 
-The block is server-rendered (`render.php`) and hydrated on the front end by `view.js`.
+Add this block wherever you want visitors to enter a search query — typically at the top of a dedicated search page or inside a header layout. It works alongside the **Search Results** and **Filters** blocks, which react to whatever is typed in the input.
 
----
+## Available settings
 
-## Attributes
+Open the block settings panel in the editor to configure these options:
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `placeholder` | `string` | `""` | Input placeholder text. When empty the translated string `"Search…"` is used at render time. |
-| `showIcon` | `boolean` | `true` | Whether to display the magnifying-glass icon inside the input. |
-| `submitOnly` | `boolean` | `false` | When `true` the block hides the live-search spinner and only triggers a search on explicit form submission (Enter key or submit button). Useful when the page layout is not optimised for search-as-you-type. |
+### Placeholder text
+The text displayed inside the empty search box before a visitor types anything. Defaults to "Search…" if left blank. Use this to give visitors a hint — for example, "Search posts, pages, and more".
 
----
+### Show search icon
+Toggle the magnifying-glass icon inside the input on or off. Enabled by default. Turn it off if the design of your page already makes the input's purpose clear.
 
-## Block relationships
+### Search on submit only
+By default results update as the visitor types (live search). Enable **Search on submit only** to only trigger a search when the visitor presses Enter or clicks a submit button. Useful when your page layout is not designed for rapid updates, or when you want to reduce the number of search requests.
 
-This block has no required parent or children. It is typically placed alongside the `jetpack-search/filters` or `jetpack-search/filters-popover` block in a sidebar or header region, and above the `jetpack-search/search-results` container.
+## Tips
 
----
-
-## Minimum example markup
-
-```html
-<!-- wp:jetpack-search/search-input /-->
-```
-
-With all attributes:
-
-```html
-<!-- wp:jetpack-search/search-input {"placeholder":"Find something…","showIcon":false,"submitOnly":true} /-->
-```
-
----
-
-## Rendering notes
-
-- **Server-rendered** via `render.php`. The initial `value=` attribute of the `<input>` is seeded from the URL (`?s=` or `?q=`) by `Search_Blocks::parse_url_search_query()` so deep-linked searches display the correct query on first paint before JavaScript hydrates.
-- Uses `wp_unique_id()` to associate the `<label>` with the `<input>` via matching `for`/`id` pairs.
-- The Interactivity API namespace is `jetpack-search`; the relevant store action is `actions.onSearchInput`.
+- The block automatically picks up a search query from the URL (e.g. `?s=wordpress`) when the page loads, so visitors arriving from a search engine or a link will see the correct query pre-filled.
+- You can style the input using the block's color, spacing, typography, and border settings in the editor sidebar.
