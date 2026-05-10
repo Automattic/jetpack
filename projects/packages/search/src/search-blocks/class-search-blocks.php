@@ -178,6 +178,15 @@ class Search_Blocks {
 	 * satisfied. New callers earlier in the request lifecycle should defer
 	 * the probe to a `plugins_loaded`-or-later hook.
 	 *
+	 * **Filter:** `jetpack_search_blocks_is_woocommerce_active` lets a site
+	 * force the gate either way — e.g. a WC site that wants to hide
+	 * WC-only Search blocks from a non-shop content area, or a non-Woo
+	 * site that wants to render WC-only blocks for a staging preview.
+	 * Filter fires once per request, before the result is memoized, so a
+	 * filter that probes the database or another expensive condition pays
+	 * its cost once and is then served from the cache for the remainder
+	 * of the request.
+	 *
 	 * @return bool
 	 */
 	public static function is_woocommerce_active(): bool {
@@ -185,7 +194,22 @@ class Search_Blocks {
 			// Pass `false` so a missing class doesn't fire the autoloader
 			// on non-Woo sites — the gate is hit on every request, and
 			// any upstream autoloader work is wasted when the answer is "no".
-			self::$is_woocommerce_active_cache = class_exists( 'WooCommerce', false );
+			$probed = class_exists( 'WooCommerce', false );
+
+			/**
+			 * Override whether Jetpack Search treats WooCommerce as active.
+			 *
+			 * Cast to bool before caching so a filter returning a truthy
+			 * non-bool (e.g. `1`) doesn't poison strictly-typed callers.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $is_active Result of the WooCommerce class probe.
+			 */
+			self::$is_woocommerce_active_cache = (bool) apply_filters(
+				'jetpack_search_blocks_is_woocommerce_active',
+				$probed
+			);
 		}
 		return self::$is_woocommerce_active_cache;
 	}
