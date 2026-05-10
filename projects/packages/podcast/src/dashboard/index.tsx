@@ -1,8 +1,9 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
-import { lazy, Suspense, useCallback, useEffect, useState } from '@wordpress/element';
+import { lazy, Suspense, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import ErrorBoundary from './error-boundary';
 import { usePodcastSettings, useUpdatePodcastSettings } from './hooks/use-podcast-settings';
@@ -22,8 +23,8 @@ const TabFallback = () => (
 
 const VALID_TABS: readonly TabName[] = [ 'settings', 'episodes', 'distribution' ];
 
-const isValidTab = ( value: string | null ): value is TabName =>
-	!! value && ( VALID_TABS as readonly string[] ).includes( value );
+const isValidTab = ( value: unknown ): value is TabName =>
+	typeof value === 'string' && ( VALID_TABS as readonly string[] ).includes( value );
 
 const PAGE_TITLE = 'Podcast'; /* product name; not translated */
 const PAGE_SUBTITLE = __(
@@ -31,48 +32,40 @@ const PAGE_SUBTITLE = __(
 	'jetpack-podcast'
 );
 
+type StageSearch = Record< string, unknown > & { tab?: string };
+
 const App = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
 	const { mutate: saveSettings } = useUpdatePodcastSettings();
 	const isSetUp = !! settings && settings.podcasting_category_id > 0;
-	// A user landing with a valid tab hash has already opted past the gateway,
-	// so we honor the deep link instead of bouncing them to Welcome.
-	const initialHash = isValidTab( window.location.hash.replace( /^#/, '' ) );
-	const [ hasEnabled, setHasEnabled ] = useState( initialHash );
+
+	// Active tab is owned by the URL — `?tab=` query param via the wp-build
+	// router. Default (no `tab`) is Settings. Mirrors Scan/Newsletter's pattern.
+	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
+	const activeTab: TabName = isValidTab( search.tab ) ? search.tab : 'settings';
+
+	// A user landing with a non-default `?tab=` has already opted past the
+	// gateway, so we honor the deep link instead of bouncing them to Welcome.
+	const [ hasEnabled, setHasEnabled ] = useState( () => isValidTab( search.tab ) );
 	const showWelcome = ! isSetUp && ! hasEnabled;
 
-	const [ activeTab, setActiveTab ] = useState< TabName >( () => {
-		const hash = window.location.hash.replace( /^#/, '' );
-		return isValidTab( hash ) ? hash : 'settings';
-	} );
+	const navigate = useNavigate();
 
-	useEffect( () => {
-		if ( showWelcome ) {
-			return;
-		}
-		const next = `#${ activeTab }`;
-		if ( window.location.hash !== next ) {
-			window.history.replaceState( null, '', next );
-		}
-	}, [ activeTab, showWelcome ] );
-
-	useEffect( () => {
-		const onHashChange = () => {
-			const hash = window.location.hash.replace( /^#/, '' );
-			if ( isValidTab( hash ) ) {
-				setActiveTab( hash );
-				setHasEnabled( true );
+	const handleTabChange = useCallback(
+		( next: string | null ) => {
+			if ( ! isValidTab( next ) ) {
+				return;
 			}
-		};
-		window.addEventListener( 'hashchange', onHashChange );
-		return () => window.removeEventListener( 'hashchange', onHashChange );
-	}, [] );
-
-	const handleTabChange = useCallback( ( value: string | null ) => {
-		if ( isValidTab( value ) ) {
-			setActiveTab( value );
-		}
-	}, [] );
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( {
+					...prev,
+					// Default tab keeps a clean URL — only set `tab` for non-defaults.
+					tab: next === 'settings' ? undefined : next,
+				} ),
+			} as unknown as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate ]
+	);
 
 	// Mirrors the legacy /podcasting toggle: pre-fills the title from the site
 	// name on first enable so users land on Settings with a sensible default.
@@ -86,12 +79,11 @@ const App = () => {
 			}
 		}
 		setHasEnabled( true );
-		setActiveTab( 'settings' );
 	}, [ settings?.podcasting_title, saveSettings ] );
 
 	const goToSettings = useCallback( () => {
-		setActiveTab( 'settings' );
-	}, [] );
+		handleTabChange( 'settings' );
+	}, [ handleTabChange ] );
 
 	if ( isLoading ) {
 		return (

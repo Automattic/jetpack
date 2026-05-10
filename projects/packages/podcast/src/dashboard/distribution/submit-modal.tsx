@@ -1,6 +1,7 @@
 // Default 3-step modal. Apps with diverging flows (one-click API submission,
 // etc.) set their own `Modal` on the PodcastApp to bypass this.
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import {
 	Button,
 	ExternalLink,
@@ -25,6 +26,9 @@ import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podca
 import type { PodcastAppModalProps } from './podcast-apps';
 import type { FormEvent } from 'react';
 
+// Mirrors `SHOW_URL_MAX_LENGTH` in src/class-settings.php.
+const SHOW_URL_MAX_LENGTH = 2048;
+
 // `prependHTTPS` leaves an existing `http://` alone, but the backend rejects
 // non-https — upgrade ourselves.
 const normalizeShowUrl = ( raw: string ): string =>
@@ -32,6 +36,9 @@ const normalizeShowUrl = ( raw: string ): string =>
 
 const isValidShowUrl = ( url: string, allowedHosts: readonly string[] ): boolean => {
 	if ( ! url ) {
+		return false;
+	}
+	if ( url.length > SHOW_URL_MAX_LENGTH ) {
 		return false;
 	}
 	let parsed: URL;
@@ -118,15 +125,26 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 			event.preventDefault();
 			if ( ! isValidShowUrl( normalizedDraft, app.showHosts ) ) {
 				setSaveError(
-					sprintf(
-						/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
-						__( 'Enter a valid %s URL.', 'jetpack-podcast' ),
-						app.name
-					)
+					normalizedDraft.length > SHOW_URL_MAX_LENGTH
+						? sprintf(
+								/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
+								__( 'Your %s URL is too long.', 'jetpack-podcast' ),
+								app.name
+						  )
+						: sprintf(
+								/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
+								__( 'Enter a valid %s URL.', 'jetpack-podcast' ),
+								app.name
+						  )
 				);
 				return;
 			}
 			setSaveError( null );
+			// Snapshot before the save lands — `storedUrl` flips to the new value
+			// once the cache resolves, which would mis-mark a first save as a
+			// replace if we read it after.
+			const isReplace = !! storedUrl;
+			const isFirstSave = ! storedUrl;
 			saveSettings(
 				{ podcasting_show_urls: { [ app.id ]: normalizedDraft } },
 				{
@@ -145,6 +163,11 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 							);
 							return;
 						}
+						jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_show_url_saved', {
+							directory: app.id,
+							is_first_save: isFirstSave,
+							is_replace: isReplace,
+						} );
 						setIsEditing( false );
 						onClose();
 					},
@@ -160,7 +183,7 @@ const SubmitModal = ( { app, feedUrl, onClose }: PodcastAppModalProps ) => {
 				}
 			);
 		},
-		[ normalizedDraft, app.showHosts, app.id, app.name, saveSettings, onClose ]
+		[ normalizedDraft, app.showHosts, app.id, app.name, saveSettings, storedUrl, onClose ]
 	);
 
 	// Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check

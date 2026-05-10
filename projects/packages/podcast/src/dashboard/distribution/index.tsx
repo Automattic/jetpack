@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import {
 	Button,
 	Card,
@@ -91,6 +92,13 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
 	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
 
+	const handleSubmitClick = useCallback( ( id: PodcatcherId ) => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_submit_modal_opened', {
+			directory: id,
+		} );
+		setActiveId( id );
+	}, [] );
+
 	const handleClose = useCallback( () => {
 		setActiveId( null );
 	}, [] );
@@ -171,7 +179,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 												variant="primary"
 												size="compact"
 												// eslint-disable-next-line react/jsx-no-bind
-												onClick={ () => setActiveId( app.id ) }
+												onClick={ () => handleSubmitClick( app.id ) }
 												disabled={ isSubmitBlocked }
 												accessibleWhenDisabled
 												aria-label={
