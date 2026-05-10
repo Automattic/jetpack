@@ -102,6 +102,20 @@ jest.mock( '@wordpress/components', () => ( {
 			</>
 		);
 	},
+	// Minimal stub for the __experimentalToggleGroupControl family — renders
+	// label + children so existing preview snapshot tests run; the picker UX
+	// itself isn't exercised in this file.
+	__experimentalToggleGroupControl: ( { label, children } ) => (
+		<fieldset aria-label={ label }>
+			<legend>{ label }</legend>
+			{ children }
+		</fieldset>
+	),
+	__experimentalToggleGroupControlOption: ( { label, value } ) => (
+		<button type="button" data-value={ value }>
+			{ label }
+		</button>
+	),
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {

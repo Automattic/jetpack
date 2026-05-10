@@ -23,6 +23,10 @@ import {
 	RangeControl,
 	TextControl,
 	ToggleControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -365,17 +369,20 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 						checked={ showCount }
 						onChange={ value => setAttributes( { showCount: !! value } ) }
 					/>
-					<SelectControl
+					<ToggleGroupControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
+						isBlock
 						label={ __( 'Display style', 'jetpack-search-pkg' ) }
 						value={ displayStyle }
-						options={ [
-							{ value: 'checkbox-list', label: __( 'Checkbox list', 'jetpack-search-pkg' ) },
-							{ value: 'chips', label: __( 'Chips', 'jetpack-search-pkg' ) },
-						] }
-						onChange={ value => setAttributes( { displayStyle: value } ) }
-					/>
+						onChange={ value => setAttributes( { displayStyle: normalizeDisplayStyle( value ) } ) }
+					>
+						<ToggleGroupControlOption
+							value="checkbox-list"
+							label={ __( 'Checkbox list', 'jetpack-search-pkg' ) }
+						/>
+						<ToggleGroupControlOption value="chips" label={ __( 'Chips', 'jetpack-search-pkg' ) } />
+					</ToggleGroupControl>
 					<RangeControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
