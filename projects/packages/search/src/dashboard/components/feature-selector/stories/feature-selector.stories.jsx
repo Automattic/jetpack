@@ -17,6 +17,20 @@ export default {
 			</div>
 		),
 	],
+	argTypes: {
+		isWpcom: {
+			control: 'boolean',
+			description: 'Seed `siteData.isWpcom` — hides the Off row.',
+		},
+		supportsOnlyClassicSearch: {
+			control: 'boolean',
+			description: 'Seed `sitePlan.supports_only_classic_search` — disables Embedded + Overlay.',
+		},
+	},
+	args: {
+		isWpcom: false,
+		supportsOnlyClassicSearch: false,
+	},
 };
 
 const saveExperienceAction = action( 'saveExperience' );
@@ -53,161 +67,136 @@ const createStoreWithSettings = ( jetpackSettings, sitePlan = {}, siteData = {} 
 	return registry;
 };
 
-// Clean state - Save button is aria-disabled (no changes made)
-export const Clean = () => {
-	const settings = {
-		module_active: true,
-		instant_search_enabled: true,
-		pending_experience: null,
-		experience: EXPERIENCE.OVERLAY,
-		is_updating: false,
-	};
-	const registry = createStoreWithSettings( settings );
+const renderWithStoryArgs = ( settings, args ) => {
+	const sitePlan = { supports_only_classic_search: args.supportsOnlyClassicSearch };
+	const siteData = { isWpcom: args.isWpcom };
+	const registry = createStoreWithSettings( settings, sitePlan, siteData );
 	return (
 		<RegistryProvider value={ registry }>
 			<FeatureSelector />
 		</RegistryProvider>
 	);
 };
+
+// Clean state - Save button is aria-disabled (no changes made)
+export const Clean = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: null,
+			experience: EXPERIENCE.OVERLAY,
+			is_updating: false,
+		},
+		args
+	);
 
 // Dirty state - Save button enabled (user selected a different experience)
-export const Dirty = () => {
-	const settings = {
-		module_active: true,
-		instant_search_enabled: true,
-		pending_experience: EXPERIENCE.INLINE,
-		experience: EXPERIENCE.OVERLAY,
-		is_updating: false,
-	};
-	const registry = createStoreWithSettings( settings );
-	return (
-		<RegistryProvider value={ registry }>
-			<FeatureSelector />
-		</RegistryProvider>
+export const Dirty = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: EXPERIENCE.INLINE,
+			experience: EXPERIENCE.OVERLAY,
+			is_updating: false,
+		},
+		args
 	);
-};
 
 // Saving state - Save button shows loading spinner
-export const Saving = () => {
-	const settings = {
-		module_active: true,
-		instant_search_enabled: true,
-		pending_experience: EXPERIENCE.INLINE,
-		experience: EXPERIENCE.OVERLAY,
-		is_updating: true,
-	};
-	const registry = createStoreWithSettings( settings );
-	return (
-		<RegistryProvider value={ registry }>
-			<FeatureSelector />
-		</RegistryProvider>
+export const Saving = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: EXPERIENCE.INLINE,
+			experience: EXPERIENCE.OVERLAY,
+			is_updating: true,
+		},
+		args
 	);
-};
 
 // Classic-only plan - Embedded and Overlay rows are disabled
-export const ClassicOnlyPlan = () => {
-	const settings = {
-		module_active: true,
-		instant_search_enabled: false,
-		pending_experience: null,
-		experience: EXPERIENCE.INLINE,
-		is_updating: false,
-	};
-	const sitePlan = {
-		supports_only_classic_search: true,
-	};
-	const registry = createStoreWithSettings( settings, sitePlan );
-	return (
-		<RegistryProvider value={ registry }>
-			<FeatureSelector />
-		</RegistryProvider>
+export const ClassicOnlyPlan = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: false,
+			pending_experience: null,
+			experience: EXPERIENCE.INLINE,
+			is_updating: false,
+		},
+		args
 	);
+ClassicOnlyPlan.args = {
+	supportsOnlyClassicSearch: true,
 };
 
 // Embedded experience active
-export const EmbeddedActive = () => {
-	const settings = {
-		module_active: true,
-		instant_search_enabled: true,
-		pending_experience: null,
-		experience: EXPERIENCE.EMBEDDED,
-		is_updating: false,
-	};
-	const registry = createStoreWithSettings( settings );
-	return (
-		<RegistryProvider value={ registry }>
-			<FeatureSelector />
-		</RegistryProvider>
+export const EmbeddedActive = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: null,
+			experience: EXPERIENCE.EMBEDDED,
+			is_updating: false,
+		},
+		args
 	);
-};
 
 // Overlay experience active
-export const OverlayActive = () => {
-	const settings = {
-		module_active: true,
-		instant_search_enabled: true,
-		pending_experience: null,
-		experience: EXPERIENCE.OVERLAY,
-		is_updating: false,
-	};
-	const registry = createStoreWithSettings( settings );
-	return (
-		<RegistryProvider value={ registry }>
-			<FeatureSelector />
-		</RegistryProvider>
+export const OverlayActive = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: null,
+			experience: EXPERIENCE.OVERLAY,
+			is_updating: false,
+		},
+		args
 	);
-};
 
 // Theme search (inline) experience active
-export const InlineActive = () => {
-	const settings = {
-		module_active: true,
-		instant_search_enabled: false,
-		pending_experience: null,
-		experience: EXPERIENCE.INLINE,
-		is_updating: false,
-	};
-	const registry = createStoreWithSettings( settings );
-	return (
-		<RegistryProvider value={ registry }>
-			<FeatureSelector />
-		</RegistryProvider>
+export const InlineActive = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: false,
+			pending_experience: null,
+			experience: EXPERIENCE.INLINE,
+			is_updating: false,
+		},
+		args
 	);
-};
 
 // Off experience active
-export const OffActive = () => {
-	const settings = {
-		module_active: false,
-		instant_search_enabled: false,
-		pending_experience: null,
-		experience: EXPERIENCE.OFF,
-		is_updating: false,
-	};
-	const registry = createStoreWithSettings( settings );
-	return (
-		<RegistryProvider value={ registry }>
-			<FeatureSelector />
-		</RegistryProvider>
+export const OffActive = args =>
+	renderWithStoryArgs(
+		{
+			module_active: false,
+			instant_search_enabled: false,
+			pending_experience: null,
+			experience: EXPERIENCE.OFF,
+			is_updating: false,
+		},
+		args
 	);
-};
 
 // WordPress.com site - Off option is hidden
-export const WpcomSite = () => {
-	const settings = {
-		module_active: true,
-		instant_search_enabled: true,
-		pending_experience: null,
-		experience: EXPERIENCE.OVERLAY,
-		is_updating: false,
-	};
-	const siteData = {
-		isWpcom: true,
-	};
-	const registry = createStoreWithSettings( settings, {}, siteData );
-	return (
-		<RegistryProvider value={ registry }>
-			<FeatureSelector />
-		</RegistryProvider>
+export const WpcomSite = args =>
+	renderWithStoryArgs(
+		{
+			module_active: true,
+			instant_search_enabled: true,
+			pending_experience: null,
+			experience: EXPERIENCE.OVERLAY,
+			is_updating: false,
+		},
+		args
 	);
+WpcomSite.args = {
+	isWpcom: true,
 };
