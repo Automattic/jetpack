@@ -4,6 +4,7 @@ import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
+import ErrorBoundary from './error-boundary';
 import { usePodcastSettings, useUpdatePodcastSettings } from './hooks/use-podcast-settings';
 import './style.scss';
 import type { TabName } from './types';
@@ -106,9 +107,11 @@ const App = () => {
 		return (
 			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
 				<div className="podcast__tab-content podcast__tab-content--wide">
-					<Suspense fallback={ <TabFallback /> }>
-						<Welcome onEnable={ handleEnable } />
-					</Suspense>
+					<ErrorBoundary>
+						<Suspense fallback={ <TabFallback /> }>
+							<Welcome onEnable={ handleEnable } />
+						</Suspense>
+					</ErrorBoundary>
 				</div>
 			</AdminPage>
 		);
@@ -130,23 +133,29 @@ const App = () => {
 				</div>
 				<Tabs.Panel value="settings">
 					<div className="podcast__tab-content podcast__tab-content--narrow">
-						<Suspense fallback={ <TabFallback /> }>
-							<SettingsTab />
-						</Suspense>
+						<ErrorBoundary>
+							<Suspense fallback={ <TabFallback /> }>
+								<SettingsTab />
+							</Suspense>
+						</ErrorBoundary>
 					</div>
 				</Tabs.Panel>
 				<Tabs.Panel value="episodes">
 					<div className="podcast__tab-content">
-						<Suspense fallback={ <TabFallback /> }>
-							<EpisodesTab />
-						</Suspense>
+						<ErrorBoundary>
+							<Suspense fallback={ <TabFallback /> }>
+								<EpisodesTab />
+							</Suspense>
+						</ErrorBoundary>
 					</div>
 				</Tabs.Panel>
 				<Tabs.Panel value="distribution">
 					<div className="podcast__tab-content podcast__tab-content--narrow">
-						<Suspense fallback={ <TabFallback /> }>
-							<DistributionTab onEditSettings={ goToSettings } />
-						</Suspense>
+						<ErrorBoundary>
+							<Suspense fallback={ <TabFallback /> }>
+								<DistributionTab onEditSettings={ goToSettings } />
+							</Suspense>
+						</ErrorBoundary>
 					</div>
 				</Tabs.Panel>
 			</Tabs.Root>

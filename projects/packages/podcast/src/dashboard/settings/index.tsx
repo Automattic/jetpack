@@ -34,9 +34,10 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 ];
 
 // Flatten the Apple Podcasts topic tree into one searchable token list for
-// `FormTokenField`. Display strings use `Primary › Subtopic`; storage strings
-// use the legacy `Primary,Subtopic` shape (kept for `<itunes:category>` round-
-// tripping). Two maps cover the bidirectional translation at save/read time.
+// `FormTokenField`. Display strings use `Primary » Subtopic` (matching
+// Calypso's renderer); storage strings use the legacy `Primary,Subtopic`
+// shape (kept for `<itunes:category>` round-tripping). Two maps cover the
+// bidirectional translation at save/read time.
 const TOPIC_SUGGESTIONS: string[] = [];
 const TOPIC_STORAGE_BY_DISPLAY = new Map< string, string >();
 const TOPIC_DISPLAY_BY_STORAGE = new Map< string, string >();
@@ -60,6 +61,29 @@ type StringFieldKey =
 	| 'podcasting_talent_name'
 	| 'podcasting_copyright'
 	| 'podcasting_email';
+
+// Per-field editor used by every text/textarea/email control. Holds local
+// state per keystroke, then commits on blur if the value differs from what's
+// saved. Re-syncs from `stored` when the saved value changes externally.
+// Spread directly onto `<TextControl>` etc. for `value` / `onChange` / `onBlur`.
+const useFieldEditor = (
+	stored: string,
+	onCommit: ( value: string ) => void
+): { value: string; onChange: ( v: string ) => void; onBlur: () => void } => {
+	const [ local, setLocal ] = useState( stored );
+	useEffect( () => {
+		setLocal( stored );
+	}, [ stored ] );
+	return {
+		value: local,
+		onChange: setLocal,
+		onBlur: () => {
+			if ( local !== stored ) {
+				onCommit( local );
+			}
+		},
+	};
+};
 
 const SettingsTab = () => {
 	const { data: settings, isLoading } = usePodcastSettings();
@@ -85,31 +109,34 @@ const SettingsTab = () => {
 		[ saveSettings ]
 	);
 
-	// Hook used by every text/textarea/email field. Holds local state per
-	// keystroke; commits on blur if the value differs from what's saved.
-	// Spread directly onto `<TextControl>` etc. for `value` / `onChange` / `onBlur`.
-	const useFieldEditor = ( key: StringFieldKey ) => {
-		const stored = draft?.[ key ] ?? '';
-		const [ local, setLocal ] = useState( stored );
-		useEffect( () => {
-			setLocal( stored );
-		}, [ stored ] );
-		return {
-			value: local,
-			onChange: setLocal,
-			onBlur: () => {
-				if ( local !== stored ) {
-					commit( { [ key ]: local } as PodcastSettingsUpdate );
-				}
-			},
-		};
-	};
+	// Curry `commit` once per field key so the per-field editor only knows
+	// about strings. `useCallback` keeps refs stable for the editor's effect.
+	const commitField = useCallback(
+		( key: StringFieldKey ) => ( value: string ) =>
+			commit( { [ key ]: value } as PodcastSettingsUpdate ),
+		[ commit ]
+	);
 
-	const titleField = useFieldEditor( 'podcasting_title' );
-	const summaryField = useFieldEditor( 'podcasting_summary' );
-	const talentNameField = useFieldEditor( 'podcasting_talent_name' );
-	const copyrightField = useFieldEditor( 'podcasting_copyright' );
-	const emailField = useFieldEditor( 'podcasting_email' );
+	const titleField = useFieldEditor(
+		draft?.podcasting_title ?? '',
+		commitField( 'podcasting_title' )
+	);
+	const summaryField = useFieldEditor(
+		draft?.podcasting_summary ?? '',
+		commitField( 'podcasting_summary' )
+	);
+	const talentNameField = useFieldEditor(
+		draft?.podcasting_talent_name ?? '',
+		commitField( 'podcasting_talent_name' )
+	);
+	const copyrightField = useFieldEditor(
+		draft?.podcasting_copyright ?? '',
+		commitField( 'podcasting_copyright' )
+	);
+	const emailField = useFieldEditor(
+		draft?.podcasting_email ?? '',
+		commitField( 'podcasting_email' )
+	);
 
 	// Discrete-action handlers — these controls "commit" on each user choice
 	// (no blur ambiguity), so they save immediately.
@@ -132,7 +159,13 @@ const SettingsTab = () => {
 	const topicValue = useMemo(
 		() =>
 			[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
-				.map( storage => ( storage ? TOPIC_DISPLAY_BY_STORAGE.get( storage ) ?? storage : '' ) )
+				.map( storage =>
+					// Fallback to the raw storage key if a saved value isn't in our
+					// flat catalog. Happens when DB holds a category from an older
+					// Apple taxonomy revision; surfaces the raw string in the UI
+					// instead of dropping the value silently.
+					storage ? TOPIC_DISPLAY_BY_STORAGE.get( storage ) ?? storage : ''
+				)
 				.filter( ( v ): v is string => !! v ),
 		[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]
 	);
@@ -142,7 +175,13 @@ const SettingsTab = () => {
 	// match that UX: save on every change, then blur the input so the
 	// suggestions list closes before the save's re-render lands. Without the
 	// blur, the open list visibly flickers when the field receives a fresh
-	// `value` prop.
+	// `value` prop reference.
+	//
+	// The `querySelector('input')` below relies on `FormTokenField` rendering
+	// exactly one `<input>` inside the wrapper div. If that internal shape
+	// changes upstream, this becomes a no-op (no thrown error) but the flicker
+	// returns; replace with a forwarded ref API if `@wordpress/components`
+	// gains one.
 	const topicFieldRef = useRef< HTMLDivElement >( null );
 
 	const handleTopicsChange = useCallback(

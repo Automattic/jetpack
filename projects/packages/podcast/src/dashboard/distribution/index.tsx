@@ -81,7 +81,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 		'taxonomy',
 		'category',
 		categoryId,
-		{ enabled: categoryId > 0 } as Parameters< typeof useEntityRecord >[ 3 ]
+		{ enabled: categoryId > 0 }
 	);
 	const feedUrl = category?.link ? `${ category.link }feed/` : '';
 	const isEnabled = categoryId > 0;
