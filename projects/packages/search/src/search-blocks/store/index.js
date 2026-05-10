@@ -1066,7 +1066,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Reactively syncs `context.wrapperHidden` for each filter-checkbox
+		 * Reactively syncs `context.wrapperHidden` for each filter-wc-attribute
 		 * block. The wrapper stays visible while the pre-hydration skeleton
 		 * is up; afterwards it hides only when the filter has nothing to
 		 * show (no buckets, no retained options, no active selection).
