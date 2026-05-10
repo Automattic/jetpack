@@ -35,12 +35,13 @@ wp_interactivity_state(
 	)
 );
 
+$view = Search_Blocks::pre_hydration_filter_view( Filter_Wc_Rating::FILTER_KEY );
+
 $seeded_state    = wp_interactivity_state( 'jetpack-search' );
 $seeded_aggs     = (array) ( $seeded_state['aggregations'] ?? array() );
 $seeded_buckets  = (array) ( ( (array) ( $seeded_aggs[ Filter_Wc_Rating::FILTER_KEY ] ?? array() ) )['buckets'] ?? array() );
 $seeded_active   = (array) ( $seeded_state['activeFilters'] ?? array() );
 $seeded_selected = (array) ( $seeded_active[ Filter_Wc_Rating::FILTER_KEY ] ?? array() );
-$has_buckets     = ! empty( $seeded_buckets );
 
 // Project histogram buckets onto cumulative "& up" counts: the count
 // for star N is the sum of doc_counts across every bucket whose key
@@ -74,13 +75,19 @@ $enabled_stars = Filter_Wc_Rating::get_enabled_stars( (array) $attributes );
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filter-wc-rating' ) ) ); ?>
 	data-wp-interactive="jetpack-search"
-	<?php echo wp_kses_data( wp_interactivity_data_wp_context( array( 'filterKey' => Filter_Wc_Rating::FILTER_KEY ) ) ); ?>
-	data-wp-bind--hidden="!state.hasFilterBuckets"
-	<?php echo $has_buckets ? '' : 'hidden'; ?>
+	<?php Search_Blocks::emit_filter_wrapper_context( Filter_Wc_Rating::FILTER_KEY, $view['show_wrapper'] ); ?>
+	data-wp-bind--hidden="context.wrapperHidden"
+	data-wp-watch="callbacks.syncFilterWrapperVisibility"
+	<?php echo $view['show_wrapper'] ? '' : 'hidden'; ?>
 >
 	<?php if ( '' !== $label ) : ?>
 		<h3 class="jetpack-search-filter__title"><?php echo esc_html( $label ); ?></h3>
 	<?php endif; ?>
+	<?php
+	if ( $view['is_initial_loading'] ) {
+		require __DIR__ . '/../filter-skeleton-partial.php';
+	}
+	?>
 	<ul class="jetpack-search-filter__list">
 		<?php foreach ( $enabled_stars as $star ) : ?>
 			<?php

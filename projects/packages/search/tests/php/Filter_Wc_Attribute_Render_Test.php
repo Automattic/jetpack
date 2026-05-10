@@ -182,11 +182,8 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 
 	/**
 	 * The wrapper uses the shared `context.wrapperHidden` binding and the
-	 * `syncFilterWrapperVisibility` watch callback. filter-wc-attribute is
-	 * the only filter block on this pattern; the other bucket-driven
-	 * filters (filter-checkbox, filter-date, filter-wc-rating) revert to
-	 * the simpler `!state.hasFilterBuckets` binding because their single
-	 * aggregation resolves in one fast call.
+	 * `syncFilterWrapperVisibility` watch callback — matching the pattern used
+	 * by filter-checkbox and filter-date.
 	 */
 	public function test_wrapper_uses_context_wrapper_hidden_binding(): void {
 		$this->require_interactivity_api();
