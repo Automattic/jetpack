@@ -1,4 +1,5 @@
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
+import { action } from 'storybook/actions';
 import { storeConfig, STORE_ID } from '../../../store';
 import { EXPERIENCE } from '../constants';
 import FeatureSelector from '../index';
@@ -18,10 +19,29 @@ export default {
 	],
 };
 
+const saveExperienceAction = action( 'saveExperience' );
+const setPendingExperienceAction = action( 'setPendingExperience' );
+
 const createStoreWithSettings = ( jetpackSettings, sitePlan = {}, siteData = {} ) => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
+		actions: {
+			...storeConfig.actions,
+			// Capture saves to the Storybook Actions panel instead of running the
+			// real generator, which would record analytics and hit the WP REST API.
+			saveExperience: experience => {
+				saveExperienceAction( experience );
+				return { type: 'STORYBOOK_NOOP' };
+			},
+			// Log the radio-row change, then delegate to the real action so the
+			// reducer still updates `pending_experience` and the row visibly
+			// selects / un-disables the Save button.
+			setPendingExperience: experience => {
+				setPendingExperienceAction( experience );
+				return storeConfig.actions.setPendingExperience( experience );
+			},
+		},
 		initialState: {
 			...( storeConfig.initialState || {} ),
 			jetpackSettings,

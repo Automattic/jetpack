@@ -1,4 +1,5 @@
 import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
+import { action } from 'storybook/actions';
 import { storeConfig, STORE_ID } from '../../../store';
 import { EXPERIENCE, EXPERIENCE_ORDER, getExperienceLabel } from '../constants';
 import ExperienceOption from '../experience-option';
@@ -6,6 +7,8 @@ import ExperienceOption from '../experience-option';
 const experienceLabels = Object.fromEntries(
 	EXPERIENCE_ORDER.map( experience => [ experience, getExperienceLabel( experience ) ] )
 );
+
+const setPendingExperienceAction = action( 'setPendingExperience' );
 
 export default {
 	title: 'Packages/Search/FeatureSelector/ExperienceOption',
@@ -46,6 +49,16 @@ const createStoreWithSettings = jetpackSettings => {
 	const registry = createRegistry();
 	const store = createReduxStore( STORE_ID, {
 		...storeConfig,
+		actions: {
+			...storeConfig.actions,
+			// Log the radio-row change, then delegate to the real action so the
+			// reducer still updates `pending_experience` and the row visibly
+			// selects.
+			setPendingExperience: experience => {
+				setPendingExperienceAction( experience );
+				return storeConfig.actions.setPendingExperience( experience );
+			},
+		},
 		initialState: { ...( storeConfig.initialState || {} ), jetpackSettings },
 	} );
 	registry.register( store );
