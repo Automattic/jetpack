@@ -266,6 +266,18 @@ class Filter_Checkbox_Test extends TestCase {
 	}
 
 	/**
+	 * Display style supports only checkbox-list or chips; unknown values map
+	 * to checkbox-list so the wrapper always emits a known CSS hook.
+	 */
+	public function test_normalize_display_style() {
+		$this->assertSame( 'checkbox-list', Filter_Checkbox::normalize_display_style( null ) );
+		$this->assertSame( 'checkbox-list', Filter_Checkbox::normalize_display_style( '' ) );
+		$this->assertSame( 'checkbox-list', Filter_Checkbox::normalize_display_style( 'checkbox-list' ) );
+		$this->assertSame( 'checkbox-list', Filter_Checkbox::normalize_display_style( 'bogus' ) );
+		$this->assertSame( 'chips', Filter_Checkbox::normalize_display_style( 'chips' ) );
+	}
+
+	/**
 	 * The label passes through sanitize_text_field() before it reaches the
 	 * Interactivity state so stored block attributes with stray HTML, tabs, or
 	 * newlines can never leak into aggregation-layer metadata or the rendered

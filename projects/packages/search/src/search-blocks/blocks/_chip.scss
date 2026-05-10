@@ -1,0 +1,58 @@
+@mixin checkbox-filter-chips {
+
+	.jetpack-search-filter__list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.jetpack-search-filter__item {
+		padding: 0;
+
+		label {
+			position: relative;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
+			border: 1px solid color-mix(in sRGB, currentColor 24%, transparent);
+			border-radius: 9999px;
+			padding: 0.35rem 0.7rem;
+			transition:
+				background-color 0.2s ease,
+				border-color 0.2s ease,
+				box-shadow 0.2s ease;
+
+			&:hover {
+				background: color-mix(in sRGB, currentColor 8%, transparent);
+				border-color: color-mix(in sRGB, currentColor 32%, transparent);
+			}
+
+			&:focus-within {
+				box-shadow: 0 0 0 2px color-mix(in sRGB, currentColor 28%, transparent);
+			}
+
+			&:has(input:checked) {
+				background: color-mix(in sRGB, currentColor 14%, transparent);
+				border-color: color-mix(in sRGB, currentColor 38%, transparent);
+			}
+		}
+
+		input[type="checkbox"] {
+			position: absolute;
+			inline-size: 1px;
+			block-size: 1px;
+			opacity: 0;
+			pointer-events: none;
+		}
+	}
+
+	.jetpack-search-filter__label {
+		flex: 0 1 auto;
+	}
+
+	.jetpack-search-filter__count {
+		font-size: 0.72rem;
+		line-height: 1.2;
+		padding: 0.1rem 0.4rem;
+	}
+}

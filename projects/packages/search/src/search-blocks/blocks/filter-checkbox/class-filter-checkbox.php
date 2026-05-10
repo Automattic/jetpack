@@ -165,4 +165,15 @@ class Filter_Checkbox {
 	public static function normalize_bucket_sort_order( $value ): string {
 		return 'alpha' === $value ? 'alpha' : 'count';
 	}
+
+	/**
+	 * Normalize display style attribute so render wrappers always emit one of
+	 * the supported CSS variants.
+	 *
+	 * @param mixed $value Raw attribute value.
+	 * @return string Either 'checkbox-list' or 'chips'.
+	 */
+	public static function normalize_display_style( $value ): string {
+		return 'chips' === $value ? 'chips' : 'checkbox-list';
+	}
 }

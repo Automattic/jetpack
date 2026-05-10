@@ -430,3 +430,23 @@ describe( 'syncFilterWrapperVisibility callback', () => {
 		expect( contextRef.current.wrapperHidden ).toBe( true );
 	} );
 } );
+
+describe( 'filter-checkbox view store — onFilterChange', () => {
+	it.each( [ 'checkbox-list', 'chips' ] )(
+		'routes %s clicks through actions.onFilterChange to setFilter',
+		displayStyle => {
+			contextRef.current = { filterKey: 'category' };
+			captured.state.filterConfigs = { category: { displayStyle } };
+
+			const setFilter = jest
+				.spyOn( captured.actions, 'setFilter' )
+				.mockImplementation( function* () {} );
+
+			const iterator = captured.actions.onFilterChange( { target: { value: 'news' } } );
+			iterator.next();
+
+			expect( setFilter ).toHaveBeenCalledWith( 'category', 'news' );
+			setFilter.mockRestore();
+		}
+	);
+} );
