@@ -64,7 +64,10 @@ function parsePriceBound( raw ) {
  * @param {string}      [state.searchParamName]     - URL key the search query is written under
  *                                                  (`s` on the WP search route, `q`
  *                                                  on non-search pages). Defaults to `s`.
- * @param {boolean}     [state.isWooCommerceActive] - Gate for product-format sort keys.
+ * @param {boolean}     [state.isWooCommerceActive] - Gate for WC-only URL surface
+ *                                                  (product-format sort keys + `min_price` /
+ *                                                  `max_price` range params). Falsy on non-Woo
+ *                                                  sites drops both from the emitted URL.
  * @return {URLSearchParams} URL-ready params.
  */
 export function stateToUrlParams( {
@@ -128,7 +131,11 @@ export function stateToUrlParams( {
  * @param {object}          [filterConfigs]       - { [filterKey]: FilterConfig } map used to validate filter keys.
  * @param {string}          [searchParamName]     - URL key to read the search query from
  *                                                (`s` or `q`). Defaults to `s`.
- * @param {boolean}         [isWooCommerceActive] - Gate for product-format sort keys.
+ * @param {boolean}         [isWooCommerceActive] - Gate for WC-only URL surface
+ *                                                (product-format sort keys + `min_price` /
+ *                                                `max_price` range params). Falsy on non-Woo
+ *                                                sites ignores both rather than hydrating
+ *                                                them into store state.
  * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: object|null }} Partial state.
  */
 export function urlParamsToState(
@@ -219,7 +226,9 @@ export function pushStateToUrl( state ) {
  * @param {object}  [filterConfigs]       - { [filterKey]: FilterConfig } map used to validate filter keys.
  * @param {string}  [searchParamName]     - URL key the search query lives under (`s` or
  *                                        `q`). Defaults to `s`.
- * @param {boolean} [isWooCommerceActive] - Gate for product-format sort keys.
+ * @param {boolean} [isWooCommerceActive] - Gate for WC-only URL surface (product-format
+ *                                        sort keys + `min_price` / `max_price` range params);
+ *                                        forwarded to `urlParamsToState`.
  * @return {{ searchQuery: string, sortOrder: string, activeFilters: object, priceRange: object|null }} Partial state.
  */
 export function readStateFromUrl(
