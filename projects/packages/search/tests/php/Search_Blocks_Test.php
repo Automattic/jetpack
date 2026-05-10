@@ -149,6 +149,60 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * `jetpack_search_blocks_is_woocommerce_active` lets a site force the
+	 * gate true on a non-Woo install — useful for staging previews of
+	 * WC-only Search blocks. The filter result must be cached, so a
+	 * subsequent call returns the override even after the filter is
+	 * removed.
+	 */
+	public function test_is_woocommerce_active_filter_can_force_true() {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_true' );
+		try {
+			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
+		} finally {
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_true' );
+		}
+	}
+
+	/**
+	 * Symmetry: the filter must also be able to force the gate false on a
+	 * Woo install — useful for hiding WC-only Search blocks on a non-shop
+	 * content area without deactivating WooCommerce.
+	 */
+	public function test_is_woocommerce_active_filter_can_force_false() {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		// Pretend WC is loaded so the underlying probe would return true
+		// without the filter — proves the filter wins over the probe.
+		Search_Blocks::set_is_woocommerce_active_for_testing( true );
+		Search_Blocks::reset_is_woocommerce_active_cache(); // Force the filter path on the next call.
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_false' );
+		try {
+			$this->assertFalse( Search_Blocks::is_woocommerce_active() );
+		} finally {
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', '__return_false' );
+		}
+	}
+
+	/**
+	 * A filter callback returning a truthy non-bool (`'1'`, `1`, etc.)
+	 * must not poison the strictly-typed `bool` cache. The function casts
+	 * before storing so callers using `===` against `true` still match.
+	 */
+	public function test_is_woocommerce_active_filter_casts_truthy_non_bool_to_true() {
+		Search_Blocks::reset_is_woocommerce_active_cache();
+		$callback = static function () {
+			return '1';
+		};
+		add_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		try {
+			$this->assertTrue( Search_Blocks::is_woocommerce_active() );
+		} finally {
+			remove_filter( 'jetpack_search_blocks_is_woocommerce_active', $callback );
+		}
+	}
+
+	/**
 	 * Seeded `activeFilters` is the raw URL params — gating moved to
 	 * store/index.js's `initialize()` callback, which can apply it once
 	 * every filter block's render.php has contributed its filterConfig (and
