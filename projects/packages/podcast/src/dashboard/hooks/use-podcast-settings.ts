@@ -1,16 +1,6 @@
-// Settings I/O. WPCOM Simple's `/wp/v2/settings` endpoint doesn't expose
-// `podcasting_*` keys on GET (Simple routes through `site_settings_endpoint_get`
-// which only returns whitelisted keys), so we route both reads and writes
-// through `/rest/v1.4/sites/{blog_id}/settings` whenever a wpcom blog id is
-// available. That mirrors the legacy Calypso `/podcasting` data path. Self-
-// hosted Atomic falls back to `/wp/v2/settings`.
-//
-// Module-scoped cache + listener pattern keeps multiple components in sync
-// without a redux/core-data dependency on this particular record.
-import { getSiteData } from '@automattic/jetpack-script-data';
-import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useEntityRecord, store as coreStore } from '@wordpress/core-data';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -96,115 +86,35 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 	return out as unknown as PodcastSettings;
 };
 
-const settingsPath = (): string => {
-	const blogId = Number( getSiteData()?.wpcom?.blog_id ?? 0 );
-	return blogId > 0 ? `/rest/v1.4/sites/${ blogId }/settings` : '/wp/v2/settings';
-};
-
-// Both endpoint shapes share the `podcasting_*` keys but at different
-// envelopes: `/rest/v1.4` GET wraps in `{ settings: {...} }`; POST returns
-// `{ updated: {...} }` (partial). `/wp/v2` returns the flat record on both.
-const unwrapGet = ( raw: unknown ): Record< string, unknown > => {
-	if (
-		raw &&
-		typeof raw === 'object' &&
-		'settings' in raw &&
-		typeof ( raw as { settings: unknown } ).settings === 'object'
-	) {
-		return ( raw as { settings: Record< string, unknown > } ).settings;
-	}
-	return ( raw ?? {} ) as Record< string, unknown >;
-};
-
-const mergePost = (
-	previous: Record< string, unknown > | null,
-	raw: unknown
-): Record< string, unknown > => {
-	const base = previous ?? {};
-	if (
-		raw &&
-		typeof raw === 'object' &&
-		'updated' in raw &&
-		typeof ( raw as { updated: unknown } ).updated === 'object' &&
-		( raw as { updated: unknown } ).updated !== null
-	) {
-		return { ...base, ...( raw as { updated: Record< string, unknown > } ).updated };
-	}
-	return { ...base, ...( raw as Record< string, unknown > ) };
-};
-
-let cachedRaw: Record< string, unknown > | null = null;
-let inflight: Promise< Record< string, unknown > > | null = null;
-const subscribers = new Set< () => void >();
-
-const notify = () => {
-	for ( const cb of subscribers ) {
-		cb();
-	}
-};
-
-const fetchSettings = (): Promise< Record< string, unknown > > => {
-	if ( inflight ) {
-		return inflight;
-	}
-	inflight = apiFetch( { path: settingsPath(), method: 'GET' } )
-		.then( raw => {
-			cachedRaw = unwrapGet( raw );
-			inflight = null;
-			notify();
-			return cachedRaw;
-		} )
-		.catch( err => {
-			inflight = null;
-			throw err;
-		} );
-	return inflight;
-};
-
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
 }
 
-const deriveData = (): PodcastSettings | undefined =>
-	cachedRaw ? pickPodcastFields( cachedRaw ) : undefined;
-
 /**
- * Read the current `podcasting_*` options.
+ * Read the current `podcasting_*` options out of the core-data 'site' entity.
+ *
+ * Matches the Forms / VideoPress pattern. On WPCOM Simple/Atomic the package's
+ * `register_setting()` calls route through the standard WP REST settings
+ * controller, so `/wp/v2/settings` exposes the keys here directly.
  *
  * @return `{ data, isLoading }` matching the prior TanStack-shaped contract.
  */
 export function usePodcastSettings(): { data: PodcastSettings | undefined; isLoading: boolean } {
-	// Real React state (not a module dep) so React's hook-deps lint stays happy
-	// and reference equality holds across renders that don't touch the cache.
-	const [ data, setData ] = useState< PodcastSettings | undefined >( deriveData );
-
-	useEffect( () => {
-		const cb = () => setData( deriveData() );
-		subscribers.add( cb );
-		// Sync to the current cache in case `useState`'s lazy init ran before a
-		// prior fetch resolved (race when a sibling component triggered the
-		// inflight fetch while we were still mounting).
-		setData( deriveData() );
-		if ( ! cachedRaw && ! inflight ) {
-			fetchSettings().catch( () => {
-				/* surfaced via the next save's error notice */
-			} );
-		}
-		return () => {
-			subscribers.delete( cb );
-		};
-	}, [] );
-
-	return { data, isLoading: ! data };
+	const { record, hasResolved } = useEntityRecord< Record< string, unknown > >( 'root', 'site' );
+	// Memoised so the derived object identity is stable across renders. Without
+	// this, every render builds a new `data` object, breaking reference checks
+	// downstream (Settings' isDirty was permanently true on `podcasting_show_urls`).
+	const data = useMemo( () => ( record ? pickPodcastFields( record ) : undefined ), [ record ] );
+	return { data, isLoading: ! hasResolved };
 }
 
 /**
- * Save a partial settings update.
+ * Save a partial settings update through core-data.
  *
- * The shared module cache is updated from the POST response so concurrent
- * `usePodcastSettings` consumers reflect the save without an extra round-trip.
- * Snackbars are dispatched here so callers don't have to wire them up.
+ * The server merges the patch into the stored settings and returns the full
+ * record, which core-data uses to refresh the cache. Snackbars are dispatched
+ * here so callers don't have to wire them up.
  *
  * @return `{ mutate, isPending }` matching the prior TanStack-shaped contract.
  */
@@ -212,22 +122,29 @@ export function useUpdatePodcastSettings(): {
 	mutate: ( updates: PodcastSettingsUpdate, callbacks?: MutateCallbacks ) => void;
 	isPending: boolean;
 } {
+	const { saveEntityRecord } = useDispatch( coreStore );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const [ isPending, setIsPending ] = useState( false );
+	const isPending = useSelect(
+		select => !! select( coreStore ).isSavingEntityRecord( 'root', 'site', undefined ),
+		[]
+	);
 
 	const mutate = useCallback(
 		( updates: PodcastSettingsUpdate, { onSuccess, onError }: MutateCallbacks = {} ) => {
-			setIsPending( true );
-			apiFetch( { path: settingsPath(), method: 'POST', data: updates } )
-				.then( raw => {
-					setIsPending( false );
-					cachedRaw = mergePost( cachedRaw, raw );
-					notify();
-					onSuccess?.( pickPodcastFields( cachedRaw ) );
+			saveEntityRecord( 'root', 'site', updates as Record< string, unknown > )
+				.then( record => {
+					if ( ! record ) {
+						onError?.( new Error( 'save returned no record' ) );
+						createErrorNotice(
+							__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
+							{ type: 'snackbar' }
+						);
+						return;
+					}
+					onSuccess?.( pickPodcastFields( record as Record< string, unknown > ) );
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), { type: 'snackbar' } );
 				} )
 				.catch( error => {
-					setIsPending( false );
 					onError?.( error );
 					createErrorNotice(
 						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
@@ -235,7 +152,7 @@ export function useUpdatePodcastSettings(): {
 					);
 				} );
 		},
-		[ createSuccessNotice, createErrorNotice ]
+		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]
 	);
 
 	return { mutate, isPending };
