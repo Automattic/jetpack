@@ -834,8 +834,10 @@ describe( 'handlePopState gating', () => {
 		const stub = require( '../../../src/search-blocks/store/url-state' );
 		jest.spyOn( stub, 'readStateFromUrl' ).mockReturnValue( {
 			searchQuery: 'hello',
+			hasSearchParam: true,
 			sortOrder: 'relevance',
 			activeFilters: { foo: [ 'bar' ] },
+			filterLogic: {},
 			priceRange: null,
 		} );
 		Object.assign( actions, originalActions );
