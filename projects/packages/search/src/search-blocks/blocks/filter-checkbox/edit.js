@@ -255,7 +255,7 @@ export function variationToAttributes( variation, previousTaxonomy ) {
 			// valid meta key, and surfacing it as a typed default would
 			// confuse the author. The map-keys whitelist then drives the
 			// picker.
-			return { filterType: 'meta', taxonomy: '', queryType: 'or' };
+			return { filterType: 'meta', taxonomy: '' };
 		case VARIATION_CUSTOM_TAXONOMY:
 		default: {
 			const preserved = BUILT_IN_TAXONOMY_SLUGS.includes( previousTaxonomy )
