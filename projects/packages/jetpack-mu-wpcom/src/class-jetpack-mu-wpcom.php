@@ -359,7 +359,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
 
-		if ( ! class_exists( 'A8C\FSE\Content_Research' ) ) {
+		if ( in_array( get_current_user_id(), array( 115118448, 128962475 ), true ) && ! class_exists( 'A8C\FSE\Content_Research' ) ) {
 			require_once __DIR__ . '/features/content-research/class-content-research.php';
 		}
 
