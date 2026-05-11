@@ -773,6 +773,33 @@ describe( 'store callbacks', () => {
 			expect( fresh.state.skeletonHidden ).toBe( true );
 		} );
 	} );
+
+	it( 'runs the URL-seeded search for `?s=` (empty value) via hasSearchParam (SEARCH-183)', () => {
+		jest.isolateModules( () => {
+			const fresh = require( '../../../src/search-blocks/store' );
+			jest.spyOn( window, 'addEventListener' ).mockImplementation();
+			jest.spyOn( fresh.actions, 'handlePopState' ).mockImplementation();
+			const search = jest.spyOn( fresh.actions, 'search' ).mockImplementation();
+			// Visitor landed on `?s=` — searchQuery is `''` and no filters are
+			// selected. Without hasSearchParam the legacy guard `searchQuery ||
+			// hasActiveFilters` would skip the initial fetch and leave the
+			// results region empty until the visitor types.
+			fresh.state.searchQuery = '';
+			fresh.state.priceRange = null;
+			fresh.state.filterConfigs = {};
+			fresh.state.activeFilters = {};
+			fresh.state.hasSearchParam = true;
+
+			captured.callbacks.initialize();
+
+			expect( search ).toHaveBeenCalledTimes( 1 );
+			expect( search ).toHaveBeenCalledWith( { syncUrl: false } );
+
+			// Drop the flag so it doesn't leak into the `handlePopState` describe
+			// below — captured.state is a singleton across the mocked module.
+			fresh.state.hasSearchParam = false;
+		} );
+	} );
 } );
 
 describe( 'handlePopState gating', () => {

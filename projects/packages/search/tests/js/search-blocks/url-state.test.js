@@ -166,6 +166,27 @@ describe( 'urlParamsToState', () => {
 	it( 'reads search query from URL', () => {
 		const state = urlParamsToState( new URLSearchParams( 's=cats' ) );
 		expect( state.searchQuery ).toBe( 'cats' );
+		expect( state.hasSearchParam ).toBe( true );
+	} );
+
+	it( 'reports hasSearchParam=true for `?s=` (empty value) — distinguishes a blank search from a missing param (SEARCH-183)', () => {
+		const state = urlParamsToState( new URLSearchParams( 's=' ) );
+		expect( state.searchQuery ).toBe( '' );
+		expect( state.hasSearchParam ).toBe( true );
+	} );
+
+	it( 'reports hasSearchParam=false when the search key is absent', () => {
+		const state = urlParamsToState( new URLSearchParams( '' ) );
+		expect( state.searchQuery ).toBe( '' );
+		expect( state.hasSearchParam ).toBe( false );
+	} );
+
+	it( 'reads hasSearchParam against the threaded `searchParamName` (`q` off the search route)', () => {
+		const present = urlParamsToState( new URLSearchParams( 'q=' ), {}, 'q' );
+		expect( present.hasSearchParam ).toBe( true );
+		// Stray `s` on a non-search route doesn't satisfy the `q` gate.
+		const absent = urlParamsToState( new URLSearchParams( 's=stray' ), {}, 'q' );
+		expect( absent.hasSearchParam ).toBe( false );
 	} );
 
 	it( 'reads sort order from URL', () => {

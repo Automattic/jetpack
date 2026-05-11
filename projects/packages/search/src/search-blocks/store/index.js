@@ -1156,7 +1156,11 @@ const { state, actions } = store( NAMESPACE, {
 					state.filterLogic = gatedLogic;
 				}
 			}
-			if ( state.searchQuery || state.hasActiveFilters ) {
+			if ( state.searchQuery || state.hasActiveFilters || state.hasSearchParam ) {
+				// `hasSearchParam` catches `?s=` (empty value) — the param is
+				// present so the visitor expects a search to run, but
+				// `searchQuery` alone is `''` and indistinguishable from a
+				// URL that omits `s`. Seeded from PHP via build_initial_state().
 				// syncUrl=false: URL already carries this query; avoid a duplicate history entry.
 				actions.search( { syncUrl: false } );
 			} else if ( droppedAny ) {
