@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
+use Automattic\Jetpack\Sync\Activity_Log_Event;
 use Throwable;
 use WP_Post;
 use WP_Query;
@@ -117,6 +118,8 @@ class Tracks {
 					array( 'post_id' => (int) $post->ID ),
 					self::identity_for_post( $post )
 				);
+
+				self::record_show_launched_activity( $post );
 			}
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Tracks is best-effort — never break a publish.
@@ -347,6 +350,30 @@ class Tracks {
 
 		/** This action is documented in projects/packages/forms/src/contact-form/class-util.php */
 		do_action( 'jetpack_bump_stats_extras', 'wpcom-podcasting-status', $status );
+	}
+
+	/**
+	 * Write a `podcast_show_launched` entry to the Jetpack Activity Log. The
+	 * entry syncs to WPcom as a `jp_act_log_event` post, which downstream
+	 * listeners (e.g. the `#podcast-alerts` Slack notifier in the wpcom
+	 * podcasting mu-plugin) hook to surface the launch.
+	 *
+	 * @param WP_Post $post First episode that triggered the launch.
+	 */
+	private static function record_show_launched_activity( WP_Post $post ): void {
+		Activity_Log_Event::create(
+			array(
+				'title'    => __( 'Podcast show launched', 'jetpack-podcast' ),
+				'content'  => sprintf(
+					/* translators: 1: episode post ID, 2: episode title. */
+					__( 'First episode published (post %1$d): %2$s', 'jetpack-podcast' ),
+					(int) $post->ID,
+					$post->post_title
+				),
+				'source'   => 'podcast_show_launched',
+				'severity' => 'success',
+			)
+		);
 	}
 
 	/**

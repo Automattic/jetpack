@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Podcast: write a Jetpack Activity Log entry when a site publishes its first podcast episode, so WPcom downstream listeners can surface the launch.
