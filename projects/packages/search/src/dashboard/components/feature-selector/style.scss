@@ -255,4 +255,12 @@ input[type="radio"].jp-search-feature-selector__option-radio {
 	.jp-search-feature-selector__details-action {
 		flex-basis: 100%;
 	}
+
+	// The vertical divider + left padding only make sense when actions sit
+	// in a row; once they stack we drop both so the second action lines up
+	// with the first and the divider doesn't overshoot the card edge.
+	.jp-search-feature-selector__details-action--inline:not(:first-child) {
+		padding-inline-start: 0;
+		border-inline-start: 0;
+	}
 }
