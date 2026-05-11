@@ -2,6 +2,8 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
+	box-sizing: border-box;
+	width: 100%;
 	max-width: 1200px;
 	margin-inline: auto;
 	padding-block: 24px;
@@ -188,5 +190,21 @@
 		&--narrow {
 			width: 40%;
 		}
+
+		// Sized to fill the KPI hero-number slot (matches the 36px font-size
+		// + line-height: 1.1 of `.vp-overview__kpi-value`).
+		&--kpi-value {
+			width: 96px;
+			height: 40px;
+			border-radius: 4px;
+		}
+	}
+
+	// Centers the chart's loading Spinner inside the reserved 240px canvas.
+	&__chart-spinner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
 	}
 }

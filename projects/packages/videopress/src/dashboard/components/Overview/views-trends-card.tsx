@@ -1,6 +1,6 @@
 import { LineChart } from '@automattic/charts';
 import '@automattic/charts/style.css';
-import { SelectControl } from '@wordpress/components';
+import { SelectControl, Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
@@ -225,7 +225,11 @@ export default function ViewsTrendsCard( {
 			</Card.Header>
 			<Card.Content>
 				<div className="vp-overview__chart-frame" style={ { height: CHART_HEIGHT } }>
-					{ ! isLoading && (
+					{ isLoading ? (
+						<div className="vp-overview__chart-spinner" aria-hidden="true">
+							<Spinner />
+						</div>
+					) : (
 						<LineChart
 							data={ chartData }
 							showLegend

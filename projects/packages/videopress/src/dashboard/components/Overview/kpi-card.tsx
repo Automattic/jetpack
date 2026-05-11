@@ -132,9 +132,16 @@ export default function KpiCard( {
 					<Text variant="body-sm" className="vp-overview__kpi-label">
 						{ label }
 					</Text>
-					<Text variant="heading-2xl" className="vp-overview__kpi-value">
-						{ isLoading ? '—' : value }
-					</Text>
+					{ isLoading ? (
+						<span
+							className="vp-overview__skeleton-block vp-overview__skeleton-block--kpi-value"
+							aria-hidden="true"
+						/>
+					) : (
+						<Text variant="heading-2xl" className="vp-overview__kpi-value">
+							{ value }
+						</Text>
+					) }
 					{ delta !== null && (
 						<span className={ `vp-overview__kpi-delta vp-overview__kpi-delta--${ direction }` }>
 							<Icon icon={ direction === 'up' ? arrowUp : arrowDown } size={ 16 } />
