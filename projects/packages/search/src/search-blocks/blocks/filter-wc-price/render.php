@@ -103,10 +103,12 @@ wp_interactivity_state(
 	)
 );
 
-$min_id          = wp_unique_id( 'jetpack-search-filter-wc-price-min-' );
-$max_id          = wp_unique_id( 'jetpack-search-filter-wc-price-max-' );
-$slider_min_id   = wp_unique_id( 'jetpack-search-filter-wc-price-slider-min-' );
-$slider_max_id   = wp_unique_id( 'jetpack-search-filter-wc-price-slider-max-' );
+$min_id = wp_unique_id( 'jetpack-search-filter-wc-price-min-' );
+$max_id = wp_unique_id( 'jetpack-search-filter-wc-price-max-' );
+// Slider thumb IDs only allocate when actually rendered — filter mode
+// would otherwise waste two `wp_unique_id()` counter increments per render.
+$slider_min_id   = $show_slider ? wp_unique_id( 'jetpack-search-filter-wc-price-slider-min-' ) : '';
+$slider_max_id   = $show_slider ? wp_unique_id( 'jetpack-search-filter-wc-price-slider-max-' ) : '';
 $wrapper_classes = 'jetpack-search-filter-wc-price' . ( $show_slider ? ' jetpack-search-filter-wc-price--with-slider' : '' );
 $wrapper_attrs   = array(
 	'class' => $wrapper_classes,
