@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Help Center: add wpcom_help_center_logged_out_force_load filter so non-support surfaces can opt in to the logged-out bundle.

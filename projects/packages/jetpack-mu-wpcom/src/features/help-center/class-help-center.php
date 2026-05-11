@@ -633,17 +633,33 @@ class Help_Center {
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
 		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
 
+		/**
+		 * Allow surfaces outside the support/forum allow-list to opt in to the logged-out
+		 * Help Center bundle (the same `logged-out` variant served on /support and /forums).
+		 *
+		 * Only consulted for logged-out users on the frontend of non-support sites; it's a
+		 * no-op anywhere a logged-in flow would already load the Help Center.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $force_load Whether to force-load the logged-out Help Center.
+		 */
+		$force_load_logged_out = ! is_admin()
+			&& ! is_user_logged_in()
+			&& ! $this->is_support_site
+			&& (bool) apply_filters( 'wpcom_help_center_logged_out_force_load', false );
+
 		// We will show the help center icon in the admin bar when;
 		// 1. On wp-admin
 		// 2. On the front end of the site if the current user can edit posts
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
-		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site ) {
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site && ! $force_load_logged_out ) {
 			return;
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites.
-		if ( ! is_user_logged_in() && ! $this->is_support_site ) {
+		if ( ! is_user_logged_in() && ! $this->is_support_site && ! $force_load_logged_out ) {
 			return;
 		}
 
@@ -651,6 +667,8 @@ class Help_Center {
 
 		if ( $is_next_admin ) {
 			$variant = 'ciab-admin' . $suffix;
+		} elseif ( $force_load_logged_out ) {
+			$variant = 'logged-out';
 		} elseif ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
 				$variant = 'logged-out';
