@@ -21,13 +21,13 @@ import {
 	useInvalidatePodcastSettings,
 	usePodcastSettings,
 	useUpdatePodcastSettings,
-} from '../../hooks/use-podcast-settings';
+} from '../../../hooks/use-podcast-settings';
 import {
 	usePocketCastsSubmit,
 	type PocketCastsSubmitResponse,
 	type PocketCastsSubmitState,
-} from './use-pocket-casts-submit';
-import type { PodcastAppModalProps } from './types';
+} from './use-submit';
+import type { PodcastAppModalProps } from '../types';
 
 // Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check
 // validator rejects that shape.

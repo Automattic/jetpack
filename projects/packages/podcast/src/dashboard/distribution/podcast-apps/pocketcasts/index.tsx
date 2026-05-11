@@ -1,5 +1,5 @@
-import PocketCastsModal from './pocketcasts-modal';
-import type { PodcastApp } from './types';
+import PocketCastsModal from './modal';
+import type { PodcastApp } from '../types';
 
 const PocketCastsLogo = () => (
 	<svg
