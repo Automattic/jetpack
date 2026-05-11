@@ -122,10 +122,10 @@
 		width: 100%;
 	}
 
-	// Ranking list shared by Most viewed and Top locations. Div-based so
-	// each row can host a percentage-width background bar (gradient
-	// stops at `--vp-row-bar`, defaulting to 100%) with rounded corners
-	// — neither <tr> backgrounds nor td radii give us both.
+	// Ranking list shared by Most viewed and Top videos by watch time.
+	// Div-based so each row can host a percentage-width background bar
+	// (gradient stops at `--vp-row-bar`, defaulting to 100%) with
+	// rounded corners — neither <tr> backgrounds nor td radii give us both.
 	&__ranking {
 		display: flex;
 		flex-direction: column;
@@ -159,20 +159,9 @@
 		}
 	}
 
-	&__ranking-views {
+	&__ranking-values {
 		text-align: right;
 		font-variant-numeric: tabular-nums;
-	}
-
-	// Pinned to text size + line-height: 1 + vertical-align so the flag
-	// glyph doesn't push the row's line box taller than Most viewed's
-	// text-only rows.
-	&__flag {
-		margin-right: 8px;
-		font-size: 16px;
-		line-height: 1;
-		display: inline-block;
-		vertical-align: middle;
 	}
 
 	&__ranking-footer {

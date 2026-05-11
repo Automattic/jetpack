@@ -45,7 +45,7 @@ function deltaPercent( summary: KpiSummary ): number | null {
 
 /**
  * One stat card: caps label + large value + signed delta indicator.
- * Used in the Overview KPI row (Views, Visitors, Watch time) where the
+ * Used in the Overview KPI row (Views, Impressions, Watch time) where the
  * three cards form a WAI-ARIA tablist that selects the active metric on
  * the Views trends chart. Click / Enter / Space activates; arrow keys
  * move focus between siblings without selecting.

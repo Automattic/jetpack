@@ -25,12 +25,12 @@ const CHART_HEIGHT = 240;
 type MetricConfig = {
 	title: string;
 	primaryLabel: string;
-	primaryField: keyof Pick< StatsSeriesPoint, 'views' | 'visitors' | 'watchTimeSeconds' >;
+	primaryField: keyof Pick< StatsSeriesPoint, 'views' | 'impressions' | 'watchTimeSeconds' >;
 	primaryPrevField: keyof Pick<
 		StatsSeriesPoint,
-		'previousPeriodViews' | 'previousPeriodVisitors' | 'previousPeriodWatchTimeSeconds'
+		'previousPeriodViews' | 'previousPeriodImpressions' | 'previousPeriodWatchTimeSeconds'
 	>;
-	secondary: { label: string; field: 'views' | 'visitors' } | null;
+	secondary: { label: string; field: 'views' | 'impressions' } | null;
 	yTickFormat?: ( value: number ) => string;
 };
 
@@ -40,13 +40,13 @@ const METRIC_CONFIG: Record< ActiveMetric, MetricConfig > = {
 		primaryLabel: __( 'Views', 'jetpack-videopress-pkg' ),
 		primaryField: 'views',
 		primaryPrevField: 'previousPeriodViews',
-		secondary: { label: __( 'Visitors', 'jetpack-videopress-pkg' ), field: 'visitors' },
+		secondary: { label: __( 'Impressions', 'jetpack-videopress-pkg' ), field: 'impressions' },
 	},
-	visitors: {
-		title: __( 'Visitors trends', 'jetpack-videopress-pkg' ),
-		primaryLabel: __( 'Visitors', 'jetpack-videopress-pkg' ),
-		primaryField: 'visitors',
-		primaryPrevField: 'previousPeriodVisitors',
+	impressions: {
+		title: __( 'Impressions trends', 'jetpack-videopress-pkg' ),
+		primaryLabel: __( 'Impressions', 'jetpack-videopress-pkg' ),
+		primaryField: 'impressions',
+		primaryPrevField: 'previousPeriodImpressions',
 		secondary: { label: __( 'Views', 'jetpack-videopress-pkg' ), field: 'views' },
 	},
 	watch_time: {
@@ -62,14 +62,14 @@ const METRIC_CONFIG: Record< ActiveMetric, MetricConfig > = {
 const COMPARE_OPTIONS_BY_METRIC: Record< ActiveMetric, { label: string; value: ChartCompare }[] > =
 	{
 		views: [
-			{ label: __( 'vs visitors', 'jetpack-videopress-pkg' ), value: 'secondary' },
+			{ label: __( 'vs impressions', 'jetpack-videopress-pkg' ), value: 'secondary' },
 			{ label: __( 'vs previous period', 'jetpack-videopress-pkg' ), value: 'previous_period' },
 			{
-				label: __( 'vs visitors / previous period', 'jetpack-videopress-pkg' ),
+				label: __( 'vs impressions / previous period', 'jetpack-videopress-pkg' ),
 				value: 'secondary_and_previous_period',
 			},
 		],
-		visitors: [
+		impressions: [
 			{ label: __( 'vs views', 'jetpack-videopress-pkg' ), value: 'secondary' },
 			{ label: __( 'vs previous period', 'jetpack-videopress-pkg' ), value: 'previous_period' },
 			{

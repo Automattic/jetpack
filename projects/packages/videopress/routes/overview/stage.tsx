@@ -2,7 +2,7 @@ import DashboardLayout from '../../src/dashboard/components/DashboardLayout';
 import DateRangeSelector from '../../src/dashboard/components/Overview/date-range-selector';
 import KpiCardsRow from '../../src/dashboard/components/Overview/kpi-cards-row';
 import MostViewedCard from '../../src/dashboard/components/Overview/most-viewed-card';
-import TopLocationsCard from '../../src/dashboard/components/Overview/top-locations-card';
+import TopByWatchTimeCard from '../../src/dashboard/components/Overview/top-by-watch-time-card';
 import ViewsTrendsCard from '../../src/dashboard/components/Overview/views-trends-card';
 import { useMockStats } from '../../src/dashboard/hooks/use-mock-stats';
 import './style.scss';
@@ -13,7 +13,7 @@ import type { ActiveMetric } from '../../src/dashboard/types/stats';
 const TRENDS_PANEL_ID = 'vp-overview-trends-panel';
 const KPI_TAB_IDS: Record< ActiveMetric, string > = {
 	views: 'vp-overview-kpi-tab-views',
-	visitors: 'vp-overview-kpi-tab-visitors',
+	impressions: 'vp-overview-kpi-tab-impressions',
 	watch_time: 'vp-overview-kpi-tab-watch-time',
 };
 
@@ -39,7 +39,7 @@ const Stage = () => {
 			<div className="vp-overview">
 				<KpiCardsRow
 					views={ stats.views }
-					visitors={ stats.visitors }
+					impressions={ stats.impressions }
 					watchTimeSeconds={ stats.watchTimeSeconds }
 					isLoading={ isLoading }
 					activeMetric={ activeMetric }
@@ -60,7 +60,7 @@ const Stage = () => {
 				/>
 				<div className="vp-overview__row--bottom">
 					<MostViewedCard videos={ stats.topVideos } isLoading={ isLoading } />
-					<TopLocationsCard locations={ stats.topLocations } isLoading={ isLoading } />
+					<TopByWatchTimeCard videos={ stats.topVideosByWatchTime } isLoading={ isLoading } />
 				</div>
 			</div>
 		</DashboardLayout>

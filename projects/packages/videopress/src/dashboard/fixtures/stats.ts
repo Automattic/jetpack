@@ -1,11 +1,5 @@
 import { DATE_RANGE_DAYS } from '../types/stats';
-import type {
-	DateRange,
-	Granularity,
-	OverviewStats,
-	StatsSeriesPoint,
-	TopLocation,
-} from '../types/stats';
+import type { DateRange, Granularity, OverviewStats, StatsSeriesPoint } from '../types/stats';
 
 const NOW_ISO = '2026-05-06T12:00:00Z';
 const TOTAL_DAYS = 365;
@@ -14,40 +8,72 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 interface RawPoint {
 	dateMs: number;
 	views: number;
-	visitors: number;
+	impressions: number;
 	watchSeconds: number;
 }
 
-const TOP_VIDEO_TITLES: Array< { id: string; title: string; baseViews: number } > = [
-	{ id: 'mock-1', title: 'Why We Redesigned Our Blog', baseViews: 1427 },
-	{ id: 'mock-2', title: '11 Website Layout Examples for Every Type of Page', baseViews: 1065 },
-	{ id: 'mock-3', title: 'Introducing Preview Sites', baseViews: 961 },
-	{ id: 'mock-4', title: 'Notice Our New Look? An Update to WordPress.com', baseViews: 819 },
-	{ id: 'mock-5', title: 'Safeguard Your Personal Information Online', baseViews: 745 },
-	{ id: 'mock-6', title: 'WordCamp Asia 2025: A celebration of Community', baseViews: 718 },
-	{ id: 'mock-7', title: 'How to Make a Website', baseViews: 456 },
-	{ id: 'mock-8', title: 'Color Accessibility 101', baseViews: 281 },
-	{ id: 'mock-9', title: 'Daily vs Real-time Backups', baseViews: 53 },
-];
-
-const TOP_LOCATION_BASE: Array<
-	Pick< TopLocation, 'countryCode' | 'countryName' > & { baseViews: number }
-> = [
-	{ countryCode: 'US', countryName: 'United States', baseViews: 1427 },
-	{ countryCode: 'IN', countryName: 'India', baseViews: 1065 },
-	{ countryCode: 'GB', countryName: 'United Kingdom', baseViews: 961 },
-	{ countryCode: 'CA', countryName: 'Canada', baseViews: 819 },
-	{ countryCode: 'DE', countryName: 'Germany', baseViews: 745 },
-	{ countryCode: 'MA', countryName: 'Morocco', baseViews: 718 },
-	{ countryCode: 'AU', countryName: 'Australia', baseViews: 456 },
-	{ countryCode: 'PH', countryName: 'Philippines', baseViews: 281 },
-	{ countryCode: 'ES', countryName: 'Spain', baseViews: 220 },
+// Per-video base totals calibrated to the full 365-day window. View and
+// watch-time bases vary independently so the "Most viewed" and "Top
+// videos by watch time" rankings differ — a short explainer can rack up
+// views without much watch time; a long tutorial can do the opposite.
+const TOP_VIDEOS: Array< {
+	id: string;
+	title: string;
+	baseViews: number;
+	baseWatchSeconds: number;
+} > = [
+	{
+		id: 'mock-1',
+		title: 'Why We Redesigned Our Blog',
+		baseViews: 1427,
+		baseWatchSeconds: 42_000,
+	},
+	{
+		id: 'mock-2',
+		title: '11 Website Layout Examples for Every Type of Page',
+		baseViews: 1065,
+		baseWatchSeconds: 18_500,
+	},
+	{
+		id: 'mock-3',
+		title: 'Introducing Preview Sites',
+		baseViews: 961,
+		baseWatchSeconds: 35_800,
+	},
+	{
+		id: 'mock-4',
+		title: 'Notice Our New Look? An Update to WordPress.com',
+		baseViews: 819,
+		baseWatchSeconds: 12_400,
+	},
+	{
+		id: 'mock-5',
+		title: 'Safeguard Your Personal Information Online',
+		baseViews: 745,
+		baseWatchSeconds: 31_200,
+	},
+	{
+		id: 'mock-6',
+		title: 'WordCamp Asia 2025: A celebration of Community',
+		baseViews: 718,
+		baseWatchSeconds: 25_600,
+	},
+	{
+		id: 'mock-7',
+		title: 'How to Make a Website',
+		baseViews: 456,
+		baseWatchSeconds: 22_900,
+	},
+	{ id: 'mock-8', title: 'Color Accessibility 101', baseViews: 281, baseWatchSeconds: 8_700 },
+	{ id: 'mock-9', title: 'Daily vs Real-time Backups', baseViews: 53, baseWatchSeconds: 1_400 },
 ];
 
 // Deterministic raw daily series for the last 730 days (365 active +
 // 365 of historical data the prior-period derivations read from).
 // Generated once at module scope via the same `(i * prime) % range`
 // idiom fixtures/library.ts uses — no Math.random, no time-of-day.
+// Impressions run 3.0–5.4× views to reflect the "loads >> plays"
+// shape of the WPCOM video_stats columns.
 const RAW_POINTS: RawPoint[] = ( () => {
 	const nowMs = new Date( NOW_ISO ).getTime();
 	const length = TOTAL_DAYS * 2;
@@ -55,9 +81,9 @@ const RAW_POINTS: RawPoint[] = ( () => {
 	for ( let i = 0; i < length; i++ ) {
 		const dateMs = nowMs - ( length - 1 - i ) * DAY_MS;
 		const views = 8 + ( ( i * 17 ) % 42 ) + ( ( i * 7 ) % 13 );
-		const visitors = Math.max( 1, Math.round( views * ( 0.55 + ( ( i * 11 ) % 25 ) / 100 ) ) );
+		const impressions = Math.round( views * ( 3.0 + ( ( i * 11 ) % 25 ) / 10 ) );
 		const watchSeconds = views * ( 18 + ( ( i * 13 ) % 22 ) );
-		out.push( { dateMs, views, visitors, watchSeconds } );
+		out.push( { dateMs, views, impressions, watchSeconds } );
 	}
 	return out;
 } )();
@@ -113,7 +139,7 @@ function previousWindowEnd( rangeDays: number ): number {
 function sumField(
 	from: number,
 	to: number,
-	field: keyof Pick< RawPoint, 'views' | 'visitors' | 'watchSeconds' >
+	field: keyof Pick< RawPoint, 'views' | 'impressions' | 'watchSeconds' >
 ): number {
 	let total = 0;
 	for ( let i = from; i < to; i++ ) {
@@ -167,19 +193,19 @@ function buildSeries( rangeDays: number, granularity: Granularity ): StatsSeries
 		const existing = buckets.get( key );
 		if ( existing ) {
 			existing.views += point.views;
-			existing.visitors += point.visitors;
+			existing.impressions += point.impressions;
 			existing.watchTimeSeconds += point.watchSeconds;
 			existing.previousPeriodViews += priorPoint?.views ?? 0;
-			existing.previousPeriodVisitors += priorPoint?.visitors ?? 0;
+			existing.previousPeriodImpressions += priorPoint?.impressions ?? 0;
 			existing.previousPeriodWatchTimeSeconds += priorPoint?.watchSeconds ?? 0;
 		} else {
 			buckets.set( key, {
 				date: key,
 				views: point.views,
-				visitors: point.visitors,
+				impressions: point.impressions,
 				watchTimeSeconds: point.watchSeconds,
 				previousPeriodViews: priorPoint?.views ?? 0,
-				previousPeriodVisitors: priorPoint?.visitors ?? 0,
+				previousPeriodImpressions: priorPoint?.impressions ?? 0,
 				previousPeriodWatchTimeSeconds: priorPoint?.watchSeconds ?? 0,
 			} );
 		}
@@ -188,7 +214,7 @@ function buildSeries( rangeDays: number, granularity: Granularity ): StatsSeries
 }
 
 /**
- * Scales a base view-count to the active range, so a 7-day window shows
+ * Scales a base count to the active range, so a 7-day window shows
  * roughly 1/52 of the 365-day figures. Floors at 1 so cards always
  * render a non-zero count.
  *
@@ -217,29 +243,30 @@ export function generateMockStats( dateRange: DateRange, granularity: Granularit
 	const priorStart = previousWindowStart( rangeDays );
 	const priorEnd = previousWindowEnd( rangeDays );
 
+	const scaledVideos = TOP_VIDEOS.map( v => ( {
+		id: v.id,
+		title: v.title,
+		views: scaleByRange( v.baseViews, rangeDays ),
+		watchTimeSeconds: scaleByRange( v.baseWatchSeconds, rangeDays ),
+	} ) );
+
 	return {
 		views: {
 			current: sumField( currentStart, currentEnd, 'views' ),
 			previousPeriod: sumField( priorStart, priorEnd, 'views' ),
 		},
-		visitors: {
-			current: sumField( currentStart, currentEnd, 'visitors' ),
-			previousPeriod: sumField( priorStart, priorEnd, 'visitors' ),
+		impressions: {
+			current: sumField( currentStart, currentEnd, 'impressions' ),
+			previousPeriod: sumField( priorStart, priorEnd, 'impressions' ),
 		},
 		watchTimeSeconds: {
 			current: sumField( currentStart, currentEnd, 'watchSeconds' ),
 			previousPeriod: sumField( priorStart, priorEnd, 'watchSeconds' ),
 		},
 		series: buildSeries( rangeDays, granularity ),
-		topVideos: TOP_VIDEO_TITLES.map( v => ( {
-			id: v.id,
-			title: v.title,
-			views: scaleByRange( v.baseViews, rangeDays ),
-		} ) ),
-		topLocations: TOP_LOCATION_BASE.map( l => ( {
-			countryCode: l.countryCode,
-			countryName: l.countryName,
-			views: scaleByRange( l.baseViews, rangeDays ),
-		} ) ),
+		topVideos: [ ...scaledVideos ].sort( ( a, b ) => b.views - a.views ),
+		topVideosByWatchTime: [ ...scaledVideos ].sort(
+			( a, b ) => b.watchTimeSeconds - a.watchTimeSeconds
+		),
 	};
 }

@@ -7,7 +7,7 @@ import type { ReactElement } from 'react';
 
 type Props = {
 	views: OverviewStats[ 'views' ];
-	visitors: OverviewStats[ 'visitors' ];
+	impressions: OverviewStats[ 'impressions' ];
 	watchTimeSeconds: OverviewStats[ 'watchTimeSeconds' ];
 	isLoading: boolean;
 	activeMetric: ActiveMetric;
@@ -29,7 +29,7 @@ function formatNumber( n: number ): string {
 }
 
 /**
- * Three KPI cards (Views, Visitors, Watch time) in a responsive grid.
+ * Three KPI cards (Views, Impressions, Watch time) in a responsive grid.
  * Each card acts as a tab that selects which metric the Views trends
  * chart plots; together they form a WAI-ARIA tablist. Layout grid is
  * owned by the parent `.vp-overview__kpi-row` rule in
@@ -37,7 +37,7 @@ function formatNumber( n: number ): string {
  *
  * @param props                      - Component props.
  * @param props.views                - Views summary.
- * @param props.visitors             - Visitors summary.
+ * @param props.impressions          - Impressions summary.
  * @param props.watchTimeSeconds     - Watch-time summary in seconds.
  * @param props.isLoading            - When true, KPI values render as em dashes.
  * @param props.activeMetric         - Currently selected chart metric.
@@ -48,7 +48,7 @@ function formatNumber( n: number ): string {
  */
 export default function KpiCardsRow( {
 	views,
-	visitors,
+	impressions,
 	watchTimeSeconds,
 	isLoading,
 	activeMetric,
@@ -60,8 +60,8 @@ export default function KpiCardsRow( {
 		() => onChangeActiveMetric( 'views' ),
 		[ onChangeActiveMetric ]
 	);
-	const onSelectVisitors = useCallback(
-		() => onChangeActiveMetric( 'visitors' ),
+	const onSelectImpressions = useCallback(
+		() => onChangeActiveMetric( 'impressions' ),
 		[ onChangeActiveMetric ]
 	);
 	const onSelectWatchTime = useCallback(
@@ -87,13 +87,13 @@ export default function KpiCardsRow( {
 				controlsId={ panelId }
 			/>
 			<KpiCard
-				label={ __( 'VISITORS', 'jetpack-videopress-pkg' ) }
-				value={ formatNumber( visitors.current ) }
-				summary={ visitors }
+				label={ __( 'IMPRESSIONS', 'jetpack-videopress-pkg' ) }
+				value={ formatNumber( impressions.current ) }
+				summary={ impressions }
 				isLoading={ isLoading }
-				isActive={ activeMetric === 'visitors' }
-				onSelect={ onSelectVisitors }
-				id={ tabIds.visitors }
+				isActive={ activeMetric === 'impressions' }
+				onSelect={ onSelectImpressions }
+				id={ tabIds.impressions }
 				controlsId={ panelId }
 			/>
 			<KpiCard
