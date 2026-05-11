@@ -1,7 +1,7 @@
 /**
  * Smoke tests for the AI Answers SSE wiring in SearchApp.
  *
- * These tests verify the core guard: when aiAnswersToken is absent,
+ * These tests verify that when aiAnswersEnabled is absent/false,
  * fetchEventSource is never called, and the component mounts without errors.
  */
 
@@ -99,7 +99,6 @@ const defaultProps = {
 describe( 'SearchApp AI Answers SSE wiring', () => {
 	beforeEach( () => {
 		fetchEventSource.mockClear();
-		// Ensure no token in window options.
 		window.JetpackInstantSearchOptions = { siteId: 123 };
 	} );
 
@@ -107,13 +106,13 @@ describe( 'SearchApp AI Answers SSE wiring', () => {
 		delete window.JetpackInstantSearchOptions;
 	} );
 
-	it( 'mounts without errors when aiAnswersToken is absent', () => {
+	it( 'mounts without errors when aiAnswersEnabled is absent', () => {
 		expect( () => {
 			render( <SearchApp { ...defaultProps } /> );
 		} ).not.toThrow();
 	} );
 
-	it( 'does not call fetchEventSource when aiAnswersToken is absent', () => {
+	it( 'does not call fetchEventSource when aiAnswersEnabled is absent', () => {
 		render( <SearchApp { ...defaultProps } /> );
 		expect( fetchEventSource ).not.toHaveBeenCalled();
 	} );

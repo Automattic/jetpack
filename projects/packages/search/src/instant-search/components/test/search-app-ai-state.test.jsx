@@ -163,7 +163,7 @@ describe( 'SearchApp — getAiAnswer guard conditions', () => {
 	} );
 
 	it( 'passes the site ID from JetpackInstantSearchOptions', () => {
-		renderAndTriggerQuery( 'reset my password', { ...BASE_OPTIONS, aiAnswersSiteId: 999 } );
+		renderAndTriggerQuery( 'reset my password', { ...BASE_OPTIONS, siteId: 999 } );
 		const body = JSON.parse( lastFetchOpts().body );
 		expect( body.params.message.parts[ 1 ].data.clientContext.selectedSiteId ).toBe( 999 );
 	} );

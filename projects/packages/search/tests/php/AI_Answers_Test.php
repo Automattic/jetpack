@@ -61,25 +61,6 @@ class AI_Answers_Test extends Search_TestCase {
 		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
 	}
 
-	public function test_hmac_token_not_in_state_when_disabled() {
-		// Feature disabled by default.
-		$state = Helper::generate_initial_javascript_state();
-		$this->assertArrayNotHasKey( 'aiAnswersToken', $state );
-		$this->assertArrayNotHasKey( 'aiAnswersSiteId', $state );
-	}
-
-	public function test_hmac_token_in_state_when_enabled() {
-		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
-		$state = Helper::generate_initial_javascript_state();
-		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
-		// The test environment (WorDBless) provides a blog token, so both keys
-		// should be present in state when the feature is enabled.
-		$this->assertArrayHasKey( 'aiAnswersToken', $state );
-		$this->assertNotEmpty( $state['aiAnswersToken'] );
-		$this->assertArrayHasKey( 'aiAnswersSiteId', $state );
-		$this->assertIsInt( $state['aiAnswersSiteId'] );
-	}
-
 	public function test_get_behavior_instructions_returns_empty_by_default() {
 		// wp_guideline is not registered; option is unset — expect empty string.
 		$this->assertSame( '', AI_Answers::get_behavior_instructions() );

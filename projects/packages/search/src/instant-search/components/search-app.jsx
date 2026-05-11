@@ -428,7 +428,7 @@ class SearchApp extends Component {
 	getAiAnswer = () => {
 		const query = this.props.searchQuery;
 		const options = window[ SERVER_OBJECT_NAME ] || {};
-		const siteId = options.aiAnswersSiteId || options.siteId;
+		const siteId = options.siteId;
 
 		const idleState = {
 			aiBriefStatus: 'idle',
@@ -481,7 +481,7 @@ class SearchApp extends Component {
 	handleShowMore = () => {
 		const query = this.props.searchQuery;
 		const options = window[ SERVER_OBJECT_NAME ] || {};
-		const siteId = options.aiAnswersSiteId || options.siteId;
+		const siteId = options.siteId;
 
 		const loadingMessages = [
 			__( 'Searching harder…', 'jetpack-search-pkg' ),
