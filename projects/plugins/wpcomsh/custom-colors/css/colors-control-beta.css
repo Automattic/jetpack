@@ -366,11 +366,6 @@ a.button.right-pill {
 	padding-top: 3px;
 }
 
-.color-picker #colourlovers-palettes-container .previous,
-.color-picker #colourlovers-palettes-container .next {
-	margin-top: 10px;
-}
-
 /* Generate from header image */
 #generate-palette {
 	display: block;
@@ -385,7 +380,9 @@ a.button.right-pill {
 	margin: 0 -20px;
 	padding: 0 20px 10px;
 }
-#more-patterns, #less-patterns {
+
+#more-patterns,
+#less-patterns {
 	margin-bottom: 10px;
 }
 
@@ -428,10 +425,6 @@ input#iris {
 /*
  * Free Mode
  */
-.free-mode #colourlovers-palettes .color-grid:not(.featured) {
-	opacity: 0.2;
-}
-
 .free-mode #the-pattern-picker {
 	display: none;
 }
@@ -643,14 +636,12 @@ input#iris {
 ----------------------------------------------- */
 
 .nux #color-grid,
-.nux #colourlovers-palettes-container h3,
 .nux #more-palettes {
 	display: none !important;
 }
 
 /* only show theme palettes */
-.nux .color-grid:not(.featured),
-.nux .colour-lovers.featured::before {
+.nux .color-grid:not(.featured) {
 	display: none;
 }
 
