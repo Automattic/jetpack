@@ -1760,6 +1760,114 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// Feature clip post meta tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that the feature clip meta key constant is defined correctly.
+	 */
+	public function test_feature_clip_meta_key_constant() {
+		$this->assertEquals( '_jetpack_feature_clip_id', ImageStudio\FEATURE_CLIP_META_KEY );
+	}
+
+	/**
+	 * Test that the feature clip meta is registered for the 'post' object type
+	 * with the expected schema (integer, single, exposed in REST).
+	 */
+	public function test_feature_clip_post_meta_registered_when_enabled() {
+		// The plugin's `init` hook should have registered the meta during bootstrap.
+		// Re-run the registration explicitly so the test isn't sensitive to setup order.
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayHasKey( ImageStudio\FEATURE_CLIP_META_KEY, $registered );
+
+		$schema = $registered[ ImageStudio\FEATURE_CLIP_META_KEY ];
+		$this->assertSame( 'integer', $schema['type'] );
+		$this->assertTrue( $schema['single'] );
+		$this->assertTrue( $schema['show_in_rest'] );
+		$this->assertSame( 0, $schema['default'] );
+		$this->assertSame( 'absint', $schema['sanitize_callback'] );
+		$this->assertIsCallable( $schema['auth_callback'] );
+	}
+
+	/**
+	 * Test that the registered default surfaces as `0` from `get_post_meta()`
+	 * for posts without an explicit value, so REST clients always see a
+	 * deterministic integer instead of `null` or an empty string.
+	 */
+	public function test_feature_clip_meta_default_value_is_zero() {
+		ImageStudio\register_feature_clip_post_meta();
+
+		$post_id = self::factory()->post->create();
+		$value   = get_post_meta( $post_id, ImageStudio\FEATURE_CLIP_META_KEY, true );
+
+		$this->assertSame( 0, $value );
+	}
+
+	/**
+	 * Test that the meta auth callback grants access when the user can edit the post.
+	 */
+	public function test_feature_clip_meta_auth_callback_grants_when_user_can_edit_post() {
+		$user_id = self::factory()->user->create( array( 'role' => 'editor' ) );
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue(
+			ImageStudio\feature_clip_meta_auth_callback( false, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the meta auth callback denies access when the user cannot edit the post.
+	 */
+	public function test_feature_clip_meta_auth_callback_denies_when_user_cannot_edit_post() {
+		$post_id       = self::factory()->post->create();
+		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+
+		wp_set_current_user( $subscriber_id );
+
+		$this->assertFalse(
+			ImageStudio\feature_clip_meta_auth_callback( true, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the meta auth callback denies access for an anonymous user.
+	 */
+	public function test_feature_clip_meta_auth_callback_denies_anonymous_user() {
+		$post_id = self::factory()->post->create();
+		wp_set_current_user( 0 );
+
+		$this->assertFalse(
+			ImageStudio\feature_clip_meta_auth_callback( true, ImageStudio\FEATURE_CLIP_META_KEY, $post_id )
+		);
+	}
+
+	/**
+	 * Test that the registration is gated on `is_image_studio_enabled()`. When
+	 * Image Studio is disabled, calling the registration helper directly is a no-op.
+	 */
+	public function test_feature_clip_post_meta_skipped_when_disabled() {
+		// Force the gate to false by disabling AI features and Big Sky.
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		// Unregister any prior registration so we can detect a no-op.
+		unregister_post_meta( 'post', ImageStudio\FEATURE_CLIP_META_KEY );
+
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayNotHasKey( ImageStudio\FEATURE_CLIP_META_KEY, $registered );
+
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		// Restore for any later tests that depend on the meta being present.
+		ImageStudio\register_feature_clip_post_meta();
+	}
+
+	// -------------------------------------------------------------------------
 	// Hook priority tests
 	// -------------------------------------------------------------------------
 

@@ -28,6 +28,7 @@ function pcg_log_event( $message, array $extra ) {
 
 		log2logstash(
 			array(
+				'blog_id' => get_current_blog_id(),
 				'feature' => 'plugin-conflicts-guardian',
 				'message' => (string) $message,
 				'extra'   => wp_json_encode( pcg_log_redact_paths( $extra ), JSON_UNESCAPED_SLASHES ),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: bundle @wordpress/theme and @wordpress/private-apis inline in the dashboard build so it does not silently fail to load when those packages are not registered as WP script handles. Same workaround as #48173.

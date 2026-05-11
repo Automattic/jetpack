@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Image Studio: Register a `_jetpack_feature_clip_id` post meta that links a generated video clip to its post. Stored as the attachment ID, exposed over REST so the post editor can read/write it.
