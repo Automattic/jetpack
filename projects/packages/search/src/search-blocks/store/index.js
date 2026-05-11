@@ -639,7 +639,9 @@ const { state, actions } = store( NAMESPACE, {
 				if ( myToken !== searchToken ) {
 					return;
 				}
-				state.results = ( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) );
+				state.results = ( data.results ?? [] ).map( r =>
+					normalizeResult( r, state.locale, state.searchQuery )
+				);
 				state.totalResults = data.total ?? 0;
 				state.pageHandle = data.page_handle ?? null;
 				state.aggregations = data.aggregations ?? {};
@@ -705,7 +707,9 @@ const { state, actions } = store( NAMESPACE, {
 				}
 				state.results = [
 					...state.results,
-					...( data.results ?? [] ).map( r => normalizeResult( r, state.locale ) ),
+					...( data.results ?? [] ).map( r =>
+						normalizeResult( r, state.locale, state.searchQuery )
+					),
 				];
 				state.pageHandle = data.page_handle ?? null;
 			} catch {
