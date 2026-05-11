@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Podcast: add product-access gate (Podcast_Gate::has_product_access) and grandfather sticker constant.
+Gate: add product-access helper (Podcast_Gate::has_product_access) and grandfather sticker constant.
