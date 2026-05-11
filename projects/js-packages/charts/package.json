@@ -23,7 +23,10 @@
 			"import": "./dist/index.js",
 			"require": "./dist/index.cjs"
 		},
-		"./style.css": "./dist/index.css",
+		"./style.css": {
+			"jetpack:src": "./src/style.css",
+			"default": "./dist/index.css"
+		},
 		"./visx/group": {
 			"jetpack:src": "./src/visx/group/index.ts",
 			"import": "./dist/visx/group/index.js",
