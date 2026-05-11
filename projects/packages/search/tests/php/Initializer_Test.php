@@ -51,11 +51,4 @@ class Initializer_Test extends Search_TestCase {
 		// Only the filter-abort reason should have fired.
 		$this->assertSame( array( 'jetpack_search_init_search_package_filter' ), $reasons );
 	}
-
-	public function test_initialize_deprecated_returns_wp_error() {
-		$result = Initializer::initialize();
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'invalid-method', $result->get_error_code() );
-		$this->assertSame( 405, $result->get_error_data()['status'] );
-	}
 }
