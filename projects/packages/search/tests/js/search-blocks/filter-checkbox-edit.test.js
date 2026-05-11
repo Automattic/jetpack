@@ -295,6 +295,21 @@ describe( 'variationToAttributes', () => {
 		} );
 	} );
 
+	it( 'switches to Meta Field with an empty taxonomy attribute regardless of carried slug', () => {
+		// Switching into the Meta variation deliberately CLEARS the carried
+		// `taxonomy` value: a taxonomy slug isn't a valid meta key, and
+		// surfacing it as a typed default would confuse the author. The
+		// map-keys whitelist drives the picker.
+		expect( variationToAttributes( VARIATION_FILTER_META, 'genre' ) ).toEqual( {
+			filterType: 'meta',
+			taxonomy: '',
+		} );
+		expect( variationToAttributes( VARIATION_FILTER_META, '' ) ).toEqual( {
+			filterType: 'meta',
+			taxonomy: '',
+		} );
+	} );
+
 	it( 'falls through to Custom Taxonomy for unknown variation ids (defensive)', () => {
 		expect( variationToAttributes( 'not-a-real-variation', 'genre' ) ).toEqual( {
 			filterType: 'taxonomy',

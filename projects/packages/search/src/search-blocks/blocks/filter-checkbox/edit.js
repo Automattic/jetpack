@@ -108,9 +108,6 @@ const supportedCustomMetaKeys = () =>
 	( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.supportedCustomMetaKeys ) ||
 	[];
 
-const customMetaMap = () =>
-	( typeof window !== 'undefined' && window.JetpackSearchBlocksConfig?.customMetaMap ) || {};
-
 /**
  * Identify which built-in variation the current (filterType, taxonomy) pair
  * matches. Any taxonomy-family block whose slug isn't a recognized built-in
@@ -369,21 +366,35 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 		if ( ! isFilterMeta ) {
 			return null;
 		}
-		const supported = supportedCustomMetaKeys();
-		const map = customMetaMap();
-		return supported.map( key => ( {
+		// `supportedCustomMetaKeys` is `array_keys( customMetaMap )` server-side
+		// (no public-meta-keys API to intersect with), so every entry here is
+		// guaranteed to have a slot mapping — the `(mapped)` suffix always
+		// applies. If the two arrays are ever decoupled (e.g. an indexed-meta
+		// allowlist arrives later), reintroduce a ternary then.
+		return supportedCustomMetaKeys().map( key => ( {
 			value: key,
-			label: map[ key ]
-				? sprintf(
-						/* translators: %s: meta key. The "(mapped)" suffix flags a meta key routed through a reserved jetpack-search-metaN slot. */
-						__( '%s (mapped)', 'jetpack-search-pkg' ),
-						key
-				  )
-				: key,
+			label: sprintf(
+				/* translators: %s: meta key. The "(mapped)" suffix flags a meta key routed through a reserved jetpack-search-metaN slot. */
+				__( '%s (mapped)', 'jetpack-search-pkg' ),
+				key
+			),
 		} ) );
 	}, [ isFilterMeta ] );
 	const hasNoMetaKeys =
 		isFilterMeta && Array.isArray( metaKeyOptions ) && metaKeyOptions.length === 0;
+
+	// Pre-bind the help-text strings so the inspector JSX can read them via a
+	// simple ternary. The minifier has dropped trailing `__()` args before in
+	// nearby strings (the reason older code in this file passes a `0` dummy
+	// third arg); assigning to a `const` is the safer pattern @claude flagged.
+	const metaKeyEmptyHelp = __(
+		'No meta keys are mapped to Jetpack Search slots on this site. Register one via the jetpack_search_custom_meta_map filter and it will appear here.',
+		'jetpack-search-pkg'
+	);
+	const metaKeyPickHelp = __(
+		'Pick which mapped meta key this filter targets. The key must already be routed through a reserved jetpack-search-metaN slot via the jetpack_search_custom_meta_map filter.',
+		'jetpack-search-pkg'
+	);
 
 	const rawLabel = attributes?.label || '';
 	const variationLabel = variationDefaultLabel( attributes );
@@ -488,18 +499,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 								...( metaKeyOptions || [] ),
 							] }
 							onChange={ value => setAttributes( { taxonomy: value } ) }
-							help={
-								hasNoMetaKeys
-									? __(
-											'No meta keys are mapped to Jetpack Search slots on this site. Register one via the jetpack_search_custom_meta_map filter and it will appear here.',
-											'jetpack-search-pkg'
-									  )
-									: __(
-											'Pick which mapped meta key this filter targets. The key must already be routed through a reserved jetpack-search-metaN slot via the jetpack_search_custom_meta_map filter.',
-											'jetpack-search-pkg',
-											/* dummy arg to avoid bad minification */ 0
-									  )
-							}
+							help={ hasNoMetaKeys ? metaKeyEmptyHelp : metaKeyPickHelp }
 						/>
 					) }
 					<TextControl

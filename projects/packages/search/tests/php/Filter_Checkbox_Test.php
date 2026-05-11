@@ -214,6 +214,58 @@ class Filter_Checkbox_Test extends TestCase {
 	}
 
 	/**
+	 * `filterType: 'meta'` reuses the `taxonomy` block attribute as the
+	 * facet-key carrier and routes `effectiveSlug` through
+	 * `Search_Blocks::resolve_meta_slot()`. Pin the happy path: mapped key
+	 * resolves to its slot on the config; unmapped key falls through to the
+	 * raw key; reserved-param collision drops the filterKey so the block
+	 * renders nothing (same guard the taxonomy path uses).
+	 */
+	public function test_build_config_meta_filter_uses_effective_slug() {
+		$callback = static function ( $map ) {
+			$map['author_role'] = 'jetpack-search-meta1';
+			return $map;
+		};
+		add_filter( 'jetpack_search_custom_meta_map', $callback );
+		Search_Blocks::reset_custom_map_caches();
+		try {
+			$mapped = Filter_Checkbox::build_config(
+				array(
+					'filterType' => 'meta',
+					'taxonomy'   => 'author_role',
+				),
+				'author_role'
+			);
+			$this->assertSame( 'meta', $mapped['filterType'] );
+			$this->assertSame( 'author_role', $mapped['taxonomy'] );
+			$this->assertSame( 'jetpack-search-meta1', $mapped['effectiveSlug'] );
+
+			$unmapped = Filter_Checkbox::build_config(
+				array(
+					'filterType' => 'meta',
+					'taxonomy'   => 'priority',
+				),
+				'priority'
+			);
+			$this->assertSame( 'priority', $unmapped['effectiveSlug'] );
+
+			// Reserved-param collision: same guard the taxonomy path uses.
+			$this->assertSame(
+				'',
+				Filter_Checkbox::derive_filter_key(
+					array(
+						'filterType' => 'meta',
+						'taxonomy'   => 's',
+					)
+				)
+			);
+		} finally {
+			remove_filter( 'jetpack_search_custom_meta_map', $callback );
+			Search_Blocks::reset_custom_map_caches();
+		}
+	}
+
+	/**
 	 * Post-type filters seed a `valueLabels` map keyed by post-type slug so the
 	 * active-filter pill can render the post type's `singular_name` (e.g.
 	 * "Post Type: Post") instead of the raw `post` slug. Post-type aggregation

@@ -560,14 +560,16 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Reset the `custom_taxonomy_map()` memo. Tests only — production WP runs
-	 * a single request per process and the map is derived purely from a
-	 * filter hook, so callers should never need to clear the cache. Also
-	 * clears the meta-map memo so a single resetter covers both.
+	 * Reset every `custom_*_map()` / `supported_*` memo this class holds.
+	 * Tests only — production WP runs a single request per process and the
+	 * maps are derived purely from filter hooks, so callers should never
+	 * need to clear the cache. A single resetter covers both the taxonomy
+	 * and meta maps so test tearDown doesn't have to remember which got
+	 * added when.
 	 *
 	 * @internal
 	 */
-	public static function reset_custom_taxonomy_map_cache(): void {
+	public static function reset_custom_map_caches(): void {
 		self::$custom_taxonomy_map_cache         = null;
 		self::$supported_custom_taxonomies_cache = null;
 		self::$custom_meta_map_cache             = null;

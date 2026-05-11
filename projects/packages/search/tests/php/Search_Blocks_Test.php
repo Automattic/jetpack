@@ -24,7 +24,7 @@ class Search_Blocks_Test extends TestCase {
 	protected function tearDown(): void {
 		Search_Blocks::reset_initial_loading_cache();
 		Search_Blocks::reset_is_woocommerce_active_cache();
-		Search_Blocks::reset_custom_taxonomy_map_cache();
+		Search_Blocks::reset_custom_map_caches();
 		parent::tearDown();
 	}
 
