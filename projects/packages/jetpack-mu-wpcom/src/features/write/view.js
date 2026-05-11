@@ -2713,6 +2713,19 @@ const { state } = store( 'wpcom-write', {
 			}
 		},
 
+		// Close whichever media modal is open, but only when the pointerdown
+		// lands directly on the overlay backdrop — not when it starts inside
+		// the modal (e.g. while selecting text in an input) and drags out.
+		handleOverlayPointerDown( event ) {
+			if ( event.button !== 0 || event.target !== event.currentTarget ) return;
+			const { actions: a } = store( 'wpcom-write' );
+			if ( state.showImageModal ) {
+				a.closeImageModal();
+			} else if ( state.showVideoModal ) {
+				a.closeVideoModal();
+			}
+		},
+
 		stopPropagation( event ) {
 			event.stopPropagation();
 		},
