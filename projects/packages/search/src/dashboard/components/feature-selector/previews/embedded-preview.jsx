@@ -25,15 +25,15 @@ export default function EmbeddedPreview() {
 				/>
 				pasta
 			</div>
-			<div className="jp-search-feature-selector__embedded-preview-sort">
-				Sort by
-				<span className="jp-search-feature-selector__embedded-preview-sort-control">
-					Relevance
-					<Icon icon={ chevronDown } size={ 12 } />
-				</span>
-			</div>
 			<div className="jp-search-feature-selector__embedded-preview-body">
 				<div className="jp-search-feature-selector__embedded-preview-results">
+					<div className="jp-search-feature-selector__embedded-preview-sort">
+						Sort by
+						<span className="jp-search-feature-selector__embedded-preview-sort-control">
+							Relevance
+							<Icon icon={ chevronDown } size={ 12 } />
+						</span>
+					</div>
 					<div className="jp-search-feature-selector__embedded-preview-result">
 						<div className="jp-search-feature-selector__embedded-preview-result-content">
 							<div className="jp-search-feature-selector__embedded-preview-result-title">
