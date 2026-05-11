@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Slim down wp-build wiring to the Backup pattern: drop bridge_wp_build_enqueue and fix_boot_import_map_ordering, alias $screen->id via current_screen instead.

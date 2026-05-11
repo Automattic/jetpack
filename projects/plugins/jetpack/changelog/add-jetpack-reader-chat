@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Reader Chat: Add a reader-chat loader that mounts the Agents Manager chat UI on public blog frontends, passing site and current-post context to the AI agent. Gated by the jetpack_reader_chat_has_ai_features filter (defaults to the standard AI connection check). Loads on every public frontend page, not just singular views. Registers the reader_chat site option in the REST API so Reader Chat can be toggled from the wp-admin UI without writing PHP.

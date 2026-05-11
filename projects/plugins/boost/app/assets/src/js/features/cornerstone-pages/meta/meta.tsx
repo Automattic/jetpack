@@ -10,10 +10,10 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import { Button, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink, Tooltip } from '@wordpress/components';
+import { Tooltip } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Link } from '@wordpress/ui';
 import type { FC, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -34,7 +34,8 @@ export const MetaError = () => (
 					),
 					{
 						link: (
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ getSupportLink() }
 								onClick={ () => {
 									recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
@@ -139,7 +140,8 @@ const Meta = () => {
 					),
 					{
 						link: (
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ cornerstonePagesSupportLink }
 								onClick={ () => {
 									recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );

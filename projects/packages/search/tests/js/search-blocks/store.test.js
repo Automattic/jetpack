@@ -5,6 +5,7 @@ const captured = {
 	state: {},
 	actions: {},
 	callbacks: {},
+	context: {},
 };
 const originalFetch = global.fetch;
 
@@ -22,6 +23,7 @@ jest.mock(
 			}
 			return { state: captured.state, actions: captured.actions };
 		},
+		getContext: () => captured.context,
 	} ),
 	{ virtual: true }
 );
@@ -314,7 +316,7 @@ describe( 'store actions', () => {
 		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
-	it( 'clears filters only when filters are active', async () => {
+	it( 'clears every facet only when something is active', async () => {
 		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
 
 		await runGenerator( actions.clearFilters() );
@@ -322,9 +324,66 @@ describe( 'store actions', () => {
 
 		state.activeFilters = { tag: [ 'react' ] };
 		await runGenerator( actions.clearFilters() );
-
 		expect( state.activeFilters ).toEqual( {} );
 		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Price-only state still triggers a clear — covers half-open ranges
+		// like `{ min: 10, max: null }` so a "clear all" affordance wipes
+		// every facet, not just the checkbox-shaped ones.
+		state.priceRange = { min: 10, max: null };
+		await runGenerator( actions.clearFilters() );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 2 );
+		// Combined state — both checkbox selections and a price range — must
+		// reset in a single call, since the standalone clear-filters button
+		// is the only affordance that wipes price selections in one click.
+		state.activeFilters = { tag: [ 'react' ] };
+		state.priceRange = { min: 10, max: 50 };
+		await runGenerator( actions.clearFilters() );
+		expect( state.activeFilters ).toEqual( {} );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 3 );
+	} );
+
+	it( 'setPriceRange validates bounds, no-ops on identity, and clears on null/null', async () => {
+		const search = jest.spyOn( actions, 'search' ).mockResolvedValue();
+		state.priceRange = null;
+
+		// NaN / negative bounds drop the call rather than poisoning ES.
+		await runGenerator( actions.setPriceRange( 'abc', 50 ) );
+		await runGenerator( actions.setPriceRange( -1, 50 ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+
+		// Inverted bounds (min > max) build an empty clause — drop too.
+		await runGenerator( actions.setPriceRange( 100, 10 ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).not.toHaveBeenCalled();
+
+		// Closed range writes and searches.
+		await runGenerator( actions.setPriceRange( 10, 50 ) );
+		expect( state.priceRange ).toEqual( { min: 10, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Identity no-op — same bounds shouldn't refetch.
+		await runGenerator( actions.setPriceRange( 10, 50 ) );
+		expect( search ).toHaveBeenCalledTimes( 1 );
+
+		// Half-open range (one bound null) is allowed — both min-only and
+		// max-only shapes round-trip the matching null through to state so the
+		// URL writer and ES range clause see the same "no bound" sentinel.
+		await runGenerator( actions.setPriceRange( 25, null ) );
+		expect( state.priceRange ).toEqual( { min: 25, max: null } );
+		expect( search ).toHaveBeenCalledTimes( 2 );
+
+		await runGenerator( actions.setPriceRange( null, 50 ) );
+		expect( state.priceRange ).toEqual( { min: null, max: 50 } );
+		expect( search ).toHaveBeenCalledTimes( 3 );
+
+		// Both null clears the range.
+		await runGenerator( actions.setPriceRange( null, null ) );
+		expect( state.priceRange ).toBeNull();
+		expect( search ).toHaveBeenCalledTimes( 4 );
 	} );
 
 	it( 'keeps filter and sort popovers mutually exclusive', () => {
@@ -392,9 +451,12 @@ describe( 'store actions', () => {
 		// Regression: omitting priceRange from pushStateToUrl meant the
 		// first search after JS hydrated rewrote `?min_price=10` away,
 		// breaking shareable URLs and back-button behavior.
+		// `isWooCommerceActive` must be true — `min_price`/`max_price` are
+		// WC-only and `pushStateToUrl` drops them otherwise (RSM-2805).
 		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
 		state.searchQuery = 'shoes';
 		state.priceRange = { min: 10, max: 50 };
+		state.isWooCommerceActive = true;
 
 		actions.syncToUrl();
 
@@ -402,6 +464,24 @@ describe( 'store actions', () => {
 		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
 		expect( writtenUrl ).toContain( 'min_price=10' );
 		expect( writtenUrl ).toContain( 'max_price=50' );
+	} );
+
+	it( 'syncToUrl drops priceRange on non-Woo sites so a stray range cannot leak into the URL (RSM-2805)', () => {
+		// `filter-wc-price` isn't registered on non-Woo sites, but a stale
+		// `state.priceRange` (e.g. seeded from a deep link before the JS
+		// gate caught up, or set by an unrelated callback) must never round-
+		// trip into the URL — the next API request would otherwise carry a
+		// `range` clause for a field the index doesn't have.
+		const replaceState = jest.spyOn( window.history, 'replaceState' ).mockImplementation();
+		state.searchQuery = 'shoes';
+		state.priceRange = { min: 10, max: 50 };
+		state.isWooCommerceActive = false;
+
+		actions.syncToUrl();
+
+		const writtenUrl = replaceState.mock.calls[ 0 ][ 2 ];
+		expect( writtenUrl ).not.toContain( 'min_price' );
+		expect( writtenUrl ).not.toContain( 'max_price' );
 	} );
 
 	it( 'closes open popovers on Escape only', () => {
@@ -495,6 +575,27 @@ describe( 'store getters', () => {
 		expect( state.activeFilterCount ).toBe( 2 );
 	} );
 
+	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {
+		state.activeFilters = {};
+		state.priceRange = null;
+		expect( state.hasActiveFilters ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		state.activeFilters = {};
+		state.priceRange = { min: 10, max: 50 };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		// Half-open range still counts — without this branch a price-only
+		// deep link leaves the active-filters wrapper hidden after hydration.
+		state.priceRange = { min: null, max: 50 };
+		expect( state.hasActiveFilters ).toBe( true );
+
+		state.priceRange = { min: null, max: null };
+		expect( state.hasActiveFilters ).toBe( false );
+	} );
+
 	it( 'enables the filter trigger for active filters or available aggregation buckets', () => {
 		expect( state.isFilterTriggerDisabled ).toBe( true );
 
@@ -516,6 +617,26 @@ describe( 'store getters', () => {
 
 		state.sortOrder = 'oldest';
 		expect( state.isSortByOldest ).toBe( true );
+	} );
+
+	it( 'allBucketsSelected returns true only when every bucket is in activeFilters', () => {
+		captured.context = { filterKey: 'pa_color' };
+
+		state.aggregations = {};
+		state.activeFilters = {};
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.aggregations = { pa_color: { buckets: [ { key: 'red' }, { key: 'blue' } ] } };
+		state.activeFilters = {};
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { pa_color: [ 'red' ] };
+		expect( state.allBucketsSelected ).toBe( false );
+
+		state.activeFilters = { pa_color: [ 'red', 'blue' ] };
+		expect( state.allBucketsSelected ).toBe( true );
+
+		captured.context = {};
 	} );
 } );
 
@@ -589,8 +710,9 @@ describe( 'store callbacks', () => {
 	it( 'initializes popstate handling and runs one URL-seeded search', () => {
 		// Also covers the price-only URL case: `?min_price=10` with no text
 		// query and no checkbox filters seeds isLoading=true on the PHP side,
-		// so initialize() must fire a fetch for `priceRange` alone, not just
-		// for `searchQuery || hasActiveFilters`.
+		// so initialize() must fire a fetch — hasActiveFilters counts the
+		// priceRange, so the existing `searchQuery || hasActiveFilters` gate
+		// is enough.
 		const addEventListener = jest.spyOn( window, 'addEventListener' );
 		Object.assign( actions, originalActions );
 		jest.spyOn( actions, 'handlePopState' ).mockImplementation();

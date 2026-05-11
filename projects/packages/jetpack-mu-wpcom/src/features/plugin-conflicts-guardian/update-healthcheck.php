@@ -26,7 +26,7 @@ add_action( 'admin_notices', 'pcg_healthcheck_render_notice' );
  * @return bool|WP_Error Passed through unchanged.
  */
 function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
-	if ( ! apply_filters( 'pcg_guard_updates', false ) ) {
+	if ( ! apply_filters( 'pcg_guard_updates', true ) ) {
 		return $return;
 	}
 	if ( ! pcg_healthcheck_is_plugin_pre_install_update( $hook_extra ) ) {
@@ -66,7 +66,7 @@ function pcg_healthcheck_capture_snapshot( $return, $hook_extra ) {
  * @return void
  */
 function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- $upgrader is the WP-Upgrader-supplied argument; we accept it for the action signature.
-	if ( ! apply_filters( 'pcg_guard_updates', false ) ) {
+	if ( ! apply_filters( 'pcg_guard_updates', true ) ) {
 		return;
 	}
 	if ( ! pcg_healthcheck_is_plugin_update( $hook_extra ) ) {
@@ -140,6 +140,7 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 	foreach ( $candidates as $candidate ) {
 		$rollback = PCG_Rollback::to_snapshot( $candidate['snapshot'] );
 		pcg_healthcheck_stash_notice( $candidate['plugin_file'], $result, $rollback, $candidate['plugin_name'], $candidate['new_version'] );
+		pcg_healthcheck_log_rollback( $candidate, $result, $rollback );
 
 		/**
 		 * Fires after a post-update probe fails and rollback has been attempted.
@@ -151,6 +152,32 @@ function pcg_healthcheck_after_update( $upgrader, $hook_extra ) { // phpcs:ignor
 		 */
 		do_action( 'pcg_post_update_diagnosis', $candidate['plugin_file'], $result, $rollback, $candidate['snapshot'] );
 	}
+}
+
+/**
+ * Log a post-update rollback to logstash. Best-effort; no-op off WordPress.com.
+ *
+ * @param array $candidate Per-plugin context built in `pcg_healthcheck_after_update()`.
+ * @param array $probe     Shared probe verdict from `PCG_Load_Tester::test()`.
+ * @param array $rollback  Result from `PCG_Rollback::to_snapshot()`.
+ * @return void
+ */
+function pcg_healthcheck_log_rollback( array $candidate, array $probe, array $rollback ) {
+	pcg_log_event(
+		'Update rolled back',
+		array(
+			'plugin'           => (string) $candidate['plugin_file'],
+			'new_version'      => (string) $candidate['new_version'],
+			'previous_version' => (string) ( $candidate['snapshot']['version'] ?? '' ),
+			'probe_status'     => (string) ( $probe['status'] ?? '' ),
+			// Basename only — absolute paths leak install layout.
+			'probe_file'       => isset( $probe['file'] ) ? basename( (string) $probe['file'] ) : '',
+			'probe_line'       => (int) ( $probe['line'] ?? 0 ),
+			'probe_reason'     => (string) ( $probe['message'] ?? '' ),
+			'rollback_status'  => (string) ( $rollback['status'] ?? '' ),
+			'restored_to'      => (string) ( $rollback['restored_to'] ?? '' ),
+		)
+	);
 }
 
 /**

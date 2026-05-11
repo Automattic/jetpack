@@ -33,25 +33,21 @@ function wpcomsh_customize_fatal_error_message( $message, $error = array() ) { /
 	$is_admin = $user_id && user_can( $user_id, 'manage_options' );
 
 	// Identify only when used: admins need $plugin for the rendered
-	// notice; the anonymous path identifies once per (file, 1-hour) for
-	// telemetry. Signature-level dedup downstream catches duplicates
-	// this gate misses.
+	// notice; anonymous viewers don't render plugin info but still emit
+	// a signature event for telemetry. The anonymous path gates on
+	// (error file, request_kind) before paying the plugin-header read so
+	// a fatal storm doesn't compound filesystem work on a sick site —
+	// kind is in the key so wp-admin / home / rest variance still reaches
+	// the downstream (message, signature, request_kind) dedup.
 	$plugin = null;
 
 	if ( $is_admin ) {
 		$plugin = wpcomsh_fatal_identify_plugin( $error );
 		wpcomsh_fatal_log_event( $plugin, 'wpcomsh_fatal_signature' );
 	} elseif ( ! empty( $error['file'] ) ) {
-		$coarse_key = 'wpcomsh_fatal_file:' . hash( 'sha256', (string) $error['file'] );
-		$do_log     = true;
-
-		try {
-			$do_log = wp_cache_add( $coarse_key, 1, 'wpcomsh', HOUR_IN_SECONDS );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- fail open: a cache failure should not silence telemetry.
-			// Fail open.
-		}
-
-		if ( $do_log ) {
+		$req_kind   = wpcomsh_fatal_request_context()['kind'];
+		$coarse_key = 'wpcomsh_fatal_file_kind:' . hash( 'sha256', (string) $error['file'] . '|' . $req_kind );
+		if ( wpcomsh_fatal_dedup_acquire( $coarse_key, HOUR_IN_SECONDS ) ) {
 			wpcomsh_fatal_log_event( wpcomsh_fatal_identify_plugin( $error ), 'wpcomsh_fatal_signature' );
 		}
 	}
@@ -117,7 +113,11 @@ function wpcomsh_fatal_build_render_context( $error, $plugin = null, $user_id = 
 		'plugin'          => $plugin,
 		'error_message'   => $is_admin ? (string) ( $error['message'] ?? '' ) : '',
 		'deactivate_form' => $can_deactivate ? wpcomsh_fatal_build_deactivate_form( $plugin['basename'] ) : null,
-		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_url() : '',
+		// Endpoint-mediated link so the recovery key is minted on click
+		// (one row in the `recovery_keys` option per click, not per
+		// render) and we can log the click. Helper gates multisite. See
+		// fatal-recovery-redirect.php for the auth model.
+		'recovery_url'    => $can_recover ? wpcomsh_fatal_build_recovery_redirect_url( $user_id ) : '',
 		'support_url'     => 'https://wordpress.com/help/contact',
 		'environment'     => $is_admin ? wpcomsh_fatal_get_environment_lines() : array(),
 	);

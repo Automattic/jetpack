@@ -210,7 +210,7 @@ function zeroBSCRMJS_initLinkify( ele ) {
 	if ( v.length > 5 ) {
 		const possMatch = zeroBSCRMJS_retrieveURLS( v );
 
-		if ( typeof possMatch === 'object' && typeof possMatch[ 0 ] !== 'undefined' ) {
+		if ( possMatch !== null && typeof possMatch[ 0 ] !== 'undefined' ) {
 			// remove any prev
 			jQuery( '.zbs-linkify', jQuery( ele ).parent() ).remove();
 

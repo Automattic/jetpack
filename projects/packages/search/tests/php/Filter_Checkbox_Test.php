@@ -109,6 +109,35 @@ class Filter_Checkbox_Test extends TestCase {
 		);
 		$this->assertSame( 'Post Type', Filter_Checkbox::default_label( array( 'filterType' => 'post_type' ) ) );
 		$this->assertSame( 'Author', Filter_Checkbox::default_label( array( 'filterType' => 'author' ) ) );
+		// Product taxonomies get distinct "Product X" defaults so they don't
+		// collide visually with the post-taxonomy variations on the same page.
+		$this->assertSame(
+			'Product Category',
+			Filter_Checkbox::default_label(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_cat',
+				)
+			)
+		);
+		$this->assertSame(
+			'Product Tag',
+			Filter_Checkbox::default_label(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_tag',
+				)
+			)
+		);
+		$this->assertSame(
+			'Product Brand',
+			Filter_Checkbox::default_label(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'product_brand',
+				)
+			)
+		);
 		// Custom taxonomies get no fallback — the editor user is expected to
 		// provide a meaningful label.
 		$this->assertSame(
@@ -144,6 +173,9 @@ class Filter_Checkbox_Test extends TestCase {
 				'showCount'       => true,
 				'maxItems'        => 10,
 				'bucketSortOrder' => 'count',
+				// AND/OR combination of multi-value selections. Default OR
+				// matches Search 3.0's broaden-on-click UX.
+				'queryType'       => 'or',
 				// Taxonomy buckets carry their label inline (slug_slash_name), so
 				// no value→label seeding is needed.
 				'valueLabels'     => array(),
@@ -237,6 +269,18 @@ class Filter_Checkbox_Test extends TestCase {
 	}
 
 	/**
+	 * Display style supports only checkbox-list or chips; unknown values map
+	 * to checkbox-list so the wrapper always emits a known CSS hook.
+	 */
+	public function test_normalize_display_style() {
+		$this->assertSame( 'checkbox-list', Filter_Checkbox::normalize_display_style( null ) );
+		$this->assertSame( 'checkbox-list', Filter_Checkbox::normalize_display_style( '' ) );
+		$this->assertSame( 'checkbox-list', Filter_Checkbox::normalize_display_style( 'checkbox-list' ) );
+		$this->assertSame( 'checkbox-list', Filter_Checkbox::normalize_display_style( 'bogus' ) );
+		$this->assertSame( 'chips', Filter_Checkbox::normalize_display_style( 'chips' ) );
+	}
+
+	/**
 	 * The label passes through sanitize_text_field() before it reaches the
 	 * Interactivity state so stored block attributes with stray HTML, tabs, or
 	 * newlines can never leak into aggregation-layer metadata or the rendered
@@ -268,5 +312,65 @@ class Filter_Checkbox_Test extends TestCase {
 			'post_types'
 		);
 		$this->assertSame( 'count', $config['bucketSortOrder'] );
+	}
+
+	/**
+	 * The queryType attribute accepts only the literal 'and' AND only for taxonomy filters.
+	 * Tampered saved data with `queryType: 'and'` on a post_type or author
+	 * block would otherwise produce an ES query that always returns zero
+	 * results (each doc has one post_type / author).
+	 */
+	public function test_normalize_query_type() {
+		// Default: anything missing / garbage / explicit 'or' collapses to 'or'.
+		$this->assertSame( 'or', Filter_Checkbox::normalize_query_type( null, 'taxonomy' ) );
+		$this->assertSame( 'or', Filter_Checkbox::normalize_query_type( '', 'taxonomy' ) );
+		$this->assertSame( 'or', Filter_Checkbox::normalize_query_type( 'banana', 'taxonomy' ) );
+		$this->assertSame( 'or', Filter_Checkbox::normalize_query_type( 'or', 'taxonomy' ) );
+
+		// 'and' is honoured only for taxonomy filters.
+		$this->assertSame( 'and', Filter_Checkbox::normalize_query_type( 'and', 'taxonomy' ) );
+		$this->assertSame( 'or', Filter_Checkbox::normalize_query_type( 'and', 'post_type' ) );
+		$this->assertSame( 'or', Filter_Checkbox::normalize_query_type( 'and', 'author' ) );
+		$this->assertSame( 'or', Filter_Checkbox::normalize_query_type( 'and', '' ) );
+	}
+
+	/**
+	 * The queryType attribute round-trips through build_config so the JS-side ES query
+	 * builder can read it off the filterConfig entry without re-querying
+	 * the block attributes.
+	 */
+	public function test_build_config_round_trips_query_type_for_taxonomy() {
+		$config = Filter_Checkbox::build_config(
+			array(
+				'filterType' => 'taxonomy',
+				'taxonomy'   => 'category',
+				'queryType'  => 'and',
+			),
+			'category'
+		);
+		$this->assertSame( 'and', $config['queryType'] );
+	}
+
+	/**
+	 * Defensive gate: build_config must not echo `queryType: 'and'` back for
+	 * post_type / author saved data. Hiding the inspector control on those
+	 * variations is the primary defense, but tampered serialized markup or
+	 * legacy saves shouldn't be able to slip past it.
+	 */
+	public function test_build_config_drops_query_type_and_for_non_taxonomy_filters() {
+		foreach ( array( 'post_type', 'author' ) as $filter_type ) {
+			$config = Filter_Checkbox::build_config(
+				array(
+					'filterType' => $filter_type,
+					'queryType'  => 'and',
+				),
+				'post_type' === $filter_type ? 'post_types' : 'authors'
+			);
+			$this->assertSame(
+				'or',
+				$config['queryType'],
+				"queryType=and must collapse to 'or' for {$filter_type} filters."
+			);
+		}
 	}
 }

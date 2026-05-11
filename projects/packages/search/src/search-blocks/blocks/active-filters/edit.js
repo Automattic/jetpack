@@ -1,5 +1,5 @@
 /**
- * Editor preview for jetpack/active-filters.
+ * Editor preview for jetpack-search/active-filters.
  *
  * The live block is hidden until the user selects at least one filter value;
  * render a sample pill so designers can style the block in place.
@@ -35,9 +35,6 @@ export default function ActiveFiltersEdit() {
 					</button>
 				</li>
 			</ul>
-			<button type="button" className="jetpack-search-active-filters__clear-all" disabled>
-				{ __( 'Clear all', 'jetpack-search-pkg' ) }
-			</button>
 		</div>
 	);
 }

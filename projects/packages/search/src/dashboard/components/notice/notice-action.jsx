@@ -1,4 +1,4 @@
-import { Gridicon } from '@automattic/jetpack-components';
+import { Icon, external as externalIcon } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 
@@ -11,7 +11,6 @@ export default class NoticeAction extends Component {
 		href: PropTypes.string,
 		onClick: PropTypes.func,
 		external: PropTypes.bool,
-		icon: PropTypes.string,
 	};
 
 	static defaultProps = {
@@ -32,8 +31,7 @@ export default class NoticeAction extends Component {
 		return (
 			<a { ...attributes }>
 				<span>{ this.props.children }</span>
-				{ this.props.icon && <Gridicon icon={ this.props.icon } size={ 24 } /> }
-				{ this.props.external && <Gridicon icon="external" size={ 24 } /> }
+				{ this.props.external && <Icon icon={ externalIcon } size={ 24 } /> }
 			</a>
 		);
 	}

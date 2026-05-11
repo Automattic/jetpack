@@ -92,6 +92,19 @@ class WP_Build_Polyfills {
 		$build_dir    = $package_root . '/build';
 		$base_file    = $package_root . '/composer.json';
 
+		// `wp_default_scripts` fires once when the WP_Scripts singleton is
+		// instantiated. If something has already initialized `wp_scripts()` —
+		// common on admin requests where WP or other plugins register scripts
+		// before `admin_menu` priority 1 runs — adding this hook here is too
+		// late and the polyfills never register. Detect that case and run the
+		// registration synchronously so consumers can rely on the script
+		// handles and module IDs being available regardless of init order.
+		if ( did_action( 'wp_default_scripts' ) ) {
+			self::register_scripts( wp_scripts(), $build_dir, $base_file, self::$wp_version_threshold );
+			self::register_modules( $build_dir, $base_file );
+			return;
+		}
+
 		add_action(
 			'wp_default_scripts',
 			function ( $scripts ) use ( $build_dir, $base_file ) {

@@ -1,0 +1,49 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/filter-wc-price",
+	"version": "0.1.0",
+	"title": "Filter by Price",
+	"category": "jetpack-search",
+	"description": "Let shoppers filter products by price. Either two number inputs or a draggable range slider with paired inputs. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true,
+			"blockGap": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"label": { "type": "string", "default": "" },
+		"currencySymbol": { "type": "string", "default": "" },
+		"currencySymbolPosition": { "type": "string", "default": "" },
+		"showSlider": { "type": "boolean", "default": false },
+		"min": { "type": "number", "default": 0 },
+		"max": { "type": "number", "default": 1000 },
+		"step": { "type": "number", "default": 1 },
+		"autoBounds": { "type": "boolean", "default": true }
+	},
+	"variations": [
+		{
+			"name": "filter",
+			"title": "Filter by Price",
+			"description": "Two number inputs, joined by an em-dash. Compact — best when a slider would take too much vertical space.",
+			"isDefault": true,
+			"attributes": { "showSlider": false },
+			"scope": [ "inserter" ]
+		},
+		{
+			"name": "slider",
+			"title": "Filter by Price (Slider)",
+			"description": "Draggable range slider paired with min/max number inputs. Mirrors WooCommerce Blocks’ price slider.",
+			"attributes": { "showSlider": true, "autoBounds": true },
+			"scope": [ "inserter" ]
+		}
+	],
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/filter-wc-price.js",
+	"style": "file:../../../../build/search-blocks/filter-wc-price.css"
+}

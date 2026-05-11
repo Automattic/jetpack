@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: Show per-connection template fallback help and prefill per-network editor messages from connection templates.

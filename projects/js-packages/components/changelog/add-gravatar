@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `Gravatar` component (with hovercard support) at the `./gravatar` subpath, shared across products that render subscriber or response avatars.

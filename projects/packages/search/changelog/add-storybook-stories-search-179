@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add Storybook stories for feature-selector components (ExperienceOption and FeatureSelector).

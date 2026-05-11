@@ -16,6 +16,20 @@ import {
 export const SET_JETPACK_SETTINGS = 'SET_JETPACK_SETTINGS';
 export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
 
+const hasOwnSetting = ( settings, settingName ) =>
+	Object.prototype.hasOwnProperty.call( settings ?? {}, settingName );
+
+const getRollbackSettings = settings =>
+	Object.fromEntries(
+		Object.entries( settings ?? {} ).filter(
+			( [ k ] ) =>
+				k === 'module_active' ||
+				k === 'instant_search_enabled' ||
+				k === 'experience' ||
+				k === 'reader_chat'
+		)
+	);
+
 /**
  * Yield actions to update Search Settings
  *
@@ -23,22 +37,40 @@ export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
  * @yield {object} - an action object.
  * @return {object} - an action object.
  */
-export function* updateJetpackSettings( settings ) {
+export function* updateJetpackSettings( settings = {} ) {
+	const store = select( STORE_ID );
+	const shouldTrackReaderChat = hasOwnSetting( settings, 'reader_chat' );
+	const previousReaderChatEnabled = shouldTrackReaderChat
+		? Boolean( store.isReaderChatEnabled() )
+		: null;
+	const isWpcom = shouldTrackReaderChat ? Boolean( store.isWpcom() ) : false;
+	let previousSettings;
+
 	try {
 		yield updatingNotice();
 		yield setUpdatingJetpackSettings();
+		previousSettings = getRollbackSettings( store.getSearchModuleStatus() );
 		yield setJetpackSettings( settings );
 		yield updateJetpackSettingsControl( settings );
 		const updatedSettings = yield fetchJetpackSettings();
 		yield setJetpackSettings( updatedSettings );
+		if ( shouldTrackReaderChat ) {
+			const updatedReaderChatEnabled = hasOwnSetting( updatedSettings, 'reader_chat' )
+				? Boolean( updatedSettings.reader_chat )
+				: Boolean( settings.reader_chat );
+
+			if ( updatedReaderChatEnabled !== previousReaderChatEnabled ) {
+				analytics.tracks.recordEvent( 'jetpack_reader_chat_toggle', {
+					enabled: updatedReaderChatEnabled,
+					previous_enabled: previousReaderChatEnabled,
+					is_wpcom: isWpcom,
+					surface: 'jetpack_search_dashboard',
+				} );
+			}
+		}
 		return successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 	} catch {
-		const oldSettings = Object.fromEntries(
-			Object.entries( select( STORE_ID ).getSearchModuleStatus() ).filter(
-				( [ k ] ) => k === 'module_active' || k === 'instant_search_enabled' || k === 'experience'
-			)
-		);
-		yield setJetpackSettings( oldSettings );
+		yield setJetpackSettings( previousSettings ?? {} );
 		return errorNotice( __( 'Error Update settings…', 'jetpack-search-pkg' ) );
 	} finally {
 		yield removeUpdatingNotice();

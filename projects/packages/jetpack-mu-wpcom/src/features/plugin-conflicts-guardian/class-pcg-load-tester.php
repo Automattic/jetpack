@@ -133,27 +133,13 @@ class PCG_Load_Tester {
 	 * @return void
 	 */
 	protected function log_probe_error( $mode, array $plugin_mains, array $front_result, array $admin_result ) {
-		if ( ! function_exists( 'log2logstash' ) ) {
-			$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-			if ( ! is_readable( $log2logstash_path ) ) {
-				return;
-			}
-			require_once $log2logstash_path;
-		}
-
-		log2logstash(
+		pcg_log_event(
+			'Probe transport error',
 			array(
-				'feature' => 'plugin-conflicts-guardian',
-				'message' => 'Probe transport error',
-				'extra'   => wp_json_encode(
-					array(
-						'mode'    => $mode,
-						'plugins' => $this->relative_basenames( $plugin_mains ),
-						'front'   => $this->probe_error_reason( $front_result ),
-						'admin'   => $this->probe_error_reason( $admin_result ),
-					),
-					JSON_UNESCAPED_SLASHES
-				),
+				'mode'    => $mode,
+				'plugins' => $this->relative_basenames( $plugin_mains ),
+				'front'   => $this->probe_error_reason( $front_result ),
+				'admin'   => $this->probe_error_reason( $admin_result ),
 			)
 		);
 	}

@@ -208,6 +208,27 @@ function zeroBSCRM_html_addEditSegment( $potentialID = -1 ) {
 			// phpcs:enable WordPress.WP.I18n.TextDomainMismatch
 			?>
 
+			<?php
+			$jpcrm_segment_lang = array(
+				'generalerrortitle'    => __( 'General Error', 'zero-bs-crm' ),
+				'generalerror'         => __( 'There was a general error.', 'zero-bs-crm' ),
+				'currentlyInSegment'   => __( 'Contacts currently match these conditions.', 'zero-bs-crm' ),
+				'previewTitle'         => __( 'Contacts Preview (randomised)', 'zero-bs-crm' ),
+				'noName'               => __( 'Unnamed Contact', 'zero-bs-crm' ),
+				'noEmail'              => __( 'No Email', 'zero-bs-crm' ),
+				'notags'               => __( 'No Tags Found', 'zero-bs-crm' ),
+				'nostatuses'           => __( 'No Statuses Found', 'zero-bs-crm' ),
+				'noextsources'         => __( 'No External Sources Found', 'zero-bs-crm' ),
+				'no_mailpoet_statuses' => __( 'No MailPoet Statuses Found', 'zero-bs-crm' ),
+				'nosegmentid'          => __( 'No Segment ID Found.', 'zero-bs-crm' ),
+				'to'                   => __( 'to', 'zero-bs-crm' ),
+				'eg'                   => __( 'e.g.', 'zero-bs-crm' ),
+				'saveSegment'          => __( 'Save Segment', 'zero-bs-crm' ) . ' <i class="save icon">',
+				'savedSegment'         => __( 'Segment Saved', 'zero-bs-crm' ) . ' <i class="check circle outline icon">',
+				'contactfields'        => '=== ' . __( 'Contact Fields', 'zero-bs-crm' ) . ' ===',
+				'default_description'  => __( 'Condition which selects contacts based on given value', 'zero-bs-crm' ),
+			);
+			?>
 			<script type="text/javascript">
 				var zbsSegment = <?php echo wp_json_encode( $segment, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var jpcrm_available_conditions = <?php echo wp_json_encode( $available_conditions, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
@@ -220,32 +241,7 @@ function zeroBSCRM_html_addEditSegment( $potentialID = -1 ) {
 				var jpcrm_contact_stem_URL = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'contact', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var zbsSegmentListURL = <?php echo wp_json_encode( jpcrm_esc_link( $zbs->slugs['segments'] ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var zbsSegmentSEC = <?php echo wp_json_encode( wp_create_nonce( 'zbs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
-				var zbsSegmentLang = {
-					generalerrortitle: '<?php esc_html_e( 'General Error', 'zero-bs-crm' ); ?>',
-					generalerror: '<?php esc_html_e( 'There was a general error.', 'zero-bs-crm' ); ?>',
-
-					currentlyInSegment: '<?php esc_html_e( 'Contacts currently match these conditions.', 'zero-bs-crm' ); ?>',
-					previewTitle: '<?php esc_html_e( 'Contacts Preview (randomised)', 'zero-bs-crm' ); ?>',
-
-					noName: '<?php esc_html_e( 'Unnamed Contact', 'zero-bs-crm' ); ?>',
-					noEmail: '<?php esc_html_e( 'No Email', 'zero-bs-crm' ); ?>',
-
-					notags: '<?php esc_html_e( 'No Tags Found', 'zero-bs-crm' ); ?>',
-					nostatuses: '<?php esc_html_e( 'No Statuses Found', 'zero-bs-crm' ); ?>',
-					noextsources: '<?php esc_html_e( 'No External Sources Found', 'zero-bs-crm' ); ?>',
-					no_mailpoet_statuses: '<?php esc_html_e( 'No MailPoet Statuses Found', 'zero-bs-crm' ); ?>',
-					nosegmentid: '<?php esc_html_e( 'No Segment ID Found.', 'zero-bs-crm' ); ?>',
-
-					to: '<?php esc_html_e( 'to', 'zero-bs-crm' ); ?>',
-					eg: '<?php esc_html_e( 'e.g.', 'zero-bs-crm' ); ?>',
-
-					saveSegment: '<?php esc_html_e( 'Save Segment', 'zero-bs-crm' ); ?> <i class="save icon">',
-					savedSegment: '<?php esc_html_e( 'Segment Saved', 'zero-bs-crm' ); ?> <i class="check circle outline icon">',
-
-					contactfields: '=== <?php esc_html_e( 'Contact Fields', 'zero-bs-crm' ); ?> ===',
-
-					default_description: '<?php esc_html_e( 'Condition which selects contacts based on given value', 'zero-bs-crm' ); ?>',
-				};
+				var zbsSegmentLang = <?php echo wp_json_encode( $jpcrm_segment_lang, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var jpcrm_external_source_list = <?php echo wp_json_encode( $external_source_array, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 				<?php

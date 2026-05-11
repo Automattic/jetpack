@@ -7,9 +7,10 @@ import {
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getCurrencyObject } from '@automattic/number-formatters';
-import { ExternalLink, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus, starFilled } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
@@ -299,7 +300,6 @@ const ProductDetailCard = ( {
 					<Text variant="label">{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</Text>
 				</div>
 			) }
-
 			<div className={ styles.container }>
 				{ isBundleUpsell && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
@@ -356,9 +356,9 @@ const ProductDetailCard = ( {
 								productMoniker
 							) }
 							&nbsp;
-							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
+							<Link openInNewTab href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
 								{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</Text>
 					</Notice>
 				) }
@@ -416,7 +416,8 @@ const ProductDetailCard = ( {
 								<Text key={ `disclaimer-${ id }` } component="p" variant="body-small">
 									{ `${ text } ` }
 									{ url && link_text && (
-										<ExternalLink
+										<Link
+											openInNewTab
 											// Ignoring rule so I can pass ID to analytics in order to tell which disclaimer was clicked if there is more than one
 											/* eslint-disable react/jsx-no-bind */
 											onClick={ () => disclaimerClickHandler( id ) }
@@ -425,7 +426,7 @@ const ProductDetailCard = ( {
 											rel="noopener noreferrer"
 										>
 											{ link_text }
-										</ExternalLink>
+										</Link>
 									) }
 								</Text>
 							);

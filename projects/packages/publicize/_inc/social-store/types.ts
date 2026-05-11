@@ -106,10 +106,11 @@ export type UnifiedModalState = {
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
 
 /**
- * One rendered batch, indexed by per-connection result. The batch is keyed in
- * `RenderedMessages` by `${postId}|${hashRenderItems(items)}` so each unique
- * input shape gets its own slot — reverting to a previously-seen shape reads
- * back the original response without refetching.
+ * One rendered batch, indexed by per-connection result. The batch is wrapped in
+ * a `RenderedMessageEntry` and keyed in `RenderedMessages` by
+ * `${postId}|${hashRenderItems(items)}` so each unique input shape gets its
+ * own slot — reverting to a previously-seen shape reads back the original
+ * response without refetching.
  */
 export type RenderedMessageBatch = {
 	[ ConnectionId: string ]: {
@@ -118,8 +119,18 @@ export type RenderedMessageBatch = {
 	};
 };
 
+/**
+ * Per-cache-key entry. `isLoading` is set true by the resolver before the fetch
+ * fires and cleared on either success (with `items` populated) or failure
+ * (preserving any prior `items`).
+ */
+export type RenderedMessageEntry = {
+	isLoading: boolean;
+	items?: RenderedMessageBatch;
+};
+
 export type RenderedMessages = {
-	[ Key: string ]: RenderedMessageBatch;
+	[ Key: string ]: RenderedMessageEntry;
 };
 
 export type SocialStoreState = {

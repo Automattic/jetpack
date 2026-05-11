@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sync: Whitelist the jetpack_social_message_template option so it propagates to WPCOM.

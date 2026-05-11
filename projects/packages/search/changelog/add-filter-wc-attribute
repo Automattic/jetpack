@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search 3.0: adds the `jetpack-search/filter-wc-attribute` block — a checkbox-list filter targeting a single WooCommerce product attribute (pa_color, pa_size, …). The editor inspector ships a SelectControl seeded from `/wp/v2/taxonomies` via `core-data` and constrained to the `pa_` prefix, so site builders only see actual WC product attributes. Rides the existing `filterType: 'taxonomy'` data plane (`taxonomy.<slug>.slug_slash_name` ES field) and the shared `state.filterItems` getter promoted in the foundation PR — no new branches in `resolveFilterFields`. Tracked under epic [RSM-1929].

@@ -1,6 +1,5 @@
 import {
 	Button,
-	ExternalLink,
 	Notice,
 	PanelBody,
 	PanelRow,
@@ -8,6 +7,7 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __, sprintf, _n } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { MAX_IMAGE_COUNT } from './constants';
 
 export default function InstagramGalleryInspectorControls( {
@@ -47,9 +47,9 @@ export default function InstagramGalleryInspectorControls( {
 			<PanelBody title={ __( 'Account Settings', 'jetpack' ) }>
 				<PanelRow>
 					<span>{ __( 'Account', 'jetpack' ) }</span>
-					<ExternalLink href={ `https://www.instagram.com/${ instagramUser }/` }>
+					<Link openInNewTab href={ `https://www.instagram.com/${ instagramUser }/` }>
 						@{ instagramUser }
-					</ExternalLink>
+					</Link>
 				</PanelRow>
 				{ currentUserConnected && (
 					<PanelRow>

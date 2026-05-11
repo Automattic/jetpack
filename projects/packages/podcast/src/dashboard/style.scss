@@ -1,0 +1,46 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "@wordpress/dataviews/build-style/style.css";
+
+body.jetpack_page_jetpack-podcast {
+
+	@include jetpack-admin-page-layout;
+}
+
+.podcast__loading {
+	display: flex;
+	justify-content: center;
+	padding: 48px 0;
+}
+
+.podcast__tab-content {
+	padding-block: 8px;
+}
+
+// Form-style panels (Settings, Distribution, Welcome) sit in a centered
+// column. Episodes (DataViews) stays full-width on purpose so the table can
+// fill its bounded slot.
+.podcast__tab-content--narrow {
+	margin-inline: auto;
+	max-inline-size: 680px;
+}
+
+.podcast__tab-content--wide {
+	margin-inline: auto;
+	max-inline-size: 1024px;
+}
+
+.podcast__section-heading {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 400;
+	line-height: 1.2;
+	color: #1e1e1e;
+}
+
+// Used by both Settings ("Finish setting up") and Distribution ("Almost ready
+// to submit") notice lists.
+.podcast__settings-issues {
+	margin: 4px 0 0;
+	padding-inline-start: 18px;
+	list-style: disc;
+}

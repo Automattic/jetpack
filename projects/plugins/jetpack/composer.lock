@@ -477,7 +477,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "11fe789858155aece9036c7a7a42bcc2f83c8b38"
+                "reference": "6fc2646ba54a13f790b613c86dadabde5eaab43d"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -490,6 +490,7 @@
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -2574,12 +2575,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "bea82a1c466885b59bed270e55dbd6f6989121a5"
+                "reference": "7871589d1af53fe45a71bca9e1afffeab27e9322"
             },
             "require": {
-                "automattic/jetpack-autoloader": "@dev",
-                "automattic/jetpack-composer-plugin": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -2612,6 +2612,16 @@
                 ]
             },
             "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
@@ -3864,30 +3874,30 @@
         },
         {
             "name": "automattic/woocommerce-analytics",
-            "version": "v0.16.3",
+            "version": "0.16.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/woocommerce-analytics.git",
-                "reference": "95dae7b3b036e4e3d435c10d8cef39893cd286b8"
+                "reference": "3108d3cabe127d4a30d213d610968067fbeb5c3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/95dae7b3b036e4e3d435c10d8cef39893cd286b8",
-                "reference": "95dae7b3b036e4e3d435c10d8cef39893cd286b8",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/3108d3cabe127d4a30d213d610968067fbeb5c3f",
+                "reference": "3108d3cabe127d4a30d213d610968067fbeb5c3f",
                 "shasum": ""
             },
             "require": {
-                "automattic/block-delimiter": "^0.3.5",
-                "automattic/jetpack-assets": "^4.3.31",
-                "automattic/jetpack-connection": "^8.2.0",
-                "automattic/jetpack-constants": "^3.0.8",
-                "automattic/jetpack-device-detection": "^3.4.0",
+                "automattic/block-delimiter": "^0.3",
+                "automattic/jetpack-assets": "^4.3",
+                "automattic/jetpack-connection": "^8.1",
+                "automattic/jetpack-constants": "^3.0",
+                "automattic/jetpack-device-detection": "^3.4",
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^6.0.14",
-                "automattic/jetpack-test-environment": "@dev",
-                "automattic/phpunit-select-config": "^1.0.4",
+                "automattic/jetpack-changelogger": "3.3.0",
+                "automattic/wordbless": "^0.5",
+                "woocommerce/woocommerce-sniffs": "1.0.0",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
@@ -3895,17 +3905,8 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "autotagger": true,
-                "textdomain": "woocommerce-analytics",
-                "mirror-repo": "Automattic/woocommerce-analytics",
-                "branch-alias": {
-                    "dev-trunk": "0.16.x-dev"
-                },
                 "changelogger": {
-                    "link-template": "https://github.com/Automattic/woocommerce-analytics/compare/v${old}...v${new}"
-                },
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-woocommerce-analytics.php"
+                    "changelog": "CHANGELOG.md"
                 }
             },
             "autoload": {
@@ -3919,9 +3920,9 @@
             ],
             "description": "Enhanced analytics for WooCommerce users.",
             "support": {
-                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.16.3"
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.16.4"
             },
-            "time": "2026-04-06T18:44:32+00:00"
+            "time": "2026-05-11T04:52:05+00:00"
         },
         {
             "name": "wikimedia/aho-corasick",

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Podcast;
 
+use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -62,6 +63,23 @@ class Podcast {
 			return;
 		}
 
-		// Subsequent PRs in the untangle train wire the new package up here.
+		// Register the `podcasting_*` option schema so the SPA can read/write
+		// via `/wp/v2/settings`. On Simple, the legacy WPCOM site-settings
+		// filters in the wpcom mu-plugin remain authoritative for
+		// `/rest/v1.4/sites/{id}/settings`; this is the non-Simple equivalent.
+		Settings::register();
+
+		// Wire the RSS feed customizations (`<itunes:*>`, `<googleplay:*>`,
+		// stats-tracked enclosure URLs) for the configured podcast category.
+		Customize_Feed::init();
+
+		Tracks::init();
+
+		// Wire the wp-admin entry point. Admin_Page::init() stages the wp-build
+		// dashboard; menu registration itself runs from wpcom-admin-menu.php
+		// via Admin_Page::add_wp_admin_submenu() at admin_menu priority 999999.
+		if ( is_admin() ) {
+			Admin_Page::init();
+		}
 	}
 }

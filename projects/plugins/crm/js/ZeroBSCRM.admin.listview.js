@@ -322,6 +322,17 @@ function zeroBSCRMJS_retrieveListViewData( successcb, errcb ) {
 						window.zbsListViewCount = 0;
 					}
 
+					// Backend may change the page number (e.g. when a bulk
+					// action emptied the last page), so reflect that.
+					if ( response.paged > 0 && response.paged < window.zbsListViewParams.paged ) {
+						window.zbsListViewParams.paged = response.paged;
+						history.replaceState(
+							null,
+							null,
+							jpcrm_listview_generate_current_filter_url() + '&paged=' + response.paged
+						);
+					}
+
 					// store totals data
 					if ( typeof response.totals !== 'undefined' ) {
 						window.jpcrm_totals_table = response.totals;

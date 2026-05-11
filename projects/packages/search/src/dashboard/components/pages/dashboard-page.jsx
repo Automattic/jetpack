@@ -13,6 +13,7 @@ import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
+import ReaderChatControl from 'components/reader-chat-control';
 import RecordMeter from 'components/record-meter';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
@@ -37,6 +38,9 @@ export default function DashboardPage( { isLoading = false } ) {
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	const readerChatGuidelinesUrl = useSelect( select =>
+		select( STORE_ID ).getReaderChatGuidelinesUrl()
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
@@ -80,6 +84,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
 	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
 	const isInstantSearchEnabled = useSelect( select => select( STORE_ID ).isInstantSearchEnabled() );
+	const isReaderChatAvailable = useSelect( select => select( STORE_ID ).isReaderChatAvailable() );
+	const isReaderChatEnabled = useSelect( select => select( STORE_ID ).isReaderChatEnabled() );
 	const isSavingEitherOption = useSelect( select =>
 		select( STORE_ID ).isUpdatingJetpackSettings()
 	);
@@ -170,7 +176,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							/>
 						) }
 						<div className="jp-search-dashboard-bottom">
-							{ isSearchBlocksEnabled && (
+							{ isSearchBlocksEnabled ? (
 								<div className="jp-search-dashboard-wrap jp-search-feature-selector-wrap">
 									<div className="jp-search-dashboard-row">
 										<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
@@ -178,25 +184,29 @@ export default function DashboardPage( { isLoading = false } ) {
 										</div>
 									</div>
 								</div>
+							) : (
+								<ModuleControl
+									siteAdminUrl={ siteAdminUrl }
+									updateOptions={ updateOptions }
+									domain={ domain }
+									isDisabledFromOverLimit={ isOverLimit }
+									isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+									supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+									supportsSearch={ supportsSearch }
+									supportsInstantSearch={ supportsInstantSearch }
+									isModuleEnabled={ isModuleEnabled }
+									isInstantSearchEnabled={ isInstantSearchEnabled }
+									isSavingEitherOption={ isSavingEitherOption }
+									isTogglingModule={ isTogglingModule }
+									isTogglingInstantSearch={ isTogglingInstantSearch }
+								/>
 							) }
-							{ /* ModuleControl renders regardless of the feature flag for now —
-							     until the back-end `experience` field lands (RSM-2291), the new
-							     FeatureSelector can't actually persist changes. Keeping the legacy
-							     toggles visible lets admins continue managing Search settings. */ }
-							<ModuleControl
-								siteAdminUrl={ siteAdminUrl }
+							<ReaderChatControl
+								isAvailable={ isReaderChatAvailable }
+								isEnabled={ isReaderChatEnabled }
+								isSaving={ isSavingEitherOption }
+								guidelinesUrl={ readerChatGuidelinesUrl }
 								updateOptions={ updateOptions }
-								domain={ domain }
-								isDisabledFromOverLimit={ isOverLimit }
-								isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-								supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-								supportsSearch={ supportsSearch }
-								supportsInstantSearch={ supportsInstantSearch }
-								isModuleEnabled={ isModuleEnabled }
-								isInstantSearchEnabled={ isInstantSearchEnabled }
-								isSavingEitherOption={ isSavingEitherOption }
-								isTogglingModule={ isTogglingModule }
-								isTogglingInstantSearch={ isTogglingInstantSearch }
 							/>
 						</div>
 						<NoticesList

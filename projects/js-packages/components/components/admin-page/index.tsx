@@ -1,9 +1,5 @@
 import restApi from '@automattic/jetpack-api';
 import { Page } from '@wordpress/admin-ui';
-import '@wordpress/admin-ui/build-style/style.css';
-import {
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useCallback } from 'react';
@@ -74,23 +70,15 @@ const AdminPage: FC< AdminPageProps > = ( {
 		}
 	}, [] );
 
-	// Compose the title with logo for the admin-ui Page header.
-	// Page's Header wraps this in an <h2> tag, so we just pass the content directly.
-	const composedTitle = title ? (
-		<HStack spacing={ 2 } justify="left">
-			{ logo || <JetpackLogo showText={ false } height={ 20 } /> }
-			<span>{ title }</span>
-		</HStack>
-	) : undefined;
-
 	// When title or breadcrumbs are provided, use admin-ui Page for the full page layout.
-	if ( showHeader && ( composedTitle || breadcrumbs ) ) {
+	if ( showHeader && ( title || breadcrumbs ) ) {
 		return (
 			<div className={ rootClassName }>
 				<Page
-					ariaLabel={ title }
+					className="jp-admin-page__page"
+					visual={ logo || <JetpackLogo showText={ false } height={ 20 } /> }
 					breadcrumbs={ breadcrumbs }
-					title={ composedTitle }
+					title={ title }
 					subTitle={ subTitle }
 					actions={ actions }
 					showSidebarToggle={ false }

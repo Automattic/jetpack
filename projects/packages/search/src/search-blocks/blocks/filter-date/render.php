@@ -30,11 +30,12 @@ wp_interactivity_state(
 	)
 );
 
-$view  = Search_Blocks::pre_hydration_filter_view( $filter_key );
-$label = $config['label'];
+$view          = Search_Blocks::pre_hydration_filter_view( $filter_key );
+$label         = $config['label'];
+$display_style = Search_Blocks::normalize_display_style( $attributes['displayStyle'] ?? null );
 ?>
 <div
-	<?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>
+	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'data-display-style' => $display_style ) ) ); ?>
 	data-wp-interactive="jetpack-search"
 	<?php Search_Blocks::emit_filter_wrapper_context( $filter_key, $view['show_wrapper'] ); ?>
 	data-wp-bind--hidden="context.wrapperHidden"
@@ -49,10 +50,7 @@ $label = $config['label'];
 		require __DIR__ . '/../filter-skeleton-partial.php';
 	}
 	?>
-	<ul
-		class="jetpack-search-filter__list"
-		data-wp-bind--hidden="state.allBucketsSelected"
-	>
+	<ul class="jetpack-search-filter__list">
 		<template
 			data-wp-each--item="state.filterItems"
 			data-wp-each-key="context.item.value"
@@ -64,6 +62,7 @@ $label = $config['label'];
 					<input
 						type="checkbox"
 						data-wp-bind--value="context.item.value"
+						data-wp-bind--checked="context.item.checked"
 						data-wp-on--change="actions.onFilterChange"
 					/>
 					<span
@@ -79,11 +78,4 @@ $label = $config['label'];
 			</li>
 		</template>
 	</ul>
-	<p
-		class="jetpack-search-filter__all-selected"
-		data-wp-bind--hidden="!state.allBucketsSelected"
-		hidden
-	>
-		<?php esc_html_e( 'All filters applied', 'jetpack-search-pkg' ); ?>
-	</p>
 </div>

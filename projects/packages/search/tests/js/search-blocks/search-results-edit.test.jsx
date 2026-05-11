@@ -1,158 +1,39 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { InnerBlocks } from '@wordpress/block-editor';
 import SearchResultsEdit from '../../../src/search-blocks/blocks/search-results/edit';
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: props => ( { ...props, className: props?.className } ),
-	InspectorControls: ( { children } ) => <div data-testid="inspector">{ children }</div>,
-} ) );
-
-jest.mock( '@wordpress/components', () => ( {
-	PanelBody: ( { title, children } ) => (
-		<section data-testid="panel" aria-label={ title }>
-			{ children }
-		</section>
-	),
-	RadioControl: ( { label, selected, options, onChange } ) => (
-		<fieldset aria-label={ label } data-testid="layout-picker">
-			{ options.map( option => {
-				const id = `layout-${ option.value }`;
-				return (
-					<label key={ option.value } htmlFor={ id }>
-						<input
-							id={ id }
-							type="radio"
-							name="layout"
-							value={ option.value }
-							checked={ selected === option.value }
-							onChange={ () => onChange( option.value ) }
-						/>
-						{ option.label }
-					</label>
-				);
-			} ) }
-		</fieldset>
-	),
-	TextControl: ( { label, value, onChange, placeholder } ) => {
-		const id = `text-${ String( label ).toLowerCase().replace( /\s+/g, '-' ) }`;
-		return (
-			<>
-				<label htmlFor={ id }>{ label }</label>
-				<input
-					id={ id }
-					type="text"
-					value={ value || '' }
-					placeholder={ placeholder }
-					onChange={ event => onChange( event.target.value ) }
-				/>
-			</>
-		);
-	},
-} ) );
-
-jest.mock( '@wordpress/i18n', () => ( {
-	__: text => text,
-	_n: ( single, plural, n ) => ( n === 1 ? single : plural ),
-	sprintf: ( fmt, ...args ) => {
-		let i = 0;
-		return String( fmt ).replace( /%(?:\d+\$)?[ds]/g, () => String( args[ i++ ] ) );
-	},
+	InnerBlocks: jest.fn( () => <div data-testid="search-results-inner-blocks" /> ),
 } ) );
 
 describe( 'SearchResultsEdit', () => {
-	it( 'does not show author names in the compact preview', () => {
-		render(
-			<SearchResultsEdit attributes={ { layout: 'compact' } } setAttributes={ jest.fn() } />
-		);
-
-		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Apr 1, 2026' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Grace Hopper' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Katherine Johnson' ) ).not.toBeInTheDocument();
+	beforeEach( () => {
+		InnerBlocks.mockClear();
 	} );
 
-	it( 'renders the layout picker in the inspector', () => {
-		render(
-			<SearchResultsEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } />
-		);
+	it( 'renders InnerBlocks with the default result-stack template + allowedBlocks contract', () => {
+		render( <SearchResultsEdit /> );
 
-		expect( screen.getByTestId( 'layout-picker' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'radio', { name: 'Expanded' } ) ).toBeChecked();
-		expect( screen.getByRole( 'radio', { name: 'Compact' } ) ).not.toBeChecked();
-		expect(
-			screen.getByRole( 'radio', { name: 'Product (for WooCommerce stores)' } )
-		).not.toBeChecked();
-	} );
-
-	it( 'updates the layout attribute when the picker changes', () => {
-		const setAttributes = jest.fn();
-		render(
-			<SearchResultsEdit attributes={ { layout: 'expanded' } } setAttributes={ setAttributes } />
-		);
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Product (for WooCommerce stores)' } ) );
-		expect( setAttributes ).toHaveBeenCalledWith( { layout: 'product' } );
-	} );
-
-	it( 'renders product preview rows when layout=product', () => {
-		render(
-			<SearchResultsEdit attributes={ { layout: 'product' } } setAttributes={ jest.fn() } />
-		);
-
-		expect( screen.getByText( 'Sample product' ) ).toBeInTheDocument();
-		expect( screen.getByText( '$24.00' ) ).toBeInTheDocument();
-		expect( screen.getByText( '$30.00' ) ).toBeInTheDocument();
-		expect( screen.getByText( '$19.99' ) ).toBeInTheDocument();
-	} );
-
-	it( 'exposes message controls for the empty and error states in the inspector', () => {
-		render( <SearchResultsEdit attributes={ {} } setAttributes={ jest.fn() } /> );
-
-		expect( screen.getByRole( 'textbox', { name: 'No-results message' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'textbox', { name: 'Error message' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'updates the noResultsMessage attribute when the no-results control changes', () => {
-		const setAttributes = jest.fn();
-		render( <SearchResultsEdit attributes={ {} } setAttributes={ setAttributes } /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'No-results message' } ), {
-			target: { value: 'Try a broader query.' },
-		} );
-		expect( setAttributes ).toHaveBeenCalledWith( { noResultsMessage: 'Try a broader query.' } );
-	} );
-
-	it( 'updates the errorMessage attribute when the error control changes', () => {
-		const setAttributes = jest.fn();
-		render( <SearchResultsEdit attributes={ {} } setAttributes={ setAttributes } /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; sort-control-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'Error message' } ), {
-			target: { value: 'Search is offline right now.' },
-		} );
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			errorMessage: 'Search is offline right now.',
-		} );
-	} );
-
-	it( 'keeps the empty and error copy out of the editor canvas', () => {
-		render(
-			<SearchResultsEdit
-				attributes={ {
-					layout: 'expanded',
-					noResultsMessage: 'Try a broader query.',
-					errorMessage: 'Search is offline right now.',
-				} }
-				setAttributes={ jest.fn() }
-			/>
-		);
-
-		// The success-state preview is the only thing rendered on the canvas;
-		// the empty and error copy live in the Inspector controls only.
-		expect( screen.getByText( 'First sample result' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Try a broader query.' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Search is offline right now.' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'search-results-inner-blocks' ) ).toBeInTheDocument();
+		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
+		expect( props.template ).toEqual( [
+			[
+				'core/group',
+				{ layout: { type: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between' } },
+				[ [ 'jetpack-search/results-count' ], [ 'jetpack-search/results-sort' ] ],
+			],
+			[ 'jetpack-search/results-list' ],
+			[ 'jetpack-search/results-load-more' ],
+			[ 'jetpack-search/powered-by' ],
+		] );
+		expect( props.allowedBlocks ).toEqual( [
+			'core/group',
+			'jetpack-search/results-count',
+			'jetpack-search/results-sort',
+			'jetpack-search/results-list',
+			'jetpack-search/results-load-more',
+			'jetpack-search/powered-by',
+		] );
 	} );
 } );

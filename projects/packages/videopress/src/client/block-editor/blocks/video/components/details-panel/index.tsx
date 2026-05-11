@@ -1,15 +1,10 @@
 /**
  * External dependencies
  */
-import {
-	PanelBody,
-	TextareaControl,
-	TextControl,
-	Notice,
-	ExternalLink,
-} from '@wordpress/components';
+import { PanelBody, TextareaControl, TextControl, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -70,7 +65,6 @@ export default function DetailsPanel( {
 					) }
 				</Notice>
 			) }
-
 			<TextControl
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				value={ title }
@@ -82,7 +76,6 @@ export default function DetailsPanel( {
 				__nextHasNoMarginBottom={ true }
 				__next40pxDefaultSize={ true }
 			/>
-
 			<TextareaControl
 				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 				value={ description }
@@ -93,11 +86,9 @@ export default function DetailsPanel( {
 				help={ descriptionHelp }
 				__nextHasNoMarginBottom={ true }
 			/>
-
 			{ ! hasUploadedChapters && hasIncompleteChapters && (
 				<IncompleteChaptersNotice className="incomplete-chapters-notice" />
 			) }
-
 			{ hasUploadedChapters && (
 				<Notice status="success" className="learn-how-notice" isDismissible={ false }>
 					<p className="learn-how-notice__message">
@@ -108,14 +99,16 @@ export default function DetailsPanel( {
 							),
 							{
 								link: (
-									<ExternalLink href="https://jetpack.com/support/jetpack-videopress/jetpack-videopress-customizing-your-videos/#adding-subtitles-captions-or-chapters-within-a-video" />
+									<Link
+										openInNewTab
+										href="https://jetpack.com/support/jetpack-videopress/jetpack-videopress-customizing-your-videos/#adding-subtitles-captions-or-chapters-within-a-video"
+									/>
 								),
 							}
 						) }
 					</p>
 				</Notice>
 			) }
-
 			{ !! updateError && (
 				<Notice status="error" className="details-panel__error" isDismissible={ false }>
 					{ __( 'Error updating the video details.', 'jetpack-videopress-pkg' ) }

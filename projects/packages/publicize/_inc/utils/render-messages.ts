@@ -36,3 +36,16 @@ export function hashRenderItems( items: RenderItem[] ): string {
 		items.map( i => [ i.id, i.network, i.message ?? '', Boolean( i.is_social_post ) ] )
 	);
 }
+
+/**
+ * Compute the slice cache key for a given (postId, items) batch. Shared between
+ * action creators, the resolver, and selectors so they all agree on which slot
+ * a request maps to.
+ *
+ * @param postId - Post being previewed.
+ * @param items  - The render items.
+ * @return Cache key string of the form `${postId}|${hashRenderItems(items)}`.
+ */
+export function renderMessagesCacheKey( postId: number, items: RenderItem[] ): string {
+	return `${ postId }|${ hashRenderItems( items ) }`;
+}

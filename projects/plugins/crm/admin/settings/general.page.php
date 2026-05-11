@@ -435,21 +435,27 @@ if ( ! $confirmAct ) {
 
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_clicktocalltype"><?php esc_html_e( 'Click 2 Call link type', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Use Skype or Standard Click to Call?', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_clicktocalltype"><?php esc_html_e( 'Click 2 Call link type', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Choose the link protocol for Click to Call', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px">
 						<select class="winput form-control" name="wpzbscrm_clicktocalltype" id="wpzbscrm_clicktocalltype">
 							<option value="1"
 							<?php
-							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] == '1' ) {
+							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] === 1 ) {
 								echo ' selected="selected"';}
 							?>
-							>Click to Call (tel:)</option>
+							>tel:</option>
 							<option value="2"
 							<?php
-							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] == '2' ) {
+							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] === 2 ) {
 								echo ' selected="selected"';}
 							?>
-							>Skype Call (callto:)</option>
+							>callto:</option>
+							<option value="3"
+							<?php
+							if ( isset( $settings['clicktocalltype'] ) && $settings['clicktocalltype'] === 3 ) {
+								echo ' selected="selected"';}
+							?>
+							>sip:</option>
 						</select>
 					</td>
 				</tr>

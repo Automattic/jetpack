@@ -9,13 +9,13 @@ import {
 	CardHeader,
 	CardBody,
 	CardFooter,
-	ExternalLink,
 	ToggleControl,
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -132,18 +132,20 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 				/>
 			</CardBody>
 			<CardFooter className="newsletter-card-footer">
-				<ExternalLink
+				<Link
+					openInNewTab
 					href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
 				>
 					{ __( 'Privacy information', 'jetpack-newsletter' ) }
-				</ExternalLink>
+				</Link>
 				{ data.subscriptions && newsletterScriptData && (
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ newsletterScriptData.subscriberManagementUrl }
 						onClick={ handleManageSubscribersClick }
 					>
 						{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
-					</ExternalLink>
+					</Link>
 				) }
 			</CardFooter>
 		</Card>

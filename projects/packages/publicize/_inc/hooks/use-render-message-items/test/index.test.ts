@@ -134,7 +134,22 @@ describe( 'useRenderMessageItems', () => {
 		expect( result.current ).toEqual( [] );
 	} );
 
-	it( 'builds one item per enabled connection, keyed by connection_id', () => {
+	it( 'builds one item per connection in global mode, keyed by connection_id', () => {
+		mockUseSelect.mockReturnValue( [
+			conn( { connection_id: 'a', service_name: 'x' } ),
+			conn( { connection_id: 'b', service_name: 'facebook' } ),
+		] );
+
+		const { result } = renderHook( () => useRenderMessageItems() );
+
+		expect( result.current ).toEqual( [
+			{ id: 'a', network: 'x', message: 'Global', is_social_post: false },
+			{ id: 'b', network: 'facebook', message: 'Global', is_social_post: false },
+		] );
+	} );
+
+	it( 'uses connection messages in per-network mode', () => {
+		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 		mockUseSelect.mockReturnValue( [
 			conn( { connection_id: 'a', service_name: 'x', message: 'A' } ),
 			conn( { connection_id: 'b', service_name: 'facebook' } ),
@@ -146,19 +161,6 @@ describe( 'useRenderMessageItems', () => {
 			{ id: 'a', network: 'x', message: 'A', is_social_post: false },
 			{ id: 'b', network: 'facebook', message: 'Global', is_social_post: false },
 		] );
-	} );
-
-	it( 'falls back to the global message when a connection has none', () => {
-		mockUseSelect.mockReturnValue( [ conn( { connection_id: 'a', message: undefined } ) ] );
-		mockUseSocialMediaMessage.mockReturnValue( {
-			message: 'Global only',
-			updateMessage: jest.fn(),
-			maxLength: 280,
-		} );
-
-		const { result } = renderHook( () => useRenderMessageItems() );
-
-		expect( result.current[ 0 ].message ).toBe( 'Global only' );
 	} );
 
 	it( 'sets is_social_post=true in global mode when there is global media', () => {
@@ -196,7 +198,12 @@ describe( 'useRenderMessageItems', () => {
 	} );
 
 	it( 'debounces 1500ms when a message string changes', () => {
-		mockUseSelect.mockReturnValue( [ conn( { message: 'first' } ) ] );
+		mockUseSelect.mockReturnValue( [ conn() ] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'first',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
 
 		const { result, rerender } = renderHook( () => useRenderMessageItems() );
 
@@ -206,7 +213,11 @@ describe( 'useRenderMessageItems', () => {
 		} );
 		expect( result.current[ 0 ].message ).toBe( 'first' );
 
-		mockUseSelect.mockReturnValue( [ conn( { message: 'second' } ) ] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'second',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
 		rerender();
 
 		// Still showing the previous value — change is in-flight.
@@ -219,8 +230,54 @@ describe( 'useRenderMessageItems', () => {
 		expect( result.current[ 0 ].message ).toBe( 'second' );
 	} );
 
+	it( 'does not flush a pending message change on unrelated re-renders', () => {
+		mockUseSelect.mockReturnValue( [ conn() ] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'first',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+
+		const { result, rerender } = renderHook( () => useRenderMessageItems() );
+
+		act( () => {
+			jest.runOnlyPendingTimers();
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'second',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+		rerender();
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		mockUseSocialPreviewPostData.mockReturnValue( {
+			media: [ { url: 'https://example.com/m.jpg', type: 'image/jpeg' } ],
+		} );
+		rerender();
+
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		act( () => {
+			jest.advanceTimersByTime( 1499 );
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'first' );
+
+		act( () => {
+			jest.advanceTimersByTime( 1 );
+		} );
+		expect( result.current[ 0 ].message ).toBe( 'second' );
+	} );
+
 	it( 'updates immediately when only non-message inputs change', () => {
-		mockUseSelect.mockReturnValue( [ conn( { message: 'same' } ) ] );
+		mockUseSelect.mockReturnValue( [ conn() ] );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: 'same',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
 
 		const { result, rerender } = renderHook( () => useRenderMessageItems() );
 
@@ -232,7 +289,6 @@ describe( 'useRenderMessageItems', () => {
 		mockUseSocialPreviewPostData.mockReturnValue( {
 			media: [ { url: 'https://example.com/m.jpg', type: 'image/jpeg' } ],
 		} );
-		mockUseSelect.mockReturnValue( [ conn( { message: 'same' } ) ] );
 		rerender();
 
 		// Effects run synchronously inside act() with fake timers — no advance needed.

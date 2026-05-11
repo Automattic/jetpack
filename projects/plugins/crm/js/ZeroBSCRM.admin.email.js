@@ -97,7 +97,6 @@ jQuery( function ( $ ) {
 
 					const data = {
 						action: 'zbs_delete_email_thread',
-						// don't need, is unique id 'objtype': <?php echo $this->typeInt; ?>,
 						emid: emailid,
 						sec: window.zbs_root.zbsnonce,
 					};
