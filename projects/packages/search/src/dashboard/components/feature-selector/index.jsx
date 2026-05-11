@@ -44,6 +44,27 @@ export default function FeatureSelector() {
 
 	const isSaveDisabled = ! isDirty || isUpdating;
 
+	// Contextual label for the submit button: while the form is clean we show
+	// the neutral "Save", and as soon as the user picks a different row we
+	// reflect what hitting the button will actually do.
+	const getSaveLabel = () => {
+		if ( ! isDirty ) {
+			return __( 'Save', 'jetpack-search-pkg' );
+		}
+		switch ( pendingExperience ) {
+			case EXPERIENCE.EMBEDDED:
+				return __( 'Use Embedded search', 'jetpack-search-pkg' );
+			case EXPERIENCE.OVERLAY:
+				return __( 'Use Overlay search', 'jetpack-search-pkg' );
+			case EXPERIENCE.INLINE:
+				return __( 'Use Theme search', 'jetpack-search-pkg' );
+			case EXPERIENCE.OFF:
+				return __( 'Turn off Jetpack Search', 'jetpack-search-pkg' );
+			default:
+				return __( 'Save', 'jetpack-search-pkg' );
+		}
+	};
+
 	const onSubmit = event => {
 		event.preventDefault();
 		if ( isSaveDisabled ) {
@@ -84,7 +105,7 @@ export default function FeatureSelector() {
 						{ isUpdating && __( 'Saving…', 'jetpack-search-pkg' ) }
 					</p>
 					<Button type="submit" disabled={ isSaveDisabled } loading={ isUpdating }>
-						{ __( 'Save', 'jetpack-search-pkg' ) }
+						{ getSaveLabel() }
 					</Button>
 				</Stack>
 			</form>
